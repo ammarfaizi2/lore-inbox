@@ -1,59 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751793AbVJTHrj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751791AbVJTHrN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751793AbVJTHrj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 03:47:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751792AbVJTHri
+	id S1751791AbVJTHrN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 03:47:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751792AbVJTHrN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 03:47:38 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:1929 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751793AbVJTHrh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 03:47:37 -0400
-Subject: Re: Patch: ATI Xilleon port 2/11 net/e100 Memory barriers and
-	write flushing
-From: Arjan van de Ven <arjan@infradead.org>
-To: ddaney@avtrex.com
-Cc: linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
-In-Reply-To: <17239.12568.110253.404667@dl2.hq2.avtrex.com>
-References: <17239.12568.110253.404667@dl2.hq2.avtrex.com>
-Content-Type: text/plain
-Date: Thu, 20 Oct 2005 09:47:25 +0200
-Message-Id: <1129794446.2807.3.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 20 Oct 2005 03:47:13 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:42995 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751791AbVJTHrM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 03:47:12 -0400
+Date: Thu, 20 Oct 2005 03:46:53 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+To: Ingo Molnar <mingo@elte.hu>
+cc: john stultz <johnstul@us.ibm.com>, tglx@linutronix.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: Ktimer / -rt9 (+custom) monotonic_clock going backwards.
+In-Reply-To: <20051020073416.GA28581@elte.hu>
+Message-ID: <Pine.LNX.4.58.0510200340110.27683@localhost.localdomain>
+References: <Pine.LNX.4.58.0510191047270.24515@localhost.localdomain>
+ <1129734626.19559.275.camel@tglx.tec.linutronix.de>
+ <1129747172.27168.149.camel@cog.beaverton.ibm.com>
+ <Pine.LNX.4.58.0510200249080.27683@localhost.localdomain> <20051020073416.GA28581@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-19 at 22:54 -0700, David Daney wrote:
-> This is the second part of my Xilleon port.
-> 
-> I am sending the full set of patches to linux-mips@linux-mips.org
-> which is archived at: http://www.linux-mips.org/archives/
-> 
-> Only the patches that touch generic parts of the kernel are coming
-> here.
-> 
-> The Xilleon (32bit MIPS SOC) has a write back buffer that seems to
-> operate on the pci bus and does not get flushed before a read.  The
-> result is that a memory barrier must be done before a read intended to
-> flush PCI writes.
 
-this is broken hardware; the real solution is to put that wmb() into the
-readl() function, as opposed to patching half the kernel for this!
+On Thu, 20 Oct 2005, Ingo Molnar wrote:
 
-And the second problem seems to be an reodering, which is also not quite
-allowed. That also needs fixing, probably in the writel/writeb() macros.
+>
+> if the bug is only possible when timesources are changed on the fly,
+> then i think it shouldnt happen. We pick our sources at bootup time and
+> stick with them.
+>
+> in the -rt tree we also have clockevents and HRT support, so the clocks
+> used should depend on whether you have the APIC enabled in the .config,
+> and whether the BIOS has it enabled by default. If the BIOS has the APIC
+> disabled then you can force the kernel to enable it by adding "lapic" to
+> the boot-line.
 
+On this test machine, I had to add the lapic command line, but that was
+there when I first had to get NMI working on this machine back in the V0.7
+days :-)
+
+
+>
+> without the APIC active, the equation is simple: we use the PIT for both
+> jiffies and HRT. We use the TSC for gettimeofday. No interaction between
+> the two.
+>
+> if the APIC is active, then we have both the local APIC timer interrupt
+> for and the PIT for HRT timing. The clockevents framework sees both
+> hardware clocks and automatically decides which one to use, based on
+> their ranking. A typical PIT reprogramming PIO sequence takes 20-30
+> usecs, while a typical APIC timer reprogramming takes ~5 nanoseconds on
+> my box, so the choice is rather easy ;-) The jiffies interrupt is still
+> off the PIT. gettimeofday is off the TSC counter.
+>
+> i could imagine the following hardware effects to cause time warps:
+>
+> - the TSC is in fact the 'read counter' method of the local APIC timer
+>   hardware. So there can be interactions in theory: programming the APIC
+>   timer could impact the TSC and vice versa. There have been CPU
+>   erratums in this area in the past.
+
+Could this cause a 2 second drop backwards?
+
+>
+> - powersaving can impact the TSC - and can thus impact the APIC timer
+>   too. Errata-land as well.
+
+Well, this machine is a normal PC not a laptop, and anyway, this backwards
+clock happened during a stress test with pretty much 100% CPU usage, so I
+think we can rule out power saving.
+
+>
+> - the TSC itself could have short, temporary warps. I had a box that
+>   showed such effects.
+
+Can this be a 2 second warp?
+
+>
+> besides hardware bugs, another, albeit very small possibility is that
+> somewhere in the thousands of lines of shiny-new generic-time-of-day,
+> ktimers, clockevents and high-res-timers code, there is a software bug,
+> which is causing time warps ;-)
+>
+
+My older code first used jiffies as a timer, then I switched to TSC and
+then to APIC timer, and then finally ktimer.  ktimer was the first to show
+a backwards get_time.
+
+-- Steve
 

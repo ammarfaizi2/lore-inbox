@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932539AbVJTWCH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932540AbVJTWDi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932539AbVJTWCH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 18:02:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932540AbVJTWCH
+	id S932540AbVJTWDi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 18:03:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932541AbVJTWDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 18:02:07 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:16349 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932539AbVJTWCF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 18:02:05 -0400
-Date: Fri, 21 Oct 2005 00:02:28 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Eric Dumazet <dada1@cosmosbay.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386 spinlocks should use the full 32 bits, not only 8 bits
-Message-ID: <20051020220228.GA26247@elte.hu>
-References: <200510110007_MC3-1-AC4C-97EA@compuserve.com> <1129035658.23677.46.camel@localhost.localdomain> <Pine.LNX.4.64.0510110740050.14597@g5.osdl.org> <434BDB1C.60105@cosmosbay.com> <Pine.LNX.4.64.0510110902130.14597@g5.osdl.org> <434BEA0D.9010802@cosmosbay.com> <20051017000343.782d46fc.akpm@osdl.org> <1129533603.2907.12.camel@laptopd505.fenrus.org> <20051020215047.GA24178@elte.hu> <Pine.LNX.4.64.0510201455030.10477@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 20 Oct 2005 18:03:38 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:37020 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S932540AbVJTWDh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 18:03:37 -0400
+Message-ID: <4a45da430510201503v74874acoca37bba3aa5a2d07@mail.google.com>
+Date: Thu, 20 Oct 2005 15:03:30 -0700
+From: Jonathan Mayer <jonmayer@google.com>
+To: dtor_core@ameritech.net
+Subject: Re: [PATCH] added sysdev attribute to sysdev show/store methods - for linux-2.6.13.4
+Cc: Patrick Mochel <mochel@digitalimplant.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <d120d5000510201459y25a2c8e5v55bf830c445c9dbf@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0510201455030.10477@g5.osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <4a45da430510201447r2970ea67rfac8dffe7223a68@mail.google.com>
+	 <d120d5000510201459y25a2c8e5v55bf830c445c9dbf@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Surely, the organization of sysfs is logical (by grouping relating
+things) rather than functional (by grouping things that need common
+back-end interfaces).
 
-* Linus Torvalds <torvalds@osdl.org> wrote:
+Er .. no?
 
-> On Thu, 20 Oct 2005, Ingo Molnar wrote:
+In general, where can I find guidance on where to put things within
+sysfs?  Has anybody written some kind of Plan?
+
+ - jm.
+
+On 10/20/05, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> On 10/20/05, Jonathan Mayer <jonmayer@google.com> wrote:
+>
+> >  2. it precludes the ability to create sys_device objects whose
+> > attributes are not known at compile time (such as an sysfs
+> > representation of the smbios table for some platforms -- which will be
+> > my next patch submission).
 > >
-> > +/*
-> > + * We inline the unlock functions in the nondebug case:
-> > + */
-> > +#ifdef CONFIG_DEBUG_SPINLOCK
-> 
-> That can't be right. What about preemption etc?
-> 
-> There's a lot more to spin_unlock() than just the debugging stuff.
-
-the unlock is simple even in the preemption case - it's the _lock that 
-gets complicated there. Once there's some attachment to the unlock 
-operation (irq restore, or bh enabling) it again makes sense to keep 
-things uninlined, but for the specific case of the simple-unlocks, it's 
-a 0.2% space win to not inline - mostly from reduced clobbering of %eax, 
-%ecx, %edx. Should be less of a win on 64-bit CPUs with enough 
-registers.
-
-	Ingo
+>
+> Does this smbios table have to be a system device (does it have to be
+> suspended and resumed with interrupts off) or maybe platform bus suits
+> it better?
+>
+> --
+> Dmitry
+>

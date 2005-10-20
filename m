@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932471AbVJTQpw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932468AbVJTQpa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932471AbVJTQpw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 12:45:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbVJTQpw
+	id S932468AbVJTQpa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 12:45:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbVJTQpa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 12:45:52 -0400
-Received: from smtp4.polyu.edu.hk ([158.132.82.85]:47117 "EHLO
-	smtp4.polyu.edu.hk") by vger.kernel.org with ESMTP id S932462AbVJTQpv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 12:45:51 -0400
-Message-ID: <4357C9AC.3070205@thizgroup.com>
-Date: Fri, 21 Oct 2005 00:45:32 +0800
-From: Zhang Le <robert@thizgroup.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051007)
-X-Accept-Language: en-us, en
+	Thu, 20 Oct 2005 12:45:30 -0400
+Received: from rwcrmhc11.comcast.net ([216.148.227.117]:13986 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S932451AbVJTQp3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 12:45:29 -0400
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] libata: fix broken Kconfig setup
+Date: Thu, 20 Oct 2005 09:45:21 -0700
+User-Agent: KMail/1.8.91
+Cc: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, davej@redhat.com
+References: <20051017044606.GA1266@havoc.gtf.org> <200510171006.39206.jbarnes@virtuousgeek.org> <1129817684.15200.11.camel@localhost.localdomain>
+In-Reply-To: <1129817684.15200.11.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: "Ilya M. Slepnev" <ilya@cs.msu.su>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: low speed PAE in 2.4.31
-References: <62115.213.145.53.206.1129800319.squirrel@webmail.cs.msu.su>
-In-Reply-To: <62115.213.145.53.206.1129800319.squirrel@webmail.cs.msu.su>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510200945.22022.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ilya M. Slepnev wrote:
+On Thursday, October 20, 2005 7:14 am, Alan Cox wrote:
+> Now that libata is beginning to behave well I'd vote for that option,
+> however in kernel libata lacks several essential items for PATA
+> feature parity (HPA, ATAPI, suspend/resume, correct tuning). It's
+> getting there and I've got some more stuff waiting for Jeff, but it
+> isn't there yet
 
->Hi,
->
->Does anybody noticed, how to prevent slowing your system after enabling
->PAE support?
->
->Ilya.
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
->
-I am afraid the slow is inevitable
+Yeah, that seems like the best thing to do in the long run.  Of course it 
+has to wait until libata at least has ATAPI support I'd imagine.  Jeff 
+also mentioned that it would require changes to the legacy IDE driver to 
+prevent it from binding to certain PCI devices (and given that it just 
+uses I/O ports that might get hackish).
 
-
-
--- 
-Zhang Le, Robert
-Linux Engineer/Trainer
-
-ThizLinux Laboratory Limited
-Address: Unit 1004, 10/F, Tower B,
-Hunghom Commercial Centre, 37 Ma Tau Wai Road, 
-To Kwa Wan, Kowloon, Hong Kong
-Telephone: (852) 2735 2725
-Mobile:(852) 9845 4336
-Fax: (852) 2111 0702 
-URL: http://www.thizgroup.com
-
+Jesse

@@ -1,97 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751682AbVJTBMr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751688AbVJTB3k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751682AbVJTBMr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 21:12:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751677AbVJTBMr
+	id S1751688AbVJTB3k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 21:29:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751689AbVJTB3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 21:12:47 -0400
-Received: from [203.2.177.25] ([203.2.177.25]:25421 "EHLO pfeiffer.tusc.com.au")
-	by vger.kernel.org with ESMTP id S1751675AbVJTBMq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 21:12:46 -0400
-Subject: Re: [PATCH] X25: Add ITU-T facilites
-From: Andrew Hendry <ahendry@tusc.com.au>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>,
-       "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>,
-       eis@baty.hanse.de, linux-x25@vger.kernel.org,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0510181144320.28065@chaos.analogic.com>
-References: <1129513666.3747.50.camel@localhost.localdomain>
-	 <20051017022826.GA23167@mandriva.com>
-	 <1129615767.3695.15.camel@localhost.localdomain>
-	 <20051018.152318.68554424.yoshfuji@linux-ipv6.org>
-	 <20051018153702.GC23167@mandriva.com>
-	 <Pine.LNX.4.61.0510181144320.28065@chaos.analogic.com>
+	Wed, 19 Oct 2005 21:29:39 -0400
+Received: from fmr24.intel.com ([143.183.121.16]:18394 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1751687AbVJTB3j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 21:29:39 -0400
+Subject: Re: [PATCH]: Handling spurious page fault for hugetlb region for
+	2.6.14-rc4-git5
+From: Rohit Seth <rohit.seth@intel.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, agl@us.ibm.com
+In-Reply-To: <1129765996.339.138.camel@akash.sc.intel.com>
+References: <20051018141512.A26194@unix-os.sc.intel.com>
+	 <20051018143438.66d360c4.akpm@osdl.org>
+	 <1129673824.19875.36.camel@akash.sc.intel.com>
+	 <20051018172549.7f9f31da.akpm@osdl.org>
+	 <1129692330.24309.44.camel@akash.sc.intel.com>
+	 <20051018210721.4c80a292.akpm@osdl.org>
+	 <Pine.LNX.4.61.0510191623220.7586@goblin.wat.veritas.com>
+	 <1129748733.339.90.camel@akash.sc.intel.com>
+	 <Pine.LNX.4.61.0510192049030.10794@goblin.wat.veritas.com>
+	 <20051019131907.05ea7160.akpm@osdl.org>
+	 <Pine.LNX.4.61.0510192126100.11096@goblin.wat.veritas.com>
+	 <1129765996.339.138.camel@akash.sc.intel.com>
 Content-Type: text/plain
-Message-Id: <1129770654.3574.1154.camel@localhost.localdomain>
+Organization: Intel 
+Date: Wed, 19 Oct 2005 18:36:47 -0700
+Message-Id: <1129772207.339.152.camel@akash.sc.intel.com>
 Mime-Version: 1.0
-Date: Thu, 20 Oct 2005 11:10:54 +1000
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Oct 2005 01:29:29.0245 (UTC) FILETIME=[B71344D0:01C5D515]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-19 at 01:48, linux-os (Dick Johnson) wrote:
-> On Tue, 18 Oct 2005, Arnaldo Carvalho de Melo wrote:
+On Wed, 2005-10-19 at 16:53 -0700, Rohit Seth wrote:
+> On Wed, 2005-10-19 at 21:28 +0100, Hugh Dickins wrote:
+> > On Wed, 19 Oct 2005, Andrew Morton wrote:
+> > > Hugh Dickins <hugh@veritas.com> wrote:
+> > > > 
+> > > >  I was forgetting that extending ftruncate wasn't supported in 2.6.14 and
+> > > >  earlier, yes.  But I'm afraid the above scenario can still happen there:
+> > > >  extending is done, not by ftruncate, but by (somewhere else) mmapping the
+> > > >  larger size.   So your fix may still cause a tight infinite fault loop.
+> > > 
+> > > Will it?  Whenever we mmap a hugetlbfs file we prepopulate the entire vma
+> > > with hugepages.  So I don't think there's ever any part of an address space
+> > > which ia a) inside a hugepage vma and b) doesn't have a hugepage backing
+> > > it.
+> > 
+> > The new vma, sure, will be fully populated.  But the old vma, in this
+> > or some other process, which was created before the hugetlbfs file was
+> > truncated down, will be left with a hole at the end.
+> > 
 > 
-> > Em Tue, Oct 18, 2005 at 03:23:18PM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@ escreveu:
-> >> In article <1129615767.3695.15.camel@localhost.localdomain> (at Tue, 18 Oct 2005 16:09:27 +1000), Andrew Hendry <ahendry@tusc.com.au> says:
-> >>
-> >>> +/*
-> >>> +*     ITU DTE facilities
-> >>> +*     Only the called and calling address
-> >>> +*     extension are currently implemented.
-> >>> +*     The rest are in place to avoid the struct
-> >>> +*     changing size if someone needs them later
-> >>> ++ */
-> >>> +struct x25_dte_facilities {
-> >>> +	unsigned int    calling_len, called_len;
-> >>> +	char            calling_ae[20];
-> >>> +	char            called_ae[20];
-> >>> +	unsigned char   min_throughput;
-> >>> +	unsigned short  delay_cumul;
-> >>> +	unsigned short  delay_target;
-> >>> +	unsigned short  delay_max;
-> >>> +	unsigned char   expedited;
-> >>> +};
-> >>
-> >> Why don't you use fixed size members?
-> >> And we can eliminate 8bit hole.
-> >>
-> >> struct x25_dte_facilities {
-> >>      u32             calling_len
-> >>      u32             called_len;
-> >
-> > I guess the two above can be 'u8' as they refer to calling_ae and called_ae
-> > that at most will be '20'?
-> >
-> >>      u8              calling_ae[20];
-> >>      u8              called_ae[20];
-> >
-> > - Arnaldo
+> Excellent catch.  This broken truncation thing....
 > 
-> At the very least put the 32-bit in the beginning and 8-bit stuff at
-> the end so natural alignment occurs where possible.
+> And I don't know what the right solution should be for this scenario at
+> this point for 2.6.14....may be to actually look at the HUGEPTE
+> corresponding to the hugetlb faulting address or don't allow mmaps to
+> grow the hugetlb file bigger (except the first mmap).  I understand that
+> both of them don't sound too good...
 > 
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.6.13.4 on an i686 machine (5589.46 BogoMips).
-> Warning : 98.36% of all statistics are fiction.
-> .
+> Any suggestions.
+> 
 
-Thanks everyone for the feedback, will fix up the alignment.
 
-A quick question on the use of u8 and u32 types in x25.h.
+I would like to keep this patch.  This at least takes care of bad things
+happening behind application's back by OS/HW.  If the scenario that you
+mentioned happens then the application is knowingly doing unsupported
+things (at this point truncate is a broken operation on hugetlb).  The
+application can be killed in this case.
 
-/usr/src/linux-2.6.13.4/include/linux/x25.h and 
-/usr/include/linux/x25.h
-have been identical between the kernel and glibc-kernheaders type
-packages, using u8 and u32 would require extra changes to the userspace
-version.
+...trying to avoid any heavy changes at this time for 2.6.14
 
-__u32 or unsigned int look to be the norm for other similar headers,
-whats the recommended type of types to be used?
-
-Thanks,
-Andrew.
+-rohit
 

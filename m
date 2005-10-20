@@ -1,72 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932392AbVJTQ10@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbVJTQcl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932392AbVJTQ10 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 12:27:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbVJTQ10
+	id S932443AbVJTQcl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 12:32:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbVJTQcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 12:27:26 -0400
-Received: from baldrick.bootc.net ([83.142.228.48]:53678 "EHLO
-	baldrick.bootc.net") by vger.kernel.org with ESMTP id S932392AbVJTQ10
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 12:27:26 -0400
-Message-ID: <4357C56B.30600@bootc.net>
-Date: Thu, 20 Oct 2005 17:27:23 +0100
-From: Chris Boot <bootc@bootc.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051014)
+	Thu, 20 Oct 2005 12:32:41 -0400
+Received: from 10.ctyme.com ([69.50.231.10]:56250 "EHLO newton.ctyme.com")
+	by vger.kernel.org with ESMTP id S932443AbVJTQck (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 12:32:40 -0400
+Message-ID: <4357C6A7.308@perkel.com>
+Date: Thu, 20 Oct 2005 09:32:39 -0700
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Reiser4 lockups (no oops)
-References: <43567D80.3050304@bootc.net> <20051020131815.GI2811@suse.de> <20051020163425.z7wygjyir8lcw0gk@horde.fusednetworks.co.uk> <20051020162112.GT2811@suse.de>
-In-Reply-To: <20051020162112.GT2811@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: Dual Core Athlon X2 Lost Ticks Bug
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spamfilter-host: newton.ctyme.com - http://www.junkemailfilter.com"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
+Just wondering if this bug and it's associated patch have made it into 
+the 2.6.14 kernel.
 
->On Thu, Oct 20 2005, Chris Boot wrote:
->  
->
->>Quoting Jens Axboe <axboe@suse.de>:
->>
->>    
->>
->>>On Wed, Oct 19 2005, Chris Boot wrote:
->>>      
->>>
->>>>I don't get any OOPSes or BUGs or anything, not on my screen nor on my
->>>>serial console (although I'm not sure I have this working right--I only
->>>>seem to get kernel boot messages). Machine replies to pings but I can't
->>>>        
->>>>
->>>Easy fix for that is probably to kill klogd on the machine. Test with eg
->>>loading/unloading of loop, that prints a message when it loads.
->>>      
->>>
->>I'd love to, but the machine is locked solid and won't turn on the
->>display or switch TTYs or anything. Anyway, I've applied
->>reiser4-fix-livelock.patch from ftp.namesys.org and so far so good
->>(over night).
->>    
->>
->
->I mean _before_ the crash, to make sure the messages get out :-)
->  
->
-Oh! Hehe, now I get you. However, I'm using metalog for logging, and 
-modprobe loop doesn't give any output. What's interesting is that serial 
-console logging dies long before metalog is started, just after my swap 
-is added in fact. I'm using Gentoo.
-
-Any ideas?
-
-Cheers,
-Chris
+http://bugzilla.kernel.org/show_bug.cgi?id=5105
 
 -- 
-Chris Boot
-bootc@bootc.net
-http://www.bootc.net/
+Marc Perkel - marc@perkel.com
+
+Spam Filter: http://www.junkemailfilter.com
+    My Blog: http://marc.perkel.com
 

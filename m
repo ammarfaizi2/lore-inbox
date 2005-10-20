@@ -1,299 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932547AbVJTXBH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932542AbVJTXC1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932547AbVJTXBH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 19:01:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932550AbVJTXAl
+	id S932542AbVJTXC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 19:02:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932553AbVJTXC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 19:00:41 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:19409 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932547AbVJTXA2 (ORCPT
+	Thu, 20 Oct 2005 19:02:27 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:64691 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932550AbVJTXC0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 19:00:28 -0400
-Date: Thu, 20 Oct 2005 15:59:40 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: akpm@osdl.org
-Cc: Mike Kravetz <kravetz@us.ibm.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, Christoph Lameter <clameter@sgi.com>,
-       Magnus Damm <magnus.damm@gmail.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Message-Id: <20051020225940.19761.93396.sendpatchset@schroedinger.engr.sgi.com>
-In-Reply-To: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com>
-References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 1/4] Swap migration V3: LRU operations
+	Thu, 20 Oct 2005 19:02:26 -0400
+Date: Thu, 20 Oct 2005 16:01:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: torvalds@osdl.org, arjan@infradead.org, dada1@cosmosbay.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386 spinlocks should use the full 32 bits, not only 8
+ bits
+Message-Id: <20051020160115.2b34cb8e.akpm@osdl.org>
+In-Reply-To: <20051020225347.GA29303@elte.hu>
+References: <Pine.LNX.4.64.0510110902130.14597@g5.osdl.org>
+	<434BEA0D.9010802@cosmosbay.com>
+	<20051017000343.782d46fc.akpm@osdl.org>
+	<1129533603.2907.12.camel@laptopd505.fenrus.org>
+	<20051020215047.GA24178@elte.hu>
+	<Pine.LNX.4.64.0510201455030.10477@g5.osdl.org>
+	<20051020220228.GA26247@elte.hu>
+	<Pine.LNX.4.64.0510201512480.10477@g5.osdl.org>
+	<20051020222703.GA28221@elte.hu>
+	<20051020154457.100b5565.akpm@osdl.org>
+	<20051020225347.GA29303@elte.hu>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Implement functions to isolate pages from the LRU and put them back later.
+Ingo Molnar <mingo@elte.hu> wrote:
+>
+> 
+> * Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > spin_lock is still uninlined.
+> 
+> yes, and that should stay so i believe, for text size reasons. The BTB 
+> should eliminate most effects of the call+ret itself.
 
->From Magnus:
+The old
 
-This patch for 2.6.14-rc4-mm1 breaks out isolate_lru_page() and
-putpack_lru_page() and makes them inline. I'd like to build my code on
-top of this patch, and I think your page eviction code could be built
-on top of this patch too - without introducing too much duplicated
-code.
+	lock; decb
+	js <different section>
+	...
 
-Signed-off-by: Magnus Damm <magnus.damm@gmail.com>
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+was pretty good.
 
-Index: linux-2.6.14-rc4-mm1/include/linux/mm_inline.h
-===================================================================
---- linux-2.6.14-rc4-mm1.orig/include/linux/mm_inline.h	2005-10-10 18:19:19.000000000 -0700
-+++ linux-2.6.14-rc4-mm1/include/linux/mm_inline.h	2005-10-20 10:45:40.000000000 -0700
-@@ -38,3 +38,55 @@ del_page_from_lru(struct zone *zone, str
- 		zone->nr_inactive--;
- 	}
- }
-+
-+/*
-+ * Isolate one page from the LRU lists.
-+ *
-+ * - zone->lru_lock must be held
-+ *
-+ * Result:
-+ *  0 = page not on LRU list
-+ *  1 = page removed from LRU list
-+ * -1 = page is being freed elsewhere.
-+ */
-+static inline int
-+__isolate_lru_page(struct zone *zone, struct page *page)
-+{
-+	if (TestClearPageLRU(page)) {
-+		if (get_page_testone(page)) {
-+			/*
-+			 * It is being freed elsewhere
-+			 */
-+			__put_page(page);
-+			SetPageLRU(page);
-+			return -1;
-+		} else {
-+			if (PageActive(page))
-+				del_page_from_active_list(zone, page);
-+			else
-+				del_page_from_inactive_list(zone, page);
-+			return 1;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+/*
-+ * Add isolated page back on the LRU lists
-+ *
-+ * - zone->lru_lock must be held
-+ * - page must already be removed from other list
-+ * - additional call to put_page() is needed
-+ */
-+static inline void
-+__putback_lru_page(struct zone *zone, struct page *page)
-+{
-+	if (TestSetPageLRU(page))
-+		BUG();
-+
-+	if (PageActive(page))
-+		add_page_to_active_list(zone, page);
-+	else
-+		add_page_to_inactive_list(zone, page);
-+}
-Index: linux-2.6.14-rc4-mm1/mm/vmscan.c
-===================================================================
---- linux-2.6.14-rc4-mm1.orig/mm/vmscan.c	2005-10-17 10:24:30.000000000 -0700
-+++ linux-2.6.14-rc4-mm1/mm/vmscan.c	2005-10-20 13:18:05.000000000 -0700
-@@ -573,43 +573,75 @@ keep:
-  *
-  * Appropriate locks must be held before calling this function.
-  *
-+ * @zone:	The zone where lru_lock is held.
-  * @nr_to_scan:	The number of pages to look through on the list.
-  * @src:	The LRU list to pull pages off.
-  * @dst:	The temp list to put pages on to.
-- * @scanned:	The number of pages that were scanned.
-  *
-- * returns how many pages were moved onto *@dst.
-+ * returns the number of pages that were scanned.
-  */
--static int isolate_lru_pages(int nr_to_scan, struct list_head *src,
--			     struct list_head *dst, int *scanned)
-+static int isolate_lru_pages(struct zone *zone, int nr_to_scan,
-+			     struct list_head *src, struct list_head *dst)
- {
--	int nr_taken = 0;
- 	struct page *page;
--	int scan = 0;
-+	int scanned = 0;
-+	int rc;
- 
--	while (scan++ < nr_to_scan && !list_empty(src)) {
-+	while (scanned++ < nr_to_scan && !list_empty(src)) {
- 		page = lru_to_page(src);
- 		prefetchw_prev_lru_page(page, src, flags);
- 
--		if (!TestClearPageLRU(page))
--			BUG();
--		list_del(&page->lru);
--		if (get_page_testone(page)) {
--			/*
--			 * It is being freed elsewhere
--			 */
--			__put_page(page);
--			SetPageLRU(page);
--			list_add(&page->lru, src);
--			continue;
--		} else {
-+		rc = __isolate_lru_page(zone, page);
-+
-+		BUG_ON(rc == 0); /* PageLRU(page) must be true */
-+
-+		if (rc == 1)     /* Succeeded to isolate page */
- 			list_add(&page->lru, dst);
--			nr_taken++;
-+
-+		if (rc == -1) {  /* Not possible to isolate */
-+			list_del(&page->lru);
-+			list_add(&page->lru, src);
- 		}
- 	}
- 
--	*scanned = scan;
--	return nr_taken;
-+	return scanned;
-+}
-+
-+static void lru_add_drain_per_cpu(void *dummy)
-+{
-+	lru_add_drain();
-+}
-+
-+/*
-+ * Isolate one page from the LRU lists and put it on the
-+ * indicated list. Do necessary cache draining if the
-+ * page is not on the LRU lists yet.
-+ *
-+ * Result:
-+ *  0 = page not on LRU list
-+ *  1 = page removed from LRU list and added to the specified list.
-+ * -1 = page is being freed elsewhere.
-+ */
-+int isolate_lru_page(struct page *page, struct list_head *l)
-+{
-+	int rc = 0;
-+	struct zone *zone = page_zone(page);
-+
-+redo:
-+	spin_lock_irq(&zone->lru_lock);
-+	rc = __isolate_lru_page(zone, page);
-+	spin_unlock_irq(&zone->lru_lock);
-+	if (rc == 0) {
-+		/*
-+		 * Maybe this page is still waiting for a cpu to drain it
-+		 * from one of the lru lists?
-+		 */
-+		smp_call_function(&lru_add_drain_per_cpu, NULL, 0 , 1);
-+		lru_add_drain();
-+		if (PageLRU(page))
-+			goto redo;
-+	}
-+	return rc;
- }
- 
- /*
-@@ -627,18 +659,15 @@ static void shrink_cache(struct zone *zo
- 	spin_lock_irq(&zone->lru_lock);
- 	while (max_scan > 0) {
- 		struct page *page;
--		int nr_taken;
- 		int nr_scan;
- 		int nr_freed;
- 
--		nr_taken = isolate_lru_pages(sc->swap_cluster_max,
--					     &zone->inactive_list,
--					     &page_list, &nr_scan);
--		zone->nr_inactive -= nr_taken;
-+		nr_scan = isolate_lru_pages(zone, sc->swap_cluster_max,
-+					    &zone->inactive_list, &page_list);
- 		zone->pages_scanned += nr_scan;
- 		spin_unlock_irq(&zone->lru_lock);
- 
--		if (nr_taken == 0)
-+		if (list_empty(&page_list))
- 			goto done;
- 
- 		max_scan -= nr_scan;
-@@ -658,13 +687,9 @@ static void shrink_cache(struct zone *zo
- 		 */
- 		while (!list_empty(&page_list)) {
- 			page = lru_to_page(&page_list);
--			if (TestSetPageLRU(page))
--				BUG();
- 			list_del(&page->lru);
--			if (PageActive(page))
--				add_page_to_active_list(zone, page);
--			else
--				add_page_to_inactive_list(zone, page);
-+			__putback_lru_page(zone, page);
-+
- 			if (!pagevec_add(&pvec, page)) {
- 				spin_unlock_irq(&zone->lru_lock);
- 				__pagevec_release(&pvec);
-@@ -678,6 +703,33 @@ done:
- }
- 
- /*
-+ * Add isolated pages on the list back to the LRU
-+ * Determines the zone for each pages and takes
-+ * the necessary lru lock for each page.
-+ *
-+ * returns the number of pages put back.
-+ */
-+int putback_lru_pages(struct list_head *l)
-+{
-+	struct page * page;
-+	struct page * page2;
-+	int count = 0;
-+
-+	list_for_each_entry_safe(page, page2, l, lru) {
-+		struct zone *zone = page_zone(page);
-+
-+		list_del(&page->lru);
-+		spin_lock_irq(&zone->lru_lock);
-+		__putback_lru_page(zone, page);
-+		spin_unlock_irq(&zone->lru_lock);
-+		count++;
-+		/* Undo the get from isolate_lru_page */
-+		put_page(page);
-+	}
-+	return count;
-+}
-+
-+/*
-  * This moves pages from the active list to the inactive list.
-  *
-  * We move them the other way if the page is referenced by one or more
-@@ -713,10 +765,9 @@ refill_inactive_zone(struct zone *zone, 
- 
- 	lru_add_drain();
- 	spin_lock_irq(&zone->lru_lock);
--	pgmoved = isolate_lru_pages(nr_pages, &zone->active_list,
--				    &l_hold, &pgscanned);
-+	pgscanned = isolate_lru_pages(zone, nr_pages,
-+				      &zone->active_list, &l_hold);
- 	zone->pages_scanned += pgscanned;
--	zone->nr_active -= pgmoved;
- 	spin_unlock_irq(&zone->lru_lock);
- 
- 	/*
-Index: linux-2.6.14-rc4-mm1/include/linux/swap.h
-===================================================================
---- linux-2.6.14-rc4-mm1.orig/include/linux/swap.h	2005-10-17 10:24:16.000000000 -0700
-+++ linux-2.6.14-rc4-mm1/include/linux/swap.h	2005-10-20 13:13:24.000000000 -0700
-@@ -176,6 +176,9 @@ extern int zone_reclaim(struct zone *, u
- extern int shrink_all_memory(int);
- extern int vm_swappiness;
- 
-+extern int isolate_lru_page(struct page *p, struct list_head *l);
-+extern int putback_lru_pages(struct list_head *l);
-+
- #ifdef CONFIG_MMU
- /* linux/mm/shmem.c */
- extern int shmem_unuse(swp_entry_t entry, struct page *page);
+> > as is spin_lock_irqsave() and spin_lock_irq()
+> 
+> yes, for them the code length is even higher.
+> 
+> > uninlining spin_lock will probably increase overall text size, but 
+> > mainly in the out-of-line section.
+> 
+> you mean inlining it again? I dont think we should do it.
+> 
+> > read_lock is out-of-line.  read_unlock is inlined
+> > 
+> > write_lock is out-of-line.  write_unlock is out-of-line.
+> 
+> hm, with my patch, write_unlock should be inlined too.
+> 
+
+So it is.  foo_unlock_irq() isn't though.

@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbVJTXqd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932555AbVJTXqa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964808AbVJTXqd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 19:46:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932557AbVJTXqc
+	id S932555AbVJTXqa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 19:46:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932556AbVJTXqa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 19:46:32 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:44221 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932556AbVJTXqc (ORCPT
+	Thu, 20 Oct 2005 19:46:30 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:60304 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932555AbVJTXq3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 19:46:32 -0400
-Date: Thu, 20 Oct 2005 16:45:38 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: xslaby@fi.muni.cz, alexandre.buisse@ens-lyon.fr,
-       linux-kernel@vger.kernel.org, jbenc@suse.cz
-Subject: Re: Wifi oddness [Was: Re: 2.6.14-rc4-mm1]
-Message-Id: <20051020164538.4c30416f.akpm@osdl.org>
-In-Reply-To: <43582AA7.4080503@pobox.com>
-References: <20051016154108.25735ee3.akpm@osdl.org>
-	<20051019184935.E8C0B22AEB2@anxur.fi.muni.cz>
-	<20051019184935.E8C0B22AEB2@anxur.fi.muni.cz>
-	<20051020210224.B9D4A22AEB2@anxur.fi.muni.cz>
-	<43582AA7.4080503@pobox.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 20 Oct 2005 19:46:29 -0400
+Date: Thu, 20 Oct 2005 16:46:21 -0700
+From: mike kravetz <kravetz@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, magnus.damm@gmail.com, marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH 0/4] Swap migration V3: Overview
+Message-ID: <20051020234621.GL5490@w-mikek2.ibm.com>
+References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com> <20051020160638.58b4d08d.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051020160638.58b4d08d.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> wrote:
->
-> Jiri Slaby wrote:
->  > But here is a problem ieee->perfect_rssi and ieee->worst_rssi is 0 and 0, as
->  > you mentioned -- division by zero...
->  > 
->  > It seems, that it is pulled from your tree, Jeff. Any ideas?
->  > 
->  > thanks,
+On Thu, Oct 20, 2005 at 04:06:38PM -0700, Andrew Morton wrote:
+> Christoph Lameter <clameter@sgi.com> wrote:
+> >
+> > Page migration is also useful for other purposes:
+> > 
+> >  1. Memory hotplug. Migrating processes off a memory node that is going
+> >     to be disconnected.
+> > 
+> >  2. Remapping of bad pages. These could be detected through soft ECC errors
+> >     and other mechanisms.
 > 
->  When it was pulled?
+> It's only useful for these things if it works with close-to-100% reliability.
+> 
+> And there are are all sorts of things which will prevent that - mlock,
+> ongoing direct-io, hugepages, whatever.
 
-See the first line of the patch, ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc4/2.6.14-rc4-mm1/broken-out/git-netdev-all.patch
+Since soft errors could happen almost anywhere, you are not going to get
+close to 100% there.  'General purpose' memory hotplug is going to need
+some type of page/memory grouping like Mel Gorman's fragmentation avoidance
+patches.  Using such groupings, you can almost always find 'some' section
+that can be offlined.  It is not close to 100%, but without it your chances
+of finding a section are closer to 0%.  For applications of hotplug where
+the only requirement is to remove a quantity of memory (and we are not
+concerned about specific physical sections of memory) this appears to be
+a viable approach.  Once you start talking about removing specific pieces
+of memory, I think the only granularity that makes sense at this time is
+an entire NUMA node.  Here, I 'think' you could limit the type of allocations
+made on the node to something like highmem.  But, I haven't been looking
+into the offlining of specific sections.  Only the offlining of any section.
 
-it is:
+Just to be clear, there are at least two distinct requirements for hotplug.
+One only wants to remove a quantity of memory (location unimportant).  The
+other wants to remove a specific section of memory (location specific).  I
+think the first is easier to address.
 
-GIT 43e63da3a056da127f2e58b6ce312974b7205ad6 master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git#ALL
-
-
+-- 
+Mike

@@ -1,65 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbVJTShg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbVJTSmK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750763AbVJTShg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 14:37:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbVJTShg
+	id S1750799AbVJTSmK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 14:42:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750862AbVJTSmJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 14:37:36 -0400
-Received: from ms004msg.fastwebnet.it ([213.140.2.58]:11668 "EHLO
-	ms004msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S1750763AbVJTShg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 14:37:36 -0400
-Date: Thu, 20 Oct 2005 20:37:24 +0200
-From: Mattia Dongili <malattia@linux.it>
-To: Chris Boot <bootc@bootc.net>
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Reiser4 lockups (no oops)
-Message-ID: <20051020183724.GA3999@inferi.kami.home>
-Mail-Followup-To: Chris Boot <bootc@bootc.net>, Jens Axboe <axboe@suse.de>,
-	linux-kernel@vger.kernel.org
-References: <43567D80.3050304@bootc.net> <20051020131815.GI2811@suse.de> <20051020163425.z7wygjyir8lcw0gk@horde.fusednetworks.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051020163425.z7wygjyir8lcw0gk@horde.fusednetworks.co.uk>
-X-Message-Flag: Cranky? Try Free Software instead!
-X-Operating-System: Linux 2.6.14-rc4-mm1-2 i686
-X-Editor: Vim http://www.vim.org/
-X-Disclaimer: Buh!
-User-Agent: Mutt/1.5.9i
+	Thu, 20 Oct 2005 14:42:09 -0400
+Received: from mailout07.sul.t-online.com ([194.25.134.83]:23746 "EHLO
+	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S1750859AbVJTSmI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 14:42:08 -0400
+Message-ID: <4357E4E9.4@t-online.de>
+Date: Thu, 20 Oct 2005 20:41:45 +0200
+From: Harald Dunkel <harald.dunkel@t-online.de>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.13.4: 'find' complained about sysfs
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigD830E72BE324105CA89FBB08"
+X-ID: Xj+6zcZOgeTusk7mKsKoEjdT3K33c2CpUnVn4hmAES1eucmHI9WIrm
+X-TOI-MSGID: 0edcbe5d-699a-4bbc-bf72-ba33081bbea0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 20, 2005 at 04:34:25PM +0100, Chris Boot wrote:
-> Quoting Jens Axboe <axboe@suse.de>:
-> 
-> >On Wed, Oct 19 2005, Chris Boot wrote:
-> >>I don't get any OOPSes or BUGs or anything, not on my screen nor on my
-> >>serial console (although I'm not sure I have this working right--I only
-> >>seem to get kernel boot messages). Machine replies to pings but I can't
-> >
-> >Easy fix for that is probably to kill klogd on the machine. Test with eg
-> >loading/unloading of loop, that prints a message when it loads.
-> 
-> I'd love to, but the machine is locked solid and won't turn on the display 
-> or
-> switch TTYs or anything. Anyway, I've applied reiser4-fix-livelock.patch 
-> from
-> ftp.namesys.org and so far so good (over night).
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigD830E72BE324105CA89FBB08
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-aah! nice, those also fix the apt-get freeze I've been having from some
-mm kernels ago.
+Hi folks,
 
-I also managed to get the trace of apt-get freezing by means of Sysrq+P
-but I stupidly forgot the fs was readonly so I didn't dump dmesg :P
-I can easily reproduce it if anyone is interested.
+When I ran 'find /sys -name modalias' I got an error
+message on stderr saying
 
-> I see there's now a reiser4-fix-livelock-2.patch, anybody know the 
-> differences?
+find: WARNING: Hard link count is wrong for /sys/devices: this may be a bug in your filesystem driver.  Automatically turning on find's -noleaf option.  Earlier results may have failed to include directories that should have been searched.
 
-don't know, I'd try the -2 patches also, they seem a different version
-of the same fix/cleanup.
+uname -a:
+Linux pluto 2.6.13.4 #1 Sun Oct 16 22:41:26 CEST 2005 x86_64 GNU/Linux
 
--- 
-mattia
-:wq!
+
+Regards
+
+Harri
+
+--------------enigD830E72BE324105CA89FBB08
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFDV+TuUTlbRTxpHjcRAk1hAJ4jV4RTYXzKaUjYC8ivFjSDSKZ+LACbBPZZ
+0//SGgnrgnH/FBYekzvFEMU=
+=Sslq
+-----END PGP SIGNATURE-----
+
+--------------enigD830E72BE324105CA89FBB08--

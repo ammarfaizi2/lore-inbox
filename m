@@ -1,68 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbVJTTBE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbVJTS6c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932152AbVJTTBE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 15:01:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932161AbVJTTBE
+	id S932096AbVJTS6c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 14:58:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbVJTS6c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 15:01:04 -0400
-Received: from xproxy.gmail.com ([66.249.82.200]:51509 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932152AbVJTTBC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 15:01:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rQjkUR1C8CIuRGHSwxxNmsmjE+p/vruO5Ccdo8UQMj2+olrADALRUOP4usbfq1Mg9AlRAEAIwAEALorA7TinyvbYMXKH2O56nZklECwzvGUFzhhdpVRppUlec6A+AqpYaY2bX+cWmoqfQAjqSBlkzj9AjZnbOojfhXuB+/idsSc=
-Message-ID: <4807377b0510201201i685efd46qf4c548da34b996cb@mail.gmail.com>
-Date: Thu, 20 Oct 2005 12:01:01 -0700
-From: Jesse Brandeburg <jesse.brandeburg@gmail.com>
-To: ddaney@avtrex.com
-Subject: Re: Patch: ATI Xilleon port 2/11 net/e100 Memory barriers and write flushing
-Cc: linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
-In-Reply-To: <17239.12568.110253.404667@dl2.hq2.avtrex.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 20 Oct 2005 14:58:32 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:25049 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932096AbVJTS6c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 14:58:32 -0400
+Date: Thu, 20 Oct 2005 14:58:19 -0400
+From: Dave Jones <davej@redhat.com>
+To: Harald Dunkel <harald.dunkel@t-online.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13.4: 'find' complained about sysfs
+Message-ID: <20051020185818.GD3590@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Harald Dunkel <harald.dunkel@t-online.de>,
+	linux-kernel@vger.kernel.org
+References: <4357E4E9.4@t-online.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <17239.12568.110253.404667@dl2.hq2.avtrex.com>
+In-Reply-To: <4357E4E9.4@t-online.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/19/05, David Daney <ddaney@avtrex.com> wrote:
-> @@ -584,6 +584,7 @@ static inline void e100_write_flush(stru
->  {
->         /* Flush previous PCI writes through intermediate bridges
->          * by doing a benign read */
-> +       wmb();
->         (void)readb(&nic->csr->scb.status);
->  }
+On Thu, Oct 20, 2005 at 08:41:45PM +0200, Harald Dunkel wrote:
+ > Hi folks,
+ > 
+ > When I ran 'find /sys -name modalias' I got an error
+ > message on stderr saying
+ > 
+ > find: WARNING: Hard link count is wrong for /sys/devices: this may be a bug in your filesystem driver.  Automatically turning on find's -noleaf option.  Earlier results may have failed to include directories that should have been searched.
 
-I find it odd that this is needed, the readb is meant to flush all
-posted writes on the pci bus, if your bus is conforming to pci
-specifications, this must succeed.  wmb is for host side (processor
-memory) writes to complete, and since we're usually only try to force
-a writeX command to execute immediately with the readb (otherwise lazy
-writes work okay) we shouldn't need a wmb *here*.  not to say it might
-not be missing somewhere else.
+This has been around for a while. It's very likely this..
+
+(14:56:22:davej@nwo:~)$ ll /sys/devices/system/
+total 0
+drwxr-xr-x  3 root root 0 Oct 20 10:09 acpi/
+drwxr-xr-x  6 root root 0 Oct 20 10:08 cpu/
+drwxr-xr-x  3 root root 0 Oct 20 10:08 i8237/
+drwxr-xr-x  3 root root 0 Oct 20 10:08 i8259/
+drwxr-xr-x  5 root root 0 Oct 20 10:08 ioapic/
+drwxr-xr-x  3 root root 0 Oct 20 10:08 irqrouter/
+drwxr-xr-x  3 root root 0 Oct 20 10:08 lapic/
+drwxr-xr-x  3 root root 0 Oct 20 10:09 lapic_nmi/
+drwxr-xr-x  6 root root 0 Oct 20 10:08 machinecheck/
+drwxr-xr-x  3 root root 0 Oct 20 10:08 node/
+drwxr-xr-x  3 root root 0 Oct 20 10:08 timer/
+drwxr-xr-x  3 root root 0 Oct 20 10:08 timer/             <---- Oops.
+(14:56:24:davej@nwo:~)$
 
 
-> @@ -807,9 +808,13 @@ static inline int e100_exec_cmd(struct n
->                 goto err_unlock;
->         }
->
-> -       if(unlikely(cmd != cuc_resume))
-> +       wmb();
-> +       if(unlikely(cmd != cuc_resume)) {
->                 writel(dma_addr, &nic->csr->scb.gen_ptr);
-> +               e100_write_flush(nic);
-> +       }
->         writeb(cmd, &nic->csr->scb.cmd_lo);
-> +       e100_write_flush(nic);
-
-wouldn't the last e100_write_flush be all that is needed?  e100 only
-needs them to come in order, they don't need to be flushed one at a
-time.
-
-I can see how this change might be needed in a true write posting environment.
-
-jesse
+		Dave

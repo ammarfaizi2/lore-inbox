@@ -1,42 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751307AbVJTKf3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751485AbVJTLUW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751307AbVJTKf3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 06:35:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbVJTKf3
+	id S1751485AbVJTLUW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 07:20:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751487AbVJTLUW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 06:35:29 -0400
-Received: from mail.suse.de ([195.135.220.2]:58037 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751307AbVJTKf2 (ORCPT
+	Thu, 20 Oct 2005 07:20:22 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:57378 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751485AbVJTLUV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 06:35:28 -0400
-From: Andi Kleen <ak@suse.de>
-To: discuss@x86-64.org
-Subject: Re: [discuss] Re: x86_64: 2.6.14-rc4 swiotlb broken
-Date: Thu, 20 Oct 2005 09:45:02 +0200
-User-Agent: KMail/1.8
-Cc: Yasunori Goto <y-goto@jp.fujitsu.com>,
-       Alex Williamson <alex.williamson@hp.com>,
-       Ravikiran G Thirumalai <kiran@scalex86.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, tglx@linutronix.de, shai@scalex86.org
-References: <20051018232203.GB4535@localhost.localdomain> <1129684966.17545.50.camel@lts1.fc.hp.com> <20051019212041.6378.Y-GOTO@jp.fujitsu.com>
-In-Reply-To: <20051019212041.6378.Y-GOTO@jp.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 20 Oct 2005 07:20:21 -0400
+Date: Thu, 20 Oct 2005 13:21:09 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Tejun Heo <htejun@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH linux-2.6-block:master 02/05] blk: update ioscheds to use generic dispatch queue
+Message-ID: <20051020112109.GC2811@suse.de>
+References: <20051019123429.450E4424@htj.dyndns.org> <20051019123429.D377069C@htj.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200510200945.02778.ak@suse.de>
+In-Reply-To: <20051019123429.D377069C@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 19 October 2005 14:47, Yasunori Goto wrote:
+On Wed, Oct 19 2005, Tejun Heo wrote:
+> 02_blk_generic-dispatch-queue-update-for-ioscheds.patch
+> 
+> 	This patch updates all four ioscheds to use generic dispatch
+> 	queue.  There's one behavior change in as-iosched.
+> 
+> 	* In as-iosched, when force dispatching
+> 	  (ELEVATOR_INSERT_BACK), batch_data_dir is reset to REQ_SYNC
+> 	  and changed_batch and new_batch are cleared to zero.  This
+> 	  prevernts AS from doing incorrect update_write_batch after
+> 	  the forced dispatched requests are finished.
+> 
+> 	* In cfq-iosched, cfqd->rq_in_driver currently counts the
+> 	  number of activated (removed) requests to determine
+> 	  whether queue-kicking is needed and cfq_max_depth has been
+> 	  reached.  With generic dispatch queue, I think counting
+> 	  the number of dispatched requests would be more appropriate.
+> 
+> 	* cfq_max_depth can be lowered to 1 again.
 
->
-> Hmm.....
-> How is this patch? This is another way.
+I applied this one as well, with some minor changes. The biggest one is
+a cleanup of the 'force' logic, it seems to be a little mixed up in this
+patch. You use it for forcing dispatch, which is fine. But then it also
+doubles as whether you want to sort insert on the generic queue or just
+add to the tail?
+  
+> -		if (cfq_class_idle(cfqq))
+> -			max_dispatch = 1;
+> +		if (force)
+> +			max_dispatch = INT_MAX;
+> +		else
+> +			max_dispatch =
+> +				cfq_class_idle(cfqq) ? 1 : cfqd->cfq_quantum;
 
-That one looks good to me.
+Also, please don't use these ?: constructs, I absolutely hate them as
+they are weird to read.
 
-Thanks,
--Andi
+-- 
+Jens Axboe
+

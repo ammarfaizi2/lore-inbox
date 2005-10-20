@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932522AbVJTXeO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbVJTXje@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932522AbVJTXeO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 19:34:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932550AbVJTXeO
+	id S964807AbVJTXje (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 19:39:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964808AbVJTXje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 19:34:14 -0400
-Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:27144 "EHLO
-	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
-	id S932522AbVJTXeO convert rfc822-to-8bit (ORCPT
+	Thu, 20 Oct 2005 19:39:34 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:6832 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S964807AbVJTXjd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 19:34:14 -0400
-From: Felix Oxley <lkml@oxley.org>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.14-rc5-rt1
-Date: Fri, 21 Oct 2005 00:33:48 +0100
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>
-References: <20051017160536.GA2107@elte.hu> <20051020195432.GA21903@elte.hu>
-In-Reply-To: <20051020195432.GA21903@elte.hu>
+	Thu, 20 Oct 2005 19:39:33 -0400
+Message-ID: <43582AA7.4080503@pobox.com>
+Date: Thu, 20 Oct 2005 19:39:19 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200510210033.49652.lkml@oxley.org>
+To: Jiri Slaby <xslaby@fi.muni.cz>
+CC: Alexandre Buisse <alexandre.buisse@ens-lyon.fr>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Jiri Benc <jbenc@suse.cz>
+Subject: Re: Wifi oddness [Was: Re: 2.6.14-rc4-mm1]
+References: <20051016154108.25735ee3.akpm@osdl.org> <20051019184935.E8C0B22AEB2@anxur.fi.muni.cz> <20051019184935.E8C0B22AEB2@anxur.fi.muni.cz> <20051020210224.B9D4A22AEB2@anxur.fi.muni.cz>
+In-Reply-To: <20051020210224.B9D4A22AEB2@anxur.fi.muni.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jiri Slaby wrote:
+> But here is a problem ieee->perfect_rssi and ieee->worst_rssi is 0 and 0, as
+> you mentioned -- division by zero...
+> 
+> It seems, that it is pulled from your tree, Jeff. Any ideas?
+> 
+> thanks,
 
-I have the following build error with make allyesconfig:
+When it was pulled?  Here is the latest patch touching the code in 
+question...
 
- CC      arch/i386/kernel/mca.o
-arch/i386/kernel/mca.c: In function ‘mca_timer_ack’:
-arch/i386/kernel/mca.c:488: error: ‘irq’ undeclared (first use in this function)
-arch/i386/kernel/mca.c:488: error: (Each undeclared identifier is reported only once
-arch/i386/kernel/mca.c:488: error: for each function it appears in.)
-make[1]: *** [arch/i386/kernel/mca.o] Error 1
-make: *** [arch/i386/kernel] Error 2
+Author: Jiri Benc <jbenc@suse.cz>
+Date:   Mon Oct 10 19:16:53 2005 +0200
+
+     [PATCH] ieee80211: division by zero fix
+
+     This fixes division by zero bug in ieee80211_wx_get_scan().
+
+     Signed-off-by: Jiri Benc <jbenc@suse.cz>
+     Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
 
 
-regards,
-Felix

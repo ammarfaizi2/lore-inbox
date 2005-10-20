@@ -1,91 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750812AbVJTHeK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751781AbVJTHoK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750812AbVJTHeK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 03:34:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751780AbVJTHeK
+	id S1751781AbVJTHoK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 03:44:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751784AbVJTHoK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 03:34:10 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:35743 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750812AbVJTHeJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 03:34:09 -0400
-Date: Thu, 20 Oct 2005 09:34:16 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: john stultz <johnstul@us.ibm.com>, tglx@linutronix.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: Ktimer / -rt9 (+custom) monotonic_clock going backwards.
-Message-ID: <20051020073416.GA28581@elte.hu>
-References: <Pine.LNX.4.58.0510191047270.24515@localhost.localdomain> <1129734626.19559.275.camel@tglx.tec.linutronix.de> <1129747172.27168.149.camel@cog.beaverton.ibm.com> <Pine.LNX.4.58.0510200249080.27683@localhost.localdomain>
+	Thu, 20 Oct 2005 03:44:10 -0400
+Received: from exchange-cpt.prism.co.za ([196.25.143.130]:9425 "EHLO
+	prism.co.za") by vger.kernel.org with ESMTP id S1751781AbVJTHoI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 03:44:08 -0400
+Date: Thu, 20 Oct 2005 09:41:29 +0200
+From: Bernd Jendrissek <berndj@prism.co.za>
+To: Andrew Hendry <ahendry@tusc.com.au>
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Arnaldo Carvalho de Melo <acme@ghostprotocols.net>,
+       "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>,
+       eis@baty.hanse.de, linux-x25@vger.kernel.org,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH] X25: Add ITU-T facilites
+Message-ID: <20051020074129.GA13695@prism.co.za>
+References: <1129513666.3747.50.camel@localhost.localdomain> <20051017022826.GA23167@mandriva.com> <1129615767.3695.15.camel@localhost.localdomain> <20051018.152318.68554424.yoshfuji@linux-ipv6.org> <20051018153702.GC23167@mandriva.com> <Pine.LNX.4.61.0510181144320.28065@chaos.analogic.com> <1129770654.3574.1154.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0510200249080.27683@localhost.localdomain>
+In-Reply-To: <1129770654.3574.1154.camel@localhost.localdomain>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Comment: Exim: I am on zebra.wetton.prism.co.za (internal name)
+X-Comment: and my boss is berndj@prism.co.za
+X-Comment: Call him at +27 82 2960717 if any problems occur.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+On Thu, Oct 20, 2005 at 11:10:54AM +1000, Andrew Hendry wrote:
+> __u32 or unsigned int look to be the norm for other similar headers,
+> whats the recommended type of types to be used?
 
-> > Last night I just caught a bug I accidentally introduced with the fixed
-> > interval math (oh, if only optimizations didn't dirty code so!), where
-> > time inconsistencies were possible when clocksources were changed. I'm
-> > not sure if that's the issue being seen above, but I'll wrap things up
-> > and send out a B8 release today if I can.
-> 
-> Hmm, I believe that the ktimers use the apic (when available) and let 
-> the jiffies still be calculated via PIT/TSC.
-> 
-> Thomas, is the above correct?
-> 
-> Would that have triggered your bug?
+Dunno if this helps, but AFAIK the C language (as of 1999 or is it 2000)
+blesses uint32_t and friends.
 
-if the bug is only possible when timesources are changed on the fly, 
-then i think it shouldnt happen. We pick our sources at bootup time and 
-stick with them.
+Indeed, <linux/types.h> (in the kernel source tree) defines these
+*standard* sized types.
 
-in the -rt tree we also have clockevents and HRT support, so the clocks 
-used should depend on whether you have the APIC enabled in the .config, 
-and whether the BIOS has it enabled by default. If the BIOS has the APIC 
-disabled then you can force the kernel to enable it by adding "lapic" to 
-the boot-line.
+HTH
 
-without the APIC active, the equation is simple: we use the PIT for both 
-jiffies and HRT. We use the TSC for gettimeofday. No interaction between 
-the two.
+- -- 
+A PC without Windows is like ice cream without ketchup.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Please fetch my new key 804177F8 from hkp://wwwkeys.eu.pgp.net/
 
-if the APIC is active, then we have both the local APIC timer interrupt 
-for and the PIT for HRT timing. The clockevents framework sees both 
-hardware clocks and automatically decides which one to use, based on 
-their ranking. A typical PIT reprogramming PIO sequence takes 20-30 
-usecs, while a typical APIC timer reprogramming takes ~5 nanoseconds on 
-my box, so the choice is rather easy ;-) The jiffies interrupt is still 
-off the PIT. gettimeofday is off the TSC counter.
-
-i could imagine the following hardware effects to cause time warps:
-
-- the TSC is in fact the 'read counter' method of the local APIC timer 
-  hardware. So there can be interactions in theory: programming the APIC 
-  timer could impact the TSC and vice versa. There have been CPU 
-  erratums in this area in the past.
-
-- powersaving can impact the TSC - and can thus impact the APIC timer 
-  too. Errata-land as well.
-
-- the TSC itself could have short, temporary warps. I had a box that
-  showed such effects.
-
-besides hardware bugs, another, albeit very small possibility is that 
-somewhere in the thousands of lines of shiny-new generic-time-of-day, 
-ktimers, clockevents and high-res-timers code, there is a software bug, 
-which is causing time warps ;-)
-
-	Ingo
+iD8DBQFDV0ohwyMv24BBd/gRAnOAAKCpTJLsIIQCGW4X/KMyoIMwZ0TNewCff2vE
+IO7gmOpr1zuFa515lmIPWno=
+=uytG
+-----END PGP SIGNATURE-----

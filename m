@@ -1,61 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751702AbVJTCpL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751717AbVJTDQe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751702AbVJTCpL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Oct 2005 22:45:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751706AbVJTCpL
+	id S1751717AbVJTDQe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Oct 2005 23:16:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751718AbVJTDQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Oct 2005 22:45:11 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:60300 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751702AbVJTCpJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Oct 2005 22:45:09 -0400
-Subject: Re: Question about buffer usage
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Dave Pifke <dave@birthdayalarm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <4356D55D.5060303@birthdayalarm.com>
-References: <4356C1B2.3070401@bebo.com>
-	 <20051019154940.55f18786.akpm@osdl.org>
-	 <4356D55D.5060303@birthdayalarm.com>
-Content-Type: text/plain
-Date: Wed, 19 Oct 2005 21:45:06 -0500
-Message-Id: <1129776306.10190.14.camel@kleikamp.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Wed, 19 Oct 2005 23:16:34 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:60392 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S1751716AbVJTDQd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Oct 2005 23:16:33 -0400
+Message-ID: <43570C0E.7060104@rtr.ca>
+Date: Wed, 19 Oct 2005 23:16:30 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050923 Debian/1.7.12-0ubuntu05.04
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to use a USB  SD/MMC card reader?
+References: <20051019193913.GA21749@aitel.hist.no>
+In-Reply-To: <20051019193913.GA21749@aitel.hist.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-19 at 16:23 -0700, Dave Pifke wrote:
-> Andrew Morton wrote:
-> 
->  > It could be a JFS quirk - I don't know much about JFS.  It'd be 
-> interesting
->  > to know if other filesystems behave in a similar manner.
-> 
-> I have two more machines on order, so perhaps I'll try a different 
-> filesystem on them and report back if it makes a difference.
-> 
->  > One thing you could do is to (re)mount the filesystems with `-o noatime'.
-> 
-> I probably should have mentioned that this is already the case.
-> 
->  > That should release _some_ of the blockdev pagecache, but not a lot, I
->  > expect.  Maybe JFS is just metadata-intensive..
-> 
-> There appears to be a jfs-discussion mailing list on SourceForge; I'll 
-> try asking there.
+Helge Hafting wrote:
+> I have an usb card reader (Apacer) in my desktop machine.
+..
+> Another slot accepts SD/MMC cards.  I tried inserting an MMC card,
+> but nothing seems to happen.  Using /dev/sdf doesn't work - no medium.
 
-I answered this in jfs-discussion, but for curious on linux-kernel:
-
-There was a pretty major memory leak in jfs in the 2.6.8 kernel.  This
-one-line fix is in the 2.6.9 kernel.  I'm guessing that this would
-explain the problem you are seeing.
-http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/tglx/history.git;a=commitdiff;h=fcc1fcc376bb1fe8ed7609b07931fc5bd774943a
-
-Thanks,
-Shaggy
--- 
-David Kleikamp
-IBM Linux Technology Center
-
+Rebuild your kernel with "CONFIG_SCSI_MULTI_LUN" enabled
+(aka. "Probe all LUNs on each SCSI device" under drivers->scsi).

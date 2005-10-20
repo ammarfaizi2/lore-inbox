@@ -1,75 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbVJTMRR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbVJTM30@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932091AbVJTMRR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 08:17:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbVJTMRR
+	id S932102AbVJTM30 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 08:29:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbVJTM30
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 08:17:17 -0400
-Received: from mail.velocity.net ([66.211.211.55]:60825 "EHLO
-	mail.velocity.net") by vger.kernel.org with ESMTP id S932091AbVJTMRQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 08:17:16 -0400
-X-AV-Checked: Thu Oct 20 08:17:16 2005 clean
-Subject: Re: scsi disk size reporting in dmesg
-From: Dale Blount <linux-kernel@dale.us>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051019220920.7c91b922.rdunlap@xenotime.net>
-References: <1129577044.17327.11.camel@dale.velocity.net>
-	 <20051019220920.7c91b922.rdunlap@xenotime.net>
-Content-Type: text/plain
-Date: Thu, 20 Oct 2005 08:17:15 -0400
-Message-Id: <1129810635.22387.11.camel@dale.velocity.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Thu, 20 Oct 2005 08:29:26 -0400
+Received: from moutng.kundenserver.de ([212.227.126.187]:2784 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932094AbVJTM3Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 08:29:25 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Andrew Hendry <ahendry@tusc.com.au>
+Subject: Re: [PATCH] X25: Add ITU-T facilites
+Date: Thu, 20 Oct 2005 14:30:15 +0200
+User-Agent: KMail/1.7.2
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Arnaldo Carvalho de Melo <acme@ghostprotocols.net>,
+       "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>,
+       eis@baty.hanse.de, linux-x25@vger.kernel.org,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+References: <1129513666.3747.50.camel@localhost.localdomain> <Pine.LNX.4.61.0510181144320.28065@chaos.analogic.com> <1129770654.3574.1154.camel@localhost.localdomain>
+In-Reply-To: <1129770654.3574.1154.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510201430.17160.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-19 at 22:09 -0700, Randy.Dunlap wrote:
-> On Mon, 17 Oct 2005 15:24:04 -0400 Dale Blount wrote:
+On Dunnersdag 20 Oktober 2005 03:10, Andrew Hendry wrote:
+> __u32 or unsigned int look to be the norm for other similar headers,
+> whats the recommended type of types to be used?
 > 
-> > Hello,
-> > 
-> > I just added 2 external 1TB+ scsi devices to my i686 linux server
-> > running 2.6.13.4 connected to external LSI MPT card.  fdisk and df both
-> > show the sizes correctly (see below), but I'm worried that dmesg reports
-> > them incorrectly.
-> > 
-> > SCSI device sda: 2460934144 512-byte hdwr sectors (160487 MB)
-> > SCSI device sdb: 3790438400 512-byte hdwr sectors (841193 MB)
-> > 
-> > I don't think it's as simple as a variable overflow because both
-> > sdkp->capacity and mb look to be cast as unsigned long longs.  I know a
-> > workaround is to present less data per LUN, but I'd like to use it as
-> > it's setup currently if possible.  Is this just printing incorrectly or
-> > will I run into trouble when the device gets more full?
-> 
-> The casts to (unsigned long long) just fix the printk() args to match
-> the format strings (and eliminate warnings).
-> 
-> Looks to me like sdkp->capacity is correct.  The <mb> value looks
-> way off.  Since it's just printed here for user info, I don't see
-> how it can be a problem later on.
-> 
+Use __{u,s}{32,16,8} for interfaces and {u,s}{64,32,16,8} internally,
+if you care about the exact size, otherwise use unsigned int.
+See also http://lwn.net/Articles/113367/
 
-That's what I was hoping, but I didn't know for sure.  I figured I'd
-better ask to make sure my data wouldn't get truncated when the disk got
-fuller.  Between my first post and now, I've tested it by filling the
-drive with data and testing the md5sums for each file and it seems to
-work.  Other than the odd MB size reported, it seems to work just fine.
-
-> I don't see the error just yet.  Are there any other SCSI device-
-> related messages near these?  And just to confirm, but you must
-> have CONFIG_LBD (Large Block Device) enabled, right?
-> 
-
-No, there are no other related messages near these other than the
-standard vendor/versions.  I did not enable CONFIG_LBD since the help
-says "bigger than 2TB", and I partitioned the storage system to present
-disks smaller than that.
-
-Thanks for the reply,
-
-Dale
-
+	Arnd <><

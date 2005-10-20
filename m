@@ -1,82 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751775AbVJTGzj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751776AbVJTGz4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751775AbVJTGzj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 02:55:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751776AbVJTGzj
+	id S1751776AbVJTGz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 02:55:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751777AbVJTGz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 02:55:39 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:7871 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751775AbVJTGzi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 02:55:38 -0400
-Date: Thu, 20 Oct 2005 02:55:26 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-To: john stultz <johnstul@us.ibm.com>
-cc: tglx@linutronix.de, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
+	Thu, 20 Oct 2005 02:55:56 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:3982 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751776AbVJTGzz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 02:55:55 -0400
+Date: Thu, 20 Oct 2005 08:56:20 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
 Subject: Re: Ktimer / -rt9 (+custom) monotonic_clock going backwards.
-In-Reply-To: <1129747172.27168.149.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.58.0510200249080.27683@localhost.localdomain>
-References: <Pine.LNX.4.58.0510191047270.24515@localhost.localdomain> 
- <1129734626.19559.275.camel@tglx.tec.linutronix.de>
- <1129747172.27168.149.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20051020065620.GA27349@elte.hu>
+References: <Pine.LNX.4.58.0510191047270.24515@localhost.localdomain> <20051019151138.GA7739@elte.hu> <Pine.LNX.4.58.0510200221200.27683@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0510200221200.27683@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-On Wed, 19 Oct 2005, john stultz wrote:
-> > >
-> > > Now here's the results that I got between two calls of do_get_ktime_mono
-> > >
-> > > 358.069795728 secs then later 355.981483177.  Should this ever happen?
-> >
-> > Definitely not. monotonic time must go forwards.
->
-> Steven: What clocksource are you using? Could you send me your dmesg?
+> > should be monotone - the latest -rt kernels include a debugging check
+> > for the monotonicity of do_get_ktime_mono().
+> 
+> Hi Ingo,
+> 
+> Hmm, I think this will help in that debugging check :-)
 
-I have both a PIT/TSC and apic. So, as Thomas told me, the ktimer code
-should figure out what to use. So that's pretty much all I can say on
-clocksource ;)
+> +	per_cpu(prev_mono_time, cpu) = now;
+>  	return now;
+>  }
 
-As for the dmesg, there isn't really one. I have my own logging code that
-flagged this, as well as a check that would BUG on the system when this
-happened.  So my messages may not mean much to you.  I'm currently
-compiling Ingo's -rt12 (with a fix to his checking) to see if I can
-trigger it there too.  My custom kernel doesn't touch the ktimer/timeofday
-code so I'm assuming that I can. But until I can trigger this on a kernel
-that I didn't taint, I'll stop bothering you :-)
+*blush*, applied.
 
+I was already wondering a bit why that check never triggered for anyone.  
+It is easy to have a non-monotonic clock (there's lots of crappy hw and 
+the gettimeofday code has to work hard) and the effects of time warps 
+are subtle, if noticeable at all, so i expected some detections.
 
->
->
-> > > I haven't look to see if this happens in vanilla -rt10 but I haven't
-> > > touched your ktimer code except for my logging and the patch with the
-> > > unlock_ktimer_base (since I was based off of -rt9)
-> >
-> > The ktimer code itself calls the timeofday code, which provides the
-> > monotonic clock. I have no idea what might go wrong.
-> >
-> > Is this reproducible ?
->
-> Last night I just caught a bug I accidentally introduced with the fixed
-> interval math (oh, if only optimizations didn't dirty code so!), where
-> time inconsistencies were possible when clocksources were changed. I'm
-> not sure if that's the issue being seen above, but I'll wrap things up
-> and send out a B8 release today if I can.
->
+i have released -rt13 with another change: the other timer warning is 
+only printed once. (a steady stream of messages is not helpful)
 
-Hmm, I believe that the ktimers use the apic (when available) and let the
-jiffies still be calculated via PIT/TSC.
-
-Thomas, is the above correct?
-
-Would that have triggered your bug?
-
-Thanks,
-
--- Steve
-
+	Ingo

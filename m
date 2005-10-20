@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751785AbVJTIC1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751784AbVJTIBG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751785AbVJTIC1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 04:02:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751786AbVJTIC1
+	id S1751784AbVJTIBG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 04:01:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751785AbVJTIBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 04:02:27 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:33669 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S1751785AbVJTIC0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 04:02:26 -0400
-Subject: Re: USB-> bluetooth adapter problem
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Luke Albers <gtg940r@mail.gatech.edu>
-Cc: linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
-In-Reply-To: <4356DF14.7070804@mail.gatech.edu>
-References: <43499A44.2070803@mail.gatech.edu>
-	 <1128898123.19569.28.camel@blade>  <4356DF14.7070804@mail.gatech.edu>
-Content-Type: text/plain
-Date: Thu, 20 Oct 2005 10:02:58 +0200
-Message-Id: <1129795378.2241.29.camel@blade>
+	Thu, 20 Oct 2005 04:01:06 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:39578 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751784AbVJTIBF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 04:01:05 -0400
+Date: Thu, 20 Oct 2005 10:01:07 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: john stultz <johnstul@us.ibm.com>, tglx@linutronix.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: Ktimer / -rt9 (+custom) monotonic_clock going backwards.
+Message-ID: <20051020080107.GA31342@elte.hu>
+References: <Pine.LNX.4.58.0510191047270.24515@localhost.localdomain> <1129734626.19559.275.camel@tglx.tec.linutronix.de> <1129747172.27168.149.camel@cog.beaverton.ibm.com> <Pine.LNX.4.58.0510200249080.27683@localhost.localdomain> <20051020073416.GA28581@elte.hu> <Pine.LNX.4.58.0510200340110.27683@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0510200340110.27683@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Luke,
 
-> I got another one of these adapters, and when I plug the new one in I get:
+* Steven Rostedt <rostedt@goodmis.org> wrote:
+
+> > i could imagine the following hardware effects to cause time warps:
+> >
+> > - the TSC is in fact the 'read counter' method of the local APIC timer
+> >   hardware. So there can be interactions in theory: programming the APIC
+> >   timer could impact the TSC and vice versa. There have been CPU
+> >   erratums in this area in the past.
 > 
-> usb 4-1: new full speed USB device using uhci_hcd and address 2
-> Bluetooth: HCI USB driver ver 2.8
-> usbcore: registered new driver hci_usb
-> hcid[30219]: Bluetooth HCI daemon
-> hcid[30219]: HCI dev 0 up
-> hcid[30219]: Starting security manager 0
+> Could this cause a 2 second drop backwards?
+
+i dont think so.
+
+> > - the TSC itself could have short, temporary warps. I had a box that
+> >   showed such effects.
 > 
-> Then I remove that one and plug in the original and get the old problem:
-> 
-> usb 4-1: new full speed USB device using uhci_hcd and  address 3
-> hcid[30219]: HCI dev 0 registered
-> usb 4-1: USB disconnect, address 3
-> hcid[1984]: Can't init device hci0: No such device (19 )
-> hcid[30219]: HCI dev 0 unregistered
-> 
-> So the old one I was using seems to be a bad device, I just want to ask 
-> if there are any other possibilities, other than bad hardware, before I 
-> get rid of it.
+> Can this be a 2 second warp?
 
-I have no answer to this, but it looks like bad hardware. If you don't
-wanna return it, you can send the adapter to me for some testing.
+the ones i saw were in the 1000-cycles range.
 
-Regards
+> My older code first used jiffies as a timer, then I switched to TSC 
+> and then to APIC timer, and then finally ktimer.  ktimer was the first 
+> to show a backwards get_time.
 
-Marcel
+another thing: the monotonicity check is only in get_ktime_mono(), while 
+there are other places where a monotonic clock is used, which this check 
+might miss.
 
-
+	Ingo

@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751782AbVJTHUk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751783AbVJTH1Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751782AbVJTHUk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 03:20:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751780AbVJTHUk
+	id S1751783AbVJTH1Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 03:27:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751784AbVJTH1Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 03:20:40 -0400
-Received: from gate.crashing.org ([63.228.1.57]:27368 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751778AbVJTHUj (ORCPT
+	Thu, 20 Oct 2005 03:27:24 -0400
+Received: from ns2.suse.de ([195.135.220.15]:415 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751783AbVJTH1Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 03:20:39 -0400
-Subject: Re: [patch 2.6.14-rc4] b44: alternate allocation option for DMA
-	descriptors
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "John W. Linville" <linville@tuxdriver.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, jgarzik@pobox.com,
-       pp@ee.oulu.fi
-In-Reply-To: <10182005213059.12243@bilbo.tuxdriver.com>
-References: <10182005213059.12243@bilbo.tuxdriver.com>
-Content-Type: text/plain
-Date: Thu, 20 Oct 2005 17:17:05 +1000
-Message-Id: <1129792626.7620.248.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Thu, 20 Oct 2005 03:27:24 -0400
+From: Andi Kleen <ak@suse.de>
+To: discuss@x86-64.org
+Subject: Re: [discuss] Re: x86_64: 2.6.14-rc4 swiotlb broken
+Date: Thu, 20 Oct 2005 09:27:48 +0200
+User-Agent: KMail/1.8
+Cc: Jon Mason <jdmason@us.ibm.com>, Muli Ben-Yehuda <mulix@mulix.org>,
+       Ravikiran G Thirumalai <kiran@scalex86.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, tglx@linutronix.de, shai@scalex86.org,
+       clameter@engr.sgi.com, muli@il.ibm.com
+References: <20051017093654.GA7652@localhost.localdomain> <20051017184523.GB26239@granada.merseine.nu> <20051019171805.GF10863@us.ibm.com>
+In-Reply-To: <20051019171805.GF10863@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510200927.48989.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-10-18 at 21:30 -0400, John W. Linville wrote:
-> This is a (final?) hack to support the odd DMA allocation requirements
-> of the b44 hardware.  The b44 hardware has a 30-bit DMA mask.  On x86,
-> anything less than a 32-bit DMA mask forces allocations into the 16MB
-> GFP_DMA range.  The memory there is somewhat limited, often resulting
-> in an inability to initialize the b44 driver.
-> 
-> This hack uses streaming DMA allocation APIs in order to provide an
-> alternative in case the GFP_DMA allocation fails.  It is somewhat ugly,
-> but not much worse than the similar existing hacks to support SKB
-> allocations in the same driver.  FWIW, I have received positive
-> feedback on this from several Fedora users.
+On Wednesday 19 October 2005 19:18, Jon Mason wrote:
+> I have run a few tests on the original code and the patches posted to the
+> list, and have some interesting results.  First, my system setup:  Dual
+> Opteron, 8GB RAM, SIL SATA controller (which is apparently 32bit), pcnet32
+> NIC (compiled as a module) connected to the network.  The latter 2 should
+> show any bounce buffer problems.
 
-I'm not sure what you are trying to do here ... If pci_alloc_* failed,
-you do kmalloc(...,GFP_KERNEL) which can give you memory above your DMA
-mask. Then, you use dma_map_* but that won't help much more neither.
-Unless you have an iommu (or swiotlb) _and_ that implements arbitrary
-DMA masks support (which it typically doesn't it's often 32 bits vs. 64
-bits) it won't help, you'll get into your error case.
+We don't care about AMD systems for this problem because they
+don't use swiotlb in normal operations, but the AGP remapping hardware (except 
+on one particulr chipset, but people don't build servers from that) 
 
-So basically, what you are doing is: if allocation fails, you try to get
-memory using GFP_KERNEL. If it happens to be in the low 2Gb of memory,
-use it, if not, drop it.
+If anything then testing results from Summit3 based Intel x86 NUMA systems 
+would be interesting.
 
-Did I get that right ?
-
-Note that the Broadcom wireless (which is currently being reverse
-engineered) seem to suffer from the same stupid DMA engine...
-
-Ben.
-
+-Andi
+ 

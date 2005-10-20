@@ -1,58 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932537AbVJTWPw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932544AbVJTWQ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932537AbVJTWPw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 18:15:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932542AbVJTWPw
+	id S932544AbVJTWQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 18:16:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932545AbVJTWQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 18:15:52 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:424 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932537AbVJTWPv (ORCPT
+	Thu, 20 Oct 2005 18:16:56 -0400
+Received: from zproxy.gmail.com ([64.233.162.194]:53817 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932544AbVJTWQz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 18:15:51 -0400
-Date: Thu, 20 Oct 2005 15:15:29 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Eric Dumazet <dada1@cosmosbay.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386 spinlocks should use the full 32 bits, not only 8
- bits
-In-Reply-To: <20051020220228.GA26247@elte.hu>
-Message-ID: <Pine.LNX.4.64.0510201512480.10477@g5.osdl.org>
-References: <200510110007_MC3-1-AC4C-97EA@compuserve.com>
- <1129035658.23677.46.camel@localhost.localdomain> <Pine.LNX.4.64.0510110740050.14597@g5.osdl.org>
- <434BDB1C.60105@cosmosbay.com> <Pine.LNX.4.64.0510110902130.14597@g5.osdl.org>
- <434BEA0D.9010802@cosmosbay.com> <20051017000343.782d46fc.akpm@osdl.org>
- <1129533603.2907.12.camel@laptopd505.fenrus.org> <20051020215047.GA24178@elte.hu>
- <Pine.LNX.4.64.0510201455030.10477@g5.osdl.org> <20051020220228.GA26247@elte.hu>
+	Thu, 20 Oct 2005 18:16:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:organization:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=ZKBB3lPUdnYSXGvuzg3VpTqtViOBioARM+B2mYUnPmAE5v+uhzEUlJbF9G1xBWOGeKmVNZQzRHRA9MzCqo3r3Am464KyESOREX1kiQz9t8GQA6paBjcbuyFccj3G86V8hCDOuTDPRfyM/COzsp8W6sQNyKYNwzPPnjSY+IWNNLA=
+Message-ID: <4358173B.20509@gmail.com>
+Date: Fri, 21 Oct 2005 08:16:27 +1000
+From: Grant Coady <gcoady@gmail.com>
+Organization: http://bugsplatter.mine.nu/
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Harald Dunkel <harald.dunkel@t-online.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.13.4: 'find' complained about sysfs
+References: <4357E4E9.4@t-online.de>
+In-Reply-To: <4357E4E9.4@t-online.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 21 Oct 2005, Ingo Molnar wrote:
+Harald Dunkel wrote:
+> Hi folks,
 > 
-> the unlock is simple even in the preemption case
+> When I ran 'find /sys -name modalias' I got an error
+> message on stderr saying
+> 
+> find: WARNING: Hard link count is wrong for /sys/devices: this may be a bug in your filesystem driver.  Automatically turning on find's -noleaf option.  Earlier results may have failed to include directories that should have been searched.
+> 
+> uname -a:
+> Linux pluto 2.6.13.4 #1 Sun Oct 16 22:41:26 CEST 2005 x86_64 GNU/Linux
+> 
+grant@sempro:~$ find /sys -name modalias
+/sys/devices/pci0000:00/0000:00:11.5/modalias
+/sys/devices/pci0000:00/0000:00:11.0/modalias
+/sys/devices/pci0000:00/0000:00:10.4/usb1/1-0:1.0/modalias
+/sys/devices/pci0000:00/0000:00:10.4/modalias
+/sys/devices/pci0000:00/0000:00:10.2/usb3/3-0:1.0/modalias
+/sys/devices/pci0000:00/0000:00:10.2/modalias
+/sys/devices/pci0000:00/0000:00:10.0/usb2/2-1/2-1:1.0/modalias
+/sys/devices/pci0000:00/0000:00:10.0/usb2/2-0:1.0/modalias
+/sys/devices/pci0000:00/0000:00:10.0/modalias
+/sys/devices/pci0000:00/0000:00:0f.1/modalias
+/sys/devices/pci0000:00/0000:00:0f.0/modalias
+/sys/devices/pci0000:00/0000:00:07.0/modalias
+/sys/devices/pci0000:00/0000:00:06.0/modalias
+/sys/devices/pci0000:00/0000:00:01.0/0000:01:00.0/modalias
+/sys/devices/pci0000:00/0000:00:01.0/modalias
+/sys/devices/pci0000:00/0000:00:00.0/modalias
+/sys/devices/platform/i8042/serio1/modalias
+/sys/devices/platform/i8042/serio0/modalias
+grant@sempro:~$ uname -r
+2.6.13.4a
 
-No it's not. It needs to decrement the preemption counter and test it.
+and another:
 
-See kernel/spinlock.c:
+grant@tosh:~$ find /sys -name modalias
+/sys/devices/pci0000:00/0000:00:0c.0/modalias
+/sys/devices/pci0000:00/0000:00:0b.0/0000:02:00.0/modalias
+/sys/devices/pci0000:00/0000:00:0b.0/modalias
+/sys/devices/pci0000:00/0000:00:07.0/modalias
+/sys/devices/pci0000:00/0000:00:05.3/modalias
+/sys/devices/pci0000:00/0000:00:05.2/usb1/1-0:1.0/modalias
+/sys/devices/pci0000:00/0000:00:05.2/modalias
+/sys/devices/pci0000:00/0000:00:05.1/modalias
+/sys/devices/pci0000:00/0000:00:05.0/modalias
+/sys/devices/pci0000:00/0000:00:01.0/0000:01:00.0/modalias
+/sys/devices/pci0000:00/0000:00:01.0/modalias
+/sys/devices/pci0000:00/0000:00:00.0/modalias
+/sys/devices/platform/i8042/serio1/modalias
+/sys/devices/platform/i8042/serio0/modalias
+grant@tosh:~$ uname -r
+2.6.13.4a
 
-	void __lockfunc _spin_unlock(spinlock_t *lock)
-	{
-	        _raw_spin_unlock(lock);
-	        preempt_enable();
-	}
-	EXPORT_SYMBOL(_spin_unlock);
-
-and look at what "preempt_enable()" does.
-
-In other words, with CONFIG_PREEMPT, your patch is WRONG. You made 
-"spin_unlock()" just skip the preempt_enable.
-
-In fact, with preemption, the _locking_ is the simpler part. Unlock is the 
-complex one.
-
-
-			Linus
+Sorry no clue from me :(
+Grant.

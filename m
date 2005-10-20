@@ -1,54 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932540AbVJTWDi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932541AbVJTWGF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932540AbVJTWDi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 18:03:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932541AbVJTWDi
+	id S932541AbVJTWGF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 18:06:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932542AbVJTWGF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 18:03:38 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:37020 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932540AbVJTWDh convert rfc822-to-8bit
+	Thu, 20 Oct 2005 18:06:05 -0400
+Received: from baldrick.bootc.net ([83.142.228.48]:148 "EHLO
+	baldrick.bootc.net") by vger.kernel.org with ESMTP id S932541AbVJTWGE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 18:03:37 -0400
-Message-ID: <4a45da430510201503v74874acoca37bba3aa5a2d07@mail.google.com>
-Date: Thu, 20 Oct 2005 15:03:30 -0700
-From: Jonathan Mayer <jonmayer@google.com>
-To: dtor_core@ameritech.net
-Subject: Re: [PATCH] added sysdev attribute to sysdev show/store methods - for linux-2.6.13.4
-Cc: Patrick Mochel <mochel@digitalimplant.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <d120d5000510201459y25a2c8e5v55bf830c445c9dbf@mail.gmail.com>
+	Thu, 20 Oct 2005 18:06:04 -0400
+Message-ID: <435814C7.8050807@bootc.net>
+Date: Thu, 20 Oct 2005 23:05:59 +0100
+From: Chris Boot <bootc@bootc.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051014)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4a45da430510201447r2970ea67rfac8dffe7223a68@mail.google.com>
-	 <d120d5000510201459y25a2c8e5v55bf830c445c9dbf@mail.gmail.com>
+To: Nikita Danilov <nikita@clusterfs.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Reiser4 lockups (no oops)
+References: <43567D80.3050304@bootc.net>	<20051020131815.GI2811@suse.de>	<20051020163425.z7wygjyir8lcw0gk@horde.fusednetworks.co.uk>	<20051020162112.GT2811@suse.de>	<4357C56B.30600@bootc.net>	<17239.55622.86540.438878@gargle.gargle.HOWL>	<4357E5A1.8000301@bootc.net> <17240.1485.704010.417090@gargle.gargle.HOWL>
+In-Reply-To: <17240.1485.704010.417090@gargle.gargle.HOWL>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Surely, the organization of sysfs is logical (by grouping relating
-things) rather than functional (by grouping things that need common
-back-end interfaces).
+Nikita Danilov wrote:
+> Chris Boot writes:
+>  > Nikita Danilov wrote:
+>  > 
+>  > >Chris Boot writes:
+>  > >
+>  > >[...]
+>  > >
+>  > > > Oh! Hehe, now I get you. However, I'm using metalog for logging, and 
+>  > > > modprobe loop doesn't give any output. What's interesting is that serial 
+>  > > > console logging dies long before metalog is started, just after my swap 
+>  > > > is added in fact. I'm using Gentoo.
+>  > > > 
+>  > > > Any ideas?
+>  > >
+>  > >What
+>  > >
+>  > >cat /proc/sys/kernel/printk
+>  > >
+>  > >shows after a boot?
+>  > >
+>  > > > 
+>  > > > Cheers,
+>  > > > Chris
+>  > >
+>  > >Nikita.
+>  > >  
+>  > >
+>  > Hi there,
+>  > 
+>  > It shows:
+>  > 
+>  > arcadia ~ # cat /proc/sys/kernel/printk
+>  > 1       4       1       7
+> 
+> That's why nothing is printed on the console. Try
+> 
+> echo 8 4 4 8 > /proc/sys/kernel/printk
 
-Er .. no?
+Cheers! That did the trick.
 
-In general, where can I find guidance on where to put things within
-sysfs?  Has anybody written some kind of Plan?
+Chris
 
- - jm.
-
-On 10/20/05, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> On 10/20/05, Jonathan Mayer <jonmayer@google.com> wrote:
->
-> >  2. it precludes the ability to create sys_device objects whose
-> > attributes are not known at compile time (such as an sysfs
-> > representation of the smbios table for some platforms -- which will be
-> > my next patch submission).
-> >
->
-> Does this smbios table have to be a system device (does it have to be
-> suspended and resumed with interrupts off) or maybe platform bus suits
-> it better?
->
-> --
-> Dmitry
->
+-- 
+Chris Boot
+bootc@bootc.net
+http://www.bootc.net/

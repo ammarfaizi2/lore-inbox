@@ -1,68 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbVJTL1Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751142AbVJTMYT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932068AbVJTL1Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 07:27:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbVJTL1Z
+	id S1751142AbVJTMYT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 08:24:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751493AbVJTMYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 07:27:25 -0400
-Received: from wireless-99.fi.muni.cz ([147.251.51.99]:51096 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S932069AbVJTL1Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 07:27:24 -0400
-Message-ID: <43577F1F.3070209@gmail.com>
-Date: Thu, 20 Oct 2005 13:27:27 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: cs, en-us, en
-MIME-Version: 1.0
-To: Peter Chubb <peterc@gelato.unsw.edu.au>
-CC: len.brown@intel.com, acpi-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] `unaligned access' in acpi get_root_bridge_busnr()
-References: <17239.4347.595396.783239@berry.gelato.unsw.EDU.AU>
-In-Reply-To: <17239.4347.595396.783239@berry.gelato.unsw.EDU.AU>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 20 Oct 2005 08:24:19 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:22357 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751142AbVJTMYS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 08:24:18 -0400
+Date: Thu, 20 Oct 2005 14:25:05 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Tejun Heo <htejun@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH linux-2.6-block:master] blk: reimplement elevator switch
+Message-ID: <20051020122505.GG2811@suse.de>
+References: <20051019123648.GA31257@htj.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051019123648.GA31257@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Chubb napsal(a):
-
->In drivers/acpi/glue.c the address of an integer is cast to the
->address of an unsigned long.  This breaks on systems where a long is
->larger than an int --- for a start the int can be misaligned; for a
->second the assignment through the pointer will overwrite part of the
->next variable.
->
->Patch is against linux-2.6.14-rc4
->
->Signed-off-by: Peter Chubb <peterc@gelato.unsw.edu.au>
->
->Index: linux-2.6-import/drivers/acpi/glue.c
->===================================================================
->--- linux-2.6-import.orig/drivers/acpi/glue.c	2005-09-09 09:08:49.928854100 +1000
->+++ linux-2.6-import/drivers/acpi/glue.c	2005-10-20 13:32:32.126445742 +1000
->@@ -89,46 +89,46 @@ static int acpi_find_bridge_device(struc
-> /* Get PCI root bridge's handle from its segment and bus number */
-> struct acpi_find_pci_root {
-> 	unsigned int seg;
-> 	unsigned int bus;
-> 	acpi_handle handle;
-> };
+On Wed, Oct 19 2005, Tejun Heo wrote:
+>  Hello, Jens.
 > 
-> static acpi_status
-> do_root_bridge_busnr_callback(struct acpi_resource *resource, void *data)
-> {
->-	int *busnr = (int *)data;
->+	unsigned long *busnr = (unsigned long *)data;
->  
->
-Is the cast here really needed?
+>  This patch reimplements elevator switch.  This patch assumes generic
+> dispatch queue patchset is applied.
+> 
+>  * Each request is tagged with REQ_ELVPRIV flag if it has its elevator
+>    private data set.
+>  * Requests which doesn't have REQ_ELVPRIV flag set never enter
+>    iosched.  They are always directly back inserted to dispatch queue.
+>    Of course, elevator_put_req_fn is called only for requests which
+>    have its REQ_ELVPRIV set.
+>  * Request queue maintains the current number of requests which have
+>    its elevator data set (elevator_set_req_fn called) in
+>    q->rq->elvpriv.
+>  * If a request queue has QUEUE_FLAG_BYPASS set, elevator private data
+>    is not allocated for new requests.
+> 
+>  To switch to another iosched, we set QUEUE_FLAG_BYPASS and wait until
+> elvpriv goes to zero; then, we attach the new iosched and clears
+> QUEUE_FLAG_BYPASS.  New implementation is much simpler and main code
+> paths are less cluttered, IMHO.
 
-regards,
+Wonderful! Applied as-is, I didn't make any changes to this one. I agree
+it's much cleaner than the previous approach, both in the code and in
+killing the request_queue and request_list members.
+
+I'm going to make a little few tweaks:
+
+- The naming, QUEUE_FLAG_BYPASS isn't really clear. I don't know what
+  this means without looking at specific parts of the code. Testing of
+  same flag in various locations would also be preferred instead of
+  passing priv around and cluttering the function parameters, however we
+  should split the queue flags a little for this. Basically into an
+  atomic and non-atomic part. So I'll leave that alone for now.
+
+- The msleep(100) seems a little too slow. With the switching being more
+  efficient now, in 100msecs we can complete lots of requests.
 
 -- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-B67499670407CE62ACC8 22A032CC55C339D47A7E
+Jens Axboe
 

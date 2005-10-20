@@ -1,187 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932510AbVJTUuz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932535AbVJTUyu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932510AbVJTUuz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 16:50:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932532AbVJTUuy
+	id S932535AbVJTUyu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 16:54:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbVJTUyu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 16:50:54 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:6291 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932510AbVJTUuy (ORCPT
+	Thu, 20 Oct 2005 16:54:50 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:51866 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932535AbVJTUyt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 16:50:54 -0400
-Date: Thu, 20 Oct 2005 13:50:14 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [EXPERIMENT,RFC] FAT: Add "flush" option for hotplug devices
-Message-Id: <20051020135014.2289fa01.akpm@osdl.org>
-In-Reply-To: <871x2gf8f5.fsf@devron.myhome.or.jp>
-References: <871x2gf8f5.fsf@devron.myhome.or.jp>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 20 Oct 2005 16:54:49 -0400
+Date: Thu, 20 Oct 2005 22:54:59 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>, tglx@linutronix.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: Ktimer / -rt9 (+custom) monotonic_clock going backwards.
+Message-ID: <20051020205459.GA23326@elte.hu>
+References: <Pine.LNX.4.58.0510200340110.27683@localhost.localdomain> <20051020080107.GA31342@elte.hu> <Pine.LNX.4.58.0510200443130.27683@localhost.localdomain> <20051020085955.GB2903@elte.hu> <Pine.LNX.4.58.0510200503470.27683@localhost.localdomain> <Pine.LNX.4.58.0510200603220.27683@localhost.localdomain> <Pine.LNX.4.58.0510200605170.27683@localhost.localdomain> <1129826750.27168.163.camel@cog.beaverton.ibm.com> <20051020193214.GA21613@elte.hu> <1129838714.27168.181.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1129838714.27168.181.camel@cog.beaverton.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
->
-> Hi,
+
+* john stultz <johnstul@us.ibm.com> wrote:
+
+> > no, this is really a bad optimization that causes unrobustness. 
+> > Correctness and robustness comes first. It is so easy to cause a 
+> > 500-1000msec delay in the kernel, due to a bad driver or anything. The 
+> > timekeeping code should not break like that.
 > 
-> This adds new "flush" option on experiment for hotplug devices.
-> 
-> Current implementation of "flush" option does,
-> 
-> 	- synchronizing data pages at ->release() (last close(2))
-> 	- if user's work seems to be done (fs is not active), all
-> 	  metadata syncs by pdflush()
+> Eh, its an easy enough change, so I'll put it back to u64. We can 
+> revisit it again later if needed.
 
-Seems like a sensible thing to do.
+yeah. i didnt notice u64 hurting that much, and we can optimize it later 
+on. As long as the 64-bit CPUs are ok, we shouldnt care all that much 
+about micro-performance - especially not at the expense of robustness.
 
-> This option would provide kind of sane progress, and dirty buffers is
-> flushed more frequently (if fs is not active).
+> However making sure periodic_hook isn't starved for too long is 
+> important for good timekeeping, since ntp and cpufreq adjustments are 
+> made at that point. Steven's suggestion of moving it to use ktimers 
+> sounds like a good plan, but let me know if you can see any other 
+> holes.
 
-Your implementation doesn't really do this.  bdi_write_congested() only
-returns true if the device is super-busy.  To determine whether it's "not
-active" we'd need to peek at the queue's disk_stat accounting, or at the
-queue's outstanding read/write requests.  We covered this a couple of weeks
-ago in the context of Con's swap prefetch work.
+yes. Besides driver bugs and 'badly behaving' code, there's another use 
+case: in the PREEMPT_RT kernel it's the user that picks the priorities 
+for kernel functionalities in a very finegrained way: if his 
+data-collection device interrupt and driver code is more important than 
+anything else on the system (including timekeeping), then that's the way 
+it will be. So the seemingly contradictory (and amusing) situation 
+arises that the -rt kernel, which is all about low latencies, also 
+increases the the need for subsystems to more robustly _bear with_ 
+higher latencies - for the case where they happen to be the lowprio guy 
+...
 
->  This option doesn't
-> provide any robustness (robustness is provided by other options), but
-> probably the option is proper for hotplug devices.
+but i agree - excessive latencies cannot be tolerated - but up to a few 
+seconds can easily happen in various situations.
 
-Well...  It does a full fsync_super() - that's pretty robust.
-
-> +EXPORT_SYMBOL(filemap_write_and_wait);
-
-_GPL please.
-
-> +EXPORT_SYMBOL(fsync_super);
-
-Ditto
-
-> +/*
-> + * Copyright (C) 2005, OGAWA Hirofumi
-> + * Released under GPL v2.
-> + */
-> +
-> +#include <linux/fs.h>
-> +#include <linux/blkdev.h>
-> +#include <linux/writeback.h>
-> +#include <linux/msdos_fs.h>
-> +
-> +int fat_sync_fdata(struct inode *inode, struct file *filp)
-> +{
-> +	int err = 0;
-> +
-> +	if (filp->f_mode & FMODE_WRITE) {
-> +#if 1
-> +		current->flags |= PF_SYNCWRITE;
-> +		err = filemap_write_and_wait(inode->i_mapping);
-> +		current->flags &= ~PF_SYNCWRITE;
-> +#else
-> +		down(&inode->i_sem);
-> +#if 1
-> +		err = generic_osync_inode(inode, inode->i_mapping, OSYNC_DATA);
-> +#else
-> +		err = filp->f_op->fsync(filp, filp->f_dentry, 1);
-> +#endif
-> +		up(&inode->i_sem);
-> +#endif
-> +	}
-> +	return err;
-> +}
-
-Can't we just split up do_fsync() a bit and use that?
-
-> +static void fat_pdflush_handler(unsigned long arg)
-> +{
-> +	struct super_block *sb = (struct super_block *)arg;
-> +	fsync_super(sb);
-> +}
-
-It would be nice if /proc/sys/vm/dirty_writeback_centisecs was a per-fs
-thing.   That's non-trivial.
-
-> +static void fat_flush_timer(unsigned long data)
-> +{
-> +	struct super_block *sb = (struct super_block *)data;
-> +	struct msdos_sb_info *sbi = MSDOS_SB(sb);
-> +	struct backing_dev_info *bdi = blk_get_backing_dev_info(sb->s_bdev);
-> +	unsigned long last_flush_jiff;
-> +
-> +	if (bdi_write_congested(bdi)) {
-
-As indicated above, this won't be very effective.
-
-> +		mod_timer(&sbi->flush_timer, jiffies + (HZ / 10));
-> +		return;
-> +	}
-> +
-> +	last_flush_jiff = sbi->last_flush_jiff;
-> +
-> +	if (!time_after_eq(jiffies, last_flush_jiff + (HZ / 2))) {
-> +		mod_timer(&sbi->flush_timer, last_flush_jiff + (HZ / 2));
-> +		return;
-> +	}
-
-What's the above doing?
-
-> +	if (pdflush_operation(fat_pdflush_handler, (unsigned long)sb) < 0)
-> +		mod_timer(&sbi->flush_timer, jiffies + HZ);
-> +}
-> +
-> +void __fat_mark_flush(struct super_block *sb)
-> +{
-> +	struct msdos_sb_info *sbi = MSDOS_SB(sb);
-> +
-> +	sbi->last_flush_jiff = jiffies;
-> +	/*
-> +	 * make sure by smb_wmb() that dirty buffers before here is
-> +	 * processed at the timer routine.
-> +	 */
-> +	smp_wmb();
-> +
-> +	if (!timer_pending(&sbi->flush_timer))
-> +		mod_timer(&sbi->flush_timer, jiffies + HZ);
-> +}
-> +EXPORT_SYMBOL(__fat_mark_flush);
-
-_GPL?
-
-> +void fat_flush_stop(struct super_block *sb)
-> +{
-> +	del_timer_sync(&MSDOS_SB(sb)->flush_timer);
-> +}
-
-whoops, the pdflush_operation could still be in progress.
-
-To avoid umount races I think the pdflush callback is going to need to take
-sb_lock, increment s_count, take ->s_umount, test ->s_root.  Like, for
-example, __sync_inodes.
-
-> +void fat_flush_init(struct super_block *sb)
-> +{
-> +	struct msdos_sb_info *sbi = MSDOS_SB(sb);
-> +	init_timer(&sbi->flush_timer);
-> +	sbi->flush_timer.data = (unsigned long)sb;
-> +	sbi->flush_timer.function = fat_flush_timer;
-
--mm has setup_timer()
-
-> +
-> +static inline void fat_mark_flush(struct super_block *sb)
-> +{
-> +	if (MSDOS_SB(sb)->options.flush)
-> +		__fat_mark_flush(sb);
-> +}
-
-It'd be nice to make this a more generic thing, so other filesystems can
-use it without copying lots of code.
-
-> +		case Opt_flush:
-
-MS_FLUSH?   I added MS_DIRSYNC a few years ago - it wasn't too complex.
-
-
+	Ingo

@@ -1,102 +1,273 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932545AbVJTW7w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932549AbVJTXAV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932545AbVJTW7w (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 18:59:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932546AbVJTW7w
+	id S932549AbVJTXAV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 19:00:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932550AbVJTXAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 18:59:52 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:22410 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932545AbVJTW7w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 18:59:52 -0400
-Date: Thu, 20 Oct 2005 15:59:35 -0700 (PDT)
+	Thu, 20 Oct 2005 19:00:20 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:14534 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S932549AbVJTXAB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 19:00:01 -0400
+Date: Thu, 20 Oct 2005 15:59:45 -0700 (PDT)
 From: Christoph Lameter <clameter@sgi.com>
 To: akpm@osdl.org
 Cc: Mike Kravetz <kravetz@us.ibm.com>, linux-kernel@vger.kernel.org,
        linux-mm@kvack.org, Christoph Lameter <clameter@sgi.com>,
        Magnus Damm <magnus.damm@gmail.com>,
        Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Message-Id: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 0/4] Swap migration V3: Overview
+Message-Id: <20051020225945.19761.15772.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com>
+References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [PATCH 2/4] Swap migration V3: Page Eviction
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Changes from V2 to V3:
-- Break out common code for page eviction (Thanks to a patch by Magnus Damm)
-- Add check to avoid MPOL_MF_MOVE moving pages that are also accessed from
-  another address space. Add support for MPOL_MF_MOVE_ALL to override this
-  (requires superuser priviledges).
-- Update overview regarding direct page migration patchset following soon and
-  cut longwinded explanations.
-- Add sys_migrate patchset
-- Check cpuset restrictions on sys_migrate.
+Page eviction support in vmscan.c
 
-Changes from V1 to V2:
-- Patch against 2.6.14-rc4-mm1
-- Remove move_pages() function
-- Code cleanup to make it less invasive.
-- Fix missing lru_add_drain() invocation from isolate_lru_page()
+This patch adds functions that allow the eviction of pages to swap space.
+Page eviction may be useful to migrate pages, to suspend programs or for
+ummapping single pages (useful for faulty pages or pages with soft ECC
+failures)
 
-In a NUMA system it is often beneficial to be able to move the memory
-in use by a process to different nodes in order to enhance performance.
-Currently Linux simply does not support this facility. This patchset
-implements page migration via a new syscall sys_migrate_pages and via
-the memory policy layer with the MPOL_MF_MOVE and MPOL_MF_MOVE_ALL
-flags.
+The process is as follows:
 
-Page migration is also useful for other purposes:
+The function wanting to evict pages must first build a list of pages to be evicted
+and take them off the lru lists. This is done using the isolate_lru_page function.
+isolate_lru_page determines that a page is freeable based on the LRU bit set and
+adds the page if it is indeed freeable to the list specified.
+isolate_lru_page will return 0 for a page that is not freeable.
 
-1. Memory hotplug. Migrating processes off a memory node that is going
-   to be disconnected.
+Then the actual swapout can happen by calling swapout_pages().
 
-2. Remapping of bad pages. These could be detected through soft ECC errors
-   and other mechanisms.
+swapout_pages does its best to swapout the pages and does multiple passes over the list.
+However, swapout_pages may not be able to evict all pages for a variety of reasons.
 
-This patchset realizes swap based page migration. Another patchset will
-follow soon (done by Mike Kravetz and me based on the hotplug direct page
-migration code, draft exists) that implements direct page migration on top
-of the framework established by the swap based page migration patchset.
+The remaining pages may be returned to the LRU lists using putback_lru_pages().
 
-The advantage of page based swapping is that the necessary changes to the kernel
-are minimal. With a fully functional but minimal page migration capability we
-will be able to enhance low level code and higher level APIs at the same time.
-This will hopefully decrease the time needed to get the code for direct page
-migration working and into the kernel trees. We hope that the swap based
-page migration will be included in 2.6.15.
+V3:
+- Extract common code from shrink_list() and swapout_pages()
 
-The patchset consists of two patches:
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-1. LRU operations
-
-Add basic operations to remove pages from the LRU lists and return
-them back to it.
-
-2. Page eviction
-
-Adds a function to mm/vmscan.c called swapout_pages that forces pages
-out to swap.
-
-3. MPOL_MF_MOVE flag for memory policies.
-
-This implements MPOL_MF_MOVE in addition to MPOL_MF_STRICT. MPOL_MF_STRICT
-allows the checking if all pages in a memory area obey the memory policies.
-MPOL_MF_MOVE will evict all pages that do not conform to the memory policy.
-The system will allocate pages conforming to the policy on swap in.
-
-4. sys_migrate_pages system call and cpuset API
-
-Adds a new function call
-
-sys_migrate_pages(pid, maxnode, from_nodes, to_nodes)
-
-to migrate pages of a process to a different node.
-
-URLs referring to the discussion regarding the initial version of these
-patches.
-
-Page eviction: http://marc.theaimsgroup.com/?l=linux-mm&m=112922756730989&w=2
-Numa policy  : http://marc.theaimsgroup.com/?l=linux-mm&m=112922756724715&w=2
-
-Discussion of V2 of the patchset:
-http://marc.theaimsgroup.com/?t=112959680300007&r=1&w=2
-
+Index: linux-2.6.14-rc4-mm1/include/linux/swap.h
+===================================================================
+--- linux-2.6.14-rc4-mm1.orig/include/linux/swap.h	2005-10-20 13:13:24.000000000 -0700
++++ linux-2.6.14-rc4-mm1/include/linux/swap.h	2005-10-20 13:20:53.000000000 -0700
+@@ -179,6 +179,8 @@ extern int vm_swappiness;
+ extern int isolate_lru_page(struct page *p, struct list_head *l);
+ extern int putback_lru_pages(struct list_head *l);
+ 
++extern int swapout_pages(struct list_head *l);
++
+ #ifdef CONFIG_MMU
+ /* linux/mm/shmem.c */
+ extern int shmem_unuse(swp_entry_t entry, struct page *page);
+Index: linux-2.6.14-rc4-mm1/mm/vmscan.c
+===================================================================
+--- linux-2.6.14-rc4-mm1.orig/mm/vmscan.c	2005-10-20 13:18:05.000000000 -0700
++++ linux-2.6.14-rc4-mm1/mm/vmscan.c	2005-10-20 13:22:33.000000000 -0700
+@@ -370,6 +370,42 @@ static pageout_t pageout(struct page *pa
+ 	return PAGE_CLEAN;
+ }
+ 
++static inline int remove_mapping(struct address_space *mapping,
++				struct page *page)
++{
++	if (!mapping)
++		return 0;		/* truncate got there first */
++
++	write_lock_irq(&mapping->tree_lock);
++
++	/*
++	 * The non-racy check for busy page.  It is critical to check
++	 * PageDirty _after_ making sure that the page is freeable and
++	 * not in use by anybody. 	(pagecache + us == 2)
++	 */
++	if (page_count(page) != 2 || PageDirty(page)) {
++		write_unlock_irq(&mapping->tree_lock);
++		return 0;
++	}
++
++#ifdef CONFIG_SWAP
++	if (PageSwapCache(page)) {
++		swp_entry_t swap = { .val = page->private };
++		add_to_swapped_list(swap.val);
++		__delete_from_swap_cache(page);
++		write_unlock_irq(&mapping->tree_lock);
++		swap_free(swap);
++		__put_page(page);	/* The pagecache ref */
++		return 1;
++	}
++#endif /* CONFIG_SWAP */
++
++	__remove_from_page_cache(page);
++	write_unlock_irq(&mapping->tree_lock);
++	__put_page(page);
++	return 1;
++}
++
+ /*
+  * shrink_list adds the number of reclaimed pages to sc->nr_reclaimed
+  */
+@@ -508,36 +544,8 @@ static int shrink_list(struct list_head 
+ 				goto free_it;
+ 		}
+ 
+-		if (!mapping)
+-			goto keep_locked;	/* truncate got there first */
+-
+-		write_lock_irq(&mapping->tree_lock);
+-
+-		/*
+-		 * The non-racy check for busy page.  It is critical to check
+-		 * PageDirty _after_ making sure that the page is freeable and
+-		 * not in use by anybody. 	(pagecache + us == 2)
+-		 */
+-		if (page_count(page) != 2 || PageDirty(page)) {
+-			write_unlock_irq(&mapping->tree_lock);
++		if (!remove_mapping(mapping, page))
+ 			goto keep_locked;
+-		}
+-
+-#ifdef CONFIG_SWAP
+-		if (PageSwapCache(page)) {
+-			swp_entry_t swap = { .val = page->private };
+-			add_to_swapped_list(swap.val);
+-			__delete_from_swap_cache(page);
+-			write_unlock_irq(&mapping->tree_lock);
+-			swap_free(swap);
+-			__put_page(page);	/* The pagecache ref */
+-			goto free_it;
+-		}
+-#endif /* CONFIG_SWAP */
+-
+-		__remove_from_page_cache(page);
+-		write_unlock_irq(&mapping->tree_lock);
+-		__put_page(page);
+ 
+ free_it:
+ 		unlock_page(page);
+@@ -564,6 +572,122 @@ keep:
+ }
+ 
+ /*
++ * Swapout evicts the pages on the list to swap space.
++ * This is essentially a dumbed down version of shrink_list
++ *
++ * returns the number of pages that were not evictable
++ *
++ * Multiple passes are performed over the list. The first
++ * pass avoids waiting on locks and triggers writeout
++ * actions. Later passes begin to wait on locks in order
++ * to have a better chance of acquiring the lock.
++ */
++int swapout_pages(struct list_head *l)
++{
++	int retry;
++	int failed;
++	int pass = 0;
++	struct page *page;
++	struct page *page2;
++
++	current->flags |= PF_KSWAPD;
++
++redo:
++	retry = 0;
++	failed = 0;
++
++	list_for_each_entry_safe(page, page2, l, lru) {
++		struct address_space *mapping;
++
++		cond_resched();
++
++		/*
++		 * Skip locked pages during the first two passes to give the
++		 * functions holding the lock time to release the page. Later we use
++		 * lock_page to have a higher chance of acquiring the lock.
++		 */
++		if (pass > 2)
++			lock_page(page);
++		else
++			if (TestSetPageLocked(page))
++				goto retry_later;
++
++		/*
++		 * Only wait on writeback if we have already done a pass where
++		 * we we may have triggered writeouts for lots of pages.
++		 */
++		if (pass > 0)
++			wait_on_page_writeback(page);
++		else
++			if (PageWriteback(page))
++				goto retry_later_locked;
++
++#ifdef CONFIG_SWAP
++		if (PageAnon(page) && !PageSwapCache(page)) {
++			if (!add_to_swap(page))
++				goto failed;
++		}
++#endif /* CONFIG_SWAP */
++
++		mapping = page_mapping(page);
++		if (page_mapped(page) && mapping)
++			if (try_to_unmap(page) != SWAP_SUCCESS)
++				goto retry_later_locked;
++
++		if (PageDirty(page)) {
++			/* Page is dirty, try to write it out here */
++			switch(pageout(page, mapping)) {
++			case PAGE_KEEP:
++			case PAGE_ACTIVATE:
++				goto retry_later_locked;
++			case PAGE_SUCCESS:
++				goto retry_later;
++			case PAGE_CLEAN:
++				; /* try to free the page below */
++			}
++		}
++
++		if (PagePrivate(page)) {
++			if (!try_to_release_page(page, GFP_KERNEL))
++				goto retry_later_locked;
++			if (!mapping && page_count(page) == 1)
++				goto free_it;
++		}
++
++		if (!remove_mapping(mapping, page))
++			goto retry_later_locked;       /* truncate got there first */
++
++free_it:
++		/*
++		 * We may free pages that were taken off the active list
++		 * by isolate_lru_page. However, free_hot_cold_page will check
++		 * if the active bit is set. So clear it.
++		 */
++		ClearPageActive(page);
++
++		list_del(&page->lru);
++		unlock_page(page);
++		put_page(page);
++		continue;
++
++failed:
++		failed++;
++		unlock_page(page);
++		continue;
++
++retry_later_locked:
++		unlock_page(page);
++retry_later:
++		retry++;
++	}
++	if (retry && pass++ < 10)
++		goto redo;
++
++	current->flags &= ~PF_KSWAPD;
++	return failed + retry;
++}
++
++/*
+  * zone->lru_lock is heavily contended.  Some of the functions that
+  * shrink the lists perform better by taking out a batch of pages
+  * and working on them outside the LRU lock.

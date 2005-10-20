@@ -1,171 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751010AbVJTJ7Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbVJTKFP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751010AbVJTJ7Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 05:59:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751032AbVJTJ7Q
+	id S1751032AbVJTKFP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 06:05:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751045AbVJTKFP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 05:59:16 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:63553 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750861AbVJTJ7P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 05:59:15 -0400
-Date: Thu, 20 Oct 2005 12:00:03 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Tejun Heo <htejun@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH linux-2.6-block:master 01/05] blk: implement generic dispatch queue
-Message-ID: <20051020100003.GB2811@suse.de>
-References: <20051019123429.450E4424@htj.dyndns.org> <20051019123429.1D0A2F29@htj.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051019123429.1D0A2F29@htj.dyndns.org>
+	Thu, 20 Oct 2005 06:05:15 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:64763 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751032AbVJTKFO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 06:05:14 -0400
+Date: Thu, 20 Oct 2005 06:05:01 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+To: Ingo Molnar <mingo@elte.hu>
+cc: john stultz <johnstul@us.ibm.com>, tglx@linutronix.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: Ktimer / -rt9 (+custom) monotonic_clock going backwards.
+In-Reply-To: <Pine.LNX.4.58.0510200503470.27683@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0510200603220.27683@localhost.localdomain>
+References: <Pine.LNX.4.58.0510191047270.24515@localhost.localdomain>
+ <1129734626.19559.275.camel@tglx.tec.linutronix.de>
+ <1129747172.27168.149.camel@cog.beaverton.ibm.com>
+ <Pine.LNX.4.58.0510200249080.27683@localhost.localdomain> <20051020073416.GA28581@elte.hu>
+ <Pine.LNX.4.58.0510200340110.27683@localhost.localdomain> <20051020080107.GA31342@elte.hu>
+ <Pine.LNX.4.58.0510200443130.27683@localhost.localdomain> <20051020085955.GB2903@elte.hu>
+ <Pine.LNX.4.58.0510200503470.27683@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 19 2005, Tejun Heo wrote:
-> @@ -40,6 +40,11 @@
->  static DEFINE_SPINLOCK(elv_list_lock);
->  static LIST_HEAD(elv_list);
->  
-> +static inline sector_t rq_last_sector(struct request *rq)
-> +{
-> +	return rq->sector + rq->nr_sectors;
-> +}
 
-Slightly misnamed, since it's really the sector after the last sector
-:-)
+On Thu, 20 Oct 2005, Steven Rostedt wrote:
 
-I've renamed that to rq_end_sector() instead.
+>
+> On Thu, 20 Oct 2005, Ingo Molnar wrote:
+>
+> >
+> > * Steven Rostedt <rostedt@goodmis.org> wrote:
+> >
+> > > static inline nsec_t __get_nsec_offset(void)
+> > > {
+> > > 	cycle_t cycle_now, cycle_delta;
+> > > 	nsec_t ns_offset;
+> > >
+> > > 	/* read clocksource */
+> > > 	cycle_now = read_clocksource(clock);
+> > >
+> > > 	/* calculate the delta since the last timeofday_periodic_hook */
+> > > 	cycle_delta = (cycle_now - cycle_last) & clock->mask;
+> > >
+> > > 	/* convert to nanoseconds */
+> > > 	ns_offset = cyc2ns(clock, ntp_adj, cycle_delta);
+> > >
+> > > 	/* Special case for jiffies tick/offset based systems
+> > > 	 * add arch specific offset
+> > > 	 */
+> > > 	ns_offset += arch_getoffset();
+> > >
+> > > 	return ns_offset;
+> > > }
+> > >
+> > > cycle_now is 32 bits.  If the clocksource overflows (which it can in
+> > > 30 seconds) the cyclec_delta will be wrong.
+> >
+> > isnt cycle_t 64 bits?
+> >
+>
+> Not anymore.
+>
+> include/linux/time.h:
+>
+> /* timeofday base types */
+> typedef s64 nsec_t;
+> typedef unsigned long cycle_t;
+>
 
-> +/*
-> + * Insert rq into dispatch queue of q.  Queue lock must be held on
-> + * entry.  If sort != 0, rq is sort-inserted; otherwise, rq will be
-> + * appended to the dispatch queue.  To be used by specific elevators.
-> + */
-> +void elv_dispatch_insert(request_queue_t *q, struct request *rq, int sort)
-> +{
-> +	sector_t boundary;
-> +	unsigned max_back;
-> +	struct list_head *entry;
-> +
-> +	if (!sort) {
-> +		/* Specific elevator is performing sort.  Step away. */
-> +		q->last_sector = rq_last_sector(rq);
-> +		q->boundary_rq = rq;
-> +		list_add_tail(&rq->queuelist, &q->queue_head);
-> +		return;
-> +	}
-> +
-> +	boundary = q->last_sector;
-> +	max_back = q->max_back_kb * 2;
-> +	boundary = boundary > max_back ? boundary - max_back : 0;
+FYI,
 
-This looks really strange, what are you doing with boundary here?
+I just switched cycle_t to u64 and hackbench no longer makes the time go
+backwards.
 
-> +	list_for_each_prev(entry, &q->queue_head) {
-> +		struct request *pos = list_entry_rq(entry);
-> +
-> +		if (pos->flags & (REQ_SOFTBARRIER|REQ_HARDBARRIER|REQ_STARTED))
-> +			break;
-> +		if (rq->sector >= boundary) {
-> +			if (pos->sector < boundary)
-> +				continue;
-> +		} else {
-> +			if (pos->sector >= boundary)
-> +				break;
-> +		}
-> +		if (rq->sector >= pos->sector)
-> +			break;
-> +	}
-> +
-> +	list_add(&rq->queuelist, entry);
-> +}
+John, would this cause any problems to keep cycle_t at s64?
 
-I've split this into, I don't like rolled-up functions that really do
-two seperate things. So elv_dispatch_sort() now does sorting,
-elv_dispatch_add_tail() does what !sort would have done.
-
->  	while ((rq = __elv_next_request(q)) != NULL) {
-> -		/*
-> -		 * just mark as started even if we don't start it, a request
-> -		 * that has been delayed should not be passed by new incoming
-> -		 * requests
-> -		 */
-> -		rq->flags |= REQ_STARTED;
-> +		if (!(rq->flags & REQ_STARTED)) {
-> +			elevator_t *e = q->elevator;
-> +
-> +			/*
-> +			 * This is the first time the device driver
-> +			 * sees this request (possibly after
-> +			 * requeueing).  Notify IO scheduler.
-> +			 */
-> +			if (blk_sorted_rq(rq) &&
-> +			    e->ops->elevator_activate_req_fn)
-> +				e->ops->elevator_activate_req_fn(q, rq);
-> +
-> +			/*
-> +			 * just mark as started even if we don't start
-> +			 * it, a request that has been delayed should
-> +			 * not be passed by new incoming requests
-> +			 */
-> +			rq->flags |= REQ_STARTED;
-> +		}
->  
->  		if (rq == q->last_merge)
->  			q->last_merge = NULL;
->  
-> +		if (!q->boundary_rq || q->boundary_rq == rq) {
-> +			q->last_sector = rq_last_sector(rq);
-> +			q->boundary_rq = NULL;
-> +		}
-
-This seems to be the only place where you clear ->boundary_rq, that
-can't be right. What about rq-to-rq merging, ->boundary_rq could be
-freed and you wont notice. Generally I don't really like keeping
-pointers to rqs around, it's given us problems in the past with the
-last_merge bits even. For now I've added a clear of this in
-__blk_put_request() as well.
-
->  int elv_queue_empty(request_queue_t *q)
->  {
->  	elevator_t *e = q->elevator;
->  
-> +	if (!list_empty(&q->queue_head))
-> +		return 0;
-> +
->  	if (e->ops->elevator_queue_empty_fn)
->  		return e->ops->elevator_queue_empty_fn(q);
->  
-> -	return list_empty(&q->queue_head);
-> +	return 1;
->  }
-
-Agree, this order definitely makes more sense.
-
-> @@ -2475,14 +2478,14 @@ static void __blk_put_request(request_qu
->  
->  void blk_put_request(struct request *req)
->  {
-> +	unsigned long flags;
-> +	request_queue_t *q = req->q;
-> +
->  	/*
-> -	 * if req->rl isn't set, this request didnt originate from the
-> -	 * block layer, so it's safe to just disregard it
-> +	 * Gee, IDE calls in w/ NULL q.  Fix IDE and remove the
-> +	 * following if (q) test.
->  	 */
-> -	if (req->rl) {
-> -		unsigned long flags;
-> -		request_queue_t *q = req->q;
-> -
-> +	if (q) {
-
-The q == NULL is because ide is using requests allocated on the stack,
-I've wanted for that to die for many years :)
-
--- 
-Jens Axboe
-
+-- Steve

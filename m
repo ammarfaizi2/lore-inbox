@@ -1,53 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965004AbVJUQBK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965006AbVJUQEs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965004AbVJUQBK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 12:01:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbVJUQBK
+	id S965006AbVJUQEs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 12:04:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965007AbVJUQEs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 12:01:10 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:61088 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965004AbVJUQBI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 12:01:08 -0400
-Date: Fri, 21 Oct 2005 09:00:56 -0700
-From: mike kravetz <kravetz@us.ibm.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: akpm@osdl.org, clameter@sgi.com, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, magnus.damm@gmail.com, marcelo.tosatti@cyclades.com
-Subject: Re: [PATCH 0/4] Swap migration V3: Overview
-Message-ID: <20051021160056.GA32741@w-mikek2.ibm.com>
-References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com> <20051020160638.58b4d08d.akpm@osdl.org> <20051020234621.GL5490@w-mikek2.ibm.com> <20051021082849.45dafd27.pj@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051021082849.45dafd27.pj@sgi.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 21 Oct 2005 12:04:48 -0400
+Received: from tardis.csc.ncsu.edu ([152.14.51.184]:28312 "EHLO
+	tardis.csc.ncsu.edu") by vger.kernel.org with ESMTP id S965006AbVJUQEs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 12:04:48 -0400
+Message-ID: <4359119E.6050407@csc.ncsu.edu>
+Date: Fri, 21 Oct 2005 12:04:46 -0400
+From: "Vincent W. Freeh" <vin@csc.ncsu.edu>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Understanding Linux addr space, malloc, and heap
+References: <4358F0E3.6050405@csc.ncsu.edu>	 <1129903396.2786.19.camel@laptopd505.fenrus.org>	 <4359051C.2070401@csc.ncsu.edu>	 <1129908179.2786.23.camel@laptopd505.fenrus.org>	 <43590B23.2090101@csc.ncsu.edu> <1129909719.2786.27.camel@laptopd505.fenrus.org>
+In-Reply-To: <1129909719.2786.27.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 21, 2005 at 08:28:49AM -0700, Paul Jackson wrote:
-> Mike wrote:
-> > Just to be clear, there are at least two distinct requirements for hotplug.
-> > One only wants to remove a quantity of memory (location unimportant). 
+Clearly, it was a mistake to post that code.  I had no idea so many 
+people would point out the bleeding obvious.
+
+Here is a more elaborate version--that does the same thing, but more 
+lines of code.  In it malloc'd memory is mprotect'd.  The program 
+generates a SIGSEGV, a page fault.
+
+----------------
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <sys/mman.h>
+
+#include <limits.h>    /* for PAGESIZE */
+#ifndef PAGESIZE
+#define PAGESIZE 4096
+#endif
+
+int
+main(void)
+{
+   char *p;
+   char c;
+
+   /* Allocate a buffer; it will have the default
+      protection of PROT_READ|PROT_WRITE. */
+   p = malloc(1024+PAGESIZE-1);
+   if (!p) {
+     perror("Couldn’t malloc(1024)");
+     exit(errno);
+   }
+
+   /* Align to a multiple of PAGESIZE, assumed to be a power of two */
+   p = (char *)(((int) p + PAGESIZE-1) & ~(PAGESIZE-1));
+
+   c = p[666];         /* Read; ok */
+   p[666] = 42;        /* Write; ok */
+
+   /* Mark the buffer read-only. */
+   if (mprotect(p, 1024, PROT_READ)) {
+     perror("Couldn’t mprotect");
+     exit(errno);
+   }
+
+   c = p[666];         /* Read; ok */
+   p[666] = 42;        /* Write; program dies on SIGSEGV */
+
+   exit(0);
+}
+
+
+Arjan van de Ven wrote:
+>>But I can't mprotect the 66th page I malloc.  And mprotect fails SILENTLY!
 > 
-> Could you describe this case a little more?  I wasn't aware
-> of this hotplug requirement, until I saw you comment just now.
-
-Think of a system running multiple OS's on top of a hypervisor, where
-each OS is given some memory for exclusive use.  For multiple reasons
-(one being workload management) it is desirable to move resources from
-one OS to another.  For example, take memory away from an underutilized
-OS and give it to an over utilized OS.
-
-This describes the environment on IBM's mid to upper level POWER systems.
-Currently, there is OS support to dynamically move/reassign CPUs and
-adapters between different OSs on these systems.
-
-My knowledge of Xen is limited, but this might also apply to that
-environment also.  An interesting question comes up if Xen or some
-other hypervisor starts vitrtualizing memory.  In such cases, would
-it make more sense to allow the hypervisor do all resizing or do
-we also need hotplug support in the OS for optimal performance?
-
--- 
-Mike
+> 
+> I'm not convinced it does that.. not until the bugs are out of the
+> code.... since right now it mprotects the wrong stuff, which sometimes
+> overlaps with what you malloced, sometimes not.
+> 
+> 

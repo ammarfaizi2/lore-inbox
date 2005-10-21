@@ -1,67 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965171AbVJUVZE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965172AbVJUV2q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965171AbVJUVZE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 17:25:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbVJUVZD
+	id S965172AbVJUV2q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 17:28:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbVJUV2q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 17:25:03 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:952 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S1751150AbVJUVZB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 17:25:01 -0400
-Message-ID: <43595CA6.9010802@adaptec.com>
-Date: Fri, 21 Oct 2005 17:24:54 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: andrew.patterson@hp.com, Christoph Hellwig <hch@lst.de>,
-       "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
-       linux-scsi@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached
- PHYs)
-References: <91888D455306F94EBD4D168954A9457C048F0E34@nacos172.co.lsil.com>	 <20051020160155.GA14296@lst.de> <4357CB03.4020400@adaptec.com>	 <20051020170330.GA16458@lst.de>  <4357F7DE.7050004@adaptec.com> <1129852879.30258.137.camel@bluto.andrew> <43583A53.2090904@pobox.com> <435929FD.4070304@adaptec.com> <43593100.5040708@pobox.com> <43593884.7000800@adaptec.com> <4359395B.9030402@pobox.com> <43593FE1.7020506@adaptec.com> <4359440E.2050702@pobox.com> <43595275.1000308@adaptec.com> <435959BE.5040101@pobox.com>
-In-Reply-To: <435959BE.5040101@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 21 Oct 2005 17:28:46 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:18598 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751150AbVJUV2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 17:28:45 -0400
+Subject: Re: [ACPI] Re: [Pcihpd-discuss] RE: [patch 2/2] acpi: add ability
+	to derive irq when doing a surpriseremoval of an adapter
+From: Kristen Accardi <kristen.c.accardi@intel.com>
+To: Greg KH <greg@kroah.com>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, acpi-devel@lists.sourceforge.net,
+       pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       "Shah, Rajesh" <rajesh.shah@intel.com>,
+       "Brown, Len" <len.brown@intel.com>
+In-Reply-To: <20051019165940.GA2177@kroah.com>
+References: <59D45D057E9702469E5775CBB56411F190A57F@pdsmsx406>
+	 <1129053267.15526.9.camel@whizzy> <1129679877.30588.5.camel@whizzy>
+	 <200510190929.06728.bjorn.helgaas@hp.com>
+	 <1129740711.31966.21.camel@whizzy>  <20051019165940.GA2177@kroah.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Oct 2005 21:24:59.0251 (UTC) FILETIME=[E3E75430:01C5D685]
+Date: Fri, 21 Oct 2005 14:28:34 -0700
+Message-Id: <1129930114.5932.6.camel@whizzy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
+X-OriginalArrivalTime: 21 Oct 2005 21:28:35.0222 (UTC) FILETIME=[64A1E360:01C5D686]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/21/05 17:12, Jeff Garzik wrote:
-> 
-> I already described why.  Examples are DMA boundary and s/g limit, among 
-> others.  When confronted with this, you proposed an additional hardware 
-> information struct which duplicates Scsi_Host_Template.
+This patch will allow the acpi code to correctly disable the irq when an
+adapter has been "surprise" removed.  The INTERRUPT_PIN value is stored
+in the pci_dev structure at probe time, and if the acpi code attempts to
+read the INTERRUPT_PIN from config space and detects that the adapter is
+not present, it will use the stored value instead.
 
-I told you -- I have this in the struct asd_ha_struct and it was merely
-a downplay that I didn't include the same thing in struct sas_ha_struct.
+Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
 
-> Solution?  Just use Scsi_Host_Template.  Take a look at how each libata 
+---
+I've re-worked this patch as you suggested.  the INTERRUPT_PIN was read
+in many different places in the code, so I hope that this is the right
+place to save off the value.  Thanks for taking a look.
 
-No, this is the solution which would turn everything upside down.
-The easiest and smallest solution is to just include this tiny struct
-and end this.  It would have 0 impact on code.  In fact I'll
-implement it now and push it to the git tree. ;-)
+ drivers/acpi/pci_irq.c |   10 ++++++++++
+ drivers/pci/probe.c    |    1 +
+ include/linux/pci.h    |    1 +
+ 3 files changed, 12 insertions(+)
 
-The host template _mixes_ hw, scsi core, and protocol knowlege into
-one ugly blob.  I've given this argument before, several times.
+Index: linux-2.6.13/drivers/acpi/pci_irq.c
+===================================================================
+--- linux-2.6.13.orig/drivers/acpi/pci_irq.c
++++ linux-2.6.13/drivers/acpi/pci_irq.c
+@@ -504,6 +504,16 @@ void acpi_pci_irq_disable(struct pci_dev
+ 		return_VOID;
+ 
+ 	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin);
++
++	/*
++	 * If a device has been "surprise" removed via
++	 * hotplug, the pin value will be invalid
++	 * In this case, we should use the stored
++	 * pin value from the pci_dev structure
++	 */
++	if (pin == 0xff)
++		pin = dev->pin;
++
+ 	if (!pin)
+ 		return_VOID;
+ 	pin--;
+Index: linux-2.6.13/drivers/pci/probe.c
+===================================================================
+--- linux-2.6.13.orig/drivers/pci/probe.c
++++ linux-2.6.13/drivers/pci/probe.c
+@@ -571,6 +571,7 @@ static void pci_read_irq(struct pci_dev 
+ 	unsigned char irq;
+ 
+ 	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &irq);
++	dev->pin = irq;
+ 	if (irq)
+ 		pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &irq);
+ 	dev->irq = irq;
+Index: linux-2.6.13/include/linux/pci.h
+===================================================================
+--- linux-2.6.13.orig/include/linux/pci.h
++++ linux-2.6.13/include/linux/pci.h
+@@ -98,6 +98,7 @@ struct pci_dev {
+ 	unsigned int	class;		/* 3 bytes: (base,sub,prog-if) */
+ 	u8		hdr_type;	/* PCI header type (`multi' flag masked out) */
+ 	u8		rom_base_reg;	/* which config register controls the ROM */
++	u8		pin;  		/* which interrupt pin this device uses */
+ 
+ 	struct pci_driver *driver;	/* which driver has allocated this device */
+ 	u64		dma_mask;	/* Mask of the bits of bus address this
 
-> driver is implemented.  The host template is in the low level driver, 
-> while most of the code is common code, implemented elsewhere.
 
-libata isn't without architectural problems.  What strikes me is
-that you think that libata-scsi is SATL.
-
-You are so much better off renaming it to satl.c and given
-the knowlege you've gained over the years and the backing you have
-from engineers from companies, start with it at device level.  I, as
-I'm sure other (not to name names) will be more than happy to contribute
-if you started this.
-
-	Luben
--- 
-http://linux.adaptec.com/sas/
-http://www.adaptec.com/sas/

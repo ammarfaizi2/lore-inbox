@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964918AbVJUMkq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964931AbVJUMqR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964918AbVJUMkq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 08:40:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964927AbVJUMkp
+	id S964931AbVJUMqR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 08:46:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964930AbVJUMqQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 08:40:45 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:58592 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S964918AbVJUMko
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 08:40:44 -0400
-Date: Fri, 21 Oct 2005 06:40:37 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: "Bagalkote, Sreenivas" <Sreenivas.Bagalkote@engenio.com>
-Cc: "'Jeff Garzik'" <jgarzik@pobox.com>, dougg@torque.net,
-       andrew.patterson@hp.com, Luben Tuikov <luben_tuikov@adaptec.com>,
-       Christoph Hellwig <hch@lst.de>,
-       "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
-       linux-scsi@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally a ttached PHYs)
-Message-ID: <20051021124037.GA27692@parisc-linux.org>
-References: <0E3FA95632D6D047BA649F95DAB60E57060CD291@exa-atlanta>
+	Fri, 21 Oct 2005 08:46:16 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:48311 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S964926AbVJUMqP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 08:46:15 -0400
+Subject: PATCH: Explain the PCI bus test we do in IDE
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@osdl.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 21 Oct 2005 14:14:58 +0100
+Message-Id: <1129900498.26367.27.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57060CD291@exa-atlanta>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 21, 2005 at 08:32:25AM -0400, Bagalkote, Sreenivas wrote:
-> >Jeff Garzik wrote:
-> >> Do you know where there are some clear guidelines on the use of 
-> >> pointers in a structure passed to an ioctl to lessen (or bypass) 
-> >> 32<->64 compat ioctl thunking?
-> >
-> >Its impossible.  If you pass pointers, you need to thunk.  
-> >(Not even passing pointers via sysfs can avoid this.)  
-> >Consider running a 32-bit app (with 32-bit pointers and 32-bit 
-> >ABI) on a 64-bit kernel.
-> 
-> The drivers/scsi/megaraid/megaraid_mm.c simply calls regular ioctl
-> from within the compat_ioctl, though it does copy to and from the
-> userland pointers. This is done by adding appropriate padding.
+Matthew Wilcox asked that this got a comment explaining why it is done
+so here it is.
 
-Yes.  This is what is meant by "thunk".
+Signed-off-by: Alan Cox <alan@redhat.com>
+
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc4-mm1/include/asm-i386/ide.h linux-2.6.14-rc4-mm1/include/asm-i386/ide.h
+--- linux.vanilla-2.6.14-rc4-mm1/include/asm-i386/ide.h	2005-10-20 16:10:12.000000000 +0100
++++ linux-2.6.14-rc4-mm1/include/asm-i386/ide.h	2005-10-20 16:37:20.000000000 +0100
+@@ -41,6 +41,12 @@
+ 
+ static __inline__ unsigned long ide_default_io_base(int index)
+ {
++	/*
++	 *	If PCI is present then it is not safe to poke around
++	 *	the other legacy IDE ports. Only 0x1f0 and 0x170 are
++	 *	defined compatibility mode ports for PCI. A user can 
++	 *	override this using ide= but we must default safe.
++	 */
+ 	if (pci_find_device(PCI_ANY_ID, PCI_ANY_ID, NULL) == NULL) {
+ 		switch(index) {
+ 			case 2: return 0x1e8;
+

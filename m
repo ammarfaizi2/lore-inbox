@@ -1,75 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965046AbVJUR7w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965048AbVJUSAz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965046AbVJUR7w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 13:59:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965048AbVJUR7w
+	id S965048AbVJUSAz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 14:00:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965049AbVJUSAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 13:59:52 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:58067 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S965046AbVJUR7w
+	Fri, 21 Oct 2005 14:00:55 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:25272 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S965048AbVJUSAy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 13:59:52 -0400
-Subject: Re: False positive (well not really) on RT backward clock check
-From: john stultz <johnstul@us.ibm.com>
-To: tglx@linutronix.de
-Cc: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1129909935.15748.12.camel@tglx.tec.linutronix.de>
-References: <Pine.LNX.4.58.0510210942180.3903@localhost.localdomain>
-	 <1129902741.15748.4.camel@tglx.tec.linutronix.de>
-	 <Pine.LNX.4.58.0510211142060.5770@localhost.localdomain>
-	 <1129909935.15748.12.camel@tglx.tec.linutronix.de>
-Content-Type: text/plain
-Date: Fri, 21 Oct 2005 10:59:48 -0700
-Message-Id: <1129917588.27168.215.camel@cog.beaverton.ibm.com>
+	Fri, 21 Oct 2005 14:00:54 -0400
+X-ORBL: [67.117.73.34]
+Date: Fri, 21 Oct 2005 21:00:28 +0300
+From: Tony Lindgren <tony@atomide.com>
+To: Deepak Saxena <dsaxena@plexity.net>
+Cc: Eric Piel <Eric.Piel@tremplin-utc.net>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 5/5] TI OMAP driver
+Message-ID: <20051021180026.GN20442@atomide.com>
+References: <20051019081906.615365000@omelas> <20051019091717.773678000@omelas> <435613B3.5060509@tremplin-utc.net> <20051019094439.GA12594@plexity.net> <20051021163553.GJ20442@atomide.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="7qSK/uQB79J36Y4o"
+Content-Disposition: inline
+In-Reply-To: <20051021163553.GJ20442@atomide.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-10-21 at 17:52 +0200, Thomas Gleixner wrote:
-> On Fri, 2005-10-21 at 11:46 -0400, Steven Rostedt wrote:
-> > 
-> > I think you're right about that.  Here it is.
-> > 
-> > Sorry for the late reply.  The original was from my custom kernel and I
-> > wanted to get an output from Ingo's.  This is rc5-rt1.
-> > 
-> > -- Steve
-> > 
-> > isapnp: Scanning for PnP cards...
-> > Time: tsc clocksource has been installed.
-> > WARNING: non-monotonic time!
-> > Ktimers: Switched to high resolution mode CPU 0
-> > softirq-timer/1/14[CPU#1]: BUG in ktime_get at kernel/ktimers.c:101
-> >  [<c0104433>] dump_stack+0x23/0x30 (20)
-> >  [<c0121427>] __WARN_ON+0x67/0x80 (44)
-> >  [<c013ad82>] ktime_get+0xd2/0x100 (48)
-> >  [<c013c2b6>] ktimer_run_queues+0x56/0x130 (60)
-> >  [<c012abbe>] run_timer_softirq+0x12e/0x450 (56)
-> >  [<c01268b0>] ksoftirqd+0x120/0x1a0 (40)
-> >  [<c01376eb>] kthread+0xbb/0xc0 (48)
-> >  [<c01014a5>] kernel_thread_helper+0x5/0x10 (538427420)
-> > ---------------------------
-> > | preempt count: 00000001 ]
-> > | 1-level deep critical section nesting:
-> > ----------------------------------------
-> > .. [<c0143edc>] .... add_preempt_count+0x1c/0x20
-> > .....[<c01213db>] ..   ( <= __WARN_ON+0x1b/0x80)
-> > 
-> > Ktimers: Switched to high resolution mode CPU 1
+
+--7qSK/uQB79J36Y4o
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hi,
+
+* Tony Lindgren <tony@atomide.com> [051021 19:38]:
 > 
-> This is at the moment where the clock source is switched over. I check
-> what might be the reason.
-> 
-> John, any idea ?
+> Cool, works on OMAP OSK after renaming the function above.
 
-This is using the B7 tod code, correct? If so, B8 corrected a problem
-specifically with changing clocksources (most easily seen while changing
-to the TSC based clocksource), so I would not be surprised if this is
-the same bug.
+Looks like the following __iomem patch is needed for this to
+work on OMAP H4.
 
-thanks
--john
+At least these two compilers get confused without the following
+patch:
 
+arm-xscale-linux-gnu-gcc (GCC) 3.4.4
+gcc version 3.4.3 (release) (CodeSourcery ARM Q1B 2005)
+
+Regards,
+
+Tony
+
+
+--7qSK/uQB79J36Y4o
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename=patch-omap-rng-24xx
+
+--- a/drivers/char/rng/omap-rng.c
++++ b/drivers/char/rng/omap-rng.c
+@@ -51,7 +51,7 @@
+ #define RNG_SYSSTATUS		0x44		/* System status
+ 							[0] = RESETDONE */
+ 
+-static u32 __iomem *rng_base;
++static void __iomem *rng_base;
+ static struct clk *rng_ick;
+ static struct device *rng_dev;
+ 
+
+--7qSK/uQB79J36Y4o--

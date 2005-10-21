@@ -1,71 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964917AbVJUMaA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964919AbVJUMdS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964917AbVJUMaA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 08:30:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964916AbVJUMaA
+	id S964919AbVJUMdS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 08:33:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964923AbVJUMdS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 08:30:00 -0400
-Received: from wine.ocn.ne.jp ([220.111.47.146]:56272 "EHLO
-	smtp.wine.ocn.ne.jp") by vger.kernel.org with ESMTP id S964915AbVJUMaA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 08:30:00 -0400
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] sysctl_string() return 1 on success.
-From: Tetsuo Handa <from-linux-kernel@i-love.sakura.ne.jp>
-Message-Id: <200510212129.AJC96678.YFMPJGOFOSMtLtNSV@i-love.sakura.ne.jp>
-X-Mailer: Winbiff [Version 2.43]
-X-Accept-Language: ja,en
-Date: Fri, 21 Oct 2005 21:29:42 +0900
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 21 Oct 2005 08:33:18 -0400
+Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:36615 "EHLO
+	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
+	id S964919AbVJUMdR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 08:33:17 -0400
+From: Felix Oxley <lkml@oxley.org>
+To: "venkata jagadish.p" <cpvjagadeesh@gmail.com>
+Subject: Re: Regarding RT patches
+Date: Fri, 21 Oct 2005 13:33:01 +0100
+User-Agent: KMail/1.8.2
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+References: <4358B78C.2030708@gmail.com>
+In-Reply-To: <4358B78C.2030708@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510211333.02214.lkml@oxley.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I think sysctl_string() should return 1 on success.
-I verified that variables (for example, modprobe_path[]
-and hotplug_path[]) that use sysctl_string() for strategy
-function are NOT '\0'-terminated if newlen > sizeof(variables).
+Hi,
 
-I also think ctl_perm() should be called before
-calling table->strategy, for strategy function may do
-read/write operations.
+I would like to (hijack) add some (newbie) questions of my own to this thread, since it has a useful title.
+I hope that's OK. :-)
 
-Best Regards.
+If there is any source of info discussing these issues on the net already please feel free to point me to it.
 
----------- START OF PATCH ----------
---- linux-2.6.13.4/kernel/sysctl.c	2005-10-11 03:54:29.000000000 +0900
-+++ linux-2.6.13.4-sysctl/kernel/sysctl.c	2005-10-21 15:33:26.000000000 +0900
-@@ -16,6 +16,8 @@
-  *  Wendling.
-  * The list_for_each() macro wasn't appropriate for the sysctl loop.
-  *  Removed it and replaced it with older style, 03/23/00, Bill Wendling
-+ * sysctl_string() return 1 on success, 10/21/05, Tetsuo Handa
-+ * Added ctl_perm() check for non-leaf nodes, 10/21/05, Tetsuo Handa
-  */
- 
- #include <linux/config.h>
-@@ -1088,6 +1090,12 @@
- 				if (ctl_perm(table, 001))
- 					return -EPERM;
- 				if (table->strategy) {
-+					/* Need to check permission, for
-+					   table->strategy() might do r/w */
-+					int op = 0;
-+					if (oldval) op |= 004;
-+					if (newval) op |= 002;
-+					if (ctl_perm(table, op)) return -EPERM;
- 					error = table->strategy(
- 						table, name, nlen,
- 						oldval, oldlenp,
-@@ -2146,7 +2154,7 @@
- 			len--;
- 		((char *) table->data)[len] = 0;
- 	}
--	return 0;
-+	return 1;
- }
- 
- /*
----------- END OF PATCH ----------
+1.  I have seen that the testers have been carefully setting the priority of tasks so that a particular
+     application comes top, followed by 1 or 2 IRQs and then maybe a hard disk etc.
+     What is the effect of the RT patchset if the user takes no action to set the correct priority of their tasks?
+
+2. Imagining that distribution X shipped with RT as configurable option defaulted to OFF, which users should
+    would be advised to enable it?
+
+3. Imagining that distribution X shipped with RT as configurable option defaulted to ON, which users should
+    would be advised to disable it?
+
+4. For completeness, that would leave certain classes of users for whom it was irrelevant/unclear whether they
+   should enable/disable RT. Those classes comprising who?
+
+
+Thanks,
+Felix
+
+(I hope that nobody finds it necessary to turn this thread into a flamewar. Please?  :-)
+
+
+
+
+

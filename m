@@ -1,69 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965048AbVJUSAz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965049AbVJUSCO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965048AbVJUSAz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 14:00:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965049AbVJUSAz
+	id S965049AbVJUSCO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 14:02:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965051AbVJUSCO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 14:00:55 -0400
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:25272 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S965048AbVJUSAy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 14:00:54 -0400
-X-ORBL: [67.117.73.34]
-Date: Fri, 21 Oct 2005 21:00:28 +0300
-From: Tony Lindgren <tony@atomide.com>
-To: Deepak Saxena <dsaxena@plexity.net>
-Cc: Eric Piel <Eric.Piel@tremplin-utc.net>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 5/5] TI OMAP driver
-Message-ID: <20051021180026.GN20442@atomide.com>
-References: <20051019081906.615365000@omelas> <20051019091717.773678000@omelas> <435613B3.5060509@tremplin-utc.net> <20051019094439.GA12594@plexity.net> <20051021163553.GJ20442@atomide.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="7qSK/uQB79J36Y4o"
-Content-Disposition: inline
-In-Reply-To: <20051021163553.GJ20442@atomide.com>
-User-Agent: Mutt/1.5.9i
+	Fri, 21 Oct 2005 14:02:14 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:18862 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S965049AbVJUSCN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 14:02:13 -0400
+To: Albert Herranz <albert_herranz@yahoo.es>
+Cc: vgoyal@in.ibm.com, Andrew Morton <akpm@osdl.org>, fastboot@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [PATCH] i386: move apic init in init_IRQs
+References: <20051021165352.22654.qmail@web25806.mail.ukl.yahoo.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Fri, 21 Oct 2005 12:01:49 -0600
+In-Reply-To: <20051021165352.22654.qmail@web25806.mail.ukl.yahoo.com> (Albert
+ Herranz's message of "Fri, 21 Oct 2005 18:53:52 +0200 (CEST)")
+Message-ID: <m164rqeoky.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Albert Herranz <albert_herranz@yahoo.es> writes:
 
---7qSK/uQB79J36Y4o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+>> > Should the local_irq_disable() call go away onece
+>> local_irq_save() got
+>> > introduced.
+>> 
+>> Nope.  The irqs need to be disabled.  The save just
+>> allows this
+>> to be called in a context where irqs start out
+>> disabled.  It is
+>> just a save.
+>
+> local_irq_save() also disables interrupts.
 
-Hi,
+Bah.  I was thinking and reading local_save_flags()....
 
-* Tony Lindgren <tony@atomide.com> [051021 19:38]:
-> 
-> Cool, works on OMAP OSK after renaming the function above.
+So yes that does make the local_irq_disable redundant.
 
-Looks like the following __iomem patch is needed for this to
-work on OMAP H4.
+I still used to seeing:
+save_flags();
+cli();
+...
+restore_flags();
 
-At least these two compilers get confused without the following
-patch:
-
-arm-xscale-linux-gnu-gcc (GCC) 3.4.4
-gcc version 3.4.3 (release) (CodeSourcery ARM Q1B 2005)
-
-Regards,
-
-Tony
+Eric
 
 
---7qSK/uQB79J36Y4o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename=patch-omap-rng-24xx
-
---- a/drivers/char/rng/omap-rng.c
-+++ b/drivers/char/rng/omap-rng.c
-@@ -51,7 +51,7 @@
- #define RNG_SYSSTATUS		0x44		/* System status
- 							[0] = RESETDONE */
- 
--static u32 __iomem *rng_base;
-+static void __iomem *rng_base;
- static struct clk *rng_ick;
- static struct device *rng_dev;
- 
-
---7qSK/uQB79J36Y4o--

@@ -1,53 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965086AbVJUS5s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965098AbVJUTLX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965086AbVJUS5s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 14:57:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965090AbVJUS5s
+	id S965098AbVJUTLX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 15:11:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965101AbVJUTLX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 14:57:48 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:23986 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S965086AbVJUS5s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 14:57:48 -0400
-Date: Fri, 21 Oct 2005 11:57:04 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: kamezawa.hiroyu@jp.fujitsu.com, Simon.Derr@bull.net, akpm@osdl.org,
-       kravetz@us.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       magnus.damm@gmail.com, marcelo.tosatti@cyclades.com
-Subject: Re: [PATCH 4/4] Swap migration V3: sys_migrate_pages interface
-Message-Id: <20051021115704.08d8f202.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0510211125080.23833@schroedinger.engr.sgi.com>
-References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com>
-	<20051020225955.19761.53060.sendpatchset@schroedinger.engr.sgi.com>
-	<4358588D.1080307@jp.fujitsu.com>
-	<Pine.LNX.4.61.0510210901380.17098@openx3.frec.bull.fr>
-	<435896CA.1000101@jp.fujitsu.com>
-	<20051021081553.50716b97.pj@sgi.com>
-	<43590789.1070309@jp.fujitsu.com>
-	<20051021111004.757a1c77.pj@sgi.com>
-	<Pine.LNX.4.62.0510211125080.23833@schroedinger.engr.sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Fri, 21 Oct 2005 15:11:23 -0400
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:38785 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S965098AbVJUTLX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 15:11:23 -0400
+X-ORBL: [67.117.73.34]
+Date: Fri, 21 Oct 2005 22:10:34 +0300
+From: Tony Lindgren <tony@atomide.com>
+To: Deepak Saxena <dsaxena@plexity.net>
+Cc: Eric Piel <Eric.Piel@tremplin-utc.net>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 5/5] TI OMAP driver
+Message-ID: <20051021191032.GP20442@atomide.com>
+References: <20051019081906.615365000@omelas> <20051019091717.773678000@omelas> <435613B3.5060509@tremplin-utc.net> <20051019094439.GA12594@plexity.net> <20051021163553.GJ20442@atomide.com> <20051021180026.GN20442@atomide.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="6Nae48J/T25AfBN4"
+Content-Disposition: inline
+In-Reply-To: <20051021180026.GN20442@atomide.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph wrote:
-> Right. But the cpuset code will change the mems_allowed. The pages will 
-> then be allocated in that context.
 
-If the migration is being done as part of moving a cpuset, or moving
-a task to a different cpuset, then yes the cpuset code will change
-the mems_allowed.
+--6Nae48J/T25AfBN4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-However I thought we were discussing the sys_migrate_pages() call
-here.  Naked sys_migrate_pages() calls do not involve the cpuset code,
-nor change the target tasks mems_allowed.
+* Tony Lindgren <tony@atomide.com> [051021 21:03]:
+> Hi,
+> 
+> * Tony Lindgren <tony@atomide.com> [051021 19:38]:
+> > 
+> > Cool, works on OMAP OSK after renaming the function above.
+> 
+> Looks like the following __iomem patch is needed for this to
+> work on OMAP H4.
+> 
+> At least these two compilers get confused without the following
+> patch:
+> 
+> arm-xscale-linux-gnu-gcc (GCC) 3.4.4
+> gcc version 3.4.3 (release) (CodeSourcery ARM Q1B 2005)
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Here's one more patch on top of my previous patch. Now it's
+tested to work on 24xx too in addition to 16xx. The status
+bit did not work on 24xx earlier, and looks like the status
+bit is always ready on 16xx.
+
+Tony
+
+--6Nae48J/T25AfBN4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename=patch-omap-rng-24xx-works
+
+--- a/drivers/char/rng/omap-rng.c
++++ b/drivers/char/rng/omap-rng.c
+@@ -65,9 +65,10 @@
+ 	__raw_writel(val, rng_base + reg);
+ }
+ 
++/* REVISIT: Does the status bit really work on 16xx? */
+ static int omap_rng_data_present(void)
+ {
+-	return omap_rng_read_reg(RNG_STAT_REG);
++	return omap_rng_read_reg(RNG_STAT_REG) ? 0 : 1;
+ }
+ 
+ static int omap_rng_data_read(u32 *data)
+
+--6Nae48J/T25AfBN4--

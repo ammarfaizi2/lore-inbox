@@ -1,70 +1,934 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965009AbVJUQKW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965014AbVJUQLq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965009AbVJUQKW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 12:10:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965013AbVJUQKW
+	id S965014AbVJUQLq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 12:11:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965012AbVJUQLq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 12:10:22 -0400
-Received: from amdext4.amd.com ([163.181.251.6]:6623 "EHLO amdext4.amd.com")
-	by vger.kernel.org with ESMTP id S965009AbVJUQKV (ORCPT
+	Fri, 21 Oct 2005 12:11:46 -0400
+Received: from mtaout3.012.net.il ([84.95.2.7]:55752 "EHLO mtaout3.012.net.il")
+	by vger.kernel.org with ESMTP id S965016AbVJUQLp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 12:10:21 -0400
-X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
-From: "Ray Bryant" <raybry@mpdtxmail.amd.com>
-To: "Christoph Lameter" <clameter@engr.sgi.com>
-Subject: Re: [PATCH 4/4] Swap migration V3: sys_migrate_pages interface
-Date: Fri, 21 Oct 2005 11:18:09 -0500
-User-Agent: KMail/1.8
-cc: "Paul Jackson" <pj@sgi.com>,
-       "KAMEZAWA Hiroyuki" <kamezawa.hiroyu@jp.fujitsu.com>,
-       Simon.Derr@bull.net, akpm@osdl.org, kravetz@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, magnus.damm@gmail.com,
-       marcelo.tosatti@cyclades.com
-References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com>
- <20051021081553.50716b97.pj@sgi.com>
- <Pine.LNX.4.62.0510210845140.23212@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0510210845140.23212@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Message-ID: <200510211118.10886.raybry@mpdtxmail.amd.com>
-X-WSS-ID: 6F47CD4A35K1420950-01-01
-Content-Type: text/plain;
- charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Fri, 21 Oct 2005 12:11:45 -0400
+Date: Fri, 21 Oct 2005 18:11:29 +0200
+From: Muli Ben-Yehuda <mulix@mulix.org>
+Subject: [RFC PATCH] clean up x86_64 DMA mapping dispatching
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, jimix@watson.ibm.com, niv@us.ibm.com,
+       jdmason@us.ibm.com, muli@il.ibm.com
+Message-id: <20051021161129.GB3229@granada.merseine.nu>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 October 2005 10:47, Christoph Lameter wrote:
-> On Fri, 21 Oct 2005, Paul Jackson wrote:
-> >  * Christoph - what is the permissions check on sys_migrate_pages()?
-> >    It would seem inappropriate for 'guest' to be able to move the
-> >    memory of 'root'.
->
-> The check is missing.
->
+This patch cleans up x86_64's DMA mapping dispatching code. Right now
+we have three possible IOMMU types: AGP GART, swiotlb and nommu, and
+in the future we will also have Xen's x86_64 swiotlb and other HW
+IOMMUs for x86_64. In order to support all of them cleanly, this
+patch:
 
-That code used to be there.    Basically the check was that if you could 
-legally send a signal to the process, you could migrate its memory.
-Go back and look and my patches for this.
+- introduces a struct dma_mapping_ops with function pointers for each 
+  of the DMA mapping operations of gart (AMD HW IOMMU), swiotlb
+  (software IOMMU) and nommu (no IOMMU).
 
-Why was this dropped, arbitrarily?
+- gets rid of:
 
-> Maybe we could add:
->
->  if (!capable(CAP_SYS_RESOURCE))
->                 return -EPERM;
->
-> Then we may also decide that root can move any process anywhere and drop
-> the retrieval of the mems_allowed from the other task.
->
-> --
-> To unsubscribe, send a message with 'unsubscribe linux-mm' in
-> the body to majordomo@kvack.org.  For more info on Linux MM,
-> see: http://www.linux-mm.org/ .
-> Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+  if (swiotlb)
+      return swiotlb_xxx();
+
+  in various places in favor of:
+
+  if (unlikely(dma_mapping && dma_mapping->xxx))
+      return dma_mapping->xxx();
+
+  in dma-mapping.h.
+
+- in order to keep the fast path fast, if no mapping_ops is specified
+  the default gart ops are used. For this case there's a tiny
+  additional cost of an unlikely branch in dma_xxx(), which then calls
+  gart_xxx().
+
+- I modeled the patch after the existing code structure; that means
+  that in places nommu and swiotlb use the gart functions and in one
+  place gart calls into swiotlb. The former is on purpose; the latter
+  is a wart and will be fixed in the next iteration. Further cleanups
+  to seperate the three are certainly possible.
+
+The patch is against 2.6.14-rc5, and has been tested with each of
+gart, swiotlb and noiommu on a dual CPU AMD machine. Your comments
+appreciated!
+
+Signed-Off-By: Muli Ben-Yehuda <mulix@mulix.org>
+---
+
+ arch/x86_64/kernel/Makefile         |    2 
+ arch/x86_64/kernel/pci-dma.c        |    8 
+ arch/x86_64/kernel/pci-gart.c       |   69 +++-----
+ arch/x86_64/kernel/pci-nommu.c      |   85 +++++++---
+ arch/x86_64/kernel/setup.c          |   21 ++
+ arch/x86_64/mm/init.c               |   13 +
+ b/include/asm-x86_64/gart-mapping.h |   33 ++++
+ include/asm-x86_64/dma-mapping.h    |  295 +++++++++++++++++++++++-------------
+ include/asm-x86_64/swiotlb.h        |   17 +-
+ 9 files changed, 361 insertions(+), 182 deletions(-)
+
+diff -r 01355122e23bd7163ea41cc430bfb8a90a396add -r cbfca96927d50471f1dad6d5a9eeae4b9f1ca9c2 arch/x86_64/kernel/Makefile
+--- a/arch/x86_64/kernel/Makefile	Thu Oct 20 15:00:36 2005
++++ b/arch/x86_64/kernel/Makefile	Thu Oct 20 17:58:33 2005
+@@ -26,7 +26,7 @@
+ obj-$(CONFIG_CPU_FREQ)		+= cpufreq/
+ obj-$(CONFIG_EARLY_PRINTK)	+= early_printk.o
+ obj-$(CONFIG_GART_IOMMU)	+= pci-gart.o aperture.o
+-obj-$(CONFIG_DUMMY_IOMMU)	+= pci-nommu.o pci-dma.o
++obj-$(CONFIG_DUMMY_IOMMU)	+= pci-nommu.o pci-gart.o pci-dma.o
+ obj-$(CONFIG_SWIOTLB)		+= swiotlb.o
+ obj-$(CONFIG_KPROBES)		+= kprobes.o
+ obj-$(CONFIG_X86_PM_TIMER)	+= pmtimer.o
+diff -r 01355122e23bd7163ea41cc430bfb8a90a396add -r cbfca96927d50471f1dad6d5a9eeae4b9f1ca9c2 arch/x86_64/kernel/pci-dma.c
+--- a/arch/x86_64/kernel/pci-dma.c	Thu Oct 20 15:00:36 2005
++++ b/arch/x86_64/kernel/pci-dma.c	Thu Oct 20 17:58:33 2005
+@@ -24,7 +24,7 @@
+  * Device ownership issues as mentioned above for pci_map_single are
+  * the same here.
+  */
+-int dma_map_sg(struct device *hwdev, struct scatterlist *sg,
++int nommu_map_sg(struct device *hwdev, struct scatterlist *sg,
+ 	       int nents, int direction)
+ {
+ 	int i;
+@@ -39,13 +39,13 @@
+ 	return nents;
+ }
+ 
+-EXPORT_SYMBOL(dma_map_sg);
++EXPORT_SYMBOL(nommu_map_sg);
+ 
+ /* Unmap a set of streaming mode DMA translations.
+  * Again, cpu read rules concerning calls here are the same as for
+  * pci_unmap_single() above.
+  */
+-void dma_unmap_sg(struct device *dev, struct scatterlist *sg,
++void nommu_unmap_sg(struct device *dev, struct scatterlist *sg,
+ 		  int nents, int dir)
+ {
+ 	int i;
+@@ -57,4 +57,4 @@
+ 	} 
+ }
+ 
+-EXPORT_SYMBOL(dma_unmap_sg);
++EXPORT_SYMBOL(nommu_unmap_sg);
+diff -r 01355122e23bd7163ea41cc430bfb8a90a396add -r cbfca96927d50471f1dad6d5a9eeae4b9f1ca9c2 arch/x86_64/kernel/pci-gart.c
+--- a/arch/x86_64/kernel/pci-gart.c	Thu Oct 20 15:00:36 2005
++++ b/arch/x86_64/kernel/pci-gart.c	Thu Oct 20 17:58:33 2005
+@@ -40,7 +40,6 @@
+ u32 *iommu_gatt_base; 		/* Remapping table */
+ 
+ int no_iommu; 
+-static int no_agp; 
+ #ifdef CONFIG_IOMMU_DEBUG
+ int panic_on_overflow = 1; 
+ int force_iommu = 1;
+@@ -203,8 +202,8 @@
+  * Allocate memory for a coherent mapping.
+  */
+ void *
+-dma_alloc_coherent(struct device *dev, size_t size, dma_addr_t *dma_handle,
+-		   unsigned gfp)
++gart_alloc_coherent(struct device *dev, size_t size, dma_addr_t *dma_handle,
++		    gfp_t gfp)
+ {
+ 	void *memory;
+ 	unsigned long dma_mask = 0;
+@@ -267,7 +266,7 @@
+ 	
+ error:
+ 	if (panic_on_overflow)
+-		panic("dma_alloc_coherent: IOMMU overflow by %lu bytes\n", size);
++		panic("gart_alloc_coherent: IOMMU overflow by %lu bytes\n", size);
+ 	free_pages((unsigned long)memory, get_order(size)); 
+ 	return NULL; 
+ }
+@@ -276,15 +275,10 @@
+  * Unmap coherent memory.
+  * The caller must ensure that the device has finished accessing the mapping.
+  */
+-void dma_free_coherent(struct device *dev, size_t size,
++void gart_free_coherent(struct device *dev, size_t size,
+ 			 void *vaddr, dma_addr_t bus)
+ {
+-	if (swiotlb) {
+-		swiotlb_free_coherent(dev, size, vaddr, bus);
+-		return;
+-	}
+-
+-	dma_unmap_single(dev, bus, size, 0);
++	gart_unmap_single(dev, bus, size, 0);
+ 	free_pages((unsigned long)vaddr, get_order(size)); 		
+ }
+ 
+@@ -403,14 +397,12 @@
+ }
+ 
+ /* Map a single area into the IOMMU */
+-dma_addr_t dma_map_single(struct device *dev, void *addr, size_t size, int dir)
++dma_addr_t gart_map_single(struct device *dev, void *addr, size_t size, int dir)
+ {
+ 	unsigned long phys_mem, bus;
+ 
+ 	BUG_ON(dir == DMA_NONE);
+ 
+-	if (swiotlb)
+-		return swiotlb_map_single(dev,addr,size,dir);
+ 	if (!dev)
+ 		dev = &fallback_dev;
+ 
+@@ -440,7 +432,7 @@
+ 			addr = dma_map_area(dev, addr, s->length, dir, 0);
+ 			if (addr == bad_dma_address) { 
+ 				if (i > 0) 
+-					dma_unmap_sg(dev, sg, i, dir);
++					gart_unmap_sg(dev, sg, i, dir);
+ 				nents = 0; 
+ 				sg[0].dma_length = 0;
+ 				break;
+@@ -509,7 +501,7 @@
+  * DMA map all entries in a scatterlist.
+  * Merge chunks that have page aligned sizes into a continuous mapping. 
+  */
+-int dma_map_sg(struct device *dev, struct scatterlist *sg, int nents, int dir)
++int gart_map_sg(struct device *dev, struct scatterlist *sg, int nents, int dir)
+ {
+ 	int i;
+ 	int out;
+@@ -521,8 +513,6 @@
+ 	if (nents == 0) 
+ 		return 0;
+ 
+-	if (swiotlb)
+-		return swiotlb_map_sg(dev,sg,nents,dir);
+ 	if (!dev)
+ 		dev = &fallback_dev;
+ 
+@@ -565,7 +555,7 @@
+ 
+ error:
+ 	flush_gart(NULL);
+-	dma_unmap_sg(dev, sg, nents, dir);
++	gart_unmap_sg(dev, sg, nents, dir);
+ 	/* When it was forced try again unforced */
+ 	if (force_iommu) 
+ 		return dma_map_sg_nonforce(dev, sg, nents, dir);
+@@ -580,17 +570,12 @@
+ /*
+  * Free a DMA mapping.
+  */ 
+-void dma_unmap_single(struct device *dev, dma_addr_t dma_addr,
++void gart_unmap_single(struct device *dev, dma_addr_t dma_addr,
+ 		      size_t size, int direction)
+ {
+ 	unsigned long iommu_page; 
+ 	int npages;
+ 	int i;
+-
+-	if (swiotlb) {
+-		swiotlb_unmap_single(dev,dma_addr,size,direction);
+-		return;
+-	}
+ 
+ 	if (dma_addr < iommu_bus_base + EMERGENCY_PAGES*PAGE_SIZE || 
+ 	    dma_addr >= iommu_bus_base + iommu_size)
+@@ -607,13 +592,10 @@
+ /* 
+  * Wrapper for pci_unmap_single working with scatterlists.
+  */ 
+-void dma_unmap_sg(struct device *dev, struct scatterlist *sg, int nents, int dir)
++void gart_unmap_sg(struct device *dev, struct scatterlist *sg, int nents, int dir)
+ {
+ 	int i;
+-	if (swiotlb) {
+-		swiotlb_unmap_sg(dev,sg,nents,dir);
+-		return;
+-	}
++
+ 	for (i = 0; i < nents; i++) { 
+ 		struct scatterlist *s = &sg[i];
+ 		if (!s->dma_length || !s->length) 
+@@ -622,7 +604,7 @@
+ 	}
+ }
+ 
+-int dma_supported(struct device *dev, u64 mask)
++int gart_dma_supported(struct device *dev, u64 mask)
+ {
+ 	/* Copied from i386. Doesn't make much sense, because it will 
+ 	   only work for pci_alloc_coherent.
+@@ -648,24 +630,22 @@
+ 	return 1;
+ } 
+ 
+-int dma_get_cache_alignment(void)
+-{
+-	return boot_cpu_data.x86_clflush_size;
+-}
+-
+-EXPORT_SYMBOL(dma_unmap_sg);
+-EXPORT_SYMBOL(dma_map_sg);
+-EXPORT_SYMBOL(dma_map_single);
+-EXPORT_SYMBOL(dma_unmap_single);
+-EXPORT_SYMBOL(dma_supported);
++EXPORT_SYMBOL(gart_unmap_sg);
++EXPORT_SYMBOL(gart_map_sg);
++EXPORT_SYMBOL(gart_map_single);
++EXPORT_SYMBOL(gart_unmap_single);
++EXPORT_SYMBOL(gart_dma_supported);
+ EXPORT_SYMBOL(no_iommu);
+ EXPORT_SYMBOL(force_iommu); 
+ EXPORT_SYMBOL(bad_dma_address);
+ EXPORT_SYMBOL(iommu_bio_merge);
+ EXPORT_SYMBOL(iommu_sac_force);
+-EXPORT_SYMBOL(dma_get_cache_alignment);
+-EXPORT_SYMBOL(dma_alloc_coherent);
+-EXPORT_SYMBOL(dma_free_coherent);
++EXPORT_SYMBOL(gart_alloc_coherent);
++EXPORT_SYMBOL(gart_free_coherent);
++
++#ifndef CONFIG_DUMMY_IOMMU
++
++static int no_agp; 
+ 
+ static __init unsigned long check_iommu_size(unsigned long aper, u64 aper_size)
+ { 
+@@ -976,3 +956,4 @@
+     }
+     return 1;
+ } 
++#endif /* !defined(CONFIG_DUMMY_IOMMU) */
+diff -r 01355122e23bd7163ea41cc430bfb8a90a396add -r cbfca96927d50471f1dad6d5a9eeae4b9f1ca9c2 arch/x86_64/kernel/pci-nommu.c
+--- a/arch/x86_64/kernel/pci-nommu.c	Thu Oct 20 15:00:36 2005
++++ b/arch/x86_64/kernel/pci-nommu.c	Thu Oct 20 17:58:33 2005
+@@ -7,24 +7,14 @@
+ #include <asm/proto.h>
+ #include <asm/processor.h>
+ 
+-int iommu_merge = 0;
+-EXPORT_SYMBOL(iommu_merge);
+-
+-dma_addr_t bad_dma_address;
+-EXPORT_SYMBOL(bad_dma_address);
+-
+-int iommu_bio_merge = 0;
+-EXPORT_SYMBOL(iommu_bio_merge);
+-
+-int iommu_sac_force = 0;
+-EXPORT_SYMBOL(iommu_sac_force);
++extern int iommu_merge;
+ 
+ /* 
+  * Dummy IO MMU functions
+  */
+ 
+-void *dma_alloc_coherent(struct device *hwdev, size_t size,
+-			 dma_addr_t *dma_handle, unsigned gfp)
++void *nommu_alloc_coherent(struct device *hwdev, size_t size,
++			 dma_addr_t *dma_handle, gfp_t gfp)
+ {
+ 	void *ret;
+ 	u64 mask;
+@@ -50,16 +40,16 @@
+ 	memset(ret, 0, size);
+ 	return ret;
+ }
+-EXPORT_SYMBOL(dma_alloc_coherent);
++EXPORT_SYMBOL(nommu_alloc_coherent);
+ 
+-void dma_free_coherent(struct device *hwdev, size_t size,
++void nommu_free_coherent(struct device *hwdev, size_t size,
+ 			 void *vaddr, dma_addr_t dma_handle)
+ {
+ 	free_pages((unsigned long)vaddr, get_order(size));
+ }
+-EXPORT_SYMBOL(dma_free_coherent);
++EXPORT_SYMBOL(nommu_free_coherent);
+ 
+-int dma_supported(struct device *hwdev, u64 mask)
++int nommu_dma_supported(struct device *hwdev, u64 mask)
+ {
+         /*
+          * we fall back to GFP_DMA when the mask isn't all 1s,
+@@ -73,22 +63,69 @@
+ 
+ 	return 1;
+ } 
+-EXPORT_SYMBOL(dma_supported);
++EXPORT_SYMBOL(nommu_dma_supported);
+ 
+-int dma_get_cache_alignment(void)
++dma_addr_t 
++nommu_map_single(struct device *hwdev, void *ptr, size_t size, int direction)
+ {
+-	return boot_cpu_data.x86_clflush_size;
++	dma_addr_t addr;
++
++	if (direction == DMA_NONE)
++		out_of_line_bug();
++	addr = virt_to_bus(ptr);
++
++	if ((addr+size) & ~*hwdev->dma_mask)
++		out_of_line_bug();
++	return addr;
+ }
+-EXPORT_SYMBOL(dma_get_cache_alignment);
++EXPORT_SYMBOL(nommu_map_single);
+ 
+-static int __init check_ram(void) 
++void
++nommu_unmap_single(struct device *hwdev, dma_addr_t dma_addr, size_t size, 
++		   int direction)
++{
++	if (direction == DMA_NONE)
++		out_of_line_bug();
++	/* Nothing to do */
++}
++EXPORT_SYMBOL(nommu_unmap_single);
++
++static void check_ram(void) 
+ { 
+ 	if (end_pfn >= 0xffffffff>>PAGE_SHIFT) { 
+ 		printk(
+ 		KERN_ERR "WARNING more than 4GB of memory but IOMMU not compiled in.\n"
+ 		KERN_ERR "WARNING 32bit PCI may malfunction.\n");
+ 	} 
++} 
++
++struct dma_mapping_ops nommu_mapping_ops = {
++	.mapping_error = NULL, /* default */
++	.alloc_coherent = nommu_alloc_coherent,
++	.free_coherent = nommu_free_coherent,
++	.map_single = nommu_map_single,
++	.unmap_single = nommu_unmap_single,
++	.sync_single_for_cpu = NULL,
++	.sync_single_for_device = NULL,
++	.sync_sg_for_cpu = NULL,
++	.sync_sg_for_device = NULL,
++	.map_sg = NULL,
++	.unmap_sg = NULL,
++	.dma_supported = nommu_dma_supported,
++};
++
++static int __init nommu_init(void)
++{
++	printk("%s: setting mapping_ops to nommu_mapping_ops(%p)\n", 
++	       __func__, &nommu_mapping_ops);
++
++	mapping_ops = &nommu_mapping_ops;
++
++	iommu_merge = 0;
++	
++	check_ram();
++
+ 	return 0;
+-} 
+-__initcall(check_ram);
++}
+ 
++__initcall(nommu_init);
+diff -r 01355122e23bd7163ea41cc430bfb8a90a396add -r cbfca96927d50471f1dad6d5a9eeae4b9f1ca9c2 arch/x86_64/kernel/setup.c
+--- a/arch/x86_64/kernel/setup.c	Thu Oct 20 15:00:36 2005
++++ b/arch/x86_64/kernel/setup.c	Thu Oct 20 17:58:33 2005
+@@ -42,6 +42,7 @@
+ #include <linux/edd.h>
+ #include <linux/mmzone.h>
+ #include <linux/kexec.h>
++#include <linux/dma-mapping.h>
+ 
+ #include <asm/mtrr.h>
+ #include <asm/uaccess.h>
+@@ -60,6 +61,7 @@
+ #include <asm/setup.h>
+ #include <asm/mach_apic.h>
+ #include <asm/numa.h>
++#include <asm/swiotlb.h>
+ 
+ /*
+  * Machine setup..
+@@ -86,8 +88,27 @@
+ 
+ #ifdef CONFIG_SWIOTLB
+ int swiotlb;
++struct dma_mapping_ops swiotlb_mapping_ops = {
++	.mapping_error = swiotlb_dma_mapping_error,
++	.alloc_coherent = NULL, /* we are called via gart_alloc_coherent */
++	.free_coherent = swiotlb_free_coherent,
++	.map_single = swiotlb_map_single,
++	.unmap_single = swiotlb_unmap_single,
++	.sync_single_for_cpu = swiotlb_sync_single_for_cpu,
++	.sync_single_for_device = swiotlb_sync_single_for_device,
++	.sync_sg_for_cpu = swiotlb_sync_sg_for_cpu,
++	.sync_sg_for_device = swiotlb_sync_sg_for_device,
++	.map_sg = swiotlb_map_sg,
++	.unmap_sg = swiotlb_unmap_sg,
++	/* historically we didn't use swiotlb_dma_supported, so keep it the same way */
++	.dma_supported = NULL
++};
++
+ EXPORT_SYMBOL(swiotlb);
+ #endif
++
++struct dma_mapping_ops* mapping_ops;
++EXPORT_SYMBOL(mapping_ops);
+ 
+ /*
+  * Setup options
+diff -r 01355122e23bd7163ea41cc430bfb8a90a396add -r cbfca96927d50471f1dad6d5a9eeae4b9f1ca9c2 arch/x86_64/mm/init.c
+--- a/arch/x86_64/mm/init.c	Thu Oct 20 15:00:36 2005
++++ b/arch/x86_64/mm/init.c	Thu Oct 20 17:58:33 2005
+@@ -22,6 +22,7 @@
+ #include <linux/pagemap.h>
+ #include <linux/bootmem.h>
+ #include <linux/proc_fs.h>
++#include <linux/dma-mapping.h>
+ 
+ #include <asm/processor.h>
+ #include <asm/system.h>
+@@ -36,6 +37,7 @@
+ #include <asm/mmu_context.h>
+ #include <asm/proto.h>
+ #include <asm/smp.h>
++#include <asm/dma-mapping.h>
+ 
+ #ifndef Dprintk
+ #define Dprintk(x...)
+@@ -388,12 +390,19 @@
+ {
+ 	long codesize, reservedpages, datasize, initsize;
+ 
++	printk("%s: setting mapping_ops to NULL\n", __func__);
++	mapping_ops = NULL;
++
+ #ifdef CONFIG_SWIOTLB
+ 	if (!iommu_aperture &&
+ 	    (end_pfn >= 0xffffffff>>PAGE_SHIFT || force_iommu))
+ 	       swiotlb = 1;
+-	if (swiotlb)
+-		swiotlb_init();	
++	if (swiotlb) {
++		swiotlb_init();
++		mapping_ops = &swiotlb_mapping_ops;
++		printk("%s: setting mapping_ops to swiotlb_mapping_ops(%p)\n", 
++		       __func__, &swiotlb_mapping_ops);
++	}
+ #endif
+ 
+ 	/* How many end-of-memory variables you have, grandma! */
+diff -r 01355122e23bd7163ea41cc430bfb8a90a396add -r cbfca96927d50471f1dad6d5a9eeae4b9f1ca9c2 include/asm-x86_64/dma-mapping.h
+--- a/include/asm-x86_64/dma-mapping.h	Thu Oct 20 15:00:36 2005
++++ b/include/asm-x86_64/dma-mapping.h	Thu Oct 20 17:58:33 2005
+@@ -11,120 +11,205 @@
+ #include <asm/scatterlist.h>
+ #include <asm/io.h>
+ #include <asm/swiotlb.h>
++#include <asm/gart-mapping.h>
++
++struct dma_mapping_ops {
++	int (*mapping_error)(dma_addr_t dma_addr);
++	void* (*alloc_coherent)(struct device *dev, size_t size, 
++				dma_addr_t *dma_handle, gfp_t gfp);
++	void (*free_coherent)(struct device *dev, size_t size, 
++			     void *vaddr, dma_addr_t dma_handle);
++	dma_addr_t (*map_single)(struct device *hwdev, void *ptr, 
++				     size_t size, int direction);
++	void (*unmap_single)(struct device *dev, dma_addr_t addr,
++				 size_t size, int direction);
++	void (*sync_single_for_cpu)(struct device *hwdev,
++				    dma_addr_t dma_handle,
++				    size_t size, int direction);
++	void (*sync_single_for_device)(struct device *hwdev,
++				       dma_addr_t dma_handle,
++				       size_t size, int direction);
++	void (*sync_sg_for_cpu)(struct device *hwdev, struct scatterlist *sg,
++				int nelems, int direction);
++	void (*sync_sg_for_device)(struct device *hwdev, struct scatterlist *sg,
++				   int nelems, int direction);
++	int (*map_sg)(struct device *hwdev, struct scatterlist *sg,
++		      int nents, int direction);
++	void (*unmap_sg)(struct device *hwdev, struct scatterlist *sg,
++			 int nents, int direction);
++	int (*dma_supported)(struct device *hwdev, u64 mask);
++};
+ 
+ extern dma_addr_t bad_dma_address;
+-#define dma_mapping_error(x) \
+-	(swiotlb ? swiotlb_dma_mapping_error(x) : ((x) == bad_dma_address))
+-
+-void *dma_alloc_coherent(struct device *dev, size_t size, dma_addr_t *dma_handle,
+-			 unsigned gfp);
+-void dma_free_coherent(struct device *dev, size_t size, void *vaddr,
+-			 dma_addr_t dma_handle);
+-
+-#ifdef CONFIG_GART_IOMMU
+-
+-extern dma_addr_t dma_map_single(struct device *hwdev, void *ptr, size_t size,
+-				 int direction);
+-extern void dma_unmap_single(struct device *dev, dma_addr_t addr,size_t size,
+-			     int direction);
+-
+-#else
+-
+-/* No IOMMU */
+-
+-static inline dma_addr_t dma_map_single(struct device *hwdev, void *ptr,
+-					size_t size, int direction)
+-{
+-	dma_addr_t addr;
+-
+-	if (direction == DMA_NONE)
+-		out_of_line_bug();
+-	addr = virt_to_bus(ptr);
+-
+-	if ((addr+size) & ~*hwdev->dma_mask)
+-		out_of_line_bug();
+-	return addr;
+-}
+-
+-static inline void dma_unmap_single(struct device *hwdev, dma_addr_t dma_addr,
+-				    size_t size, int direction)
+-{
+-	if (direction == DMA_NONE)
+-		out_of_line_bug();
+-	/* Nothing to do */
+-}
+-
+-#endif
++extern struct dma_mapping_ops* mapping_ops;
++
++static inline int dma_mapping_error(dma_addr_t dma_addr)
++{
++	if (mapping_ops && mapping_ops->mapping_error)
++		return mapping_ops->mapping_error(dma_addr);
++
++	return (dma_addr == bad_dma_address);
++}
++
++static inline void*
++dma_alloc_coherent(struct device *dev, size_t size, dma_addr_t *dma_handle, 
++		   gfp_t gfp)
++{
++	if (unlikely(mapping_ops && mapping_ops->alloc_coherent))
++		return mapping_ops->alloc_coherent(dev, size, dma_handle, gfp);
++
++	return gart_alloc_coherent(dev, size, dma_handle, gfp);
++}
++
++static inline void 
++dma_free_coherent(struct device *dev, size_t size, void *vaddr,
++		   dma_addr_t dma_handle)
++{
++	if (unlikely(mapping_ops && mapping_ops->free_coherent)) {
++		mapping_ops->free_coherent(dev, size, vaddr, dma_handle);
++		return;
++	}
++	
++	gart_free_coherent(dev, size, vaddr, dma_handle);
++}
++
++static inline dma_addr_t
++dma_map_single(struct device *hwdev, void *ptr, size_t size,
++	       int direction)
++{
++	if (unlikely(mapping_ops && mapping_ops->map_single))
++		return mapping_ops->map_single(hwdev, ptr, size, direction);
++
++	return gart_map_single(hwdev, ptr, size, direction);
++}
++
++static inline void 
++dma_unmap_single(struct device *dev, dma_addr_t addr,size_t size,
++		 int direction)
++{
++	if (unlikely(mapping_ops && mapping_ops->unmap_single)) {
++		mapping_ops->unmap_single(dev, addr, size, direction);
++		return;
++	}
++
++	gart_unmap_single(dev, addr, size, direction);
++}
+ 
+ #define dma_map_page(dev,page,offset,size,dir) \
+ 	dma_map_single((dev), page_address(page)+(offset), (size), (dir))
++
++#define dma_unmap_page dma_unmap_single
+ 
+ static inline void dma_sync_single_for_cpu(struct device *hwdev,
+ 					       dma_addr_t dma_handle,
+ 					       size_t size, int direction)
+ {
+-	if (direction == DMA_NONE)
+-		out_of_line_bug();
+-
+-	if (swiotlb)
+-		return swiotlb_sync_single_for_cpu(hwdev,dma_handle,size,direction);
+-
+-	flush_write_buffers();
+-}
+-
+-static inline void dma_sync_single_for_device(struct device *hwdev,
+-						  dma_addr_t dma_handle,
+-						  size_t size, int direction)
+-{
+-        if (direction == DMA_NONE)
+-		out_of_line_bug();
+-
+-	if (swiotlb)
+-		return swiotlb_sync_single_for_device(hwdev,dma_handle,size,direction);
+-
+-	flush_write_buffers();
+-}
+-
+-#define dma_sync_single_range_for_cpu(dev, dma_handle, offset, size, dir)       \
+-        dma_sync_single_for_cpu(dev, dma_handle, size, dir)
+-#define dma_sync_single_range_for_device(dev, dma_handle, offset, size, dir)    \
+-        dma_sync_single_for_device(dev, dma_handle, size, dir)
+-
+-static inline void dma_sync_sg_for_cpu(struct device *hwdev,
+-				       struct scatterlist *sg,
+-				       int nelems, int direction)
+-{
+-	if (direction == DMA_NONE)
+-		out_of_line_bug();
+-
+-	if (swiotlb)
+-		return swiotlb_sync_sg_for_cpu(hwdev,sg,nelems,direction);
+-
+-	flush_write_buffers();
+-}
+-
+-static inline void dma_sync_sg_for_device(struct device *hwdev,
+-					  struct scatterlist *sg,
+-					  int nelems, int direction)
+-{
+-	if (direction == DMA_NONE)
+-		out_of_line_bug();
+-
+-	if (swiotlb)
+-		return swiotlb_sync_sg_for_device(hwdev,sg,nelems,direction);
+-
+-	flush_write_buffers();
+-}
+-
+-extern int dma_map_sg(struct device *hwdev, struct scatterlist *sg,
+-		      int nents, int direction);
+-extern void dma_unmap_sg(struct device *hwdev, struct scatterlist *sg,
+-			 int nents, int direction);
+-
+-#define dma_unmap_page dma_unmap_single
+-
+-extern int dma_supported(struct device *hwdev, u64 mask);
+-extern int dma_get_cache_alignment(void);
++	void (*f)(struct device *hwdev, dma_addr_t dma_handle,
++		  size_t size, int direction);
++	
++	if (direction == DMA_NONE)
++		out_of_line_bug();
++
++	if (unlikely(mapping_ops && mapping_ops->sync_single_for_cpu)) {
++		f = mapping_ops->sync_single_for_cpu;
++		f(hwdev, dma_handle, size, direction);
++		return;
++	}
++
++	flush_write_buffers();
++}
++
++static inline void 
++dma_sync_single_for_device(struct device *hwdev, dma_addr_t dma_handle,
++			   size_t size, int direction)
++{
++	void (*f)(struct device *hwdev, dma_addr_t dma_handle,
++		  size_t size, int direction);
++	
++	if (direction == DMA_NONE)
++		out_of_line_bug();
++
++	if (unlikely(mapping_ops && mapping_ops->sync_single_for_device)) {
++		f = mapping_ops->sync_single_for_device;
++		f(hwdev, dma_handle, size, direction);
++		return;
++	}
++
++	flush_write_buffers();
++}
++
++static inline void 
++dma_sync_sg_for_cpu(struct device *hwdev, struct scatterlist *sg,
++		    int nelems, int direction)
++{
++	void (*f)(struct device *hwdev, struct scatterlist *sg,
++		  int nelems, int direction);
++
++	if (direction == DMA_NONE)
++		out_of_line_bug();
++
++	if (unlikely(mapping_ops && mapping_ops->sync_sg_for_cpu)) {
++		f = mapping_ops->sync_sg_for_cpu;
++		f(hwdev, sg, nelems, direction);
++		return;
++	}
++
++	flush_write_buffers();
++}
++
++static inline void 
++dma_sync_sg_for_device(struct device *hwdev, struct scatterlist *sg,
++		       int nelems, int direction)
++{
++	void (*f)(struct device *hwdev, struct scatterlist *sg,
++		  int nelems, int direction);
++
++	if (direction == DMA_NONE)
++		out_of_line_bug();
++
++	if (unlikely(mapping_ops && mapping_ops->sync_sg_for_device)) {
++		f = mapping_ops->sync_sg_for_device;
++		f(hwdev, sg, nelems, direction);
++		return;
++	}
++
++	flush_write_buffers();
++}
++
++static inline int dma_map_sg(struct device *hwdev, struct scatterlist *sg,
++			     int nents, int direction)
++{
++	if (unlikely(mapping_ops && mapping_ops->map_sg))
++		return mapping_ops->map_sg(hwdev, sg, nents, direction);
++
++	return gart_map_sg(hwdev, sg, nents, direction);
++}
++
++static inline void dma_unmap_sg(struct device *hwdev, struct scatterlist *sg,
++				int nents, int direction)
++{
++	if (unlikely(mapping_ops && mapping_ops->unmap_sg)) {
++		mapping_ops->unmap_sg(hwdev, sg, nents, direction);
++		return;
++	}
++
++	gart_unmap_sg(hwdev, sg, nents, direction);
++}
++
++static inline int dma_supported(struct device *hwdev, u64 mask)
++{
++	if (mapping_ops && mapping_ops->dma_supported)
++		return mapping_ops->dma_supported(hwdev, mask);
++
++	return gart_dma_supported(hwdev, mask);
++}
++
++/* same for gart, swiotlb, and nommu */
++static inline int dma_get_cache_alignment(void)
++{
++	return boot_cpu_data.x86_clflush_size;
++}
++
+ #define dma_is_consistent(h) 1
+ 
+ static inline int dma_set_mask(struct device *dev, u64 mask)
+@@ -140,4 +225,4 @@
+ 	flush_write_buffers();
+ }
+ 
+-#endif
++#endif /* _X8664_DMA_MAPPING_H */
+diff -r 01355122e23bd7163ea41cc430bfb8a90a396add -r cbfca96927d50471f1dad6d5a9eeae4b9f1ca9c2 include/asm-x86_64/swiotlb.h
+--- a/include/asm-x86_64/swiotlb.h	Thu Oct 20 15:00:36 2005
++++ b/include/asm-x86_64/swiotlb.h	Thu Oct 20 17:58:33 2005
+@@ -2,6 +2,8 @@
+ #define _ASM_SWTIOLB_H 1
+ 
+ #include <linux/config.h>
++
++#include <asm/dma-mapping.h>
+ 
+ /* SWIOTLB interface */
+ 
+@@ -15,6 +17,14 @@
+ extern void swiotlb_sync_single_for_device(struct device *hwdev,
+ 					    dma_addr_t dev_addr,
+ 					    size_t size, int dir);
++extern void swiotlb_sync_single_range_for_cpu(struct device *hwdev,
++					      dma_addr_t dev_addr,
++					      unsigned long offset,
++					      size_t size, int dir);
++extern void swiotlb_sync_single_range_for_device(struct device *hwdev,
++						 dma_addr_t dev_addr,
++						 unsigned long offset,
++						 size_t size, int dir);
+ extern void swiotlb_sync_sg_for_cpu(struct device *hwdev,
+ 				     struct scatterlist *sg, int nelems,
+ 				     int dir);
+@@ -27,9 +37,12 @@
+ 			 int nents, int direction);
+ extern int swiotlb_dma_mapping_error(dma_addr_t dma_addr);
+ extern void *swiotlb_alloc_coherent (struct device *hwdev, size_t size,
+-				     dma_addr_t *dma_handle, int flags);
++				     dma_addr_t *dma_handle, int gfp);
+ extern void swiotlb_free_coherent (struct device *hwdev, size_t size,
+ 				   void *vaddr, dma_addr_t dma_handle);
++extern int swiotlb_dma_supported(struct device *hwdev, u64 mask);
++
++extern struct dma_mapping_ops swiotlb_mapping_ops;
+ 
+ #ifdef CONFIG_SWIOTLB
+ extern int swiotlb;
+@@ -37,4 +50,4 @@
+ #define swiotlb 0
+ #endif
+ 
+-#endif
++#endif /* _ASM_SWTIOLB_H */
+diff -r 01355122e23bd7163ea41cc430bfb8a90a396add -r cbfca96927d50471f1dad6d5a9eeae4b9f1ca9c2 include/asm-x86_64/gart-mapping.h
+--- /dev/null	Thu Oct 20 15:00:36 2005
++++ b/include/asm-x86_64/gart-mapping.h	Thu Oct 20 17:58:33 2005
+@@ -0,0 +1,33 @@
++#ifndef _ASM_GART_MAPPING_H
++#define _ASM_GART_MAPPING_H 1
++
++#include <linux/config.h>
++
++/* GART DMA mapping implemenation */
++extern void* 
++gart_alloc_coherent(struct device *dev, size_t size, 
++		    dma_addr_t *dma_handle, gfp_t gfp);
++
++extern void 
++gart_free_coherent(struct device *dev, size_t size, void *vaddr,
++		   dma_addr_t dma_handle);
++
++extern dma_addr_t
++gart_map_single(struct device *hwdev, void *ptr, size_t size,
++		int direction);
++
++extern void 
++gart_unmap_single(struct device *dev, dma_addr_t addr,size_t size,
++		  int direction);
++
++extern int 
++gart_map_sg(struct device *hwdev, struct scatterlist *sg,
++	    int nents, int direction);
++
++extern void 
++gart_unmap_sg(struct device *hwdev, struct scatterlist *sg,
++	      int nents, int direction);
++
++extern int gart_dma_supported(struct device *hwdev, u64 mask);
++
++#endif /* _ASM_SWTIOLB_H */
 
 -- 
-Ray Bryant
-AMD Performance Labs                   Austin, Tx
-512-602-0038 (o)                 512-507-7807 (c)
+Muli Ben-Yehuda
+http://www.mulix.org | http://mulix.livejournal.com/
 

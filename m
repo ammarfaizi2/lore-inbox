@@ -1,52 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965082AbVJUSwh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965084AbVJUSxs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965082AbVJUSwh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 14:52:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965086AbVJUSwh
+	id S965084AbVJUSxs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 14:53:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965086AbVJUSxs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 14:52:37 -0400
-Received: from xproxy.gmail.com ([66.249.82.201]:16840 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965084AbVJUSwh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 14:52:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=YbM2MRQegl+n3bavgnaqrKXz6SGfWuweGafjV/vq+X450sElgVAwsBgq9CvFLyvMhGACBJafcn8YTnbfb+gfBY8/ZJkGVGtuFN0JWJYpfZh0i0Z+w+fosPpEYYqX+MIxX/WkRfv76M1iy5+M4DYVewMjMZ/jzx3exmkvIJLf6ZA=
-Message-ID: <5bdc1c8b0510211152m592d95cfte57dc7e9b027f87a@mail.gmail.com>
-Date: Fri, 21 Oct 2005 11:52:36 -0700
-From: Mark Knecht <markknecht@gmail.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: 2.6.14-rc5-rt3 - `IRQ 8'[798] is being piggy
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1129920323.17709.2.camel@mindpipe>
+	Fri, 21 Oct 2005 14:53:48 -0400
+Received: from p4-7036.uk2net.com ([213.232.95.37]:61582 "EHLO
+	churchillrandoms.co.uk") by vger.kernel.org with ESMTP
+	id S965084AbVJUSxr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 14:53:47 -0400
+Message-ID: <43593943.8070901@churchillrandoms.co.uk>
+Date: Fri, 21 Oct 2005 11:53:55 -0700
+From: Stefan Jones <stefan.jones@churchillrandoms.co.uk>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051003)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <5bdc1c8b0510211003j4e9bf03bhf1ea8e94ffe60153@mail.gmail.com>
-	 <5bdc1c8b0510211040s40f3f9bbj7f83e174d7b6d937@mail.gmail.com>
-	 <1129920323.17709.2.camel@mindpipe>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [BUG][2.6.13.4] Memoryleak - idr_layer_cache slab - inotify?
+References: <43593240.9020806@churchillrandoms.co.uk>
+In-Reply-To: <43593240.9020806@churchillrandoms.co.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/21/05, Lee Revell <rlrevell@joe-job.com> wrote:
-> On Fri, 2005-10-21 at 10:40 -0700, Mark Knecht wrote:
-> > On 10/21/05, Mark Knecht <markknecht@gmail.com> wrote:
-> > > Hi,
-> > >    Maybe I'm catching something here? Maybe not - no xruns as of yet,
-> > > but I've never seen these messages before. Kernel config attached.
-> > >
-> > >    dmesg has filled up with these messages:
-> > >
+Stefan Jones wrote:
+
+> I noticed this a while back when gam_server (new fam replacement)
+> started playing up and the idr_layer_cache slab used up 300Mb of RAM.
 >
-> This isn't a real problem.  You enabled CONFIG_RTC_HISTOGRAM.  Don't do
-> that.
+> To reproduce:
 >
-> Lee
+> Run gnome and make sure it is using gam_server for fam.
+>
+> In one console do:
+>
+> while true ;do sleep 0.1 ; killall -w gam_server; done
+>
+> In another try slabtop and see the idr_layer_cache slab climb, eating
+> memory (abit slowly).
+> ( Gnome restarts gam_server after each kill for you and gets it doing
+> stuff )
+>
+> I looked though the source and inotify does use the idr_layer_cache slab
+> and gam_server also uses inotify.
+
+Made a standalone testcase, run this and the kernel will eat up your 
+memory (seen via slabtop):
+
+( this should compile everywhere )
+
+#include <sys/wait.h>
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/select.h>
+#include <asm/unistd.h>
+#include <errno.h>
 
 
-Right, but the 'piggy' messages are a real prblem, aren't they?
+#define __NR_inotify_init    291
+#define __NR_inotify_add_watch    292
+#define __NR_inotify_rm_watch    293
 
-Thanks,
-Mark
+
+_syscall0(int, inotify_init);
+_syscall3(int, inotify_add_watch, int, fd, const char *, name, unsigned 
+int, mask);
+_syscall2(int, inotify_rm_watch, int, fd, unsigned int, wd);
+
+int main() {
+    pid_t pid;
+    int fd;
+    int wd;
+    const char *dirname=".";
+    unsigned int mask = 0xffffffff;
+    int stat;
+   
+    for(;;) {
+        if(!(pid = fork())) {
+            fd = inotify_init ();
+
+            wd = inotify_add_watch (fd, dirname, mask);
+            if (wd < 0)
+                perror ("inotify_add_watch");
+
+            kill(getpid(),SIGTERM);
+        }
+        waitpid(pid,&stat,0);
+    }
+   
+    return 0;
+}

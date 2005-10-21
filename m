@@ -1,95 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965173AbVJUV3U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbVJUVfV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965173AbVJUV3U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 17:29:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965176AbVJUV3U
+	id S1751180AbVJUVfV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 17:35:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbVJUVfV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 17:29:20 -0400
-Received: from CPE-61-9-212-151.qld.bigpond.net.au ([61.9.212.151]:10303 "EHLO
-	bastard.youngs.au.com") by vger.kernel.org with ESMTP
-	id S965173AbVJUV3T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 17:29:19 -0400
-From: Steve Youngs <steve@youngs.au.com>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: Hugh Dickins <hugh@veritas.com>
-Subject: Re: 2.6.13.4 After increasing RAM, I'm getting Bad page state at prep_new_page
-Keywords: page,new,memory,state,run,ram,hugh
-Organization: Linux Users - Fanatics Dept.
-References: <microsoft-free.877jc9jzwy.fsf@youngs.au.com>
-	<Pine.LNX.4.61.0510191741350.8481@goblin.wat.veritas.com>
-X-Face: #/1'_-|5_1$xjR,mVKhpfMJcRh8"k}_a{EkIO:Ox<]@zl/Yr|H,qH#3jJi6Aw(Mg@"!+Z"C
- N_S3!3jzW^FnPeumv4l#,E}J.+e%0q(U>#b-#`~>l^A!_j5AEgpU)>t+VYZ$:El7hLa1:%%L=3%B>n
- K{^jU_{&
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>, steve@youngs.au.com
-X-X-Day: Only 2430946 days till X-Day.  Got Slack?
-X-URL: <http://www.youngs.au.com/~steve/>
-X-Request-PGP: <http://www.youngs.au.com/~steve/pgp/sryoungs.asc>
-X-OpenPGP-Fingerprint: 1659 2093 19D5 C06E D320  3A20 1D27 DB4B A94B 3003
-X-Discordian-Date: Setting Orange, the 3rd day of The Aftermath, 3171. 
-X-Attribution: SY
-Date: Sat, 22 Oct 2005 07:29:11 +1000
-In-Reply-To: <Pine.LNX.4.61.0510191741350.8481@goblin.wat.veritas.com> (Hugh
-	Dickins's message of "Wed, 19 Oct 2005 17:59:33 +0100 (BST)")
-Message-ID: <microsoft-free.87ll0mblug.fsf@youngs.au.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) SXEmacs/22.1.3 (BMW, linux)
+	Fri, 21 Oct 2005 17:35:21 -0400
+Received: from p4-7036.uk2net.com ([213.232.95.37]:8591 "EHLO
+	churchillrandoms.co.uk") by vger.kernel.org with ESMTP
+	id S1751180AbVJUVfV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 17:35:21 -0400
+Message-ID: <43595F26.9010308@churchillrandoms.co.uk>
+Date: Fri, 21 Oct 2005 14:35:34 -0700
+From: Stefan Jones <stefan.jones@churchillrandoms.co.uk>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051003)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [BUG][2.6.13.4] Memoryleak - idr_layer_cache slab - inotify?
+References: <43593240.9020806@churchillrandoms.co.uk>	<43594CD6.3020308@churchillrandoms.co.uk> <20051021134843.497921fd.akpm@osdl.org>
+In-Reply-To: <20051021134843.497921fd.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-Content-Transfer-Encoding: quoted-printable
+Andrew Morton wrote:
 
-* Hugh Dickins <hugh@veritas.com> writes:
+>Something like this?
+>
+>  
+>
+Yep, that fixes it. The  idr_layer_cache slab is now stable. Thanks
 
-  > On Thu, 20 Oct 2005, Steve Youngs wrote:
-  >>=20
-  >> A few days ago I increased my RAM from 0.5Gb to 3Gb and since then
-  >> I've been getting `Bad page state at prep_new_page' errors at odd
-  >> times.  Here is a typical backtrace from my logs:
-  >>=20
-  >> Bad page state at prep_new_page (in process 'X', page c1f7bde0)
-  >> flags:0x80000004 mapping:00000000 mapcount:-262144 count:0
+>diff -puN lib/idr.c~inotify-idr-leak-fix lib/idr.c
+>--- 25/lib/idr.c~inotify-idr-leak-fix	Fri Oct 21 13:44:23 2005
+>+++ 25-akpm/lib/idr.c	Fri Oct 21 13:46:09 2005
+>@@ -346,6 +346,19 @@ void idr_remove(struct idr *idp, int id)
+> EXPORT_SYMBOL(idr_remove);
+> 
+> /**
+>+ * idr_destroy - release all cached layers within an idr tree
+>+ * idp: idr handle
+>+ */
+>+void idr_destroy(struct idr *idp)
+>+{
+>+	while (idp->id_free_cnt) {
+>+		struct idr_layer *p = alloc_layer(idp);
+>+		kmem_cache_free(idr_layer_cache, p);
+>+	}
+>+}
+>+EXPORT_SYMBOL(idr_destroy);
+>+
+>+/**
+>  * idr_find - return pointer for given id
+>  * @idp: idr handle
+>  * @id: lookup key
+>diff -puN include/linux/idr.h~inotify-idr-leak-fix include/linux/idr.h
+>--- 25/include/linux/idr.h~inotify-idr-leak-fix	Fri Oct 21 13:44:23 2005
+>+++ 25-akpm/include/linux/idr.h	Fri Oct 21 13:46:19 2005
+>@@ -75,4 +75,5 @@ int idr_pre_get(struct idr *idp, unsigne
+> int idr_get_new(struct idr *idp, void *ptr, int *id);
+> int idr_get_new_above(struct idr *idp, void *ptr, int starting_id, int *id);
+> void idr_remove(struct idr *idp, int id);
+>+void idr_destroy(struct idr *idp);
+> void idr_init(struct idr *idp);
+>diff -puN fs/inotify.c~inotify-idr-leak-fix fs/inotify.c
+>--- 25/fs/inotify.c~inotify-idr-leak-fix	Fri Oct 21 13:47:27 2005
+>+++ 25-akpm/fs/inotify.c	Fri Oct 21 13:47:38 2005
+>@@ -176,6 +176,7 @@ static inline void put_inotify_dev(struc
+> 	if (atomic_dec_and_test(&dev->count)) {
+> 		atomic_dec(&dev->user->inotify_devs);
+> 		free_uid(dev->user);
+>+		idr_destroy(&dev->idr);
+> 		kfree(dev);
+> 	}
+> }
+>_
+>
+>
+>  
+>
 
-  > The bad memory in question (the struct page at 0xc1f7bde0) is quite
-  > low down, just below 32MB.  Would I be right to guess that that you
-  > inserted the new cards in such a way that the low memory is new RAM?
-
-No.  All the memory is new RAM.  I originally had 2x256MB, and I
-replaced those with 3x1GB.  Sorry if the Subject header was a bit
-misleading.=20
-
-  > I suggest you try taking out that lowest card, and see what happens
-  > then.  Sometimes the kernel these days seems to find memory problems
-  > that memtest86 does not (how long did you run it? overnight?).
-
-When I had posted the message I had only let it run through all tests
-once.  I have since let it run for about 18 hours, where it came up
-with a single error (as reported in my reply to Ken).
-
-  > You could try sending me all your "Bad page state" messages,
-  > to check for correlations.
-
-OK, I'll send those to you off-list.
-
-Thanks very much, Hugh.
-
-=2D-=20
-|---<Steve Youngs>---------------<GnuPG KeyID: A94B3003>---|
-|                   Te audire no possum.                   |
-|             Musa sapientum fixa est in aure.             |
-|----------------------------------<steve@youngs.au.com>---|
-
---=-=-=
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Eicq - The XEmacs ICQ Client <http://eicq.sf.net/>
-
-iEYEABECAAYFAkNZXacACgkQHSfbS6lLMAM/MwCgzu3Ox0kdAZ067vjOTIh1MfkU
-mZ0An1612u5MEwoXXaBOh4QadTJfbbvp
-=nMQi
------END PGP SIGNATURE-----
---=-=-=--

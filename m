@@ -1,59 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965085AbVJUSu4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965092AbVJUSvU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965085AbVJUSu4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 14:50:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965082AbVJUSu4
+	id S965092AbVJUSvU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 14:51:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965086AbVJUSvT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 14:50:56 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:29069 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S965081AbVJUSuz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 14:50:55 -0400
-Message-ID: <43593884.7000800@adaptec.com>
-Date: Fri, 21 Oct 2005 14:50:44 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+	Fri, 21 Oct 2005 14:51:19 -0400
+Received: from 66.64.135.114.nw.nuvox.net ([66.64.135.114]:58502 "EHLO
+	service.eng.exegy.net") by vger.kernel.org with ESMTP
+	id S965082AbVJUSvS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 14:51:18 -0400
+Message-ID: <4359389E.6030406@exegy.com>
+Date: Fri, 21 Oct 2005 13:51:10 -0500
+From: "Mr. Berkley Shands" <bshands@exegy.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.4.1.centos4 (X11/20050721)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: andrew.patterson@hp.com, Christoph Hellwig <hch@lst.de>,
-       "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
-       linux-scsi@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached
- PHYs)
-References: <91888D455306F94EBD4D168954A9457C048F0E34@nacos172.co.lsil.com>	 <20051020160155.GA14296@lst.de> <4357CB03.4020400@adaptec.com>	 <20051020170330.GA16458@lst.de>  <4357F7DE.7050004@adaptec.com> <1129852879.30258.137.camel@bluto.andrew> <43583A53.2090904@pobox.com> <435929FD.4070304@adaptec.com> <43593100.5040708@pobox.com>
-In-Reply-To: <43593100.5040708@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.14-rc5 mlock/munlock bug
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Oct 2005 18:50:49.0295 (UTC) FILETIME=[5A800DF0:01C5D670]
+X-OriginalArrivalTime: 21 Oct 2005 18:55:08.0296 (UTC) FILETIME=[F4E07880:01C5D670]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/21/05 14:18, Jeff Garzik wrote:
-> This illustrates you fundamentally don't understand a lot of Linux, and 
-> SCSI too.
-> 
-> Several non-blkdev device classes (Christoph listed them) use block 
-> layer request_queue for command transit, as does SG_IO and /dev/sg.
+I've noticed that between 2.6.14-rc2 and 2.6.14-rc5 mlock() and 
+mlunlock() have broken.
 
-When people start getting personal you know that they're losing it.
+a call to mlock() to lock pages is granted, and the pages are locked, 
+but never
+unlocked, even when munlock() is manually called or at process rundown.
+No problems under 2.6.13 or up to 2.6.14-rc2. But sometime after -rc2 it 
+goes BANG
+and the machine gets very unhappy. If you look at "swapon -s" you see 
+more and more swap
+space is used until there is no physical memory left, then things really 
+get unhappy.
 
-> We have plenty of specs.  It's called source code.
-> 
-> You don't understand the Linux development process (think its more 
-> political than technical) and you don't understand even what a block 
-> driver is, and you wonder why you have difficulty getting code into the 
-> kernel?
-
-Again, when people start getting personal, you know that they are losing it.
-
-Thank you for spreading FUD -- I'm sure you've impressed your managament,
-how great of a Linux programmer you are and how I don't know anything.
-I'd suggest you keep pushing the politics _behind_ the scences.
-
-Have a good day,
-	Luben
--- 
-http://linux.adaptec.com/sas/
-http://www.adaptec.com/sas/
+berkley

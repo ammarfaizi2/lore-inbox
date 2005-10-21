@@ -1,45 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964994AbVJUPrx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964992AbVJUPrm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964994AbVJUPrx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 11:47:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964993AbVJUPrx
+	id S964992AbVJUPrm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 11:47:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964998AbVJUPrl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 11:47:53 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:39373 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S964997AbVJUPrw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 11:47:52 -0400
-Date: Fri, 21 Oct 2005 08:47:42 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Paul Jackson <pj@sgi.com>
-cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, Simon.Derr@bull.net,
-       akpm@osdl.org, kravetz@us.ibm.com, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, magnus.damm@gmail.com, marcelo.tosatti@cyclades.com
-Subject: Re: [PATCH 4/4] Swap migration V3: sys_migrate_pages interface
-In-Reply-To: <20051021081553.50716b97.pj@sgi.com>
-Message-ID: <Pine.LNX.4.62.0510210845140.23212@schroedinger.engr.sgi.com>
-References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com>
- <20051020225955.19761.53060.sendpatchset@schroedinger.engr.sgi.com>
- <4358588D.1080307@jp.fujitsu.com> <Pine.LNX.4.61.0510210901380.17098@openx3.frec.bull.fr>
- <435896CA.1000101@jp.fujitsu.com> <20051021081553.50716b97.pj@sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 21 Oct 2005 11:47:41 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:25060 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964992AbVJUPrl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 11:47:41 -0400
+Subject: Re: Understanding Linux addr space, malloc, and heap
+From: Arjan van de Ven <arjan@infradead.org>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Cc: "Vincent W. Freeh" <vin@csc.ncsu.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <9EF45D4BE7AB7134B6342106@Satori.nominet.org.uk>
+References: <4358F0E3.6050405@csc.ncsu.edu>
+	 <1129903396.2786.19.camel@laptopd505.fenrus.org>
+	 <4359051C.2070401@csc.ncsu.edu>
+	 <1129908179.2786.23.camel@laptopd505.fenrus.org>
+	 <9EF45D4BE7AB7134B6342106@Satori.nominet.org.uk>
+Content-Type: text/plain
+Date: Fri, 21 Oct 2005 17:47:36 +0200
+Message-Id: <1129909657.2786.25.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Oct 2005, Paul Jackson wrote:
+On Fri, 2005-10-21 at 16:37 +0100, Alex Bligh - linux-kernel wrote:
+> 
+> --On 21 October 2005 17:22 +0200 Arjan van de Ven <arjan@infradead.org> 
+> wrote:
+> 
+> > Ok I meant in the "while adhering to the standard" :)
+> 
+> More precisely, as per the man page:
+> > POSIX.1b says that mprotect can be used only on regions of memory
+> > obtained from mmap(2).
+> 
+> But what is interesting (if anything) is this:
+> > ERRORS
+> >        EINVAL addr is not a valid pointer, or not a  multiple  of
+> >        PAGESIZE.
+> 
+> So if he calls mprotect with memory allocated by malloc (which should
+> fail), why doesn't he get EINVAL? He says it returns 0 (meaning it
+> succeeded). Which it shouldn't (unless he is stupendously lucky in
+> malloc's allocation, in which case it should work).
 
->  * Christoph - what is the permissions check on sys_migrate_pages()?
->    It would seem inappropriate for 'guest' to be able to move the
->    memory of 'root'.
+it succeeds all right; it just does other things than you expect
+perhaps ;)
 
-The check is missing. 
+your alignment code had a bug, so it would align potentially to the
+wrong piece of memory
 
-Maybe we could add:
-
- if (!capable(CAP_SYS_RESOURCE))
-                return -EPERM;
-
-Then we may also decide that root can move any process anywhere and drop 
-the retrieval of the mems_allowed from the other task.
 

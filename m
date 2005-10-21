@@ -1,63 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965062AbVJUSNO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965053AbVJUSRW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965062AbVJUSNO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 14:13:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965060AbVJUSNN
+	id S965053AbVJUSRW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 14:17:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965071AbVJUSRW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 14:13:13 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:10434
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S965065AbVJUSNL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 14:13:11 -0400
-Subject: Re: Ktimer / -rt9 (+custom) monotonic_clock going backwards.
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: john stultz <johnstul@us.ibm.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1129918192.27168.218.camel@cog.beaverton.ibm.com>
-References: <Pine.LNX.4.58.0510200249080.27683@localhost.localdomain>
-	 <20051020073416.GA28581@elte.hu>
-	 <Pine.LNX.4.58.0510200340110.27683@localhost.localdomain>
-	 <20051020080107.GA31342@elte.hu>
-	 <Pine.LNX.4.58.0510200443130.27683@localhost.localdomain>
-	 <20051020085955.GB2903@elte.hu>
-	 <Pine.LNX.4.58.0510200503470.27683@localhost.localdomain>
-	 <Pine.LNX.4.58.0510200603220.27683@localhost.localdomain>
-	 <Pine.LNX.4.58.0510200605170.27683@localhost.localdomain>
-	 <1129826750.27168.163.camel@cog.beaverton.ibm.com>
-	 <20051020193214.GA21613@elte.hu>
-	 <Pine.LNX.4.58.0510210157080.1946@localhost.localdomain>
-	 <1129918192.27168.218.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Organization: linutronix
-Date: Fri, 21 Oct 2005 20:15:42 +0200
-Message-Id: <1129918542.15748.22.camel@tglx.tec.linutronix.de>
+	Fri, 21 Oct 2005 14:17:22 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:9122 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S965053AbVJUSRV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 14:17:21 -0400
+Date: Fri, 21 Oct 2005 11:17:06 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: kamezawa.hiroyu@jp.fujitsu.com, Simon.Derr@bull.net, akpm@osdl.org,
+       kravetz@us.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       magnus.damm@gmail.com, marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH 4/4] Swap migration V3: sys_migrate_pages interface
+Message-Id: <20051021111706.14ba1569.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0510211005090.23359@schroedinger.engr.sgi.com>
+References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com>
+	<20051020225955.19761.53060.sendpatchset@schroedinger.engr.sgi.com>
+	<4358588D.1080307@jp.fujitsu.com>
+	<Pine.LNX.4.61.0510210901380.17098@openx3.frec.bull.fr>
+	<435896CA.1000101@jp.fujitsu.com>
+	<Pine.LNX.4.62.0510210926120.23328@schroedinger.engr.sgi.com>
+	<20051021100357.3397269e.pj@sgi.com>
+	<Pine.LNX.4.62.0510211005090.23359@schroedinger.engr.sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-10-21 at 11:09 -0700, john stultz wrote:
-> On Fri, 2005-10-21 at 02:03 -0400, Steven Rostedt wrote:
-> > With rc4-rt13 and changing cycle_t to u64, my machine ran all night
-> > without one backward step.  Since it use to show up after a couple of
-> > hours, I would say that this is the fix.
-> 
-> Great. I've committed that change to my tree already.
-> 
-> 
-> > John, Do you want me to take a crack at changing the periodic_hook into
-> > using the ktimer code?  I understand Ingo's kernel much more than you, but
-> > you definitely understand the timing code better than I.
-> 
-> If Thomas doesn't think its a good idea, then don't worry about it. I'd
-> be somewhat curious just how bad it is, but that can wait for now.
+Christoph wrote:
+> Therefore if mems_allowed is accessed from outside of the 
+> task then it may not be up to date, right?
 
-We actually try to keep everything out of hard interrupt context what
-can be done elsewhere. Especially out of the timer interrupt.
+Yup - exactly.
 
-	tglx
+The up to date allowed memory container for a task is in its cpuset,
+which does have the locking mechanisms needed for safe access from
+other tasks.
 
+The task mems_allowed is just a private cache of the mems_allowed of
+its cpuset, used for quick access from within the task context by the
+page allocation code.
 
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

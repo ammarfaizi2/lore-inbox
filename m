@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965030AbVJURBD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965033AbVJURDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965030AbVJURBD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 13:01:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965031AbVJURBD
+	id S965033AbVJURDy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 13:03:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965036AbVJURDx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 13:01:03 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:41689 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S965030AbVJURBB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 13:01:01 -0400
-Message-ID: <43591E6F.4020506@jp.fujitsu.com>
-Date: Sat, 22 Oct 2005 01:59:27 +0900
-From: Kamezawa Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: ja, en-us, en
+	Fri, 21 Oct 2005 13:03:53 -0400
+Received: from adsl-67-116-42-147.dsl.sntc01.pacbell.net ([67.116.42.147]:38414
+	"EHLO avtrex.com") by vger.kernel.org with ESMTP id S965033AbVJURDi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 13:03:38 -0400
+Message-ID: <43591F69.60203@avtrex.com>
+Date: Fri, 21 Oct 2005 10:03:37 -0700
+From: David Daney <ddaney@avtrex.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc3 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Christoph Lameter <clameter@engr.sgi.com>
-CC: Simon Derr <Simon.Derr@bull.net>, Andrew Morton <akpm@osdl.org>,
-       Mike Kravetz <kravetz@us.ibm.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, Magnus Damm <magnus.damm@gmail.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Paul Jackson <pj@sgi.com>
-Subject: Re: [PATCH 4/4] Swap migration V3: sys_migrate_pages interface
-References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com> <20051020225955.19761.53060.sendpatchset@schroedinger.engr.sgi.com> <4358588D.1080307@jp.fujitsu.com> <Pine.LNX.4.61.0510210901380.17098@openx3.frec.bull.fr> <435896CA.1000101@jp.fujitsu.com> <Pine.LNX.4.62.0510210926120.23328@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0510210926120.23328@schroedinger.engr.sgi.com>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+CC: linux-mips@linux-mips.org, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Patch: ATI Xilleon port 10/11 Xilleon IDE controller support
+References: <17239.48184.340986.463557@dl2.hq2.avtrex.com> <58cb370e0510210858k7fccc00fqd6fccffed441aae3@mail.gmail.com>
+In-Reply-To: <58cb370e0510210858k7fccc00fqd6fccffed441aae3@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Oct 2005 17:03:37.0946 (UTC) FILETIME=[611E13A0:01C5D661]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> On Fri, 21 Oct 2005, KAMEZAWA Hiroyuki wrote:
+Bartlomiej Zolnierkiewicz wrote:
+> Hi,
 > 
+> Patch basically looks fine but needs some extra work.
+> Detailed comments below...
 > 
->>>>How about this ?
->>>>+cpuset_update_task_mems_allowed(task, new);    (this isn't implemented
->>>>now
+> On 10/20/05, David Daney <ddaney@avtrex.com> wrote:
+> 
+>>This is the tenth part of my Xilleon port.
 >>
->>*new* is already guaranteed to be the subset of current mem_allowed.
->>Is this violate the permission ?
-> 
->  
-> Could the cpuset_mems_allowed(task) function update the mems_allowed if 
-> needed?
-It looks I was wrong :(
-see Paul's e-mail. he describes the problem of my suggestion in detail.
+>>I am sending the full set of patches to linux-mips@linux-mips.org
+>>which is archived at: http://www.linux-mips.org/archives/
+>>
+>>Only the patches that touch generic parts of the kernel are coming
+>>here.
+>>
+>>This patch adds the Xilleon's IDE driver.
+>>
+>>Patch against 2.6.14-rc2 from linux-mips.org
+>>
+>>Signed-off-by: David Daney <ddaney@avtrex.com>
+>>
 
--- Kame
+Thanks for reviewing this.  I am working on addressing the issues you 
+raised.
 
+David Daney.

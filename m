@@ -1,95 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964928AbVJUMqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964933AbVJUMxE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964928AbVJUMqz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 08:46:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964934AbVJUMqy
+	id S964933AbVJUMxE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 08:53:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964934AbVJUMxE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 08:46:54 -0400
-Received: from tardis.csc.ncsu.edu ([152.14.51.184]:7350 "EHLO
-	tardis.csc.ncsu.edu") by vger.kernel.org with ESMTP id S964928AbVJUMqw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 08:46:52 -0400
-Message-ID: <4358E339.20608@csc.ncsu.edu>
-Date: Fri, 21 Oct 2005 08:46:49 -0400
-From: "Vincent W. Freeh" <vin@csc.ncsu.edu>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Understanding Linux addr space, malloc, and heap
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 21 Oct 2005 08:53:04 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:37811 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S964933AbVJUMxB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 08:53:01 -0400
+Subject: PATCH: Allow users to force a panic on NMI
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: linux-kernel@vger.kernel.org, akpm@osdl.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Fri, 21 Oct 2005 14:21:46 +0100
+Message-Id: <1129900906.26367.33.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am trying to understand the Linux addr space.  I figured someone might 
-be able to shed some light on it.  Or at least point me to some sources 
-that will help.
+The default Linux behaviour on an NMI of either memory or unknown is to
+continue operation. For many environments such as scientific computing
+it is preferable that the box is taken out and the error dealt with than
+an uncorrected parity/ECC error get propogated.
 
-I don't understand what is happening with malloc and the heap in my 
-process. According to /proc/<pid>/maps the memory from heap to stack 
-initially looks like that.  I only show the four "maps" from the heap 
-and above.  (This is a slightly altered form consisting of start_addr, 
-end_addr, size_in_pgs, permissions, and path_if_one):
+A small number of systems do generate NMI's for bizarre random reasons
+such as power management so the default is unchanged. In other respects
+the new proc/sys entry works like the existing panic controls already in
+that directory.
 
-0x08d42000 - 0x08d63000 (33 pgs) rw-p   path `[heap]'
-0xb7ef8000 - 0xb7ef9000 (1 pgs) rw-p
-0xb7f09000 - 0xb7f0b000 (2 pgs) rw-p
-0xbfaf5000 - 0xbfb0b000 (22 pgs) rw-p   path `[stack]'
+This is separate to the edac support - EDAC allows supported chipsets to
+handle ECC errors well, this change allows unsupported cases to at least
+panic rather than cause problems further down the line.
 
-I cannot touch (rd, wr, or even mprotect) the map immediate above the 
-heap--must be a sandboxing page.  Before any malloc, brk = 0x8d42000 
-first page of heap.
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-If I malloc <= 33 pages the memory comes from the first map above and 
-the brk changes as appropriate.  However, some new maps appear between 
-the two above. And the 2d one above gets bigger.  However, all data 
-comes from the heap.  brk remain below the top of the heap.  As shown below.
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc4-mm1/include/linux/sysctl.h linux-2.6.14-rc4-mm1/include/linux/sysctl.h
+--- linux.vanilla-2.6.14-rc4-mm1/include/linux/sysctl.h	2005-10-20 16:12:41.000000000 +0100
++++ linux-2.6.14-rc4-mm1/include/linux/sysctl.h	2005-10-20 17:31:08.000000000 +0100
+@@ -146,6 +146,7 @@
+ 	KERN_RANDOMIZE=68, /* int: randomize virtual address space */
+ 	KERN_SETUID_DUMPABLE=69, /* int: behaviour of dumps for setuid core */
+ 	KERN_SPIN_RETRY=70,	/* int: number of spinlock retries */
++	KERN_PANIC_ON_NMI=71,  /* int: whether we will panic on an unrecovered NMI */
+ };
+ 
+ 
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc4-mm1/kernel/panic.c linux-2.6.14-rc4-mm1/kernel/panic.c
+--- linux.vanilla-2.6.14-rc4-mm1/kernel/panic.c	2005-10-20 16:10:19.000000000 +0100
++++ linux-2.6.14-rc4-mm1/kernel/panic.c	2005-10-20 17:27:54.000000000 +0100
+@@ -22,6 +22,7 @@
+ 
+ int panic_timeout;
+ int panic_on_oops;
++int panic_on_unrecovered_nmi;
+ int tainted;
+ 
+ EXPORT_SYMBOL(panic_timeout);
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc4-mm1/kernel/sysctl.c linux-2.6.14-rc4-mm1/kernel/sysctl.c
+--- linux.vanilla-2.6.14-rc4-mm1/kernel/sysctl.c	2005-10-20 16:12:41.000000000 +0100
++++ linux-2.6.14-rc4-mm1/kernel/sysctl.c	2005-10-20 17:29:48.000000000 +0100
+@@ -594,6 +594,14 @@
+ 		.proc_handler	= &proc_dointvec,
+ 	},
+ 	{
++		.ctl_name	= KERN_PANIC_ON_NMI,
++		.procname	= "panic_on_unrecovered_nmi",
++		.data		= &panic_on_unrecovered_nmi,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec,
++	},
++	{
+ 		.ctl_name	= KERN_PRINTK_RATELIMIT,
+ 		.procname	= "printk_ratelimit",
+ 		.data		= &printk_ratelimit_jiffies,
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc4-mm1/arch/i386/kernel/traps.c linux-2.6.14-rc4-mm1/arch/i386/kernel/traps.c
+--- linux.vanilla-2.6.14-rc4-mm1/arch/i386/kernel/traps.c	2005-10-20 16:12:39.000000000 +0100
++++ linux-2.6.14-rc4-mm1/arch/i386/kernel/traps.c	2005-10-20 17:28:10.000000000 +0100
+@@ -576,6 +576,9 @@
+ {
+ 	printk("Uhhuh. NMI received. Dazed and confused, but trying to continue\n");
+ 	printk("You probably have a hardware problem with your RAM chips\n");
++	
++	if(panic_on_unrecovered_nmi)
++		panic("NMI: Not continuing");
+ 
+ 	/* Clear and disable the memory parity error line. */
+ 	clear_mem_error(reason);
+@@ -611,6 +614,9 @@
+ 		reason, smp_processor_id());
+ 	printk("Dazed and confused, but trying to continue\n");
+ 	printk("Do you have a strange power saving mode enabled?\n");
++	
++	if(panic_on_unrecovered_nmi)
++		panic("NMI: Not continuing");
+ }
+ 
+ static DEFINE_SPINLOCK(nmi_print_lock);
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc4-mm1/arch/x86_64/kernel/traps.c linux-2.6.14-rc4-mm1/arch/x86_64/kernel/traps.c
+--- linux.vanilla-2.6.14-rc4-mm1/arch/x86_64/kernel/traps.c	2005-10-20 16:12:39.000000000 +0100
++++ linux-2.6.14-rc4-mm1/arch/x86_64/kernel/traps.c	2005-10-20 17:29:03.000000000 +0100
+@@ -563,6 +563,9 @@
+ 	printk("Uhhuh. NMI received. Dazed and confused, but trying to continue\n");
+ 	printk("You probably have a hardware problem with your RAM chips\n");
+ 
++	if(panic_on_unrecovered_nmi)
++		panic("NMI: Not continuing");
++
+ 	/* Clear and disable the memory parity error line. */
+ 	reason = (reason & 0xf) | 4;
+ 	outb(reason, 0x61);
+@@ -585,6 +588,9 @@
+ {	printk("Uhhuh. NMI received for unknown reason %02x.\n", reason);
+ 	printk("Dazed and confused, but trying to continue\n");
+ 	printk("Do you have a strange power saving mode enabled?\n");
++
++	if(panic_on_unrecovered_nmi)
++		panic("NMI: Not continuing");
+ }
+ 
+ /* Runs on IST stack. This code must keep interrupts off all the time.
 
-0x08d42000 - 0x08d63000 (33 pgs) ---p   path `[heap]'
-0xb7d00000 - 0xb7d01000 (1 pgs) rw-p
-0xb7d01000 - 0xb7d21000 (32 pgs) ---p
-0xb7d21000 - 0xb7e00000 (223 pgs) ---p
-0xb7ef7000 - 0xb7ef9000 (2 pgs) rw-p
-0xb7f09000 - 0xb7f0b000 (2 pgs) rw-p
-0xbfaf5000 - 0xbfb0b000 (22 pgs) rw-p   path `[stack]'
-
-Now if I malloc > 33 pages, the data comes from the heap and the next 
-map(s).  That is the 34th pages is 0xb7d01000, in above example.  What 
-is going on?
-
-Another thing I don't understand is that I can touch maps 3 & 4 above 
-(0xb7d01000 & 0xb7d21000) both rd and wr.  However, I cannot mprotect 
-the 4th map---but mprotect does not fail, just doesn't change 
-permissions.  I can mprotect the 32 pages in the map 3.  This is my 
-initial problem: I can only mprotect 65 pages.  The 66th page (from map 
-4) silently doesn't mprotect.
-
-Looking around at other processes, they seem very different.  Both tcsh 
-and emacs (appear to) have the 1 pg sandbox just below the stack (good 
-place) and much larger heaps.
-
-First, please fix any erroneous statements/assumptions above.  Next I 
-have many questions.  A few follow.
-
-* How does the heap work?  I learned/teach that heap is a contiguous 
-chunk of memory that holds dynamically-allocated memory.  Doesn't appear 
-to be the case.
-
-* Man pg says can only mprotect mmap-able pages.  But what are these? 
-How can I tell?
-
-* Why does mprotect silently fail?
-
-* I thought brk indicated the top of the heap and that all dynamic 
-memory would be between bss end and brk.  That's not true.  What is brk 
-for then?
-
-Thanks,
-v.
---
-Vincent (Vince) W. Freeh
-Dept of Computer Science
-North Carolina State University
-http://www.csc.ncsu.edu/faculty/freeh
-919-513-7196

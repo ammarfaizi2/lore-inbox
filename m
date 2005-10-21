@@ -1,51 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965154AbVJUUgP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965152AbVJUUiL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965154AbVJUUgP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 16:36:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965153AbVJUUgP
+	id S965152AbVJUUiL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 16:38:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965160AbVJUUiL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 16:36:15 -0400
-Received: from agminet01.oracle.com ([141.146.126.228]:36164 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S965154AbVJUUgO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 16:36:14 -0400
-Message-ID: <43595131.3030709@oracle.com>
-Date: Fri, 21 Oct 2005 13:36:01 -0700
-From: Zach Brown <zach.brown@oracle.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Fri, 21 Oct 2005 16:38:11 -0400
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:15499 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S965155AbVJUUiJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 16:38:09 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Marc Perkel <marc@perkel.com>
+Subject: Re: sata_nv + SMP = broken?
+Date: Fri, 21 Oct 2005 22:38:25 +0200
+User-Agent: KMail/1.8.2
+Cc: Vladimir Lazarenko <vlad@lazarenko.net>, linux-kernel@vger.kernel.org
+References: <4358C417.9000608@lazarenko.net> <4359144F.8090504@perkel.com>
+In-Reply-To: <4359144F.8090504@perkel.com>
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Andreas Dilger <adilger@clusterfs.com>
-Subject: Re: [RFC] page lock ordering and OCFS2
-References: <20051017222051.GA26414@tetsuo.zabbo.net> <20051017161744.7df90a67.akpm@osdl.org> <43544499.5010601@oracle.com> <435928BC.5000509@oracle.com> <20051021175730.GD22372@infradead.org>
-In-Reply-To: <20051021175730.GD22372@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+Content-Disposition: inline
+Message-Id: <200510212238.25614.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Fri, Oct 21, 2005 at 10:43:24AM -0700, Zach Brown wrote:
->
->>It introduces block_read_full_page() and truncate_inode_pages() derivatives
->>which understand the PG_fs_misc special case.  It needs a few export patches to
->>the core, but the real burden is on OCFS2 to keep these derivatives up to date.
->
-> The way you do it looks nice, but the exports aren't a big no-way.  That
-> stuff is far too internal to be exported.  Either we can get Andrew to
-> agree on moving those bits into the codepath for all filesystems or
-> we need to do some hackery where every functions gets renamed to __function
-> with an argument int cluster_aware and we have to functions inling them,
-> one normal and one for cluster filesystems.
+Hi,
 
-Yeah, I can certainly appreciate that line of reasoning.  I'm happy to do that
-work, but it'd be nice to get some assurance that it won't be wasted effort.
-Andrew, is this a reasonable direction to take things in?  We'd avoid the
-exports by introducing some wrappers and helpers to the core that OCFS2 would
-call..
+On Friday, 21 of October 2005 18:16, Marc Perkel wrote:
+> 
+> Vladimir Lazarenko wrote:
+> 
+> > Hello,
+> >
+> > Yesterday I've tried launching various kernels on Ahtlon64 Dual-core 
+> > X2 3800+ with MSI Neo4 Platinum SLI motherboard.
+> >
+> > The results were a total catastrophica failure. As soon as I enable 
+> > SMP in the kernel, the sata driver would randomly hang after a bit of 
+> > disk activity.
+> >
+> > Whenever apic is enabled, the system won't even be able to boot up 
+> > completely, and will hang VERY soon. Whenever I disable apic, the 
+> > system is able to bootup, but when the software mirror that I use will 
+> > try to resync for 2-3-10 mins, it will throw up a message and freeze 
+> > again.
+> >
+> > Whenever I disable apic AND lapic, the system is able to bootup AND 
+> > work, however after same 5-10 minutes it start spitting messages, 
+> > which are somewhat different thou and don't hang the system completely 
+> > but render it rather unusable anyway.
+> >
+> > As soon as I disable SMP - everything works like a charm.
+> >
+> 
+> For what it's worth I too have seen this same problem. It happens when I 
+> use the stock Fedora kernels but not my custom compiled kernel. I'm not 
+> sure what I compiled differently but at the time I thought that 
+> something in the new kernel fixed it.
 
-- z
+I only use kernel.org kernels, so perhaps there's a problem with the Fedora
+kernel.
+
+> I too am running an Athlon X2 using sata_nv. I have an ASUS motherboard. 
+> But what I noticed was that the problem went away if I used 2 gigs of 
+> ram instead of 4 gigs. When you use the whole 4 gigs there is some 
+> memory mapping going on and I thought perhaps the problem was related to 
+> the sata_nv not liking the memory mapped over the 4gig barrier.
+
+That's possible.  Unfortunately I cannot verify this, since there are 2GB of
+RAM in my box.
+
+I remeber someone having a problem with sata_nv DMAing over 2GB of RAM,
+so there may be something wrong with it.
+
+Greetings,
+Rafael

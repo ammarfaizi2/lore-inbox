@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbVJUPXs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964982AbVJUP3c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964981AbVJUPXs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 11:23:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbVJUPXr
+	id S964982AbVJUP3c (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 11:29:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbVJUP3c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 11:23:47 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:15811 "EHLO
-	linuxbipbip.grupopie.com") by vger.kernel.org with ESMTP
-	id S964983AbVJUPXo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 11:23:44 -0400
-Message-ID: <4359078E.2010101@grupopie.com>
-Date: Fri, 21 Oct 2005 16:21:50 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Vincent W. Freeh" <vin@csc.ncsu.edu>
-CC: arjan@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: Understanding Linux addr space, malloc, and heap
-References: <4358F0E3.6050405@csc.ncsu.edu> <1129903396.2786.19.camel@laptopd505.fenrus.org> <4359051C.2070401@csc.ncsu.edu>
-In-Reply-To: <4359051C.2070401@csc.ncsu.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 21 Oct 2005 11:29:32 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:4774 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S964982AbVJUP3b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 11:29:31 -0400
+Date: Fri, 21 Oct 2005 08:28:49 -0700
+From: Paul Jackson <pj@sgi.com>
+To: mike kravetz <kravetz@us.ibm.com>
+Cc: akpm@osdl.org, clameter@sgi.com, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, magnus.damm@gmail.com, marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH 0/4] Swap migration V3: Overview
+Message-Id: <20051021082849.45dafd27.pj@sgi.com>
+In-Reply-To: <20051020234621.GL5490@w-mikek2.ibm.com>
+References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com>
+	<20051020160638.58b4d08d.akpm@osdl.org>
+	<20051020234621.GL5490@w-mikek2.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> On Fri, 2005-10-21 at 09:45 -0400, Vincent W. Freeh wrote:
->> I cannot mprotect data that I malloc ...
+Mike wrote:
+> Just to be clear, there are at least two distinct requirements for hotplug.
+> One only wants to remove a quantity of memory (location unimportant). 
 
- > Arjan van de Ven wrote:
->> you can't mprotect malloc() memory period ..
+Could you describe this case a little more?  I wasn't aware
+of this hotplug requirement, until I saw you comment just now.
 
-Vincent W. Freeh wrote:
-> Actually, I can and do.  Simple program at end.
-
-Am I the only one who finds this conversation weird? :)
-
-This reminds me of a student I had that called "main" to return to the 
-start of the application. No matter how I explained that it was simply 
-wrong and that stack was growing because of that he just kept replying: 
-"but it works!"...
+The three reasons I knew of for wanting to move memory pages were:
+ - offload some physical ram or node (avoid or unplug bad hardware)
+ - task migration to another cpuset or moving an existing cpuset
+ - various testing and performance motivations to optimize page location
 
 -- 
-Paulo Marques - www.grupopie.com
-
-The rule is perfect: in all matters of opinion our
-adversaries are insane.
-Mark Twain
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

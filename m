@@ -1,70 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964996AbVJUPtl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964995AbVJUPt7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964996AbVJUPtl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 11:49:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964997AbVJUPtl
+	id S964995AbVJUPt7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 11:49:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964998AbVJUPt6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 11:49:41 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:39616
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S964996AbVJUPtk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 11:49:40 -0400
-Subject: Re: False positive (well not really) on RT backward clock check
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0510211142060.5770@localhost.localdomain>
-References: <Pine.LNX.4.58.0510210942180.3903@localhost.localdomain>
-	 <1129902741.15748.4.camel@tglx.tec.linutronix.de>
-	 <Pine.LNX.4.58.0510211142060.5770@localhost.localdomain>
-Content-Type: text/plain
-Organization: linutronix
-Date: Fri, 21 Oct 2005 17:52:15 +0200
-Message-Id: <1129909935.15748.12.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Fri, 21 Oct 2005 11:49:58 -0400
+Received: from moraine.clusterfs.com ([66.96.26.190]:60829 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S964997AbVJUPt5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 11:49:57 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17240.54704.515573.252722@gargle.gargle.HOWL>
+Date: Fri, 21 Oct 2005 15:49:04 +0400
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Mike Kravetz <kravetz@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, Magnus Damm <magnus.damm@gmail.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: [PATCH 1/4] Swap migration V3: LRU operations
+Newsgroups: gmane.linux.kernel,gmane.linux.kernel.mm
+In-Reply-To: <1129874762.26533.5.camel@localhost>
+References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com>
+	<20051020225940.19761.93396.sendpatchset@schroedinger.engr.sgi.com>
+	<1129874762.26533.5.camel@localhost>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-10-21 at 11:46 -0400, Steven Rostedt wrote:
-> 
-> I think you're right about that.  Here it is.
-> 
-> Sorry for the late reply.  The original was from my custom kernel and I
-> wanted to get an output from Ingo's.  This is rc5-rt1.
-> 
-> -- Steve
-> 
-> isapnp: Scanning for PnP cards...
-> Time: tsc clocksource has been installed.
-> WARNING: non-monotonic time!
-> Ktimers: Switched to high resolution mode CPU 0
-> softirq-timer/1/14[CPU#1]: BUG in ktime_get at kernel/ktimers.c:101
->  [<c0104433>] dump_stack+0x23/0x30 (20)
->  [<c0121427>] __WARN_ON+0x67/0x80 (44)
->  [<c013ad82>] ktime_get+0xd2/0x100 (48)
->  [<c013c2b6>] ktimer_run_queues+0x56/0x130 (60)
->  [<c012abbe>] run_timer_softirq+0x12e/0x450 (56)
->  [<c01268b0>] ksoftirqd+0x120/0x1a0 (40)
->  [<c01376eb>] kthread+0xbb/0xc0 (48)
->  [<c01014a5>] kernel_thread_helper+0x5/0x10 (538427420)
-> ---------------------------
-> | preempt count: 00000001 ]
-> | 1-level deep critical section nesting:
-> ----------------------------------------
-> .. [<c0143edc>] .... add_preempt_count+0x1c/0x20
-> .....[<c01213db>] ..   ( <= __WARN_ON+0x1b/0x80)
-> 
-> Ktimers: Switched to high resolution mode CPU 1
+Dave Hansen writes:
 
-This is at the moment where the clock source is switched over. I check
-what might be the reason.
+[...]
 
-John, any idea ?
+ > 
+ > It makes much more sense to have something like:
+ > 
+ >         if (ret == ISOLATION_IMPOSSIBLE) {
+ >         	 list_del(&page->lru);
+ >          	 list_add(&page->lru, src);
+ >         }
+ > 
+ > than
+ > 
+ > +               if (rc == -1) {  /* Not possible to isolate */
+ > +                       list_del(&page->lru);
+ > +                       list_add(&page->lru, src);
+ > +                } if 
 
-	tglx
+And
+         if (ret == ISOLATION_IMPOSSIBLE)
+          	 list_move(&page->lru, src);
 
+is even better.
 
+Nikita.

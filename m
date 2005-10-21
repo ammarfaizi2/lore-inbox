@@ -1,43 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964895AbVJUHKH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964889AbVJUHHe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964895AbVJUHKH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 03:10:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964892AbVJUHKH
+	id S964889AbVJUHHe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 03:07:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964890AbVJUHHe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 03:10:07 -0400
-Received: from sabe.cs.wisc.edu ([128.105.6.20]:8898 "EHLO sabe.cs.wisc.edu")
-	by vger.kernel.org with ESMTP id S964890AbVJUHKF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 03:10:05 -0400
-Message-ID: <43587805.7060306@cs.wisc.edu>
-Date: Fri, 21 Oct 2005 00:09:25 -0500
-From: Mike Christie <michaelc@cs.wisc.edu>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Fri, 21 Oct 2005 03:07:34 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:41883 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S964889AbVJUHHe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 03:07:34 -0400
+Date: Fri, 21 Oct 2005 09:07:04 +0200 (CEST)
+From: Simon Derr <Simon.Derr@bull.net>
+X-X-Sender: derrs@openx3.frec.bull.fr
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: Christoph Lameter <clameter@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       Mike Kravetz <kravetz@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, Magnus Damm <magnus.damm@gmail.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Paul Jackson <pj@sgi.com>
+Subject: Re: [PATCH 4/4] Swap migration V3: sys_migrate_pages interface
+In-Reply-To: <4358588D.1080307@jp.fujitsu.com>
+Message-ID: <Pine.LNX.4.61.0510210901380.17098@openx3.frec.bull.fr>
+References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com>
+ <20051020225955.19761.53060.sendpatchset@schroedinger.engr.sgi.com>
+ <4358588D.1080307@jp.fujitsu.com>
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: andrew.patterson@hp.com, Luben Tuikov <luben_tuikov@adaptec.com>,
-       Christoph Hellwig <hch@lst.de>,
-       "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
-       linux-scsi@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached
- PHYs)
-References: <91888D455306F94EBD4D168954A9457C048F0E34@nacos172.co.lsil.com>	 <20051020160155.GA14296@lst.de> <4357CB03.4020400@adaptec.com>	 <20051020170330.GA16458@lst.de>  <4357F7DE.7050004@adaptec.com> <1129852879.30258.137.camel@bluto.andrew> <43583A53.2090904@pobox.com>
-In-Reply-To: <43583A53.2090904@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 21/10/2005 09:21:07,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 21/10/2005 09:21:19,
+	Serialize complete at 21/10/2005 09:21:19
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 
-> Which is best?  I don't have a good answer.  Largely depends on the 
-> situation, particularly queueing needs.  Networking and storage are 
-> rapidly converging into "messaging", so the situation is highly fluid in 
-> any case.  Coming from a networking background, I sorta lean towards the 
-> solution noone has attempted yet:  netlink.
+On Fri, 21 Oct 2005, KAMEZAWA Hiroyuki wrote:
 
-Dimitry and Alex did netlink for scsi_tranport_iscsi.c in scsi-misc. 
-Which reminds me of some of the problems they discovered. See here
-http://marc.theaimsgroup.com/?l=linux-netdev&m=111273099708516&w=2
+> 
+> Christoph Lameter wrote:
+> > +	/* Is the user allowed to access the target nodes? */
+> > +	if (!nodes_subset(new, cpuset_mems_allowed(task)))
+> > +		return -EPERM;
+> > +
+> How about this ?
+> +cpuset_update_task_mems_allowed(task, new);    (this isn't implemented now)
+> 
+> > +	err = do_migrate_pages(mm, &old, &new, MPOL_MF_MOVE);
+> > +
+> 
+> or it's user's responsibility  to updates his mempolicy before
+> calling sys_migrage_pages() ?
+> 
+
+The user cannot always add a memory node to a cpuset, for example if this 
+cpuset is inside another cpuset that is owned by another user. (i.e the 
+case where the administrator wants to dedicate a part of the machine to a 
+user).
+
+The kernel checks for these permission issues, conflicts with other 
+mem_exclusive cpusets, etc... when you write in the 'mems' file.
+
+Automatically updating the ->mems_allowed field as you suggest would 
+require that the kernel do the same checks in sys_migrage_pages(). Sounds 
+not as a very good idea to me.
+
+	Simon.
+

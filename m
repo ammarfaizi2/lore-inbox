@@ -1,72 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965126AbVJUTkK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965130AbVJUTpf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965126AbVJUTkK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 15:40:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965125AbVJUTkJ
+	id S965130AbVJUTpf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 15:45:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965131AbVJUTpf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 15:40:09 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:18871 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965102AbVJUTkH (ORCPT
+	Fri, 21 Oct 2005 15:45:35 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:65297 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S965130AbVJUTpe convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 15:40:07 -0400
-Message-ID: <4359440E.2050702@pobox.com>
-Date: Fri, 21 Oct 2005 15:39:58 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Fri, 21 Oct 2005 15:45:34 -0400
 MIME-Version: 1.0
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-CC: andrew.patterson@hp.com, Christoph Hellwig <hch@lst.de>,
-       "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
-       linux-scsi@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached
- PHYs)
-References: <91888D455306F94EBD4D168954A9457C048F0E34@nacos172.co.lsil.com>	 <20051020160155.GA14296@lst.de> <4357CB03.4020400@adaptec.com>	 <20051020170330.GA16458@lst.de>  <4357F7DE.7050004@adaptec.com> <1129852879.30258.137.camel@bluto.andrew> <43583A53.2090904@pobox.com> <435929FD.4070304@adaptec.com> <43593100.5040708@pobox.com> <43593884.7000800@adaptec.com> <4359395B.9030402@pobox.com> <43593FE1.7020506@adaptec.com>
-In-Reply-To: <43593FE1.7020506@adaptec.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <94e67edf0510210922l7c4ab3can8cef0f34cdc2a0fd@mail.gmail.com>
+References: <94e67edf0510210922l7c4ab3can8cef0f34cdc2a0fd@mail.gmail.com>
+X-OriginalArrivalTime: 21 Oct 2005 19:45:33.0070 (UTC) FILETIME=[FFC85AE0:01C5D677]
+Content-class: urn:content-classes:message
+Subject: Re: XIP probelm
+Date: Fri, 21 Oct 2005 15:45:32 -0400
+Message-ID: <Pine.LNX.4.61.0510211518330.14869@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: XIP probelm
+Thread-Index: AcXWd//S4ghKUqI6Tiy0vkl1IUbRsw==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Sreeni" <sreeni.pulichi@gmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luben Tuikov wrote:
-> On 10/21/05 14:54, Jeff Garzik wrote:
-> 
->>I'm trying to tell it like it is, in the hopes that you will eventually 
->>learn the process, and be a good upstream maintainer we can all work with.
-> 
-> 
-> Look how you're using "all", generalizing left and right.  You just want to
-> create this FUD and spread this FUD that I don't work well with anyone.  Yep,
-> this is a pretty low blow.  While in fact did you talk to everyone I work with?
-> 
-> I say, when people are losing it on the technical front, they try to attack
-> personally and on political basis.
 
+On Fri, 21 Oct 2005, Sreeni wrote:
 
-The technical stuff got covered long ago.  Here are the basic basics:
+> Hi,
+>
+> I have a montavista XIP kernel running on ARM and my kernel will be in
+> the flash. Since its XIP, I know that the ".text" portion of the
+> kernel will be executed from flash but that ".data" needs to be placed
+> in SDRAM. Now my question is - based on what offset this data will be
+> placed?
+>
+> My SDRAM physicall address starts at 3000_0000 and flash starts at
+> 0100_0000. when i allocated a global variable in the kernel module and
+> when i try to check its actually physical address using virt_to_phys,
+> its giving me the address in the range of 0100_0000 ~ 0600_0000 which
+> is my flash (the PAGE_OFFSET doesn't work in case of XIP).
+>
+> Can you please help in knowing the physical address of my .data
+> portion in this situation.
+>
+> Thanks
+> Shree
+>
 
-* aic94xx needs to have the scsi-host-template in the LLDD, to fix 
-improper layering.
-* SAS generic code needs to use SAS transport class, which calls 
-scsi_scan_target(), to avoid code duplication.
-* other stuff I listed in my "analysis" email, including updating libata 
-to support SAS+SATA hardware.
+I don't know about the ARM in particular, but if you look
+in ../arch/arm/boot/compressed/vmlinux.lds.in, you will see
+that this linker-file simply allocates the start addresses
+of each section as the next available address. The same
+is true of ../arch/arm/boot/bootp.lds. If you expect to
+have code the data elements and stack accessed at a
+specific physical offset, you modify the linker files().
 
-This is the stuff that I have been working on (nothing pushed to sas-2.6 
-yet, as it doesn't yet boot locally).
+Note that "." means "right here", just like '$' in many
+assemblers. You can specify a physical offset simply
+as:
 
-If you were willing to do this stuff, _working with others_, then I 
-would be off in happy happy SATA land right now, and you would have been 
-nominated to be the Linux SAS maintainer.
+ENTRY(_start)
+SECTIONS
+{
+   . = 0x01000000  <== like this for code
+   .text : {
+    ...
+    ... }
+    .rodata : { }
+    . = 0x30000000 <== like this data
+    .data : {  }
+    .bss  : {  }
+}
 
-Call it FUD, politics, personal attacks, wanking off to please 
-manglement, whatever.  My goal has always been to (a) help Linux users 
-by getting aic94xx+SAS upstream, and (b) try to help you understand why 
-your code didn't go upstream verbatim, long after others have given up 
-trying to do that.
+In the above, we have put .rodata (initialized ASCII stuff)
+right after the code in the .text section. You may need to
+extract this from the binary blob to put into your NVRAM.
 
-	Jeff, he of infinite patience
+Also, any initialzed data needs to be relocated to your
+writable SDRAM and the .bss stuff needs to be zeroed.
+This is non-trivial. You may want to create a ".reloc"
+section which contains your initialized data, put it
+in your flash, and relocate it at startup.
 
+Basically executing-in-place is BAD. Flash should exist
+in some little window where the code gets sucked out,
+loaded at the correct offset in RAM, then you jump
+there and close the little window. RAM, even SDRAM,
+is cheaper than NAND FLASH. You can boot instantly
+even as I have shown.
 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13.4 on an i686 machine (5589.55 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+.
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

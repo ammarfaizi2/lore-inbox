@@ -1,67 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965018AbVJUQQQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965017AbVJUQTX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965018AbVJUQQQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 12:16:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbVJUQQQ
+	id S965017AbVJUQTX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 12:19:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965016AbVJUQTX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 12:16:16 -0400
-Received: from 10.ctyme.com ([69.50.231.10]:41108 "EHLO newton.ctyme.com")
-	by vger.kernel.org with ESMTP id S965016AbVJUQQP (ORCPT
+	Fri, 21 Oct 2005 12:19:23 -0400
+Received: from THUNK.ORG ([69.25.196.29]:30876 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S965017AbVJUQTW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 12:16:15 -0400
-Message-ID: <4359144F.8090504@perkel.com>
-Date: Fri, 21 Oct 2005 09:16:15 -0700
-From: Marc Perkel <marc@perkel.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
-X-Accept-Language: en-us, en
+	Fri, 21 Oct 2005 12:19:22 -0400
+Date: Fri, 21 Oct 2005 12:19:20 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: "Vincent W. Freeh" <vin@csc.ncsu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Understanding Linux addr space, malloc, and heap
+Message-ID: <20051021161920.GA13574@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	"Vincent W. Freeh" <vin@csc.ncsu.edu>, linux-kernel@vger.kernel.org
+References: <4358F0E3.6050405@csc.ncsu.edu> <1129903396.2786.19.camel@laptopd505.fenrus.org> <4359051C.2070401@csc.ncsu.edu> <1129908179.2786.23.camel@laptopd505.fenrus.org> <43590B23.2090101@csc.ncsu.edu> <C6F7B216-66B3-4848-9423-05AB4D826320@mac.com> <43591307.5050507@csc.ncsu.edu>
 MIME-Version: 1.0
-To: Vladimir Lazarenko <vlad@lazarenko.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: sata_nv + SMP = broken?
-References: <4358C417.9000608@lazarenko.net>
-In-Reply-To: <4358C417.9000608@lazarenko.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spamfilter-host: newton.ctyme.com - http://www.junkemailfilter.com"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43591307.5050507@csc.ncsu.edu>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Oct 21, 2005 at 12:10:47PM -0400, Vincent W. Freeh wrote:
+> First, thanks for all the help and attention.  I am learning much.
+> 
+> I think the focus of this discussion should be on mprotect.  I 
+> understand that spec says it only works on mmap'd memory.  So does 
+> malloc use mmap?  If not why does it work at all?
 
+_Sometimes_ malloc() uses mmap, and _sometimes_ it doesn't (it will
+use memory by adjust the brk pointer).  This can be adjusted via
+various tuning parameters to malloc.  I suggest you read the info
+documentation for glibc's malloc() and mallopt() calls.  (Note that
+mallopt parameters are non-portable, and may not apply if you are
+using another OS, another version of glibc, or if you have replaced
+the malloc with another implementation --- as some application writers
+might do.)
 
-Vladimir Lazarenko wrote:
+Bottom line is you must not count on the type of memory returned by
+malloc().  It is given the freedom in the specifications to use
+whatever free memory it deems most likely to provide better
+application performance.  An application which is willing to be
+malloc() specific can use various interfaces to tune various
+malloc()'s behavior for performance reasons.
 
-> Hello,
->
-> Yesterday I've tried launching various kernels on Ahtlon64 Dual-core 
-> X2 3800+ with MSI Neo4 Platinum SLI motherboard.
->
-> The results were a total catastrophica failure. As soon as I enable 
-> SMP in the kernel, the sata driver would randomly hang after a bit of 
-> disk activity.
->
-> Whenever apic is enabled, the system won't even be able to boot up 
-> completely, and will hang VERY soon. Whenever I disable apic, the 
-> system is able to bootup, but when the software mirror that I use will 
-> try to resync for 2-3-10 mins, it will throw up a message and freeze 
-> again.
->
-> Whenever I disable apic AND lapic, the system is able to bootup AND 
-> work, however after same 5-10 minutes it start spitting messages, 
-> which are somewhat different thou and don't hang the system completely 
-> but render it rather unusable anyway.
->
-> As soon as I disable SMP - everything works like a charm.
->
-
-For what it's worth I too have seen this same problem. It happens when I 
-use the stock Fedora kernels but not my custom compiled kernel. I'm not 
-sure what I compiled differently but at the time I thought that 
-something in the new kernel fixed it.
-
-I too am running an Athlon X2 using sata_nv. I have an ASUS motherboard. 
-But what I noticed was that the problem went away if I used 2 gigs of 
-ram instead of 4 gigs. When you use the whole 4 gigs there is some 
-memory mapping going on and I thought perhaps the problem was related to 
-the sata_nv not liking the memory mapped over the 4gig barrier. I did 
-not try disabling SMP.
-
+						- Ted

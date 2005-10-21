@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbVJUH5j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964901AbVJUIFE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964903AbVJUH5j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 03:57:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbVJUH5j
+	id S964901AbVJUIFE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 04:05:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964905AbVJUIFC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 03:57:39 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:24505 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S964903AbVJUH5j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 03:57:39 -0400
-Date: Fri, 21 Oct 2005 03:57:20 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-To: Thomas Gleixner <tglx@linutronix.de>
-cc: Ingo Molnar <mingo@elte.hu>, john stultz <johnstul@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Ktimer / -rt9 (+custom) monotonic_clock going backwards.
-In-Reply-To: <1129880977.16447.116.camel@tglx.tec.linutronix.de>
-Message-ID: <Pine.LNX.4.58.0510210355350.3903@localhost.localdomain>
-References: <Pine.LNX.4.58.0510200249080.27683@localhost.localdomain> 
- <20051020073416.GA28581@elte.hu>  <Pine.LNX.4.58.0510200340110.27683@localhost.localdomain>
-  <20051020080107.GA31342@elte.hu>  <Pine.LNX.4.58.0510200443130.27683@localhost.localdomain>
-  <20051020085955.GB2903@elte.hu>  <Pine.LNX.4.58.0510200503470.27683@localhost.localdomain>
-  <Pine.LNX.4.58.0510200603220.27683@localhost.localdomain> 
- <Pine.LNX.4.58.0510200605170.27683@localhost.localdomain> 
- <1129826750.27168.163.camel@cog.beaverton.ibm.com>  <20051020193214.GA21613@elte.hu>
-  <Pine.LNX.4.58.0510210157080.1946@localhost.localdomain>
- <1129880977.16447.116.camel@tglx.tec.linutronix.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 21 Oct 2005 04:05:02 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:4524 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964901AbVJUIFA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 04:05:00 -0400
+Date: Fri, 21 Oct 2005 10:05:04 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Cc: William Weston <weston@lysdexia.org>, cc@ccrma.Stanford.EDU,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       david singleton <dsingleton@mvista.com>,
+       Steven Rostedt <rostedt@goodmis.org>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark Knecht <markknecht@gmail.com>
+Subject: Re: 2.6.14-rc4-rt7
+Message-ID: <20051021080504.GA5088@elte.hu>
+References: <20051017160536.GA2107@elte.hu> <1129576885.4720.3.camel@cmn3.stanford.edu> <1129599029.10429.1.camel@cmn3.stanford.edu> <20051018072844.GB21915@elte.hu> <1129669474.5929.8.camel@cmn3.stanford.edu> <Pine.LNX.4.58.0510181423200.19498@echo.lysdexia.org> <20051019111943.GA31410@elte.hu> <1129835571.14374.11.camel@cmn3.stanford.edu> <20051020191620.GA21367@elte.hu> <1129852531.5227.4.camel@cmn3.stanford.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1129852531.5227.4.camel@cmn3.stanford.edu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 21 Oct 2005, Thomas Gleixner wrote:
+* Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
 
-> On Fri, 2005-10-21 at 02:03 -0400, Steven Rostedt wrote:
-> > On Thu, 20 Oct 2005, Ingo Molnar wrote:
->
-> > With rc4-rt13 and changing cycle_t to u64, my machine ran all night
-> > without one backward step.  Since it use to show up after a couple of
-> > hours, I would say that this is the fix.
-> >
-> > John, Do you want me to take a crack at changing the periodic_hook into
-> > using the ktimer code?  I understand Ingo's kernel much more than you, but
-> > you definitely understand the timing code better than I.
->
-> Steve,
->
-> I think the hook is too complex to move it into the timer interrupt
-> context. We still have to reimplement the dynamic priority adjustment of
-> the ktimer softirq in a clean way. Once this is done, we can move it
-> over and set a proper priority up for that.
->
+> Found this on the logs:
+> 
+> Oct 20 15:52:57 cmn3 kernel: BUG in hydrogen:4810, ktimer expired 
+> short without user signal!:
 
-OK, but the u64 cycle_t should stay.  Even with the dynamic priority of
-the softirq, a process with a super high priority that doesn't care about
-the timing code can still make the periodic_hook delay for a few seconds.
+hm. This suggests that hydrogen executing schedule_ktimer() was waken up 
+45 microseconds too early, and most likely it was not woken up by the 
+hres timer code (which should have done the wakeup 45 microseconds later 
+anyway).
 
--- Steve
+I've added special hres-wakeup-debugging code to the scheduler in 
+-rc5-rt2 to catch this particular scenario, you might want to give it a 
+try. The new code is always enabled and it should pinpoint the precise 
+place that does the wrong wakeup. You should see a new type of warning 
+in your log:
 
+ BUG: foo:1234 waking up bar:4321, expiring ktimer short without user signal!
+
+in shortly before the usual "BUG: ktimer expired short" message. Both 
+messages will be triggered only once per bootup - but the condition 
+itself likely occurs much more often on your box.
+
+	Ingo

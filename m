@@ -1,102 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964935AbVJUM5z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964926AbVJUNAS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964935AbVJUM5z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 08:57:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964926AbVJUM5z
+	id S964926AbVJUNAS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 09:00:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964936AbVJUNAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 08:57:55 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:56711 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S964936AbVJUM5y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 08:57:54 -0400
-Subject: PATCH: cleanup printk and a 32/64bitism
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: sebastien.bouchard@ca.kontron.com, mark.gross@intel.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
+	Fri, 21 Oct 2005 09:00:18 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:55523 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964926AbVJUNAR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 09:00:17 -0400
+Subject: Re: Understanding Linux addr space, malloc, and heap
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Vincent W. Freeh" <vin@csc.ncsu.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4358E339.20608@csc.ncsu.edu>
+References: <4358E339.20608@csc.ncsu.edu>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 21 Oct 2005 14:26:17 +0100
-Message-Id: <1129901178.26367.37.camel@localhost.localdomain>
+Date: Fri, 21 Oct 2005 15:00:02 +0200
+Message-Id: <1129899603.2786.16.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not sure if this board can exist with a 64bit CPU but if not then
-Kconfig wants fixing too.
+On Fri, 2005-10-21 at 08:46 -0400, Vincent W. Freeh wrote:
+> I am trying to understand the Linux addr space.  I figured someone might 
+> be able to shed some light on it.  Or at least point me to some sources 
+> that will help.
+> 
+> I don't understand what is happening with malloc and the heap in my 
+> process. According to /proc/<pid>/maps the memory from heap to stack 
+> initially looks like that.  I only show the four "maps" from the heap 
+> and above.  (This is a slightly altered form consisting of start_addr, 
+> end_addr, size_in_pgs, permissions, and path_if_one):
+> 
+> 0x08d42000 - 0x08d63000 (33 pgs) rw-p   path `[heap]'
+> 0xb7ef8000 - 0xb7ef9000 (1 pgs) rw-p
+> 0xb7f09000 - 0xb7f0b000 (2 pgs) rw-p
+> 0xbfaf5000 - 0xbfb0b000 (22 pgs) rw-p   path `[stack]'
+> 
+> First, please fix any erroneous statements/assumptions above.  Next I 
+> have many questions.  A few follow.
+> 
+> * How does the heap work?  I learned/teach that heap is a contiguous 
+> chunk of memory that holds dynamically-allocated memory.  Doesn't appear 
+> to be the case.
 
-- Fix various chaotic printks
-- Remove the exclamation marks from every printk (!!!) 
-- Fix the 64/32bit pointer cast by removing the printing in question.
-The value is always NULL on that path anyway.
+that's the old school 1970's stuff
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+the "heap" is still brk in linux, however there is no 1:1 relation
+between heap and malloc. malloc in glibc is implemented both using brk
+and mmap, depending on the size of your allocation.
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc4-mm1/drivers/char/tlclk.c linux-2.6.14-rc4-mm1/drivers/char/tlclk.c
---- linux.vanilla-2.6.14-rc4-mm1/drivers/char/tlclk.c	2005-10-20 16:12:39.000000000 +0100
-+++ linux-2.6.14-rc4-mm1/drivers/char/tlclk.c	2005-10-20 17:44:53.000000000 +0100
-@@ -210,7 +210,7 @@
- 	result = request_irq(telclk_interrupt, &tlclk_interrupt,
- 			     SA_INTERRUPT, "telco_clock", tlclk_interrupt);
- 	if (result == -EBUSY) {
--		printk(KERN_ERR "telco_clock: Interrupt can't be reserved!\n");
-+		printk(KERN_ERR "telco_clock: Interrupt can't be reserved.\n");
- 		return -EBUSY;
- 	}
- 	inb(TLCLK_REG6);	/* Clear interrupt events */
-@@ -740,7 +740,7 @@
- 
- 	ret = register_chrdev(tlclk_major, "telco_clock", &tlclk_fops);
- 	if (ret < 0) {
--		printk(KERN_ERR "telco_clock: can't get major! %d\n", tlclk_major);
-+		printk(KERN_ERR "tlclk: can't get major %d.\n", tlclk_major);
- 		return ret;
- 	}
- 	alarm_events = kzalloc( sizeof(struct tlclk_alarms), GFP_KERNEL);
-@@ -749,7 +749,7 @@
- 
- 	/* Read telecom clock IRQ number (Set by BIOS) */
- 	if (!request_region(TLCLK_BASE, 8, "telco_clock")) {
--		printk(KERN_ERR "tlclk: request_region failed! 0x%X\n",
-+		printk(KERN_ERR "tlclk: request_region 0x%X failed.\n",
- 			TLCLK_BASE);
- 		ret = -EBUSY;
- 		goto out2;
-@@ -757,7 +757,7 @@
- 	telclk_interrupt = (inb(TLCLK_REG7) & 0x0f);
- 
- 	if (0x0F == telclk_interrupt ) { /* not MCPBL0010 ? */
--		printk(KERN_ERR "telclk_interrup = 0x%x non-mcpbl0010 hw\n",
-+		printk(KERN_ERR "telclk_interrup = 0x%x non-mcpbl0010 hw.\n",
- 			telclk_interrupt);
- 		ret = -ENXIO;
- 		goto out3;
-@@ -767,7 +767,7 @@
- 
- 	ret = misc_register(&tlclk_miscdev);
- 	if (ret < 0) {
--		printk(KERN_ERR " misc_register retruns %d\n", ret);
-+		printk(KERN_ERR "tlclk: misc_register returns %d.\n", ret);
- 		ret = -EBUSY;
- 		goto out3;
- 	}
-@@ -775,8 +775,7 @@
- 	tlclk_device = platform_device_register_simple("telco_clock",
- 				-1, NULL, 0);
- 	if (!tlclk_device) {
--		printk(KERN_ERR " platform_device_register retruns 0x%X\n",
--			(unsigned int) tlclk_device);
-+		printk(KERN_ERR "tlclk: platform_device_register failed.\n");
- 		ret = -EBUSY;
- 		goto out4;
- 	}
-@@ -784,7 +783,7 @@
- 	ret = sysfs_create_group(&tlclk_device->dev.kobj,
- 			&tlclk_attribute_group);
- 	if (ret) {
--		printk(KERN_ERR "failed to create sysfs device attributes\n");
-+		printk(KERN_ERR "tlclk: failed to create sysfs device attributes.\n");
- 		sysfs_remove_group(&tlclk_device->dev.kobj,
- 			&tlclk_attribute_group);
- 		goto out5;
+
+> 
+> * Man pg says can only mprotect mmap-able pages.  But what are these? 
+> How can I tell?
+
+you need to mmap these yourself to be sure.. eg you cannot mprotect the
+output of malloc, at least not reliably. Only of mmap.
+
+> 
+> * Why does mprotect silently fail?
+
+no it has sideeffects; eg it most likely affects more memory than just
+your malloc()'d part
+
+
+> * I thought brk indicated the top of the heap and that all dynamic 
+> memory would be between bss end and brk.  That's not true.  What is brk 
+> for then?
+
+see definition of heap vs malloc above
+
 

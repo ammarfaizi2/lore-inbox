@@ -1,87 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbVJUVlQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbVJUVo0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751248AbVJUVlQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 17:41:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbVJUVlQ
+	id S1751251AbVJUVo0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 17:44:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbVJUVo0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 17:41:16 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:26040 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751221AbVJUVlP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 17:41:15 -0400
-Message-ID: <43596070.3090902@pobox.com>
-Date: Fri, 21 Oct 2005 17:41:04 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Fri, 21 Oct 2005 17:44:26 -0400
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:63543 "EHLO
+	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1751251AbVJUVoZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 17:44:25 -0400
+Date: Fri, 21 Oct 2005 22:44:22 +0100 (BST)
+From: Ken Moffat <zarniwhoop@ntlworld.com>
+To: Steve Youngs <steve@youngs.au.com>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Ken Moffat <zarniwhoop@ntlworld.com>
+Subject: Re: 2.6.13.4 After increasing RAM, I'm getting Bad page state at
+ prep_new_page
+In-Reply-To: <microsoft-free.87pspybm4d.fsf@youngs.au.com>
+Message-ID: <Pine.LNX.4.63.0510212233140.26585@deepthought.mydomain>
+References: <microsoft-free.877jc9jzwy.fsf@youngs.au.com>
+ <Pine.LNX.4.63.0510191730570.23833@deepthought.mydomain>
+ <microsoft-free.87pspybm4d.fsf@youngs.au.com>
 MIME-Version: 1.0
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-CC: andrew.patterson@hp.com, Christoph Hellwig <hch@lst.de>,
-       "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
-       linux-scsi@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached
- PHYs)
-References: <91888D455306F94EBD4D168954A9457C048F0E34@nacos172.co.lsil.com>	 <20051020160155.GA14296@lst.de> <4357CB03.4020400@adaptec.com>	 <20051020170330.GA16458@lst.de>  <4357F7DE.7050004@adaptec.com> <1129852879.30258.137.camel@bluto.andrew> <43583A53.2090904@pobox.com> <435929FD.4070304@adaptec.com> <43593100.5040708@pobox.com> <43593884.7000800@adaptec.com> <4359395B.9030402@pobox.com> <43593FE1.7020506@adaptec.com> <4359440E.2050702@pobox.com> <43595275.1000308@adaptec.com> <435959BE.5040101@pobox.com> <43595CA6.9010802@adaptec.com>
-In-Reply-To: <43595CA6.9010802@adaptec.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463809536-424337779-1129931062=:26585"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luben Tuikov wrote:
-> On 10/21/05 17:12, Jeff Garzik wrote:
-> 
->>I already described why.  Examples are DMA boundary and s/g limit, among 
->>others.  When confronted with this, you proposed an additional hardware 
->>information struct which duplicates Scsi_Host_Template.
-> 
-> 
-> I told you -- I have this in the struct asd_ha_struct and it was merely
-> a downplay that I didn't include the same thing in struct sas_ha_struct.
-> 
-> 
->>Solution?  Just use Scsi_Host_Template.  Take a look at how each libata 
-> 
-> 
-> No, this is the solution which would turn everything upside down.
-> The easiest and smallest solution is to just include this tiny struct
-> and end this.  It would have 0 impact on code.  In fact I'll
-> implement it now and push it to the git tree. ;-)
-> 
-> The host template _mixes_ hw, scsi core, and protocol knowlege into
-> one ugly blob.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-True.
+---1463809536-424337779-1129931062=:26585
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN; format=flowed
+Content-Transfer-Encoding: 8BIT
 
-If you do not like the current situation, evolve the SCSI core (and all 
-drivers) to where you think they should be.
+On Sat, 22 Oct 2005, Steve Youngs wrote:
 
-The correct answer is NOT to duplicate information between 
-Scsi_Host_Template and Lubens_Hardware_Struct.
+>
+> I gave memtest86+ a shot, and after about 18 hours it came up with...
+>
+>  Test:            8
+>  Pass:            7
+>  Failing Address: 00008072bf0 - 128.1MB
+>  Good:            00000000
+>  Bad:             00000100
+>  Err-Bits:        00000100
+>  Count:           1
+>
+>  >  3GB sounds an awful lot for an athlon - 2x1GB and 2x512MB, I suppose.
+>
+> 3x1GB
+>
 
+  At least the problem showed up, so the load on the power supply is not 
+a prime concern.
 
->>driver is implemented.  The host template is in the low level driver, 
->>while most of the code is common code, implemented elsewhere.
-> 
-> 
-> libata isn't without architectural problems.  What strikes me is
-> that you think that libata-scsi is SATL.
+  If you have the patience, first take out one of the 'good' sticks and 
+repeat with 2x1GB.  If that works, it's probable the mobo can't drive 
+3x1GB, at least with the chip arrangement on those particular sticks. 
+OTOH, if it still fails at that address, perhaps that one stick is 
+suspect - in that case try swapping it and retesting.
 
-The only things that matter are (a) what the code is now, and (b) what 
-changes are needed to get where we need to be.
+  Of course, if your manual is unclear about which slot maps where, you 
+might have to try permutations of 2 sticks on this approach.  And that's 
+before messing with obscure and poorly-explained bios options to control 
+the memory timing and drive.  Good Luck!
 
-Thus, regardless of whether or not libata-scsi meets the needs of 
-SAS+SATA hardware, libata-scsi is where all SCSI<->ATA translation 
-should occur.  If you are dissatisfied, evolve the code to where it 
-needs to be.
+Ken
+-- 
+  das eine Mal als Tragödie, das andere Mal als Farce
 
-
-> You are so much better off renaming it to satl.c and given
-
-Naming is completely irrelevant.  Just modify the code.
-
-	Jeff
-
-
+---1463809536-424337779-1129931062=:26585--

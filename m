@@ -1,67 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964997AbVJUPwr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964998AbVJUPzA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964997AbVJUPwr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 11:52:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964998AbVJUPwr
+	id S964998AbVJUPzA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 11:55:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965000AbVJUPzA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 11:52:47 -0400
-Received: from smtpout.mac.com ([17.250.248.46]:29890 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S964997AbVJUPwr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 11:52:47 -0400
-In-Reply-To: <43590B23.2090101@csc.ncsu.edu>
-References: <4358F0E3.6050405@csc.ncsu.edu> <1129903396.2786.19.camel@laptopd505.fenrus.org> <4359051C.2070401@csc.ncsu.edu> <1129908179.2786.23.camel@laptopd505.fenrus.org> <43590B23.2090101@csc.ncsu.edu>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <C6F7B216-66B3-4848-9423-05AB4D826320@mac.com>
-Cc: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Understanding Linux addr space, malloc, and heap
-Date: Fri, 21 Oct 2005 11:52:45 -0400
-To: "Vincent W. Freeh" <vin@csc.ncsu.edu>
-X-Mailer: Apple Mail (2.734)
+	Fri, 21 Oct 2005 11:55:00 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:9399 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S964998AbVJUPy7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 11:54:59 -0400
+Date: Fri, 21 Oct 2005 08:54:52 -0700 (PDT)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: kravetz@us.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       magnus.damm@gmail.com, marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH 0/4] Swap migration V3: Overview
+In-Reply-To: <20051020160638.58b4d08d.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.62.0510210850520.23212@schroedinger.engr.sgi.com>
+References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com>
+ <20051020160638.58b4d08d.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 21, 2005, at 11:37:07, Vincent W. Freeh wrote:
-> The point of the code is to show that one can protect malloc code.
+On Thu, 20 Oct 2005, Andrew Morton wrote:
 
-You may be able to protect malloced memory, but it's not reliable, it  
-doesn't follow the standard, and if it breaks you get to keep both  
-pieces.  You tried to protect malloced memory, it wasn't reliable, it  
-didn't follow the standard, therefore you get to keep both pieces.
+> Christoph Lameter <clameter@sgi.com> wrote:
+> >
+> > Page migration is also useful for other purposes:
+> > 
+> >  1. Memory hotplug. Migrating processes off a memory node that is going
+> >     to be disconnected.
+> > 
+> >  2. Remapping of bad pages. These could be detected through soft ECC errors
+> >     and other mechanisms.
+> 
+> It's only useful for these things if it works with close-to-100% reliability.
 
-> But I can't mprotect the 66th page I malloc.  And mprotect fails  
-> SILENTLY!
-You must understand that malloc does not necessarily return a  
-_page_.  It returns a random hunk of memory aligned to a 16 byte  
-boundary, which is *not* the same as aligned to a page boundary  
-(usually 4096 bytes).  Your code is buggy:
+I think we need to gradually get there. There are other measures 
+implemented by the hotplug that can work in conjunction with these patches 
+to increase the likelyhood of successful migration.
 
->>>   mprotect((void*)((unsigned)p & ~(pgsize-1)), 1024, PROT_NONE);
+Pages that are not on the LRU are very difficult to move and the hotplug 
+project addresses that by not allowing allocation in areas that may be 
+removed etc.
 
-You malloced 1024 bytes (1024 != page size (usually 4096)).  You then  
-round down to a multiple of a page size, and mprotect that page  
-(since you used a size < 1 page, it rounds up to a page).  If malloc  
-returns an offset 4080 bytes into a page (aligned on a 16-byte  
-boundary), and you round down and protect that page, then only the  
-first 16 bytes of the memory you got will be protected.
+> And there are are all sorts of things which will prevent that - mlock,
+> ongoing direct-io, hugepages, whatever.
 
-You *cannot* reliably expect to mprotect() the results of malloc().   
-If you want to mprotect() things, you _must_ do it on mmap()ed memory.
+Right. But these are not a problem for the page migration of processes in 
+order to optimize performance. The hotplug and the remapping of bad pages 
+will require additional effort to get done right. Nevertheless, the 
+material presented here can be used as a basis.
+ 
+> So before we can commit ourselves to the initial parts of this path we'd
+> need some reassurance that the overall scheme addresses these things and
+> that the end result has a high probability of supporting hot unplug and
+> remapping sufficiently well.
 
-Cheers,
-Kyle Moffett
-
---
-Somone asked me why I work on this free (http://www.fsf.org/ 
-philosophy/) software stuff and not get a real job. Charles Shultz  
-had the best answer:
-
-"Why do musicians compose symphonies and poets write poems? They do  
-it because life wouldn't have any meaning for them if they didn't.  
-That's why I draw cartoons. It's my life."
-   -- Charles Shultz
-
+I think we have that assurance. The hotplug project has worked on these 
+patches for a long time and what we need is a way to gradually put these 
+things into the kernel. We are trying to facilitate that with these 
+patches.
 

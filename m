@@ -1,64 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751054AbVJUVEV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965168AbVJUVMy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751054AbVJUVEV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 17:04:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751082AbVJUVEV
+	id S965168AbVJUVMy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 17:12:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbVJUVMy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 17:04:21 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:61077 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751054AbVJUVEU (ORCPT
+	Fri, 21 Oct 2005 17:12:54 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:696 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751145AbVJUVMx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 17:04:20 -0400
-Date: Fri, 21 Oct 2005 13:59:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Zach Brown <zach.brown@oracle.com>
-Cc: hch@infradead.org, linux-kernel@vger.kernel.org, adilger@clusterfs.com
-Subject: Re: [RFC] page lock ordering and OCFS2
-Message-Id: <20051021135931.6065bbd1.akpm@osdl.org>
-In-Reply-To: <43595131.3030709@oracle.com>
-References: <20051017222051.GA26414@tetsuo.zabbo.net>
-	<20051017161744.7df90a67.akpm@osdl.org>
-	<43544499.5010601@oracle.com>
-	<435928BC.5000509@oracle.com>
-	<20051021175730.GD22372@infradead.org>
-	<43595131.3030709@oracle.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 21 Oct 2005 17:12:53 -0400
+Message-ID: <435959BE.5040101@pobox.com>
+Date: Fri, 21 Oct 2005 17:12:30 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Luben Tuikov <luben_tuikov@adaptec.com>
+CC: andrew.patterson@hp.com, Christoph Hellwig <hch@lst.de>,
+       "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
+       linux-scsi@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached
+ PHYs)
+References: <91888D455306F94EBD4D168954A9457C048F0E34@nacos172.co.lsil.com>	 <20051020160155.GA14296@lst.de> <4357CB03.4020400@adaptec.com>	 <20051020170330.GA16458@lst.de>  <4357F7DE.7050004@adaptec.com> <1129852879.30258.137.camel@bluto.andrew> <43583A53.2090904@pobox.com> <435929FD.4070304@adaptec.com> <43593100.5040708@pobox.com> <43593884.7000800@adaptec.com> <4359395B.9030402@pobox.com> <43593FE1.7020506@adaptec.com> <4359440E.2050702@pobox.com> <43595275.1000308@adaptec.com>
+In-Reply-To: <43595275.1000308@adaptec.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zach Brown <zach.brown@oracle.com> wrote:
->
-> Christoph Hellwig wrote:
-> > On Fri, Oct 21, 2005 at 10:43:24AM -0700, Zach Brown wrote:
-> >
-> >>It introduces block_read_full_page() and truncate_inode_pages() derivatives
-> >>which understand the PG_fs_misc special case.  It needs a few export patches to
-> >>the core, but the real burden is on OCFS2 to keep these derivatives up to date.
-> >
-> > The way you do it looks nice, but the exports aren't a big no-way.  That
-> > stuff is far too internal to be exported.  Either we can get Andrew to
-> > agree on moving those bits into the codepath for all filesystems or
-> > we need to do some hackery where every functions gets renamed to __function
-> > with an argument int cluster_aware and we have to functions inling them,
-> > one normal and one for cluster filesystems.
+Luben Tuikov wrote:
+> On 10/21/05 15:39, Jeff Garzik wrote:
 > 
-> Yeah, I can certainly appreciate that line of reasoning.  I'm happy to do that
-> work, but it'd be nice to get some assurance that it won't be wasted effort.
-> Andrew, is this a reasonable direction to take things in?  We'd avoid the
-> exports by introducing some wrappers and helpers to the core that OCFS2 would
-> call..
+>>The technical stuff got covered long ago.  Here are the basic basics:
+>>
+>>* aic94xx needs to have the scsi-host-template in the LLDD, to fix 
+>>improper layering.
+>>* SAS generic code needs to use SAS transport class, which calls 
+>>scsi_scan_target(), to avoid code duplication.
+>>* other stuff I listed in my "analysis" email, including updating libata 
+>>to support SAS+SATA hardware.
+> 
+> 
+> All this bastardizes the code and the layering infrastructure.
+> 
+> If you're saying that there is "improper layering" you must be
+> smoking something really strong.
 
-It depends on what the patch ends up looking like I guess.
+I already described why.  Examples are DMA boundary and s/g limit, among 
+others.  When confronted with this, you proposed an additional hardware 
+information struct which duplicates Scsi_Host_Template.
 
-All those games with PG_fs_misc look awfully similar to lock_page() - I'd
-have thought there's some room for rationalising code in there.
+Solution?  Just use Scsi_Host_Template.  Take a look at how each libata 
+driver is implemented.  The host template is in the low level driver, 
+while most of the code is common code, implemented elsewhere.
 
-The overall approach would be to avoid adding overhead and complexity for
-other filesystems and to only export symbols which constitute a sensible
-API: avoid exporting weirdo internal helpers which we might change in the
-future (but we don't care about external modules, so why does this matter? 
-Because some of them are GPL?)
+
+
+>>If you were willing to do this stuff, _working with others_, then I 
+>>would be off in happy happy SATA land right now, and you would have been 
+>>nominated to be the Linux SAS maintainer.
+> 
+> 
+> You seem to be traveling a path which I've already traveled.
+> 
+> Jeff, if you want an Adaptec SAS driver which has the host template
+> _in_ the driver, you can use "adp94xx" submitted earlier this year
+> by Adaptec to "the community".
+> 
+> "The community" rejected it. Why?  Because "common SAS tasks should
+> be in a common layer".  Well there you have the Linux SAS Stack and
+> aic94xx at the link below (my sig), which does separate common SAS
+> tasks and the interconnect _as per architecture and spec_.  Apparently
+> this still isn't good enough for "the community".
+> 
+> You see how this going around in circles just never seems to end.
+> 
+> One day one thing, another day the opposite, etc.
+
+Your current code is much closer to the desired end result, as it 
+separates out SAS common code.  That's why its being used as a base.
+
+	Jeff
+
 

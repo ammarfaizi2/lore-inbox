@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964995AbVJUPt7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964997AbVJUPwr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964995AbVJUPt7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 11:49:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964998AbVJUPt6
+	id S964997AbVJUPwr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 11:52:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964998AbVJUPwr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 11:49:58 -0400
-Received: from moraine.clusterfs.com ([66.96.26.190]:60829 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S964997AbVJUPt5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 11:49:57 -0400
-From: Nikita Danilov <nikita@clusterfs.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 21 Oct 2005 11:52:47 -0400
+Received: from smtpout.mac.com ([17.250.248.46]:29890 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S964997AbVJUPwr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 11:52:47 -0400
+In-Reply-To: <43590B23.2090101@csc.ncsu.edu>
+References: <4358F0E3.6050405@csc.ncsu.edu> <1129903396.2786.19.camel@laptopd505.fenrus.org> <4359051C.2070401@csc.ncsu.edu> <1129908179.2786.23.camel@laptopd505.fenrus.org> <43590B23.2090101@csc.ncsu.edu>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <C6F7B216-66B3-4848-9423-05AB4D826320@mac.com>
+Cc: linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
-Message-ID: <17240.54704.515573.252722@gargle.gargle.HOWL>
-Date: Fri, 21 Oct 2005 15:49:04 +0400
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Mike Kravetz <kravetz@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>, Magnus Damm <magnus.damm@gmail.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: [PATCH 1/4] Swap migration V3: LRU operations
-Newsgroups: gmane.linux.kernel,gmane.linux.kernel.mm
-In-Reply-To: <1129874762.26533.5.camel@localhost>
-References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com>
-	<20051020225940.19761.93396.sendpatchset@schroedinger.engr.sgi.com>
-	<1129874762.26533.5.camel@localhost>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Understanding Linux addr space, malloc, and heap
+Date: Fri, 21 Oct 2005 11:52:45 -0400
+To: "Vincent W. Freeh" <vin@csc.ncsu.edu>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen writes:
+On Oct 21, 2005, at 11:37:07, Vincent W. Freeh wrote:
+> The point of the code is to show that one can protect malloc code.
 
-[...]
+You may be able to protect malloced memory, but it's not reliable, it  
+doesn't follow the standard, and if it breaks you get to keep both  
+pieces.  You tried to protect malloced memory, it wasn't reliable, it  
+didn't follow the standard, therefore you get to keep both pieces.
 
- > 
- > It makes much more sense to have something like:
- > 
- >         if (ret == ISOLATION_IMPOSSIBLE) {
- >         	 list_del(&page->lru);
- >          	 list_add(&page->lru, src);
- >         }
- > 
- > than
- > 
- > +               if (rc == -1) {  /* Not possible to isolate */
- > +                       list_del(&page->lru);
- > +                       list_add(&page->lru, src);
- > +                } if 
+> But I can't mprotect the 66th page I malloc.  And mprotect fails  
+> SILENTLY!
+You must understand that malloc does not necessarily return a  
+_page_.  It returns a random hunk of memory aligned to a 16 byte  
+boundary, which is *not* the same as aligned to a page boundary  
+(usually 4096 bytes).  Your code is buggy:
 
-And
-         if (ret == ISOLATION_IMPOSSIBLE)
-          	 list_move(&page->lru, src);
+>>>   mprotect((void*)((unsigned)p & ~(pgsize-1)), 1024, PROT_NONE);
 
-is even better.
+You malloced 1024 bytes (1024 != page size (usually 4096)).  You then  
+round down to a multiple of a page size, and mprotect that page  
+(since you used a size < 1 page, it rounds up to a page).  If malloc  
+returns an offset 4080 bytes into a page (aligned on a 16-byte  
+boundary), and you round down and protect that page, then only the  
+first 16 bytes of the memory you got will be protected.
 
-Nikita.
+You *cannot* reliably expect to mprotect() the results of malloc().   
+If you want to mprotect() things, you _must_ do it on mmap()ed memory.
+
+Cheers,
+Kyle Moffett
+
+--
+Somone asked me why I work on this free (http://www.fsf.org/ 
+philosophy/) software stuff and not get a real job. Charles Shultz  
+had the best answer:
+
+"Why do musicians compose symphonies and poets write poems? They do  
+it because life wouldn't have any meaning for them if they didn't.  
+That's why I draw cartoons. It's my life."
+   -- Charles Shultz
+
+

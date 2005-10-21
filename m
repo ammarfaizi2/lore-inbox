@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbVJUNIg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964938AbVJUNKO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964939AbVJUNIg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 09:08:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964940AbVJUNIg
+	id S964938AbVJUNKO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 09:10:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964942AbVJUNKO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 09:08:36 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:37794 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964939AbVJUNIg
+	Fri, 21 Oct 2005 09:10:14 -0400
+Received: from qproxy.gmail.com ([72.14.204.196]:64112 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964941AbVJUNKM convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 09:08:36 -0400
-Subject: PATCH: Bluesmoke missing renames
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 21 Oct 2005 14:37:23 +0100
-Message-Id: <1129901843.26367.46.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 21 Oct 2005 09:10:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=YWVfgmH6+2WGcUBudbWXR2//qRANcbKZq94LAaCIgThouTBZv4xNxlCEebNMRS6pof2XXolGF3iVxrdkvkT+Ma2kj3xwkArHct7S3E6AxEpVpuAt/ooux9ba2387Q9BVjaKZILqS78X90tCwm1eZOxwoD4K0HDsYbcMPKrr9LT4=
+Message-ID: <9a8748490510210610t59e25750u67bf88e3923c4b0b@mail.gmail.com>
+Date: Fri, 21 Oct 2005 15:10:11 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: question about code from the linux kernel development ( se ) book
+Cc: Yitzchak Eidus <ieidus@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0510210848030.3903@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <e7aeb7c60510210422s33c0240ex4eab1d90d94111fe@mail.gmail.com>
+	 <Pine.LNX.4.58.0510210848030.3903@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As was noted on and off list a couple of places still had old naming
+On 10/21/05, Steven Rostedt <rostedt@goodmis.org> wrote:
+>
+> Oh God, please indent code examples, and if your email client strips white
+> space, change your email client.
+>
+> On Fri, 21 Oct 2005, Yitzchak Eidus wrote:
+>
+> > first i am very sorry if it isnt the place to ask questions like this
+> > but i didnt know where else to ask ( i tryed irc channels and i was
+> > send from there to this list )
+> > anyway:
+> > does this following code look buggy? :
+>
+> [ Indention added ]
+>
+Thanks.
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+> > DECLARE_WAITQUEUE ( wait , current );
+> > add_wait_queue ( q , &wait );
+> > while ( !condition ) {
+> >         set_current_stat ( TASK_INTERRUPTABLE ); i
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc4-mm1/drivers/edac/Kconfig linux-2.6.14-rc4-mm1/drivers/edac/Kconfig
---- linux.vanilla-2.6.14-rc4-mm1/drivers/edac/Kconfig	2005-10-20 16:12:39.000000000 +0100
-+++ linux-2.6.14-rc4-mm1/drivers/edac/Kconfig	2005-10-20 17:05:58.000000000 +0100
-@@ -34,9 +34,9 @@
- 	depends on EDAC
- 	help
- 	  Some systems are able to detect and correct errors in main
--	  memory.  Bluesmoke can report statistics on memory error
-+	  memory.  EDAC can report statistics on memory error
- 	  detection and correction (EDAC - or commonly referred to ECC
--	  errors).  Bluesmoke will also try to decode where these errors
-+	  errors).  EDAC will also try to decode where these errors
- 	  occurred so that a particular failing memory module can be
- 	  replaced.  If unsure, select 'Y'.
- 
+It is probably just a typo, but that "i" at the end of the line would be a bug.
 
 
-
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc4-mm1/drivers/edac/e752x_edac.c linux-2.6.14-rc4-mm1/drivers/edac/e752x_edac.c
---- linux.vanilla-2.6.14-rc4-mm1/drivers/edac/e752x_edac.c	2005-10-20 16:12:39.000000000 +0100
-+++ linux-2.6.14-rc4-mm1/drivers/edac/e752x_edac.c	2005-10-20 17:06:17.000000000 +0100
-@@ -13,7 +13,7 @@
-  * 	Wang Zhenyu at intel.com
-  * 	Dave Jiang at mvista.com
-  *
-- * $Id: bluesmoke_e752x.c,v 1.5.2.11 2005/10/05 00:43:44 dsp_llnl Exp $
-+ * $Id: edac_e752x.c,v 1.5.2.11 2005/10/05 00:43:44 dsp_llnl Exp $
-  *
-  */
- 
-
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

@@ -1,65 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965127AbVJUTp7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965135AbVJUTqv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965127AbVJUTp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 15:45:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965133AbVJUTp7
+	id S965135AbVJUTqv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 15:46:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965131AbVJUTqv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 15:45:59 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:29412 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S965127AbVJUTp6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 15:45:58 -0400
-Subject: Re: 2.6.14-rc5-rt3 - `IRQ 8'[798] is being piggy
-From: Lee Revell <rlrevell@joe-job.com>
-To: Mark Knecht <markknecht@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <5bdc1c8b0510211152m592d95cfte57dc7e9b027f87a@mail.gmail.com>
-References: <5bdc1c8b0510211003j4e9bf03bhf1ea8e94ffe60153@mail.gmail.com>
-	 <5bdc1c8b0510211040s40f3f9bbj7f83e174d7b6d937@mail.gmail.com>
-	 <1129920323.17709.2.camel@mindpipe>
-	 <5bdc1c8b0510211152m592d95cfte57dc7e9b027f87a@mail.gmail.com>
+	Fri, 21 Oct 2005 15:46:51 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:22419 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965133AbVJUTqt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 15:46:49 -0400
+Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally
+	attached PHYs)
+From: Arjan van de Ven <arjan@infradead.org>
+To: Luben Tuikov <luben_tuikov@adaptec.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org,
+       jejb@steeleye.com, "Moore, Eric Dean" <Eric.Moore@lsil.com>,
+       Christoph Hellwig <hch@lst.de>, andrew.patterson@hp.com,
+       Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <43593FE1.7020506@adaptec.com>
+References: <91888D455306F94EBD4D168954A9457C048F0E34@nacos172.co.lsil.com>
+	 <20051020160155.GA14296@lst.de> <4357CB03.4020400@adaptec.com>
+	 <20051020170330.GA16458@lst.de>  <4357F7DE.7050004@adaptec.com>
+	 <1129852879.30258.137.camel@bluto.andrew> <43583A53.2090904@pobox.com>
+	 <435929FD.4070304@adaptec.com> <43593100.5040708@pobox.com>
+	 <43593884.7000800@adaptec.com> <4359395B.9030402@pobox.com>
+	 <43593FE1.7020506@adaptec.com>
 Content-Type: text/plain
-Date: Fri, 21 Oct 2005 15:44:42 -0400
-Message-Id: <1129923883.17709.11.camel@mindpipe>
+Date: Fri, 21 Oct 2005 21:46:36 +0200
+Message-Id: <1129923996.2786.36.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-10-21 at 11:52 -0700, Mark Knecht wrote:
-> On 10/21/05, Lee Revell <rlrevell@joe-job.com> wrote:
-> > On Fri, 2005-10-21 at 10:40 -0700, Mark Knecht wrote:
-> > > On 10/21/05, Mark Knecht <markknecht@gmail.com> wrote:
-> > > > Hi,
-> > > >    Maybe I'm catching something here? Maybe not - no xruns as of yet,
-> > > > but I've never seen these messages before. Kernel config attached.
-> > > >
-> > > >    dmesg has filled up with these messages:
-> > > >
-> >
-> > This isn't a real problem.  You enabled CONFIG_RTC_HISTOGRAM.  Don't do
-> > that.
-> >
-> > Lee
-> 
-> 
-> Right, but the 'piggy' messages are a real prblem, aren't they?
 
-No I don't think so.  CONFIG_RTC_HISTOGRAM is a hack, designed to work
-with a specific test program that runs SCHED_FIFO and poll()s on the
-RTC.  VLC apparently poll()s on the RTC but does not run SCHED_FIFO.  So
-of course there will be delays.
+> I say, when people are losing it on the technical front, they try to attack
+> personally and on political basis.
 
-Now that the kernel has good soft realtime support and non-root RT
-scheduling, these apps really need to adopt a correct soft RT design
-like JACK.  AFAICT they don't even bother to try to get SCHED_FIFO for
-the time-sensitive rendering threads.  I can't even get totem-xine (the
-default "Sound and Movie Player" for Gnome) to keep the audio and video
-in sync.  mplayer only plays smoothly if I run it at nice -10.  Etc.
+Luben,
 
-The Linux kernel is pretty good for RT these days but compared to OSX or
-even Windows the apps are a joke.
+to be honest, a lot of people got exactly the impression that you've
+been doing that from the start in this saga, by attacking Christophs and
+James' integrity early on etc. Jeff has been just about the only person
+who ignored that and kept talking to you, and now you're attacking him
+too... I'm not sure what you're trying to achieve. But I'm pretty sure
+this way isn't the best or easiest way to achieve that. 
 
-Lee
+Greetings,
+   Arjan van de Ven
 

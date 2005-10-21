@@ -1,71 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964937AbVJUNGP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbVJUNIg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964937AbVJUNGP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 09:06:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964938AbVJUNGP
+	id S964939AbVJUNIg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 09:08:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964940AbVJUNIg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 09:06:15 -0400
-Received: from qproxy.gmail.com ([72.14.204.204]:4953 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964937AbVJUNGO convert rfc822-to-8bit
+	Fri, 21 Oct 2005 09:08:36 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:37794 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964939AbVJUNIg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 09:06:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=H+naKx9+0AwQ/e6cIheIzeIw2nBWFfJsoZthwLdKrCmAl6KNtxo42M7Lm9AQz6638SeQRLlS6Bv0kTTRXLFJx8dSmAF3wnE70bbLYuEtueywm1E1Aa2bWz6Y8OXsHGButJ9xoKGl0yUJ8wF6Ey+BZq0vTgDXF4D2XQfmN+wGViM=
-Message-ID: <9a8748490510210606n186d054cuc81a75211ab6d5d5@mail.gmail.com>
-Date: Fri, 21 Oct 2005 15:06:13 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: PATCH: Allow users to force a panic on NMI
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <1129900906.26367.33.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1129900906.26367.33.camel@localhost.localdomain>
+	Fri, 21 Oct 2005 09:08:36 -0400
+Subject: PATCH: Bluesmoke missing renames
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: linux-kernel@vger.kernel.org, akpm@osdl.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 21 Oct 2005 14:37:23 +0100
+Message-Id: <1129901843.26367.46.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/21/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> The default Linux behaviour on an NMI of either memory or unknown is to
-> continue operation. For many environments such as scientific computing
-> it is preferable that the box is taken out and the error dealt with than
-> an uncorrected parity/ECC error get propogated.
->
-[snip]
->  {
->         printk("Uhhuh. NMI received. Dazed and confused, but trying to continue\n");
->         printk("You probably have a hardware problem with your RAM chips\n");
-> +
-> +       if(panic_on_unrecovered_nmi)
-> +               panic("NMI: Not continuing");
->
+As was noted on and off list a couple of places still had old naming
 
-How about something like this instead?
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-printk(KERN_WARNING "Uhhuh. NMI received. Dazed and confused\n");
-printk(KERN_WARNING "You probably have a hardware problem with your
-RAM chips\n");
-
-if (panic_on_unrecovered_nmi)
-        panic("NMI: panic_on_unrecovered_nmi enabled - Not continuing");
-else
-        printk(KERN_WARNING "NMI: panic_on_unrecovered_nmi disabled -
-continuing\n");
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc4-mm1/drivers/edac/Kconfig linux-2.6.14-rc4-mm1/drivers/edac/Kconfig
+--- linux.vanilla-2.6.14-rc4-mm1/drivers/edac/Kconfig	2005-10-20 16:12:39.000000000 +0100
++++ linux-2.6.14-rc4-mm1/drivers/edac/Kconfig	2005-10-20 17:05:58.000000000 +0100
+@@ -34,9 +34,9 @@
+ 	depends on EDAC
+ 	help
+ 	  Some systems are able to detect and correct errors in main
+-	  memory.  Bluesmoke can report statistics on memory error
++	  memory.  EDAC can report statistics on memory error
+ 	  detection and correction (EDAC - or commonly referred to ECC
+-	  errors).  Bluesmoke will also try to decode where these errors
++	  errors).  EDAC will also try to decode where these errors
+ 	  occurred so that a particular failing memory module can be
+ 	  replaced.  If unsure, select 'Y'.
+ 
 
 
-First of all then it won't start out by saying that it's going to
-continue, only to panic a few lines down.
-Secondly it shows clearly to anyone reading the messages that there's
-a control available for changing the behaviour, and that person can
-then go look up how that's done.
 
-Just a suggestion...
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc4-mm1/drivers/edac/e752x_edac.c linux-2.6.14-rc4-mm1/drivers/edac/e752x_edac.c
+--- linux.vanilla-2.6.14-rc4-mm1/drivers/edac/e752x_edac.c	2005-10-20 16:12:39.000000000 +0100
++++ linux-2.6.14-rc4-mm1/drivers/edac/e752x_edac.c	2005-10-20 17:06:17.000000000 +0100
+@@ -13,7 +13,7 @@
+  * 	Wang Zhenyu at intel.com
+  * 	Dave Jiang at mvista.com
+  *
+- * $Id: bluesmoke_e752x.c,v 1.5.2.11 2005/10/05 00:43:44 dsp_llnl Exp $
++ * $Id: edac_e752x.c,v 1.5.2.11 2005/10/05 00:43:44 dsp_llnl Exp $
+  *
+  */
+ 
 
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html

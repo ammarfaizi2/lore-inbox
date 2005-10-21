@@ -1,209 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbVJUFRg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964879AbVJUFkT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964871AbVJUFRg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 01:17:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964872AbVJUFRf
+	id S964879AbVJUFkT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 01:40:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964877AbVJUFkT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 01:17:35 -0400
-Received: from [203.31.24.31] ([203.31.24.31]:28176 "EHLO www.syd.hutch.com.au")
-	by vger.kernel.org with ESMTP id S964871AbVJUFRf (ORCPT
+	Fri, 21 Oct 2005 01:40:19 -0400
+Received: from zorg.st.net.au ([203.16.233.9]:57003 "EHLO borg.st.net.au")
+	by vger.kernel.org with ESMTP id S964876AbVJUFkR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 01:17:35 -0400
-Subject: oops on SUSE LES9-SP2-smp on dual EM64T processor system
-From: Emmett Lazich <elazich@hutchison.com.au>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Hutchison Telecoms
-Message-Id: <1129871849.10237.22.camel@poppy.syd.hutch.com.au>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 21 Oct 2005 15:17:29 +1000
+	Fri, 21 Oct 2005 01:40:17 -0400
+Message-ID: <43587F74.6080600@torque.net>
+Date: Fri, 21 Oct 2005 15:41:08 +1000
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: andrew.patterson@hp.com, Luben Tuikov <luben_tuikov@adaptec.com>,
+       Christoph Hellwig <hch@lst.de>,
+       "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
+       linux-scsi@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached
+ PHYs)
+References: <91888D455306F94EBD4D168954A9457C048F0E34@nacos172.co.lsil.com>	 <20051020160155.GA14296@lst.de> <4357CB03.4020400@adaptec.com>	 <20051020170330.GA16458@lst.de>  <4357F7DE.7050004@adaptec.com> <1129852879.30258.137.camel@bluto.andrew> <43583A53.2090904@pobox.com>
+In-Reply-To: <43583A53.2090904@pobox.com>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.  Hope you find this useful.
-Posting to you after reading Documentation/oops-tracing.txt
-I am still looking into how to report this fault to SUSE.
-OS upgraded by SUSE SP2 (latest) CDROM. Cannot get online
-update to work to see if newer patches available.
+Jeff Garzik wrote:
+> Andrew Patterson wrote:
+> 
+>> I believe there is a common understanding that IOCTL's are bad and
+>> should be avoided. See:
+>>
+>> http://lkml.org/lkml/2001/5/20/81
+> 
+> 
+> Yep.  Linus's rant here reflects not only his opinion, but general
+> consensus, I feel.
 
-System has 2 x Intel P4/Xeon EM64T cpus. Hyper threading so seen as 4
-cpus.  Production server in core network for a Telco in Australia. Not
-looking good since I lobbied hard to put in Linux instead of Solaris.
+Jeff,
+ioctls represent the most direct, unimpeded (by OS
+policy) route between the user space and a driver,
+potentially a few levels down a driver stack.
+I see it as a control issue, in one corner there are
+Microsoft and Linux while in the other there are
+the hardware vendors. OS vendors come out with
+ioctl replacements but can't resist enforcing policy.
 
-After this oops, the machine kept running (phew!), however these
-processes hang: ps, top, w.  However vmstat, iostat and uptime still
-work ok. uptime says machine has a load average of around 20, but vmstat
-and iostat say machine is near idle. We will reboot it with nosmp until
-this fault is better understood.
+As for type safety in linux, I stopped taking that
+seriously when practicality of having C++ code
+in the kernel was killed by "struct class".
 
-dmesg output:
-general protection fault: 0000 [1] SMP 
-CPU 3 
-Pid: 26432, comm: ps Not tainted (2.6.5-7.191-smp
-SLES9_SP2_BRANCH-200506281458560000)
-RIP: 0010:[<ffffffff80177e9b>] <ffffffff80177e9b>{get_user_pages+267}
-RSP: 0018:000001000d843d58  EFLAGS: 00010202
-RAX: 00009a4ef0009ff8 RBX: 00000000ffffe000 RCX: 0000010000000000
-RDX: 0000994ef0009ff8 RSI: 000ffffffffff000 RDI: ffffffff803d4f00
-RBP: 000001007c014400 R08: 0000000000000000 R09: 0000000000000001
-R10: 00000000006e6f6d R11: 6c7265702f6e6962 R12: 0000000000000000
-R13: 0000000000000000 R14: 000001007a6d73a0 R15: 0000000000000001
-FS:  0000002a9588e6e0(0000) GS:ffffffff80563000(0000)
-knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-CR2: 000000000040a7d0 CR3: 0000000037e4c000 CR4: 00000000000006e0
-Process ps (pid: 26432, threadinfo 000001000d842000, task
-00000100007fc250)
-Stack: 0000010079541ca0 ffffffff8019c49b 000001000d843e98
-0000000000000000 
-       000fffffeff80106 0000000000000106 000000100d843de8
-00000000ffffe000 
-       0000000000000001 000001000d843e18 
-Call Trace:<ffffffff8019c49b>{real_lookup+123}
-<ffffffff80145423>{access_process_vm+179} 
-       <ffffffff801c4d02>{proc_pid_cmdline+146}
-<ffffffff801c418f>{proc_info_read+111} 
-       <ffffffff8018d184>{vfs_read+244} <ffffffff8018d3dd>{sys_read+157}
-       <ffffffff80189dd7>{sys_open+231}
-<ffffffff80110794>{system_call+124} 
-       
+>> Yes, CSMI should have had more Linux input when it was developed.  The
+>> no-new IOCTL policy certainly came as a surprise to the authors. Still,
+>> there doesn't seem to be any other usable cross-platform interface that
+>> is acceptable to the linux community (or at least to Christoph)'s corner
+> 
+> 
+> Beyond Linus's rant, ioctls have a practical limitation, too:  because
+> they are untyped, we have to deal with stuff like the 32<->64 compat
+> ioctl thunking.
 
-Code: 48 8b 00 48 c1 eb 09 81 e3 f8 0f 00 00 48 21 f0 48 01 d8 48 
-RIP <ffffffff80177e9b>{get_user_pages+267} RSP <000001000d843d58>
+Do you know where there are some clear guidelines
+on the use of pointers in a structure passed to an
+ioctl to lessen (or bypass) 32<->64 compat ioctl
+thunking?
 
+> Consider what an ioctl is, overall:  a domain-specific "do this
+> operation" interface.  Which, further, is nothing but a wrapping of a
+> "send message" + "receive response" interface.  There are several ways
+> to do this in Linux:
+> 
+> * block driver.  a block driver is nothing but a message queue.  This is
+> why James has suggested implementing SMP as a block driver.  People get
+> stuck into thinking "block driver == block device", which is wrong.  The
+> Linux block layer is nothing but a message queueing interface.
+> 
+> * netlink.  You connect to <an object> and send/receive messages.  Not
+> strictly limited to networking, as this is used in some areas of the
+> kernel now for generic event delivery.
+> 
+> * char driver.  Poor man's netlink.  Unless its done right, it suffers
+> from the same binary problems as ioctls.  I don't recommend this path.
+> 
+> * sysfs.  This has no inherent message/queue properties by itself, and
+> is less structured than blockdrvr or netlink, so dealing with more than
+> one outstanding operation at a time requires some coding.
+> 
+> sysfs's attractiveness is in its ease of use.  It works with standard
+> Unix filesystem tools.  You don't need to use a library to read
+> information, cat(1) often suffices.  sysfs, since its normal ASCII
+> (UTF8), also has none of the annoying 32<->64 compatibility issues that
+> ioctls suffer from.
 
---------------------
-/proc/version
-Linux version 2.6.5-7.191-smp (geeko@buildhost) (gcc version 3.3.3 (SuSE
-Linux)) #1 SMP Tue Jun 28 14:58:56 UTC 2005
+... and on the other side for sysfs are the loss of
+layered error reporting, inability to supply auxiliary
+attributes such as a request timeout and the possibility
+that write()s will either be limited in size or segmented.
 
-/proc/cmdline
-root=/dev/sda5 vga=0x317 selinux=0 console=tty0 resume=/dev/sda3
-elevator=cfq pci=nommconf splash=silent
----------------
-iostat -x
-avg-cpu:  %user   %nice    %sys %iowait   %idle
-           0.05    0.00    0.05    0.05   99.85
+> Which is best?  I don't have a good answer.  Largely depends on the
+> situation, particularly queueing needs.  Networking and storage are
+> rapidly converging into "messaging", so the situation is highly fluid in
+> any case.  Coming from a networking background, I sorta lean towards the
+> solution noone has attempted yet:  netlink.
 
-Device:    rrqm/s wrqm/s   r/s   w/s  rsec/s  wsec/s    rkB/s    wkB/s
-avgrq-sz avgqu-sz   await  svctm  %util
-sda          0.00   2.00  0.00  1.20    0.00   25.60     0.00   
-12.80    21.33     0.00    0.17   0.17   0.02
-sdb          0.00   1.00  0.00  0.80    0.00   14.40     0.00    
-7.20    18.00     0.00    0.25   0.25   0.02
-sdc          0.00   3.40  0.40  4.60    3.20   64.00     1.60   
-32.00    13.44     0.00    0.80   0.52   0.26
-sdd          0.00   1.20  0.00  0.60    0.00   14.40     0.00    
-7.20    24.00     0.00    0.00   0.00   0.00
-fd0          0.00   0.00  0.00  0.00    0.00    0.00     0.00    
-0.00     0.00     0.00    0.00   0.00   0.00
--------------------------------------
-cpuinfo:
-cat /proc/cpuinfo 
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 3
-model name      :                   Intel(R) Xeon(TM) CPU 3.20GHz
-stepping        : 4
-cpu MHz         : 3192.097
-cache size      : 1024 KB
-physical id     : 0
-siblings        : 2
-core id         : 0
-cpu cores       : 1
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 5
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm syscall
-lm 
-pni monitor ds_cpl cid
-bogomips        : 6340.60
-clflush size    : 64
-cache_alignment : 128
-address sizes   : 36 bits physical, 48 bits virtual
-power management:
+damn, we agree :-)
 
-processor       : 1
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 3
-model name      :                   Intel(R) Xeon(TM) CPU 3.20GHz
-stepping        : 4
-cpu MHz         : 3192.097
-cache size      : 1024 KB
-physical id     : 3
-siblings        : 2
-core id         : 3
-cpu cores       : 1
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 5
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm syscall
-lm 
-pni monitor ds_cpl cid
-bogomips        : 6373.37
-clflush size    : 64
-cache_alignment : 128
-address sizes   : 36 bits physical, 48 bits virtual
-power management:
+All in all, this is a good summary of the options available.
 
-processor       : 2
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 3
-model name      :                   Intel(R) Xeon(TM) CPU 3.20GHz
-stepping        : 4
-cpu MHz         : 3192.097
-cache size      : 1024 KB
-physical id     : 0
-siblings        : 2
-core id         : 0
-cpu cores       : 1
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 5
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm syscall
-lm 
-pni monitor ds_cpl cid
-bogomips        : 6373.37
-clflush size    : 64
-cache_alignment : 128
-address sizes   : 36 bits physical, 48 bits virtual
-power management:
+>> of it).  My personal preference is to hide this stuff in a library, so
+>> the kernel implementation is hidden. But even a library needs an
+>> underlying kernel implementation.
+> 
+> 
+> Strongly agree here.  libc shelters userspace from [most] kernel
+> changes, by exporting syscalls in a standard manner.  alsa-lib was
+> created to shelter userspace from current and future changes in the
+> kernel audio interface.  libsdi is quite reasonable.
 
-processor       : 3
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 3
-model name      :                   Intel(R) Xeon(TM) CPU 3.20GHz
-stepping        : 4
-cpu MHz         : 3192.097
-cache size      : 1024 KB
-physical id     : 3
-siblings        : 2
-core id         : 3
-cpu cores       : 1
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 5
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm syscall
-lm 
-pni monitor ds_cpl cid
-bogomips        : 6373.37
-clflush size    : 64
-cache_alignment : 128
-address sizes   : 36 bits physical, 48 bits virtual
-
-
+Doug Gilbert
 

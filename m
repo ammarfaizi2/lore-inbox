@@ -1,99 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965172AbVJUV2q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965173AbVJUV3U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965172AbVJUV2q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 17:28:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbVJUV2q
+	id S965173AbVJUV3U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 17:29:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965176AbVJUV3U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 17:28:46 -0400
-Received: from fmr20.intel.com ([134.134.136.19]:18598 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751150AbVJUV2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 17:28:45 -0400
-Subject: Re: [ACPI] Re: [Pcihpd-discuss] RE: [patch 2/2] acpi: add ability
-	to derive irq when doing a surpriseremoval of an adapter
-From: Kristen Accardi <kristen.c.accardi@intel.com>
-To: Greg KH <greg@kroah.com>
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, acpi-devel@lists.sourceforge.net,
-       pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       "Shah, Rajesh" <rajesh.shah@intel.com>,
-       "Brown, Len" <len.brown@intel.com>
-In-Reply-To: <20051019165940.GA2177@kroah.com>
-References: <59D45D057E9702469E5775CBB56411F190A57F@pdsmsx406>
-	 <1129053267.15526.9.camel@whizzy> <1129679877.30588.5.camel@whizzy>
-	 <200510190929.06728.bjorn.helgaas@hp.com>
-	 <1129740711.31966.21.camel@whizzy>  <20051019165940.GA2177@kroah.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 21 Oct 2005 14:28:34 -0700
-Message-Id: <1129930114.5932.6.camel@whizzy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
-X-OriginalArrivalTime: 21 Oct 2005 21:28:35.0222 (UTC) FILETIME=[64A1E360:01C5D686]
+	Fri, 21 Oct 2005 17:29:20 -0400
+Received: from CPE-61-9-212-151.qld.bigpond.net.au ([61.9.212.151]:10303 "EHLO
+	bastard.youngs.au.com") by vger.kernel.org with ESMTP
+	id S965173AbVJUV3T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 17:29:19 -0400
+From: Steve Youngs <steve@youngs.au.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: Hugh Dickins <hugh@veritas.com>
+Subject: Re: 2.6.13.4 After increasing RAM, I'm getting Bad page state at prep_new_page
+Keywords: page,new,memory,state,run,ram,hugh
+Organization: Linux Users - Fanatics Dept.
+References: <microsoft-free.877jc9jzwy.fsf@youngs.au.com>
+	<Pine.LNX.4.61.0510191741350.8481@goblin.wat.veritas.com>
+X-Face: #/1'_-|5_1$xjR,mVKhpfMJcRh8"k}_a{EkIO:Ox<]@zl/Yr|H,qH#3jJi6Aw(Mg@"!+Z"C
+ N_S3!3jzW^FnPeumv4l#,E}J.+e%0q(U>#b-#`~>l^A!_j5AEgpU)>t+VYZ$:El7hLa1:%%L=3%B>n
+ K{^jU_{&
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>, steve@youngs.au.com
+X-X-Day: Only 2430946 days till X-Day.  Got Slack?
+X-URL: <http://www.youngs.au.com/~steve/>
+X-Request-PGP: <http://www.youngs.au.com/~steve/pgp/sryoungs.asc>
+X-OpenPGP-Fingerprint: 1659 2093 19D5 C06E D320  3A20 1D27 DB4B A94B 3003
+X-Discordian-Date: Setting Orange, the 3rd day of The Aftermath, 3171. 
+X-Attribution: SY
+Date: Sat, 22 Oct 2005 07:29:11 +1000
+In-Reply-To: <Pine.LNX.4.61.0510191741350.8481@goblin.wat.veritas.com> (Hugh
+	Dickins's message of "Wed, 19 Oct 2005 17:59:33 +0100 (BST)")
+Message-ID: <microsoft-free.87ll0mblug.fsf@youngs.au.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) SXEmacs/22.1.3 (BMW, linux)
+MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch will allow the acpi code to correctly disable the irq when an
-adapter has been "surprise" removed.  The INTERRUPT_PIN value is stored
-in the pci_dev structure at probe time, and if the acpi code attempts to
-read the INTERRUPT_PIN from config space and detects that the adapter is
-not present, it will use the stored value instead.
+--=-=-=
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+* Hugh Dickins <hugh@veritas.com> writes:
 
----
-I've re-worked this patch as you suggested.  the INTERRUPT_PIN was read
-in many different places in the code, so I hope that this is the right
-place to save off the value.  Thanks for taking a look.
+  > On Thu, 20 Oct 2005, Steve Youngs wrote:
+  >>=20
+  >> A few days ago I increased my RAM from 0.5Gb to 3Gb and since then
+  >> I've been getting `Bad page state at prep_new_page' errors at odd
+  >> times.  Here is a typical backtrace from my logs:
+  >>=20
+  >> Bad page state at prep_new_page (in process 'X', page c1f7bde0)
+  >> flags:0x80000004 mapping:00000000 mapcount:-262144 count:0
 
- drivers/acpi/pci_irq.c |   10 ++++++++++
- drivers/pci/probe.c    |    1 +
- include/linux/pci.h    |    1 +
- 3 files changed, 12 insertions(+)
+  > The bad memory in question (the struct page at 0xc1f7bde0) is quite
+  > low down, just below 32MB.  Would I be right to guess that that you
+  > inserted the new cards in such a way that the low memory is new RAM?
 
-Index: linux-2.6.13/drivers/acpi/pci_irq.c
-===================================================================
---- linux-2.6.13.orig/drivers/acpi/pci_irq.c
-+++ linux-2.6.13/drivers/acpi/pci_irq.c
-@@ -504,6 +504,16 @@ void acpi_pci_irq_disable(struct pci_dev
- 		return_VOID;
- 
- 	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin);
-+
-+	/*
-+	 * If a device has been "surprise" removed via
-+	 * hotplug, the pin value will be invalid
-+	 * In this case, we should use the stored
-+	 * pin value from the pci_dev structure
-+	 */
-+	if (pin == 0xff)
-+		pin = dev->pin;
-+
- 	if (!pin)
- 		return_VOID;
- 	pin--;
-Index: linux-2.6.13/drivers/pci/probe.c
-===================================================================
---- linux-2.6.13.orig/drivers/pci/probe.c
-+++ linux-2.6.13/drivers/pci/probe.c
-@@ -571,6 +571,7 @@ static void pci_read_irq(struct pci_dev 
- 	unsigned char irq;
- 
- 	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &irq);
-+	dev->pin = irq;
- 	if (irq)
- 		pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &irq);
- 	dev->irq = irq;
-Index: linux-2.6.13/include/linux/pci.h
-===================================================================
---- linux-2.6.13.orig/include/linux/pci.h
-+++ linux-2.6.13/include/linux/pci.h
-@@ -98,6 +98,7 @@ struct pci_dev {
- 	unsigned int	class;		/* 3 bytes: (base,sub,prog-if) */
- 	u8		hdr_type;	/* PCI header type (`multi' flag masked out) */
- 	u8		rom_base_reg;	/* which config register controls the ROM */
-+	u8		pin;  		/* which interrupt pin this device uses */
- 
- 	struct pci_driver *driver;	/* which driver has allocated this device */
- 	u64		dma_mask;	/* Mask of the bits of bus address this
+No.  All the memory is new RAM.  I originally had 2x256MB, and I
+replaced those with 3x1GB.  Sorry if the Subject header was a bit
+misleading.=20
 
+  > I suggest you try taking out that lowest card, and see what happens
+  > then.  Sometimes the kernel these days seems to find memory problems
+  > that memtest86 does not (how long did you run it? overnight?).
 
+When I had posted the message I had only let it run through all tests
+once.  I have since let it run for about 18 hours, where it came up
+with a single error (as reported in my reply to Ken).
+
+  > You could try sending me all your "Bad page state" messages,
+  > to check for correlations.
+
+OK, I'll send those to you off-list.
+
+Thanks very much, Hugh.
+
+=2D-=20
+|---<Steve Youngs>---------------<GnuPG KeyID: A94B3003>---|
+|                   Te audire no possum.                   |
+|             Musa sapientum fixa est in aure.             |
+|----------------------------------<steve@youngs.au.com>---|
+
+--=-=-=
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Eicq - The XEmacs ICQ Client <http://eicq.sf.net/>
+
+iEYEABECAAYFAkNZXacACgkQHSfbS6lLMAM/MwCgzu3Ox0kdAZ067vjOTIh1MfkU
+mZ0An1612u5MEwoXXaBOh4QadTJfbbvp
+=nMQi
+-----END PGP SIGNATURE-----
+--=-=-=--

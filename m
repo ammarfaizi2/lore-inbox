@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964854AbVJUDca@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbVJUDlZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964854AbVJUDca (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 23:32:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964855AbVJUDca
+	id S964856AbVJUDlZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 23:41:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964857AbVJUDlZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 23:32:30 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:25307 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S964854AbVJUDca
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 23:32:30 -0400
-Date: Thu, 20 Oct 2005 20:32:23 -0700
-From: mike kravetz <kravetz@us.ibm.com>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: Andrew Morton <akpm@osdl.org>, Christoph Lameter <clameter@sgi.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, magnus.damm@gmail.com,
-       marcelo.tosatti@cyclades.com
-Subject: Re: [PATCH 0/4] Swap migration V3: Overview
-Message-ID: <20051021033223.GC6846@w-mikek2.ibm.com>
-References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com> <20051020160638.58b4d08d.akpm@osdl.org> <20051020234621.GL5490@w-mikek2.ibm.com> <43585EDE.3090704@jp.fujitsu.com>
+	Thu, 20 Oct 2005 23:41:25 -0400
+Received: from ozlabs.org ([203.10.76.45]:8862 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S964856AbVJUDlY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Oct 2005 23:41:24 -0400
+Date: Fri, 21 Oct 2005 13:41:19 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: ppc64: Fix typo bug in iSeries hash code
+Message-ID: <20051021034119.GB12976@localhost.localdomain>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Andrew Morton <akpm@osdl.org>, Paul Mackerras <paulus@samba.org>,
+	linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43585EDE.3090704@jp.fujitsu.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 21, 2005 at 12:22:06PM +0900, KAMEZAWA Hiroyuki wrote:
-> mike kravetz wrote:
-> >On Thu, Oct 20, 2005 at 04:06:38PM -0700, Andrew Morton wrote:
-> 
-> >Just to be clear, there are at least two distinct requirements for hotplug.
-> >One only wants to remove a quantity of memory (location unimportant).  The
-> >other wants to remove a specific section of memory (location specific).  I
-> >think the first is easier to address.
-> >
-> 
-> The only difficulty to remove a quantity of memory is how to find
-> where is easy to be removed. If this is fixed, I think it is
-> easier to address.
+Linus, please apply for 2.6.14 - this one-liner fixes a serious bug.
 
-We have been using Mel's fragmentation patches.  One of the data structures
-created by these patches is a 'usemap' thats tracks how 'blocks' of memory
-are used.  I exposed the usemaps via sysfs along with other hotplug memory
-section attributes.  So, you can then have a user space program scan the
-usemaps looking for sections that can be easily offlined.
+This patch fixes a stupid typo bug in the iSeries hash table code.
+When we place a hash PTE in the secondary bucket, instead of setting
+the SECONDARY flag bit, as we should, we (redundantly) set the VALID
+flag.  This was introduced with the patch abolishing bitfields from
+the hash table code.  Mea culpa, oops.  It hasn't been noticed until
+now because in practice we don't hit the secondary bucket terribly
+often.
+
+Signed-off-by: David Gibson <dwg@au1.ibm.com>
+
+Index: working-2.6/arch/ppc64/kernel/iSeries_htab.c
+===================================================================
+--- working-2.6.orig/arch/ppc64/kernel/iSeries_htab.c	2005-10-21 13:29:50.000000000 +1000
++++ working-2.6/arch/ppc64/kernel/iSeries_htab.c	2005-10-21 13:30:55.000000000 +1000
+@@ -66,7 +66,7 @@
+ 	}
+ 
+ 	if (slot < 0) {		/* MSB set means secondary group */
+-		vflags |= HPTE_V_VALID;
++		vflags |= HPTE_V_SECONDARY;
+ 		secondary = 1;
+ 		slot &= 0x7fffffffffffffff;
+ 	}
+
 
 -- 
-Mike
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/people/dgibson

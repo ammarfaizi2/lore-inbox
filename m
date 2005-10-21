@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965016AbVJUQWz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965000AbVJUQYM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965016AbVJUQWz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 12:22:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965019AbVJUQWz
+	id S965000AbVJUQYM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 12:24:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965019AbVJUQYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 12:22:55 -0400
-Received: from wproxy.gmail.com ([64.233.184.194]:53374 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965016AbVJUQWz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 12:22:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=dG+7g04+ZVJBxkLDLQDDlWUE0BrWOK4iiJ/wQLaV4UNxORpH1qf7kJht29+Agf2EaYFYOBQI/JVMINRajJs2EQ4Zm94j4Fiq0hOUqXEJkItIimO0PoapVdOqhqEHLyoNREwbDtr89bSQpAiAwMgi3CxqTQHBwfw5/vGkAHPiFMM=
-Message-ID: <94e67edf0510210922l7c4ab3can8cef0f34cdc2a0fd@mail.gmail.com>
-Date: Fri, 21 Oct 2005 12:22:52 -0400
-From: Sreeni <sreeni.pulichi@gmail.com>
-To: linux-os@analogic.com, linux-kernel@vger.kernel.org
-Subject: XIP probelm
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Fri, 21 Oct 2005 12:24:12 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:56526 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965000AbVJUQYJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 12:24:09 -0400
+Subject: Re: Understanding Linux addr space, malloc, and heap
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Vincent W. Freeh" <vin@csc.ncsu.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4359119E.6050407@csc.ncsu.edu>
+References: <4358F0E3.6050405@csc.ncsu.edu>
+	 <1129903396.2786.19.camel@laptopd505.fenrus.org>
+	 <4359051C.2070401@csc.ncsu.edu>
+	 <1129908179.2786.23.camel@laptopd505.fenrus.org>
+	 <43590B23.2090101@csc.ncsu.edu>
+	 <1129909719.2786.27.camel@laptopd505.fenrus.org>
+	 <4359119E.6050407@csc.ncsu.edu>
+Content-Type: text/plain
+Date: Fri, 21 Oct 2005 18:23:59 +0200
+Message-Id: <1129911840.2786.29.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 2005-10-21 at 12:04 -0400, Vincent W. Freeh wrote:
+> Clearly, it was a mistake to post that code.  I had no idea so many 
+> people would point out the bleeding obvious.
+> 
+> Here is a more elaborate version--that does the same thing, but more 
+> lines of code.  In it malloc'd memory is mprotect'd.  The program 
+> generates a SIGSEGV, a page fault.
 
-I have a montavista XIP kernel running on ARM and my kernel will be in
-the flash. Since its XIP, I know that the ".text" portion of the
-kernel will be executed from flash but that ".data" needs to be placed
-in SDRAM. Now my question is - based on what offset this data will be
-placed?
 
-My SDRAM physicall address starts at 3000_0000 and flash starts at
-0100_0000. when i allocated a global variable in the kernel module and
-when i try to check its actually physical address using virt_to_phys,
-its giving me the address in the range of 0100_0000 ~ 0600_0000 which
-is my flash (the PAGE_OFFSET doesn't work in case of XIP).
+... and what is the problem ?
 
-Can you please help in knowing the physical address of my .data
-portion in this situation.
-
-Thanks
-Shree

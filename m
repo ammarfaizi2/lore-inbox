@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965026AbVJUQgl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965028AbVJUQyA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965026AbVJUQgl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 12:36:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965027AbVJUQgl
+	id S965028AbVJUQyA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 12:54:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965030AbVJUQx7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 12:36:41 -0400
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:36543 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S965026AbVJUQgk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 12:36:40 -0400
-X-ORBL: [67.117.73.34]
-Date: Fri, 21 Oct 2005 19:35:55 +0300
-From: Tony Lindgren <tony@atomide.com>
-To: Deepak Saxena <dsaxena@plexity.net>
-Cc: Eric Piel <Eric.Piel@tremplin-utc.net>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 5/5] TI OMAP driver
-Message-ID: <20051021163553.GJ20442@atomide.com>
-References: <20051019081906.615365000@omelas> <20051019091717.773678000@omelas> <435613B3.5060509@tremplin-utc.net> <20051019094439.GA12594@plexity.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051019094439.GA12594@plexity.net>
-User-Agent: Mutt/1.5.9i
+	Fri, 21 Oct 2005 12:53:59 -0400
+Received: from web25806.mail.ukl.yahoo.com ([217.12.10.191]:9847 "HELO
+	web25806.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S965028AbVJUQx7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 12:53:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.es;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=vT6BJ2LscalQsy920ZfJID40fl3IGBIJNtsBHAmmxyUGwhC81zzWI08Mobt6Cz0S3Hzl+YFeRRDTtsaZMN2CQNQQXQDvGMUniG3ZWfXMvMxr6UrDotmshnFv8rmAEswn9vAa+sdtT8VXwesc6Y3SLU6wq9KVl7Xj+i9JLveKieI=  ;
+Message-ID: <20051021165352.22654.qmail@web25806.mail.ukl.yahoo.com>
+Date: Fri, 21 Oct 2005 18:53:52 +0200 (CEST)
+From: Albert Herranz <albert_herranz@yahoo.es>
+Subject: Re: [Fastboot] [PATCH] i386: move apic init in init_IRQs
+To: "Eric W. Biederman" <ebiederm@xmission.com>, vgoyal@in.ibm.com
+Cc: Andrew Morton <akpm@osdl.org>, fastboot@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <m1ach3dj47.fsf@ebiederm.dsl.xmission.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Deepak Saxena <dsaxena@plexity.net> [051019 12:45]:
-> On Oct 19 2005, at 11:36, Eric Piel was caught saying:
-> > >+static int omap_rng_suspend(struct device *dev, pm_message_t message, u32 
-> > >level)
-> > >+{
-> > >+	omap_rng_write_reg(RNG_MASK_REG, 0x0);
-> > >+
-> > >+	return 0;
-> > >+}
-> > >+
-> > >+static int omap_rng_suspend(struct device *dev, pm_message_t message, u32 
-> > >level)
-> > >+{
-> > >+	omap_rng_write_reg(RNG_MASK_REG, 0x1);
-> > >+
-> > >+	return 1;
-> > >+}
-> > Probably one of them should be called omap_rng_resume() ?
-> > 
-> > Eric
+> > Should the local_irq_disable() call go away onece
+> local_irq_save() got
+> > introduced.
 > 
-> Tnx!
-> 
-> ~Deepak
+> Nope.  The irqs need to be disabled.  The save just
+> allows this
+> to be called in a context where irqs start out
+> disabled.  It is
+> just a save.
 
-Cool, works on OMAP OSK after renaming the function above.
+local_irq_save() also disables interrupts.
 
-Tony
+Cheers,
+Albert
+
+
+
+
+		
+______________________________________________ 
+Renovamos el Correo Yahoo! 
+Nuevos servicios, más seguridad 
+http://correo.yahoo.es

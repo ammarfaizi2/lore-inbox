@@ -1,66 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964878AbVJUGDY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbVJUGGm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964878AbVJUGDY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 02:03:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964880AbVJUGDY
+	id S964880AbVJUGGm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 02:06:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964881AbVJUGGm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 02:03:24 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:51190 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S964878AbVJUGDX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 02:03:23 -0400
-Date: Fri, 21 Oct 2005 02:03:13 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-To: Ingo Molnar <mingo@elte.hu>
-cc: john stultz <johnstul@us.ibm.com>, tglx@linutronix.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: Ktimer / -rt9 (+custom) monotonic_clock going backwards.
-In-Reply-To: <20051020193214.GA21613@elte.hu>
-Message-ID: <Pine.LNX.4.58.0510210157080.1946@localhost.localdomain>
-References: <Pine.LNX.4.58.0510200249080.27683@localhost.localdomain>
- <20051020073416.GA28581@elte.hu> <Pine.LNX.4.58.0510200340110.27683@localhost.localdomain>
- <20051020080107.GA31342@elte.hu> <Pine.LNX.4.58.0510200443130.27683@localhost.localdomain>
- <20051020085955.GB2903@elte.hu> <Pine.LNX.4.58.0510200503470.27683@localhost.localdomain>
- <Pine.LNX.4.58.0510200603220.27683@localhost.localdomain>
- <Pine.LNX.4.58.0510200605170.27683@localhost.localdomain>
- <1129826750.27168.163.camel@cog.beaverton.ibm.com> <20051020193214.GA21613@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 21 Oct 2005 02:06:42 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:56783 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964880AbVJUGGl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 02:06:41 -0400
+Subject: Re: [PATCH 1/4] Swap migration V3: LRU operations
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, Mike Kravetz <kravetz@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, Magnus Damm <magnus.damm@gmail.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+In-Reply-To: <20051020225940.19761.93396.sendpatchset@schroedinger.engr.sgi.com>
+References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com>
+	 <20051020225940.19761.93396.sendpatchset@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Date: Fri, 21 Oct 2005 08:06:02 +0200
+Message-Id: <1129874762.26533.5.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2005-10-20 at 15:59 -0700, Christoph Lameter wrote:
 
-On Thu, 20 Oct 2005, Ingo Molnar wrote:
+> +/*
+> + * Isolate one page from the LRU lists.
+> + *
+> + * - zone->lru_lock must be held
+> + *
+> + * Result:
+> + *  0 = page not on LRU list
+> + *  1 = page removed from LRU list
+> + * -1 = page is being freed elsewhere.
+> + */
 
->
-> * john stultz <johnstul@us.ibm.com> wrote:
->
-> > > > John, would this cause any problems to keep cycle_t at s64?
-> > >
-> > > I mean at u64.
-> >
-> > Performance would be the only concern. It had been a u64 before I
-> > started optimizing the code a bit.
->
-> no, this is really a bad optimization that causes unrobustness.
-> Correctness and robustness comes first. It is so easy to cause a
-> 500-1000msec delay in the kernel, due to a bad driver or anything. The
-> timekeeping code should not break like that.
->
+Can these return values please get some real names?  I just hate when
+things have more than just fail and success as return codes.
+
+It makes much more sense to have something like:
+
+        if (ret == ISOLATION_IMPOSSIBLE) {
+        	 list_del(&page->lru);
+         	 list_add(&page->lru, src);
+        }
+
+than
+
++               if (rc == -1) {  /* Not possible to isolate */
++                       list_del(&page->lru);
++                       list_add(&page->lru, src);
++                } if 
+
+The comment just makes the code harder to read.
+
+> +static inline int
+> +__isolate_lru_page(struct zone *zone, struct page *page)
+> +{
+> +	if (TestClearPageLRU(page)) {
+> +		if (get_page_testone(page)) {
+> +			/*
+> +			 * It is being freed elsewhere
+> +			 */
+> +			__put_page(page);
+> +			SetPageLRU(page);
+> +			return -1;
+> +		} else {
+> +			if (PageActive(page))
+> +				del_page_from_active_list(zone, page);
+> +			else
+> +				del_page_from_inactive_list(zone, page);
+> +			return 1;
+> +		}
+> +	}
+> +
+> +	return 0;
+> +}
+
+How about 
+
++static inline int 
+> +__isolate_lru_page(struct zone *zone, struct page *page)
+> +{
+	int ret = 0;
+
+	if (!TestClearPageLRU(page))
+		return ret;
 
 
-FYI,
+Then, the rest of the thing doesn't need to be indented.
 
-With rc4-rt13 and changing cycle_t to u64, my machine ran all night
-without one backward step.  Since it use to show up after a couple of
-hours, I would say that this is the fix.
+> +static inline void
+> +__putback_lru_page(struct zone *zone, struct page *page)
+> +{
 
-John, Do you want me to take a crack at changing the periodic_hook into
-using the ktimer code?  I understand Ingo's kernel much more than you, but
-you definitely understand the timing code better than I.
+__put_back_lru_page?
 
+BTW, it would probably be nice to say where these patches came from
+before Magnus. :)
 
-Cheers,
+-- Dave
 
--- Steve

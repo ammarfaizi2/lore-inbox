@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbVJUHr5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964900AbVJUHrG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964899AbVJUHr5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 03:47:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbVJUHr4
+	id S964900AbVJUHrG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 03:47:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbVJUHrF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 03:47:56 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:13783 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S964899AbVJUHrz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 03:47:55 -0400
-Message-ID: <43589CF0.5050609@jp.fujitsu.com>
-Date: Fri, 21 Oct 2005 16:46:56 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
-MIME-Version: 1.0
-To: Simon Derr <Simon.Derr@bull.net>
-CC: Christoph Lameter <clameter@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       Mike Kravetz <kravetz@us.ibm.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, Magnus Damm <magnus.damm@gmail.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Paul Jackson <pj@sgi.com>
-Subject: Re: [PATCH 4/4] Swap migration V3: sys_migrate_pages interface
-References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com> <20051020225955.19761.53060.sendpatchset@schroedinger.engr.sgi.com> <4358588D.1080307@jp.fujitsu.com> <Pine.LNX.4.61.0510210901380.17098@openx3.frec.bull.fr> <435896CA.1000101@jp.fujitsu.com> <Pine.LNX.4.61.0510210927140.17098@openx3.frec.bull.fr>
-In-Reply-To: <Pine.LNX.4.61.0510210927140.17098@openx3.frec.bull.fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 21 Oct 2005 03:47:05 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:10940
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S964900AbVJUHrE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 03:47:04 -0400
+Subject: Re: Ktimer / -rt9 (+custom) monotonic_clock going backwards.
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@elte.hu>, john stultz <johnstul@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0510210157080.1946@localhost.localdomain>
+References: <Pine.LNX.4.58.0510200249080.27683@localhost.localdomain>
+	 <20051020073416.GA28581@elte.hu>
+	 <Pine.LNX.4.58.0510200340110.27683@localhost.localdomain>
+	 <20051020080107.GA31342@elte.hu>
+	 <Pine.LNX.4.58.0510200443130.27683@localhost.localdomain>
+	 <20051020085955.GB2903@elte.hu>
+	 <Pine.LNX.4.58.0510200503470.27683@localhost.localdomain>
+	 <Pine.LNX.4.58.0510200603220.27683@localhost.localdomain>
+	 <Pine.LNX.4.58.0510200605170.27683@localhost.localdomain>
+	 <1129826750.27168.163.camel@cog.beaverton.ibm.com>
+	 <20051020193214.GA21613@elte.hu>
+	 <Pine.LNX.4.58.0510210157080.1946@localhost.localdomain>
+Content-Type: text/plain
+Organization: linutronix
+Date: Fri, 21 Oct 2005 09:49:37 +0200
+Message-Id: <1129880977.16447.116.camel@tglx.tec.linutronix.de>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simon Derr wrote:
->>>Christoph Lameter wrote:
->>>>>>+	/* Is the user allowed to access the target nodes? */
->>>>>>+	if (!nodes_subset(new, cpuset_mems_allowed(task)))
->>>>>>+		return -EPERM;
->>>>>>+
->>>
->>>>How about this ?
->>>>+cpuset_update_task_mems_allowed(task, new);    (this isn't implemented
->>>>now
->>
->>*new* is already guaranteed to be the subset of current mem_allowed.
->>Is this violate the permission ?
-> 
-> 
-> Oh, I misunderstood your mail.
-> I thought you wanted to automatically add extra nodes to the cpuset,
-> but you actually want to do just the opposite, i.e restrict the nodemask 
-> for this task to the one passed to sys_migrate_pages(). Is that right ?
-> 
-yes.
-Anyway, we should modify task's mem_allowed before the first page fault.
+On Fri, 2005-10-21 at 02:03 -0400, Steven Rostedt wrote:
+> On Thu, 20 Oct 2005, Ingo Molnar wrote:
 
--- Kame
+> With rc4-rt13 and changing cycle_t to u64, my machine ran all night
+> without one backward step.  Since it use to show up after a couple of
+> hours, I would say that this is the fix.
+> 
+> John, Do you want me to take a crack at changing the periodic_hook into
+> using the ktimer code?  I understand Ingo's kernel much more than you, but
+> you definitely understand the timing code better than I.
+
+Steve, 
+
+I think the hook is too complex to move it into the timer interrupt
+context. We still have to reimplement the dynamic priority adjustment of
+the ktimer softirq in a clean way. Once this is done, we can move it
+over and set a proper priority up for that.
+
+	tglx
 
 

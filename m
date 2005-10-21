@@ -1,68 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964829AbVJUGAa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964886AbVJUGOS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964829AbVJUGAa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 02:00:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbVJUGAa
+	id S964886AbVJUGOS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 02:14:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964890AbVJUGOS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 02:00:30 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:49539 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S964829AbVJUGAa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 02:00:30 -0400
-Message-ID: <435883B2.2090400@jp.fujitsu.com>
-Date: Fri, 21 Oct 2005 14:59:14 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
+	Fri, 21 Oct 2005 02:14:18 -0400
+Received: from mail.seiko-p.net ([219.101.171.68]:9970 "EHLO mail.seiko-p.net")
+	by vger.kernel.org with ESMTP id S964886AbVJUGOR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 02:14:17 -0400
+Date: Fri, 21 Oct 2005 15:13:53 +0900
+From: "S.OHNOYA" <s.ohnoya@hotmail.co.jp>
+To: linux-kernel@vger.kernel.org
+Subject: do_nanotime() returns incorrect value.
+Message-Id: <20051021151300.E016.S.OHNOYA@hotmail.co.jp>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Christoph Lameter <clameter@sgi.com>, kravetz@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, magnus.damm@gmail.com,
-       marcelo.tosatti@cyclades.com
-Subject: Re: [PATCH 0/4] Swap migration V3: Overview
-References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com> <20051020160638.58b4d08d.akpm@osdl.org>
-In-Reply-To: <20051020160638.58b4d08d.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.21.03 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Christoph Lameter <clameter@sgi.com> wrote:
-> 
->>Page migration is also useful for other purposes:
->>
->> 1. Memory hotplug. Migrating processes off a memory node that is going
->>    to be disconnected.
->>
->> 2. Remapping of bad pages. These could be detected through soft ECC errors
->>    and other mechanisms.
-> 
-> 
-> It's only useful for these things if it works with close-to-100% reliability.
-> 
-> And there are are all sorts of things which will prevent that - mlock,
-> ongoing direct-io, hugepages, whatever.
-> 
-In lhms tree, current status is below: (If I'm wrong, plz fix)
-==
-For mlock, direct page migration will work fine. try_to_unmap_one()
-in -mhp tree has an argument *force* and ignore VM_LOCKED, it's for this.
+Hello everyone,
 
-For direct-io, we have to wait for completion.
-The end of I/O is not notified and memory_migrate() is just polling pages.
+ I have a problem around timer.
 
-For hugepages, we'll need hugepage demand paging and more work, I think.
-==
+ The problem is ...
 
-When a process migrates to other nodes by hand, it can cooperate with migration
-subsystem. So we don't have to be afraid of some special using of memory, in many case.
-I think Christoph's approach will work fine.
+ The function do_nanotime() returns incorrect value.
+ The value is 414528697ns longer than timer interval(10ms). It occurs few times a day.
+ do_poor_nanotime() (in arch/i386/kernel/time.c) is called as do_nanotime().
+ do_nanotime() is called within interrupt via rs_interrupt_single() (in drivers/char/serial.c).
 
-When it comes to memory-hotplug, arbitrary processes are affected.
-It's more difficult.
+ The kernel version is 2.4.21 with PPSKit 2.1.2.
+ Architecture is i386 and MPU is PentiumIII 850MHz.
+ My computer has two PPS inputs and there are connected to Rb Atomic Clock.
 
-We should focus on 'process migraion on demand', in this thread.
+ Does anyone has some advices for resolv this problem?
 
--- Kame
+ Thanks.
 

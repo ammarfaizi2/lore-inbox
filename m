@@ -1,41 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965079AbVJUSq3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965085AbVJUSu4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965079AbVJUSq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 14:46:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965081AbVJUSq3
+	id S965085AbVJUSu4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 14:50:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965082AbVJUSu4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 14:46:29 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:29363 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S965079AbVJUSq2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 14:46:28 -0400
-Subject: Re: 2.6.14-rc5-rt3 - `IRQ 8'[798] is being piggy
-From: Lee Revell <rlrevell@joe-job.com>
-To: Mark Knecht <markknecht@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <5bdc1c8b0510211040s40f3f9bbj7f83e174d7b6d937@mail.gmail.com>
-References: <5bdc1c8b0510211003j4e9bf03bhf1ea8e94ffe60153@mail.gmail.com>
-	 <5bdc1c8b0510211040s40f3f9bbj7f83e174d7b6d937@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 21 Oct 2005 14:45:22 -0400
-Message-Id: <1129920323.17709.2.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Fri, 21 Oct 2005 14:50:56 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:29069 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S965081AbVJUSuz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 14:50:55 -0400
+Message-ID: <43593884.7000800@adaptec.com>
+Date: Fri, 21 Oct 2005 14:50:44 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: andrew.patterson@hp.com, Christoph Hellwig <hch@lst.de>,
+       "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
+       linux-scsi@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached
+ PHYs)
+References: <91888D455306F94EBD4D168954A9457C048F0E34@nacos172.co.lsil.com>	 <20051020160155.GA14296@lst.de> <4357CB03.4020400@adaptec.com>	 <20051020170330.GA16458@lst.de>  <4357F7DE.7050004@adaptec.com> <1129852879.30258.137.camel@bluto.andrew> <43583A53.2090904@pobox.com> <435929FD.4070304@adaptec.com> <43593100.5040708@pobox.com>
+In-Reply-To: <43593100.5040708@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Oct 2005 18:50:49.0295 (UTC) FILETIME=[5A800DF0:01C5D670]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-10-21 at 10:40 -0700, Mark Knecht wrote:
-> On 10/21/05, Mark Knecht <markknecht@gmail.com> wrote:
-> > Hi,
-> >    Maybe I'm catching something here? Maybe not - no xruns as of yet,
-> > but I've never seen these messages before. Kernel config attached.
-> >
-> >    dmesg has filled up with these messages:
-> >
+On 10/21/05 14:18, Jeff Garzik wrote:
+> This illustrates you fundamentally don't understand a lot of Linux, and 
+> SCSI too.
+> 
+> Several non-blkdev device classes (Christoph listed them) use block 
+> layer request_queue for command transit, as does SG_IO and /dev/sg.
 
-This isn't a real problem.  You enabled CONFIG_RTC_HISTOGRAM.  Don't do
-that.
+When people start getting personal you know that they're losing it.
 
-Lee
+> We have plenty of specs.  It's called source code.
+> 
+> You don't understand the Linux development process (think its more 
+> political than technical) and you don't understand even what a block 
+> driver is, and you wonder why you have difficulty getting code into the 
+> kernel?
 
+Again, when people start getting personal, you know that they are losing it.
+
+Thank you for spreading FUD -- I'm sure you've impressed your managament,
+how great of a Linux programmer you are and how I don't know anything.
+I'd suggest you keep pushing the politics _behind_ the scences.
+
+Have a good day,
+	Luben
+-- 
+http://linux.adaptec.com/sas/
+http://www.adaptec.com/sas/

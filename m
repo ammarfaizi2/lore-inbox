@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbVJUAVn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbVJUA1F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964813AbVJUAVn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 20:21:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbVJUAVn
+	id S964814AbVJUA1F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 20:27:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964816AbVJUA1F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 20:21:43 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:17328 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932560AbVJUAVm (ORCPT
+	Thu, 20 Oct 2005 20:27:05 -0400
+Received: from mail.kroah.org ([69.55.234.183]:52166 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964814AbVJUA1E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 20:21:42 -0400
-Message-ID: <4358348B.9020108@pobox.com>
-Date: Thu, 20 Oct 2005 20:21:31 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: xslaby@fi.muni.cz, alexandre.buisse@ens-lyon.fr,
-       linux-kernel@vger.kernel.org, jbenc@suse.cz
-Subject: Re: Wifi oddness [Was: Re: 2.6.14-rc4-mm1]
-References: <20051016154108.25735ee3.akpm@osdl.org>	<20051019184935.E8C0B22AEB2@anxur.fi.muni.cz>	<20051019184935.E8C0B22AEB2@anxur.fi.muni.cz>	<20051020210224.B9D4A22AEB2@anxur.fi.muni.cz>	<43582AA7.4080503@pobox.com> <20051020164538.4c30416f.akpm@osdl.org>
-In-Reply-To: <20051020164538.4c30416f.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Thu, 20 Oct 2005 20:27:04 -0400
+Date: Thu, 20 Oct 2005 17:26:31 -0700
+From: Greg KH <greg@kroah.com>
+To: Jonathan Mayer <jonmayer@google.com>
+Cc: dtor_core@ameritech.net, linux-kernel@vger.kernel.org,
+       Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: [PATCH] added sysdev attribute to sysdev show/store methods - for linux-2.6.13.4
+Message-ID: <20051021002631.GA18404@kroah.com>
+References: <4a45da430510201447r2970ea67rfac8dffe7223a68@mail.google.com> <d120d5000510201459y25a2c8e5v55bf830c445c9dbf@mail.gmail.com> <4a45da430510201503v74874acoca37bba3aa5a2d07@mail.google.com> <d120d5000510201603n50c068dcyade2ce2cfd2311e0@mail.gmail.com> <4a45da430510201607x78c5e432r5d641c46dd15eeaa@mail.google.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4a45da430510201607x78c5e432r5d641c46dd15eeaa@mail.google.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Jeff Garzik <jgarzik@pobox.com> wrote:
+On Thu, Oct 20, 2005 at 04:07:59PM -0700, Jonathan Mayer wrote:
+> > If it is a device it goes onto corresponding bus. Platform bus is a
+> > kind of a kitchen sink for things that do not have a "real" bus -
+> > things like keyboard controller, older ISA devices, etc. Only things
+> > that necessary to get the box going and have to be suspended last with
+> > interrupts off (like IRQ controller) should be implemented as system
+> > devices.
 > 
->>Jiri Slaby wrote:
->> > But here is a problem ieee->perfect_rssi and ieee->worst_rssi is 0 and 0, as
->> > you mentioned -- division by zero...
->> > 
->> > It seems, that it is pulled from your tree, Jeff. Any ideas?
->> > 
->> > thanks,
->>
->> When it was pulled?
+> I see!  Okay, I will make this so.  Thanks for the explanation.
 > 
-> 
-> See the first line of the patch, ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc4/2.6.14-rc4-mm1/broken-out/git-netdev-all.patch
-> 
-> it is:
-> 
-> GIT 43e63da3a056da127f2e58b6ce312974b7205ad6 master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git#ALL
+> Even so, I still think my patch is a good idea (for the sysdev
+> attributes, and all kobject attribute derived thingies in general).
 
-ah ok.  I think Jiri's patch is the fix, then.
+It is a good idea, if someone needs access to that attribute
+information.  But for now, no one does.  When they do, I'll be glad to
+accept the patch.
 
-	Jeff
+Oh, and Pat isn't the driver core maintainer anymore...
 
+thanks,
 
-
+greg k-h

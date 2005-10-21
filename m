@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965151AbVJUUbb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965140AbVJUUdN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965151AbVJUUbb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 16:31:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965150AbVJUUbb
+	id S965140AbVJUUdN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 16:33:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965144AbVJUUdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 16:31:31 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:12202 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S965138AbVJUUba convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 16:31:30 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
+	Fri, 21 Oct 2005 16:33:12 -0400
+Received: from rgminet04.oracle.com ([148.87.122.33]:6304 "EHLO
+	rgminet04.oracle.com") by vger.kernel.org with ESMTP
+	id S965140AbVJUUdM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 16:33:12 -0400
+Message-ID: <43595071.1090906@oracle.com>
+Date: Fri, 21 Oct 2005 13:32:49 -0700
+From: Zach Brown <zach.brown@oracle.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached PHYs)
-Date: Fri, 21 Oct 2005 16:31:26 -0400
-Message-ID: <547AF3BD0F3F0B4CBDC379BAC7E4189F01C0A21C@otce2k03.adaptec.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached PHYs)
-Thread-Index: AcXWevtQRaNA6wzORPyb3WR3jsuGbgAAlPSg
-From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-To: "Tuikov, Luben" <Luben_Tuikov@adaptec.com>,
-       "Matthew Wilcox" <matthew@wil.cx>
-Cc: "Jeff Garzik" <jgarzik@pobox.com>, <andrew.patterson@hp.com>,
-       "Christoph Hellwig" <hch@lst.de>,
-       "Moore, Eric Dean" <Eric.Moore@lsil.com>, <jejb@steeleye.com>,
-       <linux-scsi@vger.kernel.org>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "Linus Torvalds" <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, hch@infradead.org, adilger@clusterfs.com
+Subject: Re: [RFC] page lock ordering and OCFS2
+References: <20051017222051.GA26414@tetsuo.zabbo.net>	<20051017161744.7df90a67.akpm@osdl.org>	<43544499.5010601@oracle.com>	<435928BC.5000509@oracle.com> <20051021105811.2de09059.akpm@osdl.org>
+In-Reply-To: <20051021105811.2de09059.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luben sez:
->On 10/21/05 15:54, Matthew Wilcox wrote:
->> No.  What was advertised was a SCSI BOF which you then took over and
->It was advertised as "SAS BOF" -- the person who wrote that on the
-message board (reading this list >currently) can verify that.
 
-Yup. "SAS BOF"
+>> patches/add-wake_up_page_all.patch:+EXPORT_SYMBOL(__wake_up_bit_all);
+>> patches/add-wake_up_page_all.patch:+EXPORT_SYMBOL(wake_up_page_all);
+>> patches/export-pagevec-helpers.patch:+EXPORT_SYMBOL_GPL(pagevec_lookup);
+>> patches/export-page_waitqueue.patch:+EXPORT_SYMBOL_GPL(page_waitqueue);
+>> patches/export-truncate_complete_pate.patch:+EXPORT_SYMBOL(truncate_complete_page);
+>> patches/export-wake_up_page.patch:+EXPORT_SYMBOL(wake_up_page);
+> 
+> 
+> Exporting page_waitqueue seems wrong.  Might be better to add a core
+> function to do the wait_event(*page_waitqueue(page), PageFsMisc(page)); and
+> export that.
 
-Matthew, I am sorry your expectations for the BOF did not match. Heck,
-*I* did not know where the
-BOF would take us(!). Christoph voiced a concern that the principals
-needed to get into the same
-room together, and I rolled the ball ...
+Sure thing.
 
-I do not believe it is productive to do a 'he sez, she sez', it
-distracts us from the task(s) at hand.
+> How did you come up with this mix of GPL and non-GPL?
 
--- Mark
+Carelessness.  I'll aim for _GPL for anything that still needs to be exported.
+
+> The above looks sane enough.  Please run it by Bill?
+
+OK.
+
+- z
+

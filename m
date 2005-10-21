@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbVJUEM5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964864AbVJUEWS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964860AbVJUEM5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 00:12:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964862AbVJUEM5
+	id S964864AbVJUEWS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 00:22:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964865AbVJUEWS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 00:12:57 -0400
-Received: from straum.hexapodia.org ([64.81.70.185]:31674 "EHLO
-	straum.hexapodia.org") by vger.kernel.org with ESMTP
-	id S964860AbVJUEM5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 00:12:57 -0400
-Date: Thu, 20 Oct 2005 21:12:56 -0700
-From: Andy Isaacson <adi@hexapodia.org>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Xin Zhao <uszhaoxin@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Is ext3 flush data to disk when files are closed?
-Message-ID: <20051021041256.GA10618@hexapodia.org>
+	Fri, 21 Oct 2005 00:22:18 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:35815 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964864AbVJUEWR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 00:22:17 -0400
+Date: Thu, 20 Oct 2005 21:22:07 -0700
+From: mike kravetz <kravetz@us.ibm.com>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: Andrew Morton <akpm@osdl.org>, Christoph Lameter <clameter@sgi.com>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, magnus.damm@gmail.com,
+       marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH 0/4] Swap migration V3: Overview
+Message-ID: <20051021042207.GD6846@w-mikek2.ibm.com>
+References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com> <20051020160638.58b4d08d.akpm@osdl.org> <20051020234621.GL5490@w-mikek2.ibm.com> <43585EDE.3090704@jp.fujitsu.com> <20051021033223.GC6846@w-mikek2.ibm.com> <435866E0.8080305@jp.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0510191141370.5007@chaos.analogic.com>
-User-Agent: Mutt/1.4.2i
+In-Reply-To: <435866E0.8080305@jp.fujitsu.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 19, 2005 at 11:48:32AM -0400, linux-os (Dick Johnson) wrote:
-[snip true statements about the observable behavior of the linux buffer
-cache]
-> This is the basic way a VFS (virtual file system) works.
+On Fri, Oct 21, 2005 at 12:56:16PM +0900, KAMEZAWA Hiroyuki wrote:
+> mike kravetz wrote:
+> >We have been using Mel's fragmentation patches.  One of the data structures
+> >created by these patches is a 'usemap' thats tracks how 'blocks' of memory
+> >are used.  I exposed the usemaps via sysfs along with other hotplug memory
+> >section attributes.  So, you can then have a user space program scan the
+> >usemaps looking for sections that can be easily offlined.
+> >
+> yea, looks nice :)
+> But such pages are already shown as hotpluggable, I think.
+> ACPI/SRAT will define the range, in ia64.
 
-Dear Wrongbot,
+I haven't taken a close look at that code, but don't those just give
+you physical ranges that can 'possibly' be removed?  So, isn't it
+possible for hotpluggable ranges to contain pages allocated for kernel
+data structures which would be almost impossible to offline?
 
-The 'V' in VFS has *nothing* to do with the buffer caching strategy.
-The VFS is virtual because it provides a common API for many
-filesystems, not because of how the buffer cache (which isn't even a
-part of the VFS!) manages dirty buffers.
+> The difficulty is how to find hard-to-migrate pages, as Andrew pointed out.
 
-> The system maintains a RAM Disk that overflows to the physical media.
+By examining the fragmentation usemaps, we have a pretty good idea about
+how the blocks are being used.  If a block is flagged as 'User Pages' then
+there is a good chance that it can be offlined.  Of course, depending on
+exactly how those 'user pages' are being used will determine if they can
+be offlined.  If the offline of a section marked user is unsuccessful, you
+can retry in the hope that the situation was transient.  Or, you can move
+on to the next user block.  By concentrating your efforts on blocks only
+containing user pages, your chances of success are greatly increased.
+For blocks that are marked 'Kernel' we know an offline will not be successful
+and don't even try.  
 
-That's so wrong it's hard to even know where to start correcting.
-(Sometimes I wonder why I bother.)
-
-Of course "RAM Disk" implies something to do with CONFIG_BLK_DEV_RAM,
-which is a complete red herring WRT the buffer cache.  The buffer cache
-doesn't "overflow" -- rather, it is a cache of buffered data which is
-held in memory temporarily with the hope that we can avoid some number
-of IO operations through coalescing writes and satisfying reads from
-cached data.
-
-> Given that, there are various ways to provoke the system into
-> writing data to the disk(s), such as executing `sync`. However,
-> normally file-data are written when the kernel needs to free
-> up some memory or when the disk(s) are un-mounted.
-
-You left out the very important role of pdflush.  When dirty pages reach
-a certain age*, pdflush causes them to be written out to disk even
-though the kernel doesn't "need to free up some memory" and the
-filesystem hasn't been unmounted.
-
-[*] or the watermarks trigger due to there being too many dirty pages.
-
--andy
+-- 
+Mike

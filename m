@@ -1,59 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbVJUX3Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751269AbVJUX0j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751272AbVJUX3Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 19:29:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751273AbVJUX3Y
+	id S1751269AbVJUX0j (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 19:26:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751272AbVJUX0j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 19:29:24 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:23170 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751272AbVJUX3X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 19:29:23 -0400
-Subject: Re: 2.6.14-rc5-rt3 - `IRQ 8'[798] is being piggy
-From: Lee Revell <rlrevell@joe-job.com>
-To: Mark Knecht <markknecht@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <5bdc1c8b0510211525v62212d33j84491cfc687bd200@mail.gmail.com>
-References: <5bdc1c8b0510211003j4e9bf03bhf1ea8e94ffe60153@mail.gmail.com>
-	 <5bdc1c8b0510211040s40f3f9bbj7f83e174d7b6d937@mail.gmail.com>
-	 <1129920323.17709.2.camel@mindpipe>
-	 <5bdc1c8b0510211152m592d95cfte57dc7e9b027f87a@mail.gmail.com>
-	 <1129923883.17709.11.camel@mindpipe>
-	 <5bdc1c8b0510211525v62212d33j84491cfc687bd200@mail.gmail.com>
+	Fri, 21 Oct 2005 19:26:39 -0400
+Received: from smtp2.Stanford.EDU ([171.67.16.125]:64445 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S1751269AbVJUX0i
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 19:26:38 -0400
+Subject: Re: 2.6.14-rc4-rt7
+From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: nando@ccrma.Stanford.EDU, William Weston <weston@lysdexia.org>,
+       cc@ccrma.Stanford.EDU, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>,
+       david singleton <dsingleton@mvista.com>,
+       Steven Rostedt <rostedt@goodmis.org>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark Knecht <markknecht@gmail.com>
+In-Reply-To: <20051021080504.GA5088@elte.hu>
+References: <20051017160536.GA2107@elte.hu>
+	 <1129576885.4720.3.camel@cmn3.stanford.edu>
+	 <1129599029.10429.1.camel@cmn3.stanford.edu>
+	 <20051018072844.GB21915@elte.hu>
+	 <1129669474.5929.8.camel@cmn3.stanford.edu>
+	 <Pine.LNX.4.58.0510181423200.19498@echo.lysdexia.org>
+	 <20051019111943.GA31410@elte.hu>
+	 <1129835571.14374.11.camel@cmn3.stanford.edu>
+	 <20051020191620.GA21367@elte.hu>
+	 <1129852531.5227.4.camel@cmn3.stanford.edu> <20051021080504.GA5088@elte.hu>
 Content-Type: text/plain
-Date: Fri, 21 Oct 2005 19:28:37 -0400
-Message-Id: <1129937318.4724.6.camel@mindpipe>
+Date: Fri, 21 Oct 2005 16:25:38 -0700
+Message-Id: <1129937138.5001.4.camel@cmn3.stanford.edu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-10-21 at 15:25 -0700, Mark Knecht wrote:
-> >
-> > No I don't think so.  CONFIG_RTC_HISTOGRAM is a hack, designed to work
-> > with a specific test program that runs SCHED_FIFO and poll()s on the
-> > RTC.  VLC apparently poll()s on the RTC but does not run SCHED_FIFO.  So
-> > of course there will be delays.
-
-> Lee,
->    Indeed, you are correct. Apparently under character devices I had
-> turned on the RTC histogram feature. With that off I am not only
-> getting the maximum latency values we expect.
+On Fri, 2005-10-21 at 10:05 +0200, Ingo Molnar wrote:
+> * Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
 > 
->    Now I'll have to let it run for hours/days to see if I catch any
-> info on these xruns, should I get another rash of them. Yesterday they
-> came only after about 14 hours of work. I had none the previous two
-> days.
+> > Found this on the logs:
+> > 
+> > Oct 20 15:52:57 cmn3 kernel: BUG in hydrogen:4810, ktimer expired 
+> > short without user signal!:
+> 
+> hm. This suggests that hydrogen executing schedule_ktimer() was waken up 
+> 45 microseconds too early, and most likely it was not woken up by the 
+> hres timer code (which should have done the wakeup 45 microseconds later 
+> anyway).
+> 
+> I've added special hres-wakeup-debugging code to the scheduler in 
+> -rc5-rt2 to catch this particular scenario, you might want to give it a 
+> try. The new code is always enabled and it should pinpoint the precise 
+> place that does the wrong wakeup. You should see a new type of warning 
+> in your log:
+> 
+>  BUG: foo:1234 waking up bar:4321, expiring ktimer short without user signal!
+> 
+> in shortly before the usual "BUG: ktimer expired short" message. Both 
+> messages will be triggered only once per bootup - but the condition 
+> itself likely occurs much more often on your box.
 
-In general you should avoid enabling/disabling random config options
-between runs.  If you keep changing the .config it makes it impossible
-to hunt bugs or compare one set of results to another.
+Here's one with rc5-rt3:
 
-The easiest way is to do:
+Oct 21 15:01:46 cmn3 kernel: BUG: ktimer expired short without user
+signal! (hald-addon-stor:4309)
+Oct 21 15:01:46 cmn3 kernel: .. expires:   1012/751245500
+Oct 21 15:01:46 cmn3 kernel: .. expired:   1012/750908115
+Oct 21 15:01:46 cmn3 kernel: .. at line:   942
+Oct 21 15:01:46 cmn3 kernel: .. interval:  0/0
+Oct 21 15:01:46 cmn3 kernel: .. now:       1012/750908723
+Oct 21 15:01:46 cmn3 kernel: .. rem:       0/337385
+Oct 21 15:01:46 cmn3 kernel: .. overrun:   0
+Oct 21 15:01:46 cmn3 kernel: .. getoffset: 00000000
+Oct 21 15:01:46 cmn3 kernel:  [<c014205d>] check_ktimer_signal
++0x16d/0x190 (8)
+Oct 21 15:01:46 cmn3 kernel:  [<c0142129>] __ktimer_nanosleep+0xa9/0xf0
+(56)
+Oct 21 15:01:46 cmn3 kernel:  [<c01421ab>] ktimer_nanosleep+0x3b/0x50
+(56)
+Oct 21 15:01:46 cmn3 kernel:  [<c0375d20>] nanosleep_restart_mono
++0x0/0x30 (8)
+Oct 21 15:01:46 cmn3 kernel:  [<c0141ee0>] ktimer_wake_up+0x0/0x10 (64)
+Oct 21 15:01:46 cmn3 kernel:  [<c014225c>] sys_nanosleep+0x4c/0x50 (32)
+Oct 21 15:01:46 cmn3 kernel:  [<c0103481>] syscall_call+0x7/0xb (16)
 
-zcat /proc/config.gz > .config
-make oldconfig
+And another (the same?) after a reboot:
 
-Lee
+Oct 21 16:06:11 cmn3 kernel: BUG: ktimer expired short without user
+signal! (udev:317)
+Oct 21 16:06:11 cmn3 kernel: .. expires:   9/24925742
+Oct 21 16:06:11 cmn3 kernel: .. expired:   9/24924523
+Oct 21 16:06:11 cmn3 kernel: .. at line:   942
+Oct 21 16:06:11 cmn3 kernel: .. interval:  0/0
+Oct 21 16:06:11 cmn3 kernel: .. now:       9/24925385
+Oct 21 16:06:11 cmn3 kernel: .. rem:       0/1219
+Oct 21 16:06:11 cmn3 kernel: .. overrun:   0
+Oct 21 16:06:11 cmn3 kernel: .. getoffset: 00000000
+Oct 21 16:06:11 cmn3 kernel:  [<c014205d>] check_ktimer_signal
++0x16d/0x190 (8)
+Oct 21 16:06:11 cmn3 kernel:  [<c0142129>] __ktimer_nanosleep+0xa9/0xf0
+(56)
+Oct 21 16:06:11 cmn3 kernel:  [<c01421ab>] ktimer_nanosleep+0x3b/0x50
+(56)
+Oct 21 16:06:11 cmn3 kernel:  [<c0375d20>] nanosleep_restart_mono
++0x0/0x30 (8)
+Oct 21 16:06:11 cmn3 kernel:  [<c0141ee0>] ktimer_wake_up+0x0/0x10 (64)
+Oct 21 16:06:11 cmn3 kernel:  [<c014225c>] sys_nanosleep+0x4c/0x50 (32)
+Oct 21 16:06:11 cmn3 kernel:  [<c0103481>] syscall_call+0x7/0xb (16)
+
+In both cases the machine goes catatonic, I don't know if right after
+this or not. It responds to the SysRQ key but that's pretty much it, I
+should probably try to get a serial console going somehow. 
+
+-- Fernando
+
 

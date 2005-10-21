@@ -1,194 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965166AbVJUUrE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965133AbVJUUsf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965166AbVJUUrE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 16:47:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965162AbVJUUrE
+	id S965133AbVJUUsf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 16:48:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965162AbVJUUsf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 16:47:04 -0400
-Received: from smtp06.wanadoo.nl ([194.134.35.146]:27944 "EHLO
-	smtp06.wanadoo.nl") by vger.kernel.org with ESMTP id S965166AbVJUUrC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 16:47:02 -0400
-Message-ID: <435953B5.1070709@lazarenko.net>
-Date: Fri, 21 Oct 2005 22:46:45 +0200
-From: Vladimir Lazarenko <vlad@lazarenko.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
-Subject: Re: sata_nv + SMP = broken?
-References: <4358C417.9000608@lazarenko.net> <4359144F.8090504@perkel.com> <200510212238.25614.rjw@sisk.pl>
-In-Reply-To: <200510212238.25614.rjw@sisk.pl>
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms060708090708000304020203"
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "dinosaur.lazarenko.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  >>>Yesterday I've tried launching various kernels on
-	Ahtlon64 Dual-core >>>X2 3800+ with MSI Neo4 Platinum SLI motherboard.
-	>>> >>>The results were a total catastrophica failure. As soon as I
-	enable >>>SMP in the kernel, the sata driver would randomly hang after
-	a bit of >>>disk activity. >>> >>>Whenever apic is enabled, the system
-	won't even be able to boot up >>>completely, and will hang VERY soon.
-	Whenever I disable apic, the >>>system is able to bootup, but when the
-	software mirror that I use will >>>try to resync for 2-3-10 mins, it
-	will throw up a message and freeze >>>again. >>> >>>Whenever I disable
-	apic AND lapic, the system is able to bootup AND >>>work, however after
-	same 5-10 minutes it start spitting messages, >>>which are somewhat
-	different thou and don't hang the system completely >>>but render it
-	rather unusable anyway. >>> >>>As soon as I disable SMP - everything
-	works like a charm. >>> >> >>For what it's worth I too have seen this
-	same problem. It happens when I >>use the stock Fedora kernels but not
-	my custom compiled kernel. I'm not >>sure what I compiled differently
-	but at the time I thought that >>something in the new kernel fixed it.
-	> > > I only use kernel.org kernels, so perhaps there's a problem with
-	the Fedora > kernel. > > >>I too am running an Athlon X2 using sata_nv.
-	I have an ASUS motherboard. >>But what I noticed was that the problem
-	went away if I used 2 gigs of >>ram instead of 4 gigs. When you use the
-	whole 4 gigs there is some >>memory mapping going on and I thought
-	perhaps the problem was related to >>the sata_nv not liking the memory
-	mapped over the 4gig barrier. > > > That's possible. Unfortunately I
-	cannot verify this, since there are 2GB of > RAM in my box. > > I
-	remeber someone having a problem with sata_nv DMAing over 2GB of RAM, >
-	so there may be something wrong with it. [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 AWL                    AWL: From: address is in the auto white-list
+	Fri, 21 Oct 2005 16:48:35 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:7827 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965133AbVJUUse (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 16:48:34 -0400
+Date: Fri, 21 Oct 2005 13:48:43 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Stefan Jones <stefan.jones@churchillrandoms.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG][2.6.13.4] Memoryleak - idr_layer_cache slab - inotify?
+Message-Id: <20051021134843.497921fd.akpm@osdl.org>
+In-Reply-To: <43594CD6.3020308@churchillrandoms.co.uk>
+References: <43593240.9020806@churchillrandoms.co.uk>
+	<43594CD6.3020308@churchillrandoms.co.uk>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
+Stefan Jones <stefan.jones@churchillrandoms.co.uk> wrote:
+>
+> Stefan Jones wrote:
+> 
+> Made a standalone testcase, run this and the kernel will eat up your
+> memory (seen via slabtop):
+> 
+> [ creates a inotify_dev, and a watch and exits ; repeat via fork ... ]
+> 
+> Tracked it down me thinks:
+> 
+> struct inotify_device {
+> ...
+> 	struct idr		idr;		/* idr mapping wd -> watch */
+> ...
+> }
+> 
+> idr gets allocated each time inotify_init() is called:
+> 
+> asmlinkage long sys_inotify_init(void)
+> {
+> ..
+> idr_init(&dev->idr);
+> ..
+> }
+> 
+> Looking in lib/idr.c you see:
+> 
+>   * You can release ids at any time. When all ids are released, most of
+>   * the memory is returned (we keep IDR_FREE_MAX) in a local pool so we
+>   * don't need to go to the memory "store" during an id allocate, just
+>   * so you don't need to be too concerned about locking and conflicts
+>   * with the slab allocator.
+> 
+> So even if you free all ids which create_watch->inotify_dev_get_wd 
+> creates you will still have menory in your struct idr.
+> 
+> So when
+> static inline void put_inotify_dev(struct inotify_device *dev)
+> {
+> 	if (atomic_dec_and_test(&dev->count)) {
+> 		atomic_dec(&dev->user->inotify_devs);
+> 		free_uid(dev->user);
+> 		kfree(dev);
+> 	}
+> }
+> 
+> is called I think this is whre the memory gets lost. ( linux/idr.h has 
+> not free function I see )
+> 
 
---------------ms060708090708000304020203
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+That makes sense, thanks.
 
->>>Yesterday I've tried launching various kernels on Ahtlon64 Dual-core 
->>>X2 3800+ with MSI Neo4 Platinum SLI motherboard.
->>>
->>>The results were a total catastrophica failure. As soon as I enable 
->>>SMP in the kernel, the sata driver would randomly hang after a bit of 
->>>disk activity.
->>>
->>>Whenever apic is enabled, the system won't even be able to boot up 
->>>completely, and will hang VERY soon. Whenever I disable apic, the 
->>>system is able to bootup, but when the software mirror that I use will 
->>>try to resync for 2-3-10 mins, it will throw up a message and freeze 
->>>again.
->>>
->>>Whenever I disable apic AND lapic, the system is able to bootup AND 
->>>work, however after same 5-10 minutes it start spitting messages, 
->>>which are somewhat different thou and don't hang the system completely 
->>>but render it rather unusable anyway.
->>>
->>>As soon as I disable SMP - everything works like a charm.
->>>
->>
->>For what it's worth I too have seen this same problem. It happens when I 
->>use the stock Fedora kernels but not my custom compiled kernel. I'm not 
->>sure what I compiled differently but at the time I thought that 
->>something in the new kernel fixed it.
-> 
-> 
-> I only use kernel.org kernels, so perhaps there's a problem with the Fedora
-> kernel.
-> 
-> 
->>I too am running an Athlon X2 using sata_nv. I have an ASUS motherboard. 
->>But what I noticed was that the problem went away if I used 2 gigs of 
->>ram instead of 4 gigs. When you use the whole 4 gigs there is some 
->>memory mapping going on and I thought perhaps the problem was related to 
->>the sata_nv not liking the memory mapped over the 4gig barrier.
-> 
-> 
-> That's possible.  Unfortunately I cannot verify this, since there are 2GB of
-> RAM in my box.
-> 
-> I remeber someone having a problem with sata_nv DMAing over 2GB of RAM,
-> so there may be something wrong with it.
+Something like this?
 
-That can very much be it, my box has 3G RAM.. I'll try checking that 
-this Saturday (tomorrow hence), though I already ordered an RMA for the 
-board :) Anyway, I can't live with 2G only, so that's not an option for 
-me. Ordered one from nForce3, it's reported to be stable in the similar 
-environment. Wonder if that's only nForce4 issue...
 
-Cheers,
-Vladimir
-
---------------ms060708090708000304020203
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIJ2zCC
-Az8wggKooAMCAQICAQ0wDQYJKoZIhvcNAQEFBQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQI
-EwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUgVG93bjEaMBgGA1UEChMRVGhhd3RlIENv
-bnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24gU2VydmljZXMgRGl2aXNpb24xJDAi
-BgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTErMCkGCSqGSIb3DQEJARYccGVy
-c29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMzA3MTcwMDAwMDBaFw0xMzA3MTYyMzU5
-NTlaMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBM
-dGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQTCBnzAN
-BgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAxKY8VXNV+065yplaHmjAdQRwnd/p/6Me7L3N9Vvy
-Gna9fww6YfK/Uc4B1OVQCjDXAmNaLIkVcI7dyfArhVqqP3FWy688Cwfn8R+RNiQqE88r1fOC
-dz0Dviv+uxg+B79AgAJk16emu59l0cUqVIUPSAR/p7bRPGEEQB5kGXJgt/sCAwEAAaOBlDCB
-kTASBgNVHRMBAf8ECDAGAQH/AgEAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwudGhh
-d3RlLmNvbS9UaGF3dGVQZXJzb25hbEZyZWVtYWlsQ0EuY3JsMAsGA1UdDwQEAwIBBjApBgNV
-HREEIjAgpB4wHDEaMBgGA1UEAxMRUHJpdmF0ZUxhYmVsMi0xMzgwDQYJKoZIhvcNAQEFBQAD
-gYEASIzRUIPqCy7MDaNmrGcPf6+svsIXoUOWlJ1/TCG4+DYfqi2fNi/A9BxQIJNwPP2t4WFi
-w9k6GX6EsZkbAMUaC4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa9/eH1sYITq726jTlEBpb
-NU1341YheILcIRk13iSx0x1G/11fZU8wggNIMIICsaADAgECAgMPl0owDQYJKoZIhvcNAQEE
-BQAwYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0
-ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBMB4XDTA1
-MTAwNDE4Mjk1NloXDTA2MTAwNDE4Mjk1NlowgZgxEjAQBgNVBAQTCUxhemFyZW5rbzERMA8G
-A1UEKhMIVmxhZGltaXIxGzAZBgNVBAMTElZsYWRpbWlyIExhemFyZW5rbzEhMB8GCSqGSIb3
-DQEJARYSdmxhZEBsYXphcmVua28ubmV0MS8wLQYJKoZIhvcNAQkBFiB2bGFkaW1pci5sYXph
-cmVua29AbG9naWNhY21nLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMhN
-65wBwy12UD+rjqjhBDMm8/6sYE+YHQmJMgTb/Cxy+Sp00ISDel7/FiLvVtKAo667N43VeFzT
-p+7BWKxC0OJAFddayiWFw5sZCEL28qY2lHnolrpJMbVIzUoqrSkPjgZ9GNI93Ri7AWkMCF9X
-uRFW0I0Lbb2gYH2fnpdloO917DLyXVuBxOyPUpu1TeP+oHbi8whPdrhFx8Ep37sP13srk5tf
-ISzaXdJzEVWOaLTyIL5tMSlCuBJibmcDm9/2qCLW+c1eAxiQwmafH4tJ5WPch2wclEXlt7tw
-tGe6vK0Se2B8TvgZmOaY78wIp0DBVrP4+wsMnCbcPHtk+sY1d/8CAwEAAaNRME8wPwYDVR0R
-BDgwNoESdmxhZEBsYXphcmVua28ubmV0gSB2bGFkaW1pci5sYXphcmVua29AbG9naWNhY21n
-LmNvbTAMBgNVHRMBAf8EAjAAMA0GCSqGSIb3DQEBBAUAA4GBACfGbOm/RbyWFmOR+w4Vk8XY
-umCjlfqb+icqbKENKvuG4DOQr6QaTtRT+/ATA3yrooYfQWuflDIEPS+SbNyjfpNyyFiYB8OS
-rfclJ+B+ikvEP7LweNoL3EV1SrzeyJ3YrcqHAhoNqvB66dVQCy04RFvaRI+fC3I79Zd748gf
-ESqyMIIDSDCCArGgAwIBAgIDD5dKMA0GCSqGSIb3DQEBBAUAMGIxCzAJBgNVBAYTAlpBMSUw
-IwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUg
-UGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQTAeFw0wNTEwMDQxODI5NTZaFw0wNjEwMDQx
-ODI5NTZaMIGYMRIwEAYDVQQEEwlMYXphcmVua28xETAPBgNVBCoTCFZsYWRpbWlyMRswGQYD
-VQQDExJWbGFkaW1pciBMYXphcmVua28xITAfBgkqhkiG9w0BCQEWEnZsYWRAbGF6YXJlbmtv
-Lm5ldDEvMC0GCSqGSIb3DQEJARYgdmxhZGltaXIubGF6YXJlbmtvQGxvZ2ljYWNtZy5jb20w
-ggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDITeucAcMtdlA/q46o4QQzJvP+rGBP
-mB0JiTIE2/wscvkqdNCEg3pe/xYi71bSgKOuuzeN1Xhc06fuwVisQtDiQBXXWsolhcObGQhC
-9vKmNpR56Ja6STG1SM1KKq0pD44GfRjSPd0YuwFpDAhfV7kRVtCNC229oGB9n56XZaDvdewy
-8l1bgcTsj1KbtU3j/qB24vMIT3a4RcfBKd+7D9d7K5ObXyEs2l3ScxFVjmi08iC+bTEpQrgS
-Ym5nA5vf9qgi1vnNXgMYkMJmnx+LSeVj3IdsHJRF5be7cLRnurytEntgfE74GZjmmO/MCKdA
-wVaz+PsLDJwm3Dx7ZPrGNXf/AgMBAAGjUTBPMD8GA1UdEQQ4MDaBEnZsYWRAbGF6YXJlbmtv
-Lm5ldIEgdmxhZGltaXIubGF6YXJlbmtvQGxvZ2ljYWNtZy5jb20wDAYDVR0TAQH/BAIwADAN
-BgkqhkiG9w0BAQQFAAOBgQAnxmzpv0W8lhZjkfsOFZPF2Lpgo5X6m/onKmyhDSr7huAzkK+k
-Gk7UU/vwEwN8q6KGH0Frn5QyBD0vkmzco36TcshYmAfDkq33JSfgfopLxD+y8HjaC9xFdUq8
-3sid2K3KhwIaDarweunVUAstOERb2kSPnwtyO/WXe+PIHxEqsjGCAzswggM3AgEBMGkwYjEL
-MAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAq
-BgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBAgMPl0owCQYFKw4D
-AhoFAKCCAacwGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMDUx
-MDIxMjA0NjQ2WjAjBgkqhkiG9w0BCQQxFgQUUFpH/X2igvacHRxV5tUdMDuOPNIwUgYJKoZI
-hvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAw
-BwYFKw4DAgcwDQYIKoZIhvcNAwICASgweAYJKwYBBAGCNxAEMWswaTBiMQswCQYDVQQGEwJa
-QTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhh
-d3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0ECAw+XSjB6BgsqhkiG9w0BCRACCzFr
-oGkwYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0
-ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBAgMPl0ow
-DQYJKoZIhvcNAQEBBQAEggEAfnygPbebLgTME3JQbjtZff4xdeRlwjKyyW1lSuGE9kKwlGfA
-wN3JV/yR2xkblWhqOoKdO3otuMHI+OFOaGDbDmihBQJAAsCmfNGQmUlTuZ5E2aIw6piCHLmp
-xuDXCXe+XyFsZQlUxo8NPFMngK/5OhFuj76SN8BNX/awkeHcoCLxRIaK2XGn1zlG/TuaznPc
-j3F531D8dFtbMhluejTKoi+GuZ5m6b0j44EhKUr00rgGRvJ/icfbzxvYWzrfDH8glAMk9Vza
-dwTvaf6iU4S6FAJn+KHyW90gsP6Ont/iBPpc4KQCOQirrXIoMo0arGlrKc22DD0dnTLp1KDd
-fS1wmwAAAAAAAA==
---------------ms060708090708000304020203--
+diff -puN lib/idr.c~inotify-idr-leak-fix lib/idr.c
+--- 25/lib/idr.c~inotify-idr-leak-fix	Fri Oct 21 13:44:23 2005
++++ 25-akpm/lib/idr.c	Fri Oct 21 13:46:09 2005
+@@ -346,6 +346,19 @@ void idr_remove(struct idr *idp, int id)
+ EXPORT_SYMBOL(idr_remove);
+ 
+ /**
++ * idr_destroy - release all cached layers within an idr tree
++ * idp: idr handle
++ */
++void idr_destroy(struct idr *idp)
++{
++	while (idp->id_free_cnt) {
++		struct idr_layer *p = alloc_layer(idp);
++		kmem_cache_free(idr_layer_cache, p);
++	}
++}
++EXPORT_SYMBOL(idr_destroy);
++
++/**
+  * idr_find - return pointer for given id
+  * @idp: idr handle
+  * @id: lookup key
+diff -puN include/linux/idr.h~inotify-idr-leak-fix include/linux/idr.h
+--- 25/include/linux/idr.h~inotify-idr-leak-fix	Fri Oct 21 13:44:23 2005
++++ 25-akpm/include/linux/idr.h	Fri Oct 21 13:46:19 2005
+@@ -75,4 +75,5 @@ int idr_pre_get(struct idr *idp, unsigne
+ int idr_get_new(struct idr *idp, void *ptr, int *id);
+ int idr_get_new_above(struct idr *idp, void *ptr, int starting_id, int *id);
+ void idr_remove(struct idr *idp, int id);
++void idr_destroy(struct idr *idp);
+ void idr_init(struct idr *idp);
+diff -puN fs/inotify.c~inotify-idr-leak-fix fs/inotify.c
+--- 25/fs/inotify.c~inotify-idr-leak-fix	Fri Oct 21 13:47:27 2005
++++ 25-akpm/fs/inotify.c	Fri Oct 21 13:47:38 2005
+@@ -176,6 +176,7 @@ static inline void put_inotify_dev(struc
+ 	if (atomic_dec_and_test(&dev->count)) {
+ 		atomic_dec(&dev->user->inotify_devs);
+ 		free_uid(dev->user);
++		idr_destroy(&dev->idr);
+ 		kfree(dev);
+ 	}
+ }
+_
 

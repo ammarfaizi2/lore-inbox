@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965028AbVJUQyA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965030AbVJURBD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965028AbVJUQyA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 12:54:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965030AbVJUQx7
+	id S965030AbVJURBD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 13:01:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965031AbVJURBD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 12:53:59 -0400
-Received: from web25806.mail.ukl.yahoo.com ([217.12.10.191]:9847 "HELO
-	web25806.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S965028AbVJUQx7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 12:53:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.es;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=vT6BJ2LscalQsy920ZfJID40fl3IGBIJNtsBHAmmxyUGwhC81zzWI08Mobt6Cz0S3Hzl+YFeRRDTtsaZMN2CQNQQXQDvGMUniG3ZWfXMvMxr6UrDotmshnFv8rmAEswn9vAa+sdtT8VXwesc6Y3SLU6wq9KVl7Xj+i9JLveKieI=  ;
-Message-ID: <20051021165352.22654.qmail@web25806.mail.ukl.yahoo.com>
-Date: Fri, 21 Oct 2005 18:53:52 +0200 (CEST)
-From: Albert Herranz <albert_herranz@yahoo.es>
-Subject: Re: [Fastboot] [PATCH] i386: move apic init in init_IRQs
-To: "Eric W. Biederman" <ebiederm@xmission.com>, vgoyal@in.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>, fastboot@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <m1ach3dj47.fsf@ebiederm.dsl.xmission.com>
+	Fri, 21 Oct 2005 13:01:03 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:41689 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S965030AbVJURBB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 13:01:01 -0400
+Message-ID: <43591E6F.4020506@jp.fujitsu.com>
+Date: Sat, 22 Oct 2005 01:59:27 +0900
+From: Kamezawa Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: ja, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Christoph Lameter <clameter@engr.sgi.com>
+CC: Simon Derr <Simon.Derr@bull.net>, Andrew Morton <akpm@osdl.org>,
+       Mike Kravetz <kravetz@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, Magnus Damm <magnus.damm@gmail.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Paul Jackson <pj@sgi.com>
+Subject: Re: [PATCH 4/4] Swap migration V3: sys_migrate_pages interface
+References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com> <20051020225955.19761.53060.sendpatchset@schroedinger.engr.sgi.com> <4358588D.1080307@jp.fujitsu.com> <Pine.LNX.4.61.0510210901380.17098@openx3.frec.bull.fr> <435896CA.1000101@jp.fujitsu.com> <Pine.LNX.4.62.0510210926120.23328@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0510210926120.23328@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Should the local_irq_disable() call go away onece
-> local_irq_save() got
-> > introduced.
+Christoph Lameter wrote:
+> On Fri, 21 Oct 2005, KAMEZAWA Hiroyuki wrote:
 > 
-> Nope.  The irqs need to be disabled.  The save just
-> allows this
-> to be called in a context where irqs start out
-> disabled.  It is
-> just a save.
+> 
+>>>>How about this ?
+>>>>+cpuset_update_task_mems_allowed(task, new);    (this isn't implemented
+>>>>now
+>>
+>>*new* is already guaranteed to be the subset of current mem_allowed.
+>>Is this violate the permission ?
+> 
+>  
+> Could the cpuset_mems_allowed(task) function update the mems_allowed if 
+> needed?
+It looks I was wrong :(
+see Paul's e-mail. he describes the problem of my suggestion in detail.
 
-local_irq_save() also disables interrupts.
+-- Kame
 
-Cheers,
-Albert
-
-
-
-
-		
-______________________________________________ 
-Renovamos el Correo Yahoo! 
-Nuevos servicios, más seguridad 
-http://correo.yahoo.es

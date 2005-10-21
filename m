@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965072AbVJUSUP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965068AbVJUSXr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965072AbVJUSUP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 14:20:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965071AbVJUSUO
+	id S965068AbVJUSXr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 14:23:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965071AbVJUSXr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 14:20:14 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:14474 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S965072AbVJUSUM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 14:20:12 -0400
-Date: Fri, 21 Oct 2005 12:20:09 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-Cc: Christoph Hellwig <hch@lst.de>, Jeff Garzik <jgarzik@pobox.com>,
-       andrew.patterson@hp.com, "Moore, Eric Dean" <Eric.Moore@lsil.com>,
-       jejb@steeleye.com, linux-scsi@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached PHYs)
-Message-ID: <20051021182009.GA3364@parisc-linux.org>
-References: <91888D455306F94EBD4D168954A9457C048F0E34@nacos172.co.lsil.com> <20051020160155.GA14296@lst.de> <4357CB03.4020400@adaptec.com> <20051020170330.GA16458@lst.de> <4357F7DE.7050004@adaptec.com> <1129852879.30258.137.camel@bluto.andrew> <43583A53.2090904@pobox.com> <435929FD.4070304@adaptec.com> <20051021180455.GA6834@lst.de> <43592FA1.8000206@adaptec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43592FA1.8000206@adaptec.com>
-User-Agent: Mutt/1.5.9i
+	Fri, 21 Oct 2005 14:23:47 -0400
+Received: from p4-7036.uk2net.com ([213.232.95.37]:53646 "EHLO
+	churchillrandoms.co.uk") by vger.kernel.org with ESMTP
+	id S965068AbVJUSXq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 14:23:46 -0400
+Message-ID: <43593240.9020806@churchillrandoms.co.uk>
+Date: Fri, 21 Oct 2005 11:24:00 -0700
+From: Stefan Jones <stefan.jones@churchillrandoms.co.uk>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051003)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [BUG][2.6.13.4] Memoryleak - idr_layer_cache slab - inotify?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 21, 2005 at 02:12:49PM -0400, Luben Tuikov wrote:
-> > That beeing said I tried this approach.  It looks pretty cool when you
-> > think about it, but the block layer is quite a bit too heavyweight for
-> > queueing up a few SMP requests, and we need to carry too much useless
-> > code around for it.
-> 
-> That's the last reason not to implement SMP as a block device.
-> But this is good that you tried it and it "flopped".  This way
-> people will stop repeating "SMP... block device".
+Hi all,
 
-Block layer != Block device.
+I noticed this a while back when gam_server (new fam replacement)
+started playing up and the idr_layer_cache slab used up 300Mb of RAM.
 
-Nobody wants to implement SMP as a block device.
+To reproduce:
 
-The question is whether the SMP interface should be implemented as part
-of the block layer.
+Run gnome and make sure it is using gam_server for fam.
+
+In one console do:
+
+while true ;do sleep 0.1 ; killall -w gam_server; done
+
+In another try slabtop and see the idr_layer_cache slab climb, eating
+memory (abit slowly).
+( Gnome restarts gam_server after each kill for you and gets it doing
+stuff )
+
+I looked though the source and inotify does use the idr_layer_cache slab
+and gam_server also uses inotify.
+
+Thank for your time, shall I use bugzilla.kernel or is this ok? More
+info needed?
+
+Stefan
+
+
+

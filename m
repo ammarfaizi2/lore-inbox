@@ -1,69 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964992AbVJUPrm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964993AbVJUPsB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964992AbVJUPrm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 11:47:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964998AbVJUPrl
+	id S964993AbVJUPsB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 11:48:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964996AbVJUPsA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 11:47:41 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:25060 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964992AbVJUPrl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 11:47:41 -0400
-Subject: Re: Understanding Linux addr space, malloc, and heap
-From: Arjan van de Ven <arjan@infradead.org>
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Cc: "Vincent W. Freeh" <vin@csc.ncsu.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <9EF45D4BE7AB7134B6342106@Satori.nominet.org.uk>
-References: <4358F0E3.6050405@csc.ncsu.edu>
-	 <1129903396.2786.19.camel@laptopd505.fenrus.org>
-	 <4359051C.2070401@csc.ncsu.edu>
-	 <1129908179.2786.23.camel@laptopd505.fenrus.org>
-	 <9EF45D4BE7AB7134B6342106@Satori.nominet.org.uk>
+	Fri, 21 Oct 2005 11:48:00 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:46999 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964993AbVJUPr5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 11:47:57 -0400
+Subject: Re: PATCH: Allow users to force a panic on NMI - Header file
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+In-Reply-To: <1129900906.26367.33.camel@localhost.localdomain>
+References: <1129900906.26367.33.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Fri, 21 Oct 2005 17:47:36 +0200
-Message-Id: <1129909657.2786.25.camel@laptopd505.fenrus.org>
+Content-Transfer-Encoding: 7bit
+Date: Fri, 21 Oct 2005 17:16:41 +0100
+Message-Id: <1129911401.26367.60.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-10-21 at 16:37 +0100, Alex Bligh - linux-kernel wrote:
-> 
-> --On 21 October 2005 17:22 +0200 Arjan van de Ven <arjan@infradead.org> 
-> wrote:
-> 
-> > Ok I meant in the "while adhering to the standard" :)
-> 
-> More precisely, as per the man page:
-> > POSIX.1b says that mprotect can be used only on regions of memory
-> > obtained from mmap(2).
-> 
-> But what is interesting (if anything) is this:
-> > ERRORS
-> >        EINVAL addr is not a valid pointer, or not a  multiple  of
-> >        PAGESIZE.
-> 
-> So if he calls mprotect with memory allocated by malloc (which should
-> fail), why doesn't he get EINVAL? He says it returns 0 (meaning it
-> succeeded). Which it shouldn't (unless he is stupendously lucky in
-> malloc's allocation, in which case it should work).
+Forgot the header file in that one.
 
-it succeeds all right; it just does other things than you expect
-perhaps ;)
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-your alignment code had a bug, so it would align potentially to the
-wrong piece of memory
-
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc4-mm1/include/linux/kernel.h linux-2.6.14-rc4-mm1/include/linux/kernel.h
+--- linux.vanilla-2.6.14-rc4-mm1/include/linux/kernel.h	2005-10-20 16:12:41.000000000 +0100
++++ linux-2.6.14-rc4-mm1/include/linux/kernel.h	2005-10-20 17:30:10.000000000 +0100
+@@ -170,6 +170,7 @@
+ extern int oops_in_progress;		/* If set, an oops, panic(), BUG() or die() is in progress */
+ extern __deprecated_for_modules int panic_timeout;
+ extern int panic_on_oops;
++extern int panic_on_unrecovered_nmi;
+ extern int tainted;
+ extern const char *print_tainted(void);
+ extern void add_taint(unsigned);
 

@@ -1,83 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965162AbVJUWZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965070AbVJUW1O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965162AbVJUWZU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 18:25:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965070AbVJUWZU
+	id S965070AbVJUW1O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 18:27:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965185AbVJUW1O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 18:25:20 -0400
-Received: from xproxy.gmail.com ([66.249.82.200]:45738 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965162AbVJUWZT convert rfc822-to-8bit
+	Fri, 21 Oct 2005 18:27:14 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:8068 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S965070AbVJUW1N
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 18:25:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=uqtkb2Jzx7cufcotqxBsneOEpgKOkoWGfIvYEs29jUTPNH4BJ05U+IRhdI61jzUgBJcclPSdVljsJtDXTSm5Qdxi6/4No+1mClWsZC0w/jtZdRrMWf/7QeWXB7a8+uWq/wlC8CyiTcWV4yyl3nkIs08IPsuwyN5MQZqXb1NVSp4=
-Message-ID: <5bdc1c8b0510211525v62212d33j84491cfc687bd200@mail.gmail.com>
-Date: Fri, 21 Oct 2005 15:25:18 -0700
-From: Mark Knecht <markknecht@gmail.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: 2.6.14-rc5-rt3 - `IRQ 8'[798] is being piggy
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1129923883.17709.11.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 21 Oct 2005 18:27:13 -0400
+Date: Sat, 22 Oct 2005 00:25:16 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: wsong <wsong.cn@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: [PATCH 2.6.14-rc3] sis5513.c: enable ATA133 for the SiS965 southbridge
+Message-ID: <20051021222516.GA18899@electric-eye.fr.zoreil.com>
+References: <20051005205906.GA4320@farad.aurel32.net> <58cb370e0510060240x2f2e31c3kd0609a06172d86a4@mail.gmail.com> <20051007094135.GA16386@farad.aurel32.net> <4346A41E.3020505@verizon.net> <6f9b6d3e0510211335x202a437co1919df4f7e5aeb2f@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <5bdc1c8b0510211003j4e9bf03bhf1ea8e94ffe60153@mail.gmail.com>
-	 <5bdc1c8b0510211040s40f3f9bbj7f83e174d7b6d937@mail.gmail.com>
-	 <1129920323.17709.2.camel@mindpipe>
-	 <5bdc1c8b0510211152m592d95cfte57dc7e9b027f87a@mail.gmail.com>
-	 <1129923883.17709.11.camel@mindpipe>
+In-Reply-To: <6f9b6d3e0510211335x202a437co1919df4f7e5aeb2f@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/21/05, Lee Revell <rlrevell@joe-job.com> wrote:
-> On Fri, 2005-10-21 at 11:52 -0700, Mark Knecht wrote:
-> > On 10/21/05, Lee Revell <rlrevell@joe-job.com> wrote:
-> > > On Fri, 2005-10-21 at 10:40 -0700, Mark Knecht wrote:
-> > > > On 10/21/05, Mark Knecht <markknecht@gmail.com> wrote:
-> > > > > Hi,
-> > > > >    Maybe I'm catching something here? Maybe not - no xruns as of yet,
-> > > > > but I've never seen these messages before. Kernel config attached.
-> > > > >
-> > > > >    dmesg has filled up with these messages:
-> > > > >
-> > >
-> > > This isn't a real problem.  You enabled CONFIG_RTC_HISTOGRAM.  Don't do
-> > > that.
-> > >
-> > > Lee
-> >
-> >
-> > Right, but the 'piggy' messages are a real prblem, aren't they?
->
-> No I don't think so.  CONFIG_RTC_HISTOGRAM is a hack, designed to work
-> with a specific test program that runs SCHED_FIFO and poll()s on the
-> RTC.  VLC apparently poll()s on the RTC but does not run SCHED_FIFO.  So
-> of course there will be delays.
->
-> Now that the kernel has good soft realtime support and non-root RT
-> scheduling, these apps really need to adopt a correct soft RT design
-> like JACK.  AFAICT they don't even bother to try to get SCHED_FIFO for
-> the time-sensitive rendering threads.  I can't even get totem-xine (the
-> default "Sound and Movie Player" for Gnome) to keep the audio and video
-> in sync.  mplayer only plays smoothly if I run it at nice -10.  Etc.
->
-> The Linux kernel is pretty good for RT these days but compared to OSX or
-> even Windows the apps are a joke.
->
-> Lee
+wsong <wsong.cn@gmail.com> :
+> This patch has conflict with sata_sis driver. They both register this
+> id 0x0180. But pci ide driver is loaded first. So if you have sata
+> drive connected as root, dang, you'll get kernel panic. I had this
+> problem with 2.6.14_rc4-mm1. Simply delete the third line from
+> structure sis5513_pci_tbl resolved it.
+> 
+> I know it's just a work around.
 
-Lee,
-   Indeed, you are correct. Apparently under character devices I had
-turned on the RTC histogram feature. With that off I am not only
-getting the maximum latency values we expect.
+The lspci I have received for a k8s-mx exhibit a 5513 whose PCI ID is
+already correctly set. If the ID masking and register remapping is not
+really relevant on a 180, the code below could be enough. If it is wrong,
+it may be better to check the availability of a good backup system before
+using it.
 
-   Now I'll have to let it run for hours/days to see if I catch any
-info on these xruns, should I get another rash of them. Yesterday they
-came only after about 14 hours of work. I had none the previous two
-days.
+Some features documentation suggest that the 760 and the 755 should
+mostly go along with the same southbridge. 
 
-Thanks,
-Mark
+Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
+
+diff --git a/drivers/ide/pci/sis5513.c b/drivers/ide/pci/sis5513.c
+--- a/drivers/ide/pci/sis5513.c
++++ b/drivers/ide/pci/sis5513.c
+@@ -20,6 +20,7 @@
+  * ATA16/33 support from specs
+  * ATA133 support for SiS961/962 by L.C. Chang <lcchang@sis.com.tw>
+  * ATA133 961/962/963 fixes by Vojtech Pavlik <vojtech@suse.cz>
++ * ATA133 965 hack by Ueimor <romieu@fr.zoreil.com>
+  *
+  * Documentation:
+  *	SiS chipset documentation available under NDA to companies only
+@@ -87,6 +88,9 @@ static const struct {
+ 	u8 chipset_family;
+ 	u8 flags;
+ } SiSHostChipInfo[] = {
++	{ "SiS760",	PCI_DEVICE_ID_SI_760,	ATA_133  },
++	{ "SiS755",	PCI_DEVICE_ID_SI_755,	ATA_133  },
++
+ 	{ "SiS745",	PCI_DEVICE_ID_SI_745,	ATA_100  },
+ 	{ "SiS735",	PCI_DEVICE_ID_SI_735,	ATA_100  },
+ 	{ "SiS733",	PCI_DEVICE_ID_SI_733,	ATA_100  },

@@ -1,30 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964884AbVJUG34@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964877AbVJUGma@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964884AbVJUG34 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 02:29:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964885AbVJUG34
+	id S964877AbVJUGma (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 02:42:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964885AbVJUGma
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 02:29:56 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:19089 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S964884AbVJUG3z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 02:29:55 -0400
-Message-ID: <43588B63.2070009@aitel.hist.no>
-Date: Fri, 21 Oct 2005 08:32:03 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>, lkml@rtr.ca
-CC: linux-kernel@vger.kernel.org
-Subject: Re: How to use a USB  SD/MMC card reader?
-References: <20051019193913.GA21749@aitel.hist.no> <20051019195217.GA5266@csclub.uwaterloo.ca>
-In-Reply-To: <20051019195217.GA5266@csclub.uwaterloo.ca>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 21 Oct 2005 02:42:30 -0400
+Received: from ns.ustc.edu.cn ([202.38.64.1]:42957 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S964877AbVJUGma (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 02:42:30 -0400
+Date: Fri, 21 Oct 2005 14:42:17 +0800
+From: WU Fengguang <wfg@mail.ustc.edu.cn>
+To: Ingo Oeser <ioe-lkml@rameria.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       joern@wohnheim.fh-wedel.de, mingo@elte.hu
+Subject: Re: [PATCH] Adaptive read-ahead v4
+Message-ID: <20051021064217.GA3899@mail.ustc.edu.cn>
+Mail-Followup-To: WU Fengguang <wfg@mail.ustc.edu.cn>,
+	Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>, joern@wohnheim.fh-wedel.de,
+	mingo@elte.hu
+References: <20051015174731.GA5851@mail.ustc.edu.cn> <20051018025806.GA3963@mail.ustc.edu.cn> <20051017203137.05350739.akpm@osdl.org> <200510201714.48654.ioe-lkml@rameria.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200510201714.48654.ioe-lkml@rameria.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks to all who responded.  The adapter did indeed use LUNs. :-)
+On Thu, Oct 20, 2005 at 05:14:42PM +0200, Ingo Oeser wrote:
+> On Tuesday 18 October 2005 05:31, Andrew Morton wrote:
+> [lot of additional page stats]
+> > You should treat such informaton as a development aid, really.  People are
+> > very unlikely to look at it in real life.
+> 
+> And put the whole stuff under debugfs, which was made for this AFAIR.
+Ok, I'll do it right away.
 
-Helge Hafting
+Thanks,
+Wu Fengguang

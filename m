@@ -1,87 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965168AbVJUVMy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965149AbVJUVUu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965168AbVJUVMy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 17:12:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbVJUVMy
+	id S965149AbVJUVUu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 17:20:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbVJUVUu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 17:12:54 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:696 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751145AbVJUVMx (ORCPT
+	Fri, 21 Oct 2005 17:20:50 -0400
+Received: from smtpa1.aruba.it ([62.149.128.206]:58335 "HELO smtpa1.aruba.it")
+	by vger.kernel.org with SMTP id S1751150AbVJUVUt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 17:12:53 -0400
-Message-ID: <435959BE.5040101@pobox.com>
-Date: Fri, 21 Oct 2005 17:12:30 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Fri, 21 Oct 2005 17:20:49 -0400
+From: Mirco Macrelli <pigaz@pigaz.org>
+Reply-To: pigaz@pigaz.org
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Add Logitech MX3100 to logips2pp.c, 2.6.14-rc5-git1
+Date: Fri, 21 Oct 2005 23:20:48 +0200
+User-Agent: KMail/1.8.2
 MIME-Version: 1.0
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-CC: andrew.patterson@hp.com, Christoph Hellwig <hch@lst.de>,
-       "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
-       linux-scsi@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached
- PHYs)
-References: <91888D455306F94EBD4D168954A9457C048F0E34@nacos172.co.lsil.com>	 <20051020160155.GA14296@lst.de> <4357CB03.4020400@adaptec.com>	 <20051020170330.GA16458@lst.de>  <4357F7DE.7050004@adaptec.com> <1129852879.30258.137.camel@bluto.andrew> <43583A53.2090904@pobox.com> <435929FD.4070304@adaptec.com> <43593100.5040708@pobox.com> <43593884.7000800@adaptec.com> <4359395B.9030402@pobox.com> <43593FE1.7020506@adaptec.com> <4359440E.2050702@pobox.com> <43595275.1000308@adaptec.com>
-In-Reply-To: <43595275.1000308@adaptec.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_wuVWDRxQUAmPPnq"
+Message-Id: <200510212320.48896.pigaz@pigaz.org>
+X-Spam-Rating: smtp1.aruba.it 1.6.2 0/1000/N
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luben Tuikov wrote:
-> On 10/21/05 15:39, Jeff Garzik wrote:
-> 
->>The technical stuff got covered long ago.  Here are the basic basics:
->>
->>* aic94xx needs to have the scsi-host-template in the LLDD, to fix 
->>improper layering.
->>* SAS generic code needs to use SAS transport class, which calls 
->>scsi_scan_target(), to avoid code duplication.
->>* other stuff I listed in my "analysis" email, including updating libata 
->>to support SAS+SATA hardware.
-> 
-> 
-> All this bastardizes the code and the layering infrastructure.
-> 
-> If you're saying that there is "improper layering" you must be
-> smoking something really strong.
+--Boundary-00=_wuVWDRxQUAmPPnq
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-I already described why.  Examples are DMA boundary and s/g limit, among 
-others.  When confronted with this, you proposed an additional hardware 
-information struct which duplicates Scsi_Host_Template.
+This simple patch adds the reciver of the Logitech MX3100 to the list of those 
+presents in the file logips2pp.c
 
-Solution?  Just use Scsi_Host_Template.  Take a look at how each libata 
-driver is implemented.  The host template is in the low level driver, 
-while most of the code is common code, implemented elsewhere.
+ciao ;)
+-- 
+Mirco Macrelli
 
+--Boundary-00=_wuVWDRxQUAmPPnq
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="add_logitech_mx3100_to_logips2pp.c.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="add_logitech_mx3100_to_logips2pp.c.diff"
 
-
->>If you were willing to do this stuff, _working with others_, then I 
->>would be off in happy happy SATA land right now, and you would have been 
->>nominated to be the Linux SAS maintainer.
-> 
-> 
-> You seem to be traveling a path which I've already traveled.
-> 
-> Jeff, if you want an Adaptec SAS driver which has the host template
-> _in_ the driver, you can use "adp94xx" submitted earlier this year
-> by Adaptec to "the community".
-> 
-> "The community" rejected it. Why?  Because "common SAS tasks should
-> be in a common layer".  Well there you have the Linux SAS Stack and
-> aic94xx at the link below (my sig), which does separate common SAS
-> tasks and the interconnect _as per architecture and spec_.  Apparently
-> this still isn't good enough for "the community".
-> 
-> You see how this going around in circles just never seems to end.
-> 
-> One day one thing, another day the opposite, etc.
-
-Your current code is much closer to the desired end result, as it 
-separates out SAS common code.  That's why its being used as a base.
-
-	Jeff
-
-
+diff -Naur linux-2.6.14-rc5-git1/drivers/input/mouse/logips2pp.c linux-2.6.14-rc5-git1.new/drivers/input/mouse/logips2pp.c
+--- linux-2.6.14-rc5-git1/drivers/input/mouse/logips2pp.c	2005-10-21 13:12:49.386661000 +0200
++++ linux-2.6.14-rc5-git1.new/drivers/input/mouse/logips2pp.c	2005-10-21 13:21:23.778808500 +0200
+@@ -217,6 +217,9 @@
+ 		{ 61,	PS2PP_KIND_MX,					/* MX700 */
+ 				PS2PP_WHEEL | PS2PP_SIDE_BTN | PS2PP_TASK_BTN |
+ 				PS2PP_EXTRA_BTN | PS2PP_NAV_BTN },
++		{ 66,	PS2PP_KIND_MX,					/* MX3100 reciver */
++				PS2PP_WHEEL | PS2PP_SIDE_BTN | PS2PP_TASK_BTN |
++				PS2PP_EXTRA_BTN | PS2PP_NAV_BTN | PS2PP_HWHEEL },
+ 		{ 73,	0,			PS2PP_SIDE_BTN },
+ 		{ 75,	PS2PP_KIND_WHEEL,	PS2PP_WHEEL },
+ 		{ 76,	PS2PP_KIND_WHEEL,	PS2PP_WHEEL },
+--Boundary-00=_wuVWDRxQUAmPPnq--

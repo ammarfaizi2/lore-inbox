@@ -1,75 +1,190 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965147AbVJUURO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965146AbVJUUSA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965147AbVJUURO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 16:17:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965155AbVJUURO
+	id S965146AbVJUUSA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 16:18:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965156AbVJUUR7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 16:17:14 -0400
-Received: from p4-7036.uk2net.com ([213.232.95.37]:4239 "EHLO
-	churchillrandoms.co.uk") by vger.kernel.org with ESMTP
-	id S965147AbVJUURM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 16:17:12 -0400
-Message-ID: <43594CD6.3020308@churchillrandoms.co.uk>
-Date: Fri, 21 Oct 2005 13:17:26 -0700
-From: Stefan Jones <stefan.jones@churchillrandoms.co.uk>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051003)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [BUG][2.6.13.4] Memoryleak - idr_layer_cache slab - inotify?
-References: <43593240.9020806@churchillrandoms.co.uk>
-In-Reply-To: <43593240.9020806@churchillrandoms.co.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 21 Oct 2005 16:17:59 -0400
+Received: from mail.kroah.org ([69.55.234.183]:53453 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S965146AbVJUUR6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 16:17:58 -0400
+Date: Fri, 21 Oct 2005 13:17:25 -0700
+From: Greg KH <gregkh@suse.de>
+To: linux-usb-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: [RFC PATCH] USB: always export interface information for modalias
+Message-ID: <20051021201725.GA27921@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Jones wrote:
+Here's a patch that is needed for systems that rely on udev to only load
+the modules.  It seems that we were getting the modalias values wrong
+for some types of devices (I know it shows up for devices that use the
+cdc_acm driver).  This patch should fix this.
 
-Made a standalone testcase, run this and the kernel will eat up your
-memory (seen via slabtop):
+If anyone objects to this, or it doesn't work for them, please let me
+know.
 
-[ creates a inotify_dev, and a watch and exits ; repeat via fork ... ]
+thanks,
 
-Tracked it down me thinks:
+greg k-h
 
-struct inotify_device {
-...
-	struct idr		idr;		/* idr mapping wd -> watch */
-...
-}
 
-idr gets allocated each time inotify_init() is called:
+-----------
 
-asmlinkage long sys_inotify_init(void)
-{
-..
-idr_init(&dev->idr);
-..
-}
+From: Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [RFC PATCH] USB: always export interface information for modalias
 
-Looking in lib/idr.c you see:
+This fixes a problem with some cdc acm devices that were not getting
+automatically loaded as the module alias was not being reported
+properly.
 
-  * You can release ids at any time. When all ids are released, most of
-  * the memory is returned (we keep IDR_FREE_MAX) in a local pool so we
-  * don't need to go to the memory "store" during an id allocate, just
-  * so you don't need to be too concerned about locking and conflicts
-  * with the slab allocator.
+This check was for back in the days when we only reported hotplug events
+for the main usb device, not the interfaces.  We should always give the
+interface information for MODALIAS/modalias as it can be needed.
 
-So even if you free all ids which create_watch->inotify_dev_get_wd 
-creates you will still have menory in your struct idr.
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-So when
-static inline void put_inotify_dev(struct inotify_device *dev)
-{
-	if (atomic_dec_and_test(&dev->count)) {
-		atomic_dec(&dev->user->inotify_devs);
-		free_uid(dev->user);
-		kfree(dev);
-	}
-}
+---
+ drivers/usb/core/sysfs.c |   33 +++++++++---------------
+ drivers/usb/core/usb.c   |   63 +++++++++++++++++------------------------------
+ 2 files changed, 36 insertions(+), 60 deletions(-)
 
-is called I think this is whre the memory gets lost. ( linux/idr.h has 
-not free function I see )
-
-Stefan
+--- gregkh-2.6.orig/drivers/usb/core/sysfs.c
++++ gregkh-2.6/drivers/usb/core/sysfs.c
+@@ -462,30 +462,23 @@ static ssize_t show_modalias(struct devi
+ {
+ 	struct usb_interface *intf;
+ 	struct usb_device *udev;
+-	int len;
++	struct usb_host_interface *alt;
+ 
+ 	intf = to_usb_interface(dev);
+ 	udev = interface_to_usbdev(intf);
++	alt = intf->cur_altsetting;
+ 
+-	len = sprintf(buf, "usb:v%04Xp%04Xd%04Xdc%02Xdsc%02Xdp%02Xic",
+-			       le16_to_cpu(udev->descriptor.idVendor),
+-			       le16_to_cpu(udev->descriptor.idProduct),
+-			       le16_to_cpu(udev->descriptor.bcdDevice),
+-			       udev->descriptor.bDeviceClass,
+-			       udev->descriptor.bDeviceSubClass,
+-			       udev->descriptor.bDeviceProtocol);
+-	buf += len;
+-
+-	if (udev->descriptor.bDeviceClass == 0) {
+-		struct usb_host_interface *alt = intf->cur_altsetting;
+-
+-		return len + sprintf(buf, "%02Xisc%02Xip%02X\n",
+-			       alt->desc.bInterfaceClass,
+-			       alt->desc.bInterfaceSubClass,
+-			       alt->desc.bInterfaceProtocol);
+- 	} else {
+-		return len + sprintf(buf, "*isc*ip*\n");
+-	}
++	return sprintf(buf, "usb:v%04Xp%04Xd%04Xdc%02Xdsc%02Xdp%02X"
++			"ic%02Xisc%02Xip%02X\n",
++			le16_to_cpu(udev->descriptor.idVendor),
++			le16_to_cpu(udev->descriptor.idProduct),
++			le16_to_cpu(udev->descriptor.bcdDevice),
++			udev->descriptor.bDeviceClass,
++			udev->descriptor.bDeviceSubClass,
++			udev->descriptor.bDeviceProtocol,
++			alt->desc.bInterfaceClass,
++			alt->desc.bInterfaceSubClass,
++			alt->desc.bInterfaceProtocol);
+ }
+ static DEVICE_ATTR(modalias, S_IRUGO, show_modalias, NULL);
+ 
+--- gregkh-2.6.orig/drivers/usb/core/usb.c
++++ gregkh-2.6/drivers/usb/core/usb.c
+@@ -569,6 +569,7 @@ static int usb_hotplug (struct device *d
+ {
+ 	struct usb_interface *intf;
+ 	struct usb_device *usb_dev;
++	struct usb_host_interface *alt;
+ 	int i = 0;
+ 	int length = 0;
+ 
+@@ -585,7 +586,8 @@ static int usb_hotplug (struct device *d
+ 
+ 	intf = to_usb_interface(dev);
+ 	usb_dev = interface_to_usbdev (intf);
+-	
++	alt = intf->cur_altsetting;
++
+ 	if (usb_dev->devnum < 0) {
+ 		pr_debug ("usb %s: already deleted?\n", dev->bus_id);
+ 		return -ENODEV;
+@@ -627,46 +629,27 @@ static int usb_hotplug (struct device *d
+ 				usb_dev->descriptor.bDeviceProtocol))
+ 		return -ENOMEM;
+ 
+-	if (usb_dev->descriptor.bDeviceClass == 0) {
+-		struct usb_host_interface *alt = intf->cur_altsetting;
++	if (add_hotplug_env_var(envp, num_envp, &i,
++				buffer, buffer_size, &length,
++				"INTERFACE=%d/%d/%d",
++				alt->desc.bInterfaceClass,
++				alt->desc.bInterfaceSubClass,
++				alt->desc.bInterfaceProtocol))
++		return -ENOMEM;
+ 
+-		/* 2.4 only exposed interface zero.  in 2.5, hotplug
+-		 * agents are called for all interfaces, and can use
+-		 * $DEVPATH/bInterfaceNumber if necessary.
+-		 */
+-		if (add_hotplug_env_var(envp, num_envp, &i,
+-					buffer, buffer_size, &length,
+-					"INTERFACE=%d/%d/%d",
+-					alt->desc.bInterfaceClass,
+-					alt->desc.bInterfaceSubClass,
+-					alt->desc.bInterfaceProtocol))
+-			return -ENOMEM;
+-
+-		if (add_hotplug_env_var(envp, num_envp, &i,
+-					buffer, buffer_size, &length,
+-					"MODALIAS=usb:v%04Xp%04Xd%04Xdc%02Xdsc%02Xdp%02Xic%02Xisc%02Xip%02X",
+-					le16_to_cpu(usb_dev->descriptor.idVendor),
+-					le16_to_cpu(usb_dev->descriptor.idProduct),
+-					le16_to_cpu(usb_dev->descriptor.bcdDevice),
+-					usb_dev->descriptor.bDeviceClass,
+-					usb_dev->descriptor.bDeviceSubClass,
+-					usb_dev->descriptor.bDeviceProtocol,
+-					alt->desc.bInterfaceClass,
+-					alt->desc.bInterfaceSubClass,
+-					alt->desc.bInterfaceProtocol))
+-			return -ENOMEM;
+- 	} else {
+-		if (add_hotplug_env_var(envp, num_envp, &i,
+-					buffer, buffer_size, &length,
+-					"MODALIAS=usb:v%04Xp%04Xd%04Xdc%02Xdsc%02Xdp%02Xic*isc*ip*",
+-					le16_to_cpu(usb_dev->descriptor.idVendor),
+-					le16_to_cpu(usb_dev->descriptor.idProduct),
+-					le16_to_cpu(usb_dev->descriptor.bcdDevice),
+-					usb_dev->descriptor.bDeviceClass,
+-					usb_dev->descriptor.bDeviceSubClass,
+-					usb_dev->descriptor.bDeviceProtocol))
+-			return -ENOMEM;
+-	}
++	if (add_hotplug_env_var(envp, num_envp, &i,
++				buffer, buffer_size, &length,
++				"MODALIAS=usb:v%04Xp%04Xd%04Xdc%02Xdsc%02Xdp%02Xic%02Xisc%02Xip%02X",
++				le16_to_cpu(usb_dev->descriptor.idVendor),
++				le16_to_cpu(usb_dev->descriptor.idProduct),
++				le16_to_cpu(usb_dev->descriptor.bcdDevice),
++				usb_dev->descriptor.bDeviceClass,
++				usb_dev->descriptor.bDeviceSubClass,
++				usb_dev->descriptor.bDeviceProtocol,
++				alt->desc.bInterfaceClass,
++				alt->desc.bInterfaceSubClass,
++				alt->desc.bInterfaceProtocol))
++		return -ENOMEM;
+ 
+ 	envp[i] = NULL;
+ 

@@ -1,75 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965098AbVJUTLX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965104AbVJUTN0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965098AbVJUTLX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 15:11:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965101AbVJUTLX
+	id S965104AbVJUTN0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 15:13:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965103AbVJUTN0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 15:11:23 -0400
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:38785 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S965098AbVJUTLX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 15:11:23 -0400
-X-ORBL: [67.117.73.34]
-Date: Fri, 21 Oct 2005 22:10:34 +0300
-From: Tony Lindgren <tony@atomide.com>
-To: Deepak Saxena <dsaxena@plexity.net>
-Cc: Eric Piel <Eric.Piel@tremplin-utc.net>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 5/5] TI OMAP driver
-Message-ID: <20051021191032.GP20442@atomide.com>
-References: <20051019081906.615365000@omelas> <20051019091717.773678000@omelas> <435613B3.5060509@tremplin-utc.net> <20051019094439.GA12594@plexity.net> <20051021163553.GJ20442@atomide.com> <20051021180026.GN20442@atomide.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="6Nae48J/T25AfBN4"
-Content-Disposition: inline
-In-Reply-To: <20051021180026.GN20442@atomide.com>
-User-Agent: Mutt/1.5.9i
+	Fri, 21 Oct 2005 15:13:26 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:62610 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S965101AbVJUTNZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 15:13:25 -0400
+Message-ID: <43593DCE.1030603@adaptec.com>
+Date: Fri, 21 Oct 2005 15:13:18 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: andrew.patterson@hp.com, Christoph Hellwig <hch@lst.de>,
+       "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
+       linux-scsi@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached
+ PHYs)
+References: <91888D455306F94EBD4D168954A9457C048F0E34@nacos172.co.lsil.com>	 <20051020160155.GA14296@lst.de> <4357CB03.4020400@adaptec.com>	 <20051020170330.GA16458@lst.de>  <4357F7DE.7050004@adaptec.com> <1129852879.30258.137.camel@bluto.andrew> <43583A53.2090904@pobox.com> <435929FD.4070304@adaptec.com> <43593100.5040708@pobox.com> <43593884.7000800@adaptec.com> <4359395B.9030402@pobox.com>
+In-Reply-To: <4359395B.9030402@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Oct 2005 19:13:23.0111 (UTC) FILETIME=[816FFB70:01C5D673]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---6Nae48J/T25AfBN4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-* Tony Lindgren <tony@atomide.com> [051021 21:03]:
-> Hi,
+On 10/21/05 14:54, Jeff Garzik wrote:
+>>Thank you for spreading FUD -- I'm sure you've impressed your managament,
+>>how great of a Linux programmer you are and how I don't know anything.
+>>I'd suggest you keep pushing the politics _behind_ the scences.
 > 
-> * Tony Lindgren <tony@atomide.com> [051021 19:38]:
-> > 
-> > Cool, works on OMAP OSK after renaming the function above.
-> 
-> Looks like the following __iomem patch is needed for this to
-> work on OMAP H4.
-> 
-> At least these two compilers get confused without the following
-> patch:
-> 
-> arm-xscale-linux-gnu-gcc (GCC) 3.4.4
-> gcc version 3.4.3 (release) (CodeSourcery ARM Q1B 2005)
+> I'm trying to tell it like it is, in the hopes that you will eventually 
+> learn the process, and be a good upstream maintainer we can all work with.
 
-Here's one more patch on top of my previous patch. Now it's
-tested to work on 24xx too in addition to 16xx. The status
-bit did not work on 24xx earlier, and looks like the status
-bit is always ready on 16xx.
+You're again spreading FUD and playing this political game hoping
+your management is reading this and merely because of this they'll award you.
+I cannot blame you -- how many of them read C code or specs...  I mean, even
+"the community" has said "no" to specs.  All you're doing is just playing
+your political game, spreading FUD.
 
-Tony
+And what "process" are you talking about?  Do you have any idea the
+_amazement_ people get when learing that Linux is going to implement
+showing all phys on the domain in sysfs...?  Do you have any idea
+the effort in keeping customers happy when the whims of "the community"
+change on an a hourly basis (as the community is learning)?  Shall I give
+examples?
 
---6Nae48J/T25AfBN4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename=patch-omap-rng-24xx-works
+As to your reply above:
+Jeff, not so according to people I work with on a daily basis from all
+over the world.
 
---- a/drivers/char/rng/omap-rng.c
-+++ b/drivers/char/rng/omap-rng.c
-@@ -65,9 +65,10 @@
- 	__raw_writel(val, rng_base + reg);
- }
- 
-+/* REVISIT: Does the status bit really work on 16xx? */
- static int omap_rng_data_present(void)
- {
--	return omap_rng_read_reg(RNG_STAT_REG);
-+	return omap_rng_read_reg(RNG_STAT_REG) ? 0 : 1;
- }
- 
- static int omap_rng_data_read(u32 *data)
+When you said in your email:
 
---6Nae48J/T25AfBN4--
+On Oct 21, 2005, Jeff Garzik <jgarzik@pobox> wrote:
+>
+> We have plenty of specs.  It's called source code.
+
+That pretty much seals it.
+
+Have a nice day,
+	Luben
+-- 
+http://linux.adaptec.com/sas/
+http://www.adaptec.com/sas/

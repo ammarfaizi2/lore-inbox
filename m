@@ -1,71 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965164AbVJUUGA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965142AbVJUUQG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965164AbVJUUGA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 16:06:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965163AbVJUUGA
+	id S965142AbVJUUQG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 16:16:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965147AbVJUUQG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 16:06:00 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:30366 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S965158AbVJUUF7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 16:05:59 -0400
-Message-ID: <43594A1C.3090903@adaptec.com>
-Date: Fri, 21 Oct 2005 16:05:48 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
+	Fri, 21 Oct 2005 16:16:06 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:14480 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S965142AbVJUUQF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 16:16:05 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <43594BD3.9070103@s5r6.in-berlin.de>
+Date: Fri, 21 Oct 2005 22:13:07 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
 MIME-Version: 1.0
-To: Matthew Wilcox <matthew@wil.cx>
-CC: Jeff Garzik <jgarzik@pobox.com>, andrew.patterson@hp.com,
-       Christoph Hellwig <hch@lst.de>,
-       "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
-       linux-scsi@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached
- PHYs)
-References: <4357F7DE.7050004@adaptec.com> <1129852879.30258.137.camel@bluto.andrew> <43583A53.2090904@pobox.com> <435929FD.4070304@adaptec.com> <43593100.5040708@pobox.com> <43593884.7000800@adaptec.com> <4359395B.9030402@pobox.com> <43593FE1.7020506@adaptec.com> <20051021194105.GB3364@parisc-linux.org> <435945F4.3000005@adaptec.com> <20051021195457.GC3364@parisc-linux.org>
-In-Reply-To: <20051021195457.GC3364@parisc-linux.org>
-Content-Type: text/plain; charset=us-ascii
+To: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+CC: Jesse Barnes <jbarnes@virtuousgeek.org>, bcollins@debian.org,
+       Greg KH <greg@kroah.com>, scjody@steamballoon.com, gregkh@suse.de
+Subject: Re: new PCI quirk for Toshiba Satellite?
+References: <20051015185502.GA9940@plato.virtuousgeek.org> <20051020000614.GI18295@kroah.com> <4357E2D3.9090206@s5r6.in-berlin.de> <200510211138.57847.jbarnes@virtuousgeek.org>
+In-Reply-To: <200510211138.57847.jbarnes@virtuousgeek.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Oct 2005 20:05:52.0879 (UTC) FILETIME=[D6D86FF0:01C5D67A]
+X-Spam-Score: (-0.344) AWL,BAYES_40
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/21/05 15:54, Matthew Wilcox wrote:
-> 
-> No.  What was advertised was a SCSI BOF which you then took over and
+Jesse Barnes wrote:
+> Stefan, is a PCI quirk addition possible or do we have to use 
+> dmi_check_system in the ohci driver itself (since we have to reprogram 
+> the cache line size in addition to the other registers)?
 
-It was advertised as "SAS BOF" -- the person who wrote that on the message
-board (reading this list currently) can verify that.
+I am not familiar with the PCI subsystem, thus cannot advise how to 
+handle it best nor wanted to post a patch myself (yet).
 
-> spent the entire time talking about the Adaptec SAS driver.  You weren't
-> interested in discussing wider SCSI issues.  You weren't interested in
-> talking about how other vendors implemented SAS.  You weren't interested
-> in discussing how we could get the best possible SAS interface in Linux.
+[...]
+>>		.callback = ohci1394_toshiba_reprogram_config,
+>>		.ident = "Toshiba PSM4 based laptop",
+>>		.matches = {
+>>			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
+>>			DMI_MATCH(DMI_PRODUCT_VERSION, "PSM4"),
+>>		},
+>>		.driver_data = &tosh_data;
 
-I still am.  What everyone now wants is SDI. And as you can see I've posted
-several times _code_ and templates as to how to do a backend which would
-work as per spec and a front end which would be adjustable to the whims of
-"the community", sg/sysfs/whatever1/whatever2.
+It seems to me, using the .callback and .driver_data doesn't make it 
+cleaner and leaner.
 
-I think SDI will completely satisfy everyone's needs, independently of
-the fact whether the the protocol is hidden in the FW or not.
+> But then what about the dev->current_state = 4?  Is that necessary?
 
-In fact Fusion MPT is very cool: you only add a few PCI IDs and your
-hw works with the same driver!  And if you care about protocol
-specifics: use SDI.
+It is necessary; at least if the workaround resides in ohci1394. 
+Otherwise the controller won't come back after a suspend/ resume cycle. 
+(See Rob's post from February, 
+http://marc.theaimsgroup.com/?m=110786495210243 ) Maybe there is another 
+way to do that if the workaround was moved to pci/quirks.c.
 
-But the community wanted involvement so then you say: "No! Give us
-your hardware, we'll do it for you." and then you get into this
-never-ending goose chase, implementing the wrong thing, the wrong way,
-as opposed to _listening_ to what is actually wanted.
+[...]
+> +	if (toshiba) {
+> +		dev->current_state = 4;
+> +		pci_read_config_word(dev, PCI_CACHE_LINE_SIZE, &toshiba_data);
+> +	}
+> +
+>          if (pci_enable_device(dev))
+>  		FAIL(-ENXIO, "Failed to enable OHCI hardware");
+>          pci_set_master(dev);
+>  
+> +	if (toshiba) {
+> +		mdelay(10);
+> +		pci_write_config_word(dev, PCI_CACHE_LINE_SIZE, toshiba_data);
+[...]
 
-> You shut down other people when they tried to discuss these things.
-> It was a complete waste of time.
+pci_set_master(dev) can be moved below the second part of the Toshiba 
+workaround. That means AFAIU, the 2nd part of the Toshiba workaround can 
+be moved out of ohci1394 into pci_fixup_device() which is called from 
+pci_enable_device(), to be called as a DECLARE_PCI_FIXUP_ENABLE hook.
 
-Sorry you feel this way.  I don't remember you saying anything about
-SAS.
-	Luben
+The first part of the workaround, i.e. caching the cache line size, for 
+example by means of a static variable, would have to go into an 
+_FIXUP_EARLY, _FIXUP_HEADER, or _FIXUP_FINAL hook. I am not sure yet 
+about which type of hook to use.
+
+Furthermore, everything which belongs to the workaround should IMO be 
+enclosed by #ifdef SOME_SENSIBLE_MACRO. This avoids kernel bloat for any 
+target which is surely not a Toshiba laptop. Rob used an #if 
+defined(__i386__).
 -- 
-http://linux.adaptec.com/sas/
-http://www.adaptec.com/sas/
+Stefan Richter
+-=====-=-=-= =-=- =-=-=
+http://arcgraph.de/sr/

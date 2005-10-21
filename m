@@ -1,39 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965092AbVJUSvU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965082AbVJUSwh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965092AbVJUSvU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 14:51:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965086AbVJUSvT
+	id S965082AbVJUSwh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 14:52:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965086AbVJUSwh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 14:51:19 -0400
-Received: from 66.64.135.114.nw.nuvox.net ([66.64.135.114]:58502 "EHLO
-	service.eng.exegy.net") by vger.kernel.org with ESMTP
-	id S965082AbVJUSvS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 14:51:18 -0400
-Message-ID: <4359389E.6030406@exegy.com>
-Date: Fri, 21 Oct 2005 13:51:10 -0500
-From: "Mr. Berkley Shands" <bshands@exegy.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.4.1.centos4 (X11/20050721)
-X-Accept-Language: en-us, en
+	Fri, 21 Oct 2005 14:52:37 -0400
+Received: from xproxy.gmail.com ([66.249.82.201]:16840 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965084AbVJUSwh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 14:52:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=YbM2MRQegl+n3bavgnaqrKXz6SGfWuweGafjV/vq+X450sElgVAwsBgq9CvFLyvMhGACBJafcn8YTnbfb+gfBY8/ZJkGVGtuFN0JWJYpfZh0i0Z+w+fosPpEYYqX+MIxX/WkRfv76M1iy5+M4DYVewMjMZ/jzx3exmkvIJLf6ZA=
+Message-ID: <5bdc1c8b0510211152m592d95cfte57dc7e9b027f87a@mail.gmail.com>
+Date: Fri, 21 Oct 2005 11:52:36 -0700
+From: Mark Knecht <markknecht@gmail.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: 2.6.14-rc5-rt3 - `IRQ 8'[798] is being piggy
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1129920323.17709.2.camel@mindpipe>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.14-rc5 mlock/munlock bug
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Oct 2005 18:55:08.0296 (UTC) FILETIME=[F4E07880:01C5D670]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <5bdc1c8b0510211003j4e9bf03bhf1ea8e94ffe60153@mail.gmail.com>
+	 <5bdc1c8b0510211040s40f3f9bbj7f83e174d7b6d937@mail.gmail.com>
+	 <1129920323.17709.2.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've noticed that between 2.6.14-rc2 and 2.6.14-rc5 mlock() and 
-mlunlock() have broken.
+On 10/21/05, Lee Revell <rlrevell@joe-job.com> wrote:
+> On Fri, 2005-10-21 at 10:40 -0700, Mark Knecht wrote:
+> > On 10/21/05, Mark Knecht <markknecht@gmail.com> wrote:
+> > > Hi,
+> > >    Maybe I'm catching something here? Maybe not - no xruns as of yet,
+> > > but I've never seen these messages before. Kernel config attached.
+> > >
+> > >    dmesg has filled up with these messages:
+> > >
+>
+> This isn't a real problem.  You enabled CONFIG_RTC_HISTOGRAM.  Don't do
+> that.
+>
+> Lee
 
-a call to mlock() to lock pages is granted, and the pages are locked, 
-but never
-unlocked, even when munlock() is manually called or at process rundown.
-No problems under 2.6.13 or up to 2.6.14-rc2. But sometime after -rc2 it 
-goes BANG
-and the machine gets very unhappy. If you look at "swapon -s" you see 
-more and more swap
-space is used until there is no physical memory left, then things really 
-get unhappy.
 
-berkley
+Right, but the 'piggy' messages are a real prblem, aren't they?
+
+Thanks,
+Mark

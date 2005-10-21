@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964952AbVJUNtu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964956AbVJUOCo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964952AbVJUNtu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 09:49:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbVJUNtu
+	id S964956AbVJUOCo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 10:02:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964957AbVJUOCo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 09:49:50 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:25279
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S964952AbVJUNtt
+	Fri, 21 Oct 2005 10:02:44 -0400
+Received: from zproxy.gmail.com ([64.233.162.205]:56824 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964956AbVJUOCn convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 09:49:49 -0400
-Subject: Re: False positive (well not really) on RT backward clock check
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0510210942180.3903@localhost.localdomain>
-References: <Pine.LNX.4.58.0510210942180.3903@localhost.localdomain>
-Content-Type: text/plain
-Organization: linutronix
-Date: Fri, 21 Oct 2005 15:52:21 +0200
-Message-Id: <1129902741.15748.4.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Fri, 21 Oct 2005 10:02:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=jzwP9ZOTRuWiu7Y4ympb+3OSJpuI1XvcfwSofMxXliq6tNCMMKLBsVcjuUGeG+oOxV+L0eI/ezhHSgY0OmhZ0oOXzhOL25ztETe0Yhet1loAAtbF1XagO8tR+IKVxRrvlLXeH+Yvl5ksQxlvW05Muaw4/MMKBCBpTXN+DPwkqRU=
+Message-ID: <cda58cb80510210702g3b0c0bdbk@mail.gmail.com>
+Date: Fri, 21 Oct 2005 16:02:40 +0200
+From: Franck <vagabon.xyz@gmail.com>
+To: linux-usb-devel@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>
+Subject: kernel is overwhelmed by usb hcd's interrupts
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-10-21 at 09:45 -0400, Steven Rostedt wrote:
-> Ingo,
-> 
-> Just want to let you know that I got the warning of the clock going
-> backwards on boot up.  But it happened right after I got this message.
-> 
-> Ktimers: Switched to high resolution mode CPU 0
-> 
-> So I'm assuming that the clock can go backwards by the switch to high res
-> timers.
+Hi,
 
-Can you provide the boot messages up to the switch please ? It's more
-likely that this is the switch of the clocksource from jiffies to TSC.
-The ktimers high res switch is done in this context.
+I've written an usb driver for linux for a specific usb host
+controler. Basicaly the hw generates an interrupt every 1 ms (every
+start of frame) and during transfers interrupts can be generated every
+30 us ! My cpu is a MIPS one running at 96Mhz and HZ is 100.
 
-	tglx
+After transfering 20M bytes of data through USB, the kernel loops for
+a while in timer interrupt handler. It actually loops in update_times
+with tick (jiffies - wall_jiffies) value equals to 3707637046 ! I
+guess that the kernel have lost a lot of timer ticks...However
+interrupts are enable inside usb driver, I don't see how the kernel
+can lost so many ticks.
 
+Could anyone give me some advices for that ?
 
+Thanks
+--
+               Franck

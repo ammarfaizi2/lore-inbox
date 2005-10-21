@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964950AbVJUOAB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964955AbVJUOAk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964950AbVJUOAB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 10:00:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbVJUOAB
+	id S964955AbVJUOAk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 10:00:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964957AbVJUOAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 10:00:01 -0400
-Received: from www.swissdisk.com ([216.144.233.50]:62106 "EHLO
-	swissweb.swissdisk.com") by vger.kernel.org with ESMTP
-	id S964950AbVJUOAB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 10:00:01 -0400
-Date: Fri, 21 Oct 2005 05:52:27 -0700
-From: Ben Collins <bcollins@debian.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: sebastien.bouchard@ca.kontron.com, mark.gross@intel.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cleanup printk and a 32/64bitism
-Message-ID: <20051021125227.GC21649@swissdisk.com>
-References: <1129901178.26367.37.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 21 Oct 2005 10:00:40 -0400
+Received: from mail.linicks.net ([217.204.244.146]:60934 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S964955AbVJUOAj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 10:00:39 -0400
+From: Nick Warne <nick@linicks.net>
+To: Yitzchak Eidus <ieidus@gmail.com>
+Subject: Re: question about code from the linux kernel development ( se )  book
+Date: Fri, 21 Oct 2005 15:00:27 +0100
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1129901178.26367.37.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200510211500.28100.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  	ret = misc_register(&tlclk_miscdev);
->  	if (ret < 0) {
-> -		printk(KERN_ERR " misc_register retruns %d\n", ret);
-> +		printk(KERN_ERR "tlclk: misc_register returns %d.\n", ret);
->  		ret = -EBUSY;
->  		goto out3;
->  	}
+Steven Rostedt wrote:
 
-Since you're getting nitpicky with this patch, then hopefully this
-correction is ok :)
+>> ( thnks for the help , please if it can be done answer quickly i am
+>> tanker in the idf and need to come back to the army soon , ( no
+>> internet there... ) )
+> 
+> BTW, this is not an IRC, we use normal capitalization and normal spelling
+> (when we know how to spell a word ;-).  So the next time you send to the
+> list, send it as if you were writing a serious letter, or you may just be
+> ignored. (as you might have been if I didn't respond).
 
-	printk(KERN_ERR "tlclk: misc_register returned %d.\n", ret);
-						    ^^
+Well, I am a real newbie to Linux coding, but I think the guy tried to do 
+right (irc sent him here) - maybe I am not used to the terseness of Kernel 
+hackers in their replies sometimes.
 
+
+Yitzchak: I have the book - by Robert Love.  I see the same code (page 53), 
+but, alas I haven't a clue...
+
+My advice is drop a mail to Robert about it - he _is_ the author, and I am 
+sure he will answer your query.
+
+Nick
 -- 
-Ubuntu     - http://www.ubuntu.com/
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-SwissDisk  - http://www.swissdisk.com/
+http://sourceforge.net/projects/quake2plus
+
+"Person who say it cannot be done should not interrupt person doing it."
+-Chinese Proverb
+

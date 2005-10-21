@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932557AbVJUAB2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbVJUARd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932557AbVJUAB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Oct 2005 20:01:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932558AbVJUAB2
+	id S964811AbVJUARd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Oct 2005 20:17:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932561AbVJUARd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Oct 2005 20:01:28 -0400
-Received: from zproxy.gmail.com ([64.233.162.193]:34678 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932557AbVJUAB2 (ORCPT
+	Thu, 20 Oct 2005 20:17:33 -0400
+Received: from zproxy.gmail.com ([64.233.162.197]:2296 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932560AbVJUARd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Oct 2005 20:01:28 -0400
+	Thu, 20 Oct 2005 20:17:33 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=JhE9rsglBU2e6IBaJd2H3T4iSpRixfqZtPJbuXrtBgmx7xQru30YA7tJwM53EJX3NdOe4IqmIISiKXyZ1cdQB7ubx5jzmTvqYegkVH68cj58OA953O50QYtEBdQm720CmrWCIDDEaVzHcGGavk6ajaG5xefAwOwYNKN5VZReW/s=
-Message-ID: <43582FBF.1070406@gmail.com>
-Date: Fri, 21 Oct 2005 08:01:03 +0800
+        b=WDMegB1i6ssj/220yH9wn36RAPLNyxuZiF/8ip6XzQQs/Hb1CARMej7gHw4iOftaXStz73CBJfHYXv1abwN/VG/wubvO+sBqxeLgiHYXoix928CwvxtIpmaFEMTXBDWuqZeJdPbvpkOpgevbKM3iOR+NIB3Pct9qZQy7PFjqCEw=
+Message-ID: <43583386.6070400@gmail.com>
+Date: Fri, 21 Oct 2005 08:17:10 +0800
 From: "Antonino A. Daplas" <adaplas@gmail.com>
 User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Pozsar Balazs <pozsy@uhulinux.hu>
-CC: linux-kernel@vger.kernel.org
+To: 7eggert@gmx.de
+CC: Pozsar Balazs <pozsy@uhulinux.hu>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] fix vgacon blanking
-References: <20051020161311.GA30041@ojjektum.uhulinux.hu>
-In-Reply-To: <20051020161311.GA30041@ojjektum.uhulinux.hu>
+References: <4ZLja-4gH-5@gated-at.bofh.it> <E1EShsL-0000tJ-Fr@be1.lrz>
+In-Reply-To: <E1EShsL-0000tJ-Fr@be1.lrz>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pozsar Balazs wrote:
-> Hi all,
+Bodo Eggert wrote:
+> Pozsar Balazs <pozsy@uhulinux.hu> wrote:
 > 
-> This patch fixes a long-standing vgacon bug: characters with the bright 
-> bit set were left on the screen and not blacked out.
-
-I cannot reproduce the bug though, so this bug probably depends on the
-chipset implementation of VGA. Everything works perfectly whatever value
-is written to 0x3c6, so this register is either ignored or hardwired to
-0xff.
-
-> All I did was that I lookuped up some examples on the net about setting 
-> the vga palette, and added the call missing from the linux kernel, but 
-> included in all other ones. It works for me.
+>> This patch fixes a long-standing vgacon bug: characters with the bright
+>> bit set were left on the screen and not blacked out.
+>> All I did was that I lookuped up some examples on the net about setting
+>> the vga palette, and added the call missing from the linux kernel, but
+>> included in all other ones. It works for me.
 > 
-> You can test this by writing something with the bright set to the 
-> console, for example:
->   echo -e "\e[1;31mhello there\e[0m"
-> and then wait for the console to blank itself (by default, after 10 mins 
-> of inactivity), maybe making it faster using
->   setterm -blank 1
-> so you only have to wait 1 minute.
+> This is strange, since according to my documentation, the value should have
+> been initialized to 0xff and never been changed. Can you test setting this
+> value during initialisation (around line 259, if I read correctly) instead?
+> I don't know if I can test it myself soon enough.
 
-The patch is obviously correct, and makes vgacon safe from rogue apps
-that sets the the palette mask register to a different value.
+Actually, I don't see the palette mask (0x3c6) set anywhere in vgacon. The code
+in line 259 sets the first 16 entries of the internal palette (0x3c0: 0x0-0xf)
+so it points to the first 16 entries of the DAC.
 
-> 
-> 
-> Signed-off-by: Pozsar Balazs <pozsy@uhulinux.hu>
-Acked-by: Antonino Daplas <adaplas@pol.net>
-
+Tony

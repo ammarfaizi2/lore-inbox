@@ -1,43 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965013AbVJUQKu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965009AbVJUQKW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965013AbVJUQKu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 12:10:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbVJUQKu
+	id S965009AbVJUQKW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 12:10:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965013AbVJUQKW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 12:10:50 -0400
-Received: from tardis.csc.ncsu.edu ([152.14.51.184]:20160 "EHLO
-	tardis.csc.ncsu.edu") by vger.kernel.org with ESMTP id S965013AbVJUQKt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 12:10:49 -0400
-Message-ID: <43591307.5050507@csc.ncsu.edu>
-Date: Fri, 21 Oct 2005 12:10:47 -0400
-From: "Vincent W. Freeh" <vin@csc.ncsu.edu>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Fri, 21 Oct 2005 12:10:22 -0400
+Received: from amdext4.amd.com ([163.181.251.6]:6623 "EHLO amdext4.amd.com")
+	by vger.kernel.org with ESMTP id S965009AbVJUQKV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 12:10:21 -0400
+X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
+From: "Ray Bryant" <raybry@mpdtxmail.amd.com>
+To: "Christoph Lameter" <clameter@engr.sgi.com>
+Subject: Re: [PATCH 4/4] Swap migration V3: sys_migrate_pages interface
+Date: Fri, 21 Oct 2005 11:18:09 -0500
+User-Agent: KMail/1.8
+cc: "Paul Jackson" <pj@sgi.com>,
+       "KAMEZAWA Hiroyuki" <kamezawa.hiroyu@jp.fujitsu.com>,
+       Simon.Derr@bull.net, akpm@osdl.org, kravetz@us.ibm.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, magnus.damm@gmail.com,
+       marcelo.tosatti@cyclades.com
+References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com>
+ <20051021081553.50716b97.pj@sgi.com>
+ <Pine.LNX.4.62.0510210845140.23212@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0510210845140.23212@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Understanding Linux addr space, malloc, and heap
-References: <4358F0E3.6050405@csc.ncsu.edu> <1129903396.2786.19.camel@laptopd505.fenrus.org> <4359051C.2070401@csc.ncsu.edu> <1129908179.2786.23.camel@laptopd505.fenrus.org> <43590B23.2090101@csc.ncsu.edu> <C6F7B216-66B3-4848-9423-05AB4D826320@mac.com>
-In-Reply-To: <C6F7B216-66B3-4848-9423-05AB4D826320@mac.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Message-ID: <200510211118.10886.raybry@mpdtxmail.amd.com>
+X-WSS-ID: 6F47CD4A35K1420950-01-01
+Content-Type: text/plain;
+ charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First, thanks for all the help and attention.  I am learning much.
+On Friday 21 October 2005 10:47, Christoph Lameter wrote:
+> On Fri, 21 Oct 2005, Paul Jackson wrote:
+> >  * Christoph - what is the permissions check on sys_migrate_pages()?
+> >    It would seem inappropriate for 'guest' to be able to move the
+> >    memory of 'root'.
+>
+> The check is missing.
+>
 
-I think the focus of this discussion should be on mprotect.  I 
-understand that spec says it only works on mmap'd memory.  So does 
-malloc use mmap?  If not why does it work at all?
+That code used to be there.    Basically the check was that if you could 
+legally send a signal to the process, you could migrate its memory.
+Go back and look and my patches for this.
 
-Probably the most problematic issue, tho, is why does mprotect return 0 
-even though it failed to change permissions on the 66th page?
+Why was this dropped, arbitrarily?
 
-Kyle Moffett wrote:
-> On Oct 21, 2005, at 11:37:07, Vincent W. Freeh wrote:
-> You *cannot* reliably expect to mprotect() the results of malloc().   If 
-> you want to mprotect() things, you _must_ do it on mmap()ed memory.
-> 
-> Cheers,
-> Kyle Moffett
-> 
+> Maybe we could add:
+>
+>  if (!capable(CAP_SYS_RESOURCE))
+>                 return -EPERM;
+>
+> Then we may also decide that root can move any process anywhere and drop
+> the retrieval of the mems_allowed from the other task.
+>
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-mm' in
+> the body to majordomo@kvack.org.  For more info on Linux MM,
+> see: http://www.linux-mm.org/ .
+> Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>
+
+-- 
+Ray Bryant
+AMD Performance Labs                   Austin, Tx
+512-602-0038 (o)                 512-507-7807 (c)
+

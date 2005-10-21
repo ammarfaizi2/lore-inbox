@@ -1,79 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965047AbVJURs7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965045AbVJUR5f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965047AbVJURs7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 13:48:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965045AbVJURs7
+	id S965045AbVJUR5f (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 13:57:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965046AbVJUR5f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 13:48:59 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:7402 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S965044AbVJURs6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 13:48:58 -0400
-Message-ID: <435929FD.4070304@adaptec.com>
-Date: Fri, 21 Oct 2005 13:48:45 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: andrew.patterson@hp.com, Christoph Hellwig <hch@lst.de>,
-       "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
-       linux-scsi@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached
- PHYs)
-References: <91888D455306F94EBD4D168954A9457C048F0E34@nacos172.co.lsil.com>	 <20051020160155.GA14296@lst.de> <4357CB03.4020400@adaptec.com>	 <20051020170330.GA16458@lst.de>  <4357F7DE.7050004@adaptec.com> <1129852879.30258.137.camel@bluto.andrew> <43583A53.2090904@pobox.com>
-In-Reply-To: <43583A53.2090904@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Oct 2005 17:48:50.0044 (UTC) FILETIME=[B1A763C0:01C5D667]
+	Fri, 21 Oct 2005 13:57:35 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:40078 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965045AbVJUR5e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 13:57:34 -0400
+Date: Fri, 21 Oct 2005 18:57:30 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Zach Brown <zach.brown@oracle.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       hch@infradead.org, Andreas Dilger <adilger@clusterfs.com>
+Subject: Re: [RFC] page lock ordering and OCFS2
+Message-ID: <20051021175730.GD22372@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Zach Brown <zach.brown@oracle.com>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>,
+	Andreas Dilger <adilger@clusterfs.com>
+References: <20051017222051.GA26414@tetsuo.zabbo.net> <20051017161744.7df90a67.akpm@osdl.org> <43544499.5010601@oracle.com> <435928BC.5000509@oracle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <435928BC.5000509@oracle.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/20/05 20:46, Jeff Garzik wrote:
-> Consider what an ioctl is, overall:  a domain-specific "do this 
-> operation" interface.  Which, further, is nothing but a wrapping of a 
-> "send message" + "receive response" interface.  There are several ways 
-> to do this in Linux:
-> 
-> * block driver.  a block driver is nothing but a message queue.  This is 
+On Fri, Oct 21, 2005 at 10:43:24AM -0700, Zach Brown wrote:
+> It introduces block_read_full_page() and truncate_inode_pages() derivatives
+> which understand the PG_fs_misc special case.  It needs a few export patches to
+> the core, but the real burden is on OCFS2 to keep these derivatives up to date.
 
-Not quite.  This maybe the way it operates, but it is called "block"
-for a reason.
+The way you do it looks nice, but the exports aren't a big no-way.  That
+stuff is far too internal to be exported.  Either we can get Andrew to
+agree on moving those bits into the codepath for all filesystems or
+we need to do some hackery where every functions gets renamed to __function
+with an argument int cluster_aware and we have to functions inling them,
+one normal and one for cluster filesystems.
 
-> why James has suggested implementing SMP as a block driver.  People get 
-> stuck into thinking "block driver == block device", which is wrong.  The 
-> Linux block layer is nothing but a message queueing interface.
-
-Now, just because James suggested implementing the SMP service as a block
-device you think this is the right thing to do?
-
-How about this: Why not as a char device?
-
-At least MS isn't suffering from the "no to specs" syndrome which
-the Linux community seems to be suffering...
-
-SMP as a Block device????
-
-You need to see the history of SMP and its intended use.
-
-> * netlink.  You connect to <an object> and send/receive messages.  Not 
-> strictly limited to networking, as this is used in some areas of the 
-> kernel now for generic event delivery.
-
-This is very similar to the binary attr file "smp_portal" in
-drivers/scsi/sas/sas_expander.c, bottom of file.
-
-> * char driver.  Poor man's netlink.  Unless its done right, it suffers 
-> from the same binary problems as ioctls.  I don't recommend this path.
-> 
-> * sysfs.  This has no inherent message/queue properties by itself, and 
-> is less structured than blockdrvr or netlink, so dealing with more than 
-> one outstanding operation at a time requires some coding.
-
-Exactly! SMP. (binary attr file)
-
-	Luben
--- 
-http://linux.adaptec.com/sas/
-http://www.adaptec.com/sas/

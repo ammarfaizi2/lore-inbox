@@ -1,118 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964957AbVJUOT3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964961AbVJUOlG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964957AbVJUOT3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 10:19:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964960AbVJUOT3
+	id S964961AbVJUOlG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 10:41:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964962AbVJUOlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 10:19:29 -0400
-Received: from fmr20.intel.com ([134.134.136.19]:17849 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S964957AbVJUOT2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 10:19:28 -0400
-From: Mark Gross <mgross@linux.intel.com>
-Organization: Intel
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: PATCH: cleanup printk and a 32/64bitism
-Date: Fri, 21 Oct 2005 07:16:26 -0700
-User-Agent: KMail/1.7.1
-Cc: sebastien.bouchard@ca.kontron.com, mark.gross@intel.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-References: <1129901178.26367.37.camel@localhost.localdomain>
-In-Reply-To: <1129901178.26367.37.camel@localhost.localdomain>
+	Fri, 21 Oct 2005 10:41:06 -0400
+Received: from xproxy.gmail.com ([66.249.82.193]:24888 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964961AbVJUOlF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 10:41:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=dum1ubhHq4xEX5dPibgZgzRzCqqdi31v3vUFrQOPkXy8OCK7mIYJIcRRWKzEEvlfpKeNBBUQYwfQyQaIXiGfhU5g2AoB0iWpEJd+c3lIQWU+S1PsdU6ETR2tpyAs09fbbJ38cUIeVxJMfDxkR2SIzT+Vc+rwJh1p+5cZ0hL2W14=
+Message-ID: <e7aeb7c60510210741r44292294yaa2ab0998dbde6cc@mail.gmail.com>
+Date: Fri, 21 Oct 2005 16:41:04 +0200
+From: Yitzchak Eidus <ieidus@gmail.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: question about code from the linux kernel development ( se ) book
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0510210848030.3903@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200510210716.26133.mgross@linux.intel.com>
+References: <e7aeb7c60510210422s33c0240ex4eab1d90d94111fe@mail.gmail.com>
+	 <Pine.LNX.4.58.0510210848030.3903@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 October 2005 06:26, Alan Cox wrote:
-> Not sure if this board can exist with a 64bit CPU but if not then
-> Kconfig wants fixing too.
-> 
-> - Fix various chaotic printks
-> - Remove the exclamation marks from every printk (!!!) 
-> - Fix the 64/32bit pointer cast by removing the printing in question.
-> The value is always NULL on that path anyway.
-> 
-> Signed-off-by: Alan Cox <alan@redhat.com>
-> 
-> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc4-mm1/drivers/char/tlclk.c linux-2.6.14-rc4-mm1/drivers/char/tlclk.c
-> --- linux.vanilla-2.6.14-rc4-mm1/drivers/char/tlclk.c 2005-10-20 16:12:39.000000000 +0100
-> +++ linux-2.6.14-rc4-mm1/drivers/char/tlclk.c 2005-10-20 17:44:53.000000000 +0100
-> @@ -210,7 +210,7 @@
->   result = request_irq(telclk_interrupt, &tlclk_interrupt,
->          SA_INTERRUPT, "telco_clock", tlclk_interrupt);
->   if (result == -EBUSY) {
-> -  printk(KERN_ERR "telco_clock: Interrupt can't be reserved!\n");
-> +  printk(KERN_ERR "telco_clock: Interrupt can't be reserved.\n");
->    return -EBUSY;
->   }
->   inb(TLCLK_REG6); /* Clear interrupt events */
-> @@ -740,7 +740,7 @@
->  
->   ret = register_chrdev(tlclk_major, "telco_clock", &tlclk_fops);
->   if (ret < 0) {
-> -  printk(KERN_ERR "telco_clock: can't get major! %d\n", tlclk_major);
-> +  printk(KERN_ERR "tlclk: can't get major %d.\n", tlclk_major);
->    return ret;
->   }
->   alarm_events = kzalloc( sizeof(struct tlclk_alarms), GFP_KERNEL);
-> @@ -749,7 +749,7 @@
->  
->   /* Read telecom clock IRQ number (Set by BIOS) */
->   if (!request_region(TLCLK_BASE, 8, "telco_clock")) {
-> -  printk(KERN_ERR "tlclk: request_region failed! 0x%X\n",
-> +  printk(KERN_ERR "tlclk: request_region 0x%X failed.\n",
->     TLCLK_BASE);
->    ret = -EBUSY;
->    goto out2;
-> @@ -757,7 +757,7 @@
->   telclk_interrupt = (inb(TLCLK_REG7) & 0x0f);
->  
->   if (0x0F == telclk_interrupt ) { /* not MCPBL0010 ? */
-> -  printk(KERN_ERR "telclk_interrup = 0x%x non-mcpbl0010 hw\n",
-> +  printk(KERN_ERR "telclk_interrup = 0x%x non-mcpbl0010 hw.\n",
->     telclk_interrupt);
->    ret = -ENXIO;
->    goto out3;
-> @@ -767,7 +767,7 @@
->  
->   ret = misc_register(&tlclk_miscdev);
->   if (ret < 0) {
-> -  printk(KERN_ERR " misc_register retruns %d\n", ret);
-> +  printk(KERN_ERR "tlclk: misc_register returns %d.\n", ret);
->    ret = -EBUSY;
->    goto out3;
->   }
-> @@ -775,8 +775,7 @@
->   tlclk_device = platform_device_register_simple("telco_clock",
->      -1, NULL, 0);
->   if (!tlclk_device) {
-> -  printk(KERN_ERR " platform_device_register retruns 0x%X\n",
-> -   (unsigned int) tlclk_device);
-> +  printk(KERN_ERR "tlclk: platform_device_register failed.\n");
->    ret = -EBUSY;
->    goto out4;
->   }
-> @@ -784,7 +783,7 @@
->   ret = sysfs_create_group(&tlclk_device->dev.kobj,
->     &tlclk_attribute_group);
->   if (ret) {
-> -  printk(KERN_ERR "failed to create sysfs device attributes\n");
-> +  printk(KERN_ERR "tlclk: failed to create sysfs device attributes.\n");
->    sysfs_remove_group(&tlclk_device->dev.kobj,
->     &tlclk_attribute_group);
->    goto out5;
-> 
+First Steve I want to thanks you for answering me
+your answered all the questions that i had
+I can understand your complains , and i will try to make it better
+next time ( i almost never used mailing lists... , so sorry about the
+white space striping , and the spelling... )
 
-Thanks, These are all good changes.  I'm putting this into my code this AM.
+Jesper - yes it was a typo
 
-This driver does need to work on x86_64 as well as i368.  Thanks again.
+Nick - thanks :)
 
-thanks again.
--- 
---mgross
-Intel Open Source Technology Center
+On 10/21/05, Steven Rostedt <rostedt@goodmis.org> wrote:
+>
+> Oh God, please indent code examples, and if your email client strips white
+> space, change your email client.
+>
+> On Fri, 21 Oct 2005, Yitzchak Eidus wrote:
+>
+> > first i am very sorry if it isnt the place to ask questions like this
+> > but i didnt know where else to ask ( i tryed irc channels and i was
+> > send from there to this list )
+> > anyway:
+> > does this following code look buggy? :
+>
+> [ Indention added ]
+>
+> > DECLARE_WAITQUEUE ( wait , current );
+> > add_wait_queue ( q , &wait );
+> > while ( !condition ) {
+> >         set_current_stat ( TASK_INTERRUPTABLE ); i
+> >         if ( signal_pending ( current ) )
+> >                 /* handle signal */
+>
+> I assume that the signal_pending is the if result and not the schedule.
+> Since there was no indentation I couldn't tell.
+>
+> >         schedule ( );
+> /* Moved brace down added */
+>  }
+> > set_current_state ( TASK_RUNNING );
+> > remove_wait_queue ( q , &wait );
+>
+> Before I go to your questions, I'll first answer that this _is_ buggy
+> code.  If the condition is checked and you are woken up between the
+> while (!condition) and the set_current_state, then you will end up
+> sleeping forever or until someone sends you a signal.
+>
+> > first:doesnt in the way from checking the !condition to
+> > set_current_state  the condition can be changed no?
+>
+> Yes, and then put it again after schedule.
+>
+> >
+> > second:why not putting the schedule ( ); right after the
+> > set_current_state ( ) , what the point in checking the if (
+> > signal_pending ( ) first, if the proccess doesnt started to sleep yet?
+>
+> Yes, I would put the signal_pending check after the schedule (as most of
+> the kernel does this).
+>
+> > third: in the cleaning in the way from putting the set_current_state (
+> > TASK_RUNNING ) into remove_wait_queue , cant the queue wait list ( q )
+> > wake up again the wait procsess?
+>
+> Yeah, so?  There's no harm in that, except for an extra cpu cycles that
+> are done to wake it up.  That, I wouldn't change.
+>
+> > ( thnks for the help , please if it can be done answer quickly i am
+> > tanker in the idf and need to come back to the army soon , ( no
+> > internet there... ) )
+>
+> BTW, this is not an IRC, we use normal capitalization and normal spelling
+> (when we know how to spell a word ;-).  So the next time you send to the
+> list, send it as if you were writing a serious letter, or you may just be
+> ignored. (as you might have been if I didn't respond).
+>
+> -- Steve
+>

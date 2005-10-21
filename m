@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965012AbVJUQOW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965018AbVJUQQQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965012AbVJUQOW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 12:14:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965016AbVJUQOW
+	id S965018AbVJUQQQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 12:16:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbVJUQQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 12:14:22 -0400
-Received: from mx1.suse.de ([195.135.220.2]:29417 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S965012AbVJUQOW (ORCPT
+	Fri, 21 Oct 2005 12:16:16 -0400
+Received: from 10.ctyme.com ([69.50.231.10]:41108 "EHLO newton.ctyme.com")
+	by vger.kernel.org with ESMTP id S965016AbVJUQQP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 12:14:22 -0400
-From: Andreas Schwab <schwab@suse.de>
-To: "Vincent W. Freeh" <vin@csc.ncsu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Understanding Linux addr space, malloc, and heap
-References: <4358F0E3.6050405@csc.ncsu.edu>
-	<1129903396.2786.19.camel@laptopd505.fenrus.org>
-	<4359051C.2070401@csc.ncsu.edu>
-	<1129908179.2786.23.camel@laptopd505.fenrus.org>
-	<43590B23.2090101@csc.ncsu.edu>
-X-Yow: In order to make PLANS for the WEEKEND...so that we can read RESTAURANT
- REVIEWS and decide to GO to that restaurant & then NEVER GO...so we can
- meet a FRIEND after work in a BAR and COMPLAIN about Interior Sect'y
- JAMES WATT until the SUBJECT is changed to NUCLEAR BLACKMAIL...and so
- our RELATIVES can FORCE us to listen to HOCKEY STATISTICS while we
- wait for them to LEAVE on the 7:48....
-Date: Fri, 21 Oct 2005 18:14:18 +0200
-In-Reply-To: <43590B23.2090101@csc.ncsu.edu> (Vincent W. Freeh's message of
-	"Fri, 21 Oct 2005 11:37:07 -0400")
-Message-ID: <je64rqlued.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
+	Fri, 21 Oct 2005 12:16:15 -0400
+Message-ID: <4359144F.8090504@perkel.com>
+Date: Fri, 21 Oct 2005 09:16:15 -0700
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Vladimir Lazarenko <vlad@lazarenko.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: sata_nv + SMP = broken?
+References: <4358C417.9000608@lazarenko.net>
+In-Reply-To: <4358C417.9000608@lazarenko.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spamfilter-host: newton.ctyme.com - http://www.junkemailfilter.com"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Vincent W. Freeh" <vin@csc.ncsu.edu> writes:
 
-> The point of the code is to show that one can protect malloc code.
 
-You "can" do many things.  But that does not mean that you always get any
-sensible behaviour.
+Vladimir Lazarenko wrote:
 
-Andreas.
+> Hello,
+>
+> Yesterday I've tried launching various kernels on Ahtlon64 Dual-core 
+> X2 3800+ with MSI Neo4 Platinum SLI motherboard.
+>
+> The results were a total catastrophica failure. As soon as I enable 
+> SMP in the kernel, the sata driver would randomly hang after a bit of 
+> disk activity.
+>
+> Whenever apic is enabled, the system won't even be able to boot up 
+> completely, and will hang VERY soon. Whenever I disable apic, the 
+> system is able to bootup, but when the software mirror that I use will 
+> try to resync for 2-3-10 mins, it will throw up a message and freeze 
+> again.
+>
+> Whenever I disable apic AND lapic, the system is able to bootup AND 
+> work, however after same 5-10 minutes it start spitting messages, 
+> which are somewhat different thou and don't hang the system completely 
+> but render it rather unusable anyway.
+>
+> As soon as I disable SMP - everything works like a charm.
+>
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+For what it's worth I too have seen this same problem. It happens when I 
+use the stock Fedora kernels but not my custom compiled kernel. I'm not 
+sure what I compiled differently but at the time I thought that 
+something in the new kernel fixed it.
+
+I too am running an Athlon X2 using sata_nv. I have an ASUS motherboard. 
+But what I noticed was that the problem went away if I used 2 gigs of 
+ram instead of 4 gigs. When you use the whole 4 gigs there is some 
+memory mapping going on and I thought perhaps the problem was related to 
+the sata_nv not liking the memory mapped over the 4gig barrier. I did 
+not try disabling SMP.
+

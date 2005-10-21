@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964914AbVJUNNe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964942AbVJUN2T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964914AbVJUNNe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 09:13:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964941AbVJUNNe
+	id S964942AbVJUN2T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 09:28:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964944AbVJUN2S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 09:13:34 -0400
-Received: from qproxy.gmail.com ([72.14.204.205]:1407 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964914AbVJUNNd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 09:13:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=c7emyYgqZUTmii3nyfRFN6nTZsMwaTkL+u2MYm2NkH4khebuOTBk7eLxx2D54J8GTNJG/+8WJY30+sSnUGuwhV+mRx8RBWC5gjvVXqSqnb9DsSXmZwDe0GSi2PFNkSA1vn+zlWp/lcAt1XH5WJpQZqNrUgluZCoDdzQTmjLob60=
-Message-ID: <9a8748490510210613w233d4f59vd5b516f29832b919@mail.gmail.com>
-Date: Fri, 21 Oct 2005 15:13:33 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: PATCH: Bluesmoke missing renames
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <1129901843.26367.46.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 21 Oct 2005 09:28:18 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:30170 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S964942AbVJUN2S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 09:28:18 -0400
+Date: Fri, 21 Oct 2005 15:28:17 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/4] swsusp: clean up resume error path
+Message-ID: <20051021132817.GB5768@atrey.karlin.mff.cuni.cz>
+References: <200510172336.53194.rjw@sisk.pl> <200510172350.05415.rjw@sisk.pl> <20051017234723.GB13148@atrey.karlin.mff.cuni.cz> <200510181117.27068.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <1129901843.26367.46.camel@localhost.localdomain>
+In-Reply-To: <200510181117.27068.rjw@sisk.pl>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/21/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> As was noted on and off list a couple of places still had old naming
->
+Hi!
 
-You forgot the one in the Makefile :-)
+> > I don't like this one. restore_highmem() does freeing of allocated
+> > pages. If swsusp_arch_suspend() fails in specific way, I suspect it
+> > could leak highmem.
+> 
+> The pages to be freed are only allocated in suspend_prepare_image()
+> (now swsusp_save()), which is on suspend, and this is the resume
+> error path.
 
---- linux-2.6.14-rc4-mm1-orig/drivers/edac/Makefile     2005-10-17
-12:00:36.000000000 +0200
-+++ linux-2.6.14-rc4-mm1/drivers/edac/Makefile  2005-10-17
-15:03:49.000000000 +0200
-@@ -1,5 +1,5 @@
- #
--# Makefile for the Linux kernel bluesmoke drivers.
-+# Makefile for the Linux kernel EDAC drivers.
- #
- # Copyright 02 Jul 2003, Linux Networx (http://lnxi.com)
- # This file may be distributed under the terms of the
+Ok, yes, you seem to be right. I was probably confused by my own
+code. ACK on the patch (if it helps you).
 
+								Pavel
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+-- 
+Boycott Kodak -- for their patent abuse against Java.

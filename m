@@ -1,99 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965084AbVJUSxs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965095AbVJUSy3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965084AbVJUSxs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 14:53:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965086AbVJUSxs
+	id S965095AbVJUSy3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 14:54:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965091AbVJUSy2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 14:53:48 -0400
-Received: from p4-7036.uk2net.com ([213.232.95.37]:61582 "EHLO
-	churchillrandoms.co.uk") by vger.kernel.org with ESMTP
-	id S965084AbVJUSxr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 14:53:47 -0400
-Message-ID: <43593943.8070901@churchillrandoms.co.uk>
-Date: Fri, 21 Oct 2005 11:53:55 -0700
-From: Stefan Jones <stefan.jones@churchillrandoms.co.uk>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051003)
+	Fri, 21 Oct 2005 14:54:28 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:59830 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965088AbVJUSy1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 14:54:27 -0400
+Message-ID: <4359395B.9030402@pobox.com>
+Date: Fri, 21 Oct 2005 14:54:19 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [BUG][2.6.13.4] Memoryleak - idr_layer_cache slab - inotify?
-References: <43593240.9020806@churchillrandoms.co.uk>
-In-Reply-To: <43593240.9020806@churchillrandoms.co.uk>
+To: Luben Tuikov <luben_tuikov@adaptec.com>
+CC: andrew.patterson@hp.com, Christoph Hellwig <hch@lst.de>,
+       "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
+       linux-scsi@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached
+ PHYs)
+References: <91888D455306F94EBD4D168954A9457C048F0E34@nacos172.co.lsil.com>	 <20051020160155.GA14296@lst.de> <4357CB03.4020400@adaptec.com>	 <20051020170330.GA16458@lst.de>  <4357F7DE.7050004@adaptec.com> <1129852879.30258.137.camel@bluto.andrew> <43583A53.2090904@pobox.com> <435929FD.4070304@adaptec.com> <43593100.5040708@pobox.com> <43593884.7000800@adaptec.com>
+In-Reply-To: <43593884.7000800@adaptec.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Jones wrote:
-
-> I noticed this a while back when gam_server (new fam replacement)
-> started playing up and the idr_layer_cache slab used up 300Mb of RAM.
->
-> To reproduce:
->
-> Run gnome and make sure it is using gam_server for fam.
->
-> In one console do:
->
-> while true ;do sleep 0.1 ; killall -w gam_server; done
->
-> In another try slabtop and see the idr_layer_cache slab climb, eating
-> memory (abit slowly).
-> ( Gnome restarts gam_server after each kill for you and gets it doing
-> stuff )
->
-> I looked though the source and inotify does use the idr_layer_cache slab
-> and gam_server also uses inotify.
-
-Made a standalone testcase, run this and the kernel will eat up your 
-memory (seen via slabtop):
-
-( this should compile everywhere )
-
-#include <sys/wait.h>
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/select.h>
-#include <asm/unistd.h>
-#include <errno.h>
+Luben Tuikov wrote:
+> On 10/21/05 14:18, Jeff Garzik wrote:
+>>We have plenty of specs.  It's called source code.
+>>
+>>You don't understand the Linux development process (think its more 
+>>political than technical) and you don't understand even what a block 
+>>driver is, and you wonder why you have difficulty getting code into the 
+>>kernel?
+> 
+> 
+> Again, when people start getting personal, you know that they are losing it.
+> 
+> Thank you for spreading FUD -- I'm sure you've impressed your managament,
+> how great of a Linux programmer you are and how I don't know anything.
+> I'd suggest you keep pushing the politics _behind_ the scences.
 
 
-#define __NR_inotify_init    291
-#define __NR_inotify_add_watch    292
-#define __NR_inotify_rm_watch    293
+I'm trying to tell it like it is, in the hopes that you will eventually 
+learn the process, and be a good upstream maintainer we can all work with.
+
+	Jeff
 
 
-_syscall0(int, inotify_init);
-_syscall3(int, inotify_add_watch, int, fd, const char *, name, unsigned 
-int, mask);
-_syscall2(int, inotify_rm_watch, int, fd, unsigned int, wd);
-
-int main() {
-    pid_t pid;
-    int fd;
-    int wd;
-    const char *dirname=".";
-    unsigned int mask = 0xffffffff;
-    int stat;
-   
-    for(;;) {
-        if(!(pid = fork())) {
-            fd = inotify_init ();
-
-            wd = inotify_add_watch (fd, dirname, mask);
-            if (wd < 0)
-                perror ("inotify_add_watch");
-
-            kill(getpid(),SIGTERM);
-        }
-        waitpid(pid,&stat,0);
-    }
-   
-    return 0;
-}

@@ -1,51 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965022AbVJUQ1B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965021AbVJUQbF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965022AbVJUQ1B (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 12:27:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965024AbVJUQ1B
+	id S965021AbVJUQbF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 12:31:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965024AbVJUQbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 12:27:01 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:41904 "EHLO
-	linuxbipbip.grupopie.com") by vger.kernel.org with ESMTP
-	id S965022AbVJUQ1A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 12:27:00 -0400
-Message-ID: <435916D1.6040604@grupopie.com>
-Date: Fri, 21 Oct 2005 17:26:57 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
+	Fri, 21 Oct 2005 12:31:04 -0400
+Received: from xproxy.gmail.com ([66.249.82.200]:10649 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965021AbVJUQbD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 12:31:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=ufVtnxib8U6i4RsrWthgvPUJtWiH74NPaHvJQiZ9yencLZzyXhaK85ztnJoEeggQIlbGtwyAsVqL916CvdpTCWvzRH/MADTBOZq7ThG+DdGMXc0UfM+SJ50YbvJMQOz2OZFNIbC88R6GlHAv7wspiKIj74c4OjgvffPNVvU5Kvk=
+Message-ID: <5bdc1c8b0510210931h1fad38e1v1f0fecf28e3ddb3d@mail.gmail.com>
+Date: Fri, 21 Oct 2005 09:31:03 -0700
+From: Mark Knecht <markknecht@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: -rc5-rt3 - IRQoff tracing numbers still reflect timer? (AMD64?)
 MIME-Version: 1.0
-To: "Vincent W. Freeh" <vin@csc.ncsu.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Understanding Linux addr space, malloc, and heap
-References: <4358F0E3.6050405@csc.ncsu.edu> <1129903396.2786.19.camel@laptopd505.fenrus.org> <4359051C.2070401@csc.ncsu.edu> <1129908179.2786.23.camel@laptopd505.fenrus.org> <43590B23.2090101@csc.ncsu.edu> <C6F7B216-66B3-4848-9423-05AB4D826320@mac.com> <43591307.5050507@csc.ncsu.edu>
-In-Reply-To: <43591307.5050507@csc.ncsu.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vincent W. Freeh wrote:
-> First, thanks for all the help and attention.  I am learning much.
-> 
-> I think the focus of this discussion should be on mprotect.  I 
-> understand that spec says it only works on mmap'd memory.  So does 
-> malloc use mmap?  If not why does it work at all?
-> 
-> Probably the most problematic issue, tho, is why does mprotect return 0 
-> even though it failed to change permissions on the 66th page?
+Hi all,
+   I want to ensure I understand the status of the kernel right now.
+When I enable
 
-Do you have code that shows this?
+[*] Interrupts-off critical section latency timing
 
-I tried to change the example in the mprotect man page to loop N times 
-(N given on the command line) malloc'ing and mprotect'ing N pages and 
-then accessing the N'th page and it always gave SIGSEGV, for any N from 
-1 to 100.
+I immediately see values as shown below. I think that this is the
+timer, which I have set to 1000HZ and not a rela latency. Is that
+correct?
 
--- 
-Paulo Marques - www.grupopie.com
+   If my understanding is correct then is there someone that can spend
+some time and look into this? Is this an x86_64 issue only?
 
-The rule is perfect: in all matters of opinion our
-adversaries are insane.
-Mark Twain
+Thanks,
+Mark
+
+
+( softirq-timer/0-3    |#0): new 998 us maximum-latency critical section.
+ => started at timestamp 286541291: <acpi_processor_idle+0x20/0x379>
+ =>   ended at timestamp 286542289: <thread_return+0xb5/0x11a>
+
+Call Trace:<ffffffff8014e19c>{check_critical_timing+492}
+<ffffffff8014e5f5>{sub_preempt_count_ti+133}
+       <ffffffff803ff43c>{thread_return+70}
+<ffffffff803ff4ab>{thread_return+181}
+       <ffffffff803ff615>{schedule+261} <ffffffff801379aa>{ksoftirqd+138}
+       <ffffffff80137920>{ksoftirqd+0} <ffffffff80147bfd>{kthread+205}
+       <ffffffff8010e70e>{child_rip+8} <ffffffff80147b30>{kthread+0}
+       <ffffffff8010e706>{child_rip+0}
+---------------------------
+| preempt count: 00000001 ]
+| 1-level deep critical section nesting:
+----------------------------------------
+.. [<ffffffff803feef8>] .... __schedule+0xb8/0x5b6
+.....[<00000000>] ..   ( <= _stext+0x7feff0e8/0xe8)
+
+ =>   dump-end timestamp 286542378
+
+lightning ~ #

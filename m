@@ -1,64 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbVJUJdX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964909AbVJUJlr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964872AbVJUJdX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 05:33:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964906AbVJUJdW
+	id S964909AbVJUJlr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 05:41:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbVJUJlr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 05:33:22 -0400
-Received: from 82-204-8-131.static.bbeyond.nl ([82.204.8.131]:64262 "EHLO
-	mail.tomtom.com") by vger.kernel.org with ESMTP id S964872AbVJUJdW convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 05:33:22 -0400
-Message-ID: <4358B547.7070900@tomtom.com>
-Date: Fri, 21 Oct 2005 11:30:47 +0200
-From: Koen Martens <Koen.Martens@tomtom.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+	Fri, 21 Oct 2005 05:41:47 -0400
+Received: from gate.corvil.net ([213.94.219.177]:64015 "EHLO corvil.com")
+	by vger.kernel.org with ESMTP id S964909AbVJUJlr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 05:41:47 -0400
+Message-ID: <4358B7CF.4010201@draigBrady.com>
+Date: Fri, 21 Oct 2005 10:41:35 +0100
+From: P@draigBrady.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: sys_nanosleep round-off error
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-X-OriginalArrivalTime: 21 Oct 2005 09:30:18.0257 (UTC) FILETIME=[0CD6E810:01C5D622]
-X-NAIMIME-Disclaimer: 1
-X-NAIMIME-Modified: 1
+To: ryan.clayburn@dsto.defence.gov.au
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Advantech Watchdog timer query.
+References: <1129880542.2194.49.camel@localhost.localdomain>
+In-Reply-To: <1129880542.2194.49.camel@localhost.localdomain>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+Ryan Clayburn wrote:
+> Hi Everyone,
+> 
+> I work for a government agency so please forgive me for not having the
+> latest version of the kernel. My question concerns an Advantech card PCI
+> 6870 Single Board Computer and its watchdog timer. I am running Redhat 9
+> linux 2.4.20-8 and it comes with module that supports the hardware
+> advantechwdt.o. I have been able install and communicate with the card.
+> Get and set the timeout or margin and get the support information of the
+> card. Everything seems to work except when i deliberately delay the ping
+> to the card to let it reboot the system as a watchdog should it does not
+> reboot. Is there something i am missing. Do i need a update to the
+> driver? I am attaching the code. It is fairly simple and a lot of it is
+> just reading and writing information read from the driver about the
+> card. I would appreciate any help.
 
-We just had some weird stuff going on with nanosleep. When interrupted 
-by a signal, it should return the amount of sleeptime remaining. 
-However, when (for example) setting the time to sleep to 10 
-milliseconds, it would sometimes return a remaining sleep time of 15ms.
+Be careful that you're using the correct driver.
+Certain newer advantech systems use the w83627hf
+chip, which is not supported in 2.4 by default.
+Backporting the driver from 2.6 should be trivial.
 
-Now, we can see why this is happening, we suspect this line:
-
-        expire = timespec_to_jiffies(&t) + (t.tv_sec || t.tv_nsec);
-
-Expire is the number of jiffies that is passed to schedule_timeout(), 
-and we see that if we do indeed have some time to sleep, 1 is added to 
-this number.
-
-On the system where we saw this, a jiffie is 5 msec.
-
-So when we enter nanosleep with 10msec to sleep, it converts that to 2 
-jiffies, and expire is 3. Then when the timeout is interrupted by a 
-signal before any timeout is actually done, we return with 3 and this is 
-converted back to 15msec...
-
-So, the big question: why is the + (t.tv_sec || t.tv_nsec) there?? I 
-assume it has to do with round-off, eg. when you put 9msec in, you get 1 
-jiffie, but want to round-of upwards to 10msec=2jiffies.
-
-Best,
-
-Koen
-
--- 
-Koen Martens | Developer | TomTom | koen.martens@tomtom.com | +31 (0) 20 850 09 81
-
-
-
-This e-mail message contains information which is confidential and may be privileged. It is intended for use by the addressee only. If you are not the intended addressee, we request that you notify the sender immediately and delete or destroy this e-mail message and any attachment(s), without copying, saving, forwarding, disclosing or using its contents in any other way. TomTom N.V., TomTom International BV or any other company belonging to the TomTom group of companies will not be liable for damage relating to the communication by e-mail of data, documents or any other information.
+Pádraig.

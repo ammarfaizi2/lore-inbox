@@ -1,57 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964892AbVJUHWK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964894AbVJUH0B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964892AbVJUHWK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 03:22:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964894AbVJUHWK
+	id S964894AbVJUH0B (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 03:26:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964897AbVJUH0B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 03:22:10 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:36553 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S964892AbVJUHWJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 03:22:09 -0400
-Message-ID: <435896CA.1000101@jp.fujitsu.com>
-Date: Fri, 21 Oct 2005 16:20:42 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
+	Fri, 21 Oct 2005 03:26:01 -0400
+Received: from zproxy.gmail.com ([64.233.162.201]:28171 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964894AbVJUH0A convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 03:26:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ZevqhEN+Bzl5LtKl2vgIwiRnw4nmm+UYngt8Ntj9O9P07wVhUroJlYK2wQU7LGkbfWwN1n92x0hXyYJQvx8Ymd15Z3BjFbZwX3z0rWJC2qA55bkzrnhlsNHsG3iFkRTbfgi3v/XIIb6b1vKGSJgLxqIqc+9QlRRCScxtTVr2Hoo=
+Message-ID: <aec7e5c30510210025y4c8fc747ue3d567c0c60eeeaf@mail.gmail.com>
+Date: Fri, 21 Oct 2005 16:25:59 +0900
+From: Magnus Damm <magnus.damm@gmail.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [PATCH 1/4] Swap migration V3: LRU operations
+Cc: Christoph Lameter <clameter@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       Mike Kravetz <kravetz@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+In-Reply-To: <1129877795.26533.12.camel@localhost>
 MIME-Version: 1.0
-To: Simon Derr <Simon.Derr@bull.net>
-CC: Christoph Lameter <clameter@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       Mike Kravetz <kravetz@us.ibm.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, Magnus Damm <magnus.damm@gmail.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Paul Jackson <pj@sgi.com>
-Subject: Re: [PATCH 4/4] Swap migration V3: sys_migrate_pages interface
-References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com> <20051020225955.19761.53060.sendpatchset@schroedinger.engr.sgi.com> <4358588D.1080307@jp.fujitsu.com> <Pine.LNX.4.61.0510210901380.17098@openx3.frec.bull.fr>
-In-Reply-To: <Pine.LNX.4.61.0510210901380.17098@openx3.frec.bull.fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com>
+	 <20051020225940.19761.93396.sendpatchset@schroedinger.engr.sgi.com>
+	 <1129874762.26533.5.camel@localhost>
+	 <aec7e5c30510202327l7ce5a89ax7620241ba57a4efa@mail.gmail.com>
+	 <1129877795.26533.12.camel@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 10/21/05, Dave Hansen <haveblue@us.ibm.com> wrote:
+> On Fri, 2005-10-21 at 15:27 +0900, Magnus Damm wrote:
+> > On 10/21/05, Dave Hansen <haveblue@us.ibm.com> wrote:
+> > > On Thu, 2005-10-20 at 15:59 -0700, Christoph Lameter wrote:
+> > > > + *  0 = page not on LRU list
+> > > > + *  1 = page removed from LRU list
+> > > > + * -1 = page is being freed elsewhere.
+> > > > + */
+> > >
+> > > Can these return values please get some real names?  I just hate when
+> > > things have more than just fail and success as return codes.
+> > >
+> > > It makes much more sense to have something like:
+> > >
+> > >         if (ret == ISOLATION_IMPOSSIBLE) {
+> >
+> > Absolutely. But this involves figuring out nice names that everyone
+> > likes and that does not pollute the name space too much.
+>
+> So, your excuse for bad code is that you want to avoid a discussion?
+> Are you new here? ;)
 
+No and yes. =) To me, broken code is bad code. If code looks good or
+not is another issue.
 
-> Christoph Lameter wrote:
-> 
->>> > +	/* Is the user allowed to access the target nodes? */
->>> > +	if (!nodes_subset(new, cpuset_mems_allowed(task)))
->>> > +		return -EPERM;
->>> > +
-> 
->> How about this ?
->> +cpuset_update_task_mems_allowed(task, new);    (this isn't implemented now
+Anyway, I fully agree that using constants are better than hard coded
+values. I just prefer to stay out of naming discussions. They tend to
+go on forever and I find them pointless.
 
-*new* is already guaranteed to be the subset of current mem_allowed.
-Is this violate the permission ?
+> > Any suggestions?
+>
+> I'd start with the comment, and work from there.
+>
+> ISOLATE_PAGE_NOT_LRU
+> ISOLATE_PAGE_REMOVED_FROM_LRU
+> ISOLATE_PAGE_FREEING_ELSEWHERE
+>
+> Not my best names in history, but probably a place to start.  It keeps
+> the author from having to add bad comments explaining what the code
+> does.
 
-Simon Derr wrote:
-> Automatically updating the ->mems_allowed field as you suggest would 
-> require that the kernel do the same checks in sys_migrage_pages(). Sounds 
-> not as a very good idea to me.
+Thank you for that suggestion.
 
-Hmm, it means a user or admin should modify mem_allowed
-before the first page fault after calling sys_migrate_pages().
+> > > BTW, it would probably be nice to say where these patches came from
+> > > before Magnus. :)
+> >
+> > Uh? Yesterday I broke out code from isolate_lru_pages() and
+> > shrink_cache() and emailed Christoph privately. Do you have similar
+> > code in your tree?
+>
+> Hirokazu's page migration patches have some functions called the exact
+> same things: __putback_page_to_lru, etc... although they are simpler.
 
--- Kame
+I saw that akpm commented regarding duplicated code and I figured it
+would be better to break out these functions. And if someone has
+written similar code before then it is probably a good sign saying
+that something similar is needed.
 
+> Not my code, but it would be nice to acknowledge if ideas were coming
+> from there.
 
+Yeah, thanks for stating the obvious.
+
+/ magnus

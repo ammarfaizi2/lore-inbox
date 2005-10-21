@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965017AbVJUQTX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965016AbVJUQWz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965017AbVJUQTX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 12:19:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965016AbVJUQTX
+	id S965016AbVJUQWz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 12:22:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965019AbVJUQWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 12:19:23 -0400
-Received: from THUNK.ORG ([69.25.196.29]:30876 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S965017AbVJUQTW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 12:19:22 -0400
-Date: Fri, 21 Oct 2005 12:19:20 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: "Vincent W. Freeh" <vin@csc.ncsu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Understanding Linux addr space, malloc, and heap
-Message-ID: <20051021161920.GA13574@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	"Vincent W. Freeh" <vin@csc.ncsu.edu>, linux-kernel@vger.kernel.org
-References: <4358F0E3.6050405@csc.ncsu.edu> <1129903396.2786.19.camel@laptopd505.fenrus.org> <4359051C.2070401@csc.ncsu.edu> <1129908179.2786.23.camel@laptopd505.fenrus.org> <43590B23.2090101@csc.ncsu.edu> <C6F7B216-66B3-4848-9423-05AB4D826320@mac.com> <43591307.5050507@csc.ncsu.edu>
+	Fri, 21 Oct 2005 12:22:55 -0400
+Received: from wproxy.gmail.com ([64.233.184.194]:53374 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965016AbVJUQWz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 12:22:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=dG+7g04+ZVJBxkLDLQDDlWUE0BrWOK4iiJ/wQLaV4UNxORpH1qf7kJht29+Agf2EaYFYOBQI/JVMINRajJs2EQ4Zm94j4Fiq0hOUqXEJkItIimO0PoapVdOqhqEHLyoNREwbDtr89bSQpAiAwMgi3CxqTQHBwfw5/vGkAHPiFMM=
+Message-ID: <94e67edf0510210922l7c4ab3can8cef0f34cdc2a0fd@mail.gmail.com>
+Date: Fri, 21 Oct 2005 12:22:52 -0400
+From: Sreeni <sreeni.pulichi@gmail.com>
+To: linux-os@analogic.com, linux-kernel@vger.kernel.org
+Subject: XIP probelm
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <43591307.5050507@csc.ncsu.edu>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 21, 2005 at 12:10:47PM -0400, Vincent W. Freeh wrote:
-> First, thanks for all the help and attention.  I am learning much.
-> 
-> I think the focus of this discussion should be on mprotect.  I 
-> understand that spec says it only works on mmap'd memory.  So does 
-> malloc use mmap?  If not why does it work at all?
+Hi,
 
-_Sometimes_ malloc() uses mmap, and _sometimes_ it doesn't (it will
-use memory by adjust the brk pointer).  This can be adjusted via
-various tuning parameters to malloc.  I suggest you read the info
-documentation for glibc's malloc() and mallopt() calls.  (Note that
-mallopt parameters are non-portable, and may not apply if you are
-using another OS, another version of glibc, or if you have replaced
-the malloc with another implementation --- as some application writers
-might do.)
+I have a montavista XIP kernel running on ARM and my kernel will be in
+the flash. Since its XIP, I know that the ".text" portion of the
+kernel will be executed from flash but that ".data" needs to be placed
+in SDRAM. Now my question is - based on what offset this data will be
+placed?
 
-Bottom line is you must not count on the type of memory returned by
-malloc().  It is given the freedom in the specifications to use
-whatever free memory it deems most likely to provide better
-application performance.  An application which is willing to be
-malloc() specific can use various interfaces to tune various
-malloc()'s behavior for performance reasons.
+My SDRAM physicall address starts at 3000_0000 and flash starts at
+0100_0000. when i allocated a global variable in the kernel module and
+when i try to check its actually physical address using virt_to_phys,
+its giving me the address in the range of 0100_0000 ~ 0600_0000 which
+is my flash (the PAGE_OFFSET doesn't work in case of XIP).
 
-						- Ted
+Can you please help in knowing the physical address of my .data
+portion in this situation.
+
+Thanks
+Shree

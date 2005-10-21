@@ -1,79 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965152AbVJUUiL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965157AbVJUUld@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965152AbVJUUiL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 16:38:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965160AbVJUUiL
+	id S965157AbVJUUld (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 16:41:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965162AbVJUUld
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 16:38:11 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:15499 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S965155AbVJUUiJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 16:38:09 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Marc Perkel <marc@perkel.com>
-Subject: Re: sata_nv + SMP = broken?
-Date: Fri, 21 Oct 2005 22:38:25 +0200
-User-Agent: KMail/1.8.2
-Cc: Vladimir Lazarenko <vlad@lazarenko.net>, linux-kernel@vger.kernel.org
-References: <4358C417.9000608@lazarenko.net> <4359144F.8090504@perkel.com>
-In-Reply-To: <4359144F.8090504@perkel.com>
+	Fri, 21 Oct 2005 16:41:33 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:22956 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S965156AbVJUUlc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 16:41:32 -0400
+Message-ID: <43595275.1000308@adaptec.com>
+Date: Fri, 21 Oct 2005 16:41:25 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: andrew.patterson@hp.com, Christoph Hellwig <hch@lst.de>,
+       "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
+       linux-scsi@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached
+ PHYs)
+References: <91888D455306F94EBD4D168954A9457C048F0E34@nacos172.co.lsil.com>	 <20051020160155.GA14296@lst.de> <4357CB03.4020400@adaptec.com>	 <20051020170330.GA16458@lst.de>  <4357F7DE.7050004@adaptec.com> <1129852879.30258.137.camel@bluto.andrew> <43583A53.2090904@pobox.com> <435929FD.4070304@adaptec.com> <43593100.5040708@pobox.com> <43593884.7000800@adaptec.com> <4359395B.9030402@pobox.com> <43593FE1.7020506@adaptec.com> <4359440E.2050702@pobox.com>
+In-Reply-To: <4359440E.2050702@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510212238.25614.rjw@sisk.pl>
+X-OriginalArrivalTime: 21 Oct 2005 20:41:30.0309 (UTC) FILETIME=[D0DA5F50:01C5D67F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Friday, 21 of October 2005 18:16, Marc Perkel wrote:
+On 10/21/05 15:39, Jeff Garzik wrote:
+> The technical stuff got covered long ago.  Here are the basic basics:
 > 
-> Vladimir Lazarenko wrote:
-> 
-> > Hello,
-> >
-> > Yesterday I've tried launching various kernels on Ahtlon64 Dual-core 
-> > X2 3800+ with MSI Neo4 Platinum SLI motherboard.
-> >
-> > The results were a total catastrophica failure. As soon as I enable 
-> > SMP in the kernel, the sata driver would randomly hang after a bit of 
-> > disk activity.
-> >
-> > Whenever apic is enabled, the system won't even be able to boot up 
-> > completely, and will hang VERY soon. Whenever I disable apic, the 
-> > system is able to bootup, but when the software mirror that I use will 
-> > try to resync for 2-3-10 mins, it will throw up a message and freeze 
-> > again.
-> >
-> > Whenever I disable apic AND lapic, the system is able to bootup AND 
-> > work, however after same 5-10 minutes it start spitting messages, 
-> > which are somewhat different thou and don't hang the system completely 
-> > but render it rather unusable anyway.
-> >
-> > As soon as I disable SMP - everything works like a charm.
-> >
-> 
-> For what it's worth I too have seen this same problem. It happens when I 
-> use the stock Fedora kernels but not my custom compiled kernel. I'm not 
-> sure what I compiled differently but at the time I thought that 
-> something in the new kernel fixed it.
+> * aic94xx needs to have the scsi-host-template in the LLDD, to fix 
+> improper layering.
+> * SAS generic code needs to use SAS transport class, which calls 
+> scsi_scan_target(), to avoid code duplication.
+> * other stuff I listed in my "analysis" email, including updating libata 
+> to support SAS+SATA hardware.
 
-I only use kernel.org kernels, so perhaps there's a problem with the Fedora
-kernel.
+All this bastardizes the code and the layering infrastructure.
 
-> I too am running an Athlon X2 using sata_nv. I have an ASUS motherboard. 
-> But what I noticed was that the problem went away if I used 2 gigs of 
-> ram instead of 4 gigs. When you use the whole 4 gigs there is some 
-> memory mapping going on and I thought perhaps the problem was related to 
-> the sata_nv not liking the memory mapped over the 4gig barrier.
+If you're saying that there is "improper layering" you must be
+smoking something really strong.
 
-That's possible.  Unfortunately I cannot verify this, since there are 2GB of
-RAM in my box.
+I'd suggest you talk to storage engineers with years of storage
+experience about the design of the Linux SAS Stack.
+I'd suggest you take a look at the USB and SBP code.
+I'd suggest you take an overview of all of SAM and see how the protocols
+fit together.
+I'd suggest you take a look at the hardware design and see how and _where_
+it fits and where it does not and _why_.
+I'd suggest you take a look at the event management interface
+(drivers/scsi/sas/sas_event.c) what it is, how it provides _all_
+communication from LLDD to SAS Layer, filled in by the SAS Stack.
+I'd suggest you take a look at the Execute Command SCSI RPC and the TMFs,
+declared in the struct sas_ha_struct, filled in by the LLDD,
+how they provide all communication from the SAS Stack to the LLDD (inteconnect).
 
-I remeber someone having a problem with sata_nv DMAing over 2GB of RAM,
-so there may be something wrong with it.
+I'm even ready to do a presentation in front of people explaining
+the design of the Linux SAS Stack, why and how it works.  Specify
+time and venue, please.
 
-Greetings,
-Rafael
+(I will put something up on the web site -- html and figures
+to show the layering, function stubs, event management, etc.)
+
+> This is the stuff that I have been working on (nothing pushed to sas-2.6 
+> yet, as it doesn't yet boot locally).
+
+I'm sorry to hear that.  Maybe you shouldn't have to bastardize the code.
+Implement SDI and then everyone will be happy.  Look, I've alredy twice
+posted code and templates, just grab it and put your name there.
+
+Think about it: there is no reason to mess with the code.  It is
+present at the link below, it works and people are using it.  It is also
+sound and spec complient.  There are other subsystems which use the exact
+same layering (namely USB Storage and SBP) which is consistent with the
+SCSI Architecture Model all new protocols abide by.
+
+> If you were willing to do this stuff, _working with others_, then I 
+> would be off in happy happy SATA land right now, and you would have been 
+> nominated to be the Linux SAS maintainer.
+
+You seem to be traveling a path which I've already traveled.
+
+Jeff, if you want an Adaptec SAS driver which has the host template
+_in_ the driver, you can use "adp94xx" submitted earlier this year
+by Adaptec to "the community".
+
+"The community" rejected it. Why?  Because "common SAS tasks should
+be in a common layer".  Well there you have the Linux SAS Stack and
+aic94xx at the link below (my sig), which does separate common SAS
+tasks and the interconnect _as per architecture and spec_.  Apparently
+this still isn't good enough for "the community".
+
+You see how this going around in circles just never seems to end.
+
+One day one thing, another day the opposite, etc.
+
+> Call it FUD, politics, personal attacks, wanking off to please 
+> manglement, whatever.  My goal has always been to (a) help Linux users 
+> by getting aic94xx+SAS upstream, and (b) try to help you understand why 
+> your code didn't go upstream verbatim, long after others have given up 
+> trying to do that.
+
+(a) There are Linux users using "aic94xx+SAS" right now.  They've
+downloaded a working Linux code from the link at my signature.
+
+(b) I think it was because Linux says "no to specs" and you say that
+"specs are the source code".
+
+> 	Jeff, he of infinite patience
+
+Everyone is very pleased with you.  You will go places.
+
+	Luben
+-- 
+http://linux.adaptec.com/sas/
+http://www.adaptec.com/sas/

@@ -1,493 +1,521 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965040AbVJURkO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965041AbVJURpr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965040AbVJURkO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 13:40:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965041AbVJURkO
+	id S965041AbVJURpr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 13:45:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965044AbVJURpr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 13:40:14 -0400
-Received: from xproxy.gmail.com ([66.249.82.201]:44451 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965040AbVJURkM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 13:40:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ZOa4A7OFjAC2Io2JKwmEMDIXov3WA7zcyQ4ZW35Rxohgk4AAs/24pVSWBF+d+2AA56Cyqb0kceX+efxqAo1eldn77Kg1uMa5szhiVFWoh5OEtNhXwajM+hhz2WPH+3TTLsmq0QqTJfNYsmX3RLHnEVitKY3D/V5zTQrN/AiRlZM=
-Message-ID: <5bdc1c8b0510211040s40f3f9bbj7f83e174d7b6d937@mail.gmail.com>
-Date: Fri, 21 Oct 2005 10:40:11 -0700
-From: Mark Knecht <markknecht@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc5-rt3 - `IRQ 8'[798] is being piggy
-Cc: Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <5bdc1c8b0510211003j4e9bf03bhf1ea8e94ffe60153@mail.gmail.com>
+	Fri, 21 Oct 2005 13:45:47 -0400
+Received: from agminet01.oracle.com ([141.146.126.228]:63848 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S965041AbVJURpq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 13:45:46 -0400
+Message-ID: <435928BC.5000509@oracle.com>
+Date: Fri, 21 Oct 2005 10:43:24 -0700
+From: Zach Brown <zach.brown@oracle.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <5bdc1c8b0510211003j4e9bf03bhf1ea8e94ffe60153@mail.gmail.com>
+To: linux-kernel@vger.kernel.org
+CC: Andrew Morton <akpm@osdl.org>, hch@infradead.org,
+       Andreas Dilger <adilger@clusterfs.com>
+Subject: Re: [RFC] page lock ordering and OCFS2
+References: <20051017222051.GA26414@tetsuo.zabbo.net> <20051017161744.7df90a67.akpm@osdl.org> <43544499.5010601@oracle.com>
+In-Reply-To: <43544499.5010601@oracle.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/21/05, Mark Knecht <markknecht@gmail.com> wrote:
-> Hi,
->    Maybe I'm catching something here? Maybe not - no xruns as of yet,
-> but I've never seen these messages before. Kernel config attached.
->
->    dmesg has filled up with these messages:
->
-> Read missed before next interrupt
-> `IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-> Read missed before next interrupt
-> `IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-> Read missed before next interrupt
-> `IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-> Read missed before next interrupt
-> wow!  That was a 14 millisec bump
-> `IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-> Read missed before next interrupt
-> wow!  That was a 12 millisec bump
-> `IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-> Read missed before next interrupt
-> wow!  That was a 17 millisec bump
-> `IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-> Read missed before next interrupt
-> wow!  That was a 89 millisec bump
-> lightning ~ #
->
-> lightning ~ # cat /proc/interrupts
->            CPU0
->   0:     928484    IO-APIC-edge  timer
->   1:        572    IO-APIC-edge  i8042
->   7:          2    IO-APIC-edge  lpptest
->   8:     529468    IO-APIC-edge  rtc
->   9:          0   IO-APIC-level  acpi
->   12:      91942    IO-APIC-edge  i8042
->   14:         48    IO-APIC-edge  ide0
->   50:          2   IO-APIC-level  ehci_hcd:usb1
->   58:     534656   IO-APIC-level  hdsp
->   66:          2   IO-APIC-level  ohci1394
-> 217:     532660   IO-APIC-level  ohci_hcd:usb2, eth0
-> 225:      24239   IO-APIC-level  libata, NVidia CK804
-> 233:       9083   IO-APIC-level  libata
-> NMI:        263
-> LOC:     928256
-> ERR:          1
-> MIS:          0
-> lightning ~ #
->
-> Cheers,
-> Mark
 
-OK, I am able to reproduce this reliably. This machine has two sound cards:
+> We think we could do this sort of thing with a specific truncation loop,
+> but that's the nasty code I wasn't sure would be any more acceptable
+> than this nasty core patch.
 
-IRQ58 - RME HDSP 9652 - running Jack
-IRQ225 - Internal NVidia running Alsa
+OK, I'm appending a patch which attempts to solve this problem in OCFS2 code
+instead of up in the VFS.  It's against a branch in OCFS2 svn, but one which
+isn't incomprehensibly different from what is in -mm.
 
-The NVidia is default for system sounds. The RME is for serious audio work.
+The idea is to stop the DLM thread from deadlocking on locked pages (which are
+held by other tasks waiting for the DLM) by tagging them with PG_fs_misc.  The
+DLM thread knows that the pages are locked by callers who are waiting for the
+thread so they can assume ownership of the page lock, of a sort.  The DLM
+thread writes back dirty data in the page manually so it doesn't unlock the
+callers page.  It can basically ignore clean pages because they're going to be
+reread by the lock holder once they get the DLM lock.  Comments in the patch
+above ocfs2_data_convert_worker, get_lock_or_fs_misc,
+ocfs2_write_dirty_fs_misc_page, and ocfs2_set_fs_misc lay this out.
 
-1) I start the Jack server using the RME card:
+It introduces block_read_full_page() and truncate_inode_pages() derivatives
+which understand the PG_fs_misc special case.  It needs a few export patches to
+the core, but the real burden is on OCFS2 to keep these derivatives up to date.
+Maybe after they stabilize for a while, and say another clustered file system
+has similar problems, we could roll some core helpers out of them.  But for now
+it illustrates what the solution would look like in OCFS2.  I'm sure I missed
+some corner cases, but this passes the most basic functional testing.
 
- mark@lightning ~ $ /usr/bin/jackd -R -P80 -p512 -dalsa -dhw:1 -r44100 -p64 -n2
-jackd 0.100.5
-Copyright 2001-2005 Paul Davis and others.
-jackd comes with ABSOLUTELY NO WARRANTY
-This is free software, and you are welcome to redistribute it
-under certain conditions; see the file COPYING for details
+The specific exports it needs from 2.6.14-rc4-mm1 are:
 
-JACK compiled with System V SHM support.
-loading driver ..
-apparent rate = 44100
-creating alsa driver ... hw:1|hw:1|64|2|44100|0|0|nomon|swmeter|-|32bit
-control device hw:1
-configuring for 44100Hz, period = 64 frames, buffer = 2 periods
-nperiods = 2 for capture
-nperiods = 2 for playback
+$ grep '+EXPORT' patches/*.patch
+patches/add-wake_up_page_all.patch:+EXPORT_SYMBOL(__wake_up_bit_all);
+patches/add-wake_up_page_all.patch:+EXPORT_SYMBOL(wake_up_page_all);
+patches/export-pagevec-helpers.patch:+EXPORT_SYMBOL_GPL(pagevec_lookup);
+patches/export-page_waitqueue.patch:+EXPORT_SYMBOL_GPL(page_waitqueue);
+patches/export-truncate_complete_pate.patch:+EXPORT_SYMBOL(truncate_complete_page);
+patches/export-wake_up_page.patch:+EXPORT_SYMBOL(wake_up_page);
 
+that wake_up_page_all() is just a variant that provides 0 nr_exclusive to
+__wake_up_bit():
 
-2) I start MythTV using the NVidia chip. (NOT Jack) No problem in
-dmesg occur until I start streaming a recorded TV program. As soon
-streaming as I start I get the messages. I stop more or less
-immediately and view dmesg.
+-void fastcall __wake_up_bit(wait_queue_head_t *wq, void *word, int bit)
++static inline int __wake_up_bit_nr(wait_queue_head_t *wq, void *word, int bit,
++                                  int nr_exclusive)
+ {
+        struct wait_bit_key key = __WAIT_BIT_KEY_INITIALIZER(word, bit);
+        if (waitqueue_active(wq))
+-               __wake_up(wq, TASK_INTERRUPTIBLE|TASK_UNINTERRUPTIBLE, 1, &key);
++               __wake_up(wq, TASK_INTERRUPTIBLE|TASK_UNINTERRUPTIBLE,
++                         nr_exclusive, &key);
++}
++
++void fastcall __wake_up_bit(wait_queue_head_t *wq, void *word, int bit)
++{
++       __wake_up_bit_nr(wq, word, bit, 1);
+ }
+ EXPORT_SYMBOL(__wake_up_bit);
 
-(               X-7686 |#0): new 22 us maximum-latency critical section.
- => started at timestamp 2496745046: <do_IRQ+0x29/0x50>
- =>   ended at timestamp 2496745068: <do_IRQ+0x39/0x50>
++void fastcall __wake_up_bit_all(wait_queue_head_t *wq, void *word, int bit)
++{
++       __wake_up_bit_nr(wq, word, bit, 0);
++}
++EXPORT_SYMBOL(__wake_up_bit_all);
 
-Call Trace: <IRQ> <ffffffff8014dabc>{check_critical_timing+492}
-       <ffffffff8014dd65>{sub_preempt_count_ti+117}
-<ffffffff801101e9>{do_IRQ+57}
-       <ffffffff8010e1bc>{ret_from_intr+0}  <EOI>
----------------------------
-| preempt count: 00000001 ]
-| 1-level deep critical section nesting:
-----------------------------------------
-.. [<ffffffff80157160>] .... __do_IRQ+0xe0/0x180
-.....[<00000000>] ..   ( <= _stext+0x7feff0e8/0xe8)
+Is this preferable to the core changes and is it something that's mergeable?
+We'd love to come to a solution that won't be a barrier to merging so we can
+get on with it.  I can send that exporting series if we decide this is the
+right thing.
 
- =>   dump-end timestamp 2496745158
+- z
 
-(               X-7686 |#0): new 22 us maximum-latency critical section.
- => started at timestamp 2498025339: <do_IRQ+0x29/0x50>
- =>   ended at timestamp 2498025362: <do_IRQ+0x39/0x50>
+Index: fs/ocfs2/dlmglue.h
+===================================================================
+--- fs/ocfs2/dlmglue.h	(revision 2660)
++++ fs/ocfs2/dlmglue.h	(working copy)
+@@ -54,6 +54,8 @@ int ocfs2_create_new_inode_locks(struct
+ int ocfs2_drop_inode_locks(struct inode *inode);
+ int ocfs2_data_lock(struct inode *inode,
+ 		    int write);
++int ocfs2_data_lock_holding_page(struct inode *inode, int write,
++			         struct page *page);
+ void ocfs2_data_unlock(struct inode *inode,
+ 		       int write);
+ int ocfs2_rw_lock(struct inode *inode, int write);
+@@ -70,6 +72,11 @@ int ocfs2_meta_lock_full(struct inode *i
+ /* 99% of the time we don't want to supply any additional flags --
+  * those are for very specific cases only. */
+ #define ocfs2_meta_lock(i, h, b, e) ocfs2_meta_lock_full(i, h, b, e, 0)
++int ocfs2_meta_lock_holding_page(struct inode *inode,
++				 ocfs2_journal_handle *handle,
++				 struct buffer_head **ret_bh,
++				 int ex,
++				 struct page *page);
+ void ocfs2_meta_unlock(struct inode *inode,
+ 		       int ex);
+ int ocfs2_super_lock(ocfs2_super *osb,
+Index: fs/ocfs2/aops.c
+===================================================================
+--- fs/ocfs2/aops.c	(revision 2661)
++++ fs/ocfs2/aops.c	(working copy)
+@@ -130,8 +130,8 @@ bail:
+ 	return err;
+ }
 
-Call Trace: <IRQ> <ffffffff8014dabc>{check_critical_timing+492}
-       <ffffffff8014dd65>{sub_preempt_count_ti+117}
-<ffffffff801101e9>{do_IRQ+57}
-       <ffffffff8010e1bc>{ret_from_intr+0}  <EOI>
----------------------------
-| preempt count: 00000001 ]
-| 1-level deep critical section nesting:
-----------------------------------------
-.. [<ffffffff80157160>] .... __do_IRQ+0xe0/0x180
-.....[<00000000>] ..   ( <= _stext+0x7feff0e8/0xe8)
+-static int ocfs2_get_block(struct inode *inode, sector_t iblock,
+-			   struct buffer_head *bh_result, int create)
++int ocfs2_get_block(struct inode *inode, sector_t iblock,
++		    struct buffer_head *bh_result, int create)
+ {
+ 	int err = 0;
+ 	u64 p_blkno, past_eof;
+@@ -198,7 +198,7 @@ static int ocfs2_readpage(struct file *f
 
- =>   dump-end timestamp 2498025445
+ 	mlog_entry("(0x%p, %lu)\n", file, (page ? page->index : 0));
 
-(    mythfrontend-8048 |#0): new 32 us maximum-latency critical section.
- => started at timestamp 2537338337: <rtc_open+0xf/0xc0>
- =>   ended at timestamp 2537338369: <rtc_open+0x6b/0xc0>
+-	ret = ocfs2_meta_lock(inode, NULL, NULL, 0);
++	ret = ocfs2_meta_lock_holding_page(inode, NULL, NULL, 0, page);
+ 	if (ret < 0) {
+ 		mlog_errno(ret);
+ 		goto out;
+@@ -226,7 +226,7 @@ static int ocfs2_readpage(struct file *f
+ 		goto out_alloc;
+ 	}
 
-Call Trace:<ffffffff8014dabc>{check_critical_timing+492}
-<ffffffff8014dd65>{sub_preempt_count_ti+117}
-       <ffffffff802a228b>{rtc_open+107} <ffffffff80297039>{misc_open+473}
-       <ffffffff80182999>{chrdev_open+457} <ffffffff80178757>{__dentry_open+295}
-       <ffffffff80178937>{filp_open+135}
-<ffffffff8014dd65>{sub_preempt_count_ti+117}
-       <ffffffff80178ac6>{get_unused_fd+230} <ffffffff80178c31>{do_sys_open+81}
-       <ffffffff8010dc16>{system_call+126}
----------------------------
-| preempt count: 00000001 ]
-| 1-level deep critical section nesting:
-----------------------------------------
-.. [<ffffffff802a222f>] .... rtc_open+0xf/0xc0
-.....[<00000000>] ..   ( <= _stext+0x7feff0e8/0xe8)
+-	ret = ocfs2_data_lock(inode, 0);
++	ret = ocfs2_data_lock_holding_page(inode, 0, page);
+ 	if (ret < 0) {
+ 		mlog_errno(ret);
+ 		goto out_alloc;
+@@ -283,7 +283,7 @@ int ocfs2_prepare_write(struct file *fil
 
- =>   dump-end timestamp 2537338467
+ 	mlog_entry("(0x%p, 0x%p, %u, %u)\n", file, page, from, to);
 
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-wow!  That was a 9 millisec bump
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-wow!  That was a 10 millisec bump
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-wow!  That was a 8 millisec bump
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-wow!  That was a 11 millisec bump
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-wow!  That was a 2 millisec bump
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-wow!  That was a 3 millisec bump
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-wow!  That was a 9 millisec bump
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-wow!  That was a 5 millisec bump
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-wow!  That was a 3 millisec bump
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-wow!  That was a 43 millisec bump
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
-`IRQ 8'[798] is being piggy. need_resched=0, cpu=0
-Read missed before next interrupt
+-	ret = ocfs2_meta_lock(inode, NULL, NULL, 0);
++	ret = ocfs2_meta_lock_holding_page(inode, NULL, NULL, 0, page);
+ 	if (ret < 0) {
+ 		mlog_errno(ret);
+ 		goto out;
+@@ -397,13 +397,14 @@ static int ocfs2_commit_write(struct fil
+ 		locklevel = 1;
+ 	}
 
-rtc latency histogram of {mythfrontend/8043, 15216 samples}:
-3 13365
-4 817
-5 236
-6 114
-7 48
-8 64
-9 91
-10 44
-11 45
-12 23
-13 13
-14 3
-15 6
-16 6
-17 3
-18 2
-19 5
-20 2
-21 4
-22 3
-23 16
-24 9
-25 4
-26 3
-29 1
-32 3
-33 1
-34 1
-35 1
-39 2
-46 1
-57 1
-66 1
-71 1
-83 1
-169 1
-331 1
-347 1
-348 1
-351 1
-365 1
-368 1
-369 2
-370 1
-372 3
-373 2
-374 2
-375 2
-376 3
-377 1
-378 4
-379 2
-380 4
-382 1
-384 1
-385 5
-386 1
-387 3
-388 2
-389 2
-390 2
-391 1
-393 1
-394 3
-395 2
-396 2
-398 2
-399 1
-400 1
-401 2
-403 2
-404 4
-405 1
-406 2
-407 7
-411 1
-412 1
-413 3
-414 2
-416 3
-417 1
-418 1
-419 1
-420 2
-421 1
-422 3
-423 1
-425 1
-427 3
-428 1
-430 3
-431 2
-435 1
-436 1
-437 2
-438 2
-439 1
-440 1
-441 1
-442 1
-443 1
-445 2
-446 1
-449 1
-450 1
-452 1
-456 2
-457 1
-460 1
-461 1
-462 1
-466 1
-468 1
-469 1
-478 1
-480 1
-481 2
-483 1
-485 1
-486 1
-489 1
-490 1
-491 1
-495 1
-499 1
-500 1
-503 2
-504 2
-507 2
-508 1
-509 1
-511 2
-512 1
-518 1
-519 1
-520 1
-522 1
-523 2
-524 1
-525 1
-526 2
-527 1
-528 1
-529 1
-530 1
-531 1
-532 1
-536 2
-537 2
-543 2
-544 1
-547 1
-549 1
-552 1
-553 2
-554 2
-555 1
-557 2
-558 1
-559 2
-562 1
-564 1
-565 1
-566 3
-568 1
-571 1
-573 1
-574 2
-575 3
-583 2
-584 2
-591 1
-595 1
-597 1
-599 1
-603 2
-604 2
-606 1
-612 1
-620 1
-621 1
-627 1
-629 1
-639 1
-659 1
-681 1
-692 1
-704 1
-937 1
-1026 1
-1027 1
-1210 2
-1214 1
-1227 1
-1231 1
-1236 1
-1237 1
-1243 1
-1246 1
-1253 2
-1254 1
-1272 1
-1277 1
-1284 1
-1285 1
-1290 1
-1308 1
-1310 1
-1312 1
-1323 1
-1331 1
-1339 1
-1342 2
-1349 1
-1372 1
-1611 1
-1798 1
-2739 1
-3524 1
-3668 1
-5921 1
-8438 1
-9018 1
-9131 1
-9999 3
-lightning ~ #
+-	ret = ocfs2_meta_lock(inode, NULL, &di_bh, locklevel);
++	ret = ocfs2_meta_lock_holding_page(inode, NULL, &di_bh, locklevel,
++					   page);
+ 	if (ret < 0) {
+ 		mlog_errno(ret);
+ 		goto out;
+ 	}
 
-   Why does using MythTV apparently cause so much trouble for the rtc?
+-	ret = ocfs2_data_lock(inode, 1);
++	ret = ocfs2_data_lock_holding_page(inode, 1, page);
+ 	if (ret < 0) {
+ 		mlog_errno(ret);
+ 		goto out_unlock_meta;
+Index: fs/ocfs2/aops.h
+===================================================================
+--- fs/ocfs2/aops.h	(revision 2660)
++++ fs/ocfs2/aops.h	(working copy)
+@@ -22,6 +22,8 @@
+ #ifndef OCFS2_AOPS_H
+ #define OCFS2_AOPS_H
 
-Thanks,
-Mark
++int ocfs2_get_block(struct inode *inode, sector_t iblock,
++		    struct buffer_head *bh_result, int create);
+ int ocfs2_prepare_write(struct file *file, struct page *page,
+ 			unsigned from, unsigned to);
+
+Index: fs/ocfs2/dlmglue.c
+===================================================================
+--- fs/ocfs2/dlmglue.c	(revision 2660)
++++ fs/ocfs2/dlmglue.c	(working copy)
+@@ -30,6 +30,8 @@
+ #include <linux/smp_lock.h>
+ #include <linux/crc32.h>
+ #include <linux/kthread.h>
++#include <linux/pagevec.h>
++#include <linux/blkdev.h>
+
+ #include <cluster/heartbeat.h>
+ #include <cluster/nodemanager.h>
+@@ -43,6 +45,7 @@
+ #include "ocfs2.h"
+
+ #include "alloc.h"
++#include "aops.h"
+ #include "dlmglue.h"
+ #include "extent_map.h"
+ #include "heartbeat.h"
+@@ -113,9 +116,6 @@ static struct ocfs2_lock_res_ops ocfs2_i
+ 	.unblock	= ocfs2_unblock_meta,
+ };
+
+-static void ocfs2_data_convert_worker(struct ocfs2_lock_res *lockres,
+-				      int blocking);
+-
+ static struct ocfs2_lock_res_ops ocfs2_inode_data_lops = {
+ 	.ast		= ocfs2_inode_ast_func,
+ 	.bast		= ocfs2_inode_bast_func,
+@@ -1154,6 +1154,43 @@ out:
+ 	return status;
+ }
+
++/*
++ * The use of PG_fs_misc here is working around a lock ordering inversion.
++ * We're indicating to the DLM vote thread (the thread which invalidates the
++ * page cache of inodes who are releasing their locks to other nodes) that
++ * we're about to sleep on the DLM while holding a page lock.  See
++ * ocfs2_data_convert_worker().
++ */
++static void ocfs2_set_fs_misc(struct page *page)
++{
++	BUG_ON(PageFsMisc(page));
++	SetPageFsMisc(page);
++	mb();
++	wake_up_page_all(page, PG_locked);
++}
++
++static void ocfs2_clear_fs_misc(struct page *page)
++{
++	wait_event(*page_waitqueue(page), PageFsMisc(page));
++	ClearPageFsMisc(page);
++	smp_mb__after_clear_bit();
++	/* we'll also be unlocking the page so we don't need to wake
++	 * the page waitqueue here */
++}
++
++int ocfs2_data_lock_holding_page(struct inode *inode,
++				 int write,
++				 struct page *page)
++{
++	int ret;
++
++	ocfs2_set_fs_misc(page);
++	ret = ocfs2_data_lock(inode, write);
++	ocfs2_clear_fs_misc(page);
++
++	return ret;
++}
++
+ static void ocfs2_vote_on_unlock(ocfs2_super *osb,
+ 				 struct ocfs2_lock_res *lockres)
+ {
+@@ -1597,6 +1634,21 @@ bail:
+ 	return status;
+ }
+
++int ocfs2_meta_lock_holding_page(struct inode *inode,
++				 ocfs2_journal_handle *handle,
++				 struct buffer_head **ret_bh,
++				 int ex,
++				 struct page *page)
++{
++	int ret;
++
++	ocfs2_set_fs_misc(page);
++	ret = ocfs2_meta_lock(inode, handle, ret_bh, ex);
++	ocfs2_clear_fs_misc(page);
++
++	return ret;
++}
++
+ void ocfs2_meta_unlock(struct inode *inode,
+ 		       int ex)
+ {
+@@ -2297,32 +2349,209 @@ leave:
+ 	return ret;
+ }
+
++/*
++ * this is a hand-rolled block_read_full_page() which takes our specific
++ * situation into account -- it doesn't unlock the page nor change its state
++ * bits in the radix tree.  This page has already had its dirty bit cleared by
++ * the caller so we want to clear the dirty state in the buffers, too.
++ *
++ * It doesn't have to zero pages that straddle i_size because we can't dirty
++ * pages for writeback from mmap.  ocfs2_prepare_write() has already made sure
++ * that partially written pages contain zeros.
++ *
++ * Truncate can't race with this -- it'll get stuck waiting for a DLM lock.
++ */
++static void ocfs2_write_dirty_fs_misc_page(struct page *page)
++{
++	struct buffer_head *bh, *head;
++	struct inode *inode = page->mapping->host;
++	sector_t block;
++
++	block = page->index << (PAGE_CACHE_SHIFT - inode->i_blkbits);
++
++	BUG_ON(!page_has_buffers(page));
++	head = page_buffers(page);
++
++	bh = head;
++	do {
++		if (!buffer_mapped(bh)) {
++			int err = ocfs2_get_block(inode, block, bh, 1);
++			BUG_ON(err);
++			if (buffer_new(bh)) {
++				clear_buffer_new(bh);
++				unmap_underlying_metadata(bh->b_bdev,
++						          bh->b_blocknr);
++			}
++		}
++		bh = bh->b_this_page;
++		block++;
++	} while (bh != head);
++
++	/* start io */
++	do {
++		lock_buffer(bh);
++		BUG_ON(buffer_jbd(bh)); /* not sure.. */
++		/* clear dirty to match having cleared dirty on the page
++		 * in the caller */
++		clear_buffer_dirty(bh);
++		bh->b_end_io = end_buffer_write_sync;
++		get_bh(bh);
++		submit_bh(WRITE, bh);
++	} while ((bh = bh->b_this_page) != head);
++
++	block_sync_page(page);
++
++	/* wait on it */
++	do {
++		wait_on_buffer(bh);
++	} while ((bh = bh->b_this_page) != head);
++}
++
++
++/*
++ * This returns when either we get the page lock or we clear PG_fs_msic on
++ * behalf of an ocfs2 thread that is heading to block in the DLM.  If we have
++ * the page lock we just unlock it as usual.  If we've cleared the misc bit
++ * then that ocfs2 path is going to wait for us to set it again when we're
++ * done.  It's like that ocfs2 path has transferred ownership of the page lock
++ * to us temporarily.
++ */
++static inline int get_lock_or_fs_misc(struct page *page, int *have_fs_misc)
++{
++	if (!TestSetPageLocked(page)) {
++		*have_fs_misc = 0;
++		return 1;
++	}
++
++	if (TestClearPageFsMisc(page)) {
++		*have_fs_misc = 1;
++		return 1;
++	}
++
++	return 0;
++}
++
++static void ocfs2_lock_page_or_fs_misc(struct page *page, int *have_fs_misc)
++{
++	wait_event(*page_waitqueue(page), get_lock_or_fs_misc(page,
++							      have_fs_misc));
++}
++
++static void ocfs2_return_fs_misc(struct page *page)
++{
++	BUG_ON(PageFsMisc(page));
++	SetPageFsMisc(page);
++	mb();
++	wake_up_page_all(page, PG_fs_misc);
++}
++
++/*
++ * This is called in the context of a DLM helper thread that is operating on a
++ * lock that is converting between two modes.  While it is converting there are
++ * no local holders of the lock and local lock acquiry is blocking waiting for
++ * it to finish.  If a write lock is being dropped so that another node can
++ * acquire a read lock then dirty data has to be written so that other nodes
++ * who later acquire the read lock can read in data.  If a read lock is being
++ * dropped so that another node can acquire a write lock then the page cache
++ * has to be emptied entirely so that read requests aren't satisfied from the
++ * cache once the other node's write starts.
++ *
++ * There is a lock ordering inversion here.  Some FS paths will be holding a
++ * page lock while they wait for a DLM lock.  This path will be blocking local
++ * DLM lock acquiry while it is doing its page cache work which involves
++ * waiting for locked pages.  This is worked around by having those FS paths
++ * set PG_fs_misc on the pages they hold the lock on before they block waiting
++ * for the DLM.  When this path sees a page like this we use PG_fs_misc to sort
++ * of transfer ownership of the page lock to us temporarily.  We leave clean
++ * pages alone -- they're not uptodate and their owner is going to be reading
++ * into them once they get their DLM locks.  We have to write back dirty pages,
++ * though, so that other nodes can read them.
++ *
++ * XXX I think these pagevec loops are safe as index approaches ~0 because
++ * radix_tree_gang_lookup() returns if the index wrapps, but I might not be
++ * reading the code right.
++ */
+ static void ocfs2_data_convert_worker(struct ocfs2_lock_res *lockres,
+ 				      int blocking)
+ {
+-	struct inode *inode;
+-	struct address_space *mapping;
++	struct inode *inode = ocfs2_lock_res_inode(lockres);
++	struct address_space *mapping = inode->i_mapping;
++	int old_level = lockres->l_level;
++	pgoff_t index;
++	struct pagevec pvec;
++	unsigned i;
+
+ 	mlog_entry_void();
+
+-       	inode = ocfs2_lock_res_inode(lockres);
+-	mapping = inode->i_mapping;
++	/* we're betting that we don't need to call sync_mapping_buffers(),
++	 * having never called mark_buffer_dirty_inode() */
++	BUG_ON(!mapping->assoc_mapping && !list_empty(&mapping->private_list));
++
++	/* first drop all mappings of our pages.  When we have shared
++	 * write this will introduce dirty pages that we'll want to
++	 * writeback below */
++	if (blocking == LKM_EXMODE)
++		unmap_mapping_range(mapping, 0, 0, 0);
+
+-	if (filemap_fdatawrite(mapping)) {
+-		mlog(ML_ERROR, "Could not sync inode %"MLFu64" for downconvert!",
+-		     OCFS2_I(inode)->ip_blkno);
++	blk_run_address_space(mapping);
++
++	/* start writeback on dirty pages if we're converting from a lock that
++	 * could have dirtied pages. */
++	pagevec_init(&pvec, 0);
++	index = 0;
++	while (old_level == LKM_EXMODE  &&
++	       pagevec_lookup_tag(&pvec, mapping, &index, PAGECACHE_TAG_DIRTY,
++				  PAGEVEC_SIZE)) {
++		for (i = 0; i < pagevec_count(&pvec); i++) {
++			int have_fs_misc;
++			struct page *page = pvec.pages[i];
++
++			ocfs2_lock_page_or_fs_misc(page, &have_fs_misc);
++
++			if (have_fs_misc) {
++				/* we can't wait on or unlock this page, but we
++				 * need to write it out */
++				if (test_clear_page_dirty(page))
++					ocfs2_write_dirty_fs_misc_page(page);
++				ocfs2_return_fs_misc(page);
++				continue;
++			}
++
++			if (PageDirty(page))
++				write_one_page(page, 0);
++			else
++				unlock_page(page);
++		}
++		pagevec_release(&pvec);
++		cond_resched();
+ 	}
+-	sync_mapping_buffers(mapping);
+-	if (blocking == LKM_EXMODE) {
+-		truncate_inode_pages(mapping, 0);
+-		unmap_mapping_range(mapping, 0, 0, 0);
+-	} else {
+-		/* We only need to wait on the I/O if we're not also
+-		 * truncating pages because truncate_inode_pages waits
+-		 * for us above. We don't truncate pages if we're
+-		 * blocking anything < EXMODE because we want to keep
+-		 * them around in that case. */
++
++	/* wait for io */
++	if (old_level == LKM_EXMODE)
+ 		filemap_fdatawait(mapping);
++
++	/* now remove all pages if we're blocking exclusive and can't have any
++	 * remaining in our page cache */
++	index = 0;
++	while (blocking == LKM_EXMODE &&
++	       pagevec_lookup(&pvec, mapping, index, PAGEVEC_SIZE)) {
++		for (i = 0; i < pagevec_count(&pvec); i++) {
++			struct page *page = pvec.pages[i];
++			int have_fs_misc;
++			index = page->index + 1;
++
++			ocfs2_lock_page_or_fs_misc(page, &have_fs_misc);
++
++			if (have_fs_misc) {
++				ocfs2_return_fs_misc(page);
++				continue;
++			}
++
++			truncate_complete_page(mapping, page);
++			unlock_page(page);
++		}
++		pagevec_release(&pvec);
++		cond_resched();
+ 	}
+
+ 	mlog_exit_void();

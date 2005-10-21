@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965068AbVJUSXr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965077AbVJUS0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965068AbVJUSXr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 14:23:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965071AbVJUSXr
+	id S965077AbVJUS0p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 14:26:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965074AbVJUS0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 14:23:47 -0400
-Received: from p4-7036.uk2net.com ([213.232.95.37]:53646 "EHLO
-	churchillrandoms.co.uk") by vger.kernel.org with ESMTP
-	id S965068AbVJUSXq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 14:23:46 -0400
-Message-ID: <43593240.9020806@churchillrandoms.co.uk>
-Date: Fri, 21 Oct 2005 11:24:00 -0700
-From: Stefan Jones <stefan.jones@churchillrandoms.co.uk>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051003)
-X-Accept-Language: en-us, en
+	Fri, 21 Oct 2005 14:26:45 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:61905 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S965077AbVJUS0o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 14:26:44 -0400
+Date: Fri, 21 Oct 2005 11:26:13 -0700 (PDT)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Paul Jackson <pj@sgi.com>
+cc: Kamezawa Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, Simon.Derr@bull.net,
+       akpm@osdl.org, kravetz@us.ibm.com, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, magnus.damm@gmail.com, marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH 4/4] Swap migration V3: sys_migrate_pages interface
+In-Reply-To: <20051021111004.757a1c77.pj@sgi.com>
+Message-ID: <Pine.LNX.4.62.0510211125080.23833@schroedinger.engr.sgi.com>
+References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com>
+ <20051020225955.19761.53060.sendpatchset@schroedinger.engr.sgi.com>
+ <4358588D.1080307@jp.fujitsu.com> <Pine.LNX.4.61.0510210901380.17098@openx3.frec.bull.fr>
+ <435896CA.1000101@jp.fujitsu.com> <20051021081553.50716b97.pj@sgi.com>
+ <43590789.1070309@jp.fujitsu.com> <20051021111004.757a1c77.pj@sgi.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [BUG][2.6.13.4] Memoryleak - idr_layer_cache slab - inotify?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Fri, 21 Oct 2005, Paul Jackson wrote:
 
-I noticed this a while back when gam_server (new fam replacement)
-started playing up and the idr_layer_cache slab used up 300Mb of RAM.
+> Kame wroteL
+> > I'm just afraid of swapped-out pages will goes back to original nodes
+> 
+> The pages could end up there, yes, if that's where they are faulted
+> back into.
 
-To reproduce:
+Right. But the cpuset code will change the mems_allowed. The pages will 
+then be allocated in that context.
 
-Run gnome and make sure it is using gam_server for fam.
+> In general, the swap-based migration method does not guarantee
+> where the pages will end up.  The more difficult direct node-to-node
+> migration method will be needed to guarantee that.
 
-In one console do:
-
-while true ;do sleep 0.1 ; killall -w gam_server; done
-
-In another try slabtop and see the idr_layer_cache slab climb, eating
-memory (abit slowly).
-( Gnome restarts gam_server after each kill for you and gets it doing
-stuff )
-
-I looked though the source and inotify does use the idr_layer_cache slab
-and gam_server also uses inotify.
-
-Thank for your time, shall I use bugzilla.kernel or is this ok? More
-info needed?
-
-Stefan
-
-
-
+Correct, tt does not guarantee that without cpuset assistance. 

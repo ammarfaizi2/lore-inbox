@@ -1,39 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964978AbVJUPW7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbVJUPXs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964978AbVJUPW7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 11:22:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964979AbVJUPW7
+	id S964981AbVJUPXs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 11:23:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbVJUPXr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 11:22:59 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:36249 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S964978AbVJUPW6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 11:22:58 -0400
-Message-ID: <43590789.1070309@jp.fujitsu.com>
-Date: Sat, 22 Oct 2005 00:21:45 +0900
-From: Kamezawa Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: ja, en-us, en
+	Fri, 21 Oct 2005 11:23:47 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:15811 "EHLO
+	linuxbipbip.grupopie.com") by vger.kernel.org with ESMTP
+	id S964983AbVJUPXo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 11:23:44 -0400
+Message-ID: <4359078E.2010101@grupopie.com>
+Date: Fri, 21 Oct 2005 16:21:50 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Paul Jackson <pj@sgi.com>
-CC: Simon.Derr@bull.net, clameter@sgi.com, akpm@osdl.org, kravetz@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, magnus.damm@gmail.com,
-       marcelo.tosatti@cyclades.com
-Subject: Re: [PATCH 4/4] Swap migration V3: sys_migrate_pages interface
-References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com>	<20051020225955.19761.53060.sendpatchset@schroedinger.engr.sgi.com>	<4358588D.1080307@jp.fujitsu.com>	<Pine.LNX.4.61.0510210901380.17098@openx3.frec.bull.fr>	<435896CA.1000101@jp.fujitsu.com> <20051021081553.50716b97.pj@sgi.com>
-In-Reply-To: <20051021081553.50716b97.pj@sgi.com>
+To: "Vincent W. Freeh" <vin@csc.ncsu.edu>
+CC: arjan@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: Understanding Linux addr space, malloc, and heap
+References: <4358F0E3.6050405@csc.ncsu.edu> <1129903396.2786.19.camel@laptopd505.fenrus.org> <4359051C.2070401@csc.ncsu.edu>
+In-Reply-To: <4359051C.2070401@csc.ncsu.edu>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson wrote:
-> I agree with Simon that sys_migrate_pages() does not want to get in
-> the business of replicating the checks on updating mems_allowed that
-> are in the cpuset code.
-> 
-Hm.. okay.
-I'm just afraid of swapped-out pages will goes back to original nodes
+>> On Fri, 2005-10-21 at 09:45 -0400, Vincent W. Freeh wrote:
+>> I cannot mprotect data that I malloc ...
 
--- Kame
+ > Arjan van de Ven wrote:
+>> you can't mprotect malloc() memory period ..
 
+Vincent W. Freeh wrote:
+> Actually, I can and do.  Simple program at end.
+
+Am I the only one who finds this conversation weird? :)
+
+This reminds me of a student I had that called "main" to return to the 
+start of the application. No matter how I explained that it was simply 
+wrong and that stack was growing because of that he just kept replying: 
+"but it works!"...
+
+-- 
+Paulo Marques - www.grupopie.com
+
+The rule is perfect: in all matters of opinion our
+adversaries are insane.
+Mark Twain

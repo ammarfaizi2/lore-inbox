@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964993AbVJUPsB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964999AbVJUPsn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964993AbVJUPsB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 11:48:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964996AbVJUPsA
+	id S964999AbVJUPsn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 11:48:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965003AbVJUPsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 11:48:00 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:46999 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964993AbVJUPr5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 11:47:57 -0400
-Subject: Re: PATCH: Allow users to force a panic on NMI - Header file
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-In-Reply-To: <1129900906.26367.33.camel@localhost.localdomain>
-References: <1129900906.26367.33.camel@localhost.localdomain>
+	Fri, 21 Oct 2005 11:48:43 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:27876 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964996AbVJUPsm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 11:48:42 -0400
+Subject: Re: Understanding Linux addr space, malloc, and heap
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Vincent W. Freeh" <vin@csc.ncsu.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <43590B23.2090101@csc.ncsu.edu>
+References: <4358F0E3.6050405@csc.ncsu.edu>
+	 <1129903396.2786.19.camel@laptopd505.fenrus.org>
+	 <4359051C.2070401@csc.ncsu.edu>
+	 <1129908179.2786.23.camel@laptopd505.fenrus.org>
+	 <43590B23.2090101@csc.ncsu.edu>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 21 Oct 2005 17:16:41 +0100
-Message-Id: <1129911401.26367.60.camel@localhost.localdomain>
+Date: Fri, 21 Oct 2005 17:48:38 +0200
+Message-Id: <1129909719.2786.27.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Forgot the header file in that one.
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+> 
+> But I can't mprotect the 66th page I malloc.  And mprotect fails SILENTLY!
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-rc4-mm1/include/linux/kernel.h linux-2.6.14-rc4-mm1/include/linux/kernel.h
---- linux.vanilla-2.6.14-rc4-mm1/include/linux/kernel.h	2005-10-20 16:12:41.000000000 +0100
-+++ linux-2.6.14-rc4-mm1/include/linux/kernel.h	2005-10-20 17:30:10.000000000 +0100
-@@ -170,6 +170,7 @@
- extern int oops_in_progress;		/* If set, an oops, panic(), BUG() or die() is in progress */
- extern __deprecated_for_modules int panic_timeout;
- extern int panic_on_oops;
-+extern int panic_on_unrecovered_nmi;
- extern int tainted;
- extern const char *print_tainted(void);
- extern void add_taint(unsigned);
+I'm not convinced it does that.. not until the bugs are out of the
+code.... since right now it mprotects the wrong stuff, which sometimes
+overlaps with what you malloced, sometimes not.
+
 

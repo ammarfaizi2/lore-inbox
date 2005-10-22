@@ -1,63 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932581AbVJVDoe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932580AbVJVDlM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932581AbVJVDoe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 23:44:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932582AbVJVDoe
+	id S932580AbVJVDlM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 23:41:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932581AbVJVDlM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 23:44:34 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:33228 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932581AbVJVDod (ORCPT
+	Fri, 21 Oct 2005 23:41:12 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:36297 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932580AbVJVDlL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 23:44:33 -0400
-Date: Sat, 22 Oct 2005 05:44:58 +0200
+	Fri, 21 Oct 2005 23:41:11 -0400
+Date: Sat, 22 Oct 2005 05:41:19 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Mark Knecht <markknecht@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc5-rt3 - `IRQ 8'[798] is being piggy
-Message-ID: <20051022034458.GB12751@elte.hu>
-References: <5bdc1c8b0510211003j4e9bf03bhf1ea8e94ffe60153@mail.gmail.com> <5bdc1c8b0510211040s40f3f9bbj7f83e174d7b6d937@mail.gmail.com> <1129920323.17709.2.camel@mindpipe> <5bdc1c8b0510211152m592d95cfte57dc7e9b027f87a@mail.gmail.com> <1129923883.17709.11.camel@mindpipe> <5bdc1c8b0510211525v62212d33j84491cfc687bd200@mail.gmail.com> <1129937318.4724.6.camel@mindpipe>
+To: Mark Knecht <markknecht@gmail.com>
+Cc: Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       William Weston <weston@lysdexia.org>, cc@ccrma.stanford.edu,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       david singleton <dsingleton@mvista.com>,
+       Steven Rostedt <rostedt@goodmis.org>, Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: 2.6.14-rc4-rt7
+Message-ID: <20051022034119.GA12751@elte.hu>
+References: <20051018072844.GB21915@elte.hu> <1129669474.5929.8.camel@cmn3.stanford.edu> <Pine.LNX.4.58.0510181423200.19498@echo.lysdexia.org> <20051019111943.GA31410@elte.hu> <1129835571.14374.11.camel@cmn3.stanford.edu> <20051020191620.GA21367@elte.hu> <1129852531.5227.4.camel@cmn3.stanford.edu> <20051021080504.GA5088@elte.hu> <1129937138.5001.4.camel@cmn3.stanford.edu> <5bdc1c8b0510211720q28334177p1b6d6a2cd7fbfd67@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1129937318.4724.6.camel@mindpipe>
+In-Reply-To: <5bdc1c8b0510211720q28334177p1b6d6a2cd7fbfd67@mail.gmail.com>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamScore: 0.0
 X-ELTE-SpamLevel: 
 X-ELTE-SpamCheck: no
 X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
 	0.0 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+* Mark Knecht <markknecht@gmail.com> wrote:
 
-> On Fri, 2005-10-21 at 15:25 -0700, Mark Knecht wrote:
-> > >
-> > > No I don't think so.  CONFIG_RTC_HISTOGRAM is a hack, designed to work
-> > > with a specific test program that runs SCHED_FIFO and poll()s on the
-> > > RTC.  VLC apparently poll()s on the RTC but does not run SCHED_FIFO.  So
-> > > of course there will be delays.
+> On 10/21/05, Fernando Lopez-Lezcano <nando@ccrma.stanford.edu> wrote:
+> <SNIP>
+> >
+> > Here's one with rc5-rt3:
+> >
+> > Oct 21 15:01:46 cmn3 kernel: BUG: ktimer expired short without user
+> > signal! (hald-addon-stor:4309)
+> > Oct 21 15:01:46 cmn3 kernel: .. expires:   1012/751245500
+> > Oct 21 15:01:46 cmn3 kernel: .. expired:   1012/750908115
+> > Oct 21 15:01:46 cmn3 kernel: .. at line:   942
+> > Oct 21 15:01:46 cmn3 kernel: .. interval:  0/0
+> ><SNIP>
 > 
-> > Lee,
-> >    Indeed, you are correct. Apparently under character devices I had
-> > turned on the RTC histogram feature. With that off I am not only
-> > getting the maximum latency values we expect.
-> > 
-> >    Now I'll have to let it run for hours/days to see if I catch any
-> > info on these xruns, should I get another rash of them. Yesterday they
-> > came only after about 14 hours of work. I had none the previous two
-> > days.
-> 
-> In general you should avoid enabling/disabling random config options 
-> between runs.  If you keep changing the .config it makes it impossible 
-> to hunt bugs or compare one set of results to another.
+> Refresh me. What sort of machine is this and what log file are you 
+> seeing these in. I am surprised at my not seeing them at all, but I 
+> have not gone into the high res timer stuff much. Should I?
 
-i think i'll remove the CONFIG_RTC_HISTOGRAM feature altogether from the 
--rt tree - meanwhile we've got more advanced (and less verbose) latency 
-histogram features via WAKEUP_LATENCY_HIST, PREEMPT_OFF_HIST and 
-INTERRUPT_OFF_HIST.
+high-res timers are not ported (and thus not switchable via the .config) 
+to x64, yet - so you are much less likely to be seeing such problems.  
+x64 does run the generic ktimer code - but this particular problem seems 
+to be related to hres timers.
 
 	Ingo

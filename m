@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965190AbVJVAUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbVJVAc7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965190AbVJVAUF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 20:20:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965191AbVJVAUE
+	id S1751281AbVJVAc7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 20:32:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbVJVAc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 20:20:04 -0400
-Received: from xproxy.gmail.com ([66.249.82.207]:47020 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965190AbVJVAUC convert rfc822-to-8bit
+	Fri, 21 Oct 2005 20:32:59 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:14506 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S1751236AbVJVAc6 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 20:20:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PGWxL6at1HIwJuAGddwTM3K8wgXnrrbALFfAlkjsM87cTyOsbYX9sWzgKBBbLLZiySoKAf089wGCwOW5Ar5HQgTblI8hHMVJYbSvVT4rtI7uiGf9LSrhIWQSIO3FWKzxN3pxOX31iqriBNOisxeB7W0xdolLG9atg/x32x9ZtQg=
-Message-ID: <5bdc1c8b0510211720q28334177p1b6d6a2cd7fbfd67@mail.gmail.com>
-Date: Fri, 21 Oct 2005 17:20:01 -0700
-From: Mark Knecht <markknecht@gmail.com>
-To: Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>
-Subject: Re: 2.6.14-rc4-rt7
-Cc: Ingo Molnar <mingo@elte.hu>, William Weston <weston@lysdexia.org>,
-       cc@ccrma.stanford.edu, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>,
-       david singleton <dsingleton@mvista.com>,
-       Steven Rostedt <rostedt@goodmis.org>, Rui Nuno Capela <rncbc@rncbc.org>
-In-Reply-To: <1129937138.5001.4.camel@cmn3.stanford.edu>
+	Fri, 21 Oct 2005 20:32:58 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051017160536.GA2107@elte.hu> <20051018072844.GB21915@elte.hu>
-	 <1129669474.5929.8.camel@cmn3.stanford.edu>
-	 <Pine.LNX.4.58.0510181423200.19498@echo.lysdexia.org>
-	 <20051019111943.GA31410@elte.hu>
-	 <1129835571.14374.11.camel@cmn3.stanford.edu>
-	 <20051020191620.GA21367@elte.hu>
-	 <1129852531.5227.4.camel@cmn3.stanford.edu>
-	 <20051021080504.GA5088@elte.hu>
-	 <1129937138.5001.4.camel@cmn3.stanford.edu>
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: [PATCH] new hp diva console port
+Date: Fri, 21 Oct 2005 17:30:44 -0700
+Message-ID: <C1BB5827EB7A364EA57B4E8C7C02ADAC054EB2F2@cacexc04.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] new hp diva console port
+Thread-Index: AcXWn9ccU//frjMcTnqsRWBQyNwy6Q==
+From: "Chen, Justin" <justin.chen@hp.com>
+To: <rmk+serial@arm.linux.org.uk>
+Cc: <linux-kernel@vger.kernel.org>, <linux-serial@vger.kernel.org>
+X-OriginalArrivalTime: 22 Oct 2005 00:30:45.0906 (UTC) FILETIME=[D7D3E720:01C5D69F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/21/05, Fernando Lopez-Lezcano <nando@ccrma.stanford.edu> wrote:
-<SNIP>
->
-> Here's one with rc5-rt3:
->
-> Oct 21 15:01:46 cmn3 kernel: BUG: ktimer expired short without user
-> signal! (hald-addon-stor:4309)
-> Oct 21 15:01:46 cmn3 kernel: .. expires:   1012/751245500
-> Oct 21 15:01:46 cmn3 kernel: .. expired:   1012/750908115
-> Oct 21 15:01:46 cmn3 kernel: .. at line:   942
-> Oct 21 15:01:46 cmn3 kernel: .. interval:  0/0
-><SNIP>
+This patch adds the new ID 0x132a and configure the new PCI Diva console
+port.  This device support only 1 single console UART. Please apply.
+Thanks,
+ 
+Justin Chen
 
-Refresh me. What sort of machine is this and what log file are you
-seeing these in. I am surprised at my not seeing them at all, but I
-have not gone into the high res timer stuff much. Should I?
-
-- Mark
+--- 8250_pci.c.orig     2005-10-18 15:56:50.148489501 -0700
++++ 8250_pci.c  2005-10-18 15:55:25.624076474 -0700
+@@ -178,6 +178,7 @@ static int __devinit pci_hp_diva_init(st
+                rc = 4;
+                break;
+        case PCI_DEVICE_ID_HP_DIVA_POWERBAR:
++       case PCI_DEVICE_ID_HP_DIVA_HURRICANE:
+                rc = 1;
+                break;
+        }
+--- pci_ids.h.orig      2005-10-18 16:02:56.864305321 -0700
++++ pci_ids.h   2005-10-18 16:03:54.002976496 -0700
+@@ -710,6 +710,7 @@
+ #define PCI_DEVICE_ID_HP_DIVA_EVEREST  0x1282
+ #define PCI_DEVICE_ID_HP_DIVA_AUX      0x1290
+ #define PCI_DEVICE_ID_HP_DIVA_RMP3     0x1301
++#define PCI_DEVICE_ID_HP_DIVA_HURRICANE 0x132a
+ #define PCI_DEVICE_ID_HP_CISSA         0x3220
+ #define PCI_DEVICE_ID_HP_CISSB         0x3230
+ #define PCI_DEVICE_ID_HP_ZX2_IOC       0x4031

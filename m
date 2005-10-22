@@ -1,73 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbVJVKUH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbVJVKp1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932211AbVJVKUH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Oct 2005 06:20:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbVJVKUG
+	id S932216AbVJVKp1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Oct 2005 06:45:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbVJVKp0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Oct 2005 06:20:06 -0400
-Received: from tirith.ics.muni.cz ([147.251.4.36]:20158 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S932211AbVJVKUF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Oct 2005 06:20:05 -0400
-Date: Sat, 22 Oct 2005 12:20:02 +0200
-From: Jan Kasprzak <kas@fi.muni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Oops in __d_lookup()
-Message-ID: <20051022102002.GB21656@fi.muni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: kas@fi.muni.cz
-X-Muni-Virus-Test: Clean
+	Sat, 22 Oct 2005 06:45:26 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:29398 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S932216AbVJVKpZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Oct 2005 06:45:25 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <435A1793.1050805@s5r6.in-berlin.de>
+Date: Sat, 22 Oct 2005 12:42:27 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux-scsi@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
+CC: Jeff Garzik <jgarzik@pobox.com>, Luben Tuikov <luben_tuikov@adaptec.com>,
+       andrew.patterson@hp.com, Christoph Hellwig <hch@lst.de>,
+       "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached
+ PHYs)
+References: <91888D455306F94EBD4D168954A9457C048F0E34@nacos172.co.lsil.com>	 <20051020160155.GA14296@lst.de> <4357CB03.4020400@adaptec.com>	 <20051020170330.GA16458@lst.de>  <4357F7DE.7050004@adaptec.com> <1129852879.30258.137.camel@bluto.andrew> <43583A53.2090904@pobox.com> <435929FD.4070304@adaptec.com> <43593100.5040708@pobox.com> <43593884.7000800@adaptec.com> <4359395B.9030402@pobox.com> <43593FE1.7020506@adaptec.com> <4359440E.2050702@pobox.com> <43595275.1000308@adaptec.com> <435959BE.5040101@pobox.com> <43595CA6.9010802@adaptec.com> <43596070.3090902@pobox.com> <43596859.3020801@adaptec.com> <43596F16.7000606@pobox.com>
+In-Reply-To: <43596F16.7000606@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: (0.65) AWL,BAYES_50,EXCUSE_3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi all,
+Jeff Garzik wrote:
+> Luben Tuikov wrote:
+>>>> The host template _mixes_ hw, scsi core, and protocol knowlege into
+>>>> one ugly blob.
+>>>
+>>> True.
+>>>
+>>> If you do not like the current situation, evolve the SCSI core (and 
+>>> all drivers) to where you think they should be.
+>>
+>> While the architecture in my mind is clear, I cannot do this myself
+>> (and for all drivers).  Such a change would be gradual, involving more
+>> than one developer, for more than one (new) driver, etc.
+> 
+> Correct.  That's why there is resistance to aic94xx's approach of 
+> creating a totally new "strict SAM" path, existing in parallel with the 
+> traditional SCSI core.  You need to evolve the existing code to get 
+> there.  Such changes are gradual, involving more than one developer, etc.
+> 
+> We don't need one small set of SCSI drivers behaving differently from 
+> the vast majority of existing SCSI drivers.
+> 
+> Hear me now, and believe me later:  we all largely agree on the points 
+> you've raised about legacy crapola in the SCSI core.  James, Christoph, 
+> myself, and several others disagree with your assertion that the old 
+> SCSI core should exist in parallel with your new SCSI core.
+> 
+> We differ on the path, not the goal.  As a thought experiment, you could 
+> try simply implementing the changes requested, and see where that goes.
 
-I have got the following Oops under 2.6.14-rc4 and -rc5 - it is in
-the updatedb process, altough I have seen that also in nfsd (both running
-over XFS volumes mainly, altough there are few ext3 volumes as well.
-The server is 4-opteron HP DL-585.
+I am not familiar with most parts of the SCSI subsystem. However from 
+what I understood, some existing concepts in the core need to be removed 
+from SCSI core entirely, others need to be cleaned up WRT what they mean 
+and how they represent it. It seems to me that a practical path to go 
+would be:
 
-Unable to handle kernel paging request at 00000000ffffffff RIP:
-<ffffffff80199310>{__d_lookup+128}
-PGD 251690067 PUD 0
-Oops: 0000 [1] SMP
-CPU 2
-Modules linked in: ide_cd cdrom
-Pid: 27577, comm: updatedb Not tainted 2.6.14-rc5acpi #1
-RIP: 0010:[<ffffffff80199310>] <ffffffff80199310>{__d_lookup+128}
-RSP: 0018:ffff810623c0bc88  EFLAGS: 00010206
-RAX: 00000000ffffffff RBX: 00000000ffffffff RCX: 0000000000000016
-RDX: 0000027ec3780cd0 RSI: 00000000002f86ab RDI: ffff810491896a28
-RBP: ffff810214346170 R08: 0000000000000007 R09: 0000000000000007
-R10: 0000000000000000 R11: 0000000000000000 R12: 00000000de1db4d3
-R13: ffff810491896a28 R14: ffff810623c0bd28 R15: 000000000000001a
-FS:  00002aaaaae064c0(0000) GS:ffffffff805da900(0000) knlGS:000000005557daa0
-CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-CR2: 00000000ffffffff CR3: 0000000399392000 CR4: 00000000000006e0
-Process updatedb (pid: 27577, threadinfo ffff810623c0a000, task ffff8101e801a9c0)
-Stack: 0000000000000296 ffffffff802a9951 0000000000000000 ffff810435253000
-       0000001a00000296 0000000000000000 ffff810623c0bd38 ffff810623c0be68
-       ffff810623c0bd28 ffff81067f70f9c8
-Call Trace:<ffffffff802a9951>{__up_read+33} <ffffffff8018dfb1>{do_lookup+49}
-       <ffffffff8018ea9d>{__link_path_walk+2653} <ffffffff8025da4d>{xfs_dir2_block_getdents+589}
-       <ffffffff8018f022>{link_path_walk+178} <ffffffff801632fa>{kmem_cache_alloc+122}
-       <ffffffff8018f55e>{path_lookup+446} <ffffffff8018f71e>{__user_walk+62}
-       <ffffffff801894b6>{vfs_lstat+38} <ffffffff801898ff>{sys_newlstat+31}
-       <ffffffff8010db56>{system_call+126}
+A. Post mock-ups and pseudo code about how to change the core, discuss.
+B. Set up a scsi-cleanup tree. In this tree,
+      1. renovate the core (thereby break all command set drivers and
+         all transport subsystems),
+      2. update ~2 command set drivers and ~2 transport subsystems
+      3. validate the renovated core,
+      4. fix the conceptual errors of the renovated core (as well as
+         first few discovered bugs in the implementation),
+      5. update all other command set drivers,
+      6. update all transport subsystems where resources to do so are
+         available,
+      7. test all command set drivers as far as hardware is accessible,
+      8. test the updated transport subsystems as far as hardware is
+         accessible,
+      9. fix prominent bugs.
+C. In mainline,
+      i. mark all drivers which cannot be updated in the mid term as
+         scheduled for temporary feature removal (i.e. they will be
+         broken for an undetermined period),
+     ii. mark all drivers which have been updated in scsi-cleanup tree,
+         but were not thoroughly tested, as scheduled for temporary
+         feature regression (i.e. they will be experimental for an
+         undetermined period).
+D. Push scsi-cleanup tree to -mm and shake out bugs.
+E. Push to mainline.
+F. Fix remaining drivers as time goes by, remove drivers which remain
+    broken for too long.
 
-Code: 48 8b 03 0f 18 08 48 8d 6b e8 44 39 65 30 0f 85 8c 00 00 00
-RIP <ffffffff80199310>{__d_lookup+128} RSP <ffff810623c0bc88>
-CR2: 00000000ffffffff
+Most steps may overlap, some steps may repeat. Step A is fortunately 
+already going on for quite some time.
 
--Yenya
+Step 1.-4. could involve much dispute, thus taking much more time than 
+technically necessary -or- (and that would be less fortunate) being 
+dragged out into later stages when a conceptually stabilized core is 
+desirable. Much of that may be prevented in step A.
 
+I doubt that the desired cleanup of the SCSI core could be done 
+on-the-go, i.e. without temporary breakage of larger parts of the 
+subsystem (out of mainline). But then again, I don't know much of the 
+subsystem, so what am I talking about here?
+
+Also, long-term breakage of smaller parts of the SCSI subsystem in 
+mainline is to be expected; breakage which is to be announced and scheduled.
 -- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/    Journal: http://www.fi.muni.cz/~kas/blog/ |
-> Specs are a basis for _talking_about_ things. But they are _not_ a basis <
-> for implementing software.                              --Linus Torvalds <
+Stefan Richter
+-=====-=-=-= =-=- =-==-
+http://arcgraph.de/sr/

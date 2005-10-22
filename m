@@ -1,60 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbVJVRTz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750876AbVJVRXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750806AbVJVRTz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Oct 2005 13:19:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750797AbVJVRTz
+	id S1750876AbVJVRXk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Oct 2005 13:23:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750874AbVJVRXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Oct 2005 13:19:55 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:16351 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750790AbVJVRTy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Oct 2005 13:19:54 -0400
-Date: Sat, 22 Oct 2005 18:19:43 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Sergey Panov <sipan@sipan.org>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>, linux-scsi@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Luben Tuikov <luben_tuikov@adaptec.com>, andrew.patterson@hp.com,
-       Christoph Hellwig <hch@lst.de>,
+	Sat, 22 Oct 2005 13:23:40 -0400
+Received: from web31803.mail.mud.yahoo.com ([68.142.207.66]:15233 "HELO
+	web31803.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750819AbVJVRXj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Oct 2005 13:23:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=LAuRo1kL5kUIm0iedMnvb8ZxWIsLgAdUfPmRGUaXV0PrmJMEpQCGdTKY4Klvtthp1h+ytn2vfC/bfUKgeAnA38tc2OlayKq6cxEebouKQZ4yd4yKeThmV3O44EP0QEFVwhdLmurhfW9OT62LVxc++GPCHz/6/rnshuwj/VkxL9U=  ;
+Message-ID: <20051022172339.3775.qmail@web31803.mail.mud.yahoo.com>
+Date: Sat, 22 Oct 2005 10:23:39 -0700 (PDT)
+From: Luben Tuikov <ltuikov@yahoo.com>
+Reply-To: ltuikov@yahoo.com
+Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached PHYs)
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>, linux-scsi@vger.kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Luben Tuikov <luben_tuikov@adaptec.com>,
+       andrew.patterson@hp.com, Christoph Hellwig <hch@lst.de>,
        "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
        Linus Torvalds <torvalds@osdl.org>
-Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached PHYs)
-Message-ID: <20051022171943.GA7546@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Sergey Panov <sipan@sipan.org>,
-	Stefan Richter <stefanr@s5r6.in-berlin.de>,
-	linux-scsi@vger.kernel.org,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Luben Tuikov <luben_tuikov@adaptec.com>, andrew.patterson@hp.com,
-	Christoph Hellwig <hch@lst.de>,
-	"Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
-	Linus Torvalds <torvalds@osdl.org>
-References: <4359440E.2050702@pobox.com> <43595275.1000308@adaptec.com> <435959BE.5040101@pobox.com> <43595CA6.9010802@adaptec.com> <43596070.3090902@pobox.com> <43596859.3020801@adaptec.com> <43596F16.7000606@pobox.com> <435A1793.1050805@s5r6.in-berlin.de> <20051022105815.GB3027@infradead.org> <1129994910.6286.21.camel@sipan.sipan.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1129994910.6286.21.camel@sipan.sipan.org>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <435A05DD.7040003@s5r6.in-berlin.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 22, 2005 at 11:28:30AM -0400, Sergey Panov wrote:
->  It is a mistake to think that you can not do a big rework and keep SCSI
-> sub-system stable. You just have to make sure the OLD way is supported
-> for as log as it is needed.
+--- Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
+> 
+> Will cmd_per_lun, sg_tablesize, max_sectors, dma_boundary, 
+> use_clustering ever have to be adjusted specifically for a SAS hardware?
 
-No.  Rewriting something from scratch is horrible engineering practice.
-It's impossible to very huge changes, small incremental changes OTOH
-allow easier planning, easier calculation of the risks and cost and most
-import better test coverage.  There's nothing specific to scsi or linux
-kernel code about it.  It'd suggest you read:
+No hardware SAS chip I know of needs any of those legacy limitations.
+Neither BCM8603 nor Fusion MPT.
 
- http://www.joelonsoftware.com/articles/fog0000000069.html
+Those limitations are purely Parallel SCSI.
 
-or various similar articles.  Full scale rewrites almost never work
-out.
+I just included it, to show proof of concept -- when the architecure and
+layering is correct, how easy it is to do it.  But you're right, it is
+not needed.
+
+> Obviuosly none of this is required _at the moment_. IOW neither the 
+> introduction of a sas_ha_hw_profile nor a pass-through of 
+> scsi_host_template down to SAS interconnect drivers is required right 
+> now. So why do one or the other now? Isn't it a sensible rule to not 
+> solve problems now which do not exist yet?
+
+This is exactly the rule I followed when developing the SAS Transport
+Layer for Linux.  Furthermore, _that_ rule, to never overengineer, I learned
+from Linux.  Sadly the politics are too deep and that rule applies only
+to what is convenient, at least in Linux SCSI.
+
+   Luben
+
+
+-- 
+http://linux.adaptec.com/sas/
+http://www.adaptec.com/sas/

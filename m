@@ -1,52 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbVJVFUA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbVJVFc1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932176AbVJVFUA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Oct 2005 01:20:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbVJVFUA
+	id S932187AbVJVFc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Oct 2005 01:32:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbVJVFc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Oct 2005 01:20:00 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:38851 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932176AbVJVFT7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Oct 2005 01:19:59 -0400
-Subject: Re: 2.6.14-rc4-rt7
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Mark Knecht <markknecht@gmail.com>,
-       Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       William Weston <weston@lysdexia.org>, cc@ccrma.stanford.edu,
-       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       david singleton <dsingleton@mvista.com>,
-       Steven Rostedt <rostedt@goodmis.org>, Rui Nuno Capela <rncbc@rncbc.org>
-In-Reply-To: <20051022034119.GA12751@elte.hu>
-References: <20051018072844.GB21915@elte.hu>
-	 <1129669474.5929.8.camel@cmn3.stanford.edu>
-	 <Pine.LNX.4.58.0510181423200.19498@echo.lysdexia.org>
-	 <20051019111943.GA31410@elte.hu>
-	 <1129835571.14374.11.camel@cmn3.stanford.edu>
-	 <20051020191620.GA21367@elte.hu>
-	 <1129852531.5227.4.camel@cmn3.stanford.edu> <20051021080504.GA5088@elte.hu>
-	 <1129937138.5001.4.camel@cmn3.stanford.edu>
-	 <5bdc1c8b0510211720q28334177p1b6d6a2cd7fbfd67@mail.gmail.com>
-	 <20051022034119.GA12751@elte.hu>
-Content-Type: text/plain
-Date: Sat, 22 Oct 2005 01:12:37 -0400
-Message-Id: <1129957957.6385.5.camel@mindpipe>
+	Sat, 22 Oct 2005 01:32:27 -0400
+Received: from hera.kernel.org ([140.211.167.34]:65161 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S932187AbVJVFc1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Oct 2005 01:32:27 -0400
+Date: Fri, 21 Oct 2005 22:50:50 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Magnus Damm <magnus.damm@gmail.com>
+Cc: Christoph Lameter <clameter@sgi.com>, akpm@osdl.org,
+       Mike Kravetz <kravetz@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [PATCH 0/4] Swap migration V3: Overview
+Message-ID: <20051022005050.GA27317@logos.cnet>
+References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com> <aec7e5c30510201857r7cf9d337wce9a4017064adcf@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aec7e5c30510201857r7cf9d337wce9a4017064adcf@mail.gmail.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-10-22 at 05:41 +0200, Ingo Molnar wrote:
-> high-res timers are not ported (and thus not switchable via the .config) 
-> to x64, yet - so you are much less likely to be seeing such problems.  
-> x64 does run the generic ktimer code - but this particular problem seems 
-> to be related to hres timers.
+On Fri, Oct 21, 2005 at 10:57:02AM +0900, Magnus Damm wrote:
+> On 10/21/05, Christoph Lameter <clameter@sgi.com> wrote:
+> > Page migration is also useful for other purposes:
+> >
+> > 1. Memory hotplug. Migrating processes off a memory node that is going
+> >    to be disconnected.
+> >
+> > 2. Remapping of bad pages. These could be detected through soft ECC errors
+> >    and other mechanisms.
+> 
+> 3. Migrating between zones.
+> 
+> The current per-zone LRU design might have some drawbacks. I would
+> prefer a per-node LRU to avoid that certain zones needs to shrink more
+> often than others. But maybe that is not the case, please let me know
+> if I'm wrong.
+> 
+> If you think about it, say that a certain user space page happens to
+> be allocated from the DMA zone, and for some reason this DMA zone is
+> very popular because you have crappy hardware, then it might be more
+> probable that this page is paged out before some other much older/less
+> used page in another (larger) zone. And I guess the same applies to
+> small HIGHMEM zones.
 
-Fernando, this is somewhat OT, but are you really planning to enable
-high res timers in the ccrma kernel?  My impression so far has been that
-they are too experimental for a distro kernel.
+User pages (accessed through their virtual pte mapping) can be moved
+around zones freely - user pages do not suffer from zone requirements.
+So you can just migrate a user page in DMA zone to another node's
+highmem zone.
 
-Lee
+Pages with zone requirements (DMA pages for driver buffers or user mmap()
+on crappy hardware, lowmem restricted kernel pages (SLAB caches), etc.
+can't be migrated easily (and no one attempted to do that yet AFAIK).
 
+> This could very well be related to the "1 GB Memory is bad for you"
+> problem described briefly here: http://kerneltrap.org/node/2450
+> 
+> Maybe it is possible to have a per-node LRU and always page out the
+> least recently used page in the entire node, and then migrate pages to
+> solve specific "within N bits of address space" requirements.
+
+Pages with "N bits of address space" requirement pages can't be migrated
+at the moment (on the hardware requirement it would be necessary to have
+synchronization with driver operation, shutdown it down, and restartup 
+it up...)
+
+For SLAB there is no solution as far as I know (except an indirection 
+level in memory access to these pages, as discussed in this years
+memory hotplug presentation by Dave Hansen).
+
+> But I'm probably underestimating the cost of page migration...
+
+The zone balancing issue you describe might be an issue once zone
+said pages can be migrated :)

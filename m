@@ -1,63 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932580AbVJVDlM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965206AbVJVDyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932580AbVJVDlM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 23:41:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932581AbVJVDlM
+	id S965206AbVJVDyM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 23:54:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932583AbVJVDyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 23:41:12 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:36297 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932580AbVJVDlL (ORCPT
+	Fri, 21 Oct 2005 23:54:12 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:1210 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932582AbVJVDyL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 23:41:11 -0400
-Date: Sat, 22 Oct 2005 05:41:19 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark Knecht <markknecht@gmail.com>
-Cc: Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       William Weston <weston@lysdexia.org>, cc@ccrma.stanford.edu,
-       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       david singleton <dsingleton@mvista.com>,
-       Steven Rostedt <rostedt@goodmis.org>, Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: 2.6.14-rc4-rt7
-Message-ID: <20051022034119.GA12751@elte.hu>
-References: <20051018072844.GB21915@elte.hu> <1129669474.5929.8.camel@cmn3.stanford.edu> <Pine.LNX.4.58.0510181423200.19498@echo.lysdexia.org> <20051019111943.GA31410@elte.hu> <1129835571.14374.11.camel@cmn3.stanford.edu> <20051020191620.GA21367@elte.hu> <1129852531.5227.4.camel@cmn3.stanford.edu> <20051021080504.GA5088@elte.hu> <1129937138.5001.4.camel@cmn3.stanford.edu> <5bdc1c8b0510211720q28334177p1b6d6a2cd7fbfd67@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5bdc1c8b0510211720q28334177p1b6d6a2cd7fbfd67@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 21 Oct 2005 23:54:11 -0400
+Message-ID: <4359B7CF.5060509@pobox.com>
+Date: Fri, 21 Oct 2005 23:53:51 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: dougg@torque.net, Luben Tuikov <luben_tuikov@adaptec.com>,
+       Christoph Hellwig <hch@lst.de>, jejb@steeleye.com
+CC: Matthew Wilcox <matthew@wil.cx>, andrew.patterson@hp.com,
+       "Moore, Eric Dean" <Eric.Moore@lsil.com>, linux-scsi@vger.kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached
+ PHYs)
+References: <91888D455306F94EBD4D168954A9457C048F0E34@nacos172.co.lsil.com> <20051020160155.GA14296@lst.de> <4357CB03.4020400@adaptec.com> <20051020170330.GA16458@lst.de> <4357F7DE.7050004@adaptec.com> <1129852879.30258.137.camel@bluto.andrew> <43583A53.2090904@pobox.com> <435929FD.4070304@adaptec.com> <20051021180455.GA6834@lst.de> <43592FA1.8000206@adaptec.com> <20051021182009.GA3364@parisc-linux.org> <4359A44B.3090804@torque.net> <4359A9FE.4010503@pobox.com>
+In-Reply-To: <4359A9FE.4010503@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Garzik wrote:
+> Douglas Gilbert wrote:
+>> However, the block layer is used in the context of a
+>> block device (and in some cases a char device).
+>> If SAS domain discovery is done from the user space, and
+>> the root file system is the far side of a SAS expander,
+>> there are no suitable devices, just the SAS initiator
+>> (HBA) which currently we cannot address via the block layer.
 
-* Mark Knecht <markknecht@gmail.com> wrote:
-
-> On 10/21/05, Fernando Lopez-Lezcano <nando@ccrma.stanford.edu> wrote:
-> <SNIP>
-> >
-> > Here's one with rc5-rt3:
-> >
-> > Oct 21 15:01:46 cmn3 kernel: BUG: ktimer expired short without user
-> > signal! (hald-addon-stor:4309)
-> > Oct 21 15:01:46 cmn3 kernel: .. expires:   1012/751245500
-> > Oct 21 15:01:46 cmn3 kernel: .. expired:   1012/750908115
-> > Oct 21 15:01:46 cmn3 kernel: .. at line:   942
-> > Oct 21 15:01:46 cmn3 kernel: .. interval:  0/0
-> ><SNIP>
+> Invalid example.  All of the methods listed -- request_queue, netlink, 
+> chrdev, sysfs, ioctl -- will work just fine when the root filesystem is 
+> on the far side of a SAS expander.  These are just methods of 
+> communication, nothing more.
 > 
-> Refresh me. What sort of machine is this and what log file are you 
-> seeing these in. I am surprised at my not seeing them at all, but I 
-> have not gone into the high res timer stuff much. Should I?
+> In your example -- userspace discovery required before root filesystem 
+> can be found -- a program running from initrd/initramfs would create an 
+> SMP device node, open it, and then proceed with the discovery and 
+> configuration process, which in turn creates the device nodes necessary 
+> to mount the root filesystem.
+> 
+> A request_queue is just a queue.  You are in complete control of who are 
+> the producer(s) of requests, and who are consumer(s).
 
-high-res timers are not ported (and thus not switchable via the .config) 
-to x64, yet - so you are much less likely to be seeing such problems.  
-x64 does run the generic ktimer code - but this particular problem seems 
-to be related to hres timers.
 
-	Ingo
+Since people are having such a tough time grasping the use of 
+request_queue without an associated block device, here is a concrete 
+example:  drivers/block/sx8.c.
+
+sx8 creates a queue (grep for 'oob_q') specifically for handling 
+discovery and configuration requests.  The only requests sent to this 
+queue are I2O-ish management commands, never reads or writes.  Since 
+they are management commands, these requests are NEVER associated with a 
+block device.  Further, when sx8 discovery begins, sx8 block devices 
+(and associated request_queues) simply don't exist.
+
+Although sx8 management is entirely in-kernel, one could easily imagine 
+how a userland interface (chrdev?) submits userspace commands into this 
+queue.  Further, one can see how a host adapter could register one or 
+more queues specifically for the transit of SMP commands.
+
+NOTE:  THIS IS NOT AN ENDORSEMENT OF REQUEST QUEUES FOR SMP.  I merely 
+wish to clear up misunderstandings about the block layer found in this 
+thread.
+
+It remains an open question whether the _complexity_ of this approach is 
+more than is warranted for SMP.  But we've departed from that question, 
+in this sub-thread :)
+
+I merely illustrate that the block layer is being used _today_ for 
+management commands.
+
+	Jeff
+
+

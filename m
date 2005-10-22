@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbVJVSY3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbVJVS13@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751080AbVJVSY3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Oct 2005 14:24:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbVJVSY3
+	id S1751096AbVJVS13 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Oct 2005 14:27:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbVJVS13
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Oct 2005 14:24:29 -0400
-Received: from smtp1.pp.htv.fi ([213.243.153.37]:36820 "EHLO smtp1.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S1751080AbVJVSY2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Oct 2005 14:24:28 -0400
-Date: Sat, 22 Oct 2005 21:24:27 +0300
-From: Paul Mundt <lethal@linux-sh.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/9] mm: i386 sh sh64 ready for split ptlock
-Message-ID: <20051022182427.GA22045@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.61.0510221716380.18047@goblin.wat.veritas.com> <Pine.LNX.4.61.0510221718100.18047@goblin.wat.veritas.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0510221718100.18047@goblin.wat.veritas.com>
-User-Agent: Mutt/1.5.11
+	Sat, 22 Oct 2005 14:27:29 -0400
+Received: from mail-in-03.arcor-online.net ([151.189.21.43]:48854 "EHLO
+	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1751096AbVJVS12 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Oct 2005 14:27:28 -0400
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: spitz (zaurus sl-c3000) support
+To: Pavel Machek <pavel@ucw.cz>, Richard Purdie <rpurdie@rpsys.net>,
+       lenz@cs.wisc.edu, zaurus@orca.cx,
+       kernel list <linux-kernel@vger.kernel.org>
+Reply-To: 7eggert@gmx.de
+Date: Sat, 22 Oct 2005 20:27:22 +0200
+References: <4WXqB-7X5-35@gated-at.bofh.it> <4WY3e-vQ-17@gated-at.bofh.it> <4WYwf-14j-9@gated-at.bofh.it> <4X6Nd-4LV-29@gated-at.bofh.it> <4Xk3R-8an-25@gated-at.bofh.it> <4Xkn5-jl-5@gated-at.bofh.it> <4YURv-1sX-1@gated-at.bofh.it> <50s4O-7HJ-9@gated-at.bofh.it> <50sxP-8vu-5@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1ETO5T-0001zK-Ds@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pavel Machek <pavel@ucw.cz> wrote:
 
---r5Pyd7+fXNt84Ff3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> RPSRC=http://www.rpsys.net/openzaurus/patches
 
-On Sat, Oct 22, 2005 at 05:19:30PM +0100, Hugh Dickins wrote:
-> The sh __do_page_fault: which handles both kernel faults (without lock)
-> and user mm faults (locked - though it set_pte without locking before).
->=20
-> The sh64 flush_cache_range and helpers: which wrongly thought callers
-> held page_table_lock before (only its tlb_start_vma did, and no longer
-> does so); moved the flush loop down, and adjusted the large versus small
-> range decision to consider a range which spans page tables as large.
->=20
-> Signed-off-by: Hugh Dickins <hugh@veritas.com>
+> for A in pxa_i2c_fixes-r0.patch pxa_ohci_platform-r1.patch
+[...]
+> mmc_timeout-r0.patch pxa_cf_initorder_hack-r1.patch; do
+> #       wget $RPSRC/$A
+>     cat /data/l/zaurus/spitz.patches/$A | cg-patch
+>     pshell
+> done
+> 
+> .... but that's ather poor trick. Few patches broke the download (slow
+> line here), and few of them broke compilation later...
 
-Yes, that was very clearly broken, thanks for noting this.
+To get around the download issues, you can use a Makefile. I do the same
+in http://7eggert.dyndns.org/l/netpbmhelp.tar.gz (2.6 KB)
 
-I won't be able to test the sh64 bits until later this week, but both
-of these changes look good to me. I'll take care of cleaning up any
-breakage this introduces, thanks Hugh.
-
-Acked-by: Paul Mundt <lethal@linux-sh.org>
-
---r5Pyd7+fXNt84Ff3
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFDWoPb1K+teJFxZ9wRAmuRAJ93ZStwE8oee0ay6cRyRwAvhXrXwgCfaaSG
-ptxT0yTZt/AgklfHlgjj9hY=
-=JzLt
------END PGP SIGNATURE-----
-
---r5Pyd7+fXNt84Ff3--
+If your download breaks in the middle of the process, you may need to use a
+temporary name and rename the complete file after downloading.
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

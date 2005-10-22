@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbVJVSjx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbVJVT1Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751183AbVJVSjx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Oct 2005 14:39:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbVJVSjx
+	id S1751231AbVJVT1Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Oct 2005 15:27:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbVJVT1Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Oct 2005 14:39:53 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:2301 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1751133AbVJVSjw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Oct 2005 14:39:52 -0400
-Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally
-	attachedPHYs)
-From: Sergey Panov <sipan@sipan.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       David Lang <david.lang@digitalinsight.com>, linux-scsi@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Luben Tuikov <luben_tuikov@adaptec.com>, andrew.patterson@hp.com,
-       Christoph Hellwig <hch@lst.de>,
-       "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <20051022175155.GA8079@infradead.org>
-References: <4359440E.2050702@pobox.com> <43595275.1000308@adaptec.com>
-	 <435959BE.5040101@pobox.com> <43595CA6.9010802@adaptec.com>
-	 <43596070.3090902@pobox.com> <43596859.3020801@adaptec.com>
-	 <43596F16.7000606@pobox.com> <435A1793.1050805@s5r6.in-berlin.de>
-	 <Pine.LNX.4.62.0510220357250.4997@qynat.qvtvafvgr.pbz>
-	 <435A79B4.9070201@s5r6.in-berlin.de>  <20051022175155.GA8079@infradead.org>
-Content-Type: text/plain
-Organization: Home
-Date: Sat, 22 Oct 2005 14:39:48 -0400
-Message-Id: <1130006388.8775.17.camel@sipan.sipan.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sat, 22 Oct 2005 15:27:16 -0400
+Received: from smtpout.mac.com ([17.250.248.97]:56815 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1751231AbVJVT1Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Oct 2005 15:27:16 -0400
+In-Reply-To: <43591652.6080505@csc.ncsu.edu>
+References: <4358F0E3.6050405@csc.ncsu.edu> <1129903396.2786.19.camel@laptopd505.fenrus.org> <4359051C.2070401@csc.ncsu.edu> <1129908179.2786.23.camel@laptopd505.fenrus.org> <43590B23.2090101@csc.ncsu.edu> <je64rqlued.fsf@sykes.suse.de> <43591652.6080505@csc.ncsu.edu>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <8A96F014-05E9-48A3-BA5E-344448948A48@mac.com>
+Cc: linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Understanding Linux addr space, malloc, and heap
+Date: Sat, 22 Oct 2005 15:27:06 -0400
+To: "Vincent W. Freeh" <vin@csc.ncsu.edu>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-10-22 at 18:51 +0100, Christoph Hellwig wrote:
-> There's been various TODO items posted:
+On Oct 21, 2005, at 12:24:50, Vincent W. Freeh wrote:
+> I guess I live in a different world.  I do lots of things I'm not  
+> "supposed" to do.
 
-I thought "been posted" warrants at least a reference to the post. I am,
-for one, have not seen that TODO list.
+So why are you complaining that it doesn't work?  "Doctor, it hurts  
+when I use my toes to hold a nail as I hammer it in!" "Well don't do  
+that then!"
 
-Sergey
+> Moreover, it is very sensible and usable to mprotect malloc pages.
 
-===================================================================
-I am expressing my personal opinion and not speaking for anyone else.
+DANGER! DANGER WILL ROBINSON! DANGER!  malloc() is *NOT* guaranteed  
+or even theoretically implemented to return pages.  It might return  
+all memory at some random 16-byte offset into a page.  If you make  
+malloc'ed memory read only, you might make malloc()-internal data  
+read-only too and cause malloc() to crash.  YOU CANNOT RELY ON THIS  
+TO WORK!!! Is that sufficiently clear?  It may work for you, and it  
+may not, but when it breaks, don't whine on the LKML.
+
+> I have implemented simple sandboxing this way.  For my dissertation  
+> I implemented a DSM by mprotect'g malloc'd memory.  This system  
+> worked for >6 on several version of Linux and SunOS.  I actually  
+> have a better track record for this technique than for some things  
+> that are within the specifications.
+
+If it works for you, good luck, but don't try to tell us that it's  
+wrong when it breaks in a very documented way.
+
+Cheers,
+Kyle Moffett
+
+--
+Premature optimization is the root of all evil in programming
+   -- C.A.R. Hoare
+
+
 

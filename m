@@ -1,142 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbVJVQbj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbVJVQc1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932265AbVJVQbj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Oct 2005 12:31:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbVJVQbj
+	id S932268AbVJVQc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Oct 2005 12:32:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbVJVQc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Oct 2005 12:31:39 -0400
-Received: from gold.veritas.com ([143.127.12.110]:5382 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S932265AbVJVQbi (ORCPT
+	Sat, 22 Oct 2005 12:32:27 -0400
+Received: from gold.veritas.com ([143.127.12.110]:9222 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S932268AbVJVQc0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Oct 2005 12:31:38 -0400
-Date: Sat, 22 Oct 2005 17:30:37 +0100 (BST)
+	Sat, 22 Oct 2005 12:32:26 -0400
+Date: Sat, 22 Oct 2005 17:31:25 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@goblin.wat.veritas.com
 To: Andrew Morton <akpm@osdl.org>
-cc: Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH 8/9] mm: fix rss and mmlist locking
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 9/9] mm: update comments to pte lock
 In-Reply-To: <Pine.LNX.4.61.0510221716380.18047@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0510221729200.18047@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0510221730420.18047@goblin.wat.veritas.com>
 References: <Pine.LNX.4.61.0510221716380.18047@goblin.wat.veritas.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 22 Oct 2005 16:31:38.0124 (UTC) FILETIME=[133A3CC0:01C5D726]
+X-OriginalArrivalTime: 22 Oct 2005 16:32:26.0077 (UTC) FILETIME=[2FCF48D0:01C5D726]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A couple of oddities were guarded by page_table_lock, no longer properly
-guarded when that is split.
-
-The mm_counters of file_rss and anon_rss: make those an atomic_t, or an
-atomic64_t if the architecture supports it, in such a case.  Definitions
-by courtesy of Christoph Lameter: who spent considerable effort on more
-scalable ways of counting, but found insufficient benefit in practice.
-
-And adding an mm with swap to the mmlist for swapoff: the list is well-
-guarded by its own lock, but the list_empty check now has to be repeated
-inside it.
+Updated several references to page_table_lock in common code comments.
 
 Signed-off-by: Hugh Dickins <hugh@veritas.com>
 ---
 
- include/linux/sched.h |   42 ++++++++++++++++++++++++++++++++++++++----
- mm/memory.c           |    4 +++-
- mm/rmap.c             |    3 ++-
- 3 files changed, 43 insertions(+), 6 deletions(-)
+ include/asm-generic/pgtable.h |    2 +-
+ include/linux/mempolicy.h     |    3 +--
+ mm/filemap.c                  |    6 +++---
+ mm/rmap.c                     |   10 +++++-----
+ mm/swap_state.c               |    3 +--
+ 5 files changed, 11 insertions(+), 13 deletions(-)
 
---- mm7/include/linux/sched.h	2005-10-17 12:05:38.000000000 +0100
-+++ mm8/include/linux/sched.h	2005-10-22 14:07:39.000000000 +0100
-@@ -250,13 +250,47 @@ arch_get_unmapped_area_topdown(struct fi
- extern void arch_unmap_area(struct mm_struct *, unsigned long);
- extern void arch_unmap_area_topdown(struct mm_struct *, unsigned long);
+--- mm8/include/asm-generic/pgtable.h	2005-10-11 12:07:47.000000000 +0100
++++ mm9/include/asm-generic/pgtable.h	2005-10-22 14:07:54.000000000 +0100
+@@ -8,7 +8,7 @@
+  *  - update the page tables
+  *  - inform the TLB about the new one
+  *
+- * We hold the mm semaphore for reading and vma->vm_mm->page_table_lock.
++ * We hold the mm semaphore for reading, and the pte lock.
+  *
+  * Note: the old pte is known to not be writable, so we don't need to
+  * worry about dirty bits etc getting lost.
+--- mm8/include/linux/mempolicy.h	2005-10-17 12:05:38.000000000 +0100
++++ mm9/include/linux/mempolicy.h	2005-10-22 14:07:54.000000000 +0100
+@@ -47,8 +47,7 @@ struct vm_area_struct;
+  * Locking policy for interlave:
+  * In process context there is no locking because only the process accesses
+  * its own state. All vma manipulation is somewhat protected by a down_read on
+- * mmap_sem. For allocating in the interleave policy the page_table_lock
+- * must be also aquired to protect il_next.
++ * mmap_sem.
+  *
+  * Freeing policy:
+  * When policy is MPOL_BIND v.zonelist is kmalloc'ed and must be kfree'd.
+--- mm8/mm/filemap.c	2005-10-17 12:05:40.000000000 +0100
++++ mm9/mm/filemap.c	2005-10-22 14:07:54.000000000 +0100
+@@ -66,7 +66,7 @@ generic_file_direct_IO(int rw, struct ki
+  *
+  *  ->mmap_sem
+  *    ->i_mmap_lock
+- *      ->page_table_lock	(various places, mainly in mmap.c)
++ *      ->page_table_lock or pte_lock	(various, mainly in memory.c)
+  *        ->mapping->tree_lock	(arch-dependent flush_dcache_mmap_lock)
+  *
+  *  ->mmap_sem
+@@ -86,9 +86,9 @@ generic_file_direct_IO(int rw, struct ki
+  *    ->anon_vma.lock		(vma_adjust)
+  *
+  *  ->anon_vma.lock
+- *    ->page_table_lock		(anon_vma_prepare and various)
++ *    ->page_table_lock or pte_lock	(anon_vma_prepare and various)
+  *
+- *  ->page_table_lock
++ *  ->page_table_lock or pte_lock
+  *    ->swap_lock		(try_to_unmap_one)
+  *    ->private_lock		(try_to_unmap_one)
+  *    ->tree_lock		(try_to_unmap_one)
+--- mm8/mm/rmap.c	2005-10-22 14:07:40.000000000 +0100
++++ mm9/mm/rmap.c	2005-10-22 14:07:54.000000000 +0100
+@@ -32,7 +32,7 @@
+  *   page->flags PG_locked (lock_page)
+  *     mapping->i_mmap_lock
+  *       anon_vma->lock
+- *         mm->page_table_lock
++ *         mm->page_table_lock or pte_lock
+  *           zone->lru_lock (in mark_page_accessed)
+  *           swap_lock (in swap_duplicate, swap_info_get)
+  *             mmlist_lock (in mmput, drain_mmlist and others)
+@@ -244,7 +244,7 @@ unsigned long page_address_in_vma(struct
+ /*
+  * Check that @page is mapped at @address into @mm.
+  *
+- * On success returns with mapped pte and locked mm->page_table_lock.
++ * On success returns with pte mapped and locked.
+  */
+ pte_t *page_check_address(struct page *page, struct mm_struct *mm,
+ 			  unsigned long address, spinlock_t **ptlp)
+@@ -445,7 +445,7 @@ int page_referenced(struct page *page, i
+  * @vma:	the vm area in which the mapping is added
+  * @address:	the user virtual address mapped
+  *
+- * The caller needs to hold the mm->page_table_lock.
++ * The caller needs to hold the pte lock.
+  */
+ void page_add_anon_rmap(struct page *page,
+ 	struct vm_area_struct *vma, unsigned long address)
+@@ -468,7 +468,7 @@ void page_add_anon_rmap(struct page *pag
+  * page_add_file_rmap - add pte mapping to a file page
+  * @page: the page to add the mapping to
+  *
+- * The caller needs to hold the mm->page_table_lock.
++ * The caller needs to hold the pte lock.
+  */
+ void page_add_file_rmap(struct page *page)
+ {
+@@ -483,7 +483,7 @@ void page_add_file_rmap(struct page *pag
+  * page_remove_rmap - take down pte mapping from a page
+  * @page: page to remove mapping from
+  *
+- * Caller needs to hold the mm->page_table_lock.
++ * The caller needs to hold the pte lock.
+  */
+ void page_remove_rmap(struct page *page)
+ {
+--- mm8/mm/swap_state.c	2005-10-17 12:05:40.000000000 +0100
++++ mm9/mm/swap_state.c	2005-10-22 14:07:54.000000000 +0100
+@@ -263,8 +263,7 @@ static inline void free_swap_cache(struc
  
-+#if NR_CPUS >= CONFIG_SPLIT_PTLOCK_CPUS
-+/*
-+ * The mm counters are not protected by its page_table_lock,
-+ * so must be incremented atomically.
-+ */
-+#ifdef ATOMIC64_INIT
-+#define set_mm_counter(mm, member, value) atomic64_set(&(mm)->_##member, value)
-+#define get_mm_counter(mm, member) ((unsigned long)atomic64_read(&(mm)->_##member))
-+#define add_mm_counter(mm, member, value) atomic64_add(value, &(mm)->_##member)
-+#define inc_mm_counter(mm, member) atomic64_inc(&(mm)->_##member)
-+#define dec_mm_counter(mm, member) atomic64_dec(&(mm)->_##member)
-+typedef atomic64_t mm_counter_t;
-+#else /* !ATOMIC64_INIT */
-+/*
-+ * The counters wrap back to 0 at 2^32 * PAGE_SIZE,
-+ * that is, at 16TB if using 4kB page size.
-+ */
-+#define set_mm_counter(mm, member, value) atomic_set(&(mm)->_##member, value)
-+#define get_mm_counter(mm, member) ((unsigned long)atomic_read(&(mm)->_##member))
-+#define add_mm_counter(mm, member, value) atomic_add(value, &(mm)->_##member)
-+#define inc_mm_counter(mm, member) atomic_inc(&(mm)->_##member)
-+#define dec_mm_counter(mm, member) atomic_dec(&(mm)->_##member)
-+typedef atomic_t mm_counter_t;
-+#endif /* !ATOMIC64_INIT */
-+
-+#else  /* NR_CPUS < CONFIG_SPLIT_PTLOCK_CPUS */
-+/*
-+ * The mm counters are protected by its page_table_lock,
-+ * so can be incremented directly.
-+ */
- #define set_mm_counter(mm, member, value) (mm)->_##member = (value)
- #define get_mm_counter(mm, member) ((mm)->_##member)
- #define add_mm_counter(mm, member, value) (mm)->_##member += (value)
- #define inc_mm_counter(mm, member) (mm)->_##member++
- #define dec_mm_counter(mm, member) (mm)->_##member--
--#define get_mm_rss(mm) ((mm)->_file_rss + (mm)->_anon_rss)
-+typedef unsigned long mm_counter_t;
-+
-+#endif /* NR_CPUS < CONFIG_SPLIT_PTLOCK_CPUS */
- 
-+#define get_mm_rss(mm)					\
-+	(get_mm_counter(mm, file_rss) + get_mm_counter(mm, anon_rss))
- #define update_hiwater_rss(mm)	do {			\
- 	unsigned long _rss = get_mm_rss(mm);		\
- 	if ((mm)->hiwater_rss < _rss)			\
-@@ -267,8 +301,6 @@ extern void arch_unmap_area_topdown(stru
- 		(mm)->hiwater_vm = (mm)->total_vm;	\
- } while (0)
- 
--typedef unsigned long mm_counter_t;
--
- struct mm_struct {
- 	struct vm_area_struct * mmap;		/* list of VMAs */
- 	struct rb_root mm_rb;
-@@ -292,7 +324,9 @@ struct mm_struct {
- 						 * by mmlist_lock
- 						 */
- 
--	/* Special counters protected by the page_table_lock */
-+	/* Special counters, in some configurations protected by the
-+	 * page_table_lock, in other configurations by being atomic.
-+	 */
- 	mm_counter_t _file_rss;
- 	mm_counter_t _anon_rss;
- 
---- mm7/mm/memory.c	2005-10-22 14:07:25.000000000 +0100
-+++ mm8/mm/memory.c	2005-10-22 14:07:40.000000000 +0100
-@@ -372,7 +372,9 @@ copy_one_pte(struct mm_struct *dst_mm, s
- 			/* make sure dst_mm is on swapoff's mmlist. */
- 			if (unlikely(list_empty(&dst_mm->mmlist))) {
- 				spin_lock(&mmlist_lock);
--				list_add(&dst_mm->mmlist, &src_mm->mmlist);
-+				if (list_empty(&dst_mm->mmlist))
-+					list_add(&dst_mm->mmlist,
-+						 &src_mm->mmlist);
- 				spin_unlock(&mmlist_lock);
- 			}
- 		}
---- mm7/mm/rmap.c	2005-10-22 14:07:25.000000000 +0100
-+++ mm8/mm/rmap.c	2005-10-22 14:07:40.000000000 +0100
-@@ -559,7 +559,8 @@ static int try_to_unmap_one(struct page 
- 		swap_duplicate(entry);
- 		if (list_empty(&mm->mmlist)) {
- 			spin_lock(&mmlist_lock);
--			list_add(&mm->mmlist, &init_mm.mmlist);
-+			if (list_empty(&mm->mmlist))
-+				list_add(&mm->mmlist, &init_mm.mmlist);
- 			spin_unlock(&mmlist_lock);
- 		}
- 		set_pte_at(mm, address, pte, swp_entry_to_pte(entry));
+ /* 
+  * Perform a free_page(), also freeing any swap cache associated with
+- * this page if it is the last user of the page. Can not do a lock_page,
+- * as we are holding the page_table_lock spinlock.
++ * this page if it is the last user of the page.
+  */
+ void free_page_and_swap_cache(struct page *page)
+ {

@@ -1,119 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbVJVNYE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751353AbVJVNax@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751347AbVJVNYE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Oct 2005 09:24:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751339AbVJVNYE
+	id S1751353AbVJVNax (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Oct 2005 09:30:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751351AbVJVNax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Oct 2005 09:24:04 -0400
-Received: from wind.enjellic.com ([209.243.13.15]:51720 "EHLO
-	wind.enjellic.com") by vger.kernel.org with ESMTP id S1751337AbVJVNYC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Oct 2005 09:24:02 -0400
-Message-Id: <200510221323.j9MDNimA009898@wind.enjellic.com>
-From: greg@wind.enjellic.com (Dr. Greg Wettstein)
-Date: Sat, 22 Oct 2005 08:23:43 -0500
-In-Reply-To: Mike Waychison <mikew@google.com>
-       "Re: /etc/mtab and per-process namespaces" (Oct 13,  7:10pm)
-Reply-To: greg@enjellic.com
-X-Mailer: Mail User's Shell (7.2.5 10/14/92)
-To: Mike Waychison <mikew@google.com>, Ram <linuxram@us.ibm.com>
-Subject: Re: /etc/mtab and per-process namespaces
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, leimy2k@gmail.com
+	Sat, 22 Oct 2005 09:30:53 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:29412 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751346AbVJVNaw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Oct 2005 09:30:52 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <435A3E56.8060704@s5r6.in-berlin.de>
+Date: Sat, 22 Oct 2005 15:27:50 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux-scsi@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
+CC: Jeff Garzik <jgarzik@pobox.com>, Luben Tuikov <luben_tuikov@adaptec.com>,
+       andrew.patterson@hp.com, Christoph Hellwig <hch@lst.de>,
+       "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached
+ PHYs)
+References: <91888D455306F94EBD4D168954A9457C048F0E34@nacos172.co.lsil.com>	 <20051020160155.GA14296@lst.de> <4357CB03.4020400@adaptec.com>	 <20051020170330.GA16458@lst.de>  <4357F7DE.7050004@adaptec.com> <1129852879.30258.137.camel@bluto.andrew> <43583A53.2090904@pobox.com> <435929FD.4070304@adaptec.com> <43593100.5040708@pobox.com> <43593884.7000800@adaptec.com> <4359395B.9030402@pobox.com> <43593FE1.7020506@adaptec.com> <4359440E.2050702@pobox.com> <43595275.1000308@adaptec.com> <435959BE.5040101@pobox.com> <43595CA6.9010802@adaptec.com> <43596070.3090902@pobox.com> <43596859.3020801@adaptec.com> <43596F16.7000606@pobox.com> <435A1793.1050805@s5r6.in-berlin.de>
+In-Reply-To: <435A1793.1050805@s5r6.in-berlin.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: (-0.413) AWL,BAYES_20
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 13,  7:10pm, Mike Waychison wrote:
-} Subject: Re: /etc/mtab and per-process namespaces
+I wrote:
+>      1. renovate the core (thereby break all command set drivers and
+>         all transport subsystems),
+>      2. update ~2 command set drivers and ~2 transport subsystems
+>      3. validate the renovated core,
+>      4. fix the conceptual errors of the renovated core (as well as
+>         first few discovered bugs in the implementation),
+>      5. update all other command set drivers,
+>      6. update all transport subsystems where resources to do so are
+>         available,
 
-Good morning to everyone, really behind on e-mail, my apologies for
-joining the thread late.
-
-> Ram wrote:
-> > On Tue, Oct 04, 2005 at 12:14:47PM -0700, David Leimbach wrote:
-> > 
-> >>Hmm no responses on this thread a couple days now.  I guess:
-> >>
-> >>1) No one cares about private namespaces or the fact that they make
-> >>/etc/mtab totally inconsistent.
-> >>2) Private Namespaces aren't important to anyone and will never be
-> >>robust unless someone who cares, like me, takes it over somehow.
-> >>3) Everyone is busy with their own shit and doesn't want to deal with
-> >>me or mine right now.
-> >>
-> >>I'm seriously hoping it's 3 :).  2 Is acceptable too of course.  I
-> >>think this is important and I want to know more about the innards
-> >>anyway.  1 would make me sad as I think Linux can really show other
-> >>Unix's what-for here when it comes to showing off how good the VFS can
-> >>be.
-
-> Or,  you bite the bullet and fix /proc/mounts and let distributions bind 
-> mount /proc/mounts over /etc/mtab.
-> 
-> Sun recognized this as a problem a long time ago and /etc/mnttab has 
-> been magic for quite some time now.
-> 
-> Add to this the fact that a textfile /etc/mtab is busted because it's 
-> whitespace seperated and pieces blows up and you do things like:
-> 
-> mount filer:/export/mikew "/home/Mike Waychison"
-
-As to the three options above, I believe number 3 would be operative.
-Private namespaces are extremely useful concepts, we are growing
-increasingly dependent on them for systems management and
-administration.  I believe the issue is a chicken/egg problem, without
-an update in tools the concept of namespaces are less approachable
-than they should be.
-
-Mike's comments are very apt.  The current situation with mount
-support is untenable.  Even working on private development machines it
-gets confusing as to what is or is not mounted in various
-shells/processes.  The basic infra-structure is there with process
-specific mount information (/proc/self/mounts) but mount and friends
-are a bit problematic with respect to supporting this.
-
-I'm working on a namespace toolkit to address these issues.  I've got
-a pretty basic tool, similar to sudo, which allows spawning processes
-with a protected namespace.  I'm adding a configuration system which
-allow systems administrators to define a setup of bind mounts which
-are automatically executed before the user is given their shell.  I'm
-also working up a PAM account module to go along with this.  I would
-certainly be open to suggestions as to what else people would consider
-useful in such a toolkit.
-
-I've been pondering the best way to take on the mount problem.
-Current mount binaries seem to fall back to /proc/mounts if /etc/mtab
-is not present.  All bets are off of course if the mount binary is
-used for the bind mount since a new /etc/mtab is created.
-
-I'm willing to whack on the mount binary a bit as part of this.  The
-obvious solution is to teach mount to act differently if it is running
-in a private namespace.  If anybody knows of a good way to detect this
-I would be interested in knowing that.  In newns (the namespace sudo
-tool) I'm setting an environment variable for mount to detect on but a
-system level approach would be more generic.
-
-The other problem is the information exported in /proc/mounts.  It
-would seem problematic to modify its format but in order to serve as a
-useful source of information for a modified mount binary it would need
-to contain mount option information.  Since this is definitely process
-specific information it would seem to call for something in /proc
-rather than /sysfs.  Do we need a new pseudo-file?
-
-I would be certainly interested in peoples reflections on this.  When
-I get something a bit more shaken down I will roll up a preliminary
-distribution and announce it.
-
-> Mike Waychison
-
-Best wishes for a pleasant weekend to everyone.
-
-Greg
-
-}-- End of excerpt from Mike Waychison
-
-As always,
-Dr. Greg 'GW' Wettstein
-------------------------------------------------------------------------------
-                         The Hurderos Project
-         Open Identity, Service and Authorization Management
-                       http://www.hurderos.org
+Step 6 probably involves the creation of a SPI transport layer. It 
+implements former SPI related functionality of the core and may receive 
+former code of the core. BTW, it may be a good idea to really defer this 
+to step 6 instead of doing so in step 2.
+-- 
+Stefan Richter
+-=====-=-=-= =-=- =-==-
+http://arcgraph.de/sr/

@@ -1,87 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965206AbVJVDyM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965177AbVJVD6o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965206AbVJVDyM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 23:54:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932583AbVJVDyM
+	id S965177AbVJVD6o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 23:58:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932585AbVJVD6o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 23:54:12 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:1210 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932582AbVJVDyL (ORCPT
+	Fri, 21 Oct 2005 23:58:44 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:24454 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932584AbVJVD6n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 23:54:11 -0400
-Message-ID: <4359B7CF.5060509@pobox.com>
-Date: Fri, 21 Oct 2005 23:53:51 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: dougg@torque.net, Luben Tuikov <luben_tuikov@adaptec.com>,
-       Christoph Hellwig <hch@lst.de>, jejb@steeleye.com
-CC: Matthew Wilcox <matthew@wil.cx>, andrew.patterson@hp.com,
-       "Moore, Eric Dean" <Eric.Moore@lsil.com>, linux-scsi@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached
- PHYs)
-References: <91888D455306F94EBD4D168954A9457C048F0E34@nacos172.co.lsil.com> <20051020160155.GA14296@lst.de> <4357CB03.4020400@adaptec.com> <20051020170330.GA16458@lst.de> <4357F7DE.7050004@adaptec.com> <1129852879.30258.137.camel@bluto.andrew> <43583A53.2090904@pobox.com> <435929FD.4070304@adaptec.com> <20051021180455.GA6834@lst.de> <43592FA1.8000206@adaptec.com> <20051021182009.GA3364@parisc-linux.org> <4359A44B.3090804@torque.net> <4359A9FE.4010503@pobox.com>
-In-Reply-To: <4359A9FE.4010503@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Fri, 21 Oct 2005 23:58:43 -0400
+Date: Sat, 22 Oct 2005 05:58:51 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Cc: William Weston <weston@lysdexia.org>, cc@ccrma.Stanford.EDU,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       david singleton <dsingleton@mvista.com>,
+       Steven Rostedt <rostedt@goodmis.org>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark Knecht <markknecht@gmail.com>
+Subject: Re: 2.6.14-rc4-rt7
+Message-ID: <20051022035851.GC12751@elte.hu>
+References: <1129599029.10429.1.camel@cmn3.stanford.edu> <20051018072844.GB21915@elte.hu> <1129669474.5929.8.camel@cmn3.stanford.edu> <Pine.LNX.4.58.0510181423200.19498@echo.lysdexia.org> <20051019111943.GA31410@elte.hu> <1129835571.14374.11.camel@cmn3.stanford.edu> <20051020191620.GA21367@elte.hu> <1129852531.5227.4.camel@cmn3.stanford.edu> <20051021080504.GA5088@elte.hu> <1129937138.5001.4.camel@cmn3.stanford.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1129937138.5001.4.camel@cmn3.stanford.edu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Douglas Gilbert wrote:
->> However, the block layer is used in the context of a
->> block device (and in some cases a char device).
->> If SAS domain discovery is done from the user space, and
->> the root file system is the far side of a SAS expander,
->> there are no suitable devices, just the SAS initiator
->> (HBA) which currently we cannot address via the block layer.
 
-> Invalid example.  All of the methods listed -- request_queue, netlink, 
-> chrdev, sysfs, ioctl -- will work just fine when the root filesystem is 
-> on the far side of a SAS expander.  These are just methods of 
-> communication, nothing more.
+* Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
+
+> Here's one with rc5-rt3:
 > 
-> In your example -- userspace discovery required before root filesystem 
-> can be found -- a program running from initrd/initramfs would create an 
-> SMP device node, open it, and then proceed with the discovery and 
-> configuration process, which in turn creates the device nodes necessary 
-> to mount the root filesystem.
-> 
-> A request_queue is just a queue.  You are in complete control of who are 
-> the producer(s) of requests, and who are consumer(s).
+> Oct 21 15:01:46 cmn3 kernel: BUG: ktimer expired short without user
+> signal! (hald-addon-stor:4309)
 
+and no "BUG: foo:1234 waking up bar:4321, expiring ktimer short" message 
+prior to that? Very weird, this line:
 
-Since people are having such a tough time grasping the use of 
-request_queue without an associated block device, here is a concrete 
-example:  drivers/block/sx8.c.
+> Oct 21 15:01:46 cmn3 kernel: .. expires:   1012/751245500
+> Oct 21 15:01:46 cmn3 kernel: .. expired:   1012/750908115
+> Oct 21 15:01:46 cmn3 kernel: .. at line:   942
 
-sx8 creates a queue (grep for 'oob_q') specifically for handling 
-discovery and configuration requests.  The only requests sent to this 
-queue are I2O-ish management commands, never reads or writes.  Since 
-they are management commands, these requests are NEVER associated with a 
-block device.  Further, when sx8 discovery begins, sx8 block devices 
-(and associated request_queues) simply don't exist.
+suggests that the ktimer was expired by ktimer_try_to_cancel() / 
+ktimer_cancel(), in ktimer_schedule(). I.e. something must have woken 
+the task early. Probably this theory of mine is incorrect then. I'll try 
+extend the debug info a bit: it would be interesting to see a 'timer 
+inserted at' timestamp as well (was it shortly before the problem 
+happened?), and a 'which PID cancelled the timer' info.
 
-Although sx8 management is entirely in-kernel, one could easily imagine 
-how a userland interface (chrdev?) submits userspace commands into this 
-queue.  Further, one can see how a host adapter could register one or 
-more queues specifically for the transit of SMP commands.
+a heavy-hitting but complex-to-set-up solution would be to add a serial 
+console, and to enable WAKEUP_TIMING+LATENCY_TRACING in the .config, and 
+to edit kernel/latency.c to initialize the default value of the 
+following variables:
 
-NOTE:  THIS IS NOT AN ENDORSEMENT OF REQUEST QUEUES FOR SMP.  I merely 
-wish to clear up misunderstandings about the block layer found in this 
-thread.
+int wakeup_timing = 0;
+int trace_all_cpus = 1;
+int trace_freerunning = 1;
+int trace_print_at_crash = 1;
+int trace_user_triggered = 1;
 
-It remains an open question whether the _complexity_ of this approach is 
-more than is warranted for SMP.  But we've departed from that question, 
-in this sub-thread :)
+these variables are in the top portion of latency.c. Important: if you 
+try this then you should probably also enable IGNORE_PRINTK_LOGLEVEL, 
+which will improve mass-output to the serial console. Another important 
+thing is to add a stop_trace() call to kernel/ktimers.c's 
+check_ktimer_signal() function:
 
-I merely illustrate that the block layer is being used _today_ for 
-management commands.
+        unlock_ktimer_base(timer, &flags);
 
-	Jeff
+        stop_trace();
+        printk("BUG: ktimer expired short without user signal! (%s:%d)\n",
+                current->comm, current->pid);
 
+(otherwise all the trace output you'd be getting would be boring printk 
+related trace entries.)
 
+this will cause the dump_stack() to also output thousands of trace 
+entries - all the kernel activity (from all CPUs) that preceded the 
+ktimer problem. Hopefully this pinpoints the bug.
+
+> In both cases the machine goes catatonic, I don't know if right after 
+> this or not. It responds to the SysRQ key but that's pretty much it, I 
+> should probably try to get a serial console going somehow.
+
+would it be easy for you to try the UP kernel? One possibility is that 
+this is some sort of SMP/APIC-timer related problem.
+
+	Ingo

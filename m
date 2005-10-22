@@ -1,64 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750876AbVJVRXk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbVJVR0r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750876AbVJVRXk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Oct 2005 13:23:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750874AbVJVRXk
+	id S1750867AbVJVR0r (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Oct 2005 13:26:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750852AbVJVR0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Oct 2005 13:23:40 -0400
-Received: from web31803.mail.mud.yahoo.com ([68.142.207.66]:15233 "HELO
-	web31803.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750819AbVJVRXj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Oct 2005 13:23:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=LAuRo1kL5kUIm0iedMnvb8ZxWIsLgAdUfPmRGUaXV0PrmJMEpQCGdTKY4Klvtthp1h+ytn2vfC/bfUKgeAnA38tc2OlayKq6cxEebouKQZ4yd4yKeThmV3O44EP0QEFVwhdLmurhfW9OT62LVxc++GPCHz/6/rnshuwj/VkxL9U=  ;
-Message-ID: <20051022172339.3775.qmail@web31803.mail.mud.yahoo.com>
-Date: Sat, 22 Oct 2005 10:23:39 -0700 (PDT)
-From: Luben Tuikov <ltuikov@yahoo.com>
-Reply-To: ltuikov@yahoo.com
-Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached PHYs)
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>, linux-scsi@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Luben Tuikov <luben_tuikov@adaptec.com>,
-       andrew.patterson@hp.com, Christoph Hellwig <hch@lst.de>,
-       "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <435A05DD.7040003@s5r6.in-berlin.de>
+	Sat, 22 Oct 2005 13:26:47 -0400
+Received: from mail-in-03.arcor-online.net ([151.189.21.43]:55235 "EHLO
+	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1750819AbVJVR0q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Oct 2005 13:26:46 -0400
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: /etc/mtab and per-process namespaces
+To: greg@enjellic.com, Mike Waychison <mikew@google.com>,
+       Ram <linuxram@us.ibm.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       leimy2k@gmail.com
+Reply-To: 7eggert@gmx.de
+Date: Sat, 22 Oct 2005 19:26:16 +0200
+References: <50rBX-76N-37@gated-at.bofh.it> <50rBX-76N-35@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1ETN8K-0001bd-NO@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
+Dr. Greg Wettstein <greg@wind.enjellic.com> wrote:
+> On Oct 13,  7:10pm, Mike Waychison wrote:
+> } Subject: Re: /etc/mtab and per-process namespaces
+
+> I've been pondering the best way to take on the mount problem.
+> Current mount binaries seem to fall back to /proc/mounts if /etc/mtab
+> is not present.  All bets are off of course if the mount binary is
+> used for the bind mount since a new /etc/mtab is created.
 > 
-> Will cmd_per_lun, sg_tablesize, max_sectors, dma_boundary, 
-> use_clustering ever have to be adjusted specifically for a SAS hardware?
+> I'm willing to whack on the mount binary a bit as part of this.  The
+> obvious solution is to teach mount to act differently if it is running
+> in a private namespace.  If anybody knows of a good way to detect this
+> I would be interested in knowing that.  In newns (the namespace sudo
+> tool) I'm setting an environment variable for mount to detect on but a
+> system level approach would be more generic.
 
-No hardware SAS chip I know of needs any of those legacy limitations.
-Neither BCM8603 nor Fusion MPT.
+- If named namespaces are to be implemented, you could check for a set
+  namespace ID. (You could also get rid of the persistent-namespace-daemon.)
 
-Those limitations are purely Parallel SCSI.
+- If secure user mounts are implemented, missing privileges will be hint.
+  Privileged mounts will require a global configuration where a flag can
+  be set. (BTW: You'll also want to disable user mounts in global namespaces
+  to catch errors, abuse and exploits)
 
-I just included it, to show proof of concept -- when the architecure and
-layering is correct, how easy it is to do it.  But you're right, it is
-not needed.
+- Until any of these is implemented, users will run in a private namespace,
+  so UID != EUID will indicate a private namespace. Unfortunately this is
+  not secure, but:
 
-> Obviuosly none of this is required _at the moment_. IOW neither the 
-> introduction of a sas_ha_hw_profile nor a pass-through of 
-> scsi_host_template down to SAS interconnect drivers is required right 
-> now. So why do one or the other now? Isn't it a sensible rule to not 
-> solve problems now which do not exist yet?
+- If the proc/mounts information is extended as described below, a different
+  behaviour wouldn't make sense anymore, would it?
 
-This is exactly the rule I followed when developing the SAS Transport
-Layer for Linux.  Furthermore, _that_ rule, to never overengineer, I learned
-from Linux.  Sadly the politics are too deep and that rule applies only
-to what is convenient, at least in Linux SCSI.
+> The other problem is the information exported in /proc/mounts.  It
+> would seem problematic to modify its format but in order to serve as a
+> useful source of information for a modified mount binary it would need
+> to contain mount option information.  Since this is definitely process
+> specific information it would seem to call for something in /proc
+> rather than /sysfs.  Do we need a new pseudo-file?
 
-   Luben
+- The file format is broken for whitespace in filenames, so changing the
+  format in these cases by adding quoting won't actually break anything.
 
+- The userspace options (loop device etc) can be encoded in the mount
+  options field, e.g.
+  'rw,mount=lo:"/home/Arthur Dent/iso":/dev/loop/42;ns=public,async'.
+
+So if you _want_ to keep the format, you can IMHO do so. Maybe you can
+think of something better, who knows? We'll need to upgrade the tools
+to use non-broken semantics anyway, so as long as you keep the old file
+around, this should be no real problem.
 
 -- 
-http://linux.adaptec.com/sas/
-http://www.adaptec.com/sas/
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

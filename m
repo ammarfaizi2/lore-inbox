@@ -1,41 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbVJVRwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbVJVRyn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751052AbVJVRwK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Oct 2005 13:52:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751035AbVJVRwJ
+	id S1751038AbVJVRyn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Oct 2005 13:54:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750997AbVJVRyn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Oct 2005 13:52:09 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:26306 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S1750995AbVJVRwI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Oct 2005 13:52:08 -0400
-Date: Sat, 22 Oct 2005 19:49:58 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Luben Tuikov <ltuikov@yahoo.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, dougg@torque.net,
-       Luben Tuikov <luben_tuikov@adaptec.com>, Christoph Hellwig <hch@lst.de>,
-       jejb@steeleye.com, Matthew Wilcox <matthew@wil.cx>,
-       andrew.patterson@hp.com, "Moore, Eric Dean" <Eric.Moore@lsil.com>,
-       linux-scsi@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached PHYs)
-Message-ID: <20051022174958.GA2096@electric-eye.fr.zoreil.com>
-References: <4359B7CF.5060509@pobox.com> <20051022171412.16830.qmail@web31801.mail.mud.yahoo.com>
+	Sat, 22 Oct 2005 13:54:43 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:58064 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1750747AbVJVRym (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Oct 2005 13:54:42 -0400
+Subject: Re: BUG in the block layer (partial reads not reported)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Jens Axboe <axboe@suse.de>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L0.0510221117160.3707-100000@netrider.rowland.org>
+References: <Pine.LNX.4.44L0.0510221117160.3707-100000@netrider.rowland.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sat, 22 Oct 2005 19:23:10 +0100
+Message-Id: <1130005390.15961.32.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051022171412.16830.qmail@web31801.mail.mud.yahoo.com>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luben Tuikov <ltuikov@yahoo.com> :
-[...]
-> Let everyone see what is happening:
+On Sad, 2005-10-22 at 11:40 -0400, Alan Stern wrote:
+> 	Handling an error somewhere in the middle of the medium, and
+> 
+> 	Handling an error beyond the real end of the medium.
+> 
+> The mm and block subsystems have no way at all to retrieve partial data
+> for the first case.  Even though only one hardware sector may be bad,
 
-Is there any chance that you can put this kind of content on a different
-medium, say blob, rss feed, whatever instead of loading l-k ?
+The block layer can handle this at the bottom level but the caches above
+it cannot. 
 
---
-Ueimor
+> failure to read an entire page means that none of the good sectors on that
+> page will be accessible.  While annoying, it's understandable and I don't 
+> see any simple way to accomodate such partial reads.
+
+Agreed it is hairy with things like mmap. One way is to use raw I/O and
+disable readahead.
+
+> The second case appears to be more tractable, as you said.  In fact,
+> do_generic_mapping_read() in mm/filemap.c will recheck the inode's size
+> after a successful read, to avoid copying data beyond the end of the
+> device.
+> 
+> Could part of the problem also be that the set_capacity() call, used to
+> revise the device size downward when the CD driver realizes it is smaller
+> than originally thought, doesn't update the inode?  Should the driver call
+> bd_set_size() as well?  (In addition to completing the read successfully
+> with garbage data beyond the actual EOF.)
+
+Beats me. Perhaps Jens can enlighten us and I can improve the ide-cd
+driver code further as well.
+

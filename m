@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965202AbVJVCz2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932576AbVJVDON@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965202AbVJVCz2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 22:55:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932572AbVJVCz2
+	id S932576AbVJVDON (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 23:14:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932577AbVJVDON
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 22:55:28 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:44217 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932137AbVJVCz1 (ORCPT
+	Fri, 21 Oct 2005 23:14:13 -0400
+Received: from mailhub.hp.com ([192.151.27.10]:13523 "EHLO mailhub.hp.com")
+	by vger.kernel.org with ESMTP id S932576AbVJVDOM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 22:55:27 -0400
-Message-ID: <4359A9FE.4010503@pobox.com>
-Date: Fri, 21 Oct 2005 22:54:54 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Fri, 21 Oct 2005 23:14:12 -0400
+Message-ID: <60987.24.9.204.52.1129950852.squirrel@mail.atl.hp.com>
+In-Reply-To: <1129930114.5932.6.camel@whizzy>
+References: <59D45D057E9702469E5775CBB56411F190A57F@pdsmsx406> 
+    <1129053267.15526.9.camel@whizzy> <1129679877.30588.5.camel@whizzy> 
+    <200510190929.06728.bjorn.helgaas@hp.com> 
+    <1129740711.31966.21.camel@whizzy>  <20051019165940.GA2177@kroah.com>
+    <1129930114.5932.6.camel@whizzy>
+Date: Fri, 21 Oct 2005 21:14:12 -0600 (MDT)
+Subject: Re: [ACPI] Re: [Pcihpd-discuss] RE: [patch 2/2] acpi: add ability 
+     to derive irq when doing a surpriseremoval of an adapter
+From: "Bjorn Helgaas" <bjorn.helgaas@hp.com>
+To: "Kristen Accardi" <kristen.c.accardi@intel.com>
+Cc: "Greg KH" <greg@kroah.com>, "Bjorn Helgaas" <bjorn.helgaas@hp.com>,
+       acpi-devel@lists.sourceforge.net, pcihpd-discuss@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, "Shah, Rajesh" <rajesh.shah@intel.com>,
+       "Brown, Len" <len.brown@intel.com>
+User-Agent: SquirrelMail/1.4.4
 MIME-Version: 1.0
-To: dougg@torque.net
-CC: Matthew Wilcox <matthew@wil.cx>, Luben Tuikov <luben_tuikov@adaptec.com>,
-       Christoph Hellwig <hch@lst.de>, andrew.patterson@hp.com,
-       "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
-       linux-scsi@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached
- PHYs)
-References: <91888D455306F94EBD4D168954A9457C048F0E34@nacos172.co.lsil.com> <20051020160155.GA14296@lst.de> <4357CB03.4020400@adaptec.com> <20051020170330.GA16458@lst.de> <4357F7DE.7050004@adaptec.com> <1129852879.30258.137.camel@bluto.andrew> <43583A53.2090904@pobox.com> <435929FD.4070304@adaptec.com> <20051021180455.GA6834@lst.de> <43592FA1.8000206@adaptec.com> <20051021182009.GA3364@parisc-linux.org> <4359A44B.3090804@torque.net>
-In-Reply-To: <4359A44B.3090804@torque.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Douglas Gilbert wrote:
-> However, the block layer is used in the context of a
-> block device (and in some cases a char device).
-> If SAS domain discovery is done from the user space, and
-> the root file system is the far side of a SAS expander,
-> there are no suitable devices, just the SAS initiator
-> (HBA) which currently we cannot address via the block layer.
+>  	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin);
+> +
+> +	/*
+> +	 * If a device has been "surprise" removed via
+> +	 * hotplug, the pin value will be invalid
+> +	 * In this case, we should use the stored
+> +	 * pin value from the pci_dev structure
+> +	 */
+> +	if (pin == 0xff)
+> +		pin = dev->pin;
 
-Invalid example.  All of the methods listed -- request_queue, netlink, 
-chrdev, sysfs, ioctl -- will work just fine when the root filesystem is 
-on the far side of a SAS expander.  These are just methods of 
-communication, nothing more.
+I think you should just always use dev->pin, and don't even
+bother trying the pci_read_config_byte().  Fewer code paths
+to worry about that way.
 
-In your example -- userspace discovery required before root filesystem 
-can be found -- a program running from initrd/initramfs would create an 
-SMP device node, open it, and then proceed with the discovery and 
-configuration process, which in turn creates the device nodes necessary 
-to mount the root filesystem.
-
-A request_queue is just a queue.  You are in complete control of who are 
-the producer(s) of requests, and who are consumer(s).
-
-	Jeff
-
-
+Bjorn
 

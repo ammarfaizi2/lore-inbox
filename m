@@ -1,169 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbVJVFrv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbVJVF6Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751219AbVJVFrv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Oct 2005 01:47:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbVJVFrv
+	id S1751287AbVJVF6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Oct 2005 01:58:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbVJVF6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Oct 2005 01:47:51 -0400
-Received: from hera.kernel.org ([140.211.167.34]:45194 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1751219AbVJVFru (ORCPT
+	Sat, 22 Oct 2005 01:58:24 -0400
+Received: from hera.kernel.org ([140.211.167.34]:14987 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1751287AbVJVF6Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Oct 2005 01:47:50 -0400
-Date: Fri, 21 Oct 2005 23:06:21 -0200
+	Sat, 22 Oct 2005 01:58:24 -0400
+Date: Fri, 21 Oct 2005 23:16:47 -0200
 From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: akpm@osdl.org, Mike Kravetz <kravetz@us.ibm.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Magnus Damm <magnus.damm@gmail.com>
-Subject: Re: [PATCH 2/4] Swap migration V3: Page Eviction
-Message-ID: <20051022010621.GC27317@logos.cnet>
-References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com> <20051020225945.19761.15772.sendpatchset@schroedinger.engr.sgi.com>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: Andrew Morton <akpm@osdl.org>, Christoph Lameter <clameter@sgi.com>,
+       kravetz@us.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       magnus.damm@gmail.com
+Subject: Re: [PATCH 0/4] Swap migration V3: Overview
+Message-ID: <20051022011646.GD27317@logos.cnet>
+References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com> <20051020160638.58b4d08d.akpm@osdl.org> <435883B2.2090400@jp.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051020225945.19761.15772.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <435883B2.2090400@jp.fujitsu.com>
 User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Kame,
 
-Hi Christoph,
-
-On Thu, Oct 20, 2005 at 03:59:45PM -0700, Christoph Lameter wrote:
-> Page eviction support in vmscan.c
+On Fri, Oct 21, 2005 at 02:59:14PM +0900, Hiroyuki KAMEZAWA wrote:
+> Andrew Morton wrote:
+> >Christoph Lameter <clameter@sgi.com> wrote:
+> >
+> >>Page migration is also useful for other purposes:
+> >>
+> >>1. Memory hotplug. Migrating processes off a memory node that is going
+> >>   to be disconnected.
+> >>
+> >>2. Remapping of bad pages. These could be detected through soft ECC errors
+> >>   and other mechanisms.
+> >
+> >
+> >It's only useful for these things if it works with close-to-100% 
+> >reliability.
+> >
+> >And there are are all sorts of things which will prevent that - mlock,
+> >ongoing direct-io, hugepages, whatever.
+> >
+> In lhms tree, current status is below: (If I'm wrong, plz fix)
+> ==
+> For mlock, direct page migration will work fine. try_to_unmap_one()
+> in -mhp tree has an argument *force* and ignore VM_LOCKED, it's for this.
 > 
-> This patch adds functions that allow the eviction of pages to swap space.
-> Page eviction may be useful to migrate pages, to suspend programs or for
-> ummapping single pages (useful for faulty pages or pages with soft ECC
-> failures)
+> For direct-io, we have to wait for completion.
+> The end of I/O is not notified and memory_migrate() is just polling pages.
+> 
+> For hugepages, we'll need hugepage demand paging and more work, I think.
 
-<snip>
+Hugepage pagefaulting is being worked on by Hugh and Adam Litke.
 
-You might want to add some throttling in swapout_pages() instead of 
-relying on the block layer to do it for you.
+Another major problem that comes to mind is availability of largepages
+on the target zone. Those allocations can be made reliable with the
+fragmentation avoidance patches plus memory defragmentation using memory
+migration.
 
-There have been problems before with very large disk queues (IIRC it was
-CFQ) in which all available memory became pinned by dirty data causing
-OOM.
+So all bits should be around for hugepage migration by now? 
 
-See throttle_vm_writeout() in mm/vmscan.c. 
-
-> + * Swapout evicts the pages on the list to swap space.
-> + * This is essentially a dumbed down version of shrink_list
-> + *
-> + * returns the number of pages that were not evictable
-> + *
-> + * Multiple passes are performed over the list. The first
-> + * pass avoids waiting on locks and triggers writeout
-> + * actions. Later passes begin to wait on locks in order
-> + * to have a better chance of acquiring the lock.
-> + */
-> +int swapout_pages(struct list_head *l)
-> +{
-> +	int retry;
-> +	int failed;
-> +	int pass = 0;
-> +	struct page *page;
-> +	struct page *page2;
-> +
-> +	current->flags |= PF_KSWAPD;
-> +
-> +redo:
-> +	retry = 0;
-> +	failed = 0;
-> +
-> +	list_for_each_entry_safe(page, page2, l, lru) {
-> +		struct address_space *mapping;
-> +
-> +		cond_resched();
-> +
-> +		/*
-> +		 * Skip locked pages during the first two passes to give the
-> +		 * functions holding the lock time to release the page. Later we use
-> +		 * lock_page to have a higher chance of acquiring the lock.
-> +		 */
-> +		if (pass > 2)
-> +			lock_page(page);
-> +		else
-> +			if (TestSetPageLocked(page))
-> +				goto retry_later;
-> +
-> +		/*
-> +		 * Only wait on writeback if we have already done a pass where
-> +		 * we we may have triggered writeouts for lots of pages.
-> +		 */
-> +		if (pass > 0)
-> +			wait_on_page_writeback(page);
-> +		else
-> +			if (PageWriteback(page))
-> +				goto retry_later_locked;
-> +
-> +#ifdef CONFIG_SWAP
-> +		if (PageAnon(page) && !PageSwapCache(page)) {
-> +			if (!add_to_swap(page))
-> +				goto failed;
-> +		}
-> +#endif /* CONFIG_SWAP */
-> +
-> +		mapping = page_mapping(page);
-> +		if (page_mapped(page) && mapping)
-> +			if (try_to_unmap(page) != SWAP_SUCCESS)
-> +				goto retry_later_locked;
-> +
-> +		if (PageDirty(page)) {
-> +			/* Page is dirty, try to write it out here */
-> +			switch(pageout(page, mapping)) {
-> +			case PAGE_KEEP:
-> +			case PAGE_ACTIVATE:
-> +				goto retry_later_locked;
-> +			case PAGE_SUCCESS:
-> +				goto retry_later;
-> +			case PAGE_CLEAN:
-> +				; /* try to free the page below */
-> +			}
-> +		}
-> +
-> +		if (PagePrivate(page)) {
-> +			if (!try_to_release_page(page, GFP_KERNEL))
-> +				goto retry_later_locked;
-> +			if (!mapping && page_count(page) == 1)
-> +				goto free_it;
-> +		}
-> +
-> +		if (!remove_mapping(mapping, page))
-> +			goto retry_later_locked;       /* truncate got there first */
-> +
-> +free_it:
-> +		/*
-> +		 * We may free pages that were taken off the active list
-> +		 * by isolate_lru_page. However, free_hot_cold_page will check
-> +		 * if the active bit is set. So clear it.
-> +		 */
-> +		ClearPageActive(page);
-> +
-> +		list_del(&page->lru);
-> +		unlock_page(page);
-> +		put_page(page);
-> +		continue;
-> +
-> +failed:
-> +		failed++;
-> +		unlock_page(page);
-> +		continue;
-> +
-> +retry_later_locked:
-> +		unlock_page(page);
-> +retry_later:
-> +		retry++;
-> +	}
-> +	if (retry && pass++ < 10)
-> +		goto redo;
-> +
-> +	current->flags &= ~PF_KSWAPD;
-> +	return failed + retry;
-> +}
-> +
-> +/*
->   * zone->lru_lock is heavily contended.  Some of the functions that
->   * shrink the lists perform better by taking out a batch of pages
->   * and working on them outside the LRU lock.

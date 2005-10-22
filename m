@@ -1,148 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbVJVQdh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbVJVQvT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932269AbVJVQdh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Oct 2005 12:33:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbVJVQdh
+	id S1750714AbVJVQvT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Oct 2005 12:51:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbVJVQvT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Oct 2005 12:33:37 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:27364 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S932269AbVJVQdg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Oct 2005 12:33:36 -0400
-Date: Sat, 22 Oct 2005 10:33:30 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       parisc-linux@parisc-linux.org
-Subject: Re: [PATCH 3/9] mm: parisc pte atomicity
-Message-ID: <20051022163330.GD3364@parisc-linux.org>
-References: <Pine.LNX.4.61.0510221716380.18047@goblin.wat.veritas.com> <Pine.LNX.4.61.0510221722260.18047@goblin.wat.veritas.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0510221722260.18047@goblin.wat.veritas.com>
-User-Agent: Mutt/1.5.9i
+	Sat, 22 Oct 2005 12:51:19 -0400
+Received: from web31803.mail.mud.yahoo.com ([68.142.207.66]:36539 "HELO
+	web31803.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750704AbVJVQvS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Oct 2005 12:51:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=EjOTKUROvnvlNuHosMWd90zKjZxyPP0sVfMubLmqedxsGdvnR7K5vYO6+MCH6iuGyLTuNwk0GvI+U228X9REwXAHEU7CSnntsFTqmOLKZd2nbyWMkOI0aiQNCCKCEYyMGqr/2SIf6P6F67n5GzQWwmXNOFU15ZaQfi6cLV6TTFM=  ;
+Message-ID: <20051022165117.95751.qmail@web31803.mail.mud.yahoo.com>
+Date: Sat, 22 Oct 2005 09:51:17 -0700 (PDT)
+From: Luben Tuikov <ltuikov@yahoo.com>
+Reply-To: ltuikov@yahoo.com
+Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached PHYs)
+To: Jeff Garzik <jgarzik@pobox.com>, dougg@torque.net
+Cc: Matthew Wilcox <matthew@wil.cx>, Luben Tuikov <luben_tuikov@adaptec.com>,
+       Christoph Hellwig <hch@lst.de>, andrew.patterson@hp.com,
+       "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
+       linux-scsi@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <4359A9FE.4010503@pobox.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 22, 2005 at 05:23:27PM +0100, Hugh Dickins wrote:
-> There's a worrying function translation_exists in parisc cacheflush.h,
-> unaffected by split ptlock since flush_dcache_page is using it on some
-> other mm, without any relevant lock.  Oh well, make it a slightly more
-> robust by factoring the pfn check within it.  And it looked liable to
-> confuse a camouflaged swap or file entry with a good pte: fix that too.
+--- Jeff Garzik <jgarzik@pobox.com> wrote:
+> Invalid example.  All of the methods listed -- request_queue, netlink, 
+> chrdev, sysfs, ioctl -- will work just fine when the root filesystem is 
+> on the far side of a SAS expander.  These are just methods of 
+> communication, nothing more.
 
-I have to say I really don't understand VM at all.  cc'ing the
-parisc-linux list in case anyone there has a better understanding than I
-do.
+Jeff, why don't you listen from time to time to people who work with
+the technology on a daily basis who have experience with it, who
+have _insight_ of the technology?  Such insight gives them great
+intuition when it comes to design, among other things.
 
-> Signed-off-by: Hugh Dickins <hugh@veritas.com>
-> ---
-> 
->  arch/parisc/kernel/cache.c      |   24 +++++++++---------------
->  include/asm-parisc/cacheflush.h |   35 +++++++++++++++++++----------------
->  2 files changed, 28 insertions(+), 31 deletions(-)
-> 
-> --- mm2/arch/parisc/kernel/cache.c	2005-03-02 07:38:56.000000000 +0000
-> +++ mm3/arch/parisc/kernel/cache.c	2005-10-22 14:06:30.000000000 +0100
-> @@ -266,7 +266,6 @@ void flush_dcache_page(struct page *page
->  	unsigned long offset;
->  	unsigned long addr;
->  	pgoff_t pgoff;
-> -	pte_t *pte;
->  	unsigned long pfn = page_to_pfn(page);
->  
->  
-> @@ -297,21 +296,16 @@ void flush_dcache_page(struct page *page
->  		 * taking a page fault if the pte doesn't exist.
->  		 * This is just for speed.  If the page translation
->  		 * isn't there, there's no point exciting the
-> -		 * nadtlb handler into a nullification frenzy */
-> -
-> -
-> -  		if(!(pte = translation_exists(mpnt, addr)))
-> -			continue;
-> -
-> -		/* make sure we really have this page: the private
-> +		 * nadtlb handler into a nullification frenzy.
-> +		 *
-> +		 * Make sure we really have this page: the private
->  		 * mappings may cover this area but have COW'd this
-> -		 * particular page */
-> -		if(pte_pfn(*pte) != pfn)
-> -  			continue;
-> -
-> -		__flush_cache_page(mpnt, addr);
-> -
-> -		break;
-> +		 * particular page.
-> +		 */
-> +  		if (translation_exists(mpnt, addr, pfn)) {
-> +			__flush_cache_page(mpnt, addr);
-> +			break;
-> +		}
->  	}
->  	flush_dcache_mmap_unlock(mapping);
->  }
-> --- mm2/include/asm-parisc/cacheflush.h	2005-10-11 12:07:49.000000000 +0100
-> +++ mm3/include/asm-parisc/cacheflush.h	2005-10-22 14:06:30.000000000 +0100
-> @@ -100,30 +100,34 @@ static inline void flush_cache_range(str
->  
->  /* Simple function to work out if we have an existing address translation
->   * for a user space vma. */
-> -static inline pte_t *__translation_exists(struct mm_struct *mm,
-> -					  unsigned long addr)
-> +static inline int translation_exists(struct vm_area_struct *vma,
-> +				unsigned long addr, unsigned long pfn)
->  {
-> -	pgd_t *pgd = pgd_offset(mm, addr);
-> +	pgd_t *pgd = pgd_offset(vma->vm_mm, addr);
->  	pmd_t *pmd;
-> -	pte_t *pte;
-> +	pte_t pte;
->  
->  	if(pgd_none(*pgd))
-> -		return NULL;
-> +		return 0;
->  
->  	pmd = pmd_offset(pgd, addr);
->  	if(pmd_none(*pmd) || pmd_bad(*pmd))
-> -		return NULL;
-> +		return 0;
->  
-> -	pte = pte_offset_map(pmd, addr);
-> +	/* We cannot take the pte lock here: flush_cache_page is usually
-> +	 * called with pte lock already held.  Whereas flush_dcache_page
-> +	 * takes flush_dcache_mmap_lock, which is lower in the hierarchy:
-> +	 * the vma itself is secure, but the pte might come or go racily.
-> +	 */
-> +	pte = *pte_offset_map(pmd, addr);
-> +	/* But pte_unmap() does nothing on this architecture */
-> +
-> +	/* Filter out coincidental file entries and swap entries */
-> +	if (!(pte_val(pte) & (_PAGE_FLUSH|_PAGE_PRESENT)))
-> +		return 0;
->  
-> -	/* The PA flush mappings show up as pte_none, but they're
-> -	 * valid none the less */
-> -	if(pte_none(*pte) && ((pte_val(*pte) & _PAGE_FLUSH) == 0))
-> -		return NULL;
-> -	return pte;
-> +	return pte_pfn(pte) == pfn;
->  }
-> -#define	translation_exists(vma, addr)	__translation_exists((vma)->vm_mm, addr)
-> -
->  
->  /* Private function to flush a page from the cache of a non-current
->   * process.  cr25 contains the Page Directory of the current user
-> @@ -175,9 +179,8 @@ flush_cache_page(struct vm_area_struct *
->  {
->  	BUG_ON(!vma->vm_mm->context);
->  
-> -	if(likely(translation_exists(vma, vmaddr)))
-> +	if (likely(translation_exists(vma, vmaddr, pfn)))
->  		__flush_cache_page(vma, vmaddr);
->  
->  }
->  #endif
-> -
+> In your example -- userspace discovery required before root filesystem 
+> can be found -- a program running from initrd/initramfs would create an 
+> SMP device node, open it, and then proceed with the discovery and 
+
+SMP is part of the protocol, of what the device (PCI) implements.  It is always
+there, just like phys.  You do not need to create it from user space. It
+will be there for a user process to use, via say SDI.  SDI provides this as
+part of the controller.  Read the SDI spec.
+
+Insight of the whole architecture is irreplacable to create good design.
+
+> configuration process, which in turn creates the device nodes necessary 
+> to mount the root filesystem.
+
+Also note that everyone does domain discovery in the kernel/FW and not
+only for SAS but for other domains (even non-SCSI).  While domain
+discovery is in the kernel/FW, _control_ of the domain is given to
+user space, via say SDI -- everyone agrees on this.
+
+   Luben
+

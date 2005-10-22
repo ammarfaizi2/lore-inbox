@@ -1,73 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751371AbVJVRji@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751359AbVJVRii@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751371AbVJVRji (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Oct 2005 13:39:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbVJVRji
+	id S1751359AbVJVRii (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Oct 2005 13:38:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbVJVRih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Oct 2005 13:39:38 -0400
-Received: from web31807.mail.mud.yahoo.com ([68.142.207.70]:15969 "HELO
-	web31807.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751366AbVJVRjh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Oct 2005 13:39:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=F92f7tde0erbUnafVPB34eQoEmqvWErgqwl1xCF4EY9bImbfwHtUvW8p6k7iFstyFza91DOLpyfDhHJ3Cwva9zJF+RniCHs6NEgsou1o+0DZOSPZ4ppqcjCXFbkMYMgFBaOjSanTF/ICFSkXb42zbUPmivVV7gcOg0XXmVsb56Q=  ;
-Message-ID: <20051022173936.26998.qmail@web31807.mail.mud.yahoo.com>
-Date: Sat, 22 Oct 2005 10:39:36 -0700 (PDT)
-From: Luben Tuikov <ltuikov@yahoo.com>
-Reply-To: ltuikov@yahoo.com
-Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attachedPHYs)
-To: David Lang <david.lang@digitalinsight.com>,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: linux-scsi@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
+	Sat, 22 Oct 2005 13:38:37 -0400
+Received: from rwcrmhc14.comcast.net ([216.148.227.89]:7623 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1750955AbVJVRih (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Oct 2005 13:38:37 -0400
+Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally
+	attached PHYs)
+From: Sergey Panov <sipan@sipan.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>, linux-scsi@vger.kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
        Jeff Garzik <jgarzik@pobox.com>,
        Luben Tuikov <luben_tuikov@adaptec.com>, andrew.patterson@hp.com,
        Christoph Hellwig <hch@lst.de>,
        "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
        Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <Pine.LNX.4.62.0510220357250.4997@qynat.qvtvafvgr.pbz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20051022171943.GA7546@infradead.org>
+References: <4359440E.2050702@pobox.com> <43595275.1000308@adaptec.com>
+	 <435959BE.5040101@pobox.com> <43595CA6.9010802@adaptec.com>
+	 <43596070.3090902@pobox.com> <43596859.3020801@adaptec.com>
+	 <43596F16.7000606@pobox.com> <435A1793.1050805@s5r6.in-berlin.de>
+	 <20051022105815.GB3027@infradead.org>
+	 <1129994910.6286.21.camel@sipan.sipan.org>
+	 <20051022171943.GA7546@infradead.org>
+Content-Type: text/plain
+Organization: Home
+Date: Sat, 22 Oct 2005 13:38:24 -0400
+Message-Id: <1130002704.8775.12.camel@sipan.sipan.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- David Lang <david.lang@digitalinsight.com> wrote:
-> Stefan, what you and Luben are missing is that big-bang changes like you 
-> are proposing are simply not acceptable anymore.
+On Sat, 2005-10-22 at 18:19 +0100, Christoph Hellwig wrote:
+> On Sat, Oct 22, 2005 at 11:28:30AM -0400, Sergey Panov wrote:
+> >  It is a mistake to think that you can not do a big rework and keep SCSI
+> > sub-system stable. You just have to make sure the OLD way is supported
+> > for as log as it is needed.
+> 
+> No.  Rewriting something from scratch is horrible engineering practice.
 
-Take a look at the link below, working SAS code with the current
-kernel.  No one is trying to produce big-bang changes.  This is what
-Jeff want's you to believe that I'm trying to do -- this is part of his
-political game and FUD and apparently he's succeeding.
+Most of the time. Besides "rework" is not necessarily "rewrite from
+scratch", most of the time it means "modification" of the existing
+system.
 
-I repeat: no on is trying to produce a new "big-bang changes" as you
-call them. See the working code in the link at my sig.  This is
-_current_ Linus's tree with SAS Stack in it.
+> It's impossible to very huge changes, small incremental changes OTOH
+> allow easier planning, easier calculation of the risks and cost and most
+> import better test coverage.  There's nothing specific to scsi or linux
+> kernel code about it.  It'd suggest you read:
+> 
+>  http://www.joelonsoftware.com/articles/fog0000000069.html
 
-Don't yield to the FUD.
+Bad example -- just count number of lines in drivers/scsi/scsi*.c
+and in Netscape 4.0 and you'll see why.
+That does not mean I advocate throughing out current SCSI mid layer and
+writing a new one. As I can tell, no one on that list is proposing the
+"rewrite from scratch" approach.
+  I just was trying to point out that Luben's transport "layers" in
+place of transport "modules-appendages" simplifies that
+migration/evolution.   
 
-> This is what Jeff is trying to tell you. you can't just produce an 
-> entirely new SCSI subsystem and drop it into the kernel one day, you can 
-
-No, this is what he wants you to believe that I'm trying to do.  This is what
-people start doing when they loose on technological ground.  Do not
-yield to the FUD and politics.  See the working code of current Linus's tree
-with SAS in it in my sig link.
-
-I repeat, no one is trying to replace anything or throw anything out.
-This is just FUD and politics which Jeff is spreading because he's got
-an agenda in convincing certain people certain things.
-
-See the working SAS code in the link below -- current Linus' tree with
-SAS in it.  Soon enough it would contain SDI back-end and then HP and LSI
-would be able to plug right in, and I think there's an engineer out there
-who's already implemented a front end.
-
-    Luben
+> or various similar articles.  Full scale rewrites almost never work
+> out.
 
 
--- 
-http://linux.adaptec.com/sas/
-http://www.adaptec.com/sas/
+Sergey Panov
+
+===========================================
+
+I expressed my personal opinion and I am not speaking for anyone else.
+

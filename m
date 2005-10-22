@@ -1,59 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbVJVV5A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751135AbVJVWOl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751152AbVJVV5A (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Oct 2005 17:57:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbVJVV5A
+	id S1751135AbVJVWOl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Oct 2005 18:14:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbVJVWOl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Oct 2005 17:57:00 -0400
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:19905 "EHLO
-	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
-	id S1751152AbVJVV47 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Oct 2005 17:56:59 -0400
-Date: Sat, 22 Oct 2005 23:56:50 +0200
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
-To: linux-kernel@vger.kernel.org
-Subject: Problem with usb-audio introduced between 2.6.13 and 2.6.14-rc1
-Message-ID: <20051022215649.GA7598@hansolo>
+	Sat, 22 Oct 2005 18:14:41 -0400
+Received: from ams-iport-1.cisco.com ([144.254.224.140]:49794 "EHLO
+	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1751135AbVJVWOk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Oct 2005 18:14:40 -0400
+To: gregkh@suse.de, mst@mellanox.co.il
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: AMD 8131 and MSI quirk
+X-Message-Flag: Warning: May contain useful information
+From: Roland Dreier <rolandd@cisco.com>
+Date: Sat, 22 Oct 2005 15:14:34 -0700
+Message-ID: <524q799p2t.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 22 Oct 2005 22:14:35.0395 (UTC) FILETIME=[FC3C9D30:01C5D755]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After updating the kernel on one of my computers today I discovered that 
-usb-audio via snd-pcm-oss over the snd-usb-audio ALSA drivers stopped 
-working (worked with 2.6.13, doesn't with 2.6.14-rc[12345]).
+The current quirk_amd_8131_ioapic() function sets a global
+pci_msi_quirk flag, which disables MSI/MSI-X for all devices in the
+system.  This is safe but suboptimal, because there may be devices on
+other buses not related to the AMD 8131 bridge, for which MSI would
+work fine.  As an example, see the end of this email for a lspci -t
+from a real Opteron system that has PCI-X buses coming from an AMD
+8131 and PCI Express buses coming from an Nforce4 bridge -- MSI works
+fine for the Mellanox InfiniBand adapter on the PCIe bus, if we allow
+it to be enabled.
 
-The weird part is that it only stopped working when using the driver 
-through the oss emulation and only for some programs. I've tried it with 
-all apps with native alsa support that I had installed, and all of them 
-worked. I also tried it with a few different apps with oss support, and 
-most of them worked (xine and mplayer) while one failed (mythmusic).
+I guess what we really should be doing is setting the dev->no_msi flag
+for all devices below the AMD 8131 PCI-X bridge rather than turning
+off MSI globally.  Of course this is somewhat tricky, since a device
+could be hotplugged onto a bus below the AMD 8131.  Greg, any thoughts
+about the proper way to use the driver model infrastructure to handle
+this?
 
-The symptoms is that no sound is heard while the app seems to believe 
-that everything is just fine. It also progresses through the song at 
-about 20x normal speed (i.e. it thinks its done playing a 4 minute song 
-after 12 seconds). The only difference I can come up with is that xine 
-and mplayer probably up-sample the audio to 48.000Hz while MythMusic 
-tries to play at 44.100Hz (the device is a TerraTec external USB <-> 
-SPDIF interface).
+The other place that pci_msi_quirk is set is quirk_svw_msi().  I don't
+know why MSI is turned off for that Serverworks chipset, but perhaps
+the same change could be made, and the global pci_msi_quirk flag
+killed off entirely.
 
-I've used git's bisect command to try to find the exact problem, and it 
-seems to have been introduced by this commit:	
-7efd8bc800324a967a37e8a425433468b7f06adb
-see also:
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=7efd8bc800324a967a37e8a425433468b7f06adb
-patch name: [ALSA] usb-audio: double-buffer all playback data
+Thanks,
+  Roland
 
-I'm not sure on how to fix it since the commit is quite big and cannot 
-be simply reversed with the current tree as there have been other 
-patches applied to the file afterwards. Comments/suggestions welcome...
-
-Regards,
-David Härdeman
-david (at) 2gen (dot) com
-
-PS
-Please CC me on any replies
+-+-[80]-+-00.0  nVidia Corporation CK804 Memory Controller
+ |      +-01.0  nVidia Corporation CK804 Memory Controller
+ |      +-0a.0  nVidia Corporation CK804 Ethernet Controller
+ |      \-0e.0-[81]----00.0  Mellanox Technologies MT25208 InfiniHost III Ex (Tavor compatibility mode)
+ +-[08]-+-0a.0-[09]--
+ |      +-0a.1  Advanced Micro Devices [AMD] AMD-8131 PCI-X APIC
+ |      +-0b.0-[0a]--+-04.0  Intel Corporation 82546EB Gigabit Ethernet Controller (Copper)
+ |      |            +-04.1  Intel Corporation 82546EB Gigabit Ethernet Controller (Copper)
+ |      |            \-09.0  Chelsio Communications Inc: Unknown device 000b
+ |      \-0b.1  Advanced Micro Devices [AMD] AMD-8131 PCI-X APIC
+ \-[00]-+-00.0  nVidia Corporation CK804 Memory Controller
+        +-01.0  nVidia Corporation CK804 ISA Bridge
+        +-01.1  nVidia Corporation CK804 SMBus
+        +-02.0  nVidia Corporation CK804 USB Controller
+        +-02.1  nVidia Corporation CK804 USB Controller
+        +-04.0  nVidia Corporation CK804 AC'97 Audio Controller
+        +-06.0  nVidia Corporation CK804 IDE
+        +-07.0  nVidia Corporation CK804 Serial ATA Controller
+        +-08.0  nVidia Corporation CK804 Serial ATA Controller
+        +-09.0-[01]----05.0  Texas Instruments TSB43AB22/A IEEE-1394a-2000 Controller (PHY/Link)
+        +-0a.0  nVidia Corporation CK804 Ethernet Controller
+        +-0e.0-[02]--+-00.0  ATI Technologies Inc RV370 5B60 [Radeon X300 (PCIE)]
+        |            \-00.1  ATI Technologies Inc: Unknown device 5b70
+        +-18.0  Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport Technology Configuration
+        +-18.1  Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
+        +-18.2  Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
+        +-18.3  Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
+        +-19.0  Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport Technology Configuration
+        +-19.1  Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
+        +-19.2  Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
+        \-19.3  Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control

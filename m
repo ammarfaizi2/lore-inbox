@@ -1,53 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbVJVAgR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbVJVBU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751276AbVJVAgR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Oct 2005 20:36:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbVJVAgR
+	id S932076AbVJVBU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Oct 2005 21:20:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbVJVBU4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Oct 2005 20:36:17 -0400
-Received: from xenotime.net ([66.160.160.81]:33175 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751276AbVJVAgQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Oct 2005 20:36:16 -0400
-Date: Fri, 21 Oct 2005 17:36:12 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: James Hansen <linux-kernel-list@f0rmula.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Information on ioctl32
-Message-Id: <20051021173612.06f1dadd.rdunlap@xenotime.net>
-In-Reply-To: <4358CF73.3020602@f0rmula.com>
-References: <4358CF73.3020602@f0rmula.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 21 Oct 2005 21:20:56 -0400
+Received: from mail16.syd.optusnet.com.au ([211.29.132.197]:17560 "EHLO
+	mail16.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751293AbVJVBU4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Oct 2005 21:20:56 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] mm - swap prefetch magnify
+Date: Sat, 22 Oct 2005 11:20:44 +1000
+User-Agent: KMail/1.8.3
+Cc: Andrew Morton <akpm@osdl.org>, ck list <ck@vds.kolivas.org>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_sPZWDAu7SYc/nnB"
+Message-Id: <200510221120.44473.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Oct 2005 12:22:27 +0100 James Hansen wrote:
+--Boundary-00=_sPZWDAu7SYc/nnB
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> Hi,
-> 
-> I've been working my way through what I think is probably the seminal 
-> work on the topic of device drivers, but it pre-dates ioctl32 and other 
-> 32 compatibility stuff.
-> 
-> (The O'Reilly linux device driver book)  
-> http://www.xml.com/ldd/chapter/book/ch03.html
+Testing has confirmed much larger prefetch values work well.
 
-That's LDD v2.
-
-LDD v3 is here:
-  http://lwn.net/Kernel/LDD3/
-
-I don't see ioctl32 here, but lwn.net also has driver-porting info at:
-  http://lwn.net/Articles/driver-porting/
-
-> Is there anywhere that I can find some more information on this, such as 
-> a howto?  I've been googling but have only really stumbled across some 
-> brief info on lwn.net.
-
-
+Con
 ---
-~Randy
+
+
+
+--Boundary-00=_sPZWDAu7SYc/nnB
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="mm-swap_prefetch_magnify.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="mm-swap_prefetch_magnify.patch"
+
+The current number of pages prefetched by swap_prefetch is very gentle, and
+we are very cautious about whether prefetching is appropriate or not so we
+can increase the size substantially.
+
+Make the prefetch size magnitudes larger, being proportional to memory size
+instead of the square root of it.
+
+Fix the last_free calculation to work better with larger prefetch sizes.
+
+Signed-off-by: Con Kolivas <kernel@kolivas.org>
+
+Index: linux-2.6.14-rc5-ck1/mm/swap_prefetch.c
+===================================================================
+--- linux-2.6.14-rc5-ck1.orig/mm/swap_prefetch.c	2005-10-22 10:14:26.000000000 +1000
++++ linux-2.6.14-rc5-ck1/mm/swap_prefetch.c	2005-10-22 10:36:30.000000000 +1000
+@@ -24,7 +24,7 @@
+ #define PREFETCH_INTERVAL (HZ)
+ 
+ /* sysctl - how many SWAP_CLUSTER_MAX pages to prefetch at a time */
+-int swap_prefetch = 1;
++int swap_prefetch;
+ 
+ struct swapped_root {
+ 	unsigned long		busy;		/* vm busy */
+@@ -71,9 +71,7 @@ void __init prepare_prefetch(void)
+ 	mapped_limit = mem / 3 * 2;
+ 
+ 	/* Set initial swap_prefetch value according to memory size */
+-	mem /= SWAP_CLUSTER_MAX * 1000;
+-	while ((mem >>= 1))
+-		swap_prefetch++;
++	swap_prefetch = mem / 10000;
+ }
+ 
+ /*
+@@ -307,10 +305,9 @@ static int prefetch_suitable(void)
+ 	 * (eg during file reads)
+ 	 */
+ 	if (last_free) {
+-		if (temp_free + SWAP_CLUSTER_MAX + prefetch_pages() <
+-			last_free) {
+-				last_free = temp_free;
+-				goto out;
++		if (temp_free + SWAP_CLUSTER_MAX < last_free) {
++			last_free = temp_free;
++			goto out;
+ 		}
+ 	} else
+ 		last_free = temp_free;
+@@ -375,6 +372,7 @@ static enum trickle_return trickle_swap(
+ 		case TRICKLE_FAILED:
+ 			break;
+ 		case TRICKLE_SUCCESS:
++			last_free--;
+ 			pages++;
+ 			break;
+ 		case TRICKLE_DELAY:
+
+--Boundary-00=_sPZWDAu7SYc/nnB--

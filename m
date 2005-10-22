@@ -1,164 +1,177 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751318AbVJVHqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751298AbVJVJPd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751318AbVJVHqI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Oct 2005 03:46:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbVJVHqH
+	id S1751298AbVJVJPd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Oct 2005 05:15:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbVJVJPd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Oct 2005 03:46:07 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:28680 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S1751318AbVJVHqG
+	Sat, 22 Oct 2005 05:15:33 -0400
+Received: from smtp05.wanadoo.nl ([194.134.35.145]:24869 "EHLO
+	smtp05.wanadoo.nl") by vger.kernel.org with ESMTP id S1751298AbVJVJPc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Oct 2005 03:46:06 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [EXPERIMENT,RFC] FAT: Add "flush" option for hotplug devices
-References: <871x2gf8f5.fsf@devron.myhome.or.jp>
-	<20051020135014.2289fa01.akpm@osdl.org>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sat, 22 Oct 2005 16:45:53 +0900
-In-Reply-To: <20051020135014.2289fa01.akpm@osdl.org> (Andrew Morton's message of "Thu, 20 Oct 2005 13:50:14 -0700")
-Message-ID: <87vezqc7v2.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+	Sat, 22 Oct 2005 05:15:32 -0400
+Message-ID: <435A032C.7070302@lazarenko.net>
+Date: Sat, 22 Oct 2005 11:15:24 +0200
+From: Vladimir Lazarenko <vlad@lazarenko.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
+Subject: Re: sata_nv + SMP = broken?
+References: <4358C417.9000608@lazarenko.net> <4359144F.8090504@perkel.com> <200510212238.25614.rjw@sisk.pl>
+In-Reply-To: <200510212238.25614.rjw@sisk.pl>
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms020301090606050006080102"
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "dinosaur.lazarenko.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  >>>Yesterday I've tried launching various kernels on
+	Ahtlon64 Dual-core >>>X2 3800+ with MSI Neo4 Platinum SLI motherboard.
+	>>> >>>The results were a total catastrophica failure. As soon as I
+	enable >>>SMP in the kernel, the sata driver would randomly hang after
+	a bit of >>>disk activity. >>> >>>Whenever apic is enabled, the system
+	won't even be able to boot up >>>completely, and will hang VERY soon.
+	Whenever I disable apic, the >>>system is able to bootup, but when the
+	software mirror that I use will >>>try to resync for 2-3-10 mins, it
+	will throw up a message and freeze >>>again. >>> >>>Whenever I disable
+	apic AND lapic, the system is able to bootup AND >>>work, however after
+	same 5-10 minutes it start spitting messages, >>>which are somewhat
+	different thou and don't hang the system completely >>>but render it
+	rather unusable anyway. >>> >>>As soon as I disable SMP - everything
+	works like a charm. >>> >>I too am running an Athlon X2 using sata_nv.
+	I have an ASUS motherboard. >>But what I noticed was that the problem
+	went away if I used 2 gigs of >>ram instead of 4 gigs. When you use the
+	whole 4 gigs there is some >>memory mapping going on and I thought
+	perhaps the problem was related to >>the sata_nv not liking the memory
+	mapped over the 4gig barrier. > > That's possible. Unfortunately I
+	cannot verify this, since there are 2GB of > RAM in my box. > > I
+	remeber someone having a problem with sata_nv DMAing over 2GB of RAM, >
+	so there may be something wrong with it. [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 AWL                    AWL: From: address is in the auto white-list
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+This is a cryptographically signed message in MIME format.
 
-> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
->
->> This option would provide kind of sane progress, and dirty buffers is
->> flushed more frequently (if fs is not active).
->
-> Your implementation doesn't really do this.  bdi_write_congested() only
-> returns true if the device is super-busy.  To determine whether it's "not
-> active" we'd need to peek at the queue's disk_stat accounting, or at the
-> queue's outstanding read/write requests.  We covered this a couple of weeks
-> ago in the context of Con's swap prefetch work.
+--------------ms020301090606050006080102
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-This doesn't check request queue to determine whether it's active,
-instead of it, this is checking ->last_flush_jiff. (see below)
+>>>Yesterday I've tried launching various kernels on Ahtlon64 Dual-core 
+>>>X2 3800+ with MSI Neo4 Platinum SLI motherboard.
+>>>
+>>>The results were a total catastrophica failure. As soon as I enable 
+>>>SMP in the kernel, the sata driver would randomly hang after a bit of 
+>>>disk activity.
+>>>
+>>>Whenever apic is enabled, the system won't even be able to boot up 
+>>>completely, and will hang VERY soon. Whenever I disable apic, the 
+>>>system is able to bootup, but when the software mirror that I use will 
+>>>try to resync for 2-3-10 mins, it will throw up a message and freeze 
+>>>again.
+>>>
+>>>Whenever I disable apic AND lapic, the system is able to bootup AND 
+>>>work, however after same 5-10 minutes it start spitting messages, 
+>>>which are somewhat different thou and don't hang the system completely 
+>>>but render it rather unusable anyway.
+>>>
+>>>As soon as I disable SMP - everything works like a charm.
+>>>
+>>I too am running an Athlon X2 using sata_nv. I have an ASUS motherboard. 
+>>But what I noticed was that the problem went away if I used 2 gigs of 
+>>ram instead of 4 gigs. When you use the whole 4 gigs there is some 
+>>memory mapping going on and I thought perhaps the problem was related to 
+>>the sata_nv not liking the memory mapped over the 4gig barrier.
+> 
+> That's possible.  Unfortunately I cannot verify this, since there are 2GB of
+> RAM in my box.
+> 
+> I remeber someone having a problem with sata_nv DMAing over 2GB of RAM,
+> so there may be something wrong with it.
 
-But active check based on request-queue may be good. I would need to compare...
+On a second thought. Why would that only occur in SMP mode? Since now 
+the box is with 3G ram, no SMP and it works like a charm. If I enable 
+SMP - the hell breaks loose.
 
->> +EXPORT_SYMBOL(filemap_write_and_wait);
->
-> _GPL please.
->
->> +EXPORT_SYMBOL(fsync_super);
->
-> Ditto
+Anyone from the IDE drivers guru world has any ideas? :)
 
-done.
+Regards,
+Vladimir
 
-Many filesystems seems to have copy of filemap_write_and_wait().
+--------------ms020301090606050006080102
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
 
-	filemap_fdatawrite(inode->i_mapping);
-	filemap_fdatawait(inode->i_mapping);
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIJ2zCC
+Az8wggKooAMCAQICAQ0wDQYJKoZIhvcNAQEFBQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQI
+EwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUgVG93bjEaMBgGA1UEChMRVGhhd3RlIENv
+bnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24gU2VydmljZXMgRGl2aXNpb24xJDAi
+BgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTErMCkGCSqGSIb3DQEJARYccGVy
+c29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMzA3MTcwMDAwMDBaFw0xMzA3MTYyMzU5
+NTlaMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBM
+dGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQTCBnzAN
+BgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAxKY8VXNV+065yplaHmjAdQRwnd/p/6Me7L3N9Vvy
+Gna9fww6YfK/Uc4B1OVQCjDXAmNaLIkVcI7dyfArhVqqP3FWy688Cwfn8R+RNiQqE88r1fOC
+dz0Dviv+uxg+B79AgAJk16emu59l0cUqVIUPSAR/p7bRPGEEQB5kGXJgt/sCAwEAAaOBlDCB
+kTASBgNVHRMBAf8ECDAGAQH/AgEAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwudGhh
+d3RlLmNvbS9UaGF3dGVQZXJzb25hbEZyZWVtYWlsQ0EuY3JsMAsGA1UdDwQEAwIBBjApBgNV
+HREEIjAgpB4wHDEaMBgGA1UEAxMRUHJpdmF0ZUxhYmVsMi0xMzgwDQYJKoZIhvcNAQEFBQAD
+gYEASIzRUIPqCy7MDaNmrGcPf6+svsIXoUOWlJ1/TCG4+DYfqi2fNi/A9BxQIJNwPP2t4WFi
+w9k6GX6EsZkbAMUaC4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa9/eH1sYITq726jTlEBpb
+NU1341YheILcIRk13iSx0x1G/11fZU8wggNIMIICsaADAgECAgMPl0owDQYJKoZIhvcNAQEE
+BQAwYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0
+ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBMB4XDTA1
+MTAwNDE4Mjk1NloXDTA2MTAwNDE4Mjk1NlowgZgxEjAQBgNVBAQTCUxhemFyZW5rbzERMA8G
+A1UEKhMIVmxhZGltaXIxGzAZBgNVBAMTElZsYWRpbWlyIExhemFyZW5rbzEhMB8GCSqGSIb3
+DQEJARYSdmxhZEBsYXphcmVua28ubmV0MS8wLQYJKoZIhvcNAQkBFiB2bGFkaW1pci5sYXph
+cmVua29AbG9naWNhY21nLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMhN
+65wBwy12UD+rjqjhBDMm8/6sYE+YHQmJMgTb/Cxy+Sp00ISDel7/FiLvVtKAo667N43VeFzT
+p+7BWKxC0OJAFddayiWFw5sZCEL28qY2lHnolrpJMbVIzUoqrSkPjgZ9GNI93Ri7AWkMCF9X
+uRFW0I0Lbb2gYH2fnpdloO917DLyXVuBxOyPUpu1TeP+oHbi8whPdrhFx8Ep37sP13srk5tf
+ISzaXdJzEVWOaLTyIL5tMSlCuBJibmcDm9/2qCLW+c1eAxiQwmafH4tJ5WPch2wclEXlt7tw
+tGe6vK0Se2B8TvgZmOaY78wIp0DBVrP4+wsMnCbcPHtk+sY1d/8CAwEAAaNRME8wPwYDVR0R
+BDgwNoESdmxhZEBsYXphcmVua28ubmV0gSB2bGFkaW1pci5sYXphcmVua29AbG9naWNhY21n
+LmNvbTAMBgNVHRMBAf8EAjAAMA0GCSqGSIb3DQEBBAUAA4GBACfGbOm/RbyWFmOR+w4Vk8XY
+umCjlfqb+icqbKENKvuG4DOQr6QaTtRT+/ATA3yrooYfQWuflDIEPS+SbNyjfpNyyFiYB8OS
+rfclJ+B+ikvEP7LweNoL3EV1SrzeyJ3YrcqHAhoNqvB66dVQCy04RFvaRI+fC3I79Zd748gf
+ESqyMIIDSDCCArGgAwIBAgIDD5dKMA0GCSqGSIb3DQEBBAUAMGIxCzAJBgNVBAYTAlpBMSUw
+IwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUg
+UGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQTAeFw0wNTEwMDQxODI5NTZaFw0wNjEwMDQx
+ODI5NTZaMIGYMRIwEAYDVQQEEwlMYXphcmVua28xETAPBgNVBCoTCFZsYWRpbWlyMRswGQYD
+VQQDExJWbGFkaW1pciBMYXphcmVua28xITAfBgkqhkiG9w0BCQEWEnZsYWRAbGF6YXJlbmtv
+Lm5ldDEvMC0GCSqGSIb3DQEJARYgdmxhZGltaXIubGF6YXJlbmtvQGxvZ2ljYWNtZy5jb20w
+ggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDITeucAcMtdlA/q46o4QQzJvP+rGBP
+mB0JiTIE2/wscvkqdNCEg3pe/xYi71bSgKOuuzeN1Xhc06fuwVisQtDiQBXXWsolhcObGQhC
+9vKmNpR56Ja6STG1SM1KKq0pD44GfRjSPd0YuwFpDAhfV7kRVtCNC229oGB9n56XZaDvdewy
+8l1bgcTsj1KbtU3j/qB24vMIT3a4RcfBKd+7D9d7K5ObXyEs2l3ScxFVjmi08iC+bTEpQrgS
+Ym5nA5vf9qgi1vnNXgMYkMJmnx+LSeVj3IdsHJRF5be7cLRnurytEntgfE74GZjmmO/MCKdA
+wVaz+PsLDJwm3Dx7ZPrGNXf/AgMBAAGjUTBPMD8GA1UdEQQ4MDaBEnZsYWRAbGF6YXJlbmtv
+Lm5ldIEgdmxhZGltaXIubGF6YXJlbmtvQGxvZ2ljYWNtZy5jb20wDAYDVR0TAQH/BAIwADAN
+BgkqhkiG9w0BAQQFAAOBgQAnxmzpv0W8lhZjkfsOFZPF2Lpgo5X6m/onKmyhDSr7huAzkK+k
+Gk7UU/vwEwN8q6KGH0Frn5QyBD0vkmzco36TcshYmAfDkq33JSfgfopLxD+y8HjaC9xFdUq8
+3sid2K3KhwIaDarweunVUAstOERb2kSPnwtyO/WXe+PIHxEqsjGCAzswggM3AgEBMGkwYjEL
+MAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAq
+BgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBAgMPl0owCQYFKw4D
+AhoFAKCCAacwGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMDUx
+MDIyMDkxNTI0WjAjBgkqhkiG9w0BCQQxFgQUwD5ZaZOWe7+S08PDFYO89tAJqbEwUgYJKoZI
+hvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAw
+BwYFKw4DAgcwDQYIKoZIhvcNAwICASgweAYJKwYBBAGCNxAEMWswaTBiMQswCQYDVQQGEwJa
+QTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhh
+d3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0ECAw+XSjB6BgsqhkiG9w0BCRACCzFr
+oGkwYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0
+ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBAgMPl0ow
+DQYJKoZIhvcNAQEBBQAEggEAeVuPHci7+nxKHAkUzeXoQQwqe1X/DQDimMwAP3mseQgkfE7g
+iL72bvczzWPHyTvSScQbB1Ome2hWsYdE0dJHmlyCpEpjW9jp2NFbi6xOW9b4+ac5neTX6uZL
+NtEPrmA5LVCO43fRSXmJtrxcHTqi5zNy32DfjFvKzTlVVHP45vyKT+Aw9n+rdWPuh/jvQFp3
+3OKxZwwQsKGDISYzvtFwP8iQ6piZ6wB6hhOVEv3sS7bTtVEjxPvWnX0xn8Yco2Ed1XvUOtvG
+xUKHjU3RUQrPBvDRp3UQ9MPBxNP7L+xWd1L6858Mh3w93gYYi8rG9in2XNHhbGmlWXsYFuoA
+Ef+q1gAAAAAAAA==
+--------------ms020301090606050006080102--
 
-Other filesystem developers also want to use this?
-
->> +int fat_sync_fdata(struct inode *inode, struct file *filp)
->> +{
->> +	int err = 0;
->> +
->> +	if (filp->f_mode & FMODE_WRITE) {
->> +#if 1
->> +		current->flags |= PF_SYNCWRITE;
->> +		err = filemap_write_and_wait(inode->i_mapping);
->> +		current->flags &= ~PF_SYNCWRITE;
->> +#else
->> +		down(&inode->i_sem);
->> +#if 1
->> +		err = generic_osync_inode(inode, inode->i_mapping, OSYNC_DATA);
->> +#else
->> +		err = filp->f_op->fsync(filp, filp->f_dentry, 1);
->> +#endif
->> +		up(&inode->i_sem);
->> +#endif
->> +	}
->> +	return err;
->> +}
->
-> Can't we just split up do_fsync() a bit and use that?
-
-This is calling only filemap_write_and_wait(). Sorry for dirty source.
-Or are you saying we should do fdatasync(2) or fsync(2) here?
-
->> +static void fat_pdflush_handler(unsigned long arg)
->> +{
->> +	struct super_block *sb = (struct super_block *)arg;
->> +	fsync_super(sb);
->> +}
->
-> It would be nice if /proc/sys/vm/dirty_writeback_centisecs was a per-fs
-> thing.   That's non-trivial.
-
-I agree.  And If using "flush" option, we need to bypass check of
-->dirty_expire_centisecs, and need to flush sb and s_bdev.
-
->> +	last_flush_jiff = sbi->last_flush_jiff;
->> +
->> +	if (!time_after_eq(jiffies, last_flush_jiff + (HZ / 2))) {
->> +		mod_timer(&sbi->flush_timer, last_flush_jiff + (HZ / 2));
->> +		return;
->> +	}
->
-> What's the above doing?
-
-This checks whether fs is active.
-
-The ->last_flush_jiff is updated by fat_mark_flush(), and if need, it
-starts the timer.  And timer handler checks whether latest
-fat_mark_flush() is enough old.  If ->last_flush_jif is not enough old
-(fs is active), it's delaying to flush by adding the additional time.
-
-But request-queue base may be more simple.
-
->> +EXPORT_SYMBOL(__fat_mark_flush);
->
-> _GPL?
-
-Ah, yes. I'll change all fat's EXPORT_SYMBOL to _GPL.
-
->> +void fat_flush_stop(struct super_block *sb)
->> +{
->> +	del_timer_sync(&MSDOS_SB(sb)->flush_timer);
->> +}
->
-> whoops, the pdflush_operation could still be in progress.
->
-> To avoid umount races I think the pdflush callback is going to need to take
-> sb_lock, increment s_count, take ->s_umount, test ->s_root.  Like, for
-> example, __sync_inodes.
-
-Ugh, I'm idiot. I'll fix.
-
->> +void fat_flush_init(struct super_block *sb)
->> +{
->> +	struct msdos_sb_info *sbi = MSDOS_SB(sb);
->> +	init_timer(&sbi->flush_timer);
->> +	sbi->flush_timer.data = (unsigned long)sb;
->> +	sbi->flush_timer.function = fat_flush_timer;
->
-> -mm has setup_timer()
-
-OK. I'll make patch for -mm.
-
->> +static inline void fat_mark_flush(struct super_block *sb)
->> +{
->> +	if (MSDOS_SB(sb)->options.flush)
->> +		__fat_mark_flush(sb);
->> +}
->
-> It'd be nice to make this a more generic thing, so other filesystems can
-> use it without copying lots of code.
->
->> +		case Opt_flush:
->
-> MS_FLUSH?   I added MS_DIRSYNC a few years ago - it wasn't too complex.
-
-I'll add MS_FLUSH.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

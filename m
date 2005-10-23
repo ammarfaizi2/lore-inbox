@@ -1,54 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbVJWXNq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbVJWXkV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750832AbVJWXNq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 19:13:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbVJWXNp
+	id S1750807AbVJWXkV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 19:40:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbVJWXkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 19:13:45 -0400
-Received: from zproxy.gmail.com ([64.233.162.196]:36923 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750832AbVJWXNp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 19:13:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=H5zzBKL682jfR0LLJvCFswpjRps0y3OskxhI6P1Ti+fcYk9IpkWDRm1upOtsWs/5HAPIbp/ItVpT6y3Fp17u5x7FMnM7a3uswBVvg0CsqQ0gvG184AIE9I5bHuBqv7mTOZCXQFlEIy14yNtKfDPtq352tolGo1FmcckDZsZEHiA=
-Message-ID: <35fb2e590510231613u492d24c6k4d65ff3ac5ffcee6@mail.gmail.com>
-Date: Mon, 24 Oct 2005 00:13:44 +0100
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: /proc/kcore size incorrect ?
-Cc: "Linux-Kernel," <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051023235806.1a4df9ab@werewolf.able.es>
+	Sun, 23 Oct 2005 19:40:20 -0400
+Received: from lucidpixels.com ([66.45.37.187]:30893 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1750807AbVJWXkU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Oct 2005 19:40:20 -0400
+Date: Sun, 23 Oct 2005 19:40:19 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34
+To: Nathan Scott <nathans@sgi.com>
+cc: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org,
+       debian-user@lists.debian.org
+Subject: Re: xfs_db -c frag -r /dev/hda1 - Segmentation fault
+In-Reply-To: <20051024085451.C5863161@wobbly.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.64.0510231940140.5116@p34>
+References: <4080C826.F4C53CD@dmministries.org> <Pine.LNX.4.64.0510230736490.30489@p34>
+ <20051024085451.C5863161@wobbly.melbourne.sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051023235806.1a4df9ab@werewolf.able.es>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/23/05, J.A. Magallon <jamagallon@able.es> wrote:
+Thanks, I will give this a try.
 
-> BTW, any simple method to get the real mem of the box ?
 
-This is a typical example of using a hammer to crack a nut aka
-modifying the kernel before giving up on userspace.
+On Mon, 24 Oct 2005, Nathan Scott wrote:
 
-Several ways of looking up a solution:
-
-    * google
-    * man -k memory
-
-Leading to:
-
-* free(1):
-    ``free  displays the total amount of free and used physical and swap''
-
-* Or /proc/meminfo (both the same thing) - which you can trivially
-parse using sed:
-
-cat /proc/meminfo | sed -n -e "s/^MemTotal:[ ]*\([0-9]*\) kB\$/\1/p"
-
-Jon.
+> On Sun, Oct 23, 2005 at 07:39:34AM -0400, Justin Piszcz wrote:
+>> p34:~# xfs_db -c frag -r /dev/hda1
+>> Segmentation fault
+>> p34:~# xfs_db -c frag -r /dev/hde1
+>> Segmentation fault
+>> p34:~# xfs_db -c frag -r /dev/hdk1
+>> Segmentation fault
+>> p34:~#
+>>
+>> Debian Etch, 2.6.13.4, stopped working a while ago, either before newer
+>> debian packages or a newer kernel, does anyone who uses Debian+XFS have
+>> this problem as well?
+>
+> I see it too - this looks like an endian issue in xfs_db, this patch
+> should fix it (Works For Me).
+>
+> cheers.
+>
+> -- 
+> Nathan
+>
+>
+> Index: xfsprogs/db/frag.c
+> ===================================================================
+> --- xfsprogs.orig/db/frag.c
+> +++ xfsprogs/db/frag.c
+> @@ -294,7 +294,7 @@ process_exinode(
+> 	xfs_bmbt_rec_32_t	*rp;
+>
+> 	rp = (xfs_bmbt_rec_32_t *)XFS_DFORK_PTR(dip, whichfork);
+> -	process_bmbt_reclist(rp, XFS_DFORK_NEXTENTS(dip, whichfork), extmapp);
+> +	process_bmbt_reclist(rp, XFS_DFORK_NEXTENTS_HOST(dip, whichfork), extmapp);
+> }
+>
+> static void
+> @@ -305,7 +305,7 @@ process_fork(
+> 	extmap_t	*extmap;
+> 	int		nex;
+>
+> -	nex = XFS_DFORK_NEXTENTS(dip, whichfork);
+> +	nex = XFS_DFORK_NEXTENTS_HOST(dip, whichfork);
+> 	if (!nex)
+> 		return;
+> 	extmap = extmap_alloc(nex);
+>
+>

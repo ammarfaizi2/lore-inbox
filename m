@@ -1,70 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbVJWLjp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbVJWMw6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbVJWLjp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 07:39:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751381AbVJWLjp
+	id S1750711AbVJWMw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 08:52:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750712AbVJWMw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 07:39:45 -0400
-Received: from lucidpixels.com ([66.45.37.187]:43671 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S1750701AbVJWLjo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 07:39:44 -0400
-Date: Sun, 23 Oct 2005 07:39:34 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34
-To: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-cc: debian-user@lists.debian.org
-Subject: xfs_db -c frag -r /dev/hda1 - Segmentation fault
-In-Reply-To: <4080C826.F4C53CD@dmministries.org>
-Message-ID: <Pine.LNX.4.64.0510230736490.30489@p34>
-References: <4080C826.F4C53CD@dmministries.org>
+	Sun, 23 Oct 2005 08:52:58 -0400
+Received: from aeimail.aei.ca ([206.123.6.84]:13253 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S1750711AbVJWMw5 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Oct 2005 08:52:57 -0400
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: Billionton bluetooth CF card: performance is 10KB/sec
+Date: Sun, 23 Oct 2005 08:53:13 -0400
+User-Agent: KMail/1.8.2
+Cc: marcel@holtmann.org, maxk@qualcomm.com, bluez-devel@lists.sourceforge.net,
+       kernel list <linux-kernel@vger.kernel.org>
+References: <20051022173152.GA2573@elf.ucw.cz> <200510221801.49314.tomlins@cam.org> <20051023083535.GA1975@elf.ucw.cz>
+In-Reply-To: <20051023083535.GA1975@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200510230853.14484.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-p34:~# xfs_db -c frag -r /dev/hda1
-Segmentation fault
-p34:~# xfs_db -c frag -r /dev/hde1
-Segmentation fault
-p34:~# xfs_db -c frag -r /dev/hdk1
-Segmentation fault
-p34:~#
+On Sunday 23 October 2005 04:35, Pavel Machek wrote:
+> > > Transmitted 1000000 bytes in 103.183640 seconds (9.464 kbytes/s)
+> > 
+> > I see about the same with a bluetooth usb adapter.  Suspect that is about what
+> > you should see with bluetooth - its not designed for speed.  It would be really 
+> > nice to be wrong though...
+> 
+> No, it is designed to do more. It should do around ~100 kbytes/sec
+> according to spec, and MSI dongle *does* do 25 kbytes/sec easily
+> against nokia 6230.
 
-Debian Etch, 2.6.13.4, stopped working a while ago, either before newer 
-debian packages or a newer kernel, does anyone who uses Debian+XFS have 
-this problem as well?
+Pavel,
 
-Towards the end of the strace:
-munmap(0xb7fb6000, 4096)                = 0
-open("/proc/meminfo", O_RDONLY)         = 3
-fstat64(3, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
-mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) 
-= 0xb7fb6000
-read(3, "MemTotal:      1035452 kB\nMemFre"..., 1024) = 598
-close(3)                                = 0
-munmap(0xb7fb6000, 4096)                = 0
-rt_sigaction(SIGINT, {0x80628f4, [], 0}, NULL, 8) = 0
-_llseek(4, 512, [512], SEEK_SET)        = 0
-read(4, "XAGF\0\0\0\1\0\0\0\0\0:pn\0\0\0\1\0\0\0\2\0\0\0\0\0\0\0"..., 512) 
-= 512
-_llseek(4, 1024, [1024], SEEK_SET)      = 0
-read(4, "XAGI\0\0\0\1\0\0\0\0\0:pn\0\0\3@\0\0\0\3\0\0\0\1\0\0\000"..., 
-512) = 512
-_llseek(4, 12288, [12288], SEEK_SET)    = 0
-read(4, "IABT\0\0\0\r\377\377\377\377\377\377\377\377\0\0\0\200"..., 4096) 
-= 4096
-_llseek(4, 32768, [32768], SEEK_SET)    = 0
-read(4, "INA\355\1\1\0\3\0\0\0\0\0\0\0\0\0\0\0\3\0\0\0\0\0\0\0\0"..., 
-16384) = 16384
-mmap2(NULL, 268443648, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, 
--1, 0) = 0xa7df7000
---- SIGSEGV (Segmentation fault) @ 0 (0) ---
-+++ killed by SIGSEGV +++
-p34:~#
+Then the interesting test is to see if the delay is kernel or phone.   Are you talking
+to the same phone with both adapters?  If so please copy me on any test patches as
+I too have the same issue when talking to a pilot T3 using rfcomm using a "0a12:0001 
+Cambridge Silicon Radio, Ltd Bluetooth Dongle (HCI mode)" usb dongle.
 
-Is this a kernel, XFS or Debian problem?
+I would _love_ to get 25K/s
 
-Thanks!
+Thanks,
 
-Justin.
+Ed Tomlinson

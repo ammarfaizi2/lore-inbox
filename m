@@ -1,48 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751422AbVJWHar@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751421AbVJWHZ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751422AbVJWHar (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 03:30:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751423AbVJWHaq
+	id S1751421AbVJWHZ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 03:25:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbVJWHZ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 03:30:46 -0400
-Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:15622 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751422AbVJWHaq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 03:30:46 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: reuben-lkml@reub.net (Reuben Farrelly)
-Subject: [0/3] Fix timer bugs in neighbour cache
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       acme@conectiva.com.br, davem@davemloft.net, greearb@candelatech.com
-Organization: Core
-In-Reply-To: <43534273.2050106@reub.net>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1ETaJB-0004a0-00@gondolin.me.apana.org.au>
-Date: Sun, 23 Oct 2005 17:30:21 +1000
+	Sun, 23 Oct 2005 03:25:56 -0400
+Received: from smtprelay02.ispgateway.de ([80.67.18.14]:65259 "EHLO
+	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1751421AbVJWHZ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Oct 2005 03:25:56 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: linux-kernel@vger.kernel.org, paulmck@us.ibm.com
+Subject: Re: [PATCH] RCU torture-testing kernel module
+Date: Sun, 23 Oct 2005 09:22:18 +0200
+User-Agent: KMail/1.7.2
+Cc: arjan@infradead.org, pavel@ucw.cz, akpm@osdl.org, dipankar@in.ibm.com,
+       vatsa@in.ibm.com, rusty@au1.ibm.com, mingo@elte.hu,
+       manfred@colorfullife.com, gregkh@kroah.com
+References: <20051022231214.GA5847@us.ibm.com>
+In-Reply-To: <20051022231214.GA5847@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1589949.Qugnb5uCcg";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200510230922.26550.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reuben Farrelly <reuben-lkml@reub.net> wrote:
-> 
-> Oct 17 18:49:40 tornado kernel: NEIGH: BUG, double timer add, state is 1
-> Oct 17 18:51:04 tornado last message repeated 3 times
-> Oct 17 18:52:05 tornado last message repeated 5 times
-> Oct 17 18:52:11 tornado last message repeated 2 times
+--nextPart1589949.Qugnb5uCcg
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Excellent.  Looks like we actually caught something.  Pity we don't have
-a stack trace which means that there might be more bugs.
+Hi Paul,
 
-Anyway, here are three patches which should fix this.  This should go
-into 2.6.14.
+On Sunday 23 October 2005 01:12, Paul E. McKenney wrote:
+> --- linux-2.6.14-rc2/kernel/Kconfig.preempt	2005-08-28 16:41:01.000000000=
+ -0700
+> +++ linux-2.6.14-rc2-RCUtorturemod/kernel/Kconfig.preempt	2005-10-22 08:2=
+4:42.000000000 -0700
+> @@ -63,3 +63,15 @@ config PREEMPT_BKL
+>  	  Say Y here if you are building a kernel for a desktop system.
+>  	  Say N if you are unsure.
+> =20
+> +config RCU_TORTURE_TEST
+> +	tristate "torture tests for RCU"
+> +	default n
 
-Arnaldo, you can pull them from
+Please put this into lib/Kconfig.debug and make it dependent on
+DEBUG_KERNEL there, which illustrates its actual purpose much better.
 
-master.kernel.org:/pub/scm/linux/kernel/git/herbert/net-2.6.git
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Regards
+
+Ingo Oeser
+
+
+--nextPart1589949.Qugnb5uCcg
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDWzoyU56oYWuOrkARAqHSAKDCgVxcwP7B8sNWThXpKCnTbg43qACfQCbD
+Zxj2sJIYMw4ie0gXbCR+8Xw=
+=b+qQ
+-----END PGP SIGNATURE-----
+
+--nextPart1589949.Qugnb5uCcg--

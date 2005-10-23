@@ -1,73 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751421AbVJWHZ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751429AbVJWHbW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751421AbVJWHZ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 03:25:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbVJWHZ4
+	id S1751429AbVJWHbW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 03:31:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbVJWHbW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 03:25:56 -0400
-Received: from smtprelay02.ispgateway.de ([80.67.18.14]:65259 "EHLO
-	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1751421AbVJWHZ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 03:25:56 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: linux-kernel@vger.kernel.org, paulmck@us.ibm.com
-Subject: Re: [PATCH] RCU torture-testing kernel module
-Date: Sun, 23 Oct 2005 09:22:18 +0200
-User-Agent: KMail/1.7.2
-Cc: arjan@infradead.org, pavel@ucw.cz, akpm@osdl.org, dipankar@in.ibm.com,
-       vatsa@in.ibm.com, rusty@au1.ibm.com, mingo@elte.hu,
-       manfred@colorfullife.com, gregkh@kroah.com
-References: <20051022231214.GA5847@us.ibm.com>
-In-Reply-To: <20051022231214.GA5847@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1589949.Qugnb5uCcg";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200510230922.26550.ioe-lkml@rameria.de>
+	Sun, 23 Oct 2005 03:31:22 -0400
+Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:17926 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751423AbVJWHbV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Oct 2005 03:31:21 -0400
+Date: Sun, 23 Oct 2005 17:31:12 +1000
+To: Reuben Farrelly <reuben-lkml@reub.net>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       acme@conectiva.com.br, davem@davemloft.net, greearb@candelatech.com
+Subject: [1/3] [NEIGH] Print stack trace in neigh_add_timer
+Message-ID: <20051023073112.GA17626@gondor.apana.org.au>
+References: <43534273.2050106@reub.net> <E1ETaJB-0004a0-00@gondolin.me.apana.org.au>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="pf9I7BMVVzbSWLtt"
+Content-Disposition: inline
+In-Reply-To: <E1ETaJB-0004a0-00@gondolin.me.apana.org.au>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1589949.Qugnb5uCcg
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+
+--pf9I7BMVVzbSWLtt
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Hi Paul,
+[NEIGH] Print stack trace in neigh_add_timer
 
-On Sunday 23 October 2005 01:12, Paul E. McKenney wrote:
-> --- linux-2.6.14-rc2/kernel/Kconfig.preempt	2005-08-28 16:41:01.000000000=
- -0700
-> +++ linux-2.6.14-rc2-RCUtorturemod/kernel/Kconfig.preempt	2005-10-22 08:2=
-4:42.000000000 -0700
-> @@ -63,3 +63,15 @@ config PREEMPT_BKL
->  	  Say Y here if you are building a kernel for a desktop system.
->  	  Say N if you are unsure.
-> =20
-> +config RCU_TORTURE_TEST
-> +	tristate "torture tests for RCU"
-> +	default n
+Stack traces are very helpful in determining the exact nature of a bug.
+So let's print a stack trace when the timer is added twice.
 
-Please put this into lib/Kconfig.debug and make it dependent on
-DEBUG_KERNEL there, which illustrates its actual purpose much better.
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 
+--pf9I7BMVVzbSWLtt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="p1.patch"
 
-Regards
+diff --git a/net/core/neighbour.c b/net/core/neighbour.c
+--- a/net/core/neighbour.c
++++ b/net/core/neighbour.c
+@@ -732,6 +732,7 @@ static inline void neigh_add_timer(struc
+ 	if (unlikely(mod_timer(&n->timer, when))) {
+ 		printk("NEIGH: BUG, double timer add, state is %x\n",
+ 		       n->nud_state);
++		dump_stack();
+ 	}
+ }
+ 
 
-Ingo Oeser
-
-
---nextPart1589949.Qugnb5uCcg
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDWzoyU56oYWuOrkARAqHSAKDCgVxcwP7B8sNWThXpKCnTbg43qACfQCbD
-Zxj2sJIYMw4ie0gXbCR+8Xw=
-=b+qQ
------END PGP SIGNATURE-----
-
---nextPart1589949.Qugnb5uCcg--
+--pf9I7BMVVzbSWLtt--

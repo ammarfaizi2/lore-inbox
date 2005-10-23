@@ -1,51 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbVJWVNb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbVJWVPF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750773AbVJWVNb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 17:13:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750779AbVJWVNb
+	id S1750777AbVJWVPF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 17:15:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750779AbVJWVPE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 17:13:31 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:20234 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750773AbVJWVNa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 17:13:30 -0400
-Date: Sun, 23 Oct 2005 22:13:20 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Laurent Riffard <laurent.riffard@free.fr>, Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, dmo@osdl.org, mike.miller@hp.com,
-       iss_storagedev@hp.com, Jeff Garzik <garzik@pobox.com>
-Subject: Re: [patch] drivers/block: updates .owner field of struct pci_driver
-Message-ID: <20051023211320.GB19915@flint.arm.linux.org.uk>
-Mail-Followup-To: Laurent Riffard <laurent.riffard@free.fr>,
-	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-	dmo@osdl.org, mike.miller@hp.com, iss_storagedev@hp.com,
-	Jeff Garzik <garzik@pobox.com>
-References: <20051023204947.430464000@antares.localdomain> <20051023204956.213142000@antares.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051023204956.213142000@antares.localdomain>
-User-Agent: Mutt/1.4.1i
+	Sun, 23 Oct 2005 17:15:04 -0400
+Received: from smtp3-g19.free.fr ([212.27.42.29]:9876 "EHLO smtp3-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1750777AbVJWVPC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Oct 2005 17:15:02 -0400
+X-Mailbox-Line: From laurent@antares.localdomain dim oct 23 23:09:40 2005
+Message-Id: <20051023210940.512241000@antares.localdomain>
+References: <20051023210900.994245000@antares.localdomain>
+Date: Sun, 23 Oct 2005 23:09:16 +0200
+From: Laurent Riffard <laurent.riffard@free.fr>
+To: linux-kernel@vger.kernel.org
+Subject: [patch -mm] drivers/edac: updates .owner field of struct pci_driver
+Content-Disposition: inline; filename=driver_edac_pci_driver_owner_field.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 23, 2005 at 10:49:48PM +0200, Laurent Riffard wrote:
-> This patch updates .owner field of struct pci_driver.
-> 
-> This allows SYSFS to create the symlink from the driver to the
-> module which provides it.
-> 
-> Signed-off-by: Laurent Riffard <laurent.riffard@free.fr>
+This patch updates .owner field of struct pci_driver.
 
-Wouldn't it be better to eliminate pci_driver's .owner field and
-set the generic device driver's owner field directly? (and fix
-the PCI code not to overwrite that if pci_driver's .owner field
-is NULL for compatibility.)
+This allows SYSFS to create the symlink from the driver to the
+module which provides it.
 
-I ask for the second time recently on linux-kernel.  Is there
-*really* any point in duplicating these fields?
+Signed-off-by: Laurent Riffard <laurent.riffard@free.fr>
+--
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+ drivers/edac/amd76x_edac.c  |    1 +
+ drivers/edac/e7xxx_edac.c   |    1 +
+ drivers/edac/i82875p_edac.c |    1 +
+ drivers/edac/r82600_edac.c  |    1 +
+ 4 files changed, 4 insertions(+)
+
+Index: linux-2.6-mm/drivers/edac/amd76x_edac.c
+===================================================================
+--- linux-2.6-mm.orig/drivers/edac/amd76x_edac.c
++++ linux-2.6-mm/drivers/edac/amd76x_edac.c
+@@ -332,6 +332,7 @@
+ 
+ 
+ static struct pci_driver amd76x_driver = {
++	.owner = THIS_MODULE,
+ 	.name = BS_MOD_STR,
+ 	.probe = amd76x_init_one,
+ 	.remove = __devexit_p(amd76x_remove_one),
+Index: linux-2.6-mm/drivers/edac/e7xxx_edac.c
+===================================================================
+--- linux-2.6-mm.orig/drivers/edac/e7xxx_edac.c
++++ linux-2.6-mm/drivers/edac/e7xxx_edac.c
+@@ -530,6 +530,7 @@
+ 
+ 
+ static struct pci_driver e7xxx_driver = {
++	.owner = THIS_MODULE,
+ 	.name = BS_MOD_STR,
+ 	.probe = e7xxx_init_one,
+ 	.remove = __devexit_p(e7xxx_remove_one),
+Index: linux-2.6-mm/drivers/edac/i82875p_edac.c
+===================================================================
+--- linux-2.6-mm.orig/drivers/edac/i82875p_edac.c
++++ linux-2.6-mm/drivers/edac/i82875p_edac.c
+@@ -476,6 +476,7 @@
+ 
+ 
+ static struct pci_driver i82875p_driver = {
++	.owner = THIS_MODULE,
+ 	.name = BS_MOD_STR,
+ 	.probe = i82875p_init_one,
+ 	.remove = __devexit_p(i82875p_remove_one),
+Index: linux-2.6-mm/drivers/edac/r82600_edac.c
+===================================================================
+--- linux-2.6-mm.orig/drivers/edac/r82600_edac.c
++++ linux-2.6-mm/drivers/edac/r82600_edac.c
+@@ -374,6 +374,7 @@
+ 
+ 
+ static struct pci_driver r82600_driver = {
++	.owner = THIS_MODULE,
+ 	.name = BS_MOD_STR,
+ 	.probe = r82600_init_one,
+ 	.remove = __devexit_p(r82600_remove_one),
+
+--
+

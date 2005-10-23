@@ -1,126 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbVJWPFq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbVJWPIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750717AbVJWPFq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 11:05:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbVJWPFq
+	id S1750739AbVJWPIx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 11:08:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbVJWPIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 11:05:46 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:19100 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1750717AbVJWPFq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 11:05:46 -0400
-Subject: Re: [parisc-linux] Re: [PATCH 3/9] mm: parisc pte atomicity
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, parisc-linux@parisc-linux.org,
-       linux-kernel@vger.kernel.org, Matthew Wilcox <matthew@wil.cx>
-In-Reply-To: <Pine.LNX.4.61.0510230930470.19527@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0510221716380.18047@goblin.wat.veritas.com>
-	 <Pine.LNX.4.61.0510221722260.18047@goblin.wat.veritas.com>
-	 <20051022163330.GD3364@parisc-linux.org>
-	 <1130000925.6461.15.camel@mulgrave>
-	 <Pine.LNX.4.61.0510230930470.19527@goblin.wat.veritas.com>
-Content-Type: text/plain
-Date: Sun, 23 Oct 2005 10:05:31 -0500
-Message-Id: <1130079931.3437.21.camel@mulgrave>
+	Sun, 23 Oct 2005 11:08:53 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:55974 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750739AbVJWPIw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Oct 2005 11:08:52 -0400
+Date: Sun, 23 Oct 2005 08:09:33 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu,
+       dipankar@in.ibm.com, hch@infradead.org
+Subject: Re: [PATCH] Remove duplicate code in signal.c
+Message-ID: <20051023150933.GB7961@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20051023032226.GA6340@us.ibm.com> <435B6C4E.F9215E82@tv-sign.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <435B6C4E.F9215E82@tv-sign.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-10-23 at 10:02 +0100, Hugh Dickins wrote:
-> No thread, and I don't know of any problem reported.  It's just that
-> in connection with my page fault scalability patches, splitting up the
-> page_table_lock, I've had to search through architectures for pte code
-> which may need changing.
+On Sun, Oct 23, 2005 at 02:56:14PM +0400, Oleg Nesterov wrote:
+> "Paul E. McKenney" wrote:
+> > 
+> > Hello!
+> > 
+> > The following patch combines a bit of redundant code between
+> > force_sig_info() and force_sig_specific().  Tested on x86 and ppc64.
 > 
-> Since translation_exists is doing no locking at present, it doesn't need
-> any change to match my ptlock changes.  But it's a little worrying that
-> it has no locking.  When called from flush_cache_page that's almost
-> always right, and locking would just deadlock on locks already taken
-> (I think core dumping uses flush_cache_page outside of locks, not a big
-> deal).  But when called from flush_dcache_page, it's dealing with some
-> other mm entirely: anything could happen at any moment.
-
-Yes ... and flush_dcache_page() is the only one we really care about;
-flush_cache_page() is just an optimisation.
-
-> We're actually better off with my changes here than before.  Since you're
-> coming from the vma_prio_tree, with the necessary locking on that, you
-> can now be sure that the page tables won't get pulled out from under you
-> (whereas before there was an unlikely window in which they might be).
-
-OK, thanks.
-
-> > 1) Make sure we execute flush_dcache_page() correctly (rather than
-> > executing a flush that has no effect)
-> > 2) optimise single page flushing: don't excite the tlb miss handlers if
-> > there's no translation
-> > 3) optimise pte lookup (that's why translation_exists returns the pte
-> > pointer); since we already have to walk the page tables to answer the
-> > question, the return value may as well be the pte entry or NULL rather
-> > than true or false.
+> Some minor nitpicks ...
 > 
-> Regarding 3, I changed it to boolean because the only use made of the pte
-> pointer was to check pfn: which check I folded inside translation_exists,
-> so the pte it's checking for pfn cannot have changed since it was checked
-> for being present (repeated dereferences of pte pointer without locking
-> make me nervous, and I changed some code in other architectures for that).
-
-Actually, yes, I think the code it was optimising already got removed,
-so it's now a pointless optimisation.
-
-Originally translation_exists returned any pte entry at all and it was
-up to the caller to check the pte flags.
-
-The change does slightly worry me in that it alters the behaviour of
-flush_cache_page() because now it checks the pfn whereas previously it
-didn't.  This means that previously we would flush the COW'd page of a
-shared mapping, now we won't.
-
-> I'm right, aren't I? that the previous pte_none test was actually letting
-> through swap entries and pte_file entries which might look as if they had
-> the right pfn, just by coincidence of their offsets?  So flush_dcache_page
-> would stop, thinking it had done a good flush, when actually it hadn't.
-
-Actually, no, pte_none() on parisc is either pte is zero or _PAGE_FLUSH
-(which is our private flag saying we're preserving the pte entry for the
-purposes of flushing even though it's gone) is set.  However, now that I
-look at it, are you thinking our ptep_get_and_clear() should be doing a
-check for _PAGE_PRESENT before it sets _PAGE_FLUSH?
-
-> But races remain: the pte good at the moment translation_exists checks it,
-> may have been taken out by kswapd a moment later (flush_dcache_mmap_lock
-> only secures the vma_prio_tree structure, not ptes within the vmas);
-> or it may have been COWed in the interval; or zapped from the mm.
+> > +++ linux-2.6.14-rc2-rt7-force_sig/kernel/signal.c      2005-09-29 18:41:07.000000000 -0700
+> > @@ -920,8 +920,8 @@ force_sig_info(int sig, struct siginfo *
+> >         if (sigismember(&t->blocked, sig) || t->sighand->action[sig-1].sa.sa_handler == SIG_IGN) {
+> >                 t->sighand->action[sig-1].sa.sa_handler = SIG_DFL;
+> >                 sigdelset(&t->blocked, sig);
 > 
-> Can you get a success code out of __flush_cache_page?  Or perhaps you
-> should run translation_exists a second time after the  __flush_cache_page,
-> to check nothing changed (the pte pointer would then be helpful, to save
-> descending a second time)?  Or perhaps it all works out, that any such
-> change which might occur, itself does the __flush_cache_page you need?
+> May be it would be more readable to do:
+> 
+> 	if (handler == SIG_IGN)
+> 		handler = SIG_DFL;
+> 
+> 	if (sigismember(->blocked, sig)) // probably unneeded at all
+> 		sigdelset(->blocked, sig);
 
-Yes, I know ... I never liked the volatility of this, but it's better
-than what was there before, believe me (previously we just flushed the
-first entry we found regardless).
+Seems reasonable to me.
 
-Getting a return code out of __flush_dcache_page() is hard because it
-doesn't know if the tlb miss handler nullified the instructions it's
-trying to execute; and they're interruption handlers (meaning we don't
-push anything on the stack for them, they run in shadow registers), so
-getting a return code out of them is next to impossible.
+> > -               recalc_sigpending_tsk(t);
+> >         }
+> > +       recalc_sigpending_tsk(t);
+> 
+> I never understood why can't we just do:
+> 
+> 	set_tsk_thread_flag(TIF_SIGPENDING);
+> 
+> If this signal is not pending yet specific_send_siginfo() will
+> set this flag anyway.
 
-For the flush to be effective in the VIPT cache, we have to have a
-virtual address with a valid translation that points to the correct
-physical address.  I suppose we could flush through the tmpalias space
-instead.  That's where we set up an artifical translation that's not the
-actual vaddr but instead is congruent to the vaddr so the mapping is
-effective in cache aliasing terms.  Our congruence boundary is 4MB, so
-we set up a private (per cpu) 4MB space (tmpalias) where we can set up
-our pte's (or actually manufacture them in the tlb miss handler)
-securely.
+My guess is that putting the general logic into recalc_sigpending_tsk()
+prevents some bugs that might otherwise show up if someone forgets one
+of the conditions that can result in a signal being asserted.  But in
+this case, it seems pretty safe.  We really do want to force a signal.
+But it is a minor optimization, so I left it as is for now.
 
-James
+> > -       specific_send_sig_info(sig, (void *)2, t);
+> > -       spin_unlock_irqrestore(&t->sighand->siglock, flags);
+> > +       force_sig_info(sig, (void *)2, t);
+> 
+> Paul, if you think this patch should go into the -mm tree first,
+> could you rediff this patch against -mm ?
+> 
+> - 	specific_send_sig_info(sig, SEND_SIG_FORCED, t);
+> +	force_sig_info(sig, SEND_SIG_FORCED, t);
 
+Some time in -mm would certainly not hurt.  The patch below is against
+2.6.14-rc4-mm1, though Andrew asks that they be against a recent Linus
+tree (see 5c in http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt).
+In any case, "SEND_SIG_FORCED" seems much nicer than "(void *)2".  ;-)
 
+						Thanx, Paul
+
+diff -urpNa -X dontdiff linux-2.6.14-rc4-mm1/kernel/signal.c linux-2.6.14-rc4-mm1-force-sig/kernel/signal.c
+--- linux-2.6.14-rc4-mm1/kernel/signal.c	2005-10-23 07:47:05.000000000 -0700
++++ linux-2.6.14-rc4-mm1-force-sig/kernel/signal.c	2005-10-23 08:01:16.000000000 -0700
+@@ -889,11 +889,13 @@ force_sig_info(int sig, struct siginfo *
+ 	int ret;
+ 
+ 	spin_lock_irqsave(&t->sighand->siglock, flags);
+-	if (sigismember(&t->blocked, sig) || t->sighand->action[sig-1].sa.sa_handler == SIG_IGN) {
++	if (t->sighand->action[sig-1].sa.sa_handler == SIG_IGN) {
+ 		t->sighand->action[sig-1].sa.sa_handler = SIG_DFL;
++	}
++	if (sigismember(&t->blocked, sig)) {
+ 		sigdelset(&t->blocked, sig);
+-		recalc_sigpending_tsk(t);
+ 	}
++	recalc_sigpending_tsk(t);
+ 	ret = specific_send_sig_info(sig, info, t);
+ 	spin_unlock_irqrestore(&t->sighand->siglock, flags);
+ 
+@@ -903,15 +905,7 @@ force_sig_info(int sig, struct siginfo *
+ void
+ force_sig_specific(int sig, struct task_struct *t)
+ {
+-	unsigned long int flags;
+-
+-	spin_lock_irqsave(&t->sighand->siglock, flags);
+-	if (t->sighand->action[sig-1].sa.sa_handler == SIG_IGN)
+-		t->sighand->action[sig-1].sa.sa_handler = SIG_DFL;
+-	sigdelset(&t->blocked, sig);
+-	recalc_sigpending_tsk(t);
+-	specific_send_sig_info(sig, SEND_SIG_FORCED, t);
+-	spin_unlock_irqrestore(&t->sighand->siglock, flags);
++	force_sig_info(sig, SEND_SIG_FORCED, t);
+ }
+ 
+ /*

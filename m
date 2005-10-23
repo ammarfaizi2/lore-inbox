@@ -1,136 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbVJWSzl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbVJWSzt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751079AbVJWSzl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 14:55:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751069AbVJWSzk
+	id S1750798AbVJWSzt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 14:55:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751069AbVJWSzt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 14:55:40 -0400
-Received: from xenotime.net ([66.160.160.81]:57056 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750798AbVJWSzk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 14:55:40 -0400
-Date: Sun, 23 Oct 2005 11:55:38 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>
-Subject: [PATCH] more kernel-doc cleanups, additions
-Message-Id: <20051023115538.3e119535.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 23 Oct 2005 14:55:49 -0400
+Received: from smtprelay03.ispgateway.de ([80.67.18.15]:59522 "EHLO
+	smtprelay03.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1750798AbVJWSzt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Oct 2005 14:55:49 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: linux-kernel@vger.kernel.org, paulmck@us.ibm.com
+Subject: Re: [PATCH] RCU torture-testing kernel module
+Date: Sun, 23 Oct 2005 20:55:03 +0200
+User-Agent: KMail/1.7.2
+Cc: arjan@infradead.org, pavel@ucw.cz, akpm@osdl.org, dipankar@in.ibm.com,
+       vatsa@in.ibm.com, rusty@au1.ib.com, mingo@elte.hu,
+       manfred@colorfullife.com, gregkh@kroah.com
+References: <20051022231214.GA5847@us.ibm.com> <200510230922.26550.ioe-lkml@rameria.de> <20051023143617.GA7961@us.ibm.com>
+In-Reply-To: <20051023143617.GA7961@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1377088.H57GvXJQVb";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200510232055.17782.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+--nextPart1377088.H57GvXJQVb
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Various core kernel-doc cleanups:
-- add missing function parameters in ipc, irq/manage, kernel/sys,
-  kernel/sysctl, and mm/slab;
-- move description to just above function for kernel_restart()
+Hi Paul,
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
+On Sunday 23 October 2005 16:36, Paul E. McKenney wrote:
+> On Sun, Oct 23, 2005 at 09:22:18AM +0200, Ingo Oeser wrote:
+> > On Sunday 23 October 2005 01:12, Paul E. McKenney wrote:
+> > > +config RCU_TORTURE_TEST
+> > > +	tristate "torture tests for RCU"
+> > > +	default n
+> >=20
+> > Please put this into lib/Kconfig.debug and make it dependent on
+> > DEBUG_KERNEL there, which illustrates its actual purpose much better.
+>=20
+> If I make it depend on DEBUG_KERNEL, I get other extraneous debug code
+> as well, for example, in verify_mm_writelocked().=20
 
- ipc/util.c          |    9 +++++----
- kernel/irq/manage.c |    1 +
- kernel/sys.c        |   15 +++++++++------
- kernel/sysctl.c     |    1 +
- mm/slab.c           |    1 +
- 5 files changed, 17 insertions(+), 10 deletions(-)
+Oh, this seems to be either not intended or misguided.
 
-diff -Naurp linux-2614-rc4/ipc/util.c~kerneldoc2 linux-2614-rc4/ipc/util.c
---- linux-2614-rc4/ipc/util.c~kerneldoc2	2005-10-16 20:12:24.000000000 -0700
-+++ linux-2614-rc4/ipc/util.c	2005-10-16 20:20:24.000000000 -0700
-@@ -410,7 +410,8 @@ void ipc_rcu_getref(void *ptr)
- }
- 
- /**
-- *	ipc_schedule_free	- free ipc + rcu space
-+ * ipc_schedule_free - free ipc + rcu space
-+ * @head: RCU callback structure for queued work
-  * 
-  * Since RCU callback function is called in bh,
-  * we need to defer the vfree to schedule_work
-@@ -427,10 +428,10 @@ static void ipc_schedule_free(struct rcu
- }
- 
- /**
-- *	ipc_immediate_free	- free ipc + rcu space
-- *
-- *	Free from the RCU callback context
-+ * ipc_immediate_free - free ipc + rcu space
-+ * @head: RCU callback structure that contains pointer to be freed
-  *
-+ * Free from the RCU callback context
-  */
- static void ipc_immediate_free(struct rcu_head *head)
- {
-diff -Naurp linux-2614-rc4/kernel/irq/manage.c~kerneldoc2 linux-2614-rc4/kernel/irq/manage.c
---- linux-2614-rc4/kernel/irq/manage.c~kerneldoc2	2005-10-14 17:31:30.000000000 -0700
-+++ linux-2614-rc4/kernel/irq/manage.c	2005-10-16 21:18:06.000000000 -0700
-@@ -24,6 +24,7 @@ cpumask_t __cacheline_aligned pending_ir
- 
- /**
-  *	synchronize_irq - wait for pending IRQ handlers (on other CPUs)
-+ *	@irq: interrupt number to wait for
-  *
-  *	This function waits for any pending IRQ handlers for this interrupt
-  *	to complete before returning. If you use this function while
-diff -Naurp linux-2614-rc4/kernel/sys.c~kerneldoc2 linux-2614-rc4/kernel/sys.c
---- linux-2614-rc4/kernel/sys.c~kerneldoc2	2005-10-14 17:31:30.000000000 -0700
-+++ linux-2614-rc4/kernel/sys.c	2005-10-16 10:19:07.000000000 -0700
-@@ -375,18 +375,21 @@ void emergency_restart(void)
- }
- EXPORT_SYMBOL_GPL(emergency_restart);
- 
--/**
-- *	kernel_restart - reboot the system
-- *
-- *	Shutdown everything and perform a clean reboot.
-- *	This is not safe to call in interrupt context.
-- */
- void kernel_restart_prepare(char *cmd)
- {
- 	notifier_call_chain(&reboot_notifier_list, SYS_RESTART, cmd);
- 	system_state = SYSTEM_RESTART;
- 	device_shutdown();
- }
-+
-+/**
-+ *	kernel_restart - reboot the system
-+ *	@cmd: pointer to buffer containing command to execute for restart
-+ *		or NULL
-+ *
-+ *	Shutdown everything and perform a clean reboot.
-+ *	This is not safe to call in interrupt context.
-+ */
- void kernel_restart(char *cmd)
- {
- 	kernel_restart_prepare(cmd);
-diff -Naurp linux-2614-rc4/kernel/sysctl.c~kerneldoc2 linux-2614-rc4/kernel/sysctl.c
---- linux-2614-rc4/kernel/sysctl.c~kerneldoc2	2005-10-14 17:31:30.000000000 -0700
-+++ linux-2614-rc4/kernel/sysctl.c	2005-10-16 20:22:01.000000000 -0700
-@@ -1997,6 +1997,7 @@ int proc_dointvec_jiffies(ctl_table *tab
-  * @filp: the file structure
-  * @buffer: the user buffer
-  * @lenp: the size of the user buffer
-+ * @ppos: pointer to the file position
-  *
-  * Reads/writes up to table->maxlen/sizeof(unsigned int) integer
-  * values from/to the user buffer, treated as an ASCII string. 
-diff -Naurp linux-2614-rc4/mm/slab.c~kerneldoc2 linux-2614-rc4/mm/slab.c
---- linux-2614-rc4/mm/slab.c~kerneldoc2	2005-10-16 20:10:58.000000000 -0700
-+++ linux-2614-rc4/mm/slab.c	2005-10-16 20:11:10.000000000 -0700
-@@ -3259,6 +3259,7 @@ static void drain_array_locked(kmem_cach
- 
- /**
-  * cache_reap - Reclaim memory from caches.
-+ * @unused: unused parameter
-  *
-  * Called from workqueue/eventd every few seconds.
-  * Purpose:
+DEBUG_KERNEL should do nothing more than showing the debugging
+options.=20
+
+E.g. I don't expect to enable any additional code in an=20
+unrelated file, if I enable Magic-SysRQ on an embedded, unattended device
+to be able to analyze potential problems via serial console.
+
+@Andrew: Would you accept a patch to fix that?
+
+My idea to put the option into lib/Kconfig.debug was just to ease=20
+maintainence, once it is dependend on DEBUG_KERNEL.
+
+On the other hand it makes sense to add another option TEST_KERNEL
+and put some existing kernel internal test suites under that.
+
+@Andrew: Would you accept a patch for this?
 
 
----
+Regards
+
+Ingo Oeser
+
+
+--nextPart1377088.H57GvXJQVb
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDW9yVU56oYWuOrkARAkA0AKDVzlEdd9p5J8CCfGW3uwzzpXgvJgCbB9MK
+Eidd79azVWwit63/mql/nJA=
+=V7Jj
+-----END PGP SIGNATURE-----
+
+--nextPart1377088.H57GvXJQVb--

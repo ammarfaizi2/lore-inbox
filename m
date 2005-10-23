@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbVJWWXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbVJWWbl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750793AbVJWWXg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 18:23:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbVJWWXg
+	id S1750805AbVJWWbl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 18:31:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbVJWWbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 18:23:36 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:176 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750793AbVJWWXf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 18:23:35 -0400
-Date: Sun, 23 Oct 2005 15:22:45 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: hugh@veritas.com, clameter@sgi.com, rmk@arm.linux.org.uk, matthew@wil.cx,
-       jdike@addtoit.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 7/9] mm: split page table lock
-Message-Id: <20051023152245.4d1dc812.akpm@osdl.org>
-In-Reply-To: <20051023142712.6c736dd3.akpm@osdl.org>
-References: <Pine.LNX.4.61.0510221716380.18047@goblin.wat.veritas.com>
-	<Pine.LNX.4.61.0510221727060.18047@goblin.wat.veritas.com>
-	<20051023142712.6c736dd3.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Sun, 23 Oct 2005 18:31:41 -0400
+Received: from nproxy.gmail.com ([64.233.182.203]:12331 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750809AbVJWWbk convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Oct 2005 18:31:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=cFkOFrCXM7kJO5uA5/oDLpDmT5X4Cz2+KJFodmJGpu5WKezdwLY2hX/QsHPDVcpbGXVtqI6+YZgc+5qJxa8ou3n1g0jo+Eqd6oQpoorteP0nGEdJfFnOySoWYZi7a5ImQbuLP8pbP/mLYwS9HnVNFt+wv4P4PXDi237fdvPK3rM=
+Message-ID: <40f323d00510231531t14b70e49wc4e67e8e9e14b613@mail.gmail.com>
+Date: Mon, 24 Oct 2005 00:31:39 +0200
+From: Benoit Boissinot <bboissin@gmail.com>
+To: jonathan@jonmasters.org
+Subject: Re: Task profiling in Linux
+Cc: Claudio Scordino <cloud.of.andor@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <35fb2e590510231519u38545f2pdab36de3f7d5384@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200510232249.39236.cloud.of.andor@gmail.com>
+	 <35fb2e590510231519u38545f2pdab36de3f7d5384@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
+On 10/24/05, Jon Masters <jonmasters@gmail.com> wrote:
+> On 10/23/05, Claudio Scordino <cloud.of.andor@gmail.com> wrote:
 >
->  Hugh Dickins <hugh@veritas.com> wrote:
->  >
->  > In this implementation, the spinlock is tucked inside the struct page of
->  >  the page table page: with a BUILD_BUG_ON in case it overflows - which it
->  >  would in the case of 32-bit PA-RISC with spinlock debugging enabled.
-> 
->  eh?   It's going to overflow an unsigned long on x86 too:
+> > I need some help to make profiling of an application on Linux.
+>
+> Did you already try gprof?
+>
+or oprofile/sysprof with a recent kernel
 
-Ah, I think I see what you've done: assume that .index, .lru and .virtual
-are unused on pagetable pages, so we can just overwrite them.
-
-ick.  I think I prefer the union, although it'll make struct page bigger
-for CONFIG_PREEMPT+CONFIG_SMP+NR_CPUS>=4.    hmm.
-
-
+Benoit

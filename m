@@ -1,101 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbVJWUye@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbVJWVLn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750789AbVJWUye (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 16:54:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750791AbVJWUye
+	id S1750760AbVJWVLn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 17:11:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbVJWVLn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 16:54:34 -0400
-Received: from smtp1-g19.free.fr ([212.27.42.27]:51645 "EHLO smtp1-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1750789AbVJWUye (ORCPT
+	Sun, 23 Oct 2005 17:11:43 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:26787 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750760AbVJWVLn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 16:54:34 -0400
-X-Mailbox-Line: From laurent@antares.localdomain dim oct 23 22:49:56 2005
-Message-Id: <20051023204956.213142000@antares.localdomain>
-References: <20051023204947.430464000@antares.localdomain>
-Date: Sun, 23 Oct 2005 22:49:48 +0200
-From: Laurent Riffard <laurent.riffard@free.fr>
-To: linux-kernel@vger.kernel.org, dmo@osdl.org, mike.miller@hp.com,
-       iss_storagedev@hp.com, Jeff Garzik <garzik@pobox.com>
-Subject: [patch] drivers/block: updates .owner field of struct pci_driver
-Content-Disposition: inline; filename=driver_block_pci_driver_owner_field.patch
+	Sun, 23 Oct 2005 17:11:43 -0400
+Date: Sun, 23 Oct 2005 14:10:57 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: linux-kernel@vger.kernel.org, hch@infradead.org
+Subject: Re: [PATCH] Fix and add EXPORT_SYMBOL(filemap_write_and_wait)
+Message-Id: <20051023141057.59e458f3.akpm@osdl.org>
+In-Reply-To: <87ek6dtvxz.fsf@devron.myhome.or.jp>
+References: <87ek6dtvxz.fsf@devron.myhome.or.jp>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch updates .owner field of struct pci_driver.
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
+>
+> This patch add EXPORT_SYMBOL(filemap_write_and_wait) and use it.
+> 
+>  See mm/filemap.c:
+> 
+>  And changes the filemap_write_and_wait() and filemap_write_and_wait_range().
+> 
+>  Current filemap_write_and_wait() doesn't wait if filemap_fdatawrite()
+>  returns error. However, even if filemap_fdatawrite() returns error, it
+>  may be submiting data pages . (e.g. in the case of -ENOSPC)
+> 
+>  However, even if filemap_fdatawrite() returned an error, it may have
+>  submitted the partially data pages to the device.
+> 
+>  I think we should wait those submitted data pages.
 
-This allows SYSFS to create the symlink from the driver to the
-module which provides it.
+This behaviour is deliberate, although I wouldn't claim that a lot of
+thought went into it.
 
-Signed-off-by: Laurent Riffard <laurent.riffard@free.fr>
---
+If filemap_fdatawrite() returns an error, this might be due to some I/O
+problem: dead disk, unplugged cable, etc.  Given the generally crappy
+quality of the kernel's handling of such exceptions, there's a good chance
+that the filemap_fdatawait() will get stuck in D state forever.
 
- drivers/block/DAC960.c   |    1 +
- drivers/block/cciss.c    |    1 +
- drivers/block/cpqarray.c |    1 +
- drivers/block/sx8.c      |    1 +
- drivers/block/umem.c     |    1 +
- 5 files changed, 5 insertions(+)
+I don't know how useful that really is - probably not very.  Plus, yes, we
+should wait on writeout after a -ENOSPC.
 
-Index: linux-2.6-stable/drivers/block/DAC960.c
-===================================================================
---- linux-2.6-stable.orig/drivers/block/DAC960.c
-+++ linux-2.6-stable/drivers/block/DAC960.c
-@@ -7185,6 +7185,7 @@
- MODULE_DEVICE_TABLE(pci, DAC960_id_table);
- 
- static struct pci_driver DAC960_pci_driver = {
-+	.owner		= THIS_MODULE,
- 	.name		= "DAC960",
- 	.id_table	= DAC960_id_table,
- 	.probe		= DAC960_Probe,
-Index: linux-2.6-stable/drivers/block/cciss.c
-===================================================================
---- linux-2.6-stable.orig/drivers/block/cciss.c
-+++ linux-2.6-stable/drivers/block/cciss.c
-@@ -2929,6 +2929,7 @@
- }	
- 
- static struct pci_driver cciss_pci_driver = {
-+	.owner =	THIS_MODULE,
- 	.name =		"cciss",
- 	.probe =	cciss_init_one,
- 	.remove =	__devexit_p(cciss_remove_one),
-Index: linux-2.6-stable/drivers/block/cpqarray.c
-===================================================================
---- linux-2.6-stable.orig/drivers/block/cpqarray.c
-+++ linux-2.6-stable/drivers/block/cpqarray.c
-@@ -541,6 +541,7 @@
- }
- 
- static struct pci_driver cpqarray_pci_driver = {
-+	.owner = THIS_MODULE,
- 	.name = "cpqarray",
- 	.probe = cpqarray_init_one,
- 	.remove = __devexit_p(cpqarray_remove_one_pci),
-Index: linux-2.6-stable/drivers/block/sx8.c
-===================================================================
---- linux-2.6-stable.orig/drivers/block/sx8.c
-+++ linux-2.6-stable/drivers/block/sx8.c
-@@ -395,6 +395,7 @@
- MODULE_DEVICE_TABLE(pci, carm_pci_tbl);
- 
- static struct pci_driver carm_driver = {
-+	.owner		= THIS_MODULE,
- 	.name		= DRV_NAME,
- 	.id_table	= carm_pci_tbl,
- 	.probe		= carm_init_one,
-Index: linux-2.6-stable/drivers/block/umem.c
-===================================================================
---- linux-2.6-stable.orig/drivers/block/umem.c
-+++ linux-2.6-stable/drivers/block/umem.c
-@@ -1170,6 +1170,7 @@
- MODULE_DEVICE_TABLE(pci, mm_pci_ids);
- 
- static struct pci_driver mm_pci_driver = {
-+	.owner =	THIS_MODULE,
- 	.name =		"umem",
- 	.id_table =	mm_pci_ids,
- 	.probe =	mm_pci_probe,
-
---
+So hum, not sure.  My gut feeling is that anything which we can do to help
+the kernel limp along after an I/O error is a good thing, hence the
+don't-wait-after-EIO feature should remain.
 

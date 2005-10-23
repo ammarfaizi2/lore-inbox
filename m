@@ -1,87 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbVJWVPF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbVJWV2E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750777AbVJWVPF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 17:15:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750779AbVJWVPE
+	id S1750787AbVJWV2E (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 17:28:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbVJWV2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 17:15:04 -0400
-Received: from smtp3-g19.free.fr ([212.27.42.29]:9876 "EHLO smtp3-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1750777AbVJWVPC (ORCPT
+	Sun, 23 Oct 2005 17:28:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:24229 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750787AbVJWV2D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 17:15:02 -0400
-X-Mailbox-Line: From laurent@antares.localdomain dim oct 23 23:09:40 2005
-Message-Id: <20051023210940.512241000@antares.localdomain>
-References: <20051023210900.994245000@antares.localdomain>
-Date: Sun, 23 Oct 2005 23:09:16 +0200
-From: Laurent Riffard <laurent.riffard@free.fr>
-To: linux-kernel@vger.kernel.org
-Subject: [patch -mm] drivers/edac: updates .owner field of struct pci_driver
-Content-Disposition: inline; filename=driver_edac_pci_driver_owner_field.patch
+	Sun, 23 Oct 2005 17:28:03 -0400
+Date: Sun, 23 Oct 2005 14:27:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: clameter@sgi.com, rmk@arm.linux.org.uk, matthew@wil.cx, jdike@addtoit.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 7/9] mm: split page table lock
+Message-Id: <20051023142712.6c736dd3.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0510221727060.18047@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0510221716380.18047@goblin.wat.veritas.com>
+	<Pine.LNX.4.61.0510221727060.18047@goblin.wat.veritas.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch updates .owner field of struct pci_driver.
+Hugh Dickins <hugh@veritas.com> wrote:
+>
+> In this implementation, the spinlock is tucked inside the struct page of
+>  the page table page: with a BUILD_BUG_ON in case it overflows - which it
+>  would in the case of 32-bit PA-RISC with spinlock debugging enabled.
 
-This allows SYSFS to create the symlink from the driver to the
-module which provides it.
+eh?   It's going to overflow an unsigned long on x86 too:
 
-Signed-off-by: Laurent Riffard <laurent.riffard@free.fr>
---
+typedef struct {
+	raw_spinlock_t raw_lock;
+#if defined(CONFIG_PREEMPT) && defined(CONFIG_SMP)
+	unsigned int break_lock;
+#endif
+#ifdef CONFIG_DEBUG_SPINLOCK
+	unsigned int magic, owner_cpu;
+	void *owner;
+#endif
+} spinlock_t;
 
- drivers/edac/amd76x_edac.c  |    1 +
- drivers/edac/e7xxx_edac.c   |    1 +
- drivers/edac/i82875p_edac.c |    1 +
- drivers/edac/r82600_edac.c  |    1 +
- 4 files changed, 4 insertions(+)
+I think we need a union here.
 
-Index: linux-2.6-mm/drivers/edac/amd76x_edac.c
-===================================================================
---- linux-2.6-mm.orig/drivers/edac/amd76x_edac.c
-+++ linux-2.6-mm/drivers/edac/amd76x_edac.c
-@@ -332,6 +332,7 @@
- 
- 
- static struct pci_driver amd76x_driver = {
-+	.owner = THIS_MODULE,
- 	.name = BS_MOD_STR,
- 	.probe = amd76x_init_one,
- 	.remove = __devexit_p(amd76x_remove_one),
-Index: linux-2.6-mm/drivers/edac/e7xxx_edac.c
-===================================================================
---- linux-2.6-mm.orig/drivers/edac/e7xxx_edac.c
-+++ linux-2.6-mm/drivers/edac/e7xxx_edac.c
-@@ -530,6 +530,7 @@
- 
- 
- static struct pci_driver e7xxx_driver = {
-+	.owner = THIS_MODULE,
- 	.name = BS_MOD_STR,
- 	.probe = e7xxx_init_one,
- 	.remove = __devexit_p(e7xxx_remove_one),
-Index: linux-2.6-mm/drivers/edac/i82875p_edac.c
-===================================================================
---- linux-2.6-mm.orig/drivers/edac/i82875p_edac.c
-+++ linux-2.6-mm/drivers/edac/i82875p_edac.c
-@@ -476,6 +476,7 @@
- 
- 
- static struct pci_driver i82875p_driver = {
-+	.owner = THIS_MODULE,
- 	.name = BS_MOD_STR,
- 	.probe = i82875p_init_one,
- 	.remove = __devexit_p(i82875p_remove_one),
-Index: linux-2.6-mm/drivers/edac/r82600_edac.c
-===================================================================
---- linux-2.6-mm.orig/drivers/edac/r82600_edac.c
-+++ linux-2.6-mm/drivers/edac/r82600_edac.c
-@@ -374,6 +374,7 @@
- 
- 
- static struct pci_driver r82600_driver = {
-+	.owner = THIS_MODULE,
- 	.name = BS_MOD_STR,
- 	.probe = r82600_init_one,
- 	.remove = __devexit_p(r82600_remove_one),
+> +#define __pte_lockptr(page)	((spinlock_t *)&((page)->private))
+> +#define pte_lock_init(_page)	do {					\
+> +	BUILD_BUG_ON((size_t)(__pte_lockptr((struct page *)0) + 1) >	\
+> +						sizeof(struct page));	\
 
---
+The above assumes that page.private is the final field in struct page. 
+That's fragile.
 
+>  Splitting the lock is not quite for free: another cacheline access.
+>  Ideally, I suppose we would use split ptlock only for multi-threaded
+>  processes on multi-cpu machines; but deciding that dynamically would
+>  have its own costs.  So for now enable it by config, at some number
+>  of cpus - since the Kconfig language doesn't support inequalities, let
+>  preprocessor compare that with NR_CPUS.  But I don't think it's worth
+>  being user-configurable: for good testing of both split and unsplit
+>  configs, split now at 4 cpus, and perhaps change that to 8 later.
+
+I'll make it >= 2 for -mm.
+
+> +#define __pte_lockptr(page)	((spinlock_t *)&((page)->private))
+>  +#define pte_lock_init(_page)	do {					\
+> +	BUILD_BUG_ON((size_t)(__pte_lockptr((struct page *)0) + 1) >	\
+> +						sizeof(struct page));	\

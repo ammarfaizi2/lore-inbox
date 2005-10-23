@@ -1,127 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751433AbVJWHdl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751434AbVJWHua@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751433AbVJWHdl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 03:33:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbVJWHdl
+	id S1751434AbVJWHua (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 03:50:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751435AbVJWHua
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 03:33:41 -0400
-Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:23046 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751424AbVJWHdk
+	Sun, 23 Oct 2005 03:50:30 -0400
+Received: from silver.veritas.com ([143.127.12.111]:5396 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1751434AbVJWHu3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 03:33:40 -0400
-Date: Sun, 23 Oct 2005 17:33:31 +1000
-To: Reuben Farrelly <reuben-lkml@reub.net>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       acme@conectiva.com.br, davem@davemloft.net, greearb@candelatech.com
-Subject: [3/3] [NEIGH] Fix timer leak in neigh_changeaddr
-Message-ID: <20051023073331.GC17626@gondor.apana.org.au>
-References: <43534273.2050106@reub.net> <E1ETaJB-0004a0-00@gondolin.me.apana.org.au>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="2/5bycvrmDh4d1IB"
-Content-Disposition: inline
-In-Reply-To: <E1ETaJB-0004a0-00@gondolin.me.apana.org.au>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Sun, 23 Oct 2005 03:50:29 -0400
+Date: Sun, 23 Oct 2005 08:49:24 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH 6/9 take 2] mm: uml kill unused
+In-Reply-To: <Pine.LNX.4.61.0510221716380.18047@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0510230847230.19503@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0510221716380.18047@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 23 Oct 2005 07:50:25.0329 (UTC) FILETIME=[6D9A2A10:01C5D7A6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In worrying over the various pte operations in different architectures,
+I came across some unused functions in UML: remove mprotect_kernel_vm
+and protect_vm_page; but leave addr_pte, Jeff notes it's useful in gdb.
 
---2/5bycvrmDh4d1IB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+---
+This replaces yesterday's 6/9, following Jeff's feedback - thanks.
 
-[NEIGH] Fix timer leak in neigh_changeaddr
+ arch/um/include/tlb.h   |    1 -
+ arch/um/kernel/tt/tlb.c |   36 ------------------------------------
+ 2 files changed, 37 deletions(-)
 
-neigh_changeaddr attempts to delete neighbour timers without setting
-nud_state.  This doesn't work because the timer may have already fired
-when we acquire the write lock in neigh_changeaddr.  The result is that
-the timer may keep firing for quite a while until the entry reaches
-NEIGH_FAILED.
-
-It should be setting the nud_state straight away so that if the timer
-has already fired it can simply exit once we relinquish the lock.
-
-In fact, this whole function is simply duplicating the logic in
-neigh_ifdown which in turn is already doing the right thing when
-it comes to deleting timers and setting nud_state.
-
-So all we have to do is take that code out and put it into a common
-function and make both neigh_changeaddr and neigh_ifdown call it.
-
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
-
---2/5bycvrmDh4d1IB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="p3.patch"
-
-diff --git a/net/core/neighbour.c b/net/core/neighbour.c
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -175,39 +175,10 @@ static void pneigh_queue_purge(struct sk
- 	}
+--- mm5/arch/um/include/tlb.h	2005-10-11 12:07:16.000000000 +0100
++++ mm6/arch/um/include/tlb.h	2005-10-22 14:07:12.000000000 +0100
+@@ -34,7 +34,6 @@ struct host_vm_op {
+ 	} u;
+ };
+ 
+-extern void mprotect_kernel_vm(int w);
+ extern void force_flush_all(void);
+ extern void fix_range_common(struct mm_struct *mm, unsigned long start_addr,
+                              unsigned long end_addr, int force,
+--- mm5/arch/um/kernel/tt/tlb.c	2005-10-11 12:07:16.000000000 +0100
++++ mm6/arch/um/kernel/tt/tlb.c	2005-10-22 14:07:12.000000000 +0100
+@@ -74,42 +74,6 @@ void flush_tlb_kernel_range_tt(unsigned 
+                 atomic_inc(&vmchange_seq);
  }
  
--void neigh_changeaddr(struct neigh_table *tbl, struct net_device *dev)
-+static void neigh_flush_dev(struct neigh_table *tbl, struct net_device *dev)
- {
- 	int i;
- 
--	write_lock_bh(&tbl->lock);
+-static void protect_vm_page(unsigned long addr, int w, int must_succeed)
+-{
+-	int err;
 -
--	for (i=0; i <= tbl->hash_mask; i++) {
--		struct neighbour *n, **np;
--
--		np = &tbl->hash_buckets[i];
--		while ((n = *np) != NULL) {
--			if (dev && n->dev != dev) {
--				np = &n->next;
--				continue;
--			}
--			*np = n->next;
--			write_lock_bh(&n->lock);
--			n->dead = 1;
--			neigh_del_timer(n);
--			write_unlock_bh(&n->lock);
--			neigh_release(n);
--		}
+-	err = protect_memory(addr, PAGE_SIZE, 1, w, 1, must_succeed);
+-	if(err == 0) return;
+-	else if((err == -EFAULT) || (err == -ENOMEM)){
+-		flush_tlb_kernel_range(addr, addr + PAGE_SIZE);
+-		protect_vm_page(addr, w, 1);
 -	}
--
--        write_unlock_bh(&tbl->lock);
+-	else panic("protect_vm_page : protect failed, errno = %d\n", err);
 -}
 -
--int neigh_ifdown(struct neigh_table *tbl, struct net_device *dev)
+-void mprotect_kernel_vm(int w)
 -{
--	int i;
+-	struct mm_struct *mm;
+-	pgd_t *pgd;
+-	pud_t *pud;
+-	pmd_t *pmd;
+-	pte_t *pte;
+-	unsigned long addr;
+-	
+-	mm = &init_mm;
+-	for(addr = start_vm; addr < end_vm;){
+-		pgd = pgd_offset(mm, addr);
+-		pud = pud_offset(pgd, addr);
+-		pmd = pmd_offset(pud, addr);
+-		if(pmd_present(*pmd)){
+-			pte = pte_offset_kernel(pmd, addr);
+-			if(pte_present(*pte)) protect_vm_page(addr, w, 0);
+-			addr += PAGE_SIZE;
+-		}
+-		else addr += PMD_SIZE;
+-	}
+-}
 -
--	write_lock_bh(&tbl->lock);
--
- 	for (i = 0; i <= tbl->hash_mask; i++) {
- 		struct neighbour *n, **np = &tbl->hash_buckets[i];
- 
-@@ -243,7 +214,19 @@ int neigh_ifdown(struct neigh_table *tbl
- 			neigh_release(n);
- 		}
- 	}
-+}
- 
-+void neigh_changeaddr(struct neigh_table *tbl, struct net_device *dev)
-+{
-+	write_lock_bh(&tbl->lock);
-+	neigh_flush_dev(tbl, dev);
-+	write_unlock_bh(&tbl->lock);
-+}
-+
-+int neigh_ifdown(struct neigh_table *tbl, struct net_device *dev)
-+{
-+	write_lock_bh(&tbl->lock);
-+	neigh_flush_dev(tbl, dev);
- 	pneigh_ifdown(tbl, dev);
- 	write_unlock_bh(&tbl->lock);
- 
-
---2/5bycvrmDh4d1IB--
+ void flush_tlb_kernel_vm_tt(void)
+ {
+         flush_tlb_kernel_range(start_vm, end_vm);

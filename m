@@ -1,78 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbVJWVzj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbVJWWJw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750704AbVJWVzj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 17:55:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbVJWVzj
+	id S1750761AbVJWWJw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 18:09:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbVJWWJw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 17:55:39 -0400
-Received: from smtp06.auna.com ([62.81.186.16]:59809 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id S1750704AbVJWVzi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 17:55:38 -0400
-Date: Sun, 23 Oct 2005 23:58:06 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: "Linux-Kernel, " <linux-kernel@vger.kernel.org>
-Subject: /proc/kcore size incorrect ?
-Message-ID: <20051023235806.1a4df9ab@werewolf.able.es>
-X-Mailer: Sylpheed-Claws 1.9.15cvs93 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Sun, 23 Oct 2005 18:09:52 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:41370 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750781AbVJWWJv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Oct 2005 18:09:51 -0400
+Date: Mon, 24 Oct 2005 00:12:04 +0200
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Jens Axboe <axboe@suse.de>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: BUG in the block layer (partial reads not reported)
+Message-ID: <20051023221204.GA20162@aitel.hist.no>
+References: <Pine.LNX.4.44L0.0510201435400.4453-100000@iolanthe.rowland.org> <1129915917.3542.7.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="Sig_DhxMiUHeLy/MUlXwd4_FK28";
- protocol="application/pgp-signature"; micalg=PGP-SHA1
-X-Auth-Info: Auth:LOGIN IP:[83.138.216.103] Login:jamagallon@able.es Fecha:Sun, 23 Oct 2005 23:55:34 +0200
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1129915917.3542.7.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Sig_DhxMiUHeLy/MUlXwd4_FK28
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+On Fri, Oct 21, 2005 at 06:31:57PM +0100, Alan Cox wrote:
+> 
+> The essential problem however is that if you say a disc is a given size
+> and it turns out not to be (as happens with CD-R especially or with
+> buggy readers) then Linux block layer can't cope. Its well known and
+> causes endless problems for CD-R users with some IDE drives on Linux.
+> Its a big generator of 2.6 vendor bug reports.
+> 
+Seems to me that the best fix for devices that may re�port the wrong size
+is to always use a foolproof way of determining the size.  I.e. when
+a CD-R cannot be trusted, determine the size by trying to read the
+last sectors instead of using the reported number.  
 
-Hi all...
-
-Probably this is a stupid question, but anyways...
-
-I'm trying to make a script to generate an /etc/motd, and I wanted to
-include memory size of the box.
-
-I tried:
-
-	echo $(($(stat -c %s /proc/kcore) / 1024 / 1024)) "Mb"
-
-but it gives 1022 for a 1Gb box.
-
-In fact:
-
-	werewolf:~# ll /proc/kcore
-	-r--------  1 root root 1072566272 2005.10.23 23:53 /proc/kcore
-	werewolf:~# stat -c %s /proc/kcore
-	1072566272
-
-	werewolf:~# echo $((1024*1024*1024))
-	1073741824
-
-Why that difference ?
-
-TIA
-
-BTW, any simple method to get the real mem of the box ?
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like se=
-x:
-werewolf!able!es                         \         It's better when it's fr=
-ee
-Mandriva Linux release 2006.1 (Cooker) for i586
-Linux 2.6.13-jam9 (gcc 4.0.1 (4.0.1-5mdk for Mandriva Linux release 2006.0))
-
---Sig_DhxMiUHeLy/MUlXwd4_FK28
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDXAduRlIHNEGnKMMRAlqSAJ9vCoR2lvZV9ThPZw/BSJmV1tFecQCeJwkW
-+j3itm5xY8zzIACox/RP9fE=
-=AKco
------END PGP SIGNATURE-----
-
---Sig_DhxMiUHeLy/MUlXwd4_FK28--
+Helge Hafting

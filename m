@@ -1,41 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbVJWL05@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbVJWLjp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750785AbVJWL05 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 07:26:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750701AbVJWL05
+	id S1750701AbVJWLjp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 07:39:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751381AbVJWLjp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 07:26:57 -0400
-Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:1543 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1750700AbVJWL04
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 07:26:56 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: yoshfuji@linux-ipv6.org (YOSHIFUJI Hideaki / ????)
-Subject: Re: [BUG]NULL pointer dereference in ipv6_get_saddr()
-Cc: yanzheng@21cn.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       yoshfuji@linux-ipv6.org
-Organization: Core
-In-Reply-To: <20051019.012157.11460212.yoshfuji@linux-ipv6.org>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1ETdyn-0005tM-00@gondolin.me.apana.org.au>
-Date: Sun, 23 Oct 2005 21:25:33 +1000
+	Sun, 23 Oct 2005 07:39:45 -0400
+Received: from lucidpixels.com ([66.45.37.187]:43671 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1750701AbVJWLjo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Oct 2005 07:39:44 -0400
+Date: Sun, 23 Oct 2005 07:39:34 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34
+To: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+cc: debian-user@lists.debian.org
+Subject: xfs_db -c frag -r /dev/hda1 - Segmentation fault
+In-Reply-To: <4080C826.F4C53CD@dmministries.org>
+Message-ID: <Pine.LNX.4.64.0510230736490.30489@p34>
+References: <4080C826.F4C53CD@dmministries.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-YOSHIFUJI Hideaki / ???? <yoshfuji@linux-ipv6.org> wrote:
->
-> I think this is already fixed in head.
-> I don't remember if we pushed this to stable...
+p34:~# xfs_db -c frag -r /dev/hda1
+Segmentation fault
+p34:~# xfs_db -c frag -r /dev/hde1
+Segmentation fault
+p34:~# xfs_db -c frag -r /dev/hdk1
+Segmentation fault
+p34:~#
 
-Yep it was fixed by c62dba9011b93fd88fde929848582b2a98309878.
+Debian Etch, 2.6.13.4, stopped working a while ago, either before newer 
+debian packages or a newer kernel, does anyone who uses Debian+XFS have 
+this problem as well?
 
-I agree that we should've pushed it to stable.  Unfortunately it
-might be too late now.
+Towards the end of the strace:
+munmap(0xb7fb6000, 4096)                = 0
+open("/proc/meminfo", O_RDONLY)         = 3
+fstat64(3, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) 
+= 0xb7fb6000
+read(3, "MemTotal:      1035452 kB\nMemFre"..., 1024) = 598
+close(3)                                = 0
+munmap(0xb7fb6000, 4096)                = 0
+rt_sigaction(SIGINT, {0x80628f4, [], 0}, NULL, 8) = 0
+_llseek(4, 512, [512], SEEK_SET)        = 0
+read(4, "XAGF\0\0\0\1\0\0\0\0\0:pn\0\0\0\1\0\0\0\2\0\0\0\0\0\0\0"..., 512) 
+= 512
+_llseek(4, 1024, [1024], SEEK_SET)      = 0
+read(4, "XAGI\0\0\0\1\0\0\0\0\0:pn\0\0\3@\0\0\0\3\0\0\0\1\0\0\000"..., 
+512) = 512
+_llseek(4, 12288, [12288], SEEK_SET)    = 0
+read(4, "IABT\0\0\0\r\377\377\377\377\377\377\377\377\0\0\0\200"..., 4096) 
+= 4096
+_llseek(4, 32768, [32768], SEEK_SET)    = 0
+read(4, "INA\355\1\1\0\3\0\0\0\0\0\0\0\0\0\0\0\3\0\0\0\0\0\0\0\0"..., 
+16384) = 16384
+mmap2(NULL, 268443648, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, 
+-1, 0) = 0xa7df7000
+--- SIGSEGV (Segmentation fault) @ 0 (0) ---
++++ killed by SIGSEGV +++
+p34:~#
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Is this a kernel, XFS or Debian problem?
+
+Thanks!
+
+Justin.

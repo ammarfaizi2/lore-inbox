@@ -1,59 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751444AbVJWKls@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751446AbVJWKnH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751444AbVJWKls (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 06:41:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbVJWKls
+	id S1751446AbVJWKnH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 06:43:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbVJWKnH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 06:41:48 -0400
-Received: from mail-in-06.arcor-online.net ([151.189.21.46]:39362 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1751444AbVJWKlr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 06:41:47 -0400
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-Subject: Re: Understanding Linux addr space, malloc, and heap
-To: Kyle Moffett <mrmacman_g4@mac.com>, "Vincent W. Freeh" <vin@csc.ncsu.edu>,
-       linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Sun, 23 Oct 2005 12:41:35 +0200
-References: <505ru-8qi-1@gated-at.bofh.it> <505Lp-B4-81@gated-at.bofh.it> <506QZ-2cH-3@gated-at.bofh.it> <5070Y-2qP-23@gated-at.bofh.it> <507ac-2Cm-25@gated-at.bofh.it> <507NL-3Em-29@gated-at.bofh.it> <507Xd-3QT-19@gated-at.bofh.it> <50xnU-7s2-37@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Sun, 23 Oct 2005 06:43:07 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:10733 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751446AbVJWKnG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Oct 2005 06:43:06 -0400
+Message-ID: <435B6C4E.F9215E82@tv-sign.ru>
+Date: Sun, 23 Oct 2005 14:56:14 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1ETdIF-0000h8-Iw@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+To: paulmck@us.ibm.com
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu,
+       dipankar@in.ibm.com, hch@infradead.org
+Subject: Re: [PATCH] Remove duplicate code in signal.c
+References: <20051023032226.GA6340@us.ibm.com>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle Moffett <mrmacman_g4@mac.com> wrote:
-> On Oct 21, 2005, at 12:24:50, Vincent W. Freeh wrote:
-
->> I guess I live in a different world.  I do lots of things I'm not
->> "supposed" to do.
+"Paul E. McKenney" wrote:
 > 
-> So why are you complaining that it doesn't work?  "Doctor, it hurts
-> when I use my toes to hold a nail as I hammer it in!" "Well don't do
-> that then!"
-
-I'm not supposed to run linux on i386, ask Bill. Why do I do it then?
-
->> Moreover, it is very sensible and usable to mprotect malloc pages.
+> Hello!
 > 
-> DANGER! DANGER WILL ROBINSON! DANGER!  malloc() is *NOT* guaranteed
-> or even theoretically implemented to return pages.
+> The following patch combines a bit of redundant code between
+> force_sig_info() and force_sig_specific().  Tested on x86 and ppc64.
 
-If you allocate a block of 2*PAGESIZE-1 bytes, *any* allocation method is
-*guaranteed* return at least one complete page. (BTW: The example from the
-manpage is wrong since it does only make sure the starting address is on
-the page, but not that the end of the protected memory is within the
-allocated area. Whom should I contact?)
+Some minor nitpicks ...
 
-But even if Vincend makes the next malloc/free/whatever to be fubar,
-or if he made the world explode, mprotect is still required to report
-an error if the requested action failed. If it doesn't do that for
-mprotecting _any_ range, no matter how strange it may be, it is broken.
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+> +++ linux-2.6.14-rc2-rt7-force_sig/kernel/signal.c      2005-09-29 18:41:07.000000000 -0700
+> @@ -920,8 +920,8 @@ force_sig_info(int sig, struct siginfo *
+>         if (sigismember(&t->blocked, sig) || t->sighand->action[sig-1].sa.sa_handler == SIG_IGN) {
+>                 t->sighand->action[sig-1].sa.sa_handler = SIG_DFL;
+>                 sigdelset(&t->blocked, sig);
+
+May be it would be more readable to do:
+
+	if (handler == SIG_IGN)
+		handler = SIG_DFL;
+
+	if (sigismember(->blocked, sig)) // probably unneeded at all
+		sigdelset(->blocked, sig);
+
+> -               recalc_sigpending_tsk(t);
+>         }
+> +       recalc_sigpending_tsk(t);
+
+I never understood why can't we just do:
+
+	set_tsk_thread_flag(TIF_SIGPENDING);
+
+If this signal is not pending yet specific_send_siginfo() will
+set this flag anyway.
+
+> -       specific_send_sig_info(sig, (void *)2, t);
+> -       spin_unlock_irqrestore(&t->sighand->siglock, flags);
+> +       force_sig_info(sig, (void *)2, t);
+
+Paul, if you think this patch should go into the -mm tree first,
+could you rediff this patch against -mm ?
+
+- 	specific_send_sig_info(sig, SEND_SIG_FORCED, t);
++	force_sig_info(sig, SEND_SIG_FORCED, t);
+
+Oleg.

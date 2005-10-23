@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbVJWWbl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbVJWWcX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750805AbVJWWbl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 18:31:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbVJWWbl
+	id S1750817AbVJWWcX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 18:32:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbVJWWcX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 18:31:41 -0400
-Received: from nproxy.gmail.com ([64.233.182.203]:12331 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750809AbVJWWbk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 18:31:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=cFkOFrCXM7kJO5uA5/oDLpDmT5X4Cz2+KJFodmJGpu5WKezdwLY2hX/QsHPDVcpbGXVtqI6+YZgc+5qJxa8ou3n1g0jo+Eqd6oQpoorteP0nGEdJfFnOySoWYZi7a5ImQbuLP8pbP/mLYwS9HnVNFt+wv4P4PXDi237fdvPK3rM=
-Message-ID: <40f323d00510231531t14b70e49wc4e67e8e9e14b613@mail.gmail.com>
-Date: Mon, 24 Oct 2005 00:31:39 +0200
-From: Benoit Boissinot <bboissin@gmail.com>
-To: jonathan@jonmasters.org
-Subject: Re: Task profiling in Linux
-Cc: Claudio Scordino <cloud.of.andor@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <35fb2e590510231519u38545f2pdab36de3f7d5384@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 23 Oct 2005 18:32:23 -0400
+Received: from mail.kroah.org ([69.55.234.183]:23456 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750817AbVJWWcW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Oct 2005 18:32:22 -0400
+Date: Sun, 23 Oct 2005 15:29:57 -0700
+From: Greg KH <greg@kroah.com>
+To: Laurent Riffard <laurent.riffard@free.fr>, linux-kernel@vger.kernel.org,
+       dmo@osdl.org, mike.miller@hp.com, iss_storagedev@hp.com,
+       Jeff Garzik <garzik@pobox.com>
+Subject: Re: [patch] drivers/block: updates .owner field of struct pci_driver
+Message-ID: <20051023222956.GA8332@kroah.com>
+References: <20051023204947.430464000@antares.localdomain> <20051023204956.213142000@antares.localdomain> <20051023211320.GB19915@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200510232249.39236.cloud.of.andor@gmail.com>
-	 <35fb2e590510231519u38545f2pdab36de3f7d5384@mail.gmail.com>
+In-Reply-To: <20051023211320.GB19915@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/24/05, Jon Masters <jonmasters@gmail.com> wrote:
-> On 10/23/05, Claudio Scordino <cloud.of.andor@gmail.com> wrote:
->
-> > I need some help to make profiling of an application on Linux.
->
-> Did you already try gprof?
->
-or oprofile/sysprof with a recent kernel
+On Sun, Oct 23, 2005 at 10:13:20PM +0100, Russell King wrote:
+> On Sun, Oct 23, 2005 at 10:49:48PM +0200, Laurent Riffard wrote:
+> > This patch updates .owner field of struct pci_driver.
+> > 
+> > This allows SYSFS to create the symlink from the driver to the
+> > module which provides it.
+> > 
+> > Signed-off-by: Laurent Riffard <laurent.riffard@free.fr>
+> 
+> Wouldn't it be better to eliminate pci_driver's .owner field and
+> set the generic device driver's owner field directly? (and fix
+> the PCI code not to overwrite that if pci_driver's .owner field
+> is NULL for compatibility.)
 
-Benoit
+No there isn't, we should use the struct device .name and .owner fields
+instead of the pci drivers's structure.  Then we can just get rid of the
+pci driver's fields too.
+
+I just did this for the usb-serial drivers on Friday.
+
+thanks,
+
+greg k-h

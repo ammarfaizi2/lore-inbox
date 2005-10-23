@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbVJWWTd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbVJWWXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750742AbVJWWTd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 18:19:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbVJWWTd
+	id S1750793AbVJWWXg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 18:23:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbVJWWXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 18:19:33 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:45802
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S1750742AbVJWWTc (ORCPT
+	Sun, 23 Oct 2005 18:23:36 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:176 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750793AbVJWWXf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 18:19:32 -0400
-Message-ID: <435C0C5E.5000709@linuxwireless.org>
-Date: Sun, 23 Oct 2005 16:19:10 -0600
-From: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-CC: Rob Landley <rob@landley.net>, kronos@kronoz.cjb.net,
-       Keenan Pepper <keenanpepper@gmail.com>, linux-kernel@vger.kernel.org,
-       jketreno@linux.intel.com
-Subject: Re: ipw2200 only works as a module?
-References: <20050926171220.GA9341@dreamland.darkstar.lan> <200510191635.13253.rob@landley.net> <200510222350.57605.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200510222350.57605.s0348365@sms.ed.ac.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 23 Oct 2005 18:23:35 -0400
+Date: Sun, 23 Oct 2005 15:22:45 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: hugh@veritas.com, clameter@sgi.com, rmk@arm.linux.org.uk, matthew@wil.cx,
+       jdike@addtoit.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 7/9] mm: split page table lock
+Message-Id: <20051023152245.4d1dc812.akpm@osdl.org>
+In-Reply-To: <20051023142712.6c736dd3.akpm@osdl.org>
+References: <Pine.LNX.4.61.0510221716380.18047@goblin.wat.veritas.com>
+	<Pine.LNX.4.61.0510221727060.18047@goblin.wat.veritas.com>
+	<20051023142712.6c736dd3.akpm@osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alistair John Strachan wrote:
-
->On Wednesday 19 October 2005 22:35, Rob Landley wrote:
->  
+Andrew Morton <akpm@osdl.org> wrote:
 >
->>On Monday 26 September 2005 12:12, Luca wrote:
->>    
->>
->>>Keenan Pepper <keenanpepper@gmail.com> ha scritto:
->>>      
->>>
->>>>With CONFIG_IPW2200=y I get:
->>>>
->>>>ipw2200: ipw-2.2-boot.fw load failed: Reason -2
->>>>ipw2200: Unable to load firmware: 0xFFFFFFFE
->>>>
->>>>but with CONFIG_IPW2200=m it works fine. If it doesn't work when built
->>>>into the kernel, why even give people the option?
->>>>        
->>>>
-I have seen this before with users using FC or RH. They end up 
-increasing the timeout of the hotplug event and then it all works. But 
-then again, it only occurs for what I have seen with FC users. Dunno Why.
+>  Hugh Dickins <hugh@veritas.com> wrote:
+>  >
+>  > In this implementation, the spinlock is tucked inside the struct page of
+>  >  the page table page: with a BUILD_BUG_ON in case it overflows - which it
+>  >  would in the case of 32-bit PA-RISC with spinlock debugging enabled.
+> 
+>  eh?   It's going to overflow an unsigned long on x86 too:
 
-.Alejandro
+Ah, I think I see what you've done: assume that .index, .lru and .virtual
+are unused on pagetable pages, so we can just overwrite them.
+
+ick.  I think I prefer the union, although it'll make struct page bigger
+for CONFIG_PREEMPT+CONFIG_SMP+NR_CPUS>=4.    hmm.
+
+

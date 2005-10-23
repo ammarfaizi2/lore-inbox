@@ -1,89 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751405AbVJWGEF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751422AbVJWHar@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751405AbVJWGEF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 02:04:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbVJWGEF
+	id S1751422AbVJWHar (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 03:30:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751423AbVJWHaq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 02:04:05 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:21949 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751405AbVJWGEE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 02:04:04 -0400
-Date: Sat, 22 Oct 2005 23:03:42 -0700 (PDT)
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Simon.Derr@bull.net, Paul Jackson <pj@sgi.com>,
-       linux-kernel@vger.kernel.org, Christoph Lameter <clameter@sgi.com>,
-       Linus Torvalds <torvalds@osdl.org>
-Message-Id: <20051023060342.24806.52611.sendpatchset@jackhammer.engr.sgi.com>
-Subject: [PATCH] cpuset simple rename
+	Sun, 23 Oct 2005 03:30:46 -0400
+Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:15622 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751422AbVJWHaq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Oct 2005 03:30:46 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: reuben-lkml@reub.net (Reuben Farrelly)
+Subject: [0/3] Fix timer bugs in neighbour cache
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       acme@conectiva.com.br, davem@davemloft.net, greearb@candelatech.com
+Organization: Core
+In-Reply-To: <43534273.2050106@reub.net>
+X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1ETaJB-0004a0-00@gondolin.me.apana.org.au>
+Date: Sun, 23 Oct 2005 17:30:21 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add support for renaming cpusets.  Only allow simple rename
-of cpuset directories in place.  Don't allow moving cpusets
-elsewhere in hierarchy or renaming the special cpuset files in
-each cpuset directory.
+Reuben Farrelly <reuben-lkml@reub.net> wrote:
+> 
+> Oct 17 18:49:40 tornado kernel: NEIGH: BUG, double timer add, state is 1
+> Oct 17 18:51:04 tornado last message repeated 3 times
+> Oct 17 18:52:05 tornado last message repeated 5 times
+> Oct 17 18:52:11 tornado last message repeated 2 times
 
-The usefulness of this simple rename became apparent when
-developing task migration facilities.  It allows building a
-second cpuset hierarchy using new names and containing new CPUs
-and Memory Nodes, moving tasks from the old to the new cpusets,
-removing the old cpusets, and then renaming the new cpusets
-to be just like the old names, so that any knowledge that the
-tasks had of their cpuset names will still be valid.
+Excellent.  Looks like we actually caught something.  Pity we don't have
+a stack trace which means that there might be more bugs.
 
-Leaf node cpusets can be migrated to other CPUs or Memory
-Nodes by just updating their 'cpus' and 'mems' files, but
-because no cpuset can contain CPUs or Nodes not in its
-parent cpuset, one cannot do this in a cpuset hierarchy
-without first expanding all the non-leaf cpusets to contain
-the union of both the old and new CPUs and Nodes, which would
-obfuscate the one-to-one migration of a task from one cpuset
-to another required to correctly migrate the physical page
-frames currently allocated to that task.
+Anyway, here are three patches which should fix this.  This should go
+into 2.6.14.
 
-Signed-off-by: Paul Jackson <pj@sgi.com>
+Arnaldo, you can pull them from
 
----
+master.kernel.org:/pub/scm/linux/kernel/git/herbert/net-2.6.git
 
- kernel/cpuset.c |   16 ++++++++++++++++
- 1 files changed, 16 insertions(+)
-
---- 2.6.14-rc4-mm1-cpuset-patches.orig/kernel/cpuset.c	2005-10-22 21:41:46.097394572 -0700
-+++ 2.6.14-rc4-mm1-cpuset-patches/kernel/cpuset.c	2005-10-22 22:40:30.595885046 -0700
-@@ -1113,6 +1113,21 @@ static int cpuset_file_release(struct in
- 	return 0;
- }
- 
-+/*
-+ * cpuset_rename - Only allow simple rename of directories in place.
-+ */
-+static int cpuset_rename(struct inode *old_dir, struct dentry *old_dentry,
-+                  struct inode *new_dir, struct dentry *new_dentry)
-+{
-+	if (!S_ISDIR(old_dentry->d_inode->i_mode))
-+		return -ENOTDIR;
-+	if (new_dentry->d_inode)
-+		return -EEXIST;
-+	if (old_dir != new_dir)
-+		return -EIO;
-+	return simple_rename(old_dir, old_dentry, new_dir, new_dentry);
-+}
-+
- static struct file_operations cpuset_file_operations = {
- 	.read = cpuset_file_read,
- 	.write = cpuset_file_write,
-@@ -1125,6 +1140,7 @@ static struct inode_operations cpuset_di
- 	.lookup = simple_lookup,
- 	.mkdir = cpuset_mkdir,
- 	.rmdir = cpuset_rmdir,
-+	.rename = cpuset_rename,
- };
- 
- static int cpuset_create_file(struct dentry *dentry, int mode)
-
+Cheers,
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

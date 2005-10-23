@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750896AbVJWTGj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbVJWTvM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750896AbVJWTGj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 15:06:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbVJWTGj
+	id S1750708AbVJWTvM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 15:51:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbVJWTvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 15:06:39 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:18061 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750896AbVJWTGj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 15:06:39 -0400
-Date: Sun, 23 Oct 2005 12:05:21 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Cc: linux-kernel@vger.kernel.org, paulmck@us.ibm.com, arjan@infradead.org,
-       pavel@ucw.cz, dipankar@in.ibm.com, vatsa@in.ibm.com, rusty@au1.ib.com,
-       mingo@elte.hu, manfred@colorfullife.com, gregkh@kroah.com
-Subject: Re: [PATCH] RCU torture-testing kernel module
-Message-Id: <20051023120521.26031051.akpm@osdl.org>
-In-Reply-To: <200510232055.17782.ioe-lkml@rameria.de>
-References: <20051022231214.GA5847@us.ibm.com>
-	<200510230922.26550.ioe-lkml@rameria.de>
-	<20051023143617.GA7961@us.ibm.com>
-	<200510232055.17782.ioe-lkml@rameria.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 23 Oct 2005 15:51:12 -0400
+Received: from host53-242.pool872.interbusiness.it ([87.2.242.53]:38920 "HELO
+	guidebc.com") by vger.kernel.org with SMTP id S1750708AbVJWTvL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Oct 2005 15:51:11 -0400
+Message-ID: <3e7a5027db85272287cb33f668c482d9@resistivity>
+From: "Enu Mcveigh" <mcv@guidebc.com>
+To: "Marjan Ballin" <linux-kernel@vger.kernel.org>
+Subject: Re: Norman's Raw story
+Date: Sun, 23 Oct 2005 14:51:26 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Oeser <ioe-lkml@rameria.de> wrote:
->
-> DEBUG_KERNEL should do nothing more than showing the debugging
->  options. 
+I am in good health and have always enjoyed sex.
+I was losing my erection during intercourse and during oral sex with 
+my girlfriend.
+It was difficult to pinpoint the problem so I decided to order some 
+Vjagrra online.
 
-yup.
+I ordered my Vjagrra which arrived in several days. I ordered 4x100mg 
+pills and on the weekend decided to give it a go without saying 
+anything to my girlfriend ;) 35 minutes before we went to bed I took 
+half a pill, and WOW! what a difference. 
 
->  E.g. I don't expect to enable any additional code in an 
->  unrelated file, if I enable Magic-SysRQ on an embedded, unattended device
->  to be able to analyze potential problems via serial console.
-> 
->  @Andrew: Would you accept a patch to fix that?
+I had a rock hard erection for over an hour of non stop sex. Even 
+after I had climaxed I was ready to go again in twenty minutes, which 
+we did. this lasted for over two hours, and I was still hard in the 
+shower after. 
 
-more yup.
+It was like being a teenager over again. Amazing!
+
+If you have a problem, try Vjagrra, it is great http://www.chosenam.com
+

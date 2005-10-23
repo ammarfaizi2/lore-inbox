@@ -1,71 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751443AbVJWKKT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751442AbVJWKJn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751443AbVJWKKT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 06:10:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbVJWKKS
+	id S1751442AbVJWKJn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 06:09:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751443AbVJWKJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 06:10:18 -0400
-Received: from xproxy.gmail.com ([66.249.82.197]:14255 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751443AbVJWKKQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 06:10:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:openpgp:content-type:content-transfer-encoding;
-        b=t7wiYwpSAIiFOiXC774ctcA2Sk8TH0o2th0ixH5bQiGorxROfE/b5/CIyiOS3sGn05kuPkVaVLNyFOFJW5fXdlR8lRrJCvEmmkL+VQXHfvWyGVW/TtTVobL5kaHzAgYLyPwB+TeJIKncR3MTlCc+YxAK1LqHTo6jZ038EpVyovY=
-Message-ID: <435B61D4.9090009@gmail.com>
-Date: Sun, 23 Oct 2005 12:11:32 +0200
-From: Matan Peled <chaosite@gmail.com>
-Reply-To: chaosite@gmail.com
-Organization: Chaosite Destruction, inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20051014 Thunderbird/1.0.7 Mnenhy/0.7.2.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Gaurav Dhiman <gaurav4lkg@gmail.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Problem]: accessing Marvell LAN card (sk98lin.ko)
-References: <1e33f5710510230202q2623ff61w275e2aabac72b0a6@mail.gmail.com>
-In-Reply-To: <1e33f5710510230202q2623ff61w275e2aabac72b0a6@mail.gmail.com>
-X-Enigmail-Version: 0.92.0.0
-OpenPGP: id=D6F42CA5
-Content-Type: text/plain; charset=UTF-8
+	Sun, 23 Oct 2005 06:09:43 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:61313 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S1751442AbVJWKJn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Oct 2005 06:09:43 -0400
+Subject: Re: Billionton bluetooth CF card: performance is 10KB/sec
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: maxk@qualcomm.com, bluez-devel@lists.sourceforge.net,
+       kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051023094806.GB1975@elf.ucw.cz>
+References: <20051022173152.GA2573@elf.ucw.cz>
+	 <1130059941.11428.81.camel@blade>  <20051023094806.GB1975@elf.ucw.cz>
+Content-Type: text/plain
+Date: Sun, 23 Oct 2005 12:10:04 +0200
+Message-Id: <1130062204.11428.86.camel@blade>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi Pavel,
 
-Gaurav Dhiman wrote:
-> I have Toshiba M55 325 Laptop, which have Marvell 10/100 Base-TX
-> Ethernet card. I think the driver for this is sk98lin.ko, I am also
-> successful in loading that (saw lsmod). After loading when I do 'ls
-> /proc/net/sk98lin/' , it does not show me anything.
+> > > Ping time is around 50msec, and that seems pretty much okay, but
+> > > 10KB/sec seems like way too low.
+> > > 
+> > > I am limited to 10KB/sec both on linux-to-linux bnetp transfers and it
+> > > limits my transfer rates using edge and n6230, too :-(.
+> > 
+> > so you say that the Nokia 6230 has PAN Profile support and you don't
+> > need any PPP crap to get Internet access? This would be the first phone
+> > I have seen so far.
 > 
-> I am not able to understand how can I access the network card, what
-> device file I need to use for that ? When I do ifconfig, it only shows
-> me the loopback interface.
+> No, sorry, that was over ppp over rfcomm. With MSI dongle, I get
+> 25KB/sec with n6230. With bluetooth CF card, I only get 10KB/sec.
+
+show me the "hcitool info ..." for the phone.
+
+> > > 64 bytes from 10.1.0.3: icmp_seq=181 ttl=64 time=11789.1 ms
+> > > 64 bytes from 10.1.0.3: icmp_seq=182 ttl=64 time=10784.9 ms
+> > > 64 bytes from 10.1.0.3: icmp_seq=183 ttl=64 time=9781.1 ms
+> > 
+> > The initial pings look good, the rest is very bad.
 > 
-> Looking for any healp on this.
+> Rest is during transfer. I'd expect it to be slightly worse, but not
+> that bad.
+> 
+> > > Netdev watchdog complains a lot:
+> > > 
+> > > Oct 22 18:53:57 amd pand[2439]: Bluetooth PAN daemon version 2.19
+> > > Oct 22 18:53:57 amd pand[2439]: Connecting to <won't tell you>
+> > > Oct 22 18:53:58 amd pand[2439]: bnep0 connected
+> > > Oct 22 18:54:37 amd kernel: usb 3-1: USB disconnect, address 2
+> > > Oct 22 18:55:33 amd kernel: NETDEV WATCHDOG: bnep0: transmit timed out
+> > > Oct 22 18:55:59 amd last message repeated 2 times
+> > > Oct 22 18:56:51 amd last message repeated 5 times
+> > > Oct 22 18:57:55 amd last message repeated 3 times
+> > > Oct 22 18:59:03 amd last message repeated 7 times
+> > 
+> > The transmit timeouts shouldn't be there. The question is now which side
+> > is at fault. The host or the phone?
+> 
+> This is against second linux box... Can't be the phone.
 
-What about ifconfig -a?
+>From Linux to Linux you can get something around 80KB/sec. Do you have
+any other USB dongle to test this against, because I think the PCMCIA
+card is the problematic part here.
 
-> regards,
-> - Gaurav
+If you go over RFCOMM to the phone you will almost never reach the full
+speed, because most RFCOMM implementation on the phones are not really
+good. The PPP is eating the rest of the bandwidth.
 
-- - mip
+Regards
 
-- --
-[Name      ]   ::  [Matan I. Peled    ]
-[Location  ]   ::  [Israel            ]
-[Public Key]   ::  [0xD6F42CA5        ]
-[Keyserver ]   ::  [keyserver.kjsl.com]
-encrypted/signed  plain text  preferred
+Marcel
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQFDW2HTA7Qvptb0LKURAvxKAJ9/TFFJx8qEMQ4VaFX0Cd4+XpU8EQCgmbGH
-0NVsCHL8WJT64UXnmu6V5AA=
-=iITg
------END PGP SIGNATURE-----

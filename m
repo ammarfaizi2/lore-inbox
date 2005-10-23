@@ -1,42 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbVJWWJw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbVJWWTn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750761AbVJWWJw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 18:09:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbVJWWJw
+	id S1750790AbVJWWTn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 18:19:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbVJWWTn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 18:09:52 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:41370 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750781AbVJWWJv
+	Sun, 23 Oct 2005 18:19:43 -0400
+Received: from zproxy.gmail.com ([64.233.162.197]:47537 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750790AbVJWWTm convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 18:09:51 -0400
-Date: Mon, 24 Oct 2005 00:12:04 +0200
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Jens Axboe <axboe@suse.de>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: BUG in the block layer (partial reads not reported)
-Message-ID: <20051023221204.GA20162@aitel.hist.no>
-References: <Pine.LNX.4.44L0.0510201435400.4453-100000@iolanthe.rowland.org> <1129915917.3542.7.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Sun, 23 Oct 2005 18:19:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ikx2buoI4dO1aWgKRZ17VMvstSA1UXHVHHZraFGo6MLDssAsF6m67CNJDVWK9kHptdz+S0VgV6tLnu8um0GYPO5g4za/j0hVOv47/SIWzZlr4viKKw4CHrLD/nK0Qt9BRMsCIyyxgmdsLfcvaTnq8SoSjrl/cidUOOX90OeB+6g=
+Message-ID: <35fb2e590510231519u38545f2pdab36de3f7d5384@mail.gmail.com>
+Date: Sun, 23 Oct 2005 23:19:41 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: Claudio Scordino <cloud.of.andor@gmail.com>
+Subject: Re: Task profiling in Linux
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200510232249.39236.cloud.of.andor@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1129915917.3542.7.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+References: <200510232249.39236.cloud.of.andor@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 21, 2005 at 06:31:57PM +0100, Alan Cox wrote:
-> 
-> The essential problem however is that if you say a disc is a given size
-> and it turns out not to be (as happens with CD-R especially or with
-> buggy readers) then Linux block layer can't cope. Its well known and
-> causes endless problems for CD-R users with some IDE drives on Linux.
-> Its a big generator of 2.6 vendor bug reports.
-> 
-Seems to me that the best fix for devices that may re�port the wrong size
-is to always use a foolproof way of determining the size.  I.e. when
-a CD-R cannot be trusted, determine the size by trying to read the
-last sectors instead of using the reported number.  
+On 10/23/05, Claudio Scordino <cloud.of.andor@gmail.com> wrote:
 
-Helge Hafting
+> I need some help to make profiling of an application on Linux.
+
+Did you already try gprof?
+
+Jon.

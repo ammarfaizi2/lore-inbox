@@ -1,72 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbVJWV2E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbVJWV10@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750787AbVJWV2E (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 17:28:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbVJWV2E
+	id S1750779AbVJWV10 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 17:27:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbVJWV10
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 17:28:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24229 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750787AbVJWV2D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 17:28:03 -0400
-Date: Sun, 23 Oct 2005 14:27:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: clameter@sgi.com, rmk@arm.linux.org.uk, matthew@wil.cx, jdike@addtoit.com,
+	Sun, 23 Oct 2005 17:27:26 -0400
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:28282 "EHLO
+	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
+	id S1750779AbVJWV10 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Oct 2005 17:27:26 -0400
+X-IronPort-AV: i="3.97,242,1125896400"; 
+   d="scan'208"; a="312091753:sNHT28433768"
+Date: Sun, 23 Oct 2005 16:27:18 -0500
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Nish Aravamudan <nish.aravamudan@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, minyard@acm.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 7/9] mm: split page table lock
-Message-Id: <20051023142712.6c736dd3.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0510221727060.18047@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0510221716380.18047@goblin.wat.veritas.com>
-	<Pine.LNX.4.61.0510221727060.18047@goblin.wat.veritas.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Subject: Re: [PATCH 9/9] ipmi: add timer thread
+Message-ID: <20051023212718.GA23212@lists.us.dell.com>
+References: <20051021145835.GI19532@i2.minyard.local> <20051023134934.1b81d9c6.akpm@osdl.org> <29495f1d0510231412n41ab2d27y41f13a9c9e62b0c2@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <29495f1d0510231412n41ab2d27y41f13a9c9e62b0c2@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> wrote:
->
-> In this implementation, the spinlock is tucked inside the struct page of
->  the page table page: with a BUILD_BUG_ON in case it overflows - which it
->  would in the case of 32-bit PA-RISC with spinlock debugging enabled.
+On Sun, Oct 23, 2005 at 02:12:51PM -0700, Nish Aravamudan wrote:
+> On 10/23/05, Andrew Morton <akpm@osdl.org> wrote:
+> > The first call to schedule_timeout() here will not actually sleep at all,
+> > due to it being in state TASK_RUNNING.  Is that deliberate?
 
-eh?   It's going to overflow an unsigned long on x86 too:
+Wasn't intentional, but doesn't really matter.
 
-typedef struct {
-	raw_spinlock_t raw_lock;
-#if defined(CONFIG_PREEMPT) && defined(CONFIG_SMP)
-	unsigned int break_lock;
-#endif
-#ifdef CONFIG_DEBUG_SPINLOCK
-	unsigned int magic, owner_cpu;
-	void *owner;
-#endif
-} spinlock_t;
+> > Also, this thread can exit in state TASK_INTERUPTIBLE.  That's not a bug
+> > per-se, but apparently it'll spit a warning in some of the patches which
+> > Ingo is working on.  I don't know why, but I'm sure there's a good reason
+> > ;)
+> 
+> You beat me to this one, Andrew! :) Both issue can be avoided by using
+> schedule_timeout_interruptible().
 
-I think we need a union here.
+OK.
+ 
+> Additionally, I think the last variable is simply being used to switch
+> between a 0 and 1 jiffy sleep (took me a while to figure that out in
+> GMail sadly -- any chance the variable could be renamed?). In the
+> current implementaion of schedule_timeout(), these will result in the
+> same behavior, expiring the timer at the next timer interrupt (the
+> next jiffy increment is the first time we'll notice we had a timer in
+> the past to expire). Not sure if that's the intent and perhaps just a
+> means to indicate what is desired (a sleep will still occur, even
+> though a udelay() has already in the loop, for instance), but wanted
+> to make sure.
 
-> +#define __pte_lockptr(page)	((spinlock_t *)&((page)->private))
-> +#define pte_lock_init(_page)	do {					\
-> +	BUILD_BUG_ON((size_t)(__pte_lockptr((struct page *)0) + 1) >	\
-> +						sizeof(struct page));	\
+I think I need to move the schedule_timeout_interruptable() into the
+else clause, not at the top of the loop, as that's really the only
+case where I want it to sleep.  In a former version of the patch, the
+SI_SM_CALL_WITH_DELAY was supposed to be a 1-jiffy delay, while the
+else clause was a several-jiffy delay.  However, that lead to most
+commands still taking too long to complete, hence the CALL_WITH_DELAY
+case became a udelay(1).
 
-The above assumes that page.private is the final field in struct page. 
-That's fragile.
+I'll code up and test a patch that does this, and will send that ASAP.
 
->  Splitting the lock is not quite for free: another cacheline access.
->  Ideally, I suppose we would use split ptlock only for multi-threaded
->  processes on multi-cpu machines; but deciding that dynamically would
->  have its own costs.  So for now enable it by config, at some number
->  of cpus - since the Kconfig language doesn't support inequalities, let
->  preprocessor compare that with NR_CPUS.  But I don't think it's worth
->  being user-configurable: for good testing of both split and unsplit
->  configs, split now at 4 cpus, and perhaps change that to 8 later.
+Thanks,
+Matt
 
-I'll make it >= 2 for -mm.
-
-> +#define __pte_lockptr(page)	((spinlock_t *)&((page)->private))
->  +#define pte_lock_init(_page)	do {					\
-> +	BUILD_BUG_ON((size_t)(__pte_lockptr((struct page *)0) + 1) >	\
-> +						sizeof(struct page));	\
+-- 
+Matt Domsch
+Software Architect
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

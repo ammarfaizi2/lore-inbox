@@ -1,71 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbVJWW4P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbVJWXNq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750846AbVJWW4P (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 18:56:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750855AbVJWW4P
+	id S1750832AbVJWXNq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 19:13:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbVJWXNp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 18:56:15 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:11166 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1750846AbVJWW4O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 18:56:14 -0400
-Date: Mon, 24 Oct 2005 08:54:51 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Cc: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org,
-       debian-user@lists.debian.org
-Subject: Re: xfs_db -c frag -r /dev/hda1 - Segmentation fault
-Message-ID: <20051024085451.C5863161@wobbly.melbourne.sgi.com>
-References: <4080C826.F4C53CD@dmministries.org> <Pine.LNX.4.64.0510230736490.30489@p34>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 23 Oct 2005 19:13:45 -0400
+Received: from zproxy.gmail.com ([64.233.162.196]:36923 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750832AbVJWXNp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Oct 2005 19:13:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=H5zzBKL682jfR0LLJvCFswpjRps0y3OskxhI6P1Ti+fcYk9IpkWDRm1upOtsWs/5HAPIbp/ItVpT6y3Fp17u5x7FMnM7a3uswBVvg0CsqQ0gvG184AIE9I5bHuBqv7mTOZCXQFlEIy14yNtKfDPtq352tolGo1FmcckDZsZEHiA=
+Message-ID: <35fb2e590510231613u492d24c6k4d65ff3ac5ffcee6@mail.gmail.com>
+Date: Mon, 24 Oct 2005 00:13:44 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: /proc/kcore size incorrect ?
+Cc: "Linux-Kernel," <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051023235806.1a4df9ab@werewolf.able.es>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.64.0510230736490.30489@p34>; from jpiszcz@lucidpixels.com on Sun, Oct 23, 2005 at 07:39:34AM -0400
+References: <20051023235806.1a4df9ab@werewolf.able.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 23, 2005 at 07:39:34AM -0400, Justin Piszcz wrote:
-> p34:~# xfs_db -c frag -r /dev/hda1
-> Segmentation fault
-> p34:~# xfs_db -c frag -r /dev/hde1
-> Segmentation fault
-> p34:~# xfs_db -c frag -r /dev/hdk1
-> Segmentation fault
-> p34:~#
-> 
-> Debian Etch, 2.6.13.4, stopped working a while ago, either before newer 
-> debian packages or a newer kernel, does anyone who uses Debian+XFS have 
-> this problem as well?
+On 10/23/05, J.A. Magallon <jamagallon@able.es> wrote:
 
-I see it too - this looks like an endian issue in xfs_db, this patch
-should fix it (Works For Me).
+> BTW, any simple method to get the real mem of the box ?
 
-cheers.
+This is a typical example of using a hammer to crack a nut aka
+modifying the kernel before giving up on userspace.
 
--- 
-Nathan
+Several ways of looking up a solution:
 
+    * google
+    * man -k memory
 
-Index: xfsprogs/db/frag.c
-===================================================================
---- xfsprogs.orig/db/frag.c
-+++ xfsprogs/db/frag.c
-@@ -294,7 +294,7 @@ process_exinode(
- 	xfs_bmbt_rec_32_t	*rp;
- 
- 	rp = (xfs_bmbt_rec_32_t *)XFS_DFORK_PTR(dip, whichfork);
--	process_bmbt_reclist(rp, XFS_DFORK_NEXTENTS(dip, whichfork), extmapp);
-+	process_bmbt_reclist(rp, XFS_DFORK_NEXTENTS_HOST(dip, whichfork), extmapp);
- }
- 
- static void
-@@ -305,7 +305,7 @@ process_fork(
- 	extmap_t	*extmap;
- 	int		nex;
- 
--	nex = XFS_DFORK_NEXTENTS(dip, whichfork);
-+	nex = XFS_DFORK_NEXTENTS_HOST(dip, whichfork);
- 	if (!nex)
- 		return;
- 	extmap = extmap_alloc(nex);
+Leading to:
+
+* free(1):
+    ``free  displays the total amount of free and used physical and swap''
+
+* Or /proc/meminfo (both the same thing) - which you can trivially
+parse using sed:
+
+cat /proc/meminfo | sed -n -e "s/^MemTotal:[ ]*\([0-9]*\) kB\$/\1/p"
+
+Jon.

@@ -1,54 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbVJWVaR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbVJWVqR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750816AbVJWVaR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 17:30:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbVJWVaQ
+	id S1750715AbVJWVqR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 17:46:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbVJWVqR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 17:30:16 -0400
-Received: from smtpout.mac.com ([17.250.248.83]:30956 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1750805AbVJWVaP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 17:30:15 -0400
-In-Reply-To: <1130064287.2775.3.camel@laptopd505.fenrus.org>
-References: <505ru-8qi-1@gated-at.bofh.it> <505Lp-B4-81@gated-at.bofh.it> <506QZ-2cH-3@gated-at.bofh.it> <5070Y-2qP-23@gated-at.bofh.it> <507ac-2Cm-25@gated-at.bofh.it> <507NL-3Em-29@gated-at.bofh.it> <507Xd-3QT-19@gated-at.bofh.it> <50xnU-7s2-37@gated-at.bofh.it> <E1ETdIF-0000h8-Iw@be1.lrz> <1130064287.2775.3.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <D1C65891-3300-4537-8450-6AAC18251F45@mac.com>
-Cc: 7eggert@gmx.de, "Vincent W. Freeh" <vin@csc.ncsu.edu>,
-       linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Understanding Linux addr space, malloc, and heap
-Date: Sun, 23 Oct 2005 17:29:50 -0400
-To: Arjan van de Ven <arjan@infradead.org>
-X-Mailer: Apple Mail (2.734)
+	Sun, 23 Oct 2005 17:46:17 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:26832 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750715AbVJWVqR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Oct 2005 17:46:17 -0400
+Date: Sun, 23 Oct 2005 22:46:11 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Laurent Riffard <laurent.riffard@free.fr>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org, dmo@osdl.org, mike.miller@hp.com,
+       iss_storagedev@hp.com, Jeff Garzik <garzik@pobox.com>
+Cc: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [patch] drivers/block: updates .owner field of struct pci_driver
+Message-ID: <20051023214611.GH7992@ftp.linux.org.uk>
+References: <20051023204947.430464000@antares.localdomain> <20051023204956.213142000@antares.localdomain> <20051023211320.GB19915@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051023211320.GB19915@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 23, 2005, at 06:44:47, Arjan van de Ven wrote:
->> But even if Vincend makes the next malloc/free/whatever to be  
->> fubar, or if he made the world explode, mprotect is still required  
->> to report an error if the requested action failed.
->
-> but.. there's no proof yet that it failed...
+On Sun, Oct 23, 2005 at 10:13:20PM +0100, Russell King wrote:
+> On Sun, Oct 23, 2005 at 10:49:48PM +0200, Laurent Riffard wrote:
+> > This patch updates .owner field of struct pci_driver.
+> > 
+> > This allows SYSFS to create the symlink from the driver to the
+> > module which provides it.
+> > 
+> > Signed-off-by: Laurent Riffard <laurent.riffard@free.fr>
+> 
+> Wouldn't it be better to eliminate pci_driver's .owner field and
+> set the generic device driver's owner field directly? (and fix
+> the PCI code not to overwrite that if pci_driver's .owner field
+> is NULL for compatibility.)
+> 
+> I ask for the second time recently on linux-kernel.  Is there
+> *really* any point in duplicating these fields?
 
-Precisely.  The only code sample he's sent that exhibits this  
-"problem" is buggy because it checks the wrong addresses for  
-protected status.  In any case, if you _were_ going to try to change  
-protection bits on malloc()ed memory, you would need to make  
-_damn_sure_ that you didn't change the protection bits on internal  
-data structures that malloc uses to keep track of allocations.  If  
-you remove read or write privs on malloc-internal linked-list  
-pointers, an attempt to malloc() or free() memory might (and probably  
-will) crash.
+#define pci_register_driver(d) __pci_register_driver(d, THIS_MODULE)
 
-Cheers,
-Kyle Moffett
+#define ide_pci_register_driver(d) __ide_pci_register_driver(d, THIS_MODULE)
 
---
-I have yet to see any problem, however complicated, which, when you  
-looked at it in the right way, did not become still more complicated.
-   -- Poul Anderson
+__pci_register_driver(drv, module) - same as current pci_register_driver(),
+except that instead of
+        drv->driver.owner = drv->owner;
+it does
+        drv->driver.owner = module;
 
+__ide_pci_register_driver(driver, module):
+{
+        if(!pre_init)
+                return __pci_register_driver(driver, module);
+	driver->driver.owner = module;
+        list_add_tail(&driver->node, &ide_pci_drivers);
+        return 0;
+}
 
+and in ide_scan_pcibus() turn
+                pci_register_driver(d);
+into
+		__pci_register_driver(d, d->driver.owner);
 
+Update exports (i.e. export __pci_register_driver and __ide_pci_register_driver
+instead of pci_register_driver and ide_pci_register_driver resp.).
+
+At which point pci_driver->owner become unused and can be killed at leisure.
+Objections?

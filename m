@@ -1,75 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbVJWV10@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbVJWVaR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750779AbVJWV10 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 17:27:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbVJWV10
+	id S1750816AbVJWVaR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 17:30:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbVJWVaQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 17:27:26 -0400
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:28282 "EHLO
-	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S1750779AbVJWV10 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 17:27:26 -0400
-X-IronPort-AV: i="3.97,242,1125896400"; 
-   d="scan'208"; a="312091753:sNHT28433768"
-Date: Sun, 23 Oct 2005 16:27:18 -0500
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, minyard@acm.org,
+	Sun, 23 Oct 2005 17:30:16 -0400
+Received: from smtpout.mac.com ([17.250.248.83]:30956 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1750805AbVJWVaP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Oct 2005 17:30:15 -0400
+In-Reply-To: <1130064287.2775.3.camel@laptopd505.fenrus.org>
+References: <505ru-8qi-1@gated-at.bofh.it> <505Lp-B4-81@gated-at.bofh.it> <506QZ-2cH-3@gated-at.bofh.it> <5070Y-2qP-23@gated-at.bofh.it> <507ac-2Cm-25@gated-at.bofh.it> <507NL-3Em-29@gated-at.bofh.it> <507Xd-3QT-19@gated-at.bofh.it> <50xnU-7s2-37@gated-at.bofh.it> <E1ETdIF-0000h8-Iw@be1.lrz> <1130064287.2775.3.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <D1C65891-3300-4537-8450-6AAC18251F45@mac.com>
+Cc: 7eggert@gmx.de, "Vincent W. Freeh" <vin@csc.ncsu.edu>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 9/9] ipmi: add timer thread
-Message-ID: <20051023212718.GA23212@lists.us.dell.com>
-References: <20051021145835.GI19532@i2.minyard.local> <20051023134934.1b81d9c6.akpm@osdl.org> <29495f1d0510231412n41ab2d27y41f13a9c9e62b0c2@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <29495f1d0510231412n41ab2d27y41f13a9c9e62b0c2@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Understanding Linux addr space, malloc, and heap
+Date: Sun, 23 Oct 2005 17:29:50 -0400
+To: Arjan van de Ven <arjan@infradead.org>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 23, 2005 at 02:12:51PM -0700, Nish Aravamudan wrote:
-> On 10/23/05, Andrew Morton <akpm@osdl.org> wrote:
-> > The first call to schedule_timeout() here will not actually sleep at all,
-> > due to it being in state TASK_RUNNING.  Is that deliberate?
+On Oct 23, 2005, at 06:44:47, Arjan van de Ven wrote:
+>> But even if Vincend makes the next malloc/free/whatever to be  
+>> fubar, or if he made the world explode, mprotect is still required  
+>> to report an error if the requested action failed.
+>
+> but.. there's no proof yet that it failed...
 
-Wasn't intentional, but doesn't really matter.
+Precisely.  The only code sample he's sent that exhibits this  
+"problem" is buggy because it checks the wrong addresses for  
+protected status.  In any case, if you _were_ going to try to change  
+protection bits on malloc()ed memory, you would need to make  
+_damn_sure_ that you didn't change the protection bits on internal  
+data structures that malloc uses to keep track of allocations.  If  
+you remove read or write privs on malloc-internal linked-list  
+pointers, an attempt to malloc() or free() memory might (and probably  
+will) crash.
 
-> > Also, this thread can exit in state TASK_INTERUPTIBLE.  That's not a bug
-> > per-se, but apparently it'll spit a warning in some of the patches which
-> > Ingo is working on.  I don't know why, but I'm sure there's a good reason
-> > ;)
-> 
-> You beat me to this one, Andrew! :) Both issue can be avoided by using
-> schedule_timeout_interruptible().
+Cheers,
+Kyle Moffett
 
-OK.
- 
-> Additionally, I think the last variable is simply being used to switch
-> between a 0 and 1 jiffy sleep (took me a while to figure that out in
-> GMail sadly -- any chance the variable could be renamed?). In the
-> current implementaion of schedule_timeout(), these will result in the
-> same behavior, expiring the timer at the next timer interrupt (the
-> next jiffy increment is the first time we'll notice we had a timer in
-> the past to expire). Not sure if that's the intent and perhaps just a
-> means to indicate what is desired (a sleep will still occur, even
-> though a udelay() has already in the loop, for instance), but wanted
-> to make sure.
+--
+I have yet to see any problem, however complicated, which, when you  
+looked at it in the right way, did not become still more complicated.
+   -- Poul Anderson
 
-I think I need to move the schedule_timeout_interruptable() into the
-else clause, not at the top of the loop, as that's really the only
-case where I want it to sleep.  In a former version of the patch, the
-SI_SM_CALL_WITH_DELAY was supposed to be a 1-jiffy delay, while the
-else clause was a several-jiffy delay.  However, that lead to most
-commands still taking too long to complete, hence the CALL_WITH_DELAY
-case became a udelay(1).
 
-I'll code up and test a patch that does this, and will send that ASAP.
 
-Thanks,
-Matt
-
--- 
-Matt Domsch
-Software Architect
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com

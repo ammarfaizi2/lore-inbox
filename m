@@ -1,68 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbVJWWhG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbVJWWqq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750829AbVJWWhG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 18:37:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbVJWWhG
+	id S1750837AbVJWWqq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 18:46:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbVJWWqq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 18:37:06 -0400
-Received: from mail.gondor.com ([212.117.64.182]:55312 "EHLO moria.gondor.com")
-	by vger.kernel.org with ESMTP id S1750826AbVJWWhF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 18:37:05 -0400
-Date: Mon, 24 Oct 2005 00:36:58 +0200
-From: Jan Niehusmann <jan@gondor.com>
-To: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       James Ketrenos <jketreno@linux.intel.com>
-Subject: [PATCH] Re: IPW Question on menuconfig
-Message-ID: <20051023223658.GA5367@knautsch.gondor.com>
-References: <434B2AE2.1070709@linuxwireless.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <434B2AE2.1070709@linuxwireless.org>
-User-Agent: Mutt/1.5.11
+	Sun, 23 Oct 2005 18:46:46 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:18919 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1750837AbVJWWqp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Oct 2005 18:46:45 -0400
+Subject: Re: BUG in the block layer (partial reads not reported)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Jens Axboe <axboe@suse.de>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051023221204.GA20162@aitel.hist.no>
+References: <Pine.LNX.4.44L0.0510201435400.4453-100000@iolanthe.rowland.org>
+	 <1129915917.3542.7.camel@localhost.localdomain>
+	 <20051023221204.GA20162@aitel.hist.no>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Date: Mon, 24 Oct 2005 00:14:43 +0100
+Message-Id: <1130109283.15961.70.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 10, 2005 at 09:00:50PM -0600, Alejandro Bonilla Beeche wrote:
-> Network devices / Wireless, and the IPW2100 wasn't in the list. I went, 
-> then Modularized the IEEE80211 and then IPW2100 was there. I think is 
-> kind of estrange that IPW2100 wouldn't show just because it has a 
-> dependencie, shouldn't IPW2100 show in the list, and if you select it, 
-> then it would also select CONFIG_IEEE80211?
+On Llu, 2005-10-24 at 00:12 +0200, Helge Hafting wrote:
+> Seems to me that the best fix for devices that may re�port the wrong size
+> is to always use a foolproof way of determining the size.  I.e. when
+> a CD-R cannot be trusted, determine the size by trying to read the
+> last sectors instead of using the reported number.  
 
-I think you are right, so the config script should be changed like shown
-below. (But I'm not really familiar with the config language, so I may
-be missing some obvious problems?)
-
-Signed-off-by: Jan Niehusmann <jan@gondor.com>
-(in case somebody cares for that for such a small change...)
-
-
-diff --git a/drivers/net/wireless/Kconfig b/drivers/net/wireless/Kconfig
---- a/drivers/net/wireless/Kconfig
-+++ b/drivers/net/wireless/Kconfig
-@@ -139,8 +139,9 @@ comment "Wireless 802.11b ISA/PCI cards 
- 
- config IPW2100
- 	tristate "Intel PRO/Wireless 2100 Network Connection"
--	depends on NET_RADIO && PCI && IEEE80211
-+	depends on NET_RADIO && PCI
- 	select FW_LOADER
-+	select IEEE80211
- 	---help---
-           A driver for the Intel PRO/Wireless 2100 Network 
- 	  Connection 802.11b wireless network adapter.
-@@ -192,8 +193,9 @@ config IPW_DEBUG
- 
- config IPW2200
- 	tristate "Intel PRO/Wireless 2200BG and 2915ABG Network Connection"
--	depends on IEEE80211 && PCI
-+	depends on PCI
- 	select FW_LOADER
-+	select IEEE80211
- 	---help---
-           A driver for the Intel PRO/Wireless 2200BG and 2915ABG Network
- 	  Connection adapters. 
- 
+That may take up to half a minute on some CD drives that retry a lot

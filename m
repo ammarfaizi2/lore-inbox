@@ -1,96 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750843AbVJXATU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750845AbVJXAl4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750843AbVJXATU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 20:19:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750845AbVJXATU
+	id S1750845AbVJXAl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 20:41:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750849AbVJXAl4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 20:19:20 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:63658 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750843AbVJXATT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 20:19:19 -0400
-Date: Sun, 23 Oct 2005 17:19:13 -0700 (PDT)
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Simon.Derr@bull.net, Paul Jackson <pj@sgi.com>,
-       linux-kernel@vger.kernel.org, Christoph Lameter <clameter@sgi.com>,
-       Linus Torvalds <torvalds@osdl.org>
-Message-Id: <20051024001913.7030.71597.sendpatchset@jackhammer.engr.sgi.com>
-Subject: [PATCH] cpuset confine pdflush to its cpuset
+	Sun, 23 Oct 2005 20:41:56 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:51538 "EHLO
+	pd3mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1750847AbVJXAlz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Oct 2005 20:41:55 -0400
+Date: Sun, 23 Oct 2005 18:40:06 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: 2.6.14-rc5 e1000 and page allocation failures.. still
+In-reply-to: <50tDw-1FH-5@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <435C2D66.6030708@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 8BIT
+X-Accept-Language: en-us, en
+References: <50tDw-1FH-5@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch keeps pdflush daemons on the same cpuset as their
-parent, the kthread daemon.
+John Bäckstrand wrote:
+> Im seeing a massive amount of page allocation failures with 2.6.14-rc5, 
+> and also earlier kernels, see "E1000 - page allocation failure - saga 
+> continues :(". Machine is a 1Ghz Athlon with 256MB RAM. Attached is 
+> example dmesg output. The stack traces come in many variants. Killing 
+> processes using RAM only seems to help temporarily. Ive also tried 
+> setting vm.min_free_kbytes=16384, which used to work pretty well, but 
+> this does not help (atleast not in the state the machine is currently 
+> in, without rebooting).
+> 
+> free currently gives:
+> 
+>              total       used       free     shared    buffers     cached
+> Mem:        256520     239128      17392          0       5372      67500
+> -/+ buffers/cache:     166256      90264
+> Swap:       506036      21248     484788
+> 
+> 
+> I havent yet tried rebooting and using the vm.min_free_kbytes=16384 from 
+> scratch, but I think something with the default for this is wrong if it 
+> results in this many page allocation errors. The machine is serving 
+> files from an encrypted partition with reiserfs on it, and I obivously 
+> use the e1000 driver.
+> 
+> ---
+> John Bäckstrand
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> [149649.847890] kcryptd/0: page allocation failure. order:3, mode:0x20
 
-Some large NUMA configurations put as much as they can of
-kernel threads and other classic Unix load in what's called a
-bootcpuset, keeping the rest of the system free for dedicated
-jobs.
+..
 
-This effort is thwarted by pdflush, which dynamically destroys
-and recreates pdflush daemons depending on load.
+> [149649.849933] Free pages:       16148kB (0kB HighMem)
 
-It's easy enough to force the originally created pdflush deamons
-into the bootcpuset, at system boottime.  But the pdflush
-threads created later were allowed to run freely across the
-system, due to the necessary line in their startup kthread():
+It looks like you have enough memory free - the problem is that the 
+driver is allocating a block of memory with order 3, which is 8 pages. 
+Quite likely there are not enough contiguous free pages to satisfy that.
 
-        set_cpus_allowed(current, CPU_MASK_ALL);
-
-By simply coding pdflush to start its threads with the
-cpus_allowed restrictions of its cpuset (inherited from kthread,
-its parent) we can ensure that dynamically created pdflush
-threads are also kept in the bootcpuset.
-
-On systems w/o cpusets, or w/o a bootcpuset implementation,
-the following will have no affect, leaving pdflush to run on
-any CPU, as before.
-
-Signed-off-by: Paul Jackson <pj@sgi.com>
-
----
-
- mm/pdflush.c |   13 +++++++++++++
- 1 files changed, 13 insertions(+)
-
---- 2.6.14-rc4-mm1-cpuset-patches.orig/mm/pdflush.c	2005-10-17 22:39:41.033879927 -0700
-+++ 2.6.14-rc4-mm1-cpuset-patches/mm/pdflush.c	2005-10-23 17:17:03.720802617 -0700
-@@ -20,6 +20,7 @@
- #include <linux/fs.h>		// Needed by writeback.h
- #include <linux/writeback.h>	// Prototypes pdflush_operation()
- #include <linux/kthread.h>
-+#include <linux/cpuset.h>
- 
- 
- /*
-@@ -170,12 +171,24 @@ static int __pdflush(struct pdflush_work
- static int pdflush(void *dummy)
- {
- 	struct pdflush_work my_work;
-+	cpumask_t cpus_allowed;
- 
- 	/*
- 	 * pdflush can spend a lot of time doing encryption via dm-crypt.  We
- 	 * don't want to do that at keventd's priority.
- 	 */
- 	set_user_nice(current, 0);
-+
-+	/*
-+	 * Some configs put our parent kthread in a limited cpuset,
-+	 * which kthread() overrides, forcing cpus_allowed == CPU_MASK_ALL.
-+	 * Our needs are more modest - cut back to our cpusets cpus_allowed.
-+	 * This is needed as pdflush's are dynamically created and destroyed.
-+	 * The boottime pdflush's are easily placed w/o these 2 lines.
-+	 */
-+	cpus_allowed = cpuset_cpus_allowed(current);
-+	set_cpus_allowed(current, cpus_allowed);
-+
- 	return __pdflush(&my_work);
- }
- 
+That's an awful big buffer size for a packet - I assume you're using 
+jumbo frames or something? Ideally the driver and hardware should be 
+able to allocate a buffer for those packets in multiple chunks, but I 
+have no idea if this is possible.
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

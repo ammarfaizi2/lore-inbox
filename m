@@ -1,83 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750963AbVJXWLV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbVJXWLA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750963AbVJXWLV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 18:11:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbVJXWLU
+	id S1750909AbVJXWLA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 18:11:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750897AbVJXWLA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 18:11:20 -0400
-Received: from warden3-p.diginsite.com ([208.147.64.186]:48111 "HELO
-	warden3.diginsite.com") by vger.kernel.org with SMTP
-	id S1750838AbVJXWLS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 18:11:18 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-scsi@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Luben Tuikov <luben_tuikov@adaptec.com>, andrew.patterson@hp.com,
-       Christoph Hellwig <hch@lst.de>,
-       "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
-       Linus Torvalds <torvalds@osdl.org>
-X-X-Sender: dlang@dlang.diginsite.com
-In-Reply-To: dlang@dlang.diginsite.com
-References: dlang@dlang.diginsite.com
-Date: Mon, 24 Oct 2005 15:09:49 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally
- attachedPHYs)
-In-Reply-To: <435A7BA9.4090502@s5r6.in-berlin.de>
-Message-ID: <Pine.LNX.4.62.0510241506130.7918@qynat.qvtvafvgr.pbz>
-References: <4359395B.9030402@pobox.com> <43593FE1.7020506@adaptec.com>
- <4359440E.2050702@pobox.com> <43595275.1000308@adaptec.com> <435959BE.5040101@pobox.com>
- <43595CA6.9010802@adaptec.com> <43596070.3090902@pobox.com>
- <43596859.3020801@adaptec.com> <43596F16.7000606@pobox.com>
- <435A1793.1050805@s5r6.in-berlin.de> <20051022105815.GB3027@infradead.org>
- <435A7BA9.4090502@s5r6.in-berlin.de>
+	Mon, 24 Oct 2005 18:11:00 -0400
+Received: from smtp3-g19.free.fr ([212.27.42.29]:43158 "EHLO smtp3-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1750838AbVJXWK7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 18:10:59 -0400
+To: linux-mips@linux-mips.org
+Cc: linux-parport@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Parallel port support for SGI O2
+References: <871x2d3wyc.fsf@groumpf.homeip.net>
+From: Arnaud Giersch <arnaud.giersch@free.fr>
+X-Face: &yL?ZRfSIk3zaRm*dlb3R4f.8RM"~b/h|\wI]>pL)}]l$H>.Q3Qd3[<h!`K6mI=+cWpg-El
+ B(FEm\EEdLdS{2l7,8\!RQ5aL0ZXlzzPKLxV/OQfrg/<t!FG>i.K[5isyT&2oBNdnvk`~y}vwPYL;R
+ y)NYo"]T8NlX{nmIUEi\a$hozWm#0GCT'e'{5f@Rl"[g|I8<{By=R8R>bDe>W7)S0-8:b;ZKo~9K?'
+ wq!G,MQ\eSt8g`)jeITEuig89NGmN^%1j>!*F8~kW(yfF7W[:bl>RT[`w3x-C
+Date: Tue, 25 Oct 2005 00:10:57 +0200
+In-Reply-To: <871x2d3wyc.fsf@groumpf.homeip.net> (Arnaud Giersch's message
+ of "Sun, 23 Oct 2005 02:20:59 +0200")
+Message-ID: <873bmq36ry.fsf@groumpf.homeip.net>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 22 Oct 2005, Stefan Richter wrote:
+Dimanche le 23 octobre 2005, vers 02:20:59 (CEST), j'ai écrit:
 
-> Christoph Hellwig wrote:
->> On Sat, Oct 22, 2005 at 12:42:27PM +0200, Stefan Richter wrote:
->>> A. Post mock-ups and pseudo code about how to change the core, discuss.
->>> B. Set up a scsi-cleanup tree. In this tree,
->>>     1. renovate the core (thereby break all command set drivers and
->>>        all transport subsystems),
->> 
->> No way.  Doing things from scatch is a really bad idea.  See how far we 
->> came
->> with Linux 2.6 scsi vs 2.4 scsi without throwing everything away and break 
->> the
->> world.  Please submit changes to fix _one_ thing at a time and fix all 
->> users.
->> Repeat until done or you don't care anymore.
->
-> I agree with you. Alas my wording was misunderstandable und obviously carried 
-> a wrong tone.
->
-> I did not say "replace the core" in step 1. Also, the breakage which I refer 
-> to in step 1 would have to be immediately corrected in step 2 (although not 
-> for the whole subsystem at once, to allow for a fast cycle of validation of 
-> what happened in step 1). Furthermore I specifically said that most steps may 
-> (let me add: and should) overlap.
+> I wrote a low-level parallel port driver for the built-in port on SGI
+> O2 (a.k.a. IP32).
+[...]
+>   http://arnaud.giersch.free.fr/parport_ip32/parport_ip32-latest.patch.gz
+>   http://arnaud.giersch.free.fr/parport_ip32.html
 
-Stefan,
-   we are supposed to be on a 2-month release cycle, with all major changes 
-going in in the first two weeks of that cycle. This timeframe doesn't 
-leave you any noticable time to implement your steps seperatly (and zero 
-testing between them). as a result, in practice your proposal amounts to a 
-big-bang approach, and/or results in releases that are known-broken.
+I uploaded a new version which fixes some bugs in FIFO transfer mode.
 
-and while you suggest putting this in -mm, remember that the -mm kernel 
-needs to be useable so that people can test it, and it is on the same 
-schedule as the main kernel so again you can't have known-broken things 
-(of this scale) there either.
-
-David Lang
-
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+        Arnaud

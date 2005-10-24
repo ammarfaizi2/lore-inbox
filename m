@@ -1,53 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751081AbVJXPhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbVJXPlP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751081AbVJXPhY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 11:37:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbVJXPhY
+	id S1751104AbVJXPlP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 11:41:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751107AbVJXPlP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 11:37:24 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:16342 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751081AbVJXPhX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 11:37:23 -0400
-To: vgoyal@in.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>, fastboot@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [PATCH] i386: move apic init in init_IRQs
-References: <m1fyrh8gro.fsf@ebiederm.dsl.xmission.com>
-	<20051021133306.GC3799@in.ibm.com>
-	<m1ach3dj47.fsf@ebiederm.dsl.xmission.com>
-	<20051022145207.GA4501@in.ibm.com>
-	<m11x2deft5.fsf@ebiederm.dsl.xmission.com>
-	<20051024130311.GA5853@in.ibm.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Mon, 24 Oct 2005 09:36:52 -0600
-In-Reply-To: <20051024130311.GA5853@in.ibm.com> (Vivek Goyal's message of
- "Mon, 24 Oct 2005 18:33:11 +0530")
-Message-ID: <m1u0f7c4ff.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 24 Oct 2005 11:41:15 -0400
+Received: from qproxy.gmail.com ([72.14.204.193]:11542 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751104AbVJXPlP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 11:41:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+        b=gMim473IPex7w5Fg+NU3n3m1ZVTuIwUfL38itcXDNmE0zhA8umQnt3onlFFe9IAQFa2yyCKsqJaFD5iH6k5m26SDzchecWRAnYJt3NZ15S+otEzFDV+dmE5GjGPivQuhLlf6DHVFyX1Tl/J5acu7C5FJPeSPR2SRUk2LBlN553k=
+Subject: Re: 2.6.14-rc5-mm1
+From: Badari Pulavarty <pbadari@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, alan@lxorguk.ukuu.org.uk
+In-Reply-To: <20051024014838.0dd491bb.akpm@osdl.org>
+References: <20051024014838.0dd491bb.akpm@osdl.org>
+Content-Type: text/plain
+Date: Mon, 24 Oct 2005 08:40:34 -0700
+Message-Id: <1130168434.6831.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vivek Goyal <vgoyal@in.ibm.com> writes:
+On Mon, 2005-10-24 at 01:48 -0700, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc5/2.6.14-rc5-mm1/
 
-> You are right. hard_smp_processor_id() is hard-coded to zero in case of a
-> non SMP kernel (include/linux/smp.h) and that's why the problem is happening.
-> I am booting a non-SMP capture kernel. In case of kexec on panic, we can very
-> well boot on a cpu whose id is not zero.
->
-> I have attached a patch with the mail which is now using
-> boot_cpu_physical_apicid to hard set presence of boot cpu instead of
-> hard_smp_processor_id(). But the interesting questoin remains why BIOS is
-> not reporting the boot cpu.
+Compile problems. 
 
-Ok this looks good.  But it raises a couple of followup questions.
-- Are there other places that use hard_smp_processor_id in 
-  in a uniprocessor kernel?
-- Does x86_64 have this same problem?
+Thanks,
+Badari
 
-Anyway it looks like we have this working which is a big step forward
-in having a reliable kdump mechanism.
+elm3b29:/usr/src/linux-2.6.14-rc5 # make -j40 modules
+  CHK     include/linux/version.h
+  CC [M]  drivers/serial/jsm/jsm_tty.o
+drivers/serial/jsm/jsm_tty.c: In function `jsm_input':
+drivers/serial/jsm/jsm_tty.c:592: error: structure has no member named
+`flip'
+drivers/serial/jsm/jsm_tty.c:619: error: structure has no member named
+`flip'
+drivers/serial/jsm/jsm_tty.c:620: error: structure has no member named
+`flip'
+drivers/serial/jsm/jsm_tty.c:623: error: structure has no member named
+`flip'
+drivers/serial/jsm/jsm_tty.c:624: error: structure has no member named
+`flip'
+drivers/serial/jsm/jsm_tty.c:667: error: structure has no member named
+`flip'
+drivers/serial/jsm/jsm_tty.c:668: error: structure has no member named
+`flip'
+drivers/serial/jsm/jsm_tty.c:669: error: structure has no member named
+`flip'
+drivers/serial/jsm/jsm_tty.c:670: error: structure has no member named
+`flip'
+drivers/serial/jsm/jsm_tty.c:671: error: structure has no member named
+`flip'
+drivers/serial/jsm/jsm_tty.c:672: error: structure has no member named
+`flip'
+drivers/serial/jsm/jsm_tty.c:674: error: structure has no member named
+`flip'
+drivers/serial/jsm/jsm_tty.c:677: error: structure has no member named
+`flip'
+drivers/serial/jsm/jsm_tty.c:680: error: structure has no member named
+`flip'
+drivers/serial/jsm/jsm_tty.c:681: error: structure has no member named
+`flip'
+drivers/serial/jsm/jsm_tty.c:682: error: structure has no member named
+`flip'
+drivers/serial/jsm/jsm_tty.c:691: error: structure has no member named
+`flip'
+drivers/serial/jsm/jsm_tty.c:692: error: structure has no member named
+`flip'
+drivers/serial/jsm/jsm_tty.c:693: error: structure has no member named
+`flip'
+drivers/serial/jsm/jsm_tty.c:694: error: structure has no member named
+`flip'
+drivers/serial/jsm/jsm_tty.c:695: error: structure has no member named
+`flip'
+drivers/serial/jsm/jsm_tty.c:696: error: structure has no member named
+`flip'
+drivers/serial/jsm/jsm_tty.c:698: error: structure has no member named
+`flip'
+drivers/serial/jsm/jsm_tty.c:701: error: structure has no member named
+`flip'
+drivers/serial/jsm/jsm_tty.c:742: error: structure has no member named
+`flip'
+drivers/serial/jsm/jsm_tty.c:742: error: structure has no member named
+`flip'
+make[3]: *** [drivers/serial/jsm/jsm_tty.o] Error 1
+make[2]: *** [drivers/serial/jsm] Error 2
+make[1]: *** [drivers/serial] Error 2
+make[1]: *** Waiting for unfinished jobs....
+make: *** [drivers] Error 2
 
-Eric
+
+

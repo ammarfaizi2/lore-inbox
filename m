@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbVJXVBR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751295AbVJXVB7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751284AbVJXVBR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 17:01:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbVJXVBR
+	id S1751295AbVJXVB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 17:01:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbVJXVB7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 17:01:17 -0400
-Received: from smtpauth09.mail.atl.earthlink.net ([209.86.89.69]:60874 "EHLO
-	smtpauth09.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
-	id S1751284AbVJXVBR convert rfc822-to-8bit (ORCPT
+	Mon, 24 Oct 2005 17:01:59 -0400
+Received: from mtaout1.012.net.il ([84.95.2.1]:38099 "EHLO mtaout1.012.net.il")
+	by vger.kernel.org with ESMTP id S1751293AbVJXVB6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 17:01:17 -0400
-Mime-Version: 1.0 (Apple Message framework v623)
-Content-Transfer-Encoding: 8BIT
-Message-Id: <dfd859813ee9f143cbb8c4cc3c73aa2c@zeesource.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-To: linux-kernel@vger.kernel.org
-From: Claire McLister <mclister@zeesource.net>
-Subject: Map of Linux Kernel Users (OT)
-Date: Mon, 24 Oct 2005 14:01:15 -0700
-X-Mailer: Apple Mail (2.623)
-X-ELNK-Trace: 7705cff7f8fc6ea374bf435c0eb9d47869d51e7181ee6aecaa46e2da96cb2c808498dd5c8d2f0fb0350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
-X-Originating-IP: 68.164.80.151
+	Mon, 24 Oct 2005 17:01:58 -0400
+Date: Mon, 24 Oct 2005 23:00:47 +0200
+From: Muli Ben-Yehuda <mulix@mulix.org>
+Subject: Re: [TRIVIAL] Error checks omitted in init_tmpfs() in mm/tiny-shmem.c
+In-reply-to: <20051024204518.GI26160@waste.org>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Hareesh Nagarajan <hnagar2@gmail.com>, linux-kernel@vger.kernel.org,
+       ak@suse.de
+Message-id: <20051024210047.GG17764@granada.merseine.nu>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+References: <435C7149.3010004@gmail.com> <20051024070921.GW26160@waste.org>
+ <435CA1CF.3070204@gmail.com> <20051024204518.GI26160@waste.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Oct 24, 2005 at 01:45:18PM -0700, Matt Mackall wrote:
 
-  We've developed an automatic email mapping capability from Google Maps 
-API.
+> > --- linux-2.6.13.4/mm/tiny-shmem.c	2005-10-10 13:54:29.000000000 -0500
+> > +++ linux-2.6.13.4-edit/mm/tiny-shmem.c	2005-10-24 03:43:38.614071000 -0500
+> > @@ -31,12 +31,18 @@
+> >  
+> >  static int __init init_tmpfs(void)
+> >  {
+> > -	register_filesystem(&tmpfs_fs_type);
+> > +	int error;
+> > +
+> > +	error = register_filesystem(&tmpfs_fs_type);
+> > +	BUG_ON(error);
+> 
+> Can we just do BUG_ON(register_filesystem() != 0)?
 
-  To try it out, we mapped origins of emails to this group from October 
-2 through October 10th.
+It seems a little risky to me to rely on a macro always evaluating its
+arguments, even though this one does on every kernel version I
+checked.
 
-The result of this map is at:  
-http://www.zeesource.net/maps/map.do?group=478
-
-  Would like to hear what you think of it.
-
-  Best wishes
-
-Claire
-
-  --
-  Claire McLister                        mclister@zeesource.net
-  1684 Nightingale Avenue     Suite 201
-  Sunnyvale, CA 94087            408-733-2737(fax)
-
-                      http://www.zeesource.net
+Cheers,
+Muli
+-- 
+Muli Ben-Yehuda
+http://www.mulix.org | http://mulix.livejournal.com/
 

@@ -1,110 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbVJXQ77@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbVJXRCP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751169AbVJXQ77 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 12:59:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbVJXQ77
+	id S1751171AbVJXRCP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 13:02:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbVJXRCP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 12:59:59 -0400
-Received: from atlrel7.hp.com ([156.153.255.213]:6887 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S1751169AbVJXQ76 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 12:59:58 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] rocketport: make it work when statically linked into kernel
-Date: Mon, 24 Oct 2005 10:59:54 -0600
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, Wolfgang Denk <wd@denx.de>,
-       support@comtrol.com
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Mon, 24 Oct 2005 13:02:15 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:26104 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S1751168AbVJXRCN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 13:02:13 -0400
+In-Reply-To: <1130125681.5296.5.camel@imap.mvista.com>
+References: <DFD605A2-4406-11DA-8ABF-000A959BB91E@mvista.com> <1130125681.5296.5.camel@imap.mvista.com>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <dd482d921b104651fc20959ad4acf161@mvista.com>
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510241059.54259.bjorn.helgaas@hp.com>
+Cc: Roy Reichwein <rreichwein@mvista.com>, robustmutexes@lists.osdl.org,
+       linux-kernel@vger.kernel.org, Kevin Morgan <kmorgan@mvista.com>
+From: david singleton <dsingleton@mvista.com>
+Subject: Re: Robust Futexes status
+Date: Mon, 24 Oct 2005 10:02:11 -0700
+To: Sven-Thorsten Dietrich <sven@mvista.com>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The driver had incorrectly wrapped module_init(rp_init) in #ifdef MODULE,
-so it worked only when compiled as a module.
 
-Tested by Wolfgang Denk with this device:
+On Oct 23, 2005, at 8:48 PM, Sven-Thorsten Dietrich wrote:
 
-    00:0e.0 Communication controller: Comtrol Corporation RocketPort 8 port w/RJ11 connectors (rev 04)
-        Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Interrupt: pin A routed to IRQ 11
-        Region 0: I/O ports at 7000 [size=64]
+> On Sun, 2005-10-23 at 13:52 -0700, david singleton wrote:
+>> 	Inaky Perez-Gonzalez   has a wonderful suite of performance, stress 
+>> and
+>> functionality tests for the fusyn pthreads mutex package.
+>
+>> 	The graphs are just to show relative performance for the different
+>> flavor kernels.  The
+>> kernel's perform quite closely regardless of the 'flavor' of kernel.
+>> The kernels have quite a few
+>> debugging options turned so I can look for any problems so performance
+>> is not optimal.
+>>
+>
+> The Mutex ownership change seems to climb with waiting threads.
+>
+> Its hard to tell with the log-n X-axis scale, but does this possibly
+> correlate to the deadlock-detect option?
 
-I also added the Comtrol support email address to MAINTAINERS.
+It could be.  I have been running all the tests mainly as stress and
+functionality tests.
+>
+> If Deadlock-detect is enabled we should be seeing a graph proportional
+> to n-squared on a linear X axis.
+>
+> If deadlock detect is disabled, the wait time should plateau for very
+> large N.
 
-Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+The original run script ran up to 7500 waiting threads.  I ran a version
+that only went up to 400 threads.
 
-Index: denk/drivers/char/rocket.c
-===================================================================
---- denk.orig/drivers/char/rocket.c	2005-10-24 10:49:03.000000000 -0600
-+++ denk/drivers/char/rocket.c	2005-10-24 10:49:04.000000000 -0600
-@@ -256,7 +256,6 @@
- static int sReadAiopID(ByteIO_t io);
- static int sReadAiopNumChan(WordIO_t io);
- 
--#ifdef MODULE
- MODULE_AUTHOR("Theodore Ts'o");
- MODULE_DESCRIPTION("Comtrol RocketPort driver");
- module_param(board1, ulong, 0);
-@@ -288,17 +287,14 @@
- module_param_array(pc104_4, ulong, NULL, 0);
- MODULE_PARM_DESC(pc104_4, "set interface types for ISA(PC104) board #4 (e.g. pc104_4=232,232,485,485,...");
- 
--int rp_init(void);
-+static int rp_init(void);
- static void rp_cleanup_module(void);
- 
- module_init(rp_init);
- module_exit(rp_cleanup_module);
- 
--#endif
- 
--#ifdef MODULE_LICENSE
- MODULE_LICENSE("Dual BSD/GPL");
--#endif
- 
- /*************************************************************************/
- /*                     Module code starts here                           */
-@@ -2378,7 +2374,7 @@
- /*
-  * The module "startup" routine; it's run when the module is loaded.
-  */
--int __init rp_init(void)
-+static int __init rp_init(void)
- {
- 	int retval, pci_boards_found, isa_boards_found, i;
- 
-@@ -2502,7 +2498,6 @@
- 	return 0;
- }
- 
--#ifdef MODULE
- 
- static void rp_cleanup_module(void)
- {
-@@ -2530,7 +2525,6 @@
- 	if (controller)
- 		release_region(controller, 4);
- }
--#endif
- 
- /***************************************************************************
- Function: sInitController
-Index: denk/MAINTAINERS
-===================================================================
---- denk.orig/MAINTAINERS	2005-10-24 10:49:03.000000000 -0600
-+++ denk/MAINTAINERS	2005-10-24 10:49:04.000000000 -0600
-@@ -2041,6 +2041,7 @@
- 
- ROCKETPORT DRIVER
- P:	Comtrol Corp.
-+M:	support@comtrol.com
- W:	http://www.comtrol.com
- S:	Maintained
- 
+When I get full performance data I'll post it.
+
+David
+>
+> Sven
+>
+>
+>> 	It appears the robust futex functionality is healthy in all flavors 
+>> of
+>> kernel.
+>>
+>> 	
+>>
+>> David
+>>
+>>
+>>
+>>
+> -- 
+> ***********************************
+> Sven-Thorsten Dietrich
+> Real-Time Software Architect
+> MontaVista Software, Inc.
+> 1237 East Arques Ave.
+> Sunnyvale, CA 94085
+>
+> Phone: 408.992.4515
+> Fax: 408.328.9204
+>
+> http://www.mvista.com
+> Platform To Innovate
+> ***********************************
+>
+

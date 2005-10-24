@@ -1,79 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbVJXXJl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751379AbVJXXLN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751360AbVJXXJl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 19:09:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751376AbVJXXJk
+	id S1751379AbVJXXLN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 19:11:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbVJXXLN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 19:09:40 -0400
-Received: from qproxy.gmail.com ([72.14.204.205]:21048 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751360AbVJXXJk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 19:09:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=bJRFlD1TMKo+QknVvYfLgY7Q006Ttz01BveGhcKu4nRcCJRbWmHg0fs1htXSXr/AYQxaTyDlStBsip5jn6NWOs5CZJvUPRroqfBM6ejEvJOiBx+GS92Qbs+QgIcV0EWciBHDsz7cInU6iB6ykJZukzBm253KDRTxipZ92QbTDf4=
-Subject: Re: [PATCH] RCU torture-testing kernel module
-From: Badari Pulavarty <pbadari@gmail.com>
-To: paulmck@us.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Oeser <ioe-lkml@rameria.de>,
-       lkml <linux-kernel@vger.kernel.org>, arjan@infradead.org, pavel@ucw.cz,
-       dipankar@in.ibm.com, vatsa@in.ibm.com, rusty@au1.ib.com, mingo@elte.hu,
-       manfred@colorfullife.com, gregkh@kroah.com
-In-Reply-To: <20051024225438.GE12812@us.ibm.com>
-References: <20051022231214.GA5847@us.ibm.com>
-	 <200510230922.26550.ioe-lkml@rameria.de> <20051023143617.GA7961@us.ibm.com>
-	 <200510232055.17782.ioe-lkml@rameria.de>
-	 <20051023120521.26031051.akpm@osdl.org> <20051024004709.GA9454@us.ibm.com>
-	 <1130171073.6831.6.camel@localhost.localdomain>
-	 <20051024225438.GE12812@us.ibm.com>
-Content-Type: text/plain
-Date: Mon, 24 Oct 2005 16:09:00 -0700
-Message-Id: <1130195340.6831.40.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Mon, 24 Oct 2005 19:11:13 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:8154 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751376AbVJXXLM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 19:11:12 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <435D69B5.5000809@s5r6.in-berlin.de>
+Date: Tue, 25 Oct 2005 01:09:41 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: David Lang <david.lang@digitalinsight.com>, linux-scsi@vger.kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+CC: Christoph Hellwig <hch@infradead.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Luben Tuikov <luben_tuikov@adaptec.com>, andrew.patterson@hp.com,
+       Christoph Hellwig <hch@lst.de>,
+       "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attachedPHYs)
+References: dlang@dlang.diginsite.com <Pine.LNX.4.62.0510241506130.7918@qynat.qvtvafvgr.pbz>
+In-Reply-To: <Pine.LNX.4.62.0510241506130.7918@qynat.qvtvafvgr.pbz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: (-0.41) AWL,BAYES_40
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-10-24 at 15:54 -0700, Paul E. McKenney wrote:
-> On Mon, Oct 24, 2005 at 09:24:33AM -0700, Badari Pulavarty wrote:
-> > On Sun, 2005-10-23 at 17:47 -0700, Paul E. McKenney wrote:
-> > > On Sun, Oct 23, 2005 at 12:05:21PM -0700, Andrew Morton wrote:
-> > > > Ingo Oeser <ioe-lkml@rameria.de> wrote:
-> > > > >
-> > > > > DEBUG_KERNEL should do nothing more than showing the debugging
-> > > > >  options. 
-> > > > 
-> > > > yup.
-> > > > 
-> > > > >  E.g. I don't expect to enable any additional code in an 
-> > > > >  unrelated file, if I enable Magic-SysRQ on an embedded, unattended device
-> > > > >  to be able to analyze potential problems via serial console.
-> > > > > 
-> > > > >  @Andrew: Would you accept a patch to fix that?
-> > > > 
-> > > > more yup.
-> > > 
-> > > OK, the attached patch covers this and also fixes the redundant #include
-> > > that Greg KH spotted.
-> > > 
-> > > Thoughts?
-> > 
-> > Paul,
-> > 
-> > I enabled RCU_TORTURE_TEST in 2.6.14-rc5-mm1. My machine took 10+
-> > minutes to boot and let me login. RCU kthreads are hogging the CPU. 
-> > Is this expected ? 
-> 
-> If you did CONFIG_RCU_TORTURE_TEST=y, then yes.
+David Lang wrote:
+> Stefan,
+>   we are supposed to be on a 2-month release cycle, with all major 
+> changes going in in the first two weeks of that cycle. This timeframe 
+> doesn't leave you any noticable time to implement your steps seperatly 
+> (and zero testing between them). as a result, in practice your proposal 
+> amounts to a big-bang approach, and/or results in releases that are 
+> known-broken.
 
-Yep. I have a bad habit of saying "y" to all interesting stuff
-in -mm kernel (while doing make oldconfig). I don't use "modules",
-initrd etc..
+Experimental branches of subsystems usually cannot (nor need to) be
+bound to a release cycle.
 
-I compiled it as a module. No harm done :)
+> and while you suggest putting this in -mm, remember that the -mm kernel 
+> needs to be useable so that people can test it, and it is on the same 
+> schedule as the main kernel so again you can't have known-broken things 
+> (of this scale) there either.
 
-Thanks,
-Badari
-
+I assumed there would be a few unmaintained bits (of marginal "scale")
+left which could not be updated, but it seems now that won't be the
+case.
+-- 
+Stefan Richter
+-=====-=-=-= =-=- ==--=
+http://arcgraph.de/sr/

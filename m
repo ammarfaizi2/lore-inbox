@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbVJXOhW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbVJXOhl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750728AbVJXOhW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 10:37:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbVJXOhW
+	id S1750800AbVJXOhl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 10:37:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbVJXOhk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 10:37:22 -0400
-Received: from mail19.bluewin.ch ([195.186.18.65]:55169 "EHLO
-	mail19.bluewin.ch") by vger.kernel.org with ESMTP id S1750728AbVJXOhV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 10:37:21 -0400
-Date: Mon, 24 Oct 2005 10:25:45 -0400
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: webmaster@kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [KORG] [RFC] Useful tools section on kernel.org?
-Message-ID: <20051024142545.GA10666@krypton>
-References: <Pine.LNX.4.58.0510201051300.30996@localhost.localdomain>
+	Mon, 24 Oct 2005 10:37:40 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:63176 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1750800AbVJXOhk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 10:37:40 -0400
+Date: Mon, 24 Oct 2005 07:37:15 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Simon.Derr@bull.net, linux-kernel@vger.kernel.org, ak@suse.de,
+       torvalds@osdl.org, clameter@sgi.com
+Subject: Re: [PATCH 01/02] cpuset bitmap and mask remap operators
+Message-Id: <20051024073715.02e1f3e3.pj@sgi.com>
+In-Reply-To: <20051024013713.25770d14.akpm@osdl.org>
+References: <20051024072744.10390.35722.sendpatchset@jackhammer.engr.sgi.com>
+	<20051024004833.50d9676b.akpm@osdl.org>
+	<20051024011613.691e28f4.pj@sgi.com>
+	<20051024013713.25770d14.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0510201051300.30996@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
-From: a.othieno@bluewin.ch (Arthur Othieno)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 20, 2005 at 11:02:07AM -0400, Steven Rostedt wrote:
->
-> Has anyone thought about adding a useful tools section on kernel.org.
-> Something that has direct links to tools such as ketchup, quilt, sparse,
-> mc with it's patch editor.  Something that would help wanna-be kernel
-> hackers get started.
+Andrew wrote:
+> hm.  That hides what's really going on from the programmer.
 > 
-> I'm still finding cool tools to help with kernel hacking, and usually its
-> only because I stumble across them, or have another hacker tell me about
-> it.
-> 
-> Perhaps having a section on kernel.org (or is this better on
-> kernelnewbies.org?) That just focuses on the tools that kernel hackers use
-> to simplify there lives.
+> Oh well - you're the only guy who dinks with that stuff anyway ;)
 
-http://kernelnewbies.org/scripts/
-http://wiki.kernelnewbies.org/Tools
+Halloween comes a week early to the Morton household.  The patch from
+hell, circa April 2004, lives on to haunt Andrew <grin>.
 
-> Or is there a global repository somewhere that already does this?
+By the time we (wli, rusty, colpatch, ...) incorporated the following
+various constraints on these cpumask/nodemask macros, we were fortunate
+to only violate the "obvious to the programmer" constraint on the
+implementation internals:
+  - near perfect code gen on small systems (1 word masks)
+  - near perfect code gen on large systems (multiword masks)
+  - type checking on arguments
+  - keep the existing macro-style calling conventions:
+	cpus_and(result, input1, input2)
+  - a single bitmap internal implementation - the rest just wrappers
+  - dramatic shinkage of kernel source devoted to this stuff
+  - reduction in kernel text size across all architectures.
 
-http://kernel.org/git/ is as close as you'll get..
+Probably it is best that we not ask too many questions at this time ;).
 
-	Arthur
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

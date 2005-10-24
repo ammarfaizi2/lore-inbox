@@ -1,212 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbVJXQ54@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbVJXQ77@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751167AbVJXQ54 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 12:57:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbVJXQ54
+	id S1751169AbVJXQ77 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 12:59:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbVJXQ77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 12:57:56 -0400
-Received: from 253-121.adsl.pool.ew.hu ([193.226.253.121]:4618 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1751160AbVJXQ5z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 12:57:55 -0400
-To: akpm@osdl.org
-CC: viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: [PATCH 3/8] VFS: per inode statfs (architectures)
-Message-Id: <E1EU5dk-0005td-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Mon, 24 Oct 2005 18:57:40 +0200
+	Mon, 24 Oct 2005 12:59:59 -0400
+Received: from atlrel7.hp.com ([156.153.255.213]:6887 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S1751169AbVJXQ76 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 12:59:58 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] rocketport: make it work when statically linked into kernel
+Date: Mon, 24 Oct 2005 10:59:54 -0600
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org, Wolfgang Denk <wd@denx.de>,
+       support@comtrol.com
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510241059.54259.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch changes the calls of vfs_statfs() to vfs_dentry_statfs() in
-all architectures.  The only remaining call to vfs_statfs() is from
-sys_ustat().
+The driver had incorrectly wrapped module_init(rp_init) in #ifdef MODULE,
+so it worked only when compiled as a module.
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+Tested by Wolfgang Denk with this device:
 
-Index: linux/arch/alpha/kernel/osf_sys.c
+    00:0e.0 Communication controller: Comtrol Corporation RocketPort 8 port w/RJ11 connectors (rev 04)
+        Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin A routed to IRQ 11
+        Region 0: I/O ports at 7000 [size=64]
+
+I also added the Comtrol support email address to MAINTAINERS.
+
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+
+Index: denk/drivers/char/rocket.c
 ===================================================================
---- linux.orig/arch/alpha/kernel/osf_sys.c	2005-10-24 12:10:00.000000000 +0200
-+++ linux/arch/alpha/kernel/osf_sys.c	2005-10-24 14:21:44.000000000 +0200
-@@ -244,7 +244,7 @@ do_osf_statfs(struct dentry * dentry, st
- 	      unsigned long bufsiz)
+--- denk.orig/drivers/char/rocket.c	2005-10-24 10:49:03.000000000 -0600
++++ denk/drivers/char/rocket.c	2005-10-24 10:49:04.000000000 -0600
+@@ -256,7 +256,6 @@
+ static int sReadAiopID(ByteIO_t io);
+ static int sReadAiopNumChan(WordIO_t io);
+ 
+-#ifdef MODULE
+ MODULE_AUTHOR("Theodore Ts'o");
+ MODULE_DESCRIPTION("Comtrol RocketPort driver");
+ module_param(board1, ulong, 0);
+@@ -288,17 +287,14 @@
+ module_param_array(pc104_4, ulong, NULL, 0);
+ MODULE_PARM_DESC(pc104_4, "set interface types for ISA(PC104) board #4 (e.g. pc104_4=232,232,485,485,...");
+ 
+-int rp_init(void);
++static int rp_init(void);
+ static void rp_cleanup_module(void);
+ 
+ module_init(rp_init);
+ module_exit(rp_cleanup_module);
+ 
+-#endif
+ 
+-#ifdef MODULE_LICENSE
+ MODULE_LICENSE("Dual BSD/GPL");
+-#endif
+ 
+ /*************************************************************************/
+ /*                     Module code starts here                           */
+@@ -2378,7 +2374,7 @@
+ /*
+  * The module "startup" routine; it's run when the module is loaded.
+  */
+-int __init rp_init(void)
++static int __init rp_init(void)
  {
- 	struct kstatfs linux_stat;
--	int error = vfs_statfs(dentry->d_inode->i_sb, &linux_stat);
-+	int error = vfs_dentry_statfs(dentry, &linux_stat);
- 	if (!error)
- 		error = linux_to_osf_statfs(&linux_stat, buffer, bufsiz);
- 	return error;	
-Index: linux/arch/parisc/hpux/sys_hpux.c
-===================================================================
---- linux.orig/arch/parisc/hpux/sys_hpux.c	2005-10-24 11:58:25.000000000 +0200
-+++ linux/arch/parisc/hpux/sys_hpux.c	2005-10-24 14:21:44.000000000 +0200
-@@ -185,12 +185,12 @@ struct hpux_statfs {
-      int16_t f_pad;
- };
+ 	int retval, pci_boards_found, isa_boards_found, i;
  
--static int vfs_statfs_hpux(struct super_block *sb, struct hpux_statfs *buf)
-+static int vfs_statfs_hpux(struct dentry *dentry, struct hpux_statfs *buf)
- {
- 	struct kstatfs st;
- 	int retval;
- 	
--	retval = vfs_statfs(sb, &st);
-+	retval = vfs_dentry_statfs(dentry, &st);
- 	if (retval)
- 		return retval;
- 
-@@ -218,7 +218,7 @@ asmlinkage long hpux_statfs(const char _
- 	error = user_path_walk(path, &nd);
- 	if (!error) {
- 		struct hpux_statfs tmp;
--		error = vfs_statfs_hpux(nd.dentry->d_inode->i_sb, &tmp);
-+		error = vfs_statfs_hpux(nd.dentry, &tmp);
- 		if (!error && copy_to_user(buf, &tmp, sizeof(tmp)))
- 			error = -EFAULT;
- 		path_release(&nd);
-@@ -236,7 +236,7 @@ asmlinkage long hpux_fstatfs(unsigned in
- 	file = fget(fd);
- 	if (!file)
- 		goto out;
--	error = vfs_statfs_hpux(file->f_dentry->d_inode->i_sb, &tmp);
-+	error = vfs_statfs_hpux(file->f_dentry, &tmp);
- 	if (!error && copy_to_user(buf, &tmp, sizeof(tmp)))
- 		error = -EFAULT;
- 	fput(file);
-Index: linux/arch/sparc64/solaris/fs.c
-===================================================================
---- linux.orig/arch/sparc64/solaris/fs.c	2005-10-24 11:58:25.000000000 +0200
-+++ linux/arch/sparc64/solaris/fs.c	2005-10-24 14:21:44.000000000 +0200
-@@ -349,13 +349,14 @@ struct sol_statvfs64 {
- 	u32	f_filler[16];
- };
- 
--static int report_statvfs(struct vfsmount *mnt, struct inode *inode, u32 buf)
-+static int report_statvfs(struct vfsmount *mnt, struct dentry *dentry, u32 buf)
- {
-+	struct inode *inode = dentry->d_inode;
- 	struct kstatfs s;
- 	int error;
- 	struct sol_statvfs __user *ss = A(buf);
- 
--	error = vfs_statfs(mnt->mnt_sb, &s);
-+	error = vfs_dentry_statfs(dentry, &s);
- 	if (!error) {
- 		const char *p = mnt->mnt_sb->s_type->name;
- 		int i = 0;
-@@ -385,13 +386,14 @@ static int report_statvfs(struct vfsmoun
- 	return error;
+@@ -2502,7 +2498,6 @@
+ 	return 0;
  }
  
--static int report_statvfs64(struct vfsmount *mnt, struct inode *inode, u32 buf)
-+static int report_statvfs64(struct vfsmount *mnt, struct dentry *dentry, u32 buf)
+-#ifdef MODULE
+ 
+ static void rp_cleanup_module(void)
  {
-+	struct inode *inode = dentry->d_inode;
- 	struct kstatfs s;
- 	int error;
- 	struct sol_statvfs64 __user *ss = A(buf);
- 			
--	error = vfs_statfs(mnt->mnt_sb, &s);
-+	error = vfs_dentry_statfs(dentry, &s);
- 	if (!error) {
- 		const char *p = mnt->mnt_sb->s_type->name;
- 		int i = 0;
-@@ -428,8 +430,7 @@ asmlinkage int solaris_statvfs(u32 path,
+@@ -2530,7 +2525,6 @@
+ 	if (controller)
+ 		release_region(controller, 4);
+ }
+-#endif
  
- 	error = user_path_walk(A(path),&nd);
- 	if (!error) {
--		struct inode * inode = nd.dentry->d_inode;
--		error = report_statvfs(nd.mnt, inode, buf);
-+		error = report_statvfs(nd.mnt, nd.dentry, buf);
- 		path_release(&nd);
- 	}
- 	return error;
-@@ -443,7 +444,7 @@ asmlinkage int solaris_fstatvfs(unsigned
- 	error = -EBADF;
- 	file = fget(fd);
- 	if (file) {
--		error = report_statvfs(file->f_vfsmnt, file->f_dentry->d_inode, buf);
-+		error = report_statvfs(file->f_vfsmnt, file->f_dentry, buf);
- 		fput(file);
- 	}
- 
-@@ -458,8 +459,7 @@ asmlinkage int solaris_statvfs64(u32 pat
- 	lock_kernel();
- 	error = user_path_walk(A(path), &nd);
- 	if (!error) {
--		struct inode * inode = nd.dentry->d_inode;
--		error = report_statvfs64(nd.mnt, inode, buf);
-+		error = report_statvfs64(nd.mnt, nd.dentry, buf);
- 		path_release(&nd);
- 	}
- 	unlock_kernel();
-@@ -475,7 +475,7 @@ asmlinkage int solaris_fstatvfs64(unsign
- 	file = fget(fd);
- 	if (file) {
- 		lock_kernel();
--		error = report_statvfs64(file->f_vfsmnt, file->f_dentry->d_inode, buf);
-+		error = report_statvfs64(file->f_vfsmnt, file->f_dentry, buf);
- 		unlock_kernel();
- 		fput(file);
- 	}
-Index: linux/arch/mips/kernel/sysirix.c
+ /***************************************************************************
+ Function: sInitController
+Index: denk/MAINTAINERS
 ===================================================================
---- linux.orig/arch/mips/kernel/sysirix.c	2005-10-24 12:11:02.000000000 +0200
-+++ linux/arch/mips/kernel/sysirix.c	2005-10-24 14:21:45.000000000 +0200
-@@ -713,7 +713,7 @@ asmlinkage int irix_statfs(const char __
- 	if (error)
- 		goto out;
+--- denk.orig/MAINTAINERS	2005-10-24 10:49:03.000000000 -0600
++++ denk/MAINTAINERS	2005-10-24 10:49:04.000000000 -0600
+@@ -2041,6 +2041,7 @@
  
--	error = vfs_statfs(nd.dentry->d_inode->i_sb, &kbuf);
-+	error = vfs_dentry_statfs(nd.dentry, &kbuf);
- 	if (error)
- 		goto dput_and_out;
+ ROCKETPORT DRIVER
+ P:	Comtrol Corp.
++M:	support@comtrol.com
+ W:	http://www.comtrol.com
+ S:	Maintained
  
-@@ -751,7 +751,7 @@ asmlinkage int irix_fstatfs(unsigned int
- 		goto out;
- 	}
- 
--	error = vfs_statfs(file->f_dentry->d_inode->i_sb, &kbuf);
-+	error = vfs_dentry_statfs(file->f_dentry, &kbuf);
- 	if (error)
- 		goto out_f;
- 
-@@ -1379,7 +1379,7 @@ asmlinkage int irix_statvfs(char __user 
- 	error = user_path_walk(fname, &nd);
- 	if (error)
- 		goto out;
--	error = vfs_statfs(nd.dentry->d_inode->i_sb, &kbuf);
-+	error = vfs_dentry_statfs(nd.dentry, &kbuf);
- 	if (error)
- 		goto dput_and_out;
- 
-@@ -1425,7 +1425,7 @@ asmlinkage int irix_fstatvfs(int fd, str
- 		error = -EBADF;
- 		goto out;
- 	}
--	error = vfs_statfs(file->f_dentry->d_inode->i_sb, &kbuf);
-+	error = vfs_dentry_statfs(file->f_dentry, &kbuf);
- 	if (error)
- 		goto out_f;
- 
-@@ -1630,7 +1630,7 @@ asmlinkage int irix_statvfs64(char __use
- 	error = user_path_walk(fname, &nd);
- 	if (error)
- 		goto out;
--	error = vfs_statfs(nd.dentry->d_inode->i_sb, &kbuf);
-+	error = vfs_dentry_statfs(nd.dentry, &kbuf);
- 	if (error)
- 		goto dput_and_out;
- 
-@@ -1677,7 +1677,7 @@ asmlinkage int irix_fstatvfs64(int fd, s
- 		error = -EBADF;
- 		goto out;
- 	}
--	error = vfs_statfs(file->f_dentry->d_inode->i_sb, &kbuf);
-+	error = vfs_dentry_statfs(file->f_dentry, &kbuf);
- 	if (error)
- 		goto out_f;
- 
-

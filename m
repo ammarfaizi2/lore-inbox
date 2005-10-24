@@ -1,52 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbVJXW2b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbVJXW3O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751118AbVJXW2b (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 18:28:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbVJXW2b
+	id S1751326AbVJXW3O (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 18:29:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751355AbVJXW3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 18:28:31 -0400
-Received: from xproxy.gmail.com ([66.249.82.194]:32636 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751118AbVJXW2a convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 18:28:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=aNchn12xLqiWHOHejFuudhXv+/0oGZzhh3SoL8HbxEHvOWF4wJt57UR49hENS9D55pwZ8nno0kjYnlRd1/3wvxWRErXcDWEJp4dvNaURU4znetvgdvM2ZlgZWbLE9U0b1m3/ZWPgAbUTQ29ytqxGNozJ8P0IMyOf6F8xE5SRpdQ=
-Message-ID: <4807377b0510241528m6afc3501w9d98d66658a38973@mail.gmail.com>
-Date: Mon, 24 Oct 2005 15:28:29 -0700
-From: Jesse Brandeburg <jesse.brandeburg@gmail.com>
-To: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: 2.6.14-rc5 e1000 and page allocation failures.. still
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Kernel Netdev Mailing List <netdev@vger.kernel.org>
-In-Reply-To: <435C2D66.6030708@shaw.ca>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <50tDw-1FH-5@gated-at.bofh.it> <435C2D66.6030708@shaw.ca>
+	Mon, 24 Oct 2005 18:29:14 -0400
+Received: from smtpout.mac.com ([17.250.248.86]:38604 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1751326AbVJXW3N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 18:29:13 -0400
+In-Reply-To: <1130177458.6831.11.camel@localhost.localdomain>
+References: <20051022231214.GA5847@us.ibm.com> <200510230922.26550.ioe-lkml@rameria.de> <20051023143617.GA7961@us.ibm.com> <200510232055.17782.ioe-lkml@rameria.de> <20051023120521.26031051.akpm@osdl.org> <20051024004709.GA9454@us.ibm.com> <1130171073.6831.6.camel@localhost.localdomain> <5D5AD6EA-5D6E-47DA-8170-0729F9C32889@mac.com> <1130177458.6831.11.camel@localhost.localdomain>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <FEC5ADB9-0D2C-41B6-A756-7D39DA3188FF@mac.com>
+Cc: paulmck@us.ibm.com, Andrew Morton <akpm@osdl.org>,
+       Ingo Oeser <ioe-lkml@rameria.de>, lkml <linux-kernel@vger.kernel.org>,
+       arjan@infradead.org, pavel@ucw.cz, dipankar@in.ibm.com,
+       vatsa@in.ibm.com, rusty@au1.ib.com, mingo@elte.hu,
+       manfred@colorfullife.com, gregkh@kroah.com
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH] RCU torture-testing kernel module
+Date: Mon, 24 Oct 2005 18:29:01 -0400
+To: Badari Pulavarty <pbadari@gmail.com>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/23/05, Robert Hancock <hancockr@shaw.ca> wrote:
-> John Bäckstrand wrote:
-> > Im seeing a massive amount of page allocation failures with 2.6.14-rc5,
-> > and also earlier kernels, see "E1000 - page allocation failure - saga
-[snip]
-> It looks like you have enough memory free - the problem is that the
-> driver is allocating a block of memory with order 3, which is 8 pages.
-> Quite likely there are not enough contiguous free pages to satisfy that.
+On Oct 24, 2005, at 14:10:58, Badari Pulavarty wrote:
+> On Mon, 2005-10-24 at 13:59 -0400, Kyle Moffett wrote:
+>> Uhh...  It's a torture test.  What exactly do _you_ expect it will  
+>> do?  I think the idea is to enable it as a module and load it when  
+>> you want to start torture testing, and unload it when done.   
+>> "TORTURE_TEST"s are not for production systems :-D.
 >
-> That's an awful big buffer size for a packet - I assume you're using
-> jumbo frames or something? Ideally the driver and hardware should be
-> able to allocate a buffer for those packets in multiple chunks, but I
-> have no idea if this is possible.
+> I was expecting that - even if its compiled in, there would be a  
+> way to turn on/off the tests from /proc or something :)
 
-the latest e1000 driver (6.2.15) from http://sf.net/projects/e1000
-fixes this by using multiple descriptors for jumbo frames, therefore
-only doing order 0 (single page) page allocations.
+ From the docs:
+> The test is started when the module is loaded, and stops when the  
+> module is unloaded.
+>
+> However, actually setting this config option to "y" results in the  
+> system running the test immediately upon boot, and ending only when  
+> the system is taken down.
+>
+> MODULE PARAMETERS
+>
+> [snip description of parameters]
 
-let us know how it goes.
+You turn the test on and off by inserting and removing the module, as  
+I found in about 30 seconds by reading the top of the patch.
 
-BTW why is this so much more common with recent kernels?
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/E/U d- s++: a18 C++++>$ ULBX*++++(+++)>$ P++++(+++)>$ L++++ 
+(+++)>$ !E- W+++(++) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+ PGP 
++ t+(+++) 5 X R? !tv-(--) b++++(++) DI+(++) D+++ G e>++++$ h*(+)>++$ r 
+%(--)  !y?-(--)
+------END GEEK CODE BLOCK------
+
+
+

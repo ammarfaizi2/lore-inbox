@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbVJXR4W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbVJXR5I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751197AbVJXR4W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 13:56:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbVJXR4W
+	id S1751203AbVJXR5I (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 13:57:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbVJXR5H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 13:56:22 -0400
-Received: from relais.videotron.ca ([24.201.245.36]:8166 "EHLO
+	Mon, 24 Oct 2005 13:57:07 -0400
+Received: from relais.videotron.ca ([24.201.245.36]:38637 "EHLO
 	relais.videotron.ca") by vger.kernel.org with ESMTP
-	id S1751197AbVJXR4V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 13:56:21 -0400
-Date: Mon, 24 Oct 2005 13:56:06 -0400 (EDT)
+	id S1751203AbVJXR5G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 13:57:06 -0400
+Date: Mon, 24 Oct 2005 13:57:06 -0400 (EDT)
 From: Nicolas Pitre <nico@cam.org>
-Subject: [PATCH 1/5] crypto/sha1.c: avoid useless memcpy()
+Subject: [PATCH 2/5] crypto/sha1.c: avoid shifting count left and right
 In-reply-to: <Pine.LNX.4.64.0510241347081.5288@localhost.localdomain>
 X-X-Sender: nico@localhost.localdomain
 To: Andrew Morton <akpm@osdl.org>, Herbert Xu <herbert@gondor.apana.org.au>
 Cc: lkml <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.64.0510241355030.5288@localhost.localdomain>
+Message-id: <Pine.LNX.4.64.0510241356270.5288@localhost.localdomain>
 MIME-version: 1.0
 Content-type: TEXT/PLAIN; charset=US-ASCII
 Content-transfer-encoding: 7BIT
@@ -25,13 +25,13 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The current code unconditionally copy the first block for every call to
-sha1_update().  This can be avoided if there is no pending partial block.
-This is always the case on the first call to sha1_update() (if the length
-is >= 64 of course0.
+This patch avoids shifting the count left and right needlessly for each
+call to sha1_update().  It instead can be done only once at the end in
+sha1_final().
 
-In the case where sha1_update() is called successively with len=64,
-a 8.5% performance increase can be observed on i386, and 8.2% on ARm.
+Keeping the previous test example (sha1_update() successively called with
+len=64), a 1.3% performance increase can be observed on i386, or 0.2% on
+ARM.  The generated code is also smaller on ARM.
 
 Signed-off-by: Nicolas Pitre <nico@cam.org>
 
@@ -39,40 +39,32 @@ Index: linux-2.6/crypto/sha1.c
 ===================================================================
 --- linux-2.6.orig/crypto/sha1.c
 +++ linux-2.6/crypto/sha1.c
-@@ -48,23 +48,26 @@
- static void sha1_update(void *ctx, const u8 *data, unsigned int len)
- {
- 	struct sha1_ctx *sctx = ctx;
--	unsigned int i, j;
-+	unsigned int partial, done;
+@@ -51,8 +51,8 @@
+ 	unsigned int partial, done;
  	u32 temp[SHA_WORKSPACE_WORDS];
  
--	j = (sctx->count >> 3) & 0x3f;
-+	partial = (sctx->count >> 3) & 0x3f;
- 	sctx->count += len << 3;
-+	done = 0;
+-	partial = (sctx->count >> 3) & 0x3f;
+-	sctx->count += len << 3;
++	partial = sctx->count & 0x3f;
++	sctx->count += len;
+ 	done = 0;
  
--	if ((j + len) > 63) {
--		memcpy(&sctx->buffer[j], data, (i = 64-j));
--		sha_transform(sctx->state, sctx->buffer, temp);
--		for ( ; i + 63 < len; i += 64) {
--			sha_transform(sctx->state, &data[i], temp);
-+	if ((partial + len) > 63) {
-+		if (partial) {
-+			done = 64 - partial;
-+			memcpy(sctx->buffer + partial, data, done);
-+			sha_transform(sctx->state, sctx->buffer, temp);
-+			partial = 0;
- 		}
--		j = 0;
-+		for ( ; done + 63 < len; done += 64)
-+			sha_transform(sctx->state, data + done, temp);
- 	}
--	else i = 0;
-+	if (len - done)
-+		memcpy(sctx->buffer + partial, data + done, len - done);
- 	memset(temp, 0, sizeof(temp));
--	memcpy(&sctx->buffer[j], &data[i], len - i);
- }
+ 	if ((partial + len) > 63) {
+@@ -80,7 +80,7 @@
+ 	u8 bits[8] = { 0, };
+ 	static const u8 padding[64] = { 0x80, };
  
+-	t = sctx->count;
++	t = sctx->count << 3;
+ 	bits[7] = 0xff & t; t>>=8;
+ 	bits[6] = 0xff & t; t>>=8;
+ 	bits[5] = 0xff & t; t>>=8;
+@@ -91,7 +91,7 @@
+ 	bits[0] = 0xff & t;
+ 
+ 	/* Pad out to 56 mod 64 */
+-	index = (sctx->count >> 3) & 0x3f;
++	index = sctx->count & 0x3f;
+ 	padlen = (index < 56) ? (56 - index) : ((64+56) - index);
+ 	sha1_update(sctx, padding, padlen);
  

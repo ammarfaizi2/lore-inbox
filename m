@@ -1,85 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbVJXWfY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbVJXWfX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751363AbVJXWfY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 18:35:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbVJXWfY
+	id S1751364AbVJXWfX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 18:35:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbVJXWfX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 18:35:24 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:4367 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751363AbVJXWfW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 18:35:23 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:42691 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751364AbVJXWfW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 24 Oct 2005 18:35:22 -0400
-Date: Mon, 24 Oct 2005 23:35:13 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: "Chen, Justin" <justin.chen@hp.com>
-Cc: "Helgaas, Bjorn" <bjorn.helgaas@hp.com>, linux-kernel@vger.kernel.org,
-       linux-serial@vger.kernel.org
-Subject: Re: [PATCH] new hp diva console port
-Message-ID: <20051024223512.GG26959@flint.arm.linux.org.uk>
-Mail-Followup-To: "Chen, Justin" <justin.chen@hp.com>,
-	"Helgaas, Bjorn" <bjorn.helgaas@hp.com>,
-	linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
-References: <C1BB5827EB7A364EA57B4E8C7C02ADAC054EB8D6@cacexc04.americas.cpqcorp.net>
+Date: Mon, 24 Oct 2005 15:35:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linux-kernel@vger.kernel.org, blaisorblade@yahoo.it, jdike@addtoit.com
+Subject: Re: [PATCH 2.6.14-rc5-mm1] UML: fix compile part-1
+Message-Id: <20051024153534.62315410.akpm@osdl.org>
+In-Reply-To: <E1EU4es-0005l0-00@dorka.pomaz.szeredi.hu>
+References: <E1EU4es-0005l0-00@dorka.pomaz.szeredi.hu>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <C1BB5827EB7A364EA57B4E8C7C02ADAC054EB8D6@cacexc04.americas.cpqcorp.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 24, 2005 at 02:38:02PM -0700, Chen, Justin wrote:
-> On Monday, October 24, 2005 11:33 AM, Helgaas, Bjorn wrote:
-> >It'll be easier to apply this if you follow the guidelines in 
-> >Documentation/SubmittingPatches.  For example, the patch 
-> >should apply with "patch -p1", add "Signed-off-by:", etc.
-> 
-> Okay,  here is the adjusted format and the signature -
-> 
-> This patch adds the new ID 0x132a and configure the new PCI Diva console
-> port.  This device support only 1 single console UART. Please apply.
-> Thanks,
->  
-> Signed-off-by: Justin Chen <justin.chen@hp.com>
+Miklos Szeredi <miklos@szeredi.hu> wrote:
+>
+> --- linux.orig/arch/um/include/sysdep/syscalls.h	2005-10-04 14:18:29.000000000 +0200
+> +++ linux/arch/um/include/sysdep/syscalls.h	2005-10-04 14:19:07.000000000 +0200
 
-I've actually already committed this, via Andrew Morton.  Note,
-however, that your mailer has wrapped the patch, so maybe it's
-better for you to attach patches (as text/plain) to your emails?
+The patch didn't apply - arch/um/include/sysdep is a symlink, so it has the
+same problem as patches against include/asm/*.
 
-> ------------------------------------------------------------------------
-> -------------------------------------------------------
-> diff -uprN -X dontdiff linux-vanilla/drivers/serial/8250_pci.c
-> ia-26126/drivers/serial/8250_pci.c
-> --- linux-vanilla/drivers/serial/8250_pci.c	2005-10-24
-> 12:32:01.817851490 -0700
-> +++ ia-26126/drivers/serial/8250_pci.c	2005-10-24 12:24:13.628404100
-> -0700
-> @@ -177,6 +177,7 @@ static int __devinit pci_hp_diva_init(st
->  		rc = 4;
->  		break;
->  	case PCI_DEVICE_ID_HP_DIVA_POWERBAR:
-> +	case PCI_DEVICE_ID_HP_DIVA_HURRICANE:
->  		rc = 1;
->  		break;
->  	}
-> diff -uprN -X dontdiff linux-vanilla/include/linux/pci_ids.h
-> ia-26126/include/linux/pci_ids.h
-> --- linux-vanilla/include/linux/pci_ids.h	2005-10-24
-> 12:31:49.661601638 -0700
-> +++ ia-26126/include/linux/pci_ids.h	2005-10-24 12:23:31.366685868
-> -0700
-> @@ -711,6 +711,7 @@
->  #define PCI_DEVICE_ID_HP_DIVA_EVEREST	0x1282
->  #define PCI_DEVICE_ID_HP_DIVA_AUX	0x1290
->  #define PCI_DEVICE_ID_HP_DIVA_RMP3	0x1301
-> +#define PCI_DEVICE_ID_HP_DIVA_HURRICANE 0x132a
->  #define PCI_DEVICE_ID_HP_CISSA		0x3220
->  #define PCI_DEVICE_ID_HP_CISSB		0x3230
->  #define PCI_DEVICE_ID_HP_ZX2_IOC	0x4031
-> ------------------------------------------------------------------------
-> --------------------------------------------------------------
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+You really weanted to patch arch/um/include/sysdep-i386/syscalls.h

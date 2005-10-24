@@ -1,102 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbVJXPlP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbVJXPnT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751104AbVJXPlP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 11:41:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751107AbVJXPlP
+	id S1751108AbVJXPnT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 11:43:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbVJXPnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 11:41:15 -0400
-Received: from qproxy.gmail.com ([72.14.204.193]:11542 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751104AbVJXPlP (ORCPT
+	Mon, 24 Oct 2005 11:43:19 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:5321 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751106AbVJXPnS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 11:41:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=gMim473IPex7w5Fg+NU3n3m1ZVTuIwUfL38itcXDNmE0zhA8umQnt3onlFFe9IAQFa2yyCKsqJaFD5iH6k5m26SDzchecWRAnYJt3NZ15S+otEzFDV+dmE5GjGPivQuhLlf6DHVFyX1Tl/J5acu7C5FJPeSPR2SRUk2LBlN553k=
-Subject: Re: 2.6.14-rc5-mm1
-From: Badari Pulavarty <pbadari@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <20051024014838.0dd491bb.akpm@osdl.org>
-References: <20051024014838.0dd491bb.akpm@osdl.org>
-Content-Type: text/plain
-Date: Mon, 24 Oct 2005 08:40:34 -0700
-Message-Id: <1130168434.6831.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Mon, 24 Oct 2005 11:43:18 -0400
+Message-ID: <435D010E.2070308@pobox.com>
+Date: Mon, 24 Oct 2005 11:43:10 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ashutosh Naik <ashutosh_naik@adaptec.com>
+CC: jeremy@sgi.com, benh@kernel.crashing.org, Andrew Morton <akpm@osdl.org>,
+       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sata: Fixes several warnings in sata_vsc.c and sata_svw.c
+References: <1130150013.16820.66.camel@kir9060.adaptec.com>
+In-Reply-To: <1130150013.16820.66.camel@kir9060.adaptec.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-10-24 at 01:48 -0700, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc5/2.6.14-rc5-mm1/
+Ashutosh Naik wrote:
+> This patch fixes several types in sata_vsc.c and sata_svw.c and hence
+> fixes tons of compiler warnings.
+> 
+> Signed-off-by: Ashutosh Naik <ashutosh_naik@adaptec.com>
 
-Compile problems. 
+This patch has been repeatedly NAK'd.  Check the archives...
 
-Thanks,
-Badari
-
-elm3b29:/usr/src/linux-2.6.14-rc5 # make -j40 modules
-  CHK     include/linux/version.h
-  CC [M]  drivers/serial/jsm/jsm_tty.o
-drivers/serial/jsm/jsm_tty.c: In function `jsm_input':
-drivers/serial/jsm/jsm_tty.c:592: error: structure has no member named
-`flip'
-drivers/serial/jsm/jsm_tty.c:619: error: structure has no member named
-`flip'
-drivers/serial/jsm/jsm_tty.c:620: error: structure has no member named
-`flip'
-drivers/serial/jsm/jsm_tty.c:623: error: structure has no member named
-`flip'
-drivers/serial/jsm/jsm_tty.c:624: error: structure has no member named
-`flip'
-drivers/serial/jsm/jsm_tty.c:667: error: structure has no member named
-`flip'
-drivers/serial/jsm/jsm_tty.c:668: error: structure has no member named
-`flip'
-drivers/serial/jsm/jsm_tty.c:669: error: structure has no member named
-`flip'
-drivers/serial/jsm/jsm_tty.c:670: error: structure has no member named
-`flip'
-drivers/serial/jsm/jsm_tty.c:671: error: structure has no member named
-`flip'
-drivers/serial/jsm/jsm_tty.c:672: error: structure has no member named
-`flip'
-drivers/serial/jsm/jsm_tty.c:674: error: structure has no member named
-`flip'
-drivers/serial/jsm/jsm_tty.c:677: error: structure has no member named
-`flip'
-drivers/serial/jsm/jsm_tty.c:680: error: structure has no member named
-`flip'
-drivers/serial/jsm/jsm_tty.c:681: error: structure has no member named
-`flip'
-drivers/serial/jsm/jsm_tty.c:682: error: structure has no member named
-`flip'
-drivers/serial/jsm/jsm_tty.c:691: error: structure has no member named
-`flip'
-drivers/serial/jsm/jsm_tty.c:692: error: structure has no member named
-`flip'
-drivers/serial/jsm/jsm_tty.c:693: error: structure has no member named
-`flip'
-drivers/serial/jsm/jsm_tty.c:694: error: structure has no member named
-`flip'
-drivers/serial/jsm/jsm_tty.c:695: error: structure has no member named
-`flip'
-drivers/serial/jsm/jsm_tty.c:696: error: structure has no member named
-`flip'
-drivers/serial/jsm/jsm_tty.c:698: error: structure has no member named
-`flip'
-drivers/serial/jsm/jsm_tty.c:701: error: structure has no member named
-`flip'
-drivers/serial/jsm/jsm_tty.c:742: error: structure has no member named
-`flip'
-drivers/serial/jsm/jsm_tty.c:742: error: structure has no member named
-`flip'
-make[3]: *** [drivers/serial/jsm/jsm_tty.o] Error 1
-make[2]: *** [drivers/serial/jsm] Error 2
-make[1]: *** [drivers/serial] Error 2
-make[1]: *** Waiting for unfinished jobs....
-make: *** [drivers] Error 2
+	Jeff
 
 
 

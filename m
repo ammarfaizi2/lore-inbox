@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbVJXGSc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751018AbVJXG21@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751012AbVJXGSc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 02:18:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751013AbVJXGSc
+	id S1751018AbVJXG21 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 02:28:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751021AbVJXG21
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 02:18:32 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:58789 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S1751002AbVJXGSc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 02:18:32 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>
-Subject: Re: ipw2200 only works as a module?
-Date: Mon, 24 Oct 2005 09:17:35 +0300
-User-Agent: KMail/1.8.2
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Rob Landley <rob@landley.net>, kronos@kronoz.cjb.net,
-       Keenan Pepper <keenanpepper@gmail.com>, linux-kernel@vger.kernel.org,
-       jketreno@linux.intel.com
-References: <20050926171220.GA9341@dreamland.darkstar.lan> <200510222350.57605.s0348365@sms.ed.ac.uk> <435C0C5E.5000709@linuxwireless.org>
-In-Reply-To: <435C0C5E.5000709@linuxwireless.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Oct 2005 02:28:27 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:11498 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751018AbVJXG21
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 02:28:27 -0400
+Date: Sun, 23 Oct 2005 23:29:09 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Matt Domsch <Matt_Domsch@dell.com>
+Cc: Corey Minyard <minyard@acm.org>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH 1/9] ipmi: use refcount in message handler
+Message-ID: <20051024062909.GA10337@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20051021144909.GA19532@i2.minyard.local> <20051024021931.GA9696@us.ibm.com> <20051024044217.GA32199@lists.us.dell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200510240917.35757.vda@ilport.com.ua>
+In-Reply-To: <20051024044217.GA32199@lists.us.dell.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 24 October 2005 01:19, Alejandro Bonilla Beeche wrote:
-> >>>>With CONFIG_IPW2200=y I get:
-> >>>>
-> >>>>ipw2200: ipw-2.2-boot.fw load failed: Reason -2
-> >>>>ipw2200: Unable to load firmware: 0xFFFFFFFE
-> >>>>
-> >>>>but with CONFIG_IPW2200=m it works fine. If it doesn't work when built
-> >>>>into the kernel, why even give people the option?
+On Sun, Oct 23, 2005 at 11:42:17PM -0500, Matt Domsch wrote:
+> On Sun, Oct 23, 2005 at 07:19:32PM -0700, Paul E. McKenney wrote:
+> > My guess is that this read-side critical section can be invoked from and
+> > SMI, and that SMIs can occur even if interrupts are disabled.  If my guess
+> > is wrong, please enlighten me.  And feel free to ignore the next few
+> > paragraphs in that case, along with a number of my suggested changes,
+> > since they all depend critically on my guess being correct.
+> 
+> Paul, it took me a bit to figure this out too, but Corey uses the TLA
+> "SMI" to mean "Systems Management Interface", not "Systems Management
+> Interrupt".   From Documentation/IPMI.txt:
+> 
+> ipmi_msghandler - This is the central piece of software for the IPMI
+> system.  It handles all messages, message timing, and responses.  The
+> IPMI users tie into this, and the IPMI physical interfaces (called
+> System Management Interfaces, or SMIs) also tie in here.
+> 
+> 
+> There are at least 4 basic types of physical hardware interfaces (BT,
+> SMIC, KCS, and I2C), which may (or more often, may not) have their own
+> hardware interrupt lines, but these are normal interrupts, not
+> CPU-magic "systems management interrupts".  So I think this isn't a
+> problem.
 
-because we want allyesconfig to compile.
+OK, thank you for the tutorial on the "other SMI"!
 
-> I have seen this before with users using FC or RH. They end up 
-> increasing the timeout of the hotplug event and then it all works. But 
-> then again, it only occurs for what I have seen with FC users. Dunno Why.
+The comments about turning synchronize_rcu() into synchronize_sched()
+and rcu_read_lock() into preempt_disable() do not apply, please ignore.
 
-Firmware-loaded-by-hotplug is a necessary compromise in non-GPL world.
-Ideally, firmware can be GPLed too and be included in the module
-(u32 firmware_image[NNN]).
+However, I still do not understand how using RCU on cmd_rcvrs helps,
+given that all of the accesses that I could see were already protected
+by cmd_rcvrs_lock.
 
-With closed firmwares, you should use modules (or wait until kernel will
-have usable hotplug before root fs is mounted).
---
-vda
+Any further enlightenment available?
+
+						Thanx, Paul

@@ -1,107 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbVJXRhT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbVJXRpa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751191AbVJXRhT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 13:37:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbVJXRhT
+	id S1751192AbVJXRpa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 13:45:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751193AbVJXRpa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 13:37:19 -0400
-Received: from elvira.ekonomikum.uu.se ([130.238.164.5]:44511 "EHLO
-	elvira.ekonomikum.uu.se") by vger.kernel.org with ESMTP
-	id S1751191AbVJXRhS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 13:37:18 -0400
-Message-ID: <435D1D67.9000301@it.uu.se>
-Date: Mon, 24 Oct 2005 19:44:07 +0200
-From: Johann Deneux <johann.deneux@it.uu.se>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Mon, 24 Oct 2005 13:45:30 -0400
+Received: from rwcrmhc11.comcast.net ([216.148.227.117]:26058 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1751192AbVJXRp3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 13:45:29 -0400
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: Re: new PCI quirk for Toshiba Satellite?
+Date: Mon, 24 Oct 2005 10:45:07 -0700
+User-Agent: KMail/1.8.91
+Cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, bcollins@debian.org,
+       Greg KH <greg@kroah.com>, scjody@steamballoon.com, gregkh@suse.de
+References: <20051015185502.GA9940@plato.virtuousgeek.org> <200510211138.57847.jbarnes@virtuousgeek.org> <43594BD3.9070103@s5r6.in-berlin.de>
+In-Reply-To: <43594BD3.9070103@s5r6.in-berlin.de>
 MIME-Version: 1.0
-To: vojtech@suse.cz
-CC: linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: [PATCH] Added LMP Destiny Force feedback to iforce driver
-Content-Type: multipart/mixed;
- boundary="------------080308020703090006020201"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510241045.08494.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080308020703090006020201
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Friday, October 21, 2005 1:13 pm, Stefan Richter wrote:
+> Jesse Barnes wrote:
+> > Stefan, is a PCI quirk addition possible or do we have to use
+> > dmi_check_system in the ohci driver itself (since we have to
+> > reprogram the cache line size in addition to the other registers)?
+>
+> I am not familiar with the PCI subsystem, thus cannot advise how to
+> handle it best nor wanted to post a patch myself (yet).
 
-Adds support for "LMP Destiny Force feedback" to the iforce driver.
+Ok, I'll update Rob's patch to the latest tree and send it on (I hadn't 
+seen it yet when I wrote my version).
 
-Signed-off-by: Johann Deneux <johann.deneux@it.uu.se>
+> It seems to me, using the .callback and .driver_data doesn't make it
+> cleaner and leaner.
 
+I agree, I thought it was necessary since I hadn't looked at 
+dmi_check_system and didn't know if it had a return value I could check.  
+Rob's patch looks much simpler and nicer.
 
-diff -uprN -X linux-2.6.13.4-vanilla/Documentation/dontdiff 
-linux-2.6.13.4-vanilla/drivers/input/joystick/iforce/iforce-main.c 
-linux-2.6.13.4-ff/drivers/input/joystick/iforce/iforce-main.c
---- 
-linux-2.6.13.4-vanilla/drivers/input/joystick/iforce/iforce-main.c    
-2005-10-10 20:54:29.000000000 +0200
-+++ linux-2.6.13.4-ff/drivers/input/joystick/iforce/iforce-main.c    
-2005-10-24 18:38:45.000000000 +0200
-@@ -79,6 +79,7 @@ static struct iforce_device iforce_devic
-     { 0x06f8, 0x0001, "Guillemot Race Leader Force Feedback",    
-btn_wheel, abs_wheel, ff_iforce }, //?
-     { 0x06f8, 0x0004, "Guillemot Force Feedback Racing Wheel",    
-btn_wheel, abs_wheel, ff_iforce }, //?
-     { 0x06f8, 0x0004, "Gullemot Jet Leader 3D",            
-btn_joystick, abs_joystick, ff_iforce }, //?
-+    { 0x06b6, 0x0001, "LMP Destiny Force Feedback Wheel",           
-btn_wheel, abs_wheel, ff_iforce },
-     { 0x0000, 0x0000, "Unknown I-Force Device [%04x:%04x]",        
-btn_joystick, abs_joystick, ff_iforce }
- };
- 
-diff -uprN -X linux-2.6.13.4-vanilla/Documentation/dontdiff 
-linux-2.6.13.4-vanilla/drivers/input/joystick/iforce/iforce-usb.c 
-linux-2.6.13.4-ff/drivers/input/joystick/iforce/iforce-usb.c
---- linux-2.6.13.4-vanilla/drivers/input/joystick/iforce/iforce-usb.c    
-2005-10-10 20:54:29.000000000 +0200
-+++ linux-2.6.13.4-ff/drivers/input/joystick/iforce/iforce-usb.c    
-2005-10-24 18:39:29.000000000 +0200
-@@ -230,6 +230,7 @@ static struct usb_device_id iforce_usb_i
-     { USB_DEVICE(0x06f8, 0x0001) },        /* Guillemot Race Leader 
-Force Feedback */
-     { USB_DEVICE(0x06f8, 0x0004) },        /* Guillemot Force Feedback 
-Racing Wheel */
-     { USB_DEVICE(0x06f8, 0xa302) },        /* Guillemot Jet Leader 3D */
-+    { USB_DEVICE(0x06b6, 0x0001) },         /* LMP Destiny Force 
-Feedback Wheel */
-     { }                    /* Terminating entry */
- };
- 
+> > But then what about the dev->current_state = 4?  Is that necessary?
+>
+> It is necessary; at least if the workaround resides in ohci1394.
+> Otherwise the controller won't come back after a suspend/ resume
+> cycle. (See Rob's post from February,
+> http://marc.theaimsgroup.com/?m=110786495210243 ) Maybe there is
+> another way to do that if the workaround was moved to pci/quirks.c.
 
+Having it all in the driver probably makes the most sense if we have to 
+have code there anyway.  Otherwise future users may have to check both 
+places if things break again in another configuration.
 
---------------080308020703090006020201
-Content-Type: text/plain;
- name="patch-iforce-2.6.13.4"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-iforce-2.6.13.4"
+> Furthermore, everything which belongs to the workaround should IMO be
+> enclosed by #ifdef SOME_SENSIBLE_MACRO. This avoids kernel bloat for
+> any target which is surely not a Toshiba laptop. Rob used an #if
+> defined(__i386__).
 
-diff -uprN -X linux-2.6.13.4-vanilla/Documentation/dontdiff linux-2.6.13.4-vanilla/drivers/input/joystick/iforce/iforce-main.c linux-2.6.13.4-ff/drivers/input/joystick/iforce/iforce-main.c
---- linux-2.6.13.4-vanilla/drivers/input/joystick/iforce/iforce-main.c	2005-10-10 20:54:29.000000000 +0200
-+++ linux-2.6.13.4-ff/drivers/input/joystick/iforce/iforce-main.c	2005-10-24 18:38:45.000000000 +0200
-@@ -79,6 +79,7 @@ static struct iforce_device iforce_devic
- 	{ 0x06f8, 0x0001, "Guillemot Race Leader Force Feedback",	btn_wheel, abs_wheel, ff_iforce }, //?
- 	{ 0x06f8, 0x0004, "Guillemot Force Feedback Racing Wheel",	btn_wheel, abs_wheel, ff_iforce }, //?
- 	{ 0x06f8, 0x0004, "Gullemot Jet Leader 3D",			btn_joystick, abs_joystick, ff_iforce }, //?
-+	{ 0x06b6, 0x0001, "LMP Destiny Force Feedback Wheel",           btn_wheel, abs_wheel, ff_iforce },
- 	{ 0x0000, 0x0000, "Unknown I-Force Device [%04x:%04x]",		btn_joystick, abs_joystick, ff_iforce }
- };
- 
-diff -uprN -X linux-2.6.13.4-vanilla/Documentation/dontdiff linux-2.6.13.4-vanilla/drivers/input/joystick/iforce/iforce-usb.c linux-2.6.13.4-ff/drivers/input/joystick/iforce/iforce-usb.c
---- linux-2.6.13.4-vanilla/drivers/input/joystick/iforce/iforce-usb.c	2005-10-10 20:54:29.000000000 +0200
-+++ linux-2.6.13.4-ff/drivers/input/joystick/iforce/iforce-usb.c	2005-10-24 18:39:29.000000000 +0200
-@@ -230,6 +230,7 @@ static struct usb_device_id iforce_usb_i
- 	{ USB_DEVICE(0x06f8, 0x0001) },		/* Guillemot Race Leader Force Feedback */
- 	{ USB_DEVICE(0x06f8, 0x0004) },		/* Guillemot Force Feedback Racing Wheel */
- 	{ USB_DEVICE(0x06f8, 0xa302) },		/* Guillemot Jet Leader 3D */
-+	{ USB_DEVICE(0x06b6, 0x0001) },         /* LMP Destiny Force Feedback Wheel */
- 	{ }					/* Terminating entry */
- };
- 
+Checks against the compiler defined arch are usually wrong since users 
+could be cross compiling, and I'd like to avoid an ifdef altogether.  I 
+think we can make the code collapse entirely by fixing linux/dmi.h.  If 
+we remove the !defined(CONFIG_X86_64) check around the extern of 
+dmi_check_system, all other arches will have it defined to simply return 
+0, causing gcc to remove the dead conditional in ohci1394.c.
 
---------------080308020703090006020201--
+Anyway, I'll refresh that patch, test it, and send it on to Andrew, 
+hopefully tonight.
+
+Thanks,
+Jesse

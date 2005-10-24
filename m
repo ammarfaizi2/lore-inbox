@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbVJXXBy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751137AbVJXXDT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750897AbVJXXBy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 19:01:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbVJXXBy
+	id S1751137AbVJXXDT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 19:03:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbVJXXDT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 19:01:54 -0400
-Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:11363 "HELO
-	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1750897AbVJXXBy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 19:01:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=4sytmhxgd6eiYCOtwV6VSHED2zhrGVcR1kV51jbaw85IRLSq3fJGMSlLGpsX/raql8LRF3g0w5Ngfwr6YW17aUaZHxnt6KwkBMh9kXBjrvWfcStVeIx2U6ncA8rm8Pq0DYNYUm/SW8/0Qu7Y6DEZjp0beJlsJSOdb5bBm7eqKao=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2.6.14-rc5-mm1] UML: fix compile part-1
-Date: Tue, 25 Oct 2005 01:05:39 +0200
-User-Agent: KMail/1.7.2
-Cc: Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org,
-       jdike@addtoit.com
-References: <E1EU4es-0005l0-00@dorka.pomaz.szeredi.hu> <20051024153534.62315410.akpm@osdl.org>
-In-Reply-To: <20051024153534.62315410.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Oct 2005 19:03:19 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:17889 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751137AbVJXXDT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 19:03:19 -0400
+Date: Mon, 24 Oct 2005 16:03:57 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Badari Pulavarty <pbadari@gmail.com>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Andrew Morton <akpm@osdl.org>,
+       Ingo Oeser <ioe-lkml@rameria.de>, lkml <linux-kernel@vger.kernel.org>,
+       arjan@infradead.org, pavel@ucw.cz, dipankar@in.ibm.com,
+       vatsa@in.ibm.com, rusty@au1.ib.com, mingo@elte.hu,
+       manfred@colorfullife.com, gregkh@kroah.com
+Subject: Re: [PATCH] RCU torture-testing kernel module
+Message-ID: <20051024230357.GG12812@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20051022231214.GA5847@us.ibm.com> <200510230922.26550.ioe-lkml@rameria.de> <20051023143617.GA7961@us.ibm.com> <200510232055.17782.ioe-lkml@rameria.de> <20051023120521.26031051.akpm@osdl.org> <20051024004709.GA9454@us.ibm.com> <1130171073.6831.6.camel@localhost.localdomain> <5D5AD6EA-5D6E-47DA-8170-0729F9C32889@mac.com> <1130177458.6831.11.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200510250105.45505.blaisorblade@yahoo.it>
+In-Reply-To: <1130177458.6831.11.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 25 October 2005 00:35, Andrew Morton wrote:
-> Miklos Szeredi <miklos@szeredi.hu> wrote:
-> > --- linux.orig/arch/um/include/sysdep/syscalls.h	2005-10-04
-> > 14:18:29.000000000 +0200 +++
-> > linux/arch/um/include/sysdep/syscalls.h	2005-10-04 14:19:07.000000000
-> > +0200
->
-> The patch didn't apply - arch/um/include/sysdep is a symlink, so it has the
-> same problem as patches against include/asm/*.
-Using O= in the build helps avoiding this problems (beyond lots of other 
-niceties).
-> You really weanted to patch arch/um/include/sysdep-i386/syscalls.h
-Yep.
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
+On Mon, Oct 24, 2005 at 11:10:58AM -0700, Badari Pulavarty wrote:
+> On Mon, 2005-10-24 at 13:59 -0400, Kyle Moffett wrote:
+> > On Oct 24, 2005, at 12:24:33, Badari Pulavarty wrote:
+> > > Paul,
+> > >
+> > > I enabled RCU_TORTURE_TEST in 2.6.14-rc5-mm1. My machine took 10+  
+> > > minutes to boot and let me login. RCU kthreads are hogging the  
+> > > CPU.  Is this expected ?
+> > 
+> > Uhh...  It's a torture test.  What exactly do _you_ expect it will  
+> > do?  I think the idea is to enable it as a module and load it when  
+> > you want to start torture testing, and unload it when done.   
+> > "TORTURE_TEST"s are not for production systems :-D.
 
-	
+Hey, and if you think that is fun, just try compiling it in
+(CONFIG_RCU_TORTURE_TEST=y) and then build rcutorture.c as an
+external module, then insmod'ing it!  You get two torture tests
+running concurrently.  I found this out the hard way while
+learning how the "tristate" directive works.
 
-	
-		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it
+> I was expecting that - even if its compiled in, there would be
+> a way to turn on/off the tests from /proc or something :)
+
+Well, I submitted -that- patch a couple of weeks ago, and it was
+roundly denounced for /proc pollution, hence the shiny new modules
+implementation of it.
+
+I must admit I was rather negative on the idea of using modules
+for this sort of thing, but after actually trying it, I found that
+it really works quite nicely.  The module loader even parses all
+your arguments for you, so you can very easily parameterize the
+tests.
+
+						Thanx, Paul

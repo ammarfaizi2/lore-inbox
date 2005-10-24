@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbVJXDKd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750940AbVJXDNN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750870AbVJXDKd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 23:10:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750939AbVJXDKd
+	id S1750940AbVJXDNN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 23:13:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbVJXDNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 23:10:33 -0400
-Received: from silver.veritas.com ([143.127.12.111]:14429 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1750851AbVJXDKd
+	Sun, 23 Oct 2005 23:13:13 -0400
+Received: from silver.veritas.com ([143.127.12.111]:26205 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1750939AbVJXDNM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 23:10:33 -0400
-Date: Mon, 24 Oct 2005 04:09:40 +0100 (BST)
+	Sun, 23 Oct 2005 23:13:12 -0400
+Date: Mon, 24 Oct 2005 04:12:19 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@goblin.wat.veritas.com
 To: Andrew Morton <akpm@osdl.org>
 cc: clameter@sgi.com, rmk@arm.linux.org.uk, matthew@wil.cx, jdike@addtoit.com,
        linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 7/9] mm: split page table lock
-In-Reply-To: <20051023142712.6c736dd3.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0510240403090.22131@goblin.wat.veritas.com>
+In-Reply-To: <20051023144900.4a23704d.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0510240409590.22131@goblin.wat.veritas.com>
 References: <Pine.LNX.4.61.0510221716380.18047@goblin.wat.veritas.com>
  <Pine.LNX.4.61.0510221727060.18047@goblin.wat.veritas.com>
- <20051023142712.6c736dd3.akpm@osdl.org>
+ <20051023144900.4a23704d.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 24 Oct 2005 03:10:32.0697 (UTC) FILETIME=[7ED39E90:01C5D848]
+X-OriginalArrivalTime: 24 Oct 2005 03:13:11.0547 (UTC) FILETIME=[DD8234B0:01C5D848]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Sun, 23 Oct 2005, Andrew Morton wrote:
 > Hugh Dickins <hugh@veritas.com> wrote:
-> >  preprocessor compare that with NR_CPUS.  But I don't think it's worth
-> >  being user-configurable: for good testing of both split and unsplit
-> >  configs, split now at 4 cpus, and perhaps change that to 8 later.
+> >  + * When freeing, reset page->mapping so free_pages_check won't complain.
+> >  + */
+> >  +#define __pte_lockptr(page)	((spinlock_t *)&((page)->private))
+> >  +#define pte_lock_init(_page)	do {					\
+> >  +	BUILD_BUG_ON((size_t)(__pte_lockptr((struct page *)0) + 1) >	\
+> >  +						sizeof(struct page));	\
+> >  +	spin_lock_init(__pte_lockptr(_page));				\
+> >  +} while (0)
+> >  +#define pte_lock_deinit(page)	((page)->mapping = NULL)
+> >  +#define pte_lockptr(mm, pmd)	({(void)(mm); __pte_lockptr(pmd_page(*(pmd)));})
+> >  +#else
 > 
-> I'll make it >= 2 for -mm.
+> Why does pte_lock_deinit() zap ->mapping?  That doesn't seem to have
+> anything to do with anything?
 
-The trouble with >= 2 is that it then leaves the unsplit page_table_lock
-path untested, since UP isn't using page_table_lock at all.  While it's
-true that the unsplit page_table_lock path has had a long history of
-testing, it's not inconceivable that I could have screwed it up.
-
-With the default at 4, I think we've got quite good coverage between
-those who configure NR_CPUS down to the 2 they actually have,
-and those who leave it at its default or actually have 4.
+Nick had wondered the same originally, so I did add the comment above.
+Bring it down to immediately above the deinit line if you prefer.
 
 Hugh

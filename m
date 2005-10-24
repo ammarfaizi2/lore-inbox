@@ -1,133 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750833AbVJWXyk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750843AbVJXATU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750833AbVJWXyk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 19:54:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbVJWXyk
+	id S1750843AbVJXATU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 20:19:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750845AbVJXATU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 19:54:40 -0400
-Received: from smtp06.auna.com ([62.81.186.16]:17854 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id S1750833AbVJWXyk (ORCPT
+	Sun, 23 Oct 2005 20:19:20 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:63658 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750843AbVJXATT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 19:54:40 -0400
-Date: Mon, 24 Oct 2005 01:57:10 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: jonathan@jonmasters.org
-Cc: jonmasters@gmail.com, "Linux-Kernel," <linux-kernel@vger.kernel.org>
-Subject: Re: /proc/kcore size incorrect ?
-Message-ID: <20051024015710.29a02e63@werewolf.able.es>
-In-Reply-To: <35fb2e590510231613u492d24c6k4d65ff3ac5ffcee6@mail.gmail.com>
-References: <20051023235806.1a4df9ab@werewolf.able.es>
-	<35fb2e590510231613u492d24c6k4d65ff3ac5ffcee6@mail.gmail.com>
-X-Mailer: Sylpheed-Claws 1.9.15cvs93 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary=Sig_bcA8r3NW77MfWYizqjq4Ypn;
- protocol="application/pgp-signature"; micalg=PGP-SHA1
-X-Auth-Info: Auth:LOGIN IP:[83.138.216.103] Login:jamagallon@able.es Fecha:Mon, 24 Oct 2005 01:54:38 +0200
+	Sun, 23 Oct 2005 20:19:19 -0400
+Date: Sun, 23 Oct 2005 17:19:13 -0700 (PDT)
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Simon.Derr@bull.net, Paul Jackson <pj@sgi.com>,
+       linux-kernel@vger.kernel.org, Christoph Lameter <clameter@sgi.com>,
+       Linus Torvalds <torvalds@osdl.org>
+Message-Id: <20051024001913.7030.71597.sendpatchset@jackhammer.engr.sgi.com>
+Subject: [PATCH] cpuset confine pdflush to its cpuset
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Sig_bcA8r3NW77MfWYizqjq4Ypn
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+This patch keeps pdflush daemons on the same cpuset as their
+parent, the kthread daemon.
 
-On Mon, 24 Oct 2005 00:13:44 +0100, Jon Masters <jonmasters@gmail.com> wrot=
-e:
+Some large NUMA configurations put as much as they can of
+kernel threads and other classic Unix load in what's called a
+bootcpuset, keeping the rest of the system free for dedicated
+jobs.
 
-> On 10/23/05, J.A. Magallon <jamagallon@able.es> wrote:
->=20
-> > BTW, any simple method to get the real mem of the box ?
->=20
-> This is a typical example of using a hammer to crack a nut aka
-> modifying the kernel before giving up on userspace.
->=20
+This effort is thwarted by pdflush, which dynamically destroys
+and recreates pdflush daemons depending on load.
 
-Ejem.
+It's easy enough to force the originally created pdflush deamons
+into the bootcpuset, at system boottime.  But the pdflush
+threads created later were allowed to run freely across the
+system, due to the necessary line in their startup kthread():
 
-Who talks about modifying anything ?
+        set_cpus_allowed(current, CPU_MASK_ALL);
 
-> Several ways of looking up a solution:
->=20
->     * google
+By simply coding pdflush to start its threads with the
+cpus_allowed restrictions of its cpuset (inherited from kthread,
+its parent) we can ensure that dynamically created pdflush
+threads are also kept in the bootcpuset.
 
-Well, perhaps I buy this, but as this looks like a strange/buggy thing, as
-I will explain later...
+On systems w/o cpusets, or w/o a bootcpuset implementation,
+the following will have no affect, leaving pdflush to run on
+any CPU, as before.
 
->     * man -k memory
->=20
-> Leading to:
->=20
-> * free(1):
->     ``free  displays the total amount of free and used physical and swap''
->=20
-> * Or /proc/meminfo (both the same thing) - which you can trivially
-> parse using sed:
->=20
-> cat /proc/meminfo | sed -n -e "s/^MemTotal:[ ]*\([0-9]*\) kB\$/\1/p"
->=20
+Signed-off-by: Paul Jackson <pj@sgi.com>
 
-Do your homework.
+---
 
-free gives the free amount of memory _available for the user_, ie, the
-full memory of the box minus the kernel reserved part.
+ mm/pdflush.c |   13 +++++++++++++
+ 1 files changed, 13 insertions(+)
 
-=46rom dmesg:
+--- 2.6.14-rc4-mm1-cpuset-patches.orig/mm/pdflush.c	2005-10-17 22:39:41.033879927 -0700
++++ 2.6.14-rc4-mm1-cpuset-patches/mm/pdflush.c	2005-10-23 17:17:03.720802617 -0700
+@@ -20,6 +20,7 @@
+ #include <linux/fs.h>		// Needed by writeback.h
+ #include <linux/writeback.h>	// Prototypes pdflush_operation()
+ #include <linux/kthread.h>
++#include <linux/cpuset.h>
+ 
+ 
+ /*
+@@ -170,12 +171,24 @@ static int __pdflush(struct pdflush_work
+ static int pdflush(void *dummy)
+ {
+ 	struct pdflush_work my_work;
++	cpumask_t cpus_allowed;
+ 
+ 	/*
+ 	 * pdflush can spend a lot of time doing encryption via dm-crypt.  We
+ 	 * don't want to do that at keventd's priority.
+ 	 */
+ 	set_user_nice(current, 0);
++
++	/*
++	 * Some configs put our parent kthread in a limited cpuset,
++	 * which kthread() overrides, forcing cpus_allowed == CPU_MASK_ALL.
++	 * Our needs are more modest - cut back to our cpusets cpus_allowed.
++	 * This is needed as pdflush's are dynamically created and destroyed.
++	 * The boottime pdflush's are easily placed w/o these 2 lines.
++	 */
++	cpus_allowed = cpuset_cpus_allowed(current);
++	set_cpus_allowed(current, cpus_allowed);
++
+ 	return __pdflush(&my_work);
+ }
+ 
 
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009f800 (usable)
- BIOS-e820: 000000000009f800 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 000000003fee0000 (usable)
- BIOS-e820: 000000003fee0000 - 000000003fee3000 (ACPI NVS)
- BIOS-e820: 000000003fee3000 - 000000003fef0000 (ACPI data)
- BIOS-e820: 000000003fef0000 - 000000003ff00000 (reserved)
- BIOS-e820: 00000000fec00000 - 0000000100000000 (reserved)
-1022MB LOWMEM available.
-...
-Memory: 1034744k/1047424k available (1858k kernel code, 12208k reserved, 63=
-4k da
-ta, 184k init, 0k highmem)
-werewolf:~> echo $((1047424 / 1024))
-1022
-
-werewolf:~> free
-             total       used       free     shared    buffers     cached
-Mem:       1035012    1000660      34352          0      98348     649284
-werewolf:~> cat /proc/meminfo | grep MemTotal
-MemTotal:      1035012 kB
-werewolf:~> echo $((1035012 / 1024))
-1010
-
-So free/proc give the available memory, not the total:
-- free: 1010 Mb
-- kcore: 1022 Mb
-
-I expected /proc/kcore to give the size of your installed memory, with
-the reserved BIOS areas just not accesible, but it looks like it already
-has them discounted, so gives 1022 Mb.
-
-It looks really silly to have a motd say "wellcome to this box, it has
-2 xeons and 1022 Mb of RAM".
-
-
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like se=
-x:
-werewolf!able!es                         \         It's better when it's fr=
-ee
-Mandriva Linux release 2006.1 (Cooker) for i586
-Linux 2.6.13-jam9 (gcc 4.0.1 (4.0.1-5mdk for Mandriva Linux release 2006.0))
-
---Sig_bcA8r3NW77MfWYizqjq4Ypn
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDXCNWRlIHNEGnKMMRAlvmAJ9/24p1HmAqmURrMZwUiu+m2Z97HgCfd5Ku
-2ODHgmaHk9PPT/IKuy73msw=
-=tH2Q
------END PGP SIGNATURE-----
-
---Sig_bcA8r3NW77MfWYizqjq4Ypn--
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

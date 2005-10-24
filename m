@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750918AbVJXLrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750943AbVJXMKQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750918AbVJXLrP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 07:47:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750921AbVJXLrP
+	id S1750943AbVJXMKQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 08:10:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750946AbVJXMKQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 07:47:15 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:14758 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750916AbVJXLrO (ORCPT
+	Mon, 24 Oct 2005 08:10:16 -0400
+Received: from send.forptr.21cn.com ([202.105.45.48]:31129 "HELO 21cn.com")
+	by vger.kernel.org with SMTP id S1750943AbVJXMKP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 07:47:14 -0400
-Date: Mon, 24 Oct 2005 12:45:18 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: dsaxena@plexity.net
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.net, akpm@osdl.org,
-       tony@atomide.com
-Subject: Re: [patch 2/5] Core HW RNG support
-Message-ID: <20051024104518.GA18631@elf.ucw.cz>
-References: <20051019081906.615365000@omelas> <20051019091715.801905000@omelas>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051019091715.801905000@omelas>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Mon, 24 Oct 2005 08:10:15 -0400
+Message-ID: <435CCF7B.6030907@21cn.com>
+Date: Mon, 24 Oct 2005 20:11:39 +0800
+From: Yan Zheng <yanzheng@21cn.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: netdev@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH]IPv6: fix refcnt of struct ip6_flowlabel
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AIMC-AUTH: yanzheng
+X-AIMC-MAILFROM: yanzheng@21cn.com
+X-AIMC-Msg-ID: ejkLB4OB
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Signed-off-by: Yan Zheng <yanzheng@21cn.com>
 
-> This patch adds support for the HW RNG core. The core code
-> simply implements the user space interface and calls HW-specific
-> function pointers to do the real data gathering. We do this
-> instead of having each driver re-implement the user space functionality
-> so we do not end up with a bunch of drivers replicating the exact 
-> same 50 lines of code (see drivers/watchdog). 
-> 
-> Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
-> 
 
-> Index: linux-2.6-rng/drivers/char/rng/Makefile
-> ===================================================================
-> --- /dev/null
-> +++ linux-2.6-rng/drivers/char/rng/Makefile
+Index: net/ipv6/ip6_flowlabel.c
+===================================================================
+--- linux-2.6.14-rc5/net/ipv6/ip6_flowlabel.c	2005-10-22 10:31:13.000000000 +0800
++++ linux/net/ipv6/ip6_flowlabel.c	2005-10-24 19:55:23.000000000 +0800
+@@ -483,7 +483,7 @@
+ 						goto done;
+ 					}
+ 					fl1 = sfl->fl;
+-					atomic_inc(&fl->users);
++					atomic_inc(&fl1->users);
+ 					break;
+ 				}
+ 			}
 
-Could we have it named drivers/char/random, or perhaps just
-drivers/random?
-
-							Pavel
-
--- 
-Thanks, Sharp!

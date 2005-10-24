@@ -1,39 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbVJXQCA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbVJXQCu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751126AbVJXQCA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 12:02:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbVJXQCA
+	id S1751131AbVJXQCu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 12:02:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbVJXQCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 12:02:00 -0400
-Received: from mail.fieldses.org ([66.93.2.214]:12420 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP
-	id S1751126AbVJXQCA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 12:02:00 -0400
-Date: Mon, 24 Oct 2005 12:01:58 -0400
-To: Takashi Iwai <tiwai@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc5 apm suspend failure--ALSA patch?
-Message-ID: <20051024160158.GK9154@fieldses.org>
-References: <20051023184202.GB10037@fieldses.org> <s5hu0f72q8h.wl%tiwai@suse.de> <20051024153526.GH9154@fieldses.org> <s5hoe5f9b8n.wl%tiwai@suse.de>
+	Mon, 24 Oct 2005 12:02:50 -0400
+Received: from gold.veritas.com ([143.127.12.110]:24134 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751131AbVJXQCt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 12:02:49 -0400
+Date: Mon, 24 Oct 2005 17:01:53 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+cc: David Howells <dhowells@redhat.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Carsten Otte <cotte@de.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: what happened to page_mkwrite? - was: Re: page_mkwrite seems
+ broken
+In-Reply-To: <1130168619.19518.43.camel@imp.csi.cam.ac.uk>
+Message-ID: <Pine.LNX.4.61.0510241648170.4338@goblin.wat.veritas.com>
+References: <1130167005.19518.35.camel@imp.csi.cam.ac.uk> 
+ <Pine.LNX.4.61.0502091357001.6086@goblin.wat.veritas.com> 
+ <7872.1130167591@warthog.cambridge.redhat.com> <1130168619.19518.43.camel@imp.csi.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <s5hoe5f9b8n.wl%tiwai@suse.de>
-User-Agent: Mutt/1.5.11
-From: "J. Bruce Fields" <bfields@fieldses.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 24 Oct 2005 16:02:49.0265 (UTC) FILETIME=[6192CA10:01C5D8B4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 24, 2005 at 05:38:00PM +0200, Takashi Iwai wrote:
-> At Mon, 24 Oct 2005 11:35:26 -0400,
-> J. Bruce Fields wrote:
-> > And on boot I see this:
-> > 
-> > Oct 22 11:44:45 puzzle kernel: ALSA device list:
-> > Oct 22 11:44:45 puzzle kernel:   #0: Virtual MIDI Card 1
+On Mon, 24 Oct 2005, Anton Altaparmakov wrote:
 > 
-> Ah, that's it.  The patch I sent should fix Oops, then.
+> I don't really mind either way.  I am stuck with ntfs at the moment at
+> the point where I am either going to use my own ->nopage handler to
+> allocate on-disk clusters or have a ->page_mkwrite handler do it.  The
+> former is not nice as it means we allocate space even when only reading
+> whilst the later is very nice as it only triggers when someone actually
+> does an mmapped write.
 
-Yep, that did it, thanks.  Will this be in 2.6.14?
+A complication to beware of there (and I may be misunderstanding, but
+the point is worth making).  If you have already mmaped readonly zero
+pages into some mms, you'll need to update those mms with the new
+shared writable pages once they are allocated.  That put me off using
+page_mkwrite in tmpfs, but Carsten has solved the problem (though
+not going so far as to use page_mkwrite) with his xip_file_nopage
+in mm/filemap_xip.c - has to go down the vma_prio_tree like rmap.
 
---b.
+(That code is a little different in -mm, partly because of my page
+table locking changes, partly because of Nick's ZERO_PAGE changes.)
+
+Hmm, strictly speaking, it should be substituting the new page
+when VM_LOCKED: whether that's worth the effort of implementing....
+
+Hugh

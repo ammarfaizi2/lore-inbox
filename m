@@ -1,62 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbVJXPuQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbVJXPzV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751120AbVJXPuQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 11:50:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbVJXPuQ
+	id S1751119AbVJXPzV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 11:55:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbVJXPzU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 11:50:16 -0400
-Received: from 253-121.adsl.pool.ew.hu ([193.226.253.121]:47374 "EHLO
+	Mon, 24 Oct 2005 11:55:20 -0400
+Received: from 253-121.adsl.pool.ew.hu ([193.226.253.121]:43530 "EHLO
 	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1751120AbVJXPuO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 11:50:14 -0400
-To: torvalds@osdl.org, akpm@osdl.org
+	id S1751119AbVJXPzU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 11:55:20 -0400
+To: akpm@osdl.org
 CC: linux-kernel@vger.kernel.org, blaisorblade@yahoo.it, jdike@addtoit.com
-Subject: [PATCH resend] uml: fix compile failure for TT mode 
-Message-Id: <E1EU4Zq-0005jq-00@dorka.pomaz.szeredi.hu>
+Subject: [PATCH 2.6.14-rc5-mm1] UML: fix compile part-1
+Message-Id: <E1EU4es-0005l0-00@dorka.pomaz.szeredi.hu>
 From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Mon, 24 Oct 2005 17:49:34 +0200
+Date: Mon, 24 Oct 2005 17:54:46 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+This patch fixes the following compile error:
 
-I think you should apply this before 2.6.14, to fix UML compile:
+  CC      arch/um/kernel/syscall_kern.o
+In file included from arch/um/kernel/syscall_kern.c:22:
+arch/um/include/sysdep/syscalls.h:14: error: conflicting types for `sys_ptrace'
+include/linux/syscalls.h:494: error: previous declaration of `sys_ptrace'
 
-Without this patch, uml compile fails with:
-
-  LD      .tmp_vmlinux1
-arch/um/kernel/built-in.o: In function `config_gdb_cb':
-arch/um/kernel/tt/gdb.c:129: undefined reference to `TASK_EXTERN_PID'
-
-Tested on i386, but fix needed on x86_64 too AFAICS.
+Don't know if it's the correct fix, but result seems to work fine for
+me.
 
 Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
 
 ---
-Index: linux/arch/um/include/sysdep-i386/thread.h
+Index: linux/arch/um/include/sysdep/syscalls.h
 ===================================================================
---- linux.orig/arch/um/include/sysdep-i386/thread.h	2005-10-22 17:45:55.000000000 +0200
-+++ linux/arch/um/include/sysdep-i386/thread.h	2005-10-22 17:55:44.000000000 +0200
-@@ -4,7 +4,7 @@
- #include <kern_constants.h>
+--- linux.orig/arch/um/include/sysdep/syscalls.h	2005-10-04 14:18:29.000000000 +0200
++++ linux/arch/um/include/sysdep/syscalls.h	2005-10-04 14:19:07.000000000 +0200
+@@ -11,7 +11,6 @@ typedef long syscall_handler_t(struct pt
+ /* Not declared on x86, incompatible declarations on x86_64, so these have
+  * to go here rather than in sys_call_table.c
+  */
+-extern syscall_handler_t sys_ptrace;
+ extern syscall_handler_t sys_rt_sigaction;
  
- #define TASK_DEBUGREGS(task) ((unsigned long *) &(((char *) (task))[HOST_TASK_DEBUGREGS]))
--#ifdef CONFIG_MODE_TT
-+#ifdef UML_CONFIG_MODE_TT
- #define TASK_EXTERN_PID(task) *((int *) &(((char *) (task))[HOST_TASK_EXTERN_PID]))
- #endif
- 
-Index: linux/arch/um/include/sysdep-x86_64/thread.h
-===================================================================
---- linux.orig/arch/um/include/sysdep-x86_64/thread.h	2005-10-22 17:09:00.000000000 +0200
-+++ linux/arch/um/include/sysdep-x86_64/thread.h	2005-10-22 17:55:58.000000000 +0200
-@@ -3,7 +3,7 @@
- 
- #include <kern_constants.h>
- 
--#ifdef CONFIG_MODE_TT
-+#ifdef UML_CONFIG_MODE_TT
- #define TASK_EXTERN_PID(task) *((int *) &(((char *) (task))[HOST_TASK_EXTERN_PID]))
- #endif
- 
-
+ extern syscall_handler_t old_mmap_i386;

@@ -1,26 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbVJXOhl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750842AbVJXOr4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750800AbVJXOhl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 10:37:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbVJXOhk
+	id S1750842AbVJXOr4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 10:47:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbVJXOr4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 10:37:40 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:63176 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1750800AbVJXOhk (ORCPT
+	Mon, 24 Oct 2005 10:47:56 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:2765 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1750827AbVJXOr4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 10:37:40 -0400
-Date: Mon, 24 Oct 2005 07:37:15 -0700
+	Mon, 24 Oct 2005 10:47:56 -0400
+Date: Mon, 24 Oct 2005 07:47:38 -0700
 From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Simon.Derr@bull.net, linux-kernel@vger.kernel.org, ak@suse.de,
-       torvalds@osdl.org, clameter@sgi.com
-Subject: Re: [PATCH 01/02] cpuset bitmap and mask remap operators
-Message-Id: <20051024073715.02e1f3e3.pj@sgi.com>
-In-Reply-To: <20051024013713.25770d14.akpm@osdl.org>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: akpm@osdl.org, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
+       clameter@sgi.com, torvalds@osdl.org, ak@suse.de
+Subject: Re: [PATCH 02/02] cpuset automatic numa mempolicy rebinding
+Message-Id: <20051024074738.4f2bfcbc.pj@sgi.com>
+In-Reply-To: <1130142987.16002.4.camel@localhost>
 References: <20051024072744.10390.35722.sendpatchset@jackhammer.engr.sgi.com>
-	<20051024004833.50d9676b.akpm@osdl.org>
-	<20051024011613.691e28f4.pj@sgi.com>
-	<20051024013713.25770d14.akpm@osdl.org>
+	<20051024072750.10390.32993.sendpatchset@jackhammer.engr.sgi.com>
+	<1130142987.16002.4.camel@localhost>
 Organization: SGI
 X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -29,28 +28,21 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew wrote:
-> hm.  That hides what's really going on from the programmer.
-> 
-> Oh well - you're the only guy who dinks with that stuff anyway ;)
+Dave wrote:
+> Just think how that looks to a reviewer without the full context :)
 
-Halloween comes a week early to the Morton household.  The patch from
-hell, circa April 2004, lives on to haunt Andrew <grin>.
+I was just copying Andi's coding style for these cases, with
+this BUG() if no policy matched.  When in Rome, do as the
+Romans.
 
-By the time we (wli, rusty, colpatch, ...) incorporated the following
-various constraints on these cpumask/nodemask macros, we were fortunate
-to only violate the "obvious to the programmer" constraint on the
-implementation internals:
-  - near perfect code gen on small systems (1 word masks)
-  - near perfect code gen on large systems (multiword masks)
-  - type checking on arguments
-  - keep the existing macro-style calling conventions:
-	cpus_and(result, input1, input2)
-  - a single bitmap internal implementation - the rest just wrappers
-  - dramatic shinkage of kernel source devoted to this stuff
-  - reduction in kernel text size across all architectures.
+> Perhaps the MBOL_BIND case needs a little helper function.
 
-Probably it is best that we not ask too many questions at this time ;).
+Eh ... that entire routine still fits on a page of my screen.
+I'm not sure that adding a helper function would clarify the
+code any.
+
+Thanks for looking at it.  If you're pretty sure I should change
+one of the above, squeek a little louder.
 
 -- 
                   I won't rest till it's the best ...

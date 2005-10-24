@@ -1,42 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbVJXWLA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbVJXWNB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750909AbVJXWLA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 18:11:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750897AbVJXWLA
+	id S1751103AbVJXWNB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 18:13:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbVJXWNB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 18:11:00 -0400
-Received: from smtp3-g19.free.fr ([212.27.42.29]:43158 "EHLO smtp3-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1750838AbVJXWK7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 18:10:59 -0400
-To: linux-mips@linux-mips.org
-Cc: linux-parport@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Parallel port support for SGI O2
-References: <871x2d3wyc.fsf@groumpf.homeip.net>
-From: Arnaud Giersch <arnaud.giersch@free.fr>
-X-Face: &yL?ZRfSIk3zaRm*dlb3R4f.8RM"~b/h|\wI]>pL)}]l$H>.Q3Qd3[<h!`K6mI=+cWpg-El
- B(FEm\EEdLdS{2l7,8\!RQ5aL0ZXlzzPKLxV/OQfrg/<t!FG>i.K[5isyT&2oBNdnvk`~y}vwPYL;R
- y)NYo"]T8NlX{nmIUEi\a$hozWm#0GCT'e'{5f@Rl"[g|I8<{By=R8R>bDe>W7)S0-8:b;ZKo~9K?'
- wq!G,MQ\eSt8g`)jeITEuig89NGmN^%1j>!*F8~kW(yfF7W[:bl>RT[`w3x-C
-Date: Tue, 25 Oct 2005 00:10:57 +0200
-In-Reply-To: <871x2d3wyc.fsf@groumpf.homeip.net> (Arnaud Giersch's message
- of "Sun, 23 Oct 2005 02:20:59 +0200")
-Message-ID: <873bmq36ry.fsf@groumpf.homeip.net>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4 (Jumbo Shrimp, linux)
+	Mon, 24 Oct 2005 18:13:01 -0400
+Received: from web32811.mail.mud.yahoo.com ([68.142.206.41]:41061 "HELO
+	web32811.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751094AbVJXWNA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 18:13:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=TozGwC6z/0Xrk9fx/fFHZQAhOfAANLYrrvB3I3TMfQmzXtI55iBKrJXGgp4M+bwPGuLwZUSBqhJYYKRW7cjbzPomknnAEXqbs8sjsoQWZKct1hWPJJsHA3Ui4YNTtSKLSH5KCMXfowV4JI2C28WqfsohLN69R3N3WY3ae26Ug7Q=  ;
+Message-ID: <20051024221257.43044.qmail@web32811.mail.mud.yahoo.com>
+Date: Mon, 24 Oct 2005 15:12:57 -0700 (PDT)
+From: com bio <combiofriends@yahoo.com>
+Subject: strings /proc/kcore
+To: linux@linuxkernel.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dimanche le 23 octobre 2005, vers 02:20:59 (CEST), j'ai écrit:
+Hello,
+  When i do #strings /proc/kcore as root i get the
+following error.
+strings: /proc/kcore: Operation not permitted
 
-> I wrote a low-level parallel port driver for the built-in port on SGI
-> O2 (a.k.a. IP32).
-[...]
->   http://arnaud.giersch.free.fr/parport_ip32/parport_ip32-latest.patch.gz
->   http://arnaud.giersch.free.fr/parport_ip32.html
+I run fedora core 3. My kernel version is 2.6.9-1.667.
+I would be happy if someone can help me diagnise this
+error. Thanks
+Deepan Chakravarthy
 
-I uploaded a new version which fixes some bugs in FIFO transfer mode.
+------------------------------------------------------------------
+HAVE FUN, SOLVE SUDOKU, SHARPEN YOUR BRAIN.
+Sudoku solver : http://users.kaski-net.net/~deepan/sudoku/sudokusolver.php
+------------------------------------------------------------------
+Deepan Chakravarthy N,
+College student by day, Programmer by nite.
+------------------------------------------------------------------
+Home Page: http://users.kaski-net.net/~deepan/
+Center for Biotechnology,
+Anna University, Chennai,
+Tamil Nadu, India.
+Ph 91-44-55127050
 
-        Arnaud
+
+	
+		
+__________________________________ 
+Yahoo! Mail - PC Magazine Editors' Choice 2005 
+http://mail.yahoo.com

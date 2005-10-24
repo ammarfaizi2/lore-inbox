@@ -1,98 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750856AbVJXKsr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750865AbVJXKtn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750856AbVJXKsr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 06:48:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750861AbVJXKsr
+	id S1750865AbVJXKtn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 06:49:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750868AbVJXKtm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 06:48:47 -0400
-Received: from mail.ncipher.com ([82.108.130.24]:38586 "EHLO mail.ncipher.com")
-	by vger.kernel.org with ESMTP id S1750856AbVJXKsr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 06:48:47 -0400
-Message-ID: <435CBBFF.7000704@f0rmula.com>
-Date: Mon, 24 Oct 2005 11:48:31 +0100
-From: James Hansen <linux-kernel-list@f0rmula.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
-Subject: Re: Information on ioctl32
-References: <4358CF73.3020602@f0rmula.com> <200510231603.58364.arnd@arndb.de> <435CA241.8050605@f0rmula.com> <200510241132.45334.arnd@arndb.de>
-In-Reply-To: <200510241132.45334.arnd@arndb.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 24 Oct 2005 06:49:42 -0400
+Received: from mimesweeper.nrpb.org.uk ([194.129.135.162]:9766 "EHLO
+	mailgateway.hpa.org.uk") by vger.kernel.org with ESMTP
+	id S1750860AbVJXKtm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 06:49:42 -0400
+Subject: Re: HFSPlus ate my free space!
+From: Peter Wainwright <peter.wainwright@hpa-rp.org.uk>
+Reply-To: prw@ceiriog1.demon.co.uk
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: HPA RPD
+Date: Mon, 24 Oct 2005 11:58:45 +0100
+Message-Id: <1130151525.16253.2.camel@desdemona.pd.rpd.hpa.org.uk>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Oct 2005 10:49:20.0522 (UTC) FILETIME=[96B05EA0:01C5D888]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, I'll explain a little more about I'm doing.
-
-The kernel I'm running is the default kernel from the (unofficial) 
-debian amd64 distro.  uname says it's 2.6.8-11-amd64-generic.  When 
-running a 32bit app, linked against the 32bit libraries, calling a 64bit 
-driver in, the kernel logs messages saying something along the lines of 
-"ioctl32 not defined".
-
-The headers I'm building my modules against are from the package 
-'kernel-headers-2.6.8-11-amd64-generic' which leaves me with the 
-directory 'kernel-headers-2.6.8-11-amd64-generic' in /usr/src. 
-
-My problem is that when I look in the headers at the file_operations 
-struct for compat_ioctl there's no entry there, and I therefore can't 
-define a function for it.  I had no idea there was a dynamic system in 
-place before what's mentioned on lwn.  I'd assumed that as my kernel was 
-trying to call ioctl32, that it would have had the patch applied, and 
-it's headers should have contained an appropriate entry in file_operations.
-
-So it looks like I'll have implement both ways of doing things, one for 
-pre-2.6.11 and another for post 2.6.11 kernels.
-
-Would you know of anywhere else I could look for information on the 
-dynamic method you mentioned that existed in kernels before 2.6.11.
-
-Thanks for the help btw.  Much appreciated.
-
-James
-
-Arnd Bergmann wrote:
-
->On Maandag 24 Oktober 2005 10:58, James Hansen wrote:
->  
+>Hi Roman,
 >
->> From what they say over on lwn.net, I need to apply a patch, but my 
->>current kernel (debian for amd64) is already trying to call it ioctl32.
->>    
->>
->
->No, you should not need to apply any patch, the compat_ioctl
->infrastructure has been in there since 2.6.11. The old dynamic
->ioctl32 subsystem has been removed for 2.6.14.
->
->  
->
->>Problem is, the kernel headers don't seem to have an entry in the 
->>file_operations struct for compat_ioctl.  Does anyone know if there's 
->>any other place (struct) I should be looking to put this function?
->>
->>I thought it a bit odd that the prebuilt default kernel is trying to 
->>call this function, but the headers for this kernel don't seem to allow 
->>me to insert it into the fops struct.
->>    
->>
->
->You seem to be mixing up stuff. Are you looking at the headers in
->the kernel source tree or another copy? Are you sure you are running
->a recent kernel level?
->
->	Arnd <><
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->
->  
->
+>I am using hfsplus (journalled) to mount a 10Gb partition on an usb
+>attached disk.  I then copy a 3.5Gb file to the partition, then umount,
+>and mount again, and then delete it, but the space occupied by the file
+>is not freed, and doing that two times in a row ends up filling up the
+>space and I get an error that there is no space left.  Here are steps
+to
+>reproduce:
+I have had a similar experience with my (Mac) IPOD.
+I am using kernel-2.6.12 from Fedora Core 4 on x86, but it is
+just possible that this bug is still around in the latest
+development kernels.
+fsck_hfs reveals lots of temporary files accumulating in
+the hidden directory "\000\000\000HFS+ Private Data".
+According to the HFS+ documentation these are files which
+are unlinked while in use.  However, there may be a bug in
+the Linux hfsplus implementation which causes this to happen
+even when the files are not in use. It looks like the
+"opencnt" field is never initialized as (I think) it should
+be in hfsplus_read_inode.  This means that a file can appear
+to be still in use when in fact it has been closed. This patch
+seems to fix it for me:
 
+diff -U3 -r linux-2.6.12-old/fs/hfsplus/super.c
+linux-2.6.12/fs/hfsplus/super.c
+--- linux-2.6.12-old/fs/hfsplus/super.c 2005-06-17 20:48:29.000000000
++0100
++++ linux-2.6.12/fs/hfsplus/super.c     2005-10-23 21:15:24.000000000
++0100
+@@ -50,6 +50,7 @@
+        init_MUTEX(&HFSPLUS_I(inode).extents_lock);
+HFSPLUS_I(inode).flags = 0;
+        HFSPLUS_I(inode).flags = 0;        HFSPLUS_I(inode).rsrc_inode =
+NULL;
+        HFSPLUS_I(inode).rsrc_inode = NULL;+
+atomic_set(&HFSPLUS_I(inode).opencnt, 0);
++       atomic_set(&HFSPLUS_I(inode).opencnt, 0);
+        if (inode->i_ino >= HFSPLUS_FIRSTUSER_CNID) {
+        read_inode:
+
+Caveat: I'm no expert on filesystems (I thought a bit of bug-squishing
+would be a learning experience), and this is my first post
+to the kernel list, so feel free to flame me gently if this is wrong...
+Peter Wainwright
+
+
+
+
+The information contained within this email and any attachments
+is confidential and intended solely for the attention and use of
+the named addressee(s). It may not be disclosed to any other
+person without the express authority of the HPA, the intended
+recipient, or both.
+If you are not the intended recipient, you must not disclose,
+copy, distribute or retain this message or any part of it.
+This footnote also confirms that this e-mail has been scanned
+for computer viruses, but please re-scan any attachments before
+opening or saving them. 
+
+Web site: http://www.hpa.org.uk 
+--------------------------------------------

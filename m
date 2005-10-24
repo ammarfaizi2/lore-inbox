@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbVJXHxL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbVJXIQd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbVJXHxL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 03:53:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbVJXHxL
+	id S1750737AbVJXIQd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 04:16:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbVJXIQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 03:53:11 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:58544 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750734AbVJXHxL (ORCPT
+	Mon, 24 Oct 2005 04:16:33 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:27591 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750737AbVJXIQc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 03:53:11 -0400
-Date: Mon, 24 Oct 2005 00:52:13 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: pj@sgi.com, damir.perisa@solnet.ch, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc4-mm1 - drivers/serial/jsm/jsm_tty.c: no member named
- 'flip'
-Message-Id: <20051024005213.5bc82015.akpm@osdl.org>
-In-Reply-To: <1129974887.15961.1.camel@localhost.localdomain>
-References: <20051016154108.25735ee3.akpm@osdl.org>
-	<200510171229.57785.damir.perisa@solnet.ch>
-	<1129572346.2424.8.camel@localhost>
-	<20051021190839.2f94f2a2.pj@sgi.com>
-	<20051021233915.5ff50f9f.akpm@osdl.org>
-	<1129974887.15961.1.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 24 Oct 2005 04:16:32 -0400
+Date: Mon, 24 Oct 2005 01:16:13 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Simon.Derr@bull.net, linux-kernel@vger.kernel.org, ak@suse.de,
+       torvalds@osdl.org, clameter@sgi.com
+Subject: Re: [PATCH 01/02] cpuset bitmap and mask remap operators
+Message-Id: <20051024011613.691e28f4.pj@sgi.com>
+In-Reply-To: <20051024004833.50d9676b.akpm@osdl.org>
+References: <20051024072744.10390.35722.sendpatchset@jackhammer.engr.sgi.com>
+	<20051024004833.50d9676b.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+Andrew wrote:
+> >  +#define node_remap(oldbit, old, new) \
+> >  +		__node_remap((oldbit), &(old), &(new), MAX_NUMNODES)
+> >  +static inline int __node_remap(int oldbit, ...
 >
-> On Gwe, 2005-10-21 at 23:39 -0700, Andrew Morton wrote:
-> > If it helps, sure.  It looks like those patches will be -mm-only for a
-> > while yet.  I haven't actually sat down and worked out how many drivers are
-> > still broken, nor how important they are, but the amount of breakage does
-> > still appear to be considerable.
-> 
-> The only broken driver I am aware of remaining is the jsm driver, and
-> possibly one or two embedded drivers that the authors simply won't fix
-> until it goes mainstream.
-> 
-> ISDN was the last big one and I sent fixes for that.
-> 
-> What else is broken ?
-> 
+> What's the reason for the wrapper macro?
 
-Hard to quantify, really.  One would need to iteratively disable config
-options to generate a complete list.  Perhaps a `make -i' will tell?
+Most all the nodemask/cpumask operators are like that.  It allows
+writing *mask code as if masks were pass by value (which is how the
+vast majority of kernel hackers, working on systems with one-word
+masks, think of them), while actually passing by reference, to
+avoid unnecessary stack copies of multiword masks.
 
-drivers/serial/sunsab.c is one.
 
+> +EXPORT_SYMBOL(bitmap_bitremap);
+> 
+> Is that deliberately not EXPORT_SYMBOL_GPL?
+
+It's not deliberate that I am aware of.
+
+But it does seem to be the common practice ....
+
+All the bitmap routines are that way - no GPL.  In fact it seems that
+almost all the EXPORT_SYMBOLS in the lib/*.c routines are that way - 12
+with GPL and 174 without GPL, or some such.  The only lib/*.c GPL
+exports are in lib/klist.c and lib/kobject_uevent.c.
+
+Is this bad?
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

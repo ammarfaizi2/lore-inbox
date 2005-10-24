@@ -1,63 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751328AbVJXV6E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbVJXV7K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751328AbVJXV6E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 17:58:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbVJXV6E
+	id S1751329AbVJXV7K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 17:59:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbVJXV7K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 17:58:04 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:23566 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1751323AbVJXV6C (ORCPT
+	Mon, 24 Oct 2005 17:59:10 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:715 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1751329AbVJXV7I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 17:58:02 -0400
-Date: Mon, 24 Oct 2005 17:57:53 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Ben Greear <greearb@candelatech.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [patch 2.6.13 0/5] normalize calculations of rx_dropped
-Message-ID: <20051024215751.GH28212@tuxdriver.com>
-Mail-Followup-To: Ben Greear <greearb@candelatech.com>,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-	Jeff Garzik <jgarzik@pobox.com>
-References: <09122005104858.332@bilbo.tuxdriver.com> <4325CEAB.2050600@pobox.com> <20050912191419.GB19644@tuxdriver.com> <435D53AE.3020401@candelatech.com>
+	Mon, 24 Oct 2005 17:59:08 -0400
+Subject: Re: Sharp brick c-3000
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051024211632.GA7127@elf.ucw.cz>
+References: <20051024211632.GA7127@elf.ucw.cz>
+Content-Type: text/plain
+Date: Mon, 24 Oct 2005 22:59:04 +0100
+Message-Id: <1130191145.8345.185.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <435D53AE.3020401@candelatech.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 24, 2005 at 02:35:42PM -0700, Ben Greear wrote:
+Hi,
 
-> It doesn't matter too much to me either way, but I'd like for there to
-> be a precisely documented definition for the various net-stats so that
-> I can correctly show the values to user-space (I can certainly add 
-> rx_discards
-> to rx_errors for a 'total rx errors' value, but I need to know whether
-> rx_discards is already in rx_errors to keep from counting things twice.)
+On Mon, 2005-10-24 at 23:16 +0200, Pavel Machek wrote:
+> I'm not sure what I did wrong... I can still access "flasher" menu, by
+> holding down okay after reset, I press 4, 2, Y after that, screen just
+> goes black, but I do not get "update screen" after that. SD inserted
+> or not, no change. I'll play a bit more.
 
-My opinion is that:
+Ah, I can guess :-(. Have a look at this:
+http://www.h5.dion.ne.jp/~rimemoon/zaurus/pic/nandmap.jpg (from
+http://www.h5.dion.ne.jp/~rimemoon/zaurus/memo_006.htm)
 
-	-- rx_errors should count all "on the wire" hardware errors;
+updater.sh writes the kernel into the space marked "2nd Kernel" - 1264kb
+long. I'd guess you wrote a kernel larger than this, you overwrite the
+initrd.gz which is used to run updater.sh. We really need to add a size
+check to the OE copy of updater.sh. Anyhow, the damage has been done and
+that update route is now broken. I should have warned about this
+although I assumed Sharp might have fixed it on newer devices :-/.
 
-	-- rx_missed_errors should count frames w/ no "on the wire"
-	errors that cannot be received by the hardware (generally
-	due to lack of DMA bufers); and,
+So I said the Zaurus is unbrickable and you appear to have bricked it?
+There is another level of system restore thankfully. In the past, to fix
+this problem on both a c700 and a c760 I've used the files from here:
 
-	-- rx_discards should count frames dropped by the kernel
-	after successful reception by the hardware.
+http://pocketworkstation.org/files/recover/
 
-I do _not_ think rx_missed_errors should be counted as part of
-rx_errors, but I could be persuaded otherwise.
+(http://pocketworkstation.org/files/recover/README-flash-recover.txt is
+the instructions I used.)
 
-> Jeff:  Could you lay down the law somewhere in the Documentation/
-> directory and then let us start fixing any driver that does it differently?
+You need to find the files for the c3000 and then attempt this
+procedure. I don't have the files for the c3000 but you should be able
+to get from somewhere. When you find them, let me know as I might also
+find them handy ;-).
 
-It does seem like a netdev stats clarification doc would be
-appropriate.  Does anyone have the beginnings of this?
+Your other alternative is to perform a NAND Restore, if you can find a
+NAND backup for the C3000. The D+M menu has an option for this and I'm
+sure it will also be documented on the web. When in this state I
+couldn't get that to work on my c760 though it could have been the image
+I was trying to restore it with or my CF card...
 
-John
--- 
-John W. Linville
-linville@tuxdriver.com
+Incidentally OE has safeguards that warn you if the kernel is too big...
+
+Richard
+
+

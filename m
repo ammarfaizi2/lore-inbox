@@ -1,60 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751001AbVJXE7j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751003AbVJXFBU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751001AbVJXE7j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 00:59:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751002AbVJXE7j
+	id S1751003AbVJXFBU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 01:01:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751004AbVJXFBU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 00:59:39 -0400
-Received: from gold.veritas.com ([143.127.12.110]:53145 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1750999AbVJXE7i (ORCPT
+	Mon, 24 Oct 2005 01:01:20 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:9097 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751003AbVJXFBT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 00:59:38 -0400
-Date: Mon, 24 Oct 2005 05:58:45 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: clameter@sgi.com, rmk@arm.linux.org.uk, matthew@wil.cx, jdike@addtoit.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 7/9] mm: split page table lock
-In-Reply-To: <20051023211630.44459ff7.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0510240538580.22972@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0510221716380.18047@goblin.wat.veritas.com>
- <Pine.LNX.4.61.0510221727060.18047@goblin.wat.veritas.com>
- <20051023142712.6c736dd3.akpm@osdl.org> <20051023152245.4d1dc812.akpm@osdl.org>
- <Pine.LNX.4.61.0510240412350.22131@goblin.wat.veritas.com>
- <20051023211630.44459ff7.akpm@osdl.org>
+	Mon, 24 Oct 2005 01:01:19 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 24 Oct 2005 04:59:38.0129 (UTC) FILETIME=[BC354810:01C5D857]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+X-Fcc: ~/Mail/linus
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org
+Subject: [PATCH] posix-cpu-timers: fix overrun reporting
+X-Shopping-List: (1) Magnificent vagrants
+   (2) Catholic Toothpick rebellions
+   (3) Sardonic fruit yarns
+Message-Id: <20051024050115.117EC1809AD@magilla.sf.frob.com>
+Date: Sun, 23 Oct 2005 22:01:15 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Oct 2005, Andrew Morton wrote:
-> Hugh Dickins <hugh@veritas.com> wrote:
-> 
-> I'm rather surprised that no architectures are already using page.mapping,
-> .index, .lru or .virtual in pte pages.
 
-It is important that we don't corrupt .virtual.  But beyond that, why
-should they use those fields?  Some were used in the pte_chains days,
-and ppc held on to that usage for a while longer (to get from page
-table to mm), but that is all gone now.  Unless I've missed something.
+This change corrects an omission in posix_cpu_timer_schedule, so that it
+correctly propagates the overrun calculation to where it will get reported
+to the user.
 
-> > > ick.  I think I prefer the union, although it'll make struct page bigger
-> > > for CONFIG_PREEMPT+CONFIG_SMP+NR_CPUS>=4.    hmm.
-> > 
-> > Hmm indeed.  Definitely not the tradeoff I chose or would choose.
-> 
-> It's not that bad, really.  I do think that this approach is just too
-> dirty, sorry.  We can avoid it by moving something else into the union. 
-> lru, perhaps?
+Signed-off-by: Roland McGrath <roland@redhat.com>
 
-Perhaps.  But revisiting this is not something I'm prepared to rush
-into overnight - right answers come slower.  I'd rather we start with
-what I had, tested on few architectures as it is, and consider how to
-robustify it more sedately.
+---
 
-Or, if you prefer, disable the split (raise Kconfig default to "4096"), or
-back out the 7/9 for the moment; though I had been hoping for exposure.
+ kernel/posix-cpu-timers.c |   16 ++++++++++------
+ 1 files changed, 10 insertions(+), 6 deletions(-)
 
-Hugh
+4da6a042f1fe3a10265f4cb444c464c16644f814
+diff --git a/kernel/posix-cpu-timers.c b/kernel/posix-cpu-timers.c
+--- a/kernel/posix-cpu-timers.c
++++ b/kernel/posix-cpu-timers.c
+@@ -1223,7 +1223,7 @@ void posix_cpu_timer_schedule(struct k_i
+ 		/*
+ 		 * The task was cleaned up already, no future firings.
+ 		 */
+-		return;
++		goto out;
+ 
+ 	/*
+ 	 * Fetch the current sample and update the timer's expiry time.
+@@ -1233,7 +1233,7 @@ void posix_cpu_timer_schedule(struct k_i
+ 		bump_cpu_timer(timer, now);
+ 		if (unlikely(p->exit_state)) {
+ 			clear_dead_task(timer, now);
+-			return;
++			goto out;
+ 		}
+ 		read_lock(&tasklist_lock); /* arm_timer needs it.  */
+ 	} else {
+@@ -1246,8 +1246,7 @@ void posix_cpu_timer_schedule(struct k_i
+ 			put_task_struct(p);
+ 			timer->it.cpu.task = p = NULL;
+ 			timer->it.cpu.expires.sched = 0;
+-			read_unlock(&tasklist_lock);
+-			return;
++			goto out_unlock;
+ 		} else if (unlikely(p->exit_state) && thread_group_empty(p)) {
+ 			/*
+ 			 * We've noticed that the thread is dead, but
+@@ -1255,8 +1254,7 @@ void posix_cpu_timer_schedule(struct k_i
+ 			 * drop our task ref.
+ 			 */
+ 			clear_dead_task(timer, now);
+-			read_unlock(&tasklist_lock);
+-			return;
++			goto out_unlock;
+ 		}
+ 		cpu_clock_sample_group(timer->it_clock, p, &now);
+ 		bump_cpu_timer(timer, now);
+@@ -1268,7 +1266,13 @@ void posix_cpu_timer_schedule(struct k_i
+ 	 */
+ 	arm_timer(timer, now);
+ 
++out_unlock:
+ 	read_unlock(&tasklist_lock);
++
++out:
++	timer->it_overrun_last = timer->it_overrun;
++	timer->it_overrun = -1;
++	++timer->it_requeue_pending;
+ }
+ 
+ /*

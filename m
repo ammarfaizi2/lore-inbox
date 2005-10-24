@@ -1,53 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbVJXVKm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751293AbVJXVJP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751294AbVJXVKm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 17:10:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751297AbVJXVKm
+	id S1751293AbVJXVJP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 17:09:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbVJXVJP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 17:10:42 -0400
-Received: from waste.org ([216.27.176.166]:38587 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1751294AbVJXVKl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 17:10:41 -0400
-Date: Mon, 24 Oct 2005 14:08:54 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: Muli Ben-Yehuda <mulix@mulix.org>
-Cc: Hareesh Nagarajan <hnagar2@gmail.com>, linux-kernel@vger.kernel.org,
-       ak@suse.de
-Subject: Re: [TRIVIAL] Error checks omitted in init_tmpfs() in mm/tiny-shmem.c
-Message-ID: <20051024210854.GK26160@waste.org>
-References: <435C7149.3010004@gmail.com> <20051024070921.GW26160@waste.org> <435CA1CF.3070204@gmail.com> <20051024204518.GI26160@waste.org> <20051024210047.GG17764@granada.merseine.nu>
+	Mon, 24 Oct 2005 17:09:15 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:1668 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S1751293AbVJXVJO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 17:09:14 -0400
+Date: Tue, 25 Oct 2005 01:09:01 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       Jesse Barnes <jbarnes@virtuousgeek.org>, bcollins@debian.org,
+       Greg KH <greg@kroah.com>, scjody@steamballoon.com, gregkh@suse.de
+Subject: Re: new PCI quirk for Toshiba Satellite?
+Message-ID: <20051025010901.B1661@jurassic.park.msu.ru>
+References: <20051015185502.GA9940@plato.virtuousgeek.org> <200510211138.57847.jbarnes@virtuousgeek.org> <43594BD3.9070103@s5r6.in-berlin.de> <200510241045.08494.jbarnes@virtuousgeek.org> <435D2612.5070701@s5r6.in-berlin.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051024210047.GG17764@granada.merseine.nu>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <435D2612.5070701@s5r6.in-berlin.de>; from stefanr@s5r6.in-berlin.de on Mon, Oct 24, 2005 at 08:21:06PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 24, 2005 at 11:00:47PM +0200, Muli Ben-Yehuda wrote:
-> On Mon, Oct 24, 2005 at 01:45:18PM -0700, Matt Mackall wrote:
-> 
-> > > --- linux-2.6.13.4/mm/tiny-shmem.c	2005-10-10 13:54:29.000000000 -0500
-> > > +++ linux-2.6.13.4-edit/mm/tiny-shmem.c	2005-10-24 03:43:38.614071000 -0500
-> > > @@ -31,12 +31,18 @@
-> > >  
-> > >  static int __init init_tmpfs(void)
-> > >  {
-> > > -	register_filesystem(&tmpfs_fs_type);
-> > > +	int error;
-> > > +
-> > > +	error = register_filesystem(&tmpfs_fs_type);
-> > > +	BUG_ON(error);
-> > 
-> > Can we just do BUG_ON(register_filesystem() != 0)?
-> 
-> It seems a little risky to me to rely on a macro always evaluating its
-> arguments, even though this one does on every kernel version I
-> checked.
+On Mon, Oct 24, 2005 at 08:21:06PM +0200, Stefan Richter wrote:
+> Once the workaround is in pci/quirks.c, a single #ifdef would suffice
+> (if it is still of any benefit there).
 
-You must have missed my patch on 1 April that allows turning off all
-kernel bugs. It makes sure the arguments are still evaluated.
+Such an obviously i386-specific quirk should go into
+arch/i386/pci/fixup.c.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+Ivan.

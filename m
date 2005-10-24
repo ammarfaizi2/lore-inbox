@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbVJXU7a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbVJXVBR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751282AbVJXU7a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 16:59:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbVJXU7a
+	id S1751284AbVJXVBR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 17:01:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbVJXVBR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 16:59:30 -0400
-Received: from mail.majordomo.ru ([81.177.16.8]:3340 "EHLO mail.majordomo.ru")
-	by vger.kernel.org with ESMTP id S1751282AbVJXU73 (ORCPT
+	Mon, 24 Oct 2005 17:01:17 -0400
+Received: from smtpauth09.mail.atl.earthlink.net ([209.86.89.69]:60874 "EHLO
+	smtpauth09.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
+	id S1751284AbVJXVBR convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 16:59:29 -0400
-Message-ID: <435D8419.8050602@lindevel.ru>
-Date: Tue, 25 Oct 2005 01:02:17 +0000
-From: "Nikolay N. Ivanov" <group@lindevel.ru>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: ru-ru, ru
-MIME-Version: 1.0
+	Mon, 24 Oct 2005 17:01:17 -0400
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Transfer-Encoding: 8BIT
+Message-Id: <dfd859813ee9f143cbb8c4cc3c73aa2c@zeesource.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 To: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6.13.4: don't reboot
-References: <20051022171757.6ED8222AF02@anxur.fi.muni.cz>
-In-Reply-To: <20051022171757.6ED8222AF02@anxur.fi.muni.cz>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Claire McLister <mclister@zeesource.net>
+Subject: Map of Linux Kernel Users (OT)
+Date: Mon, 24 Oct 2005 14:01:15 -0700
+X-Mailer: Apple Mail (2.623)
+X-ELNK-Trace: 7705cff7f8fc6ea374bf435c0eb9d47869d51e7181ee6aecaa46e2da96cb2c808498dd5c8d2f0fb0350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 68.164.80.151
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
->>HP Compaq nx6110 don't reboot with kernel 2.6.13.4.
->>    
->>
->The last OK was?
->  
->
->>Poweroff and acpi functions works normally. Is it kernel bug?
->>    
->>
->May be.
->  
->
-There are also such problem in kernel 2.6.11.6 appeared (other 
-distributive) but 2.6.10 works normally with the same config parameters. 
-I believe that it's kernel bug.
+  We've developed an automatic email mapping capability from Google Maps 
+API.
+
+  To try it out, we mapped origins of emails to this group from October 
+2 through October 10th.
+
+The result of this map is at:  
+http://www.zeesource.net/maps/map.do?group=478
+
+  Would like to hear what you think of it.
+
+  Best wishes
+
+Claire
+
+  --
+  Claire McLister                        mclister@zeesource.net
+  1684 Nightingale Avenue     Suite 201
+  Sunnyvale, CA 94087            408-733-2737(fax)
+
+                      http://www.zeesource.net
+

@@ -1,63 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbVJXVgE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbVJXVjK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751308AbVJXVgE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 17:36:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbVJXVgE
+	id S1751319AbVJXVjK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 17:39:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751315AbVJXVjJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 17:36:04 -0400
-Received: from ns2.lanforge.com ([66.165.47.211]:11751 "EHLO ns2.lanforge.com")
-	by vger.kernel.org with ESMTP id S1751308AbVJXVgC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 17:36:02 -0400
-Message-ID: <435D53AE.3020401@candelatech.com>
-Date: Mon, 24 Oct 2005 14:35:42 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
-X-Accept-Language: en-us, en
+	Mon, 24 Oct 2005 17:39:09 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:7117 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S1751324AbVJXVjI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 17:39:08 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: "John W. Linville" <linville@tuxdriver.com>
-CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [patch 2.6.13 0/5] normalize calculations of rx_dropped
-References: <09122005104858.332@bilbo.tuxdriver.com> <4325CEAB.2050600@pobox.com> <20050912191419.GB19644@tuxdriver.com>
-In-Reply-To: <20050912191419.GB19644@tuxdriver.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] new hp diva console port
+Date: Mon, 24 Oct 2005 14:38:02 -0700
+Message-ID: <C1BB5827EB7A364EA57B4E8C7C02ADAC054EB8D6@cacexc04.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] new hp diva console port
+Thread-Index: AcXYyVJSKuUmHoaASj+iw7KuAhMLpAADw5hA
+From: "Chen, Justin" <justin.chen@hp.com>
+To: "Helgaas, Bjorn" <bjorn.helgaas@hp.com>
+Cc: <rmk+serial@arm.linux.org.uk>, <linux-kernel@vger.kernel.org>,
+       <linux-serial@vger.kernel.org>
+X-OriginalArrivalTime: 24 Oct 2005 21:38:03.0660 (UTC) FILETIME=[36AFE4C0:01C5D8E3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John W. Linville wrote:
-> On Mon, Sep 12, 2005 at 02:53:31PM -0400, Jeff Garzik wrote:
-> 
-> 
->>For e.g. e1000, are we sure that packets dropped by hardware are 
->>accounted elsewhere?
-> 
-> 
-> The e100 and tg3 patches move the count of those frames to
-> rx_missed_errors.  e1000 and ixgb were already counting them there in
-> addition to rx_discards, so they were simply removed from rx_discards.
-> 3c59x was counting other errors in rx_discards, so they were removed
-> from that count.
+On Monday, October 24, 2005 11:33 AM, Helgaas, Bjorn wrote:
+>It'll be easier to apply this if you follow the guidelines in 
+>Documentation/SubmittingPatches.  For example, the patch 
+>should apply with "patch -p1", add "Signed-off-by:", etc.
 
-Whatever became of this discussion?  It seems that the e1000 driver
-in 2.6.13.2 uses rx_errors as the total of all receive errors, while
-the patch John was proposing broke them out into separate counters.
+Okay,  here is the adjusted format and the signature -
 
-It doesn't matter too much to me either way, but I'd like for there to
-be a precisely documented definition for the various net-stats so that
-I can correctly show the values to user-space (I can certainly add rx_discards
-to rx_errors for a 'total rx errors' value, but I need to know whether
-rx_discards is already in rx_errors to keep from counting things twice.)
-
-Jeff:  Could you lay down the law somewhere in the Documentation/
-directory and then let us start fixing any driver that does it differently?
-
+This patch adds the new ID 0x132a and configure the new PCI Diva console
+port.  This device support only 1 single console UART. Please apply.
 Thanks,
-Ben
+ 
+Signed-off-by: Justin Chen <justin.chen@hp.com>
 
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
-
+------------------------------------------------------------------------
+-------------------------------------------------------
+diff -uprN -X dontdiff linux-vanilla/drivers/serial/8250_pci.c
+ia-26126/drivers/serial/8250_pci.c
+--- linux-vanilla/drivers/serial/8250_pci.c	2005-10-24
+12:32:01.817851490 -0700
++++ ia-26126/drivers/serial/8250_pci.c	2005-10-24 12:24:13.628404100
+-0700
+@@ -177,6 +177,7 @@ static int __devinit pci_hp_diva_init(st
+ 		rc = 4;
+ 		break;
+ 	case PCI_DEVICE_ID_HP_DIVA_POWERBAR:
++	case PCI_DEVICE_ID_HP_DIVA_HURRICANE:
+ 		rc = 1;
+ 		break;
+ 	}
+diff -uprN -X dontdiff linux-vanilla/include/linux/pci_ids.h
+ia-26126/include/linux/pci_ids.h
+--- linux-vanilla/include/linux/pci_ids.h	2005-10-24
+12:31:49.661601638 -0700
++++ ia-26126/include/linux/pci_ids.h	2005-10-24 12:23:31.366685868
+-0700
+@@ -711,6 +711,7 @@
+ #define PCI_DEVICE_ID_HP_DIVA_EVEREST	0x1282
+ #define PCI_DEVICE_ID_HP_DIVA_AUX	0x1290
+ #define PCI_DEVICE_ID_HP_DIVA_RMP3	0x1301
++#define PCI_DEVICE_ID_HP_DIVA_HURRICANE 0x132a
+ #define PCI_DEVICE_ID_HP_CISSA		0x3220
+ #define PCI_DEVICE_ID_HP_CISSB		0x3230
+ #define PCI_DEVICE_ID_HP_ZX2_IOC	0x4031
+------------------------------------------------------------------------
+--------------------------------------------------------------

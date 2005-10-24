@@ -1,43 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751211AbVJXSCq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbVJXSDn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751211AbVJXSCq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 14:02:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbVJXSCo
+	id S1751214AbVJXSDn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 14:03:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbVJXSDn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 14:02:44 -0400
-Received: from pat.uio.no ([129.240.130.16]:58790 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1751211AbVJXSCR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 14:02:17 -0400
-Subject: Re: [PATCH 1/8] VFS: pass file pointer to filesystem from
-	ftruncate()
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: akpm@osdl.org, viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <E1EU5XO-0005rf-00@dorka.pomaz.szeredi.hu>
-References: <E1EU5XO-0005rf-00@dorka.pomaz.szeredi.hu>
-Content-Type: text/plain; charset=utf-8
-Date: Mon, 24 Oct 2005 14:01:56 -0400
-Message-Id: <1130176917.9102.1.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 8BIT
-X-UiO-Spam-info: not spam, SpamAssassin (score=-2.262, required 12,
-	autolearn=disabled, AWL 0.23, RCVD_IN_XBL 2.51,
-	UIO_MAIL_IS_INTERNAL -5.00)
+	Mon, 24 Oct 2005 14:03:43 -0400
+Received: from relais.videotron.ca ([24.201.245.36]:18211 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP
+	id S1751214AbVJXSD0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 14:03:26 -0400
+Date: Mon, 24 Oct 2005 14:03:21 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+In-reply-to: <Pine.LNX.4.64.0510241347081.5288@localhost.localdomain>
+X-X-Sender: nico@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>, Herbert Xu <herbert@gondor.apana.org.au>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Message-id: <Pine.LNX.4.64.0510241358020.5288@localhost.localdomain>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <Pine.LNX.4.64.0510241347081.5288@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-må den 24.10.2005 klokka 18:51 (+0200) skreiv Miklos Szeredi:
-> This patch extends the iattr structure with a file pointer memeber,
-> and adds an ATTR_FILE validity flag for this member.
-> 
-> This is set if do_truncate() is invoked from ftruncate() or from
-> do_coredump().
+[PATCH 4/5] crypto/sha1.c: avoid successively shifting a long long
 
-This would be very useful for the NFSv4 client too.
+Shifting a long long about 7 times to store the length bits is suboptimal
+on most 32-bit architectures.  Use a 32 bit scratch instead.
 
-Cheers,
-  Trond
+This provides an appreciable code reduction considering the _whole_
+of the sha1_final() function:
 
+	arch		old size	new size	reduction
+	---------------------------------------------------------
+	i386		0xe0		0xc4		12.5%
+	arm		0x15c		0xe8		33.3%
+
+Smaller code in this case is of course faster code.
+
+Signed-off-by: Nicolas Pitre <nico@cam.org>
+
+Index: linux-2.6/crypto/sha1.c
+===================================================================
+--- linux-2.6.orig/crypto/sha1.c
++++ linux-2.6/crypto/sha1.c
+@@ -75,8 +75,8 @@
+ static void sha1_final(void* ctx, u8 *out)
+ {
+ 	struct sha1_ctx *sctx = ctx;
+-	u32 i, j, index, padlen;
+-	u64 t, count = sctx->count;
++	u64 count = sctx->count;
++	u32 i, j, index, padlen, t;
+ 	u8 bits[8];
+ 	static const u8 padding[64] = { 0x80, };
+ 
+@@ -90,7 +90,8 @@
+ 	bits[7] = 0xff & t; t>>=8;
+ 	bits[6] = 0xff & t; t>>=8;
+ 	bits[5] = 0xff & t; t>>=8;
+-	bits[4] = 0xff & t; t>>=8;
++	bits[4] = 0xff & t;
++	t = count >> (32 - 3);
+ 	bits[3] = 0xff & t; t>>=8;
+ 	bits[2] = 0xff & t; t>>=8;
+ 	bits[1] = 0xff & t; t>>=8;

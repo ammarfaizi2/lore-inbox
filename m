@@ -1,74 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750888AbVJXBHu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbVJXBV6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750888AbVJXBHu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 21:07:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750889AbVJXBHu
+	id S1750894AbVJXBV6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 21:21:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750902AbVJXBV6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 21:07:50 -0400
-Received: from chilli.pcug.org.au ([203.10.76.44]:18596 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S1750887AbVJXBHu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 21:07:50 -0400
-Date: Mon, 24 Oct 2005 11:07:36 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linus <torvalds@osdl.org>
-Subject: [PATCH] propogate gfp_t changes further
-Message-Id: <20051024110736.7bbe004e.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 23 Oct 2005 21:21:58 -0400
+Received: from mail21.syd.optusnet.com.au ([211.29.133.158]:40158 "EHLO
+	mail21.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1750894AbVJXBV5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Oct 2005 21:21:57 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17244.14122.511599.225842@wombat.chubb.wattle.id.au>
+Date: Mon, 24 Oct 2005 11:21:46 +1000
+From: Peter Chubb <peterc@gelato.unsw.edu.au>
+To: Claudio Scordino <cloud.of.andor@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Task profiling in Linux
+In-Reply-To: <200510232249.39236.cloud.of.andor@gmail.com>
+References: <200510232249.39236.cloud.of.andor@gmail.com>
+X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Claudio" == Claudio Scordino <cloud.of.andor@gmail.com> writes:
 
-This small patch gits rid of a couple of compile warnings.
 
-Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
----
+Claudio> I found out that Linux provides the getrusage() syscall which
+Claudio> provides the information that I need. This syscall also says
+Claudio> both user and system times used by the task, which is a very
+Claudio> useful thing.
 
- include/linux/textsearch.h |    4 ++--
- lib/textsearch.c           |    3 ++-
- 2 files changed, 4 insertions(+), 3 deletions(-)
+Claudio> However, it has two main drawbacks:
+
+Claudio> - its precision is very low: I'm working with real-time tasks
+Claudio> on a Athlon-64 and I need a more accurate estimation
+
+Claudio> - it can't be invoked by a generic task to know the execution
+Claudio> time of another task
+
+This is part of what my microstate accounting package provides
+.... but I haven't done a port to AMD64 yet...
+
+See http://www.gelato.unsw.edu.au/patches/
 
 -- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
-3c2113ffbc51db2bd1e1285c60657850289e634d
-diff --git a/include/linux/textsearch.h b/include/linux/textsearch.h
---- a/include/linux/textsearch.h
-+++ b/include/linux/textsearch.h
-@@ -40,7 +40,7 @@ struct ts_state
- struct ts_ops
- {
- 	const char		*name;
--	struct ts_config *	(*init)(const void *, unsigned int, int);
-+	struct ts_config *	(*init)(const void *, unsigned int, gfp_t);
- 	unsigned int		(*find)(struct ts_config *,
- 					struct ts_state *);
- 	void			(*destroy)(struct ts_config *);
-@@ -148,7 +148,7 @@ static inline unsigned int textsearch_ge
- extern int textsearch_register(struct ts_ops *);
- extern int textsearch_unregister(struct ts_ops *);
- extern struct ts_config *textsearch_prepare(const char *, const void *,
--					    unsigned int, int, int);
-+					    unsigned int, gfp_t, int);
- extern void textsearch_destroy(struct ts_config *conf);
- extern unsigned int textsearch_find_continuous(struct ts_config *,
- 					       struct ts_state *,
-diff --git a/lib/textsearch.c b/lib/textsearch.c
---- a/lib/textsearch.c
-+++ b/lib/textsearch.c
-@@ -254,7 +254,8 @@ unsigned int textsearch_find_continuous(
-  *         parameters or a ERR_PTR().
-  */
- struct ts_config *textsearch_prepare(const char *algo, const void *pattern,
--				     unsigned int len, int gfp_mask, int flags)
-+				     unsigned int len, gfp_t gfp_mask,
-+				     int flags)
- {
- 	int err = -ENOENT;
- 	struct ts_config *conf;
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*

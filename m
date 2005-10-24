@@ -1,67 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbVJXSF5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbVJXSHQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751226AbVJXSF5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 14:05:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbVJXSF5
+	id S1751223AbVJXSHQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 14:07:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbVJXSHP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 14:05:57 -0400
-Received: from relais.videotron.ca ([24.201.245.36]:20269 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP
-	id S1751212AbVJXSF4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 14:05:56 -0400
-Date: Mon, 24 Oct 2005 14:05:50 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-Subject: [PATCH 4/5] crypto/sha1.c: avoid successively shifting a long long
-In-reply-to: <Pine.LNX.4.64.0510241347081.5288@localhost.localdomain>
-X-X-Sender: nico@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>, Herbert Xu <herbert@gondor.apana.org.au>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.64.0510241405270.5288@localhost.localdomain>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <Pine.LNX.4.64.0510241347081.5288@localhost.localdomain>
+	Mon, 24 Oct 2005 14:07:15 -0400
+Received: from atlrel8.hp.com ([156.153.255.206]:56505 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S1751212AbVJXSHN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 14:07:13 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: "Jiri Slaby" <xslaby@fi.muni.cz>
+Subject: Re: [PATCH] rocketport: make it work when statically linked into kernel
+Date: Mon, 24 Oct 2005 12:06:57 -0600
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org, Wolfgang Denk <wd@denx.de>,
+       support@comtrol.com, Andrew Morton <akpm@osdl.org>
+References: <20051024174748.5B92822AEEF@anxur.fi.muni.cz>
+In-Reply-To: <20051024174748.5B92822AEEF@anxur.fi.muni.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510241206.57823.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 24 October 2005 11:47 am, Jiri Slaby wrote:
+> >The driver had incorrectly wrapped module_init(rp_init) in #ifdef MODULE,
+> >so it worked only when compiled as a module.
+> >
+> [snip]
+> >
+> >I also added the Comtrol support email address to MAINTAINERS.
+> Nope, the e-mail in fact doesn't exist, I (or somebody?) removed it from
+> MAINTAINERS.
+> [They'll send you, that you can use web interface as an automatic answer.]
 
-Shifting a long long about 7 times to store the length bits is suboptimal
-on most 32-bit architectures.  Use a 32 bit scratch instead.
+Yeah, you're right.  I got the same automated response to my post,
+though the web site still mentions the email address.
 
-This provides an appreciable code reduction considering the _whole_
-of the sha1_final() function:
+I don't think a lame web-only contact should really qualify as
+"maintained" though.  Anyway, attached is the same patch without
+the MAINTAINERS update.
 
-	arch		old size	new size	reduction
-	---------------------------------------------------------
-	i386		0xe0		0xc4		12.5%
-	arm		0x15c		0xe8		33.3%
 
-Smaller code in this case is of course faster code.
 
-Signed-off-by: Nicolas Pitre <nico@cam.org>
 
-Index: linux-2.6/crypto/sha1.c
+The driver had incorrectly wrapped module_init(rp_init) in #ifdef MODULE,
+so it worked only when compiled as a module.
+
+Tested by Wolfgang Denk with this device:
+
+    00:0e.0 Communication controller: Comtrol Corporation RocketPort 8 port w/RJ11 connectors (rev 04)
+        Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin A routed to IRQ 11
+        Region 0: I/O ports at 7000 [size=64]
+
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+
+Index: denk/drivers/char/rocket.c
 ===================================================================
---- linux-2.6.orig/crypto/sha1.c
-+++ linux-2.6/crypto/sha1.c
-@@ -75,8 +75,8 @@
- static void sha1_final(void* ctx, u8 *out)
- {
- 	struct sha1_ctx *sctx = ctx;
--	u32 i, j, index, padlen;
--	u64 t, count = sctx->count;
-+	u64 count = sctx->count;
-+	u32 i, j, index, padlen, t;
- 	u8 bits[8];
- 	static const u8 padding[64] = { 0x80, };
+--- denk.orig/drivers/char/rocket.c	2005-10-24 10:49:03.000000000 -0600
++++ denk/drivers/char/rocket.c	2005-10-24 10:49:04.000000000 -0600
+@@ -256,7 +256,6 @@
+ static int sReadAiopID(ByteIO_t io);
+ static int sReadAiopNumChan(WordIO_t io);
  
-@@ -90,7 +90,8 @@
- 	bits[7] = 0xff & t; t>>=8;
- 	bits[6] = 0xff & t; t>>=8;
- 	bits[5] = 0xff & t; t>>=8;
--	bits[4] = 0xff & t; t>>=8;
-+	bits[4] = 0xff & t;
-+	t = count >> (32 - 3);
- 	bits[3] = 0xff & t; t>>=8;
- 	bits[2] = 0xff & t; t>>=8;
- 	bits[1] = 0xff & t; t>>=8;
+-#ifdef MODULE
+ MODULE_AUTHOR("Theodore Ts'o");
+ MODULE_DESCRIPTION("Comtrol RocketPort driver");
+ module_param(board1, ulong, 0);
+@@ -288,17 +287,14 @@
+ module_param_array(pc104_4, ulong, NULL, 0);
+ MODULE_PARM_DESC(pc104_4, "set interface types for ISA(PC104) board #4 (e.g. pc104_4=232,232,485,485,...");
+ 
+-int rp_init(void);
++static int rp_init(void);
+ static void rp_cleanup_module(void);
+ 
+ module_init(rp_init);
+ module_exit(rp_cleanup_module);
+ 
+-#endif
+ 
+-#ifdef MODULE_LICENSE
+ MODULE_LICENSE("Dual BSD/GPL");
+-#endif
+ 
+ /*************************************************************************/
+ /*                     Module code starts here                           */
+@@ -2378,7 +2374,7 @@
+ /*
+  * The module "startup" routine; it's run when the module is loaded.
+  */
+-int __init rp_init(void)
++static int __init rp_init(void)
+ {
+ 	int retval, pci_boards_found, isa_boards_found, i;
+ 
+@@ -2502,7 +2498,6 @@
+ 	return 0;
+ }
+ 
+-#ifdef MODULE
+ 
+ static void rp_cleanup_module(void)
+ {
+@@ -2530,7 +2525,6 @@
+ 	if (controller)
+ 		release_region(controller, 4);
+ }
+-#endif
+ 
+ /***************************************************************************
+ Function: sInitController

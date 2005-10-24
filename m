@@ -1,61 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750952AbVJXDjO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750957AbVJXDwD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750952AbVJXDjO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 23:39:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750955AbVJXDjO
+	id S1750957AbVJXDwD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Oct 2005 23:52:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbVJXDwD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 23:39:14 -0400
-Received: from gold.veritas.com ([143.127.12.110]:6803 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1750951AbVJXDjN (ORCPT
+	Sun, 23 Oct 2005 23:52:03 -0400
+Received: from zproxy.gmail.com ([64.233.162.196]:31382 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750957AbVJXDwC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 23:39:13 -0400
-Date: Mon, 24 Oct 2005 04:38:21 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: clameter@sgi.com, rmk@arm.linux.org.uk, matthew@wil.cx, jdike@addtoit.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 7/9] mm: split page table lock
-In-Reply-To: <20051023152245.4d1dc812.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0510240412350.22131@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0510221716380.18047@goblin.wat.veritas.com>
- <Pine.LNX.4.61.0510221727060.18047@goblin.wat.veritas.com>
- <20051023142712.6c736dd3.akpm@osdl.org> <20051023152245.4d1dc812.akpm@osdl.org>
+	Sun, 23 Oct 2005 23:52:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=p0qXPFBsn4lpLcX2wAowgheCCaEvWOe08a4KosWchbcFbPkgKkePLduvc/OSvaGVpv33U3C12iSiWFhIml8pFsNeK92U4gyZIdoaHPeS7sjxe2Qlt0oOZjyqb+3vYw93vnmBJKYiPWTCZ0n1RFzvIzVunsW7Iuo5pq7qRS2Gysk=
+Message-ID: <435C5A58.5060404@gmail.com>
+Date: Mon, 24 Oct 2005 12:51:52 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 24 Oct 2005 03:39:13.0337 (UTC) FILETIME=[80687290:01C5D84C]
+To: Tejun Heo <htejun@gmail.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] matchreply (deliver mails into folders with associated
+ threads)
+References: <434C1F23.7020702@gmail.com>
+In-Reply-To: <434C1F23.7020702@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Oct 2005, Andrew Morton wrote:
-> Andrew Morton <akpm@osdl.org> wrote:
-> >  Hugh Dickins <hugh@veritas.com> wrote:
-> >  >
-> >  > In this implementation, the spinlock is tucked inside the struct page of
-> >  >  the page table page: with a BUILD_BUG_ON in case it overflows - which it
-> >  >  would in the case of 32-bit PA-RISC with spinlock debugging enabled.
-> > 
-> >  eh?   It's going to overflow an unsigned long on x86 too:
+Tejun Heo wrote:
 > 
-> Ah, I think I see what you've done: assume that .index, .lru and .virtual
-> are unused on pagetable pages, so we can just overwrite them.
+>  Hello, all.
+> 
+>  This isn't really linux kernel related but I wrote this to track LKML 
+> discussion threads better and I hope this can make following LKML a 
+> little bit easier for others too.
+> 
+>  What matchreply does is to enable procmail to deliver a message into 
+> the folder containing its associated thread.  So, when you find an 
+> interesting thread on LKML, just move the thread into your 'interested' 
+> folder, and then all follow-up messages will be delievered there.
+> 
+>  matchreply assumes Maildir format folders and uses inotify, so you need 
+> kernel version >= 2.6.13.
+> 
+>  README (explains how to setup .procmailrc) is at
+> 
+> http://home-tj.org/matchreply/files/README
+> 
+>  Source tarball
+> 
+> http://home-tj.org/matchreply/files/matchreply-0.1.tar.gz
+> 
+>  Binaries for i386 and x86_64
+> 
+> http://home-tj.org/matchreply/files/binary-matchreply-0.1-i386
+> http://home-tj.org/matchreply/files/binary-matchreply-0.1-x86_64
+> 
+>  Thanks.
+> 
 
-That's right (so I'm ignoring some of your earlier stabs).
-Sorry, it's looking like my comment block was inadequate.
+  A bugfix release 0.11 is available.  A buffer overflow bug in 
+log_message() is fixed.  What can be overwritten by overflowing the 
+buffer is only "\n\0", so it shouldn't be very dangerous.  Still, it's a 
+buffer overflow which can be triggered by incoming messages.  Please 
+update.  Sorry for the hassle.
 
-I'm also assuming that it'd be very quickly noticed, by bad_page
-or otherwise, if anyone changes these fields, so that what it's
-overwriting becomes significant.
+http://home-tj.org/wiki/index.php/Matchreply
+http://home-tj.org/files/matchreply/matchreply-0.11.tar.gz
+http://home-tj.org/files/matchreply/binary-matchreply-0.11-x86_64
+http://home-tj.org/files/matchreply/binary-matchreply-0.11-i386
 
-Would it be better if pte_lock_init(page) explicitly initialize each
-field from _page->index onwards, so that any search for uses of that
-page field shows up pte_lock_init?  With the BUILD_BUG_ON adjusted
-somehow so _page->virtual is excluded (I tend to erase that one from
-my mind, but we most certainly don't want a spinlock overwriting it).
+  Thanks.
 
-> ick.  I think I prefer the union, although it'll make struct page bigger
-> for CONFIG_PREEMPT+CONFIG_SMP+NR_CPUS>=4.    hmm.
-
-Hmm indeed.  Definitely not the tradeoff I chose or would choose.
-
-Hugh
+-- 
+tejun

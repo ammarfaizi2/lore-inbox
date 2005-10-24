@@ -1,95 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751003AbVJXFBU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750991AbVJXF3t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751003AbVJXFBU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 01:01:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751004AbVJXFBU
+	id S1750991AbVJXF3t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 01:29:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751002AbVJXF3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 01:01:20 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:9097 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751003AbVJXFBT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 01:01:19 -0400
+	Mon, 24 Oct 2005 01:29:49 -0400
+Received: from smtp106.sbc.mail.re2.yahoo.com ([68.142.229.99]:40059 "HELO
+	smtp106.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1750991AbVJXF3s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 01:29:48 -0400
+Message-ID: <435C7149.3010004@gmail.com>
+Date: Mon, 24 Oct 2005 00:29:45 -0500
+From: Hareesh Nagarajan <hnagar2@gmail.com>
+Reply-To: hnagar2@gmail.com
+User-Agent: Thunderbird 1.4 (X11/20050908)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-X-Fcc: ~/Mail/linus
-Cc: Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org
-Subject: [PATCH] posix-cpu-timers: fix overrun reporting
-X-Shopping-List: (1) Magnificent vagrants
-   (2) Catholic Toothpick rebellions
-   (3) Sardonic fruit yarns
-Message-Id: <20051024050115.117EC1809AD@magilla.sf.frob.com>
-Date: Sun, 23 Oct 2005 22:01:15 -0700 (PDT)
+To: linux-kernel@vger.kernel.org
+CC: mpm@selenic.com, ak@suse.de
+Subject: [TRIVIAL] Error checks omitted in init_tmpfs() in mm/tiny-shmem.c
+Content-Type: multipart/mixed;
+ boundary="------------020605000001040507090707"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------020605000001040507090707
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-This change corrects an omission in posix_cpu_timer_schedule, so that it
-correctly propagates the overrun calculation to where it will get reported
-to the user.
+The existing code in init_tmpfs() in mm/tiny-shmem.c does not handle the 
+cases when the calls to register_filesystem() and kern_mount() fail. 
+This patch adds those checks.
 
-Signed-off-by: Roland McGrath <roland@redhat.com>
+Signed-off-by: Hareesh Nagarajan <hnagar2@gmail.com>
 
----
 
- kernel/posix-cpu-timers.c |   16 ++++++++++------
- 1 files changed, 10 insertions(+), 6 deletions(-)
+--------------020605000001040507090707
+Content-Type: text/x-patch;
+ name="tiny-shmmem-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="tiny-shmmem-fix.patch"
 
-4da6a042f1fe3a10265f4cb444c464c16644f814
-diff --git a/kernel/posix-cpu-timers.c b/kernel/posix-cpu-timers.c
---- a/kernel/posix-cpu-timers.c
-+++ b/kernel/posix-cpu-timers.c
-@@ -1223,7 +1223,7 @@ void posix_cpu_timer_schedule(struct k_i
- 		/*
- 		 * The task was cleaned up already, no future firings.
- 		 */
--		return;
-+		goto out;
+--- linux-2.6.13.4/mm/tiny-shmem.c	2005-10-10 13:54:29.000000000 -0500
++++ linux-2.6.13.4-edit/mm/tiny-shmem.c	2005-10-24 00:13:10.532652000 -0500
+@@ -31,12 +31,27 @@
  
- 	/*
- 	 * Fetch the current sample and update the timer's expiry time.
-@@ -1233,7 +1233,7 @@ void posix_cpu_timer_schedule(struct k_i
- 		bump_cpu_timer(timer, now);
- 		if (unlikely(p->exit_state)) {
- 			clear_dead_task(timer, now);
--			return;
-+			goto out;
- 		}
- 		read_lock(&tasklist_lock); /* arm_timer needs it.  */
- 	} else {
-@@ -1246,8 +1246,7 @@ void posix_cpu_timer_schedule(struct k_i
- 			put_task_struct(p);
- 			timer->it.cpu.task = p = NULL;
- 			timer->it.cpu.expires.sched = 0;
--			read_unlock(&tasklist_lock);
--			return;
-+			goto out_unlock;
- 		} else if (unlikely(p->exit_state) && thread_group_empty(p)) {
- 			/*
- 			 * We've noticed that the thread is dead, but
-@@ -1255,8 +1254,7 @@ void posix_cpu_timer_schedule(struct k_i
- 			 * drop our task ref.
- 			 */
- 			clear_dead_task(timer, now);
--			read_unlock(&tasklist_lock);
--			return;
-+			goto out_unlock;
- 		}
- 		cpu_clock_sample_group(timer->it_clock, p, &now);
- 		bump_cpu_timer(timer, now);
-@@ -1268,7 +1266,13 @@ void posix_cpu_timer_schedule(struct k_i
- 	 */
- 	arm_timer(timer, now);
- 
-+out_unlock:
- 	read_unlock(&tasklist_lock);
+ static int __init init_tmpfs(void)
+ {
+-	register_filesystem(&tmpfs_fs_type);
++	int error;
 +
-+out:
-+	timer->it_overrun_last = timer->it_overrun;
-+	timer->it_overrun = -1;
-+	++timer->it_requeue_pending;
++	error = register_filesystem(&tmpfs_fs_type);
++	if (error) {
++		goto out2;
++	}
++
+ #ifdef CONFIG_TMPFS
+ 	devfs_mk_dir("shm");
+ #endif
+ 	shm_mnt = kern_mount(&tmpfs_fs_type);
++	if (IS_ERR(shm_mnt)) {
++		error = PTR_ERR(shm_mnt);
++		goto out1;
++	}
++
+ 	return 0;
++out1:
++	unregister_filesystem(&tmpfs_fs_type);
++out2:
++	return error;
  }
+ module_init(init_tmpfs)
  
- /*
+
+--------------020605000001040507090707--

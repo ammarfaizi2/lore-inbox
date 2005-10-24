@@ -1,62 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbVJXSNR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbVJXSQN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751215AbVJXSNR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 14:13:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbVJXSNR
+	id S1751228AbVJXSQN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 14:16:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751232AbVJXSQN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 14:13:17 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:7376 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751215AbVJXSNR (ORCPT
+	Mon, 24 Oct 2005 14:16:13 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:46061 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1751228AbVJXSQM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 14:13:17 -0400
-Date: Mon, 24 Oct 2005 20:13:20 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Mark Knecht <markknecht@gmail.com>, john stultz <johnstul@us.ibm.com>,
-       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: 2.6.14-rc5-rt5 - softirq-timer/0/3[CPU#0]: BUG in ktime_get at kernel/ktimers.c:103
-Message-ID: <20051024181320.GA9736@elte.hu>
-References: <5bdc1c8b0510240907mc90490eoe111188ee874c8a5@mail.gmail.com> <1130173552.7377.6.camel@localhost.localdomain>
+	Mon, 24 Oct 2005 14:16:12 -0400
+Subject: Re: sharp zaurus c-3000: fix compile failure without CONFIG_FB_PXA
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>
+In-Reply-To: <20051024172639.GA30960@elf.ucw.cz>
+References: <20051024172639.GA30960@elf.ucw.cz>
+Content-Type: text/plain
+Date: Mon, 24 Oct 2005 19:16:01 +0100
+Message-Id: <1130177761.8345.144.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1130173552.7377.6.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2005-10-24 at 19:26 +0200, Pavel Machek wrote:
+> This fixes compile problem when CONFIG_FB_PXA is not set.
+> 
+>   LD      .tmp_vmlinux1
+> arch/arm/mach-pxa/built-in.o(.text+0x1d74): In function
+> `spitz_get_hsync_len':
+> : undefined reference to `pxafb_get_hsync_time'
+> make: *** [.tmp_vmlinux1] Error 1
+> 3.46user 0.46system 5.10 (0m5.106s) elapsed 77.01%CPU
+> 
+> Signed-off-by: Pavel Machek <pavel@suse.cz>
+Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
+> 
+> diff --git a/arch/arm/mach-pxa/corgi_lcd.c b/arch/arm/mach-pxa/corgi_lcd.c
+> --- a/arch/arm/mach-pxa/corgi_lcd.c
+> +++ b/arch/arm/mach-pxa/corgi_lcd.c
+> @@ -488,6 +488,7 @@ static int is_pxafb_device(struct device
+>  
+>  unsigned long spitz_get_hsync_len(void)
+>  {
+> +#ifdef CONFIG_FB_PXA
+>  	if (!spitz_pxafb_dev) {
+>  		spitz_pxafb_dev = bus_find_device(&platform_bus_type, NULL, NULL, is_pxafb_device);
+>  		if (!spitz_pxafb_dev)
+> @@ -496,6 +497,7 @@ unsigned long spitz_get_hsync_len(void)
+>  	if (!get_hsync_time)
+>  		get_hsync_time = symbol_get(pxafb_get_hsync_time);
+>  	if (!get_hsync_time)
+> +#endif
+>  		return 0;
+>  
+>  	return pxafb_get_hsync_time(spitz_pxafb_dev);
+> 
+> 
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
-
-> > Time: tsc clocksource has been installed.
-> > WARNING: non-monotonic time!
-> > ... time warped from 151976744 to 147973105.
-> > softirq-timer/0/3[CPU#0]: BUG in ktime_get at kernel/ktimers.c:103
-> 
-> Hi Mark,
-> 
-> Yeah, I saw this too, and it went through to Thomas Gleixner and then 
-> to John Stultz, where he said that he may have fixed this in his 
-> latest version.  So we are now waiting on Thomas to pull John's work 
-> into the ktimers code, and then onto Ingo's RT base.
-> 
-> So, until then, you may just ignore the messages.  It should only 
-> happen when the tsc clocksource changes.
-> 
-> Unless, of course -rt5 already has this (I just got back from Germany, 
-> so I've been out of the loop).
-> 
-> Thomas, this hasn't been done yet, has it?
-
-not yet, but it's in progress. Meanwhile i increased the number of times 
-the warning will be printed per bootup (from 1 to 3), so that if a time 
-warp happens outside of that clock-switch case it should be printed too.
-
-	Ingo

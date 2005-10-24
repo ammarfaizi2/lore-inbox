@@ -1,216 +1,1314 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbVJXQHg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbVJXQG4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751125AbVJXQHg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 12:07:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbVJXQHf
+	id S1751136AbVJXQG4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 12:06:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbVJXQG4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 12:07:35 -0400
-Received: from xproxy.gmail.com ([66.249.82.206]:61667 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751125AbVJXQHf (ORCPT
+	Mon, 24 Oct 2005 12:06:56 -0400
+Received: from mo01.iij4u.or.jp ([210.130.0.20]:35547 "EHLO mo01.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S1751136AbVJXQGz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 12:07:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type;
-        b=SQVCR/NufBmuiw9hfFpplb3GJ1MeUc7WWejbJRxNwlVy0jkIhPJlHTI0+7/ELAZZnwQXGEEL7T2nh5QVn3s7jGZNaVMlb9oGfWehRy3jYt1l2rNe8R39IS3dSr75AvcZNParKD/sBv0hjmEZFpOzNmHhebFWkxcEH1SsLbWiQz0=
-Message-ID: <5bdc1c8b0510240907mc90490eoe111188ee874c8a5@mail.gmail.com>
-Date: Mon, 24 Oct 2005 09:07:34 -0700
-From: Mark Knecht <markknecht@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.14-rc5-rt5 - softirq-timer/0/3[CPU#0]: BUG in ktime_get at kernel/ktimers.c:103
-Cc: Ingo Molnar <mingo@elte.hu>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_27207_15543355.1130170054416"
+	Mon, 24 Oct 2005 12:06:55 -0400
+Date: Tue, 25 Oct 2005 01:06:04 +0900
+From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+To: Andrew Morton <akpm@osdl.org>
+Cc: yuasa@hh.iij4u.or.jp, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc5-mm1
+Message-Id: <20051025010604.66b59a0b.yuasa@hh.iij4u.or.jp>
+In-Reply-To: <20051024014838.0dd491bb.akpm@osdl.org>
+References: <20051024014838.0dd491bb.akpm@osdl.org>
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_27207_15543355.1130170054416
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hi Andrew,
 
-Hi,
-   This is on an older machine. Athlon 1600+ / older Via chipset.
+On Mon, 24 Oct 2005 01:48:38 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
+> 
+> - Added git-mips.patch to the -mm lineup: Ralf's MIPS development tree.
 
-ACPI: Power Button (FF) [PWRF]
-ACPI: Power Button (CM) [PWRB]
-ACPI: CPU0 (power states: C1[C1] C2[C2])
-ACPI: Processor [CPU0] (supports 16 throttling states)
-Time: tsc clocksource has been installed.
-WARNING: non-monotonic time!
-... time warped from 151976744 to 147973105.
-softirq-timer/0/3[CPU#0]: BUG in ktime_get at kernel/ktimers.c:103
- [<c0118e20>] __WARN_ON+0x60/0xc0 (8)
- [<c013072d>] ktime_get+0xed/0x130 (40)
- [<c01312de>] ktimer_run_queues+0x2e/0x130 (64)
- [<c01217f9>] run_timer_softirq+0xc9/0x3e0 (60)
- [<c03845ff>] schedule+0x4f/0x120 (16)
- [<c011d837>] ksoftirqd+0xb7/0x110 (28)
- [<c011d780>] ksoftirqd+0x0/0x110 (36)
- [<c012d29a>] kthread+0xba/0xc0 (4)
- [<c012d1e0>] kthread+0x0/0xc0 (28)
- [<c01013d5>] kernel_thread_helper+0x5/0x10 (16)
-WARNING: non-monotonic time!
-... time warped from 151976744 to 148971665.
-softirq-timer/0/3[CPU#0]: BUG in ktime_get at kernel/ktimers.c:103
- [<c0118e20>] __WARN_ON+0x60/0xc0 (8)
- [<c013072d>] ktime_get+0xed/0x130 (40)
- [<c01312de>] ktimer_run_queues+0x2e/0x130 (64)
- [<c01217f9>] run_timer_softirq+0xc9/0x3e0 (60)
- [<c03845ff>] schedule+0x4f/0x120 (16)
- [<c011d837>] ksoftirqd+0xb7/0x110 (28)
- [<c011d780>] ksoftirqd+0x0/0x110 (36)
- [<c012d29a>] kthread+0xba/0xc0 (4)
- [<c012d1e0>] kthread+0x0/0xc0 (28)
- [<c01013d5>] kernel_thread_helper+0x5/0x10 (16)
-WARNING: non-monotonic time!
-... time warped from 151976744 to 149972579.
-softirq-timer/0/3[CPU#0]: BUG in ktime_get at kernel/ktimers.c:103
- [<c0118e20>] __WARN_ON+0x60/0xc0 (8)
- [<c013072d>] ktime_get+0xed/0x130 (40)
- [<c01312de>] ktimer_run_queues+0x2e/0x130 (64)
- [<c01217f9>] run_timer_softirq+0xc9/0x3e0 (60)
- [<c03845ff>] schedule+0x4f/0x120 (16)
- [<c011d837>] ksoftirqd+0xb7/0x110 (28)
- [<c011d780>] ksoftirqd+0x0/0x110 (36)
- [<c012d29a>] kthread+0xba/0xc0 (4)
- [<c012d1e0>] kthread+0x0/0xc0 (28)
- [<c01013d5>] kernel_thread_helper+0x5/0x10 (16)
-lp: driver loaded but no devices found
-PNP: PS/2 Controller [PNP0303:PS2K,PNP0f13:PS2M] at 0x60,0x64 irq 1,12
-serio: i8042 AUX port at 0x60,0x64 irq 12
+This patch thrust back vr41xx to old Kconfig.
+Also tb0287_config has been removed.
+Please apply this patch.
 
-------=_Part_27207_15543355.1130170054416
-Content-Type: application/x-bzip2; name=knecht.config-2.6.14-rc5-rt5.bz2
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="knecht.config-2.6.14-rc5-rt5.bz2"
+Yoichi
 
-QlpoOTFBWSZTWej+Kj4ACNbfgGAQWOf//z////C////gYCFcAAAvt7jyAPqe9wPWjQhfcQq6e6AA
-T3vOe3Fyi9q68Nr1i3Rl0qVxA4qcQ65sOr1le3uB6eV53bu3eteq87cr73eZvq2rrTcZ8vBoI0IG
-gCYgTUMphG1T0nlPJMTxpI00ANAQaCCaGk0RJ+qPUxABoAAAABiBE0CZEynoplPUYQAAAaAAACTS
-SJqYgJNHpEHppHpqaANAADQaZAGkyKekzSj01NtIgNNAeoNpqM0QaNHqA0AJEQQ0hhEaBJMiaPUD
-TQAAMmgDTt+d3+qf+EH+9KIHNnotkMSN3yS4WIw2ZUWsKijaYgsFMVD64J0hjO/WmU+v+uBrELH7
-+x9OubmzybgzGhphVYcQkJabMovytnJ+rOHfVWjVX6E+hxnK37b3wMB774d2OaSsWFRZisKhUUFi
-xtlGRYLjUcLRKIoslZUWr5UquNS1oViiMqVUVaLZTTBwsFPYhU1aFYpFEWlRq+/SuIVIW0BrViwr
-AqA2iiyqgsILIKW2DRKNLVSVqVKKwiwmzFDGGMBGYqYkzKF9aWIgaRZA0iyCMgLByyY1C28JcoFa
-Wi0dMCsKyuKkKmJWOzVmmCig0hCoSHNAlxWMiIKtRtEUWVLN5agomLaezMwU9nFhpNW0bKURjRac
-MuU05lUgKjJiBmVV2ZnSmlcZSistMubZc0IpRnGVywU3uYNsQWA2pa3fBHMzGLLUwqKojW1S2VtF
-SpK1ndZ2+n5/A66Pwb+WfnfUv4vb7ve448D5E+k7npsf8H4PgoIgQBDyu5rSdo+Qioq/hC/EzMLl
-JNnUfsayeOtQ4f+XaP82dWl5j6096r52gWruxuvSIvy5hN3jf1/NqdjwlGfYtJyT18WdOdnRMpSb
-p2JGjD6VhdkP/XYfw8+cvqaaq0o9lkieiA3QrltkyN+NLKI9D0Mue2e/2vyWScvyf6LKTOLb6QFm
-R41Z6BErwU/XrGF6Kz1lKpc4Q+vX9fr0t3Hu8fjn5cG/m7uM/m+Me1Pr8rJeWETlTzm6h0rKkrjU
-3oyWk4fyr+EfsbNYg4W+M8a2lBXYzS7KVIxxmTWUPg94+l+7Yi3g9Zij6y/Gc+Vq0wiTzytDfp9V
-6RiKS5rLGDpBH2HHRfXED08HxKA8cxTtLmG9KpEhEUtRxOg61qVbOElu0HEQruVttYPk9QEdYl9D
-b8UzLGPwlluKT4pVxqswjysmOB72WvOexImdN0mw1nRtoVzp0xlk+7ljlR7+CYIqvc0Gx/WBsqMz
-kRnpFa/fLHTK3fE36Y55HsaB3HgrOtrlrZtpuqmDp/Hg2DY18o9HLk+9EFVvDKNjwlgsxkOgqUVv
-O/p5LntlKFay6Ys+/pbVOmXWGcgLsUR+Lhxe4G8IedjXWy6ye6EWfOcOLVRir14OnzPFlWulNLD0
-jCiOzove9qob62b2OyjKOy2hyBsUtduz7udXFYyhuOQlS0nnZXc9nN250cOK4Ya00mL71WFGLccc
-7tetMzam61dLeYva++yU6qoRoQTSSWb9Mm2mKTqPt03yc+eHB2+VkoyvzXWyXInXE22BaThW/Zzc
-svJQmi8aUYkgyIAQIAhTUunJ4ShxV4898RV9ISAIEAQh4fFqT0PEH8TGFuLnFTY9LoMka+trLb1q
-XBpjl7y4RYQ8QARERFBpm7DIAJQp4w4cBrxmc0Kr052iMno7KNayMtSf2XM/BTVGJBdpl6VJxT6+
-igbpEOq/qvc/C6Q8jTf3iej1O+cV/h+vjYHlbxeMpFzapgJK6FWs8lGzt4QDu0FRPp2dxFANTu+J
-rIxSavFSo54edcUm3yjVQ0TnL5WrOXpHV8Pt+/yy5b+/KHu9Sb/vS6yFv6DbCu65yYvf+dQ2MZcE
-yE/z+enoxIFMNjL9sU6tuJQdXvhJY+s9MZhwDxoY1n21HQ/GkNHsc+W/Z1WKSpQ0TRmE9eVGQj1O
-jH8o2gVXscrJTvWR3FoiRt3+r41Y1gk4+qMXTB1G/RM9A9olQEN3Dd5QyyhdgEMbjDIrYK63h1pX
-PHq+dmNRSq0nZNsD2OSFRCZxZNNbwj5iN8SBAH86E5WzygrO4Da0zK+4yuejTvrWYbx8RpSRzW5i
-HCdPV77ROyoxpmbrPc5JwuiQoMin63tXGcpuT9IW5zMD2QPeKWKb1PIf4VFcHIRYoE2z9GxcSB3b
-twwTGC0n5tavOdVJi4Vp18zKguNFpn1c7UxBnHI0uRBmiECKVx34I/JVk5xugLK8nQylBRMYfXlC
-Mxa0qEXd7jpwxlmzUXdGB7Ywbr6oEPou5Pq1roEQHgiov2xeAOygyBElbv7l7j5gCveefPAflWGl
-sHX4aiu97btYVgKrgFMERnwZEnGDxvjCJv5rWAU/w89Z+MsPl6fuge416YgL9+CALBOjOpGna3rB
-3E4wiPNxlBoCivjx9tKxacn0Up5wkbnIrYrFoQqVnti31w7q77K2lUpn7TpnnWlSJRZcHWzjPGF9
-E5X+21Te/uWzJ9LoN2SrLLAU3zsjCmq82xgLRSt+q82E74fRbn21v0Cp1xTP0JXA2VJ5plt9VDOa
-9G+wGnFdrZGJ/bzrF6HurHu7myMLiFnE+TlWS12SKthTzelGQdpiqihk6jqqT8nVWGiUU/oRbt5k
-NEXExScBayxrc5I1ciX01igg6+njw05Wp4qdolMSkiqp5h2BEoCVMengu8K1Fj5IhR1QjMVBVKAi
-geXDuT+S0IRzwEmntUG9npMWk9SVd9NoNixSpHrAiGIEkgImKffS584VCzMJzFrl0Baqe0+RQ6yI
-GAUggsx3gjvrB9Zbvuh4Wc/IfPTgRlDNAhH0vx206UAw5q4bEioR8pcsJW4rGWfJzsBhhdamg0dI
-fRAXxqniYGNJjLetvSicduXTjIZkO0mldzrm+OL4wYvTvXtzHNrf70CBoNedhC37RaWtmmR068lU
-ahSzlKU0Y4wt3qaesLpgHmdIKbc6lJKwxusEL1aGzn3bauCp5j1z3xn7nOVyNtmzSL4RdLaO3AHH
-92XrV9b2cvDHmuH6J0KDEkslrG3wKPg3VSxRZDXasW4YiBgzDwzIgHZYRIG6AB7In83B+j4iL6Za
-c71FM0FSEbSnSU8dgNasFC/OJ3sIKT1mTyeUUQyk68KbK6XG/qr3p1cXLu3wEw6yCtgyHA9+qHUC
-mNTwvW6wOR0iHQSh8mDhbiqtffuIVRivaxDP8E2ZRF7AOwSLIeId6LB6l350vl25JvEV7uppYxvt
-ENwzLJTejUpOTDibMBeMr2oFtInB7+iH7RYiLBRUFgKCigxERjIoCIIKrBQREVIKsUVBgosFgiAo
-iIgKxFEGMVkRSIRZFFVYMREVYKiDFRRBBWCIMFVBBVVVRYCqsGMBSKwVVURFgjEFgyAooiKCkRUB
-UYLBSCKqLFkBYsgooqIooKrGIoiqxFEVYsS0LBUQ2QqsBSLILIKRYKsFUgxBFYiKjBZGIApIKiAq
-xYgixGCqAqxRFjFBYiggjBRUYKoRYKsFkFgjBGRWMEiKoqiMsnewO5O5362cz8LsX6IEypmyFwFJ
-Xq7JmZ0hI7FEIR2MN0gM96ywpDfZpNZ+da4cKmge0XZqYWhIQyM0VJjuMmMiFaHyeK0i+7O5bINf
-sZaXu1rlunoOOERcYmKQTmHGhlVgNtAVRxLriRiaQ48YXCQ99+4qWCHbNn33l8uAGE9O7nbC1noI
-c5pIpqBpAh4bTaYIEFSGCDEfWYkh3NkGSleMvjtiq9ECIhoY0lktGafREMpeFB0ihW17HI8SVJMr
-kUYxZRqPm0Nb0MUNRrmIK3IPtnFwYsJ+Ls100gXrTv4smMi+bIYkOjC7Ult245uDwjugJswItDAJ
-AstgQJ23Ci/ezT1qG38XyiV6th6u/aVynK9jFerO78DQgVRjHyZBd4vU1vJeNknMJk70iWZynNIr
-1vMN3fma7BhIiLzyjVustgrht0jafuZastCAekQaGJTWutLTQC0iAqAzkRi/kksQcHCFy3CbxlpF
-AKj1e95A8uNwMaBhaLRXsS+aX26PM6eLEBLMjPSFBMm4iSjdEXo/Q2MtVRC2z3ZppresrMJLfGep
-kRkQS2xBUsr9YO0ZnnWyWi12+zHrvG2936ZsLLC4wdQTRBqEAcF8iJzrcMnTMIfnHPfgUc05W6qZ
-UGebbc87MOzprBhp6kLUnmDNUN7RnSBtMYDWbUIaY3pBA2rKmaWRlSMUSALKvS/5i6FhwRgEi+SY
-WdrqhKhwzPM7tPKM9bh+2TZWeyk6DcAPTvU2Uxx54KJnuRyMZmRc3CSIrwcAQAIiVFi9IPNeKUa9
-s/SbKkBPeklWgPdlmFmYGCkwrIBI8TEi0Nx8t7tZCznLDlgdut987biM1UIWAdaxDSJVBHZoAbW7
-QGvuH0woimbWNKKrIAbJnq/DIkws9NueoGxwiAL0m0F7dEJhr4kCLxWx1HuASkltuDR9YIkWYN9r
-NiOM6VZdnPloJNJAFJAOHSApAAFAOaAGmQkmIACwgSfCgAHph34J1SqPocOhwmmO1kNc505pqbMQ
-F4jRORTtEonJ67BXR3R3jqBqDAwELJy52QpGCW4LSbUBmEQ0R/ZtX1Ker8+0VOves4BugS63pinZ
-jKT0mHuSr4ztOjJb0ivrB2hEnAKDUyHRdshRs+XsK3G5eVCyDqkC0A1s+ovdTBgKgNPRC7bDqJ0Z
-EFpAYkNAsIaO93RtAJ58bbW0eofU2JQEpMBN3IiIgRFngVQcxwKFAXdqlDRnp0zGmg1Wltpnddp0
-rUCFzseHi/G+WrVqm0SsmkGQxorHXn77FqXcbUi6xUbbGjqEgyiU7YNX3k6GceOmFV1rCO8Ry0hB
-v2DOJkugwQr4VEQCwkhMrMTAi+J3zS1BxJKG2wnzgppPAol6oCoFeKCyEy530FLJHqgUks2SZJe5
-pcoUYUObMMgVOtaGKhLlkjktQZIILgnQcejE5vXi++udWf7k+w2OMskE0uvYaHFektHUK1kwR8NK
-IGUzGvR+bA+ucKBGTWEoEEq8MFy79W0HUw1l4QdRMtvk8jPxoJvcWsXTuDXZe32iKN9J0bQ40FeS
-USDzFsLxJNlIepkholqh5kDBU30GIG9stcxbCGPmuSUqgHqw84jaVra26zSrLHQAk6v4WE8rNxDu
-48iS7NZaqyOvgsL5MOO+J9HYnUdSBIPR43Q0uu6z19ZwZznvRGNXCCQaQPgtchhDiuqxitvaH0ev
-kw0ndqtnHNWXXi3fr2WnkMWVultJs+bnwb7rttbpMkcqe2Qzggm6usFOt6ZN08M6EkLBKZBqZaKk
-7VDX2R1n3zmYxkckD9XDjdW4udvSBO/v6QtCw1uwziEHGaNOw4pm6QR+9IespGT0hnVeKJGufjNw
-6BzNDXIRUvvG7vxC3Ij73hnlaGzJF3YTsw864ujr03mhsvVEi04s6sVz3ShJzLsC6wFzsRANxRcC
-8RnMSQ4vBCdBAFGgVLO0RzExsT3zQsF9o435UhVVFkFUm0gEklCgQGTodE42NVjbNDGO0CGJ0ukM
-J57d/fdHiSgDyw5dhSwLaeeV0JWXchtNaDIeAZOrarVjc/G31a94hPmDsGVByDOyDW/3eXAeWX5j
-fvo5ohTF39ZkPddd0s4+OSSoy8B4amWj38jH0hQkj10kW+2Hkn1GedRFVn1IL5QXEfh2KvTeeurU
-EbTJ2gUG1HtlNmpJe/2340hggSS7bQjMYFHq1WizZZxpi2Zm8FdDeGbYLOWGVVqwXgJOuHz8Kb4S
-yaXbhbp0IRsoKlgE7mdr57wL7NU1E93ZQyXAlkQDqAXioDyyOi069hPXseTAhUHghRsMoNffXWTF
-I5CoNhpRId5V12s/UIhdErOIqxtiRqckGD3FPbSrQREIuov2RKg0bYxN2cOM+JYz2+1ZVXViIxE1
-grchNgax7GDXA3AbncvGe4a01W8FUZQuy4xlgxgxc5GLZ2IYgdF4MiJ7p5Q3ETcuQE5wi0QPv2u5
-3htFUaMrkQsRoUKJEsDJiKsLVK7wI8bWeHZchZxdUB0GLmx7IHVBbklXD1dP3Oymh2m7y/zu+3Mk
-AAOuQmGE3t3BM/N1846khAKT7o4gciaVl1Q9yTsBUMckk3pHJZqnJHLJiLtWkURpQF7To818xLyZ
-pHvKIPrCnm68ahhFrLa1ErtJ+LlgkHx0EXUhqylorlh0HDxMICsgFWgm/R0oohKKsDMyS4PfPRpn
-3QUemUMzXQhYq0YYGs/ir0efWC9I7sj4g1MNBqToeLNd9u0Q8XQpkTko2Vva4ih12xHWJKUc/Qaw
-Eka+09s2vLXZno1LFlvp6762s4OxijG9kFHGyp6LdZmteZ15k/tgPcamMl0lwCrJBK9QrNQNPOZS
-tUSggm6EhuDH1pKx5D6DVlFXoZ1Z0h7XxUgeFO8AyIqISBd/PWZe3upgO2V/J5seV+rggJSLNJJY
-mA+aRuzrJ4PmpPTbaMkHkmQlHqaW96BXKEIrbxU7sM2Q9rksoMhlcCG8UtFR3yBrzQWayEIMS3xp
-PigGVPwmWvV08QhJFxKvtEnuB4INpha1nWd5GQRHpOneA08CEou8lmZsbiH0pV1iNQidRO8oVdPi
-RVJgsx5Rs6dYPlngfq0dZ0Ykcy4efLAZIk8W1sCbzM7M4UsZ3TuR2JA58Y8XN8gYtc9+Cxwc+HZH
-mcZtCIRF0xCeHYmSYUCEbL4V32CzPHYcMJd6hROuBL8u2t/FhSGshsFJUctHfoAHWIUpJ10Je/i1
-BCrAvQi+x0LN01l4Fbi5Jwmd4OdSuMENY7Zq09arsM9vNp0u9gep02iRpeiidEBPpDBk9+u5uA4s
-x5bGsDHN2bEni7MnXtwh/GX5ct8cCWiKeCNipy28Vove13gdOA7ccE4wZvFCCCvHT5UCNYKpjhCJ
-NzJZ7znBhk2CpAPzOssOnmtRMgVdhmFvQsLcrFAXuGVMc3xlh2UeLuozdxFmazIuwzZDPH0SXw9X
-MpJmsqdV82X5NggutVVRtCoYQS0O5AQ5w4y0PYKc9yMVCIOd+1JU5I+xn00xZvIbKxJU7T5tva5w
-ltcZyCbV1LEhQNIPm4ojWVLUBanpcsdO5kjKnKM5qhc0jU16h3taTnRZTId4gdU6g1Q2k62xFeuR
-bqxasvoQjXtC0cxtJLCgyoS0iWIF2VdPW8VgsxmnExeH6X6puNsCdQbE0qKAdFHc0I4o6sf0PPXR
-BR4ad6YZN4GA8/Ydv5O0n4n1n7efP6OsVdBJbPXSW9+ZrRnLrOJgbHKIYENRXjmB8z+G8c2B9/tT
-bWl6Bd7RqTDcaRDLltbeX49RuDR8p5Jp9q59YBH8IJs9BNkHwOwiwzdg5VVLmFd8neiYckKGntig
-UvkMCtexD26SXxe/o0NTBHX6NkUQqMJ/NaPBB17/fXsR+eUIuUccvo+dEIFFh1mhWnOvUCEHhw9r
-b3ebwYMGJ7JUn15bZFZXoZKbVsoAmQs42gSFKGUsfZFm3ZyCTKIhUjtx77Cfhr9F8OwM+9hhEfNq
-y5ND23nauoJGemq5Z5iXCBhdX5HKnQVUnrC/vF0wAuGxgIF0uC66eInzsvHppjl5Wt86Z0txn3at
-oXkjjbWBIMNJtsCQAnStModN3EPgN3xG996huGGvlro0L3c6oSAfVkUQJcoHckAkavHmzFtQKZFV
-NseXA4SjdleK7V0g8n8M1zHY6xQYeYyVCAgdRiod1qjrZebWvnSV0mja3MA8rdN42s0EQPZgwD31
-HYyJQeMvcfnz3yXHV4UXwZposxUNILNIj5iroqwxttiouksXdJPUm4gIzwSTz8+wvjR6cePIJTz6
-Nd5QIG8fV70IdqxTYFHXs+soqZ+MqFhhtVYIGEMDdNvkxkzq4ffw/Kem96OaV9g/GcS2LLLnn1De
-uCiBXneNxhuwt1glnFDUlQ8eECc6d4chFCCAhUPJRY5OjYjTu5DUzHRNRJMOrR8zGzSDt0KSB0SS
-V4ARTasuPNJfHNuvRC6a3Un8z4hNBTswpRC37Gi7RavaoY+TIqYTWdV32g9axR5zAGY71IOhhQvi
-b7W62DXmAoT2J7YaCrNABmYmyP0QuRpFjqcDMTrja3aQQEIQrR5jOX+FkZ8c48JtfJBljkjnAz1u
-ddnQTDBqIveJKkDDztUzVuyBMOdhaVCFgQQPTjZ4oNrowNJ/DDM7XxQCjAvnM9OL6Utt1mXOIHPz
-nkysP0fDBJGQeDLUw1KMdazScuN9/jRMgE3Wgg6vPWz7KuAxGY4TgACbRvhQlnlN/OD0pG6aVoBt
-h1siDiuo3fV5Du/bPv92NLl3m/E5VodzWIvCXRgbsEKGtbOHDnEFy1A0KN2HeWFD2otVphhIxcwE
-Z1IiKE3Byza2+1IbTFYgM9ePqQai+vKsWz/Wj2ESRGGd0ZnU6q+jt/4mIfbEy5098yQZVbvLzF8w
-Fb50fA8L33mDMq+KwMub/9d01X18n9lpP1s1iPGUIbQP4VFIKW2L67fHLLSbIQLfdiRKGAN2ZIJB
-JK7BT86q8hmGRA/YiTMgJvpT8fI5IxlOC4Hy+4Qg6W3xbx+6KtP80jonUbl0X/nBxEpgzfAXQV/n
-o8NNtulRUO2S4YAaYXikZGdqWXVl2i+wq8xzUFhnPbwgYvAkKCtmKLhU7zBVRxYhep3kf8uRwrpX
-azYWeXdRnBxeEHlo6MfnzM2ocwhAhxPJvsUqF0e4PIgosgtv2wvU1zFC+7WdaQ02wo/I0fqv96ti
-00veERb2fL5dXVnvGRvHQO6e5nnt8EAL7fmPk27L77D51UR3n3MQjbsvQH47ra+RwFxXyIcjIzIB
-539vVcfJMqSCECP3AwfsGeFxjp09eCGgOMQHvxD+7f7Z3L3LPMfcZkYNaQOfP2exO0sEOxGjQbnq
-8DtZWqMjycJH98cXqTWLXFrrrT9YWGkAz9OhpuQRYKmhiqmEC1UTMBhKIZiE7JFI9aFFzIFnPM3B
-ykFd50h+n8d2wQgRdUEXjRO5SYUf8OfXz7971eO60YRHff3h9L29PKhs1b2WEMTKj1wUQrIdjUgD
-LhZJLD5XXan50qH0gD6aCv6OwkIEckcr1U9Ml9/24ofWx8kL8Ig0pbjYAJ5gY09EIPq2UaNNrQcG
-+YEBApJJBVy7e3y/f4nUj5vwXBdHdZsfscS9yehN9Hr+NVUYqmSaTek9vmcJ2agG5CHbeucctZr4
-/Xr4lPTanwNbfitz2MKqvk+PW78F3WmN1o0ZZVb/a9fs74dmJ3whAg929zxamF/VSAQgR8vvOtzd
-nXFKUprh8/SCJpgAPcpDASM0kmJJCWTBAo7PGpgrDob/pgtIAgQBBA5ipMgmsD0fDHYgNMVkW0RY
-/qKkWQCVgxBjFCAeFXAOd5txiKVX1TNXCEX4oGg+Nre9/27npH7fk/L+KPtvxjwtu3YoxsTY22Js
-FsiVeyBdhHbUmZtOBXFnmDtMiKl6OIACF0CQu0yLb9jkb/L6einpXR4gEQAGlN3UdGM1zdp+DxzY
-ceRkDP/4u5IpwoSHR/FR8A==
-------=_Part_27207_15543355.1130170054416--
+Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+
+diff -Npru -X dontdiff mm1-orig/arch/mips/Kconfig mm1/arch/mips/Kconfig
+--- mm1-orig/arch/mips/Kconfig	2005-10-25 00:35:48.000000000 +0900
++++ mm1/arch/mips/Kconfig	2005-10-24 23:57:54.000000000 +0900
+@@ -458,7 +458,9 @@ config DDB5477
+ 	  ether port USB, AC97, PCI, etc.
+ 
+ config MACH_VR41XX
+-	bool "Support for NEC VR41XX-based machines"
++	bool "Support for NEC VR4100 series based machines"
++	select SYS_SUPPORTS_32BIT_KERNEL
++	select SYS_SUPPORTS_64BIT_KERNEL if EXPERIMENTAL
+ 
+ config PMC_YOSEMITE
+ 	bool "Support for PMC-Sierra Yosemite eval board"
+@@ -937,9 +939,6 @@ config MIPS_L1_CACHE_SHIFT
+ config HAVE_STD_PC_SERIAL_PORT
+ 	bool
+ 
+-config VR4181
+-	bool
+-
+ config ARC_CONSOLE
+ 	bool "ARC console support"
+ 	depends on SGI_IP22 || SNI_RM200_PCI
+@@ -1044,7 +1043,7 @@ config CPU_VR41XX
+ 	select CPU_SUPPORTS_32BIT_KERNEL
+ 	select CPU_SUPPORTS_64BIT_KERNEL
+ 	help
+-	  The options selects support for the NEC VR41xx series of processors.
++	  The options selects support for the NEC VR4100 series of processors.
+ 	  Only choose this option if you have one of these processors as a
+ 	  kernel built with this option will not run on any other type of
+ 	  processor or vice versa.
+diff -Npru -X dontdiff mm1-orig/arch/mips/configs/tb0287_defconfig mm1/arch/mips/configs/tb0287_defconfig
+--- mm1-orig/arch/mips/configs/tb0287_defconfig	1970-01-01 09:00:00.000000000 +0900
++++ mm1/arch/mips/configs/tb0287_defconfig	2005-10-25 01:00:14.000000000 +0900
+@@ -0,0 +1,1105 @@
++#
++# Automatically generated make config: don't edit
++# Linux kernel version: 2.6.14-rc5-mm1
++# Tue Oct 25 00:20:22 2005
++#
++CONFIG_MIPS=y
++
++#
++# Code maturity level options
++#
++CONFIG_EXPERIMENTAL=y
++CONFIG_CLEAN_COMPILE=y
++CONFIG_BROKEN_ON_SMP=y
++CONFIG_INIT_ENV_ARG_LIMIT=32
++
++#
++# General setup
++#
++CONFIG_LOCALVERSION=""
++CONFIG_LOCALVERSION_AUTO=y
++CONFIG_SWAP=y
++CONFIG_SWAP_PREFETCH=y
++CONFIG_SYSVIPC=y
++# CONFIG_POSIX_MQUEUE is not set
++# CONFIG_BSD_PROCESS_ACCT is not set
++CONFIG_SYSCTL=y
++# CONFIG_AUDIT is not set
++# CONFIG_HOTPLUG is not set
++CONFIG_KOBJECT_UEVENT=y
++# CONFIG_IKCONFIG is not set
++CONFIG_INITRAMFS_SOURCE=""
++CONFIG_EMBEDDED=y
++CONFIG_KALLSYMS=y
++# CONFIG_KALLSYMS_EXTRA_PASS is not set
++CONFIG_PRINTK=y
++CONFIG_BUG=y
++CONFIG_BASE_FULL=y
++CONFIG_FUTEX=y
++CONFIG_EPOLL=y
++# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
++CONFIG_SHMEM=y
++CONFIG_CC_ALIGN_FUNCTIONS=0
++CONFIG_CC_ALIGN_LABELS=0
++CONFIG_CC_ALIGN_LOOPS=0
++CONFIG_CC_ALIGN_JUMPS=0
++# CONFIG_TINY_SHMEM is not set
++CONFIG_BASE_SMALL=0
++
++#
++# Loadable module support
++#
++CONFIG_MODULES=y
++CONFIG_MODULE_UNLOAD=y
++# CONFIG_MODULE_FORCE_UNLOAD is not set
++CONFIG_OBSOLETE_MODPARM=y
++CONFIG_MODVERSIONS=y
++CONFIG_MODULE_SRCVERSION_ALL=y
++CONFIG_KMOD=y
++
++#
++# Machine selection
++#
++# CONFIG_MIPS_MTX1 is not set
++# CONFIG_MIPS_BOSPORUS is not set
++# CONFIG_MIPS_PB1000 is not set
++# CONFIG_MIPS_PB1100 is not set
++# CONFIG_MIPS_PB1500 is not set
++# CONFIG_MIPS_PB1550 is not set
++# CONFIG_MIPS_PB1200 is not set
++# CONFIG_MIPS_DB1000 is not set
++# CONFIG_MIPS_DB1100 is not set
++# CONFIG_MIPS_DB1500 is not set
++# CONFIG_MIPS_DB1550 is not set
++# CONFIG_MIPS_DB1200 is not set
++# CONFIG_MIPS_MIRAGE is not set
++# CONFIG_MIPS_COBALT is not set
++# CONFIG_MACH_DECSTATION is not set
++# CONFIG_MIPS_EV64120 is not set
++# CONFIG_MIPS_EV96100 is not set
++# CONFIG_MIPS_IVR is not set
++# CONFIG_MIPS_ITE8172 is not set
++# CONFIG_MACH_JAZZ is not set
++# CONFIG_LASAT is not set
++# CONFIG_MIPS_ATLAS is not set
++# CONFIG_MIPS_MALTA is not set
++# CONFIG_MIPS_SEAD is not set
++# CONFIG_MIPS_SIM is not set
++# CONFIG_MOMENCO_JAGUAR_ATX is not set
++# CONFIG_MOMENCO_OCELOT is not set
++# CONFIG_MOMENCO_OCELOT_3 is not set
++# CONFIG_MOMENCO_OCELOT_C is not set
++# CONFIG_MOMENCO_OCELOT_G is not set
++# CONFIG_MIPS_XXS1500 is not set
++# CONFIG_PNX8550_V2PCI is not set
++# CONFIG_PNX8550_JBS is not set
++# CONFIG_DDB5074 is not set
++# CONFIG_DDB5476 is not set
++# CONFIG_DDB5477 is not set
++CONFIG_MACH_VR41XX=y
++# CONFIG_PMC_YOSEMITE is not set
++# CONFIG_QEMU is not set
++# CONFIG_SGI_IP22 is not set
++# CONFIG_SGI_IP27 is not set
++# CONFIG_SGI_IP32 is not set
++# CONFIG_SIBYTE_SWARM is not set
++# CONFIG_SIBYTE_SENTOSA is not set
++# CONFIG_SIBYTE_RHONE is not set
++# CONFIG_SIBYTE_CARMEL is not set
++# CONFIG_SIBYTE_PTSWARM is not set
++# CONFIG_SIBYTE_LITTLESUR is not set
++# CONFIG_SIBYTE_CRHINE is not set
++# CONFIG_SIBYTE_CRHONE is not set
++# CONFIG_SNI_RM200_PCI is not set
++# CONFIG_TOSHIBA_JMR3927 is not set
++# CONFIG_TOSHIBA_RBTX4927 is not set
++# CONFIG_TOSHIBA_RBTX4938 is not set
++# CONFIG_CASIO_E55 is not set
++# CONFIG_IBM_WORKPAD is not set
++# CONFIG_NEC_CMBVR4133 is not set
++CONFIG_TANBAC_TB022X=y
++# CONFIG_TANBAC_TB0226 is not set
++CONFIG_TANBAC_TB0287=y
++# CONFIG_VICTOR_MPC30X is not set
++# CONFIG_ZAO_CAPCELLA is not set
++CONFIG_PCI_VR41XX=y
++# CONFIG_VRC4173 is not set
++CONFIG_RWSEM_GENERIC_SPINLOCK=y
++CONFIG_GENERIC_CALIBRATE_DELAY=y
++CONFIG_DMA_NONCOHERENT=y
++CONFIG_DMA_NEED_PCI_MAP_STATE=y
++# CONFIG_CPU_BIG_ENDIAN is not set
++CONFIG_CPU_LITTLE_ENDIAN=y
++CONFIG_SYS_SUPPORTS_LITTLE_ENDIAN=y
++CONFIG_IRQ_CPU=y
++CONFIG_MIPS_L1_CACHE_SHIFT=5
++
++#
++# CPU selection
++#
++# CONFIG_CPU_MIPS32_R1 is not set
++# CONFIG_CPU_MIPS32_R2 is not set
++# CONFIG_CPU_MIPS64_R1 is not set
++# CONFIG_CPU_MIPS64_R2 is not set
++# CONFIG_CPU_R3000 is not set
++# CONFIG_CPU_TX39XX is not set
++CONFIG_CPU_VR41XX=y
++# CONFIG_CPU_R4300 is not set
++# CONFIG_CPU_R4X00 is not set
++# CONFIG_CPU_TX49XX is not set
++# CONFIG_CPU_R5000 is not set
++# CONFIG_CPU_R5432 is not set
++# CONFIG_CPU_R6000 is not set
++# CONFIG_CPU_NEVADA is not set
++# CONFIG_CPU_R8000 is not set
++# CONFIG_CPU_R10000 is not set
++# CONFIG_CPU_RM7000 is not set
++# CONFIG_CPU_RM9000 is not set
++# CONFIG_CPU_SB1 is not set
++CONFIG_SYS_SUPPORTS_32BIT_KERNEL=y
++CONFIG_SYS_SUPPORTS_64BIT_KERNEL=y
++CONFIG_CPU_SUPPORTS_32BIT_KERNEL=y
++CONFIG_CPU_SUPPORTS_64BIT_KERNEL=y
++
++#
++# Kernel type
++#
++CONFIG_32BIT=y
++# CONFIG_64BIT is not set
++CONFIG_PAGE_SIZE_4KB=y
++# CONFIG_PAGE_SIZE_8KB is not set
++# CONFIG_PAGE_SIZE_16KB is not set
++# CONFIG_PAGE_SIZE_64KB is not set
++# CONFIG_MIPS_MT is not set
++# CONFIG_CPU_ADVANCED is not set
++CONFIG_CPU_HAS_SYNC=y
++CONFIG_GENERIC_HARDIRQS=y
++CONFIG_GENERIC_IRQ_PROBE=y
++CONFIG_ARCH_FLATMEM_ENABLE=y
++CONFIG_SELECT_MEMORY_MODEL=y
++CONFIG_FLATMEM_MANUAL=y
++# CONFIG_DISCONTIGMEM_MANUAL is not set
++# CONFIG_SPARSEMEM_MANUAL is not set
++CONFIG_FLATMEM=y
++CONFIG_FLAT_NODE_MEM_MAP=y
++# CONFIG_SPARSEMEM_STATIC is not set
++CONFIG_SPLIT_PTLOCK_CPUS=4
++CONFIG_PREEMPT_NONE=y
++# CONFIG_PREEMPT_VOLUNTARY is not set
++# CONFIG_PREEMPT is not set
++
++#
++# Bus options (PCI, PCMCIA, EISA, ISA, TC)
++#
++CONFIG_HW_HAS_PCI=y
++CONFIG_PCI=y
++# CONFIG_PCI_LEGACY_PROC is not set
++CONFIG_MMU=y
++
++#
++# PCCARD (PCMCIA/CardBus) support
++#
++# CONFIG_PCCARD is not set
++
++#
++# PCI Hotplug Support
++#
++# CONFIG_HOTPLUG_PCI is not set
++
++#
++# Executable file formats
++#
++CONFIG_BINFMT_ELF=y
++# CONFIG_BINFMT_MISC is not set
++CONFIG_TRAD_SIGNALS=y
++
++#
++# Networking
++#
++CONFIG_NET=y
++
++#
++# Networking options
++#
++CONFIG_PACKET=y
++# CONFIG_PACKET_MMAP is not set
++CONFIG_UNIX=y
++CONFIG_XFRM=y
++CONFIG_XFRM_USER=m
++# CONFIG_NET_KEY is not set
++CONFIG_INET=y
++CONFIG_IP_MULTICAST=y
++CONFIG_IP_ADVANCED_ROUTER=y
++CONFIG_ASK_IP_FIB_HASH=y
++# CONFIG_IP_FIB_TRIE is not set
++CONFIG_IP_FIB_HASH=y
++CONFIG_IP_MULTIPLE_TABLES=y
++CONFIG_IP_ROUTE_MULTIPATH=y
++# CONFIG_IP_ROUTE_MULTIPATH_CACHED is not set
++CONFIG_IP_ROUTE_VERBOSE=y
++CONFIG_IP_PNP=y
++# CONFIG_IP_PNP_DHCP is not set
++CONFIG_IP_PNP_BOOTP=y
++# CONFIG_IP_PNP_RARP is not set
++CONFIG_NET_IPIP=m
++CONFIG_NET_IPGRE=m
++# CONFIG_NET_IPGRE_BROADCAST is not set
++# CONFIG_IP_MROUTE is not set
++# CONFIG_ARPD is not set
++CONFIG_SYN_COOKIES=y
++# CONFIG_INET_AH is not set
++# CONFIG_INET_ESP is not set
++# CONFIG_INET_IPCOMP is not set
++CONFIG_INET_TUNNEL=m
++CONFIG_INET_DIAG=y
++CONFIG_INET_TCP_DIAG=y
++CONFIG_TCP_CONG_ADVANCED=y
++
++#
++# TCP congestion control
++#
++CONFIG_TCP_CONG_BIC=y
++CONFIG_TCP_CONG_WESTWOOD=m
++CONFIG_TCP_CONG_HTCP=m
++# CONFIG_TCP_CONG_HSTCP is not set
++# CONFIG_TCP_CONG_HYBLA is not set
++# CONFIG_TCP_CONG_VEGAS is not set
++# CONFIG_TCP_CONG_SCALABLE is not set
++# CONFIG_IPV6 is not set
++# CONFIG_NETFILTER is not set
++
++#
++# DCCP Configuration (EXPERIMENTAL)
++#
++# CONFIG_IP_DCCP is not set
++
++#
++# SCTP Configuration (EXPERIMENTAL)
++#
++# CONFIG_IP_SCTP is not set
++# CONFIG_ATM is not set
++# CONFIG_BRIDGE is not set
++# CONFIG_VLAN_8021Q is not set
++# CONFIG_DECNET is not set
++# CONFIG_LLC2 is not set
++# CONFIG_IPX is not set
++# CONFIG_ATALK is not set
++# CONFIG_X25 is not set
++# CONFIG_LAPB is not set
++# CONFIG_NET_DIVERT is not set
++# CONFIG_ECONET is not set
++# CONFIG_WAN_ROUTER is not set
++# CONFIG_NET_SCHED is not set
++# CONFIG_NET_CLS_ROUTE is not set
++
++#
++# Network testing
++#
++# CONFIG_NET_PKTGEN is not set
++# CONFIG_HAMRADIO is not set
++# CONFIG_IRDA is not set
++# CONFIG_BT is not set
++# CONFIG_IEEE80211 is not set
++
++#
++# Device Drivers
++#
++
++#
++# Generic Driver Options
++#
++CONFIG_STANDALONE=y
++CONFIG_PREVENT_FIRMWARE_BUILD=y
++# CONFIG_FW_LOADER is not set
++
++#
++# Connector - unified userspace <-> kernelspace linker
++#
++# CONFIG_CONNECTOR is not set
++
++#
++# Memory Technology Devices (MTD)
++#
++# CONFIG_MTD is not set
++
++#
++# Parallel port support
++#
++# CONFIG_PARPORT is not set
++
++#
++# Plug and Play support
++#
++
++#
++# Block devices
++#
++# CONFIG_BLK_CPQ_DA is not set
++# CONFIG_BLK_CPQ_CISS_DA is not set
++# CONFIG_BLK_DEV_DAC960 is not set
++# CONFIG_BLK_DEV_UMEM is not set
++# CONFIG_BLK_DEV_COW_COMMON is not set
++CONFIG_BLK_DEV_LOOP=m
++# CONFIG_BLK_DEV_CRYPTOLOOP is not set
++CONFIG_BLK_DEV_NBD=m
++# CONFIG_BLK_DEV_SX8 is not set
++# CONFIG_BLK_DEV_UB is not set
++CONFIG_BLK_DEV_RAM=y
++CONFIG_BLK_DEV_RAM_COUNT=16
++CONFIG_BLK_DEV_RAM_SIZE=4096
++# CONFIG_BLK_DEV_INITRD is not set
++# CONFIG_LBD is not set
++# CONFIG_BLK_DEV_IO_TRACE is not set
++# CONFIG_CDROM_PKTCDVD is not set
++
++#
++# IO Schedulers
++#
++CONFIG_IOSCHED_NOOP=y
++CONFIG_IOSCHED_AS=y
++CONFIG_IOSCHED_DEADLINE=y
++CONFIG_IOSCHED_CFQ=y
++CONFIG_DEFAULT_AS=y
++# CONFIG_DEFAULT_DEADLINE is not set
++# CONFIG_DEFAULT_CFQ is not set
++# CONFIG_DEFAULT_NOOP is not set
++CONFIG_DEFAULT_IOSCHED="anticipatory"
++# CONFIG_ATA_OVER_ETH is not set
++
++#
++# ATA/ATAPI/MFM/RLL support
++#
++CONFIG_IDE=y
++CONFIG_BLK_DEV_IDE=y
++
++#
++# Please see Documentation/ide.txt for help/info on IDE drives
++#
++# CONFIG_BLK_DEV_IDE_SATA is not set
++CONFIG_BLK_DEV_IDEDISK=y
++# CONFIG_IDEDISK_MULTI_MODE is not set
++# CONFIG_BLK_DEV_IDECD is not set
++# CONFIG_BLK_DEV_IDETAPE is not set
++# CONFIG_BLK_DEV_IDEFLOPPY is not set
++# CONFIG_BLK_DEV_IDESCSI is not set
++# CONFIG_IDE_TASK_IOCTL is not set
++
++#
++# IDE chipset support/bugfixes
++#
++CONFIG_IDE_GENERIC=y
++CONFIG_BLK_DEV_IDEPCI=y
++# CONFIG_IDEPCI_SHARE_IRQ is not set
++# CONFIG_BLK_DEV_OFFBOARD is not set
++# CONFIG_BLK_DEV_GENERIC is not set
++# CONFIG_BLK_DEV_OPTI621 is not set
++CONFIG_BLK_DEV_IDEDMA_PCI=y
++# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
++# CONFIG_IDEDMA_PCI_AUTO is not set
++# CONFIG_BLK_DEV_AEC62XX is not set
++# CONFIG_BLK_DEV_ALI15X3 is not set
++# CONFIG_BLK_DEV_AMD74XX is not set
++# CONFIG_BLK_DEV_CMD64X is not set
++# CONFIG_BLK_DEV_TRIFLEX is not set
++# CONFIG_BLK_DEV_CY82C693 is not set
++# CONFIG_BLK_DEV_CS5520 is not set
++# CONFIG_BLK_DEV_CS5530 is not set
++# CONFIG_BLK_DEV_HPT34X is not set
++# CONFIG_BLK_DEV_HPT366 is not set
++# CONFIG_BLK_DEV_SC1200 is not set
++# CONFIG_BLK_DEV_PIIX is not set
++# CONFIG_BLK_DEV_IT821X is not set
++# CONFIG_BLK_DEV_NS87415 is not set
++# CONFIG_BLK_DEV_PDC202XX_OLD is not set
++# CONFIG_BLK_DEV_PDC202XX_NEW is not set
++# CONFIG_BLK_DEV_SVWKS is not set
++CONFIG_BLK_DEV_SIIMAGE=y
++# CONFIG_BLK_DEV_SLC90E66 is not set
++# CONFIG_BLK_DEV_TRM290 is not set
++# CONFIG_BLK_DEV_VIA82CXXX is not set
++# CONFIG_IDE_ARM is not set
++CONFIG_BLK_DEV_IDEDMA=y
++# CONFIG_IDEDMA_IVB is not set
++# CONFIG_IDEDMA_AUTO is not set
++# CONFIG_BLK_DEV_HD is not set
++
++#
++# SCSI device support
++#
++# CONFIG_RAID_ATTRS is not set
++CONFIG_SCSI=y
++CONFIG_SCSI_PROC_FS=y
++
++#
++# SCSI support type (disk, tape, CD-ROM)
++#
++CONFIG_BLK_DEV_SD=y
++# CONFIG_CHR_DEV_ST is not set
++# CONFIG_CHR_DEV_OSST is not set
++# CONFIG_BLK_DEV_SR is not set
++# CONFIG_CHR_DEV_SG is not set
++# CONFIG_CHR_DEV_SCH is not set
++
++#
++# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
++#
++# CONFIG_SCSI_MULTI_LUN is not set
++# CONFIG_SCSI_CONSTANTS is not set
++# CONFIG_SCSI_LOGGING is not set
++
++#
++# SCSI Transport Attributes
++#
++# CONFIG_SCSI_SPI_ATTRS is not set
++# CONFIG_SCSI_FC_ATTRS is not set
++# CONFIG_SCSI_ISCSI_ATTRS is not set
++# CONFIG_SCSI_SAS_ATTRS is not set
++
++#
++# SCSI Transport Layers
++#
++# CONFIG_SAS_CLASS is not set
++
++#
++# SCSI low-level drivers
++#
++# CONFIG_ISCSI_TCP is not set
++# CONFIG_SCSI_ARCMSR is not set
++# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
++# CONFIG_SCSI_3W_9XXX is not set
++# CONFIG_SCSI_ACARD is not set
++# CONFIG_SCSI_AACRAID is not set
++# CONFIG_SCSI_AIC7XXX is not set
++# CONFIG_SCSI_AIC7XXX_OLD is not set
++# CONFIG_SCSI_AIC79XX is not set
++# CONFIG_SCSI_DPT_I2O is not set
++# CONFIG_MEGARAID_NEWGEN is not set
++# CONFIG_MEGARAID_LEGACY is not set
++# CONFIG_MEGARAID_SAS is not set
++# CONFIG_SCSI_SATA is not set
++# CONFIG_SCSI_DMX3191D is not set
++# CONFIG_SCSI_FUTURE_DOMAIN is not set
++# CONFIG_SCSI_IPS is not set
++# CONFIG_SCSI_INITIO is not set
++# CONFIG_SCSI_INIA100 is not set
++# CONFIG_SCSI_SYM53C8XX_2 is not set
++# CONFIG_SCSI_IPR is not set
++# CONFIG_SCSI_QLOGIC_FC is not set
++# CONFIG_SCSI_QLOGIC_1280 is not set
++CONFIG_SCSI_QLA2XXX=y
++# CONFIG_SCSI_QLA21XX is not set
++# CONFIG_SCSI_QLA22XX is not set
++# CONFIG_SCSI_QLA2300 is not set
++# CONFIG_SCSI_QLA2322 is not set
++# CONFIG_SCSI_QLA6312 is not set
++# CONFIG_SCSI_QLA24XX is not set
++# CONFIG_SCSI_LPFC is not set
++# CONFIG_SCSI_DC395x is not set
++# CONFIG_SCSI_DC390T is not set
++# CONFIG_SCSI_NSP32 is not set
++# CONFIG_SCSI_DEBUG is not set
++
++#
++# Multi-device support (RAID and LVM)
++#
++# CONFIG_MD is not set
++
++#
++# Fusion MPT device support
++#
++# CONFIG_FUSION is not set
++# CONFIG_FUSION_SPI is not set
++# CONFIG_FUSION_FC is not set
++# CONFIG_FUSION_SAS is not set
++
++#
++# IEEE 1394 (FireWire) support
++#
++CONFIG_IEEE1394=m
++
++#
++# Subsystem Options
++#
++# CONFIG_IEEE1394_VERBOSEDEBUG is not set
++# CONFIG_IEEE1394_OUI_DB is not set
++CONFIG_IEEE1394_EXTRA_CONFIG_ROMS=y
++CONFIG_IEEE1394_CONFIG_ROM_IP1394=y
++# CONFIG_IEEE1394_EXPORT_FULL_API is not set
++
++#
++# Device Drivers
++#
++
++#
++# Texas Instruments PCILynx requires I2C
++#
++CONFIG_IEEE1394_OHCI1394=m
++
++#
++# Protocol Drivers
++#
++CONFIG_IEEE1394_VIDEO1394=m
++CONFIG_IEEE1394_SBP2=m
++# CONFIG_IEEE1394_SBP2_PHYS_DMA is not set
++CONFIG_IEEE1394_ETH1394=m
++CONFIG_IEEE1394_DV1394=m
++CONFIG_IEEE1394_RAWIO=m
++CONFIG_IEEE1394_CMP=m
++CONFIG_IEEE1394_AMDTP=m
++
++#
++# I2O device support
++#
++# CONFIG_I2O is not set
++
++#
++# Network device support
++#
++CONFIG_NETDEVICES=y
++CONFIG_DUMMY=m
++# CONFIG_BONDING is not set
++# CONFIG_EQUALIZER is not set
++# CONFIG_TUN is not set
++
++#
++# ARCnet devices
++#
++# CONFIG_ARCNET is not set
++
++#
++# PHY device support
++#
++# CONFIG_PHYLIB is not set
++
++#
++# Ethernet (10 or 100Mbit)
++#
++CONFIG_NET_ETHERNET=y
++CONFIG_MII=y
++# CONFIG_HAPPYMEAL is not set
++# CONFIG_SUNGEM is not set
++# CONFIG_CASSINI is not set
++# CONFIG_NET_VENDOR_3COM is not set
++
++#
++# Tulip family network device support
++#
++# CONFIG_NET_TULIP is not set
++# CONFIG_HP100 is not set
++# CONFIG_NET_PCI is not set
++
++#
++# Ethernet (1000 Mbit)
++#
++# CONFIG_ACENIC is not set
++# CONFIG_DL2K is not set
++# CONFIG_E1000 is not set
++# CONFIG_NS83820 is not set
++# CONFIG_HAMACHI is not set
++# CONFIG_YELLOWFIN is not set
++CONFIG_R8169=y
++# CONFIG_R8169_NAPI is not set
++# CONFIG_SIS190 is not set
++# CONFIG_SKGE is not set
++# CONFIG_SKY2 is not set
++# CONFIG_SK98LIN is not set
++# CONFIG_TIGON3 is not set
++# CONFIG_BNX2 is not set
++
++#
++# Ethernet (10000 Mbit)
++#
++# CONFIG_CHELSIO_T1 is not set
++# CONFIG_IXGB is not set
++# CONFIG_S2IO is not set
++
++#
++# Token Ring devices
++#
++# CONFIG_TR is not set
++
++#
++# Wireless LAN (non-hamradio)
++#
++# CONFIG_NET_RADIO is not set
++# CONFIG_HOSTAP is not set
++
++#
++# Wan interfaces
++#
++# CONFIG_WAN is not set
++# CONFIG_FDDI is not set
++# CONFIG_HIPPI is not set
++# CONFIG_PPP is not set
++# CONFIG_SLIP is not set
++# CONFIG_NET_FC is not set
++# CONFIG_SHAPER is not set
++# CONFIG_NETCONSOLE is not set
++# CONFIG_KGDBOE is not set
++# CONFIG_NETPOLL is not set
++# CONFIG_NETPOLL_RX is not set
++# CONFIG_NETPOLL_TRAP is not set
++# CONFIG_NET_POLL_CONTROLLER is not set
++
++#
++# ISDN subsystem
++#
++# CONFIG_ISDN is not set
++
++#
++# Telephony Support
++#
++# CONFIG_PHONE is not set
++
++#
++# Input device support
++#
++CONFIG_INPUT=y
++
++#
++# Userland interfaces
++#
++# CONFIG_INPUT_MOUSEDEV is not set
++# CONFIG_INPUT_JOYDEV is not set
++# CONFIG_INPUT_TSDEV is not set
++# CONFIG_INPUT_EVDEV is not set
++# CONFIG_INPUT_EVBUG is not set
++
++#
++# Input Device Drivers
++#
++# CONFIG_INPUT_KEYBOARD is not set
++# CONFIG_INPUT_MOUSE is not set
++# CONFIG_INPUT_JOYSTICK is not set
++# CONFIG_INPUT_TOUCHSCREEN is not set
++# CONFIG_INPUT_MISC is not set
++
++#
++# Hardware I/O ports
++#
++# CONFIG_SERIO is not set
++# CONFIG_GAMEPORT is not set
++
++#
++# Character devices
++#
++CONFIG_VT=y
++CONFIG_VT_CONSOLE=y
++CONFIG_HW_CONSOLE=y
++# CONFIG_SERIAL_NONSTANDARD is not set
++
++#
++# Serial drivers
++#
++# CONFIG_SERIAL_8250 is not set
++
++#
++# Non-8250 serial port support
++#
++CONFIG_SERIAL_CORE=y
++CONFIG_SERIAL_CORE_CONSOLE=y
++CONFIG_SERIAL_VR41XX=y
++CONFIG_SERIAL_VR41XX_CONSOLE=y
++# CONFIG_SERIAL_JSM is not set
++CONFIG_UNIX98_PTYS=y
++CONFIG_LEGACY_PTYS=y
++CONFIG_LEGACY_PTY_COUNT=256
++
++#
++# IPMI
++#
++# CONFIG_IPMI_HANDLER is not set
++
++#
++# Watchdog Cards
++#
++# CONFIG_WATCHDOG is not set
++# CONFIG_RTC is not set
++# CONFIG_GEN_RTC is not set
++# CONFIG_RTC_VR41XX is not set
++# CONFIG_DTLK is not set
++# CONFIG_R3964 is not set
++# CONFIG_APPLICOM is not set
++# CONFIG_TANBAC_TB0219 is not set
++
++#
++# Ftape, the floppy tape device driver
++#
++# CONFIG_DRM is not set
++CONFIG_GPIO_VR41XX=y
++# CONFIG_RAW_DRIVER is not set
++
++#
++# TPM devices
++#
++# CONFIG_TCG_TPM is not set
++# CONFIG_TELCLOCK is not set
++
++#
++# I2C support
++#
++# CONFIG_I2C is not set
++
++#
++# Dallas's 1-wire bus
++#
++# CONFIG_W1 is not set
++
++#
++# Hardware Monitoring support
++#
++# CONFIG_HWMON is not set
++# CONFIG_HWMON_VID is not set
++
++#
++# Misc devices
++#
++
++#
++# Multimedia Capabilities Port drivers
++#
++
++#
++# Multimedia devices
++#
++# CONFIG_VIDEO_DEV is not set
++
++#
++# Digital Video Broadcasting Devices
++#
++# CONFIG_DVB is not set
++
++#
++# Graphics support
++#
++# CONFIG_FB is not set
++
++#
++# Console display driver support
++#
++# CONFIG_VGA_CONSOLE is not set
++CONFIG_DUMMY_CONSOLE=y
++
++#
++# Speakup console speech
++#
++# CONFIG_SPEAKUP is not set
++
++#
++# Sound
++#
++# CONFIG_SOUND is not set
++
++#
++# USB support
++#
++CONFIG_USB_ARCH_HAS_HCD=y
++CONFIG_USB_ARCH_HAS_OHCI=y
++CONFIG_USB=m
++# CONFIG_USB_DEBUG is not set
++
++#
++# Miscellaneous USB options
++#
++# CONFIG_USB_DEVICEFS is not set
++# CONFIG_USB_BANDWIDTH is not set
++# CONFIG_USB_DYNAMIC_MINORS is not set
++# CONFIG_USB_OTG is not set
++
++#
++# USB Host Controller Drivers
++#
++CONFIG_USB_EHCI_HCD=m
++# CONFIG_USB_EHCI_SPLIT_ISO is not set
++# CONFIG_USB_EHCI_ROOT_HUB_TT is not set
++# CONFIG_USB_ISP116X_HCD is not set
++CONFIG_USB_OHCI_HCD=m
++# CONFIG_USB_OHCI_BIG_ENDIAN is not set
++CONFIG_USB_OHCI_LITTLE_ENDIAN=y
++# CONFIG_USB_UHCI_HCD is not set
++# CONFIG_USB_SL811_HCD is not set
++
++#
++# USB Device Class drivers
++#
++# CONFIG_USB_ACM is not set
++# CONFIG_USB_PRINTER is not set
++
++#
++# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support'
++#
++
++#
++# may also be needed; see USB_STORAGE Help for more information
++#
++CONFIG_USB_STORAGE=m
++# CONFIG_USB_STORAGE_DEBUG is not set
++# CONFIG_USB_STORAGE_DATAFAB is not set
++# CONFIG_USB_STORAGE_FREECOM is not set
++# CONFIG_USB_STORAGE_ISD200 is not set
++# CONFIG_USB_STORAGE_DPCM is not set
++# CONFIG_USB_STORAGE_USBAT is not set
++# CONFIG_USB_STORAGE_SDDR09 is not set
++# CONFIG_USB_STORAGE_SDDR55 is not set
++# CONFIG_USB_STORAGE_JUMPSHOT is not set
++
++#
++# USB Input Devices
++#
++CONFIG_USB_HID=m
++CONFIG_USB_HIDINPUT=y
++# CONFIG_HID_FF is not set
++# CONFIG_USB_HIDDEV is not set
++
++#
++# USB HID Boot Protocol drivers
++#
++# CONFIG_USB_KBD is not set
++# CONFIG_USB_MOUSE is not set
++# CONFIG_USB_AIPTEK is not set
++# CONFIG_USB_WACOM is not set
++# CONFIG_USB_ACECAD is not set
++# CONFIG_USB_KBTAB is not set
++# CONFIG_USB_POWERMATE is not set
++# CONFIG_USB_MTOUCH is not set
++# CONFIG_USB_ITMTOUCH is not set
++# CONFIG_USB_EGALAX is not set
++# CONFIG_USB_YEALINK is not set
++# CONFIG_USB_XPAD is not set
++# CONFIG_USB_ATI_REMOTE is not set
++# CONFIG_USB_KEYSPAN_REMOTE is not set
++# CONFIG_USB_APPLETOUCH is not set
++
++#
++# USB Imaging devices
++#
++# CONFIG_USB_MDC800 is not set
++# CONFIG_USB_MICROTEK is not set
++
++#
++# USB Multimedia devices
++#
++# CONFIG_USB_DABUSB is not set
++
++#
++# Video4Linux support is needed for USB Multimedia device support
++#
++
++#
++# USB Network Adapters
++#
++# CONFIG_USB_CATC is not set
++# CONFIG_USB_KAWETH is not set
++# CONFIG_USB_PEGASUS is not set
++# CONFIG_USB_RTL8150 is not set
++# CONFIG_USB_USBNET is not set
++CONFIG_USB_MON=y
++
++#
++# USB port drivers
++#
++
++#
++# USB Serial Converter support
++#
++# CONFIG_USB_SERIAL is not set
++
++#
++# USB Miscellaneous drivers
++#
++# CONFIG_USB_EMI62 is not set
++# CONFIG_USB_EMI26 is not set
++# CONFIG_USB_AUERSWALD is not set
++# CONFIG_USB_RIO500 is not set
++# CONFIG_USB_LEGOTOWER is not set
++# CONFIG_USB_LCD is not set
++# CONFIG_USB_LED is not set
++# CONFIG_USB_CYTHERM is not set
++# CONFIG_USB_GOTEMP is not set
++# CONFIG_USB_PHIDGETKIT is not set
++# CONFIG_USB_PHIDGETSERVO is not set
++# CONFIG_USB_IDMOUSE is not set
++# CONFIG_USB_SISUSBVGA is not set
++# CONFIG_USB_LD is not set
++
++#
++# USB DSL modem support
++#
++
++#
++# USB Gadget Support
++#
++# CONFIG_USB_GADGET is not set
++
++#
++# MMC/SD Card support
++#
++# CONFIG_MMC is not set
++
++#
++# InfiniBand support
++#
++# CONFIG_INFINIBAND is not set
++
++#
++# SN Devices
++#
++
++#
++# EDAC - error detection and reporting (RAS)
++#
++# CONFIG_EDAC is not set
++
++#
++# Distributed Lock Manager
++#
++# CONFIG_DLM is not set
++
++#
++# File systems
++#
++CONFIG_EXT2_FS=y
++# CONFIG_EXT2_FS_XATTR is not set
++# CONFIG_EXT2_FS_XIP is not set
++CONFIG_EXT3_FS=y
++CONFIG_EXT3_FS_XATTR=y
++# CONFIG_EXT3_FS_POSIX_ACL is not set
++# CONFIG_EXT3_FS_SECURITY is not set
++CONFIG_JBD=y
++# CONFIG_JBD_DEBUG is not set
++CONFIG_FS_MBCACHE=y
++# CONFIG_REISER4_FS is not set
++# CONFIG_REISERFS_FS is not set
++# CONFIG_JFS_FS is not set
++# CONFIG_FS_POSIX_ACL is not set
++CONFIG_XFS_FS=y
++CONFIG_XFS_QUOTA=y
++# CONFIG_XFS_SECURITY is not set
++CONFIG_XFS_POSIX_ACL=y
++# CONFIG_XFS_RT is not set
++# CONFIG_OCFS2_FS is not set
++# CONFIG_MINIX_FS is not set
++CONFIG_ROMFS_FS=m
++CONFIG_INOTIFY=y
++# CONFIG_QUOTA is not set
++CONFIG_QUOTACTL=y
++# CONFIG_DNOTIFY is not set
++# CONFIG_AUTOFS_FS is not set
++CONFIG_AUTOFS4_FS=y
++# CONFIG_FUSE_FS is not set
++
++#
++# CD-ROM/DVD Filesystems
++#
++# CONFIG_ISO9660_FS is not set
++# CONFIG_UDF_FS is not set
++
++#
++# DOS/FAT/NT Filesystems
++#
++# CONFIG_MSDOS_FS is not set
++# CONFIG_VFAT_FS is not set
++# CONFIG_NTFS_FS is not set
++
++#
++# Pseudo filesystems
++#
++CONFIG_PROC_FS=y
++CONFIG_PROC_KCORE=y
++CONFIG_SYSFS=y
++CONFIG_TMPFS=y
++# CONFIG_HUGETLB_PAGE is not set
++CONFIG_RAMFS=y
++# CONFIG_RELAYFS_FS is not set
++# CONFIG_CONFIGFS_FS is not set
++
++#
++# Miscellaneous filesystems
++#
++# CONFIG_ADFS_FS is not set
++# CONFIG_AFFS_FS is not set
++# CONFIG_ASFS_FS is not set
++# CONFIG_HFS_FS is not set
++# CONFIG_HFSPLUS_FS is not set
++# CONFIG_BEFS_FS is not set
++# CONFIG_BFS_FS is not set
++# CONFIG_EFS_FS is not set
++CONFIG_CRAMFS=m
++# CONFIG_VXFS_FS is not set
++# CONFIG_HPFS_FS is not set
++# CONFIG_QNX4FS_FS is not set
++# CONFIG_SYSV_FS is not set
++# CONFIG_UFS_FS is not set
++
++#
++# Network File Systems
++#
++CONFIG_NFS_FS=y
++CONFIG_NFS_V3=y
++# CONFIG_NFS_V3_ACL is not set
++# CONFIG_NFS_V4 is not set
++# CONFIG_NFS_DIRECTIO is not set
++# CONFIG_NFSD is not set
++CONFIG_ROOT_NFS=y
++CONFIG_LOCKD=y
++CONFIG_LOCKD_V4=y
++CONFIG_NFS_COMMON=y
++CONFIG_SUNRPC=y
++# CONFIG_RPCSEC_GSS_KRB5 is not set
++# CONFIG_RPCSEC_GSS_SPKM3 is not set
++# CONFIG_SMB_FS is not set
++# CONFIG_CIFS is not set
++# CONFIG_NCP_FS is not set
++# CONFIG_CODA_FS is not set
++# CONFIG_AFS_FS is not set
++# CONFIG_9P_FS is not set
++
++#
++# Partition Types
++#
++# CONFIG_PARTITION_ADVANCED is not set
++CONFIG_MSDOS_PARTITION=y
++
++#
++# Native Language Support
++#
++# CONFIG_NLS is not set
++
++#
++# Profiling support
++#
++# CONFIG_PROFILING is not set
++
++#
++# Kernel hacking
++#
++# CONFIG_PRINTK_TIME is not set
++# CONFIG_DEBUG_KERNEL is not set
++CONFIG_LOG_BUF_SHIFT=14
++CONFIG_CROSSCOMPILE=y
++CONFIG_CMDLINE="mem=64M console=ttyVR0,115200 ip=any root=/dev/nfs"
++
++#
++# Security options
++#
++CONFIG_KEYS=y
++CONFIG_KEYS_DEBUG_PROC_KEYS=y
++# CONFIG_SECURITY is not set
++
++#
++# Cryptographic options
++#
++# CONFIG_CRYPTO is not set
++
++#
++# Hardware crypto devices
++#
++
++#
++# Library routines
++#
++# CONFIG_CRC_CCITT is not set
++# CONFIG_CRC16 is not set
++CONFIG_CRC32=y
++# CONFIG_LIBCRC32C is not set
++CONFIG_ZLIB_INFLATE=m
+diff -Npru -X dontdiff mm1-orig/arch/mips/vr41xx/Kconfig mm1/arch/mips/vr41xx/Kconfig
+--- mm1-orig/arch/mips/vr41xx/Kconfig	2005-10-25 00:35:48.000000000 +0900
++++ mm1/arch/mips/vr41xx/Kconfig	2005-10-25 00:09:44.000000000 +0900
+@@ -1,31 +1,9 @@
+-config NEC_CMBVR4133
+-	bool "Support for NEC CMB-VR4133"
+-	depends on MACH_VR41XX
+-	select CPU_VR41XX
+-	select DMA_NONCOHERENT
+-	select IRQ_CPU
+-	select HW_HAS_PCI
+-	select PCI_VR41XX
+-	select SYS_SUPPORTS_32BIT_KERNEL
+-	select SYS_SUPPORTS_64BIT_KERNEL if EXPERIMENTAL
+-	select SYS_SUPPORTS_LITTLE_ENDIAN
+-
+-config ROCKHOPPER
+-	bool "Support for Rockhopper baseboard"
+-	depends on NEC_CMBVR4133
+-	select I8259
+-	select HAVE_STD_PC_SERIAL_PORT
+-	select SYS_SUPPORTS_32BIT_KERNEL
+-	select SYS_SUPPORTS_64BIT_KERNEL if EXPERIMENTAL
+-
+ config CASIO_E55
+ 	bool "Support for CASIO CASSIOPEIA E-10/15/55/65"
+ 	depends on MACH_VR41XX
+ 	select DMA_NONCOHERENT
+ 	select IRQ_CPU
+ 	select ISA
+-	select SYS_SUPPORTS_32BIT_KERNEL
+-	select SYS_SUPPORTS_64BIT_KERNEL if EXPERIMENTAL
+ 	select SYS_SUPPORTS_LITTLE_ENDIAN
+ 
+ config IBM_WORKPAD
+@@ -34,34 +12,52 @@ config IBM_WORKPAD
+ 	select DMA_NONCOHERENT
+ 	select IRQ_CPU
+ 	select ISA
+-	select SYS_SUPPORTS_32BIT_KERNEL
+-	select SYS_SUPPORTS_64BIT_KERNEL if EXPERIMENTAL
+ 	select SYS_SUPPORTS_LITTLE_ENDIAN
+ 
++config NEC_CMBVR4133
++	bool "Support for NEC CMB-VR4133"
++	depends on MACH_VR41XX
++	select CPU_VR41XX
++	select DMA_NONCOHERENT
++	select IRQ_CPU
++	select HW_HAS_PCI
++
++config ROCKHOPPER
++	bool "Support for Rockhopper baseboard"
++	depends on NEC_CMBVR4133
++	select I8259
++	select HAVE_STD_PC_SERIAL_PORT
++
+ config TANBAC_TB022X
+-	bool "Support for TANBAC TB0225 (VR4131 multichip module) and TB0229 (VR4131DIMM)"
++	bool "Support for TANBAC VR4131 multichip module and TANBAC VR4131DIMM"
+ 	depends on MACH_VR41XX
+ 	select DMA_NONCOHERENT
+ 	select HW_HAS_PCI
+ 	select IRQ_CPU
+-	select SYS_SUPPORTS_32BIT_KERNEL
+-	select SYS_SUPPORTS_64BIT_KERNEL if EXPERIMENTAL
+ 	select SYS_SUPPORTS_LITTLE_ENDIAN
+ 	help
+-	  The TANBAC TB0225 (VR4131 multichip module) and TB0229 (VR4131DIMM)
+-	  are MIPS-based platforms manufactured by TANBAC.
+-	  Please refer to <http://www.tanbac.co.jp/> about
+-	  VR4131 Multi-chip module and VR4131DIMM.
++	  The TANBAC VR4131 multichip module(TB0225) and
++	  the TANBAC VR4131DIMM(TB0229) are MIPS-based platforms
++	  manufactured by TANBAC.
++	  Please refer to <http://www.tanbac.co.jp/>
++	  about VR4131 multichip module and VR4131DIMM.
+ 
+ config TANBAC_TB0226
+-	bool "Support for TANBAC TB0226 (Mbase)"
++	bool "Support for TANBAC Mbase(TB0226)"
+ 	depends on TANBAC_TB022X
+-	select PCI
+-	select PCI_VR41XX
+ 	select GPIO_VR41XX
+ 	help
+-	  The TANBAC TB0226 (Mbase) is a MIPS-based platform manufactured by
+-	  TANBAC.  Please refer to <http://www.tanbac.co.jp/> about Mbase.
++	  The TANBAC Mbase(TB0226) is a MIPS-based platform
++	  manufactured by TANBAC.
++	  Please refer to <http://www.tanbac.co.jp/> about Mbase.
++
++config TANBAC_TB0287
++	bool "Support for TANBAC Mini-ITX DIMM base(TB0287)"
++	depends on TANBAC_TB022X
++	help
++	  The TANBAC Mini-ITX DIMM base(TB0287) is a MIPS-based platform
++	  manufactured by TANBAC.
++	  Please refer to <http://www.tanbac.co.jp/> about Mini-ITX DIMM base.
+ 
+ config VICTOR_MPC30X
+ 	bool "Support for Victor MP-C303/304"
+@@ -69,10 +65,7 @@ config VICTOR_MPC30X
+ 	select DMA_NONCOHERENT
+ 	select HW_HAS_PCI
+ 	select IRQ_CPU
+-	select SYS_SUPPORTS_32BIT_KERNEL
+-	select SYS_SUPPORTS_64BIT_KERNEL if EXPERIMENTAL
+ 	select SYS_SUPPORTS_LITTLE_ENDIAN
+-	depends on MACH_VR41XX
+ 
+ config ZAO_CAPCELLA
+ 	bool "Support for ZAO Networks Capcella"
+@@ -80,13 +73,13 @@ config ZAO_CAPCELLA
+ 	select DMA_NONCOHERENT
+ 	select HW_HAS_PCI
+ 	select IRQ_CPU
+-	select SYS_SUPPORTS_32BIT_KERNEL
+-	select SYS_SUPPORTS_64BIT_KERNEL if EXPERIMENTAL
+ 	select SYS_SUPPORTS_LITTLE_ENDIAN
+ 
+ config PCI_VR41XX
+ 	bool "Add PCI control unit support of NEC VR4100 series"
+-	depends on MACH_VR41XX && PCI
++	depends on MACH_VR41XX && HW_HAS_PCI
++	default y
++	select PCI
+ 
+ config VRC4173
+ 	tristate "Add NEC VRC4173 companion chip support"

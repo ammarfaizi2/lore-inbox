@@ -1,78 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbVJXP7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbVJXQCA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751121AbVJXP7O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 11:59:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbVJXP7N
+	id S1751126AbVJXQCA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 12:02:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbVJXQCA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 11:59:13 -0400
-Received: from barad-dur.crans.org ([138.231.141.187]:45775 "EHLO
-	barad-dur.minas-morgul.org") by vger.kernel.org with ESMTP
-	id S1751121AbVJXP7M convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 11:59:12 -0400
-From: "Regala" <matt@regala.cx>
-To: Luben Tuikov <luben_tuikov@adaptec.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Hellwig <hch@infradead.org>,
-       Sergey Panov <sipan@sipan.org>,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>, linux-scsi@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>, andrew.patterson@hp.com,
-       Christoph Hellwig <hch@lst.de>,
-       "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally	attached PHYs)
-References: <4359440E.2050702@pobox.com> <43595275.1000308@adaptec.com>
-	<435959BE.5040101@pobox.com> <43595CA6.9010802@adaptec.com>
-	<43596070.3090902@pobox.com> <43596859.3020801@adaptec.com>
-	<43596F16.7000606@pobox.com> <435A1793.1050805@s5r6.in-berlin.de>
-	<20051022105815.GB3027@infradead.org>
-	<1129994910.6286.21.camel@sipan.sipan.org>
-	<20051022171943.GA7546@infradead.org> <435CE6CA.4070704@adaptec.com>
-	<1130168495.12873.27.camel@localhost.localdomain>
-	<435CFA5A.2030104@adaptec.com>
-X-PGP-KeyID: 0x2E13FCA8
-X-PGP-Fingerprint: D41C FC4F 7374 D3FA A121 9182 90AC 62B0 2E13 FCA8
-Date: lun, 24 oct 2005 17:59:10 +0200
-In-Reply-To: <435CFA5A.2030104@adaptec.com> (Luben Tuikov's message of "Mon,
-	24 Oct 2005 11:14:34 -0400")
-Message-ID: <87vezm7vox.fsf@barad-dur.minas-morgul.org>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/22.0.50 (gnu/linux)
+	Mon, 24 Oct 2005 12:02:00 -0400
+Received: from mail.fieldses.org ([66.93.2.214]:12420 "EHLO
+	pickle.fieldses.org") by vger.kernel.org with ESMTP
+	id S1751126AbVJXQCA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 12:02:00 -0400
+Date: Mon, 24 Oct 2005 12:01:58 -0400
+To: Takashi Iwai <tiwai@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc5 apm suspend failure--ALSA patch?
+Message-ID: <20051024160158.GK9154@fieldses.org>
+References: <20051023184202.GB10037@fieldses.org> <s5hu0f72q8h.wl%tiwai@suse.de> <20051024153526.GH9154@fieldses.org> <s5hoe5f9b8n.wl%tiwai@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <s5hoe5f9b8n.wl%tiwai@suse.de>
+User-Agent: Mutt/1.5.11
+From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luben Tuikov <luben_tuikov@adaptec.com> disait dernièrement que :
+On Mon, Oct 24, 2005 at 05:38:00PM +0200, Takashi Iwai wrote:
+> At Mon, 24 Oct 2005 11:35:26 -0400,
+> J. Bruce Fields wrote:
+> > And on boot I see this:
+> > 
+> > Oct 22 11:44:45 puzzle kernel: ALSA device list:
+> > Oct 22 11:44:45 puzzle kernel:   #0: Virtual MIDI Card 1
+> 
+> Ah, that's it.  The patch I sent should fix Oops, then.
 
-> On 10/24/05 11:41, Alan Cox wrote:
->> On Llu, 2005-10-24 at 09:51 -0400, Luben Tuikov wrote:
->> 
->>>controls and how.  Understanding how the factory workers use it and what
->>>they expect.  Understanding the code (which may not be as easy).  Then it
->>>is rewritten so that it can be easily supported and maintained.
->> 
->> 
->> Very very rarely, because it means down time and supporting two systems
->> at once. Take a look at the australian customs fiasco or the british
->> passport office disaster to see why (actually almost any large
->> government IT project where politics dictated 'write new stuff so I can
->> announce it in parliament').
->> 
->> The smart factory update would occur piece by piece. Starting with the
->> most pressing problems (ie fastest ROI) and working to a plan that ends
->> up with the system modular and clean.
->> 
->> You don't turn a steel plant off for a software upgrade.
->
-> There was 0 (zero) effective downtime to the factory.
+Yep, that did it, thanks.  Will this be in 2.6.14?
 
-but refactoring can be done in incremental pieces, can't be ?
-rewriting it from scratch is, in this very case, really for the sake
-of self-pride and brain-masturbation.
-Bravo
-
-This is not a really convincing example...
-
--- 
-Mathieu Segaud
+--b.

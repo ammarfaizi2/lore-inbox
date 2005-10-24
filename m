@@ -1,55 +1,216 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbVJXQCu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbVJXQHg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751131AbVJXQCu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 12:02:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbVJXQCu
+	id S1751125AbVJXQHg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 12:07:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbVJXQHf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 12:02:50 -0400
-Received: from gold.veritas.com ([143.127.12.110]:24134 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1751131AbVJXQCt (ORCPT
+	Mon, 24 Oct 2005 12:07:35 -0400
+Received: from xproxy.gmail.com ([66.249.82.206]:61667 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751125AbVJXQHf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 12:02:49 -0400
-Date: Mon, 24 Oct 2005 17:01:53 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-cc: David Howells <dhowells@redhat.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Carsten Otte <cotte@de.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: what happened to page_mkwrite? - was: Re: page_mkwrite seems
- broken
-In-Reply-To: <1130168619.19518.43.camel@imp.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.61.0510241648170.4338@goblin.wat.veritas.com>
-References: <1130167005.19518.35.camel@imp.csi.cam.ac.uk> 
- <Pine.LNX.4.61.0502091357001.6086@goblin.wat.veritas.com> 
- <7872.1130167591@warthog.cambridge.redhat.com> <1130168619.19518.43.camel@imp.csi.cam.ac.uk>
+	Mon, 24 Oct 2005 12:07:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type;
+        b=SQVCR/NufBmuiw9hfFpplb3GJ1MeUc7WWejbJRxNwlVy0jkIhPJlHTI0+7/ELAZZnwQXGEEL7T2nh5QVn3s7jGZNaVMlb9oGfWehRy3jYt1l2rNe8R39IS3dSr75AvcZNParKD/sBv0hjmEZFpOzNmHhebFWkxcEH1SsLbWiQz0=
+Message-ID: <5bdc1c8b0510240907mc90490eoe111188ee874c8a5@mail.gmail.com>
+Date: Mon, 24 Oct 2005 09:07:34 -0700
+From: Mark Knecht <markknecht@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.14-rc5-rt5 - softirq-timer/0/3[CPU#0]: BUG in ktime_get at kernel/ktimers.c:103
+Cc: Ingo Molnar <mingo@elte.hu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 24 Oct 2005 16:02:49.0265 (UTC) FILETIME=[6192CA10:01C5D8B4]
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_27207_15543355.1130170054416"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Oct 2005, Anton Altaparmakov wrote:
-> 
-> I don't really mind either way.  I am stuck with ntfs at the moment at
-> the point where I am either going to use my own ->nopage handler to
-> allocate on-disk clusters or have a ->page_mkwrite handler do it.  The
-> former is not nice as it means we allocate space even when only reading
-> whilst the later is very nice as it only triggers when someone actually
-> does an mmapped write.
+------=_Part_27207_15543355.1130170054416
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-A complication to beware of there (and I may be misunderstanding, but
-the point is worth making).  If you have already mmaped readonly zero
-pages into some mms, you'll need to update those mms with the new
-shared writable pages once they are allocated.  That put me off using
-page_mkwrite in tmpfs, but Carsten has solved the problem (though
-not going so far as to use page_mkwrite) with his xip_file_nopage
-in mm/filemap_xip.c - has to go down the vma_prio_tree like rmap.
+Hi,
+   This is on an older machine. Athlon 1600+ / older Via chipset.
 
-(That code is a little different in -mm, partly because of my page
-table locking changes, partly because of Nick's ZERO_PAGE changes.)
 
-Hmm, strictly speaking, it should be substituting the new page
-when VM_LOCKED: whether that's worth the effort of implementing....
+ACPI: Power Button (FF) [PWRF]
+ACPI: Power Button (CM) [PWRB]
+ACPI: CPU0 (power states: C1[C1] C2[C2])
+ACPI: Processor [CPU0] (supports 16 throttling states)
+Time: tsc clocksource has been installed.
+WARNING: non-monotonic time!
+... time warped from 151976744 to 147973105.
+softirq-timer/0/3[CPU#0]: BUG in ktime_get at kernel/ktimers.c:103
+ [<c0118e20>] __WARN_ON+0x60/0xc0 (8)
+ [<c013072d>] ktime_get+0xed/0x130 (40)
+ [<c01312de>] ktimer_run_queues+0x2e/0x130 (64)
+ [<c01217f9>] run_timer_softirq+0xc9/0x3e0 (60)
+ [<c03845ff>] schedule+0x4f/0x120 (16)
+ [<c011d837>] ksoftirqd+0xb7/0x110 (28)
+ [<c011d780>] ksoftirqd+0x0/0x110 (36)
+ [<c012d29a>] kthread+0xba/0xc0 (4)
+ [<c012d1e0>] kthread+0x0/0xc0 (28)
+ [<c01013d5>] kernel_thread_helper+0x5/0x10 (16)
+WARNING: non-monotonic time!
+... time warped from 151976744 to 148971665.
+softirq-timer/0/3[CPU#0]: BUG in ktime_get at kernel/ktimers.c:103
+ [<c0118e20>] __WARN_ON+0x60/0xc0 (8)
+ [<c013072d>] ktime_get+0xed/0x130 (40)
+ [<c01312de>] ktimer_run_queues+0x2e/0x130 (64)
+ [<c01217f9>] run_timer_softirq+0xc9/0x3e0 (60)
+ [<c03845ff>] schedule+0x4f/0x120 (16)
+ [<c011d837>] ksoftirqd+0xb7/0x110 (28)
+ [<c011d780>] ksoftirqd+0x0/0x110 (36)
+ [<c012d29a>] kthread+0xba/0xc0 (4)
+ [<c012d1e0>] kthread+0x0/0xc0 (28)
+ [<c01013d5>] kernel_thread_helper+0x5/0x10 (16)
+WARNING: non-monotonic time!
+... time warped from 151976744 to 149972579.
+softirq-timer/0/3[CPU#0]: BUG in ktime_get at kernel/ktimers.c:103
+ [<c0118e20>] __WARN_ON+0x60/0xc0 (8)
+ [<c013072d>] ktime_get+0xed/0x130 (40)
+ [<c01312de>] ktimer_run_queues+0x2e/0x130 (64)
+ [<c01217f9>] run_timer_softirq+0xc9/0x3e0 (60)
+ [<c03845ff>] schedule+0x4f/0x120 (16)
+ [<c011d837>] ksoftirqd+0xb7/0x110 (28)
+ [<c011d780>] ksoftirqd+0x0/0x110 (36)
+ [<c012d29a>] kthread+0xba/0xc0 (4)
+ [<c012d1e0>] kthread+0x0/0xc0 (28)
+ [<c01013d5>] kernel_thread_helper+0x5/0x10 (16)
+lp: driver loaded but no devices found
+PNP: PS/2 Controller [PNP0303:PS2K,PNP0f13:PS2M] at 0x60,0x64 irq 1,12
+serio: i8042 AUX port at 0x60,0x64 irq 12
 
-Hugh
+------=_Part_27207_15543355.1130170054416
+Content-Type: application/x-bzip2; name=knecht.config-2.6.14-rc5-rt5.bz2
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="knecht.config-2.6.14-rc5-rt5.bz2"
+
+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
+ceRkDP/4u5IpwoSHR/FR8A==
+------=_Part_27207_15543355.1130170054416--

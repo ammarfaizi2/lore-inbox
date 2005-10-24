@@ -1,127 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751256AbVJXUMO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbVJXUWJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751256AbVJXUMO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 16:12:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbVJXUMO
+	id S1751257AbVJXUWJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 16:22:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbVJXUWJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 16:12:14 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:6128 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S1751256AbVJXUMN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 16:12:13 -0400
-Message-ID: <435D4009.2030306@mvista.com>
-Date: Mon, 24 Oct 2005 13:11:53 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
-X-Accept-Language: en-us, en
+	Mon, 24 Oct 2005 16:22:09 -0400
+Received: from kokytos.rz.ifi.lmu.de ([141.84.214.13]:35511 "EHLO
+	kokytos.rz.ifi.lmu.de") by vger.kernel.org with ESMTP
+	id S1751257AbVJXUWG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 16:22:06 -0400
+From: Michael Brade <brade@informatik.uni-muenchen.de>
+Organization: =?iso-8859-15?q?Universit=E4t?= =?iso-8859-15?q?_M=FCnchen?=, Institut =?iso-8859-15?q?f=FCr?= Informatik
+To: "John Stoffel" <john@stoffel.org>
+Subject: Re: ieee1394: sbp2: sbp2util_node_write_no_wait failed
+Date: Mon, 24 Oct 2005 22:23:37 +0200
+User-Agent: KMail/1.8.90
+Cc: linux-kernel@vger.kernel.org
+References: <200510241451.27320.brade@informatik.uni-muenchen.de> <200510241834.03948.brade@informatik.uni-muenchen.de> <17245.14997.891283.954480@smtp.charter.net>
+In-Reply-To: <17245.14997.891283.954480@smtp.charter.net>
 MIME-Version: 1.0
-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, minyard@acm.org,
-       linux-kernel@vger.kernel.org, Matt_Domsch@dell.com
-Subject: Re: [PATCH 9/9] ipmi: add timer thread
-References: <20051021145835.GI19532@i2.minyard.local>	 <20051023134934.1b81d9c6.akpm@osdl.org> <29495f1d0510231412n41ab2d27y41f13a9c9e62b0c2@mail.gmail.com>
-In-Reply-To: <29495f1d0510231412n41ab2d27y41f13a9c9e62b0c2@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart2459159.4zOh8fgHMO";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200510242223.43114.brade@informatik.uni-muenchen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nish Aravamudan wrote:
-> On 10/23/05, Andrew Morton <akpm@osdl.org> wrote:
-> 
->>Corey Minyard <minyard@acm.org> wrote:
->>
->>>We must poll for responses to commands when interrupts aren't in use.
->>>The default poll interval is based on using a kernel timer, which
->>>varies with HZ.  For character-based interfaces like KCS and SMIC
->>>though, that can be way too slow (>15 minutes to flash a new firmware
->>>with KCS, >20 seconds to retrieve the sensor list).
->>>
->>>This creates a low-priority kernel thread to poll more often.  If the
->>>state machine is idle, so is the kernel thread.  But if there's an
->>>active command, it polls quite rapidly.  This decrease a firmware
->>>flash time from 15 minutes to 1.5 minutes, and the sensor list time to
->>>4.5 seconds, on a Dell PowerEdge x8x system.
->>>
->>>The timer-based polling remains, to ensure some amount of
->>>responsiveness even under high user process CPU load.
->>>
->>>Checking for a stopped timer at rmmod now uses atomics and
->>>del_timer_sync() to ensure safe stoppage.
->>>
->>>...
->>>
->>>+static int ipmi_thread(void *data)
->>>+{
->>>+     struct smi_info *smi_info = data;
->>>+     unsigned long flags, last=1;
->>>+     enum si_sm_result smi_result;
->>>+
->>>+     daemonize("kipmi%d", smi_info->intf_num);
->>>+     allow_signal(SIGKILL);
->>>+     set_user_nice(current, 19);
->>>+     while (!atomic_read(&smi_info->stop_operation)) {
->>>+             schedule_timeout(last);
->>>+             spin_lock_irqsave(&(smi_info->si_lock), flags);
->>>+             smi_result=smi_event_handler(smi_info, 0);
->>>+             spin_unlock_irqrestore(&(smi_info->si_lock), flags);
->>>+             if (smi_result == SI_SM_CALL_WITHOUT_DELAY)
->>>+                     last = 0;
->>>+             else if (smi_result == SI_SM_CALL_WITH_DELAY) {
->>>+                     udelay(1);
->>>+                     last = 0;
->>>+             }
->>>+             else {
->>>+                     /* System is idle; go to sleep */
->>>+                     last = 1;
->>>+                     current->state = TASK_INTERRUPTIBLE;
->>>+             }
->>>+     }
->>>+     smi_info->thread_pid = 0;
->>>+     complete_and_exit(&(smi_info->exiting), 0);
->>>+     return 0;
->>>+}
-> 
-> 
-> <snip>
-> 
->>The first call to schedule_timeout() here will not actually sleep at all,
->>due to it being in state TASK_RUNNING.  Is that deliberate?
->>
->>Also, this thread can exit in state TASK_INTERUPTIBLE.  That's not a bug
->>per-se, but apparently it'll spit a warning in some of the patches which
->>Ingo is working on.  I don't know why, but I'm sure there's a good reason
->>;)
-> 
-> 
-> You beat me to this one, Andrew! :) Both issue can be avoided by using
-> schedule_timeout_interruptible().
-> 
-> Additionally, I think the last variable is simply being used to switch
-> between a 0 and 1 jiffy sleep (took me a while to figure that out in
-> GMail sadly -- any chance the variable could be renamed?). In the
-> current implementaion of schedule_timeout(), these will result in the
-> same behavior, expiring the timer at the next timer interrupt (the
-> next jiffy increment is the first time we'll notice we had a timer in
-> the past to expire). Not sure if that's the intent and perhaps just a
-> means to indicate what is desired (a sleep will still occur, even
-> though a udelay() has already in the loop, for instance), but wanted
-> to make sure.
+--nextPart2459159.4zOh8fgHMO
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I think it would be VERY nice if we could eliminate calls to sleep for NIL time.  Sooner or later 
-these are going to bite us very badly.
+On Monday 24 October 2005 21:48, John Stoffel wrote:
+> Yeah, from what I've been reading, the Prolific chipset sucked even
+> for Windows users, at least until the latest firmware.  Goto these
+> pages:
+>
+> 	http://tech.prolific.com.tw/visitor/v_filebrw_result.asp
+> 	http://forum.rpc1.org/viewtopic.php?t=3D25140&postdays=3D0&postorder=3Da=
+sc&&star
+>t=3D25&sid=3D6801466c15ef74f35a490bbdb423cf37
+>
+> The second one is a forum which had some useful info.
+Thank you so much for your help! It probably won't make my device work with=
+=20
+ieee1394 out of the blue but it sure got me out of my ignorance!
 
-In the above code, the handling of the "task state" is, well, funny.  If last is 0, it is not 
-modified implying that:
+> Michael> And even if I've got the newest firmware already, does the
+> Michael> prolific stuff work by now or should I chuck it out the
+> Michael> window?
+>
+> It works with USB
+Ok, I will try that then. I have only USB 1.1 on my laptop so I guess eithe=
+r=20
+I'll get rid of the icy box (what a name..) or get a USB 2.0 PCMCIA card.
 
-	if (last)
-		schedule_timeout(last);
+Cheers,
+=2D-=20
+Michael Brade;                 KDE Developer, Student of Computer Science
+  |-mail: echo brade !#|tr -d "c oh"|s\e\d 's/e/\@/2;s/$/.org/;s/bra/k/2'
+  =B0--web: http://www.kde.org/people/michaelb.html
 
-might be a better rendering of the intended function.
-> 
+KDE 3: The Next Generation in Desktop Experience
 
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+--nextPart2459159.4zOh8fgHMO
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBDXULPdK2tAWD5bo0RAi53AKDWFOnkxO0tDDjjP0teAzjvfaCpgwCg8aZJ
+m8mxD/TmY1Xy4XedHKksOq0=
+=hRuD
+-----END PGP SIGNATURE-----
+
+--nextPart2459159.4zOh8fgHMO--

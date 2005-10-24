@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbVJXScp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbVJXSff@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751245AbVJXScp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 14:32:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbVJXScp
+	id S1751242AbVJXSff (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 14:35:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbVJXSff
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 14:32:45 -0400
-Received: from atlrel9.hp.com ([156.153.255.214]:40328 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S1751241AbVJXSco (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 14:32:44 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: "Chen, Justin" <justin.chen@hp.com>
-Subject: Re: [PATCH] new hp diva console port
-Date: Mon, 24 Oct 2005 12:32:36 -0600
-User-Agent: KMail/1.8.2
-Cc: rmk+serial@arm.linux.org.uk, linux-kernel@vger.kernel.org,
-       linux-serial@vger.kernel.org
-References: <C1BB5827EB7A364EA57B4E8C7C02ADAC054EB2F2@cacexc04.americas.cpqcorp.net>
-In-Reply-To: <C1BB5827EB7A364EA57B4E8C7C02ADAC054EB2F2@cacexc04.americas.cpqcorp.net>
+	Mon, 24 Oct 2005 14:35:35 -0400
+Received: from qproxy.gmail.com ([72.14.204.201]:9091 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751242AbVJXSfe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 14:35:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=btiHvAY1n9b3v6MLQ60kJ5bMb6v+DNz4s9SWTi5LsDAdVPT6MO+bMPLopUNOAiAMEj9kN7w+Tv4zayGOAzKybyhSlqqbWB/ONugHIXY4Ls/7zo3JsRP/4ta37M5BjTTckeAIJe8maKlaZomvPJJAhSjVrKtszEcrOoaBHe2at+c=
+Message-ID: <39e6f6c70510241135p18b018bo896b3565fa5ce87b@mail.gmail.com>
+Date: Mon, 24 Oct 2005 16:35:33 -0200
+From: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>
+To: =?ISO-2022-JP?Q?YOSHIFUJI_Hideaki_/_=1B=24B5HF=231QL=40=1B=28B?= 
+	<yoshfuji@linux-ipv6.org>,
+       Yan Zheng <yanzheng@21cn.com>
+Subject: Re: [PATCH]IPv6: fix refcnt of struct ip6_flowlabel
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <435CCF7B.6030907@21cn.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200510241232.36948.bjorn.helgaas@hp.com>
+References: <435CCF7B.6030907@21cn.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 October 2005 6:30 pm, Chen, Justin wrote:
-> This patch adds the new ID 0x132a and configure the new PCI Diva console
-> port.  This device support only 1 single console UART. Please apply.
+On 10/24/05, Yan Zheng <yanzheng@21cn.com> wrote:
+> Signed-off-by: Yan Zheng <yanzheng@21cn.com>
+>
+>
+> Index: net/ipv6/ip6_flowlabel.c
+> ===================================================================
+> --- linux-2.6.14-rc5/net/ipv6/ip6_flowlabel.c   2005-10-22 10:31:13.000000000 +0800
+> +++ linux/net/ipv6/ip6_flowlabel.c      2005-10-24 19:55:23.000000000 +0800
+> @@ -483,7 +483,7 @@
+>                                                 goto done;
+>                                         }
+>                                         fl1 = sfl->fl;
+> -                                       atomic_inc(&fl->users);
+> +                                       atomic_inc(&fl1->users);
+>                                         break;
 
-It'll be easier to apply this if you follow the guidelines in
-Documentation/SubmittingPatches.  For example, the patch should
-apply with "patch -p1", add "Signed-off-by:", etc.
+Looks OK to me, Yoshifuji-san, ACK?
 
-> --- 8250_pci.c.orig     2005-10-18 15:56:50.148489501 -0700
-> +++ 8250_pci.c  2005-10-18 15:55:25.624076474 -0700
-> @@ -178,6 +178,7 @@ static int __devinit pci_hp_diva_init(st
->                 rc = 4;
->                 break;
->         case PCI_DEVICE_ID_HP_DIVA_POWERBAR:
-> +       case PCI_DEVICE_ID_HP_DIVA_HURRICANE:
->                 rc = 1;
->                 break;
->         }
-> --- pci_ids.h.orig      2005-10-18 16:02:56.864305321 -0700
-> +++ pci_ids.h   2005-10-18 16:03:54.002976496 -0700
-> @@ -710,6 +710,7 @@
->  #define PCI_DEVICE_ID_HP_DIVA_EVEREST  0x1282
->  #define PCI_DEVICE_ID_HP_DIVA_AUX      0x1290
->  #define PCI_DEVICE_ID_HP_DIVA_RMP3     0x1301
-> +#define PCI_DEVICE_ID_HP_DIVA_HURRICANE 0x132a
->  #define PCI_DEVICE_ID_HP_CISSA         0x3220
->  #define PCI_DEVICE_ID_HP_CISSB         0x3230
->  #define PCI_DEVICE_ID_HP_ZX2_IOC       0x4031
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+- Arnaldo

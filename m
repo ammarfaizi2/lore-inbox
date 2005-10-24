@@ -1,42 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbVJXPnT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751111AbVJXPnr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751108AbVJXPnT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 11:43:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbVJXPnT
+	id S1751111AbVJXPnr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 11:43:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751107AbVJXPnr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 11:43:19 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:5321 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751106AbVJXPnS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 11:43:18 -0400
-Message-ID: <435D010E.2070308@pobox.com>
-Date: Mon, 24 Oct 2005 11:43:10 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Mon, 24 Oct 2005 11:43:47 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:36359 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751111AbVJXPnq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 11:43:46 -0400
+Date: Mon, 24 Oct 2005 17:43:42 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Badari Pulavarty <pbadari@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       alan@lxorguk.ukuu.org.uk
+Subject: Re: 2.6.14-rc5-mm1
+Message-ID: <20051024154342.GA24527@stusta.de>
+References: <20051024014838.0dd491bb.akpm@osdl.org> <1130168434.6831.1.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Ashutosh Naik <ashutosh_naik@adaptec.com>
-CC: jeremy@sgi.com, benh@kernel.crashing.org, Andrew Morton <akpm@osdl.org>,
-       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sata: Fixes several warnings in sata_vsc.c and sata_svw.c
-References: <1130150013.16820.66.camel@kir9060.adaptec.com>
-In-Reply-To: <1130150013.16820.66.camel@kir9060.adaptec.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1130168434.6831.1.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ashutosh Naik wrote:
-> This patch fixes several types in sata_vsc.c and sata_svw.c and hence
-> fixes tons of compiler warnings.
+On Mon, Oct 24, 2005 at 08:40:34AM -0700, Badari Pulavarty wrote:
+> On Mon, 2005-10-24 at 01:48 -0700, Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc5/2.6.14-rc5-mm1/
 > 
-> Signed-off-by: Ashutosh Naik <ashutosh_naik@adaptec.com>
+> Compile problems. 
+> 
+> Thanks,
+> Badari
+> 
+> elm3b29:/usr/src/linux-2.6.14-rc5 # make -j40 modules
+>   CHK     include/linux/version.h
+>   CC [M]  drivers/serial/jsm/jsm_tty.o
+> drivers/serial/jsm/jsm_tty.c: In function `jsm_input':
+> drivers/serial/jsm/jsm_tty.c:592: error: structure has no member named
+> `flip'
+>...
 
-This patch has been repeatedly NAK'd.  Check the archives...
+Quoting Andrew's announcement:
 
-	Jeff
+   - A number of tty drivers still won't compile.
 
 
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

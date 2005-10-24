@@ -1,56 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751022AbVJXNm0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751037AbVJXNvT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751022AbVJXNm0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 09:42:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbVJXNm0
+	id S1751037AbVJXNvT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 09:51:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbVJXNvS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 09:42:26 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:5064 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751022AbVJXNmZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 09:42:25 -0400
-Subject: Re: terminal handling: collecting inter-keystroke timings
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Travis H." <solinym@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <d4f1333a0510240046s18021c3exe61ad783ddff0778@mail.gmail.com>
-References: <d4f1333a0510232356v1778fb10s186af3979aa323db@mail.gmail.com>
-	 <d4f1333a0510240046s18021c3exe61ad783ddff0778@mail.gmail.com>
-Content-Type: text/plain
+	Mon, 24 Oct 2005 09:51:18 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:27063 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1750956AbVJXNvS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 09:51:18 -0400
+Message-ID: <435CE6CA.4070704@adaptec.com>
+Date: Mon, 24 Oct 2005 09:51:06 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: Sergey Panov <sipan@sipan.org>, Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       linux-scsi@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>, andrew.patterson@hp.com,
+       Christoph Hellwig <hch@lst.de>,
+       "Moore, Eric Dean" <Eric.Moore@lsil.com>, jejb@steeleye.com,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: ioctls, etc. (was Re: [PATCH 1/4] sas: add flag for locally attached
+ PHYs)
+References: <4359440E.2050702@pobox.com> <43595275.1000308@adaptec.com> <435959BE.5040101@pobox.com> <43595CA6.9010802@adaptec.com> <43596070.3090902@pobox.com> <43596859.3020801@adaptec.com> <43596F16.7000606@pobox.com> <435A1793.1050805@s5r6.in-berlin.de> <20051022105815.GB3027@infradead.org> <1129994910.6286.21.camel@sipan.sipan.org> <20051022171943.GA7546@infradead.org>
+In-Reply-To: <20051022171943.GA7546@infradead.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Mon, 24 Oct 2005 15:11:19 +0100
-Message-Id: <1130163079.12873.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-OriginalArrivalTime: 24 Oct 2005 13:51:11.0314 (UTC) FILETIME=[FE071B20:01C5D8A1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-10-24 at 02:46 -0500, Travis H. wrote:
-> Ideally any mechanism would be flexible enough that I could have it
-> deliver me timings between key-down, key-up-to-key-down, or up/down to
-> up/down timings.  And it should be efficient enough that it can
-> deliver most of them unprocessed to some userland collector daemon
-> which does the filtering of outliers and whatnot.
+On 10/22/05 13:19, Christoph Hellwig wrote:
+> On Sat, Oct 22, 2005 at 11:28:30AM -0400, Sergey Panov wrote:
+> 
+>> It is a mistake to think that you can not do a big rework and keep SCSI
+>>sub-system stable. You just have to make sure the OLD way is supported
+>>for as log as it is needed.
+> 
+> 
+> No.  Rewriting something from scratch is horrible engineering practice.
 
-The keyboard layer abstracts out up/down events, repeat key
-functionality and extensions in the normal case. You can put the
-keyboard into raw mode and do the work yourself (X does this) and then
-feed the results to an application using a pseudo-terminal (see man
-openpty).
+Off Topic:
+	Discourse on Christoph's "Rewriting something from scratch
+		is horrible engineering practice"
 
-For networks you are somewhat screwed as the network protocols have
-their own timing info and most (telnet, ssh etc) don't pass key up/down
-info and batch characters when appropriate. X events might be usable
-this way.
+Christoph,
 
-> Since I'm on the subject, a related project I had in mind would be
-> hacking the keyboard to do its raster-scan in a pseudo-random order
-> that was synchronized with the terminal driver such that the signal on
-> the wire was, if not encrypted, at least scrambled enough to be
-> difficult to convert back into plaintext.  What would this involve on
-> the kernel side?
+Imagine a for ( ) { } loop spanning 5000 lines.  Imagine never using
+functions to separate things.  But imagine that a _factory_ is using
+this code on its production line and that code, although badly written,
+does work and keeps the production line going and thousands of
+people working.
 
-Write a new keyboard driver for the new keyboard you've built. PC
-hardware can't do it but we already support keyboard drivers for a
-variety of devices and PDAs which are different to the PC world.
+They hire an engineer to make it _managable_ and supportable -- this
+warrants understanding the production line, what the code does, what it
+controls and how.  Understanding how the factory workers use it and what
+they expect.  Understanding the code (which may not be as easy).  Then it
+is rewritten so that it can be easily supported and maintained.
 
+This is real life example.
+
+	Luben
+-- 
+http://linux.adaptec.com/sas/
+http://www.adaptec.com/sas/

@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750984AbVJXEmT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751001AbVJXE7j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750984AbVJXEmT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 00:42:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750985AbVJXEmT
+	id S1751001AbVJXE7j (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 00:59:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751002AbVJXE7j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 00:42:19 -0400
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:58209 "EHLO
-	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S1750983AbVJXEmS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 00:42:18 -0400
-X-IronPort-AV: i="3.97,243,1125896400"; 
-   d="scan'208"; a="312167702:sNHT29015880"
-Date: Sun, 23 Oct 2005 23:42:17 -0500
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: Corey Minyard <minyard@acm.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH 1/9] ipmi: use refcount in message handler
-Message-ID: <20051024044217.GA32199@lists.us.dell.com>
-References: <20051021144909.GA19532@i2.minyard.local> <20051024021931.GA9696@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051024021931.GA9696@us.ibm.com>
-User-Agent: Mutt/1.5.9i
+	Mon, 24 Oct 2005 00:59:39 -0400
+Received: from gold.veritas.com ([143.127.12.110]:53145 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1750999AbVJXE7i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 00:59:38 -0400
+Date: Mon, 24 Oct 2005 05:58:45 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: clameter@sgi.com, rmk@arm.linux.org.uk, matthew@wil.cx, jdike@addtoit.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 7/9] mm: split page table lock
+In-Reply-To: <20051023211630.44459ff7.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0510240538580.22972@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0510221716380.18047@goblin.wat.veritas.com>
+ <Pine.LNX.4.61.0510221727060.18047@goblin.wat.veritas.com>
+ <20051023142712.6c736dd3.akpm@osdl.org> <20051023152245.4d1dc812.akpm@osdl.org>
+ <Pine.LNX.4.61.0510240412350.22131@goblin.wat.veritas.com>
+ <20051023211630.44459ff7.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 24 Oct 2005 04:59:38.0129 (UTC) FILETIME=[BC354810:01C5D857]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 23, 2005 at 07:19:32PM -0700, Paul E. McKenney wrote:
-> My guess is that this read-side critical section can be invoked from and
-> SMI, and that SMIs can occur even if interrupts are disabled.  If my guess
-> is wrong, please enlighten me.  And feel free to ignore the next few
-> paragraphs in that case, along with a number of my suggested changes,
-> since they all depend critically on my guess being correct.
+On Sun, 23 Oct 2005, Andrew Morton wrote:
+> Hugh Dickins <hugh@veritas.com> wrote:
+> 
+> I'm rather surprised that no architectures are already using page.mapping,
+> .index, .lru or .virtual in pte pages.
 
-Paul, it took me a bit to figure this out too, but Corey uses the TLA
-"SMI" to mean "Systems Management Interface", not "Systems Management
-Interrupt".   From Documentation/IPMI.txt:
+It is important that we don't corrupt .virtual.  But beyond that, why
+should they use those fields?  Some were used in the pte_chains days,
+and ppc held on to that usage for a while longer (to get from page
+table to mm), but that is all gone now.  Unless I've missed something.
 
-ipmi_msghandler - This is the central piece of software for the IPMI
-system.  It handles all messages, message timing, and responses.  The
-IPMI users tie into this, and the IPMI physical interfaces (called
-System Management Interfaces, or SMIs) also tie in here.
+> > > ick.  I think I prefer the union, although it'll make struct page bigger
+> > > for CONFIG_PREEMPT+CONFIG_SMP+NR_CPUS>=4.    hmm.
+> > 
+> > Hmm indeed.  Definitely not the tradeoff I chose or would choose.
+> 
+> It's not that bad, really.  I do think that this approach is just too
+> dirty, sorry.  We can avoid it by moving something else into the union. 
+> lru, perhaps?
 
+Perhaps.  But revisiting this is not something I'm prepared to rush
+into overnight - right answers come slower.  I'd rather we start with
+what I had, tested on few architectures as it is, and consider how to
+robustify it more sedately.
 
-There are at least 4 basic types of physical hardware interfaces (BT,
-SMIC, KCS, and I2C), which may (or more often, may not) have their own
-hardware interrupt lines, but these are normal interrupts, not
-CPU-magic "systems management interrupts".  So I think this isn't a
-problem.
+Or, if you prefer, disable the split (raise Kconfig default to "4096"), or
+back out the 7/9 for the moment; though I had been hoping for exposure.
 
-Thanks,
-Matt
-
-
--- 
-Matt Domsch
-Software Architect
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+Hugh

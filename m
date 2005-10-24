@@ -1,134 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbVJXQve@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbVJXQyv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751159AbVJXQve (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 12:51:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbVJXQvd
+	id S1751162AbVJXQyv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 12:54:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbVJXQyv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 12:51:33 -0400
-Received: from 253-121.adsl.pool.ew.hu ([193.226.253.121]:5395 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1751156AbVJXQvd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 12:51:33 -0400
-To: akpm@osdl.org
-CC: viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: [PATCH 1/8] VFS: pass file pointer to filesystem from ftruncate()
-Message-Id: <E1EU5XO-0005rf-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Mon, 24 Oct 2005 18:51:06 +0200
+	Mon, 24 Oct 2005 12:54:51 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:6533 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751162AbVJXQyu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 12:54:50 -0400
+Subject: Re: 2.6.14-rc5-mm1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Badari Pulavarty <pbadari@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051024154342.GA24527@stusta.de>
+References: <20051024014838.0dd491bb.akpm@osdl.org>
+	 <1130168434.6831.1.camel@localhost.localdomain>
+	 <20051024154342.GA24527@stusta.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 24 Oct 2005 18:21:37 +0100
+Message-Id: <1130174497.12873.30.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch extends the iattr structure with a file pointer memeber,
-and adds an ATTR_FILE validity flag for this member.
+On Llu, 2005-10-24 at 17:43 +0200, Adrian Bunk wrote:
+> >   CC [M]  drivers/serial/jsm/jsm_tty.o
+> > drivers/serial/jsm/jsm_tty.c: In function `jsm_input':
+> > drivers/serial/jsm/jsm_tty.c:592: error: structure has no member named
+> > `flip'
+> >...
+> 
+> Quoting Andrew's announcement:
+> 
+>    - A number of tty drivers still won't compile.
 
-This is set if do_truncate() is invoked from ftruncate() or from
-do_coredump().
+Should only be jsm that won't compile for any mainstream platform, if
+you find others that don't please email me.
 
-The change is source and binary compatible.
-
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
-
-Index: linux/fs/namei.c
-===================================================================
---- linux.orig/fs/namei.c	2005-10-24 12:11:04.000000000 +0200
-+++ linux/fs/namei.c	2005-10-24 14:13:40.000000000 +0200
-@@ -1459,7 +1459,7 @@ int may_open(struct nameidata *nd, int a
- 		if (!error) {
- 			DQUOT_INIT(inode);
- 			
--			error = do_truncate(dentry, 0);
-+			error = do_truncate(dentry, 0, NULL);
- 		}
- 		put_write_access(inode);
- 		if (error)
-Index: linux/include/linux/fs.h
-===================================================================
---- linux.orig/include/linux/fs.h	2005-10-24 12:11:05.000000000 +0200
-+++ linux/include/linux/fs.h	2005-10-24 14:13:40.000000000 +0200
-@@ -266,6 +266,7 @@ typedef void (dio_iodone_t)(struct kiocb
- #define ATTR_ATTR_FLAG	1024
- #define ATTR_KILL_SUID	2048
- #define ATTR_KILL_SGID	4096
-+#define ATTR_FILE	8192
- 
- /*
-  * This is the Inode Attributes structure, used for notify_change().  It
-@@ -285,6 +286,13 @@ struct iattr {
- 	struct timespec	ia_atime;
- 	struct timespec	ia_mtime;
- 	struct timespec	ia_ctime;
-+
-+	/*
-+	 * Not an attribute, but an auxilary info for filesystems wanting to
-+	 * implement an ftruncate() like method.  NOTE: filesystem should
-+	 * check for (ia_valid & ATTR_FILE), and not for (ia_file != NULL).
-+	 */
-+	struct file	*ia_file;
- };
- 
- /*
-@@ -1295,7 +1303,7 @@ static inline int break_lease(struct ino
- 
- /* fs/open.c */
- 
--extern int do_truncate(struct dentry *, loff_t start);
-+extern int do_truncate(struct dentry *, loff_t start, struct file *filp);
- extern long do_sys_open(const char __user *filename, int flags, int mode);
- extern struct file *filp_open(const char *, int, int);
- extern struct file * dentry_open(struct dentry *, struct vfsmount *, int);
-Index: linux/fs/exec.c
-===================================================================
---- linux.orig/fs/exec.c	2005-10-24 12:11:04.000000000 +0200
-+++ linux/fs/exec.c	2005-10-24 14:13:40.000000000 +0200
-@@ -1510,7 +1510,7 @@ int do_coredump(long signr, int exit_cod
- 		goto close_fail;
- 	if (!file->f_op->write)
- 		goto close_fail;
--	if (do_truncate(file->f_dentry, 0) != 0)
-+	if (do_truncate(file->f_dentry, 0, file) != 0)
- 		goto close_fail;
- 
- 	retval = binfmt->core_dump(signr, regs, file);
-Index: linux/fs/open.c
-===================================================================
---- linux.orig/fs/open.c	2005-10-24 12:11:04.000000000 +0200
-+++ linux/fs/open.c	2005-10-24 14:13:40.000000000 +0200
-@@ -194,7 +194,7 @@ out:
- 	return error;
- }
- 
--int do_truncate(struct dentry *dentry, loff_t length)
-+int do_truncate(struct dentry *dentry, loff_t length, struct file *filp)
- {
- 	int err;
- 	struct iattr newattrs;
-@@ -205,6 +205,10 @@ int do_truncate(struct dentry *dentry, l
- 
- 	newattrs.ia_size = length;
- 	newattrs.ia_valid = ATTR_SIZE | ATTR_CTIME;
-+	if (filp) {
-+		newattrs.ia_file = filp;
-+		newattrs.ia_valid |= ATTR_FILE;
-+	}
- 
- 	down(&dentry->d_inode->i_sem);
- 	err = notify_change(dentry, &newattrs);
-@@ -262,7 +266,7 @@ static inline long do_sys_truncate(const
- 	error = locks_verify_truncate(inode, NULL, length);
- 	if (!error) {
- 		DQUOT_INIT(inode);
--		error = do_truncate(nd.dentry, length);
-+		error = do_truncate(nd.dentry, length, NULL);
- 	}
- 	put_write_access(inode);
- 
-@@ -314,7 +318,7 @@ static inline long do_sys_ftruncate(unsi
- 
- 	error = locks_verify_truncate(inode, file, length);
- 	if (!error)
--		error = do_truncate(dentry, length);
-+		error = do_truncate(dentry, length, file);
- out_putf:
- 	fput(file);
- out:

@@ -1,125 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbVJXMty@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750821AbVJXMxD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750811AbVJXMty (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 08:49:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbVJXMty
+	id S1750821AbVJXMxD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 08:53:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750908AbVJXMxB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 08:49:54 -0400
-Received: from kokytos.rz.ifi.lmu.de ([141.84.214.13]:8074 "EHLO
-	kokytos.rz.ifi.lmu.de") by vger.kernel.org with ESMTP
-	id S1750811AbVJXMtx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 08:49:53 -0400
-From: Michael Brade <brade@informatik.uni-muenchen.de>
-Organization: =?iso-8859-15?q?Universit=E4t?= =?iso-8859-15?q?_M=FCnchen?=, Institut =?iso-8859-15?q?f=FCr?= Informatik
-To: linux-kernel@vger.kernel.org
-Subject: ieee1394: sbp2: sbp2util_node_write_no_wait failed
-Date: Mon, 24 Oct 2005 14:51:03 +0200
-User-Agent: KMail/1.8.90
+	Mon, 24 Oct 2005 08:53:01 -0400
+Received: from sccrmhc11.comcast.net ([63.240.77.81]:52141 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1750821AbVJXMxB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 08:53:01 -0400
+Message-ID: <435CD90F.3080108@acm.org>
+Date: Mon, 24 Oct 2005 07:52:31 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla Thunderbird 1.0.6-6mdk (X11/20050322)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart4108098.En7lidD6PS";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: paulmck@us.ibm.com
+CC: Matt Domsch <Matt_Domsch@dell.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH 1/9] ipmi: use refcount in message handler
+References: <20051021144909.GA19532@i2.minyard.local> <20051024021931.GA9696@us.ibm.com> <20051024044217.GA32199@lists.us.dell.com> <20051024062909.GA10337@us.ibm.com>
+In-Reply-To: <20051024062909.GA10337@us.ibm.com>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200510241451.27320.brade@informatik.uni-muenchen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart4108098.En7lidD6PS
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Paul E. McKenney wrote:
 
-Hi,
+>On Sun, Oct 23, 2005 at 11:42:17PM -0500, Matt Domsch wrote:
+>  
+>
+>>On Sun, Oct 23, 2005 at 07:19:32PM -0700, Paul E. McKenney wrote:
+>>    
+>>
+>>>My guess is that this read-side critical section can be invoked from and
+>>>SMI, and that SMIs can occur even if interrupts are disabled.  If my guess
+>>>is wrong, please enlighten me.  And feel free to ignore the next few
+>>>paragraphs in that case, along with a number of my suggested changes,
+>>>since they all depend critically on my guess being correct.
+>>>      
+>>>
+>>Paul, it took me a bit to figure this out too, but Corey uses the TLA
+>>"SMI" to mean "Systems Management Interface", not "Systems Management
+>>Interrupt".   From Documentation/IPMI.txt:
+>>
+>>ipmi_msghandler - This is the central piece of software for the IPMI
+>>system.  It handles all messages, message timing, and responses.  The
+>>IPMI users tie into this, and the IPMI physical interfaces (called
+>>System Management Interfaces, or SMIs) also tie in here.
+>>
+>>
+>>There are at least 4 basic types of physical hardware interfaces (BT,
+>>SMIC, KCS, and I2C), which may (or more often, may not) have their own
+>>hardware interrupt lines, but these are normal interrupts, not
+>>CPU-magic "systems management interrupts".  So I think this isn't a
+>>problem.
+>>    
+>>
+>
+>OK, thank you for the tutorial on the "other SMI"!
+>  
+>
+Yeah, I've really misnamed this, unfortunately.  Too many TLAs.
 
-I get the above message frequently while copying data (around 200000 mail=20
-files, 2GB) from my laptop to an external harddisk via ieee1394. The ieee=20
-system completely deadlocked with 2.6.13 without the chance to umount or=20
-reuse the device. Now I upgraded to 2.6.14-rc5 and I still get the error=20
-followed by a 10sec pause or so, but then the copying continues. I will hav=
-e=20
-to check if it copied all data correctly, though.
+>The comments about turning synchronize_rcu() into synchronize_sched()
+>and rcu_read_lock() into preempt_disable() do not apply, please ignore.
+>
+>However, I still do not understand how using RCU on cmd_rcvrs helps,
+>given that all of the accesses that I could see were already protected
+>by cmd_rcvrs_lock.
+>
+>Any further enlightenment available?
+>  
+>
+The calls in handle_ipmb_get_msg_cmd and handle_lan_get_msg_cmd don't
+need spinlock protection, just an RCU read lock.  Kind of the point of
+the RCU list. Thanks for spotting this.
 
-When attaching the device this is what the kernel says:
+Thanks,
 
-kernel: ieee1394: Current remote IRM is not 1394a-2000 compliant, resetting=
-=2E..
-kernel: ieee1394: Error parsing configrom for node 0-00:1023
-kernel: ieee1394: Node changed: 0-00:1023 -> 0-01:1023
-kernel: ieee1394: Node added: ID:BUS[0-00:1023]  GUID[0000000e000031d1]
-kernel: scsi1 : SCSI emulation for IEEE-1394 SBP-2 Devices
-kernel: ieee1394: sbp2: Logged into SBP-2 device
-kernel: ieee1394: Node 0-00:1023: Max speed [S400] - Max payload [2048]
-kernel:   Vendor: WDC WD20  Model: 00JB-00GVC0       Rev:
-kernel:   Type:   Direct-Access-RBC                  ANSI SCSI revision: 04
-kernel: Attached scsi generic sg0 at scsi1, channel 0, id 0, lun 0,  type 14
-kernel: SCSI device sda: 390721968 512-byte hdwr sectors (200050 MB)
-kernel: sda: asking for cache data failed
-kernel: sda: assuming drive cache: write through
-kernel: SCSI device sda: 390721968 512-byte hdwr sectors (200050 MB)
-kernel: sda: asking for cache data failed
-kernel: sda: assuming drive cache: write through
-kernel:  sda: sda1 sda2 sda3 sda4
-kernel: Attached scsi disk sda at scsi1, channel 0, id 0, lun 0
-
-And the complete error message:
-
-kernel: ieee1394: sbp2: sbp2util_node_write_no_wait failed.
-kernel:
-kernel: ieee1394: sbp2: aborting sbp2 command
-kernel: scsi1 : destination target 0, lun 0
-kernel:         command: cdb[0]=3D0x2a: 2a 00 09 76 04 73 00 00 01 00
-kernel: ieee1394: sbp2: sbp2util_node_write_no_wait failed.
-kernel:
-kernel: ieee1394: sbp2: aborting sbp2 command
-kernel: scsi1 : destination target 0, lun 0
-kernel:         command: cdb[0]=3D0x2a: 2a 00 08 5f 83 54 00 00 01 00
-
-[lots more of that, the command hex code changes everytime]
-
-I have a preemt kernel:
-CONFIG_PREEMPT=3Dy
-CONFIG_PREEMPT_BKL=3Dy
-
-and the 1000hz timer:
-CONFIG_HZ_1000=3Dy
-CONFIG_HZ=3D1000
-CONFIG_PHYSICAL_START=3D0x100000
-
-and the following is the ieee config:
-CONFIG_IEEE1394=3Dm
-CONFIG_IEEE1394_OHCI1394=3Dm
-
-CONFIG_IEEE1394_VIDEO1394=3Dm
-CONFIG_IEEE1394_SBP2=3Dm
-CONFIG_IEEE1394_SBP2_PHYS_DMA=3Dy
-# CONFIG_IEEE1394_ETH1394 is not set
-CONFIG_IEEE1394_DV1394=3Dm
-CONFIG_IEEE1394_RAWIO=3Dm
-# CONFIG_IEEE1394_CMP is not set
-
-Please tell me if you need more info, I'd like to provide all the help need=
-ed=20
-to fix this issue.
-
-Cheers,
-=2D-=20
-Michael Brade;                 KDE Developer, Student of Computer Science
-  |-mail: echo brade !#|tr -d "c oh"|s\e\d 's/e/\@/2;s/$/.org/;s/bra/k/2'
-  =B0--web: http://www.kde.org/people/michaelb.html
-
-KDE 3: The Next Generation in Desktop Experience
-
---nextPart4108098.En7lidD6PS
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBDXNjPdK2tAWD5bo0RAkx6AJ4uNii+rbBxqLzJrcdCE2rtpAf9CACgmLrI
-pmDBrxnRD1zQFHvNuYQrU4k=
-=oqVQ
------END PGP SIGNATURE-----
-
---nextPart4108098.En7lidD6PS--
+-Corey

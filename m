@@ -1,70 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbVJXPh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751081AbVJXPhY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751100AbVJXPh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 11:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbVJXPh2
+	id S1751081AbVJXPhY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 11:37:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbVJXPhY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 11:37:28 -0400
-Received: from silver.veritas.com ([143.127.12.111]:43287 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1751100AbVJXPh1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 11:37:27 -0400
-Date: Mon, 24 Oct 2005 16:36:26 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-cc: David Howells <dhowells@redhat.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: what happened to page_mkwrite? - was: Re: page_mkwrite seems
- broken
-In-Reply-To: <1130167005.19518.35.camel@imp.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.61.0510241625230.4112@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0502091357001.6086@goblin.wat.veritas.com>
- <1130167005.19518.35.camel@imp.csi.cam.ac.uk>
+	Mon, 24 Oct 2005 11:37:24 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:16342 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751081AbVJXPhX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 11:37:23 -0400
+To: vgoyal@in.ibm.com
+Cc: Andrew Morton <akpm@osdl.org>, fastboot@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [PATCH] i386: move apic init in init_IRQs
+References: <m1fyrh8gro.fsf@ebiederm.dsl.xmission.com>
+	<20051021133306.GC3799@in.ibm.com>
+	<m1ach3dj47.fsf@ebiederm.dsl.xmission.com>
+	<20051022145207.GA4501@in.ibm.com>
+	<m11x2deft5.fsf@ebiederm.dsl.xmission.com>
+	<20051024130311.GA5853@in.ibm.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Mon, 24 Oct 2005 09:36:52 -0600
+In-Reply-To: <20051024130311.GA5853@in.ibm.com> (Vivek Goyal's message of
+ "Mon, 24 Oct 2005 18:33:11 +0530")
+Message-ID: <m1u0f7c4ff.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 24 Oct 2005 15:37:23.0035 (UTC) FILETIME=[D3DE92B0:01C5D8B0]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Oct 2005, Anton Altaparmakov wrote:
-> On Wed, 2005-02-09 at 14:28 +0000, Hugh Dickins wrote:
-> > On Fri, 4 Feb 2005, Hugh Dickins wrote in another thread:
-> > > Isn't this exactly what David Howells' page_mkwrite stuff in -mm's
-> > > add-page-becoming-writable-notification.patch is designed for?
-> > > 
-> > > Though it looks a little broken to me as it stands (beyond the two
-> > > fixup patches already there).  I've not found time to double-check
-.....
-> 
-> What happened with page_mkwrite?  It seems to have disappeared both from
-> -mm and generally from the face of the earth...
+Vivek Goyal <vgoyal@in.ibm.com> writes:
 
-page_mkwrite??  No, never heard of it round here, you must be mistaken ;)
+> You are right. hard_smp_processor_id() is hard-coded to zero in case of a
+> non SMP kernel (include/linux/smp.h) and that's why the problem is happening.
+> I am booting a non-SMP capture kernel. In case of kexec on panic, we can very
+> well boot on a cpu whose id is not zero.
+>
+> I have attached a patch with the mail which is now using
+> boot_cpu_physical_apicid to hard set presence of boot cpu instead of
+> hard_smp_processor_id(). But the interesting questoin remains why BIOS is
+> not reporting the boot cpu.
 
-But seriously, Andrew dropped it from 2.6.13-rc5-mm1, for expedient reasons:
-- Dropped cachefs and the cachefs-for-AFS patches.  These get in the way of
-  memory management testing a bit, and they're being redone anyway.
+Ok this looks good.  But it raises a couple of followup questions.
+- Are there other places that use hard_smp_processor_id in 
+  in a uniprocessor kernel?
+- Does x86_64 have this same problem?
 
-So Andrew's 2.6.13-rc4-mm1 directory should contain its last public state
-(by which time I'd fixed up those various things I'd found to be broken).
+Anyway it looks like we have this working which is a big step forward
+in having a reliable kdump mechanism.
 
-But David may have redone a lot since then, I don't know: he's the one
-to ask.  (And I'm afraid I've done my best to make the old patch not
-apply to current -mm.)
-
-Hugh
-
-> I am very interested in having such ability for ntfs...
-> 
-> Is anyone still working on this?  If not why not?  Did it prove
-> impractical or ...?
-> 
-> If no-one is working on this anymore, where do I find the last "current"
-> patch?
-> 
-> Thanks a lot in advance!
-> 
-> Best regards,
-> 
->         Anton
+Eric

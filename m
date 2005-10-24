@@ -1,78 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbVJXD5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750976AbVJXERX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750964AbVJXD5y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Oct 2005 23:57:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750965AbVJXD5y
+	id S1750976AbVJXERX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 00:17:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750973AbVJXERW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Oct 2005 23:57:54 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:42990 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S1750962AbVJXD5x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Oct 2005 23:57:53 -0400
-Subject: Re: Robust Futexes status
-From: Sven-Thorsten Dietrich <sven@mvista.com>
-To: david singleton <dsingleton@mvista.com>
-Cc: robustmutexes@lists.osdl.org, Roy Reichwein <rreichwein@mvista.com>,
-       linux-kernel@vger.kernel.org, Kevin Morgan <kmorgan@mvista.com>
-In-Reply-To: <DFD605A2-4406-11DA-8ABF-000A959BB91E@mvista.com>
-References: <DFD605A2-4406-11DA-8ABF-000A959BB91E@mvista.com>
-Content-Type: text/plain
-Date: Sun, 23 Oct 2005 20:48:00 -0700
-Message-Id: <1130125681.5296.5.camel@imap.mvista.com>
+	Mon, 24 Oct 2005 00:17:22 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:9089 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750969AbVJXERW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 00:17:22 -0400
+Date: Sun, 23 Oct 2005 21:16:30 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: clameter@sgi.com, rmk@arm.linux.org.uk, matthew@wil.cx, jdike@addtoit.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 7/9] mm: split page table lock
+Message-Id: <20051023211630.44459ff7.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0510240412350.22131@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0510221716380.18047@goblin.wat.veritas.com>
+	<Pine.LNX.4.61.0510221727060.18047@goblin.wat.veritas.com>
+	<20051023142712.6c736dd3.akpm@osdl.org>
+	<20051023152245.4d1dc812.akpm@osdl.org>
+	<Pine.LNX.4.61.0510240412350.22131@goblin.wat.veritas.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-10-23 at 13:52 -0700, david singleton wrote:
-> 	Inaky Perez-Gonzalez   has a wonderful suite of performance, stress and
-> functionality tests for the fusyn pthreads mutex package.
-
-> 	The graphs are just to show relative performance for the different 
-> flavor kernels.  The
-> kernel's perform quite closely regardless of the 'flavor' of kernel.  
-> The kernels have quite a few
-> debugging options turned so I can look for any problems so performance 
-> is not optimal.
+Hugh Dickins <hugh@veritas.com> wrote:
+>
+> On Sun, 23 Oct 2005, Andrew Morton wrote:
+> > Andrew Morton <akpm@osdl.org> wrote:
+> > >  Hugh Dickins <hugh@veritas.com> wrote:
+> > >  >
+> > >  > In this implementation, the spinlock is tucked inside the struct page of
+> > >  >  the page table page: with a BUILD_BUG_ON in case it overflows - which it
+> > >  >  would in the case of 32-bit PA-RISC with spinlock debugging enabled.
+> > > 
+> > >  eh?   It's going to overflow an unsigned long on x86 too:
+> > 
+> > Ah, I think I see what you've done: assume that .index, .lru and .virtual
+> > are unused on pagetable pages, so we can just overwrite them.
 > 
-
-The Mutex ownership change seems to climb with waiting threads.
-
-Its hard to tell with the log-n X-axis scale, but does this possibly
-correlate to the deadlock-detect option?
-
-If Deadlock-detect is enabled we should be seeing a graph proportional
-to n-squared on a linear X axis.
-
-If deadlock detect is disabled, the wait time should plateau for very
-large N.
-
-Sven
-
-
-> 	It appears the robust futex functionality is healthy in all flavors of 
-> kernel.
+> That's right (so I'm ignoring some of your earlier stabs).
+> Sorry, it's looking like my comment block was inadequate.
 > 
-> 	
-> 
-> David
-> 
-> 
-> 
-> 
--- 
-***********************************
-Sven-Thorsten Dietrich
-Real-Time Software Architect
-MontaVista Software, Inc.
-1237 East Arques Ave.
-Sunnyvale, CA 94085
+> I'm also assuming that it'd be very quickly noticed, by bad_page
+> or otherwise, if anyone changes these fields, so that what it's
+> overwriting becomes significant.
 
-Phone: 408.992.4515
-Fax: 408.328.9204
+Well it won't necesarily be noticed quickly - detecting an overflow depends
+upon the right settings of CONFIG_PREEMPT, CONFIG_SMP, CONFIG_NR_CPUS,
+WANT_PAGE_VIRTUAL, CONFIG_PAGE_OWNER and appropriate selection of
+architecture and the absence of additional spinlock debugging patches and
+the absence of reworked struct page layout!
 
-http://www.mvista.com
-Platform To Innovate
-*********************************** 
+I'm rather surprised that no architectures are already using page.mapping,
+.index, .lru or .virtual in pte pages.
 
+> Would it be better if pte_lock_init(page) explicitly initialize each
+> field from _page->index onwards, so that any search for uses of that
+> page field shows up pte_lock_init?  With the BUILD_BUG_ON adjusted
+> somehow so _page->virtual is excluded (I tend to erase that one from
+> my mind, but we most certainly don't want a spinlock overwriting it).
+> 
+> > ick.  I think I prefer the union, although it'll make struct page bigger
+> > for CONFIG_PREEMPT+CONFIG_SMP+NR_CPUS>=4.    hmm.
+> 
+> Hmm indeed.  Definitely not the tradeoff I chose or would choose.
+
+It's not that bad, really.  I do think that this approach is just too
+dirty, sorry.  We can avoid it by moving something else into the union. 
+lru, perhaps?

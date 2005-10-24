@@ -1,108 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbVJXTMJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbVJXT34@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750757AbVJXTMJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 15:12:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbVJXTMJ
+	id S1751133AbVJXT34 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 15:29:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbVJXT34
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 15:12:09 -0400
-Received: from gold.veritas.com ([143.127.12.110]:55911 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1750757AbVJXTMI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 15:12:08 -0400
-Date: Mon, 24 Oct 2005 20:11:10 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: David Howells <dhowells@redhat.com>
-cc: Anton Altaparmakov <aia21@cam.ac.uk>, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org, Christoph Hellwig <hch@infradead.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add notification of page becoming writable to VMA ops
-In-Reply-To: <9792.1130171024@warthog.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.61.0510241938100.6142@goblin.wat.veritas.com>
-References: <1130168619.19518.43.camel@imp.csi.cam.ac.uk> 
- <1130167005.19518.35.camel@imp.csi.cam.ac.uk>
- <Pine.LNX.4.61.0502091357001.6086@goblin.wat.veritas.com>
- <7872.1130167591@warthog.cambridge.redhat.com>  <9792.1130171024@warthog.cambridge.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 24 Oct 2005 19:12:08.0008 (UTC) FILETIME=[D3E96C80:01C5D8CE]
+	Mon, 24 Oct 2005 15:29:56 -0400
+Received: from smtp3.Stanford.EDU ([171.67.16.138]:1190 "EHLO
+	smtp3.Stanford.EDU") by vger.kernel.org with ESMTP id S1751133AbVJXT3z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 15:29:55 -0400
+Subject: Re: 2.6.14-rc4-rt7
+From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Mark Knecht <markknecht@gmail.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       david singleton <dsingleton@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+       cc@ccrma.Stanford.EDU, William Weston <weston@lysdexia.org>,
+       nando@ccrma.Stanford.EDU
+In-Reply-To: <20051022035851.GC12751@elte.hu>
+References: <1129599029.10429.1.camel@cmn3.stanford.edu>
+	 <20051018072844.GB21915@elte.hu>
+	 <1129669474.5929.8.camel@cmn3.stanford.edu>
+	 <Pine.LNX.4.58.0510181423200.19498@echo.lysdexia.org>
+	 <20051019111943.GA31410@elte.hu>
+	 <1129835571.14374.11.camel@cmn3.stanford.edu>
+	 <20051020191620.GA21367@elte.hu>
+	 <1129852531.5227.4.camel@cmn3.stanford.edu> <20051021080504.GA5088@elte.hu>
+	 <1129937138.5001.4.camel@cmn3.stanford.edu>
+	 <20051022035851.GC12751@elte.hu>
+Content-Type: text/plain
+Date: Mon, 24 Oct 2005 12:28:41 -0700
+Message-Id: <1130182121.4983.7.camel@cmn3.stanford.edu>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Oct 2005, David Howells wrote:
+On Sat, 2005-10-22 at 05:58 +0200, Ingo Molnar wrote: 
+> * Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
 > 
-> The attached patch adds a new VMA operation to notify a filesystem or other
-> driver about the MMU generating a fault because userspace attempted to write
-> to a page mapped through a read-only PTE.
-> 
-> This facility permits the filesystem or driver to:
-> 
->  (*) Implement storage allocation/reservation on attempted write, and so to
->      deal with problems such as ENOSPC more gracefully (perhaps by generating
->      SIGBUS).
-> 
->  (*) Delay making the page writable until the contents have been written to a
->      backing cache. This is useful for NFS/AFS when using FS-Cache/CacheFS.
->      It permits the filesystem to have some guarantee about the state of the
->      cache.
+> > Here's one with rc5-rt3:
 
-I've only given it a quick look, it looks pretty good, but too hastily
-thrown together, without understanding of the intervening changes:
+rc5-rt5, _without_ HIGH_RES_TIMERS. No messages after this but the
+Gnome/X session got really confused and unusable after starting fine
+(ie: windows would not redraw, apparently everything suddenly slowed
+down to a crawl):
 
-> --- linux-2.6.14-rc4-mm1/mm/memory.c	2005-10-17 14:26:44.000000000 +0100
-> +++ linux-2.6.14-rc4-mm1-cachefs/mm/memory.c	2005-10-20 18:53:04.000000000 +0100
-> @@ -1261,19 +1261,53 @@ static int do_wp_page(struct mm_struct *
-> +	if (unlikely(vma->vm_flags & VM_SHARED)) {
-> +		if (vma->vm_ops && vma->vm_ops->page_mkwrite) {
-> +			/*
-> +			 * Notify the page owner without the lock held,
-> +			 * so they can sleep if they want to.
-> +			 */
-> +			pte_unmap(page_table);
-> +			if (!PageReserved(old_page))
-> +				page_cache_get(old_page);
-> +			spin_unlock(&mm->page_table_lock);
+Oct 24 12:10:43 host kernel: Using specific hotkey driver
+Oct 24 12:10:43 host kernel: ACPI: CPU0 (power states: C1[C1])
+Oct 24 12:10:43 host kernel: ACPI: CPU1 (power states: C1[C1])
+Oct 24 12:10:43 host kernel: Time: tsc clocksource has been installed.
+Oct 24 12:10:43 host kernel: WARNING: non-monotonic time!
+Oct 24 12:10:43 host kernel: ... time warped from 578911413 to
+539189615.
+Oct 24 12:10:43 host kernel: softirq-timer/1/13[CPU#1]: BUG in ktime_get
+at kernel/ktimers.c:103
+Oct 24 12:10:43 host kernel:  [<c0128157>] __WARN_ON+0x67/0x90 (8)
+Oct 24 12:10:43 host kernel:  [<c01408d2>] ktime_get+0xf2/0x170 (48)
+Oct 24 12:10:43 host kernel:  [<c014151f>] ktimer_run_queues+0x2f/0x130
+(68)
+Oct 24 12:10:43 host kernel:  [<c013162e>] run_timer_softirq+0xde/0x380
+(48)
+Oct 24 12:10:43 host kernel:  [<c0374435>] schedule+0x85/0x100 (24)
+Oct 24 12:10:43 host kernel:  [<c012d3c8>] ksoftirqd+0x118/0x1e0 (28)
+Oct 24 12:10:43 host kernel:  [<c012d2b0>] ksoftirqd+0x0/0x1e0 (44)
+Oct 24 12:10:43 host kernel:  [<c013d15c>] kthread+0xac/0xb0 (4)
+Oct 24 12:10:43 host kernel:  [<c013d0b0>] kthread+0x0/0xb0 (12)
+Oct 24 12:10:43 host kernel:  [<c0101545>] kernel_thread_helper+0x5/0x10
+(16)
+Oct 24 12:10:43 host kernel: WARNING: non-monotonic time!
+Oct 24 12:10:43 host kernel: ... time warped from 579911260 to
+539914810.
+Oct 24 12:10:43 host kernel: softirq-timer/0/4[CPU#0]: BUG in ktime_get
+at kernel/ktimers.c:103
+Oct 24 12:10:43 host kernel:  [<c0128157>] __WARN_ON+0x67/0x90 (8)
+Oct 24 12:10:43 host kernel:  [<c01408d2>] ktime_get+0xf2/0x170 (48)
+Oct 24 12:10:43 host kernel:  [<c014151f>] ktimer_run_queues+0x2f/0x130
+(68)
+Oct 24 12:10:43 host kernel:  [<c013162e>] run_timer_softirq+0xde/0x380
+(48)
+Oct 24 12:10:43 host kernel:  [<c0374435>] schedule+0x85/0x100 (24)
+Oct 24 12:10:43 host kernel:  [<c012d3c8>] ksoftirqd+0x118/0x1e0 (28)
+Oct 24 12:10:43 host kernel:  [<c012d2b0>] ksoftirqd+0x0/0x1e0 (44)
+Oct 24 12:10:43 host kernel:  [<c013d15c>] kthread+0xac/0xb0 (4)
+Oct 24 12:10:43 host kernel:  [<c013d0b0>] kthread+0x0/0xb0 (12)
+Oct 24 12:10:43 host kernel:  [<c0101545>] kernel_thread_helper+0x5/0x10
+(16)
+Oct 24 12:10:43 host kernel: WARNING: non-monotonic time!
+Oct 24 12:10:44 host kernel: ... time warped from 578911413 to
+540188071.
+Oct 24 12:10:44 host kernel: softirq-timer/1/13[CPU#1]: BUG in ktime_get
+at kernel/ktimers.c:103
+Oct 24 12:10:44 host kernel:  [<c0128157>] __WARN_ON+0x67/0x90 (8)
+Oct 24 12:10:44 host kernel:  [<c01408d2>] ktime_get+0xf2/0x170 (48)
+Oct 24 12:10:44 host kernel:  [<c014151f>] ktimer_run_queues+0x2f/0x130
+(68)
+Oct 24 12:10:44 host kernel:  [<c013162e>] run_timer_softirq+0xde/0x380
+(48)
+Oct 24 12:10:44 host kernel:  [<c0374435>] schedule+0x85/0x100 (24)
+Oct 24 12:10:44 host kernel:  [<c012d3c8>] ksoftirqd+0x118/0x1e0 (28)
+Oct 24 12:10:44 host kernel:  [<c012d2b0>] ksoftirqd+0x0/0x1e0 (44)
+Oct 24 12:10:44 host kernel:  [<c013d15c>] kthread+0xac/0xb0 (4)
+Oct 24 12:10:44 host kernel:  [<c013d0b0>] kthread+0x0/0xb0 (12)
+Oct 24 12:10:44 host kernel:  [<c0101545>] kernel_thread_helper+0x5/0x10
+(16)
+Oct 24 12:10:44 host kernel: isapnp: Scanning for PnP cards...
+Oct 24 12:10:44 host kernel: isapnp: No Plug & Play device found
+Oct 24 12:10:44 host kernel: Real Time Clock Driver v1.12
+Oct 24 12:10:44 host kernel: Linux agpgart interface v0.101 (c) Dave
+Jones
 
-No, you need to pay attention to Nick's PageReserved removal, and
-my pte lock stuff, throughout do_wp_page - there shouldn't be any
-references to PageReserved or page_table_lock there now (and you'll
-need to recheck the mapping/locking/unlocking/unmapping).  Sorry,
-I don't have the time to spare to do it myself right now.
+-- Fernando
 
-> +			page_table = pte_offset_map(pmd, address);
-> +			if (!pte_same(*page_table, orig_pte)) {
-> +				ret |= VM_FAULT_WRITE;
 
-No, don't add VM_FAULT_WRITE in this case: you should only do that
-when you've gone through the maybe_mkwrite yourself; this case
-should remain the default VM_FAULT_MINOR.
-
-> @@ -1847,18 +1890,28 @@ retry:
-> +		} else {
-> +			/* if the page will be shareable, see if the backing
-> +			 * address space wants to know that the page is about
-> +			 * to become writable */
-> +			if (vma->vm_ops->page_mkwrite &&
-> +			    vma->vm_ops->page_mkwrite(vma, new_page) < 0)
-> +				return VM_FAULT_SIGBUS;
-> +		}
->  	}
-
-This isn't necessarily wrong, and may be exactly how it was before,
-I don't remember.  But it implies that when page_mkwrite fails,
-it page_cache_releases the page.  Is that desirable?  Or should
-that be left to the caller?
-
-> @@ -1945,7 +1998,7 @@ static int do_file_page(struct mm_struct
-
-Drop all those changes to do_file_page (which I added), they're no
-longer necessary.  A case appeared which made it clear that we cannot
-rely on resolving this issue for get_user_pages in a single call to
-handle_mm_fault, and that's why the VM_FAULT_WRITE stuff got added. 
-
-This complication of do_file_page was always ugly, and I'm delighted
-to drop it.  Whereas the call to do_wp_page from do_swap_page is less
-obtrusive and may still be a worthwhile optimization, though I added
-it for the same disgraced reason a year or more back.
-
-Hugh

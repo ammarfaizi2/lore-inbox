@@ -1,142 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbVJXNDY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbVJXNNv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750899AbVJXNDY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 09:03:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750973AbVJXNDY
+	id S1750993AbVJXNNv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 09:13:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750997AbVJXNNv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 09:03:24 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:46482 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750899AbVJXNDX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 09:03:23 -0400
-Date: Mon, 24 Oct 2005 18:33:11 +0530
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, fastboot@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [PATCH] i386: move apic init in init_IRQs
-Message-ID: <20051024130311.GA5853@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <m1fyrh8gro.fsf@ebiederm.dsl.xmission.com> <20051021133306.GC3799@in.ibm.com> <m1ach3dj47.fsf@ebiederm.dsl.xmission.com> <20051022145207.GA4501@in.ibm.com> <m11x2deft5.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m11x2deft5.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 24 Oct 2005 09:13:51 -0400
+Received: from tirith.ics.muni.cz ([147.251.4.36]:11743 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1750988AbVJXNNu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 09:13:50 -0400
+From: "Jiri Slaby" <xslaby@fi.muni.cz>
+Date: Mon, 24 Oct 2005 15:13:47 +0200
+To: Greg KH <greg@kroah.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH -rc5-mm1] Char, watchdog: remove pci_find_dev
+Message-Id: <20051024131346.3858F22BBD5@anxur.fi.muni.cz>
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: xslaby@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 22, 2005 at 09:23:34AM -0600, Eric W. Biederman wrote:
-> Vivek Goyal <vgoyal@in.ibm.com> writes:
+Char, watchdog: remove pci_find_dev
 
-[..]
+Deprecated pci_find_dev removed from 2 drivers in drivers/char/watchdog/.
 
-> 
-> 
-> >> apic_id_registered expands to:
-> >> static inline int apic_id_registered(void)
-> >> {
-> >> return physid_isset(GET_APIC_ID(apic_read(APIC_ID)), phys_cpu_present_map);
-> >> }
-> >> 
-> >> Which indicates to me that the code that, there is something
-> >> wrong in the logic of:
-> >> 	if (!check_phys_apicid_present(boot_cpu_physical_apicid)) {
-> >> 		printk("weird, boot CPU (#%d) not listed by the BIOS.\n",
-> >> 				boot_cpu_physical_apicid);
-> >> 		physid_set(hard_smp_processor_id(), phys_cpu_present_map);
-> >> 	}
-> >> 
-> >> Currently we are refering to the boot cpus apicid with 3 different expressions
-> >> one of them appears to be wrong.
-> >> 
-> >
-> > Looks like apic_id_registered() is failing. I had put two debug printk()
-> > statements and to my surprise hard_smp_processor_id() is returning different
-> > value then GET_APIC_ID(apic_read(APIC_ID)).
-> >
-> > source code of hard_smp_processor_id() shows that it is also reading APIC_ID
-> > register only. Then how can two values be different. (Until and unless
-> > somebody modified the value in between two reads).
-> 
-> It appears the buggy expression is hard_smp_processor_id.  Quite
-> possibly because it doesn't call apic_read() and instead open codes
-> it.
-> 
-> boot_cpu_physical_apicid also returns apicid #1, before we have
-> a problem.
-> 
-> So either we want to change hard_smp_processor_id to use apic_read()
-> or we can just use boot_cpu_physical_apicid when fixing the apicid present
-> bitmap.
-> 
-> > I am pasting another failure log with my debug messages(prefixed with "Debug:").
-> > My debug patch is also attached with the mail.
-> 
-> See above but I am pretty certain we know enough to get farther.  For
-> testing you may want to hard code your first kernel to use the second
-> cpu.
-> 
-> The fact that hard_smp_processor_id gets the wrong value makes me wonder
-> if your kernel will boot all of the way once we get past this problem.
-> 
-> I suspect if you disassemble the code for hard_smp_processor_id we
-> will see the compiler doing the wrong thing.
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
-
-You are right. hard_smp_processor_id() is hard-coded to zero in case of a
-non SMP kernel (include/linux/smp.h) and that's why the problem is happening.
-I am booting a non-SMP capture kernel. In case of kexec on panic, we can very
-well boot on a cpu whose id is not zero.
-
-I have attached a patch with the mail which is now using
-boot_cpu_physical_apicid to hard set presence of boot cpu instead of
-hard_smp_processor_id(). But the interesting questoin remains why BIOS is
-not reporting the boot cpu.
-
-Thanks
-Vivek
-
-
-o Removes the unnecessary call to local_irq_disable().
-
-o Kdump was failing while second kernel was coming up. Check for presence
-  of boot cpu apic id was failing in (apic_id_registered), hence hitting
-  BUG().
-
-o This should not have failed because before calling setup_local_APIC(), it is
-  ensured that even if BIOS has not reported boot cpu, then hard set the
-  prence of it. Problem happens because of usage of hard_smp_processor_id()
-  which is hardcoded to zero in case of non SMP kernel. In kdump case second
-  kernel can boot on a cpu whose boot cpu id is not zero. 
-
-o Using boot_cpu_physical_apicid instead to hard set the presence of boot cpu.
-
-Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
 ---
+commit 5dd0736eb0657d63a2c65696cebb326528c0ca6a
+tree 98cc5a287773823b27052671978b5f38d92bb2f4
+parent 66817e39a15654c83b8a6f52e225bbffe44bff31
+author root <root@bellona.(none)> Mon, 24 Oct 2005 15:10:24 +0200
+committer root <root@bellona.(none)> Mon, 24 Oct 2005 15:10:24 +0200
 
- linux-2.6.14-rc4-mm1-16M-root/arch/i386/kernel/apic.c |    3 +--
- 1 files changed, 1 insertion(+), 2 deletions(-)
+ drivers/char/watchdog/alim1535_wdt.c |   12 +++++++++---
+ drivers/char/watchdog/alim7101_wdt.c |    9 +++++++--
+ 2 files changed, 16 insertions(+), 5 deletions(-)
 
-diff -puN arch/i386/kernel/apic.c~kdump-i386-apic-verification-failure-fix arch/i386/kernel/apic.c
---- linux-2.6.14-rc4-mm1-16M/arch/i386/kernel/apic.c~kdump-i386-apic-verification-failure-fix	2005-10-24 17:40:08.000000000 +0530
-+++ linux-2.6.14-rc4-mm1-16M-root/arch/i386/kernel/apic.c	2005-10-24 18:19:53.000000000 +0530
-@@ -1055,7 +1055,6 @@ void __init setup_boot_APIC_clock(void)
- 	using_apic_timer = 1;
+diff --git a/drivers/char/watchdog/alim1535_wdt.c b/drivers/char/watchdog/alim1535_wdt.c
+--- a/drivers/char/watchdog/alim1535_wdt.c
++++ b/drivers/char/watchdog/alim1535_wdt.c
+@@ -330,17 +330,20 @@ static int __init ali_find_watchdog(void
+ 	u32 wdog;
  
- 	local_irq_save(flags);
--	local_irq_disable();
+ 	/* Check for a 1535 series bridge */
+-	pdev = pci_find_device(PCI_VENDOR_ID_AL, 0x1535, NULL);
++	pdev = pci_get_device(PCI_VENDOR_ID_AL, 0x1535, NULL);
+ 	if(pdev == NULL)
+ 		return -ENODEV;
++	pci_dev_put(pdev);
  
- 	calibration_result = calibrate_APIC_clock();
- 	/*
-@@ -1299,7 +1298,7 @@ int __init APIC_init(void)
- 	if (!check_phys_apicid_present(boot_cpu_physical_apicid)) {
- 		printk("weird, boot CPU (#%d) not listed by the BIOS.\n",
- 				boot_cpu_physical_apicid);
--		physid_set(hard_smp_processor_id(), phys_cpu_present_map);
-+		physid_set(boot_cpu_physical_apicid, phys_cpu_present_map);
+ 	/* Check for the a 7101 PMU */
+-	pdev = pci_find_device(PCI_VENDOR_ID_AL, 0x7101, NULL);
++	pdev = pci_get_device(PCI_VENDOR_ID_AL, 0x7101, NULL);
+ 	if(pdev == NULL)
+ 		return -ENODEV;
+ 
+-	if(pci_enable_device(pdev))
++	if(pci_enable_device(pdev)) {
++		pci_dev_put(pdev);
+ 		return -EIO;
++	}
+ 
+ 	ali_pci = pdev;
+ 
+@@ -392,6 +395,8 @@ static int __init watchdog_init(void)
+ {
+ 	int ret;
+ 
++	ali_pci = NULL;
++
+ 	spin_lock_init(&ali_lock);
+ 
+ 	/* Check whether or not the hardware watchdog is there */
+@@ -445,6 +450,7 @@ static void __exit watchdog_exit(void)
+ 	ali_stop();
+ 
+ 	/* Deregister */
++	pci_dev_put(ali_pci);
+ 	unregister_reboot_notifier(&ali_notifier);
+ 	misc_deregister(&ali_miscdev);
+ }
+diff --git a/drivers/char/watchdog/alim7101_wdt.c b/drivers/char/watchdog/alim7101_wdt.c
+--- a/drivers/char/watchdog/alim7101_wdt.c
++++ b/drivers/char/watchdog/alim7101_wdt.c
+@@ -333,6 +333,8 @@ static void __exit alim7101_wdt_unload(v
+ 	/* Deregister */
+ 	misc_deregister(&wdt_miscdev);
+ 	unregister_reboot_notifier(&wdt_notifier);
++
++	pci_dev_put(alim7101_pmu);
+ }
+ 
+ static int __init alim7101_wdt_init(void)
+@@ -342,7 +344,8 @@ static int __init alim7101_wdt_init(void
+ 	char tmp;
+ 
+ 	printk(KERN_INFO PFX "Steve Hill <steve@navaho.co.uk>.\n");
+-	alim7101_pmu = pci_find_device(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M7101,NULL);
++	alim7101_pmu = pci_get_device(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M7101,
++		NULL);
+ 	if (!alim7101_pmu) {
+ 		printk(KERN_INFO PFX "ALi M7101 PMU not present - WDT not set\n");
+ 		return -EBUSY;
+@@ -351,12 +354,14 @@ static int __init alim7101_wdt_init(void
+ 	/* Set the WDT in the PMU to 1 second */
+ 	pci_write_config_byte(alim7101_pmu, ALI_7101_WDT, 0x02);
+ 
+-	ali1543_south = pci_find_device(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M1533, NULL);
++	ali1543_south = pci_get_device(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M1533,
++		NULL);
+ 	if (!ali1543_south) {
+ 		printk(KERN_INFO PFX "ALi 1543 South-Bridge not present - WDT not set\n");
+ 		return -EBUSY;
  	}
- 
- 	/*
-_
-
+ 	pci_read_config_byte(ali1543_south, 0x5e, &tmp);
++	pci_dev_put(ali1543_south);
+ 	if ((tmp & 0x1e) == 0x00) {
+ 		if (!use_gpio) {
+ 			printk(KERN_INFO PFX "Detected old alim7101 revision 'a1d'.  If this is a cobalt board, set the 'use_gpio' module parameter.\n");

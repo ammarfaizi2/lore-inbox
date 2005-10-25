@@ -1,48 +1,34 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751384AbVJXXs1 (ORCPT <rfc822;ralf@linux-mips.org>);
-	Mon, 24 Oct 2005 19:48:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbVJXXs1
+	id S932154AbVJYONP (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 25 Oct 2005 10:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbVJYONP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 19:48:27 -0400
-Received: from web40513.mail.yahoo.com ([66.218.78.130]:52550 "HELO
-	web40513.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1751384AbVJXXs0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 19:48:26 -0400
-Message-ID: <20051024234824.22435.qmail@web40513.mail.yahoo.com>
-Date: Mon, 24 Oct 2005 16:48:24 -0700 (PDT)
-From: rogel migues <oasisalf@yahoo.com>
-Subject: Necesito archivos que me den informacion AVANZADA para realizar esto.
-To: linux-kernel@vger.kernel.org
+	Tue, 25 Oct 2005 10:13:15 -0400
+Received: from 201-254-16-47.speedy.com.ar ([201.254.16.47]:59150 "EHLO
+	201-254-16-47.speedy.com.ar") by vger.kernel.org with ESMTP
+	id S932154AbVJYONO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 10:13:14 -0400
+Message-ID: <004f01c5d966$80292980$0100a8c0@131-Sonali-3.pacenet-india.com>
+From: "Margo" <leo@2001.ru>
+To: "Georg" <linux-kernel-owner@vger.kernel.org>
+Subject: hi from Maria B.
+Date: Tue, 25 Oct 2005 17:18:12 +0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="windows-1251"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751384AbVJXXs1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932154AbVJYONP@vger.kernel.org>
 
-Es para optimizar un servicio determinado.. a traves
-del kernel 2.6 (cuantas maneras hay ?)
+Hi my Dear!
 
-La idea es la siguiente:
+I am a lovely and lonely Lady who is looking for the man who will make me happy and whom I want to feel like in paradise with!
+If you want to be my beautiful Hero who will save me from this loneliness find me 
+http://www.8nuuYqWh9.want-meet-you.com/
+and wake me up with a warm kiss.
 
-Obtener la optimizacion de un determinado servicio 
-(de administracion de redes), pero desde o a traves
-del kernel (osea configurandolo, segun ciertas
-necesidades).
-
-Ayudeme en esto, por favor, 
-lo necesito para mi tesis.
+ta-ta!!
+Maria B.
 
 
-
-
-GRACIAS
-
-ROGEL ALFREDO MIGUES
-(Riobamba - Ecuador)
-
-
-		
-__________________________________ 
-Start your day with Yahoo! - Make it your home page! 
-http://www.yahoo.com/r/hs

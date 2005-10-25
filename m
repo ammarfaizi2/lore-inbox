@@ -1,71 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932452AbVJYWMW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932440AbVJYWQO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932452AbVJYWMW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 18:12:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbVJYWLV
+	id S932440AbVJYWQO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 18:16:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbVJYWQO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 18:11:21 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:44728 "EHLO ssc.unict.it")
-	by vger.kernel.org with ESMTP id S932443AbVJYWLS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 18:11:18 -0400
-From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 6/6] x86_64: enable xchg optimization for x86_64
-Date: Wed, 26 Oct 2005 00:13:52 +0200
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Message-Id: <20051025221351.21106.57194.stgit@zion.home.lan>
-In-Reply-To: <20051025221105.21106.95194.stgit@zion.home.lan>
-References: <20051025221105.21106.95194.stgit@zion.home.lan>
+	Tue, 25 Oct 2005 18:16:14 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:13267 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932443AbVJYWQN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 18:16:13 -0400
+Subject: ktimers in RT causing bad bogomips and more.
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Tue, 25 Oct 2005 18:15:41 -0400
+Message-Id: <1130278541.21118.49.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+Hi Thomas,
 
-i386 enables the xchg based implementation of r/w semaphores for any processor
-as good as 486. So it was quite interesting to see x86_64 never using it! And it
-was even more interesting to see, in rwsem.h:
+A colleague of mine at my customer site (also named Thomas), noticed
+that the Bogomips of Ingo's kernel did not match the Bogomips of the
+2.6.14-rc5 kernel.  I had other problems at the time to take a look, but
+my machine at home is showing weirdness that was seen on that machine
+the other Thomas had.  So I started taking a look into the cause for the
+differences in the bogomips.
 
-/* rwsem.h: R/W semaphores implemented using XADD/CMPXCHG for x86_64+
- *
- * Written by David Howells (dhowells@redhat.com).
- * Ported by Andi Kleen <ak@suse.de> to x86-64.
+Well, you seem to have the jiffies running wild.  At least for start up.
 
-I.e. the implementation was written, is present in the tree, but due to this:
+First, lets take a look at where jiffies is incremented.  That's done by
+do_timer, which is called in clockevents.c by handle_tick,
+handle_tick_update and handle_tick_update_profile.  So when any of these
+functions are called, jiffies is incremented. Is that expected?
 
-#ifdef CONFIG_RWSEM_GENERIC_SPINLOCK
-#include <linux/rwsem-spinlock.h> /* use a generic implementation */
-#else
-#include <asm/rwsem.h> /* use an arch-specific implementation */
-#endif
+This gets even more complex, since handle_tick is called by
+handle_next_event_tick, handle_next_event_tick_update and
+handle_next_event_all.
 
-it was probably _NEVER_ compiled!!!
+Now these functions call handle_tick several times, determined by the
+value returned by ktimer_interrupt. 
 
-So, handle with care this one-liner, and test it properly.
+For example:
 
-CC: Andi Kleen <ak@suse.de>
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
+static void handle_nextevent_tick(struct pt_regs *regs)
+{
+	int res;
 
- arch/x86_64/Kconfig |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
+	res = ktimer_interrupt();
+	for (; res > 0; res--)
+		handle_tick(regs);
+}
 
-diff --git a/arch/x86_64/Kconfig b/arch/x86_64/Kconfig
---- a/arch/x86_64/Kconfig
-+++ b/arch/x86_64/Kconfig
-@@ -39,11 +39,10 @@ config SBUS
- 	bool
+Now looking at ktimer_interrupt, the beginning looks like this:
+
+int ktimer_interrupt(void)
+{
+	struct ktimer_base *base;
+	ktime_t expires_next, now;
+	int i, raise = 0, ret = 0;
+	int cpu = smp_processor_id();
+	struct ktimer_hres *hres = &per_cpu(ktimer_hres, cpu);
+
+	/* As long as we did not switch over to high resolution mode
+	 * we expect, that the event source is running in periodic
+	 * mode when it is a source serving other (tick based)
+	 * functionality than next event
+	 *
+	 */
+	if (!hres->active)
+		return CLOCK_EVT_RUN_CYCLIC;
+
+Is it really expected to call handle_ticks CLOCK_EVT_RUN_CYCLIC
+times? :-)  I don't think so (It's seven BTW).
+
+So, I figured the following patch might be in order. Thomas, what do you
+think?
+
+It at least makes my bogomips go back to 736.41 from 74.27 :-)
+
+-- Steve
+
+Index: rt_linux_ernie/kernel/ktimers.c
+===================================================================
+--- rt_linux_ernie.orig/kernel/ktimers.c	2005-10-25 08:49:42.000000000 -0400
++++ rt_linux_ernie/kernel/ktimers.c	2005-10-25 18:03:21.000000000 -0400
+@@ -341,7 +341,7 @@
+ 	 *
+ 	 */
+ 	if (!hres->active)
+-		return CLOCK_EVT_RUN_CYCLIC;
++		return -CLOCK_EVT_RUN_CYCLIC;
  
- config RWSEM_GENERIC_SPINLOCK
--	bool
--	default y
-+	def_bool n
+ 	now = do_ktime_get();
  
- config RWSEM_XCHGADD_ALGORITHM
--	bool
-+	def_bool y
+Index: rt_linux_ernie/kernel/time/clockevents.c
+===================================================================
+--- rt_linux_ernie.orig/kernel/time/clockevents.c	2005-10-25 18:02:33.000000000 -0400
++++ rt_linux_ernie/kernel/time/clockevents.c	2005-10-25 18:07:07.000000000 -0400
+@@ -167,6 +167,10 @@
+ 	int res;
  
- config GENERIC_CALIBRATE_DELAY
- 	bool
+ 	res = ktimer_interrupt();
++
++	if (res == -CLOCK_EVT_RUN_CYCLIC)
++		res = 1;
++
+ 	for (; res > 0; res--)
+ 		handle_tick(regs);
+ }
+@@ -190,6 +194,9 @@
+ 	if ((res = ktimer_interrupt()) == 0)
+ 		return;
+ 
++	if (res == -CLOCK_EVT_RUN_CYCLIC)
++		res = 1;
++
+ 	for (; res > 0; res--)
+ 		handle_tick(regs);
+ 
+@@ -224,6 +231,9 @@
+ 	if ((res = ktimer_interrupt()) == 0)
+ 		return;
+ 
++	if (res == -CLOCK_EVT_RUN_CYCLIC)
++		res = 1;
++
+ 	for (; res > 0; res--)
+ 		handle_tick(regs);
+ 
+
+Either the above patch, or just have ktimer_interrupt return 1.  But I
+figured that you want to differentiate this. But maybe not.
 

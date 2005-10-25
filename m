@@ -1,59 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751423AbVJYGYO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751460AbVJYGch@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751423AbVJYGYO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 02:24:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751430AbVJYGYO
+	id S1751460AbVJYGch (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 02:32:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751468AbVJYGch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 02:24:14 -0400
-Received: from wip-ec-wd.wipro.com ([203.91.193.32]:33958 "EHLO
-	wip-ec-wd.wipro.com") by vger.kernel.org with ESMTP
-	id S1751423AbVJYGYN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 02:24:13 -0400
-Subject: Re: select() for delay.
-From: "Madhu K.S." <madhu.subbaiah@wipro.com>
-Reply-To: madhu.subbaiah@wipro.com
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <1130160451.2775.8.camel@laptopd505.fenrus.org>
-References: <EE111F112BBFF24FB11DB557FA2E5BF301992F02@BLR-EC-MBX02.wipro.com>
-	 <1130159934.7804.15.camel@localhost.localdomain>
-	 <1130160451.2775.8.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Organization: Wipro technologies
-Message-Id: <1130221601.7416.6.camel@penguin.madhu>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 25 Oct 2005 11:56:41 +0530
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Oct 2005 06:23:54.0540 (UTC) FILETIME=[AC7A1EC0:01C5D92C]
+	Tue, 25 Oct 2005 02:32:37 -0400
+Received: from silver.veritas.com ([143.127.12.111]:48267 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1751460AbVJYGch
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 02:32:37 -0400
+Date: Tue, 25 Oct 2005 07:31:40 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Nicolas Pitre <nico@cam.org>
+cc: Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/9] mm: arm ready for split ptlock
+In-Reply-To: <Pine.LNX.4.64.0510241922040.5288@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0510250700360.5884@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0510221716380.18047@goblin.wat.veritas.com>
+ <Pine.LNX.4.61.0510221719370.18047@goblin.wat.veritas.com>
+ <20051022170240.GA10631@flint.arm.linux.org.uk>
+ <Pine.LNX.4.64.0510241922040.5288@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 25 Oct 2005 06:32:36.0565 (UTC) FILETIME=[E3A0D050:01C5D92D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
-
-Someone please comment on the entire patch functionality. 
-I tested this patch, it seems to work fine.
-
-Kindly suggest.
-
-
-
-On Mon, 2005-10-24 at 18:57, Arjan van de Ven wrote:
-> On Mon, 2005-10-24 at 09:18 -0400, Steven Rostedt wrote:
-> > Hi Maduhu,
+On Mon, 24 Oct 2005, Nicolas Pitre wrote:
+> On Sat, 22 Oct 2005, Russell King wrote:
+> > On Sat, Oct 22, 2005 at 05:22:20PM +0100, Hugh Dickins wrote:
+> > > Signal handling's preserve and restore of iwmmxt context currently
+> > > involves reading and writing that context to and from user space, while
+> > > holding page_table_lock to secure the user page(s) against kswapd.  If
+> > > we split the lock, then the structure might span two pages, secured by
+> > > different locks.  That would be manageable; but it seems simpler just
+> > > to read into and write from a kernel stack buffer, copying that out and
+> > > in without locking (the structure is 160 bytes in size, and here we're
+> > > near the top of the kernel stack).  Or would the overhead be noticeable?
 > > 
-> > On Mon, 2005-10-24 at 16:25 +0530, madhu.subbaiah@wipro.com wrote:
-> > 
-> > > +                        put_user(sec, &tvp->tv_sec);
-> > > +                        put_user(usec, &tvp->tv_usec);
-> > 
-> > I won't comment on the rest of the patch, but this part is definitely
-> > wrong.  The pointer tvp is a user space address and once you dereference
-> > that pointer to get to tv_sec, you can have a fault, which might
-> > segfault the
+> > Please contact Nicolas Pitre about that - that was my suggestion,
+> > but ISTR apparantly the overhead is too high.
 > 
-> &pointer->member  doesn't dereference the pointer, it just adds the
-> offset of "member" to the content of the pointer.
-> 
-> 
+> Going through a kernel buffer will simply double the overhead.  Let's 
+> suppose it should not be a big enough issue to stop the patch from being 
+> merged though (and it looks cleaner that way). However I'd like for the 
+> WARN_ON((unsigned long)frame & 7) to remain as both the kernel and user 
+> buffers should be 64-bit aligned.
 
+Okay, thanks.  I can submit a patch to restore the WARN_ON later
+(not today).  Though that seems very odd to me, can you explain?  I can
+understand that the original kernel context needs to be 64-bit aligned,
+and perhaps the iwmmxt_task_copy copy of it (I explicitly align that
+buffer).  But I can't see why the saved copy in userspace would need
+to be 64-bit aligned, if it's just __copy_to_user'ed and __copy_from_
+user'ed.  Or is it also accessed in some other, direct way?
+
+As to the overhead, let's see if it's serious or not in practice:
+let me know if you find it to be a significant slowdown - thanks.
+
+> > > arm_syscall's cmpxchg emulation use pte_offset_map_lock, instead of
+> > > pte_offset_map and mm-wide page_table_lock; and strictly, it should now
+> > > also take mmap_sem before descending to pmd, to guard against another
+> > > thread munmapping, and the page table pulled out beneath this thread.
+> > 
+> > Now that I look at it, it's probably buggy - if the page isn't already
+> > dirty, it will modify without the COW action.  Again, please contact
+> > Nicolas about this.
+> 
+> I don't see how standard COW could not happen.  The only difference with 
+> a true write fault as if we used put_user() is that we bypassed the data 
+> abort vector and the code to get the FAR value.  Or am I missing 
+> something?
+
+It's certainly not buggy in the way that I thought (and I believe rmk
+was thinking): you are checking pte_write, correctly within the lock,
+so COW shouldn't come into it at all - it'll only work if the page is
+already writable by the user.
+
+But then I'm puzzled by your reply, saying you don't see how standard
+COW could not happen.
+
+Plus it seems a serious limitation: mightn't this be an area of executable
+text that it has to write into, but is most likely readonly?  Or an area
+of data made readonly by fork?  And is the alignment assured, that the
+long will fit in one page only?
+
+The better way to do it, I think, would be to use ptrace's
+access_process_vm (it is our own mm, but that's okay).
+
+Hugh

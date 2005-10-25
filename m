@@ -1,120 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbVJYTA2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbVJYTZQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932306AbVJYTA2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 15:00:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbVJYTA2
+	id S932314AbVJYTZQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 15:25:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbVJYTZP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 15:00:28 -0400
-Received: from wbm2.pair.net ([209.68.3.43]:13 "HELO wbm2.pair.net")
-	by vger.kernel.org with SMTP id S932306AbVJYTA1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 15:00:27 -0400
-Message-ID: <60411.67.163.102.102.1130266824.squirrel@webmail2.pair.com>
-Date: Tue, 25 Oct 2005 15:00:24 -0400 (EDT)
-Subject: Oops in do_page_fault
-From: chase.venters@clientec.com
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.5
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Tue, 25 Oct 2005 15:25:15 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:33765 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932314AbVJYTZN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 15:25:13 -0400
+Subject: Re: 2.6.14-rc5-rt6  -- False NMI lockup detects
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051025142848.GA7642@elte.hu>
+References: <1130250219.21118.11.camel@localhost.localdomain>
+	 <20051025142848.GA7642@elte.hu>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Tue, 25 Oct 2005 15:24:52 -0400
+Message-Id: <1130268292.21118.22.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+On Tue, 2005-10-25 at 16:28 +0200, Ingo Molnar wrote:
+> * Steven Rostedt <rostedt@goodmis.org> wrote:
+> 
+> > Hi Ingo and Thomas,
+> > 
+> > On some of my machines, I've been experiencing false NMI lockups.  
+> > This usually happens on slower machines, and taking a look into this, 
+> > it seems to be due to a short time where no processes are using 
+> > timers, and the ktimer interrupts aren't needed. So the APIC timer, 
+> > which now is used only for the ktimers, has a five second pause, and 
+> > causes the NMI to go off.  The NMI uses the apic timer to determine 
+> > lockups.
+> 
+> this would be a bug - the jiffy tick should be processed every 1 msec, 
+> regardless of whether there are any ktimers pending. (in the future we 
+> want to use a special ktimer for the jiffy tick, but that's not 
+> implemented yet.)
+> 
 
-Please forgive me in advanced for the length of this description - I don't
-want to leave out any important details.
+Isn't the jiffy tick implemented with the PIT when possible? So the apic
+is only used when a timer is needed.  Also note that this "lockup"
+happens on boot up while things are being initialized, so not many
+things may be using the timer.
 
-About two weeks ago I came home from work to find that the fan on my XFX
-GeForce 6800GT PCI-E had failed. My computer, which was previously playing
-music, was simply playing the last buffer-sized frame of audio repeatedly
-as if it were a skipping CD. I cursed, got frustrated, and ordered a
-7800GT to replace it.
+Also, the machine doesn't lock up.  It continues happily along at normal
+speed.  It's only a 366 MHz machine.
 
-While I was waiting, I took advantage of my Asus P5GDC-V Deluxe's onboard
-Intel 915 graphics to get by in X. This was stable for a few days (prior
-to the graphics card failure, this system was stable for a year).
-Eventually, though, I was ripping a CD while listening to music and doing
-some other minor things when I noticed that the system started crashing in
-a very odd way.
+At my customer's site (which I'm no longer at), my test machine (2GHz)
+never showed this, but an equal machine that my customer had showed this
+on every boot up.  The only difference between the two machines was the
+other one had a 1GHz processor. These were both running on modified -rt
+kernels.
 
-I managed to run dmesg from a remote shell that was open, and saw so
-really strange traces I didn't manage to save. Pretty soon I realized that
-every process that tried to touch the disk would go into a
-TASK_UNINTERRUPTIBLE sleep and freeze. The system took about 30 seconds to
-crap out - amusingly enough, my music continued to play until the song was
-over; then that died too.
 
-Writing it off to a possible bug in the video driver, I rebooted and
-noticed ReiserFS doing lots of cleanup. I continued on my way until the
-system crashed again an hour later. Stability gradually grew much worse -
-I went from a year of stability, to days, to hours, to minutes...
-Eventually, I decided the best option would be to leave it alone until
-replacement parts arrived.
+> > So, I added a more generic method. This only works for x86 for now, 
+> > but it has a #ifdef to keep other archs working until it implements 
+> > this as well.  I added a nmi_irq_incr which is called by __do_IRQ in 
+> > the generic code.  This is what is used in the NMI code to determine 
+> > if the CPU has locked up.  This way we don't have to worry about what 
+> > resource we are using for timers.
+> 
+> this will be useful for tickless stuff - but right now 'no APIC timer 
+> irq for 5 seconds' is a 'must not happen'.
+> 
 
-In the mean time I ran memtest86 exhaustively to verify that my value RAM
-wasn't on the fritz.
+I added the following patch:
 
-The replacement card arrived, and annoyed by what seemed to be excessive
-corruption on my partition, I used a LiveCD to set one disk in the RAID10
-to faulty, removed it, made an ext2 partition on it, moved my data to it
-(which thankfully fit), rebuilt the ReiserFS partition on the RAID, moved
-all the data back over, and resynced the disk.
+Index: rt_linux_ernie/arch/i386/kernel/nmi.c
+===================================================================
+--- rt_linux_ernie.orig/arch/i386/kernel/nmi.c	2005-10-25 12:58:18.000000000 -0400
++++ rt_linux_ernie/arch/i386/kernel/nmi.c	2005-10-25 14:52:38.000000000 -0400
+@@ -538,6 +538,8 @@
+ 		 * wait a few IRQs (5 seconds) before doing the oops ...
+ 		 */
+ 		alert_counter[cpu]++;
++		if (alert_counter[cpu] && !(alert_counter[cpu] % (nmi_hz)))
++			early_printk("nmi: jiffies=%ld\n",jiffies);
+ 		if (alert_counter[cpu] && !(alert_counter[cpu] % (5*nmi_hz))) {
+ 			int i;
+ 
 
-The system seemed to work perfectly for days. I was happy to have fixed
-the problem. Then, though, I noticed that my brand new fresh partition was
-kicking up very similar errors (I think I remember seeing something about
-vs-7000 nesting filesystem, as well as complaints about free space
-calculations). It took 5 minutes before the system froze during an "emerge
-traceroute". This time, the behavior got bad really fast. I could reliably
-reproduce the behavior by running "emerge traceroute" (the last thing I
-ever saw before death was portage checking /usr/share/doc). Two times it
-freezed, two times it actually *immediately* rebooted without even a
-visible panic, etc.
+And this is my output:
 
-I replaced the motherboard with an identical motherboard, upgraded to a
-better cooler (CPU is a 540J prescott 3.2GHz), went from a 380 watt to a
-500 watt dual 12v-rail supply. Strangely enough, after these changes, I
-can now reproduce the crash reliably, but I'm getting (depending on the
-kernel version I boot) different but consistent behavior each time.
+Adding 554200k swap on /dev/hda5.  Priority:-1 extents:1 across:554200k
+EXT3 FS on hda1, internal journal
+nmi: jiffies=-289143
+nmi: jiffies=-272171
+nmi: jiffies=-270269
+nmi: jiffies=-268754
+nmi: jiffies=-267630
+NMI watchdog detected lockup on CPU#0 (50000/50000)
 
-In 2.6.13, I get an Oops (translated by hand, sorry for inexact formatting):
+>>>> my comments
 
-Oops 0000 #1
-PREEMPT SMP
-(list of modules linked in includes some alsa modules, nvidia.ko and
-sk98lin.ko)
+The above shows that the jiffies are incrementing. So what reason would
+the apic timer be going off?  Also, this is just a UP machine.
 
-CPU 0
-EIP 0060:[<c01182c3>] Tainted: P VLI
-EFLAGS: 00010086 (2.6.13)
-EIP is at do_page_fault+0xa3/0x5db
-eax: f5e50000  ebx: 0000000b  ecx: 0000000d  edx: 0000000d
-esi: 0000000e  edi: c0567451  ebp: 00000000  esp: f5e5a10c
+<<<< end my comments
 
-ds: 007b  es: 007b  ss: 0068
+Pid: 1378, comm:                uname
+EIP: 0060:[<c01f5592>] CPU: 0
+EIP is at clear_user+0x32/0x50
+ EFLAGS: 00010202    Not tainted  (2.6.14-rc5-rt6)
+EAX: 00000000 EBX: 00000000 ECX: 0000009c EDX: 00000000
+ESI: fffffff2 EDI: b7f10d90 EBP: cf055e28 DS: 007b ES: 007b
+CR0: 8005003b CR2: b7f10750 CR3: 0f7d8000 CR4: 00000690
+ [<c01010ba>] show_regs+0x14a/0x174 (36)
+ [<c010ff13>] nmi_watchdog_tick+0x1a3/0x230 (56)
+ [<c0104b2b>] default_do_nmi+0x6b/0x160 (52)
+ [<c0104c5a>] do_nmi+0x2a/0x30 (20)
+ [<c0103a46>] nmi_stack_correct+0x1d/0x22 (68)
+ [<c018e813>] padzero+0x33/0x40 (16)
+ [<c018eecd>] load_elf_interp+0x22d/0x2e0 (72)
+ [<c018fca5>] load_elf_binary+0xb85/0xd30 (188)
+ [<c016d70a>] search_binary_handler+0xaa/0x2b0 (44)
+ [<c016da99>] do_execve+0x189/0x230 (36)
+ [<c0101a92>] sys_execve+0x42/0xa0 (40)
+ [<c0102f01>] syscall_call+0x7/0xb (-8116)
+NMI Watchdog detected LOCKUP on CPU0, eip c01f5592, registers:
+Modules linked in:
+CPU:    0
+EIP:    0060:[<c01f5592>]    Not tainted VLI
+EFLAGS: 00010202   (2.6.14-rc5-rt6)
+EIP is at clear_user+0x32/0x50
+eax: 00000000   ebx: 00000000   ecx: 0000009c   edx: 00000000
+esi: fffffff2   edi: b7f10d90   ebp: cf055e28   esp: cf055e20
+ds: 007b   es: 007b   ss: 0068   preempt: 00000001
+Process uname (pid: 1378, threadinfo=cf054000 task=cfed9150 stack_left=7660 wor)Stack: cfc25120 cfc25594 cf055e38 c018e813 b7f10750 000008b0 cf055e80 c018eecd
+       b7f10750 b7f0fcc0 cfc25080 00000003 00000812 00015cc0 cfc25060 b7efa000
+       00000001 b7f107f8 00000006 cfc25088 b7f10750 cfc25560 0804b2ec cec5d720
+Call Trace:
+ [<c0103d3b>] show_stack+0xab/0xf0 (28)
+ [<c0103f1a>] show_registers+0x17a/0x230 (56)
+ [<c0104a6e>] die_nmi+0x9e/0xf0 (52)
+ [<c010ff37>] nmi_watchdog_tick+0x1c7/0x230 (56)
+ [<c0104b2b>] default_do_nmi+0x6b/0x160 (52)
+ [<c0104c5a>] do_nmi+0x2a/0x30 (20)
+ [<c0103a46>] nmi_stack_correct+0x1d/0x22 (68)
+ [<c018e813>] padzero+0x33/0x40 (16)
+ [<c018eecd>] load_elf_interp+0x22d/0x2e0 (72)
+ [<c018fca5>] load_elf_binary+0xb85/0xd30 (188)
+ [<c016d70a>] search_binary_handler+0xaa/0x2b0 (44)
+ [<c016da99>] do_execve+0x189/0x230 (36)
+ [<c0101a92>] sys_execve+0x42/0xa0 (40)
+ [<c0102f01>] syscall_call+0x7/0xb (-8116)
+Code: 7c 24 04 8b 7d 08 89 1c 24 8b 4d 0c a1 48 e4 33 c0 89 fb 01 cb 19 d2 39 5
+console shuts up ...
 
-2.6.13 will oops reproducibly as above upon completion of "emerge
-traceroute". Each 2.6.13 oops always happens at do_page_fault+0xa3/0x5db.
-ebx and ecx are also observed to be constant.
+-- Steve
 
-Oddly enough, the second Oops I got on 2.6.13 reported a CPU # 2949119.
 
-I also tested "emerge traceroute" on the same partition by booting
-2.6.11.7 and 2.6.12.4. Both of these kernels failed to Oops / panic, but
-simply froze.
-
-My next step will be to try and replace the CPU (though I really
-appreciate any comments as to whether I'm likely looking at a hardware
-problem anymore). I ordered a replacement CPU and got sent a 478 instead
-of a 775, so it looks like I'm going to have to go grab one up locally.
-
-I tried to rebuild my kernel with SysRQ and a serial console to be of
-better help; unfortunately, I can't seem to do enough IO before crashing
-to succeed.
-
-Thanks,
-Chase Venters

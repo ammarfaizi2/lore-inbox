@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbVJYTuQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbVJYTwg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932332AbVJYTuQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 15:50:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbVJYTuQ
+	id S932307AbVJYTwg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 15:52:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbVJYTwg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 15:50:16 -0400
-Received: from smtprelay01.ispgateway.de ([80.67.18.13]:47753 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S932330AbVJYTuO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 15:50:14 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch 2.6.13 0/5] normalize calculations of rx_dropped
-Date: Tue, 25 Oct 2005 21:50:01 +0200
-User-Agent: KMail/1.7.2
-Cc: Ben Greear <greearb@candelatech.com>,
-       "John W. Linville" <linville@tuxdriver.com>, netdev@vger.kernel.org,
-       Jeff Garzik <jgarzik@pobox.com>
-References: <09122005104858.332@bilbo.tuxdriver.com> <20051024215751.GH28212@tuxdriver.com> <435D8717.9000107@candelatech.com>
-In-Reply-To: <435D8717.9000107@candelatech.com>
+	Tue, 25 Oct 2005 15:52:36 -0400
+Received: from orb.pobox.com ([207.8.226.5]:49306 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S932307AbVJYTwf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 15:52:35 -0400
+Message-ID: <435E8CFE.7060006@pobox.com>
+Date: Tue, 25 Oct 2005 15:52:30 -0400
+From: Mark Lord <mlord@pobox.com>
+Organization: Real-Time Remedies Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050923 Debian/1.7.12-0ubuntu05.04
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1183262.5eQGP4NlsH";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Call for PIIX4 chipset testers
+References: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200510252150.07933.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1183262.5eQGP4NlsH
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Are these lines of any use?
 
-On Tuesday 25 October 2005 03:15, Ben Greear wrote:
-> rx_errors:  Total of all rx errors
+If so, I'll try and get it to boot further and dump
+the more detailed info.  That'll take some effort
+(I'm grafting a semi-modern kernel onto an old install).
+...
+PCI quirk: region 1000-103f claimed by PIIX4 ACPI
+PCI quirk: region 1040-105f claimed by PIIX4 SMB
+PIIX4 devres C PIO at 15e8-15ef
+PIIX4 devres I PIO at 03f0-03f7
+PIIX4 devres J PIO at 002e-002f
+...
 
-If it is a total, then we don't need to store it, since we can calculate
-that explicity on request, no?
+Cheers
+-- 
+Mark Lord
+Real-Time Remedies Inc.
+mlord@pobox.com
 
-> rx_dropped:  Dropped on receive, usually due to kernel being over-worked.
-> rx_length:  Dropped because pkt-length was invalid.
-> rx_over:  Dropped because we over-ran the NIC's rx buffers.
-> rx_crc:  Packets received with bad CRC errors.
-> rx_frame:  Framing errors (errors at the physical layer), usually cable or hardware error.
-> rx_fifo:  Dropped due to Kernel buffers being full (I guess rx-over could be NIC only, rx-fifo be kernel/driver only.)
-> rx_missed:  Dropped due to not handling IRQ in time.
-
-Regards
-
-Ingo Oeser
-
-
---nextPart1183262.5eQGP4NlsH
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDXoxvU56oYWuOrkARAtBPAJ9uElUDEMgCPBFkMM25jCeKEMHMCwCg32Id
-we2zXE8r3WK3GHYJCVrw6cc=
-=Mqay
------END PGP SIGNATURE-----
-
---nextPart1183262.5eQGP4NlsH--

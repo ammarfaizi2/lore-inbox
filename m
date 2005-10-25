@@ -1,191 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932408AbVJYVgf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbVJYVf6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932408AbVJYVgf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 17:36:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbVJYVgb
+	id S932399AbVJYVf6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 17:35:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbVJYVf6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 17:36:31 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:20162 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932403AbVJYVgL
+	Tue, 25 Oct 2005 17:35:58 -0400
+Received: from rproxy.gmail.com ([64.233.170.206]:47966 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932399AbVJYVf6 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 17:36:11 -0400
-Subject: [PATCH] 3/5 ibmveth fix buffer replenishing
-From: Santiago Leon <santil@us.ibm.com>
-To: netdev <netdev@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>
-Content-Type: text/plain
-Message-Id: <1130275530.11133.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 25 Oct 2005 16:34:54 -0500
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Oct 2005 17:35:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JuLfmn0XI+p/zbJJG9auurLfpFODDy/j/9r6y/46u+XDfwVKvyq6vh/6SNvaigxqr07yu5WByc3HvR4WRRovfKaONwnS+KMLv+go9w+yboLLLkTai0t7thfkk8beIV2S2vaZsJ44C5RrNAQc+E+nhOcioOt/TdzY1j5VsBelMfE=
+Message-ID: <21d7e9970510251435s5608bafbvb552a99ad1fb74ae@mail.gmail.com>
+Date: Wed, 26 Oct 2005 07:35:54 +1000
+From: Dave Airlie <airlied@gmail.com>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Subject: Re: 2.6.14-rc5 GPF in radeon_cp_init_ring_buffer()
+Cc: Badari Pulavarty <pbadari@gmail.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051026012520.A7501@jurassic.park.msu.ru>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1130257682.6831.63.camel@localhost.localdomain>
+	 <20051026012520.A7501@jurassic.park.msu.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes the allocation of RX skb's  buffers from a workqueue
-to be called directly at RX processing time.  This change was suggested
-by Dave Miller when the driver was starving the RX buffers and
-deadlocking under heavy traffic:
+On 10/26/05, Ivan Kokshaysky <ink@jurassic.park.msu.ru> wrote:
+> On Tue, Oct 25, 2005 at 09:28:02AM -0700, Badari Pulavarty wrote:
+> > On my EM64T machine, X gets killed every time due to
+> > following GFP. Happens on mainline & -mm kernels.
+> > Hasn't annoyed me enough to take a look on why ?
+>
+> I've seen similar failure on alpha.
+>
+> Obviously, someone forgot to convert sg->handle stuff for
+> PCI gart case.
 
-> Allocating RX SKBs via tasklet is, IMHO, the worst way to
-> do it.  It is no surprise that there are starvation cases.
-> 
-> If tasklets or work queues get delayed in any way, you lose,
-> and it's very easy for a card to catch up with the driver RX'ing
-> packets very fast, no matter how aggressive you make the
-> replenishing.  By the time you detect that you need to be
-> "more aggressive" it is already too late.
-> The only pseudo-reliable way is to allocate at RX processing time.
-> 
+No someone forgot that that patch needed to go in.. it's already
+sitting in my -mm queue, after PCI Express support...
 
-Signed-off-by: Santiago Leon <santil@us.ibm.com>
----
-drivers/net/ibmveth.c |   48
-++++++++----------------------------------------
-drivers/net/ibmveth.h |    4 ----
-2 files changed, 8 insertions(+), 44 deletions(-)
----
-diff -urN a/drivers/net/ibmveth.c b/drivers/net/ibmveth.c
---- a/drivers/net/ibmveth.c 2005-10-17 12:04:58.000000000 -0500
-+++ b/drivers/net/ibmveth.c 2005-10-17 12:23:22.000000000 -0500
-@@ -96,7 +96,6 @@
-static void ibmveth_proc_register_adapter(struct ibmveth_adapter
-*adapter);
-static void ibmveth_proc_unregister_adapter(struct ibmveth_adapter
-*adapter);
-static irqreturn_t ibmveth_interrupt(int irq, void *dev_instance, struct
-pt_regs *regs);
--static inline void ibmveth_schedule_replenishing(struct
-ibmveth_adapter*);
-static inline void ibmveth_rxq_harvest_buffer(struct ibmveth_adapter
-*adapter);
+I forgot it would've broken normal PCI GART support..
 
-#ifdef CONFIG_PROC_FS
-@@ -257,29 +256,7 @@
-atomic_add(buffers_added, &(pool->available));
-}
+I'll push it to Linus in a while.
 
--/* check if replenishing is needed.  */
--static inline int ibmveth_is_replenishing_needed(struct ibmveth_adapter
-*adapter)
--{
-- int i;
--
-- for(i = 0; i < IbmVethNumBufferPools; i++)
-- if(adapter->rx_buff_pool[i].active &&
--   (atomic_read(&adapter->rx_buff_pool[i].available) <
--    adapter->rx_buff_pool[i].threshold))
-- return 1;
-- return 0;
--}
--
--/* kick the replenish tasklet if we need replenishing and it isn't
-already running */
--static inline void ibmveth_schedule_replenishing(struct ibmveth_adapter
-*adapter)
--{
-- if(ibmveth_is_replenishing_needed(adapter) &&
--    (atomic_dec_if_positive(&adapter->not_replenishing) == 0)) {
-- schedule_work(&adapter->replenish_task);
-- }
--}
--
--/* replenish tasklet routine */
-+/* replenish routine */
-static void ibmveth_replenish_task(struct ibmveth_adapter *adapter) 
-{
-int i;
-@@ -292,10 +269,6 @@
-     &adapter->rx_buff_pool[i]);
-
-adapter->rx_no_buffer = *(u64*)(((char*)adapter->buffer_list_addr) +
-4096 - 8);
--
-- atomic_inc(&adapter->not_replenishing);
--
-- ibmveth_schedule_replenishing(adapter);
-}
-
-/* empty and free ana buffer pool - also used to do cleanup in error
-paths */
-@@ -563,10 +536,10 @@
-return rc;
-}
-
-- netif_start_queue(netdev);
-+ ibmveth_debug_printk("initial replenish cycle\n");
-+ ibmveth_replenish_task(adapter);
-
-- ibmveth_debug_printk("scheduling initial replenish cycle\n");
-- ibmveth_schedule_replenishing(adapter);
-+ netif_start_queue(netdev);
-
-ibmveth_debug_printk("open complete\n");
-
-@@ -584,9 +557,6 @@
-
-free_irq(netdev->irq, netdev);
-
-- cancel_delayed_work(&adapter->replenish_task);
-- flush_scheduled_work();
--
-do {
-lpar_rc = h_free_logical_lan(adapter->vdev->unit_address);
-} while (H_isLongBusy(lpar_rc) || (lpar_rc == H_Busy));
-@@ -795,7 +765,7 @@
-}
-} while(more_work && (frames_processed < max_frames_to_process));
-
-- ibmveth_schedule_replenishing(adapter);
-+ ibmveth_replenish_task(adapter);
-
-if(more_work) {
-/* more work to do - return that we are not done yet */
-@@ -931,8 +901,10 @@
-
-}
-
-+ /* kick the interrupt handler so that the new buffer pools get
-+    replenished or deallocated */
-+ ibmveth_interrupt(dev->irq, dev, NULL);
-
-- ibmveth_schedule_replenishing(adapter);
-dev->mtu = new_mtu;
-return 0; 
-}
-@@ -1017,14 +989,10 @@
-
-ibmveth_debug_printk("adapter @ 0x%p\n", adapter);
-
-- INIT_WORK(&adapter->replenish_task, (void*)ibmveth_replenish_task,
-(void*)adapter);
--
-adapter->buffer_list_dma = DMA_ERROR_CODE;
-adapter->filter_list_dma = DMA_ERROR_CODE;
-adapter->rx_queue.queue_dma = DMA_ERROR_CODE;
-
-- atomic_set(&adapter->not_replenishing, 1);
--
-ibmveth_debug_printk("registering netdev...\n");
-
-rc = register_netdev(netdev);
-diff -urN a/drivers/net/ibmveth.h b/drivers/net/ibmveth.h
---- a/drivers/net/ibmveth.h 2005-10-17 12:04:58.000000000 -0500
-+++ b/drivers/net/ibmveth.h 2005-10-17 12:23:22.000000000 -0500
-@@ -118,10 +118,6 @@
-     dma_addr_t filter_list_dma;
-     struct ibmveth_buff_pool rx_buff_pool[IbmVethNumBufferPools];
-     struct ibmveth_rx_q rx_queue;
--    atomic_t not_replenishing;
--
--    /* helper tasks */
--    struct work_struct replenish_task;
-
-     /* adapter specific stats */
-     u64 replenish_task_cycles;
-
--- 
-Santiago A. Leon
-Power Linux Development
-IBM Linux Technology Center
-
+Dave.
+>
+> Ivan.
+>
+> --- 2.6.14-rc5/drivers/char/drm/radeon_cp.c     Fri Sep 23 23:39:48 2005
+> +++ linux/drivers/char/drm/radeon_cp.c  Sat Sep 24 02:59:22 2005
+> @@ -1136,7 +1136,7 @@ static void radeon_cp_init_ring_buffer(
+>         } else
+>  #endif
+>                 ring_start = (dev_priv->cp_ring->offset
+> -                             - dev->sg->handle
+> +                             - (unsigned long)dev->sg->virtual
+>                               + dev_priv->gart_vm_start);
+>
+>         RADEON_WRITE( RADEON_CP_RB_BASE, ring_start );
+> @@ -1164,7 +1164,8 @@ static void radeon_cp_init_ring_buffer(
+>                 drm_sg_mem_t *entry = dev->sg;
+>                 unsigned long tmp_ofs, page_ofs;
+>
+> -               tmp_ofs = dev_priv->ring_rptr->offset - dev->sg->handle;
+> +               tmp_ofs = dev_priv->ring_rptr->offset -
+> +                               (unsigned long)dev->sg->virtual;
+>                 page_ofs = tmp_ofs >> PAGE_SHIFT;
+>
+>                 RADEON_WRITE( RADEON_CP_RB_RPTR_ADDR,
+> @@ -1491,8 +1492,8 @@ static int radeon_do_init_cp( drm_device
+>         else
+>  #endif
+>                 dev_priv->gart_buffers_offset = (dev->agp_buffer_map->offset
+> -                                               - dev->sg->handle
+> -                                               + dev_priv->gart_vm_start);
+> +                                       - (unsigned long)dev->sg->virtual
+> +                                       + dev_priv->gart_vm_start);
+>
+>         DRM_DEBUG( "dev_priv->gart_size %d\n",
+>                    dev_priv->gart_size );
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

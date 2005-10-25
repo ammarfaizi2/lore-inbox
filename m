@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbVJYR7L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbVJYSEO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932277AbVJYR7L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 13:59:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbVJYR7K
+	id S932274AbVJYSEO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 14:04:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbVJYSEO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 13:59:10 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:18136 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932277AbVJYR7I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 13:59:08 -0400
-Date: Tue, 25 Oct 2005 10:57:03 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Badari Pulavarty <pbadari@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       andrew.vasquez@qlogic.com
-Subject: Re: 2.6.14-rc5-mm1
-Message-Id: <20051025105703.07288224.akpm@osdl.org>
-In-Reply-To: <1130253176.6831.48.camel@localhost.localdomain>
-References: <20051024014838.0dd491bb.akpm@osdl.org>
-	<1130186927.6831.23.camel@localhost.localdomain>
-	<20051024141646.6265c0da.akpm@osdl.org>
-	<1130253176.6831.48.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Tue, 25 Oct 2005 14:04:14 -0400
+Received: from qproxy.gmail.com ([72.14.204.198]:43488 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932274AbVJYSEN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 14:04:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fFnN3G1wkkBzfdsk2CN/cDqxZYR5xS5s06PmCoA1KjdJdsrfPkEJdAbds/XOk7gjbsYd9dg8+YM5X7deJ4Mb4h8U1Mky/Xfl1JZohmGXSMXzeIqHbV4awsRmBH/9HSShtTuwiRiV3BbMCQTW7DYpMQsCWbf+96IuyUuLKqlsBqk=
+Message-ID: <12c511ca0510251104s5b1fbb10u17b6146528793ad8@mail.gmail.com>
+Date: Tue, 25 Oct 2005 11:04:12 -0700
+From: Tony Luck <tony.luck@gmail.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: /proc/kcore size incorrect ? (OT)
+Cc: Eric Piel <eric.piel@tremplin-utc.net>, jonathan@jonmasters.org,
+       jonmasters@gmail.com, "Linux-Kernel," <linux-kernel@vger.kernel.org>
+In-Reply-To: <36402397-77C9-49A7-A143-2C672FC90934@able.es>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051023235806.1a4df9ab@werewolf.able.es>
+	 <35fb2e590510231613u492d24c6k4d65ff3ac5ffcee6@mail.gmail.com>
+	 <20051024015710.29a02e63@werewolf.able.es>
+	 <435E5720.6030105@tremplin-utc.net>
+	 <36402397-77C9-49A7-A143-2C672FC90934@able.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty <pbadari@gmail.com> wrote:
->
-> On Mon, 2005-10-24 at 14:16 -0700, Andrew Morton wrote:
-> ..
-> > 
-> > qla2x00_probe_one() has called qla2x00_free_device() and
-> > qla2x00_free_device() has locked up in
-> > wait_for_completion(&ha->dpc_exited);
-> > 
-> > Presumably, ha->dpc_exited is not initialised yet.
-> > 
-> > The first `goto probe_failed' in qla2x00_probe_one() will cause
-> > qla2x00_free_device() to run wait_for_completion() against an uninitialised
-> > completion struct.  Because ha->dpc_pid will be >= 0.
-> > 
-> > This patch might fix the lockup, but if so, qla2x00_iospace_config()
-> > failed.  Please debug that a bit for us?
-> 
-> Yes. This patch helped. Due to power failures, my disk trays are
-> powered off. qla2x00_iospace_config() is failing and causing the
-> panic on -mm kernel. For odd reasons, older -mm kernels & mainline
-> kernels doesn't panic.
+> My concerns were about if the size of /proc/kcore should be what it is
+> now, and why...
 
-OK, thanks.  Andrew seems offline and this patch is sufficiently obvious
-that I think I'll just jam it into 2.6.14...
+/proc/kcore is an ELF format file (try using objdump(1) to read
+headers from it).
+
+The data within the file may be sparse (especially on discontig
+and NUMA systems).  So the size just represents the end of
+the highest addressed memory section.  E.g. on my desktop:
+
+$ ls -l /proc/kcore
+-r--------  1 root root 4611686019496083456 Oct 25 09:52 /proc/kcore
+
+-Tony

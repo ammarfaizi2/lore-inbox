@@ -1,173 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932427AbVJYWFd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbVJYWFe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932427AbVJYWFd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 18:05:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932436AbVJYWFd
+	id S932424AbVJYWFe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 18:05:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932436AbVJYWFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 18:05:33 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:53221 "EHLO ssc.unict.it")
-	by vger.kernel.org with ESMTP id S932427AbVJYWFc (ORCPT
+	Tue, 25 Oct 2005 18:05:34 -0400
+Received: from [151.97.230.9] ([151.97.230.9]:53989 "EHLO ssc.unict.it")
+	by vger.kernel.org with ESMTP id S932424AbVJYWFc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 25 Oct 2005 18:05:32 -0400
 From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 01/11] uml: sigio code - reduce spinlock hold time
-Date: Wed, 26 Oct 2005 00:00:55 +0200
+Subject: [PATCH 09/11] uml console channels: fix the API of console_write
+Date: Wed, 26 Oct 2005 00:02:41 +0200
 To: Jeff Dike <jdike@addtoit.com>
 Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Message-Id: <20051025220053.20010.56979.stgit@zion.home.lan>
+Message-Id: <20051025220240.20010.67825.stgit@zion.home.lan>
+In-Reply-To: <20051025220053.20010.56979.stgit@zion.home.lan>
+References: <20051025220053.20010.56979.stgit@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-In a previous patch I shifted an allocation to being atomic.
-
-In this patch, a better but more intrusive solution is implemented, i.e. hold
-the lock only when really needing it, especially not over pipe operations, nor
-over the culprit allocation.
-
-Additionally, while at it, add a missing kfree in the failure path, and make
-sure that if we fail in forking, write_sigio_pid is -1 and not, say, -ENOMEM.
-
-And fix whitespace, at least for things I was touching anyway.
+Since the 4th param is unused, remove it altogether.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- arch/um/kernel/sigio_user.c |   84 ++++++++++++++++++++++++++++++-------------
- 1 files changed, 59 insertions(+), 25 deletions(-)
+ arch/um/drivers/chan_kern.c |    5 ++---
+ arch/um/drivers/chan_user.c |    2 +-
+ arch/um/include/chan_user.h |    4 ++--
+ 3 files changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/arch/um/kernel/sigio_user.c b/arch/um/kernel/sigio_user.c
---- a/arch/um/kernel/sigio_user.c
-+++ b/arch/um/kernel/sigio_user.c
-@@ -336,70 +336,104 @@ int ignore_sigio_fd(int fd)
- 	return(err);
+diff --git a/arch/um/drivers/chan_kern.c b/arch/um/drivers/chan_kern.c
+--- a/arch/um/drivers/chan_kern.c
++++ b/arch/um/drivers/chan_kern.c
+@@ -89,8 +89,7 @@ static int not_configged_write(int fd, c
+ 	return(-EIO);
  }
  
--static int setup_initial_poll(int fd)
-+static struct pollfd* setup_initial_poll(int fd)
+-static int not_configged_console_write(int fd, const char *buf, int len,
+-				       void *data)
++static int not_configged_console_write(int fd, const char *buf, int len)
  {
- 	struct pollfd *p;
- 
--	p = um_kmalloc_atomic(sizeof(struct pollfd));
--	if(p == NULL){
-+	p = um_kmalloc(sizeof(struct pollfd));
-+	if (p == NULL) {
- 		printk("setup_initial_poll : failed to allocate poll\n");
--		return(-1);
-+		return NULL;
+ 	my_puts("Using a channel type which is configured out of "
+ 	       "UML\n");
+@@ -299,7 +298,7 @@ int console_write_chan(struct list_head 
+ 		chan = list_entry(ele, struct chan, list);
+ 		if(!chan->output || (chan->ops->console_write == NULL))
+ 			continue;
+-		n = chan->ops->console_write(chan->fd, buf, len, chan->data);
++		n = chan->ops->console_write(chan->fd, buf, len);
+ 		if(chan->primary) ret = n;
  	}
- 	*p = ((struct pollfd) { .fd  	= fd,
- 				.events 	= POLLIN,
- 				.revents 	= 0 });
--	current_poll = ((struct pollfds) { .poll 	= p,
--					   .used 	= 1,
--					   .size 	= 1 });
--	return(0);
-+	return p;
- }
+ 	return(ret);
+diff --git a/arch/um/drivers/chan_user.c b/arch/um/drivers/chan_user.c
+--- a/arch/um/drivers/chan_user.c
++++ b/arch/um/drivers/chan_user.c
+@@ -21,7 +21,7 @@
+ #include "choose-mode.h"
+ #include "mode.h"
  
- void write_sigio_workaround(void)
+-int generic_console_write(int fd, const char *buf, int n, void *unused)
++int generic_console_write(int fd, const char *buf, int n)
  {
- 	unsigned long stack;
-+	struct pollfd *p;
+ 	struct termios save, new;
  	int err;
-+	int l_write_sigio_fds[2];
-+	int l_sigio_private[2];
-+	int l_write_sigio_pid;
- 
-+	/* We call this *tons* of times - and most ones we must just fail. */
- 	sigio_lock();
--	if(write_sigio_pid != -1)
--		goto out;
-+	l_write_sigio_pid = write_sigio_pid;
-+	sigio_unlock();
-+
-+	if (l_write_sigio_pid != -1)
-+		return;
- 
--	err = os_pipe(write_sigio_fds, 1, 1);
-+	err = os_pipe(l_write_sigio_fds, 1, 1);
- 	if(err < 0){
- 		printk("write_sigio_workaround - os_pipe 1 failed, "
- 		       "err = %d\n", -err);
--		goto out;
-+		return;
- 	}
--	err = os_pipe(sigio_private, 1, 1);
-+	err = os_pipe(l_sigio_private, 1, 1);
- 	if(err < 0){
--		printk("write_sigio_workaround - os_pipe 2 failed, "
-+		printk("write_sigio_workaround - os_pipe 1 failed, "
- 		       "err = %d\n", -err);
- 		goto out_close1;
- 	}
--	if(setup_initial_poll(sigio_private[1]))
-+
-+	p = setup_initial_poll(l_sigio_private[1]);
-+	if(!p)
- 		goto out_close2;
- 
--	write_sigio_pid = run_helper_thread(write_sigio_thread, NULL, 
-+	sigio_lock();
-+
-+	/* Did we race? Don't try to optimize this, please, it's not so likely
-+	 * to happen, and no more than once at the boot. */
-+	if(write_sigio_pid != -1)
-+		goto out_unlock;
-+
-+	write_sigio_pid = run_helper_thread(write_sigio_thread, NULL,
- 					    CLONE_FILES | CLONE_VM, &stack, 0);
- 
--	if(write_sigio_pid < 0) goto out_close2;
-+	if (write_sigio_pid < 0)
-+		goto out_clear;
- 
--	if(write_sigio_irq(write_sigio_fds[0])) 
-+	if (write_sigio_irq(l_write_sigio_fds[0])) 
- 		goto out_kill;
- 
-- out:
-+	/* Success, finally. */
-+	memcpy(write_sigio_fds, l_write_sigio_fds, sizeof(l_write_sigio_fds));
-+	memcpy(sigio_private, l_sigio_private, sizeof(l_sigio_private));
-+
-+	current_poll = ((struct pollfds) { .poll 	= p,
-+					   .used 	= 1,
-+					   .size 	= 1 });
-+
- 	sigio_unlock();
- 	return;
- 
-  out_kill:
--	os_kill_process(write_sigio_pid, 1);
-+	l_write_sigio_pid = write_sigio_pid;
-+	write_sigio_pid = -1;
-+	sigio_unlock();
-+	/* Going to call waitpid, avoid holding the lock. */
-+	os_kill_process(l_write_sigio_pid, 1);
-+	goto out_free;
-+
-+ out_clear:
- 	write_sigio_pid = -1;
-+ out_unlock:
-+	sigio_unlock();
-+ out_free:
-+	kfree(p);
-  out_close2:
--	os_close_file(sigio_private[0]);
--	os_close_file(sigio_private[1]);
-+	os_close_file(l_sigio_private[0]);
-+	os_close_file(l_sigio_private[1]);
-  out_close1:
--	os_close_file(write_sigio_fds[0]);
--	os_close_file(write_sigio_fds[1]);
--	sigio_unlock();
-+	os_close_file(l_write_sigio_fds[0]);
-+	os_close_file(l_write_sigio_fds[1]);
-+	return;
-+
- }
- 
- int read_sigio_fd(int fd)
+diff --git a/arch/um/include/chan_user.h b/arch/um/include/chan_user.h
+--- a/arch/um/include/chan_user.h
++++ b/arch/um/include/chan_user.h
+@@ -25,7 +25,7 @@ struct chan_ops {
+ 	void (*close)(int, void *);
+ 	int (*read)(int, char *, void *);
+ 	int (*write)(int, const char *, int, void *);
+-	int (*console_write)(int, const char *, int, void *);
++	int (*console_write)(int, const char *, int);
+ 	int (*window_size)(int, void *, unsigned short *, unsigned short *);
+ 	void (*free)(void *);
+ 	int winch;
+@@ -37,7 +37,7 @@ extern struct chan_ops fd_ops, null_ops,
+ extern void generic_close(int fd, void *unused);
+ extern int generic_read(int fd, char *c_out, void *unused);
+ extern int generic_write(int fd, const char *buf, int n, void *unused);
+-extern int generic_console_write(int fd, const char *buf, int n, void *state);
++extern int generic_console_write(int fd, const char *buf, int n);
+ extern int generic_window_size(int fd, void *unused, unsigned short *rows_out,
+ 			       unsigned short *cols_out);
+ extern void generic_free(void *data);
 

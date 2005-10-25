@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbVJYWXb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932450AbVJYWYO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932431AbVJYWXb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 18:23:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbVJYWXb
+	id S932450AbVJYWYO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 18:24:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbVJYWYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 18:23:31 -0400
-Received: from cantor.suse.de ([195.135.220.2]:59582 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932431AbVJYWXa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 18:23:30 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: Re: [PATCH 4/6] x86_64: fix L1_CACHE_SHIFT_MAX for Intel EM64T [for 2.6.14?]
-Date: Wed, 26 Oct 2005 00:24:16 +0200
-User-Agent: KMail/1.8
-Cc: Andrew Morton <akpm@osdl.org>, Jeff Dike <jdike@addtoit.com>,
-       linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-References: <20051025221105.21106.95194.stgit@zion.home.lan> <20051025221253.21106.22572.stgit@zion.home.lan>
-In-Reply-To: <20051025221253.21106.22572.stgit@zion.home.lan>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Tue, 25 Oct 2005 18:24:13 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:3816
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932453AbVJYWYM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 18:24:12 -0400
+Subject: Re: ktimers in RT causing bad bogomips and more.
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1130278541.21118.49.camel@localhost.localdomain>
+References: <1130278541.21118.49.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: linutronix
+Date: Wed, 26 Oct 2005 00:26:46 +0200
+Message-Id: <1130279207.8167.46.camel@tglx.tec.linutronix.de>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510260024.17241.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-10-25 at 18:15 -0400, Steven Rostedt wrote:
+> 	if (!hres->active)
+> 		return CLOCK_EVT_RUN_CYCLIC;
 
-> No correctness issues, obviously. So this could even be merged for 2.6.14
-> (I'm not a fan of this idea, though).
+I'm searching for the brown paperbag. 
 
-I don't think it's a good idea to mess with this for 2.6.14
+Thats the startup code before switching over to high resolution, so it
+should return 1, nothing else.
 
-In general the maxaligned stuff is imho bogus and should be removed. That is 
-what CONFIG_X86_GENERIC is for. It doesn't make sense imho to separate
-the variables in two aligned classes - either they should be aligned in 
-all cases or they shouldn't.
+CLOCK_EVT_RUN_CYCLIC is a leftover of the initial implementation, which
+did not take tick overruns into account. 
 
--Andi
+Thanks,
+
+	tglx
 
 

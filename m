@@ -1,160 +1,354 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbVJYTZQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbVJYTbB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932314AbVJYTZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 15:25:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbVJYTZP
+	id S932319AbVJYTbB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 15:31:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932321AbVJYTbB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 15:25:15 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:33765 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932314AbVJYTZN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 15:25:13 -0400
-Subject: Re: 2.6.14-rc5-rt6  -- False NMI lockup detects
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051025142848.GA7642@elte.hu>
-References: <1130250219.21118.11.camel@localhost.localdomain>
-	 <20051025142848.GA7642@elte.hu>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Tue, 25 Oct 2005 15:24:52 -0400
-Message-Id: <1130268292.21118.22.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Oct 2005 15:31:01 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:2980 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932319AbVJYTbA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 15:31:00 -0400
+Date: Tue, 25 Oct 2005 12:30:44 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: akpm@osdl.org
+Cc: Mike Kravetz <kravetz@us.ibm.com>, Ray Bryant <raybry@mpdtxmail.amd.com>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Lee Schermerhorn <lee.schermerhorn@hp.com>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Christoph Lameter <clameter@sgi.com>,
+       Magnus Damm <magnus.damm@gmail.com>, Paul Jackson <pj@sgi.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Message-Id: <20051025193044.6828.24142.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20051025193023.6828.89649.sendpatchset@schroedinger.engr.sgi.com>
+References: <20051025193023.6828.89649.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [PATCH 4/5] Swap Migration V4: MPOL_MF_MOVE interface
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-10-25 at 16:28 +0200, Ingo Molnar wrote:
-> * Steven Rostedt <rostedt@goodmis.org> wrote:
-> 
-> > Hi Ingo and Thomas,
-> > 
-> > On some of my machines, I've been experiencing false NMI lockups.  
-> > This usually happens on slower machines, and taking a look into this, 
-> > it seems to be due to a short time where no processes are using 
-> > timers, and the ktimer interrupts aren't needed. So the APIC timer, 
-> > which now is used only for the ktimers, has a five second pause, and 
-> > causes the NMI to go off.  The NMI uses the apic timer to determine 
-> > lockups.
-> 
-> this would be a bug - the jiffy tick should be processed every 1 msec, 
-> regardless of whether there are any ktimers pending. (in the future we 
-> want to use a special ktimer for the jiffy tick, but that's not 
-> implemented yet.)
-> 
+Add page migration support via swap to the NUMA policy layer
 
-Isn't the jiffy tick implemented with the PIT when possible? So the apic
-is only used when a timer is needed.  Also note that this "lockup"
-happens on boot up while things are being initialized, so not many
-things may be using the timer.
+This patch adds page migration support to the NUMA policy layer. An additional
+flag MPOL_MF_MOVE is introduced for mbind. If MPOL_MF_MOVE is specified then
+pages that do not conform to the memory policy will be evicted from memory.
+When they get pages back in new pages will be allocated following the numa policy.
 
-Also, the machine doesn't lock up.  It continues happily along at normal
-speed.  It's only a 366 MHz machine.
+Changes V3->V4
+- migrate_page_add: Do pagelist processing directly instead
+  of doing it via isolate_lru_page().
+- Use the migrate_pages() to evict the pages.
 
-At my customer's site (which I'm no longer at), my test machine (2GHz)
-never showed this, but an equal machine that my customer had showed this
-on every boot up.  The only difference between the two machines was the
-other one had a 1GHz processor. These were both running on modified -rt
-kernels.
+Changes V2->V3
+- Add check to not migrate pages shared with other processes (but allow
+  migration of memory shared between threads having a common mm_struct)
+- MPOL_MF_MOVE_ALL to override and move even pages shared with other
+  processes. This only works if the process issuing this call has
+  CAP_SYS_RESOURCE because this enables the moving of pages owned
+  by other processes.
+- MPOL_MF_DISCONTIG_OK (internal use only) to not check for continuous VMAs.
+  Enable MPOL_MF_DISCONTIG_OK if policy to be set is NULL (default policy).
 
+Changes V1->V2
+- Add vma_migratable() function for future enhancements.
+- No side effects on WARN_ON
+- Remove move_pages for now
+- Make patch fit 2.6.14-rc4-mm1
 
-> > So, I added a more generic method. This only works for x86 for now, 
-> > but it has a #ifdef to keep other archs working until it implements 
-> > this as well.  I added a nmi_irq_incr which is called by __do_IRQ in 
-> > the generic code.  This is what is used in the NMI code to determine 
-> > if the CPU has locked up.  This way we don't have to worry about what 
-> > resource we are using for timers.
-> 
-> this will be useful for tickless stuff - but right now 'no APIC timer 
-> irq for 5 seconds' is a 'must not happen'.
-> 
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-I added the following patch:
-
-Index: rt_linux_ernie/arch/i386/kernel/nmi.c
+Index: linux-2.6.14-rc5-mm1/mm/mempolicy.c
 ===================================================================
---- rt_linux_ernie.orig/arch/i386/kernel/nmi.c	2005-10-25 12:58:18.000000000 -0400
-+++ rt_linux_ernie/arch/i386/kernel/nmi.c	2005-10-25 14:52:38.000000000 -0400
-@@ -538,6 +538,8 @@
- 		 * wait a few IRQs (5 seconds) before doing the oops ...
- 		 */
- 		alert_counter[cpu]++;
-+		if (alert_counter[cpu] && !(alert_counter[cpu] % (nmi_hz)))
-+			early_printk("nmi: jiffies=%ld\n",jiffies);
- 		if (alert_counter[cpu] && !(alert_counter[cpu] % (5*nmi_hz))) {
- 			int i;
+--- linux-2.6.14-rc5-mm1.orig/mm/mempolicy.c	2005-10-24 10:27:13.000000000 -0700
++++ linux-2.6.14-rc5-mm1/mm/mempolicy.c	2005-10-25 09:09:54.000000000 -0700
+@@ -83,9 +83,13 @@
+ #include <linux/init.h>
+ #include <linux/compat.h>
+ #include <linux/mempolicy.h>
++#include <linux/swap.h>
+ #include <asm/tlbflush.h>
+ #include <asm/uaccess.h>
  
-
-And this is my output:
-
-Adding 554200k swap on /dev/hda5.  Priority:-1 extents:1 across:554200k
-EXT3 FS on hda1, internal journal
-nmi: jiffies=-289143
-nmi: jiffies=-272171
-nmi: jiffies=-270269
-nmi: jiffies=-268754
-nmi: jiffies=-267630
-NMI watchdog detected lockup on CPU#0 (50000/50000)
-
->>>> my comments
-
-The above shows that the jiffies are incrementing. So what reason would
-the apic timer be going off?  Also, this is just a UP machine.
-
-<<<< end my comments
-
-Pid: 1378, comm:                uname
-EIP: 0060:[<c01f5592>] CPU: 0
-EIP is at clear_user+0x32/0x50
- EFLAGS: 00010202    Not tainted  (2.6.14-rc5-rt6)
-EAX: 00000000 EBX: 00000000 ECX: 0000009c EDX: 00000000
-ESI: fffffff2 EDI: b7f10d90 EBP: cf055e28 DS: 007b ES: 007b
-CR0: 8005003b CR2: b7f10750 CR3: 0f7d8000 CR4: 00000690
- [<c01010ba>] show_regs+0x14a/0x174 (36)
- [<c010ff13>] nmi_watchdog_tick+0x1a3/0x230 (56)
- [<c0104b2b>] default_do_nmi+0x6b/0x160 (52)
- [<c0104c5a>] do_nmi+0x2a/0x30 (20)
- [<c0103a46>] nmi_stack_correct+0x1d/0x22 (68)
- [<c018e813>] padzero+0x33/0x40 (16)
- [<c018eecd>] load_elf_interp+0x22d/0x2e0 (72)
- [<c018fca5>] load_elf_binary+0xb85/0xd30 (188)
- [<c016d70a>] search_binary_handler+0xaa/0x2b0 (44)
- [<c016da99>] do_execve+0x189/0x230 (36)
- [<c0101a92>] sys_execve+0x42/0xa0 (40)
- [<c0102f01>] syscall_call+0x7/0xb (-8116)
-NMI Watchdog detected LOCKUP on CPU0, eip c01f5592, registers:
-Modules linked in:
-CPU:    0
-EIP:    0060:[<c01f5592>]    Not tainted VLI
-EFLAGS: 00010202   (2.6.14-rc5-rt6)
-EIP is at clear_user+0x32/0x50
-eax: 00000000   ebx: 00000000   ecx: 0000009c   edx: 00000000
-esi: fffffff2   edi: b7f10d90   ebp: cf055e28   esp: cf055e20
-ds: 007b   es: 007b   ss: 0068   preempt: 00000001
-Process uname (pid: 1378, threadinfo=cf054000 task=cfed9150 stack_left=7660 wor)Stack: cfc25120 cfc25594 cf055e38 c018e813 b7f10750 000008b0 cf055e80 c018eecd
-       b7f10750 b7f0fcc0 cfc25080 00000003 00000812 00015cc0 cfc25060 b7efa000
-       00000001 b7f107f8 00000006 cfc25088 b7f10750 cfc25560 0804b2ec cec5d720
-Call Trace:
- [<c0103d3b>] show_stack+0xab/0xf0 (28)
- [<c0103f1a>] show_registers+0x17a/0x230 (56)
- [<c0104a6e>] die_nmi+0x9e/0xf0 (52)
- [<c010ff37>] nmi_watchdog_tick+0x1c7/0x230 (56)
- [<c0104b2b>] default_do_nmi+0x6b/0x160 (52)
- [<c0104c5a>] do_nmi+0x2a/0x30 (20)
- [<c0103a46>] nmi_stack_correct+0x1d/0x22 (68)
- [<c018e813>] padzero+0x33/0x40 (16)
- [<c018eecd>] load_elf_interp+0x22d/0x2e0 (72)
- [<c018fca5>] load_elf_binary+0xb85/0xd30 (188)
- [<c016d70a>] search_binary_handler+0xaa/0x2b0 (44)
- [<c016da99>] do_execve+0x189/0x230 (36)
- [<c0101a92>] sys_execve+0x42/0xa0 (40)
- [<c0102f01>] syscall_call+0x7/0xb (-8116)
-Code: 7c 24 04 8b 7d 08 89 1c 24 8b 4d 0c a1 48 e4 33 c0 89 fb 01 cb 19 d2 39 5
-console shuts up ...
-
--- Steve
-
-
++/* Internal MPOL_MF_xxx flags */
++#define MPOL_MF_DISCONTIG_OK (1<<20)	/* Skip checks for continuous vmas */
++
+ static kmem_cache_t *policy_cache;
+ static kmem_cache_t *sn_cache;
+ 
+@@ -179,9 +183,62 @@ static struct mempolicy *mpol_new(int mo
+ 	return policy;
+ }
+ 
++/* Check if we are the only process mapping the page in question */
++static inline int single_mm_mapping(struct mm_struct *mm,
++			struct address_space *mapping)
++{
++	struct vm_area_struct *vma;
++	struct prio_tree_iter iter;
++	int rc = 1;
++
++	spin_lock(&mapping->i_mmap_lock);
++	vma_prio_tree_foreach(vma, &iter, &mapping->i_mmap, 0, ULONG_MAX)
++		if (mm != vma->vm_mm) {
++			rc = 0;
++			goto out;
++		}
++	list_for_each_entry(vma, &mapping->i_mmap_nonlinear, shared.vm_set.list)
++		if (mm != vma->vm_mm) {
++			rc = 0;
++			goto out;
++		}
++out:
++	spin_unlock(&mapping->i_mmap_lock);
++	return rc;
++}
++
++/*
++ * Add a page to be migrated to the pagelist
++ */
++static void migrate_page_add(struct vm_area_struct *vma,
++	struct page *page, struct list_head *pagelist, unsigned long flags)
++{
++	/*
++	 * Avoid migrating a page that is shared by others and not writable.
++	 */
++	if ((flags & MPOL_MF_MOVE_ALL) ||
++	    PageAnon(page) ||
++	    mapping_writably_mapped(page->mapping) ||
++	    single_mm_mapping(vma->vm_mm, page->mapping)
++	   ) {
++		int rc = isolate_lru_page(page);
++
++		if (rc == 1)
++			list_add(&page->lru, pagelist);
++		/*
++		 * If the isolate attempt was not successful
++		 * then we just encountered an unswappable
++		 * page. Something must be wrong.
++	 	 */
++		WARN_ON(rc == 0);
++	}
++}
++
+ /* Ensure all existing pages follow the policy. */
+ static int check_pte_range(struct vm_area_struct *vma, pmd_t *pmd,
+-		unsigned long addr, unsigned long end, nodemask_t *nodes)
++		unsigned long addr, unsigned long end,
++		nodemask_t *nodes, unsigned long flags,
++		struct list_head *pagelist)
+ {
+ 	pte_t *orig_pte;
+ 	pte_t *pte;
+@@ -200,15 +257,23 @@ static int check_pte_range(struct vm_are
+ 			continue;
+ 		}
+ 		nid = pfn_to_nid(pfn);
+-		if (!node_isset(nid, *nodes))
+-			break;
++		if (!node_isset(nid, *nodes)) {
++			if (pagelist) {
++				struct page *page = pfn_to_page(pfn);
++
++				migrate_page_add(vma, page, pagelist, flags);
++			} else
++				break;
++		}
+ 	} while (pte++, addr += PAGE_SIZE, addr != end);
+ 	pte_unmap_unlock(orig_pte, ptl);
+ 	return addr != end;
+ }
+ 
+ static inline int check_pmd_range(struct vm_area_struct *vma, pud_t *pud,
+-		unsigned long addr, unsigned long end, nodemask_t *nodes)
++		unsigned long addr, unsigned long end,
++		nodemask_t *nodes, unsigned long flags,
++		struct list_head *pagelist)
+ {
+ 	pmd_t *pmd;
+ 	unsigned long next;
+@@ -218,14 +283,17 @@ static inline int check_pmd_range(struct
+ 		next = pmd_addr_end(addr, end);
+ 		if (pmd_none_or_clear_bad(pmd))
+ 			continue;
+-		if (check_pte_range(vma, pmd, addr, next, nodes))
++		if (check_pte_range(vma, pmd, addr, next, nodes,
++				    flags, pagelist))
+ 			return -EIO;
+ 	} while (pmd++, addr = next, addr != end);
+ 	return 0;
+ }
+ 
+ static inline int check_pud_range(struct vm_area_struct *vma, pgd_t *pgd,
+-		unsigned long addr, unsigned long end, nodemask_t *nodes)
++		unsigned long addr, unsigned long end,
++		nodemask_t *nodes, unsigned long flags,
++		struct list_head *pagelist)
+ {
+ 	pud_t *pud;
+ 	unsigned long next;
+@@ -235,14 +303,17 @@ static inline int check_pud_range(struct
+ 		next = pud_addr_end(addr, end);
+ 		if (pud_none_or_clear_bad(pud))
+ 			continue;
+-		if (check_pmd_range(vma, pud, addr, next, nodes))
++		if (check_pmd_range(vma, pud, addr, next, nodes,
++				    flags, pagelist))
+ 			return -EIO;
+ 	} while (pud++, addr = next, addr != end);
+ 	return 0;
+ }
+ 
+ static inline int check_pgd_range(struct vm_area_struct *vma,
+-		unsigned long addr, unsigned long end, nodemask_t *nodes)
++		unsigned long addr, unsigned long end,
++		nodemask_t *nodes, unsigned long flags,
++		struct list_head *pagelist)
+ {
+ 	pgd_t *pgd;
+ 	unsigned long next;
+@@ -252,16 +323,35 @@ static inline int check_pgd_range(struct
+ 		next = pgd_addr_end(addr, end);
+ 		if (pgd_none_or_clear_bad(pgd))
+ 			continue;
+-		if (check_pud_range(vma, pgd, addr, next, nodes))
++		if (check_pud_range(vma, pgd, addr, next, nodes,
++				    flags, pagelist))
+ 			return -EIO;
+ 	} while (pgd++, addr = next, addr != end);
+ 	return 0;
+ }
+ 
+-/* Step 1: check the range */
++/* Check if a vma is migratable */
++static inline int vma_migratable(struct vm_area_struct *vma)
++{
++	if (vma->vm_flags & (
++			VM_LOCKED |
++			VM_IO |
++			VM_RESERVED |
++			VM_DENYWRITE |
++			VM_SHM
++	   ))
++		return 0;
++	return 1;
++}
++
++/*
++ * Check if all pages in a range are on a set of nodes.
++ * If pagelist != NULL then isolate pages from the LRU and
++ * put them on the pagelist.
++ */
+ static struct vm_area_struct *
+ check_range(struct mm_struct *mm, unsigned long start, unsigned long end,
+-	    nodemask_t *nodes, unsigned long flags)
++	    nodemask_t *nodes, unsigned long flags, struct list_head *pagelist)
+ {
+ 	int err;
+ 	struct vm_area_struct *first, *vma, *prev;
+@@ -273,17 +363,24 @@ check_range(struct mm_struct *mm, unsign
+ 		return ERR_PTR(-EACCES);
+ 	prev = NULL;
+ 	for (vma = first; vma && vma->vm_start < end; vma = vma->vm_next) {
+-		if (!vma->vm_next && vma->vm_end < end)
+-			return ERR_PTR(-EFAULT);
+-		if (prev && prev->vm_end < vma->vm_start)
+-			return ERR_PTR(-EFAULT);
+-		if ((flags & MPOL_MF_STRICT) && !is_vm_hugetlb_page(vma)) {
++		if (!(flags & MPOL_MF_DISCONTIG_OK)) {
++			if (!vma->vm_next && vma->vm_end < end)
++				return ERR_PTR(-EFAULT);
++			if (prev && prev->vm_end < vma->vm_start)
++				return ERR_PTR(-EFAULT);
++		}
++		if (!is_vm_hugetlb_page(vma) &&
++		    ((flags & MPOL_MF_STRICT) ||
++		     ((flags & (MPOL_MF_MOVE | MPOL_MF_MOVE_ALL)) &&
++		      vma_migratable(vma)
++		   ))) {
+ 			unsigned long endvma = vma->vm_end;
+ 			if (endvma > end)
+ 				endvma = end;
+ 			if (vma->vm_start > start)
+ 				start = vma->vm_start;
+-			err = check_pgd_range(vma, start, endvma, nodes);
++			err = check_pgd_range(vma, start, endvma, nodes,
++						flags, pagelist);
+ 			if (err) {
+ 				first = ERR_PTR(err);
+ 				break;
+@@ -357,33 +454,59 @@ long do_mbind(unsigned long start, unsig
+ 	struct mempolicy *new;
+ 	unsigned long end;
+ 	int err;
++	LIST_HEAD(pagelist);
+ 
+-	if ((flags & ~(unsigned long)(MPOL_MF_STRICT)) || mode > MPOL_MAX)
++	if ((flags & ~(unsigned long)(MPOL_MF_STRICT | MPOL_MF_MOVE | MPOL_MF_MOVE_ALL))
++	    || mode > MPOL_MAX)
+ 		return -EINVAL;
++	if ((flags & MPOL_MF_MOVE_ALL) && !capable(CAP_SYS_RESOURCE))
++		return -EPERM;
++
+ 	if (start & ~PAGE_MASK)
+ 		return -EINVAL;
++
+ 	if (mode == MPOL_DEFAULT)
+ 		flags &= ~MPOL_MF_STRICT;
++
+ 	len = (len + PAGE_SIZE - 1) & PAGE_MASK;
+ 	end = start + len;
++
+ 	if (end < start)
+ 		return -EINVAL;
+ 	if (end == start)
+ 		return 0;
++
+ 	if (mpol_check_policy(mode, nmask))
+ 		return -EINVAL;
++
+ 	new = mpol_new(mode, nmask);
+ 	if (IS_ERR(new))
+ 		return PTR_ERR(new);
+ 
++	/*
++	 * If we are using the default policy then operation
++	 * on discontinuous address spaces is okay after all
++	 */
++	if (!new)
++		flags |= MPOL_MF_DISCONTIG_OK;
++
+ 	PDprintk("mbind %lx-%lx mode:%ld nodes:%lx\n",start,start+len,
+ 			mode,nodes_addr(nodes)[0]);
+ 
+ 	down_write(&mm->mmap_sem);
+-	vma = check_range(mm, start, end, nmask, flags);
++	vma = check_range(mm, start, end, nmask, flags,
++	      (flags & (MPOL_MF_MOVE | MPOL_MF_MOVE_ALL)) ? &pagelist : NULL);
+ 	err = PTR_ERR(vma);
+-	if (!IS_ERR(vma))
++	if (!IS_ERR(vma)) {
+ 		err = mbind_range(vma, start, end, new);
++		if (!list_empty(&pagelist))
++			migrate_pages(&pagelist, NULL);
++		if (!err  && !list_empty(&pagelist) && (flags & MPOL_MF_STRICT))
++				err = -EIO;
++	}
++	if (!list_empty(&pagelist))
++		putback_lru_pages(&pagelist);
++
+ 	up_write(&mm->mmap_sem);
+ 	mpol_free(new);
+ 	return err;
+Index: linux-2.6.14-rc5-mm1/include/linux/mempolicy.h
+===================================================================
+--- linux-2.6.14-rc5-mm1.orig/include/linux/mempolicy.h	2005-10-24 10:27:12.000000000 -0700
++++ linux-2.6.14-rc5-mm1/include/linux/mempolicy.h	2005-10-25 09:09:34.000000000 -0700
+@@ -22,6 +22,8 @@
+ 
+ /* Flags for mbind */
+ #define MPOL_MF_STRICT	(1<<0)	/* Verify existing pages in the mapping */
++#define MPOL_MF_MOVE	(1<<1)	/* Move pages owned by this process to conform to mapping */
++#define MPOL_MF_MOVE_ALL (1<<2)	/* Move every page to conform to mapping */
+ 
+ #ifdef __KERNEL__
+ 

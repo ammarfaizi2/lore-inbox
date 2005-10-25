@@ -1,44 +1,216 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932384AbVJYVOA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbVJYVRd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932384AbVJYVOA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 17:14:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbVJYVOA
+	id S932385AbVJYVRd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 17:17:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbVJYVRd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 17:14:00 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:44420 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S932384AbVJYVOA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 17:14:00 -0400
-Date: Wed, 26 Oct 2005 01:13:30 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+	Tue, 25 Oct 2005 17:17:33 -0400
+Received: from smtp-102-tuesday.noc.nerim.net ([62.4.17.102]:28681 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932385AbVJYVRc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 17:17:32 -0400
+Date: Tue, 25 Oct 2005 23:18:30 +0200
+From: Jean Delvare <khali@linux-fr.org>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Darren Salt <linux@youmustbejoking.demon.co.uk>,
-       linux-kernel@vger.kernel.org
+Cc: LKML <linux-kernel@vger.kernel.org>
 Subject: Re: Call for PIIX4 chipset testers
-Message-ID: <20051026011330.A7390@jurassic.park.msu.ru>
-References: <4DBF8B37C1%linux@youmustbejoking.demon.co.uk> <Pine.LNX.4.64.0510251338420.10477@g5.osdl.org>
+Message-Id: <20051025231830.7c379ab3.khali@linux-fr.org>
+In-Reply-To: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
+References: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
+X-Mailer: Sylpheed version 2.0.1 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.64.0510251338420.10477@g5.osdl.org>; from torvalds@osdl.org on Tue, Oct 25, 2005 at 01:45:10PM -0700
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 25, 2005 at 01:45:10PM -0700, Linus Torvalds wrote:
-> So the 0xf9-0xfc thing is strictly not right, and I'll modify my code a 
-> bit (probably to mark 0xf8-0xfb instead, which will be what we'd want to 
-> do for anything in the non-legacy region).
+Hi Linus,
 
-Perhaps
-	base &= ~(size - 1);
-will be OK?
+> It's an old chipset by now, but it was very very common, so I bet people 
+> still have them around. If doing /sbin/lspci on your machine mentions 
+> something like
+> 
+> 	Intel Corporation 82371AB/EB/MB PIIX4 ISA
+> 
+> can you please test out this patch and report what it says in dmesg?
+> 
+> It should report a number of quirks, and the easiest way to get them all 
+> is to just do
+> 
+> 	dmesg -s 1000000 | grep PIIX4
+> 
+> and send it to me (and you might as well cc linux-kernel too in this 
+> thread, so that we'll get the thing archived for later). Preferably 
+> together with the output of "cat /proc/ioport" and "/sbin/lspci -xxx".
 
-WRT 0x15e8 thing - include/sound/ad1848.h says:
+Here you go. This is a good old Asus TX97-E motherboard. For what it's
+worth, the device at 0x290-0x297 is a National Semiconductor LM78
+hardware monitoring chip.
 
-/* IBM Thinkpad specific stuff */
-#define AD1848_THINKPAD_CTL_PORT1		0x15e8
-#define AD1848_THINKPAD_CTL_PORT2		0x15e9
-#define AD1848_THINKPAD_CS4248_ENABLE_BIT	0x02
+# dmesg -s 1000000 | grep PIIX4
 
-Ivan.
+PCI quirk: region e400-e43f claimed by PIIX4 ACPI
+PCI quirk: region e800-e81f claimed by PIIX4 SMB
+PIIX4 devres B PIO at 0290-0297
+PIIX4: IDE controller at PCI slot 0000:00:01.1
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+
+# cat /proc/ioports
+
+0000-001f : dma1
+0020-0021 : pic1
+0040-0043 : timer0
+0050-0053 : timer1
+0060-006f : keyboard
+0070-0077 : rtc
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+01f0-01f7 : ide0
+03c0-03df : vga+
+  03c0-03df : matrox
+03f6-03f6 : ide0
+0cf8-0cff : PCI conf1
+d400-d4ff : 0000:00:09.0
+  d400-d4ff : 8139too
+d800-d81f : 0000:00:01.2
+e000-e00f : 0000:00:01.1
+  e000-e007 : ide0
+  e008-e00f : ide1
+e400-e43f : 0000:00:01.3
+e800-e81f : 0000:00:01.3
+
+# /sbin/lspci -xxx
+
+00:00.0 Host bridge: Intel Corporation 430TX - 82439TX MTXC (rev 01)
+00: 86 80 00 71 06 00 00 22 01 00 00 06 00 20 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 08 00 81 14 08 00 10 01 29 10 55 00 00 00 11 11
+60: 08 08 10 10 10 10 00 84 05 03 00 00 00 00 00 00
+70: 20 00 0a 00 0e 00 00 00 23 12 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 20 0f 00 00 00 20 00 00
+
+00:01.0 ISA bridge: Intel Corporation 82371AB/EB/MB PIIX4 ISA (rev 01)
+00: 86 80 10 71 0f 00 80 02 01 00 01 06 00 00 80 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 09 00 23 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 0b 80 80 0a 10 00 00 00 00 f2 00 00 00 00 00 00
+70: 00 00 00 00 00 00 0c 0c 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 21 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
+
+00:01.1 IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 01)
+00: 86 80 11 71 05 00 80 02 01 80 01 01 00 30 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 01 e0 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 07 a3 00 80 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
+
+00:01.2 USB Controller: Intel Corporation 82371AB/EB/MB PIIX4 USB (rev 01)
+00: 86 80 12 71 05 00 80 02 01 00 03 0c 00 30 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 01 d8 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 ff 04 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
+
+00:01.3 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ACPI (rev 01)
+00: 86 80 13 71 03 00 80 02 01 00 80 06 00 00 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 01 e4 00 00 00 00 00 20 1e 30 00 01 00 00 00 00
+50: 00 58 09 00 c0 c8 3b 02 04 40 40 03 00 00 00 00
+60: 90 02 e7 00 00 00 00 10 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 01 e8 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
+
+00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
+00: ec 10 39 81 07 00 90 02 10 00 00 02 00 30 00 00
+10: 01 d4 00 00 00 00 00 e6 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 ec 10 39 81
+30: 00 00 00 00 50 00 00 00 00 00 00 00 0a 01 20 40
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 01 00 02 76 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:0c.0 VGA compatible controller: Matrox Graphics, Inc. MGA 2064W [Millennium] (rev 01)
+00: 2b 10 19 05 83 00 80 02 01 00 00 03 00 00 00 00
+10: 00 00 80 e5 08 00 00 e7 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 0b 01 00 00
+40: 00 01 2c 5f 00 3c 00 00 2a 00 ff 2a 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+Hope that helps. Anything else you need, just ask.
+
+-- 
+Jean Delvare

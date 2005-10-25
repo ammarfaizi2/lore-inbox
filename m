@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751349AbVJYAi3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751402AbVJYAau@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751349AbVJYAi3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 20:38:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbVJYAi3
+	id S1751402AbVJYAau (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 20:30:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbVJYAau
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 20:38:29 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:4087 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S1751349AbVJYAi2
+	Mon, 24 Oct 2005 20:30:50 -0400
+Received: from xproxy.gmail.com ([66.249.82.197]:22475 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751402AbVJYAat convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 20:38:28 -0400
-Message-ID: <435D7E7F.6020608@mvista.com>
-Date: Mon, 24 Oct 2005 17:38:23 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
-X-Accept-Language: en-us, en
+	Mon, 24 Oct 2005 20:30:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=sUmyKDOMuWoz1eCA2lkn8cAvBVYZjNOVRKoX/xelGzMKUEZCVcUaUkhtyNw8YYdTXeTG77+mTVRrqfN/GbCjUdzZ4+8U15Jsw2PAfE1fn3OgMxNO7ODX4Iv8IhVZWt1C4mQZPsn0n1uaj0oFAPajV3+pRRJGwm0Z+qy9feltGQ8=
+Message-ID: <1e62d1370510241730lb77ba2s297e68db63696ad@mail.gmail.com>
+Date: Tue, 25 Oct 2005 05:30:48 +0500
+From: Fawad Lateef <fawadlateef@gmail.com>
+To: Claire McLister <mclister@zeesource.net>
+Subject: Re: Map of Linux Kernel Users (OT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <dfd859813ee9f143cbb8c4cc3c73aa2c@zeesource.net>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       robustmutexes@lists.osdl.org
-Subject: Re: [PATCH] 2.6.14-rc5 fails to build with out CONFIG_FUTEX
-References: <435D6F50.1000403@mvista.com> <20051024165452.3a809632.akpm@osdl.org>
-In-Reply-To: <20051024165452.3a809632.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <dfd859813ee9f143cbb8c4cc3c73aa2c@zeesource.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> George Anzinger <george@mvista.com> wrote:
-> 
->>Both kernel/exit.c and fs/dcache.c refer to functions in kernel/futex.c which is not built unless 
->>CONFIG_FUTEX is true.  This causes a build failure at link time:
->>   LD      vmlinux
->>kernel/built-in.o(.text+0xab58): In function `do_exit':
->>/usr/src/linux-2.6.14-rc/kernel/exit.c:851: undefined reference to `exit_futex'
->>fs/built-in.o(.text+0x1b2bf): In function `dput':
->>/usr/src/linux-2.6.14-rc/fs/dcache.c:165: undefined reference to `futex_free_robust_list'
-> 
-> 
-> This problem is specific to the robust-futexes patch.
+On 10/25/05, Claire McLister <mclister@zeesource.net> wrote:
+> Hi,
+>
+>   We've developed an automatic email mapping capability from Google Maps
+> API.
+>
+>   To try it out, we mapped origins of emails to this group from October
+> 2 through October 10th.
+>
+> The result of this map is at:
+> http://www.zeesource.net/maps/map.do?group=478
+>
+>   Would like to hear what you think of it.
+>
 
-And that appears to be in rc5, right?
+Interesting, Its looking useful to get to know what are the origins of
+emails coming to linux-kernel !
 
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+
+--
+Fawad Lateef

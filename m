@@ -1,87 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbVJYTa6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932322AbVJYTbl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932318AbVJYTa6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 15:30:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932319AbVJYTa6
+	id S932322AbVJYTbl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 15:31:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbVJYTba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 15:30:58 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:1188 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932318AbVJYTa5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 15:30:57 -0400
-Date: Tue, 25 Oct 2005 12:30:33 -0700 (PDT)
+	Tue, 25 Oct 2005 15:31:30 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:9118 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932321AbVJYTbE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 15:31:04 -0400
+Date: Tue, 25 Oct 2005 12:30:23 -0700 (PDT)
 From: Christoph Lameter <clameter@sgi.com>
 To: akpm@osdl.org
 Cc: Mike Kravetz <kravetz@us.ibm.com>, Ray Bryant <raybry@mpdtxmail.amd.com>,
-       Dave Hansen <haveblue@us.ibm.com>,
+       linux-kernel@vger.kernel.org,
        Lee Schermerhorn <lee.schermerhorn@hp.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Dave Hansen <haveblue@us.ibm.com>, linux-mm@kvack.org,
        Christoph Lameter <clameter@sgi.com>,
        Magnus Damm <magnus.damm@gmail.com>, Paul Jackson <pj@sgi.com>,
        Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
        KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Message-Id: <20051025193033.6828.20750.sendpatchset@schroedinger.engr.sgi.com>
-In-Reply-To: <20051025193023.6828.89649.sendpatchset@schroedinger.engr.sgi.com>
-References: <20051025193023.6828.89649.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 2/5] Swap Migration V4: PF_SWAPWRITE to allow writing to swap
+Message-Id: <20051025193023.6828.89649.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [PATCH 0/5] Swap Migration V4: Overview
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add PF_SWAPWRITE to control a processes permission to write to swap.
+This is a patchset intended to introduce page migration into the kernel
+through a simple implementation of swap based page migration.
+The aim is to be minimally intrusive in order to have some hopes for inclusion
+into 2.6.15. A separate direct page migration patch is being developed that
+applies on top of this patch. The direct migration patch is being discussed on
+<lhms-devel@lists.sourceforge.net>.
 
-- Use PF_SWAPWRITE in may_write_to_queue() instead of checking for kswapd
-  and pdflush
+Much of the code is based on code that the memory hotplug project and Ray Bryant
+have been working on for a long time. See http://sourceforge.net/projects/lhms/
 
-- Set PF_SWAPWRITE flag for kswapd and pdflush
+Changes from V3 to V4:
+- patch against 2.6.14-rc5-mm1.
+- Correctly gather pages in migrate_add_page()
+- Restructure swapout code for easy later application of the direct migration
+  patches. Rename swapout() to migrate_pages().
+- Add PF_SWAPWRITE support to allow write to swap from a process. Save
+  and restore earlier state to allow nesting of the use of PF_SWAPWRITE.
+- Fix sys_migrate_pages permission check (thanks Ray).
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+Changes from V2 to V3:
+- Break out common code for page eviction (Thanks to a patch by Magnus Damm)
+- Add check to avoid MPOL_MF_MOVE moving pages that are also accessed from
+  another address space. Add support for MPOL_MF_MOVE_ALL to override this
+  (requires superuser priviledges).
+- Update overview regarding direct page migration patchset following soon and
+  cut longwinded explanations.
+- Add sys_migrate patchset
+- Check cpuset restrictions on sys_migrate.
 
-Index: linux-2.6.14-rc5-mm1/include/linux/sched.h
-===================================================================
---- linux-2.6.14-rc5-mm1.orig/include/linux/sched.h	2005-10-24 10:27:29.000000000 -0700
-+++ linux-2.6.14-rc5-mm1/include/linux/sched.h	2005-10-25 11:07:11.000000000 -0700
-@@ -914,6 +914,7 @@ do { if (atomic_dec_and_test(&(tsk)->usa
- #define PF_SYNCWRITE	0x00200000	/* I am doing a sync write */
- #define PF_BORROWED_MM	0x00400000	/* I am a kthread doing use_mm */
- #define PF_RANDOMIZE	0x00800000	/* randomize virtual address space */
-+#define PF_SWAPWRITE	0x01000000	/* the process is allowed to write to swap */
- 
- /*
-  * Only the _current_ task can read/write to tsk->flags, but other
-Index: linux-2.6.14-rc5-mm1/mm/vmscan.c
-===================================================================
---- linux-2.6.14-rc5-mm1.orig/mm/vmscan.c	2005-10-25 08:09:52.000000000 -0700
-+++ linux-2.6.14-rc5-mm1/mm/vmscan.c	2005-10-25 11:07:11.000000000 -0700
-@@ -263,9 +263,7 @@ static inline int is_page_cache_freeable
- 
- static int may_write_to_queue(struct backing_dev_info *bdi)
- {
--	if (current_is_kswapd())
--		return 1;
--	if (current_is_pdflush())	/* This is unlikely, but why not... */
-+	if (current->flags & PF_SWAPWRITE)
- 		return 1;
- 	if (!bdi_write_congested(bdi))
- 		return 1;
-@@ -1279,7 +1277,7 @@ static int kswapd(void *p)
- 	 * us from recursively trying to free more memory as we're
- 	 * trying to free the first piece of memory in the first place).
- 	 */
--	tsk->flags |= PF_MEMALLOC|PF_KSWAPD;
-+	tsk->flags |= PF_MEMALLOC | PF_SWAPWRITE | PF_KSWAPD;
- 
- 	order = 0;
- 	for ( ; ; ) {
-Index: linux-2.6.14-rc5-mm1/mm/pdflush.c
-===================================================================
---- linux-2.6.14-rc5-mm1.orig/mm/pdflush.c	2005-10-24 10:27:21.000000000 -0700
-+++ linux-2.6.14-rc5-mm1/mm/pdflush.c	2005-10-25 11:07:11.000000000 -0700
-@@ -90,7 +90,7 @@ struct pdflush_work {
- 
- static int __pdflush(struct pdflush_work *my_work)
- {
--	current->flags |= PF_FLUSHER;
-+	current->flags |= PF_FLUSHER | PF_SWAPWRITE;
- 	my_work->fn = NULL;
- 	my_work->who = current;
- 	INIT_LIST_HEAD(&my_work->list);
+Changes from V1 to V2:
+- Patch against 2.6.14-rc4-mm1
+- Remove move_pages() function
+- Code cleanup to make it less invasive.
+- Fix missing lru_add_drain() invocation from isolate_lru_page()
+
+In a NUMA system it is often beneficial to be able to move the memory
+in use by a process to different nodes in order to enhance performance.
+Currently Linux simply does not support this facility. This patchset
+implements page migration via a new syscall sys_migrate_pages and via
+the memory policy layer with the MPOL_MF_MOVE and MPOL_MF_MOVE_ALL
+flags.
+
+Page migration is also useful for other purposes:
+
+1. Memory hotplug. Migrating processes off a memory node that is going
+   to be disconnected.
+
+2. Remapping of bad pages. These could be detected through soft ECC errors
+   and other mechanisms.
+
+migrate_pages() can only migrate pages under certain conditions. These other
+uses may require additional measures to ensure that pages are migratable. The
+hotplug project f.e. restricts allocations to removable memory.
+
+
+The patchset consists of five patches:
+
+1. LRU operations
+
+Add basic operations to remove pages from the LRU lists and return
+them back to it.
+
+2. PF_WRITESWAP
+
+Allow a process to set PF_WRITESWAP in its flags in order to be allowed
+to write pages to swap space.
+
+3. migrate_pages() implementation
+
+Adds a function to mm/vmscan.c called migrate_pages(). The functionality
+of that function is restricted to swapping out pages. An additional patch
+is necessary for direct page migration.
+
+4. MPOL_MF_MOVE flag for memory policies.
+
+This implements MPOL_MF_MOVE in addition to MPOL_MF_STRICT. MPOL_MF_STRICT
+allows the checking if all pages in a memory area obey the memory policies.
+MPOL_MF_MOVE will migrate all pages that do not conform to the memory policy.
+If pages are evicted then the system will allocate pages conforming to the
+policy on swap in.
+
+5. sys_migrate_pages system call and cpuset API
+
+Adds a new function call
+
+sys_migrate_pages(pid, maxnode, from_nodes, to_nodes)
+
+to migrate pages of a process to a different node and also a function
+for the use of the migration mechanism in cpusets
+
+do_migrate_pages(struct mm_struct *, from_nodes, to_nodes, move_flags).
+
+=====
+
+URLs referring to the discussion regarding the initial version of these
+patches.
+
+Page eviction: http://marc.theaimsgroup.com/?l=linux-mm&m=112922756730989&w=2
+Numa policy  : http://marc.theaimsgroup.com/?l=linux-mm&m=112922756724715&w=2
+
+Discussion of V2 of the patchset:
+http://marc.theaimsgroup.com/?t=112959680300007&r=1&w=2
+
+Discussion of V3:
+http://marc.theaimsgroup.com/?t=112984939600003&r=1&w=2

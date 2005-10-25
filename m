@@ -1,99 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932357AbVJYUfS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbVJYUjX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932357AbVJYUfS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 16:35:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932358AbVJYUfS
+	id S932364AbVJYUjX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 16:39:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932362AbVJYUjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 16:35:18 -0400
-Received: from xproxy.gmail.com ([66.249.82.200]:48912 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932357AbVJYUfQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 16:35:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type;
-        b=FdRZhxR8UZmtFwqhfqo7r/kts12tV6h7NTdgy4Fz2o144tNd0yxCOf9gxmFc7v7sqCYqDdQ7Zab3mPMuI/GO+jFTmyHt+bAzIOUemYKuH2IJlgjasHgsIBRLVVZ1ufJ9vFWrS8i946btsV7wiQ/1lF1kwDvo5v8Tbh1WAdsDLLE=
-Message-ID: <5a4c581d0510251335ke8e7ae6n883e0b44a9920ce4@mail.gmail.com>
-Date: Tue, 25 Oct 2005 22:35:15 +0200
-From: Alessandro Suardi <alessandro.suardi@gmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: X unkillable in R state sometimes on startx , /proc/sysrq-trigger T output attached
+	Tue, 25 Oct 2005 16:39:23 -0400
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:34246 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932361AbVJYUjX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 16:39:23 -0400
+Message-ID: <435E9842.3010604@tmr.com>
+Date: Tue, 25 Oct 2005 16:40:34 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_7608_6198175.1130272515592"
+To: Jesse Brandeburg <jesse.brandeburg@gmail.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       Kernel Netdev Mailing List <netdev@vger.kernel.org>
+Subject: Re: 2.6.14-rc5 e1000 and page allocation failures.. still
+References: <50tDw-1FH-5@gated-at.bofh.it> <435C2D66.6030708@shaw.ca> <4807377b0510241528m6afc3501w9d98d66658a38973@mail.gmail.com>
+In-Reply-To: <4807377b0510241528m6afc3501w9d98d66658a38973@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_7608_6198175.1130272515592
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Jesse Brandeburg wrote:
+> On 10/23/05, Robert Hancock <hancockr@shaw.ca> wrote:
+> 
+>>John Bäckstrand wrote:
+>>
+>>>Im seeing a massive amount of page allocation failures with 2.6.14-rc5,
+>>>and also earlier kernels, see "E1000 - page allocation failure - saga
+> 
+> [snip]
+> 
+>>It looks like you have enough memory free - the problem is that the
+>>driver is allocating a block of memory with order 3, which is 8 pages.
+>>Quite likely there are not enough contiguous free pages to satisfy that.
+>>
+>>That's an awful big buffer size for a packet - I assume you're using
+>>jumbo frames or something? Ideally the driver and hardware should be
+>>able to allocate a buffer for those packets in multiple chunks, but I
+>>have no idea if this is possible.
+> 
+> 
+> the latest e1000 driver (6.2.15) from http://sf.net/projects/e1000
+> fixes this by using multiple descriptors for jumbo frames, therefore
+> only doing order 0 (single page) page allocations.
+> 
+> let us know how it goes.
+> 
+> BTW why is this so much more common with recent kernels?
 
-Happened to me the third time now in the last
- couple of months, always with different Linus
- kernels (plus ACX100 wireless module from
- Denis Vlasenko's snapshots) all hanging off
- an up-to-date FC4, all built with latest stock
- GCC; this last is:
+I don't know why it's more common, but I agree that it seems so. I have 
+speculated that it may be related to 4k stack, but I can't even generate 
+a credible wild-ass guess on that, much less find any evidence, so I 
+doubt that's much if any correlation.
 
-[root@incident ~]# cat /proc/version
-Linux version 2.6.14-rc5-git5 (asuardi@incident) (gcc version 4.0.2)
-#1 PREEMPT Tue Oct 25 14:32:46 CEST 2005
+Getting memory a page at a time is ugly, but it will probably work just 
+fine.
 
-Symptoms: startx at the command prompt gets
- the blank screen, then... nothing. Keyboard is
- dead (CapsLock doesn't get its led lit), no VT
- switching works. Box is still reachable via ssh
- through its wireless network card, all looks OK
- except for X running and piling up CPU time,
- and apparently untraceable (pstack, strace
- hang trying to attach it) and unkillable (kill -9
- doesn't kill it).
-
-I took a couple of SysRQ 't' dumps via the
- /proc/sysrq-trigger facility and the outcome is
- attached - actually it's a full messages log,
- startup to reboot.
-
-Exact sequence this time:
- 1. boot
- 2. insmod 0.3.17 acx driver
- -> notice I can't contact my wireless AP
- 3. rmmod it, insmod 0.3.16 driver
- -> notice I am an idiot, plug in the wireless AP power cord
- 4. rmmod 0.3.16, insmod 0.3.17, iwconfig wlan0 up
- 5. switch to VT2 (Alt-F2), login as non-root, run startx
-<blank screen, dead keyboard>
- 6. ssh in from remote box, take SysRQ dumps, reboot
-
-If anyone has an idea on what to do to try and reproduce
- and/or debug further, that'd be cool.
-
-Box is a Dell Latitude C640 laptop, PIV@1.8Ghz,
- 1GB RAM, with a USR2210 802.11b wireless
- PC Card; video card is a Radeon 7500 M7 LW.
-
-Thanks in advance, ciao,
-
---alessandro
-
- "All it takes is one decision
-  A lot of guts, a little vision to wave
-  Your worries, and cares goodbye"
-
-   (Placebo - "Slave To The Wage")
-
-------=_Part_7608_6198175.1130272515592
-Content-Type: application/x-bzip2; name=messages.bz2
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="messages.bz2"
-
-
-
-
-
-
-
-
-
-------=_Part_7608_6198175.1130272515592--
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,116 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932476AbVJYXai@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932478AbVJYXc2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932476AbVJYXai (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 19:30:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbVJYXai
+	id S932478AbVJYXc2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 19:32:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932479AbVJYXc2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 19:30:38 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:35750 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932476AbVJYXah
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 19:30:37 -0400
-Subject: Re: Notifier chains are unsafe
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Kernel development list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44L0.0510241634410.4448-100000@iolanthe.rowland.org>
-References: <Pine.LNX.4.44L0.0510241634410.4448-100000@iolanthe.rowland.org>
-Content-Type: text/plain
-Organization: IBM
-Date: Tue, 25 Oct 2005 16:30:36 -0700
-Message-Id: <1130283036.3586.148.camel@linuxchandra>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
+	Tue, 25 Oct 2005 19:32:28 -0400
+Received: from mx2.suse.de ([195.135.220.15]:64745 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932478AbVJYXc2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 19:32:28 -0400
+From: Andi Kleen <ak@suse.de>
+To: Blaisorblade <blaisorblade@yahoo.it>
+Subject: Re: [PATCH 4/6] x86_64: fix L1_CACHE_SHIFT_MAX for Intel EM64T [for 2.6.14?]
+Date: Wed, 26 Oct 2005 01:33:03 +0200
+User-Agent: KMail/1.8
+Cc: Andrew Morton <akpm@osdl.org>, Jeff Dike <jdike@addtoit.com>,
+       linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+References: <20051025221105.21106.95194.stgit@zion.home.lan> <200510260024.17241.ak@suse.de> <200510260044.26138.blaisorblade@yahoo.it>
+In-Reply-To: <200510260044.26138.blaisorblade@yahoo.it>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510260133.03425.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-10-24 at 16:48 -0400, Alan Stern wrote:
+On Wednesday 26 October 2005 00:44, Blaisorblade wrote:
 
-Hi Alan,
+> For what I see, that's based on the tradeoff between space and contention -
+> for instance there are few zones only, so there's no big waste.
 
-I agree with your approach of having a notifier_head to have both the
-head of the notifier_list and the corresponding lock (instead of having
-a single global rwlock to protect all notifier lists).
+If space is precious it shouldn't be padded at all.
 
-But, I am confused about the need for three data structures and two next
-pointers. I think we can achieve the same by 2 data structures:
+> In  practice, interpreting !X86_GENERIC as "I will run this kernel on _this_
+> processor" could also be done.
 
-	notifier_head {
-		spinlock_t lock;
-		list_head  head;
-	};
-	notifier_block {
-		int (*notifier_call)(struct notifier_block *self,
-			unsigned long, void *);
-		list_head lists;
-		int priority;
-	};
+That is what it always meant yes.
 
-I think that having multiple data structures make the code hard to
-follow.
+> However, in case you didn't note, max_align is never enough on EM64T
+> currently, right?
 
-No. of register/unregister would be a lot lesser than a
-notifier_call_chain() calls, so IMHO, rwlock would be a better option.	
+I will prepare patches for .15 to remove it completely, that should fix that 
+problem.
 
-<snip>
->  /**
->   *	notifier_call_chain - Call functions in a notifier chain
-> - *	@n: Pointer to root pointer of notifier chain
-> + *	@nh: Pointer to head of the notifier chain
->   *	@val: Value passed unmodified to notifier function
->   *	@v: Pointer passed unmodified to notifier function
->   *
-> @@ -167,20 +194,28 @@ EXPORT_SYMBOL(notifier_chain_unregister)
->   *	of the last notifier function called.
->   */
->   
-> -int notifier_call_chain(struct notifier_block **n, unsigned long val, void *v)
-> +int notifier_call_chain(struct notifier_head *nh, unsigned long val, void *v)
->  {
-> -	int ret=NOTIFY_DONE;
-> -	struct notifier_block *nb = *n;
-> +	int ret = NOTIFY_DONE;
-> +	struct notifier_caller caller;
-> +	struct notifier_block *n;
->  
-> -	while(nb)
-> -	{
-> -		ret=nb->notifier_call(nb,val,v);
-> -		if(ret&NOTIFY_STOP_MASK)
-> -		{
-> -			return ret;
-> -		}
-> -		nb=nb->next;
-> +	spin_lock(&nh->lock);
-> +	caller.next = nh->first;
-> +	list_add(&caller.node, &nh->callers);
-> +
-> +	while (caller.next) {
-> +		n = caller.next;
-> +		caller.next = n->next;
-> +		spin_unlock(&nh->lock);
-> +		ret = n->notifier_call(n, val, v);
-> +		spin_lock(&nh->lock);
-> +		if (ret & NOTIFY_STOP_MASK)
-> +			break;
->  	}
-
-Since the lock is being dropped while calling notifier_call, how are we
-guaranteed caller.next is valid ? It might have been unregistered.
-> +
-> +	list_del(&caller.node);
-> +	spin_unlock(&nh->lock);
->  	return ret;
->  }
->  
-
--- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
-
-
+-Andi

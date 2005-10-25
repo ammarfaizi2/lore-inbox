@@ -1,79 +1,173 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbVJYWF7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932427AbVJYWFd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932442AbVJYWF7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 18:05:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbVJYWFn
+	id S932427AbVJYWFd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 18:05:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932436AbVJYWFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 18:05:43 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:56037 "EHLO ssc.unict.it")
-	by vger.kernel.org with ESMTP id S932425AbVJYWFc (ORCPT
+	Tue, 25 Oct 2005 18:05:33 -0400
+Received: from [151.97.230.9] ([151.97.230.9]:53221 "EHLO ssc.unict.it")
+	by vger.kernel.org with ESMTP id S932427AbVJYWFc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 25 Oct 2005 18:05:32 -0400
 From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 03/11] uml: fix signal code x86-64 [for 2.6.15]
-Date: Wed, 26 Oct 2005 00:01:18 +0200
+Subject: [PATCH 01/11] uml: sigio code - reduce spinlock hold time
+Date: Wed, 26 Oct 2005 00:00:55 +0200
 To: Jeff Dike <jdike@addtoit.com>
 Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Message-Id: <20051025220117.20010.78137.stgit@zion.home.lan>
-In-Reply-To: <20051025220053.20010.56979.stgit@zion.home.lan>
-References: <20051025220053.20010.56979.stgit@zion.home.lan>
+Message-Id: <20051025220053.20010.56979.stgit@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-The problems in this area came to light while fixing a compile failure with
-GCC 4, in commit bcb01b8a67476e6f748086e626df8424cc27036d. I went comparing this
-code with x86_64 frame construction (which we should ABI compatible with) and
-resync'ed the code a bit.
+In a previous patch I shifted an allocation to being atomic.
 
-It isn't yet perfect, because we don't yet save floating point context. But that
-will come later.
+In this patch, a better but more intrusive solution is implemented, i.e. hold
+the lock only when really needing it, especially not over pipe operations, nor
+over the culprit allocation.
 
-Please give a critical eye, even because things currently have no reported
-misbehaviour, and this code is complex enough.
+Additionally, while at it, add a missing kfree in the failure path, and make
+sure that if we fail in forking, write_sigio_pid is -1 and not, say, -ENOMEM.
 
-CC: Andi Kleen <ak@suse.de>
+And fix whitespace, at least for things I was touching anyway.
+
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- arch/um/sys-x86_64/signal.c |   19 ++++++++++++++++---
- 1 files changed, 16 insertions(+), 3 deletions(-)
+ arch/um/kernel/sigio_user.c |   84 ++++++++++++++++++++++++++++++-------------
+ 1 files changed, 59 insertions(+), 25 deletions(-)
 
-diff --git a/arch/um/sys-x86_64/signal.c b/arch/um/sys-x86_64/signal.c
---- a/arch/um/sys-x86_64/signal.c
-+++ b/arch/um/sys-x86_64/signal.c
-@@ -164,6 +164,7 @@ struct rt_sigframe
+diff --git a/arch/um/kernel/sigio_user.c b/arch/um/kernel/sigio_user.c
+--- a/arch/um/kernel/sigio_user.c
++++ b/arch/um/kernel/sigio_user.c
+@@ -336,70 +336,104 @@ int ignore_sigio_fd(int fd)
+ 	return(err);
+ }
  
- #define round_down(m, n) (((m) / (n)) * (n))
+-static int setup_initial_poll(int fd)
++static struct pollfd* setup_initial_poll(int fd)
+ {
+ 	struct pollfd *p;
  
-+/* Taken from arch/x86_64/kernel/signal.c:setup_rt_frame(). */
- int setup_signal_stack_si(unsigned long stack_top, int sig,
- 			  struct k_sigaction *ka, struct pt_regs * regs,
- 			  siginfo_t *info, sigset_t *set)
-@@ -173,9 +174,21 @@ int setup_signal_stack_si(unsigned long 
- 	int err = 0;
- 	struct task_struct *me = current;
+-	p = um_kmalloc_atomic(sizeof(struct pollfd));
+-	if(p == NULL){
++	p = um_kmalloc(sizeof(struct pollfd));
++	if (p == NULL) {
+ 		printk("setup_initial_poll : failed to allocate poll\n");
+-		return(-1);
++		return NULL;
+ 	}
+ 	*p = ((struct pollfd) { .fd  	= fd,
+ 				.events 	= POLLIN,
+ 				.revents 	= 0 });
+-	current_poll = ((struct pollfds) { .poll 	= p,
+-					   .used 	= 1,
+-					   .size 	= 1 });
+-	return(0);
++	return p;
+ }
  
--	frame = (struct rt_sigframe __user *)
--		round_down(stack_top - sizeof(struct rt_sigframe), 16) - 8;
--        frame = (struct rt_sigframe *) ((unsigned long) frame - 128);
-+	/* Leave space on the stack for the Red Zone, and for saving FP
-+	 * registers, even if this doesn't happen. We don't have a way to test
-+	 * used_math(), so we do that inconditionally.
-+	 *
-+	 * XXX: RED-PEN: currently, we're using a Red Zone also for any
-+	 * alternate stack set up by sigaltstack(), which x86-64 doesn't do
-+	 * (because there shouldn't be any code executing there). This could
-+	 * cause failures if user setup a too little alternate stack.*/
+ void write_sigio_workaround(void)
+ {
+ 	unsigned long stack;
++	struct pollfd *p;
+ 	int err;
++	int l_write_sigio_fds[2];
++	int l_sigio_private[2];
++	int l_write_sigio_pid;
+ 
++	/* We call this *tons* of times - and most ones we must just fail. */
+ 	sigio_lock();
+-	if(write_sigio_pid != -1)
+-		goto out;
++	l_write_sigio_pid = write_sigio_pid;
++	sigio_unlock();
 +
-+        fp = (struct rt_sigframe *) round_down(stack_top - 128 -
-+				sizeof(struct _fpstate), 16);
-+
-+	/* Now leave the space for the rest of signal frame. */
-+	frame = (void __user *) round_down((unsigned long) fp -
-+			sizeof(struct rt_sigframe), 16) - 8;
++	if (l_write_sigio_pid != -1)
++		return;
  
- 	if (!access_ok(VERIFY_WRITE, fp, sizeof(struct _fpstate)))
- 		goto out;
+-	err = os_pipe(write_sigio_fds, 1, 1);
++	err = os_pipe(l_write_sigio_fds, 1, 1);
+ 	if(err < 0){
+ 		printk("write_sigio_workaround - os_pipe 1 failed, "
+ 		       "err = %d\n", -err);
+-		goto out;
++		return;
+ 	}
+-	err = os_pipe(sigio_private, 1, 1);
++	err = os_pipe(l_sigio_private, 1, 1);
+ 	if(err < 0){
+-		printk("write_sigio_workaround - os_pipe 2 failed, "
++		printk("write_sigio_workaround - os_pipe 1 failed, "
+ 		       "err = %d\n", -err);
+ 		goto out_close1;
+ 	}
+-	if(setup_initial_poll(sigio_private[1]))
++
++	p = setup_initial_poll(l_sigio_private[1]);
++	if(!p)
+ 		goto out_close2;
+ 
+-	write_sigio_pid = run_helper_thread(write_sigio_thread, NULL, 
++	sigio_lock();
++
++	/* Did we race? Don't try to optimize this, please, it's not so likely
++	 * to happen, and no more than once at the boot. */
++	if(write_sigio_pid != -1)
++		goto out_unlock;
++
++	write_sigio_pid = run_helper_thread(write_sigio_thread, NULL,
+ 					    CLONE_FILES | CLONE_VM, &stack, 0);
+ 
+-	if(write_sigio_pid < 0) goto out_close2;
++	if (write_sigio_pid < 0)
++		goto out_clear;
+ 
+-	if(write_sigio_irq(write_sigio_fds[0])) 
++	if (write_sigio_irq(l_write_sigio_fds[0])) 
+ 		goto out_kill;
+ 
+- out:
++	/* Success, finally. */
++	memcpy(write_sigio_fds, l_write_sigio_fds, sizeof(l_write_sigio_fds));
++	memcpy(sigio_private, l_sigio_private, sizeof(l_sigio_private));
++
++	current_poll = ((struct pollfds) { .poll 	= p,
++					   .used 	= 1,
++					   .size 	= 1 });
++
+ 	sigio_unlock();
+ 	return;
+ 
+  out_kill:
+-	os_kill_process(write_sigio_pid, 1);
++	l_write_sigio_pid = write_sigio_pid;
++	write_sigio_pid = -1;
++	sigio_unlock();
++	/* Going to call waitpid, avoid holding the lock. */
++	os_kill_process(l_write_sigio_pid, 1);
++	goto out_free;
++
++ out_clear:
+ 	write_sigio_pid = -1;
++ out_unlock:
++	sigio_unlock();
++ out_free:
++	kfree(p);
+  out_close2:
+-	os_close_file(sigio_private[0]);
+-	os_close_file(sigio_private[1]);
++	os_close_file(l_sigio_private[0]);
++	os_close_file(l_sigio_private[1]);
+  out_close1:
+-	os_close_file(write_sigio_fds[0]);
+-	os_close_file(write_sigio_fds[1]);
+-	sigio_unlock();
++	os_close_file(l_write_sigio_fds[0]);
++	os_close_file(l_write_sigio_fds[1]);
++	return;
++
+ }
+ 
+ int read_sigio_fd(int fd)
 

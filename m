@@ -1,52 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbVJYU74@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932383AbVJYVNy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932378AbVJYU74 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 16:59:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbVJYU74
+	id S932383AbVJYVNy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 17:13:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbVJYVNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 16:59:56 -0400
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:21988 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932378AbVJYU7z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 16:59:55 -0400
-Message-ID: <435E9D17.3050706@tmr.com>
-Date: Tue, 25 Oct 2005 17:01:11 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alexey Dobriyan <adobriyan@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: When did UFS read-write work?
-References: <20051025080319.GA10234@mipter.zuzino.mipt.ru>
-In-Reply-To: <20051025080319.GA10234@mipter.zuzino.mipt.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 25 Oct 2005 17:13:54 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:58259 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932383AbVJYVNx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 17:13:53 -0400
+Subject: Re: PROBLEM: Bad page state
+From: Lee Revell <rlrevell@joe-job.com>
+To: Tomasz Karwot <adminek@wb.pl>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <435E9478.1060104@wb.pl>
+References: <435E9478.1060104@wb.pl>
+Content-Type: text/plain
+Date: Tue, 25 Oct 2005 17:11:16 -0400
+Message-Id: <1130274676.4483.21.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey Dobriyan wrote:
-> I've tried to copy a small file to a partition mounted as ufstype=44bsd.
-> It hanged while doing
-> 
-> 	open("file", O_WRONLY|O_CREAT|O_LARGEFILE, 0100644)
-> 
-> Second time, there was no hang, but there was no file on UFS partition
-> too.
-> 
-> Rebooting to OpenBSD:
-> 
-> 	~ $ cd linux/		<=== created by Linux
-> 	~/linux $ ls -la
-> 	ls: .: No such file or directory
-> 
-> Does anyone remeber when UFS rw was OK?
+On Tue, 2005-10-25 at 22:24 +0200, Tomasz Karwot wrote:
+> Oct 24 08:26:01 skretka kernel: Bad page state at free_hot_cold_page (in 
+> process 'java', page c101b7e0) - (Not only this process, other too 
+> (firefox etc...))
 
-I don't know if it ever WAS okay for 64 bit, never tried it. You might 
-try dropping LARGEFILE just to see if that's the issue.
+Tainted kernel.  This report is useless.
 
+Please reproduce with no proprietary drivers loaded.  And you only need
+to provide the first instance, not the complete log.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Lee
+

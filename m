@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751350AbVJYAjb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbVJYAkB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751350AbVJYAjb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 20:39:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbVJYAjb
+	id S1751357AbVJYAkB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 20:40:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbVJYAkA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 20:39:31 -0400
-Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:29649
-	"HELO linuxace.com") by vger.kernel.org with SMTP id S1751350AbVJYAja
+	Mon, 24 Oct 2005 20:40:00 -0400
+Received: from qproxy.gmail.com ([72.14.204.192]:18710 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751357AbVJYAkA convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 20:39:30 -0400
-Date: Mon, 24 Oct 2005 17:39:29 -0700
-From: Phil Oester <kernel@linuxace.com>
-To: "Fao, Sean" <sean@capitalgenomix.com>
+	Mon, 24 Oct 2005 20:40:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jTbojb521rZeRZ/otHPxp1Kor/N4yd1TDR4Ba77GImteyYCMRMAmy8PTRT+d9UUL10sxAHLz9jx7h6uo0PY9ZPAVprg5tBBhb7QvJis3aAuafus3WztEgxWImo3Cpz7L9YIKSxYC1kCUYTsmEaQSg/sruBKfyFj4RAC7jcRVUJM=
+Message-ID: <9a8748490510241739g60430585v1f3741e4cab7d99c@mail.gmail.com>
+Date: Tue, 25 Oct 2005 02:39:58 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: rogel migues <oasisalf@yahoo.com>
+Subject: Re: Necesito archivos que me den informacion AVANZADA para realizar esto.
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.13 SMP Changes?
-Message-ID: <20051025003929.GA4970@linuxace.com>
-References: <435D786C.4000706@capitalgenomix.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20051025001532.82467.qmail@web40509.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <435D786C.4000706@capitalgenomix.com>
-User-Agent: Mutt/1.4.1i
+References: <20051025001532.82467.qmail@web40509.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 24, 2005 at 07:12:28PM -0500, Fao, Sean wrote:
-> Hello group,
-> 
-> Have any major changes been made to the SMP code between 2.6.10 and 
-> 2.6.13?  After upgrading, it appears that either my two hyper-threaded 
-> CPU's are running on a single thread, one of my processors is no longer 
-> working or something is eating up 100% of the CPU time on the second 
-> processor.  I used to see four CPU's in top and htop.  top now shows two 
-> processors while htop shows four with processors three and four running 
-> at 100% all the time.  I'm having a difficult time determining which 
-> ones are the real CPU's and which are the hyper-threads.  Sorting by CPU 
-> shows nothing using any more CPU than I would expect (most everything is 
-> sitting idle).
+On 10/25/05, rogel migues <oasisalf@yahoo.com> wrote:
+> Es para optimizar un servicio determinado.. a traves
+> del kernel 2.6 (cuantas maneras hay ?)
+>
+[snip]
 
-ACPI was made dependent upon CONFIG_PM in 2.6.13, where it was not before.
-So a "make oldconfig" in 2.6.13 against a 2.6.10 .config which had ACPI
-enabled will end up disabling ACPI.
+Please send your email in english.
 
-Interestingly, SMT used to work without ACPI, but now does not seem to
-work without it.
 
-Not sure if either of the above have been addressed in 2.6.14...haven't
-had a chance to test
-
-Phil
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

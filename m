@@ -1,58 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbVJYUUP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbVJYUVp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932341AbVJYUUP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 16:20:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbVJYUUP
+	id S932342AbVJYUVp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 16:21:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbVJYUVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 16:20:15 -0400
-Received: from mxsf33.cluster1.charter.net ([209.225.28.158]:42381 "EHLO
-	mxsf33.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S932341AbVJYUUN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 16:20:13 -0400
-X-IronPort-AV: i="3.97,250,1125892800"; 
-   d="scan'208"; a="1575427695:sNHT2790150130"
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17246.37752.535232.788287@smtp.charter.net>
-Date: Tue, 25 Oct 2005 16:20:08 -0400
-From: "John Stoffel" <john@stoffel.org>
-To: chase.venters@clientec.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops in do_page_fault
-In-Reply-To: <60411.67.163.102.102.1130266824.squirrel@webmail2.pair.com>
-References: <60411.67.163.102.102.1130266824.squirrel@webmail2.pair.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+	Tue, 25 Oct 2005 16:21:45 -0400
+Received: from main.gmane.org ([80.91.229.2]:16778 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932342AbVJYUVo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 16:21:44 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Matthieu CASTET <castet.matthieu@free.fr>
+Subject: Re: [PATCH 6 of 6] tpm: move infineon driver off pci_dev
+Date: Tue, 25 Oct 2005 22:17:30 +0200
+Message-ID: <pan.2005.10.25.20.17.26.57688@free.fr>
+References: <1130253738.4839.65.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: cac94-1-81-57-151-96.fbx.proxad.net
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-chase> Please forgive me in advanced for the length of this
-chase> description - I don't want to leave out any important details.
+nice to see that the tpm framework was cleanned.
 
-[ edited down ]
+Le Tue, 25 Oct 2005 10:22:18 -0500, Kylene Jo Hall a écrit :
 
-chase> In 2.6.13, I get an Oops (translated by hand, sorry for inexact formatting):
+> ---
+> 
+> --- linux-2.6.14-rc4/drivers/char/tpm/tpm_infineon.c	2005-10-19 17:03:52.000000000 -0500
+> +++ linux-2.6.13-tpm/drivers/char/tpm/tpm_infineon.c	2005-10-21 13:07:24.000000000 -0500
+> @@ -14,6 +14,7 @@
+>   * License.
+>   */
+>  
+> +#include <acpi/acpi_bus.h>
+Why is it needed ?
 
-chase> Oops 0000 #1
-chase> PREEMPT SMP
-chase> (list of modules linked in includes some alsa modules, nvidia.ko and
-chase> sk98lin.ko)
 
-chase> CPU 0
-chase> EIP 0060:[<c01182c3>] Tainted: P VLI
-chase> EFLAGS: 00010086 (2.6.13)
-chase> EIP is at do_page_fault+0xa3/0x5db
-chase> eax: f5e50000  ebx: 0000000b  ecx: 0000000d  edx: 0000000d
-chase> esi: 0000000e  edi: c0567451  ebp: 00000000  esp: f5e5a10c
 
-chase> ds: 007b  es: 007b  ss: 0068
+> -/* These values will be filled after PnP-call */
+> +/* These values will be filled after ACPI-call */
+Why not keep PnP ?
 
-Please remove the binary only nvidia and sklin module(s) you have on
-the system so that the kernel isn't tainted any more, and then see if
-you can reproduce this problem.  You'll need to not only remove the
-module, but then reboot to make sure it comes up cleanly without any
-corruption.  We can't help debug your issues if you're using binary
-only modules.  Sorry.
 
-John
+> -MODULE_DEVICE_TABLE(pnp, tpm_pnp_tbl);
+>  
+Why removing that ?
+This will allow hotplug and udev to auto load the module.
+
+
+> +
+> +	/* read IO-ports from ACPI */
+> +	TPM_INF_ADDR = (pnp_port_start(dev, 0) & 0xff);
+> +	TPM_INF_DATA = ((TPM_INF_ADDR + 1) & 0xff);
+No need to set mask, this is already done by pnp_port_start.
+And I'll keep PNP instead of ACPI.
+
+
+> +	tpm_inf.base = pnp_port_start(dev, 1);
+Can't you be coherent ?
+why not using tpm_inf.addr
+or TPM_INF_BASE ?
+
+
+
+> +	dev_info(&dev->dev, "Found %s with ID %s\n",
+> +		 dev->name, dev_id->id);
+> +	if (!((tpm_inf.base >> 8) & 0xff))
+> +		tpm_inf.base = 0;
+>  
+>  	/* Make sure, we have received valid config ports */
+You should also do :
+pnp_port_flags(device, 0) & IORESOURCE_DISABLED) in order to check the
+resources.
+
+
+> +	.probe = tpm_inf_acpi_probe,
+> +	.remove = tpm_inf_remove,
+Not coherent : acpi vs nothing.
+Again prefer pnp instead of acpi.
+
+
+Matthieu
+

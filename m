@@ -1,70 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbVJYVZu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932392AbVJYV1Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932388AbVJYVZu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 17:25:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbVJYVZu
+	id S932392AbVJYV1Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 17:27:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932394AbVJYV1Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 17:25:50 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:45444 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S932388AbVJYVZu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 17:25:50 -0400
-Date: Wed, 26 Oct 2005 01:25:20 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Badari Pulavarty <pbadari@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.14-rc5 GPF in radeon_cp_init_ring_buffer()
-Message-ID: <20051026012520.A7501@jurassic.park.msu.ru>
-References: <1130257682.6831.63.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 25 Oct 2005 17:27:24 -0400
+Received: from xproxy.gmail.com ([66.249.82.206]:17861 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932392AbVJYV1Y convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 17:27:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jnhhCJq3o3qRR4QdhVbKdShBGy2D5SUbDfJF0ZhuZDYZceszJ3khcI4GJAfr/gm04eBKN+D0DLQPmMwM+emEH2y3dWHJ8i4f14tyqE8WqKFJGobVZAxeotycCEHolgmSoKnKbA4hfHNBopQQK5PZ60vRjZdWfjb3RaIUpMomZos=
+Message-ID: <5a4c581d0510251427o4bcd63bbh8d5121b01dfe1e7b@mail.gmail.com>
+Date: Tue, 25 Oct 2005 23:27:23 +0200
+From: Alessandro Suardi <alessandro.suardi@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: X unkillable in R state sometimes on startx , /proc/sysrq-trigger T output attached
+In-Reply-To: <5a4c581d0510251335ke8e7ae6n883e0b44a9920ce4@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1130257682.6831.63.camel@localhost.localdomain>; from pbadari@gmail.com on Tue, Oct 25, 2005 at 09:28:02AM -0700
+References: <5a4c581d0510251335ke8e7ae6n883e0b44a9920ce4@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 25, 2005 at 09:28:02AM -0700, Badari Pulavarty wrote:
-> On my EM64T machine, X gets killed every time due to
-> following GFP. Happens on mainline & -mm kernels.
-> Hasn't annoyed me enough to take a look on why ?
+On 10/25/05, Alessandro Suardi <alessandro.suardi@gmail.com> wrote:
+> Happened to me the third time now in the last
+>  couple of months, always with different Linus
+>  kernels (plus ACX100 wireless module from
+>  Denis Vlasenko's snapshots) all hanging off
+>  an up-to-date FC4, all built with latest stock
+>  GCC; this last is:
+>
+> [root@incident ~]# cat /proc/version
+> Linux version 2.6.14-rc5-git5 (asuardi@incident) (gcc version 4.0.2)
+> #1 PREEMPT Tue Oct 25 14:32:46 CEST 2005
+>
+> Symptoms: startx at the command prompt gets
+>  the blank screen, then... nothing. Keyboard is
+>  dead (CapsLock doesn't get its led lit), no VT
+>  switching works. Box is still reachable via ssh
+>  through its wireless network card, all looks OK
+>  except for X running and piling up CPU time,
+>  and apparently untraceable (pstack, strace
+>  hang trying to attach it) and unkillable (kill -9
+>  doesn't kill it).
+>
+> I took a couple of SysRQ 't' dumps via the
+>  /proc/sysrq-trigger facility and the outcome is
+>  attached - actually it's a full messages log,
+>  startup to reboot.
+>
+> Exact sequence this time:
+>  1. boot
+>  2. insmod 0.3.17 acx driver
+>  -> notice I can't contact my wireless AP
+>  3. rmmod it, insmod 0.3.16 driver
+>  -> notice I am an idiot, plug in the wireless AP power cord
+>  4. rmmod 0.3.16, insmod 0.3.17, iwconfig wlan0 up
+>  5. switch to VT2 (Alt-F2), login as non-root, run startx
+> <blank screen, dead keyboard>
+>  6. ssh in from remote box, take SysRQ dumps, reboot
+>
+> If anyone has an idea on what to do to try and reproduce
+>  and/or debug further, that'd be cool.
+>
+> Box is a Dell Latitude C640 laptop, PIV@1.8Ghz,
+>  1GB RAM, with a USR2210 802.11b wireless
+>  PC Card; video card is a Radeon 7500 M7 LW.
 
-I've seen similar failure on alpha.
+OK, let's forget about attachments (100+ KB), the
+ full messages file can be found here:
+http://xoomer.virgilio.it/incident/messages
 
-Obviously, someone forgot to convert sg->handle stuff for
-PCI gart case.
+Thanks again, ciao,
 
-Ivan.
+--alessandro
 
---- 2.6.14-rc5/drivers/char/drm/radeon_cp.c	Fri Sep 23 23:39:48 2005
-+++ linux/drivers/char/drm/radeon_cp.c	Sat Sep 24 02:59:22 2005
-@@ -1136,7 +1136,7 @@ static void radeon_cp_init_ring_buffer( 
-        } else
- #endif
- 		ring_start = (dev_priv->cp_ring->offset
--			      - dev->sg->handle
-+			      - (unsigned long)dev->sg->virtual
- 			      + dev_priv->gart_vm_start);
- 
- 	RADEON_WRITE( RADEON_CP_RB_BASE, ring_start );
-@@ -1164,7 +1164,8 @@ static void radeon_cp_init_ring_buffer( 
- 		drm_sg_mem_t *entry = dev->sg;
- 		unsigned long tmp_ofs, page_ofs;
- 
--		tmp_ofs = dev_priv->ring_rptr->offset - dev->sg->handle;
-+		tmp_ofs = dev_priv->ring_rptr->offset - 
-+				(unsigned long)dev->sg->virtual;
- 		page_ofs = tmp_ofs >> PAGE_SHIFT;
- 
- 		RADEON_WRITE( RADEON_CP_RB_RPTR_ADDR,
-@@ -1491,8 +1492,8 @@ static int radeon_do_init_cp( drm_device
- 	else
- #endif
- 		dev_priv->gart_buffers_offset = (dev->agp_buffer_map->offset
--						- dev->sg->handle
--						+ dev_priv->gart_vm_start);
-+					- (unsigned long)dev->sg->virtual
-+					+ dev_priv->gart_vm_start);
- 
- 	DRM_DEBUG( "dev_priv->gart_size %d\n",
- 		   dev_priv->gart_size );
+ "All it takes is one decision
+  A lot of guts, a little vision to wave
+  Your worries, and cares goodbye"
+
+   (Placebo - "Slave To The Wage")

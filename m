@@ -1,196 +1,183 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbVJYRgy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbVJYRhe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932232AbVJYRgy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 13:36:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbVJYRgy
+	id S932250AbVJYRhe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 13:37:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbVJYRhe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 13:36:54 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:15066 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S932247AbVJYRgx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 13:36:53 -0400
-Date: Tue, 25 Oct 2005 19:36:52 +0200
-From: Jan Kara <jack@suse.cz>
-To: akpm@osdl.org
-Cc: sct@redhat.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix handling of ordered buffers
-Message-ID: <20051025173652.GA1032@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="UlVJffcvxoiEqYs2"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Tue, 25 Oct 2005 13:37:34 -0400
+Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:36265 "EHLO
+	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S932250AbVJYRhd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 13:37:33 -0400
+Message-ID: <435E6D4F.3080108@home.se>
+Date: Tue, 25 Oct 2005 19:37:19 +0200
+From: Niklas Kallman <kjarvel@home.se>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: PCI: Failed to allocate I/O resource when upgrading to 2.6.13.*
+Content-Type: multipart/mixed;
+ boundary="------------020200060608050609010909"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------020200060608050609010909
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
---UlVJffcvxoiEqYs2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hello,
 
-  Hello,
+Since I upgraded my kernel from 2.6.12.6 to 2.6.13.4 (using make 
+oldconfig), I get the following messages at startup:
 
-  here is the second try for the fix of handling of ordered data buffers
-in JBD. As the first round was quite some time ago I'll remind the
-problem: current code in commit assumes that if the buffer is locked it
-is being sent to disk (and hence just refiles such buffer to
-t_locked_list). But that is not true as we sometimes lock the buffer
-just to check some values and then unlock it. Hence we need to do more
-complicated handling where we check if the buffer is dirty and if it is,
-we get the buffer lock and write the buffer to disk. We have to be a bit
-careful not to end in a livelock if someone is dirtying buffers under us.
-But this is not a problem as we always refile the buffer to
-t_locked_list if it is dirty and when we manage to get the buffer lock.
-Buffers in t_locked_list are just waited-upon and then detached.
-  The patch is against 2.6.14-rc5. Andrew, please apply it to -mm kernel
-to get some wider testing. Especially we should check whether it does
-not decrease performance as we are waiting on a buffer lock sometimes.
-I checked this at home by running some processes wildly rewriting the
-file again and again and I did not observe any negative effect but it
-might be just my test-case...
+PCI: Ignore bogus resource 6 [0:0] of 0000:00:02.0
+PCI: Failed to allocate I/O resource #7:1000@10000 for 0000:01:01.0
+PCI: Failed to allocate I/O resource #8:1000@10000 for 0000:01:01.0
+PCI: Bus 2, cardbus bridge: 0000:01:01.0
 
-								Honza
+I have tried "pci=routeirq", but it makes no difference.
+When running 2.6.13.4 I cannot use my WLAN card (ndiswrapper).
+With 2.6.12.6 there is no problem at all...
 
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+Is there something I can try to do? I've attached the lspci logs from 
+both kernels.. The computer is a Dell Inspiron 510m laptop.
 
---UlVJffcvxoiEqYs2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="jbd-2.6.14-rc5-1-orderedwrite.diff"
+Thanks!
+/Niklas
 
-  The old code assumed that when the buffer is locked it is being
-written. But need not be always true. Hence we have to be more
-careful when processing ordered data buffers.
-  If a buffer is not dirty, we know that write has already started
-(and may be even already completed) and hence just refiling buffer
-to t_locked_list (or unfiling it completely in case IO has finished)
-is enough. If the buffer is dirty, we have to acquire the buffer lock
-and do the write. In this case we also immediately refile the buffer
-to t_locked_list thus making always some progress.
+--------------020200060608050609010909
+Content-Type: application/x-gzip;
+ name="lspcilog.tar.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="lspcilog.tar.gz"
 
-Signed-off-by: Jan Kara <jack@suse.cz>
-
-diff -rupX /home/jack/.kerndiffexclude linux-2.6.14-rc5/fs/jbd/commit.c linux-2.6.14-rc5-1-orderedwrite/fs/jbd/commit.c
---- linux-2.6.14-rc5/fs/jbd/commit.c	2005-10-25 08:53:22.000000000 +0200
-+++ linux-2.6.14-rc5-1-orderedwrite/fs/jbd/commit.c	2005-10-25 09:07:43.000000000 +0200
-@@ -333,57 +333,77 @@ write_out_data:
- 
- 	while (commit_transaction->t_sync_datalist) {
- 		struct buffer_head *bh;
-+		int was_dirty;
- 
- 		jh = commit_transaction->t_sync_datalist;
--		commit_transaction->t_sync_datalist = jh->b_tnext;
- 		bh = jh2bh(jh);
--		if (buffer_locked(bh)) {
--			BUFFER_TRACE(bh, "locked");
--			if (!inverted_lock(journal, bh))
--				goto write_out_data;
-+
-+		/*
-+		 * If the buffer is not dirty, we don't need to submit any
-+		 * IO (either it is running or it has already finished) and
-+		 * hence we don't need the buffer lock. In case we need the
-+		 * lock, try to lock the buffer without blocking. If we fail,
-+		 * we need to drop j_list_lock and do blocking lock_buffer().
-+		 */
-+		was_dirty = buffer_dirty(bh);
-+		if (was_dirty && test_set_buffer_locked(bh)) {
-+			BUFFER_TRACE(bh, "needs blocking lock");
-+			get_bh(bh);
-+			spin_unlock(&journal->j_list_lock);
-+			lock_buffer(bh);
-+			spin_lock(&journal->j_list_lock);
-+			/* Someone already cleaned up the buffer? Restart. */
-+			if (!buffer_jbd(bh) || jh->b_jlist != BJ_SyncData) {
-+				unlock_buffer(bh);
-+				BUFFER_TRACE(bh, "already cleaned up");
-+				put_bh(bh);
-+				continue;
-+			}
-+			put_bh(bh);
-+		}
-+
-+		if (!jbd_trylock_bh_state(bh)) {
-+			if (was_dirty)
-+				unlock_buffer(bh);
-+			spin_unlock(&journal->j_list_lock);
-+			schedule();
-+			goto write_out_data;
-+		}
-+		/*
-+		 * Now we know that the buffer either was not dirty or we
-+		 * have the buffer lock. If the buffer was not dirty,
-+		 * write-out is running or already complete and we can just
-+		 * refile the buffer to Locked list or unfile the buffer
-+		 * respectively. In case the buffer was dirty, we have to
-+		 * submit the buffer for IO before refiling it.
-+		 */
-+		BUFFER_TRACE(bh, "locked the buffer");
-+		if ((!was_dirty && !buffer_locked(bh))
-+		    || (was_dirty && !test_clear_buffer_dirty(bh))) {
-+			BUFFER_TRACE(bh, "writeout complete: unfile");
-+			__journal_unfile_buffer(jh);
-+			jbd_unlock_bh_state(bh);
-+			journal_remove_journal_head(bh);
-+			if (was_dirty)
-+				unlock_buffer(bh);
-+			put_bh(bh);
-+		}
-+		else {
-+			BUFFER_TRACE(bh, "needs writeout, submitting");
- 			__journal_temp_unlink_buffer(jh);
- 			__journal_file_buffer(jh, commit_transaction,
- 						BJ_Locked);
- 			jbd_unlock_bh_state(bh);
--			if (lock_need_resched(&journal->j_list_lock)) {
--				spin_unlock(&journal->j_list_lock);
--				goto write_out_data;
--			}
--		} else {
--			if (buffer_dirty(bh)) {
--				BUFFER_TRACE(bh, "start journal writeout");
-+			if (was_dirty) {
- 				get_bh(bh);
--				wbuf[bufs++] = bh;
--				if (bufs == journal->j_wbufsize) {
--					jbd_debug(2, "submit %d writes\n",
--							bufs);
--					spin_unlock(&journal->j_list_lock);
--					ll_rw_block(SWRITE, bufs, wbuf);
--					journal_brelse_array(wbuf, bufs);
--					bufs = 0;
--					goto write_out_data;
--				}
--			} else {
--				BUFFER_TRACE(bh, "writeout complete: unfile");
--				if (!inverted_lock(journal, bh))
--					goto write_out_data;
--				__journal_unfile_buffer(jh);
--				jbd_unlock_bh_state(bh);
--				journal_remove_journal_head(bh);
--				put_bh(bh);
--				if (lock_need_resched(&journal->j_list_lock)) {
--					spin_unlock(&journal->j_list_lock);
--					goto write_out_data;
--				}
-+				bh->b_end_io = end_buffer_write_sync;
-+				submit_bh(WRITE, bh);
- 			}
- 		}
--	}
--
--	if (bufs) {
--		spin_unlock(&journal->j_list_lock);
--		ll_rw_block(SWRITE, bufs, wbuf);
--		journal_brelse_array(wbuf, bufs);
--		spin_lock(&journal->j_list_lock);
-+		if (lock_need_resched(&journal->j_list_lock)) {
-+			spin_unlock(&journal->j_list_lock);
-+			goto write_out_data;
-+		}
- 	}
- 
- 	/*
-
---UlVJffcvxoiEqYs2--
+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
+--------------020200060608050609010909--

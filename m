@@ -1,66 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751417AbVJYCpe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751419AbVJYCxV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751417AbVJYCpe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 22:45:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751418AbVJYCpe
+	id S1751419AbVJYCxV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 22:53:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751423AbVJYCxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 22:45:34 -0400
-Received: from relais.videotron.ca ([24.201.245.36]:1719 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP
-	id S1751417AbVJYCpd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 22:45:33 -0400
-Date: Mon, 24 Oct 2005 22:45:04 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: [PATCH 2/9] mm: arm ready for split ptlock
-In-reply-to: <20051022170240.GA10631@flint.arm.linux.org.uk>
-X-X-Sender: nico@localhost.localdomain
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Message-id: <Pine.LNX.4.64.0510241922040.5288@localhost.localdomain>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <Pine.LNX.4.61.0510221716380.18047@goblin.wat.veritas.com>
- <Pine.LNX.4.61.0510221719370.18047@goblin.wat.veritas.com>
- <20051022170240.GA10631@flint.arm.linux.org.uk>
+	Mon, 24 Oct 2005 22:53:21 -0400
+Received: from mail.majordomo.ru ([81.177.16.8]:30981 "EHLO mail.majordomo.ru")
+	by vger.kernel.org with ESMTP id S1751419AbVJYCxU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 22:53:20 -0400
+Message-ID: <435DD708.1080802@lindevel.ru>
+Date: Tue, 25 Oct 2005 06:56:08 +0000
+From: "Nikolay N. Ivanov" <group@lindevel.ru>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: ru-ru, ru
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.6.13.4: don't reboot
+References: <20051024231235.3C0F81CB1E6@anxur.fi.muni.cz>
+In-Reply-To: <20051024231235.3C0F81CB1E6@anxur.fi.muni.cz>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 22 Oct 2005, Russell King wrote:
 
-> On Sat, Oct 22, 2005 at 05:22:20PM +0100, Hugh Dickins wrote:
-> > Signal handling's preserve and restore of iwmmxt context currently
-> > involves reading and writing that context to and from user space, while
-> > holding page_table_lock to secure the user page(s) against kswapd.  If
-> > we split the lock, then the structure might span two pages, secured by
-> > different locks.  That would be manageable; but it seems simpler just
-> > to read into and write from a kernel stack buffer, copying that out and
-> > in without locking (the structure is 160 bytes in size, and here we're
-> > near the top of the kernel stack).  Or would the overhead be noticeable?
-> 
-> Please contact Nicolas Pitre about that - that was my suggestion,
-> but ISTR apparantly the overhead is too high.
+>OK, I sent e-mail that wasn't delivered :(. Maybe the unicode `pishyot' was the
+>problem.
+>
+>So, could you accurate the version where that occurs first time as much as
+>possible. I.e. the best is to tell us it is between 2.6.11.5 and 6 or sth.
+>
+>Then make a diff -u between dmesg -s 1000000 of the 2 versions and attach used
+>.config.
+>
+>thanks,
+>  
+>
+It's mysticism! This error is unpredictable: in 2.6.10 kernel also 
+occured but SOMETIMES. The same result on three kernels and on two 
+distributives: 2.6.10, 2.6.11 and 2.6.13. I'm in confusion. I also tryed 
+to disable all acpi and apm functions but in vain.
 
-Going through a kernel buffer will simply double the overhead.  Let's 
-suppose it should not be a big enough issue to stop the patch from being 
-merged though (and it looks cleaner that way). However I'd like for the 
-WARN_ON((unsigned long)frame & 7) to remain as both the kernel and user 
-buffers should be 64-bit aligned.
+With best regards, Nikolay.
 
-> > arm_syscall's cmpxchg emulation use pte_offset_map_lock, instead of
-> > pte_offset_map and mm-wide page_table_lock; and strictly, it should now
-> > also take mmap_sem before descending to pmd, to guard against another
-> > thread munmapping, and the page table pulled out beneath this thread.
-> 
-> Now that I look at it, it's probably buggy - if the page isn't already
-> dirty, it will modify without the COW action.  Again, please contact
-> Nicolas about this.
-
-I don't see how standard COW could not happen.  The only difference with 
-a true write fault as if we used put_user() is that we bypassed the data 
-abort vector and the code to get the FAR value.  Or am I missing 
-something?
+P.S. I think that .config and dmesg can't help here.
 
 
-Nicolas

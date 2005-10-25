@@ -1,71 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbVJYRGe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbVJYRIp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932212AbVJYRGe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 13:06:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbVJYRGe
+	id S932213AbVJYRIp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 13:08:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbVJYRIp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 13:06:34 -0400
-Received: from main.gmane.org ([80.91.229.2]:49635 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932212AbVJYRGd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 13:06:33 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Joe Seigh <jseigh_02@xemaps.com>
-Subject: Re: Notifier chains are unsafe
-Date: Tue, 25 Oct 2005 12:59:03 -0400
-Message-ID: <djlo8l$7hv$1@sea.gmane.org>
-References: <Pine.LNX.4.44L0.0510241634410.4448-100000@iolanthe.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: stenquists.hsd1.ma.comcast.net
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-In-Reply-To: <Pine.LNX.4.44L0.0510241634410.4448-100000@iolanthe.rowland.org>
+	Tue, 25 Oct 2005 13:08:45 -0400
+Received: from rtlab.med.cornell.edu ([140.251.128.175]:21137 "EHLO
+	openlab.rtlab.org") by vger.kernel.org with ESMTP id S932213AbVJYRIp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 13:08:45 -0400
+Date: Tue, 25 Oct 2005 13:08:43 -0400 (EDT)
+From: "Calin A. Culianu" <calin@ajvar.org>
+X-X-Sender: calin@rtlab.med.cornell.edu
+To: ajoshi@shell.unixbox.com, linux-kernel@vger.kernel.org
+Cc: linux-nvidia@lists.surfsouth.com, Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] nvidiafb: Geforce 7800 GTX support added
+Message-ID: <Pine.LNX.4.64.0510251222070.15060@rtlab.med.cornell.edu>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-74666112-942060465-1130260123=:15060"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Stern wrote:
-> Has anyone been bothered by the fact that notifier chains are not safe 
-> with regard to registration and unregistration while the chain is in use?
-> The notifier_chain_register and notifier_chain_unregister routines have 
-> writelock protections, but the corresponding readlock is never taken!
-> 
-> It shouldn't be hard to make this work safely, even allowing such things
-> as notifier routines unregistering themselves as they run.  The patch
-> below contains an example implementation, showing one way to do it.
-> 
-> But doing this correctly requires knowing how notifier chains are used.  
-> 
-> 	Are they always called in process context, with interrupts enabled?
-> 
-> 	Or do some get called in interrupt context?
-> 
-> 	Are there any notifier chains invoked on a critical fast path?
-> 	(I hope not...)
-> 
-> 	How many different threads are likely to call a particular 
-> 	notifier chain at one time?
-> 
-> Feedback is requested.
-> 
-> Alan Stern
-> 
-[...]
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-It's not clear how you are making this safe.  You aren't using one
-of the known solutions to this problem.  For GC lock-free based solutions,
-you can't use RCU since notify_call can sleep.  You could use a
-form of reference counting but you'd have to implement it yourself.
-Ditto on RCU+SMR or some other form of proxy GC.  Not implemented.
+---74666112-942060465-1130260123=:15060
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 
-You could use COR (Copy On Read).  Make a copy of the list while holding
-a lock, release the lock, do the notifications, and then delete the copy
-of the list.
 
-The non-blocking schemes can do notify_calls after unregistration so you
-need to take this into account.  Whatever you're calling against still
-has to be there and has to be in a meaningful state.
+Hi, this is an almost trivial patch that simply adds support for the 
+Nvidia Geforce 7800 GTX card to the nvidiafb framebuffer driver.  All this 
+patch does is add the PCI device id for this device into the module device 
+table for this driver, so that nvidiafb.ko will actually work on this 
+card.
 
+I also added the PCI device id to linux/pci_ids.h (I hope noone minds).
+
+I tested it on my 7800 GTX here and it works like a charm.  I now can get 
+framebuffer support on this card!  Woo hoo!!  Nothing like 200x75 text 
+mode to make your eyes BLEED. ;)
+
+This patch is against 2.6.14-rc5.  It should apply against most 2.6 
+kernels though -- not sure which kernel is the standard one to submit 
+patches against.
+
+Should I submit this patch for 2.4 kernel?  I don't even know if that one 
+has nvidiafb since I don't run 2.4 much these days..
+
+Thanks!
+
+-Calin
+
+---74666112-942060465-1130260123=:15060
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=nvidiafb_7800gtx.patch
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.64.0510251308430.15060@rtlab.med.cornell.edu>
+Content-Description: 
+Content-Disposition: attachment; filename=nvidiafb_7800gtx.patch
+
+ZGlmZiAtdXJOIGxpbnV4LTIuNi4xNC1yYzUvZHJpdmVycy92aWRlby9udmlk
+aWEvbnZpZGlhLmMgbGludXgtMi42LjE0LXJjNS5uZXcvZHJpdmVycy92aWRl
+by9udmlkaWEvbnZpZGlhLmMNCi0tLSBsaW51eC0yLjYuMTQtcmM1L2RyaXZl
+cnMvdmlkZW8vbnZpZGlhL252aWRpYS5jCTIwMDUtMTAtMjAgMDI6MjM6MDUu
+MDAwMDAwMDAwIC0wNDAwDQorKysgbGludXgtMi42LjE0LXJjNS5uZXcvZHJp
+dmVycy92aWRlby9udmlkaWEvbnZpZGlhLmMJMjAwNS0xMC0yNSAxMjozNDow
+Ny4wMDAwMDAwMDAgLTA0MDANCkBAIC0zODQsNiArMzg0LDggQEANCiAJIFBD
+SV9BTllfSUQsIFBDSV9BTllfSUQsIDAsIDAsIDB9LA0KIAl7UENJX1ZFTkRP
+Ul9JRF9OVklESUEsIFBDSV9ERVZJQ0VfSURfTlZJRElBX0dFRk9SQ0VfNjgw
+MEJfR1QsDQogCSBQQ0lfQU5ZX0lELCBQQ0lfQU5ZX0lELCAwLCAwLCAwfSwN
+CisJe1BDSV9WRU5ET1JfSURfTlZJRElBLCBQQ0lfREVWSUNFX0lEX05WSURJ
+QV9HRUZPUkNFXzc4MDBfR1RYLA0KKwkgUENJX0FOWV9JRCwgUENJX0FOWV9J
+RCwgMCwgMCwgMH0sDQogCXtQQ0lfVkVORE9SX0lEX05WSURJQSwgMHgwMjFk
+LA0KIAkgUENJX0FOWV9JRCwgUENJX0FOWV9JRCwgMCwgMCwgMH0sDQogCXtQ
+Q0lfVkVORE9SX0lEX05WSURJQSwgMHgwMjFlLA0KZGlmZiAtdXJOIGxpbnV4
+LTIuNi4xNC1yYzUvaW5jbHVkZS9saW51eC9wY2lfaWRzLmggbGludXgtMi42
+LjE0LXJjNS5uZXcvaW5jbHVkZS9saW51eC9wY2lfaWRzLmgNCi0tLSBsaW51
+eC0yLjYuMTQtcmM1L2luY2x1ZGUvbGludXgvcGNpX2lkcy5oCTIwMDUtMTAt
+MjAgMDI6MjM6MDUuMDAwMDAwMDAwIC0wNDAwDQorKysgbGludXgtMi42LjE0
+LXJjNS5uZXcvaW5jbHVkZS9saW51eC9wY2lfaWRzLmgJMjAwNS0xMC0yNSAx
+MjozOTowNC4wMDAwMDAwMDAgLTA0MDANCkBAIC0xMTg4LDYgKzExODgsNyBA
+QA0KICNkZWZpbmUgUENJX0RFVklDRV9JRF9OVklESUFfQ0s4X0FVRElPCQkw
+eDAwOGENCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfTlZJRElBX05WRU5FVF81
+CQkweDAwOGMNCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfTlZJRElBX05GT1JD
+RTJTX1NBVEEJMHgwMDhlDQorI2RlZmluZSBQQ0lfREVWSUNFX0lEX05WSURJ
+QV9HRUZPUkNFXzc4MDBfR1RYCTB4MDA5MQ0KICNkZWZpbmUgUENJX0RFVklD
+RV9JRF9OVklESUFfSVROVDIJCTB4MDBBMA0KICNkZWZpbmUgUENJX0RFVklD
+RV9JRF9HRUZPUkNFXzY4MDBBICAgICAgICAgICAgIDB4MDBjMQ0KICNkZWZp
+bmUgUENJX0RFVklDRV9JRF9HRUZPUkNFXzY4MDBBX0xFICAgICAgICAgIDB4
+MDBjMg0K
+
+---74666112-942060465-1130260123=:15060--

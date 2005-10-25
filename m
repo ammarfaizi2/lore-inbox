@@ -1,61 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbVJYQGX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbVJYQNc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932193AbVJYQGX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 12:06:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932194AbVJYQGX
+	id S932201AbVJYQNc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 12:13:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbVJYQNc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 12:06:23 -0400
-Received: from smtp05.auna.com ([62.81.186.15]:35327 "EHLO smtp05.retemail.es")
-	by vger.kernel.org with ESMTP id S932193AbVJYQGX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 12:06:23 -0400
-In-Reply-To: <435E5720.6030105@tremplin-utc.net>
-References: <20051023235806.1a4df9ab@werewolf.able.es>	<35fb2e590510231613u492d24c6k4d65ff3ac5ffcee6@mail.gmail.com> <20051024015710.29a02e63@werewolf.able.es> <435E5720.6030105@tremplin-utc.net>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <36402397-77C9-49A7-A143-2C672FC90934@able.es>
-Cc: jonathan@jonmasters.org, jonmasters@gmail.com,
-       "Linux-Kernel," <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: /proc/kcore size incorrect ? (OT)
-Date: Tue, 25 Oct 2005 18:06:17 +0200
-To: Eric Piel <eric.piel@tremplin-utc.net>
-X-Mailer: Apple Mail (2.734)
-X-Auth-Info: Auth:PLAIN IP:[83.138.210.169] Login:jamagallon@able.es Fecha:Tue, 25 Oct 2005 18:06:18 +0200
+	Tue, 25 Oct 2005 12:13:32 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:40136 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932198AbVJYQNb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 12:13:31 -0400
+Date: Tue, 25 Oct 2005 17:13:26 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Badari Pulavarty <pbadari@gmail.com>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, Andrew Vasquez <andrew.vasquez@qlogic.com>
+Subject: Re: 2.6.14-rc5-mm1
+Message-ID: <20051025161326.GA31122@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, Badari Pulavarty <pbadari@gmail.com>,
+	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+	Andrew Vasquez <andrew.vasquez@qlogic.com>
+References: <20051024014838.0dd491bb.akpm@osdl.org> <1130186927.6831.23.camel@localhost.localdomain> <20051024141646.6265c0da.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051024141646.6265c0da.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 24, 2005 at 02:16:46PM -0700, Andrew Morton wrote:
+> qla2x00_probe_one() has called qla2x00_free_device() and
+> qla2x00_free_device() has locked up in
+> wait_for_completion(&ha->dpc_exited);
 
-On 2005.10.25, at 18:02, Eric Piel wrote:
+one more reason to use one-for-one goto-style unwinding instead of
+calling _free routines ;-)
 
-> J.A. Magallon wrote:
-> :
->
->> It looks really silly to have a motd say "wellcome to this box, it  
->> has
->> 2 xeons and 1022 Mb of RAM".
->>
-> Ok, everyone seems to go with his idea on this thread so I'd like  
-> to share mine too :-P
->
-> If you want to know how much _physical_ memory there is on your  
-> computer, then a good way would be too use dmidecode. The parsing  
-> might require more work than a "du" but you will never have trouble  
-> with rounding...
->
-
-Yes, I know...
-
-If you remember, the question about 'how to guess this box mem' was
-under something like "BTW ...", kinda collateral.
-
-My concerns were about if the size of /proc/kcore should be what it is
-now, and why...
-
---
-J.A. Magallon <jamagallon()able!es>   \          Software is like sex:
-wolverine                              \    It's better when it's free
-MacOS X 10.4.2, Darwin Kernel Version 8.2.0
-
+While we're at it -  Andew, would you converting qla2xxx to the
+kthread_ API for thread handling?
 

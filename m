@@ -1,38 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751463AbVJYFo6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751466AbVJYFwv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751463AbVJYFo6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 01:44:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbVJYFo6
+	id S1751466AbVJYFwv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 01:52:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbVJYFwv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 01:44:58 -0400
-Received: from 238-193.adsl.pool.ew.hu ([193.226.238.193]:57097 "EHLO
+	Tue, 25 Oct 2005 01:52:51 -0400
+Received: from 238-193.adsl.pool.ew.hu ([193.226.238.193]:2056 "EHLO
 	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1751462AbVJYFo5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 01:44:57 -0400
+	id S1751459AbVJYFwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 01:52:51 -0400
 To: viro@ftp.linux.org.uk
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <20051025042519.GJ7992@ftp.linux.org.uk> (message from Al Viro on
-	Tue, 25 Oct 2005 05:25:19 +0100)
-Subject: Re: [PATCH 2/8] VFS: per inode statfs (core)
-References: <E1EU5bT-0005sq-00@dorka.pomaz.szeredi.hu> <20051025042519.GJ7992@ftp.linux.org.uk>
-Message-Id: <E1EUHbq-0006t6-00@dorka.pomaz.szeredi.hu>
+CC: bfields@fieldses.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+In-reply-to: <20051025043246.GL7992@ftp.linux.org.uk> (message from Al Viro on
+	Tue, 25 Oct 2005 05:32:46 +0100)
+Subject: Re: [PATCH 8/8] FUSE: per inode statfs
+References: <E1EU5vx-0005yb-00@dorka.pomaz.szeredi.hu> <20051024172546.GA30782@fieldses.org> <E1EU7dX-00066t-00@dorka.pomaz.szeredi.hu> <20051025043246.GL7992@ftp.linux.org.uk>
+Message-Id: <E1EUHix-0006tf-00@dorka.pomaz.szeredi.hu>
 From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 25 Oct 2005 07:44:30 +0200
+Date: Tue, 25 Oct 2005 07:51:51 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > This patch adds a statfs method to inode operations.  This is invoked
-> > whenever the dentry is available (not called from sys_ustat()) and the
-> > filesystem implements this method.  Otherwise the normal
-> > s_op->statfs() will be called.
+> > > > statistics based on path.  While breaks with the tradition of
+> > > > homogeneous statistics per _local_ filesystem, however adds useful
+> > > > ability to user to differentiate statistics from different _remote_
+> > > > filesystem served by the same userspace server.
+> > > 
+> > > Wouldn't it make more sense to create more mountpoints (on demand, if
+> > > necessary) to handle this case?
 > > 
-> > This change is backward compatible, but calls to vfs_statfs() should
-> > be changed to vfs_dentry_statfs() whenever possible.
+> > Only if
+> > 
+> >  a) it's possible to find out about remote mountpoints
+> > 
+> >  b) not prohibitively expensive to do so on each lookup
 > 
-> What the fuck for?  statfs() returns data that by definition should
-> not depend on inode within a filesystem.
+> And finding the pathnames to call statfs() on is by some magic cheaper?
 
-Exactly.  But it's specified nowhere that there has to be a one-one
-mapping between remote filesystem - local filesystem.
+statfs() is called infrequently.  If it's expensive, it's expensive.
+OTOH lookup is done for every operation.  The filesystem would have to
+check for a remote mountpoint before doing _any_ operation, just so
+that the occasional statfs() would return valid results.
+
+Oh, and what if remote mountpoints go away, and the (unprivileged
+userspace) server is not notified.  How will the local mount structure
+always correctly reflect the remote one?
+
+It's far simpler just to let statfs() return different results based
+on path within the filesystem.  What's your problem with it?
 
 Miklos

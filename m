@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751465AbVJYGxT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751475AbVJYHCz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751465AbVJYGxT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 02:53:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751473AbVJYGxT
+	id S1751475AbVJYHCz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 03:02:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751476AbVJYHCz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 02:53:19 -0400
-Received: from mail.majordomo.ru ([81.177.16.8]:23814 "EHLO mail.majordomo.ru")
-	by vger.kernel.org with ESMTP id S1751465AbVJYGxS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 02:53:18 -0400
-Message-ID: <435E0F44.5020008@lindevel.ru>
-Date: Tue, 25 Oct 2005 10:56:04 +0000
-From: "Nikolay N. Ivanov" <group@lindevel.ru>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: ru-ru, ru
+	Tue, 25 Oct 2005 03:02:55 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:11665 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751475AbVJYHCy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 03:02:54 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <435DD86F.3090702@s5r6.in-berlin.de>
+Date: Tue, 25 Oct 2005 09:02:07 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6.13.4: don't reboot
-References: <20051024231235.3C0F81CB1E6@anxur.fi.muni.cz> <435DD708.1080802@lindevel.ru>
-In-Reply-To: <435DD708.1080802@lindevel.ru>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
+To: Jesse Barnes <jbarnes@virtuousgeek.org>
+CC: gregkh@suse.de, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, rob@janerob.com, akpm@osdl.org
+Subject: Re: [PATCH] ohci1394 PCI fixup for Toshiba laptops
+References: <200510241857.33257.jbarnes@virtuousgeek.org>
+In-Reply-To: <200510241857.33257.jbarnes@virtuousgeek.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: (-1.084) AWL,BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jesse Barnes wrote:
+> +static void __devinit pci_post_fixup_toshiba_ohci1394(struct pci_dev *dev)
+> +{
+> +	if (dmi_check_system(toshiba_ohci1394_dmi_table))
+> +		return; /* only applies to certain Toshibas (so far) */
+> +
+> +	/* Restore config space on Toshiba laptops */
+> +	mdelay(10);
+> +	pci_write_config_word(dev, PCI_CACHE_LINE_SIZE, toshiba_line_size);
 
->> OK, I sent e-mail that wasn't delivered :(. Maybe the unicode 
->> `pishyot' was the
->> problem.
->>
->> So, could you accurate the version where that occurs first time as 
->> much as
->> possible. I.e. the best is to tell us it is between 2.6.11.5 and 6 or 
->> sth.
->>
->> Then make a diff -u between dmesg -s 1000000 of the 2 versions and 
->> attach used
->> .config.
->>
->> thanks,
->
-The problem fixed! It's should be set Pentium Pro (for expample) instead 
-Pentium M processor in .config. Excuse me for hurly-burly.
+Shouldn't this read
 
-With best regards, Nikolay.
+         if (!dmi_check_system(toshiba_ohci1394_dmi_table))
+                 return;
+             ^ ?
+
+dmi_check_system returns the number of matches.
+-- 
+Stefan Richter
+-=====-=-=-= =-=- ==--=
+http://arcgraph.de/sr/

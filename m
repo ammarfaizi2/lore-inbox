@@ -1,70 +1,243 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932456AbVJYWkR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932460AbVJYWx0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932456AbVJYWkR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 18:40:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbVJYWkQ
+	id S932460AbVJYWx0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 18:53:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbVJYWxZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 18:40:16 -0400
-Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:40104 "HELO
-	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S932454AbVJYWkP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 18:40:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=Oqv15FfF/yf/GPwclw+uxtVYXRexCKAgH+s+0T9VWBIZtJZ6/g9/w/zQWAljlVTaEedfeB3K6pUtyP5cZ2Mek9ghxpGfZOCsUDIT1+iE9It10NTrupeSwv6XnREK9Vsu2tAP3rV10SP8hBKmpGfXMkFq3SyKjHdpP9AoaV1f8kQ=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH 6/6] x86_64: enable xchg optimization for x86_64
-Date: Wed, 26 Oct 2005 00:44:15 +0200
-User-Agent: KMail/1.8.3
-Cc: Andrew Morton <akpm@osdl.org>, Jeff Dike <jdike@addtoit.com>,
-       linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-References: <20051025221105.21106.95194.stgit@zion.home.lan> <20051025221351.21106.57194.stgit@zion.home.lan> <200510260022.28095.ak@suse.de>
-In-Reply-To: <200510260022.28095.ak@suse.de>
+	Tue, 25 Oct 2005 18:53:25 -0400
+Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:24078 "EHLO
+	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
+	id S932460AbVJYWxZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 18:53:25 -0400
+From: Felix Oxley <lkml@oxley.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Call for PIIX4 chipset testers
+Date: Tue, 25 Oct 2005 23:53:19 +0100
+User-Agent: KMail/1.8.2
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200510260044.17184.blaisorblade@yahoo.it>
+Message-Id: <200510252353.19966.lkml@oxley.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 26 October 2005 00:22, Andi Kleen wrote:
-> On Wednesday 26 October 2005 00:13, Paolo 'Blaisorblade' Giarrusso wrote:
-> > I.e. the implementation was written, is present in the tree, but due to
-> > this:
-> >
-> > #ifdef CONFIG_RWSEM_GENERIC_SPINLOCK
-> > #include <linux/rwsem-spinlock.h> /* use a generic implementation */
-> > #else
-> > #include <asm/rwsem.h> /* use an arch-specific implementation */
-> > #endif
-> >
-> > it was probably _NEVER_ compiled!!!
 
-> Actually it was, but we switched it back because there were some doubts
-> on the correctness of the xchg based implementation and the generic
-> one looked much cleaner. So far nobody showed a significant performance
-> different too.
+2.6.14-rc5-git5
+Dell Dimension XPS D266 MT
 
-> I should probably remove asm/rwsem.h.
-That's fine too, the current situation is clearly bogus.
-Thanks for the quick answer.
+PCI quirk: region 8000-803f claimed by PIIX4 ACPI
+PCI quirk: region 7000-701f claimed by PIIX4 SMB
+PIIX4: IDE controller at PCI slot 0000:00:07.1
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
 
-> Don't apply please.
-Agreed.
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
 
-	
+0000-001f : dma1
+0020-0021 : pic1
+0040-0043 : timer0
+0050-0053 : timer1
+0060-006f : keyboard
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+0200-0207 : ns558-pnp
+0213-0213 : ISAPnP
+0220-022f : SoundBlaster
+0330-0331 : MPU401 UART
+0376-0376 : ide1
+0378-037a : parport0
+0388-0389 : OPL2/3 (left)
+038a-038b : OPL2/3 (right)
+03f6-03f6 : ide0
+03f8-03ff : serial
+04d0-04d1 : pnp 00:0b
+0620-0623 : Emu8000-1
+0a20-0a23 : Emu8000-2
+0a79-0a79 : isapnp write
+0cf8-0cff : PCI conf1
+0e20-0e23 : Emu8000-3
+1000-101f : 0000:00:07.2
+  1000-101f : uhci_hcd
+1020-103f : 0000:00:0e.0
+  1020-103f : pcnet32_probe_pci
+1040-104f : 0000:00:07.1
+  1040-1047 : ide0
+  1048-104f : ide1
+1050-1057 : 0000:00:0f.0
+7000-701f : 0000:00:07.3
+  7000-700f : pnp 00:0b
+    7000-7007 : piix4-smbus
+8000-803f : 0000:00:07.3
+  8000-803f : pnp 00:0b
 
-	
-		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it
+
+00:00.0 Host bridge: Intel Corporation 440LX/EX - 82443LX/EX Host bridge (rev 03)
+00: 86 80 80 71 06 01 90 22 03 00 00 06 00 20 00 00
+10: 08 00 00 e0 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 a0 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 04 82 00 e3 00 aa fa 01 e0 10 11 00 00 00 13 11
+60: 10 20 28 30 32 34 34 34 00 00 00 00 05 04 40 00
+70: 20 10 1a 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 22 00 00 10 18 00 00 00 00 00 00 00 00 00 00
+a0: 02 00 10 00 03 02 00 1f 00 00 00 00 00 00 00 00
+b0: 80 22 00 00 00 00 00 00 00 00 84 19 20 10 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 fd 03 20 0f 00 00 00 00 00 00
+
+00:01.0 PCI bridge: Intel Corporation 440LX/EX - 82443LX/EX AGP bridge (rev 03)
+00: 86 80 81 71 0f 01 a0 02 03 00 04 06 00 40 01 00
+10: 00 00 00 00 00 00 00 00 00 01 01 40 f0 00 a0 22
+20: 00 d1 f0 d1 00 f0 f0 f0 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 08 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:07.0 ISA bridge: Intel Corporation 82371AB/EB/MB PIIX4 ISA (rev 01)
+00: 86 80 10 71 0f 00 80 02 01 00 01 06 00 00 80 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 4d 00 f0 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 80 09 0a 0b 10 00 00 00 00 f2 80 00 00 00 00 00
+70: 00 00 00 00 00 00 0c 0c 00 00 00 00 00 00 00 00
+80: 00 00 07 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 4d 00 00 60 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 25 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
+
+00:07.1 IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 01)
+00: 86 80 11 71 05 00 80 02 01 80 01 01 00 40 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 41 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 07 a3 07 e3 00 00 00 00 01 00 02 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
+
+00:07.2 USB Controller: Intel Corporation 82371AB/EB/MB PIIX4 USB (rev 01)
+00: 86 80 12 71 05 00 80 02 01 00 03 0c 00 40 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 01 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 0b 04 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 2f 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
+
+00:07.3 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ACPI (rev 01)
+00: 86 80 13 71 03 00 80 02 01 00 80 06 00 00 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 01 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 40 00 00 00 00 00 00 14 00 00 02 00 00 00 00
+60: 00 00 00 00 00 00 00 08 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 01 70 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
+
+00:0e.0 Ethernet controller: Advanced Micro Devices [AMD] 79c970 [PCnet32 LANCE] (rev 16)
+00: 22 10 00 20 07 01 80 02 16 00 00 02 00 40 00 00
+10: 21 10 00 00 00 00 01 d0 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 09 01 06 ff
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:0f.0 Communication controller: Conexant HCF 56k Data/Fax/Voice Modem (rev 08)
+00: f1 14 34 10 07 03 90 02 08 00 80 07 00 40 00 00
+10: 00 00 00 d0 51 10 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 e0 13 31 02
+30: 00 00 00 00 40 00 00 00 00 00 00 00 0a 01 00 00
+40: 01 00 22 48 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+01:00.0 VGA compatible controller: NVidia / SGS Thomson (Joint Venture) Riva128 (rev 10)
+00: d2 12 18 00 07 00 b0 02 10 00 00 03 00 40 00 00
+10: 00 00 00 d1 08 00 00 f0 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 b4 10 1b 1b
+30: 00 00 00 00 44 00 00 00 00 00 00 00 09 01 03 01
+40: b4 10 1b 1b 02 00 10 00 01 00 00 04 00 00 00 00
+50: bf 00 00 00 01 00 00 00 ce d6 23 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+

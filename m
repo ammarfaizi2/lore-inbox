@@ -1,39 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbVJYQpH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbVJYQ4X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932204AbVJYQpH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 12:45:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbVJYQpG
+	id S932206AbVJYQ4X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 12:56:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbVJYQ4X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 12:45:06 -0400
-Received: from bromo.msbb.uc.edu ([129.137.3.146]:40675 "HELO
-	bromo.msbb.uc.edu") by vger.kernel.org with SMTP id S932204AbVJYQpF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 12:45:05 -0400
-To: linux-kernel@vger.kernel.org
-Subject: W2100Z Critical temperature explained
-Message-Id: <20051025164339.431C81DC06D@bromo.msbb.uc.edu>
-Date: Tue, 25 Oct 2005 12:43:39 -0400 (EDT)
-From: howarth@bromo.msbb.uc.edu (Jack Howarth)
+	Tue, 25 Oct 2005 12:56:23 -0400
+Received: from smtpauth03.mail.atl.earthlink.net ([209.86.89.63]:36295 "EHLO
+	smtpauth03.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
+	id S932206AbVJYQ4X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 12:56:23 -0400
+In-Reply-To: <5bdc1c8b0510241847ifb64d84m781a6b33d210c28b@mail.gmail.com>
+References: <dfd859813ee9f143cbb8c4cc3c73aa2c@zeesource.net> <1e62d1370510241730lb77ba2s297e68db63696ad@mail.gmail.com> <5bdc1c8b0510241847ifb64d84m781a6b33d210c28b@mail.gmail.com>
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <c537c5c186112c17d3a3f9377be9a49f@zeesource.net>
+Content-Transfer-Encoding: 7bit
+Cc: Fawad Lateef <fawadlateef@gmail.com>, zeemaps@googlegroups.com,
+       linux-kernel@vger.kernel.org
+From: Claire McLister <mclister@zeesource.net>
+Subject: Re: Map of Linux Kernel Users (OT)
+Date: Tue, 25 Oct 2005 09:56:19 -0700
+To: Mark Knecht <markknecht@gmail.com>
+X-Mailer: Apple Mail (2.623)
+X-ELNK-Trace: 7705cff7f8fc6ea374bf435c0eb9d47869d51e7181ee6aec98d2bc59fdf172db16b877ba3ba1289f350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 68.164.80.151
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-     Has anyone else run into the following problem with the 2.6.12
-or 2.6.13 kernels on a Sun W2100Z dual opteron workstation? I found
-that the Fedora Core 4 kernel 2.6.12-1.1456_FC4smp was causing random
-shutdowns with error messages that 'Critical Temperature was reached: 68 C'.
-This was occuring repeatedly under that kernel. After switching to the
-latest FC4 kernel, 2.6.13-1.1532_FC4smp, these temperature events seemed
-to have been eliminated for now. 
-     However in calling the Sun Java Desktop support group, I was told
-that the earlier BIOS versions on the W2100Z had bugs that can cause the
-errors I was seeing as well as causing the cpu fans to self destruct.
-The fix is apparently to upgrade the BIOS to the current one on their
-Supplemental 2.1 CD. Is there some site this sort of information should
-be added to? Perhaps Linux would be well served if there was a list of
-motherboard BIOS kept and noted added regarding compatibility with
-various Linux kernels. Certainly in cases like these where destruction
-can occur due to the bugs in the firmware, this merits being passed
-along to the Linux kernel users.
-                     Jack
+Thanks. Yes, let's move this offline. I have created a group on Google 
+groups, zeemaps@googlegroups.com.
 
+  I found you in Mountain View group, although it still did show 
+Mountain View to the south of San Jose, which is clearly wrong. We will 
+be fixing this problem soon.
+
+Claire
+
+On Oct 24, 2005, at 6:47 PM, Mark Knecht wrote:
+> (Is this thread OK here or should this go off line? I'm fine either 
+> way.)
+>
+> I also found it interesting. It correctly recognized that I'm in the
+> Bay Area in California, but it placed me in a group in Palo Alto,
+> which is not where I really am, and it placed the Palo Alto group
+> below San Jose which isn't where Palo Alto really is.
+>
+> None the less, quite interesting.
+>
+> - Mark
 

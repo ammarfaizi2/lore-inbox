@@ -1,71 +1,50 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932150AbVJNJTn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751392AbVJYAAS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932150AbVJNJTn (ORCPT <rfc822;akpm@zip.com.au>);
-	Fri, 14 Oct 2005 05:19:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbVJNJTn
+	id S1751392AbVJYAAS (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 24 Oct 2005 20:00:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbVJYAAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Oct 2005 05:19:43 -0400
-Received: from igw02.unisys.co.jp ([202.233.47.12]:42053 "EHLO
-	igw02.unisys.co.jp") by vger.kernel.org with ESMTP id S1751211AbVJNJTm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Oct 2005 05:19:42 -0400
-X-ExtLoop1: 1
-Content-class: urn:content-classes:message
+	Mon, 24 Oct 2005 20:00:18 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:11952
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S1751392AbVJYAAQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 20:00:16 -0400
+From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+To: rogel migues <oasisalf@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Necesito archivos que me den informacion AVANZADA para realizar esto.
+Date: Mon, 24 Oct 2005 20:00:21 -0400
+Message-Id: <20051024235934.M67433@linuxwireless.org>
+In-Reply-To: <20051024234824.22435.qmail@web40513.mail.yahoo.com>
+References: <20051024234824.22435.qmail@web40513.mail.yahoo.com>
+X-Mailer: Open WebMail 2.40 20040816
+X-OriginatingIP: 16.126.157.6 (abonilla@linuxwireless.org)
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-2022-jp"
-Content-Transfer-Encoding: 7bit
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Subject: Re: Linux Kernel Dump Summit 2005 
-Date: Fri, 14 Oct 2005 18:19:21 +0900
-Message-ID: <02EF4DEA9AB4BB47A69EE24BC07FEA1A01166F8E@AA03N1MB03.nthq01.unisys.co.jp>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Re: Linux Kernel Dump Summit 2005 
-Thread-Index: AcXQoFxRbB0CgDQAS3eLdSX7B9Dw9g==
-From: <hideki.takahashi@uniadex.co.jp>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 14 Oct 2005 09:20:15.0704 (UTC) FILETIME=[7CCC5D80:01C5D0A0]
+	charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+On Mon, 24 Oct 2005 16:48:24 -0700 (PDT), rogel migues wrote
+> Es para optimizar un servicio determinado.. a traves
+> del kernel 2.6 (cuantas maneras hay ?)
+> 
+> La idea es la siguiente:
+> 
+> Obtener la optimizacion de un determinado servicio 
+> (de administracion de redes), pero desde o a traves
+> del kernel (osea configurandolo, segun ciertas
+> necesidades).
+> 
+> Ayudeme en esto, por favor, 
+> lo necesito para mi tesis.
+> 
+> GRACIAS
+> 
+> ROGEL ALFREDO MIGUES
 
-We prepared a mailing list for Linux Kernel Dump Summit.
-   
-   English:    alicia-lkds@lists.sourceforge.net 
-   Japanese: lkds@alicia.oscj.net
+Trate de hablar en Ingles y talvez entonces le contesten.
 
-We had a Linux Kernel Dump Summit 2005 in Japan on Sep.16, 2005
-with members from many Japanese companies.
-Below is a company listing of current members of the lkds mailing list.  
+(Try in English)
 
-  Hitachi, Intel, IPA, MIRACLE LINUX, NEC, NEC Soft
-  NS Solutions, NTT DATA, NTT DATA INTELLILINK, 
-  OSDL Japan, TechStyle, TOSHIBA, turbolinux,
-  UNIADEX, VA Linux Systems Japan
-
-This mailing list will be used to send information (& news) about
-Linux Kernel Dump Summit to the members.
-
-Click on the following URL to subscribe, unsubscribe, and change
-your preferences:
-
-   http://lists.sourceforge.net/lists/listinfo/alicia-lkds
-
----
-
-To subscribe Japanese mailing list, please send a mail to  
-
-  lkds@alicia.oscj.net
-
-Then the list administrator will respond to you with Japanese.
-  
-Best regards,
-All of the Japan lkds members
-
------------------
-Hideki Takahashi
-UNIADEX, Ltd., Software Product Support
-
--
+.Alejandro

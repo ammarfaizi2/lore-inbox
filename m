@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751402AbVJYAau@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751350AbVJYAjb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751402AbVJYAau (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 20:30:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbVJYAau
+	id S1751350AbVJYAjb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 20:39:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbVJYAjb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 20:30:50 -0400
-Received: from xproxy.gmail.com ([66.249.82.197]:22475 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751402AbVJYAat convert rfc822-to-8bit
+	Mon, 24 Oct 2005 20:39:31 -0400
+Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:29649
+	"HELO linuxace.com") by vger.kernel.org with SMTP id S1751350AbVJYAja
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 20:30:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=sUmyKDOMuWoz1eCA2lkn8cAvBVYZjNOVRKoX/xelGzMKUEZCVcUaUkhtyNw8YYdTXeTG77+mTVRrqfN/GbCjUdzZ4+8U15Jsw2PAfE1fn3OgMxNO7ODX4Iv8IhVZWt1C4mQZPsn0n1uaj0oFAPajV3+pRRJGwm0Z+qy9feltGQ8=
-Message-ID: <1e62d1370510241730lb77ba2s297e68db63696ad@mail.gmail.com>
-Date: Tue, 25 Oct 2005 05:30:48 +0500
-From: Fawad Lateef <fawadlateef@gmail.com>
-To: Claire McLister <mclister@zeesource.net>
-Subject: Re: Map of Linux Kernel Users (OT)
+	Mon, 24 Oct 2005 20:39:30 -0400
+Date: Mon, 24 Oct 2005 17:39:29 -0700
+From: Phil Oester <kernel@linuxace.com>
+To: "Fao, Sean" <sean@capitalgenomix.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <dfd859813ee9f143cbb8c4cc3c73aa2c@zeesource.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Subject: Re: 2.6.13 SMP Changes?
+Message-ID: <20051025003929.GA4970@linuxace.com>
+References: <435D786C.4000706@capitalgenomix.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <dfd859813ee9f143cbb8c4cc3c73aa2c@zeesource.net>
+In-Reply-To: <435D786C.4000706@capitalgenomix.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/25/05, Claire McLister <mclister@zeesource.net> wrote:
-> Hi,
->
->   We've developed an automatic email mapping capability from Google Maps
-> API.
->
->   To try it out, we mapped origins of emails to this group from October
-> 2 through October 10th.
->
-> The result of this map is at:
-> http://www.zeesource.net/maps/map.do?group=478
->
->   Would like to hear what you think of it.
->
+On Mon, Oct 24, 2005 at 07:12:28PM -0500, Fao, Sean wrote:
+> Hello group,
+> 
+> Have any major changes been made to the SMP code between 2.6.10 and 
+> 2.6.13?  After upgrading, it appears that either my two hyper-threaded 
+> CPU's are running on a single thread, one of my processors is no longer 
+> working or something is eating up 100% of the CPU time on the second 
+> processor.  I used to see four CPU's in top and htop.  top now shows two 
+> processors while htop shows four with processors three and four running 
+> at 100% all the time.  I'm having a difficult time determining which 
+> ones are the real CPU's and which are the hyper-threads.  Sorting by CPU 
+> shows nothing using any more CPU than I would expect (most everything is 
+> sitting idle).
 
-Interesting, Its looking useful to get to know what are the origins of
-emails coming to linux-kernel !
+ACPI was made dependent upon CONFIG_PM in 2.6.13, where it was not before.
+So a "make oldconfig" in 2.6.13 against a 2.6.10 .config which had ACPI
+enabled will end up disabling ACPI.
 
+Interestingly, SMT used to work without ACPI, but now does not seem to
+work without it.
 
---
-Fawad Lateef
+Not sure if either of the above have been addressed in 2.6.14...haven't
+had a chance to test
+
+Phil

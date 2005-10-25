@@ -1,97 +1,337 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbVJYSRH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbVJYSUU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932286AbVJYSRH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 14:17:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbVJYSRG
+	id S932287AbVJYSUU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 14:20:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932290AbVJYSUT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 14:17:06 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:9607 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932286AbVJYSRD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 14:17:03 -0400
-Subject: Re: 2.6.14-rc4-rt7
-From: john stultz <johnstul@us.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Mark Knecht <markknecht@gmail.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       david singleton <dsingleton@mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-       cc@ccrma.Stanford.EDU, William Weston <weston@lysdexia.org>
-In-Reply-To: <20051025154440.GA12149@elte.hu>
-References: <20051019111943.GA31410@elte.hu>
-	 <1129835571.14374.11.camel@cmn3.stanford.edu>
-	 <20051020191620.GA21367@elte.hu>
-	 <1129852531.5227.4.camel@cmn3.stanford.edu> <20051021080504.GA5088@elte.hu>
-	 <1129937138.5001.4.camel@cmn3.stanford.edu>
-	 <20051022035851.GC12751@elte.hu>
-	 <1130182121.4983.7.camel@cmn3.stanford.edu>
-	 <1130182717.4637.2.camel@cmn3.stanford.edu>
-	 <1130183199.27168.296.camel@cog.beaverton.ibm.com>
-	 <20051025154440.GA12149@elte.hu>
-Content-Type: text/plain
-Date: Tue, 25 Oct 2005 11:16:58 -0700
-Message-Id: <1130264218.27168.320.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Oct 2005 14:20:19 -0400
+Received: from ispmxmta09-srv.alltel.net ([166.102.165.170]:57764 "EHLO
+	ispmxmta09-srv.alltel.net") by vger.kernel.org with ESMTP
+	id S932287AbVJYSUS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 14:20:18 -0400
+Date: Tue, 25 Oct 2005 14:20:16 -0400 (EDT)
+From: Burton Windle <bwindle@fint.org>
+X-X-Sender: bwindle@postal
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Call for PIIX4 chipset testers
+In-Reply-To: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
+Message-ID: <Pine.LNX.4.63.0510251417590.1508@postal>
+References: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-10-25 at 17:44 +0200, Ingo Molnar wrote:
-> John
-> 
-> i found one source of timekeeping bugs on SMP boxes, it's the 
-> non-monotonicity of the TSC:
-> 
-> ... time warped from 1270809453 to 1270808096.
-> ... MTSC warped from 0000000a731a8c3c [0] to 0000000a731a899c [2].
-> ... MTSC warped from 0000000a7c93baec [0] to 0000000a7c93b7a8 [3].
-> ... MTSC warped from 0000000a881d6afc [0] to 0000000a881d67d0 [2].
-> ... MTSC warped from 0000000a924217a0 [0] to 0000000a924216ac [3].
-> ... MTSC warped from 0000000a9c592788 [0] to 0000000a9c59232c [2].
-> ... MTSC warped from 0000000aa7aa95c8 [0] to 0000000aa7aa9338 [3].
-> ... MTSC warped from 0000000b33206d60 [0] to 0000000b33206a48 [3].
-> ... time warped from 26699635824 to 26699633144.
-> ... MTSC warped from 00000013f379cb88 [0] to 00000013f379c7e0 [3].
-> ... MTSC warped from 0000001413df8660 [0] to 0000001413df8200 [3].
-> ... MTSC warped from 00000014194f5360 [1] to 00000014194f51b0 [2].
-> ... time warped from 60775269225 to 60775266727.
-> 
-> the number in square brackets is the CPU#. I.e. CPUs on this 4-CPU box 
-> have small TSC differences, which ends up leaking into the generic TOD 
-> code, causing real time warps, which causes ktimer weirdnesses (timers 
-> failed to expire, etc.).
-> 
-> (the above output tracks TSC results globally, under a spinlock. It also 
-> detects time-warps that propagate into the monotonic clock output.)
-> 
-> unfortunately, there's no easy solution for this. We could make 
-> cycle_last per-CPU, but that again brings up the question of how to set 
-> up the per-CPU 'TSC offset' values - those would need similar technique 
-> that the current clear-all-TSCs-on-all-CPUs code does - which as we can 
-> see failed ...
+On Tue, 25 Oct 2005, Linus Torvalds wrote:
 
+> While trying to figure out why one of Alan's laptops didn't like certain
+> resource allocations, it dawned on Ivan and me that the PIIX4 (aka
+> "82371AB PCI-TO-ISA/IDE Xcelerator", aka "old venerable Intel core
+> chipset") actually has a lot more PCI resources that it decodes than the
+> two big special cases we had been quirking out.
+>
+> It's an old chipset by now, but it was very very common, so I bet people
+> still have them around. If doing /sbin/lspci on your machine mentions
+> something like
+>
+> 	Intel Corporation 82371AB/EB/MB PIIX4 ISA
+>
+> can you please test out this patch and report what it says in dmesg?
+>
+> It should report a number of quirks, and the easiest way to get them all
+> is to just do
+>
+> 	dmesg -s 1000000 | grep PIIX4
+>
+> and send it to me (and you might as well cc linux-kernel too in this
+> thread, so that we'll get the thing archived for later). Preferably
+> together with the output of "cat /proc/ioport" and "/sbin/lspci -xxx".
+>
 
-Indeed. This is a nasty issue can affect a number of different systems.
-The best solution in my mind is to utilize alternative clocksources when
-necessary (one of the main reasons for creating the flexible clocksource
-interface: so we can easily use something else). 
+RTIX-NM-003:/home/bwindle# dmesg -s 1000000 | grep PIIX4
+PCI quirk: region 0800-083f claimed by PIIX4 ACPI
+PCI quirk: region 0840-085f claimed by PIIX4 SMB
+PIIX4: IDE controller at PCI slot 0000:00:07.1
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+RTIX-NM-003:/home/bwindle# cat /proc/ioports
+0000-001f : dma1
+0020-0021 : pic1
+0040-0043 : timer0
+0050-0053 : timer1
+0060-006f : keyboard
+0070-0077 : rtc
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+02f8-02ff : serial
+0376-0376 : ide1
+03c0-03df : vga+
+03f8-03ff : serial
+0800-083f : 0000:00:07.3
+   0800-0803 : PM1a_EVT_BLK
+   0804-0805 : PM1a_CNT_BLK
+   0808-080b : PM_TMR
+   080c-080f : GPE0_BLK
+0840-085f : 0000:00:07.3
+0cf8-0cff : PCI conf1
+cc80-ccbf : 0000:00:11.0
+   cc80-ccbf : 0000:00:11.0
+cce0-ccff : 0000:00:07.2
+d000-dfff : PCI Bus #02
+   dc00-dcff : 0000:02:0b.0
+e000-efff : PCI Bus #01
+   ec00-ecff : 0000:01:00.0
+ffa0-ffaf : 0000:00:07.1
+   ffa8-ffaf : ide1
+RTIX-NM-003:/home/bwindle# lspci -xxx
+0000:00:00.0 Host bridge: Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX 
+Host bridge (rev 03)
+00: 86 80 90 71 06 01 10 22 03 00 00 06 00 20 00 00
+10: 08 00 00 f0 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 28 10 8e 00
+30: 00 00 00 00 a0 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 8c 01 00 00 00 00 00 11 03 10 11 11 00 00 00 00
+60: 10 20 30 40 50 60 70 80 00 00 00 00 a0 0a 00 00
+70: 20 1f 0a 78 aa aa 17 00 00 ff 10 38 00 00 00 00
+80: 00 40 b7 02 00 00 00 00 00 00 00 00 00 00 00 00
+90: 07 00 00 00 04 61 00 00 00 05 00 00 00 00 00 00
+a0: 02 00 10 00 03 02 00 1f 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 30 00 00 00 00 00 00 00 20 10 00 00
+c0: 00 00 00 00 00 00 00 00 18 0c ff ff 7f 00 00 00
+d0: 08 04 02 02 02 12 00 00 0c 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 f8 00 60 20 0f 00 00 00 00 00 00
 
-In my patches, I have a function mark_tsc_unstable(), when called will
-drop the tsc's rating value and will cause another clocksource to be
-chosen (as long as one is available). Right now we call it when we know
-the TSC is going to have problems. But maybe we should be more dynamic
-in our detection.
+0000:00:01.0 PCI bridge: Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX AGP 
+bridge (rev 03)
+00: 86 80 91 71 1f 01 20 02 03 00 04 06 00 20 01 00
+10: 00 00 00 00 00 00 00 00 00 01 01 20 e0 e0 a0 02
+20: 00 fb f0 fd 00 f6 f0 f6 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 88 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-Do you have any details about the hardware? Are the TSCs not being
-synced well enough, or are they falling out of sync? i386 is a bit more
-aggressive about using the TSC in SMP systems, where x86-64 has more
-conditionals. Maybe some of the x86-64 logic should be moved to i386 as
-well.
+0000:00:02.0 PCI bridge: Digital Equipment Corporation DECchip 21152 (rev 
+03)
+00: 11 10 24 00 07 01 90 02 03 00 04 06 08 20 01 00
+10: 00 00 00 00 00 00 00 00 00 02 02 20 d1 d1 80 02
+20: 00 f9 f0 fa 01 f5 f1 f5 00 00 00 00 00 00 00 00
+30: 00 00 00 00 dc 00 00 00 00 00 00 00 00 00 06 00
+40: 00 00 00 02 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 30 3e 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 01 01
+e0: 00 00 c0 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-thanks
--john
+0000:00:07.0 ISA bridge: Intel Corporation 82371AB/EB/MB PIIX4 ISA (rev 
+02)
+00: 86 80 10 71 0f 00 80 02 02 00 01 06 00 00 80 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 4d 00 20 01
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 8e 8b 80 8e 10 00 00 00 00 f6 80 00 00 00 00 00
+70: 00 00 00 00 00 00 0c 0c 00 00 00 00 00 00 00 00
+80: 00 00 07 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 05 40 d0 e3 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 25 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
 
+0000:00:07.1 IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 
+01)
+00: 86 80 11 71 05 00 80 02 01 80 01 01 00 40 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: a1 ff 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 07 e3 00 00 00 00 04 00 00 02 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
+
+0000:00:07.2 USB Controller: Intel Corporation 82371AB/EB/MB PIIX4 USB 
+(rev 01)
+00: 86 80 12 71 05 00 80 02 01 00 03 0c 00 20 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: e1 cc 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 0e 04 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 10
+
+0000:00:07.3 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ACPI (rev 02)
+00: 86 80 13 71 01 00 80 02 02 00 80 06 00 00 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 01 08 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 04 00 00 02 00 00 00 00
+60: e0 00 c7 00 ee 00 c1 00 04 08 11 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 51 08 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
+
+0000:00:0d.0 PCI bridge: Intel Corporation 80960RP [i960 RP 
+Microprocessor/Bridge] (rev 02)
+00: 86 80 64 09 07 01 90 02 02 00 04 06 08 20 81 00
+10: 00 00 00 00 00 00 00 00 00 03 03 20 f0 00 80 22
+20: f0 ff 00 00 f0 ff 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 68 00 00 00 00 00 00 00 00 00 06 00
+40: 08 01 ff 03 00 00 00 00 00 00 00 00 a8 2a 00 00
+50: 00 00 00 00 00 00 00 00 00 b0 00 b0 04 ff 08 00
+60: 00 00 00 00 00 00 00 00 01 00 02 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+0000:00:0d.1 I2O: Intel Corporation 80960RP [i960RP Microprocessor] (rev 
+02)
+00: 86 80 60 19 16 01 90 02 02 01 00 0e 08 40 80 00
+10: 08 00 00 f7 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 28 10 67 04
+30: 00 00 00 00 80 00 00 00 00 00 00 00 0b 01 00 00
+40: 00 00 c0 ff 00 00 20 d0 08 00 00 d0 00 00 00 f0
+50: 00 00 00 d0 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 10 f0 b7 01 00 00 00 b0 00 00 00 00
+70: 00 00 00 00 00 80 ff ff 00 00 f8 fe 00 00 00 00
+80: 01 00 02 00 00 00 00 00 06 01 18 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 06 01 00 20 9c 21 01 0f
+a0: 44 33 00 00 00 00 00 00 1c 01 02 00 28 10 67 04
+b0: 04 00 02 b0 00 00 00 00 00 00 00 00 ff 01 00 00
+c0: ff 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+0000:00:11.0 Ethernet controller: 3Com Corporation 3c905 100BaseTX 
+[Boomerang]
+00: b7 10 50 90 07 01 00 02 00 00 00 02 00 20 00 00
+10: 81 cc 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 f8 00 00 00 00 00 00 00 00 0a 01 03 08
+40: d8 02 63 00 00 00 00 00 40 e0 00 00 ff ff ff ff
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+0000:01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage IIC 
+AGP (rev 7a)
+00: 02 10 57 47 87 00 90 02 7a 00 00 03 08 20 00 00
+10: 00 00 00 fc 01 ec 00 00 00 f0 ff fb 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 28 10 8e 00
+30: 00 00 00 00 5c 00 00 00 00 00 00 00 ff 00 08 00
+40: 0c 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 02 5c 10 00 01 00 00 ff 00 00 00 00 01 00 01 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+0000:02:0a.0 Ethernet controller: 3Com Corporation 3c985 1000BaseSX 
+(SX/TX) (rev 01)
+00: b7 10 01 00 06 01 a0 02 01 00 00 02 20 40 00 00
+10: 00 c0 ff f9 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 50 98 01 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 05 01 40 00
+40: 20 00 00 60 00 32 e0 00 00 00 00 00 01 00 00 00
+50: 55 00 10 00 cc cc 26 0f 0e cf 26 0f 00 00 12 76
+60: 84 00 06 00 00 00 00 00 00 38 00 00 00 00 00 00
+70: 04 00 06 00 00 00 00 00 e0 cc 26 0f 31 00 00 00
+80: 00 00 00 00 08 10 c9 37 00 00 00 00 08 10 c9 37
+90: 00 00 00 00 3a 69 c9 37 00 00 00 00 00 00 00 00
+a0: 82 00 82 00 2c 2b 13 00 42 cf 00 00 00 00 00 00
+b0: 80 fa 83 00 e0 05 14 00 63 11 00 00 e0 05 14 00
+c0: 00 60 17 00 f0 e8 1b 00 78 e8 1b 00 78 e8 1b 00
+d0: 00 30 13 00 e0 05 14 00 e0 05 14 00 00 00 00 00
+e0: 28 10 13 00 28 10 13 00 28 10 13 00 03 00 ff ff
+f0: 40 0b 13 00 40 0b 13 00 00 08 13 00 40 0b 13 00
+
+0000:02:0b.0 SCSI storage controller: Adaptec AHA-2940U2/U2W / 7890/7891 
+(rev 01)
+00: 05 90 1f 00 17 01 90 02 01 00 00 01 08 20 00 80
+10: 01 dc 00 00 04 b0 ff f9 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 05 90 0f 00
+30: 00 00 00 fa dc 00 00 00 00 00 00 00 0e 01 27 19
+40: 40 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 01 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
 

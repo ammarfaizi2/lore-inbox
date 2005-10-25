@@ -1,252 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932295AbVJYS1A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbVJYSdr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932295AbVJYS1A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 14:27:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbVJYS1A
+	id S932293AbVJYSdr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 14:33:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbVJYSdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 14:27:00 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:13970 "EHLO
-	linuxbipbip.grupopie.com") by vger.kernel.org with ESMTP
-	id S932295AbVJYS07 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 14:26:59 -0400
-Message-ID: <435E78EF.5060909@grupopie.com>
-Date: Tue, 25 Oct 2005 19:26:55 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+	Tue, 25 Oct 2005 14:33:47 -0400
+Received: from atlrel9.hp.com ([156.153.255.214]:10162 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S932293AbVJYSdr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 14:33:47 -0400
+Message-ID: <435E7A7B.3040806@hp.com>
+Date: Tue, 25 Oct 2005 14:33:31 -0400
+From: Mark Seger <Mark.Seger@hp.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040803
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Call for PIIX4 chipset testers
-References: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: Re: Patch for inconsistent recording of block device statistics]
+References: <435D0F45.90906@hp.com> <20051025064014.GO2811@suse.de>
+In-Reply-To: <20051025064014.GO2811@suse.de>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> While trying to figure out why one of Alan's laptops didn't like certain 
-> resource allocations, it dawned on Ivan and me that the PIIX4 (aka 
-> "82371AB PCI-TO-ISA/IDE Xcelerator", aka "old venerable Intel core 
-> chipset") actually has a lot more PCI resources that it decodes than the 
-> two big special cases we had been quirking out.
-> 
-> It's an old chipset by now, but it was very very common, so I bet people 
-> still have them around. If doing /sbin/lspci on your machine mentions 
-> something like
-> 
-> 	Intel Corporation 82371AB/EB/MB PIIX4 ISA
-> 
-> can you please test out this patch and report what it says in dmesg?
+yes, the patch worked.  The general discussion was that the byte counter 
+gets incremented when requests are queued, not when they're acted upon 
+as is the case with the count of I/Os.  As a result, the disk write 
+numbers don't make any sense reporting impossibly high numbers (>100MB 
+and as high as 450!) during some times and at other reporting zeros.  
+The entire time, the I/O counts are happily showing what appear to be 
+correct numbers.  Here's a snapshot taken during a portion of a 2GB file 
+file to /tmp.
 
-I have one that says:
+# DISK SUMMARY (/sec)
+#         Reads  R-Merged  R-KBytes   Writes  W-Merged  W-KBytes
+14:26:38      0         0         0        0         0         0
+14:26:39      0         0         0       90      4391     18368
+14:26:40      0         0         0      577     12603     52696
+14:26:41      0         0         0      563    107835    446728
+14:26:42      0         0         0      445         0         0
+14:26:43      0         0         0      442         0         0
+14:26:44      0         0         0      445         0         0
+14:26:45      0         0         0      354         0         0
+14:26:46      0         0         0      442         0         0
+14:26:47      0         0         0      443         0         0
+14:26:48      0         0         0      408         0         0
+14:26:49      0         0         4      439       782      3280
+14:26:50      1         0         0      462     12230     51160
+14:26:51      0         0         0      574     88342    366116
+14:26:52      0         0         0      477     32881    136604
+14:26:53      0         0         0      443      9101     37656
+14:26:54      0         0         0      442     11779     48736
+14:26:55      0         0         0      373         0         0
+14:26:56      0         0         0      415         0         0
 
-00:07.0 ISA bridge: Intel Corporation 82371AB/EB/MB PIIX4 ISA (rev 02)
+-mark
 
-I hope it doesn't matter, but I've applied against the 2.6.13 kernel I 
-had there at hand (I'm accessing it remotely).
+Jens Axboe wrote:
 
-`dmesg -s 1000000 | grep PIIX4` just shows:
-
-PCI quirk: region 4000-403f claimed by PIIX4 ACPI
-PCI quirk: region 5000-501f claimed by PIIX4 SMB
-PIIX4: IDE controller at PCI slot 0000:00:07.1
-PIIX4: chipset revision 1
-PIIX4: not 100% native mode: will probe irqs later
-
-cat /proc/ioports:
-
-0000-001f : dma1
-0020-0021 : pic1
-0040-0043 : timer0
-0050-0053 : timer1
-0060-006f : keyboard
-0070-0077 : rtc
-0080-008f : dma page reg
-00a0-00a1 : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-0177 : ide1
-01f0-01f7 : ide0
-02f8-02ff : serial
-0376-0376 : ide1
-03c0-03df : vga+
-   03c0-03df : matrox
-03f6-03f6 : ide0
-03f8-03ff : serial
-0cf8-0cff : PCI conf1
-4000-403f : 0000:00:07.3
-   4000-4003 : PM1a_EVT_BLK
-   4008-400b : PM_TMR
-   400c-400f : GPE0_BLK
-4040-4041 : PM1a_CNT_BLK
-5000-501f : 0000:00:07.3
-e000-e01f : 0000:00:07.2
-   e000-e01f : uhci_hcd
-e400-e4ff : 0000:00:0b.0
-   e400-e4ff : r8169
-f000-f00f : 0000:00:07.1
-   f000-f007 : ide0
-   f008-f00f : ide1
-
-lspci:
-
-00:00.0 Host bridge: Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX Host 
-bridge (rev 03)
-00: 86 80 90 71 06 00 10 22 03 00 00 06 00 20 00 00
-10: 08 00 00 d0 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 a0 00 00 00 00 00 00 00 00 00 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 0c 8a 00 ff 00 00 00 09 03 10 11 00 00 00 00 00
-60: 00 00 10 20 20 20 20 20 00 00 00 33 03 8a 00 00
-70: 20 1f 0a 38 a0 00 00 01 06 ff 10 38 00 00 00 00
-80: 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 98 66 00 00 04 61 00 00 00 05 00 00 00 00 00 00
-a0: 02 00 10 00 03 02 00 1f 00 00 00 00 00 00 00 00
-b0: 80 20 00 00 30 00 00 00 00 00 3f 01 20 10 00 00
-c0: 00 00 00 00 00 00 00 00 18 0c ff ff 67 00 00 00
-d0: 00 00 00 00 00 00 00 00 0c 00 00 00 00 00 00 00
-e0: 4c ad ff bb 8a 3e 00 80 2c d3 f7 cf 9d 3e 00 00
-f0: 40 01 00 00 00 f8 00 60 20 0f 00 00 00 00 00 00
-
-00:01.0 PCI bridge: Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX AGP 
-bridge (rev 03)
-00: 86 80 91 71 07 01 20 02 03 00 04 06 00 40 01 00
-10: 00 00 00 00 00 00 00 00 00 01 01 20 f0 00 a0 22
-20: 00 d4 f0 d7 00 d8 f0 d9 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 88 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-00:07.0 ISA bridge: Intel Corporation 82371AB/EB/MB PIIX4 ISA (rev 02)
-00: 86 80 10 71 0f 00 80 02 02 00 01 06 00 00 80 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 4d 00 20 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 0b 0c 80 0a 10 00 00 00 00 f2 80 00 00 00 00 00
-70: 00 00 00 00 00 00 0c 0c 00 00 00 00 00 00 00 00
-80: 00 00 06 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 05 00 80 60 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 21 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
-
-00:07.1 IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 01)
-00: 86 80 11 71 05 00 80 02 01 80 01 01 00 20 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 01 f0 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 07 a3 77 e3 b0 00 00 00 0d 00 02 22 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
-
-00:07.2 USB Controller: Intel Corporation 82371AB/EB/MB PIIX4 USB (rev 01)
-00: 86 80 12 71 05 00 80 02 01 00 03 0c 00 20 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 01 e0 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 0a 04 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 20 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
-
-00:07.3 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ACPI (rev 02)
-00: 86 80 13 71 03 00 80 02 02 00 80 06 00 00 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 01 40 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 58 1f 00 00 00 00 00 07 00 00 02 00 00 00 00
-60: 00 00 00 00 94 02 83 10 00 00 00 00 00 00 00 00
-70: 40 40 11 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 01 50 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 09 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
-
-00:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8169 
-Gigabit Ethernet (rev 10)
-00: ec 10 69 81 17 00 b0 02 10 00 00 02 08 20 00 00
-10: 01 e4 00 00 00 00 00 db 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 ec 10 69 81
-30: 00 00 00 00 dc 00 00 00 00 00 00 00 0c 01 20 40
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 02 76
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP 
-(rev 04)
-00: 2b 10 25 05 07 00 90 02 04 00 00 03 08 20 00 00
-10: 08 00 00 d8 00 00 00 d4 00 00 00 d5 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 2b 10 38 03
-30: 00 00 00 00 dc 00 00 00 00 00 00 00 0b 01 10 20
-40: 20 01 04 50 00 3c 00 00 10 ff ff 10 00 00 00 00
-50: 00 30 00 01 19 a4 90 01 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 f0 22 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 02 00 20 00 03 02 00 1f 01 03 00 1f 00 00 00 00
-
-I hope this is useful,
-
--- 
-Paulo Marques - www.grupopie.com
-
-The rule is perfect: in all matters of opinion our
-adversaries are insane.
-Mark Twain
+>On Mon, Oct 24 2005, Mark Seger wrote:
+>  
+>
+>>This patch was discussed back in march, and I still haven't seen it show 
+>>up in the source pool.  I was wondering if it just feel through the 
+>>cracks or if it was planned for a specific future release.  If the 
+>>attached doesn't provide enough context for you to remember what this is 
+>>all about, just let me know...
+>>    
+>>
+>
+>Refresh my memory on where the discussion went after this email, I don't
+>recall. Did the patch work for you?
+>
+>
+>  
+>
 

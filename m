@@ -1,216 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbVJYVRd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbVJYVZu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932385AbVJYVRd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 17:17:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbVJYVRd
+	id S932388AbVJYVZu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 17:25:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbVJYVZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 17:17:33 -0400
-Received: from smtp-102-tuesday.noc.nerim.net ([62.4.17.102]:28681 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932385AbVJYVRc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 17:17:32 -0400
-Date: Tue, 25 Oct 2005 23:18:30 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Call for PIIX4 chipset testers
-Message-Id: <20051025231830.7c379ab3.khali@linux-fr.org>
-In-Reply-To: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
-References: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
-X-Mailer: Sylpheed version 2.0.1 (GTK+ 2.6.10; i686-pc-linux-gnu)
+	Tue, 25 Oct 2005 17:25:50 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:45444 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S932388AbVJYVZu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 17:25:50 -0400
+Date: Wed, 26 Oct 2005 01:25:20 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Badari Pulavarty <pbadari@gmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.14-rc5 GPF in radeon_cp_init_ring_buffer()
+Message-ID: <20051026012520.A7501@jurassic.park.msu.ru>
+References: <1130257682.6831.63.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1130257682.6831.63.camel@localhost.localdomain>; from pbadari@gmail.com on Tue, Oct 25, 2005 at 09:28:02AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Tue, Oct 25, 2005 at 09:28:02AM -0700, Badari Pulavarty wrote:
+> On my EM64T machine, X gets killed every time due to
+> following GFP. Happens on mainline & -mm kernels.
+> Hasn't annoyed me enough to take a look on why ?
 
-> It's an old chipset by now, but it was very very common, so I bet people 
-> still have them around. If doing /sbin/lspci on your machine mentions 
-> something like
-> 
-> 	Intel Corporation 82371AB/EB/MB PIIX4 ISA
-> 
-> can you please test out this patch and report what it says in dmesg?
-> 
-> It should report a number of quirks, and the easiest way to get them all 
-> is to just do
-> 
-> 	dmesg -s 1000000 | grep PIIX4
-> 
-> and send it to me (and you might as well cc linux-kernel too in this 
-> thread, so that we'll get the thing archived for later). Preferably 
-> together with the output of "cat /proc/ioport" and "/sbin/lspci -xxx".
+I've seen similar failure on alpha.
 
-Here you go. This is a good old Asus TX97-E motherboard. For what it's
-worth, the device at 0x290-0x297 is a National Semiconductor LM78
-hardware monitoring chip.
+Obviously, someone forgot to convert sg->handle stuff for
+PCI gart case.
 
-# dmesg -s 1000000 | grep PIIX4
+Ivan.
 
-PCI quirk: region e400-e43f claimed by PIIX4 ACPI
-PCI quirk: region e800-e81f claimed by PIIX4 SMB
-PIIX4 devres B PIO at 0290-0297
-PIIX4: IDE controller at PCI slot 0000:00:01.1
-PIIX4: chipset revision 1
-PIIX4: not 100% native mode: will probe irqs later
-
-# cat /proc/ioports
-
-0000-001f : dma1
-0020-0021 : pic1
-0040-0043 : timer0
-0050-0053 : timer1
-0060-006f : keyboard
-0070-0077 : rtc
-0080-008f : dma page reg
-00a0-00a1 : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-01f0-01f7 : ide0
-03c0-03df : vga+
-  03c0-03df : matrox
-03f6-03f6 : ide0
-0cf8-0cff : PCI conf1
-d400-d4ff : 0000:00:09.0
-  d400-d4ff : 8139too
-d800-d81f : 0000:00:01.2
-e000-e00f : 0000:00:01.1
-  e000-e007 : ide0
-  e008-e00f : ide1
-e400-e43f : 0000:00:01.3
-e800-e81f : 0000:00:01.3
-
-# /sbin/lspci -xxx
-
-00:00.0 Host bridge: Intel Corporation 430TX - 82439TX MTXC (rev 01)
-00: 86 80 00 71 06 00 00 22 01 00 00 06 00 20 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 08 00 81 14 08 00 10 01 29 10 55 00 00 00 11 11
-60: 08 08 10 10 10 10 00 84 05 03 00 00 00 00 00 00
-70: 20 00 0a 00 0e 00 00 00 23 12 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 20 0f 00 00 00 20 00 00
-
-00:01.0 ISA bridge: Intel Corporation 82371AB/EB/MB PIIX4 ISA (rev 01)
-00: 86 80 10 71 0f 00 80 02 01 00 01 06 00 00 80 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 09 00 23 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 0b 80 80 0a 10 00 00 00 00 f2 00 00 00 00 00 00
-70: 00 00 00 00 00 00 0c 0c 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 21 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
-
-00:01.1 IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 01)
-00: 86 80 11 71 05 00 80 02 01 80 01 01 00 30 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 01 e0 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 07 a3 00 80 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
-
-00:01.2 USB Controller: Intel Corporation 82371AB/EB/MB PIIX4 USB (rev 01)
-00: 86 80 12 71 05 00 80 02 01 00 03 0c 00 30 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 01 d8 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 ff 04 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
-
-00:01.3 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ACPI (rev 01)
-00: 86 80 13 71 03 00 80 02 01 00 80 06 00 00 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 01 e4 00 00 00 00 00 20 1e 30 00 01 00 00 00 00
-50: 00 58 09 00 c0 c8 3b 02 04 40 40 03 00 00 00 00
-60: 90 02 e7 00 00 00 00 10 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 01 e8 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
-
-00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
-00: ec 10 39 81 07 00 90 02 10 00 00 02 00 30 00 00
-10: 01 d4 00 00 00 00 00 e6 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 ec 10 39 81
-30: 00 00 00 00 50 00 00 00 00 00 00 00 0a 01 20 40
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 01 00 02 76 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-00:0c.0 VGA compatible controller: Matrox Graphics, Inc. MGA 2064W [Millennium] (rev 01)
-00: 2b 10 19 05 83 00 80 02 01 00 00 03 00 00 00 00
-10: 00 00 80 e5 08 00 00 e7 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 0b 01 00 00
-40: 00 01 2c 5f 00 3c 00 00 2a 00 ff 2a 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-Hope that helps. Anything else you need, just ask.
-
--- 
-Jean Delvare
+--- 2.6.14-rc5/drivers/char/drm/radeon_cp.c	Fri Sep 23 23:39:48 2005
++++ linux/drivers/char/drm/radeon_cp.c	Sat Sep 24 02:59:22 2005
+@@ -1136,7 +1136,7 @@ static void radeon_cp_init_ring_buffer( 
+        } else
+ #endif
+ 		ring_start = (dev_priv->cp_ring->offset
+-			      - dev->sg->handle
++			      - (unsigned long)dev->sg->virtual
+ 			      + dev_priv->gart_vm_start);
+ 
+ 	RADEON_WRITE( RADEON_CP_RB_BASE, ring_start );
+@@ -1164,7 +1164,8 @@ static void radeon_cp_init_ring_buffer( 
+ 		drm_sg_mem_t *entry = dev->sg;
+ 		unsigned long tmp_ofs, page_ofs;
+ 
+-		tmp_ofs = dev_priv->ring_rptr->offset - dev->sg->handle;
++		tmp_ofs = dev_priv->ring_rptr->offset - 
++				(unsigned long)dev->sg->virtual;
+ 		page_ofs = tmp_ofs >> PAGE_SHIFT;
+ 
+ 		RADEON_WRITE( RADEON_CP_RB_RPTR_ADDR,
+@@ -1491,8 +1492,8 @@ static int radeon_do_init_cp( drm_device
+ 	else
+ #endif
+ 		dev_priv->gart_buffers_offset = (dev->agp_buffer_map->offset
+-						- dev->sg->handle
+-						+ dev_priv->gart_vm_start);
++					- (unsigned long)dev->sg->virtual
++					+ dev_priv->gart_vm_start);
+ 
+ 	DRM_DEBUG( "dev_priv->gart_size %d\n",
+ 		   dev_priv->gart_size );

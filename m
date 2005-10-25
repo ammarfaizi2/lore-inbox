@@ -1,43 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751410AbVJYB4z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751412AbVJYB6Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751410AbVJYB4z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 21:56:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751411AbVJYB4z
+	id S1751412AbVJYB6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 21:58:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbVJYB6Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 21:56:55 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:62444 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751410AbVJYB4y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 21:56:54 -0400
-Date: Mon, 24 Oct 2005 21:56:51 -0400
-From: Dave Jones <davej@redhat.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: rogel migues <oasisalf@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Necesito archivos que me den informacion AVANZADA para realizar esto.
-Message-ID: <20051025015651.GI3743@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jesper Juhl <jesper.juhl@gmail.com>,
-	rogel migues <oasisalf@yahoo.com>, linux-kernel@vger.kernel.org
-References: <20051025001532.82467.qmail@web40509.mail.yahoo.com> <9a8748490510241739g60430585v1f3741e4cab7d99c@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9a8748490510241739g60430585v1f3741e4cab7d99c@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 24 Oct 2005 21:58:25 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:15769 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1751412AbVJYB6Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 21:58:25 -0400
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: gregkh@suse.de
+Subject: [PATCH] ohci1394 PCI fixup for Toshiba laptops
+Date: Mon, 24 Oct 2005 18:57:32 -0700
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       Stefan Richter <stefanr@s5r6.in-berlin.de>, rob@janerob.com
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_NEZXDcGUMxpcf2w"
+Message-Id: <200510241857.33257.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 25, 2005 at 02:39:58AM +0200, Jesper Juhl wrote:
- > On 10/25/05, rogel migues <oasisalf@yahoo.com> wrote:
- > > Es para optimizar un servicio determinado.. a traves
- > > del kernel 2.6 (cuantas maneras hay ?)
- > >
- > [snip]
- > 
- > Please send your email in english.
+--Boundary-00=_NEZXDcGUMxpcf2w
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Sending the mail once, and not to every mailing list
-(and various off-list people) would be appreciated also.
+This is a fix for a bug I see on my Toshiba laptop, where the ohci1394 
+controller gets initialized improperly.  The patch adds two PCI fixups 
+to arch/i386/pci/fixup.c, one that happens early on to cache the value 
+of the PCI_CACHE_LINE_SIZE config register, and another that later 
+restores the value, along with a valid IRQ number and some BAR values.  
+I've tested it on my laptop, and it prevents me from running into what 
+I consider to be a major bug: IRQ 11 is disabled by the IRQ debug code, 
+causing my wireless to break.
 
-		Dave
+Thanks to Rob for the original patch to ohci1394.c and Stefan for lots 
+of proofreading and additional information collection.  I think the DMI 
+system list is correct, but we may need to add some more PCI IDs to the 
+PCI_FIXUP macros over time.
 
+Thanks,
+Jesse
+
+Signed-off-by: Jesse Barnes <jbarnes@virtuousgeek.org>
+
+--Boundary-00=_NEZXDcGUMxpcf2w
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="toshiba-ohci1394-fixup.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="toshiba-ohci1394-fixup.patch"
+
+diff -Naur -X linux-2.6.14-rc5/Documentation/dontdiff linux-2.6.14-rc5.orig/arch/i386/pci/fixup.c linux-2.6.14-rc5/arch/i386/pci/fixup.c
+--- linux-2.6.14-rc5.orig/arch/i386/pci/fixup.c	2005-10-19 23:23:05.000000000 -0700
++++ linux-2.6.14-rc5/arch/i386/pci/fixup.c	2005-10-24 18:40:15.000000000 -0700
+@@ -2,6 +2,8 @@
+  * Exceptions for specific devices. Usually work-arounds for fatal design flaws.
+  */
+ 
++#include <linux/delay.h>
++#include <linux/dmi.h>
+ #include <linux/pci.h>
+ #include <linux/init.h>
+ #include "pci.h"
+@@ -384,3 +386,60 @@
+ 	}
+ }
+ DECLARE_PCI_FIXUP_HEADER(PCI_ANY_ID, PCI_ANY_ID, pci_fixup_video);
++
++/*
++ * Some Toshiba laptops need extra code to enable their TI TSB43AB22/A.
++ *
++ * We pretend to bring them out of full D3 state, and restore the proper
++ * IRQ, PCI cache line size, and BARs, otherwise the device won't function
++ * properly.  In some cases, the device will generate an interrupt on
++ * the wrong IRQ line, causing any devices sharing the the line it's
++ * *supposed* to use to be disabled by the kernel's IRQ debug code.
++ */
++static u16 toshiba_line_size;
++
++static struct dmi_system_id __devinit toshiba_ohci1394_dmi_table[] = {
++	{
++		.ident = "Toshiba PS5 based laptop",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
++			DMI_MATCH(DMI_PRODUCT_VERSION, "PS5"),
++		},
++	},
++	{
++		.ident = "Toshiba PSM4 based laptop",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
++			DMI_MATCH(DMI_PRODUCT_VERSION, "PSM4"),
++		},
++	},
++	{ }
++};
++
++static void __devinit pci_pre_fixup_toshiba_ohci1394(struct pci_dev *dev)
++{
++	if (!dmi_check_system(toshiba_ohci1394_dmi_table))
++		return; /* only applies to certain Toshibas (so far) */
++
++	dev->current_state = PCI_D3cold;
++	pci_read_config_word(dev, PCI_CACHE_LINE_SIZE, &toshiba_line_size);
++}
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_TI, 0x8032,
++			 pci_pre_fixup_toshiba_ohci1394);
++
++static void __devinit pci_post_fixup_toshiba_ohci1394(struct pci_dev *dev)
++{
++	if (dmi_check_system(toshiba_ohci1394_dmi_table))
++		return; /* only applies to certain Toshibas (so far) */
++
++	/* Restore config space on Toshiba laptops */
++	mdelay(10);
++	pci_write_config_word(dev, PCI_CACHE_LINE_SIZE, toshiba_line_size);
++	pci_write_config_word(dev, PCI_INTERRUPT_LINE, dev->irq);
++	pci_write_config_dword(dev, PCI_BASE_ADDRESS_0,
++			       pci_resource_start(dev, 0));
++	pci_write_config_dword(dev, PCI_BASE_ADDRESS_1,
++			       pci_resource_start(dev, 1));
++}
++DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_TI, 0x8032,
++			 pci_post_fixup_toshiba_ohci1394);
+
+--Boundary-00=_NEZXDcGUMxpcf2w--

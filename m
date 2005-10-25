@@ -1,169 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbVJYQ2i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbVJYQcG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932202AbVJYQ2i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 12:28:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbVJYQ2i
+	id S932203AbVJYQcG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 12:32:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbVJYQcG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 12:28:38 -0400
-Received: from qproxy.gmail.com ([72.14.204.203]:54127 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932202AbVJYQ2i (ORCPT
+	Tue, 25 Oct 2005 12:32:06 -0400
+Received: from mivlgu.ru ([81.18.140.87]:25515 "EHLO mail.mivlgu.ru")
+	by vger.kernel.org with ESMTP id S932203AbVJYQcF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 12:28:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:to:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=KAJzJld1kIQiPh8q9eAJivIWhywKOf4FMaQr9mnDXuFaSkHH3XOPVeVTjIWcdOjnL8KwmzXkM0ubL/78LgRUwWeVJvglB6erY4953lp4C3C0BAHHNQ0z+tM7kgHcxj7z9iQAbgcNuuoAK4sdiLg6rkrmUWEKhrOsPdZGUncA3h8=
-Subject: 2.6.14-rc5 GPF in radeon_cp_init_ring_buffer()
-From: Badari Pulavarty <pbadari@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Tue, 25 Oct 2005 09:28:02 -0700
-Message-Id: <1130257682.6831.63.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Oct 2005 12:32:05 -0400
+Date: Tue, 25 Oct 2005 20:31:55 +0400
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: "Schupp Roderich (extern) BenQ MD PD SWP 2 CM MCH"@mivlgu.ru
+MIME-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Tue__25_Oct_2005_20_31_55_+0400_64ouSWQweEh0822b"
+Message-Id: <20051025164641.07452801B@mail.mivlgu.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--Signature=_Tue__25_Oct_2005_20_31_55_+0400_64ouSWQweEh0822b
 
-On my EM64T machine, X gets killed every time due to
-following GFP. Happens on mainline & -mm kernels.
-Hasn't annoyed me enough to take a look on why ?
+ <Roderich.Schupp.extern@mch.siemens.de>, LKML
+ <linux-kernel@vger.kernel.org>, Linux-hotplug-devel@lists.sourceforge.net
+Bcc: vsu@mivlgu.ru
+Subject: Re: Race between "mount" uevent and /proc/mounts?
+Message-Id: <20051025203155.699a2d4d.vsu@altlinux.ru>
+In-Reply-To: <20051025140041.GO7992@ftp.linux.org.uk>
+References: <0AD07C7729CA42458B22AFA9C72E7011C8EF@mhha22kc.mchh.siemens.de>
+	<20051025140041.GO7992@ftp.linux.org.uk>
+X-Mailer: Sylpheed version 1.0.0beta4 (GTK+ 1.2.10; i586-alt-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-Known issue ?
+On Tue, 25 Oct 2005 15:00:41 +0100 Al Viro wrote:
 
-Thanks,
-Badari
+> On Tue, Oct 25, 2005 at 03:20:10PM +0200, Schupp Roderich (extern) BenQ MD PD SWP 2 CM MCH wrote:
+> > the 2.6.13 and 2.6.14-* kernels seem susceptible to a race condition
+> > between the sending of a "mount" uevent and the actual mount becoming
+> > visible thru /proc/mounts, at least when the kernel is configured
+> > with voluntary preemption. 
 
+The "umount" uevent has the same problem - the event is emitted at the
+start of umount process, but the umount can really complete much later
+(e.g., if there was a lot of cached writes).  This is really bad,
+because the "umount" uevent cannot be used to tell the user when it is
+safe to remove the device.
 
-general protection fault: 0000 [1] SMP
-CPU 0
-Modules linked in: radeon parport_pc lp parport autofs4 sunrpc dm_mirror
-dm_mod ipv6 uhci_hcd ehci_hcd hw_random i2c_i801 i2c_core floppy
-Pid: 3668, comm: X Not tainted 2.6.14-rc5 #6
-RIP: 0010:[<ffffffff880f98a7>]
-<ffffffff880f98a7>{:radeon:radeon_cp_init_ring_buffer+311}
-RSP: 0018:ffff81011c9edd68  EFLAGS: 00010203
-RAX: ffff81011bf7c000 RBX: ffff81011d566c00 RCX: ffffc20000104e00
-RDX: 0000000000000000 RSI: ffff81011cd6b580 RDI: 000ffffc20000104
-RBP: ffff81011cd09000 R08: 0000000006524000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: ffff81011d566c00
-R13: ffff81011c9eddb8 R14: ffffffff880fa000 R15: 0000000040786440
-FS:  00002aaaaaacb920(0000) GS:ffffffff805b0800(0000)
-knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00000000006fea48 CR3: 000000011c998000 CR4: 00000000000006e0
-Process X (pid: 3668, threadinfo ffff81011c9ec000, task
-ffff81011cc651c0)
-Stack: ffff81011cd09000 0000000000000001 ffff81011cd09000
-ffffffff880fad58
-       0000000000009f60 ffffffff8016027f 0000000000704d40
-000000000000002c
-       ffff81011c827018 ffff81011c9ede08
-Call Trace:<ffffffff880fad58>{:radeon:radeon_cp_init+3416}
-<ffffffff8016027f>{generic_file_aio_write+143}
-       <ffffffff880fa000>{:radeon:radeon_cp_init+0}
-<ffffffff802736f5>{drm_ioctl+405}
-       <ffffffff80197f34>{do_ioctl+116} <ffffffff80198212>{vfs_ioctl
-+690}
-       <ffffffff80183908>{vfs_write+344} <ffffffff801982aa>{sys_ioctl
-+106}
-       <ffffffff8010dc26>{system_call+126}
+> > The following scenario: 
+> > - system is using the HAL daemon, configured to monitor kernel uvents
+> > - someone (usually some kind of volume manager in response to
+> >   a device hotplug, but could also a manual mount) mounts a filesystem
+> > - "mount" uevent is emitted
+> 
+> ... said event happens to be a piece of junk with ill-defined semantics.
 
-Code: 48 8b 14 f8 48 8b 83 30 01 00 00 48 8b 40 18 89 90 0c 07 00
-RIP <ffffffff880f98a7>{:radeon:radeon_cp_init_ring_buffer+311} RSP
-<ffff81011c9edd68>
- <3>[drm:drm_release] *ERROR* Device busy: 1 0
-mtrr: type mismatch for f0000000,1000000 old: write-back new: write-
-combining
-mtrr: type mismatch for f0000000,8000000 old: write-back new: write-
-combining
-iounmap: bad address ffffc20000373000
-mtrr: type mismatch for f0000000,8000000 old: write-back new: write-
-combining
-general protection fault: 0000 [2] SMP
-CPU 1
-Modules linked in: radeon parport_pc lp parport autofs4 sunrpc dm_mirror
-dm_mod ipv6 uhci_hcd ehci_hcd hw_random i2c_i801 i2c_core floppy
-Pid: 3958, comm: X Not tainted 2.6.14-rc5 #6
-RIP: 0010:[<ffffffff880f98a7>]
-<ffffffff880f98a7>{:radeon:radeon_cp_init_ring_buffer+311}
-RSP: 0018:ffff81012610fd68  EFLAGS: 00010203
-RAX: ffff81011bf7c000 RBX: ffff81011d566c00 RCX: ffffc20000104e00
-RDX: 0000000000000000 RSI: ffff81011cd6b480 RDI: 000ffffc20000104
-RBP: ffff81011cd09000 R08: 0000000006d2c000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: ffff81011d566c00
-R13: ffff81012610fdb8 R14: ffffffff880fa000 R15: 0000000040786440
-FS:  00002aaaaaacb920(0000) GS:ffffffff805b0880(0000)
-knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000471153 CR3: 0000000125fbd000 CR4: 00000000000006e0
-Process X (pid: 3958, threadinfo ffff81012610e000, task
-ffff810037d558c0)
-Stack: ffff81011cd09000 0000000000000001 ffff81011cd09000
-ffffffff880fad58
-       0000000000009e6b ffffffff8016027f 0000000000704d40
-000000000000002c
-       0000000000000292 ffff81012610fe08
-Call Trace:<ffffffff880fad58>{:radeon:radeon_cp_init+3416}
-<ffffffff8016027f>{generic_file_aio_write+143}
-       <ffffffff880fa000>{:radeon:radeon_cp_init+0}
-<ffffffff802736f5>{drm_ioctl+405}
-       <ffffffff80197f34>{do_ioctl+116} <ffffffff80198212>{vfs_ioctl
-+690}
-       <ffffffff80183908>{vfs_write+344} <ffffffff801982aa>{sys_ioctl
-+106}
-       <ffffffff8010dc26>{system_call+126}
+Hmm, and what should be the proper semantics for such an event?
 
-Code: 48 8b 14 f8 48 8b 83 30 01 00 00 48 8b 40 18 89 90 0c 07 00
-RIP <ffffffff880f98a7>{:radeon:radeon_cp_init_ring_buffer+311} RSP
-<ffff81012610fd68>
- <3>[drm:drm_release] *ERROR* Device busy: 1 0
-mtrr: type mismatch for f0000000,1000000 old: write-back new: write-
-combining
-mtrr: type mismatch for f0000000,8000000 old: write-back new: write-
-combining
-iounmap: bad address ffffc20000373000
-mtrr: type mismatch for f0000000,8000000 old: write-back new: write-
-combining
-general protection fault: 0000 [3] SMP
-CPU 0
-Modules linked in: radeon parport_pc lp parport autofs4 sunrpc dm_mirror
-dm_mod ipv6 uhci_hcd ehci_hcd hw_random i2c_i801 i2c_core floppy
-Pid: 4108, comm: X Not tainted 2.6.14-rc5 #6
-RIP: 0010:[<ffffffff880f98a7>]
-<ffffffff880f98a7>{:radeon:radeon_cp_init_ring_buffer+311}
-RSP: 0018:ffff810123e11d68  EFLAGS: 00010203
-RAX: ffff81011bf7c000 RBX: ffff81011d566c00 RCX: ffffc20000104e00
-RDX: 0000000000000000 RSI: ffff81011cd6b3c0 RDI: 000ffffc20000104
-RBP: ffff81011cd09000 R08: 0000000007534000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: ffff81011d566c00
-R13: ffff810123e11db8 R14: ffffffff880fa000 R15: 0000000040786440
-FS:  00002aaaaaacb920(0000) GS:ffffffff805b0800(0000)
-knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000471153 CR3: 0000000126dbc000 CR4: 00000000000006e0
-Process X (pid: 4108, threadinfo ffff810123e10000, task
-ffff81011ca45880)
-Stack: ffff81011cd09000 0000000000000001 ffff81011cd09000
-ffffffff880fad58
-       0000000000009e6b ffffffff8016027f 0000000000704d40
-000000000000002c
-       0000000000000292 ffff810123e11e08
-Call Trace:<ffffffff880fad58>{:radeon:radeon_cp_init+3416}
-<ffffffff8016027f>{generic_file_aio_write+143}
-       <ffffffff880fa000>{:radeon:radeon_cp_init+0}
-<ffffffff802736f5>{drm_ioctl+405}
-       <ffffffff80197f34>{do_ioctl+116} <ffffffff80198212>{vfs_ioctl
-+690}
-       <ffffffff80183908>{vfs_write+344} <ffffffff801982aa>{sys_ioctl
-+106}
-       <ffffffff8010dc26>{system_call+126}
+Currently the "mount" uevent signals that the device is busy (and the
+"umount" uevent then should signal that the device is no longer in use,
+but that is currently broken).
 
-Code: 48 8b 14 f8 48 8b 83 30 01 00 00 48 8b 40 18 89 90 0c 07 00
-RIP <ffffffff880f98a7>{:radeon:radeon_cp_init_ring_buffer+311} RSP
-<ffff810123e11d68>
- <3>[drm:drm_release] *ERROR* Device busy: 1 0
+> > - HAL daemon reads the event, then opens and reads /proc/mounts
+> 
+> real useful, since
+> 	a) we have no idea if mount() is being done in the same namespace
+> 	b) we have no idea if mount() actually succeeds
+> 	c) even if we manage to find a mountpoint, we have no idea if it
+> gets e.g. mount --move just as we'd finished reading from /prov/mounts
+> 	d) if the goal is to see which devices are held by mounted fs,
+> you'll miss such things as e.g. external journals.
+> 
+> >   (in order to determine the corresponding mount point, since the uevent
+> 
+> *the* corresponding mountpoint?  Which one?  There might be any number
+> of those...
 
+--Signature=_Tue__25_Oct_2005_20_31_55_+0400_64ouSWQweEh0822b
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFDXl3+W82GfkQfsqIRAjGSAJ95g7dvHPE22/YZq3ms4OvUSrXAIgCfTHQd
+sx3hSnjUrh0kiowjC0V/cho=
+=Nm0W
+-----END PGP SIGNATURE-----
+
+--Signature=_Tue__25_Oct_2005_20_31_55_+0400_64ouSWQweEh0822b--

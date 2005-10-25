@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbVJYIWy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbVJYI1U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932092AbVJYIWy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 04:22:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932090AbVJYIWx
+	id S932085AbVJYI1U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 04:27:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932090AbVJYI1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 04:22:53 -0400
-Received: from yue.linux-ipv6.org ([203.178.140.15]:29713 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S932087AbVJYIWx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 04:22:53 -0400
-Date: Tue, 25 Oct 2005 17:22:54 +0900 (JST)
-Message-Id: <20051025.172254.100422401.yoshfuji@linux-ipv6.org>
-To: acme@ghostprotocols.net
-Cc: yanzheng@21cn.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       yoshfuji@linux-ipv6.org
-Subject: Re: [PATCH]IPv6: fix refcnt of struct ip6_flowlabel
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <39e6f6c70510241135p18b018bo896b3565fa5ce87b@mail.gmail.com>
-References: <435CCF7B.6030907@21cn.com>
-	<39e6f6c70510241135p18b018bo896b3565fa5ce87b@mail.gmail.com>
-Organization: USAGI/WIDE Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Oct 2005 04:27:20 -0400
+Received: from gold.veritas.com ([143.127.12.110]:9736 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S932085AbVJYI1U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 04:27:20 -0400
+Date: Tue, 25 Oct 2005 09:26:23 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, Christoph Hellwig <hch@infradead.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add notification of page becoming writable to VMA ops
+In-Reply-To: <1130227159.8169.5.camel@imp.csi.cam.ac.uk>
+Message-ID: <Pine.LNX.4.61.0510250919270.6403@goblin.wat.veritas.com>
+References: <1130168619.19518.43.camel@imp.csi.cam.ac.uk> 
+ <1130167005.19518.35.camel@imp.csi.cam.ac.uk> 
+ <Pine.LNX.4.61.0502091357001.6086@goblin.wat.veritas.com> 
+ <7872.1130167591@warthog.cambridge.redhat.com>  <9792.1130171024@warthog.cambridge.redhat.com>
+  <Pine.LNX.4.61.0510241938100.6142@goblin.wat.veritas.com>
+ <1130227159.8169.5.camel@imp.csi.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 25 Oct 2005 08:27:19.0637 (UTC) FILETIME=[EA424050:01C5D93D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <39e6f6c70510241135p18b018bo896b3565fa5ce87b@mail.gmail.com> (at Mon, 24 Oct 2005 16:35:33 -0200), Arnaldo Carvalho de Melo <acme@ghostprotocols.net> says:
-
-> On 10/24/05, Yan Zheng <yanzheng@21cn.com> wrote:
-> > Signed-off-by: Yan Zheng <yanzheng@21cn.com>
-> >
-> >
-> > Index: net/ipv6/ip6_flowlabel.c
-> > ===================================================================
-> > --- linux-2.6.14-rc5/net/ipv6/ip6_flowlabel.c   2005-10-22 10:31:13.000000000 +0800
-> > +++ linux/net/ipv6/ip6_flowlabel.c      2005-10-24 19:55:23.000000000 +0800
-> > @@ -483,7 +483,7 @@
-> >                                                 goto done;
-> >                                         }
-> >                                         fl1 = sfl->fl;
-> > -                                       atomic_inc(&fl->users);
-> > +                                       atomic_inc(&fl1->users);
-> >                                         break;
+On Tue, 25 Oct 2005, Anton Altaparmakov wrote:
+> On Mon, 2005-10-24 at 20:11 +0100, Hugh Dickins wrote:
 > 
-> Looks OK to me, Yoshifuji-san, ACK?
+> There really is quite a difference between mm/*.c in -mm and Linus
+> kernel at present.  Is all this planned to be merged as soon as 2.6.14
+> is out or is -mm just a playground for now with no mainline merge
+> intentions?
 
-Acked-by: YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
+It certainly won't all be merged as soon as 2.6.14 is out, some of it
+has only just got into -mm.  Andrew's current intention is to merge
+the early part of the changes soonish after 2.6.14 gets out, but he's
+not likely to merge it all into 2.6.15.
 
---yoshfuji
+But we aren't using -mm as a playground: it is likely to go forward,
+provided it doesn't show regressions of some kind while it's in -mm.
+
+> Just asking so I know whether to work against stock kernels or -mm for
+> the moment...
+
+I'd recommend -mm for now.  page_mkwrite will want a spell in there
+too, won't it?
+
+Hugh

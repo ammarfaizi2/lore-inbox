@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbVJYI1U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbVJYIjv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932085AbVJYI1U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 04:27:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932090AbVJYI1U
+	id S932093AbVJYIjv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 04:39:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbVJYIjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 04:27:20 -0400
-Received: from gold.veritas.com ([143.127.12.110]:9736 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S932085AbVJYI1U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 04:27:20 -0400
-Date: Tue, 25 Oct 2005 09:26:23 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org, Christoph Hellwig <hch@infradead.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add notification of page becoming writable to VMA ops
-In-Reply-To: <1130227159.8169.5.camel@imp.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.61.0510250919270.6403@goblin.wat.veritas.com>
-References: <1130168619.19518.43.camel@imp.csi.cam.ac.uk> 
- <1130167005.19518.35.camel@imp.csi.cam.ac.uk> 
- <Pine.LNX.4.61.0502091357001.6086@goblin.wat.veritas.com> 
- <7872.1130167591@warthog.cambridge.redhat.com>  <9792.1130171024@warthog.cambridge.redhat.com>
-  <Pine.LNX.4.61.0510241938100.6142@goblin.wat.veritas.com>
- <1130227159.8169.5.camel@imp.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 25 Oct 2005 08:27:19.0637 (UTC) FILETIME=[EA424050:01C5D93D]
+	Tue, 25 Oct 2005 04:39:51 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:5512 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932093AbVJYIju
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 04:39:50 -0400
+Date: Tue, 25 Oct 2005 09:39:47 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 0/8] FUSE improvements + VFS changes
+Message-ID: <20051025083947.GN7992@ftp.linux.org.uk>
+References: <E1EU5RZ-0005qg-00@dorka.pomaz.szeredi.hu> <20051025042728.GK7992@ftp.linux.org.uk> <E1EUHni-0006ue-00@dorka.pomaz.szeredi.hu> <E1EUIr7-0006zX-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1EUIr7-0006zX-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Oct 2005, Anton Altaparmakov wrote:
-> On Mon, 2005-10-24 at 20:11 +0100, Hugh Dickins wrote:
+On Tue, Oct 25, 2005 at 09:04:21AM +0200, Miklos Szeredi wrote:
+> > > > The limitations are:
+> > > > 
+> > > >   1) open("foo", O_CREAT | O_WRONLY, 0444) or similar won't work
+> > > > 
+> > > >   2) ftruncate on a file not having write permission (but file opened
+> > > >      in write mode) will fail
+> > > > 
+> > > >   3) statfs() cannot return different values based on the path within
+> > > >      a filesystem
+> > > 
+> > >     4) mass of a body cannot vary depending on the way it's turned.
+> > > 
+> > > Horrible limitations, all of them...
+> > 
+> > Troll.
+> > 
+> > We have solution for 1-3, what's your's for 4?
 > 
-> There really is quite a difference between mm/*.c in -mm and Linus
-> kernel at present.  Is all this planned to be merged as soon as 2.6.14
-> is out or is -mm just a playground for now with no mainline merge
-> intentions?
+> And in case you're wondering, 1-2 are mandated by SUS, and obscure
+> programs like "cp" depend on 1) for example.  So it's not as if these
+> limitations were all that fair.
 
-It certainly won't all be merged as soon as 2.6.14 is out, some of it
-has only just got into -mm.  Andrew's current intention is to merge
-the early part of the changes soonish after 2.6.14 gets out, but he's
-not likely to merge it all into 2.6.15.
-
-But we aren't using -mm as a playground: it is likely to go forward,
-provided it doesn't show regressions of some kind while it's in -mm.
-
-> Just asking so I know whether to work against stock kernels or -mm for
-> the moment...
-
-I'd recommend -mm for now.  page_mkwrite will want a spell in there
-too, won't it?
-
-Hugh
+(1) and (2) are real, no arguments here.  It's statfs one that is
+bogus (and yes, I should've trimmed the quoted part better).

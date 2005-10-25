@@ -1,58 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbVJYJyq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbVJYJz0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932119AbVJYJyq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 05:54:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbVJYJyq
+	id S932123AbVJYJz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 05:55:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbVJYJz0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 05:54:46 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:25874 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932119AbVJYJyq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 05:54:46 -0400
-Date: Tue, 25 Oct 2005 11:54:41 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Badari Pulavarty <pbadari@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.14-rc5-mm1
-Message-ID: <20051025095441.GA5329@stusta.de>
-References: <20051024014838.0dd491bb.akpm@osdl.org> <1130168434.6831.1.camel@localhost.localdomain> <20051024154342.GA24527@stusta.de> <1130174497.12873.30.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1130174497.12873.30.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+	Tue, 25 Oct 2005 05:55:26 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:12445 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932111AbVJYJzZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 05:55:25 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <Pine.LNX.4.61.0510241938100.6142@goblin.wat.veritas.com> 
+References: <Pine.LNX.4.61.0510241938100.6142@goblin.wat.veritas.com>  <1130168619.19518.43.camel@imp.csi.cam.ac.uk> <1130167005.19518.35.camel@imp.csi.cam.ac.uk> <Pine.LNX.4.61.0502091357001.6086@goblin.wat.veritas.com> <7872.1130167591@warthog.cambridge.redhat.com> <9792.1130171024@warthog.cambridge.redhat.com> 
+To: Hugh Dickins <hugh@veritas.com>
+Cc: David Howells <dhowells@redhat.com>, Anton Altaparmakov <aia21@cam.ac.uk>,
+       Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add notification of page becoming writable to VMA ops 
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Tue, 25 Oct 2005 10:55:09 +0100
+Message-ID: <8181.1130234109@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 24, 2005 at 06:21:37PM +0100, Alan Cox wrote:
-> On Llu, 2005-10-24 at 17:43 +0200, Adrian Bunk wrote:
-> > >   CC [M]  drivers/serial/jsm/jsm_tty.o
-> > > drivers/serial/jsm/jsm_tty.c: In function `jsm_input':
-> > > drivers/serial/jsm/jsm_tty.c:592: error: structure has no member named
-> > > `flip'
-> > >...
-> > 
-> > Quoting Andrew's announcement:
-> > 
-> >    - A number of tty drivers still won't compile.
-> 
-> Should only be jsm that won't compile for any mainstream platform, if
-> you find others that don't please email me.
+Hugh Dickins <hugh@veritas.com> wrote:
 
-The other ones I know about on i386 are:
-  drivers/char/stallion.c
-  drivers/char/istallion.c
-  drivers/char/riscom8.c
-  drivers/char/rio/riointr.c
+> I've only given it a quick look, it looks pretty good, but too hastily
+> thrown together, without understanding of the intervening changes:
 
-cu
-Adrian
+I attempted to forward port your patch; unfortunately, I'm not fully
+conversant with some of the VM stuff.
 
--- 
+> This isn't necessarily wrong, and may be exactly how it was before,
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+It's as it was in your patch.
 
+I'll try and fix the changes.
+
+David

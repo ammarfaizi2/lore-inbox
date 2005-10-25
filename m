@@ -1,55 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbVJYI4X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbVJYIuG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932100AbVJYI4X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 04:56:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbVJYI4X
+	id S932095AbVJYIuG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 04:50:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbVJYIuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 04:56:23 -0400
-Received: from 238-193.adsl.pool.ew.hu ([193.226.238.193]:33036 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S932096AbVJYI4W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 04:56:22 -0400
-To: viro@ftp.linux.org.uk
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <20051025083947.GN7992@ftp.linux.org.uk> (message from Al Viro on
-	Tue, 25 Oct 2005 09:39:47 +0100)
-Subject: Re: [PATCH 0/8] FUSE improvements + VFS changes
-References: <E1EU5RZ-0005qg-00@dorka.pomaz.szeredi.hu> <20051025042728.GK7992@ftp.linux.org.uk> <E1EUHni-0006ue-00@dorka.pomaz.szeredi.hu> <E1EUIr7-0006zX-00@dorka.pomaz.szeredi.hu> <20051025083947.GN7992@ftp.linux.org.uk>
-Message-Id: <E1EUKb2-000775-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 25 Oct 2005 10:55:52 +0200
+	Tue, 25 Oct 2005 04:50:05 -0400
+Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:30664 "EHLO
+	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S932095AbVJYIuE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 04:50:04 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Subject: Re: [PATCH] Add notification of page becoming writable to VMA ops
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, Christoph Hellwig <hch@infradead.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0510250919270.6403@goblin.wat.veritas.com>
+References: <1130168619.19518.43.camel@imp.csi.cam.ac.uk>
+	 <1130167005.19518.35.camel@imp.csi.cam.ac.uk>
+	 <Pine.LNX.4.61.0502091357001.6086@goblin.wat.veritas.com>
+	 <7872.1130167591@warthog.cambridge.redhat.com>
+	 <9792.1130171024@warthog.cambridge.redhat.com>
+	 <Pine.LNX.4.61.0510241938100.6142@goblin.wat.veritas.com>
+	 <1130227159.8169.5.camel@imp.csi.cam.ac.uk>
+	 <Pine.LNX.4.61.0510250919270.6403@goblin.wat.veritas.com>
+Content-Type: text/plain
+Organization: Computing Service, University of Cambridge, UK
+Date: Tue, 25 Oct 2005 09:49:49 +0100
+Message-Id: <1130230190.8169.21.camel@imp.csi.cam.ac.uk>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > > The limitations are:
-> > > > > 
-> > > > >   1) open("foo", O_CREAT | O_WRONLY, 0444) or similar won't work
-> > > > > 
-> > > > >   2) ftruncate on a file not having write permission (but file opened
-> > > > >      in write mode) will fail
-> > > > > 
-> > > > >   3) statfs() cannot return different values based on the path within
-> > > > >      a filesystem
-> > > > 
-> > > >     4) mass of a body cannot vary depending on the way it's turned.
-> > > > 
-> > > > Horrible limitations, all of them...
-> > > 
-> > > Troll.
-> > > 
-> > > We have solution for 1-3, what's your's for 4?
+On Tue, 2005-10-25 at 09:26 +0100, Hugh Dickins wrote:
+> On Tue, 25 Oct 2005, Anton Altaparmakov wrote:
+> > On Mon, 2005-10-24 at 20:11 +0100, Hugh Dickins wrote:
 > > 
-> > And in case you're wondering, 1-2 are mandated by SUS, and obscure
-> > programs like "cp" depend on 1) for example.  So it's not as if these
-> > limitations were all that fair.
+> > There really is quite a difference between mm/*.c in -mm and Linus
+> > kernel at present.  Is all this planned to be merged as soon as 2.6.14
+> > is out or is -mm just a playground for now with no mainline merge
+> > intentions?
 > 
-> (1) and (2) are real, no arguments here.  It's statfs one that is
-> bogus (and yes, I should've trimmed the quoted part better).
+> It certainly won't all be merged as soon as 2.6.14 is out, some of it
+> has only just got into -mm.  Andrew's current intention is to merge
+> the early part of the changes soonish after 2.6.14 gets out, but he's
+> not likely to merge it all into 2.6.15.
 
-OK, let's say it's bogus.
+Ok, sounds good.  As long as they at least start converging...
 
-I still believe, the one local filesystem - many remote filesystems is
-a valid model, but it's pretty low priority.  But it'll come back yet!
+> But we aren't using -mm as a playground: it is likely to go forward,
+> provided it doesn't show regressions of some kind while it's in -mm.
 
-Miklos
+Cool.
+
+> > Just asking so I know whether to work against stock kernels or -mm for
+> > the moment...
+> 
+> I'd recommend -mm for now.
+
+Great, thanks, will do.
+
+> page_mkwrite will want a spell in there too, won't it?
+
+Sure.  But if the other mm changes in -mm were not going forward it
+would be a little silly to get page_mkwrite to work there only to have
+to rewrite it in order to get it merged...
+
+If Linus really is going to release .14 in the next few days,
+page_mkwrite is never going to make it into .15 anyway, no matter
+what...  But .16 would be a realistic target I would have thought which
+seems to fit in nicely with the plans for -mm.  (-:
+
+Best regards,
+
+        Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

@@ -1,94 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbVJYQcG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbVJYQpH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932203AbVJYQcG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 12:32:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbVJYQcG
+	id S932204AbVJYQpH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 12:45:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbVJYQpG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 12:32:06 -0400
-Received: from mivlgu.ru ([81.18.140.87]:25515 "EHLO mail.mivlgu.ru")
-	by vger.kernel.org with ESMTP id S932203AbVJYQcF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 12:32:05 -0400
-Date: Tue, 25 Oct 2005 20:31:55 +0400
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: "Schupp Roderich (extern) BenQ MD PD SWP 2 CM MCH"@mivlgu.ru
-MIME-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Tue__25_Oct_2005_20_31_55_+0400_64ouSWQweEh0822b"
-Message-Id: <20051025164641.07452801B@mail.mivlgu.ru>
+	Tue, 25 Oct 2005 12:45:06 -0400
+Received: from bromo.msbb.uc.edu ([129.137.3.146]:40675 "HELO
+	bromo.msbb.uc.edu") by vger.kernel.org with SMTP id S932204AbVJYQpF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 12:45:05 -0400
+To: linux-kernel@vger.kernel.org
+Subject: W2100Z Critical temperature explained
+Message-Id: <20051025164339.431C81DC06D@bromo.msbb.uc.edu>
+Date: Tue, 25 Oct 2005 12:43:39 -0400 (EDT)
+From: howarth@bromo.msbb.uc.edu (Jack Howarth)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Tue__25_Oct_2005_20_31_55_+0400_64ouSWQweEh0822b
+     Has anyone else run into the following problem with the 2.6.12
+or 2.6.13 kernels on a Sun W2100Z dual opteron workstation? I found
+that the Fedora Core 4 kernel 2.6.12-1.1456_FC4smp was causing random
+shutdowns with error messages that 'Critical Temperature was reached: 68 C'.
+This was occuring repeatedly under that kernel. After switching to the
+latest FC4 kernel, 2.6.13-1.1532_FC4smp, these temperature events seemed
+to have been eliminated for now. 
+     However in calling the Sun Java Desktop support group, I was told
+that the earlier BIOS versions on the W2100Z had bugs that can cause the
+errors I was seeing as well as causing the cpu fans to self destruct.
+The fix is apparently to upgrade the BIOS to the current one on their
+Supplemental 2.1 CD. Is there some site this sort of information should
+be added to? Perhaps Linux would be well served if there was a list of
+motherboard BIOS kept and noted added regarding compatibility with
+various Linux kernels. Certainly in cases like these where destruction
+can occur due to the bugs in the firmware, this merits being passed
+along to the Linux kernel users.
+                     Jack
 
- <Roderich.Schupp.extern@mch.siemens.de>, LKML
- <linux-kernel@vger.kernel.org>, Linux-hotplug-devel@lists.sourceforge.net
-Bcc: vsu@mivlgu.ru
-Subject: Re: Race between "mount" uevent and /proc/mounts?
-Message-Id: <20051025203155.699a2d4d.vsu@altlinux.ru>
-In-Reply-To: <20051025140041.GO7992@ftp.linux.org.uk>
-References: <0AD07C7729CA42458B22AFA9C72E7011C8EF@mhha22kc.mchh.siemens.de>
-	<20051025140041.GO7992@ftp.linux.org.uk>
-X-Mailer: Sylpheed version 1.0.0beta4 (GTK+ 1.2.10; i586-alt-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
 
-On Tue, 25 Oct 2005 15:00:41 +0100 Al Viro wrote:
-
-> On Tue, Oct 25, 2005 at 03:20:10PM +0200, Schupp Roderich (extern) BenQ MD PD SWP 2 CM MCH wrote:
-> > the 2.6.13 and 2.6.14-* kernels seem susceptible to a race condition
-> > between the sending of a "mount" uevent and the actual mount becoming
-> > visible thru /proc/mounts, at least when the kernel is configured
-> > with voluntary preemption. 
-
-The "umount" uevent has the same problem - the event is emitted at the
-start of umount process, but the umount can really complete much later
-(e.g., if there was a lot of cached writes).  This is really bad,
-because the "umount" uevent cannot be used to tell the user when it is
-safe to remove the device.
-
-> > The following scenario: 
-> > - system is using the HAL daemon, configured to monitor kernel uvents
-> > - someone (usually some kind of volume manager in response to
-> >   a device hotplug, but could also a manual mount) mounts a filesystem
-> > - "mount" uevent is emitted
-> 
-> ... said event happens to be a piece of junk with ill-defined semantics.
-
-Hmm, and what should be the proper semantics for such an event?
-
-Currently the "mount" uevent signals that the device is busy (and the
-"umount" uevent then should signal that the device is no longer in use,
-but that is currently broken).
-
-> > - HAL daemon reads the event, then opens and reads /proc/mounts
-> 
-> real useful, since
-> 	a) we have no idea if mount() is being done in the same namespace
-> 	b) we have no idea if mount() actually succeeds
-> 	c) even if we manage to find a mountpoint, we have no idea if it
-> gets e.g. mount --move just as we'd finished reading from /prov/mounts
-> 	d) if the goal is to see which devices are held by mounted fs,
-> you'll miss such things as e.g. external journals.
-> 
-> >   (in order to determine the corresponding mount point, since the uevent
-> 
-> *the* corresponding mountpoint?  Which one?  There might be any number
-> of those...
-
---Signature=_Tue__25_Oct_2005_20_31_55_+0400_64ouSWQweEh0822b
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFDXl3+W82GfkQfsqIRAjGSAJ95g7dvHPE22/YZq3ms4OvUSrXAIgCfTHQd
-sx3hSnjUrh0kiowjC0V/cho=
-=Nm0W
------END PGP SIGNATURE-----
-
---Signature=_Tue__25_Oct_2005_20_31_55_+0400_64ouSWQweEh0822b--

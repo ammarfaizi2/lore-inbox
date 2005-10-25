@@ -1,67 +1,169 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbVJYQYp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbVJYQ2i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932195AbVJYQYp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 12:24:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbVJYQYp
+	id S932202AbVJYQ2i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 12:28:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbVJYQ2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 12:24:45 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:62394 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932195AbVJYQYo (ORCPT
+	Tue, 25 Oct 2005 12:28:38 -0400
+Received: from qproxy.gmail.com ([72.14.204.203]:54127 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932202AbVJYQ2i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 12:24:44 -0400
-Date: Tue, 25 Oct 2005 18:24:27 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Sharp zaurus c-3000
-Message-ID: <20051025162427.GA8492@elf.ucw.cz>
-References: <20051024211632.GA7127@elf.ucw.cz> <1130191145.8345.185.camel@localhost.localdomain> <20051025083231.GA7927@elf.ucw.cz> <1130232335.8235.20.camel@localhost.localdomain>
+	Tue, 25 Oct 2005 12:28:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:to:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+        b=KAJzJld1kIQiPh8q9eAJivIWhywKOf4FMaQr9mnDXuFaSkHH3XOPVeVTjIWcdOjnL8KwmzXkM0ubL/78LgRUwWeVJvglB6erY4953lp4C3C0BAHHNQ0z+tM7kgHcxj7z9iQAbgcNuuoAK4sdiLg6rkrmUWEKhrOsPdZGUncA3h8=
+Subject: 2.6.14-rc5 GPF in radeon_cp_init_ring_buffer()
+From: Badari Pulavarty <pbadari@gmail.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Tue, 25 Oct 2005 09:28:02 -0700
+Message-Id: <1130257682.6831.63.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1130232335.8235.20.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-[cc to the list]
+On my EM64T machine, X gets killed every time due to
+following GFP. Happens on mainline & -mm kernels.
+Hasn't annoyed me enough to take a look on why ?
 
-> > > Your other alternative is to perform a NAND Restore, if you can find a
-> > > NAND backup for the C3000. The D+M menu has an option for this and I'm
-> > > sure it will also be documented on the web. When in this state I
-> > > couldn't get that to work on my c760 though it could have been the image
-> > > I was trying to restore it with or my CF card...
-> > 
-> > D+M menu still works for me, so I tried this one -- on SD card (my CF
-> > card is only 16MB). Not sure what I'm doing wrong.
-> > 
-> > pavel@amd:/data/l/zaurus$ md5sum /mnt/systc300.dbk
-> > 6a37ce6a4bee0b7a39fd0140c70eda16  /mnt/systc300.dbk
-> > -rwxr-xr-x   1 root root 17317904 Jan  1  2003 systc300.dbk*
-> > 
-> > I only tried "NAND update". Should I do "Erase / NAND update"? Result
-> > was
-> > 
-> > SD update
-> > --- Found orders ---
-> > Error!!!
-> 
-> This might mean you've also broken D+M. I couldn't get it to work when I
-> had this problem either. Whether that was me or whether it was truly
-> broken, I don't know.
-> 
-> That leaves the low level loader to restore NAND. Were you able to find
-> C3000 images anywhere? If not, I can perhaps have a try and extracting
-> them from my C3000. You should just need to fix the initrd partition I
-> guess...
+Known issue ?
 
-I managed to recover it. There are actually two "NAND update" options
-in D+M menu (at different places). One of them works, second does
-not. Oops. Just for the record, usefull files are at
-http://www.trisoft.de/download . 
-								Pavel
--- 
-Thanks, Sharp!
+Thanks,
+Badari
+
+
+general protection fault: 0000 [1] SMP
+CPU 0
+Modules linked in: radeon parport_pc lp parport autofs4 sunrpc dm_mirror
+dm_mod ipv6 uhci_hcd ehci_hcd hw_random i2c_i801 i2c_core floppy
+Pid: 3668, comm: X Not tainted 2.6.14-rc5 #6
+RIP: 0010:[<ffffffff880f98a7>]
+<ffffffff880f98a7>{:radeon:radeon_cp_init_ring_buffer+311}
+RSP: 0018:ffff81011c9edd68  EFLAGS: 00010203
+RAX: ffff81011bf7c000 RBX: ffff81011d566c00 RCX: ffffc20000104e00
+RDX: 0000000000000000 RSI: ffff81011cd6b580 RDI: 000ffffc20000104
+RBP: ffff81011cd09000 R08: 0000000006524000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: ffff81011d566c00
+R13: ffff81011c9eddb8 R14: ffffffff880fa000 R15: 0000000040786440
+FS:  00002aaaaaacb920(0000) GS:ffffffff805b0800(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00000000006fea48 CR3: 000000011c998000 CR4: 00000000000006e0
+Process X (pid: 3668, threadinfo ffff81011c9ec000, task
+ffff81011cc651c0)
+Stack: ffff81011cd09000 0000000000000001 ffff81011cd09000
+ffffffff880fad58
+       0000000000009f60 ffffffff8016027f 0000000000704d40
+000000000000002c
+       ffff81011c827018 ffff81011c9ede08
+Call Trace:<ffffffff880fad58>{:radeon:radeon_cp_init+3416}
+<ffffffff8016027f>{generic_file_aio_write+143}
+       <ffffffff880fa000>{:radeon:radeon_cp_init+0}
+<ffffffff802736f5>{drm_ioctl+405}
+       <ffffffff80197f34>{do_ioctl+116} <ffffffff80198212>{vfs_ioctl
++690}
+       <ffffffff80183908>{vfs_write+344} <ffffffff801982aa>{sys_ioctl
++106}
+       <ffffffff8010dc26>{system_call+126}
+
+Code: 48 8b 14 f8 48 8b 83 30 01 00 00 48 8b 40 18 89 90 0c 07 00
+RIP <ffffffff880f98a7>{:radeon:radeon_cp_init_ring_buffer+311} RSP
+<ffff81011c9edd68>
+ <3>[drm:drm_release] *ERROR* Device busy: 1 0
+mtrr: type mismatch for f0000000,1000000 old: write-back new: write-
+combining
+mtrr: type mismatch for f0000000,8000000 old: write-back new: write-
+combining
+iounmap: bad address ffffc20000373000
+mtrr: type mismatch for f0000000,8000000 old: write-back new: write-
+combining
+general protection fault: 0000 [2] SMP
+CPU 1
+Modules linked in: radeon parport_pc lp parport autofs4 sunrpc dm_mirror
+dm_mod ipv6 uhci_hcd ehci_hcd hw_random i2c_i801 i2c_core floppy
+Pid: 3958, comm: X Not tainted 2.6.14-rc5 #6
+RIP: 0010:[<ffffffff880f98a7>]
+<ffffffff880f98a7>{:radeon:radeon_cp_init_ring_buffer+311}
+RSP: 0018:ffff81012610fd68  EFLAGS: 00010203
+RAX: ffff81011bf7c000 RBX: ffff81011d566c00 RCX: ffffc20000104e00
+RDX: 0000000000000000 RSI: ffff81011cd6b480 RDI: 000ffffc20000104
+RBP: ffff81011cd09000 R08: 0000000006d2c000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: ffff81011d566c00
+R13: ffff81012610fdb8 R14: ffffffff880fa000 R15: 0000000040786440
+FS:  00002aaaaaacb920(0000) GS:ffffffff805b0880(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000471153 CR3: 0000000125fbd000 CR4: 00000000000006e0
+Process X (pid: 3958, threadinfo ffff81012610e000, task
+ffff810037d558c0)
+Stack: ffff81011cd09000 0000000000000001 ffff81011cd09000
+ffffffff880fad58
+       0000000000009e6b ffffffff8016027f 0000000000704d40
+000000000000002c
+       0000000000000292 ffff81012610fe08
+Call Trace:<ffffffff880fad58>{:radeon:radeon_cp_init+3416}
+<ffffffff8016027f>{generic_file_aio_write+143}
+       <ffffffff880fa000>{:radeon:radeon_cp_init+0}
+<ffffffff802736f5>{drm_ioctl+405}
+       <ffffffff80197f34>{do_ioctl+116} <ffffffff80198212>{vfs_ioctl
++690}
+       <ffffffff80183908>{vfs_write+344} <ffffffff801982aa>{sys_ioctl
++106}
+       <ffffffff8010dc26>{system_call+126}
+
+Code: 48 8b 14 f8 48 8b 83 30 01 00 00 48 8b 40 18 89 90 0c 07 00
+RIP <ffffffff880f98a7>{:radeon:radeon_cp_init_ring_buffer+311} RSP
+<ffff81012610fd68>
+ <3>[drm:drm_release] *ERROR* Device busy: 1 0
+mtrr: type mismatch for f0000000,1000000 old: write-back new: write-
+combining
+mtrr: type mismatch for f0000000,8000000 old: write-back new: write-
+combining
+iounmap: bad address ffffc20000373000
+mtrr: type mismatch for f0000000,8000000 old: write-back new: write-
+combining
+general protection fault: 0000 [3] SMP
+CPU 0
+Modules linked in: radeon parport_pc lp parport autofs4 sunrpc dm_mirror
+dm_mod ipv6 uhci_hcd ehci_hcd hw_random i2c_i801 i2c_core floppy
+Pid: 4108, comm: X Not tainted 2.6.14-rc5 #6
+RIP: 0010:[<ffffffff880f98a7>]
+<ffffffff880f98a7>{:radeon:radeon_cp_init_ring_buffer+311}
+RSP: 0018:ffff810123e11d68  EFLAGS: 00010203
+RAX: ffff81011bf7c000 RBX: ffff81011d566c00 RCX: ffffc20000104e00
+RDX: 0000000000000000 RSI: ffff81011cd6b3c0 RDI: 000ffffc20000104
+RBP: ffff81011cd09000 R08: 0000000007534000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: ffff81011d566c00
+R13: ffff810123e11db8 R14: ffffffff880fa000 R15: 0000000040786440
+FS:  00002aaaaaacb920(0000) GS:ffffffff805b0800(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000471153 CR3: 0000000126dbc000 CR4: 00000000000006e0
+Process X (pid: 4108, threadinfo ffff810123e10000, task
+ffff81011ca45880)
+Stack: ffff81011cd09000 0000000000000001 ffff81011cd09000
+ffffffff880fad58
+       0000000000009e6b ffffffff8016027f 0000000000704d40
+000000000000002c
+       0000000000000292 ffff810123e11e08
+Call Trace:<ffffffff880fad58>{:radeon:radeon_cp_init+3416}
+<ffffffff8016027f>{generic_file_aio_write+143}
+       <ffffffff880fa000>{:radeon:radeon_cp_init+0}
+<ffffffff802736f5>{drm_ioctl+405}
+       <ffffffff80197f34>{do_ioctl+116} <ffffffff80198212>{vfs_ioctl
++690}
+       <ffffffff80183908>{vfs_write+344} <ffffffff801982aa>{sys_ioctl
++106}
+       <ffffffff8010dc26>{system_call+126}
+
+Code: 48 8b 14 f8 48 8b 83 30 01 00 00 48 8b 40 18 89 90 0c 07 00
+RIP <ffffffff880f98a7>{:radeon:radeon_cp_init_ring_buffer+311} RSP
+<ffff810123e11d68>
+ <3>[drm:drm_release] *ERROR* Device busy: 1 0
+
+

@@ -1,99 +1,355 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751418AbVJYDK3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751426AbVJYDu4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751418AbVJYDK3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 23:10:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbVJYDK3
+	id S1751426AbVJYDu4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 23:50:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751436AbVJYDu4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 23:10:29 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:16038 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751418AbVJYDK2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 23:10:28 -0400
-Date: Mon, 24 Oct 2005 20:10:18 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: greg@kroah.com
-Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com, jglauber@redhat.com,
-       xenia@us.ibm.com, wein@de.ibm.com
-Subject: dev->release = (void (*)(struct device *))kfree;
-Message-Id: <20051024201018.153550d6.zaitcev@redhat.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Mon, 24 Oct 2005 23:50:56 -0400
+Received: from mail13.bluewin.ch ([195.186.18.62]:58777 "EHLO
+	mail13.bluewin.ch") by vger.kernel.org with ESMTP id S1751426AbVJYDu4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 23:50:56 -0400
+Date: Mon, 24 Oct 2005 23:39:39 -0400
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] semaphore: Remove __MUTEX_INITIALIZER()
+Message-ID: <20051025033939.GA8549@krypton>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+From: a.othieno@bluewin.ch (Arthur Othieno)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I seem to recall the discussion about this, but very dimly. Would someone
-be so kind to remind me, why the attached patch cannot be used?
 
--- Pete
+__MUTEX_INITIALIZER() has no users, and equates to the more commonly used
+DECLARE_MUTEX(), thus making it pretty much redundant. Remove it for good.
 
-diff -urp -X dontdiff linux-2.6.14-rc5/drivers/s390/char/vmlogrdr.c linux-2.6.14-rc5-lem/drivers/s390/char/vmlogrdr.c
---- linux-2.6.14-rc5/drivers/s390/char/vmlogrdr.c	2005-09-13 01:06:11.000000000 -0700
-+++ linux-2.6.14-rc5-lem/drivers/s390/char/vmlogrdr.c	2005-10-24 20:05:26.000000000 -0700
-@@ -74,7 +74,7 @@ struct vmlogrdr_priv_t {
- 	int buffer_free;
- 	int dev_in_use; /* 1: already opened, 0: not opened*/
- 	spinlock_t priv_lock;
--	struct device  *device;
-+	struct device device;
- 	struct class_device  *class_device;
- 	int autorecording;
- 	int autopurge;
-@@ -756,27 +756,14 @@ vmlogrdr_unregister_driver(void) {
- 
- static int
- vmlogrdr_register_device(struct vmlogrdr_priv_t *priv) {
--	struct device *dev;
-+	struct device *dev = &priv->device;
- 	int ret;
- 
--	dev = kmalloc(sizeof(struct device), GFP_KERNEL);
--	if (dev) {
--		memset(dev, 0, sizeof(struct device));
--		snprintf(dev->bus_id, BUS_ID_SIZE, "%s",
--			 priv->internal_name);
--		dev->bus = &iucv_bus;
--		dev->parent = iucv_root;
--		dev->driver = &vmlogrdr_driver;
--		/*
--		 * The release function could be called after the
--		 * module has been unloaded. It's _only_ task is to
--		 * free the struct. Therefore, we specify kfree()
--		 * directly here. (Probably a little bit obfuscating
--		 * but legitime ...).
--		 */
--		dev->release = (void (*)(struct device *))kfree;
--	} else
--		return -ENOMEM;
-+	memset(dev, 0, sizeof(struct device));
-+	snprintf(dev->bus_id, BUS_ID_SIZE, "%s", priv->internal_name);
-+	dev->bus = &iucv_bus;
-+	dev->parent = iucv_root;
-+	dev->driver = &vmlogrdr_driver;
- 	ret = device_register(dev);
- 	if (ret)
- 		return ret;
-@@ -799,7 +786,6 @@ vmlogrdr_register_device(struct vmlogrdr
- 		return ret;
- 	}
- 	dev->driver_data = priv;
--	priv->device = dev;
- 	return 0;
+Signed-off-by: Arthur Othieno <a.othieno@bluewin.ch>
+
+---
+
+ include/asm-alpha/semaphore.h     |    3 ---
+ include/asm-arm/semaphore.h       |    2 --
+ include/asm-arm26/semaphore.h     |    3 ---
+ include/asm-cris/semaphore.h      |    3 ---
+ include/asm-frv/semaphore.h       |    3 ---
+ include/asm-h8300/semaphore.h     |    3 ---
+ include/asm-i386/semaphore.h      |    3 ---
+ include/asm-ia64/semaphore.h      |    2 --
+ include/asm-m32r/semaphore.h      |    3 ---
+ include/asm-m68k/semaphore.h      |    3 ---
+ include/asm-m68knommu/semaphore.h |    3 ---
+ include/asm-mips/semaphore.h      |    3 ---
+ include/asm-parisc/semaphore.h    |    3 ---
+ include/asm-ppc/semaphore.h       |    3 ---
+ include/asm-ppc64/semaphore.h     |    3 ---
+ include/asm-s390/semaphore.h      |    3 ---
+ include/asm-sh/semaphore.h        |    3 ---
+ include/asm-sh64/semaphore.h      |    3 ---
+ include/asm-sparc/semaphore.h     |    3 ---
+ include/asm-sparc64/semaphore.h   |    3 ---
+ include/asm-v850/semaphore.h      |    3 ---
+ include/asm-x86_64/semaphore.h    |    3 ---
+ include/asm-xtensa/semaphore.h    |    3 ---
+ 23 files changed, 0 insertions(+), 67 deletions(-)
+
+d037647d1b61724fdc824bb68f3c4ee388b56b01
+diff --git a/include/asm-alpha/semaphore.h b/include/asm-alpha/semaphore.h
+--- a/include/asm-alpha/semaphore.h
++++ b/include/asm-alpha/semaphore.h
+@@ -26,9 +26,6 @@ struct semaphore {
+   	.wait	= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait),	\
  }
  
-@@ -807,11 +793,8 @@ vmlogrdr_register_device(struct vmlogrdr
- static int
- vmlogrdr_unregister_device(struct vmlogrdr_priv_t *priv ) {
- 	class_device_destroy(vmlogrdr_class, MKDEV(vmlogrdr_major, priv->minor_num));
--	if (priv->device != NULL) {
--		sysfs_remove_group(&priv->device->kobj, &vmlogrdr_attr_group);
--		device_unregister(priv->device);
--		priv->device=NULL;
--	}
-+	sysfs_remove_group(&priv->device.kobj, &vmlogrdr_attr_group);
-+	device_unregister(&priv->device);
- 	return 0;
+-#define __MUTEX_INITIALIZER(name)			\
+-	__SEMAPHORE_INITIALIZER(name,1)
+-
+ #define __DECLARE_SEMAPHORE_GENERIC(name,count)		\
+ 	struct semaphore name = __SEMAPHORE_INITIALIZER(name,count)
+ 
+diff --git a/include/asm-arm/semaphore.h b/include/asm-arm/semaphore.h
+--- a/include/asm-arm/semaphore.h
++++ b/include/asm-arm/semaphore.h
+@@ -24,8 +24,6 @@ struct semaphore {
+ 	.wait	= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait),	\
  }
+ 
+-#define __MUTEX_INITIALIZER(name) __SEMAPHORE_INIT(name,1)
+-
+ #define __DECLARE_SEMAPHORE_GENERIC(name,count)	\
+ 	struct semaphore name = __SEMAPHORE_INIT(name,count)
+ 
+diff --git a/include/asm-arm26/semaphore.h b/include/asm-arm26/semaphore.h
+--- a/include/asm-arm26/semaphore.h
++++ b/include/asm-arm26/semaphore.h
+@@ -25,9 +25,6 @@ struct semaphore {
+ 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait),	\
+ }
+ 
+-#define __MUTEX_INITIALIZER(name) \
+-	__SEMAPHORE_INIT(name,1)
+-
+ #define __DECLARE_SEMAPHORE_GENERIC(name,count)	\
+ 	struct semaphore name = __SEMAPHORE_INIT(name,count)
+ 
+diff --git a/include/asm-cris/semaphore.h b/include/asm-cris/semaphore.h
+--- a/include/asm-cris/semaphore.h
++++ b/include/asm-cris/semaphore.h
+@@ -33,9 +33,6 @@ struct semaphore {
+ 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)    \
+ }
+ 
+-#define __MUTEX_INITIALIZER(name) \
+-        __SEMAPHORE_INITIALIZER(name,1)
+-
+ #define __DECLARE_SEMAPHORE_GENERIC(name,count) \
+         struct semaphore name = __SEMAPHORE_INITIALIZER(name,count)
+ 
+diff --git a/include/asm-frv/semaphore.h b/include/asm-frv/semaphore.h
+--- a/include/asm-frv/semaphore.h
++++ b/include/asm-frv/semaphore.h
+@@ -47,9 +47,6 @@ struct semaphore {
+ #define __SEMAPHORE_INITIALIZER(name,count) \
+ { count, SPIN_LOCK_UNLOCKED, LIST_HEAD_INIT((name).wait_list) __SEM_DEBUG_INIT(name) }
+ 
+-#define __MUTEX_INITIALIZER(name) \
+-	__SEMAPHORE_INITIALIZER(name,1)
+-
+ #define __DECLARE_SEMAPHORE_GENERIC(name,count) \
+ 	struct semaphore name = __SEMAPHORE_INITIALIZER(name,count)
+ 
+diff --git a/include/asm-h8300/semaphore.h b/include/asm-h8300/semaphore.h
+--- a/include/asm-h8300/semaphore.h
++++ b/include/asm-h8300/semaphore.h
+@@ -35,9 +35,6 @@ struct semaphore {
+ 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
+ }
+ 
+-#define __MUTEX_INITIALIZER(name) \
+-	__SEMAPHORE_INITIALIZER(name,1)
+-
+ #define __DECLARE_SEMAPHORE_GENERIC(name,count) \
+ 	struct semaphore name = __SEMAPHORE_INITIALIZER(name,count)
+ 
+diff --git a/include/asm-i386/semaphore.h b/include/asm-i386/semaphore.h
+--- a/include/asm-i386/semaphore.h
++++ b/include/asm-i386/semaphore.h
+@@ -55,9 +55,6 @@ struct semaphore {
+ 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
+ }
+ 
+-#define __MUTEX_INITIALIZER(name) \
+-	__SEMAPHORE_INITIALIZER(name,1)
+-
+ #define __DECLARE_SEMAPHORE_GENERIC(name,count) \
+ 	struct semaphore name = __SEMAPHORE_INITIALIZER(name,count)
+ 
+diff --git a/include/asm-ia64/semaphore.h b/include/asm-ia64/semaphore.h
+--- a/include/asm-ia64/semaphore.h
++++ b/include/asm-ia64/semaphore.h
+@@ -24,8 +24,6 @@ struct semaphore {
+ 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
+ }
+ 
+-#define __MUTEX_INITIALIZER(name)	__SEMAPHORE_INITIALIZER(name,1)
+-
+ #define __DECLARE_SEMAPHORE_GENERIC(name,count)					\
+ 	struct semaphore name = __SEMAPHORE_INITIALIZER(name, count)
+ 
+diff --git a/include/asm-m32r/semaphore.h b/include/asm-m32r/semaphore.h
+--- a/include/asm-m32r/semaphore.h
++++ b/include/asm-m32r/semaphore.h
+@@ -32,9 +32,6 @@ struct semaphore {
+ 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
+ }
+ 
+-#define __MUTEX_INITIALIZER(name) \
+-	__SEMAPHORE_INITIALIZER(name,1)
+-
+ #define __DECLARE_SEMAPHORE_GENERIC(name,count) \
+ 	struct semaphore name = __SEMAPHORE_INITIALIZER(name,count)
+ 
+diff --git a/include/asm-m68k/semaphore.h b/include/asm-m68k/semaphore.h
+--- a/include/asm-m68k/semaphore.h
++++ b/include/asm-m68k/semaphore.h
+@@ -36,9 +36,6 @@ struct semaphore {
+ 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
+ }
+ 
+-#define __MUTEX_INITIALIZER(name) \
+-	__SEMAPHORE_INITIALIZER(name,1)
+-
+ #define __DECLARE_SEMAPHORE_GENERIC(name,count) \
+ 	struct semaphore name = __SEMAPHORE_INITIALIZER(name,count)
+ 
+diff --git a/include/asm-m68knommu/semaphore.h b/include/asm-m68knommu/semaphore.h
+--- a/include/asm-m68knommu/semaphore.h
++++ b/include/asm-m68knommu/semaphore.h
+@@ -35,9 +35,6 @@ struct semaphore {
+ 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
+ }
+ 
+-#define __MUTEX_INITIALIZER(name) \
+-	__SEMAPHORE_INITIALIZER(name,1)
+-
+ #define __DECLARE_SEMAPHORE_GENERIC(name,count) \
+ 	struct semaphore name = __SEMAPHORE_INITIALIZER(name,count)
+ 
+diff --git a/include/asm-mips/semaphore.h b/include/asm-mips/semaphore.h
+--- a/include/asm-mips/semaphore.h
++++ b/include/asm-mips/semaphore.h
+@@ -45,9 +45,6 @@ struct semaphore {
+ 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
+ }
+ 
+-#define __MUTEX_INITIALIZER(name) \
+-	__SEMAPHORE_INITIALIZER(name, 1)
+-
+ #define __DECLARE_SEMAPHORE_GENERIC(name, count) \
+ 	struct semaphore name = __SEMAPHORE_INITIALIZER(name,count)
+ 
+diff --git a/include/asm-parisc/semaphore.h b/include/asm-parisc/semaphore.h
+--- a/include/asm-parisc/semaphore.h
++++ b/include/asm-parisc/semaphore.h
+@@ -49,9 +49,6 @@ struct semaphore {
+ 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
+ }
+ 
+-#define __MUTEX_INITIALIZER(name) \
+-	__SEMAPHORE_INITIALIZER(name,1)
+-
+ #define __DECLARE_SEMAPHORE_GENERIC(name,count) \
+ 	struct semaphore name = __SEMAPHORE_INITIALIZER(name,count)
+ 
+diff --git a/include/asm-ppc/semaphore.h b/include/asm-ppc/semaphore.h
+--- a/include/asm-ppc/semaphore.h
++++ b/include/asm-ppc/semaphore.h
+@@ -37,9 +37,6 @@ struct semaphore {
+ 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
+ }
+ 
+-#define __MUTEX_INITIALIZER(name) \
+-	__SEMAPHORE_INITIALIZER(name, 1)
+-
+ #define __DECLARE_SEMAPHORE_GENERIC(name, count) \
+ 	struct semaphore name = __SEMAPHORE_INITIALIZER(name,count)
+ 
+diff --git a/include/asm-ppc64/semaphore.h b/include/asm-ppc64/semaphore.h
+--- a/include/asm-ppc64/semaphore.h
++++ b/include/asm-ppc64/semaphore.h
+@@ -31,9 +31,6 @@ struct semaphore {
+ 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
+ }
+ 
+-#define __MUTEX_INITIALIZER(name) \
+-	__SEMAPHORE_INITIALIZER(name, 1)
+-
+ #define __DECLARE_SEMAPHORE_GENERIC(name, count) \
+ 	struct semaphore name = __SEMAPHORE_INITIALIZER(name,count)
+ 
+diff --git a/include/asm-s390/semaphore.h b/include/asm-s390/semaphore.h
+--- a/include/asm-s390/semaphore.h
++++ b/include/asm-s390/semaphore.h
+@@ -29,9 +29,6 @@ struct semaphore {
+ #define __SEMAPHORE_INITIALIZER(name,count) \
+ 	{ ATOMIC_INIT(count), __WAIT_QUEUE_HEAD_INITIALIZER((name).wait) }
+ 
+-#define __MUTEX_INITIALIZER(name) \
+-	__SEMAPHORE_INITIALIZER(name,1)
+-
+ #define __DECLARE_SEMAPHORE_GENERIC(name,count) \
+ 	struct semaphore name = __SEMAPHORE_INITIALIZER(name,count)
+ 
+diff --git a/include/asm-sh/semaphore.h b/include/asm-sh/semaphore.h
+--- a/include/asm-sh/semaphore.h
++++ b/include/asm-sh/semaphore.h
+@@ -33,9 +33,6 @@ struct semaphore {
+ 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
+ }
+ 
+-#define __MUTEX_INITIALIZER(name) \
+-	__SEMAPHORE_INITIALIZER(name,1)
+-
+ #define __DECLARE_SEMAPHORE_GENERIC(name,count) \
+ 	struct semaphore name = __SEMAPHORE_INITIALIZER(name,count)
+ 
+diff --git a/include/asm-sh64/semaphore.h b/include/asm-sh64/semaphore.h
+--- a/include/asm-sh64/semaphore.h
++++ b/include/asm-sh64/semaphore.h
+@@ -40,9 +40,6 @@ struct semaphore {
+ 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
+ }
+ 
+-#define __MUTEX_INITIALIZER(name) \
+-	__SEMAPHORE_INITIALIZER(name,1)
+-
+ #define __DECLARE_SEMAPHORE_GENERIC(name,count) \
+ 	struct semaphore name = __SEMAPHORE_INITIALIZER(name,count)
+ 
+diff --git a/include/asm-sparc/semaphore.h b/include/asm-sparc/semaphore.h
+--- a/include/asm-sparc/semaphore.h
++++ b/include/asm-sparc/semaphore.h
+@@ -22,9 +22,6 @@ struct semaphore {
+ 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
+ }
+ 
+-#define __MUTEX_INITIALIZER(name) \
+-	__SEMAPHORE_INITIALIZER(name,1)
+-
+ #define __DECLARE_SEMAPHORE_GENERIC(name,count) \
+ 	struct semaphore name = __SEMAPHORE_INITIALIZER(name,count)
+ 
+diff --git a/include/asm-sparc64/semaphore.h b/include/asm-sparc64/semaphore.h
+--- a/include/asm-sparc64/semaphore.h
++++ b/include/asm-sparc64/semaphore.h
+@@ -22,9 +22,6 @@ struct semaphore {
+ 	{ ATOMIC_INIT(count), \
+ 	  __WAIT_QUEUE_HEAD_INITIALIZER((name).wait) }
+ 
+-#define __MUTEX_INITIALIZER(name) \
+-	__SEMAPHORE_INITIALIZER(name, 1)
+-
+ #define __DECLARE_SEMAPHORE_GENERIC(name, count) \
+ 	struct semaphore name = __SEMAPHORE_INITIALIZER(name,count)
+ 
+diff --git a/include/asm-v850/semaphore.h b/include/asm-v850/semaphore.h
+--- a/include/asm-v850/semaphore.h
++++ b/include/asm-v850/semaphore.h
+@@ -18,9 +18,6 @@ struct semaphore {
+ 	{ ATOMIC_INIT (count), 0,					      \
+ 	  __WAIT_QUEUE_HEAD_INITIALIZER ((name).wait) }
+ 
+-#define __MUTEX_INITIALIZER(name)					      \
+-	__SEMAPHORE_INITIALIZER (name,1)
+-
+ #define __DECLARE_SEMAPHORE_GENERIC(name,count)	\
+ 	struct semaphore name = __SEMAPHORE_INITIALIZER (name,count)
+ 
+diff --git a/include/asm-x86_64/semaphore.h b/include/asm-x86_64/semaphore.h
+--- a/include/asm-x86_64/semaphore.h
++++ b/include/asm-x86_64/semaphore.h
+@@ -56,9 +56,6 @@ struct semaphore {
+ 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
+ }
+ 
+-#define __MUTEX_INITIALIZER(name) \
+-	__SEMAPHORE_INITIALIZER(name,1)
+-
+ #define __DECLARE_SEMAPHORE_GENERIC(name,count) \
+ 	struct semaphore name = __SEMAPHORE_INITIALIZER(name,count)
+ 
+diff --git a/include/asm-xtensa/semaphore.h b/include/asm-xtensa/semaphore.h
+--- a/include/asm-xtensa/semaphore.h
++++ b/include/asm-xtensa/semaphore.h
+@@ -29,9 +29,6 @@ struct semaphore {
+ 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
+ }
+ 
+-#define __MUTEX_INITIALIZER(name) 					\
+-	__SEMAPHORE_INITIALIZER(name, 1)
+-
+ #define __DECLARE_SEMAPHORE_GENERIC(name,count) 			\
+ 	struct semaphore name = __SEMAPHORE_INITIALIZER(name,count)
  

@@ -1,60 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbVJYH4E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbVJYH7e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbVJYH4E (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 03:56:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932082AbVJYH4E
+	id S932083AbVJYH7e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 03:59:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbVJYH7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 03:56:04 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:40722 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932081AbVJYH4D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 03:56:03 -0400
-Date: Tue, 25 Oct 2005 08:55:56 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Nicolas Pitre <nico@cam.org>
-Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+	Tue, 25 Oct 2005 03:59:34 -0400
+Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:42976 "EHLO
+	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S932083AbVJYH7d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 03:59:33 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Subject: Re: [PATCH] Add notification of page becoming writable to VMA ops
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, Christoph Hellwig <hch@infradead.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/9] mm: arm ready for split ptlock
-Message-ID: <20051025075555.GA25020@flint.arm.linux.org.uk>
-Mail-Followup-To: Nicolas Pitre <nico@cam.org>,
-	Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.61.0510221716380.18047@goblin.wat.veritas.com> <Pine.LNX.4.61.0510221719370.18047@goblin.wat.veritas.com> <20051022170240.GA10631@flint.arm.linux.org.uk> <Pine.LNX.4.64.0510241922040.5288@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.61.0510241938100.6142@goblin.wat.veritas.com>
+References: <1130168619.19518.43.camel@imp.csi.cam.ac.uk>
+	 <1130167005.19518.35.camel@imp.csi.cam.ac.uk>
+	 <Pine.LNX.4.61.0502091357001.6086@goblin.wat.veritas.com>
+	 <7872.1130167591@warthog.cambridge.redhat.com>
+	 <9792.1130171024@warthog.cambridge.redhat.com>
+	 <Pine.LNX.4.61.0510241938100.6142@goblin.wat.veritas.com>
+Content-Type: text/plain
+Organization: Computing Service, University of Cambridge, UK
+Date: Tue, 25 Oct 2005 08:59:19 +0100
+Message-Id: <1130227159.8169.5.camel@imp.csi.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0510241922040.5288@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 24, 2005 at 10:45:04PM -0400, Nicolas Pitre wrote:
-> On Sat, 22 Oct 2005, Russell King wrote:
-> > Please contact Nicolas Pitre about that - that was my suggestion,
-> > but ISTR apparantly the overhead is too high.
+On Mon, 2005-10-24 at 20:11 +0100, Hugh Dickins wrote:
+> On Mon, 24 Oct 2005, David Howells wrote:
+> > 
+> > The attached patch adds a new VMA operation to notify a filesystem or other
+> > driver about the MMU generating a fault because userspace attempted to write
+> > to a page mapped through a read-only PTE.
+> > 
+> > This facility permits the filesystem or driver to:
+> > 
+> >  (*) Implement storage allocation/reservation on attempted write, and so to
+> >      deal with problems such as ENOSPC more gracefully (perhaps by generating
+> >      SIGBUS).
+> > 
+> >  (*) Delay making the page writable until the contents have been written to a
+> >      backing cache. This is useful for NFS/AFS when using FS-Cache/CacheFS.
+> >      It permits the filesystem to have some guarantee about the state of the
+> >      cache.
 > 
-> Going through a kernel buffer will simply double the overhead.  Let's 
-> suppose it should not be a big enough issue to stop the patch from being 
-> merged though (and it looks cleaner that way). However I'd like for the 
-> WARN_ON((unsigned long)frame & 7) to remain as both the kernel and user 
-> buffers should be 64-bit aligned.
+> I've only given it a quick look, it looks pretty good, but too hastily
+> thrown together, without understanding of the intervening changes:
 
-The WARN_ON is pointless because we guarantee that the stack is always
-64-bit aligned on signal handler setup and return.
+There really is quite a difference between mm/*.c in -mm and Linus
+kernel at present.  Is all this planned to be merged as soon as 2.6.14
+is out or is -mm just a playground for now with no mainline merge
+intentions?
 
-> I don't see how standard COW could not happen.  The only difference with 
-> a true write fault as if we used put_user() is that we bypassed the data 
-> abort vector and the code to get the FAR value.  Or am I missing 
-> something?
+Just asking so I know whether to work against stock kernels or -mm for
+the moment...
 
-pte_write() just says that the page _may_ be writable.  It doesn't say
-that the MMU is programmed to allow writes.  If pte_dirty() doesn't
-return true, that means that the page is _not_ writable from userspace.
-If you write to it from kernel mode (without using put_user) you'll
-bypass the MMU read-only protection and may end up writing to a page
-owned by two separate processes.
+[snip some corrections I am in no position to comment on at the moment]
+> > @@ -1945,7 +1998,7 @@ static int do_file_page(struct mm_struct
+> 
+> Drop all those changes to do_file_page (which I added), they're no
+> longer necessary.  A case appeared which made it clear that we cannot
+> rely on resolving this issue for get_user_pages in a single call to
+> handle_mm_fault, and that's why the VM_FAULT_WRITE stuff got added. 
+> 
+> This complication of do_file_page was always ugly, and I'm delighted
+> to drop it.  Whereas the call to do_wp_page from do_swap_page is less
+> obtrusive and may still be a worthwhile optimization, though I added
+> it for the same disgraced reason a year or more back.
 
+Cool, that reduces the size of the patch.  (-:
+
+Best regards,
+
+        Anton
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+

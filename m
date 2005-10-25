@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751475AbVJYHCz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751480AbVJYHE4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751475AbVJYHCz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 03:02:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751476AbVJYHCz
+	id S1751480AbVJYHE4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 03:04:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbVJYHE4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 03:02:55 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:11665 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1751475AbVJYHCy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 03:02:54 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <435DD86F.3090702@s5r6.in-berlin.de>
-Date: Tue, 25 Oct 2005 09:02:07 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Jesse Barnes <jbarnes@virtuousgeek.org>
-CC: gregkh@suse.de, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, rob@janerob.com, akpm@osdl.org
-Subject: Re: [PATCH] ohci1394 PCI fixup for Toshiba laptops
-References: <200510241857.33257.jbarnes@virtuousgeek.org>
-In-Reply-To: <200510241857.33257.jbarnes@virtuousgeek.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: (-1.084) AWL,BAYES_00
+	Tue, 25 Oct 2005 03:04:56 -0400
+Received: from 238-193.adsl.pool.ew.hu ([193.226.238.193]:22032 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S1751476AbVJYHEz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 03:04:55 -0400
+To: viro@ftp.linux.org.uk
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-reply-to: <E1EUHni-0006ue-00@dorka.pomaz.szeredi.hu> (message from Miklos
+	Szeredi on Tue, 25 Oct 2005 07:56:46 +0200)
+Subject: Re: [PATCH 0/8] FUSE improvements + VFS changes
+References: <E1EU5RZ-0005qg-00@dorka.pomaz.szeredi.hu> <20051025042728.GK7992@ftp.linux.org.uk> <E1EUHni-0006ue-00@dorka.pomaz.szeredi.hu>
+Message-Id: <E1EUIr7-0006zX-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 25 Oct 2005 09:04:21 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes wrote:
-> +static void __devinit pci_post_fixup_toshiba_ohci1394(struct pci_dev *dev)
-> +{
-> +	if (dmi_check_system(toshiba_ohci1394_dmi_table))
-> +		return; /* only applies to certain Toshibas (so far) */
-> +
-> +	/* Restore config space on Toshiba laptops */
-> +	mdelay(10);
-> +	pci_write_config_word(dev, PCI_CACHE_LINE_SIZE, toshiba_line_size);
+> > > The limitations are:
+> > > 
+> > >   1) open("foo", O_CREAT | O_WRONLY, 0444) or similar won't work
+> > > 
+> > >   2) ftruncate on a file not having write permission (but file opened
+> > >      in write mode) will fail
+> > > 
+> > >   3) statfs() cannot return different values based on the path within
+> > >      a filesystem
+> > 
+> >     4) mass of a body cannot vary depending on the way it's turned.
+> > 
+> > Horrible limitations, all of them...
+> 
+> Troll.
+> 
+> We have solution for 1-3, what's your's for 4?
 
-Shouldn't this read
+And in case you're wondering, 1-2 are mandated by SUS, and obscure
+programs like "cp" depend on 1) for example.  So it's not as if these
+limitations were all that fair.
 
-         if (!dmi_check_system(toshiba_ohci1394_dmi_table))
-                 return;
-             ^ ?
-
-dmi_check_system returns the number of matches.
--- 
-Stefan Richter
--=====-=-=-= =-=- ==--=
-http://arcgraph.de/sr/
+Miklos

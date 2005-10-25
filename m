@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbVJYUHy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbVJYULX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932334AbVJYUHy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 16:07:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbVJYUHy
+	id S932335AbVJYULX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 16:11:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932337AbVJYULX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 16:07:54 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:11668 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932334AbVJYUHx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 16:07:53 -0400
-Date: Tue, 25 Oct 2005 13:07:42 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Mark Lord <mlord@pobox.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Call for PIIX4 chipset testers
-In-Reply-To: <435E8CFE.7060006@pobox.com>
-Message-ID: <Pine.LNX.4.64.0510251301540.10477@g5.osdl.org>
-References: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org> <435E8CFE.7060006@pobox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 25 Oct 2005 16:11:23 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:54147 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932336AbVJYULW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 16:11:22 -0400
+Subject: Re: 2.6.14-rc5-rt6  -- False NMI lockup detects
+From: Steven Rostedt <rostedt@goodmis.org>
+To: george@mvista.com
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <435E8EDE.30306@mvista.com>
+References: <1130250219.21118.11.camel@localhost.localdomain>
+	 <20051025142848.GA7642@elte.hu>
+	 <1130268292.21118.22.camel@localhost.localdomain>
+	 <435E8EDE.30306@mvista.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Tue, 25 Oct 2005 16:10:50 -0400
+Message-Id: <1130271050.21118.30.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-10-25 at 13:00 -0700, George Anzinger wrote:
+> Steven Rostedt wrote:
+> >
+> > 
+> > Isn't the jiffy tick implemented with the PIT when possible? So the apic
+> > is only used when a timer is needed.  Also note that this "lockup"
+> > happens on boot up while things are being initialized, so not many
+> > things may be using the timer.
+> 
+> Somewhere in the not too distant past the NMI watchdog was moved from the PIT tick to the APIC 
+> timer.  Might want to move it back, at least for now...
+> > 
+
+Actually, I submitted a patch to Ingo, (and I guess it would also work
+with Thomas' kthrt as well), that takes the nmi tick out of the timer
+code completely (at least for x86) and moves it to the __do_IRQ.  This
+way, it would detect when something is locked up with interrupts
+disabled, but you don't worry about having the right timer configured
+for it.
+
+If you want to detect the timer being screwed up, that can be done on a
+timer by timer basis, and most likely the soft lockup would find that
+out too.
+
+-- Steve
 
 
-On Tue, 25 Oct 2005, Mark Lord wrote:
->
-> Are these lines of any use?
-
-Yes, that's great.
-
-> If so, I'll try and get it to boot further and dump
-> the more detailed info.  That'll take some effort
-> (I'm grafting a semi-modern kernel onto an old install).
-> ...
-> PCI quirk: region 1000-103f claimed by PIIX4 ACPI
-> PCI quirk: region 1040-105f claimed by PIIX4 SMB
-> PIIX4 devres C PIO at 15e8-15ef
-> PIIX4 devres I PIO at 03f0-03f7
-> PIIX4 devres J PIO at 002e-002f
-
-You've got three of the "new" devres resources, and judging by the values, 
-I'd guess you have an IBM ThinkPad 600 series machine. No?
-
-If it's indeed an IBM ThinkPad, I don't need any more info. It's a 
-confirmation of the behaviour that I already saw debugging Alan's machine.
-
-I have no idea what that device at 0x15e8 actually _is_, but just the fact 
-that the PCI resource management will know about it means that we now can 
-avoid putting anything else at that address. Which is why we want to know 
-about these quirks in the first place.
-
-(The two other device resources are just old ISA areas, we'd never have 
-put any PCI device in those ranges anyway. But the mysterious 0x15e8 
-region was what got me started on this thing).
-
-And if it's something else than a ThinkPad, I'd love to know what it is.
-
-		Linus

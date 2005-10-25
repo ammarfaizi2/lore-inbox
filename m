@@ -1,87 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932392AbVJYV1Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932394AbVJYV2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932392AbVJYV1Y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 17:27:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932394AbVJYV1Y
+	id S932394AbVJYV2R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 17:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbVJYV2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 17:27:24 -0400
-Received: from xproxy.gmail.com ([66.249.82.206]:17861 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932392AbVJYV1Y convert rfc822-to-8bit
+	Tue, 25 Oct 2005 17:28:17 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:36780 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932394AbVJYV2Q
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 17:27:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jnhhCJq3o3qRR4QdhVbKdShBGy2D5SUbDfJF0ZhuZDYZceszJ3khcI4GJAfr/gm04eBKN+D0DLQPmMwM+emEH2y3dWHJ8i4f14tyqE8WqKFJGobVZAxeotycCEHolgmSoKnKbA4hfHNBopQQK5PZ60vRjZdWfjb3RaIUpMomZos=
-Message-ID: <5a4c581d0510251427o4bcd63bbh8d5121b01dfe1e7b@mail.gmail.com>
-Date: Tue, 25 Oct 2005 23:27:23 +0200
-From: Alessandro Suardi <alessandro.suardi@gmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: X unkillable in R state sometimes on startx , /proc/sysrq-trigger T output attached
-In-Reply-To: <5a4c581d0510251335ke8e7ae6n883e0b44a9920ce4@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <5a4c581d0510251335ke8e7ae6n883e0b44a9920ce4@mail.gmail.com>
+	Tue, 25 Oct 2005 17:28:16 -0400
+Subject: [PATCH] 1/5 ibmveth fix bonding
+From: Santiago Leon <santil@us.ibm.com>
+To: netdev <netdev@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>
+Content-Type: text/plain
+Message-Id: <1130275458.10524.425.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 25 Oct 2005 16:27:02 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/25/05, Alessandro Suardi <alessandro.suardi@gmail.com> wrote:
-> Happened to me the third time now in the last
->  couple of months, always with different Linus
->  kernels (plus ACX100 wireless module from
->  Denis Vlasenko's snapshots) all hanging off
->  an up-to-date FC4, all built with latest stock
->  GCC; this last is:
->
-> [root@incident ~]# cat /proc/version
-> Linux version 2.6.14-rc5-git5 (asuardi@incident) (gcc version 4.0.2)
-> #1 PREEMPT Tue Oct 25 14:32:46 CEST 2005
->
-> Symptoms: startx at the command prompt gets
->  the blank screen, then... nothing. Keyboard is
->  dead (CapsLock doesn't get its led lit), no VT
->  switching works. Box is still reachable via ssh
->  through its wireless network card, all looks OK
->  except for X running and piling up CPU time,
->  and apparently untraceable (pstack, strace
->  hang trying to attach it) and unkillable (kill -9
->  doesn't kill it).
->
-> I took a couple of SysRQ 't' dumps via the
->  /proc/sysrq-trigger facility and the outcome is
->  attached - actually it's a full messages log,
->  startup to reboot.
->
-> Exact sequence this time:
->  1. boot
->  2. insmod 0.3.17 acx driver
->  -> notice I can't contact my wireless AP
->  3. rmmod it, insmod 0.3.16 driver
->  -> notice I am an idiot, plug in the wireless AP power cord
->  4. rmmod 0.3.16, insmod 0.3.17, iwconfig wlan0 up
->  5. switch to VT2 (Alt-F2), login as non-root, run startx
-> <blank screen, dead keyboard>
->  6. ssh in from remote box, take SysRQ dumps, reboot
->
-> If anyone has an idea on what to do to try and reproduce
->  and/or debug further, that'd be cool.
->
-> Box is a Dell Latitude C640 laptop, PIV@1.8Ghz,
->  1GB RAM, with a USR2210 802.11b wireless
->  PC Card; video card is a Radeon 7500 M7 LW.
+This patch updates dev->trans_start and dev->last_rx so that the ibmveth
+driver can be used with the ARP monitor in the bonding driver. 
 
-OK, let's forget about attachments (100+ KB), the
- full messages file can be found here:
-http://xoomer.virgilio.it/incident/messages
+Signed-off-by: Santiago Leon <santil@us.ibm.com>
+---
+ drivers/net/ibmveth.c |    2 ++
+ 1 files changed, 2 insertions(+)
+---
+diff -urN a/drivers/net/ibmveth.c b/drivers/net/ibmveth.c
+--- a/drivers/net/ibmveth.c	2005-10-11 12:56:24.000000000 -0500
++++ b/drivers/net/ibmveth.c	2005-10-11 13:52:45.000000000 -0500
+@@ -725,6 +725,7 @@
+ 	} else {
+ 		adapter->stats.tx_packets++;
+ 		adapter->stats.tx_bytes += skb->len;
++		netdev->trans_start = jiffies;
+ 	}
+ 
+ 	do {
+@@ -776,6 +777,7 @@
+ 				adapter->stats.rx_packets++;
+ 				adapter->stats.rx_bytes += length;
+ 				frames_processed++;
++				netdev->last_rx = jiffies;
+ 			}
+ 		} else {
+ 			more_work = 0;
 
-Thanks again, ciao,
+-- 
+Santiago A. Leon
+Power Linux Development
+IBM Linux Technology Center
 
---alessandro
-
- "All it takes is one decision
-  A lot of guts, a little vision to wave
-  Your worries, and cares goodbye"
-
-   (Placebo - "Slave To The Wage")

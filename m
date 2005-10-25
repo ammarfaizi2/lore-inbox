@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbVJYTbl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932328AbVJYTc0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932321AbVJYTbl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 15:31:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbVJYTb1
+	id S932328AbVJYTc0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 15:32:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbVJYTbZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 15:31:27 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:8356 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932322AbVJYTbI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 15:31:08 -0400
-Date: Tue, 25 Oct 2005 12:30:28 -0700 (PDT)
+	Tue, 25 Oct 2005 15:31:25 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:34987 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S932323AbVJYTbO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 15:31:14 -0400
+Date: Tue, 25 Oct 2005 12:30:39 -0700 (PDT)
 From: Christoph Lameter <clameter@sgi.com>
 To: akpm@osdl.org
 Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
@@ -21,296 +21,318 @@ Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
        Magnus Damm <magnus.damm@gmail.com>, Paul Jackson <pj@sgi.com>,
        Dave Hansen <haveblue@us.ibm.com>,
        KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Message-Id: <20051025193028.6828.27929.sendpatchset@schroedinger.engr.sgi.com>
+Message-Id: <20051025193039.6828.74991.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20051025193023.6828.89649.sendpatchset@schroedinger.engr.sgi.com>
 References: <20051025193023.6828.89649.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 1/5] Swap Migration V4: LRU operations
+Subject: [PATCH 3/5] Swap Migration V4: migrate_pages() function
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-isolation of pages from LRU
+Page migration support in vmscan.c
 
-Implement functions to isolate pages from the LRU and put them back later.
+This patch adds the basic page migration function with a minimal implementation
+that only allows the eviction of pages to swap space.
 
-An earlier implementation was provided by
-Hirokazu Takahashi <taka@valinux.co.jp> and
-IWAMOTO Toshihiro <iwamoto@valinux.co.jp> for the memory
-hotplug project.
+Page eviction and migration may be useful to migrate pages, to suspend programs
+or for remapping single pages (useful for faulty pages or pages with soft ECC
+failures)
 
->From Magnus:
+The process is as follows:
 
-This patch for 2.6.14-rc4-mm1 breaks out isolate_lru_page() and
-putpack_lru_page() and makes them inline. I'd like to build my code on
-top of this patch, and I think your page eviction code could be built
-on top of this patch too - without introducing too much duplicated
-code.
+The function wanting to migrate pages must first build a list of pages to be
+migrated or evicted and take them off the lru lists via isolate_lru_page().
+isolate_lru_page determines that a page is freeable based on the LRU bit set.
 
-Changes V3-V4:
+Then the actual migration or swapout can happen by calling migrate_pages().
 
-- Remove obsolete second parameter from isolate_lru_page
-- Mention the original authors
+migrate_pages does its best to migrate or swapout the pages and does multiple passes
+over the list. Some pages may only be swappable if they are not dirty. migrate_pages
+may start writing out dirty pages in the initial passes over the pages.
+However, migrate_pages may not be able to migrate or evict all pages for a variety
+of reasons.
 
-Signed-off-by: Magnus Damm <magnus.damm@gmail.com>
+The remaining pages may be returned to the LRU lists using putback_lru_pages().
+
+Changelog V3->V4:
+- Restructure code so that applying patches to support full migration does
+  require minimal changes. Rename swapout_pages() to migrate_pages().
+
+Changelog V2->V3:
+- Extract common code from shrink_list() and swapout_pages()
+
+Signed-off-by: Mike Kravetz <kravetz@us.ibm.com>
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.14-rc5-mm1/include/linux/mm_inline.h
-===================================================================
---- linux-2.6.14-rc5-mm1.orig/include/linux/mm_inline.h	2005-10-19 23:23:05.000000000 -0700
-+++ linux-2.6.14-rc5-mm1/include/linux/mm_inline.h	2005-10-25 08:09:52.000000000 -0700
-@@ -38,3 +38,55 @@ del_page_from_lru(struct zone *zone, str
- 		zone->nr_inactive--;
- 	}
- }
-+
-+/*
-+ * Isolate one page from the LRU lists.
-+ *
-+ * - zone->lru_lock must be held
-+ *
-+ * Result:
-+ *  0 = page not on LRU list
-+ *  1 = page removed from LRU list
-+ * -1 = page is being freed elsewhere.
-+ */
-+static inline int
-+__isolate_lru_page(struct zone *zone, struct page *page)
-+{
-+	if (TestClearPageLRU(page)) {
-+		if (get_page_testone(page)) {
-+			/*
-+			 * It is being freed elsewhere
-+			 */
-+			__put_page(page);
-+			SetPageLRU(page);
-+			return -1;
-+		} else {
-+			if (PageActive(page))
-+				del_page_from_active_list(zone, page);
-+			else
-+				del_page_from_inactive_list(zone, page);
-+			return 1;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+/*
-+ * Add isolated page back on the LRU lists
-+ *
-+ * - zone->lru_lock must be held
-+ * - page must already be removed from other list
-+ * - additional call to put_page() is needed
-+ */
-+static inline void
-+__putback_lru_page(struct zone *zone, struct page *page)
-+{
-+	if (TestSetPageLRU(page))
-+		BUG();
-+
-+	if (PageActive(page))
-+		add_page_to_active_list(zone, page);
-+	else
-+		add_page_to_inactive_list(zone, page);
-+}
-Index: linux-2.6.14-rc5-mm1/mm/vmscan.c
-===================================================================
---- linux-2.6.14-rc5-mm1.orig/mm/vmscan.c	2005-10-24 10:27:30.000000000 -0700
-+++ linux-2.6.14-rc5-mm1/mm/vmscan.c	2005-10-25 08:09:52.000000000 -0700
-@@ -578,43 +578,75 @@ keep:
-  *
-  * Appropriate locks must be held before calling this function.
-  *
-+ * @zone:	The zone where lru_lock is held.
-  * @nr_to_scan:	The number of pages to look through on the list.
-  * @src:	The LRU list to pull pages off.
-  * @dst:	The temp list to put pages on to.
-- * @scanned:	The number of pages that were scanned.
-  *
-- * returns how many pages were moved onto *@dst.
-+ * returns the number of pages that were scanned.
-  */
--static int isolate_lru_pages(int nr_to_scan, struct list_head *src,
--			     struct list_head *dst, int *scanned)
-+static int isolate_lru_pages(struct zone *zone, int nr_to_scan,
-+			     struct list_head *src, struct list_head *dst)
- {
--	int nr_taken = 0;
- 	struct page *page;
--	int scan = 0;
-+	int scanned = 0;
-+	int rc;
- 
--	while (scan++ < nr_to_scan && !list_empty(src)) {
-+	while (scanned++ < nr_to_scan && !list_empty(src)) {
- 		page = lru_to_page(src);
- 		prefetchw_prev_lru_page(page, src, flags);
- 
--		if (!TestClearPageLRU(page))
--			BUG();
--		list_del(&page->lru);
--		if (get_page_testone(page)) {
--			/*
--			 * It is being freed elsewhere
--			 */
--			__put_page(page);
--			SetPageLRU(page);
--			list_add(&page->lru, src);
--			continue;
--		} else {
-+		rc = __isolate_lru_page(zone, page);
-+
-+		BUG_ON(rc == 0); /* PageLRU(page) must be true */
-+
-+		if (rc == 1)     /* Succeeded to isolate page */
- 			list_add(&page->lru, dst);
--			nr_taken++;
-+
-+		if (rc == -1) {  /* Not possible to isolate */
-+			list_del(&page->lru);
-+			list_add(&page->lru, src);
- 		}
- 	}
- 
--	*scanned = scan;
--	return nr_taken;
-+	return scanned;
-+}
-+
-+static void lru_add_drain_per_cpu(void *dummy)
-+{
-+	lru_add_drain();
-+}
-+
-+/*
-+ * Isolate one page from the LRU lists and put it on the
-+ * indicated list. Do necessary cache draining if the
-+ * page is not on the LRU lists yet.
-+ *
-+ * Result:
-+ *  0 = page not on LRU list
-+ *  1 = page removed from LRU list and added to the specified list.
-+ * -1 = page is being freed elsewhere.
-+ */
-+int isolate_lru_page(struct page *page)
-+{
-+	int rc = 0;
-+	struct zone *zone = page_zone(page);
-+
-+redo:
-+	spin_lock_irq(&zone->lru_lock);
-+	rc = __isolate_lru_page(zone, page);
-+	spin_unlock_irq(&zone->lru_lock);
-+	if (rc == 0) {
-+		/*
-+		 * Maybe this page is still waiting for a cpu to drain it
-+		 * from one of the lru lists?
-+		 */
-+		smp_call_function(&lru_add_drain_per_cpu, NULL, 0 , 1);
-+		lru_add_drain();
-+		if (PageLRU(page))
-+			goto redo;
-+	}
-+	return rc;
- }
- 
- /*
-@@ -632,18 +664,15 @@ static void shrink_cache(struct zone *zo
- 	spin_lock_irq(&zone->lru_lock);
- 	while (max_scan > 0) {
- 		struct page *page;
--		int nr_taken;
- 		int nr_scan;
- 		int nr_freed;
- 
--		nr_taken = isolate_lru_pages(sc->swap_cluster_max,
--					     &zone->inactive_list,
--					     &page_list, &nr_scan);
--		zone->nr_inactive -= nr_taken;
-+		nr_scan = isolate_lru_pages(zone, sc->swap_cluster_max,
-+					    &zone->inactive_list, &page_list);
- 		zone->pages_scanned += nr_scan;
- 		spin_unlock_irq(&zone->lru_lock);
- 
--		if (nr_taken == 0)
-+		if (list_empty(&page_list))
- 			goto done;
- 
- 		max_scan -= nr_scan;
-@@ -663,13 +692,9 @@ static void shrink_cache(struct zone *zo
- 		 */
- 		while (!list_empty(&page_list)) {
- 			page = lru_to_page(&page_list);
--			if (TestSetPageLRU(page))
--				BUG();
- 			list_del(&page->lru);
--			if (PageActive(page))
--				add_page_to_active_list(zone, page);
--			else
--				add_page_to_inactive_list(zone, page);
-+			__putback_lru_page(zone, page);
-+
- 			if (!pagevec_add(&pvec, page)) {
- 				spin_unlock_irq(&zone->lru_lock);
- 				__pagevec_release(&pvec);
-@@ -683,6 +708,33 @@ done:
- }
- 
- /*
-+ * Add isolated pages on the list back to the LRU
-+ * Determines the zone for each pages and takes
-+ * the necessary lru lock for each page.
-+ *
-+ * returns the number of pages put back.
-+ */
-+int putback_lru_pages(struct list_head *l)
-+{
-+	struct page * page;
-+	struct page * page2;
-+	int count = 0;
-+
-+	list_for_each_entry_safe(page, page2, l, lru) {
-+		struct zone *zone = page_zone(page);
-+
-+		list_del(&page->lru);
-+		spin_lock_irq(&zone->lru_lock);
-+		__putback_lru_page(zone, page);
-+		spin_unlock_irq(&zone->lru_lock);
-+		count++;
-+		/* Undo the get from isolate_lru_page */
-+		put_page(page);
-+	}
-+	return count;
-+}
-+
-+/*
-  * This moves pages from the active list to the inactive list.
-  *
-  * We move them the other way if the page is referenced by one or more
-@@ -718,10 +770,9 @@ refill_inactive_zone(struct zone *zone, 
- 
- 	lru_add_drain();
- 	spin_lock_irq(&zone->lru_lock);
--	pgmoved = isolate_lru_pages(nr_pages, &zone->active_list,
--				    &l_hold, &pgscanned);
-+	pgscanned = isolate_lru_pages(zone, nr_pages,
-+				      &zone->active_list, &l_hold);
- 	zone->pages_scanned += pgscanned;
--	zone->nr_active -= pgmoved;
- 	spin_unlock_irq(&zone->lru_lock);
- 
- 	/*
 Index: linux-2.6.14-rc5-mm1/include/linux/swap.h
 ===================================================================
---- linux-2.6.14-rc5-mm1.orig/include/linux/swap.h	2005-10-24 10:27:13.000000000 -0700
-+++ linux-2.6.14-rc5-mm1/include/linux/swap.h	2005-10-25 08:09:52.000000000 -0700
-@@ -176,6 +176,9 @@ extern int zone_reclaim(struct zone *, u
- extern int shrink_all_memory(int);
- extern int vm_swappiness;
+--- linux-2.6.14-rc5-mm1.orig/include/linux/swap.h	2005-10-25 08:09:52.000000000 -0700
++++ linux-2.6.14-rc5-mm1/include/linux/swap.h	2005-10-25 11:04:33.000000000 -0700
+@@ -179,6 +179,8 @@ extern int vm_swappiness;
+ extern int isolate_lru_page(struct page *p);
+ extern int putback_lru_pages(struct list_head *l);
  
-+extern int isolate_lru_page(struct page *p);
-+extern int putback_lru_pages(struct list_head *l);
++extern int migrate_pages(struct list_head *l, struct list_head *t);
 +
  #ifdef CONFIG_MMU
  /* linux/mm/shmem.c */
  extern int shmem_unuse(swp_entry_t entry, struct page *page);
+Index: linux-2.6.14-rc5-mm1/mm/vmscan.c
+===================================================================
+--- linux-2.6.14-rc5-mm1.orig/mm/vmscan.c	2005-10-25 11:04:27.000000000 -0700
++++ linux-2.6.14-rc5-mm1/mm/vmscan.c	2005-10-25 11:05:59.000000000 -0700
+@@ -368,6 +368,47 @@ static pageout_t pageout(struct page *pa
+ 	return PAGE_CLEAN;
+ }
+ 
++static inline int remove_mapping(struct address_space *mapping,
++				struct page *page)
++{
++	if (!mapping)
++		return 0;		/* truncate got there first */
++
++	write_lock_irq(&mapping->tree_lock);
++
++	/*
++	 * The non-racy check for busy page.  It is critical to check
++	 * PageDirty _after_ making sure that the page is freeable and
++	 * not in use by anybody. 	(pagecache + us == 2)
++	 */
++	if (unlikely(page_count(page) != 2))
++		goto cannot_free;
++	smp_rmb();
++	if (unlikely(PageDirty(page)))
++		goto cannot_free;
++
++#ifdef CONFIG_SWAP
++	if (PageSwapCache(page)) {
++		swp_entry_t swap = { .val = page_private(page) };
++		add_to_swapped_list(swap.val);
++		__delete_from_swap_cache(page);
++		write_unlock_irq(&mapping->tree_lock);
++		swap_free(swap);
++		__put_page(page);	/* The pagecache ref */
++		return 1;
++	}
++#endif /* CONFIG_SWAP */
++
++	__remove_from_page_cache(page);
++	write_unlock_irq(&mapping->tree_lock);
++	__put_page(page);
++	return 1;
++
++cannot_free:
++	write_unlock_irq(&mapping->tree_lock);
++	return 0;
++}
++
+ /*
+  * shrink_list adds the number of reclaimed pages to sc->nr_reclaimed
+  */
+@@ -506,37 +547,8 @@ static int shrink_list(struct list_head 
+ 				goto free_it;
+ 		}
+ 
+-		if (!mapping)
+-			goto keep_locked;	/* truncate got there first */
+-
+-		write_lock_irq(&mapping->tree_lock);
+-
+-		/*
+-		 * The non-racy check for busy page.  It is critical to check
+-		 * PageDirty _after_ making sure that the page is freeable and
+-		 * not in use by anybody. 	(pagecache + us == 2)
+-		 */
+-		if (unlikely(page_count(page) != 2))
+-			goto cannot_free;
+-		smp_rmb();
+-		if (unlikely(PageDirty(page)))
+-			goto cannot_free;
+-
+-#ifdef CONFIG_SWAP
+-		if (PageSwapCache(page)) {
+-			swp_entry_t swap = { .val = page_private(page) };
+-			add_to_swapped_list(swap.val);
+-			__delete_from_swap_cache(page);
+-			write_unlock_irq(&mapping->tree_lock);
+-			swap_free(swap);
+-			__put_page(page);	/* The pagecache ref */
+-			goto free_it;
+-		}
+-#endif /* CONFIG_SWAP */
+-
+-		__remove_from_page_cache(page);
+-		write_unlock_irq(&mapping->tree_lock);
+-		__put_page(page);
++		if (!remove_mapping(mapping, page))
++			goto keep_locked;
+ 
+ free_it:
+ 		unlock_page(page);
+@@ -545,10 +557,6 @@ free_it:
+ 			__pagevec_release_nonlru(&freed_pvec);
+ 		continue;
+ 
+-cannot_free:
+-		write_unlock_irq(&mapping->tree_lock);
+-		goto keep_locked;
+-
+ activate_locked:
+ 		SetPageActive(page);
+ 		pgactivate++;
+@@ -567,6 +575,156 @@ keep:
+ }
+ 
+ /*
++ * swapout a single page
++ * page is locked upon entry, unlocked on exit
++ *
++ * return codes:
++ *	0 = complete
++ *	1 = retry
++ */
++static int swap_page(struct page *page)
++{
++	struct address_space *mapping = page_mapping(page);
++
++	if (page_mapped(page) && mapping)
++		if (try_to_unmap(page) != SWAP_SUCCESS)
++			goto unlock_retry;
++
++	if (PageDirty(page)) {
++		/* Page is dirty, try to write it out here */
++		switch(pageout(page, mapping)) {
++		case PAGE_KEEP:
++		case PAGE_ACTIVATE:
++			goto unlock_retry;
++		case PAGE_SUCCESS:
++			goto retry;
++		case PAGE_CLEAN:
++			; /* try to free the page below */
++		}
++	}
++
++	if (PagePrivate(page)) {
++		if (!try_to_release_page(page, GFP_KERNEL))
++			goto unlock_retry;
++		if (!mapping && page_count(page) == 1)
++			goto free_it;
++	}
++
++	if (!remove_mapping(mapping, page))
++		goto unlock_retry;		/* truncate got there first */
++
++free_it:
++	/*
++	 * We may free pages that were taken off the active list
++	 * by isolate_lru_page. However, free_hot_cold_page will check
++	 * if the active bit is set. So clear it.
++	 */
++	ClearPageActive(page);
++
++	list_del(&page->lru);
++	unlock_page(page);
++	put_page(page);
++ 	return 0;
++
++unlock_retry:
++	unlock_page(page);
++
++retry:
++       return 1;
++}
++/*
++ * migrate_pages
++ *
++ * Two lists are passed to this function. The first list
++ * contains the pages isolated from the LRU to be migrated.
++ * The second list contains new pages that the pages isolated
++ * can be moved to. If the second list is NULL then all
++ * pages are swapped out.
++ *
++ * The function returns after 10 attempts or if no pages
++ * are movable anymore because t has become empty
++ * or no retryable pages exist anymore.
++ *
++ * return value (lists contain remaining pages!)
++ * -1  list of new pages has become exhausted.
++ * 0   All page migrated
++ * n   Number of pages not migrated
++ *
++ * SIMPLIFIED VERSION: This implementation of migrate_pages
++ * is only swapping out pages and never touches the second
++ * list. The direct migration patchset
++ * extends this function to avoid the use of swap.
++ */
++int migrate_pages(struct list_head *l, struct list_head *t)
++{
++	int retry;
++	int failed;
++	int pass = 0;
++	struct page *page;
++	struct page *page2;
++	int swapwrite = current->flags & PF_SWAPWRITE;
++
++	if (!swapwrite)
++		current->flags |= PF_SWAPWRITE;
++
++redo:
++	retry = 0;
++	failed = 0;
++
++	list_for_each_entry_safe(page, page2, l, lru) {
++		cond_resched();
++
++		/*
++		 * Skip locked pages during the first two passes to give the
++		 * functions holding the lock time to release the page. Later we use
++		 * lock_page to have a higher chance of acquiring the lock.
++		 */
++		if (pass > 2)
++			lock_page(page);
++		else
++			if (TestSetPageLocked(page))
++				goto retry_later;
++
++		/*
++		 * Only wait on writeback if we have already done a pass where
++		 * we we may have triggered writeouts for lots of pages.
++		 */
++		if (pass > 0)
++			wait_on_page_writeback(page);
++		else
++			if (PageWriteback(page)) {
++				unlock_page(page);
++				goto retry_later;
++			}
++
++#ifdef CONFIG_SWAP
++		if (PageAnon(page) && !PageSwapCache(page)) {
++			if (!add_to_swap(page)) {
++				unlock_page(page);
++				failed++;
++				continue;
++			}
++		}
++#endif /* CONFIG_SWAP */
++
++		/*
++		 * Page is properly locked and writeback is complete.
++		 * Try to migrate the page.
++		 */
++		if (swap_page(page)) {
++retry_later:
++			retry++;
++		}
++	}
++	if (retry && pass++ < 10)
++		goto redo;
++
++	if (!swapwrite)
++		current->flags &= ~PF_SWAPWRITE;
++	return failed + retry;
++}
++
++/*
+  * zone->lru_lock is heavily contended.  Some of the functions that
+  * shrink the lists perform better by taking out a batch of pages
+  * and working on them outside the LRU lock.

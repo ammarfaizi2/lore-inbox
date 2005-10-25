@@ -1,76 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbVJYRcw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbVJYRgS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932238AbVJYRcw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 13:32:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbVJYRcw
+	id S932231AbVJYRgS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 13:36:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932232AbVJYRgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 13:32:52 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:7120 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932238AbVJYRcv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 13:32:51 -0400
-Date: Tue, 25 Oct 2005 10:32:17 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Max Kellermann <max@duempel.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rc4-mm1 and later: second ata_piix controller is
- invisible
-Message-Id: <20051025103217.18d55c92.akpm@osdl.org>
-In-Reply-To: <20051025095646.GA24977@roonstrasse.net>
-References: <20051025095646.GA24977@roonstrasse.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 25 Oct 2005 13:36:18 -0400
+Received: from smtp1.Stanford.EDU ([171.67.16.123]:28859 "EHLO
+	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S932231AbVJYRgR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 13:36:17 -0400
+Subject: Re: 2.6.14-rc4-rt7
+From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: nando@ccrma.Stanford.EDU, john stultz <johnstul@us.ibm.com>,
+       Mark Knecht <markknecht@gmail.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       david singleton <dsingleton@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+       cc@ccrma.Stanford.EDU, William Weston <weston@lysdexia.org>
+In-Reply-To: <20051025154440.GA12149@elte.hu>
+References: <20051019111943.GA31410@elte.hu>
+	 <1129835571.14374.11.camel@cmn3.stanford.edu>
+	 <20051020191620.GA21367@elte.hu>
+	 <1129852531.5227.4.camel@cmn3.stanford.edu> <20051021080504.GA5088@elte.hu>
+	 <1129937138.5001.4.camel@cmn3.stanford.edu>
+	 <20051022035851.GC12751@elte.hu>
+	 <1130182121.4983.7.camel@cmn3.stanford.edu>
+	 <1130182717.4637.2.camel@cmn3.stanford.edu>
+	 <1130183199.27168.296.camel@cog.beaverton.ibm.com>
+	 <20051025154440.GA12149@elte.hu>
+Content-Type: text/plain
+Date: Tue, 25 Oct 2005 10:35:29 -0700
+Message-Id: <1130261729.18119.5.camel@cmn3.stanford.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Max Kellermann <max@duempel.org> wrote:
->
-> Hi Andrew,
+On Tue, 2005-10-25 at 17:44 +0200, Ingo Molnar wrote:
+> John
 > 
-> since 2.6.14-rc4-mm1, my second ata_piix (SATA) controller does not
-> show up in dmesg, effectively hiding /dev/sdb.  2.6.14-rc2-mm2 and
-> older (with the same kernel config) were ok, the same for Linus'
-> kernels: 2.6.14-rc5 without -mm1 has /dev/sdb, too.
+> i found one source of timekeeping bugs on SMP boxes, it's the 
+> non-monotonicity of the TSC:
 > 
-> 0000:00:1f.2 IDE interface: Intel Corp. 82801EB (ICH5) Serial ATA 150
-> Storage Controller (rev 02) (prog-if 8f [Master SecP SecO PriP PriO])
-> 0000:00:1f.2 0101: 8086:24d1 (rev 02)
+> ... time warped from 1270809453 to 1270808096.
+> ... MTSC warped from 0000000a731a8c3c [0] to 0000000a731a899c [2].
+> ... MTSC warped from 0000000a7c93baec [0] to 0000000a7c93b7a8 [3].
+> ... MTSC warped from 0000000a881d6afc [0] to 0000000a881d67d0 [2].
+> ... MTSC warped from 0000000a924217a0 [0] to 0000000a924216ac [3].
+> ... MTSC warped from 0000000a9c592788 [0] to 0000000a9c59232c [2].
+> ... MTSC warped from 0000000aa7aa95c8 [0] to 0000000aa7aa9338 [3].
+> ... MTSC warped from 0000000b33206d60 [0] to 0000000b33206a48 [3].
+> ... time warped from 26699635824 to 26699633144.
+> ... MTSC warped from 00000013f379cb88 [0] to 00000013f379c7e0 [3].
+> ... MTSC warped from 0000001413df8660 [0] to 0000001413df8200 [3].
+> ... MTSC warped from 00000014194f5360 [1] to 00000014194f51b0 [2].
+> ... time warped from 60775269225 to 60775266727.
 > 
-> This PCI device (on-board on an Asus P4 mainboard) has two SATA
-> connectors, showing up as ata1/sda and ata2/sdb.
+> the number in square brackets is the CPU#. I.e. CPUs on this 4-CPU box 
+> have small TSC differences, which ends up leaking into the generic TOD 
+> code, causing real time warps, which causes ktimer weirdnesses (timers 
+> failed to expire, etc.).
 > 
-> dmesg from 2.6.14-rc5:
+> (the above output tracks TSC results globally, under a spinlock. It also 
+> detects time-warps that propagate into the monotonic clock output.)
 > 
-> libata version 1.12 loaded.
-> ata_piix version 1.04
-> ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 177
-> PCI: Setting latency timer of device 0000:00:1f.2 to 64
-> ata1: SATA max UDMA/133 cmd 0xEFE0 ctl 0xEFAE bmdma 0xEF60 irq 177
-> ata2: SATA max UDMA/133 cmd 0xEFA0 ctl 0xEFAA bmdma 0xEF68 irq 177
-> ata1: dev 0 cfg 49:2f00 82:7c6b 83:7b09 84:4003 85:7c69 86:3a01
-> 87:4003 88:207f
-> ata1: dev 0 ATA, max UDMA/133, 240121728 sectors:
-> ata1: dev 0 configured for UDMA/133
-> 
-> dmesg from 2.6.14-rc5-mm1:
-> 
-> libata version 1.12 loaded.
-> ata_piix version 1.04
-> ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 193
-> PCI: Setting latency timer of device 0000:00:1f.2 to 64
-> ata1: SATA max UDMA/133 cmd 0xEFE0 ctl 0xEFAE bmdma 0xEF60 irq 193
-> ata1: dev 0 cfg 49:2f00 82:7c6b 83:7b09 84:4003 85:7c69 86:3a01
-> 87:4003 88:207f
-> ata1: dev 0 ATA-7, max UDMA/133, 240121728 sectors: LBA
-> ata1: dev 0 configured for UDMA/133
-> 
-> Need more information?  I could try to disable a few patches from your
-> -mm series if you name some..  it's too hard for me to guess which one
-> could be responsible for the breakage.
-> 
+> unfortunately, there's no easy solution for this. We could make 
+> cycle_last per-CPU, but that again brings up the question of how to set 
+> up the per-CPU 'TSC offset' values - those would need similar technique 
+> that the current clear-all-TSCs-on-all-CPUs code does - which as we can 
+> see failed ...
 
-Thanks.  It'd be useful if you could test just 2.6.14-rc5+git-acpi.patch,
-see if that does the same thing.
+I presume there would be no workarounds either in terms of kernel
+configuration options, right? I have a bunch of SMP machines waiting for
+the right kernel :-) 
+
+BTW: perhaps this is what is actually hitting me, I've been running a UP
+kernel since yesterday as a test with no problems so far. 
+
+-- Fernando
+
 

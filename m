@@ -1,116 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbVJYHrb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbVJYHuz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932069AbVJYHrb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 03:47:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932071AbVJYHrb
+	id S932075AbVJYHuz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 03:50:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932079AbVJYHuz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 03:47:31 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:34271 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932069AbVJYHra (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 03:47:30 -0400
-To: vgoyal@in.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>, fastboot@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] i386 mpparse: Only ignore lapic information we can't store
-References: <m1fyrh8gro.fsf@ebiederm.dsl.xmission.com>
-	<20051021133306.GC3799@in.ibm.com>
-	<m1ach3dj47.fsf@ebiederm.dsl.xmission.com>
-	<20051022145207.GA4501@in.ibm.com>
-	<m11x2deft5.fsf@ebiederm.dsl.xmission.com>
-	<20051024130311.GA5853@in.ibm.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 25 Oct 2005 01:47:08 -0600
-In-Reply-To: <20051024130311.GA5853@in.ibm.com> (Vivek Goyal's message of
- "Mon, 24 Oct 2005 18:33:11 +0530")
-Message-ID: <m1irvmca2r.fsf_-_@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 25 Oct 2005 03:50:55 -0400
+Received: from qproxy.gmail.com ([72.14.204.206]:10605 "EHLO qproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932075AbVJYHuy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 03:50:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=AszEJ7Cw0vfePfX6rmgcpUYwVWuUdlp9HUKJ+TuUt5PXc8kiCYY3jnqDQ4nKiYb1MhKQoVPArXeD9ixPfTrx8XNChCZ6zIditLOFyGieoqVWvBCyanHM3RLOl4u7fRv5aiS/JPv2LKPImiO3t8sOyxjTXpyVQL6cHEpBVfbGYRU=
+Date: Tue, 25 Oct 2005 12:03:19 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: When did UFS read-write work?
+Message-ID: <20051025080319.GA10234@mipter.zuzino.mipt.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've tried to copy a small file to a partition mounted as ufstype=44bsd.
+It hanged while doing
 
-After staring at mpparse.c for a little longer I noticed that
-when we hit our limit of num_processors we are filtering out
-information about other processors that we can still store.
+	open("file", O_WRONLY|O_CREAT|O_LARGEFILE, 0100644)
 
-This patch just reorders the code so we store everything we
-can.  
+Second time, there was no hang, but there was no file on UFS partition
+too.
 
-This should avoid the incorrect warning about our boot CPU
-not being listed by the BIOS that we are now getting in
-the kexec on panic case, and it should allow us to detect
-all apicid conflicts even when our physical number of
-cpus exceeds maxcpus.
+Rebooting to OpenBSD:
 
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+	~ $ cd linux/		<=== created by Linux
+	~/linux $ ls -la
+	ls: .: No such file or directory
 
+Does anyone remeber when UFS rw was OK?
 
----
-
- arch/i386/kernel/mpparse.c |   35 +++++++++++++++++++----------------
- 1 files changed, 19 insertions(+), 16 deletions(-)
-
-applies-to: cf16f96fe9347e42dd2fc6b305005a52783195d4
-192f11c9442be11c6535b38d371aa3771fd9513e
-diff --git a/arch/i386/kernel/mpparse.c b/arch/i386/kernel/mpparse.c
-index 27aabfc..07555a4 100644
---- a/arch/i386/kernel/mpparse.c
-+++ b/arch/i386/kernel/mpparse.c
-@@ -182,17 +182,6 @@ static void __init MP_processor_info (st
- 		boot_cpu_physical_apicid = m->mpc_apicid;
- 	}
- 
--	if (num_processors >= NR_CPUS) {
--		printk(KERN_WARNING "WARNING: NR_CPUS limit of %i reached."
--			"  Processor ignored.\n", NR_CPUS); 
--		return;
--	}
--
--	if (num_processors >= maxcpus) {
--		printk(KERN_WARNING "WARNING: maxcpus limit of %i reached."
--			" Processor ignored.\n", maxcpus); 
--		return;
--	}
- 	ver = m->mpc_apicver;
- 
- 	if (!MP_valid_apicid(apicid, ver)) {
-@@ -201,11 +190,6 @@ static void __init MP_processor_info (st
- 		return;
- 	}
- 
--	cpu_set(num_processors, cpu_possible_map);
--	num_processors++;
--	phys_cpu = apicid_to_cpu_present(apicid);
--	physids_or(phys_cpu_present_map, phys_cpu_present_map, phys_cpu);
--
- 	/*
- 	 * Validate version
- 	 */
-@@ -216,6 +200,25 @@ static void __init MP_processor_info (st
- 		ver = 0x10;
- 	}
- 	apic_version[m->mpc_apicid] = ver;
-+
-+	phys_cpu = apicid_to_cpu_present(apicid);
-+	physids_or(phys_cpu_present_map, phys_cpu_present_map, phys_cpu);
-+
-+	if (num_processors >= NR_CPUS) {
-+		printk(KERN_WARNING "WARNING: NR_CPUS limit of %i reached."
-+			"  Processor ignored.\n", NR_CPUS); 
-+		return;
-+	}
-+
-+	if (num_processors >= maxcpus) {
-+		printk(KERN_WARNING "WARNING: maxcpus limit of %i reached."
-+			" Processor ignored.\n", maxcpus); 
-+		return;
-+	}
-+
-+	cpu_set(num_processors, cpu_possible_map);
-+	num_processors++;
-+
- 	if ((num_processors > 8) &&
- 	    APIC_XAPIC(ver) &&
- 	    (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL))

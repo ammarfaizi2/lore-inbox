@@ -1,48 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751324AbVJYBmi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751378AbVJYBnJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751324AbVJYBmi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Oct 2005 21:42:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbVJYBmi
+	id S1751378AbVJYBnJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Oct 2005 21:43:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbVJYBnJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Oct 2005 21:42:38 -0400
-Received: from mx01.cybersurf.com ([209.197.145.104]:6868 "EHLO
-	mx01.cybersurf.com") by vger.kernel.org with ESMTP id S1751324AbVJYBmh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Oct 2005 21:42:37 -0400
-Subject: Re: [patch 2.6.13 0/5] normalize calculations of rx_dropped
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: Ben Greear <greearb@candelatech.com>
-Cc: "John W. Linville" <linville@tuxdriver.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <435D8717.9000107@candelatech.com>
-References: <09122005104858.332@bilbo.tuxdriver.com>
-	 <4325CEAB.2050600@pobox.com> <20050912191419.GB19644@tuxdriver.com>
-	 <435D53AE.3020401@candelatech.com> <20051024215751.GH28212@tuxdriver.com>
-	 <435D8717.9000107@candelatech.com>
-Content-Type: text/plain
-Organization: unknown
-Date: Mon, 24 Oct 2005 21:42:18 -0400
-Message-Id: <1130204538.6187.20.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Oct 2005 21:43:09 -0400
+Received: from omta01sl.mx.bigpond.com ([144.140.92.153]:7848 "EHLO
+	omta01sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1751378AbVJYBnH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Oct 2005 21:43:07 -0400
+Message-ID: <435D8DA9.4030200@bigpond.net.au>
+Date: Tue, 25 Oct 2005 11:43:05 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] 2.6.14-rc5-mm1 build fails for non SMP systems
+References: <435D8675.3080303@bigpond.net.au>
+In-Reply-To: <435D8675.3080303@bigpond.net.au>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 25 Oct 2005 01:43:05 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-24-10 at 18:15 -0700, Ben Greear wrote:
-[..]
-> That way, the rx-errors counter can be used for folks who just care
-> that the packet was not correctly received, and those that care about
-> the details can look at the individual errors (and sum them up in various
-> configurations due to personal taste, etc.)
+Peter Williams wrote:
+> Without CONFIG_DEBUG_SPINLOCK configured in I'm getting a large number 
+> of "implicit declaration of function ‘__raw_read_unlock’" warnings and a 
+> subsequent failure at the link stage.
 > 
+> A trivial change to include/linux/spinlock_up.h (i.e. moving the 
+> definition of __raw_read_unlock() outside the ifdef) can get rid of this 
+> warning but I'm not sure that it's the right thing to do as I suspect 
+> this may be an indication of a less trivial problem elsewhere.
 
-Look at http://www.faqs.org/rfcs/rfc2665.html
-for a more finer breakdown.
+Further investigation reveals a number of similar warnings for 
+__raw_write_unlock() and the following failure in the ipv4 code:
 
-rx/tx_errors may be further broken down.
+In file included from 
+/home/peterw/wrk/PlugSched/MM-2.6.14/include/linux/mroute.h:130,
+                  from 
+/home/peterw/wrk/PlugSched/MM-2.6.14/net/ipv4/route.c:90:
+/home/peterw/wrk/PlugSched/MM-2.6.14/include/net/sock.h: In function 
+‘sk_dst_get’:
+/home/peterw/wrk/PlugSched/MM-2.6.14/include/net/sock.h:972: warning: 
+implicit declaration of function ‘__raw_read_unlock’
+/home/peterw/wrk/PlugSched/MM-2.6.14/include/net/sock.h: In function 
+‘sk_dst_set’:
+/home/peterw/wrk/PlugSched/MM-2.6.14/include/net/sock.h:991: warning: 
+implicit declaration of function ‘__raw_write_unlock’
+/home/peterw/wrk/PlugSched/MM-2.6.14/net/ipv4/route.c: In function 
+‘rt_check_expire’:
+/home/peterw/wrk/PlugSched/MM-2.6.14/net/ipv4/route.c:663: warning: 
+dereferencing ‘void *’ pointer
+/home/peterw/wrk/PlugSched/MM-2.6.14/net/ipv4/route.c:663: error: 
+request for member ‘raw_lock’ in something not a structure or union
+make[3]: *** [net/ipv4/route.o] Error 1
+make[2]: *** [net/ipv4] Error 2
+make[1]: *** [net] Error 2
+make: *** [_all] Error 2
 
-cheers,
-jamal
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

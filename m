@@ -1,43 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbVJYNe0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbVJYNoT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932137AbVJYNe0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 09:34:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbVJYNe0
+	id S932143AbVJYNoT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 09:44:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbVJYNoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 09:34:26 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:26052 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S932137AbVJYNeZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 09:34:25 -0400
-Date: Tue, 25 Oct 2005 15:34:24 +0200
-From: Jan Kara <jack@suse.cz>
-To: David Teigland <teigland@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 10/16] GFS: quotas
-Message-ID: <20051025133424.GD4244@atrey.karlin.mff.cuni.cz>
-References: <20051010171048.GK22483@redhat.com> <20051024121617.GM32605@atrey.karlin.mff.cuni.cz> <20051024160927.GC3755@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 25 Oct 2005 09:44:19 -0400
+Received: from [67.130.105.243] ([67.130.105.243]:1580 "EHLO irobot.com")
+	by vger.kernel.org with ESMTP id S932143AbVJYNoS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 09:44:18 -0400
+From: Brian Waite <linwoes@gmail.com>
+To: chaosite@gmail.com
+Subject: Re: /proc/kcore size incorrect ?
+Date: Tue, 25 Oct 2005 09:37:12 -0400
+User-Agent: KMail/1.8.2
+Cc: "J.A. Magallon" <jamagallon@able.es>, jonathan@jonmasters.org,
+       jonmasters@gmail.com, "Linux-Kernel," <linux-kernel@vger.kernel.org>
+References: <20051023235806.1a4df9ab@werewolf.able.es> <20051024015710.29a02e63@werewolf.able.es> <435E1F36.2030108@gmail.com>
+In-Reply-To: <435E1F36.2030108@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051024160927.GC3755@redhat.com>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200510250937.13383.linwoes@gmail.com>
+X-OriginalArrivalTime: 25 Oct 2005 13:44:17.0940 (UTC) FILETIME=[320CFD40:01C5D96A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, Oct 24, 2005 at 02:16:17PM +0200, Jan Kara wrote:
-> > > Code that deals with quotas.
-> >   Is there some documentation how the GFS quotas are supposed to work?
-> > I've just briefly looked through the code and it seems they are quite
-> > similar to the current VFS ones. What are the differences (especially
-> > why don't you implement GFS quotas as just another format of VFS quotas)?
-> 
-> Hi, yes there is.  It's important for gfs to control when it updates the
-> quota file.  If every machine sharing the file system needed to read or
-> write the quota file on every operation, it would be a terrible
-> bottleneck.  Below is a summary of the current implementation that Ken
-> wrote and that I'll add to quota.c; let me know if this helps.
-  Thanks a lot for the description. It helped a lot. I think it's now
-time to read the code in detail :).
+On Tuesday 25 October 2005 8:04 am, Matan Peled wrote:
+> J.A. Magallon wrote:
+> > I expected /proc/kcore to give the size of your installed memory, with
+> > the reserved BIOS areas just not accesible, but it looks like it already
+> > has them discounted, so gives 1022 Mb.
+> >
+> > It looks really silly to have a motd say "wellcome to this box, it has
+> > 2 xeons and 1022 Mb of RAM".
+>
+> I don't know why, but 'du' seems to be doing a better job.
+>
+> chaosite@kaitou ~ $ du /proc/kcore --block-size=1M
+> 1024	/proc/kcore
+> chaosite@kaitou ~ $ echo $(($(stat -c %s /proc/kcore) / 1024 / 1024))
+> 1023
+To show just how fragile your tests are, here is what my laptop reports with 1 
+GB memory:
 
-								Honza
+bwaite@ronzoni:~> uname -a
+Linux ronzoni 2.6.11.4-21.9-default #1 Fri Aug 19 11:58:59 UTC 2005 i686 i686 
+i386 GNU/Linux
+bwaite@ronzoni:~> du /proc/kcore --block-size=1M
+897     /proc/kcore
+
+bwaite@ronzoni:~> echo $(($(stat -c %s /proc/kcore) / 1024 / 1024))
+896
+
+bwaite@ronzoni:~> dmesg | grep MEM
+127MB HIGHMEM available.
+896MB LOWMEM available.
+
+bwaite@ronzoni:~> dmesg | grep Memory:
+Memory: 1033684k/1048248k available (1866k kernel code, 13796k reserved, 658k 
+data, 204k init, 130744k highmem)
+
+In short why not use free and show what your users can use. Otherwise, just 
+make a static motd and change it whenever you change memory configurations. I 
+can't believe you are changing that often. If you are going to go overboard 
+and write a script just start doing the round up on your own.
+
+Thanks
+Brian
 

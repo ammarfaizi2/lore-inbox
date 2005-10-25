@@ -1,73 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbVJYNoT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbVJYOAn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932143AbVJYNoT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 09:44:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbVJYNoT
+	id S932149AbVJYOAn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 10:00:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbVJYOAm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 09:44:19 -0400
-Received: from [67.130.105.243] ([67.130.105.243]:1580 "EHLO irobot.com")
-	by vger.kernel.org with ESMTP id S932143AbVJYNoS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 09:44:18 -0400
-From: Brian Waite <linwoes@gmail.com>
-To: chaosite@gmail.com
-Subject: Re: /proc/kcore size incorrect ?
-Date: Tue, 25 Oct 2005 09:37:12 -0400
-User-Agent: KMail/1.8.2
-Cc: "J.A. Magallon" <jamagallon@able.es>, jonathan@jonmasters.org,
-       jonmasters@gmail.com, "Linux-Kernel," <linux-kernel@vger.kernel.org>
-References: <20051023235806.1a4df9ab@werewolf.able.es> <20051024015710.29a02e63@werewolf.able.es> <435E1F36.2030108@gmail.com>
-In-Reply-To: <435E1F36.2030108@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Oct 2005 10:00:42 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:63680 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932149AbVJYOAm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 10:00:42 -0400
+Date: Tue, 25 Oct 2005 15:00:41 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: "Schupp Roderich (extern) BenQ MD PD SWP 2 CM MCH" 
+	<Roderich.Schupp.extern@mch.siemens.de>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Race between "mount" uevent and /proc/mounts?
+Message-ID: <20051025140041.GO7992@ftp.linux.org.uk>
+References: <0AD07C7729CA42458B22AFA9C72E7011C8EF@mhha22kc.mchh.siemens.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200510250937.13383.linwoes@gmail.com>
-X-OriginalArrivalTime: 25 Oct 2005 13:44:17.0940 (UTC) FILETIME=[320CFD40:01C5D96A]
+In-Reply-To: <0AD07C7729CA42458B22AFA9C72E7011C8EF@mhha22kc.mchh.siemens.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 25 October 2005 8:04 am, Matan Peled wrote:
-> J.A. Magallon wrote:
-> > I expected /proc/kcore to give the size of your installed memory, with
-> > the reserved BIOS areas just not accesible, but it looks like it already
-> > has them discounted, so gives 1022 Mb.
-> >
-> > It looks really silly to have a motd say "wellcome to this box, it has
-> > 2 xeons and 1022 Mb of RAM".
->
-> I don't know why, but 'du' seems to be doing a better job.
->
-> chaosite@kaitou ~ $ du /proc/kcore --block-size=1M
-> 1024	/proc/kcore
-> chaosite@kaitou ~ $ echo $(($(stat -c %s /proc/kcore) / 1024 / 1024))
-> 1023
-To show just how fragile your tests are, here is what my laptop reports with 1 
-GB memory:
+On Tue, Oct 25, 2005 at 03:20:10PM +0200, Schupp Roderich (extern) BenQ MD PD SWP 2 CM MCH wrote:
+> Hi,
+> 
+> the 2.6.13 and 2.6.14-* kernels seem susceptible to a race condition
+> between the sending of a "mount" uevent and the actual mount becoming
+> visible thru /proc/mounts, at least when the kernel is configured
+> with voluntary preemption. 
+> 
+> The following scenario: 
+> - system is using the HAL daemon, configured to monitor kernel uvents
+> - someone (usually some kind of volume manager in response to
+>   a device hotplug, but could also a manual mount) mounts a filesystem
+> - "mount" uevent is emitted
 
-bwaite@ronzoni:~> uname -a
-Linux ronzoni 2.6.11.4-21.9-default #1 Fri Aug 19 11:58:59 UTC 2005 i686 i686 
-i386 GNU/Linux
-bwaite@ronzoni:~> du /proc/kcore --block-size=1M
-897     /proc/kcore
+... said event happens to be a piece of junk with ill-defined semantics.
 
-bwaite@ronzoni:~> echo $(($(stat -c %s /proc/kcore) / 1024 / 1024))
-896
+> - HAL daemon reads the event, then opens and reads /proc/mounts
 
-bwaite@ronzoni:~> dmesg | grep MEM
-127MB HIGHMEM available.
-896MB LOWMEM available.
+real useful, since
+	a) we have no idea if mount() is being done in the same namespace
+	b) we have no idea if mount() actually succeeds
+	c) even if we manage to find a mountpoint, we have no idea if it
+gets e.g. mount --move just as we'd finished reading from /prov/mounts
+	d) if the goal is to see which devices are held by mounted fs,
+you'll miss such things as e.g. external journals.
 
-bwaite@ronzoni:~> dmesg | grep Memory:
-Memory: 1033684k/1048248k available (1866k kernel code, 13796k reserved, 658k 
-data, 204k init, 130744k highmem)
+>   (in order to determine the corresponding mount point, since the uevent
 
-In short why not use free and show what your users can use. Otherwise, just 
-make a static motd and change it whenever you change memory configurations. I 
-can't believe you are changing that often. If you are going to go overboard 
-and write a script just start doing the round up on your own.
-
-Thanks
-Brian
-
+*the* corresponding mountpoint?  Which one?  There might be any number
+of those...

@@ -1,32 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbVJYXEY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbVJYXOx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932466AbVJYXEY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 19:04:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbVJYXEY
+	id S932472AbVJYXOx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 19:14:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbVJYXOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 19:04:24 -0400
-Received: from bromo.msbb.uc.edu ([129.137.3.146]:56455 "HELO
-	bromo.msbb.uc.edu") by vger.kernel.org with SMTP id S932466AbVJYXEY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 19:04:24 -0400
-To: alan@lxorguk.ukuu.org.uk, howarth@bromo.msbb.uc.edu
-Subject: Re: W2100Z Critical temperature explained
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <20051025230256.D1BC61DC06D@bromo.msbb.uc.edu>
-Date: Tue, 25 Oct 2005 19:02:56 -0400 (EDT)
-From: howarth@bromo.msbb.uc.edu (Jack Howarth)
+	Tue, 25 Oct 2005 19:14:53 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:24801 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932472AbVJYXOw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 19:14:52 -0400
+Date: Wed, 26 Oct 2005 01:14:44 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Ben Dooks <ben@fluff.org.uk>
+Cc: rpurdie@rpsys.net, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: sharp zaurus: prevent killing spitz-en
+Message-ID: <20051025231444.GG3380@elf.ucw.cz>
+References: <20051025190829.GA1788@elf.ucw.cz> <20051025225815.GA31679@home.fluff.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051025225815.GA31679@home.fluff.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
-   Actually I found a discussion of the issue that I believe I am seeing
-at...
+Hi!
 
-http://supportforum.sun.com/hardware/index.php?t=msg&goto=18308&rid=6746&SQ=d7bff636081bc7374f3e861f6672e008
+> > This is wrong solution, but it prevents breaking flashing mechanism on
+> > spitz with too big kernel. It may be handy to someone...
+> > 
+> > 								Pavel
+> > 
+> > --- clean-rp/arch/arm/boot/Makefile	2004-12-25 13:34:57.000000000 +0100
+> > +++ linux-rp/arch/arm/boot/Makefile	2005-10-25 20:43:58.000000000 +0200
+> > @@ -53,6 +53,12 @@
+> >  $(obj)/zImage:	$(obj)/compressed/vmlinux FORCE
+> >  	$(call if_changed,objcopy)
+> >  	@echo '  Kernel: $@ is ready'
+> > +	@ls -al $@
+> > +	@wc -c $@ | ( read SIZE Y; \
+> > +		if [ $$SIZE -gt 1294336 ]; then \
+> > +			echo '  Kernel is too big, would kill spitz'; \
+> > +			rm $@; \
+> > +		fi )
+> >  
+> >  endif
+> 
+> It would be better for each machine to export an config option
+> from the Kconfig to specify if they have a maximum size.
 
-There may be more than one cause, but it seems clear that the earlier
-BIOS is less tolerant of fans as they start to wear. The newer BIOS 
-probes the fans several times. Hence the user who had to put in a new fan
-so he could stay booted long enough to flash the new BIOS and them the
-old fan was usable. Ugh.
-               Jack
+It is probably best to stop it at the flasher script, but ... this was
+quite a quick hack.
+							Pavel
+-- 
+Thanks, Sharp!

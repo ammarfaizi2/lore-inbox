@@ -1,68 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751478AbVJYHR2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751483AbVJYHfH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751478AbVJYHR2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 03:17:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751481AbVJYHR2
+	id S1751483AbVJYHfH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 03:35:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbVJYHfG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 03:17:28 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:15071 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751478AbVJYHR1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 03:17:27 -0400
-To: vgoyal@in.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>, fastboot@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [PATCH] i386: move apic init in init_IRQs
-References: <m1fyrh8gro.fsf@ebiederm.dsl.xmission.com>
-	<20051021133306.GC3799@in.ibm.com>
-	<m1ach3dj47.fsf@ebiederm.dsl.xmission.com>
-	<20051022145207.GA4501@in.ibm.com>
-	<m11x2deft5.fsf@ebiederm.dsl.xmission.com>
-	<20051024130311.GA5853@in.ibm.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 25 Oct 2005 01:17:03 -0600
-In-Reply-To: <20051024130311.GA5853@in.ibm.com> (Vivek Goyal's message of
- "Mon, 24 Oct 2005 18:33:11 +0530")
-Message-ID: <m1mzkycbgw.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Tue, 25 Oct 2005 03:35:06 -0400
+Received: from smtp1-g19.free.fr ([212.27.42.27]:672 "EHLO smtp1-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1751483AbVJYHfF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 03:35:05 -0400
+Message-ID: <435DE018.5000902@droids-corp.org>
+Date: Tue, 25 Oct 2005 09:34:48 +0200
+From: Olivier MATZ <zer0@droids-corp.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051001)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Makefile : can I use both "O=" and "M=" ?
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vivek Goyal <vgoyal@in.ibm.com> writes:
-> I have attached a patch with the mail which is now using
-> boot_cpu_physical_apicid to hard set presence of boot cpu instead of
-> hard_smp_processor_id(). But the interesting questoin remains why BIOS is
-> not reporting the boot cpu.
+Hi all,
+
+When compiling an external module, is it possible to use both 'O=...'
+and 'M=...' in the make command line ?
+
+Here is an example :
+
+[matz@barracuda linux-2.6.13.4]$ pwd
+/usr/local/src/linux-2.6.13.4
+[matz@barracuda linux-2.6.13.4]$ make V=1 M=~/module_helloworld
+mkdir -p /home/matz/module_helloworld/.tmp_versions
+make -f scripts/Makefile.build obj=/home/matz/module_helloworld
+   rm -f /home/matz/module_helloworld/built-in.o; ar rcs
+/home/matz/module_helloworld/built-in.o
+  gcc -m32 -Wp,-MD,/home/matz/module_helloworld/.helloworld.o.d
+-nostdinc -isystem /usr/lib/gcc-lib/i386-redhat-linux/3.3.3/include
+-D__KERNEL__ -Iinclude  -Wall -Wstrict-prototypes -Wno-trigraphs
+-fno-strict-aliasing -fno-common -ffreestanding -O2 -fomit-frame-pointer
+-g -pipe -msoft-float -mpreferred-stack-boundary=2  -march=i686
+-mregparm=3 -Iinclude/asm-i386/mach-default
+-Wdeclaration-after-statement    -DMODULE -DKBUILD_BASENAME=helloworld
+-DKBUILD_MODNAME=helloworld -c -o
+/home/matz/module_helloworld/helloworld.o
+/home/matz/module_helloworld/helloworld.c
+  Building modules, stage 2.
+make -rR -f /usr/local/src/linux-2.6.13.4/scripts/Makefile.modpost
+  scripts/mod/modpost   -i /usr/local/src/linux-2.6.13.4/Module.symvers
+vmlinux /home/matz/module_helloworld/helloworld.o
+  gcc -m32 -Wp,-MD,/home/matz/module_helloworld/.helloworld.mod.o.d
+-nostdinc -isystem /usr/lib/gcc-lib/i386-redhat-linux/3.3.3/include
+-D__KERNEL__ -Iinclude  -Wall -Wstrict-prototypes -Wno-trigraphs
+-fno-strict-aliasing -fno-common -ffreestanding -O2 -fomit-frame-pointer
+-g -pipe -msoft-float -mpreferred-stack-boundary=2  -march=i686
+-mregparm=3 -Iinclude/asm-i386/mach-default
+-Wdeclaration-after-statement     -DKBUILD_BASENAME=helloworld
+-DKBUILD_MODNAME=helloworld -DMODULE -c -o
+/home/matz/module_helloworld/helloworld.mod.o
+/home/matz/module_helloworld/helloworld.mod.c
+  ld -m elf_i386 -m elf_i386 -r -o
+/home/matz/module_helloworld/helloworld.ko
+/home/matz/module_helloworld/helloworld.o
+/home/matz/module_helloworld/helloworld.mod.o
 
 
-Ok.  I don't know if we care but I do know why we were not seeing
-the report from the bios about your boot processor.  We record
-information about cpus for up to NR_CPUS, and since you had
-a UP kernel NR_CPUS was one.
+Now imagine /home/matz is read-only, and I want to generate the objects
+file in /tmp :
 
->From your earlier boot log.
+[matz@barracuda linux-2.6.13.4]$ make V=1 M=~/module_helloworld O=/tmp
+make -C /tmp            \
+KBUILD_SRC=/usr/local/src/linux-2.6.13.4             KBUILD_VERBOSE=1   \
+KBUILD_CHECK= KBUILD_EXTMOD="/home/matz/module_helloworld"      \
+        -f /usr/local/src/linux-2.6.13.4/Makefile _all
+/usr/local/src/linux-2.6.13.4/Makefile:485: .config: No such file or
+directory
+mkdir -p /home/matz/module_helloworld/.tmp_versions
 
-> ACPI: LAPIC (acpi_id[0x00] lapic_id[0x03] enabled)
-> Processor #3 6:10 APIC version 17
-> ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
-> Processor #0 6:10 APIC version 17
-> WARNING: NR_CPUS limit of 1 reached.  Processor ignored.
-> ACPI: LAPIC (acpi_id[0x02] lapic_id[0x01] enabled)
-> Processor #1 6:10 APIC version 17
-> WARNING: NR_CPUS limit of 1 reached.  Processor ignored.
-> ACPI: LAPIC (acpi_id[0x03] lapic_id[0x02] enabled)
-> Processor #2 6:10 APIC version 17
-> WARNING: NR_CPUS limit of 1 reached.  Processor ignored.
+  WARNING: Symbol version dump /tmp/Module.symvers
+           is missing; modules will have no dependencies and modversions.
 
-So it looks like we have this problem completely fixed.  
+make -f /usr/local/src/linux-2.6.13.4/scripts/Makefile.build
+obj=/home/matz/module_helloworld
+  gcc -m32 -Wp,-MD,/home/matz/module_helloworld/.helloworld.o.d
+-nostdinc -isystem /usr/lib/gcc-lib/i386-redhat-linux/3.3.3/include
+-D__KERNEL__ -Iinclude -Iinclude2
+-I/usr/local/src/linux-2.6.13.4/include  -I/home/matz/module_helloworld
+-Wall -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
+-fno-common -ffreestanding -O2 -fomit-frame-pointer -pipe -msoft-float
+-mpreferred-stack-boundary=2
+-I/usr/local/src/linux-2.6.13.4/include/asm-i386/mach-default
+-Iinclude/asm-i386/mach-default -Wdeclaration-after-statement -DMODULE
+-DKBUILD_BASENAME=helloworld -DKBUILD_MODNAME=helloworld -c -o
+/home/matz/module_helloworld/helloworld.o
+/home/matz/module_helloworld/helloworld.c
+/bin/sh: line 1: scripts/basic/fixdep: No such file or directory
+make[2]: *** [/home/matz/module_helloworld/helloworld.o] Error 1
+make[1]: *** [_module_/home/matz/module_helloworld] Error 2
+make: *** [_all] Error 2
 
-I don't see a good way to ensure that we always record our boot
-apicid when we boot a multiple processor system and only use one
-processor.
+Is it a bug or this is not supposed to work ?
 
-Eric
-
-
+Thanks & regards
+Olivier
 

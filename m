@@ -1,300 +1,310 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbVJYVdh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbVJYVgI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932395AbVJYVdh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 17:33:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbVJYVdh
+	id S932401AbVJYVgI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 17:36:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbVJYVgH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 17:33:37 -0400
-Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:23233 "EHLO
-	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S932395AbVJYVdg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 17:33:36 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Call for PIIX4 chipset testers
-References: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
-From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Date: 25 Oct 2005 22:33:34 +0100
-In-Reply-To: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
-Message-ID: <r664rlz3gx.fsf@skye.ra.phy.cam.ac.uk>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 25 Oct 2005 17:36:07 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:48784 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932401AbVJYVgF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 17:36:05 -0400
+Subject: [PATCH] 2/5 ibmveth fix buffer pool management
+From: Santiago Leon <santil@us.ibm.com>
+To: netdev <netdev@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>
+Content-Type: text/plain
+Message-Id: <1130275527.11133.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 25 Oct 2005 16:34:51 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> can you please test out this patch and report what it says in dmesg?
+This patch changes the way the ibmveth driver handles the receive
+buffers.  The old code mallocs and maps all the buffers in the pools
+regardless of MTU size and it also limits the number of buffer pools to
+three. This patch makes the driver malloc and map the buffers necessary
+to support the current MTU. It also changes the hardcoded names of the
+buffer pool number, size, and elements to arrays to make it easier to
+change (with the hope of making them runtime parameters in the future).
 
-The machine is a Thinkpad 600X, kernel 2.6.14-rc5 + PIIX4 patch
 
-$ dmesg -s 1000000 | grep PIIX4
-PCI quirk: region ef00-ef3f claimed by PIIX4 ACPI
-PCI quirk: region efa0-efbf claimed by PIIX4 SMB
-PIIX4 devres C PIO at 15e8-15ef
-PIIX4 devres I PIO at 002e-002f
-PIIX4: IDE controller at PCI slot 0000:00:07.1
-PIIX4: chipset revision 1
-PIIX4: not 100% native mode: will probe irqs later
+Signed-off-by: Santiago Leon <santil@us.ibm.com>
+---
+drivers/net/ibmveth.c |  102
+++++++++++++++++++++++++++++++++++++--------------
+drivers/net/ibmveth.h |   18 +++++---
+2 files changed, 85 insertions(+), 35 deletions(-)
+---
+diff -urN a/drivers/net/ibmveth.c b/drivers/net/ibmveth.c
+--- a/drivers/net/ibmveth.c 2005-10-17 11:59:57.000000000 -0500
++++ b/drivers/net/ibmveth.c 2005-10-17 12:02:03.000000000 -0500
+@@ -97,6 +97,7 @@
+static void ibmveth_proc_unregister_adapter(struct ibmveth_adapter
+*adapter);
+static irqreturn_t ibmveth_interrupt(int irq, void *dev_instance, struct
+pt_regs *regs);
+static inline void ibmveth_schedule_replenishing(struct
+ibmveth_adapter*);
++static inline void ibmveth_rxq_harvest_buffer(struct ibmveth_adapter
+*adapter);
 
-$ lspci -xxx
-0000:00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 03)
-00: 86 80 90 71 06 00 10 a2 03 00 00 06 00 40 00 00
-10: 08 00 00 40 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 a0 00 00 00 00 00 00 00 00 00 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 04 0a 02 00 00 00 00 09 03 10 11 01 00 00 00 00
-60: 08 18 28 28 38 48 48 48 00 2a e8 ad 08 af 00 00
-70: 20 1f 0a 78 29 0a 00 01 00 37 dc 38 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: e0 00 00 00 04 61 00 00 00 05 00 00 00 00 00 00
-a0: 02 00 10 00 03 02 00 1f 00 00 00 00 00 00 00 00
-b0: 80 20 00 00 30 00 00 00 00 00 2c 23 20 10 00 00
-c0: 00 00 00 00 00 00 00 00 18 0c e7 7b 79 00 00 00
-d0: 00 00 00 00 00 00 00 00 0c 00 00 00 00 00 00 00
-e0: 4c ad ff bb 8a 3e 00 00 2c d3 f7 cf 9d 3e 00 00
-f0: 00 00 00 00 00 f8 00 60 20 0f 00 00 00 00 00 00
+#ifdef CONFIG_PROC_FS
+#define IBMVETH_PROC_DIR "net/ibmveth"
+@@ -181,6 +182,7 @@
+atomic_set(&pool->available, 0);
+pool->producer_index = 0;
+pool->consumer_index = 0;
++ pool->active = 0;
 
-0000:00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 03)
-00: 86 80 91 71 07 00 20 02 03 00 04 06 00 a8 01 00
-10: 00 00 00 00 00 00 00 00 00 01 01 b0 d0 d0 a0 a2
-20: 00 70 f0 df 00 e0 f0 f7 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 88 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+return 0;
+}
+@@ -258,9 +260,14 @@
+/* check if replenishing is needed.  */
+static inline int ibmveth_is_replenishing_needed(struct ibmveth_adapter
+*adapter)
+{
+- return ((atomic_read(&adapter->rx_buff_pool[0].available) <
+adapter->rx_buff_pool[0].threshold) ||
+- (atomic_read(&adapter->rx_buff_pool[1].available) <
+adapter->rx_buff_pool[1].threshold) ||
+- (atomic_read(&adapter->rx_buff_pool[2].available) <
+adapter->rx_buff_pool[2].threshold));
++ int i;
++
++ for(i = 0; i < IbmVethNumBufferPools; i++)
++ if(adapter->rx_buff_pool[i].active &&
++   (atomic_read(&adapter->rx_buff_pool[i].available) <
++    adapter->rx_buff_pool[i].threshold))
++ return 1;
++ return 0;
+}
 
-0000:00:02.0 CardBus bridge: Texas Instruments PCI1450 (rev 03)
-00: 4c 10 1b ac 07 00 10 02 03 00 07 06 08 a8 82 00
-10: 00 30 10 50 a0 00 00 02 00 02 05 b0 00 00 00 30
-20: 00 f0 ff 31 00 00 00 32 00 f0 ff 33 00 20 00 00
-30: fc 2f 00 00 00 30 00 00 fc 3f 00 00 0b 01 c0 05
-40: 14 10 30 01 01 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 69 f0 44 00 c0 00 00 00 80 80 81 80 01 10 00 00
-90: c0 02 66 41 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 01 00 11 7e 00 00 c0 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+/* kick the replenish tasklet if we need replenishing and it isn't
+already running */
+@@ -275,11 +282,14 @@
+/* replenish tasklet routine */
+static void ibmveth_replenish_task(struct ibmveth_adapter *adapter) 
+{
++ int i;
++
+adapter->replenish_task_cycles++;
 
-0000:00:02.1 CardBus bridge: Texas Instruments PCI1450 (rev 03)
-00: 4c 10 1b ac 07 00 10 02 03 00 07 06 08 a8 82 00
-10: 00 20 10 50 a0 00 00 22 00 06 09 b0 00 00 00 34
-20: 00 f0 ff 35 00 00 00 36 00 f0 ff 37 00 50 00 00
-30: fc 5f 00 00 00 60 00 00 fc 6f 00 00 0b 02 00 05
-40: 14 10 30 01 01 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 69 f0 44 00 c0 00 00 00 80 80 81 80 01 10 00 00
-90: c0 03 66 41 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 01 00 11 7e 00 80 c0 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+- ibmveth_replenish_buffer_pool(adapter, &adapter->rx_buff_pool[0]);
+- ibmveth_replenish_buffer_pool(adapter, &adapter->rx_buff_pool[1]);
+- ibmveth_replenish_buffer_pool(adapter, &adapter->rx_buff_pool[2]);
++ for(i = 0; i < IbmVethNumBufferPools; i++)
++ if(adapter->rx_buff_pool[i].active)
++ ibmveth_replenish_buffer_pool(adapter, 
++      &adapter->rx_buff_pool[i]);
 
-0000:00:03.0 Communication controller: Agere Systems (former Lucent Microelectronics) WinModem 56k (rev 01)
-00: c1 11 49 04 07 01 90 82 01 00 80 07 00 00 00 00
-10: 00 10 10 50 f9 02 00 00 01 44 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 40 00 00 00 14 10 8c 01
-30: 00 00 00 00 f8 00 00 00 00 00 00 00 0b 01 fc 0e
-40: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-50: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-60: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-70: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-90: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-a0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-b0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-c0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-d0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-e0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-f0: ff ff ff ff ff ff ff ff 01 00 22 e4 00 00 00 00
+adapter->rx_no_buffer = *(u64*)(((char*)adapter->buffer_list_addr) +
+4096 - 8);
 
-0000:00:06.0 Multimedia audio controller: Cirrus Logic CS 4614/22/24 [CrystalClear SoundFusion Audio Accelerator] (rev 01)
-00: 13 10 03 60 06 01 10 04 01 00 01 04 00 40 00 00
-10: 00 00 10 50 00 00 00 50 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 14 10 53 01
-30: 00 00 00 00 40 00 00 00 00 00 00 00 0b 01 04 18
-40: 01 00 22 06 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+@@ -321,6 +331,7 @@
+kfree(pool->skbuff);
+pool->skbuff = NULL;
+}
++ pool->active = 0;
+}
 
-0000:00:07.0 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
-00: 86 80 10 71 0f 00 80 02 02 00 80 06 00 00 80 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 09 00 27 04
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 0b 0b 0b 0b 90 00 00 00 00 fe 80 00 00 00 00 00
-70: 00 00 00 00 00 00 0c 0c 00 00 00 00 00 00 00 00
-80: 00 00 07 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 07 91 11 10 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 25 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
+/* remove a buffer from a pool */
+@@ -379,6 +390,12 @@
+ibmveth_assert(pool < IbmVethNumBufferPools);
+ibmveth_assert(index < adapter->rx_buff_pool[pool].size);
 
-0000:00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
-00: 86 80 11 71 05 00 80 02 01 80 01 01 00 30 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: f1 fc 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 07 a3 00 80 00 00 00 00 01 00 02 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
++ if(!adapter->rx_buff_pool[pool].active) {
++ ibmveth_rxq_harvest_buffer(adapter);
++ ibmveth_free_buffer_pool(adapter, &adapter->rx_buff_pool[pool]);
++ return;
++ }
++
+desc.desc = 0;
+desc.fields.valid = 1;
+desc.fields.length = adapter->rx_buff_pool[pool].buff_size;
+@@ -409,6 +426,8 @@
 
-0000:00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
-00: 86 80 12 71 05 00 80 02 01 00 03 0c 00 30 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 01 40 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 0b 04 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 20 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 01
+static void ibmveth_cleanup(struct ibmveth_adapter *adapter)
+{
++ int i;
++
+if(adapter->buffer_list_addr != NULL) {
+if(!dma_mapping_error(adapter->buffer_list_dma)) {
+dma_unmap_single(&adapter->vdev->dev,
+@@ -443,26 +462,24 @@
+adapter->rx_queue.queue_addr = NULL;
+}
 
-0000:00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 03)
-00: 86 80 13 71 03 00 80 02 03 00 80 06 00 00 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 01 ef 00 00 80 00 40 10 e1 00 00 00 80 00 10 00
-50: 00 18 00 00 00 00 00 00 23 00 00 02 00 00 00 90
-60: 00 00 00 60 e8 15 67 08 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 2e 00 11 00 00 00 00 00
-80: 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: a1 ef 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
+- ibmveth_free_buffer_pool(adapter, &adapter->rx_buff_pool[0]);
+- ibmveth_free_buffer_pool(adapter, &adapter->rx_buff_pool[1]);
+- ibmveth_free_buffer_pool(adapter, &adapter->rx_buff_pool[2]);
++ for(i = 0; i<IbmVethNumBufferPools; i++)
++ ibmveth_free_buffer_pool(adapter, &adapter->rx_buff_pool[i]);
+}
 
-0000:01:00.0 VGA compatible controller: Neomagic Corporation NM2360 [MagicMedia 256ZX]
-00: c8 10 06 00 07 00 90 02 00 00 00 03 00 80 00 00
-10: 08 00 00 e0 00 00 00 70 00 00 40 70 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 14 10 52 01
-30: 00 00 00 00 dc 00 00 00 00 00 00 00 0b 01 10 ff
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 21 06
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+static int ibmveth_open(struct net_device *netdev)
+{
+struct ibmveth_adapter *adapter = netdev->priv;
+u64 mac_address = 0;
+- int rxq_entries;
++ int rxq_entries = 1;
+unsigned long lpar_rc;
+int rc;
+union ibmveth_buf_desc rxq_desc;
++ int i;
 
-0000:06:00.0 Network controller: Intersil Corporation Intersil ISL3890 [Prism GT/Prism Duette] (rev 01)
-00: 60 12 90 38 16 00 98 02 01 00 80 02 08 50 00 00
-10: 00 00 00 36 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 01 08 00 00 60 12 00 00
-30: 00 00 00 00 dc 00 00 00 00 00 00 00 0b 01 0a 1c
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 01 fe
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ibmveth_debug_printk("open starting\n");
 
-$ cat /proc/ioports
-0000-001f : dma1
-0020-0021 : pic1
-0022-0022 : PM2_CNT_BLK
-0040-0043 : timer0
-0050-0053 : timer1
-0060-006f : keyboard
-0070-0077 : rtc
-0080-008f : dma page reg
-00a0-00a1 : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-01f0-01f7 : ide0
-02f8-02ff : 0000:00:03.0
-  02f8-02ff : serial
-03bc-03be : parport0
-03c0-03df : vga+
-03f6-03f6 : ide0
-03f8-03ff : serial
-0cf8-0cff : PCI conf1
-15e0-15ef : motherboard
-2000-2fff : PCI CardBus #02
-3000-3fff : PCI CardBus #02
-4000-401f : 0000:00:07.2
-  4000-401f : uhci_hcd
-4400-44ff : 0000:00:03.0
-5000-5fff : PCI CardBus #06
-6000-6fff : PCI CardBus #06
-d000-dfff : PCI Bus #01
-ef00-ef3f : 0000:00:07.3
-  ef00-ef3f : motherboard
-    ef00-ef03 : PM1a_EVT_BLK
-    ef04-ef05 : PM1a_CNT_BLK
-    ef08-ef0b : PM_TMR
-    ef0c-ef0f : GPE0_BLK
-    ef10-ef15 : ACPI CPU throttle
-efa0-efbf : 0000:00:07.3
-  efa0-efaf : motherboard
-fcf0-fcff : 0000:00:07.1
-  fcf0-fcf7 : ide0
-  fcf8-fcff : ide1
+- rxq_entries =
+- adapter->rx_buff_pool[0].size +
+- adapter->rx_buff_pool[1].size +
+- adapter->rx_buff_pool[2].size + 1;
++ for(i = 0; i<IbmVethNumBufferPools; i++)
++ rxq_entries += adapter->rx_buff_pool[i].size;
+     
+adapter->buffer_list_addr = (void*) get_zeroed_page(GFP_KERNEL);
+adapter->filter_list_addr = (void*) get_zeroed_page(GFP_KERNEL);
+@@ -502,14 +519,8 @@
+adapter->rx_queue.num_slots = rxq_entries;
+adapter->rx_queue.toggle = 1;
+
+- if(ibmveth_alloc_buffer_pool(&adapter->rx_buff_pool[0]) ||
+-    ibmveth_alloc_buffer_pool(&adapter->rx_buff_pool[1]) ||
+-    ibmveth_alloc_buffer_pool(&adapter->rx_buff_pool[2]))
+- {
+- ibmveth_error_printk("unable to allocate buffer pools\n");
+- ibmveth_cleanup(adapter);
+- return -ENOMEM;
+- }
++ /* call change_mtu to init the buffer pools based in initial mtu */
++ ibmveth_change_mtu(netdev, netdev->mtu);
+
+memcpy(&mac_address, netdev->dev_addr, netdev->addr_len);
+mac_address = mac_address >> 16;
+@@ -885,17 +896,52 @@
+
+static int ibmveth_change_mtu(struct net_device *dev, int new_mtu)
+{
+- if ((new_mtu < 68) || (new_mtu > (1<<20)))
++ struct ibmveth_adapter *adapter = dev->priv;
++ int i;
++ int prev_smaller = 1;
++
++ if ((new_mtu < 68) || 
++     (new_mtu > (pool_size[IbmVethNumBufferPools-1]) -
+IBMVETH_BUFF_OH))
+return -EINVAL;
++
++ for(i = 0; i<IbmVethNumBufferPools; i++) {
++ int activate = 0;
++ if (new_mtu > (pool_size[i]  - IBMVETH_BUFF_OH)) { 
++ activate = 1;
++ prev_smaller= 1;
++ } else {
++ if (prev_smaller)
++ activate = 1;
++ prev_smaller= 0;
++ }
++
++ if (activate && !adapter->rx_buff_pool[i].active) {
++ struct ibmveth_buff_pool *pool = 
++ &adapter->rx_buff_pool[i];
++ if(ibmveth_alloc_buffer_pool(pool)) {
++ ibmveth_error_printk("unable to alloc pool\n");
++ return -ENOMEM;
++ }
++ adapter->rx_buff_pool[i].active = 1;
++ } else if (!activate && adapter->rx_buff_pool[i].active) {
++ adapter->rx_buff_pool[i].active = 0;
++ h_free_logical_lan_buffer(adapter->vdev->unit_address,
++   (u64)pool_size[i]);
++ }
++
++ }
++
++
++ ibmveth_schedule_replenishing(adapter);
+dev->mtu = new_mtu;
+return 0; 
+}
+
+static int __devinit ibmveth_probe(struct vio_dev *dev, const struct
+vio_device_id *id)
+{
+- int rc;
++ int rc, i;
+struct net_device *netdev;
+- struct ibmveth_adapter *adapter;
++ struct ibmveth_adapter *adapter = NULL;
+
+unsigned char *mac_addr_p;
+unsigned int *mcastFilterSize_p;
+@@ -965,9 +1011,9 @@
+
+memcpy(&netdev->dev_addr, &adapter->mac_addr, netdev->addr_len);
+
+- ibmveth_init_buffer_pool(&adapter->rx_buff_pool[0], 0,
+IbmVethPool0DftCnt, IbmVethPool0DftSize);
+- ibmveth_init_buffer_pool(&adapter->rx_buff_pool[1], 1,
+IbmVethPool1DftCnt, IbmVethPool1DftSize);
+- ibmveth_init_buffer_pool(&adapter->rx_buff_pool[2], 2,
+IbmVethPool2DftCnt, IbmVethPool2DftSize);
++ for(i = 0; i<IbmVethNumBufferPools; i++)
++ ibmveth_init_buffer_pool(&adapter->rx_buff_pool[i], i, 
++ pool_count[i], pool_size[i]);
+
+ibmveth_debug_printk("adapter @ 0x%p\n", adapter);
+
+diff -urN a/drivers/net/ibmveth.h b/drivers/net/ibmveth.h
+--- a/drivers/net/ibmveth.h 2005-06-17 14:48:29.000000000 -0500
++++ b/drivers/net/ibmveth.h 2005-10-17 12:00:25.000000000 -0500
+@@ -49,6 +49,7 @@
+#define H_SEND_LOGICAL_LAN       0x120
+#define H_MULTICAST_CTRL         0x130
+#define H_CHANGE_LOGICAL_LAN_MAC 0x14C
++#define H_FREE_LOGICAL_LAN_BUFFER 0x1D4
+
+/* hcall macros */
+#define h_register_logical_lan(ua, buflst, rxq, fltlst, mac) \
+@@ -69,13 +70,15 @@
+#define h_change_logical_lan_mac(ua, mac) \
+   plpar_hcall_norets(H_CHANGE_LOGICAL_LAN_MAC, ua, mac)
+
+-#define IbmVethNumBufferPools 3
+-#define IbmVethPool0DftSize (1024 * 2)
+-#define IbmVethPool1DftSize (1024 * 4)
+-#define IbmVethPool2DftSize (1024 * 10)
+-#define IbmVethPool0DftCnt  256
+-#define IbmVethPool1DftCnt  256
+-#define IbmVethPool2DftCnt  256
++#define h_free_logical_lan_buffer(ua, bufsize) \
++  plpar_hcall_norets(H_FREE_LOGICAL_LAN_BUFFER, ua, bufsize)
++
++#define IbmVethNumBufferPools 5
++#define IBMVETH_BUFF_OH 22 /* Overhead: 14 ethernet header + 8 opaque
+handle */
++
++/* pool_size should be sorted */
++static int pool_size[] = { 512, 1024 * 2, 1024 * 16, 1024 * 32, 1024 *
+64 };
++static int pool_count[] = { 256, 768, 256, 256, 256 };
+
+#define IBM_VETH_INVALID_MAP ((u16)0xffff)
+
+@@ -90,6 +93,7 @@
+     u16 *free_map;
+     dma_addr_t *dma_addr;
+     struct sk_buff **skbuff;
++    int active;
+};
+
+struct ibmveth_rx_q {
+
 
 -- 
+Santiago A. Leon
+Power Linux Development
+IBM Linux Technology Center
 
--Sanjoy

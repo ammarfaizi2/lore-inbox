@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbVJYWLq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbVJYWMW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932437AbVJYWLq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 18:11:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbVJYWLW
+	id S932436AbVJYWMW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 18:12:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbVJYWLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 18:11:22 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:44216 "EHLO ssc.unict.it")
-	by vger.kernel.org with ESMTP id S932437AbVJYWLS (ORCPT
+	Tue, 25 Oct 2005 18:11:20 -0400
+Received: from [151.97.230.9] ([151.97.230.9]:44472 "EHLO ssc.unict.it")
+	by vger.kernel.org with ESMTP id S932440AbVJYWLS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 25 Oct 2005 18:11:18 -0400
 From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 4/6] x86_64: fix L1_CACHE_SHIFT_MAX for Intel EM64T [for 2.6.14?]
-Date: Wed, 26 Oct 2005 00:12:54 +0200
+Subject: [PATCH 3/6] uml: remove old UM_FASTCALL, and make the thing work again
+Date: Wed, 26 Oct 2005 00:12:30 +0200
 To: Andrew Morton <akpm@osdl.org>
 Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
        user-mode-linux-devel@lists.sourceforge.net
-Message-Id: <20051025221253.21106.22572.stgit@zion.home.lan>
+Message-Id: <20051025221229.21106.22616.stgit@zion.home.lan>
 In-Reply-To: <20051025221105.21106.95194.stgit@zion.home.lan>
 References: <20051025221105.21106.95194.stgit@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -23,32 +23,47 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-The current value was correct before the introduction of Intel EM64T support -
-but now L1_CACHE_SHIFT_MAX can be less than L1_CACHE_SHIFT, which _is_ funny!
+This was used in the old dark age of 2.4, ARCH_CFLAGS doesn't work any more
+since some time, and UM_FASTCALL was never used in 2.6.
 
-Between the few users of ____cacheline_maxaligned_in_smp, we also have (for
-example) rcu_ctrlblk, and struct zone, with zone->{lru_,}lock. I.e. we have a
-lot of excess cacheline bouncing on them.
+Instead, reintroduce the thing more properly now, directly in
+include/asm-um/linkage.h.
 
-No correctness issues, obviously. So this could even be merged for 2.6.14 (I'm
-not a fan of this idea, though).
-
-CC: Andi Kleen <ak@suse.de>
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- include/asm-x86_64/cache.h |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ arch/um/Makefile-i386    |    4 ----
+ include/asm-um/linkage.h |    8 ++++++++
+ 2 files changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/include/asm-x86_64/cache.h b/include/asm-x86_64/cache.h
---- a/include/asm-x86_64/cache.h
-+++ b/include/asm-x86_64/cache.h
-@@ -9,6 +9,6 @@
- /* L1 cache line size */
- #define L1_CACHE_SHIFT	(CONFIG_X86_L1_CACHE_SHIFT)
- #define L1_CACHE_BYTES	(1 << L1_CACHE_SHIFT)
--#define L1_CACHE_SHIFT_MAX 6	/* largest L1 which this arch supports */
-+#define L1_CACHE_SHIFT_MAX 7	/* largest L1 which this arch supports */
+diff --git a/arch/um/Makefile-i386 b/arch/um/Makefile-i386
+--- a/arch/um/Makefile-i386
++++ b/arch/um/Makefile-i386
+@@ -29,10 +29,6 @@ endif
  
+ CFLAGS += -U__$(SUBARCH)__ -U$(SUBARCH)
+ 
+-ifneq ($(CONFIG_GPROF),y)
+-ARCH_CFLAGS += -DUM_FASTCALL
+-endif
+-
+ # First of all, tune CFLAGS for the specific CPU. This actually sets cflags-y.
+ include $(srctree)/arch/i386/Makefile.cpu
+ 
+diff --git a/include/asm-um/linkage.h b/include/asm-um/linkage.h
+--- a/include/asm-um/linkage.h
++++ b/include/asm-um/linkage.h
+@@ -3,4 +3,12 @@
+ 
+ #include "asm/arch/linkage.h"
+ 
++#include <linux/config.h>
++
++/* <linux/linkage.h> will pick sane defaults */
++#ifdef CONFIG_GPROF
++#undef FASTCALL
++#undef fastcall
++#endif
++
  #endif
 

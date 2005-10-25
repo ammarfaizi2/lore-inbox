@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbVJYOAn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbVJYOHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932149AbVJYOAn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 10:00:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbVJYOAm
+	id S932148AbVJYOHw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 10:07:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbVJYOHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 10:00:42 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:63680 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932149AbVJYOAm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 10:00:42 -0400
-Date: Tue, 25 Oct 2005 15:00:41 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: "Schupp Roderich (extern) BenQ MD PD SWP 2 CM MCH" 
-	<Roderich.Schupp.extern@mch.siemens.de>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Race between "mount" uevent and /proc/mounts?
-Message-ID: <20051025140041.GO7992@ftp.linux.org.uk>
-References: <0AD07C7729CA42458B22AFA9C72E7011C8EF@mhha22kc.mchh.siemens.de>
+	Tue, 25 Oct 2005 10:07:52 -0400
+Received: from h80ad2532.async.vt.edu ([128.173.37.50]:45452 "EHLO
+	h80ad2532.async.vt.edu") by vger.kernel.org with ESMTP
+	id S932148AbVJYOHv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 10:07:51 -0400
+Message-Id: <200510251407.j9PE7LtK014903@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Laurent Riffard <laurent.riffard@free.fr>
+Subject: Re: intel-agp and yenta-socket issues (was Re: 2.6.14-rc5-mm1 
+In-Reply-To: Your message of "Mon, 24 Oct 2005 22:32:23 PDT."
+             <20051024223223.267d46ec.akpm@osdl.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <20051024014838.0dd491bb.akpm@osdl.org> <200510250513.j9P5DjGv004612@turing-police.cc.vt.edu>
+            <20051024223223.267d46ec.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0AD07C7729CA42458B22AFA9C72E7011C8EF@mhha22kc.mchh.siemens.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/signed; boundary="==_Exmh_1130249235_8692P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 25 Oct 2005 10:07:15 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 25, 2005 at 03:20:10PM +0200, Schupp Roderich (extern) BenQ MD PD SWP 2 CM MCH wrote:
-> Hi,
+--==_Exmh_1130249235_8692P
+Content-Type: text/plain; charset=us-ascii
+
+On Mon, 24 Oct 2005 22:32:23 PDT, Andrew Morton said:
+
+> > intel-agp would hang during modprobe until I backed this one out.
 > 
-> the 2.6.13 and 2.6.14-* kernels seem susceptible to a race condition
-> between the sending of a "mount" uevent and the actual mount becoming
-> visible thru /proc/mounts, at least when the kernel is configured
-> with voluntary preemption. 
-> 
-> The following scenario: 
-> - system is using the HAL daemon, configured to monitor kernel uvents
-> - someone (usually some kind of volume manager in response to
->   a device hotplug, but could also a manual mount) mounts a filesystem
-> - "mount" uevent is emitted
+> A sysrq trace would be nice.
 
-... said event happens to be a piece of junk with ill-defined semantics.
+Did some further testing, this time passing a loglevel= so I'd see the output,
+and sysrq-T showed that both modprobe issues were due to an even earlier
+modprobe that went south.  Looking like a bad merge of a local patch caused
+some locking to get corrupted (always a bad sign when atomic_dec_and_test
+throws an "atomic counter underflow" message on a refcount).  It's now unclear
+why backing out the agp-updates patch allowed modprobe to succeed - it
+*shouldn't* have made a difference.  Oddness.
 
-> - HAL daemon reads the event, then opens and reads /proc/mounts
 
-real useful, since
-	a) we have no idea if mount() is being done in the same namespace
-	b) we have no idea if mount() actually succeeds
-	c) even if we manage to find a mountpoint, we have no idea if it
-gets e.g. mount --move just as we'd finished reading from /prov/mounts
-	d) if the goal is to see which devices are held by mounted fs,
-you'll miss such things as e.g. external journals.
 
->   (in order to determine the corresponding mount point, since the uevent
+--==_Exmh_1130249235_8692P
+Content-Type: application/pgp-signature
 
-*the* corresponding mountpoint?  Which one?  There might be any number
-of those...
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFDXjwTcC3lWbTT17ARAjBIAJ9B7NpKup4SIKjJeycSC6KFvVGMiwCfXW2R
+CAm61qtts4QjsS/PYkFy1dM=
+=Gxpa
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1130249235_8692P--

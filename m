@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbVJYHuz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbVJYHyn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932075AbVJYHuz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 03:50:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932079AbVJYHuz
+	id S932079AbVJYHyn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 03:54:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbVJYHym
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 03:50:55 -0400
-Received: from qproxy.gmail.com ([72.14.204.206]:10605 "EHLO qproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932075AbVJYHuy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 03:50:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=AszEJ7Cw0vfePfX6rmgcpUYwVWuUdlp9HUKJ+TuUt5PXc8kiCYY3jnqDQ4nKiYb1MhKQoVPArXeD9ixPfTrx8XNChCZ6zIditLOFyGieoqVWvBCyanHM3RLOl4u7fRv5aiS/JPv2LKPImiO3t8sOyxjTXpyVQL6cHEpBVfbGYRU=
-Date: Tue, 25 Oct 2005 12:03:19 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: When did UFS read-write work?
-Message-ID: <20051025080319.GA10234@mipter.zuzino.mipt.ru>
+	Tue, 25 Oct 2005 03:54:42 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:54735 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932079AbVJYHym (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 03:54:42 -0400
+Subject: Re: strings /proc/kcore
+From: Arjan van de Ven <arjan@infradead.org>
+To: com bio <combiofriends@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051024221257.43044.qmail@web32811.mail.mud.yahoo.com>
+References: <20051024221257.43044.qmail@web32811.mail.mud.yahoo.com>
+Content-Type: text/plain
+Date: Tue, 25 Oct 2005 09:53:57 +0200
+Message-Id: <1130226838.3125.3.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've tried to copy a small file to a partition mounted as ufstype=44bsd.
-It hanged while doing
+On Mon, 2005-10-24 at 15:12 -0700, com bio wrote:
+> Hello,
+>   When i do #strings /proc/kcore as root i get the
+> following error.
+> strings: /proc/kcore: Operation not permitted
 
-	open("file", O_WRONLY|O_CREAT|O_LARGEFILE, 0100644)
+eh you do realize that this is extremely silly to do right?
 
-Second time, there was no hang, but there was no file on UFS partition
-too.
 
-Rebooting to OpenBSD:
+> I run fedora core 3. My kernel version is 2.6.9-1.667.
+> I would be happy if someone can help me diagnise this
+> error. Thanks
 
-	~ $ cd linux/		<=== created by Linux
-	~/linux $ ls -la
-	ls: .: No such file or directory
+why do you want to do this?
 
-Does anyone remeber when UFS rw was OK?
 

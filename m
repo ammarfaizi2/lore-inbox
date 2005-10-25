@@ -1,57 +1,300 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932394AbVJYV2R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbVJYVdh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932394AbVJYV2R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 17:28:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbVJYV2R
+	id S932395AbVJYVdh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 17:33:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbVJYVdh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 17:28:17 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:36780 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932394AbVJYV2Q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 17:28:16 -0400
-Subject: [PATCH] 1/5 ibmveth fix bonding
-From: Santiago Leon <santil@us.ibm.com>
-To: netdev <netdev@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>
-Content-Type: text/plain
-Message-Id: <1130275458.10524.425.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 25 Oct 2005 16:27:02 -0500
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Oct 2005 17:33:37 -0400
+Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:23233 "EHLO
+	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S932395AbVJYVdg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 17:33:36 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Call for PIIX4 chipset testers
+References: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
+From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Date: 25 Oct 2005 22:33:34 +0100
+In-Reply-To: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
+Message-ID: <r664rlz3gx.fsf@skye.ra.phy.cam.ac.uk>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch updates dev->trans_start and dev->last_rx so that the ibmveth
-driver can be used with the ARP monitor in the bonding driver. 
+> can you please test out this patch and report what it says in dmesg?
 
-Signed-off-by: Santiago Leon <santil@us.ibm.com>
----
- drivers/net/ibmveth.c |    2 ++
- 1 files changed, 2 insertions(+)
----
-diff -urN a/drivers/net/ibmveth.c b/drivers/net/ibmveth.c
---- a/drivers/net/ibmveth.c	2005-10-11 12:56:24.000000000 -0500
-+++ b/drivers/net/ibmveth.c	2005-10-11 13:52:45.000000000 -0500
-@@ -725,6 +725,7 @@
- 	} else {
- 		adapter->stats.tx_packets++;
- 		adapter->stats.tx_bytes += skb->len;
-+		netdev->trans_start = jiffies;
- 	}
- 
- 	do {
-@@ -776,6 +777,7 @@
- 				adapter->stats.rx_packets++;
- 				adapter->stats.rx_bytes += length;
- 				frames_processed++;
-+				netdev->last_rx = jiffies;
- 			}
- 		} else {
- 			more_work = 0;
+The machine is a Thinkpad 600X, kernel 2.6.14-rc5 + PIIX4 patch
+
+$ dmesg -s 1000000 | grep PIIX4
+PCI quirk: region ef00-ef3f claimed by PIIX4 ACPI
+PCI quirk: region efa0-efbf claimed by PIIX4 SMB
+PIIX4 devres C PIO at 15e8-15ef
+PIIX4 devres I PIO at 002e-002f
+PIIX4: IDE controller at PCI slot 0000:00:07.1
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+
+$ lspci -xxx
+0000:00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 03)
+00: 86 80 90 71 06 00 10 a2 03 00 00 06 00 40 00 00
+10: 08 00 00 40 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 a0 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 04 0a 02 00 00 00 00 09 03 10 11 01 00 00 00 00
+60: 08 18 28 28 38 48 48 48 00 2a e8 ad 08 af 00 00
+70: 20 1f 0a 78 29 0a 00 01 00 37 dc 38 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: e0 00 00 00 04 61 00 00 00 05 00 00 00 00 00 00
+a0: 02 00 10 00 03 02 00 1f 00 00 00 00 00 00 00 00
+b0: 80 20 00 00 30 00 00 00 00 00 2c 23 20 10 00 00
+c0: 00 00 00 00 00 00 00 00 18 0c e7 7b 79 00 00 00
+d0: 00 00 00 00 00 00 00 00 0c 00 00 00 00 00 00 00
+e0: 4c ad ff bb 8a 3e 00 00 2c d3 f7 cf 9d 3e 00 00
+f0: 00 00 00 00 00 f8 00 60 20 0f 00 00 00 00 00 00
+
+0000:00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 03)
+00: 86 80 91 71 07 00 20 02 03 00 04 06 00 a8 01 00
+10: 00 00 00 00 00 00 00 00 00 01 01 b0 d0 d0 a0 a2
+20: 00 70 f0 df 00 e0 f0 f7 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 88 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+0000:00:02.0 CardBus bridge: Texas Instruments PCI1450 (rev 03)
+00: 4c 10 1b ac 07 00 10 02 03 00 07 06 08 a8 82 00
+10: 00 30 10 50 a0 00 00 02 00 02 05 b0 00 00 00 30
+20: 00 f0 ff 31 00 00 00 32 00 f0 ff 33 00 20 00 00
+30: fc 2f 00 00 00 30 00 00 fc 3f 00 00 0b 01 c0 05
+40: 14 10 30 01 01 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 69 f0 44 00 c0 00 00 00 80 80 81 80 01 10 00 00
+90: c0 02 66 41 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 01 00 11 7e 00 00 c0 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+0000:00:02.1 CardBus bridge: Texas Instruments PCI1450 (rev 03)
+00: 4c 10 1b ac 07 00 10 02 03 00 07 06 08 a8 82 00
+10: 00 20 10 50 a0 00 00 22 00 06 09 b0 00 00 00 34
+20: 00 f0 ff 35 00 00 00 36 00 f0 ff 37 00 50 00 00
+30: fc 5f 00 00 00 60 00 00 fc 6f 00 00 0b 02 00 05
+40: 14 10 30 01 01 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 69 f0 44 00 c0 00 00 00 80 80 81 80 01 10 00 00
+90: c0 03 66 41 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 01 00 11 7e 00 80 c0 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+0000:00:03.0 Communication controller: Agere Systems (former Lucent Microelectronics) WinModem 56k (rev 01)
+00: c1 11 49 04 07 01 90 82 01 00 80 07 00 00 00 00
+10: 00 10 10 50 f9 02 00 00 01 44 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 40 00 00 00 14 10 8c 01
+30: 00 00 00 00 f8 00 00 00 00 00 00 00 0b 01 fc 0e
+40: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+50: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+60: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+70: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+90: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+a0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+b0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+c0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+d0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+e0: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+f0: ff ff ff ff ff ff ff ff 01 00 22 e4 00 00 00 00
+
+0000:00:06.0 Multimedia audio controller: Cirrus Logic CS 4614/22/24 [CrystalClear SoundFusion Audio Accelerator] (rev 01)
+00: 13 10 03 60 06 01 10 04 01 00 01 04 00 40 00 00
+10: 00 00 10 50 00 00 00 50 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 14 10 53 01
+30: 00 00 00 00 40 00 00 00 00 00 00 00 0b 01 04 18
+40: 01 00 22 06 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+0000:00:07.0 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+00: 86 80 10 71 0f 00 80 02 02 00 80 06 00 00 80 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 09 00 27 04
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 0b 0b 0b 0b 90 00 00 00 00 fe 80 00 00 00 00 00
+70: 00 00 00 00 00 00 0c 0c 00 00 00 00 00 00 00 00
+80: 00 00 07 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 07 91 11 10 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 25 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
+
+0000:00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
+00: 86 80 11 71 05 00 80 02 01 80 01 01 00 30 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: f1 fc 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 07 a3 00 80 00 00 00 00 01 00 02 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
+
+0000:00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
+00: 86 80 12 71 05 00 80 02 01 00 03 0c 00 30 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 01 40 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 0b 04 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 20 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 01
+
+0000:00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 03)
+00: 86 80 13 71 03 00 80 02 03 00 80 06 00 00 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 01 ef 00 00 80 00 40 10 e1 00 00 00 80 00 10 00
+50: 00 18 00 00 00 00 00 00 23 00 00 02 00 00 00 90
+60: 00 00 00 60 e8 15 67 08 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 2e 00 11 00 00 00 00 00
+80: 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: a1 ef 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
+
+0000:01:00.0 VGA compatible controller: Neomagic Corporation NM2360 [MagicMedia 256ZX]
+00: c8 10 06 00 07 00 90 02 00 00 00 03 00 80 00 00
+10: 08 00 00 e0 00 00 00 70 00 00 40 70 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 14 10 52 01
+30: 00 00 00 00 dc 00 00 00 00 00 00 00 0b 01 10 ff
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 21 06
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+0000:06:00.0 Network controller: Intersil Corporation Intersil ISL3890 [Prism GT/Prism Duette] (rev 01)
+00: 60 12 90 38 16 00 98 02 01 00 80 02 08 50 00 00
+10: 00 00 00 36 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 01 08 00 00 60 12 00 00
+30: 00 00 00 00 dc 00 00 00 00 00 00 00 0b 01 0a 1c
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 01 fe
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+$ cat /proc/ioports
+0000-001f : dma1
+0020-0021 : pic1
+0022-0022 : PM2_CNT_BLK
+0040-0043 : timer0
+0050-0053 : timer1
+0060-006f : keyboard
+0070-0077 : rtc
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+01f0-01f7 : ide0
+02f8-02ff : 0000:00:03.0
+  02f8-02ff : serial
+03bc-03be : parport0
+03c0-03df : vga+
+03f6-03f6 : ide0
+03f8-03ff : serial
+0cf8-0cff : PCI conf1
+15e0-15ef : motherboard
+2000-2fff : PCI CardBus #02
+3000-3fff : PCI CardBus #02
+4000-401f : 0000:00:07.2
+  4000-401f : uhci_hcd
+4400-44ff : 0000:00:03.0
+5000-5fff : PCI CardBus #06
+6000-6fff : PCI CardBus #06
+d000-dfff : PCI Bus #01
+ef00-ef3f : 0000:00:07.3
+  ef00-ef3f : motherboard
+    ef00-ef03 : PM1a_EVT_BLK
+    ef04-ef05 : PM1a_CNT_BLK
+    ef08-ef0b : PM_TMR
+    ef0c-ef0f : GPE0_BLK
+    ef10-ef15 : ACPI CPU throttle
+efa0-efbf : 0000:00:07.3
+  efa0-efaf : motherboard
+fcf0-fcff : 0000:00:07.1
+  fcf0-fcf7 : ide0
+  fcf8-fcff : ide1
 
 -- 
-Santiago A. Leon
-Power Linux Development
-IBM Linux Technology Center
 
+-Sanjoy

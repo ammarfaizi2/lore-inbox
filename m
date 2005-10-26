@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932498AbVJZAKj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932492AbVJZAPA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932498AbVJZAKj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 20:10:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932499AbVJZAKj
+	id S932492AbVJZAPA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 20:15:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbVJZAPA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 20:10:39 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:520 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932498AbVJZAKi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 20:10:38 -0400
-Date: Wed, 26 Oct 2005 01:10:27 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: David Vrabel <dvrabel@cantab.net>
-Cc: Ben Dooks <ben@fluff.org.uk>, Pavel Machek <pavel@ucw.cz>,
-       rpurdie@rpsys.net, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: sharp zaurus: prevent killing spitz-en
-Message-ID: <20051026001027.GA25420@flint.arm.linux.org.uk>
-Mail-Followup-To: David Vrabel <dvrabel@cantab.net>,
-	Ben Dooks <ben@fluff.org.uk>, Pavel Machek <pavel@ucw.cz>,
-	rpurdie@rpsys.net, kernel list <linux-kernel@vger.kernel.org>
-References: <20051025190829.GA1788@elf.ucw.cz> <20051025225815.GA31679@home.fluff.org> <435EBD56.70601@cantab.net>
+	Tue, 25 Oct 2005 20:15:00 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:52454 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932492AbVJZAO7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 20:14:59 -0400
+Subject: [PATCH 00/02] Process Events Connector
+From: Matt Helsley <matthltc@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       Jean-Pierre Dion <jean-pierre.dion@bull.net>,
+       Jesse Barnes <jbarnes@engr.sgi.com>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       Badari Pulavarty <pbadari@us.ibm.com>, Ram Pai <linuxram@us.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Erich Focht <efocht@hpce.nec.com>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>,
+       Gerrit Huizenga <gh@us.ibm.com>, Adrian Bunk <bunk@stusta.de>,
+       "Chandra S. Seetharaman" <sekharan@us.ibm.com>
+Content-Type: text/plain
+Date: Tue, 25 Oct 2005 17:07:40 -0700
+Message-Id: <1130285260.10680.194.camel@stark>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <435EBD56.70601@cantab.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 26, 2005 at 12:18:46AM +0100, David Vrabel wrote:
-> Ben Dooks wrote:
-> >It would be better for each machine to export an config option
-> >from the Kconfig to specify if they have a maximum size.
-> 
-> Isn't the maximum size a property of the bootloader/other firmware? 
-> i.e., something the kernel build system knows nothing about.
+Andrew, all,
 
-Yes.  blob, for instance, aborts an xmodem download if it's too large.
-The kernel has no knowledge of what blob classifies as "too large"
-which may indeed be different from uboot, bootldr, redboot, or ...
+	Is there any reason this patch could not go for a spin in a -mm tree?
+It's similar to Guillaume's fork connector patch which did appear in -mm
+at one point. It replaces the fork_advisor patch that ELSA is currently
+using, can be used by userspace CKRM code, and in general is useful for
+anything that may wish to monitor changes in all processes.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+	I've modified the patch to future-proof it against proposed interfaces
+that call module functions from fork, exit, exec, and set[ug]id paths.
+This means that it should be safe to merge without or prior to merging
+of those interfaces.
+
+The patches are:
+	
+1. Export Connector Symbol - a small patch to export a useful connector
+symbol. This enables the following patch.
+
+2. Process Events Connector - This adds connector calls in the fork,
+exec, etc. paths and provides a means for userspace to listen for the
+generated events.
+
+Thanks,
+	-Matt Helsley
+	< matthltc @ us.ibm.com >
+

@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932593AbVJZIT2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932590AbVJZIXS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932593AbVJZIT2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 04:19:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932594AbVJZIT2
+	id S932590AbVJZIXS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 04:23:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932591AbVJZIXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 04:19:28 -0400
-Received: from zproxy.gmail.com ([64.233.162.196]:24137 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932593AbVJZIT1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 04:19:27 -0400
+	Wed, 26 Oct 2005 04:23:18 -0400
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:21884 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932590AbVJZIXR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 04:23:17 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=IxnqZM34tLwr+C2UH3dI0JngLDu0Hm2q6+oZJR7PYQT0tSUhio/7xQP/VL3wtcPguiXuDze+pciysrmkzbQT9uJuPJtK4QLbH3uSjDnviyyMVWiMB0dEq3YQhjX3DaMIayTh5+idc7xFpuNywrXqavm7Ku4m890VwBuGxePat90=
-Message-ID: <aec7e5c30510260119q7bc66aeal9abb3ac53a3473eb@mail.gmail.com>
-Date: Wed, 26 Oct 2005 17:19:26 +0900
-From: Magnus Damm <magnus.damm@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] CPUSETS: remove SMP dependency
-Cc: Magnus Damm <magnus@valinux.co.jp>, linux-kernel@vger.kernel.org,
-       pj@sgi.com
-In-Reply-To: <20051026010922.5a8f70fe.akpm@osdl.org>
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:Subject:Content-Type:Content-Transfer-Encoding;
+  b=XRd4UnVtHnTaJKFYHSYryIOZazbByuMesCO8eFG2jMCGgBmt5kWIgPkazl4ubo8f0a8sC1uJ7+Ec0mjhjbe5Ql9gyG6SfhiV3vf6JAQUYqZWVW43a0Z4E29f5voXmZZvNy/DprYzbEPcMn/Pj/bte2zmClivFAajZfLAOBHRWVA=  ;
+Message-ID: <435F3D3A.8080304@yahoo.com.au>
+Date: Wed, 26 Oct 2005 18:24:26 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050914 Debian/1.7.11-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051026075345.21014.53533.sendpatchset@cherry.local>
-	 <20051026010922.5a8f70fe.akpm@osdl.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.14-rc5-np1
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/26/05, Andrew Morton <akpm@osdl.org> wrote:
-> Magnus Damm <magnus@valinux.co.jp> wrote:
-> >
-> > Remove the SMP dependency from CPUSETS.
->
-> Why?
+ftp://ftp.kernel.org/pub/linux/kernel/people/npiggin/patches/2.6.14-rc5-np1/
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0510.0/0279.html
+2.6.14-rc5-np1 includes Hugh's pagefault scalability work and my
+lockless pagecache and RCU radix tree work (which is getting stable).
 
-/ magnus
+Also, some straight-line performance increases for mm/ which are
+worth about 5% kernel residency on kbuild on UP, and about 7.5% on
+SMP on a P4 Xeon.
+
+And some various small improvements to corner cases in the radix tree
+code.
+
+Performance testing and results would be interesting, on big machines
+or small.
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,80 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751510AbVJZXUX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751512AbVJZXXA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751510AbVJZXUX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 19:20:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751515AbVJZXUX
+	id S1751512AbVJZXXA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 19:23:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751513AbVJZXXA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 19:20:23 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:50602 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751510AbVJZXUW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 19:20:22 -0400
-Subject: Re: Notifier chains are unsafe
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Andi Kleen <ak@suse.de>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Keith Owens <kaos@ocs.com.au>,
-       dipankar@in.ibm.com,
-       Kernel development list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200510262344.37982.ak@suse.de>
-References: <Pine.LNX.4.44L0.0510261636580.7186-100000@iolanthe.rowland.org>
-	 <200510262344.37982.ak@suse.de>
-Content-Type: text/plain
-Organization: IBM
-Date: Wed, 26 Oct 2005 16:20:20 -0700
-Message-Id: <1130368820.3586.213.camel@linuxchandra>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
+	Wed, 26 Oct 2005 19:23:00 -0400
+Received: from mail09.syd.optusnet.com.au ([211.29.132.190]:6311 "EHLO
+	mail09.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751512AbVJZXW7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 19:22:59 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Alexander Skwar <listen@alexander.skwar.name>
+Subject: Re: Another report of "kernel BUG at mm/slab.c:2839!".
+Date: Thu, 27 Oct 2005 09:25:26 +1000
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org, pi@pihost.us
+References: <435F8316.9020006@mid.message-center.info>
+In-Reply-To: <435F8316.9020006@mid.message-center.info>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510270925.26773.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-26 at 23:44 +0200, Andi Kleen wrote:
-> On Wednesday 26 October 2005 22:40, Alan Stern wrote:
-> l> On Wed, 26 Oct 2005, Andreas Kleen wrote:
-> > 
-> > > > Note that the RCU documentation says RCU critical sections are not
-> > > > allowed
-> > > > to sleep.
-> > > 
-> > > In this case it would be ok.
-> > 
-> > I don't understand.  If it's okay for an RCU critical section to sleep in 
-> > this case, why wouldn't it be okay always?  What's special here?
-> > 
-> > Aren't there requirements about critical sections finishing on the same 
-> > CPU as they started on?
-> 
-> 
-> Like I wrote earlier: as long as the notifier doesn't unregister itself
-> the critical RCU section for the list walk is only a small part of notifier_call_chain.
-> It's basically a stable anchor in the list that won't change.
+On Wed, 26 Oct 2005 11:22 pm, Alexander Skwar wrote:
+> Hello.
+>
+> Just like Anthony Martinez <pi <at> pihost.us> reported
+> at  2005-09-24 17:35:43, I'm also hitting kernel BUG at mm/slab.c:2839!.
+>
+> I cannot really reproduce it. It just happens from
+> time to time.
+>
+> [15:21:02 vz6tml@dewup-ww02:~] $ uname -a
+> Linux dewup-ww02 2.6.13-ck8.03.reiser-stat.megaraid_newgen.no-preempt #2
+> SMP Mon Oct 24 10:01:43 CEST 2005 i686 Intel(R) Xeon(TM) CPU 2.40GHz
+> GenuineIntel GNU/Linux
+>
+> [15:21:30 vz6tml@dewup-ww02:~] $ cat /proc/version
+> Linux version 2.6.13-ck8.03.reiser-stat.megaraid_newgen.no-preempt
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Andy, comment above rcu_read_lock says, "It is illegal to block while in
-an RCU read-side critical section."
+If you were running a vanilla kernel you'd get full support from the mailing 
+list. If you were running plain ck8 I could offer you limited support. But 
+adding your own patches makes it impossible for us to know what your code 
+looks like and that you haven't merged incompatible code wrongly. Only the 
+person who merged the code would be able to provide you with support.
 
-As i mentioned in the other email we are discussing about "task
-notifier" in lse-tech. We thought of using RCU, but one of the
-requirements was that the registered function should be able to block,
-so we are looking for alternatives.
+My advice to you is try a mainline kernel release that has the features you 
+need and see if the bug exists. Then you'll get more response from the 
+mailing list.
 
-> 
-> The only change needed would be to make these parts unpreemptable and of course
-> add a RCU step during unregistration.
-> 
-> -Andi
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
--- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
-
-
+Cheers,
+Con

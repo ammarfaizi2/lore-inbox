@@ -1,79 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932566AbVJZHKK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932572AbVJZHQ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932566AbVJZHKK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 03:10:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932569AbVJZHKK
+	id S932572AbVJZHQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 03:16:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932573AbVJZHQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 03:10:10 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:14016 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S932566AbVJZHKJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 03:10:09 -0400
-Date: Wed, 26 Oct 2005 10:57:09 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Matt Helsley <matthltc@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Jean-Pierre Dion <jean-pierre.dion@bull.net>,
-       Jesse Barnes <jbarnes@engr.sgi.com>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       Badari Pulavarty <pbadari@us.ibm.com>, Ram Pai <linuxram@us.ibm.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Erich Focht <efocht@hpce.nec.com>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>,
-       Gerrit Huizenga <gh@us.ibm.com>, Adrian Bunk <bunk@stusta.de>,
-       "Chandra S. Seetharaman" <sekharan@us.ibm.com>
-Subject: Re: [PATCH 01/02] Export Connector Symbol
-Message-ID: <20051026065709.GA19438@2ka.mipt.ru>
-References: <1130285260.10680.194.camel@stark> <1130285785.10680.205.camel@stark>
+	Wed, 26 Oct 2005 03:16:28 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:15763 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932572AbVJZHQ2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 03:16:28 -0400
+Subject: Re: [PATCH 3/5] Swap Migration V4: migrate_pages() function
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Mike Kravetz <kravetz@us.ibm.com>,
+       Ray Bryant <raybry@mpdtxmail.amd.com>,
+       Lee Schermerhorn <lee.schermerhorn@hp.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, Magnus Damm <magnus.damm@gmail.com>,
+       Paul Jackson <pj@sgi.com>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20051025193039.6828.74991.sendpatchset@schroedinger.engr.sgi.com>
+References: <20051025193023.6828.89649.sendpatchset@schroedinger.engr.sgi.com>
+	 <20051025193039.6828.74991.sendpatchset@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Date: Wed, 26 Oct 2005 09:15:34 +0200
+Message-Id: <1130310934.1226.29.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <1130285785.10680.205.camel@stark>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 26 Oct 2005 10:58:52 +0400 (MSD)
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 25, 2005 at 05:16:25PM -0700, Matt Helsley (matthltc@us.ibm.com) wrote:
->         The Process Events Connector uses this symbol to determine if it
-> should respond to commands from userspace. However the it fails to link
-> without the EXPORT_SYMBOL_GPL() macro.
+On Tue, 2005-10-25 at 12:30 -0700, Christoph Lameter wrote:
 > 
-> Signed-Off-By: Matt Helsley <matthltc @ us.ibm.com> 
+> +#ifdef CONFIG_SWAP
+> +       if (PageSwapCache(page)) {
+> +               swp_entry_t swap = { .val = page_private(page) };
+> +               add_to_swapped_list(swap.val);
+> +               __delete_from_swap_cache(page);
+> +               write_unlock_irq(&mapping->tree_lock);
+> +               swap_free(swap);
+> +               __put_page(page);       /* The pagecache ref */
+> +               return 1;
+> +       }
+> +#endif /* CONFIG_SWAP */
 
-cn_already_initialized is only usefull for cases when 
-both connector users and connector itself are compiled 
-statically and connector users can generate events 
-before connector is initialized. But in this case you do not 
-need to export this symbol.
+Why is this #ifdef needed?  PageSwapCache() is #defined to 0 when !
+CONFIG_SWAP.
 
-But if you bound your own events to this flag
-I have no problem with this change.
+-- Dave
 
-
-> --
-> 
-> Resent with the subject line fixed.
-> 
-> ---
-> 
-> Index: linux-2.6.14-rc4/drivers/connector/connector.c
-> ===================================================================
-> --- linux-2.6.14-rc4.orig/drivers/connector/connector.c
-> +++ linux-2.6.14-rc4/drivers/connector/connector.c
-> @@ -45,10 +45,11 @@ static DECLARE_MUTEX(notify_lock);
->  static LIST_HEAD(notify_list);
->  
->  static struct cn_dev cdev;
->  
->  int cn_already_initialized = 0;
-> +EXPORT_SYMBOL_GPL(cn_already_initialized);
->  
->  /*
->   * msg->seq and msg->ack are used to determine message genealogy.
->   * When someone sends message it puts there locally unique sequence
->   * and random acknowledge numbers.  Sequence number may be copied into
-> 
-
--- 
-	Evgeniy Polyakov

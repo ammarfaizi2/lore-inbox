@@ -1,87 +1,310 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964834AbVJZRRx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964837AbVJZRXF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964834AbVJZRRx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 13:17:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbVJZRRx
+	id S964837AbVJZRXF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 13:23:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964838AbVJZRXE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 13:17:53 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:755 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S964834AbVJZRRx
+	Wed, 26 Oct 2005 13:23:04 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:16779 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S964837AbVJZRXC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 13:17:53 -0400
-Message-ID: <435FBA34.5040000@mvista.com>
-Date: Wed, 26 Oct 2005 10:17:40 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: george@mvista.com
-Cc: Ingo Molnar <mingo@elte.hu>, john stultz <johnstul@us.ibm.com>,
-       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Mark Knecht <markknecht@gmail.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       david singleton <dsingleton@mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-       cc@ccrma.Stanford.EDU, William Weston <weston@lysdexia.org>
-Subject: Re: 2.6.14-rc4-rt7
-References: <1129852531.5227.4.camel@cmn3.stanford.edu> <20051021080504.GA5088@elte.hu> <1129937138.5001.4.camel@cmn3.stanford.edu> <20051022035851.GC12751@elte.hu> <1130182121.4983.7.camel@cmn3.stanford.edu> <1130182717.4637.2.camel@cmn3.stanford.edu> <1130183199.27168.296.camel@cog.beaverton.ibm.com> <20051025154440.GA12149@elte.hu> <1130264218.27168.320.camel@cog.beaverton.ibm.com> <435E91AA.7080900@mvista.com> <20051026082800.GB28660@elte.hu> <435FA8BD.4050105@mvista.com>
-In-Reply-To: <435FA8BD.4050105@mvista.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 26 Oct 2005 13:23:02 -0400
+Subject: Re: [PATCH] Infineon TPM: move infineon driver off pci_dev
+From: Kylene Jo Hall <kjhall@us.ibm.com>
+To: Marcel Selhorst <selhorst@crypto.rub.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       matthieu castet <castet.matthieu@free.fr>
+In-Reply-To: <435FB8A5.803@crypto.rub.de>
+References: <435FB8A5.803@crypto.rub.de>
+Content-Type: text/plain
+Date: Wed, 26 Oct 2005 12:23:31 -0500
+Message-Id: <1130347411.4839.115.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-George Anzinger wrote:
-> Ingo Molnar wrote:
-> 
->> * George Anzinger <george@mvista.com> wrote:
->>
->>
->>> The TSC is such a fast and, usually, accurate answer, I think it 
->>> deserves a little effort to save it.  With your new clock code I 
->>> think we could use per cpu TSC counters, read the full 64 bits and, 
->>> in real corner cases, even per cpu conversion "constants" and solve 
->>> this problem.
->>
->>
->>
->> the problem is, this is the same issue as 'boot-time TSC syncing', but 
->> in disguise: to get any 'per CPU TSC offset' you need to do exactly 
->> the same type of careful all-CPUs-dance to ensure that the TSCs were 
->> sampled at around the same moment in time!
->>
->> The box where i have these small TSC inconsistencies shows that it's 
->> the bootup synchronization of TSCs that failed to be 100% accurate. 
->> Even a 2 usecs error in synchronization can show up as a time-warp - 
->> regardless of whether we keep per-CPU TSC offsets or whether we clear 
->> these offsets back to 0. So it is not a solution to do another type of 
->> synchronization dance. The only solution is to fix the boot-time 
->> synchronization (where the hardware keeps TSCs synchronized all the 
->> time), or to switch TSCs off where this is not possible.
->>
-> I was rather thinking of only comparing a cup's TSC with the SAME cup's 
-> TSC.  We only use the TSC to bridge from the latest update of the the 
-> clock to now and when we update the clock we capture (i.e. update this 
-> cup's last TSC value) the TSC on that CPU.  If we also capture the 
-> system time then we have a set of (last TSC, sys clock) for each CPU.  
-> If we further, keep 64-bits of TSC, we don't really require each cpu to 
-> update the clock very often, or, we could force such and update from 
-> time to time as needed.  This would not require the TSC to be synced at 
-> all and even if they had different rates we could add that to the per 
-> cpu data and cover that too.
+Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
 
-Well fooie!  Still have to get them all in sync.  So this does not solve the problem.
+On Wed, 2005-10-26 at 19:11 +0200, Marcel Selhorst wrote:
+> Dear all,
 > 
-> What this does require is that we do a really good job of figuring the 
-> TSC multiplier, something we don't do at all well today (rc5-rt5 on my 
-> box is fast by ~15 sec/ day).  We might also want to verify that we are 
-> not letting monotonic time be other than monotonic :)
+> the following patch moves the Infineon TPM driver off pci device
+> and makes it a pure pnp-driver. It was tested with IFX0101 and
+> IFX0102 and is now based on the tpm patchset (1 to 5) from Kylene
+> Hall submitted yesterday.
 > 
-> As you might suspect, I have some ideas about how to do a much better 
-> job of figuring out the TSC multiplier.
+> Best regards,
+> 
+> Marcel Selhorst
+> 
+> Signed-off-by: Marcel Selhorst <selhorst@crypto.rub.de>
+> ---
+> 
+> diff -pruN linux-2.6.14-rc5.ibm/drivers/char/tpm/tpm_infineon.c
+> linux-2.6.14-rc5.infineon_v1.6/drivers/char/tpm/tpm_infineon.c
+> --- linux-2.6.14-rc5.ibm/drivers/char/tpm/tpm_infineon.c	2005-10-26
+> 15:21:53.000000000 +0200
+> +++ linux-2.6.14-rc5.infineon_v1.6/drivers/char/tpm/tpm_infineon.c	2005-10-26
+> 15:21:42.000000000 +0200
+> @@ -5,6 +5,7 @@
+>   * Specifications at www.trustedcomputinggroup.org
+>   *
+>   * Copyright (C) 2005, Marcel Selhorst <selhorst@crypto.rub.de>
+> + * Sirrix AG - security technologies, http://www.sirrix.com and
+>   * Applied Data Security Group, Ruhr-University Bochum, Germany
+>   * Project-Homepage: http://www.prosec.rub.de/tpm
+>   *
+> @@ -31,7 +32,7 @@
+>  /* These values will be filled after PnP-call */
+>  static int TPM_INF_DATA = 0;
+>  static int TPM_INF_ADDR = 0;
+> -static int pnp_registered = 0;
+> +static int TPM_INF_BASE = 0;
+> 
+>  /* TPM header definitions */
+>  enum infineon_tpm_header {
+> @@ -143,11 +144,9 @@ static int wait(struct tpm_chip *chip, i
+>  	}
+>  	if (i == TPM_MAX_TRIES) {	/* timeout occurs */
+>  		if (wait_for_bit == STAT_XFE)
+> -			dev_err(chip->dev,
+> -				"Timeout in wait(STAT_XFE)\n");
+> +			dev_err(chip->dev, "Timeout in wait(STAT_XFE)\n");
+>  		if (wait_for_bit == STAT_RDA)
+> -			dev_err(chip->dev,
+> -				"Timeout in wait(STAT_RDA)\n");
+> +			dev_err(chip->dev, "Timeout in wait(STAT_RDA)\n");
+>  		return -EIO;
+>  	}
+>  	return 0;
+> @@ -196,7 +195,7 @@ static int tpm_inf_recv(struct tpm_chip
+>  	int ret;
+>  	u32 size = 0;
+> 
+> -recv_begin:
+> +      recv_begin:
+>  	/* start receiving header */
+>  	for (i = 0; i < 4; i++) {
+>  		ret = wait(chip, STAT_RDA);
+> @@ -221,8 +220,7 @@ recv_begin:
+>  		}
+> 
+>  		if ((size == 0x6D00) && (buf[1] == 0x80)) {
+> -			dev_err(chip->dev,
+> -				"Error handling on vendor layer!\n");
+> +			dev_err(chip->dev, "Error handling on vendor layer!\n");
+>  			return -EIO;
+>  		}
+> 
+> @@ -362,30 +360,11 @@ static const struct pnp_device_id tpm_pn
+>  	{"IFX0102", 0},
+>  	{"", 0}
+>  };
+> +
+>  MODULE_DEVICE_TABLE(pnp, tpm_pnp_tbl);
+> 
+>  static int __devinit tpm_inf_pnp_probe(struct pnp_dev *dev,
+> -					const struct pnp_device_id *dev_id)
+> -{
+> -	if (pnp_port_valid(dev, 0)) {
+> -		TPM_INF_ADDR = (pnp_port_start(dev, 0) & 0xff);
+> -		TPM_INF_DATA = ((TPM_INF_ADDR + 1) & 0xff);
+> -		tpm_inf.base = pnp_port_start(dev, 1);
+> -		dev_info(&dev->dev, "Found %s with ID %s\n",
+> -		dev->name, dev_id->id);
+> -		return 0;
+> -	}
+> -	return -ENODEV;
+> -}
+> -
+> -static struct pnp_driver tpm_inf_pnp = {
+> -	.name = "tpm_inf_pnp",
+> -	.id_table = tpm_pnp_tbl,
+> -	.probe = tpm_inf_pnp_probe,
+> -};
+> -
+> -static int __devinit tpm_inf_probe(struct pci_dev *pci_dev,
+> -				   const struct pci_device_id *pci_id)
+> +				       const struct pnp_device_id *dev_id)
+>  {
+>  	int rc = 0;
+>  	u8 iol, ioh;
+> @@ -394,30 +373,23 @@ static int __devinit tpm_inf_probe(struc
+>  	int productid[2];
+>  	char chipname[20];
+> 
+> -	rc = pci_enable_device(pci_dev);
+> -	if (rc)
+> -		return rc;
+> -
+> -	dev_info(&pci_dev->dev, "LPC-bus found at 0x%x\n", pci_id->device);
+> -
+> -	/* read IO-ports from PnP */
+> -	rc = pnp_register_driver(&tpm_inf_pnp);
+> -	if (rc < 0) {
+> -		dev_err(&pci_dev->dev,
+> -			"Error %x from pnp_register_driver!\n",rc);
+> -		goto error2;
+> -	}
+> -	if (!rc) {
+> -		dev_info(&pci_dev->dev, "No Infineon TPM found!\n");
+> -		goto error;
+> +	/* read IO-ports through PnP */
+> +	if (pnp_port_valid(dev, 0) &&
+> +	    !(pnp_port_flags(dev, 0) & IORESOURCE_DISABLED)) {
+> +		TPM_INF_ADDR = pnp_port_start(dev, 0);
+> +		TPM_INF_DATA = (TPM_INF_ADDR + 1);
+> +		TPM_INF_BASE = pnp_port_start(dev, 1);
+> +		dev_info(&dev->dev, "Found %s with ID %s\n",
+> +			 dev->name, dev_id->id);
+> +		if (!((TPM_INF_BASE >> 8) & 0xff)) {
+> +			tpm_inf.base = 0;
+> +		} else {
+> +			/* publish the base address to the tpm-driver
+> +			   and use tpm_inf.base from now on */
+> +			tpm_inf.base = TPM_INF_BASE;
+> +		}
+>  	} else {
+> -		pnp_registered = 1;
+> -	}
+> -
+> -	/* Make sure, we have received valid config ports */
+> -	if (!TPM_INF_ADDR) {
+> -		dev_err(&pci_dev->dev, "No valid IO-ports received!\n");
+> -		goto error;
+> +		return -EINVAL;
+>  	}
+> 
+>  	/* query chip for its vendor, its version number a.s.o. */
+> @@ -450,8 +422,8 @@ static int __devinit tpm_inf_probe(struc
+>  	if ((vendorid[0] << 8 | vendorid[1]) == (TPM_INFINEON_DEV_VEN_VALUE)) {
+> 
+>  		if (tpm_inf.base == 0) {
+> -			dev_err(&pci_dev->dev, "No IO-ports found!\n");
+> -			goto error;
+> +			dev_err(&dev->dev, "No IO-ports found!\n");
+> +			return -EIO;
+>  		}
+>  		/* configure TPM with IO-ports */
+>  		outb(IOLIMH, TPM_INF_ADDR);
+> @@ -466,10 +438,10 @@ static int __devinit tpm_inf_probe(struc
+>  		iol = inb(TPM_INF_DATA);
+> 
+>  		if ((ioh << 8 | iol) != tpm_inf.base) {
+> -			dev_err(&pci_dev->dev,
+> +			dev_err(&dev->dev,
+>  				"Could not set IO-ports to %04x\n",
+>  				tpm_inf.base);
+> -			goto error;
+> +			return -EIO;
+>  		}
+> 
+>  		/* activate register */
+> @@ -481,7 +453,7 @@ static int __devinit tpm_inf_probe(struc
+>  		outb(RESET_LP_IRQC_DISABLE, tpm_inf.base + CMD);
+> 
+>  		/* Finally, we're done, print some infos */
+> -		dev_info(&pci_dev->dev, "TPM found: "
+> +		dev_info(&dev->dev, "TPM found: "
+>  			 "config base 0x%x, "
+>  			 "io base 0x%x, "
+>  			 "chip version %02x%02x, "
+> @@ -489,67 +461,48 @@ static int __devinit tpm_inf_probe(struc
+>  			 "product id %02x%02x"
+>  			 "%s\n",
+>  			 TPM_INF_ADDR,
+> -			 tpm_inf.base,
+> +			 TPM_INF_BASE,
+>  			 version[0], version[1],
+>  			 vendorid[0], vendorid[1],
+>  			 productid[0], productid[1], chipname);
+> 
+> -		rc = tpm_register_hardware(&pci_dev->dev, &tpm_inf);
+> -		if (rc < 0)
+> -			goto error;
+> +		rc = tpm_register_hardware(&dev->dev, &tpm_inf);
+> +		if (rc < 0) {
+> +			return -ENODEV;
+> +		}
+>  		return 0;
+>  	} else {
+> -		dev_info(&pci_dev->dev, "No Infineon TPM found!\n");
+> -error:
+> -		pnp_unregister_driver(&tpm_inf_pnp);
+> -error2:
+> -		pci_disable_device(pci_dev);
+> -		pnp_registered = 0;
+> +		dev_info(&dev->dev, "No Infineon TPM found!\n");
+>  		return -ENODEV;
+>  	}
+>  }
+> 
+> -static __devexit void tpm_inf_remove(struct pci_dev* pci_dev)
+> +static __devexit void tpm_inf_pnp_remove(struct pnp_dev *dev)
+>  {
+> -	struct tpm_chip* chip = pci_get_drvdata(pci_dev);
+> -	
+> -	if( chip )
+> +	struct tpm_chip *chip = pnp_get_drvdata(dev);
+> +
+> +	if (chip)
+>  		tpm_remove_hardware(chip->dev);
+>  }
+> 
+> -static struct pci_device_id tpm_pci_tbl[] __devinitdata = {
+> -	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801BA_0)},
+> -	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801CA_12)},
+> -	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801DB_0)},
+> -	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801DB_12)},
+> -	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801EB_0)},
+> -	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_0)},
+> -	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_1)},
+> -	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_2)},
+> -	{0,}
+> -};
+> -
+> -MODULE_DEVICE_TABLE(pci, tpm_pci_tbl);
+> -
+> -static struct pci_driver inf_pci_driver = {
+> -	.name = "tpm_inf",
+> -	.id_table = tpm_pci_tbl,
+> -	.probe = tpm_inf_probe,
+> -	.remove = __devexit_p(tpm_inf_remove),
+> -	.suspend = tpm_pm_suspend,
+> -	.resume = tpm_pm_resume,
+> +static struct pnp_driver tpm_inf_pnp = {
+> +	.name = "tpm_inf_pnp",
+> +	.driver.owner = THIS_MODULE,
+> +	.id_table = tpm_pnp_tbl,
+> +	.probe = tpm_inf_pnp_probe,
+> +	.remove = tpm_inf_pnp_remove,
+> +	.driver.suspend = tpm_pm_suspend,
+> +	.driver.resume = tpm_pm_resume,
+>  };
+> 
+>  static int __init init_inf(void)
+>  {
+> -	return pci_register_driver(&inf_pci_driver);
+> +	return pnp_register_driver(&tpm_inf_pnp);
+>  }
+> 
+>  static void __exit cleanup_inf(void)
+>  {
+> -	if (pnp_registered)
+> -		pnp_unregister_driver(&tpm_inf_pnp);
+> -	pci_unregister_driver(&inf_pci_driver);
+> +	pnp_unregister_driver(&tpm_inf_pnp);
+>  }
+> 
+>  module_init(init_inf);
+> @@ -557,5 +510,5 @@ module_exit(cleanup_inf);
+> 
+>  MODULE_AUTHOR("Marcel Selhorst <selhorst@crypto.rub.de>");
+>  MODULE_DESCRIPTION("Driver for Infineon TPM SLD 9630 TT 1.1 / SLB 9635 TT 1.2");
+> -MODULE_VERSION("1.5");
+> +MODULE_VERSION("1.6");
+>  MODULE_LICENSE("GPL");
+> 
 
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

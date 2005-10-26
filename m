@@ -1,84 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932548AbVJZFbU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932550AbVJZF6M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932548AbVJZFbU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 01:31:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932550AbVJZFbU
+	id S932550AbVJZF6M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 01:58:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932551AbVJZF6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 01:31:20 -0400
-Received: from webmailv3.ispgateway.de ([80.67.16.113]:3790 "EHLO
-	webmailv3.ispgateway.de") by vger.kernel.org with ESMTP
-	id S932548AbVJZFbT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 01:31:19 -0400
-Message-ID: <1130304672.435f14a0819ca@www.domainfactory-webmail.de>
-Date: Wed, 26 Oct 2005 07:31:12 +0200
-From: Florian Engelhardt <flo@dotbox.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.14-rc5-mm1 wont compile
+	Wed, 26 Oct 2005 01:58:12 -0400
+Received: from zproxy.gmail.com ([64.233.162.196]:13840 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932550AbVJZF6L convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 01:58:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=CWls3U0FU7hR/ZrguR5uJmBjUN/8Ijos48KQaqfLvmeI8wJyP69n16mbrr7XvAu/vfqGe3uIGJP9DqHzsmSRWWBbHbhXoh0xP04xO5Jfohr6Tgrux7y7bTEUvsCxCGUEBfsqvD/pVq9QFuDKMiN8w6deBLCulKqdMVV6K1RsSgw=
+Message-ID: <7a37e95e0510252258k621b46efj4d37c2ceed00dfeb@mail.gmail.com>
+Date: Wed, 26 Oct 2005 11:28:10 +0530
+From: Deven Balani <devenbalani@gmail.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: reference code for non-PCI libata complaint SATA for ARM boards.
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <435E6D55.7090903@pobox.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.8
-X-Originating-IP: 213.143.195.2
+Content-Disposition: inline
+References: <7a37e95e0510250511g631db9edoe4c739ed24b7a79b@mail.gmail.com>
+	 <1130254633.25191.33.camel@localhost.localdomain>
+	 <435E6D55.7090903@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi jeff,
 
-i patched the vanilla 2.6.13 with the 2.6.14-rc5 patch
-and after that with the 2.6.14-rc5-mm1 patch, configured the
-kernel and executed make:
+Thank you for your quick reply.
 
-  CC      net/core/filter.o
-In file included from include/net/request_sock.h:22,
-                 from include/linux/ip.h:84,
-                 from include/net/ip.h:28,
-                 from net/core/filter.c:28:
-include/net/sock.h: In function `sk_dst_get':
-include/net/sock.h:972: warning: implicit declaration of function
-`__raw_read_unlock'
-include/net/sock.h: In function `sk_dst_set':
-include/net/sock.h:991: warning: implicit declaration of function
-`__raw_write_unlock'
-  CC      net/core/net-sysfs.o
-In file included from net/core/net-sysfs.c:16:
-include/net/sock.h: In function `sk_dst_get':
-include/net/sock.h:972: warning: implicit declaration of function
-`__raw_read_unlock'
-include/net/sock.h: In function `sk_dst_set':
-include/net/sock.h:991: warning: implicit declaration of function
-`__raw_write_unlock'
-  LD      net/core/built-in.o
-  CC      net/ethernet/eth.o
-In file included from include/net/request_sock.h:22,
-                 from include/linux/ip.h:84,
-                 from net/ethernet/eth.c:49:
-include/net/sock.h: In function `sk_dst_get':
-include/net/sock.h:972: warning: implicit declaration of function
-`__raw_read_unlock'
-include/net/sock.h: In function `sk_dst_set':
-include/net/sock.h:991: warning: implicit declaration of function
-`__raw_write_unlock'
-  CC      net/ethernet/sysctl_net_ether.o
-  LD      net/ethernet/built-in.o
-  CC      net/ipv4/route.o
-In file included from include/linux/mroute.h:129,
-                 from net/ipv4/route.c:89:
-include/net/sock.h: In function `sk_dst_get':
-include/net/sock.h:972: warning: implicit declaration of function
-`__raw_read_unlock'
-include/net/sock.h: In function `sk_dst_set':
-include/net/sock.h:991: warning: implicit declaration of function
-`__raw_write_unlock'
-net/ipv4/route.c: In function `rt_check_expire':
-net/ipv4/route.c:663: warning: dereferencing `void *' pointer
-net/ipv4/route.c:663: error: request for member `raw_lock' in something not a
-structure or union
-make[2]: *** [net/ipv4/route.o] Error 1
-make[1]: *** [net/ipv4] Error 2
-make: *** [net] Error 2
+According to your mail I believe I had to write a SATA low-level
+driver only for
+2.6 kernels.
+
+But I have a problem my other drivers are 2.4.25 compliant. So it is a huge work
+to make all other drivers 2.6 compliant and use libata-core.c.
+I believe it is far more easier to have 2.4.x libata rather than
+porting my drivers to
+2.6.x.
+
+What do you suggest me ?
+
+Regards,
+balani
+
+On 10/25/05, Jeff Garzik <jgarzik@pobox.com> wrote:
+> Alan Cox wrote:
+> > On Maw, 2005-10-25 at 17:41 +0530, Deven Balani wrote:
+> >
+> >>Hi All!
+> >>
+> >>I am currently writing a low-level driver for non-PCI SATA controller
+> >>in ARM platform.which uses libata-core.c for linux-2.4.25. Can any one
+> >>tell me any reference code available under linux.
+> >
+> >
+> > At the moment its a bit hard to do a non PCI driver because the core
+> > code assumes that there is a device structure (or pci_dev structure) for
+> > everything. Fixing that is a two line change for 2.6 (probably similar
+> > for 2.4) but Jeff Garzik rejected it.
+>
+> In 2.6.x, libata needs no fixes to support non-PCI devices.
+>
+> An out-of-tree driver for a non-PCI embedded board exists, and works
+> 100%.  Use of struct device and dma_xxx() means it is bus-agnostic.
+> That's how the whole system was designed to work -- and work, it does.
+>
+> None of this is true in 2.4.x, of course...
+>
+>        Jeff
+>
+>
+>
 
 
-Kind regards
-
-Flo
-
+--
+"A smile confuses an approaching frown..."

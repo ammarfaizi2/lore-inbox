@@ -1,173 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964815AbVJZQr3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbVJZQpm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964815AbVJZQr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 12:47:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964825AbVJZQr2
+	id S964808AbVJZQpm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 12:45:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964809AbVJZQpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 12:47:28 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:50869 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S964815AbVJZQrL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 12:47:11 -0400
-Date: Wed, 26 Oct 2005 10:47:08 -0600
-From: Santiago Leon <santil@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Cc: Santiago Leon <santil@us.ibm.com>, Jeff Garzik <jgarzik@pobox.com>
-Message-Id: <20051026164555.21820.85804.sendpatchset@localhost.localdomain>
-In-Reply-To: <20051026164532.21820.72673.sendpatchset@localhost.localdomain>
-References: <20051026164532.21820.72673.sendpatchset@localhost.localdomain>
-Subject: [PATCH 3/5] ibmveth fix buffer replenishing
+	Wed, 26 Oct 2005 12:45:42 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:25810 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S964808AbVJZQpl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 12:45:41 -0400
+Date: Wed, 26 Oct 2005 09:44:58 -0700 (PDT)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Peter Zijlstra <peter@programming.kicks-ass.net>
+cc: akpm@osdl.org, Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Mike Kravetz <kravetz@us.ibm.com>,
+       Ray Bryant <raybry@mpdtxmail.amd.com>,
+       Lee Schermerhorn <lee.schermerhorn@hp.com>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Magnus Damm <magnus.damm@gmail.com>, Paul Jackson <pj@sgi.com>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Subject: Re: [PATCH 1/5] Swap Migration V4: LRU operations
+In-Reply-To: <1130319083.17653.37.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.62.0510260943330.12433@schroedinger.engr.sgi.com>
+References: <20051025193023.6828.89649.sendpatchset@schroedinger.engr.sgi.com>
+  <20051025193028.6828.27929.sendpatchset@schroedinger.engr.sgi.com>
+ <1130319083.17653.37.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes the allocation of RX skb's  buffers from a workqueue
-to be called directly at RX processing time.  This change was suggested
-by Dave Miller when the driver was starving the RX buffers and
-deadlocking under heavy traffic:
+On Wed, 26 Oct 2005, Peter Zijlstra wrote:
 
-
-> Allocating RX SKBs via tasklet is, IMHO, the worst way to
-> do it.  It is no surprise that there are starvation cases.
+> On Tue, 2005-10-25 at 12:30 -0700, Christoph Lameter wrote:
 > 
-> If tasklets or work queues get delayed in any way, you lose,
-> and it's very easy for a card to catch up with the driver RX'ing
-> packets very fast, no matter how aggressive you make the
-> replenishing.  By the time you detect that you need to be
-> "more aggressive" it is already too late.
-> The only pseudo-reliable way is to allocate at RX processing time.
+> > +		if (rc == -1) {  /* Not possible to isolate */
+> > +			list_del(&page->lru);
+> > +			list_add(&page->lru, src);
+> >  		}
 > 
+> Would the usage of list_move() not be simpler?
 
-Signed-off-by: Santiago Leon <santil@us.ibm.com>
----
+Hmmm. yes the whole section is a bit weird there (sorry Magnus). How 
+about this additional patch:
 
- drivers/net/ibmveth.c |   48 ++++++++----------------------------------------
- drivers/net/ibmveth.h |    4 ----
- 2 files changed, 8 insertions(+), 44 deletions(-)
-
---- a/drivers/net/ibmveth.c	2005-10-17 12:04:58.000000000 -0500
-+++ b/drivers/net/ibmveth.c	2005-10-17 12:23:22.000000000 -0500
-@@ -96,7 +96,6 @@
- static void ibmveth_proc_register_adapter(struct ibmveth_adapter *adapter);
- static void ibmveth_proc_unregister_adapter(struct ibmveth_adapter *adapter);
- static irqreturn_t ibmveth_interrupt(int irq, void *dev_instance, struct pt_regs *regs);
--static inline void ibmveth_schedule_replenishing(struct ibmveth_adapter*);
- static inline void ibmveth_rxq_harvest_buffer(struct ibmveth_adapter *adapter);
- 
- #ifdef CONFIG_PROC_FS
-@@ -257,29 +256,7 @@
- 	atomic_add(buffers_added, &(pool->available));
- }
- 
--/* check if replenishing is needed.  */
--static inline int ibmveth_is_replenishing_needed(struct ibmveth_adapter *adapter)
--{
--	int i;
--
--	for(i = 0; i < IbmVethNumBufferPools; i++)
--		if(adapter->rx_buff_pool[i].active &&
--		  (atomic_read(&adapter->rx_buff_pool[i].available) <
--		   adapter->rx_buff_pool[i].threshold))
--			return 1;
--	return 0;
--}
--
--/* kick the replenish tasklet if we need replenishing and it isn't already running */
--static inline void ibmveth_schedule_replenishing(struct ibmveth_adapter *adapter)
--{
--	if(ibmveth_is_replenishing_needed(adapter) &&
--	   (atomic_dec_if_positive(&adapter->not_replenishing) == 0)) {
--		schedule_work(&adapter->replenish_task);
--	}
--}
--
--/* replenish tasklet routine */
-+/* replenish routine */
- static void ibmveth_replenish_task(struct ibmveth_adapter *adapter) 
+Index: linux-2.6.14-rc5-mm1/mm/vmscan.c
+===================================================================
+--- linux-2.6.14-rc5-mm1.orig/mm/vmscan.c	2005-10-25 08:09:52.000000000 -0700
++++ linux-2.6.14-rc5-mm1/mm/vmscan.c	2005-10-26 09:42:34.000000000 -0700
+@@ -590,22 +590,22 @@ static int isolate_lru_pages(struct zone
  {
- 	int i;
-@@ -292,10 +269,6 @@
- 						     &adapter->rx_buff_pool[i]);
+ 	struct page *page;
+ 	int scanned = 0;
+-	int rc;
  
- 	adapter->rx_no_buffer = *(u64*)(((char*)adapter->buffer_list_addr) + 4096 - 8);
+ 	while (scanned++ < nr_to_scan && !list_empty(src)) {
+ 		page = lru_to_page(src);
+ 		prefetchw_prev_lru_page(page, src, flags);
+ 
+-		rc = __isolate_lru_page(zone, page);
 -
--	atomic_inc(&adapter->not_replenishing);
+-		BUG_ON(rc == 0); /* PageLRU(page) must be true */
 -
--	ibmveth_schedule_replenishing(adapter);
- }
- 
- /* empty and free ana buffer pool - also used to do cleanup in error paths */
-@@ -563,10 +536,10 @@
- 		return rc;
- 	}
- 
--	netif_start_queue(netdev);
-+	ibmveth_debug_printk("initial replenish cycle\n");
-+	ibmveth_replenish_task(adapter);
- 
--	ibmveth_debug_printk("scheduling initial replenish cycle\n");
--	ibmveth_schedule_replenishing(adapter);
-+	netif_start_queue(netdev);
- 
- 	ibmveth_debug_printk("open complete\n");
- 
-@@ -584,9 +557,6 @@
- 
- 	free_irq(netdev->irq, netdev);
- 
--	cancel_delayed_work(&adapter->replenish_task);
--	flush_scheduled_work();
+-		if (rc == 1)     /* Succeeded to isolate page */
++		switch (__isolate_lru_page(zone, page)) {
++		case 1:
++			/* Succeeded to isolate page */
+ 			list_add(&page->lru, dst);
 -
- 	do {
- 		lpar_rc = h_free_logical_lan(adapter->vdev->unit_address);
- 	} while (H_isLongBusy(lpar_rc) || (lpar_rc == H_Busy));
-@@ -795,7 +765,7 @@
+-		if (rc == -1) {  /* Not possible to isolate */
+-			list_del(&page->lru);
+-			list_add(&page->lru, src);
++			break;
++		case -1:
++			/* Not possible to isolate */
++			list_move(&page->lru, src);
++			break;
++		default:
++			BUG();
  		}
- 	} while(more_work && (frames_processed < max_frames_to_process));
- 
--	ibmveth_schedule_replenishing(adapter);
-+	ibmveth_replenish_task(adapter);
- 
- 	if(more_work) {
- 		/* more work to do - return that we are not done yet */
-@@ -931,8 +901,10 @@
- 
  	}
  
-+	/* kick the interrupt handler so that the new buffer pools get
-+	   replenished or deallocated */
-+	ibmveth_interrupt(dev->irq, dev, NULL);
- 
--	ibmveth_schedule_replenishing(adapter);
- 	dev->mtu = new_mtu;
- 	return 0;	
- }
-@@ -1017,14 +989,10 @@
- 
- 	ibmveth_debug_printk("adapter @ 0x%p\n", adapter);
- 
--	INIT_WORK(&adapter->replenish_task, (void*)ibmveth_replenish_task, (void*)adapter);
--
- 	adapter->buffer_list_dma = DMA_ERROR_CODE;
- 	adapter->filter_list_dma = DMA_ERROR_CODE;
- 	adapter->rx_queue.queue_dma = DMA_ERROR_CODE;
- 
--	atomic_set(&adapter->not_replenishing, 1);
--
- 	ibmveth_debug_printk("registering netdev...\n");
- 
- 	rc = register_netdev(netdev);
-diff -urN a/drivers/net/ibmveth.h b/drivers/net/ibmveth.h
---- a/drivers/net/ibmveth.h	2005-10-17 12:04:58.000000000 -0500
-+++ b/drivers/net/ibmveth.h	2005-10-17 12:23:22.000000000 -0500
-@@ -118,10 +118,6 @@
-     dma_addr_t filter_list_dma;
-     struct ibmveth_buff_pool rx_buff_pool[IbmVethNumBufferPools];
-     struct ibmveth_rx_q rx_queue;
--    atomic_t not_replenishing;
--
--    /* helper tasks */
--    struct work_struct replenish_task;
- 
-     /* adapter specific stats */
-     u64 replenish_task_cycles;

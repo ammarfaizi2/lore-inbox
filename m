@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964823AbVJZRGR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbVJZRHu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964823AbVJZRGR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 13:06:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbVJZRGR
+	id S964826AbVJZRHu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 13:07:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964828AbVJZRHt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 13:06:17 -0400
-Received: from xproxy.gmail.com ([66.249.82.204]:54471 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964823AbVJZRGR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 13:06:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=LeT3rdUB5K5XOj8yWepla+mdCtGEMixzess8iMiBIS1fDMAXdJ4zHk69FzM1NtWGffwGh0quagmBB95rFx7BCbEw1C6piSd0M/nX21pom0zsg0+TQKxXMBs99ZdtzJAO+AD8p83YjR4dtQACX0vem5YoUrikwT1vGgb9UsMmP/8=
-Message-ID: <4ae3c140510261006q193e466bjc90ace3e7979393c@mail.gmail.com>
-Date: Wed, 26 Oct 2005 13:06:16 -0400
-From: Xin Zhao <uszhaoxin@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: can someone explain how to implement callback in kernel?
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 26 Oct 2005 13:07:49 -0400
+Received: from mail.kroah.org ([69.55.234.183]:63361 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964826AbVJZRHt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 13:07:49 -0400
+Date: Wed, 26 Oct 2005 10:03:49 -0700
+From: Greg KH <greg@kroah.com>
+To: koen@dominion.kabel.utwente.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] correct wording in drivers/usb/net/KConfig
+Message-ID: <20051026170349.GA3921@kroah.com>
+References: <435E2362.6010203@handhelds.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <435E2362.6010203@handhelds.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am writing a device driver. I want to achieve asynchronous I/O. What
-I want to do is as follows:
+On Tue, Oct 25, 2005 at 02:21:54PM +0200, Koen Kooi wrote:
+> +++ drivers/usb/net/Kconfig     2005-10-25 14:10:30.644935296 +0200
+> @@ -294,7 +294,7 @@
+>           This also supports some related device firmware, as used in some
+>           PDAs from Olympus and some cell phones from Motorola.
+>  
+> -         If you install an alternate ROM image, such as the Linux 2.6 based
+> +         If you install an alternate image, such as the Linux 2.6 based
 
-1. the driver issues a request to the device. Instead of waiting , it
-schedules a callback,  then return.
+Your email client ate the tabs in the patch, and you forgot a
+"Signed-off-by:" line for the patch.  Care to try it again?
 
-2. after the device serves the request, the callback should be
-triggered to finish the rest of work for this request.
+thanks,
 
-This seems to be a standard callback working flow. But I don't know
-how to implement this. Can someone give me a brief idea or point me to
-some link about this?
-
-Thanks in advance!
-
-Xin
+greg k-h

@@ -1,30 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932609AbVJZOoD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751499AbVJZOpi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932609AbVJZOoD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 10:44:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbVJZOoC
+	id S1751499AbVJZOpi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 10:45:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751500AbVJZOph
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 10:44:02 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:41613
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1751497AbVJZOoB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 10:44:01 -0400
-Message-Id: <435FB26B.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Wed, 26 Oct 2005 16:44:27 +0200
-From: "Jan Beulich" <JBeulich@novell.com>
-To: "Andreas Kleen" <ak@suse.de>, <linux-kernel@vger.kernel.org>
-Cc: <discuss@x86-64.org>
-Subject: DIE_GPF vs. DIE_PAGE_FAULT/DIE_TRAP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 26 Oct 2005 10:45:37 -0400
+Received: from mx1.suse.de ([195.135.220.2]:26024 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751499AbVJZOph (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 10:45:37 -0400
+From: Andi Kleen <ak@suse.de>
+To: discuss@x86-64.org
+Subject: Re: [discuss] [rfc] x86_64: Kconfig changes for NUMA
+Date: Wed, 26 Oct 2005 16:46:25 +0200
+User-Agent: KMail/1.8.2
+Cc: Ravikiran G Thirumalai <kiran@scalex86.org>, linux-kernel@vger.kernel.org,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>
+References: <20051026070956.GA3561@localhost.localdomain>
+In-Reply-To: <20051026070956.GA3561@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200510261646.26331.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What is the reason for notify_die(DIE_GPF, ...) to be run late in the GP
-fault handler (on both i386 and x86-64), while for other exceptions it
-gets run first thing (as I would have expected for all exceptions)?
+On Wednesday 26 October 2005 09:09, Ravikiran G Thirumalai wrote:
 
-Thanks, Jan
+> 
+> 1. Makes NUMA a config option like other arches
+> 2. Makes topology detection options like K8_NUMA dependent on NUMA
+> 3. Choosing ACPI NUMA detection can be done from the standard 
+>    "Processor type and features" menu 
+> Comments?
+
+It's in principle ok except that I don't like the dependencies and
+defaults. K8_NUMA shouldn't be dependent on !M_PSC. And the defaults
+should be just dropped.
+
+-Andi

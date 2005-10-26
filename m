@@ -1,63 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932589AbVJZI2J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932591AbVJZIgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932589AbVJZI2J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 04:28:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932591AbVJZI2J
+	id S932591AbVJZIgX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 04:36:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932592AbVJZIgX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 04:28:09 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:24261 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932589AbVJZI2I (ORCPT
+	Wed, 26 Oct 2005 04:36:23 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:41137 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932591AbVJZIgW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 04:28:08 -0400
-Date: Wed, 26 Oct 2005 10:28:00 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: George Anzinger <george@mvista.com>
-Cc: john stultz <johnstul@us.ibm.com>,
-       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Mark Knecht <markknecht@gmail.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       david singleton <dsingleton@mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-       cc@ccrma.Stanford.EDU, William Weston <weston@lysdexia.org>
-Subject: Re: 2.6.14-rc4-rt7
-Message-ID: <20051026082800.GB28660@elte.hu>
-References: <1129852531.5227.4.camel@cmn3.stanford.edu> <20051021080504.GA5088@elte.hu> <1129937138.5001.4.camel@cmn3.stanford.edu> <20051022035851.GC12751@elte.hu> <1130182121.4983.7.camel@cmn3.stanford.edu> <1130182717.4637.2.camel@cmn3.stanford.edu> <1130183199.27168.296.camel@cog.beaverton.ibm.com> <20051025154440.GA12149@elte.hu> <1130264218.27168.320.camel@cog.beaverton.ibm.com> <435E91AA.7080900@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <435E91AA.7080900@mvista.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 26 Oct 2005 04:36:22 -0400
+Message-ID: <435F3FFC.6020303@RedHat.com>
+Date: Wed, 26 Oct 2005 04:36:12 -0400
+From: Steve Dickson <SteveD@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: nfs@lists.sourceforge.net
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Bad  nsec conversion  in svc_udp_recvfrom()
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In patch-2.6.14-rc5 there is the following:
+@@ -584,13 +583,16 @@ svc_udp_recvfrom(struct svc_rqst *rqstp)
+         /* possibly an icmp error */
+         dprintk("svc: recvfrom returned error %d\n", -err);
+     }
+-   if (skb->stamp.tv_sec == 0) {
+-       skb->stamp.tv_sec = xtime.tv_sec;
+-       skb->stamp.tv_usec = xtime.tv_nsec / NSEC_PER_USEC;
++   if (skb->tstamp.off_sec == 0) {
++       struct timeval tv;
++
++       tv.tv_sec = xtime.tv_sec;
++       tv.tv_usec = xtime.tv_nsec * 1000;
++       skb_set_timestamp(skb, &tv);
+         /* Don't enable netstamp, sunrpc doesn't
+            need that much accuracy */
+     }
+-   svsk->sk_sk->sk_stamp = skb->stamp;
++   skb_get_timestamp(skb, &svsk->sk_sk->sk_stamp);
+     set_bit(SK_DATA, &svsk->sk_flags); /* there may be more data... */
 
-* George Anzinger <george@mvista.com> wrote:
+     /*
+Shouldn't tv.tv_usec = xtime.tv_nsec * 1000
+be tv.tv_usec = xtime.tv_nsec / 1000 or possible
+tv.tv_usec = xtime.tv_nsec / NSEC_PER_USEC ?
 
-> The TSC is such a fast and, usually, accurate answer, I think it 
-> deserves a little effort to save it.  With your new clock code I think 
-> we could use per cpu TSC counters, read the full 64 bits and, in real 
-> corner cases, even per cpu conversion "constants" and solve this 
-> problem.
+The was fixed by a previous patch
+(see http://lkml.org/lkml/2005/8/1/251)
+but now it seems to be broken again...
 
-the problem is, this is the same issue as 'boot-time TSC syncing', but 
-in disguise: to get any 'per CPU TSC offset' you need to do exactly the 
-same type of careful all-CPUs-dance to ensure that the TSCs were sampled 
-at around the same moment in time!
+steved.
 
-The box where i have these small TSC inconsistencies shows that it's the 
-bootup synchronization of TSCs that failed to be 100% accurate. Even a 2 
-usecs error in synchronization can show up as a time-warp - regardless 
-of whether we keep per-CPU TSC offsets or whether we clear these offsets 
-back to 0. So it is not a solution to do another type of synchronization 
-dance. The only solution is to fix the boot-time synchronization (where 
-the hardware keeps TSCs synchronized all the time), or to switch TSCs 
-off where this is not possible.
 
-	Ingo

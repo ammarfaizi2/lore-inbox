@@ -1,65 +1,303 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964889AbVJZTk0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964892AbVJZTmH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964889AbVJZTk0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 15:40:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964890AbVJZTk0
+	id S964892AbVJZTmH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 15:42:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964890AbVJZTmG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 15:40:26 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:51941 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964889AbVJZTkZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 15:40:25 -0400
-Subject: Re: "Badness in local_bh_enable" - a reasonable fix?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Steve Snyder <R00020C@freescale.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200510261534.38291.R00020C@freescale.com>
-References: <200510261534.38291.R00020C@freescale.com>
-Content-Type: text/plain
-Date: Wed, 26 Oct 2005 21:40:10 +0200
-Message-Id: <1130355615.3339.10.camel@laptopd505.fenrus.org>
+	Wed, 26 Oct 2005 15:42:06 -0400
+Received: from ns.tasking.nl ([195.193.207.2]:2514 "EHLO ns.tasking.nl")
+	by vger.kernel.org with ESMTP id S964895AbVJZTmF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 15:42:05 -0400
+To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Newsreader: knews 1.0b.1
+Reply-To: dick.streefland@xs4all.nl (Dick Streefland)
+Organization: none
+X-Face: "`*@3nW;mP[=Z(!`?W;}cn~3M5O_/vMjX&Pe!o7y?xi@;wnA&Tvx&kjv'N\P&&5Xqf{2CaT 9HXfUFg}Y/TT^?G1j26Qr[TZY%v-1A<3?zpTYD5E759Q?lEoR*U1oj[.9\yg_o.~O.$wj:t(B+Q_?D XX57?U,#b,iM$[zX'I(!'VCQM)N)x~knSj>M*@l}y9(tK\rYwdv%~+&*jV"epphm>|q~?ys:g:K#R" 2PuAzy-N9cKM<Ml/%yPQxpq"Ttm{GzBn-*:;619QM2HLuRX4]~361+,[uFp6f"JF5R`y
+References: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
+From: spam@streefland.xs4all.nl (Dick Streefland)
+Subject: Re: Call for PIIX4 chipset testers
+Content-Type: text/plain; charset=us-ascii
+NNTP-Posting-Host: 172.17.1.66
+Message-ID: <2ddd.435fdbea.b652d@altium.nl>
+Date: Wed, 26 Oct 2005 19:41:30 -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-26 at 15:34 -0400, Steve Snyder wrote:
-> [ I observed the following on a Fedora Core 3 system, running kernel 
-> 2.6.12-1.1380_FC3.  I am posting this here because a quick Googling 
-> indicates that the problem is not specific to this environment.  ] 
-> 
-> Today I found my system log filled with the error shown below.  
-> Reading a 366MB file across a NFS mount results in over 6300 
-> occurrences of the error being written to the system log of the NFS 
-> server.  
-> 
-> I have 2 network interfaces in the NFS server machine, a standard 
-> kernel Ethernet device driver and my own Ultra-Wide Band (UWB) device 
-> driver.  (In the error shown below the references to "fsuwbpci" are my 
-> driver.) This problem is not seen when using the Ethernet interface, 
-> but is perfectly consistent when reading a NFS-mounted file across the 
-> UWB interface.  Therefore there is a problem with my code.  
-> 
-> I quickly established that the error came from within this routine:
-> 
+Linus Torvalds <torvalds@osdl.org> wrote:
+| can you please test out this patch and report what it says in dmesg?
 
-> -------------------------------------------
-> 
-> kernel: Badness in local_bh_enable at kernel/softirq.c:140 (Tainted: P     )
+This report is from a dual PIII 450MHz system.
 
+# dmesg -s 1000000 | grep PIIX4
+PCI quirk: region 4000-403f claimed by PIIX4 ACPI
+PCI quirk: region 5000-501f claimed by PIIX4 SMB
+PIIX4: IDE controller at PCI slot 0000:00:07.1
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+uhci_hcd 0000:00:07.2: Intel Corporation 82371AB/EB/MB PIIX4 USB
+usb usb1: Product: Intel Corporation 82371AB/EB/MB PIIX4 USB
 
+# cat /proc/ioports
+0000-001f : dma1
+0020-0021 : pic1
+0040-0043 : timer0
+0050-0053 : timer1
+0060-006f : keyboard
+0070-0077 : rtc
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+0278-027a : parport1
+0290-0297 : lm78
+02e8-02ef : serial
+02f8-02ff : serial
+0376-0376 : ide1
+0378-037a : parport0
+03c0-03df : vga+
+03e8-03ef : serial
+03f6-03f6 : ide0
+03f8-03ff : serial
+0cf8-0cff : PCI conf1
+4000-403f : 0000:00:07.3
+5000-501f : 0000:00:07.3
+  5000-5007 : piix4-smbus
+d000-dfff : PCI Bus #01
+  d000-d0ff : 0000:01:00.0
+e000-e01f : 0000:00:07.2
+  e000-e01f : uhci_hcd
+e400-e43f : 0000:00:12.0
+  e400-e43f : Ensoniq AudioPCI
+e800-e81f : 0000:00:13.0
+  e800-e81f : e100
+ec00-ecff : 0000:00:14.0
+f000-f00f : 0000:00:07.1
+  f000-f007 : ide0
+  f008-f00f : ide1
 
-hmmm binary module? please try without.
+# lspci -xxx
+00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 02)
+00: 86 80 90 71 06 00 10 22 02 00 00 06 00 20 00 00
+10: 08 00 00 e8 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 a0 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 0c 0a 00 ff 00 00 00 09 03 10 11 01 00 00 00 00
+60: 10 20 30 30 30 30 30 30 00 20 c0 01 00 c0 00 00
+70: 20 1f 0a 78 2a 00 14 01 06 ff 10 38 00 00 00 00
+80: 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 98 44 00 00 04 61 00 00 00 05 00 00 00 00 00 00
+a0: 02 00 10 00 03 02 00 1f 00 00 00 00 00 00 00 00
+b0: 80 20 00 00 3e 00 00 00 00 00 d1 17 20 10 00 00
+c0: 00 00 00 00 7f 1b bf bf 18 0c ff ff 79 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: d4 b6 ff e3 91 3e 00 80 2c d3 f7 cf 9d 3e 00 00
+f0: 40 01 00 00 00 f8 00 60 20 0f 00 00 00 00 00 00
+
+00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 02)
+00: 86 80 91 71 07 01 20 02 02 00 04 06 00 40 01 00
+10: 00 00 00 00 00 00 00 00 00 01 01 20 d0 d0 a0 22
+20: 00 e0 f0 e3 00 e4 f0 e5 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 88 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+00: 86 80 10 71 0f 00 80 02 02 00 01 06 00 00 80 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 4d 00 30 01
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 0b 05 09 0a 10 00 00 00 00 f2 80 00 00 00 00 00
+70: 00 00 00 00 00 00 0c 0c 00 00 00 00 00 00 00 00
+80: 00 00 06 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 21 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
+
+00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
+00: 86 80 11 71 05 00 80 02 01 80 01 01 00 20 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 01 f0 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 77 e3 07 a3 0b 00 00 00 07 00 22 02 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
+
+00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
+00: 86 80 12 71 05 00 80 02 01 00 03 0c 00 20 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 01 e0 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 0a 04 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 20 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
+
+00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
+00: 86 80 13 71 03 00 80 02 02 00 80 06 00 00 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 01 40 00 00 00 00 00 00 00 30 00 00 00 00 00 00
+50: 00 58 1f 00 00 00 00 00 04 00 00 02 00 00 00 00
+60: 00 00 00 00 94 02 83 10 00 00 00 00 00 00 00 00
+70: 04 40 11 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 01 50 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 09 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
+
+00:10.0 Multimedia video controller: Brooktree Corporation Bt878 Video Capture (rev 02)
+00: 9e 10 6e 03 06 00 80 02 02 00 00 04 00 20 80 00
+10: 08 00 90 e8 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 70 00 eb 13
+30: 00 00 00 00 00 00 00 00 00 00 00 00 05 01 10 28
+40: 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:10.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture (rev 02)
+00: 9e 10 78 08 06 00 80 02 02 00 80 04 00 20 80 00
+10: 08 10 90 e8 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 70 00 eb 13
+30: 00 00 00 00 00 00 00 00 00 00 00 00 05 01 04 ff
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:12.0 Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 06)
+00: 74 12 71 13 05 00 10 04 06 00 01 04 00 20 00 00
+10: 01 e4 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 74 12 71 13
+30: 00 00 00 00 dc 00 00 00 00 00 00 00 09 01 0c 80
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 31 6c
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:13.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 05)
+00: 86 80 29 12 07 00 90 02 05 00 00 02 08 20 00 00
+10: 08 30 90 e8 01 e8 00 00 00 00 80 e8 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 11 0e d7 b0
+30: 00 00 00 e6 dc 00 00 00 00 00 00 00 0a 01 08 38
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 31 fe
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:14.0 SCSI storage controller: Adaptec AHA-2940U2/U2W / 7890/7891
+00: 05 90 1f 00 06 00 90 02 00 00 00 01 08 20 00 80
+10: 01 ec 00 00 04 20 90 e8 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 05 90 0f 00
+30: 00 00 00 e7 dc 00 00 00 00 00 00 00 0a 01 27 19
+40: 40 05 00 80 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 01 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+01:00.0 VGA compatible controller: 3Dfx Interactive, Inc. Voodoo 3 (rev 01)
+00: 1a 12 05 00 03 00 b0 80 01 00 00 03 00 00 00 00
+10: 00 00 00 e0 08 00 00 e4 01 d0 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 1a 12 3a 00
+30: 00 00 00 00 54 00 00 00 00 00 00 00 0b 01 00 00
+40: 01 00 00 00 00 00 00 00 00 00 00 00 1f 00 00 00
+50: 00 00 00 00 02 60 10 00 23 02 00 07 00 00 00 00
+60: 01 00 21 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+-- 
+Dick Streefland                    ////               De Bilt
+dick.streefland@xs4all.nl         (@ @)       The Netherlands
+------------------------------oOO--(_)--OOo------------------
 

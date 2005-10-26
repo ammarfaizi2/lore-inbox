@@ -1,58 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964780AbVJZPD1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbVJZPHr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964780AbVJZPD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 11:03:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964779AbVJZPD1
+	id S964776AbVJZPHr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 11:07:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964779AbVJZPHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 11:03:27 -0400
-Received: from ns2.suse.de ([195.135.220.15]:15305 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964777AbVJZPD0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 11:03:26 -0400
-From: Andi Kleen <ak@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] kill massive wireless-related log spam
-Date: Wed, 26 Oct 2005 17:04:14 +0200
-User-Agent: KMail/1.8.2
-Cc: Linus Torvalds <torvalds@osdl.org>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, jketreno@linux.intel.com,
-       Andrew Morton <akpm@osdl.org>
-References: <20051026042827.GA22836@havoc.gtf.org>
-In-Reply-To: <20051026042827.GA22836@havoc.gtf.org>
+	Wed, 26 Oct 2005 11:07:47 -0400
+Received: from webmailv3.ispgateway.de ([80.67.16.113]:51661 "EHLO
+	webmailv3.ispgateway.de") by vger.kernel.org with ESMTP
+	id S964776AbVJZPHr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 11:07:47 -0400
+Message-ID: <1130339260.435f9bbc834ed@www.domainfactory-webmail.de>
+Date: Wed, 26 Oct 2005 17:07:40 +0200
+From: Florian Engelhardt <flo@dotbox.org>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc5-mm1 wont compile
+References: <1130304672.435f14a0819ca@www.domainfactory-webmail.de> <435F8677.4080201@gmail.com>
+In-Reply-To: <435F8677.4080201@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510261704.15366.ak@suse.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.8
+X-Originating-IP: 213.143.195.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 26 October 2005 06:28, Jeff Garzik wrote:
+Someone else pointed me to a patch, which fixes this:
 
-> Change this to printing out the message once, per kernel boot.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=113017024807880&q=raw
 
-It doesn't do that. It prints it once every 2^32 calls. Also
-the ++ causes unnecessary dirty cache lines in normal operation.
+Flo
 
--Andi
-> 
-> diff --git a/net/core/wireless.c b/net/core/wireless.c
-> index d17f158..271ddb3 100644
-> --- a/net/core/wireless.c
-> +++ b/net/core/wireless.c
-> @@ -455,10 +455,15 @@ static inline struct iw_statistics *get_
->  
->  	/* Old location, field to be removed in next WE */
->  	if(dev->get_wireless_stats) {
-> -		printk(KERN_DEBUG "%s (WE) : Driver using old /proc/net/wireless support, please fix driver !\n",
-> -		       dev->name);
-> +		static int printed_message;
-> +
-> +		if (!printed_message++)
-> +			printk(KERN_DEBUG "%s (WE) : Driver using old /proc/net/wireless support, please fix driver !\n",
-> +				dev->name);
-> +
->  		return dev->get_wireless_stats(dev);
->  	}
-> +
+Zitat von Jiri Slaby <jirislaby@gmail.com>:
+
+> Florian Engelhardt napsal(a):
+> > Hello,
+> >
+> > i patched the vanilla 2.6.13 with the 2.6.14-rc5 patch
+> > and after that with the 2.6.14-rc5-mm1 patch, configured the
+> > kernel and executed make:
+> >
+> >   CC      net/core/filter.o
+> > In file included from include/net/request_sock.h:22,
+> >                  from include/linux/ip.h:84,
+> >                  from include/net/ip.h:28,
+> >                  from net/core/filter.c:28:
+> > include/net/sock.h: In function `sk_dst_get':
+> > include/net/sock.h:972: warning: implicit declaration of function
+> > `__raw_read_unlock'
+> > include/net/sock.h: In function `sk_dst_set':
+> > include/net/sock.h:991: warning: implicit declaration of function
+> > `__raw_write_unlock'
+> >   CC      net/core/net-sysfs.o
+> > In file included from net/core/net-sysfs.c:16:
+> > include/net/sock.h: In function `sk_dst_get':
+> > include/net/sock.h:972: warning: implicit declaration of function
+> > `__raw_read_unlock'
+> > include/net/sock.h: In function `sk_dst_set':
+> > include/net/sock.h:991: warning: implicit declaration of function
+> > `__raw_write_unlock'
+> >   LD      net/core/built-in.o
+> >   CC      net/ethernet/eth.o
+> > In file included from include/net/request_sock.h:22,
+> >                  from include/linux/ip.h:84,
+> >                  from net/ethernet/eth.c:49:
+> > include/net/sock.h: In function `sk_dst_get':
+> > include/net/sock.h:972: warning: implicit declaration of function
+> > `__raw_read_unlock'
+> > include/net/sock.h: In function `sk_dst_set':
+> > include/net/sock.h:991: warning: implicit declaration of function
+> > `__raw_write_unlock'
+> >   CC      net/ethernet/sysctl_net_ether.o
+> >   LD      net/ethernet/built-in.o
+> >   CC      net/ipv4/route.o
+> > In file included from include/linux/mroute.h:129,
+> >                  from net/ipv4/route.c:89:
+> > include/net/sock.h: In function `sk_dst_get':
+> > include/net/sock.h:972: warning: implicit declaration of function
+> > `__raw_read_unlock'
+> > include/net/sock.h: In function `sk_dst_set':
+> > include/net/sock.h:991: warning: implicit declaration of function
+> > `__raw_write_unlock'
+> > net/ipv4/route.c: In function `rt_check_expire':
+> > net/ipv4/route.c:663: warning: dereferencing `void *' pointer
+> > net/ipv4/route.c:663: error: request for member `raw_lock' in something not
+> a
+> > structure or union
+> > make[2]: *** [net/ipv4/route.o] Error 1
+> > make[1]: *** [net/ipv4] Error 2
+> > make: *** [net] Error 2
+> .config please
+>
+> thanks,
+> --
+> Jiri Slaby         www.fi.muni.cz/~xslaby
+> ~\-/~      jirislaby@gmail.com      ~\-/~
+> B67499670407CE62ACC8 22A032CC55C339D47A7E
+>
+
+
+
+

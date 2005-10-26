@@ -1,83 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932568AbVJZJP3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbVJZJdk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932568AbVJZJP3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 05:15:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932570AbVJZJP3
+	id S932145AbVJZJdk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 05:33:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbVJZJdk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 05:15:29 -0400
-Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:55225 "HELO
-	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S932568AbVJZJP2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 05:15:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=BZVIHmb74bs5hbHFZqREvSijJfzuQxuM+KQcnyNGcfV66OYjGuOT8DSLF32PYfTz4JOKU/9Mc3u1Iue7wN+TIM706EPDIVWZQCPserYoShaTkQk222DUJJIXycM3yoiyc2K3bz9F1YM0Jy0DZqIh6yfHKLKpkIESKCHSx8B1GHY=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 1/6] Uml - reuse i386 cpu-specific tuning
-Date: Wed, 26 Oct 2005 11:19:30 +0200
-User-Agent: KMail/1.8.3
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-References: <20051025221105.21106.95194.stgit@zion.home.lan> <20051026002200.1ebb06f2.akpm@osdl.org>
-In-Reply-To: <20051026002200.1ebb06f2.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 26 Oct 2005 05:33:40 -0400
+Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:26330 "EHLO
+	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S932145AbVJZJdj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 05:33:39 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Subject: Re: [2.6-git PATCH] Fix for HFSPlus, should go in before 2.6.14!
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       prw@ceiriog1.demon.co.uk
+In-Reply-To: <Pine.LNX.4.61.0510261053300.1386@scrub.home>
+References: <Pine.LNX.4.64.0510260817360.3412@hermes-1.csi.cam.ac.uk>
+	 <Pine.LNX.4.61.0510261053300.1386@scrub.home>
+Content-Type: text/plain
+Organization: Computing Service, University of Cambridge, UK
+Date: Wed, 26 Oct 2005 10:33:31 +0100
+Message-Id: <1130319211.8284.18.camel@imp.csi.cam.ac.uk>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510261119.30429.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 26 October 2005 09:22, Andrew Morton wrote:
-> "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it> wrote:
-> >  arch/i386/Kconfig      |  304
-> > ------------------------------------------------ arch/i386/Kconfig.cpu  |
-> >  305 ++++++++++++++++++++++++++++++++++++++++++++++++
->
-> Have mercy.  I currently have twelve patches which alter arch/i386/Kconfig
-> and this patch conflicts with most of them.  This shouldn't come as a
-> surprise - Kconfig files are oft-patched, and this is x86.
+Hi,
 
-Yep - if we get no objection with this, I could pull any changes in -mm and 
-merge the patch directly Linuswards at some point, since it has so many 
-conflicts.
+On Wed, 2005-10-26 at 10:59 +0200, Roman Zippel wrote:
+> On Wed, 26 Oct 2005, Anton Altaparmakov wrote:
+> 
+> > Please apply before you release 2.6.14 if at all possible as HFS+ is 
+> > seriously borked without it...  I have now given up waiting for Roman to 
+> > reply given my original mail to him was two weeks ago and you are about 
+> > to release 2.6.14...
+> 
+> I haven't responded yet, because I didn't have the time to verify and test 
+> the problem yet. It's not "seriously borked", it doesn't crash, it still 
+> works and the problem is easily fixed by fsck, so it wasn't on the top of 
+> my todo list.
 
-So, you can probably leave what you have there.
-> What I did was to simply copy the large block between
+That is fair enough.  It is high on my TODO list so I sent the patch
+bypassing you (and you were still CC:-ed so you could object if you
+wanted).
 
-> 	if !X86_ELAN
->
-> and
->
-> 	config X86_OOSTORE
->
-> over into Kconfig.cpu, taking the modifications with it.
+I didn't even know there is an fsck for HFS+ (the one in hfsplusutils is
+read-only so not much use - now I have found out pdisk contains it but
+pdisk is not found on i386 distributions, at least not on SUSE 9.3 which
+I was using at the time).
 
-I also took X86_TSC with me, in my patch.
+Nowhere in the kernel documentation (not in the Kconfig and not in
+Documentation/filesystems anyway) is there anything about hfsplus.
+There is a mention of hfsutils but not hfsplusutils or pdisk...  Perhaps
+a documentation update is on order?
 
-> As long as that's also what you did things should work OK.  If you actually
-> made any changes as you did the copy-and-paste, we're screwed.
+For me this bug meant I could no longer copy files to the disk and
+wasted a day that way as it was full even though I deleted files to make
+space and I had to take it back home to fix things on OSX and take it
+back to work the next day to copy the files on Linux...
 
-No, I didn't do real changes - I just added a couple of comments. However yes, 
-should have splitout in copy+paste and changes
+Anyway, requiring an fsck after every umount definitely fits my
+definition of seriously borked.  YMMV.  (-:
 
-+# Put here option for CPU selection and depending optimization
-[...]
-and the comment near "endif" to say what is it closing:
-+#!X86_ELAN
+> The patch looks fine, although I'd probably prefered to move this kind of 
+> initialization into a separate function, as it's duplicated right now.
 
+What is stopping you from doing so at some later point in time?
+
+Whenever my git pull shows me that patches have hit fs/ntfs/ I look at
+them and change them if I don't like something and make a new commit.
+Andrew pulls my git repository for each -mm so it gets in that way to
+-mm and I submit regular-ish updates to Linus for inclusion so for small
+things like that they just get queued until a bigger submit.  Anyway,
+that's just how I work.  (-:
+
+Best regards,
+
+        Anton
 -- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 
-	
-
-	
-		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it

@@ -1,159 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932488AbVJYXwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbVJYX4Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932488AbVJYXwW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 19:52:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbVJYXwW
+	id S932490AbVJYX4Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 19:56:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932491AbVJYX4Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 19:52:22 -0400
-Received: from mail03.solnet.ch ([212.101.4.137]:56778 "EHLO mail03.solnet.ch")
-	by vger.kernel.org with ESMTP id S932488AbVJYXwV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 19:52:21 -0400
-From: Damir Perisa <damir.perisa@solnet.ch>
-To: Andrew Morton <akpm@osdl.org>
-Subject: 2.6.14-rc5-mm1 - ide-cs, pcmcia ioctl
-Date: Wed, 26 Oct 2005 01:49:20 +0200
+	Tue, 25 Oct 2005 19:56:16 -0400
+Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:50001 "HELO
+	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S932490AbVJYX4P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 19:56:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=AZCtbf2hx8NuAKOzoUULMgaYY9xkhzIedxigRNCp7QcShalzRZvCvk5lniIDziQuvbqHrQ5JagCfJ4TueckDNQmrgL1ajMPEVy6mhsdJbhQnYaubq0bv3tnFSrA7UHTRYas3z+ThPBqFMI0TT/V4W+4YtM58TVV4XazOfucv+s8=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] Re: [PATCH 4/6] x86_64: fix L1_CACHE_SHIFT_MAX for Intel EM64T [for 2.6.14?]
+Date: Wed, 26 Oct 2005 02:00:15 +0200
 User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org
-References: <20051024014838.0dd491bb.akpm@osdl.org>
-In-Reply-To: <20051024014838.0dd491bb.akpm@osdl.org>
-X-Face: +)fhYFmn|<pyRIlgch_);krg#jn!^z'?xy(Ur#Z6rZi)KD+_-V<Y@i>0pOVfJ4<=?iso-8859-1?q?Q1/=26/=26z=0A=093cxqRa=3B7O=5C4g=5C=7C=5DF-!H0!ew9kx1LqK/?=
- =?iso-8859-1?q?iPOv8eXi=26I7=60Pez0V0VNMAxnqRL8-30qqKK=3DxGM=0A=09pExQc=5B?=
- =?iso-8859-1?q?2=7Cl6v=23?=<iwBvEO9+h|_YS[48z%/kuD2*aT*S/$0323VCL3V9?@}jq<
- =?iso-8859-1?q?Ns6V=3A0m=27Qia=0A=09?="[#oJg[RVe}Sy/lP95E@pa[vdKzqLqn&M`exb91"`,<k`3;Vt97cLjhub0.v+]m`%|>@Z(
- =?iso-8859-1?q?=0A=09EeC/zU7=25?=@"L6mi#..8Q^M
-Alanine: true
-Glycine: true
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org
+References: <20051025221105.21106.95194.stgit@zion.home.lan> <200510260044.26138.blaisorblade@yahoo.it> <200510260133.03425.ak@suse.de>
+In-Reply-To: <200510260133.03425.ak@suse.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart5121774.s8Wk7TYnXH";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200510260149.21376.damir.perisa@solnet.ch>
+Content-Disposition: inline
+Message-Id: <200510260200.16501.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart5121774.s8Wk7TYnXH
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Wednesday 26 October 2005 01:33, Andi Kleen wrote:
+> On Wednesday 26 October 2005 00:44, Blaisorblade wrote:
+> > For what I see, that's based on the tradeoff between space and contention
+> > - for instance there are few zones only, so there's no big waste.
 
-Le Monday 24 October 2005 10:48, Andrew Morton a =E9crit=A0:
- | - A number of tty drivers still won't compile.
+> If space is precious it shouldn't be padded at all.
+Ah, when the structure has many instances padding should be reduced, you mean. 
+But well, I think slab itself adds some padding to separate instances, for 
+this effect and for cache colouring (I guess that means to prevent too many 
+different things from being allocated on addresses matching on the low-order 
+bits, so that inserting one in the cache means evicting another of the two - 
+it's something I guessed when I studied set-associative caches).
 
-after disabling jsm, i finally build once again a mm-kernel successfully!
+> > In  practice, interpreting !X86_GENERIC as "I will run this kernel on
+> > _this_ processor" could also be done.
+>
+> That is what it always meant yes.
+>
+> > However, in case you didn't note, max_align is never enough on EM64T
+> > currently, right?
+>
+> I will prepare patches for .15 to remove it completely, that should fix
+> that problem.
+Making L1_CACHE_SHIFT_MAX and L1_CACHE_SHIFT match, right? Or forcing all 
+architectures to support something like X86_GENERIC?
 
-booting the fresh kernel26mm, i ran into a problem with ide-cs:
+Also, 
 
-info while booting / start of hotplug:
-Oct 26 01:02:28 localhost kernel: [17179579.008000] Yenta: CardBus bridge f=
-ound at 0000:02:00.1 [1014:0185]
-Oct 26 01:02:28 localhost kernel: [17179579.160000] Yenta: ISA IRQ mask 0x0=
-4b8, PCI irq 11
-Oct 26 01:02:28 localhost kernel: [17179579.184000] Socket status: 30000006
-Oct 26 01:02:28 localhost kernel: [17179579.208000] pcmcia: parent PCI brid=
-ge I/O window: 0x4000 - 0x8fff
-Oct 26 01:02:28 localhost kernel: [17179579.232000] cs: IO port probe 0x400=
-0-0x8fff: clean.
-Oct 26 01:02:28 localhost kernel: [17179579.256000] pcmcia: parent PCI brid=
-ge Memory window: 0xd0200000 - 0xdfffffff
-Oct 26 01:02:28 localhost kernel: [17179579.280000] pcmcia: parent PCI brid=
-ge Memory window: 0xf0000000 - 0xf80fffff
+#define L1_CACHE_BYTES  (1 << L1_CACHE_SHIFT)
 
-when i plug in the pcmcia-compact-flash adapter into the laptop:
-Oct 26 01:05:10 localhost kernel: [17179767.840000] cs: memory probe 0xf000=
-0000-0xf80fffff: excluding 0xf0000000-0xf87fffff
-Oct 26 01:05:11 localhost kernel: [17179767.924000] ide_cs: Unknown symbol =
-cs_error
-Oct 26 01:05:11 localhost kernel: [17179767.928000] ide_cs: Unknown symbol =
-pcmcia_deregister_client
-Oct 26 01:05:11 localhost kernel: [17179767.928000] ide_cs: Unknown symbol =
-pcmcia_get_first_tuple
-Oct 26 01:05:11 localhost kernel: [17179767.928000] ide_cs: Unknown symbol =
-pcmcia_unregister_driver
-Oct 26 01:05:11 localhost kernel: [17179767.928000] ide_cs: Unknown symbol =
-pcmcia_get_tuple_data
-Oct 26 01:05:11 localhost kernel: [17179767.928000] ide_cs: Unknown symbol =
-pcmcia_get_next_tuple
-Oct 26 01:05:11 localhost kernel: [17179767.928000] ide_cs: Unknown symbol =
-pcmcia_register_client
-Oct 26 01:05:11 localhost kernel: [17179767.928000] ide_cs: Unknown symbol =
-pcmcia_get_configuration_info
-Oct 26 01:05:11 localhost kernel: [17179767.928000] ide_cs: Unknown symbol =
-pcmcia_request_io
-Oct 26 01:05:11 localhost kernel: [17179767.928000] ide_cs: Unknown symbol =
-pcmcia_request_configuration
-Oct 26 01:05:11 localhost kernel: [17179767.928000] ide_cs: Unknown symbol =
-pcmcia_release_configuration
-Oct 26 01:05:11 localhost kernel: [17179767.928000] ide_cs: Unknown symbol =
-pcmcia_parse_tuple
-Oct 26 01:05:11 localhost kernel: [17179767.928000] ide_cs: Unknown symbol =
-pcmcia_release_io
-Oct 26 01:05:11 localhost kernel: [17179767.928000] ide_cs: Unknown symbol =
-pcmcia_register_driver
-Oct 26 01:05:11 localhost kernel: [17179767.928000] ide_cs: Unknown symbol =
-pcmcia_release_irq
-Oct 26 01:05:11 localhost kernel: [17179767.928000] ide_cs: Unknown symbol =
-pcmcia_request_irq
-Oct 26 01:05:11 localhost kernel: [17179768.176000] Probing IDE interface i=
-de2...
-Oct 26 01:05:11 localhost kernel: [17179768.464000] hde: 1024MB Flash Card,=
- CFA DISK drive
-Oct 26 01:05:12 localhost kernel: [17179769.136000] ide2 at 0x4100-0x4107,0=
-x410e on irq 3
-Oct 26 01:05:12 localhost kernel: [17179769.136000] hde: max request size: =
-128KiB
-Oct 26 01:05:12 localhost kernel: [17179769.136000] hde: 2001888 sectors (1=
-024 MB) w/1KiB Cache, CHS=3D1986/16/63
-Oct 26 01:05:12 localhost kernel: [17179769.136000] hde: cache flushes not =
-supported
-Oct 26 01:05:12 localhost kernel: [17179769.140000]  hde: hde1
-Oct 26 01:05:12 localhost kernel: [17179769.148000] ide-cs: hde: Vcc =3D 3.=
-3, Vpp =3D 0.0
-Oct 26 01:05:12 localhost kernel: [17179769.260000]  hde: hde1
-Oct 26 01:05:12 localhost kernel: [17179769.292000]  hde: hde1
-Oct 26 01:05:12 localhost kernel: [17179769.300000]  hde: hde1
-Oct 26 01:05:12 localhost kernel: [17179769.440000]  hde: hde1
-Oct 26 01:05:12 localhost kernel: [17179769.532000]  hde: hde1
-Oct 26 01:05:12 localhost kernel: [17179769.720000]  hde: hde1
-Oct 26 01:05:12 localhost kernel: [17179769.868000]  hde: hde1
-Oct 26 01:05:13 localhost kernel: [17179770.016000]  hde: hde1
-=2E..
+should probably be made general, while at it.
+-- 
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
 
-and it repeats this untill i either power off the machine or take=20
-out the pcmcia compact flash addapter (what results in a freeze=20
-of everything (unfortunately no log output and no sysrq working=20
-(probably because keyboard also not working)), so powering off is anyway=20
-the only option)=20
-
-as a semi-professional photographer, i depend on a working ide-cs device.=20
-the last kernel it worked is some months old... until now i never=20
-checked and now i discovered this break.=20
-
-i use pcmciautils 010
-
-if you need more information, i will try to help wherever i can to help to=
-=20
-make ide-cs work again.
-
-greetings,
-Damir
-
-=2D-=20
-If a man has talent and cannot use it, he has failed.
-		-- Thomas Wolfe
-
---nextPart5121774.s8Wk7TYnXH
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBDXsSBPABWKV6NProRAokQAKCGRhRyAAWXSguWDtIpj8dFHf0XWQCgvUb3
-L/qr7DQxYarVjxOoiF4Gkac=
-=HOAY
------END PGP SIGNATURE-----
-
---nextPart5121774.s8Wk7TYnXH--
+		
+___________________________________ 
+Yahoo! Messenger: chiamate gratuite in tutto il mondo 
+http://it.messenger.yahoo.com

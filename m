@@ -1,58 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751512AbVJZXXA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751500AbVJZXdQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751512AbVJZXXA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 19:23:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751513AbVJZXXA
+	id S1751500AbVJZXdQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 19:33:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751504AbVJZXdQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 19:23:00 -0400
-Received: from mail09.syd.optusnet.com.au ([211.29.132.190]:6311 "EHLO
-	mail09.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751512AbVJZXW7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 19:22:59 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Alexander Skwar <listen@alexander.skwar.name>
-Subject: Re: Another report of "kernel BUG at mm/slab.c:2839!".
-Date: Thu, 27 Oct 2005 09:25:26 +1000
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org, pi@pihost.us
-References: <435F8316.9020006@mid.message-center.info>
-In-Reply-To: <435F8316.9020006@mid.message-center.info>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 26 Oct 2005 19:33:16 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:33196 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751500AbVJZXdP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 19:33:15 -0400
+Subject: Re: 2.6.14-rc4-rt7
+From: john stultz <johnstul@us.ibm.com>
+To: William Weston <weston@lysdexia.org>
+Cc: Rui Nuno Capela <rncbc@rncbc.org>, george@mvista.com,
+       Ingo Molnar <mingo@elte.hu>,
+       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Mark Knecht <markknecht@gmail.com>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       david singleton <dsingleton@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+       cc@ccrma.Stanford.EDU
+In-Reply-To: <Pine.LNX.4.58.0510261449310.20155@echo.lysdexia.org>
+References: <1129852531.5227.4.camel@cmn3.stanford.edu>
+	 <20051021080504.GA5088@elte.hu> <1129937138.5001.4.camel@cmn3.stanford.edu>
+	 <20051022035851.GC12751@elte.hu>
+	 <1130182121.4983.7.camel@cmn3.stanford.edu>
+	 <1130182717.4637.2.camel@cmn3.stanford.edu>
+	 <1130183199.27168.296.camel@cog.beaverton.ibm.com>
+	 <20051025154440.GA12149@elte.hu>
+	 <1130264218.27168.320.camel@cog.beaverton.ibm.com>
+	 <435E91AA.7080900@mvista.com> <20051026082800.GB28660@elte.hu>
+	 <435FA8BD.4050105@mvista.com> <435FBA34.5040000@mvista.com>
+	 <435FEAE7.8090104@rncbc.org>
+	 <Pine.LNX.4.58.0510261449310.20155@echo.lysdexia.org>
+Content-Type: text/plain
+Date: Wed, 26 Oct 2005 16:33:11 -0700
+Message-Id: <1130369591.27168.358.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510270925.26773.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Oct 2005 11:22 pm, Alexander Skwar wrote:
-> Hello.
->
-> Just like Anthony Martinez <pi <at> pihost.us> reported
-> at  2005-09-24 17:35:43, I'm also hitting kernel BUG at mm/slab.c:2839!.
->
-> I cannot really reproduce it. It just happens from
-> time to time.
->
-> [15:21:02 vz6tml@dewup-ww02:~] $ uname -a
-> Linux dewup-ww02 2.6.13-ck8.03.reiser-stat.megaraid_newgen.no-preempt #2
-> SMP Mon Oct 24 10:01:43 CEST 2005 i686 Intel(R) Xeon(TM) CPU 2.40GHz
-> GenuineIntel GNU/Linux
->
-> [15:21:30 vz6tml@dewup-ww02:~] $ cat /proc/version
-> Linux version 2.6.13-ck8.03.reiser-stat.megaraid_newgen.no-preempt
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+On Wed, 2005-10-26 at 15:07 -0700, William Weston wrote:
+> On Wed, 26 Oct 2005, Rui Nuno Capela wrote:
+> 
+> > Just noticed a couple or more of this on dmesg. Maybe its old news and 
+> > being discussed already. Otherwise my P4@2.53Ghz/UP laptop boots and 
+> > runs without hicups on 2.6.14-rc5-rt7 (config.gz attached).
+> > 
+> > ... time warped from 13551912584 to 13551905960.
+> > ... system time:     13488892865 .. 13488892865.
+> > udevstart/1579[CPU#0]: BUG in get_monotonic_clock_ts at 
+> > kernel/time/timeofday.c:
+> > 262
+> >   [<c0116fcb>] __WARN_ON+0x4f/0x6c (8)
+> >   [<c012f8b0>] get_monotonic_clock_ts+0x27a/0x2f0 (40)
+> >   [<c0141c9d>] kmem_cache_alloc+0x51/0xac (76)
+> >   [<c0114826>] copy_process+0x2ff/0xeed (44)
+> >   [<c0139444>] unlock_page+0x17/0x4a (12)
+> >   [<c0147a8a>] do_wp_page+0x245/0x372 (20)
+> >   [<c01154f5>] do_fork+0x69/0x1b5 (56)
+> >   [<c02c120b>] do_page_fault+0x432/0x543 (32)
+> >   [<c01017aa>] sys_clone+0x32/0x36 (72)
+> >   [<c0102a9b>] sysenter_past_esp+0x54/0x75 (16)
+> 
+> I'm getting these with two different machines running 2.6.14-rc5-rt7 with
+> Steven's ktimer_interrupt() patch from yesterday.  Did not see these with
+> previous -rt kernels.  Shutting down NTP makes no difference.
+> 
+> This is from the athlon-xp/via-kt400 box (xeon smt box looks similar):
 
-If you were running a vanilla kernel you'd get full support from the mailing 
-list. If you were running plain ck8 I could offer you limited support. But 
-adding your own patches makes it impossible for us to know what your code 
-looks like and that you haven't merged incompatible code wrongly. Only the 
-person who merged the code would be able to provide you with support.
+I'm grabbing rt7 to try to reproduce this. Not yet sure what the cause
+could be. From Rui's dmesg the tsc clocksource was being used, I assume
+this is the case with you as well, William?
 
-My advice to you is try a mainline kernel release that has the features you 
-need and see if the bug exists. Then you'll get more response from the 
-mailing list.
+thanks
+-john
 
-Cheers,
-Con
+

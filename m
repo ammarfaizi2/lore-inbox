@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932532AbVJZELa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932534AbVJZEVb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932532AbVJZELa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 00:11:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932531AbVJZEL3
+	id S932534AbVJZEVb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 00:21:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932535AbVJZEVb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 00:11:29 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:41941 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932529AbVJZEL3 (ORCPT
+	Wed, 26 Oct 2005 00:21:31 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:22678 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932534AbVJZEVa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 00:11:29 -0400
-Message-ID: <435F01EB.6080608@pobox.com>
-Date: Wed, 26 Oct 2005 00:11:23 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Santiago Leon <santil@us.ibm.com>
-CC: netdev <netdev@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 1/5 ibmveth fix bonding
-References: <1130275458.10524.425.camel@localhost.localdomain>
-In-Reply-To: <1130275458.10524.425.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Wed, 26 Oct 2005 00:21:30 -0400
+Message-Id: <200510260421.j9Q4LGh9014087@shell0.pdx.osdl.net>
+Subject: [patch 1/1] export cpu_online_map
+To: rajesh.shah@intel.com
+Cc: mingo@elte.hu, pj@sgi.com, linux-kernel@vger.kernel.org, akpm@osdl.org
+From: akpm@osdl.org
+Date: Tue, 25 Oct 2005 21:20:48 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Santiago Leon wrote:
-> This patch updates dev->trans_start and dev->last_rx so that the ibmveth
-> driver can be used with the ARP monitor in the bonding driver. 
-> 
-> Signed-off-by: Santiago Leon <santil@us.ibm.com>
 
-all patches look OK to me.
+From: Andrew Morton <akpm@osdl.org>
 
-all patches except #1 appear to be whitespace-corrupted.
+With CONFIG_SMP=n:
 
-	Jeff
+*** Warning: "cpu_online_map" [drivers/firmware/dcdbas.ko] undefined!
+
+due to set_cpus_allowed().
+
+Questions:
+
+- Why isn't set_cpus_allowed() just a no-op on UP?  Or some trivial thing
+  which tests for cpu #0?
+
+- Why does cpu_online_map even exist on CONFIG_SMP=n?
 
 
 
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ kernel/sched.c |    1 +
+ 1 files changed, 1 insertion(+)
+
+diff -puN kernel/sched.c~export-cpu_online_map kernel/sched.c
+--- devel/kernel/sched.c~export-cpu_online_map	2005-10-25 21:13:28.000000000 -0700
++++ devel-akpm/kernel/sched.c	2005-10-25 21:19:36.000000000 -0700
+@@ -3879,6 +3879,7 @@ EXPORT_SYMBOL(cpu_present_map);
+ 
+ #ifndef CONFIG_SMP
+ cpumask_t cpu_online_map = CPU_MASK_ALL;
++EXPORT_SYMBOL(cpu_online_map);
+ cpumask_t cpu_possible_map = CPU_MASK_ALL;
+ #endif
+ 
+_

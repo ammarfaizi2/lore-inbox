@@ -1,155 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbVJZLMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbVJZLPK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932391AbVJZLMa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 07:12:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbVJZLMa
+	id S932331AbVJZLPK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 07:15:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbVJZLPK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 07:12:30 -0400
-Received: from web35604.mail.mud.yahoo.com ([66.163.179.143]:56227 "HELO
-	web35604.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932391AbVJZLM3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 07:12:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=zErDn2dydwSYMrTmxh6qKXefRGaTYKW4rxktWNgwQlEF/A0JtUn+r2e+rd8dj5jePDxUrAg/xYDkj9uQgK/Nm7OaJCu851aT/mtsHIBUVFy0jMaufub4OMfEienGdATfa3Hwui/jn8BYUrmQFEfzT1hxlLMHGfDml6xctBmsqJY=  ;
-Message-ID: <20051026111229.55319.qmail@web35604.mail.mud.yahoo.com>
-Date: Wed, 26 Oct 2005 04:12:29 -0700 (PDT)
-From: salve vandana <vandanasalve@yahoo.com>
-Subject: Re: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
-To: salve vandana <vandanasalve@yahoo.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20051026050627.69339.qmail@web35602.mail.mud.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 26 Oct 2005 07:15:10 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:1518 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932331AbVJZLPI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 07:15:08 -0400
+Date: Wed, 26 Oct 2005 12:15:06 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Sergey Vlasov <vsu@altlinux.ru>
+Cc: Roderich.Schupp.extern@mch.siemens.de, linux-kernel@vger.kernel.org,
+       linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: Race between "mount" uevent and /proc/mounts?
+Message-ID: <20051026111506.GQ7992@ftp.linux.org.uk>
+References: <0AD07C7729CA42458B22AFA9C72E7011C8EF@mhha22kc.mchh.siemens.de> <20051025140041.GO7992@ftp.linux.org.uk> <20051026142710.1c3fa2da.vsu@altlinux.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051026142710.1c3fa2da.vsu@altlinux.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is some more inputs on what i tried to do
-
-Mine system setup is:
-2.4.28kernel with 768MBRAM(final configuration will
-1G), No Swap Space and the 
-Root File system is mounted as initrd, whose size is
-around 300MB.
-
-After few hours,the system goes out of memory and
-starts killing processes
-
-As the whole system is in-memory file system all the
-pages allocated are not freed but are put into active
-or inactive page list. 
-
-I increased the watermark value of min,low and high
-pages to higher value then the default value to invoke
-the kernel thread "kswap", which free's some of the
-pages. This is the observation I have. 
-
-Also the kernel is not configured with HIGH_MEM
-support but still I can see some page allocation done
-from high memmory...this is mine guess from the
-following messsage(gfp = 0x1d2)
-"__alloc_pages: 0-order allocation failed
-(gfp=0x1d2/0"
-
-
-After 3-4 hours some of the processes get killed.
-Given below :
-
-try_to_free_pages_zone
-try_to_free_pages_zone
-try_to_free_pages_zone
-__alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
-VM: killing process cp_test
-Received SIGCHLDtry_to_free_pages_zone
-cp_test exited (PID = 213).Invalid TFTP URL for
-exporting crash-dumps...
-__alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
-ry_to_free_pages_zone
-try_to_free_pages_zone
-try_to_free_pages_zone
-
-
-How can I avoid this "Out of memory Issue". Does swap
-space helps in this case or what is the significance
-of having swap space for ramdisk file system.
-
-Your inputs will be of great. Needs to fixup this
-issue as soon as possible.
-
-Thanks,
-Vandana
-
-
-
-
-		
-
-
---- salve vandana <vandanasalve@yahoo.com> wrote:
-
-> Hi,
+On Wed, Oct 26, 2005 at 02:27:10PM +0400, Sergey Vlasov wrote:
+> > ... said event happens to be a piece of junk with ill-defined semantics.
 > 
-> I am getting this VM error on
-> 2.4.28kernel(RAM-768MB,
-> No Swap and the root file system,whose size is
-> around
-> 300MB is loaded as initrd).
-> After the error the processes are getting killed and
-> system is rebooted. I am not understanding why the
-> MM
-> is trying is allocate pages from HIGH Memory
-> (gfp=0x1d2/0) when I dont have High memory and the
-> kernel is also not enabled to support High memory. I
-> have put the printk's to see how kswapd is woken up
-> to
-> free unused pages because I dont want to run out of
-> memory.
-> 
-> Here is log:
-> 
-> try_to_free_pages_zone
-> try_to_free_pages_zone
-> try_to_free_pages_zone
-> __alloc_pages: 0-order allocation failed
-> (gfp=0x1d2/0)
-> VM: killing process cp_test
-> Received SIGCHLDtry_to_free_pages_zone
-> cp_test exited (PID = 213).Invalid TFTP URL for
-> exporting crash-dumps...
-> __alloc_pages: 0-order allocation failed
-> (gfp=0x1f0/0)
-> ry_to_free_pages_zone
-> try_to_free_pages_zone
-> try_to_free_pages_zone
-> 
-> Thanks,
-> Vandana
-> 
-> 
-> 
-> 
-> 		
-> __________________________________ 
-> Yahoo! FareChase: Search multiple travel sites in
-> one click.
-> http://farechase.yahoo.com
-> 
-> --
-> To unsubscribe, send a message with 'unsubscribe
-> linux-mm' in
-> the body to majordomo@kvack.org.  For more info on
-> Linux MM,
-> see: http://www.linux-mm.org/ .
-> Don't email: <a href=mailto:"dont@kvack.org">
-> email@kvack.org </a>
-> 
+> Hmm, and what should be the proper semantics for such an event?
 
+> Currently the "mount" uevent signals that the device is busy
+ 
+But it does not.  The thing that is fundamentally wrong about it is
+that it doesn't match any of the real objects.  It assumes that
+	* there is such thing as "filesystem of the device"
+	* there is such thing as "mountpoint of the filesystem"
+	* that no two filesystems use the same device
+	* that no filesystem would use more than one device
+	* that the thing we get on mountpoint is fully determined by fs
+mounted there.
 
+All of these assumptions used to be true for v7.  Guess what?  The world
+had changed.  _None_ of the above is true anymore.
 
-	
-		
-__________________________________ 
-Yahoo! Mail - PC Magazine Editors' Choice 2005 
-http://mail.yahoo.com
+First of all, the fundamental property of filesystem is its type.  And
+that's the only universal property these objects have.  Everything else
+is type-dependent.
+
+*Some* types happen to use one or more block devices.  How they use those
+depends on the type.  E.g. ext3 can span two devices (journal being the
+second one).
+
+Some fs types claim devices they use exclusively.  Some do not; e.g. stuff
+that does online resizing via secondary fs a-la ext2meta will, by design,
+coexist with normal fs on the same device.
+
+Each fs has a directory tree.  Pieces of these trees can be glued together
+into unified tree; the same subtree can be seen in many places, several
+different subtrees can be mounted even when the entire tree is not.
+Moreover, different processes can see different mount trees.  Filesystem
+can be active even if not present in mount trees of any processes - it can
+be kept alive by e.g. open files on it; that's what happens if we do
+umount -l and something in the subtree is still busy.
+
+_That_ is the reality and any reasonable system of events should match it.
+The objects are:
+
+* fs types: flat set, depending on the kernel config
+* active filesystems: each belongs to fs type, each has associated directory
+tree and files in that tree.
+* mounts: each maps a subtree of some filesystem.
+* mount trees (aka namespaces): trees of mounts, providing a unified directory
+tree as seen by processes; they glue together the subtrees from individual
+mounts.
+* block devices: used by many things in many ways; a lot of active filesystems
+happen to use them; the number and kind of use depends on fs type.
+
+Semantics for events depends on which objects you are interested in.
+Existing ones do not match _any_ of the real objects and I have no
+idea what exactly had been intended for them.  I've asked gregkh, but
+he didn't remember that either.  Apparently they are used by different
+people as (bad) approximations to different things.  Which doesn't work
+well.  And until somebody cares to describe what exactly are they trying
+to watch the situation obviously won't improve.

@@ -1,68 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751496AbVJZW5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751505AbVJZXOH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751496AbVJZW5y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 18:57:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751500AbVJZW5x
+	id S1751505AbVJZXOH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 19:14:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751509AbVJZXOG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 18:57:53 -0400
-Received: from smtp1-g19.free.fr ([212.27.42.27]:63428 "EHLO smtp1-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1751496AbVJZW5x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 18:57:53 -0400
-Message-ID: <436009F0.6090103@free.fr>
-Date: Thu, 27 Oct 2005 00:57:52 +0200
-From: Laurent Riffard <laurent.riffard@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.11) Gecko/20050729
-X-Accept-Language: fr-fr, fr, en
+	Wed, 26 Oct 2005 19:14:06 -0400
+Received: from dsl-201-138-87-34.prod-infinitum.com.mx ([201.138.87.34]:43015
+	"EHLO MENTE-LTTU72GIG") by vger.kernel.org with ESMTP
+	id S1751505AbVJZXOF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 19:14:05 -0400
+Message-ID: <419-220051032623144640@MENTE-LTTU72GIG>
+Organization: Mente Creativa
+From: "Mente Creativa" <boletin@mente-creativa.com>
+To: linux-kernel@vger.kernel.org
+Subject: =?ISO-8859-1?Q?=20Bolet=EDn?= Mente Creativa
+Date: Wed, 26 Oct 2005 18:14:04 -0500
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org, Al Viro <viro@ftp.linux.org.uk>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [RFC patch 3/3] remove pci_driver.owner and .name fields
-References: <20051026204802.123045000@antares.localdomain> <20051026204909.995658000@antares.localdomain> <20051026211129.GA7918@kroah.com> <436001A3.1000906@free.fr> <20051026222615.GA8884@kroah.com>
-In-Reply-To: <20051026222615.GA8884@kroah.com>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Inscríbete GRATIS al boletín semanal Mente Creativa
+Con interesantes artículos relacionados con técnicas avanzadas de
+programación y desarrollo mental, comentadas de manera práctica y sencilla
+de forma tal, que podamos aplicarlas en nosotros mismos, así como temas
+enfocados a cultivar actitudes positivas que nos ayuden a manejar mejor,
+las situaciones cotidianas en nuestra profesión, relaciones sociales y
+familiares.
+En cada número se publica un sólo tema corto, ágil y ameno, que nos invita
+a reflexionar en la mentalidad que en ocasiones nos impiden alcanzar metas
+y objetivos con eficiencia.
+Inscríbete en:	http://mente-creativa.com/boletin.htm
 
-Le 27.10.2005 00:26, Greg KH a écrit :
-> On Thu, Oct 27, 2005 at 12:22:27AM +0200, Laurent Riffard wrote:
-> 
->>Le 26.10.2005 23:11, Greg KH a ?crit :
->>
->>>On Wed, Oct 26, 2005 at 10:48:05PM +0200, Laurent riffard wrote:
->>>
->>>
->>>>This is the final cleanup : deletion of pci_driver.name and .owner
->>>>happens now. 
->>>
->>>
->>>what?  Did you actually try to build a kernel with this patch applied?
->>
->>No, a bunch of patch #2-like have to be applied first.
->>
->>This third patch is to be applied after *all* the drivers are
->>converted to use the pci_driver.driver.{name|owner} fields.
->>
->>
->>>Sorry, but I think we have to wait a long time before this can be
->>>appliedr...
->>
->>Yes, I know. Is it worth to do it ?
-> 
-> 
-> The .owner stuff, yes.  Do that first and then we can revisit the .name
-> stuff and see if that is worth it or not.
-> 
-> thanks,
-> 
-> greg k-h
 
-Ok, I'll try to submit tomorrow such a patch.
+Para darte de baja y no seguir recibiendo correos de esta lista, favor
+envía un email a la siguiente dirección, con “asunto” Darme de baja. 
+baja@mente-creativa.com
 
-thanks
--- 
-laurent
+
+
+
+

@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbVJZVRI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964936AbVJZVUW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964930AbVJZVRI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 17:17:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964932AbVJZVRI
+	id S964936AbVJZVUW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 17:20:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964934AbVJZVUW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 17:17:08 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:34511 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964930AbVJZVRG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 17:17:06 -0400
-Date: Wed, 26 Oct 2005 22:17:05 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Laurent riffard <laurent.riffard@free.fr>
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [RFC patch 0/3] remove pci_driver.owner and .name fields
-Message-ID: <20051026211705.GS7992@ftp.linux.org.uk>
-References: <20051026204802.123045000@antares.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 26 Oct 2005 17:20:22 -0400
+Received: from de01egw02.freescale.net ([192.88.165.103]:36058 "EHLO
+	de01egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S964936AbVJZVUV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 17:20:21 -0400
+From: Steve Snyder <R00020C@freescale.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: "Badness in local_bh_enable" - a reasonable fix?
+Date: Wed, 26 Oct 2005 17:20:11 -0400
+User-Agent: KMail/1.8.2
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200510261534.38291.R00020C@freescale.com> <200510261601.19369.R00020C@freescale.com> <1130358242.4483.127.camel@mindpipe>
+In-Reply-To: <1130358242.4483.127.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051026204802.123045000@antares.localdomain>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200510261720.11478.R00020C@freescale.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 26, 2005 at 10:48:02PM +0200, Laurent riffard wrote:
-> I'm willing to submit patches to remove pci_driver.owner and .name
-> fields. pci_driver.driver.owner and .name will be used instead.
+On Wednesday 26 October 2005 16:24, Lee Revell wrote:
+> On Wed, 2005-10-26 at 16:01 -0400, Steve Snyder wrote:
+> > What, you mean the driver?  No, it is built from source against the
+> > installed & running Fedora Core 3 kernel version 2.6.12-1.1380_FC3. 
 > 
-> Patch 1 prepares the core pci code for future removal of the 2
-> fields, but actually do not remove them. As suggested by Al Viro,
-> pci_driver.driver.owner will be set by pci_register_driver.
-> 
-> Patch 2 is an example of driver's update. There will be lots of
-> patches like this.
-> 
-> Patch 3 is the final touch, after all pci_driver.name and
-> pci_driver.owner are removed.
-> 
-> Any comments ? Feel free to correct my bad english.
+> No, your kernel is tainted because you loaded some otehr proprietary
+> module.  Maybe nvidia?
 
-After 2.6.14 gets released, please...
+Yes, I did have the nvidia binary kernel module loaded.  After removing
+it (not uninstalling; I just specified use of the X.org vesa driver
+instead and rebooted) I get the same behavior - including the Tainted
+notation.
+
+Thanks.

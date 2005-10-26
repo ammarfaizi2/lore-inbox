@@ -1,70 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964873AbVJZTZ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964877AbVJZT3B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964873AbVJZTZ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 15:25:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964876AbVJZTZ3
+	id S964877AbVJZT3B (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 15:29:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbVJZT3B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 15:25:29 -0400
-Received: from xproxy.gmail.com ([66.249.82.199]:45029 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964873AbVJZTZ3 convert rfc822-to-8bit
+	Wed, 26 Oct 2005 15:29:01 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:10975 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964877AbVJZT3A
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 15:25:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=j+okfTgm7BiNs1Uu3VWWLv5EnT0R2bBgMLXx2a1QpktzDhnYEqPixIF4Xgmx+24R0VJWsdxm0MWL4jsjx9gV4wVlVZxPIIkppCMzmdDFfhL/n8G8+i2weR78CA5DF6ERk8wDas4cbm2+tMEQ64+k6DoXvY6DcC4PXWI9GB4PZK4=
-Message-ID: <21d7e9970510261225r6b84bc1at4bbb2d7c3754a759@mail.gmail.com>
-Date: Thu, 27 Oct 2005 05:25:26 +1000
-From: Dave Airlie <airlied@gmail.com>
-To: Alessandro Suardi <alessandro.suardi@gmail.com>
-Subject: Re: X unkillable in R state sometimes on startx , /proc/sysrq-trigger T output attached
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-In-Reply-To: <5a4c581d0510260620o1a6ad678v6966dba3f40e8601@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 26 Oct 2005 15:29:00 -0400
+Date: Wed, 26 Oct 2005 20:28:59 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Kay Sievers <kay.sievers@vrfy.org>
+Cc: Sergey Vlasov <vsu@altlinux.ru>, Roderich.Schupp.extern@mch.siemens.de,
+       linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: Race between "mount" uevent and /proc/mounts?
+Message-ID: <20051026192858.GR7992@ftp.linux.org.uk>
+References: <0AD07C7729CA42458B22AFA9C72E7011C8EF@mhha22kc.mchh.siemens.de> <20051025140041.GO7992@ftp.linux.org.uk> <20051026142710.1c3fa2da.vsu@altlinux.ru> <20051026111506.GQ7992@ftp.linux.org.uk> <20051026143417.GA18949@vrfy.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <5a4c581d0510251335ke8e7ae6n883e0b44a9920ce4@mail.gmail.com>
-	 <21d7e9970510260325o2a47e6f5gc64d29eec42de086@mail.gmail.com>
-	 <5a4c581d0510260522h3c98d1acsf4715a4d4865121c@mail.gmail.com>
-	 <21d7e9970510260528k37cffb12h24d7b6fad7f3ed6e@mail.gmail.com>
-	 <5a4c581d0510260620o1a6ad678v6966dba3f40e8601@mail.gmail.com>
+In-Reply-To: <20051026143417.GA18949@vrfy.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> > if you just run X, does it always start to the X cursor without hanging..
->
-> Will try. Note however, when I experience the problem X doesn't
->  really "hang" - it spins in CPU.
+On Wed, Oct 26, 2005 at 04:34:17PM +0200, Kay Sievers wrote:
+> > Semantics for events depends on which objects you are interested in.
+> > Existing ones do not match _any_ of the real objects and I have no
+> > idea what exactly had been intended for them.  I've asked gregkh, but
+> > he didn't remember that either.  Apparently they are used by different
+> > people as (bad) approximations to different things.  Which doesn't work
+> > well.  And until somebody cares to describe what exactly are they trying
+> > to watch the situation obviously won't improve.
+> 
+> They are actually events for claim/release of a block device. As uevents
+> are bound to kobjects we needed to send these events from an existing device
+> which is the blockdev itself.
+> 
+> Sure, the event itself, has nothing to do with a filesystem. The names are
+> like this for historical reasons and "CLAIM/RELEASE" may be less confusing.
+> The events are used as a trigger to rescan /proc/mounts instead of polling
+> it constantly.
 
-That's a hang from the graphics developers point of view, your
-graphics card has crashed and X is spinning waiting for the card to
-come back and say it is okay.. something it never does...
+But that makes no sense.  /proc/*/mounts changes when mount tree changes.
+Which is obviously not an event happening to block devices.  Moreover,
+changes of mount tree may involve no changes in the set of active filesystems
+or be separated in time from such changes by arbitrary intervals.
 
->
-> For that matter, I'm running it now without issues... it
->  seems to get in the weird state only on startup.
+Looks like seriously wrong assumptions in userland code working with these
+events...  _IF_ you want to keep track of /proc/*/mounts changes, the obvious
+solution would be to implement ->poll() for them.  However, if you are
+really interested in block devices, keep in mind that
+	* getting them claimed happens before your event is generated
+	* eventually the filesystem claiming them becomes active (or doesn't,
+if mount fails)
+	* eventually an active fs may (or may not) become visible in mount
+tree.
+	* not every umount leads to deactivation
+	* deactivation can happen long after the fs is no longer present in
+mount tree
+	* fs may become visible in mount tree again without being deactivated
+and activated again - (mount /dev/foo /mnt; exec </mnt/bar; umount -l /mnt;
+sleep 100; mount /dev/foo /tmp/barf) in case of block filesystem will do just
+that; fs gets activated, mounted, unmounted and mounted again 100 seconds
+later.
+	* deactivated fs gives up its claim on device(s).  Incidentally,
+your UMOUNT event is triggered before either thing happens; any amount of
+IO on the device(s) can happen after it.
 
-I probably restart X about 5-10 times per working session and I've
-never seen this yet, I'll do a few more reboots, we have a known issue
-with a bug fix that went into X and I'm not sure if it is in your X
-packages but it probably is.. can you tell me the FC4 xorg rpm titles
-so I can check it, if it causing problems on AGP systems as well I'll
-be pushing RH to release new X packages with a proper fix, that benh
-is working on at the moment..
+Oh, and there are things other than filesystems that can (and do) claim
+block devices.
 
-Dave.
-
->
-> Thanks ! Ciao,
->
-> --alessandro
->
->  "All it takes is one decision
->   A lot of guts, a little vision to wave
->   Your worries, and cares goodbye"
->
->    (Placebo - "Slave To The Wage")
->
+So what's really going on?  If you want to know when device gets busy, you
+need events in fs/block_dev.c and no expectation regarding /proc/mounts.
+If you want to know when mount tree changes, you need events on attach_mnt/
+detach_mnt (and I would seriously suggest ->poll() rather than wanking with
+events).  If you want something more complex, you might or might not be
+SOL, depending on what you are trying to achieve.

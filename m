@@ -1,62 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964829AbVJZQtG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964816AbVJZQun@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964829AbVJZQtG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 12:49:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964828AbVJZQtG
+	id S964816AbVJZQun (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 12:50:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbVJZQun
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 12:49:06 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:34259 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S964826AbVJZQtE (ORCPT
+	Wed, 26 Oct 2005 12:50:43 -0400
+Received: from duke.math.cinvestav.mx ([148.247.14.23]:61956 "EHLO duke")
+	by vger.kernel.org with ESMTP id S964816AbVJZQum (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 12:49:04 -0400
-Date: Wed, 26 Oct 2005 09:48:32 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: Andrew Morton <akpm@osdl.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Mike Kravetz <kravetz@us.ibm.com>,
-       Ray Bryant <raybry@mpdtxmail.amd.com>,
-       Lee Schermerhorn <lee.schermerhorn@hp.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>, Magnus Damm <magnus.damm@gmail.com>,
-       Paul Jackson <pj@sgi.com>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Subject: Re: [PATCH 3/5] Swap Migration V4: migrate_pages() function
-In-Reply-To: <1130310934.1226.29.camel@localhost>
-Message-ID: <Pine.LNX.4.62.0510260948060.12433@schroedinger.engr.sgi.com>
-References: <20051025193023.6828.89649.sendpatchset@schroedinger.engr.sgi.com>
-  <20051025193039.6828.74991.sendpatchset@schroedinger.engr.sgi.com>
- <1130310934.1226.29.camel@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 26 Oct 2005 12:50:42 -0400
+Date: Wed, 26 Oct 2005 11:50:14 -0500
+From: Yuri Vasilevski <yvasilev@duke.math.cinvestav.mx>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org,
+       Arnaldo Carvalho de Melo <acme@ghostprotocols.net>,
+       Daniel Drake <dsd@gentoo.org>
+Subject: Patch that allows >=2.6.12 kernel to build on nls free systems
+Message-ID: <20051026115014.2dbb0bfc@dune.math.cinvestav.mx>
+X-Mailer: Sylpheed-Claws 1.9.15 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Oct 2005, Dave Hansen wrote:
+Hi all,
 
-> Why is this #ifdef needed?  PageSwapCache() is #defined to 0 when !
-> CONFIG_SWAP.
+I made a patch that detects if libintl.h (needed for nls) is present on
+the host system and if it's not, it nls support is disabled by
+providing dummies for the used nls functions.
 
-Right.
+This way if there is nls support on the host system the *config targets
+will build according to Arnaldo Carvalho de Melo's i18n modifications,
+else it just uses the original English messages.
 
-Index: linux-2.6.14-rc5-mm1/mm/vmscan.c
-===================================================================
---- linux-2.6.14-rc5-mm1.orig/mm/vmscan.c	2005-10-26 09:46:20.000000000 -0700
-+++ linux-2.6.14-rc5-mm1/mm/vmscan.c	2005-10-26 09:47:33.000000000 -0700
-@@ -387,7 +387,6 @@ static inline int remove_mapping(struct 
- 	if (unlikely(PageDirty(page)))
- 		goto cannot_free;
+I have also made a bug report at kernel's bugzilla:
+http://bugzilla.kernel.org/show_bug.cgi?id=5501
+And there is a discussion about this problem in Gentoo's bugzilla:
+http://bugs.gentoo.org/show_bug.cgi?id=99810
+
+diff -Naur linux-2.6.14_rc2.orig/scripts/kconfig/Makefile linux-2.6.14_rc2/scripts/kconfig/Makefile
+--- linux-2.6.14_rc2.orig/scripts/kconfig/Makefile	2005-11-06 04:13:01 +0000
++++ linux-2.6.14_rc2/scripts/kconfig/Makefile	2005-11-18 03:52:03 +0000
+@@ -116,6 +116,15 @@
+ clean-files	:= lkc_defs.h qconf.moc .tmp_qtcheck \
+ 		   .tmp_gtkcheck zconf.tab.c zconf.tab.h lex.zconf.c
  
--#ifdef CONFIG_SWAP
- 	if (PageSwapCache(page)) {
- 		swp_entry_t swap = { .val = page_private(page) };
- 		add_to_swapped_list(swap.val);
-@@ -397,7 +396,6 @@ static inline int remove_mapping(struct 
- 		__put_page(page);	/* The pagecache ref */
- 		return 1;
- 	}
--#endif /* CONFIG_SWAP */
++# Needed for systems without gettext
++KBUILD_HAVE_NLS := $(shell \
++     if echo "\#include <libint.h>" | $(HOSTCC) $(HOSTCFLAGS) -E - > /dev/null 2>&1 ; \
++     then echo yes ; \
++     else echo no ; fi)
++ifeq ($(KBUILD_HAVE_NLS),no)
++HOSTCFLAGS	+= -DKBUILD_NO_NLS
++endif
++
+ # generated files seem to need this to find local include files
+ HOSTCFLAGS_lex.zconf.o	:= -I$(src)
+ HOSTCFLAGS_zconf.tab.o	:= -I$(src)
+diff -Naur linux-2.6.14_rc2.orig/scripts/kconfig/lkc.h linux-2.6.14_rc2/scripts/kconfig/lkc.h
+--- linux-2.6.14_rc2.orig/scripts/kconfig/lkc.h	2005-11-06 04:13:01 +0000
++++ linux-2.6.14_rc2/scripts/kconfig/lkc.h	2005-11-18 02:23:07 +0000
+@@ -8,7 +8,13 @@
  
- 	__remove_from_page_cache(page);
- 	write_unlock_irq(&mapping->tree_lock);
+ #include "expr.h"
+ 
+-#include <libintl.h>
++#ifndef KBUILD_NO_NLS
++# include <libintl.h>
++#else
++# define gettext(Msgid) ((const char *) (Msgid))
++# define textdomain(Domainname) ((const char *) (Domainname))
++# define bindtextdomain(Domainname, Dirname) ((const char *) (Dirname))
++#endif
+ 
+ #ifdef __cplusplus
+ extern "C" {
+
+
+Yuri.
+
+PS: Please CC me on replay as I'm not in the kernel mailing list.
 

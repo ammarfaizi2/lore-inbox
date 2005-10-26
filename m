@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932507AbVJZAfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932510AbVJZAuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932507AbVJZAfL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 20:35:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932505AbVJZAfL
+	id S932510AbVJZAuI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Oct 2005 20:50:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932511AbVJZAuI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 20:35:11 -0400
-Received: from mail.kroah.org ([69.55.234.183]:42171 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932507AbVJZAfJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 20:35:09 -0400
-Date: Tue, 25 Oct 2005 17:34:30 -0700
-From: Greg KH <greg@kroah.com>
-To: Matt Helsley <matthltc@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       Jean-Pierre Dion <jean-pierre.dion@bull.net>,
-       Jesse Barnes <jbarnes@engr.sgi.com>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       Badari Pulavarty <pbadari@us.ibm.com>, Ram Pai <linuxram@us.ibm.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Erich Focht <efocht@hpce.nec.com>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>,
-       Gerrit Huizenga <gh@us.ibm.com>, Adrian Bunk <bunk@stusta.de>,
-       "Chandra S. Seetharaman" <sekharan@us.ibm.com>
-Subject: Re: [PATCH 00/02] Process Events Connector
-Message-ID: <20051026003430.GA27680@kroah.com>
-References: <1130285260.10680.194.camel@stark>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 25 Oct 2005 20:50:08 -0400
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:38067 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S932510AbVJZAuG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Oct 2005 20:50:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=Ds7rEj0tZvml1zEDmO1DCjAi3l6jFj8RYc0Ri7KjZcO9nXM3ZqJGhNjeTnnTFA9Tjs4xKxK6M32Ga7GNM5SGQpdDxSGBfNqjS1hLNXRWsSCiFIuHepeFAIYsj3qK35slpmpvlkYbc60qWsELhLTIwaV/24EMv7R4qDTycC13MdA=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Subject: Re: [PATCH 01/11] uml: sigio code - reduce spinlock hold time
+Date: Wed, 26 Oct 2005 02:54:13 +0200
+User-Agent: KMail/1.8.3
+Cc: LKML <linux-kernel@vger.kernel.org>, Jeff Dike <jdike@addtoit.com>
+References: <20051025220053.20010.56979.stgit@zion.home.lan> <9a8748490510251717n613aab40r84ef1f66abc6b5be@mail.gmail.com>
+In-Reply-To: <9a8748490510251717n613aab40r84ef1f66abc6b5be@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1130285260.10680.194.camel@stark>
-User-Agent: Mutt/1.5.11
+Message-Id: <200510260254.14546.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 25, 2005 at 05:07:40PM -0700, Matt Helsley wrote:
-> Andrew, all,
-> 
-> 	Is there any reason this patch could not go for a spin in a -mm tree?
-> It's similar to Guillaume's fork connector patch which did appear in -mm
-> at one point. It replaces the fork_advisor patch that ELSA is currently
-> using, can be used by userspace CKRM code, and in general is useful for
-> anything that may wish to monitor changes in all processes.
+On Wednesday 26 October 2005 02:17, Jesper Juhl wrote:
+> On 10/26/05, Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it> wrote:
+> [snip]
+>
+> > And fix whitespace, at least for things I was touching anyway.
+>
+> [snip]
+>
+> > +       return;
+> > +
+> >  }
 
-Why can't you use a lsm module for this instead?  It looks like you are
-wanting to hook things in pretty much the same places we currently have
-the lsm hooks at.
+> Why an extra blank line at the end of the function?
+Forgot to remove that blank line, sorry.
 
-thanks,
+Jeff, remove when merging in your tree if you don't forget.
+-- 
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
 
-greg k-h
+	
+
+	
+		
+___________________________________ 
+Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
+http://mail.yahoo.it

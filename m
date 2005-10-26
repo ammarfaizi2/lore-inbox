@@ -1,76 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932327AbVJZM3A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751490AbVJZNQK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932327AbVJZM3A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 08:29:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751486AbVJZM3A
+	id S1751490AbVJZNQK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 09:16:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbVJZNQJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 08:29:00 -0400
-Received: from rproxy.gmail.com ([64.233.170.197]:23792 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751416AbVJZM3A convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 08:29:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=oBj85WKSYUOdp/pkHp1Z1+61SaUuZJyv+00yYLbYIacAJ6uOct+4+QW7j9MMihFD/JaNvsmfbYUSRQDuYFJShCcMWOifZhM0cG8d/ouIqDnwQ48bbWwasq5n/U6pwfoGTRDl/TR1cXD5svaY2y4E7jk7rLZ4RGPuTKcplkTKL+8=
-Message-ID: <21d7e9970510260528k37cffb12h24d7b6fad7f3ed6e@mail.gmail.com>
-Date: Wed, 26 Oct 2005 22:28:59 +1000
-From: Dave Airlie <airlied@gmail.com>
-To: Alessandro Suardi <alessandro.suardi@gmail.com>
-Subject: Re: X unkillable in R state sometimes on startx , /proc/sysrq-trigger T output attached
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <5a4c581d0510260522h3c98d1acsf4715a4d4865121c@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 26 Oct 2005 09:16:09 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:4974 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1751490AbVJZNQI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 09:16:08 -0400
+Date: Wed, 26 Oct 2005 15:16:04 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Deven Balani <devenbalani@gmail.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: reference code for non-PCI libata complaint SATA for ARM boards.
+Message-ID: <20051026131604.GA24567@harddisk-recovery.com>
+References: <7a37e95e0510250511g631db9edoe4c739ed24b7a79b@mail.gmail.com> <1130254633.25191.33.camel@localhost.localdomain> <435E6D55.7090903@pobox.com> <7a37e95e0510252258k621b46efj4d37c2ceed00dfeb@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <5a4c581d0510251335ke8e7ae6n883e0b44a9920ce4@mail.gmail.com>
-	 <21d7e9970510260325o2a47e6f5gc64d29eec42de086@mail.gmail.com>
-	 <5a4c581d0510260522h3c98d1acsf4715a4d4865121c@mail.gmail.com>
+In-Reply-To: <7a37e95e0510252258k621b46efj4d37c2ceed00dfeb@mail.gmail.com>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > >
-> > > Box is a Dell Latitude C640 laptop, PIV@1.8Ghz,
-> > >  1GB RAM, with a USR2210 802.11b wireless
-> > >  PC Card; video card is a Radeon 7500 M7 LW.
-> > >
-> >
-> > Your getting an X hang which is usually a DRM/AGP or X configuartion problems..
-> >
-> > Please send me your /etc/X11/xorg.conf and /var/log/Xorg.0.log after a hang..
-> >
-> > did it work with any kernel before? and suddenly break recently?
->
-> It's intermittent. It looks like more recent kernels have a tendency
->  to trigger it more easily - in fact I just happened to have another
->  occurrence, this time without even loading the acx driver, just
->
->  1. boot
->  2. login as non-root
->  3. startx
->
->  but it works most times.
->
-> I lied however - the keyboard is _not_ dead, despite not lighting
->  the CapsLock led, and I can Alt-SysRQ-<x>.
->
-> Luckily, I have both the current working Xorg.0.log and the one
->  coming from the hang. I'm attaching both, and my xorg.conf.
->
+On Wed, Oct 26, 2005 at 11:28:10AM +0530, Deven Balani wrote:
+> But I have a problem my other drivers are 2.4.25 compliant. So it is
+> a huge work
+> to make all other drivers 2.6 compliant and use libata-core.c.
+> I believe it is far more easier to have 2.4.x libata rather than
+> porting my drivers to
+> 2.6.x.
 
-Wierd it all looks okay to me (diffing the Xorg logs gives nothing
-majorly different...)...
+Porting drivers to 2.6 isn't too hard. LWN has a nice tutorial, see
+http://lwn.net/Articles/driver-porting/ .
 
-What desktop are you runnig on top of X? does it have any 3D or OpenGL
-components in it?
+> What do you suggest me ?
 
-if you just run X, does it always start to the X cursor without hanging..
+Use 2.6, especially with new hardware. The 2.4 kernel on ARM is no
+longer supported, all development has moved to 2.6 almost two years
+ago.
 
-Try disabling pre-empt also.. if you get a chance..
 
-I've got the same chip on an evaluation card in my PC at the moment,
-and I've been running the same X 6.8.2 on it for a while with no
-issues on the latest kernels..
+Erik
 
-Dave.
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

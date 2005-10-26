@@ -1,47 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932590AbVJZIXS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932589AbVJZI2J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932590AbVJZIXS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 04:23:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932591AbVJZIXS
+	id S932589AbVJZI2J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 04:28:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932591AbVJZI2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 04:23:18 -0400
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:21884 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932590AbVJZIXR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 04:23:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:Subject:Content-Type:Content-Transfer-Encoding;
-  b=XRd4UnVtHnTaJKFYHSYryIOZazbByuMesCO8eFG2jMCGgBmt5kWIgPkazl4ubo8f0a8sC1uJ7+Ec0mjhjbe5Ql9gyG6SfhiV3vf6JAQUYqZWVW43a0Z4E29f5voXmZZvNy/DprYzbEPcMn/Pj/bte2zmClivFAajZfLAOBHRWVA=  ;
-Message-ID: <435F3D3A.8080304@yahoo.com.au>
-Date: Wed, 26 Oct 2005 18:24:26 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050914 Debian/1.7.11-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.14-rc5-np1
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 26 Oct 2005 04:28:09 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:24261 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932589AbVJZI2I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 04:28:08 -0400
+Date: Wed, 26 Oct 2005 10:28:00 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: George Anzinger <george@mvista.com>
+Cc: john stultz <johnstul@us.ibm.com>,
+       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Mark Knecht <markknecht@gmail.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       david singleton <dsingleton@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+       cc@ccrma.Stanford.EDU, William Weston <weston@lysdexia.org>
+Subject: Re: 2.6.14-rc4-rt7
+Message-ID: <20051026082800.GB28660@elte.hu>
+References: <1129852531.5227.4.camel@cmn3.stanford.edu> <20051021080504.GA5088@elte.hu> <1129937138.5001.4.camel@cmn3.stanford.edu> <20051022035851.GC12751@elte.hu> <1130182121.4983.7.camel@cmn3.stanford.edu> <1130182717.4637.2.camel@cmn3.stanford.edu> <1130183199.27168.296.camel@cog.beaverton.ibm.com> <20051025154440.GA12149@elte.hu> <1130264218.27168.320.camel@cog.beaverton.ibm.com> <435E91AA.7080900@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <435E91AA.7080900@mvista.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/npiggin/patches/2.6.14-rc5-np1/
 
-2.6.14-rc5-np1 includes Hugh's pagefault scalability work and my
-lockless pagecache and RCU radix tree work (which is getting stable).
+* George Anzinger <george@mvista.com> wrote:
 
-Also, some straight-line performance increases for mm/ which are
-worth about 5% kernel residency on kbuild on UP, and about 7.5% on
-SMP on a P4 Xeon.
+> The TSC is such a fast and, usually, accurate answer, I think it 
+> deserves a little effort to save it.  With your new clock code I think 
+> we could use per cpu TSC counters, read the full 64 bits and, in real 
+> corner cases, even per cpu conversion "constants" and solve this 
+> problem.
 
-And some various small improvements to corner cases in the radix tree
-code.
+the problem is, this is the same issue as 'boot-time TSC syncing', but 
+in disguise: to get any 'per CPU TSC offset' you need to do exactly the 
+same type of careful all-CPUs-dance to ensure that the TSCs were sampled 
+at around the same moment in time!
 
-Performance testing and results would be interesting, on big machines
-or small.
+The box where i have these small TSC inconsistencies shows that it's the 
+bootup synchronization of TSCs that failed to be 100% accurate. Even a 2 
+usecs error in synchronization can show up as a time-warp - regardless 
+of whether we keep per-CPU TSC offsets or whether we clear these offsets 
+back to 0. So it is not a solution to do another type of synchronization 
+dance. The only solution is to fix the boot-time synchronization (where 
+the hardware keeps TSCs synchronized all the time), or to switch TSCs 
+off where this is not possible.
 
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+	Ingo

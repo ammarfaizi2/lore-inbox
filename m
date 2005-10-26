@@ -1,62 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964854AbVJZSef@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964855AbVJZSet@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964854AbVJZSef (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 14:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964855AbVJZSee
+	id S964855AbVJZSet (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 14:34:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964857AbVJZSet
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 14:34:34 -0400
-Received: from hqemgate01.nvidia.com ([216.228.112.170]:64809 "EHLO
-	HQEMGATE01.nvidia.com") by vger.kernel.org with ESMTP
-	id S964854AbVJZSee convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 14:34:34 -0400
-x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Wed, 26 Oct 2005 14:34:49 -0400
+Received: from c-67-180-160-189.hsd1.ca.comcast.net ([67.180.160.189]:5321
+	"EHLO mtv-vpn-hw-jlan-2.corp.sgi.com") by vger.kernel.org with ESMTP
+	id S964855AbVJZSes (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 14:34:48 -0400
+Message-ID: <435FCC36.6000304@engr.sgi.com>
+Date: Wed, 26 Oct 2005 11:34:30 -0700
+From: Jay Lan <jlan@engr.sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050317
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: sata_nv + SMP = broken?
-Date: Wed, 26 Oct 2005 11:34:25 -0700
-Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B004FAE5D8@hqemmail02.nvidia.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: sata_nv + SMP = broken?
-Thread-Index: AcXZyVwmGEDFoH3yQ+yU1gP88rMxMAAkQdsA
-From: "Allen Martin" <AMartin@nvidia.com>
-To: "Vladimir Lazarenko" <vlad@lazarenko.net>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, <linux-kernel@vger.kernel.org>,
-       "Marc Perkel" <marc@perkel.com>, "Jeff Garzik" <jgarzik@pobox.com>
-X-OriginalArrivalTime: 26 Oct 2005 18:34:26.0751 (UTC) FILETIME=[E4EC7CF0:01C5DA5B]
+To: Matt Helsley <matthltc@us.ibm.com>
+CC: Chris Wright <chrisw@osdl.org>, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       Jean-Pierre Dion <jean-pierre.dion@bull.net>,
+       Jesse Barnes <jbarnes@engr.sgi.com>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       Badari Pulavarty <pbadari@us.ibm.com>, Ram Pai <linuxram@us.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Erich Focht <efocht@hpce.nec.com>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>,
+       Gerrit Huizenga <gh@us.ibm.com>, Adrian Bunk <bunk@stusta.de>,
+       "Chandra S. Seetharaman" <sekharan@us.ibm.com>,
+       Jay Lan <jlan@engr.sgi.com>, Erik Jacobson <erikj@sgi.com>,
+       Jack Steiner <steiner@sgi.com>
+Subject: Re: [ckrm-tech] Re: [PATCH 00/02] Process Events Connector
+References: <1130285260.10680.194.camel@stark>	 <20051026003430.GA27680@kroah.com> <1130288437.10680.236.camel@stark>	 <20051026012216.GD5856@shell0.pdx.osdl.net>	 <1130290233.10680.262.camel@stark>	 <20051026014852.GE5856@shell0.pdx.osdl.net> <1130292802.10680.283.camel@stark>
+In-Reply-To: <1130292802.10680.283.camel@stark>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matt Helsley wrote:
+>On Tue, 2005-10-25 at 18:48 -0700, Chris Wright wrote:
+>  
+>>* Matt Helsley (matthltc@us.ibm.com) wrote:
+>>    
+>>>	It seems to me that this is the consensus here and on LSE-Tech.
+>>>This patch addresses the needs of ELSA and CKRM and is amenable to using
+>>>the patches recently proposed on lse-tech to pull out the common piece.
+>>>      
+>>Sounds good.  What about the SGI needs (for PAGG)?  They just posted
+>>pnotify pretty recently.   Or is that what you mean by consensus and
+>>possible use of 'task notifiers'?
+>>    
 
-> Yet again, if i enable apic, the boot process hangs here:
-> sata_nv version 0.6
-> PCI: Setting latency timer of device 0000:00:07.0 to 64
-> ata1: SATA max UDMA/133 cmd 0x9F0 ctl 0xBF2 bmdma 0xDC00 irq 11
-> ata2: SATA max UDMA/133 cmd 0x970 ctl 0xB72 bmdma 0xDC08 irq 11
-> 
-> These are the last messages that I get. The same behaviour on both 
-> motherboard. Shoudl I enable apic, it hangs on that.
-> 
-> When I disable apic, the boot sequence looks like:
-> 
-> sata_nv version 0.6
-> PCI: Setting latency timer of device 0000:00:07.0 to 64
-> ata1: SATA max UDMA/133 cmd 0x9F0 ctl 0xBF2 bmdma 0xDC00 irq 11
-> ata2: SATA max UDMA/133 cmd 0x970 ctl 0xB72 bmdma 0xDC08 irq 11
-> ata1: dev 0 cfg 49:2f00 82:7c6b 83:7f09 84:4003 85:7c69 
-> 86:3e01 87:4003 
-> 88:407f
-> ata1: dev 0 ATA, max UDMA/133, 320173056 sectors: lba48
-> nv_sata: Primary device added
-> nv_sata: Primary device removed
-> nv_sata: Secondary device added
-> nv_sata: Secondary device removed
+Hi,
 
-Can you send the output of "cat /proc/interrupts" and a "lspci -xxx" ? 
+Jesse is no longer with SGI.
 
-Also you may want to disable hotplug from the device table in sata_nv.c
-for now in case this has something to do with hotplug interrupts.
+Please cc erikj(PAGG & task_notifier) and jlan(CSA) on discussion
+related to process
+event notifier.
+
+Thanks!
+- jay
+
+>>thanks,
+>>-chris
+>>    
+>
+>	If this patch used pnotify it would be much more complicated and it
+>would need to attach small pieces of data to each task. However there
+>have been some alternative proposals. The 'task_notifier' patch posted
+>by Jack Steiner was much closer to what this patch needs:
+>http://marc.theaimsgroup.com/?l=lse-tech&m=112869558116290&w=2
+>
+>	'task_notifier' is smaller and easier to review but still requires
+>per-task data that would complicate the Process Events Connector patch.
+>There has been some discussion in the above thread on how to address the
+>per-task data/notification needs of PAGG and the all-task notification
+>needs of ELSA and CKRM.
+>
+>Cheers,
+>	-Matt Helsley
+>
+>
+>
+>-------------------------------------------------------
+>This SF.Net email is sponsored by the JBoss Inc.
+>Get Certified Today * Register for a JBoss Training Course
+>Free Certification Exam for All Training Attendees Through End of 2005
+>Visit http://www.jboss.com/services/certification for more information
+>_______________________________________________
+>ckrm-tech mailing list
+>https://lists.sourceforge.net/lists/listinfo/ckrm-tech
+>  
+

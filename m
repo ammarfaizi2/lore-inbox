@@ -1,672 +1,421 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932559AbVJZGeU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932571AbVJZGhG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932559AbVJZGeU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 02:34:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932561AbVJZGeU
+	id S932571AbVJZGhG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 02:37:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932572AbVJZGhG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 02:34:20 -0400
-Received: from smtp111.sbc.mail.re2.yahoo.com ([68.142.229.94]:43427 "HELO
-	smtp111.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932559AbVJZGeT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 02:34:19 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-input@atrey.karlin.mff.cuni.cz
-Subject: [RFC/PATCH] evdev: consolidate compat and standard code
-Date: Wed, 26 Oct 2005 01:34:14 -0500
-User-Agent: KMail/1.8.3
-Cc: LKML <linux-kernel@vger.kernel.org>, Vojtech Pavlik <vojtech@suse.cz>,
-       Andrew Morton <akpm@osdl.org>
+	Wed, 26 Oct 2005 02:37:06 -0400
+Received: from porthos.st-and.ac.uk ([138.251.66.6]:7903 "EHLO
+	porthos.st-andrews.ac.uk") by vger.kernel.org with ESMTP
+	id S932571AbVJZGhE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 02:37:04 -0400
+Message-ID: <435F23D3.4060601@st-andrews.ac.uk>
+Date: Wed, 26 Oct 2005 07:36:03 +0100
+From: Ian McDonald <iam@st-andrews.ac.uk>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Call for PIIX4 chipset testers
+References: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510260134.14802.dtor_core@ameritech.net>
+X-StAndrews-MailScanner-Information: Please contact the ISP for more information
+X-StAndrews-MailScanner: No virus detected
+X-StAndrews-MailScanner-SpamCheck: not spam, SpamAssassin (score=-4.669,
+	required 5, BAYES_00 -4.90, TW_CB 0.08, TW_II 0.08, TW_UH 0.08)
+X-StAndrews-MailScanner-From: iam@st-andrews.ac.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compat and normal code mirror each other and are hard to maintain. When
-EV_SW was added compat_ioctl case was missed. Here is my attempt at
-consolidating the code. It was compiled for i368 and sparc64 so hopefully
-it will compile for other arches as well.
+Dell Precision Workstation 610 MT, 2 PIII-Xeons at 500.
+Patched against 2.6.13.4
 
-Please give it a spin.
+# dmesg -s 1000000 |grep PIIX
+PCI quirk: region 0800-083f claimed by PIIX4 ACPI
+PCI quirk: region 0840-085f claimed by PIIX4 SMB
+PIIX4: IDE controller at PCI slot 0000:00:07.1
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+uhci_hcd 0000:00:07.2: Intel Corporation 82371AB/EB/MB PIIX4 USB
 
--- 
-Dmitry
 
-Input: evdev - consolidate compat and regular code
+# cat /proc/ioports
+0000-001f : dma1
+0020-0021 : pic1
+0040-0043 : timer0
+0050-0053 : timer1
+0060-006f : keyboard
+0070-0077 : rtc
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+01f0-01f7 : ide0
+0213-0213 : ISAPnP
+02f8-02ff : serial
+0378-037a : parport0
+037b-037f : parport0
+03c0-03df : vga+
+03f6-03f6 : ide0
+03f8-03ff : serial
+0778-077a : parport0
+0800-083f : 0000:00:07.3
+  0800-0803 : PM1a_EVT_BLK
+  0804-0805 : PM1a_CNT_BLK
+  0808-080b : PM_TMR
+  080c-080f : GPE0_BLK
+0840-085f : 0000:00:07.3
+  0850-0857 : piix4-smbus
+0a79-0a79 : isapnp write
+0cf8-0cff : PCI conf1
+dc00-dc7f : 0000:00:11.0
+  dc00-dc7f : 0000:00:11.0
+dcb8-dcbf : 0000:00:0e.1
+dcc0-dcdf : 0000:00:0e.0
+  dcc0-dcdf : EMU10K1
+dce0-dcff : 0000:00:07.2
+  dce0-dcff : uhci_hcd
+e000-efff : PCI Bus #02
+  e800-e8ff : 0000:02:0e.0
+  ec00-ecff : 0000:02:0a.0
+ffa0-ffaf : 0000:00:07.1
+  ffa0-ffa7 : ide0
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
+# lspci -xxx
+0000:00:00.0 Host bridge: Intel Corp. 440GX - 82443GX Host bridge
+00: 86 80 a0 71 06 01 10 22 00 00 00 06 00 40 00 00
+10: 08 00 00 ec 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 28 10 87 40
+30: 00 00 00 00 a0 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 0c 00 00 f0 00 00 00 09 03 10 11 11 01 00 00 00
+60: 08 10 18 20 28 30 40 50 00 20 00 00 a0 aa 00 00
+70: 20 1f 0a 78 55 a5 13 00 07 ff 10 38 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 04 61 00 00 00 05 00 00 00 00 00 00
+a0: 02 00 10 00 03 02 00 1f 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 30 00 00 00 00 00 00 00 20 10 00 00
+c0: 00 00 00 00 ff ff ff ff 18 0c ff ff 7f 00 00 00
+d0: 08 08 03 02 02 12 04 20 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 f8 00 60 20 0f 00 00 00 00 00 00
 
- drivers/input/evdev.c |  491 +++++++++++++++++++++-----------------------------
- 1 files changed, 212 insertions(+), 279 deletions(-)
+0000:00:01.0 PCI bridge: Intel Corp. 440GX - 82443GX AGP bridge
+00: 86 80 a1 71 1f 01 20 02 00 00 04 06 00 40 01 00
+10: 00 00 00 00 00 00 00 00 00 01 01 40 f0 00 a0 22
+20: 00 fc f0 fd 00 f2 f0 f5 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 8c 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-Index: work/drivers/input/evdev.c
-===================================================================
---- work.orig/drivers/input/evdev.c
-+++ work/drivers/input/evdev.c
-@@ -147,6 +147,7 @@ static int evdev_open(struct inode * ino
- }
- 
- #ifdef CONFIG_COMPAT
-+
- struct input_event_compat {
- 	struct compat_timeval time;
- 	__u16 type;
-@@ -166,98 +167,107 @@ struct input_event_compat {
- #  define COMPAT_TEST test_thread_flag(TIF_32BIT)
- #endif
- 
--static ssize_t evdev_write_compat(struct file * file, const char __user * buffer, size_t count, loff_t *ppos)
-+static inline size_t evdev_event_size(void)
- {
--	struct evdev_list *list = file->private_data;
--	struct input_event_compat event;
--	int retval = 0;
-+	return COMPAT_TEST ?
-+		sizeof(struct input_event_compat) : sizeof(struct input_event);
-+}
- 
--	while (retval < count) {
--		if (copy_from_user(&event, buffer + retval, sizeof(struct input_event_compat)))
-+static ssize_t evdev_event_from_user(const char __user *buffer, struct input_event *event)
-+{
-+	if (COMPAT_TEST) {
-+		struct input_event_compat compat_event;
-+
-+		if (copy_from_user(&compat_event, buffer, sizeof(struct input_event_compat)))
-+			return -EFAULT;
-+
-+		event->time.tv_sec = compat_event.time.tv_sec;
-+		event->time.tv_usec = compat_event.time.tv_usec;
-+		event->type = compat_event.type;
-+		event->code = compat_event.code;
-+		event->value = compat_event.value;
-+
-+	} else {
-+		if (copy_from_user(event, buffer, sizeof(struct input_event)))
- 			return -EFAULT;
--		input_event(list->evdev->handle.dev, event.type, event.code, event.value);
--		retval += sizeof(struct input_event_compat);
- 	}
- 
--	return retval;
-+	return 0;
- }
--#endif
- 
--static ssize_t evdev_write(struct file * file, const char __user * buffer, size_t count, loff_t *ppos)
-+static ssize_t evdev_event_to_user(const char __user *buffer, struct input_event *event)
- {
--	struct evdev_list *list = file->private_data;
--	struct input_event event;
--	int retval = 0;
-+	if (COMPAT_TEST) {
-+		struct input_event_compat compat_event;
- 
--	if (!list->evdev->exist) return -ENODEV;
-+		compat_event.time.tv_sec = event->time.tv_sec;
-+		compat_event.time.tv_usec = event->time.tv_usec;
-+		compat_event.type = event->type;
-+		compat_event.code = event->code;
-+		compat_event.value = event->value;
- 
--#ifdef CONFIG_COMPAT
--	if (COMPAT_TEST)
--		return evdev_write_compat(file, buffer, count, ppos);
--#endif
--
--	while (retval < count) {
-+		if (copy_to_user(&compat_event, buffer, sizeof(struct input_event_compat)))
-+			return -EFAULT;
- 
--		if (copy_from_user(&event, buffer + retval, sizeof(struct input_event)))
-+	} else {
-+		if (copy_to_user(event, buffer, sizeof(struct input_event)))
- 			return -EFAULT;
--		input_event(list->evdev->handle.dev, event.type, event.code, event.value);
--		retval += sizeof(struct input_event);
- 	}
- 
--	return retval;
-+	return 0;
- }
- 
--#ifdef CONFIG_COMPAT
--static ssize_t evdev_read_compat(struct file * file, char __user * buffer, size_t count, loff_t *ppos)
-+#else
-+
-+static inline size_t evdev_event_size(void)
- {
--	struct evdev_list *list = file->private_data;
--	int retval;
-+	return sizeof(struct input_event);
-+}
- 
--	if (count < sizeof(struct input_event_compat))
--		return -EINVAL;
-+static ssize_t evdev_event_from_user(const char __user *buffer, struct input_event *event)
-+{
-+	if (copy_from_user(event, buffer, sizeof(struct input_event)))
-+		return -EFAULT;
- 
--	if (list->head == list->tail && list->evdev->exist && (file->f_flags & O_NONBLOCK))
--		return -EAGAIN;
-+	return 0;
-+}
- 
--	retval = wait_event_interruptible(list->evdev->wait,
--		list->head != list->tail || (!list->evdev->exist));
-+static ssize_t evdev_event_to_user(const char __user *buffer, struct input_event *event)
-+{
-+	if (copy_to_user(event, buffer, sizeof(struct input_event)))
-+		return -EFAULT;
- 
--	if (retval)
--		return retval;
-+	return 0;
-+}
-+
-+#endif /* CONFIG_COMPAT */
-+
-+static ssize_t evdev_write(struct file * file, const char __user * buffer, size_t count, loff_t *ppos)
-+{
-+	struct evdev_list *list = file->private_data;
-+	struct input_event event;
-+	int retval = 0;
- 
- 	if (!list->evdev->exist)
- 		return -ENODEV;
- 
--	while (list->head != list->tail && retval + sizeof(struct input_event_compat) <= count) {
--		struct input_event *event = (struct input_event *) list->buffer + list->tail;
--		struct input_event_compat event_compat;
--		event_compat.time.tv_sec = event->time.tv_sec;
--		event_compat.time.tv_usec = event->time.tv_usec;
--		event_compat.type = event->type;
--		event_compat.code = event->code;
--		event_compat.value = event->value;
-+	while (retval < count) {
- 
--		if (copy_to_user(buffer + retval, &event_compat,
--			sizeof(struct input_event_compat))) return -EFAULT;
--		list->tail = (list->tail + 1) & (EVDEV_BUFFER_SIZE - 1);
--		retval += sizeof(struct input_event_compat);
-+		if (evdev_event_from_user(buffer + retval, &event))
-+			return -EFAULT;
-+		input_event(list->evdev->handle.dev, event.type, event.code, event.value);
-+		retval += evdev_event_size();
- 	}
- 
- 	return retval;
- }
--#endif
- 
- static ssize_t evdev_read(struct file * file, char __user * buffer, size_t count, loff_t *ppos)
- {
- 	struct evdev_list *list = file->private_data;
- 	int retval;
- 
--#ifdef CONFIG_COMPAT
--	if (COMPAT_TEST)
--		return evdev_read_compat(file, buffer, count, ppos);
--#endif
--
--	if (count < sizeof(struct input_event))
-+	if (count < evdev_event_size())
- 		return -EINVAL;
- 
- 	if (list->head == list->tail && list->evdev->exist && (file->f_flags & O_NONBLOCK))
-@@ -272,11 +282,15 @@ static ssize_t evdev_read(struct file * 
- 	if (!list->evdev->exist)
- 		return -ENODEV;
- 
--	while (list->head != list->tail && retval + sizeof(struct input_event) <= count) {
--		if (copy_to_user(buffer + retval, list->buffer + list->tail,
--			sizeof(struct input_event))) return -EFAULT;
-+	while (list->head != list->tail && retval + evdev_event_size() <= count) {
-+
-+		struct input_event *event = (struct input_event *) list->buffer + list->tail;
-+
-+		if (evdev_event_to_user(buffer + retval, event))
-+			return -EFAULT;
-+
- 		list->tail = (list->tail + 1) & (EVDEV_BUFFER_SIZE - 1);
--		retval += sizeof(struct input_event);
-+		retval += evdev_event_size();
- 	}
- 
- 	return retval;
-@@ -291,17 +305,95 @@ static unsigned int evdev_poll(struct fi
- 		(list->evdev->exist ? 0 : (POLLHUP | POLLERR));
- }
- 
--static long evdev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-+#ifdef CONFIG_COMPAT
-+
-+#define BITS_PER_LONG_COMPAT (sizeof(compat_long_t) * 8)
-+#define NBITS_COMPAT(x) ((((x) - 1) / BITS_PER_LONG_COMPAT) + 1)
-+
-+#ifdef __BIG_ENDIAN
-+static int bits_to_user(unsigned long *bits, unsigned int maxbit,
-+			unsigned int maxlen, void __user *p, int compat)
-+{
-+	int len, i;
-+
-+	if (compat) {
-+		len = NBITS_COMPAT(maxbit) * sizeof(compat_long_t);
-+		if (len < maxlen)
-+			len = maxlen;
-+
-+		for (i = 0; i < len / sizeof(compat_long_t); i++)
-+			if (copy_to_user((compat_long_t __user *) p + i,
-+					 (compat_long_t *) bits +
-+						i + 1 - ((i % 2) << 1),
-+					 sizeof(compat_long_t)))
-+				return -EFAULT;
-+	} else {
-+		len = NBITS(maxbit) * sizeof(long);
-+		if (len > maxlen)
-+			len = maxlen;
-+
-+		if (copy_to_user(p, bits, len))
-+			return -EFAULT;
-+	}
-+
-+	return len;
-+}
-+#else
-+static int bits_to_user(unsigned long *bits, unsigned int maxbit,
-+			unsigned int maxlen, void __user *p, int compat)
-+{
-+	int len = compat ?
-+			NBITS_COMPAT(maxbit) * sizeof(compat_long_t) :
-+			NBITS(maxbit) * sizeof(long);
-+
-+	if (len > maxlen)
-+		len = maxlen;
-+
-+	return copy_to_user(p, bits, len) ? -EFAULT : len;
-+}
-+#endif /* __BIG_ENDIAN */
-+
-+#else
-+
-+static int bits_to_user(unsigned long *bits, unsigned int maxbit,
-+			unsigned int maxlen, void __user *p, int compat)
-+{
-+	int len = NBITS(maxbit) * sizeof(long);
-+
-+	if (len > maxlen)
-+		len = maxlen;
-+
-+	return copy_to_user(p, bits, len) ? -EFAULT : len;
-+}
-+
-+#endif /* CONFIG_COMPAT */
-+
-+static int str_to_user(const char *str, unsigned int maxlen, void __user *p)
-+{
-+	int len;
-+
-+	if (!str)
-+		return -ENOENT;
-+
-+	len = strlen(str) + 1;
-+	if (len > maxlen)
-+		len = maxlen;
-+
-+	return copy_to_user(p, str, len) ? -EFAULT : len;
-+}
-+
-+static long evdev_ioctl_handler(struct file *file, unsigned int cmd,
-+				void __user *p, int compat_mode)
- {
- 	struct evdev_list *list = file->private_data;
- 	struct evdev *evdev = list->evdev;
- 	struct input_dev *dev = evdev->handle.dev;
- 	struct input_absinfo abs;
--	void __user *p = (void __user *)arg;
--	int __user *ip = (int __user *)arg;
-+	int __user *ip = (int __user *)p;
- 	int i, t, u, v;
- 
--	if (!evdev->exist) return -ENODEV;
-+	if (!evdev->exist)
-+		return -ENODEV;
- 
- 	switch (cmd) {
- 
-@@ -309,26 +401,39 @@ static long evdev_ioctl(struct file *fil
- 			return put_user(EV_VERSION, ip);
- 
- 		case EVIOCGID:
--			return copy_to_user(p, &dev->id, sizeof(struct input_id)) ? -EFAULT : 0;
-+			if (copy_to_user(p, &dev->id, sizeof(struct input_id)))
-+				return -EFAULT;
-+
-+			return 0;
- 
- 		case EVIOCGKEYCODE:
--			if (get_user(t, ip)) return -EFAULT;
--			if (t < 0 || t >= dev->keycodemax || !dev->keycodesize) return -EINVAL;
--			if (put_user(INPUT_KEYCODE(dev, t), ip + 1)) return -EFAULT;
-+			if (get_user(t, ip))
-+				return -EFAULT;
-+			if (t < 0 || t >= dev->keycodemax || !dev->keycodesize)
-+				return -EINVAL;
-+			if (put_user(INPUT_KEYCODE(dev, t), ip + 1))
-+				return -EFAULT;
- 			return 0;
- 
- 		case EVIOCSKEYCODE:
--			if (get_user(t, ip)) return -EFAULT;
--			if (t < 0 || t >= dev->keycodemax || !dev->keycodesize) return -EINVAL;
--			if (get_user(v, ip + 1)) return -EFAULT;
--			if (v < 0 || v > KEY_MAX) return -EINVAL;
--			if (dev->keycodesize < sizeof(v) && (v >> (dev->keycodesize * 8))) return -EINVAL;
-+			if (get_user(t, ip))
-+				return -EFAULT;
-+			if (t < 0 || t >= dev->keycodemax || !dev->keycodesize)
-+				return -EINVAL;
-+			if (get_user(v, ip + 1))
-+				return -EFAULT;
-+			if (v < 0 || v > KEY_MAX)
-+				return -EINVAL;
-+			if (dev->keycodesize < sizeof(v) && (v >> (dev->keycodesize * 8)))
-+				return -EINVAL;
-+
- 			u = SET_INPUT_KEYCODE(dev, t, v);
- 			clear_bit(u, dev->keybit);
- 			set_bit(v, dev->keybit);
- 			for (i = 0; i < dev->keycodemax; i++)
--				if (INPUT_KEYCODE(dev,i) == u)
-+				if (INPUT_KEYCODE(dev, i) == u)
- 					set_bit(u, dev->keybit);
-+
- 			return 0;
- 
- 		case EVIOCSFF:
-@@ -339,17 +444,17 @@ static long evdev_ioctl(struct file *fil
- 				if (copy_from_user(&effect, p, sizeof(effect)))
- 					return -EFAULT;
- 				err = dev->upload_effect(dev, &effect);
--				if (put_user(effect.id, &(((struct ff_effect __user *)arg)->id)))
-+				if (put_user(effect.id, &(((struct ff_effect __user *)p)->id)))
- 					return -EFAULT;
- 				return err;
--			}
--			else return -ENOSYS;
-+			} else
-+				return -ENOSYS;
- 
- 		case EVIOCRMFF:
--			if (dev->erase_effect) {
--				return dev->erase_effect(dev, (int)arg);
--			}
--			else return -ENOSYS;
-+			if (!dev->erase_effect)
-+				return -ENOSYS;
-+
-+			return dev->erase_effect(dev, (int)(unsigned long) p);
- 
- 		case EVIOCGEFFECTS:
- 			if (put_user(dev->ff_effects_max, ip))
-@@ -357,7 +462,7 @@ static long evdev_ioctl(struct file *fil
- 			return 0;
- 
- 		case EVIOCGRAB:
--			if (arg) {
-+			if (p) {
- 				if (evdev->grab)
- 					return -EBUSY;
- 				if (input_grab_device(&evdev->handle))
-@@ -396,62 +501,33 @@ static long evdev_ioctl(struct file *fil
- 						case EV_SW:  bits = dev->swbit;  len = SW_MAX;  break;
- 						default: return -EINVAL;
- 					}
--					len = NBITS(len) * sizeof(long);
--					if (len > _IOC_SIZE(cmd)) len = _IOC_SIZE(cmd);
--					return copy_to_user(p, bits, len) ? -EFAULT : len;
-+					return bits_to_user(bits, len, _IOC_SIZE(cmd), p, compat_mode);
- 				}
- 
--				if (_IOC_NR(cmd) == _IOC_NR(EVIOCGKEY(0))) {
--					int len;
--					len = NBITS(KEY_MAX) * sizeof(long);
--					if (len > _IOC_SIZE(cmd)) len = _IOC_SIZE(cmd);
--					return copy_to_user(p, dev->key, len) ? -EFAULT : len;
--				}
-+				if (_IOC_NR(cmd) == _IOC_NR(EVIOCGKEY(0)))
-+					return bits_to_user(dev->key, KEY_MAX, _IOC_SIZE(cmd),
-+							    p, compat_mode);
- 
--				if (_IOC_NR(cmd) == _IOC_NR(EVIOCGLED(0))) {
--					int len;
--					len = NBITS(LED_MAX) * sizeof(long);
--					if (len > _IOC_SIZE(cmd)) len = _IOC_SIZE(cmd);
--					return copy_to_user(p, dev->led, len) ? -EFAULT : len;
--				}
-+				if (_IOC_NR(cmd) == _IOC_NR(EVIOCGLED(0)))
-+					return bits_to_user(dev->led, LED_MAX, _IOC_SIZE(cmd),
-+							    p, compat_mode);
- 
--				if (_IOC_NR(cmd) == _IOC_NR(EVIOCGSND(0))) {
--					int len;
--					len = NBITS(SND_MAX) * sizeof(long);
--					if (len > _IOC_SIZE(cmd)) len = _IOC_SIZE(cmd);
--					return copy_to_user(p, dev->snd, len) ? -EFAULT : len;
--				}
-+				if (_IOC_NR(cmd) == _IOC_NR(EVIOCGSND(0)))
-+					return bits_to_user(dev->snd, SND_MAX, _IOC_SIZE(cmd),
-+							    p, compat_mode);
- 
--				if (_IOC_NR(cmd) == _IOC_NR(EVIOCGSW(0))) {
--					int len;
--					len = NBITS(SW_MAX) * sizeof(long);
--					if (len > _IOC_SIZE(cmd)) len = _IOC_SIZE(cmd);
--					return copy_to_user(p, dev->sw, len) ? -EFAULT : len;
--				}
-+				if (_IOC_NR(cmd) == _IOC_NR(EVIOCGSW(0)))
-+					return bits_to_user(dev->sw, SW_MAX, _IOC_SIZE(cmd),
-+							    p, compat_mode);
- 
--				if (_IOC_NR(cmd) == _IOC_NR(EVIOCGNAME(0))) {
--					int len;
--					if (!dev->name) return -ENOENT;
--					len = strlen(dev->name) + 1;
--					if (len > _IOC_SIZE(cmd)) len = _IOC_SIZE(cmd);
--					return copy_to_user(p, dev->name, len) ? -EFAULT : len;
--				}
-+				if (_IOC_NR(cmd) == _IOC_NR(EVIOCGNAME(0)))
-+					return str_to_user(dev->name, _IOC_SIZE(cmd), p);
- 
--				if (_IOC_NR(cmd) == _IOC_NR(EVIOCGPHYS(0))) {
--					int len;
--					if (!dev->phys) return -ENOENT;
--					len = strlen(dev->phys) + 1;
--					if (len > _IOC_SIZE(cmd)) len = _IOC_SIZE(cmd);
--					return copy_to_user(p, dev->phys, len) ? -EFAULT : len;
--				}
-+				if (_IOC_NR(cmd) == _IOC_NR(EVIOCGPHYS(0)))
-+					return str_to_user(dev->phys, _IOC_SIZE(cmd), p);
- 
--				if (_IOC_NR(cmd) == _IOC_NR(EVIOCGUNIQ(0))) {
--					int len;
--					if (!dev->uniq) return -ENOENT;
--					len = strlen(dev->uniq) + 1;
--					if (len > _IOC_SIZE(cmd)) len = _IOC_SIZE(cmd);
--					return copy_to_user(p, dev->uniq, len) ? -EFAULT : len;
--				}
-+				if (_IOC_NR(cmd) == _IOC_NR(EVIOCGUNIQ(0)))
-+					return str_to_user(dev->uniq, _IOC_SIZE(cmd), p);
- 
- 				if ((_IOC_NR(cmd) & ~ABS_MAX) == _IOC_NR(EVIOCGABS(0))) {
- 
-@@ -493,158 +569,15 @@ static long evdev_ioctl(struct file *fil
- 	return -EINVAL;
- }
- 
--#ifdef CONFIG_COMPAT
--
--#define BITS_PER_LONG_COMPAT (sizeof(compat_long_t) * 8)
--#define NBITS_COMPAT(x) ((((x)-1)/BITS_PER_LONG_COMPAT)+1)
--#define OFF_COMPAT(x)  ((x)%BITS_PER_LONG_COMPAT)
--#define BIT_COMPAT(x)  (1UL<<OFF_COMPAT(x))
--#define LONG_COMPAT(x) ((x)/BITS_PER_LONG_COMPAT)
--#define test_bit_compat(bit, array) ((array[LONG_COMPAT(bit)] >> OFF_COMPAT(bit)) & 1)
--
--#ifdef __BIG_ENDIAN
--#define bit_to_user(bit, max) \
--do { \
--	int i; \
--	int len = NBITS_COMPAT((max)) * sizeof(compat_long_t); \
--	if (len > _IOC_SIZE(cmd)) len = _IOC_SIZE(cmd); \
--	for (i = 0; i < len / sizeof(compat_long_t); i++) \
--		if (copy_to_user((compat_long_t __user *) p + i, \
--				 (compat_long_t*) (bit) + i + 1 - ((i % 2) << 1), \
--				 sizeof(compat_long_t))) \
--			return -EFAULT; \
--	return len; \
--} while (0)
--#else
--#define bit_to_user(bit, max) \
--do { \
--	int len = NBITS_COMPAT((max)) * sizeof(compat_long_t); \
--	if (len > _IOC_SIZE(cmd)) len = _IOC_SIZE(cmd); \
--	return copy_to_user(p, (bit), len) ? -EFAULT : len; \
--} while (0)
--#endif
-+static long evdev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-+{
-+	return evdev_ioctl_handler(file, cmd, (void __user *)arg, 0);
-+}
- 
-+#ifdef CONFIG_COMPAT
- static long evdev_ioctl_compat(struct file *file, unsigned int cmd, unsigned long arg)
- {
--	struct evdev_list *list = file->private_data;
--	struct evdev *evdev = list->evdev;
--	struct input_dev *dev = evdev->handle.dev;
--	struct input_absinfo abs;
--	void __user *p = compat_ptr(arg);
--
--	if (!evdev->exist) return -ENODEV;
--
--	switch (cmd) {
--
--		case EVIOCGVERSION:
--		case EVIOCGID:
--		case EVIOCGKEYCODE:
--		case EVIOCSKEYCODE:
--		case EVIOCSFF:
--		case EVIOCRMFF:
--		case EVIOCGEFFECTS:
--		case EVIOCGRAB:
--			return evdev_ioctl(file, cmd, (unsigned long) p);
--
--		default:
--
--			if (_IOC_TYPE(cmd) != 'E')
--				return -EINVAL;
--
--			if (_IOC_DIR(cmd) == _IOC_READ) {
--
--				if ((_IOC_NR(cmd) & ~EV_MAX) == _IOC_NR(EVIOCGBIT(0,0))) {
--					long *bits;
--					int max;
--
--					switch (_IOC_NR(cmd) & EV_MAX) {
--						case      0: bits = dev->evbit;  max = EV_MAX;  break;
--						case EV_KEY: bits = dev->keybit; max = KEY_MAX; break;
--						case EV_REL: bits = dev->relbit; max = REL_MAX; break;
--						case EV_ABS: bits = dev->absbit; max = ABS_MAX; break;
--						case EV_MSC: bits = dev->mscbit; max = MSC_MAX; break;
--						case EV_LED: bits = dev->ledbit; max = LED_MAX; break;
--						case EV_SND: bits = dev->sndbit; max = SND_MAX; break;
--						case EV_FF:  bits = dev->ffbit;  max = FF_MAX;  break;
--						case EV_SW:  bits = dev->swbit;  max = SW_MAX;  break;
--						default: return -EINVAL;
--					}
--					bit_to_user(bits, max);
--				}
--
--				if (_IOC_NR(cmd) == _IOC_NR(EVIOCGKEY(0)))
--					bit_to_user(dev->key, KEY_MAX);
--
--				if (_IOC_NR(cmd) == _IOC_NR(EVIOCGLED(0)))
--					bit_to_user(dev->led, LED_MAX);
--
--				if (_IOC_NR(cmd) == _IOC_NR(EVIOCGSND(0)))
--					bit_to_user(dev->snd, SND_MAX);
--
--				if (_IOC_NR(cmd) == _IOC_NR(EVIOCGSW(0)))
--					bit_to_user(dev->sw, SW_MAX);
--
--				if (_IOC_NR(cmd) == _IOC_NR(EVIOCGNAME(0))) {
--					int len;
--					if (!dev->name) return -ENOENT;
--					len = strlen(dev->name) + 1;
--					if (len > _IOC_SIZE(cmd)) len = _IOC_SIZE(cmd);
--					return copy_to_user(p, dev->name, len) ? -EFAULT : len;
--				}
--
--				if (_IOC_NR(cmd) == _IOC_NR(EVIOCGPHYS(0))) {
--					int len;
--					if (!dev->phys) return -ENOENT;
--					len = strlen(dev->phys) + 1;
--					if (len > _IOC_SIZE(cmd)) len = _IOC_SIZE(cmd);
--					return copy_to_user(p, dev->phys, len) ? -EFAULT : len;
--				}
--
--				if (_IOC_NR(cmd) == _IOC_NR(EVIOCGUNIQ(0))) {
--					int len;
--					if (!dev->uniq) return -ENOENT;
--					len = strlen(dev->uniq) + 1;
--					if (len > _IOC_SIZE(cmd)) len = _IOC_SIZE(cmd);
--					return copy_to_user(p, dev->uniq, len) ? -EFAULT : len;
--				}
--
--				if ((_IOC_NR(cmd) & ~ABS_MAX) == _IOC_NR(EVIOCGABS(0))) {
--
--					int t = _IOC_NR(cmd) & ABS_MAX;
--
--					abs.value = dev->abs[t];
--					abs.minimum = dev->absmin[t];
--					abs.maximum = dev->absmax[t];
--					abs.fuzz = dev->absfuzz[t];
--					abs.flat = dev->absflat[t];
--
--					if (copy_to_user(p, &abs, sizeof(struct input_absinfo)))
--						return -EFAULT;
--
--					return 0;
--				}
--			}
--
--			if (_IOC_DIR(cmd) == _IOC_WRITE) {
--
--				if ((_IOC_NR(cmd) & ~ABS_MAX) == _IOC_NR(EVIOCSABS(0))) {
--
--					int t = _IOC_NR(cmd) & ABS_MAX;
--
--					if (copy_from_user(&abs, p, sizeof(struct input_absinfo)))
--						return -EFAULT;
--
--					dev->abs[t] = abs.value;
--					dev->absmin[t] = abs.minimum;
--					dev->absmax[t] = abs.maximum;
--					dev->absfuzz[t] = abs.fuzz;
--					dev->absflat[t] = abs.flat;
--
--					return 0;
--				}
--			}
--	}
--	return -EINVAL;
-+	return evdev_ioctl_handler(file, cmd, compat_ptr(arg), 1);
- }
- #endif
- 
+0000:00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+00: 86 80 10 71 0f 00 80 02 02 00 01 06 00 00 80 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 4d 00 20 01
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 8a 8b 8b 8b 10 00 00 00 00 f6 80 00 00 00 00 00
+70: 00 00 00 00 00 00 0c 0c 00 00 00 00 00 00 00 00
+80: 00 00 07 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 05 40 d8 e3 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 21 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
+
+0000:00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
+00: 86 80 11 71 05 00 80 02 01 80 01 01 00 40 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: a1 ff 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 07 e3 00 00 00 00 00 00 01 00 02 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
+
+0000:00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
+00: 86 80 12 71 05 00 80 02 01 00 03 0c 00 40 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: e1 dc 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 0b 04 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 20 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 10
+
+0000:00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
+00: 86 80 13 71 01 00 80 02 02 00 80 06 00 00 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 01 08 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 04 00 00 02 00 00 00 00
+60: 00 00 00 00 00 00 00 00 04 08 11 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 51 08 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 01 53 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
+
+0000:00:0d.0 Ethernet controller: Alteon Networks Inc. AceNIC Gigabit 
+Ethernet (Copper) (rev 01)
+00: ae 12 02 00 06 01 a0 02 01 00 00 02 08 40 00 00
+10: 00 00 00 fe 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 ae 12 02 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 0a 01 40 00
+40: 20 00 00 60 c0 56 e0 00 00 00 00 00 00 00 00 00
+50: 55 00 10 07 8a 8b c3 d1 72 8c c3 d1 00 00 12 76
+60: 80 00 06 00 00 00 00 00 00 38 00 00 00 00 00 00
+70: 00 00 06 08 00 00 00 00 99 8b c3 d1 fa 00 00 00
+80: 00 00 00 00 08 20 61 01 00 00 00 00 08 20 61 01
+90: 00 00 00 00 00 68 68 01 00 00 00 00 00 00 00 00
+a0: 82 00 82 00 8c 29 1b 00 5b 9a 00 00 00 00 00 00
+b0: 82 f0 81 00 c8 13 1a 00 bb d2 00 00 c8 13 1a 00
+c0: 00 c0 1c 00 00 c0 1c 00 00 c0 1c 00 f8 fb 1e 00
+d0: 00 30 1b 00 00 30 1b 00 00 30 1b 00 00 00 00 00
+e0: 00 10 1b 00 00 10 1b 00 00 10 1b 00 03 00 ff ff
+f0: 00 08 1b 00 00 08 1b 00 00 08 1b 00 00 08 1b 00
+
+0000:00:0e.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 
+(rev 0a)
+00: 02 11 02 00 05 01 90 02 0a 00 01 04 00 40 80 00
+10: c1 dc 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 02 11 65 80
+30: 00 00 00 00 dc 00 00 00 00 00 00 00 0b 01 02 14
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 01 06
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+0000:00:0e.1 Input device controller: Creative Labs SB Live! MIDI/Game 
+Port (rev 0a)
+00: 02 11 02 70 05 01 90 02 0a 00 80 09 00 40 80 00
+10: b9 dc 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 02 11 20 00
+30: 00 00 00 00 dc 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 01 06
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+0000:00:10.0 Multimedia video controller: Brooktree Corporation Bt878 
+Video Capture (rev 11)
+00: 9e 10 6e 03 06 01 90 02 11 00 00 04 00 40 80 00
+10: 08 10 00 f7 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 61 14 71 07
+30: 00 00 00 00 44 00 00 00 00 00 00 00 0b 01 10 28
+40: 00 00 00 00 03 4c 00 00 00 00 00 00 01 00 22 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+0000:00:10.1 Multimedia controller: Brooktree Corporation Bt878 Audio 
+Capture (rev 11)
+00: 9e 10 78 08 06 01 90 02 11 00 80 04 00 40 80 00
+10: 08 00 00 f7 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 61 14 71 07
+30: 00 00 00 00 44 00 00 00 00 00 00 00 0b 01 04 ff
+40: 00 00 00 00 03 4c 00 00 00 00 00 00 01 00 22 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+0000:00:11.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX 
+[Cyclone] (rev 24)
+00: b7 10 55 90 17 01 10 02 24 00 00 02 08 40 00 00
+10: 01 dc 00 00 00 40 00 fe 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 28 10 87 00
+30: 00 00 00 f9 dc 00 00 00 00 00 00 00 0b 01 0a 0a
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 40 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 01 36
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+0000:00:13.0 PCI bridge: Digital Equipment Corporation DECchip 21152 
+(rev 03)
+00: 11 10 24 00 07 01 90 02 03 00 04 06 08 40 01 00
+10: 00 00 00 00 00 00 00 00 00 02 02 40 e1 e1 80 22
+20: 00 fa f0 fb 01 f0 f1 f1 00 00 00 00 00 00 00 00
+30: 00 00 00 00 dc 00 00 00 00 00 00 00 00 00 06 00
+40: 00 00 00 02 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 30 3e 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 01 01
+e0: 00 00 40 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+0000:01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 
+AGP (rev 04)
+00: 2b 10 25 05 07 00 90 02 04 00 00 03 08 40 00 00
+10: 08 00 00 f4 00 c0 ff fc 00 00 00 fc 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 2b 10 7d 21
+30: 00 00 00 80 dc 00 00 00 00 00 00 00 0a 01 10 20
+40: 20 c1 53 50 08 3c 00 00 00 00 03 00 00 00 00 00
+50: 00 30 00 01 19 84 9b 01 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 f0 22 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 02 00 20 00 03 02 00 1f 01 03 00 1f 00 00 00 00
+
+0000:02:09.0 Multimedia video controller: Brooktree Corporation Bt878 
+Video Capture (rev 11)
+00: 9e 10 6e 03 06 01 90 02 11 00 00 04 00 40 80 00
+10: 08 f0 ff f1 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 70 00 eb 13
+30: 00 00 00 00 44 00 00 00 00 00 00 00 0b 01 10 28
+40: 00 00 00 00 03 4c 00 00 00 00 00 00 01 00 22 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+0000:02:09.1 Multimedia controller: Brooktree Corporation Bt878 Audio 
+Capture (rev 11)
+00: 9e 10 78 08 06 01 90 02 11 00 80 04 00 40 80 00
+10: 08 e0 ff f1 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 70 00 eb 13
+30: 00 00 00 00 44 00 00 00 00 00 00 00 0b 01 04 ff
+40: 00 00 00 00 03 4c 00 00 00 00 00 00 01 00 22 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+0000:02:0a.0 SCSI storage controller: Adaptec AHA-2940U2/U2W / 7890/7891
+00: 05 90 1f 00 16 01 90 02 00 00 00 01 08 40 00 80
+10: 01 ec 00 00 04 f0 ff fa 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 28 10 87 00
+30: 00 00 00 fb dc 00 00 00 00 00 00 00 0b 01 27 19
+40: 40 05 00 80 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 01 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+0000:02:0e.0 SCSI storage controller: Adaptec AIC-7880U (rev 01)
+00: 04 90 78 80 16 01 90 02 01 00 00 01 08 40 00 00
+10: 01 e8 00 00 00 e0 ff fa 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 04 90 80 78
+30: 00 00 00 fb dc 00 00 00 00 00 00 00 0b 01 08 08
+40: a0 15 00 80 a0 15 00 80 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 21 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+

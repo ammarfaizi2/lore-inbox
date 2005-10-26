@@ -1,63 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbVJZVYF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964926AbVJZVbI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964939AbVJZVYF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 17:24:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964941AbVJZVYE
+	id S964926AbVJZVbI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 17:31:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964938AbVJZVbI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 17:24:04 -0400
-Received: from smtp04.auna.com ([62.81.186.14]:32923 "EHLO smtp04.retemail.es")
-	by vger.kernel.org with ESMTP id S964939AbVJZVYD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 17:24:03 -0400
-In-Reply-To: <9a8748490510260823s681a4d82k5efa5734486eda85@mail.gmail.com>
-References: <20051026042827.GA22836@havoc.gtf.org> <200510261704.15366.ak@suse.de> <9a8748490510260823s681a4d82k5efa5734486eda85@mail.gmail.com>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <AB480DAC-57B0-4125-8BA5-D6C715B693B6@able.es>
-Cc: netdev@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: [PATCH] kill massive wireless-related log spam
-Date: Wed, 26 Oct 2005 23:23:58 +0200
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-X-Mailer: Apple Mail (2.734)
-X-Auth-Info: Auth:PLAIN IP:[83.138.221.146] Login:jamagallon@able.es Fecha:Wed, 26 Oct 2005 23:23:59 +0200
+	Wed, 26 Oct 2005 17:31:08 -0400
+Received: from ams-iport-1.cisco.com ([144.254.224.140]:26160 "EHLO
+	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S964926AbVJZVbH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 17:31:07 -0400
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Laurent riffard <laurent.riffard@free.fr>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>, Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [RFC patch 2/3] remove pci_driver.owner and .name fields
+X-Message-Flag: Warning: May contain useful information
+References: <20051026204802.123045000@antares.localdomain>
+	<20051026204909.576265000@antares.localdomain>
+	<52vezkyoor.fsf@cisco.com> <20051026212127.GU7992@ftp.linux.org.uk>
+From: Roland Dreier <rolandd@cisco.com>
+Date: Wed, 26 Oct 2005 14:30:59 -0700
+In-Reply-To: <20051026212127.GU7992@ftp.linux.org.uk> (Al Viro's message of
+ "Wed, 26 Oct 2005 22:21:27 +0100")
+Message-ID: <52r7a8ynho.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 26 Oct 2005 21:31:01.0205 (UTC) FILETIME=[8FB5E050:01C5DA74]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    > It looks stupid in the first place - what's wrong with
+    > 		.driver.name = "DAC960",
+    > instead of that mess?
 
-On 2005.10.26, at 17:23, Jesper Juhl wrote:
+Unfortunately I don't think gcc 2.95 accepts that syntax.  For
+example the following:
 
-> On 10/26/05, Andi Kleen <ak@suse.de> wrote:
->
->> On Wednesday 26 October 2005 06:28, Jeff Garzik wrote:
->>
->>
->>> Change this to printing out the message once, per kernel boot.
->>>
->>
->> It doesn't do that. It prints it once every 2^32 calls. Also
->>
->
-> I noted that as well. How about just using something along the  
-> lines of
->
-> static unsigned char printed_message = 0;
-> if (!printed_message) {
->     printk(...);
->     printed_message++;
-> }
+	void foo(void)
+	{
+		struct {
+			struct {
+				int y;
+			} x;
+		} bar = {
+			.x.y = 1
+		};
+	}
 
-Sorry, but why not the old good
+gives
 
-     printed_message = 1
+	a.c: In function `foo':
+	a.c:8: unknown field `y' specified in initializer
 
-??
-What kind of microoptimization is that ?
+when compiled with gcc 2.95.
 
---
-J.A. Magallon <jamagallon()able!es>   \          Software is like sex:
-wolverine                              \    It's better when it's free
-MacOS X 10.4.2, Darwin Kernel Version 8.2.0
+I guess we could do
 
+	.driver = { .name = "DAC960" },
 
+but that seems silly as well.
+
+ - R.

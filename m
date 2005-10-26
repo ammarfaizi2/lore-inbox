@@ -1,56 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbVJZEeR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932542AbVJZFG2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932120AbVJZEeR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 00:34:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbVJZEeR
+	id S932542AbVJZFG2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 01:06:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbVJZFG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 00:34:17 -0400
-Received: from koto.vergenet.net ([210.128.90.7]:28322 "EHLO koto.vergenet.net")
-	by vger.kernel.org with ESMTP id S932120AbVJZEeQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 00:34:16 -0400
-Date: Wed, 26 Oct 2005 12:42:38 +0900
-From: Horms <horms@debian.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>, 325117@bugs.debian.org
-Cc: ruediger@theo-phys.uni-essen.de, linux-kernel@vger.kernel.org
-Subject: Re: Bug#325117: NFS client problem with kernel 2.6 and SGI IRIX 6.5
-Message-ID: <20051026034235.GB6423@verge.net.au>
-References: <200510140905.LAA10947@next12.theo-phys.uni-essen.de> <1129314142.8443.13.camel@lade.trondhjem.org> <200510191652.SAA13594@next12.theo-phys.uni-essen.de> <1129756421.8971.19.camel@lade.trondhjem.org>
+	Wed, 26 Oct 2005 01:06:28 -0400
+Received: from web35602.mail.mud.yahoo.com ([66.163.179.141]:6761 "HELO
+	web35602.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932542AbVJZFG2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 01:06:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=JKyGI7HtE2BiIMj3fc4ZT89FUQbEnd0Fm3Yck0Ty8IB7uy9NfsWFVscc1J3ssFlfDcUfcgdy+ac+F5z7WsRESzK3Ikg0QIBylAfrIR0sK7jgVvZH714QXYgjvBr6hMwqCxPZYSYjrPAH1bjuR1vJjSL415fa+qf3t6rYlhiUCCw=  ;
+Message-ID: <20051026050627.69339.qmail@web35602.mail.mud.yahoo.com>
+Date: Tue, 25 Oct 2005 22:06:27 -0700 (PDT)
+From: salve vandana <vandanasalve@yahoo.com>
+Subject: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20051026024831.GB17191@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1129756421.8971.19.camel@lade.trondhjem.org>
-X-Cluestick: seven
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 19, 2005 at 02:13:41PM -0700, Trond Myklebust wrote:
-> on den 19.10.2005 klokka 18:52 (+0200) skreiv Ruediger Oberhage:
-> > Hello again.
-> > 
-> > Some first findings regarding nfs problems:
-> > 
-> > At first I have to apologize for my memory (again :-)) serving me
-> > wrong: I did state, that the "find /nfsDir -print" problem was
-> > (generally) gone with the 2.6.12 kernel; this is wrong(!).
-> > 
-> > The problem does exist for both (Debianized) kernels 2.6.8 as well
-> > as 2.6.12 (the details follow below in the 'strace'-dump). The
-> > (find-)problem does NOT exist for the (2.6.12-)kernel delivered on
-> > the KNOPPIX 4.0 DVD!!! So there is a cure for some kernel for this
-> > one. The 'resources'-problem (OpenOffice/Mathematica) still remains
-> > for this kernel, too!
-> 
-> Recent kernels (2.6.13 and above - sorry, I though it was 2.6.12) have
-> the following patch applied
-> 
-> http://client.linux-nfs.org/Linux-2.6.x/2.6.12/linux-2.6.12-43-dirent_fix.dif
-> 
-> This should normally suffice to fix the SGI problem.
+Hi,
 
-Thanks, I'll confine subseqent discussion to 325117@bugs.debian.org
-as debian packaging issues don't need to be on lkml.
+I am getting this VM error on 2.4.28kernel(RAM-768MB,
+No Swap and the root file system,whose size is around
+300MB is loaded as initrd).
+After the error the processes are getting killed and
+system is rebooted. I am not understanding why the MM
+is trying is allocate pages from HIGH Memory
+(gfp=0x1d2/0) when I dont have High memory and the
+kernel is also not enabled to support High memory. I
+have put the printk's to see how kswapd is woken up to
+free unused pages because I dont want to run out of
+memory.
 
--- 
-Horms
+Here is log:
+
+try_to_free_pages_zone
+try_to_free_pages_zone
+try_to_free_pages_zone
+__alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+VM: killing process cp_test
+Received SIGCHLDtry_to_free_pages_zone
+cp_test exited (PID = 213).Invalid TFTP URL for
+exporting crash-dumps...
+__alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+ry_to_free_pages_zone
+try_to_free_pages_zone
+try_to_free_pages_zone
+
+Thanks,
+Vandana
+
+
+
+
+		
+__________________________________ 
+Yahoo! FareChase: Search multiple travel sites in one click.
+http://farechase.yahoo.com

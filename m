@@ -1,110 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932574AbVJZHXl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932582AbVJZHaI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932574AbVJZHXl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 03:23:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932578AbVJZHXl
+	id S932582AbVJZHaI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 03:30:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932583AbVJZHaI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 03:23:41 -0400
-Received: from i5-7.dnslinks.net ([66.98.167.159]:1751 "HELO ip01-web5.net")
-	by vger.kernel.org with SMTP id S932574AbVJZHXk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 03:23:40 -0400
-Subject: LSI LOGIC I/O Error on 2.6.12.6
-From: govind <garumuga@sahasrasolutions.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1130311510.3328.16.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 26 Oct 2005 12:55:10 +0530
-Content-Transfer-Encoding: 7bit
+	Wed, 26 Oct 2005 03:30:08 -0400
+Received: from ppsw-7.csi.cam.ac.uk ([131.111.8.137]:31165 "EHLO
+	ppsw-7.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S932582AbVJZHaH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 03:30:07 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Wed, 26 Oct 2005 08:30:04 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux-kernel@vger.kernel.org, zippel@linux-m68k.org,
+       prw@ceiriog1.demon.co.uk
+Subject: [2.6-git PATCH] Fix for HFSPlus, should go in before 2.6.14!
+Message-ID: <Pine.LNX.4.64.0510260817360.3412@hermes-1.csi.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Linus,
 
-We are trying to make use of a LSI LOGICS SAS drives in a customized
-Linux distribution of 2.6.12.6 kernel version. We are hitting upon an
-I/O Error on trying to access the drives. Have anybody faced this
-problem?
+Roman Zippel the HFS/HFS+ maintainer seems to not be responding to email 
+or lkml posts...
 
-The following are the details:
+I reported a bug with HFS+ which causes deleting files not to free up the 
+space they occupy randomly (at least when run on i386).
 
+Peter Wainwright reported he experienced the same problem and he posted a 
+fix.  His patch was corrupt so I re-did it against latest git, please find 
+it below, together with Peter's explanation of the bug and fix.
 
-kernel version =2.6.12.6
-mptsasdriver   =mptlinux-3.02.57
-Processor      =Intel(R) Xeon(TM) CPU 3.20GHz
+Although I have not tested it myself yet (don't have the external hd with 
+hfs+ here at work and at the moment it is formated with ntfs anyway), it 
+is just a one liner and obviously correct.
 
-The relevant part of dmesg output on this server-
----------------------------------------
+Please apply before you release 2.6.14 if at all possible as HFS+ is 
+seriously borked without it...  I have now given up waiting for Roman to 
+reply given my original mail to him was two weeks ago and you are about 
+to release 2.6.14...
 
-Fusion MPT base driver 3.02.57
-Copyright (c) 1999-2005 LSI Logic Corporation
-Fusion MPT SPI Host driver 3.02.57
-Fusion MPT FC Host driver 3.02.57
-Fusion MPT misc device (ioctl) driver 3.02.57
-mptctl: Registered with Fusion MPT base driver
-mptctl: /dev/mptctl @ (major,minor=10,220)
-Fusion MPT SAS Host driver 3.02.57
-PCI: Enabling device 0000:06:03.0 (0116 -> 0117)
-ACPI: PCI Interrupt 0000:06:03.0[A] -> GSI 98 (level, low) -> IRQ 98
-mptbase: Initiating ioc0 bringup
-ioc0: SAS1068: Capabilities={Initiator}
-scsi1 : ioc0: LSISAS1068, FwRev=01030000h, Ports=1, MaxQ=267, IRQ=98
-  Vendor: ATA       Model: Maxtor 7Y250M0    Rev: 11W0
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-SCSI device sdb: 490234752 512-byte hdwr sectors (251000 MB)
-SCSI device sdb: drive cache: write back
-SCSI device sdb: 490234752 512-byte hdwr sectors (251000 MB)
-SCSI device sdb: drive cache: write back
- sdb:<6>SCSI error : <1 0 8 0> return code = 0x8000002
-sdb: Current: sense key=0x3
-    ASC=0x11 ASCQ=0x0
-end_request: I/O error, dev sdb, sector 0
-Buffer I/O error on device sdb, logical block 0
-SCSI error : <1 0 8 0> return code = 0x8000002
-sdb: Current: sense key=0x3
-    ASC=0x11 ASCQ=0x0
-end_request: I/O error, dev sdb, sector 0
-Buffer I/O error on device sdb, logical block 0
- unable to read partition table
-Attached scsi disk sdb at scsi1, channel 0, id 8, lun 0
-Attached scsi generic sg1 at scsi1, channel 0, id 8, lun 0,  type 0
-  Vendor: ATA       Model: Maxtor 7Y250M0    Rev: 11W0
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-SCSI device sdc: 490234752 512-byte hdwr sectors (251000 MB)
+Best regards,
 
-The relevant part of the kernel .config file is as follows
-------------------------------------------------------------
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 
-#
-CONFIG_SCSI=y
-CONFIG_SCSI_PROC_FS=y
+---
 
-#
-# SCSI support type (disk, tape, CD-ROM)
-#
-CONFIG_BLK_DEV_SD=y
-# CONFIG_CHR_DEV_ST is not set
-# CONFIG_CHR_DEV_OSST is not set
-# CONFIG_BLK_DEV_SR is not set
-CONFIG_CHR_DEV_SG=y
+[PATCH] Fix HFS+ to free up the space when a file is deleted.
 
-#
-# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
-#
-CONFIG_SCSI_MULTI_LUN=y
-# CONFIG_SCSI_CONSTANTS is not set
-CONFIG_SCSI_LOGGING=y
+fsck_hfs reveals lots of temporary files accumulating in
+the hidden directory "\000\000\000HFS+ Private Data".
+According to the HFS+ documentation these are files which
+are unlinked while in use.  However, there may be a bug in
+the Linux hfsplus implementation which causes this to happen
+even when the files are not in use. It looks like the
+"opencnt" field is never initialized as (I think) it should
+be in hfsplus_read_inode.  This means that a file can appear
+to be still in use when in fact it has been closed. This patch
+seems to fix it for me.
 
-#
-# SCSI Transport Attributes
-#
-CONFIG_SCSI_SPI_ATTRS=m
-CONFIG_SCSI_FC_ATTRS=m
-CONFIG_SCSI_ISCSI_ATTRS=m
+From: Peter Wainwright <peter.wainwright@hpa-rp.org.uk>
+Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
-
-Thanks,
-A.govind
-
+diff --git a/fs/hfsplus/super.c b/fs/hfsplus/super.c
+index fd0f0f0..452fc1f 100644
+--- a/fs/hfsplus/super.c
++++ b/fs/hfsplus/super.c
+@@ -50,6 +50,7 @@ static void hfsplus_read_inode(struct in
+ 	init_MUTEX(&HFSPLUS_I(inode).extents_lock);
+ 	HFSPLUS_I(inode).flags = 0;
+ 	HFSPLUS_I(inode).rsrc_inode = NULL;
++	atomic_set(&HFSPLUS_I(inode).opencnt, 0);
+ 
+ 	if (inode->i_ino >= HFSPLUS_FIRSTUSER_CNID) {
+ 	read_inode:

@@ -1,59 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964870AbVJZTSK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964873AbVJZTZ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964870AbVJZTSK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 15:18:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964868AbVJZTSK
+	id S964873AbVJZTZ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 15:25:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964876AbVJZTZ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 15:18:10 -0400
-Received: from 238-193.adsl.pool.ew.hu ([193.226.238.193]:36103 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S964861AbVJZTSI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 15:18:08 -0400
-To: bulb@ucw.cz
-CC: viro@ftp.linux.org.uk, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-In-reply-to: <20051026173150.GB11769@efreet.light.src> (message from Jan Hudec
-	on Wed, 26 Oct 2005 19:31:50 +0200)
-Subject: Re: [PATCH 2/8] VFS: per inode statfs (core)
-References: <E1EU5bT-0005sq-00@dorka.pomaz.szeredi.hu> <20051025042519.GJ7992@ftp.linux.org.uk> <E1EUHbq-0006t6-00@dorka.pomaz.szeredi.hu> <20051026173150.GB11769@efreet.light.src>
-Message-Id: <E1EUqm3-00013A-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 26 Oct 2005 21:17:23 +0200
+	Wed, 26 Oct 2005 15:25:29 -0400
+Received: from xproxy.gmail.com ([66.249.82.199]:45029 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964873AbVJZTZ3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 15:25:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=j+okfTgm7BiNs1Uu3VWWLv5EnT0R2bBgMLXx2a1QpktzDhnYEqPixIF4Xgmx+24R0VJWsdxm0MWL4jsjx9gV4wVlVZxPIIkppCMzmdDFfhL/n8G8+i2weR78CA5DF6ERk8wDas4cbm2+tMEQ64+k6DoXvY6DcC4PXWI9GB4PZK4=
+Message-ID: <21d7e9970510261225r6b84bc1at4bbb2d7c3754a759@mail.gmail.com>
+Date: Thu, 27 Oct 2005 05:25:26 +1000
+From: Dave Airlie <airlied@gmail.com>
+To: Alessandro Suardi <alessandro.suardi@gmail.com>
+Subject: Re: X unkillable in R state sometimes on startx , /proc/sysrq-trigger T output attached
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+In-Reply-To: <5a4c581d0510260620o1a6ad678v6966dba3f40e8601@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <5a4c581d0510251335ke8e7ae6n883e0b44a9920ce4@mail.gmail.com>
+	 <21d7e9970510260325o2a47e6f5gc64d29eec42de086@mail.gmail.com>
+	 <5a4c581d0510260522h3c98d1acsf4715a4d4865121c@mail.gmail.com>
+	 <21d7e9970510260528k37cffb12h24d7b6fad7f3ed6e@mail.gmail.com>
+	 <5a4c581d0510260620o1a6ad678v6966dba3f40e8601@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > This patch adds a statfs method to inode operations.  This is invoked
-> > > > whenever the dentry is available (not called from sys_ustat()) and the
-> > > > filesystem implements this method.  Otherwise the normal
-> > > > s_op->statfs() will be called.
-> > > > 
-> > > > This change is backward compatible, but calls to vfs_statfs() should
-> > > > be changed to vfs_dentry_statfs() whenever possible.
-> > > 
-> > > What the fuck for?  statfs() returns data that by definition should
-> > > not depend on inode within a filesystem.
-> > 
-> > Exactly.  But it's specified nowhere that there has to be a one-one
-> > mapping between remote filesystem - local filesystem.
-> 
-> Unfortunately making statfs alone aware of them does not help. Most useful
-> tools that use statfs go to /proc/mouts, read all the entries and invoke
-> statfs for each path. So if for some non-root path different values are
-> returned, these tools won't see them anyway. So try to think about how to
-> provide the info about subfilesystems first.
+>
+> > if you just run X, does it always start to the X cursor without hanging..
+>
+> Will try. Note however, when I experience the problem X doesn't
+>  really "hang" - it spins in CPU.
 
-'df .': tried it and it did not do what was expected, but that can
-definitely be fixed
+That's a hang from the graphics developers point of view, your
+graphics card has crashed and X is spinning waiting for the card to
+come back and say it is okay.. something it never does...
 
-'stat -f .': actually works
+>
+> For that matter, I'm running it now without issues... it
+>  seems to get in the weird state only on startup.
 
-foo-filemanager: before copying a file or directory tree, checks for
-free space in destination directory
+I probably restart X about 5-10 times per working session and I've
+never seen this yet, I'll do a few more reboots, we have a known issue
+with a bug fix that went into X and I'm not sure if it is in your X
+packages but it probably is.. can you tell me the FC4 xorg rpm titles
+so I can check it, if it causing problems on AGP systems as well I'll
+be pushing RH to release new X packages with a proper fix, that benh
+is working on at the moment..
 
-None of the above examples need (and use) /etc/mtab or /proc/mounts.
+Dave.
 
-Just because the info is not available about the placement of the
-subfilesystems, doesn't mean that the subfilesystems don't actually
-exist.
-
-Miklos
+>
+> Thanks ! Ciao,
+>
+> --alessandro
+>
+>  "All it takes is one decision
+>   A lot of guts, a little vision to wave
+>   Your worries, and cares goodbye"
+>
+>    (Placebo - "Slave To The Wage")
+>

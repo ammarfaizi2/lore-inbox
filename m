@@ -1,324 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbVJZTQQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964870AbVJZTSK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964867AbVJZTQQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 15:16:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964868AbVJZTQQ
+	id S964870AbVJZTSK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 15:18:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964868AbVJZTSK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 15:16:16 -0400
-Received: from Mail.MNSU.EDU ([134.29.1.12]:32150 "EHLO mail.mnsu.edu")
-	by vger.kernel.org with ESMTP id S964867AbVJZTQP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 15:16:15 -0400
-Message-ID: <435FD5F5.7090002@mnsu.edu>
-Date: Wed, 26 Oct 2005 14:16:05 -0500
-From: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Call for PIIX4 chipset testers
-References: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 26 Oct 2005 15:18:10 -0400
+Received: from 238-193.adsl.pool.ew.hu ([193.226.238.193]:36103 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S964861AbVJZTSI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 15:18:08 -0400
+To: bulb@ucw.cz
+CC: viro@ftp.linux.org.uk, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+In-reply-to: <20051026173150.GB11769@efreet.light.src> (message from Jan Hudec
+	on Wed, 26 Oct 2005 19:31:50 +0200)
+Subject: Re: [PATCH 2/8] VFS: per inode statfs (core)
+References: <E1EU5bT-0005sq-00@dorka.pomaz.szeredi.hu> <20051025042519.GJ7992@ftp.linux.org.uk> <E1EUHbq-0006t6-00@dorka.pomaz.szeredi.hu> <20051026173150.GB11769@efreet.light.src>
+Message-Id: <E1EUqm3-00013A-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 26 Oct 2005 21:17:23 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an IBM ThinkPad A22m - 2628-TTU
+> > > > This patch adds a statfs method to inode operations.  This is invoked
+> > > > whenever the dentry is available (not called from sys_ustat()) and the
+> > > > filesystem implements this method.  Otherwise the normal
+> > > > s_op->statfs() will be called.
+> > > > 
+> > > > This change is backward compatible, but calls to vfs_statfs() should
+> > > > be changed to vfs_dentry_statfs() whenever possible.
+> > > 
+> > > What the fuck for?  statfs() returns data that by definition should
+> > > not depend on inode within a filesystem.
+> > 
+> > Exactly.  But it's specified nowhere that there has to be a one-one
+> > mapping between remote filesystem - local filesystem.
+> 
+> Unfortunately making statfs alone aware of them does not help. Most useful
+> tools that use statfs go to /proc/mouts, read all the entries and invoke
+> statfs for each path. So if for some non-root path different values are
+> returned, these tools won't see them anyway. So try to think about how to
+> provide the info about subfilesystems first.
 
-Linus Torvalds wrote:
+'df .': tried it and it did not do what was expected, but that can
+definitely be fixed
 
->It should report a number of quirks, and the easiest way to get them all 
->is to just do
->
->	dmesg -s 1000000 | grep PIIX4
->
->  
->
-PCI quirk: region 1000-103f claimed by PIIX4 ACPI
-PCI quirk: region 1040-105f claimed by PIIX4 SMB
-PIIX4 devres C PIO at 15e8-15ef
-PIIX4 devres I PIO at 03f0-03f7
-PIIX4 devres J PIO at 002e-002f
-PIIX4: IDE controller at PCI slot 0000:00:07.1
-PIIX4: chipset revision 1
-PIIX4: not 100% native mode: will probe irqs later
+'stat -f .': actually works
 
->and send it to me (and you might as well cc linux-kernel too in this 
->thread, so that we'll get the thing archived for later). Preferably 
->together with the output of "cat /proc/ioport"
->  
->
+foo-filemanager: before copying a file or directory tree, checks for
+free space in destination directory
 
-0000-001f : dma1
-0020-0021 : pic1
-0022-0022 : PM2_CNT_BLK
-0040-0043 : timer0
-0050-0053 : timer1
-0060-006f : keyboard
-0070-0077 : rtc
-0080-008f : dma page reg
-00a0-00a1 : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-0177 : ide1
-01f0-01f7 : ide0
-02f8-02ff : serial
-0376-0376 : ide1
-03c0-03df : vga+
-03f6-03f6 : ide0
-0cf8-0cff : PCI conf1
-1000-103f : 0000:00:07.3
-  1000-103f : motherboard
-    1000-1003 : PM1a_EVT_BLK
-    1004-1005 : PM1a_CNT_BLK
-    1008-100b : PM_TMR
-    100c-100f : GPE0_BLK
-    1010-1015 : ACPI CPU throttle
-1040-105f : 0000:00:07.3
-  1040-104f : motherboard
-15e0-15ef : motherboard
-1800-183f : 0000:00:03.0
-  1800-183f : e100
-1840-1847 : 0000:00:03.1
-1850-185f : 0000:00:07.1
-  1850-1857 : ide0
-  1858-185f : ide1
-1860-187f : 0000:00:07.2
-  1860-187f : uhci_hcd
-2000-2fff : PCI Bus #01
-  2000-20ff : 0000:01:00.0
-3000-3fff : PCI CardBus #02
-4000-4fff : PCI CardBus #02
-5000-5fff : PCI CardBus #06
-6000-6fff : PCI CardBus #06
-fe00-fe0f : motherboard
+None of the above examples need (and use) /etc/mtab or /proc/mounts.
 
-> and "/sbin/lspci -xxx".
->
+Just because the info is not available about the placement of the
+subfilesystems, doesn't mean that the subfilesystems don't actually
+exist.
 
-0000:00:00.0 Host bridge: Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX 
-Host bridge (rev 03)
-00: 86 80 90 71 06 01 10 22 03 00 00 06 00 40 00 00
-10: 08 00 00 f8 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 a0 00 00 00 00 00 00 00 00 00 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 0c 82 00 ff 00 00 00 09 03 10 11 11 01 00 11 11
-60: 08 10 10 18 20 20 20 20 00 00 00 00 00 aa 00 00
-70: 20 1f 0a 38 45 01 03 01 27 1b dc 00 10 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 04 61 00 00 00 05 00 00 00 00 00 00
-a0: 02 00 10 00 03 02 00 1f 00 00 00 00 00 00 00 00
-b0: 80 20 00 00 30 00 00 00 00 00 3b 01 20 10 00 00
-c0: 00 00 00 00 00 00 00 00 18 0c 83 cd 78 00 00 00
-d0: 00 00 00 00 00 00 00 00 0c 00 00 00 00 00 00 00
-e0: 4c ad ff bb 8a 3e 00 80 2c d3 f7 cf 9d 3e 00 00
-f0: 40 01 00 00 00 f8 00 60 20 0f 00 00 00 00 00 00
-
-0000:00:01.0 PCI bridge: Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX 
-AGP bridge (rev 03)
-00: 86 80 91 71 1f 00 20 02 03 00 04 06 00 80 01 00
-10: 00 00 00 00 00 00 00 00 00 01 01 40 20 20 a0 22
-20: 20 f4 f0 f5 00 28 00 28 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 8c 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-0000:00:02.0 CardBus bridge: Texas Instruments PCI1450 (rev 03)
-00: 4c 10 1b ac 07 00 10 02 03 00 07 06 08 a8 82 00
-10: 00 00 00 50 a0 00 00 02 00 02 05 b0 00 00 00 20
-20: 00 f0 ff 21 00 00 00 22 00 f0 ff 23 00 30 00 00
-30: fc 3f 00 00 00 40 00 00 fc 4f 00 00 05 01 c0 05
-40: 14 10 30 01 01 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 79 f0 44 08 80 00 00 00 80 80 09 80 00 10 00 00
-90: c0 22 66 40 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 01 00 11 fe 00 00 c0 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-0000:00:02.1 CardBus bridge: Texas Instruments PCI1450 (rev 03)
-00: 4c 10 1b ac 07 00 10 02 03 00 07 06 08 a8 82 00
-10: 00 00 10 50 a0 00 00 02 00 06 09 b0 00 00 00 24
-20: 00 f0 ff 25 00 00 00 26 00 f0 ff 27 00 50 00 00
-30: fc 5f 00 00 00 60 00 00 fc 6f 00 00 09 02 c0 05
-40: 14 10 30 01 01 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 79 f0 44 08 80 00 00 00 80 80 09 80 00 10 00 00
-90: c0 22 66 40 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 01 00 11 fe 00 00 c0 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-0000:00:03.0 Ethernet controller: Intel Corporation 82557/8/9 [Ethernet 
-Pro 100] (rev 0c)
-00: 86 80 29 12 17 00 90 02 0c 00 00 02 08 42 80 00
-10: 00 00 12 f4 01 18 00 00 00 00 10 f4 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 86 80 05 22
-30: 00 00 00 00 dc 00 00 00 00 00 00 00 0a 01 08 38
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 22 fe
-e0: 00 40 00 4b 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-0000:00:03.1 Serial controller: Agere Systems LT WinModem (rev 01)
-00: c1 11 5c 04 03 00 10 02 01 00 00 07 00 00 80 00
-10: 41 18 00 00 00 10 12 f4 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 86 80 05 22
-30: 00 00 00 00 dc 00 00 00 00 00 00 00 0a 01 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 22 fe
-e0: 00 40 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-0000:00:05.0 Multimedia audio controller: Cirrus Logic CS 4614/22/24 
-[CrystalClear SoundFusion Audio Accelerator] (rev 01)
-00: 13 10 03 60 06 00 10 04 01 00 01 04 00 40 00 00
-10: 00 20 12 f4 00 00 00 f4 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 14 10 53 01
-30: 00 00 00 00 40 00 00 00 00 00 00 00 05 01 04 18
-40: 01 00 22 06 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-0000:00:07.0 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ISA (rev 02)
-00: 86 80 10 71 0f 00 80 02 02 00 80 06 00 00 80 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 4d 00 f3 04
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 05 09 0a 0b 92 00 00 00 00 f2 00 00 00 00 00 00
-70: 00 00 00 00 00 00 0c 0c 00 00 00 00 00 00 00 00
-80: 00 00 03 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 07 81 11 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 2d 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
-
-0000:00:07.1 IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE 
-(rev 01)
-00: 86 80 11 71 05 00 80 02 01 80 01 01 00 40 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 51 18 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 07 a3 07 a3 00 00 00 00 05 00 02 02 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
-
-0000:00:07.2 USB Controller: Intel Corporation 82371AB/EB/MB PIIX4 USB 
-(rev 01)
-00: 86 80 12 71 05 00 80 02 01 00 03 0c 00 40 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 61 18 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 0b 04 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 20 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
-
-0000:00:07.3 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ACPI (rev 03)
-00: 86 80 13 71 03 00 80 02 03 00 80 06 00 00 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 01 10 00 00 0f ff bf 10 e1 30 00 00 80 00 10 00
-50: 03 50 1d 00 e0 c9 7f 06 37 80 00 02 00 00 00 00
-60: 00 00 00 62 e8 15 e7 90 04 10 11 00 00 00 00 00
-70: 00 fe 10 00 00 00 00 00 f0 03 17 00 2e 00 11 00
-80: 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 41 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
-
-0000:01:00.0 VGA compatible controller: ATI Technologies Inc Rage 
-Mobility P/M AGP 2x (rev 64)
-00: 02 10 4d 4c 87 00 90 02 64 00 00 03 08 42 00 00
-10: 00 00 00 f5 01 20 00 00 00 00 20 f4 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 14 10 54 01
-30: 00 00 00 00 50 00 00 00 00 00 00 00 05 01 08 00
-40: 0c 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 02 5c 10 00 03 02 00 ff 00 00 00 00 01 00 01 06
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-
+Miklos

@@ -1,504 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964896AbVJZTtM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964902AbVJZTxL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964896AbVJZTtM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 15:49:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964898AbVJZTtM
+	id S964902AbVJZTxL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 15:53:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbVJZTxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 15:49:12 -0400
-Received: from smtp08.wanadoo.nl ([194.134.35.149]:41741 "EHLO
-	smtp08.wanadoo.nl") by vger.kernel.org with ESMTP id S964896AbVJZTtK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 15:49:10 -0400
-Message-ID: <435FDDAF.4050808@lazarenko.net>
-Date: Wed, 26 Oct 2005 21:49:03 +0200
-From: Vladimir Lazarenko <vlad@lazarenko.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Wed, 26 Oct 2005 15:53:11 -0400
+Received: from cimice0.lam.cz ([212.71.168.90]:52689 "EHLO cimice.yo.cz")
+	by vger.kernel.org with ESMTP id S964882AbVJZTxJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 15:53:09 -0400
+Date: Wed, 26 Oct 2005 21:52:41 +0200
+From: Jan Hudec <bulb@ucw.cz>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: viro@ftp.linux.org.uk, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 2/8] VFS: per inode statfs (core)
+Message-ID: <20051026195240.GB15046@efreet.light.src>
+References: <E1EU5bT-0005sq-00@dorka.pomaz.szeredi.hu> <20051025042519.GJ7992@ftp.linux.org.uk> <E1EUHbq-0006t6-00@dorka.pomaz.szeredi.hu> <20051026173150.GB11769@efreet.light.src> <E1EUqm3-00013A-00@dorka.pomaz.szeredi.hu>
 MIME-Version: 1.0
-To: Allen Martin <AMartin@nvidia.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org,
-       Marc Perkel <marc@perkel.com>, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: sata_nv + SMP = broken?
-References: <DBFABB80F7FD3143A911F9E6CFD477B004FAE5D8@hqemmail02.nvidia.com>
-In-Reply-To: <DBFABB80F7FD3143A911F9E6CFD477B004FAE5D8@hqemmail02.nvidia.com>
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms060802070207090701010801"
-X-Spam-Score: 0.3 (/)
-X-Spam-Report: Spam detection software, running on the system "dinosaur.lazarenko.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  >>Yet again, if i enable apic, the boot process hangs
-	here: >>sata_nv version 0.6 >>PCI: Setting latency timer of device
-	0000:00:07.0 to 64 >>ata1: SATA max UDMA/133 cmd 0x9F0 ctl 0xBF2 bmdma
-	0xDC00 irq 11 >>ata2: SATA max UDMA/133 cmd 0x970 ctl 0xB72 bmdma 0xDC08
-	irq 11 >> >>These are the last messages that I get. The same behaviour
-	on both >>motherboard. Shoudl I enable apic, it hangs on that. >> >>When
-	I disable apic, the boot sequence looks like: >> >>sata_nv version 0.6
-	>>PCI: Setting latency timer of device 0000:00:07.0 to 64 >>ata1: SATA
-	max UDMA/133 cmd 0x9F0 ctl 0xBF2 bmdma 0xDC00 irq 11 >>ata2: SATA max
-	UDMA/133 cmd 0x970 ctl 0xB72 bmdma 0xDC08 irq 11 >>ata1: dev 0 cfg
-	49:2f00 82:7c6b 83:7f09 84:4003 85:7c69 >>86:3e01 87:4003 >>88:407f
-	>>ata1: dev 0 ATA, max UDMA/133, 320173056 sectors: lba48 >>nv_sata:
-	Primary device added >>nv_sata: Primary device removed >>nv_sata:
-	Secondary device added >>nv_sata: Secondary device removed > > > Can you
-	send the output of "cat /proc/interrupts" and a "lspci -xxx" ? > > Also
-	you may want to disable hotplug from the device table in sata_nv.c > for
-	now in case this has something to do with hotplug interrupts. [...] 
-	Content analysis details:   (0.3 points, 5.0 required)
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qcHopEYAB45HaUaB"
+Content-Disposition: inline
+In-Reply-To: <E1EUqm3-00013A-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.5.11
+X-Spam-Score: -4.5 (----)
+X-Spam-Report: Spam detection software, running on "shpek.cybernet.src", has inspected this
+	incomming email and gave it -4.5 points (spam is above 5.0)
+	Content analysis details:
 	pts rule name              description
 	---- ---------------------- --------------------------------------------------
-	0.3 AWL                    AWL: From: address is in the auto white-list
+	-2.9 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-1.7 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
 
---------------ms060802070207090701010801
-Content-Type: multipart/mixed;
- boundary="------------080200020801060205010203"
+--qcHopEYAB45HaUaB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This is a multi-part message in MIME format.
---------------080200020801060205010203
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, Oct 26, 2005 at 21:17:23 +0200, Miklos Szeredi wrote:
+> > > > > This patch adds a statfs method to inode operations.  This is inv=
+oked
+> > > > > whenever the dentry is available (not called from sys_ustat()) an=
+d the
+> > > > > filesystem implements this method.  Otherwise the normal
+> > > > > s_op->statfs() will be called.
+> > > > >=20
+> > > > > This change is backward compatible, but calls to vfs_statfs() sho=
+uld
+> > > > > be changed to vfs_dentry_statfs() whenever possible.
+> > > >=20
+> > > > What the fuck for?  statfs() returns data that by definition should
+> > > > not depend on inode within a filesystem.
+> > >=20
+> > > Exactly.  But it's specified nowhere that there has to be a one-one
+> > > mapping between remote filesystem - local filesystem.
+> >=20
+> > Unfortunately making statfs alone aware of them does not help. Most use=
+ful
+> > tools that use statfs go to /proc/mouts, read all the entries and invoke
+> > statfs for each path. So if for some non-root path different values are
+> > returned, these tools won't see them anyway. So try to think about how =
+to
+> > provide the info about subfilesystems first.
+>=20
+> 'df .': tried it and it did not do what was expected, but that can
+> definitely be fixed
 
->>Yet again, if i enable apic, the boot process hangs here:
->>sata_nv version 0.6
->>PCI: Setting latency timer of device 0000:00:07.0 to 64
->>ata1: SATA max UDMA/133 cmd 0x9F0 ctl 0xBF2 bmdma 0xDC00 irq 11
->>ata2: SATA max UDMA/133 cmd 0x970 ctl 0xB72 bmdma 0xDC08 irq 11
->>
->>These are the last messages that I get. The same behaviour on both 
->>motherboard. Shoudl I enable apic, it hangs on that.
->>
->>When I disable apic, the boot sequence looks like:
->>
->>sata_nv version 0.6
->>PCI: Setting latency timer of device 0000:00:07.0 to 64
->>ata1: SATA max UDMA/133 cmd 0x9F0 ctl 0xBF2 bmdma 0xDC00 irq 11
->>ata2: SATA max UDMA/133 cmd 0x970 ctl 0xB72 bmdma 0xDC08 irq 11
->>ata1: dev 0 cfg 49:2f00 82:7c6b 83:7f09 84:4003 85:7c69 
->>86:3e01 87:4003 
->>88:407f
->>ata1: dev 0 ATA, max UDMA/133, 320173056 sectors: lba48
->>nv_sata: Primary device added
->>nv_sata: Primary device removed
->>nv_sata: Secondary device added
->>nv_sata: Secondary device removed
-> 
-> 
-> Can you send the output of "cat /proc/interrupts" and a "lspci -xxx" ? 
-> 
-> Also you may want to disable hotplug from the device table in sata_nv.c
-> for now in case this has something to do with hotplug interrupts.
+It *did* what was expected -- walked back up to the mountpoint and called
+statfs there. And it cannot be fixed (without loss of functionality) unless
+you somehow tell it where the boundary of the subfilesystem lies.
 
-lspci -xxx attached.
+> 'stat -f .': actually works
 
-However, this is the last kernel booted, 2.6.14-rc5, where it CAN boot 
-with IO-APIC and seems to be working. I tend to believe this has 
-something to do with adding those MCPxx chips support with GENERIC 
-behaviour.
+Sure it does. I don't expect many people to use that manually though.
 
-root@anarxi:~/bck# cat /proc/interrupts
-            CPU0       CPU1
-   0:   65346785       4277    IO-APIC-edge  timer
-   2:          0          0          XT-PIC  cascade
-   4:       9511          1    IO-APIC-edge  serial
-   5:   18784254          1   IO-APIC-level  eth0
-   8:          3          1    IO-APIC-edge  rtc
-  11:    4831679          5   IO-APIC-level  libata
-NMI:          0          0
-LOC:   65355312   65392463
-ERR:          0
-MIS:          2
+> foo-filemanager: before copying a file or directory tree, checks for
+> free space in destination directory
 
---------------080200020801060205010203
-Content-Type: text/plain;
- name="lspci"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="lspci"
+While most others simply don't care -- if it fails, it fails. Looking up the
+free space beforehand is only a heurisitics anyway, as the free space can
+change between the stat and the copy anyway.
 
-root@anarxi:~/bck# lspci -xxx
-0000:00:00.0 Memory controller: nVidia Corporation: Unknown device 005e (rev a3)
-00: de 10 5e 00 06 00 b0 00 a3 00 80 05 00 00 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 f1 10 65 28
-30: 00 00 00 00 44 00 00 00 00 00 00 00 ff 00 00 00
-40: f1 10 65 28 08 e0 e0 01 22 00 11 11 d0 00 00 00
-50: 23 06 7f 80 03 00 00 00 00 00 03 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 06 36 00 00
-70: 44 44 00 00 d0 09 00 00 00 00 00 00 88 00 00 00
-80: 13 ff 88 00 fa 00 00 00 03 00 00 00 61 00 00 00
-90: 0e 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 01 01 01 01 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 03 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 08 00 01 a8 00 00 e0 fe 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> None of the above examples need (and use) /etc/mtab or /proc/mounts.
+>=20
+> Just because the info is not available about the placement of the
+> subfilesystems, doesn't mean that the subfilesystems don't actually
+> exist.
 
-0000:00:01.0 ISA bridge: nVidia Corporation: Unknown device 0050 (rev a3)
-00: de 10 50 00 0f 00 a0 00 a3 00 01 06 00 00 80 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 f1 10 65 28
-30: 00 00 00 00 00 00 00 00 00 00 00 00 ff 00 00 00
-40: f1 10 65 28 00 f0 ff fe fa 3e ff 00 fa 3e ff 00
-50: fa 3e ff 00 00 5a 62 02 00 00 00 01 00 00 ff ff
-60: 01 10 00 00 01 14 00 00 01 18 00 00 00 00 f9 ff
-70: 10 00 ff ff 41 00 00 00 00 00 04 19 0a 07 00 0b
-80: 00 3b 00 b0 09 05 00 00 c0 00 00 01 00 00 00 00
-90: 00 00 00 00 00 00 00 00 21 64 87 a9 de bc 00 00
-a0: 03 00 30 c1 00 00 01 00 00 00 00 00 00 00 00 00
-b0: a2 0c a3 0c 00 08 80 08 00 00 00 00 00 00 00 00
-c0: 35 82 80 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 0c 10 01 00 00 00 d0 00 80 39 14 20 61 44 44 11
-f0: 5a ff 5f bf 00 00 00 c0 10 ff ff ff 00 00 30 07
+No, it does not. But it does mean that some applications that should know
+about them won't know and will give even more confusing results.
 
-0000:00:01.1 SMBus: nVidia Corporation: Unknown device 0052 (rev a2)
-00: de 10 52 00 01 00 b0 00 a2 00 05 0c 00 00 80 00
-10: 01 fc 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 01 1c 00 00 41 1c 00 00 00 00 00 00 f1 10 65 28
-30: 00 00 00 00 44 00 00 00 00 00 00 00 0b 01 03 01
-40: f1 10 65 28 01 00 02 c0 00 00 00 00 00 00 00 00
-50: 01 1c 00 00 41 1c 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+--=20
+						 Jan 'Bulb' Hudec <bulb@ucw.cz>
 
-0000:00:06.0 IDE interface: nVidia Corporation: Unknown device 0053 (rev f2)
-00: de 10 53 00 05 00 b0 00 f2 8a 01 01 00 00 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 01 f0 00 00 00 00 00 00 00 00 00 00 f1 10 65 28
-30: 00 00 00 00 44 00 00 00 00 00 00 00 00 00 03 01
-40: f1 10 65 28 01 00 02 00 00 00 00 00 00 00 00 00
-50: 00 f0 01 00 00 00 00 00 a8 a8 a8 a8 aa 00 99 99
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 10 ff ff ff 00 00 30 07
+--qcHopEYAB45HaUaB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-0000:00:07.0 IDE interface: nVidia Corporation: Unknown device 0054 (rev f3)
-00: de 10 54 00 07 00 b0 00 f3 85 01 01 00 00 00 00
-10: f1 09 00 00 f1 0b 00 00 71 09 00 00 71 0b 00 00
-20: 01 dc 00 00 00 d0 bf fe 00 00 00 00 f1 10 65 28
-30: 00 00 00 00 44 00 00 00 00 00 00 00 0b 01 03 01
-40: f1 10 65 28 01 00 02 00 00 00 00 00 00 00 00 00
-50: 17 00 00 15 00 00 00 00 a8 20 a8 20 66 00 20 20
-60: 00 c7 00 c7 51 0c 00 00 08 0f 06 42 00 00 00 00
-70: 2c 78 c4 40 01 10 00 00 01 10 00 00 20 00 20 00
-80: 00 00 00 c0 00 30 bf 6d 00 00 0e 38 00 50 03 87
-90: 00 00 0e 00 00 00 00 00 06 00 06 10 00 00 01 01
-a0: 50 01 00 7c 00 00 00 00 00 00 00 00 33 bb aa 02
-b0: 05 cc 84 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 0a 00 0a 00 08 00 02 a8
-d0: 0a 00 02 09 42 00 00 00 00 00 00 00 09 21 60 80
-e0: 0a 00 02 09 42 00 00 00 00 00 00 00 00 00 00 80
-f0: 00 00 00 00 00 00 00 00 00 ff ff ff 11 49 32 07
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-0000:00:09.0 PCI bridge: nVidia Corporation: Unknown device 005c (rev a2)
-00: de 10 5c 00 07 00 a0 00 a2 01 04 06 00 00 01 00
-10: 00 00 00 00 00 00 00 00 00 01 01 20 c0 c0 80 22
-20: 00 fd f0 fd a0 fe a0 fe 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 ff 00 0c 02
-40: 00 00 07 00 01 00 02 00 07 00 00 00 00 00 44 01
-50: 00 00 fe bf 00 00 00 00 ff 1f ff 1f 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 0a 00 00 0c 00 40 00 00 00 00 00 08 00 00 a8
-90: 00 00 e0 fe 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+iD8DBQFDX96IRel1vVwhjGURAny1AKDjOskLCGd6WAPI6R6y5JmN4mlgXgCg0g8T
+v9ceRlKQ3bfsycHyrWZrNSw=
+=g0mC
+-----END PGP SIGNATURE-----
 
-0000:00:0a.0 Bridge: nVidia Corporation: Unknown device 0057 (rev a3)
-00: de 10 57 00 07 00 b0 00 a3 00 80 06 00 00 00 00
-10: 00 c0 bf fe 01 d8 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 f1 10 65 28
-30: 00 00 00 00 44 00 00 00 00 00 00 00 05 01 01 14
-40: f1 10 65 28 01 00 02 fe 00 01 00 00 0a 00 00 10
-50: 05 64 84 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 0f 00 00 00 08 00 02 a8 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 11 00 00 00 40 ff ff ff 04 2c 32 07
-
-0000:00:0b.0 PCI bridge: nVidia Corporation: Unknown device 005d (rev a3)
-00: de 10 5d 00 07 00 10 00 a3 00 04 06 08 00 01 00
-10: 00 00 00 00 00 00 00 00 00 02 02 00 b1 b1 00 00
-20: 90 fe 90 fe 81 fe 81 fe 00 00 00 00 00 00 00 00
-30: 00 00 00 00 40 00 00 00 00 00 00 00 ff 00 04 00
-40: 01 48 02 f8 00 00 00 00 05 58 82 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 08 80 00 a8 00 00 e0 fe
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 10 00 41 01 c0 04 00 00 10 28 00 00 21 34 01 03
-90: 00 00 41 10 80 0c 40 00 c0 01 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-0000:00:0c.0 PCI bridge: nVidia Corporation: Unknown device 005d (rev a3)
-00: de 10 5d 00 07 00 10 00 a3 00 04 06 08 00 01 00
-10: 00 00 00 00 00 00 00 00 00 03 03 00 a1 a1 00 00
-20: 70 fe 70 fe 61 fe 61 fe 00 00 00 00 00 00 00 00
-30: 00 00 00 00 40 00 00 00 00 00 00 00 ff 00 04 00
-40: 01 48 02 f8 00 00 00 00 05 58 82 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 08 80 00 a8 00 00 e0 fe
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 10 00 41 01 c0 04 00 00 10 28 00 00 11 34 01 02
-90: 00 00 41 10 00 05 20 00 c0 01 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-0000:00:0d.0 PCI bridge: nVidia Corporation: Unknown device 005d (rev a3)
-00: de 10 5d 00 07 00 10 00 a3 00 04 06 08 00 01 00
-10: 00 00 00 00 00 00 00 00 00 04 04 00 91 91 00 00
-20: 50 fe 50 fe 41 fe 41 fe 00 00 00 00 00 00 00 00
-30: 00 00 00 00 40 00 00 00 00 00 00 00 ff 00 04 00
-40: 01 48 02 f8 00 00 00 00 05 58 82 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 08 80 00 a8 00 00 e0 fe
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 10 00 41 01 c0 04 00 00 10 28 00 00 11 34 01 01
-90: 00 00 81 10 00 05 10 00 c0 01 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-0000:00:0e.0 PCI bridge: nVidia Corporation: Unknown device 005d (rev a3)
-00: de 10 5d 00 07 00 10 00 a3 00 04 06 08 00 01 00
-10: 00 00 00 00 00 00 00 00 00 05 05 00 81 81 00 00
-20: 30 fe 30 fe 21 fe 21 fe 00 00 00 00 00 00 00 00
-30: 00 00 00 00 40 00 00 00 00 00 00 00 ff 00 04 00
-40: 01 48 02 f8 00 00 00 00 05 58 82 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 08 80 00 a8 00 00 e0 fe
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 10 00 41 01 c0 04 00 00 10 28 00 00 01 35 01 00
-90: 00 00 01 11 80 25 08 00 c0 01 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-0000:00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-00: 22 10 00 11 00 00 10 00 00 00 00 06 00 00 80 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 80 00 00 00 00 00 00 00 00 00 00 00
-40: 01 01 01 00 01 01 01 00 01 01 01 00 01 01 01 00
-50: 01 01 01 00 01 01 01 00 01 01 01 00 01 01 01 00
-60: 00 00 01 00 e4 00 00 00 20 c8 00 0f 0c 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 08 00 01 21 20 00 11 11 22 06 75 80 02 00 00 00
-90: 69 01 61 01 00 00 05 00 07 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-0000:00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-00: 22 10 01 11 00 00 00 00 00 00 00 06 00 00 80 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 03 00 00 00 00 00 bf 00 00 00 00 00 01 00 00 00
-50: 00 00 00 00 02 00 00 00 00 00 00 00 03 00 00 00
-60: 00 00 00 00 04 00 00 00 00 00 00 00 05 00 00 00
-70: 00 00 00 00 06 00 00 00 00 00 00 00 07 00 00 00
-80: 03 0a 00 00 00 0b 00 00 03 b0 fe 00 80 c0 fe 00
-90: 03 00 c0 00 00 bf fe 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 03 00 e0 00 80 5f e0 00 00 00 00 00 00 00 00 00
-c0: 13 80 00 00 00 f0 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 03 00 00 05 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-0000:00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-00: 22 10 02 11 00 00 00 00 00 00 00 06 00 00 80 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 01 00 00 00 01 00 00 02 01 00 00 04 01 00 00 06
-50: 01 00 00 08 01 00 00 0a 00 00 00 00 00 00 00 00
-60: 00 fe e0 01 00 fe e0 01 00 fe e0 01 00 fe e0 01
-70: 00 fe e0 01 00 fe e0 01 00 00 00 00 00 00 00 00
-80: 77 07 00 00 00 00 00 00 42 35 82 13 31 0b 00 00
-90: c0 8e 0c 18 07 07 7b 3e 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: bd 59 2f 7d 63 00 00 00 1d 77 48 38 f1 06 36 38
-c0: 00 00 03 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: b1 27 9a 79 3d 06 ee 2c 98 31 16 97 65 a9 34 17
-e0: 8f 80 ca 69 7d 2a 25 4c 04 08 92 ef fb b8 48 4b
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-0000:00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-00: 22 10 03 11 00 00 00 00 00 00 00 06 00 00 80 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 00 00 00 00 40 00 40 08 00 00 00 00 00 00 00 00
-50: 08 00 08 00 40 00 00 00 00 00 00 00 00 00 02 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 11 01 02 51 11 80 00 50 00 38 00 08 1a 22 00 00
-80: 00 00 07 23 13 21 13 21 00 00 00 00 00 00 00 00
-90: 00 00 00 00 db 0e 00 00 00 00 60 d0 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 3f 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 01 a7 0d 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 20 02 52 0c 19 11 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-0000:01:06.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller (rev 80)
-00: 06 11 44 30 87 00 10 02 80 10 00 0c 08 20 00 00
-10: 00 f0 ff fd 01 cc 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 06 11 44 30
-30: 00 00 00 00 50 00 00 00 00 00 00 00 07 01 00 20
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 01 00 02 e4 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-0000:01:07.0 VGA compatible controller: S3 Inc. 86c764/765 [Trio32/64/64V+]
-00: 33 53 11 88 03 00 00 02 00 00 00 03 00 00 00 00
-10: 00 00 00 fd 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 0a 01 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-
---------------080200020801060205010203--
-
---------------ms060802070207090701010801
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIJ2zCC
-Az8wggKooAMCAQICAQ0wDQYJKoZIhvcNAQEFBQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQI
-EwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUgVG93bjEaMBgGA1UEChMRVGhhd3RlIENv
-bnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24gU2VydmljZXMgRGl2aXNpb24xJDAi
-BgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTErMCkGCSqGSIb3DQEJARYccGVy
-c29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMzA3MTcwMDAwMDBaFw0xMzA3MTYyMzU5
-NTlaMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBM
-dGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQTCBnzAN
-BgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAxKY8VXNV+065yplaHmjAdQRwnd/p/6Me7L3N9Vvy
-Gna9fww6YfK/Uc4B1OVQCjDXAmNaLIkVcI7dyfArhVqqP3FWy688Cwfn8R+RNiQqE88r1fOC
-dz0Dviv+uxg+B79AgAJk16emu59l0cUqVIUPSAR/p7bRPGEEQB5kGXJgt/sCAwEAAaOBlDCB
-kTASBgNVHRMBAf8ECDAGAQH/AgEAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwudGhh
-d3RlLmNvbS9UaGF3dGVQZXJzb25hbEZyZWVtYWlsQ0EuY3JsMAsGA1UdDwQEAwIBBjApBgNV
-HREEIjAgpB4wHDEaMBgGA1UEAxMRUHJpdmF0ZUxhYmVsMi0xMzgwDQYJKoZIhvcNAQEFBQAD
-gYEASIzRUIPqCy7MDaNmrGcPf6+svsIXoUOWlJ1/TCG4+DYfqi2fNi/A9BxQIJNwPP2t4WFi
-w9k6GX6EsZkbAMUaC4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa9/eH1sYITq726jTlEBpb
-NU1341YheILcIRk13iSx0x1G/11fZU8wggNIMIICsaADAgECAgMPl0owDQYJKoZIhvcNAQEE
-BQAwYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0
-ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBMB4XDTA1
-MTAwNDE4Mjk1NloXDTA2MTAwNDE4Mjk1NlowgZgxEjAQBgNVBAQTCUxhemFyZW5rbzERMA8G
-A1UEKhMIVmxhZGltaXIxGzAZBgNVBAMTElZsYWRpbWlyIExhemFyZW5rbzEhMB8GCSqGSIb3
-DQEJARYSdmxhZEBsYXphcmVua28ubmV0MS8wLQYJKoZIhvcNAQkBFiB2bGFkaW1pci5sYXph
-cmVua29AbG9naWNhY21nLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMhN
-65wBwy12UD+rjqjhBDMm8/6sYE+YHQmJMgTb/Cxy+Sp00ISDel7/FiLvVtKAo667N43VeFzT
-p+7BWKxC0OJAFddayiWFw5sZCEL28qY2lHnolrpJMbVIzUoqrSkPjgZ9GNI93Ri7AWkMCF9X
-uRFW0I0Lbb2gYH2fnpdloO917DLyXVuBxOyPUpu1TeP+oHbi8whPdrhFx8Ep37sP13srk5tf
-ISzaXdJzEVWOaLTyIL5tMSlCuBJibmcDm9/2qCLW+c1eAxiQwmafH4tJ5WPch2wclEXlt7tw
-tGe6vK0Se2B8TvgZmOaY78wIp0DBVrP4+wsMnCbcPHtk+sY1d/8CAwEAAaNRME8wPwYDVR0R
-BDgwNoESdmxhZEBsYXphcmVua28ubmV0gSB2bGFkaW1pci5sYXphcmVua29AbG9naWNhY21n
-LmNvbTAMBgNVHRMBAf8EAjAAMA0GCSqGSIb3DQEBBAUAA4GBACfGbOm/RbyWFmOR+w4Vk8XY
-umCjlfqb+icqbKENKvuG4DOQr6QaTtRT+/ATA3yrooYfQWuflDIEPS+SbNyjfpNyyFiYB8OS
-rfclJ+B+ikvEP7LweNoL3EV1SrzeyJ3YrcqHAhoNqvB66dVQCy04RFvaRI+fC3I79Zd748gf
-ESqyMIIDSDCCArGgAwIBAgIDD5dKMA0GCSqGSIb3DQEBBAUAMGIxCzAJBgNVBAYTAlpBMSUw
-IwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUg
-UGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQTAeFw0wNTEwMDQxODI5NTZaFw0wNjEwMDQx
-ODI5NTZaMIGYMRIwEAYDVQQEEwlMYXphcmVua28xETAPBgNVBCoTCFZsYWRpbWlyMRswGQYD
-VQQDExJWbGFkaW1pciBMYXphcmVua28xITAfBgkqhkiG9w0BCQEWEnZsYWRAbGF6YXJlbmtv
-Lm5ldDEvMC0GCSqGSIb3DQEJARYgdmxhZGltaXIubGF6YXJlbmtvQGxvZ2ljYWNtZy5jb20w
-ggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDITeucAcMtdlA/q46o4QQzJvP+rGBP
-mB0JiTIE2/wscvkqdNCEg3pe/xYi71bSgKOuuzeN1Xhc06fuwVisQtDiQBXXWsolhcObGQhC
-9vKmNpR56Ja6STG1SM1KKq0pD44GfRjSPd0YuwFpDAhfV7kRVtCNC229oGB9n56XZaDvdewy
-8l1bgcTsj1KbtU3j/qB24vMIT3a4RcfBKd+7D9d7K5ObXyEs2l3ScxFVjmi08iC+bTEpQrgS
-Ym5nA5vf9qgi1vnNXgMYkMJmnx+LSeVj3IdsHJRF5be7cLRnurytEntgfE74GZjmmO/MCKdA
-wVaz+PsLDJwm3Dx7ZPrGNXf/AgMBAAGjUTBPMD8GA1UdEQQ4MDaBEnZsYWRAbGF6YXJlbmtv
-Lm5ldIEgdmxhZGltaXIubGF6YXJlbmtvQGxvZ2ljYWNtZy5jb20wDAYDVR0TAQH/BAIwADAN
-BgkqhkiG9w0BAQQFAAOBgQAnxmzpv0W8lhZjkfsOFZPF2Lpgo5X6m/onKmyhDSr7huAzkK+k
-Gk7UU/vwEwN8q6KGH0Frn5QyBD0vkmzco36TcshYmAfDkq33JSfgfopLxD+y8HjaC9xFdUq8
-3sid2K3KhwIaDarweunVUAstOERb2kSPnwtyO/WXe+PIHxEqsjGCAzswggM3AgEBMGkwYjEL
-MAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAq
-BgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBAgMPl0owCQYFKw4D
-AhoFAKCCAacwGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMDUx
-MDI2MTk0OTAzWjAjBgkqhkiG9w0BCQQxFgQUK1uNPzqA+wGDxeSOBqQOS51kY+0wUgYJKoZI
-hvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAw
-BwYFKw4DAgcwDQYIKoZIhvcNAwICASgweAYJKwYBBAGCNxAEMWswaTBiMQswCQYDVQQGEwJa
-QTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhh
-d3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0ECAw+XSjB6BgsqhkiG9w0BCRACCzFr
-oGkwYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0
-ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBAgMPl0ow
-DQYJKoZIhvcNAQEBBQAEggEANvWYhnon5YWqUB0khn7wtjTmFqdrOuFbeHcLtUeSWDNEU1BB
-+IOJHaVaWt/K/2SKTsi0j8EklE6LVUO47g+SQaU/D4A61U48I1C3XaQeT+CqxRC/YwqNzMjj
-5hqnSO6rLPuEk9b1wOnlE9VH670uCONisCyT7LJmPoC1ByCkPdLdvgZLm2bd3e95DFaLL+zP
-vmguEgPKCiE3zjkUNnP1u4mLQC0SrXb0DgD6NEfq4i6B4u4RmzGljkLO/SCAJaj5vNwDc9V+
-+0NelvccYX9tKvrLoZP2QTijI9dU9X0sTwUGUCTUQgqkphz9lNm4UIiGS4Bsoqqy1rpJe3iw
-mCD0KQAAAAAAAA==
---------------ms060802070207090701010801--
-
+--qcHopEYAB45HaUaB--

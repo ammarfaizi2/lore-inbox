@@ -1,86 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964801AbVJZPvE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964794AbVJZP7r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964801AbVJZPvE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 11:51:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbVJZPvD
+	id S964794AbVJZP7r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 11:59:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbVJZP7r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 11:51:03 -0400
-Received: from smtp.rol.ru ([194.67.1.9]:58931 "EHLO smtp.rol.ru")
-	by vger.kernel.org with ESMTP id S964797AbVJZPvA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 11:51:00 -0400
-Message-ID: <435FA5D8.2090406@rol.ru>
-Date: Wed, 26 Oct 2005 19:50:48 +0400
-From: Eugene Crosser <crosser@rol.ru>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Brett Russ <russb@emc.com>
-CC: linux-ide@vger.kernel.org, multiman@rol.ru, linux-kernel@vger.kernel.org
-Subject: Re: Status of Marvell SATA driver (was Re: Trying latest sata_mv
- - and getting freeze)
-References: <435F8AFF.3030404@rol.ru> <435F9737.3050409@emc.com>
-In-Reply-To: <435F9737.3050409@emc.com>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigA975B36649782148FBD6379A"
+	Wed, 26 Oct 2005 11:59:47 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:23195
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S964794AbVJZP7r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 11:59:47 -0400
+Message-Id: <435FC431.76F0.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Wed, 26 Oct 2005 18:00:17 +0200
+From: "Jan Beulich" <JBeulich@novell.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
+Subject: Re: DIE_GPF vs. DIE_PAGE_FAULT/DIE_TRAP
+References: <435FB26B.76F0.0078.0@novell.com>  <200510261701.52611.ak@suse.de>  <435FBB1A.76F0.0078.0@novell.com> <200510261750.44501.ak@suse.de>
+In-Reply-To: <200510261750.44501.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigA975B36649782148FBD6379A
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+>>> Andi Kleen <ak@suse.de> 26.10.05 17:50:44 >>>
+>On Wednesday 26 October 2005 17:21, Jan Beulich wrote:
+> 
+>> Hmm, then this isn't really useful for a debugger. There ought to be
+a
+>> chance to filter exceptions early (i.e. debugger accesses to
+non-mapped
+>> memory or non-existing MSRs) and a chance to detect bad faults
+(note
+>> that the kernel normal exception recovery mechanism may not be
+usable
+>> here because for example page faults first try to service the fault
+>> before scanning the fixup tables, but a debugger will normally not
+want
+>> a page-in to happen behind its back). I thought the latter was what
+gets
+>> reported as DIE_OOPS, while the former would be the filtering
+occasions
+>> (and I actually took the "grossly misnamed" comment in asm/kdebug.h
+as
+>> additional indication for that).
+>
+>All you want is a hook early in GPF, right? I guess that should be
+ok.
+>I can see that it's useful on x86-64 due to the non canonical address
 
-Brett, thanks for quick response.
+>fault resulting in GPFs mess. 
 
->> My hardware is SMP Supermicro with 6 disks on
->> Marvell MV88SX6081 8-port SATA II PCI-X Controller (rev 03)
->> and the sata_mv.c is version 0.25 dated 22 Oct 2005
->>
->> The thing works with "old" mvsata340 driver, but the "new" kernel with
->> your driver freezes when it starts to probe disks.  Even Magic SysRq
->> does not work.  The last lines I see on screen are like this:
->>
->> sata_mv version 0.25
->> ACPI: PCI Interrupt 0000:02:03.0[A] -> GSI 56 (level, low) -> IRQ 185
->> sata_mv(0000:02:03.0) 32 slots 8 ports unknown mode IRQ via MSI
->> ata1: SATA max UDMA/133 cmd 0x0 ctl 0xF8C22120 bmdma 0x0 irq 185
->> ata2: .... <same things>            0xF8C24120 ...
->> ...
->> ata8: .... <same thing>             0xF8C38120 ...
->> ATA: abnormal status 0x80 on port 0xF8C2211C
->> ... <five more lines identical to the above>
->> ata1: dev 0 ATA-7, max UDMA/133, 781422768 sectors: LBA48
->>
->> - and at this point it freezes hard.
->> Any suggestions for me?  Any information I can collect to help
->> troubleshooting?
-[...]
-> In the meantime, try turning off SMP and seeing if that makes a
-> difference.  There still might be a problem with the spinlocks and if so
-> it should go away in uniprocessor mode.
+Yes. Now, would you see this to replace the current one, or in addition
+to it?
 
-'nosmp' makes no difference.
-
-If somebody on the list has suggestions or questions, please CC to me as
-I am not subscribed to these maillists.
-
-Eugene
-
---------------enigA975B36649782148FBD6379A
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.7 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFDX6XctQFsU5rTNjcRAoOGAKCl1bqUTEKT0ZZQ8XYakItru3mLMgCdErk8
-3nMLudx8lFKfD0A4nIOtouI=
-=hlFB
------END PGP SIGNATURE-----
-
---------------enigA975B36649782148FBD6379A--
+Jan

@@ -1,68 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964954AbVJZVsh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964951AbVJZWBQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964954AbVJZVsh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 17:48:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964956AbVJZVsh
+	id S964951AbVJZWBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 18:01:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbVJZWBQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 17:48:37 -0400
-Received: from gepetto.dc.ltu.se ([130.240.42.40]:1443 "EHLO gepetto.dc.ltu.se")
-	by vger.kernel.org with ESMTP id S964954AbVJZVsh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 17:48:37 -0400
-Message-ID: <435FFADA.8030703@student.ltu.se>
-Date: Wed, 26 Oct 2005 23:53:30 +0200
-From: Richard Knutsson <ricknu-0@student.ltu.se>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: torvalds@transmeta.com
-Subject: [PATCH 2.6.14-rc5] drivers/net/dgrs.c: Fix potential "unused variable"-warning.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 26 Oct 2005 18:01:16 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:16316 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S964951AbVJZWBP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 18:01:15 -0400
+Subject: Re: "Badness in local_bh_enable" - a reasonable fix?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Steve Snyder <R00020C@freescale.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200510261720.11478.R00020C@freescale.com>
+References: <200510261534.38291.R00020C@freescale.com>
+	 <200510261601.19369.R00020C@freescale.com>
+	 <1130358242.4483.127.camel@mindpipe>
+	 <200510261720.11478.R00020C@freescale.com>
+Content-Type: text/plain
+Date: Wed, 26 Oct 2005 18:00:06 -0400
+Message-Id: <1130364007.4483.144.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just a cosmetic change to prevent compiler-warning about unused variable (+ save 2 or 4 bytes of memory).
+On Wed, 2005-10-26 at 17:20 -0400, Steve Snyder wrote:
+> On Wednesday 26 October 2005 16:24, Lee Revell wrote:
+> > On Wed, 2005-10-26 at 16:01 -0400, Steve Snyder wrote:
+> > > What, you mean the driver?  No, it is built from source against the
+> > > installed & running Fedora Core 3 kernel version 2.6.12-1.1380_FC3. 
+> > 
+> > No, your kernel is tainted because you loaded some otehr proprietary
+> > module.  Maybe nvidia?
+> 
+> Yes, I did have the nvidia binary kernel module loaded.  After removing
+> it (not uninstalling; I just specified use of the X.org vesa driver
+> instead and rebooted) I get the same behavior - including the Tainted
+> notation.
 
-BTW, the authors mail-address seems invalid.
+Some other binary only module must have been loaded.  The "P" in the
+Tainted line indicates that the kernel was tainted by loading a
+proprietary module.
 
-Signed-off-by: Richard Knutsson
+Maybe you didn't do MODULE_LICENSE("GPL") in your driver?
 
----
-
-diff -uNr a/drivers/net/dgrs.c b/drivers/net/dgrs.c
---- a/drivers/net/dgrs.c	2005-08-29 01:41:01.000000000 +0200
-+++ b/drivers/net/dgrs.c	2005-10-26 15:53:43.000000000 +0200
-@@ -1549,7 +1549,7 @@
- static int __init dgrs_init_module (void)
- {
- 	int	i;
--	int eisacount = 0, pcicount = 0;
-+	int	count = 0;
- 
- 	/*
- 	 *	Command line variable overrides
-@@ -1591,14 +1591,14 @@
- 	 *	Find and configure all the cards
- 	 */
- #ifdef CONFIG_EISA
--	eisacount = eisa_driver_register(&dgrs_eisa_driver);
--	if (eisacount < 0)
--		return eisacount;
-+	count = eisa_driver_register(&dgrs_eisa_driver);
-+	if (count < 0)
-+		return count;
- #endif
- #ifdef CONFIG_PCI
--	pcicount = pci_register_driver(&dgrs_pci_driver);
--	if (pcicount)
--		return pcicount;
-+	count = pci_register_driver(&dgrs_pci_driver);
-+	if (count)
-+		return count;
- #endif
- 	return 0;
- }
-
+LLee
 

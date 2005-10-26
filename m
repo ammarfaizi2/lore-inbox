@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbVJZPVF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbVJZPXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964785AbVJZPVF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 11:21:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbVJZPVF
+	id S964784AbVJZPXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 11:23:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbVJZPXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 11:21:05 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:56980
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S964785AbVJZPVE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 11:21:04 -0400
-Message-Id: <435FBB1A.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Wed, 26 Oct 2005 17:21:30 +0200
-From: "Jan Beulich" <JBeulich@novell.com>
-To: "Andi Kleen" <ak@suse.de>
-Cc: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
-Subject: Re: DIE_GPF vs. DIE_PAGE_FAULT/DIE_TRAP
-References: <435FB26B.76F0.0078.0@novell.com> <200510261701.52611.ak@suse.de>
-In-Reply-To: <200510261701.52611.ak@suse.de>
-Mime-Version: 1.0
+	Wed, 26 Oct 2005 11:23:16 -0400
+Received: from xproxy.gmail.com ([66.249.82.198]:64207 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964778AbVJZPXP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 11:23:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jiIYq+T5lsbMKxxk/+iWTijBnR3hUsWr3kdS7uFGdye44u70StpferTZiPv2MoMYhwND/CYuMPVtgzWpQBlRTR5dWB0+cNtCA/DFNGLCPPmbblaLNk0//B8HsrppbLPeO2Mibu607C9KPqubP30mHNqCfXIerEYW+/a9C5dwHOM=
+Message-ID: <9a8748490510260823s681a4d82k5efa5734486eda85@mail.gmail.com>
+Date: Wed, 26 Oct 2005 17:23:14 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] kill massive wireless-related log spam
+Cc: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@osdl.org>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       jketreno@linux.intel.com, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <200510261704.15366.ak@suse.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
+References: <20051026042827.GA22836@havoc.gtf.org>
+	 <200510261704.15366.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Andi Kleen <ak@suse.de> 26.10.05 17:01:52 >>>
->On Wednesday 26 October 2005 16:44, Jan Beulich wrote:
->> What is the reason for notify_die(DIE_GPF, ...) to be run late in
-the GP
->> fault handler (on both i386 and x86-64), while for other exceptions
-it
->> gets run first thing (as I would have expected for all exceptions)?
+On 10/26/05, Andi Kleen <ak@suse.de> wrote:
+> On Wednesday 26 October 2005 06:28, Jeff Garzik wrote:
 >
->"die"s as the name says are normally only supposed to run when the
->error is determined to be an illegal kernel fault.  Page fault
->got an exception to that to make kprobes work. For the others
->it is mostly only because there is no good way to check
->for illegal kernel faults first.
+> > Change this to printing out the message once, per kernel boot.
+>
+> It doesn't do that. It prints it once every 2^32 calls. Also
 
-Hmm, then this isn't really useful for a debugger. There ought to be a
-chance to filter exceptions early (i.e. debugger accesses to non-mapped
-memory or non-existing MSRs) and a chance to detect bad faults (note
-that the kernel normal exception recovery mechanism may not be usable
-here because for example page faults first try to service the fault
-before scanning the fixup tables, but a debugger will normally not want
-a page-in to happen behind its back). I thought the latter was what gets
-reported as DIE_OOPS, while the former would be the filtering occasions
-(and I actually took the "grossly misnamed" comment in asm/kdebug.h as
-additional indication for that).
+I noted that as well. How about just using something along the lines of
 
-Jan
+static unsigned char printed_message = 0;
+if (!printed_message) {
+    printk(...);
+    printed_message++;
+}
+
+
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

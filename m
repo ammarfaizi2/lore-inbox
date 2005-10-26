@@ -1,119 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932560AbVJZHJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932566AbVJZHKK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932560AbVJZHJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 03:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932566AbVJZHJ7
+	id S932566AbVJZHKK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 03:10:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932569AbVJZHKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 03:09:59 -0400
-Received: from serv01.siteground.net ([70.85.91.68]:31639 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S932560AbVJZHJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 03:09:58 -0400
-Date: Wed, 26 Oct 2005 00:09:56 -0700
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: discuss@x86-64.org
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>
-Subject: [rfc] x86_64: Kconfig changes for NUMA
-Message-ID: <20051026070956.GA3561@localhost.localdomain>
+	Wed, 26 Oct 2005 03:10:10 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:14016 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932566AbVJZHKJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 03:10:09 -0400
+Date: Wed, 26 Oct 2005 10:57:09 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Matt Helsley <matthltc@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Jean-Pierre Dion <jean-pierre.dion@bull.net>,
+       Jesse Barnes <jbarnes@engr.sgi.com>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       Badari Pulavarty <pbadari@us.ibm.com>, Ram Pai <linuxram@us.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Erich Focht <efocht@hpce.nec.com>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>,
+       Gerrit Huizenga <gh@us.ibm.com>, Adrian Bunk <bunk@stusta.de>,
+       "Chandra S. Seetharaman" <sekharan@us.ibm.com>
+Subject: Re: [PATCH 01/02] Export Connector Symbol
+Message-ID: <20051026065709.GA19438@2ka.mipt.ru>
+References: <1130285260.10680.194.camel@stark> <1130285785.10680.205.camel@stark>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+In-Reply-To: <1130285785.10680.205.camel@stark>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 26 Oct 2005 10:58:52 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On x86_64 arches, there is no way to choose ACPI_NUMA without having to choose
-K8_NUMA.  CONFIG_K8_NUMA is not needed for Intel EM64T NUMA boxes.  It also 
-looks odd if you have to select ACPI_NUMA from the power management menu.  
-This patch fixes those oddities.  Patch does the following:
+On Tue, Oct 25, 2005 at 05:16:25PM -0700, Matt Helsley (matthltc@us.ibm.com) wrote:
+>         The Process Events Connector uses this symbol to determine if it
+> should respond to commands from userspace. However the it fails to link
+> without the EXPORT_SYMBOL_GPL() macro.
+> 
+> Signed-Off-By: Matt Helsley <matthltc @ us.ibm.com> 
 
-1. Makes NUMA a config option like other arches
-2. Makes topology detection options like K8_NUMA dependent on NUMA
-3. Choosing ACPI NUMA detection can be done from the standard 
-   "Processor type and features" menu
+cn_already_initialized is only usefull for cases when 
+both connector users and connector itself are compiled 
+statically and connector users can generate events 
+before connector is initialized. But in this case you do not 
+need to export this symbol.
 
-Comments?
+But if you bound your own events to this flag
+I have no problem with this change.
 
-Thanks,
-Kiran
 
-Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
-Signed-off-by: Shai Fultheim <shai@scalex86.org>
+> --
+> 
+> Resent with the subject line fixed.
+> 
+> ---
+> 
+> Index: linux-2.6.14-rc4/drivers/connector/connector.c
+> ===================================================================
+> --- linux-2.6.14-rc4.orig/drivers/connector/connector.c
+> +++ linux-2.6.14-rc4/drivers/connector/connector.c
+> @@ -45,10 +45,11 @@ static DECLARE_MUTEX(notify_lock);
+>  static LIST_HEAD(notify_list);
+>  
+>  static struct cn_dev cdev;
+>  
+>  int cn_already_initialized = 0;
+> +EXPORT_SYMBOL_GPL(cn_already_initialized);
+>  
+>  /*
+>   * msg->seq and msg->ack are used to determine message genealogy.
+>   * When someone sends message it puts there locally unique sequence
+>   * and random acknowledge numbers.  Sequence number may be copied into
+> 
 
-Index: linux-2.6.14-rc5/arch/x86_64/Kconfig
-===================================================================
---- linux-2.6.14-rc5.orig/arch/x86_64/Kconfig	2005-10-25 15:13:10.000000000 -0700
-+++ linux-2.6.14-rc5/arch/x86_64/Kconfig	2005-10-25 15:14:21.000000000 -0700
-@@ -226,22 +226,41 @@
- 
- source "kernel/Kconfig.preempt"
- 
--config K8_NUMA
--       bool "K8 NUMA support"
--       select NUMA
-+config NUMA
-+       bool "Non Uniform Memory Access (NUMA) Support"
-        depends on SMP
-+       default y if !MPSC
-+       select X86_64_ACPI_NUMA if MPSC
-+       help
-+	 Enable NUMA (Non Uniform Memory Access) support. The kernel 
-+	 will try to allocate memory used by a CPU on the local memory 
-+	 controller of the CPU and add some more NUMA awareness to the kernel.
-+	 This code is recommended on all multiprocessor Opteron systems.
-+	 If the system is EM64T, you should say N unless your system is EM64T 
-+	 NUMA. 
-+
-+config K8_NUMA
-+       bool "K8 NUMA detection"
-+       depends on NUMA && !MPSC
-+       default y
-        help
--	  Enable NUMA (Non Unified Memory Architecture) support for
--	  AMD Opteron Multiprocessor systems. The kernel will try to allocate
--	  memory used by a CPU on the local memory controller of the CPU
--	  and add some more NUMA awareness to the kernel.
--	  This code is recommended on all multiprocessor Opteron systems
--	  and normally doesn't hurt on others.
-+	 Enable K8 NUMA node topology detection.  You should say Y here if
-+	 you have a multi processor AMD K8 system.    
-+
-+# Dummy CONFIG option to select ACPI_NUMA from drivers/acpi/Kconfig.
-+
-+config X86_64_ACPI_NUMA
-+       bool "ACPI NUMA detection"
-+       depends on NUMA
-+       select ACPI 
-+       select ACPI_NUMA
-+       default y
-+       help
-+	 Enable ACPI SRAT based node topology detection.
- 
- config NUMA_EMU
--	bool "NUMA emulation support"
--	select NUMA
--	depends on SMP
-+	bool "NUMA emulation"
-+	depends on NUMA
- 	help
- 	  Enable NUMA emulation. A flat machine will be split
- 	  into virtual nodes when booted with "numa=fake=N", where N is the
-@@ -252,9 +271,6 @@
-        depends on NUMA
-        default y
- 
--config NUMA
--       bool
--       default n
- 
- config ARCH_DISCONTIGMEM_ENABLE
- 	def_bool y
+-- 
+	Evgeniy Polyakov

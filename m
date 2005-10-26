@@ -1,56 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932534AbVJZEVb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932535AbVJZEZK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932534AbVJZEVb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 00:21:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932535AbVJZEVb
+	id S932535AbVJZEZK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 00:25:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbVJZEZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 00:21:31 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:22678 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932534AbVJZEVa (ORCPT
+	Wed, 26 Oct 2005 00:25:10 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:53142 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932535AbVJZEZJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 00:21:30 -0400
-Message-Id: <200510260421.j9Q4LGh9014087@shell0.pdx.osdl.net>
-Subject: [patch 1/1] export cpu_online_map
-To: rajesh.shah@intel.com
-Cc: mingo@elte.hu, pj@sgi.com, linux-kernel@vger.kernel.org, akpm@osdl.org
-From: akpm@osdl.org
-Date: Tue, 25 Oct 2005 21:20:48 -0700
+	Wed, 26 Oct 2005 00:25:09 -0400
+Date: Tue, 25 Oct 2005 21:24:28 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: bharata@in.ibm.com
+Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH] slab cache shrinker statistics
+Message-Id: <20051025212428.3c086f0b.akpm@osdl.org>
+In-Reply-To: <20051026040237.GB5103@in.ibm.com>
+References: <20051026040237.GB5103@in.ibm.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bharata B Rao <bharata@in.ibm.com> wrote:
+>
+> Could you please consider including this patch into your mm tree ?
 
-From: Andrew Morton <akpm@osdl.org>
-
-With CONFIG_SMP=n:
-
-*** Warning: "cpu_online_map" [drivers/firmware/dcdbas.ko] undefined!
-
-due to set_cpus_allowed().
-
-Questions:
-
-- Why isn't set_cpus_allowed() just a no-op on UP?  Or some trivial thing
-  which tests for cpu #0?
-
-- Why does cpu_online_map even exist on CONFIG_SMP=n?
-
-
-
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- kernel/sched.c |    1 +
- 1 files changed, 1 insertion(+)
-
-diff -puN kernel/sched.c~export-cpu_online_map kernel/sched.c
---- devel/kernel/sched.c~export-cpu_online_map	2005-10-25 21:13:28.000000000 -0700
-+++ devel-akpm/kernel/sched.c	2005-10-25 21:19:36.000000000 -0700
-@@ -3879,6 +3879,7 @@ EXPORT_SYMBOL(cpu_present_map);
- 
- #ifndef CONFIG_SMP
- cpumask_t cpu_online_map = CPU_MASK_ALL;
-+EXPORT_SYMBOL(cpu_online_map);
- cpumask_t cpu_possible_map = CPU_MASK_ALL;
- #endif
- 
-_
+Spose so.  I think it's a bit too much of a developer thing to go upstream
+though.

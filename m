@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964907AbVJZUBm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964885AbVJZUGM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964907AbVJZUBm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 16:01:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964908AbVJZUBm
+	id S964885AbVJZUGM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 16:06:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964908AbVJZUGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 16:01:42 -0400
-Received: from de01egw02.freescale.net ([192.88.165.103]:48838 "EHLO
-	de01egw02.freescale.net") by vger.kernel.org with ESMTP
-	id S964907AbVJZUBm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 16:01:42 -0400
-From: Steve Snyder <R00020C@freescale.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: "Badness in local_bh_enable" - a reasonable fix?
-Date: Wed, 26 Oct 2005 16:01:19 -0400
-User-Agent: KMail/1.8.2
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200510261534.38291.R00020C@freescale.com> <1130355615.3339.10.camel@laptopd505.fenrus.org>
-In-Reply-To: <1130355615.3339.10.camel@laptopd505.fenrus.org>
+	Wed, 26 Oct 2005 16:06:12 -0400
+Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:17547 "EHLO
+	pne-smtpout2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S964885AbVJZUGM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 16:06:12 -0400
+Message-ID: <435FEFBD.8010702@home.se>
+Date: Wed, 26 Oct 2005 23:06:05 +0200
+From: Niklas Kallman <kjarvel@home.se>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Jack Howarth <howarth@bromo.msbb.uc.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PCI error on x86_64 2.6.13 kernel
+References: <fa.gf7dlu0.a4g9qo@ifi.uio.no>
+In-Reply-To: <fa.gf7dlu0.a4g9qo@ifi.uio.no>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510261601.19369.R00020C@freescale.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 26 October 2005 15:40, Arjan van de Ven wrote:
-> On Wed, 2005-10-26 at 15:34 -0400, Steve Snyder wrote:
-> > [ I observed the following on a Fedora Core 3 system, running kernel 
-> > 2.6.12-1.1380_FC3.  I am posting this here because a quick Googling 
-> > indicates that the problem is not specific to this environment.  ] 
-> > 
-> > Today I found my system log filled with the error shown below.  
-> > Reading a 366MB file across a NFS mount results in over 6300 
-> > occurrences of the error being written to the system log of the NFS 
-> > server.  
-> > 
-> > I have 2 network interfaces in the NFS server machine, a standard 
-> > kernel Ethernet device driver and my own Ultra-Wide Band (UWB) device 
-> > driver.  (In the error shown below the references to "fsuwbpci" are my 
-> > driver.) This problem is not seen when using the Ethernet interface, 
-> > but is perfectly consistent when reading a NFS-mounted file across the 
-> > UWB interface.  Therefore there is a problem with my code.  
-> > 
-> > I quickly established that the error came from within this routine:
-> > 
+Jack Howarth wrote:
+>    Has anyone reported the following? For both of the 2.6.13 based
+> kernels released so far on Fedora Core 4 for x86_64, we are seeing
+> error messages of the form...
 > 
-> > -------------------------------------------
-> > 
-> > kernel: Badness in local_bh_enable at kernel/softirq.c:140 (Tainted: P     )
+> Oct  3 11:21:48 XXXXX  kernel:   MEM window: d0200000-d02fffff
+> Oct  3 11:21:48 XXXXX  kernel:   PREFETCH window: disabled.
+> Oct  3 11:21:48 XXXXX  kernel: PCI: Failed to allocate mem resource #6:20000 f0000000 for 0000:09:00.0
 > 
-> 
-> 
-> hmmm binary module? please try without.
+> ..on a Sun W2100Z dual opteron. These memory allocations errors 
+> don't occur under the 2.6.12 based kernels that Fedora has released 
+> for FC4. So far the errors don't seem to be manifesting themselves 
+> as any noticable system errors in using the machine itself.
+>                     Jack
+> -
 
-What, you mean the driver?  No, it is built from source against the
-installed & running Fedora Core 3 kernel version 2.6.12-1.1380_FC3.
+I have the same problem on a Dell Inspiron 510m laptop and Fedora Core 4 
+when upgrading from 2.6.12 to 2.6.13.* :
+
+I get the following messages at 2.6.13.* startup:
+
+PCI: Ignore bogus resource 6 [0:0] of 0000:00:02.0
+PCI: Failed to allocate I/O resource #7:1000@10000 for 0000:01:01.0
+PCI: Failed to allocate I/O resource #8:1000@10000 for 0000:01:01.0
+PCI: Bus 2, cardbus bridge: 0000:01:01.0
+
+I have tried "pci=routeirq", but it makes no difference.
+When running 2.6.13.4 I cannot use my WLAN card (ndiswrapper).
+With 2.6.12.6 there is no problem at all...
+
+I posted lspci output and more in another mail with subject:
+PCI: Failed to allocate I/O resource when upgrading to 2.6.13.*
+
+I'm starting to suspect something in Fedora Core 4 ..
+
+/Niklas

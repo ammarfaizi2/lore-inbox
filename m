@@ -1,210 +1,349 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932499AbVJZDSH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932528AbVJZEDL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932499AbVJZDSH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Oct 2005 23:18:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932526AbVJZDSH
+	id S932528AbVJZEDL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 00:03:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbVJZEDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Oct 2005 23:18:07 -0400
-Received: from ozlabs.org ([203.10.76.45]:479 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932499AbVJZDSG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Oct 2005 23:18:06 -0400
-Date: Wed, 26 Oct 2005 12:48:31 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Adam Litke <agl@us.ibm.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, hugh@veritas.com,
-       William Irwin <wli@holomorphy.com>
-Subject: Re: RFC: Cleanup / small fixes to hugetlb fault handling
-Message-ID: <20051026024831.GB17191@localhost.localdomain>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Adam Litke <agl@us.ibm.com>, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org, hugh@veritas.com,
-	William Irwin <wli@holomorphy.com>
-References: <20051026020055.GA17191@localhost.localdomain>
+	Wed, 26 Oct 2005 00:03:11 -0400
+Received: from [59.92.143.111] ([59.92.143.111]:4740 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S932528AbVJZEDL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 00:03:11 -0400
+Date: Wed, 26 Oct 2005 09:32:37 +0530
+From: Bharata B Rao <bharata@in.ibm.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
+Subject: [PATCH] slab cache shrinker statistics
+Message-ID: <20051026040237.GB5103@in.ibm.com>
+Reply-To: bharata@in.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="qMm9M+Fa2AknHoGS"
 Content-Disposition: inline
-In-Reply-To: <20051026020055.GA17191@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 26, 2005 at 12:00:55PM +1000, David Gibson wrote:
-> Hi, Adam, Bill, Hugh,
-> 
-> Does this look like a reasonable patch to send to akpm for -mm.
 
-Ahem.  Or rather this version, which actually compiles.
+--qMm9M+Fa2AknHoGS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-This patch makes some slight tweaks / cleanups to the fault handling
-path for huge pages in -mm.  My main motivation is to make it simpler
-to fit COW in, but along the way it addresses a few minor problems
-with the existing code:
+Hi Andrew,
 
-- The check against i_size was duplicated: once in
-  find_lock_huge_page() and again in hugetlb_fault() after taking the
-  page_table_lock.  We only really need the locked one, so remove the
-  other.
+Could you please consider including this patch into your mm tree ?
 
-- find_lock_huge_page() didn't, in fact, lock the page if it newly
-  allocated one, rather than finding it in the page cache already.  As
-  far as I can tell this is a bug, so the patch corrects it.
+This patch collects data about how a shrinkable cache is behaving
+over time. The number of objects scanned for shrinking
+the cache and the actual number of objects freed are reported by
+this patch as part of /proc/slabinfo. I have verified that adding
+addtional elements to /proc/slabinfo isn't breaking slabtop.
 
-- find_lock_huge_page() isn't a great name, since it does extra things
-  not analagous to find_lock_page().  Rename it
-  find_or_alloc_huge_page() which is closer to the mark.
+I have made this patch on suggestions from Marcelo and he feels that
+it is useful to have this in mm/mainline. This work started as an attempt
+to break the slabs_scanned(from /proc/vmstat) into meaningful pieces
+to reflect how individual cache behaves wrt memory reclaim.
 
-Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+A typical output from /proc/slabinfo after this patch looks like this:
 
-Index: working-2.6/mm/hugetlb.c
-===================================================================
---- working-2.6.orig/mm/hugetlb.c	2005-10-26 11:18:39.000000000 +1000
-+++ working-2.6/mm/hugetlb.c	2005-10-26 12:46:29.000000000 +1000
-@@ -336,32 +336,28 @@
- 	flush_tlb_range(vma, start, end);
- }
- 
--static struct page *find_lock_huge_page(struct address_space *mapping,
--			unsigned long idx)
-+static struct page *find_or_alloc_huge_page(struct address_space *mapping,
-+					    unsigned long idx)
+[root@llm09 ~]# grep shrinker /proc/slabinfo
+# name            <active_objs> <num_objs> <objsize> <objperslab> <pagesperslab>
+ : tunables <limit> <batchcount> <sharedfactor> : slabdata <active_slabs> <num_s
+labs> <sharedavail> : shrinker stat <nr requested> <nr freed>
+ext3_xattr             0      0     48   78    1 : tunables  120   60    8 : sla
+bdata      0      0      0 : shrinker stat       0       0
+d_cursor               0      0     64   59    1 : tunables  120   60    8 : sla
+bdata      0      0      0 : shrinker stat       0       0
+dquot                  0      0    160   24    1 : tunables  120   60    8 : sla
+bdata      0      0      0 : shrinker stat       0       0
+inode_cache         1262   1400    400   10    1 : tunables   54   27    8 : sla
+bdata    140    140      0 : shrinker stat  376704  380400
+dentry_cache       10449  10504    152   26    1 : tunables  120   60    8 : sla
+bdata    404    404      0 : shrinker stat  859136  401700
+
+Note: mbcache maintains multiple caches with a single shrinker routine.
+Hence with this patch, all caches which are part of mbcache (like ext3_xattr
+above) will display the combined shrinker statistics of mbcache and not
+the shrinker attempts of individual caches. Or should I just drop the
+stats collection from mbcache ?
+
+Regards,
+Bharata.
+
+--qMm9M+Fa2AknHoGS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="cache_shrink_stats.patch"
+
+
+This patch adds two more fields to each entry of shrinkable cache
+in /proc/slabinfo: the number of objects scanned for freeing and the
+actual number of objects freed.
+
+Signed-off-by: Bharata B Rao <bharata@in.ibm.com>
+---
+
+ fs/dcache.c          |    4 +++-
+ fs/dquot.c           |    4 +++-
+ fs/inode.c           |    4 +++-
+ fs/mbcache.c         |    2 ++
+ fs/reiser4/fsdata.c  |    2 ++
+ include/linux/mm.h   |   39 ++++++++++++++++++++++++++++++++++++++-
+ include/linux/slab.h |    3 +++
+ mm/slab.c            |   16 ++++++++++++++++
+ mm/vmscan.c          |   23 +++++++++++------------
+ 9 files changed, 81 insertions(+), 16 deletions(-)
+
+diff -puN fs/dcache.c~cache_shrink_stats fs/dcache.c
+--- linux-2.6.14-rc5-mm1/fs/dcache.c~cache_shrink_stats	2005-10-25 14:12:28.179785552 +0530
++++ linux-2.6.14-rc5-mm1-bharata/fs/dcache.c	2005-10-25 14:12:28.247775216 +0530
+@@ -1832,6 +1832,7 @@ static void __init dcache_init_early(voi
+ static void __init dcache_init(unsigned long mempages)
  {
- 	struct page *page;
- 	int err;
--	struct inode *inode = mapping->host;
--	unsigned long size;
+ 	int loop;
++	struct shrinker *shrinker;
  
- retry:
- 	page = find_lock_page(mapping, idx);
- 	if (page)
--		goto out;
--
--	/* Check to make sure the mapping hasn't been truncated */
--	size = i_size_read(inode) >> HPAGE_SHIFT;
--	if (idx >= size)
--		goto out;
-+		return page;
+ 	/* 
+ 	 * A constructor could be added for stable state like the lists,
+@@ -1844,7 +1845,8 @@ static void __init dcache_init(unsigned 
+ 					 SLAB_RECLAIM_ACCOUNT|SLAB_PANIC,
+ 					 NULL, NULL);
+ 	
+-	set_shrinker(DEFAULT_SEEKS, shrink_dcache_memory);
++	shrinker = set_shrinker(DEFAULT_SEEKS, shrink_dcache_memory);
++	kmem_set_shrinker(dentry_cache, shrinker);
  
- 	if (hugetlb_get_quota(mapping))
--		goto out;
-+		return NULL;
-+
- 	page = alloc_huge_page();
- 	if (!page) {
- 		hugetlb_put_quota(mapping);
--		goto out;
-+		return NULL;
- 	}
- 
-+	lock_page(page);
-+
- 	err = add_to_page_cache(page, mapping, idx, GFP_KERNEL);
- 	if (err) {
- 		put_page(page);
-@@ -370,50 +366,49 @@
- 			goto retry;
- 		page = NULL;
- 	}
--out:
-+
- 	return page;
- }
- 
--int hugetlb_fault(struct mm_struct *mm, struct vm_area_struct *vma,
--			unsigned long address, int write_access)
-+int hugetlb_no_page(struct mm_struct *mm, struct vm_area_struct *vma,
-+		    unsigned long address, pte_t *ptep)
+ 	/* Hash may have been set up in dcache_init_early */
+ 	if (!hashdist)
+diff -puN fs/dquot.c~cache_shrink_stats fs/dquot.c
+--- linux-2.6.14-rc5-mm1/fs/dquot.c~cache_shrink_stats	2005-10-25 14:12:28.183784944 +0530
++++ linux-2.6.14-rc5-mm1-bharata/fs/dquot.c	2005-10-25 14:12:28.249774912 +0530
+@@ -1793,6 +1793,7 @@ static int __init dquot_init(void)
  {
--	int ret = VM_FAULT_SIGBUS;
-+	int ret;
- 	unsigned long idx;
- 	unsigned long size;
--	pte_t *pte;
- 	struct page *page;
- 	struct address_space *mapping;
+ 	int i;
+ 	unsigned long nr_hash, order;
++	struct shrinker *shrinker;
  
--	pte = huge_pte_alloc(mm, address);
--	if (!pte)
--		goto out;
--
- 	mapping = vma->vm_file->f_mapping;
- 	idx = ((address - vma->vm_start) >> HPAGE_SHIFT)
- 		+ (vma->vm_pgoff >> (HPAGE_SHIFT - PAGE_SHIFT));
+ 	printk(KERN_NOTICE "VFS: Disk quotas %s\n", __DQUOT_VERSION__);
  
--	/*
--	 * Use page lock to guard against racing truncation
--	 * before we get page_table_lock.
--	 */
--	page = find_lock_huge_page(mapping, idx);
-+	/* This returns a locked page, which keeps us safe in the
-+	 * event of a race with truncate() */
-+	page = find_or_alloc_huge_page(mapping, idx);
- 	if (!page)
--		goto out;
-+		return VM_FAULT_SIGBUS;
+@@ -1824,7 +1825,8 @@ static int __init dquot_init(void)
+ 	printk("Dquot-cache hash table entries: %ld (order %ld, %ld bytes)\n",
+ 			nr_hash, order, (PAGE_SIZE << order));
  
- 	spin_lock(&mm->page_table_lock);
-+
-+	ret = VM_FAULT_SIGBUS;
-+
- 	size = i_size_read(mapping->host) >> HPAGE_SHIFT;
- 	if (idx >= size)
- 		goto backout;
+-	set_shrinker(DEFAULT_SEEKS, shrink_dqcache_memory);
++	shrinker = set_shrinker(DEFAULT_SEEKS, shrink_dqcache_memory);
++	kmem_set_shrinker(dquot_cachep, shrinker);
  
- 	ret = VM_FAULT_MINOR;
--	if (!pte_none(*pte))
-+
-+	if (!pte_none(*ptep))
-+		/* oops, someone instantiated this PTE before us */
- 		goto backout;
+ 	return 0;
+ }
+diff -puN fs/inode.c~cache_shrink_stats fs/inode.c
+--- linux-2.6.14-rc5-mm1/fs/inode.c~cache_shrink_stats	2005-10-25 14:12:28.201782208 +0530
++++ linux-2.6.14-rc5-mm1-bharata/fs/inode.c	2005-10-25 14:12:28.251774608 +0530
+@@ -1357,11 +1357,13 @@ void __init inode_init_early(void)
+ void __init inode_init(unsigned long mempages)
+ {
+ 	int loop;
++	struct shrinker *shrinker;
  
- 	add_mm_counter(mm, file_rss, HPAGE_SIZE / PAGE_SIZE);
--	set_huge_pte_at(mm, address, pte, make_huge_pte(vma, page));
-+	set_huge_pte_at(mm, address, ptep, make_huge_pte(vma, page));
-+
- 	spin_unlock(&mm->page_table_lock);
- 	unlock_page(page);
--out:
-+
- 	return ret;
+ 	/* inode slab cache */
+ 	inode_cachep = kmem_cache_create("inode_cache", sizeof(struct inode),
+ 				0, SLAB_RECLAIM_ACCOUNT|SLAB_PANIC, init_once, NULL);
+-	set_shrinker(DEFAULT_SEEKS, shrink_icache_memory);
++	shrinker = set_shrinker(DEFAULT_SEEKS, shrink_icache_memory);
++	kmem_set_shrinker(inode_cachep, shrinker);
  
- backout:
-@@ -421,7 +416,30 @@
- 	hugetlb_put_quota(mapping);
- 	unlock_page(page);
- 	put_page(page);
--	goto out;
+ 	/* Hash may have been set up in inode_init_early */
+ 	if (!hashdist)
+diff -puN fs/mbcache.c~cache_shrink_stats fs/mbcache.c
+--- linux-2.6.14-rc5-mm1/fs/mbcache.c~cache_shrink_stats	2005-10-25 14:12:28.204781752 +0530
++++ linux-2.6.14-rc5-mm1-bharata/fs/mbcache.c	2005-10-25 14:12:28.252774456 +0530
+@@ -292,6 +292,8 @@ mb_cache_create(const char *name, struct
+ 	if (!cache->c_entry_cache)
+ 		goto fail;
+ 
++	kmem_set_shrinker(cache->c_entry_cache, mb_shrinker);
 +
-+	return ret;
-+}
+ 	spin_lock(&mb_cache_spinlock);
+ 	list_add(&cache->c_cache_list, &mb_cache_list);
+ 	spin_unlock(&mb_cache_spinlock);
+diff -puN fs/reiser4/fsdata.c~cache_shrink_stats fs/reiser4/fsdata.c
+--- linux-2.6.14-rc5-mm1/fs/reiser4/fsdata.c~cache_shrink_stats	2005-10-25 14:12:28.209780992 +0530
++++ linux-2.6.14-rc5-mm1-bharata/fs/reiser4/fsdata.c	2005-10-25 14:12:28.267772176 +0530
+@@ -4,6 +4,7 @@
+ #include "fsdata.h"
+ #include "inode.h"
+ 
++#include <linux/slab.h>
+ 
+ /* cache or dir_cursors */
+ static kmem_cache_t *d_cursor_cache;
+@@ -72,6 +73,7 @@ int init_d_cursor(void)
+ 	 */
+ 	d_cursor_shrinker = set_shrinker(DEFAULT_SEEKS << 3,
+ 					 d_cursor_shrink);
++	kmem_set_shrinker(d_cursor_cache, d_cursor_shrinker);
+ 	if (d_cursor_shrinker == NULL) {
+ 		destroy_reiser4_cache(&d_cursor_cache);
+ 		d_cursor_cache = NULL;
+diff -puN include/linux/mm.h~cache_shrink_stats include/linux/mm.h
+--- linux-2.6.14-rc5-mm1/include/linux/mm.h~cache_shrink_stats	2005-10-25 14:12:28.212780536 +0530
++++ linux-2.6.14-rc5-mm1-bharata/include/linux/mm.h	2005-10-25 14:12:28.254774152 +0530
+@@ -759,7 +759,44 @@ typedef int (*shrinker_t)(int nr_to_scan
+  */
+ 
+ #define DEFAULT_SEEKS 2
+-struct shrinker;
 +
-+int hugetlb_fault(struct mm_struct *mm, struct vm_area_struct *vma,
-+		  unsigned long address, int write_access)
++struct shrinker_stats {
++	unsigned long nr_req; /* objs scanned for possible freeing */
++	unsigned long nr_freed; /* actual number of objects freed */
++};
++
++/*
++ * The list of shrinker callbacks used by to apply pressure to
++ * ageable caches.
++ */
++struct shrinker {
++	shrinker_t		shrinker;
++	struct list_head	list;
++	int			seeks;	/* seeks to recreate an obj */
++	long			nr;	/* objs pending delete */
++	struct shrinker_stats	*s_stats;
++};
++
++#define shrinker_stat_add(shrinker, field, addnd)		\
++	do {							\
++		preempt_disable();				\
++		(per_cpu_ptr(shrinker->s_stats,			\
++			smp_processor_id())->field += addnd);	\
++		preempt_enable();				\
++	} while (0)
++
++#define shrinker_stat_read(shrinker, field)				\
++({									\
++	typeof(shrinker->s_stats->field) res = 0;			\
++	int i;								\
++	for (i=0; i < NR_CPUS; i++) {					\
++		if (!cpu_possible(i))					\
++			continue;					\
++		res += per_cpu_ptr(shrinker->s_stats, i)->field;	\
++	}								\
++	res;								\
++})
++
+ extern struct shrinker *set_shrinker(int, shrinker_t);
+ extern void remove_shrinker(struct shrinker *shrinker);
+ 
+diff -puN include/linux/slab.h~cache_shrink_stats include/linux/slab.h
+--- linux-2.6.14-rc5-mm1/include/linux/slab.h~cache_shrink_stats	2005-10-25 14:12:28.215780080 +0530
++++ linux-2.6.14-rc5-mm1-bharata/include/linux/slab.h	2005-10-25 14:12:28.260773240 +0530
+@@ -150,6 +150,9 @@ extern kmem_cache_t	*bio_cachep;
+ 
+ extern atomic_t slab_reclaim_pages;
+ 
++struct shrinker;
++extern void kmem_set_shrinker(kmem_cache_t *cachep, struct shrinker *shrinker);
++
+ #endif	/* __KERNEL__ */
+ 
+ #endif	/* _LINUX_SLAB_H */
+diff -puN mm/slab.c~cache_shrink_stats mm/slab.c
+--- linux-2.6.14-rc5-mm1/mm/slab.c~cache_shrink_stats	2005-10-25 14:12:28.220779320 +0530
++++ linux-2.6.14-rc5-mm1-bharata/mm/slab.c	2005-10-25 14:12:28.264772632 +0530
+@@ -401,6 +401,9 @@ struct kmem_cache_s {
+ 	/* de-constructor func */
+ 	void (*dtor)(void *, kmem_cache_t *, unsigned long);
+ 
++	/* shrinker data for this cache */
++	struct shrinker *shrinker;
++
+ /* 4) cache creation/removal */
+ 	const char		*name;
+ 	struct list_head	next;
+@@ -3386,6 +3389,7 @@ static void *s_start(struct seq_file *m,
+ 				" <error> <maxfreeable> <nodeallocs> <remotefrees>");
+ 		seq_puts(m, " : cpustat <allochit> <allocmiss> <freehit> <freemiss>");
+ #endif
++		seq_puts(m, " : shrinker stat <nr requested> <nr freed>");
+ 		seq_putc(m, '\n');
+ 	}
+ 	p = cache_chain.next;
+@@ -3506,6 +3510,12 @@ static int s_show(struct seq_file *m, vo
+ 			allochit, allocmiss, freehit, freemiss);
+ 	}
+ #endif
++	/* shrinker stats */
++	if (cachep->shrinker) {
++		seq_printf(m, " : shrinker stat %7lu %7lu",
++			shrinker_stat_read(cachep->shrinker, nr_req),
++			shrinker_stat_read(cachep->shrinker, nr_freed));
++	}
+ 	seq_putc(m, '\n');
+ 	spin_unlock_irq(&cachep->spinlock);
+ 	return 0;
+@@ -3660,3 +3670,9 @@ char *kstrdup(const char *s, gfp_t gfp)
+ 	return buf;
+ }
+ EXPORT_SYMBOL(kstrdup);
++
++void kmem_set_shrinker(kmem_cache_t *cachep, struct shrinker *shrinker)
 +{
-+	pte_t *ptep;
-+	pte_t entry;
-+
-+	ptep = huge_pte_alloc(mm, address);
-+	if (! ptep)
-+		/* OOM */
-+		return VM_FAULT_SIGBUS;
-+
-+	entry = *ptep;
-+
-+	if (pte_none(entry))
-+		return hugetlb_no_page(mm, vma, address, ptep);
-+
-+	/* we could get here if another thread instantiated the pte
-+	 * before the test above */
-+
-+	return VM_FAULT_SIGBUS;
- }
++	cachep->shrinker = shrinker;
++}
++EXPORT_SYMBOL(kmem_set_shrinker);
+diff -puN mm/vmscan.c~cache_shrink_stats mm/vmscan.c
+--- linux-2.6.14-rc5-mm1/mm/vmscan.c~cache_shrink_stats	2005-10-25 14:12:28.223778864 +0530
++++ linux-2.6.14-rc5-mm1-bharata/mm/vmscan.c	2005-10-25 14:12:28.266772328 +0530
+@@ -84,17 +84,6 @@ struct scan_control {
+ 	int swap_cluster_max;
+ };
  
- int follow_hugetlb_page(struct mm_struct *mm, struct vm_area_struct *vma,
+-/*
+- * The list of shrinker callbacks used by to apply pressure to
+- * ageable caches.
+- */
+-struct shrinker {
+-	shrinker_t		shrinker;
+-	struct list_head	list;
+-	int			seeks;	/* seeks to recreate an obj */
+-	long			nr;	/* objs pending delete */
+-};
+-
+ #define lru_to_page(_head) (list_entry((_head)->prev, struct page, lru))
+ 
+ #ifdef ARCH_HAS_PREFETCH
+@@ -146,6 +135,11 @@ struct shrinker *set_shrinker(int seeks,
+ 	        shrinker->shrinker = theshrinker;
+ 	        shrinker->seeks = seeks;
+ 	        shrinker->nr = 0;
++		shrinker->s_stats = alloc_percpu(struct shrinker_stats);
++		if (!shrinker->s_stats) {
++			kfree(shrinker);
++			return NULL;
++		}
+ 	        down_write(&shrinker_rwsem);
+ 	        list_add_tail(&shrinker->list, &shrinker_list);
+ 	        up_write(&shrinker_rwsem);
+@@ -162,6 +156,7 @@ void remove_shrinker(struct shrinker *sh
+ 	down_write(&shrinker_rwsem);
+ 	list_del(&shrinker->list);
+ 	up_write(&shrinker_rwsem);
++	free_percpu(shrinker->s_stats);
+ 	kfree(shrinker);
+ }
+ EXPORT_SYMBOL(remove_shrinker);
+@@ -221,8 +216,12 @@ static int shrink_slab(unsigned long sca
+ 			shrink_ret = (*shrinker->shrinker)(this_scan, gfp_mask);
+ 			if (shrink_ret == -1)
+ 				break;
+-			if (shrink_ret < nr_before)
++			if (shrink_ret < nr_before) {
+ 				ret += nr_before - shrink_ret;
++				shrinker_stat_add(shrinker, nr_freed,
++					(nr_before - shrink_ret));
++			}
++			shrinker_stat_add(shrinker, nr_req, this_scan);
+ 			mod_page_state(slabs_scanned, this_scan);
+ 			total_scan -= this_scan;
+ 
+_
 
-
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/people/dgibson
+--qMm9M+Fa2AknHoGS--

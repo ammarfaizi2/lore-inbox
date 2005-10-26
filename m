@@ -1,139 +1,216 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964864AbVJZTIn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbVJZTLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964864AbVJZTIn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 15:08:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964865AbVJZTIm
+	id S964865AbVJZTLE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 15:11:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbVJZTLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 15:08:42 -0400
-Received: from web50111.mail.yahoo.com ([206.190.39.137]:19293 "HELO
-	web50111.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S964864AbVJZTIm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 15:08:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=N1mwlfdwaVmiI5pkUYsj526F6vlQDqojoGR+UiQ2D9CwY4UvgiAqAeCzAhooWfWZYtDe2KNEahTuXyNrMmR1Cb2GVt+2rKaJABtdJ84EBDo5S2mlUVJolkG1072qzlFKo6sVm7wRIa4xN3TDUKLspiGO9l8dpKNDGdHT5R06f3E=  ;
-Message-ID: <20051026190838.85701.qmail@web50111.mail.yahoo.com>
-Date: Wed, 26 Oct 2005 12:08:38 -0700 (PDT)
-From: Doug Thompson <norsk5@yahoo.com>
-Subject: Re: EDAC (was: Re: 2.6.14-rc5-mm1)
+	Wed, 26 Oct 2005 15:11:04 -0400
+Received: from ns.tasking.nl ([195.193.207.2]:36817 "EHLO ns.tasking.nl")
+	by vger.kernel.org with ESMTP id S964865AbVJZTLB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 15:11:01 -0400
 To: linux-kernel@vger.kernel.org
-Cc: sander@humilis.net, Avuton Olrich <avuton@gmail.com>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20051026131157.GA12963@favonius>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Mime-Version: 1.0
+X-Newsreader: knews 1.0b.1
+Reply-To: dick.streefland@xs4all.nl (Dick Streefland)
+Organization: none
+X-Face: "`*@3nW;mP[=Z(!`?W;}cn~3M5O_/vMjX&Pe!o7y?xi@;wnA&Tvx&kjv'N\P&&5Xqf{2CaT 9HXfUFg}Y/TT^?G1j26Qr[TZY%v-1A<3?zpTYD5E759Q?lEoR*U1oj[.9\yg_o.~O.$wj:t(B+Q_?D XX57?U,#b,iM$[zX'I(!'VCQM)N)x~knSj>M*@l}y9(tK\rYwdv%~+&*jV"epphm>|q~?ys:g:K#R" 2PuAzy-N9cKM<Ml/%yPQxpq"Ttm{GzBn-*:;619QM2HLuRX4]~361+,[uFp6f"JF5R`y
+References: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
+From: spam@streefland.xs4all.nl (Dick Streefland)
+Subject: Re: Call for PIIX4 chipset testers
+Content-Type: text/plain; charset=us-ascii
+NNTP-Posting-Host: 172.17.1.66
+Message-ID: <1cb7.435fd492.4a69a@altium.nl>
+Date: Wed, 26 Oct 2005 19:10:10 -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds <torvalds@osdl.org> wrote:
+| can you please test out this patch and report what it says in dmesg?
 
+Here is a report from a Siemens Scenic PC that I use as digital
+videorecorder. It has an IDT C6 200MHz processor.
 
---- Sander <sander@humilis.net> wrote:
+# dmesg -s 1000000 | grep PIIX4
+PCI quirk: region f0c0-f0ff claimed by PIIX4 ACPI
+PCI quirk: region f0a0-f0bf claimed by PIIX4 SMB
+PIIX4: IDE controller at PCI slot 0000:00:07.1
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+uhci_hcd 0000:00:07.2: Intel Corporation 82371AB/EB/MB PIIX4 USB
 
-> Alan Cox wrote (ao):
-> > On Mer, 2005-10-26 at 09:48 +0200, Sander wrote:
-> > > Stupid question: should EDAC work on a Via Epia
-> board? Because I see the
-> > > "Detected Parity Error" messages too (and a lot
-> of them), but figured
-> > > that the option is just 'not an option' :-)
-> > 
-> > The PCI parity check should work on every
-> correctly built PCI card and
-> > bridge. 
-> > 
-> > > If it should work I'll be happy to send the
-> error and lspci if that
-> > > helps.
-> > 
-> > Please do. I'm trying to find the common items
-> that cause spurious pci
-> > errors
-> 
-> Via Epia MII 10000, kernel 2.6.14-rc4-mm1:
-> 
-> $ grep EDAC .config
-> # EDAC - error detection and reporting (RAS)
-> CONFIG_EDAC=y
-> # CONFIG_EDAC_DEBUG is not set
-> CONFIG_EDAC_MM_EDAC=y
-> # CONFIG_EDAC_AMD76X is not set
-> # CONFIG_EDAC_E7XXX is not set
-> # CONFIG_EDAC_E752X is not set
-> # CONFIG_EDAC_I82875P is not set
-> # CONFIG_EDAC_I82860 is not set
-> # CONFIG_EDAC_R82600 is not set
-> CONFIG_EDAC_POLL=y
-> 
-> 
-> [42949380.590000] Freeing unused kernel memory: 168k
-> freed
-> [42949381.350000] PCI- Detected Parity Error on
-> 0000:00:01.0 0000:00:01.0
-> [42949382.350000] PCI- Detected Parity Error on
-> 0000:00:01.0 0000:00:01.0
-> [42949383.350000] PCI- Detected Parity Error on
-> 0000:00:01.0 0000:00:01.0
-> [42949384.350000] PCI- Detected Parity Error on
-> 0000:00:01.0 0000:00:01.0
-> 
-> etc
-> 
+# cat /proc/ioports
+0000-001f : dma1
+0020-0021 : pic1
+0040-0043 : timer0
+0050-0053 : timer1
+0060-006f : keyboard
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0378-037a : parport0
+03c0-03df : vga+
+03f8-03ff : lirc_serial
+0cf8-0cff : PCI conf1
+f0a0-f0bf : 0000:00:07.3
+  f0b0-f0b7 : piix4-smbus
+f0c0-f0ff : 0000:00:07.3
+f400-f41f : 0000:00:09.0
+  f400-f41f : e100
+f800-f81f : 0000:00:07.2
+  f800-f81f : uhci_hcd
+fcf0-fcff : 0000:00:07.1
+  fcf0-fcf7 : ide0
+  fcf8-fcff : ide1
 
-The EDAC scanning code first scans the STATUS register
-of all the PCI devices in the system. This status
-register reflects operations on the main bus.
-Second, the code scans the SECONDARY STATUS register
-of all bridge devices, which reflects operations on
-the sub-bus.
+# /sbin/lspci -xxx
+00:00.0 Host bridge: Intel Corp. 430TX - 82439TX MTXC (rev 01)
+00: 86 80 00 71 06 00 00 22 01 00 00 06 00 20 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80
+50: 08 00 81 14 1a 00 34 01 51 50 55 11 00 00 44 55
+60: 10 10 20 20 20 20 00 87 50 03 00 00 00 00 00 00
+70: 20 00 0a 00 0e 00 00 00 23 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 20 0f 00 00 00 20 00 00
 
-This instance (0000:00:01.0) of output shows me the
-VIA VT8633 is generating the parity bit. The default
-poll interval if 1000 ms and the above output shows
-this. This bridge is either having a parity error on
-the main bus OR more likely is generating false
-positives. How to determine which? More investigation
-is needed.  
+00:07.0 ISA bridge: Intel Corp. 82371AB PIIX4 ISA (rev 01)
+00: 86 80 10 71 0f 00 80 02 01 00 01 06 00 00 80 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 4d 00 70 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 80 0a 80 0b 10 00 00 00 00 f2 80 00 00 00 00 00
+70: 00 00 00 00 00 00 0c 0c 00 00 00 00 00 00 00 00
+80: 00 00 07 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 01 c0 00 09 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
 
-But at least there is some DETECTION occurring. If it
-is false positives, then this device could be placed
-on the "future" blacklist list and at boot time fed to
-the EDAC module.
+00:07.1 IDE interface: Intel Corp. 82371AB PIIX4 IDE (rev 01)
+00: 86 80 11 71 05 00 80 02 01 80 01 01 00 40 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: f1 fc 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 00 80 00 80 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
 
-There is a difference between "detecting" the parity
-and "handling" it. Currently edac is setup to detect
-and report. 
+00:07.2 USB Controller: Intel Corp. 82371AB PIIX4 USB (rev 01)
+00: 86 80 12 71 05 00 80 02 01 00 03 0c 00 40 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 01 f8 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 0b 04 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 20 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
 
-doug thompson
+00:07.3 Bridge: Intel Corp. 82371AB PIIX4 ACPI (rev 01)
+00: 86 80 13 71 03 00 80 02 01 00 80 06 00 00 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: c1 f0 00 00 0f ff bf ff df 2f 00 00 00 00 00 00
+50: 00 00 18 00 00 00 00 00 54 80 00 02 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: b1 f0 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
 
+00:08.0 VGA compatible controller: Matrox Graphics, Inc. MGA 1064SG [Mystique] (rev 03)
+00: 2b 10 1a 05 87 00 80 02 03 00 00 03 00 40 00 00
+10: 08 00 80 fd 00 c0 df fe 00 00 00 fe 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 0a 11 18 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 ff 01 00 00
+40: 21 4f 0c 1f 08 3c 00 00 00 00 53 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-> 
-> lspci -vxx:
-> 
+00:09.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 04)
+00: 86 80 29 12 17 00 80 02 04 00 00 02 08 42 00 00
+10: 08 a0 df fe 01 f4 00 00 00 00 c0 fe 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 86 80 08 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 0a 01 08 38
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 21 1e
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-<snip>
+00:12.0 Multimedia controller: Philips Semiconductors SAA7146 (rev 01)
+00: 31 11 46 71 06 02 80 02 01 00 80 04 00 7b 00 00
+10: 00 bc df fe 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 c2 13 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 0a 01 0f 26
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 80 00 00 00 80 00 00 00 80 00 00 00 80
+90: 00 00 00 80 00 00 00 80 00 00 00 80 00 00 00 80
+a0: 00 00 00 80 00 00 00 80 00 00 00 80 00 00 00 80
+b0: 00 00 00 80 00 00 00 80 00 00 00 80 00 00 00 80
+c0: 00 00 00 80 00 00 00 80 00 00 00 80 00 00 00 80
+d0: 00 00 00 80 00 00 00 80 00 00 00 80 00 00 00 80
+e0: 00 00 00 80 00 00 00 80 00 00 00 80 00 00 00 80
+f0: 00 00 00 80 00 00 00 80 00 00 00 80 00 00 00 80
 
-> 0000:00:01.0 PCI bridge: VIA Technologies, Inc.
-> VT8633 [Apollo Pro266 AGP] (prog-if 00 [Normal
-> decode])
-> 	Flags: bus master, 66MHz, medium devsel, latency 0
-> 	Bus: primary=00, secondary=01, subordinate=01,
-> sec-latency=0
-> 	Memory behind bridge: e4000000-e5ffffff
-> 	Prefetchable memory behind bridge:
-> e0000000-e3ffffff
-> 	Capabilities: [80] Power Management version 2
-> 00: 06 11 91 b0 07 01 30 a2 00 00 04 06 00 00 01 00
-> 10: 00 00 00 00 00 00 00 00 00 01 01 00 f0 00 20 a2
-> 20: 00 e4 f0 e5 00 e0 f0 e3 00 00 00 00 00 00 00 00
-> 30: 00 00 00 00 80 00 00 00 00 00 00 00 00 00 0c 00
-
-
-
-"If you think Education is expensive, just try Ignorance"
-
-"Don't tell people HOW to do things, tell them WHAT you
-want and they will surprise you with their ingenuity."
-                   Gen George Patton
+-- 
+Dick Streefland                    ////               De Bilt
+dick.streefland@xs4all.nl         (@ @)       The Netherlands
+------------------------------oOO--(_)--OOo------------------
 

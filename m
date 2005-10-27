@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932664AbVJ0WEU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932661AbVJ0WDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932664AbVJ0WEU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 18:04:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932663AbVJ0WD5
+	id S932661AbVJ0WDy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 18:03:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932660AbVJ0WDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 18:03:57 -0400
-Received: from ams-iport-1.cisco.com ([144.254.224.140]:46922 "EHLO
-	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S932660AbVJ0WDz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 18:03:55 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: Kylene Jo Hall <kjhall@us.ibm.com>, selhorst@crypto.rub.de,
-       linux-kernel@vger.kernel.org, castet.matthieu@free.fr
-Subject: Re: [PATCH] Infineon TPM: move infineon driver off pci_dev
-X-Message-Flag: Warning: May contain useful information
-References: <435FB8A5.803@crypto.rub.de> <435FBFC4.5060508@free.fr>
-	<4360B889.1010502@crypto.rub.de>
-	<1130422052.4839.134.camel@localhost.localdomain>
-	<20051027145535.0741b647.akpm@osdl.org>
-From: Roland Dreier <rolandd@cisco.com>
-Date: Thu, 27 Oct 2005 15:03:49 -0700
-In-Reply-To: <20051027145535.0741b647.akpm@osdl.org> (Andrew Morton's
- message of "Thu, 27 Oct 2005 14:55:35 -0700")
-Message-ID: <52zmouvcqi.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 27 Oct 2005 22:03:50.0636 (UTC) FILETIME=[4FFEF2C0:01C5DB42]
+	Thu, 27 Oct 2005 18:03:54 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:49843 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932658AbVJ0WDy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 18:03:54 -0400
+Date: Thu, 27 Oct 2005 15:03:55 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Damir Perisa <damir.perisa@solnet.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rc5-mm1 - ide-cs broken!
+Message-Id: <20051027150355.035dbbe5.akpm@osdl.org>
+In-Reply-To: <200510272331.58445.damir.perisa@solnet.ch>
+References: <20051024014838.0dd491bb.akpm@osdl.org>
+	<200510260149.21376.damir.perisa@solnet.ch>
+	<200510272331.58445.damir.perisa@solnet.ch>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, a few comments on your trivial comments:
+Damir Perisa <damir.perisa@solnet.ch> wrote:
+>
+> isn't anybody else using ide-cs? i feel lonely!
+>
 
-    > -static int tpm_atml_send(struct tpm_chip *chip, u8 * buf, size_t count)
-    > +static int tpm_atml_send(struct tpm_chip *chip, u8  *buf, size_t count)
+That's called "stunned silence".
 
-There's still an extra space there I think.
 
-    > -	data = kmalloc(READ_PUBEK_RESULT_SIZE, GFP_KERNEL);
-    > +	data = kxalloc(READ_PUBEK_RESULT_SIZE, GFP_KERNEL);
+> booting the fresh kernel26mm, i ran into a problem with ide-cs:
+> 
+> info while booting / start of hotplug:
+> Oct 26 01:02:28 localhost kernel: [17179579.008000] Yenta: CardBus bridge found at 0000:02:00.1 [1014:0185]
+> Oct 26 01:02:28 localhost kernel: [17179579.160000] Yenta: ISA IRQ mask 0x04b8, PCI irq 11
+> Oct 26 01:02:28 localhost kernel: [17179579.184000] Socket status: 30000006
+> Oct 26 01:02:28 localhost kernel: [17179579.208000] pcmcia: parent PCI bridge I/O window: 0x4000 - 0x8fff
+> Oct 26 01:02:28 localhost kernel: [17179579.232000] cs: IO port probe 0x4000-0x8fff: clean.
+> Oct 26 01:02:28 localhost kernel: [17179579.256000] pcmcia: parent PCI bridge Memory window: 0xd0200000 - 0xdfffffff
+> Oct 26 01:02:28 localhost kernel: [17179579.280000] pcmcia: parent PCI bridge Memory window: 0xf0000000 - 0xf80fffff
+> 
+> when i plug in the pcmcia-compact-flash adapter into the laptop:
+> Oct 26 01:05:10 localhost kernel: [17179767.840000] cs: memory probe 0xf0000000-0xf80fffff: excluding 0xf0000000-0xf87fffff
+> Oct 26 01:05:11 localhost kernel: [17179767.924000] ide_cs: Unknown symbol cs_error
+> Oct 26 01:05:11 localhost kernel: [17179767.928000] ide_cs: Unknown symbol pcmcia_deregister_client
+> Oct 26 01:05:11 localhost kernel: [17179767.928000] ide_cs: Unknown symbol pcmcia_get_first_tuple
+> Oct 26 01:05:11 localhost kernel: [17179767.928000] ide_cs: Unknown symbol pcmcia_unregister_driver
+> Oct 26 01:05:11 localhost kernel: [17179767.928000] ide_cs: Unknown symbol pcmcia_get_tuple_data
+> Oct 26 01:05:11 localhost kernel: [17179767.928000] ide_cs: Unknown symbol pcmcia_get_next_tuple
+> Oct 26 01:05:11 localhost kernel: [17179767.928000] ide_cs: Unknown symbol pcmcia_register_client
+> Oct 26 01:05:11 localhost kernel: [17179767.928000] ide_cs: Unknown symbol pcmcia_get_configuration_info
+> Oct 26 01:05:11 localhost kernel: [17179767.928000] ide_cs: Unknown symbol pcmcia_request_io
+> Oct 26 01:05:11 localhost kernel: [17179767.928000] ide_cs: Unknown symbol pcmcia_request_configuration
+> Oct 26 01:05:11 localhost kernel: [17179767.928000] ide_cs: Unknown symbol pcmcia_release_configuration
+> 
 
-When did we add kxalloc()?  And what does it do?
+I'd have thought this was basically impossible.  It's saying that
+drivers/pcmcia/ds.c isn't present.  What's the setting of CONFIG_PCMCIA in
+your .config?
 
-    > -ssize_t tpm_write(struct file * file, const char __user * buf,
-    > +ssize_t tpm_write(struct file * file, const char __user *buf,
-
-Why delete one space between * and buf but not the one between * and file?
-
- - R.
+Perhaps the modprobe dependencies are screwed up.  Try modprobing pcmcia.o
+by hand before inserting the card?

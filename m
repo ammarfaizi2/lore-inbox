@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932623AbVJ0Bx3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964957AbVJ0Bwk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932623AbVJ0Bx3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 21:53:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932626AbVJ0Bx3
+	id S964957AbVJ0Bwk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 21:52:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932626AbVJ0Bwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 21:53:29 -0400
-Received: from fmr24.intel.com ([143.183.121.16]:41705 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932623AbVJ0Bx2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 21:53:28 -0400
-Message-Id: <200510270153.j9R1r5g27370@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Ingo Molnar'" <mingo@elte.hu>, "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
-       "'Andrew Morton'" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [patch] optimize activate_task()
-Date: Wed, 26 Oct 2005 18:53:05 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Wed, 26 Oct 2005 21:52:40 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:45515 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932623AbVJ0Bwj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 21:52:39 -0400
+Subject: Re: 2.6.14-rc4-rt7
+From: john stultz <johnstul@us.ibm.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: William Weston <weston@lysdexia.org>, Rui Nuno Capela <rncbc@rncbc.org>,
+       george@mvista.com, Ingo Molnar <mingo@elte.hu>,
+       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Mark Knecht <markknecht@gmail.com>,
+       david singleton <dsingleton@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+       cc@ccrma.Stanford.EDU
+In-Reply-To: <1130377056.21118.102.camel@localhost.localdomain>
+References: <1129852531.5227.4.camel@cmn3.stanford.edu>
+	 <20051021080504.GA5088@elte.hu> <1129937138.5001.4.camel@cmn3.stanford.edu>
+	 <20051022035851.GC12751@elte.hu>
+	 <1130182121.4983.7.camel@cmn3.stanford.edu>
+	 <1130182717.4637.2.camel@cmn3.stanford.edu>
+	 <1130183199.27168.296.camel@cog.beaverton.ibm.com>
+	 <20051025154440.GA12149@elte.hu>
+	 <1130264218.27168.320.camel@cog.beaverton.ibm.com>
+	 <435E91AA.7080900@mvista.com> <20051026082800.GB28660@elte.hu>
+	 <435FA8BD.4050105@mvista.com> <435FBA34.5040000@mvista.com>
+	 <435FEAE7.8090104@rncbc.org>
+	 <Pine.LNX.4.58.0510261449310.20155@echo.lysdexia.org>
+	 <1130371042.21118.76.camel@localhost.localdomain>
+	 <1130373953.27168.370.camel@cog.beaverton.ibm.com>
+	 <1130375244.21118.91.camel@localhost.localdomain>
+	 <1130376147.27168.381.camel@cog.beaverton.ibm.com>
+	 <1130377056.21118.102.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 26 Oct 2005 18:52:27 -0700
+Message-Id: <1130377947.27168.392.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcXamSv4u3LR4ONbTVW4Mz1d0Dyahw==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-recalc_task_prio() is called from activate_task() to calculate
-dynamic priority and interactive credit for the activating task.
-For real-time scheduling process, all that dynamic calculation
-is thrown away at the end because rt priority is fixed.  Patch
-to optimize recalc_task_prio() away for rt processes.
+On Wed, 2005-10-26 at 21:37 -0400, Steven Rostedt wrote:
+> On Wed, 2005-10-26 at 18:22 -0700, john stultz wrote:
+> 
+> > 
+> > I don't know if that would really fix it, because ideally you want to
+> > read the prev_mono_time at the same point you calculate the time inside
+> > the read lock'ed critical section.
+> 
+> Ideally yes, but this is just for debugging, so as long as prev is read
+> before now, this should prevent false positives due to ordering.  
 
+Ah, you're right, good point! I was being overly paranoid.
 
-Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+So as long as the writing of the 64bit value is atomic (which it isn't,
+but that can be fixed) there shouldn't be ordering problems w/ your
+patch. 
 
+And sure enough, it seems to take care of the warnings on my box.
 
---- ./kernel/sched.c.orig	2005-10-26 10:39:40.594015398 -0700
-+++ ./kernel/sched.c	2005-10-26 18:43:12.187410006 -0700
-@@ -833,7 +833,8 @@ static void activate_task(task_t *p, run
- 	}
- #endif
- 
--	p->prio = recalc_task_prio(p, now);
-+	if (!rt_task(p))
-+		p->prio = recalc_task_prio(p, now);
- 
- 	/*
- 	 * This checks to make sure it's not an uninterruptible task
+Great debugging job!
+-john
 

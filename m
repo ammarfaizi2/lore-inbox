@@ -1,44 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964961AbVJ0ELi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbVJ0Ems@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964961AbVJ0ELi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 00:11:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964963AbVJ0ELi
+	id S964965AbVJ0Ems (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 00:42:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964967AbVJ0Ems
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 00:11:38 -0400
-Received: from xproxy.gmail.com ([66.249.82.198]:33502 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964961AbVJ0ELi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 00:11:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=OkWWZ3ZUExzh4U74F6oVWEhJ7s9q18yLr7Ns+g9G07ROgjStoXciQyGW/Yd6xEbsR2VOu8yoIQVpv5jDnMjG6tPUoDG+ZT+wySJiKfNKAkGhhBFe0yKKelWUOEaUTLDxKqjUX+Ji/Tw2hNJAL6cwlOVQwbMIWuClxZ9DGzv8MwE=
-Message-ID: <82b32ed40510262111m2e3b749yca4f78982e879e5e@mail.gmail.com>
-Date: Wed, 26 Oct 2005 21:11:37 -0700
-From: Badari Pulavarty <pbadari@gmail.com>
-To: Dave Airlie <airlied@linux.ie>
-Subject: Re: [PATCH] Fwd: 2.6.14-rc5 GPF in radeon_cp_init_ring_buffer() (fwd)
-Cc: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
+	Thu, 27 Oct 2005 00:42:48 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:9992 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S964965AbVJ0Ems (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 00:42:48 -0400
+Date: Thu, 27 Oct 2005 06:34:39 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: =?iso-8859-1?Q?Hans-J=FCrgen?= Mehnert <hjmehnert@gmail.com>,
        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0510261103510.24177@skynet>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Subject: Re: PROBLEM: kernel crashes 2.4.31final + 2.4.32rc1
+Message-ID: <20051027043439.GL22601@alpha.home.local>
+References: <8e9415f80510240824g5b7bca95h@mail.gmail.com> <20051026083956.GA9473@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-References: <Pine.LNX.4.58.0510261103510.24177@skynet>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20051026083956.GA9473@logos.cnet>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/26/05, Dave Airlie <airlied@linux.ie> wrote:
->
-> Hi Linus/Andrew,
->
-> Another 2.6.14 DRM fix.. they always come in 3s.. hopefully thats it..
->
-> Dave.
->
+Hi Hans & Marcelo,
 
-Seems to have fixed my problem.
+On Wed, Oct 26, 2005 at 06:39:56AM -0200, Marcelo Tosatti wrote:
+> Hi Hans,
+> 
+> On Mon, Oct 24, 2005 at 05:24:14PM +0200, Hans-Jürgen Mehnert wrote:
+> > [1.]
+> > PROBLEM: kernel crashes 2.4.31final + 2.4.32rc1
+> > 
+> > 
+> > [2.]
+> > Since kernel version 2.4.31 we have system crashes with
+> > blank screen and nothing in logs on at least 5 different
+> > Intel and AMD SMP machines. 2.4.32rc1 has the same problem,
+> > 2.4.30 is working stable on these machines. We had no crashes
+> > with the newer kernel versions on about 100 single-cpu machines
+> > so far.
+> 
+> Few questions:
+> 
+> - Can you send dmesg output?
 
-Thanks,
-Badari
+you could also try to get messages on the screen by preventing from blanking
+using setterm :
+
+    # setterm -blank 0
+
+Also, using a serial console to get and log messages can help.
+
+> - Are you using the ahci driver with the Intel SATA controller? There have
+> been some bugfixes in ahci during v2.4.31, although they dont look suspect.
+> Is there load on the interface?
+> 
+> - Is the USB UHCI controller being used? There are known SMP problems 
+> in the usb-uhci driver recently fixed (problem introduced in v2.4.28 though).
+> 
+> - What is the workload on these machines?
+> 
+> - Have you tried v2.4.31-pre1, -pre2, and so on to isolate the possibly problematic
+> change?
+
+I also saw that at least the machine shown in the report is using grsec. Are
+all machines using grsec ? Although I don't believe it would be the cause,
+we cannot exclude that a recent bug could have been introduced in it.
+
+And what's the average time before a crash ? hours, days, weeks ?
+
+Regards,
+Willy
+

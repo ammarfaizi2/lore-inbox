@@ -1,53 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964978AbVJ0HOx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964986AbVJ0HwV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964978AbVJ0HOx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 03:14:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964979AbVJ0HOx
+	id S964986AbVJ0HwV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 03:52:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964987AbVJ0Hv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 03:14:53 -0400
-Received: from beret.waw.pdi.net ([213.241.71.70]:60690 "EHLO beret.srv.pl")
-	by vger.kernel.org with ESMTP id S964978AbVJ0HOw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 03:14:52 -0400
-Subject: dumb muliport serial cards not supported in 2.6.13.4 ???
-From: Jarek <jarek@macro-system.com.pl>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Macro System
-Date: Thu, 27 Oct 2005 09:14:18 +0200
-Message-Id: <1130397258.13942.14.camel@jarek.macro>
+	Thu, 27 Oct 2005 03:51:57 -0400
+Received: from mail6.hitachi.co.jp ([133.145.228.41]:39918 "EHLO
+	mail6.hitachi.co.jp") by vger.kernel.org with ESMTP id S964985AbVJ0Hvy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 03:51:54 -0400
+Date: Thu, 27 Oct 2005 16:45:58 +0900 (JST)
+Message-Id: <20051027.164558.92586706.noboru.obata.ar@hitachi.com>
+To: indou.takao@soft.fujitsu.com
+Cc: akpm@osdl.org, hyoshiok@miraclelinux.com, linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel Dump Summit 2005
+From: OBATA Noboru <noboru.obata.ar@hitachi.com>
+In-Reply-To: <C5C5D45B9312EFindou.takao@soft.fujitsu.com>
+References: <C5C5D45B9312EFindou.takao@soft.fujitsu.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all!
+On Wed, 19 Oct 2005, Takao Indoh wrote:
+> > 
+> > Could you briefly explain the implementation of partial dump in
+> > diskdump for those who are not familiar with it?
+> > 
+> > - Levels of partial dump (supported page categories)
+> > - How to indentify the category (kernel data structure used)
+> 
+> Ok.
+> Partial dump of diskdump defines 5 filters.
+> 
+> #define DUMP_EXCLUDE_CACHE 0x00000001 /* Exclude LRU & SwapCache pages*/
+> #define DUMP_EXCLUDE_CLEAN 0x00000002 /* Exclude all-zero pages */
+> #define DUMP_EXCLUDE_FREE  0x00000004 /* Exclude free pages */
+> #define DUMP_EXCLUDE_ANON  0x00000008 /* Exclude Anon pages */
+> #define DUMP_SAVE_PRIVATE  0x00000010 /* Save private pages */
 
-	I've PCM 3643, 8 port dumb multiport serial card from Advantech.
-	This card works nice with 2.6.12 but with 2.6.13.4 I can see only two
-ports!
-	This is dumb 8250 (exactly: 16550A) multiport board. In 2.6.12 I've the
-following settings:
+> DUMP_EXCLUDE_FREE has some risks. If this filter is enable, diskdump
+> scans free page linked lists. If the list is corrupt, diskdump may hang.
+> Therefore, I always use level-19 (EXCLUDE_CACHE & EXCLUDE_CLEAN &
+> SAVE_PRIVATE).
+> 
+> DUMP_EXCLUDE_CACHE reduces dump size effectively when file caches on
+> memory are big. I don't use DUMP_EXCLUDE_ANON because user data(user
+> stack, thread stack, mutex, etc.) is sometimes needed to investigate
+> dump.
+> DUMP_SAVE_PRIVATE is needed for filesystem. Filesystem (journal) uses
+> PG_private pages, so these pages is necessary to investigate
+> trouble of filesystem. 
 
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_8250_CONSOLE=y
-CONFIG_SERIAL_8250_NR_UARTS=4
-CONFIG_SERIAL_8250_EXTENDED=y
-CONFIG_SERIAL_8250_MANY_PORTS=y
-CONFIG_SERIAL_8250_SHARE_IRQ=y
-CONFIG_SERIAL_8250_MULTIPORT=y
-CONFIG_SERIAL_8250_RSA=y
-CONFIG_SERIAL_CORE=y
-CONFIG_SERIAL_CORE_CONSOLE=y
+Thank you for filters' description as well as the recommended
+filter combination.
 
-I've tried to setup same in 2.6.13.4, but it claims:
-.config:761: trying to assign nonexistent symbol SERIAL_8250_MULTIPORT
+I'm just wondering the use of DUMP_EXCLUDE_CLEAN.  When a zero
+page is excluded from a dump, how people know?  What I'm afraid
+is that people would see an error (e.g., no such page in a dump)
+in analyzing such a dump and be confused why.  Because it is a
+cache, or zero-cleared, or, ...?  Any ideas?
 
-I suspect that this is the problematic setting but there is nothing
-about this in any Changelog.
+Regards,
 
-What should I do ?
-
-Jarek.
+-- 
+OBATA Noboru (noboru.obata.ar@hitachi.com)
 

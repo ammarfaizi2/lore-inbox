@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751234AbVJ0Q2O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751237AbVJ0QhD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751234AbVJ0Q2O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 12:28:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751237AbVJ0Q2N
+	id S1751237AbVJ0QhD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 12:37:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbVJ0QhC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 12:28:13 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:33688 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1751234AbVJ0Q2N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 12:28:13 -0400
-Subject: Re: Kernel Panic + Intel SATA
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: =?ISO-8859-1?Q?M=E1rcio?= Oliveira <moliveira@rhla.com>
-Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4360E217.7000700@rhla.com>
-References: <435FC886.7070105@rhla.com>
-	 <Pine.LNX.4.61.0510261523350.6174@chaos.analogic.com>
-	 <4360261E.4010202@rhla.com> <436026F2.1030206@rhla.com>
-	 <Pine.LNX.4.61.0510270839130.9512@chaos.analogic.com>
-	 <1130420072.10604.37.camel@localhost.localdomain>
-	 <4360E217.7000700@rhla.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 27 Oct 2005 17:27:57 +0100
-Message-Id: <1130430478.17679.0.camel@localhost>
+	Thu, 27 Oct 2005 12:37:02 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:26299 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S1751237AbVJ0Qg7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 12:36:59 -0400
+Date: Thu, 27 Oct 2005 10:36:58 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Roland Dreier <rolandd@cisco.com>
+Cc: gregkh@suse.de, mst@mellanox.co.il, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: AMD 8131 and MSI quirk
+Message-ID: <20051027163658.GA8201@parisc-linux.org>
+References: <524q799p2t.fsf@cisco.com> <20051022233220.GA1463@parisc-linux.org> <52hdb3yp36.fsf@cisco.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <52hdb3yp36.fsf@cisco.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 27, 2005 at 08:08:45AM -0700, Roland Dreier wrote:
+>     Matthew> Perhaps the right thing to do is to change pad2 (in
+>     Matthew> struct pci_bus) to bus_flags and make bit 0
+>     Matthew> PCI_BRIDGE_FLAGS_NO_MSI ?
+> 
+> Seems reasonable, but I'm still not sure how to implement this.  Where
+> does this bit get set and propagated to secondary buses?
 
-> >If you are using LVM2 or MD you just need to be sure you have the right
-> >config options enabled (the Red Hat src.rpm is a good guide).
-> >
-> >Alan
-> >  
-> >
-> I'm not using lvm or raid in the /root or the /boot partition. All 
-> partitions was made directly in the disk and formated with ext3 file 
-> system. I think all needed options was compiled in the new kernel, since 
-> I copied the /boot/config-2.6.12-1.1456_FC4 (config file from the kernel 
-> that works fine) and compiled the kernel.src.rpm without any 
-> modifications in the config file, and it still not working.
+We can propagate it to secondary busses in pci_alloc_child_bus().
+We inherit parent->ops and parent->sysdata at this point, we can also
+inherit parent->whatever_flags_we_like.
 
-You also created a new initrd with mkinitrd ?
-
+Setting it from the quirk is a bit more yucky.  I *think* we're going
+to have to walk the PCI tree, given that it's a FIXUP_FINAL.  Maybe it
+needs to not be a FIXUP_FINAL ... a FIXUP_HEADER might get it set early
+enough for it to propagate through that mechanism.

@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932620AbVJ0BoO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932623AbVJ0Bx3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932620AbVJ0BoO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 21:44:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932621AbVJ0BoO
+	id S932623AbVJ0Bx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 21:53:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932626AbVJ0Bx3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 21:44:14 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:64210 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932620AbVJ0BoN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 21:44:13 -0400
-Subject: Re: 2.6.14-rc5 (i386) + TSC, how to disable? time drift
-From: john stultz <johnstul@us.ibm.com>
-To: Vladimir Lazarenko <vlad@lazarenko.net>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <436029D4.9080601@lazarenko.net>
-References: <436029D4.9080601@lazarenko.net>
-Content-Type: text/plain
-Date: Wed, 26 Oct 2005 18:44:11 -0700
-Message-Id: <1130377451.27168.386.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 26 Oct 2005 21:53:29 -0400
+Received: from fmr24.intel.com ([143.183.121.16]:41705 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932623AbVJ0Bx2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 21:53:28 -0400
+Message-Id: <200510270153.j9R1r5g27370@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Ingo Molnar'" <mingo@elte.hu>, "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
+       "'Andrew Morton'" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [patch] optimize activate_task()
+Date: Wed, 26 Oct 2005 18:53:05 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcXamSv4u3LR4ONbTVW4Mz1d0Dyahw==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-10-27 at 03:13 +0200, Vladimir Lazarenko wrote:
-> Hello,
-> 
-> To continue on my struggle with Dual-core - another interesting issue 
-> popped up: time drift.
-> 
-> SMP is enabled, TSC is enabled.
+recalc_task_prio() is called from activate_task() to calculate
+dynamic priority and interactive credit for the activating task.
+For real-time scheduling process, all that dynamic calculation
+is thrown away at the end because rt priority is fixed.  Patch
+to optimize recalc_task_prio() away for rt processes.
 
-It looks like you have ACPI PM and HPET enabled in the kernel, so it
-appears your system does not support alternative clocksources. 
 
-You can check to see if a updated BIOS that makes ACPI PM or HPET
-available to the OS has been released, or request one from your hardware
-vendor.
+Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
 
-You might want to try idle=poll as well.
 
-thanks
--john
+--- ./kernel/sched.c.orig	2005-10-26 10:39:40.594015398 -0700
++++ ./kernel/sched.c	2005-10-26 18:43:12.187410006 -0700
+@@ -833,7 +833,8 @@ static void activate_task(task_t *p, run
+ 	}
+ #endif
+ 
+-	p->prio = recalc_task_prio(p, now);
++	if (!rt_task(p))
++		p->prio = recalc_task_prio(p, now);
+ 
+ 	/*
+ 	 * This checks to make sure it's not an uninterruptible task
 

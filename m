@@ -1,72 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965054AbVJ1Cf5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965062AbVJ1Cmw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965054AbVJ1Cf5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 22:35:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965057AbVJ1Cf5
+	id S965062AbVJ1Cmw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 22:42:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965061AbVJ1Cmw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 22:35:57 -0400
-Received: from xproxy.gmail.com ([66.249.82.198]:9733 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965054AbVJ1Cf4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 22:35:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NGy4fVfX4P+hI4tZXcppUrzvMs6TKYXzblSbRstOxufNOy8U6V+G/GFYs3iCSk9DkyThj9xWStYr1Max7BqB1c+OTvrfQr0XYP2soEM8EsMfYlLoJYQm8utNuhDuA9yFOku9I3QtChD/raFmfZNYCbogBR2/lBi7ZqTavjx9uqY=
-Message-ID: <1e62d1370510271935o51d88c0bk7baa23ca1a75bc4d@mail.gmail.com>
-Date: Fri, 28 Oct 2005 07:35:56 +0500
-From: Fawad Lateef <fawadlateef@gmail.com>
-To: Alejandro Bonilla <abonilla@linuxwireless.org>
-Subject: Re: 4GB memory and Intel Dual-Core system
-Cc: Marcel Holtmann <marcel@holtmann.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051027211203.M33358@linuxwireless.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 27 Oct 2005 22:42:52 -0400
+Received: from hera.kernel.org ([140.211.167.34]:6563 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S965062AbVJ1Cmw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 22:42:52 -0400
+Date: Thu, 27 Oct 2005 19:35:48 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: magnus.damm@gmail.com, clameter@sgi.com, kravetz@us.ibm.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH 0/4] Swap migration V3: Overview
+Message-ID: <20051027213548.GB8128@logos.cnet>
+References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com> <aec7e5c30510201857r7cf9d337wce9a4017064adcf@mail.gmail.com> <20051022005050.GA27317@logos.cnet> <aec7e5c30510230550j66d6e37fg505fd6041dca9bee@mail.gmail.com> <20051024074418.GC2016@logos.cnet> <aec7e5c30510250437h6c300066s14e39a0c91be772c@mail.gmail.com> <20051025143741.GA6604@logos.cnet> <aec7e5c30510260004p5a3b07a9v28ae67b2982f1945@mail.gmail.com> <20051027150142.GE13500@logos.cnet> <20051027134347.56d29cfa.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <1130445194.5416.3.camel@blade> <52mzkuwuzg.fsf@cisco.com>
-	 <20051027204923.M89071@linuxwireless.org>
-	 <1130446667.5416.14.camel@blade>
-	 <20051027205921.M81949@linuxwireless.org>
-	 <1130447261.5416.20.camel@blade>
-	 <20051027211203.M33358@linuxwireless.org>
+In-Reply-To: <20051027134347.56d29cfa.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/28/05, Alejandro Bonilla <abonilla@linuxwireless.org> wrote:
-> On Thu, 27 Oct 2005 23:07:41 +0200, Marcel Holtmann wrote
-> > Hi Alejandro,
+Hi Andrew!
+
+On Thu, Oct 27, 2005 at 01:43:47PM -0700, Andrew Morton wrote:
+> Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
 > >
-> > so there is no way to give me back the "lost" memory. Is it possible
-> > that another motherboard might help?
->
-> AFAIK, No. AMD and Intel will always do the same thing until we all move to
-> real IA64.
->
+> > The fair approach would be to have the
+> >  number of pages to reclaim also relative to zone size.
+> >
+> >  sc->nr_to_reclaim = (zone->present_pages * sc->swap_cluster_max) /
+> >                                  total_memory;
+> 
+> You can try it, but that shouldn't matter.  SWAP_CLUSTER_MAX is just a
+> batching factor used to reduce CPU consumption.  If you make it twice as
+> bug, we run DMA-zone reclaim half as often - it should balance out.
 
-Can you tell me the main differences between IA64 and x86_64 (Opteron)
-? because in your one of the previous mail you said IA64 != EM64T and
-its true, but I know is EM64T/AMD64 in 64-bit mode != IA32 but you
-said that too EM64T is not really 64-bit, its a IA32 .. Can you give
-me some link which just tells the difference between IA64 (Itanium)
-and AMD64 (Opteron) ?
+But you're not taking the relationship between DMA and NORMAL zone 
+into account?
 
-While googling I found this article
-http://www.eweek.com/article2/0,1895,1046390,00.asp but its not
-clearing mentioning the difference between Opteron and Itanium !
+I suppose that a side effect of such change is that more allocations
+will become serviced from the NORMAL/HIGHMEM zones ("more intensively
+reclaimed") while less allocations will become serviced by the DMA zone
+(whose scan/reclaim progress should now be _much_ lighter than that of
+the NORMAL zone). ie DMA zone will be much less often "available" for
+GFP_HIGHMEM/GFP_KERNEL allocations, which are the vast majority.
 
-Although I found this difference in that article :
-                     With the Itanium, Intel proposes to examine
-programs when they are compiled into their executable form and encode
-concurrent operations ahead of time. Intel calls this approach EPIC,
-for Explicitly Parallel Instruction Computing, and it is the genuine
-difference between the Itanium and AMD's x86-64. EPIC's drawback is
-that the core of the Itanium no longer offers an effective
-upward-compatible path to existing x86 code; its speed in running that
-32-bit code has proved to be disappointing.
+Might be talking BS though.
 
-So is there any other difference except above ?
+What else could explain this numbers from Magnus, taking into account
+that a large number of pages in the DMA zone are used for kernel text,
+etc. These unbalancing seems to be potentially suboptimal (and result
+in unpredictable behaviour depending from which zone pages becomes
+allocated from):
 
+"$ cat /proc/zoneinfo | grep present
+        present  4096
+        present  225280
+        present  30342
+                                                                                                                                              
+$ cat /proc/zoneinfo | grep tscanned
+        tscanned 151352
+        tscanned 3480599
+        tscanned 541466
+                                                                                                                                              
+"tscanned" counts how many pages that has been scanned in each zone
+since power on. Executive summary assuming that only LRU pages exist
+in the zone:
+                                                                                                                                              
+DMA: each page has been scanned ~37 times
+Normal: each page has been scanned ~15 times
+HighMem: each page has been scanned ~18 times"
 
---
-Fawad Lateef
+I feel that I'm reaching the point where things should be confirmed
+instead of guessed (on my part!).

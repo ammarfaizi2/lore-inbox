@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbVJ0Uoc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbVJ0Uoj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932230AbVJ0Uoc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 16:44:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbVJ0Uoc
+	id S932234AbVJ0Uoj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 16:44:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbVJ0Uoj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 16:44:32 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:16545 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932230AbVJ0Uob (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 16:44:31 -0400
-Date: Thu, 27 Oct 2005 13:43:47 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: magnus.damm@gmail.com, clameter@sgi.com, kravetz@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 0/4] Swap migration V3: Overview
-Message-Id: <20051027134347.56d29cfa.akpm@osdl.org>
-In-Reply-To: <20051027150142.GE13500@logos.cnet>
-References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com>
-	<aec7e5c30510201857r7cf9d337wce9a4017064adcf@mail.gmail.com>
-	<20051022005050.GA27317@logos.cnet>
-	<aec7e5c30510230550j66d6e37fg505fd6041dca9bee@mail.gmail.com>
-	<20051024074418.GC2016@logos.cnet>
-	<aec7e5c30510250437h6c300066s14e39a0c91be772c@mail.gmail.com>
-	<20051025143741.GA6604@logos.cnet>
-	<aec7e5c30510260004p5a3b07a9v28ae67b2982f1945@mail.gmail.com>
-	<20051027150142.GE13500@logos.cnet>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 27 Oct 2005 16:44:39 -0400
+Received: from ams-iport-1.cisco.com ([144.254.224.140]:50091 "EHLO
+	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S932234AbVJ0Uoi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 16:44:38 -0400
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 4GB memory and Intel Dual-Core system
+X-Message-Flag: Warning: May contain useful information
+References: <1130445194.5416.3.camel@blade>
+From: Roland Dreier <rolandd@cisco.com>
+Date: Thu, 27 Oct 2005 13:44:19 -0700
+In-Reply-To: <1130445194.5416.3.camel@blade> (Marcel Holtmann's message of
+ "Thu, 27 Oct 2005 22:33:14 +0200")
+Message-ID: <52mzkuwuzg.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 27 Oct 2005 20:44:20.0363 (UTC) FILETIME=[34B10DB0:01C5DB37]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
->
-> The fair approach would be to have the
->  number of pages to reclaim also relative to zone size.
-> 
->  sc->nr_to_reclaim = (zone->present_pages * sc->swap_cluster_max) /
->                                  total_memory;
+    Marcel> The BIOS and dmidecode tells me that I have 4 GB of RAM
+    Marcel> installed and I don't have any idea where to look for
+    Marcel> details. What information do you need to analyze this?
 
-You can try it, but that shouldn't matter.  SWAP_CLUSTER_MAX is just a
-batching factor used to reduce CPU consumption.  If you make it twice as
-bug, we run DMA-zone reclaim half as often - it should balance out.  
+Look at the e820 dump in your kernel bootlog.  I'll bet you'll see a
+big chunk of reserved address space.  Do you have any PCI devices like
+video cards that use a lot of PCI address space?
 
+I don't know if EM64T systems (or whatever the right term is) have a
+way of remapping some RAM above 4 GB so that you can use all your
+memory in a case like this.
+
+ - R.

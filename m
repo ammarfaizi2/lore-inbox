@@ -1,73 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbVJ0BYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964955AbVJ0B0k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932076AbVJ0BYq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 21:24:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932619AbVJ0BYq
+	id S964955AbVJ0B0k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 21:26:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964957AbVJ0B0k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 21:24:46 -0400
-Received: from fmr21.intel.com ([143.183.121.13]:5300 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932076AbVJ0BYp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 21:24:45 -0400
-Message-Id: <200510270124.j9R1OPg27107@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Ingo Molnar'" <mingo@elte.hu>, "Nick Piggin" <nickpiggin@yahoo.com.au>,
-       "Andrew Morton" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: better wake-balancing: respin
-Date: Wed, 26 Oct 2005 18:24:25 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Wed, 26 Oct 2005 21:26:40 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:60911 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S964955AbVJ0B0j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 21:26:39 -0400
+Subject: Re: 2.6.14-rc4-rt7
+From: Steven Rostedt <rostedt@goodmis.org>
+To: john stultz <johnstul@us.ibm.com>
+Cc: cc@ccrma.Stanford.EDU, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>,
+       david singleton <dsingleton@mvista.com>,
+       Mark Knecht <markknecht@gmail.com>,
+       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Ingo Molnar <mingo@elte.hu>, george@mvista.com,
+       Rui Nuno Capela <rncbc@rncbc.org>, William Weston <weston@lysdexia.org>
+In-Reply-To: <1130375244.21118.91.camel@localhost.localdomain>
+References: <1129852531.5227.4.camel@cmn3.stanford.edu>
+	 <20051021080504.GA5088@elte.hu> <1129937138.5001.4.camel@cmn3.stanford.edu>
+	 <20051022035851.GC12751@elte.hu>
+	 <1130182121.4983.7.camel@cmn3.stanford.edu>
+	 <1130182717.4637.2.camel@cmn3.stanford.edu>
+	 <1130183199.27168.296.camel@cog.beaverton.ibm.com>
+	 <20051025154440.GA12149@elte.hu>
+	 <1130264218.27168.320.camel@cog.beaverton.ibm.com>
+	 <435E91AA.7080900@mvista.com> <20051026082800.GB28660@elte.hu>
+	 <435FA8BD.4050105@mvista.com> <435FBA34.5040000@mvista.com>
+	 <435FEAE7.8090104@rncbc.org>
+	 <Pine.LNX.4.58.0510261449310.20155@echo.lysdexia.org>
+	 <1130371042.21118.76.camel@localhost.localdomain>
+	 <1130373953.27168.370.camel@cog.beaverton.ibm.com>
+	 <1130375244.21118.91.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Wed, 26 Oct 2005 21:26:04 -0400
+Message-Id: <1130376364.21118.96.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcXalSsjyf4J9a1rRVG4O3vn7bOx+Q==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Once upon a time, this patch was in -mm tree (2.6.13-mm1):
-http://marc.theaimsgroup.com/?l=linux-kernel&m=112265450426975&w=2
+On Wed, 2005-10-26 at 21:07 -0400, Steven Rostedt wrote:
 
-It is neither in Linus's official tree, nor it is in -mm anymore.
+> Index: linux-2.6.14-rc5-rt7/kernel/time/timeofday.c
+> ===================================================================
+> --- linux-2.6.14-rc5-rt7.orig/kernel/time/timeofday.c	2005-10-26 16:57:03.000000000 -0400
+> +++ linux-2.6.14-rc5-rt7/kernel/time/timeofday.c	2005-10-26 21:03:22.000000000 -0400
+> @@ -243,8 +243,8 @@
+>  
+>  	ns_to_timespec(ts, mc);
+>  
+> -	now = timespec_to_ktime(*ts);
+>  	prev = per_cpu(prev_mono_time, cpu);
+> +	now = timespec_to_ktime(*ts);
+>  
+>  	prev_st = per_cpu(prev_system_time, cpu);
+>  	curr_st = system_time;
+> 
 
-I guess I missed the objection for dropping the patch.  I'm bringing
-up this discussion again.  The wake-up path is a lot hotter on numa
-system running database benchmark.  Even on a moderate 8P numa box,
-__wake_up and try_to_wake_up is showing up as #1 and #4 hottest kernel
-functions.  While on a comparable 4P smp box, these two functions are
-#5 and #9 respectively.
+Silly me!  I was thinking the "now = timespec_to_ktime(*ts)" was where
+the time was taken.
 
-I think situation will be worse on 32P numa box in the wake up path.
-I don't have any measurement on 32P setup yet, because 8P numa
-performance sucks at the moment and it is a blocker for us before
-proceed any bigger setup.
+Try this patch instead!
 
+-- Steve
 
-Execution profile for 8P numa box [1]:
+Index: linux-2.6.14-rc5-rt7/kernel/time/timeofday.c
+===================================================================
+--- linux-2.6.14-rc5-rt7.orig/kernel/time/timeofday.c	2005-10-26 16:57:03.000000000 -0400
++++ linux-2.6.14-rc5-rt7/kernel/time/timeofday.c	2005-10-26 21:23:05.000000000 -0400
+@@ -233,6 +233,9 @@
+ 	ktime_t prev, now;
+ 	nsec_t mc, prev_st, curr_st;
+ 
++	prev = per_cpu(prev_mono_time, cpu);
++	prev_st = per_cpu(prev_system_time, cpu);
++
+ 	/* atomically read __get_monotonic_clock_ns() */
+ 	do {
+ 		seq = read_seqbegin(&system_time_lock);
+@@ -242,11 +245,7 @@
+ 	} while (read_seqretry(&system_time_lock, seq));
+ 
+ 	ns_to_timespec(ts, mc);
+-
+ 	now = timespec_to_ktime(*ts);
+-	prev = per_cpu(prev_mono_time, cpu);
+-
+-	prev_st = per_cpu(prev_system_time, cpu);
+ 	curr_st = system_time;
+ 
+ 	if (ktime_cmp(now, <, prev)) {
 
-   Symbol              Clockticks Inst. Retired   L3 Misses
-#1 __wake_up           8.08%      1.88%           4.67%
-#2 finish_task_switch  7.53%      18.11%          5.82%
-#3 __make_request      6.87%      2.09%           4.35%
-#4 try_to_wake_up      5.57%      0.64%           3.10%
-
-
-
-Execution profile for 4P SMP box [2]:
-
-   Symbol              Clockticks
-#5 __wake_up           3.57%
-#9 try_to_wake_up      2.38%
-
-My question is: what was the reason this patch is dropped and what
-can we do to improve wake-up performance?  In my opinion, we should
-simply put the task on the CPU it was previously ran and have
-rebalance_tick and load_balance_newidle to balance out the load.
-
-- Ken
-
-
-[1] 8 processor: 1.6 GHz Itanium2 processor, 9M L3. 256 GB memory
-[2] 4 processor: 1.6 GHz Itanium2 processor, 9M L3. 128 GB memory
 

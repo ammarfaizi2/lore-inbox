@@ -1,72 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964984AbVJ0Hvz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbVJ0HvW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964984AbVJ0Hvz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 03:51:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964987AbVJ0Hvz
+	id S964981AbVJ0HvW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 03:51:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbVJ0HvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 03:51:55 -0400
-Received: from mail6.hitachi.co.jp ([133.145.228.41]:38638 "EHLO
-	mail6.hitachi.co.jp") by vger.kernel.org with ESMTP id S964984AbVJ0Hvy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 03:51:54 -0400
-Date: Thu, 27 Oct 2005 16:48:04 +0900 (JST)
-Message-Id: <20051027.164804.63130901.noboru.obata.ar@hitachi.com>
-To: tytso@mit.edu, hugh@veritas.com
-Cc: lkml@oxley.org, pavel@ucw.cz, hyoshiok@miraclelinux.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel Dump Summit 2005
-From: OBATA Noboru <noboru.obata.ar@hitachi.com>
-In-Reply-To: <20051019190013.GD10969@thunk.org>
-References: <20051019190013.GD10969@thunk.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Thu, 27 Oct 2005 03:51:22 -0400
+Received: from mx1.suse.de ([195.135.220.2]:49560 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964981AbVJ0HvW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 03:51:22 -0400
+From: Andi Kleen <ak@suse.de>
+To: Magnus Damm <magnus.damm@gmail.com>
+Subject: Re: [discuss] [rfc] x86_64: Kconfig changes for NUMA
+Date: Thu, 27 Oct 2005 09:50:12 +0200
+User-Agent: KMail/1.8
+Cc: discuss@x86-64.org, Ravikiran G Thirumalai <kiran@scalex86.org>,
+       linux-kernel@vger.kernel.org,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>
+References: <20051026070956.GA3561@localhost.localdomain> <aec7e5c30510261840xf0d5bfapaf2f62959cb9a462@mail.gmail.com> <aec7e5c30510262325r7bf17bf3ved230fe79156e6ad@mail.gmail.com>
+In-Reply-To: <aec7e5c30510262325r7bf17bf3ved230fe79156e6ad@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510270950.13268.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Oct 2005, "Theodore Ts'o" wrote:
-> 
-> On Tue, Oct 18, 2005 at 03:10:24PM +0100, Hugh Dickins wrote:
-> > On Tue, 18 Oct 2005, OBATA Noboru wrote:
-> > > 
-> > > I have a bitter experience in analyzing a partial dump.  The
-> > > dump completely lacks the PTE pages of user processes and I had
-> > > to give up analysis then.  A partial dump has a risk of failure
-> > > in analysis.
-> > 
-> > Page tables of user processes are very often essential in a dump.
-> > Data pages of user processes are almost always just a waste of
-> > space and time in a dump.  Please don't judge against partial
-> > dumps on the basis of one that was badly selected.
+On Thursday 27 October 2005 08:25, Magnus Damm wrote:
 
-My apologies.  What should be blamed was the bad partial dump
-implementation and not the partial dump itself.
+> > While at it, could you please consider to remove the SMP dependency
+> > from NUMA_EMU? 2.6.14-rc5-git5 builds and works with !SMP and
 
-But I don't think data pages of user processes are almost always
-useless, as Ted comments.
+No.
 
-> We've had hard-to-reproduce problems out in the field where being able
-> to find the data pages of the user process was critical to figuring
-> out what the heck was going on.  So I wouldn't be quite so eager to
-> dismiss the need for user pages.  There are times when they come in
-> quite handy....
+> > NUMA_EMU.
+> >
+> > Why?
+> > 1. No need to force SMP when not needed.
+> > 2. qemu-system-x86_64 does not currently work with SMP kernels.
 
-I agree.
+qemu needs to be fixed then.
 
-When a system crashed, a user may want to _avoid_ the cause of
-crash and continue operation, until bugs are fixed and well
-tested.
+> Update:
+>
+> Both CONFIG_NUMA_EMU and CONFIG_K8_NUMA build and run just fine
+> without CONFIG_SMP. Not sure about CONFIG_ACPI_NUMA though.
 
-Then we try to find the way to avoid the specific situation that
-has caused the crash.  Sometimes it can be done by changing
-resource limits, timeouts, or some fancy features in XXX.conf of
-user programs.
+I don't want too many weird combinations which no normal person uses like 
+this. Undoubtedly there will be compile breakage for such stuff in the future 
+(even if it happens to work by chance now) and best is to not open this can 
+of worms in the first place. The number of variants has to be kept under 
+control.
 
-To investigate the behavior of user processes, having data pages
-of user processes in a dump is mandatory.
-
-Regards,
-
--- 
-OBATA Noboru (noboru.obata.ar@hitachi.com)
+-And
 

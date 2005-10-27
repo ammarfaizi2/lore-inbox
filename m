@@ -1,78 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964985AbVJ0IA7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964988AbVJ0IHd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964985AbVJ0IA7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 04:00:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964988AbVJ0IA7
+	id S964988AbVJ0IHd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 04:07:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964991AbVJ0IHd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 04:00:59 -0400
-Received: from smtpa1.netcabo.pt ([212.113.174.16]:18662 "EHLO
-	exch01smtp03.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S964985AbVJ0IA7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 04:00:59 -0400
-Message-ID: <43608972.6070501@rncbc.org>
-Date: Thu, 27 Oct 2005 09:01:54 +0100
-From: Rui Nuno Capela <rncbc@rncbc.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Thu, 27 Oct 2005 04:07:33 -0400
+Received: from cimice0.lam.cz ([212.71.168.90]:19414 "EHLO cimice.yo.cz")
+	by vger.kernel.org with ESMTP id S964988AbVJ0IHb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 04:07:31 -0400
+Date: Thu, 27 Oct 2005 10:07:13 +0200
+From: Jan Hudec <bulb@ucw.cz>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: viro@ftp.linux.org.uk, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 2/8] VFS: per inode statfs (core)
+Message-ID: <20051027080713.GA25460@djinn>
+References: <E1EU5bT-0005sq-00@dorka.pomaz.szeredi.hu> <20051025042519.GJ7992@ftp.linux.org.uk> <E1EUHbq-0006t6-00@dorka.pomaz.szeredi.hu> <20051026173150.GB11769@efreet.light.src> <E1EUqm3-00013A-00@dorka.pomaz.szeredi.hu> <20051026195240.GB15046@efreet.light.src> <E1EUrb7-0001AU-00@dorka.pomaz.szeredi.hu>
 MIME-Version: 1.0
-To: Steven Rostedt <rostedt@goodmis.org>
-CC: William Weston <weston@lysdexia.org>, george@mvista.com,
-       Ingo Molnar <mingo@elte.hu>, john stultz <johnstul@us.ibm.com>,
-       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Mark Knecht <markknecht@gmail.com>,
-       david singleton <dsingleton@mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-       cc@ccrma.Stanford.EDU
-Subject: Re: 2.6.14-rc4-rt7
-References: <1129852531.5227.4.camel@cmn3.stanford.edu>	 <20051021080504.GA5088@elte.hu> <1129937138.5001.4.camel@cmn3.stanford.edu>	 <20051022035851.GC12751@elte.hu>	 <1130182121.4983.7.camel@cmn3.stanford.edu>	 <1130182717.4637.2.camel@cmn3.stanford.edu>	 <1130183199.27168.296.camel@cog.beaverton.ibm.com>	 <20051025154440.GA12149@elte.hu>	 <1130264218.27168.320.camel@cog.beaverton.ibm.com>	 <435E91AA.7080900@mvista.com> <20051026082800.GB28660@elte.hu>	 <435FA8BD.4050105@mvista.com> <435FBA34.5040000@mvista.com>	 <435FEAE7.8090104@rncbc.org>	 <Pine.LNX.4.58.0510261449310.20155@echo.lysdexia.org> <1130371042.21118.76.camel@localhost.localdomain>
-In-Reply-To: <1130371042.21118.76.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Oct 2005 08:00:51.0264 (UTC) FILETIME=[8C574400:01C5DACC]
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="lrZ03NoBR/3+SXJZ"
+Content-Disposition: inline
+In-Reply-To: <E1EUrb7-0001AU-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.5.11
+X-Spam-Score: -4.5 (----)
+X-Spam-Report: Spam detection software, running on "shpek.cybernet.src", has inspected this
+	incomming email and gave it -4.5 points (spam is above 5.0)
+	Content analysis details:
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.9 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-1.7 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt wrote:
-> 
->>On Wed, 26 Oct 2005, Rui Nuno Capela wrote:
->>
->>
->>>Just noticed a couple or more of this on dmesg. Maybe its old news and 
->>>being discussed already. Otherwise my P4@2.53Ghz/UP laptop boots and 
->>>runs without hicups on 2.6.14-rc5-rt7 (config.gz attached).
->>>
->>>... time warped from 13551912584 to 13551905960.
->>>... system time:     13488892865 .. 13488892865.
->>>udevstart/1579[CPU#0]: BUG in get_monotonic_clock_ts at 
->>>kernel/time/timeofday.c:
->>>262
->>>  [<c0116fcb>] __WARN_ON+0x4f/0x6c (8)
->>>  [<c012f8b0>] get_monotonic_clock_ts+0x27a/0x2f0 (40)
->>>  [<c0141c9d>] kmem_cache_alloc+0x51/0xac (76)
->>>  [<c0114826>] copy_process+0x2ff/0xeed (44)
->>>  [<c0139444>] unlock_page+0x17/0x4a (12)
->>>  [<c0147a8a>] do_wp_page+0x245/0x372 (20)
->>>  [<c01154f5>] do_fork+0x69/0x1b5 (56)
->>>  [<c02c120b>] do_page_fault+0x432/0x543 (32)
->>>  [<c01017aa>] sys_clone+0x32/0x36 (72)
->>>  [<c0102a9b>] sysenter_past_esp+0x54/0x75 (16)
->>
- >>[...]
-> 
-> Also, Rui, do they show up at different times or clustered together?
-> (William, I see your output is clustered) The reason I asked, is that
-> the test may produce more than one warning message for the same time
-> warp. Since the time used to check for the time warp is not updated if
-> time goes backwards, so if you call the this routine more than once
-> before the time warp catches back up, it will warn again.
-> 
 
-Don't really know if its consistent, but it does occur on several times, 
-on only on boot.
+--lrZ03NoBR/3+SXJZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Sorry for the delay.
--- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
+On Wed, Oct 26, 2005 at 22:10:09 +0200, Miklos Szeredi wrote:
+> > > > > > > This patch adds a statfs method to inode operations.  This is=
+ invoked
+> > > > > > > whenever the dentry is available (not called from sys_ustat()=
+) and the
+> > > > > > > filesystem implements this method.  Otherwise the normal
+> > > > > > > s_op->statfs() will be called.
+> > > > > > >=20
+> > > > > > > This change is backward compatible, but calls to vfs_statfs()=
+ should
+> > > > > > > be changed to vfs_dentry_statfs() whenever possible.
+> > > > > >=20
+> > > > > > What the fuck for?  statfs() returns data that by definition sh=
+ould
+> > > > > > not depend on inode within a filesystem.
+> > > > >=20
+> > > > > Exactly.  But it's specified nowhere that there has to be a one-o=
+ne
+> > > > > mapping between remote filesystem - local filesystem.
+> > > >=20
+> > > > Unfortunately making statfs alone aware of them does not help. Most=
+ useful
+> > > > tools that use statfs go to /proc/mouts, read all the entries and i=
+nvoke
+> > > > statfs for each path. So if for some non-root path different values=
+ are
+> > > > returned, these tools won't see them anyway. So try to think about =
+how to
+> > > > provide the info about subfilesystems first.
+> > >=20
+> > > 'df .': tried it and it did not do what was expected, but that can
+> > > definitely be fixed
+> >=20
+> > It *did* what was expected -- walked back up to the mountpoint and call=
+ed
+> > statfs there.
+>=20
+> Yes, but I didn't expect that it would do that.  Why?  Because I asked
+> it for free space in the current directory and not at the mountpoint.
+>=20
+> Since it's not _expecting_ subfilesystems to exist, it's
+> understandable that it did not perform well.
+>=20
+> > And it cannot be fixed (without loss of functionality) unless
+> > you somehow tell it where the boundary of the subfilesystem lies.
+>=20
+> Of course it can be fixed.  Just always let it do
+> statfs(path_supplied_by_user).  If there are no subfses the results
+> will be the same.  If there _are_ subfses the results will be more
+> meaningful, not less.
 
+Not _without__loss__of__functionality__. Part of the functionality is
+looking up the mount-point and other info about the filesystem, which is
+no longer correct when subfilesystems are exposed.
 
+> [...]
+> > > None of the above examples need (and use) /etc/mtab or /proc/mounts.
+> > >=20
+> > > Just because the info is not available about the placement of the
+> > > subfilesystems, doesn't mean that the subfilesystems don't actually
+> > > exist.
+> >=20
+> > No, it does not. But it does mean that some applications that should kn=
+ow
+> > about them won't know and will give even more confusing results.
+>=20
+> How will they give more confusing results?  Please ellaborate.
+
+I mean specifically the case of df and similar things. So far remote
+filesystems generally return obviously invalid results so far. But when
+they are made to return correct values for subfilesystem, these tools
+need a way to find where those subfilesystems start.
+
+--
+						 Jan 'Bulb' Hudec <bulb@ucw.cz>
+
+--lrZ03NoBR/3+SXJZ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDYIqwRel1vVwhjGURAgF6AJ9mPyysv/syne4d3dZH5AZvzLOipQCbB/0y
+YWAriSQxyAN0qYqg5MZkEoA=
+=ifxG
+-----END PGP SIGNATURE-----
+
+--lrZ03NoBR/3+SXJZ--

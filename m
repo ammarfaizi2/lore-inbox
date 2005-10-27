@@ -1,68 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932646AbVJ0VdZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932651AbVJ0Ve5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932646AbVJ0VdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 17:33:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932648AbVJ0VdY
+	id S932651AbVJ0Ve5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 17:34:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932652AbVJ0Ve5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 17:33:24 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:53676 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932646AbVJ0VdY (ORCPT
+	Thu, 27 Oct 2005 17:34:57 -0400
+Received: from mail04.solnet.ch ([212.101.4.138]:3830 "EHLO mail04.solnet.ch")
+	by vger.kernel.org with ESMTP id S932651AbVJ0Ve4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 17:33:24 -0400
-Date: Thu, 27 Oct 2005 14:33:32 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Marcel Selhorst <selhorst@crypto.rub.de>
-Cc: linux-kernel@vger.kernel.org, castet.matthieu@free.fr, kjhall@us.ibm.com
-Subject: Re: [PATCH] Infineon TPM: move infineon driver off pci_dev
-Message-Id: <20051027143332.08269850.akpm@osdl.org>
-In-Reply-To: <4360B889.1010502@crypto.rub.de>
-References: <435FB8A5.803@crypto.rub.de>
-	<435FBFC4.5060508@free.fr>
-	<4360B889.1010502@crypto.rub.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 27 Oct 2005 17:34:56 -0400
+From: Damir Perisa <damir.perisa@solnet.ch>
+To: Andrew Morton <akpm@osdl.org>
+Subject: 2.6.14-rc5-mm1 - ide-cs broken!
+Date: Thu, 27 Oct 2005 23:31:55 +0200
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org
+References: <20051024014838.0dd491bb.akpm@osdl.org> <200510260149.21376.damir.perisa@solnet.ch>
+In-Reply-To: <200510260149.21376.damir.perisa@solnet.ch>
+X-Face: +)fhYFmn|<pyRIlgch_);krg#jn!^z'?xy(Ur#Z6rZi)KD+_-V<Y@i>0pOVfJ4<=?utf-8?q?Q1/=26/=26z=0A=093cxqRa=3B7O=5C4g=5C=7C=5DF-!H0!ew9kx1LqK/iP?=
+ =?utf-8?q?Ov8eXi=26I7=60Pez0V0VNMAxnqRL8-30qqKK=3DxGM=0A=09pExQc=5B2=7C?=
+ =?utf-8?q?l6v=23?=<iwBvEO9+h|_YS[48z%/kuD2*aT*S/$0323VCL3V9?@}jq<
+ =?utf-8?q?Ns6V=3A0m=27Qia=0A=09?="[#oJg[RVe}Sy/lP95E@pa[vdKzqLqn&M`exb91"`,<k`3;Vt97cLjhub0.v+]m`%|>@Z(
+ =?utf-8?q?=0A=09EeC/zU7=25?=@"L6mi#..8Q^M
+Alanine: true
+Glycine: true
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1457925.hMOCMDSxW2";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200510272331.58445.damir.perisa@solnet.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcel Selhorst <selhorst@crypto.rub.de> wrote:
->
-> @@ -489,67 +464,51 @@ static int __devinit tpm_inf_probe(struc
->  			 "product id %02x%02x"
->  			 "%s\n",
->  			 TPM_INF_ADDR,
-> -			 tpm_inf.base,
-> +			 TPM_INF_BASE,
->  			 version[0], version[1],
->  			 vendorid[0], vendorid[1],
->  			 productid[0], productid[1], chipname);
-> 
-> -		rc = tpm_register_hardware(&pci_dev->dev, &tpm_inf);
-> -		if (rc < 0)
-> -			goto error;
-> +		rc = tpm_register_hardware(&dev->dev, &tpm_inf);
-> +		if (rc < 0) {
-> +			release_region(tpm_inf.base, TPM_INF_PORT_LEN);
-> +			return -ENODEV;
-> +		}
->  		return 0;
->  	} else {
-> -		dev_info(&pci_dev->dev, "No Infineon TPM found!\n");
-> -error:
-> -		pnp_unregister_driver(&tpm_inf_pnp);
-> -error2:
-> -		pci_disable_device(pci_dev);
-> -		pnp_registered = 0;
-> +		dev_info(&dev->dev, "No Infineon TPM found!\n");
->  		return -ENODEV;
->  	}
->  }
+--nextPart1457925.hMOCMDSxW2
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-This final return will leak the I/O region from request_region().
+isn't anybody else using ide-cs? i feel lonely!
 
-To reduce the chance of this happening again, please send a followup patch
-which prevents this function from having `return' statements sprinkled all
-over it.  An example would be drivers/net/8139cp.c:cp_init_one(), thanks.
+greetings,
+Damir
 
-If for some reason the leak is deliberate then a comment is needed.
+=2D-=20
+Oh this age!  How tasteless and ill-bred it is.
+		-- Gaius Valerius Catullus
+
+--nextPart1457925.hMOCMDSxW2
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBDYUdOPABWKV6NProRAixxAKDnQDrpa9afh6hsE8UrtmhdiyhLUwCfZNBM
+K2hKq5qf0Wogq7x6zk9DOGg=
+=rwvN
+-----END PGP SIGNATURE-----
+
+--nextPart1457925.hMOCMDSxW2--

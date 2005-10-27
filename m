@@ -1,79 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbVJ0QlF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751261AbVJ0Qnu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751254AbVJ0QlF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 12:41:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbVJ0QlE
+	id S1751261AbVJ0Qnu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 12:43:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbVJ0Qnu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 12:41:04 -0400
-Received: from streetfiresound.liquidweb.com ([64.91.233.29]:27106 "EHLO
-	host.streetfiresound.liquidweb.com") by vger.kernel.org with ESMTP
-	id S1751254AbVJ0QlD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 12:41:03 -0400
-Subject: Re: [PATCH/RFC] simple SPI controller on PXA2xx SSP port, refresh
-From: Stephen Street <stephen@streetfiresound.com>
-Reply-To: stephen@streetfiresound.com
-To: Mike Lee <eemike@gmail.com>
-Cc: linux-kernel@vger.kernel.org, David Brownell <david-b@pacbell.net>
-In-Reply-To: <1ffb4b070510270433t2d45cd5cwe71705f7aeddb283@mail.gmail.com>
-References: <435ec45a.j4jWbfXLISIZdYJa%stephen@streetfiresound.com>
-	 <1ffb4b070510270433t2d45cd5cwe71705f7aeddb283@mail.gmail.com>
-Content-Type: text/plain
-Organization: StreetFire Sound Labs
-Date: Thu, 27 Oct 2005 09:41:00 -0700
-Message-Id: <1130431260.22836.19.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-16) 
+	Thu, 27 Oct 2005 12:43:50 -0400
+Received: from EXCHG2003.microtech-ks.com ([65.16.27.37]:27388 "EHLO
+	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
+	id S1751261AbVJ0Qnt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 12:43:49 -0400
+From: "Roger Heflin" <rheflin@atipa.com>
+To: "'Doug Thompson'" <norsk5@yahoo.com>, <sander@humilis.net>
+Cc: <linux-kernel@vger.kernel.org>, <sander@humilis.net>,
+       "'Avuton Olrich'" <avuton@gmail.com>, "'Andrew Morton'" <akpm@osdl.org>
+Subject: RE: EDAC (was: Re: 2.6.14-rc5-mm1)
+Date: Thu, 27 Oct 2005 11:50:00 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - host.streetfiresound.liquidweb.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - streetfiresound.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Thread-Index: AcXaanx+W69MSzdLSfWXGoeG9UiptAAqvbBQ
+In-Reply-To: <20051026202200.76915.qmail@web50108.mail.yahoo.com>
+Message-ID: <EXCHG20039GQvnbEG1000000328@EXCHG2003.microtech-ks.com>
+X-OriginalArrivalTime: 27 Oct 2005 16:39:05.0064 (UTC) FILETIME=[F1B09E80:01C5DB14]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-10-27 at 19:33 +0800, Mike Lee wrote:
-> Dear Stepen
->    I am now writing another controller driver by david's framework.
-> But leak of debuging layer, could your loopback driver serve for this
-> purpose and how could i use it?
+ 
+
+
+
+> depends on your requirements.
 > 
+> we have been living with systems with PCI devices for a 
+> decade now. how many times have events occurred that had no 
+> explaination and are simply dismissed? There were no detectors.
+> 
+> We assume many things, even today.  How many desktops with 
+> gigs of memory have no ECC? I have learned my lesson while 
+> refactoring bluesmoke/edac that ECC is very important.  ECC 
+> always in my machines for now on, for me anyway.
 
-The file pxa2xx_loopback.c should be controller independent, but it does
-require that the hardware (in my case the PXA255 NSSP) support a
-loopback mode (i.e. tx connected to rx).
+The bigger question is how many machines have ecc but no one is 
+watching it for errors of any sort, the answer for this question
+is almost all.   On opteron's mcelog does a decent job of alerting
+people to memory issues, but not even all Enterprise distributions
+include mcelog, but on the Xeons there is almost nothing
+warning any of ecc failures, unless someone checks the bios event
+logs on the few machinces that work, and this is fairly difficult,
+so almost no one does.
 
-To create a loopback device for driver you should include:
 
-static struct pxa2xx_spi_chip loopback_chip_info = {
-	.mode = SPI_MODE_3,
-	.tx_threshold = 12,
-	.rx_threshold = 4,
-	.dma_burst_size = 8,
-	.bits_per_word = 8,
-	.timeout_microsecs = 64,
-	.enable_loopback = 1,
-};
+> 
+> For PCI devices, if you want to "know" data is being 
+> transmitted correctly, then there needs to be "detector" and 
+> "reporter" and "handler" agents of this bad events to 
+> properly notice, report and process them.
 
-static struct spi_board_info streetracer_spi_board_info[] __initdata = {
-	{
-		.modalias = "loopback",
-		.max_speed_hz = 3686400,
-		.bus_num = 2,
-		.chip_select = 3,
-		.controller_data = &loopback_chip_info,
-	},
-};
+And there are other PCI cards/motherboards that have timing issues
+also, I know because I have personally found and debugged a
+couple of them, one was nasty enough that it corrupted data on every
+5-10GB of reads, and it was *ALL* motherboards of this type with a
+certain given card running at 133mhz.  With a different manufacturer's
+similar card it crashed with a MTBF of about when one would expect corrupted
+data.   
 
-in your board init code and install the module per your configuration.
-Anything written to /dev/slp23 will be echoed back to /dev/slp23 via the
-"SPI controller".
-
-Hope this helps!
-
--Stephen
-
+                    Roger
 

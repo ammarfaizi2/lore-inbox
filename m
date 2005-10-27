@@ -1,63 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932564AbVJ0GZm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964970AbVJ0GaH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932564AbVJ0GZm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 02:25:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932567AbVJ0GZl
+	id S964970AbVJ0GaH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 02:30:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932576AbVJ0GaH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 02:25:41 -0400
-Received: from zproxy.gmail.com ([64.233.162.201]:53881 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932564AbVJ0GZl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 02:25:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=TYdlBlfv/SB8v1W9JdaCabYjrayhHThOJfgSE2hmV6M6mJqBgasZCXZ25XUdooqT0Sz9gIDbMf77u9zyitvtBd+LRtEt/SLd6JVuuK5tlPt5CYmLxn7T+VXIv0HoxclGtoWwlhtuf1ItHuazpXGQs8MTL5aYJY6YWRzcqBc5hFs=
-Message-ID: <aec7e5c30510262325r7bf17bf3ved230fe79156e6ad@mail.gmail.com>
-Date: Thu, 27 Oct 2005 15:25:40 +0900
-From: Magnus Damm <magnus.damm@gmail.com>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [discuss] [rfc] x86_64: Kconfig changes for NUMA
-Cc: discuss@x86-64.org, Ravikiran G Thirumalai <kiran@scalex86.org>,
-       linux-kernel@vger.kernel.org,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>
-In-Reply-To: <aec7e5c30510261840xf0d5bfapaf2f62959cb9a462@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 27 Oct 2005 02:30:07 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:56987 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S932567AbVJ0GaG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 02:30:06 -0400
+Date: Thu, 27 Oct 2005 10:30:04 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Greg KH <greg@kroah.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, Roland Dreier <rolandd@cisco.com>,
+       gregkh@suse.de, mst@mellanox.co.il, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: AMD 8131 and MSI quirk
+Message-ID: <20051027103004.A4167@jurassic.park.msu.ru>
+References: <524q799p2t.fsf@cisco.com> <20051022233220.GA1463@parisc-linux.org> <20051026225140.GD13495@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20051026070956.GA3561@localhost.localdomain>
-	 <200510261646.26331.ak@suse.de>
-	 <aec7e5c30510261840xf0d5bfapaf2f62959cb9a462@mail.gmail.com>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20051026225140.GD13495@kroah.com>; from greg@kroah.com on Wed, Oct 26, 2005 at 03:51:40PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/27/05, Magnus Damm <magnus.damm@gmail.com> wrote:
-> On 10/26/05, Andi Kleen <ak@suse.de> wrote:
-> > On Wednesday 26 October 2005 09:09, Ravikiran G Thirumalai wrote:
-> >
-> > >
-> > > 1. Makes NUMA a config option like other arches
-> > > 2. Makes topology detection options like K8_NUMA dependent on NUMA
-> > > 3. Choosing ACPI NUMA detection can be done from the standard
-> > >    "Processor type and features" menu
-> > > Comments?
-> >
-> > It's in principle ok except that I don't like the dependencies and
-> > defaults. K8_NUMA shouldn't be dependent on !M_PSC. And the defaults
-> > should be just dropped.
->
-> While at it, could you please consider to remove the SMP dependency
-> from NUMA_EMU? 2.6.14-rc5-git5 builds and works with !SMP and
-> NUMA_EMU.
->
-> Why?
-> 1. No need to force SMP when not needed.
-> 2. qemu-system-x86_64 does not currently work with SMP kernels.
+On Wed, Oct 26, 2005 at 03:51:40PM -0700, Greg KH wrote:
+> On Sat, Oct 22, 2005 at 05:32:20PM -0600, Matthew Wilcox wrote:
+> > Perhaps the right thing to do is to change pad2 (in struct pci_bus) to
+> > bus_flags and make bit 0 PCI_BRIDGE_FLAGS_NO_MSI ?
 
-Update:
+It would be better to make it a bit field as in struct pci_dev.
 
-Both CONFIG_NUMA_EMU and CONFIG_K8_NUMA build and run just fine
-without CONFIG_SMP. Not sure about CONFIG_ACPI_NUMA though.
+-	unsigned short pad2;
++	unsigned short no_msi:1;
 
-/ magnus
+> Yeah, I can't think of any way to use the device tree to do this, so
+> this sounds as good a way as any.
+
+Other pci_bus flags might be useful as well, for instance I thought
+of bus->hotplug_bridge or something like that.
+
+Ivan.

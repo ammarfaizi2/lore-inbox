@@ -1,85 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932655AbVJ0Vl6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932236AbVJ0VyE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932655AbVJ0Vl6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 17:41:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932649AbVJ0Vl4
+	id S932236AbVJ0VyE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 17:54:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932652AbVJ0VyD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 17:41:56 -0400
-Received: from smtp5-g19.free.fr ([212.27.42.35]:60053 "EHLO smtp5-g19.free.fr")
-	by vger.kernel.org with ESMTP id S932236AbVJ0Vlz (ORCPT
+	Thu, 27 Oct 2005 17:54:03 -0400
+Received: from main.gmane.org ([80.91.229.2]:64212 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932236AbVJ0VyB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 17:41:55 -0400
-Message-ID: <436149B7.8080202@free.fr>
-Date: Thu, 27 Oct 2005 23:42:15 +0200
-From: matthieu castet <castet.matthieu@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: fr-fr, en, en-us
-MIME-Version: 1.0
-To: Marcel Selhorst <selhorst@crypto.rub.de>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Kylene Jo Hall <kjhall@us.ibm.com>
-Subject: Re: [PATCH] Infineon TPM: move infineon driver off pci_dev
-References: <435FB8A5.803@crypto.rub.de> <435FBFC4.5060508@free.fr> <4360B889.1010502@crypto.rub.de>
-In-Reply-To: <4360B889.1010502@crypto.rub.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 27 Oct 2005 17:54:01 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Matthieu CASTET <castet.matthieu@free.fr>
+Subject: Re: [PATCH 4 of 6] tpm: move atmel driver off pci_dev
+Date: Thu, 27 Oct 2005 23:51:58 +0200
+Message-ID: <pan.2005.10.27.21.51.55.561589@free.fr>
+References: <1130253722.4839.63.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+Cc: akpm@osdl.org
+X-Gmane-NNTP-Posting-Host: cac94-1-81-57-151-96.fbx.proxad.net
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Marcel Selhorst wrote:
- > Dear all,
- >
- > the following patch moves the Infineon TPM driver off pci device
- > and makes it a pure pnp-driver. It was tested with IFX0101 and
- > IFX0102 and is now based on the new tpm patchset (1 to 5) from Kylene
- > Hall submitted two days ago. It now also includes pnp-port validation
- > and region requesting.
- >
- > Best regards,
- >
- > Marcel Selhorst
- >
- > Signed-off-by: Marcel Selhorst <selhorst@crypto.rub.de>
- > ---
- >
-
- > +	/* read IO-ports through PnP */
- > +	if (pnp_port_valid(dev, 0) && pnp_port_valid(dev, 1) &&
- > +	    !(pnp_port_flags(dev, 0) & IORESOURCE_DISABLED)) {
-&& !(pnp_port_flags(dev, 1) & IORESOURCE_DISABLED)
-
- > +		TPM_INF_ADDR = pnp_port_start(dev, 0);
- > +		TPM_INF_DATA = (TPM_INF_ADDR + 1);
- > +		TPM_INF_BASE = pnp_port_start(dev, 1);
- > +		TPM_INF_PORT_LEN = pnp_port_len(dev, 1);
- > +		if (!TPM_INF_PORT_LEN)
- > +			return -EINVAL;
-When I said to check the lenght I was thinking about
-if (pnp_port_len(dev, 1) < 4) return -EINVAL;
-According to infineon_tpm_register, the length is at least 4.
-
-I whould also check that pnp_port_len(dev, 0) < 2.
+Le Tue, 25 Oct 2005 10:22:02 -0500, Kylene Jo Hall a écrit :
 
 
+> +static int __init init_atmel(void)
+>  {
+> -	u8 version[4];
+>  	int rc = 0;
+>  	int lo, hi;
+>  
+> -	if (pci_enable_device(pci_dev))
+> -		return -EIO;
+> +	driver_register(&atml_drv);
+>  
+>  	lo = tpm_read_index(TPM_ADDR, TPM_ATMEL_BASE_ADDR_LO);
+>  	hi = tpm_read_index(TPM_ADDR, TPM_ATMEL_BASE_ADDR_HI);
+> 
+Hum shouldn't you check that this port isn't used with request_region ?
 
-
-
- > +		dev_info(&dev->dev, "Found %s with ID %s\n",
- > +			 dev->name, dev_id->id);
- > +		if (!((TPM_INF_BASE >> 8) & 0xff))
- > +			return -EINVAL;
- > +		/* publish my base address and request region */
- > +		tpm_inf.base = TPM_INF_BASE;
- > +		if (request_region
- > +		    (tpm_inf.base, TPM_INF_PORT_LEN, "tpm_infineon0") == NULL) {
- > +			release_region(tpm_inf.base, TPM_INF_PORT_LEN);
-if it failed, you don't need to release the region
-
-a request_region (TPM_INF_ADDR, 2, "tpm_infineon0") could be usefull.
-
- > +			return -EINVAL;
- > +		}
- >  	} else {
+Matthieu
 

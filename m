@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbVJ0PJ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbVJ0PNV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751038AbVJ0PJ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 11:09:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751043AbVJ0PJ4
+	id S1751046AbVJ0PNV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 11:13:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751052AbVJ0PNV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 11:09:56 -0400
-Received: from zproxy.gmail.com ([64.233.162.193]:4622 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750980AbVJ0PJz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 11:09:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=SSp1ZyPVh7QWZdyxBhb1v0pkwnye8xBlCUCXFB0quNkZz8m3d+hlmXBtbRx9NKhMZWYYLUHL6vVuCF7e/v4u+b0X+fp1Gw/1tVQuKJHETlwTFk/MU9RMEQBL0aQGtwkT+1o4WJszNbCMuB7yDjQJwok4gbPUjgLFXzL6bTvdJSE=
-Message-ID: <35fb2e590510270809k4b1797d7q690c0be5f330ce64@mail.gmail.com>
-Date: Thu, 27 Oct 2005 16:09:54 +0100
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Subject: Re: Linux Kernel MD5 sums and some question
-Cc: Chaitanya Hazarey <c.v.hazarey@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <9a8748490510270423x45ffd8c8v773055f5369fe468@mail.gmail.com>
+	Thu, 27 Oct 2005 11:13:21 -0400
+Received: from mail.suse.de ([195.135.220.2]:37067 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751043AbVJ0PNV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 11:13:21 -0400
+From: Andreas Schwab <schwab@suse.de>
+To: Neal Becker <ndbecker2@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: can/should inotify support fcntl?
+References: <djqmvc$64g$1@sea.gmane.org>
+X-Yow: NOW, I'm supposed to SCRAMBLE two, and HOLD th' MAYO!!
+Date: Thu, 27 Oct 2005 17:13:19 +0200
+In-Reply-To: <djqmvc$64g$1@sea.gmane.org> (Neal Becker's message of "Thu, 27
+	Oct 2005 10:07:41 -0400")
+Message-ID: <jepsprxab4.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9a9abfb40510262356o5de2a638pa15d0c8e9dda2833@mail.gmail.com>
-	 <9a8748490510270423x45ffd8c8v773055f5369fe468@mail.gmail.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/27/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> On 10/27/05, Chaitanya Hazarey <c.v.hazarey@gmail.com> wrote:
+Neal Becker <ndbecker2@gmail.com> writes:
 
-> > Lately I had some problems compiling the kernel source on my machine.
-> > I guess nothing serious, but one thing came to my notice. I was
-> > looking for the MD5 sums for the linux kenerl and found none. The Pgp
-> > signatures are fine , but there seems no way to check the package.
+> I'm trying to wrap inotify functionality for python.  I ran into a problem. 
+> In order to use python's select on the fd, I need to use python's
+> os.fdopen.  It seems os.fdopen calls:
+>
+> fcntl(4, F_GETFL)                       = -1 EBADF (Bad file descriptor)
+>
+> Looks like inotify doesn't support calling fcntl.  Should it?
 
-> Yes, there is a way to check the files; verify the pgp signature. If
-> the file has been modified the signature won't validate.
+F_GETFL is implemented in the VFS, and it can only fail if the fd does not
+denote a valid file handle.
 
-But having signed MD5 sums would be a solution.
+Andreas.
 
-That way people can check a). Did they download the kernel properly?
-b). Was it genuine? in two distinct steps. Others will think that's a
-*really* bad idea :-)
-
-Jon.
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

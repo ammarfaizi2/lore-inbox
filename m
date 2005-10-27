@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751439AbVJ0S1T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751440AbVJ0SrL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751439AbVJ0S1T (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 14:27:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbVJ0S1T
+	id S1751440AbVJ0SrL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 14:47:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751443AbVJ0SrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 14:27:19 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:52459 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751439AbVJ0S1S (ORCPT
+	Thu, 27 Oct 2005 14:47:10 -0400
+Received: from pat.uio.no ([129.240.130.16]:33773 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1751440AbVJ0SrJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 14:27:18 -0400
-Date: Thu, 27 Oct 2005 11:26:35 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: rajesh.shah@intel.com, mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/1] export cpu_online_map
-Message-Id: <20051027112635.3d0a7199.akpm@osdl.org>
-In-Reply-To: <20051027063859.20fcb9bb.pj@sgi.com>
-References: <200510260421.j9Q4LGh9014087@shell0.pdx.osdl.net>
-	<20051026205038.26a1c333.pj@sgi.com>
-	<20051026210803.07efba69.akpm@osdl.org>
-	<20051027015504.5a20ed05.pj@sgi.com>
-	<20051027023548.0471db17.akpm@osdl.org>
-	<20051027063859.20fcb9bb.pj@sgi.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 27 Oct 2005 14:47:09 -0400
+Subject: [PATCH] Ensure that 'make distclean' does not delete files in
+	'.git'
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Thu, 27 Oct 2005 14:46:53 -0400
+Message-Id: <1130438813.8792.38.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.716, required 12,
+	autolearn=disabled, AWL 1.28, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> wrote:
->
-> Andrew wrote:
-> > Sweet, thanks.  Perhaps we can remove cpu_online_map from UP builds soon -
-> > it's really wrong to have it there.
-> 
-> Eh ... my gut reaction is different.   Even uni-processors have
-> online cpus - just not very many of them (and hot unplugging one
-> of them is frowned on).
+ Currently, 'make distclean' causes stgit to barf since it may
+ delete files in .git/patches. We really shouldn't allow
+ 'make distclean' anywhere near .git...
 
-That's daft.  A uniprocessor machine has one and only one CPU and it's
-always online!   An online_map is only needed for MP.
+ Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+---
 
-Now conceptually, yes, we should be able to query and perhaps set the
-onlineness of a CPU.  But that doesn't mean that we should have storage
-which idiotically remembers something which was known at compile time.
+ Makefile |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
->  Why make special cases when it serves no purpose?
+diff --git a/Makefile b/Makefile
+index 4a7000e..527998d 100644
+--- a/Makefile
++++ b/Makefile
+@@ -371,8 +371,8 @@ export MODVERDIR := $(if $(KBUILD_EXTMOD
+ 
+ # Files to ignore in find ... statements
+ 
+-RCS_FIND_IGNORE := \( -name SCCS -o -name BitKeeper -o -name .svn -o -name CVS -o -name .pc -o -name .hg \) -prune -o
+-export RCS_TAR_IGNORE := --exclude SCCS --exclude BitKeeper --exclude .svn --exclude CVS --exclude .pc --exclude .hg
++RCS_FIND_IGNORE := \( -name SCCS -o -name BitKeeper -o -name .svn -o -name CVS -o -name .pc -o -name .hg -o -name .git \) -prune -o
++export RCS_TAR_IGNORE := --exclude SCCS --exclude BitKeeper --exclude .svn --exclude CVS --exclude .pc --exclude .hg --exclude .git
+ 
+ # ===========================================================================
+ # Rules shared between *config targets and build targets
 
-Ths presence of cpu_online_map in UP builds _is_ a special case.  The
-kernel's overall approach to such things is to optimise them away at
-compile time for !SMP builds.
 

@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932632AbVJ0VPZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932635AbVJ0VPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932632AbVJ0VPZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 17:15:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932633AbVJ0VPZ
+	id S932635AbVJ0VPu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 17:15:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932639AbVJ0VPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 17:15:25 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:48521
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S932632AbVJ0VPY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 17:15:24 -0400
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Claire McLister <mclister@zeesource.net>
-Subject: Re: Map of Linux Kernel Users (OT)
-Date: Thu, 27 Oct 2005 16:15:21 -0500
-User-Agent: KMail/1.8
+	Thu, 27 Oct 2005 17:15:49 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:23992
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S932635AbVJ0VPs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 17:15:48 -0400
+From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+To: Marcel Holtmann <marcel@holtmann.org>
 Cc: linux-kernel@vger.kernel.org
-References: <dfd859813ee9f143cbb8c4cc3c73aa2c@zeesource.net>
-In-Reply-To: <dfd859813ee9f143cbb8c4cc3c73aa2c@zeesource.net>
+Subject: Re: 4GB memory and Intel Dual-Core system
+Date: Thu, 27 Oct 2005 17:15:50 -0400
+Message-Id: <20051027211203.M33358@linuxwireless.org>
+In-Reply-To: <1130447261.5416.20.camel@blade>
+References: <1130445194.5416.3.camel@blade> <52mzkuwuzg.fsf@cisco.com> <20051027204923.M89071@linuxwireless.org> <1130446667.5416.14.camel@blade> <20051027205921.M81949@linuxwireless.org> <1130447261.5416.20.camel@blade>
+X-Mailer: Open WebMail 2.40 20040816
+X-OriginatingIP: 16.126.157.6 (abonilla@linuxwireless.org)
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510271615.21253.rob@landley.net>
+	charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 24 October 2005 16:01, Claire McLister wrote:
-> Hi,
->
->   We've developed an automatic email mapping capability from Google Maps
-> API.
->
->   To try it out, we mapped origins of emails to this group from October
-> 2 through October 10th.
->
-> The result of this map is at:
-> http://www.zeesource.net/maps/map.do?group=478
->
->   Would like to hear what you think of it.
+On Thu, 27 Oct 2005 23:07:41 +0200, Marcel Holtmann wrote
+> Hi Alejandro,
+> 
+> > > the board in this system is a Intel D945GNT and the box tells me the
+> > > maximum supported amount of RAM is 4 GB. So there should be a way to
+> > > address this amount memory.
+> > 
+> > The board did take the 4GB of RAM and it is finding them, therefore supports
+> > them. It is just not designed to give a full 4GB of RAM to the system, it only
+> > gives 3.4XGB RAM and the rest is really not used, then basically the system
+> > just tries to give the 0.6xGB RAM remaining a task by it being used by "System
+> > Resources"
+> > 
+> > This isn't really Linux dependant.
+> 
+> so there is no way to give me back the "lost" memory. Is it possible
+> that another motherboard might help?
 
-Ok, I know it's silly, but I want that on www.kernel.org somewhere anyway.  
-(Probably filtered by "last 12 months" and "people who posted 10 or more 
-times...)
+AFAIK, No. AMD and Intel will always do the same thing until we all move to
+real IA64.
 
-Rob
+Unless there is some sort of kernel hack that will do some crazy thing to give
+you the power there.
+
+But hey, look at it this way, if you remove 1GB, you will lose the Dual
+Channel capability.
+
+.Alejandro

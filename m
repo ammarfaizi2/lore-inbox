@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbVJ0Tb1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751570AbVJ0Tih@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932144AbVJ0Tb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 15:31:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbVJ0Tb1
+	id S1751570AbVJ0Tih (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 15:38:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751571AbVJ0Tih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 15:31:27 -0400
-Received: from fmr17.intel.com ([134.134.136.16]:1235 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932211AbVJ0Tb0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 15:31:26 -0400
-Subject: [patch 3/3] pci: use stored value of pin from pci_dev
-From: Kristen Accardi <kristen.c.accardi@intel.com>
-To: pcihpd-discuss@lists.sourceforge.net
-Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       rajesh.shah@intel.com, greg@kroah.com, len.brown@intel.com
-References: <20051027192603.488616000@whizzy>
+	Thu, 27 Oct 2005 15:38:37 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:8938 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751570AbVJ0Tig (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 15:38:36 -0400
+Subject: Re: [patch 0/3] pci: store PCI_INTERRUPT_PIN in pci_dev
+From: Arjan van de Ven <arjan@infradead.org>
+To: Kristen Accardi <kristen.c.accardi@intel.com>
+Cc: pcihpd-discuss@lists.sourceforge.net, acpi-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, rajesh.shah@intel.com, greg@kroah.com,
+       len.brown@intel.com
+In-Reply-To: <1130441405.5996.23.camel@whizzy>
+References: <1130441405.5996.23.camel@whizzy>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 27 Oct 2005 12:30:16 -0700
-Message-Id: <1130441416.5996.26.camel@whizzy>
+Date: Thu, 27 Oct 2005 21:38:17 +0200
+Message-Id: <1130441897.3027.18.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
-X-OriginalArrivalTime: 27 Oct 2005 19:30:17.0586 (UTC) FILETIME=[DC971520:01C5DB2C]
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-plain text document attachment (patch-interrupt-pin-pci)
-Use the stored value of the interrupt pin rather than try to read
-the config again.
+On Thu, 2005-10-27 at 12:30 -0700, Kristen Accardi wrote:
+> Store the value of PCI_INTERRUPT_PIN in the pci_dev structure for use
+> later.  This is useful for pci hotplug.  When a device is "surprise"
+> removed, the pci config space is no longer available.  However,
+> the pin value is needed to correctly disable the irq for the device.
 
-Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
- 
- drivers/pci/pci.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Hmmm maybe it's just me..... but... isn't that both advisory and
+entirely unrelated to any kind of real interrupt thing? Eg dev->irq is
+there already and works even in the sight of IO-APICs etc etc...
 
-Index: linux-2.6.13/drivers/pci/pci.c
-===================================================================
---- linux-2.6.13.orig/drivers/pci/pci.c
-+++ linux-2.6.13/drivers/pci/pci.c
-@@ -567,7 +567,7 @@ pci_get_interrupt_pin(struct pci_dev *de
- {
- 	u8 pin;
- 
--	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin);
-+	pin = dev->pin;
- 	if (!pin)
- 		return -1;
- 	pin--;
 
---

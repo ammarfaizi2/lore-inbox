@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbVJ0Nt2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbVJ0OFB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750753AbVJ0Nt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 09:49:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbVJ0Nt2
+	id S1750776AbVJ0OFB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 10:05:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbVJ0OFB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 09:49:28 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:57756 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750753AbVJ0Nt2 (ORCPT
+	Thu, 27 Oct 2005 10:05:01 -0400
+Received: from wproxy.gmail.com ([64.233.184.196]:2259 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750776AbVJ0OFB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 09:49:28 -0400
-Date: Thu, 27 Oct 2005 06:49:12 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: rajesh.shah@intel.com, mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/1] export cpu_online_map
-Message-Id: <20051027064912.6b15c338.pj@sgi.com>
-In-Reply-To: <20051027023548.0471db17.akpm@osdl.org>
-References: <200510260421.j9Q4LGh9014087@shell0.pdx.osdl.net>
-	<20051026205038.26a1c333.pj@sgi.com>
-	<20051026210803.07efba69.akpm@osdl.org>
-	<20051027015504.5a20ed05.pj@sgi.com>
-	<20051027023548.0471db17.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 27 Oct 2005 10:05:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=BiMpueOfE05P3umGBQVLUyMzRU4VW5DY7SwgRPlz9v7DWnOa91pjCUtNHw+d4wp8wf+gTehlAWbd2Ld4iWrO60rD9Yc9btZg7Q/0VLxgqC6PeZNtAQPbUZlFAUH7BLCP5Vo7yrB8YAZoO01qd4vTVoJ0btxt65b6ai/4p/ypf2o=
+Message-ID: <4360DE89.6070802@gmail.com>
+Date: Thu, 27 Oct 2005 10:04:57 -0400
+From: Keenan Pepper <keenanpepper@gmail.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: vojtech@suse.cz, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Disable the most annoying printk in the kernel
+References: <200510271026.10913.ak@suse.de>
+In-Reply-To: <200510271026.10913.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew wrote:
-> I think there are ways of getting the entire kernel history in git too.
+Andi Kleen wrote:
+> Remove most useless printk in the world
 
-If I knew where a history was, perhaps I could put it into git (or the
-one I prefer - hg).
+No way! I love that prink! =P
 
-The only 3 histories I can find are:
- 1) web based bk
- 2) web based hg
- 3) locked forever inside my dead bk repositories
-
-
-> I usually just grep my patches directory, actually.  <looks>.  <egad>.
-> 27,000 of them.
-
-Well - I've got my email archives from the mm-commits email list,
-but that only goes back to July of 2005 .. a mere 4547 of them.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+> Signed-off-by: Andi Kleen <ak@suse.de>
+> 
+> Index: linux/drivers/input/keyboard/atkbd.c
+> ===================================================================
+> --- linux/drivers/input/keyboard/atkbd.c
+> +++ linux/drivers/input/keyboard/atkbd.c
+> @@ -328,7 +328,6 @@ static irqreturn_t atkbd_interrupt(struc
+>  			atkbd_report_key(&atkbd->dev, regs, KEY_HANJA, 3);
+>  			goto out;
+>  		case ATKBD_RET_ERR:
+> -			printk(KERN_DEBUG "atkbd.c: Keyboard on %s reports too many keys pressed.
+> \n", serio->phys);
+>  			goto out;
+>  	}
+>  

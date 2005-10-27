@@ -1,59 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751594AbVJ0WUW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751593AbVJ0WYi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751594AbVJ0WUW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 18:20:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751593AbVJ0WUW
+	id S1751593AbVJ0WYi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 18:24:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751580AbVJ0WYi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 18:20:22 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:12229
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S1751587AbVJ0WUV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 18:20:21 -0400
-From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
-To: Marcel Holtmann <marcel@holtmann.org>, Dave Jones <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 4GB memory and Intel Dual-Core system
-Date: Thu, 27 Oct 2005 18:20:20 -0400
-Message-Id: <20051027221756.M55421@linuxwireless.org>
-In-Reply-To: <1130451421.5416.35.camel@blade>
-References: <1130445194.5416.3.camel@blade> <52mzkuwuzg.fsf@cisco.com> <20051027204923.M89071@linuxwireless.org> <1130446667.5416.14.camel@blade> <20051027205921.M81949@linuxwireless.org> <1130447261.5416.20.camel@blade> <20051027211203.M33358@linuxwireless.org> <20051027220533.GA18773@redhat.com> <1130451071.5416.32.camel@blade> <20051027221253.GA25932@redhat.com> <1130451421.5416.35.camel@blade>
-X-Mailer: Open WebMail 2.40 20040816
-X-OriginatingIP: 16.126.157.6 (abonilla@linuxwireless.org)
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=iso-8859-1
+	Thu, 27 Oct 2005 18:24:38 -0400
+Received: from 81-5-177-201.dsl.eclipse.net.uk ([81.5.177.201]:64917 "EHLO
+	hades.smop.co.uk") by vger.kernel.org with ESMTP id S1751250AbVJ0WYh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 18:24:37 -0400
+Date: Thu, 27 Oct 2005 23:24:24 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Re: Badness in __writeback_single_inode
+Message-ID: <20051027222424.GA7453@smop.co.uk>
+Reply-To: adrian@smop.co.uk
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+From: adrian <adrian@smop.co.uk>
+X-smop.co.uk-MailScanner: Found to be clean
+X-smop.co.uk-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.599,
+	required 5, autolearn=not spam, BAYES_00 -2.60)
+X-smop.co.uk-MailScanner-From: adrian@smop.co.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Oct 2005 00:17:01 +0200, Marcel Holtmann wrote
-> Hi Dave,
-> 
-> >  > > Some boards at least have a BIOS option to support 'memory hoisting'
-> >  > > to map the 'lost' memory above the 4G address space.
-> >  > > 
-> >  > > I suspect a lot of the lower-end (and older) boards however don't have
-> >  > > this option, as they were not tested with 4GB.
-> >  > 
-> >  > do you have any information about remapping support of the D945GNT
-> >  > motherboard from Intel.
-> > 
-> > I've not come across an EM64T with that much RAM, so I've not had
-> > reason to go looking.. Sorry.
-> 
-> am I really the first person trying to use that board with 4 GB of 
-> RAM and an Intel Dual-Core with EM64T :(
+I've just hit this too (2.6.14rc5-mm1) but in my case it's on NTFS
+(mounted RO).  Kernel was compiled with Debian gcc 4.0.2-2 FWIW.
 
-Dude, again. This has nothing to do with the CPU. The arch IA32 is simply
-_not_ made for 4GB, so, some motherboards manufacturers make a workaround like
-Dave said, to Map such RAM. After all, that 0.6GB RAM will be used and
-allocated for other resources. This is just how the arch works and I doubt it
-will change.
-
-Only thing that you can do is buy a new Mobo which might support Mapping for
-the extra RAM.
-
-There isn't really much that you can do.
-
-.Alejandro
+NTFS driver 2.1.25 [Flags: R/W MODULE].
+Badness in __writeback_single_inode at fs/fs-writeback.c:251
+ [<c0193dca>] __writeback_single_inode+0x1aa/0x1c0
+ [<c02d04ee>] io_schedule+0xe/0x20
+ [<c01944d8>] write_inode_now+0x58/0xe0
+ [<c01895c7>] generic_forget_inode+0xb7/0x1b0
+ [<f8df98e0>] load_and_init_upcase+0x370/0x4b0 [ntfs]
+ [<f8dd5ac0>] ntfs_readpage+0x0/0x380 [ntfs]
+ [<f8df9ad1>] load_system_files+0xb1/0xf40 [ntfs]
+ [<f8dfcb18>] generate_default_upcase+0x38/0x120 [ntfs]
+ [<f8dfbb78>] ntfs_fill_super+0x328/0x8d0 [ntfs]
+ [<c01720bc>] get_sb_bdev+0x11c/0x160
+ [<f8dfc170>] ntfs_get_sb+0x30/0x34 [ntfs]
+ [<f8dfb850>] ntfs_fill_super+0x0/0x8d0 [ntfs]
+ [<c0172399>] do_kern_mount+0xd9/0x190
+ [<c018c98a>] do_new_mount+0x9a/0xe0
+ [<c018d206>] do_mount+0x1c6/0x200
+ [<c018cff7>] copy_mount_options+0x77/0xc0
+ [<c018d69d>] sys_mount+0x9d/0xe0
+ [<c01033d1>] syscall_call+0x7/0xb
+Badness in __sync_single_inode at fs/fs-writeback.c:232
+ [<c0193bcf>] __sync_single_inode+0x22f/0x280
+ [<c0193c7b>] __writeback_single_inode+0x5b/0x1c0
+ [<c02d04ee>] io_schedule+0xe/0x20
+ [<c01944d8>] write_inode_now+0x58/0xe0
+ [<c01895c7>] generic_forget_inode+0xb7/0x1b0
+ [<f8df98e0>] load_and_init_upcase+0x370/0x4b0 [ntfs]
+ [<f8dd5ac0>] ntfs_readpage+0x0/0x380 [ntfs]
+ [<f8df9ad1>] load_system_files+0xb1/0xf40 [ntfs]
+ [<f8dfcb18>] generate_default_upcase+0x38/0x120 [ntfs]
+ [<f8dfbb78>] ntfs_fill_super+0x328/0x8d0 [ntfs]
+ [<c01720bc>] get_sb_bdev+0x11c/0x160
+ [<f8dfc170>] ntfs_get_sb+0x30/0x34 [ntfs]
+ [<f8dfb850>] ntfs_fill_super+0x0/0x8d0 [ntfs]
+ [<c0172399>] do_kern_mount+0xd9/0x190
+ [<c018c98a>] do_new_mount+0x9a/0xe0
+ [<c018d206>] do_mount+0x1c6/0x200
+ [<c018cff7>] copy_mount_options+0x77/0xc0
+ [<c018d69d>] sys_mount+0x9d/0xe0
+ [<c01033d1>] syscall_call+0x7/0xb
+Badness in __writeback_single_inode at fs/fs-writeback.c:251
+ [<c0193dca>] __writeback_single_inode+0x1aa/0x1c0
+ [<c02d04ee>] io_schedule+0xe/0x20
+ [<c01944d8>] write_inode_now+0x58/0xe0
+ [<c01895c7>] generic_forget_inode+0xb7/0x1b0
+ [<f8df94f0>] load_and_init_attrdef+0x2b0/0x330 [ntfs]
+ [<f8dd5ac0>] ntfs_readpage+0x0/0x380 [ntfs]
+ [<f8df9ae1>] load_system_files+0xc1/0xf40 [ntfs]
+ [<f8dfcb18>] generate_default_upcase+0x38/0x120 [ntfs]
+ [<f8dfbb78>] ntfs_fill_super+0x328/0x8d0 [ntfs]
+ [<c01720bc>] get_sb_bdev+0x11c/0x160
+ [<f8dfc170>] ntfs_get_sb+0x30/0x34 [ntfs]
+ [<f8dfb850>] ntfs_fill_super+0x0/0x8d0 [ntfs]
+ [<c0172399>] do_kern_mount+0xd9/0x190
+ [<c018c98a>] do_new_mount+0x9a/0xe0
+ [<c018d206>] do_mount+0x1c6/0x200
+ [<c018cff7>] copy_mount_options+0x77/0xc0
+ [<c018d69d>] sys_mount+0x9d/0xe0
+ [<c01033d1>] syscall_call+0x7/0xb
+Badness in __sync_single_inode at fs/fs-writeback.c:232
+ [<c0193bcf>] __sync_single_inode+0x22f/0x280
+ [<c0193c7b>] __writeback_single_inode+0x5b/0x1c0
+ [<c02d04ee>] io_schedule+0xe/0x20
+ [<c01944d8>] write_inode_now+0x58/0xe0
+ [<c01895c7>] generic_forget_inode+0xb7/0x1b0
+ [<f8df94f0>] load_and_init_attrdef+0x2b0/0x330 [ntfs]
+ [<f8dd5ac0>] ntfs_readpage+0x0/0x380 [ntfs]
+ [<f8df9ae1>] load_system_files+0xc1/0xf40 [ntfs]
+ [<f8dfcb18>] generate_default_upcase+0x38/0x120 [ntfs]
+ [<f8dfbb78>] ntfs_fill_super+0x328/0x8d0 [ntfs]
+ [<c01720bc>] get_sb_bdev+0x11c/0x160
+ [<f8dfc170>] ntfs_get_sb+0x30/0x34 [ntfs]
+ [<f8dfb850>] ntfs_fill_super+0x0/0x8d0 [ntfs]
+ [<c0172399>] do_kern_mount+0xd9/0x190
+ [<c018c98a>] do_new_mount+0x9a/0xe0
+ [<c018d206>] do_mount+0x1c6/0x200
+ [<c018cff7>] copy_mount_options+0x77/0xc0
+ [<c018d69d>] sys_mount+0x9d/0xe0
+ [<c01033d1>] syscall_call+0x7/0xb
+NTFS volume version 3.1.
+NTFS-fs warning (device hda2): load_system_files(): $LogFile is not clean.  Will not be able to remount read-write.  Mount in Windows.
+Badness in __writeback_single_inode at fs/fs-writeback.c:251
+ [<c0193dca>] __writeback_single_inode+0x1aa/0x1c0
+ [<c02d04ee>] io_schedule+0xe/0x20
+ [<c01944d8>] write_inode_now+0x58/0xe0
+ [<c01895c7>] generic_forget_inode+0xb7/0x1b0
+ [<f8df8b01>] check_windows_hibernation_status+0x271/0x2e0 [ntfs]
+ [<f8dd5ac0>] ntfs_readpage+0x0/0x380 [ntfs]
+ [<f8dfa22c>] load_system_files+0x80c/0xf40 [ntfs]
+ [<f8dfbb78>] ntfs_fill_super+0x328/0x8d0 [ntfs]
+ [<c01720bc>] get_sb_bdev+0x11c/0x160
+ [<f8dfc170>] ntfs_get_sb+0x30/0x34 [ntfs]
+ [<f8dfb850>] ntfs_fill_super+0x0/0x8d0 [ntfs]
+ [<c0172399>] do_kern_mount+0xd9/0x190
+ [<c018c98a>] do_new_mount+0x9a/0xe0
+ [<c018d206>] do_mount+0x1c6/0x200
+ [<c018cff7>] copy_mount_options+0x77/0xc0
+ [<c018d69d>] sys_mount+0x9d/0xe0
+ [<c01033d1>] syscall_call+0x7/0xb
+Badness in __sync_single_inode at fs/fs-writeback.c:232
+ [<c0193bcf>] __sync_single_inode+0x22f/0x280
+ [<c0193c7b>] __writeback_single_inode+0x5b/0x1c0
+ [<c02d04ee>] io_schedule+0xe/0x20
+ [<c01944d8>] write_inode_now+0x58/0xe0
+ [<c01895c7>] generic_forget_inode+0xb7/0x1b0
+ [<f8df8b01>] check_windows_hibernation_status+0x271/0x2e0 [ntfs]
+ [<f8dd5ac0>] ntfs_readpage+0x0/0x380 [ntfs]
+ [<f8dfa22c>] load_system_files+0x80c/0xf40 [ntfs]
+ [<f8dfbb78>] ntfs_fill_super+0x328/0x8d0 [ntfs]
+ [<c01720bc>] get_sb_bdev+0x11c/0x160
+ [<f8dfc170>] ntfs_get_sb+0x30/0x34 [ntfs]
+ [<f8dfb850>] ntfs_fill_super+0x0/0x8d0 [ntfs]
+ [<c0172399>] do_kern_mount+0xd9/0x190
+ [<c018c98a>] do_new_mount+0x9a/0xe0
+ [<c018d206>] do_mount+0x1c6/0x200
+ [<c018cff7>] copy_mount_options+0x77/0xc0
+ [<c018d69d>] sys_mount+0x9d/0xe0
+ [<c01033d1>] syscall_call+0x7/0xb
+NTFS-fs warning (device hda2): load_system_files(): Windows is hibernated.  Will not be able to remount read-write.  Run chkdsk.
 

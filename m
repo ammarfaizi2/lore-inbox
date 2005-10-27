@@ -1,103 +1,261 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964895AbVJ0Ap6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751532AbVJ0BBF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964895AbVJ0Ap6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 20:45:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751542AbVJ0Ap5
+	id S1751532AbVJ0BBF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 21:01:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751542AbVJ0BBE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 20:45:57 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:41924 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751538AbVJ0Ap5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 20:45:57 -0400
-Subject: Re: 2.6.14-rc4-rt7
-From: john stultz <johnstul@us.ibm.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: William Weston <weston@lysdexia.org>, Rui Nuno Capela <rncbc@rncbc.org>,
-       george@mvista.com, Ingo Molnar <mingo@elte.hu>,
-       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Mark Knecht <markknecht@gmail.com>,
-       david singleton <dsingleton@mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-       cc@ccrma.Stanford.EDU
-In-Reply-To: <1130371042.21118.76.camel@localhost.localdomain>
-References: <1129852531.5227.4.camel@cmn3.stanford.edu>
-	 <20051021080504.GA5088@elte.hu> <1129937138.5001.4.camel@cmn3.stanford.edu>
-	 <20051022035851.GC12751@elte.hu>
-	 <1130182121.4983.7.camel@cmn3.stanford.edu>
-	 <1130182717.4637.2.camel@cmn3.stanford.edu>
-	 <1130183199.27168.296.camel@cog.beaverton.ibm.com>
-	 <20051025154440.GA12149@elte.hu>
-	 <1130264218.27168.320.camel@cog.beaverton.ibm.com>
-	 <435E91AA.7080900@mvista.com> <20051026082800.GB28660@elte.hu>
-	 <435FA8BD.4050105@mvista.com> <435FBA34.5040000@mvista.com>
-	 <435FEAE7.8090104@rncbc.org>
-	 <Pine.LNX.4.58.0510261449310.20155@echo.lysdexia.org>
-	 <1130371042.21118.76.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 26 Oct 2005 17:45:52 -0700
-Message-Id: <1130373953.27168.370.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Wed, 26 Oct 2005 21:01:04 -0400
+Received: from smtp.preteco.com ([200.68.93.225]:34525 "EHLO smtp.preteco.com")
+	by vger.kernel.org with ESMTP id S1751532AbVJ0BBE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 21:01:04 -0400
+Message-ID: <436026F2.1030206@rhla.com>
+Date: Wed, 26 Oct 2005 23:01:38 -0200
+From: Marcio Oliveira <moliveira@rhla.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Panic + Intel SATA
+References: <435FC886.7070105@rhla.com> <Pine.LNX.4.61.0510261523350.6174@chaos.analogic.com> <4360261E.4010202@rhla.com>
+In-Reply-To: <4360261E.4010202@rhla.com>
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-26 at 19:57 -0400, Steven Rostedt wrote:
-> On Wed, 2005-10-26 at 15:07 -0700, William Weston wrote:
-> > On Wed, 26 Oct 2005, Rui Nuno Capela wrote:
-> > 
-> > > Just noticed a couple or more of this on dmesg. Maybe its old news and 
-> > > being discussed already. Otherwise my P4@2.53Ghz/UP laptop boots and 
-> > > runs without hicups on 2.6.14-rc5-rt7 (config.gz attached).
-> > > 
-> > > ... time warped from 13551912584 to 13551905960.
-> > > ... system time:     13488892865 .. 13488892865.
-> > > udevstart/1579[CPU#0]: BUG in get_monotonic_clock_ts at 
-> > > kernel/time/timeofday.c:
-> > > 262
-> > >   [<c0116fcb>] __WARN_ON+0x4f/0x6c (8)
-> > >   [<c012f8b0>] get_monotonic_clock_ts+0x27a/0x2f0 (40)
-> > >   [<c0141c9d>] kmem_cache_alloc+0x51/0xac (76)
-> > >   [<c0114826>] copy_process+0x2ff/0xeed (44)
-> > >   [<c0139444>] unlock_page+0x17/0x4a (12)
-> > >   [<c0147a8a>] do_wp_page+0x245/0x372 (20)
-> > >   [<c01154f5>] do_fork+0x69/0x1b5 (56)
-> > >   [<c02c120b>] do_page_fault+0x432/0x543 (32)
-> > >   [<c01017aa>] sys_clone+0x32/0x36 (72)
-> > >   [<c0102a9b>] sysenter_past_esp+0x54/0x75 (16)
-> > 
-> > I'm getting these with two different machines running 2.6.14-rc5-rt7 with
-> > Steven's ktimer_interrupt() patch from yesterday.  Did not see these with
-> > previous -rt kernels.  Shutting down NTP makes no difference.
-> 
-> Yeah, that ktimer_interrupt patch was for something completely
-> different. Is this happening on boot up, or is this consistently
-> happening?
-> 
-> Also, Rui, do they show up at different times or clustered together?
-> (William, I see your output is clustered) The reason I asked, is that
-> the test may produce more than one warning message for the same time
-> warp. Since the time used to check for the time warp is not updated if
-> time goes backwards, so if you call the this routine more than once
-> before the time warp catches back up, it will warn again.
+linux-os (Dick Johnson) wrote:
 
+>On Wed, 26 Oct 2005, [iso-8859-1] Márcio Oliveira wrote:
+>
+>  
+>
+>>Hi there!
+>>
+>> I have a IBM ThinkPad t43 running Fedora Core  Linux 4 and kernel
+>>2.6.12-1.146_FC4. I recompiled the kernel (2.6.13.4 - kernel.org) and I
+>>am geting the following message when the computer boots:
+>>
+>>Creating root device
+>>mkrootdev: label / not found
+>>    
+>>
+>
+>This label was no good it needs to be /dev/sda6 from your fstab
+>You will need to put the device name in /boot/*/*.conf lilo or
+>grub instead on "label"
+>  
+>
+yeah, I try to boot it using "root=/dev/sda6" instead "root=LABEL=/" 
+parameter, but the system still not booting...
 
-Ok, I've reproduced the issue. 
+>  
+>
+>>Mounting root filesystem
+>>mount: error 2 mouting ext3
+>>    
+>>
+>
+>Error 2 == ENOENT
+>  
+>
 
-However, running a clock_gettime(CLOCK_MONOTONIC) inconsistency check
-results in no failures, but triggers this code in the kernel.
+ENOENT? What it means?
 
-Looking at the code, these may be false positives. The bit that is
-complaining I believe Ingo added to get_monotonic_clock_ts() in
-kernel/time/timeofday.c.  However I don't see any locking that
-serializes the writes the prev in the same order as the
-get_monotonic_clock_ts is called.
+>  
+>
+>>Switchimg to new root
+>>ERROR opening /dev/console!!!!: 2
+>>switchroot: mount failed: 22
+>>    
+>>
+>
+>Error 22 = EINVAL
+>  
+>
 
-I'm still digging and will send out some mail when I figure out whats
-wrong.
+EINVAL? What it means?
 
-thanks
--john
+>  
+>
+>>Kernel Panic - not syncing to kill init!
+>>
+>>   I added the fdisk command to the initrd file and the init script
+>>executes it every boot to check if the kernel was recognizing the SATA
+>>disk. All partitions are listed in the boot process and the disk is
+>>recognized without problems, but the kernel still not able to mount the
+>>root partition:
+>>
+>>scsi0: ata_piix
+>>...
+>>...
+>>Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+>>
+>>Disk /dev/sda: 60.0 GB, 60011642880 bytes
+>>255 heads, 63 sectors/track, 7296 cylinders
+>>Units = cylinders of 16065 * 512 = 8225280 bytes
+>>
+>>  Device Boot      Start         End      Blocks   Id  System
+>>/dev/sda1   *           1        1913    15361888+   7  HPFS/NTFS
+>>Partition 1 does not end on cylinder boundary.
+>>/dev/sda2            6778        7296     4165560   12  Compaq diagnostics
+>>Partition 2 does not end on cylinder boundary.
+>>/dev/sda3            1914        1929      128520   83  Linux
+>>/dev/sda4            1930        6777    38941560    5  Extended
+>>/dev/sda5            1930        2843     7341673+  8e  Linux LVM
+>>/dev/sda6            2844        3235     3148708+  83  Linux
+>>/dev/sda7            3236        6777    28451083+   b  W95 FAT32
+>>
+>>Partition table entries are not in disk order
+>>
+>>  I also checked the initrd file and all seems ok.
+>>  Thinks I made:
+>>
+>>- compiled the kernel with ext3 modular support;
+>>- compiled the kernel with ext3 built-in support;
+>>- checked the modules loaded in the initrd;
+>>- rebuilded and customized the initrd;
+>>- checked if the SATA controller is recognized at boot time;
+>>- tested fstab with and without "LABEL" partition name.
+>>
+>>Any idea?
+>>
+>>  Related Files:
+>>
+>>/etc/fstab:
+>>
+>># This file is edited by fstab-sync - see 'man fstab-sync' for details
+>>/dev/sda6                 /                       ext3
+>>defaults        1 1
+>>#LABEL=/                 /                       ext3    defaults        1 1
+>>#LABEL=/boot             /boot                   ext3    defaults        1 2
+>>/dev/sda3             /boot                   ext3    defaults        1 2
+>>/dev/devpts             /dev/pts                devpts  gid=5,mode=620  0 0
+>>/dev/shm                /dev/shm                tmpfs   defaults        0 0
+>>/dev/proc               /proc                   proc    defaults        0 0
+>>/dev/sys                /sys                    sysfs   defaults        0 0
+>>/dev/VG00/usr           /usr                    ext3    defaults        1 2
+>>/dev/VG00/var           /var                    ext3    defaults        1 2
+>>/dev/VG00/swap          swap                    swap    defaults        0 0
+>>/dev/sda7               /mnt/windows            vfat    user,defaults   0 0
+>>/dev/hdc                /media/cdrecorder       auto
+>>pamconsole,exec,noauto,managed 0 0
+>>
+>>/boot/grub/menu.lst
+>>
+>>title Fedora Core (2.6.13-4)
+>>       root (hd0,2)
+>>       kernel /vmlinuz-2.6.13.4-ext3 ro root=LABEL=/ hda=noprobe 1
+>>       initrd /initrd-2.6.13.4-ext3.img
+>>
+>>*** I tested the root=LABEL=/ and root=/dev/sda6 kernel comand options.
+>>
+>>Initrd file contents:
+>>
+>>./sbin
+>>./loopfs
+>>./proc
+>>./init
+>>./sysroot
+>>./bin
+>>./bin/hotplug
+>>./bin/nash
+>>./bin/udev
+>>./bin/fdisk
+>>./bin/insmod
+>>./bin/udevstart
+>>./bin/modprobe
+>>./dev
+>>./dev/tty3
+>>./dev/tty4
+>>./dev/tty1
+>>./dev/console
+>>./dev/tty2
+>>./dev/null
+>>./dev/ram
+>>./dev/systty
+>>./sys
+>>./lib
+>>./lib/libc.so.6
+>>./lib/ld-2.3.5.so
+>>./lib/scsi_mod.ko
+>>./lib/ld-linux.so.2
+>>./lib/sd_mod.ko
+>>./lib/libc-2.3.5.so
+>>./lib/dm-mod.ko
+>>./lib/ata_piix.ko
+>>./lib/libata.ko
+>>./etc
+>>./etc/udev
+>>./etc/udev/udev.conf
+>>
+>>/init initrd file:
+>>
+>>#!/bin/nash
+>>mount -t proc /proc /proc
+>>setquiet
+>>echo Mounted /proc filesystem
+>>echo Mounting sysfs
+>>mount -t sysfs /sys /sys
+>>echo Creating /dev
+>>mount -o mode=0755 -t tmpfs /dev /dev
+>>mknod /dev/console c 5 1
+>>mknod /dev/null c 1 3
+>>mknod /dev/zero c 1 5
+>>mkdir /dev/pts
+>>mkdir /dev/shm
+>>echo Starting udev
+>>/sbin/udevstart
+>>echo -n "/sbin/hotplug" > /proc/sys/kernel/hotplug
+>>echo "Loading scsi_mod.ko module"
+>>insmod /lib/scsi_mod.ko
+>>echo "Loading sd_mod.ko module"
+>>insmod /lib/sd_mod.ko
+>>echo "Loading libata.ko module"
+>>insmod /lib/libata.ko
+>>echo "Loading ata_piix.ko module"
+>>insmod /lib/ata_piix.ko
+>>echo "Loading dm-mod.ko module"
+>>insmod /lib/dm-mod.ko
+>>sleep 10
+>>/sbin/fdisk -l
+>>sleep 10
+>>/sbin/udevstart
+>>echo Creating root device
+>>mkrootdev /dev/root
+>>echo Mounting root filesystem
+>>mount -o defaults --ro -t ext3 /dev/root /sysroot
+>>echo Switching to new root
+>>switchroot --movedev /sysroot
+>>
+>>
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>Please read the FAQ at  http://www.tux.org/lkml/
+>>
+>>    
+>>
+>
+>Cheers,
+>Dick Johnson
+>Penguin : Linux version 2.6.13.4 on an i686 machine (5589.55 BogoMips).
+>Warning : 98.36% of all statistics are fiction.
+>
+>****************************************************************
+>The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+>
+>Thank you.
+>  
+>
+   This is very strange, at the boot time the system can show the disk 
+partitions as I said, but cannot  mount it. I tryed to compile the 
+following kernel versions: 2.6.12 (kernel.org), 2.6.11 (fedora core 4), 
+2.6.12 (fedora core 4) and 2.6.13 (fedora core 4) and all of it shows 
+the error message when the system is trying to mount the root partition 
+at boot time. Any more idea about what should I do?
 
-
-
+Thanks.
+Marcio Oliveira.

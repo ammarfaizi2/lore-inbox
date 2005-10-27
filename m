@@ -1,75 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932672AbVJ0WKI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932666AbVJ0WLf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932672AbVJ0WKI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 18:10:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932666AbVJ0WKH
+	id S932666AbVJ0WLf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 18:11:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932669AbVJ0WLf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 18:10:07 -0400
-Received: from mpls-qmqp-03.inet.qwest.net ([63.231.195.114]:40969 "HELO
-	mpls-qmqp-03.inet.qwest.net") by vger.kernel.org with SMTP
-	id S932671AbVJ0WKG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 18:10:06 -0400
-Date: Thu, 27 Oct 2005 17:12:29 -0500
-Message-ID: <000701c5db43$86209060$25c60443@oemcomputer>
-From: "Paul Albrecht" <palbrecht@qwest.net>
-To: jonathan@jonmasters.org
-Cc: linux-kernel@vger.kernel.org
-References: <000501c5daf1$bbd37c60$e8c90443@oemcomputer> <35fb2e590510270822q39db180fh530ce80bb9ec57ba@mail.gmail.com>
-Subject: Re: yet another c language cross-reference for linux
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Thu, 27 Oct 2005 18:11:35 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:15751 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S932666AbVJ0WLe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 18:11:34 -0400
+Subject: Re: 4GB memory and Intel Dual-Core system
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Dave Jones <davej@redhat.com>
+Cc: Alejandro Bonilla <abonilla@linuxwireless.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20051027220533.GA18773@redhat.com>
+References: <1130445194.5416.3.camel@blade> <52mzkuwuzg.fsf@cisco.com>
+	 <20051027204923.M89071@linuxwireless.org> <1130446667.5416.14.camel@blade>
+	 <20051027205921.M81949@linuxwireless.org> <1130447261.5416.20.camel@blade>
+	 <20051027211203.M33358@linuxwireless.org>
+	 <20051027220533.GA18773@redhat.com>
+Content-Type: text/plain
+Date: Fri, 28 Oct 2005 00:11:11 +0200
+Message-Id: <1130451071.5416.32.camel@blade>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1409
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Jon Masters" <jonmasters@gmail.com>
-Sent: Thursday, October 27, 2005 10:22 AM
+Hi Dave,
 
-> On 10/27/05, Paul Albrecht <palbrecht@qwest.net> wrote:
->
-> > I have written another cross-referencing tool for the c language because I
-> > have been dissatisfied with existing tools such as ctags and lxr.
->
-> Ok.
->
-> > I'd like to get some feedback to determine whether other programmers
-> > find the program useful
->
-> It seems to be in its very early stages now. I can barely navigate the
-> 2.4.31 source and it doesn't offer anything like the functionality of
-> lxr. But if you want to, perhaps it's worthwhile developing it further
-> and releasing it.
->
-> Your README file suggests that LXR fails because it requires a
-> webserver. Personally, I've never seen that to be an issue and find it
-> very very useful indeed (although it has limitations and doesn't
-> always index every symbol I would want to lookup), especially with
-> coywolf keeping an up-to-date lxr for 2.6. Mel Gorman used it for his
-> ULVMM book and I'm sure others are using LXR extensively - so it might
-> be worth extending that.
->
-> I'd love it if vendors would actually index their kernels with LXR.
->
-> Jon.
+> Some boards at least have a BIOS option to support 'memory hoisting'
+> to map the 'lost' memory above the 4G address space.
+> 
+> I suspect a lot of the lower-end (and older) boards however don't have
+> this option, as they were not tested with 4GB.
 
-I simply disagree that the lxr user interface is useable for code study. The
-problem with the lxr interface stems from the author's decision to use basic
-html for query responses to the database; this severely constrains the
-user interface. A better approach would be to use dynamic html or provide
-the database access as a service and write the user interface as a mozilla
-client application.
+do you have any information about remapping support of the D945GNT
+motherboard from Intel.
 
-Actually, I'm uninterested in data presentation issues or I'd make the
-changes myself. What's really different about my cross-reference application
-is that the database is generated using compiler output. As a result,
-the cross-reference database is coherent in the sense that its derived from
-a particular kernel compilation. The advantage of this approach is that it
-reduces the size and ensures the integrity of the cross-reference database.
+Regards
 
-Paul Albrecht
+Marcel
+
 

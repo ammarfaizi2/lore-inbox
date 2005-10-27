@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932619AbVJ0Bkj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932613AbVJ0BiY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932619AbVJ0Bkj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 21:40:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932620AbVJ0Bkj
+	id S932613AbVJ0BiY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 21:38:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932619AbVJ0BiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 21:40:39 -0400
-Received: from zproxy.gmail.com ([64.233.162.204]:23475 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932619AbVJ0Bki convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 21:40:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=FDCBJaG/AONXVJTaA0+FRkTc4TuecaoYnTtFYj1htYBlhuHod5a7z6oOwrtsoEomAz8Z1Nduhx0HaOzXYpPTsxkP77vjs5f3qQ8yLUHF8JSkJt9SxxaKFmqm6bRLotLU5PXJnbkoBg4y4xOHiJ7hn/TZ0IovNzwl942tyUJfDos=
-Message-ID: <aec7e5c30510261840xf0d5bfapaf2f62959cb9a462@mail.gmail.com>
-Date: Thu, 27 Oct 2005 10:40:37 +0900
-From: Magnus Damm <magnus.damm@gmail.com>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [discuss] [rfc] x86_64: Kconfig changes for NUMA
-Cc: discuss@x86-64.org, Ravikiran G Thirumalai <kiran@scalex86.org>,
-       linux-kernel@vger.kernel.org,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>
-In-Reply-To: <200510261646.26331.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051026070956.GA3561@localhost.localdomain>
-	 <200510261646.26331.ak@suse.de>
+	Wed, 26 Oct 2005 21:38:24 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:50103 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932613AbVJ0BiX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 21:38:23 -0400
+Subject: Re: 2.6.14-rc4-rt7
+From: Steven Rostedt <rostedt@goodmis.org>
+To: john stultz <johnstul@us.ibm.com>
+Cc: William Weston <weston@lysdexia.org>, Rui Nuno Capela <rncbc@rncbc.org>,
+       george@mvista.com, Ingo Molnar <mingo@elte.hu>,
+       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Mark Knecht <markknecht@gmail.com>,
+       david singleton <dsingleton@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+       cc@ccrma.Stanford.EDU
+In-Reply-To: <1130376147.27168.381.camel@cog.beaverton.ibm.com>
+References: <1129852531.5227.4.camel@cmn3.stanford.edu>
+	 <20051021080504.GA5088@elte.hu> <1129937138.5001.4.camel@cmn3.stanford.edu>
+	 <20051022035851.GC12751@elte.hu>
+	 <1130182121.4983.7.camel@cmn3.stanford.edu>
+	 <1130182717.4637.2.camel@cmn3.stanford.edu>
+	 <1130183199.27168.296.camel@cog.beaverton.ibm.com>
+	 <20051025154440.GA12149@elte.hu>
+	 <1130264218.27168.320.camel@cog.beaverton.ibm.com>
+	 <435E91AA.7080900@mvista.com> <20051026082800.GB28660@elte.hu>
+	 <435FA8BD.4050105@mvista.com> <435FBA34.5040000@mvista.com>
+	 <435FEAE7.8090104@rncbc.org>
+	 <Pine.LNX.4.58.0510261449310.20155@echo.lysdexia.org>
+	 <1130371042.21118.76.camel@localhost.localdomain>
+	 <1130373953.27168.370.camel@cog.beaverton.ibm.com>
+	 <1130375244.21118.91.camel@localhost.localdomain>
+	 <1130376147.27168.381.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Wed, 26 Oct 2005 21:37:36 -0400
+Message-Id: <1130377056.21118.102.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/26/05, Andi Kleen <ak@suse.de> wrote:
-> On Wednesday 26 October 2005 09:09, Ravikiran G Thirumalai wrote:
->
-> >
-> > 1. Makes NUMA a config option like other arches
-> > 2. Makes topology detection options like K8_NUMA dependent on NUMA
-> > 3. Choosing ACPI NUMA detection can be done from the standard
-> >    "Processor type and features" menu
-> > Comments?
->
-> It's in principle ok except that I don't like the dependencies and
-> defaults. K8_NUMA shouldn't be dependent on !M_PSC. And the defaults
-> should be just dropped.
+On Wed, 2005-10-26 at 18:22 -0700, john stultz wrote:
 
-While at it, could you please consider to remove the SMP dependency
-from NUMA_EMU? 2.6.14-rc5-git5 builds and works with !SMP and
-NUMA_EMU.
+> 
+> I don't know if that would really fix it, because ideally you want to
+> read the prev_mono_time at the same point you calculate the time inside
+> the read lock'ed critical section.
 
-Why?
-1. No need to force SMP when not needed.
-2. qemu-system-x86_64 does not currently work with SMP kernels.
+Ideally yes, but this is just for debugging, so as long as prev is read
+before now, this should prevent false positives due to ordering.  But
+I'm not sure if my patch did anything regardless, since the
+prev_mono_time is a cpu variable, and the get_cpu and put_cpu implement
+a preempt_disable, so unless an interrupt is changing it, it should be
+OK.
 
-Thanks,
+-- Steve
 
-/ magnus
+

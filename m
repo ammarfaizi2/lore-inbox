@@ -1,92 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbVJ0Rrk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751369AbVJ0R5L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751347AbVJ0Rrk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 13:47:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbVJ0Rrk
+	id S1751369AbVJ0R5L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 13:57:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbVJ0R5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 13:47:40 -0400
-Received: from zproxy.gmail.com ([64.233.162.196]:15050 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751347AbVJ0Rrk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 13:47:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=htHe1czxAuOSSih8rEgR2KO/huGVJVuQ9w7ibdMLwBy9dpHKi89zf01/2WvvQJYTEreyQihOhg53GicygLHNrMzOipAY/pUqdcKVP1BEj7o99Wwx1cOby3Lz1bKsIaOQVPeIubthFaKte0W3N73Hn3UUaRuGI70hhQReDPQGq7M=
-Message-ID: <d4b6d3ea0510271047t413e9ea8l333a532c1a5f3d77@mail.gmail.com>
-Date: Thu, 27 Oct 2005 10:47:38 -0700
-From: Michael Madore <michael.madore@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: PCI-DMA: high address but no IOMMU
+	Thu, 27 Oct 2005 13:57:11 -0400
+Received: from smtp.preteco.com ([200.68.93.225]:8843 "EHLO smtp.preteco.com")
+	by vger.kernel.org with ESMTP id S1751369AbVJ0R5K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 13:57:10 -0400
+Message-ID: <436114C0.4000701@rhla.com>
+Date: Thu, 27 Oct 2005 15:56:16 -0200
+From: =?ISO-8859-1?Q?M=E1rcio_Oliveira?= <moliveira@rhla.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Panic + Intel SATA
+References: <435FC886.7070105@rhla.com>	 <Pine.LNX.4.61.0510261523350.6174@chaos.analogic.com>	 <4360261E.4010202@rhla.com> <436026F2.1030206@rhla.com>	 <Pine.LNX.4.61.0510270839130.9512@chaos.analogic.com>	 <1130420072.10604.37.camel@localhost.localdomain>	 <4360E217.7000700@rhla.com> <1130430478.17679.0.camel@localhost>
+In-Reply-To: <1130430478.17679.0.camel@localhost>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alan Cox wrote:
 
-I am seeing the following errors in /var/log/messages when booting
-2.6.14-rc5 on a dual Opteron nforce4 motherboard with 8GB of RAM:
+>>>If you are using LVM2 or MD you just need to be sure you have the right
+>>>config options enabled (the Red Hat src.rpm is a good guide).
+>>>
+>>>Alan
+>>> 
+>>>
+>>>      
+>>>
+>>I'm not using lvm or raid in the /root or the /boot partition. All 
+>>partitions was made directly in the disk and formated with ext3 file 
+>>system. I think all needed options was compiled in the new kernel, since 
+>>I copied the /boot/config-2.6.12-1.1456_FC4 (config file from the kernel 
+>>that works fine) and compiled the kernel.src.rpm without any 
+>>modifications in the config file, and it still not working.
+>>    
+>>
+>
+>You also created a new initrd with mkinitrd ?
+>  
+>
+Yes, I created it. I also extracted the initrd image and compared it 
+with a initrd that works fine (the initrd-2.6.12-1.1456_FC4.img initrd 
+image provided by the kernel-2.6.12-1.1456_FC4.i386.rpm kernel package) 
+and the images have the same files.
 
-Checking aperture...
-CPU 0: aperture @ be8c000000 size 32 MB
-Aperture from northbridge cpu 0 too small (32 MB)
-No AGP bridge found
-Your BIOS doesn't leave a aperture memory hole
-Please enable the IOMMU option in the BIOS setup
-This costs you 64 MB of RAM
-Mapping aperture over 65536 KB of RAM @ 8000000
+I got the mkinitrd-5.0.8-1 package and the 
+kernel-devel-2.6.12-1.1456_FC4.i686.rpm package too. I compiled the 
+mkinitrd package with the command:
 
+# rpmbuild --rebuild mkinitrd-5.0.8-1.src.rpm
+# rpm -ivh /usr/src/redhat/RPMS/i386/mkinitrd-5.0.8-1.i386.rpm
+
+I also changed parameters in the kernel.spec file and recompiled it. The 
+parameters was changed from:
+
+%define buildsmp 1
 ...
+%patch800 -p1
 
-PCI-DMA: Disabling AGP.
-PCI-DMA: More than 4GB of RAM and no IOMMU
-PCI-DMA: 32bit PCI IO may malfunction.<6>PCI-DMA: Disabling IOMMU.
+To:
 
+%define buildsmp 0
 ...
+# %patch800 -p1
 
-Attached scsi disk sda at scsi2, channel 0, id 0, lun 0
-Kernel panic - not syncing: PCI-DMA: high address but no IOMMU.
+(the nonint patch was generating error messages during the kernel rpm 
+compilation)
 
-With 2.6.13, the systems boots OK with these messages in the log:
+# rpmbuild --target i686 -ba /usr/src/redhat/SPECS/kernel.spec
+# rpm -ivh /usr/src/redhat/RPMS/i686/kernel-2.6.12.ext3-2.i686.rpm
 
-Checking aperture...
-CPU 0: aperture @ 8000000 size 32 MB
-Aperture from northbridge cpu 0 too small (32 MB)
-No AGP bridge found
-Your BIOS doesn't leave a aperture memory hole
-Please enable the IOMMU option in the BIOS setup
-This costs you 64 MB of RAM
-Mapping aperture over 65536 KB of RAM @ 8000000
+After I finished the process, I booted the machine and got the same 
+error message. I also rebuilt the initrd image and built a new 2.6.13 
+fedora core src.rpm kernel, but it still not working... any more idea??
 
-...
+Thank you.
 
-PCI-DMA: Disabling AGP.
-PCI-DMA: aperture base @ 8000000 size 65536 KB
-PCI-DMA: Reserving 64MB of IOMMU area in the AGP aperture
-
-Using git bisect, I narrowed the problem down to the following commit:
-
-6142891a0c0209c91aa4a98f725de0d6e2ed4918 is first bad commit
-diff-tree 6142891a0c0209c91aa4a98f725de0d6e2ed4918 (from
-357e11d4cbbbb959a88a9bdbbf33a10f160b0823)
-Author: Andi Kleen <ak@suse.de>
-Date:   Mon Sep 12 18:49:24 2005 +0200
-
-    [PATCH] x86-64: Avoid unnecessary double bouncing for swiotlb
-
-    PCI_DMA_BUS_IS_PHYS has to be zero even when the GART IOMMU is disabled
-    and the swiotlb is used. Otherwise the block layer does unnecessary
-    double bouncing.
-
-    Signed-off-by: Andi Kleen <ak@suse.de>
-    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-
-:040000 040000 d704d51d1e05f508f09c4388d3199cafbb9e3018
-6a40204fd8b954634f2f7ea8f84861ed0a4bd88e M      include
-
-Reverting this change allows 2.6.14-rc5 to boot.
-
-Mike
+Márcio.

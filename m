@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964976AbVJ0HG0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964978AbVJ0HOx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964976AbVJ0HG0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 03:06:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964975AbVJ0HG0
+	id S964978AbVJ0HOx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 03:14:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964979AbVJ0HOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 03:06:26 -0400
-Received: from ms005msg.fastwebnet.it ([213.140.2.50]:34028 "EHLO
-	ms005msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S964976AbVJ0HGZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 03:06:25 -0400
-Date: Thu, 27 Oct 2005 09:06:31 +0200
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Chaitanya Hazarey <c.v.hazarey@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel MD5 sums and some question
-Message-ID: <20051027090631.3217fb2e@localhost>
-In-Reply-To: <9a9abfb40510262356o5de2a638pa15d0c8e9dda2833@mail.gmail.com>
-References: <9a9abfb40510262356o5de2a638pa15d0c8e9dda2833@mail.gmail.com>
-X-Mailer: Sylpheed-Claws 1.9.13 (GTK+ 2.6.8; x86_64-pc-linux-gnu)
+	Thu, 27 Oct 2005 03:14:53 -0400
+Received: from beret.waw.pdi.net ([213.241.71.70]:60690 "EHLO beret.srv.pl")
+	by vger.kernel.org with ESMTP id S964978AbVJ0HOw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 03:14:52 -0400
+Subject: dumb muliport serial cards not supported in 2.6.13.4 ???
+From: Jarek <jarek@macro-system.com.pl>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: Macro System
+Date: Thu, 27 Oct 2005 09:14:18 +0200
+Message-Id: <1130397258.13942.14.camel@jarek.macro>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Oct 2005 12:26:16 +0530
-Chaitanya Hazarey <c.v.hazarey@gmail.com> wrote:
+Hi all!
 
-> The next question I would like to ask is that, how to I go
-> incrementally from linux kernel version 2.6.12.6 to 2.6.13 as no
-> patches seem to be provided for it.
+	I've PCM 3643, 8 port dumb multiport serial card from Advantech.
+	This card works nice with 2.6.12 but with 2.6.13.4 I can see only two
+ports!
+	This is dumb 8250 (exactly: 16550A) multiport board. In 2.6.12 I've the
+following settings:
 
-patch-2.6.13 applies to 2.6.12, so you should revert 2.6.12.6 (patch
--R) and then apply patch-2.6.13.
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_CONSOLE=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_8250_EXTENDED=y
+CONFIG_SERIAL_8250_MANY_PORTS=y
+CONFIG_SERIAL_8250_SHARE_IRQ=y
+CONFIG_SERIAL_8250_MULTIPORT=y
+CONFIG_SERIAL_8250_RSA=y
+CONFIG_SERIAL_CORE=y
+CONFIG_SERIAL_CORE_CONSOLE=y
 
-This is a tool to automate the process:
+I've tried to setup same in 2.6.13.4, but it claims:
+.config:761: trying to assign nonexistent symbol SERIAL_8250_MULTIPORT
 
-	http://www.selenic.com/ketchup/wiki/
+I suspect that this is the problematic setting but there is nothing
+about this in any Changelog.
 
--- 
-	Paolo Ornati
-	Linux 2.6.14-rc5-gd475f3f4 on x86_64
+What should I do ?
+
+Jarek.
+

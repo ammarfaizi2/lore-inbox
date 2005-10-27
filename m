@@ -1,76 +1,188 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbVJ0O3R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbVJ0O33@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750815AbVJ0O3R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 10:29:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750813AbVJ0O3R
+	id S1750813AbVJ0O33 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 10:29:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbVJ0O32
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 10:29:17 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:9787 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750798AbVJ0O3Q (ORCPT
+	Thu, 27 Oct 2005 10:29:28 -0400
+Received: from smtp.preteco.com ([200.68.93.225]:11246 "EHLO smtp.preteco.com")
+	by vger.kernel.org with ESMTP id S1750813AbVJ0O31 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 10:29:16 -0400
-Date: Thu, 27 Oct 2005 16:30:07 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Eugene Crosser <crosser@rol.ru>
-Cc: Brett Russ <russb@emc.com>, linux-ide@vger.kernel.org, multiman@rol.ru,
-       linux-kernel@vger.kernel.org
-Subject: Re: Status of Marvell SATA driver (was Re: Trying latest sata_mv - and getting freeze)
-Message-ID: <20051027143006.GR4774@suse.de>
-References: <435F8AFF.3030404@rol.ru> <435F9737.3050409@emc.com> <435FA5D8.2090406@rol.ru> <20051027111650.GO4774@suse.de> <4360E3A0.70501@rol.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4360E3A0.70501@rol.ru>
+	Thu, 27 Oct 2005 10:29:27 -0400
+Message-ID: <4360E41A.7010202@rhla.com>
+Date: Thu, 27 Oct 2005 12:28:42 -0200
+From: =?ISO-8859-1?Q?M=E1rcio_Oliveira?= <moliveira@rhla.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Panic + Intel SATA
+References: <435FC886.7070105@rhla.com> <Pine.LNX.4.61.0510261523350.6174@chaos.analogic.com> <4360261E.4010202@rhla.com> <436026F2.1030206@rhla.com> <Pine.LNX.4.61.0510270839130.9512@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0510270839130.9512@chaos.analogic.com>
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 27 2005, Eugene Crosser wrote:
-> Jens Axboe wrote:
-> 
-> >>>>My hardware is SMP Supermicro with 6 disks on
-> >>>>Marvell MV88SX6081 8-port SATA II PCI-X Controller (rev 03)
-> >>>>and the sata_mv.c is version 0.25 dated 22 Oct 2005
-> >>>>
-> >>>>The thing works with "old" mvsata340 driver, but the "new" kernel with
-> >>>>your driver freezes when it starts to probe disks.  Even Magic SysRq
-> >>>>does not work.  The last lines I see on screen are like this:
-> >>>>
-> >>>>sata_mv version 0.25
-> >>>>ACPI: PCI Interrupt 0000:02:03.0[A] -> GSI 56 (level, low) -> IRQ 185
-> >>>>sata_mv(0000:02:03.0) 32 slots 8 ports unknown mode IRQ via MSI
-> >>>>ata1: SATA max UDMA/133 cmd 0x0 ctl 0xF8C22120 bmdma 0x0 irq 185
-> >>>>ata2: .... <same things>            0xF8C24120 ...
-> >>>>...
-> >>>>ata8: .... <same thing>             0xF8C38120 ...
-> >>>>ATA: abnormal status 0x80 on port 0xF8C2211C
-> >>>>... <five more lines identical to the above>
-> >>>>ata1: dev 0 ATA-7, max UDMA/133, 781422768 sectors: LBA48
-> >>>>
-> >>>>- and at this point it freezes hard.
-> >>>>Any suggestions for me?  Any information I can collect to help
-> >>>>troubleshooting?
-> >>
-> >>[...]
-> >>
-> >>>In the meantime, try turning off SMP and seeing if that makes a
-> >>>difference.  There still might be a problem with the spinlocks and if so
-> >>>it should go away in uniprocessor mode.
-> >>
-> >>'nosmp' makes no difference.
-> > 
-> > 
-> > Booting with nosmp isn't enough, you need to compile the kernel with
-> > CONFIG_SMP turned off. Otherwise the spinlocks will still be used and
-> > could cause a hard hang.
-> 
-> Yeah, that was it!  It boots with the kernel compiled for UP.
-> (did not yet have a chance to check how it works).
-> Any chance that somebody competent would fix the driver for SMP?
+linux-os (Dick Johnson) wrote:
 
-Try booting with nmi_watchdog=1 with the SMP kernel, that should trigger
-a watchdog oops when it hard hangs on the spinlock. Then it should be
-trivial to fix.
+>On Wed, 26 Oct 2005, Marcio Oliveira wrote:
+>
+>  
+>
+>>linux-os (Dick Johnson) wrote:
+>>
+>>    
+>>
+>>>On Wed, 26 Oct 2005, [iso-8859-1] Márcio Oliveira wrote:
+>>>
+>>>
+>>>
+>>>      
+>>>
+>>>>Hi there!
+>>>>
+>>>>I have a IBM ThinkPad t43 running Fedora Core  Linux 4 and kernel
+>>>>2.6.12-1.146_FC4. I recompiled the kernel (2.6.13.4 - kernel.org) and I
+>>>>am geting the following message when the computer boots:
+>>>>
+>>>>Creating root device
+>>>>mkrootdev: label / not found
+>>>>
+>>>>
+>>>>        
+>>>>
+>>>This label was no good it needs to be /dev/sda6 from your fstab
+>>>You will need to put the device name in /boot/*/*.conf lilo or
+>>>grub instead on "label"
+>>>
+>>>
+>>>      
+>>>
+>>yeah, I try to boot it using "root=/dev/sda6" instead "root=LABEL=/"
+>>parameter, but the system still not booting...
+>>
+>>    
+>>
+>>>      
+>>>
+>>>>Mounting root filesystem
+>>>>mount: error 2 mouting ext3
+>>>>
+>>>>
+>>>>        
+>>>>
+>>>Error 2 == ENOENT
+>>>
+>>>
+>>>      
+>>>
+>>ENOENT? What it means?
+>>    
+>>
+>
+>Was 'no such file', perhaps the device file was not created by `mkrootdev`
+>because it errored out???
+>
+>This is all 'Fedora' stuff, not Linux stuff. You should upgrade
+>your 'mkinitrd' (or rewrite it) so it doesn't use Fedora-specific
+>stuff if you intend to install an un-patched kernel.
+>  
+>
+Dick, sorry about my newbie question: where can I find a mkinitrd source 
+code to compile in my system?
 
--- 
-Jens Axboe
+>
+>  
+>
+>>>      
+>>>
+>>>>Switchimg to new root
+>>>>ERROR opening /dev/console!!!!: 2
+>>>>switchroot: mount failed: 22
+>>>>
+>>>>
+>>>>        
+>>>>
+>>>Error 22 = EINVAL
+>>>
+>>>
+>>>      
+>>>
+>>EINVAL? What it means?
+>>
+>>    
+>>
+>
+>Means 'wrong value'. Probably because the new root wasn't
+>mounted.
+>
+>[SNIPPED...]
+>
+>
+>In the meantime do:
+>
+>mknod /dev/sda6 b 8 6
+>mknod /dev/root b 8 6
+>
+>.. in your initrd script. This should get you past the errors.
+>  
+>
+I made the changes you suggest in the initrd script and it was not able 
+to create the necessary devices at boot time...
+In the meantime I also installed a new mkinitrd (from fedora devel, 
+version 5.0.8-1), but it still not working...
+
+Any more ideas? When can I get the mkinitrd source code?
+
+thanks Dick.
+Márcio Oliveira
+
+>
+>  
+>
+>>>>mount -o mode=0755 -t tmpfs /dev /dev
+>>>>mknod /dev/console c 5 1
+>>>>mknod /dev/null c 1 3
+>>>>mknod /dev/zero c 1 5
+>>>>mkdir /dev/pts
+>>>>mkdir /dev/shm
+>>>>echo Starting udev
+>>>>/sbin/udevstart
+>>>>echo -n "/sbin/hotplug" > /proc/sys/kernel/hotplug
+>>>>echo "Loading scsi_mod.ko module"
+>>>>insmod /lib/scsi_mod.ko
+>>>>echo "Loading sd_mod.ko module"
+>>>>insmod /lib/sd_mod.ko
+>>>>echo "Loading libata.ko module"
+>>>>insmod /lib/libata.ko
+>>>>echo "Loading ata_piix.ko module"
+>>>>insmod /lib/ata_piix.ko
+>>>>echo "Loading dm-mod.ko module"
+>>>>insmod /lib/dm-mod.ko
+>>>>sleep 10
+>>>>/sbin/fdisk -l
+>>>>sleep 10
+>>>>/sbin/udevstart
+>>>>echo Creating root device
+>>>>mkrootdev /dev/root
+>>>>echo Mounting root filesystem
+>>>>mount -o defaults --ro -t ext3 /dev/root /sysroot
+>>>>echo Switching to new root
+>>>>switchroot --movedev /sysroot
+>>>>        
+>>>>
+>
+>Cheers,
+>Dick Johnson
+>Penguin : Linux version 2.6.13.4 on an i686 machine (5589.55 BogoMips).
+>Warning : 98.36% of all statistics are fiction.
+>
+>****************************************************************
+>The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+>
+>Thank you.
+>  
+>
 

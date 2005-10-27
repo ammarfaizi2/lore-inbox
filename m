@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964993AbVJ0IIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964994AbVJ0IYg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964993AbVJ0IIs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 04:08:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964994AbVJ0IIs
+	id S964994AbVJ0IYg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 04:24:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964991AbVJ0IYf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 04:08:48 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1551 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S964993AbVJ0IIr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 04:08:47 -0400
-Date: Thu, 27 Oct 2005 09:08:39 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Jarek <jarek@macro-system.com.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: dumb muliport serial cards not supported in 2.6.13.4 ???
-Message-ID: <20051027080839.GA3235@flint.arm.linux.org.uk>
-Mail-Followup-To: Jarek <jarek@macro-system.com.pl>,
-	linux-kernel@vger.kernel.org
-References: <1130397258.13942.14.camel@jarek.macro>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1130397258.13942.14.camel@jarek.macro>
-User-Agent: Mutt/1.4.1i
+	Thu, 27 Oct 2005 04:24:35 -0400
+Received: from 238-193.adsl.pool.ew.hu ([193.226.238.193]:41482 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S964977AbVJ0IYf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 04:24:35 -0400
+To: bulb@ucw.cz
+CC: viro@ftp.linux.org.uk, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+In-reply-to: <20051027080713.GA25460@djinn> (message from Jan Hudec on Thu, 27
+	Oct 2005 10:07:13 +0200)
+Subject: Re: [PATCH 2/8] VFS: per inode statfs (core)
+References: <E1EU5bT-0005sq-00@dorka.pomaz.szeredi.hu> <20051025042519.GJ7992@ftp.linux.org.uk> <E1EUHbq-0006t6-00@dorka.pomaz.szeredi.hu> <20051026173150.GB11769@efreet.light.src> <E1EUqm3-00013A-00@dorka.pomaz.szeredi.hu> <20051026195240.GB15046@efreet.light.src> <E1EUrb7-0001AU-00@dorka.pomaz.szeredi.hu> <20051027080713.GA25460@djinn>
+Message-Id: <E1EV338-0001vx-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Thu, 27 Oct 2005 10:23:50 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 27, 2005 at 09:14:18AM +0200, Jarek wrote:
-> Hi all!
-> 
-> 	I've PCM 3643, 8 port dumb multiport serial card from Advantech.
-> 	This card works nice with 2.6.12 but with 2.6.13.4 I can see only two
-> ports!
-> 	This is dumb 8250 (exactly: 16550A) multiport board. In 2.6.12 I've the
-> following settings:
-> 
-> CONFIG_SERIAL_8250=y
-> CONFIG_SERIAL_8250_CONSOLE=y
-> CONFIG_SERIAL_8250_NR_UARTS=4
-> CONFIG_SERIAL_8250_EXTENDED=y
-> CONFIG_SERIAL_8250_MANY_PORTS=y
-> CONFIG_SERIAL_8250_SHARE_IRQ=y
-> CONFIG_SERIAL_8250_MULTIPORT=y
-> CONFIG_SERIAL_8250_RSA=y
-> CONFIG_SERIAL_CORE=y
-> CONFIG_SERIAL_CORE_CONSOLE=y
-> 
-> I've tried to setup same in 2.6.13.4, but it claims:
-> .config:761: trying to assign nonexistent symbol SERIAL_8250_MULTIPORT
-> 
-> I suspect that this is the problematic setting but there is nothing
-> about this in any Changelog.
-> 
-> What should I do ?
+> Not _without__loss__of__functionality__. Part of the functionality is
+> looking up the mount-point and other info about the filesystem, which is
+> no longer correct when subfilesystems are exposed.
 
-Please send the kernel messages from this kernel so we can see what's
-going on.  (this would be useful whatever.)
+Sorry, I still don't get it.
 
-At a guess you need to increase CONFIG_SERIAL_8250_NR_UARTS.  It now
-represents the _total_ number of ports.
+'df path' looks up the mountpoint. Fine, no problem with that.
+Displays it in in column 'Mounted on'.  Then goes on to do
+statfs(path), and display the results.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Can you please explain why you think that's wrong?  It displayed the
+free space in the directory I _aked_it_.  It displayed the mountpoint
+under which this path happens to be.
+
+If I want to find out the free space immediately under the mountpoint,
+I can do 'df mountpoint' or just 'df'.  But that's not what the user
+is interested in when it does 'df path', the user is interested in the
+free space under 'path'.
+
+What is the loss of functionality?  For mounts not having
+subfilesystems, there will be _no_change_whatsoever_!
+
+> > How will they give more confusing results?  Please ellaborate.
+> 
+> I mean specifically the case of df and similar things. So far remote
+> filesystems generally return obviously invalid results so far. But when
+> they are made to return correct values for subfilesystem, these tools
+> need a way to find where those subfilesystems start.
+
+Why?  What if that info is simply not available?
+
+You are talking about missing functionality not _loss_ of
+functionality.
+
+Yes, possibility for finding out where subfilesystems are located
+_will_ be missing for such filesystems as sshfs.  Is that a reason for
+asuming subfilesystems don't exsist, and not allowing already existing
+tools (filemanagers, openoffice, etc) to make use of a statfs() system
+call which can return _meaningful_ results for subfilesystems?
+
+Miklos

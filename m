@@ -1,235 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932567AbVJ0Gje@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964974AbVJ0HCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932567AbVJ0Gje (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 02:39:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932576AbVJ0Gje
+	id S964974AbVJ0HCN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 03:02:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932580AbVJ0HCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 02:39:34 -0400
-Received: from ozlabs.org ([203.10.76.45]:41390 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932567AbVJ0Gje (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 02:39:34 -0400
-Date: Thu, 27 Oct 2005 16:37:02 +1000
-From: "'David Gibson'" <david@gibson.dropbear.id.au>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: Adam Litke <agl@us.ibm.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, hugh@veritas.com,
-       William Irwin <wli@holomorphy.com>
-Subject: Re: RFC: Cleanup / small fixes to hugetlb fault handling
-Message-ID: <20051027063702.GB7176@localhost.localdomain>
-Mail-Followup-To: 'David Gibson' <david@gibson.dropbear.id.au>,
-	"Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-	Adam Litke <agl@us.ibm.com>, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org, hugh@veritas.com,
-	William Irwin <wli@holomorphy.com>
-References: <20051027000504.GC14742@localhost.localdomain> <200510270016.j9R0Gdg26347@unix-os.sc.intel.com>
+	Thu, 27 Oct 2005 03:02:12 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:52102 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932576AbVJ0HCM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 03:02:12 -0400
+Subject: Re: Linux Kernel MD5 sums and some question
+From: Lee Revell <rlrevell@joe-job.com>
+To: Chaitanya Hazarey <c.v.hazarey@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <9a9abfb40510262356o5de2a638pa15d0c8e9dda2833@mail.gmail.com>
+References: <9a9abfb40510262356o5de2a638pa15d0c8e9dda2833@mail.gmail.com>
+Content-Type: text/plain
+Date: Thu, 27 Oct 2005 03:01:01 -0400
+Message-Id: <1130396462.19492.13.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200510270016.j9R0Gdg26347@unix-os.sc.intel.com>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 26, 2005 at 05:16:39PM -0700, Chen, Kenneth W wrote:
-> David Gibson wrote on Wednesday, October 26, 2005 5:05 PM
-> > On Wed, Oct 26, 2005 at 11:44:52AM -0700, Chen, Kenneth W wrote:
-> > > David Gibson wrote on Tuesday, October 25, 2005 7:49 PM
-> > > > +int hugetlb_fault(struct mm_struct *mm, struct vm_area_struct *vma,
-> > > > +		  unsigned long address, int write_access)
-> > > > +{
-> > > > +	pte_t *ptep;
-> > > > +	pte_t entry;
-> > > > +
-> > > > +	ptep = huge_pte_alloc(mm, address);
-> > > > +	if (! ptep)
-> > > > +		/* OOM */
-> > > > +		return VM_FAULT_SIGBUS;
-> > > > +
-> > > > +	entry = *ptep;
-> > > > +
-> > > > +	if (pte_none(entry))
-> > > > +		return hugetlb_no_page(mm, vma, address, ptep);
-> > > > +
-> > > > +	/* we could get here if another thread instantiated the pte
-> > > > +	 * before the test above */
-> > > > +
-> > > > +	return VM_FAULT_SIGBUS;
-> > > >  }
-> > > 
-> > > Are you sure about the last return?  Looks like a typo to me, if *ptep
-> > > is present, it should return VM_FAULT_MINOR.
-> > 
-> > Oops, yes, thinko.  Corrected patch shortly.
+On Thu, 2005-10-27 at 12:26 +0530, Chaitanya Hazarey wrote:
+> Hi all,
 > 
-> While you at it, I think it would be preferable that the first return be
-> VM_FAULT_OOM, your thoughts?
+> Lately I had some problems compiling the kernel source on my machine.
+> I guess nothing serious, but one thing came to my notice. I was
+> looking for the MD5 sums for the linux kenerl and found none. The Pgp
+> signatures are fine , but there seems no way to check the package.
+> 
+> The next question I would like to ask is that, how to I go
+> incrementally from linux kernel version 2.6.12.6 to 2.6.13 as no
+> patches seem to be provided for it.
 
-Ok, here's the revised patch with this change, and the others
-mentioned elsewhere.
+Revert the 2.6.12 -> 2.6.12.6 patch then apply the 2.6.13 patch to your
+2.6.12 tree.
 
-RFC: Cleanup / small fixes to hugetlb fault handling
+Lee
 
-This patch makes some slight tweaks / cleanups to the fault handling
-path for huge pages in -mm.  My main motivation is to make it simpler
-to fit COW in, but along the way it addresses a few minor problems
-with the existing code:
-
-- The check against i_size was duplicated: once in
-  find_lock_huge_page() and again in hugetlb_fault() after taking the
-  page_table_lock.  We only really need the locked one, so remove the
-  other.
-
-- find_lock_huge_page() isn't a great name, since it does extra things
-  not analagous to find_lock_page().  Rename it
-  find_or_alloc_huge_page() which is closer to the mark.
-
-Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
-
-Index: working-2.6/mm/hugetlb.c
-===================================================================
---- working-2.6.orig/mm/hugetlb.c	2005-10-27 16:34:20.000000000 +1000
-+++ working-2.6/mm/hugetlb.c	2005-10-27 16:34:55.000000000 +1000
-@@ -336,30 +336,24 @@
- 	flush_tlb_range(vma, start, end);
- }
- 
--static struct page *find_lock_huge_page(struct address_space *mapping,
--			unsigned long idx)
-+static struct page *find_or_alloc_huge_page(struct address_space *mapping,
-+					    unsigned long idx)
- {
- 	struct page *page;
- 	int err;
--	struct inode *inode = mapping->host;
--	unsigned long size;
- 
- retry:
- 	page = find_lock_page(mapping, idx);
- 	if (page)
--		goto out;
--
--	/* Check to make sure the mapping hasn't been truncated */
--	size = i_size_read(inode) >> HPAGE_SHIFT;
--	if (idx >= size)
--		goto out;
-+		return page;
- 
- 	if (hugetlb_get_quota(mapping))
--		goto out;
-+		return NULL;
-+
- 	page = alloc_huge_page();
- 	if (!page) {
- 		hugetlb_put_quota(mapping);
--		goto out;
-+		return NULL;
- 	}
- 
- 	err = add_to_page_cache(page, mapping, idx, GFP_KERNEL);
-@@ -370,50 +364,49 @@
- 			goto retry;
- 		page = NULL;
- 	}
--out:
-+
- 	return page;
- }
- 
--int hugetlb_fault(struct mm_struct *mm, struct vm_area_struct *vma,
--			unsigned long address, int write_access)
-+int hugetlb_no_page(struct mm_struct *mm, struct vm_area_struct *vma,
-+		    unsigned long address, pte_t *ptep)
- {
--	int ret = VM_FAULT_SIGBUS;
-+	int ret;
- 	unsigned long idx;
- 	unsigned long size;
--	pte_t *pte;
- 	struct page *page;
- 	struct address_space *mapping;
- 
--	pte = huge_pte_alloc(mm, address);
--	if (!pte)
--		goto out;
--
- 	mapping = vma->vm_file->f_mapping;
- 	idx = ((address - vma->vm_start) >> HPAGE_SHIFT)
- 		+ (vma->vm_pgoff >> (HPAGE_SHIFT - PAGE_SHIFT));
- 
--	/*
--	 * Use page lock to guard against racing truncation
--	 * before we get page_table_lock.
--	 */
--	page = find_lock_huge_page(mapping, idx);
-+	/* This returns a locked page, which keeps us safe in the
-+	 * event of a race with truncate() */
-+	page = find_or_alloc_huge_page(mapping, idx);
- 	if (!page)
--		goto out;
-+		return VM_FAULT_SIGBUS;
- 
- 	spin_lock(&mm->page_table_lock);
-+
-+	ret = VM_FAULT_SIGBUS;
-+
- 	size = i_size_read(mapping->host) >> HPAGE_SHIFT;
- 	if (idx >= size)
- 		goto backout;
- 
- 	ret = VM_FAULT_MINOR;
--	if (!pte_none(*pte))
-+
-+	if (!pte_none(*ptep))
-+		/* oops, someone instantiated this PTE before us */
- 		goto backout;
- 
- 	add_mm_counter(mm, file_rss, HPAGE_SIZE / PAGE_SIZE);
--	set_huge_pte_at(mm, address, pte, make_huge_pte(vma, page));
-+	set_huge_pte_at(mm, address, ptep, make_huge_pte(vma, page));
-+
- 	spin_unlock(&mm->page_table_lock);
- 	unlock_page(page);
--out:
-+
- 	return ret;
- 
- backout:
-@@ -421,7 +414,29 @@
- 	hugetlb_put_quota(mapping);
- 	unlock_page(page);
- 	put_page(page);
--	goto out;
-+
-+	return ret;
-+}
-+
-+int hugetlb_fault(struct mm_struct *mm, struct vm_area_struct *vma,
-+		  unsigned long address, int write_access)
-+{
-+	pte_t *ptep;
-+	pte_t entry;
-+
-+	ptep = huge_pte_alloc(mm, address);
-+	if (! ptep)
-+		return VM_FAULT_OOM;
-+
-+	entry = *ptep;
-+
-+	if (pte_none(entry))
-+		return hugetlb_no_page(mm, vma, address, ptep);
-+
-+	/* we could get here if another thread instantiated the pte
-+	 * before the test above */
-+
-+	return VM_FAULT_MINOR;
- }
- 
- int follow_hugetlb_page(struct mm_struct *mm, struct vm_area_struct *vma,
-
-
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/people/dgibson

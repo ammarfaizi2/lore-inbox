@@ -1,340 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964947AbVJ0BOk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964952AbVJ0BUT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964947AbVJ0BOk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 21:14:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964952AbVJ0BOk
+	id S964952AbVJ0BUT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 21:20:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbVJ0BUT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 21:14:40 -0400
-Received: from 82-43-224-11.cable.ubr01.pres.blueyonder.co.uk ([82.43.224.11]:43275
-	"EHLO evildomain.dyndns.org") by vger.kernel.org with ESMTP
-	id S964947AbVJ0BOj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 21:14:39 -0400
-From: Geoff King <gking@evildomain.dyndns.org>
-Organization: Not organised
-Subject: Re: Call for PIIX4 chipset testers
-Date: Thu, 27 Oct 2005 02:14:27 +0100
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-Message-Id: <pan.2005.10.27.01.14.26.529926@evildomain.dyndns.org>
-References: <51BIL-4nT-1@gated-at.bofh.it>
-Reply-To: gking@evildomain.dyndns.org
-To: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Wed, 26 Oct 2005 21:20:19 -0400
+Received: from main.gmane.org ([80.91.229.2]:63949 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S964952AbVJ0BUR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 21:20:17 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Joe Seigh <jseigh_02@xemaps.com>
+Subject: Re: Notifier chains are unsafe
+Date: Wed, 26 Oct 2005 21:17:31 -0400
+Message-ID: <djp9r4$8dj$1@sea.gmane.org>
+References: <Pine.LNX.4.44L0.0510261636580.7186-100000@iolanthe.rowland.org>	 <200510262344.37982.ak@suse.de> <1130368820.3586.213.camel@linuxchandra>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: stenquists.hsd1.ma.comcast.net
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+In-Reply-To: <1130368820.3586.213.camel@linuxchandra>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Oct 2005 20:30:11 +0200, Linus Torvalds wrote:
-
+Chandra Seetharaman wrote:
+> Andy, comment above rcu_read_lock says, "It is illegal to block while in
+> an RCU read-side critical section."
 > 
-> While trying to figure out why one of Alan's laptops didn't like certain 
-> resource allocations, it dawned on Ivan and me that the PIIX4 (aka 
-> "82371AB PCI-TO-ISA/IDE Xcelerator", aka "old venerable Intel core 
-> chipset") actually has a lot more PCI resources that it decodes than the 
-> two big special cases we had been quirking out.
-> 
-> It's an old chipset by now, but it was very very common, so I bet people 
-> still have them around. If doing /sbin/lspci on your machine mentions 
-> something like
-> 
-> 	Intel Corporation 82371AB/EB/MB PIIX4 ISA
-> 
-> can you please test out this patch and report what it says in dmesg?
-> 
-> It should report a number of quirks, and the easiest way to get them all 
-> is to just do
-> 
-> 	dmesg -s 1000000 | grep PIIX4
-> 
-> and send it to me (and you might as well cc linux-kernel too in this 
-> thread, so that we'll get the thing archived for later). Preferably 
-> together with the output of "cat /proc/ioport" and "/sbin/lspci -xxx".
-> 
-> The patch shouldn't actually change any allocations - right now it only 
-> prints out the new PCI quirks it tries to decode. And before I make the 
-> PCI layer actually know about these quirks, I'd want to have several 
-> reports about the output, just to verify that the code works. I don't 
-> actually have any PIIX4-based machine myself any more (the curse of 
-> frequent upgrades).
-> 
-> Thanks,
-> 
-> 		Linus
+> As i mentioned in the other email we are discussing about "task
+> notifier" in lse-tech. We thought of using RCU, but one of the
+> requirements was that the registered function should be able to block,
+> so we are looking for alternatives.
 > 
 
-Tyan Tiger 100 SMP motherboard here.
+What are the requirements that preclude a conventional rwlock?  If you
+don't have any, then you should go with that.
 
-pPCI quirk: region 0400-043f claimed by PIIX4 ACPI
-PCI quirk: region 0440-045f claimed by PIIX4 SMB
-PIIX4 devres B PIO at 0290-0297
-PIIX4: IDE controller at PCI slot 0000:00:07.1
-PIIX4: chipset revision 1
-PIIX4: not 100% native mode: will probe irqs later
-uhci_hcd 0000:00:07.2: Intel Corporation 82371AB/EB/MB PIIX4 USB
+The other solutions I've mentioned before.
 
+Copy on read.
 
-0000-001f : dma1
-0020-0021 : pic1
-0040-0043 : timer0
-0050-0053 : timer1
-0060-006f : keyboard
-0070-0077 : rtc
-0080-008f : dma page reg
-00a0-00a1 : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-0177 : ide1
-01f0-01f7 : ide0
-02f8-02ff : serial
-0376-0376 : ide1
-0378-037a : parport0
-03c0-03df : vga+
-03f6-03f6 : ide0
-03f8-03ff : serial
-0400-043f : 0000:00:07.3
-  0400-0403 : PM1a_EVT_BLK
-  0404-0405 : PM1a_CNT_BLK
-  0408-040b : PM_TMR
-  040c-040f : GPE0_BLK
-  0410-0415 : ACPI CPU throttle
-0440-045f : 0000:00:07.3
-  0440-0447 : piix4-smbus
-0cf8-0cff : PCI conf1
-d000-dfff : PCI Bus #01
-e800-e8ff : 0000:00:13.0
-  e800-e8ff : 8139too
-ef40-ef5f : 0000:00:07.2
-  ef40-ef5f : uhci_hcd
-ef80-ef9f : 0000:00:11.0
-  ef80-ef9f : EMU10K1
-eff0-eff7 : 0000:00:11.1
-  eff0-eff7 : emu10k1-gp
-ffa0-ffaf : 0000:00:07.1
-  ffa0-ffa7 : ide0
-  ffa8-ffaf : ide1
+Various lock-free schemes:
+SMR hazard pointers
+RCU+SMR (probably overkill since you don't need the read side performance)
+reference counting
+proxy reference counting
 
-0000:00:00.0 Host bridge: Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 02)
-00: 86 80 90 71 06 00 10 22 02 00 00 06 00 40 00 00
-10: 08 00 00 f8 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 a0 00 00 00 00 00 00 00 00 00 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 08 0a 00 3f 00 00 00 09 03 10 11 01 00 00 33 33
-60: 10 20 30 40 50 60 60 60 00 30 e8 0f 00 fa 00 00
-70: 20 1f 0a 78 aa 0a 13 01 27 3f 50 38 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 04 61 00 00 00 05 00 00 00 00 00 00
-a0: 02 00 10 00 03 02 00 1f 01 03 00 00 00 00 00 00
-b0: 80 20 00 00 30 00 00 00 00 00 c5 2f 20 10 00 00
-c0: 00 00 00 00 85 02 5c 21 18 0c ff ff 7f 00 00 00
-d0: ac 00 3f 2a 40 20 00 00 00 00 00 00 00 00 00 00
-e0: d4 b6 ff e3 91 3e 00 80 2c d3 f7 cf 9d 3e 00 00
-f0: 40 01 00 00 00 f8 00 60 20 0f 00 00 00 00 00 00
+The last would probably be the easiest to implement expecially if you used
+a spinlock to safely increment the reference count without the more complicated
+atomic thread-safety.  It's also more self contained.
 
-0000:00:01.0 PCI bridge: Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 02)
-00: 86 80 91 71 1f 00 20 02 02 00 04 06 00 40 01 00
-10: 00 00 00 00 00 00 00 00 00 01 01 40 d0 d0 a0 22
-20: a0 fd a0 fe 80 f1 80 f5 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 88 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+User land implementations of most of the above can be found at
+http://sourceforge.net/projects/atomic-ptr-plus/
 
-0000:00:07.0 ISA bridge: Intel Corporation 82371AB/EB/MB PIIX4 ISA (rev 02)
-00: 86 80 10 71 0f 00 80 02 02 00 01 06 00 00 80 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 30 01
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 8a 89 85 8b 10 00 00 00 00 fe 00 00 00 00 00 00
-70: 00 00 00 00 00 00 0c 0c 00 00 00 00 00 00 00 00
-80: 00 00 06 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 15 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 05 40 00 e0 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 25 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
+The proxy refcounting stuff is in the atomic-ptr-plus package.  It's
+in c++ but you should be able to figure it out.
 
-0000:00:07.1 IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 01)
-00: 86 80 11 71 05 00 80 02 01 80 01 01 00 40 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: a1 ff 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 07 e3 77 e3 b0 00 00 00 0d 00 02 22 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
-
-0000:00:07.2 USB Controller: Intel Corporation 82371AB/EB/MB PIIX4 USB (rev 01)
-00: 86 80 12 71 05 00 80 02 01 00 03 0c 00 40 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 41 ef 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 0b 04 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 20 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 10
-
-0000:00:07.3 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ACPI (rev 02)
-00: 86 80 13 71 01 00 80 02 02 00 80 06 00 00 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 01 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 77 00 00 02 00 00 00 10
-60: 90 02 e7 40 00 00 00 10 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 41 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 09 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
-
-0000:00:11.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 07)
-00: 02 11 02 00 05 01 90 02 07 00 01 04 00 40 80 00
-10: 81 ef 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 02 11 31 80
-30: 00 00 00 00 dc 00 00 00 00 00 00 00 09 01 02 14
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 01 06
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-0000:00:11.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 07)
-00: 02 11 02 70 05 01 90 02 07 00 80 09 00 40 80 00
-10: f1 ef 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 02 11 20 00
-30: 00 00 00 00 dc 00 00 00 00 00 00 00 00 00 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 01 06
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-0000:00:12.0 Multimedia video controller: Brooktree Corporation Bt878 Video Capture (rev 11)
-00: 9e 10 6e 03 06 01 90 02 11 00 00 04 00 40 80 00
-10: 08 e0 9f fd 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 70 00 eb 13
-30: 00 00 00 00 44 00 00 00 00 00 00 00 05 01 10 28
-40: 02 00 00 00 03 4c 00 00 00 00 00 00 01 00 22 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-0000:00:12.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture (rev 11)
-00: 9e 10 78 08 06 01 90 02 11 00 80 04 00 40 80 00
-10: 08 f0 9f fd 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 70 00 eb 13
-30: 00 00 00 00 44 00 00 00 00 00 00 00 05 01 04 ff
-40: 02 00 00 00 03 4c 00 00 00 00 00 00 01 00 22 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-0000:00:13.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
-00: ec 10 39 81 07 01 90 02 10 00 00 02 00 40 00 00
-10: 01 e8 00 00 00 ff bf fe 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 ec 10 39 81
-30: 00 00 00 00 50 00 00 00 00 00 00 00 0b 01 20 40
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 01 00 02 76 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-0000:01:00.0 VGA compatible controller: Matrox Graphics, Inc. G400/G450 (rev 82)
-00: 2b 10 25 05 07 00 90 02 82 00 00 03 08 40 00 00
-10: 08 00 00 f2 00 c0 af fe 00 00 00 fe 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 2b 10 41 06
-30: 00 00 ac fe dc 00 00 00 00 00 00 00 0a 01 10 20
-40: 60 15 14 40 00 3c 00 00 10 3f ff 10 00 00 00 00
-50: 00 ac 00 01 09 a4 90 00 06 00 00 80 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 f0 22 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 02 00 20 00 03 02 00 1f 01 03 00 1f 00 00 00 00
+RCU+SMR is in the fastsmr package.
 
 
 
-
--- 
-BOFH Excuse #243:
-
-The computer fleetly, mouse and all.
+--
+Joe Seigh
 

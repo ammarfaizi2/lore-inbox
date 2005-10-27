@@ -1,72 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750960AbVJ0PJE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbVJ0PJ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750960AbVJ0PJE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 11:09:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750980AbVJ0PJD
+	id S1751038AbVJ0PJ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 11:09:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751043AbVJ0PJ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 11:09:03 -0400
-Received: from ams-iport-1.cisco.com ([144.254.224.140]:595 "EHLO
-	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S1750960AbVJ0PJD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 11:09:03 -0400
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: gregkh@suse.de, mst@mellanox.co.il, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: AMD 8131 and MSI quirk
-X-Message-Flag: Warning: May contain useful information
-References: <524q799p2t.fsf@cisco.com>
-	<20051022233220.GA1463@parisc-linux.org>
-From: Roland Dreier <rolandd@cisco.com>
-Date: Thu, 27 Oct 2005 08:08:45 -0700
-In-Reply-To: <20051022233220.GA1463@parisc-linux.org> (Matthew Wilcox's
- message of "Sat, 22 Oct 2005 17:32:20 -0600")
-Message-ID: <52hdb3yp36.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+	Thu, 27 Oct 2005 11:09:56 -0400
+Received: from zproxy.gmail.com ([64.233.162.193]:4622 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750980AbVJ0PJz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 11:09:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=SSp1ZyPVh7QWZdyxBhb1v0pkwnye8xBlCUCXFB0quNkZz8m3d+hlmXBtbRx9NKhMZWYYLUHL6vVuCF7e/v4u+b0X+fp1Gw/1tVQuKJHETlwTFk/MU9RMEQBL0aQGtwkT+1o4WJszNbCMuB7yDjQJwok4gbPUjgLFXzL6bTvdJSE=
+Message-ID: <35fb2e590510270809k4b1797d7q690c0be5f330ce64@mail.gmail.com>
+Date: Thu, 27 Oct 2005 16:09:54 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Subject: Re: Linux Kernel MD5 sums and some question
+Cc: Chaitanya Hazarey <c.v.hazarey@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <9a8748490510270423x45ffd8c8v773055f5369fe468@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 27 Oct 2005 15:08:46.0455 (UTC) FILETIME=[53F28070:01C5DB08]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <9a9abfb40510262356o5de2a638pa15d0c8e9dda2833@mail.gmail.com>
+	 <9a8748490510270423x45ffd8c8v773055f5369fe468@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Matthew> Perhaps the right thing to do is to change pad2 (in
-    Matthew> struct pci_bus) to bus_flags and make bit 0
-    Matthew> PCI_BRIDGE_FLAGS_NO_MSI ?
+On 10/27/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> On 10/27/05, Chaitanya Hazarey <c.v.hazarey@gmail.com> wrote:
 
-Seems reasonable, but I'm still not sure how to implement this.  Where
-does this bit get set and propagated to secondary buses?
+> > Lately I had some problems compiling the kernel source on my machine.
+> > I guess nothing serious, but one thing came to my notice. I was
+> > looking for the MD5 sums for the linux kenerl and found none. The Pgp
+> > signatures are fine , but there seems no way to check the package.
 
-To give a somewhat pathological real-world example, Mellanox PCI-X
-adapters have a PCI bridge in them; in other words, a single adapter
-looks like:
+> Yes, there is a way to check the files; verify the pgp signature. If
+> the file has been modified the signature won't validate.
 
-	0000:03:01.0 PCI bridge: Mellanox Technologies MT23108 PCI Bridge (rev a1) (prog-if 00 [Normal decode])
-		Flags: bus master, 66MHz, medium devsel, latency 64
-		Bus: primary=03, secondary=04, subordinate=04, sec-latency=68
-		Memory behind bridge: e8200000-e82fffff
-		Prefetchable memory behind bridge: 00000000ea800000-00000000f7f00000
-		Capabilities: [70] PCI-X bridge device.
-	
-	0000:04:00.0 InfiniBand: Mellanox Technologies MT23108 InfiniHost (rev a1)
-		Subsystem: Mellanox Technologies MT23108 InfiniHost
-		Flags: bus master, fast Back2Back, 66MHz, medium devsel, latency 64, IRQ 185
-		Memory at e8200000 (64-bit, non-prefetchable) [size=1M]
-		Memory at ea800000 (64-bit, prefetchable) [size=8M]
-		Memory at f0000000 (64-bit, prefetchable) [size=128M]
-		Capabilities: [40] #11 [001f]
-		Capabilities: [50] Vital Product Data
-		Capabilities: [60] Message Signalled Interrupts: 64bit+ Queue=0/5 Enable-
-		Capabilities: [70] PCI-X non-bridge device.
+But having signed MD5 sums would be a solution.
 
-That means the NO_MSI flag still needs to get propagated from the 8131
-bridge to the Mellanox bridge, and that needs to cause no_msi to get
-set on the actual device.
+That way people can check a). Did they download the kernel properly?
+b). Was it genuine? in two distinct steps. Others will think that's a
+*really* bad idea :-)
 
-Also, if someone hot-plugged such an adapter into a bus below an AMD
-8131 host bridge (I believe eg Sun V40Zs have hot-pluggable slots like
-that), then the NO_MSI flag still needs to get propagated from the
-8131 bridge to the Mellanox bridge and set no_msi on the final device.
-
-Where in the PCI driver code is the right place to handle all this (I
-hope by writing the code only once)?
-
- - R.
+Jon.

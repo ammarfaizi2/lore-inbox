@@ -1,76 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbVJ0PzH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751135AbVJ0QGU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751117AbVJ0PzH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 11:55:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbVJ0PzH
+	id S1751135AbVJ0QGU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 12:06:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbVJ0QGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 11:55:07 -0400
-Received: from xproxy.gmail.com ([66.249.82.201]:50707 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751117AbVJ0PzF (ORCPT
+	Thu, 27 Oct 2005 12:06:20 -0400
+Received: from ns.sevcity.net ([193.47.166.213]:9629 "EHLO mail.sevcity.net")
+	by vger.kernel.org with ESMTP id S1751135AbVJ0QGT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 11:55:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=NjmogYkew3mZcD11MFYLlfYjIjGXfWr2Qtn9CI1so4l5E5WO5Z+vM5yRiE4yGbwSaCC8cWcKSbe/APeEAbr1pvp04VBoINkQRmRN6eGLyEzhVcBtkiJ6IpKMQauSiol3n4r1EErhbm5NnogIIs2D0CxpBlcBJVptv/gHVmsSHY4=
-Subject: Re: 2.6.14-rc5: X spinning in the kernel [ Was: 2.6.14-rc5 GPF in
-	radeon_cp_init_ring_buffer()]
-From: Badari Pulavarty <pbadari@gmail.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Dave Airlie <airlied@linux.ie>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0510270843100.4664@g5.osdl.org>
-References: <Pine.LNX.4.58.0510261103510.24177@skynet>
-	 <82b32ed40510262111m2e3b749yca4f78982e879e5e@mail.gmail.com>
-	 <1130426711.23729.61.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0510270843100.4664@g5.osdl.org>
+	Thu, 27 Oct 2005 12:06:19 -0400
+Subject: Re: [PATCH] [KDUMP] pending interrupts problem
+From: Alex Lyashkov <umka@sevcity.net>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: OBATA Noboru <noboru.obata.ar@hitachi.com>, fastboot@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <m1y84farz7.fsf@ebiederm.dsl.xmission.com>
+References: <20051027.165027.97297370.noboru.obata.ar@hitachi.com>
+	 <m1y84farz7.fsf@ebiederm.dsl.xmission.com>
 Content-Type: text/plain
-Date: Thu, 27 Oct 2005 08:54:29 -0700
-Message-Id: <1130428469.23729.77.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
+Organization: SevcityNet
+Message-Id: <1130429164.3360.1.camel@berloga.shadowland>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-16) 
+Date: Thu, 27 Oct 2005 19:06:04 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-10-27 at 08:45 -0700, Linus Torvalds wrote:
-> 
-> On Thu, 27 Oct 2005, Badari Pulavarty wrote:
-> > 
-> > sysrq-t shows nothing :(
-> 
-> Use sysrq-p to show register state.
-> 
-> On SMP, you may need to press it several times, to get the right CPU. And 
-> if you _never_ get the right CPU, that's likely an indication that it 
-> disabled interrupts, or your platform just sends all keyboard interrupts 
-> to the same CPU (try to see what happens with interrupt balancing).
-> 
-> 		Linus
+seems to bad patch. you dereference pointer (1) before check to NULL(2).
 
-I tried that earlier, it never showed anything useful. 
-(2-proc EM64T machine).
-
-SysRq : Show Regs
-SysRq : Show Regs
-SysRq : Show Regs
-SysRq : Show Regs
-SysRq : Show Regs
-SysRq : Show Regs
-SysRq : Show Regs
-SysRq : Show Regs
-SysRq : Show Regs
-SysRq : Show Regs
-SysRq : Show Regs
-SysRq : Show Regs
-SysRq : Show Regs
-SysRq : Show Regs
-SysRq : Show Regs
-SysRq : Show Regs
-SysRq : Show Regs
-SysRq : Show Regs
-...
-
-Thanks,
-Badari
+> ---
+> 
+>  arch/i386/kernel/smp.c |    9 +++++++++
+>  1 files changed, 9 insertions(+), 0 deletions(-)
+> 
+> applies-to: e6a6c8ed12ba1ef7fa376fa3993e3c329e9f294a
+> 195ab3620ba410697ad78957226c5493d55dd2ee
+> diff --git a/arch/i386/kernel/smp.c b/arch/i386/kernel/smp.c
+> index 218d725..3d33125 100644
+> --- a/arch/i386/kernel/smp.c
+> +++ b/arch/i386/kernel/smp.c
+> @@ -560,6 +560,7 @@ int smp_call_function (void (*func) (voi
+>  	if (wait)
+>  		while (atomic_read(&data.finished) != cpus)
+>  			cpu_relax();
+> +	call_data = NULL;
+>  	spin_unlock(&call_lock);
+>  
+>  	return 0;
+> @@ -609,6 +610,14 @@ fastcall void smp_call_function_interrup
+>  	int wait = call_data->wait;
+(1) ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  
+>  	ack_APIC_irq();
+> +
+> +	/* Ignore spurious IPIs */
+> +	if (!call_data)
+> +		return;
+(2) ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

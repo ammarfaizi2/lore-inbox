@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbVJ0PqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbVJ0Prr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751109AbVJ0PqE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 11:46:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbVJ0PqE
+	id S1751112AbVJ0Prr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 11:47:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbVJ0Prq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 11:46:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:55999 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751109AbVJ0PqC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 11:46:02 -0400
-Date: Thu, 27 Oct 2005 08:45:54 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Badari Pulavarty <pbadari@gmail.com>
-cc: Dave Airlie <airlied@linux.ie>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.14-rc5: X spinning in the kernel [ Was: 2.6.14-rc5 GPF in
- radeon_cp_init_ring_buffer()]
-In-Reply-To: <1130426711.23729.61.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0510270843100.4664@g5.osdl.org>
-References: <Pine.LNX.4.58.0510261103510.24177@skynet> 
- <82b32ed40510262111m2e3b749yca4f78982e879e5e@mail.gmail.com>
- <1130426711.23729.61.camel@localhost.localdomain>
+	Thu, 27 Oct 2005 11:47:46 -0400
+Received: from zproxy.gmail.com ([64.233.162.197]:58513 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751105AbVJ0Prq convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 11:47:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=iqYcmnjhhgY4YHpWTTbFpsCj1ooF1HvpvJdPLv2y1qVO/Nl6F+V0tIiq8OtXPauVYclXJvIuLR20hp/2fi2geLSac8ctygpE7vAmWIORW4DxIPAs3U6ntmto3TyibAE8vPpNpGNhFh4ENOJ+iVZr2kJroWHvOq06gihaEjLYRZY=
+Message-ID: <4cd031a50510270847g3e656b3evf4b4316b03f50f3d@mail.gmail.com>
+Date: Fri, 28 Oct 2005 01:47:45 +1000
+From: Nicholas Jefferson <xanthophile@gmail.com>
+To: netdev@vger.kernel.org
+Subject: iBurst (TM) compatible driver
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The latest release of the iBurst (TM) compatible driver [1] for the
+2.6 kernel is now available. Thanks to ArrayComm (R) for the original
+code under the GPL, and Personal Broadband Australia (PBA) and
+Independent Service Providers Australia (ISP) for support. Special
+thanks to developers David Barr and Nik Trevallyn-Jones.
 
+[1] http://sourceforge.net/projects/ibdriver
 
-On Thu, 27 Oct 2005, Badari Pulavarty wrote:
-> 
-> sysrq-t shows nothing :(
+Disclaimer: This driver was not written by ArrayComm (R) and it is not
+supported by them. This driver is distributed in the hope that it will
+be useful, but without any warranty; without even the implied warranty
+of merchantability or fitness for a particular purpose.
 
-Use sysrq-p to show register state.
+Signed-off-by: Nicholas Jefferson <xanthophile@gmail.com>
 
-On SMP, you may need to press it several times, to get the right CPU. And 
-if you _never_ get the right CPU, that's likely an indication that it 
-disabled interrupts, or your platform just sends all keyboard interrupts 
-to the same CPU (try to see what happens with interrupt balancing).
+Kind regards,
 
-		Linus
+Nicholas

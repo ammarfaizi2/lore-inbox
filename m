@@ -1,37 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932581AbVJ0VMJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932632AbVJ0VPZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932581AbVJ0VMJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 17:12:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932636AbVJ0VMJ
+	id S932632AbVJ0VPZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 17:15:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932633AbVJ0VPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 17:12:09 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:35470 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932581AbVJ0VMH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 17:12:07 -0400
-Date: Thu, 27 Oct 2005 23:11:52 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: "Fao, Sean" <sean.fao@capitalgenomix.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] kconfig and lxdialog, kernel 2.6.13.4
-In-Reply-To: <4360FB36.1080404@capitalgenomix.com>
-Message-ID: <Pine.LNX.4.61.0510272307050.1386@scrub.home>
-References: <4360FB36.1080404@capitalgenomix.com>
+	Thu, 27 Oct 2005 17:15:25 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:48521
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S932632AbVJ0VPY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 17:15:24 -0400
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Claire McLister <mclister@zeesource.net>
+Subject: Re: Map of Linux Kernel Users (OT)
+Date: Thu, 27 Oct 2005 16:15:21 -0500
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+References: <dfd859813ee9f143cbb8c4cc3c73aa2c@zeesource.net>
+In-Reply-To: <dfd859813ee9f143cbb8c4cc3c73aa2c@zeesource.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510271615.21253.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Monday 24 October 2005 16:01, Claire McLister wrote:
+> Hi,
+>
+>   We've developed an automatic email mapping capability from Google Maps
+> API.
+>
+>   To try it out, we mapped origins of emails to this group from October
+> 2 through October 10th.
+>
+> The result of this map is at:
+> http://www.zeesource.net/maps/map.do?group=478
+>
+>   Would like to hear what you think of it.
 
-On Thu, 27 Oct 2005, Fao, Sean wrote:
+Ok, I know it's silly, but I want that on www.kernel.org somewhere anyway.  
+(Probably filtered by "last 12 months" and "people who posted 10 or more 
+times...)
 
-> http://www2.capitalgenomix.com/temp/linux_patch/format_patch
-
-Looks fine, but you could also please manually cleanup the parts which got 
-too much indented to the right. Usually one tries to move them into 
-separate functions, but sometimes exceeding the 80 char limit is IMO fine 
-too.
-
-bye, Roman
+Rob

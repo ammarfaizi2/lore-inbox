@@ -1,64 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbVJ0OU7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbVJ0O1E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750797AbVJ0OU7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 10:20:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbVJ0OU7
+	id S1750808AbVJ0O1E (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 10:27:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbVJ0O1E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 10:20:59 -0400
-Received: from smtp.preteco.com ([200.68.93.225]:40685 "EHLO smtp.preteco.com")
-	by vger.kernel.org with ESMTP id S1750797AbVJ0OU6 (ORCPT
+	Thu, 27 Oct 2005 10:27:04 -0400
+Received: from smtp.rol.ru ([194.67.1.9]:3695 "EHLO smtp.rol.ru")
+	by vger.kernel.org with ESMTP id S1750762AbVJ0O1C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 10:20:58 -0400
-Message-ID: <4360E217.7000700@rhla.com>
-Date: Thu, 27 Oct 2005 12:20:07 -0200
-From: =?ISO-8859-1?Q?M=E1rcio_Oliveira?= <moliveira@rhla.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+	Thu, 27 Oct 2005 10:27:02 -0400
+Message-ID: <4360E3A0.70501@rol.ru>
+Date: Thu, 27 Oct 2005 18:26:40 +0400
+From: Eugene Crosser <crosser@rol.ru>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Panic + Intel SATA
-References: <435FC886.7070105@rhla.com>	 <Pine.LNX.4.61.0510261523350.6174@chaos.analogic.com>	 <4360261E.4010202@rhla.com> <436026F2.1030206@rhla.com>	 <Pine.LNX.4.61.0510270839130.9512@chaos.analogic.com> <1130420072.10604.37.camel@localhost.localdomain>
-In-Reply-To: <1130420072.10604.37.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@suse.de>
+CC: Brett Russ <russb@emc.com>, linux-ide@vger.kernel.org, multiman@rol.ru,
+       linux-kernel@vger.kernel.org
+Subject: Re: Status of Marvell SATA driver (was Re: Trying latest sata_mv
+ - and getting freeze)
+References: <435F8AFF.3030404@rol.ru> <435F9737.3050409@emc.com> <435FA5D8.2090406@rol.ru> <20051027111650.GO4774@suse.de>
+In-Reply-To: <20051027111650.GO4774@suse.de>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig0E24654BE5E1188264E273F2"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig0E24654BE5E1188264E273F2
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
->On Iau, 2005-10-27 at 08:49 -0400, linux-os (Dick Johnson) wrote:
->  
->
->>This is all 'Fedora' stuff, not Linux stuff. You should upgrade
->>your 'mkinitrd' (or rewrite it) so it doesn't use Fedora-specific
->>stuff if you intend to install an un-patched kernel.
->>    
+Jens Axboe wrote:
+
+>>>>My hardware is SMP Supermicro with 6 disks on
+>>>>Marvell MV88SX6081 8-port SATA II PCI-X Controller (rev 03)
+>>>>and the sata_mv.c is version 0.25 dated 22 Oct 2005
+>>>>
+>>>>The thing works with "old" mvsata340 driver, but the "new" kernel with
+>>>>your driver freezes when it starts to probe disks.  Even Magic SysRq
+>>>>does not work.  The last lines I see on screen are like this:
+>>>>
+>>>>sata_mv version 0.25
+>>>>ACPI: PCI Interrupt 0000:02:03.0[A] -> GSI 56 (level, low) -> IRQ 185
+>>>>sata_mv(0000:02:03.0) 32 slots 8 ports unknown mode IRQ via MSI
+>>>>ata1: SATA max UDMA/133 cmd 0x0 ctl 0xF8C22120 bmdma 0x0 irq 185
+>>>>ata2: .... <same things>            0xF8C24120 ...
+>>>>...
+>>>>ata8: .... <same thing>             0xF8C38120 ...
+>>>>ATA: abnormal status 0x80 on port 0xF8C2211C
+>>>>... <five more lines identical to the above>
+>>>>ata1: dev 0 ATA-7, max UDMA/133, 781422768 sectors: LBA48
+>>>>
+>>>>- and at this point it freezes hard.
+>>>>Any suggestions for me?  Any information I can collect to help
+>>>>troubleshooting?
 >>
->
->Fedora is quite happy with an unpatched kernel, that is generally what I
->am running for development on Fedora.
->  
->
-When I copiled the src fedora core 4 kernel 
-(kernel-2.6.12-1.1456_FC4.src.rpm and kernel-2.6.13-1.1526_FC4.src.rpm), 
-I got the same error messages.
+>>[...]
+>>
+>>>In the meantime, try turning off SMP and seeing if that makes a
+>>>difference.  There still might be a problem with the spinlocks and if so
+>>>it should go away in uniprocessor mode.
+>>
+>>'nosmp' makes no difference.
+> 
+> 
+> Booting with nosmp isn't enough, you need to compile the kernel with
+> CONFIG_SMP turned off. Otherwise the spinlocks will still be used and
+> could cause a hard hang.
 
->If you are using LVM2 or MD you just need to be sure you have the right
->config options enabled (the Red Hat src.rpm is a good guide).
->
->Alan
->  
->
-I'm not using lvm or raid in the /root or the /boot partition. All 
-partitions was made directly in the disk and formated with ext3 file 
-system. I think all needed options was compiled in the new kernel, since 
-I copied the /boot/config-2.6.12-1.1456_FC4 (config file from the kernel 
-that works fine) and compiled the kernel.src.rpm without any 
-modifications in the config file, and it still not working.
+Yeah, that was it!  It boots with the kernel compiled for UP.
+(did not yet have a chance to check how it works).
+Any chance that somebody competent would fix the driver for SMP?
 
-Any more ideas?
+Eugene
 
-Thank you Alan.
-Márcio Oliveira.
+--------------enig0E24654BE5E1188264E273F2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.7 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFDYOOktQFsU5rTNjcRAoSAAJ42coGoCdTtyiI6HXZeP07PfFDb/gCdFocQ
+doKATy59wG88nGZr3q1GSr8=
+=3MEm
+-----END PGP SIGNATURE-----
+
+--------------enig0E24654BE5E1188264E273F2--

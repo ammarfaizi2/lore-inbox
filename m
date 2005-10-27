@@ -1,54 +1,173 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751440AbVJ0SrL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751444AbVJ0TAn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751440AbVJ0SrL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 14:47:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751443AbVJ0SrK
+	id S1751444AbVJ0TAn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 15:00:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbVJ0TAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 14:47:10 -0400
-Received: from pat.uio.no ([129.240.130.16]:33773 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1751440AbVJ0SrJ (ORCPT
+	Thu, 27 Oct 2005 15:00:43 -0400
+Received: from xproxy.gmail.com ([66.249.82.207]:41703 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751444AbVJ0TAn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 14:47:09 -0400
-Subject: [PATCH] Ensure that 'make distclean' does not delete files in
-	'.git'
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Thu, 27 Oct 2005 14:46:53 -0400
-Message-Id: <1130438813.8792.38.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.716, required 12,
-	autolearn=disabled, AWL 1.28, UIO_MAIL_IS_INTERNAL -5.00)
+	Thu, 27 Oct 2005 15:00:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type;
+        b=MUyCSxM40gES1+amnwCvNulApX2PPELj/3OmWd1wyIPuNt0Qewn7jgoB2HGu56NjEpnkW8lFKIuXCpqwSYuV1hdyJSw9ruV//oFkr9JoQjbFZLqaUt70gviAXUJWCE478e2AG751R/2aFhjSZivS39OZKZTqNOf+ulF4Eut2Usk=
+Message-ID: <5bdc1c8b0510271200s31ecc540h55ba9b97887f94f2@mail.gmail.com>
+Date: Thu, 27 Oct 2005 12:00:42 -0700
+From: Mark Knecht <markknecht@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.14-rc5-rt7
+Cc: Ingo Molnar <mingo@elte.hu>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_19212_3067327.1130439642026"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Currently, 'make distclean' causes stgit to barf since it may
- delete files in .git/patches. We really shouldn't allow
- 'make distclean' anywhere near .git...
+------=_Part_19212_3067327.1130439642026
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
- Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
----
+The newest -rt7 patch didn't compile for me. I've been running
+2.6.14-rc5-rt3 up until this compile. I'll investigate more this
+afternoon.
 
- Makefile |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/Makefile b/Makefile
-index 4a7000e..527998d 100644
---- a/Makefile
-+++ b/Makefile
-@@ -371,8 +371,8 @@ export MODVERDIR := $(if $(KBUILD_EXTMOD
- 
- # Files to ignore in find ... statements
- 
--RCS_FIND_IGNORE := \( -name SCCS -o -name BitKeeper -o -name .svn -o -name CVS -o -name .pc -o -name .hg \) -prune -o
--export RCS_TAR_IGNORE := --exclude SCCS --exclude BitKeeper --exclude .svn --exclude CVS --exclude .pc --exclude .hg
-+RCS_FIND_IGNORE := \( -name SCCS -o -name BitKeeper -o -name .svn -o -name CVS -o -name .pc -o -name .hg -o -name .git \) -prune -o
-+export RCS_TAR_IGNORE := --exclude SCCS --exclude BitKeeper --exclude .svn --exclude CVS --exclude .pc --exclude .hg --exclude .git
- 
- # ===========================================================================
- # Rules shared between *config targets and build targets
+  CC      arch/x86_64/kernel/sys_x86_64.o
+  CC      arch/x86_64/kernel/x8664_ksyms.o
+  CC      arch/x86_64/kernel/i387.o
+  CC      arch/x86_64/kernel/syscall.o
+  CC      arch/x86_64/kernel/vsyscall.o
+arch/x86_64/kernel/vsyscall.c:57: error: `SEQLOCK_UNLOCKED' undeclared
+here (not in a function)
+make[1]: *** [arch/x86_64/kernel/vsyscall.o] Error 1
+make: *** [arch/x86_64/kernel] Error 2
+lightning linux #
 
 
+Config file attached.
+
+- Mark
+
+------=_Part_19212_3067327.1130439642026
+Content-Type: application/x-bzip2; name=knecht.config-2.6.14-rc5-rt7.bz2
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="knecht.config-2.6.14-rc5-rt7.bz2"
+
+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
+BMAI+tA=
+------=_Part_19212_3067327.1130439642026--

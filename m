@@ -1,68 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751371AbVJ0SDd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbVJ0SF0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751371AbVJ0SDd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 14:03:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbVJ0SDd
+	id S1751395AbVJ0SF0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 14:05:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751399AbVJ0SF0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 14:03:33 -0400
-Received: from smtprelay02.ispgateway.de ([80.67.18.14]:47256 "EHLO
-	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1751371AbVJ0SDd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 14:03:33 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Disable the most annoying printk in the kernel
-Date: Thu, 27 Oct 2005 20:03:17 +0200
-User-Agent: KMail/1.7.2
-Cc: Andi Kleen <ak@suse.de>, vojtech@suse.cz, akpm@osdl.org
-References: <200510271026.10913.ak@suse.de>
-In-Reply-To: <200510271026.10913.ak@suse.de>
+	Thu, 27 Oct 2005 14:05:26 -0400
+Received: from hulk.vianw.pt ([195.22.31.43]:52674 "EHLO hulk.vianw.pt")
+	by vger.kernel.org with ESMTP id S1751395AbVJ0SF0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 14:05:26 -0400
+Message-ID: <436116DC.6030104@esoterica.pt>
+Date: Thu, 27 Oct 2005 19:05:16 +0100
+From: Paulo da Silva <psdasilva@esoterica.pt>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1377499.ql50k6TSnE";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: linux-kernel@vger.kernel.org
+Subject: Learning ext2 fs
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200510272003.26560.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1377499.ql50k6TSnE
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I am reading the ext2 fs code. One of my purposes
+is to save the original data of a file to another file
+just before it is changed by write/mmap/whatever.
+Because of mmap (any other reasons?) I thought
+of doing this at "ext2-writepage" or/and
+"ext2-writepages".
 
-Hi Andi,
+Is this the right place?
+Is there a lower level where I can read/write blocks
+of data from/to hd instead of full pages?
 
-On Thursday 27 October 2005 10:26, Andi Kleen wrote:
-> Remove most useless printk in the world
+How do I tell the really file data from other data?
 
-*clap* *clap*
+I traced these functions but I only got
+"ext2-writepages" to be called. "ext2-writepage"
+was never called using the programs
+I wrote to test this. When is "ext2-writepage" called?
 
-Thanks!
+Thanks for any help.
+Any readings advice is also welcome.
 
-It usally triggers, if your cat, child, bird whatever handles your keyboard or
-you accidentally put a book or sth. on it (e.g while the screen has been
-locked).
-
-So there is really no use for it, except for kernel debugging,
-where it can be wrapped up by pr_debug() or similiar.
-
-Regards
-
-Ingo Oeser
-
-
---nextPart1377499.ql50k6TSnE
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDYRZuU56oYWuOrkARArCeAKCiv7MjrE48xLNHha4Fj7/74u1Y7gCgjAfZ
-xbhMt4PJp4P1d9QumaRbjqU=
-=8wXY
------END PGP SIGNATURE-----
-
---nextPart1377499.ql50k6TSnE--

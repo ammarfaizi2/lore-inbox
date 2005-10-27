@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbVJ0DZg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964959AbVJ0DvD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932118AbVJ0DZg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Oct 2005 23:25:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751555AbVJ0DZg
+	id S964959AbVJ0DvD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Oct 2005 23:51:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964961AbVJ0DvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Oct 2005 23:25:36 -0400
-Received: from zproxy.gmail.com ([64.233.162.193]:42939 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751545AbVJ0DZg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Oct 2005 23:25:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WWWHCKAr4460L2Zp/s8BMej2PFNPP6t1xPRbqZMU7LKuvAwBDfXyQPFjJOyRw+lI19HUkydb1TdayLFIhilo7wbz6dpbI3HvmonD0y4UGs/NKWdzqPTznKQyUNRuhfJjIaDVsA9uh9RW5QtohAMTb0eeIZ4kEgJBkiN8iWT6hXs=
-Message-ID: <aec7e5c30510262025q4cd09758g2a6319e21889c3f5@mail.gmail.com>
-Date: Thu, 27 Oct 2005 12:25:35 +0900
-From: Magnus Damm <magnus.damm@gmail.com>
-To: Paul Jackson <pj@sgi.com>
-Subject: Re: [PATCH] CPUSETS: remove SMP dependency
-Cc: Andrew Morton <akpm@osdl.org>, magnus@valinux.co.jp,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20051026102509.0b32006d.pj@sgi.com>
-MIME-Version: 1.0
+	Wed, 26 Oct 2005 23:51:03 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:40382 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S964959AbVJ0DvB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Oct 2005 23:51:01 -0400
+Date: Wed, 26 Oct 2005 20:50:38 -0700
+From: Paul Jackson <pj@sgi.com>
+To: akpm@osdl.org
+Cc: rajesh.shah@intel.com, mingo@elte.hu, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [patch 1/1] export cpu_online_map
+Message-Id: <20051026205038.26a1c333.pj@sgi.com>
+In-Reply-To: <200510260421.j9Q4LGh9014087@shell0.pdx.osdl.net>
+References: <200510260421.j9Q4LGh9014087@shell0.pdx.osdl.net>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051026075345.21014.53533.sendpatchset@cherry.local>
-	 <20051026010922.5a8f70fe.akpm@osdl.org>
-	 <20051026102509.0b32006d.pj@sgi.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/27/05, Paul Jackson <pj@sgi.com> wrote:
-> Andrew, responding to Magnus:
-> > > Remove the SMP dependency from CPUSETS.
-> >
-> > Why?
->
-> As described in the posting that Magnus linked to, it seemed to me
-> like the cleaner approach - if there is no need to link two CONFIG
-> options, then don't.
->
-> Perhaps someone wants to build a uni-processor (UP) kernel for other
-> reasons, but still have it support running some stuff that depends
-> on cpusets being present.
+Andrew asked:
+> - Why isn't set_cpus_allowed() just a no-op on UP?  Or some trivial thing
+>   which tests for cpu #0?
 
-Exactly, and the current Kconfig assumes that all NUMA systems are
-configured with SMP. But that does not have to be the case, especially
-with NUMA_EMU.
+I don't know.
 
-Depending on SMP only is wrong IMO because CPUSETS manages both sets
-of cpus (SMP) and sets of mems (NUMA).
+By scanning random copies of kernels left on my drive, I can see that
+it changed from a trivial "return 0" to the more interesting check using
+cpu_online_map in one of your "linus.patch" patches in the release
+2.6.11-rc1-mm2.
 
-So CPUSETS should either depend on SMP || NUMA or nothing.
+But I don't know how to get to the history at this point to see what
+happened.
 
-/ magnus
+It looks like Linus started the git history at 2.6.12-rc2.
+
+  Could someone clue me in on how to find Linux history BG (before-git)?
+
+Since bk no longer works for me, I have no idea how to access any
+history prior to about 2.6.12-rc2.  Ugh.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

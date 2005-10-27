@@ -1,66 +1,344 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932654AbVJ0VxP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932652AbVJ0Vz1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932654AbVJ0VxP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 17:53:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932652AbVJ0VxP
+	id S932652AbVJ0Vz1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 17:55:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932656AbVJ0Vz1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 17:53:15 -0400
-Received: from pat.qlogic.com ([198.70.193.2]:63297 "EHLO avexch01.qlogic.com")
-	by vger.kernel.org with ESMTP id S932649AbVJ0VxO (ORCPT
+	Thu, 27 Oct 2005 17:55:27 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:55217 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932652AbVJ0Vz0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 17:53:14 -0400
-Date: Thu, 27 Oct 2005 14:53:13 -0700
-From: Andrew Vasquez <andrew.vasquez@qlogic.com>
-To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Badari Pulavarty <pbadari@gmail.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: 2.6.14-rc5-mm1
-Message-ID: <20051027215313.GB7889@plap.qlogic.org>
-References: <20051024014838.0dd491bb.akpm@osdl.org> <1130186927.6831.23.camel@localhost.localdomain> <20051024141646.6265c0da.akpm@osdl.org> <20051027152637.GC7889@plap.qlogic.org> <20051027190227.GA16211@infradead.org>
+	Thu, 27 Oct 2005 17:55:26 -0400
+Date: Thu, 27 Oct 2005 14:55:35 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Kylene Jo Hall <kjhall@us.ibm.com>
+Cc: selhorst@crypto.rub.de, linux-kernel@vger.kernel.org,
+       castet.matthieu@free.fr
+Subject: Re: [PATCH] Infineon TPM: move infineon driver off pci_dev
+Message-Id: <20051027145535.0741b647.akpm@osdl.org>
+In-Reply-To: <1130422052.4839.134.camel@localhost.localdomain>
+References: <435FB8A5.803@crypto.rub.de>
+	<435FBFC4.5060508@free.fr>
+	<4360B889.1010502@crypto.rub.de>
+	<1130422052.4839.134.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051027190227.GA16211@infradead.org>
-Organization: QLogic Corporation
-User-Agent: Mutt/1.5.9i
-X-OriginalArrivalTime: 27 Oct 2005 21:53:13.0829 (UTC) FILETIME=[D46DE950:01C5DB40]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Oct 2005, Christoph Hellwig wrote:
 
-> On Thu, Oct 27, 2005 at 08:26:37AM -0700, Andrew Vasquez wrote:
-> > qlogicfc attaches to both 2100 and 2200 ISPs.  It seems you're then
-> > trying to load qla2xxx driver along with the 2300 and 2200 firmware
-> > loader modules.  The pci_request_regions() call during 2200 probing
-> > fails.
-> 
-> Btw, now that devfs is gone and thus DaveM's host renumbering issues
-> are modd we'd like to kill qlogicfc.  I vaguely remember people complaing
-> qla2xxx made trouble on qla2100 hardware.  Andrew do you have any success
-> or error reports for that hardware?
+Have just taken a wander through the TPM driver.  I couldn't help myself - are
+you OK with the below trivial changes?
 
-A couple of months ago I had worked with a 2100 user who was having
-some serious problems within a configuration.  I was able to reproduce
-something similar in-house and (to make a long-story, short), it turns
-out there are some error-recovery problems in the firmware version
-currently shipping in qla2xxx (1.19.25 TP firmware to be exact).
+Other things:
 
-After numerous trial and error efforts, we were able to find a
-reasonbly stable release with which the customer's configuration could
-recover and run (1.17.38 EF, quite old).
+a)
 
-In any case, formally, QLogic has dropped *all* support for ISP2100
-cards, and thus, it's quite difficult to get any type of traction
-from the firmware folk to begin to root-cause the failures.
+ssize_t tpm_read(struct file * file, char __user *buf,
+		 size_t size, loff_t * off)
+{
+	struct tpm_chip *chip = file->private_data;
+	int ret_size;
 
-I'm still in the process of ironing out the .bin distribution details
-locally, but perhaps once we migrate to firmware-loading exclusively
-via request_firmware(), the (small?) contigent of 2100 could use the
-EF variant I referenced above.
+	del_singleshot_timer_sync(&chip->user_read_timer);
+	ret_size = atomic_read(&chip->data_pending);
+	atomic_set(&chip->data_pending, 0);
+	if (ret_size > 0) {	/* relay data */
+		if (size < ret_size)
+			ret_size = size;
 
-Could I get another informal count of 2100 users who are still having
-problems with qla2xxx?
+		down(&chip->buffer_mutex);
+		if (copy_to_user
+		    ((void __user *) buf, chip->data_buffer, ret_size))
+			ret_size = -EFAULT;
 
-Regards,
-Andrew Vasquez
+Why is the first arg to copy_to_user() typecast in this manner?  I don't
+think the cast needs to be there?
+
+
+b) user_reader_timeout does down() from within a timer handler!  That's
+   deadlocky and is illegal - timer handlers are run from interrupt
+   context.
+
+   This should have generated a storm of runtime warnings if tested with
+   CONFIG_PREEMPT and CONFIG_DEBUG_SPINLOCK_SLEEP.  Developers really should
+   enable all the kernel debug options during development - they find bugs.
+
+   Suggest you convert this to using schedule_work() or
+   schedule_delayed_work(). 
+
+c) In tpm_remove_hardware():
+
+	dev_mask[chip->dev_num / TPM_NUM_MASK_ENTRIES ] &= !(1 << (chip->dev_num % TPM_NUM_MASK_ENTRIES));
+
+   Is that `!' supposed to be there?   Looks odd.
+
+d) How did this happen?
+
+   int tpm_pm_suspend(struct device *dev, pm_message_t pm_state, u32 level)
+
+   device_driver.suspend() only takes two arguments nowadays.
+
+
+e)
+
+	int tpm_pm_resume(struct device *dev, u32 level)
+
+   Ditto
+
+
+
+diff -puN drivers/char/tpm/tpm_atmel.c~tpm-tidies drivers/char/tpm/tpm_atmel.c
+--- 25/drivers/char/tpm/tpm_atmel.c~tpm-tidies	Thu Oct 27 14:52:43 2005
++++ 25-akpm/drivers/char/tpm/tpm_atmel.c	Thu Oct 27 14:52:43 2005
+@@ -40,7 +40,7 @@ enum tpm_atmel_read_status {
+ 	ATML_STATUS_READY = 0x08
+ };
+ 
+-static int tpm_atml_recv(struct tpm_chip *chip, u8 * buf, size_t count)
++static int tpm_atml_recv(struct tpm_chip *chip, u8 *buf, size_t count)
+ {
+ 	u8 status, *hdr = buf;
+ 	u32 size;
+@@ -100,7 +100,7 @@ static int tpm_atml_recv(struct tpm_chip
+ 	return size;
+ }
+ 
+-static int tpm_atml_send(struct tpm_chip *chip, u8 * buf, size_t count)
++static int tpm_atml_send(struct tpm_chip *chip, u8  *buf, size_t count)
+ {
+ 	int i;
+ 
+@@ -159,12 +159,12 @@ static struct tpm_vendor_specific tpm_at
+ 	.miscdev = { .fops = &atmel_ops, },
+ };
+ 
+-static struct platform_device *pdev = NULL;
++static struct platform_device *pdev;
+ 
+ static void __devexit tpm_atml_remove(struct device *dev)
+ {
+ 	struct tpm_chip *chip = dev_get_drvdata(dev);
+-	if ( chip ) {
++	if (chip) {
+ 		release_region(chip->vendor->base, 2);
+ 		tpm_remove_hardware(chip->dev);
+ 	}
+@@ -201,19 +201,17 @@ static int __init init_atmel(void)
+ 		(tpm_read_index(TPM_ADDR, 0x01) != 0x01 ))
+ 		return -ENODEV;
+ 
+-	pdev = kmalloc(sizeof(struct platform_device), GFP_KERNEL);
++	pdev = kzalloc(sizeof(struct platform_device), GFP_KERNEL);
+ 	if ( !pdev )
+ 		return -ENOMEM;
+ 
+-	memset(pdev, 0, sizeof(struct platform_device));
+-
+ 	pdev->name = "tpm_atmel0";
+ 	pdev->id = -1;
+ 	pdev->num_resources = 0;
+ 	pdev->dev.release = tpm_atml_remove;
+ 	pdev->dev.driver = &atml_drv;
+ 
+-	if ((rc=platform_device_register(pdev)) < 0) {
++	if ((rc = platform_device_register(pdev)) < 0) {
+ 		kfree(pdev);
+ 		pdev = NULL;
+ 		return rc;
+@@ -234,7 +232,8 @@ static int __init init_atmel(void)
+ 		return rc;
+ 	}
+ 
+-	dev_info(&pdev->dev, "Atmel TPM 1.1, Base Address: 0x%x\n", tpm_atmel.base);
++	dev_info(&pdev->dev, "Atmel TPM 1.1, Base Address: 0x%x\n",
++			tpm_atmel.base);
+ 	return 0;
+ }
+ 
+diff -puN drivers/char/tpm/tpm.c~tpm-tidies drivers/char/tpm/tpm.c
+--- 25/drivers/char/tpm/tpm.c~tpm-tidies	Thu Oct 27 14:52:43 2005
++++ 25-akpm/drivers/char/tpm/tpm.c	Thu Oct 27 14:52:43 2005
+@@ -162,7 +162,8 @@ ssize_t tpm_show_pcrs(struct device *dev
+ 		    < READ_PCR_RESULT_SIZE){
+ 			dev_dbg(chip->dev, "A TPM error (%d) occurred"
+ 				" attempting to read PCR %d of %d\n",
+-				be32_to_cpu(*((__be32 *) (data + 6))), i, num_pcrs);
++				be32_to_cpu(*((__be32 *) (data + 6))),
++				i, num_pcrs);
+ 			goto out;
+ 		}
+ 		str += sprintf(str, "PCR-%02d: ", i);
+@@ -194,12 +195,11 @@ ssize_t tpm_show_pubek(struct device *de
+ 	if (chip == NULL)
+ 		return -ENODEV;
+ 
+-	data = kmalloc(READ_PUBEK_RESULT_SIZE, GFP_KERNEL);
++	data = kxalloc(READ_PUBEK_RESULT_SIZE, GFP_KERNEL);
+ 	if (!data)
+ 		return -ENOMEM;
+ 
+ 	memcpy(data, readpubek, sizeof(readpubek));
+-	memset(data + sizeof(readpubek), 0, 20);	/* zero nonce */
+ 
+ 	if ((len = tpm_transmit(chip, data, READ_PUBEK_RESULT_SIZE)) <
+ 	    READ_PUBEK_RESULT_SIZE) {
+@@ -243,7 +243,6 @@ out:
+ 	kfree(data);
+ 	return rc;
+ }
+-
+ EXPORT_SYMBOL_GPL(tpm_show_pubek);
+ 
+ #define CAP_VER_RESULT_SIZE 18
+@@ -312,7 +311,6 @@ ssize_t tpm_store_cancel(struct device *
+ }
+ EXPORT_SYMBOL_GPL(tpm_store_cancel);
+ 
+-
+ /*
+  * Device file system interface to the TPM
+  */
+@@ -336,8 +334,7 @@ int tpm_open(struct inode *inode, struct
+ 	}
+ 
+ 	if (chip->num_opens) {
+-		dev_dbg(chip->dev,
+-			"Another process owns this TPM\n");
++		dev_dbg(chip->dev, "Another process owns this TPM\n");
+ 		rc = -EBUSY;
+ 		goto err_out;
+ 	}
+@@ -363,7 +360,6 @@ err_out:
+ 	spin_unlock(&driver_lock);
+ 	return rc;
+ }
+-
+ EXPORT_SYMBOL_GPL(tpm_open);
+ 
+ int tpm_release(struct inode *inode, struct file *file)
+@@ -380,10 +376,9 @@ int tpm_release(struct inode *inode, str
+ 	spin_unlock(&driver_lock);
+ 	return 0;
+ }
+-
+ EXPORT_SYMBOL_GPL(tpm_release);
+ 
+-ssize_t tpm_write(struct file * file, const char __user * buf,
++ssize_t tpm_write(struct file * file, const char __user *buf,
+ 		  size_t size, loff_t * off)
+ {
+ 	struct tpm_chip *chip = file->private_data;
+@@ -419,7 +414,7 @@ ssize_t tpm_write(struct file * file, co
+ 
+ EXPORT_SYMBOL_GPL(tpm_write);
+ 
+-ssize_t tpm_read(struct file * file, char __user * buf,
++ssize_t tpm_read(struct file * file, char __user *buf,
+ 		 size_t size, loff_t * off)
+ {
+ 	struct tpm_chip *chip = file->private_data;
+@@ -441,7 +436,6 @@ ssize_t tpm_read(struct file * file, cha
+ 
+ 	return ret_size;
+ }
+-
+ EXPORT_SYMBOL_GPL(tpm_read);
+ 
+ void tpm_remove_hardware(struct device *dev)
+@@ -465,13 +459,13 @@ void tpm_remove_hardware(struct device *
+ 
+ 	sysfs_remove_group(&dev->kobj, chip->vendor->attr_group);
+ 
+-	dev_mask[chip->dev_num / TPM_NUM_MASK_ENTRIES ] &= !(1 << (chip->dev_num % TPM_NUM_MASK_ENTRIES));
++	dev_mask[chip->dev_num / TPM_NUM_MASK_ENTRIES ] &=
++		!(1 << (chip->dev_num % TPM_NUM_MASK_ENTRIES));
+ 
+ 	kfree(chip);
+ 
+ 	put_device(dev);
+ }
+-
+ EXPORT_SYMBOL_GPL(tpm_remove_hardware);
+ 
+ static u8 savestate[] = {
+@@ -493,7 +487,6 @@ int tpm_pm_suspend(struct device *dev, p
+ 	tpm_transmit(chip, savestate, sizeof(savestate));
+ 	return 0;
+ }
+-
+ EXPORT_SYMBOL_GPL(tpm_pm_suspend);
+ 
+ /*
+@@ -509,7 +502,6 @@ int tpm_pm_resume(struct device *dev, u3
+ 
+ 	return 0;
+ }
+-
+ EXPORT_SYMBOL_GPL(tpm_pm_resume);
+ 
+ /*
+@@ -519,8 +511,7 @@ EXPORT_SYMBOL_GPL(tpm_pm_resume);
+  * upon errant exit from this function specific probe function should call
+  * pci_disable_device
+  */
+-int tpm_register_hardware(struct device *dev,
+-			  struct tpm_vendor_specific *entry)
++int tpm_register_hardware(struct device *dev, struct tpm_vendor_specific *entry)
+ {
+ #define DEVNAME_SIZE 7
+ 
+@@ -529,12 +520,10 @@ int tpm_register_hardware(struct device 
+ 	int i, j;
+ 
+ 	/* Driver specific per-device data */
+-	chip = kmalloc(sizeof(*chip), GFP_KERNEL);
++	chip = kzalloc(sizeof(*chip), GFP_KERNEL);
+ 	if (chip == NULL)
+ 		return -ENOMEM;
+ 
+-	memset(chip, 0, sizeof(struct tpm_chip));
+-
+ 	init_MUTEX(&chip->buffer_mutex);
+ 	init_MUTEX(&chip->tpm_mutex);
+ 	INIT_LIST_HEAD(&chip->list);
+@@ -558,8 +547,7 @@ int tpm_register_hardware(struct device 
+ 
+ dev_num_search_complete:
+ 	if (chip->dev_num < 0) {
+-		dev_err(dev,
+-			"No available tpm device numbers\n");
++		dev_err(dev, "No available tpm device numbers\n");
+ 		kfree(chip);
+ 		return -ENODEV;
+ 	} else if (chip->dev_num == 0)
+@@ -597,7 +585,6 @@ dev_num_search_complete:
+ 
+ 	return 0;
+ }
+-
+ EXPORT_SYMBOL_GPL(tpm_register_hardware);
+ 
+ MODULE_AUTHOR("Leendert van Doorn (leendert@watson.ibm.com)");
+diff -puN drivers/char/tpm/tpm_infineon.c~tpm-tidies drivers/char/tpm/tpm_infineon.c
+--- 25/drivers/char/tpm/tpm_infineon.c~tpm-tidies	Thu Oct 27 14:52:43 2005
++++ 25-akpm/drivers/char/tpm/tpm_infineon.c	Thu Oct 27 14:52:43 2005
+@@ -30,10 +30,10 @@
+ #define	TPM_INFINEON_DEV_VEN_VALUE	0x15D1
+ 
+ /* These values will be filled after PnP-call */
+-static int TPM_INF_DATA = 0;
+-static int TPM_INF_ADDR = 0;
+-static int TPM_INF_BASE = 0;
+-static int TPM_INF_PORT_LEN = 0;
++static int TPM_INF_DATA;
++static int TPM_INF_ADDR;
++static int TPM_INF_BASE;
++static int TPM_INF_PORT_LEN;
+ 
+ /* TPM header definitions */
+ enum infineon_tpm_header {
+_
+

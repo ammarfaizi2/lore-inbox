@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932651AbVJ0Ve5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932650AbVJ0ViA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932651AbVJ0Ve5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 17:34:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932652AbVJ0Ve5
+	id S932650AbVJ0ViA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 17:38:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932652AbVJ0ViA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 17:34:57 -0400
-Received: from mail04.solnet.ch ([212.101.4.138]:3830 "EHLO mail04.solnet.ch")
-	by vger.kernel.org with ESMTP id S932651AbVJ0Ve4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 17:34:56 -0400
-From: Damir Perisa <damir.perisa@solnet.ch>
-To: Andrew Morton <akpm@osdl.org>
-Subject: 2.6.14-rc5-mm1 - ide-cs broken!
-Date: Thu, 27 Oct 2005 23:31:55 +0200
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org
-References: <20051024014838.0dd491bb.akpm@osdl.org> <200510260149.21376.damir.perisa@solnet.ch>
-In-Reply-To: <200510260149.21376.damir.perisa@solnet.ch>
-X-Face: +)fhYFmn|<pyRIlgch_);krg#jn!^z'?xy(Ur#Z6rZi)KD+_-V<Y@i>0pOVfJ4<=?utf-8?q?Q1/=26/=26z=0A=093cxqRa=3B7O=5C4g=5C=7C=5DF-!H0!ew9kx1LqK/iP?=
- =?utf-8?q?Ov8eXi=26I7=60Pez0V0VNMAxnqRL8-30qqKK=3DxGM=0A=09pExQc=5B2=7C?=
- =?utf-8?q?l6v=23?=<iwBvEO9+h|_YS[48z%/kuD2*aT*S/$0323VCL3V9?@}jq<
- =?utf-8?q?Ns6V=3A0m=27Qia=0A=09?="[#oJg[RVe}Sy/lP95E@pa[vdKzqLqn&M`exb91"`,<k`3;Vt97cLjhub0.v+]m`%|>@Z(
- =?utf-8?q?=0A=09EeC/zU7=25?=@"L6mi#..8Q^M
-Alanine: true
-Glycine: true
+	Thu, 27 Oct 2005 17:38:00 -0400
+Received: from wproxy.gmail.com ([64.233.184.200]:59485 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932650AbVJ0ViA convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 17:38:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Jr0F8fhe2vmRrr83MPnZrLPePjrZTPnWutKi+cKhC+Tq99UUmFu1noPUk7PIxVbHD4c2dr3YJBbDds9ujKxEVHARvWszkCIn7/LMf4nnftsycAI3Cc0018fUvENZBH4SOAMnXbon9w4TF1kjX6MLTHIOrFfva55Ki8q4YZJ5Nks=
+Message-ID: <5c49b0ed0510271437x6108130bo4c8d86bc907dc70d@mail.gmail.com>
+Date: Thu, 27 Oct 2005 14:37:59 -0700
+From: Nate Diller <nate.diller@gmail.com>
+To: Ben Greear <greearb@candelatech.com>
+Subject: Re: kernel BUG at mm/slab.c:1488! (2.6.13.2)
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <43613EC4.4080006@candelatech.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1457925.hMOCMDSxW2";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200510272331.58445.damir.perisa@solnet.ch>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <43613EC4.4080006@candelatech.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1457925.hMOCMDSxW2
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On 10/27/05, Ben Greear <greearb@candelatech.com> wrote:
+> I was compiling with ext3 as a module, then changed to compiling static
+> and un-tarred the new kernel over the old (the old ext3 module was still
+> in existence.)  I re-ran the mkinitrd and rebooted.
+>
+> It seems that something still tries to load the ext3 module, and I get the
+> BUG seen below.  If I remove the ext3 module and re-build the initrd,
+> the error goes away.
+>
+> I was thinking that at the least, the ext3 module code should somehow
+> detect
+> that it is already built-in and exit it's load attempt very early (before
+> triggering whatever bug it hit).
+>
 
-isn't anybody else using ide-cs? i feel lonely!
+There was a thread about this some months ago
+(http://marc.theaimsgroup.com/?l=linux-kernel&m=111639356609390&w=2),
+and two patches were proposed, to either return NULL here or WARN_ON,
+and keep going.  Neither seems to have been picked up.  Maybe people
+think this is not a big problem?  I would certainly like to see a way
+to prevent modules from being loaded multiple times, or when they are
+also compiled-in, but aside from returning NULL here in
+kmem_cache_create, I don't see a trivial way of doing it.
 
-greetings,
-Damir
-
-=2D-=20
-Oh this age!  How tasteless and ill-bred it is.
-		-- Gaius Valerius Catullus
-
---nextPart1457925.hMOCMDSxW2
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBDYUdOPABWKV6NProRAixxAKDnQDrpa9afh6hsE8UrtmhdiyhLUwCfZNBM
-K2hKq5qf0Wogq7x6zk9DOGg=
-=rwvN
------END PGP SIGNATURE-----
-
---nextPart1457925.hMOCMDSxW2--
+NATE

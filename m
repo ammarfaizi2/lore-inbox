@@ -1,77 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932682AbVJ0XCL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932681AbVJ0XHQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932682AbVJ0XCL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 19:02:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932680AbVJ0XCL
+	id S932681AbVJ0XHQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 19:07:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932684AbVJ0XHQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 19:02:11 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:55971 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932684AbVJ0XCK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 19:02:10 -0400
-Subject: Re: Notifier chains are unsafe
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Alan Stern <stern@rowland.harvard.edu>, Keith Owens <kaos@ocs.com.au>
-Cc: Kernel development list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44L0.0510271658510.6660-100000@iolanthe.rowland.org>
-References: <Pine.LNX.4.44L0.0510271658510.6660-100000@iolanthe.rowland.org>
-Content-Type: text/plain
-Organization: IBM
-Date: Thu, 27 Oct 2005 16:02:08 -0700
-Message-Id: <1130454128.3586.268.camel@linuxchandra>
+	Thu, 27 Oct 2005 19:07:16 -0400
+Received: from fmr23.intel.com ([143.183.121.15]:58786 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932681AbVJ0XHP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 19:07:15 -0400
+Date: Thu, 27 Oct 2005 16:06:59 -0700
+From: Rajesh Shah <rajesh.shah@intel.com>
+To: Kristen Accardi <kristen.c.accardi@intel.com>
+Cc: pcihpd-discuss@lists.sourceforge.net, acpi-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, rajesh.shah@intel.com, greg@kroah.com,
+       len.brown@intel.com
+Subject: Re: [patch 1/3] pci: store PCI_INTERRUPT_PIN in pci_dev
+Message-ID: <20051027160658.A9674@unix-os.sc.intel.com>
+Reply-To: Rajesh Shah <rajesh.shah@intel.com>
+References: <20051027192603.488616000@whizzy> <1130441409.5996.24.camel@whizzy>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1130441409.5996.24.camel@whizzy>; from kristen.c.accardi@intel.com on Thu, Oct 27, 2005 at 12:30:09PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-10-27 at 17:21 -0400, Alan Stern wrote:
-
-> > How does the following code look (only change w.r.t the existing usage
-> > model is that unregister can now return -EAGAIN, if the list is busy).
-> > 
-> > One assumption the following code makes is that the store of a pointer
-> > (next in the list) is atomic. If that assumption is unacceptable, we can
-> > do one of two things:
-> >     1. change notify_register to return -EAGAIN if list is busy.
-> >     2. move the chain list in call_chain under lock and use that
-> >        list instead of using the chain in the head, and restore it back
-> >        before returning.
-> 
-> I see a couple of problems (aside from the trivial one where you increment 
-> nh->readers before the early exit).
-
-Just a programmatic error. shouldn't be a problem.
-
-> 
-> The biggest problem is allowing unregister to return an error.  None of 
-> its callers will expect that, and they all will have to be changed.  There 
-> are a lot more calls to unregister than there are chain definitions.
-
-IMO, we will not be changing the interface so it should be fine.
-
-> The other problem is that you violated Keith's statement that 
-> notifier_call_chain shouldn't take any locks.  On the other hand, if we
-
-I would interpret Keith's comment like this: callout should not be
-called with any locks held (because that would limit the callouts from
-blocking). 
-
-Keith, can you please clarify
+On Thu, Oct 27, 2005 at 12:30:09PM -0700, Kristen Accardi wrote:
+> --- linux-2.6.13.orig/drivers/pci/probe.c
+> +++ linux-2.6.13/drivers/pci/probe.c
+> @@ -571,6 +571,7 @@ static void pci_read_irq(struct pci_dev 
+>  	unsigned char irq;
 >  
-> put together all the requirements people have listed for notifier chains, 
-> the resulting set is inconsistent!  That's part of the reason why I 
-> suggested implementing two different kinds of chains.
-> 
-> Alan Stern
-> 
-> 
--- 
+>  	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &irq);
+> +	dev->pin = irq;
 
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
+pci_read_irq() is not called for PCI bridges, but some of them
+may need an interrupt (e.g. for shpchp, pciehp). Did you check
+if this patchset broke such bridges? You should call this
+function for PCI bridges too.
 
+Rajesh
 

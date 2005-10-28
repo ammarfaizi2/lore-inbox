@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030410AbVJ1Wxh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030439AbVJ1W4S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030410AbVJ1Wxh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 18:53:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030429AbVJ1Wxh
+	id S1030439AbVJ1W4S (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 18:56:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030441AbVJ1W4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 18:53:37 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:12008 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S1030410AbVJ1Wxg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 18:53:36 -0400
-Date: Fri, 28 Oct 2005 16:53:35 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Greg KH <gregkh@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [GIT PATCH] PCI patches for 2.6.14
-Message-ID: <20051028225335.GB21871@parisc-linux.org>
-References: <20051028225055.GA21464@kroah.com>
+	Fri, 28 Oct 2005 18:56:18 -0400
+Received: from gate.crashing.org ([63.228.1.57]:58586 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1030439AbVJ1W4R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 18:56:17 -0400
+Subject: Re: PPC32 - No IDE/ATA devices on new PowerBook
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <15DF6933-2475-439D-BE0A-DC232B92FDB7@comcast.net>
+References: <15DF6933-2475-439D-BE0A-DC232B92FDB7@comcast.net>
+Content-Type: text/plain
+Date: Sat, 29 Oct 2005 08:56:04 +1000
+Message-Id: <1130540164.29054.130.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051028225055.GA21464@kroah.com>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 28, 2005 at 03:50:55PM -0700, Greg KH wrote:
-> Here are some PCI patches against your latest git tree.  They have all
-> been in the -mm tree for a while with no problems.
+On Fri, 2005-10-28 at 17:55 -0400, Parag Warudkar wrote:
+> I can't seem to get the kernel to detect the IDE CDROM and Hard-disk  
+> at all on the latest (5,8) PowerBook revision - no IDE controller is  
+> reported in the dmesg. I have tried 2.6.8 from debian as well as  
+> 2.6.12x from Ubuntu and Gentoo.
 > 
-> Main things here are:
-> 	- pci-ids.h cleanup
-> 	- shpchp driver cleanup (very good job done here.)
-> 	- more quirks added.
+> Both  the HDD and CDROM drives look fairly routine stuff to me  
+> although I am not sure what kind of IDE controller is inside..
+> 
+> Is there any point in trying newer kernels?
 
-Does this just about clear you out of pending PCI patches?  I want to do
-the s/hotplug_slot/pci_slot/ changes soon and it'll cause massive
-conflicts with anyone else's pending work.
+Not yet, I haven't had the machine I ordered yet so I haven't yet had a
+chance to investigate/fix the problem. I suppose it's mostly a matter of
+adding a new PCI ID to drivers/ide/ppc/pmac.c though.
 
-(I suppose I could do a gradual transition with a #define if preferred,
-but a big bang seems like much less effort)
+Ben.
+
+

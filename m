@@ -1,37 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751768AbVJ1VXl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751757AbVJ1VXn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751768AbVJ1VXl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 17:23:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751811AbVJ1VXl
+	id S1751757AbVJ1VXn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 17:23:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751811AbVJ1VXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 17:23:41 -0400
-Received: from ns.suse.de ([195.135.220.2]:29085 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751768AbVJ1VXk (ORCPT
+	Fri, 28 Oct 2005 17:23:43 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51089 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751757AbVJ1VXm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 17:23:40 -0400
-From: Andi Kleen <ak@suse.de>
-To: Yinghai Lu <yinghai.lu@amd.com>
-Subject: Re: x86_64: calibrate_delay_direct and apic id lift for BSP
-Date: Fri, 28 Oct 2005 23:24:33 +0200
-User-Agent: KMail/1.8.2
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org, linuxbios@openbios.org
-References: <6F7DA19D05F3CF40B890C7CA2DB13A4201E061EC@ssvlexmb2.amd.com> <86802c440510281319y667427fj38ffd7a37b8cb77b@mail.gmail.com>
-In-Reply-To: <86802c440510281319y667427fj38ffd7a37b8cb77b@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 28 Oct 2005 17:23:42 -0400
+Date: Fri, 28 Oct 2005 23:23:05 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Lee Revell <rlrevell@joe-job.com>, Hugh Dickins <hugh@veritas.com>,
+       Andi Kleen <ak@suse.de>, vojtech@suse.cz, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Disable the most annoying printk in the kernel
+Message-ID: <20051028212305.GA2447@elf.ucw.cz>
+References: <200510271026.10913.ak@suse.de> <20051028072003.GB1602@openzaurus.ucw.cz> <Pine.LNX.4.61.0510281947040.5112@goblin.wat.veritas.com> <1130532239.4363.125.camel@mindpipe> <20051028205132.GB11397@elf.ucw.cz> <20051028205916.GL4464@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200510282324.34337.ak@suse.de>
+In-Reply-To: <20051028205916.GL4464@flint.arm.linux.org.uk>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 28 October 2005 22:19, Yinghai Lu wrote:
-> I wonder if 8111 only support 4 bit apicid, so it can not send irq to
-> BSP at apic id 0x10....
+Hi!
 
+> > Well, keyboard detected and reported an error. Kernel reacted with
+> > printk(). You are removing that printk(). I can understand that,
+> > printk is really annoying, but I really believe _some_ error handling
+> > should be added there if you remove the printk.
+> 
+> What do you suggest?
 
-Well, you being at AMD are probably in a much better position to find
-out than most other folks. Or try the datasheet from the website.
+Well, having error counter for each input device would probably be
+enough. Or perhaps add some rate-limiting. One message per boot should
+be adequate.
 
--Andi
+> Having a TP 380XD which regularly produces this annoying message,
+> it's just logspam.  There's no noticable failure.
+
+I do notice lost keys on x32 here. You need to press some weird
+combination...
+							Pavel
+-- 
+Thanks, Sharp!

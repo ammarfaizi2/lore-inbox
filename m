@@ -1,100 +1,249 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030191AbVJ1Obz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030193AbVJ1OdG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030191AbVJ1Obz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 10:31:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030194AbVJ1Obz
+	id S1030193AbVJ1OdG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 10:33:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030195AbVJ1OdG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 10:31:55 -0400
-Received: from hibernia.jakma.org ([212.17.55.49]:57475 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S1030199AbVJ1Oby
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 10:31:54 -0400
-Date: Fri, 28 Oct 2005 15:31:44 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@sheen.jakma.org
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: hard hang on private mmap? (Or S-ATA hard-hang?)
-Message-ID: <Pine.LNX.4.63.0510281440440.6525@sheen.jakma.org>
-Mail-Copies-To: paul@hibernia.jakma.org
-Mail-Followup-To: paul@hibernia.jakma.org
-X-NSA: al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington peroxide cool
+	Fri, 28 Oct 2005 10:33:06 -0400
+Received: from khc.piap.pl ([195.187.100.11]:2052 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1030193AbVJ1OdE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 10:33:04 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Call for PIIX4 chipset testers [Intel R440LX mb]
+References: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Fri, 28 Oct 2005 16:32:53 +0200
+In-Reply-To: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org> (Linus
+ Torvalds's message of "Tue, 25 Oct 2005 10:51:24 -0700 (PDT)")
+Message-ID: <m3d5lpww2y.fsf@defiant.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Linus Torvalds <torvalds@osdl.org> writes:
 
-I have a problem with a machine hard-hanging when I run, e.g, 
-'apt-cache search ...'. (Other apt commands hang it too).
+> It should report a number of quirks, and the easiest way to get them all 
+> is to just do
+>
+> 	dmesg -s 1000000 | grep PIIX4
+>
+> and send it to me (and you might as well cc linux-kernel too in this 
+> thread, so that we'll get the thing archived for later). Preferably 
+> together with the output of "cat /proc/ioport" and "/sbin/lspci -xxx".
 
-The machine is:
+This is my old SMP test machine using Intel R440LX motherboard (dual
+Pentium II 266 MHz, no ACPI - AKA "RedWood"):
 
-AMD Athlon 800MHz machine,
-Asus K7M (AMD-751 Irongate + Via VT82C686)
-ECC RAM,
-2 Sil3112A SATA controllers, 3 Seagate SATA disks.
+PCI quirk: region 0c00-0c3f claimed by PIIX4 ACPI
+PCI quirk: region 2180-219f claimed by PIIX4 SMB
+PIIX4 devres C PIO at 0ca8-0caf
 
-It had been running for 300 days+ when there was a power outage. 
-After the outage, a case fan had died and a hard disk had developed 
-bad blocks (it was kicked from RAID array - Linux RAID). The fan was 
-replaced. The disk was left in the machine in order to scrub it 
-before RMA. The machine unfortunately now hard-hangs consistently.
+According to the HW tech ref they are "Server management mailbox registers":
+0CA9h DISMIC Data Register
+0CAAh DISMIC Control/Status Register
+0CABh DISMIC Flags Register
 
-Memtest86+ was run for over 18 hours (completing 18 passes) without 
-any failures reported. So it possibly is not RAM related.
+and are some early (incompatible) version of IPMI (SMIC) bus/controller.
 
-If I run 'strace apt-get search ...' from the console in single-user 
-mode the last line it prints out is always the same, something like:
+MB PCI devices:
+0:00.0 Host bridge: Intel 440LX/EX - 82443LX/EX Host bridge (rev 03)
+0:01.0 PCI bridge: Intel 440LX/EX - 82443LX/EX AGP bridge (rev 03)
+0:0b.0 SCSI storage controller: Adaptec AIC-7880U (rev 01)
+0:10.0 Ethernet controller: Intel 82557/8/9 [Ethernet Pro 100] (rev 02)
+0:12.0 VGA compatible controller: Cirrus Logic GD 5446
+0:14.0 ISA bridge: Intel 82371AB/EB/MB PIIX4 ISA (rev 01)
+0:14.1 IDE interface: Intel 82371AB/EB/MB PIIX4 IDE (rev 01)
+0:14.2 USB Controller: Intel 82371AB/EB/MB PIIX4 USB (rev 01)
+0:14.3 Bridge: Intel 82371AB/EB/MB PIIX4 ACPI (rev 01)
 
-mmap2(NULL, 172032, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = .....
-
-Always that size, 172032 (which occurs only a couple of times afaict 
-- it's mmaping space to read either the RPM database or APT package 
-lists into i think).
-
-This happens with swap disabled. It happens with the duff disk 
-removed from the machine. It happens with any of the following Fedora 
-kernels:
-
-kernel-2.6.11-1.35_FC3
-kernel-2.6.13-1.1532_FC4
-kernel-smp-2.6.13-1.1532_FC4
-
-I havn't tried any others.
-
-The keyboard is unresponsive: caps/num lock LEDs unresponsive. 
-Doesn't respond to SysRQ. I tried enabling the NMI watchdog 
-(nmi_watchdog=2 for lapic NMI), but it doesn't fire either - NMI 
-interrupts seem to come in 1/minute when it is running but even 
-waiting 5 minutes+ after the hard-hang it doesn't fire. Machine 
-appears to be completely wedged.
-
-The machine otherwise seems to work fine, as long I don't run apt 
-(I'm using it now). The questions therefore are:
-
-- It seems very much like a hardware problem, right? Or is there any
-   chance sata_sil could be locking up (eg in response to hardware
-   errors)?
-
-- What hardware though? (RAM? Disk? Sil3112 controller?) If its apt
-   specific (only trigger i've found so far) then it might due to
-   one of the remaining two disks also having a problem, a problem
-   which causes some weird wedge in either the sil3112 hardware or in
-   libata sata_sil.
-
-- Any easyish way to get more information from the kernel on what it
-   was doing before the wedge? Or was NMI the only hope?
-
-I'm at a loss as to which hardware to start replacing :( to try fix 
-this. Any tips, hints would be appreciated. Usually Linux is pretty 
-verbose about broken hardware.
-
-regards,
+/proc/ioports and lspci -xxx of on-board devices attached (this mb does
+not use AGP, ACPI nor USB).
 -- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-Fortune:
-"So, do you...like...stuff?"
+Krzysztof Halasa
 
- 	--Ralph Wiggum
- 	  I Love Lisa (Episode 9F13)
+0000-001f : dma1
+0020-0021 : pic1
+0040-0043 : timer0
+0050-0053 : timer1
+0060-006f : keyboard
+0070-0077 : rtc
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+02f8-02ff : serial
+03c0-03df : vga+
+03f8-03ff : serial
+0c00-0c3f : 0000:00:14.3
+0cf8-0cff : PCI conf1
+2180-219f : 0000:00:14.3
+f800-f8ff : 0000:00:0b.0
+fc90-fc9f : 0000:00:14.1
+fca0-fcbf : 0000:00:14.2
+fcc0-fcdf : 0000:00:10.0
+  fcc0-fcdf : e100
+
+00:00.0 Host bridge: Intel Corporation 440LX/EX - 82443LX/EX Host bridge (rev 03)
+00: 86 80 80 71 06 01 90 22 03 00 00 06 00 40 00 00
+10: 08 00 40 fe 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 a0 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 84 09 00 e3 00 ee ff 01 fc 10 11 11 00 00 30 11
+60: 08 08 10 10 10 10 10 10 00 00 00 00 55 55 55 55
+70: 20 10 1a 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 03 44 00 00 10 18 00 00 00 00 00 00 00 00 00 00
+a0: 02 00 10 00 03 02 00 1f 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 3f 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 fd 03 20 0f 00 00 00 00 00 00
+
+00:01.0 PCI bridge: Intel Corporation 440LX/EX - 82443LX/EX AGP bridge (rev 03)
+00: 86 80 81 71 04 00 a0 02 03 00 04 06 00 40 01 00
+10: 00 00 00 00 00 00 00 00 00 01 01 00 f0 00 a0 22
+20: f0 ff 00 00 f0 ff 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:0b.0 SCSI storage controller: Adaptec AIC-7880U (rev 01)
+00: 04 90 78 80 14 00 90 02 01 00 00 01 08 40 00 00
+10: 01 f8 00 00 00 e0 df fe 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 04 90 80 78
+30: 00 00 00 00 dc 00 00 00 00 00 00 00 0b 01 08 08
+40: 80 15 00 00 80 15 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 21 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:10.0 Ethernet controller: Intel Corporation 82557/8/9 [Ethernet Pro 100] (rev 02)
+00: 86 80 29 12 07 00 80 02 02 00 00 02 00 42 00 00
+10: 08 d0 df fe c1 fc 00 00 00 00 b0 fe 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 05 01 08 38
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:12.0 VGA compatible controller: Cirrus Logic GD 5446
+00: 13 10 b8 00 03 00 00 02 00 00 00 03 00 00 00 00
+10: 08 00 00 fd 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 ff 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:14.0 ISA bridge: Intel Corporation 82371AB/EB/MB PIIX4 ISA (rev 01)
+00: 86 80 10 71 0f 00 80 02 01 00 01 06 00 00 80 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 4d 00 e0 01
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 05 09 0a 0b 10 00 00 00 00 f6 00 00 00 00 00 00
+70: 00 00 00 00 00 00 0c 0c 00 00 00 00 00 00 00 00
+80: 00 00 03 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 45 c0 fc eb 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 25 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
+
+00:14.1 IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 01)
+00: 86 80 11 71 05 00 80 02 01 80 01 01 00 40 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 91 fc 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 07 e1 00 c0 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
+
+00:14.2 USB Controller: Intel Corporation 82371AB/EB/MB PIIX4 USB (rev 01)
+00: 86 80 12 71 04 00 80 02 01 00 03 0c 00 40 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: a1 fc 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 ff 04 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
+
+00:14.3 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ACPI (rev 01)
+00: 86 80 13 71 01 00 80 02 01 00 80 06 00 00 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 01 0c 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 02 00 00 00 00
+60: 00 00 00 00 a8 0c e7 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 81 21 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00

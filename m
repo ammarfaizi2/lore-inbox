@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030625AbVJ1Sw2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbVJ1SwG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030625AbVJ1Sw2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 14:52:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751651AbVJ1Sw2
+	id S1750803AbVJ1SwG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 14:52:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750784AbVJ1SwF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 14:52:28 -0400
-Received: from ns1.suse.de ([195.135.220.2]:25486 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030625AbVJ1Sw1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 14:52:27 -0400
-From: Andi Kleen <ak@suse.de>
-To: Yinghai Lu <yinghai.lu@amd.com>
-Subject: Re: x86_64: calibrate_delay_direct and apic id lift for BSP
-Date: Fri, 28 Oct 2005 20:53:07 +0200
-User-Agent: KMail/1.8.2
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org, linuxbios@openbios.org
-References: <86802c440510281142i11771f25o3f6667869b4d614e@mail.gmail.com>
-In-Reply-To: <86802c440510281142i11771f25o3f6667869b4d614e@mail.gmail.com>
+	Fri, 28 Oct 2005 14:52:05 -0400
+Received: from xproxy.gmail.com ([66.249.82.204]:51759 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750803AbVJ1SwE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 14:52:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=CYx9bJoWsjWoFLnCFTHm01XeoBWfhXQTzm+l4lfIMwxmEA7joKH78URlORTUS8VtvibdActgpw+uhC+/nnw/albyjkwD0BFlVcQF/VasAPVHUrIMqkr1B6Ts7OE2+vHZ17MJX0kVZlRYnOcSjw+VFJgAQajOhqGRQlsGsNo+9RA=
+Message-ID: <7f800d9f0510281152m3164951cx@mail.gmail.com>
+Date: Fri, 28 Oct 2005 11:52:03 -0700
+From: Andre Eisenbach <int2str@gmail.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] Disable the most annoying printk in the kernel
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200510282043.58025.ak@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200510282053.07608.ak@suse.de>
+References: <200510271026.10913.ak@suse.de>
+	 <20051028072003.GB1602@openzaurus.ucw.cz>
+	 <200510282043.58025.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 28 October 2005 20:42, Yinghai Lu wrote:
-> andi,
-> 
-> I tried to lift apic id in LinuxBIOS for all cpus after 0x10.
-> 
-> When using MB with AMD8111, the jiffies was not moving. So it is
-> locked at calibrate_delay_direct...
+"Add insult to injury" ;)
 
-Have you tried it with 2.6.14? It has some new code to handle
-high apic ids better
- 
-> but  MB with Nvidia ck804, jiffies is moving.
-
-The timer is wired different on nvidia than on 8111. They can
-go either through the 8259 or through the IOAPIC.  There is still
-some code that falls back to the 8259 if IOAPIC doesn't work,
-which may make it appear working on Nvidia.
-
-As a warning I'm about to remove that code so don't rely on it.
-
-> If I don't change BSP apic id ( keep it to 0), It changes....
-> 
-> I have no idea how the jiffies changes, there is another thread change it....?
-
-They change when interrupt 0 fires. So it's probably misrouted
-or similar.
-
-
--Andi
+2005/10/28, Andi Kleen <ak@suse.de>:
+> On Friday 28 October 2005 09:20, Pavel Machek wrote:
+> > Hi!
+> >
+> > > Remove most useless printk in the world
+> > >
+> > > Signed-off-by: Andi Kleen <ak@suse.de>
+> >
+> > It warns about crappy keyboards. It triggers regulary for me on x32,
+> > (probably because of my weird capslock+x+s etc combination). It is
+> > usefull as a warning "this keyboard is crap" and "no, bad mechanical switch
+> > is not the reason for lost key".
+>
+> In German that would be described as "Zum Schaden auch noch den Spot"
+> (for the damage you get the gossip too). Not very useful.
+>
+> -Andi
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

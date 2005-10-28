@@ -1,182 +1,367 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030321AbVJ1Rgv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030299AbVJ1Rsr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030321AbVJ1Rgv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 13:36:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030336AbVJ1Rgv
+	id S1030299AbVJ1Rsr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 13:48:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030318AbVJ1Rsr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 13:36:51 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:33697 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030321AbVJ1Rgu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 13:36:50 -0400
-Date: Fri, 28 Oct 2005 10:37:16 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Corey Minyard <minyard@acm.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] ipmi: use rcu lock for using command receivers
-Message-ID: <20051028173716.GG25375@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20051028131944.GA10285@i2.minyard.local>
+	Fri, 28 Oct 2005 13:48:47 -0400
+Received: from mail.kroah.org ([69.55.234.183]:49049 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030299AbVJ1Rsq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 13:48:46 -0400
+Date: Fri, 28 Oct 2005 10:48:12 -0700
+From: Greg KH <gregkh@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [GIT PATCH] Driver Core patches for 2.6.14
+Message-ID: <20051028174812.GA15637@kroah.com>
+References: <20051028062921.GA6397@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051028131944.GA10285@i2.minyard.local>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20051028062921.GA6397@kroah.com>
+User-Agent: Mutt/1.5.11
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 28, 2005 at 08:19:44AM -0500, Corey Minyard wrote:
-> I finally got some time to think this through and test it.
-> This patch is in addition to the ipmi-use-refcount-in-message-handler
-> patch.
-> Thanks again, Paul, for seeing this.
-> 
-> Use rcu_read_lock for the cmd_rcvrs list, since that was what
-> what intended, anyway.  This means that all the users of the
-> cmd_rcvrs_lock are tasks, so the irq disables are no longer
-> required for that lock and it can become a semaphore.
+On Thu, Oct 27, 2005 at 11:29:21PM -0700, Greg KH wrote:
+> Here are a lot of driver core patches for 2.6.14.  They have all been in
+> the past few -mm releases with no problems.  They contain the following
+> things:
 
-Looks good from an RCU viewpoint!  I presume that find_cmd_rcvr()
-still includes an rcu_dereference().
+Ok, I've fixed up the issues people had with this tree.  I've removed
+the offending pci patch, the gfp_flag patch, added a documentation
+patch, and (hopefully) proper attributed Russell's patch.  I've also
+merged against your latest tree.
 
-						Thanx, Paul
+Please pull from:
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
+or if master.kernel.org hasn't synced up yet:
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
 
-Acked-by: <paulmck@us.ibm.com>
+Below is the diffstat and shortlog of the changes.
 
-> Signed-off-by: Corey Minyard <minyard@acm.org>
-> 
-> Index: linux-2.6.14-rc4/drivers/char/ipmi/ipmi_msghandler.c
-> ===================================================================
-> --- linux-2.6.14-rc4.orig/drivers/char/ipmi/ipmi_msghandler.c
-> +++ linux-2.6.14-rc4/drivers/char/ipmi/ipmi_msghandler.c
-> @@ -209,7 +209,7 @@ struct ipmi_smi
->  
->  	/* The list of command receivers that are registered for commands
->  	   on this interface. */
-> -	spinlock_t       cmd_rcvrs_lock;
-> +	struct semaphore cmd_rcvrs_lock;
->  	struct list_head cmd_rcvrs;
->  
->  	/* Events that were queues because no one was there to receive
-> @@ -345,7 +345,6 @@ static void clean_up_interface_data(ipmi
->  {
->  	int              i;
->  	struct cmd_rcvr  *rcvr, *rcvr2;
-> -	unsigned long    flags;
->  	struct list_head list;
->  
->  	free_recv_msg_list(&intf->waiting_msgs);
-> @@ -353,10 +352,10 @@ static void clean_up_interface_data(ipmi
->  
->  	/* Wholesale remove all the entries from the list in the
->  	 * interface and wait for RCU to know that none are in use. */
-> -	spin_lock_irqsave(&intf->cmd_rcvrs_lock, flags);
-> +	down(&intf->cmd_rcvrs_lock);
->  	list_add_rcu(&list, &intf->cmd_rcvrs);
->  	list_del_rcu(&intf->cmd_rcvrs);
-> -	spin_unlock_irqrestore(&intf->cmd_rcvrs_lock, flags);
-> +	up(&intf->cmd_rcvrs_lock);
->  	synchronize_rcu();
->  
->  	list_for_each_entry_safe(rcvr, rcvr2, &list, link)
-> @@ -812,7 +811,7 @@ int ipmi_destroy_user(ipmi_user_t user)
->  	 * since other things may be using it till we do
->  	 * synchronize_rcu()) then free everything in that list.
->  	 */
-> -	spin_lock_irqsave(&intf->cmd_rcvrs_lock, flags);
-> +	down(&intf->cmd_rcvrs_lock);
->  	list_for_each_safe_rcu(entry1, entry2, &intf->cmd_rcvrs) {
->  		rcvr = list_entry(entry1, struct cmd_rcvr, link);
->  		if (rcvr->user == user) {
-> @@ -821,7 +820,7 @@ int ipmi_destroy_user(ipmi_user_t user)
->  			rcvrs = rcvr;
->  		}
->  	}
-> -	spin_unlock_irqrestore(&intf->cmd_rcvrs_lock, flags);
-> +	up(&intf->cmd_rcvrs_lock);
->  	synchronize_rcu();
->  	while (rcvrs) {
->  		rcvr = rcvrs;
-> @@ -950,7 +949,7 @@ int ipmi_register_for_cmd(ipmi_user_t   
->  	rcvr->netfn = netfn;
->  	rcvr->user = user;
->  
-> -	spin_lock_irq(&intf->cmd_rcvrs_lock);
-> +	down(&intf->cmd_rcvrs_lock);
->  	/* Make sure the command/netfn is not already registered. */
->  	entry = find_cmd_rcvr(intf, netfn, cmd);
->  	if (entry) {
-> @@ -961,7 +960,7 @@ int ipmi_register_for_cmd(ipmi_user_t   
->  	list_add_rcu(&rcvr->link, &intf->cmd_rcvrs);
->  
->   out_unlock:
-> -	spin_unlock_irq(&intf->cmd_rcvrs_lock);
-> +	up(&intf->cmd_rcvrs_lock);
->  	if (rv)
->  		kfree(rcvr);
->  
-> @@ -975,17 +974,17 @@ int ipmi_unregister_for_cmd(ipmi_user_t 
->  	ipmi_smi_t      intf = user->intf;
->  	struct cmd_rcvr *rcvr;
->  
-> -	spin_lock_irq(&intf->cmd_rcvrs_lock);
-> +	down(&intf->cmd_rcvrs_lock);
->  	/* Make sure the command/netfn is not already registered. */
->  	rcvr = find_cmd_rcvr(intf, netfn, cmd);
->  	if ((rcvr) && (rcvr->user == user)) {
->  		list_del_rcu(&rcvr->link);
-> -		spin_unlock_irq(&intf->cmd_rcvrs_lock);
-> +		up(&intf->cmd_rcvrs_lock);
->  		synchronize_rcu();
->  		kfree(rcvr);
->  		return 0;
->  	} else {
-> -		spin_unlock_irq(&intf->cmd_rcvrs_lock);
-> +		up(&intf->cmd_rcvrs_lock);
->  		return -ENOENT;
->  	}
->  }
-> @@ -1858,7 +1857,7 @@ int ipmi_register_smi(struct ipmi_smi_ha
->  	spin_lock_init(&intf->events_lock);
->  	INIT_LIST_HEAD(&intf->waiting_events);
->  	intf->waiting_events_count = 0;
-> -	spin_lock_init(&intf->cmd_rcvrs_lock);
-> +	init_MUTEX(&intf->cmd_rcvrs_lock);
->  	INIT_LIST_HEAD(&intf->cmd_rcvrs);
->  	init_waitqueue_head(&intf->waitq);
->  
-> @@ -2058,14 +2057,14 @@ static int handle_ipmb_get_msg_cmd(ipmi_
->  	netfn = msg->rsp[4] >> 2;
->  	cmd = msg->rsp[8];
->  
-> -	spin_lock_irqsave(&intf->cmd_rcvrs_lock, flags);
-> +	rcu_read_lock();
->  	rcvr = find_cmd_rcvr(intf, netfn, cmd);
->  	if (rcvr) {
->  		user = rcvr->user;
->  		kref_get(&user->refcount);
->  	} else
->  		user = NULL;
-> -	spin_unlock_irqrestore(&intf->cmd_rcvrs_lock, flags);
-> +	rcu_read_unlock();
->  
->  	if (user == NULL) {
->  		/* We didn't find a user, deliver an error response. */
-> @@ -2238,14 +2237,14 @@ static int handle_lan_get_msg_cmd(ipmi_s
->  	netfn = msg->rsp[6] >> 2;
->  	cmd = msg->rsp[10];
->  
-> -	spin_lock_irqsave(&intf->cmd_rcvrs_lock, flags);
-> +	rcu_read_lock();
->  	rcvr = find_cmd_rcvr(intf, netfn, cmd);
->  	if (rcvr) {
->  		user = rcvr->user;
->  		kref_get(&user->refcount);
->  	} else
->  		user = NULL;
-> -	spin_unlock_irqrestore(&intf->cmd_rcvrs_lock, flags);
-> +	rcu_read_unlock();
->  
->  	if (user == NULL) {
->  		/* We didn't find a user, just give up. */
-> 
+thanks,
+
+greg k-h
+
+ Documentation/Changes                          |    2 
+ Documentation/DocBook/writing_usb_driver.tmpl  |    3 
+ Documentation/driver-model/driver.txt          |   68 ---
+ Documentation/driver-model/porting.txt         |    2 
+ arch/arm/common/locomo.c                       |   10 
+ arch/arm/common/sa1111.c                       |   11 
+ arch/arm/common/scoop.c                        |   24 -
+ arch/arm/mach-pxa/corgi_ssp.c                  |   24 -
+ arch/arm/mach-sa1100/neponset.c                |   28 -
+ arch/i386/kernel/cpuid.c                       |    2 
+ arch/i386/kernel/msr.c                         |    2 
+ drivers/base/attribute_container.c             |    2 
+ drivers/base/base.h                            |   12 
+ drivers/base/class.c                           |  152 ++++--
+ drivers/base/core.c                            |   21 
+ drivers/base/cpu.c                             |    1 
+ drivers/base/driver.c                          |    3 
+ drivers/base/firmware.c                        |    3 
+ drivers/base/init.c                            |   10 
+ drivers/base/platform.c                        |   22 
+ drivers/base/power/sysfs.c                     |   73 +++
+ drivers/block/aoe/aoe.h                        |    2 
+ drivers/block/aoe/aoechr.c                     |    2 
+ drivers/block/aoe/aoecmd.c                     |   15 
+ drivers/block/genhd.c                          |   25 +
+ drivers/block/paride/pg.c                      |    2 
+ drivers/block/paride/pt.c                      |    4 
+ drivers/char/dsp56k.c                          |    2 
+ drivers/char/ftape/zftape/zftape-init.c        |   12 
+ drivers/char/ip2main.c                         |   10 
+ drivers/char/ipmi/ipmi_devintf.c               |    2 
+ drivers/char/istallion.c                       |    3 
+ drivers/char/lp.c                              |    2 
+ drivers/char/mem.c                             |    3 
+ drivers/char/misc.c                            |    2 
+ drivers/char/ppdev.c                           |    2 
+ drivers/char/raw.c                             |    4 
+ drivers/char/s3c2410-rtc.c                     |   20 
+ drivers/char/snsc.c                            |    2 
+ drivers/char/sonypi.c                          |  106 ++--
+ drivers/char/stallion.c                        |    4 
+ drivers/char/tipar.c                           |    2 
+ drivers/char/tty_io.c                          |   10 
+ drivers/char/vc_screen.c                       |   10 
+ drivers/char/viotape.c                         |    4 
+ drivers/char/watchdog/s3c2410_wdt.c            |   34 -
+ drivers/hwmon/hdaps.c                          |    6 
+ drivers/hwmon/hwmon.c                          |    2 
+ drivers/i2c/busses/i2c-s3c2410.c               |    8 
+ drivers/i2c/i2c-core.c                         |    4 
+ drivers/ide/ide-tape.c                         |   42 +
+ drivers/ieee1394/dv1394.c                      |    2 
+ drivers/ieee1394/nodemgr.c                     |    4 
+ drivers/ieee1394/raw1394.c                     |    2 
+ drivers/ieee1394/video1394.c                   |    2 
+ drivers/infiniband/core/ucm.c                  |    2 
+ drivers/input/evdev.c                          |   26 -
+ drivers/input/input.c                          |  555 +++++++++++++++----------
+ drivers/input/joydev.c                         |   26 -
+ drivers/input/joystick/adi.c                   |   93 ++--
+ drivers/input/joystick/amijoy.c                |   87 ++-
+ drivers/input/joystick/analog.c                |  100 ++--
+ drivers/input/joystick/cobra.c                 |   70 +--
+ drivers/input/joystick/db9.c                   |  292 +++++++------
+ drivers/input/joystick/gamecon.c               |  396 +++++++++--------
+ drivers/input/joystick/gf2k.c                  |   71 +--
+ drivers/input/joystick/grip.c                  |   85 ++-
+ drivers/input/joystick/grip_mp.c               |  149 +++---
+ drivers/input/joystick/guillemot.c             |   53 +-
+ drivers/input/joystick/iforce/iforce-main.c    |  106 ++--
+ drivers/input/joystick/iforce/iforce-packets.c |    5 
+ drivers/input/joystick/iforce/iforce-serio.c   |   10 
+ drivers/input/joystick/iforce/iforce-usb.c     |   22 
+ drivers/input/joystick/iforce/iforce.h         |    2 
+ drivers/input/joystick/interact.c              |   55 +-
+ drivers/input/joystick/magellan.c              |   71 +--
+ drivers/input/joystick/sidewinder.c            |   72 +--
+ drivers/input/joystick/spaceball.c             |   82 +--
+ drivers/input/joystick/spaceorb.c              |   78 +--
+ drivers/input/joystick/stinger.c               |   75 +--
+ drivers/input/joystick/tmdc.c                  |  324 ++++++++------
+ drivers/input/joystick/turbografx.c            |  223 ++++++----
+ drivers/input/joystick/twidjoy.c               |  118 ++---
+ drivers/input/joystick/warrior.c               |   83 +--
+ drivers/input/keyboard/amikbd.c                |   59 +-
+ drivers/input/keyboard/atkbd.c                 |  188 ++++----
+ drivers/input/keyboard/corgikbd.c              |   96 ++--
+ drivers/input/keyboard/lkkbd.c                 |  126 ++---
+ drivers/input/keyboard/maple_keyb.c            |   76 +--
+ drivers/input/keyboard/newtonkbd.c             |   83 +--
+ drivers/input/keyboard/spitzkbd.c              |  121 ++---
+ drivers/input/keyboard/sunkbd.c                |  117 ++---
+ drivers/input/keyboard/xtkbd.c                 |   82 +--
+ drivers/input/misc/m68kspkr.c                  |   40 -
+ drivers/input/misc/pcspkr.c                    |   34 -
+ drivers/input/misc/sparcspkr.c                 |   45 --
+ drivers/input/mouse/alps.c                     |   67 +--
+ drivers/input/mouse/alps.h                     |    2 
+ drivers/input/mouse/amimouse.c                 |   51 +-
+ drivers/input/mouse/inport.c                   |   96 ++--
+ drivers/input/mouse/lifebook.c                 |   16 
+ drivers/input/mouse/logibm.c                   |   88 ++-
+ drivers/input/mouse/logips2pp.c                |   20 
+ drivers/input/mouse/maplemouse.c               |   10 
+ drivers/input/mouse/pc110pad.c                 |   70 +--
+ drivers/input/mouse/psmouse-base.c             |   99 ++--
+ drivers/input/mouse/psmouse.h                  |    2 
+ drivers/input/mouse/rpcmouse.c                 |   43 -
+ drivers/input/mouse/sermouse.c                 |   84 +--
+ drivers/input/mouse/synaptics.c                |    6 
+ drivers/input/mouse/vsxxxaa.c                  |   84 +--
+ drivers/input/mousedev.c                       |   41 -
+ drivers/input/serio/i8042.c                    |   13 
+ drivers/input/touchscreen/corgi_ts.c           |  131 ++---
+ drivers/input/touchscreen/elo.c                |   89 +---
+ drivers/input/touchscreen/gunze.c              |   66 +-
+ drivers/input/touchscreen/h3600_ts_input.c     |  149 ++----
+ drivers/input/touchscreen/hp680_ts_input.c     |   58 +-
+ drivers/input/touchscreen/mk712.c              |   80 +--
+ drivers/input/touchscreen/mtouch.c             |   64 +-
+ drivers/input/tsdev.c                          |   29 -
+ drivers/isdn/capi/capi.c                       |    2 
+ drivers/macintosh/adb.c                        |    2 
+ drivers/macintosh/adbhid.c                     |  220 +++++----
+ drivers/macintosh/mac_hid.c                    |   44 +
+ drivers/media/common/ir-common.c               |    1 
+ drivers/media/dvb/cinergyT2/cinergyT2.c        |  108 +++-
+ drivers/media/dvb/dvb-core/dvbdev.c            |    2 
+ drivers/media/dvb/dvb-usb/dvb-usb-remote.c     |   50 +-
+ drivers/media/dvb/dvb-usb/dvb-usb.h            |    3 
+ drivers/media/dvb/ttpci/av7110_ir.c            |   37 -
+ drivers/media/dvb/ttpci/budget-ci.c            |   24 -
+ drivers/media/dvb/ttusb-dec/ttusb_dec.c        |   51 +-
+ drivers/media/video/bttvp.h                    |    2 
+ drivers/media/video/cx88/cx88-input.c          |   58 +-
+ drivers/media/video/ir-kbd-gpio.c              |   52 +-
+ drivers/media/video/ir-kbd-i2c.c               |   33 -
+ drivers/media/video/msp3400.c                  |    8 
+ drivers/media/video/saa7134/saa7134-input.c    |   39 -
+ drivers/media/video/saa7134/saa7134.h          |    2 
+ drivers/media/video/tda9887.c                  |    4 
+ drivers/media/video/tuner-core.c               |    4 
+ drivers/message/i2o/core.h                     |    3 
+ drivers/message/i2o/device.c                   |  326 ++++++--------
+ drivers/message/i2o/driver.c                   |    3 
+ drivers/message/i2o/iop.c                      |   34 -
+ drivers/mfd/mcp-sa11x0.c                       |   20 
+ drivers/mfd/ucb1x00-ts.c                       |   45 +-
+ drivers/mmc/pxamci.c                           |    8 
+ drivers/mmc/wbsd.c                             |    4 
+ drivers/mtd/maps/sa1100-flash.c                |    8 
+ drivers/mtd/mtdchar.c                          |    4 
+ drivers/net/dm9000.c                           |    8 
+ drivers/net/irda/sa1100_ir.c                   |    8 
+ drivers/net/irda/smsc-ircc2.c                  |   12 
+ drivers/net/phy/mdio_bus.c                     |   20 
+ drivers/net/ppp_generic.c                      |    2 
+ drivers/net/smc91x.c                           |    8 
+ drivers/net/wan/cosa.c                         |    2 
+ drivers/pci/pcie/portdrv_core.c                |    4 
+ drivers/pcmcia/au1000_generic.c                |   21 
+ drivers/pcmcia/ds.c                            |    6 
+ drivers/pcmcia/hd64465_ss.c                    |   20 
+ drivers/pcmcia/i82365.c                        |   20 
+ drivers/pcmcia/m32r_cfc.c                      |   21 
+ drivers/pcmcia/m32r_pcc.c                      |   21 
+ drivers/pcmcia/omap_cf.c                       |   18 
+ drivers/pcmcia/pxa2xx_base.c                   |   26 -
+ drivers/pcmcia/rsrc_nonstatic.c                |    6 
+ drivers/pcmcia/sa1100_generic.c                |   20 
+ drivers/pcmcia/socket_sysfs.c                  |    6 
+ drivers/pcmcia/tcic.c                          |   20 
+ drivers/pcmcia/vrc4171_card.c                  |   24 -
+ drivers/s390/char/tape_class.c                 |    1 
+ drivers/s390/char/vmlogrdr.c                   |    1 
+ drivers/scsi/ch.c                              |    2 
+ drivers/scsi/osst.c                            |    2 
+ drivers/scsi/sg.c                              |   10 
+ drivers/scsi/st.c                              |    2 
+ drivers/serial/8250.c                          |   10 
+ drivers/serial/imx.c                           |    8 
+ drivers/serial/mpc52xx_uart.c                  |    8 
+ drivers/serial/pxa.c                           |    8 
+ drivers/serial/s3c2410.c                       |    9 
+ drivers/serial/sa1100.c                        |    8 
+ drivers/serial/vr41xx_siu.c                    |   10 
+ drivers/usb/core/devio.c                       |    2 
+ drivers/usb/core/file.c                        |    4 
+ drivers/usb/core/hcd.c                         |    3 
+ drivers/usb/core/hub.c                         |   16 
+ drivers/usb/gadget/dummy_hcd.c                 |   22 
+ drivers/usb/gadget/omap_udc.c                  |    9 
+ drivers/usb/gadget/pxa2xx_udc.c                |   17 
+ drivers/usb/host/isp116x-hcd.c                 |   14 
+ drivers/usb/host/ohci-omap.c                   |   10 
+ drivers/usb/host/ohci-pxa27x.c                 |    4 
+ drivers/usb/host/sl811-hcd.c                   |   10 
+ drivers/usb/input/acecad.c                     |   78 +--
+ drivers/usb/input/aiptek.c                     |  209 ++++-----
+ drivers/usb/input/appletouch.c                 |  130 +++--
+ drivers/usb/input/ati_remote.c                 |  173 ++++---
+ drivers/usb/input/hid-core.c                   |   51 +-
+ drivers/usb/input/hid-input.c                  |   58 +-
+ drivers/usb/input/hid-lgff.c                   |   17 
+ drivers/usb/input/hid-tmff.c                   |   11 
+ drivers/usb/input/hid.h                        |    2 
+ drivers/usb/input/itmtouch.c                   |   72 +--
+ drivers/usb/input/kbtab.c                      |   86 +--
+ drivers/usb/input/keyspan_remote.c             |  214 ++++-----
+ drivers/usb/input/mtouchusb.c                  |  111 ++---
+ drivers/usb/input/pid.c                        |   12 
+ drivers/usb/input/powermate.c                  |  136 +++---
+ drivers/usb/input/touchkitusb.c                |  116 ++---
+ drivers/usb/input/usbkbd.c                     |  105 ++--
+ drivers/usb/input/usbmouse.c                   |   97 ++--
+ drivers/usb/input/wacom.c                      |  142 ++----
+ drivers/usb/input/xpad.c                       |   97 +---
+ drivers/usb/input/yealink.c                    |   66 +-
+ drivers/usb/media/konicawc.c                   |   89 ++--
+ drivers/usb/storage/onetouch.c                 |  105 ++--
+ drivers/video/backlight/corgi_bl.c             |   10 
+ drivers/video/fbmem.c                          |    2 
+ drivers/video/imxfb.c                          |   10 
+ drivers/video/pxafb.c                          |   10 
+ drivers/video/s1d13xxxfb.c                     |    7 
+ drivers/video/s3c2410fb.c                      |   29 -
+ drivers/video/sa1100fb.c                       |   10 
+ drivers/video/w100fb.c                         |   48 +-
+ fs/coda/psdev.c                                |    4 
+ fs/partitions/check.c                          |   27 +
+ include/linux/device.h                         |  115 ++---
+ include/linux/genhd.h                          |    1 
+ include/linux/i2o.h                            |    4 
+ include/linux/input.h                          |   28 +
+ include/linux/pm.h                             |   26 +
+ lib/kobject_uevent.c                           |    2 
+ net/bluetooth/hidp/core.c                      |   13 
+ sound/arm/pxa2xx-ac97.c                        |    8 
+ sound/core/init.c                              |   14 
+ sound/core/sound.c                             |    2 
+ sound/oss/soundcard.c                          |    4 
+ sound/pci/ac97/ac97_bus.c                      |    6 
+ sound/ppc/beep.c                               |   68 +--
+ sound/sound_core.c                             |    2 
+ 244 files changed, 5682 insertions(+), 5316 deletions(-)
+
+
+Ben Dooks:
+      drivers/base - fix sparse warnings
+
+David Brownell:
+      driver model wakeup flags
+      usb device wakeup flags
+
+Dmitry Torokhov:
+      I2O: remove class interface
+      Driver core: send hotplug event before adding class interfaces
+      I2O: remove i2o_device_class
+      Driver core: pass interface to class interface methods
+      drivers/input/mouse: convert to dynamic input_dev allocation
+      drivers/input/keyboard: convert to dynamic input_dev allocation
+      Input: kill devfs references
+      Input: convert ucb1x00-ts to dynamic input_dev allocation
+      drivers/usb/input: convert to dynamic input_dev allocation
+      Input: prepare to sysfs integration
+      Input: convert konicawc to dynamic input_dev allocation
+      drivers/input/joystick: convert to dynamic input_dev allocation
+      Input: convert driver/input/misc to dynamic input_dev allocation
+      Input: convert onetouch to dynamic input_dev allocation
+      Input: convert sonypi to dynamic input_dev allocation
+      drivers/media: convert to dynamic input_dev allocation
+      Input: convert drivers/macintosh to dynamic input_dev allocation
+      drivers/input/touchscreen: convert to dynamic input_dev allocation
+      Input: show sysfs path in /proc/bus/input/devices
+      Input: convert net/bluetooth to dynamic input_dev allocation
+      Input: export input_dev data via sysfs attributes
+      Input: convert sound/ppc/beep to dynamic input_dev allocation
+      input core: remove custom-made hotplug handler
+
+Ed L Cashin:
+      aoe: use get_unaligned for accesses in ATA id buffer
+      aoe: update to version 14
+
+Erik Hovland:
+      changes device to driver in porting.txt
+      kobject_uevent.c has a typo in a comment
+
+Greg Kroah-Hartman:
+      Driver Core: add the ability for class_device structures to be nested
+      I2O: Clean up some pretty bad driver model abuses in the i2o code
+      Driver Core: fix up all callers of class_device_create()
+      Driver Core: document struct class_device properly
+      INPUT: register the input class device sooner
+      INPUT: export input_dev_class so that input drivers can use it.
+      INPUT: Fix oops when accessing sysfs files of nested input devices
+      INPUT: move the input class devices under their new input_dev devices
+      update required version of udev
+      INPUT: remove the input_class structure, as it is unused.
+      INPUT: Create symlinks for backwards compatibility
+      INPUT: rename input_dev_class to input_class to be correct.
+
+Jesper Juhl:
+      Driver Core: Big kfree NULL check cleanup - Documentation
+
+Kay Sievers:
+      add sysfs attr to re-emit device hotplug event
+
+Randy Dunlap:
+      kernel-doc: drivers/base fixes
+
+Russell King:
+      DRIVER MODEL: Get rid of the obsolete tri-level suspend/resume callbacks
+
+Takashi Iwai:
+      Fix documentation of driver suspend/resume callbacks
+
+Will Dyson:
+      add sysfs support for ide tape
+

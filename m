@@ -1,36 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751812AbVJ1VZM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751813AbVJ1VZk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751812AbVJ1VZM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 17:25:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751811AbVJ1VZM
+	id S1751813AbVJ1VZk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 17:25:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751817AbVJ1VZk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 17:25:12 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:17375 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751812AbVJ1VZK (ORCPT
+	Fri, 28 Oct 2005 17:25:40 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:36261 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1751813AbVJ1VZj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 17:25:10 -0400
-Date: Fri, 28 Oct 2005 23:25:06 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Matt Mackall <mpm@selenic.com>
-cc: linux-tiny@selenic.com, celinux-dev@waste.org,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.14-tiny1 for small systems
-In-Reply-To: <20051028182541.GF4367@waste.org>
-Message-ID: <Pine.LNX.4.61.0510282324520.20866@yvahk01.tjqt.qr>
-References: <20051028182541.GF4367@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 28 Oct 2005 17:25:39 -0400
+Date: Sat, 29 Oct 2005 07:25:34 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: AndyLiebman@aol.com
+Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: What happened to XFS Quota Support?
+Message-ID: <20051029072533.A6139033@wobbly.melbourne.sgi.com>
+References: <46.74cc8004.3093e511@aol.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <46.74cc8004.3093e511@aol.com>; from AndyLiebman@aol.com on Fri, Oct 28, 2005 at 04:33:21PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->This is a resync of the -tiny tree against 2.6.14. The latest patch
->can be found at:
->
-> http://selenic.com/tiny/2.6.14-tiny1.patch.bz2
-> http://selenic.com/tiny/2.6.14-tiny1-broken-out.tar.bz2
+On Fri, Oct 28, 2005 at 04:33:21PM -0400, AndyLiebman@aol.com wrote:
+> I tried compiling XFS statically into the kernel and it's also a "no go" on  
+> quota support. So, am I to conclude that 2.6.14 as it currently stands cannot  
+> support XFS quotas?
 
-Currently get 404 on these.
+Hmm, I'd have thought it'd work builtin, thats how I tend to use it.
+Either way, the code is all there, its just an annoying config issue.
 
+> As you know, we have quite a few users who have been waiting for the XFS  
+> changes that went into 2.6.14 (as you and I have discussed).  Hope the fix  comes 
+> along soon. 
 
-Jan Engelhardt
+Theres a patch already floating around that will resolve it, let me
+know how that goes.
+
+cheers.
+
 -- 
+Nathan

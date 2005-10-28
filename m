@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965101AbVJ1FYN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965103AbVJ1Frb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965101AbVJ1FYN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 01:24:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965103AbVJ1FYM
+	id S965103AbVJ1Frb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 01:47:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965104AbVJ1Frb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 01:24:12 -0400
-Received: from pip251.ish.de ([80.69.98.251]:35006 "EHLO mail01.ish.de")
-	by vger.kernel.org with ESMTP id S965101AbVJ1FYL (ORCPT
+	Fri, 28 Oct 2005 01:47:31 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:59268 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S965103AbVJ1Fra (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 01:24:11 -0400
-Message-ID: <4361B5E5.6090507@crypto.rub.de>
-Date: Fri, 28 Oct 2005 07:23:49 +0200
-From: Marcel Selhorst <selhorst@crypto.rub.de>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051026)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, castet.matthieu@free.fr, kjhall@us.ibm.com
-Subject: Re: [PATCH] Infineon TPM: move infineon driver off pci_dev
-References: <435FB8A5.803@crypto.rub.de>	<435FBFC4.5060508@free.fr>	<4360B889.1010502@crypto.rub.de> <20051027143332.08269850.akpm@osdl.org>
-In-Reply-To: <20051027143332.08269850.akpm@osdl.org>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.2-14; AVE: 6.32.0.8; VDF: 6.32.0.120; host: mail)
+	Fri, 28 Oct 2005 01:47:30 -0400
+Date: Fri, 28 Oct 2005 07:47:23 +0200
+From: bert hubert <bert.hubert@netherlabs.nl>
+To: Harald Dunkel <harald.dunkel@t-online.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NPTL support for 2.4.31?
+Message-ID: <20051028054723.GA32148@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
+	Harald Dunkel <harald.dunkel@t-online.de>,
+	linux-kernel@vger.kernel.org
+References: <4361B55C.7000705@t-online.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4361B55C.7000705@t-online.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+On Fri, Oct 28, 2005 at 07:21:32AM +0200, Harald Dunkel wrote:
 
-> This final return will leak the I/O region from request_region().
-> If for some reason the leak is deliberate then a comment is needed.
+> Is there some module/patch for kernel 2.4.31 available to
+> support NPTL? I know that there is a backport in RH's 2.4.21,
+> but obviously it didn't make it into the native 2.4 kernel.
 
-yep, you're right, I'll fix that
+I doubt anybody else would do the work, you'll find that any NPTL patch is
+bound to be huge and intrusive. Try running 2.6 if possible. A 2.4 kernel
+with NPTL patched in is not going to confer any stability benefits over 2.6.
 
-> To reduce the chance of this happening again, please send a followup patch
-> which prevents this function from having `return' statements sprinkled all
-> over it.  An example would be drivers/net/8139cp.c:cp_init_one(), thanks.
-
-I will send a follow-up patch including the comments of Matthieu.
-
-Thanks for reviewing!
-
-Marcel
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

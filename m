@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965046AbVJ1BnS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965048AbVJ1Bo1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965046AbVJ1BnS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 21:43:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965047AbVJ1BnS
+	id S965048AbVJ1Bo1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 21:44:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965050AbVJ1Bo1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 21:43:18 -0400
-Received: from xproxy.gmail.com ([66.249.82.203]:39745 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965046AbVJ1BnR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 21:43:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=R+dr11aY/VXA6dvxkqnxDKBC7YufFifQJkk4TCDL7kjfA9knGz6LragC9xpk6aw/EhGhp+YxS0klvU/ZA4aRdwYJQSulNfA4Hv5sHdM44ld9lEDZRGTQGf/6mhIO6DqhzB9K0ybLkNk7ciniHpjQ4I5+oO0bTQUKWG5Q9vVrIiI=
-Message-ID: <1e62d1370510271843y18fbeca9o52606b0c684c9884@mail.gmail.com>
-Date: Fri, 28 Oct 2005 06:43:17 +0500
-From: Fawad Lateef <fawadlateef@gmail.com>
-To: Mishael A Sibiryakov <death@junki.org>
-Subject: Re: Lock page with HIGHMEM
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1130457144.23846.40.camel@me.home>
+	Thu, 27 Oct 2005 21:44:27 -0400
+Received: from cm61-18-82-123.hkcable.com.hk ([61.18.82.123]:3589 "EHLO
+	max-po.com") by vger.kernel.org with ESMTP id S965047AbVJ1Bo0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 21:44:26 -0400
+Message-ID: <20051028094342.A527840A6FDAB3A5@max-po.com>
+From: star03@max-po.com
+To: linux-kernel@vger.kernel.org
+Subject: Garments & Quota (Export Licence ) Offer
+Date: 28 Oct 2005 09:43:46 +0800
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1130457144.23846.40.camel@me.home>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/28/05, Mishael A Sibiryakov <death@junki.org> wrote:
->
-> I have "little" troubles with HIGHMEM.
->
-> The situation:
-> I have a some pages which allocated via kmalloc(), after this pages is
-> locked by get_page(). This pages is used in interrupt context, also in
-> #PF too. When this code working on kernel without HIGHMEM support, then
-> everything is fine. But when kernel with HIGHMEM then pages will be
-> unmapped from linear space (i think) and i have a triple exception and
-> you know that happens further :)
-> I've try lock pages via get_user_pages, w/wo vma, by set
-> SetPageReserved , Locked and etc. But nothing.
->
+DEAR SIR :
 
-Here you mean that you allocated memory from kmalloc which corresponds
-to some pages and then you are dealing with those pages ! right ? Then
-you can use alloc_page/pages to get the page directly or there is some
-reason for not to use them ?
+** WE ARE A EXPERIENCED MANUFACTURER OF DIFFERENT DESIGNS OF CLOTHING 
+PRODUCTS:
+1) AUTO / MOTO SPORTSWEAR  :  WWW.AUTO-SPORTSWEAR.COM
+2) OUTER WEARS  :  WWW.TEX-WIN.COM 
+3) PROMOTIONAL CLOTHING   : WWW.TEX-PO.COM
+4) HUNTING & SHOOTING WEARS   :  WWW.HUNTING-PO.COM
+5) SAILING & SEA SPORTSWEAR  :  WWW.SAILING-PO.COM
+6) BABY & CHILDREN CLOTHING  : WWW.BEBE-PO.COM
 
-AFAIK kernel keeps the seperate virtual addresses range for mapping
-HIGHMEM to ZONE_NORMAL (PKMAP_BASE to PKMAP_BASE + LAST_PKMAP) which
-is from the area called as VMALLOC_RESERVE used for holding temporary
-mappings and kmalloc like rountines returned memory will never be
-unmapped or at-least I havn't saw this behaviour.
+* WE CAN OFFER FAST DELIVERY AND LOW MINIMUM QUANTITY AS 100 PCS PER COLOR 
+AND DIFFERENT SIZE :
 
-> How i can avoid this problem ? E.g. how i can lock page in kernel and be
-> assured about that that it will not be unmapped, and can be accessed via
-> linear address every time ?
->
+CONTACT US : INFO@MAX-PO.COM  ATN : ANTHONY / SANDY
 
-If you got page/memory from the kernel functions like
-alloc_page/kmalloc then they are not unmapped and if they unmapped in
-any case (which I think won't) then kernel is responsible to mapping
-them back when ever you will be going to use it !
 
---
-Fawad Lateef
+** WE ALSO CAN HELP YOU TO ARRANGE QUOTA ( EXPORT LICENCE ) FOR ALL QUOTA 
+NEEDED ITEMS FROM CHINA.
+1) QUOTA  FOR  T-SHIRT / POLO SHIRT   (TEXTILE : CAT. 4 )
+2) QUOTA  FOR  SWEATER / SWEATSHIRT   (TEXTILE : CAT. 5)
+3) QUOTA FOR WOVEN TROUSERS / SHORTS   (TEXTILE : CAT. 6)
+4) QUOTA FOR LADIES KNITTED SHIRT   ( TEXTILE : CAT. 7 )
+
+* WE CAN  ARRANGE EXPORT LICENCE (QUOTA ) IN ANY QUANTITY FOR 2005 / 2006 
+SEASON.
+
+CONTACT US : QUOTA@MAX-PO.COM  ATN : BEN / TERRY 
+
+
+

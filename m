@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965128AbVJ1GjG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965129AbVJ1GjG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965128AbVJ1GjG (ORCPT <rfc822;willy@w.ods.org>);
+	id S965129AbVJ1GjG (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 28 Oct 2005 02:39:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965150AbVJ1Giy
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965128AbVJ1Gi6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 02:38:54 -0400
-Received: from mail.kroah.org ([69.55.234.183]:32490 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965128AbVJ1GbO convert rfc822-to-8bit
+	Fri, 28 Oct 2005 02:38:58 -0400
+Received: from mail.kroah.org ([69.55.234.183]:30698 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S965109AbVJ1GbN convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 02:31:14 -0400
+	Fri, 28 Oct 2005 02:31:13 -0400
 Cc: dtor_core@ameritech.net
-Subject: [PATCH] drivers/media: convert to dynamic input_dev allocation
-In-Reply-To: <11304810253703@kroah.com>
+Subject: [PATCH] drivers/input/keyboard: convert to dynamic input_dev allocation
+In-Reply-To: <1130481024363@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Thu, 27 Oct 2005 23:30:25 -0700
-Message-Id: <11304810251108@kroah.com>
+Date: Thu, 27 Oct 2005 23:30:24 -0700
+Message-Id: <11304810242953@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,9 +24,9 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] drivers/media: convert to dynamic input_dev allocation
+[PATCH] drivers/input/keyboard: convert to dynamic input_dev allocation
 
-Input: convert drivers/media to dynamic input_dev allocation
+Input: convert drivers/input/keyboard to dynamic input_dev allocation
 
 This is required for input_dev sysfs integration
 
@@ -34,1103 +34,1683 @@ Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 76537631e95b6e1a34bb78e1d45eb9e8c7e3de1d
-tree 498f6a070b6cf125234dfdb08329ae46a42857bf
-parent fa68a960b3f68ecabca13a8d6239ebe52435cff9
-author Dmitry Torokhov <dtor_core@ameritech.net> Thu, 15 Sep 2005 02:01:53 -0500
-committer Greg Kroah-Hartman <gregkh@suse.de> Thu, 27 Oct 2005 22:48:05 -0700
+commit 6c54454d97a93b1d747e4b16a45237b03e8ac6d1
+tree a92ced3a9db4f4fd88a45e8c3bf85883b743ed55
+parent f18c31d676d42b4f75f1520733f4b5b2c966524d
+author Dmitry Torokhov <dtor_core@ameritech.net> Thu, 15 Sep 2005 02:01:45 -0500
+committer Greg Kroah-Hartman <gregkh@suse.de> Thu, 27 Oct 2005 22:48:04 -0700
 
- drivers/media/common/ir-common.c            |    1 
- drivers/media/dvb/cinergyT2/cinergyT2.c     |  108 ++++++++++++++++++---------
- drivers/media/dvb/dvb-usb/dvb-usb-remote.c  |   50 +++++++------
- drivers/media/dvb/dvb-usb/dvb-usb.h         |    3 +
- drivers/media/dvb/ttpci/av7110_ir.c         |   37 +++++----
- drivers/media/dvb/ttpci/budget-ci.c         |   24 +++---
- drivers/media/dvb/ttusb-dec/ttusb_dec.c     |   51 ++++++++-----
- drivers/media/video/bttvp.h                 |    2 -
- drivers/media/video/cx88/cx88-input.c       |   58 ++++++++-------
- drivers/media/video/ir-kbd-gpio.c           |   52 +++++++------
- drivers/media/video/ir-kbd-i2c.c            |   33 +++++---
- drivers/media/video/saa7134/saa7134-input.c |   39 +++++-----
- drivers/media/video/saa7134/saa7134.h       |    2 -
- 13 files changed, 268 insertions(+), 192 deletions(-)
+ drivers/input/keyboard/amikbd.c     |   59 +++++------
+ drivers/input/keyboard/atkbd.c      |  188 +++++++++++++++++++----------------
+ drivers/input/keyboard/corgikbd.c   |   74 +++++++-------
+ drivers/input/keyboard/lkkbd.c      |  126 ++++++++++++-----------
+ drivers/input/keyboard/maple_keyb.c |   76 ++++++--------
+ drivers/input/keyboard/newtonkbd.c  |   83 +++++++--------
+ drivers/input/keyboard/spitzkbd.c   |   77 ++++++++------
+ drivers/input/keyboard/sunkbd.c     |  117 ++++++++++++----------
+ drivers/input/keyboard/xtkbd.c      |   82 +++++++--------
+ 9 files changed, 450 insertions(+), 432 deletions(-)
 
-diff --git a/drivers/media/common/ir-common.c b/drivers/media/common/ir-common.c
-index a0e700d..06f4d46 100644
---- a/drivers/media/common/ir-common.c
-+++ b/drivers/media/common/ir-common.c
-@@ -252,7 +252,6 @@ void ir_input_init(struct input_dev *dev
- 	if (ir_codes)
- 		memcpy(ir->ir_codes, ir_codes, sizeof(ir->ir_codes));
- 
--        init_input_dev(dev);
- 	dev->keycode     = ir->ir_codes;
- 	dev->keycodesize = sizeof(IR_KEYTAB_TYPE);
- 	dev->keycodemax  = IR_KEYTAB_SIZE;
-diff --git a/drivers/media/dvb/cinergyT2/cinergyT2.c b/drivers/media/dvb/cinergyT2/cinergyT2.c
-index 6db0929..a1607e7 100644
---- a/drivers/media/dvb/cinergyT2/cinergyT2.c
-+++ b/drivers/media/dvb/cinergyT2/cinergyT2.c
-@@ -137,7 +137,8 @@ struct cinergyt2 {
- 	struct urb *stream_urb [STREAM_URB_COUNT];
- 
- #ifdef ENABLE_RC
--	struct input_dev rc_input_dev;
-+	struct input_dev *rc_input_dev;
-+	char phys[64];
- 	struct work_struct rc_query_work;
- 	int rc_input_event;
- 	u32 rc_last_code;
-@@ -683,6 +684,7 @@ static struct dvb_device cinergyt2_fe_te
+diff --git a/drivers/input/keyboard/amikbd.c b/drivers/input/keyboard/amikbd.c
+index 4e8e8ea..3d63bc1 100644
+--- a/drivers/input/keyboard/amikbd.c
++++ b/drivers/input/keyboard/amikbd.c
+@@ -155,10 +155,7 @@ static const char *amikbd_messages[8] = 
+ 	[7] = KERN_WARNING "amikbd: keyboard interrupt\n"
  };
  
- #ifdef ENABLE_RC
-+
- static void cinergyt2_query_rc (void *data)
- {
- 	struct cinergyt2 *cinergyt2 = data;
-@@ -703,7 +705,7 @@ static void cinergyt2_query_rc (void *da
- 			/* stop key repeat */
- 			if (cinergyt2->rc_input_event != KEY_MAX) {
- 				dprintk(1, "rc_input_event=%d Up\n", cinergyt2->rc_input_event);
--				input_report_key(&cinergyt2->rc_input_dev,
-+				input_report_key(cinergyt2->rc_input_dev,
- 						 cinergyt2->rc_input_event, 0);
- 				cinergyt2->rc_input_event = KEY_MAX;
- 			}
-@@ -722,7 +724,7 @@ static void cinergyt2_query_rc (void *da
- 			/* keyrepeat bit -> just repeat last rc_input_event */
- 		} else {
- 			cinergyt2->rc_input_event = KEY_MAX;
--			for (i = 0; i < sizeof(rc_keys) / sizeof(rc_keys[0]); i += 3) {
-+			for (i = 0; i < ARRAY_SIZE(rc_keys); i += 3) {
- 				if (rc_keys[i + 0] == rc_events[n].type &&
- 				    rc_keys[i + 1] == le32_to_cpu(rc_events[n].value)) {
- 					cinergyt2->rc_input_event = rc_keys[i + 2];
-@@ -736,11 +738,11 @@ static void cinergyt2_query_rc (void *da
- 			    cinergyt2->rc_last_code != ~0) {
- 				/* emit a key-up so the double event is recognized */
- 				dprintk(1, "rc_input_event=%d UP\n", cinergyt2->rc_input_event);
--				input_report_key(&cinergyt2->rc_input_dev,
-+				input_report_key(cinergyt2->rc_input_dev,
- 						 cinergyt2->rc_input_event, 0);
- 			}
- 			dprintk(1, "rc_input_event=%d\n", cinergyt2->rc_input_event);
--			input_report_key(&cinergyt2->rc_input_dev,
-+			input_report_key(cinergyt2->rc_input_dev,
- 					 cinergyt2->rc_input_event, 1);
- 			cinergyt2->rc_last_code = rc_events[n].value;
- 		}
-@@ -752,7 +754,59 @@ out:
+-static struct input_dev amikbd_dev;
+-
+-static char *amikbd_name = "Amiga keyboard";
+-static char *amikbd_phys = "amikbd/input0";
++static struct input_dev *amikbd_dev;
  
- 	up(&cinergyt2->sem);
- }
--#endif
+ static irqreturn_t amikbd_interrupt(int irq, void *dummy, struct pt_regs *fp)
+ {
+@@ -176,16 +173,16 @@ static irqreturn_t amikbd_interrupt(int 
+ 
+ 		scancode = amikbd_keycode[scancode];
+ 
+-		input_regs(&amikbd_dev, fp);
++		input_regs(amikbd_dev, fp);
+ 
+ 		if (scancode == KEY_CAPSLOCK) {	/* CapsLock is a toggle switch key on Amiga */
+-			input_report_key(&amikbd_dev, scancode, 1);
+-			input_report_key(&amikbd_dev, scancode, 0);
+-			input_sync(&amikbd_dev);
++			input_report_key(amikbd_dev, scancode, 1);
++			input_report_key(amikbd_dev, scancode, 0);
+ 		} else {
+-			input_report_key(&amikbd_dev, scancode, down);
+-			input_sync(&amikbd_dev);
++			input_report_key(amikbd_dev, scancode, down);
+ 		}
 +
-+static int cinergyt2_register_rc(struct cinergyt2 *cinergyt2)
-+{
++		input_sync(amikbd_dev);
+ 	} else				/* scancodes >= 0x78 are error codes */
+ 		printk(amikbd_messages[scancode - 0x78]);
+ 
+@@ -202,39 +199,41 @@ static int __init amikbd_init(void)
+ 	if (!request_mem_region(CIAA_PHYSADDR-1+0xb00, 0x100, "amikeyb"))
+ 		return -EBUSY;
+ 
+-	init_input_dev(&amikbd_dev);
+-
+-	amikbd_dev.evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
+-	amikbd_dev.keycode = amikbd_keycode;
+-	amikbd_dev.keycodesize = sizeof(unsigned char);
+-	amikbd_dev.keycodemax = ARRAY_SIZE(amikbd_keycode);
++	amikbd_dev = input_dev_allocate();
++	if (!amikbd_dev) {
++		printk(KERN_ERR "amikbd: not enough memory for input device\n");
++		release_mem_region(CIAA_PHYSADDR - 1 + 0xb00, 0x100);
++		return -ENOMEM;
++	}
++
++	amikbd_dev->name = "Amiga Keyboard";
++	amikbd_dev->phys = "amikbd/input0";
++	amikbd_dev->id.bustype = BUS_AMIGA;
++	amikbd_dev->id.vendor = 0x0001;
++	amikbd_dev->id.product = 0x0001;
++	amikbd_dev->id.version = 0x0100;
++
++	amikbd_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
++	amikbd_dev->keycode = amikbd_keycode;
++	amikbd_dev->keycodesize = sizeof(unsigned char);
++	amikbd_dev->keycodemax = ARRAY_SIZE(amikbd_keycode);
+ 
+ 	for (i = 0; i < 0x78; i++)
+ 		if (amikbd_keycode[i])
+-			set_bit(amikbd_keycode[i], amikbd_dev.keybit);
++			set_bit(amikbd_keycode[i], amikbd_dev->keybit);
+ 
+ 	ciaa.cra &= ~0x41;	 /* serial data in, turn off TA */
+ 	request_irq(IRQ_AMIGA_CIAA_SP, amikbd_interrupt, 0, "amikbd", amikbd_interrupt);
+ 
+-	amikbd_dev.name = amikbd_name;
+-	amikbd_dev.phys = amikbd_phys;
+-	amikbd_dev.id.bustype = BUS_AMIGA;
+-	amikbd_dev.id.vendor = 0x0001;
+-	amikbd_dev.id.product = 0x0001;
+-	amikbd_dev.id.version = 0x0100;
+-
+-	input_register_device(&amikbd_dev);
+-
+-	printk(KERN_INFO "input: %s\n", amikbd_name);
+-
++	input_register_device(amikbd_dev);
+ 	return 0;
+ }
+ 
+ static void __exit amikbd_exit(void)
+ {
+-	input_unregister_device(&amikbd_dev);
+ 	free_irq(IRQ_AMIGA_CIAA_SP, amikbd_interrupt);
+-	release_mem_region(CIAA_PHYSADDR-1+0xb00, 0x100);
++	input_unregister_device(amikbd_dev);
++	release_mem_region(CIAA_PHYSADDR - 1 + 0xb00, 0x100);
+ }
+ 
+ module_init(amikbd_init);
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index 1ad8c2e..820c7fd 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -185,12 +185,12 @@ static struct {
+ 
+ struct atkbd {
+ 
+-	struct ps2dev	ps2dev;
++	struct ps2dev ps2dev;
++	struct input_dev *dev;
+ 
+ 	/* Written only during init */
+ 	char name[64];
+ 	char phys[32];
+-	struct input_dev dev;
+ 
+ 	unsigned short id;
+ 	unsigned char keycode[512];
+@@ -290,7 +290,7 @@ static irqreturn_t atkbd_interrupt(struc
+ 	if (!atkbd->enabled)
+ 		goto out;
+ 
+-	input_event(&atkbd->dev, EV_MSC, MSC_RAW, code);
++	input_event(atkbd->dev, EV_MSC, MSC_RAW, code);
+ 
+ 	if (atkbd->translated) {
+ 
+@@ -326,10 +326,10 @@ static irqreturn_t atkbd_interrupt(struc
+ 			atkbd->release = 1;
+ 			goto out;
+ 		case ATKBD_RET_HANGUEL:
+-			atkbd_report_key(&atkbd->dev, regs, KEY_HANGUEL, 3);
++			atkbd_report_key(atkbd->dev, regs, KEY_HANGUEL, 3);
+ 			goto out;
+ 		case ATKBD_RET_HANJA:
+-			atkbd_report_key(&atkbd->dev, regs, KEY_HANJA, 3);
++			atkbd_report_key(atkbd->dev, regs, KEY_HANJA, 3);
+ 			goto out;
+ 		case ATKBD_RET_ERR:
+ 			printk(KERN_DEBUG "atkbd.c: Keyboard on %s reports too many keys pressed.\n", serio->phys);
+@@ -345,7 +345,7 @@ static irqreturn_t atkbd_interrupt(struc
+ 	}
+ 
+ 	if (atkbd->keycode[code] != ATKBD_KEY_NULL)
+-		input_event(&atkbd->dev, EV_MSC, MSC_SCAN, code);
++		input_event(atkbd->dev, EV_MSC, MSC_SCAN, code);
+ 
+ 	switch (atkbd->keycode[code]) {
+ 		case ATKBD_KEY_NULL:
+@@ -365,7 +365,7 @@ static irqreturn_t atkbd_interrupt(struc
+ 				       "to make it known.\n",
+ 				       code & 0x80 ? "e0" : "", code & 0x7f);
+ 			}
+-			input_sync(&atkbd->dev);
++			input_sync(atkbd->dev);
+ 			break;
+ 		case ATKBD_SCR_1:
+ 			scroll = 1 - atkbd->release * 2;
+@@ -390,7 +390,7 @@ static irqreturn_t atkbd_interrupt(struc
+ 			break;
+ 		default:
+ 			value = atkbd->release ? 0 :
+-				(1 + (!atkbd->softrepeat && test_bit(atkbd->keycode[code], atkbd->dev.key)));
++				(1 + (!atkbd->softrepeat && test_bit(atkbd->keycode[code], atkbd->dev->key)));
+ 
+ 			switch (value) {	/* Workaround Toshiba laptop multiple keypress */
+ 				case 0:
+@@ -398,7 +398,7 @@ static irqreturn_t atkbd_interrupt(struc
+ 					break;
+ 				case 1:
+ 					atkbd->last = code;
+-					atkbd->time = jiffies + msecs_to_jiffies(atkbd->dev.rep[REP_DELAY]) / 2;
++					atkbd->time = jiffies + msecs_to_jiffies(atkbd->dev->rep[REP_DELAY]) / 2;
+ 					break;
+ 				case 2:
+ 					if (!time_after(jiffies, atkbd->time) && atkbd->last == code)
+@@ -406,16 +406,16 @@ static irqreturn_t atkbd_interrupt(struc
+ 					break;
+ 			}
+ 
+-			atkbd_report_key(&atkbd->dev, regs, atkbd->keycode[code], value);
++			atkbd_report_key(atkbd->dev, regs, atkbd->keycode[code], value);
+ 	}
+ 
+ 	if (atkbd->scroll) {
+-		input_regs(&atkbd->dev, regs);
++		input_regs(atkbd->dev, regs);
+ 		if (click != -1)
+-			input_report_key(&atkbd->dev, BTN_MIDDLE, click);
+-		input_report_rel(&atkbd->dev, REL_WHEEL, scroll);
+-		input_report_rel(&atkbd->dev, REL_HWHEEL, hscroll);
+-		input_sync(&atkbd->dev);
++			input_report_key(atkbd->dev, BTN_MIDDLE, click);
++		input_report_rel(atkbd->dev, REL_WHEEL, scroll);
++		input_report_rel(atkbd->dev, REL_HWHEEL, hscroll);
++		input_sync(atkbd->dev);
+ 	}
+ 
+ 	atkbd->release = 0;
+@@ -463,7 +463,6 @@ static int atkbd_event(struct input_dev 
+ 
+ 			return 0;
+ 
+-
+ 		case EV_REP:
+ 
+ 			if (atkbd->softrepeat) return 0;
+@@ -693,7 +692,7 @@ static void atkbd_disconnect(struct seri
+ 	device_remove_file(&serio->dev, &atkbd_attr_softrepeat);
+ 	device_remove_file(&serio->dev, &atkbd_attr_softraw);
+ 
+-	input_unregister_device(&atkbd->dev);
++	input_unregister_device(atkbd->dev);
+ 	serio_close(serio);
+ 	serio_set_drvdata(serio, NULL);
+ 	kfree(atkbd);
+@@ -701,7 +700,7 @@ static void atkbd_disconnect(struct seri
+ 
+ 
+ /*
+- * atkbd_set_device_attrs() initializes keyboard's keycode table
++ * atkbd_set_keycode_table() initializes keyboard's keycode table
+  * according to the selected scancode set
+  */
+ 
+@@ -737,53 +736,58 @@ static void atkbd_set_keycode_table(stru
+ 
+ static void atkbd_set_device_attrs(struct atkbd *atkbd)
+ {
++	struct input_dev *input_dev = atkbd->dev;
+ 	int i;
+ 
+-	memset(&atkbd->dev, 0, sizeof(struct input_dev));
++	if (atkbd->extra)
++		sprintf(atkbd->name, "AT Set 2 Extra keyboard");
++	else
++		sprintf(atkbd->name, "AT %s Set %d keyboard",
++			atkbd->translated ? "Translated" : "Raw", atkbd->set);
+ 
+-	init_input_dev(&atkbd->dev);
++	sprintf(atkbd->phys, "%s/input0", atkbd->ps2dev.serio->phys);
+ 
+-	atkbd->dev.name = atkbd->name;
+-	atkbd->dev.phys = atkbd->phys;
+-	atkbd->dev.id.bustype = BUS_I8042;
+-	atkbd->dev.id.vendor = 0x0001;
+-	atkbd->dev.id.product = atkbd->translated ? 1 : atkbd->set;
+-	atkbd->dev.id.version = atkbd->id;
+-	atkbd->dev.event = atkbd_event;
+-	atkbd->dev.private = atkbd;
+-	atkbd->dev.dev = &atkbd->ps2dev.serio->dev;
++	input_dev->name = atkbd->name;
++	input_dev->phys = atkbd->phys;
++	input_dev->id.bustype = BUS_I8042;
++	input_dev->id.vendor = 0x0001;
++	input_dev->id.product = atkbd->translated ? 1 : atkbd->set;
++	input_dev->id.version = atkbd->id;
++	input_dev->event = atkbd_event;
++	input_dev->private = atkbd;
++	input_dev->cdev.dev = &atkbd->ps2dev.serio->dev;
+ 
+-	atkbd->dev.evbit[0] = BIT(EV_KEY) | BIT(EV_REP) | BIT(EV_MSC);
++	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP) | BIT(EV_MSC);
+ 
+ 	if (atkbd->write) {
+-		atkbd->dev.evbit[0] |= BIT(EV_LED);
+-		atkbd->dev.ledbit[0] = BIT(LED_NUML) | BIT(LED_CAPSL) | BIT(LED_SCROLLL);
++		input_dev->evbit[0] |= BIT(EV_LED);
++		input_dev->ledbit[0] = BIT(LED_NUML) | BIT(LED_CAPSL) | BIT(LED_SCROLLL);
+ 	}
+ 
+ 	if (atkbd->extra)
+-		atkbd->dev.ledbit[0] |= BIT(LED_COMPOSE) | BIT(LED_SUSPEND) |
++		input_dev->ledbit[0] |= BIT(LED_COMPOSE) | BIT(LED_SUSPEND) |
+ 					BIT(LED_SLEEP) | BIT(LED_MUTE) | BIT(LED_MISC);
+ 
+ 	if (!atkbd->softrepeat) {
+-		atkbd->dev.rep[REP_DELAY] = 250;
+-		atkbd->dev.rep[REP_PERIOD] = 33;
++		input_dev->rep[REP_DELAY] = 250;
++		input_dev->rep[REP_PERIOD] = 33;
+ 	}
+ 
+-	atkbd->dev.mscbit[0] = atkbd->softraw ? BIT(MSC_SCAN) : BIT(MSC_RAW) | BIT(MSC_SCAN);
++	input_dev->mscbit[0] = atkbd->softraw ? BIT(MSC_SCAN) : BIT(MSC_RAW) | BIT(MSC_SCAN);
+ 
+ 	if (atkbd->scroll) {
+-		atkbd->dev.evbit[0] |= BIT(EV_REL);
+-		atkbd->dev.relbit[0] = BIT(REL_WHEEL) | BIT(REL_HWHEEL);
+-		set_bit(BTN_MIDDLE, atkbd->dev.keybit);
++		input_dev->evbit[0] |= BIT(EV_REL);
++		input_dev->relbit[0] = BIT(REL_WHEEL) | BIT(REL_HWHEEL);
++		set_bit(BTN_MIDDLE, input_dev->keybit);
+ 	}
+ 
+-	atkbd->dev.keycode = atkbd->keycode;
+-	atkbd->dev.keycodesize = sizeof(unsigned char);
+-	atkbd->dev.keycodemax = ARRAY_SIZE(atkbd_set2_keycode);
++	input_dev->keycode = atkbd->keycode;
++	input_dev->keycodesize = sizeof(unsigned char);
++	input_dev->keycodemax = ARRAY_SIZE(atkbd_set2_keycode);
+ 
+ 	for (i = 0; i < 512; i++)
+ 		if (atkbd->keycode[i] && atkbd->keycode[i] < ATKBD_SPECIAL)
+-			set_bit(atkbd->keycode[i], atkbd->dev.keybit);
++			set_bit(atkbd->keycode[i], input_dev->keybit);
+ }
+ 
+ /*
+@@ -796,13 +800,15 @@ static void atkbd_set_device_attrs(struc
+ static int atkbd_connect(struct serio *serio, struct serio_driver *drv)
+ {
+ 	struct atkbd *atkbd;
+-	int err;
+-
+-	if (!(atkbd = kmalloc(sizeof(struct atkbd), GFP_KERNEL)))
+-		return - ENOMEM;
++	struct input_dev *dev;
++	int err = -ENOMEM;
+ 
+-	memset(atkbd, 0, sizeof(struct atkbd));
++	atkbd = kzalloc(sizeof(struct atkbd), GFP_KERNEL);
++	dev = input_allocate_device();
++	if (!atkbd || !dev)
++		goto fail;
+ 
++	atkbd->dev = dev;
+ 	ps2_init(&atkbd->ps2dev, serio);
+ 
+ 	switch (serio->id.type) {
+@@ -828,19 +834,15 @@ static int atkbd_connect(struct serio *s
+ 	serio_set_drvdata(serio, atkbd);
+ 
+ 	err = serio_open(serio, drv);
+-	if (err) {
+-		serio_set_drvdata(serio, NULL);
+-		kfree(atkbd);
+-		return err;
+-	}
++	if (err)
++		goto fail;
+ 
+ 	if (atkbd->write) {
+ 
+ 		if (atkbd_probe(atkbd)) {
+ 			serio_close(serio);
+-			serio_set_drvdata(serio, NULL);
+-			kfree(atkbd);
+-			return -ENODEV;
++			err = -ENODEV;
++			goto fail;
+ 		}
+ 
+ 		atkbd->set = atkbd_select_set(atkbd, atkbd_set, atkbd_extra);
+@@ -851,19 +853,9 @@ static int atkbd_connect(struct serio *s
+ 		atkbd->id = 0xab00;
+ 	}
+ 
+-	if (atkbd->extra)
+-		sprintf(atkbd->name, "AT Set 2 Extra keyboard");
+-	else
+-		sprintf(atkbd->name, "AT %s Set %d keyboard",
+-			atkbd->translated ? "Translated" : "Raw", atkbd->set);
+-
+-	sprintf(atkbd->phys, "%s/input0", serio->phys);
+-
+ 	atkbd_set_keycode_table(atkbd);
+ 	atkbd_set_device_attrs(atkbd);
+ 
+-	input_register_device(&atkbd->dev);
+-
+ 	device_create_file(&serio->dev, &atkbd_attr_extra);
+ 	device_create_file(&serio->dev, &atkbd_attr_scroll);
+ 	device_create_file(&serio->dev, &atkbd_attr_set);
+@@ -872,9 +864,14 @@ static int atkbd_connect(struct serio *s
+ 
+ 	atkbd_enable(atkbd);
+ 
+-	printk(KERN_INFO "input: %s on %s\n", atkbd->name, serio->phys);
++	input_register_device(atkbd->dev);
+ 
+ 	return 0;
++
++ fail:	serio_set_drvdata(serio, NULL);
++	input_free_device(dev);
++	kfree(atkbd);
++	return err;
+ }
+ 
+ /*
+@@ -896,9 +893,9 @@ static int atkbd_reconnect(struct serio 
+ 	atkbd_disable(atkbd);
+ 
+ 	if (atkbd->write) {
+-		param[0] = (test_bit(LED_SCROLLL, atkbd->dev.led) ? 1 : 0)
+-		         | (test_bit(LED_NUML,    atkbd->dev.led) ? 2 : 0)
+-		         | (test_bit(LED_CAPSL,   atkbd->dev.led) ? 4 : 0);
++		param[0] = (test_bit(LED_SCROLLL, atkbd->dev->led) ? 1 : 0)
++		         | (test_bit(LED_NUML,    atkbd->dev->led) ? 2 : 0)
++		         | (test_bit(LED_CAPSL,   atkbd->dev->led) ? 4 : 0);
+ 
+ 		if (atkbd_probe(atkbd))
+ 			return -1;
+@@ -1008,6 +1005,7 @@ static ssize_t atkbd_show_extra(struct a
+ 
+ static ssize_t atkbd_set_extra(struct atkbd *atkbd, const char *buf, size_t count)
+ {
++	struct input_dev *new_dev;
+ 	unsigned long value;
+ 	char *rest;
+ 
+@@ -1019,12 +1017,19 @@ static ssize_t atkbd_set_extra(struct at
+ 		return -EINVAL;
+ 
+ 	if (atkbd->extra != value) {
+-		/* unregister device as it's properties will change */
+-		input_unregister_device(&atkbd->dev);
++		/*
++		 * Since device's properties will change we need to
++		 * unregister old device. But allocate new one first
++		 * to make sure we have it.
++		 */
++		if (!(new_dev = input_allocate_device()))
++			return -ENOMEM;
++		input_unregister_device(atkbd->dev);
++		atkbd->dev = new_dev;
+ 		atkbd->set = atkbd_select_set(atkbd, atkbd->set, value);
+ 		atkbd_activate(atkbd);
+ 		atkbd_set_device_attrs(atkbd);
+-		input_register_device(&atkbd->dev);
++		input_register_device(atkbd->dev);
+ 	}
+ 	return count;
+ }
+@@ -1036,6 +1041,7 @@ static ssize_t atkbd_show_scroll(struct 
+ 
+ static ssize_t atkbd_set_scroll(struct atkbd *atkbd, const char *buf, size_t count)
+ {
++	struct input_dev *new_dev;
+ 	unsigned long value;
+ 	char *rest;
+ 
+@@ -1044,12 +1050,14 @@ static ssize_t atkbd_set_scroll(struct a
+ 		return -EINVAL;
+ 
+ 	if (atkbd->scroll != value) {
+-		/* unregister device as it's properties will change */
+-		input_unregister_device(&atkbd->dev);
++		if (!(new_dev = input_allocate_device()))
++			return -ENOMEM;
++		input_unregister_device(atkbd->dev);
++		atkbd->dev = new_dev;
+ 		atkbd->scroll = value;
+ 		atkbd_set_keycode_table(atkbd);
+ 		atkbd_set_device_attrs(atkbd);
+-		input_register_device(&atkbd->dev);
++		input_register_device(atkbd->dev);
+ 	}
+ 	return count;
+ }
+@@ -1061,6 +1069,7 @@ static ssize_t atkbd_show_set(struct atk
+ 
+ static ssize_t atkbd_set_set(struct atkbd *atkbd, const char *buf, size_t count)
+ {
++	struct input_dev *new_dev;
+ 	unsigned long value;
+ 	char *rest;
+ 
+@@ -1072,13 +1081,15 @@ static ssize_t atkbd_set_set(struct atkb
+ 		return -EINVAL;
+ 
+ 	if (atkbd->set != value) {
+-		/* unregister device as it's properties will change */
+-		input_unregister_device(&atkbd->dev);
++		if (!(new_dev = input_allocate_device()))
++			return -ENOMEM;
++		input_unregister_device(atkbd->dev);
++		atkbd->dev = new_dev;
+ 		atkbd->set = atkbd_select_set(atkbd, value, atkbd->extra);
+ 		atkbd_activate(atkbd);
+ 		atkbd_set_keycode_table(atkbd);
+ 		atkbd_set_device_attrs(atkbd);
+-		input_register_device(&atkbd->dev);
++		input_register_device(atkbd->dev);
+ 	}
+ 	return count;
+ }
+@@ -1090,6 +1101,7 @@ static ssize_t atkbd_show_softrepeat(str
+ 
+ static ssize_t atkbd_set_softrepeat(struct atkbd *atkbd, const char *buf, size_t count)
+ {
++	struct input_dev *new_dev;
+ 	unsigned long value;
+ 	char *rest;
+ 
+@@ -1101,15 +1113,16 @@ static ssize_t atkbd_set_softrepeat(stru
+ 		return -EINVAL;
+ 
+ 	if (atkbd->softrepeat != value) {
+-		/* unregister device as it's properties will change */
+-		input_unregister_device(&atkbd->dev);
++		if (!(new_dev = input_allocate_device()))
++			return -ENOMEM;
++		input_unregister_device(atkbd->dev);
++		atkbd->dev = new_dev;
+ 		atkbd->softrepeat = value;
+ 		if (atkbd->softrepeat)
+ 			atkbd->softraw = 1;
+ 		atkbd_set_device_attrs(atkbd);
+-		input_register_device(&atkbd->dev);
++		input_register_device(atkbd->dev);
+ 	}
+-
+ 	return count;
+ }
+ 
+@@ -1121,6 +1134,7 @@ static ssize_t atkbd_show_softraw(struct
+ 
+ static ssize_t atkbd_set_softraw(struct atkbd *atkbd, const char *buf, size_t count)
+ {
++	struct input_dev *new_dev;
+ 	unsigned long value;
+ 	char *rest;
+ 
+@@ -1129,11 +1143,13 @@ static ssize_t atkbd_set_softraw(struct 
+ 		return -EINVAL;
+ 
+ 	if (atkbd->softraw != value) {
+-		/* unregister device as it's properties will change */
+-		input_unregister_device(&atkbd->dev);
++		if (!(new_dev = input_allocate_device()))
++			return -ENOMEM;
++		input_unregister_device(atkbd->dev);
++		atkbd->dev = new_dev;
+ 		atkbd->softraw = value;
+ 		atkbd_set_device_attrs(atkbd);
+-		input_register_device(&atkbd->dev);
++		input_register_device(atkbd->dev);
+ 	}
+ 	return count;
+ }
+diff --git a/drivers/input/keyboard/corgikbd.c b/drivers/input/keyboard/corgikbd.c
+index cd4b6e7..564bb36 100644
+--- a/drivers/input/keyboard/corgikbd.c
++++ b/drivers/input/keyboard/corgikbd.c
+@@ -70,8 +70,7 @@ static unsigned char corgikbd_keycode[NR
+ 
+ struct corgikbd {
+ 	unsigned char keycode[ARRAY_SIZE(corgikbd_keycode)];
+-	struct input_dev input;
+-	char phys[32];
++	struct input_dev *input;
+ 
+ 	spinlock_t lock;
+ 	struct timer_list timer;
+@@ -147,7 +146,7 @@ static void corgikbd_scankeyboard(struct
+ 	spin_lock_irqsave(&corgikbd_data->lock, flags);
+ 
+ 	if (regs)
+-		input_regs(&corgikbd_data->input, regs);
++		input_regs(corgikbd_data->input, regs);
+ 
+ 	num_pressed = 0;
+ 	for (col = 0; col < KB_COLS; col++) {
+@@ -169,14 +168,14 @@ static void corgikbd_scankeyboard(struct
+ 			scancode = SCANCODE(row, col);
+ 			pressed = rowd & KB_ROWMASK(row);
+ 
+-			input_report_key(&corgikbd_data->input, corgikbd_data->keycode[scancode], pressed);
++			input_report_key(corgikbd_data->input, corgikbd_data->keycode[scancode], pressed);
+ 
+ 			if (pressed)
+ 				num_pressed++;
+ 
+ 			if (pressed && (corgikbd_data->keycode[scancode] == CORGI_KEY_OFF)
+ 					&& time_after(jiffies, corgikbd_data->suspend_jiffies + HZ)) {
+-				input_event(&corgikbd_data->input, EV_PWR, CORGI_KEY_OFF, 1);
++				input_event(corgikbd_data->input, EV_PWR, CORGI_KEY_OFF, 1);
+ 				corgikbd_data->suspend_jiffies=jiffies;
+ 			}
+ 		}
+@@ -185,7 +184,7 @@ static void corgikbd_scankeyboard(struct
+ 
+ 	corgikbd_activate_all();
+ 
+-	input_sync(&corgikbd_data->input);
++	input_sync(corgikbd_data->input);
+ 
+ 	/* if any keys are pressed, enable the timer */
+ 	if (num_pressed)
+@@ -249,9 +248,9 @@ static void corgikbd_hinge_timer(unsigne
+ 		if (hinge_count >= HINGE_STABLE_COUNT) {
+ 			spin_lock_irqsave(&corgikbd_data->lock, flags);
+ 
+-			input_report_switch(&corgikbd_data->input, SW_0, ((sharpsl_hinge_state & CORGI_SCP_SWA) != 0));
+-			input_report_switch(&corgikbd_data->input, SW_1, ((sharpsl_hinge_state & CORGI_SCP_SWB) != 0));
+-			input_sync(&corgikbd_data->input);
++			input_report_switch(corgikbd_data->input, SW_0, ((sharpsl_hinge_state & CORGI_SCP_SWA) != 0));
++			input_report_switch(corgikbd_data->input, SW_1, ((sharpsl_hinge_state & CORGI_SCP_SWB) != 0));
++			input_sync(corgikbd_data->input);
+ 
+ 			spin_unlock_irqrestore(&corgikbd_data->lock, flags);
+ 		}
+@@ -287,16 +286,21 @@ static int corgikbd_resume(struct device
+ 
+ static int __init corgikbd_probe(struct device *dev)
+ {
+-	int i;
+ 	struct corgikbd *corgikbd;
 +	struct input_dev *input_dev;
 +	int i;
-+
-+	cinergyt2->rc_input_dev = input_dev = input_allocate_device();
-+	if (!input_dev)
-+		return -ENOMEM;
-+
-+	usb_make_path(cinergyt2->udev, cinergyt2->phys, sizeof(cinergyt2->phys));
-+	strlcat(cinergyt2->phys, "/input0", sizeof(cinergyt2->phys));
-+	cinergyt2->rc_input_event = KEY_MAX;
-+	cinergyt2->rc_last_code = ~0;
-+	INIT_WORK(&cinergyt2->rc_query_work, cinergyt2_query_rc, cinergyt2);
-+
-+	input_dev->name = DRIVER_NAME " remote control";
-+	input_dev->phys = cinergyt2->phys;
-+	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
-+	for (i = 0; ARRAY_SIZE(rc_keys); i += 3)
-+		set_bit(rc_keys[i + 2], input_dev->keybit);
-+	input_dev->keycodesize = 0;
-+	input_dev->keycodemax = 0;
-+
-+	input_register_device(cinergyt2->rc_input_dev);
-+	schedule_delayed_work(&cinergyt2->rc_query_work, HZ/2);
-+}
-+
-+static void cinergyt2_unregister_rc(struct cinergyt2 *cinergyt2)
-+{
-+	cancel_delayed_work(&cinergyt2->rc_query_work);
-+	flush_scheduled_work();
-+	input_unregister_device(cinergyt2->rc_input_dev);
-+}
-+
-+static inline void cinergyt2_suspend_rc(struct cinergyt2 *cinergyt2)
-+{
-+	cancel_delayed_work(&cinergyt2->rc_query_work);
-+}
-+
-+static inline void cinergyt2_resume_rc(struct cinergyt2 *cinergyt2)
-+{
-+	schedule_delayed_work(&cinergyt2->rc_query_work, HZ/2);
-+}
-+
-+#else
-+
-+static inline int cinergyt2_register_rc(struct cinergyt2 *cinergyt2) { return 0; }
-+static inline void cinergyt2_unregister_rc(struct cinergyt2 *cinergyt2) { }
-+static inline void cinergyt2_suspend_rc(struct cinergyt2 *cinergyt2) { }
-+static inline void cinergyt2_resume_rc(struct cinergyt2 *cinergyt2) { }
-+
-+#endif /* ENABLE_RC */
  
- static void cinergyt2_query (void *data)
- {
-@@ -789,9 +843,6 @@ static int cinergyt2_probe (struct usb_i
- {
- 	struct cinergyt2 *cinergyt2;
- 	int err;
--#ifdef ENABLE_RC
--	int i;
--#endif
- 
- 	if (!(cinergyt2 = kmalloc (sizeof(struct cinergyt2), GFP_KERNEL))) {
- 		dprintk(1, "out of memory?!?\n");
-@@ -846,30 +897,17 @@ static int cinergyt2_probe (struct usb_i
- 			    &cinergyt2_fe_template, cinergyt2,
- 			    DVB_DEVICE_FRONTEND);
- 
--#ifdef ENABLE_RC
--	cinergyt2->rc_input_dev.evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
--	cinergyt2->rc_input_dev.keycodesize = 0;
--	cinergyt2->rc_input_dev.keycodemax = 0;
--	cinergyt2->rc_input_dev.name = DRIVER_NAME " remote control";
--
--	for (i = 0; i < sizeof(rc_keys) / sizeof(rc_keys[0]); i += 3)
--		set_bit(rc_keys[i + 2], cinergyt2->rc_input_dev.keybit);
--
--	input_register_device(&cinergyt2->rc_input_dev);
--
--	cinergyt2->rc_input_event = KEY_MAX;
--	cinergyt2->rc_last_code = ~0;
-+	err = cinergyt2_register_rc(cinergyt2);
-+	if (err)
-+		goto bailout;
- 
--	INIT_WORK(&cinergyt2->rc_query_work, cinergyt2_query_rc, cinergyt2);
--	schedule_delayed_work(&cinergyt2->rc_query_work, HZ/2);
--#endif
- 	return 0;
- 
- bailout:
- 	dvb_dmxdev_release(&cinergyt2->dmxdev);
- 	dvb_dmx_release(&cinergyt2->demux);
--	dvb_unregister_adapter (&cinergyt2->adapter);
--	cinergyt2_free_stream_urbs (cinergyt2);
-+	dvb_unregister_adapter(&cinergyt2->adapter);
-+	cinergyt2_free_stream_urbs(cinergyt2);
- 	kfree(cinergyt2);
- 	return -ENOMEM;
- }
-@@ -881,11 +919,7 @@ static void cinergyt2_disconnect (struct
- 	if (down_interruptible(&cinergyt2->sem))
- 		return;
- 
--#ifdef ENABLE_RC
--	cancel_delayed_work(&cinergyt2->rc_query_work);
--	flush_scheduled_work();
--	input_unregister_device(&cinergyt2->rc_input_dev);
--#endif
-+	cinergyt2_unregister_rc(cinergyt2);
- 
- 	cinergyt2->demux.dmx.close(&cinergyt2->demux.dmx);
- 	dvb_net_release(&cinergyt2->dvbnet);
-@@ -908,9 +942,8 @@ static int cinergyt2_suspend (struct usb
- 
- 	if (state.event > PM_EVENT_ON) {
- 		struct cinergyt2 *cinergyt2 = usb_get_intfdata (intf);
--#ifdef ENABLE_RC
--		cancel_delayed_work(&cinergyt2->rc_query_work);
--#endif
-+
-+		cinergyt2_suspend_rc(cinergyt2);
- 		cancel_delayed_work(&cinergyt2->query_work);
- 		if (cinergyt2->streaming)
- 			cinergyt2_stop_stream_xfer(cinergyt2);
-@@ -938,9 +971,8 @@ static int cinergyt2_resume (struct usb_
- 		schedule_delayed_work(&cinergyt2->query_work, HZ/2);
- 	}
- 
--#ifdef ENABLE_RC
--	schedule_delayed_work(&cinergyt2->rc_query_work, HZ/2);
--#endif
-+	cinergyt2_resume_rc(cinergyt2);
-+
- 	up(&cinergyt2->sem);
- 	return 0;
- }
-diff --git a/drivers/media/dvb/dvb-usb/dvb-usb-remote.c b/drivers/media/dvb/dvb-usb/dvb-usb-remote.c
-index fc7800f..e5c6d98 100644
---- a/drivers/media/dvb/dvb-usb/dvb-usb-remote.c
-+++ b/drivers/media/dvb/dvb-usb/dvb-usb-remote.c
-@@ -39,9 +39,9 @@ static void dvb_usb_read_remote_control(
- 			d->last_event = event;
- 		case REMOTE_KEY_REPEAT:
- 			deb_rc("key repeated\n");
--			input_event(&d->rc_input_dev, EV_KEY, d->last_event, 1);
--			input_event(&d->rc_input_dev, EV_KEY, d->last_event, 0);
--			input_sync(&d->rc_input_dev);
-+			input_event(d->rc_input_dev, EV_KEY, event, 1);
-+			input_event(d->rc_input_dev, EV_KEY, d->last_event, 0);
-+			input_sync(d->rc_input_dev);
- 			break;
- 		default:
- 			break;
-@@ -53,8 +53,8 @@ static void dvb_usb_read_remote_control(
- 			deb_rc("NO KEY PRESSED\n");
- 			if (d->last_state != REMOTE_NO_KEY_PRESSED) {
- 				deb_rc("releasing event %d\n",d->last_event);
--				input_event(&d->rc_input_dev, EV_KEY, d->last_event, 0);
--				input_sync(&d->rc_input_dev);
-+				input_event(d->rc_input_dev, EV_KEY, d->last_event, 0);
-+				input_sync(d->rc_input_dev);
- 			}
- 			d->last_state = REMOTE_NO_KEY_PRESSED;
- 			d->last_event = 0;
-@@ -63,8 +63,8 @@ static void dvb_usb_read_remote_control(
- 			deb_rc("KEY PRESSED\n");
- 			deb_rc("pressing event %d\n",event);
- 
--			input_event(&d->rc_input_dev, EV_KEY, event, 1);
--			input_sync(&d->rc_input_dev);
-+			input_event(d->rc_input_dev, EV_KEY, event, 1);
-+			input_sync(d->rc_input_dev);
- 
- 			d->last_event = event;
- 			d->last_state = REMOTE_KEY_PRESSED;
-@@ -73,8 +73,8 @@ static void dvb_usb_read_remote_control(
- 			deb_rc("KEY_REPEAT\n");
- 			if (d->last_state != REMOTE_NO_KEY_PRESSED) {
- 				deb_rc("repeating event %d\n",d->last_event);
--				input_event(&d->rc_input_dev, EV_KEY, d->last_event, 2);
--				input_sync(&d->rc_input_dev);
-+				input_event(d->rc_input_dev, EV_KEY, d->last_event, 2);
-+				input_sync(d->rc_input_dev);
- 				d->last_state = REMOTE_KEY_REPEAT;
- 			}
- 		default:
-@@ -89,24 +89,30 @@ schedule:
- int dvb_usb_remote_init(struct dvb_usb_device *d)
- {
- 	int i;
-+
- 	if (d->props.rc_key_map == NULL ||
- 		d->props.rc_query == NULL ||
- 		dvb_usb_disable_rc_polling)
- 		return 0;
- 
--	/* Initialise the remote-control structures.*/
--	init_input_dev(&d->rc_input_dev);
-+	usb_make_path(d->udev, d->rc_phys, sizeof(d->rc_phys));
-+	strlcpy(d->rc_phys, "/ir0", sizeof(d->rc_phys));
- 
--	d->rc_input_dev.evbit[0] = BIT(EV_KEY);
--	d->rc_input_dev.keycodesize = sizeof(unsigned char);
--	d->rc_input_dev.keycodemax = KEY_MAX;
--	d->rc_input_dev.name = "IR-receiver inside an USB DVB receiver";
-+	d->rc_input_dev = input_allocate_device();
-+	if (!d->rc_input_dev)
-+		return -ENOMEM;
-+
-+	d->rc_input_dev->evbit[0] = BIT(EV_KEY);
-+	d->rc_input_dev->keycodesize = sizeof(unsigned char);
-+	d->rc_input_dev->keycodemax = KEY_MAX;
-+	d->rc_input_dev->name = "IR-receiver inside an USB DVB receiver";
-+	d->rc_input_dev->phys = d->rc_phys;
- 
- 	/* set the bits for the keys */
--	deb_rc("key map size: %d\n",d->props.rc_key_map_size);
-+	deb_rc("key map size: %d\n", d->props.rc_key_map_size);
- 	for (i = 0; i < d->props.rc_key_map_size; i++) {
- 		deb_rc("setting bit for event %d item %d\n",d->props.rc_key_map[i].event, i);
--		set_bit(d->props.rc_key_map[i].event, d->rc_input_dev.keybit);
-+		set_bit(d->props.rc_key_map[i].event, d->rc_input_dev->keybit);
- 	}
- 
- 	/* Start the remote-control polling. */
-@@ -114,14 +120,14 @@ int dvb_usb_remote_init(struct dvb_usb_d
- 		d->props.rc_interval = 100; /* default */
- 
- 	/* setting these two values to non-zero, we have to manage key repeats */
--	d->rc_input_dev.rep[REP_PERIOD] = d->props.rc_interval;
--	d->rc_input_dev.rep[REP_DELAY]  = d->props.rc_interval + 150;
-+	d->rc_input_dev->rep[REP_PERIOD] = d->props.rc_interval;
-+	d->rc_input_dev->rep[REP_DELAY]  = d->props.rc_interval + 150;
- 
--	input_register_device(&d->rc_input_dev);
-+	input_register_device(d->rc_input_dev);
- 
- 	INIT_WORK(&d->rc_query_work, dvb_usb_read_remote_control, d);
- 
--	info("schedule remote query interval to %d msecs.",d->props.rc_interval);
-+	info("schedule remote query interval to %d msecs.", d->props.rc_interval);
- 	schedule_delayed_work(&d->rc_query_work,msecs_to_jiffies(d->props.rc_interval));
- 
- 	d->state |= DVB_USB_STATE_REMOTE;
-@@ -134,7 +140,7 @@ int dvb_usb_remote_exit(struct dvb_usb_d
- 	if (d->state & DVB_USB_STATE_REMOTE) {
- 		cancel_delayed_work(&d->rc_query_work);
- 		flush_scheduled_work();
--		input_unregister_device(&d->rc_input_dev);
-+		input_unregister_device(d->rc_input_dev);
- 	}
- 	d->state &= ~DVB_USB_STATE_REMOTE;
- 	return 0;
-diff --git a/drivers/media/dvb/dvb-usb/dvb-usb.h b/drivers/media/dvb/dvb-usb/dvb-usb.h
-index 0e4f103..b4a1a98 100644
---- a/drivers/media/dvb/dvb-usb/dvb-usb.h
-+++ b/drivers/media/dvb/dvb-usb/dvb-usb.h
-@@ -300,7 +300,8 @@ struct dvb_usb_device {
- 	int (*fe_init)  (struct dvb_frontend *);
- 
- 	/* remote control */
--	struct input_dev rc_input_dev;
-+	struct input_dev *rc_input_dev;
-+	char rc_phys[64];
- 	struct work_struct rc_query_work;
- 	u32 last_event;
- 	int last_state;
-diff --git a/drivers/media/dvb/ttpci/av7110_ir.c b/drivers/media/dvb/ttpci/av7110_ir.c
-index 357a372..f5e59fc 100644
---- a/drivers/media/dvb/ttpci/av7110_ir.c
-+++ b/drivers/media/dvb/ttpci/av7110_ir.c
-@@ -15,7 +15,7 @@
- 
- static int av_cnt;
- static struct av7110 *av_list[4];
--static struct input_dev input_dev;
-+static struct input_dev *input_dev;
- 
- static u16 key_map [256] = {
- 	KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7,
-@@ -43,10 +43,10 @@ static u16 key_map [256] = {
- 
- static void av7110_emit_keyup(unsigned long data)
- {
--	if (!data || !test_bit(data, input_dev.key))
-+	if (!data || !test_bit(data, input_dev->key))
- 		return;
- 
--	input_event(&input_dev, EV_KEY, data, !!0);
-+	input_event(input_dev, EV_KEY, data, !!0);
- }
- 
- 
-@@ -112,13 +112,13 @@ static void av7110_emit_key(unsigned lon
- 	if (timer_pending(&keyup_timer)) {
- 		del_timer(&keyup_timer);
- 		if (keyup_timer.data != keycode || new_toggle != old_toggle) {
--			input_event(&input_dev, EV_KEY, keyup_timer.data, !!0);
--			input_event(&input_dev, EV_KEY, keycode, !0);
-+			input_event(input_dev, EV_KEY, keyup_timer.data, !!0);
-+			input_event(input_dev, EV_KEY, keycode, !0);
- 		} else
--			input_event(&input_dev, EV_KEY, keycode, 2);
-+			input_event(input_dev, EV_KEY, keycode, 2);
- 
- 	} else
--		input_event(&input_dev, EV_KEY, keycode, !0);
-+		input_event(input_dev, EV_KEY, keycode, !0);
- 
- 	keyup_timer.expires = jiffies + UP_TIMEOUT;
- 	keyup_timer.data = keycode;
-@@ -132,13 +132,13 @@ static void input_register_keys(void)
- {
- 	int i;
- 
--	memset(input_dev.keybit, 0, sizeof(input_dev.keybit));
-+	memset(input_dev->keybit, 0, sizeof(input_dev->keybit));
- 
--	for (i = 0; i < sizeof(key_map) / sizeof(key_map[0]); i++) {
-+	for (i = 0; i < ARRAY_SIZE(key_map); i++) {
- 		if (key_map[i] > KEY_MAX)
- 			key_map[i] = 0;
- 		else if (key_map[i] > KEY_RESERVED)
--			set_bit(key_map[i], input_dev.keybit);
-+			set_bit(key_map[i], input_dev->keybit);
- 	}
- }
- 
-@@ -216,12 +216,17 @@ int __init av7110_ir_init(struct av7110 
- 		init_timer(&keyup_timer);
- 		keyup_timer.data = 0;
- 
--		input_dev.name = "DVB on-card IR receiver";
--		set_bit(EV_KEY, input_dev.evbit);
--		set_bit(EV_REP, input_dev.evbit);
-+		input_dev = input_allocate_device();
-+		if (!input_dev)
-+			return -ENOMEM;
-+
-+		input_dev->name = "DVB on-card IR receiver";
-+
-+		set_bit(EV_KEY, input_dev->evbit);
-+		set_bit(EV_REP, input_dev->evbit);
- 		input_register_keys();
--		input_register_device(&input_dev);
--		input_dev.timer.function = input_repeat_key;
-+		input_register_device(input_dev);
-+		input_dev->timer.function = input_repeat_key;
- 
- 		e = create_proc_entry("av7110_ir", S_IFREG | S_IRUGO | S_IWUSR, NULL);
- 		if (e) {
-@@ -256,7 +261,7 @@ void __exit av7110_ir_exit(struct av7110
- 	if (av_cnt == 1) {
- 		del_timer_sync(&keyup_timer);
- 		remove_proc_entry("av7110_ir", NULL);
--		input_unregister_device(&input_dev);
-+		input_unregister_device(input_dev);
- 	}
- 
- 	av_cnt--;
-diff --git a/drivers/media/dvb/ttpci/budget-ci.c b/drivers/media/dvb/ttpci/budget-ci.c
-index 2980db3..51c30ba 100644
---- a/drivers/media/dvb/ttpci/budget-ci.c
-+++ b/drivers/media/dvb/ttpci/budget-ci.c
-@@ -64,7 +64,7 @@
- 
- struct budget_ci {
- 	struct budget budget;
--	struct input_dev input_dev;
-+	struct input_dev *input_dev;
- 	struct tasklet_struct msp430_irq_tasklet;
- 	struct tasklet_struct ciintf_irq_tasklet;
- 	int slot_status;
-@@ -145,7 +145,7 @@ static void msp430_ir_debounce(unsigned 
- static void msp430_ir_interrupt(unsigned long data)
- {
- 	struct budget_ci *budget_ci = (struct budget_ci *) data;
--	struct input_dev *dev = &budget_ci->input_dev;
-+	struct input_dev *dev = budget_ci->input_dev;
- 	unsigned int code =
- 		ttpci_budget_debiread(&budget_ci->budget, DEBINOSWAP, DEBIADDR_IR, 2, 1, 0) >> 8;
- 
-@@ -181,25 +181,27 @@ static void msp430_ir_interrupt(unsigned
- static int msp430_ir_init(struct budget_ci *budget_ci)
- {
- 	struct saa7146_dev *saa = budget_ci->budget.dev;
-+	struct input_dev *input_dev;
- 	int i;
- 
--	memset(&budget_ci->input_dev, 0, sizeof(struct input_dev));
-+	budget_ci->input_dev = input_dev = input_allocate_device();
-+	if (!input_dev)
-+		return -ENOMEM;
- 
- 	sprintf(budget_ci->ir_dev_name, "Budget-CI dvb ir receiver %s", saa->name);
--	budget_ci->input_dev.name = budget_ci->ir_dev_name;
- 
--	set_bit(EV_KEY, budget_ci->input_dev.evbit);
-+	input_dev->name = budget_ci->ir_dev_name;
- 
--	for (i = 0; i < sizeof(key_map) / sizeof(*key_map); i++)
-+	set_bit(EV_KEY, input_dev->evbit);
-+	for (i = 0; i < ARRAY_SIZE(key_map); i++)
- 		if (key_map[i])
--			set_bit(key_map[i], budget_ci->input_dev.keybit);
-+			set_bit(key_map[i], input_dev->keybit);
- 
--	input_register_device(&budget_ci->input_dev);
-+	input_register_device(budget_ci->input_dev);
- 
--	budget_ci->input_dev.timer.function = msp430_ir_debounce;
-+	input_dev->timer.function = msp430_ir_debounce;
- 
- 	saa7146_write(saa, IER, saa7146_read(saa, IER) | MASK_06);
--
- 	saa7146_setgpio(saa, 3, SAA7146_GPIO_IRQHI);
- 
- 	return 0;
-@@ -208,7 +210,7 @@ static int msp430_ir_init(struct budget_
- static void msp430_ir_deinit(struct budget_ci *budget_ci)
- {
- 	struct saa7146_dev *saa = budget_ci->budget.dev;
--	struct input_dev *dev = &budget_ci->input_dev;
-+	struct input_dev *dev = budget_ci->input_dev;
- 
- 	saa7146_write(saa, IER, saa7146_read(saa, IER) & ~MASK_06);
- 	saa7146_setgpio(saa, 3, SAA7146_GPIO_INPUT);
-diff --git a/drivers/media/dvb/ttusb-dec/ttusb_dec.c b/drivers/media/dvb/ttusb-dec/ttusb_dec.c
-index 3d08fc8..832d179 100644
---- a/drivers/media/dvb/ttusb-dec/ttusb_dec.c
-+++ b/drivers/media/dvb/ttusb-dec/ttusb_dec.c
-@@ -152,7 +152,8 @@ struct ttusb_dec {
- 	struct list_head	filter_info_list;
- 	spinlock_t		filter_info_list_lock;
- 
--	struct input_dev	rc_input_dev;
-+	struct input_dev	*rc_input_dev;
-+	char			rc_phys[64];
- 
- 	int			active; /* Loaded successfully */
- };
-@@ -235,9 +236,9 @@ static void ttusb_dec_handle_irq( struct
- 		 * this should/could be added later ...
- 		 * for now lets report each signal as a key down and up*/
- 		dprintk("%s:rc signal:%d\n", __FUNCTION__, buffer[4]);
--		input_report_key(&dec->rc_input_dev,rc_keys[buffer[4]-1],1);
--		input_report_key(&dec->rc_input_dev,rc_keys[buffer[4]-1],0);
--		input_sync(&dec->rc_input_dev);
-+		input_report_key(dec->rc_input_dev, rc_keys[buffer[4] - 1], 1);
-+		input_report_key(dec->rc_input_dev, rc_keys[buffer[4] - 1], 0);
-+		input_sync(dec->rc_input_dev);
- 	}
- 
- exit:	retval = usb_submit_urb(urb, GFP_ATOMIC);
-@@ -1181,29 +1182,38 @@ static void ttusb_dec_init_tasklet(struc
- 		     (unsigned long)dec);
- }
- 
--static void ttusb_init_rc( struct ttusb_dec *dec)
-+static int ttusb_init_rc(struct ttusb_dec *dec)
- {
-+	struct input_dev *input_dev;
- 	u8 b[] = { 0x00, 0x01 };
- 	int i;
- 
--	init_input_dev(&dec->rc_input_dev);
-+	usb_make_path(dec->udev, dec->rc_phys, sizeof(dec->rc_phys));
-+	strlcpy(dec->rc_phys, "/input0", sizeof(dec->rc_phys));
- 
--	dec->rc_input_dev.name = "ttusb_dec remote control";
--	dec->rc_input_dev.evbit[0] = BIT(EV_KEY);
--	dec->rc_input_dev.keycodesize = sizeof(u16);
--	dec->rc_input_dev.keycodemax = 0x1a;
--	dec->rc_input_dev.keycode = rc_keys;
-+	dec->rc_input_dev = input_dev = input_allocate_device();
-+	if (!input_dev)
-+		return -ENOMEM;
-+
-+	input_dev->name = "ttusb_dec remote control";
-+	input_dev->phys = dec->rc_phys;
-+	input_dev->evbit[0] = BIT(EV_KEY);
-+	input_dev->keycodesize = sizeof(u16);
-+	input_dev->keycodemax = 0x1a;
-+	input_dev->keycode = rc_keys;
- 
--	 for (i = 0; i < sizeof(rc_keys)/sizeof(rc_keys[0]); i++)
--                set_bit(rc_keys[i], dec->rc_input_dev.keybit);
-+	for (i = 0; i < ARRAY_SIZE(rc_keys); i++)
-+                set_bit(rc_keys[i], input_dev->keybit);
- 
--	input_register_device(&dec->rc_input_dev);
-+	input_register_device(input_dev);
- 
--	if(usb_submit_urb(dec->irq_urb,GFP_KERNEL)) {
-+	if (usb_submit_urb(dec->irq_urb, GFP_KERNEL))
- 		printk("%s: usb_submit_urb failed\n",__FUNCTION__);
--	}
-+
- 	/* enable irq pipe */
- 	ttusb_dec_send_command(dec,0xb0,sizeof(b),b,NULL,NULL);
-+
-+	return 0;
- }
- 
- static void ttusb_dec_init_v_pes(struct ttusb_dec *dec)
-@@ -1513,7 +1523,7 @@ static void ttusb_dec_exit_rc(struct ttu
- 	  * As the irq is submitted after the interface is changed,
- 	  * this is the best method i figured out.
- 	  * Any others?*/
--	if(dec->interface == TTUSB_DEC_INTERFACE_IN)
-+	if (dec->interface == TTUSB_DEC_INTERFACE_IN)
- 		usb_kill_urb(dec->irq_urb);
- 
- 	usb_free_urb(dec->irq_urb);
-@@ -1521,7 +1531,10 @@ static void ttusb_dec_exit_rc(struct ttu
- 	usb_buffer_free(dec->udev,IRQ_PACKET_SIZE,
- 		           dec->irq_buffer, dec->irq_dma_handle);
- 
--	input_unregister_device(&dec->rc_input_dev);
-+	if (dec->rc_input_dev) {
-+		input_unregister_device(dec->rc_input_dev);
-+		dec->rc_input_dev = NULL;
+ 	corgikbd = kzalloc(sizeof(struct corgikbd), GFP_KERNEL);
+-	if (!corgikbd)
++	input_dev = input_allocate_device();
++	if (!corgikbd || !input_dev) {
++		kfree(corgikbd);
++		input_free_device(input_dev);
+ 		return -ENOMEM;
 +	}
+ 
+-	dev_set_drvdata(dev,corgikbd);
+-	strcpy(corgikbd->phys, "corgikbd/input0");
++	dev_set_drvdata(dev, corgikbd);
+ 
++	corgikbd->input = input_dev;
+ 	spin_lock_init(&corgikbd->lock);
+ 
+ 	/* Init Keyboard rescan timer */
+@@ -311,28 +315,30 @@ static int __init corgikbd_probe(struct 
+ 
+ 	corgikbd->suspend_jiffies=jiffies;
+ 
+-	init_input_dev(&corgikbd->input);
+-	corgikbd->input.private = corgikbd;
+-	corgikbd->input.name = "Corgi Keyboard";
+-	corgikbd->input.dev = dev;
+-	corgikbd->input.phys = corgikbd->phys;
+-	corgikbd->input.id.bustype = BUS_HOST;
+-	corgikbd->input.id.vendor = 0x0001;
+-	corgikbd->input.id.product = 0x0001;
+-	corgikbd->input.id.version = 0x0100;
+-	corgikbd->input.evbit[0] = BIT(EV_KEY) | BIT(EV_REP) | BIT(EV_PWR) | BIT(EV_SW);
+-	corgikbd->input.keycode = corgikbd->keycode;
+-	corgikbd->input.keycodesize = sizeof(unsigned char);
+-	corgikbd->input.keycodemax = ARRAY_SIZE(corgikbd_keycode);
+-
+ 	memcpy(corgikbd->keycode, corgikbd_keycode, sizeof(corgikbd->keycode));
++
++	input_dev->name = "Corgi Keyboard";
++	input_dev->phys = "corgikbd/input0";
++	input_dev->id.bustype = BUS_HOST;
++	input_dev->id.vendor = 0x0001;
++	input_dev->id.product = 0x0001;
++	input_dev->id.version = 0x0100;
++	input_dev->cdev.dev = dev;
++	input_dev->private = corgikbd;
++
++	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP) | BIT(EV_PWR) | BIT(EV_SW);
++	input_dev->keycode = corgikbd->keycode;
++	input_dev->keycodesize = sizeof(unsigned char);
++	input_dev->keycodemax = ARRAY_SIZE(corgikbd_keycode);
++
+ 	for (i = 0; i < ARRAY_SIZE(corgikbd_keycode); i++)
+-		set_bit(corgikbd->keycode[i], corgikbd->input.keybit);
+-	clear_bit(0, corgikbd->input.keybit);
+-	set_bit(SW_0, corgikbd->input.swbit);
+-	set_bit(SW_1, corgikbd->input.swbit);
++		set_bit(corgikbd->keycode[i], input_dev->keybit);
++	clear_bit(0, input_dev->keybit);
++	set_bit(SW_0, input_dev->swbit);
++	set_bit(SW_1, input_dev->swbit);
++
++	input_register_device(corgikbd->input);
+ 
+-	input_register_device(&corgikbd->input);
+ 	mod_timer(&corgikbd->htimer, jiffies + HINGE_SCAN_INTERVAL);
+ 
+ 	/* Setup sense interrupts - RisingEdge Detect, sense lines as inputs */
+@@ -349,8 +355,6 @@ static int __init corgikbd_probe(struct 
+ 	for (i = 0; i < CORGI_KEY_STROBE_NUM; i++)
+ 		pxa_gpio_mode(CORGI_GPIO_KEY_STROBE(i) | GPIO_OUT | GPIO_DFLT_HIGH);
+ 
+-	printk(KERN_INFO "input: Corgi Keyboard Registered\n");
+-
+ 	return 0;
  }
  
+@@ -365,7 +369,7 @@ static int corgikbd_remove(struct device
+ 	del_timer_sync(&corgikbd->htimer);
+ 	del_timer_sync(&corgikbd->timer);
  
-@@ -1659,7 +1672,7 @@ static int ttusb_dec_probe(struct usb_in
+-	input_unregister_device(&corgikbd->input);
++	input_unregister_device(corgikbd->input);
  
- 	ttusb_dec_set_interface(dec, TTUSB_DEC_INTERFACE_IN);
+ 	kfree(corgikbd);
  
--	if(enable_rc)
-+	if (enable_rc)
- 		ttusb_init_rc(dec);
+diff --git a/drivers/input/keyboard/lkkbd.c b/drivers/input/keyboard/lkkbd.c
+index 098963c..7f06780 100644
+--- a/drivers/input/keyboard/lkkbd.c
++++ b/drivers/input/keyboard/lkkbd.c
+@@ -102,7 +102,7 @@ static int ctrlclick_volume = 100; /* % 
+ module_param (ctrlclick_volume, int, 0);
+ MODULE_PARM_DESC (ctrlclick_volume, "Ctrlclick volume (in %), default is 100%");
+ 
+-static int lk201_compose_is_alt = 0;
++static int lk201_compose_is_alt;
+ module_param (lk201_compose_is_alt, int, 0);
+ MODULE_PARM_DESC (lk201_compose_is_alt, "If set non-zero, LK201' Compose key "
+ 		"will act as an Alt key");
+@@ -274,7 +274,7 @@ static lk_keycode_t lkkbd_keycode[LK_NUM
+ };
+ 
+ #define CHECK_LED(LED, BITS) do {		\
+-	if (test_bit (LED, lk->dev.led))	\
++	if (test_bit (LED, lk->dev->led))	\
+ 		leds_on |= BITS;		\
+ 	else					\
+ 		leds_off |= BITS;		\
+@@ -287,7 +287,7 @@ struct lkkbd {
+ 	lk_keycode_t keycode[LK_NUM_KEYCODES];
+ 	int ignore_bytes;
+ 	unsigned char id[LK_NUM_IGNORE_BYTES];
+-	struct input_dev dev;
++	struct input_dev *dev;
+ 	struct serio *serio;
+ 	struct work_struct tq;
+ 	char name[64];
+@@ -423,8 +423,7 @@ lkkbd_interrupt (struct serio *serio, un
+ 	DBG (KERN_INFO "Got byte 0x%02x\n", data);
+ 
+ 	if (lk->ignore_bytes > 0) {
+-		DBG (KERN_INFO "Ignoring a byte on %s\n",
+-				lk->name);
++		DBG (KERN_INFO "Ignoring a byte on %s\n", lk->name);
+ 		lk->id[LK_NUM_IGNORE_BYTES - lk->ignore_bytes--] = data;
+ 
+ 		if (lk->ignore_bytes == 0)
+@@ -435,14 +434,14 @@ lkkbd_interrupt (struct serio *serio, un
+ 
+ 	switch (data) {
+ 		case LK_ALL_KEYS_UP:
+-			input_regs (&lk->dev, regs);
++			input_regs (lk->dev, regs);
+ 			for (i = 0; i < ARRAY_SIZE (lkkbd_keycode); i++)
+ 				if (lk->keycode[i] != KEY_RESERVED)
+-					input_report_key (&lk->dev, lk->keycode[i], 0);
+-			input_sync (&lk->dev);
++					input_report_key (lk->dev, lk->keycode[i], 0);
++			input_sync (lk->dev);
+ 			break;
+ 		case LK_METRONOME:
+-			DBG (KERN_INFO "Got LK_METRONOME and don't "
++			DBG (KERN_INFO "Got %#d and don't "
+ 					"know how to handle...\n");
+ 			break;
+ 		case LK_OUTPUT_ERROR:
+@@ -482,12 +481,12 @@ lkkbd_interrupt (struct serio *serio, un
+ 
+ 		default:
+ 			if (lk->keycode[data] != KEY_RESERVED) {
+-				input_regs (&lk->dev, regs);
+-				if (!test_bit (lk->keycode[data], lk->dev.key))
+-					input_report_key (&lk->dev, lk->keycode[data], 1);
++				input_regs (lk->dev, regs);
++				if (!test_bit (lk->keycode[data], lk->dev->key))
++					input_report_key (lk->dev, lk->keycode[data], 1);
+ 				else
+-					input_report_key (&lk->dev, lk->keycode[data], 0);
+-				input_sync (&lk->dev);
++					input_report_key (lk->dev, lk->keycode[data], 0);
++				input_sync (lk->dev);
+                         } else
+                                 printk (KERN_WARNING "%s: Unknown key with "
+ 						"scancode 0x%02x on %s.\n",
+@@ -605,7 +604,7 @@ lkkbd_reinit (void *data)
+ 	lk->serio->write (lk->serio, volume_to_hw (lk->bell_volume));
+ 
+ 	/* Enable/disable keyclick (and possibly set volume) */
+-	if (test_bit (SND_CLICK, lk->dev.snd)) {
++	if (test_bit (SND_CLICK, lk->dev->snd)) {
+ 		lk->serio->write (lk->serio, LK_CMD_ENABLE_KEYCLICK);
+ 		lk->serio->write (lk->serio, volume_to_hw (lk->keyclick_volume));
+ 		lk->serio->write (lk->serio, LK_CMD_ENABLE_CTRCLICK);
+@@ -616,7 +615,7 @@ lkkbd_reinit (void *data)
+ 	}
+ 
+ 	/* Sound the bell if needed */
+-	if (test_bit (SND_BELL, lk->dev.snd))
++	if (test_bit (SND_BELL, lk->dev->snd))
+ 		lk->serio->write (lk->serio, LK_CMD_SOUND_BELL);
+ }
+ 
+@@ -627,71 +626,70 @@ static int
+ lkkbd_connect (struct serio *serio, struct serio_driver *drv)
+ {
+ 	struct lkkbd *lk;
++	struct input_dev *input_dev;
+ 	int i;
+ 	int err;
+ 
+-	if (!(lk = kmalloc (sizeof (struct lkkbd), GFP_KERNEL)))
+-		return -ENOMEM;
+-
+-	memset (lk, 0, sizeof (struct lkkbd));
+-
+-	init_input_dev (&lk->dev);
+-	set_bit (EV_KEY, lk->dev.evbit);
+-	set_bit (EV_LED, lk->dev.evbit);
+-	set_bit (EV_SND, lk->dev.evbit);
+-	set_bit (EV_REP, lk->dev.evbit);
+-	set_bit (LED_CAPSL, lk->dev.ledbit);
+-	set_bit (LED_SLEEP, lk->dev.ledbit);
+-	set_bit (LED_COMPOSE, lk->dev.ledbit);
+-	set_bit (LED_SCROLLL, lk->dev.ledbit);
+-	set_bit (SND_BELL, lk->dev.sndbit);
+-	set_bit (SND_CLICK, lk->dev.sndbit);
++	lk = kzalloc (sizeof (struct lkkbd), GFP_KERNEL);
++	input_dev = input_allocate_device ();
++	if (!lk || !input_dev) {
++		err = -ENOMEM;
++		goto fail;
++	}
+ 
+ 	lk->serio = serio;
+-
++	lk->dev = input_dev;
+ 	INIT_WORK (&lk->tq, lkkbd_reinit, lk);
+-
+ 	lk->bell_volume = bell_volume;
+ 	lk->keyclick_volume = keyclick_volume;
+ 	lk->ctrlclick_volume = ctrlclick_volume;
++	memcpy (lk->keycode, lkkbd_keycode, sizeof (lk_keycode_t) * LK_NUM_KEYCODES);
+ 
+-	lk->dev.keycode = lk->keycode;
+-	lk->dev.keycodesize = sizeof (lk_keycode_t);
+-	lk->dev.keycodemax = LK_NUM_KEYCODES;
++	strlcpy (lk->name, "DEC LK keyboard", sizeof(lk->name));
++	snprintf (lk->phys, sizeof(lk->phys), "%s/input0", serio->phys);
+ 
+-	lk->dev.event = lkkbd_event;
+-	lk->dev.private = lk;
++	input_dev->name = lk->name;
++	input_dev->phys = lk->phys;
++	input_dev->id.bustype = BUS_RS232;
++	input_dev->id.vendor = SERIO_LKKBD;
++	input_dev->id.product = 0;
++	input_dev->id.version = 0x0100;
++	input_dev->cdev.dev = &serio->dev;
++	input_dev->event = lkkbd_event;
++	input_dev->private = lk;
++
++	set_bit (EV_KEY, input_dev->evbit);
++	set_bit (EV_LED, input_dev->evbit);
++	set_bit (EV_SND, input_dev->evbit);
++	set_bit (EV_REP, input_dev->evbit);
++	set_bit (LED_CAPSL, input_dev->ledbit);
++	set_bit (LED_SLEEP, input_dev->ledbit);
++	set_bit (LED_COMPOSE, input_dev->ledbit);
++	set_bit (LED_SCROLLL, input_dev->ledbit);
++	set_bit (SND_BELL, input_dev->sndbit);
++	set_bit (SND_CLICK, input_dev->sndbit);
++
++	input_dev->keycode = lk->keycode;
++	input_dev->keycodesize = sizeof (lk_keycode_t);
++	input_dev->keycodemax = LK_NUM_KEYCODES;
++	for (i = 0; i < LK_NUM_KEYCODES; i++)
++		set_bit (lk->keycode[i], input_dev->keybit);
+ 
+ 	serio_set_drvdata (serio, lk);
+ 
+ 	err = serio_open (serio, drv);
+-	if (err) {
+-		serio_set_drvdata (serio, NULL);
+-		kfree (lk);
+-		return err;
+-	}
++	if (err)
++		goto fail;
+ 
+-	sprintf (lk->name, "DEC LK keyboard");
+-	sprintf (lk->phys, "%s/input0", serio->phys);
+-
+-	memcpy (lk->keycode, lkkbd_keycode, sizeof (lk_keycode_t) * LK_NUM_KEYCODES);
+-	for (i = 0; i < LK_NUM_KEYCODES; i++)
+-		set_bit (lk->keycode[i], lk->dev.keybit);
+-
+-	lk->dev.name = lk->name;
+-	lk->dev.phys = lk->phys;
+-	lk->dev.id.bustype = BUS_RS232;
+-	lk->dev.id.vendor = SERIO_LKKBD;
+-	lk->dev.id.product = 0;
+-	lk->dev.id.version = 0x0100;
+-	lk->dev.dev = &serio->dev;
+-
+-	input_register_device (&lk->dev);
+-
+-	printk (KERN_INFO "input: %s on %s, initiating reset\n", lk->name, serio->phys);
++	input_register_device (lk->dev);
+ 	lk->serio->write (lk->serio, LK_CMD_POWERCYCLE_RESET);
  
  	return 0;
-diff --git a/drivers/media/video/bttvp.h b/drivers/media/video/bttvp.h
-index 7a312f7..e0e7c7a 100644
---- a/drivers/media/video/bttvp.h
-+++ b/drivers/media/video/bttvp.h
-@@ -240,7 +240,7 @@ struct bttv_pll_info {
++
++ fail:	serio_set_drvdata (serio, NULL);
++	input_free_device (input_dev);
++	kfree (lk);
++	return err;
+ }
  
- /* for gpio-connected remote control */
- struct bttv_input {
--	struct input_dev      dev;
-+	struct input_dev      *dev;
- 	struct ir_input_state ir;
- 	char                  name[32];
- 	char                  phys[32];
-diff --git a/drivers/media/video/cx88/cx88-input.c b/drivers/media/video/cx88/cx88-input.c
-index d81b21d..c27fe4c 100644
---- a/drivers/media/video/cx88/cx88-input.c
-+++ b/drivers/media/video/cx88/cx88-input.c
-@@ -260,7 +260,7 @@ static IR_KEYTAB_TYPE ir_codes_cinergy_1
+ /*
+@@ -702,9 +700,11 @@ lkkbd_disconnect (struct serio *serio)
+ {
+ 	struct lkkbd *lk = serio_get_drvdata (serio);
  
- struct cx88_IR {
- 	struct cx88_core *core;
+-	input_unregister_device (&lk->dev);
++	input_get_device (lk->dev);
++	input_unregister_device (lk->dev);
+ 	serio_close (serio);
+ 	serio_set_drvdata (serio, NULL);
++	input_put_device (lk->dev);
+ 	kfree (lk);
+ }
+ 
+diff --git a/drivers/input/keyboard/maple_keyb.c b/drivers/input/keyboard/maple_keyb.c
+index eecbde2..cc6aaf9 100644
+--- a/drivers/input/keyboard/maple_keyb.c
++++ b/drivers/input/keyboard/maple_keyb.c
+@@ -37,7 +37,7 @@ static unsigned char dc_kbd_keycode[256]
+ 
+ 
+ struct dc_kbd {
+-	struct input_dev dev;
++	struct input_dev *dev;
+ 	unsigned char new[8];
+ 	unsigned char old[8];
+ };
+@@ -46,30 +46,24 @@ struct dc_kbd {
+ static void dc_scan_kbd(struct dc_kbd *kbd)
+ {
+ 	int i;
+-	struct input_dev *dev = &kbd->dev;
++	struct input_dev *dev = kbd->dev;
+ 
+-	for(i=0; i<8; i++)
+-		input_report_key(dev,
+-				 dc_kbd_keycode[i+224],
+-				 (kbd->new[0]>>i)&1);
+-
+-	for(i=2; i<8; i++) {
+-
+-		if(kbd->old[i]>3&&memscan(kbd->new+2, kbd->old[i], 6)==NULL) {
+-			if(dc_kbd_keycode[kbd->old[i]])
+-				input_report_key(dev,
+-						 dc_kbd_keycode[kbd->old[i]],
+-						 0);
++	for (i = 0; i < 8; i++)
++		input_report_key(dev, dc_kbd_keycode[i + 224], (kbd->new[0] >> i) & 1);
++
++	for (i = 2; i < 8; i++) {
++
++		if (kbd->old[i] > 3 && memscan(kbd->new + 2, kbd->old[i], 6) == NULL) {
++			if (dc_kbd_keycode[kbd->old[i]])
++				input_report_key(dev, dc_kbd_keycode[kbd->old[i]], 0);
+ 			else
+ 				printk("Unknown key (scancode %#x) released.",
+ 				       kbd->old[i]);
+ 		}
+ 
+-		if(kbd->new[i]>3&&memscan(kbd->old+2, kbd->new[i], 6)!=NULL) {
++		if (kbd->new[i] > 3 && memscan(kbd->old + 2, kbd->new[i], 6) != NULL) {
+ 			if(dc_kbd_keycode[kbd->new[i]])
+-				input_report_key(dev,
+-						 dc_kbd_keycode[kbd->new[i]],
+-						 1);
++				input_report_key(dev, dc_kbd_keycode[kbd->new[i]], 1);
+ 			else
+ 				printk("Unknown key (scancode %#x) pressed.",
+ 				       kbd->new[i]);
+@@ -89,43 +83,39 @@ static void dc_kbd_callback(struct maple
+ 	unsigned long *buf = mq->recvbuf;
+ 
+ 	if (buf[1] == mapledev->function) {
+-		memcpy(kbd->new, buf+2, 8);
++		memcpy(kbd->new, buf + 2, 8);
+ 		dc_scan_kbd(kbd);
+ 	}
+ }
+ 
+ static int dc_kbd_connect(struct maple_device *dev)
+ {
+-	int i;
+-	unsigned long data = be32_to_cpu(dev->devinfo.function_data[0]);
+ 	struct dc_kbd *kbd;
++	struct input_dev *input_dev;
++	unsigned long data = be32_to_cpu(dev->devinfo.function_data[0]);
++	int i;
+ 
+-	if (!(kbd = kmalloc(sizeof(struct dc_kbd), GFP_KERNEL)))
+-		return -1;
+-	memset(kbd, 0, sizeof(struct dc_kbd));
+-
+-	dev->private_data = kbd;
+-
+-	kbd->dev.evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
+-
+-	init_input_dev(&kbd->dev);
+-
+-	for (i=0; i<255; i++)
+-		set_bit(dc_kbd_keycode[i], kbd->dev.keybit);
+-
+-	clear_bit(0, kbd->dev.keybit);
++	dev->private_data = kbd = kzalloc(sizeof(struct dc_kbd), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!kbd || !input_dev) {
++		kfree(kbd);
++		input_free_device(input_dev);
++		return -ENOMEM;
++	}
+ 
+-	kbd->dev.private = kbd;
++	kbd->dev = input_dev;
+ 
+-	kbd->dev.name = dev->product_name;
+-	kbd->dev.id.bustype = BUS_MAPLE;
++	input_dev->name = dev->product_name;
++	input_dev->id.bustype = BUS_MAPLE;
++	input_dev->private = kbd;
++	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
++	for (i = 0; i < 255; i++)
++		set_bit(dc_kbd_keycode[i], input_dev->keybit);
++	clear_bit(0, input_dev->keybit);
+ 
+-	input_register_device(&kbd->dev);
++	input_register_device(kbd->dev);
+ 
+ 	maple_getcond_callback(dev, dc_kbd_callback, 1, MAPLE_FUNC_KEYBOARD);
+-
+-	printk(KERN_INFO "input: keyboard(0x%lx): %s\n", data, kbd->dev.name);
+-
+ 	return 0;
+ }
+ 
+@@ -134,7 +124,7 @@ static void dc_kbd_disconnect(struct map
+ {
+ 	struct dc_kbd *kbd = dev->private_data;
+ 
+-	input_unregister_device(&kbd->dev);
++	input_unregister_device(kbd->dev);
+ 	kfree(kbd);
+ }
+ 
+diff --git a/drivers/input/keyboard/newtonkbd.c b/drivers/input/keyboard/newtonkbd.c
+index 2e8ce16..d10983c 100644
+--- a/drivers/input/keyboard/newtonkbd.c
++++ b/drivers/input/keyboard/newtonkbd.c
+@@ -57,11 +57,9 @@ static unsigned char nkbd_keycode[128] =
+ 	KEY_LEFT, KEY_RIGHT, KEY_DOWN, KEY_UP, 0
+ };
+ 
+-static char *nkbd_name = "Newton Keyboard";
+-
+ struct nkbd {
+ 	unsigned char keycode[128];
+-	struct input_dev dev;
++	struct input_dev *dev;
+ 	struct serio *serio;
+ 	char phys[32];
+ };
+@@ -73,13 +71,13 @@ static irqreturn_t nkbd_interrupt(struct
+ 
+ 	/* invalid scan codes are probably the init sequence, so we ignore them */
+ 	if (nkbd->keycode[data & NKBD_KEY]) {
+-		input_regs(&nkbd->dev, regs);
+-		input_report_key(&nkbd->dev, nkbd->keycode[data & NKBD_KEY], data & NKBD_PRESS);
+-		input_sync(&nkbd->dev);
++		input_regs(nkbd->dev, regs);
++		input_report_key(nkbd->dev, nkbd->keycode[data & NKBD_KEY], data & NKBD_PRESS);
++		input_sync(nkbd->dev);
+ 	}
+ 
+ 	else if (data == 0xe7) /* end of init sequence */
+-		printk(KERN_INFO "input: %s on %s\n", nkbd_name, serio->phys);
++		printk(KERN_INFO "input: %s on %s\n", nkbd->dev->name, serio->phys);
+ 	return IRQ_HANDLED;
+ 
+ }
+@@ -87,62 +85,59 @@ static irqreturn_t nkbd_interrupt(struct
+ static int nkbd_connect(struct serio *serio, struct serio_driver *drv)
+ {
+ 	struct nkbd *nkbd;
++	struct input_dev *input_dev;
++	int err = -ENOMEM;
+ 	int i;
+-	int err;
+-
+-	if (!(nkbd = kmalloc(sizeof(struct nkbd), GFP_KERNEL)))
+-		return -ENOMEM;
+-
+-	memset(nkbd, 0, sizeof(struct nkbd));
+ 
+-	nkbd->dev.evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
++	nkbd = kzalloc(sizeof(struct nkbd), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!nkbd || !input_dev)
++		goto fail;
+ 
+ 	nkbd->serio = serio;
++	nkbd->dev = input_dev;
++	sprintf(nkbd->phys, "%s/input0", serio->phys);
++	memcpy(nkbd->keycode, nkbd_keycode, sizeof(nkbd->keycode));
+ 
+-	init_input_dev(&nkbd->dev);
+-	nkbd->dev.keycode = nkbd->keycode;
+-	nkbd->dev.keycodesize = sizeof(unsigned char);
+-	nkbd->dev.keycodemax = ARRAY_SIZE(nkbd_keycode);
+-	nkbd->dev.private = nkbd;
++	input_dev->name = "Newton Keyboard";
++	input_dev->phys = nkbd->phys;
++	input_dev->id.bustype = BUS_RS232;
++	input_dev->id.vendor = SERIO_NEWTON;
++	input_dev->id.product = 0x0001;
++	input_dev->id.version = 0x0100;
++	input_dev->cdev.dev = &serio->dev;
++	input_dev->private = nkbd;
++
++	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
++	input_dev->keycode = nkbd->keycode;
++	input_dev->keycodesize = sizeof(unsigned char);
++	input_dev->keycodemax = ARRAY_SIZE(nkbd_keycode);
++	for (i = 0; i < 128; i++)
++		set_bit(nkbd->keycode[i], input_dev->keybit);
++	clear_bit(0, input_dev->keybit);
+ 
+ 	serio_set_drvdata(serio, nkbd);
+ 
+ 	err = serio_open(serio, drv);
+-	if (err) {
+-		serio_set_drvdata(serio, NULL);
+-		kfree(nkbd);
+-		return err;
+-	}
+-
+-	memcpy(nkbd->keycode, nkbd_keycode, sizeof(nkbd->keycode));
+-	for (i = 0; i < 128; i++)
+-		set_bit(nkbd->keycode[i], nkbd->dev.keybit);
+-	clear_bit(0, nkbd->dev.keybit);
+-
+-	sprintf(nkbd->phys, "%s/input0", serio->phys);
+-
+-	nkbd->dev.name = nkbd_name;
+-	nkbd->dev.phys = nkbd->phys;
+-	nkbd->dev.id.bustype = BUS_RS232;
+-	nkbd->dev.id.vendor = SERIO_NEWTON;
+-	nkbd->dev.id.product = 0x0001;
+-	nkbd->dev.id.version = 0x0100;
+-	nkbd->dev.dev = &serio->dev;
+-
+-	input_register_device(&nkbd->dev);
+-
+-	printk(KERN_INFO "input: %s on %s\n", nkbd_name, serio->phys);
++	if (err)
++		goto fail;
+ 
++	input_register_device(nkbd->dev);
+ 	return 0;
++
++ fail:	serio_set_drvdata(serio, NULL);
++	input_free_device(input_dev);
++	kfree(nkbd);
++	return err;
+ }
+ 
+ static void nkbd_disconnect(struct serio *serio)
+ {
+ 	struct nkbd *nkbd = serio_get_drvdata(serio);
+ 
+-	input_unregister_device(&nkbd->dev);
+ 	serio_close(serio);
+ 	serio_set_drvdata(serio, NULL);
++	input_unregister_device(nkbd->dev);
+ 	kfree(nkbd);
+ }
+ 
+diff --git a/drivers/input/keyboard/spitzkbd.c b/drivers/input/keyboard/spitzkbd.c
+index 344f460..732fb31 100644
+--- a/drivers/input/keyboard/spitzkbd.c
++++ b/drivers/input/keyboard/spitzkbd.c
+@@ -85,7 +85,7 @@ static int spitz_senses[] = {
+ 
+ struct spitzkbd {
+ 	unsigned char keycode[ARRAY_SIZE(spitzkbd_keycode)];
 -	struct input_dev input;
 +	struct input_dev *input;
- 	struct ir_input_state ir;
- 	char name[32];
  	char phys[32];
-@@ -315,23 +315,23 @@ static void cx88_ir_handle_key(struct cx
- 	if (ir->mask_keydown) {
- 		/* bit set on keydown */
- 		if (gpio & ir->mask_keydown) {
--			ir_input_keydown(&ir->input, &ir->ir, data, data);
-+			ir_input_keydown(ir->input, &ir->ir, data, data);
- 		} else {
--			ir_input_nokey(&ir->input, &ir->ir);
-+			ir_input_nokey(ir->input, &ir->ir);
- 		}
  
- 	} else if (ir->mask_keyup) {
- 		/* bit cleared on keydown */
- 		if (0 == (gpio & ir->mask_keyup)) {
--			ir_input_keydown(&ir->input, &ir->ir, data, data);
-+			ir_input_keydown(ir->input, &ir->ir, data, data);
- 		} else {
--			ir_input_nokey(&ir->input, &ir->ir);
-+			ir_input_nokey(ir->input, &ir->ir);
- 		}
+ 	spinlock_t lock;
+@@ -187,8 +187,7 @@ static void spitzkbd_scankeyboard(struct
  
- 	} else {
- 		/* can't distinguish keydown/up :-/ */
--		ir_input_keydown(&ir->input, &ir->ir, data, data);
--		ir_input_nokey(&ir->input, &ir->ir);
-+		ir_input_keydown(ir->input, &ir->ir, data, data);
-+		ir_input_nokey(ir->input, &ir->ir);
+ 	spin_lock_irqsave(&spitzkbd_data->lock, flags);
+ 
+-	if (regs)
+-		input_regs(&spitzkbd_data->input, regs);
++	input_regs(spitzkbd_data->input, regs);
+ 
+ 	num_pressed = 0;
+ 	for (col = 0; col < KB_COLS; col++) {
+@@ -210,7 +209,7 @@ static void spitzkbd_scankeyboard(struct
+ 			scancode = SCANCODE(row, col);
+ 			pressed = rowd & KB_ROWMASK(row);
+ 
+-			input_report_key(&spitzkbd_data->input, spitzkbd_data->keycode[scancode], pressed);
++			input_report_key(spitzkbd_data->input, spitzkbd_data->keycode[scancode], pressed);
+ 
+ 			if (pressed)
+ 				num_pressed++;
+@@ -220,15 +219,15 @@ static void spitzkbd_scankeyboard(struct
+ 
+ 	spitzkbd_activate_all();
+ 
+-	input_report_key(&spitzkbd_data->input, SPITZ_KEY_SYNC, (GPLR(SPITZ_GPIO_SYNC) & GPIO_bit(SPITZ_GPIO_SYNC)) != 0 );
+-	input_report_key(&spitzkbd_data->input, KEY_SUSPEND, pwrkey);
++	input_report_key(spitzkbd_data->input, SPITZ_KEY_SYNC, (GPLR(SPITZ_GPIO_SYNC) & GPIO_bit(SPITZ_GPIO_SYNC)) != 0 );
++	input_report_key(spitzkbd_data->input, KEY_SUSPEND, pwrkey);
+ 
+ 	if (pwrkey && time_after(jiffies, spitzkbd_data->suspend_jiffies + msecs_to_jiffies(1000))) {
+-		input_event(&spitzkbd_data->input, EV_PWR, KEY_SUSPEND, 1);
++		input_event(spitzkbd_data->input, EV_PWR, KEY_SUSPEND, 1);
+ 		spitzkbd_data->suspend_jiffies = jiffies;
  	}
+ 
+-	input_sync(&spitzkbd_data->input);
++	input_sync(spitzkbd_data->input);
+ 
+ 	/* if any keys are pressed, enable the timer */
+ 	if (num_pressed)
+@@ -259,6 +258,7 @@ static irqreturn_t spitzkbd_interrupt(in
+ static void spitzkbd_timer_callback(unsigned long data)
+ {
+ 	struct spitzkbd *spitzkbd_data = (struct spitzkbd *) data;
++
+ 	spitzkbd_scankeyboard(spitzkbd_data, NULL);
  }
  
-@@ -357,13 +357,19 @@ static void cx88_ir_work(void *data)
- int cx88_ir_init(struct cx88_core *core, struct pci_dev *pci)
- {
- 	struct cx88_IR *ir;
-+	struct input_dev *input_dev;
- 	IR_KEYTAB_TYPE *ir_codes = NULL;
- 	int ir_type = IR_TYPE_OTHER;
+@@ -298,9 +298,9 @@ static void spitzkbd_hinge_timer(unsigne
+ 	if (hinge_count >= HINGE_STABLE_COUNT) {
+ 		spin_lock_irqsave(&spitzkbd_data->lock, flags);
  
--	ir = kmalloc(sizeof(*ir), GFP_KERNEL);
--	if (NULL == ir)
-+	ir = kzalloc(sizeof(*ir), GFP_KERNEL);
-+	input_dev = input_allocate_device();
-+	if (!ir || !input_dev) {
-+		kfree(ir);
-+		input_free_device(input_dev);
+-		input_report_switch(&spitzkbd_data->input, SW_0, ((GPLR(SPITZ_GPIO_SWA) & GPIO_bit(SPITZ_GPIO_SWA)) != 0));
+-		input_report_switch(&spitzkbd_data->input, SW_1, ((GPLR(SPITZ_GPIO_SWB) & GPIO_bit(SPITZ_GPIO_SWB)) != 0));
+-		input_sync(&spitzkbd_data->input);
++		input_report_switch(spitzkbd_data->input, SW_0, ((GPLR(SPITZ_GPIO_SWA) & GPIO_bit(SPITZ_GPIO_SWA)) != 0));
++		input_report_switch(spitzkbd_data->input, SW_1, ((GPLR(SPITZ_GPIO_SWB) & GPIO_bit(SPITZ_GPIO_SWB)) != 0));
++		input_sync(spitzkbd_data->input);
+ 
+ 		spin_unlock_irqrestore(&spitzkbd_data->lock, flags);
+ 	} else {
+@@ -346,14 +346,21 @@ static int spitzkbd_resume(struct device
+ 
+ static int __init spitzkbd_probe(struct device *dev)
+ {
+-	int i;
+ 	struct spitzkbd *spitzkbd;
++	struct input_dev *input_dev;
++	int i;
+ 
+ 	spitzkbd = kzalloc(sizeof(struct spitzkbd), GFP_KERNEL);
+ 	if (!spitzkbd)
  		return -ENOMEM;
--	memset(ir, 0, sizeof(*ir));
+ 
+-	dev_set_drvdata(dev,spitzkbd);
++	input_dev = input_allocate_device();
++	if (!input_dev) {
++		kfree(spitzkbd);
++		return -ENOMEM;
 +	}
 +
-+	ir->input = input_dev;
++	dev_set_drvdata(dev, spitzkbd);
+ 	strcpy(spitzkbd->phys, "spitzkbd/input0");
  
- 	/* detect & configure */
- 	switch (core->board) {
-@@ -425,6 +431,7 @@ int cx88_ir_init(struct cx88_core *core,
+ 	spin_lock_init(&spitzkbd->lock);
+@@ -368,30 +375,34 @@ static int __init spitzkbd_probe(struct 
+ 	spitzkbd->htimer.function = spitzkbd_hinge_timer;
+ 	spitzkbd->htimer.data = (unsigned long) spitzkbd;
  
- 	if (NULL == ir_codes) {
- 		kfree(ir);
-+		input_free_device(input_dev);
- 		return -ENODEV;
- 	}
+-	spitzkbd->suspend_jiffies=jiffies;
++	spitzkbd->suspend_jiffies = jiffies;
  
-@@ -433,19 +440,19 @@ int cx88_ir_init(struct cx88_core *core,
- 		 cx88_boards[core->board].name);
- 	snprintf(ir->phys, sizeof(ir->phys), "pci-%s/ir0", pci_name(pci));
+-	init_input_dev(&spitzkbd->input);
+-	spitzkbd->input.private = spitzkbd;
+-	spitzkbd->input.name = "Spitz Keyboard";
+-	spitzkbd->input.dev = dev;
+-	spitzkbd->input.phys = spitzkbd->phys;
+-	spitzkbd->input.id.bustype = BUS_HOST;
+-	spitzkbd->input.id.vendor = 0x0001;
+-	spitzkbd->input.id.product = 0x0001;
+-	spitzkbd->input.id.version = 0x0100;
+-	spitzkbd->input.evbit[0] = BIT(EV_KEY) | BIT(EV_REP) | BIT(EV_PWR) | BIT(EV_SW);
+-	spitzkbd->input.keycode = spitzkbd->keycode;
+-	spitzkbd->input.keycodesize = sizeof(unsigned char);
+-	spitzkbd->input.keycodemax = ARRAY_SIZE(spitzkbd_keycode);
++	spitzkbd->input = input_dev;
++
++	input_dev->private = spitzkbd;
++	input_dev->name = "Spitz Keyboard";
++	input_dev->phys = spitzkbd->phys;
++	input_dev->cdev.dev = dev;
++
++	input_dev->id.bustype = BUS_HOST;
++	input_dev->id.vendor = 0x0001;
++	input_dev->id.product = 0x0001;
++	input_dev->id.version = 0x0100;
++
++	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP) | BIT(EV_PWR) | BIT(EV_SW);
++	input_dev->keycode = spitzkbd->keycode;
++	input_dev->keycodesize = sizeof(unsigned char);
++	input_dev->keycodemax = ARRAY_SIZE(spitzkbd_keycode);
  
--	ir_input_init(&ir->input, &ir->ir, ir_type, ir_codes);
--	ir->input.name = ir->name;
--	ir->input.phys = ir->phys;
--	ir->input.id.bustype = BUS_PCI;
--	ir->input.id.version = 1;
-+	ir_input_init(input_dev, &ir->ir, ir_type, ir_codes);
-+	input_dev->name = ir->name;
-+	input_dev->phys = ir->phys;
-+	input_dev->id.bustype = BUS_PCI;
-+	input_dev->id.version = 1;
- 	if (pci->subsystem_vendor) {
--		ir->input.id.vendor = pci->subsystem_vendor;
--		ir->input.id.product = pci->subsystem_device;
-+		input_dev->id.vendor = pci->subsystem_vendor;
-+		input_dev->id.product = pci->subsystem_device;
- 	} else {
--		ir->input.id.vendor = pci->vendor;
--		ir->input.id.product = pci->device;
-+		input_dev->id.vendor = pci->vendor;
-+		input_dev->id.product = pci->device;
- 	}
--	ir->input.dev = &pci->dev;
-+	input_dev->cdev.dev = &pci->dev;
+ 	memcpy(spitzkbd->keycode, spitzkbd_keycode, sizeof(spitzkbd->keycode));
+ 	for (i = 0; i < ARRAY_SIZE(spitzkbd_keycode); i++)
+-		set_bit(spitzkbd->keycode[i], spitzkbd->input.keybit);
+-	clear_bit(0, spitzkbd->input.keybit);
+-	set_bit(SW_0, spitzkbd->input.swbit);
+-	set_bit(SW_1, spitzkbd->input.swbit);
++		set_bit(spitzkbd->keycode[i], input_dev->keybit);
++	clear_bit(0, input_dev->keybit);
++	set_bit(SW_0, input_dev->swbit);
++	set_bit(SW_1, input_dev->swbit);
++
++	input_register_device(input_dev);
  
- 	/* record handles to ourself */
- 	ir->core = core;
-@@ -465,8 +472,7 @@ int cx88_ir_init(struct cx88_core *core,
- 	}
+-	input_register_device(&spitzkbd->input);
+ 	mod_timer(&spitzkbd->htimer, jiffies + msecs_to_jiffies(HINGE_SCAN_INTERVAL));
  
- 	/* all done */
--	input_register_device(&ir->input);
--	printk("%s: registered IR remote control\n", core->name);
-+	input_register_device(ir->input);
+ 	/* Setup sense interrupts - RisingEdge Detect, sense lines as inputs */
+@@ -444,7 +455,7 @@ static int spitzkbd_remove(struct device
+ 	del_timer_sync(&spitzkbd->htimer);
+ 	del_timer_sync(&spitzkbd->timer);
  
- 	return 0;
- }
-@@ -484,7 +490,7 @@ int cx88_ir_fini(struct cx88_core *core)
- 		flush_scheduled_work();
- 	}
+-	input_unregister_device(&spitzkbd->input);
++	input_unregister_device(spitzkbd->input);
  
--	input_unregister_device(&ir->input);
-+	input_unregister_device(ir->input);
- 	kfree(ir);
+ 	kfree(spitzkbd);
  
- 	/* done */
-@@ -515,7 +521,7 @@ void cx88_ir_irq(struct cx88_core *core)
- 	if (!ir->scount) {
- 		/* nothing to sample */
- 		if (ir->ir.keypressed && time_after(jiffies, ir->release))
--			ir_input_nokey(&ir->input, &ir->ir);
-+			ir_input_nokey(ir->input, &ir->ir);
- 		return;
- 	}
+diff --git a/drivers/input/keyboard/sunkbd.c b/drivers/input/keyboard/sunkbd.c
+index 4bae5d8..b15b6d8 100644
+--- a/drivers/input/keyboard/sunkbd.c
++++ b/drivers/input/keyboard/sunkbd.c
+@@ -76,13 +76,14 @@ static unsigned char sunkbd_keycode[128]
  
-@@ -557,7 +563,7 @@ void cx88_ir_irq(struct cx88_core *core)
- 
- 		ir_dprintk("Key Code: %x\n", (ircode >> 16) & 0x7f);
- 
--		ir_input_keydown(&ir->input, &ir->ir, (ircode >> 16) & 0x7f, (ircode >> 16) & 0xff);
-+		ir_input_keydown(ir->input, &ir->ir, (ircode >> 16) & 0x7f, (ircode >> 16) & 0xff);
- 		ir->release = jiffies + msecs_to_jiffies(120);
- 		break;
- 	case CX88_BOARD_HAUPPAUGE:
-@@ -566,7 +572,7 @@ void cx88_ir_irq(struct cx88_core *core)
- 		ir_dprintk("biphase decoded: %x\n", ircode);
- 		if ((ircode & 0xfffff000) != 0x3000)
+ struct sunkbd {
+ 	unsigned char keycode[128];
+-	struct input_dev dev;
++	struct input_dev *dev;
+ 	struct serio *serio;
+ 	struct work_struct tq;
+ 	wait_queue_head_t wait;
+ 	char name[64];
+ 	char phys[32];
+ 	char type;
++	unsigned char enabled;
+ 	volatile s8 reset;
+ 	volatile s8 layout;
+ };
+@@ -124,10 +125,13 @@ static irqreturn_t sunkbd_interrupt(stru
  			break;
--		ir_input_keydown(&ir->input, &ir->ir, ircode & 0x3f, ircode);
-+		ir_input_keydown(ir->input, &ir->ir, ircode & 0x3f, ircode);
- 		ir->release = jiffies + msecs_to_jiffies(120);
- 		break;
- 	}
-diff --git a/drivers/media/video/ir-kbd-gpio.c b/drivers/media/video/ir-kbd-gpio.c
-index cf292da..234151e 100644
---- a/drivers/media/video/ir-kbd-gpio.c
-+++ b/drivers/media/video/ir-kbd-gpio.c
-@@ -158,7 +158,7 @@ static IR_KEYTAB_TYPE ir_codes_apac_view
  
- struct IR {
- 	struct bttv_sub_device  *sub;
--	struct input_dev        input;
-+	struct input_dev        *input;
- 	struct ir_input_state   ir;
- 	char                    name[32];
- 	char                    phys[32];
-@@ -217,23 +217,23 @@ static void ir_handle_key(struct IR *ir)
- 	if (ir->mask_keydown) {
- 		/* bit set on keydown */
- 		if (gpio & ir->mask_keydown) {
--			ir_input_keydown(&ir->input,&ir->ir,data,data);
-+			ir_input_keydown(ir->input, &ir->ir, data, data);
- 		} else {
--			ir_input_nokey(&ir->input,&ir->ir);
-+			ir_input_nokey(ir->input, &ir->ir);
- 		}
+ 		default:
++			if (!sunkbd->enabled)
++				break;
++
+ 			if (sunkbd->keycode[data & SUNKBD_KEY]) {
+-				input_regs(&sunkbd->dev, regs);
+-                                input_report_key(&sunkbd->dev, sunkbd->keycode[data & SUNKBD_KEY], !(data & SUNKBD_RELEASE));
+-				input_sync(&sunkbd->dev);
++				input_regs(sunkbd->dev, regs);
++                                input_report_key(sunkbd->dev, sunkbd->keycode[data & SUNKBD_KEY], !(data & SUNKBD_RELEASE));
++				input_sync(sunkbd->dev);
+                         } else {
+                                 printk(KERN_WARNING "sunkbd.c: Unknown key (scancode %#x) %s.\n",
+                                         data & SUNKBD_KEY, data & SUNKBD_RELEASE ? "released" : "pressed");
+@@ -184,7 +188,7 @@ static int sunkbd_initialize(struct sunk
+ 	sunkbd->reset = -2;
+ 	sunkbd->serio->write(sunkbd->serio, SUNKBD_CMD_RESET);
+ 	wait_event_interruptible_timeout(sunkbd->wait, sunkbd->reset >= 0, HZ);
+-	if (sunkbd->reset <0)
++	if (sunkbd->reset < 0)
+ 		return -1;
  
- 	} else if (ir->mask_keyup) {
- 		/* bit cleared on keydown */
- 		if (0 == (gpio & ir->mask_keyup)) {
--			ir_input_keydown(&ir->input,&ir->ir,data,data);
-+			ir_input_keydown(ir->input, &ir->ir, data, data);
- 		} else {
--			ir_input_nokey(&ir->input,&ir->ir);
-+			ir_input_nokey(ir->input, &ir->ir);
- 		}
+ 	sunkbd->type = sunkbd->reset;
+@@ -213,10 +217,17 @@ static void sunkbd_reinit(void *data)
  
- 	} else {
- 		/* can't disturgissh keydown/up :-/ */
--		ir_input_keydown(&ir->input,&ir->ir,data,data);
--		ir_input_nokey(&ir->input,&ir->ir);
-+		ir_input_keydown(ir->input, &ir->ir, data, data);
-+		ir_input_nokey(ir->input, &ir->ir);
- 	}
+ 	sunkbd->serio->write(sunkbd->serio, SUNKBD_CMD_SETLED);
+ 	sunkbd->serio->write(sunkbd->serio,
+-		(!!test_bit(LED_CAPSL, sunkbd->dev.led) << 3) | (!!test_bit(LED_SCROLLL, sunkbd->dev.led) << 2) |
+-		(!!test_bit(LED_COMPOSE, sunkbd->dev.led) << 1) | !!test_bit(LED_NUML, sunkbd->dev.led));
+-	sunkbd->serio->write(sunkbd->serio, SUNKBD_CMD_NOCLICK - !!test_bit(SND_CLICK, sunkbd->dev.snd));
+-	sunkbd->serio->write(sunkbd->serio, SUNKBD_CMD_BELLOFF - !!test_bit(SND_BELL, sunkbd->dev.snd));
++		(!!test_bit(LED_CAPSL, sunkbd->dev->led) << 3) | (!!test_bit(LED_SCROLLL, sunkbd->dev->led) << 2) |
++		(!!test_bit(LED_COMPOSE, sunkbd->dev->led) << 1) | !!test_bit(LED_NUML, sunkbd->dev->led));
++	sunkbd->serio->write(sunkbd->serio, SUNKBD_CMD_NOCLICK - !!test_bit(SND_CLICK, sunkbd->dev->snd));
++	sunkbd->serio->write(sunkbd->serio, SUNKBD_CMD_BELLOFF - !!test_bit(SND_BELL, sunkbd->dev->snd));
++}
++
++static void sunkbd_enable(struct sunkbd *sunkbd, int enable)
++{
++	serio_pause_rx(sunkbd->serio);
++	sunkbd->enabled = 1;
++	serio_continue_rx(sunkbd->serio);
  }
  
-@@ -268,13 +268,17 @@ static int ir_probe(struct device *dev)
+ /*
+@@ -226,70 +237,64 @@ static void sunkbd_reinit(void *data)
+ static int sunkbd_connect(struct serio *serio, struct serio_driver *drv)
  {
- 	struct bttv_sub_device *sub = to_bttv_sub_dev(dev);
- 	struct IR *ir;
+ 	struct sunkbd *sunkbd;
 +	struct input_dev *input_dev;
- 	IR_KEYTAB_TYPE *ir_codes = NULL;
- 	int ir_type = IR_TYPE_OTHER;
++	int err = -ENOMEM;
+ 	int i;
+-	int err;
+-
+-	if (!(sunkbd = kmalloc(sizeof(struct sunkbd), GFP_KERNEL)))
+-		return -ENOMEM;
  
--	ir = kmalloc(sizeof(*ir),GFP_KERNEL);
--	if (NULL == ir)
-+	ir = kzalloc(sizeof(*ir), GFP_KERNEL);
+-	memset(sunkbd, 0, sizeof(struct sunkbd));
+-
+-	init_input_dev(&sunkbd->dev);
+-	init_waitqueue_head(&sunkbd->wait);
+-
+-	sunkbd->dev.evbit[0] = BIT(EV_KEY) | BIT(EV_LED) | BIT(EV_SND) | BIT(EV_REP);
+-	sunkbd->dev.ledbit[0] = BIT(LED_CAPSL) | BIT(LED_COMPOSE) | BIT(LED_SCROLLL) | BIT(LED_NUML);
+-	sunkbd->dev.sndbit[0] = BIT(SND_CLICK) | BIT(SND_BELL);
++	sunkbd = kzalloc(sizeof(struct sunkbd), GFP_KERNEL);
 +	input_dev = input_allocate_device();
-+	if (!ir || !input_dev) {
-+		kfree(ir);
-+		input_free_device(input_dev);
- 		return -ENOMEM;
--	memset(ir,0,sizeof(*ir));
-+	}
++	if (!sunkbd || !input_dev)
++		goto fail;
  
- 	/* detect & configure */
- 	switch (sub->core->type) {
-@@ -328,6 +332,7 @@ static int ir_probe(struct device *dev)
- 	}
- 	if (NULL == ir_codes) {
- 		kfree(ir);
-+		input_free_device(input_dev);
- 		return -ENODEV;
- 	}
+ 	sunkbd->serio = serio;
+-
++	sunkbd->dev = input_dev;
++	init_waitqueue_head(&sunkbd->wait);
+ 	INIT_WORK(&sunkbd->tq, sunkbd_reinit, sunkbd);
+-
+-	sunkbd->dev.keycode = sunkbd->keycode;
+-	sunkbd->dev.keycodesize = sizeof(unsigned char);
+-	sunkbd->dev.keycodemax = ARRAY_SIZE(sunkbd_keycode);
+-
+-	sunkbd->dev.event = sunkbd_event;
+-	sunkbd->dev.private = sunkbd;
++	snprintf(sunkbd->phys, sizeof(sunkbd->phys), "%s/input0", serio->phys);
  
-@@ -341,19 +346,19 @@ static int ir_probe(struct device *dev)
- 	snprintf(ir->phys, sizeof(ir->phys), "pci-%s/ir0",
- 		 pci_name(sub->core->pci));
+ 	serio_set_drvdata(serio, sunkbd);
  
--	ir_input_init(&ir->input, &ir->ir, ir_type, ir_codes);
--	ir->input.name = ir->name;
--	ir->input.phys = ir->phys;
--	ir->input.id.bustype = BUS_PCI;
--	ir->input.id.version = 1;
-+	ir_input_init(input_dev, &ir->ir, ir_type, ir_codes);
-+	input_dev->name = ir->name;
-+	input_dev->phys = ir->phys;
-+	input_dev->id.bustype = BUS_PCI;
-+	input_dev->id.version = 1;
- 	if (sub->core->pci->subsystem_vendor) {
--		ir->input.id.vendor  = sub->core->pci->subsystem_vendor;
--		ir->input.id.product = sub->core->pci->subsystem_device;
-+		input_dev->id.vendor  = sub->core->pci->subsystem_vendor;
-+		input_dev->id.product = sub->core->pci->subsystem_device;
- 	} else {
--		ir->input.id.vendor  = sub->core->pci->vendor;
--		ir->input.id.product = sub->core->pci->device;
-+		input_dev->id.vendor  = sub->core->pci->vendor;
-+		input_dev->id.product = sub->core->pci->device;
- 	}
--	ir->input.dev = &sub->core->pci->dev;
-+	input_dev->cdev.dev = &sub->core->pci->dev;
+ 	err = serio_open(serio, drv);
+-	if (err) {
+-		serio_set_drvdata(serio, NULL);
+-		kfree(sunkbd);
+-		return err;
+-	}
++	if (err)
++		goto fail;
  
- 	if (ir->polling) {
- 		INIT_WORK(&ir->work, ir_work, ir);
-@@ -364,9 +369,8 @@ static int ir_probe(struct device *dev)
+ 	if (sunkbd_initialize(sunkbd) < 0) {
+ 		serio_close(serio);
+-		serio_set_drvdata(serio, NULL);
+-		kfree(sunkbd);
+-		return -ENODEV;
++		goto fail;
  	}
  
- 	/* all done */
--	dev_set_drvdata(dev,ir);
--	input_register_device(&ir->input);
--	printk(DEVNAME ": %s detected at %s\n",ir->input.name,ir->input.phys);
-+	dev_set_drvdata(dev, ir);
-+	input_register_device(ir->input);
+ 	sprintf(sunkbd->name, "Sun Type %d keyboard", sunkbd->type);
+-
+ 	memcpy(sunkbd->keycode, sunkbd_keycode, sizeof(sunkbd->keycode));
+-	for (i = 0; i < 128; i++)
+-		set_bit(sunkbd->keycode[i], sunkbd->dev.keybit);
+-	clear_bit(0, sunkbd->dev.keybit);
+-
+-	sprintf(sunkbd->phys, "%s/input0", serio->phys);
+-
+-	sunkbd->dev.name = sunkbd->name;
+-	sunkbd->dev.phys = sunkbd->phys;
+-	sunkbd->dev.id.bustype = BUS_RS232;
+-	sunkbd->dev.id.vendor = SERIO_SUNKBD;
+-	sunkbd->dev.id.product = sunkbd->type;
+-	sunkbd->dev.id.version = 0x0100;
+-	sunkbd->dev.dev = &serio->dev;
  
+-	input_register_device(&sunkbd->dev);
+-
+-	printk(KERN_INFO "input: %s on %s\n", sunkbd->name, serio->phys);
++	input_dev->name = sunkbd->name;
++	input_dev->phys = sunkbd->phys;
++	input_dev->id.bustype = BUS_RS232;
++	input_dev->id.vendor  = SERIO_SUNKBD;
++	input_dev->id.product = sunkbd->type;
++	input_dev->id.version = 0x0100;
++	input_dev->cdev.dev = &serio->dev;
++	input_dev->private = sunkbd;
++	input_dev->event = sunkbd_event;
++
++	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_LED) | BIT(EV_SND) | BIT(EV_REP);
++	input_dev->ledbit[0] = BIT(LED_CAPSL) | BIT(LED_COMPOSE) | BIT(LED_SCROLLL) | BIT(LED_NUML);
++	input_dev->sndbit[0] = BIT(SND_CLICK) | BIT(SND_BELL);
++
++	input_dev->keycode = sunkbd->keycode;
++	input_dev->keycodesize = sizeof(unsigned char);
++	input_dev->keycodemax = ARRAY_SIZE(sunkbd_keycode);
++	for (i = 0; i < 128; i++)
++		set_bit(sunkbd->keycode[i], input_dev->keybit);
++	clear_bit(0, input_dev->keybit);
+ 
++	sunkbd_enable(sunkbd, 1);
++	input_register_device(sunkbd->dev);
  	return 0;
++
++ fail:	serio_set_drvdata(serio, NULL);
++	input_free_device(input_dev);
++	kfree(sunkbd);
++	return err;
  }
-@@ -380,7 +384,7 @@ static int ir_remove(struct device *dev)
- 		flush_scheduled_work();
- 	}
  
--	input_unregister_device(&ir->input);
-+	input_unregister_device(ir->input);
- 	kfree(ir);
- 	return 0;
- }
-diff --git a/drivers/media/video/ir-kbd-i2c.c b/drivers/media/video/ir-kbd-i2c.c
-index 67105b9..9703d3d 100644
---- a/drivers/media/video/ir-kbd-i2c.c
-+++ b/drivers/media/video/ir-kbd-i2c.c
-@@ -121,10 +121,9 @@ static IR_KEYTAB_TYPE ir_codes_purpletv[
- 
+ /*
+@@ -299,7 +304,9 @@ static int sunkbd_connect(struct serio *
+ static void sunkbd_disconnect(struct serio *serio)
+ {
+ 	struct sunkbd *sunkbd = serio_get_drvdata(serio);
+-	input_unregister_device(&sunkbd->dev);
++
++	sunkbd_enable(sunkbd, 0);
++	input_unregister_device(sunkbd->dev);
+ 	serio_close(serio);
+ 	serio_set_drvdata(serio, NULL);
+ 	kfree(sunkbd);
+diff --git a/drivers/input/keyboard/xtkbd.c b/drivers/input/keyboard/xtkbd.c
+index 19eaec7..4135e3e 100644
+--- a/drivers/input/keyboard/xtkbd.c
++++ b/drivers/input/keyboard/xtkbd.c
+@@ -56,11 +56,9 @@ static unsigned char xtkbd_keycode[256] 
+ 	106
  };
  
--struct IR;
- struct IR {
- 	struct i2c_client      c;
--	struct input_dev       input;
-+	struct input_dev       *input;
- 	struct ir_input_state  ir;
+-static char *xtkbd_name = "XT Keyboard";
+-
+ struct xtkbd {
+ 	unsigned char keycode[256];
+-	struct input_dev dev;
++	struct input_dev *dev;
+ 	struct serio *serio;
+ 	char phys[32];
+ };
+@@ -77,9 +75,9 @@ static irqreturn_t xtkbd_interrupt(struc
+ 		default:
  
- 	struct work_struct     work;
-@@ -271,9 +270,9 @@ static void ir_key_poll(struct IR *ir)
- 	}
- 
- 	if (0 == rc) {
--		ir_input_nokey(&ir->input,&ir->ir);
-+		ir_input_nokey(ir->input, &ir->ir);
- 	} else {
--		ir_input_keydown(&ir->input,&ir->ir, ir_key, ir_raw);
-+		ir_input_keydown(ir->input, &ir->ir, ir_key, ir_raw);
- 	}
- }
- 
-@@ -318,11 +317,18 @@ static int ir_attach(struct i2c_adapter 
- 	char *name;
- 	int ir_type;
-         struct IR *ir;
-+	struct input_dev *input_dev;
- 
--        if (NULL == (ir = kmalloc(sizeof(struct IR),GFP_KERNEL)))
-+	ir = kzalloc(sizeof(struct IR), GFP_KERNEL);
-+	input_dev = input_allocate_device();
-+	if (!ir || !input_dev) {
-+		kfree(ir);
-+		input_free_device(input_dev);
-                 return -ENOMEM;
--	memset(ir,0,sizeof(*ir));
-+	}
-+
- 	ir->c = client_template;
-+	ir->input = input_dev;
- 
- 	i2c_set_clientdata(&ir->c, ir);
- 	ir->c.adapter = adap;
-@@ -375,13 +381,12 @@ static int ir_attach(struct i2c_adapter 
- 		 ir->c.dev.bus_id);
- 
- 	/* init + register input device */
--	ir_input_init(&ir->input,&ir->ir,ir_type,ir_codes);
--	ir->input.id.bustype = BUS_I2C;
--	ir->input.name       = ir->c.name;
--	ir->input.phys       = ir->phys;
--	input_register_device(&ir->input);
--	printk(DEVNAME ": %s detected at %s [%s]\n",
--	       ir->input.name,ir->input.phys,adap->name);
-+	ir_input_init(input_dev, &ir->ir, ir_type, ir_codes);
-+	input_dev->id.bustype	= BUS_I2C;
-+	input_dev->name		= ir->c.name;
-+	input_dev->phys		= ir->phys;
-+
-+	input_register_device(ir->input);
- 
- 	/* start polling via eventd */
- 	INIT_WORK(&ir->work, ir_work, ir);
-@@ -402,7 +407,7 @@ static int ir_detach(struct i2c_client *
- 	flush_scheduled_work();
- 
- 	/* unregister devices */
--	input_unregister_device(&ir->input);
-+	input_unregister_device(ir->input);
- 	i2c_detach_client(&ir->c);
- 
- 	/* free memory */
-diff --git a/drivers/media/video/saa7134/saa7134-input.c b/drivers/media/video/saa7134/saa7134-input.c
-index 1f456c4..242cb23 100644
---- a/drivers/media/video/saa7134/saa7134-input.c
-+++ b/drivers/media/video/saa7134/saa7134-input.c
-@@ -425,9 +425,9 @@ static int build_key(struct saa7134_dev 
- 
- 	if ((ir->mask_keydown  &&  (0 != (gpio & ir->mask_keydown))) ||
- 	    (ir->mask_keyup    &&  (0 == (gpio & ir->mask_keyup)))) {
--		ir_input_keydown(&ir->dev,&ir->ir,data,data);
-+		ir_input_keydown(ir->dev, &ir->ir, data, data);
- 	} else {
--		ir_input_nokey(&ir->dev,&ir->ir);
-+		ir_input_nokey(ir->dev, &ir->ir);
- 	}
- 	return 0;
- }
-@@ -456,6 +456,7 @@ static void saa7134_input_timer(unsigned
- int saa7134_input_init1(struct saa7134_dev *dev)
+ 			if (xtkbd->keycode[data & XTKBD_KEY]) {
+-				input_regs(&xtkbd->dev, regs);
+-				input_report_key(&xtkbd->dev, xtkbd->keycode[data & XTKBD_KEY], !(data & XTKBD_RELEASE));
+-				input_sync(&xtkbd->dev);
++				input_regs(xtkbd->dev, regs);
++				input_report_key(xtkbd->dev, xtkbd->keycode[data & XTKBD_KEY], !(data & XTKBD_RELEASE));
++				input_sync(xtkbd->dev);
+ 			} else {
+ 				printk(KERN_WARNING "xtkbd.c: Unknown key (scancode %#x) %s.\n",
+ 					data & XTKBD_KEY, data & XTKBD_RELEASE ? "released" : "pressed");
+@@ -91,62 +89,60 @@ static irqreturn_t xtkbd_interrupt(struc
+ static int xtkbd_connect(struct serio *serio, struct serio_driver *drv)
  {
- 	struct saa7134_ir *ir;
+ 	struct xtkbd *xtkbd;
 +	struct input_dev *input_dev;
- 	IR_KEYTAB_TYPE *ir_codes = NULL;
- 	u32 mask_keycode = 0;
- 	u32 mask_keydown = 0;
-@@ -535,10 +536,13 @@ int saa7134_input_init1(struct saa7134_d
- 		return -ENODEV;
- 	}
++	int err = -ENOMEM;
+ 	int i;
+-	int err;
+-
+-	if (!(xtkbd = kmalloc(sizeof(struct xtkbd), GFP_KERNEL)))
+-		return -ENOMEM;
+-
+-	memset(xtkbd, 0, sizeof(struct xtkbd));
  
--	ir = kmalloc(sizeof(*ir),GFP_KERNEL);
--	if (NULL == ir)
-+	ir = kzalloc(sizeof(*ir), GFP_KERNEL);
+-	xtkbd->dev.evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
++	xtkbd = kmalloc(sizeof(struct xtkbd), GFP_KERNEL);
 +	input_dev = input_allocate_device();
-+	if (!ir || !input_dev) {
-+		kfree(ir);
-+		input_free_device(input_dev);
- 		return -ENOMEM;
--	memset(ir,0,sizeof(*ir));
-+	}
++	if (!xtkbd || !input_dev)
++		goto fail;
  
- 	/* init hardware-specific stuff */
- 	ir->mask_keycode = mask_keycode;
-@@ -552,19 +556,19 @@ int saa7134_input_init1(struct saa7134_d
- 	snprintf(ir->phys, sizeof(ir->phys), "pci-%s/ir0",
- 		 pci_name(dev->pci));
+ 	xtkbd->serio = serio;
+-
+-	init_input_dev(&xtkbd->dev);
+-	xtkbd->dev.keycode = xtkbd->keycode;
+-	xtkbd->dev.keycodesize = sizeof(unsigned char);
+-	xtkbd->dev.keycodemax = ARRAY_SIZE(xtkbd_keycode);
+-	xtkbd->dev.private = xtkbd;
+-
+-	serio_set_drvdata(serio, xtkbd);
+-
+-	err = serio_open(serio, drv);
+-	if (err) {
+-		serio_set_drvdata(serio, NULL);
+-		kfree(xtkbd);
+-		return err;
+-	}
+-
++	xtkbd->dev = input_dev;
++	sprintf(xtkbd->phys, "%s/input0", serio->phys);
+ 	memcpy(xtkbd->keycode, xtkbd_keycode, sizeof(xtkbd->keycode));
+-	for (i = 0; i < 255; i++)
+-		set_bit(xtkbd->keycode[i], xtkbd->dev.keybit);
+-	clear_bit(0, xtkbd->dev.keybit);
  
--	ir_input_init(&ir->dev, &ir->ir, ir_type, ir_codes);
--	ir->dev.name = ir->name;
--	ir->dev.phys = ir->phys;
--	ir->dev.id.bustype = BUS_PCI;
--	ir->dev.id.version = 1;
-+	ir_input_init(input_dev, &ir->ir, ir_type, ir_codes);
-+	input_dev->name = ir->name;
-+	input_dev->phys = ir->phys;
-+	input_dev->id.bustype = BUS_PCI;
-+	input_dev->id.version = 1;
- 	if (dev->pci->subsystem_vendor) {
--		ir->dev.id.vendor  = dev->pci->subsystem_vendor;
--		ir->dev.id.product = dev->pci->subsystem_device;
-+		input_dev->id.vendor  = dev->pci->subsystem_vendor;
-+		input_dev->id.product = dev->pci->subsystem_device;
- 	} else {
--		ir->dev.id.vendor  = dev->pci->vendor;
--		ir->dev.id.product = dev->pci->device;
-+		input_dev->id.vendor  = dev->pci->vendor;
-+		input_dev->id.product = dev->pci->device;
- 	}
--	ir->dev.dev = &dev->pci->dev;
-+	input_dev->cdev.dev = &dev->pci->dev;
+-	sprintf(xtkbd->phys, "%s/input0", serio->phys);
++	input_dev->name = "XT Keyboard";
++	input_dev->phys = xtkbd->phys;
++	input_dev->id.bustype = BUS_XTKBD;
++	input_dev->id.vendor  = 0x0001;
++	input_dev->id.product = 0x0001;
++	input_dev->id.version = 0x0100;
++	input_dev->cdev.dev = &serio->dev;
++	input_dev->private = xtkbd;
++
++	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
++	input_dev->keycode = xtkbd->keycode;
++	input_dev->keycodesize = sizeof(unsigned char);
++	input_dev->keycodemax = ARRAY_SIZE(xtkbd_keycode);
  
- 	/* all done */
- 	dev->remote = ir;
-@@ -576,8 +580,7 @@ int saa7134_input_init1(struct saa7134_d
- 		add_timer(&ir->timer);
- 	}
+-	xtkbd->dev.name = xtkbd_name;
+-	xtkbd->dev.phys = xtkbd->phys;
+-	xtkbd->dev.id.bustype = BUS_XTKBD;
+-	xtkbd->dev.id.vendor = 0x0001;
+-	xtkbd->dev.id.product = 0x0001;
+-	xtkbd->dev.id.version = 0x0100;
+-	xtkbd->dev.dev = &serio->dev;
++	for (i = 0; i < 255; i++)
++		set_bit(xtkbd->keycode[i], input_dev->keybit);
++	clear_bit(0, input_dev->keybit);
  
--	input_register_device(&dev->remote->dev);
--	printk("%s: registered input device for IR\n",dev->name);
-+	input_register_device(ir->dev);
+-	input_register_device(&xtkbd->dev);
++	serio_set_drvdata(serio, xtkbd);
+ 
+-	printk(KERN_INFO "input: %s on %s\n", xtkbd_name, serio->phys);
++	err = serio_open(serio, drv);
++	if (err)
++		goto fail;
+ 
++	input_register_device(xtkbd->dev);
  	return 0;
++
++ fail:	serio_set_drvdata(serio, NULL);
++	input_free_device(input_dev);
++	kfree(xtkbd);
++	return err;
  }
  
-@@ -586,9 +589,9 @@ void saa7134_input_fini(struct saa7134_d
- 	if (NULL == dev->remote)
- 		return;
+ static void xtkbd_disconnect(struct serio *serio)
+ {
+ 	struct xtkbd *xtkbd = serio_get_drvdata(serio);
  
--	input_unregister_device(&dev->remote->dev);
- 	if (dev->remote->polling)
- 		del_timer_sync(&dev->remote->timer);
-+	input_unregister_device(dev->remote->dev);
- 	kfree(dev->remote);
- 	dev->remote = NULL;
+-	input_unregister_device(&xtkbd->dev);
+ 	serio_close(serio);
+ 	serio_set_drvdata(serio, NULL);
++	input_unregister_device(xtkbd->dev);
+ 	kfree(xtkbd);
  }
-diff --git a/drivers/media/video/saa7134/saa7134.h b/drivers/media/video/saa7134/saa7134.h
-index 3ea0914..860b895 100644
---- a/drivers/media/video/saa7134/saa7134.h
-+++ b/drivers/media/video/saa7134/saa7134.h
-@@ -351,7 +351,7 @@ struct saa7134_oss {
  
- /* IR input */
- struct saa7134_ir {
--	struct input_dev           dev;
-+	struct input_dev           *dev;
- 	struct ir_input_state      ir;
- 	char                       name[32];
- 	char                       phys[32];
 

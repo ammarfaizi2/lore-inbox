@@ -1,117 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965209AbVJ1LSf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965216AbVJ1Lzl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965209AbVJ1LSf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 07:18:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965211AbVJ1LSf
+	id S965216AbVJ1Lzl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 07:55:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965218AbVJ1Lzk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 07:18:35 -0400
-Received: from mail06.syd.optusnet.com.au ([211.29.132.187]:24223 "EHLO
-	mail06.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S965209AbVJ1LSe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 07:18:34 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.6.14-ck1
-Date: Fri, 28 Oct 2005 21:18:09 +1000
-User-Agent: KMail/1.8.3
-Cc: ck@vds.kolivas.org, WU Fengguang <wfg@mail.ustc.edu.cn>
+	Fri, 28 Oct 2005 07:55:40 -0400
+Received: from [213.8.54.133] ([213.8.54.133]:19591 "EHLO fw.netmor.com")
+	by vger.kernel.org with ESMTP id S965216AbVJ1Lzk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 07:55:40 -0400
+Message-ID: <436211B0.1050509@weizmann.ac.il>
+Date: Fri, 28 Oct 2005 13:55:28 +0200
+From: Evgeny Stambulchik <Evgeny.Stambulchik@weizmann.ac.il>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050716
+X-Accept-Language: en, ru, he
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1399525.6Xh3GMeBY4";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Rob Landley <rob@landley.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Weirdness of "mount -o remount,rw" with write-protected floppy
+References: <4360C0A7.4050708@weizmann.ac.il> <200510271609.47309.rob@landley.net>
+In-Reply-To: <200510271609.47309.rob@landley.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200510282118.11704.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1399525.6Xh3GMeBY4
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Rob Landley wrote:
 
-These are patches designed to improve system responsiveness and interactivi=
-ty.=20
-It is configurable to any workload but the default ck* patch is aimed at th=
-e=20
-desktop and ck*-server is available with more emphasis on serverspace.
+> But no, this one's clearly a kernel error.  If the kernel is giving write 
+> errors against the device afterwards, than the kernel's internal state 
+> toggled successfully, which is all the mount syscall was trying to do.  Mount 
+> is just reporting whether or not the syscall succeeded, not whether or not it 
+> should have. :)
 
-Apply to 2.6.14
-http://ck.kolivas.org/patches/2.6/2.6.14/2.6.14-ck1/patch-2.6.14-ck1.bz2
+OK, so there are actually two separate bugs, it seems: one that 
+remounting a RO media in the RW mode succeeds (this "works" for any RO 
+media, as far as I can tell) and the second (this one is specific to the 
+floppy driver only) that a further write to such a falsely rw-remounted 
+media doesn't return (in the user space) an error.
 
-or server version
-http://ck.kolivas.org/patches/2.6/2.6.14/2.6.14-ck1/patch-2.6.14-ck1-server=
-=2Ebz2
+Regards,
 
-web:
-http://kernel.kolivas.org
-all patches:
-http://ck.kolivas.org/patches/
-Split patches available.
-
-
-Changes:
-
-Added:
-+adaptive-readahead-4.patch
-We Fengguang's adaptive readahead patch. Please test and report experiences=
- -=20
-Wu has been cc'ed on this email, please keep him cc'ed for reports.
-
-+set_workqueue_nice-1.patch
-Add a function to set workqueue nice levels
-
-+dm-drop_kcryptd_prio.patch
-Use the above function to set kcryptd priority to nice 0 since kcryptd=20
-consumes massive amounts of cpu. This code is safe but I don't even know if=
-=20
-it's successfully changing priority yet.
-
-
-Updated:
-~2.6.14_to_staircase12.1.diff
-Rolled up staircase tweaks
-
-~mm-swap_prefetch-18.patch
-Current version of swap prefetching. Stable!
-
-
-=46ull patchlist:
-2.6.14_to_staircase12.1.diff
-schedrange.diff
-schedbatch2.9.diff
-sched-iso3.2.patch
-smp-nice-support7.diff
-1g_lowmem1_i386.diff
-defaultcfq.diff
-isobatch_ionice2.diff
-rt_ionice.diff
-pdflush-tweaks.patch
-hz-default_values.patch
-hz-no250.patch
-vm-mapped.diff
-vm-lots_watermark.diff
-vm-background_scan-1.diff
-mm-swap_prefetch-18.patch
-set_workqueue_nice-1.patch
-dm-drop_kcryptd_prio.patch
-adaptive-readahead-4.patch
-2614ck1-version.diff
-
-
-Cheers,
-Con
-
---nextPart1399525.6Xh3GMeBY4
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDYgjzZUg7+tp6mRURAvigAJ9YfX5vv3duUYiSI08rML4G8KYAEgCdGTk8
-xq6HyX/elpepja1OdodfkbE=
-=cnWF
------END PGP SIGNATURE-----
-
---nextPart1399525.6Xh3GMeBY4--
+Evgeny

@@ -1,102 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965074AbVJ1DJ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965073AbVJ1DIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965074AbVJ1DJ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 23:09:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965076AbVJ1DJ3
+	id S965073AbVJ1DIs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 23:08:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965074AbVJ1DIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 23:09:29 -0400
-Received: from twin.uoregon.edu ([128.223.214.27]:19366 "EHLO twin.uoregon.edu")
-	by vger.kernel.org with ESMTP id S965074AbVJ1DJ3 (ORCPT
+	Thu, 27 Oct 2005 23:08:48 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:58752 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965073AbVJ1DIr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 23:09:29 -0400
-Date: Thu, 27 Oct 2005 20:09:21 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: joelja@twin.uoregon.edu
-To: Fawad Lateef <fawadlateef@gmail.com>
-cc: Alejandro Bonilla <abonilla@linuxwireless.org>,
-       Marcel Holtmann <marcel@holtmann.org>, linux-kernel@vger.kernel.org
-Subject: Re: 4GB memory and Intel Dual-Core system
-In-Reply-To: <1e62d1370510271935o51d88c0bk7baa23ca1a75bc4d@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0510271947360.32301@twin.uoregon.edu>
-References: <1130445194.5416.3.camel@blade> <52mzkuwuzg.fsf@cisco.com> 
- <20051027204923.M89071@linuxwireless.org>  <1130446667.5416.14.camel@blade>
-  <20051027205921.M81949@linuxwireless.org>  <1130447261.5416.20.camel@blade>
-  <20051027211203.M33358@linuxwireless.org> <1e62d1370510271935o51d88c0bk7baa23ca1a75bc4d@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 27 Oct 2005 23:08:47 -0400
+Date: Thu, 27 Oct 2005 20:07:45 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: magnus.damm@gmail.com, clameter@sgi.com, kravetz@us.ibm.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH 0/4] Swap migration V3: Overview
+Message-Id: <20051027200745.17d0767b.akpm@osdl.org>
+In-Reply-To: <20051027213548.GB8128@logos.cnet>
+References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com>
+	<aec7e5c30510201857r7cf9d337wce9a4017064adcf@mail.gmail.com>
+	<20051022005050.GA27317@logos.cnet>
+	<aec7e5c30510230550j66d6e37fg505fd6041dca9bee@mail.gmail.com>
+	<20051024074418.GC2016@logos.cnet>
+	<aec7e5c30510250437h6c300066s14e39a0c91be772c@mail.gmail.com>
+	<20051025143741.GA6604@logos.cnet>
+	<aec7e5c30510260004p5a3b07a9v28ae67b2982f1945@mail.gmail.com>
+	<20051027150142.GE13500@logos.cnet>
+	<20051027134347.56d29cfa.akpm@osdl.org>
+	<20051027213548.GB8128@logos.cnet>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Oct 2005, Fawad Lateef wrote:
-
-> On 10/28/05, Alejandro Bonilla <abonilla@linuxwireless.org> wrote:
->> On Thu, 27 Oct 2005 23:07:41 +0200, Marcel Holtmann wrote
->>> Hi Alejandro,
->>>
->>> so there is no way to give me back the "lost" memory. Is it possible
->>> that another motherboard might help?
->>
->> AFAIK, No. AMD and Intel will always do the same thing until we all move to
->> real IA64.
->>
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
 >
-> Can you tell me the main differences between IA64 and x86_64 (Opteron)
+> Hi Andrew!
+> 
+> On Thu, Oct 27, 2005 at 01:43:47PM -0700, Andrew Morton wrote:
+> > Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+> > >
+> > > The fair approach would be to have the
+> > >  number of pages to reclaim also relative to zone size.
+> > >
+> > >  sc->nr_to_reclaim = (zone->present_pages * sc->swap_cluster_max) /
+> > >                                  total_memory;
+> > 
+> > You can try it, but that shouldn't matter.  SWAP_CLUSTER_MAX is just a
+> > batching factor used to reduce CPU consumption.  If you make it twice as
+> > bug, we run DMA-zone reclaim half as often - it should balance out.
+> 
+> But you're not taking the relationship between DMA and NORMAL zone 
+> into account?
 
-IA64 is itanium - there are a lot of differences but the principle one for 
-your perspective is that you don't want to run x86 code on a itanium, it 
-has an x86 instruction decoder but you wouldn't want to use it if you 
-could avoid it.
+We need to be careful to differentiate between page allocation and page
+reclaim.  In some ways they're coupled, but the VM does attempt to make one
+independent from the other..
 
-> ? because in your one of the previous mail you said IA64 != EM64T and
+> I suppose that a side effect of such change is that more allocations
+> will become serviced from the NORMAL/HIGHMEM zones ("more intensively
+> reclaimed") while less allocations will become serviced by the DMA zone
+> (whose scan/reclaim progress should now be _much_ lighter than that of
+> the NORMAL zone). ie DMA zone will be much less often "available" for
+> GFP_HIGHMEM/GFP_KERNEL allocations, which are the vast majority.
 
-emt64 getts lumped with amd64 collectivly x86_64. fundamentaly intels 
-implementation is compatible with amd's
+The use of SWAP_CLUSTER_MAX in the reclaim code shouldn't affect the
+inter-zone balancing over in the allocation code.  Much.
 
-> its true, but I know is EM64T/AMD64 in 64-bit mode != IA32 but you
-> said that too EM64T is not really 64-bit, its a IA32 .. Can you give
+> Might be talking BS though.
+> 
+> What else could explain this numbers from Magnus, taking into account
+> that a large number of pages in the DMA zone are used for kernel text,
+> etc. These unbalancing seems to be potentially suboptimal (and result
+> in unpredictable behaviour depending from which zone pages becomes
+> allocated from):
+> 
+> "$ cat /proc/zoneinfo | grep present
+>         present  4096
+>         present  225280
+>         present  30342
+>                                                                                                                                               
+> $ cat /proc/zoneinfo | grep tscanned
+>         tscanned 151352
+>         tscanned 3480599
+>         tscanned 541466
+>                                                                                                                                               
+> "tscanned" counts how many pages that has been scanned in each zone
+> since power on. Executive summary assuming that only LRU pages exist
+> in the zone:
+>                                                                                                                                               
+> DMA: each page has been scanned ~37 times
+> Normal: each page has been scanned ~15 times
+> HighMem: each page has been scanned ~18 times"
 
-It is ia32 except with 40 bits of real memory and 48 bits of virtual 
-memory and 64 bit registers.
+Yes, I've noticed that.
 
-one article that's use for getting a start on the instruction set is here:
+> I feel that I'm reaching the point where things should be confirmed
+> instead of guessed (on my part!).
 
-http://arstechnica.com/cpu/03q1/x86-64/x86-64-1.html
+Need to check the numbers, but I expect you'll find that ZONE_DMA is
+basically never used for either __GFP_HIGHMEM or GFP_KERNEL allocations,
+due to the watermark thingies.
+
+So it's basically just sitting there, being used by GFP_DMA allocations. 
+And IIRC there _are_ a batch of GFP_DMA allocations early in boot for
+block-related stuff(?).  It's all hazy ;)
+
+But that would mean that most of the ZONE_DMA pages are used for
+unreclaimable purposes, and only a small proportion of them are on the LRU.
+ That might cause the arithmetic to perform more scanning down there.
 
 
-> me some link which just tells the difference between IA64 (Itanium)
-> and AMD64 (Opteron) ?
-
-you're not likely to care about ia64, so I think what your'e really 
-interested in is ia32 vs x86_64 and intel vs amd in the context of x86_64
-
-> While googling I found this article
-> http://www.eweek.com/article2/0,1895,1046390,00.asp but its not
-> clearing mentioning the difference between Opteron and Itanium !
->
-> Although I found this difference in that article :
->                     With the Itanium, Intel proposes to examine
-> programs when they are compiled into their executable form and encode
-> concurrent operations ahead of time. Intel calls this approach EPIC,
-> for Explicitly Parallel Instruction Computing, and it is the genuine
-> difference between the Itanium and AMD's x86-64. EPIC's drawback is
-> that the core of the Itanium no longer offers an effective
-> upward-compatible path to existing x86 code; its speed in running that
-> 32-bit code has proved to be disappointing.
->
-> So is there any other difference except above ?
->
->
-> --
-> Fawad Lateef
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
--- 
---------------------------------------------------------------------------
-Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu
-GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
 

@@ -1,78 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbVJ1Jza@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbVJ1KBA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751243AbVJ1Jza (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 05:55:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbVJ1Jza
+	id S1751186AbVJ1KBA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 06:01:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbVJ1KBA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 05:55:30 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:21895 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751243AbVJ1Jz3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 05:55:29 -0400
-Date: Fri, 28 Oct 2005 11:55:21 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Call for PIIX4 chipset testers
-In-Reply-To: <1cb7.435fd492.4a69a@altium.nl>
-Message-ID: <Pine.LNX.4.61.0510281056230.24372@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
- <1cb7.435fd492.4a69a@altium.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 28 Oct 2005 06:01:00 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:60103 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751186AbVJ1KA7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 06:00:59 -0400
+Subject: Re: [PATCH] [SECURITY, 2.4]  Avoid 'names_cache' memory leak with
+	CONFIG_AUDITSYSCALL
+From: Arjan van de Ven <arjan@infradead.org>
+To: Horms <horms@verge.net.au>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051028092745.GL11045@verge.net.au>
+References: <20051028092745.GL11045@verge.net.au>
+Content-Type: text/plain
+Date: Fri, 28 Oct 2005 12:00:46 +0200
+Message-Id: <1130493647.2800.17.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2005-10-28 at 18:27 +0900, Horms wrote:
+> This is CAN-2005-3181, and a backport of
+> 829841146878e082613a49581ae252c071057c23 from Linus's 2.6 tree to 2.4.
+> 
+> Original Description and Sign-Off:
+> 
+> Avoid 'names_cache' memory leak with CONFIG_AUDITSYSCALL
+> 
+> The nameidata "last.name" is always allocated with "__getname()", and
+> should always be free'd with "__putname()".
+> 
+> Using "putname()" without the underscores will leak memory, because the
+> allocation will have been hidden from the AUDITSYSCALL code.
 
->Linus Torvalds <torvalds@osdl.org> wrote:
->| can you please test out this patch and report what it says in dmesg?
-
-Here is an exotic one, from VMware (uses PIIX too). Says
-
-
-PCI quirk: region 1000-103f claimed by PIIX4 ACPI
-PCI quirk: region 1040-105f claimed by PIIX4 SMB
-...later...
-PCI: Cannot allocate resource region 4 of device 0000:00:07.1
-...later...
-PIIX4: IDE controller at PCI slot 0000:00:07.1
-PIIX4: chipset revision 1
-PIIX4: not 100% native mode: will probe irqs later
-
-
-> -more /proc/ioports (I'm using sash for this test ;-))
-0000-001f : dma1
-0020-0021 : pic1
-0040-0043 : timer0
-0050-0053 : timer1
-0060-006f : keyboard
-0080-008f : dma page reg
-00a0-00a1 : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-0177 : ide1
-01f0-01f7 : ide0
-0376-0376 : ide1
-03c0-03df : vga+
-03f6-03f6 : ide0
-0cf8-0cff : PCI conf1
-1000-103f : 0000:00:07.3
-  1000-103f : motherboard
-    1000-1003 : PM1a_EVT_BLK
-    1004-1005 : PM1a_CNT_BLK
-    1008-100b : PM_TMR
-    100c-100f : GPE0_BLK
-1040-105f : 0000:00:07.3
-  1040-104f : motherboard
-1060-106f : 0000:00:0f.0
-1070-107f : 0000:00:07.1
-  1070-1077 : ide0
-  1078-107f : ide1
-1080-10ff : 0000:00:10.0
+> My sign off, indicating I think it applies to 2.4:
 
 
+since there is no such thing as CONFIG_AUDITSYSCALL in any 2.4 kernel, I
+really think this is entirely NOT relevant to 2.4.....
 
-Jan Engelhardt
--- 
-| Alphagate Systems, http://alphagate.hopto.org/
-| jengelh's site, http://jengelh.hopto.org/
+

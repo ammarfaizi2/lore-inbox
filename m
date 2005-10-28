@@ -1,43 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965016AbVJ1AAs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932698AbVJ1AIi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965016AbVJ1AAs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 20:00:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965020AbVJ1AAs
+	id S932698AbVJ1AIi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 20:08:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932699AbVJ1AIi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 20:00:48 -0400
-Received: from xproxy.gmail.com ([66.249.82.199]:13544 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965016AbVJ1AAs convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 20:00:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XkDSXuepLzx1/YnqwLGiEB/qnSWm27gWxnBMNI4+LmQ3xo7l1Rr1elR3iOIiQlXlx9aiAyQjhHhw2gLPZbEDH6fE71+p6/xkGN4MZQAnraMTGAqG9zgCkJFV1wP+32/uDafTNEO/Jtg2VQGuwq6sxtMFp05ofiCSakHsTjZ74qE=
-Message-ID: <3aa654a40510271700l49fb06cfv37d8b6030df5ac49@mail.gmail.com>
-Date: Thu, 27 Oct 2005 17:00:47 -0700
-From: Avuton Olrich <avuton@gmail.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: Overruns are killing my recordings.
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1130447216.19492.87.camel@mindpipe>
+	Thu, 27 Oct 2005 20:08:38 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:1942 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932698AbVJ1AIh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 20:08:37 -0400
+To: Alex Lyashkov <umka@sevcity.net>
+Cc: fastboot@osdl.org, OBATA Noboru <noboru.obata.ar@hitachi.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] Re: [PATCH] [KDUMP] pending interrupts problem
+References: <20051027.165027.97297370.noboru.obata.ar@hitachi.com>
+	<m1y84farz7.fsf@ebiederm.dsl.xmission.com>
+	<1130429164.3360.1.camel@berloga.shadowland>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Thu, 27 Oct 2005 18:08:03 -0600
+In-Reply-To: <1130429164.3360.1.camel@berloga.shadowland> (Alex Lyashkov's
+ message of "Thu, 27 Oct 2005 19:06:04 +0300")
+Message-ID: <m1u0f2bj18.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <3aa654a40510271212j13e0843s9de81c02f4e766ac@mail.gmail.com>
-	 <200510271528.28919.diablod3@gmail.com>
-	 <3aa654a40510271257t62d2fd82n5f2bcbcae2bcba9d@mail.gmail.com>
-	 <1130447216.19492.87.camel@mindpipe>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-aggh. Sorry for all the noise,
+Alex Lyashkov <umka@sevcity.net> writes:
 
-I have all my drives on a linear raid and I had hdparm set to put my
-IDE drives to sleep after a while, I didn't put it together because it
-was happening in the middle of recording.
+> seems to bad patch. you dereference pointer (1) before check to NULL(2).
 
-Thanks for the help,
-avuton
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Duh.  I forgot to delete the earlier references. 
+That should have been...
+
+---
+
+ arch/i386/kernel/smp.c |   15 ++++++++++++---
+ 1 files changed, 12 insertions(+), 3 deletions(-)
+
+applies-to: e6a6c8ed12ba1ef7fa376fa3993e3c329e9f294a
+50119a3947498cd8112455e8111f0579f5b8a232
+diff --git a/arch/i386/kernel/smp.c b/arch/i386/kernel/smp.c
+index 218d725..b0fb524 100644
+--- a/arch/i386/kernel/smp.c
++++ b/arch/i386/kernel/smp.c
+@@ -560,6 +560,7 @@ int smp_call_function (void (*func) (voi
+ 	if (wait)
+ 		while (atomic_read(&data.finished) != cpus)
+ 			cpu_relax();
++	call_data = NULL;
+ 	spin_unlock(&call_lock);
+ 
+ 	return 0;
+@@ -604,11 +605,19 @@ fastcall void smp_reschedule_interrupt(s
+ 
+ fastcall void smp_call_function_interrupt(struct pt_regs *regs)
+ {
+-	void (*func) (void *info) = call_data->func;
+-	void *info = call_data->info;
+-	int wait = call_data->wait;
++	void (*func) (void *info);
++	void *info;
++	int wait;
+ 
+ 	ack_APIC_irq();
++
++	/* Ignore spurious IPIs */
++	if (!call_data)
++		return;
++
++	func = call_data->func;
++	info = call_data->info;
++	wait = call_data->wait;
+ 	/*
+ 	 * Notify initiating CPU that I've grabbed the data and am
+ 	 * about to execute the function
+---
+0.99.8.GIT

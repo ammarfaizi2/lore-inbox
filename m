@@ -1,66 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbVJ1O1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030188AbVJ1Obh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030190AbVJ1O1K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 10:27:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030191AbVJ1O1K
+	id S1030188AbVJ1Obh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 10:31:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030191AbVJ1Obh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 10:27:10 -0400
-Received: from nproxy.gmail.com ([64.233.182.197]:12068 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030190AbVJ1O1J (ORCPT
+	Fri, 28 Oct 2005 10:31:37 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:43935 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030188AbVJ1Obg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 10:27:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=P9OYZEvhkGbSpkcc7wlf6QwRTHVdm0gq4yc3M6ajnT466X/tK80/vLE8SGplCYiVs1cOHsMPDNdsQWnUDYkMCD3XDme6vnpuiSnpBCnzAhka3QnVkrLhjqU4su164LH8l+bthx2SutjQNYMJHtEXMHuXtOEyhA9vv6Z1sCBQUJc=
-Date: Fri, 28 Oct 2005 18:39:50 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: kernel-janitors@lists.osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.14-kj1
-Message-ID: <20051028143950.GA27655@mipter.zuzino.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+	Fri, 28 Oct 2005 10:31:36 -0400
+Date: Fri, 28 Oct 2005 07:31:27 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: Greg K-H <greg@kroah.com>, gregkh@suse.de, linux-kernel@vger.kernel.org,
+       david-b@pacbell.net
+Subject: Re: [PATCH] pci device wakeup flags
+In-Reply-To: <20051028035116.112ba2ca.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0510280730450.4664@g5.osdl.org>
+References: <11304810221338@kroah.com> <11304810223093@kroah.com>
+ <20051028035116.112ba2ca.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.14-kj1 patchset is out. You can get it from
-http://coderock.org/kj/2.6.14-kj1/
 
-New in this release
--------------------
--hexdigits_definition_consolidation.patch
-+hex_digits_consolidation.patch
 
-	New version of hex digits consolidation from Masoud Sharbiani.
-	Is	+EXPORT_SYMBOL(small_digits);
-		+EXPORT_SYMBOL(large_digits);	OK?
+On Fri, 28 Oct 2005, Andrew Morton wrote:
+> 
+> This is the patch which I've been religiously dropping from -mm because it
+> kills my Mac G5.  What are we doing merging this?
 
-+drivers_atm_firestream_c_convert_interruptible_sleep_on.patch
-+drivers_atm_nicstar_c_replace_interruptible_sleep_on_timeout.patch
-+drivers_block_swim3_c_replace_interruptible_sleep_on.patch
-+drivers_block_swim_iop_c_replace_interruptible_sleep_on.patch
-+drivers_char_amiserial_c_replace_interruptible_sleep_on.patch
-+drivers_char_cyclades_c_replace_interruptible_sleep_on.patch
-+drivers_char_epca_c_replace_interruptible_sleep_on.patch
-+drivers_char_esp_c_replace_interruptible_sleep_on.patch
-+drivers_char_generic_serial_c_replace_interruptible_sleep_on.patch
-+drivers_char_isicom_c_replace_interruptible_sleep_on.patch
-+drivers_char_istallion_c_replace_interruptible_sleep_on.patch
-+drivers_char_moxa_c_replace_interruptible_sleep_on.patch
-+drivers_char_pcmcia_synclink_cs_c_replace_interruptible_sleep_on.patch
-+drivers_char_riscom8_c_replace_interruptible_sleep_on.patch
-+drivers_char_rocket_c_replace_interruptible_sleep_on.patch
-+drivers_char_serial167_c_replace_interruptible_sleep_on.patch
-+drivers_char_specialix_c_replace_interruptible_sleep_on.patch
-+drivers_char_stallion_c_replace_interruptible_sleep_on.patch
-+drivers_char_synclink_c_replace_interruptible_sleep_on.patch
-+drivers_char_synclinkmp_c_replace_interruptible_sleep_on.patch
-+drivers_isdn_i4l_isdn_tty_c_replace_interruptible_sleep_on.patch
-+drivers_media_radio_radio_cadet_c_replace_interruptible_sleep_on.patch
+Well, since my main machine is a Mac G5, we certainly /aren't/ merging it 
+if it kills it.
 
-	Irwan Djajadi continues Nishanth Aravamudan's quest of getting
-	rid of *sleep_on* functions. Needs review, review, review...
-
+		Linus

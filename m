@@ -1,50 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030206AbVJ1OxD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030203AbVJ1Oya@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030206AbVJ1OxD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 10:53:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030205AbVJ1OxB
+	id S1030203AbVJ1Oya (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 10:54:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030205AbVJ1Oya
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 10:53:01 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:6276
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S1030206AbVJ1OxA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 10:53:00 -0400
-From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
-To: Marcel Holtmann <marcel@holtmann.org>, linux-kernel@vger.kernel.org
-Subject: Re: Intel D945GNT crashes with AGP enabled
-Date: Fri, 28 Oct 2005 10:52:56 -0400
-Message-Id: <20051028144832.M44366@linuxwireless.org>
-In-Reply-To: <1130506715.5345.7.camel@blade>
-References: <1130506715.5345.7.camel@blade>
-X-Mailer: Open WebMail 2.40 20040816
-X-OriginatingIP: 16.126.157.6 (abonilla@linuxwireless.org)
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=iso-8859-1
+	Fri, 28 Oct 2005 10:54:30 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:36741 "EHLO
+	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
+	id S1030203AbVJ1Oy3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 10:54:29 -0400
+Date: Fri, 28 Oct 2005 10:54:15 -0400
+Message-Id: <200510281454.j9SEsF4N031395@agora.fsl.cs.sunysb.edu>
+From: Erez Zadok <ezk@cs.sunysb.edu>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, hooanon05@yahoo.co.jp,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Unionfs mailing list <unionfs@fsl.cs.sunysb.edu>
+Subject: Re: [Unionfs] Re: NFS Permission denied instead of EROFS 
+In-reply-to: Your message of "Fri, 28 Oct 2005 08:48:50 +0200."
+             <Pine.LNX.4.61.0510280843340.6910@yvahk01.tjqt.qr> 
+X-MailKey: Erez_Zadok
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Oct 2005 15:38:35 +0200, Marcel Holtmann wrote
-> Hi guys,
+In message <Pine.LNX.4.61.0510280843340.6910@yvahk01.tjqt.qr>, Jan Engelhardt writes:
+
+> >How would knfsd or mountd know? There is no way for the client to
+> >communicate to the server that it is mounting for read-write.
 > 
-> I have this problem for quite some time now, but I never really got
-> around to figure out what it is. I can successfully boot this machine
-> and get X11 up and running, but when I shutdown my machine it crashes
-> when closing X11. The system is x86_64 based and looks like this:
+> What, the client does not pass the ro/rw flag along? Humm.
 
-Marcel,
+NFSv2/3 has no such flags I know of to pass during MOUNT.
 
-This is the Linux kernel development ML, if you have a problem, you should
-really try hard to see what could be wrong.
+> But knfsd knows that a certain export is ro, and therefore should return
+> EROFS for all write operations that it receives.
 
-1. oops is of good help.
-2. go into a tty (ctrl+alt+f1) and try moving between runlevels and see if you
-notice anything. Additionally see if this only occurs when only shuting down,
-or rebooting or if also when moving from runlevels.
-3. Could this also be a distro problem associated with the intel_agp module in X?
+That it probably should.  It's more correct and consistent w/ what you get
+from other file systems mounted ro.
 
-Ask yourself questions, do some googling and once you have some outputs then
-maybe people can have something for you here.
+IIRC, other servers (Solaris) _do_ return EROFS.  The best way we can
+convince linux-nfs to change this behavior is if the majority of other NFS
+servers return EROFS.
 
-.Alejandro
+> Jan Engelhardt
+
+So it's not clear whether it's even possible for an NFS client to find out
+that a server is exporting the f/s read-only.
+
+Even if it were possible, I suspect that some people would still like the
+current behavior for the following logic: some times sysadmins want to take
+down a file server for a period of time, possibly for emergency maintenance,
+and they don't want any nfs client-side user to write anything to that
+server (which the client mounted).  So they re-export the f/s as readonly.
+Existing clients start getting all sorts of errors but they can't change the
+state of the server's disk.  In most cases where I've seen when this
+happens, it's some sort of maintenance like replacing a failed disk in a
+RAID array: you want the array to rebuild quickly, so you don't want to have
+users write new files while it's rebuilding.
+
+Erez.

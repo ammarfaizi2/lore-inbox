@@ -1,153 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751771AbVJ1V2E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751815AbVJ1V3q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751771AbVJ1V2E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 17:28:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751817AbVJ1V2E
+	id S1751815AbVJ1V3q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 17:29:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751817AbVJ1V3p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 17:28:04 -0400
-Received: from smtp05.wanadoo.nl ([194.134.35.145]:33587 "EHLO
-	smtp05.wanadoo.nl") by vger.kernel.org with ESMTP id S1751771AbVJ1V2D
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 17:28:03 -0400
-Message-ID: <436297DF.9070505@lazarenko.net>
-Date: Fri, 28 Oct 2005 23:27:59 +0200
-From: Vladimir Lazarenko <vlad@lazarenko.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Fri, 28 Oct 2005 17:29:45 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:10513 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751815AbVJ1V3p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 17:29:45 -0400
+Date: Fri, 28 Oct 2005 23:29:43 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Claudio Scordino <cloud.of.andor@gmail.com>
+Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
+Subject: Re: The "best" value of HZ
+Message-ID: <20051028212942.GE4180@stusta.de>
+References: <200510280118.42731.cloud.of.andor@gmail.com>
 MIME-Version: 1.0
-To: thockin@hockin.org
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org
-Subject: Re: AMD Athlon64 X2 Dual-core and 4GB
-References: <4361408B.60903@lazarenko.net> <m1irvhbqvo.fsf@ebiederm.dsl.xmission.com> <20051028160403.GA26286@hockin.org> <m1acgtbow5.fsf@ebiederm.dsl.xmission.com> <20051028171211.GA29861@hockin.org>
-In-Reply-To: <20051028171211.GA29861@hockin.org>
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms060901050006070405060104"
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "dinosaur.lazarenko.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  >>>If you want to use 4GB in 32 bit mode, you *need*
-	remapping (or you lose >>>part of your memory). Remapping means you have
-	MORE than 4 GB of physical >>>address, which means you need PAE to use
-	it at all. >> >>Yes, and PAE works fine with a 32bit kernel. I agree it
-	is a silly >>configuration and a 64bit kernel would use the memory more
-	>>efficiently. My basic point was that a dual-core is a recent enough
-	>>processor from AMD that it supports memory remapping. So with a
-	>>correct BIOS there should be no problems. > > > Earlier Opterons had
-	remapping, too, just at the chip-select level. Even > with remapping,
-	the memory that gets remapped gets mapped above 4 GB, so a > 32 bit
-	kernel still needs PAE to address it. [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 AWL                    AWL: From: address is in the auto white-list
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200510280118.42731.cloud.of.andor@gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
+On Fri, Oct 28, 2005 at 01:18:41AM +0200, Claudio Scordino wrote:
 
---------------ms060901050006070405060104
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+> Hi,
 
->>>If you want to use 4GB in 32 bit mode, you *need* remapping (or you lose
->>>part of your memory).  Remapping means you have MORE than 4 GB of physical
->>>address, which means you need PAE to use it at all.
->>
->>Yes, and PAE works fine with a 32bit kernel.  I agree it is a silly
->>configuration and a 64bit kernel would use the memory more
->>efficiently.  My basic point was that a dual-core is a recent enough
->>processor from AMD that it supports memory remapping.  So with a
->>correct BIOS there should be no problems. 
+Hi Claudio,
+
+>     during the last years there has been a lot of discussion about the "best" 
+> value of HZ... On i386 was 100, then became 1000, and finally was set to 250.
+> I'm thinking to do an evaluation of this parameter using different 
+> architectures.
 > 
+> Has anybody thought to give the possibility to modify the value of HZ at boot 
+> time instead of at compile time ? This would allow to easily test different 
+> values on different machines and create a table containing the "best" value 
+> for each architecture...  At this moment, instead, we have to recompile the 
+> kernel for each different value :(
 > 
-> Earlier Opterons had remapping, too, just at the chip-select level.  Even
-> with remapping, the memory that gets remapped gets mapped above 4 GB, so a
-> 32 bit kernel still needs PAE to address it.
+> Do you think there would be much work to do that ? 
+> Do you think it would be a desired feature the knowledge of the best value for 
+> each architecture with more precision ?
 
-Well, my BIOS had 2 types of re-mapping, H/W and S/W, i enabled H/W 
-remapping, compiled kernel with 64G HIGHMEM, and voila:
+the best value for HZ is not architecture specific, it depends on the 
+usage pattern.
 
-vlad@anarxi:~$ free
-              total       used       free     shared    buffers     cached
-Mem:       4151876    2972968    1178908          0     179008     679016
--/+ buffers/cache:    2114944    2036932
+The rule is roughly:
+- low HZ for computations
+- high HZ for interactive usage
 
+Making HZ selectable at boot time wouldn't be hard, but I doubt it's 
+worth it because it would make the kernel both bigger and slower.
 
-Thanks everyone!
+> Thanks,
+> 
+>       Claudio
 
-Vladimir
+cu
+Adrian
 
---------------ms060901050006070405060104
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
+-- 
 
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIJ2zCC
-Az8wggKooAMCAQICAQ0wDQYJKoZIhvcNAQEFBQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQI
-EwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUgVG93bjEaMBgGA1UEChMRVGhhd3RlIENv
-bnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24gU2VydmljZXMgRGl2aXNpb24xJDAi
-BgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTErMCkGCSqGSIb3DQEJARYccGVy
-c29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMzA3MTcwMDAwMDBaFw0xMzA3MTYyMzU5
-NTlaMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBM
-dGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQTCBnzAN
-BgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAxKY8VXNV+065yplaHmjAdQRwnd/p/6Me7L3N9Vvy
-Gna9fww6YfK/Uc4B1OVQCjDXAmNaLIkVcI7dyfArhVqqP3FWy688Cwfn8R+RNiQqE88r1fOC
-dz0Dviv+uxg+B79AgAJk16emu59l0cUqVIUPSAR/p7bRPGEEQB5kGXJgt/sCAwEAAaOBlDCB
-kTASBgNVHRMBAf8ECDAGAQH/AgEAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwudGhh
-d3RlLmNvbS9UaGF3dGVQZXJzb25hbEZyZWVtYWlsQ0EuY3JsMAsGA1UdDwQEAwIBBjApBgNV
-HREEIjAgpB4wHDEaMBgGA1UEAxMRUHJpdmF0ZUxhYmVsMi0xMzgwDQYJKoZIhvcNAQEFBQAD
-gYEASIzRUIPqCy7MDaNmrGcPf6+svsIXoUOWlJ1/TCG4+DYfqi2fNi/A9BxQIJNwPP2t4WFi
-w9k6GX6EsZkbAMUaC4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa9/eH1sYITq726jTlEBpb
-NU1341YheILcIRk13iSx0x1G/11fZU8wggNIMIICsaADAgECAgMPl0owDQYJKoZIhvcNAQEE
-BQAwYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0
-ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBMB4XDTA1
-MTAwNDE4Mjk1NloXDTA2MTAwNDE4Mjk1NlowgZgxEjAQBgNVBAQTCUxhemFyZW5rbzERMA8G
-A1UEKhMIVmxhZGltaXIxGzAZBgNVBAMTElZsYWRpbWlyIExhemFyZW5rbzEhMB8GCSqGSIb3
-DQEJARYSdmxhZEBsYXphcmVua28ubmV0MS8wLQYJKoZIhvcNAQkBFiB2bGFkaW1pci5sYXph
-cmVua29AbG9naWNhY21nLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMhN
-65wBwy12UD+rjqjhBDMm8/6sYE+YHQmJMgTb/Cxy+Sp00ISDel7/FiLvVtKAo667N43VeFzT
-p+7BWKxC0OJAFddayiWFw5sZCEL28qY2lHnolrpJMbVIzUoqrSkPjgZ9GNI93Ri7AWkMCF9X
-uRFW0I0Lbb2gYH2fnpdloO917DLyXVuBxOyPUpu1TeP+oHbi8whPdrhFx8Ep37sP13srk5tf
-ISzaXdJzEVWOaLTyIL5tMSlCuBJibmcDm9/2qCLW+c1eAxiQwmafH4tJ5WPch2wclEXlt7tw
-tGe6vK0Se2B8TvgZmOaY78wIp0DBVrP4+wsMnCbcPHtk+sY1d/8CAwEAAaNRME8wPwYDVR0R
-BDgwNoESdmxhZEBsYXphcmVua28ubmV0gSB2bGFkaW1pci5sYXphcmVua29AbG9naWNhY21n
-LmNvbTAMBgNVHRMBAf8EAjAAMA0GCSqGSIb3DQEBBAUAA4GBACfGbOm/RbyWFmOR+w4Vk8XY
-umCjlfqb+icqbKENKvuG4DOQr6QaTtRT+/ATA3yrooYfQWuflDIEPS+SbNyjfpNyyFiYB8OS
-rfclJ+B+ikvEP7LweNoL3EV1SrzeyJ3YrcqHAhoNqvB66dVQCy04RFvaRI+fC3I79Zd748gf
-ESqyMIIDSDCCArGgAwIBAgIDD5dKMA0GCSqGSIb3DQEBBAUAMGIxCzAJBgNVBAYTAlpBMSUw
-IwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUg
-UGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQTAeFw0wNTEwMDQxODI5NTZaFw0wNjEwMDQx
-ODI5NTZaMIGYMRIwEAYDVQQEEwlMYXphcmVua28xETAPBgNVBCoTCFZsYWRpbWlyMRswGQYD
-VQQDExJWbGFkaW1pciBMYXphcmVua28xITAfBgkqhkiG9w0BCQEWEnZsYWRAbGF6YXJlbmtv
-Lm5ldDEvMC0GCSqGSIb3DQEJARYgdmxhZGltaXIubGF6YXJlbmtvQGxvZ2ljYWNtZy5jb20w
-ggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDITeucAcMtdlA/q46o4QQzJvP+rGBP
-mB0JiTIE2/wscvkqdNCEg3pe/xYi71bSgKOuuzeN1Xhc06fuwVisQtDiQBXXWsolhcObGQhC
-9vKmNpR56Ja6STG1SM1KKq0pD44GfRjSPd0YuwFpDAhfV7kRVtCNC229oGB9n56XZaDvdewy
-8l1bgcTsj1KbtU3j/qB24vMIT3a4RcfBKd+7D9d7K5ObXyEs2l3ScxFVjmi08iC+bTEpQrgS
-Ym5nA5vf9qgi1vnNXgMYkMJmnx+LSeVj3IdsHJRF5be7cLRnurytEntgfE74GZjmmO/MCKdA
-wVaz+PsLDJwm3Dx7ZPrGNXf/AgMBAAGjUTBPMD8GA1UdEQQ4MDaBEnZsYWRAbGF6YXJlbmtv
-Lm5ldIEgdmxhZGltaXIubGF6YXJlbmtvQGxvZ2ljYWNtZy5jb20wDAYDVR0TAQH/BAIwADAN
-BgkqhkiG9w0BAQQFAAOBgQAnxmzpv0W8lhZjkfsOFZPF2Lpgo5X6m/onKmyhDSr7huAzkK+k
-Gk7UU/vwEwN8q6KGH0Frn5QyBD0vkmzco36TcshYmAfDkq33JSfgfopLxD+y8HjaC9xFdUq8
-3sid2K3KhwIaDarweunVUAstOERb2kSPnwtyO/WXe+PIHxEqsjGCAzswggM3AgEBMGkwYjEL
-MAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAq
-BgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBAgMPl0owCQYFKw4D
-AhoFAKCCAacwGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMDUx
-MDI4MjEyODAwWjAjBgkqhkiG9w0BCQQxFgQUmFGT3eqVvLDAHiX1XdrrTZhgyTQwUgYJKoZI
-hvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAw
-BwYFKw4DAgcwDQYIKoZIhvcNAwICASgweAYJKwYBBAGCNxAEMWswaTBiMQswCQYDVQQGEwJa
-QTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhh
-d3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0ECAw+XSjB6BgsqhkiG9w0BCRACCzFr
-oGkwYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0
-ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBAgMPl0ow
-DQYJKoZIhvcNAQEBBQAEggEASqt9LngKOTL5QuvqdiggFP5g+e9Ru+86WtZOKVUqcszyrX78
-A/d4k9uAtZ5+lp75cKWmOPEEnLod5jyz6Wit7CFw9vMEareTQ88A1CTNempG9rjLwMzQTDw/
-csaekkUNd53nW6jRtVDs1ON5FQ45Tniw0vx9Qee0q1jEKwA5MviAzFzadTAUrqURVHPxeKRw
-9+QGBCccAAthMTXeVJTyomb1gjrRMN1uFYx5cQCX5ROgfF6UgBvv2QokBthI8kAr84l6Cb8g
-yghskUbKTVqBp8aYYlfOsBiJkfLDNYyyf2bm3GXwiP+M2NAkEjEISg3DUNe+Td6hIVuzUAXG
-GdEaSQAAAAAAAA==
---------------ms060901050006070405060104--
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

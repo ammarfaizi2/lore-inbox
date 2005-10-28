@@ -1,41 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030470AbVJ1SvF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030625AbVJ1Sw2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030470AbVJ1SvF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 14:51:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030625AbVJ1SvF
+	id S1030625AbVJ1Sw2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 14:52:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751651AbVJ1Sw2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 14:51:05 -0400
-Received: from gold.veritas.com ([143.127.12.110]:13140 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1030470AbVJ1SvE (ORCPT
+	Fri, 28 Oct 2005 14:52:28 -0400
+Received: from ns1.suse.de ([195.135.220.2]:25486 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030625AbVJ1Sw1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 14:51:04 -0400
-Date: Fri, 28 Oct 2005 19:50:05 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Pavel Machek <pavel@suse.cz>
-cc: Andi Kleen <ak@suse.de>, vojtech@suse.cz, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Disable the most annoying printk in the kernel
-In-Reply-To: <20051028072003.GB1602@openzaurus.ucw.cz>
-Message-ID: <Pine.LNX.4.61.0510281947040.5112@goblin.wat.veritas.com>
-References: <200510271026.10913.ak@suse.de> <20051028072003.GB1602@openzaurus.ucw.cz>
+	Fri, 28 Oct 2005 14:52:27 -0400
+From: Andi Kleen <ak@suse.de>
+To: Yinghai Lu <yinghai.lu@amd.com>
+Subject: Re: x86_64: calibrate_delay_direct and apic id lift for BSP
+Date: Fri, 28 Oct 2005 20:53:07 +0200
+User-Agent: KMail/1.8.2
+Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org, linuxbios@openbios.org
+References: <86802c440510281142i11771f25o3f6667869b4d614e@mail.gmail.com>
+In-Reply-To: <86802c440510281142i11771f25o3f6667869b4d614e@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 28 Oct 2005 18:51:03.0768 (UTC) FILETIME=[8C04B580:01C5DBF0]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510282053.07608.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Oct 2005, Pavel Machek wrote:
+On Friday 28 October 2005 20:42, Yinghai Lu wrote:
+> andi,
 > 
-> > Remove most useless printk in the world
+> I tried to lift apic id in LinuxBIOS for all cpus after 0x10.
 > 
-> It warns about crappy keyboards. It triggers regulary for me on x32,
-> (probably because of my weird capslock+x+s etc combination). It is
-> usefull as a warning "this keyboard is crap" and "no, bad mechanical switch
-> is not the reason for lost key".
+> When using MB with AMD8111, the jiffies was not moving. So it is
+> locked at calibrate_delay_direct...
 
-Okay, if you want a message to remind you that your keyboard is crap
-several times a day, please keep your own patch to do so.  Let the
-rest of the world go with Andi's patch.
+Have you tried it with 2.6.14? It has some new code to handle
+high apic ids better
+ 
+> but  MB with Nvidia ck804, jiffies is moving.
 
-Hugh
+The timer is wired different on nvidia than on 8111. They can
+go either through the 8259 or through the IOAPIC.  There is still
+some code that falls back to the 8259 if IOAPIC doesn't work,
+which may make it appear working on Nvidia.
+
+As a warning I'm about to remove that code so don't rely on it.
+
+> If I don't change BSP apic id ( keep it to 0), It changes....
+> 
+> I have no idea how the jiffies changes, there is another thread change it....?
+
+They change when interrupt 0 fires. So it's probably misrouted
+or similar.
+
+
+-Andi

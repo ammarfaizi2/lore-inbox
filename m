@@ -1,106 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbVJ1V5w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751865AbVJ1WGD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750779AbVJ1V5w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 17:57:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbVJ1V5w
+	id S1751865AbVJ1WGD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 18:06:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751883AbVJ1WGC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 17:57:52 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:58378 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750779AbVJ1V5w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 17:57:52 -0400
-Date: Fri, 28 Oct 2005 22:57:47 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [RFC] IRQ type flags
-Message-ID: <20051028215747.GA32120@dyn-67.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+	Fri, 28 Oct 2005 18:06:02 -0400
+Received: from lug-owl.de ([195.71.106.12]:2776 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S1751865AbVJ1WGB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 18:06:01 -0400
+Date: Sat, 29 Oct 2005 00:05:57 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: "Lever, Charles" <Charles.Lever@netapp.com>
+Cc: "Myklebust, Trond" <Trond.Myklebust@netapp.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Link error in ./net/sunrcp/
+Message-ID: <20051028220557.GR27184@lug-owl.de>
+Mail-Followup-To: "Lever, Charles" <Charles.Lever@netapp.com>,
+	"Myklebust, Trond" <Trond.Myklebust@netapp.com>,
+	linux-kernel@vger.kernel.org
+References: <044B81DE141D7443BCE91E8F44B3C1E288E5B7@exsvl02.hq.netapp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5xr6Gr0irOxp3+3c"
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <044B81DE141D7443BCE91E8F44B3C1E288E5B7@exsvl02.hq.netapp.com>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Some ARM platforms have the ability to program the interrupt controller
-to detect various interrupt edges and/or levels.  For some platforms,
-this is critical to setup correctly, particularly those which the
-setting is dependent on the device.
+--5xr6Gr0irOxp3+3c
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Currently, ARM drivers do (eg) the following:
+On Fri, 2005-10-28 14:26:11 -0700, Lever, Charles <Charles.Lever@netapp.com=
+> wrote:
+> > I get this link error:
+> >=20
+> > net/built-in.o: In function=20
+> > `xs_bindresvport':xprtsock.c:(.text+0x46970): undefined=20
+> > reference to `xprt_min_resvport'
+> > :xprtsock.c:(.text+0x46978): undefined reference to=20
+> > `xprt_max_resvport'
+> > net/built-in.o: In function `xs_setup_udp': undefined=20
+> > reference to `xprt_udp_slot_table_entries'
+> > net/built-in.o: In function `xs_setup_tcp': undefined=20
+> > reference to `xprt_tcp_slot_table_entries'
+> > make: *** [.tmp_vmlinux1] Error 1
+> >=20
+> > in case of CONFIG_SYSCTL not being enabled. This is on the VAX port,
+> > but I guess it'll show up on any target...
+>=20
+> i thought that you couldn't actually get a .config that would build
+> the sunrpc stuff if CONFIG_SYSCTL was disabled.  thus the macro logic
+> in net/sunrpc doesn't check for it.
+>=20
+> was i wrong about that?
 
-	err = request_irq(irq, ...);
+I just configured for i386, NFS support compiled in, but "Sysctl
+support" (in "General setup") being switched off:
 
-	set_irq_type(irq, IRQT_RISING);
+  LD      .tmp_vmlinux1
+net/built-in.o: In function `xs_bindresvport':
+: undefined reference to `xprt_max_resvport'
+net/built-in.o: In function `xs_bindresvport':
+: undefined reference to `xprt_min_resvport'
+net/built-in.o: In function `xs_setup_udp':
+: undefined reference to `xprt_udp_slot_table_entries'
+net/built-in.o: In function `xs_setup_udp':
+: undefined reference to `xprt_max_resvport'
+net/built-in.o: In function `xs_setup_tcp':
+: undefined reference to `xprt_tcp_slot_table_entries'
+net/built-in.o: In function `xs_setup_tcp':
+: undefined reference to `xprt_max_resvport'
+net/built-in.o:(__ksymtab+0xfb0): undefined reference to `xprt_udp_slot_tab=
+le_entries'
+net/built-in.o:(__ksymtab+0xfb8): undefined reference to `xprt_tcp_slot_tab=
+le_entries'
+make: *** [.tmp_vmlinux1] Error 1
 
-However, if the interrupt has previously been programmed to be level
-sensitive (for whatever reason) then this will cause an interrupt
-storm.
+MfG, JBG
 
-Hence, if we combine set_irq_type() with request_irq(), we can then
-safely set the type prior to unmasking the interrupt.  The unfortunate
-problem is that in order to support this, these flags need to be
-visible outside of the ARM architecture - drivers such as smc91x
-need these flags and they're cross-architecture.
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
+m Irak!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
 
-Finally, the SA_TRIGGER_* flag passed to request_irq() should reflect
-the property that the device would like.  The IRQ controller code
-should do its best to select the most appropriate supported mode.
+--5xr6Gr0irOxp3+3c
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Comments?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-diff --git a/arch/arm/kernel/irq.c b/arch/arm/kernel/irq.c
---- a/arch/arm/kernel/irq.c
-+++ b/arch/arm/kernel/irq.c
-@@ -681,10 +681,16 @@ int setup_irq(unsigned int irq, struct i
- 	 */
- 	desc = irq_desc + irq;
- 	spin_lock_irqsave(&irq_controller_lock, flags);
-+#define SA_TRIGGER	(SA_TRIGGER_HIGH|SA_TRIGGER_LOW|\
-+			 SA_TRIGGER_RISING|SA_TRIGGER_FALLING)
- 	p = &desc->action;
- 	if ((old = *p) != NULL) {
--		/* Can't share interrupts unless both agree to */
--		if (!(old->flags & new->flags & SA_SHIRQ)) {
-+		/*
-+		 * Can't share interrupts unless both agree to and are
-+		 * the same type.
-+		 */
-+		if (!(old->flags & new->flags & SA_SHIRQ) ||
-+		    (~old->flags & new->flags) & SA_TRIGGER) {
- 			spin_unlock_irqrestore(&irq_controller_lock, flags);
- 			return -EBUSY;
- 		}
-@@ -704,6 +710,12 @@ int setup_irq(unsigned int irq, struct i
- 		desc->running = 0;
- 		desc->pending = 0;
- 		desc->disable_depth = 1;
-+
-+		if (new->flags & SA_TRIGGER) {
-+			unsigned int type = new->flags & SA_TRIGGER;
-+			desc->chip->set_type(irq, type);
-+		}
-+
- 		if (!desc->noautoenable) {
- 			desc->disable_depth = 0;
- 			desc->chip->unmask(irq);
-diff --git a/include/linux/signal.h b/include/linux/signal.h
---- a/include/linux/signal.h
-+++ b/include/linux/signal.h
-@@ -18,6 +18,14 @@
- #define SA_PROBE		SA_ONESHOT
- #define SA_SAMPLE_RANDOM	SA_RESTART
- #define SA_SHIRQ		0x04000000
-+/*
-+ * As above, these correspond to the __IRQT defines in asm-arm/irq.h
-+ * to select the interrupt line behaviour.
-+ */
-+#define SA_TRIGGER_HIGH		0x00000008
-+#define SA_TRIGGER_LOW		0x00000004
-+#define SA_TRIGGER_RISING	0x00000002
-+#define SA_TRIGGER_FALLING	0x00000001
- 
- /*
-  * Real Time signals may be queued.
+iD8DBQFDYqDFHb1edYOZ4bsRAhDRAKCMU6aIhSYFvFFV0ALxWlZvtuMJEQCeKt2l
+UlyS2nSplkeF9AwDFo2P0XY=
+=pIiS
+-----END PGP SIGNATURE-----
+
+--5xr6Gr0irOxp3+3c--

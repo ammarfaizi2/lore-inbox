@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030522AbVJ1TC1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751057AbVJ1TEa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030522AbVJ1TC1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 15:02:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030574AbVJ1TC1
+	id S1751057AbVJ1TEa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 15:04:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751050AbVJ1TEa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 15:02:27 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:1233 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1030522AbVJ1TC0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 15:02:26 -0400
-Date: Fri, 28 Oct 2005 21:02:25 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Paulo da Silva <psdasilva@esoterica.pt>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Learning ext2 fs
-Message-ID: <20051028190225.GC1269@wohnheim.fh-wedel.de>
-References: <436116DC.6030104@esoterica.pt>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <436116DC.6030104@esoterica.pt>
-User-Agent: Mutt/1.5.9i
+	Fri, 28 Oct 2005 15:04:30 -0400
+Received: from imo-d04.mx.aol.com ([205.188.157.36]:65171 "EHLO
+	imo-d04.mx.aol.com") by vger.kernel.org with ESMTP id S1750824AbVJ1TE3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 15:04:29 -0400
+From: AndyLiebman@aol.com
+Message-ID: <190.4ba4a2cb.3093d02a@aol.com>
+Date: Fri, 28 Oct 2005 15:04:10 EDT
+Subject: What happened to XFS Quota Support?
+To: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: 9.0 Security Edition for Windows sub 2340
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 October 2005 19:05:16 +0100, Paulo da Silva wrote:
-> 
-> I am reading the ext2 fs code. One of my purposes
-> is to save the original data of a file to another file
-> just before it is changed by write/mmap/whatever.
-> Because of mmap (any other reasons?) I thought
-> of doing this at "ext2-writepage" or/and
-> "ext2-writepages".
-> 
-> Is this the right place?
+In previous Linux kernels -- 2.6.13 and below --  XFS quota could be set 
+"statically" -- that is, in "make xconfig" you could put  a "check mark" in the 
+XFS_quota support box even though you had a "dot" (module)  in the Overall 
+XFS_Filesystem support box . 
 
-Maybe, but the error handling will drive you insane.  My approach was
-to copy on open, not on write.  See
-http://wohnheim.fh-wedel.de/~joern/cowlink/
+In 2.6.14, not only has XFS  support moved under filesystems with all the 
+other filesystems, but you can no  longer put a "checkmark" in the "quota 
+support" box if you compile XFS support  as a module. 
 
-Jörn
+Is this by design? Looking back at all of my past kernels,  xfs is enabled as 
+a module but quota support is enabled statically. This is how  config files 
+have been coming from Mandrake for at least the past year.  
 
--- 
-Happiness isn't having what you want, it's wanting what you have.
--- unknown
+Is there a reason why this option is no longer available? If you compile  
+xfs_quota as a module, how do you load it? 
+
+Andy  
+

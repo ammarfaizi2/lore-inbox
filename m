@@ -1,39 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030245AbVJ1QjR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030246AbVJ1Qki@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030245AbVJ1QjR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 12:39:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030250AbVJ1QjQ
+	id S1030246AbVJ1Qki (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 12:40:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030247AbVJ1Qki
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 12:39:16 -0400
-Received: from smtp06.wanadoo.nl ([194.134.35.146]:59433 "EHLO
-	smtp06.wanadoo.nl") by vger.kernel.org with ESMTP id S1030245AbVJ1QjO
+	Fri, 28 Oct 2005 12:40:38 -0400
+Received: from smtp06.wanadoo.nl ([194.134.35.146]:25643 "EHLO
+	smtp06.wanadoo.nl") by vger.kernel.org with ESMTP id S1030246AbVJ1Qkh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 12:39:14 -0400
-Message-ID: <43625431.9040300@lazarenko.net>
-Date: Fri, 28 Oct 2005 18:39:13 +0200
+	Fri, 28 Oct 2005 12:40:37 -0400
+Message-ID: <43625484.30100@lazarenko.net>
+Date: Fri, 28 Oct 2005 18:40:36 +0200
 From: Vladimir Lazarenko <vlad@lazarenko.net>
 User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: linux-kernel@vger.kernel.org
+To: thockin@hockin.org
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org
 Subject: Re: AMD Athlon64 X2 Dual-core and 4GB
-References: <4361408B.60903@lazarenko.net> <m1irvhbqvo.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1irvhbqvo.fsf@ebiederm.dsl.xmission.com>
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms040604040501050805070805"
+References: <4361408B.60903@lazarenko.net> <m1irvhbqvo.fsf@ebiederm.dsl.xmission.com> <20051028160403.GA26286@hockin.org>
+In-Reply-To: <20051028160403.GA26286@hockin.org>
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms040101060201050102080309"
 X-Spam-Score: 0.1 (/)
 X-Spam-Report: Spam detection software, running on the system "dinosaur.lazarenko.net", has
 	identified this incoming email as possible spam.  The original message
 	has been attached to this so you can view it (if it isn't spam) or label
 	similar future email.  If you have any questions, see
 	the administrator of that system for details.
-	Content preview:  >>Hello, >> >>Looking at the thread of Interl Dual-core
-	and 4GB a sudden thought came to my >>mind: "Hey, I'm gonna upgrade my
-	box to 4G next week too... Would it work?" >> >>Thus, the question -
-	would I be able to use whole 4G RAM with dual-core amd and >>kernel with
-	SMP compiled for i686? > > A Dual-core is a rev-E processor so the cpu
-	has memory hoisting support, > so it will work if your BIOS implement it
-	properly. > > Eric [...] 
+	Content preview:  >>>Thus, the question - would I be able to use whole 4G
+	RAM with dual-core amd and >>>kernel with SMP compiled for i686? > > >
+	Why would you use a dual core AMD in 32 bit mode? Just build an x86_64 >
+	kernel. > > If you want to use 4GB in 32 bit mode, you *need* remapping
+	(or you lose > part of your memory). Remapping means you have MORE than
+	4 GB of physical > address, which means you need PAE to use it at all.
+	[...] 
 	Content analysis details:   (0.1 points, 5.0 required)
 	pts rule name              description
 	---- ---------------------- --------------------------------------------------
@@ -43,26 +43,26 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a cryptographically signed message in MIME format.
 
---------------ms040604040501050805070805
+--------------ms040101060201050102080309
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
->>Hello,
->>
->>Looking at the thread of Interl Dual-core and 4GB a sudden thought came to my
->>mind: "Hey, I'm gonna upgrade my box to 4G next week too... Would it work?"
->>
->>Thus, the question - would I be able to use whole 4G RAM with dual-core amd and
->>kernel with SMP compiled for i686?
+>>>Thus, the question - would I be able to use whole 4G RAM with dual-core amd and
+>>>kernel with SMP compiled for i686?
 > 
-> A Dual-core is a rev-E processor so the cpu has memory hoisting support,
-> so it will work if your BIOS implement it properly.
 > 
-> Eric
+> Why would you use a dual core AMD in 32 bit mode?  Just build an x86_64
+> kernel.
+> 
+> If you want to use 4GB in 32 bit mode, you *need* remapping (or you lose
+> part of your memory).  Remapping means you have MORE than 4 GB of physical
+> address, which means you need PAE to use it at all.
 
-Thank you!
+Because I find my distribution's 64-bit release reasonably unstable yet? :)
 
---------------ms040604040501050805070805
+Or can I somehow build an x86_64 kernel and keep using 32-bit libc?
+
+--------------ms040101060201050102080309
 Content-Type: application/x-pkcs7-signature; name="smime.p7s"
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment; filename="smime.p7s"
@@ -119,18 +119,18 @@ Gk7UU/vwEwN8q6KGH0Frn5QyBD0vkmzco36TcshYmAfDkq33JSfgfopLxD+y8HjaC9xFdUq8
 MAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAq
 BgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBAgMPl0owCQYFKw4D
 AhoFAKCCAacwGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMDUx
-MDI4MTYzOTEzWjAjBgkqhkiG9w0BCQQxFgQUBBf18UIUGKk5MKibFVfSnRrzgzMwUgYJKoZI
+MDI4MTY0MDM2WjAjBgkqhkiG9w0BCQQxFgQUQgwRZ+rXkc/ZUY18snfkUW9MzQEwUgYJKoZI
 hvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAw
 BwYFKw4DAgcwDQYIKoZIhvcNAwICASgweAYJKwYBBAGCNxAEMWswaTBiMQswCQYDVQQGEwJa
 QTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhh
 d3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0ECAw+XSjB6BgsqhkiG9w0BCRACCzFr
 oGkwYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0
 ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBAgMPl0ow
-DQYJKoZIhvcNAQEBBQAEggEAj5srVK3a/UtrmTC7/IEd599037nffmrD4WvQmIiAH0LmCm9o
-/o5REZgmiFo8h+1inG6onWCaWeB5qOr8cLTQnFIvy6Z2DyRp3DGfSmpwolrq5LS6/4hXkvyB
-+mtNcNIvBAeJD/BpacIIL7++s06XcUQrzlGb2PCAyZL3itaah2Ru0Pt4XzBDKfaRZ/VJKuJq
-9MCoAoobNNtGiuS3n/dJD1HGtI1TtPk2GYmYrnR3HS1fLfHrHs/FUBuwqvHaDzvWfwwXDubl
-CZ4DKNfaZF6TWTVPFOadVaHDbZZJYJxVEzjFUlczAUltkjJUk67+3ZFDSQggsDkUO0PJ63jA
-ygCirgAAAAAAAA==
---------------ms040604040501050805070805--
+DQYJKoZIhvcNAQEBBQAEggEAQXwerKLxd8cdBrEF4yK7onI687uYIvjKtQ52GxsUBT2fTUTN
+7AyEe3qHZABRV3Nt+WrMDgtyQQhMH0yV7HEWq3kXSwY0ZbchZubw/0kKmMjUS6yOAKzYbEso
+JKLnYD9J1Xq5mauuc6XSDkmhtcAx5jMq/cqFEeBF/MUu9K9wNWdds8WELGUaaWb9TKydKFyC
+SWjfyWl1P0LOWLpDN0MZfUdQfTaOATTUqBLGp/ar3ckEAidj5+OMrocNxSHTI5//864HmvPK
+4eZDL7h/XHPcKcoTg+NNZLbunH0sbvfAwA2iXfTY1KknwKK62gYngLQTv+dHWNIXcz7MsUpw
+SQt+LQAAAAAAAA==
+--------------ms040101060201050102080309--
 

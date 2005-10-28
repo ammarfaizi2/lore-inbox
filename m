@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751649AbVJ1OKk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbVJ1OLS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751649AbVJ1OKk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 10:10:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751646AbVJ1OKj
+	id S1030192AbVJ1OLS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 10:11:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030187AbVJ1OLS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 10:10:39 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:898 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751648AbVJ1OKh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 10:10:37 -0400
-Date: Fri, 28 Oct 2005 16:10:43 +0200
+	Fri, 28 Oct 2005 10:11:18 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:25026 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1030194AbVJ1OLR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 10:11:17 -0400
+Date: Fri, 28 Oct 2005 16:11:24 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, braunu@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: [patch 12/14] s390: duplicate timeout in qdio.
-Message-ID: <20051028141043.GL7300@skybase.boeblingen.de.ibm.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [patch 13/14] s390: const pointer uaccess.
+Message-ID: <20051028141123.GM7300@skybase.boeblingen.de.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,42 +21,64 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ursula Braun-Krahl <braunu@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-[patch 12/14] s390: duplicate timeout in qdio.
+[patch 13/14] s390: const pointer uaccess.
 
-Remove duplicate timeout in qdio_establish().
+Using __typeof__(*ptr) on a pointer to const makes the __x
+variable in __get_user const as well. The latest gcc will
+refuse to write to it.
 
-Signed-off-by: Ursula Braun-Krahl <braunu@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/qdio.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+ include/asm-s390/uaccess.h |   28 ++++++++++++++++++++++------
+ 1 files changed, 22 insertions(+), 6 deletions(-)
 
-diff -urpN linux-2.6/drivers/s390/cio/qdio.c linux-2.6-patched/drivers/s390/cio/qdio.c
---- linux-2.6/drivers/s390/cio/qdio.c	2005-10-28 02:02:08.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/cio/qdio.c	2005-10-28 14:04:54.000000000 +0200
-@@ -56,7 +56,7 @@
- #include "ioasm.h"
- #include "chsc.h"
+diff -urpN linux-2.6/include/asm-s390/uaccess.h linux-2.6-patched/include/asm-s390/uaccess.h
+--- linux-2.6/include/asm-s390/uaccess.h	2005-10-28 02:02:08.000000000 +0200
++++ linux-2.6-patched/include/asm-s390/uaccess.h	2005-10-28 14:04:55.000000000 +0200
+@@ -200,21 +200,37 @@ extern int __put_user_bad(void) __attrib
  
--#define VERSION_QDIO_C "$Revision: 1.101 $"
-+#define VERSION_QDIO_C "$Revision: 1.108 $"
+ #define __get_user(x, ptr)					\
+ ({								\
+-	__typeof__(*(ptr)) __x;					\
+ 	int __gu_err;						\
+         __chk_user_ptr(ptr);                                    \
+ 	switch (sizeof(*(ptr))) {				\
+-	case 1:							\
+-	case 2:							\
+-	case 4:							\
+-	case 8:							\
++	case 1: {						\
++		unsigned char __x;				\
+ 		__get_user_asm(__x, ptr, __gu_err);		\
++		(x) = (__typeof__(*(ptr))) __x;			\
+ 		break;						\
++	};							\
++	case 2: {						\
++		unsigned short __x;				\
++		__get_user_asm(__x, ptr, __gu_err);		\
++		(x) = (__typeof__(*(ptr))) __x;			\
++		break;						\
++	};							\
++	case 4: {						\
++		unsigned int __x;				\
++		__get_user_asm(__x, ptr, __gu_err);		\
++		(x) = (__typeof__(*(ptr))) __x;			\
++		break;						\
++	};							\
++	case 8: {						\
++		unsigned long long __x;				\
++		__get_user_asm(__x, ptr, __gu_err);		\
++		(x) = (__typeof__(*(ptr))) __x;			\
++		break;						\
++	};							\
+ 	default:						\
+ 		__get_user_bad();				\
+ 		break;						\
+ 	}							\
+-	(x) = __x;						\
+ 	__gu_err;						\
+ })
  
- /****************** MODULE PARAMETER VARIABLES ********************/
- MODULE_AUTHOR("Utz Bacher <utz.bacher@de.ibm.com>");
-@@ -2873,10 +2873,10 @@ qdio_establish(struct qdio_initialize *i
- 		return result;
- 	}
- 	
--	wait_event_interruptible_timeout(cdev->private->wait_q,
-+	/* Timeout is cared for already by using ccw_device_start_timeout(). */
-+	wait_event_interruptible(cdev->private->wait_q,
- 		 irq_ptr->state == QDIO_IRQ_STATE_ESTABLISHED ||
--		 irq_ptr->state == QDIO_IRQ_STATE_ERR,
--		 QDIO_ESTABLISH_TIMEOUT);
-+		 irq_ptr->state == QDIO_IRQ_STATE_ERR);
- 
- 	if (irq_ptr->state == QDIO_IRQ_STATE_ESTABLISHED)
- 		result = 0;

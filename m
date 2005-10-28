@@ -1,264 +1,257 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965181AbVJ1HgT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965176AbVJ1Hiz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965181AbVJ1HgT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 03:36:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965180AbVJ1HgS
+	id S965176AbVJ1Hiz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 03:38:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965178AbVJ1Hiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 03:36:18 -0400
-Received: from [85.8.13.51] ([85.8.13.51]:52882 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S965178AbVJ1HgR (ORCPT
+	Fri, 28 Oct 2005 03:38:55 -0400
+Received: from [85.8.13.51] ([85.8.13.51]:54162 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S965176AbVJ1Hiy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 03:36:17 -0400
+	Fri, 28 Oct 2005 03:38:54 -0400
 From: Pierre Ossman <drzeus@drzeus.cx>
-Subject: [PATCH] [MMC] wbsd suspend support
-Date: Fri, 28 Oct 2005 09:36:23 +0200
+Subject: [PATCH] [PNP][RFC] Suspend support for PNP bus.
+Date: Fri, 28 Oct 2005 09:39:01 +0200
 Cc: Pierre Ossman <drzeus-list@drzeus.cx>
-To: rmk+lkml@arm.linux.org.uk
+To: ambx1@neo.rr.com
 Cc: linux-kernel@vger.kernel.org
-Message-Id: <20051028073622.4122.98642.stgit@poseidon.drzeus.cx>
+Message-Id: <20051028073900.4148.83481.stgit@poseidon.drzeus.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Proper handling of suspend/resume in the wbsd driver.
+Add support for suspending devices connected to the PNP bus. New
+callbacks are added for the drivers and the PNP hardware layer is
+told to disable the device during the suspend.
 
 Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
 ---
 
- drivers/mmc/wbsd.c |  119 ++++++++++++++++++++++++++++++++++++++++------------
- 1 files changed, 91 insertions(+), 28 deletions(-)
+ drivers/pnp/driver.c  |   51 +++++++++++++++++++++++++++++++-
+ drivers/pnp/manager.c |   78 +++++++++++++++++++++++++++++++++++++------------
+ include/linux/pnp.h   |   10 +++++-
+ 3 files changed, 116 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/mmc/wbsd.c b/drivers/mmc/wbsd.c
---- a/drivers/mmc/wbsd.c
-+++ b/drivers/mmc/wbsd.c
-@@ -1033,13 +1033,16 @@ static void wbsd_set_ios(struct mmc_host
- 	}
- 	else
- 	{
--		setup &= ~WBSD_DAT3_H;
-+		if (setup & WBSD_DAT3_H)
-+		{
-+			setup &= ~WBSD_DAT3_H;
- 
--		/*
--		 * We cannot resume card detection immediatly
--		 * because of capacitance and delays in the chip.
--		 */
--		mod_timer(&host->ignore_timer, jiffies + HZ/100);
-+			/*
-+			 * We cannot resume card detection immediatly
-+			 * because of capacitance and delays in the chip.
-+			 */
-+			mod_timer(&host->ignore_timer, jiffies + HZ/100);
-+		}
- 	}
- 	wbsd_write_index(host, WBSD_IDX_SETUP, setup);
- 
-@@ -1461,8 +1464,10 @@ static int __devinit wbsd_scan(struct wb
- 		{
- 			id = 0xFFFF;
- 
--			outb(unlock_codes[j], config_ports[i]);
--			outb(unlock_codes[j], config_ports[i]);
-+			host->config = config_ports[i];
-+			host->unlock_code = unlock_codes[j];
-+
-+			wbsd_unlock_config(host);
- 
- 			outb(WBSD_CONF_ID_HI, config_ports[i]);
- 			id = inb(config_ports[i] + 1) << 8;
-@@ -1470,13 +1475,13 @@ static int __devinit wbsd_scan(struct wb
- 			outb(WBSD_CONF_ID_LO, config_ports[i]);
- 			id |= inb(config_ports[i] + 1);
- 
-+			wbsd_lock_config(host);
-+
- 			for (k = 0;k < sizeof(valid_ids)/sizeof(int);k++)
- 			{
- 				if (id == valid_ids[k])
- 				{
- 					host->chip_id = id;
--					host->config = config_ports[i];
--					host->unlock_code = unlock_codes[i];
- 
- 					return 0;
- 				}
-@@ -1487,13 +1492,14 @@ static int __devinit wbsd_scan(struct wb
- 				DBG("Unknown hardware (id %x) found at %x\n",
- 					id, config_ports[i]);
- 			}
--
--			outb(LOCK_CODE, config_ports[i]);
- 		}
- 
- 		release_region(config_ports[i], 2);
- 	}
- 
-+	host->config = 0;
-+	host->unlock_code = 0;
-+
- 	return -ENODEV;
- }
- 
-@@ -1695,8 +1701,10 @@ static void __devexit wbsd_release_resou
-  * Configure the resources the chip should use.
-  */
- 
--static void __devinit wbsd_chip_config(struct wbsd_host* host)
-+static void wbsd_chip_config(struct wbsd_host* host)
- {
-+	wbsd_unlock_config(host);
-+
- 	/*
- 	 * Reset the chip.
- 	 */
-@@ -1729,16 +1737,20 @@ static void __devinit wbsd_chip_config(s
- 	 */
- 	wbsd_write_config(host, WBSD_CONF_ENABLE, 1);
- 	wbsd_write_config(host, WBSD_CONF_POWER, 0x20);
-+
-+	wbsd_lock_config(host);
- }
- 
- /*
-  * Check that configured resources are correct.
-  */
- 
--static int __devinit wbsd_chip_validate(struct wbsd_host* host)
-+static int wbsd_chip_validate(struct wbsd_host* host)
- {
- 	int base, irq, dma;
- 
-+	wbsd_unlock_config(host);
-+
- 	/*
- 	 * Select SD/MMC function.
- 	 */
-@@ -1754,6 +1766,8 @@ static int __devinit wbsd_chip_validate(
- 
- 	dma = wbsd_read_config(host, WBSD_CONF_DRQ);
- 
-+	wbsd_lock_config(host);
-+
- 	/*
- 	 * Validate against given configuration.
- 	 */
-@@ -1767,6 +1781,20 @@ static int __devinit wbsd_chip_validate(
+diff --git a/drivers/pnp/driver.c b/drivers/pnp/driver.c
+--- a/drivers/pnp/driver.c
++++ b/drivers/pnp/driver.c
+@@ -146,10 +146,57 @@ static int pnp_bus_match(struct device *
  	return 1;
  }
  
-+/*
-+ * Powers down the SD function
-+ */
-+
-+static void wbsd_chip_poweroff(struct wbsd_host* host)
++static int pnp_bus_suspend(struct device *dev, pm_message_t state)
 +{
-+	wbsd_unlock_config(host);
++	struct pnp_dev * pnp_dev = to_pnp_dev(dev);
++	struct pnp_driver * drv = pnp_dev->driver;
++	int error;
 +
-+	wbsd_write_config(host, WBSD_CONF_DEVICE, DEVICE_SD);
-+	wbsd_write_config(host, WBSD_CONF_ENABLE, 0);
++	if (!drv)
++		return 0;
 +
-+	wbsd_lock_config(host);
++	if (drv->suspend) {
++		error = drv->suspend(pnp_dev, state);
++		if (error)
++			return error;
++	}
++
++	if (!(drv->flags & PNP_DRIVER_RES_DO_NOT_CHANGE) &&
++	    pnp_can_disable(pnp_dev)) {
++	    	error = pnp_stop_dev(pnp_dev);
++	    	if (error)
++	    		return error;
++	}
++
++	return 0;
 +}
 +
- /*****************************************************************************\
-  *                                                                           *
-  * Devices setup and shutdown                                                *
-@@ -1840,7 +1868,11 @@ static int __devinit wbsd_init(struct de
- 	 */
- #ifdef CONFIG_PM
- 	if (host->config)
-+	{
-+		wbsd_unlock_config(host);
- 		wbsd_write_config(host, WBSD_CONF_PME, 0xA0);
-+		wbsd_lock_config(host);
++static int pnp_bus_resume(struct device *dev)
++{
++	struct pnp_dev * pnp_dev = to_pnp_dev(dev);
++	struct pnp_driver * drv = pnp_dev->driver;
++	int error;
++
++	if (!drv)
++		return 0;
++
++	if (!(drv->flags & PNP_DRIVER_RES_DO_NOT_CHANGE)) {
++		error = pnp_start_dev(pnp_dev);
++		if (error)
++			return error;
 +	}
- #endif
- 	/*
- 	 * Allow device to initialise itself properly.
-@@ -1881,16 +1913,11 @@ static void __devexit wbsd_shutdown(stru
++
++	if (drv->resume)
++		return drv->resume(pnp_dev);
++
++	return 0;
++}
  
- 	mmc_remove_host(mmc);
+ struct bus_type pnp_bus_type = {
+-	.name	= "pnp",
+-	.match	= pnp_bus_match,
++	.name		= "pnp",
++	.match		= pnp_bus_match,
++	.suspend	= pnp_bus_suspend,
++	.resume		= pnp_bus_resume,
+ };
  
-+	/*
-+	 * Power down the SD/MMC function.
-+	 */
- 	if (!pnp)
--	{
--		/*
--		 * Power down the SD/MMC function.
--		 */
--		wbsd_unlock_config(host);
--		wbsd_write_config(host, WBSD_CONF_DEVICE, DEVICE_SD);
--		wbsd_write_config(host, WBSD_CONF_ENABLE, 0);
--		wbsd_lock_config(host);
--	}
-+		wbsd_chip_poweroff(host);
  
- 	wbsd_release_resources(host);
+diff --git a/drivers/pnp/manager.c b/drivers/pnp/manager.c
+--- a/drivers/pnp/manager.c
++++ b/drivers/pnp/manager.c
+@@ -468,6 +468,53 @@ int pnp_auto_config_dev(struct pnp_dev *
+ }
  
-@@ -1951,23 +1978,59 @@ static void __devexit wbsd_pnp_remove(st
+ /**
++ * pnp_start_dev - low-level start of the PnP device
++ * @dev: pointer to the desired device
++ *
++ * assumes that resources have alread been allocated
++ */
++
++int pnp_start_dev(struct pnp_dev *dev)
++{
++	if (!pnp_can_write(dev)) {
++		pnp_info("Device %s does not supported activation.", dev->dev.bus_id);
++		return -EINVAL;
++	}
++
++	if (dev->protocol->set(dev, &dev->res)<0) {
++		pnp_err("Failed to activate device %s.", dev->dev.bus_id);
++		return -EIO;
++	}
++
++	pnp_info("Device %s activated.", dev->dev.bus_id);
++
++	return 0;
++}
++
++/**
++ * pnp_stop_dev - low-level disable of the PnP device
++ * @dev: pointer to the desired device
++ *
++ * does not free resources
++ */
++
++int pnp_stop_dev(struct pnp_dev *dev)
++{
++	if (!pnp_can_disable(dev)) {
++		pnp_info("Device %s does not supported disabling.", dev->dev.bus_id);
++		return -EINVAL;
++	}
++	if (dev->protocol->disable(dev)<0) {
++		pnp_err("Failed to disable device %s.", dev->dev.bus_id);
++		return -EIO;
++	}
++
++	pnp_info("Device %s disabled.", dev->dev.bus_id);
++
++	return 0;
++}
++
++/**
+  * pnp_activate_dev - activates a PnP device for use
+  * @dev: pointer to the desired device
+  *
+@@ -475,6 +522,8 @@ int pnp_auto_config_dev(struct pnp_dev *
   */
- 
- #ifdef CONFIG_PM
-+
- static int wbsd_suspend(struct device *dev, pm_message_t state, u32 level)
+ int pnp_activate_dev(struct pnp_dev *dev)
  {
--	DBGF("Not yet supported\n");
-+	struct mmc_host *mmc = dev_get_drvdata(dev);
-+	struct wbsd_host *host;
-+	int ret;
++	int error;
 +
-+	if (!mmc || (level != SUSPEND_DISABLE))
-+		return 0;
-+
-+	DBG("Suspending...\n");
-+
-+	ret = mmc_suspend_host(mmc, state);
-+	if (!ret)
-+		return ret;
-+
-+	host = mmc_priv(mmc);
-+
-+	wbsd_chip_poweroff(host);
+ 	if (!dev)
+ 		return -EINVAL;
+ 	if (dev->active) {
+@@ -485,18 +534,11 @@ int pnp_activate_dev(struct pnp_dev *dev
+ 	if (pnp_auto_config_dev(dev))
+ 		return -EBUSY;
  
- 	return 0;
+-	if (!pnp_can_write(dev)) {
+-		pnp_info("Device %s does not supported activation.", dev->dev.bus_id);
+-		return -EINVAL;
+-	}
+-
+-	if (dev->protocol->set(dev, &dev->res)<0) {
+-		pnp_err("Failed to activate device %s.", dev->dev.bus_id);
+-		return -EIO;
+-	}
++	error = pnp_start_dev(dev);
++	if (error)
++		return error;
+ 
+ 	dev->active = 1;
+-	pnp_info("Device %s activated.", dev->dev.bus_id);
+ 
+ 	return 1;
  }
- 
- static int wbsd_resume(struct device *dev, u32 level)
+@@ -509,23 +551,19 @@ int pnp_activate_dev(struct pnp_dev *dev
+  */
+ int pnp_disable_dev(struct pnp_dev *dev)
  {
--	DBGF("Not yet supported\n");
-+	struct mmc_host *mmc = dev_get_drvdata(dev);
-+	struct wbsd_host *host;
++	int error;
++
+         if (!dev)
+                 return -EINVAL;
+ 	if (!dev->active) {
+ 		return 0; /* the device is already disabled */
+ 	}
  
--	return 0;
-+	if (!mmc || (level != RESUME_ENABLE))
-+		return 0;
-+
-+	DBG("Resuming...\n");
-+
-+	host = mmc_priv(mmc);
-+
-+	wbsd_chip_config(host);
-+
-+	/*
-+	 * Allow device to initialise itself properly.
-+	 */
-+	mdelay(5);
-+
-+	wbsd_init_device(host);
-+
-+	return mmc_resume_host(mmc);
- }
--#else
-+
-+#else /* CONFIG_PM */
-+
- #define wbsd_suspend NULL
- #define wbsd_resume NULL
--#endif
-+
-+#endif /* CONFIG_PM */
+-	if (!pnp_can_disable(dev)) {
+-		pnp_info("Device %s does not supported disabling.", dev->dev.bus_id);
+-		return -EINVAL;
+-	}
+-	if (dev->protocol->disable(dev)<0) {
+-		pnp_err("Failed to disable device %s.", dev->dev.bus_id);
+-		return -EIO;
+-	}
++	error = pnp_stop_dev(dev);
++	if (error)
++		return error;
  
- static struct platform_device *wbsd_device;
+ 	dev->active = 0;
+-	pnp_info("Device %s disabled.", dev->dev.bus_id);
  
+ 	/* release the resources so that other devices can use them */
+ 	down(&pnp_res_mutex);
+@@ -554,6 +592,8 @@ void pnp_resource_change(struct resource
+ 
+ EXPORT_SYMBOL(pnp_manual_config_dev);
+ EXPORT_SYMBOL(pnp_auto_config_dev);
++EXPORT_SYMBOL(pnp_start_dev);
++EXPORT_SYMBOL(pnp_stop_dev);
+ EXPORT_SYMBOL(pnp_activate_dev);
+ EXPORT_SYMBOL(pnp_disable_dev);
+ EXPORT_SYMBOL(pnp_resource_change);
+diff --git a/include/linux/pnp.h b/include/linux/pnp.h
+--- a/include/linux/pnp.h
++++ b/include/linux/pnp.h
+@@ -292,8 +292,10 @@ struct pnp_driver {
+ 	char * name;
+ 	const struct pnp_device_id *id_table;
+ 	unsigned int flags;
+-	int  (*probe)  (struct pnp_dev *dev, const struct pnp_device_id *dev_id);
+-	void (*remove) (struct pnp_dev *dev);
++	int  (*probe)   (struct pnp_dev *dev, const struct pnp_device_id *dev_id);
++	void (*remove)  (struct pnp_dev *dev);
++	int  (*suspend) (struct pnp_dev *dev, pm_message_t state);
++	int  (*resume)  (struct pnp_dev *dev);
+ 	struct device_driver driver;
+ };
+ 
+@@ -381,6 +383,8 @@ void pnp_init_resource_table(struct pnp_
+ int pnp_manual_config_dev(struct pnp_dev *dev, struct pnp_resource_table *res, int mode);
+ int pnp_auto_config_dev(struct pnp_dev *dev);
+ int pnp_validate_config(struct pnp_dev *dev);
++int pnp_start_dev(struct pnp_dev *dev);
++int pnp_stop_dev(struct pnp_dev *dev);
+ int pnp_activate_dev(struct pnp_dev *dev);
+ int pnp_disable_dev(struct pnp_dev *dev);
+ void pnp_resource_change(struct resource *resource, unsigned long start, unsigned long size);
+@@ -425,6 +429,8 @@ static inline void pnp_init_resource_tab
+ static inline int pnp_manual_config_dev(struct pnp_dev *dev, struct pnp_resource_table *res, int mode) { return -ENODEV; }
+ static inline int pnp_auto_config_dev(struct pnp_dev *dev) { return -ENODEV; }
+ static inline int pnp_validate_config(struct pnp_dev *dev) { return -ENODEV; }
++static inline int pnp_start_dev(struct pnp_dev *dev) { return -ENODEV; }
++static inline int pnp_stop_dev(struct pnp_dev *dev) { return -ENODEV; }
+ static inline int pnp_activate_dev(struct pnp_dev *dev) { return -ENODEV; }
+ static inline int pnp_disable_dev(struct pnp_dev *dev) { return -ENODEV; }
+ static inline void pnp_resource_change(struct resource *resource, unsigned long start, unsigned long size) { }
 

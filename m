@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965122AbVJ1Gpb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965170AbVJ1Gqk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965122AbVJ1Gpb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 02:45:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965119AbVJ1GbI
+	id S965170AbVJ1Gqk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 02:46:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965167AbVJ1Gqj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 02:31:08 -0400
-Received: from mail.kroah.org ([69.55.234.183]:20458 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965108AbVJ1GbE convert rfc822-to-8bit
+	Fri, 28 Oct 2005 02:46:39 -0400
+Received: from mail.kroah.org ([69.55.234.183]:19434 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S965117AbVJ1GbI convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 02:31:04 -0400
-Cc: dtor_core@ameritech.net
-Subject: [PATCH] I2O: remove class interface
-In-Reply-To: <1130481023770@kroah.com>
+	Fri, 28 Oct 2005 02:31:08 -0400
+Cc: gregkh@suse.de
+Subject: [PATCH] INPUT: rename input_dev_class to input_class to be correct.
+In-Reply-To: <1130481026406@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Thu, 27 Oct 2005 23:30:23 -0700
-Message-Id: <11304810233187@kroah.com>
+Date: Thu, 27 Oct 2005 23:30:26 -0700
+Message-Id: <1130481026735@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,405 +24,202 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] I2O: remove class interface
+[PATCH] INPUT: rename input_dev_class to input_class to be correct.
 
-I2O: remove i2o_device_class_interface misuse
-
-The intent of class interfaces was to provide different
-'views' at the same object, not just run some code every
-time a new class device is registered. Kill interface
-structure, make class core register default attributes
-and set up sysfs links right when registering class
-devices.
-
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit e12574538ea88cd5e15d7135e9ae6e267d314f2c
-tree 301ed903a0a558c231c69b6390db67f7a169c184
-parent 85a44726f49989a2647cd850d55ec5be75727c5b
-author Dmitry Torokhov <dtor_core@ameritech.net> Thu, 15 Sep 2005 02:01:32 -0500
-committer Greg Kroah-Hartman <gregkh@suse.de> Thu, 27 Oct 2005 22:48:00 -0700
+commit fdbb989037a62b1748fdf3e292601a9373fa0739
+tree f31cc114d1acdf13b3099ca1d83d5a5808c5e2ee
+parent 4fccc75dab34abbbf9368d2fa21bed0918cdaec7
+author Greg Kroah-Hartman <gregkh@suse.de> Thu, 27 Oct 2005 22:25:43 -0700
+committer Greg Kroah-Hartman <gregkh@suse.de> Thu, 27 Oct 2005 22:48:06 -0700
 
- drivers/message/i2o/device.c |  255 ++++++++++++++++++++----------------------
- 1 files changed, 122 insertions(+), 133 deletions(-)
+ drivers/input/evdev.c    |    4 ++--
+ drivers/input/input.c    |   14 +++++++-------
+ drivers/input/joydev.c   |    4 ++--
+ drivers/input/mousedev.c |    8 ++++----
+ drivers/input/tsdev.c    |    4 ++--
+ include/linux/input.h    |    2 +-
+ 6 files changed, 18 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/message/i2o/device.c b/drivers/message/i2o/device.c
-index 21f16ba..551d582 100644
---- a/drivers/message/i2o/device.c
-+++ b/drivers/message/i2o/device.c
-@@ -45,10 +45,10 @@ static inline int i2o_device_issue_claim
- 	writel(type, &msg->body[0]);
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index 579041d..2a96b26 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -686,7 +686,7 @@ static struct input_handle *evdev_connec
  
- 	return i2o_msg_post_wait(dev->iop, m, 60);
--};
-+}
+ 	evdev_table[minor] = evdev;
  
- /**
-- * 	i2o_device_claim - claim a device for use by an OSM
-+ *	i2o_device_claim - claim a device for use by an OSM
-  *	@dev: I2O device to claim
-  *	@drv: I2O driver which wants to claim the device
-  *
-@@ -73,7 +73,7 @@ int i2o_device_claim(struct i2o_device *
- 	up(&dev->lock);
+-	class_device_create(&input_dev_class, &dev->cdev,
++	class_device_create(&input_class, &dev->cdev,
+ 			MKDEV(INPUT_MAJOR, EVDEV_MINOR_BASE + minor),
+ 			dev->cdev.dev, "event%d", minor);
  
- 	return rc;
--};
-+}
+@@ -698,7 +698,7 @@ static void evdev_disconnect(struct inpu
+ 	struct evdev *evdev = handle->private;
+ 	struct evdev_list *list;
  
- /**
-  *	i2o_device_claim_release - release a device that the OSM is using
-@@ -119,7 +119,8 @@ int i2o_device_claim_release(struct i2o_
- 	up(&dev->lock);
+-	class_device_destroy(&input_dev_class,
++	class_device_destroy(&input_class,
+ 			MKDEV(INPUT_MAJOR, EVDEV_MINOR_BASE + evdev->minor));
+ 	evdev->exist = 0;
  
- 	return rc;
--};
-+}
-+
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 5c9044d..a8f65fa 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -39,7 +39,7 @@ EXPORT_SYMBOL(input_close_device);
+ EXPORT_SYMBOL(input_accept_process);
+ EXPORT_SYMBOL(input_flush_device);
+ EXPORT_SYMBOL(input_event);
+-EXPORT_SYMBOL_GPL(input_dev_class);
++EXPORT_SYMBOL_GPL(input_class);
  
- /**
-  *	i2o_device_release - release the memory for a I2O device
-@@ -135,39 +136,62 @@ static void i2o_device_release(struct de
- 	pr_debug("i2o: device %s released\n", dev->bus_id);
+ #define INPUT_DEVICES	256
  
- 	kfree(i2o_dev);
--};
-+}
- 
- /**
-- *	i2o_device_class_release - Remove I2O device attributes
-+ *	i2o_device_class_release - I2O class device release function
-  *	@cd: I2O class device which is added to the I2O device class
-  *
-- *	Removes attributes from the I2O device again. Also search each device
-- *	on the controller for I2O devices which refert to this device as parent
-- *	or user and remove this links also.
-+ *	The function is just a stub - memory will be freed when
-+ *	associated I2O device is released.
-  */
- static void i2o_device_class_release(struct class_device *cd)
- {
--	struct i2o_device *i2o_dev, *tmp;
--	struct i2o_controller *c;
-+	/* empty */
-+}
- 
--	i2o_dev = to_i2o_device(cd->dev);
--	c = i2o_dev->iop;
-+/**
-+ *	i2o_device_class_show_class_id - Displays class id of I2O device
-+ *	@cd: class device of which the class id should be displayed
-+ *	@buf: buffer into which the class id should be printed
-+ *
-+ *	Returns the number of bytes which are printed into the buffer.
-+ */
-+static ssize_t i2o_device_class_show_class_id(struct class_device *cd,
-+					      char *buf)
-+{
-+	struct i2o_device *dev = to_i2o_device(cd->dev);
- 
--	sysfs_remove_link(&i2o_dev->device.kobj, "parent");
--	sysfs_remove_link(&i2o_dev->device.kobj, "user");
-+	sprintf(buf, "0x%03x\n", dev->lct_data.class_id);
-+	return strlen(buf) + 1;
-+}
- 
--	list_for_each_entry(tmp, &c->devices, list) {
--		if (tmp->lct_data.parent_tid == i2o_dev->lct_data.tid)
--			sysfs_remove_link(&tmp->device.kobj, "parent");
--		if (tmp->lct_data.user_tid == i2o_dev->lct_data.tid)
--			sysfs_remove_link(&tmp->device.kobj, "user");
--	}
-+/**
-+ *	i2o_device_class_show_tid - Displays TID of I2O device
-+ *	@cd: class device of which the TID should be displayed
-+ *	@buf: buffer into which the class id should be printed
-+ *
-+ *	Returns the number of bytes which are printed into the buffer.
-+ */
-+static ssize_t i2o_device_class_show_tid(struct class_device *cd, char *buf)
-+{
-+	struct i2o_device *dev = to_i2o_device(cd->dev);
-+
-+	sprintf(buf, "0x%03x\n", dev->lct_data.tid);
-+	return strlen(buf) + 1;
-+}
-+
-+static struct class_device_attribute i2o_device_class_attrs[] = {
-+	__ATTR(class_id, S_IRUGO, i2o_device_class_show_class_id, NULL),
-+	__ATTR(tid, S_IRUGO, i2o_device_class_show_tid, NULL),
-+	__ATTR_NULL
- };
- 
- /* I2O device class */
- static struct class i2o_device_class = {
--	.name = "i2o_device",
--	.release = i2o_device_class_release
-+	.name			= "i2o_device",
-+	.release		= i2o_device_class_release,
-+	.class_dev_attrs	= i2o_device_class_attrs,
- };
- 
- /**
-@@ -197,7 +221,67 @@ static struct i2o_device *i2o_device_all
- 	dev->classdev.dev = &dev->device;
- 
- 	return dev;
--};
-+}
-+
-+/**
-+ *	i2o_setup_sysfs_links - Adds attributes to the I2O device
-+ *	@cd: I2O class device which is added to the I2O device class
-+ *
-+ *	This function get called when a I2O device is added to the class. It
-+ *	creates the attributes for each device and creates user/parent symlink
-+ *	if necessary.
-+ *
-+ *	Returns 0 on success or negative error code on failure.
-+ */
-+static void i2o_setup_sysfs_links(struct i2o_device *i2o_dev)
-+{
-+	struct i2o_controller *c = i2o_dev->iop;
-+	struct i2o_device *tmp;
-+
-+	/* create user entries for this device */
-+	tmp = i2o_iop_find_device(i2o_dev->iop, i2o_dev->lct_data.user_tid);
-+	if (tmp && tmp != i2o_dev)
-+		sysfs_create_link(&i2o_dev->device.kobj,
-+				  &tmp->device.kobj, "user");
-+
-+	/* create user entries refering to this device */
-+	list_for_each_entry(tmp, &c->devices, list)
-+		if (tmp->lct_data.user_tid == i2o_dev->lct_data.tid &&
-+		    tmp != i2o_dev)
-+			sysfs_create_link(&tmp->device.kobj,
-+					  &i2o_dev->device.kobj, "user");
-+
-+	/* create parent entries for this device */
-+	tmp = i2o_iop_find_device(i2o_dev->iop, i2o_dev->lct_data.parent_tid);
-+	if (tmp && tmp != i2o_dev)
-+		sysfs_create_link(&i2o_dev->device.kobj,
-+				  &tmp->device.kobj, "parent");
-+
-+	/* create parent entries refering to this device */
-+	list_for_each_entry(tmp, &c->devices, list)
-+		if (tmp->lct_data.parent_tid == i2o_dev->lct_data.tid &&
-+		    tmp != i2o_dev)
-+		sysfs_create_link(&tmp->device.kobj,
-+				  &i2o_dev->device.kobj, "parent");
-+}
-+
-+static void i2o_remove_sysfs_links(struct i2o_device *i2o_dev)
-+{
-+	struct i2o_controller *c = i2o_dev->iop;
-+	struct i2o_device *tmp;
-+
-+	sysfs_remove_link(&i2o_dev->device.kobj, "parent");
-+	sysfs_remove_link(&i2o_dev->device.kobj, "user");
-+
-+	list_for_each_entry(tmp, &c->devices, list) {
-+		if (tmp->lct_data.parent_tid == i2o_dev->lct_data.tid)
-+			sysfs_remove_link(&tmp->device.kobj, "parent");
-+		if (tmp->lct_data.user_tid == i2o_dev->lct_data.tid)
-+			sysfs_remove_link(&tmp->device.kobj, "user");
-+	}
-+}
-+
-+
- 
- /**
-  *	i2o_device_add - allocate a new I2O device and add it to the IOP
-@@ -222,6 +306,7 @@ static struct i2o_device *i2o_device_add
- 	}
- 
- 	dev->lct_data = *entry;
-+	dev->iop = c;
- 
- 	snprintf(dev->device.bus_id, BUS_ID_SIZE, "%d:%03x", c->unit,
- 		 dev->lct_data.tid);
-@@ -229,7 +314,6 @@ static struct i2o_device *i2o_device_add
- 	snprintf(dev->classdev.class_id, BUS_ID_SIZE, "%d:%03x", c->unit,
- 		 dev->lct_data.tid);
- 
--	dev->iop = c;
- 	dev->device.parent = &c->device;
- 
- 	device_register(&dev->device);
-@@ -238,12 +322,14 @@ static struct i2o_device *i2o_device_add
- 
- 	class_device_register(&dev->classdev);
- 
-+	i2o_setup_sysfs_links(dev);
-+
- 	i2o_driver_notify_device_add_all(dev);
- 
- 	pr_debug("i2o: device %s added\n", dev->device.bus_id);
- 
- 	return dev;
--};
-+}
- 
- /**
-  *	i2o_device_remove - remove an I2O device from the I2O core
-@@ -256,10 +342,11 @@ static struct i2o_device *i2o_device_add
- void i2o_device_remove(struct i2o_device *i2o_dev)
- {
- 	i2o_driver_notify_device_remove_all(i2o_dev);
-+	i2o_remove_sysfs_links(i2o_dev);
- 	class_device_unregister(&i2o_dev->classdev);
- 	list_del(&i2o_dev->list);
- 	device_unregister(&i2o_dev->device);
--};
-+}
- 
- /**
-  *	i2o_device_parse_lct - Parse a previously fetched LCT and create devices
-@@ -337,99 +424,8 @@ int i2o_device_parse_lct(struct i2o_cont
- 	up(&c->lct_lock);
- 
- 	return 0;
--};
--
--/**
-- *	i2o_device_class_show_class_id - Displays class id of I2O device
-- *	@cd: class device of which the class id should be displayed
-- *	@buf: buffer into which the class id should be printed
-- *
-- *	Returns the number of bytes which are printed into the buffer.
-- */
--static ssize_t i2o_device_class_show_class_id(struct class_device *cd,
--					      char *buf)
--{
--	struct i2o_device *dev = to_i2o_device(cd->dev);
--
--	sprintf(buf, "0x%03x\n", dev->lct_data.class_id);
--	return strlen(buf) + 1;
--};
--
--/**
-- *	i2o_device_class_show_tid - Displays TID of I2O device
-- *	@cd: class device of which the TID should be displayed
-- *	@buf: buffer into which the class id should be printed
-- *
-- *	Returns the number of bytes which are printed into the buffer.
-- */
--static ssize_t i2o_device_class_show_tid(struct class_device *cd, char *buf)
--{
--	struct i2o_device *dev = to_i2o_device(cd->dev);
--
--	sprintf(buf, "0x%03x\n", dev->lct_data.tid);
--	return strlen(buf) + 1;
--};
--
--/* I2O device class attributes */
--static CLASS_DEVICE_ATTR(class_id, S_IRUGO, i2o_device_class_show_class_id,
--			 NULL);
--static CLASS_DEVICE_ATTR(tid, S_IRUGO, i2o_device_class_show_tid, NULL);
--
--/**
-- *	i2o_device_class_add - Adds attributes to the I2O device
-- *	@cd: I2O class device which is added to the I2O device class
-- *
-- *	This function get called when a I2O device is added to the class. It
-- *	creates the attributes for each device and creates user/parent symlink
-- *	if necessary.
-- *
-- *	Returns 0 on success or negative error code on failure.
-- */
--static int i2o_device_class_add(struct class_device *cd)
--{
--	struct i2o_device *i2o_dev, *tmp;
--	struct i2o_controller *c;
--
--	i2o_dev = to_i2o_device(cd->dev);
--	c = i2o_dev->iop;
--
--	class_device_create_file(cd, &class_device_attr_class_id);
--	class_device_create_file(cd, &class_device_attr_tid);
--
--	/* create user entries for this device */
--	tmp = i2o_iop_find_device(i2o_dev->iop, i2o_dev->lct_data.user_tid);
--	if (tmp && (tmp != i2o_dev))
--		sysfs_create_link(&i2o_dev->device.kobj, &tmp->device.kobj,
--				  "user");
--
--	/* create user entries refering to this device */
--	list_for_each_entry(tmp, &c->devices, list)
--	    if ((tmp->lct_data.user_tid == i2o_dev->lct_data.tid)
--		&& (tmp != i2o_dev))
--		sysfs_create_link(&tmp->device.kobj,
--				  &i2o_dev->device.kobj, "user");
--
--	/* create parent entries for this device */
--	tmp = i2o_iop_find_device(i2o_dev->iop, i2o_dev->lct_data.parent_tid);
--	if (tmp && (tmp != i2o_dev))
--		sysfs_create_link(&i2o_dev->device.kobj, &tmp->device.kobj,
--				  "parent");
--
--	/* create parent entries refering to this device */
--	list_for_each_entry(tmp, &c->devices, list)
--	    if ((tmp->lct_data.parent_tid == i2o_dev->lct_data.tid)
--		&& (tmp != i2o_dev))
--		sysfs_create_link(&tmp->device.kobj,
--				  &i2o_dev->device.kobj, "parent");
--
--	return 0;
--};
-+}
- 
--/* I2O device class interface */
--static struct class_interface i2o_device_class_interface = {
--	.class = &i2o_device_class,
--	.add = i2o_device_class_add
--};
- 
- /*
-  *	Run time support routines
-@@ -553,11 +549,11 @@ int i2o_parm_field_get(struct i2o_device
+@@ -729,8 +729,8 @@ static void input_dev_release(struct cla
+ 	module_put(THIS_MODULE);
  }
  
- /*
-- * 	if oper == I2O_PARAMS_TABLE_GET, get from all rows
-- * 		if fieldcount == -1 return all fields
-+ *	if oper == I2O_PARAMS_TABLE_GET, get from all rows
-+ *		if fieldcount == -1 return all fields
-  *			ibuf and ibuflen are unused (use NULL, 0)
-- * 		else return specific fields
-- *  			ibuf contains fieldindexes
-+ *		else return specific fields
-+ *			ibuf contains fieldindexes
-  *
-  * 	if oper == I2O_PARAMS_LIST_GET, get from specific rows
-  * 		if fieldcount == -1 return all fields
-@@ -611,14 +607,8 @@ int i2o_parm_table_get(struct i2o_device
-  */
- int i2o_device_init(void)
- {
--	int rc;
--
--	rc = class_register(&i2o_device_class);
--	if (rc)
--		return rc;
--
--	return class_interface_register(&i2o_device_class_interface);
--};
-+	return class_register(&i2o_device_class);
-+}
+-struct class input_dev_class = {
+-	.name			= "input_dev",
++struct class input_class = {
++	.name			= "input",
+ 	.release		= input_dev_release,
+ };
  
- /**
-  *	i2o_device_exit - I2O devices exit function
-@@ -627,9 +617,8 @@ int i2o_device_init(void)
-  */
- void i2o_device_exit(void)
+@@ -741,7 +741,7 @@ struct input_dev *input_allocate_device(
+ 	dev = kzalloc(sizeof(struct input_dev), GFP_KERNEL);
+ 	if (dev) {
+ 		dev->dynalloc = 1;
+-		dev->cdev.class = &input_dev_class;
++		dev->cdev.class = &input_class;
+ 		class_device_initialize(&dev->cdev);
+ 		INIT_LIST_HEAD(&dev->h_list);
+ 		INIT_LIST_HEAD(&dev->node);
+@@ -930,7 +930,7 @@ static int __init input_init(void)
  {
--	class_interface_register(&i2o_device_class_interface);
- 	class_unregister(&i2o_device_class);
--};
-+}
+ 	int err;
  
- EXPORT_SYMBOL(i2o_device_claim);
- EXPORT_SYMBOL(i2o_device_claim_release);
+-	err = class_register(&input_dev_class);
++	err = class_register(&input_class);
+ 	if (err) {
+ 		printk(KERN_ERR "input: unable to register input_dev class\n");
+ 		return err;
+@@ -949,7 +949,7 @@ static int __init input_init(void)
+ 	return 0;
+ 
+  fail2:	input_proc_exit();
+- fail1:	class_unregister(&input_dev_class);
++ fail1:	class_unregister(&input_class);
+ 	return err;
+ }
+ 
+@@ -957,7 +957,7 @@ static void __exit input_exit(void)
+ {
+ 	input_proc_exit();
+ 	unregister_chrdev(INPUT_MAJOR, "input");
+-	class_unregister(&input_dev_class);
++	class_unregister(&input_class);
+ }
+ 
+ subsys_initcall(input_init);
+diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+index 9c17d1a..25f7eba 100644
+--- a/drivers/input/joydev.c
++++ b/drivers/input/joydev.c
+@@ -513,7 +513,7 @@ static struct input_handle *joydev_conne
+ 
+ 	joydev_table[minor] = joydev;
+ 
+-	class_device_create(&input_dev_class, &dev->cdev,
++	class_device_create(&input_class, &dev->cdev,
+ 			MKDEV(INPUT_MAJOR, JOYDEV_MINOR_BASE + minor),
+ 			dev->cdev.dev, "js%d", minor);
+ 
+@@ -525,7 +525,7 @@ static void joydev_disconnect(struct inp
+ 	struct joydev *joydev = handle->private;
+ 	struct joydev_list *list;
+ 
+-	class_device_destroy(&input_dev_class, MKDEV(INPUT_MAJOR, JOYDEV_MINOR_BASE + joydev->minor));
++	class_device_destroy(&input_class, MKDEV(INPUT_MAJOR, JOYDEV_MINOR_BASE + joydev->minor));
+ 	joydev->exist = 0;
+ 
+ 	if (joydev->open) {
+diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
+index 5ec6291..de2808f 100644
+--- a/drivers/input/mousedev.c
++++ b/drivers/input/mousedev.c
+@@ -648,7 +648,7 @@ static struct input_handle *mousedev_con
+ 
+ 	mousedev_table[minor] = mousedev;
+ 
+-	class_device_create(&input_dev_class, &dev->cdev,
++	class_device_create(&input_class, &dev->cdev,
+ 			MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + minor),
+ 			dev->cdev.dev, "mouse%d", minor);
+ 
+@@ -660,7 +660,7 @@ static void mousedev_disconnect(struct i
+ 	struct mousedev *mousedev = handle->private;
+ 	struct mousedev_list *list;
+ 
+-	class_device_destroy(&input_dev_class,
++	class_device_destroy(&input_class,
+ 			MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + mousedev->minor));
+ 	mousedev->exist = 0;
+ 
+@@ -734,7 +734,7 @@ static int __init mousedev_init(void)
+ 	mousedev_mix.exist = 1;
+ 	mousedev_mix.minor = MOUSEDEV_MIX;
+ 
+-	class_device_create(&input_dev_class, NULL,
++	class_device_create(&input_class, NULL,
+ 			MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + MOUSEDEV_MIX), NULL, "mice");
+ 
+ #ifdef CONFIG_INPUT_MOUSEDEV_PSAUX
+@@ -753,7 +753,7 @@ static void __exit mousedev_exit(void)
+ 	if (psaux_registered)
+ 		misc_deregister(&psaux_mouse);
+ #endif
+-	class_device_destroy(&input_dev_class,
++	class_device_destroy(&input_class,
+ 			MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + MOUSEDEV_MIX));
+ 	input_unregister_handler(&mousedev_handler);
+ }
+diff --git a/drivers/input/tsdev.c b/drivers/input/tsdev.c
+index 0581edb..75e1657 100644
+--- a/drivers/input/tsdev.c
++++ b/drivers/input/tsdev.c
+@@ -409,7 +409,7 @@ static struct input_handle *tsdev_connec
+ 
+ 	tsdev_table[minor] = tsdev;
+ 
+-	class_device_create(&input_dev_class, &dev->cdev,
++	class_device_create(&input_class, &dev->cdev,
+ 			MKDEV(INPUT_MAJOR, TSDEV_MINOR_BASE + minor),
+ 			dev->cdev.dev, "ts%d", minor);
+ 
+@@ -421,7 +421,7 @@ static void tsdev_disconnect(struct inpu
+ 	struct tsdev *tsdev = handle->private;
+ 	struct tsdev_list *list;
+ 
+-	class_device_destroy(&input_dev_class,
++	class_device_destroy(&input_class,
+ 			MKDEV(INPUT_MAJOR, TSDEV_MINOR_BASE + tsdev->minor));
+ 	tsdev->exist = 0;
+ 
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 256e887..e3d9c08 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -1074,7 +1074,7 @@ static inline void input_set_abs_params(
+ 	dev->absbit[LONG(axis)] |= BIT(axis);
+ }
+ 
+-extern struct class input_dev_class;
++extern struct class input_class;
+ 
+ #endif
+ #endif
 

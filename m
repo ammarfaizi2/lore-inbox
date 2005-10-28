@@ -1,177 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965093AbVJ1EyM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965091AbVJ1Ewy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965093AbVJ1EyM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 00:54:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965094AbVJ1EyM
+	id S965091AbVJ1Ewy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 00:52:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965093AbVJ1Ewy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 00:54:12 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:37779 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965093AbVJ1EyK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 00:54:10 -0400
-Date: Thu, 27 Oct 2005 21:53:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Davi Arnaut <davi.lkml@gmail.com>
-Cc: greearb@candelatech.com, linux-kernel@vger.kernel.org,
-       Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: kernel BUG at mm/slab.c:1488! (2.6.13.2)
-Message-Id: <20051027215312.57303595.akpm@osdl.org>
-In-Reply-To: <750c918d0510272032k79211b44vee825864d0f26438@mail.gmail.com>
-References: <750c918d0510272032k79211b44vee825864d0f26438@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 28 Oct 2005 00:52:54 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:44198 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S965091AbVJ1Ewx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 00:52:53 -0400
+Subject: Re: [PATCH]  ktimers subsystem 2.6.14-rc2-kt5
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: tim.bird@am.sony.com, oleg@tv-sign.ru, hch@infradead.org,
+       paulmck@us.ibm.com, johnstul@us.ibm.com, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       George Anzinger <george@mvista.com>
+In-Reply-To: <Pine.LNX.4.61.0510250114100.1386@scrub.home>
+References: <1128168344.15115.496.camel@tglx.tec.linutronix.de>
+	 <Pine.LNX.4.61.0510100213480.3728@scrub.home>
+	 <1129016558.1728.285.camel@tglx.tec.linutronix.de>
+	 <Pine.LNX.4.61.0510130004330.3728@scrub.home> <434DA06C.7050801@mvista.com>
+	 <Pine.LNX.4.61.0510150143500.1386@scrub.home>
+	 <1129490809.1728.874.camel@tglx.tec.linutronix.de>
+	 <Pine.LNX.4.61.0510170021050.1386@scrub.home>
+	 <20051017075917.GA4827@elte.hu>
+	 <Pine.LNX.4.61.0510171054430.1386@scrub.home>
+	 <20051017094153.GA9091@elte.hu> <20051017025657.0d2d09cc.akpm@osdl.org>
+	 <Pine.LNX.4.61.0510171511010.1386@scrub.home>
+	 <1129582512.19559.136.camel@tglx.tec.linutronix.de>
+	 <Pine.LNX.4.61.0510180032420.1386@scrub.home> <435449DC.8070109@mvista.com>
+	 <Pine.LNX.4.61.0510181823560.1386@scrub.home> <4355B4EB.2080307@mvista.com>
+	 <Pine.LNX.4.61.0510211326400.1386@scrub.home> <435BD3C2.9070705@mvista.com>
+	 <Pine.LNX.4.61.0510250114100.1386@scrub.home>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Fri, 28 Oct 2005 00:52:10 -0400
+Message-Id: <1130475130.9574.47.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davi Arnaut <davi.lkml@gmail.com> wrote:
->
->  > It seems that something still tries to load the ext3 module, and I get the
->  > BUG seen below.  If I remove the ext3 module and re-build the initrd,
->  > the error goes away.
+On Thu, 2005-10-27 at 22:23 +0200, Roman Zippel wrote:
 
-Yes, I think the kernel is overreacting here.
+> 
+> Next question would be what happens if timer and clock resolution differs? 
+> For example if the clock has a resolution of 1us and the timer runs every 
+> 1ms. For relative timer this would mean we can keep the error within 
+> 1.001ms and for absolute timer within 1ms. Do we really have to force an 
+> error larger than really necessary?
+> 
+> Interesting is now that Thomas doesn't take the clock resolution into 
+> account at all. Let's say clock and timer resolution are 1ms (or HZ=1000). 
+> If we program a normal kernel timer, we do something like this:
+> 
+> 	timer->expires = jiffies + 1 + usecs_to_jiffies(timeout);
+> 
+> Thomas does now basically this:
+> 
+> 	timer->expires = jiffies * res + round(timeout, res);
+> 
+> IOW if the clock resolution is larger than the interrupt delay, the timer 
+> may expire early.
 
-Manfred, what sayest thou?
+Roman, I think I know what you are trying to say here. Although it took
+me several readings of what you wrote and then really just looking at
+Thomas' code.
 
-(nb: untested)
+It's the old problem with:
 
+1          2          3          4     
++----------+----------+----------+---------->>
+       ^                ^
+       |                |
+     Start             End
 
-From: Andrew Morton <akpm@osdl.org>
+Asking for 2 ms (with both clock and res the same at 1ms). We start the
+clock at 1 but it really is 1.7 and we get the interrupt and return at 3
+but really 3.2, so instead of receiving a wait of 2ms, we return with
+3.2 - 1.7 = 1.5ms
 
-slab presently goes BUG if someone tries to register an already-registered
-cache.
+Currently, this is not a problem when the clock is at a higher
+frequency, (like the tsc).  So the base->get_time works now since the
+clock is at a higher frequency, but if the get_time returned jiffies,
+this would fail.  And the clock used is also much faster that the delay
+it takes to get back to the calling process (which is much more than a
+nanosecond today).
 
-But this can happen if the user accidentally loads a module which is already
-statically linked into the kernel.  Nuking the kernel is rather a harsh
-reaction.
+Is that what you were trying to say Roman?
 
-Change it into a warning, and just fail the kmem_cache_alloc() attempt.  If
-the module is well-behaved, the modprobe will fail and all is well.
+Interesting though, I tried to force this scenario, by changing the
+base->get_time to return jiffies.  I have a jitter test and ran this
+several times, and I could never get it to expire early.  I even changed
+HZ back to 100.
 
-Notes:
+Then I looked at run_ktimer_queue.  And here we have the compare:
 
-- Swaps the ranking of cache_chain_sem and lock_cpu_hotplug().  Doesn't seem
-  important.
+		timer = list_entry(base->pending.next, struct ktimer, list);
+		if (ktime_cmp(now, <=, timer->expires))
+			break;
 
+So, the timer does _not_ get processed if it is after or _equal_ to the
+current time.  So although the timer may go off early, the expired queue
+does not get executed.  So the above example would not go off at 3.2,
+but some time in the 4 category.
 
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
+So the function will _not_ be executed early, although this could mean
+that the timer could actually go off early (in the HRT case), but I
+haven't taken a look there.  That is to say the interrupt goes off
+early, not the function being executed.
 
- mm/slab.c |   67 +++++++++++++++++++++++++++++++-------------------------------
- 1 files changed, 34 insertions(+), 33 deletions(-)
+-- Steve
 
-diff -puN mm/slab.c~slab-dont-bug-on-duplicated-cache mm/slab.c
---- devel/mm/slab.c~slab-dont-bug-on-duplicated-cache	2005-10-27 21:51:40.000000000 -0700
-+++ devel-akpm/mm/slab.c	2005-10-27 21:51:40.000000000 -0700
-@@ -1505,6 +1505,7 @@ kmem_cache_create (const char *name, siz
- {
- 	size_t left_over, slab_size, ralign;
- 	kmem_cache_t *cachep = NULL;
-+	struct list_head *p;
- 
- 	/*
- 	 * Sanity checks... these are all serious usage bugs.
-@@ -1519,6 +1520,35 @@ kmem_cache_create (const char *name, siz
- 			BUG();
- 		}
- 
-+	down(&cache_chain_sem);
-+
-+	list_for_each(p, &cache_chain) {
-+		kmem_cache_t *pc = list_entry(p, kmem_cache_t, next);
-+		mm_segment_t old_fs = get_fs();
-+		char tmp;
-+		int res;
-+
-+		/*
-+		 * This happens when the module gets unloaded and doesn't
-+		 * destroy its slab cache and no-one else reuses the vmalloc
-+		 * area of the module.  Print a warning.
-+		 */
-+		set_fs(KERNEL_DS);
-+		res = __get_user(tmp, pc->name);
-+		set_fs(old_fs);
-+		if (res) {
-+			printk("SLAB: cache with size %d has lost its name\n",
-+					pc->objsize);
-+			continue;
-+		}
-+
-+		if (!strcmp(pc->name,name)) {
-+			printk("kmem_cache_create: duplicate cache %s\n", name);
-+			dump_stack();
-+			goto oops;
-+		}
-+	}
-+
- #if DEBUG
- 	WARN_ON(strchr(name, ' '));	/* It confuses parsers */
- 	if ((flags & SLAB_DEBUG_INITIAL) && !ctor) {
-@@ -1595,7 +1625,7 @@ kmem_cache_create (const char *name, siz
- 	/* Get cache's description obj. */
- 	cachep = (kmem_cache_t *) kmem_cache_alloc(&cache_cache, SLAB_KERNEL);
- 	if (!cachep)
--		goto opps;
-+		goto oops;
- 	memset(cachep, 0, sizeof(kmem_cache_t));
- 
- #if DEBUG
-@@ -1689,7 +1719,7 @@ next:
- 		printk("kmem_cache_create: couldn't create cache %s.\n", name);
- 		kmem_cache_free(&cache_cache, cachep);
- 		cachep = NULL;
--		goto opps;
-+		goto oops;
- 	}
- 	slab_size = ALIGN(cachep->num*sizeof(kmem_bufctl_t)
- 				+ sizeof(struct slab), align);
-@@ -1784,43 +1814,14 @@ next:
- 		cachep->limit = BOOT_CPUCACHE_ENTRIES;
- 	} 
- 
--	/* Need the semaphore to access the chain. */
--	down(&cache_chain_sem);
--	{
--		struct list_head *p;
--		mm_segment_t old_fs;
--
--		old_fs = get_fs();
--		set_fs(KERNEL_DS);
--		list_for_each(p, &cache_chain) {
--			kmem_cache_t *pc = list_entry(p, kmem_cache_t, next);
--			char tmp;
--			/* This happens when the module gets unloaded and doesn't
--			   destroy its slab cache and noone else reuses the vmalloc
--			   area of the module. Print a warning. */
--			if (__get_user(tmp,pc->name)) { 
--				printk("SLAB: cache with size %d has lost its name\n", 
--					pc->objsize); 
--				continue; 
--			} 	
--			if (!strcmp(pc->name,name)) { 
--				printk("kmem_cache_create: duplicate cache %s\n",name); 
--				up(&cache_chain_sem); 
--				unlock_cpu_hotplug();
--				BUG(); 
--			}	
--		}
--		set_fs(old_fs);
--	}
--
- 	/* cache setup completed, link it into the list */
- 	list_add(&cachep->next, &cache_chain);
--	up(&cache_chain_sem);
- 	unlock_cpu_hotplug();
--opps:
-+oops:
- 	if (!cachep && (flags & SLAB_PANIC))
- 		panic("kmem_cache_create(): failed to create slab `%s'\n",
- 			name);
-+	up(&cache_chain_sem);
- 	return cachep;
- }
- EXPORT_SYMBOL(kmem_cache_create);
-_
 

@@ -1,50 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965172AbVJ1HbQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965175AbVJ1HgI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965172AbVJ1HbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 03:31:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965175AbVJ1HbQ
+	id S965175AbVJ1HgI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 03:36:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965176AbVJ1HgH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 03:31:16 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:14269 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965172AbVJ1HbP (ORCPT
+	Fri, 28 Oct 2005 03:36:07 -0400
+Received: from [85.8.13.51] ([85.8.13.51]:52882 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S965175AbVJ1HgE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 03:31:15 -0400
-Date: Fri, 28 Oct 2005 03:30:50 -0400
-From: Dave Jones <davej@redhat.com>
-To: Keith Owens <kaos@ocs.com.au>
+	Fri, 28 Oct 2005 03:36:04 -0400
+From: Pierre Ossman <drzeus@drzeus.cx>
+Subject: [PATCH] [MMC] Use command class to determine read-only status.
+Date: Fri, 28 Oct 2005 09:36:05 +0200
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>
+To: rmk+lkml@arm.linux.org.uk
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14 assorted warnings
-Message-ID: <20051028073049.GA27389@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-References: <5455.1130484079@kao2.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5455.1130484079@kao2.melbourne.sgi.com>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <20051028073605.4108.41408.stgit@poseidon.drzeus.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 28, 2005 at 05:21:19PM +1000, Keith Owens wrote:
- > gcc 4.0.1 on i386, 2.6.14 assorted warnings.
- > 
- > arch/i386/kernel/cpu/transmeta.c: In function 'init_transmeta':
- > arch/i386/kernel/cpu/transmeta.c:11: warning: 'cpu_freq' may be used uninitialized in this function
- > 
- > fs/bio.c: In function 'bio_alloc_bioset':
- > fs/bio.c:167: warning: 'idx' may be used uninitialized in this function
+If a card doesn't support the "write block" command class then
+any attempts to open the device should reflect this by denying
+write access.
 
-gcc is dumb, it doesn't realise that the variable will be filled by another
-function if its passed thus..
+Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
+---
 
-	unsigned long foo
-	bar(&foo)
-	if (foo==1)
-		...
+ drivers/mmc/mmc_block.c |   11 +++++++----
+ 1 files changed, 7 insertions(+), 4 deletions(-)
 
-With bar() filling in content of foo.
-I believe there's at least once instance of this in gcc bugzilla.
-
-		Dave
+diff --git a/drivers/mmc/mmc_block.c b/drivers/mmc/mmc_block.c
+--- a/drivers/mmc/mmc_block.c
++++ b/drivers/mmc/mmc_block.c
+@@ -97,7 +97,8 @@ static int mmc_blk_open(struct inode *in
+ 		ret = 0;
+ 
+ 		if ((filp->f_mode & FMODE_WRITE) &&
+-			mmc_card_readonly(md->queue.card))
++			(!(md->queue.card->csd.cmdclass & CCC_BLOCK_WRITE) ||
++			mmc_card_readonly(md->queue.card)))
+ 			ret = -EROFS;
+ 	}
+ 
+@@ -407,10 +408,12 @@ static int mmc_blk_probe(struct mmc_card
+ 	if (err)
+ 		goto out;
+ 
+-	printk(KERN_INFO "%s: %s %s %dKiB %s\n",
++	printk(KERN_INFO "%s: %s %s %dKiB",
+ 		md->disk->disk_name, mmc_card_id(card), mmc_card_name(card),
+-		(card->csd.capacity << card->csd.read_blkbits) / 1024,
+-		mmc_card_readonly(card)?"(ro)":"");
++		(card->csd.capacity << card->csd.read_blkbits) / 1024);
++	if (mmc_card_readonly(card) || !(card->csd.cmdclass & CCC_BLOCK_WRITE))
++		printk("(ro)");
++	printk("\n");
+ 
+ 	mmc_set_drvdata(card, md);
+ 	add_disk(md->disk);
 

@@ -1,160 +1,400 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030219AbVJ1Pv4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030226AbVJ1Px2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030219AbVJ1Pv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 11:51:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030223AbVJ1Pv4
+	id S1030226AbVJ1Px2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 11:53:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030225AbVJ1Px2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 11:51:56 -0400
-Received: from amdext4.amd.com ([163.181.251.6]:5279 "EHLO amdext4.amd.com")
-	by vger.kernel.org with ESMTP id S1030219AbVJ1Pvz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 11:51:55 -0400
-X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
-Date: Fri, 28 Oct 2005 09:53:47 -0600
-From: "Jordan Crouse" <jordan.crouse@amd.com>
-To: linux-kernel@vger.kernel.org
-cc: info-linux@ldcmail.amd.com
-Subject: [PATCH 5/6] AMD Geode GX/LX Support (Refreshed)
-Message-ID: <20051028155347.GF19854@cosmic.amd.com>
-References: <LYRIS-4270-74122-2005.10.28-09.38.17--jordan.crouse#amd.com@whitestar.amd.com>
-MIME-Version: 1.0
-In-Reply-To: <LYRIS-4270-74122-2005.10.28-09.38.17--jordan.crouse#amd.com@whitestar.amd.com>
-User-Agent: Mutt/1.5.11
-X-WSS-ID: 6F7C976122C3259834-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	Fri, 28 Oct 2005 11:53:28 -0400
+Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:31229 "EHLO
+	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S1030223AbVJ1PxZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 11:53:25 -0400
+Subject: [PATCH 2/2] VFS: split dentry locking documentation
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <ip2uk8.cjxfr0.dn4llq2zpo75ami83ir9rfol0.beaver@cs.helsinki.fi>
+In-Reply-To: <ip2uk2.6o93wd.e2lyonk8o6q05pejbwmnb41jo.beaver@cs.helsinki.fi>
+Date: Fri, 28 Oct 2005 18:48:08 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch for the AMD LX RNG device.  Allow me to say at this point that even
-though I'm patching the current file, I am in favor of the recent RNG rewrite
-that was proposed a few weeks ago.  Changelog:
 
-* Remove defines, style cleanups (Vladis Kletnieks, Alan Cox, Andi Kleen)
-* Replace pointer derefrences with readl (Vladis, Alan and Andi again)
-* Add asserts to protect against NULL dereferences (Vladis)
+This patch splits dentry locking documentation from
+Documentation/filesystems/vfs.txt to a separate file. The dentry locking bits
+are useful but do not fit into the VFS overview document as is.
 
-hw_random.c |   66
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
-1 file changed, 65 insertions(+), 1 deletion(-)
- 
-Index: linux-2.6.14/drivers/char/hw_random.c
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+---
+
+ dentry-locking.txt |  173 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ vfs.txt            |  177 -----------------------------------------------------
+ 2 files changed, 175 insertions(+), 175 deletions(-)
+
+Index: 2.6/Documentation/filesystems/dentry-locking.txt
 ===================================================================
---- linux-2.6.14.orig/drivers/char/hw_random.c
-+++ linux-2.6.14/drivers/char/hw_random.c
-@@ -1,4 +1,9 @@
- /*
-+        Added support for the AMD Geode LX RNG
-+	(c) Copyright 2004-2005 Advanced Micro Devices, Inc.
+--- /dev/null
++++ 2.6/Documentation/filesystems/dentry-locking.txt
+@@ -0,0 +1,173 @@
++RCU-based dcache locking model
++==============================
 +
-+	derived from
++On many workloads, the most common operation on dcache is to look up a
++dentry, given a parent dentry and the name of the child. Typically,
++for every open(), stat() etc., the dentry corresponding to the
++pathname will be looked up by walking the tree starting with the first
++component of the pathname and using that dentry along with the next
++component to look up the next level and so on. Since it is a frequent
++operation for workloads like multiuser environments and web servers,
++it is important to optimize this path.
 +
-  	Hardware driver for the Intel/AMD/VIA Random Number Generators (RNG)
- 	(c) Copyright 2003 Red Hat Inc <jgarzik@redhat.com>
-  
-@@ -95,6 +100,11 @@ static unsigned int via_data_present (vo
- static u32 via_data_read (void);
- #endif
++Prior to 2.5.10, dcache_lock was acquired in d_lookup and thus in
++every component during path look-up. Since 2.5.10 onwards, fast-walk
++algorithm changed this by holding the dcache_lock at the beginning and
++walking as many cached path component dentries as possible. This
++significantly decreases the number of acquisition of
++dcache_lock. However it also increases the lock hold time
++significantly and affects performance in large SMP machines. Since
++2.5.62 kernel, dcache has been using a new locking model that uses RCU
++to make dcache look-up lock-free.
++
++The current dcache locking model is not very different from the
++existing dcache locking model. Prior to 2.5.62 kernel, dcache_lock
++protected the hash chain, d_child, d_alias, d_lru lists as well as
++d_inode and several other things like mount look-up. RCU-based changes
++affect only the way the hash chain is protected. For everything else
++the dcache_lock must be taken for both traversing as well as
++updating. The hash chain updates too take the dcache_lock.  The
++significant change is the way d_lookup traverses the hash chain, it
++doesn't acquire the dcache_lock for this and rely on RCU to ensure
++that the dentry has not been *freed*.
++
++
++Dcache locking details
++======================
++
++For many multi-user workloads, open() and stat() on files are very
++frequently occurring operations. Both involve walking of path names to
++find the dentry corresponding to the concerned file. In 2.4 kernel,
++dcache_lock was held during look-up of each path component. Contention
++and cache-line bouncing of this global lock caused significant
++scalability problems. With the introduction of RCU in Linux kernel,
++this was worked around by making the look-up of path components during
++path walking lock-free.
++
++
++Safe lock-free look-up of dcache hash table
++===========================================
++
++Dcache is a complex data structure with the hash table entries also
++linked together in other lists. In 2.4 kernel, dcache_lock protected
++all the lists. We applied RCU only on hash chain walking. The rest of
++the lists are still protected by dcache_lock.  Some of the important
++changes are :
++
++1. The deletion from hash chain is done using hlist_del_rcu() macro
++   which doesn't initialize next pointer of the deleted dentry and
++   this allows us to walk safely lock-free while a deletion is
++   happening.
++
++2. Insertion of a dentry into the hash table is done using
++   hlist_add_head_rcu() which take care of ordering the writes - the
++   writes to the dentry must be visible before the dentry is
++   inserted. This works in conjunction with hlist_for_each_rcu() while
++   walking the hash chain. The only requirement is that all
++   initialization to the dentry must be done before
++   hlist_add_head_rcu() since we don't have dcache_lock protection
++   while traversing the hash chain. This isn't different from the
++   existing code.
++
++3. The dentry looked up without holding dcache_lock by cannot be
++   returned for walking if it is unhashed. It then may have a NULL
++   d_inode or other bogosity since RCU doesn't protect the other
++   fields in the dentry. We therefore use a flag DCACHE_UNHASHED to
++   indicate unhashed dentries and use this in conjunction with a
++   per-dentry lock (d_lock). Once looked up without the dcache_lock,
++   we acquire the per-dentry lock (d_lock) and check if the dentry is
++   unhashed. If so, the look-up is failed. If not, the reference count
++   of the dentry is increased and the dentry is returned.
++
++4. Once a dentry is looked up, it must be ensured during the path walk
++   for that component it doesn't go away. In pre-2.5.10 code, this was
++   done holding a reference to the dentry. dcache_rcu does the same.
++   In some sense, dcache_rcu path walking looks like the pre-2.5.10
++   version.
++
++5. All dentry hash chain updates must take the dcache_lock as well as
++   the per-dentry lock in that order. dput() does this to ensure that
++   a dentry that has just been looked up in another CPU doesn't get
++   deleted before dget() can be done on it.
++
++6. There are several ways to do reference counting of RCU protected
++   objects. One such example is in ipv4 route cache where deferred
++   freeing (using call_rcu()) is done as soon as the reference count
++   goes to zero. This cannot be done in the case of dentries because
++   tearing down of dentries require blocking (dentry_iput()) which
++   isn't supported from RCU callbacks. Instead, tearing down of
++   dentries happen synchronously in dput(), but actual freeing happens
++   later when RCU grace period is over. This allows safe lock-free
++   walking of the hash chains, but a matched dentry may have been
++   partially torn down. The checking of DCACHE_UNHASHED flag with
++   d_lock held detects such dentries and prevents them from being
++   returned from look-up.
++
++
++Maintaining POSIX rename semantics
++==================================
++
++Since look-up of dentries is lock-free, it can race against a
++concurrent rename operation. For example, during rename of file A to
++B, look-up of either A or B must succeed.  So, if look-up of B happens
++after A has been removed from the hash chain but not added to the new
++hash chain, it may fail.  Also, a comparison while the name is being
++written concurrently by a rename may result in false positive matches
++violating rename semantics.  Issues related to race with rename are
++handled as described below :
++
++1. Look-up can be done in two ways - d_lookup() which is safe from
++   simultaneous renames and __d_lookup() which is not.  If
++   __d_lookup() fails, it must be followed up by a d_lookup() to
++   correctly determine whether a dentry is in the hash table or
++   not. d_lookup() protects look-ups using a sequence lock
++   (rename_lock).
++
++2. The name associated with a dentry (d_name) may be changed if a
++   rename is allowed to happen simultaneously. To avoid memcmp() in
++   __d_lookup() go out of bounds due to a rename and false positive
++   comparison, the name comparison is done while holding the
++   per-dentry lock. This prevents concurrent renames during this
++   operation.
++
++3. Hash table walking during look-up may move to a different bucket as
++   the current dentry is moved to a different bucket due to rename.
++   But we use hlists in dcache hash table and they are
++   null-terminated.  So, even if a dentry moves to a different bucket,
++   hash chain walk will terminate. [with a list_head list, it may not
++   since termination is when the list_head in the original bucket is
++   reached].  Since we redo the d_parent check and compare name while
++   holding d_lock, lock-free look-up will not race against d_move().
++
++4. There can be a theoretical race when a dentry keeps coming back to
++   original bucket due to double moves. Due to this look-up may
++   consider that it has never moved and can end up in a infinite loop.
++   But this is not any worse that theoretical livelocks we already
++   have in the kernel.
++
++
++Important guidelines for filesystem developers related to dcache_rcu
++====================================================================
++
++1. Existing dcache interfaces (pre-2.5.62) exported to filesystem
++   don't change. Only dcache internal implementation changes. However
++   filesystems *must not* delete from the dentry hash chains directly
++   using the list macros like allowed earlier. They must use dcache
++   APIs like d_drop() or __d_drop() depending on the situation.
++
++2. d_flags is now protected by a per-dentry lock (d_lock). All access
++   to d_flags must be protected by it.
++
++3. For a hashed dentry, checking of d_count needs to be protected by
++   d_lock.
++
++
++Papers and other documentation on dcache locking
++================================================
++
++1. Scaling dcache with RCU (http://linuxjournal.com/article.php?sid=7124).
++
++2. http://lse.sourceforge.net/locking/dcache/dcache.html
++
++
++
+Index: 2.6/Documentation/filesystems/vfs.txt
+===================================================================
+--- 2.6.orig/Documentation/filesystems/vfs.txt
++++ 2.6/Documentation/filesystems/vfs.txt
+@@ -721,181 +721,8 @@ manipulate dentries:
+ 	and the dentry is returned. The caller must use d_put()
+ 	to free the dentry when it finishes using it.
  
-+static int __init geode_init(struct pci_dev *dev);
-+static void geode_cleanup(void);
-+static unsigned int geode_data_present (void);
-+static u32 geode_data_read (void);
-+
- struct rng_operations {
- 	int (*init) (struct pci_dev *dev);
- 	void (*cleanup) (void);
-@@ -122,6 +132,7 @@ enum {
- 	rng_hw_intel,
- 	rng_hw_amd,
- 	rng_hw_via,
-+	rng_hw_geode,
- };
+-
+-RCU-based dcache locking model
+-------------------------------
+-
+-On many workloads, the most common operation on dcache is
+-to look up a dentry, given a parent dentry and the name
+-of the child. Typically, for every open(), stat() etc.,
+-the dentry corresponding to the pathname will be looked
+-up by walking the tree starting with the first component
+-of the pathname and using that dentry along with the next
+-component to look up the next level and so on. Since it
+-is a frequent operation for workloads like multiuser
+-environments and web servers, it is important to optimize
+-this path.
+-
+-Prior to 2.5.10, dcache_lock was acquired in d_lookup and thus
+-in every component during path look-up. Since 2.5.10 onwards,
+-fast-walk algorithm changed this by holding the dcache_lock
+-at the beginning and walking as many cached path component
+-dentries as possible. This significantly decreases the number
+-of acquisition of dcache_lock. However it also increases the
+-lock hold time significantly and affects performance in large
+-SMP machines. Since 2.5.62 kernel, dcache has been using
+-a new locking model that uses RCU to make dcache look-up
+-lock-free.
+-
+-The current dcache locking model is not very different from the existing
+-dcache locking model. Prior to 2.5.62 kernel, dcache_lock
+-protected the hash chain, d_child, d_alias, d_lru lists as well
+-as d_inode and several other things like mount look-up. RCU-based
+-changes affect only the way the hash chain is protected. For everything
+-else the dcache_lock must be taken for both traversing as well as
+-updating. The hash chain updates too take the dcache_lock.
+-The significant change is the way d_lookup traverses the hash chain,
+-it doesn't acquire the dcache_lock for this and rely on RCU to
+-ensure that the dentry has not been *freed*.
+-
+-
+-Dcache locking details
+-----------------------
+-
+-For many multi-user workloads, open() and stat() on files are
+-very frequently occurring operations. Both involve walking
+-of path names to find the dentry corresponding to the
+-concerned file. In 2.4 kernel, dcache_lock was held
+-during look-up of each path component. Contention and
+-cache-line bouncing of this global lock caused significant
+-scalability problems. With the introduction of RCU
+-in Linux kernel, this was worked around by making
+-the look-up of path components during path walking lock-free.
+-
+-
+-Safe lock-free look-up of dcache hash table
+-===========================================
+-
+-Dcache is a complex data structure with the hash table entries
+-also linked together in other lists. In 2.4 kernel, dcache_lock
+-protected all the lists. We applied RCU only on hash chain
+-walking. The rest of the lists are still protected by dcache_lock.
+-Some of the important changes are :
+-
+-1. The deletion from hash chain is done using hlist_del_rcu() macro which
+-   doesn't initialize next pointer of the deleted dentry and this
+-   allows us to walk safely lock-free while a deletion is happening.
+-
+-2. Insertion of a dentry into the hash table is done using
+-   hlist_add_head_rcu() which take care of ordering the writes -
+-   the writes to the dentry must be visible before the dentry
+-   is inserted. This works in conjunction with hlist_for_each_rcu()
+-   while walking the hash chain. The only requirement is that
+-   all initialization to the dentry must be done before hlist_add_head_rcu()
+-   since we don't have dcache_lock protection while traversing
+-   the hash chain. This isn't different from the existing code.
+-
+-3. The dentry looked up without holding dcache_lock by cannot be
+-   returned for walking if it is unhashed. It then may have a NULL
+-   d_inode or other bogosity since RCU doesn't protect the other
+-   fields in the dentry. We therefore use a flag DCACHE_UNHASHED to
+-   indicate unhashed  dentries and use this in conjunction with a
+-   per-dentry lock (d_lock). Once looked up without the dcache_lock,
+-   we acquire the per-dentry lock (d_lock) and check if the
+-   dentry is unhashed. If so, the look-up is failed. If not, the
+-   reference count of the dentry is increased and the dentry is returned.
+-
+-4. Once a dentry is looked up, it must be ensured during the path
+-   walk for that component it doesn't go away. In pre-2.5.10 code,
+-   this was done holding a reference to the dentry. dcache_rcu does
+-   the same.  In some sense, dcache_rcu path walking looks like
+-   the pre-2.5.10 version.
+-
+-5. All dentry hash chain updates must take the dcache_lock as well as
+-   the per-dentry lock in that order. dput() does this to ensure
+-   that a dentry that has just been looked up in another CPU
+-   doesn't get deleted before dget() can be done on it.
+-
+-6. There are several ways to do reference counting of RCU protected
+-   objects. One such example is in ipv4 route cache where
+-   deferred freeing (using call_rcu()) is done as soon as
+-   the reference count goes to zero. This cannot be done in
+-   the case of dentries because tearing down of dentries
+-   require blocking (dentry_iput()) which isn't supported from
+-   RCU callbacks. Instead, tearing down of dentries happen
+-   synchronously in dput(), but actual freeing happens later
+-   when RCU grace period is over. This allows safe lock-free
+-   walking of the hash chains, but a matched dentry may have
+-   been partially torn down. The checking of DCACHE_UNHASHED
+-   flag with d_lock held detects such dentries and prevents
+-   them from being returned from look-up.
+-
+-
+-Maintaining POSIX rename semantics
+-==================================
+-
+-Since look-up of dentries is lock-free, it can race against
+-a concurrent rename operation. For example, during rename
+-of file A to B, look-up of either A or B must succeed.
+-So, if look-up of B happens after A has been removed from the
+-hash chain but not added to the new hash chain, it may fail.
+-Also, a comparison while the name is being written concurrently
+-by a rename may result in false positive matches violating
+-rename semantics.  Issues related to race with rename are
+-handled as described below :
+-
+-1. Look-up can be done in two ways - d_lookup() which is safe
+-   from simultaneous renames and __d_lookup() which is not.
+-   If __d_lookup() fails, it must be followed up by a d_lookup()
+-   to correctly determine whether a dentry is in the hash table
+-   or not. d_lookup() protects look-ups using a sequence
+-   lock (rename_lock).
+-
+-2. The name associated with a dentry (d_name) may be changed if
+-   a rename is allowed to happen simultaneously. To avoid memcmp()
+-   in __d_lookup() go out of bounds due to a rename and false
+-   positive comparison, the name comparison is done while holding the
+-   per-dentry lock. This prevents concurrent renames during this
+-   operation.
+-
+-3. Hash table walking during look-up may move to a different bucket as
+-   the current dentry is moved to a different bucket due to rename.
+-   But we use hlists in dcache hash table and they are null-terminated.
+-   So, even if a dentry moves to a different bucket, hash chain
+-   walk will terminate. [with a list_head list, it may not since
+-   termination is when the list_head in the original bucket is reached].
+-   Since we redo the d_parent check and compare name while holding
+-   d_lock, lock-free look-up will not race against d_move().
+-
+-4. There can be a theoretical race when a dentry keeps coming back
+-   to original bucket due to double moves. Due to this look-up may
+-   consider that it has never moved and can end up in a infinite loop.
+-   But this is not any worse that theoretical livelocks we already
+-   have in the kernel.
+-
+-
+-Important guidelines for filesystem developers related to dcache_rcu
+-====================================================================
+-
+-1. Existing dcache interfaces (pre-2.5.62) exported to filesystem
+-   don't change. Only dcache internal implementation changes. However
+-   filesystems *must not* delete from the dentry hash chains directly
+-   using the list macros like allowed earlier. They must use dcache
+-   APIs like d_drop() or __d_drop() depending on the situation.
+-
+-2. d_flags is now protected by a per-dentry lock (d_lock). All
+-   access to d_flags must be protected by it.
+-
+-3. For a hashed dentry, checking of d_count needs to be protected
+-   by d_lock.
+-
+-
+-Papers and other documentation on dcache locking
+-================================================
+-
+-1. Scaling dcache with RCU (http://linuxjournal.com/article.php?sid=7124).
+-
+-2. http://lse.sourceforge.net/locking/dcache/dcache.html
++For further information on dentry locking, please refer to the document
++Documentation/filesystems/dentry-locking.txt.
  
- static struct rng_operations rng_vendor_ops[] = {
-@@ -139,6 +150,9 @@ static struct rng_operations rng_vendor_
- 	/* rng_hw_via */
- 	{ via_init, via_cleanup, via_data_present, via_data_read, 1 },
- #endif
-+
-+	/* rng_hw_geode */
-+	{ geode_init, geode_cleanup, geode_data_present, geode_data_read, 4 }
- };
  
- /*
-@@ -159,6 +173,9 @@ static struct pci_device_id rng_pci_tbl[
- 	{ 0x8086, 0x244e, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_intel },
- 	{ 0x8086, 0x245e, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_intel },
- 
-+	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_LX_AES,
-+	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_geode },
-+
- 	{ 0, },	/* terminate list */
- };
- MODULE_DEVICE_TABLE (pci, rng_pci_tbl);
-@@ -460,6 +477,53 @@ static void via_cleanup(void)
- }
- #endif
- 
-+/***********************************************************************
-+ *
-+ * AMD Geode RNG operations
-+ *
-+ */
-+
-+static void __iomem *geode_rng_base = NULL;
-+
-+#define GEODE_RNG_DATA_REG   0x50
-+#define GEODE_RNG_STATUS_REG 0x54
-+
-+static u32 geode_data_read(void)
-+{
-+	u32 val;
-+	assert(geode_rng_base != NULL);
-+	val = readl(geode_rng_base + GEODE_RNG_DATA_REG);
-+	return val;
-+}
-+
-+static unsigned int geode_data_present(void)
-+{
-+	u32 val;
-+	assert(geode_rng_base != NULL);
-+	val = readl(geode_rng_base + GEODE_RNG_STATUS_REG);
-+	return val;
-+}
-+
-+static void geode_cleanup(void)
-+{
-+	iounmap(geode_rng_base);
-+  	geode_rng_base = NULL;
-+}
-+
-+static int geode_init(struct pci_dev *dev)
-+{
-+	unsigned long rng_base = pci_resource_start(dev, 0);
-+	if (rng_base == NULL) return 1;
-+
-+	geode_rng_base = ioremap(rng_base, 0x58);
-+
-+	if (geode_rng_base == NULL) {
-+		printk(KERN_ERR PFX "Cannot ioremap RNG memory\n");
-+		return -EBUSY;
-+	}
-+
-+	return 0;
-+}
- 
- /***********************************************************************
-  *
-@@ -574,7 +638,7 @@ static int __init rng_init (void)
- 
- 	DPRINTK ("ENTER\n");
- 
--	/* Probe for Intel, AMD RNGs */
-+	/* Probe for Intel, AMD, Geode RNGs */
- 	for_each_pci_dev(pdev) {
- 		ent = pci_match_id(rng_pci_tbl, pdev);
- 		if (ent) {
-
+ Resources

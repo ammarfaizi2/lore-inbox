@@ -1,88 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751652AbVJ1Sz1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030393AbVJ1Szc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751652AbVJ1Sz1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 14:55:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751653AbVJ1Sz1
+	id S1030393AbVJ1Szc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 14:55:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030631AbVJ1Szc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 14:55:27 -0400
-Received: from xproxy.gmail.com ([66.249.82.197]:32337 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751651AbVJ1Sz0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 14:55:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=hVH7be+WO4GLLXUYAJWoVE97vcm1F+PQAa32v4jSKH3QB9peI4cOjE8J/PlZTzwLxxYTtNccwExn6/KxATvg+o7Li3dt2y28XSkEzU1kJXqzZ8Bg8bXtYom/VET9hDPxwm2mvZUolgEpwll+tB79Qjb3CF28Rb+nuginL9QWwTo=
-Message-ID: <5bdc1c8b0510281155w2b86be0bp9f85de02b806d664@mail.gmail.com>
-Date: Fri, 28 Oct 2005 11:55:26 -0700
-From: Mark Knecht <markknecht@gmail.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: Overruns are killing my recordings.
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1130525006.4363.44.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 28 Oct 2005 14:55:32 -0400
+Received: from lug-owl.de ([195.71.106.12]:37789 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S1030393AbVJ1Szb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 14:55:31 -0400
+Date: Fri, 28 Oct 2005 20:55:30 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Greg KH <gregkh@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [GIT PATCH] Driver Core patches for 2.6.14
+Message-ID: <20051028185530.GN27184@lug-owl.de>
+Mail-Followup-To: Greg KH <gregkh@suse.de>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20051028062921.GA6397@kroah.com> <20051028174812.GA15637@kroah.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Zbynv6TNPa9FrOf6"
 Content-Disposition: inline
-References: <3aa654a40510271212j13e0843s9de81c02f4e766ac@mail.gmail.com>
-	 <200510271528.28919.diablod3@gmail.com>
-	 <3aa654a40510271257t62d2fd82n5f2bcbcae2bcba9d@mail.gmail.com>
-	 <1130447216.19492.87.camel@mindpipe>
-	 <3aa654a40510271700l49fb06cfv37d8b6030df5ac49@mail.gmail.com>
-	 <1130470852.4363.26.camel@mindpipe>
-	 <5bdc1c8b0510280752y5b7a665cpfdd512d15f896482@mail.gmail.com>
-	 <1130525006.4363.44.camel@mindpipe>
+In-Reply-To: <20051028174812.GA15637@kroah.com>
+X-Operating-System: Linux mail 2.6.12.3lug-owl
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/28/05, Lee Revell <rlrevell@joe-job.com> wrote:
-> On Fri, 2005-10-28 at 07:52 -0700, Mark Knecht wrote:
-> > On 10/27/05, Lee Revell <rlrevell@joe-job.com> wrote:
-> > > On Thu, 2005-10-27 at 17:00 -0700, Avuton Olrich wrote:
-> > > > aggh. Sorry for all the noise,
-> > > >
-> > > > I have all my drives on a linear raid and I had hdparm set to put my
-> > > > IDE drives to sleep after a while, I didn't put it together because it
-> > > > was happening in the middle of recording.
-> > >
-> > > Hey, I think it's a testament to the progress that has been made in the
-> > > past year and a half that people now consider audio dropouts in a "known
-> > > good" app like ecasound to be a kernel bug.  For the longest time the
-> > > answer was "linux isn't an RTOS, deal with it".
-> > >
-> > > Lee
-> >
-> > Lee, et. all,
-> >    Could this possibly be part of what is causing my xrun problems? I
-> > had a huge rash of xruns yesterday. I seem to run into issues after
-> > longer times of inactivity. I hadn't considered this possibility
-> > before.
->
-> I really doubt it.  It's more likely that the xruns are caused by a bug
-> in the new ktimers system.  I am seeing "xruns" here too with -rt1, but
-> the latency tracer does not report anything over ~120 usecs.  Previous
-> to all the ktimers/HRT stuff going in, I was xrun free for months.
->
-> The reason I think it's a ktimers bug is because sometimes JACK reports
-> an xrun of negative length which I'd NEVER seen before.
->
-> I suspect this might all be fixed in the latest -rt patch but I have not
-> had time to build it.
->
-> Lee
 
-OK then I'll just hang tinght. I've not seen any response on the email
-I sent about 2.6.14-rc5-rt7. I cannot build it. It fails like this:
+--Zbynv6TNPa9FrOf6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-CC      arch/x86_64/kernel/sys_x86_64.o
- CC      arch/x86_64/kernel/x8664_ksyms.o
- CC      arch/x86_64/kernel/i387.o
- CC      arch/x86_64/kernel/syscall.o
- CC      arch/x86_64/kernel/vsyscall.o
-arch/x86_64/kernel/vsyscall.c:57: error: `SEQLOCK_UNLOCKED' undeclared
-here (not in a function)
-make[1]: *** [arch/x86_64/kernel/vsyscall.o] Error 1
-make: *** [arch/x86_64/kernel] Error 2
-lightning linux #
+On Fri, 2005-10-28 10:48:12 -0700, Greg KH <gregkh@suse.de> wrote:
+> Please pull from:
+> 	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
+> or if master.kernel.org hasn't synced up yet:
+> 	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
+>=20
+> Below is the diffstat and shortlog of the changes.
 
-This is a new failure here since -rc5-rt3.
+>  drivers/input/keyboard/lkkbd.c                 |  126 ++---
+
+Not ACKed.  This patch contains a not-fixed (though reported) wrong
+printk format in lkkbd_interrupt() "case LK_METRONOME:" Though I
+haven't tested it yet, it's ACKed by me after this is fixed.
+
+>  drivers/input/mouse/vsxxxaa.c                  |   84 +--
+
+Acked-by: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+
+MfG, JBG
+
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
+m Irak!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
+
+--Zbynv6TNPa9FrOf6
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDYnQiHb1edYOZ4bsRAvT9AJ4s3P5TXk5MF6uO2FHKUw2CptnbvQCfZTxB
+Ope8eXnl9XIQq8to1hDfuK4=
+=bczB
+-----END PGP SIGNATURE-----
+
+--Zbynv6TNPa9FrOf6--

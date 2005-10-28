@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965219AbVJ1M1A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965222AbVJ1M1L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965219AbVJ1M1A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 08:27:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965221AbVJ1M07
+	id S965222AbVJ1M1L (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 08:27:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965223AbVJ1M1L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 08:26:59 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:31183
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S965219AbVJ1M07 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 08:26:59 -0400
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Evgeny Stambulchik <Evgeny.Stambulchik@weizmann.ac.il>
-Subject: Re: Weirdness of "mount -o remount,rw" with write-protected floppy
-Date: Fri, 28 Oct 2005 07:26:56 -0500
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org
-References: <4360C0A7.4050708@weizmann.ac.il> <200510271609.47309.rob@landley.net> <436211B0.1050509@weizmann.ac.il>
-In-Reply-To: <436211B0.1050509@weizmann.ac.il>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510280726.56684.rob@landley.net>
+	Fri, 28 Oct 2005 08:27:11 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:56020 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S965222AbVJ1M1K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 08:27:10 -0400
+Message-Id: <200510281226.j9SCQt3w005832@laptop11.inf.utfsm.cl>
+To: coreteam@netfilter.org
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Fix typo
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Fri, 28 Oct 2005 09:26:55 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Fri, 28 Oct 2005 09:26:56 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 28 October 2005 06:55, Evgeny Stambulchik wrote:
-> Rob Landley wrote:
-> > But no, this one's clearly a kernel error.  If the kernel is giving write
-> > errors against the device afterwards, than the kernel's internal state
-> > toggled successfully, which is all the mount syscall was trying to do. 
-> > Mount is just reporting whether or not the syscall succeeded, not whether
-> > or not it should have. :)
->
-> OK, so there are actually two separate bugs, it seems: one that
-> remounting a RO media in the RW mode succeeds (this "works" for any RO
-> media, as far as I can tell) and the second (this one is specific to the
-> floppy driver only) that a further write to such a falsely rw-remounted
-> media doesn't return (in the user space) an error.
+Date: 1128458496 -0400
 
-It looks like one bug to me.  The initial mount figures out that it's read 
-only, and the actual writes fail correctly, but remount isn't checking for 
-read only (and thus isn't failing).
+Signed-off-by: Horst H. von Brand <vonbrand@inf.utfsm.cl>
 
-Rob
+
+---
+
+ net/ipv4/netfilter/Kconfig |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+applies-to: 773021ad63126ff2dacff654bd41b03a4ad6389e
+559144e679f79e29738fd9567cd58a77a027e587
+diff --git a/net/ipv4/netfilter/Kconfig b/net/ipv4/netfilter/Kconfig
+index 2cd7e7d..a765972 100644
+--- a/net/ipv4/netfilter/Kconfig
++++ b/net/ipv4/netfilter/Kconfig
+@@ -141,7 +141,7 @@ config IP_NF_PPTP
+ 	tristate  'PPTP protocol support'
+ 	help
+ 	  This module adds support for PPTP (Point to Point Tunnelling
+-	  Protocol, RFC2637) conncection tracking and NAT. 
++	  Protocol, RFC2637) connection tracking and NAT. 
+ 	
+ 	  If you are running PPTP sessions over a stateful firewall or NAT
+ 	  box, you may want to enable this feature.  
+---
+0.99.8.GIT

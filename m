@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965115AbVJ1Gjv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965134AbVJ1Gkr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965115AbVJ1Gjv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 02:39:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965131AbVJ1Gii
+	id S965134AbVJ1Gkr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 02:40:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965132AbVJ1Gi1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 02:38:38 -0400
-Received: from mail.kroah.org ([69.55.234.183]:35050 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965130AbVJ1GbS convert rfc822-to-8bit
+	Fri, 28 Oct 2005 02:38:27 -0400
+Received: from mail.kroah.org ([69.55.234.183]:36842 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S965134AbVJ1GbU convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 02:31:18 -0400
+	Fri, 28 Oct 2005 02:31:20 -0400
 Cc: gregkh@suse.de
-Subject: [PATCH] Driver Core: document struct class_device properly
-In-Reply-To: <11304810232167@kroah.com>
+Subject: [PATCH] INPUT: register the input class device sooner
+In-Reply-To: <11304810262190@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Thu, 27 Oct 2005 23:30:24 -0700
-Message-Id: <11304810242041@kroah.com>
+Date: Thu, 27 Oct 2005 23:30:26 -0700
+Message-Id: <11304810263958@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,53 +24,45 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] Driver Core: document struct class_device properly
+[PATCH] INPUT: register the input class device sooner
+
+This is needed so we can actually use the class device within the input
+handlers.
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit e9a873633c67dd048c9d53f3e934e83df10312d1
-tree 9152a484f16797773dce293c205e5e71b1260322
-parent c5d4abda2b87357d5ba32b0c8babb532eb75d9c7
+commit 9c507854ead3fc14687b2402618b53ce4cea934a
+tree fde0b34a166ecfe001929ef81d1c7d603d252d23
+parent 3792257a4fef9c098e39d2268fd31faf52b69200
 author Greg Kroah-Hartman <gregkh@suse.de> Thu, 27 Oct 2005 22:25:43 -0700
-committer Greg Kroah-Hartman <gregkh@suse.de> Thu, 27 Oct 2005 22:48:03 -0700
+committer Greg Kroah-Hartman <gregkh@suse.de> Thu, 27 Oct 2005 22:48:06 -0700
 
- include/linux/device.h |   24 ++++++++++++++++++++++++
- 1 files changed, 24 insertions(+), 0 deletions(-)
+ drivers/input/input.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/device.h b/include/linux/device.h
-index 226e550..10ab780 100644
---- a/include/linux/device.h
-+++ b/include/linux/device.h
-@@ -203,6 +203,30 @@ struct class_device_attribute class_devi
- extern int class_device_create_file(struct class_device *,
- 				    const struct class_device_attribute *);
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 57fbfd9..03c2ca4 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -795,6 +795,9 @@ void input_register_device(struct input_
+ 	INIT_LIST_HEAD(&dev->h_list);
+ 	list_add_tail(&dev->node, &input_dev_list);
  
-+/**
-+ * struct class_device - class devices
-+ * @class: pointer to the parent class for this class device.  This is required.
-+ * @devt: for internal use by the driver core only.
-+ * @node: for internal use by the driver core only.
-+ * @kobj: for internal use by the driver core only.
-+ * @devt_attr: for internal use by the driver core only.
-+ * @dev: if set, a symlink to the struct device is created in the sysfs
-+ * directory for this struct class device.
-+ * @class_data: pointer to whatever you want to store here for this struct
-+ * class_device.  Use class_get_devdata() and class_set_devdata() to get and
-+ * set this pointer.
-+ * @parent: pointer to a struct class_device that is the parent of this struct
-+ * class_device.  If NULL, this class_device will show up at the root of the
-+ * struct class in sysfs (which is probably what you want to have happen.)
-+ * @release: pointer to a release function for this struct class_device.  If
-+ * set, this will be called instead of the class specific release function.
-+ * Only use this if you want to override the default release function, like
-+ * when you are nesting class_device structures.
-+ * @hotplug: pointer to a hotplug function for this struct class_device.  If
-+ * set, this will be called instead of the class specific hotplug function.
-+ * Only use this if you want to override the default hotplug function, like
-+ * when you are nesting class_device structures.
-+ */
- struct class_device {
- 	struct list_head	node;
++	if (dev->dynalloc)
++		input_register_classdevice(dev);
++
+ 	list_for_each_entry(handler, &input_handler_list, node)
+ 		if (!handler->blacklist || !input_match_device(handler->blacklist, dev))
+ 			if ((id = input_match_device(handler->id_table, dev)))
+@@ -802,9 +805,6 @@ void input_register_device(struct input_
+ 					input_link_handle(handle);
  
+ 
+-	if (dev->dynalloc)
+-		input_register_classdevice(dev);
+-
+ #ifdef CONFIG_HOTPLUG
+ 	input_call_hotplug("add", dev);
+ #endif
 

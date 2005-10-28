@@ -1,39 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030622AbVJ1SYU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030538AbVJ1Sai@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030622AbVJ1SYU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 14:24:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030568AbVJ1SYU
+	id S1030538AbVJ1Sai (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 14:30:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030607AbVJ1Sai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 14:24:20 -0400
-Received: from rwcrmhc14.comcast.net ([216.148.227.89]:15038 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1030622AbVJ1SYT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 14:24:19 -0400
-Date: Fri, 28 Oct 2005 13:24:17 -0500
-From: Lee <linuxtwidler@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Serial Port Sniffing
-Message-ID: <20051028132417.6d3dc843@localhost>
-Reply-To: linuxtwidler@gmail.com
-X-Mailer: Sylpheed-Claws 1.0.4a (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 28 Oct 2005 14:30:38 -0400
+Received: from waste.org ([216.27.176.166]:14727 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1030538AbVJ1Sah (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 14:30:37 -0400
+Date: Fri, 28 Oct 2005 11:25:41 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: linux-tiny@selenic.com, celinux-dev@waste.org,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.14-tiny1 for small systems
+Message-ID: <20051028182541.GF4367@waste.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a resync of the -tiny tree against 2.6.14. The latest patch
+can be found at:
 
-Hi,
+ http://selenic.com/tiny/2.6.14-tiny1.patch.bz2
+ http://selenic.com/tiny/2.6.14-tiny1-broken-out.tar.bz2
 
-Does anyone have any experience with sniffing data from a serial port w/o the device attached to the serial port or the application having knowledge of this ?
+A Mercurial repository containing the latest broken out patches can be
+found at:
 
-I had found an old kernel module (for 2.2.0, i think) called 'maxty' which would does this.  Is there something equivalent for the 2.6.x kernels ?
+ http://selenic.com/repo/tiny
 
-Or is there a better way to go about doing this?
+There's a mailing list for linux-tiny development at:
+ 
+ linux-tiny at selenic.com
+ http://selenic.com/mailman/listinfo/linux-tiny
 
+Webpage for your bookmarking pleasure:
+
+ http://selenic.com/linux-tiny
+
+Changes since 2.6.13.3-tiny1:
+
+-kbuild-fix-make-clean-damaging-hg-repos.patch
+
+Merged upstream
+
+-kill-kmem_cache_name.patch
+
+Implemented in SLOB allocator
+
+-ptrace.patch
+-direct-io-core.patch
+
+Need reworking from scratch due to upstream changes
 
 -- 
-Lee
-linuxtwidler@gmail.com
-
- 13:22:49 up 2 days, 16:50,  2 users,  load average: 0.21, 0.07, 0.10
+Mathematics is the supreme nostalgia of our time.

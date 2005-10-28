@@ -1,72 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030400AbVJ1WPz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbVJ1WS2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030400AbVJ1WPz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 18:15:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030409AbVJ1WPz
+	id S1750702AbVJ1WS2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 18:18:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750704AbVJ1WS2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 18:15:55 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:39353 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030400AbVJ1WPy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 18:15:54 -0400
-Subject: Re: Notifier chains are unsafe
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Keith Owens <kaos@ocs.com.au>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44L0.0510280956370.4862-100000@iolanthe.rowland.org>
-References: <Pine.LNX.4.44L0.0510280956370.4862-100000@iolanthe.rowland.org>
-Content-Type: text/plain
-Organization: IBM
-Date: Fri, 28 Oct 2005 15:15:49 -0700
-Message-Id: <1130537749.3586.336.camel@linuxchandra>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
-Content-Transfer-Encoding: 7bit
+	Fri, 28 Oct 2005 18:18:28 -0400
+Received: from mail-in-06.arcor-online.net ([151.189.21.46]:6349 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1750702AbVJ1WS1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 18:18:27 -0400
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: [PATCH] Disable the most annoying printk in the kernel
+To: Pavel Machek <pavel@suse.cz>, Lee Revell <rlrevell@joe-job.com>,
+       Hugh Dickins <hugh@veritas.com>, Andi Kleen <ak@suse.de>,
+       vojtech@suse.cz, akpm@osdl.org, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Sat, 29 Oct 2005 00:18:18 +0200
+References: <52bjf-680-9@gated-at.bofh.it> <52Hj9-3e6-27@gated-at.bofh.it> <52HCr-3CO-7@gated-at.bofh.it> <52JkU-6gS-29@gated-at.bofh.it> <52JuY-6s7-21@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1EVcYE-00016V-Dg@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-10-28 at 10:23 -0400, Alan Stern wrote:
-> On Thu, 27 Oct 2005, Chandra Seetharaman wrote:
-> 
-> > So, requirements to fix the bug are:
-> > 	- no sleeping in register/unregister(if we want to keep the
-> >           current way of use. We can change it and make the relevant
-> >           changes in the kernel code, if it is agreeable)
-> 
-> I think we will have to make these changes.  In principal it shouldn't be 
-> hard to add a simple "enabled" flag to each callout which currently is
-> registered/unregistered atomically or while running.  We could even put 
-> such a flag into the notifier_block structure and add routines to set or 
-> clear it, using appropriate barriers.
+Pavel Machek <pavel@suse.cz> wrote:
 
-I do not understand the purpose of enabled flag. Can you clarify
-> 
-> > 	- notifier_call_chain could be called from any context
-> > 	- callout function could sleep
-> > 	- no acquiring locks in notifier_call_chain
-> >         - make sure the list is consistent :) (which is problem Alan
-> >           started to fix)
-> > 	- anything else ?
-> 
-> Let's clarify the "list is consistent" statement.  Obviously it implies 
-> that no more than one thread can modify the list pointers at any time.  
-> Beyond that, there should be a guarantee that when unregister returns, the 
-> routine being removed is not in use and will not be called by any thread.  
-> Likewise, after register returns, any invocation of notifier_call_chain 
-> should see the new routine.
+> Well, keyboard detected and reported an error. Kernel reacted with
+> printk(). You are removing that printk(). I can understand that,
+> printk is really annoying, but I really believe _some_ error handling
+> should be added there if you remove the printk.
 
-true
-> 
-> Alan Stern
-> 
-> 
+I once posted a printk that would only actually print if the last printk
+wasn't the same message. This would ensure error reporting while preventing
+dmesg from being spammed. Off cause this would fail if two subsystems are
+competing to annoy you.
 -- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
-
-
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbVJ1XDF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbVJ1XES@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbVJ1XDF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 19:03:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbVJ1XDF
+	id S1750727AbVJ1XES (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 19:04:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbVJ1XES
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 19:03:05 -0400
-Received: from pat.qlogic.com ([198.70.193.2]:5692 "EHLO avexch01.qlogic.com")
-	by vger.kernel.org with ESMTP id S1750707AbVJ1XDE (ORCPT
+	Fri, 28 Oct 2005 19:04:18 -0400
+Received: from gate.crashing.org ([63.228.1.57]:2011 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750727AbVJ1XER (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 19:03:04 -0400
-Date: Fri, 28 Oct 2005 16:03:03 -0700
-From: Andrew Vasquez <andrew.vasquez@qlogic.com>
-To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: HEADS UP for QLA2100 users
-Message-ID: <20051028230303.GI15018@plap.qlogic.org>
-References: <20051024014838.0dd491bb.akpm@osdl.org> <1130186927.6831.23.camel@localhost.localdomain> <20051024141646.6265c0da.akpm@osdl.org> <20051027152637.GC7889@plap.qlogic.org> <20051027190227.GA16211@infradead.org> <20051027215313.GB7889@plap.qlogic.org> <20051028225155.GA13958@infradead.org>
+	Fri, 28 Oct 2005 19:04:17 -0400
+Subject: Re: [PATCH] pci device wakeup flags
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
+       Greg K-H <greg@kroah.com>, gregkh@suse.de, linux-kernel@vger.kernel.org,
+       david-b@pacbell.net
+In-Reply-To: <Pine.LNX.4.64.0510280730450.4664@g5.osdl.org>
+References: <11304810221338@kroah.com> <11304810223093@kroah.com>
+	 <20051028035116.112ba2ca.akpm@osdl.org>
+	 <Pine.LNX.4.64.0510280730450.4664@g5.osdl.org>
+Content-Type: text/plain
+Date: Sat, 29 Oct 2005 09:03:45 +1000
+Message-Id: <1130540625.29054.136.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051028225155.GA13958@infradead.org>
-Organization: QLogic Corporation
-User-Agent: Mutt/1.5.9i
-X-OriginalArrivalTime: 28 Oct 2005 23:03:03.0641 (UTC) FILETIME=[C02A3C90:01C5DC13]
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Oct 2005, Christoph Hellwig wrote:
-
-> On Thu, Oct 27, 2005 at 02:53:13PM -0700, Andrew Vasquez wrote:
+On Fri, 2005-10-28 at 07:31 -0700, Linus Torvalds wrote:
 > 
-> > I'm still in the process of ironing out the .bin distribution details
-> > locally, but perhaps once we migrate to firmware-loading exclusively
-> > via request_firmware(), the (small?) contigent of 2100 could use the
-> > EF variant I referenced above.
+> On Fri, 28 Oct 2005, Andrew Morton wrote:
+> > 
+> > This is the patch which I've been religiously dropping from -mm because it
+> > kills my Mac G5.  What are we doing merging this?
 > 
-> You know, I'm in favour of getting firmware images in the kernel image,
-> but what's the problem of simply downgrading the 2100 firmware until
-> we get rid of the builtin firmware for all qla2xxx variants?
+> Well, since my main machine is a Mac G5, we certainly /aren't/ merging it 
+> if it kills it.
 
-I have no problems with submitting 1.17.38 EF for inclusion upstream.
-My only hope is that for the (other) 2100 user out there that use the
-latest 2100 firmware and are not experiencing problems, the downgrade
-does not break anything.
+Yah, that's a known one, the problem is due to the removal of
+device_initialize() from pci_device_add(). The breaks the new mecanism
+on ppc64 that creates the PCI tree from the firmware instead of probing
+the bus. In addition, even with that fixed, the code looking for PME#
+will not be run on the pmac neither.
 
-That's another reason I posed the following question:
+I'm not 100% what is the best fix at this point. I suppose it would be 2
+things, let me know what you think about it:
 
-> > Could I get another informal count of 2100 users who are still having
-> > problems with qla2xxx?
+ - Have the ppc64 PCI tree code call device_initialize() itself before
+calling pci_device_add()
 
-Perhaps I should also ask:
+ - Move the search of PME# (and possibly other similar bits) from probe
+to pci_device_add()
 
-	Who's running 2100 cards with the latest qla2xxx driver and
-	are experiencing no problems?
+ Ben.
 
---
-AV
+

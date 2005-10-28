@@ -1,60 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965199AbVJ1JTY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965202AbVJ1JWA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965199AbVJ1JTY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 05:19:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965200AbVJ1JTY
+	id S965202AbVJ1JWA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 05:22:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965204AbVJ1JWA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 05:19:24 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:13208 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965199AbVJ1JTX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 05:19:23 -0400
-Subject: Re: [PATCH] Process Events Connector
-From: Arjan van de Ven <arjan@infradead.org>
-To: Matt Helsley <matthltc@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       Jean-Pierre Dion <jean-pierre.dion@bull.net>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       Badari Pulavarty <pbadari@us.ibm.com>, Ram Pai <linuxram@us.ibm.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Erich Focht <efocht@hpce.nec.com>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>,
-       Gerrit Huizenga <gh@us.ibm.com>, Adrian Bunk <bunk@stusta.de>,
-       "Chandra S. Seetharaman" <sekharan@us.ibm.com>,
-       Jay Lan <jlan@engr.sgi.com>, Erik Jacobson <erikj@sgi.com>,
-       Jack Steiner <steiner@sgi.com>
-In-Reply-To: <1130489713.10680.685.camel@stark>
-References: <1130489713.10680.685.camel@stark>
-Content-Type: text/plain
-Date: Fri, 28 Oct 2005 11:19:06 +0200
-Message-Id: <1130491147.2800.15.camel@laptopd505.fenrus.org>
+	Fri, 28 Oct 2005 05:22:00 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:31933 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965202AbVJ1JV7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 05:21:59 -0400
+Date: Fri, 28 Oct 2005 10:21:55 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Greg K-H <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, rdunlap@xenotime.net
+Subject: Re: [PATCH] kobject: fix gfp flags type
+Message-ID: <20051028092155.GW7992@ftp.linux.org.uk>
+References: <11304810221164@kroah.com> <11304810221338@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <11304810221338@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-10-28 at 01:55 -0700, Matt Helsley wrote:
+On Thu, Oct 27, 2005 at 11:30:22PM -0700, Greg KH wrote:
+> [PATCH] kobject: fix gfp flags type
+> 
+> Fix implicit nocast warnings in kobject_uevent code, including __nocast:
+> lib/kobject_uevent.c:78:37: warning: implicit cast to nocast type
+> lib/kobject_uevent.c:97:51: warning: implicit cast to nocast type
+> lib/kobject_uevent.c:120:27: warning: implicit cast to nocast type
+> 
+> Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-> +void proc_fork_connector(struct task_struct *task)
-> +{
-> +	struct cn_msg *msg;
-> +	struct proc_event *ev;
-> +	__u8 buffer[CN_PROC_MSG_SIZE];
-
-do you really want to do this stack based?
-
-
-
+NAK - explicit use of __nocast is wrong here.

@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbVJ1UwI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751701AbVJ1Uxq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750741AbVJ1UwI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 16:52:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbVJ1UwI
+	id S1751701AbVJ1Uxq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 16:53:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751702AbVJ1Uxp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 16:52:08 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:43187 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750741AbVJ1UwH (ORCPT
+	Fri, 28 Oct 2005 16:53:45 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:15086 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751700AbVJ1Uxo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 16:52:07 -0400
-Date: Fri, 28 Oct 2005 22:51:32 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Hugh Dickins <hugh@veritas.com>, Andi Kleen <ak@suse.de>, vojtech@suse.cz,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Disable the most annoying printk in the kernel
-Message-ID: <20051028205132.GB11397@elf.ucw.cz>
-References: <200510271026.10913.ak@suse.de> <20051028072003.GB1602@openzaurus.ucw.cz> <Pine.LNX.4.61.0510281947040.5112@goblin.wat.veritas.com> <1130532239.4363.125.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1130532239.4363.125.camel@mindpipe>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Fri, 28 Oct 2005 16:53:44 -0400
+Message-ID: <43628FCB.9060202@pobox.com>
+Date: Fri, 28 Oct 2005 16:53:31 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jesper Juhl <jesper.juhl@gmail.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       "David S. Miller" <davem@davemloft.net>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Matt Porter <mporter@kernel.crashing.org>,
+       Michael Chan <mchan@broadcom.com>, linux.nics@intel.com,
+       hans@esrac.ele.tue.nl, Santiago Leon <santil@us.ibm.com>,
+       Jean Tourrilhes <jt@hpl.hp.com>, Paul Mackerras <paulus@samba.org>,
+       Michael Hipp <hippm@informatik.uni-tuebingen.de>,
+       Jes Sorensen <jes@wildopensource.com>,
+       Carsten Langgaard <carstenl@mips.com>,
+       Benjamin Reed <breed@users.sourceforge.net>,
+       Jouni Malinen <jkmaline@cc.hut.fi>, prism54-private@prism54.org,
+       netdev@vger.kernel.org, Stuart Cheshire <cheshire@cs.stanford.edu>,
+       g4klx@g4klx.demon.co.uk, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 02/14] Big kfree NULL check cleanup - drivers/net
+References: <200510132122.48035.jesper.juhl@gmail.com>
+In-Reply-To: <200510132122.48035.jesper.juhl@gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > > Remove most useless printk in the world
-> > > 
-> > > It warns about crappy keyboards. It triggers regulary for me on x32,
-> > > (probably because of my weird capslock+x+s etc combination). It is
-> > > usefull as a warning "this keyboard is crap" and "no, bad mechanical switch
-> > > is not the reason for lost key".
-> > 
-> > Okay, if you want a message to remind you that your keyboard is crap
-> > several times a day, please keep your own patch to do so.  Let the
-> > rest of the world go with Andi's patch.
+Jesper Juhl wrote:
+> This is the drivers/net/ part of the big kfree cleanup patch.
 > 
-> Plus keyboards are a dime a dozen these days, they give you one with
-> every server whether or not you want it.  If you have rack full of 1U
-> servers the pile of keyboards will be as high as the rack.  I wish our
-> KVM vendor would come haul them away.
+> Remove pointless checks for NULL prior to calling kfree() in drivers/net/.
+> 
+> 
+> Sorry about the long Cc: list, but I wanted to make sure I included everyone
+> who's code I've changed with this patch.
+> 
+> 
+> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
 
-Well, keyboard detected and reported an error. Kernel reacted with
-printk(). You are removing that printk(). I can understand that,
-printk is really annoying, but I really believe _some_ error handling
-should be added there if you remove the printk.
-								Pavel
--- 
-Thanks, Sharp!
+applied 98% of this
+
+

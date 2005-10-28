@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965211AbVJ1Lxj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965218AbVJ1MCq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965211AbVJ1Lxj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 07:53:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965216AbVJ1Lxj
+	id S965218AbVJ1MCq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 08:02:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965219AbVJ1MCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 07:53:39 -0400
-Received: from ns.ustc.edu.cn ([202.38.64.1]:30914 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S965211AbVJ1Lxi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 07:53:38 -0400
-Date: Fri, 28 Oct 2005 20:04:07 +0800
-From: WU Fengguang <wfg@mail.ustc.edu.cn>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       ck@vds.kolivas.org
-Subject: Re: 2.6.14-ck1
-Message-ID: <20051028120407.GA4116@mail.ustc.edu.cn>
-Mail-Followup-To: WU Fengguang <wfg@mail.ustc.edu.cn>,
-	Con Kolivas <kernel@kolivas.org>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>,
-	ck@vds.kolivas.org
-References: <200510282118.11704.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200510282118.11704.kernel@kolivas.org>
-User-Agent: Mutt/1.5.9i
+	Fri, 28 Oct 2005 08:02:46 -0400
+Received: from smtpauth08.mail.atl.earthlink.net ([209.86.89.68]:6066 "EHLO
+	smtpauth08.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
+	id S965218AbVJ1MCp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 08:02:45 -0400
+In-Reply-To: <200510271615.21253.rob@landley.net>
+References: <dfd859813ee9f143cbb8c4cc3c73aa2c@zeesource.net> <200510271615.21253.rob@landley.net>
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <76293e9609f3674cf4bf74058ab83bee@zeesource.net>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org, webmaster@kernel.org
+From: Claire McLister <mclister@zeesource.net>
+Subject: Re: Map of Linux Kernel Users (OT)
+Date: Fri, 28 Oct 2005 05:02:43 -0700
+To: Rob Landley <rob@landley.net>
+X-Mailer: Apple Mail (2.623)
+X-ELNK-Trace: 7705cff7f8fc6ea374bf435c0eb9d47869d51e7181ee6aec2c6bce55ffc38d5f7fc98cf8af76f3d3350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 68.164.153.115
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 28, 2005 at 09:18:09PM +1000, Con Kolivas wrote:
-> These are patches designed to improve system responsiveness and interactivity. 
-> It is configurable to any workload but the default ck* patch is aimed at the 
-> desktop and ck*-server is available with more emphasis on serverspace.
-> ... 
-> Added:
-> +adaptive-readahead-4.patch
-> We Fengguang's adaptive readahead patch. Please test and report experiences - 
-> Wu has been cc'ed on this email, please keep him cc'ed for reports.
-Thanks. I've done a lot testings and improvements these days, and will release a
-new version soon.
+Could be fun to watch as it developed over time -- I'm cc'ing this 
+message to the 'webmaster' at kernel.org to see if this is feasible.
 
-Regards,
-Wu Fengguang
+On Oct 27, 2005, at 2:15 PM, Rob Landley wrote:
+
+> On Monday 24 October 2005 16:01, Claire McLister wrote:
+>> Hi,
+>>
+>>   We've developed an automatic email mapping capability from Google 
+>> Maps
+>> API.
+>>
+>>   To try it out, we mapped origins of emails to this group from 
+>> October
+>> 2 through October 10th.
+>>
+>> The result of this map is at:
+>> http://www.zeesource.net/maps/map.do?group=478
+>>
+>>   Would like to hear what you think of it.
+>
+> Ok, I know it's silly, but I want that on www.kernel.org somewhere 
+> anyway.
+> (Probably filtered by "last 12 months" and "people who posted 10 or 
+> more
+> times...)
+>
+> Rob
+

@@ -1,45 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751813AbVJ1VZk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751816AbVJ1V0O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751813AbVJ1VZk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 17:25:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751817AbVJ1VZk
+	id S1751816AbVJ1V0O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 17:26:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751819AbVJ1V0N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 17:25:40 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:36261 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1751813AbVJ1VZj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 17:25:39 -0400
-Date: Sat, 29 Oct 2005 07:25:34 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: AndyLiebman@aol.com
-Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: What happened to XFS Quota Support?
-Message-ID: <20051029072533.A6139033@wobbly.melbourne.sgi.com>
-References: <46.74cc8004.3093e511@aol.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <46.74cc8004.3093e511@aol.com>; from AndyLiebman@aol.com on Fri, Oct 28, 2005 at 04:33:21PM -0400
+	Fri, 28 Oct 2005 17:26:13 -0400
+Received: from mx1.netapp.com ([216.240.18.38]:28203 "EHLO mx1.netapp.com")
+	by vger.kernel.org with ESMTP id S1751816AbVJ1V0M convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 17:26:12 -0400
+X-IronPort-AV: i="3.97,263,1125903600"; 
+   d="scan'208"; a="264933380:sNHT17422636"
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Link error in ./net/sunrcp/
+Date: Fri, 28 Oct 2005 14:26:11 -0700
+Message-ID: <044B81DE141D7443BCE91E8F44B3C1E288E5B7@exsvl02.hq.netapp.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Link error in ./net/sunrcp/
+Thread-Index: AcXcBW5uHTyRNiGrQwqSsYg17sjYNgAAIbuw
+From: "Lever, Charles" <Charles.Lever@netapp.com>
+To: "Jan-Benedict Glaw" <jbglaw@lug-owl.de>
+Cc: "Myklebust, Trond" <Trond.Myklebust@netapp.com>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 28 Oct 2005 21:26:11.0290 (UTC) FILETIME=[37BBDBA0:01C5DC06]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 28, 2005 at 04:33:21PM -0400, AndyLiebman@aol.com wrote:
-> I tried compiling XFS statically into the kernel and it's also a "no go" on  
-> quota support. So, am I to conclude that 2.6.14 as it currently stands cannot  
-> support XFS quotas?
+> 
+> Hi!
+> 
+> I get this link error:
+> 
+> net/built-in.o: In function 
+> `xs_bindresvport':xprtsock.c:(.text+0x46970): undefined 
+> reference to `xprt_min_resvport'
+> :xprtsock.c:(.text+0x46978): undefined reference to 
+> `xprt_max_resvport'
+> net/built-in.o: In function `xs_setup_udp': undefined 
+> reference to `xprt_udp_slot_table_entries'
+> net/built-in.o: In function `xs_setup_tcp': undefined 
+> reference to `xprt_tcp_slot_table_entries'
+> make: *** [.tmp_vmlinux1] Error 1
+> 
+> in case of CONFIG_SYSCTL not being enabled. This is on the VAX port,
+> but I guess it'll show up on any target...
 
-Hmm, I'd have thought it'd work builtin, thats how I tend to use it.
-Either way, the code is all there, its just an annoying config issue.
+i thought that you couldn't actually get a .config that would build
+the sunrpc stuff if CONFIG_SYSCTL was disabled.  thus the macro logic
+in net/sunrpc doesn't check for it.
 
-> As you know, we have quite a few users who have been waiting for the XFS  
-> changes that went into 2.6.14 (as you and I have discussed).  Hope the fix  comes 
-> along soon. 
-
-Theres a patch already floating around that will resolve it, let me
-know how that goes.
-
-cheers.
-
--- 
-Nathan
+was i wrong about that?

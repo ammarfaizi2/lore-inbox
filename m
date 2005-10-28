@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965190AbVJ1Goo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965122AbVJ1Gpb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965190AbVJ1Goo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 02:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965110AbVJ1GoA
+	id S965122AbVJ1Gpb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 02:45:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965119AbVJ1GbI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 02:44:00 -0400
-Received: from mail.kroah.org ([69.55.234.183]:23018 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965120AbVJ1GbK convert rfc822-to-8bit
+	Fri, 28 Oct 2005 02:31:08 -0400
+Received: from mail.kroah.org ([69.55.234.183]:20458 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S965108AbVJ1GbE convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 02:31:10 -0400
-Cc: will.dyson@gmail.com
-Subject: [PATCH] add sysfs support for ide tape
-In-Reply-To: <1130481022955@kroah.com>
+	Fri, 28 Oct 2005 02:31:04 -0400
+Cc: dtor_core@ameritech.net
+Subject: [PATCH] I2O: remove class interface
+In-Reply-To: <1130481023770@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Thu, 27 Oct 2005 23:30:22 -0700
-Message-Id: <11304810222258@kroah.com>
+Date: Thu, 27 Oct 2005 23:30:23 -0700
+Message-Id: <11304810233187@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,110 +24,405 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] add sysfs support for ide tape
+[PATCH] I2O: remove class interface
 
-I was recently given an old Travan tape drive and asked to do something
-useful with it.  The ide-scsi + st (+serverworks ide controller) combo
-results in a hard lockup of the machine which I have not had the energy to
-debug, so I turned to ide-tape (which seems to work).  The system in
-question debian stable, using udev to manage /dev.
+I2O: remove i2o_device_class_interface misuse
 
-The following patch to ide-tape.c allows udev to create the cdev nodes for
-my drive.
+The intent of class interfaces was to provide different
+'views' at the same object, not just run some code every
+time a new class device is registered. Kill interface
+structure, make class core register default attributes
+and set up sysfs links right when registering class
+devices.
 
-Cc: Gadi Oxman <gadio@netvision.net.il>
-Cc: Greg KH <greg@kroah.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit e801e49d1ca90da1ab0286a3688f2465cb1e45e4
-tree e7983a7c7dce4213431a1b951d3d803167ed41f9
-parent 271c0df6e700b3f208b1802a1e96bb9eeeaa880c
-author Will Dyson <will.dyson@gmail.com> Fri, 16 Sep 2005 02:55:07 -0700
-committer Greg Kroah-Hartman <gregkh@suse.de> Thu, 27 Oct 2005 22:47:59 -0700
+commit e12574538ea88cd5e15d7135e9ae6e267d314f2c
+tree 301ed903a0a558c231c69b6390db67f7a169c184
+parent 85a44726f49989a2647cd850d55ec5be75727c5b
+author Dmitry Torokhov <dtor_core@ameritech.net> Thu, 15 Sep 2005 02:01:32 -0500
+committer Greg Kroah-Hartman <gregkh@suse.de> Thu, 27 Oct 2005 22:48:00 -0700
 
- drivers/ide/ide-tape.c |   38 ++++++++++++++++++++++++++++++++++++--
- 1 files changed, 36 insertions(+), 2 deletions(-)
+ drivers/message/i2o/device.c |  255 ++++++++++++++++++++----------------------
+ 1 files changed, 122 insertions(+), 133 deletions(-)
 
-diff --git a/drivers/ide/ide-tape.c b/drivers/ide/ide-tape.c
-index ee38e6b..95abe98 100644
---- a/drivers/ide/ide-tape.c
-+++ b/drivers/ide/ide-tape.c
-@@ -1013,6 +1013,8 @@ typedef struct ide_tape_obj {
+diff --git a/drivers/message/i2o/device.c b/drivers/message/i2o/device.c
+index 21f16ba..551d582 100644
+--- a/drivers/message/i2o/device.c
++++ b/drivers/message/i2o/device.c
+@@ -45,10 +45,10 @@ static inline int i2o_device_issue_claim
+ 	writel(type, &msg->body[0]);
  
- static DECLARE_MUTEX(idetape_ref_sem);
+ 	return i2o_msg_post_wait(dev->iop, m, 60);
+-};
++}
  
-+static struct class *idetape_sysfs_class;
+ /**
+- * 	i2o_device_claim - claim a device for use by an OSM
++ *	i2o_device_claim - claim a device for use by an OSM
+  *	@dev: I2O device to claim
+  *	@drv: I2O driver which wants to claim the device
+  *
+@@ -73,7 +73,7 @@ int i2o_device_claim(struct i2o_device *
+ 	up(&dev->lock);
+ 
+ 	return rc;
+-};
++}
+ 
+ /**
+  *	i2o_device_claim_release - release a device that the OSM is using
+@@ -119,7 +119,8 @@ int i2o_device_claim_release(struct i2o_
+ 	up(&dev->lock);
+ 
+ 	return rc;
+-};
++}
 +
- #define to_ide_tape(obj) container_of(obj, struct ide_tape_obj, kref)
  
- #define ide_tape_g(disk) \
-@@ -4704,6 +4706,10 @@ static void ide_tape_release(struct kref
+ /**
+  *	i2o_device_release - release the memory for a I2O device
+@@ -135,39 +136,62 @@ static void i2o_device_release(struct de
+ 	pr_debug("i2o: device %s released\n", dev->bus_id);
  
- 	drive->dsc_overlap = 0;
- 	drive->driver_data = NULL;
-+	class_device_destroy(idetape_sysfs_class,
-+			MKDEV(IDETAPE_MAJOR, tape->minor));
-+	class_device_destroy(idetape_sysfs_class,
-+			MKDEV(IDETAPE_MAJOR, tape->minor + 128));
- 	devfs_remove("%s/mt", drive->devfs_name);
- 	devfs_remove("%s/mtn", drive->devfs_name);
- 	devfs_unregister_tape(g->number);
-@@ -4878,6 +4884,11 @@ static int ide_tape_probe(struct device 
+ 	kfree(i2o_dev);
+-};
++}
  
- 	idetape_setup(drive, tape, minor);
- 
-+	class_device_create(idetape_sysfs_class,
-+			MKDEV(IDETAPE_MAJOR, minor), dev, "%s", tape->name);
-+	class_device_create(idetape_sysfs_class,
-+			MKDEV(IDETAPE_MAJOR, minor + 128), dev, "n%s", tape->name);
-+
- 	devfs_mk_cdev(MKDEV(HWIF(drive)->major, minor),
- 			S_IFCHR | S_IRUGO | S_IWUGO,
- 			"%s/mt", drive->devfs_name);
-@@ -4903,6 +4914,7 @@ MODULE_LICENSE("GPL");
- static void __exit idetape_exit (void)
- {
- 	driver_unregister(&idetape_driver.gen_driver);
-+	class_destroy(idetape_sysfs_class);
- 	unregister_chrdev(IDETAPE_MAJOR, "ht");
- }
- 
-@@ -4911,11 +4923,33 @@ static void __exit idetape_exit (void)
+ /**
+- *	i2o_device_class_release - Remove I2O device attributes
++ *	i2o_device_class_release - I2O class device release function
+  *	@cd: I2O class device which is added to the I2O device class
+  *
+- *	Removes attributes from the I2O device again. Also search each device
+- *	on the controller for I2O devices which refert to this device as parent
+- *	or user and remove this links also.
++ *	The function is just a stub - memory will be freed when
++ *	associated I2O device is released.
   */
- static int idetape_init (void)
+ static void i2o_device_class_release(struct class_device *cd)
  {
-+	int error = 1;
-+	idetape_sysfs_class = class_create(THIS_MODULE, "ide_tape");
-+	if (IS_ERR(idetape_sysfs_class)) {
-+		idetape_sysfs_class = NULL;
-+		printk(KERN_ERR "Unable to create sysfs class for ide tapes\n");
-+		error = -EBUSY;
-+		goto out;
+-	struct i2o_device *i2o_dev, *tmp;
+-	struct i2o_controller *c;
++	/* empty */
++}
+ 
+-	i2o_dev = to_i2o_device(cd->dev);
+-	c = i2o_dev->iop;
++/**
++ *	i2o_device_class_show_class_id - Displays class id of I2O device
++ *	@cd: class device of which the class id should be displayed
++ *	@buf: buffer into which the class id should be printed
++ *
++ *	Returns the number of bytes which are printed into the buffer.
++ */
++static ssize_t i2o_device_class_show_class_id(struct class_device *cd,
++					      char *buf)
++{
++	struct i2o_device *dev = to_i2o_device(cd->dev);
+ 
+-	sysfs_remove_link(&i2o_dev->device.kobj, "parent");
+-	sysfs_remove_link(&i2o_dev->device.kobj, "user");
++	sprintf(buf, "0x%03x\n", dev->lct_data.class_id);
++	return strlen(buf) + 1;
++}
+ 
+-	list_for_each_entry(tmp, &c->devices, list) {
+-		if (tmp->lct_data.parent_tid == i2o_dev->lct_data.tid)
+-			sysfs_remove_link(&tmp->device.kobj, "parent");
+-		if (tmp->lct_data.user_tid == i2o_dev->lct_data.tid)
+-			sysfs_remove_link(&tmp->device.kobj, "user");
+-	}
++/**
++ *	i2o_device_class_show_tid - Displays TID of I2O device
++ *	@cd: class device of which the TID should be displayed
++ *	@buf: buffer into which the class id should be printed
++ *
++ *	Returns the number of bytes which are printed into the buffer.
++ */
++static ssize_t i2o_device_class_show_tid(struct class_device *cd, char *buf)
++{
++	struct i2o_device *dev = to_i2o_device(cd->dev);
++
++	sprintf(buf, "0x%03x\n", dev->lct_data.tid);
++	return strlen(buf) + 1;
++}
++
++static struct class_device_attribute i2o_device_class_attrs[] = {
++	__ATTR(class_id, S_IRUGO, i2o_device_class_show_class_id, NULL),
++	__ATTR(tid, S_IRUGO, i2o_device_class_show_tid, NULL),
++	__ATTR_NULL
+ };
+ 
+ /* I2O device class */
+ static struct class i2o_device_class = {
+-	.name = "i2o_device",
+-	.release = i2o_device_class_release
++	.name			= "i2o_device",
++	.release		= i2o_device_class_release,
++	.class_dev_attrs	= i2o_device_class_attrs,
+ };
+ 
+ /**
+@@ -197,7 +221,67 @@ static struct i2o_device *i2o_device_all
+ 	dev->classdev.dev = &dev->device;
+ 
+ 	return dev;
+-};
++}
++
++/**
++ *	i2o_setup_sysfs_links - Adds attributes to the I2O device
++ *	@cd: I2O class device which is added to the I2O device class
++ *
++ *	This function get called when a I2O device is added to the class. It
++ *	creates the attributes for each device and creates user/parent symlink
++ *	if necessary.
++ *
++ *	Returns 0 on success or negative error code on failure.
++ */
++static void i2o_setup_sysfs_links(struct i2o_device *i2o_dev)
++{
++	struct i2o_controller *c = i2o_dev->iop;
++	struct i2o_device *tmp;
++
++	/* create user entries for this device */
++	tmp = i2o_iop_find_device(i2o_dev->iop, i2o_dev->lct_data.user_tid);
++	if (tmp && tmp != i2o_dev)
++		sysfs_create_link(&i2o_dev->device.kobj,
++				  &tmp->device.kobj, "user");
++
++	/* create user entries refering to this device */
++	list_for_each_entry(tmp, &c->devices, list)
++		if (tmp->lct_data.user_tid == i2o_dev->lct_data.tid &&
++		    tmp != i2o_dev)
++			sysfs_create_link(&tmp->device.kobj,
++					  &i2o_dev->device.kobj, "user");
++
++	/* create parent entries for this device */
++	tmp = i2o_iop_find_device(i2o_dev->iop, i2o_dev->lct_data.parent_tid);
++	if (tmp && tmp != i2o_dev)
++		sysfs_create_link(&i2o_dev->device.kobj,
++				  &tmp->device.kobj, "parent");
++
++	/* create parent entries refering to this device */
++	list_for_each_entry(tmp, &c->devices, list)
++		if (tmp->lct_data.parent_tid == i2o_dev->lct_data.tid &&
++		    tmp != i2o_dev)
++		sysfs_create_link(&tmp->device.kobj,
++				  &i2o_dev->device.kobj, "parent");
++}
++
++static void i2o_remove_sysfs_links(struct i2o_device *i2o_dev)
++{
++	struct i2o_controller *c = i2o_dev->iop;
++	struct i2o_device *tmp;
++
++	sysfs_remove_link(&i2o_dev->device.kobj, "parent");
++	sysfs_remove_link(&i2o_dev->device.kobj, "user");
++
++	list_for_each_entry(tmp, &c->devices, list) {
++		if (tmp->lct_data.parent_tid == i2o_dev->lct_data.tid)
++			sysfs_remove_link(&tmp->device.kobj, "parent");
++		if (tmp->lct_data.user_tid == i2o_dev->lct_data.tid)
++			sysfs_remove_link(&tmp->device.kobj, "user");
 +	}
++}
 +
- 	if (register_chrdev(IDETAPE_MAJOR, "ht", &idetape_fops)) {
- 		printk(KERN_ERR "ide-tape: Failed to register character device interface\n");
--		return -EBUSY;
-+		error = -EBUSY;
-+		goto out_free_class;
++
+ 
+ /**
+  *	i2o_device_add - allocate a new I2O device and add it to the IOP
+@@ -222,6 +306,7 @@ static struct i2o_device *i2o_device_add
  	}
--	return driver_register(&idetape_driver.gen_driver);
+ 
+ 	dev->lct_data = *entry;
++	dev->iop = c;
+ 
+ 	snprintf(dev->device.bus_id, BUS_ID_SIZE, "%d:%03x", c->unit,
+ 		 dev->lct_data.tid);
+@@ -229,7 +314,6 @@ static struct i2o_device *i2o_device_add
+ 	snprintf(dev->classdev.class_id, BUS_ID_SIZE, "%d:%03x", c->unit,
+ 		 dev->lct_data.tid);
+ 
+-	dev->iop = c;
+ 	dev->device.parent = &c->device;
+ 
+ 	device_register(&dev->device);
+@@ -238,12 +322,14 @@ static struct i2o_device *i2o_device_add
+ 
+ 	class_device_register(&dev->classdev);
+ 
++	i2o_setup_sysfs_links(dev);
 +
-+	error = driver_register(&idetape_driver.gen_driver);
-+	if (error)
-+		goto out_free_driver;
-+
-+	return 0;
-+
-+out_free_driver:
-+	driver_unregister(&idetape_driver.gen_driver);
-+out_free_class:
-+	class_destroy(idetape_sysfs_class);
-+out:
-+	return error;
+ 	i2o_driver_notify_device_add_all(dev);
+ 
+ 	pr_debug("i2o: device %s added\n", dev->device.bus_id);
+ 
+ 	return dev;
+-};
++}
+ 
+ /**
+  *	i2o_device_remove - remove an I2O device from the I2O core
+@@ -256,10 +342,11 @@ static struct i2o_device *i2o_device_add
+ void i2o_device_remove(struct i2o_device *i2o_dev)
+ {
+ 	i2o_driver_notify_device_remove_all(i2o_dev);
++	i2o_remove_sysfs_links(i2o_dev);
+ 	class_device_unregister(&i2o_dev->classdev);
+ 	list_del(&i2o_dev->list);
+ 	device_unregister(&i2o_dev->device);
+-};
++}
+ 
+ /**
+  *	i2o_device_parse_lct - Parse a previously fetched LCT and create devices
+@@ -337,99 +424,8 @@ int i2o_device_parse_lct(struct i2o_cont
+ 	up(&c->lct_lock);
+ 
+ 	return 0;
+-};
+-
+-/**
+- *	i2o_device_class_show_class_id - Displays class id of I2O device
+- *	@cd: class device of which the class id should be displayed
+- *	@buf: buffer into which the class id should be printed
+- *
+- *	Returns the number of bytes which are printed into the buffer.
+- */
+-static ssize_t i2o_device_class_show_class_id(struct class_device *cd,
+-					      char *buf)
+-{
+-	struct i2o_device *dev = to_i2o_device(cd->dev);
+-
+-	sprintf(buf, "0x%03x\n", dev->lct_data.class_id);
+-	return strlen(buf) + 1;
+-};
+-
+-/**
+- *	i2o_device_class_show_tid - Displays TID of I2O device
+- *	@cd: class device of which the TID should be displayed
+- *	@buf: buffer into which the class id should be printed
+- *
+- *	Returns the number of bytes which are printed into the buffer.
+- */
+-static ssize_t i2o_device_class_show_tid(struct class_device *cd, char *buf)
+-{
+-	struct i2o_device *dev = to_i2o_device(cd->dev);
+-
+-	sprintf(buf, "0x%03x\n", dev->lct_data.tid);
+-	return strlen(buf) + 1;
+-};
+-
+-/* I2O device class attributes */
+-static CLASS_DEVICE_ATTR(class_id, S_IRUGO, i2o_device_class_show_class_id,
+-			 NULL);
+-static CLASS_DEVICE_ATTR(tid, S_IRUGO, i2o_device_class_show_tid, NULL);
+-
+-/**
+- *	i2o_device_class_add - Adds attributes to the I2O device
+- *	@cd: I2O class device which is added to the I2O device class
+- *
+- *	This function get called when a I2O device is added to the class. It
+- *	creates the attributes for each device and creates user/parent symlink
+- *	if necessary.
+- *
+- *	Returns 0 on success or negative error code on failure.
+- */
+-static int i2o_device_class_add(struct class_device *cd)
+-{
+-	struct i2o_device *i2o_dev, *tmp;
+-	struct i2o_controller *c;
+-
+-	i2o_dev = to_i2o_device(cd->dev);
+-	c = i2o_dev->iop;
+-
+-	class_device_create_file(cd, &class_device_attr_class_id);
+-	class_device_create_file(cd, &class_device_attr_tid);
+-
+-	/* create user entries for this device */
+-	tmp = i2o_iop_find_device(i2o_dev->iop, i2o_dev->lct_data.user_tid);
+-	if (tmp && (tmp != i2o_dev))
+-		sysfs_create_link(&i2o_dev->device.kobj, &tmp->device.kobj,
+-				  "user");
+-
+-	/* create user entries refering to this device */
+-	list_for_each_entry(tmp, &c->devices, list)
+-	    if ((tmp->lct_data.user_tid == i2o_dev->lct_data.tid)
+-		&& (tmp != i2o_dev))
+-		sysfs_create_link(&tmp->device.kobj,
+-				  &i2o_dev->device.kobj, "user");
+-
+-	/* create parent entries for this device */
+-	tmp = i2o_iop_find_device(i2o_dev->iop, i2o_dev->lct_data.parent_tid);
+-	if (tmp && (tmp != i2o_dev))
+-		sysfs_create_link(&i2o_dev->device.kobj, &tmp->device.kobj,
+-				  "parent");
+-
+-	/* create parent entries refering to this device */
+-	list_for_each_entry(tmp, &c->devices, list)
+-	    if ((tmp->lct_data.parent_tid == i2o_dev->lct_data.tid)
+-		&& (tmp != i2o_dev))
+-		sysfs_create_link(&tmp->device.kobj,
+-				  &i2o_dev->device.kobj, "parent");
+-
+-	return 0;
+-};
++}
+ 
+-/* I2O device class interface */
+-static struct class_interface i2o_device_class_interface = {
+-	.class = &i2o_device_class,
+-	.add = i2o_device_class_add
+-};
+ 
+ /*
+  *	Run time support routines
+@@ -553,11 +549,11 @@ int i2o_parm_field_get(struct i2o_device
  }
  
- module_init(idetape_init);
+ /*
+- * 	if oper == I2O_PARAMS_TABLE_GET, get from all rows
+- * 		if fieldcount == -1 return all fields
++ *	if oper == I2O_PARAMS_TABLE_GET, get from all rows
++ *		if fieldcount == -1 return all fields
+  *			ibuf and ibuflen are unused (use NULL, 0)
+- * 		else return specific fields
+- *  			ibuf contains fieldindexes
++ *		else return specific fields
++ *			ibuf contains fieldindexes
+  *
+  * 	if oper == I2O_PARAMS_LIST_GET, get from specific rows
+  * 		if fieldcount == -1 return all fields
+@@ -611,14 +607,8 @@ int i2o_parm_table_get(struct i2o_device
+  */
+ int i2o_device_init(void)
+ {
+-	int rc;
+-
+-	rc = class_register(&i2o_device_class);
+-	if (rc)
+-		return rc;
+-
+-	return class_interface_register(&i2o_device_class_interface);
+-};
++	return class_register(&i2o_device_class);
++}
+ 
+ /**
+  *	i2o_device_exit - I2O devices exit function
+@@ -627,9 +617,8 @@ int i2o_device_init(void)
+  */
+ void i2o_device_exit(void)
+ {
+-	class_interface_register(&i2o_device_class_interface);
+ 	class_unregister(&i2o_device_class);
+-};
++}
+ 
+ EXPORT_SYMBOL(i2o_device_claim);
+ EXPORT_SYMBOL(i2o_device_claim_release);
 

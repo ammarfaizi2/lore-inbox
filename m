@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751636AbVJ1OH0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751632AbVJ1OGg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751636AbVJ1OH0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 10:07:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751639AbVJ1OHZ
+	id S1751632AbVJ1OGg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 10:06:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751636AbVJ1OGg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 10:07:25 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:49150 "EHLO
+	Fri, 28 Oct 2005 10:06:36 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:59133 "EHLO
 	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751636AbVJ1OHX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 10:07:23 -0400
-Date: Fri, 28 Oct 2005 16:07:30 +0200
+	id S1751632AbVJ1OGf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 10:06:35 -0400
+Date: Fri, 28 Oct 2005 16:06:42 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, cohuck@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: [patch 4/14] s390: documentation update.
-Message-ID: <20051028140730.GD7300@skybase.boeblingen.de.ibm.com>
+To: akpm@osdl.org, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: [patch 2/14] s390: signal delivery.
+Message-ID: <20051028140642.GB7300@skybase.boeblingen.de.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,72 +21,60 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Cornelia Huck <cohuck@de.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-[patch 4/14] s390: documentation update.
+[patch 2/14] s390: signal delivery.
 
-Fix typos and add a section about cpus in the driver-model documentation.
+Always create all signal frames for pending signals before
+returning to userspace, not just a single one.
 
-Signed-off-by: Cornelia Huck <cohuck@de.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- Documentation/s390/driver-model.txt |   21 ++++++++++++---------
- 1 files changed, 12 insertions(+), 9 deletions(-)
+ arch/s390/kernel/entry.S   |    4 ++--
+ arch/s390/kernel/entry64.S |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff -urpN linux-2.6/Documentation/s390/driver-model.txt linux-2.6-patched/Documentation/s390/driver-model.txt
---- linux-2.6/Documentation/s390/driver-model.txt	2005-10-28 02:02:08.000000000 +0200
-+++ linux-2.6-patched/Documentation/s390/driver-model.txt	2005-10-28 14:04:46.000000000 +0200
-@@ -8,11 +8,10 @@ All devices which can be addressed by me
- even if they aren't actually driven by ccws.
+diff -urpN linux-2.6/arch/s390/kernel/entry64.S linux-2.6-patched/arch/s390/kernel/entry64.S
+--- linux-2.6/arch/s390/kernel/entry64.S	2005-10-28 02:02:08.000000000 +0200
++++ linux-2.6-patched/arch/s390/kernel/entry64.S	2005-10-28 14:04:44.000000000 +0200
+@@ -283,7 +283,7 @@ sysc_sigpending:     
+ 	jo	sysc_restart
+ 	tm	__TI_flags+7(%r9),_TIF_SINGLE_STEP
+ 	jo	sysc_singlestep
+-	j	sysc_leave        # out of here, do NOT recheck
++	j	sysc_work_loop
  
- All ccw devices are accessed via a subchannel, this is reflected in the 
--structures under root/:
-+structures under devices/:
+ #
+ # _TIF_RESTART_SVC is set, set up registers and restart svc
+@@ -684,7 +684,7 @@ io_sigpending:     
+ 	slgr    %r3,%r3			# clear *oldset
+ 	brasl	%r14,do_signal		# call do_signal
+ 	stnsm   __SF_EMPTY(%r15),0xfc	# disable I/O and ext. interrupts
+-	j	sysc_leave		# out of here, do NOT recheck
++	j	io_work_loop
  
--root/
--     - sys
--     - legacy
-+devices/
-+     - system/
-      - css0/
-            - 0.0.0000/0.0.0815/
- 	   - 0.0.0001/0.0.4711/
-@@ -36,7 +35,7 @@ availability: Can be 'good' or 'boxed'; 
+ /*
+  * External interrupt handler routine
+diff -urpN linux-2.6/arch/s390/kernel/entry.S linux-2.6-patched/arch/s390/kernel/entry.S
+--- linux-2.6/arch/s390/kernel/entry.S	2005-10-28 02:02:08.000000000 +0200
++++ linux-2.6-patched/arch/s390/kernel/entry.S	2005-10-28 14:04:44.000000000 +0200
+@@ -288,7 +288,7 @@ sysc_sigpending:     
+ 	bo	BASED(sysc_restart)
+ 	tm	__TI_flags+3(%r9),_TIF_SINGLE_STEP
+ 	bo	BASED(sysc_singlestep)
+-	b	BASED(sysc_leave)      # out of here, do NOT recheck
++	b	BASED(sysc_work_loop)
  
- online:     An interface to set the device online and offline.
- 	    In the special case of the device being disconnected (see the
--	    notify function under 1.2), piping 0 to online will focibly delete
-+	    notify function under 1.2), piping 0 to online will forcibly delete
- 	    the device.
+ #
+ # _TIF_RESTART_SVC is set, set up registers and restart svc
+@@ -645,7 +645,7 @@ io_sigpending:     
+         l       %r1,BASED(.Ldo_signal)
+ 	basr    %r14,%r1	       # call do_signal
+         stnsm   __SF_EMPTY(%r15),0xfc  # disable I/O and ext. interrupts
+-	b	BASED(io_leave)        # out of here, do NOT recheck
++	b	BASED(io_work_loop)
  
- The device drivers can add entries to export per-device data and interfaces.
-@@ -222,7 +221,7 @@ and are called 'chp0.<chpid>'. They have
- Please note, that unlike /proc/chpids in 2.4, the channel path objects reflect
- only the logical state and not the physical state, since we cannot track the
- latter consistently due to lacking machine support (we don't need to be aware
--of anyway).
-+of it anyway).
- 
- status - Can be 'online' or 'offline'.
- 	 Piping 'on' or 'off' sets the chpid logically online/offline.
-@@ -235,12 +234,16 @@ status - Can be 'online' or 'offline'.
- 3. System devices
- -----------------
- 
--Note: cpus may yet be added here.
--
- 3.1 xpram 
- ---------
- 
--xpram shows up under sys/ as 'xpram'.
-+xpram shows up under devices/system/ as 'xpram'.
-+
-+3.2 cpus
-+--------
-+
-+For each cpu, a directory is created under devices/system/cpu/. Each cpu has an
-+attribute 'online' which can be 0 or 1.
- 
- 
- 4. Other devices
+ /*
+  * External interrupt handler routine

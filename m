@@ -1,26 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965183AbVJ1Iib@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965188AbVJ1JAV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965183AbVJ1Iib (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 04:38:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965184AbVJ1Iib
+	id S965188AbVJ1JAV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 05:00:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965187AbVJ1JAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 04:38:31 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:11925 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965183AbVJ1Iia (ORCPT
+	Fri, 28 Oct 2005 05:00:21 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:6325 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965184AbVJ1JAU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 04:38:30 -0400
-Date: Fri, 28 Oct 2005 10:38:48 +0200
+	Fri, 28 Oct 2005 05:00:20 -0400
+Date: Fri, 28 Oct 2005 11:00:42 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
-       "'Andrew Morton'" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] optimize activate_task()
-Message-ID: <20051028083848.GE5248@elte.hu>
-References: <200510270153.j9R1r5g27370@unix-os.sc.intel.com>
+To: John Bowler <jbowler@acm.org>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.14-rc5-mm1 net/ipv4/route.c: spin_unlock call fails to compile
+Message-ID: <20051028090042.GC14842@elte.hu>
+References: <001401c5db8e$650bd380$1001a8c0@kalmiopsis>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200510270153.j9R1r5g27370@unix-os.sc.intel.com>
+In-Reply-To: <001401c5db8e$650bd380$1001a8c0@kalmiopsis>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamScore: 0.0
 X-ELTE-SpamLevel: 
@@ -33,17 +32,13 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Chen, Kenneth W <kenneth.w.chen@intel.com> wrote:
+* John Bowler <jbowler@acm.org> wrote:
 
-> recalc_task_prio() is called from activate_task() to calculate dynamic 
-> priority and interactive credit for the activating task. For real-time 
-> scheduling process, all that dynamic calculation is thrown away at the 
-> end because rt priority is fixed.  Patch to optimize 
-> recalc_task_prio() away for rt processes.
-> 
-> 
-> Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+>  #else
+> -# define rt_hash_lock_addr(slot) NULL
+> +# define rt_hash_lock_addr(slot) ((spinlock_t*)NULL)
+>  # define rt_hash_lock_init()
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
+looks good to me - it gives (slightly) more type safety too.
 
 	Ingo

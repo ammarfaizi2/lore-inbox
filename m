@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965081AbVJ1D4H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965082AbVJ1D4N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965081AbVJ1D4H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 23:56:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965082AbVJ1D4H
+	id S965082AbVJ1D4N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 23:56:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965083AbVJ1D4N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 23:56:07 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:30913 "HELO
+	Thu, 27 Oct 2005 23:56:13 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:32705 "HELO
 	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S965081AbVJ1D4G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 23:56:06 -0400
-Subject: Re: Overruns are killing my recordings.
+	id S965082AbVJ1D4L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 23:56:11 -0400
+Subject: Re: The "best" value of HZ
 From: Lee Revell <rlrevell@joe-job.com>
-To: Avuton Olrich <avuton@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3aa654a40510271700l49fb06cfv37d8b6030df5ac49@mail.gmail.com>
-References: <3aa654a40510271212j13e0843s9de81c02f4e766ac@mail.gmail.com>
-	 <200510271528.28919.diablod3@gmail.com>
-	 <3aa654a40510271257t62d2fd82n5f2bcbcae2bcba9d@mail.gmail.com>
-	 <1130447216.19492.87.camel@mindpipe>
-	 <3aa654a40510271700l49fb06cfv37d8b6030df5ac49@mail.gmail.com>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: Claudio Scordino <cloud.of.andor@gmail.com>, linux-kernel@vger.kernel.org,
+       kernelnewbies@nl.linux.org
+In-Reply-To: <200510280331.21112.s0348365@sms.ed.ac.uk>
+References: <200510280118.42731.cloud.of.andor@gmail.com>
+	 <200510280331.21112.s0348365@sms.ed.ac.uk>
 Content-Type: text/plain
-Date: Thu, 27 Oct 2005 23:40:51 -0400
-Message-Id: <1130470852.4363.26.camel@mindpipe>
+Date: Thu, 27 Oct 2005 23:45:35 -0400
+Message-Id: <1130471136.4363.29.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-10-27 at 17:00 -0700, Avuton Olrich wrote:
-> aggh. Sorry for all the noise,
+On Fri, 2005-10-28 at 03:31 +0100, Alistair John Strachan wrote:
+> On Friday 28 October 2005 00:18, Claudio Scordino wrote:
+> > Hi,
+> >
+> >     during the last years there has been a lot of discussion about the
+> > "best" value of HZ... On i386 was 100, then became 1000, and finally was
+> > set to 250. I'm thinking to do an evaluation of this parameter using
+> > different architectures.
+> >
+> > Has anybody thought to give the possibility to modify the value of HZ at
+> > boot time instead of at compile time ? This would allow to easily test
+> > different values on different machines and create a table containing the
+> > "best" value for each architecture...  At this moment, instead, we have to
+> > recompile the kernel for each different value :(
+> >
+> > Do you think there would be much work to do that ?
+> > Do you think it would be a desired feature the knowledge of the best value
+> > for each architecture with more precision ?
 > 
-> I have all my drives on a linear raid and I had hdparm set to put my
-> IDE drives to sleep after a while, I didn't put it together because it
-> was happening in the middle of recording.
+> Google for "dynticks". There's obviously an overhead associated with HZ not 
+> being a constant (the compiler cannot optimise many expressions), but the 
+> feature is being worked on nonetheless.
+> 
 
-Hey, I think it's a testament to the progress that has been made in the
-past year and a half that people now consider audio dropouts in a "known
-good" app like ecasound to be a kernel bug.  For the longest time the
-answer was "linux isn't an RTOS, deal with it".
+Well Linus had the best idea in that thread (as usual) which was to
+implement "dynamic ticks" by leaving HZ a constant, setting it to a high
+value, and skipping ticks when idle.  Has there been any work in that
+direction?
 
 Lee
 

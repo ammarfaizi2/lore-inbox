@@ -1,54 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030186AbVJ1OXF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbVJ1O1K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030186AbVJ1OXF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 10:23:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030190AbVJ1OXF
+	id S1030190AbVJ1O1K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 10:27:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030191AbVJ1O1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 10:23:05 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:46051 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1030188AbVJ1OXE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 10:23:04 -0400
-Date: Fri, 28 Oct 2005 10:23:03 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Chandra Seetharaman <sekharan@us.ibm.com>
-cc: Keith Owens <kaos@ocs.com.au>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: Notifier chains are unsafe
-In-Reply-To: <1130463257.3586.278.camel@linuxchandra>
-Message-ID: <Pine.LNX.4.44L0.0510280956370.4862-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 28 Oct 2005 10:27:10 -0400
+Received: from nproxy.gmail.com ([64.233.182.197]:12068 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030190AbVJ1O1J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 10:27:09 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=P9OYZEvhkGbSpkcc7wlf6QwRTHVdm0gq4yc3M6ajnT466X/tK80/vLE8SGplCYiVs1cOHsMPDNdsQWnUDYkMCD3XDme6vnpuiSnpBCnzAhka3QnVkrLhjqU4su164LH8l+bthx2SutjQNYMJHtEXMHuXtOEyhA9vv6Z1sCBQUJc=
+Date: Fri, 28 Oct 2005 18:39:50 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: kernel-janitors@lists.osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.14-kj1
+Message-ID: <20051028143950.GA27655@mipter.zuzino.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Oct 2005, Chandra Seetharaman wrote:
+2.6.14-kj1 patchset is out. You can get it from
+http://coderock.org/kj/2.6.14-kj1/
 
-> So, requirements to fix the bug are:
-> 	- no sleeping in register/unregister(if we want to keep the
->           current way of use. We can change it and make the relevant
->           changes in the kernel code, if it is agreeable)
+New in this release
+-------------------
+-hexdigits_definition_consolidation.patch
++hex_digits_consolidation.patch
 
-I think we will have to make these changes.  In principal it shouldn't be 
-hard to add a simple "enabled" flag to each callout which currently is
-registered/unregistered atomically or while running.  We could even put 
-such a flag into the notifier_block structure and add routines to set or 
-clear it, using appropriate barriers.
+	New version of hex digits consolidation from Masoud Sharbiani.
+	Is	+EXPORT_SYMBOL(small_digits);
+		+EXPORT_SYMBOL(large_digits);	OK?
 
-> 	- notifier_call_chain could be called from any context
-> 	- callout function could sleep
-> 	- no acquiring locks in notifier_call_chain
->         - make sure the list is consistent :) (which is problem Alan
->           started to fix)
-> 	- anything else ?
++drivers_atm_firestream_c_convert_interruptible_sleep_on.patch
++drivers_atm_nicstar_c_replace_interruptible_sleep_on_timeout.patch
++drivers_block_swim3_c_replace_interruptible_sleep_on.patch
++drivers_block_swim_iop_c_replace_interruptible_sleep_on.patch
++drivers_char_amiserial_c_replace_interruptible_sleep_on.patch
++drivers_char_cyclades_c_replace_interruptible_sleep_on.patch
++drivers_char_epca_c_replace_interruptible_sleep_on.patch
++drivers_char_esp_c_replace_interruptible_sleep_on.patch
++drivers_char_generic_serial_c_replace_interruptible_sleep_on.patch
++drivers_char_isicom_c_replace_interruptible_sleep_on.patch
++drivers_char_istallion_c_replace_interruptible_sleep_on.patch
++drivers_char_moxa_c_replace_interruptible_sleep_on.patch
++drivers_char_pcmcia_synclink_cs_c_replace_interruptible_sleep_on.patch
++drivers_char_riscom8_c_replace_interruptible_sleep_on.patch
++drivers_char_rocket_c_replace_interruptible_sleep_on.patch
++drivers_char_serial167_c_replace_interruptible_sleep_on.patch
++drivers_char_specialix_c_replace_interruptible_sleep_on.patch
++drivers_char_stallion_c_replace_interruptible_sleep_on.patch
++drivers_char_synclink_c_replace_interruptible_sleep_on.patch
++drivers_char_synclinkmp_c_replace_interruptible_sleep_on.patch
++drivers_isdn_i4l_isdn_tty_c_replace_interruptible_sleep_on.patch
++drivers_media_radio_radio_cadet_c_replace_interruptible_sleep_on.patch
 
-Let's clarify the "list is consistent" statement.  Obviously it implies 
-that no more than one thread can modify the list pointers at any time.  
-Beyond that, there should be a guarantee that when unregister returns, the 
-routine being removed is not in use and will not be called by any thread.  
-Likewise, after register returns, any invocation of notifier_call_chain 
-should see the new routine.
-
-Alan Stern
+	Irwan Djajadi continues Nishanth Aravamudan's quest of getting
+	rid of *sleep_on* functions. Needs review, review, review...
 

@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965136AbVJ1HV1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965163AbVJ1HV3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965136AbVJ1HV1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 03:21:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965163AbVJ1HV0
+	id S965163AbVJ1HV3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 03:21:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965165AbVJ1HV3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 03:21:26 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:38539 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S965136AbVJ1HV0 (ORCPT
+	Fri, 28 Oct 2005 03:21:29 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:39819 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S965163AbVJ1HV2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 03:21:26 -0400
+	Fri, 28 Oct 2005 03:21:28 -0400
 X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
 From: Keith Owens <kaos@ocs.com.au>
 To: linux-kernel@vger.kernel.org
 Subject: 2.6.* unable to allocate resource region
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 28 Oct 2005 17:21:07 +1000
-Message-ID: <5436.1130484067@kao2.melbourne.sgi.com>
+Date: Fri, 28 Oct 2005 17:20:37 +1000
+Message-ID: <5111.1130484037@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -77,6 +77,5 @@ Devices with memory regions.
         Region 0: Memory at 80280000 (32-bit, non-prefetchable) [size=4K]
 02:0e.2 USB Controller: NEC Corporation USB 2.0 (rev 02) (prog-if 20 [EHCI])
         Region 0: Memory at 34000000 (32-bit, non-prefetchable) [size=256]
-
 
 

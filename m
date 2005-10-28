@@ -1,70 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751814AbVJ1VVZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751810AbVJ1VVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751814AbVJ1VVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 17:21:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751813AbVJ1VVZ
+	id S1751810AbVJ1VVv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 17:21:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751812AbVJ1VVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 17:21:25 -0400
-Received: from unused.mind.net ([69.9.134.98]:22438 "EHLO echo.lysdexia.org")
-	by vger.kernel.org with ESMTP id S1751810AbVJ1VVY (ORCPT
+	Fri, 28 Oct 2005 17:21:51 -0400
+Received: from mx1.suse.de ([195.135.220.2]:18845 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751810AbVJ1VVu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 17:21:24 -0400
-Date: Fri, 28 Oct 2005 14:15:00 -0700 (PDT)
-From: William Weston <weston@lysdexia.org>
-To: Mark Knecht <markknecht@gmail.com>
-cc: Lee Revell <rlrevell@joe-job.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Overruns are killing my recordings.
-In-Reply-To: <5bdc1c8b0510281155w2b86be0bp9f85de02b806d664@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0510281403410.26693@echo.lysdexia.org>
-References: <3aa654a40510271212j13e0843s9de81c02f4e766ac@mail.gmail.com> 
- <200510271528.28919.diablod3@gmail.com>  <3aa654a40510271257t62d2fd82n5f2bcbcae2bcba9d@mail.gmail.com>
-  <1130447216.19492.87.camel@mindpipe>  <3aa654a40510271700l49fb06cfv37d8b6030df5ac49@mail.gmail.com>
-  <1130470852.4363.26.camel@mindpipe>  <5bdc1c8b0510280752y5b7a665cpfdd512d15f896482@mail.gmail.com>
-  <1130525006.4363.44.camel@mindpipe> <5bdc1c8b0510281155w2b86be0bp9f85de02b806d664@mail.gmail.com>
+	Fri, 28 Oct 2005 17:21:50 -0400
+From: Andi Kleen <ak@suse.de>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [PATCH] Disable the most annoying printk in the kernel
+Date: Fri, 28 Oct 2005 23:22:15 +0200
+User-Agent: KMail/1.8.2
+Cc: Pavel Machek <pavel@suse.cz>, Lee Revell <rlrevell@joe-job.com>,
+       Hugh Dickins <hugh@veritas.com>, vojtech@suse.cz, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+References: <200510271026.10913.ak@suse.de> <20051028205132.GB11397@elf.ucw.cz> <20051028205916.GL4464@flint.arm.linux.org.uk>
+In-Reply-To: <20051028205916.GL4464@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510282322.16627.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Oct 2005, Mark Knecht wrote:
-
-> OK then I'll just hang tinght. I've not seen any response on the email
-> I sent about 2.6.14-rc5-rt7. I cannot build it. It fails like this:
+On Friday 28 October 2005 22:59, Russell King wrote:
+> On Fri, Oct 28, 2005 at 10:51:32PM +0200, Pavel Machek wrote:
+> > Well, keyboard detected and reported an error. Kernel reacted with
+> > printk(). You are removing that printk(). I can understand that,
+> > printk is really annoying, but I really believe _some_ error handling
+> > should be added there if you remove the printk.
 > 
-> CC      arch/x86_64/kernel/sys_x86_64.o
->  CC      arch/x86_64/kernel/x8664_ksyms.o
->  CC      arch/x86_64/kernel/i387.o
->  CC      arch/x86_64/kernel/syscall.o
->  CC      arch/x86_64/kernel/vsyscall.o
-> arch/x86_64/kernel/vsyscall.c:57: error: `SEQLOCK_UNLOCKED' undeclared
-> here (not in a function)
-> make[1]: *** [arch/x86_64/kernel/vsyscall.o] Error 1
-> make: *** [arch/x86_64/kernel] Error 2
-> lightning linux #
-> 
-> This is a new failure here since -rc5-rt3.
+> What do you suggest?
 
-I don't have a 64 bit machine to test on, but the following patch should 
-at least make the compiler happy.  This is the only place outside of 
-seqlock.h that SEQLOCK_UNLOCKED is used, btw.
+Obviously it needs an DBUS over netlink interface with an user space daemon to open 
+a window on the desktop. Then the user needs to click ok to make sure they 
+understood they did something wrong (either by buying broken hardware or by simply 
+typing).
 
-If this kernel gives you the 'BUG in get_monotonic_clock_ts' and 'time
-warped' warnings, then you may want to look at the '2.6.14-rc4-rt7' lkml
-thread for Steven's patch to fix the false positives.
+You get bonus points when that window first opens another window with a "Did you 
+know ..." message with a little dancing pink penguin that gives you helpful tips 
+regarding typing on keyboards and offers you links to buy new keyboards on the web.
 
-Cheers,
---ww
+Wouldn't that be great?
 
-
---- linux-2.6.14-rc5-rt7/arch/x86_64/kernel/vsyscall.c.orig     2005-10-25 14:20:21.000000000 -0700
-+++ linux-2.6.14-rc5-rt7/arch/x86_64/kernel/vsyscall.c  2005-10-28 14:08:37.000000000 -0700
-@@ -54,7 +54,7 @@
- struct vsyscall_gtod_data_t __vsyscall_gtod_data __section_vsyscall_gtod_data;
- 
- extern seqlock_t vsyscall_gtod_lock;
--seqlock_t __vsyscall_gtod_lock __section_vsyscall_gtod_lock = SEQLOCK_UNLOCKED;
-+seqlock_t __vsyscall_gtod_lock __section_vsyscall_gtod_lock = SEQLOCK_UNLOCKED(__section_vsyscall_gtod_lock);
- 
- 
- #include <asm/unistd.h>
-
+-Andi

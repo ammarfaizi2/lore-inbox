@@ -1,87 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030255AbVJ1Quf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030253AbVJ1QyE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030255AbVJ1Quf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 12:50:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030254AbVJ1Quf
+	id S1030253AbVJ1QyE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 12:54:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030251AbVJ1QyD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 12:50:35 -0400
-Received: from amdext3.amd.com ([139.95.251.6]:63660 "EHLO amdext3.amd.com")
-	by vger.kernel.org with ESMTP id S1030252AbVJ1Que (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 12:50:34 -0400
-X-Server-Uuid: 519AC16A-9632-469E-B354-112C592D09E8
-Date: Fri, 28 Oct 2005 09:55:04 -0600
-From: "Jordan Crouse" <jordan.crouse@amd.com>
-To: linux-kernel@vger.kernel.org
-cc: info-linux@ldcmail.amd.com, linux-ide@vger.kernel.org
-Subject: [6/6] AMD Geode GX/LX Support (Refreshed)
-Message-ID: <20051028155504.GG19854@cosmic.amd.com>
-References: <LYRIS-4270-74122-2005.10.28-09.38.17--jordan.crouse#amd.com@whitestar.amd.com>
+	Fri, 28 Oct 2005 12:54:03 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:18594 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1030254AbVJ1QyC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 12:54:02 -0400
+To: Vladimir Lazarenko <vlad@lazarenko.net>
+Cc: thockin@hockin.org, linux-kernel@vger.kernel.org
+Subject: Re: AMD Athlon64 X2 Dual-core and 4GB
+References: <4361408B.60903@lazarenko.net>
+	<m1irvhbqvo.fsf@ebiederm.dsl.xmission.com>
+	<20051028160403.GA26286@hockin.org> <43625484.30100@lazarenko.net>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Fri, 28 Oct 2005 10:52:32 -0600
+In-Reply-To: <43625484.30100@lazarenko.net> (Vladimir Lazarenko's message of
+ "Fri, 28 Oct 2005 18:40:36 +0200")
+Message-ID: <m11x25bn3j.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-In-Reply-To: <LYRIS-4270-74122-2005.10.28-09.38.17--jordan.crouse#amd.com@whitestar.amd.com>
-User-Agent: Mutt/1.5.11
-X-WSS-ID: 6F7C96E83CO5947240-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The core IDE engine on the CS5536 is the same as the other AMD southbridges,
-so unlike the CS5535, we can simply add the appropriate PCI headers to
-the existing amd74xx code.
+Vladimir Lazarenko <vlad@lazarenko.net> writes:
 
-drivers/ide/pci/amd74xx.c |    3 +++
-include/linux/pci_ids.h   |    9 +++++++++
-2 files changed, 12 insertions(+)
+>>>>Thus, the question - would I be able to use whole 4G RAM with dual-core amd
+> and
+>>>>kernel with SMP compiled for i686?
+>> Why would you use a dual core AMD in 32 bit mode?  Just build an x86_64
+>> kernel.
+>> If you want to use 4GB in 32 bit mode, you *need* remapping (or you lose
+>> part of your memory).  Remapping means you have MORE than 4 GB of physical
+>> address, which means you need PAE to use it at all.
+>
+> Because I find my distribution's 64-bit release reasonably unstable yet? :)
+>
+> Or can I somehow build an x86_64 kernel and keep using 32-bit libc?
 
-Index: linux-2.6.14/drivers/ide/pci/amd74xx.c
-===================================================================
---- linux-2.6.14.orig/drivers/ide/pci/amd74xx.c
-+++ linux-2.6.14/drivers/ide/pci/amd74xx.c
-@@ -74,6 +74,7 @@ static struct amd_ide_chip {
- 	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE,	0x50, AMD_UDMA_133 },
- 	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_IDE,	0x50, AMD_UDMA_133 },
- 	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_IDE,	0x50, AMD_UDMA_133 },
-+	{ PCI_DEVICE_ID_AMD_CS5536_IDE,             0x40, AMD_UDMA_100 },
- 	{ 0 }
- };
- 
-@@ -491,6 +492,7 @@ static ide_pci_device_t amd74xx_chipsets
- 	/* 14 */ DECLARE_NV_DEV("NFORCE-MCP04"),
- 	/* 15 */ DECLARE_NV_DEV("NFORCE-MCP51"),
- 	/* 16 */ DECLARE_NV_DEV("NFORCE-MCP55"),
-+	/* 17 */ DECLARE_AMD_DEV("AMD5536"),
- };
- 
- static int __devinit amd74xx_probe(struct pci_dev *dev, const struct pci_device_id *id)
-@@ -527,6 +529,7 @@ static struct pci_device_id amd74xx_pci_
- 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 14 },
- 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 15 },
- 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 16 },
-+	{ PCI_VENDOR_ID_AMD,    PCI_DEVICE_ID_AMD_CS5536_IDE, 	        PCI_ANY_ID, PCI_ANY_ID, 0, 0, 17 },
- 	{ 0, },
- };
- MODULE_DEVICE_TABLE(pci, amd74xx_pci_tbl);
-Index: linux-2.6.14/include/linux/pci_ids.h
-===================================================================
---- linux-2.6.14.orig/include/linux/pci_ids.h
-+++ linux-2.6.14/include/linux/pci_ids.h
-@@ -546,6 +546,15 @@
- #define PCI_DEVICE_ID_AMD_LX_VIDEO  0x2081
- #define PCI_DEVICE_ID_AMD_LX_AES    0x2082
- 
-+#define PCI_DEVICE_ID_AMD_CS5536_ISA    0x2090
-+#define PCI_DEVICE_ID_AMD_CS5536_FLASH  0x2091
-+#define PCI_DEVICE_ID_AMD_CS5536_AUDIO  0x2093
-+#define PCI_DEVICE_ID_AMD_CS5536_OHC    0x2094
-+#define PCI_DEVICE_ID_AMD_CS5536_EHC    0x2095
-+#define PCI_DEVICE_ID_AMD_CS5536_UDC    0x2096
-+#define PCI_DEVICE_ID_AMD_CS5536_UOC    0x2097
-+#define PCI_DEVICE_ID_AMD_CS5536_IDE    0x209A
-+
- #define PCI_VENDOR_ID_TRIDENT		0x1023
- #define PCI_DEVICE_ID_TRIDENT_4DWAVE_DX	0x2000
- #define PCI_DEVICE_ID_TRIDENT_4DWAVE_NX	0x2001
+Building a x86_64 kernel is a bit of a trick on a 32bit distro.  
+You need an appropriate version of gcc, and binutils.  But it runs
+fine.
 
+Eric

@@ -1,42 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030305AbVJ1UJg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030297AbVJ1UPE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030305AbVJ1UJg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 16:09:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030301AbVJ1UJf
+	id S1030297AbVJ1UPE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 16:15:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030303AbVJ1UPE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 16:09:35 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:22660 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S1030309AbVJ1UJe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 16:09:34 -0400
-Message-Id: <200510282009.j9SK9VgH012319@laptop11.inf.utfsm.cl>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: SPARC64: Configuration offers keyboards that don't make sense
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Fri, 28 Oct 2005 17:09:31 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Fri, 28 Oct 2005 17:09:32 -0300 (CLST)
+	Fri, 28 Oct 2005 16:15:04 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:13331 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1030297AbVJ1UPB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 16:15:01 -0400
+Date: Fri, 28 Oct 2005 21:14:55 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pierre Ossman <drzeus@drzeus.cx>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [MMC] Use command class to determine read-only status.
+Message-ID: <20051028201455.GI4464@flint.arm.linux.org.uk>
+Mail-Followup-To: Pierre Ossman <drzeus@drzeus.cx>,
+	linux-kernel@vger.kernel.org
+References: <20051028073605.4108.41408.stgit@poseidon.drzeus.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051028073605.4108.41408.stgit@poseidon.drzeus.cx>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On my Sun I get the following offers:
+On Fri, Oct 28, 2005 at 09:36:05AM +0200, Pierre Ossman wrote:
+> If a card doesn't support the "write block" command class then
+> any attempts to open the device should reflect this by denying
+> write access.
 
-   AT Keyboard
-   Sun types 4 and 5
-   DECstation LK201/LK401
-   XT keyboard
-   Newton keyboard
+I'd rather we kept printk messages as one printk if at all possible.
+How about encapsulating both of these conditions into an inline
+function:
 
-Unless I am very mistaken, only the second one applies?
+static inline int mmc_blk_readonly(struct mmc_card *card)
+{
+	return mmc_card_readonly(card) ||
+	       !(card->csd.cmdclass & CCC_BLOCK_WRITE);
+}
 
-Also, configuring this one gives a non-functional keyboard (the machine is
-running, I can log in over SSH, but keypresses have no effect at all).
+> diff --git a/drivers/mmc/mmc_block.c b/drivers/mmc/mmc_block.c
+> --- a/drivers/mmc/mmc_block.c
+> +++ b/drivers/mmc/mmc_block.c
+> @@ -97,7 +97,8 @@ static int mmc_blk_open(struct inode *in
+>  		ret = 0;
+>  
+>  		if ((filp->f_mode & FMODE_WRITE) &&
+> -			mmc_card_readonly(md->queue.card))
 
-Should I be looking elsewhere for SPARC support?
++		     mmc_blk_readonly(md->queue.card))
 
-Thanks!
+>  	printk(KERN_INFO "%s: %s %s %dKiB %s\n",
+>  		md->disk->disk_name, mmc_card_id(card), mmc_card_name(card),
+> -		(card->csd.capacity << card->csd.read_blkbits) / 1024,
+> -		mmc_card_readonly(card)?"(ro)":"");
+
++		mmc_blk_readonly(card) ? "(ro)" : "");
+
+As a bonus, I think this makes the code a lot more readable... but
+then I am biased. 8)
+
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

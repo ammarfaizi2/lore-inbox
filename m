@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbVJ1OzR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030208AbVJ1O5z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030205AbVJ1OzR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 10:55:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030208AbVJ1OzR
+	id S1030208AbVJ1O5z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 10:57:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030209AbVJ1O5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 10:55:17 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:30995 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S1030205AbVJ1OzP
+	Fri, 28 Oct 2005 10:57:55 -0400
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:33293 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1030208AbVJ1O5y
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 10:55:15 -0400
-To: Horms <horms@verge.net.au>
-Cc: 333776@bugs.debian.org, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Bug#333776: linux-2.6: vfat driver in 2.6.12 is not properly case-insensitive
-References: <20051013165529.GA2472@tennyson.dodds.net>
-	<20051014023216.GJ8848@verge.net.au>
-	<20051015003549.GB11040@tennyson.dodds.net>
-	<20051028082252.GC11045@verge.net.au>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Fri, 28 Oct 2005 23:54:52 +0900
-In-Reply-To: <20051028082252.GC11045@verge.net.au> (horms@verge.net.au's message of "Fri, 28 Oct 2005 17:22:52 +0900")
-Message-ID: <874q71wv2b.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+	Fri, 28 Oct 2005 10:57:54 -0400
+To: Dave Airlie <airlied@gmail.com>
+Cc: Alessandro Suardi <alessandro.suardi@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: X unkillable in R state sometimes on startx ,
+ /proc/sysrq-trigger T output attached
+References: <5a4c581d0510251335ke8e7ae6n883e0b44a9920ce4@mail.gmail.com>
+	<21d7e9970510260325o2a47e6f5gc64d29eec42de086@mail.gmail.com>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: the prosecution rests its case.
+Date: Fri, 28 Oct 2005 15:57:41 +0100
+In-Reply-To: <21d7e9970510260325o2a47e6f5gc64d29eec42de086@mail.gmail.com> (Dave
+ Airlie's message of "26 Oct 2005 11:29:26 +0100")
+Message-ID: <87hdb1pu3e.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horms <horms@verge.net.au> writes:
+On 26 Oct 2005, Dave Airlie said:
+> Your getting an X hang which is usually a DRM/AGP or X configuartion problems..
 
-> static struct nls_table table = {
->         .charset        = "utf8",
->         .uni2char       = uni2char,
->         .char2uni       = char2uni,
->         .charset2lower  = identity,     /* no conversion */
->         .charset2upper  = identity,
->         .owner          = THIS_MODULE,
-> };
->
-> I guess it is charset2lower or charset2upper that vfat is calling,
-> which make no conversion, thus leading to the problem I outlined above.
->
-> My question is: Is this behaviour correct, or is it a bug?
+Indeed. As a random example, when I installed my new Radeon 9250 last
+week, I flipped the AGPMode to 8 because the card said it was capable of
+that... and X went CPU-mad within seconds of starting 3D rendering.
+Looking at the kernel logs made the cause clear:
 
-This is known bug. For fixing this bug cleanly, we will need to much
-change the both of nls and filesystems.
+Oct 25 22:09:08 hades info: kernel: agpgart: Putting AGP V2 device at 0000:00:00.0 into 1x mode
 
-Thanks.
+Whether the cause was that X thought it was using 8x and the kernel
+thought it was using 1x, I don't know, but changing it to 4 brought
+everything into agreement and eliminated the hangs.
+
+(This was with X.org 6.8.99.901.)
+
+
+So AGP is indeed one of those things which a misconfiguration of can
+cause all sorts of lockup-like problems. (Just like misconfiguring any
+of the other buses in the system, I suppose.)
+
 -- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+`"Gun-wielding recluse gunned down by local police" isn't the epitaph
+ I want. I am hoping for "Witnesses reported the sound up to two hundred
+ kilometers away" or "Last body part finally located".' --- James Nicoll

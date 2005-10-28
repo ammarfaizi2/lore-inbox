@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965053AbVJ1CaN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965055AbVJ1C11@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965053AbVJ1CaN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 22:30:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965054AbVJ1CaN
+	id S965055AbVJ1C11 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 22:27:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965057AbVJ1C11
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 22:30:13 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:53970 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S965053AbVJ1CaL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 22:30:11 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+	Thu, 27 Oct 2005 22:27:27 -0400
+Received: from xenotime.net ([66.160.160.81]:34469 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S965055AbVJ1C11 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 22:27:27 -0400
+Date: Thu, 27 Oct 2005 19:27:24 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
 To: Claudio Scordino <cloud.of.andor@gmail.com>
-Subject: Re: The "best" value of HZ
-Date: Fri, 28 Oct 2005 03:31:21 +0100
-User-Agent: KMail/1.8.92
 Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-References: <200510280118.42731.cloud.of.andor@gmail.com>
+Subject: Re: The "best" value of HZ
+Message-Id: <20051027192724.350dcc41.rdunlap@xenotime.net>
 In-Reply-To: <200510280118.42731.cloud.of.andor@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+References: <200510280118.42731.cloud.of.andor@gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510280331.21112.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 28 October 2005 00:18, Claudio Scordino wrote:
+On Fri, 28 Oct 2005 01:18:41 +0200 Claudio Scordino wrote:
+
 > Hi,
->
->     during the last years there has been a lot of discussion about the
-> "best" value of HZ... On i386 was 100, then became 1000, and finally was
-> set to 250. I'm thinking to do an evaluation of this parameter using
-> different architectures.
->
-> Has anybody thought to give the possibility to modify the value of HZ at
-> boot time instead of at compile time ? This would allow to easily test
-> different values on different machines and create a table containing the
-> "best" value for each architecture...  At this moment, instead, we have to
-> recompile the kernel for each different value :(
->
-> Do you think there would be much work to do that ?
-> Do you think it would be a desired feature the knowledge of the best value
-> for each architecture with more precision ?
+> 
+>     during the last years there has been a lot of discussion about the "best" 
+> value of HZ... On i386 was 100, then became 1000, and finally was set to 250.
+> I'm thinking to do an evaluation of this parameter using different 
+> architectures.
+> 
+> Has anybody thought to give the possibility to modify the value of HZ at boot 
+> time instead of at compile time ? This would allow to easily test different 
+> values on different machines and create a table containing the "best" value 
+> for each architecture...  At this moment, instead, we have to recompile the 
+> kernel for each different value :(
+> 
+> Do you think there would be much work to do that ? 
 
-Google for "dynticks". There's obviously an overhead associated with HZ not 
-being a constant (the compiler cannot optimise many expressions), but the 
-feature is being worked on nonetheless.
+Not a lot.  Could be useful.
 
--- 
-Cheers,
-Alistair.
+> Do you think it would be a desired feature the knowledge of the best value for 
+> each architecture with more precision ?
 
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+In this thread (around 2005-july-14)
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt
+there was some interest in that, and the beginnings of a patch.
+But the dynamic tick patch seems to have sidelined this one.
+
+---
+~Randy

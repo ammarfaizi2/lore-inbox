@@ -1,54 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030520AbVJ1SII@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030578AbVJ1STt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030520AbVJ1SII (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 14:08:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030529AbVJ1SII
+	id S1030578AbVJ1STt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 14:19:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030607AbVJ1STt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 14:08:08 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:26601 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030520AbVJ1SIH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 14:08:07 -0400
-Date: Fri, 28 Oct 2005 19:08:01 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: akpm@osdl.org, mpeschke@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/14] s390: statistics infrastructure.
-Message-ID: <20051028180801.GA7875@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Martin Schwidefsky <schwidefsky@de.ibm.com>, akpm@osdl.org,
-	mpeschke@de.ibm.com, linux-kernel@vger.kernel.org
-References: <20051028140617.GA7300@skybase.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 28 Oct 2005 14:19:49 -0400
+Received: from xproxy.gmail.com ([66.249.82.196]:36840 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030513AbVJ1STs convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 14:19:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=M3QDrO3lCk/M0FiZ2DUueP8ZaWs200Y4x+ihvtCDBX3cw0qyWCGHwxfXpumOg2BXHL/uvr36W0ZtgFzdTVNzFQ72zOmsthUQC9ilGW8LVuy3nmZsiUyjsenLOOyeujlc7UJojb3bat8s35nKHVHURpgEqKl3/5Xht63TvEz2jJo=
+Message-ID: <39e6f6c70510281119v1b43678eq50da211ef1ca26b5@mail.gmail.com>
+Date: Fri, 28 Oct 2005 16:19:47 -0200
+From: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>
+To: David Stevens <dlstevens@us.ibm.com>
+Subject: Re: [PATH] [MCAST] IPv6: Fix algorithm to compute Querier's Query Interval and Maximum Response Delay
+Cc: Yan Zheng <yanzheng@21cn.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, netdev-owner@vger.kernel.org
+In-Reply-To: <OF7FABC1EE.FDB8A0D4-ON882570A8.005EDBB4-882570A8.005F14D9@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051028140617.GA7300@skybase.boeblingen.de.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+References: <43624B98.6010405@21cn.com>
+	 <OF7FABC1EE.FDB8A0D4-ON882570A8.005EDBB4-882570A8.005F14D9@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 28, 2005 at 04:06:17PM +0200, Martin Schwidefsky wrote:
-> From: Martin Peschke <mpeschke@de.ibm.com>
-> 
-> [patch 1/14] s390: statistics infrastructure.
-> 
-> Add the statistics facility. This features offers a simple way to
-> gather statistical data and to display them via the debugfs.
-> An example how this is used:
-> 
-> 	struct statistic_interface *stat_if;
-> 	struct statistic *stat;
-> 
-> 	statistic_interface_create(&stat_if, "whatever");
-> 	statistic_create(&stat, stat_if, "stat-name", "unit");
-> 	statistic_define_value(stat, range_min, range_max, def_mode);
-> 	...
-> 	statistic_inc(stat, value);	/* repeat.. */
-> 	...
-> 	statistic_interface_remove(&stat_if);
+On 10/28/05, David Stevens <dlstevens@us.ibm.com> wrote:
+> Yes, I think you're correct.
+>
+> Acked-by: David L Stevens <dlstevens@us.ibm.com>
 
-This certainly doesn't belong into arch code.  Please move to common
-code and send over to lkml for detailed review.
+Thanks, applying to my tree.
 
+- Arnaldo

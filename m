@@ -1,80 +1,213 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932698AbVJ1AIi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965021AbVJ1A2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932698AbVJ1AIi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 20:08:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932699AbVJ1AIi
+	id S965021AbVJ1A2x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 20:28:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965022AbVJ1A2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 20:08:38 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:1942 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932698AbVJ1AIh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 20:08:37 -0400
-To: Alex Lyashkov <umka@sevcity.net>
-Cc: fastboot@osdl.org, OBATA Noboru <noboru.obata.ar@hitachi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] Re: [PATCH] [KDUMP] pending interrupts problem
-References: <20051027.165027.97297370.noboru.obata.ar@hitachi.com>
-	<m1y84farz7.fsf@ebiederm.dsl.xmission.com>
-	<1130429164.3360.1.camel@berloga.shadowland>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Thu, 27 Oct 2005 18:08:03 -0600
-In-Reply-To: <1130429164.3360.1.camel@berloga.shadowland> (Alex Lyashkov's
- message of "Thu, 27 Oct 2005 19:06:04 +0300")
-Message-ID: <m1u0f2bj18.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Thu, 27 Oct 2005 20:28:53 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:31184 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965021AbVJ1A2w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 20:28:52 -0400
+Date: Thu, 27 Oct 2005 17:28:50 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Linux 2.6.14
+Message-ID: <Pine.LNX.4.64.0510271717190.4664@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Lyashkov <umka@sevcity.net> writes:
 
-> seems to bad patch. you dereference pointer (1) before check to NULL(2).
+Ok, it's finally there. 
 
-Duh.  I forgot to delete the earlier references. 
-That should have been...
+2.6.14 was delayed twice due to some last-minute bug-reports, some of 
+which ended up being false alarms (hey, I should be happy, but it was a 
+bit frustrating)
 
----
+But hey, the delays - even when perhaps unnecessary - got us to look at 
+the code and fix some other bugs instead. So it's all good.
 
- arch/i386/kernel/smp.c |   15 ++++++++++++---
- 1 files changed, 12 insertions(+), 3 deletions(-)
+So special thanks go to Oleg Nesterov and Roland McGrath for doing some 
+code inspection and fixing and just making the otherwise frustrating wait 
+for bug resolution more productive ;^p.
 
-applies-to: e6a6c8ed12ba1ef7fa376fa3993e3c329e9f294a
-50119a3947498cd8112455e8111f0579f5b8a232
-diff --git a/arch/i386/kernel/smp.c b/arch/i386/kernel/smp.c
-index 218d725..b0fb524 100644
---- a/arch/i386/kernel/smp.c
-+++ b/arch/i386/kernel/smp.c
-@@ -560,6 +560,7 @@ int smp_call_function (void (*func) (voi
- 	if (wait)
- 		while (atomic_read(&data.finished) != cpus)
- 			cpu_relax();
-+	call_data = NULL;
- 	spin_unlock(&call_lock);
- 
- 	return 0;
-@@ -604,11 +605,19 @@ fastcall void smp_reschedule_interrupt(s
- 
- fastcall void smp_call_function_interrupt(struct pt_regs *regs)
- {
--	void (*func) (void *info) = call_data->func;
--	void *info = call_data->info;
--	int wait = call_data->wait;
-+	void (*func) (void *info);
-+	void *info;
-+	int wait;
- 
- 	ack_APIC_irq();
-+
-+	/* Ignore spurious IPIs */
-+	if (!call_data)
-+		return;
-+
-+	func = call_data->func;
-+	info = call_data->info;
-+	wait = call_data->wait;
- 	/*
- 	 * Notify initiating CPU that I've grabbed the data and am
- 	 * about to execute the function
----
-0.99.8.GIT
+Let's try the 2-week merge window thing again, I think it worked pretty 
+well despite the delays, and hopefully it will work even better this time 
+around.
+
+The actual changes from 2.6.14-rc5 are a number of mostly one-liners, with 
+the ShortLog appended (full log from 2.6.13 on the normal sites together 
+with the release itself). The only slightly bigger ones (ie more than a 
+handful of lines) is a kernel parameter doc update, and the PIIX4 PCI 
+quirk printouts, and the cleanups/fixes for the posix cpu timers.
+
+(In fact, according to diffstat, about half the diff is that one 
+documentation update, and most of that is whitespace cleanups)
+
+		Linus
+
+----
+Alan Stern:
+      [SCSI] Fix leak of Scsi_Cmnds
+
+Andrew Morton:
+      inotify/idr leak fix
+      alpha: atomic dependency fix
+      qlogic lockup fix
+      export cpu_online_map
+      svcsock timestamp fix
+
+Ben Dooks:
+      [ARM] 3026/1: S3C2410 - avoid possible overflow in pll calculations
+      [ARM] 3027/1: BAST - reduce NAND timings slightly
+      [ARM] 3028/1: S3C2410 - add DCLK mask definitions
+
+Benjamin Herrenschmidt:
+      ppc64: Fix pages marked dirty abusively
+      ppc64: Fix wrong register mapping in mpic driver
+
+Bjorn Helgaas:
+      [SERIAL] support the Exsys EX-4055 4S four-port card
+
+Chris Wright:
+      typo fix in last cpufreq powernow patch
+
+Christoph Hellwig:
+      [SCSI] mptsas: fix phy identifiers
+
+Dave Airlie:
+      drm: another mga bug
+
+Dave Jones:
+      cpufreq: fix pending powernow timer stuck condition
+      cpufreq: SMP fix for conservative governor
+
+Davi Arnaut:
+      SELinux: handle sel_make_bools() failure in selinuxfs
+
+David Gibson:
+      ppc64: Fix typo bug in iSeries hash code
+
+Eric Moore:
+      mptsas: fix phy identifiers
+
+Herbert Xu:
+      [DCCP]: Use skb_set_owner_w in dccp_transmit_skb when skb->sk is NULL
+      [DCCP]: Make dccp_write_xmit always free the packet
+      [DCCP]: Clear the IPCB area
+      [TCP] Allow len == skb->len in tcp_fragment
+      [NEIGH] Print stack trace in neigh_add_timer
+      [NEIGH] Fix add_timer race in neigh_add_timer
+      [NEIGH] Fix timer leak in neigh_changeaddr
+      [TCP]: Clear stale pred_flags when snd_wnd changes
+
+Hugh Dickins:
+      Fix handling spurious page fault for hugetlb region
+
+Ian Campbell:
+      [ARM] 3032/1: sparse: complains about generic_fls() prototype in asm-arm/bitops.h
+
+Ivan Kokshaysky:
+      alpha: additional smp barriers
+      fix radeon_cp_init_ring_buffer()
+
+James Simmons:
+      Return the line length via sysfs for fbdev
+
+James.Smart@Emulex.Com:
+      [SCSI] FW: for Deadlock in transport_fc
+
+Jeff Garzik:
+      kill massive wireless-related log spam
+
+Jochen Friedrich:
+      [TR]: Preserve RIF flag even for 2 byte RIF fields.
+      [LLC]: Strip RIF flag from source MAC address
+
+Julian Anastasov:
+      [SK_BUFF]: ipvs_property field must be copied
+
+Justin Chen:
+      [SERIAL] new hp diva console port
+
+Karl Magnus Kolstoe:
+      [SCSI] 2.6.13.3; add Pioneer DRM-624x to drivers/scsi/scsi_devinfo.c
+
+Kostik Belousov:
+      aio syscalls are not checked by lsm
+
+Linus Torvalds:
+      Revert "Fix cpu timers exit deadlock and races"
+      Posix timers: limit number of timers firing at once
+      cardbus: limit IO windows to 256 bytes
+      PCI: be more verbose about resource quirks
+      posix cpu timers: fix timer ordering
+      Revert "remove false BUG_ON() from run_posix_cpu_timers()"
+      Revert "x86-64: Avoid unnecessary double bouncing for swiotlb"
+      Linux v2.6.14
+
+Magnus Damm:
+      NUMA: broken per cpu pageset counters
+
+Matt Reimer:
+      [ARM] 3025/1: Add I2S platform device for PXA
+
+Mike Krufky:
+      Kconfig: saa7134-dvb should not select cx22702
+
+Miklos Szeredi:
+      uml: fix compile failure for TT mode
+
+NeilBrown:
+      md: make sure mdthreads will always respond to kthread_stop
+
+Oleg Nesterov:
+      posix-timers: fix cleanup_timers() and run_posix_cpu_timers() races
+      posix-timers: remove false BUG_ON() from run_posix_cpu_timers()
+      posix-timers: exit path cleanup
+      posix-timers: fix posix_cpu_timer_set() vs run_posix_cpu_timers() race
+      Fix cpu timers expiration time
+
+Paul Mackerras:
+      ppc64: Fix typo in time calculations
+
+Pavel Machek:
+      [ARM] fix sharp zaurus c-3000 compile failure without CONFIG_FB_PXA
+
+Peter Wainwright:
+      Fix HFS+ to free up the space when a file is deleted.
+
+Ralf Baechle:
+      [AX.25]: Fix signed char bug
+
+Randy Dunlap:
+      [SCSI] NCR5380: fix undefined preprocessor identifier
+      kernel-parameters cleanup
+
+Roland Dreier:
+      ib: mthca: Always re-arm EQs in mthca_tavor_interrupt()
+
+Roland McGrath:
+      Call exit_itimers from do_exit, not __exit_signal
+      Yet more posix-cpu-timer fixes
+
+Russell King:
+      [ARM] Fix Integrator IM/PD-1 support
+
+Salyzyn, Mark:
+      [SCSI] Fix aacraid regression
+
+Stephen Smalley:
+      selinux: Fix NULL deref in policydb_destroy
+
+Steven Rostedt:
+      [SCSI] scsi_error thread exits in TASK_INTERRUPTIBLE state.
+
+Takashi Iwai:
+      ALSA: Fix Oops of suspend/resume with generic drivers
+
+Yan Zheng:
+      [IPV6]: Fix refcnt of struct ip6_flowlabel
+

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965146AbVJ1GdB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965157AbVJ1Gbo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965146AbVJ1GdB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 02:33:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965158AbVJ1Gb6
+	id S965157AbVJ1Gbo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 02:31:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965153AbVJ1Gbm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 02:31:58 -0400
-Received: from mail.kroah.org ([69.55.234.183]:42474 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965141AbVJ1GbX convert rfc822-to-8bit
+	Fri, 28 Oct 2005 02:31:42 -0400
+Received: from mail.kroah.org ([69.55.234.183]:49386 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S965152AbVJ1Gb1 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 02:31:23 -0400
-Cc: dtor_core@ameritech.net
-Subject: [PATCH] Input: convert driver/input/misc to dynamic input_dev allocation
-In-Reply-To: <11304810251253@kroah.com>
+	Fri, 28 Oct 2005 02:31:27 -0400
+Cc: erik@hovland.org
+Subject: [PATCH] changes device to driver in porting.txt
+In-Reply-To: <11304810213311@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Thu, 27 Oct 2005 23:30:25 -0700
-Message-Id: <11304810252625@kroah.com>
+Date: Thu, 27 Oct 2005 23:30:22 -0700
+Message-Id: <11304810221164@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,245 +24,37 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] Input: convert driver/input/misc to dynamic input_dev allocation
+[PATCH] changes device to driver in porting.txt
 
-Input: convert driver/input/misc to dynamic input_dev allocation
+The document porting.txt in Documentation/driver-model says:
+When a device is successfully bound to a device
 
-This is required for input_dev sysfs integration
+I think it should say:
+When a device is successfully bound to a driver
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit fa68a960b3f68ecabca13a8d6239ebe52435cff9
-tree 108b3b7bf93870e525643c1bafdaf49a09f0e5ab
-parent 9b372d662ed489f3aac7e88e9452ce4c923b11d7
-author Dmitry Torokhov <dtor_core@ameritech.net> Thu, 15 Sep 2005 02:01:51 -0500
-committer Greg Kroah-Hartman <gregkh@suse.de> Thu, 27 Oct 2005 22:48:04 -0700
+commit 3da2cf413a832ae4f7691d299f2d7dab30654ce5
+tree 1808e0383651b708d22038756f87796b5806a9fc
+parent 3ab05c2cd849f4fdee6e79cc9f63d11de6ad63d9
+author Erik Hovland <erik@hovland.org> Thu, 06 Oct 2005 10:47:49 -0700
+committer Greg Kroah-Hartman <gregkh@suse.de> Thu, 27 Oct 2005 22:47:59 -0700
 
- drivers/input/misc/m68kspkr.c  |   40 ++++++++++++++++++------------------
- drivers/input/misc/pcspkr.c    |   34 +++++++++++++++---------------
- drivers/input/misc/sparcspkr.c |   45 ++++++++++++++++++++--------------------
- 3 files changed, 59 insertions(+), 60 deletions(-)
+ Documentation/driver-model/porting.txt |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/input/misc/m68kspkr.c b/drivers/input/misc/m68kspkr.c
-index 64abdd9..04489ad 100644
---- a/drivers/input/misc/m68kspkr.c
-+++ b/drivers/input/misc/m68kspkr.c
-@@ -24,9 +24,7 @@ MODULE_AUTHOR("Richard Zidlicky <rz@linu
- MODULE_DESCRIPTION("m68k beeper driver");
- MODULE_LICENSE("GPL");
+diff --git a/Documentation/driver-model/porting.txt b/Documentation/driver-model/porting.txt
+index ff2fef2..98b233c 100644
+--- a/Documentation/driver-model/porting.txt
++++ b/Documentation/driver-model/porting.txt
+@@ -350,7 +350,7 @@ When a driver is registered, the bus's l
+ over. bus->match() is called for each device that is not already
+ claimed by a driver. 
  
--static char m68kspkr_name[] = "m68k beeper";
--static char m68kspkr_phys[] = "m68k/generic";
--static struct input_dev m68kspkr_dev;
-+static struct input_dev *m68kspkr_dev;
- 
- static int m68kspkr_event(struct input_dev *dev, unsigned int type, unsigned int code, int value)
- {
-@@ -51,32 +49,34 @@ static int m68kspkr_event(struct input_d
- 
- static int __init m68kspkr_init(void)
- {
--        if (!mach_beep){
--		printk("%s: no lowlevel beep support\n", m68kspkr_name);
--		return -1;
-+        if (!mach_beep) {
-+		printk(KERN_INFO "m68kspkr: no lowlevel beep support\n");
-+		return -ENODEV;
-         }
- 
--	m68kspkr_dev.evbit[0] = BIT(EV_SND);
--	m68kspkr_dev.sndbit[0] = BIT(SND_BELL) | BIT(SND_TONE);
--	m68kspkr_dev.event = m68kspkr_event;
--
--	m68kspkr_dev.name = m68kspkr_name;
--	m68kspkr_dev.phys = m68kspkr_phys;
--	m68kspkr_dev.id.bustype = BUS_HOST;
--	m68kspkr_dev.id.vendor = 0x001f;
--	m68kspkr_dev.id.product = 0x0001;
--	m68kspkr_dev.id.version = 0x0100;
--
--	input_register_device(&m68kspkr_dev);
-+	m68kspkr_dev = input_allocate_device();
-+	if (!m68kspkr_dev)
-+		return -ENOMEM;
-+
-+	m68kspkr_dev->name = "m68k beeper";
-+	m68kspkr_dev->phys = "m68k/generic";
-+	m68kspkr_dev->id.bustype = BUS_HOST;
-+	m68kspkr_dev->id.vendor = 0x001f;
-+	m68kspkr_dev->id.product = 0x0001;
-+	m68kspkr_dev->id.version = 0x0100;
-+
-+	m68kspkr_dev->evbit[0] = BIT(EV_SND);
-+	m68kspkr_dev->sndbit[0] = BIT(SND_BELL) | BIT(SND_TONE);
-+	m68kspkr_dev->event = m68kspkr_event;
- 
--        printk(KERN_INFO "input: %s\n", m68kspkr_name);
-+	input_register_device(m68kspkr_dev);
- 
- 	return 0;
- }
- 
- static void __exit m68kspkr_exit(void)
- {
--        input_unregister_device(&m68kspkr_dev);
-+        input_unregister_device(m68kspkr_dev);
- }
- 
- module_init(m68kspkr_init);
-diff --git a/drivers/input/misc/pcspkr.c b/drivers/input/misc/pcspkr.c
-index 3013194..e34633c 100644
---- a/drivers/input/misc/pcspkr.c
-+++ b/drivers/input/misc/pcspkr.c
-@@ -23,9 +23,7 @@ MODULE_AUTHOR("Vojtech Pavlik <vojtech@u
- MODULE_DESCRIPTION("PC Speaker beeper driver");
- MODULE_LICENSE("GPL");
- 
--static char pcspkr_name[] = "PC Speaker";
--static char pcspkr_phys[] = "isa0061/input0";
--static struct input_dev pcspkr_dev;
-+static struct input_dev *pcspkr_dev;
- 
- static DEFINE_SPINLOCK(i8253_beep_lock);
- 
-@@ -68,27 +66,29 @@ static int pcspkr_event(struct input_dev
- 
- static int __init pcspkr_init(void)
- {
--	pcspkr_dev.evbit[0] = BIT(EV_SND);
--	pcspkr_dev.sndbit[0] = BIT(SND_BELL) | BIT(SND_TONE);
--	pcspkr_dev.event = pcspkr_event;
--
--	pcspkr_dev.name = pcspkr_name;
--	pcspkr_dev.phys = pcspkr_phys;
--	pcspkr_dev.id.bustype = BUS_ISA;
--	pcspkr_dev.id.vendor = 0x001f;
--	pcspkr_dev.id.product = 0x0001;
--	pcspkr_dev.id.version = 0x0100;
-+	pcspkr_dev = input_allocate_device();
-+	if (!pcspkr_dev)
-+		return -ENOMEM;
-+
-+	pcspkr_dev->name = "PC Speaker";
-+	pcspkr_dev->name = "isa0061/input0";
-+	pcspkr_dev->id.bustype = BUS_ISA;
-+	pcspkr_dev->id.vendor = 0x001f;
-+	pcspkr_dev->id.product = 0x0001;
-+	pcspkr_dev->id.version = 0x0100;
-+
-+	pcspkr_dev->evbit[0] = BIT(EV_SND);
-+	pcspkr_dev->sndbit[0] = BIT(SND_BELL) | BIT(SND_TONE);
-+	pcspkr_dev->event = pcspkr_event;
- 
--	input_register_device(&pcspkr_dev);
--
--        printk(KERN_INFO "input: %s\n", pcspkr_name);
-+	input_register_device(pcspkr_dev);
- 
- 	return 0;
- }
- 
- static void __exit pcspkr_exit(void)
- {
--        input_unregister_device(&pcspkr_dev);
-+        input_unregister_device(pcspkr_dev);
- 	/* turn off the speaker */
- 	pcspkr_event(NULL, EV_SND, SND_BELL, 0);
- }
-diff --git a/drivers/input/misc/sparcspkr.c b/drivers/input/misc/sparcspkr.c
-index cdc3fb3..5778220 100644
---- a/drivers/input/misc/sparcspkr.c
-+++ b/drivers/input/misc/sparcspkr.c
-@@ -17,28 +17,24 @@
- #endif
- 
- MODULE_AUTHOR("David S. Miller <davem@redhat.com>");
--MODULE_DESCRIPTION("PC Speaker beeper driver");
-+MODULE_DESCRIPTION("Sparc Speaker beeper driver");
- MODULE_LICENSE("GPL");
- 
- static unsigned long beep_iobase;
--
--static char *sparcspkr_isa_name = "Sparc ISA Speaker";
--static char *sparcspkr_ebus_name = "Sparc EBUS Speaker";
--static char *sparcspkr_phys = "sparc/input0";
--static struct input_dev sparcspkr_dev;
-+static struct input_dev *sparcspkr_dev;
- 
- DEFINE_SPINLOCK(beep_lock);
- 
- static void __init init_sparcspkr_struct(void)
- {
--	sparcspkr_dev.evbit[0] = BIT(EV_SND);
--	sparcspkr_dev.sndbit[0] = BIT(SND_BELL) | BIT(SND_TONE);
-+	sparcspkr_dev->evbit[0] = BIT(EV_SND);
-+	sparcspkr_dev->sndbit[0] = BIT(SND_BELL) | BIT(SND_TONE);
- 
--	sparcspkr_dev.phys = sparcspkr_phys;
--	sparcspkr_dev.id.bustype = BUS_ISA;
--	sparcspkr_dev.id.vendor = 0x001f;
--	sparcspkr_dev.id.product = 0x0001;
--	sparcspkr_dev.id.version = 0x0100;
-+	sparcspkr_dev->phys = "sparc/input0";
-+	sparcspkr_dev->id.bustype = BUS_ISA;
-+	sparcspkr_dev->id.vendor = 0x001f;
-+	sparcspkr_dev->id.product = 0x0001;
-+	sparcspkr_dev->id.version = 0x0100;
- }
- 
- static int ebus_spkr_event(struct input_dev *dev, unsigned int type, unsigned int code, int value)
-@@ -84,14 +80,15 @@ static int __init init_ebus_beep(struct 
- {
- 	beep_iobase = edev->resource[0].start;
- 
--	init_sparcspkr_struct();
-+	sparcspkr_dev = input_allocate_device();
-+	if (!sparcspkr_dev)
-+		return -ENOMEM;
- 
--	sparcspkr_dev.name = sparcspkr_ebus_name;
--	sparcspkr_dev.event = ebus_spkr_event;
-+	sparcspkr_dev->name = "Sparc EBUS Speaker";
-+	sparcspkr_dev->event = ebus_spkr_event;
- 
--	input_register_device(&sparcspkr_dev);
-+	input_register_device(sparcspkr_dev);
- 
--        printk(KERN_INFO "input: %s\n", sparcspkr_ebus_name);
- 	return 0;
- }
- 
-@@ -137,15 +134,17 @@ static int __init init_isa_beep(struct s
- {
- 	beep_iobase = isa_dev->resource.start;
- 
-+	sparcspkr_dev = input_allocate_device();
-+	if (!sparcspkr_dev)
-+		return -ENOMEM;
-+
- 	init_sparcspkr_struct();
- 
--	sparcspkr_dev.name = sparcspkr_isa_name;
--	sparcspkr_dev.event = isa_spkr_event;
--	sparcspkr_dev.id.bustype = BUS_ISA;
-+	sparcspkr_dev->name = "Sparc ISA Speaker";
-+	sparcspkr_dev->event = isa_spkr_event;
- 
- 	input_register_device(&sparcspkr_dev);
- 
--        printk(KERN_INFO "input: %s\n", sparcspkr_isa_name);
- 	return 0;
- }
- #endif
-@@ -182,7 +181,7 @@ static int __init sparcspkr_init(void)
- 
- static void __exit sparcspkr_exit(void)
- {
--	input_unregister_device(&sparcspkr_dev);
-+	input_unregister_device(sparcspkr_dev);
- }
- 
- module_init(sparcspkr_init);
+-When a device is successfully bound to a device, device->driver is
++When a device is successfully bound to a driver, device->driver is
+ set, the device is added to a per-driver list of devices, and a
+ symlink is created in the driver's sysfs directory that points to the
+ device's physical directory:
 

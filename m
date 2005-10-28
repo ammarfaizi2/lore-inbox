@@ -1,80 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965062AbVJ1Cmw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965071AbVJ1Ctk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965062AbVJ1Cmw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Oct 2005 22:42:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965061AbVJ1Cmw
+	id S965071AbVJ1Ctk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Oct 2005 22:49:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965070AbVJ1Ctk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Oct 2005 22:42:52 -0400
-Received: from hera.kernel.org ([140.211.167.34]:6563 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S965062AbVJ1Cmw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Oct 2005 22:42:52 -0400
-Date: Thu, 27 Oct 2005 19:35:48 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: magnus.damm@gmail.com, clameter@sgi.com, kravetz@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 0/4] Swap migration V3: Overview
-Message-ID: <20051027213548.GB8128@logos.cnet>
-References: <20051020225935.19761.57434.sendpatchset@schroedinger.engr.sgi.com> <aec7e5c30510201857r7cf9d337wce9a4017064adcf@mail.gmail.com> <20051022005050.GA27317@logos.cnet> <aec7e5c30510230550j66d6e37fg505fd6041dca9bee@mail.gmail.com> <20051024074418.GC2016@logos.cnet> <aec7e5c30510250437h6c300066s14e39a0c91be772c@mail.gmail.com> <20051025143741.GA6604@logos.cnet> <aec7e5c30510260004p5a3b07a9v28ae67b2982f1945@mail.gmail.com> <20051027150142.GE13500@logos.cnet> <20051027134347.56d29cfa.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051027134347.56d29cfa.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1i
+	Thu, 27 Oct 2005 22:49:40 -0400
+Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:8970 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S965071AbVJ1Ctj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Oct 2005 22:49:39 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: akpm@osdl.org
+Subject: Re: [patch 1/1] export cpu_online_map
+Cc: rajesh.shah@intel.com, mingo@elte.hu, pj@sgi.com,
+       linux-kernel@vger.kernel.org
+Organization: Core
+In-Reply-To: <200510260421.j9Q4LGh9014087@shell0.pdx.osdl.net>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1EVKIg-0003tm-00@gondolin.me.apana.org.au>
+Date: Fri, 28 Oct 2005 12:49:02 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew!
-
-On Thu, Oct 27, 2005 at 01:43:47PM -0700, Andrew Morton wrote:
-> Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
-> >
-> > The fair approach would be to have the
-> >  number of pages to reclaim also relative to zone size.
-> >
-> >  sc->nr_to_reclaim = (zone->present_pages * sc->swap_cluster_max) /
-> >                                  total_memory;
+akpm@osdl.org wrote:
 > 
-> You can try it, but that shouldn't matter.  SWAP_CLUSTER_MAX is just a
-> batching factor used to reduce CPU consumption.  If you make it twice as
-> bug, we run DMA-zone reclaim half as often - it should balance out.
+> - Why isn't set_cpus_allowed() just a no-op on UP?  Or some trivial thing
+>  which tests for cpu #0?
 
-But you're not taking the relationship between DMA and NORMAL zone 
-into account?
+It's still needed to weed out bogus masks that have CPU 0 turned off.
 
-I suppose that a side effect of such change is that more allocations
-will become serviced from the NORMAL/HIGHMEM zones ("more intensively
-reclaimed") while less allocations will become serviced by the DMA zone
-(whose scan/reclaim progress should now be _much_ lighter than that of
-the NORMAL zone). ie DMA zone will be much less often "available" for
-GFP_HIGHMEM/GFP_KERNEL allocations, which are the vast majority.
+You're right that it doesn't need to check cpu_online_map though.
+Here is a patch to make it check for CPU 0 instead.
 
-Might be talking BS though.
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
-What else could explain this numbers from Magnus, taking into account
-that a large number of pages in the DMA zone are used for kernel text,
-etc. These unbalancing seems to be potentially suboptimal (and result
-in unpredictable behaviour depending from which zone pages becomes
-allocated from):
-
-"$ cat /proc/zoneinfo | grep present
-        present  4096
-        present  225280
-        present  30342
-                                                                                                                                              
-$ cat /proc/zoneinfo | grep tscanned
-        tscanned 151352
-        tscanned 3480599
-        tscanned 541466
-                                                                                                                                              
-"tscanned" counts how many pages that has been scanned in each zone
-since power on. Executive summary assuming that only LRU pages exist
-in the zone:
-                                                                                                                                              
-DMA: each page has been scanned ~37 times
-Normal: each page has been scanned ~15 times
-HighMem: each page has been scanned ~18 times"
-
-I feel that I'm reaching the point where things should be confirmed
-instead of guessed (on my part!).
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+--
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -895,7 +895,7 @@ extern int set_cpus_allowed(task_t *p, c
+ #else
+ static inline int set_cpus_allowed(task_t *p, cpumask_t new_mask)
+ {
+-	if (!cpus_intersects(new_mask, cpu_online_map))
++	if (!cpu_isset(0, new_mask))
+ 		return -EINVAL;
+ 	return 0;
+ }

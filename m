@@ -1,94 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965168AbVJ1HTM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965136AbVJ1HV1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965168AbVJ1HTM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 03:19:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965163AbVJ1HTL
+	id S965136AbVJ1HV1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 03:21:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965163AbVJ1HV0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 03:19:11 -0400
-Received: from xproxy.gmail.com ([66.249.82.207]:9279 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965136AbVJ1HTK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 03:19:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Xjj8yuW7hVpSZCTBXrYcwlEnhVaWG44HzuxaBCXREH1OeH309bJkSrXndEffQGZG8D5XI4ar2sFRo2Xy+4PiPs49yTjgmnsQIQ2pkzB7I8L6JImSvS1v0avo0m7XMgTeBOk4oqRfvoP7xunznQUaA6WqHxdoVYHF9Pofl9Ks9Ww=
-Message-ID: <1e62d1370510280019o206be344kc2fbf4cc31ccfabd@mail.gmail.com>
-Date: Fri, 28 Oct 2005 12:19:09 +0500
-From: Fawad Lateef <fawadlateef@gmail.com>
-To: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-Subject: Re: 4GB memory and Intel Dual-Core system
-Cc: Alejandro Bonilla <abonilla@linuxwireless.org>,
-       Marcel Holtmann <marcel@holtmann.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0510271947360.32301@twin.uoregon.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1130445194.5416.3.camel@blade> <52mzkuwuzg.fsf@cisco.com>
-	 <20051027204923.M89071@linuxwireless.org>
-	 <1130446667.5416.14.camel@blade>
-	 <20051027205921.M81949@linuxwireless.org>
-	 <1130447261.5416.20.camel@blade>
-	 <20051027211203.M33358@linuxwireless.org>
-	 <1e62d1370510271935o51d88c0bk7baa23ca1a75bc4d@mail.gmail.com>
-	 <Pine.LNX.4.64.0510271947360.32301@twin.uoregon.edu>
+	Fri, 28 Oct 2005 03:21:26 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:38539 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S965136AbVJ1HV0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 03:21:26 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.* unable to allocate resource region
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 28 Oct 2005 17:21:07 +1000
+Message-ID: <5436.1130484067@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/28/05, Joel Jaeggli <joelja@darkwing.uoregon.edu> wrote:
-> On Fri, 28 Oct 2005, Fawad Lateef wrote:
->
-> > Can you tell me the main differences between IA64 and x86_64 (Opteron)
->
-> IA64 is itanium - there are a lot of differences but the principle one for
-> your perspective is that you don't want to run x86 code on a itanium, it
-> has an x86 instruction decoder but you wouldn't want to use it if you
-> could avoid it.
->
+2.6.1[34] on i386.  Compaq Evo N800v.
 
-OK
+PCI: Cannot allocate resource region 8 of bridge 0000:00:1e.0
+PCI: Cannot allocate resource region 0 of device 0000:02:0e.2
 
-> > ? because in your one of the previous mail you said IA64 != EM64T and
->
-> emt64 getts lumped with amd64 collectivly x86_64. fundamentaly intels
-> implementation is compatible with amd's
->
-> > its true, but I know is EM64T/AMD64 in 64-bit mode != IA32 but you
-> > said that too EM64T is not really 64-bit, its a IA32 .. Can you give
->
-> It is ia32 except with 40 bits of real memory and 48 bits of virtual
-> memory and 64 bit registers.
->
+lspci -vvv extract.
 
-And a difference of memory architecture is there tooo. x86_64 in
-64-bit mode implements flat memory model but IA32 uses
-segmentation/paging. As far as Linux Kernel is concern I know kernel
-won't implements segmentation in IA32 so it memory management is
-almost compatible with x86_64 except registers/real address /virtual
-addresses ...
-
-> one article that's use for getting a start on the instruction set is here:
->
-> http://arstechnica.com/cpu/03q1/x86-64/x86-64-1.html
->
-
-Thanks, nice link :)
-
->
-> > me some link which just tells the difference between IA64 (Itanium)
-> > and AMD64 (Opteron) ?
->
-> you're not likely to care about ia64, so I think what your'e really
-> interested in is ia32 vs x86_64 and intel vs amd in the context of x86_64
->
-
-Nops, I am not interested in x86_64 context of intel and amd, I rather
-wanted a comparison between the intel and amd server processors
-architecture (Itanium and Opteron).
-
-Any ways, Thanks
+00:1e.0 PCI bridge: Intel Corporation 82801 Mobile PCI Bridge (rev 42) (prog-if 00 [Normal decode])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Bus: primary=00, secondary=02, subordinate=03, sec-latency=32
+        I/O behind bridge: 00002000-00002fff
+        Memory behind bridge: 32000000-34ffffff
+        Prefetchable memory behind bridge: 30000000-31ffffff
+        Secondary status: 66Mhz- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- <SERR- <PERR-
+        BridgeCtl: Parity- SERR+ NoISA+ VGA- MAbort- >Reset- FastB2B-
 
 
---
-Fawad Lateef
+02:0e.2 USB Controller: NEC Corporation USB 2.0 (rev 02) (prog-if 20 [EHCI])
+        Subsystem: Compaq Computer Corporation: Unknown device 004a
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 (4000ns min, 8500ns max), Cache Line Size 20
+        Interrupt: pin C routed to IRQ 10
+        Region 0: Memory at 34000000 (32-bit, non-prefetchable) [size=256]
+        Capabilities: [40] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+Devices with memory regions.
+
+00:00.0 Host bridge: Intel Corporation 82845 845 (Brookdale) Chipset Host Bridge (rev 04)
+        Region 0: Memory at a0000000 (32-bit, prefetchable) [size=256M]
+00:01.0 PCI bridge: Intel Corporation 82845 845 (Brookdale) Chipset AGP Bridge (rev 04) (prog-if 00 [Normal decode])
+        Memory behind bridge: 80300000-803fffff
+00:1e.0 PCI bridge: Intel Corporation 82801 Mobile PCI Bridge (rev 42) (prog-if 00 [Normal decode])
+        Memory behind bridge: 32000000-34ffffff
+00:1f.1 IDE interface: Intel Corporation 82801CAM IDE U100 (rev 02) (prog-if 8a [Master SecP PriP])
+        Region 5: Memory at 35000000 (32-bit, non-prefetchable) [size=1K]
+01:00.0 VGA compatible controller: ATI Technologies Inc Radeon Mobility M7 LW [Radeon Mobility 7500] (prog-if 00 [VGA])
+        Region 0: Memory at 88000000 (32-bit, prefetchable) [size=128M]
+        Region 2: Memory at 80380000 (32-bit, non-prefetchable) [size=64K]
+02:04.0 Communication controller: Conexant HSF 56k HSFi Modem (rev 01)
+        Region 0: Memory at 80080000 (32-bit, non-prefetchable) [size=64K]
+02:06.0 CardBus bridge: Texas Instruments PCI1410 PC card Cardbus Controller (rev 02)
+        Region 0: Memory at 80100000 (32-bit, non-prefetchable) [size=4K]
+        Memory window 0: 30000000-31fff000 (prefetchable)
+        Memory window 1: 32000000-33fff000 (prefetchable)
+02:08.0 Ethernet controller: Intel Corporation 82801CAM (ICH3) PRO/100 VE (LOM) Ethernet Controller (rev 42)
+        Region 0: Memory at 80180000 (32-bit, non-prefetchable) [size=4K]
+02:0e.0 USB Controller: NEC Corporation USB (rev 41) (prog-if 10 [OHCI])
+        Region 0: Memory at 80200000 (32-bit, non-prefetchable) [size=4K]
+02:0e.1 USB Controller: NEC Corporation USB (rev 41) (prog-if 10 [OHCI])
+        Region 0: Memory at 80280000 (32-bit, non-prefetchable) [size=4K]
+02:0e.2 USB Controller: NEC Corporation USB 2.0 (rev 02) (prog-if 20 [EHCI])
+        Region 0: Memory at 34000000 (32-bit, non-prefetchable) [size=256]
+
+
+

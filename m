@@ -1,85 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964893AbVJ1KhI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964888AbVJ1KgV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964893AbVJ1KhI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 06:37:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964963AbVJ1KhH
+	id S964888AbVJ1KgV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 06:36:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964893AbVJ1KgV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 06:37:07 -0400
-Received: from amsfep13-int.chello.nl ([213.46.243.23]:2394 "EHLO
-	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
-	id S964893AbVJ1KhG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 06:37:06 -0400
-Message-ID: <4362001D.1070004@sara.nl>
-Date: Fri, 28 Oct 2005 12:40:29 +0200
-From: Bram Stolk <bram@sara.nl>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
+	Fri, 28 Oct 2005 06:36:21 -0400
+Received: from xproxy.gmail.com ([66.249.82.199]:47825 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964888AbVJ1KgV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 06:36:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nGjtICBu+nAvFbCyfQ28EaEnmYTg1FGkg4nRpoMC+IF+Su73dWyeEw/f0Jdz/Q+yVp4bS+fErbJ67QBVtKdGEhaO+MxrR8Cgml1ldngH+pWV3IwHrzo4mVr5wixjbrBV+nmCY/85vxsxCPdRXte5C0j+/tfMm/CV15GC4a3FoAs=
+Message-ID: <750c918d0510280336g67344787r66a9aba4753e22cb@mail.gmail.com>
+Date: Fri, 28 Oct 2005 08:36:20 -0200
+From: Davi Arnaut <davi.lkml@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: kernel BUG at mm/slab.c:1488! (2.6.13.2)
+Cc: greearb@candelatech.com, linux-kernel@vger.kernel.org,
+       Manfred Spraul <manfred@colorfullife.com>
+In-Reply-To: <20051027215312.57303595.akpm@osdl.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: assertion failure in libata-core
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <750c918d0510272032k79211b44vee825864d0f26438@mail.gmail.com>
+	 <20051027215312.57303595.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 10/28/05, Andrew Morton <akpm@osdl.org> wrote:
+> Davi Arnaut <davi.lkml@gmail.com> wrote:
+> >
+> >  > It seems that something still tries to load the ext3 module, and I get the
+> >  > BUG seen below.  If I remove the ext3 module and re-build the initrd,
+> >  > the error goes away.
+>
+> Yes, I think the kernel is overreacting here.
+>
+> Manfred, what sayest thou?
+>
+> (nb: untested)
+>
+>
+> From: Andrew Morton <akpm@osdl.org>
+>
+> slab presently goes BUG if someone tries to register an already-registered
+> cache.
+>
+> But this can happen if the user accidentally loads a module which is already
+> statically linked into the kernel.  Nuking the kernel is rather a harsh
+> reaction.
+>
+> Change it into a warning, and just fail the kmem_cache_alloc() attempt.  If
+> the module is well-behaved, the modprobe will fail and all is well.
 
+How about really fixing kmem_cache_* to use the proper return conventions ?
+In this case it should have returned ERR_PTR(-EEXIST);
 
-When enabling atapi, I got the following assertion failure:
-
-Assertion failed! qc->flags &
-ATA_QCFLAG_ACTIVE,drivers/scsi/libata-core.c,ata_qc_complete,line=3232
-
-This is when booting my 2.6.14-rc5 kernel with two sata devices:
-a maxtor hd, and a plextor dvd writer.
-
-   Bram
--------------------------------------
-Some context for the failure:
-
-ata1: SATA max UDMA/133 cmd 0xF8806100 ctl 0x0 bmdma 0x0 irq 19
-ata2: SATA max UDMA/133 cmd 0xF8806180 ctl 0x0 bmdma 0x0 irq 19
-ata3: SATA max UDMA/133 cmd 0xF8806200 ctl 0x0 bmdma 0x0 irq 19
-ata4: SATA max UDMA/133 cmd 0xF8806280 ctl 0x0 bmdma 0x0 irq 19
-ata1: dev 0 cfg 49:0f00 82:0000 83:0000 84:0000 85:0000 86:0000 87:0000 88:001f
-ata1: dev 0 ATAPI, max UDMA/66
-ata1(0): applying bridge limits
-ata1: dev 0 configured for UDMA/66
-scsi0 : ahci
-ata2: no device found (phy stat 00000000)
-scsi1 : ahci
-ata3: dev 0 cfg 49:2f00 82:7c6b 83:7f09 84:4063 85:7c69 86:3e01 87:4063 88:007f
-ata3: dev 0 ATA, max UDMA/133, 490234752 sectors: lba48
-ata3: dev 0 configured for UDMA/133
-scsi2 : ahci
-ata4: no device found (phy stat 00000000)
-scsi3 : ahci
-   Vendor: PLEXTOR   Model: DVDR   PX-716A    Rev: 1.07
-   Type:   CD-ROM                             ANSI SCSI revision: 05
-ata1: error occurred, port reset
-ata1: error occurred, port reset
-Assertion failed! qc->flags &
-ATA_QCFLAG_ACTIVE,drivers/scsi/libata-core.c,ata_qc_complete,line=3232
-  0:0:0:0: timing out command, waited 18s
-  0:0:0:0: timing out command, waited 18s
-   Vendor: ATA       Model: Maxtor 6L250S0    Rev: BANC
-   Type:   Direct-Access                      ANSI SCSI revision: 05
-SCSI device sda: 490234752 512-byte hdwr sectors (251000 MB)
-SCSI device sda: drive cache: write back
-SCSI device sda: 490234752 512-byte hdwr sectors (251000 MB)
-SCSI device sda: drive cache: write back
-  sda: sda1 sda2 < sda5 > sda3
-Attached scsi disk sda at scsi2, channel 0, id 0, lun 0
-sr 0:0:0:0: timing out command, waited 90s
-sr 0:0:0:0: timing out command, waited 90s
-sr 0:0:0:0: timing out command, waited 90s
-sr 0:0:0:0: timing out command, waited 90s
-sr 0:0:0:0: timing out command, waited 90s
-sr 0:0:0:0: timing out command, waited 90s
-sr0: scsi-1 drive
-Uniform CD-ROM driver Revision: 3.20
-Attached scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
-Attached scsi generic sg0 at scsi0, channel 0, id 0, lun 0,  type 5
-Attached scsi generic sg1 at scsi2, channel 0, id 0, lun 0,  type 0
-
-
+> Notes:
+>
+> - Swaps the ranking of cache_chain_sem and lock_cpu_hotplug().  Doesn't seem
+>   important.
+>
+>
+> <sniped>
+>

@@ -1,44 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030200AbVJ1Q2M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030233AbVJ1QaS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030200AbVJ1Q2M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 12:28:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030201AbVJ1Q2M
+	id S1030233AbVJ1QaS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 12:30:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbVJ1QaR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 12:28:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:7853 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030200AbVJ1Q2L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 12:28:11 -0400
-Date: Fri, 28 Oct 2005 12:28:06 -0400
-From: Dave Jones <davej@redhat.com>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Intel D945GNT crashes with AGP enabled
-Message-ID: <20051028162806.GA4340@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Marcel Holtmann <marcel@holtmann.org>, linux-kernel@vger.kernel.org
-References: <1130506715.5345.7.camel@blade>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1130506715.5345.7.camel@blade>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 28 Oct 2005 12:30:17 -0400
+Received: from electra.cc.umanitoba.ca ([130.179.16.23]:4299 "EHLO
+	electra.cc.umanitoba.ca") by vger.kernel.org with ESMTP
+	id S1030233AbVJ1QaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 12:30:16 -0400
+Message-ID: <43625208.60703@cc.umanitoba.ca>
+Date: Fri, 28 Oct 2005 11:30:00 -0500
+From: Mark Jenkins <umjenki5@cc.umanitoba.ca>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Is sharpzdc_cs.o not a derivitive work of Linux?
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 28, 2005 at 03:38:35PM +0200, Marcel Holtmann wrote:
- > The problematic part is the Intel AGP module (intel_agp), because if I
- > don't compile it the system works fine. There is an oops coming, but so
- > far I wasn't able to get it out. Does anyone have seen this problem
- > before and have some patches for me to try? Otherwise I need to try to
- > get this oops message.
+Hello Linux developers,
 
-You never mentioned what kernel you're running.
-If it's a recent -mm, there's an AGP optimisation patch to do less
-frequent TLB flushes, which may be worth backing out.
+Sharp Electronics Corporation manufactures a series of handheld
+computers called the Zaurus. The new ones run Linux.
 
-If you're running mainline, I'm puzzled.
-It'd be useful to see that oops.
+Sharp sells a digital camera, the CE-AG06 that works with the SL-5500,
+SL-5600 and SL-6000. To use this camera, a Linux module sharpzdc_cs.o is
+required.
 
-		Dave
+There are several copies of the Linux Zaurus source on the web; none of
+them contain the source code for this module. I am attempting to use the
+official source code offer that came with the device instead of the web
+copies. When I do manage to get Sharp to do this, I anticipate they will
+not include the source for this particular module.
+
+Sharp distributes sharpzdc_cs.o in the Zaurus ROM image alongside Linux.
+
+You can look at the module here:
+http://oz.pdai.org/mirror/camera-modules-2.4.18-rmk7-pxa3-embedix.tar.bz2
+
+I have read, http://people.redhat.com/arjanv/COPYING.modules
+Summary: A Linux module is a derivative work unless a strong case is
+made otherwise.
+
+I would like to know if this is one of those exception cases. That is
+why I used the word 'not' in the subject line.
+
+Is sharpzdc_cs.o *not* a derivative work of Linux?
+
+
+Mark Jenkins
+umjenki5@cc.umanitoba.ca
+
+
+
+Appendix A
+sharpzdc_cs.o is dynamically linked against the following functions and
+variables:
+
+Symbol                    Location
+--------------------------------------------
+CardServices              drivers/pcmcia/cs.c
+kmalloc                   mm/slab.c
+__memzero                 arch/arm/lib/memzero.S
+kfree                     mm/slab.c
+memset                    arch/arm/lib/memset.S
+memcpy                    arch/arm/lib/memcpy.S
+__release_region          kernel/resource.c
+sprintf                   lib/vsprintf.c
+printk                    kernel/printk.c
+ioport_resource           kernel/resource.c
+udelay                    arch/arm/lib/delay.S
+mod_timer                 kernel/resource.c
+jiffies                   kernel/timer.c
+register_chrdev           fs/devices.c
+register_pccard_driver    drivers/pcmcia/ds.c
+unregister_pccard_driver  drivers/pcmcia/ds.c
+unregister_chrdev         fs/devices.c
+del_timer                 kernel/timer.c
 

@@ -1,44 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbVJ1WS2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbVJ1WVh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750702AbVJ1WS2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 18:18:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750704AbVJ1WS2
+	id S1750715AbVJ1WVh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 18:21:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbVJ1WVh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 18:18:28 -0400
-Received: from mail-in-06.arcor-online.net ([151.189.21.46]:6349 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1750702AbVJ1WS1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 18:18:27 -0400
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-Subject: Re: [PATCH] Disable the most annoying printk in the kernel
-To: Pavel Machek <pavel@suse.cz>, Lee Revell <rlrevell@joe-job.com>,
-       Hugh Dickins <hugh@veritas.com>, Andi Kleen <ak@suse.de>,
-       vojtech@suse.cz, akpm@osdl.org, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Sat, 29 Oct 2005 00:18:18 +0200
-References: <52bjf-680-9@gated-at.bofh.it> <52Hj9-3e6-27@gated-at.bofh.it> <52HCr-3CO-7@gated-at.bofh.it> <52JkU-6gS-29@gated-at.bofh.it> <52JuY-6s7-21@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Fri, 28 Oct 2005 18:21:37 -0400
+Received: from sender-02.it.helsinki.fi ([128.214.205.137]:37564 "EHLO
+	sender-02.it.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1750715AbVJ1WVg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 18:21:36 -0400
+Date: Sat, 29 Oct 2005 01:21:33 +0300 (EEST)
+From: Janne M O Heikkinen <jmoheikk@cc.helsinki.fi>
+X-X-Sender: jmoheikk@rock.it.helsinki.fi
+To: Andi Kleen <ak@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: x86_64: 2.6.14 with NUMA panics at boot
+In-Reply-To: <Pine.OSF.4.61.0510290058420.417368@rock.it.helsinki.fi>
+Message-ID: <Pine.OSF.4.61.0510290118530.417152@rock.it.helsinki.fi>
+References: <Pine.OSF.4.61.0510282218310.411472@rock.it.helsinki.fi>
+ <p73vezhtkpy.fsf@verdi.suse.de> <Pine.OSF.4.61.0510290058420.417368@rock.it.helsinki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1EVcYE-00016V-Dg@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@suse.cz> wrote:
+On Sat, 29 Oct 2005, Janne M O Heikkinen wrote:
 
-> Well, keyboard detected and reported an error. Kernel reacted with
-> printk(). You are removing that printk(). I can understand that,
-> printk is really annoying, but I really believe _some_ error handling
-> should be added there if you remove the printk.
+There was one line missing for that post, should have been:
 
-I once posted a printk that would only actually print if the last printk
-wasn't the same message. This would ensure error reporting while preventing
-dmesg from being spammed. Off cause this would fail if two subsystems are
-competing to annoy you.
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+...
+BIOS-e820: 0000000100000000 - 0000000140000000 (usable)
+Kernel direct mapping tables upto ffff810140000000 @ 8000 - e0000
+SRAT: PXM 0 -> APIC 0 -> CPU 0 -> Node 0
+...

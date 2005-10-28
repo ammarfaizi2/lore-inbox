@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965147AbVJ1Gfd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965144AbVJ1GgZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965147AbVJ1Gfd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 02:35:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965156AbVJ1Gbu
+	id S965144AbVJ1GgZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 02:36:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965151AbVJ1Gbq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 02:31:50 -0400
-Received: from mail.kroah.org ([69.55.234.183]:46058 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965147AbVJ1GbZ convert rfc822-to-8bit
+	Fri, 28 Oct 2005 02:31:46 -0400
+Received: from mail.kroah.org ([69.55.234.183]:48106 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S965150AbVJ1Gb0 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 02:31:25 -0400
-Cc: dtor_core@ameritech.net
-Subject: [PATCH] Input: convert ucb1x00-ts to dynamic input_dev allocation
-In-Reply-To: <11304810243087@kroah.com>
+	Fri, 28 Oct 2005 02:31:26 -0400
+Cc: gregkh@suse.de
+Subject: [PATCH] update required version of udev
+In-Reply-To: <113048102735@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Thu, 27 Oct 2005 23:30:24 -0700
-Message-Id: <1130481024363@kroah.com>
+Date: Thu, 27 Oct 2005 23:30:27 -0700
+Message-Id: <11304810274123@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,112 +24,35 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] Input: convert ucb1x00-ts to dynamic input_dev allocation
+[PATCH] update required version of udev
 
-Input: convert ucb1x00-ts to dynamic input_dev allocation
+The 071 release is needed to handle the input changes.  Older versions
+will work properly with module-based systems, but not for users that
+build input stuff into the kernel.
 
-This is required for input_dev sysfs integration
-
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 61ae45fa4a9d1637a430965ee3743c1c42f07268
-tree 95ecb6c67d8ebcbab9f2f8113472d7a6b0483c9d
-parent b991fee057c50e098677f57b49c848f81b697b14
-author Dmitry Torokhov <dtor_core@ameritech.net> Thu, 15 Sep 2005 02:01:48 -0500
-committer Greg Kroah-Hartman <gregkh@suse.de> Thu, 27 Oct 2005 22:48:04 -0700
+commit c2458141eaa1fcfe3c09a9834784a2c2716012b3
+tree 7c2b94c780a4253f6f4d796d6c96b4909b9c8f01
+parent e9821c685cbf2d72f6d692117e83ff9b71c3315b
+author Greg Kroah-Hartman <gregkh@suse.de> Thu, 27 Oct 2005 22:25:43 -0700
+committer Greg Kroah-Hartman <gregkh@suse.de> Thu, 27 Oct 2005 22:48:07 -0700
 
- drivers/mfd/ucb1x00-ts.c |   45 +++++++++++++++++++++++++--------------------
- 1 files changed, 25 insertions(+), 20 deletions(-)
+ Documentation/Changes |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/mfd/ucb1x00-ts.c b/drivers/mfd/ucb1x00-ts.c
-index a260f83..585cded 100644
---- a/drivers/mfd/ucb1x00-ts.c
-+++ b/drivers/mfd/ucb1x00-ts.c
-@@ -40,7 +40,7 @@
+diff --git a/Documentation/Changes b/Documentation/Changes
+index 27232be..783ddc3 100644
+--- a/Documentation/Changes
++++ b/Documentation/Changes
+@@ -65,7 +65,7 @@ o  isdn4k-utils           3.1pre1       
+ o  nfs-utils              1.0.5                   # showmount --version
+ o  procps                 3.2.0                   # ps --version
+ o  oprofile               0.9                     # oprofiled --version
+-o  udev                   058                     # udevinfo -V
++o  udev                   071                     # udevinfo -V
  
- 
- struct ucb1x00_ts {
--	struct input_dev	idev;
-+	struct input_dev	*idev;
- 	struct ucb1x00		*ucb;
- 
- 	wait_queue_head_t	irq_wait;
-@@ -56,16 +56,16 @@ static int adcsync;
- 
- static inline void ucb1x00_ts_evt_add(struct ucb1x00_ts *ts, u16 pressure, u16 x, u16 y)
- {
--	input_report_abs(&ts->idev, ABS_X, x);
--	input_report_abs(&ts->idev, ABS_Y, y);
--	input_report_abs(&ts->idev, ABS_PRESSURE, pressure);
--	input_sync(&ts->idev);
-+	input_report_abs(ts->idev, ABS_X, x);
-+	input_report_abs(ts->idev, ABS_Y, y);
-+	input_report_abs(ts->idev, ABS_PRESSURE, pressure);
-+	input_sync(ts->idev);
- }
- 
- static inline void ucb1x00_ts_event_release(struct ucb1x00_ts *ts)
- {
--	input_report_abs(&ts->idev, ABS_PRESSURE, 0);
--	input_sync(&ts->idev);
-+	input_report_abs(ts->idev, ABS_PRESSURE, 0);
-+	input_sync(ts->idev);
- }
- 
- /*
-@@ -341,26 +341,30 @@ static int ucb1x00_ts_add(struct ucb1x00
- {
- 	struct ucb1x00_ts *ts;
- 
--	ts = kmalloc(sizeof(struct ucb1x00_ts), GFP_KERNEL);
-+	ts = kzalloc(sizeof(struct ucb1x00_ts), GFP_KERNEL);
- 	if (!ts)
- 		return -ENOMEM;
- 
--	memset(ts, 0, sizeof(struct ucb1x00_ts));
-+	ts->idev = input_allocate_device();
-+	if (!ts->idev) {
-+		kfree(ts);
-+		return -ENOMEM;
-+	}
- 
- 	ts->ucb = dev->ucb;
- 	ts->adcsync = adcsync ? UCB_SYNC : UCB_NOSYNC;
- 
--	ts->idev.name       = "Touchscreen panel";
--	ts->idev.id.product = ts->ucb->id;
--	ts->idev.open       = ucb1x00_ts_open;
--	ts->idev.close      = ucb1x00_ts_close;
--
--	__set_bit(EV_ABS, ts->idev.evbit);
--	__set_bit(ABS_X, ts->idev.absbit);
--	__set_bit(ABS_Y, ts->idev.absbit);
--	__set_bit(ABS_PRESSURE, ts->idev.absbit);
-+	ts->idev->name       = "Touchscreen panel";
-+	ts->idev->id.product = ts->ucb->id;
-+	ts->idev->open       = ucb1x00_ts_open;
-+	ts->idev->close      = ucb1x00_ts_close;
-+
-+	__set_bit(EV_ABS, ts->idev->evbit);
-+	__set_bit(ABS_X, ts->idev->absbit);
-+	__set_bit(ABS_Y, ts->idev->absbit);
-+	__set_bit(ABS_PRESSURE, ts->idev->absbit);
- 
--	input_register_device(&ts->idev);
-+	input_register_device(ts->idev);
- 
- 	dev->priv = ts;
- 
-@@ -370,7 +374,8 @@ static int ucb1x00_ts_add(struct ucb1x00
- static void ucb1x00_ts_remove(struct ucb1x00_dev *dev)
- {
- 	struct ucb1x00_ts *ts = dev->priv;
--	input_unregister_device(&ts->idev);
-+
-+	input_unregister_device(ts->idev);
- 	kfree(ts);
- }
- 
+ Kernel compilation
+ ==================
 

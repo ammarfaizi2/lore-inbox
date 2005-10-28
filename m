@@ -1,71 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751815AbVJ1V3q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbVJ1VhJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751815AbVJ1V3q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 17:29:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751817AbVJ1V3p
+	id S1750763AbVJ1VhJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 17:37:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbVJ1VhJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 17:29:45 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:10513 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751815AbVJ1V3p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 17:29:45 -0400
-Date: Fri, 28 Oct 2005 23:29:43 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Claudio Scordino <cloud.of.andor@gmail.com>
-Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-Subject: Re: The "best" value of HZ
-Message-ID: <20051028212942.GE4180@stusta.de>
-References: <200510280118.42731.cloud.of.andor@gmail.com>
-MIME-Version: 1.0
+	Fri, 28 Oct 2005 17:37:09 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1299 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750763AbVJ1VhI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 17:37:08 -0400
+Date: Fri, 28 Oct 2005 22:36:51 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Lee Revell <rlrevell@joe-job.com>, Hugh Dickins <hugh@veritas.com>,
+       Andi Kleen <ak@suse.de>, vojtech@suse.cz, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Disable the most annoying printk in the kernel
+Message-ID: <20051028213651.GA24432@flint.arm.linux.org.uk>
+Mail-Followup-To: Pavel Machek <pavel@suse.cz>,
+	Lee Revell <rlrevell@joe-job.com>, Hugh Dickins <hugh@veritas.com>,
+	Andi Kleen <ak@suse.de>, vojtech@suse.cz, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <200510271026.10913.ak@suse.de> <20051028072003.GB1602@openzaurus.ucw.cz> <Pine.LNX.4.61.0510281947040.5112@goblin.wat.veritas.com> <1130532239.4363.125.camel@mindpipe> <20051028205132.GB11397@elf.ucw.cz> <20051028205916.GL4464@flint.arm.linux.org.uk> <20051028212305.GA2447@elf.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200510280118.42731.cloud.of.andor@gmail.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20051028212305.GA2447@elf.ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 28, 2005 at 01:18:41AM +0200, Claudio Scordino wrote:
-
-> Hi,
-
-Hi Claudio,
-
->     during the last years there has been a lot of discussion about the "best" 
-> value of HZ... On i386 was 100, then became 1000, and finally was set to 250.
-> I'm thinking to do an evaluation of this parameter using different 
-> architectures.
+On Fri, Oct 28, 2005 at 11:23:05PM +0200, Pavel Machek wrote:
+> > Having a TP 380XD which regularly produces this annoying message,
+> > it's just logspam.  There's no noticable failure.
 > 
-> Has anybody thought to give the possibility to modify the value of HZ at boot 
-> time instead of at compile time ? This would allow to easily test different 
-> values on different machines and create a table containing the "best" value 
-> for each architecture...  At this moment, instead, we have to recompile the 
-> kernel for each different value :(
+> I do notice lost keys on x32 here. You need to press some weird
+> combination...
+
+I don't need any weird combinations to produce this message - it
+appears quite often when hitting keys to wake it up from sleep
+mode (which it has an eager desire to be in when it's used in
+text-only mode.)
+
+> > What do you suggest?
 > 
-> Do you think there would be much work to do that ? 
-> Do you think it would be a desired feature the knowledge of the best value for 
-> each architecture with more precision ?
+> Well, having error counter for each input device would probably be
+> enough. Or perhaps add some rate-limiting. One message per boot should
+> be adequate.
 
-the best value for HZ is not architecture specific, it depends on the 
-usage pattern.
+$ dmesg |grep 'too many' | wc -l
+72
 
-The rule is roughly:
-- low HZ for computations
-- high HZ for interactive usage
-
-Making HZ selectable at boot time wouldn't be hard, but I doubt it's 
-worth it because it would make the kernel both bigger and slower.
-
-> Thanks,
-> 
->       Claudio
-
-cu
-Adrian
+I don't care how many occur or even that they do occur.  That's not
+to say someone else doesn't.  But if there is someone else who does
+care, maybe they should speak up and produce a patch to add whatever
+/they/ /do/ require.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

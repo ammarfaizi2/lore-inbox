@@ -1,249 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030193AbVJ1OdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030195AbVJ1Ofy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030193AbVJ1OdG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 10:33:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030195AbVJ1OdG
+	id S1030195AbVJ1Ofy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 10:35:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbVJ1Ofy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 10:33:06 -0400
-Received: from khc.piap.pl ([195.187.100.11]:2052 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S1030193AbVJ1OdE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 10:33:04 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Call for PIIX4 chipset testers [Intel R440LX mb]
-References: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Fri, 28 Oct 2005 16:32:53 +0200
-In-Reply-To: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org> (Linus
- Torvalds's message of "Tue, 25 Oct 2005 10:51:24 -0700 (PDT)")
-Message-ID: <m3d5lpww2y.fsf@defiant.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Fri, 28 Oct 2005 10:35:54 -0400
+Received: from rs1.theo-phys.uni-essen.de ([132.252.73.3]:33255 "EHLO
+	rs1.Theo-Phys.Uni-Essen.DE") by vger.kernel.org with ESMTP
+	id S1030195AbVJ1Ofy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 10:35:54 -0400
+Message-Id: <200510281435.QAA18054@next12.theo-phys.uni-essen.de>
+Content-Type: text/plain
+MIME-Version: 1.0 (NeXT Mail 4.2mach_patches v148.2)
+In-Reply-To: <20051026034235.GB6423@verge.net.au>
+X-Nextstep-Mailer: Mail 4.2mach_patches [i386] (Enhance 2.2p3, May 2000)
+From: Ruediger Oberhage <ruediger@next12.theo-phys.uni-essen.de>
+Date: Fri, 28 Oct 2005 16:35:36 +0200
+To: 325117@bugs.debian.org
+Subject: Re: Bug#325117: NFS client problem with kernel 2.6 and SGI IRIX 6.5
+cc: Trond Myklebust <trond.myklebust@fys.uio.no>, Horms <horms@debian.org>,
+       ruediger@theo-phys.uni-essen.de, linux-kernel@vger.kernel.org
+Reply-To: ruediger@theo-phys.uni-essen.de
+References: <200510140905.LAA10947@next12.theo-phys.uni-essen.de>
+	<1129314142.8443.13.camel@lade.trondhjem.org>
+	<200510191652.SAA13594@next12.theo-phys.uni-essen.de>
+	<1129756421.8971.19.camel@lade.trondhjem.org>
+	<20051026034235.GB6423@verge.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> writes:
+Hello all!
 
-> It should report a number of quirks, and the easiest way to get them all 
-> is to just do
->
-> 	dmesg -s 1000000 | grep PIIX4
->
-> and send it to me (and you might as well cc linux-kernel too in this 
-> thread, so that we'll get the thing archived for later). Preferably 
-> together with the output of "cat /proc/ioport" and "/sbin/lspci -xxx".
+I would like to report/confirm success in solving the problem
+described after applying the patch below:
 
-This is my old SMP test machine using Intel R440LX motherboard (dual
-Pentium II 266 MHz, no ACPI - AKA "RedWood"):
+> >  
+http://client.linux-nfs.org/Linux-2.6.x/2.6.12/linux-2.6.12-43-dirent_fix.dif
+> >
+> > This should normally suffice to fix the SGI problem.
 
-PCI quirk: region 0c00-0c3f claimed by PIIX4 ACPI
-PCI quirk: region 2180-219f claimed by PIIX4 SMB
-PIIX4 devres C PIO at 0ca8-0caf
+Yes, it effectively eliminates both type of problems for our/my
+configuration here - the 'find'-error as well as the 'resources'-
+error (= OpenOffice 'printer' and Mathematica 'fonts, files,
+directories etc.). Thus this patch is more effective that the
+one in KNOPPIX' 4.0 kernel!
 
-According to the HW tech ref they are "Server management mailbox registers":
-0CA9h DISMIC Data Register
-0CAAh DISMIC Control/Status Register
-0CABh DISMIC Flags Register
+Thought, you'd like to know.
 
-and are some early (incompatible) version of IPMI (SMIC) bus/controller.
+My sincere thanks to all helping out in this, here.
 
-MB PCI devices:
-0:00.0 Host bridge: Intel 440LX/EX - 82443LX/EX Host bridge (rev 03)
-0:01.0 PCI bridge: Intel 440LX/EX - 82443LX/EX AGP bridge (rev 03)
-0:0b.0 SCSI storage controller: Adaptec AIC-7880U (rev 01)
-0:10.0 Ethernet controller: Intel 82557/8/9 [Ethernet Pro 100] (rev 02)
-0:12.0 VGA compatible controller: Cirrus Logic GD 5446
-0:14.0 ISA bridge: Intel 82371AB/EB/MB PIIX4 ISA (rev 01)
-0:14.1 IDE interface: Intel 82371AB/EB/MB PIIX4 IDE (rev 01)
-0:14.2 USB Controller: Intel 82371AB/EB/MB PIIX4 USB (rev 01)
-0:14.3 Bridge: Intel 82371AB/EB/MB PIIX4 ACPI (rev 01)
+As I normally don't read the lists involved, I won't see other
+problems with nfs and the SGI configuration. Should you feel
+that testing here could be of any help, then please don't
+hesitate to ask me about it - I'd like to return the favour
+granted, if I can.
 
-/proc/ioports and lspci -xxx of on-board devices attached (this mb does
-not use AGP, ACPI nor USB).
--- 
-Krzysztof Halasa
+> Thanks, I'll confine subseqent discussion to 325117@bugs.debian.org
+> as debian packaging issues don't need to be on lkml.
 
-0000-001f : dma1
-0020-0021 : pic1
-0040-0043 : timer0
-0050-0053 : timer1
-0060-006f : keyboard
-0070-0077 : rtc
-0080-008f : dma page reg
-00a0-00a1 : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-02f8-02ff : serial
-03c0-03df : vga+
-03f8-03ff : serial
-0c00-0c3f : 0000:00:14.3
-0cf8-0cff : PCI conf1
-2180-219f : 0000:00:14.3
-f800-f8ff : 0000:00:0b.0
-fc90-fc9f : 0000:00:14.1
-fca0-fcbf : 0000:00:14.2
-fcc0-fcdf : 0000:00:10.0
-  fcc0-fcdf : e100
+This is fine with me - I just wanted to let everyone involved know
+about the outcome. [This is most probably my last report regarding
+this 'bug'. Thus you're all going to miss this 'fine tcpdump'-list
+I promised; that is, unless somebody asks for it :-).]
 
-00:00.0 Host bridge: Intel Corporation 440LX/EX - 82443LX/EX Host bridge (rev 03)
-00: 86 80 80 71 06 01 90 22 03 00 00 06 00 40 00 00
-10: 08 00 40 fe 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 a0 00 00 00 00 00 00 00 00 00 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 84 09 00 e3 00 ee ff 01 fc 10 11 11 00 00 30 11
-60: 08 08 10 10 10 10 10 10 00 00 00 00 55 55 55 55
-70: 20 10 1a 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 03 44 00 00 10 18 00 00 00 00 00 00 00 00 00 00
-a0: 02 00 10 00 03 02 00 1f 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 3f 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 fd 03 20 0f 00 00 00 00 00 00
-
-00:01.0 PCI bridge: Intel Corporation 440LX/EX - 82443LX/EX AGP bridge (rev 03)
-00: 86 80 81 71 04 00 a0 02 03 00 04 06 00 40 01 00
-10: 00 00 00 00 00 00 00 00 00 01 01 00 f0 00 a0 22
-20: f0 ff 00 00 f0 ff 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-00:0b.0 SCSI storage controller: Adaptec AIC-7880U (rev 01)
-00: 04 90 78 80 14 00 90 02 01 00 00 01 08 40 00 00
-10: 01 f8 00 00 00 e0 df fe 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 04 90 80 78
-30: 00 00 00 00 dc 00 00 00 00 00 00 00 0b 01 08 08
-40: 80 15 00 00 80 15 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 21 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-00:10.0 Ethernet controller: Intel Corporation 82557/8/9 [Ethernet Pro 100] (rev 02)
-00: 86 80 29 12 07 00 80 02 02 00 00 02 00 42 00 00
-10: 08 d0 df fe c1 fc 00 00 00 00 b0 fe 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 05 01 08 38
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-00:12.0 VGA compatible controller: Cirrus Logic GD 5446
-00: 13 10 b8 00 03 00 00 02 00 00 00 03 00 00 00 00
-10: 08 00 00 fd 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 ff 00 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-00:14.0 ISA bridge: Intel Corporation 82371AB/EB/MB PIIX4 ISA (rev 01)
-00: 86 80 10 71 0f 00 80 02 01 00 01 06 00 00 80 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 4d 00 e0 01
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 05 09 0a 0b 10 00 00 00 00 f6 00 00 00 00 00 00
-70: 00 00 00 00 00 00 0c 0c 00 00 00 00 00 00 00 00
-80: 00 00 03 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 45 c0 fc eb 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 25 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
-
-00:14.1 IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 01)
-00: 86 80 11 71 05 00 80 02 01 80 01 01 00 40 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 91 fc 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 07 e1 00 c0 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
-
-00:14.2 USB Controller: Intel Corporation 82371AB/EB/MB PIIX4 USB (rev 01)
-00: 86 80 12 71 04 00 80 02 01 00 03 0c 00 40 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: a1 fc 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 ff 04 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
-
-00:14.3 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ACPI (rev 01)
-00: 86 80 13 71 01 00 80 02 01 00 80 06 00 00 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 01 0c 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 02 00 00 00 00
-60: 00 00 00 00 a8 0c e7 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 81 21 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
+Thanks again,
+ Ruediger Oberhage
+--
+H.-R. Oberhage
+Mail: Univ. Duisburg-Essen	E-Mail:	oberhage@Uni-Essen.DE
+      Fachbereich Physik		ruediger@Theo-Phys.Uni-Essen.DE
+      Campus Essen, S05 V07 E88
+      Universitaetsstrasse 5	Phone:  {+49|0} 201 / 183-2493
+      45141 Essen, Germany	FAX:    {+49|0} 201 / 183-4578

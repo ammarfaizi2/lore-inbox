@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030300AbVJ1TqT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030311AbVJ1TsE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030300AbVJ1TqT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 15:46:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030313AbVJ1TqT
+	id S1030311AbVJ1TsE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 15:48:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030313AbVJ1TsE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 15:46:19 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:15006 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030300AbVJ1TqT (ORCPT
+	Fri, 28 Oct 2005 15:48:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:42379 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030311AbVJ1TsD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 15:46:19 -0400
-Date: Sat, 29 Oct 2005 05:46:18 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: AndyLiebman@aol.com
-Cc: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: What happened to XFS Quota Support?
-Message-ID: <20051029054618.A6139565@wobbly.melbourne.sgi.com>
-References: <190.4ba4a2cb.3093d02a@aol.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <190.4ba4a2cb.3093d02a@aol.com>; from AndyLiebman@aol.com on Fri, Oct 28, 2005 at 03:04:10PM -0400
+	Fri, 28 Oct 2005 15:48:03 -0400
+Date: Fri, 28 Oct 2005 12:47:50 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: Greg KH <greg@kroah.com>, gregkh@suse.de, linux-kernel@vger.kernel.org,
+       david-b@pacbell.net
+Subject: Re: [PATCH] pci device wakeup flags
+In-Reply-To: <20051028123434.09c5cb2f.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0510281247010.4664@g5.osdl.org>
+References: <11304810221338@kroah.com> <11304810223093@kroah.com>
+ <20051028035116.112ba2ca.akpm@osdl.org> <20051028155044.GA11924@kroah.com>
+ <20051028123434.09c5cb2f.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andy,
 
-On Fri, Oct 28, 2005 at 03:04:10PM -0400, AndyLiebman@aol.com wrote:
-> ...
-> Is there a reason why this option is no longer available? If you compile  
-> xfs_quota as a module, how do you load it? 
 
-Oh, bother - the option:
+On Fri, 28 Oct 2005, Andrew Morton wrote:
 
-config XFS_QUOTA
-        tristate "XFS Quota support"
+> Greg KH <greg@kroah.com> wrote:
+> >
+> > I
+> >  thought that it was one of the usb patches in my tree that was causing
+> >  you problems.
+> 
+> That's a separate problem.  gregkh-usb-usb-pm-09.patch causes my x86 box to
+> hang partway though boot.  I drop that from -mm as well.
 
-should be:
+Just to verify: that one isn't in the current driver core tree, right? I 
+assume that's in Greg's USB tree..
 
-config XFS_QUOTA
-	bool "XFS Quota support"
+Greg?
 
-I'll get that fixed up, thanks.
-
--- 
-Nathan
+		Linus

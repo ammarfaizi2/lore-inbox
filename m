@@ -1,66 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030196AbVJ1Ohk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030197AbVJ1OkT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030196AbVJ1Ohk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 10:37:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030197AbVJ1Ohk
+	id S1030197AbVJ1OkT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 10:40:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030198AbVJ1OkS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 10:37:40 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:27824 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030196AbVJ1Ohj (ORCPT
+	Fri, 28 Oct 2005 10:40:18 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:26274 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030197AbVJ1OkR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 10:37:39 -0400
-Date: Fri, 28 Oct 2005 16:37:50 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: better wake-balancing: respin
-Message-ID: <20051028143750.GA1806@elte.hu>
-References: <200510270124.j9R1OPg27107@unix-os.sc.intel.com> <4361EC95.5040800@yahoo.com.au> <20051028100806.GA19507@elte.hu> <43620583.9080500@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43620583.9080500@yahoo.com.au>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 28 Oct 2005 10:40:17 -0400
+Date: Fri, 28 Oct 2005 07:40:03 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Boxer Gnome <aiko.sex@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: boot ok,but reboot hang, from 2.6.10 to 2.6.14
+In-Reply-To: <174467f50510280544g5fffdfaeq@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0510280733000.4664@g5.osdl.org>
+References: <174467f50510280544g5fffdfaeq@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-> Ingo, I wasn't aware that tasks are bouncing around wildly; does your 
-> patch improve things? Then by definition it must penalise workloads 
-> where the pairings are more predictable?
+On Fri, 28 Oct 2005, Boxer Gnome wrote:
+> 
+> This only happens in reboot from linux kernel within 2.6.10-2.6.14.
+> 
+> I tested the older kernel version from 2.6.8 to 2.6.14,and 2.4.31 .I
+> found the 2.6.8 and the 2.6.9,2.4.31 worked well without above
+> reboot_from_linux_with_hang_after_POST,and the 2.6.10-2.6.14 all have
+> this.
 
-for TPC, most of the non-to-idle migrations are 'wrong'. So basically 
-any change that gets rid of extra migrations is a win. This does not 
-mean that it is all bouncing madly.
+Can you try to pinpoint when it started happening more closely?
 
-> I would prefer to try fixing wake balancing before giving up and 
-> turning it off for busy CPUs.
+The differences between 2.6.9 and 2.6.10 are pretty big, and it would be 
+much better if you can pinpoint it to a smaller range.
 
-agreed, and that was my suggestion: improve the heuristics to not hurt 
-workloads where there is no natural pairing.
+You can find three "release candidates" for 2.6.10 in
 
-one possible way would be to do a task_hot() check in the passive 
-balancing code, and only migrate the task when it's been inactive for a 
-long time: that should be the case for most TPC wakeups. (This assumes 
-an accurate cache-hot estimator, for which another patch exists.)
+	http://www.kernel.org/pub/linux/kernel/v2.6/testing
 
-> Without any form of wake balancing, then a multiprocessor system will 
-> tend to have a completely random distribution of tasks over CPUs over 
-> time. I prefer to add a driver so it is not completely random for 
-> amenable workloads.
+and if you first test 2.6.10-rc2, and then depending on whether that 
+already has the bug or not, you'd test 2.6.10-rc1 or 2.6.10-rc2. That 
+would help pinpoint the difference to between two particular -rc kernels, 
+which would be much better.
 
-but my patch does not do 'no form of wake balancing'. It will do 
-non-load-related wake balancing if the target CPU is idle. Arguably, 
-that can easily be 'never' under common workloads.
+After that, I might end up still asking you to test one or two daily 
+snapshots, but it may be that pinpointing when your reboot troubles 
+started to just the -rc kernel might be good enough.
 
-	Ingo
+		Linus

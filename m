@@ -1,75 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965204AbVJ1JmI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965205AbVJ1JmU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965204AbVJ1JmI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 05:42:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965205AbVJ1JmI
+	id S965205AbVJ1JmU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 05:42:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965206AbVJ1JmU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 05:42:08 -0400
-Received: from koto.vergenet.net ([210.128.90.7]:54978 "EHLO koto.vergenet.net")
-	by vger.kernel.org with ESMTP id S965204AbVJ1JmH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 05:42:07 -0400
-Date: Fri, 28 Oct 2005 18:27:46 +0900
-From: Horms <horms@verge.net.au>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] [SECURITY, 2.4]  Avoid 'names_cache' memory leak with CONFIG_AUDITSYSCALL
-Message-ID: <20051028092745.GL11045@verge.net.au>
+	Fri, 28 Oct 2005 05:42:20 -0400
+Received: from zproxy.gmail.com ([64.233.162.205]:55270 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965205AbVJ1JmU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 05:42:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=QwepvxRUcpcVrkXVvywKbO9YNXR2yGjJelm+R++C1sa9mqOOdwAhdP+sFks/b/6RD1FCz1U7T0YDj5mdGYQevjt1GRhhpEWwtAkNZddKP1l/2+C3SZVYe0m3XFm4QC+OzStWg3+iy7FqhjP/TSz/FgsVgfpI2MLrZER4dPMlmTI=
+Message-ID: <35fb2e590510280242h53c8c444t8d285198d7c6730f@mail.gmail.com>
+Date: Fri, 28 Oct 2005 10:42:18 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: Paul Albrecht <palbrecht@qwest.net>
+Subject: Re: yet another c language cross-reference for linux
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <000701c5db43$86209060$25c60443@oemcomputer>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-X-Cluestick: seven
-User-Agent: Mutt/1.5.11
+References: <000501c5daf1$bbd37c60$e8c90443@oemcomputer>
+	 <35fb2e590510270822q39db180fh530ce80bb9ec57ba@mail.gmail.com>
+	 <000701c5db43$86209060$25c60443@oemcomputer>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is CAN-2005-3181, and a backport of
-829841146878e082613a49581ae252c071057c23 from Linus's 2.6 tree to 2.4.
+On 10/27/05, Paul Albrecht <palbrecht@qwest.net> wrote:
 
-Original Description and Sign-Off:
+> I simply disagree that the lxr user interface is useable for code study.
 
-Avoid 'names_cache' memory leak with CONFIG_AUDITSYSCALL
+Although many people use it for that, so it must be useable.
 
-The nameidata "last.name" is always allocated with "__getname()", and
-should always be free'd with "__putname()".
+> The problem with the lxr interface stems from the author's decision to use basic
+> html for query responses to the database;
 
-Using "putname()" without the underscores will leak memory, because the
-allocation will have been hidden from the AUDITSYSCALL code.
+You don't cite an example of where this fails. The only practical
+limitation I've seen in lxr is that it doesn't index certain symbols
+which arrive through complex defines (and this is a place where asking
+the compiler for help *is* useful).
 
-Arguably the real bug is that the AUDITSYSCALL code is really broken,
-but in the meantime this fixes the problem people see.
+> Actually, I'm uninterested in data presentation issues or I'd make the
+> changes myself. What's really different about my cross-reference application
+> is that the database is generated using compiler output.
 
-Reported by Robert Derr, patch by Rick Lindsley.
+That is a good idea.
 
-Acked-by: Al Viro <viro@ftp.linux.org.uk>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+> the cross-reference database is coherent in the sense that its derived from
+> a particular kernel compilation. The advantage of this approach is that it
+> reduces the size and ensures the integrity of the cross-reference database.
 
-My sign off, indicating I think it applies to 2.4:
+coherency is the wrong term here. The database in both should be as
+they're derived from a static kernel tree (if not, then there are
+other problems). But I'll agree that your idea (I haven't yet checked
+the implementation - it was very short) in theory is a good one. LXR
+still works great though :-)
 
-Signed-off-by: Horms <horms@verge.net.au>
-
---- from-0001/fs/namei.c
-+++ to-work/fs/namei.c	2005-10-11 18:23:56.000000000 +0900
-@@ -1198,18 +1198,18 @@ do_link:
- 	if (nd->last_type != LAST_NORM)
- 		goto exit;
- 	if (nd->last.name[nd->last.len]) {
--		putname(nd->last.name);
-+		__putname(nd->last.name);
- 		goto exit;
- 	}
- 	error = -ELOOP;
- 	if (count++==32) {
--		putname(nd->last.name);
-+		__putname(nd->last.name);
- 		goto exit;
- 	}
- 	dir = nd->dentry;
- 	down(&dir->d_inode->i_sem);
- 	dentry = lookup_hash(&nd->last, nd->dentry);
--	putname(nd->last.name);
-+	__putname(nd->last.name);
- 	goto do_last;
- }
- 
-
+Jon.

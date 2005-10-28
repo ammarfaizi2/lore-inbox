@@ -1,74 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030195AbVJ1Ofy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030196AbVJ1Ohk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030195AbVJ1Ofy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 10:35:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbVJ1Ofy
+	id S1030196AbVJ1Ohk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 10:37:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030197AbVJ1Ohk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 10:35:54 -0400
-Received: from rs1.theo-phys.uni-essen.de ([132.252.73.3]:33255 "EHLO
-	rs1.Theo-Phys.Uni-Essen.DE") by vger.kernel.org with ESMTP
-	id S1030195AbVJ1Ofy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 10:35:54 -0400
-Message-Id: <200510281435.QAA18054@next12.theo-phys.uni-essen.de>
-Content-Type: text/plain
-MIME-Version: 1.0 (NeXT Mail 4.2mach_patches v148.2)
-In-Reply-To: <20051026034235.GB6423@verge.net.au>
-X-Nextstep-Mailer: Mail 4.2mach_patches [i386] (Enhance 2.2p3, May 2000)
-From: Ruediger Oberhage <ruediger@next12.theo-phys.uni-essen.de>
-Date: Fri, 28 Oct 2005 16:35:36 +0200
-To: 325117@bugs.debian.org
-Subject: Re: Bug#325117: NFS client problem with kernel 2.6 and SGI IRIX 6.5
-cc: Trond Myklebust <trond.myklebust@fys.uio.no>, Horms <horms@debian.org>,
-       ruediger@theo-phys.uni-essen.de, linux-kernel@vger.kernel.org
-Reply-To: ruediger@theo-phys.uni-essen.de
-References: <200510140905.LAA10947@next12.theo-phys.uni-essen.de>
-	<1129314142.8443.13.camel@lade.trondhjem.org>
-	<200510191652.SAA13594@next12.theo-phys.uni-essen.de>
-	<1129756421.8971.19.camel@lade.trondhjem.org>
-	<20051026034235.GB6423@verge.net.au>
+	Fri, 28 Oct 2005 10:37:40 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:27824 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030196AbVJ1Ohj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 10:37:39 -0400
+Date: Fri, 28 Oct 2005 16:37:50 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: better wake-balancing: respin
+Message-ID: <20051028143750.GA1806@elte.hu>
+References: <200510270124.j9R1OPg27107@unix-os.sc.intel.com> <4361EC95.5040800@yahoo.com.au> <20051028100806.GA19507@elte.hu> <43620583.9080500@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43620583.9080500@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all!
 
-I would like to report/confirm success in solving the problem
-described after applying the patch below:
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-> >  
-http://client.linux-nfs.org/Linux-2.6.x/2.6.12/linux-2.6.12-43-dirent_fix.dif
-> >
-> > This should normally suffice to fix the SGI problem.
+> Ingo, I wasn't aware that tasks are bouncing around wildly; does your 
+> patch improve things? Then by definition it must penalise workloads 
+> where the pairings are more predictable?
 
-Yes, it effectively eliminates both type of problems for our/my
-configuration here - the 'find'-error as well as the 'resources'-
-error (= OpenOffice 'printer' and Mathematica 'fonts, files,
-directories etc.). Thus this patch is more effective that the
-one in KNOPPIX' 4.0 kernel!
+for TPC, most of the non-to-idle migrations are 'wrong'. So basically 
+any change that gets rid of extra migrations is a win. This does not 
+mean that it is all bouncing madly.
 
-Thought, you'd like to know.
+> I would prefer to try fixing wake balancing before giving up and 
+> turning it off for busy CPUs.
 
-My sincere thanks to all helping out in this, here.
+agreed, and that was my suggestion: improve the heuristics to not hurt 
+workloads where there is no natural pairing.
 
-As I normally don't read the lists involved, I won't see other
-problems with nfs and the SGI configuration. Should you feel
-that testing here could be of any help, then please don't
-hesitate to ask me about it - I'd like to return the favour
-granted, if I can.
+one possible way would be to do a task_hot() check in the passive 
+balancing code, and only migrate the task when it's been inactive for a 
+long time: that should be the case for most TPC wakeups. (This assumes 
+an accurate cache-hot estimator, for which another patch exists.)
 
-> Thanks, I'll confine subseqent discussion to 325117@bugs.debian.org
-> as debian packaging issues don't need to be on lkml.
+> Without any form of wake balancing, then a multiprocessor system will 
+> tend to have a completely random distribution of tasks over CPUs over 
+> time. I prefer to add a driver so it is not completely random for 
+> amenable workloads.
 
-This is fine with me - I just wanted to let everyone involved know
-about the outcome. [This is most probably my last report regarding
-this 'bug'. Thus you're all going to miss this 'fine tcpdump'-list
-I promised; that is, unless somebody asks for it :-).]
+but my patch does not do 'no form of wake balancing'. It will do 
+non-load-related wake balancing if the target CPU is idle. Arguably, 
+that can easily be 'never' under common workloads.
 
-Thanks again,
- Ruediger Oberhage
---
-H.-R. Oberhage
-Mail: Univ. Duisburg-Essen	E-Mail:	oberhage@Uni-Essen.DE
-      Fachbereich Physik		ruediger@Theo-Phys.Uni-Essen.DE
-      Campus Essen, S05 V07 E88
-      Universitaetsstrasse 5	Phone:  {+49|0} 201 / 183-2493
-      45141 Essen, Germany	FAX:    {+49|0} 201 / 183-4578
+	Ingo

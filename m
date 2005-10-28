@@ -1,78 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030214AbVJ1Pox@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030216AbVJ1Pp5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030214AbVJ1Pox (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 11:44:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030217AbVJ1Pox
+	id S1030216AbVJ1Pp5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 11:45:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030217AbVJ1Pp5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 11:44:53 -0400
-Received: from amdext4.amd.com ([163.181.251.6]:49308 "EHLO amdext4.amd.com")
-	by vger.kernel.org with ESMTP id S1030214AbVJ1Pox (ORCPT
+	Fri, 28 Oct 2005 11:45:57 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:47250
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S1030216AbVJ1Pp5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 11:44:53 -0400
-X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
-Date: Fri, 28 Oct 2005 09:46:11 -0600
-From: "Jordan Crouse" <jordan.crouse@amd.com>
-To: linux-kernel@vger.kernel.org
-cc: info-linux@ldcmail.amd.com
-Subject: [PATCH 2/6] AMD Geode GX/LX Support (Refreshed)
-Message-ID: <20051028154611.GC19854@cosmic.amd.com>
-References: <LYRIS-4270-74122-2005.10.28-09.38.17--jordan.crouse#amd.com@whitestar.amd.com>
+	Fri, 28 Oct 2005 11:45:57 -0400
+From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: Marcel Holtmann <marcel@holtmann.org>, linux-kernel@vger.kernel.org
+Subject: Re: 4GB memory and Intel Dual-Core system
+Date: Fri, 28 Oct 2005 11:45:54 -0400
+Message-Id: <20051028154109.M9269@linuxwireless.org>
+In-Reply-To: <m1mzktbqxt.fsf@ebiederm.dsl.xmission.com>
+References: <1130445194.5416.3.camel@blade> <52mzkuwuzg.fsf@cisco.com> <20051027204923.M89071@linuxwireless.org> <1130446667.5416.14.camel@blade> <20051027205921.M81949@linuxwireless.org> <1130447261.5416.20.camel@blade> <20051027211203.M33358@linuxwireless.org> <m1mzktbqxt.fsf@ebiederm.dsl.xmission.com>
+X-Mailer: Open WebMail 2.40 20040816
+X-OriginatingIP: 16.126.157.6 (abonilla@linuxwireless.org)
 MIME-Version: 1.0
-In-Reply-To: <LYRIS-4270-74122-2005.10.28-09.38.17--jordan.crouse#amd.com@whitestar.amd.com>
-User-Agent: Mutt/1.5.11
-X-WSS-ID: 6F7C98AA22C3258396-01-01
 Content-Type: text/plain;
- charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a simple patch that fixes console APM blanking on the GX/LX
-platforms with BIOSes that still support APM.
+On Fri, 28 Oct 2005 09:29:34 -0600, Eric W. Biederman wrote
+> "Alejandro Bonilla" <abonilla@linuxwireless.org> writes:
+> 
+> >> so there is no way to give me back the "lost" memory. Is it possible
+> >> that another motherboard might help?
+> >
+> > AFAIK, No. AMD and Intel will always do the same thing until we all move to
+> > real IA64.
+> 
+> IA64 inherits this part of the architecture from x86, so no magic 
+> fix. This is a fundamentally a chipset limitation, not an 
+> architectural bug.
 
-apm.c |   27 ++++++++++++++-------------
-1 file changed, 14 insertions(+), 13 deletions(-)
+Probably, but if they add a function to support this, then is a Fix, else it
+would have been there all the time.
 
-Index: linux-2.6.14/arch/i386/kernel/apm.c
-===================================================================
---- linux-2.6.14.orig/arch/i386/kernel/apm.c
-+++ linux-2.6.14/arch/i386/kernel/apm.c
-@@ -1054,22 +1054,23 @@ static int apm_engage_power_management(u
-  
- static int apm_console_blank(int blank)
- {
--	int	error;
--	u_short	state;
-+	int error, i;
-+	u_short state;
-+	u_short dev[3] = { 0x100, 0x1FF, 0x101 };
- 
- 	state = blank ? APM_STATE_STANDBY : APM_STATE_READY;
--	/* Blank the first display device */
--	error = set_power_state(0x100, state);
--	if ((error != APM_SUCCESS) && (error != APM_NO_ERROR)) {
--		/* try to blank them all instead */
--		error = set_power_state(0x1ff, state);
--		if ((error != APM_SUCCESS) && (error != APM_NO_ERROR))
--			/* try to blank device one instead */
--			error = set_power_state(0x101, state);
-+
-+	for (i = 0; i < 3; i++) {
-+		error = set_power_state(dev[i], state);
-+
-+		if ((error == APM_SUCCESS) || (error == APM_NO_ERROR))
-+			return 1;
-+
-+		if (error == APM_NOT_ENGAGED)
-+			break;
- 	}
--	if ((error == APM_SUCCESS) || (error == APM_NO_ERROR))
--		return 1;
--	if (error == APM_NOT_ENGAGED) {
-+
-+	if (error == APM_NOT_ENGAGED && state != APM_STATE_READY) {
- 		static int tried;
- 		int eng_error;
- 		if (tried++ == 0) {
+> 
+> rev-E amd64 cpus from AMD all have memory hoisting support,
+> as do all server chipsets from Intel for the last several years.
+
+Not according to the link I provided since we started the conversation. But
+they have done tweaks to start "supporting" all this memory.
+
+> 
+> To avoid this you just need a good chipset and a good BIOS implementation.
+> Any recent server board should be fine.  Hopefully the desktop boards
+> will catch up soon.
+
+I doubt it, Intel is slowly moving to 64bit so applications and OS can catch
+up in the future to leave 32bit behind. (Probably)
+
+Anyway, I think Marcel got most of he's doubt answered.
+
+.Alejandro
+
+> 
+> Eric
+
 

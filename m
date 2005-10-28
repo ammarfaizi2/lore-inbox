@@ -1,88 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbVJ1URh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbVJ1UTr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750703AbVJ1URh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 16:17:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750708AbVJ1URh
+	id S1750708AbVJ1UTr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 16:19:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbVJ1UTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 16:17:37 -0400
-Received: from lug-owl.de ([195.71.106.12]:2719 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1750703AbVJ1URh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 16:17:37 -0400
-Date: Fri, 28 Oct 2005 22:17:35 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SPARC64: Configuration offers keyboards that don't make sense
-Message-ID: <20051028201735.GP27184@lug-owl.de>
-Mail-Followup-To: Horst von Brand <vonbrand@inf.utfsm.cl>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200510282009.j9SK9VgH012319@laptop11.inf.utfsm.cl>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ga5bsqHr1s/xcZEm"
+	Fri, 28 Oct 2005 16:19:47 -0400
+Received: from zproxy.gmail.com ([64.233.162.194]:23799 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750708AbVJ1UTq convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 16:19:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=OMNmZu46fnDx86UUUfMKkVm6cW3yLiZUwNpZDuDwGSCUf4JLyCwAuLzuMAIp0/p/QNEuFh6LzQ4c7FVjjJpK2o4u+KKjgBnNEIv1dC3HX/LV4Hb4E/S1c2ZbyMCFD1UNHeqob3cJKvccXZpUOENA62Ecomb1Xh9dA+6cBTy5rIw=
+Message-ID: <86802c440510281319y667427fj38ffd7a37b8cb77b@mail.gmail.com>
+Date: Fri, 28 Oct 2005 13:19:45 -0700
+From: Yinghai Lu <yinghai.lu@amd.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: x86_64: calibrate_delay_direct and apic id lift for BSP
+Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org, linuxbios@openbios.org
+In-Reply-To: <6F7DA19D05F3CF40B890C7CA2DB13A4201E061EC@ssvlexmb2.amd.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <200510282009.j9SK9VgH012319@laptop11.inf.utfsm.cl>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+References: <6F7DA19D05F3CF40B890C7CA2DB13A4201E061EC@ssvlexmb2.amd.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I wonder if 8111 only support 4 bit apicid, so it can not send irq to
+BSP at apic id 0x10....
 
---ga5bsqHr1s/xcZEm
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+YH
 
-On Fri, 2005-10-28 17:09:31 -0300, Horst von Brand <vonbrand@inf.utfsm.cl> =
-wrote:
-> On my Sun I get the following offers:
->=20
->    AT Keyboard
->    Sun types 4 and 5
->    DECstation LK201/LK401
->    XT keyboard
->    Newton keyboard
->=20
-> Unless I am very mistaken, only the second one applies?
-
-Well, the LK[24]01 was used by DECstations and VAXstations (as well as
-some VT terminals), you can use it with a simple adaptor on any
-machine that has a RS232 serial port. For example, I'm using such a
-keyboard on my Athlon-based PeeCee.
-
-> Also, configuring this one gives a non-functional keyboard (the machine is
-> running, I can log in over SSH, but keypresses have no effect at all).
-
-Did the serial port register serio ports?
-
-MfG, JBG
-
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---ga5bsqHr1s/xcZEm
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFDYodfHb1edYOZ4bsRAuqrAJ9wGF2XJ/Eu+5CWixkVCl0aJZKlXACfXjM2
-vMtz90f3WdByv4tmPJFtQvI=
-=S/3S
------END PGP SIGNATURE-----
-
---ga5bsqHr1s/xcZEm--
+On 10/28/05, Lu, Yinghai <yinghai.lu@amd.com> wrote:
+> I have tried latest code..., except that, it works well.
+>
+> YH
+>
+> -----Original Message-----
+> From: Andi Kleen [mailto:ak@suse.de]
+> Sent: Friday, October 28, 2005 11:53 AM
+> To: Lu, Yinghai
+> Cc: discuss@x86-64.org; linux-kernel@vger.kernel.org;
+> linuxbios@openbios.org
+> Subject: Re: x86_64: calibrate_delay_direct and apic id lift for BSP
+>
+> On Friday 28 October 2005 20:42, Yinghai Lu wrote:
+> > andi,
+> >
+> > I tried to lift apic id in LinuxBIOS for all cpus after 0x10.
+> >
+> > When using MB with AMD8111, the jiffies was not moving. So it is
+> > locked at calibrate_delay_direct...
+>
+> Have you tried it with 2.6.14? It has some new code to handle
+> high apic ids better
+>
+> > but  MB with Nvidia ck804, jiffies is moving.
+>
+> The timer is wired different on nvidia than on 8111. They can
+> go either through the 8259 or through the IOAPIC.  There is still
+> some code that falls back to the 8259 if IOAPIC doesn't work,
+> which may make it appear working on Nvidia.
+>
+> As a warning I'm about to remove that code so don't rely on it.
+>
+> > If I don't change BSP apic id ( keep it to 0), It changes....
+> >
+> > I have no idea how the jiffies changes, there is another thread change
+> it....?
+>
+> They change when interrupt 0 fires. So it's probably misrouted
+> or similar.
+>
+>
+> -Andi
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

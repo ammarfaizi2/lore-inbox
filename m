@@ -1,61 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751941AbVJ1WlI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751949AbVJ1Wqq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751941AbVJ1WlI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 18:41:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751942AbVJ1WlI
+	id S1751949AbVJ1Wqq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 18:46:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751947AbVJ1Wqq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 18:41:08 -0400
-Received: from zproxy.gmail.com ([64.233.162.196]:34808 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751941AbVJ1WlG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 18:41:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=LgmyciJ8/hFYIy7NjQ7N3jMpvOqTzxa4YoI+usx5EQxKkjOqGihV87SKRVSaQYwNzNzbal9KVFA8632j+bnh06mnO8XOqlxR/cxD9fn6QT1HygeJJdVusb/iTzikqnqUwpOkaXI3TvEXXMhma0xk158zMFc5IXrzU9X3//OiXIw=
-Message-ID: <35fb2e590510281541m7ff923ecte3003be812e73f75@mail.gmail.com>
-Date: Fri, 28 Oct 2005 23:41:05 +0100
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] Disable the most annoying printk in the kernel
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200510282322.16627.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 28 Oct 2005 18:46:46 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:48074 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1751945AbVJ1Wqq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 18:46:46 -0400
+Date: Sat, 29 Oct 2005 08:46:33 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: AndyLiebman@aol.com
+Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: What happened to XFS Quota Support?
+Message-ID: <20051029084633.A6142170@wobbly.melbourne.sgi.com>
+References: <79.50cb86c7.3093fcfa@aol.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200510271026.10913.ak@suse.de> <20051028205132.GB11397@elf.ucw.cz>
-	 <20051028205916.GL4464@flint.arm.linux.org.uk>
-	 <200510282322.16627.ak@suse.de>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <79.50cb86c7.3093fcfa@aol.com>; from AndyLiebman@aol.com on Fri, Oct 28, 2005 at 06:15:22PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/28/05, Andi Kleen <ak@suse.de> wrote:
-> On Friday 28 October 2005 22:59, Russell King wrote:
-> > On Fri, Oct 28, 2005 at 10:51:32PM +0200, Pavel Machek wrote:
-> > > Well, keyboard detected and reported an error. Kernel reacted with
-> > > printk(). You are removing that printk(). I can understand that,
-> > > printk is really annoying, but I really believe _some_ error handling
-> > > should be added there if you remove the printk.
-> >
-> > What do you suggest?
->
-> Obviously it needs an DBUS over netlink interface with an user space daemon to open
-> a window on the desktop. Then the user needs to click ok to make sure they
-> understood they did something wrong (either by buying broken hardware or by simply
-> typing).
+On Fri, Oct 28, 2005 at 06:15:22PM -0400, AndyLiebman@aol.com wrote:
+> could you be a little clearer on this. What do you mean by "there's a patch  
+> already floating around". If I knew where to get the patch, I would have  
+> installed it already rather than wasting half a day compiling various flavors of  
+> the new kernel (no preemption, voluntary preemption, high preemption). 
+>  
 
-But just in case the mouse is also broken, this should broadcast out
-on the local network and popup windows on every other Linux box we can
-find within 50 miles.
+Oh, sorry - I was refering to this...
 
-> You get bonus points when that window first opens another window with a "Did you
-> know ..." message with a little dancing pink penguin that gives you helpful tips
-> regarding typing on keyboards and offers you links to buy new keyboards on the web.
+cheers.
 
-> Wouldn't that be great?
+-- 
+Nathan
 
-Where does sysfs fit into this plan? :P
+----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
 
-Jon.
+Date: Fri, 28 Oct 2005 22:33:25 +0200
+To: Andrew Morton <akpm@osdl.org>, stable@kernel.org
+Cc: linux-kernel@vger.kernel.org, xfs-masters@oss.sgi.com, nathans@sgi.com,
+   linux-xfs@oss.sgi.com, Dimitri Puzin <tristan-777@ddkom-online.de>
+User-Agent: Mutt/1.5.11
+From: Adrian Bunk <bunk@stusta.de>
+Subject: [2.6 patch] fix XFS_QUOTA for modular XFS
+
+This patch by Dimitri Puzin submitted through kernel Bugzilla #5514 
+fixes the following issue:
+
+Cannot build XFS filesystem support as module with quota support. It 
+works only when the XFS filesystem support is compiled into the kernel. 
+Menuconfig prevents from setting CONFIG_XFS_FS=m and CONFIG_XFS_QUOTA=y.
+
+How to reproduce: configure the XFS filesystem with quota support as 
+module. The resulting kernel won't have quota support compiled into 
+xfs.ko.
+
+Fix: Changing the fs/xfs/Kconfig file from tristate to bool lets you 
+configure the quota support to be compiled into the XFS module. The 
+Makefile-linux-2.6 checks only for CONFIG_XFS_QUOTA=y.
+
+
+From: Dimitri Puzin <tristan-777@ddkom-online.de>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.14-rc5-mm1/fs/xfs/Kconfig.old	2005-10-28 19:51:02.000000000 +0200
++++ linux-2.6.14-rc5-mm1/fs/xfs/Kconfig	2005-10-28 19:51:12.000000000 +0200
+@@ -24,7 +24,7 @@
+ 	default y
+ 
+ config XFS_QUOTA
+-	tristate "XFS Quota support"
++	bool "XFS Quota support"
+ 	depends on XFS_FS
+ 	help
+ 	  If you say Y here, you will be able to set limits for disk usage on
+
+
+----- End forwarded message -----

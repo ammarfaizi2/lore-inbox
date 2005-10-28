@@ -1,43 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751806AbVJ1VSQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751807AbVJ1VUa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751806AbVJ1VSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 17:18:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751808AbVJ1VSQ
+	id S1751807AbVJ1VUa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 17:20:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751810AbVJ1VUa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 17:18:16 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:46778 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751806AbVJ1VSP (ORCPT
+	Fri, 28 Oct 2005 17:20:30 -0400
+Received: from lug-owl.de ([195.71.106.12]:43483 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S1751809AbVJ1VUa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 17:18:15 -0400
-Date: Sat, 29 Oct 2005 07:15:52 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Adrian Bunk <bunk@stusta.de>, Dimitri Puzin <tristan-777@ddkom-online.de>
-Cc: Andrew Morton <akpm@osdl.org>, stable@kernel.org,
-       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: [2.6 patch] fix XFS_QUOTA for modular XFS
-Message-ID: <20051029071552.A6135176@wobbly.melbourne.sgi.com>
-References: <20051028203325.GD4180@stusta.de>
+	Fri, 28 Oct 2005 17:20:30 -0400
+Date: Fri, 28 Oct 2005 23:20:28 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Cc: Chuck Lever <cel@netapp.com>, Trond Myklebust <Trond.Myklebust@netapp.com>
+Subject: Link error in ./net/sunrcp/
+Message-ID: <20051028212028.GQ27184@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Chuck Lever <cel@netapp.com>,
+	Trond Myklebust <Trond.Myklebust@netapp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7kD9y3RnPUgTZee0"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20051028203325.GD4180@stusta.de>; from bunk@stusta.de on Fri, Oct 28, 2005 at 10:33:25PM +0200
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 28, 2005 at 10:33:25PM +0200, Adrian Bunk wrote:
-> This patch by Dimitri Puzin submitted through kernel Bugzilla #5514 
-> fixes the following issue:
-> ...
-> From: Dimitri Puzin <tristan-777@ddkom-online.de>
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Thanks guys; feel free to add:
-Signed-off-by: Nathan Scott <nathans@sgi.com>
+--7kD9y3RnPUgTZee0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-(Or Acked-by: or whatever).
+Hi!
 
-cheers.
+I get this link error:
 
--- 
-Nathan
+net/built-in.o: In function `xs_bindresvport':xprtsock.c:(.text+0x46970): u=
+ndefined reference to `xprt_min_resvport'
+:xprtsock.c:(.text+0x46978): undefined reference to `xprt_max_resvport'
+net/built-in.o: In function `xs_setup_udp': undefined reference to `xprt_ud=
+p_slot_table_entries'
+net/built-in.o: In function `xs_setup_tcp': undefined reference to `xprt_tc=
+p_slot_table_entries'
+make: *** [.tmp_vmlinux1] Error 1
+
+in case of CONFIG_SYSCTL not being enabled. This is on the VAX port,
+but I guess it'll show up on any target...
+
+MfG, JBG
+
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
+m Irak!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
+
+--7kD9y3RnPUgTZee0
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDYpYcHb1edYOZ4bsRApiVAJoDyyfGb+CjyaWCzO9IQt+kIHT/5ACfYdfi
+5FN6Cz84bzde+Ab+WvtHOAo=
+=5Jul
+-----END PGP SIGNATURE-----
+
+--7kD9y3RnPUgTZee0--

@@ -1,86 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751663AbVJ1TMz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030621AbVJ1TPG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751663AbVJ1TMz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 15:12:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751665AbVJ1TMz
+	id S1030621AbVJ1TPG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 15:15:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030575AbVJ1TPG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 15:12:55 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:56272 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751662AbVJ1TMy (ORCPT
+	Fri, 28 Oct 2005 15:15:06 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:4772 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030329AbVJ1TPE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 15:12:54 -0400
-To: torvalds@osdl.org
-Subject: [git pull] jfs update
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <20051028191251.4955C82BEA@kleikamp.dyn.webahead.ibm.com>
-Date: Fri, 28 Oct 2005 14:12:51 -0500 (CDT)
-From: shaggy@austin.ibm.com (Dave Kleikamp)
+	Fri, 28 Oct 2005 15:15:04 -0400
+Message-ID: <436277EC.8040407@redhat.com>
+Date: Fri, 28 Oct 2005 15:11:40 -0400
+From: William Cohen <wcohen@redhat.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: eranian@hpl.hp.com
+CC: perfmon@napali.hpl.hp.com, perfctr-devel@lists.sourceforge.net,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [Perfctr-devel] updated perfmon new code base package available
+References: <20051018041556.GJ3614@frankl.hpl.hp.com>
+In-Reply-To: <20051018041556.GJ3614@frankl.hpl.hp.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please pull from
+Stephane Eranian wrote:
+> Hello everyone,
+> 
+> I have released an updated version of the perfmon new code base package.
+> This release is relative to 2.6.14-rc4-mm1. I have also updated the library,
+> libpfm-3.2, to match the kernel level changes.
+> 
+> Kernel-package features:
+> ------------------------
+> 	- preliminary support for MIPS R5000 by Phil Mucci
+> 	- on X86-64, P6, P4 32-bits, the PMC enable bits are now
+> 	  under the control of the users. Pfm_start/pfm_stop do not
+> 	  touch them anymore. That means applications must set them.
+> 	- simplified arch-specific interface (merged calls)
+> 	- simplified PMU description tables (removed dep_pmc[])
+> 
+> I now have a compilation environment for PPC64 and MIPS64, as such
+> I have verified that the patches for those architectures compile,
+> no actual testing has been done, though.
+> 
+> For MIPS, the patch is relative to the www.linux-mips.org GIT
+> tree as they still maintain a separate tree. The common perfmon
+> patch does apply cleanly even though the MIPS tree is sligthly
+> behind (see README.mips).
+> 
+> For libpfm-3.2, the updates is to reflect the changes for the
+> enable bits for P6, X86-64. The P4 standalone programs, and
+> PEBS examples have also been  updated for enable bits. Note
+> that the PEBS support does not seem to work when Hyperthreading
+> is enabled. I have not yet tracked this one down, any volunteer?
+> 
+> You can grab both packages at our SourceForge web site:
+> 	
+> 	http://www.sf.net/projects/perfmon2
+> 
+> You must download:
+> 	- 2.6.14-rc4-mm1-051017
+> 	- libpfm-3.2-051018
+> 
+> Enjoy,
+> 
 
-git://git.kernel.org/pub/scm/linux/kernel/git/shaggy/jfs-2.6.git for-linus
 
-This will update the following files:
+Hi Stephane,
 
- fs/jfs/jfs_dmap.c     |   20 ++++++++++++++------
- fs/jfs/jfs_imap.c     |   10 ++++++++--
- fs/jfs/jfs_metapage.c |    6 ++++++
- fs/jfs/jfs_txnmgr.c   |    2 --
- fs/jfs/jfs_xtree.c    |   18 +++++++++---------
- fs/jfs/super.c        |    1 +
- 6 files changed, 38 insertions(+), 19 deletions(-)
+I have been looking at what changes are required to get oprofile to be 
+able to use the custom sampling format in perfmon2. It looks like there 
+have been some changes between the perfmon and perfmon2. The ia64 
+oprofile support uses the older interface. I don't have easy access to 
+an ia64 machine, so I have been making similar support available on the 
+x86 version.
 
-through these ChangeSets:
+I noticed that the older interface passed in "struct pt_regs *regs", but 
+the newer interface does not. The oprofile code extracted the program 
+counter and whether the interrupted process was in kernel or user mode 
+from regs. The newer perfmon interface passes in the instruction 
+pointer, but the information about user/kernel mode is lacking.
 
-commit 7038f1cbac899654cf0515e60dbe3e44d58271de
-tree 73909f95989f10bd85929073395e494ceb1a6b3f
-parent b6a47fd8ff08a9d5cd279cdb8d97a619983575fa
-author Dave Kleikamp <shaggy@austin.ibm.com> Fri, 28 Oct 2005 13:27:40 -0500
-committer Dave Kleikamp <shaggy@austin.ibm.com> Fri, 28 Oct 2005 13:27:40 -0500
+Reading through the perform2 documentation the last argument passed into 
+fmt_handler is a void pointer. The Perfmon2 specification 
+(HPL-2004-200R1.pdf) says:
 
-    JFS: make sure right-most xtree pages have header.next set to zero
-    
-    The xtTruncate code was only doing this for leaf pages.  When a file is
-    horribly fragmented, we may truncate a file leaving an internal page with
-    an invalid head.next field, which may cause a stale page to be referenced.
-    
-    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
+data : a pointer to an implementation-specific data structure which may 
+be needed by a handler. For instance, this could point to the 
+interrupted machine state and/or the thread to which the overflow is 
+attributed.
 
-commit b6a47fd8ff08a9d5cd279cdb8d97a619983575fa
-tree 5e946b5a7c3f224d181525ca475fd3f29508c47d
-parent ac17b8b57013a3e38d1958f66a218f15659e5752
-author Dave Kleikamp <shaggy@austin.ibm.com> Tue, 11 Oct 2005 09:06:59 -0500
-committer Dave Kleikamp <shaggy@austin.ibm.com> Tue, 11 Oct 2005 09:06:59 -0500
+However, the actual call in linux/perfmon/perfmon.c just passes NULL for 
+it. Would it be possible to pass the regs instead? Why not pass regs to 
+the handler? Was there some thought to allow other data to be passed?
 
-    JFS: Corrupted block map should not cause trap
-    
-    Replace assert statements with better error handling.
-    
-    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
-
-commit ac17b8b57013a3e38d1958f66a218f15659e5752
-tree f7a28ccd5bd5496f6a2284f3d77a5019dc75c820
-parent ddea7be0ec8d1374f0b483a81566ed56ec9f3905
-author Dave Kleikamp <shaggy@austin.ibm.com> Mon, 03 Oct 2005 15:32:11 -0500
-committer Dave Kleikamp <shaggy@austin.ibm.com> Mon, 03 Oct 2005 15:32:11 -0500
-
-    JFS: make special inodes play nicely with page balancing
-    
-    This patch fixes up a few problems with jfs's reserved inodes.
-    
-    1. There is no need for the jfs code setting the I_DIRTY bits in i_state.
-    I am ashamed that the code ever did this, and surprised it hasn't been
-    noticed until now.
-    
-    2. Make sure special inodes are on an inode hash list.  If the inodes are
-    unhashed, __mark_inode_dirty will fail to put the inode on the
-    superblock's dirty list, and the data will not be flushed under memory
-    pressure.
-    
-    3. Force writing journal data to disk when metapage_writepage is unable to
-    write a metadata page due to pending journal I/O.
-    
-    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
-
+-Will

@@ -1,56 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030250AbVJ1Qtb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030255AbVJ1Quf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030250AbVJ1Qtb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 12:49:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030253AbVJ1Qtb
+	id S1030255AbVJ1Quf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 12:50:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030254AbVJ1Quf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 12:49:31 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:8584 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S1030252AbVJ1Qta
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 12:49:30 -0400
-Subject: Re: Intel D945GNT crashes with AGP enabled
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Dave Jones <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051028162806.GA4340@redhat.com>
-References: <1130506715.5345.7.camel@blade>
-	 <20051028162806.GA4340@redhat.com>
-Content-Type: text/plain
-Date: Fri, 28 Oct 2005 18:49:20 +0200
-Message-Id: <1130518160.5372.6.camel@blade>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Fri, 28 Oct 2005 12:50:35 -0400
+Received: from amdext3.amd.com ([139.95.251.6]:63660 "EHLO amdext3.amd.com")
+	by vger.kernel.org with ESMTP id S1030252AbVJ1Que (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 12:50:34 -0400
+X-Server-Uuid: 519AC16A-9632-469E-B354-112C592D09E8
+Date: Fri, 28 Oct 2005 09:55:04 -0600
+From: "Jordan Crouse" <jordan.crouse@amd.com>
+To: linux-kernel@vger.kernel.org
+cc: info-linux@ldcmail.amd.com, linux-ide@vger.kernel.org
+Subject: [6/6] AMD Geode GX/LX Support (Refreshed)
+Message-ID: <20051028155504.GG19854@cosmic.amd.com>
+References: <LYRIS-4270-74122-2005.10.28-09.38.17--jordan.crouse#amd.com@whitestar.amd.com>
+MIME-Version: 1.0
+In-Reply-To: <LYRIS-4270-74122-2005.10.28-09.38.17--jordan.crouse#amd.com@whitestar.amd.com>
+User-Agent: Mutt/1.5.11
+X-WSS-ID: 6F7C96E83CO5947240-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave,
+The core IDE engine on the CS5536 is the same as the other AMD southbridges,
+so unlike the CS5535, we can simply add the appropriate PCI headers to
+the existing amd74xx code.
 
->  > The problematic part is the Intel AGP module (intel_agp), because if I
->  > don't compile it the system works fine. There is an oops coming, but so
->  > far I wasn't able to get it out. Does anyone have seen this problem
->  > before and have some patches for me to try? Otherwise I need to try to
->  > get this oops message.
-> 
-> You never mentioned what kernel you're running.
-> If it's a recent -mm, there's an AGP optimisation patch to do less
-> frequent TLB flushes, which may be worth backing out.
-> 
-> If you're running mainline, I'm puzzled.
+drivers/ide/pci/amd74xx.c |    3 +++
+include/linux/pci_ids.h   |    9 +++++++++
+2 files changed, 12 insertions(+)
 
-basically I am running mainline, but I also tried your agpgart tree and
-both are having problems.
-
-> It'd be useful to see that oops.
-
-I am working on it and actually it is enough to just kill the X process
-to crash the system. I saw parts of the oops and it seems that there are
-some RCU calls in the backtrace, but this might not help at all. So it
-seems that I really need that oops.
-
-Regards
-
-Marcel
-
+Index: linux-2.6.14/drivers/ide/pci/amd74xx.c
+===================================================================
+--- linux-2.6.14.orig/drivers/ide/pci/amd74xx.c
++++ linux-2.6.14/drivers/ide/pci/amd74xx.c
+@@ -74,6 +74,7 @@ static struct amd_ide_chip {
+ 	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE,	0x50, AMD_UDMA_133 },
+ 	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_IDE,	0x50, AMD_UDMA_133 },
+ 	{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_IDE,	0x50, AMD_UDMA_133 },
++	{ PCI_DEVICE_ID_AMD_CS5536_IDE,             0x40, AMD_UDMA_100 },
+ 	{ 0 }
+ };
+ 
+@@ -491,6 +492,7 @@ static ide_pci_device_t amd74xx_chipsets
+ 	/* 14 */ DECLARE_NV_DEV("NFORCE-MCP04"),
+ 	/* 15 */ DECLARE_NV_DEV("NFORCE-MCP51"),
+ 	/* 16 */ DECLARE_NV_DEV("NFORCE-MCP55"),
++	/* 17 */ DECLARE_AMD_DEV("AMD5536"),
+ };
+ 
+ static int __devinit amd74xx_probe(struct pci_dev *dev, const struct pci_device_id *id)
+@@ -527,6 +529,7 @@ static struct pci_device_id amd74xx_pci_
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 14 },
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 15 },
+ 	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_IDE,	PCI_ANY_ID, PCI_ANY_ID, 0, 0, 16 },
++	{ PCI_VENDOR_ID_AMD,    PCI_DEVICE_ID_AMD_CS5536_IDE, 	        PCI_ANY_ID, PCI_ANY_ID, 0, 0, 17 },
+ 	{ 0, },
+ };
+ MODULE_DEVICE_TABLE(pci, amd74xx_pci_tbl);
+Index: linux-2.6.14/include/linux/pci_ids.h
+===================================================================
+--- linux-2.6.14.orig/include/linux/pci_ids.h
++++ linux-2.6.14/include/linux/pci_ids.h
+@@ -546,6 +546,15 @@
+ #define PCI_DEVICE_ID_AMD_LX_VIDEO  0x2081
+ #define PCI_DEVICE_ID_AMD_LX_AES    0x2082
+ 
++#define PCI_DEVICE_ID_AMD_CS5536_ISA    0x2090
++#define PCI_DEVICE_ID_AMD_CS5536_FLASH  0x2091
++#define PCI_DEVICE_ID_AMD_CS5536_AUDIO  0x2093
++#define PCI_DEVICE_ID_AMD_CS5536_OHC    0x2094
++#define PCI_DEVICE_ID_AMD_CS5536_EHC    0x2095
++#define PCI_DEVICE_ID_AMD_CS5536_UDC    0x2096
++#define PCI_DEVICE_ID_AMD_CS5536_UOC    0x2097
++#define PCI_DEVICE_ID_AMD_CS5536_IDE    0x209A
++
+ #define PCI_VENDOR_ID_TRIDENT		0x1023
+ #define PCI_DEVICE_ID_TRIDENT_4DWAVE_DX	0x2000
+ #define PCI_DEVICE_ID_TRIDENT_4DWAVE_NX	0x2001
 

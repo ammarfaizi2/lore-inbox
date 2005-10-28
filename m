@@ -1,84 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbVJ1KRa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964893AbVJ1KhI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932237AbVJ1KRa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 06:17:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932615AbVJ1KRa
+	id S964893AbVJ1KhI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 06:37:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964963AbVJ1KhH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 06:17:30 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:57515 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932237AbVJ1KR3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 06:17:29 -0400
-Subject: Re: [PATCH] Process Events Connector
-From: Matt Helsley <matthltc@us.ibm.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       Jean-Pierre Dion <jean-pierre.dion@bull.net>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       Badari Pulavarty <pbadari@us.ibm.com>, Ram Pai <linuxram@us.ibm.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Erich Focht <efocht@hpce.nec.com>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>,
-       Gerrit Huizenga <gh@us.ibm.com>, Adrian Bunk <bunk@stusta.de>,
-       "Chandra S. Seetharaman" <sekharan@us.ibm.com>,
-       Jay Lan <jlan@engr.sgi.com>, Erik Jacobson <erikj@sgi.com>,
-       Jack Steiner <steiner@sgi.com>
-In-Reply-To: <1130491147.2800.15.camel@laptopd505.fenrus.org>
-References: <1130489713.10680.685.camel@stark>
-	 <1130491147.2800.15.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Date: Fri, 28 Oct 2005 03:03:18 -0700
-Message-Id: <1130493798.10680.750.camel@stark>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Fri, 28 Oct 2005 06:37:07 -0400
+Received: from amsfep13-int.chello.nl ([213.46.243.23]:2394 "EHLO
+	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
+	id S964893AbVJ1KhG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 06:37:06 -0400
+Message-ID: <4362001D.1070004@sara.nl>
+Date: Fri, 28 Oct 2005 12:40:29 +0200
+From: Bram Stolk <bram@sara.nl>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: assertion failure in libata-core
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-10-28 at 11:19 +0200, Arjan van de Ven wrote:
-> On Fri, 2005-10-28 at 01:55 -0700, Matt Helsley wrote:
-> 
-> > +void proc_fork_connector(struct task_struct *task)
-> > +{
-> > +	struct cn_msg *msg;
-> > +	struct proc_event *ev;
-> > +	__u8 buffer[CN_PROC_MSG_SIZE];
-> 
-> do you really want to do this stack based?
+Hi,
 
-	cn_netlink_send() performs an skb_alloc() and I wanted to avoid doing
-two allocations that might sleep. 
 
-	On a 32-bit machine the buffer should be around 42 bytes, making the
-function locals around 50 bytes. On a 64-bit machine I believe this
-should be around 58 bytes. Is this generally considered to be too large?
+When enabling atapi, I got the following assertion failure:
 
-These functions are called from:
+Assertion failed! qc->flags &
+ATA_QCFLAG_ACTIVE,drivers/scsi/libata-core.c,ata_qc_complete,line=3232
 
-fork:
+This is when booting my 2.6.14-rc5 kernel with two sata devices:
+a maxtor hd, and a plextor dvd writer.
 
--> do_fork -> copy_process -> proc_fork_connector -> ...
--> fork_idle (this holds a struct ptregs) -> copy_process ->
-proc_fork_connector -> ...
+   Bram
+-------------------------------------
+Some context for the failure:
 
-exec:
+ata1: SATA max UDMA/133 cmd 0xF8806100 ctl 0x0 bmdma 0x0 irq 19
+ata2: SATA max UDMA/133 cmd 0xF8806180 ctl 0x0 bmdma 0x0 irq 19
+ata3: SATA max UDMA/133 cmd 0xF8806200 ctl 0x0 bmdma 0x0 irq 19
+ata4: SATA max UDMA/133 cmd 0xF8806280 ctl 0x0 bmdma 0x0 irq 19
+ata1: dev 0 cfg 49:0f00 82:0000 83:0000 84:0000 85:0000 86:0000 87:0000 88:001f
+ata1: dev 0 ATAPI, max UDMA/66
+ata1(0): applying bridge limits
+ata1: dev 0 configured for UDMA/66
+scsi0 : ahci
+ata2: no device found (phy stat 00000000)
+scsi1 : ahci
+ata3: dev 0 cfg 49:2f00 82:7c6b 83:7f09 84:4063 85:7c69 86:3e01 87:4063 88:007f
+ata3: dev 0 ATA, max UDMA/133, 490234752 sectors: lba48
+ata3: dev 0 configured for UDMA/133
+scsi2 : ahci
+ata4: no device found (phy stat 00000000)
+scsi3 : ahci
+   Vendor: PLEXTOR   Model: DVDR   PX-716A    Rev: 1.07
+   Type:   CD-ROM                             ANSI SCSI revision: 05
+ata1: error occurred, port reset
+ata1: error occurred, port reset
+Assertion failed! qc->flags &
+ATA_QCFLAG_ACTIVE,drivers/scsi/libata-core.c,ata_qc_complete,line=3232
+  0:0:0:0: timing out command, waited 18s
+  0:0:0:0: timing out command, waited 18s
+   Vendor: ATA       Model: Maxtor 6L250S0    Rev: BANC
+   Type:   Direct-Access                      ANSI SCSI revision: 05
+SCSI device sda: 490234752 512-byte hdwr sectors (251000 MB)
+SCSI device sda: drive cache: write back
+SCSI device sda: 490234752 512-byte hdwr sectors (251000 MB)
+SCSI device sda: drive cache: write back
+  sda: sda1 sda2 < sda5 > sda3
+Attached scsi disk sda at scsi2, channel 0, id 0, lun 0
+sr 0:0:0:0: timing out command, waited 90s
+sr 0:0:0:0: timing out command, waited 90s
+sr 0:0:0:0: timing out command, waited 90s
+sr 0:0:0:0: timing out command, waited 90s
+sr 0:0:0:0: timing out command, waited 90s
+sr 0:0:0:0: timing out command, waited 90s
+sr0: scsi-1 drive
+Uniform CD-ROM driver Revision: 3.20
+Attached scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
+Attached scsi generic sg0 at scsi0, channel 0, id 0, lun 0,  type 5
+Attached scsi generic sg1 at scsi2, channel 0, id 0, lun 0,  type 0
 
--> do_execve -> search_binary_handler -> proc_exec_connector -> ...
-
-id:
-
--> sys_set(r|e|s|fs)?[ug]id -> proc_id_connector -> ...
-
-exit:
-
--> do_exit -> proc_exit_connector -> ...
-
-	Where "-> ..." signifies a call to cn_netlink_send(). So they should
-only be a problem if a caller or cn_netlink_send() use too much stack
-space.
-
-Cheers,
-	-Matt Helsley
-	< matthltc @ us.ibm.com >
 

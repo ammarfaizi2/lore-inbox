@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751639AbVJ1OHn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965231AbVJ1OI7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751639AbVJ1OHn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 10:07:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751641AbVJ1OHn
+	id S965231AbVJ1OI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 10:08:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751653AbVJ1OI7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 10:07:43 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:9147 "EHLO
+	Fri, 28 Oct 2005 10:08:59 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:65211 "EHLO
 	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751639AbVJ1OHl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 10:07:41 -0400
-Date: Fri, 28 Oct 2005 16:07:48 +0200
+	id S1751648AbVJ1OI6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 10:08:58 -0400
+Date: Fri, 28 Oct 2005 16:09:04 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: [patch 5/14] s390: memory query wait psw.
-Message-ID: <20051028140748.GE7300@skybase.boeblingen.de.ibm.com>
+To: akpm@osdl.org, cborntra@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: [patch 8/14] s390: test_bit return value.
+Message-ID: <20051028140904.GH7300@skybase.boeblingen.de.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,54 +21,32 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Christian Borntraeger <cborntra@de.ibm.com>
 
-[patch 5/14] s390: memory query wait psw.
+[patch 8/14] s390: test_bit return value.
 
-Don't switch back to 24 bit addressing mode when waiting for an external
-interrupt and set the correct bit in wait PSW (external mask instead of
-I/O mask).
+The test_bit function returns a non-boolean value, it returns 0,1,2,4,...
+instead of only 0 or 1. This causes wrongs results in the mincore
+system call. Check against 0 to get a proper boolean value.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Christian Borntraeger <cborntra@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/head.S   |    3 +--
- arch/s390/kernel/head64.S |    5 ++---
- 2 files changed, 3 insertions(+), 5 deletions(-)
+ include/asm-s390/bitops.h |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff -urpN linux-2.6/arch/s390/kernel/head64.S linux-2.6-patched/arch/s390/kernel/head64.S
---- linux-2.6/arch/s390/kernel/head64.S	2005-10-28 14:04:41.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/head64.S	2005-10-28 14:04:47.000000000 +0200
-@@ -530,7 +530,7 @@ startup:basr  %r13,0                    
- 	be    .Lfchunk-.LPG1(%r13)	# leave
- 	chi   %r1,2
- 	be    .Lservicecall-.LPG1(%r13)
--	lpsw  .Lwaitsclp-.LPG1(%r13)
-+	lpswe .Lwaitsclp-.LPG1(%r13)
- .Lsclph:
- 	lh    %r1,.Lsccbr-PARMAREA(%r4)
- 	chi   %r1,0x10			# 0x0010 is the sucess code
-@@ -567,8 +567,7 @@ startup:basr  %r13,0                    
- .Lcr:
- 	.quad 0x00  # place holder for cr0
- .Lwaitsclp:
--	.long 0x020A0000
--	.quad .Lsclph
-+	.quad  0x0102000180000000,.Lsclph
- .Lrcp:
- 	.int 0x00120001 # Read SCP forced code
- .Lrcp2:
-diff -urpN linux-2.6/arch/s390/kernel/head.S linux-2.6-patched/arch/s390/kernel/head.S
---- linux-2.6/arch/s390/kernel/head.S	2005-10-28 14:04:41.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/head.S	2005-10-28 14:04:47.000000000 +0200
-@@ -572,8 +572,7 @@ startup:basr  %r13,0                    
- .Lcr:
- 	.long 0x00			# place holder for cr0
- .Lwaitsclp:
--	.long 0x020A0000
--	.long .Lsclph
-+	.long 0x010a0000,0x80000000 + .Lsclph
- .Lrcp:
- 	.int 0x00120001			# Read SCP forced code
- .Lrcp2:
+diff -urpN linux-2.6/include/asm-s390/bitops.h linux-2.6-patched/include/asm-s390/bitops.h
+--- linux-2.6/include/asm-s390/bitops.h	2005-10-28 02:02:08.000000000 +0200
++++ linux-2.6-patched/include/asm-s390/bitops.h	2005-10-28 14:04:50.000000000 +0200
+@@ -518,8 +518,8 @@ static inline int __test_bit(unsigned lo
+ 
+ static inline int 
+ __constant_test_bit(unsigned long nr, const volatile unsigned long *addr) {
+-    return (((volatile char *) addr)
+-	    [(nr^(__BITOPS_WORDSIZE-8))>>3] & (1<<(nr&7)));
++    return ((((volatile char *) addr)
++	    [(nr^(__BITOPS_WORDSIZE-8))>>3] & (1<<(nr&7)))) != 0;
+ }
+ 
+ #define test_bit(nr,addr) \

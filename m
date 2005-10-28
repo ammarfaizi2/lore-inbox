@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965166AbVJ1Gp6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965107AbVJ1GrP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965166AbVJ1Gp6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 02:45:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965119AbVJ1Gpd
+	id S965107AbVJ1GrP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 02:47:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965114AbVJ1Gqo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 02:45:33 -0400
-Received: from mail.kroah.org ([69.55.234.183]:21738 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965108AbVJ1GbJ convert rfc822-to-8bit
+	Fri, 28 Oct 2005 02:46:44 -0400
+Received: from mail.kroah.org ([69.55.234.183]:18666 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S965107AbVJ1GbH convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 02:31:09 -0400
-Cc: ecashin@coraid.com
-Subject: [PATCH] aoe: use get_unaligned for accesses in ATA id buffer
-In-Reply-To: <11304810212914@kroah.com>
+	Fri, 28 Oct 2005 02:31:07 -0400
+Cc: gregkh@suse.de
+Subject: [PATCH] INPUT: remove the input_class structure, as it is unused.
+In-Reply-To: <11304810264196@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Thu, 27 Oct 2005 23:30:21 -0700
-Message-Id: <11304810214168@kroah.com>
+Date: Thu, 27 Oct 2005 23:30:26 -0700
+Message-Id: <11304810262929@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,72 +24,91 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] aoe: use get_unaligned for accesses in ATA id buffer
+[PATCH] INPUT: remove the input_class structure, as it is unused.
 
-Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-Use get_unaligned for possibly-unaligned multi-byte accesses to the
-ATA device identify response buffer.
-
 ---
-commit 786fbf6c1eb91e7e70a1ef42ff2523aff0f09850
-tree 2a2d7be04f20f9c3a2d133eaa37d33797d7e27da
-parent 741b2252a5e14d6c60a913c77a6099abe73a854a
-author Ed L. Cashin <ecashin@coraid.com> Thu, 29 Sep 2005 12:47:40 -0400
-committer Greg Kroah-Hartman <gregkh@suse.de> Thu, 27 Oct 2005 22:47:58 -0700
+commit 4fccc75dab34abbbf9368d2fa21bed0918cdaec7
+tree aac77ee746bae2328684201596b2860d94fd1e02
+parent 706d2a7c95014882307f31cd0f3c2a95b0544819
+author Greg Kroah-Hartman <gregkh@suse.de> Thu, 27 Oct 2005 22:25:43 -0700
+committer Greg Kroah-Hartman <gregkh@suse.de> Thu, 27 Oct 2005 22:48:06 -0700
 
- drivers/block/aoe/aoecmd.c |   15 ++++++++-------
- 1 files changed, 8 insertions(+), 7 deletions(-)
+ drivers/input/input.c |   18 +++---------------
+ include/linux/input.h |    1 -
+ 2 files changed, 3 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/block/aoe/aoecmd.c b/drivers/block/aoe/aoecmd.c
-index b5be4b7..5c9c7c1 100644
---- a/drivers/block/aoe/aoecmd.c
-+++ b/drivers/block/aoe/aoecmd.c
-@@ -8,6 +8,7 @@
- #include <linux/blkdev.h>
- #include <linux/skbuff.h>
- #include <linux/netdevice.h>
-+#include <asm/unaligned.h>
- #include "aoe.h"
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 0d570cf..5c9044d 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -39,7 +39,6 @@ EXPORT_SYMBOL(input_close_device);
+ EXPORT_SYMBOL(input_accept_process);
+ EXPORT_SYMBOL(input_flush_device);
+ EXPORT_SYMBOL(input_event);
+-EXPORT_SYMBOL(input_class);
+ EXPORT_SYMBOL_GPL(input_dev_class);
  
- #define TIMERTICK (HZ / 10)
-@@ -311,16 +312,16 @@ ataid_complete(struct aoedev *d, unsigne
- 	u16 n;
+ #define INPUT_DEVICES	256
+@@ -927,8 +926,6 @@ static struct file_operations input_fops
+ 	.open = input_open_file,
+ };
  
- 	/* word 83: command set supported */
--	n = le16_to_cpup((__le16 *) &id[83<<1]);
-+	n = le16_to_cpu(get_unaligned((__le16 *) &id[83<<1]));
- 
- 	/* word 86: command set/feature enabled */
--	n |= le16_to_cpup((__le16 *) &id[86<<1]);
-+	n |= le16_to_cpu(get_unaligned((__le16 *) &id[86<<1]));
- 
- 	if (n & (1<<10)) {	/* bit 10: LBA 48 */
- 		d->flags |= DEVFL_EXT;
- 
- 		/* word 100: number lba48 sectors */
--		ssize = le64_to_cpup((__le64 *) &id[100<<1]);
-+		ssize = le64_to_cpu(get_unaligned((__le64 *) &id[100<<1]));
- 
- 		/* set as in ide-disk.c:init_idedisk_capacity */
- 		d->geo.cylinders = ssize;
-@@ -331,12 +332,12 @@ ataid_complete(struct aoedev *d, unsigne
- 		d->flags &= ~DEVFL_EXT;
- 
- 		/* number lba28 sectors */
--		ssize = le32_to_cpup((__le32 *) &id[60<<1]);
-+		ssize = le32_to_cpu(get_unaligned((__le32 *) &id[60<<1]));
- 
- 		/* NOTE: obsolete in ATA 6 */
--		d->geo.cylinders = le16_to_cpup((__le16 *) &id[54<<1]);
--		d->geo.heads = le16_to_cpup((__le16 *) &id[55<<1]);
--		d->geo.sectors = le16_to_cpup((__le16 *) &id[56<<1]);
-+		d->geo.cylinders = le16_to_cpu(get_unaligned((__le16 *) &id[54<<1]));
-+		d->geo.heads = le16_to_cpu(get_unaligned((__le16 *) &id[55<<1]));
-+		d->geo.sectors = le16_to_cpu(get_unaligned((__le16 *) &id[56<<1]));
+-struct class *input_class;
+-
+ static int __init input_init(void)
+ {
+ 	int err;
+@@ -939,27 +936,19 @@ static int __init input_init(void)
+ 		return err;
  	}
- 	d->ssize = ssize;
- 	d->geo.start = 0;
+ 
+-	input_class = class_create(THIS_MODULE, "input");
+-	if (IS_ERR(input_class)) {
+-		printk(KERN_ERR "input: unable to register input class\n");
+-		err = PTR_ERR(input_class);
+-		goto fail1;
+-	}
+-
+ 	err = input_proc_init();
+ 	if (err)
+-		goto fail2;
++		goto fail1;
+ 
+ 	err = register_chrdev(INPUT_MAJOR, "input", &input_fops);
+ 	if (err) {
+ 		printk(KERN_ERR "input: unable to register char major %d", INPUT_MAJOR);
+-		goto fail3;
++		goto fail2;
+ 	}
+ 
+ 	return 0;
+ 
+- fail3:	input_proc_exit();
+- fail2:	class_destroy(input_class);
++ fail2:	input_proc_exit();
+  fail1:	class_unregister(&input_dev_class);
+ 	return err;
+ }
+@@ -968,7 +957,6 @@ static void __exit input_exit(void)
+ {
+ 	input_proc_exit();
+ 	unregister_chrdev(INPUT_MAJOR, "input");
+-	class_destroy(input_class);
+ 	class_unregister(&input_dev_class);
+ }
+ 
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 5de8441..256e887 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -1074,7 +1074,6 @@ static inline void input_set_abs_params(
+ 	dev->absbit[LONG(axis)] |= BIT(axis);
+ }
+ 
+-extern struct class *input_class;
+ extern struct class input_dev_class;
+ 
+ #endif
 

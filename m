@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751678AbVJ1Ud2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751681AbVJ1UeN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751678AbVJ1Ud2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 16:33:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751679AbVJ1Ud2
+	id S1751681AbVJ1UeN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 16:34:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751687AbVJ1UeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 16:33:28 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:45072 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751677AbVJ1Ud1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 16:33:27 -0400
-Date: Fri, 28 Oct 2005 22:33:25 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, stable@kernel.org
-Cc: linux-kernel@vger.kernel.org, xfs-masters@oss.sgi.com, nathans@sgi.com,
-       linux-xfs@oss.sgi.com, Dimitri Puzin <tristan-777@ddkom-online.de>
-Subject: [2.6 patch] fix XFS_QUOTA for modular XFS
-Message-ID: <20051028203325.GD4180@stusta.de>
+	Fri, 28 Oct 2005 16:34:13 -0400
+Received: from rutherford.zen.co.uk ([212.23.3.142]:39835 "EHLO
+	rutherford.zen.co.uk") by vger.kernel.org with ESMTP
+	id S1751681AbVJ1UeL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 16:34:11 -0400
+Message-ID: <43628B40.50902@cantab.net>
+Date: Fri, 28 Oct 2005 21:34:08 +0100
+From: David Vrabel <dvrabel@cantab.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+To: jbowler@acm.org
+CC: "'Deepak Saxena'" <dsaxena@plexity.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.14-rc3 ixp4xx_copy_from little endian/alignment
+References: <003d01c5dbdd$25ef6af0$1001a8c0@kalmiopsis>
+In-Reply-To: <003d01c5dbdd$25ef6af0$1001a8c0@kalmiopsis>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Originating-Rutherford-IP: [82.70.146.41]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch by Dimitri Puzin submitted through kernel Bugzilla #5514 
-fixes the following issue:
+John Bowler wrote:
+> 
+>>Also, I've noticed that the PCI_CSR is mis-configured when the XScale 
+>>core is in little-endian mode.  ABE (AHB is big-endian) /must/ always be 
+>>set -- remember that the NPEs are always big-endian devices.
+> 
+> 
+> This doesn't affect the flash (we've verified that - i.e. *with* the
+> patch the flash works in LE regardless of the patch for the PCI_CSR
+> setting).
 
-Cannot build XFS filesystem support as module with quota support. It 
-works only when the XFS filesystem support is compiled into the kernel. 
-Menuconfig prevents from setting CONFIG_XFS_FS=m and CONFIG_XFS_QUOTA=y.
+Now that you mention it I do remember seeing this patch floating around.
 
-How to reproduce: configure the XFS filesystem with quota support as 
-module. The resulting kernel won't have quota support compiled into 
-xfs.ko.
+>>Since I'd never run an IXP4xx in little-endian mode I've not looked at 
+>>this issue in any great depth so I could be wrong here.  Regardless, the 
+>>proposed hack to the flash map driver is wrong since all expansion bus 
+>>peripherals are affected not just flash (i.e., the solution needs to be 
+>>more generic rather than flash driver specific).
+> 
+> 
+> No, that's incorrect.  The patch has been demonstrated to be correct with
+> all devices (along with the PCI_CSR patch, which Deepak has already pushed
+> upstream).  I.e. *without* the patch everything works (BE and LE) except
+> the flash is unuseable, *with* the patch the flash works too.
 
-Fix: Changing the fs/xfs/Kconfig file from tristate to bool lets you 
-configure the quota support to be compiled into the XFS module. The 
-Makefile-linux-2.6 checks only for CONFIG_XFS_QUOTA=y.
+It appears that the NSLU2 only has the flash on the expansion bus which 
+is why you believe it's a flash specific problem.
 
+> So I'm effectively saying we need data coherency in the flash, but what we
+> have in everything *else* is working just find with address coherency.
 
-From: Dimitri Puzin <tristan-777@ddkom-online.de>
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Data coherency can be set on a per 1 Mibyte page basis so all other (APB 
+and PCI) peripherals would continue to use address coherency and thus 
+would continue to function as they are now.
 
---- linux-2.6.14-rc5-mm1/fs/xfs/Kconfig.old	2005-10-28 19:51:02.000000000 +0200
-+++ linux-2.6.14-rc5-mm1/fs/xfs/Kconfig	2005-10-28 19:51:12.000000000 +0200
-@@ -24,7 +24,7 @@
- 	default y
- 
- config XFS_QUOTA
--	tristate "XFS Quota support"
-+	bool "XFS Quota support"
- 	depends on XFS_FS
- 	help
- 	  If you say Y here, you will be able to set limits for disk usage on
-
+David Vrabel

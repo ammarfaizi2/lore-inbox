@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965159AbVJ1GiW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965128AbVJ1GjG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965159AbVJ1GiW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 02:38:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965155AbVJ1GiV
+	id S965128AbVJ1GjG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 02:39:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965150AbVJ1Giy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 02:38:21 -0400
-Received: from mail.kroah.org ([69.55.234.183]:39658 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965136AbVJ1GbV convert rfc822-to-8bit
+	Fri, 28 Oct 2005 02:38:54 -0400
+Received: from mail.kroah.org ([69.55.234.183]:32490 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S965128AbVJ1GbO convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 02:31:21 -0400
+	Fri, 28 Oct 2005 02:31:14 -0400
 Cc: dtor_core@ameritech.net
-Subject: [PATCH] drivers/input/touchscreen: convert to dynamic input_dev allocation
-In-Reply-To: <1130481024808@kroah.com>
+Subject: [PATCH] drivers/media: convert to dynamic input_dev allocation
+In-Reply-To: <11304810253703@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Thu, 27 Oct 2005 23:30:25 -0700
-Message-Id: <11304810251407@kroah.com>
+Message-Id: <11304810251108@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,9 +24,9 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] drivers/input/touchscreen: convert to dynamic input_dev allocation
+[PATCH] drivers/media: convert to dynamic input_dev allocation
 
-Input: convert drivers/input/touchscreen to dynamic input_dev allocation
+Input: convert drivers/media to dynamic input_dev allocation
 
 This is required for input_dev sysfs integration
 
@@ -34,1064 +34,1103 @@ Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit a7827f4a9186387c432f3c802ea6330396d83eb9
-tree ffe7249d34b35003a0fac1882cfedd5edb0ae02e
-parent 61ae45fa4a9d1637a430965ee3743c1c42f07268
-author Dmitry Torokhov <dtor_core@ameritech.net> Thu, 15 Sep 2005 02:01:46 -0500
-committer Greg Kroah-Hartman <gregkh@suse.de> Thu, 27 Oct 2005 22:48:04 -0700
+commit 76537631e95b6e1a34bb78e1d45eb9e8c7e3de1d
+tree 498f6a070b6cf125234dfdb08329ae46a42857bf
+parent fa68a960b3f68ecabca13a8d6239ebe52435cff9
+author Dmitry Torokhov <dtor_core@ameritech.net> Thu, 15 Sep 2005 02:01:53 -0500
+committer Greg Kroah-Hartman <gregkh@suse.de> Thu, 27 Oct 2005 22:48:05 -0700
 
- drivers/input/touchscreen/corgi_ts.c       |   93 +++++++++--------
- drivers/input/touchscreen/elo.c            |   89 ++++++++---------
- drivers/input/touchscreen/gunze.c          |   66 ++++++------
- drivers/input/touchscreen/h3600_ts_input.c |  149 +++++++++++-----------------
- drivers/input/touchscreen/hp680_ts_input.c |   58 +++++------
- drivers/input/touchscreen/mk712.c          |   80 ++++++++-------
- drivers/input/touchscreen/mtouch.c         |   64 ++++++------
- 7 files changed, 285 insertions(+), 314 deletions(-)
+ drivers/media/common/ir-common.c            |    1 
+ drivers/media/dvb/cinergyT2/cinergyT2.c     |  108 ++++++++++++++++++---------
+ drivers/media/dvb/dvb-usb/dvb-usb-remote.c  |   50 +++++++------
+ drivers/media/dvb/dvb-usb/dvb-usb.h         |    3 +
+ drivers/media/dvb/ttpci/av7110_ir.c         |   37 +++++----
+ drivers/media/dvb/ttpci/budget-ci.c         |   24 +++---
+ drivers/media/dvb/ttusb-dec/ttusb_dec.c     |   51 ++++++++-----
+ drivers/media/video/bttvp.h                 |    2 -
+ drivers/media/video/cx88/cx88-input.c       |   58 ++++++++-------
+ drivers/media/video/ir-kbd-gpio.c           |   52 +++++++------
+ drivers/media/video/ir-kbd-i2c.c            |   33 +++++---
+ drivers/media/video/saa7134/saa7134-input.c |   39 +++++-----
+ drivers/media/video/saa7134/saa7134.h       |    2 -
+ 13 files changed, 268 insertions(+), 192 deletions(-)
 
-diff --git a/drivers/input/touchscreen/corgi_ts.c b/drivers/input/touchscreen/corgi_ts.c
-index 4c7fbe5..40ae183 100644
---- a/drivers/input/touchscreen/corgi_ts.c
-+++ b/drivers/input/touchscreen/corgi_ts.c
-@@ -41,8 +41,7 @@ struct ts_event {
+diff --git a/drivers/media/common/ir-common.c b/drivers/media/common/ir-common.c
+index a0e700d..06f4d46 100644
+--- a/drivers/media/common/ir-common.c
++++ b/drivers/media/common/ir-common.c
+@@ -252,7 +252,6 @@ void ir_input_init(struct input_dev *dev
+ 	if (ir_codes)
+ 		memcpy(ir->ir_codes, ir_codes, sizeof(ir->ir_codes));
+ 
+-        init_input_dev(dev);
+ 	dev->keycode     = ir->ir_codes;
+ 	dev->keycodesize = sizeof(IR_KEYTAB_TYPE);
+ 	dev->keycodemax  = IR_KEYTAB_SIZE;
+diff --git a/drivers/media/dvb/cinergyT2/cinergyT2.c b/drivers/media/dvb/cinergyT2/cinergyT2.c
+index 6db0929..a1607e7 100644
+--- a/drivers/media/dvb/cinergyT2/cinergyT2.c
++++ b/drivers/media/dvb/cinergyT2/cinergyT2.c
+@@ -137,7 +137,8 @@ struct cinergyt2 {
+ 	struct urb *stream_urb [STREAM_URB_COUNT];
+ 
+ #ifdef ENABLE_RC
+-	struct input_dev rc_input_dev;
++	struct input_dev *rc_input_dev;
++	char phys[64];
+ 	struct work_struct rc_query_work;
+ 	int rc_input_event;
+ 	u32 rc_last_code;
+@@ -683,6 +684,7 @@ static struct dvb_device cinergyt2_fe_te
  };
  
- struct corgi_ts {
--	char phys[32];
--	struct input_dev input;
-+	struct input_dev *input;
- 	struct timer_list timer;
- 	struct ts_event tc;
- 	int pendown;
-@@ -182,14 +181,12 @@ static void new_data(struct corgi_ts *co
- 	if (!corgi_ts->tc.pressure && corgi_ts->pendown == 0)
+ #ifdef ENABLE_RC
++
+ static void cinergyt2_query_rc (void *data)
+ {
+ 	struct cinergyt2 *cinergyt2 = data;
+@@ -703,7 +705,7 @@ static void cinergyt2_query_rc (void *da
+ 			/* stop key repeat */
+ 			if (cinergyt2->rc_input_event != KEY_MAX) {
+ 				dprintk(1, "rc_input_event=%d Up\n", cinergyt2->rc_input_event);
+-				input_report_key(&cinergyt2->rc_input_dev,
++				input_report_key(cinergyt2->rc_input_dev,
+ 						 cinergyt2->rc_input_event, 0);
+ 				cinergyt2->rc_input_event = KEY_MAX;
+ 			}
+@@ -722,7 +724,7 @@ static void cinergyt2_query_rc (void *da
+ 			/* keyrepeat bit -> just repeat last rc_input_event */
+ 		} else {
+ 			cinergyt2->rc_input_event = KEY_MAX;
+-			for (i = 0; i < sizeof(rc_keys) / sizeof(rc_keys[0]); i += 3) {
++			for (i = 0; i < ARRAY_SIZE(rc_keys); i += 3) {
+ 				if (rc_keys[i + 0] == rc_events[n].type &&
+ 				    rc_keys[i + 1] == le32_to_cpu(rc_events[n].value)) {
+ 					cinergyt2->rc_input_event = rc_keys[i + 2];
+@@ -736,11 +738,11 @@ static void cinergyt2_query_rc (void *da
+ 			    cinergyt2->rc_last_code != ~0) {
+ 				/* emit a key-up so the double event is recognized */
+ 				dprintk(1, "rc_input_event=%d UP\n", cinergyt2->rc_input_event);
+-				input_report_key(&cinergyt2->rc_input_dev,
++				input_report_key(cinergyt2->rc_input_dev,
+ 						 cinergyt2->rc_input_event, 0);
+ 			}
+ 			dprintk(1, "rc_input_event=%d\n", cinergyt2->rc_input_event);
+-			input_report_key(&cinergyt2->rc_input_dev,
++			input_report_key(cinergyt2->rc_input_dev,
+ 					 cinergyt2->rc_input_event, 1);
+ 			cinergyt2->rc_last_code = rc_events[n].value;
+ 		}
+@@ -752,7 +754,59 @@ out:
+ 
+ 	up(&cinergyt2->sem);
+ }
+-#endif
++
++static int cinergyt2_register_rc(struct cinergyt2 *cinergyt2)
++{
++	struct input_dev *input_dev;
++	int i;
++
++	cinergyt2->rc_input_dev = input_dev = input_allocate_device();
++	if (!input_dev)
++		return -ENOMEM;
++
++	usb_make_path(cinergyt2->udev, cinergyt2->phys, sizeof(cinergyt2->phys));
++	strlcat(cinergyt2->phys, "/input0", sizeof(cinergyt2->phys));
++	cinergyt2->rc_input_event = KEY_MAX;
++	cinergyt2->rc_last_code = ~0;
++	INIT_WORK(&cinergyt2->rc_query_work, cinergyt2_query_rc, cinergyt2);
++
++	input_dev->name = DRIVER_NAME " remote control";
++	input_dev->phys = cinergyt2->phys;
++	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
++	for (i = 0; ARRAY_SIZE(rc_keys); i += 3)
++		set_bit(rc_keys[i + 2], input_dev->keybit);
++	input_dev->keycodesize = 0;
++	input_dev->keycodemax = 0;
++
++	input_register_device(cinergyt2->rc_input_dev);
++	schedule_delayed_work(&cinergyt2->rc_query_work, HZ/2);
++}
++
++static void cinergyt2_unregister_rc(struct cinergyt2 *cinergyt2)
++{
++	cancel_delayed_work(&cinergyt2->rc_query_work);
++	flush_scheduled_work();
++	input_unregister_device(cinergyt2->rc_input_dev);
++}
++
++static inline void cinergyt2_suspend_rc(struct cinergyt2 *cinergyt2)
++{
++	cancel_delayed_work(&cinergyt2->rc_query_work);
++}
++
++static inline void cinergyt2_resume_rc(struct cinergyt2 *cinergyt2)
++{
++	schedule_delayed_work(&cinergyt2->rc_query_work, HZ/2);
++}
++
++#else
++
++static inline int cinergyt2_register_rc(struct cinergyt2 *cinergyt2) { return 0; }
++static inline void cinergyt2_unregister_rc(struct cinergyt2 *cinergyt2) { }
++static inline void cinergyt2_suspend_rc(struct cinergyt2 *cinergyt2) { }
++static inline void cinergyt2_resume_rc(struct cinergyt2 *cinergyt2) { }
++
++#endif /* ENABLE_RC */
+ 
+ static void cinergyt2_query (void *data)
+ {
+@@ -789,9 +843,6 @@ static int cinergyt2_probe (struct usb_i
+ {
+ 	struct cinergyt2 *cinergyt2;
+ 	int err;
+-#ifdef ENABLE_RC
+-	int i;
+-#endif
+ 
+ 	if (!(cinergyt2 = kmalloc (sizeof(struct cinergyt2), GFP_KERNEL))) {
+ 		dprintk(1, "out of memory?!?\n");
+@@ -846,30 +897,17 @@ static int cinergyt2_probe (struct usb_i
+ 			    &cinergyt2_fe_template, cinergyt2,
+ 			    DVB_DEVICE_FRONTEND);
+ 
+-#ifdef ENABLE_RC
+-	cinergyt2->rc_input_dev.evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
+-	cinergyt2->rc_input_dev.keycodesize = 0;
+-	cinergyt2->rc_input_dev.keycodemax = 0;
+-	cinergyt2->rc_input_dev.name = DRIVER_NAME " remote control";
+-
+-	for (i = 0; i < sizeof(rc_keys) / sizeof(rc_keys[0]); i += 3)
+-		set_bit(rc_keys[i + 2], cinergyt2->rc_input_dev.keybit);
+-
+-	input_register_device(&cinergyt2->rc_input_dev);
+-
+-	cinergyt2->rc_input_event = KEY_MAX;
+-	cinergyt2->rc_last_code = ~0;
++	err = cinergyt2_register_rc(cinergyt2);
++	if (err)
++		goto bailout;
+ 
+-	INIT_WORK(&cinergyt2->rc_query_work, cinergyt2_query_rc, cinergyt2);
+-	schedule_delayed_work(&cinergyt2->rc_query_work, HZ/2);
+-#endif
+ 	return 0;
+ 
+ bailout:
+ 	dvb_dmxdev_release(&cinergyt2->dmxdev);
+ 	dvb_dmx_release(&cinergyt2->demux);
+-	dvb_unregister_adapter (&cinergyt2->adapter);
+-	cinergyt2_free_stream_urbs (cinergyt2);
++	dvb_unregister_adapter(&cinergyt2->adapter);
++	cinergyt2_free_stream_urbs(cinergyt2);
+ 	kfree(cinergyt2);
+ 	return -ENOMEM;
+ }
+@@ -881,11 +919,7 @@ static void cinergyt2_disconnect (struct
+ 	if (down_interruptible(&cinergyt2->sem))
  		return;
  
--	if (regs)
--		input_regs(&corgi_ts->input, regs);
--
--	input_report_abs(&corgi_ts->input, ABS_X, corgi_ts->tc.x);
--	input_report_abs(&corgi_ts->input, ABS_Y, corgi_ts->tc.y);
--	input_report_abs(&corgi_ts->input, ABS_PRESSURE, corgi_ts->tc.pressure);
--	input_report_key(&corgi_ts->input, BTN_TOUCH, (corgi_ts->pendown != 0));
--	input_sync(&corgi_ts->input);
-+	input_regs(corgi_ts->input, regs);
-+	input_report_abs(corgi_ts->input, ABS_X, corgi_ts->tc.x);
-+	input_report_abs(corgi_ts->input, ABS_Y, corgi_ts->tc.y);
-+	input_report_abs(corgi_ts->input, ABS_PRESSURE, corgi_ts->tc.pressure);
-+	input_report_key(corgi_ts->input, BTN_TOUCH, (corgi_ts->pendown != 0));
-+	input_sync(corgi_ts->input);
- }
+-#ifdef ENABLE_RC
+-	cancel_delayed_work(&cinergyt2->rc_query_work);
+-	flush_scheduled_work();
+-	input_unregister_device(&cinergyt2->rc_input_dev);
+-#endif
++	cinergyt2_unregister_rc(cinergyt2);
  
- static void ts_interrupt_main(struct corgi_ts *corgi_ts, int isTimer, struct pt_regs *regs)
-@@ -273,39 +270,44 @@ static int __init corgits_probe(struct d
- {
- 	struct corgi_ts *corgi_ts;
- 	struct platform_device *pdev = to_platform_device(dev);
-+	struct input_dev *input_dev;
-+	int err = -ENOMEM;
+ 	cinergyt2->demux.dmx.close(&cinergyt2->demux.dmx);
+ 	dvb_net_release(&cinergyt2->dvbnet);
+@@ -908,9 +942,8 @@ static int cinergyt2_suspend (struct usb
  
--	if (!(corgi_ts = kmalloc(sizeof(struct corgi_ts), GFP_KERNEL)))
--		return -ENOMEM;
-+	corgi_ts = kzalloc(sizeof(struct corgi_ts), GFP_KERNEL);
-+	input_dev = input_allocate_device();
-+	if (!corgi_ts || !input_dev)
-+		goto fail;
- 
- 	dev_set_drvdata(dev, corgi_ts);
- 
--	memset(corgi_ts, 0, sizeof(struct corgi_ts));
--
- 	corgi_ts->machinfo = dev->platform_data;
- 	corgi_ts->irq_gpio = platform_get_irq(pdev, 0);
- 
- 	if (corgi_ts->irq_gpio < 0) {
--		kfree(corgi_ts);
--		return -ENODEV;
-+		err = -ENODEV;
-+		goto fail;
+ 	if (state.event > PM_EVENT_ON) {
+ 		struct cinergyt2 *cinergyt2 = usb_get_intfdata (intf);
+-#ifdef ENABLE_RC
+-		cancel_delayed_work(&cinergyt2->rc_query_work);
+-#endif
++
++		cinergyt2_suspend_rc(cinergyt2);
+ 		cancel_delayed_work(&cinergyt2->query_work);
+ 		if (cinergyt2->streaming)
+ 			cinergyt2_stop_stream_xfer(cinergyt2);
+@@ -938,9 +971,8 @@ static int cinergyt2_resume (struct usb_
+ 		schedule_delayed_work(&cinergyt2->query_work, HZ/2);
  	}
  
--	init_input_dev(&corgi_ts->input);
--	corgi_ts->input.evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
--	corgi_ts->input.keybit[LONG(BTN_TOUCH)] = BIT(BTN_TOUCH);
--	input_set_abs_params(&corgi_ts->input, ABS_X, X_AXIS_MIN, X_AXIS_MAX, 0, 0);
--	input_set_abs_params(&corgi_ts->input, ABS_Y, Y_AXIS_MIN, Y_AXIS_MAX, 0, 0);
--	input_set_abs_params(&corgi_ts->input, ABS_PRESSURE, PRESSURE_MIN, PRESSURE_MAX, 0, 0);
--
--	strcpy(corgi_ts->phys, "corgits/input0");
--
--	corgi_ts->input.private = corgi_ts;
--	corgi_ts->input.name = "Corgi Touchscreen";
--	corgi_ts->input.dev = dev;
--	corgi_ts->input.phys = corgi_ts->phys;
--	corgi_ts->input.id.bustype = BUS_HOST;
--	corgi_ts->input.id.vendor = 0x0001;
--	corgi_ts->input.id.product = 0x0002;
--	corgi_ts->input.id.version = 0x0100;
-+	corgi_ts->input = input_dev;
+-#ifdef ENABLE_RC
+-	schedule_delayed_work(&cinergyt2->rc_query_work, HZ/2);
+-#endif
++	cinergyt2_resume_rc(cinergyt2);
 +
-+	init_timer(&corgi_ts->timer);
-+	corgi_ts->timer.data = (unsigned long) corgi_ts;
-+	corgi_ts->timer.function = corgi_ts_timer;
-+
-+	input_dev->name = "Corgi Touchscreen";
-+	input_dev->phys = "corgits/input0";
-+	input_dev->id.bustype = BUS_HOST;
-+	input_dev->id.vendor = 0x0001;
-+	input_dev->id.product = 0x0002;
-+	input_dev->id.version = 0x0100;
-+	input_dev->cdev.dev = dev;
-+	input_dev->private = corgi_ts;
-+
-+	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
-+	input_dev->keybit[LONG(BTN_TOUCH)] = BIT(BTN_TOUCH);
-+	input_set_abs_params(input_dev, ABS_X, X_AXIS_MIN, X_AXIS_MAX, 0, 0);
-+	input_set_abs_params(input_dev, ABS_Y, Y_AXIS_MIN, Y_AXIS_MAX, 0, 0);
-+	input_set_abs_params(input_dev, ABS_PRESSURE, PRESSURE_MIN, PRESSURE_MAX, 0, 0);
- 
- 	pxa_gpio_mode(IRQ_TO_GPIO(corgi_ts->irq_gpio) | GPIO_IN);
- 
-@@ -319,25 +321,24 @@ static int __init corgits_probe(struct d
- 	corgi_ssp_ads7846_putget((5u << ADSCTRL_ADR_SH) | ADSCTRL_STS);
- 	mdelay(5);
- 
--	init_timer(&corgi_ts->timer);
--	corgi_ts->timer.data = (unsigned long) corgi_ts;
--	corgi_ts->timer.function = corgi_ts_timer;
--
--	input_register_device(&corgi_ts->input);
--	corgi_ts->power_mode = PWR_MODE_ACTIVE;
--
- 	if (request_irq(corgi_ts->irq_gpio, ts_interrupt, SA_INTERRUPT, "ts", corgi_ts)) {
--		input_unregister_device(&corgi_ts->input);
--		kfree(corgi_ts);
--		return -EBUSY;
-+		err = -EBUSY;
-+		goto fail;
- 	}
- 
-+	input_register_device(corgi_ts->input);
-+
-+	corgi_ts->power_mode = PWR_MODE_ACTIVE;
-+
- 	/* Enable Falling Edge */
- 	set_irq_type(corgi_ts->irq_gpio, IRQT_FALLING);
- 
--	printk(KERN_INFO "input: Corgi Touchscreen Registered\n");
--
- 	return 0;
-+
-+ fail:	input_free_device(input_dev);
-+	kfree(corgi_ts);
-+	return err;
-+
- }
- 
- static int corgits_remove(struct device *dev)
-@@ -347,7 +348,7 @@ static int corgits_remove(struct device 
- 	free_irq(corgi_ts->irq_gpio, NULL);
- 	del_timer_sync(&corgi_ts->timer);
- 	corgi_ts->machinfo->put_hsync();
--	input_unregister_device(&corgi_ts->input);
-+	input_unregister_device(corgi_ts->input);
- 	kfree(corgi_ts);
+ 	up(&cinergyt2->sem);
  	return 0;
  }
-diff --git a/drivers/input/touchscreen/elo.c b/drivers/input/touchscreen/elo.c
-index 3cdc9ca..c86a2eb 100644
---- a/drivers/input/touchscreen/elo.c
-+++ b/drivers/input/touchscreen/elo.c
-@@ -36,14 +36,12 @@ MODULE_LICENSE("GPL");
- 
- #define	ELO_MAX_LENGTH	10
- 
--static char *elo_name = "Elo Serial TouchScreen";
--
- /*
-  * Per-touchscreen data.
-  */
- 
- struct elo {
--	struct input_dev dev;
-+	struct input_dev *dev;
- 	struct serio *serio;
- 	int id;
- 	int idx;
-@@ -54,7 +52,7 @@ struct elo {
- 
- static void elo_process_data_10(struct elo* elo, unsigned char data, struct pt_regs *regs)
- {
--	struct input_dev *dev = &elo->dev;
-+	struct input_dev *dev = elo->dev;
- 
- 	elo->csum += elo->data[elo->idx] = data;
- 
-@@ -80,7 +78,7 @@ static void elo_process_data_10(struct e
- 				input_report_abs(dev, ABS_X, (elo->data[4] << 8) | elo->data[3]);
- 				input_report_abs(dev, ABS_Y, (elo->data[6] << 8) | elo->data[5]);
- 				input_report_abs(dev, ABS_PRESSURE, (elo->data[8] << 8) | elo->data[7]);
--				input_report_key(dev, BTN_TOUCH, elo->data[2] & 3);
-+				input_report_key(dev, BTN_TOUCH, elo->data[8] || elo->data[7]);
- 				input_sync(dev);
+diff --git a/drivers/media/dvb/dvb-usb/dvb-usb-remote.c b/drivers/media/dvb/dvb-usb/dvb-usb-remote.c
+index fc7800f..e5c6d98 100644
+--- a/drivers/media/dvb/dvb-usb/dvb-usb-remote.c
++++ b/drivers/media/dvb/dvb-usb/dvb-usb-remote.c
+@@ -39,9 +39,9 @@ static void dvb_usb_read_remote_control(
+ 			d->last_event = event;
+ 		case REMOTE_KEY_REPEAT:
+ 			deb_rc("key repeated\n");
+-			input_event(&d->rc_input_dev, EV_KEY, d->last_event, 1);
+-			input_event(&d->rc_input_dev, EV_KEY, d->last_event, 0);
+-			input_sync(&d->rc_input_dev);
++			input_event(d->rc_input_dev, EV_KEY, event, 1);
++			input_event(d->rc_input_dev, EV_KEY, d->last_event, 0);
++			input_sync(d->rc_input_dev);
+ 			break;
+ 		default:
+ 			break;
+@@ -53,8 +53,8 @@ static void dvb_usb_read_remote_control(
+ 			deb_rc("NO KEY PRESSED\n");
+ 			if (d->last_state != REMOTE_NO_KEY_PRESSED) {
+ 				deb_rc("releasing event %d\n",d->last_event);
+-				input_event(&d->rc_input_dev, EV_KEY, d->last_event, 0);
+-				input_sync(&d->rc_input_dev);
++				input_event(d->rc_input_dev, EV_KEY, d->last_event, 0);
++				input_sync(d->rc_input_dev);
  			}
- 			elo->idx = 0;
-@@ -91,7 +89,7 @@ static void elo_process_data_10(struct e
+ 			d->last_state = REMOTE_NO_KEY_PRESSED;
+ 			d->last_event = 0;
+@@ -63,8 +63,8 @@ static void dvb_usb_read_remote_control(
+ 			deb_rc("KEY PRESSED\n");
+ 			deb_rc("pressing event %d\n",event);
  
- static void elo_process_data_6(struct elo* elo, unsigned char data, struct pt_regs *regs)
- {
--	struct input_dev *dev = &elo->dev;
-+	struct input_dev *dev = elo->dev;
+-			input_event(&d->rc_input_dev, EV_KEY, event, 1);
+-			input_sync(&d->rc_input_dev);
++			input_event(d->rc_input_dev, EV_KEY, event, 1);
++			input_sync(d->rc_input_dev);
  
- 	elo->data[elo->idx] = data;
- 
-@@ -129,7 +127,7 @@ static void elo_process_data_6(struct el
- 		case 5:
- 			if ((data & 0xf0) == 0) {
- 				input_report_abs(dev, ABS_PRESSURE, elo->data[5]);
--				input_report_key(dev, BTN_TOUCH, elo->data[5]);
-+				input_report_key(dev, BTN_TOUCH, !!elo->data[5]);
+ 			d->last_event = event;
+ 			d->last_state = REMOTE_KEY_PRESSED;
+@@ -73,8 +73,8 @@ static void dvb_usb_read_remote_control(
+ 			deb_rc("KEY_REPEAT\n");
+ 			if (d->last_state != REMOTE_NO_KEY_PRESSED) {
+ 				deb_rc("repeating event %d\n",d->last_event);
+-				input_event(&d->rc_input_dev, EV_KEY, d->last_event, 2);
+-				input_sync(&d->rc_input_dev);
++				input_event(d->rc_input_dev, EV_KEY, d->last_event, 2);
++				input_sync(d->rc_input_dev);
+ 				d->last_state = REMOTE_KEY_REPEAT;
  			}
- 			input_sync(dev);
- 			elo->idx = 0;
-@@ -139,7 +137,7 @@ static void elo_process_data_6(struct el
- 
- static void elo_process_data_3(struct elo* elo, unsigned char data, struct pt_regs *regs)
+ 		default:
+@@ -89,24 +89,30 @@ schedule:
+ int dvb_usb_remote_init(struct dvb_usb_device *d)
  {
--	struct input_dev *dev = &elo->dev;
-+	struct input_dev *dev = elo->dev;
+ 	int i;
++
+ 	if (d->props.rc_key_map == NULL ||
+ 		d->props.rc_query == NULL ||
+ 		dvb_usb_disable_rc_polling)
+ 		return 0;
  
- 	elo->data[elo->idx] = data;
+-	/* Initialise the remote-control structures.*/
+-	init_input_dev(&d->rc_input_dev);
++	usb_make_path(d->udev, d->rc_phys, sizeof(d->rc_phys));
++	strlcpy(d->rc_phys, "/ir0", sizeof(d->rc_phys));
  
-@@ -191,7 +189,7 @@ static void elo_disconnect(struct serio 
- {
- 	struct elo* elo = serio_get_drvdata(serio);
+-	d->rc_input_dev.evbit[0] = BIT(EV_KEY);
+-	d->rc_input_dev.keycodesize = sizeof(unsigned char);
+-	d->rc_input_dev.keycodemax = KEY_MAX;
+-	d->rc_input_dev.name = "IR-receiver inside an USB DVB receiver";
++	d->rc_input_dev = input_allocate_device();
++	if (!d->rc_input_dev)
++		return -ENOMEM;
++
++	d->rc_input_dev->evbit[0] = BIT(EV_KEY);
++	d->rc_input_dev->keycodesize = sizeof(unsigned char);
++	d->rc_input_dev->keycodemax = KEY_MAX;
++	d->rc_input_dev->name = "IR-receiver inside an USB DVB receiver";
++	d->rc_input_dev->phys = d->rc_phys;
  
--	input_unregister_device(&elo->dev);
-+	input_unregister_device(elo->dev);
- 	serio_close(serio);
- 	serio_set_drvdata(serio, NULL);
- 	kfree(elo);
-@@ -206,67 +204,68 @@ static void elo_disconnect(struct serio 
- static int elo_connect(struct serio *serio, struct serio_driver *drv)
- {
- 	struct elo *elo;
-+	struct input_dev *input_dev;
- 	int err;
- 
--	if (!(elo = kmalloc(sizeof(struct elo), GFP_KERNEL)))
--		return -ENOMEM;
-+	elo = kzalloc(sizeof(struct elo), GFP_KERNEL);
-+	input_dev = input_allocate_device();
-+	if (!elo || !input_dev) {
-+		err = -ENOMEM;
-+		goto fail;
-+	}
- 
--	memset(elo, 0, sizeof(struct elo));
-+	elo->serio = serio;
-+	elo->id = serio->id.id;
-+	elo->dev = input_dev;
-+	snprintf(elo->phys, sizeof(elo->phys), "%s/input0", serio->phys);
- 
--	init_input_dev(&elo->dev);
--	elo->dev.evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
--	elo->dev.keybit[LONG(BTN_TOUCH)] = BIT(BTN_TOUCH);
-+	input_dev->private = elo;
-+	input_dev->name = "Elo Serial TouchScreen";
-+	input_dev->phys = elo->phys;
-+	input_dev->id.bustype = BUS_RS232;
-+	input_dev->id.vendor = SERIO_ELO;
-+	input_dev->id.product = elo->id;
-+	input_dev->id.version = 0x0100;
-+	input_dev->cdev.dev = &serio->dev;
- 
--	elo->id = serio->id.id;
-+	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
-+	input_dev->keybit[LONG(BTN_TOUCH)] = BIT(BTN_TOUCH);
- 
- 	switch (elo->id) {
- 
- 		case 0: /* 10-byte protocol */
--			input_set_abs_params(&elo->dev, ABS_X, 96, 4000, 0, 0);
--			input_set_abs_params(&elo->dev, ABS_Y, 96, 4000, 0, 0);
--			input_set_abs_params(&elo->dev, ABS_PRESSURE, 0, 255, 0, 0);
-+			input_set_abs_params(input_dev, ABS_X, 96, 4000, 0, 0);
-+			input_set_abs_params(input_dev, ABS_Y, 96, 4000, 0, 0);
-+			input_set_abs_params(input_dev, ABS_PRESSURE, 0, 255, 0, 0);
- 			break;
- 
- 		case 1: /* 6-byte protocol */
--			input_set_abs_params(&elo->dev, ABS_PRESSURE, 0, 15, 0, 0);
-+			input_set_abs_params(input_dev, ABS_PRESSURE, 0, 15, 0, 0);
- 
- 		case 2: /* 4-byte protocol */
--			input_set_abs_params(&elo->dev, ABS_X, 96, 4000, 0, 0);
--			input_set_abs_params(&elo->dev, ABS_Y, 96, 4000, 0, 0);
-+			input_set_abs_params(input_dev, ABS_X, 96, 4000, 0, 0);
-+			input_set_abs_params(input_dev, ABS_Y, 96, 4000, 0, 0);
- 			break;
- 
- 		case 3: /* 3-byte protocol */
--			input_set_abs_params(&elo->dev, ABS_X, 0, 255, 0, 0);
--			input_set_abs_params(&elo->dev, ABS_Y, 0, 255, 0, 0);
-+			input_set_abs_params(input_dev, ABS_X, 0, 255, 0, 0);
-+			input_set_abs_params(input_dev, ABS_Y, 0, 255, 0, 0);
- 			break;
+ 	/* set the bits for the keys */
+-	deb_rc("key map size: %d\n",d->props.rc_key_map_size);
++	deb_rc("key map size: %d\n", d->props.rc_key_map_size);
+ 	for (i = 0; i < d->props.rc_key_map_size; i++) {
+ 		deb_rc("setting bit for event %d item %d\n",d->props.rc_key_map[i].event, i);
+-		set_bit(d->props.rc_key_map[i].event, d->rc_input_dev.keybit);
++		set_bit(d->props.rc_key_map[i].event, d->rc_input_dev->keybit);
  	}
  
--	elo->serio = serio;
--
--	sprintf(elo->phys, "%s/input0", serio->phys);
--
--	elo->dev.private = elo;
--	elo->dev.name = elo_name;
--	elo->dev.phys = elo->phys;
--	elo->dev.id.bustype = BUS_RS232;
--	elo->dev.id.vendor = SERIO_ELO;
--	elo->dev.id.product = elo->id;
--	elo->dev.id.version = 0x0100;
--
- 	serio_set_drvdata(serio, elo);
+ 	/* Start the remote-control polling. */
+@@ -114,14 +120,14 @@ int dvb_usb_remote_init(struct dvb_usb_d
+ 		d->props.rc_interval = 100; /* default */
  
- 	err = serio_open(serio, drv);
--	if (err) {
--		serio_set_drvdata(serio, NULL);
--		kfree(elo);
--		return err;
--	}
--
--	input_register_device(&elo->dev);
--
--	printk(KERN_INFO "input: %s on %s\n", elo_name, serio->phys);
-+	if (err)
-+		goto fail;
+ 	/* setting these two values to non-zero, we have to manage key repeats */
+-	d->rc_input_dev.rep[REP_PERIOD] = d->props.rc_interval;
+-	d->rc_input_dev.rep[REP_DELAY]  = d->props.rc_interval + 150;
++	d->rc_input_dev->rep[REP_PERIOD] = d->props.rc_interval;
++	d->rc_input_dev->rep[REP_DELAY]  = d->props.rc_interval + 150;
  
-+	input_register_device(elo->dev);
- 	return 0;
-+
-+ fail:	serio_set_drvdata(serio, NULL);
-+	input_free_device(input_dev);
-+	kfree(elo);
-+	return err;
- }
+-	input_register_device(&d->rc_input_dev);
++	input_register_device(d->rc_input_dev);
  
- /*
-diff --git a/drivers/input/touchscreen/gunze.c b/drivers/input/touchscreen/gunze.c
-index 53a27e4..466da19 100644
---- a/drivers/input/touchscreen/gunze.c
-+++ b/drivers/input/touchscreen/gunze.c
-@@ -48,14 +48,12 @@ MODULE_LICENSE("GPL");
+ 	INIT_WORK(&d->rc_query_work, dvb_usb_read_remote_control, d);
  
- #define	GUNZE_MAX_LENGTH	10
+-	info("schedule remote query interval to %d msecs.",d->props.rc_interval);
++	info("schedule remote query interval to %d msecs.", d->props.rc_interval);
+ 	schedule_delayed_work(&d->rc_query_work,msecs_to_jiffies(d->props.rc_interval));
  
--static char *gunze_name = "Gunze AHL-51S TouchScreen";
--
- /*
-  * Per-touchscreen data.
-  */
- 
- struct gunze {
--	struct input_dev dev;
-+	struct input_dev *dev;
- 	struct serio *serio;
- 	int idx;
- 	unsigned char data[GUNZE_MAX_LENGTH];
-@@ -64,7 +62,7 @@ struct gunze {
- 
- static void gunze_process_packet(struct gunze* gunze, struct pt_regs *regs)
- {
--	struct input_dev *dev = &gunze->dev;
-+	struct input_dev *dev = gunze->dev;
- 
- 	if (gunze->idx != GUNZE_MAX_LENGTH || gunze->data[5] != ',' ||
- 		(gunze->data[0] != 'T' && gunze->data[0] != 'R')) {
-@@ -100,11 +98,13 @@ static irqreturn_t gunze_interrupt(struc
- 
- static void gunze_disconnect(struct serio *serio)
- {
--	struct gunze* gunze = serio_get_drvdata(serio);
-+	struct gunze *gunze = serio_get_drvdata(serio);
- 
--	input_unregister_device(&gunze->dev);
-+	input_get_device(gunze->dev);
-+	input_unregister_device(gunze->dev);
- 	serio_close(serio);
- 	serio_set_drvdata(serio, NULL);
-+	input_put_device(gunze->dev);
- 	kfree(gunze);
- }
- 
-@@ -117,45 +117,45 @@ static void gunze_disconnect(struct seri
- static int gunze_connect(struct serio *serio, struct serio_driver *drv)
- {
- 	struct gunze *gunze;
-+	struct input_dev *input_dev;
- 	int err;
- 
--	if (!(gunze = kmalloc(sizeof(struct gunze), GFP_KERNEL)))
--		return -ENOMEM;
--
--	memset(gunze, 0, sizeof(struct gunze));
--
--	init_input_dev(&gunze->dev);
--	gunze->dev.evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
--	gunze->dev.keybit[LONG(BTN_TOUCH)] = BIT(BTN_TOUCH);
--	input_set_abs_params(&gunze->dev, ABS_X, 24, 1000, 0, 0);
--	input_set_abs_params(&gunze->dev, ABS_Y, 24, 1000, 0, 0);
-+	gunze = kzalloc(sizeof(struct gunze), GFP_KERNEL);
-+	input_dev = input_allocate_device();
-+	if (!gunze || !input_dev) {
-+		err = -ENOMEM;
-+		goto fail;
-+	}
- 
- 	gunze->serio = serio;
--
-+	gunze->dev = input_dev;
- 	sprintf(gunze->phys, "%s/input0", serio->phys);
- 
--	gunze->dev.private = gunze;
--	gunze->dev.name = gunze_name;
--	gunze->dev.phys = gunze->phys;
--	gunze->dev.id.bustype = BUS_RS232;
--	gunze->dev.id.vendor = SERIO_GUNZE;
--	gunze->dev.id.product = 0x0051;
--	gunze->dev.id.version = 0x0100;
-+	input_dev->private = gunze;
-+	input_dev->name = "Gunze AHL-51S TouchScreen";
-+	input_dev->phys = gunze->phys;
-+	input_dev->id.bustype = BUS_RS232;
-+	input_dev->id.vendor = SERIO_GUNZE;
-+	input_dev->id.product = 0x0051;
-+	input_dev->id.version = 0x0100;
-+	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
-+	input_dev->keybit[LONG(BTN_TOUCH)] = BIT(BTN_TOUCH);
-+	input_set_abs_params(input_dev, ABS_X, 24, 1000, 0, 0);
-+	input_set_abs_params(input_dev, ABS_Y, 24, 1000, 0, 0);
- 
- 	serio_set_drvdata(serio, gunze);
- 
- 	err = serio_open(serio, drv);
--	if (err) {
--		serio_set_drvdata(serio, NULL);
--		kfree(gunze);
--		return err;
--	}
--
--	input_register_device(&gunze->dev);
--
--	printk(KERN_INFO "input: %s on %s\n", gunze_name, serio->phys);
-+	if (err)
-+		goto fail;
- 
-+	input_register_device(gunze->dev);
- 	return 0;
-+
-+ fail:	serio_set_drvdata(serio, NULL);
-+	input_free_device(input_dev);
-+	kfree(gunze);
-+	return err;
- }
- 
- /*
-diff --git a/drivers/input/touchscreen/h3600_ts_input.c b/drivers/input/touchscreen/h3600_ts_input.c
-index bcfa1e3..a18d56b 100644
---- a/drivers/input/touchscreen/h3600_ts_input.c
-+++ b/drivers/input/touchscreen/h3600_ts_input.c
-@@ -39,7 +39,6 @@
- #include <linux/serio.h>
- #include <linux/init.h>
- #include <linux/delay.h>
--#include <linux/pm.h>
- 
- /* SA1100 serial defines */
- #include <asm/arch/hardware.h>
-@@ -93,16 +92,12 @@ MODULE_LICENSE("GPL");
- #define H3600_SCANCODE_LEFT	8	 /* 8 -> left */
- #define H3600_SCANCODE_DOWN	9	 /* 9 -> down */
- 
--static char *h3600_name = "H3600 TouchScreen";
--
- /*
-  * Per-touchscreen data.
-  */
- struct h3600_dev {
--	struct input_dev dev;
--	struct pm_dev *pm_dev;
-+	struct input_dev *dev;
- 	struct serio *serio;
--	struct pm_dev *pm_dev;
- 	unsigned char event;	/* event ID from packet */
- 	unsigned char chksum;
- 	unsigned char len;
-@@ -163,33 +158,6 @@ unsigned int h3600_flite_power(struct in
- 	return 0;
- }
- 
--static int suspended = 0;
--static int h3600ts_pm_callback(struct pm_dev *pm_dev, pm_request_t req,
--				void *data)
--{
--	struct input_dev *dev = (struct input_dev *) data;
--
--	switch (req) {
--	case PM_SUSPEND: /* enter D1-D3 */
--		suspended = 1;
--		h3600_flite_power(dev, FLITE_PWR_OFF);
--		break;
--	case PM_BLANK:
--		if (!suspended)
--			h3600_flite_power(dev, FLITE_PWR_OFF);
--		break;
--	case PM_RESUME:  /* enter D0 */
--		/* same as unblank */
--	case PM_UNBLANK:
--		if (suspended) {
--			//initSerial();
--			suspended = 0;
--		}
--		h3600_flite_power(dev, FLITE_PWR_ON);
--		break;
--	}
--	return 0;
--}
- #endif
- 
- /*
-@@ -199,7 +167,7 @@ static int h3600ts_pm_callback(struct pm
-  */
- static void h3600ts_process_packet(struct h3600_dev *ts, struct pt_regs *regs)
- {
--	struct input_dev *dev = &ts->dev;
-+	struct input_dev *dev = ts->dev;
- 	static int touched = 0;
- 	int key, down = 0;
- 
-@@ -295,6 +263,7 @@ static void h3600ts_process_packet(struc
- static int h3600ts_event(struct input_dev *dev, unsigned int type,
- 			 unsigned int code, int value)
- {
-+#if 0
- 	struct h3600_dev *ts = dev->private;
- 
- 	switch (type) {
-@@ -304,6 +273,8 @@ static int h3600ts_event(struct input_de
- 		}
+ 	d->state |= DVB_USB_STATE_REMOTE;
+@@ -134,7 +140,7 @@ int dvb_usb_remote_exit(struct dvb_usb_d
+ 	if (d->state & DVB_USB_STATE_REMOTE) {
+ 		cancel_delayed_work(&d->rc_query_work);
+ 		flush_scheduled_work();
+-		input_unregister_device(&d->rc_input_dev);
++		input_unregister_device(d->rc_input_dev);
  	}
- 	return -1;
-+#endif
+ 	d->state &= ~DVB_USB_STATE_REMOTE;
+ 	return 0;
+diff --git a/drivers/media/dvb/dvb-usb/dvb-usb.h b/drivers/media/dvb/dvb-usb/dvb-usb.h
+index 0e4f103..b4a1a98 100644
+--- a/drivers/media/dvb/dvb-usb/dvb-usb.h
++++ b/drivers/media/dvb/dvb-usb/dvb-usb.h
+@@ -300,7 +300,8 @@ struct dvb_usb_device {
+ 	int (*fe_init)  (struct dvb_frontend *);
+ 
+ 	/* remote control */
+-	struct input_dev rc_input_dev;
++	struct input_dev *rc_input_dev;
++	char rc_phys[64];
+ 	struct work_struct rc_query_work;
+ 	u32 last_event;
+ 	int last_state;
+diff --git a/drivers/media/dvb/ttpci/av7110_ir.c b/drivers/media/dvb/ttpci/av7110_ir.c
+index 357a372..f5e59fc 100644
+--- a/drivers/media/dvb/ttpci/av7110_ir.c
++++ b/drivers/media/dvb/ttpci/av7110_ir.c
+@@ -15,7 +15,7 @@
+ 
+ static int av_cnt;
+ static struct av7110 *av_list[4];
+-static struct input_dev input_dev;
++static struct input_dev *input_dev;
+ 
+ static u16 key_map [256] = {
+ 	KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7,
+@@ -43,10 +43,10 @@ static u16 key_map [256] = {
+ 
+ static void av7110_emit_keyup(unsigned long data)
+ {
+-	if (!data || !test_bit(data, input_dev.key))
++	if (!data || !test_bit(data, input_dev->key))
+ 		return;
+ 
+-	input_event(&input_dev, EV_KEY, data, !!0);
++	input_event(input_dev, EV_KEY, data, !!0);
+ }
+ 
+ 
+@@ -112,13 +112,13 @@ static void av7110_emit_key(unsigned lon
+ 	if (timer_pending(&keyup_timer)) {
+ 		del_timer(&keyup_timer);
+ 		if (keyup_timer.data != keycode || new_toggle != old_toggle) {
+-			input_event(&input_dev, EV_KEY, keyup_timer.data, !!0);
+-			input_event(&input_dev, EV_KEY, keycode, !0);
++			input_event(input_dev, EV_KEY, keyup_timer.data, !!0);
++			input_event(input_dev, EV_KEY, keycode, !0);
+ 		} else
+-			input_event(&input_dev, EV_KEY, keycode, 2);
++			input_event(input_dev, EV_KEY, keycode, 2);
+ 
+ 	} else
+-		input_event(&input_dev, EV_KEY, keycode, !0);
++		input_event(input_dev, EV_KEY, keycode, !0);
+ 
+ 	keyup_timer.expires = jiffies + UP_TIMEOUT;
+ 	keyup_timer.data = keycode;
+@@ -132,13 +132,13 @@ static void input_register_keys(void)
+ {
+ 	int i;
+ 
+-	memset(input_dev.keybit, 0, sizeof(input_dev.keybit));
++	memset(input_dev->keybit, 0, sizeof(input_dev->keybit));
+ 
+-	for (i = 0; i < sizeof(key_map) / sizeof(key_map[0]); i++) {
++	for (i = 0; i < ARRAY_SIZE(key_map); i++) {
+ 		if (key_map[i] > KEY_MAX)
+ 			key_map[i] = 0;
+ 		else if (key_map[i] > KEY_RESERVED)
+-			set_bit(key_map[i], input_dev.keybit);
++			set_bit(key_map[i], input_dev->keybit);
+ 	}
+ }
+ 
+@@ -216,12 +216,17 @@ int __init av7110_ir_init(struct av7110 
+ 		init_timer(&keyup_timer);
+ 		keyup_timer.data = 0;
+ 
+-		input_dev.name = "DVB on-card IR receiver";
+-		set_bit(EV_KEY, input_dev.evbit);
+-		set_bit(EV_REP, input_dev.evbit);
++		input_dev = input_allocate_device();
++		if (!input_dev)
++			return -ENOMEM;
++
++		input_dev->name = "DVB on-card IR receiver";
++
++		set_bit(EV_KEY, input_dev->evbit);
++		set_bit(EV_REP, input_dev->evbit);
+ 		input_register_keys();
+-		input_register_device(&input_dev);
+-		input_dev.timer.function = input_repeat_key;
++		input_register_device(input_dev);
++		input_dev->timer.function = input_repeat_key;
+ 
+ 		e = create_proc_entry("av7110_ir", S_IFREG | S_IRUGO | S_IWUSR, NULL);
+ 		if (e) {
+@@ -256,7 +261,7 @@ void __exit av7110_ir_exit(struct av7110
+ 	if (av_cnt == 1) {
+ 		del_timer_sync(&keyup_timer);
+ 		remove_proc_entry("av7110_ir", NULL);
+-		input_unregister_device(&input_dev);
++		input_unregister_device(input_dev);
+ 	}
+ 
+ 	av_cnt--;
+diff --git a/drivers/media/dvb/ttpci/budget-ci.c b/drivers/media/dvb/ttpci/budget-ci.c
+index 2980db3..51c30ba 100644
+--- a/drivers/media/dvb/ttpci/budget-ci.c
++++ b/drivers/media/dvb/ttpci/budget-ci.c
+@@ -64,7 +64,7 @@
+ 
+ struct budget_ci {
+ 	struct budget budget;
+-	struct input_dev input_dev;
++	struct input_dev *input_dev;
+ 	struct tasklet_struct msp430_irq_tasklet;
+ 	struct tasklet_struct ciintf_irq_tasklet;
+ 	int slot_status;
+@@ -145,7 +145,7 @@ static void msp430_ir_debounce(unsigned 
+ static void msp430_ir_interrupt(unsigned long data)
+ {
+ 	struct budget_ci *budget_ci = (struct budget_ci *) data;
+-	struct input_dev *dev = &budget_ci->input_dev;
++	struct input_dev *dev = budget_ci->input_dev;
+ 	unsigned int code =
+ 		ttpci_budget_debiread(&budget_ci->budget, DEBINOSWAP, DEBIADDR_IR, 2, 1, 0) >> 8;
+ 
+@@ -181,25 +181,27 @@ static void msp430_ir_interrupt(unsigned
+ static int msp430_ir_init(struct budget_ci *budget_ci)
+ {
+ 	struct saa7146_dev *saa = budget_ci->budget.dev;
++	struct input_dev *input_dev;
+ 	int i;
+ 
+-	memset(&budget_ci->input_dev, 0, sizeof(struct input_dev));
++	budget_ci->input_dev = input_dev = input_allocate_device();
++	if (!input_dev)
++		return -ENOMEM;
+ 
+ 	sprintf(budget_ci->ir_dev_name, "Budget-CI dvb ir receiver %s", saa->name);
+-	budget_ci->input_dev.name = budget_ci->ir_dev_name;
+ 
+-	set_bit(EV_KEY, budget_ci->input_dev.evbit);
++	input_dev->name = budget_ci->ir_dev_name;
+ 
+-	for (i = 0; i < sizeof(key_map) / sizeof(*key_map); i++)
++	set_bit(EV_KEY, input_dev->evbit);
++	for (i = 0; i < ARRAY_SIZE(key_map); i++)
+ 		if (key_map[i])
+-			set_bit(key_map[i], budget_ci->input_dev.keybit);
++			set_bit(key_map[i], input_dev->keybit);
+ 
+-	input_register_device(&budget_ci->input_dev);
++	input_register_device(budget_ci->input_dev);
+ 
+-	budget_ci->input_dev.timer.function = msp430_ir_debounce;
++	input_dev->timer.function = msp430_ir_debounce;
+ 
+ 	saa7146_write(saa, IER, saa7146_read(saa, IER) | MASK_06);
+-
+ 	saa7146_setgpio(saa, 3, SAA7146_GPIO_IRQHI);
+ 
+ 	return 0;
+@@ -208,7 +210,7 @@ static int msp430_ir_init(struct budget_
+ static void msp430_ir_deinit(struct budget_ci *budget_ci)
+ {
+ 	struct saa7146_dev *saa = budget_ci->budget.dev;
+-	struct input_dev *dev = &budget_ci->input_dev;
++	struct input_dev *dev = budget_ci->input_dev;
+ 
+ 	saa7146_write(saa, IER, saa7146_read(saa, IER) & ~MASK_06);
+ 	saa7146_setgpio(saa, 3, SAA7146_GPIO_INPUT);
+diff --git a/drivers/media/dvb/ttusb-dec/ttusb_dec.c b/drivers/media/dvb/ttusb-dec/ttusb_dec.c
+index 3d08fc8..832d179 100644
+--- a/drivers/media/dvb/ttusb-dec/ttusb_dec.c
++++ b/drivers/media/dvb/ttusb-dec/ttusb_dec.c
+@@ -152,7 +152,8 @@ struct ttusb_dec {
+ 	struct list_head	filter_info_list;
+ 	spinlock_t		filter_info_list_lock;
+ 
+-	struct input_dev	rc_input_dev;
++	struct input_dev	*rc_input_dev;
++	char			rc_phys[64];
+ 
+ 	int			active; /* Loaded successfully */
+ };
+@@ -235,9 +236,9 @@ static void ttusb_dec_handle_irq( struct
+ 		 * this should/could be added later ...
+ 		 * for now lets report each signal as a key down and up*/
+ 		dprintk("%s:rc signal:%d\n", __FUNCTION__, buffer[4]);
+-		input_report_key(&dec->rc_input_dev,rc_keys[buffer[4]-1],1);
+-		input_report_key(&dec->rc_input_dev,rc_keys[buffer[4]-1],0);
+-		input_sync(&dec->rc_input_dev);
++		input_report_key(dec->rc_input_dev, rc_keys[buffer[4] - 1], 1);
++		input_report_key(dec->rc_input_dev, rc_keys[buffer[4] - 1], 0);
++		input_sync(dec->rc_input_dev);
+ 	}
+ 
+ exit:	retval = usb_submit_urb(urb, GFP_ATOMIC);
+@@ -1181,29 +1182,38 @@ static void ttusb_dec_init_tasklet(struc
+ 		     (unsigned long)dec);
+ }
+ 
+-static void ttusb_init_rc( struct ttusb_dec *dec)
++static int ttusb_init_rc(struct ttusb_dec *dec)
+ {
++	struct input_dev *input_dev;
+ 	u8 b[] = { 0x00, 0x01 };
+ 	int i;
+ 
+-	init_input_dev(&dec->rc_input_dev);
++	usb_make_path(dec->udev, dec->rc_phys, sizeof(dec->rc_phys));
++	strlcpy(dec->rc_phys, "/input0", sizeof(dec->rc_phys));
+ 
+-	dec->rc_input_dev.name = "ttusb_dec remote control";
+-	dec->rc_input_dev.evbit[0] = BIT(EV_KEY);
+-	dec->rc_input_dev.keycodesize = sizeof(u16);
+-	dec->rc_input_dev.keycodemax = 0x1a;
+-	dec->rc_input_dev.keycode = rc_keys;
++	dec->rc_input_dev = input_dev = input_allocate_device();
++	if (!input_dev)
++		return -ENOMEM;
++
++	input_dev->name = "ttusb_dec remote control";
++	input_dev->phys = dec->rc_phys;
++	input_dev->evbit[0] = BIT(EV_KEY);
++	input_dev->keycodesize = sizeof(u16);
++	input_dev->keycodemax = 0x1a;
++	input_dev->keycode = rc_keys;
+ 
+-	 for (i = 0; i < sizeof(rc_keys)/sizeof(rc_keys[0]); i++)
+-                set_bit(rc_keys[i], dec->rc_input_dev.keybit);
++	for (i = 0; i < ARRAY_SIZE(rc_keys); i++)
++                set_bit(rc_keys[i], input_dev->keybit);
+ 
+-	input_register_device(&dec->rc_input_dev);
++	input_register_device(input_dev);
+ 
+-	if(usb_submit_urb(dec->irq_urb,GFP_KERNEL)) {
++	if (usb_submit_urb(dec->irq_urb, GFP_KERNEL))
+ 		printk("%s: usb_submit_urb failed\n",__FUNCTION__);
+-	}
++
+ 	/* enable irq pipe */
+ 	ttusb_dec_send_command(dec,0xb0,sizeof(b),b,NULL,NULL);
++
 +	return 0;
  }
  
- /*
-@@ -380,14 +351,48 @@ static irqreturn_t h3600ts_interrupt(str
- static int h3600ts_connect(struct serio *serio, struct serio_driver *drv)
- {
- 	struct h3600_dev *ts;
-+	struct input_dev *input_dev;
- 	int err;
+ static void ttusb_dec_init_v_pes(struct ttusb_dec *dec)
+@@ -1513,7 +1523,7 @@ static void ttusb_dec_exit_rc(struct ttu
+ 	  * As the irq is submitted after the interface is changed,
+ 	  * this is the best method i figured out.
+ 	  * Any others?*/
+-	if(dec->interface == TTUSB_DEC_INTERFACE_IN)
++	if (dec->interface == TTUSB_DEC_INTERFACE_IN)
+ 		usb_kill_urb(dec->irq_urb);
  
--	if (!(ts = kmalloc(sizeof(struct h3600_dev), GFP_KERNEL)))
--		return -ENOMEM;
-+	ts = kzalloc(sizeof(struct h3600_dev), GFP_KERNEL);
-+	input_dev = input_allocate_device();
-+	if (!ts || !input_dev) {
-+		err = -ENOMEM;
-+		goto fail1;
+ 	usb_free_urb(dec->irq_urb);
+@@ -1521,7 +1531,10 @@ static void ttusb_dec_exit_rc(struct ttu
+ 	usb_buffer_free(dec->udev,IRQ_PACKET_SIZE,
+ 		           dec->irq_buffer, dec->irq_dma_handle);
+ 
+-	input_unregister_device(&dec->rc_input_dev);
++	if (dec->rc_input_dev) {
++		input_unregister_device(dec->rc_input_dev);
++		dec->rc_input_dev = NULL;
 +	}
+ }
  
--	memset(ts, 0, sizeof(struct h3600_dev));
-+	ts->serio = serio;
-+	ts->dev = input_dev;
-+	sprintf(ts->phys, "%s/input0", serio->phys);
  
--	init_input_dev(&ts->dev);
-+	input_dev->name = "H3600 TouchScreen";
-+	input_dev->phys = ts->phys;
-+	input_dev->id.bustype = BUS_RS232;
-+	input_dev->id.vendor = SERIO_H3600;
-+	input_dev->id.product = 0x0666;  /* FIXME !!! We can ask the hardware */
-+	input_dev->id.version = 0x0100;
-+	input_dev->cdev.dev = &serio->dev;
-+	input_dev->private = ts;
-+
-+	input_dev->event = h3600ts_event;
-+
-+	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_ABS) | BIT(EV_LED) | BIT(EV_PWR);
-+	input_dev->ledbit[0] = BIT(LED_SLEEP);
-+	input_set_abs_params(input_dev, ABS_X, 60, 985, 0, 0);
-+	input_set_abs_params(input_dev, ABS_Y, 35, 1024, 0, 0);
-+
-+	set_bit(KEY_RECORD, input_dev->keybit);
-+	set_bit(KEY_Q, input_dev->keybit);
-+	set_bit(KEY_PROG1, input_dev->keybit);
-+	set_bit(KEY_PROG2, input_dev->keybit);
-+	set_bit(KEY_PROG3, input_dev->keybit);
-+	set_bit(KEY_UP, input_dev->keybit);
-+	set_bit(KEY_RIGHT, input_dev->keybit);
-+	set_bit(KEY_LEFT, input_dev->keybit);
-+	set_bit(KEY_DOWN, input_dev->keybit);
-+	set_bit(KEY_ENTER, input_dev->keybit);
-+	set_bit(KEY_SUSPEND, input_dev->keybit);
-+	set_bit(BTN_TOUCH, input_dev->keybit);
+@@ -1659,7 +1672,7 @@ static int ttusb_dec_probe(struct usb_in
  
- 	/* Device specific stuff */
- 	set_GPIO_IRQ_edge(GPIO_BITSY_ACTION_BUTTON, GPIO_BOTH_EDGES);
-@@ -397,73 +402,35 @@ static int h3600ts_connect(struct serio 
- 			SA_SHIRQ | SA_INTERRUPT | SA_SAMPLE_RANDOM,
- 			"h3600_action", &ts->dev)) {
- 		printk(KERN_ERR "h3600ts.c: Could not allocate Action Button IRQ!\n");
--		kfree(ts);
--		return -EBUSY;
-+		err = -EBUSY;
-+		goto fail2;
- 	}
+ 	ttusb_dec_set_interface(dec, TTUSB_DEC_INTERFACE_IN);
  
- 	if (request_irq(IRQ_GPIO_BITSY_NPOWER_BUTTON, npower_button_handler,
- 			SA_SHIRQ | SA_INTERRUPT | SA_SAMPLE_RANDOM,
- 			"h3600_suspend", &ts->dev)) {
--		free_irq(IRQ_GPIO_BITSY_ACTION_BUTTON, &ts->dev);
- 		printk(KERN_ERR "h3600ts.c: Could not allocate Power Button IRQ!\n");
--		kfree(ts);
--		return -EBUSY;
-+		err = -EBUSY;
-+		goto fail3;
- 	}
- 
--	/* Now we have things going we setup our input device */
--	ts->dev.evbit[0] = BIT(EV_KEY) | BIT(EV_ABS) | BIT(EV_LED) | BIT(EV_PWR);
--	ts->dev.ledbit[0] = BIT(LED_SLEEP);
--	input_set_abs_params(&ts->dev, ABS_X, 60, 985, 0, 0);
--	input_set_abs_params(&ts->dev, ABS_Y, 35, 1024, 0, 0);
--
--	set_bit(KEY_RECORD, ts->dev.keybit);
--	set_bit(KEY_Q, ts->dev.keybit);
--	set_bit(KEY_PROG1, ts->dev.keybit);
--	set_bit(KEY_PROG2, ts->dev.keybit);
--	set_bit(KEY_PROG3, ts->dev.keybit);
--	set_bit(KEY_UP, ts->dev.keybit);
--	set_bit(KEY_RIGHT, ts->dev.keybit);
--	set_bit(KEY_LEFT, ts->dev.keybit);
--	set_bit(KEY_DOWN, ts->dev.keybit);
--	set_bit(KEY_ENTER, ts->dev.keybit);
--	ts->dev.keybit[LONG(BTN_TOUCH)] |= BIT(BTN_TOUCH);
--	ts->dev.keybit[LONG(KEY_SUSPEND)] |= BIT(KEY_SUSPEND);
--
--	ts->serio = serio;
--
--	sprintf(ts->phys, "%s/input0", serio->phys);
--
--	ts->dev.event = h3600ts_event;
--	ts->dev.private = ts;
--	ts->dev.name = h3600_name;
--	ts->dev.phys = ts->phys;
--	ts->dev.id.bustype = BUS_RS232;
--	ts->dev.id.vendor = SERIO_H3600;
--	ts->dev.id.product = 0x0666;  /* FIXME !!! We can ask the hardware */
--	ts->dev.id.version = 0x0100;
--
- 	serio_set_drvdata(serio, ts);
- 
- 	err = serio_open(serio, drv);
--	if (err) {
--		free_irq(IRQ_GPIO_BITSY_ACTION_BUTTON, ts);
--		free_irq(IRQ_GPIO_BITSY_NPOWER_BUTTON, ts);
--		serio_set_drvdata(serio, NULL);
--		kfree(ts);
-+	if (err)
- 		return err;
--	}
- 
- 	//h3600_flite_control(1, 25);     /* default brightness */
--#ifdef CONFIG_PM
--	ts->pm_dev = pm_register(PM_ILLUMINATION_DEV, PM_SYS_LIGHT,
--				h3600ts_pm_callback);
--	printk("registered pm callback\n");
--#endif
--	input_register_device(&ts->dev);
--
--	printk(KERN_INFO "input: %s on %s\n", h3600_name, serio->phys);
-+	input_register_device(ts->dev);
+-	if(enable_rc)
++	if (enable_rc)
+ 		ttusb_init_rc(dec);
  
  	return 0;
-+
-+fail3:	free_irq(IRQ_GPIO_BITSY_NPOWER_BUTTON, ts->dev);
-+fail2:	free_irq(IRQ_GPIO_BITSY_ACTION_BUTTON, ts->dev);
-+fail1:	serio_set_drvdata(serio, NULL);
-+	input_free_device(input_dev);
-+	kfree(ts);
-+	return err;
- }
+diff --git a/drivers/media/video/bttvp.h b/drivers/media/video/bttvp.h
+index 7a312f7..e0e7c7a 100644
+--- a/drivers/media/video/bttvp.h
++++ b/drivers/media/video/bttvp.h
+@@ -240,7 +240,7 @@ struct bttv_pll_info {
  
- /*
-@@ -476,9 +443,11 @@ static void h3600ts_disconnect(struct se
+ /* for gpio-connected remote control */
+ struct bttv_input {
+-	struct input_dev      dev;
++	struct input_dev      *dev;
+ 	struct ir_input_state ir;
+ 	char                  name[32];
+ 	char                  phys[32];
+diff --git a/drivers/media/video/cx88/cx88-input.c b/drivers/media/video/cx88/cx88-input.c
+index d81b21d..c27fe4c 100644
+--- a/drivers/media/video/cx88/cx88-input.c
++++ b/drivers/media/video/cx88/cx88-input.c
+@@ -260,7 +260,7 @@ static IR_KEYTAB_TYPE ir_codes_cinergy_1
  
- 	free_irq(IRQ_GPIO_BITSY_ACTION_BUTTON, &ts->dev);
- 	free_irq(IRQ_GPIO_BITSY_NPOWER_BUTTON, &ts->dev);
--	input_unregister_device(&ts->dev);
-+	input_get_device(ts->dev);
-+	input_unregister_device(ts->dev);
- 	serio_close(serio);
- 	serio_set_drvdata(serio, NULL);
-+	input_put_device(ts->dev);
- 	kfree(ts);
- }
+ struct cx88_IR {
+ 	struct cx88_core *core;
+-	struct input_dev input;
++	struct input_dev *input;
+ 	struct ir_input_state ir;
+ 	char name[32];
+ 	char phys[32];
+@@ -315,23 +315,23 @@ static void cx88_ir_handle_key(struct cx
+ 	if (ir->mask_keydown) {
+ 		/* bit set on keydown */
+ 		if (gpio & ir->mask_keydown) {
+-			ir_input_keydown(&ir->input, &ir->ir, data, data);
++			ir_input_keydown(ir->input, &ir->ir, data, data);
+ 		} else {
+-			ir_input_nokey(&ir->input, &ir->ir);
++			ir_input_nokey(ir->input, &ir->ir);
+ 		}
  
-diff --git a/drivers/input/touchscreen/hp680_ts_input.c b/drivers/input/touchscreen/hp680_ts_input.c
-index 7e14044..957dd5a 100644
---- a/drivers/input/touchscreen/hp680_ts_input.c
-+++ b/drivers/input/touchscreen/hp680_ts_input.c
-@@ -21,10 +21,8 @@
+ 	} else if (ir->mask_keyup) {
+ 		/* bit cleared on keydown */
+ 		if (0 == (gpio & ir->mask_keyup)) {
+-			ir_input_keydown(&ir->input, &ir->ir, data, data);
++			ir_input_keydown(ir->input, &ir->ir, data, data);
+ 		} else {
+-			ir_input_nokey(&ir->input, &ir->ir);
++			ir_input_nokey(ir->input, &ir->ir);
+ 		}
  
- static void do_softint(void *data);
- 
--static struct input_dev hp680_ts_dev;
-+static struct input_dev *hp680_ts_dev;
- static DECLARE_WORK(work, do_softint, 0);
--static char *hp680_ts_name = "HP Jornada touchscreen";
--static char *hp680_ts_phys = "input0";
- 
- static void do_softint(void *data)
- {
-@@ -58,14 +56,14 @@ static void do_softint(void *data)
- 	}
- 
- 	if (touched) {
--		input_report_key(&hp680_ts_dev, BTN_TOUCH, 1);
--		input_report_abs(&hp680_ts_dev, ABS_X, absx);
--		input_report_abs(&hp680_ts_dev, ABS_Y, absy);
-+		input_report_key(hp680_ts_dev, BTN_TOUCH, 1);
-+		input_report_abs(hp680_ts_dev, ABS_X, absx);
-+		input_report_abs(hp680_ts_dev, ABS_Y, absy);
  	} else {
--		input_report_key(&hp680_ts_dev, BTN_TOUCH, 0);
-+		input_report_key(hp680_ts_dev, BTN_TOUCH, 0);
+ 		/* can't distinguish keydown/up :-/ */
+-		ir_input_keydown(&ir->input, &ir->ir, data, data);
+-		ir_input_nokey(&ir->input, &ir->ir);
++		ir_input_keydown(ir->input, &ir->ir, data, data);
++		ir_input_nokey(ir->input, &ir->ir);
  	}
- 
--	input_sync(&hp680_ts_dev);
-+	input_sync(hp680_ts_dev);
- 	enable_irq(HP680_TS_IRQ);
  }
  
-@@ -92,27 +90,29 @@ static int __init hp680_ts_init(void)
- 	scpcr |= SCPCR_TS_ENABLE;
- 	ctrl_outw(scpcr, SCPCR);
- 
--	memset(&hp680_ts_dev, 0, sizeof(hp680_ts_dev));
--	init_input_dev(&hp680_ts_dev);
--
--	hp680_ts_dev.evbit[0] = BIT(EV_ABS) | BIT(EV_KEY);
--	hp680_ts_dev.absbit[0] = BIT(ABS_X) | BIT(ABS_Y);
--	hp680_ts_dev.keybit[LONG(BTN_TOUCH)] = BIT(BTN_TOUCH);
--
--	hp680_ts_dev.absmin[ABS_X] = HP680_TS_ABS_X_MIN;
--	hp680_ts_dev.absmin[ABS_Y] = HP680_TS_ABS_Y_MIN;
--	hp680_ts_dev.absmax[ABS_X] = HP680_TS_ABS_X_MAX;
--	hp680_ts_dev.absmax[ABS_Y] = HP680_TS_ABS_Y_MAX;
--
--	hp680_ts_dev.name = hp680_ts_name;
--	hp680_ts_dev.phys = hp680_ts_phys;
--	input_register_device(&hp680_ts_dev);
--
--	if (request_irq
--	    (HP680_TS_IRQ, hp680_ts_interrupt, SA_INTERRUPT, MODNAME, 0) < 0) {
--		printk(KERN_ERR "hp680_touchscreen.c : Can't allocate irq %d\n",
-+	hp680_ts_dev = input_allocate_device();
-+	if (!hp680_ts_dev)
-+		return -ENOMEM;
-+
-+	hp680_ts_dev->evbit[0] = BIT(EV_ABS) | BIT(EV_KEY);
-+	hp680_ts_dev->absbit[0] = BIT(ABS_X) | BIT(ABS_Y);
-+	hp680_ts_dev->keybit[LONG(BTN_TOUCH)] = BIT(BTN_TOUCH);
-+
-+	hp680_ts_dev->absmin[ABS_X] = HP680_TS_ABS_X_MIN;
-+	hp680_ts_dev->absmin[ABS_Y] = HP680_TS_ABS_Y_MIN;
-+	hp680_ts_dev->absmax[ABS_X] = HP680_TS_ABS_X_MAX;
-+	hp680_ts_dev->absmax[ABS_Y] = HP680_TS_ABS_Y_MAX;
-+
-+	hp680_ts_dev->name = "HP Jornada touchscreen";
-+	hp680_ts_dev->phys = "hp680_ts/input0";
-+
-+	input_register_device(hp680_ts_dev);
-+
-+	if (request_irq(HP680_TS_IRQ, hp680_ts_interrupt,
-+			SA_INTERRUPT, MODNAME, 0) < 0) {
-+		printk(KERN_ERR "hp680_touchscreen.c: Can't allocate irq %d\n",
- 		       HP680_TS_IRQ);
--		input_unregister_device(&hp680_ts_dev);
-+		input_unregister_device(hp680_ts_dev);
- 		return -EBUSY;
- 	}
- 
-@@ -124,7 +124,7 @@ static void __exit hp680_ts_exit(void)
- 	free_irq(HP680_TS_IRQ, 0);
- 	cancel_delayed_work(&work);
- 	flush_scheduled_work();
--	input_unregister_device(&hp680_ts_dev);
-+	input_unregister_device(hp680_ts_dev);
- }
- 
- module_init(hp680_ts_init);
-diff --git a/drivers/input/touchscreen/mk712.c b/drivers/input/touchscreen/mk712.c
-index afaaebe..4844d25 100644
---- a/drivers/input/touchscreen/mk712.c
-+++ b/drivers/input/touchscreen/mk712.c
-@@ -77,7 +77,7 @@ MODULE_PARM_DESC(irq, "IRQ of MK712 touc
- #define MK712_READ_ONE_POINT			0x20
- #define MK712_POWERUP				0x40
- 
--static struct input_dev mk712_dev;
-+static struct input_dev *mk712_dev;
- static DEFINE_SPINLOCK(mk712_lock);
- 
- static irqreturn_t mk712_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-@@ -88,7 +88,7 @@ static irqreturn_t mk712_interrupt(int i
- 	static unsigned short last_y;
- 
- 	spin_lock(&mk712_lock);
--	input_regs(&mk712_dev, regs);
-+	input_regs(mk712_dev, regs);
- 
- 	status = inb(mk712_io + MK712_STATUS);
- 
-@@ -100,7 +100,7 @@ static irqreturn_t mk712_interrupt(int i
- 	if (~status & MK712_STATUS_TOUCH)
- 	{
- 		debounce = 1;
--		input_report_key(&mk712_dev, BTN_TOUCH, 0);
-+		input_report_key(mk712_dev, BTN_TOUCH, 0);
- 		goto end;
- 	}
- 
-@@ -110,15 +110,15 @@ static irqreturn_t mk712_interrupt(int i
- 		goto end;
- 	}
- 
--	input_report_key(&mk712_dev, BTN_TOUCH, 1);
--	input_report_abs(&mk712_dev, ABS_X, last_x);
--	input_report_abs(&mk712_dev, ABS_Y, last_y);
-+	input_report_key(mk712_dev, BTN_TOUCH, 1);
-+	input_report_abs(mk712_dev, ABS_X, last_x);
-+	input_report_abs(mk712_dev, ABS_Y, last_y);
- 
- end:
- 
- 	last_x = inw(mk712_io + MK712_X) & 0x0fff;
- 	last_y = inw(mk712_io + MK712_Y) & 0x0fff;
--	input_sync(&mk712_dev);
-+	input_sync(mk712_dev);
- 	spin_unlock(&mk712_lock);
- 	return IRQ_HANDLED;
- }
-@@ -154,30 +154,11 @@ static void mk712_close(struct input_dev
- 	spin_unlock_irqrestore(&mk712_lock, flags);
- }
- 
--static struct input_dev mk712_dev = {
--	.evbit   = { BIT(EV_KEY) | BIT(EV_ABS) },
--	.keybit  = { [LONG(BTN_TOUCH)] = BIT(BTN_TOUCH) },
--	.absbit  = { BIT(ABS_X) | BIT(ABS_Y) },
--	.open    = mk712_open,
--	.close   = mk712_close,
--	.name    = "ICS MicroClock MK712 TouchScreen",
--	.phys    = "isa0260/input0",
--	.absmin  = { [ABS_X] = 0, [ABS_Y] = 0 },
--	.absmax  = { [ABS_X] = 0xfff, [ABS_Y] = 0xfff },
--	.absfuzz = { [ABS_X] = 88, [ABS_Y] = 88 },
--	.id      = {
--		.bustype = BUS_ISA,
--		.vendor  = 0x0005,
--		.product = 0x0001,
--		.version = 0x0100,
--	},
--};
--
- int __init mk712_init(void)
+@@ -357,13 +357,19 @@ static void cx88_ir_work(void *data)
+ int cx88_ir_init(struct cx88_core *core, struct pci_dev *pci)
  {
-+	int err;
+ 	struct cx88_IR *ir;
++	struct input_dev *input_dev;
+ 	IR_KEYTAB_TYPE *ir_codes = NULL;
+ 	int ir_type = IR_TYPE_OTHER;
  
--	if(!request_region(mk712_io, 8, "mk712"))
--	{
-+	if (!request_region(mk712_io, 8, "mk712")) {
- 		printk(KERN_WARNING "mk712: unable to get IO region\n");
+-	ir = kmalloc(sizeof(*ir), GFP_KERNEL);
+-	if (NULL == ir)
++	ir = kzalloc(sizeof(*ir), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!ir || !input_dev) {
++		kfree(ir);
++		input_free_device(input_dev);
+ 		return -ENOMEM;
+-	memset(ir, 0, sizeof(*ir));
++	}
++
++	ir->input = input_dev;
+ 
+ 	/* detect & configure */
+ 	switch (core->board) {
+@@ -425,6 +431,7 @@ int cx88_ir_init(struct cx88_core *core,
+ 
+ 	if (NULL == ir_codes) {
+ 		kfree(ir);
++		input_free_device(input_dev);
  		return -ENODEV;
  	}
-@@ -188,28 +169,49 @@ int __init mk712_init(void)
- 	    (inw(mk712_io + MK712_Y) & 0xf000) ||
- 	    (inw(mk712_io + MK712_STATUS) & 0xf333)) {
- 		printk(KERN_WARNING "mk712: device not present\n");
--		release_region(mk712_io, 8);
--		return -ENODEV;
-+		err = -ENODEV;
-+		goto fail;
+ 
+@@ -433,19 +440,19 @@ int cx88_ir_init(struct cx88_core *core,
+ 		 cx88_boards[core->board].name);
+ 	snprintf(ir->phys, sizeof(ir->phys), "pci-%s/ir0", pci_name(pci));
+ 
+-	ir_input_init(&ir->input, &ir->ir, ir_type, ir_codes);
+-	ir->input.name = ir->name;
+-	ir->input.phys = ir->phys;
+-	ir->input.id.bustype = BUS_PCI;
+-	ir->input.id.version = 1;
++	ir_input_init(input_dev, &ir->ir, ir_type, ir_codes);
++	input_dev->name = ir->name;
++	input_dev->phys = ir->phys;
++	input_dev->id.bustype = BUS_PCI;
++	input_dev->id.version = 1;
+ 	if (pci->subsystem_vendor) {
+-		ir->input.id.vendor = pci->subsystem_vendor;
+-		ir->input.id.product = pci->subsystem_device;
++		input_dev->id.vendor = pci->subsystem_vendor;
++		input_dev->id.product = pci->subsystem_device;
+ 	} else {
+-		ir->input.id.vendor = pci->vendor;
+-		ir->input.id.product = pci->device;
++		input_dev->id.vendor = pci->vendor;
++		input_dev->id.product = pci->device;
+ 	}
+-	ir->input.dev = &pci->dev;
++	input_dev->cdev.dev = &pci->dev;
+ 
+ 	/* record handles to ourself */
+ 	ir->core = core;
+@@ -465,8 +472,7 @@ int cx88_ir_init(struct cx88_core *core,
  	}
  
--	if(request_irq(mk712_irq, mk712_interrupt, 0, "mk712", &mk712_dev))
--	{
--		printk(KERN_WARNING "mk712: unable to get IRQ\n");
--		release_region(mk712_io, 8);
--		return -EBUSY;
-+	if (!(mk712_dev = input_allocate_device())) {
-+		printk(KERN_ERR "mk712: not enough memory\n");
-+		err = -ENOMEM;
-+		goto fail;
- 	}
+ 	/* all done */
+-	input_register_device(&ir->input);
+-	printk("%s: registered IR remote control\n", core->name);
++	input_register_device(ir->input);
  
--	input_register_device(&mk712_dev);
-+	mk712_dev->name = "ICS MicroClock MK712 TouchScreen";
-+	mk712_dev->phys = "isa0260/input0";
-+	mk712_dev->id.bustype = BUS_ISA;
-+	mk712_dev->id.vendor  = 0x0005;
-+	mk712_dev->id.product = 0x0001;
-+	mk712_dev->id.version = 0x0100;
-+
-+	mk712_dev->open    = mk712_open;
-+	mk712_dev->close   = mk712_close;
- 
--	printk(KERN_INFO "input: ICS MicroClock MK712 TouchScreen at %#x irq %d\n", mk712_io, mk712_irq);
-+	mk712_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
-+	mk712_dev->keybit[LONG(BTN_TOUCH)] = BIT(BTN_TOUCH);
-+	input_set_abs_params(mk712_dev, ABS_X, 0, 0xfff, 88, 0);
-+	input_set_abs_params(mk712_dev, ABS_Y, 0, 0xfff, 88, 0);
- 
-+	if (request_irq(mk712_irq, mk712_interrupt, 0, "mk712", mk712_dev)) {
-+		printk(KERN_WARNING "mk712: unable to get IRQ\n");
-+		err = -EBUSY;
-+		goto fail;
-+	}
-+
-+	input_register_device(mk712_dev);
  	return 0;
-+
-+ fail:	input_free_device(mk712_dev);
-+	release_region(mk712_io, 8);
-+	return err;
+ }
+@@ -484,7 +490,7 @@ int cx88_ir_fini(struct cx88_core *core)
+ 		flush_scheduled_work();
+ 	}
+ 
+-	input_unregister_device(&ir->input);
++	input_unregister_device(ir->input);
+ 	kfree(ir);
+ 
+ 	/* done */
+@@ -515,7 +521,7 @@ void cx88_ir_irq(struct cx88_core *core)
+ 	if (!ir->scount) {
+ 		/* nothing to sample */
+ 		if (ir->ir.keypressed && time_after(jiffies, ir->release))
+-			ir_input_nokey(&ir->input, &ir->ir);
++			ir_input_nokey(ir->input, &ir->ir);
+ 		return;
+ 	}
+ 
+@@ -557,7 +563,7 @@ void cx88_ir_irq(struct cx88_core *core)
+ 
+ 		ir_dprintk("Key Code: %x\n", (ircode >> 16) & 0x7f);
+ 
+-		ir_input_keydown(&ir->input, &ir->ir, (ircode >> 16) & 0x7f, (ircode >> 16) & 0xff);
++		ir_input_keydown(ir->input, &ir->ir, (ircode >> 16) & 0x7f, (ircode >> 16) & 0xff);
+ 		ir->release = jiffies + msecs_to_jiffies(120);
+ 		break;
+ 	case CX88_BOARD_HAUPPAUGE:
+@@ -566,7 +572,7 @@ void cx88_ir_irq(struct cx88_core *core)
+ 		ir_dprintk("biphase decoded: %x\n", ircode);
+ 		if ((ircode & 0xfffff000) != 0x3000)
+ 			break;
+-		ir_input_keydown(&ir->input, &ir->ir, ircode & 0x3f, ircode);
++		ir_input_keydown(ir->input, &ir->ir, ircode & 0x3f, ircode);
+ 		ir->release = jiffies + msecs_to_jiffies(120);
+ 		break;
+ 	}
+diff --git a/drivers/media/video/ir-kbd-gpio.c b/drivers/media/video/ir-kbd-gpio.c
+index cf292da..234151e 100644
+--- a/drivers/media/video/ir-kbd-gpio.c
++++ b/drivers/media/video/ir-kbd-gpio.c
+@@ -158,7 +158,7 @@ static IR_KEYTAB_TYPE ir_codes_apac_view
+ 
+ struct IR {
+ 	struct bttv_sub_device  *sub;
+-	struct input_dev        input;
++	struct input_dev        *input;
+ 	struct ir_input_state   ir;
+ 	char                    name[32];
+ 	char                    phys[32];
+@@ -217,23 +217,23 @@ static void ir_handle_key(struct IR *ir)
+ 	if (ir->mask_keydown) {
+ 		/* bit set on keydown */
+ 		if (gpio & ir->mask_keydown) {
+-			ir_input_keydown(&ir->input,&ir->ir,data,data);
++			ir_input_keydown(ir->input, &ir->ir, data, data);
+ 		} else {
+-			ir_input_nokey(&ir->input,&ir->ir);
++			ir_input_nokey(ir->input, &ir->ir);
+ 		}
+ 
+ 	} else if (ir->mask_keyup) {
+ 		/* bit cleared on keydown */
+ 		if (0 == (gpio & ir->mask_keyup)) {
+-			ir_input_keydown(&ir->input,&ir->ir,data,data);
++			ir_input_keydown(ir->input, &ir->ir, data, data);
+ 		} else {
+-			ir_input_nokey(&ir->input,&ir->ir);
++			ir_input_nokey(ir->input, &ir->ir);
+ 		}
+ 
+ 	} else {
+ 		/* can't disturgissh keydown/up :-/ */
+-		ir_input_keydown(&ir->input,&ir->ir,data,data);
+-		ir_input_nokey(&ir->input,&ir->ir);
++		ir_input_keydown(ir->input, &ir->ir, data, data);
++		ir_input_nokey(ir->input, &ir->ir);
+ 	}
  }
  
- static void __exit mk712_exit(void)
+@@ -268,13 +268,17 @@ static int ir_probe(struct device *dev)
  {
--	input_unregister_device(&mk712_dev);
--	free_irq(mk712_irq, &mk712_dev);
-+	input_unregister_device(mk712_dev);
-+	free_irq(mk712_irq, mk712_dev);
- 	release_region(mk712_io, 8);
- }
- 
-diff --git a/drivers/input/touchscreen/mtouch.c b/drivers/input/touchscreen/mtouch.c
-index aa8ee78..1d0d37e 100644
---- a/drivers/input/touchscreen/mtouch.c
-+++ b/drivers/input/touchscreen/mtouch.c
-@@ -51,14 +51,12 @@ MODULE_LICENSE("GPL");
- #define MTOUCH_GET_YC(data) (((data[4])<<7) | data[3])
- #define MTOUCH_GET_TOUCHED(data) (MTOUCH_FORMAT_TABLET_TOUCH_BIT & data[0])
- 
--static char *mtouch_name = "MicroTouch Serial TouchScreen";
--
- /*
-  * Per-touchscreen data.
-  */
- 
- struct mtouch {
--	struct input_dev dev;
-+	struct input_dev *dev;
- 	struct serio *serio;
- 	int idx;
- 	unsigned char data[MTOUCH_MAX_LENGTH];
-@@ -67,7 +65,7 @@ struct mtouch {
- 
- static void mtouch_process_format_tablet(struct mtouch *mtouch, struct pt_regs *regs)
- {
--	struct input_dev *dev = &mtouch->dev;
-+	struct input_dev *dev = mtouch->dev;
- 
- 	if (MTOUCH_FORMAT_TABLET_LENGTH == ++mtouch->idx) {
- 		input_regs(dev, regs);
-@@ -116,9 +114,11 @@ static void mtouch_disconnect(struct ser
- {
- 	struct mtouch* mtouch = serio_get_drvdata(serio);
- 
--	input_unregister_device(&mtouch->dev);
-+	input_get_device(mtouch->dev);
-+	input_unregister_device(mtouch->dev);
- 	serio_close(serio);
- 	serio_set_drvdata(serio, NULL);
-+	input_put_device(mtouch->dev);
- 	kfree(mtouch);
- }
- 
-@@ -131,46 +131,46 @@ static void mtouch_disconnect(struct ser
- static int mtouch_connect(struct serio *serio, struct serio_driver *drv)
- {
- 	struct mtouch *mtouch;
+ 	struct bttv_sub_device *sub = to_bttv_sub_dev(dev);
+ 	struct IR *ir;
 +	struct input_dev *input_dev;
- 	int err;
+ 	IR_KEYTAB_TYPE *ir_codes = NULL;
+ 	int ir_type = IR_TYPE_OTHER;
  
--	if (!(mtouch = kmalloc(sizeof(*mtouch), GFP_KERNEL)))
--		return -ENOMEM;
--
--	memset(mtouch, 0, sizeof(*mtouch));
--
--	init_input_dev(&mtouch->dev);
--	mtouch->dev.evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
--	mtouch->dev.keybit[LONG(BTN_TOUCH)] = BIT(BTN_TOUCH);
--
--	input_set_abs_params(&mtouch->dev, ABS_X, MTOUCH_MIN_XC, MTOUCH_MAX_XC, 0, 0);
--	input_set_abs_params(&mtouch->dev, ABS_Y, MTOUCH_MIN_YC, MTOUCH_MAX_YC, 0, 0);
-+	mtouch = kzalloc(sizeof(struct mtouch), GFP_KERNEL);
+-	ir = kmalloc(sizeof(*ir),GFP_KERNEL);
+-	if (NULL == ir)
++	ir = kzalloc(sizeof(*ir), GFP_KERNEL);
 +	input_dev = input_allocate_device();
-+	if (!mtouch || !input_dev) {
-+		err = -ENOMEM;
-+		goto fail;
++	if (!ir || !input_dev) {
++		kfree(ir);
++		input_free_device(input_dev);
+ 		return -ENOMEM;
+-	memset(ir,0,sizeof(*ir));
 +	}
  
- 	mtouch->serio = serio;
--
-+	mtouch->dev = input_dev;
- 	sprintf(mtouch->phys, "%s/input0", serio->phys);
+ 	/* detect & configure */
+ 	switch (sub->core->type) {
+@@ -328,6 +332,7 @@ static int ir_probe(struct device *dev)
+ 	}
+ 	if (NULL == ir_codes) {
+ 		kfree(ir);
++		input_free_device(input_dev);
+ 		return -ENODEV;
+ 	}
  
--	mtouch->dev.private = mtouch;
--	mtouch->dev.name = mtouch_name;
--	mtouch->dev.phys = mtouch->phys;
--	mtouch->dev.id.bustype = BUS_RS232;
--	mtouch->dev.id.vendor = SERIO_MICROTOUCH;
--	mtouch->dev.id.product = 0;
--	mtouch->dev.id.version = 0x0100;
-+	input_dev->private = mtouch;
-+	input_dev->name = "MicroTouch Serial TouchScreen";
-+	input_dev->phys = mtouch->phys;
-+	input_dev->id.bustype = BUS_RS232;
-+	input_dev->id.vendor = SERIO_MICROTOUCH;
-+	input_dev->id.product = 0;
-+	input_dev->id.version = 0x0100;
-+	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
-+	input_dev->keybit[LONG(BTN_TOUCH)] = BIT(BTN_TOUCH);
-+	input_set_abs_params(mtouch->dev, ABS_X, MTOUCH_MIN_XC, MTOUCH_MAX_XC, 0, 0);
-+	input_set_abs_params(mtouch->dev, ABS_Y, MTOUCH_MIN_YC, MTOUCH_MAX_YC, 0, 0);
+@@ -341,19 +346,19 @@ static int ir_probe(struct device *dev)
+ 	snprintf(ir->phys, sizeof(ir->phys), "pci-%s/ir0",
+ 		 pci_name(sub->core->pci));
  
- 	serio_set_drvdata(serio, mtouch);
+-	ir_input_init(&ir->input, &ir->ir, ir_type, ir_codes);
+-	ir->input.name = ir->name;
+-	ir->input.phys = ir->phys;
+-	ir->input.id.bustype = BUS_PCI;
+-	ir->input.id.version = 1;
++	ir_input_init(input_dev, &ir->ir, ir_type, ir_codes);
++	input_dev->name = ir->name;
++	input_dev->phys = ir->phys;
++	input_dev->id.bustype = BUS_PCI;
++	input_dev->id.version = 1;
+ 	if (sub->core->pci->subsystem_vendor) {
+-		ir->input.id.vendor  = sub->core->pci->subsystem_vendor;
+-		ir->input.id.product = sub->core->pci->subsystem_device;
++		input_dev->id.vendor  = sub->core->pci->subsystem_vendor;
++		input_dev->id.product = sub->core->pci->subsystem_device;
+ 	} else {
+-		ir->input.id.vendor  = sub->core->pci->vendor;
+-		ir->input.id.product = sub->core->pci->device;
++		input_dev->id.vendor  = sub->core->pci->vendor;
++		input_dev->id.product = sub->core->pci->device;
+ 	}
+-	ir->input.dev = &sub->core->pci->dev;
++	input_dev->cdev.dev = &sub->core->pci->dev;
  
- 	err = serio_open(serio, drv);
--	if (err) {
--		serio_set_drvdata(serio, NULL);
--		kfree(mtouch);
--		return err;
--	}
--
--	input_register_device(&mtouch->dev);
-+	if (err)
-+		goto fail;
+ 	if (ir->polling) {
+ 		INIT_WORK(&ir->work, ir_work, ir);
+@@ -364,9 +369,8 @@ static int ir_probe(struct device *dev)
+ 	}
  
--	printk(KERN_INFO "input: %s on %s\n", mtouch->dev.name, serio->phys);
-+	input_register_device(mtouch->dev);
+ 	/* all done */
+-	dev_set_drvdata(dev,ir);
+-	input_register_device(&ir->input);
+-	printk(DEVNAME ": %s detected at %s\n",ir->input.name,ir->input.phys);
++	dev_set_drvdata(dev, ir);
++	input_register_device(ir->input);
  
  	return 0;
-+
-+ fail:	serio_set_drvdata(serio, NULL);
-+	input_free_device(input_dev);
-+	kfree(mtouch);
-+	return err;
+ }
+@@ -380,7 +384,7 @@ static int ir_remove(struct device *dev)
+ 		flush_scheduled_work();
+ 	}
+ 
+-	input_unregister_device(&ir->input);
++	input_unregister_device(ir->input);
+ 	kfree(ir);
+ 	return 0;
+ }
+diff --git a/drivers/media/video/ir-kbd-i2c.c b/drivers/media/video/ir-kbd-i2c.c
+index 67105b9..9703d3d 100644
+--- a/drivers/media/video/ir-kbd-i2c.c
++++ b/drivers/media/video/ir-kbd-i2c.c
+@@ -121,10 +121,9 @@ static IR_KEYTAB_TYPE ir_codes_purpletv[
+ 
+ };
+ 
+-struct IR;
+ struct IR {
+ 	struct i2c_client      c;
+-	struct input_dev       input;
++	struct input_dev       *input;
+ 	struct ir_input_state  ir;
+ 
+ 	struct work_struct     work;
+@@ -271,9 +270,9 @@ static void ir_key_poll(struct IR *ir)
+ 	}
+ 
+ 	if (0 == rc) {
+-		ir_input_nokey(&ir->input,&ir->ir);
++		ir_input_nokey(ir->input, &ir->ir);
+ 	} else {
+-		ir_input_keydown(&ir->input,&ir->ir, ir_key, ir_raw);
++		ir_input_keydown(ir->input, &ir->ir, ir_key, ir_raw);
+ 	}
  }
  
- /*
+@@ -318,11 +317,18 @@ static int ir_attach(struct i2c_adapter 
+ 	char *name;
+ 	int ir_type;
+         struct IR *ir;
++	struct input_dev *input_dev;
+ 
+-        if (NULL == (ir = kmalloc(sizeof(struct IR),GFP_KERNEL)))
++	ir = kzalloc(sizeof(struct IR), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!ir || !input_dev) {
++		kfree(ir);
++		input_free_device(input_dev);
+                 return -ENOMEM;
+-	memset(ir,0,sizeof(*ir));
++	}
++
+ 	ir->c = client_template;
++	ir->input = input_dev;
+ 
+ 	i2c_set_clientdata(&ir->c, ir);
+ 	ir->c.adapter = adap;
+@@ -375,13 +381,12 @@ static int ir_attach(struct i2c_adapter 
+ 		 ir->c.dev.bus_id);
+ 
+ 	/* init + register input device */
+-	ir_input_init(&ir->input,&ir->ir,ir_type,ir_codes);
+-	ir->input.id.bustype = BUS_I2C;
+-	ir->input.name       = ir->c.name;
+-	ir->input.phys       = ir->phys;
+-	input_register_device(&ir->input);
+-	printk(DEVNAME ": %s detected at %s [%s]\n",
+-	       ir->input.name,ir->input.phys,adap->name);
++	ir_input_init(input_dev, &ir->ir, ir_type, ir_codes);
++	input_dev->id.bustype	= BUS_I2C;
++	input_dev->name		= ir->c.name;
++	input_dev->phys		= ir->phys;
++
++	input_register_device(ir->input);
+ 
+ 	/* start polling via eventd */
+ 	INIT_WORK(&ir->work, ir_work, ir);
+@@ -402,7 +407,7 @@ static int ir_detach(struct i2c_client *
+ 	flush_scheduled_work();
+ 
+ 	/* unregister devices */
+-	input_unregister_device(&ir->input);
++	input_unregister_device(ir->input);
+ 	i2c_detach_client(&ir->c);
+ 
+ 	/* free memory */
+diff --git a/drivers/media/video/saa7134/saa7134-input.c b/drivers/media/video/saa7134/saa7134-input.c
+index 1f456c4..242cb23 100644
+--- a/drivers/media/video/saa7134/saa7134-input.c
++++ b/drivers/media/video/saa7134/saa7134-input.c
+@@ -425,9 +425,9 @@ static int build_key(struct saa7134_dev 
+ 
+ 	if ((ir->mask_keydown  &&  (0 != (gpio & ir->mask_keydown))) ||
+ 	    (ir->mask_keyup    &&  (0 == (gpio & ir->mask_keyup)))) {
+-		ir_input_keydown(&ir->dev,&ir->ir,data,data);
++		ir_input_keydown(ir->dev, &ir->ir, data, data);
+ 	} else {
+-		ir_input_nokey(&ir->dev,&ir->ir);
++		ir_input_nokey(ir->dev, &ir->ir);
+ 	}
+ 	return 0;
+ }
+@@ -456,6 +456,7 @@ static void saa7134_input_timer(unsigned
+ int saa7134_input_init1(struct saa7134_dev *dev)
+ {
+ 	struct saa7134_ir *ir;
++	struct input_dev *input_dev;
+ 	IR_KEYTAB_TYPE *ir_codes = NULL;
+ 	u32 mask_keycode = 0;
+ 	u32 mask_keydown = 0;
+@@ -535,10 +536,13 @@ int saa7134_input_init1(struct saa7134_d
+ 		return -ENODEV;
+ 	}
+ 
+-	ir = kmalloc(sizeof(*ir),GFP_KERNEL);
+-	if (NULL == ir)
++	ir = kzalloc(sizeof(*ir), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!ir || !input_dev) {
++		kfree(ir);
++		input_free_device(input_dev);
+ 		return -ENOMEM;
+-	memset(ir,0,sizeof(*ir));
++	}
+ 
+ 	/* init hardware-specific stuff */
+ 	ir->mask_keycode = mask_keycode;
+@@ -552,19 +556,19 @@ int saa7134_input_init1(struct saa7134_d
+ 	snprintf(ir->phys, sizeof(ir->phys), "pci-%s/ir0",
+ 		 pci_name(dev->pci));
+ 
+-	ir_input_init(&ir->dev, &ir->ir, ir_type, ir_codes);
+-	ir->dev.name = ir->name;
+-	ir->dev.phys = ir->phys;
+-	ir->dev.id.bustype = BUS_PCI;
+-	ir->dev.id.version = 1;
++	ir_input_init(input_dev, &ir->ir, ir_type, ir_codes);
++	input_dev->name = ir->name;
++	input_dev->phys = ir->phys;
++	input_dev->id.bustype = BUS_PCI;
++	input_dev->id.version = 1;
+ 	if (dev->pci->subsystem_vendor) {
+-		ir->dev.id.vendor  = dev->pci->subsystem_vendor;
+-		ir->dev.id.product = dev->pci->subsystem_device;
++		input_dev->id.vendor  = dev->pci->subsystem_vendor;
++		input_dev->id.product = dev->pci->subsystem_device;
+ 	} else {
+-		ir->dev.id.vendor  = dev->pci->vendor;
+-		ir->dev.id.product = dev->pci->device;
++		input_dev->id.vendor  = dev->pci->vendor;
++		input_dev->id.product = dev->pci->device;
+ 	}
+-	ir->dev.dev = &dev->pci->dev;
++	input_dev->cdev.dev = &dev->pci->dev;
+ 
+ 	/* all done */
+ 	dev->remote = ir;
+@@ -576,8 +580,7 @@ int saa7134_input_init1(struct saa7134_d
+ 		add_timer(&ir->timer);
+ 	}
+ 
+-	input_register_device(&dev->remote->dev);
+-	printk("%s: registered input device for IR\n",dev->name);
++	input_register_device(ir->dev);
+ 	return 0;
+ }
+ 
+@@ -586,9 +589,9 @@ void saa7134_input_fini(struct saa7134_d
+ 	if (NULL == dev->remote)
+ 		return;
+ 
+-	input_unregister_device(&dev->remote->dev);
+ 	if (dev->remote->polling)
+ 		del_timer_sync(&dev->remote->timer);
++	input_unregister_device(dev->remote->dev);
+ 	kfree(dev->remote);
+ 	dev->remote = NULL;
+ }
+diff --git a/drivers/media/video/saa7134/saa7134.h b/drivers/media/video/saa7134/saa7134.h
+index 3ea0914..860b895 100644
+--- a/drivers/media/video/saa7134/saa7134.h
++++ b/drivers/media/video/saa7134/saa7134.h
+@@ -351,7 +351,7 @@ struct saa7134_oss {
+ 
+ /* IR input */
+ struct saa7134_ir {
+-	struct input_dev           dev;
++	struct input_dev           *dev;
+ 	struct ir_input_state      ir;
+ 	char                       name[32];
+ 	char                       phys[32];
 

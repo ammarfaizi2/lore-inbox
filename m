@@ -1,114 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751865AbVJ1WGD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751883AbVJ1WHB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751865AbVJ1WGD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 18:06:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751883AbVJ1WGC
+	id S1751883AbVJ1WHB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 18:07:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751886AbVJ1WHB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 18:06:02 -0400
-Received: from lug-owl.de ([195.71.106.12]:2776 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1751865AbVJ1WGB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 18:06:01 -0400
-Date: Sat, 29 Oct 2005 00:05:57 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: "Lever, Charles" <Charles.Lever@netapp.com>
-Cc: "Myklebust, Trond" <Trond.Myklebust@netapp.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Link error in ./net/sunrcp/
-Message-ID: <20051028220557.GR27184@lug-owl.de>
-Mail-Followup-To: "Lever, Charles" <Charles.Lever@netapp.com>,
-	"Myklebust, Trond" <Trond.Myklebust@netapp.com>,
-	linux-kernel@vger.kernel.org
-References: <044B81DE141D7443BCE91E8F44B3C1E288E5B7@exsvl02.hq.netapp.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5xr6Gr0irOxp3+3c"
-Content-Disposition: inline
-In-Reply-To: <044B81DE141D7443BCE91E8F44B3C1E288E5B7@exsvl02.hq.netapp.com>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+	Fri, 28 Oct 2005 18:07:01 -0400
+Received: from sender-01.it.helsinki.fi ([128.214.205.139]:26341 "EHLO
+	sender-01.it.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1751883AbVJ1WHA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 18:07:00 -0400
+Date: Sat, 29 Oct 2005 01:06:53 +0300 (EEST)
+From: Janne M O Heikkinen <jmoheikk@cc.helsinki.fi>
+X-X-Sender: jmoheikk@rock.it.helsinki.fi
+To: Andi Kleen <ak@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: x86_64: 2.6.14 with NUMA panics at boot
+In-Reply-To: <p73vezhtkpy.fsf@verdi.suse.de>
+Message-ID: <Pine.OSF.4.61.0510290058420.417368@rock.it.helsinki.fi>
+References: <Pine.OSF.4.61.0510282218310.411472@rock.it.helsinki.fi>
+ <p73vezhtkpy.fsf@verdi.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 28 Oct 2005, Andi Kleen wrote:
 
---5xr6Gr0irOxp3+3c
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Janne M O Heikkinen <jmoheikk@cc.helsinki.fi> writes:
+>
+>> With CONFIG_K8_NUMA I get the following right after boot:
+>> PANIC: early exception rip ffffffff8023429f error 0 cr2 0
+>> PANIC: early exception rip ffffffff8011893a error 0 cr2 ffffffffff5fd023
 
-On Fri, 2005-10-28 14:26:11 -0700, Lever, Charles <Charles.Lever@netapp.com=
-> wrote:
-> > I get this link error:
-> >=20
-> > net/built-in.o: In function=20
-> > `xs_bindresvport':xprtsock.c:(.text+0x46970): undefined=20
-> > reference to `xprt_min_resvport'
-> > :xprtsock.c:(.text+0x46978): undefined reference to=20
-> > `xprt_max_resvport'
-> > net/built-in.o: In function `xs_setup_udp': undefined=20
-> > reference to `xprt_udp_slot_table_entries'
-> > net/built-in.o: In function `xs_setup_tcp': undefined=20
-> > reference to `xprt_tcp_slot_table_entries'
-> > make: *** [.tmp_vmlinux1] Error 1
-> >=20
-> > in case of CONFIG_SYSCTL not being enabled. This is on the VAX port,
-> > but I guess it'll show up on any target...
->=20
-> i thought that you couldn't actually get a .config that would build
-> the sunrpc stuff if CONFIG_SYSCTL was disabled.  thus the macro logic
-> in net/sunrpc doesn't check for it.
->=20
-> was i wrong about that?
+> Did earlier kernels work? Please post full log with earlyprintk=vga
+> or earlyprintk=serial,ttySx,baud
 
-I just configured for i386, NFS support compiled in, but "Sysctl
-support" (in "General setup") being switched off:
+2.6.13.4 works just fine, this is what I got with earlyprintk=vga:
 
-  LD      .tmp_vmlinux1
-net/built-in.o: In function `xs_bindresvport':
-: undefined reference to `xprt_max_resvport'
-net/built-in.o: In function `xs_bindresvport':
-: undefined reference to `xprt_min_resvport'
-net/built-in.o: In function `xs_setup_udp':
-: undefined reference to `xprt_udp_slot_table_entries'
-net/built-in.o: In function `xs_setup_udp':
-: undefined reference to `xprt_max_resvport'
-net/built-in.o: In function `xs_setup_tcp':
-: undefined reference to `xprt_tcp_slot_table_entries'
-net/built-in.o: In function `xs_setup_tcp':
-: undefined reference to `xprt_max_resvport'
-net/built-in.o:(__ksymtab+0xfb0): undefined reference to `xprt_udp_slot_tab=
-le_entries'
-net/built-in.o:(__ksymtab+0xfb8): undefined reference to `xprt_tcp_slot_tab=
-le_entries'
-make: *** [.tmp_vmlinux1] Error 1
-
-MfG, JBG
-
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---5xr6Gr0irOxp3+3c
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFDYqDFHb1edYOZ4bsRAhDRAKCMU6aIhSYFvFFV0ALxWlZvtuMJEQCeKt2l
-UlyS2nSplkeF9AwDFo2P0XY=
-=pIiS
------END PGP SIGNATURE-----
-
---5xr6Gr0irOxp3+3c--
+Loading K-2.6.14
+Bootdata ok (command line is auto BOOT_IMAGE=K-2.6.14 ro root=901 
+resume=/dev/md0 selinux=0 splash=verbose console=tty0 earlyprintk=vga)
+Linux version 2.6.14-smp (jamse@linux) (gcc version 4.0.2) #3 SMP 
+PREEMPT Fri Oct 28 20:49:34 EEST 2005one.
+BIOS-provided physical RAM map:
+BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+BIOS-e820: 0000000000100000 - 00000000bfff0000 (usable)
+BIOS-e820: 00000000bfff0000 - 00000000bffff000 (ACPI data)
+BIOS-e820: 00000000bffff000 - 00000000c0000000 (ACPI NVS)
+BIOS-e820: 00000000ff780000 - 0000000100000000 (reserved)
+BIOS-e820: 0000000100000000 - 0000000140000000 (usable)
+SRAT: PXM 0 -> APIC 0 -> CPU 0 -> Node 0
+SRAT: PXM 1 -> APIC 1 -> CPU 1 -> Node 1
+SRAT: Node 0 PXM 0 100000-7fffffff
+SRAT: Node 1 PXM 1 80000000-bfffffff
+SRAT: Node 1 PXM 1 80000000-13fffffff
+SRAT: Node 0 PXM 0 0-7fffffff
+Bootmem setup node 0 0000000000000000-000000007fffffff
+PANIC: early exception rip ffffffff8023429f error 0 cr2 0
+PANIC: early exception rip ffffffff8011893a error 0 cr2 ffffffffff5fd023

@@ -1,82 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030574AbVJ1TQc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030599AbVJ1TQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030574AbVJ1TQc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 15:16:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030406AbVJ1TQc
+	id S1030599AbVJ1TQs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 15:16:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030575AbVJ1TQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 15:16:32 -0400
-Received: from lug-owl.de ([195.71.106.12]:49381 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1030574AbVJ1TQb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 15:16:31 -0400
-Date: Fri, 28 Oct 2005 21:16:29 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Greg KH <greg@kroah.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [GIT PATCH] Driver Core patches for 2.6.14
-Message-ID: <20051028191629.GO27184@lug-owl.de>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20051028062921.GA6397@kroah.com> <20051028174812.GA15637@kroah.com> <20051028185530.GN27184@lug-owl.de> <20051028191107.GB16822@kroah.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="hOh8F6DNH/RZBSFD"
-Content-Disposition: inline
-In-Reply-To: <20051028191107.GB16822@kroah.com>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+	Fri, 28 Oct 2005 15:16:48 -0400
+Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:37347 "EHLO
+	pne-smtpout2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S1030633AbVJ1TQr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 15:16:47 -0400
+Subject: [PATCH 1/3] mm: rename kmem_cache_s to kmem_cache
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <ip33z2.vtcnft.4nw33ugftrecz8r4nb1via846.beaver@cs.helsinki.fi>
+Date: Fri, 28 Oct 2005 22:11:26 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---hOh8F6DNH/RZBSFD
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This patch renames struct kmem_cache_s to kmem_cache so we can start using it
+instead of kmem_cache_t typedef.
 
-On Fri, 2005-10-28 12:11:07 -0700, Greg KH <greg@kroah.com> wrote:
-> On Fri, Oct 28, 2005 at 08:55:30PM +0200, Jan-Benedict Glaw wrote:
-> > On Fri, 2005-10-28 10:48:12 -0700, Greg KH <gregkh@suse.de> wrote:
-> > >  drivers/input/keyboard/lkkbd.c                 |  126 ++---
-> >=20
-> > Not ACKed.  This patch contains a not-fixed (though reported) wrong
-> > printk format in lkkbd_interrupt() "case LK_METRONOME:" Though I
-> > haven't tested it yet, it's ACKed by me after this is fixed.
->=20
-> That can be a one-line add on patch once it is created.  I can easily
-> send that later.
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+---
 
-Jap, that's okay. But somebody needs to do that:)
+ Documentation/magic-number.txt |    2 +-
+ fs/file_table.c                |    4 ++--
+ fs/freevxfs/vxfs_extern.h      |    4 ++--
+ fs/xfs/linux-2.6/kmem.h        |    4 ++--
+ include/linux/file.h           |    6 +++---
+ include/linux/slab.h           |    2 +-
+ mm/slab.c                      |    2 +-
+ 7 files changed, 12 insertions(+), 12 deletions(-)
 
-MfG, JBG
-
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---hOh8F6DNH/RZBSFD
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFDYnkNHb1edYOZ4bsRAqdbAJ9UKyna9RsxfQcjrj3w1zGwZfD1IgCdHlO/
-JWvYY/DkRZi3lIQYcaj8lYM=
-=gGAx
------END PGP SIGNATURE-----
-
---hOh8F6DNH/RZBSFD--
+Index: 2.6/Documentation/magic-number.txt
+===================================================================
+--- 2.6.orig/Documentation/magic-number.txt
++++ 2.6/Documentation/magic-number.txt
+@@ -120,7 +120,7 @@ ISDN_NET_MAGIC        0x49344C02  isdn_n
+ SAVEKMSG_MAGIC2       0x4B4D5347  savekmsg          arch/*/amiga/config.c
+ STLI_BOARDMAGIC       0x4bc6c825  stlibrd           include/linux/istallion.h
+ CS_STATE_MAGIC        0x4c4f4749  cs_state          sound/oss/cs46xx.c
+-SLAB_C_MAGIC          0x4f17a36d  kmem_cache_s      mm/slab.c
++SLAB_C_MAGIC          0x4f17a36d  kmem_cache        mm/slab.c
+ COW_MAGIC             0x4f4f4f4d  cow_header_v1     arch/um/drivers/ubd_user.c
+ I810_CARD_MAGIC       0x5072696E  i810_card         sound/oss/i810_audio.c
+ TRIDENT_CARD_MAGIC    0x5072696E  trident_card      sound/oss/trident.c
+Index: 2.6/fs/file_table.c
+===================================================================
+--- 2.6.orig/fs/file_table.c
++++ 2.6/fs/file_table.c
+@@ -35,7 +35,7 @@ static DEFINE_SPINLOCK(filp_count_lock);
+  * context and must be fully threaded - use a local spinlock
+  * to protect files_stat.nr_files
+  */
+-void filp_ctor(void * objp, struct kmem_cache_s *cachep, unsigned long cflags)
++void filp_ctor(void * objp, struct kmem_cache *cachep, unsigned long cflags)
+ {
+ 	if ((cflags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
+ 	    SLAB_CTOR_CONSTRUCTOR) {
+@@ -46,7 +46,7 @@ void filp_ctor(void * objp, struct kmem_
+ 	}
+ }
+ 
+-void filp_dtor(void * objp, struct kmem_cache_s *cachep, unsigned long dflags)
++void filp_dtor(void * objp, struct kmem_cache *cachep, unsigned long dflags)
+ {
+ 	unsigned long flags;
+ 	spin_lock_irqsave(&filp_count_lock, flags);
+Index: 2.6/fs/freevxfs/vxfs_extern.h
+===================================================================
+--- 2.6.orig/fs/freevxfs/vxfs_extern.h
++++ 2.6/fs/freevxfs/vxfs_extern.h
+@@ -38,7 +38,7 @@
+  */
+ 
+ 
+-struct kmem_cache_s;
++struct kmem_cache;
+ struct super_block;
+ struct vxfs_inode_info;
+ struct inode;
+@@ -51,7 +51,7 @@ extern daddr_t			vxfs_bmap1(struct inode
+ extern int			vxfs_read_fshead(struct super_block *);
+ 
+ /* vxfs_inode.c */
+-extern struct kmem_cache_s	*vxfs_inode_cachep;
++extern struct kmem_cache	*vxfs_inode_cachep;
+ extern void			vxfs_dumpi(struct vxfs_inode_info *, ino_t);
+ extern struct inode *		vxfs_get_fake_inode(struct super_block *,
+ 					struct vxfs_inode_info *);
+Index: 2.6/fs/xfs/linux-2.6/kmem.h
+===================================================================
+--- 2.6.orig/fs/xfs/linux-2.6/kmem.h
++++ 2.6/fs/xfs/linux-2.6/kmem.h
+@@ -44,8 +44,8 @@
+ #define KM_NOFS		0x0004u
+ #define KM_MAYFAIL	0x0008u
+ 
+-#define	kmem_zone	kmem_cache_s
+-#define kmem_zone_t	kmem_cache_t
++#define	kmem_zone	kmem_cache
++#define kmem_zone_t	struct kmem_cache
+ 
+ typedef unsigned long xfs_pflags_t;
+ 
+Index: 2.6/include/linux/file.h
+===================================================================
+--- 2.6.orig/include/linux/file.h
++++ 2.6/include/linux/file.h
+@@ -59,9 +59,9 @@ extern void FASTCALL(set_close_on_exec(u
+ extern void put_filp(struct file *);
+ extern int get_unused_fd(void);
+ extern void FASTCALL(put_unused_fd(unsigned int fd));
+-struct kmem_cache_s;
+-extern void filp_ctor(void * objp, struct kmem_cache_s *cachep, unsigned long cflags);
+-extern void filp_dtor(void * objp, struct kmem_cache_s *cachep, unsigned long dflags);
++struct kmem_cache;
++extern void filp_ctor(void * objp, struct kmem_cache *cachep, unsigned long cflags);
++extern void filp_dtor(void * objp, struct kmem_cache *cachep, unsigned long dflags);
+ 
+ extern struct file ** alloc_fd_array(int);
+ extern void free_fd_array(struct file **, int);
+Index: 2.6/include/linux/slab.h
+===================================================================
+--- 2.6.orig/include/linux/slab.h
++++ 2.6/include/linux/slab.h
+@@ -9,7 +9,7 @@
+ 
+ #if	defined(__KERNEL__)
+ 
+-typedef struct kmem_cache_s kmem_cache_t;
++typedef struct kmem_cache kmem_cache_t;
+ 
+ #include	<linux/config.h>	/* kmalloc_sizes.h needs CONFIG_ options */
+ #include	<linux/gfp.h>
+Index: 2.6/mm/slab.c
+===================================================================
+--- 2.6.orig/mm/slab.c
++++ 2.6/mm/slab.c
+@@ -368,7 +368,7 @@ static inline void kmem_list3_init(struc
+  * manages a cache.
+  */
+ 	
+-struct kmem_cache_s {
++struct kmem_cache {
+ /* 1) per-cpu data, touched during every alloc/free */
+ 	struct array_cache	*array[NR_CPUS];
+ 	unsigned int		batchcount;

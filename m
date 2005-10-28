@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030617AbVJ1SmF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030632AbVJ1SnF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030617AbVJ1SmF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 14:42:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030623AbVJ1SmF
+	id S1030632AbVJ1SnF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 14:43:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030631AbVJ1SnF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 14:42:05 -0400
-Received: from zproxy.gmail.com ([64.233.162.200]:51642 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030617AbVJ1SmE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 14:42:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=drnc1qo8Y3cjZ9vKlORCwl4B00zozJMHQy6QBxpt/nWhAl+DKhKIyHOfklyCR3drSiFRUOkHHmS+O11eAaJdkTAYTvR4omGaXoR8OCjMnyaS94PdFgrG7rGvAHTE5FA8ODO7er+OTgiUJ0axdjYS8Ztfg0PFAXCB7A/gFDxPif4=
-Message-ID: <86802c440510281142i11771f25o3f6667869b4d614e@mail.gmail.com>
-Date: Fri, 28 Oct 2005 11:42:03 -0700
-From: Yinghai Lu <yinghai.lu@amd.com>
-To: Andi Kleen <ak@suse.de>
-Subject: x86_64: calibrate_delay_direct and apic id lift for BSP
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org, linuxbios@openbios.org
+	Fri, 28 Oct 2005 14:43:05 -0400
+Received: from mx2.suse.de ([195.135.220.15]:6045 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030632AbVJ1SnE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 14:43:04 -0400
+From: Andi Kleen <ak@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: [PATCH] Disable the most annoying printk in the kernel
+Date: Fri, 28 Oct 2005 20:43:57 +0200
+User-Agent: KMail/1.8.2
+Cc: vojtech@suse.cz, akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <200510271026.10913.ak@suse.de> <20051028072003.GB1602@openzaurus.ucw.cz>
+In-Reply-To: <20051028072003.GB1602@openzaurus.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200510282043.58025.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-andi,
+On Friday 28 October 2005 09:20, Pavel Machek wrote:
+> Hi!
+> 
+> > Remove most useless printk in the world
+> > 
+> > Signed-off-by: Andi Kleen <ak@suse.de>
+> 
+> It warns about crappy keyboards. It triggers regulary for me on x32,
+> (probably because of my weird capslock+x+s etc combination). It is
+> usefull as a warning "this keyboard is crap" and "no, bad mechanical switch
+> is not the reason for lost key".
 
-I tried to lift apic id in LinuxBIOS for all cpus after 0x10.
+In German that would be described as "Zum Schaden auch noch den Spot"
+(for the damage you get the gossip too). Not very useful.
 
-When using MB with AMD8111, the jiffies was not moving. So it is
-locked at calibrate_delay_direct...
-
-but  MB with Nvidia ck804, jiffies is moving.
-
-If I don't change BSP apic id ( keep it to 0), It changes....
-
-I have no idea how the jiffies changes, there is another thread change it....?
-
-YH
-
-
-Memory: 508000k/524288k available (3146k kernel code, 15900k reserved,
-1160k data, 296k init)
-calibrate_delay_direct i=0
-        calibrate_delay_direct start_jiffies=fffedb08
-                calibrate_delay_direct 1 jiffies=fffedb08
-                calibrate_delay_direct 1 jiffies=fffedb08
-                calibrate_delay_direct 1 jiffies=fffedb08
-                calibrate_delay_direct 1 jiffies=fffedb08
+-Andi

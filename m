@@ -1,36 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965124AbVJ1G7f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965130AbVJ1HAe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965124AbVJ1G7f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 02:59:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965125AbVJ1G7f
+	id S965130AbVJ1HAe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 03:00:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965125AbVJ1HAe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 02:59:35 -0400
-Received: from xproxy.gmail.com ([66.249.82.204]:5559 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965124AbVJ1G7e convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 02:59:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=ELpI6EHykxmpDrl9pMM68Q4DndUaChouLS0OgpdgXFcQlWMAuMB6BOc8AfIWoDwmKhW4Rku82XIxL+l8XCcKLI3n8Wi+zHTUV2gkZLmSkZ704emIKfjgCBym0BhW0gSZyUGWm8ZQvpz+AA9vhmyoaoqOBItP3eQunu7YXvZcKys=
-Message-ID: <b681c62b0510272359w4ad32bb3p4eba47a33bb030f0@mail.gmail.com>
-Date: Fri, 28 Oct 2005 12:29:33 +0530
-From: yogeshwar sonawane <yogyas@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: deletion of device file from /dev after reboot
+	Fri, 28 Oct 2005 03:00:34 -0400
+Received: from relay01.roc.ny.frontiernet.net ([66.133.182.164]:28076 "EHLO
+	relay01.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
+	id S965130AbVJ1HAd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 03:00:33 -0400
+Reply-To: <jbowler@acm.org>
+From: John Bowler <jbowler@acm.org>
+To: "'Deepak Saxena'" <dsaxena@plexity.net>
+Cc: <linux-kernel@vger.kernel.org>, <linux-arm-kernel@lists.arm.linux.org.uk>,
+       <trivial@rustcorp.com.au>
+Subject: [PATCH] 2.6.14 drivers/mtd/maps/ixp4xx.c: remove compiler warning from ioremap assignment
+Date: Thu, 27 Oct 2005 23:13:59 -0700
+Message-ID: <000f01c5db86$ca148450$1001a8c0@kalmiopsis>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
+Trivial fix for a compiler warning: info->map.map_priv_1 is
+(unsigned long), ioremap returns a pointer.  (Probably the
+result of improved compiler warnings in >2.6.12).
 
-I am trying a pseudo character driver. But after reboot, my device
-file from /dev directory is getting deleted. This is for 2.6 kernel.
-Is there a way to create a file permanently which will be not deleted
-after reboot? Earlier in 2.4, this was not the case.
+Signed-off-by: John Bowler <jbowler@acm.org>
 
-Thanks for any help,
-Yogeshwar
+--- linux-2.6.14-rc5/drivers/mtd/maps/ixp4xx.c	2005-10-26 08:37:21.960361430 -0700
++++ patched/drivers/mtd/maps/ixp4xx.c	2005-10-26 12:13:13.879374310 -0700
+@@ -227,7 +227,7 @@ static int ixp4xx_flash_probe(struct dev
+ 		goto Error;
+ 	}
+ 
+-	info->map.map_priv_1 = ioremap(dev->resource->start,
++	info->map.map_priv_1 = (unsigned long)ioremap(dev->resource->start,
+ 			    dev->resource->end - dev->resource->start + 1);
+ 	if (!info->map.map_priv_1) {
+ 		printk(KERN_ERR "IXP4XXFlash: Failed to ioremap region\n");
+

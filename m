@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965177AbVJ1Ic5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965183AbVJ1Iib@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965177AbVJ1Ic5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 04:32:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965183AbVJ1Ic5
+	id S965183AbVJ1Iib (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 04:38:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965184AbVJ1Iib
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 04:32:57 -0400
-Received: from alephnull.demon.nl ([83.160.184.112]:33152 "EHLO
-	xi.wantstofly.org") by vger.kernel.org with ESMTP id S965177AbVJ1Ic5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 04:32:57 -0400
-Date: Fri, 28 Oct 2005 10:32:45 +0200
-From: Lennert Buytenhek <buytenh@wantstofly.org>
-To: John Bowler <jbowler@acm.org>
-Cc: "'Deepak Saxena'" <dsaxena@plexity.net>, linux-kernel@vger.kernel.org,
-       linux-arm-kernel@lists.arm.linux.org.uk
-Subject: Re: [PATCH] 2.6.14 include/asm-arm/arch-ixp4xx/timex.h: fix clock frequency on NSLU2
-Message-ID: <20051028083245.GB26901@xi.wantstofly.org>
-References: <001101c5db89$5d5b1560$1001a8c0@kalmiopsis>
+	Fri, 28 Oct 2005 04:38:31 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:11925 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965183AbVJ1Iia (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 04:38:30 -0400
+Date: Fri, 28 Oct 2005 10:38:48 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
+       "'Andrew Morton'" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] optimize activate_task()
+Message-ID: <20051028083848.GE5248@elte.hu>
+References: <200510270153.j9R1r5g27370@unix-os.sc.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <001101c5db89$5d5b1560$1001a8c0@kalmiopsis>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200510270153.j9R1r5g27370@unix-os.sc.intel.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John,
 
+* Chen, Kenneth W <kenneth.w.chen@intel.com> wrote:
 
-On Thu, Oct 27, 2005 at 11:32:25PM -0700, John Bowler wrote:
-
-> The problem is that the NSLU2 deviates from the Intel IXDP425
-> system by using a cystal with frequency 66MHz as opposed to the
-> Intel stated (not quite mandated) value of 66.666666MHz.  This
-> results in serious errors in the RTC (1%).
+> recalc_task_prio() is called from activate_task() to calculate dynamic 
+> priority and interactive credit for the activating task. For real-time 
+> scheduling process, all that dynamic calculation is thrown away at the 
+> end because rt priority is fixed.  Patch to optimize 
+> recalc_task_prio() away for rt processes.
 > 
-> The patch configs in the correct value for the NSLU2.  The problem
-> with the patch is that a multi-config kernel which includes NSLU2
-> support will use the NSLU2 frequency.  However such kernels are
-> not a requirement as generic kernels are never flashed into NSLU2
-> systems (so there is no need to build NSLU2 support into a generic
-> kernel).
+> 
+> Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
 
-As previously stated: with this patch, compiling in support for the
-NSLU2 will make the timer tick base right for the NSLU2 but wrong
-for everything else.
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
-There are two ways of dealing with this problem:
-1/ The patch you sent, plus some config hacks to make it impossible
-   to compile in NSLU2 support together with support for another ixp4xx
-   machine type that has FREQ=66666666, sidestepping the issue; or
-2/ Make the ixp4xx timer tick base runtime selectable altogether, for
-   example with the patch that I sent to linux-arm-kernel a while ago.
-
-I'm not very much in favor of 1/, but at least it's better than not
-having any kind of protection at all.  If you leave it to the user,
-they simply _are_ going to get it messed up.
-
-
---L
+	Ingo

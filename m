@@ -1,48 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbVJ2S6j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbVJ2TPb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751260AbVJ2S6j (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 14:58:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbVJ2S6j
+	id S932115AbVJ2TPb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 15:15:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbVJ2TPb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 14:58:39 -0400
-Received: from keetweej.xs4all.nl ([213.84.46.114]:914 "EHLO
-	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
-	id S1751260AbVJ2S6j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 14:58:39 -0400
-Date: Sat, 29 Oct 2005 20:58:37 +0200
-From: Folkert van Heusden <folkert@vanheusden.com>
-To: linux-kernel@vger.kernel.org
-Subject: idea: using a soundcards SPDIF connection as a network interface?
-	heartbeat channel?
-Message-ID: <20051029185836.GP23731@vanheusden.com>
+	Sat, 29 Oct 2005 15:15:31 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:47273 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932112AbVJ2TPa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 15:15:30 -0400
+Date: Sat, 29 Oct 2005 12:14:54 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: torvalds@osdl.org, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [git patches] 2.6.x libata updates
+Message-Id: <20051029121454.5d27aecb.akpm@osdl.org>
+In-Reply-To: <20051029182228.GA14495@havoc.gtf.org>
+References: <20051029182228.GA14495@havoc.gtf.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: www.unixexpert.nl
-X-Chameleon-Return-To: folkert@vanheusden.com
-X-Xfmail-Return-To: folkert@vanheusden.com
-X-Phonenumber: +31-6-41278122
-X-URL: http://www.vanheusden.com/
-X-PGP-KeyID: 1F28D8AE
-X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
-X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
-Reply-By: Fri Oct 28 09:42:57 CEST 2005
-X-MSMail-Priority: High
-X-Message-Flag: PGP key-id: 0x1f28d8ae - consider encrypting your e-mail to me
-	with PGP!
-User-Agent: Mutt/1.5.10i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, the subject says it.
+Jeff Garzik <jgarzik@pobox.com> wrote:
+>
+> Please pull from 'upstream-linus' branch of
+>  master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
+> 
+>  to obtain misc fixes and cleanups, and to merge
+>  the ATA passthru (SMART support) feature.
 
+Are you sure this doesn't propagate Max Kellermann's "2.6.14-rc4-mm1 and
+later: second ata_piix controller is invisible" regression?
 
-Folkert van Heusden
-
--- 
-Try MultiTail! Multiple windows with logfiles, filtered with regular
-expressions, colored output, etc. etc. www.vanheusden.com/multitail/
-----------------------------------------------------------------------
-Get your PGP/GPG key signed at www.biglumber.com!
-----------------------------------------------------------------------
-Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com
+He did confirm that git-libata-all.patch caused it.

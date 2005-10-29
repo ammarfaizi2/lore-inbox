@@ -1,153 +1,393 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbVJ2Fr0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751349AbVJ2Frs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751009AbVJ2Fr0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 01:47:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbVJ2Fr0
+	id S1751349AbVJ2Frs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 01:47:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbVJ2Frr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 01:47:26 -0400
-Received: from ns.ustc.edu.cn ([202.38.64.1]:24715 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1751009AbVJ2FrZ (ORCPT
+	Sat, 29 Oct 2005 01:47:47 -0400
+Received: from ns.ustc.edu.cn ([202.38.64.1]:33163 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S1751349AbVJ2Fre (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 01:47:25 -0400
-Message-Id: <20051029060236.776500000@localhost.localdomain>
+	Sat, 29 Oct 2005 01:47:34 -0400
+Message-Id: <20051029060241.677539000@localhost.localdomain>
 References: <20051029060216.159380000@localhost.localdomain>
-Date: Sat, 29 Oct 2005 14:02:17 +0800
+Date: Sat, 29 Oct 2005 14:02:25 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 01/13] mm: delayed page activation
-Content-Disposition: inline; filename=mm-delayed-activation.patch
+Subject: [PATCH 09/13] readahead: context based method
+Content-Disposition: inline; filename=readahead-method-context.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When a page is referenced the second time in inactive_list, mark it with
-PG_activate instead of moving it into active_list immediately. The actual
-moving work is delayed to vmscan time.
+This is the slow code path.
 
-This means two essential changes:
-- keeps the adjecency of pages in lru;
-- lifts the page reference counter max from 1 to 3.
+No valid state info is available, so the page cache is queried to abtain the
+required position/timing infomation.
 
-And leads to the following improvements:
-- read-ahead for a leading reader will not be disturbed by a following reader;
-- enables the thrashing protection logic to save pages for following readers;
-- keeping relavant pages together helps improve I/O efficiency;
-- and also helps decrease vm fragmantation;
-- increased refcnt space might help page replacement algorithms.
+Major steps:
+        - look back/forward to find the ra_index;
+        - look back to estimate a thrashing safe ra_size;
+        - assemble the next read-ahead request in file->f_ra;
+        - submit it.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- include/linux/page-flags.h |   31 +++++++++++++++++++++++++++++++
- mm/page_alloc.c            |    1 +
- mm/swap.c                  |    9 ++++-----
- mm/vmscan.c                |    6 ++++++
- 4 files changed, 42 insertions(+), 5 deletions(-)
+ mm/readahead.c |  336 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 335 insertions(+), 1 deletion(-)
 
---- linux-2.6.14-rc5-mm1.orig/include/linux/page-flags.h
-+++ linux-2.6.14-rc5-mm1/include/linux/page-flags.h
-@@ -76,6 +76,7 @@
- #define PG_reclaim		17	/* To be reclaimed asap */
- #define PG_nosave_free		18	/* Free, should not be written */
- #define PG_uncached		19	/* Page has been mapped as uncached */
-+#define PG_activate		20	/* delayed activate */
+--- linux-2.6.14-rc5-mm1.orig/mm/readahead.c
++++ linux-2.6.14-rc5-mm1/mm/readahead.c
+@@ -1080,6 +1080,340 @@ state_based_readahead(struct address_spa
+ 	return ra_dispatch(ra, mapping, filp);
+ }
  
- /*
-  * Global page accounting.  One instance per CPU.  Only unsigned longs are
-@@ -308,6 +309,12 @@ extern void __mod_page_state(unsigned lo
- #define SetPageUncached(page)	set_bit(PG_uncached, &(page)->flags)
- #define ClearPageUncached(page)	clear_bit(PG_uncached, &(page)->flags)
- 
-+#define PageActivate(page)	test_bit(PG_activate, &(page)->flags)
-+#define SetPageActivate(page)	set_bit(PG_activate, &(page)->flags)
-+#define ClearPageActivate(page)	clear_bit(PG_activate, &(page)->flags)
-+#define TestClearPageActivate(page) test_and_clear_bit(PG_activate, &(page)->flags)
-+#define TestSetPageActivate(page) test_and_set_bit(PG_activate, &(page)->flags)
-+
- struct page;	/* forward declaration */
- 
- int test_clear_page_dirty(struct page *page);
-@@ -333,4 +340,28 @@ static inline void set_page_writeback(st
- #define ClearPageFsMisc(page)		clear_bit(PG_fs_misc, &(page)->flags)
- #define TestClearPageFsMisc(page)	test_and_clear_bit(PG_fs_misc, &(page)->flags)
- 
-+#if PG_activate < PG_referenced
-+#error unexpected page flags order
-+#endif
-+
-+#define PAGE_REFCNT_0		0
-+#define PAGE_REFCNT_1		(1 << PG_referenced)
-+#define PAGE_REFCNT_2		(1 << PG_activate)
-+#define PAGE_REFCNT_3		((1 << PG_activate) | (1 << PG_referenced))
-+#define PAGE_REFCNT_MASK	PAGE_REFCNT_3
++/*
++ * Page cache context based estimation of read-ahead/look-ahead size/index.
++ *
++ * The logic first looks backward in the inactive_list to get an estimation of
++ * the thrashing-threshold, and then, if necessary, looks forward to determine
++ * the start point of next read-ahead.
++ *
++ * The estimation theory can be illustrated with figure:
++ *
++ *   chunk A           chunk B                      chunk C                 head
++ *
++ *   l01 l11           l12   l21                    l22
++ *| |-->|-->|       |------>|-->|                |------>|
++ *| +-------+       +-----------+                +-------------+               |
++ *| |   #   |       |       #   |                |       #     |               |
++ *| +-------+       +-----------+                +-------------+               |
++ *| |<==============|<===========================|<============================|
++ *        L0                     L1                            L2
++ *
++ * Let f(l) = L be a map from
++ * 	l: the number of pages read by the stream
++ * to
++ * 	L: the number of pages pushed into inactive_list in the mean time
++ * then
++ * 	f(l01) <= L0
++ * 	f(l11 + l12) = L1
++ * 	f(l21 + l22) = L2
++ * 	...
++ * 	f(l01 + l11 + ...) <= Sum(L0 + L1 + ...)
++ *                         <= Length(inactive_list) = f(thrashing-threshold)
++ *
++ * So the count of countinuous history pages left in the inactive_list is always
++ * a lower estimation of the true thrashing-threshold.
++ */
 +
 +/*
-+ * STATUS   REFERENCE COUNT
-+ *  __                   0
-+ *  _R       PAGE_REFCNT_1
-+ *  A_       PAGE_REFCNT_2
-+ *  AR       PAGE_REFCNT_3
++ * STATUS   REFERENCE COUNT      TYPE
++ *  A__                   0      not in inactive list
++ *  ___                   0      fresh
++ *  __R       PAGE_REFCNT_1      stale
++ *  _a_       PAGE_REFCNT_2      disturbed once
++ *  _aR       PAGE_REFCNT_3      disturbed twice
 + *
-+ *  A/R: Active / Referenced
++ *  A/a/R: Active / aCTIVATE / Referenced
 + */
-+static inline unsigned long page_refcnt(struct page *page)
++static inline unsigned long cold_page_refcnt(struct page *page)
 +{
-+	return page->flags & PAGE_REFCNT_MASK;
++	if (!page || PageActive(page))
++		return 0;
++
++	return page_refcnt(page);
 +}
 +
- #endif	/* PAGE_FLAGS_H */
---- linux-2.6.14-rc5-mm1.orig/mm/page_alloc.c
-+++ linux-2.6.14-rc5-mm1/mm/page_alloc.c
-@@ -488,6 +488,7 @@ static void prep_new_page(struct page *p
- 
- 	page->flags &= ~(1 << PG_uptodate | 1 << PG_error |
- 			1 << PG_referenced | 1 << PG_arch_1 |
-+			1 << PG_activate |
- 			1 << PG_checked | 1 << PG_mappedtodisk);
- 	set_page_private(page, 0);
- 	set_page_refs(page, order);
---- linux-2.6.14-rc5-mm1.orig/mm/swap.c
-+++ linux-2.6.14-rc5-mm1/mm/swap.c
-@@ -29,7 +29,6 @@
- #include <linux/percpu.h>
- #include <linux/cpu.h>
- #include <linux/notifier.h>
--#include <linux/init.h>
- 
- /* How many pages do we try to swap or page in/out together? */
- int page_cluster;
-@@ -117,13 +116,13 @@ void fastcall activate_page(struct page 
-  * Mark a page as having seen activity.
-  *
-  * inactive,unreferenced	->	inactive,referenced
-- * inactive,referenced		->	active,unreferenced
-- * active,unreferenced		->	active,referenced
-+ * inactive,referenced		->	activate,unreferenced
-+ * activate,unreferenced	->	activate,referenced
-  */
- void fastcall mark_page_accessed(struct page *page)
- {
--	if (!PageActive(page) && PageReferenced(page) && PageLRU(page)) {
--		activate_page(page);
-+	if (!PageActivate(page) && PageReferenced(page) && PageLRU(page)) {
-+		SetPageActivate(page);
- 		ClearPageReferenced(page);
- 	} else if (!PageReferenced(page)) {
- 		SetPageReferenced(page);
---- linux-2.6.14-rc5-mm1.orig/mm/vmscan.c
-+++ linux-2.6.14-rc5-mm1/mm/vmscan.c
-@@ -407,6 +407,12 @@ static int shrink_list(struct list_head 
- 		if (PageWriteback(page))
- 			goto keep_locked;
- 
-+		if (PageActivate(page)) {
-+			ClearPageActivate(page);
-+			ClearPageReferenced(page);
-+			goto activate_locked;
-+		}
++static inline char page_refcnt_symbol(struct page *page)
++{
++	if (!page)
++		return 'X';
++	if (PageActive(page))
++		return 'A';
++	switch (page_refcnt(page)) {
++		case 0:
++			return '_';
++		case PAGE_REFCNT_1:
++			return '-';
++		case PAGE_REFCNT_2:
++			return '=';
++		case PAGE_REFCNT_3:
++			return '#';
++	}
++	return '?';
++}
 +
- 		referenced = page_referenced(page, 1, sc->priority <= 0);
- 		/* In active use or really unfreeable?  Activate it. */
- 		if (referenced && page_mapping_inuse(page))
++/*
++ * Count/estimate cache hits in range [first_index, last_index].
++ * The estimation is simple and a bit optimistic.
++ */
++static int count_cache_hit(struct address_space *mapping,
++			unsigned long first_index, unsigned long last_index)
++{
++	static int steps[8] = {0, 4, 2, 6, 1, 3, 5, 7};
++	struct page *page;
++	int size = last_index - first_index + 1;
++	int count = 0;
++	int i;
++
++	read_lock_irq(&mapping->tree_lock);
++
++	for (i = 0; i < 8;) {
++		page = __find_page(mapping,
++					first_index + size * steps[i++] / 8);
++		if (cold_page_refcnt(page) >= PAGE_REFCNT_1 && ++count >= 2)
++			break;
++	}
++
++	read_unlock_irq(&mapping->tree_lock);
++
++	return size * count / i;
++}
++
++/*
++ * Look back and check history pages to estimate thrashing-threshold.
++ */
++static int query_page_cache(struct address_space *mapping,
++			unsigned long *remain, unsigned long offset,
++			unsigned long ra_min, unsigned long ra_max)
++{
++	int step;
++	int count;
++	unsigned long index;
++	unsigned long nr_lookback;
++        struct radix_tree_cache cache;
++
++	/*
++	 * Scan backward and check the near @ra_max pages.
++	 * The count here determines ra_size.
++	 */
++	read_lock_irq(&mapping->tree_lock);
++	index = radix_tree_lookup_head(&mapping->page_tree, offset, ra_max);
++	read_unlock_irq(&mapping->tree_lock);
++#ifdef DEBUG_READAHEAD_RADIXTREE
++	if (index <= offset) {
++		WARN_ON(!find_page(mapping, index));
++		if (index + ra_max > offset)
++			WARN_ON(find_page(mapping, index - 1));
++	} else {
++		BUG_ON(index > offset + 1);
++		WARN_ON(find_page(mapping, offset));
++	}
++#endif
++
++	*remain = offset - index + 1;
++
++	if (unlikely(*remain <= ra_min)) {
++		count = ra_min;
++		goto out;
++	}
++
++	count = count_cache_hit(mapping, index, offset);
++	if (count < ra_min)
++		count = ra_min;
++	if (unlikely(count * 2 < offset - index))
++		goto out;
++
++	if (*remain < ra_max)
++		goto out;
++
++	/*
++	 * Check the far pages coarsely.
++	 * The big count here helps increase la_size.
++	 */
++	nr_lookback = ra_max * (LOOKAHEAD_RATIO + 1) *
++						100 / (readahead_ratio + 1);
++	if (nr_lookback > offset)
++		nr_lookback = offset;
++
++        radix_tree_cache_init(&cache);
++	read_lock_irq(&mapping->tree_lock);
++	for (step = 2 * ra_max; step < nr_lookback; step += ra_max) {
++		struct radix_tree_node *node;
++		node = radix_tree_cache_lookup_node(&mapping->page_tree,
++                                                &cache, offset - step, 1);
++		if (!node)
++			break;
++#ifdef DEBUG_READAHEAD_RADIXTREE
++		if (node != radix_tree_lookup_node(&mapping->page_tree,
++							offset - step, 1)) {
++			read_unlock_irq(&mapping->tree_lock);
++			printk(KERN_ERR "check radix_tree_cache_lookup_node!\n");
++			return 1;
++		}
++#endif
++	}
++	read_unlock_irq(&mapping->tree_lock);
++
++	/*
++	 *  For sequential read that extends from index 0, the counted value
++	 *  may well be far under the true threshold, so return it unmodified
++	 *  for further process in adjust_rala_accelerated().
++	 */
++	if (step < offset)
++		count = step * readahead_ratio / 100;
++	else
++		count = offset;
++
++out:
++	return count;
++}
++
++/*
++ * Scan backward in the file for the first non-present page.
++ */
++static inline unsigned long first_absent_page_bw(struct address_space *mapping,
++				unsigned long index, unsigned long max_scan)
++{
++	struct radix_tree_cache cache;
++	struct page *page;
++	unsigned long origin;
++
++	origin = index;
++	if (max_scan > index)
++		max_scan = index;
++	radix_tree_cache_init(&cache);
++	read_lock_irq(&mapping->tree_lock);
++	for (;;) {
++		page = radix_tree_cache_lookup(&mapping->page_tree,
++							&cache, --index);
++		if (page) {
++			index++;
++			break;
++		}
++		if (origin - index > max_scan)
++			break;
++	}
++	read_unlock_irq(&mapping->tree_lock);
++
++	return index;
++}
++
++/*
++ * Scan forward in the file for the first non-present page.
++ */
++static inline unsigned long first_absent_page(struct address_space *mapping,
++				unsigned long index, unsigned long max_scan)
++{
++	unsigned long ra_index;
++
++	read_lock_irq(&mapping->tree_lock);
++	ra_index = radix_tree_lookup_tail(&mapping->page_tree,
++					index + 1, max_scan);
++	read_unlock_irq(&mapping->tree_lock);
++
++#ifdef DEBUG_READAHEAD_RADIXTREE
++	BUG_ON(ra_index <= index);
++	if (index + max_scan > index) {
++		if (ra_index <= index + max_scan)
++			WARN_ON(find_page(mapping, ra_index));
++		WARN_ON(!find_page(mapping, ra_index - 1));
++	}
++#endif
++
++	if (ra_index <= index + max_scan)
++		return ra_index;
++	else
++		return 0;
++}
++
++/*
++ * Determine the request parameters for context based read-ahead that extends
++ * from start of file.
++ *
++ * The major weakness of stateless method is perhaps the slow grow up speed of
++ * ra_size. The logic tries to make up for this in the important case of
++ * sequential reads that extend from start of file. In this case, the ra_size
++ * is not choosed to make the whole next chunk safe(as in normal ones). Only
++ * half of which is safe. The added 'unsafe' half is the look-ahead part. It
++ * is expected to be safeguarded by rescue_pages() when the previous chunks are
++ * lost.
++ */
++static inline int adjust_rala_accelerated(unsigned long ra_max,
++				unsigned long *ra_size, unsigned long *la_size)
++{
++	if (*ra_size <= *la_size)
++		return 0;
++
++	*la_size = (*ra_size - *la_size) * readahead_ratio / 100;
++	*ra_size = *la_size * 2;
++
++	if (*ra_size > ra_max)
++		*ra_size = ra_max;
++	if (*la_size > *ra_size)
++		*la_size = *ra_size;
++
++	return 1;
++}
++
++/*
++ * Main function for page context based read-ahead.
++ */
++static inline int
++try_context_based_readahead(struct address_space *mapping,
++			struct file_ra_state *ra,
++			struct page *prev_page, struct page *page,
++			unsigned long index,
++			unsigned long ra_min, unsigned long ra_max)
++{
++	unsigned long ra_index;
++	unsigned long la_size;
++	unsigned long ra_size;
++	unsigned long remain_pages;
++
++	/* Where to start read-ahead?
++	 * NFSv3 daemons may process adjecent requests in parallel,
++	 * leading to many locally disordered, globally sequential reads.
++	 * So do not require nearby history pages to be present or accessed.
++	 */
++	if (page) {
++		ra_index = first_absent_page(mapping, index, ra_max * 5 / 4);
++		if (unlikely(!ra_index))
++			return -1;
++	} else if (!prev_page) {
++		ra_index = first_absent_page_bw(mapping, index, ra_min);
++		if (index - ra_index > ra_min)
++			return 0;
++		ra_min += index - ra_index;
++		index = ra_index;
++	} else
++		ra_index = index;
++
++	ra_size = query_page_cache(mapping, &remain_pages,
++						index - 1, ra_min, ra_max);
++
++	la_size = ra_index - index;
++	if (readahead_ratio < VM_READAHEAD_PROTECT_RATIO &&
++			remain_pages <= la_size && la_size > 1) {
++		rescue_pages(page, la_size);
++		return -1;
++	}
++
++	if (ra_size == index) {
++		if (!adjust_rala_accelerated(ra_max, &ra_size, &la_size))
++			return -1;
++		set_ra_class(ra, RA_CLASS_CONTEXT_ACCELERATED);
++	} else {
++		if (!adjust_rala(ra_max, &ra_size, &la_size))
++			return -1;
++		set_ra_class(ra, RA_CLASS_CONTEXT);
++	}
++
++	ra_state_init(ra, index, ra_index);
++	ra_state_update(ra, ra_size, la_size);
++
++	return 1;
++}
++
+ 
+ /*
+  * ra_size is mainly determined by:
+@@ -1180,7 +1514,7 @@ page_cache_readahead_adaptive(struct add
+ 	 * Context based sequential read-ahead.
+ 	 */
+ 	ret = try_context_based_readahead(mapping, ra, prev_page, page,
+-						index, size, ra_min, ra_max);
++						index, ra_min, ra_max);
+ 	if (ret > 0)
+ 		return ra_dispatch(ra, mapping, filp);
+ 	if (ret < 0)
 
 --

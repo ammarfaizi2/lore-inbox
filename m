@@ -1,58 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbVJ2TiH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbVJ2TqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932132AbVJ2TiH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 15:38:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbVJ2TiG
+	id S1750756AbVJ2TqS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 15:46:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbVJ2TqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 15:38:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:37548 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932123AbVJ2TiF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 15:38:05 -0400
-Date: Sat, 29 Oct 2005 12:37:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [git patches] 2.6.x libata updates
-In-Reply-To: <4363CB60.2000201@pobox.com>
-Message-ID: <Pine.LNX.4.64.0510291229330.3348@g5.osdl.org>
-References: <20051029182228.GA14495@havoc.gtf.org> <20051029121454.5d27aecb.akpm@osdl.org>
- <4363CB60.2000201@pobox.com>
+	Sat, 29 Oct 2005 15:46:18 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:39176 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750756AbVJ2TqR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 15:46:17 -0400
+Date: Sat, 29 Oct 2005 21:46:16 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, reiserfs-dev@namesys.com
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.14-rc5-mm1: reiser4: ICE with gcc 2.95
+Message-ID: <20051029194616.GL4180@stusta.de>
+References: <20051024014838.0dd491bb.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051024014838.0dd491bb.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Trying to compile 2.6.14-rc5-mm1 with gcc 2.95 and 
+CONFIG_REISER4_DEBUG=y results in the following ICE:
 
+<--  snip  -->
 
-On Sat, 29 Oct 2005, Jeff Garzik wrote:
-> 
-> Even so, it's easy, to I'll ask him to test 2.6.14, 2.6.14-git1, and
-> (tonight's upcoming) 2.6.14-git2 (with my latest pull included) to see if
-> anything breaks.
+...
+  CC      fs/reiser4/plugin/space/bitmap.o
+fs/reiser4/plugin/space/bitmap.c: In function `parse_blocknr':
+fs/reiser4/plugin/space/bitmap.c:608: Internal compiler error:
+fs/reiser4/plugin/space/bitmap.c:608: internal error--unrecognizable 
+insn:
+(insn 93 266 269 (parallel[ 
+            (set (reg:SI 0 %eax)
+                (asm_operands ("") ("=a") 0[ 
+                        (reg:DI 1 %edx)
+                    ] 
+                    [ 
+                        (asm_input:DI ("A"))
+                    ]  ("fs/reiser4/plugin/space/bitmap.c") 603))
+            (set (reg:SI 1 %edx)
+                (asm_operands ("") ("=d") 1[ 
+                        (reg:DI 1 %edx)
+                    ] 
+                    [ 
+                        (asm_input:DI ("A"))
+                    ]  ("fs/reiser4/plugin/space/bitmap.c") 603))
+        ] ) -1 (insn_list 83 (nil))
+    (nil))
+make[2]: *** [fs/reiser4/plugin/space/bitmap.o] Error 1
+make[1]: *** [fs/reiser4] Error 2
+make: *** [fs] Error 2
 
-Side note: one of the downsides of the new "merge lots of stuff early in 
-the development series" approach is that the first few daily snapshots end 
-up being _huge_. 
+<--  snip  -->
 
-So the -git1 and -git2 patches are/will be very big indeed.
+Although this is technically an error in gcc 2.95, the code should be 
+fixed to work around this issue since gcc 2.95 is a supported compiler 
+for compiling kernel 2.6.
 
-For example, patch-2.6.14-git1 literally ended up being a megabyte 
-compressed. Right now my diff to 2.6.14 (after just two days) is 1.6MB 
-compressed.
+cu
+Adrian
 
-Admittedly, some of it is due to things like the MIPS merge, but the point 
-I'm trying to make is that it makes the daily snapshot diffs a lot less 
-useful to people who try to figure out where something broke.
+-- 
 
-Now, I've gotten several positive comments on how easy "git bisect" is to 
-use, and I've used it myself, but this is the first time that patch users 
-_really_ become very much second-class citizens, and you can't necessarily 
-always do useful things with just the tar-trees and patches. That's sad, 
-and possibly a really big downside.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-Don't get me wrong - I personally think that the new merge policy is a 
-clear improvement, but it does have this downside.
-
-			Linus

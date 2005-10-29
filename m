@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750945AbVJ2AhW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750947AbVJ2Ajj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750945AbVJ2AhW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 20:37:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750947AbVJ2AhW
+	id S1750947AbVJ2Ajj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 20:39:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbVJ2Aji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 20:37:22 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:4789 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750945AbVJ2AhV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 20:37:21 -0400
-Subject: Re: kernel-2.6.14-rc5-rt7 - 604.62 BogoMIPS (2.6.14-rc5 - 6024.43
-	BogoMIPS) problem with bogometer ?
-From: Steven Rostedt <rostedt@goodmis.org>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-       mingo@elte.hu
-In-Reply-To: <1130544632.6169.63.camel@localhost.localdomain>
-References: <200510281828.AA38666812@usfltd.com>
-	 <1130542935.27168.431.camel@cog.beaverton.ibm.com>
-	 <1130544632.6169.63.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Fri, 28 Oct 2005 20:37:01 -0400
-Message-Id: <1130546221.6169.67.camel@localhost.localdomain>
+	Fri, 28 Oct 2005 20:39:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:16347 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750946AbVJ2Aji (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 20:39:38 -0400
+Date: Fri, 28 Oct 2005 17:39:01 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Roland Dreier <rolandd@cisco.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [git pull] InfiniBand updates for 2.6.14
+Message-Id: <20051028173901.6bd2c302.akpm@osdl.org>
+In-Reply-To: <52y84dp44d.fsf@cisco.com>
+References: <523bmlqkg0.fsf@cisco.com>
+	<20051028171218.2b8e71e7.akpm@osdl.org>
+	<52y84dp44d.fsf@cisco.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > That should explain a differing lpj value, although 10x smaller is a
-> > little strange, so I'll dig into this on my system and see if I find
-> > anything.
-> > 
-> > Do let me know if you see any actual changes in behavior (drivers acting
-> > funny, etc).
+Roland Dreier <rolandd@cisco.com> wrote:
+>
+>     Andrew> a) arrange for the current infiniband devel tree to be
+>     Andrew> included in -mm and
 > 
-> John, 
+> Sure.  How do you want to handle that?  The way I've been working
+> lately is to merge things onto my "upstream" branch when I intend for
+> them to go to Linus eventually, and merge that onto the "for-linus"
+> branch when I'm going to ask Linus to pull.  I guess it would make
+> sense for you to grab the upstream branch for -mm.
+
+That suits.  I'll include
+
+master.kernel.org:/pub/scm/linux/kernel/git/roland/infiniband.git#upstream
+	
+>     Andrew> b) arrange for infiniband patches to get wider review than this?
 > 
-> Don't waste any time on this.  This was caused by a brain fart on
-> Thomas' part :-)  Some legacy code in ktimer_interrupt returned a enum
-> that was being used to update the ticks.  So before high-res was
-> activated, the jiffies would be incremented 7 times instead of just
-> once.  It's already been fixed. Just waiting for Ingo to release his new
-> patch.
+> No objection from me.  How do you suggest I do that?  Post things to
+> linux-kernel as I merge them into git?
 
-John,
-
-Would you want to be CC'd on all ktimer related patches?  This way you
-wont think things like this was caused by your code.
-
--- Steve
-
-
+That would be suitable, I guess.  It's a bit of a hassle, but some bugs
+will likely be found, and useful suggestions will be made.

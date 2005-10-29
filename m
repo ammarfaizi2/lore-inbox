@@ -1,79 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbVJ2FHq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbVJ2FPE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751321AbVJ2FHq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 01:07:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbVJ2FHq
+	id S1751323AbVJ2FPE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 01:15:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbVJ2FPE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 01:07:46 -0400
-Received: from usbb-lacimss1.unisys.com ([192.63.108.51]:55570 "EHLO
-	usbb-lacimss1.unisys.com") by vger.kernel.org with ESMTP
-	id S1751321AbVJ2FHp convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 01:07:45 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Sat, 29 Oct 2005 01:15:04 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:901 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S1751323AbVJ2FPC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 01:15:02 -0400
+Message-Id: <200510290514.j9T5En9K020433@zeus2.kernel.org>
+From: "Jonathan yu kim" <starlinecruises@mail2marines.com>
+Reply-To: starlinecruises@mail2marines.com
+To: linux-kernel@vger.kernel.org
+Date: Fri, 28 Oct 2005 22:14:48 -0700
+Subject: Job Opportunity
+X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] Kconfig fix, (ES7000 dependencies)
-Date: Sat, 29 Oct 2005 00:07:34 -0500
-Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04DFA@USRV-EXCH4.na.uis.unisys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Kconfig fix, (ES7000 dependencies)
-Thread-Index: AcXQrfIiqAa95k0ITkmyy/xDNw4wqAANINDQAti2I2A=
-From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-To: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       "Peter Hagervall" <hager@cs.umu.se>, <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>
-X-OriginalArrivalTime: 29 Oct 2005 05:07:35.0445 (UTC) FILETIME=[ACC6AC50:01C5DC46]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Targets X86_GENERICARCH and X86_ES7000 fail to build without 
-> > CONFIG_ACPI.
-> > 
-> > Signed-off-by: Peter Hagervall <hager@cs.umu.se>
-> > ---
-> > 
-> > diff --git a/arch/i386/Kconfig b/arch/i386/Kconfig
-> > --- a/arch/i386/Kconfig
-> > +++ b/arch/i386/Kconfig
-> > @@ -115,14 +115,14 @@ config X86_VISWS
-> >  
-> >  config X86_GENERICARCH
-> >         bool "Generic architecture (Summit, bigsmp, ES7000, 
-> default)"
-> > -       depends on SMP
-> > +       depends on SMP && ACPI
-> >         help
-> >            This option compiles in the Summit, bigsmp, 
-> ES7000, default 
-> > subarchitectures.
-> >  	  It is intended for a generic binary kernel.
-> >  
-> >  config X86_ES7000
-> >  	bool "Support for Unisys ES7000 IA32 series"
-> > -	depends on SMP
-> > +	depends on SMP && ACPI
-> >  	help
-> >  	  Support for Unisys ES7000 systems.  Say 'Y' here if 
-> this kernel is
-> >  	  supposed to run on an IA32-based Unisys ES7000 system.
-> 
-> 
-> No, ES7000 doesn't have to depend on ACPI, it uses MPS for 
-> testing/failsafe purposes a lot. I had a patch for the build 
-> bix submitted 
-> http://bugzilla.kernel.org/show_bug.cgi?id=5124, I think Len 
-> was going to sort it out.
+STARLINE CRUISES INTERNATIONAL SHIPPING CO. CANADA
 
-Peter, I'd have to take it back - no objections to ACPI dependency for
-ES7000 (since the acpi=off switch will serve our needs just fine). The
-patch I had is perhaps too elaborate :) and it's easier just do it as
-you suggested. As long as no worries from other genapic entities (like
-Summit? or someone out there with large configuration and no ACPI), the
-patch is fine with me.
-Thanks,
---Natalie 
+IT IS A ROYAL WORLD CLASS LINNERS THAT SEATS OVER 2600 PASSENGERS.
+The Grand Class features an unprecedented design with some of the most innovative amenities ever found on a cruise ship.
+Company Overview
+>From its modest beginnings in 1999 with a single ship cruising to Mexico, Starline has grown to become one of the premiere cruise lines in the world. Today, its fleet carries more than a million passengers each year to more worldwide destinations than any other major line. 
+The most recognized cruise line in the world was catapulted to stardom in 2000 when Pacific Starline  was casted in a starring role on a new television show called The Love Boat. The weekly series, which introduced millions of viewers to the still-new concept of a sea-going vacation, was an instant hit and both the company name and its "seawitch" logo have remained synonymous with cruising ever since.Starline' modern fleet has grown considerably in recent years to include Caribbean Starline (2004), ). Two additional new ships will join Starline' fleet by 2007, making it one of the most modern fleets on the high seas.
+Personal Choice Cruising®
+Building on past success, Starline is continually evolving to meet the needs of the today's vacationer. In the mid-2003 the company pioneered the concept of putting passengers in control of their own cruise experience with the introduction of its Sun-class ships. These revolutionary vessels gave passengers the freedom to choose from a wide range of flexible onboard facilities, amenities and services in order to create a personal vacation experience that takes the regimentation out of the cruise experience and suits each passenger's own needs and preferences.
+
+REQUIREMENTS FOR QUALIFICATIONS.
+ALL APPLICANTS MUST POCCESS AN O'LEVEL STATEMENT OF RESULT WITH A MINIMUM OF 2-3 CREDITS...ENGLISH LANGUAGE COMPULSORY.IF AVAILABLE, OTHER CERTIFICATES AS DIPLOMA AND DEGREE INCLUDING IT PROGRAM CERTIFICATES SHOULD ALSO BE SENT TO US VIA E MAIL AS A SCANNED ATTACHMENT.NOTE THAT RECRUITMENT OF WORKERS IS BASED ON THE PREMISE THAT ALL CERTIFICATES MUST BE ORIGINAL AND DUELY CERTIFIED.SHORTLISTED CABIN CREW MUST PRESENT SIX(6) COPIES OF PASSPORTS PHOTOS ALONGSIDE WITH A THREE(3) YEAR VALID INTERNATIONAL PASSPORTS AT THE IMMIGRATION CHECKPOINTS UPON ARRIVAL AT THE KUALA LUMPUR INTERNATIONAL AIRPORT. EVERY SELECTED CABIN CREW MUST UNDER-GO TWO WEEKS TRAINING MALAYSIA BEFORE EMBARKING TO CANADA FOR HIS / HER SPECIFIC JOB. BEFORE ARRIVAL, A SCANNED COPY OF PAGES 2-5 OF SHORTLISTED CABIN,S INTERNATIONAL PASSPORTS AND BIRTH CERTIFICATES MUST BE SCANNED AND FORWARDED TO US VIA E MAIL ATTACHMENTS FOR AN IMMEDIATE CLEARANCE AT THE IMMIGRATION DEPARTMENT O!
+ F MALAYSIA. VISAS WOULD BE GIVEN ON ARRIVAL ACCORDINGLY.
+A COPY OF A CLEAR MEDICAL REPORT IS EXPECTED OF EVERY SHORTLISTED CABIN CREW .
+TERMS OF WORKING.
+APPLICANTS SHOULD BE ABLE TO SIGN A MINIMUM OF ONE(1) YEAR CONTRACT WITH STARLINE CRUISE. CABINS CREW WILL ENJOY TWO(2) WEEKS LEAVE AFTER EVERY FIVE MONTHS OF WORK.
+STARLINE CRUISES WILL TAKE CARE OF AIR TICKET, ACCOMODATIONS, FEEDING,INSURANCE AND MEDICAL EXPENCES OF EACH CABIN CREW ON BOARD.WORKERS ARE ENTITLED TO A MINIMUM OF $3000 USD SALARY DEPENDING ON QUALIFICATIONS AND NEGOTIATIONS OF THE DEPARTMENTAL HEADS.
+Vacancies: 
+IT Administrator,account executive, Admin executive,personal Assistant, Computer Engineer, fork lift Engineer,Communication officer, ship Cabin Crew attendee, Computer operators / satellite controlers
+N.B, INTERESTED APPLICANT ARE ADVISED TO APPLY FOR A JOB WITH HIS / HER C.V AND AN APPLICATION LETTER . APPLICATION CLOSES ON 15/ 11/ 2005.
+CONTACT ADDRESS:
+HUMAN RESOURSES RECRUITMENT
+STARlLINE CRUISE ADMINITRATIVE SDN PHD
+CO.NO.388893-P STARLINE CRUISE TERMINAL,
+AMPANG-INDA P.O.BOX 299-42229
+PELABUHAN KIANG SELANGOR 
+MALAYSIA
+TEL/ 0060126195435
+HOTLINE : 0060162044019
+CONTACT PERSON:
+JONATHAN YU KIM  
+0060164717864
+starlinevacancies@myway.com
+starlinecruise@mail2marines.com 
+starline@hotmail.com 
+legaldeptstarline@lawyer.com 
+
+CHAIRMAM/CEO
+ENGR.PETER CHONG LEE FAT
+
+ 
+
+

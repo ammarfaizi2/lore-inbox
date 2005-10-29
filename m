@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbVJ2Uom@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbVJ2Ul5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932110AbVJ2Uom (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 16:44:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbVJ2Uom
+	id S932065AbVJ2Ul5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 16:41:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932109AbVJ2Ul5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 16:44:42 -0400
-Received: from zproxy.gmail.com ([64.233.162.203]:12732 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932110AbVJ2Uom convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 16:44:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pMpG979S0f9gSERyHHmgc0t0wOWBZIIj7KTkfzSSE+n1h7NsdKZcWIeP1mnPfaOvUfbdU108rM3jAyyHw+4TsiO6gOWOV8QlCcX2GLH9yjFXnIHZlm7I6pKF7TDjZX9DYGNTfmn7Jzyx9Qq5TFaYiQf/ZY455Kk6BL0YoZIYZh4=
-Message-ID: <8355959a0510291344o663a2904nd828c90812f4ffb5@mail.gmail.com>
-Date: Sun, 30 Oct 2005 02:14:39 +0530
-From: Akula2 <akula2.shark@gmail.com>
+	Sat, 29 Oct 2005 16:41:57 -0400
+Received: from c-24-14-93-109.hsd1.il.comcast.net ([24.14.93.109]:14277 "EHLO
+	topaz") by vger.kernel.org with ESMTP id S932065AbVJ2Ulw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 16:41:52 -0400
+From: Narayan Desai <desai@mcs.anl.gov>
 To: linux-kernel@vger.kernel.org
-Subject: Re: New (now current development process)
-In-Reply-To: <Pine.LNX.4.64.0510291314100.3348@g5.osdl.org>
+Subject: acpi problem on 2.6.14-rc5-mm1
+Date: Sat, 29 Oct 2005 15:41:46 -0500
+Message-ID: <87mzksukc5.fsf@topaz.mcs.anl.gov>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) XEmacs/21.4.17 (linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com>
-	 <12c511ca0510291157u5557b6b1x85a47311f0e16436@mail.gmail.com>
-	 <20051029195115.GD14039@flint.arm.linux.org.uk>
-	 <Pine.LNX.4.64.0510291314100.3348@g5.osdl.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+I have been encountering a problem for a little while (since rc3 at
+least) where acpi goes out to lunch with respect to battery
+information. This works properly for a while, but then the following
+kernel errors appear:
+Oct 28 22:01:50 topaz kernel: [17298549.952000]     ACPI-0292: *** Error: Looking up [SERN] in namespace, AE_ALREADY_EXISTS
+Oct 28 22:01:50 topaz kernel: [17298549.952000]     ACPI-0508: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.GBIF] (Node c18f6540), AE_ALREADY_EXISTS
+Oct 28 22:01:50 topaz kernel: [17298549.980000]     ACPI-0213: *** Error: Method reached maximum reentrancy limit (255)
+Oct 28 22:01:50 topaz kernel: [17298549.980000]     ACPI-0508: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BAT1._BIF] (Node c18f6280), AE_AML_METHOD_LIMIT
+Oct 28 22:01:52 topaz kernel: [17298551.972000]     ACPI-0213: *** Error: Method reached maximum reentrancy limit (255)
+Oct 28 22:01:52 topaz kernel: [17298551.972000]     ACPI-0508: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BAT0._BIF] (Node c18f6400), AE_AML_METHOD_LIMIT
+Oct 28 22:01:52 topaz kernel: [17298551.972000]     ACPI-0213: *** Error: Method reached maximum reentrancy limit (255)
+Oct 28 22:01:52 topaz kernel: [17298551.972000]     ACPI-0508: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BAT1._BIF] (Node c18f6280), AE_AML_METHOD_LIMIT
+Oct 28 22:01:54 topaz kernel: [17298553.980000]     ACPI-0213: *** Error: Method reached maximum reentrancy limit (255)
+Oct 28 22:01:54 topaz kernel: [17298553.980000]     ACPI-0508: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BAT0._BIF] (Node c18f6400), AE_AML_METHOD_LIMIT
+Oct 28 22:01:54 topaz kernel: [17298553.980000]     ACPI-0213: *** Error: Method reached maximum reentrancy limit (255)
+Oct 28 22:01:54 topaz kernel: [17298553.980000]     ACPI-0508: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BAT1._BIF] (Node c18f6280), AE_AML_METHOD_LIMIT
+Oct 28 22:01:56 topaz kernel: [17298555.988000]     ACPI-0213: *** Error: Method reached maximum reentrancy limit (255)
+Oct 28 22:01:56 topaz kernel: [17298555.988000]     ACPI-0508: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BAT0._BIF] (Node c18f6400), AE_AML_METHOD_LIMIT
+Oct 28 22:01:56 topaz kernel: [17298555.988000]     ACPI-0213: *** Error: Method reached maximum reentrancy limit (255)
+Oct 28 22:01:56 topaz kernel: [17298555.988000]     ACPI-0508: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BAT1._BIF] (Node c18f6280), AE_AML_METHOD_LIMIT
+Oct 28 22:01:58 topaz kernel: [17298557.996000]     ACPI-0213: *** Error: Method reached maximum reentrancy limit (255)
+Oct 28 22:01:58 topaz kernel: [17298557.996000]     ACPI-0508: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BAT0._BIF] (Node c18f6400), AE_AML_METHOD_LIMIT
+Oct 28 22:01:58 topaz kernel: [17298557.996000]     ACPI-0213: *** Error: Method reached maximum reentrancy limit (255)
+Oct 28 22:01:58 topaz kernel: [17298557.996000]     ACPI-0508: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BAT1._BIF] (Node c18f6280), AE_AML_METHOD_LIMIT
 
-This is my first mail to the Kernel tree:-
+These continue to occur, every two seconds, until the machine is
+rebooted. After this error happens, all acpi battery information
+disappears. 
 
-> Everything said, I think 2.6.13->14 worked well enough, even if it's hard
-> to say how well a process works after one release. Considering that 2.6.13
-> had the painful PCI changes (you may not have noticed too much, since they
-> were x86 only) and there were some potentially painful SCSI changes in the
-> .14 early merges, so it's not like 13->14 was an "easy" release - so the
-> process certainly _seems_ to be workable.
+topaz# cat /proc/acpi/battery/BAT0/info 
+present:                 yes
+ERROR: Unable to read battery information
 
-Will you please throw more light on the *painful* PCI & SCSI changees?
-
-
-> I don't think anybody has been really unhappy with this approach? Hmm?
-
-honestly, I did download 14 yesterday and made the kernel ready to
-compile. today I've seen 14git1 patch! Am trying to understand why is
-it this kind of kernel development model...
-
-thanks,
-Akula
+The hardware in question is a thinkpad t41p. It has two
+batteries. Please let me know if I can provide any more
+information. Does anyone have any suggestions?
+ -nld

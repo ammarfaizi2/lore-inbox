@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbVJ2Uy1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbVJ2Uyt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932160AbVJ2Uy1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 16:54:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932167AbVJ2Uy1
+	id S932202AbVJ2Uyt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 16:54:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932167AbVJ2Uy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 16:54:27 -0400
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:65198 "EHLO
+	Sat, 29 Oct 2005 16:54:29 -0400
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:687 "EHLO
 	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S932160AbVJ2Uy0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 16:54:26 -0400
+	id S932182AbVJ2Uy1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 16:54:27 -0400
 From: "Rafael J. Wysocki" <rjw@sisk.pl>
 To: Pavel Machek <pavel@suse.cz>
-Subject: [RFC][PATCH 1/6] swsusp: rework swsusp_suspend
-Date: Sat, 29 Oct 2005 22:01:05 +0200
+Subject: [RFC][PATCH 2/6] swsusp: move snapshot-handling functions to snapshot.c
+Date: Sat, 29 Oct 2005 22:06:22 +0200
 User-Agent: KMail/1.8.2
 Cc: LKML <linux-kernel@vger.kernel.org>, linux-pm@osdl.org
 References: <200510292158.11089.rjw@sisk.pl>
@@ -22,193 +22,303 @@ Content-Type: text/plain;
   charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200510292201.05724.rjw@sisk.pl>
+Message-Id: <200510292206.23166.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a preliminary step.  It makes only the functions in swsusp.c call
-functions in snapshot.c and not both ways.  Basically, it moves the code
-without changing its functionality.
+This is another preliminary step.  It moves the snapshot-handling functions
+remaining in swsusp.c to snapshot.c (moving the code without changing
+the functionality) and makes the next patch be more clear (in my opinion).
 
 Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
 
- kernel/power/power.h    |    2 -
- kernel/power/snapshot.c |   14 +---------
- kernel/power/swsusp.c   |   62 +++++++++++++++++++++++++++---------------------
- 3 files changed, 39 insertions(+), 39 deletions(-)
+ kernel/power/power.h    |    2 
+ kernel/power/snapshot.c |  121 ++++++++++++++++++++++++++++++++++++++++++++++
+ kernel/power/swsusp.c   |  126 ------------------------------------------------
+ 3 files changed, 125 insertions(+), 124 deletions(-)
 
-Index: linux-2.6.14-rc5-mm1/kernel/power/snapshot.c
-===================================================================
---- linux-2.6.14-rc5-mm1.orig/kernel/power/snapshot.c	2005-10-28 23:46:36.000000000 +0200
-+++ linux-2.6.14-rc5-mm1/kernel/power/snapshot.c	2005-10-28 23:49:15.000000000 +0200
-@@ -89,7 +89,7 @@
- }
- 
- 
--static int save_highmem(void)
-+int save_highmem(void)
- {
- 	struct zone *zone;
- 	int res = 0;
-@@ -121,7 +121,7 @@
- 	return 0;
- }
- #else
--static int save_highmem(void) { return 0; }
-+int save_highmem(void) { return 0; }
- int restore_highmem(void) { return 0; }
- #endif /* CONFIG_HIGHMEM */
- 
-@@ -383,11 +383,6 @@
- 	unsigned nr_pages;
- 
- 	pr_debug("swsusp: critical section: \n");
--	if (save_highmem()) {
--		printk(KERN_CRIT "swsusp: Not enough free pages for highmem\n");
--		restore_highmem();
--		return -ENOMEM;
--	}
- 
- 	drain_local_pages();
- 	nr_pages = count_data_pages();
-@@ -407,11 +402,6 @@
- 		return -ENOMEM;
- 	}
- 
--	if (!enough_swap(nr_pages)) {
--		printk(KERN_ERR "swsusp: Not enough free swap\n");
--		return -ENOSPC;
--	}
--
- 	pagedir_nosave = swsusp_alloc(nr_pages);
- 	if (!pagedir_nosave)
- 		return -ENOMEM;
-Index: linux-2.6.14-rc5-mm1/kernel/power/swsusp.c
-===================================================================
---- linux-2.6.14-rc5-mm1.orig/kernel/power/swsusp.c	2005-10-28 23:46:36.000000000 +0200
-+++ linux-2.6.14-rc5-mm1/kernel/power/swsusp.c	2005-10-28 23:49:15.000000000 +0200
-@@ -507,6 +507,26 @@
- }
- 
- /**
-+ *	enough_swap - Make sure we have enough swap to save the image.
-+ *
-+ *	Returns TRUE or FALSE after checking the total amount of swap
-+ *	space avaiable.
-+ *
-+ *	FIXME: si_swapinfo(&i) returns all swap devices information.
-+ *	We should only consider resume_device.
-+ */
-+
-+static int enough_swap(unsigned long nr_pages)
-+{
-+	struct sysinfo i;
-+
-+	si_swapinfo(&i);
-+	pr_debug("swsusp: available swap: %lu pages\n", i.freeswap);
-+	return i.freeswap > (nr_pages + PAGES_FOR_IO +
-+		(nr_pages + PBES_PER_PAGE - 1) / PBES_PER_PAGE);
-+}
-+
-+/**
-  *	write_suspend_image - Write entire image and metadata.
-  *
-  */
-@@ -514,6 +534,11 @@
- {
- 	int error;
- 
-+	if (!enough_swap(nr_copy_pages)) {
-+		printk(KERN_ERR "swsusp: Not enough free swap\n");
-+		return -ENOSPC;
-+	}
-+
- 	init_header();
- 	if ((error = data_write()))
- 		goto FreeData;
-@@ -533,27 +558,6 @@
- 	goto Done;
- }
- 
--/**
-- *	enough_swap - Make sure we have enough swap to save the image.
-- *
-- *	Returns TRUE or FALSE after checking the total amount of swap
-- *	space avaiable.
-- *
-- *	FIXME: si_swapinfo(&i) returns all swap devices information.
-- *	We should only consider resume_device.
-- */
--
--int enough_swap(unsigned nr_pages)
--{
--	struct sysinfo i;
--
--	si_swapinfo(&i);
--	pr_debug("swsusp: available swap: %lu pages\n", i.freeswap);
--	return i.freeswap > (nr_pages + PAGES_FOR_IO +
--		(nr_pages + PBES_PER_PAGE - 1) / PBES_PER_PAGE);
--}
--
--
- /* It is important _NOT_ to umount filesystems at this point. We want
-  * them synced (in case something goes wrong) but we DO not want to mark
-  * filesystem clean: it is not. (And it does not matter, if we resume
-@@ -576,6 +580,7 @@
- int swsusp_suspend(void)
- {
- 	int error;
-+
- 	if ((error = arch_prepare_suspend()))
- 		return error;
- 	local_irq_disable();
-@@ -587,15 +592,17 @@
- 	 */
- 	if ((error = device_power_down(PMSG_FREEZE))) {
- 		printk(KERN_ERR "Some devices failed to power down, aborting suspend\n");
--		local_irq_enable();
--		return error;
-+		goto Enable_irqs;
- 	}
- 
- 	if ((error = swsusp_swap_check())) {
- 		printk(KERN_ERR "swsusp: cannot find swap device, try swapon -a.\n");
--		device_power_up();
--		local_irq_enable();
--		return error;
-+		goto Power_up;
-+	}
-+
-+	if ((error = save_highmem())) {
-+		printk(KERN_ERR "swsusp: Not enough free pages for highmem\n");
-+		goto Restore_highmem;
- 	}
- 
- 	save_processor_state();
-@@ -603,8 +610,11 @@
- 		printk(KERN_ERR "Error %d suspending\n", error);
- 	/* Restore control flow magically appears here */
- 	restore_processor_state();
-+Restore_highmem:
- 	restore_highmem();
-+Power_up:
- 	device_power_up();
-+Enable_irqs:
- 	local_irq_enable();
- 	return error;
- }
 Index: linux-2.6.14-rc5-mm1/kernel/power/power.h
 ===================================================================
---- linux-2.6.14-rc5-mm1.orig/kernel/power/power.h	2005-10-28 23:46:36.000000000 +0200
-+++ linux-2.6.14-rc5-mm1/kernel/power/power.h	2005-10-28 23:49:15.000000000 +0200
-@@ -65,8 +65,8 @@
- extern asmlinkage int swsusp_arch_suspend(void);
- extern asmlinkage int swsusp_arch_resume(void);
- 
-+extern int save_highmem(void);
+--- linux-2.6.14-rc5-mm1.orig/kernel/power/power.h	2005-10-28 23:49:15.000000000 +0200
++++ linux-2.6.14-rc5-mm1/kernel/power/power.h	2005-10-28 23:50:11.000000000 +0200
+@@ -69,4 +69,6 @@
  extern int restore_highmem(void);
  extern struct pbe * alloc_pagedir(unsigned nr_pages);
  extern void create_pbe_list(struct pbe *pblist, unsigned nr_pages);
++extern int check_pagedir(struct pbe *pblist);
++extern struct pbe * swsusp_pagedir_relocate(struct pbe *pblist);
  extern void swsusp_free(void);
--extern int enough_swap(unsigned nr_pages);
+Index: linux-2.6.14-rc5-mm1/kernel/power/snapshot.c
+===================================================================
+--- linux-2.6.14-rc5-mm1.orig/kernel/power/snapshot.c	2005-10-28 23:49:15.000000000 +0200
++++ linux-2.6.14-rc5-mm1/kernel/power/snapshot.c	2005-10-28 23:50:11.000000000 +0200
+@@ -423,3 +423,124 @@
+ 	printk("swsusp: critical section/: done (%d pages copied)\n", nr_pages);
+ 	return 0;
+ }
++
++/**
++ *	On resume, for storing the PBE list and the image,
++ *	we can only use memory pages that do not conflict with the pages
++ *	which had been used before suspend.
++ *
++ *	We don't know which pages are usable until we allocate them.
++ *
++ *	Allocated but unusable (ie eaten) memory pages are marked so that
++ *	swsusp_free() can release them
++ */
++
++unsigned long get_safe_page(unsigned gfp_mask)
++{
++	unsigned long m;
++
++	do {
++		m = get_zeroed_page(gfp_mask);
++		if (m && PageNosaveFree(virt_to_page(m)))
++			/* This is for swsusp_free() */
++			SetPageNosave(virt_to_page(m));
++	} while (m && PageNosaveFree(virt_to_page(m)));
++	if (m) {
++		/* This is for swsusp_free() */
++		SetPageNosave(virt_to_page(m));
++		SetPageNosaveFree(virt_to_page(m));
++	}
++	return m;
++}
++
++/**
++ *	check_pagedir - We ensure here that pages that the PBEs point to
++ *	won't collide with pages where we're going to restore from the loaded
++ *	pages later
++ */
++
++int check_pagedir(struct pbe *pblist)
++{
++	struct pbe *p;
++
++	/* This is necessary, so that we can free allocated pages
++	 * in case of failure
++	 */
++	for_each_pbe (p, pblist)
++		p->address = 0UL;
++
++	for_each_pbe (p, pblist) {
++		p->address = get_safe_page(GFP_ATOMIC);
++		if (!p->address)
++			return -ENOMEM;
++	}
++	return 0;
++}
++
++/**
++ *	swsusp_pagedir_relocate - It is possible, that some memory pages
++ *	occupied by the list of PBEs collide with pages where we're going to
++ *	restore from the loaded pages later.  We relocate them here.
++ */
++
++struct pbe * swsusp_pagedir_relocate(struct pbe *pblist)
++{
++	struct zone *zone;
++	unsigned long zone_pfn;
++	struct pbe *pbpage, *tail, *p;
++	void *m;
++	int rel = 0;
++
++	if (!pblist) /* a sanity check */
++		return NULL;
++
++	/* Clear page flags */
++
++	for_each_zone (zone) {
++        	for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn)
++        		if (pfn_valid(zone_pfn + zone->zone_start_pfn))
++                		ClearPageNosaveFree(pfn_to_page(zone_pfn +
++					zone->zone_start_pfn));
++	}
++
++	/* Mark orig addresses */
++
++	for_each_pbe (p, pblist)
++		SetPageNosaveFree(virt_to_page(p->orig_address));
++
++	tail = pblist + PB_PAGE_SKIP;
++
++	/* Relocate colliding pages */
++
++	for_each_pb_page (pbpage, pblist) {
++		if (PageNosaveFree(virt_to_page((unsigned long)pbpage))) {
++			m = (void *)get_safe_page(GFP_ATOMIC | __GFP_COLD);
++			if (!m)
++				return NULL;
++			memcpy(m, (void *)pbpage, PAGE_SIZE);
++			if (pbpage == pblist)
++				pblist = (struct pbe *)m;
++			else
++				tail->next = (struct pbe *)m;
++			pbpage = (struct pbe *)m;
++
++			/* We have to link the PBEs again */
++			for (p = pbpage; p < pbpage + PB_PAGE_SKIP; p++)
++				if (p->next) /* needed to save the end */
++					p->next = p + 1;
++
++			rel++;
++		}
++		tail = pbpage + PB_PAGE_SKIP;
++	}
++
++	/* This is for swsusp_free() */
++	for_each_pb_page (pbpage, pblist) {
++		SetPageNosave(virt_to_page(pbpage));
++		SetPageNosaveFree(virt_to_page(pbpage));
++	}
++
++	printk("swsusp: Relocated %d pages\n", rel);
++
++	return pblist;
++}
+Index: linux-2.6.14-rc5-mm1/kernel/power/swsusp.c
+===================================================================
+--- linux-2.6.14-rc5-mm1.orig/kernel/power/swsusp.c	2005-10-28 23:49:15.000000000 +0200
++++ linux-2.6.14-rc5-mm1/kernel/power/swsusp.c	2005-10-28 23:50:11.000000000 +0200
+@@ -645,130 +645,6 @@
+ 	return error;
+ }
+ 
+-/**
+- *	On resume, for storing the PBE list and the image,
+- *	we can only use memory pages that do not conflict with the pages
+- *	which had been used before suspend.
+- *
+- *	We don't know which pages are usable until we allocate them.
+- *
+- *	Allocated but unusable (ie eaten) memory pages are marked so that
+- *	swsusp_free() can release them
+- */
+-
+-unsigned long get_safe_page(unsigned gfp_mask)
+-{
+-	unsigned long m;
+-
+-	do {
+-		m = get_zeroed_page(gfp_mask);
+-		if (m && PageNosaveFree(virt_to_page(m)))
+-			/* This is for swsusp_free() */
+-			SetPageNosave(virt_to_page(m));
+-	} while (m && PageNosaveFree(virt_to_page(m)));
+-	if (m) {
+-		/* This is for swsusp_free() */
+-		SetPageNosave(virt_to_page(m));
+-		SetPageNosaveFree(virt_to_page(m));
+-	}
+-	return m;
+-}
+-
+-/**
+- *	check_pagedir - We ensure here that pages that the PBEs point to
+- *	won't collide with pages where we're going to restore from the loaded
+- *	pages later
+- */
+-
+-static int check_pagedir(struct pbe *pblist)
+-{
+-	struct pbe *p;
+-
+-	/* This is necessary, so that we can free allocated pages
+-	 * in case of failure
+-	 */
+-	for_each_pbe (p, pblist)
+-		p->address = 0UL;
+-
+-	for_each_pbe (p, pblist) {
+-		p->address = get_safe_page(GFP_ATOMIC);
+-		if (!p->address)
+-			return -ENOMEM;
+-	}
+-	return 0;
+-}
+-
+-/**
+- *	swsusp_pagedir_relocate - It is possible, that some memory pages
+- *	occupied by the list of PBEs collide with pages where we're going to
+- *	restore from the loaded pages later.  We relocate them here.
+- */
+-
+-static struct pbe * swsusp_pagedir_relocate(struct pbe *pblist)
+-{
+-	struct zone *zone;
+-	unsigned long zone_pfn;
+-	struct pbe *pbpage, *tail, *p;
+-	void *m;
+-	int rel = 0;
+-
+-	if (!pblist) /* a sanity check */
+-		return NULL;
+-
+-	pr_debug("swsusp: Relocating pagedir (%lu pages to check)\n",
+-			swsusp_info.pagedir_pages);
+-
+-	/* Clear page flags */
+-
+-	for_each_zone (zone) {
+-        	for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn)
+-        		if (pfn_valid(zone_pfn + zone->zone_start_pfn))
+-                		ClearPageNosaveFree(pfn_to_page(zone_pfn +
+-					zone->zone_start_pfn));
+-	}
+-
+-	/* Mark orig addresses */
+-
+-	for_each_pbe (p, pblist)
+-		SetPageNosaveFree(virt_to_page(p->orig_address));
+-
+-	tail = pblist + PB_PAGE_SKIP;
+-
+-	/* Relocate colliding pages */
+-
+-	for_each_pb_page (pbpage, pblist) {
+-		if (PageNosaveFree(virt_to_page((unsigned long)pbpage))) {
+-			m = (void *)get_safe_page(GFP_ATOMIC | __GFP_COLD);
+-			if (!m)
+-				return NULL;
+-			memcpy(m, (void *)pbpage, PAGE_SIZE);
+-			if (pbpage == pblist)
+-				pblist = (struct pbe *)m;
+-			else
+-				tail->next = (struct pbe *)m;
+-			pbpage = (struct pbe *)m;
+-
+-			/* We have to link the PBEs again */
+-			for (p = pbpage; p < pbpage + PB_PAGE_SKIP; p++)
+-				if (p->next) /* needed to save the end */
+-					p->next = p + 1;
+-
+-			rel++;
+-		}
+-		tail = pbpage + PB_PAGE_SKIP;
+-	}
+-
+-	/* This is for swsusp_free() */
+-	for_each_pb_page (pbpage, pblist) {
+-		SetPageNosave(virt_to_page(pbpage));
+-		SetPageNosaveFree(virt_to_page(pbpage));
+-	}
+-
+-	printk("swsusp: Relocated %d pages\n", rel);
+-
+-	return pblist;
+-}
+-
+ /*
+  *	Using bio to read from swap.
+  *	This code requires a bit more work than just using buffer heads
+@@ -1015,6 +891,8 @@
+ 
+ 	create_pbe_list(p, nr_copy_pages);
+ 
++	pr_debug("swsusp: Relocating pagedir (%lu pages to check)\n",
++			swsusp_info.pagedir_pages);
+ 	if (!(pagedir_nosave = swsusp_pagedir_relocate(p)))
+ 		return -ENOMEM;
+ 
 

@@ -1,37 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbVJ2VME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751238AbVJ2VSo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751229AbVJ2VME (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 17:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbVJ2VMD
+	id S1751238AbVJ2VSo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 17:18:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbVJ2VSo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 17:12:03 -0400
-Received: from waste.org ([216.27.176.166]:33152 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1751229AbVJ2VMC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 17:12:02 -0400
-Date: Sat, 29 Oct 2005 14:06:43 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ketchup] patch to allow for moving of .gitignore in 2.6.14
-Message-ID: <20051029210643.GR4367@waste.org>
-References: <Pine.LNX.4.58.0510170316310.5859@localhost.localdomain> <20051017213915.GN26160@waste.org> <Pine.LNX.4.58.0510180211320.13581@localhost.localdomain> <20051018063031.GR26160@waste.org> <Pine.LNX.4.58.0510180239550.13581@localhost.localdomain> <20051018072927.GU26160@waste.org> <1130504043.9574.56.camel@localhost.localdomain> <Pine.LNX.4.58.0510291659140.10073@localhost.localdomain>
+	Sat, 29 Oct 2005 17:18:44 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:16141 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751238AbVJ2VSn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 17:18:43 -0400
+Date: Sat, 29 Oct 2005 22:18:37 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Roland Dreier <rolandd@cisco.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [CFT] Move platform device to separate header
+Message-ID: <20051029211837.GH14039@flint.arm.linux.org.uk>
+Mail-Followup-To: Roland Dreier <rolandd@cisco.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+References: <20051029205207.GG14039@flint.arm.linux.org.uk> <52oe58nirh.fsf@cisco.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0510291659140.10073@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <52oe58nirh.fsf@cisco.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 29, 2005 at 05:06:21PM -0400, Steven Rostedt wrote:
+On Sat, Oct 29, 2005 at 01:57:38PM -0700, Roland Dreier wrote:
+>     Russell> Here's a patch which moves the platform device out of
+>     Russell> device.h and into linux/platform_device.h.  This patch is
+>     Russell> far too large for lkml so can be downloaded from:
 > 
-> I already posted this patch to Matt and LKML, but I'm posting it again
-> incase anyone else has this problem using ketchup on 2.6.14 from nothing,
-> and does a google looking for a fix.
+> It looks like you forgot to diff <linux/platform_device.h>.  It
+> doesn't appear in your diffstat and as far as I can tell, it's not in
+> the actual diff either.
 
-This needs a more robust fix. Like perhaps passing --strip-components
-to tar.
+/me hates cg-commit...
+
+I also didn't give the commit message a proper header line.  Gah.
+Fixed, new patch uploaded, thanks for spotting.
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

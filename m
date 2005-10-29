@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbVJ2CbU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750906AbVJ2CbE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751098AbVJ2CbU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 22:31:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbVJ2CbT
+	id S1750906AbVJ2CbE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 22:31:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbVJ2CbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 22:31:19 -0400
-Received: from www.swissdisk.com ([216.144.233.50]:17589 "EHLO
-	swissweb.swissdisk.com") by vger.kernel.org with ESMTP
-	id S1751098AbVJ2CbS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 22:31:18 -0400
-Date: Fri, 28 Oct 2005 18:23:39 -0700
-From: Ben Collins <bcollins@debian.org>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SPARC64: Configuration offers keyboards that don't make sense
-Message-ID: <20051029012339.GA11286@swissdisk.com>
-References: <bcollins@debian.org> <20051028193228.GB10209@swissdisk.com> <200510290000.j9T00415021442@inti.inf.utfsm.cl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200510290000.j9T00415021442@inti.inf.utfsm.cl>
-User-Agent: Mutt/1.5.9i
+	Fri, 28 Oct 2005 22:31:04 -0400
+Received: from student.if.pw.edu.pl ([194.29.174.5]:22938 "EHLO
+	tleilax.if.pw.edu.pl") by vger.kernel.org with ESMTP
+	id S1750906AbVJ2CbD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 22:31:03 -0400
+Date: Sat, 29 Oct 2005 04:30:58 +0200 (CEST)
+From: Marek Szuba <cyberman@if.pw.edu.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Still no USB 2.0 with 2.6.14 (on AMD64+nForce4)
+Message-ID: <Pine.LNX.4.62.0510290423010.23723@gyrvynk.vs.cj.rqh.cy>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> An Ultra 1 (yes, I know it is old and klunky, but I kind of like it...).
-> That is why I did not configure USB or PCI (they just aren't available).
-> Should that make a difference?
+Hello,
 
-Nah, just make sure you have all the right sbus stuff enabled. Been awhile
-since I did a kernel for an sbus sparc64 that wasn't headless, so I'm not
-much help right now :)
+Well, the topic says it all: regardless of whichever USB device I plug in, 
+it never shows up as a high-speed one using EHCI even if it damn well 
+should, and does work in high-speed mode when plugged into the same 
+computer while running Win. Unfortunately the workaround I found on 
+kerneltrap by googling, i.e. disabling USB 2.0 in BIOS, doesn't work for 
+me, even though I have tried all possible combination of related options 
+which didn't shut USB down entriely.
 
+Any chance of having this bug fixed soon? Or maybe, since AFAIK the 
+problem did not exist before 2.6.10, there is a patch which one could use 
+to temporarily restore old behaviour?
+
+As always, if you need any more information about the system in question 
+or any other technical details, just let me know; I'm on LKML again right 
+now.
+
+Regards,
 -- 
-Ubuntu     - http://www.ubuntu.com/
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-SwissDisk  - http://www.swissdisk.com/
+MS

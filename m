@@ -1,90 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750918AbVJ2KRn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750928AbVJ2Kbw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750918AbVJ2KRn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 06:17:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750921AbVJ2KRn
+	id S1750928AbVJ2Kbw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 06:31:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750929AbVJ2Kbw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 06:17:43 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:63415
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1750914AbVJ2KRm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 06:17:42 -0400
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Ram Pai <linuxram@us.ibm.com>
-Subject: Re: /etc/mtab and per-process namespaces
-Date: Sat, 29 Oct 2005 05:16:35 -0500
-User-Agent: KMail/1.8
-Cc: greg@enjellic.com, Mike Waychison <mikew@google.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, leimy2k@gmail.com
-References: <200510221323.j9MDNimA009898@wind.enjellic.com> <1130544418.4902.47.camel@localhost>
-In-Reply-To: <1130544418.4902.47.camel@localhost>
+	Sat, 29 Oct 2005 06:31:52 -0400
+Received: from math.ut.ee ([193.40.36.2]:4256 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S1750916AbVJ2Kbv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 06:31:51 -0400
+Date: Sat, 29 Oct 2005 13:31:49 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Fix VIA 686 PCI quirk names
+Message-ID: <Pine.SOC.4.61.0510291327500.23616@math.ut.ee>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510290516.37700.rob@landley.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 28 October 2005 19:06, Ram Pai wrote:
+The quirk names for VIA 686 are mistyped in 2.6.14 (686 vs 868). S3 868 
+influence? :) Here is a patch to correct them.
 
-> > Mike's comments are very apt.  The current situation with mount
-> > support is untenable.  Even working on private development machines it
-> > gets confusing as to what is or is not mounted in various
-> > shells/processes.  The basic infra-structure is there with process
-> > specific mount information (/proc/self/mounts) but mount and friends
-> > are a bit problematic with respect to supporting this.
+Signed-off-by: Meelis Roos <mroos@linux.ee>
 
-I fairly extensively rewrote busybox mount, and one of my goals was doing the 
-best job with /proc/mounts (only) support that I could.  In some ways, 
-busybox's mount is better (such as the fact it can autodetect when you're 
-trying to mount a file and figure out it needs -o loop without being told).
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -447,11 +447,11 @@ static void __devinit quirk_vt82c686_acp
 
-If you want try the busybox version of mount/losetup/umount, I hope it does 
-what you want and am willing to fix it if it doesn't.  (P.S.  To 
-use /proc/mounts either configure it without /etc/mtab support or 
-symlink /etc/mtab to /proc/mounts.)
+  	pci_read_config_word(dev, 0x70, &hm);
+  	hm &= PCI_BASE_ADDRESS_IO_MASK;
+-	quirk_io_region(dev, hm, 128, PCI_BRIDGE_RESOURCES + 1, "vt82c868 HW-mon");
++	quirk_io_region(dev, hm, 128, PCI_BRIDGE_RESOURCES + 1, "vt82c686 HW-mon");
 
-> > I'm working on a namespace toolkit to address these issues.  I've got
-> > a pretty basic tool, similar to sudo, which allows spawning processes
-> > with a protected namespace.  I'm adding a configuration system which
-> > allow systems administrators to define a setup of bind mounts which
-> > are automatically executed before the user is given their shell.  I'm
-> > also working up a PAM account module to go along with this.  I would
-> > certainly be open to suggestions as to what else people would consider
-> > useful in such a toolkit.
-> >
-> > I've been pondering the best way to take on the mount problem.
-> > Current mount binaries seem to fall back to /proc/mounts if /etc/mtab
-> > is not present.  All bets are off of course if the mount binary is
-> > used for the bind mount since a new /etc/mtab is created.
+  	pci_read_config_dword(dev, 0x90, &smb);
+  	smb &= PCI_BASE_ADDRESS_IO_MASK;
+-	quirk_io_region(dev, smb, 16, PCI_BRIDGE_RESOURCES + 2, "vt82c868 SMB");
++	quirk_io_region(dev, smb, 16, PCI_BRIDGE_RESOURCES + 2, "vt82c686 SMB");
+  }
+  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C686_4,	quirk_vt82c686_acpi );
 
-Have you tried having /etc/mtab be a symlink to /proc/mounts?
 
-> > I'm willing to whack on the mount binary a bit as part of this.  The
-> > obvious solution is to teach mount to act differently if it is running
-> > in a private namespace.  If anybody knows of a good way to detect this
-> > I would be interested in knowing that.  In newns (the namespace sudo
-> > tool) I'm setting an environment variable for mount to detect on but a
-> > system level approach would be more generic.
->
-> actually there is a hackish way for a process to figure out if it is  in
-> a different namespace than the system namespace.
->
-> ls /proc/1/root
->
-> in a system namespace it will allow you to see the content.
-> And in a per-process-namespace it will fail with permission denied.
->
-> But I think we should figure out a cleaner way to decipher this,
-> and that would start with clearly defining the requirements, I think.
-
-The big thing I've never figured out how to do is make umount -a work in the 
-presence of multiple namespaces.  (Should it just umount what it sees?  I 
-don't know how to umount everything because I can't find everything...)
-
-> RP
-
-Rob
+-- 
+Meelis Roos (mroos@linux.ee)

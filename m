@@ -1,249 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932736AbVJ2Xlw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932758AbVJ2X4S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932736AbVJ2Xlw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 19:41:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932741AbVJ2Xlw
+	id S932758AbVJ2X4S (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 19:56:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932759AbVJ2X4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 19:41:52 -0400
-Received: from xenotime.net ([66.160.160.81]:30679 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932736AbVJ2Xlw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 19:41:52 -0400
-Date: Sat, 29 Oct 2005 16:41:49 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Alexandre Oliva <aoliva@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: amd64 bitops fix for -Os
-Message-Id: <20051029164149.11b418e7.rdunlap@xenotime.net>
-In-Reply-To: <orvezggf7x.fsf@livre.oliva.athome.lsd.ic.unicamp.br>
-References: <orvezggf7x.fsf@livre.oliva.athome.lsd.ic.unicamp.br>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 29 Oct 2005 19:56:18 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:20674 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932758AbVJ2X4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 19:56:17 -0400
+Date: Sat, 29 Oct 2005 19:56:13 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+To: Matt Mackall <mpm@selenic.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [ketchup] patch to allow for moving of .gitignore in 2.6.14
+In-Reply-To: <20051029210643.GR4367@waste.org>
+Message-ID: <Pine.LNX.4.58.0510291952350.10073@localhost.localdomain>
+References: <Pine.LNX.4.58.0510170316310.5859@localhost.localdomain>
+ <20051017213915.GN26160@waste.org> <Pine.LNX.4.58.0510180211320.13581@localhost.localdomain>
+ <20051018063031.GR26160@waste.org> <Pine.LNX.4.58.0510180239550.13581@localhost.localdomain>
+ <20051018072927.GU26160@waste.org> <1130504043.9574.56.camel@localhost.localdomain>
+ <Pine.LNX.4.58.0510291659140.10073@localhost.localdomain>
+ <20051029210643.GR4367@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Oct 2005 19:56:02 -0200 Alexandre Oliva wrote:
 
-> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=171672
-> 
-> This patches fixes a bug that comes up when compiling the kernel for
-> x86_64 optimizing for size.  It affects 2.6.14 for sure, but I'm
-> pretty sure many earlier kernels are affected as well.
-> 
-> The symptom is that, as soon as some change is made to the root
-> filesystem (e.g. dmesg > /var/log/dmesg), the kernel mostly hangs.  It
-> was not the first time I'd run into this symptom, but this time I
-> could track the problem down to enabling size optimizations in the
-> kernel build.  It took some time to narrow down the culprit source
-> with a binary search, compiling part of the kernel sources with -Os
-> and part with -O2, but eventually it was clear that bitops itself was
-> to blame, which should have been clear from the soft lockup oops I
-> got.
-> 
-> The problem is that find_first_zero_bit() fails when called with an
-> underflown size, because its inline asm assumes at least one iteration
-> of scasq will run.  When this does not hold, the conditional branch
-> that follows it uses flags from instructions prior to the asm
-> statement.
-> 
-> When optimizing for speed, the generated code is such that the flags
-> will have the correct value, because of the side effects on flags of
-> the right shift of the size, that survive through to the asm
-> statement.  When optimizing for size, however, the mov instruction
-> used to initialize %rax with -1 is replaced with a smaller or
-> instruction, that modifies the flags and thus breaks the
-> zero-trip-count case.
-> 
-> Obviously the asm statement must not rely on the compiler setting up
-> flags by chance, so we have to either force the flags to be set
-> properly or make sure we run scasq at least once.  In teh
-> find_first_zero_bit case, this comes at pretty much no cost, since we
-> already test size for non-zero, but we used to do that adjusting it
-> from bits to words; changing it should have no visible effect on
-> performance.
-> 
-> As for find_first_bit, it's quite likely that the same bug is present
-> when it's called by find_next_bit in the same conditions, but
-> find_first_bit doesn't even test for zero.  AFAICT, it has just been
-> luckier, so I went ahead and added the same guard code to it.  This
-> unfortunately adds a test to the fast path, but I don't see how to
-> avoid that without auditing all callers.
-> 
-> I actually introduce means to guard against these cases in the public
-> wrappers, but the BUG_ONs are disabled by default.  I've left a kernel
-> running with them enabled for a bit, and they never hit, which is a
-> good sign, but I haven't tested it thoroughly or anything.  We could
-> probably do away with these new tests by modifying the find_next*bit
-> functions so as to not call the find_first*bit functions if they've
-> already exhausted the range implied by the size argument.  I'm not
-> sure whether that's worth doing, though, so I didn't.
-> 
-> While staring at the code and trying to figure out what the problem
-> was, I removed some needless casts from find_next_zero_bit, by
-> constifying the automatic pointer properly, and also moved the actual
-> code from find_first_zero_bit to a separate internal function, such
-> that we could add the bug-check to the public interface only.
-> 
-> I also noticed find_first_zero_bit was less efficient than
-> find_first_bit in that the former saved and restored rbx, because GCC
-> chose that to hold (addr) within the asm statement, instead of using
-> the readily-available and caller-saved rsi.  I've thus changed the
-> code to prefer rsi, although in a perfect world the compiler would be
-> able to figure that out by itself.
-> 
-> The compiler could do a bit better in find_first_zero_bit: if the
-> initial size turns out to be zero, it could return, like it does in
-> find_first_bit, but instead of sets rdx to zero and jumps to the end
-> of the function where rdx is copied to rax before the return
-> statement.  This is a negative effect of the assignment of variable
-> res to rdx instead of rax, which gets the register allocator to map
-> the pseudo register representing the return value to rdx, requiring a
-> copy at the end and preventing (as far as the dumb compiler can see
-> :-) the direct use of a return in the zero-size case.  I've verified
-> that this is not caused by the additional inline function that I
-> introduced.
-> 
-> I tried to change the use of registers so as to enable the better code
-> for this path, but I couldn't come up with anything that was as
-> efficient, so I figured I wouldn't try to optimize the exceptional
-> path in expense of the common fast path and left it alone.  If anyone
-> can come up with something better, please go ahead.
-> 
-> 
-> Anyhow, with this patch I could run 2.6.14, as in the Fedora
-> development tree, except for the change to optimize for size.
-> 
-> 	Signed-off-by: Alexandre Oliva <oliva@lsd.ic.unicamp.br>
-> 
-> --- arch/x86_64/lib/bitops.c~	2005-10-27 22:02:08.000000000 -0200
-> +++ arch/x86_64/lib/bitops.c	2005-10-29 18:24:27.000000000 -0200
-> @@ -1,5 +1,11 @@
->  #include <linux/bitops.h>
->  
-> +#define BITOPS_CHECK_UNDERFLOW_RANGE 0
-> +
-> +#if BITOPS_CHECK_UNDERFLOW_RANGE
-> +# include <linux/kernel.h>
-> +#endif
-> +
->  #undef find_first_zero_bit
->  #undef find_next_zero_bit
->  #undef find_first_bit
-> @@ -13,11 +19,21 @@
->   * Returns the bit-number of the first zero bit, not the number of the byte
->   * containing a bit.
->   */
-> -inline long find_first_zero_bit(const unsigned long * addr, unsigned long size)
-> +static inline long
-> +__find_first_zero_bit(const unsigned long * addr, unsigned long size)
->  {
->  	long d0, d1, d2;
->  	long res;
->  
-> +	/* We must test the size in words, not in bits, because
-> +	   otherwise incoming sizes in the range -63..-1 will not run
-> +	   any scasq instructions, and then the flags used by the je
-> +	   instruction will have whatever random value was in place
-> +	   before.  Nobody should call us like that, but
-> +	   find_next_zero_bit() does when offset and size are at the
-> +	   same word and it fails to find a zero itself.  */
-> +	size += 63;
-> +	size >>= 6;
->  	if (!size)
->  		return 0;
->  	asm volatile(
-> @@ -30,11 +46,22 @@
->  		"  shlq $3,%%rdi\n"
->  		"  addq %%rdi,%%rdx"
->  		:"=d" (res), "=&c" (d0), "=&D" (d1), "=&a" (d2)
-> -		:"0" (0ULL), "1" ((size + 63) >> 6), "2" (addr), "3" (-1ULL),
-> -		 [addr] "r" (addr) : "memory");
-> +		:"0" (0ULL), "1" (size), "2" (addr), "3" (-1ULL),
-> +		 /* Any register here would do, but GCC tends to
-> +		    prefer rbx over rsi, even though rsi is readily
-> +		    available and doesn't have to be saved.  */
-> +		 [addr] "S" (addr) : "memory");
->  	return res;
->  }
->  
-> +long find_first_zero_bit(const unsigned long * addr, unsigned long size)
-> +{
-> +#if BITOPS_CHECK_UNDERFLOW_RANGE
-> +	BUG_ON (size + 63 < size);
-> +#endif
-> +	return __find_first_zero_bit (addr, size);
-> +}
-> +
->  /**
->   * find_next_zero_bit - find the first zero bit in a memory region
->   * @addr: The address to base the search on
-> @@ -43,7 +70,7 @@
->   */
->  long find_next_zero_bit (const unsigned long * addr, long size, long offset)
->  {
-> -	unsigned long * p = ((unsigned long *) addr) + (offset >> 6);
-> +	const unsigned long * p = addr + (offset >> 6);
->  	unsigned long set = 0;
->  	unsigned long res, bit = offset&63;
->  
-> @@ -63,8 +90,8 @@
->  	/*
->  	 * No zero yet, search remaining full words for a zero
->  	 */
-> -	res = find_first_zero_bit ((const unsigned long *)p,
-> -				   size - 64 * (p - (unsigned long *) addr));
-> +	res = __find_first_zero_bit (p, size - 64 * (p - addr));
-> +
->  	return (offset + set + res);
->  }
->  
-> @@ -74,6 +101,17 @@
->  	long d0, d1;
->  	long res;
->  
-> +	/* We must test the size in words, not in bits, because
-> +	   otherwise incoming sizes in the range -63..-1 will not run
-> +	   any scasq instructions, and then the flags used by the jz
-> +	   instruction will have whatever random value was in place
-> +	   before.  Nobody should call us like that, but
-> +	   find_next_bit() does when offset and size are at the same
-> +	   word and it fails to find a one itself.  */
-> +	size += 63;
-> +	size >>= 6;
-> +	if (!size)
-> +		return 0;
->  	asm volatile(
->  		"   repe; scasq\n"
->  		"   jz 1f\n"
-> @@ -83,8 +121,7 @@
->  		"   shlq $3,%%rdi\n"
->  		"   addq %%rdi,%%rax"
->  		:"=a" (res), "=&c" (d0), "=&D" (d1)
-> -		:"0" (0ULL),
-> -		 "1" ((size + 63) >> 6), "2" (addr),
-> +		:"0" (0ULL), "1" (size), "2" (addr),
->  		 [addr] "r" (addr) : "memory");
->  	return res;
->  }
-> @@ -99,6 +136,9 @@
->   */
->  long find_first_bit(const unsigned long * addr, unsigned long size)
->  {
-> +#if BITOPS_CHECK_UNDERFLOW_RANGE
-> +	BUG_ON (size + 63 < size);
-> +#endif
->  	return __find_first_bit(addr,size);
->  }
+On Sat, 29 Oct 2005, Matt Mackall wrote:
 
-Thanks.  I'll test this early next week.
-I always use -Os and (on x86_64) I always get a SOFT LOCKUP
-during boot or when loading X.  For me, it's always in ext3fs,
-doing some flavor of bitops, so I have high hopes for this fixing
-that problem.
+> On Sat, Oct 29, 2005 at 05:06:21PM -0400, Steven Rostedt wrote:
+> >
+> > I already posted this patch to Matt and LKML, but I'm posting it again
+> > incase anyone else has this problem using ketchup on 2.6.14 from nothing,
+> > and does a google looking for a fix.
+>
+> This needs a more robust fix. Like perhaps passing --strip-components
+> to tar.
+>
 
+OK, but I was just adding a fix that was closest to what was already
+there.  I can play around with other fixes, and try that out too. The
+change I made was just like the current method, but it allowed for all
+files to be copied instead of just the non-dot ones.
 
----
-~Randy
+Also, have you looked at the addition to the version_info for alternate
+urls.  I think that this can even be added to do multiple urls, as well
+as testing for different filenames in all urls first. ie. .bz2 or .gz,
+etc.
+
+-- Steve
+

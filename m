@@ -1,63 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750926AbVJ2K4P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750860AbVJ2LAv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750926AbVJ2K4P (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 06:56:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750930AbVJ2K4O
+	id S1750860AbVJ2LAv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 07:00:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750931AbVJ2LAv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 06:56:14 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:44978 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750926AbVJ2K4O
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 06:56:14 -0400
-Date: Sat, 29 Oct 2005 11:56:13 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org
-Subject: [PATCH] idmouse cleanup and overflow fix
-Message-ID: <20051029105613.GG7992@ftp.linux.org.uk>
-Mime-Version: 1.0
+	Sat, 29 Oct 2005 07:00:51 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:30981 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750860AbVJ2LAv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 07:00:51 -0400
+Date: Sat, 29 Oct 2005 13:00:49 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Per Jessen <per@computer.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: building 2.4.31 for a non-smp system
+Message-ID: <20051029110049.GH4180@stusta.de>
+References: <43633721.9010001@computer.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <43633721.9010001@computer.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	switched to simple_read_from_buffer(), killed broken use of min().
-Incidentally, that use of min() had been fixed once, only to be reintroduced
-in
-    [PATCH] USB: upgrade of the idmouse driver
-[snip]
--       if (count > IMGSIZE - *ppos)
--               count = IMGSIZE - *ppos;
-+       count = min ((loff_t)count, IMGSIZE - (*ppos));
+On Sat, Oct 29, 2005 at 10:47:29AM +0200, Per Jessen wrote:
 
-Note the lovely use of cast to shut the warning about misuse of min() up...
+> I'm upgrading a box from 2.4.23 to .31, but I'm seeing lots of errors
+> along these lines:
+> 
+> gcc -D__KERNEL__ -I/usr/src/linux-2.4.31/include -Wall
+> -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+> -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686   
+> -nostdinc -iwithprefix include -DKBUILD_BASENAME=tty_ioctl
+> -DEXPORT_SYMTAB -c tty_ioctl.c
+> In file included from /usr/src/linux-2.4.31/include/linux
+> modversions.h:177,
+>                 from /usr/src/linux-2.4.31/include/linux/module.h:22,
+>                 from tty_ioctl.c:21:
+> /usr/src/linux-2.4.31/include/linux/modules/ksyms.ver:576:1: warning:
+> "del_timer_sync" redefined
+>...
+> The redefinition of "set_cpus_allowed" and "del_timer_sync" only happen
+> when CONFIG_SMP isn't set.  
+> I guess I could simply compile with CONFIG_SMP, but surely something's
+> not right here?
+> 
+> Follow-up:
+> OK, I've built the kernel with SMP support, and I'm not seeing the above 
+> any longer. However, when I tried to load module nfsd, I get:
+> 
+> /lib/modules/2.4.31/kernel/net/sunrpc/sunrpc.o: unresolved symbol 
+> kernel_flag_cacheline
+> /lib/modules/2.4.31/kernel/net/sunrpc/sunrpc.o: unresolved symbol 
+> atomic_dec_and_lock
+> /lib/modules/2.4.31/kernel/net/sunrpc/sunrpc.o: insmod 
+> /lib/modules/2.4.31/kernel/net/sunrpc/sunrpc.o failed
+> /lib/modules/2.4.31/kernel/net/sunrpc/sunrpc.o: insmod nfsd failed
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-----
-diff -urN RC14-base/drivers/usb/misc/idmouse.c current/drivers/usb/misc/idmouse.c
---- RC14-base/drivers/usb/misc/idmouse.c	2005-10-29 02:47:52.000000000 -0400
-+++ current/drivers/usb/misc/idmouse.c	2005-10-29 06:07:49.000000000 -0400
-@@ -319,20 +319,8 @@
- 		return -ENODEV;
- 	}
- 
--	if (*ppos >= IMGSIZE) {
--		up (&dev->sem);
--		return 0;
--	}
--
--	count = min ((loff_t)count, IMGSIZE - (*ppos));
--
--	if (copy_to_user (buffer, dev->bulk_in_buffer + *ppos, count)) {
--		result = -EFAULT;
--	} else {
--		result = count;
--		*ppos += count;
--	}
--
-+	result = simple_read_from_buffer(buffer, count, ppos,
-+					dev->bulk_in_buffer, IMGSIZE);
- 	/* unlock the device */
- 	up(&dev->sem);
- 	return result;
+Please send:
+- your .config
+- the output of "bash scripts/ver_linux"
+
+> Per Jessen, Zurich
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

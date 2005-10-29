@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbVJ2Dcn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbVJ2DiS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751120AbVJ2Dcn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 23:32:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbVJ2Dcn
+	id S1750805AbVJ2DiS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 23:38:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbVJ2DiS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 23:32:43 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:50315 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751120AbVJ2Dcm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 23:32:42 -0400
-Date: Fri, 28 Oct 2005 23:32:29 -0400
-From: Dave Jones <davej@redhat.com>
-To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 4GB memory and Intel Dual-Core system
-Message-ID: <20051029033229.GA13257@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Lukas Hejtmanek <xhejtman@mail.muni.cz>,
-	linux-kernel@vger.kernel.org
-References: <20051028205833.GM2533@mail.muni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051028205833.GM2533@mail.muni.cz>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 28 Oct 2005 23:38:18 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:12444 "EHLO
+	pd2mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1750805AbVJ2DiS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 23:38:18 -0400
+Date: Fri, 28 Oct 2005 21:38:03 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: no sata_nv again
+In-reply-to: <52CWo-4Pb-39@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <4362EE9B.1010500@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <52CWo-4Pb-39@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 28, 2005 at 10:58:33PM +0200, Lukas Hejtmanek wrote:
- > Hello,
- > 
- > I have system with 2 Pentium 4 Xeon EM64T processors using 4GB of RAM.
- > 
- > Kernel is 2.6.13.4 compiled for x86_64 architecture.
- > 
- > Btw, /proc/cpuinfo reports, that only 36 bits are availalable for physical 
- > memory. Not 40.
+christophe.malvasio@tiscali.fr wrote:
+> WARNING: No module sata_nv found for kernel 2.6.13.4, continuing anyway
 
-That should be fixed in 2.6.14
+What is this message from? More details needed.
 
-		Dave
+> [root@localhost linux-2.6.13.4]#
+> for the kernel 2.6.12.5 idem
+> i have send a mail to :
+> 
+> SERIAL ATA (SATA) SUBSYSTEM:
+> P:    Jeff Garzik
+> M:    jgarzik@pobox.com
+> L:    linux-ide@vger.kernel.org
+> S:    Supported
+> cause :
+>      Send the output the maintainer of the kernel area that seems to
+> be involved with the problem. Don't worry too much about getting the
+> wrong person. If you are unsure send it to the person responsible for the
+> code relevant to what you were doing.
+> and no answer
+> never
+> 
+> so is there a futur for my linux box ?
+> just tell me what to do !
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 

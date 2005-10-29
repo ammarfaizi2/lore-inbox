@@ -1,135 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbVJ2OSE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbVJ2OcI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751156AbVJ2OSE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 10:18:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751159AbVJ2OSE
+	id S1751162AbVJ2OcI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 10:32:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbVJ2OcI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 10:18:04 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6152 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751156AbVJ2OSD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 10:18:03 -0400
-Date: Sat, 29 Oct 2005 15:17:57 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Michal Srajer <michal@mat.uni.torun.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] include/linux/etherdevice.h, kernel 2.6.14
-Message-ID: <20051029141757.GA14039@flint.arm.linux.org.uk>
-Mail-Followup-To: Michal Srajer <michal@mat.uni.torun.pl>,
-	linux-kernel@vger.kernel.org
-References: <20051029141046.GA17715@ultra60.mat.uni.torun.pl>
+	Sat, 29 Oct 2005 10:32:08 -0400
+Received: from lug-owl.de ([195.71.106.12]:53741 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S1751162AbVJ2OcH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 10:32:07 -0400
+Date: Sat, 29 Oct 2005 16:32:03 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>
+Subject: Re: SPARC64: Configuration offers keyboards that don't make sense
+Message-ID: <20051029143203.GT27184@lug-owl.de>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>
+References: <20051028201735.GP27184@lug-owl.de> <200510290006.j9T066on029644@inti.inf.utfsm.cl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="aEcIyhw0mmnxygNd"
 Content-Disposition: inline
-In-Reply-To: <20051029141046.GA17715@ultra60.mat.uni.torun.pl>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200510290006.j9T066on029644@inti.inf.utfsm.cl>
+X-Operating-System: Linux mail 2.6.12.3lug-owl
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 29, 2005 at 04:10:46PM +0200, Michal Srajer wrote:
-> Description: Very small optimization patch for include/linux/etherdevice.h in 2.6.14 kernel.
 
-How is this an optimisation?
+--aEcIyhw0mmnxygNd
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-typedef unsigned char u8;
- 
-static int is_zero_ether_addr1(const u8 *addr)
-{
-       return !(addr[0] | addr[1] | addr[2] | addr[3] | addr[4] | addr[5]);
-}
- 
-static int is_zero_ether_addr2(const u8 *addr)
-{
-       return !(addr[0] || addr[1] || addr[2] || addr[3] || addr[4] || addr[5]);
-}
+On Fri, 2005-10-28 21:06:06 -0300, Horst von Brand <vonbrand@inf.utfsm.cl> =
+wrote:
+> Jan-Benedict Glaw <jbglaw@lug-owl.de> wrote:
+> > Well, the LK[24]01 was used by DECstations and VAXstations (as well as
+> > some VT terminals), you can use it with a simple adaptor on any
+> > machine that has a RS232 serial port. For example, I'm using such a
+> > keyboard on my Athlon-based PeeCee.
+>=20
+> Does it need some kind of "serial keyboard configuration"? Wouldn't that
+> make more sense?
 
-produces on x86:
+Well, on the right hardware, the serio port gets a flag set by the
+serial driver that it expects a keyboard on a given port.
 
-is_zero_ether_addr1:
-        pushl   %ebp
-        movl    %esp, %ebp
-        movl    8(%ebp), %edx
-        movb    1(%edx), %al
-        orb     (%edx), %al
-        orb     2(%edx), %al
-        orb     3(%edx), %al
-        orb     4(%edx), %al
-        orb     5(%edx), %al
-        sete    %al
-        movzbl  %al, %eax
-        leave
-        ret
+On all other hardware, you need to call "inputattach" to do that for
+you.
 
-is_zero_ether_addr2:
-        pushl   %ebp
-        movl    %esp, %ebp
-        movl    8(%ebp), %edx
-        xorl    %eax, %eax
-        cmpb    $0, (%edx)
-        jne     .L3
-        cmpb    $0, 1(%edx)
-        jne     .L3
-        cmpb    $0, 2(%edx)
-        jne     .L3
-        cmpb    $0, 3(%edx)
-        jne     .L3
-        cmpb    $0, 4(%edx)
-        jne     .L3
-        cmpb    $0, 5(%edx)
-        jne     .L3
-        movl    $1, %eax
-.L3:
-        leave
-        ret
+> > > Also, configuring this one gives a non-functional keyboard (the machi=
+ne is
+> > > running, I can log in over SSH, but keypresses have no effect at all).
+>=20
+> > Did the serial port register serio ports?
+>=20
+> How can I find this out?
 
-and on ARM:
+/sys/devices/serio*
 
-is_zero_ether_addr1:
-        ldrb    r1, [r0, #1]    @ zero_extendqisi2
-        ldrb    r3, [r0, #0]    @ zero_extendqisi2
-        ldrb    r2, [r0, #2]    @ zero_extendqisi2
-        orr     r3, r3, r1
-        ldrb    r1, [r0, #3]    @ zero_extendqisi2
-        orr     r2, r2, r3
-        ldrb    r3, [r0, #4]    @ zero_extendqisi2
-        orr     r1, r1, r2
-        ldrb    r2, [r0, #5]    @ zero_extendqisi2
-        orr     r3, r3, r1
-        orrs    r2, r2, r3
-        movne   r0, #0
-        moveq   r0, #1
-        mov     pc, lr
+MfG, JBG
 
-is_zero_ether_addr2:
-        ldrb    r3, [r0, #0]    @ zero_extendqisi2
-        mov     r2, #0
-        cmp     r3, r2
-        bne     .L3
-        ldrb    r3, [r0, #1]    @ zero_extendqisi2
-        cmp     r3, r2
-        bne     .L3
-        ldrb    r3, [r0, #2]    @ zero_extendqisi2
-        cmp     r3, r2
-        bne     .L3
-        ldrb    r3, [r0, #3]    @ zero_extendqisi2
-        cmp     r3, r2
-        bne     .L3
-        ldrb    r3, [r0, #4]    @ zero_extendqisi2
-        cmp     r3, r2
-        bne     .L3
-        ldrb    r3, [r0, #5]    @ zero_extendqisi2
-        cmp     r3, r2
-        movne   r2, #0
-        moveq   r2, #1
-.L3:
-        mov     r0, r2
-        mov     pc, lr
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
+m Irak!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
 
-The former looks far more optimised in both cases.  In fact, the
-latter on ARM is many times less efficient due to the LDR result
-delays being incurred for every test.
+--aEcIyhw0mmnxygNd
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDY4fjHb1edYOZ4bsRAuEWAJ0X5dJm0oyfaXXpgMTgRWsl/qvhzgCggWt7
+NFyU6im+rm3tVot74cNv5Dc=
+=HXQ8
+-----END PGP SIGNATURE-----
+
+--aEcIyhw0mmnxygNd--

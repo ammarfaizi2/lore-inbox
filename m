@@ -1,98 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932718AbVJ2WkL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932722AbVJ2W5X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932718AbVJ2WkL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 18:40:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932722AbVJ2WkL
+	id S932722AbVJ2W5X (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 18:57:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932724AbVJ2W5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 18:40:11 -0400
-Received: from [85.8.13.51] ([85.8.13.51]:23443 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S932718AbVJ2WkK (ORCPT
+	Sat, 29 Oct 2005 18:57:23 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:12740 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932722AbVJ2W5W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 18:40:10 -0400
-Message-ID: <4363FA3E.3000701@drzeus.cx>
-Date: Sun, 30 Oct 2005 00:39:58 +0200
-From: Pierre Ossman <drzeus@drzeus.cx>
-User-Agent: Mail/News 1.4.1 (X11/20051008)
+	Sat, 29 Oct 2005 18:57:22 -0400
+Date: Sun, 30 Oct 2005 00:57:08 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-pm@osdl.org
+Subject: Re: [RFC][PATCH 3/6] swsusp: introduce the swap map structure and interface functions
+Message-ID: <20051029225708.GD14209@elf.ucw.cz>
+References: <200510292158.11089.rjw@sisk.pl> <200510292232.35403.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_hermes.drzeus.cx-30492-1130625599-0001-2"
-To: rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [MMC] Use command class to determine read-only status.
-References: <20051028073605.4108.41408.stgit@poseidon.drzeus.cx> <20051028201455.GI4464@flint.arm.linux.org.uk>
-In-Reply-To: <20051028201455.GI4464@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200510292232.35403.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+Hi!
 
---=_hermes.drzeus.cx-30492-1130625599-0001-2
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+> This is the main part.  It introduces a new data structure for the
+> swap-handling part of swsusp (the swap map structure, described in a comment)
+> and new functions for writing the image data to and reading them from swap.
+> It also introduces the interface functions allowing the snapshot-handling part
+> to communicate with the swap-handling part and modifies the struct pbe
+> structure (the swap_address member of it is no longer needed as the
+> swap-handling part uses its own independent data structures).
 
-Russell King wrote:
-> On Fri, Oct 28, 2005 at 09:36:05AM +0200, Pierre Ossman wrote:
->> If a card doesn't support the "write block" command class then
->> any attempts to open the device should reflect this by denying
->> write access.
-> 
-> I'd rather we kept printk messages as one printk if at all possible.
-> How about encapsulating both of these conditions into an inline
-> function:
-> 
+One small comment. I miss "a" in "swap". Pretty please...
 
-Ok with me. New patch included.
+> + * Rafael J. Wysocki <rjw@sisk.pl>
+> + * Added the swap map data structure and reworked the handling of swap
+> + *
 
---=_hermes.drzeus.cx-30492-1130625599-0001-2
-Content-Type: text/x-patch; name="mmc-readonly-ccc.patch"; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="mmc-readonly-ccc.patch"
+Feel free to add yourself to CREDITS, too. CREDITS are going to stay,
+but this does not really belong here, and may have to be moved
+somewhere else in future.
 
-[MMC] Use command class to determine read-only status.
+> + *	During resume we only need to use one swp_map_page structure
+> + *	at a time, which means that we only need to use two memory pages for
+> + *	reading the image - one for reading the swp_map_page structures
+> + *	and the second for reading the data pages from swap.
+>   */
 
-If a card doesn't support the "write block" command class then
-any attempts to open the device should reflect this by denying
-write access.
+Nice...
 
-Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
----
+> +struct swp_map_page {
+> +	swp_entry_t		entries[MAP_PAGE_SIZE];
+> +	swp_entry_t		next_swp;
+> +	struct swp_map_page	*next;
+> +};
+> +
+> +typedef struct swp_map_page swp_map_t;
 
- drivers/mmc/mmc_block.c |   10 ++++++++--
- 1 files changed, 8 insertions(+), 2 deletions(-)
+Please don't. Just use "struct swap_map_page" instead.
 
-diff --git a/drivers/mmc/mmc_block.c b/drivers/mmc/mmc_block.c
---- a/drivers/mmc/mmc_block.c
-+++ b/drivers/mmc/mmc_block.c
-@@ -85,6 +85,12 @@ static void mmc_blk_put(struct mmc_blk_d
- 	up(&open_lock);
- }
- 
-+static inline int mmc_blk_readonly(struct mmc_card *card)
-+{
-+	return mmc_card_readonly(card) ||
-+	       !(card->csd.cmdclass & CCC_BLOCK_WRITE);
-+}
-+
- static int mmc_blk_open(struct inode *inode, struct file *filp)
- {
- 	struct mmc_blk_data *md;
-@@ -97,7 +103,7 @@ static int mmc_blk_open(struct inode *in
- 		ret = 0;
- 
- 		if ((filp->f_mode & FMODE_WRITE) &&
--			mmc_card_readonly(md->queue.card))
-+			mmc_blk_readonly(md->queue.card))
- 			ret = -EROFS;
- 	}
- 
-@@ -410,7 +416,7 @@ static int mmc_blk_probe(struct mmc_card
- 	printk(KERN_INFO "%s: %s %s %dKiB %s\n",
- 		md->disk->disk_name, mmc_card_id(card), mmc_card_name(card),
- 		(card->csd.capacity << card->csd.read_blkbits) / 1024,
--		mmc_card_readonly(card)?"(ro)":"");
-+		mmc_blk_readonly(card)?"(ro)":"");
- 
- 	mmc_set_drvdata(card, md);
- 	add_disk(md->disk);
+> +extern unsigned snapshot_pages_to_save(void);
+> +extern unsigned snapshot_image_pages(void);
 
---=_hermes.drzeus.cx-30492-1130625599-0001-2--
+Make it "extern unsigned int". (That is in more than one place).
+
+> +int snapshot_recv_init(unsigned nr_pages, unsigned img_pages)
+
+Please, usefull words, that's receive_init and image_pages....
+
+Otherwise it looks good. I'll check it once more...
+
+							Pavel
+-- 
+Thanks, Sharp!

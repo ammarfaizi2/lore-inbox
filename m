@@ -1,165 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750855AbVJ2I6m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbVJ2JLX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750855AbVJ2I6m (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 04:58:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbVJ2I6m
+	id S1750894AbVJ2JLX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 05:11:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750901AbVJ2JLX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 04:58:42 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:3602 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S1750855AbVJ2I6l
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 04:58:41 -0400
-To: Andrew Morton <akpm@osdl.org>
+	Sat, 29 Oct 2005 05:11:23 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:11446
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1750856AbVJ2JLW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 05:11:22 -0400
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Mark Jenkins <umjenki5@cc.umanitoba.ca>
+Subject: Re: Is sharpzdc_cs.o not a derivitive work of Linux?
+Date: Sat, 29 Oct 2005 04:10:46 -0500
+User-Agent: KMail/1.8
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Don't use pdflush for filesystems has BDI_CAP_NO_WRITEBACK
-References: <43288A84.2090107@sm.sony.co.jp>
-	<87oe6uwjy7.fsf@devron.myhome.or.jp> <433C25D9.9090602@sm.sony.co.jp>
-	<20051011142608.6ff3ca58.akpm@osdl.org>
-	<87r7armlgz.fsf@ibmpc.myhome.or.jp>
-	<20051011211601.72a0f91c.akpm@osdl.org>
-	<87vezgd89q.fsf_-_@devron.myhome.or.jp>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sat, 29 Oct 2005 17:58:32 +0900
-In-Reply-To: <87vezgd89q.fsf_-_@devron.myhome.or.jp> (OGAWA Hirofumi's message of "Sat, 29 Oct 2005 17:42:09 +0900")
-Message-ID: <87r7a4d7if.fsf_-_@devron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+References: <43625208.60703@cc.umanitoba.ca>
+In-Reply-To: <43625208.60703@cc.umanitoba.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510290410.48454.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Friday 28 October 2005 11:30, Mark Jenkins wrote:
+> I have read, http://people.redhat.com/arjanv/COPYING.modules
+> Summary: A Linux module is a derivative work unless a strong case is
+> made otherwise.
+>
+> I would like to know if this is one of those exception cases. That is
+> why I used the word 'not' in the subject line.
+>
+> Is sharpzdc_cs.o *not* a derivative work of Linux?
 
-If inodes of filesystem has BDI_CAP_NO_WRITEBACK, it shouldn't be
-needed to flush the inodes by pdflush at all.  So, this patch stops
-puting the inode on the sb->s_dirty, by setting I_DIRTY as initial
-state.
+I suspect that right now the Linux developers are trying an end-run around the 
+whole mess.  At a wild guess, binary-only modules will probably be obsolete 
+in a few years.  I could easily be wrong, but here's why I think this:
 
-With this patch, I think unnecessary flush is stopped.
+2.6 introduced sysfs and udev.  When /dev is maintained by udev, then udev 
+gets the list of devices and each device's major/minor numbers from the dev 
+entry for the device in sysfs.  At boot time, udev starts with an empty /dev 
+directory (generally tmpfs) and populates it from /sys, and hotplug events 
+tell udev to take another look at sysfs.  I.E. if devices don't show up 
+in /sys, then udev doesn't create device nodes for them in /dev.
 
-BTW, probably all most of on memory filesystems also doesn't need to
-flush by pdflush...?
+Of course you can work around this by running a supplemental script at boot 
+time to manually create extra devices (using the static major/minor numbers 
+from the lanana.org list), or by simply not using udev at all (and thus not 
+having modern features like good hotplug and persistent naming of things that 
+move around on USB hubs and such).  The ability to use something other than 
+udev depends on the existence of static major and minor numbers.
 
-Thanks.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+But static major and minor numbers are not required for udev.  Any system that 
+has udev recreates the contents of /dev from scratch on each reboot, and does 
+so based on major/minor pairs handed to it by sysfs.  Those numbers can be 
+dynamically allocated by the kernel as each new device is hotplugged in, 
+there's no need for them to be preassigned.
 
+At some point in the future, a config option will probably show up to make all 
+device numbers dynamically assigned.  (This used to be a plan for 2.7, back 
+when we were going to have a 2.7.)  For purely technical reasons, it's a 
+great simplifiation, making a lot of hardcoded magic numbers in the kernel 
+simply go away, eliminating the need to manage the hugely complex lanana.org 
+device number list, increasing scalability because now there's no real limit 
+on how many devices of a given type you can plug in since you won't run out 
+of major/minor pairs from the preallocated range to represent the new type.  
+It's been discussed before, and is a to-do item.
 
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
----
+Of course under a dynamic major/minor scheme, udev would no longer be optional 
+but a requirement, and any device that wants a dev node _must_ show up in 
+sysfs or there's no major/minor pair to assign to it.  And the really 
+interesting bit is that all the kernel-side sysfs bindings are 
+EXPORT_GPL_ONLY.  A non-gpl module _cannot_ show up in sysfs.  Thus under a 
+dynamic major/minor scheme, binary only modules couldn't have device nodes.
 
- fs/hugetlbfs/inode.c |    1 +
- fs/pipe.c            |    8 +-------
- fs/ramfs/inode.c     |    1 +
- fs/relayfs/inode.c   |    1 +
- fs/sysfs/inode.c     |    1 +
- include/linux/fs.h   |   10 ++++++++++
- kernel/cpuset.c      |    1 +
- mm/shmem.c           |    1 +
- 8 files changed, 17 insertions(+), 7 deletions(-)
+Interesting, isn't it?  The normal churn in the kernel naturally renders old 
+interfaces obsolete, but the new interfaces are GPL_ONLY.  Even if this isn't 
+the specific way they get rendered obsolete, the window for binary only 
+modules is slowly closing...
 
-diff -puN fs/hugetlbfs/inode.c~add-set_inode_noflush fs/hugetlbfs/inode.c
---- linux-2.6.14/fs/hugetlbfs/inode.c~add-set_inode_noflush	2005-10-29 08:13:57.000000000 +0900
-+++ linux-2.6.14-hirofumi/fs/hugetlbfs/inode.c	2005-10-29 08:13:57.000000000 +0900
-@@ -394,6 +394,7 @@ static struct inode *hugetlbfs_get_inode
- 	inode = new_inode(sb);
- 	if (inode) {
- 		struct hugetlbfs_inode_info *info;
-+		set_inode_noflush(inode);
- 		inode->i_mode = mode;
- 		inode->i_uid = uid;
- 		inode->i_gid = gid;
-diff -puN fs/pipe.c~add-set_inode_noflush fs/pipe.c
---- linux-2.6.14/fs/pipe.c~add-set_inode_noflush	2005-10-29 08:13:57.000000000 +0900
-+++ linux-2.6.14-hirofumi/fs/pipe.c	2005-10-29 08:13:57.000000000 +0900
-@@ -697,13 +697,7 @@ static struct inode * get_pipe_inode(voi
- 	PIPE_READERS(*inode) = PIPE_WRITERS(*inode) = 1;
- 	inode->i_fop = &rdwr_pipe_fops;
- 
--	/*
--	 * Mark the inode dirty from the very beginning,
--	 * that way it will never be moved to the dirty
--	 * list because "mark_inode_dirty()" will think
--	 * that it already _is_ on the dirty list.
--	 */
--	inode->i_state = I_DIRTY;
-+	set_inode_noflush(inode);
- 	inode->i_mode = S_IFIFO | S_IRUSR | S_IWUSR;
- 	inode->i_uid = current->fsuid;
- 	inode->i_gid = current->fsgid;
-diff -puN fs/ramfs/inode.c~add-set_inode_noflush fs/ramfs/inode.c
---- linux-2.6.14/fs/ramfs/inode.c~add-set_inode_noflush	2005-10-29 08:13:57.000000000 +0900
-+++ linux-2.6.14-hirofumi/fs/ramfs/inode.c	2005-10-29 08:13:57.000000000 +0900
-@@ -55,6 +55,7 @@ struct inode *ramfs_get_inode(struct sup
- 	struct inode * inode = new_inode(sb);
- 
- 	if (inode) {
-+		set_inode_noflush(inode);
- 		inode->i_mode = mode;
- 		inode->i_uid = current->fsuid;
- 		inode->i_gid = current->fsgid;
-diff -puN fs/relayfs/inode.c~add-set_inode_noflush fs/relayfs/inode.c
---- linux-2.6.14/fs/relayfs/inode.c~add-set_inode_noflush	2005-10-29 08:13:57.000000000 +0900
-+++ linux-2.6.14-hirofumi/fs/relayfs/inode.c	2005-10-29 08:13:57.000000000 +0900
-@@ -52,6 +52,7 @@ static struct inode *relayfs_get_inode(s
- 		return NULL;
- 	}
- 
-+	set_inode_noflush(inode);
- 	inode->i_mode = mode;
- 	inode->i_uid = 0;
- 	inode->i_gid = 0;
-diff -puN fs/sysfs/inode.c~add-set_inode_noflush fs/sysfs/inode.c
---- linux-2.6.14/fs/sysfs/inode.c~add-set_inode_noflush	2005-10-29 08:13:57.000000000 +0900
-+++ linux-2.6.14-hirofumi/fs/sysfs/inode.c	2005-10-29 08:13:57.000000000 +0900
-@@ -113,6 +113,7 @@ struct inode * sysfs_new_inode(mode_t mo
- {
- 	struct inode * inode = new_inode(sysfs_sb);
- 	if (inode) {
-+		set_inode_noflush(inode);
- 		inode->i_blksize = PAGE_CACHE_SIZE;
- 		inode->i_blocks = 0;
- 		inode->i_mapping->a_ops = &sysfs_aops;
-diff -puN include/linux/fs.h~add-set_inode_noflush include/linux/fs.h
---- linux-2.6.14/include/linux/fs.h~add-set_inode_noflush	2005-10-29 08:13:57.000000000 +0900
-+++ linux-2.6.14-hirofumi/include/linux/fs.h	2005-10-29 08:13:57.000000000 +0900
-@@ -1075,6 +1075,16 @@ static inline void file_accessed(struct 
- 		touch_atime(file->f_vfsmnt, file->f_dentry);
- }
- 
-+static inline void set_inode_noflush(struct inode *inode)
-+{
-+	/*
-+	 * Mark the inode dirty from the very beginning, that way it
-+	 * will never be moved to the dirty list because "mark_inode_dirty()"
-+	 * will think that it already _is_ on the dirty list.
-+	 */
-+	inode->i_state |= I_DIRTY;
-+}
-+
- int sync_inode(struct inode *inode, struct writeback_control *wbc);
- 
- /**
-diff -puN kernel/cpuset.c~add-set_inode_noflush kernel/cpuset.c
---- linux-2.6.14/kernel/cpuset.c~add-set_inode_noflush	2005-10-29 08:13:57.000000000 +0900
-+++ linux-2.6.14-hirofumi/kernel/cpuset.c	2005-10-29 08:13:57.000000000 +0900
-@@ -236,6 +236,7 @@ static struct inode *cpuset_new_inode(mo
- 	struct inode *inode = new_inode(cpuset_sb);
- 
- 	if (inode) {
-+		set_inode_noflush(inode);
- 		inode->i_mode = mode;
- 		inode->i_uid = current->fsuid;
- 		inode->i_gid = current->fsgid;
-diff -puN mm/shmem.c~add-set_inode_noflush mm/shmem.c
---- linux-2.6.14/mm/shmem.c~add-set_inode_noflush	2005-10-29 08:13:57.000000000 +0900
-+++ linux-2.6.14-hirofumi/mm/shmem.c	2005-10-29 08:13:57.000000000 +0900
-@@ -1283,6 +1283,7 @@ shmem_get_inode(struct super_block *sb, 
- 
- 	inode = new_inode(sb);
- 	if (inode) {
-+		set_inode_noflush(inode);
- 		inode->i_mode = mode;
- 		inode->i_uid = current->fsuid;
- 		inode->i_gid = current->fsgid;
-_
+Rob

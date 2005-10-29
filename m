@@ -1,86 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbVJ2JLX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750893AbVJ2JJ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750894AbVJ2JLX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 05:11:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750901AbVJ2JLX
+	id S1750893AbVJ2JJ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 05:09:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750856AbVJ2JJ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 05:11:23 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:11446
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1750856AbVJ2JLW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 05:11:22 -0400
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Mark Jenkins <umjenki5@cc.umanitoba.ca>
-Subject: Re: Is sharpzdc_cs.o not a derivitive work of Linux?
-Date: Sat, 29 Oct 2005 04:10:46 -0500
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org
-References: <43625208.60703@cc.umanitoba.ca>
-In-Reply-To: <43625208.60703@cc.umanitoba.ca>
+	Sat, 29 Oct 2005 05:09:27 -0400
+Received: from xproxy.gmail.com ([66.249.82.192]:49102 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750794AbVJ2JJ0 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 05:09:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=kPPG0hLhwGiZrC6cvR5McHkcJI+Tn920/6kIMVyhjDKKU7B0xGYRF7msCoWW9dPV9N6zY7AN/eRdi4ccTCmSWszlwQv8obX0T8pTBiTrqiG84pxLLCPcqKiUMEHNwb4CYK1zPpsjMvrA0cRJ8pj68CjavQ+j4DeU3Zxs9dBqXzM=
+Message-ID: <b2992ee70510290209h26c1fd6ex92fd137cd2c9d747@mail.gmail.com>
+Date: Sat, 29 Oct 2005 11:09:25 +0200
+From: Patrick Useldinger <uselpa@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: segmentation fault when accessing /proc/ioports
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200510290410.48454.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 28 October 2005 11:30, Mark Jenkins wrote:
-> I have read, http://people.redhat.com/arjanv/COPYING.modules
-> Summary: A Linux module is a derivative work unless a strong case is
-> made otherwise.
->
-> I would like to know if this is one of those exception cases. That is
-> why I used the word 'not' in the subject line.
->
-> Is sharpzdc_cs.o *not* a derivative work of Linux?
+Hello,
 
-I suspect that right now the Linux developers are trying an end-run around the 
-whole mess.  At a wild guess, binary-only modules will probably be obsolete 
-in a few years.  I could easily be wrong, but here's why I think this:
+according to "oops-tracing.txt", I send you this problem report.
 
-2.6 introduced sysfs and udev.  When /dev is maintained by udev, then udev 
-gets the list of devices and each device's major/minor numbers from the dev 
-entry for the device in sysfs.  At boot time, udev starts with an empty /dev 
-directory (generally tmpfs) and populates it from /sys, and hotplug events 
-tell udev to take another look at sysfs.  I.E. if devices don't show up 
-in /sys, then udev doesn't create device nodes for them in /dev.
+This is a problem I have been experiencing with all kernels I have
+tried later than 2.6.11.12, currently with 2.6.13.4. I am using the
+Slackware 10.2 distribution.
 
-Of course you can work around this by running a supplemental script at boot 
-time to manually create extra devices (using the static major/minor numbers 
-from the lanana.org list), or by simply not using udev at all (and thus not 
-having modern features like good hotplug and persistent naming of things that 
-move around on USB hubs and such).  The ability to use something other than 
-udev depends on the existence of static major and minor numbers.
+The system is working normally and completely stable. When I shutdown
+or restart, however, I have the following message:
 
-But static major and minor numbers are not required for udev.  Any system that 
-has udev recreates the contents of /dev from scratch on each reboot, and does 
-so based on major/minor pairs handed to it by sysfs.  Those numbers can be 
-dynamically allocated by the kernel as each new device is hotplugged in, 
-there's no need for them to be preassigned.
+[code]
+Oct 29 10:32:33 slackw kernel: mtrr: 0xd0000000,0x4000000 overlaps
+existing 0xd0000000,0x2000000
+Oct 29 10:32:45 slackw kernel: Unable to handle kernel paging request
+at virtual address f8ce5a0a
+Oct 29 10:32:45 slackw kernel:  printing eip:
+Oct 29 10:32:45 slackw kernel: c01dbcfe
+Oct 29 10:32:45 slackw kernel: *pde = 36523067
+Oct 29 10:32:45 slackw kernel: *pte = 00000000
+Oct 29 10:32:45 slackw kernel: Oops: 0000 [#1]
+Oct 29 10:32:45 slackw kernel: PREEMPT
+Oct 29 10:32:45 slackw kernel: Modules linked in: vmnet vmmon sch_sfq
+snd_pcm_oss snd_mixer_oss ipv6 ipt_state ipt_REJECT ipt_LOG
+ip_conntrack_ftp ip_conntrack iptable_filter ip_tables uhci_hcd
+sis_agp shpchp i2c_sis96x i2c_core snd_intel8x0 snd_ac97_codec snd_pcm
+snd_timer snd soundcore snd_page_alloc ohci_hcd ehci_hcd ohci1394
+ieee1394 8139too mii pcmcia firmware_class yenta_socket rsrc_nonstatic
+pcmcia_core dm_mod evdev agpgart lp parport_pc parport psmouse
+Oct 29 10:32:45 slackw kernel: CPU:    0
+Oct 29 10:32:45 slackw kernel: EIP:    0060:[<c01dbcfe>]    Tainted: P      VLI
+Oct 29 10:32:45 slackw kernel: EFLAGS: 00010297   (2.6.13.4)
+Oct 29 10:32:45 slackw kernel: EIP is at vsnprintf+0x35e/0x4f0
+Oct 29 10:32:45 slackw kernel: eax: f8ce5a0a   ebx: 0000000a   ecx:
+f8ce5a0a   edx: fffffffe
+Oct 29 10:32:45 slackw kernel: esi: ee123134   edi: 00000000   ebp:
+ee123fff   esp: ee257eb4
+Oct 29 10:32:45 slackw kernel: ds: 007b   es: 007b   ss: 0068
+Oct 29 10:32:45 slackw kernel: Process grep (pid: 5996,
+threadinfo=ee256000 task=e91b6530)
+Oct 29 10:32:45 slackw kernel: Stack: ee12312d ee123fff 000003e1
+00000000 00000010 00000004 00000002 00000001
+Oct 29 10:32:45 slackw kernel:        ffffffff ffffffff f5ceb9c0
+c0350234 f5ceb9c0 00000128 c017be67 ee123128
+Oct 29 10:32:45 slackw kernel:        00000ed8 c0355e66 ee257f2c
+c0355e54 c011fb04 f5ceb9c0 c0355e54 00000000
+Oct 29 10:32:45 slackw kernel: Call Trace:
+Oct 29 10:32:45 slackw kernel:  [<c017be67>] seq_printf+0x37/0x60
+Oct 29 10:32:45 slackw kernel:  [<c011fb04>] r_show+0x84/0x90
+Oct 29 10:32:45 slackw kernel:  [<c017b966>] seq_read+0x1d6/0x2d0
+Oct 29 10:32:45 slackw kernel:  [<c0159306>] vfs_read+0xb6/0x180
+Oct 29 10:32:45 slackw kernel:  [<c01596b1>] sys_read+0x51/0x80
+Oct 29 10:32:45 slackw kernel:  [<c01031a5>] syscall_call+0x7/0xb
+Oct 29 10:32:45 slackw kernel: Code: 00 83 cf 01 89 44 24 24 eb bb 8b
+44 24 48 8b 54 24 20 83 44 24 48 04 8b 08 b8 8c 24 36 c0 81 f9 ff 0f
+00 00 0f 46 c8 89 c8 eb 06 <80> 38 00 74 07 40 4a 83 fa ff 75 f4 29 c8
+83 e7 10 89 c3 75 20
+Oct 29 10:32:45 slackw kernel:  <6>note: grep[5996] exited with preempt_count 1
+[/code]
 
-At some point in the future, a config option will probably show up to make all 
-device numbers dynamically assigned.  (This used to be a plan for 2.7, back 
-when we were going to have a 2.7.)  For purely technical reasons, it's a 
-great simplifiation, making a lot of hardcoded magic numbers in the kernel 
-simply go away, eliminating the need to manage the hugely complex lanana.org 
-device number list, increasing scalability because now there's no real limit 
-on how many devices of a given type you can plug in since you won't run out 
-of major/minor pairs from the preallocated range to represent the new type.  
-It's been discussed before, and is a to-do item.
+Before, it says something about a segmentation fault in line 54 of rc.6.
+I have tracked this down to the following command in line 44:
+[code] if ! grep -q -w rtc /proc/ioports ; then[/code]
+and a simple [code]cat /proc/ioports[/code] gives me a segmentation
+fault every time.
 
-Of course under a dynamic major/minor scheme, udev would no longer be optional 
-but a requirement, and any device that wants a dev node _must_ show up in 
-sysfs or there's no major/minor pair to assign to it.  And the really 
-interesting bit is that all the kernel-side sysfs bindings are 
-EXPORT_GPL_ONLY.  A non-gpl module _cannot_ show up in sysfs.  Thus under a 
-dynamic major/minor scheme, binary only modules couldn't have device nodes.
+I have read on the kernel mailing lists that this is due to drivers
+not properly unloading, so I won't post an lsmod.
 
-Interesting, isn't it?  The normal churn in the kernel naturally renders old 
-interfaces obsolete, but the new interfaces are GPL_ONLY.  Even if this isn't 
-the specific way they get rendered obsolete, the window for binary only 
-modules is slowly closing...
-
-Rob
+Thanks for your attention,
+-pu

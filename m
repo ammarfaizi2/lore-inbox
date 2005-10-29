@@ -1,76 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750860AbVJ2LAv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750931AbVJ2LCE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750860AbVJ2LAv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 07:00:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750931AbVJ2LAv
+	id S1750931AbVJ2LCE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 07:02:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750936AbVJ2LCE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 07:00:51 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:30981 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750860AbVJ2LAv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 07:00:51 -0400
-Date: Sat, 29 Oct 2005 13:00:49 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Per Jessen <per@computer.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: building 2.4.31 for a non-smp system
-Message-ID: <20051029110049.GH4180@stusta.de>
-References: <43633721.9010001@computer.org>
-MIME-Version: 1.0
+	Sat, 29 Oct 2005 07:02:04 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:50911 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750931AbVJ2LCB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 07:02:01 -0400
+Date: Sat, 29 Oct 2005 12:02:00 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [PATCH] bluetooth hidp is broken on s390
+Message-ID: <20051029110200.GH7992@ftp.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43633721.9010001@computer.org>
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 29, 2005 at 10:47:29AM +0200, Per Jessen wrote:
+	Bluetooth HIDP selects INPUT and it really needs it to be
+there - module depends on input core.  And input core is never
+built on s390...  Marked as broken on s390, for now; if somebody
+has better ideas, feel free to fix it and remove dependency...
 
-> I'm upgrading a box from 2.4.23 to .31, but I'm seeing lots of errors
-> along these lines:
-> 
-> gcc -D__KERNEL__ -I/usr/src/linux-2.4.31/include -Wall
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
-> -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686   
-> -nostdinc -iwithprefix include -DKBUILD_BASENAME=tty_ioctl
-> -DEXPORT_SYMTAB -c tty_ioctl.c
-> In file included from /usr/src/linux-2.4.31/include/linux
-> modversions.h:177,
->                 from /usr/src/linux-2.4.31/include/linux/module.h:22,
->                 from tty_ioctl.c:21:
-> /usr/src/linux-2.4.31/include/linux/modules/ksyms.ver:576:1: warning:
-> "del_timer_sync" redefined
->...
-> The redefinition of "set_cpus_allowed" and "del_timer_sync" only happen
-> when CONFIG_SMP isn't set.  
-> I guess I could simply compile with CONFIG_SMP, but surely something's
-> not right here?
-> 
-> Follow-up:
-> OK, I've built the kernel with SMP support, and I'm not seeing the above 
-> any longer. However, when I tried to load module nfsd, I get:
-> 
-> /lib/modules/2.4.31/kernel/net/sunrpc/sunrpc.o: unresolved symbol 
-> kernel_flag_cacheline
-> /lib/modules/2.4.31/kernel/net/sunrpc/sunrpc.o: unresolved symbol 
-> atomic_dec_and_lock
-> /lib/modules/2.4.31/kernel/net/sunrpc/sunrpc.o: insmod 
-> /lib/modules/2.4.31/kernel/net/sunrpc/sunrpc.o failed
-> /lib/modules/2.4.31/kernel/net/sunrpc/sunrpc.o: insmod nfsd failed
-
-Please send:
-- your .config
-- the output of "bash scripts/ver_linux"
-
-> Per Jessen, Zurich
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+----
+diff -urN RC14-base/net/bluetooth/hidp/Kconfig current/net/bluetooth/hidp/Kconfig
+--- RC14-base/net/bluetooth/hidp/Kconfig	2005-06-17 15:48:29.000000000 -0400
++++ current/net/bluetooth/hidp/Kconfig	2005-10-29 06:14:28.000000000 -0400
+@@ -1,6 +1,6 @@
+ config BT_HIDP
+ 	tristate "HIDP protocol support"
+-	depends on BT && BT_L2CAP
++	depends on BT && BT_L2CAP && (BROKEN || !S390)
+ 	select INPUT
+ 	help
+ 	  HIDP (Human Interface Device Protocol) is a transport layer

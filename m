@@ -1,39 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750940AbVJ2LHQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750966AbVJ2LIY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750940AbVJ2LHQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 07:07:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbVJ2LHQ
+	id S1750966AbVJ2LIY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 07:08:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbVJ2LIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 07:07:16 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:14464 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750940AbVJ2LHO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 07:07:14 -0400
-Date: Sat, 29 Oct 2005 12:07:11 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: [PATCH] type fix in arm/boot/compressed/misc.c
-Message-ID: <20051029110711.GI7992@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Sat, 29 Oct 2005 07:08:24 -0400
+Received: from sender-01.it.helsinki.fi ([128.214.205.139]:9638 "EHLO
+	sender-01.it.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1750949AbVJ2LIX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 07:08:23 -0400
+Date: Sat, 29 Oct 2005 14:08:19 +0300 (EEST)
+From: Janne M O Heikkinen <jmoheikk@cc.helsinki.fi>
+X-X-Sender: jmoheikk@rock.it.helsinki.fi
+To: Andi Kleen <ak@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: x86_64: 2.6.14 with NUMA panics at boot
+In-Reply-To: <200510291201.06613.ak@suse.de>
+Message-ID: <Pine.OSF.4.61.0510291312160.426625@rock.it.helsinki.fi>
+References: <Pine.OSF.4.61.0510282218310.411472@rock.it.helsinki.fi>
+ <p73vezhtkpy.fsf@verdi.suse.de> <Pine.OSF.4.61.0510290058420.417368@rock.it.helsinki.fi>
+ <200510291201.06613.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	spot the typo...
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-----
-diff -urN RC14-base/arch/arm/boot/compressed/misc.c current/arch/arm/boot/compressed/misc.c
---- RC14-base/arch/arm/boot/compressed/misc.c	2005-06-17 15:48:29.000000000 -0400
-+++ current/arch/arm/boot/compressed/misc.c	2005-10-28 20:57:14.000000000 -0400
-@@ -30,7 +30,7 @@
- #define putstr icedcc_putstr
- #define putc icedcc_putc
- 
--extern void idedcc_putc(int ch);
-+extern void icedcc_putc(int ch);
- 
- static void
- icedcc_putstr(const char *ptr)
+On Sat, 29 Oct 2005, Andi Kleen wrote:
+> On Saturday 29 October 2005 00:06, Janne M O Heikkinen wrote:
+>> PANIC: early exception rip ffffffff8023429f error 0 cr2 0
+>> PANIC: early exception rip ffffffff8011893a error 0 cr2 ffffffffff5fd02
+>
+> And it boots with numa=noacpi ?
+
+No, I get same panics with numa=noacpi or even with numa=off. If I compile
+2.6.14 kernel without CONFIG_ACPI_NUMA it does boot.

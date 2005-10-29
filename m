@@ -1,74 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbVJ2PgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751194AbVJ2PfL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751196AbVJ2PgN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 11:36:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbVJ2PgN
+	id S1751194AbVJ2PfL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 11:35:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbVJ2PfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 11:36:13 -0400
-Received: from smtprelay03.ispgateway.de ([80.67.18.15]:49810 "EHLO
-	smtprelay03.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1751196AbVJ2PgM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 11:36:12 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
+	Sat, 29 Oct 2005 11:35:11 -0400
+Received: from alephnull.demon.nl ([83.160.184.112]:5819 "EHLO
+	xi.wantstofly.org") by vger.kernel.org with ESMTP id S1751194AbVJ2PfK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 11:35:10 -0400
+Date: Sat, 29 Oct 2005 17:35:08 +0200
+From: Lennert Buytenhek <buytenh@wantstofly.org>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Disable the most annoying printk in the kernel
-Date: Sat, 29 Oct 2005 17:36:03 +0200
-User-Agent: KMail/1.7.2
-Cc: Lee Revell <rlrevell@joe-job.com>, Hugh Dickins <hugh@veritas.com>,
-       Pavel Machek <pavel@suse.cz>, Andi Kleen <ak@suse.de>, vojtech@suse.cz,
-       akpm@osdl.org
-References: <200510271026.10913.ak@suse.de> <Pine.LNX.4.61.0510281947040.5112@goblin.wat.veritas.com> <1130532239.4363.125.camel@mindpipe>
-In-Reply-To: <1130532239.4363.125.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2032177.fW6g2KMhYS";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200510291736.09472.ioe-lkml@rameria.de>
+Cc: akpm@osdl.org
+Subject: [PATCH,trivial] hfs needs nls
+Message-ID: <20051029153508.GA32296@xi.wantstofly.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2032177.fW6g2KMhYS
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Reported by Eddy Petrisor (eddy dot petrisor at gmail dot com).
 
-On Friday 28 October 2005 22:43, Lee Revell wrote:
-> Plus keyboards are a dime a dozen these days, they give you one with
-> every server whether or not you want it.  If you have rack full of 1U
-> servers the pile of keyboards will be as high as the rack.  I wish our
-> KVM vendor would come haul them away.
+fs/built-in.o(.text+0x35fdc): In function `hfs_mdb_put':
+: undefined reference to `unload_nls'
+fs/built-in.o(.text+0x35ff1): In function `hfs_mdb_put':
+: undefined reference to `unload_nls'
+fs/built-in.o(.text+0x367a5): In function `parse_options':
+super.c: undefined reference to `load_nls'
+fs/built-in.o(.text+0x367db):super.c: undefined reference to `load_nls'
+fs/built-in.o(.text+0x36938):super.c: undefined reference to `load_nls_default'
 
-My employer sells servers and neither includes keyboards nor=20
-monitors nor mouses. These are extras, since my employer considers
-servers "unattended machines" and you either have a KVM switch or
-can rip a KVM-set off some work station, if you have a hardware failure.
+Signed-off-by: Lennert Buytenhek <buytenh@wantstofly.org>
 
-If you don't have a KVM set at hand, our service team brings it in.
-
-So you just need to change to a sane vendor and can exclude that kind
-of costs[1] in the next contract.
-
-Regards
-
-Ingo Oeser
-
-[1] Just consider the deposit and recycling costs, maintence costs,=20
-    storage space costs, inventory costs and so on. This all adds
-    up dime by dime for a good amount of servers.
-
-
---nextPart2032177.fW6g2KMhYS
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDY5bpU56oYWuOrkARAhu+AJ9TUuptf3mWxytxP8y1nehf5Fr82ACffp6/
-PmnlEEJfHSSPqW55OZS18yw=
-=6sBr
------END PGP SIGNATURE-----
-
---nextPart2032177.fW6g2KMhYS--
+--- linux-2.6.14/fs/Kconfig.orig	2005-10-29 17:32:35.000000000 +0200
++++ linux-2.6.14/fs/Kconfig	2005-10-29 17:32:52.000000000 +0200
+@@ -898,6 +898,7 @@
+ config HFS_FS
+ 	tristate "Apple Macintosh file system support (EXPERIMENTAL)"
+ 	depends on EXPERIMENTAL
++	select NLS
+ 	help
+ 	  If you say Y here, you will be able to mount Macintosh-formatted
+ 	  floppy disks and hard drive partitions with full read-write access.

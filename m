@@ -1,40 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbVJ2FqG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751006AbVJ2FrZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751127AbVJ2FqG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 01:46:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751337AbVJ2FqG
+	id S1751006AbVJ2FrZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 01:47:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbVJ2FrZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 01:46:06 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:33758 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751127AbVJ2FqF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 01:46:05 -0400
-Date: Sat, 29 Oct 2005 06:46:03 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] missing include in infiniband
-Message-ID: <20051029054603.GA7992@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Sat, 29 Oct 2005 01:47:25 -0400
+Received: from ns.ustc.edu.cn ([202.38.64.1]:23179 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S1751006AbVJ2FrY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 01:47:24 -0400
+Message-Id: <20051029060216.159380000@localhost.localdomain>
+Date: Sat, 29 Oct 2005 14:02:16 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 00/13] Adaptive read-ahead V5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	use of IS_ERR/PTR_ERR in infiniband/core/agent.c, without
-a portable chain of includes pulling err.h (breaks on a bunch of
-platforms).
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-----
-diff -urN RC14-base/drivers/infiniband/core/agent.h current/drivers/infiniband/core/agent.h
---- RC14-base/drivers/infiniband/core/agent.h	2005-10-28 22:35:58.000000000 -0400
-+++ current/drivers/infiniband/core/agent.h	2005-10-29 01:25:34.000000000 -0400
-@@ -39,6 +39,7 @@
- #ifndef __AGENT_H_
- #define __AGENT_H_
- 
-+#include <linux/err.h>
- #include <rdma/ib_mad.h>
- 
- extern int ib_agent_port_open(struct ib_device *device, int port_num);
+This version of adaptive read-ahead patch features various clean ups.
+Changes include:
+	- rewrote context based method to make it clean and robust
+	- improved accuracy of stateful thrashing threshold estimation
+	- nr_page_aging made right
+	- sorted out the thrashing protection logic
+	- enhanced debug/accounting facilities
+
+Regards,
+Wu Fengguang

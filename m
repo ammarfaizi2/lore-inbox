@@ -1,240 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbVJ2V4Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbVJ2WH3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932250AbVJ2V4Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 17:56:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbVJ2V4Q
+	id S932463AbVJ2WH3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 18:07:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbVJ2WH3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 17:56:16 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:30888 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932250AbVJ2V4P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 17:56:15 -0400
-To: linux-kernel@vger.kernel.org
-Subject: amd64 bitops fix for -Os
-From: Alexandre Oliva <aoliva@redhat.com>
-Organization: Red Hat OS Tools Group
-Date: Sat, 29 Oct 2005 19:56:02 -0200
-Message-ID: <orvezggf7x.fsf@livre.oliva.athome.lsd.ic.unicamp.br>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sat, 29 Oct 2005 18:07:29 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3340 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932461AbVJ2WH2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 18:07:28 -0400
+Date: Sat, 29 Oct 2005 23:07:22 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: ralf@linux-mips.org, Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: [FIXME] Comments on serial and MMC changes in MIPS merge
+Message-ID: <20051029220722.GI14039@flint.arm.linux.org.uk>
+Mail-Followup-To: ralf@linux-mips.org,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=171672
+Some comments on the recent MIPS merge:
 
-This patches fixes a bug that comes up when compiling the kernel for
-x86_64 optimizing for size.  It affects 2.6.14 for sure, but I'm
-pretty sure many earlier kernels are affected as well.
+1. au1xxx mmc driver
 
-The symptom is that, as soon as some change is made to the root
-filesystem (e.g. dmesg > /var/log/dmesg), the kernel mostly hangs.  It
-was not the first time I'd run into this symptom, but this time I
-could track the problem down to enabling size optimizations in the
-kernel build.  It took some time to narrow down the culprit source
-with a binary search, compiling part of the kernel sources with -Os
-and part with -O2, but eventually it was clear that bitops itself was
-to blame, which should have been clear from the soft lockup oops I
-got.
+   mmc_remove_host() does a safe shutdown of the MMC host, removing
+   cards and then powering down.  This must be called prior to the
+   driver thinking of tearing anything down.
 
-The problem is that find_first_zero_bit() fails when called with an
-underflown size, because its inline asm assumes at least one iteration
-of scasq will run.  When this does not hold, the conditional branch
-that follows it uses flags from instructions prior to the asm
-statement.
+   As for those disable_irq()...enable_irq(), are you aware that MMC
+   can start talking to the host as soon as you've called mmc_add_host() ?
 
-When optimizing for speed, the generated code is such that the flags
-will have the correct value, because of the side effects on flags of
-the right shift of the size, that survive through to the asm
-statement.  When optimizing for size, however, the mov instruction
-used to initialize %rax with -1 is replaced with a smaller or
-instruction, that modifies the flags and thus breaks the
-zero-trip-count case.
+2. IP3106 serial driver
 
-Obviously the asm statement must not rely on the compiler setting up
-flags by chance, so we have to either force the flags to be set
-properly or make sure we run scasq at least once.  In teh
-find_first_zero_bit case, this comes at pretty much no cost, since we
-already test size for non-zero, but we used to do that adjusting it
-from bits to words; changing it should have no visible effect on
-performance.
+   -#define PORT_MAX_8250  15      /* max port ID */
+   +#define PORT_IP3106    16
+   +#define PORT_MAX_8250  16      /* max port ID */
 
-As for find_first_bit, it's quite likely that the same bug is present
-when it's called by find_next_bit in the same conditions, but
-find_first_bit doesn't even test for zero.  AFAICT, it has just been
-luckier, so I went ahead and added the same guard code to it.  This
-unfortunately adds a test to the fast path, but I don't see how to
-avoid that without auditing all callers.
+   Do not add new port numbers after the 8250 port number range.
+   Add them on the end of the list.
 
-I actually introduce means to guard against these cases in the public
-wrappers, but the BUG_ONs are disabled by default.  I've left a kernel
-running with them enabled for a bit, and they never hit, which is a
-good sign, but I haven't tested it thoroughly or anything.  We could
-probably do away with these new tests by modifying the find_next*bit
-functions so as to not call the find_first*bit functions if they've
-already exhausted the range implied by the size argument.  I'm not
-sure whether that's worth doing, though, so I didn't.
+   Since this will get in the way of additional 8250 ports, it's a
+   serious problem.  Please fix ASAP.
 
-While staring at the code and trying to figure out what the problem
-was, I removed some needless casts from find_next_zero_bit, by
-constifying the automatic pointer properly, and also moved the actual
-code from find_first_zero_bit to a separate internal function, such
-that we could add the bug-check to the public interface only.
-
-I also noticed find_first_zero_bit was less efficient than
-find_first_bit in that the former saved and restored rbx, because GCC
-chose that to hold (addr) within the asm statement, instead of using
-the readily-available and caller-saved rsi.  I've thus changed the
-code to prefer rsi, although in a perfect world the compiler would be
-able to figure that out by itself.
-
-The compiler could do a bit better in find_first_zero_bit: if the
-initial size turns out to be zero, it could return, like it does in
-find_first_bit, but instead of sets rdx to zero and jumps to the end
-of the function where rdx is copied to rax before the return
-statement.  This is a negative effect of the assignment of variable
-res to rdx instead of rax, which gets the register allocator to map
-the pseudo register representing the return value to rdx, requiring a
-copy at the end and preventing (as far as the dumb compiler can see
-:-) the direct use of a return in the zero-size case.  I've verified
-that this is not caused by the additional inline function that I
-introduced.
-
-I tried to change the use of registers so as to enable the better code
-for this path, but I couldn't come up with anything that was as
-efficient, so I figured I wouldn't try to optimize the exceptional
-path in expense of the common fast path and left it alone.  If anyone
-can come up with something better, please go ahead.
-
-
-Anyhow, with this patch I could run 2.6.14, as in the Fedora
-development tree, except for the change to optimize for size.
-
-	Signed-off-by: Alexandre Oliva <oliva@lsd.ic.unicamp.br>
-
---- arch/x86_64/lib/bitops.c~	2005-10-27 22:02:08.000000000 -0200
-+++ arch/x86_64/lib/bitops.c	2005-10-29 18:24:27.000000000 -0200
-@@ -1,5 +1,11 @@
- #include <linux/bitops.h>
- 
-+#define BITOPS_CHECK_UNDERFLOW_RANGE 0
-+
-+#if BITOPS_CHECK_UNDERFLOW_RANGE
-+# include <linux/kernel.h>
-+#endif
-+
- #undef find_first_zero_bit
- #undef find_next_zero_bit
- #undef find_first_bit
-@@ -13,11 +19,21 @@
-  * Returns the bit-number of the first zero bit, not the number of the byte
-  * containing a bit.
-  */
--inline long find_first_zero_bit(const unsigned long * addr, unsigned long size)
-+static inline long
-+__find_first_zero_bit(const unsigned long * addr, unsigned long size)
- {
- 	long d0, d1, d2;
- 	long res;
- 
-+	/* We must test the size in words, not in bits, because
-+	   otherwise incoming sizes in the range -63..-1 will not run
-+	   any scasq instructions, and then the flags used by the je
-+	   instruction will have whatever random value was in place
-+	   before.  Nobody should call us like that, but
-+	   find_next_zero_bit() does when offset and size are at the
-+	   same word and it fails to find a zero itself.  */
-+	size += 63;
-+	size >>= 6;
- 	if (!size)
- 		return 0;
- 	asm volatile(
-@@ -30,11 +46,22 @@
- 		"  shlq $3,%%rdi\n"
- 		"  addq %%rdi,%%rdx"
- 		:"=d" (res), "=&c" (d0), "=&D" (d1), "=&a" (d2)
--		:"0" (0ULL), "1" ((size + 63) >> 6), "2" (addr), "3" (-1ULL),
--		 [addr] "r" (addr) : "memory");
-+		:"0" (0ULL), "1" (size), "2" (addr), "3" (-1ULL),
-+		 /* Any register here would do, but GCC tends to
-+		    prefer rbx over rsi, even though rsi is readily
-+		    available and doesn't have to be saved.  */
-+		 [addr] "S" (addr) : "memory");
- 	return res;
- }
- 
-+long find_first_zero_bit(const unsigned long * addr, unsigned long size)
-+{
-+#if BITOPS_CHECK_UNDERFLOW_RANGE
-+	BUG_ON (size + 63 < size);
-+#endif
-+	return __find_first_zero_bit (addr, size);
-+}
-+
- /**
-  * find_next_zero_bit - find the first zero bit in a memory region
-  * @addr: The address to base the search on
-@@ -43,7 +70,7 @@
-  */
- long find_next_zero_bit (const unsigned long * addr, long size, long offset)
- {
--	unsigned long * p = ((unsigned long *) addr) + (offset >> 6);
-+	const unsigned long * p = addr + (offset >> 6);
- 	unsigned long set = 0;
- 	unsigned long res, bit = offset&63;
- 
-@@ -63,8 +90,8 @@
- 	/*
- 	 * No zero yet, search remaining full words for a zero
- 	 */
--	res = find_first_zero_bit ((const unsigned long *)p,
--				   size - 64 * (p - (unsigned long *) addr));
-+	res = __find_first_zero_bit (p, size - 64 * (p - addr));
-+
- 	return (offset + set + res);
- }
- 
-@@ -74,6 +101,17 @@
- 	long d0, d1;
- 	long res;
- 
-+	/* We must test the size in words, not in bits, because
-+	   otherwise incoming sizes in the range -63..-1 will not run
-+	   any scasq instructions, and then the flags used by the jz
-+	   instruction will have whatever random value was in place
-+	   before.  Nobody should call us like that, but
-+	   find_next_bit() does when offset and size are at the same
-+	   word and it fails to find a one itself.  */
-+	size += 63;
-+	size >>= 6;
-+	if (!size)
-+		return 0;
- 	asm volatile(
- 		"   repe; scasq\n"
- 		"   jz 1f\n"
-@@ -83,8 +121,7 @@
- 		"   shlq $3,%%rdi\n"
- 		"   addq %%rdi,%%rax"
- 		:"=a" (res), "=&c" (d0), "=&D" (d1)
--		:"0" (0ULL),
--		 "1" ((size + 63) >> 6), "2" (addr),
-+		:"0" (0ULL), "1" (size), "2" (addr),
- 		 [addr] "r" (addr) : "memory");
- 	return res;
- }
-@@ -99,6 +136,9 @@
-  */
- long find_first_bit(const unsigned long * addr, unsigned long size)
- {
-+#if BITOPS_CHECK_UNDERFLOW_RANGE
-+	BUG_ON (size + 63 < size);
-+#endif
- 	return __find_first_bit(addr,size);
- }
- 
-
+   (btw, I notice that this change was _not_ included with the
+    IP3106 driver you sent for review.)
 
 -- 
-Alexandre Oliva         http://www.lsd.ic.unicamp.br/~oliva/
-Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
-Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

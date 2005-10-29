@@ -1,47 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932701AbVJ2W3b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932708AbVJ2WbF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932701AbVJ2W3b (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 18:29:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932696AbVJ2W3b
+	id S932708AbVJ2WbF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 18:31:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932707AbVJ2WbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 18:29:31 -0400
-Received: from ns2.suse.de ([195.135.220.15]:10399 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932701AbVJ2W3a (ORCPT
+	Sat, 29 Oct 2005 18:31:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:40908 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932696AbVJ2WbD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 18:29:30 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Tony Luck <tony.luck@gmail.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: New (now current development process)
-References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com>
-	<12c511ca0510291157u5557b6b1x85a47311f0e16436@mail.gmail.com>
-	<20051029195115.GD14039@flint.arm.linux.org.uk>
-	<Pine.LNX.4.64.0510291314100.3348@g5.osdl.org>
-From: Andi Kleen <ak@suse.de>
-Date: 30 Oct 2005 00:29:28 +0200
-In-Reply-To: <Pine.LNX.4.64.0510291314100.3348@g5.osdl.org>
-Message-ID: <p73r7a4t0s7.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Sat, 29 Oct 2005 18:31:03 -0400
+Date: Sat, 29 Oct 2005 15:30:59 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: jgarzik@pobox.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [git patches] 2.6.x libata updates
+In-Reply-To: <20051029152157.01369c35.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0510291526040.3348@g5.osdl.org>
+References: <20051029182228.GA14495@havoc.gtf.org> <20051029121454.5d27aecb.akpm@osdl.org>
+ <4363CB60.2000201@pobox.com> <Pine.LNX.4.64.0510291229330.3348@g5.osdl.org>
+ <20051029152157.01369c35.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> writes:
+
+
+On Sat, 29 Oct 2005, Andrew Morton wrote:
 > 
-> But to hit that, we'd might need to shrink the "merge window" from two 
-> weeks to just one, otherwise there's not enough time to calm down. With 
+> However there's usually little overlap between the subsystems trees - with
+> a net update, a USB update, a SCSI update and an ia64 update it's usually
+> pretty obvious which one caused a particular regression.
 
-Please don't. Even the two weeks are too short IMHO, because it is
-hard to digest so much code in such a short time and also it is not
-always easy for maintainers to hit such short time windows for sending
-patches.
+Yes, that's true, but the subsystem trees themselves now tend to have more 
+time to grow, and tend to be merged more int one go.
 
-> I don't think anybody has been really unhappy with this approach? Hmm?
+Which is all intentional, of course - the whole _point_ of the new thing 
+is that they should be in your tree and tested and then merged into my 
+tree during a short "merge window" for further testing.
 
-The long freeze periods were nothing much happens are painful. It
-would be better to have some more overlap of merging and stabilizing
-(stable does that already kind of, but not enough)
+But it means that updates that used to "tricke in" to my kernel now tend 
+to be more of a "big merge", making the daily snapshot less effective.
 
--Andi
+So when we get a "uhhuh, networking failed between daily snapshot X and 
+X+1" we now more often have a single biger merge of networking stuff that 
+was just waiting for the merge window to open..
+
+> The individual -mm-only patches tend to be more scattered around the tree,
+> which is why I send them as batches of 100-200 every couple of days: to get
+> a bit of separation in the -git snapshots.  This hasn't actually proven to
+> be very useful, though.
+
+One issue is of course that a lot of people doing reports don't actually
+even test the daily snapshots.
+
+Some bug reporters do, and I'm very grateful, and they are wonderful 
+people. Others do after some prodding, and yet others will never bother to 
+try a couple of different kernels at all ;/
+
+So the snapshot separation doesn't always necessarily help, even when it's 
+there.
+
+		Linus

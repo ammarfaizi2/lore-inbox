@@ -1,39 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751377AbVJ2Hfw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbVJ2HfU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751377AbVJ2Hfw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 03:35:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbVJ2Hfw
+	id S1750768AbVJ2HfU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 03:35:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbVJ2HfU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 03:35:52 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:54731 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1751377AbVJ2Hfv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 03:35:51 -0400
-Subject: Re: [PATCH 1/2] VFS: update overview document
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Arthur Othieno <a.othieno@bluewin.ch>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <20051028200752.GB25468@krypton>
-References: <ip2uk2.6o93wd.e2lyonk8o6q05pejbwmnb41jo.beaver@cs.helsinki.fi>
-	 <20051028200752.GB25468@krypton>
-Date: Sat, 29 Oct 2005 10:35:41 +0300
-Message-Id: <1130571341.7965.2.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sat, 29 Oct 2005 03:35:20 -0400
+Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:8190 "EHLO
+	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1750768AbVJ2HfU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 03:35:20 -0400
+Message-ID: <43632635.7080604@bigpond.net.au>
+Date: Sat, 29 Oct 2005 17:35:17 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matthew Wilcox <matthew@wil.cx>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: sym53c8xx_2 is flooding my syslog ...
+References: <430FD71C.6050704@bigpond.net.au>
+In-Reply-To: <430FD71C.6050704@bigpond.net.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.4.1 
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 29 Oct 2005 07:35:17 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Peter Williams wrote:
+> ... with the following message:
+> 
+> Aug 21 04:53:28 mudlark kernel: ..<6>sd 0:0:6:0: phase change 6-7 
+> 9@01ab97a0 resid=7.
+> 
+> every 2 seconds.  Since the problem being reported seems to have no 
+> effect on the operation of the scsi devices is it really necessary to 
+> report it so often?
+> 
 
-On Fri, 2005-10-28 at 16:07 -0400, Arthur Othieno wrote:
-> How about splitting the API stuff into include/linux/fs.h as kerneldoc?
-> That way, it gets updated as well when the interface changes, and keeps
-> Documetation/DocBook/kernel-api.tmpl looking shiny new..
+This problem is still occurring on 2.6.14.
 
-I have been thinking about this as well. My first priority is to bring
-the document up to date, though.
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-			Pekka
-
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

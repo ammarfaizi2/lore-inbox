@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932346AbVJ2UHh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbVJ2UJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932346AbVJ2UHh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 16:07:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932814AbVJ2UHg
+	id S1751294AbVJ2UJg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 16:09:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751382AbVJ2UJe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 16:07:36 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:27147 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S932806AbVJ2UHd
+	Sat, 29 Oct 2005 16:09:34 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:25251 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751370AbVJ2UJ2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 16:07:33 -0400
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
-       Horms <horms@verge.net.au>, 333776@bugs.debian.org
-Subject: Re: Bug#333776: linux-2.6: vfat driver in 2.6.12 is not properly case-insensitive
-References: <20051013165529.GA2472@tennyson.dodds.net>
-	<20051028082252.GC11045@verge.net.au>
-	<874q71wv2b.fsf@devron.myhome.or.jp>
-	<200510291645.08872.ioe-lkml@rameria.de>
-	<87k6fwcmp0.fsf@devron.myhome.or.jp>
-	<Pine.LNX.4.64.0510291941020.5182@hermes-1.csi.cam.ac.uk>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sun, 30 Oct 2005 05:07:05 +0900
-In-Reply-To: <Pine.LNX.4.64.0510291941020.5182@hermes-1.csi.cam.ac.uk> (Anton Altaparmakov's message of "Sat, 29 Oct 2005 19:44:20 +0100 (BST)")
-Message-ID: <87fyqkcck6.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
+	Sat, 29 Oct 2005 16:09:28 -0400
+Date: Sat, 29 Oct 2005 21:09:24 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [git patches] 2.6.x libata updates
+Message-ID: <20051029200924.GM7992@ftp.linux.org.uk>
+References: <20051029182228.GA14495@havoc.gtf.org> <20051029121454.5d27aecb.akpm@osdl.org> <4363CB60.2000201@pobox.com> <Pine.LNX.4.64.0510291229330.3348@g5.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0510291229330.3348@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov <aia21@cam.ac.uk> writes:
+On Sat, Oct 29, 2005 at 12:37:58PM -0700, Linus Torvalds wrote:
+> Now, I've gotten several positive comments on how easy "git bisect" is to 
+> use, and I've used it myself, but this is the first time that patch users 
+> _really_ become very much second-class citizens, and you can't necessarily 
+> always do useful things with just the tar-trees and patches. That's sad, 
+> and possibly a really big downside.
+> 
+> Don't get me wrong - I personally think that the new merge policy is a 
+> clear improvement, but it does have this downside.
 
->> Probably, yes. I think we need to know on-disk filename's code set.
->
-> If FAT stores the filenames in 8 bits (non-UTF) then yes, it will be in 
-> the current locale/code page of the Windows system writing them (e.g. that 
-> happens with the names of EAs in NTFS).
->
-> If the names are stored in 16-bit Unicode like on NTFS then obviously they 
-> are completely locale/code page independent.  (Makes my life in NTFS a 
-> _lot_ easier.  Especially since the NTFS volume contains an upcase table 
-> for the full 16-bit Unicode which we load and use to do upcasing for the 
-> case insensitive comparisons...)
-
-Yes, I got to know it from fs/ntfs/*. :)  Unfortunately, FAT stores
-8/16bits codeset filename always. (Unicode (UCS2?) is stored in only
-case of longname.)
-
-Thanks.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Well...  All it takes is extra patches when incremental gets too large;
+e.g. have a script pick idle interval close to splitting the thing in
+half until parts get less than <size>.  The question is, how much extra
+load would that create?  Another problem is that a lot of intermediates
+will not build, but that is just as true for -git<n> snapshots ;-/

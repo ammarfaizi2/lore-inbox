@@ -1,58 +1,566 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbVJ2T0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbVJ2TYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932129AbVJ2T0O (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 15:26:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbVJ2T0O
+	id S932126AbVJ2TYc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 15:24:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932124AbVJ2TY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 15:26:14 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:3462 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932119AbVJ2T0M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 15:26:12 -0400
-Message-ID: <4363CCBD.6060207@pobox.com>
-Date: Sat, 29 Oct 2005 15:25:49 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Max Kellermann <max@duempel.org>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.14-rc4-mm1 and later: second ata_piix controller is invisible
-References: <20051025095646.GA24977@roonstrasse.net>
-In-Reply-To: <20051025095646.GA24977@roonstrasse.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Sat, 29 Oct 2005 15:24:28 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:48062 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S932123AbVJ2TYB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 15:24:01 -0400
+Message-Id: <20051029192435.266253000@omelas>
+References: <20051029191229.562454000@omelas>
+Date: Sat, 29 Oct 2005 12:12:33 -0700
+From: Deepak Saxena <dsaxena@plexity.net>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, tony@atomide.com
+Subject: [patch 4/5] x86 driver
+Content-Disposition: inline; filename=rng/rng_x86_driver.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Max Kellermann wrote:
-> Hi Andrew,
-> 
-> since 2.6.14-rc4-mm1, my second ata_piix (SATA) controller does not
-> show up in dmesg, effectively hiding /dev/sdb.  2.6.14-rc2-mm2 and
-> older (with the same kernel config) were ok, the same for Linus'
-> kernels: 2.6.14-rc5 without -mm1 has /dev/sdb, too.
-> 
-> 0000:00:1f.2 IDE interface: Intel Corp. 82801EB (ICH5) Serial ATA 150
-> Storage Controller (rev 02) (prog-if 8f [Master SecP SecO PriP PriO])
-> 0000:00:1f.2 0101: 8086:24d1 (rev 02)
-> 
-> This PCI device (on-board on an Asus P4 mainboard) has two SATA
-> connectors, showing up as ata1/sda and ata2/sdb.
-> 
-> dmesg from 2.6.14-rc5:
+x86 RNG driver. This is basically the existing driver with
+the user space interface bits ripped out. 
 
-Thanks for this report.  Would it be possible for you to test 2.6.14 
-(release) and 2.6.14-git1, as additional data points?
-
-Once its out, I might ask you to try 2.6.14-git2 (tonight's upcoming 
-snapshot) as well.
-
-Regards,
-
-	Jeff
+Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
 
 
+Index: linux-2.6-rng/drivers/char/rng/x86-rng.c
+===================================================================
+--- /dev/null
++++ linux-2.6-rng/drivers/char/rng/x86-rng.c
+@@ -0,0 +1,528 @@
++/*
++ * drivers/char/rng/x86.c
++ *
++ * RNG driver for Intel/AMD/VIA RNGs
++ *
++ * Copyright 2005 (c) MontaVista Software, Inc.
++ *
++ * with the majority of the code coming from:
++ *
++ * Hardware driver for the Intel/AMD/VIA Random Number Generators (RNG)
++ * (c) Copyright 2003 Red Hat Inc <jgarzik@redhat.com>
++ *
++ * derived from
++ *
++ * Hardware driver for the AMD 768 Random Number Generator (RNG)
++ * (c) Copyright 2001 Red Hat Inc <alan@redhat.com>
++ *
++ * derived from
++ *
++ * Hardware driver for Intel i810 Random Number Generator (RNG)
++ * Copyright 2000,2001 Jeff Garzik <jgarzik@pobox.com>
++ * Copyright 2000,2001 Philipp Rumpf <prumpf@mandrakesoft.com>
++ *
++ * This file is licensed under  the terms of the GNU General Public
++ * License version 2. This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ */
++
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/fs.h>
++#include <linux/init.h>
++#include <linux/pci.h>
++#include <linux/interrupt.h>
++#include <linux/spinlock.h>
++#include <linux/random.h>
++#include <linux/miscdevice.h>
++#include <linux/smp_lock.h>
++#include <linux/mm.h>
++#include <linux/delay.h>
++
++#include <asm/msr.h>
++#include <asm/cpufeature.h>
++
++#include <asm/io.h>
++
++#include "rng.h"
++
++/*
++ * debugging macros
++ */
++
++/* pr_debug() collapses to a no-op if DEBUG is not defined */
++#define DPRINTK(fmt, args...) pr_debug(PFX "%s: " fmt, __FUNCTION__ , ## args)
++
++#define RNG_VERSION "1.1.0"
++#define RNG_MODULE_NAME "x86-rng"
++#define RNG_DRIVER_NAME RNG_MODULE_NAME " hardware driver " RNG_VERSION
++#define PFX RNG_MODULE_NAME ": "
++
++#undef RNG_NDEBUG        /* define to enable lightweight runtime checks */
++#ifdef RNG_NDEBUG
++#define assert(expr)							\
++		if(!(expr)) {						\
++		printk(KERN_DEBUG PFX "Assertion failed! %s,%s,%s,"	\
++		"line=%d\n", #expr, __FILE__, __FUNCTION__, __LINE__);	\
++		}
++#else
++#define assert(expr)
++#endif
++
++
++struct x86_rng_operations {
++	int (*init)	(struct pci_dev *dev);
++	void (*cleanup)	(void);
++	struct rng_operations rng_ops;
++};
++
++static struct x86_rng_operations *x86_rng_ops;
++
++static int __init intel_init (struct pci_dev *dev);
++static void intel_cleanup(void);
++static int intel_data_present (void);
++static int intel_data_read (u32 *data);
++
++static int __init amd_init (struct pci_dev *dev);
++static void amd_cleanup(void);
++static int amd_data_present (void);
++static int amd_data_read (u32 *data);
++
++#ifdef __i386__
++static int __init via_init(struct pci_dev *dev);
++static void via_cleanup(void);
++static int via_data_present (void);
++static int via_data_read (u32 *date);
++#endif
++
++enum {
++	rng_hw_none,
++	rng_hw_intel,
++	rng_hw_amd,
++	rng_hw_via,
++};
++
++static struct x86_rng_operations rng_vendor_ops[] = {
++	/* rng_hw_none */
++	{ },
++
++	/* rng_hw_intel */
++	{
++		.init			= intel_init,
++		.cleanup		= intel_cleanup,
++		.rng_ops.data_present	= intel_data_present,
++		.rng_ops.data_read	= intel_data_read
++	},
++
++	/* rng_hw_amd */
++	{
++		.init			= amd_init,
++		.cleanup		= amd_cleanup,
++		.rng_ops.data_present	= amd_data_present,
++		.rng_ops.data_read	= amd_data_read
++	},
++
++#ifdef __i386__
++	/* rng_hw_via */
++	{
++		.init			= via_init,
++		.cleanup		= via_cleanup,
++		.rng_ops.data_present	= via_data_present,
++		.rng_ops.data_read	= via_data_read
++	}
++#endif
++};
++
++/*
++ * Data for PCI driver interface
++ *
++ * This data only exists for exporting the supported
++ * PCI ids via MODULE_DEVICE_TABLE.  We do not actually
++ * register a pci_driver, because someone else might one day
++ * want to register another driver on the same PCI id.
++ */
++static struct pci_device_id rng_pci_tbl[] = {
++	{ 0x1022, 0x7443, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_amd },
++	{ 0x1022, 0x746b, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_amd },
++
++	{ 0x8086, 0x2418, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_intel },
++	{ 0x8086, 0x2428, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_intel },
++	{ 0x8086, 0x2448, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_intel },
++	{ 0x8086, 0x244e, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_intel },
++	{ 0x8086, 0x245e, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_intel },
++
++	{ 0, },	/* terminate list */
++};
++MODULE_DEVICE_TABLE (pci, rng_pci_tbl);
++
++/***********************************************************************
++ *
++ * Intel RNG operations
++ *
++ */
++
++/*
++ * RNG registers (offsets from rng_mem)
++ */
++#define INTEL_RNG_HW_STATUS			0
++#define         INTEL_RNG_PRESENT		0x40
++#define         INTEL_RNG_ENABLED		0x01
++#define INTEL_RNG_STATUS			1
++#define         INTEL_RNG_DATA_PRESENT		0x01
++#define INTEL_RNG_DATA				2
++
++/*
++ * Magic address at which Intel PCI bridges locate the RNG
++ */
++#define INTEL_RNG_ADDR				0xFFBC015F
++#define INTEL_RNG_ADDR_LEN			3
++
++/* token to our ioremap'd RNG register area */
++static void __iomem *rng_mem;
++
++static inline u8 intel_hwstatus (void)
++{
++	assert (rng_mem != NULL);
++	return readb (rng_mem + INTEL_RNG_HW_STATUS);
++}
++
++static inline u8 intel_hwstatus_set (u8 hw_status)
++{
++	assert (rng_mem != NULL);
++	writeb (hw_status, rng_mem + INTEL_RNG_HW_STATUS);
++	return intel_hwstatus ();
++}
++
++static int intel_data_present(void)
++{
++	assert (rng_mem != NULL);
++
++	return (readb (rng_mem + INTEL_RNG_STATUS) & INTEL_RNG_DATA_PRESENT) ?
++		1 : 0;
++}
++
++static int intel_data_read(u32 *data)
++{
++	assert (rng_mem != NULL);
++
++	*data = readb (rng_mem + INTEL_RNG_DATA);
++
++	return 1;
++}
++
++static int __init intel_init (struct pci_dev *dev)
++{
++	int rc;
++	u8 hw_status;
++
++	DPRINTK ("ENTER\n");
++
++	rng_mem = ioremap (INTEL_RNG_ADDR, INTEL_RNG_ADDR_LEN);
++	if (rng_mem == NULL) {
++		printk (KERN_ERR PFX "cannot ioremap RNG Memory\n");
++		rc = -EBUSY;
++		goto err_out;
++	}
++
++	/* Check for Intel 82802 */
++	hw_status = intel_hwstatus ();
++	if ((hw_status & INTEL_RNG_PRESENT) == 0) {
++		printk (KERN_ERR PFX "RNG not detected\n");
++		rc = -ENODEV;
++		goto err_out_free_map;
++	}
++
++	/* turn RNG h/w on, if it's off */
++	if ((hw_status & INTEL_RNG_ENABLED) == 0)
++		hw_status = intel_hwstatus_set (hw_status | INTEL_RNG_ENABLED);
++	if ((hw_status & INTEL_RNG_ENABLED) == 0) {
++		printk (KERN_ERR PFX "cannot enable RNG, aborting\n");
++		rc = -EIO;
++		goto err_out_free_map;
++	}
++
++	DPRINTK ("EXIT, returning 0\n");
++	return 0;
++
++err_out_free_map:
++	iounmap (rng_mem);
++	rng_mem = NULL;
++err_out:
++	DPRINTK ("EXIT, returning %d\n", rc);
++	return rc;
++}
++
++static void intel_cleanup(void)
++{
++	u8 hw_status;
++
++	hw_status = intel_hwstatus ();
++	if (hw_status & INTEL_RNG_ENABLED)
++		intel_hwstatus_set (hw_status & ~INTEL_RNG_ENABLED);
++	else
++		printk(KERN_WARNING PFX "unusual: RNG already disabled\n");
++	iounmap(rng_mem);
++	rng_mem = NULL;
++}
++
++/***********************************************************************
++ *
++ * AMD RNG operations
++ *
++ */
++
++static u32 pmbase;			/* PMxx I/O base */
++static struct pci_dev *amd_dev;
++
++static int amd_data_present (void)
++{
++      	return inl(pmbase + 0xF4) & 1;
++}
++
++
++static int amd_data_read (u32 *data)
++{
++	*data = inl(pmbase + 0xF0);
++
++	return 4;
++}
++
++static int __init amd_init (struct pci_dev *dev)
++{
++	int rc;
++	u8 rnen;
++
++	DPRINTK ("ENTER\n");
++
++	pci_read_config_dword(dev, 0x58, &pmbase);
++
++	pmbase &= 0x0000FF00;
++
++	if (pmbase == 0)
++	{
++		printk (KERN_ERR PFX "power management base not set\n");
++		rc = -EIO;
++		goto err_out;
++	}
++
++	pci_read_config_byte(dev, 0x40, &rnen);
++	rnen |= (1 << 7);	/* RNG on */
++	pci_write_config_byte(dev, 0x40, rnen);
++
++	pci_read_config_byte(dev, 0x41, &rnen);
++	rnen |= (1 << 7);	/* PMIO enable */
++	pci_write_config_byte(dev, 0x41, rnen);
++
++	pr_info( PFX "AMD768 system management I/O registers at 0x%X.\n",
++			pmbase);
++
++	amd_dev = dev;
++
++	DPRINTK ("EXIT, returning 0\n");
++	return 0;
++
++err_out:
++	DPRINTK ("EXIT, returning %d\n", rc);
++	return rc;
++}
++
++static void amd_cleanup(void)
++{
++	u8 rnen;
++
++	pci_read_config_byte(amd_dev, 0x40, &rnen);
++	rnen &= ~(1 << 7);	/* RNG off */
++	pci_write_config_byte(amd_dev, 0x40, rnen);
++
++	/* FIXME: twiddle pmio, also? */
++}
++
++#ifdef __i386__
++/***********************************************************************
++ *
++ * VIA RNG operations
++ *
++ */
++
++enum {
++	VIA_STRFILT_CNT_SHIFT	= 16,
++	VIA_STRFILT_FAIL	= (1 << 15),
++	VIA_STRFILT_ENABLE	= (1 << 14),
++	VIA_RAWBITS_ENABLE	= (1 << 13),
++	VIA_RNG_ENABLE		= (1 << 6),
++	VIA_XSTORE_CNT_MASK	= 0x0F,
++
++	VIA_RNG_CHUNK_8		= 0x00,	/* 64 rand bits, 64 stored bits */
++	VIA_RNG_CHUNK_4		= 0x01,	/* 32 rand bits, 32 stored bits */
++	VIA_RNG_CHUNK_4_MASK	= 0xFFFFFFFF,
++	VIA_RNG_CHUNK_2		= 0x02,	/* 16 rand bits, 32 stored bits */
++	VIA_RNG_CHUNK_2_MASK	= 0xFFFF,
++	VIA_RNG_CHUNK_1		= 0x03,	/* 8 rand bits, 32 stored bits */
++	VIA_RNG_CHUNK_1_MASK	= 0xFF,
++};
++
++static u32 via_rng_datum;
++
++/*
++ * Investigate using the 'rep' prefix to obtain 32 bits of random data
++ * in one insn.  The upside is potentially better performance.  The
++ * downside is that the instruction becomes no longer atomic.  Due to
++ * this, just like familiar issues with /dev/random itself, the worst
++ * case of a 'rep xstore' could potentially pause a cpu for an
++ * unreasonably long time.  In practice, this condition would likely
++ * only occur when the hardware is failing.  (or so we hope :))
++ *
++ * Another possible performance boost may come from simply buffering
++ * until we have 4 bytes, thus returning a u32 at a time,
++ * instead of the current u8-at-a-time.
++ */
++
++static inline u32 xstore(u32 *addr, u32 edx_in)
++{
++	u32 eax_out;
++
++	asm(".byte 0x0F,0xA7,0xC0 /* xstore %%edi (addr=%0) */"
++		:"=m"(*addr), "=a"(eax_out)
++		:"D"(addr), "d"(edx_in));
++
++	return eax_out;
++}
++
++static int via_data_present(void)
++{
++	u32 bytes_out;
++
++	/* We choose the recommended 1-byte-per-instruction RNG rate,
++	 * for greater randomness at the expense of speed.  Larger
++	 * values 2, 4, or 8 bytes-per-instruction yield greater
++	 * speed at lesser randomness.
++	 *
++	 * If you change this to another VIA_CHUNK_n, you must also
++	 * change the ->n_bytes values in rng_vendor_ops[] tables.
++	 * VIA_CHUNK_8 requires further code changes.
++	 *
++	 * A copy of MSR_VIA_RNG is placed in eax_out when xstore
++	 * completes.
++	 */
++	via_rng_datum = 0; /* paranoia, not really necessary */
++	bytes_out = xstore(&via_rng_datum, VIA_RNG_CHUNK_1) & VIA_XSTORE_CNT_MASK;
++	if (bytes_out == 0)
++		return 0;
++
++	return 1;
++}
++
++static int via_data_read(u32 *data)
++{
++	*data = via_rng_datum;
++
++	return 1;
++}
++
++static int __init via_init(struct pci_dev *dev)
++{
++	u32 lo, hi, old_lo;
++
++	/* Control the RNG via MSR.  Tread lightly and pay very close
++	 * close attention to values written, as the reserved fields
++	 * are documented to be "undefined and unpredictable"; but it
++	 * does not say to write them as zero, so I make a guess that
++	 * we restore the values we find in the register.
++	 */
++	rdmsr(MSR_VIA_RNG, lo, hi);
++
++	old_lo = lo;
++	lo &= ~(0x7f << VIA_STRFILT_CNT_SHIFT);
++	lo &= ~VIA_XSTORE_CNT_MASK;
++	lo &= ~(VIA_STRFILT_ENABLE | VIA_STRFILT_FAIL | VIA_RAWBITS_ENABLE);
++	lo |= VIA_RNG_ENABLE;
++
++	if (lo != old_lo)
++		wrmsr(MSR_VIA_RNG, lo, hi);
++
++	/* perhaps-unnecessary sanity check; remove after testing if
++	   unneeded */
++	rdmsr(MSR_VIA_RNG, lo, hi);
++	if ((lo & VIA_RNG_ENABLE) == 0) {
++		printk(KERN_ERR PFX "cannot enable VIA C3 RNG, aborting\n");
++		return -ENODEV;
++	}
++
++	return 0;
++}
++
++static void via_cleanup(void)
++{
++	/* do nothing */
++}
++#endif
++
++
++/*
++ * rng_init - initialize RNG module
++ */
++static int __init x86_rng_init(void)
++{
++	int rc;
++	struct pci_dev *pdev = NULL;
++	const struct pci_device_id *ent;
++
++	DPRINTK ("ENTER\n");
++
++	/* Probe for Intel, AMD RNGs */
++	for_each_pci_dev(pdev) {
++		ent = pci_match_id(rng_pci_tbl, pdev);
++		if (ent) {
++			x86_rng_ops = &rng_vendor_ops[ent->driver_data];
++			goto match;
++		}
++	}
++
++	/* Probe for VIA RNG */
++	if (cpu_has_xstore) {
++		x86_rng_ops = &rng_vendor_ops[rng_hw_via];
++		pdev = NULL;
++		goto match;
++	}
++
++	DPRINTK ("EXIT, returning -ENODEV\n");
++	return -ENODEV;
++
++match:
++	rc = x86_rng_ops->init(pdev);
++	if (rc)
++		return rc;
++
++	rc = register_rng(&x86_rng_ops->rng_ops);
++	if (rc) {
++		x86_rng_ops->cleanup();
++		return rc;
++	}
++
++	pr_info( RNG_DRIVER_NAME " loaded\n");
++
++	DPRINTK ("EXIT, returning 0\n");
++	return 0;
++}
++
++/*
++ * rng_init - shutdown RNG module
++ */
++static void __exit x86_rng_exit (void)
++{
++	DPRINTK ("ENTER\n");
++
++	unregister_rng(&x86_rng_ops->rng_ops);
++
++	if (x86_rng_ops->cleanup)
++		x86_rng_ops->cleanup();
++
++	DPRINTK ("EXIT\n");
++}
++
++subsys_initcall(x86_rng_init);
++module_exit(x86_rng_exit);
++
++MODULE_AUTHOR("The Linux Kernel team");
++MODULE_DESCRIPTION("H/W RNG driver for Intel/AMD/VIA chipsets");
++MODULE_LICENSE("GPL");
 
+--
+Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
 
+Even a stopped clock gives the right time twice a day.

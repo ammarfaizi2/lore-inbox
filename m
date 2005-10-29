@@ -1,50 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbVJ2Eum@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbVJ2FHq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751143AbVJ2Eum (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 00:50:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbVJ2Eum
+	id S1751321AbVJ2FHq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 01:07:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbVJ2FHq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 00:50:42 -0400
-Received: from ams-iport-1.cisco.com ([144.254.224.140]:12157 "EHLO
-	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S1751143AbVJ2Eul (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 00:50:41 -0400
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] toshiba_ohci1394_dmi_table should be __devinitdata, not
- __devinit
-X-Message-Flag: Warning: May contain useful information
-From: Roland Dreier <rolandd@cisco.com>
-Date: Fri, 28 Oct 2005 21:50:35 -0700
-Message-ID: <52fyqlorj8.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+	Sat, 29 Oct 2005 01:07:46 -0400
+Received: from usbb-lacimss1.unisys.com ([192.63.108.51]:55570 "EHLO
+	usbb-lacimss1.unisys.com") by vger.kernel.org with ESMTP
+	id S1751321AbVJ2FHp convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 01:07:45 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 29 Oct 2005 04:50:36.0953 (UTC) FILETIME=[4DB52090:01C5DC44]
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] Kconfig fix, (ES7000 dependencies)
+Date: Sat, 29 Oct 2005 00:07:34 -0500
+Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04DFA@USRV-EXCH4.na.uis.unisys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] Kconfig fix, (ES7000 dependencies)
+Thread-Index: AcXQrfIiqAa95k0ITkmyy/xDNw4wqAANINDQAti2I2A=
+From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+To: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       "Peter Hagervall" <hager@cs.umu.se>, <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>
+X-OriginalArrivalTime: 29 Oct 2005 05:07:35.0445 (UTC) FILETIME=[ACC6AC50:01C5DC46]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't really understand why gcc gives the error it does, but without
-this patch, when building with CONFIG_HOTPLUG=n, I get errors like:
+> > Targets X86_GENERICARCH and X86_ES7000 fail to build without 
+> > CONFIG_ACPI.
+> > 
+> > Signed-off-by: Peter Hagervall <hager@cs.umu.se>
+> > ---
+> > 
+> > diff --git a/arch/i386/Kconfig b/arch/i386/Kconfig
+> > --- a/arch/i386/Kconfig
+> > +++ b/arch/i386/Kconfig
+> > @@ -115,14 +115,14 @@ config X86_VISWS
+> >  
+> >  config X86_GENERICARCH
+> >         bool "Generic architecture (Summit, bigsmp, ES7000, 
+> default)"
+> > -       depends on SMP
+> > +       depends on SMP && ACPI
+> >         help
+> >            This option compiles in the Summit, bigsmp, 
+> ES7000, default 
+> > subarchitectures.
+> >  	  It is intended for a generic binary kernel.
+> >  
+> >  config X86_ES7000
+> >  	bool "Support for Unisys ES7000 IA32 series"
+> > -	depends on SMP
+> > +	depends on SMP && ACPI
+> >  	help
+> >  	  Support for Unisys ES7000 systems.  Say 'Y' here if 
+> this kernel is
+> >  	  supposed to run on an IA32-based Unisys ES7000 system.
+> 
+> 
+> No, ES7000 doesn't have to depend on ACPI, it uses MPS for 
+> testing/failsafe purposes a lot. I had a patch for the build 
+> bix submitted 
+> http://bugzilla.kernel.org/show_bug.cgi?id=5124, I think Len 
+> was going to sort it out.
 
-      CC      arch/x86_64/pci/../../i386/pci/fixup.o
-    arch/x86_64/pci/../../i386/pci/fixup.c: In function `pci_fixup_i450nx':
-    arch/x86_64/pci/../../i386/pci/fixup.c:13: error: pci_fixup_i450nx causes a section type conflict
-
-The change is obviously correct: an array should be declared
-__devinitdata rather that __devinit.
-
-Signed-off-by: Roland Dreier <rolandd@cisco.com>
-
-diff --git a/arch/i386/pci/fixup.c b/arch/i386/pci/fixup.c
---- a/arch/i386/pci/fixup.c
-+++ b/arch/i386/pci/fixup.c
-@@ -398,7 +398,7 @@ DECLARE_PCI_FIXUP_HEADER(PCI_ANY_ID, PCI
-  */
- static u16 toshiba_line_size;
- 
--static struct dmi_system_id __devinit toshiba_ohci1394_dmi_table[] = {
-+static struct dmi_system_id __devinitdata toshiba_ohci1394_dmi_table[] = {
- 	{
- 		.ident = "Toshiba PS5 based laptop",
- 		.matches = {
+Peter, I'd have to take it back - no objections to ACPI dependency for
+ES7000 (since the acpi=off switch will serve our needs just fine). The
+patch I had is perhaps too elaborate :) and it's easier just do it as
+you suggested. As long as no worries from other genapic entities (like
+Summit? or someone out there with large configuration and no ACPI), the
+patch is fine with me.
+Thanks,
+--Natalie 

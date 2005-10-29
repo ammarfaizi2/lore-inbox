@@ -1,59 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751022AbVJ2L67@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751040AbVJ2MJS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751022AbVJ2L67 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 07:58:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751034AbVJ2L67
+	id S1751040AbVJ2MJS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 08:09:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751041AbVJ2MJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 07:58:59 -0400
-Received: from zproxy.gmail.com ([64.233.162.204]:59141 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751022AbVJ2L67 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 07:58:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=aKvoHt56xgd8Yu1o/wTQt6gpo3UnHAsBGJT/idLY0o7AgDOXbr+1xS7DQqc3pNKrvgqcnRRU2Kz7vNYKQbQ4xDrqkxLzSFcVcvudhQABDBQ7E7RM8XDph+5dVjIdEVLu5TUuIUU6+P3nuDnI+EKIt0zsc2kTZkAU8lRCkdKCPNE=
-Message-ID: <35fb2e590510290458u47ad70d2s1f5956cb47c193c0@mail.gmail.com>
-Date: Sat, 29 Oct 2005 12:58:58 +0100
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: Evgeny Stambulchik <Evgeny.Stambulchik@weizmann.ac.il>
-Subject: Re: Weirdness of "mount -o remount,rw" with write-protected floppy
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <35fb2e590510270805h1739b19chf0b719948aa6f4f@mail.gmail.com>
+	Sat, 29 Oct 2005 08:09:18 -0400
+Received: from carlsberg.amagerkollegiet.dk ([83.221.136.34]:40967 "EHLO
+	carlsberg.amagerkollegiet.dk") by vger.kernel.org with ESMTP
+	id S1751039AbVJ2MJR convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 08:09:17 -0400
+From: moffe@zz9.dk (Rasmus =?iso-8859-1?Q?B=F8g?= Hansen)
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Mac address in network stack.
+Date: Sat, 29 Oct 2005 14:09:00 +0200
+Message-ID: <87u0f0le3n.fsf@grignard.amagerkollegiet.dk>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+X-OS: Debian GNU/Linux
+X-Homepage: http://www.zz9.dk/
+X-PGP-Key: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0x13C9843F
+X-ICQ: 88924807
+X-MSN: moffe@zz9.dk
+X-Jabber: moffe@zz9.dk
+Organization: NykDOOM Corporation Inc.
+X-Face: %DS.+[45f??m49W<wuMca_)Y:'@GXuT>kAzQtux,*gE!x/E5!wg8B/g|35OJY)6m(_9^e:_
+ U~,?.DLHGIc{]>=s0^W"EL^#$#;haH-&'IO&<_7Z@Ib)<5$kByeqKV6}]<;<]{zP;%*>p\06ZdcS;u
+ CDw|1qDi;lv4_<a6LGU3E`}cT:T*x9{3V
+X-Virus: Hi! I'm a header virus! Copy me into yours and join the fun!
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4360C0A7.4050708@weizmann.ac.il>
-	 <35fb2e590510270805h1739b19chf0b719948aa6f4f@mail.gmail.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Amagerkollegiet-MailScanner: Found to be clean
+X-Amagerkollegiet-MailScanner-From: moffe@zz9.dk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/27/05, Jon Masters <jonmasters@gmail.com> wrote:
-> On 10/27/05, Evgeny Stambulchik <Evgeny.Stambulchik@weizmann.ac.il> wrote:
->
-> > # mount /dev/fd0 /mnt/floppy/
-> > mount: block device /dev/fd0 is write-protected, mounting read-only
-> > # mount -o remount,rw /mnt/floppy
-> > # echo $?
-> > 0
->
-> Oops. That looks like a bug.
+Hi
 
-Callchain is:
+I am trying to adapt a sched module (WRR, a sched class and qdisc) to
+the 2.6 kernel. It was originally coded for 2.2 and classified hosts
+by their mac address. Later it got classification for IP and with 2.4
+MAC support was deactivated as this apparently was done in another way
+in 2.4. I am now trying to reimplement the MAC support but have run
+into trouble...
 
-    sys_mount -> do_mount -> do_remount
+In 2.2 the mac address of the sender and receiver of the packet was
+found by eg.:
 
-and that then calls:
+memcpy(addr,skb->mac.ethernet->h_source,ETH_ALEN);
+memcpy(addr,skb->mac.ethernet->h_dest,ETH_ALEN);
 
-    do_remount_sb
+This was apparently possible only when running in bridging mode. In
+the 2.6 kernel this seems to be able to do by eg.:
 
-which does:
+memcpy(addr,eth_hdr(skb)->h_source, ETH_ALEN);
+memcpy(addr,eth_hdr(skb)->h_dest, ETH_ALEN);
 
-    if (!(flags & MS_RDONLY) && bdev_read_only(sb->s_bdev))
-                 return -EACCES;
+However eth_hdr() seems to return a NULL pointer (really a pointer to
+skb->mac.raw), even when running in bridge mode.
 
-So I'm missing something. I'll have another look, it's failing somewhere else.
+I see this as a sign that the mac address is not available in this
+layer of the network stack. Is this true or am I just trying to fetch
+the MAC address in the wrong way?
 
-Jon.
+Thanks in advance
+/Rasmus
+
+-- 
+-- [ Rasmus "Møffe" Bøg Hansen ] ---------------------------------------
+If there are no stupid questions, then what kind of questions do stupid
+people ask? Do they get smart just in time to ask questions?
+----------------------------------------------[ moffe at zz9 dot dk ] --
+

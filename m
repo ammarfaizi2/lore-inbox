@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbVJ2WH3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932462AbVJ2WH4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932463AbVJ2WH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 18:07:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbVJ2WH3
+	id S932462AbVJ2WH4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 18:07:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932636AbVJ2WH4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 18:07:29 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3340 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932461AbVJ2WH2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 18:07:28 -0400
-Date: Sat, 29 Oct 2005 23:07:22 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: ralf@linux-mips.org, Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [FIXME] Comments on serial and MMC changes in MIPS merge
-Message-ID: <20051029220722.GI14039@flint.arm.linux.org.uk>
-Mail-Followup-To: ralf@linux-mips.org,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Sat, 29 Oct 2005 18:07:56 -0400
+Received: from electra.cc.umanitoba.ca ([130.179.16.23]:52964 "EHLO
+	electra.cc.umanitoba.ca") by vger.kernel.org with ESMTP
+	id S932465AbVJ2WHz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 18:07:55 -0400
+Message-ID: <4363F2B5.6090309@cc.umanitoba.ca>
+Date: Sat, 29 Oct 2005 17:07:49 -0500
+From: Mark Jenkins <umjenki5@cc.umanitoba.ca>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Rob Landley <rob@landley.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Is sharpzdc_cs.o not a derivitive work of Linux?
+References: <43625208.60703@cc.umanitoba.ca> <200510290410.48454.rob@landley.net>
+In-Reply-To: <200510290410.48454.rob@landley.net>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some comments on the recent MIPS merge:
+Rob,
 
-1. au1xxx mmc driver
+It is wonderful that a day will come when most modules will need to use
+a symbol with attached documentation that says, "if you this symbol,
+your code will be a derivative work, and by extension you must license
+it under a GNU GPL compatible license".
 
-   mmc_remove_host() does a safe shutdown of the MMC host, removing
-   cards and then powering down.  This must be called prior to the
-   driver thinking of tearing anything down.
+A cynical person would respond to this and say "if somebody comes along
+and uses one of those symbols in a proprietary module, the Linux
+developers will let them get away with it".
 
-   As for those disable_irq()...enable_irq(), are you aware that MMC
-   can start talking to the host as soon as you've called mmc_add_host() ?
+I hold no such cynicism. I believe the Linux developers would act to
+enforce their license in such a case.
 
-2. IP3106 serial driver
+This high regard that I have for the Linux developers is why I'm willing
+to raise questions about a "binary only" module, despite the fact that
+it doesn't use any symbols labeled EXPORT_SYMBOL_GPL. Linus makes it
+clear that one can not conclude that he and others will say such a
+module is *not* a derivative work. His position was that modules *are*
+derivative works, unless a strong counter argument is made.
+(see http://people.redhat.com/arjanv/COPYING.modules)
 
-   -#define PORT_MAX_8250  15      /* max port ID */
-   +#define PORT_IP3106    16
-   +#define PORT_MAX_8250  16      /* max port ID */
+Therefor, if the Linux developers are faced with a module like
+sharpzdc_cs.o, and if they conclude that good evidence is unavailable
+that it is *not* a derivative work, I believe they would be willing to
+listen to a complaint that their license of choice is not being
+followed, and act on that complaint if they felt it was valid.
 
-   Do not add new port numbers after the 8250 port number range.
-   Add them on the end of the list.
+I will reply again later with an attempt to compare the criteria
+available here:
+http://people.redhat.com/arjanv/COPYING.modules
+against the behavior of sharpzdc_cs.o and Sharp's distribution behavior.
 
-   Since this will get in the way of additional 8250 ports, it's a
-   serious problem.  Please fix ASAP.
+In particular, I would like help with this part of it,
+"anything that has knowledge of and plays with fundamental internal
+   Linux behavior is clearly a derived work. If you need to muck around
+   with core code, you're derived, no question about it.
+"
+as I am not a Linux hacker.
 
-   (btw, I notice that this change was _not_ included with the
-    IP3106 driver you sent for review.)
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Mark Jenkins

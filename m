@@ -1,47 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751194AbVJ2PfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbVJ2PkP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751194AbVJ2PfL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 11:35:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbVJ2PfL
+	id S1751204AbVJ2PkP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 11:40:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbVJ2PkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 11:35:11 -0400
-Received: from alephnull.demon.nl ([83.160.184.112]:5819 "EHLO
-	xi.wantstofly.org") by vger.kernel.org with ESMTP id S1751194AbVJ2PfK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 11:35:10 -0400
-Date: Sat, 29 Oct 2005 17:35:08 +0200
-From: Lennert Buytenhek <buytenh@wantstofly.org>
+	Sat, 29 Oct 2005 11:40:14 -0400
+Received: from smtprelay04.ispgateway.de ([80.67.18.16]:26329 "EHLO
+	smtprelay04.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1751204AbVJ2PkN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 11:40:13 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
 To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-Subject: [PATCH,trivial] hfs needs nls
-Message-ID: <20051029153508.GA32296@xi.wantstofly.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Subject: Re: [PATCH] Disable the most annoying printk in the kernel
+Date: Sat, 29 Oct 2005 17:40:01 +0200
+User-Agent: KMail/1.7.2
+Cc: Pavel Machek <pavel@suse.cz>, Lee Revell <rlrevell@joe-job.com>,
+       Hugh Dickins <hugh@veritas.com>, Andi Kleen <ak@suse.de>,
+       vojtech@suse.cz, akpm@osdl.org
+References: <200510271026.10913.ak@suse.de> <20051028205916.GL4464@flint.arm.linux.org.uk> <20051028212305.GA2447@elf.ucw.cz>
+In-Reply-To: <20051028212305.GA2447@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1786996.uI0HkzAEuM";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200510291740.11099.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reported by Eddy Petrisor (eddy dot petrisor at gmail dot com).
+--nextPart1786996.uI0HkzAEuM
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-fs/built-in.o(.text+0x35fdc): In function `hfs_mdb_put':
-: undefined reference to `unload_nls'
-fs/built-in.o(.text+0x35ff1): In function `hfs_mdb_put':
-: undefined reference to `unload_nls'
-fs/built-in.o(.text+0x367a5): In function `parse_options':
-super.c: undefined reference to `load_nls'
-fs/built-in.o(.text+0x367db):super.c: undefined reference to `load_nls'
-fs/built-in.o(.text+0x36938):super.c: undefined reference to `load_nls_default'
+On Friday 28 October 2005 23:23, Pavel Machek wrote:
+> I do notice lost keys on x32 here. You need to press some weird
+> combination...
 
-Signed-off-by: Lennert Buytenhek <buytenh@wantstofly.org>
+So just tell the message, if !strcmp(current->comm,'emacs') :-)
 
---- linux-2.6.14/fs/Kconfig.orig	2005-10-29 17:32:35.000000000 +0200
-+++ linux-2.6.14/fs/Kconfig	2005-10-29 17:32:52.000000000 +0200
-@@ -898,6 +898,7 @@
- config HFS_FS
- 	tristate "Apple Macintosh file system support (EXPERIMENTAL)"
- 	depends on EXPERIMENTAL
-+	select NLS
- 	help
- 	  If you say Y here, you will be able to mount Macintosh-formatted
- 	  floppy disks and hard drive partitions with full read-write access.
+Regards
+
+Ingo Oeser
+
+
+--nextPart1786996.uI0HkzAEuM
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDY5fbU56oYWuOrkARAnLeAJ9IIGmwbj1QfnotRyiJbbPJehaSQACglP/w
+0gam20RX9TJWoGVRn9cVHZY=
+=7bV6
+-----END PGP SIGNATURE-----
+
+--nextPart1786996.uI0HkzAEuM--

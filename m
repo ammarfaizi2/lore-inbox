@@ -1,60 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbVJ2M2E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750983AbVJ2NBM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbVJ2M2E (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 08:28:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750971AbVJ2M2D
+	id S1750983AbVJ2NBM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 09:01:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750982AbVJ2NBM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 08:28:03 -0400
-Received: from main.gmane.org ([80.91.229.2]:46509 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750834AbVJ2M2C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 08:28:02 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Sat, 29 Oct 2005 09:01:12 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:54920 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S1750810AbVJ2NBM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 09:01:12 -0400
+Subject: Multiple MODULE_AUTHOR statements
+From: Marcel Holtmann <marcel@holtmann.org>
 To: linux-kernel@vger.kernel.org
-From: Joe Seigh <jseigh_02@xemaps.com>
-Subject: Re: Notifier chains are unsafe
-Date: Sat, 29 Oct 2005 08:25:04 -0400
-Message-ID: <djvpme$p83$1@sea.gmane.org>
-References: <5600736.1130346691049.SLOX.WebMail.wwwrun@imap-dhs.suse.de> <E1EUxn7-00081k-00@gondolin.me.apana.org.au>
+Content-Type: text/plain
+Date: Sat, 29 Oct 2005 15:01:13 +0200
+Message-Id: <1130590873.5396.2.camel@blade>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: stenquists.hsd1.ma.comcast.net
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-In-Reply-To: <E1EUxn7-00081k-00@gondolin.me.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Xu wrote:
-> Andreas Kleen <ak@suse.de> wrote:
-> 
->>Am Mi 26.10.2005 02:01 schrieb Chandra Seetharaman
->><sekharan@us.ibm.com>:
->>
->>
->>>>Better would be likely to use RCU.
->>>
->>>RCU will be a problem if the registered notifiers need to block.
->>
->>?
->>Actually blocking should be ok, as long as the blocking notifier doesn't
->>unregister
->>itself. The current next pointer will be always reloaded after the
->>blocking.
-> 
-> 
-> Blocking would be OK as long as you reference count the objects.
+Hi guys,
 
+I saw some people adding multiple MODULE_AUTHOR statements to their
+drivers if they wanna mention more than one author. I normally used a
+comma separated list. Is it valid to use multiple statements? If yes,
+then I will change my drivers to use the same approach.
 
-With or without RCU?  I.e., it's just a straighforward reference counting
-solution and RCU is being used to allow incrementing the reference counts
-safely.  Otherwise, without RCU you'd need a lock to safely increment the
-reference counts.  Also note that with reference counting, the deletes of
-the objects can occur any time a reference count is decremented.  So that
-would include the notify_call threads as well.
+Regards
 
---
-Joe Seigh
+Marcel
+
 

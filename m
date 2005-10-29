@@ -1,70 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbVJ2KNg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750918AbVJ2KRn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750823AbVJ2KNg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 06:13:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbVJ2KNg
+	id S1750918AbVJ2KRn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 06:17:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750921AbVJ2KRn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 06:13:36 -0400
-Received: from mail.suse.de ([195.135.220.2]:65234 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750823AbVJ2KNf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 06:13:35 -0400
-From: Andi Kleen <ak@suse.de>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Subject: Re: [was Re: Linux 2.6.14 ] Revert "x86-64: Avoid unnecessary double bouncing for swiotlb"
-Date: Sat, 29 Oct 2005 12:14:34 +0200
+	Sat, 29 Oct 2005 06:17:43 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:63415
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1750914AbVJ2KRm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 06:17:42 -0400
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Ram Pai <linuxram@us.ibm.com>
+Subject: Re: /etc/mtab and per-process namespaces
+Date: Sat, 29 Oct 2005 05:16:35 -0500
 User-Agent: KMail/1.8
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>
-References: <Pine.LNX.4.64.0510271717190.4664@g5.osdl.org> <20051028225812.GA6744@localhost.localdomain>
-In-Reply-To: <20051028225812.GA6744@localhost.localdomain>
+Cc: greg@enjellic.com, Mike Waychison <mikew@google.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, leimy2k@gmail.com
+References: <200510221323.j9MDNimA009898@wind.enjellic.com> <1130544418.4902.47.camel@localhost>
+In-Reply-To: <1130544418.4902.47.camel@localhost>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200510291214.34718.ak@suse.de>
+Message-Id: <200510290516.37700.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 29 October 2005 00:58, Ravikiran G Thirumalai wrote:
-> On Thu, Oct 27, 2005 at 05:28:50PM -0700, Linus Torvalds wrote:
-> >       Revert "x86-64: Avoid unnecessary double bouncing for swiotlb"
+On Friday 28 October 2005 19:06, Ram Pai wrote:
+
+> > Mike's comments are very apt.  The current situation with mount
+> > support is untenable.  Even working on private development machines it
+> > gets confusing as to what is or is not mounted in various
+> > shells/processes.  The basic infra-structure is there with process
+> > specific mount information (/proc/self/mounts) but mount and friends
+> > are a bit problematic with respect to supporting this.
+
+I fairly extensively rewrote busybox mount, and one of my goals was doing the 
+best job with /proc/mounts (only) support that I could.  In some ways, 
+busybox's mount is better (such as the fact it can autodetect when you're 
+trying to mount a file and figure out it needs -o loop without being told).
+
+If you want try the busybox version of mount/losetup/umount, I hope it does 
+what you want and am willing to fix it if it doesn't.  (P.S.  To 
+use /proc/mounts either configure it without /etc/mtab support or 
+symlink /etc/mtab to /proc/mounts.)
+
+> > I'm working on a namespace toolkit to address these issues.  I've got
+> > a pretty basic tool, similar to sudo, which allows spawning processes
+> > with a protected namespace.  I'm adding a configuration system which
+> > allow systems administrators to define a setup of bind mounts which
+> > are automatically executed before the user is given their shell.  I'm
+> > also working up a PAM account module to go along with this.  I would
+> > certainly be open to suggestions as to what else people would consider
+> > useful in such a toolkit.
+> >
+> > I've been pondering the best way to take on the mount problem.
+> > Current mount binaries seem to fall back to /proc/mounts if /etc/mtab
+> > is not present.  All bets are off of course if the mount binary is
+> > used for the bind mount since a new /etc/mtab is created.
+
+Have you tried having /etc/mtab be a symlink to /proc/mounts?
+
+> > I'm willing to whack on the mount binary a bit as part of this.  The
+> > obvious solution is to teach mount to act differently if it is running
+> > in a private namespace.  If anybody knows of a good way to detect this
+> > I would be interested in knowing that.  In newns (the namespace sudo
+> > tool) I'm setting an environment variable for mount to detect on but a
+> > system level approach would be more generic.
 >
-> (http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=com
->mitdiff;h=79b95a454bb5c1d9b7287d1016a70885ba3f346c)
+> actually there is a hackish way for a process to figure out if it is  in
+> a different namespace than the system namespace.
 >
-> Well, Andi's patch here wasn't just a small optimization as the changelog
-> suggests. It helped EM64T boxes a great deal.  \
+> ls /proc/1/root
+>
+> in a system namespace it will allow you to see the content.
+> And in a per-process-namespace it will fail with permission denied.
+>
+> But I think we should figure out a cleaner way to decipher this,
+> and that would start with clearly defining the requirements, I think.
 
-First to be honest swiotlb performance is not very high on the priority list. 
-It will always be bad. If you care about performance you should use devices 
-that can address all your memory.
+The big thing I've never figured out how to do is make umount -a work in the 
+presence of multiple namespaces.  (Should it just umount what it sees?  I 
+don't know how to umount everything because I can't find everything...)
 
-EM64T server boxes shouldn't have big problems with that because they usually
-support AHCI for IDE, and firewire/usb2/sound is not that critical. And the 
-EM64T boxes with other chipsets typically don't support >4G phys because they 
-only support the lowerend Intel CPUs. Summit might be an exception, but those
-normally only use IDE for CDROMs, which are also not a big issue.
+> RP
 
-> Just to make sure, I 
-> reran 2.6.14 with the attached patch and got about 45% better performance
-> with iozone Initial write.  This was on a 2 cpu 4 thread SMP Xeon with 8G
-> ram, with 2 processes performing io to 4G files on a IDE drive.
-> Maybe it wouldn't have caused breakage on some AMD boxes if the following
-> additional check for swiotlb was added.  Can this go into 2.6.15 please?
-
-Not in this form no. Problem first needs to be understood fully and
-then no_iommu should be set properly.
-
->   * On AMD64 it mostly equals, but we set it to zero to tell some
-> subsystems - * that an IOMMU is available.
-> + * that a hard or soft IOMMU is available.
->   */
-> -#define PCI_DMA_BUS_IS_PHYS	(no_iommu ? 1 : 0)
-> +#define PCI_DMA_BUS_IS_PHYS	((no_iommu && !swiotlb) ? 1 : 0)
-
-That is ugly and I don't like it.  Need to track down the real problem 
-
--Andi
+Rob

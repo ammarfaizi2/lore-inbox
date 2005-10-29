@@ -1,102 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbVJ2T7u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932346AbVJ2UHh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932131AbVJ2T7u (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 15:59:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932135AbVJ2T7u
+	id S932346AbVJ2UHh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 16:07:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932814AbVJ2UHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 15:59:50 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:43784 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932066AbVJ2T7t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 15:59:49 -0400
-Date: Sat, 29 Oct 2005 21:59:47 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Luben Tuikov <luben_tuikov@adaptec.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: 2.6.14-rc5-mm1: SAS: compile error with gcc 2.95
-Message-ID: <20051029195947.GM4180@stusta.de>
-References: <20051024014838.0dd491bb.akpm@osdl.org>
+	Sat, 29 Oct 2005 16:07:36 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:27147 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S932806AbVJ2UHd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 16:07:33 -0400
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
+       Horms <horms@verge.net.au>, 333776@bugs.debian.org
+Subject: Re: Bug#333776: linux-2.6: vfat driver in 2.6.12 is not properly case-insensitive
+References: <20051013165529.GA2472@tennyson.dodds.net>
+	<20051028082252.GC11045@verge.net.au>
+	<874q71wv2b.fsf@devron.myhome.or.jp>
+	<200510291645.08872.ioe-lkml@rameria.de>
+	<87k6fwcmp0.fsf@devron.myhome.or.jp>
+	<Pine.LNX.4.64.0510291941020.5182@hermes-1.csi.cam.ac.uk>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sun, 30 Oct 2005 05:07:05 +0900
+In-Reply-To: <Pine.LNX.4.64.0510291941020.5182@hermes-1.csi.cam.ac.uk> (Anton Altaparmakov's message of "Sat, 29 Oct 2005 19:44:20 +0100 (BST)")
+Message-ID: <87fyqkcck6.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051024014838.0dd491bb.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 24, 2005 at 01:48:38AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.14-rc4-mm1:
->...
->  git-sas.patch
->...
->  Subsystem trees
->...
+Anton Altaparmakov <aia21@cam.ac.uk> writes:
 
-This gives the following compile error with gcc 2.95:
+>> Probably, yes. I think we need to know on-disk filename's code set.
+>
+> If FAT stores the filenames in 8 bits (non-UTF) then yes, it will be in 
+> the current locale/code page of the Windows system writing them (e.g. that 
+> happens with the names of EAs in NTFS).
+>
+> If the names are stored in 16-bit Unicode like on NTFS then obviously they 
+> are completely locale/code page independent.  (Makes my life in NTFS a 
+> _lot_ easier.  Especially since the NTFS volume contains an upcase table 
+> for the full 16-bit Unicode which we load and use to do upcasing for the 
+> case insensitive comparisons...)
 
-<--  snip  -->
+Yes, I got to know it from fs/ntfs/*. :)  Unfortunately, FAT stores
+8/16bits codeset filename always. (Unicode (UCS2?) is stored in only
+case of longname.)
 
-...
-  CC      drivers/scsi/aic94xx/aic94xx_init.o
-In file included from include/scsi/sas/sas.h:90,
-                 from include/scsi/sas/sas_class.h:33,
-                 from include/scsi/sas/sas_discover.h:29,
-                 from drivers/scsi/aic94xx/aic94xx.h:33,
-                 from drivers/scsi/aic94xx/aic94xx_init.c:36:
-include/scsi/sas/sas_frames.h:46: warning: unnamed struct/union that defines no instances
-include/scsi/sas/sas_frames.h:47: warning: unnamed struct/union that defines no instances
-include/scsi/sas/sas_frames.h:55: warning: unnamed struct/union that defines no instances
-include/scsi/sas/sas_frames.h:70: warning: unnamed struct/union that defines no instances
-include/scsi/sas/sas_frames.h:71: warning: unnamed struct/union that defines no instances
-include/scsi/sas/sas_frames.h:79: warning: unnamed struct/union that defines no instances
-In file included from include/scsi/sas/sas_frames.h:90,
-                 from include/scsi/sas/sas.h:90,
-                 from include/scsi/sas/sas_class.h:33,
-                 from include/scsi/sas/sas_discover.h:29,
-                 from drivers/scsi/aic94xx/aic94xx.h:33,
-                 from drivers/scsi/aic94xx/aic94xx_init.c:36:
-include/scsi/sas/sas_frames_le.h:51: warning: unnamed struct/union that defines no instances
-include/scsi/sas/sas_frames_le.h:53: warning: unnamed struct/union that defines no instances
-include/scsi/sas/sas_frames_le.h:63: warning: unnamed struct/union that defines no instances
-include/scsi/sas/sas_frames_le.h:65: warning: unnamed struct/union that defines no instances
-include/scsi/sas/sas_frames_le.h:219: warning: unnamed struct/union that defines no instances
-In file included from drivers/scsi/aic94xx/aic94xx.h:33,
-                 from drivers/scsi/aic94xx/aic94xx_init.c:36:
-include/scsi/sas/sas_discover.h:157: warning: unnamed struct/union that defines no instances
-include/scsi/sas/sas_discover.h: In function `sas_init_dev':
-include/scsi/sas/sas_discover.h:201: structure has no member named `end_dev'
-include/scsi/sas/sas_discover.h:201: structure has no member named `end_dev'
-include/scsi/sas/sas_discover.h:201: structure has no member named `end_dev'
-include/scsi/sas/sas_discover.h:201: structure has no member named `end_dev'
-include/scsi/sas/sas_discover.h:205: structure has no member named `ex_dev'
-include/scsi/sas/sas_discover.h:205: structure has no member named `ex_dev'
-include/scsi/sas/sas_discover.h:205: structure has no member named `ex_dev'
-include/scsi/sas/sas_discover.h:205: structure has no member named `ex_dev'
-include/scsi/sas/sas_discover.h:210: structure has no member named `sata_dev'
-include/scsi/sas/sas_discover.h:210: structure has no member named `sata_dev'
-include/scsi/sas/sas_discover.h:210: structure has no member named `sata_dev'
-include/scsi/sas/sas_discover.h:210: structure has no member named `sata_dev'
-In file included from drivers/scsi/aic94xx/aic94xx_hwi.h:36,
-                 from drivers/scsi/aic94xx/aic94xx_reg.h:32,
-                 from drivers/scsi/aic94xx/aic94xx_init.c:37:
-drivers/scsi/aic94xx/aic94xx_sas.h: At top level:
-drivers/scsi/aic94xx/aic94xx_sas.h:363: warning: unnamed struct/union that defines no instances
-drivers/scsi/aic94xx/aic94xx_sas.h:643: warning: unnamed struct/union that defines no instances
-make[3]: *** [drivers/scsi/aic94xx/aic94xx_init.o] Error 1
-
-<--  snip  -->
-
-Since gcc 2.95 is a supported compiler for 2.6, the code has to be 
-changed to compile with gcc 2.95.
-
-cu
-Adrian
-
+Thanks.
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

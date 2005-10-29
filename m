@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbVJ2SsA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbVJ2Soa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751253AbVJ2SsA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 14:48:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbVJ2SsA
+	id S1751249AbVJ2Soa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 14:44:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbVJ2Soa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 14:48:00 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:6892 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751253AbVJ2Sr7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 14:47:59 -0400
-Date: Sat, 29 Oct 2005 19:47:58 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Dmitry Torokhov <dtor@mail.ru>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH] bluetooth hidp is broken on s390
-Message-ID: <20051029184758.GL7992@ftp.linux.org.uk>
-References: <20051029110200.GH7992@ftp.linux.org.uk> <1130583949.6428.1.camel@blade>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1130583949.6428.1.camel@blade>
-User-Agent: Mutt/1.4.1i
+	Sat, 29 Oct 2005 14:44:30 -0400
+Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:34990 "EHLO
+	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1751249AbVJ2So3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 14:44:29 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Sat, 29 Oct 2005 19:44:20 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+cc: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
+       Horms <horms@verge.net.au>, 333776@bugs.debian.org
+Subject: Re: Bug#333776: linux-2.6: vfat driver in 2.6.12 is not properly
+ case-insensitive
+In-Reply-To: <87k6fwcmp0.fsf@devron.myhome.or.jp>
+Message-ID: <Pine.LNX.4.64.0510291941020.5182@hermes-1.csi.cam.ac.uk>
+References: <20051013165529.GA2472@tennyson.dodds.net> <20051028082252.GC11045@verge.net.au>
+ <874q71wv2b.fsf@devron.myhome.or.jp> <200510291645.08872.ioe-lkml@rameria.de>
+ <87k6fwcmp0.fsf@devron.myhome.or.jp>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 29, 2005 at 01:05:49PM +0200, Marcel Holtmann wrote:
-> Hi Al,
+On Sun, 30 Oct 2005, OGAWA Hirofumi wrote:
+> Ingo Oeser <ioe-lkml@rameria.de> writes:
+> >> This is known bug. For fixing this bug cleanly, we will need to much
+> >> change the both of nls and filesystems.
+> >
+> > Using per locale collation sequences? :-)
+> >
+> > Do you know, how Windows handles the problem of differing collation 
+> > sequences on the file system?
 > 
-> > 	Bluetooth HIDP selects INPUT and it really needs it to be
-> > there - module depends on input core.  And input core is never
-> > built on s390...  Marked as broken on s390, for now; if somebody
-> > has better ideas, feel free to fix it and remove dependency...
-> > 
-> > Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+> I don't know. Why do we need to care the collation sequences here?
 > 
-> basically I think someone should fix the input layer on S390, but I am
-> fine with your fix.
+> > Or is the file system always dependend on the locale of the Windows
+> > version, which created the file system?
+> 
+> Probably, yes. I think we need to know on-disk filename's code set.
 
-There's a problem with that patch, though ;-/  S390 is never defined by
-arch/s390/Kconfig; ARCH_S390 is.  From the fast grep it looks like there
-is one more place with the same problem: drivers/char/Kconfig has
-config HW_CONSOLE
-        bool
-        depends on VT && !S390 && !UML
-        default y
-and the second term is always true here.  Why do we have that dependency,
-anyway, when s390 doesn't include drivers/char/Kconfig at all?
+If FAT stores the filenames in 8 bits (non-UTF) then yes, it will be in 
+the current locale/code page of the Windows system writing them (e.g. that 
+happens with the names of EAs in NTFS).
+
+If the names are stored in 16-bit Unicode like on NTFS then obviously they 
+are completely locale/code page independent.  (Makes my life in NTFS a 
+_lot_ easier.  Especially since the NTFS volume contains an upcase table 
+for the full 16-bit Unicode which we load and use to do upcasing for the 
+case insensitive comparisons...)
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

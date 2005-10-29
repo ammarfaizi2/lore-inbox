@@ -1,37 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbVJ2A3N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750915AbVJ2A3U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750912AbVJ2A3N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 20:29:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbVJ2A3M
+	id S1750915AbVJ2A3U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 20:29:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750918AbVJ2A3U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 20:29:12 -0400
-Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:52997 "EHLO
-	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
-	id S1750912AbVJ2A3L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 20:29:11 -0400
-Message-ID: <4362C255.30600@oxley.org>
-Date: Sat, 29 Oct 2005 01:29:09 +0100
-From: Felix Oxley <lkml@oxley.org>
-User-Agent: Thunderbird 1.4.1 (Macintosh/20051006)
+	Fri, 28 Oct 2005 20:29:20 -0400
+Received: from fmr21.intel.com ([143.183.121.13]:40610 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1750915AbVJ2A3T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 20:29:19 -0400
+Message-Id: <200510290029.j9T0TFg27980@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Felix Oxley'" <lkml@oxley.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: kernel performance update - 2.6.14
+Date: Fri, 28 Oct 2005 17:29:15 -0700
 MIME-Version: 1.0
-To: Felix Oxley <lkml@oxley.org>
-CC: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: kernel performance update - 2.6.14
-References: <200510282344.j9SNihg27345@unix-os.sc.intel.com> <4362BFFC.9050202@oxley.org>
-In-Reply-To: <4362BFFC.9050202@oxley.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcXcH2MrkLzAIwbjTqm26hp34lmHHQAABpNQ
+In-Reply-To: <4362BFFC.9050202@oxley.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felix Oxley wrote:
+Felix Oxley wrote on Friday, October 28, 2005 5:19 PM
 > Chen, Kenneth W wrote:
->  > Kernel performance data for 2.6.14 (released yesterday) is updated at:
->  > http://kernel-perf.sourceforge.net
->  >
->  > As expected, results are within run variation compares to 2.6.14-rc5.
->  > No significant deviation found compare to 2.6.14-rc5
->  >
+> > Kernel performance data for 2.6.14 (released yesterday) is updated at:
+> > http://kernel-perf.sourceforge.net
+> >
+> > As expected, results are within run variation compares to 2.6.14-rc5.
+> > No significant deviation found compare to 2.6.14-rc5
+> >
 > 
 > There seems to be some regression here:
 > 
@@ -47,18 +49,10 @@ Felix Oxley wrote:
 > Kernel: 2.6.14-rc5 vs 2.6.14-rc5-git3
 > Summary: Write has increased whereas Read has decreased by 4-5 %
 > 
-> 
+> Any thoughts?
 
-Something went horribly wrong with this test between 2.6.13 and 
-2.6.13-git2 (it has never recovered):
+Not on top of my head at the moment. These are iozone workload, we
+will investigate these.
 
-System: 4P Itanium
-Test:Result Group 1
-Metric: VolcanoMark
-Result:      -3%         -10%
-Kernel: 2.6.13 vs 2.6.13-git2
+- Ken
 
-Does anybody know the cause of this?
-
-regards,
-Felix

@@ -1,417 +1,370 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751337AbVJ2Fs2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbVJ2Fty@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751337AbVJ2Fs2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 01:48:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbVJ2FsJ
+	id S1751344AbVJ2Fty (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 01:49:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbVJ2Fr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 01:48:09 -0400
-Received: from ns.ustc.edu.cn ([202.38.64.1]:27275 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1751337AbVJ2Fr2 (ORCPT
+	Sat, 29 Oct 2005 01:47:59 -0400
+Received: from ns.ustc.edu.cn ([202.38.64.1]:31627 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S1751344AbVJ2Fra (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 01:47:28 -0400
-Message-Id: <20051029060238.568498000@localhost.localdomain>
+	Sat, 29 Oct 2005 01:47:30 -0400
+Message-Id: <20051029060237.568186000@localhost.localdomain>
 References: <20051029060216.159380000@localhost.localdomain>
-Date: Sat, 29 Oct 2005 14:02:20 +0800
+Date: Sat, 29 Oct 2005 14:02:18 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+Cc: Andrew Morton <akpm@osdl.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Magnus Damm <magnus.damm@gmail.com>,
        Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 04/13] radixtree: look-aside cache
-Content-Disposition: inline; filename=radixtree-lookaside-cache.patch
+Subject: [PATCH 02/13] mm: balance page aging between zones
+Content-Disposition: inline; filename=mm-balanced-aging.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This introduces a set of lookup functions to radix tree for the read-ahead
-logic.  Other access patterns with high locality may also benefit from them.
+The page aging rates are currently imbalanced, the gap can be as large as 3
+times, which can severely damage read-ahead requests and shorten their
+effective life time.
 
-Most of them are best inlined, so some macros/structs in .c are moved into .h.
+This patch adds three variables in struct zone to keep track of page aging
+rate, and keeps them in sync on vmscan/pagealloc time. The nr_page_aging is
+a per-zone counter-part to the per-cpu pgscan_{kswapd,direct}_{zone name}.
 
-- radix_tree_lookup_node(root, index, level)
-	Perform partial lookup, return the @level'th parent of the slot at
-	@index.
+The direct page reclaim path is not touched, for it needs non-trival changes.
+It is ok as long as (pgscan_kswapd_* > pgscan_direct_*).
 
-- radix_tree_cache_lookup(root, cache, index)
-	Perform lookup with the aid of a look-aside cache.
-- radix_tree_cache_xxx()
-	Query various information about the cache.
+__alloc_pages() is changed a lot, which needs comfirmation from NUMA gurus.
+The basic idea is to do reclaim in batches, and keep the zones inside one
+batch balanced.  There can be different policies in the partitioning.  One
+obvious choice for the first batch would be the zones on current node and
+nearby memory nodes without cpu.
 
-- radix_tree_lookup_head(root, index, max_scan)
-- radix_tree_lookup_tail(root, index, max_scan)
-	[head, tail) is a segment with continuous pages. The functions
-	search for the head and tail index of the segment at @index.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- include/linux/radix-tree.h |  149 ++++++++++++++++++++++++++++++++++++++++++++-
- lib/radix-tree.c           |  142 ++++++++++++++++++++++++++++++++----------
- 2 files changed, 254 insertions(+), 37 deletions(-)
+ include/linux/mmzone.h |   51 +++++++++++++++++++++++++
+ mm/page_alloc.c        |   97 ++++++++++++++++++++++++++++++++++++++++---------
+ mm/vmscan.c            |   32 +++++++++++++---
+ 3 files changed, 158 insertions(+), 22 deletions(-)
 
---- linux-2.6.14-rc5-mm1.orig/include/linux/radix-tree.h
-+++ linux-2.6.14-rc5-mm1/include/linux/radix-tree.h
-@@ -22,12 +22,39 @@
- #include <linux/preempt.h>
- #include <linux/types.h>
+--- linux-2.6.14-rc5-mm1.orig/include/linux/mmzone.h
++++ linux-2.6.14-rc5-mm1/include/linux/mmzone.h
+@@ -160,6 +160,20 @@ struct zone {
+ 	unsigned long		pages_scanned;	   /* since last reclaim */
+ 	int			all_unreclaimable; /* All pages pinned */
  
-+#ifdef __KERNEL__
-+#define RADIX_TREE_MAP_SHIFT	6
++	/* Fields for balanced page aging:
++	 * nr_page_aging   - The accumulated number of activities that may
++	 *                   cause page aging, that is, make some pages closer
++	 *                   to the tail of inactive_list.
++	 * aging_milestone - A snapshot of nr_page_aging every time a full
++	 *                   inactive_list of pages become aged.
++	 * page_age        - A normalized value showing the percent of pages
++	 *                   have been aged.  It is compared between zones to
++	 *                   balance the rate of page aging.
++	 */
++	unsigned long		nr_page_aging;
++	unsigned long		aging_milestone;
++	unsigned long		page_age;
++
+ 	/*
+ 	 * Does the allocator try to reclaim pages from the zone as soon
+ 	 * as it fails a watermark_ok() in __alloc_pages?
+@@ -343,6 +357,43 @@ static inline void memory_present(int ni
+ unsigned long __init node_memmap_size_bytes(int, unsigned long, unsigned long);
+ #endif
+ 
++#ifdef CONFIG_HIGHMEM64G
++#define		PAGE_AGE_SHIFT  8
++#elif BITS_PER_LONG == 32
++#define		PAGE_AGE_SHIFT  12
++#elif BITS_PER_LONG == 64
++#define		PAGE_AGE_SHIFT  20
 +#else
-+#define RADIX_TREE_MAP_SHIFT	3	/* For more stressful testing */
++#error unknown BITS_PER_LONG
 +#endif
-+#define RADIX_TREE_TAGS		2
++#define		PAGE_AGE_MASK   ((1 << PAGE_AGE_SHIFT) - 1)
 +
-+#define RADIX_TREE_MAP_SIZE	(1UL << RADIX_TREE_MAP_SHIFT)
-+#define RADIX_TREE_MAP_MASK	(RADIX_TREE_MAP_SIZE-1)
-+
-+#define RADIX_TREE_TAG_LONGS	\
-+	((RADIX_TREE_MAP_SIZE + BITS_PER_LONG - 1) / BITS_PER_LONG)
-+
-+struct radix_tree_node {
-+	unsigned int	count;
-+	void		*slots[RADIX_TREE_MAP_SIZE];
-+	unsigned long	tags[RADIX_TREE_TAGS][RADIX_TREE_TAG_LONGS];
-+};
-+
- struct radix_tree_root {
- 	unsigned int		height;
- 	unsigned int		gfp_mask;
- 	struct radix_tree_node	*rnode;
- };
- 
 +/*
-+ * Support access patterns with strong locality.
++ * The percent of pages in inactive_list that have been scanned / aged.
++ * It's not really ##%, but a high resolution normalized value.
 + */
-+struct radix_tree_cache {
-+	unsigned long first_index;
-+	struct radix_tree_node *tree_node;
-+};
++static inline void update_page_age(struct zone *z)
++{
++	if (z->nr_page_aging - z->aging_milestone > z->nr_inactive)
++		z->aging_milestone += z->nr_inactive;
 +
- #define RADIX_TREE_INIT(mask)	{					\
- 	.height = 0,							\
- 	.gfp_mask = (mask),						\
-@@ -45,9 +72,13 @@ do {									\
- } while (0)
- 
- int radix_tree_insert(struct radix_tree_root *, unsigned long, void *);
--void *radix_tree_lookup(struct radix_tree_root *, unsigned long);
--void **radix_tree_lookup_slot(struct radix_tree_root *, unsigned long);
-+void *radix_tree_lookup_node(struct radix_tree_root *, unsigned long,
-+							unsigned int);
- void *radix_tree_delete(struct radix_tree_root *, unsigned long);
-+unsigned long radix_tree_lookup_head(struct radix_tree_root *root,
-+				unsigned long index, unsigned int max_scan);
-+unsigned long radix_tree_lookup_tail(struct radix_tree_root *root,
-+				unsigned long index, unsigned int max_scan);
- unsigned int
- radix_tree_gang_lookup(struct radix_tree_root *root, void **results,
- 			unsigned long first_index, unsigned int max_items);
-@@ -69,4 +100,118 @@ static inline void radix_tree_preload_en
- 	preempt_enable();
- }
- 
-+/**
-+ *	radix_tree_lookup    -    perform lookup operation on a radix tree
-+ *	@root:		radix tree root
-+ *	@index:		index key
-+ *
-+ *	Lookup the item at the position @index in the radix tree @root.
++	z->page_age = ((z->nr_page_aging - z->aging_milestone)
++				<< PAGE_AGE_SHIFT) / (1 + z->nr_inactive);
++}
++
++/*
++ * The simplified code is:
++ *         return (a->page_age > b->page_age);
++ * The complexity deals with the wrap-around problem.
++ * Two page ages not close enough should also be ignored:
++ * they are out of sync and the comparison may be nonsense.
 + */
-+static inline void *radix_tree_lookup(struct radix_tree_root *root,
-+							unsigned long index)
++static inline int pages_more_aged(struct zone *a, struct zone *b)
 +{
-+	return radix_tree_lookup_node(root, index, 0);
++	return ((b->page_age - a->page_age) & PAGE_AGE_MASK) >
++			PAGE_AGE_MASK - (1 << (PAGE_AGE_SHIFT - 2));
 +}
 +
-+/**
-+ *	radix_tree_lookup_slot    -    lookup a slot in a radix tree
-+ *	@root:		radix tree root
-+ *	@index:		index key
-+ *
-+ *	Lookup the slot corresponding to the position @index in the radix tree
-+ *	@root. This is useful for update-if-exists operations.
-+ */
-+static inline void **radix_tree_lookup_slot(struct radix_tree_root *root,
-+							unsigned long index)
-+{
-+	struct radix_tree_node *node;
-+
-+	node = radix_tree_lookup_node(root, index, 1);
-+	return node->slots + (index & RADIX_TREE_MAP_MASK);
-+}
-+
-+/**
-+ *	radix_tree_cache_lookup_node    -    cached lookup node
-+ *	@root:		radix tree root
-+ *	@cache:		look-aside cache
-+ *	@index:		index key
-+ *
-+ *	Lookup the item at the position @index in the radix tree @root,
-+ *	and return the node @level levels from the bottom in the search path.
-+ *	@cache stores the last accessed upper level tree node by this
-+ *	function, and is always checked first before searching in the tree.
-+ *	It can improve speed for access patterns with strong locality.
-+ *	NOTE:
-+ *	- The cache becomes invalid on leaving the lock;
-+ *	- Do not intermix calls with different @level.
-+ */
-+static inline void *radix_tree_cache_lookup_node(struct radix_tree_root *root,
-+				struct radix_tree_cache *cache,
-+				unsigned long index, unsigned int level)
-+{
-+	struct radix_tree_node *node;
-+        unsigned long i;
-+        unsigned long mask;
-+
-+        if (level && level >= root->height)
-+                return root->rnode;
-+
-+        i = ((index >> (level * RADIX_TREE_MAP_SHIFT)) & RADIX_TREE_MAP_MASK);
-+        mask = ~((RADIX_TREE_MAP_SIZE << (level * RADIX_TREE_MAP_SHIFT)) - 1);
-+
-+	if ((index & mask) == cache->first_index)
-+                return cache->tree_node->slots[i];
-+
-+	node = radix_tree_lookup_node(root, index, level + 1);
-+	if (!node)
-+		return 0;
-+
-+	cache->tree_node = node;
-+	cache->first_index = (index & mask);
-+        return node->slots[i];
-+}
-+
-+/**
-+ *	radix_tree_cache_lookup    -    cached lookup page
-+ *	@root:		radix tree root
-+ *	@cache:		look-aside cache
-+ *	@index:		index key
-+ *
-+ *	Lookup the item at the position @index in the radix tree @root.
-+ */
-+static inline void *radix_tree_cache_lookup(struct radix_tree_root *root,
-+				struct radix_tree_cache *cache,
-+				unsigned long index)
-+{
-+	return radix_tree_cache_lookup_node(root, cache, index, 0);
-+}
-+
-+static inline void radix_tree_cache_init(struct radix_tree_cache *cache)
-+{
-+	cache->first_index = 0x77;
-+}
-+
-+static inline int radix_tree_cache_size(struct radix_tree_cache *cache)
-+{
-+	return RADIX_TREE_MAP_SIZE;
-+}
-+
-+static inline int radix_tree_cache_count(struct radix_tree_cache *cache)
-+{
-+	if (cache->first_index != 0x77)
-+		return cache->tree_node->count;
-+	else
-+		return 0;
-+}
-+
-+static inline int radix_tree_cache_full(struct radix_tree_cache *cache)
-+{
-+	return radix_tree_cache_count(cache) == radix_tree_cache_size(cache);
-+}
-+
-+static inline int radix_tree_cache_first_index(struct radix_tree_cache *cache)
-+{
-+	return cache->first_index;
-+}
-+
- #endif /* _LINUX_RADIX_TREE_H */
---- linux-2.6.14-rc5-mm1.orig/lib/radix-tree.c
-+++ linux-2.6.14-rc5-mm1/lib/radix-tree.c
-@@ -32,25 +32,6 @@
- #include <linux/bitops.h>
- 
- 
--#ifdef __KERNEL__
--#define RADIX_TREE_MAP_SHIFT	6
--#else
--#define RADIX_TREE_MAP_SHIFT	3	/* For more stressful testing */
--#endif
--#define RADIX_TREE_TAGS		2
--
--#define RADIX_TREE_MAP_SIZE	(1UL << RADIX_TREE_MAP_SHIFT)
--#define RADIX_TREE_MAP_MASK	(RADIX_TREE_MAP_SIZE-1)
--
--#define RADIX_TREE_TAG_LONGS	\
--	((RADIX_TREE_MAP_SIZE + BITS_PER_LONG - 1) / BITS_PER_LONG)
--
--struct radix_tree_node {
--	unsigned int	count;
--	void		*slots[RADIX_TREE_MAP_SIZE];
--	unsigned long	tags[RADIX_TREE_TAGS][RADIX_TREE_TAG_LONGS];
--};
--
- struct radix_tree_path {
- 	struct radix_tree_node *node;
- 	int offset;
-@@ -282,8 +263,21 @@ int radix_tree_insert(struct radix_tree_
- }
- EXPORT_SYMBOL(radix_tree_insert);
- 
--static inline void **__lookup_slot(struct radix_tree_root *root,
--				   unsigned long index)
-+/**
-+ *	radix_tree_lookup_node    -    low level lookup routine
-+ *	@root:		radix tree root
-+ *	@index:		index key
-+ *	@level:		stop at that many levels from bottom
-+ *
-+ *	Lookup the item at the position @index in the radix tree @root.
-+ *	The return value is:
-+ *	@level == 0:      page at @index;
-+ *	@level == 1:      the corresponding bottom level tree node;
-+ *	@level < height:  (height - @level)th level tree node;
-+ *	@level >= height: root node.
-+ */
-+void *radix_tree_lookup_node(struct radix_tree_root *root,
-+				unsigned long index, unsigned int level)
- {
- 	unsigned int height, shift;
- 	struct radix_tree_node *slot;
-@@ -295,7 +289,7 @@ static inline void **__lookup_slot(struc
- 	shift = (height-1) * RADIX_TREE_MAP_SHIFT;
- 	slot = root->rnode;
- 
--	while (height > 0) {
-+	while (height > level) {
- 		if (slot == NULL)
- 			return NULL;
- 
-@@ -306,36 +300,114 @@ static inline void **__lookup_slot(struc
- 
- 	return slot;
- }
-+EXPORT_SYMBOL(radix_tree_lookup_node);
- 
- /**
-- *	radix_tree_lookup_slot    -    lookup a slot in a radix tree
-+ *	radix_tree_lookup_head    -    lookup the head index
-  *	@root:		radix tree root
-  *	@index:		index key
-+ *	@max_scan:      max items to scan
-  *
-- *	Lookup the slot corresponding to the position @index in the radix tree
-- *	@root. This is useful for update-if-exists operations.
-+ *      Lookup head index of the segment which contains @index. A segment is
-+ *      a set of continuous pages in a file.
-+ *      CASE                       RETURN VALUE
-+ *      no page at @index          (not head) = @index + 1
-+ *      found in the range         @index - @max_scan < (head index) <= @index
-+ *      not found in range         (unfinished head) <= @index - @max_scan
+ /*
+  * zone_idx() returns 0 for the ZONE_DMA zone, 1 for the ZONE_NORMAL zone, etc.
   */
--void **radix_tree_lookup_slot(struct radix_tree_root *root, unsigned long index)
-+unsigned long radix_tree_lookup_head(struct radix_tree_root *root,
-+				unsigned long index, unsigned int max_scan)
- {
--	return __lookup_slot(root, index);
-+	struct radix_tree_cache cache;
-+	struct radix_tree_node *node;
-+	int i;
-+	unsigned long origin;
+--- linux-2.6.14-rc5-mm1.orig/mm/page_alloc.c
++++ linux-2.6.14-rc5-mm1/mm/page_alloc.c
+@@ -488,7 +488,7 @@ static void prep_new_page(struct page *p
+ 
+ 	page->flags &= ~(1 << PG_uptodate | 1 << PG_error |
+ 			1 << PG_referenced | 1 << PG_arch_1 |
+-			1 << PG_activate |
++			1 << PG_activate | 1 << PG_readahead |
+ 			1 << PG_checked | 1 << PG_mappedtodisk);
+ 	set_page_private(page, 0);
+ 	set_page_refs(page, order);
+@@ -871,9 +871,15 @@ __alloc_pages(gfp_t gfp_mask, unsigned i
+ 	struct task_struct *p = current;
+ 	int i;
+ 	int classzone_idx;
++	int do_reclaim;
+ 	int do_retry;
+ 	int can_try_harder;
+ 	int did_some_progress;
++	unsigned long zones_mask;
++	int left_count;
++	int batch_size;
++	int batch_base;
++	int batch_idx;
+ 
+ 	might_sleep_if(wait);
+ 
+@@ -893,13 +899,62 @@ __alloc_pages(gfp_t gfp_mask, unsigned i
+ 
+ 	classzone_idx = zone_idx(zones[0]);
+ 
+-restart:
+ 	/*
+ 	 * Go through the zonelist once, looking for a zone with enough free.
+ 	 * See also cpuset_zone_allowed() comment in kernel/cpuset.c.
+ 	 */
+-	for (i = 0; (z = zones[i]) != NULL; i++) {
+-		int do_reclaim = should_reclaim_zone(z, gfp_mask);
++restart:
++	/*
++	 * To fulfill three goals:
++	 * - balanced page aging
++	 * - locality
++	 * - predefined zonelist priority
++	 *
++	 * The logic employs the following rules:
++	 * 1. Zones are checked in predefined order in general.
++	 * 2. Skip to the next zone if it has lower page_age.
++	 * 3. Checkings are carried out in batch, all zones in a batch must be
++	 *    checked before entering the next batch.
++	 * 4. All local zones in the zonelist forms the first batch.
++	 */
 +
-+	origin = index;
-+	if (unlikely(max_scan > index))
-+		max_scan = index;
-+        radix_tree_cache_init(&cache);
++	/* TODO: Avoid this loop by putting the values into struct zonelist.
++	 * The (more general) desired batch counts can also go there.
++	 */
++	for (batch_size = 0, i = 0; (z = zones[i]) != NULL; i++) {
++		if (z->zone_pgdat == zones[0]->zone_pgdat)
++			batch_size++;
++	}
++	BUG_ON(!batch_size);
 +
-+next_node:
-+	if (origin - index > max_scan)
-+		goto out;
++	left_count = i - batch_size;
++	batch_base = 0;
++	batch_idx = 0;
++	zones_mask = 0;
 +
-+	node = radix_tree_cache_lookup_node(root, &cache, index, 1);
-+	if (!node)
-+		goto out;
-+
-+	if (node->count == RADIX_TREE_MAP_SIZE) {
-+		if (index < RADIX_TREE_MAP_SIZE) {
-+			index = -1;
-+			goto out;
++	for (;;) {
++		if (zones_mask == (1 << batch_size) - 1) {
++			if (left_count <= 0) {
++				break;
++			}
++			batch_base += batch_size;
++			batch_size = min(left_count, (int)sizeof(zones_mask) * 8);
++			left_count -= batch_size;
++			batch_idx = 0;
++			zones_mask = 0;
 +		}
-+		index = (index - RADIX_TREE_MAP_SIZE) | RADIX_TREE_MAP_MASK;
-+		goto next_node;
-+	}
 +
-+	for (i = index & RADIX_TREE_MAP_MASK; i >= 0; i--, index--) {
-+		if (!node->slots[i])
-+			goto out;
-+	}
++		do {
++			i = batch_idx;
++			do {
++				if (++batch_idx >= batch_size)
++					batch_idx = 0;
++			} while (zones_mask & (1 << batch_idx));
++		} while (pages_more_aged(zones[batch_base + i],
++					 zones[batch_base + batch_idx]));
 +
-+	goto next_node;
-+
-+out:
-+	return index + 1;
- }
--EXPORT_SYMBOL(radix_tree_lookup_slot);
-+EXPORT_SYMBOL(radix_tree_lookup_head);
++		zones_mask |= (1 << i);
++		z = zones[batch_base + i];
  
- /**
-- *	radix_tree_lookup    -    perform lookup operation on a radix tree
-+ *	radix_tree_lookup_tail    -    lookup the tail index
-  *	@root:		radix tree root
-  *	@index:		index key
-+ *	@max_scan:      max items to scan
-  *
-- *	Lookup the item at the position @index in the radix tree @root.
-+ *      Lookup tail(pass the end) index of the segment which contains @index.
-+ *      A segment is a set of continuous pages in a file.
-+ *      CASE                       RETURN VALUE
-+ *      found in the range         @index <= (tail index) < @index + @max_scan
-+ *      not found in range         @index + @max_scan <= (non tail)
-  */
--void *radix_tree_lookup(struct radix_tree_root *root, unsigned long index)
-+unsigned long radix_tree_lookup_tail(struct radix_tree_root *root,
-+				unsigned long index, unsigned int max_scan)
- {
--	void **slot;
-+	struct radix_tree_cache cache;
-+	struct radix_tree_node *node;
-+	int i;
-+	unsigned long origin;
-+
-+	origin = index;
-+	if (unlikely(index + max_scan < index))
-+		max_scan = LONG_MAX - index;
-+        radix_tree_cache_init(&cache);
-+
-+next_node:
-+	if (index - origin >= max_scan)
-+		goto out;
+ 		if (!cpuset_zone_allowed(z, __GFP_HARDWALL))
+ 			continue;
+@@ -909,11 +964,12 @@ restart:
+ 		 * will try to reclaim pages and check the watermark a second
+ 		 * time before giving up and falling back to the next zone.
+ 		 */
++		do_reclaim = should_reclaim_zone(z, gfp_mask);
+ zone_reclaim_retry:
+ 		if (!zone_watermark_ok(z, order, z->pages_low,
+ 				       classzone_idx, 0, 0)) {
+ 			if (!do_reclaim)
+-				continue;
++				goto try_harder;
+ 			else {
+ 				zone_reclaim(z, gfp_mask, order);
+ 				/* Only try reclaim once */
+@@ -925,20 +981,18 @@ zone_reclaim_retry:
+ 		page = buffered_rmqueue(z, order, gfp_mask);
+ 		if (page)
+ 			goto got_pg;
+-	}
  
--	slot = __lookup_slot(root, index);
--	return slot != NULL ? *slot : NULL;
-+	node = radix_tree_cache_lookup_node(root, &cache, index, 1);
-+	if (!node)
-+		goto out;
-+
-+	if (node->count == RADIX_TREE_MAP_SIZE) {
-+		index = (index | RADIX_TREE_MAP_MASK) + 1;
-+		if (unlikely(!index))
-+			goto out;
-+		goto next_node;
-+	}
-+
-+	for (i = index & RADIX_TREE_MAP_MASK; i < RADIX_TREE_MAP_SIZE; i++, index++) {
-+		if (!node->slots[i])
-+			goto out;
-+	}
-+
-+	goto next_node;
-+
-+out:
-+	return index;
- }
--EXPORT_SYMBOL(radix_tree_lookup);
-+EXPORT_SYMBOL(radix_tree_lookup_tail);
+-	for (i = 0; (z = zones[i]) != NULL; i++)
++try_harder:
+ 		wakeup_kswapd(z, order);
  
- /**
-  *	radix_tree_tag_set - set a tag on a radix tree node
+-	/*
+-	 * Go through the zonelist again. Let __GFP_HIGH and allocations
+-	 * coming from realtime tasks to go deeper into reserves
+-	 *
+-	 * This is the last chance, in general, before the goto nopage.
+-	 * Ignore cpuset if GFP_ATOMIC (!wait) rather than fail alloc.
+-	 * See also cpuset_zone_allowed() comment in kernel/cpuset.c.
+-	 */
+-	for (i = 0; (z = zones[i]) != NULL; i++) {
++		/*
++		 * Put stress on the zone. Let __GFP_HIGH and allocations
++		 * coming from realtime tasks to go deeper into reserves.
++		 *
++		 * This is the last chance, in general, before the goto nopage.
++		 * Ignore cpuset if GFP_ATOMIC (!wait) rather than fail alloc.
++		 * See also cpuset_zone_allowed() comment in kernel/cpuset.c.
++		 */
+ 		if (!zone_watermark_ok(z, order, z->pages_min,
+ 				       classzone_idx, can_try_harder,
+ 				       gfp_mask & __GFP_HIGH))
+@@ -1446,6 +1500,8 @@ void show_free_areas(void)
+ 			" active:%lukB"
+ 			" inactive:%lukB"
+ 			" present:%lukB"
++			" aging:%lukB"
++			" age:%lu"
+ 			" pages_scanned:%lu"
+ 			" all_unreclaimable? %s"
+ 			"\n",
+@@ -1457,6 +1513,8 @@ void show_free_areas(void)
+ 			K(zone->nr_active),
+ 			K(zone->nr_inactive),
+ 			K(zone->present_pages),
++			K(zone->nr_page_aging),
++			zone->page_age,
+ 			zone->pages_scanned,
+ 			(zone->all_unreclaimable ? "yes" : "no")
+ 			);
+@@ -2073,6 +2131,9 @@ static void __init free_area_init_core(s
+ 		zone->nr_scan_inactive = 0;
+ 		zone->nr_active = 0;
+ 		zone->nr_inactive = 0;
++		zone->nr_page_aging = 0;
++		zone->aging_milestone = 0;
++		zone->page_age = 0;
+ 		atomic_set(&zone->reclaim_in_progress, 0);
+ 		if (!size)
+ 			continue;
+@@ -2221,6 +2282,8 @@ static int zoneinfo_show(struct seq_file
+ 			   "\n        high     %lu"
+ 			   "\n        active   %lu"
+ 			   "\n        inactive %lu"
++			   "\n        aging    %lu"
++			   "\n        age      %lu"
+ 			   "\n        scanned  %lu (a: %lu i: %lu)"
+ 			   "\n        spanned  %lu"
+ 			   "\n        present  %lu",
+@@ -2230,6 +2293,8 @@ static int zoneinfo_show(struct seq_file
+ 			   zone->pages_high,
+ 			   zone->nr_active,
+ 			   zone->nr_inactive,
++			   zone->nr_page_aging,
++			   zone->page_age,
+ 			   zone->pages_scanned,
+ 			   zone->nr_scan_active, zone->nr_scan_inactive,
+ 			   zone->spanned_pages,
+--- linux-2.6.14-rc5-mm1.orig/mm/vmscan.c
++++ linux-2.6.14-rc5-mm1/mm/vmscan.c
+@@ -653,6 +653,8 @@ static void shrink_cache(struct zone *zo
+ 			goto done;
+ 
+ 		max_scan -= nr_scan;
++		zone->nr_page_aging += nr_scan;
++		update_page_age(zone);
+ 		if (current_is_kswapd())
+ 			mod_page_state_zone(zone, pgscan_kswapd, nr_scan);
+ 		else
+@@ -1068,6 +1070,7 @@ loop_again:
+ 
+ 	for (priority = DEF_PRIORITY; priority >= 0; priority--) {
+ 		int end_zone = 0;	/* Inclusive.  0 = ZONE_DMA */
++		int begin_zone = -1;
+ 		unsigned long lru_pages = 0;
+ 
+ 		all_zones_ok = 1;
+@@ -1089,16 +1092,33 @@ loop_again:
+ 
+ 				if (!zone_watermark_ok(zone, order,
+ 						zone->pages_high, 0, 0, 0)) {
+-					end_zone = i;
+-					goto scan;
++					if (!end_zone)
++						begin_zone = end_zone = i;
++					else /* if (begin_zone == i + 1) */
++						begin_zone = i;
+ 				}
+ 			}
+-			goto out;
++			if (begin_zone < 0)
++				goto out;
+ 		} else {
++			begin_zone = 0;
+ 			end_zone = pgdat->nr_zones - 1;
+ 		}
+-scan:
+-		for (i = 0; i <= end_zone; i++) {
++
++		/*
++		 * Prepare enough free pages for zones with small page_age,
++		 * they are going to be reclaimed in the page allocation.
++		 */
++		while (end_zone < pgdat->nr_zones - 1 &&
++			pages_more_aged(pgdat->node_zones + end_zone,
++					pgdat->node_zones + end_zone + 1))
++			end_zone++;
++		while (begin_zone &&
++			pages_more_aged(pgdat->node_zones + begin_zone,
++					pgdat->node_zones + begin_zone - 1))
++			begin_zone--;
++
++		for (i = begin_zone; i <= end_zone; i++) {
+ 			struct zone *zone = pgdat->node_zones + i;
+ 
+ 			lru_pages += zone->nr_active + zone->nr_inactive;
+@@ -1113,7 +1133,7 @@ scan:
+ 		 * pages behind kswapd's direction of progress, which would
+ 		 * cause too much scanning of the lower zones.
+ 		 */
+-		for (i = 0; i <= end_zone; i++) {
++		for (i = begin_zone; i <= end_zone; i++) {
+ 			struct zone *zone = pgdat->node_zones + i;
+ 			int nr_slab;
+ 
 
 --

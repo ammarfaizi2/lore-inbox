@@ -1,36 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbVJ2U5o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbVJ2VBv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932193AbVJ2U5o (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 16:57:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbVJ2U5o
+	id S1750989AbVJ2VBv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 17:01:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbVJ2VBv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 16:57:44 -0400
-Received: from ams-iport-1.cisco.com ([144.254.224.140]:58524 "EHLO
-	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S932193AbVJ2U5n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 16:57:43 -0400
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [CFT] Move platform device to separate header
-X-Message-Flag: Warning: May contain useful information
-References: <20051029205207.GG14039@flint.arm.linux.org.uk>
-From: Roland Dreier <rolandd@cisco.com>
-Date: Sat, 29 Oct 2005 13:57:38 -0700
-In-Reply-To: <20051029205207.GG14039@flint.arm.linux.org.uk> (Russell King's
- message of "Sat, 29 Oct 2005 21:52:07 +0100")
-Message-ID: <52oe58nirh.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+	Sat, 29 Oct 2005 17:01:51 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:12734 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750989AbVJ2VBu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 17:01:50 -0400
+Date: Sat, 29 Oct 2005 14:01:40 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nicolas Pitre <nico@cam.org>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [git patches] 2.6.x libata updates
+In-Reply-To: <Pine.LNX.4.64.0510291609140.5288@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0510291358330.3348@g5.osdl.org>
+References: <20051029182228.GA14495@havoc.gtf.org> <20051029121454.5d27aecb.akpm@osdl.org>
+ <4363CB60.2000201@pobox.com> <Pine.LNX.4.64.0510291229330.3348@g5.osdl.org>
+ <Pine.LNX.4.64.0510291609140.5288@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 29 Oct 2005 20:57:39.0257 (UTC) FILETIME=[65B21A90:01C5DCCB]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Russell> Here's a patch which moves the platform device out of
-    Russell> device.h and into linux/platform_device.h.  This patch is
-    Russell> far too large for lkml so can be downloaded from:
 
-It looks like you forgot to diff <linux/platform_device.h>.  It
-doesn't appear in your diffstat and as far as I can tell, it's not in
-the actual diff either.
 
- - R.
+On Sat, 29 Oct 2005, Nicolas Pitre wrote:
+> 
+> Since GIT is real free software that even purists may use without fear, 
+> this downside is certainly not as critical as it was in the BK days.
+
+I don't think that's the problem.
+
+It's the learning curve. I don't think git is that hard to use (certainly 
+not if you just follow somebody elses tree and occasionally do a "git 
+bisect"), but git _is_ different. And if you're not a developer, or even 
+if you are, and you're just somebody who has alway sjust used CVS, then 
+something like "patch" is simply to understand what it's doing, with 
+basically no abstractions anywhere. 
+
+Compared to tar-files + patches, git has a _lot_ of abstract things going 
+on that you have to get used to before you aren't intimidated by it.
+
+And the thing is, the most important bug-reports often come from people 
+who aren't necessarily developers - because they are the ones that see a 
+bug that none of the developers saw.. So making it easy for people like 
+that to test a few different versions is probably important.
+
+		Linus

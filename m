@@ -1,74 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbVJ2Onz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbVJ2OpO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751167AbVJ2Onz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 10:43:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbVJ2Onz
+	id S1751170AbVJ2OpO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 10:45:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbVJ2OpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 10:43:55 -0400
-Received: from sccrmhc13.comcast.net ([63.240.77.83]:3512 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S1751167AbVJ2Ony (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 10:43:54 -0400
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: Roland Dreier <rolandd@cisco.com>
-Subject: Re: [PATCH] toshiba_ohci1394_dmi_table should be __devinitdata, not __devinit
-Date: Sat, 29 Oct 2005 07:43:59 -0700
-User-Agent: KMail/1.8.2
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, gregkh@suse.de
-References: <52fyqlorj8.fsf@cisco.com>
-In-Reply-To: <52fyqlorj8.fsf@cisco.com>
+	Sat, 29 Oct 2005 10:45:13 -0400
+Received: from smtprelay02.ispgateway.de ([80.67.18.14]:55770 "EHLO
+	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1751171AbVJ2OpM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 10:45:12 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Bug#333776: linux-2.6: vfat driver in 2.6.12 is not properly case-insensitive
+Date: Sat, 29 Oct 2005 16:45:02 +0200
+User-Agent: KMail/1.7.2
+Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, Horms <horms@verge.net.au>,
+       333776@bugs.debian.org
+References: <20051013165529.GA2472@tennyson.dodds.net> <20051028082252.GC11045@verge.net.au> <874q71wv2b.fsf@devron.myhome.or.jp>
+In-Reply-To: <874q71wv2b.fsf@devron.myhome.or.jp>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_wq4YD9Ysrrvpqky"
-Message-Id: <200510290744.00642.jbarnes@virtuousgeek.org>
+Content-Type: multipart/signed;
+  boundary="nextPart6198559.rpaI0bjree";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200510291645.08872.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_wq4YD9Ysrrvpqky
+--nextPart6198559.rpaI0bjree
 Content-Type: text/plain;
   charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-On Friday, October 28, 2005 9:50 pm, Roland Dreier wrote:
-> I don't really understand why gcc gives the error it does, but
-> without this patch, when building with CONFIG_HOTPLUG=n, I get errors
-> like:
->
->       CC      arch/x86_64/pci/../../i386/pci/fixup.o
->     arch/x86_64/pci/../../i386/pci/fixup.c: In function
-> `pci_fixup_i450nx': arch/x86_64/pci/../../i386/pci/fixup.c:13: error:
-> pci_fixup_i450nx causes a section type conflict
->
-> The change is obviously correct: an array should be declared
-> __devinitdata rather that __devinit.
+Hi,
 
-Oops, yeah I think this is correct.  We should also mark 
-toshiba_line_size as __devinitdata.  Patch relative to yours.
+On Friday 28 October 2005 16:54, OGAWA Hirofumi wrote:
+> Horms <horms@verge.net.au> writes:
+> > I guess it is charset2lower or charset2upper that vfat is calling,
+> > which make no conversion, thus leading to the problem I outlined above.
+> >
+> > My question is: Is this behaviour correct, or is it a bug?
+>=20
+> This is known bug. For fixing this bug cleanly, we will need to much
+> change the both of nls and filesystems.
 
-Thanks,
-Jesse
+Using per locale collation sequences? :-)
 
-Signed-off-by: Jesse Barnes <jbarnes@virtuousgeek.org>
+Do you know, how Windows handles the problem of differing collation=20
+sequences on the file system? Or is the file system always dependend=20
+on the locale of the Windows version, which created the file system?
 
---Boundary-00=_wq4YD9Ysrrvpqky
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="toshiba-quirk-devinitdata.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="toshiba-quirk-devinitdata.patch"
+I'm so happy, that Unix is not case insensitive :-)
 
---- linux-2.6.14/arch/i386/pci/fixup.c.orig	2005-10-29 07:42:46.000000000 -0700
-+++ linux-2.6.14/arch/i386/pci/fixup.c	2005-10-29 07:42:06.000000000 -0700
-@@ -396,7 +396,7 @@
-  * the wrong IRQ line, causing any devices sharing the the line it's
-  * *supposed* to use to be disabled by the kernel's IRQ debug code.
-  */
--static u16 toshiba_line_size;
-+static u16 __devinitdata toshiba_line_size;
- 
- static struct dmi_system_id __devinitdata toshiba_ohci1394_dmi_table[] = {
- 	{
 
---Boundary-00=_wq4YD9Ysrrvpqky--
+Regards
+
+Ingo Oeser
+
+
+--nextPart6198559.rpaI0bjree
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDY4r0U56oYWuOrkARAnRcAJ0fxJ+bG0yL9Iyq5J3iSq6LyUkKaQCffpNm
+fWM5k5ybabsrjKRivEW/Ong=
+=kF+c
+-----END PGP SIGNATURE-----
+
+--nextPart6198559.rpaI0bjree--

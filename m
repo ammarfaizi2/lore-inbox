@@ -1,64 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbVJ2Icz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbVJ2Igs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750700AbVJ2Icz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 04:32:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbVJ2Icz
+	id S1750757AbVJ2Igs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 04:36:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbVJ2Igs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 04:32:55 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:26334 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750700AbVJ2Icy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 04:32:54 -0400
-Subject: Re: [Bug 5039] high cpu usage (softirq takes 50% all the time)
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: bugme-daemon@kernel-bugs.osdl.org, morfic@gentoo.org, kraftb@kraftb.at,
-       migo@abp.pl, linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>
-In-Reply-To: <20051029010945.623a8dab.akpm@osdl.org>
-References: <200510290754.j9T7sqAg027452@fire-1.osdl.org>
-	 <20051029010945.623a8dab.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sat, 29 Oct 2005 10:32:34 +0200
-Message-Id: <1130574755.2908.1.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sat, 29 Oct 2005 04:36:48 -0400
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:33455 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1750757AbVJ2Igr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 04:36:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=xDGWdgUHzL4m6SvAtHDXDbS7JxnQQm56rY/5ae1LWZ512fSP5z4aLgKiW1xane6P2IrhxGEGAJ/bCnFv3rcJxiGRrEwLd1TtQYjL9qQ1xFHk+r+jkHGuvof3TPI7q0QspC2EtOl8kCYKe24ZoaDAZVx8u4iWuTnk3f3xXg26Hqo=  ;
+Message-ID: <43633507.2050006@yahoo.com.au>
+Date: Sat, 29 Oct 2005 18:38:31 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: jmerkey <jmerkey@utah-nac.org>
+CC: Jeff Garzik <jgarzik@pobox.com>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: kernel performance update - 2.6.14
+References: <200510282344.j9SNihg27345@unix-os.sc.intel.com> <4362BA30.2020504@pobox.com> <4362A9A7.2090101@utah-nac.org> <4362E329.8040204@yahoo.com.au> <4362E71A.6030904@utah-nac.org> <4362E7B3.6020509@utah-nac.org>
+In-Reply-To: <4362E7B3.6020509@utah-nac.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-10-29 at 01:09 -0700, Andrew Morton wrote:
-> bugme-daemon@kernel-bugs.osdl.org wrote:
-> >
-> > http://bugzilla.kernel.org/show_bug.cgi?id=5039
-> > 
-> 
-> Well this is a depressing saga.  A bunch of people whose machines appear to
-> be spending 50% CPU time in softirq processing.  Some find that `noapic'
-> fixes it and some dont.  Some are on x86_64, some are on x86.
-> 
-> I suspect we have multiple bugs here.  It's quite a mess.
-> 
-> Could the reporters please, via a reply-to-all to this email:
-> 
-> a) test 2.6.14.
-> 
-> b) summarise the current status of your bug (what CPU type, what are the
->    symptoms, any known workarounds, etc).
-> 
-> c) Generate a kernel profile (see Documentation/basic_profiling.txt)
+jmerkey wrote:
+> jmerkey wrote:
 
-d) get a /proc/interrupts
+>> Yes I did. The list wasn't too long. I had problems with RCU messages 
+>> and irq warn messages at very high loads and init respawning itself 
+>> subjected to loads > 369 MB/S to the disk channels on 2.6.13. 
+>> Performance was down on disk I/O [vs.] 2.6.9. I did not investigate 
+>> the BIO fixes but something changed there. Theres also some memory 
+>> problems with corruption somewhere in the 2.6.14 (during module unload 
+>> and shutdown).
+>>
 
-to see if there's some screaming irq.. and if so which one
+Well that doesn't sound too good. It would be good if you could document
+and report each problem - the messages, workload, kernel config and any
+patches used, etc. And post them to lkml. Hopefully they can get sorted
+out.
 
+Thanks,
+Nick
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

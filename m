@@ -1,64 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932708AbVJ2WbF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932700AbVJ2WdP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932708AbVJ2WbF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 18:31:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932707AbVJ2WbE
+	id S932700AbVJ2WdP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 18:33:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932705AbVJ2WdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 18:31:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:40908 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932696AbVJ2WbD (ORCPT
+	Sat, 29 Oct 2005 18:33:15 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:44422 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932700AbVJ2WdO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 18:31:03 -0400
-Date: Sat, 29 Oct 2005 15:30:59 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: jgarzik@pobox.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [git patches] 2.6.x libata updates
-In-Reply-To: <20051029152157.01369c35.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0510291526040.3348@g5.osdl.org>
-References: <20051029182228.GA14495@havoc.gtf.org> <20051029121454.5d27aecb.akpm@osdl.org>
- <4363CB60.2000201@pobox.com> <Pine.LNX.4.64.0510291229330.3348@g5.osdl.org>
- <20051029152157.01369c35.akpm@osdl.org>
+	Sat, 29 Oct 2005 18:33:14 -0400
+Message-ID: <4363F8A6.2050501@pobox.com>
+Date: Sat, 29 Oct 2005 18:33:10 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Deepak Saxena <dsaxena@plexity.net>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, tony@atomide.com,
+       "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [patch 0/5] HW RNG cleanup & new drivers
+References: <20051029191229.562454000@omelas> <4363F31F.2040303@pobox.com> <Pine.LNX.4.64.0510291524050.3348@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0510291524050.3348@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 29 Oct 2005, Andrew Morton wrote:
+Linus Torvalds wrote:
 > 
-> However there's usually little overlap between the subsystems trees - with
-> a net update, a USB update, a SCSI update and an ia64 update it's usually
-> pretty obvious which one caused a particular regression.
+> On Sat, 29 Oct 2005, Jeff Garzik wrote:
+> 
+>>I would prefer to let this live in -mm at least for a little while.
+>>Confirmation from AMD, Intel and VIA owners would be really nice, too. AMD and
+>>Intel might be a little bit hard to find.  I think Peter Anvin had an Intel
+>>ICH w/ RNG at one time...
+> 
+> 
+> I'm just wondering why via/amd/intel end up being one driver. It would 
+> seem to be more sensible to have separate drivers for them, since they 
+> have no real overlap..
 
-Yes, that's true, but the subsystem trees themselves now tend to have more 
-time to grow, and tend to be merged more int one go.
+No real reason other than historical.  Split up would be my preference.
 
-Which is all intentional, of course - the whole _point_ of the new thing 
-is that they should be in your tree and tested and then merged into my 
-tree during a short "merge window" for further testing.
+	Jeff
 
-But it means that updates that used to "tricke in" to my kernel now tend 
-to be more of a "big merge", making the daily snapshot less effective.
 
-So when we get a "uhhuh, networking failed between daily snapshot X and 
-X+1" we now more often have a single biger merge of networking stuff that 
-was just waiting for the merge window to open..
-
-> The individual -mm-only patches tend to be more scattered around the tree,
-> which is why I send them as batches of 100-200 every couple of days: to get
-> a bit of separation in the -git snapshots.  This hasn't actually proven to
-> be very useful, though.
-
-One issue is of course that a lot of people doing reports don't actually
-even test the daily snapshots.
-
-Some bug reporters do, and I'm very grateful, and they are wonderful 
-people. Others do after some prodding, and yet others will never bother to 
-try a couple of different kernels at all ;/
-
-So the snapshot separation doesn't always necessarily help, even when it's 
-there.
-
-		Linus

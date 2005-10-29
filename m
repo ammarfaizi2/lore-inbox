@@ -1,41 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbVJ2OIe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751157AbVJ2OLX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751141AbVJ2OIe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 10:08:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbVJ2OIe
+	id S1751157AbVJ2OLX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 10:11:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbVJ2OLX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 10:08:34 -0400
-Received: from ams-iport-1.cisco.com ([144.254.224.140]:55359 "EHLO
+	Sat, 29 Oct 2005 10:11:23 -0400
+Received: from ams-iport-1.cisco.com ([144.254.224.140]:8322 "EHLO
 	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S1751141AbVJ2OIe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 10:08:34 -0400
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] missing include in infiniband
+	id S1751157AbVJ2OLV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 10:11:21 -0400
+To: Pete Clements <clem@clem.clem-digital.net>
+Cc: linux-kernel@vger.kernel.org (linux-kernel)
+Subject: Re: 2.6.14-git1 fails compile -- i386/pci/fixup.c
 X-Message-Flag: Warning: May contain useful information
-References: <20051029054603.GA7992@ftp.linux.org.uk>
+References: <200510291318.j9TDIjmi018556@clem.clem-digital.net>
 From: Roland Dreier <rolandd@cisco.com>
-Date: Sat, 29 Oct 2005 07:08:25 -0700
-In-Reply-To: <20051029054603.GA7992@ftp.linux.org.uk> (Al Viro's message of
- "Sat, 29 Oct 2005 06:46:03 +0100")
-Message-ID: <52acgspg9y.fsf@cisco.com>
+Date: Sat, 29 Oct 2005 07:11:16 -0700
+In-Reply-To: <200510291318.j9TDIjmi018556@clem.clem-digital.net> (Pete
+ Clements's message of "Sat, 29 Oct 2005 09:18:45 -0400 (EDT)")
+Message-ID: <5264rgpg57.fsf@cisco.com>
 User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 29 Oct 2005 14:08:27.0035 (UTC) FILETIME=[3B6E56B0:01C5DC92]
+X-OriginalArrivalTime: 29 Oct 2005 14:11:17.0067 (UTC) FILETIME=[A0C729B0:01C5DC92]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    > 	use of IS_ERR/PTR_ERR in infiniband/core/agent.c, without
-    > a portable chain of includes pulling err.h (breaks on a bunch of
-    > platforms).
-    > Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+    >   CC      arch/i386/pci/fixup.o
+    > arch/i386/pci/fixup.c:401: toshiba_ohci1394_dmi_table causes a section type conflict
+    > make[1]: *** [arch/i386/pci/fixup.o] Error 1
+    > make: *** [arch/i386/pci] Error 2
 
-Looks good to me:
+This is fixed by the patch in
 
-Acked-by: Roland Dreier <rolandd@cisco.com>
-
-I guess I still need to a few more cross-compilers to me collection --
-none of i386, x86_64, ppc64, ia64, sparc64 or ppc caught this :(.
+    http://lkml.org/lkml/2005/10/29/12
 
  - R.

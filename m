@@ -1,113 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbVJ2CcL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbVJ2CfG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751091AbVJ2CcL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 22:32:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbVJ2CcL
+	id S1751099AbVJ2CfG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 22:35:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbVJ2CfG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 22:32:11 -0400
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:52886 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1751091AbVJ2CcJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 22:32:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=OVuZes1heQw6+2/1lEXdQ21lkQauPl/J+YtA8tF+ULdA1ZVp6ufSNch6cgNQK8CLBlOcQ0ptvYyxlcSvkv3GmR1D8U865gew4Be/wIk53CziQToSWyT6j0tVT/ZjD/0lddi6QyAhrK7ACwM8U6Z1tnC2eka1EgVWI9+Jr3t6GPc=  ;
-Message-ID: <4362DF80.3060802@yahoo.com.au>
-Date: Sat, 29 Oct 2005 12:33:36 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Fri, 28 Oct 2005 22:35:06 -0400
+Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:23434 "EHLO
+	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1751099AbVJ2CfE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 22:35:04 -0400
+Message-ID: <4362DFD5.2000709@bigpond.net.au>
+Date: Sat, 29 Oct 2005 12:35:01 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Rohit, Seth" <rohit.seth@intel.com>
-CC: akpm@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: Clean up of __alloc_pages
-References: <20051028183326.A28611@unix-os.sc.intel.com>
-In-Reply-To: <20051028183326.A28611@unix-os.sc.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Jake Moilanen <moilanen@austin.ibm.com>
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.1.3 for 2.6.13 and 2.6.14-rc4
+References: <434F01EA.6060709@bigpond.net.au>
+In-Reply-To: <434F01EA.6060709@bigpond.net.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 29 Oct 2005 02:35:02 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rohit, Seth wrote:
-> the only changes in this clean up are:
+Peter Williams wrote:
+> This version contains a new scheduler, spa_svr, which is a minor 
+> extension of spa_no_frills intended for use on servers.  It makes no 
+> attempt to improve interactive responsiveness but includes a simplified 
+> version of the throughput bonus mechanism found in Zaphod.  This 
+> mechanism attempts to minimize the time tasks spend on run queues 
+> waiting for CPU access when the system is moderately loaded by giving 
+> tasks temporary priority bonuses based on the relationship between the 
+> recent average time spent on run queues and on a cpu per cycle. 
+> (Although it's effectiveness tends to disappear when the system is fully 
+> loaded, it is still useful as considerable delay can be seen on systems 
+> with quite low average loads due to lack of serendipity.)
 > 
-
-Looking good. I imagine it must be good for icache.
-Man, the page allocator somehow turned unreadable since I last
-looked at it! We will want this patch.
-
-> 	1- remove the initial direct reclaim logic
-> 	2- GFP_HIGH pages are allowed to go little below low watermark sooner
-
-I don't think #2 is any good. The reason we don't check GFP_HIGH on
-the first time round is because we simply want to kick kswapd at its
-normal watermark - ie. it doesn't matter what kind of allocation this
-is, kswapd should start at the same time no matter what.
-
-If you don't do this, then a GFP_HIGH allocator can allocate right
-down to its limit before it kicks kswapd, then it either will fail or
-will have to do direct reclaim.
-
-I would be inclined to simply add a int gfp_high argument to
-get_page_from_freelist, which would also somewhat match zone_watermark_ok.
-
-> 	3- Search for free pages unconditionally after direct reclaim
+> A patch for 2.6.14-rc4 is available at:
 > 
-> I've not added the logic of looking into PCPs first in this rev of patch.  I will send a
-> seperate patch for adding that support (needing extra logic for NUMA).
+> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.3-for-2.6.14-rc4.patch?download> 
 > 
-> 	Signed-off-by: Rohit Seth <rohit.seth@intel.com>
 > 
+> and a patch to upgrade the 6.1.2 version for 2.6.13 to 6.1.3 is
+> available at:
+> 
+> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.2-to-6.1.3-for-2.6.13.patch?download> 
+> 
+> 
+> Very Brief Documentation:
+> 
+> You can select a default scheduler at kernel build time.  If you wish to
+> boot with a scheduler other than the default it can be selected at boot
+> time by adding:
+> 
+> cpusched=<scheduler>
+> 
+> to the boot command line where <scheduler> is one of: ingosched,
+> nicksched, staircase, spa_no_frills, spa_ws, spa_svr or zaphod.  If you 
+> don't change the default when you build the kernel the default scheduler 
+> will be ingosched (which is the normal scheduler).
+> 
+> The scheduler in force on a running system can be determined by the
+> contents of:
+> 
+> /proc/scheduler
+> 
+> Control parameters for the scheduler can be read/set via files in:
+> 
+> /sys/cpusched/<scheduler>/
+> 
+> Peter
 
-One other comment below:
+A patch for the 2.6.14 official release kernel is now available at:
 
-> +
-> +static struct page *
-> +get_page_from_freelist(unsigned int __nocast gfp_mask, unsigned int order, 
-> +			struct zone **zones, int can_try_harder)
-> +{
-> +	struct zone *z;
-> +	struct page *page = NULL;
-> +	int classzone_idx = zone_idx(zones[0]);
-> +	int i;
-> +
-> +	/*
-> +	 * Go through the zonelist once, looking for a zone with enough free.
-> +	 * See also cpuset_zone_allowed() comment in kernel/cpuset.c.
-> +	 */
-> +	for (i = 0; (z = zones[i]) != NULL; i++) {
-> +		if (!cpuset_zone_allowed(z, gfp_mask))
-> +			continue;
-> +
-> +		if ((can_try_harder >= 0) && 
-> +			(!zone_watermark_ok(z, order, z->pages_low,
-> +				       classzone_idx, can_try_harder, 
-> +				       gfp_mask & __GFP_HIGH)))
-> +			continue;
-> +
-> +		page = buffered_rmqueue(z, order, gfp_mask, 1);
-> +		if (page) 
-> +			break;
-> +	}
-> +	return page;
-> +}
+<http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.3-for-2.6.14.patch?download>
 
-[snip]
-
-> @@ -968,7 +931,7 @@
->  	}
->  	return NULL;
->  got_pg:
-> -	zone_statistics(zonelist, z);
-> +	zone_statistics(zonelist, page_zone(page));
->  	return page;
-
-How about moving the zone_statistics up into the 'if (page)'
-test of get_page_from_freelist? This way we don't have to
-evaluate page_zone().
-
+Peter
 -- 
-SUSE Labs, Novell Inc.
+Peter Williams                                   pwil3058@bigpond.net.au
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

@@ -1,91 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750974AbVJ2BAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750970AbVJ2BAV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750974AbVJ2BAY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 21:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750976AbVJ2BAY
+	id S1750970AbVJ2BAV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 21:00:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750974AbVJ2BAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 21:00:24 -0400
-Received: from animx.eu.org ([216.98.75.249]:3278 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S1750974AbVJ2BAX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 21:00:23 -0400
-Date: Fri, 28 Oct 2005 21:12:28 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: NFS permission denied error
-Message-ID: <20051029011228.GA28695@animx.eu.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 28 Oct 2005 21:00:20 -0400
+Received: from relay01.roc.ny.frontiernet.net ([66.133.182.164]:55482 "EHLO
+	relay01.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
+	id S1750970AbVJ2BAS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 21:00:18 -0400
+Reply-To: <jbowler@acm.org>
+From: John Bowler <jbowler@acm.org>
+To: "'David Vrabel'" <dvrabel@cantab.net>
+Cc: "'Deepak Saxena'" <dsaxena@plexity.net>, <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] 2.6.14-rc3 ixp4xx_copy_from little endian/alignment
+Date: Fri, 28 Oct 2005 17:16:45 -0700
+Message-ID: <004c01c5dc1e$0ce4fbb0$1001a8c0@kalmiopsis>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <43628B40.50902@cantab.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a server setup (2.6.10 vanilla kernel, nfsroot with local hard disks
-that are exported).  Recently the motherboard died and had to be replaced. 
-No configuration changes were performed to the system otherwise.  Now I see
-Permission Denied errors when attempting to mount any of the exported
-directories.  Server is called "nail" with IP of 192.168.2.15 (x86)
+From: David Vrabel [mailto:dvrabel@cantab.net]
+>It appears that the NSLU2 only has the flash on the expansion bus which 
+>is why you believe it's a flash specific problem.
 
-kmountd nfs-utils 1.0.6
+Which would also explain why a flash specific solution works...  I'll
+try an experiment without the XOR on the address and with data coherency.
 
-exports:
-/backup         192.168.0.0/255.255.0.0(rw,async,wdelay,no_root_squash)
-/160g           192.168.0.0/255.255.0.0(rw,async,wdelay,no_root_squash)
-/80g            192.168.0.0/255.255.0.0(rw,async,wdelay,no_root_squash)
-Those are hdc sda and hda respectively
+The issue here is whether that's the right answer for hypothetical other
+IXP4XX LE systems which have both flash and non-flash peripherals on EXP.
 
-The clients are "vegeta" 192.168.2.7 2.6.12 (x86) and "kakarot" 192.168.2.6
-2.4.20 (alpha)
+Still, it doesn't much matter - NSLU2 doesn't have such devices (so far as
+I know - i.e. I believe that your statement about there being nothing else
+on the EXP bus is correct) and we implemented this patch for NSLU2, even
+though it isn't NSLU2 specific.
 
-The only workaround I found is to use exportfs -f and everything works fine. 
-I can't understand why this is now giving me problems.
+>Data coherency can be set on a per 1 Mibyte page basis so all other (APB 
+>and PCI) peripherals would continue to use address coherency and thus 
+>would continue to function as they are now.
 
-I set nfsd_debug to 65535 and I see this:
-Oct 28 21:14:27 nail kernel: nfsd: exp_rootfh(/backup [ef3c15a4]
-192.168.0.0/255.255.0.0:hdc/2)
-Oct 28 21:14:27 nail kernel: nfsd: exp_rootfh export not found.
+Ok... so I'll try to find a way to do this in the board level code, or
+maybe better in the IXP4XX setup (drivers/mtd/maps/ixp4xx.c?)
 
-However, running exportfs shows:
-/backup         192.168.0.0/255.255.0.0
-/160g           192.168.0.0/255.255.0.0
-/80g            192.168.0.0/255.255.0.0
+It's worth considering that, so far as I can see, nothing which uses
+drivers/mtd/maps/ixp4xx.c will currently work in LE unless it is already
+setting data coherency on the flash addresses.  Is NSLU2 the first IXP4XX
+system to run LE and to access the flash (from a running system, not from
+the boot loader?)
 
-After exportfs -f:
-Oct 28 21:15:07 nail kernel: nfsd: exp_rootfh(/backup [ef3c15a4]
-192.168.0.0/255.255.0.0:hdc/2)
-Oct 28 21:15:07 nail kernel: nfsd: fh_compose(exp 16:00/2 ///, ino=2)
-Oct 28 21:15:07 nail kernel: nfsd_dispatch: vers 3 proc 19
-Oct 28 21:15:07 nail kernel: nfsd: FSINFO(3)   12: 00000001 00001600
-00000002 00000000 00000000 00000000
-Oct 28 21:15:07 nail kernel: nfsd: fh_verify(12: 00000001 00001600 00000002
-00000000 00000000 00000000)
-Oct 28 21:15:07 nail kernel: nfsd: Dropping request due to malloc failure!
-Oct 28 21:15:07 nail kernel: found domain 192.168.0.0/255.255.0.0
-Oct 28 21:15:07 nail kernel: found fsidtype 0
-Oct 28 21:15:07 nail kernel: found fsid length 8
-Oct 28 21:15:07 nail kernel: Path seems to be </backup>
-Oct 28 21:15:07 nail kernel: Found the path /backup
-Oct 28 21:15:07 nail kernel: And found export
-Oct 28 21:15:07 nail kernel: nfsd_dispatch: vers 3 proc 19
-Oct 28 21:15:07 nail kernel: nfsd: FSINFO(3)   12: 00000001 00001600
-00000002 00000000 00000000 00000000
-Oct 28 21:15:07 nail kernel: nfsd: fh_verify(12: 00000001 00001600 00000002
-00000000 00000000 00000000)
-Oct 28 21:15:08 nail kernel: nfsd_dispatch: vers 3 proc 19
-Oct 28 21:15:08 nail kernel: nfsd: FSINFO(3)   12: 00000001 00001600
-00000002 00000000 00000000 00000000
-Oct 28 21:15:08 nail kernel: nfsd: fh_verify(12: 00000001 00001600 00000002
-00000000 00000000 00000000)
-Oct 28 21:15:08 nail kernel: nfsd_dispatch: vers 3 proc 1
-Oct 28 21:15:08 nail kernel: nfsd: GETATTR(3)  12: 00000001 00001600
-00000002 00000000 00000000 00000000
-Oct 28 21:15:08 nail kernel: nfsd: fh_verify(12: 00000001 00001600 00000002
-00000000 00000000 00000000)
+John Bowler <jbowler@acm.org>
 
-At this point I have no idea what's going on.
-
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
- Got Gas???

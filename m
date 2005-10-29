@@ -1,49 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750962AbVJ2Crl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbVJ2C5I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750962AbVJ2Crl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 22:47:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbVJ2Crl
+	id S1751106AbVJ2C5I (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 22:57:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751107AbVJ2C5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 22:47:41 -0400
-Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:63832 "HELO
-	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1750962AbVJ2Crk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 22:47:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=OzC927DzZXS0NKpDFuam3wRZndV6oXexHUN8G7UBrjOUw+AjPqRbEqgtXYWiz8imYyqdbsmU1+zOYAcZIt7Vsz3RbWVIWUi4q+nT9VCZfMBd6/KFM9f5zJLSYolvhfYmLo7y2VCzWpPQ8Etp2KWb9FdQo+tNwbAuXvIuGt8Wl98=  ;
-Message-ID: <4362E329.8040204@yahoo.com.au>
-Date: Sat, 29 Oct 2005 12:49:13 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@utah-nac.org>
-CC: Jeff Garzik <jgarzik@pobox.com>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
-Subject: Re: kernel performance update - 2.6.14
-References: <200510282344.j9SNihg27345@unix-os.sc.intel.com> <4362BA30.2020504@pobox.com> <4362A9A7.2090101@utah-nac.org>
-In-Reply-To: <4362A9A7.2090101@utah-nac.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 28 Oct 2005 22:57:08 -0400
+Received: from mtiwmhc11.worldnet.att.net ([204.127.131.115]:62922 "EHLO
+	mtiwmhc11.worldnet.att.net") by vger.kernel.org with ESMTP
+	id S1751106AbVJ2C5H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 22:57:07 -0400
+From: larry.finger@att.net (Larry.Finger@lwfinger.net)
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6.14 - Fix for incorrect CPU speed determination in powernow for i386
+Date: Sat, 29 Oct 2005 02:57:06 +0000
+Message-Id: <102920050257.11500.4362E5020003C9EF00002CEC21602813029D0A09020700D2979D9D0E04@att.net>
+X-Mailer: AT&T Message Center Version 1 (Feb 14 2005)
+X-Authenticated-Sender: bGFycnkuZmluZ2VyQGF0dC5uZXQ=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff V. Merkey wrote:
-> 
-> Verified.  These numbers reflect my measurements as well.    I have not 
-> moved off 2.6.9 to newer kernels on shipping products due to these 
-> issues.   There are also serious stability issues as well, though 2.6.14 
-> seems a little better than than previous kernels. 
-> Jeff
-> 
+On an HP ze1115 notebook with a Mobile AMD K7, the CPU speed is measured twice, once when the CPU is initialized, and a second time when the powerrnow system is started. Sometimes the two readings agree; however, the second reading is usually higher, sometimes by very large factors. The dmesg excerpts below show one case where the difference is small.
 
-These issues aren't going to fix themselves. Did you investigate
-any of the performance or (more importantly) stability problems?
+Initializing CPU#0
+PID hash table entries: 4096 (order: 12, 65536 bytes)
+Detected 1100.134 MHz process
 
--- 
-SUSE Labs, Novell Inc.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+powernow: PowerNOW! Technology present. Can scale: frequency and voltage.
+Detected 1148.044 MHz processor.
+powernow: SGTC: 10000
+powernow: Minimum speed 521 MHz. Maximum speed 1148 MHz.
+
+The cpu frequency on this machine is measured using calibrate_tsc, which calls mach_countup between rdtsc calls. When the second speed determination is made, interrupts have been enabled, which makes the loop counter value in mach_count to be too small and the cpu frequency to be too high.
+
+The two-line patch against 2.6.14 is shown below. With it, a second (faulty) determination of cpu_khz is avoided. BTW, this fix handles Bugzilla bugs #5266 and 5435.
+
+
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+
+---
+
+diff --git a/arch/i386/kernel/time.c b/arch/i386/kernel/time.c
+--- a/arch/i386/kernel/time.c
++++ b/arch/i386/kernel/time.c
+@@ -78,7 +78,7 @@ u64 jiffies_64 = INITIAL_JIFFIES;
+
+ EXPORT_SYMBOL(jiffies_64);
+
+-unsigned int cpu_khz;  /* Detected as we calibrate the TSC */
++unsigned int cpu_khz=0; /* Detected as we calibrate the TSC */
+ EXPORT_SYMBOL(cpu_khz);
+
+ extern unsigned long wall_jiffies;
+diff --git a/arch/i386/kernel/timers/common.c b/arch/i386/kernel/timers/common.c
+--- a/arch/i386/kernel/timers/common.c
++++ b/arch/i386/kernel/timers/common.c
+@@ -151,7 +151,7 @@ unsigned long read_timer_tsc(void)
+ /* calculate cpu_khz */
+ void init_cpu_khz(void)
+ {
+-       if (cpu_has_tsc) {
++       if (cpu_has_tsc && !cpu_khz) {
+                unsigned long tsc_quotient = calibrate_tsc();
+                if (tsc_quotient) {
+                        /* report CPU clock rate in Hz.
+

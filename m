@@ -1,90 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751015AbVJ2REk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbVJ2RIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751015AbVJ2REk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 13:04:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751018AbVJ2REk
+	id S1751148AbVJ2RIs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 13:08:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbVJ2RIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 13:04:40 -0400
-Received: from xproxy.gmail.com ([66.249.82.207]:28751 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751001AbVJ2REk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 13:04:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Gc5Bj/pFngOIM3OhT7fgmdYpyltQSrqV8nzuIGJGHanZ1XVaHMjGWXoPo/+d2smEI+qIqbnOvAFhLd/5cw+LIIWdVIJ+9O3Jr6oyIAkXGPlvh301BaGEXYXhOD8dcVI7vj6VXY/jvNYkPwxOCQXiU+4Wp2vQRlMcMYYoGZRRdhk=
-Message-ID: <b2992ee70510291004n66537b79h38c6d94005b82cf4@mail.gmail.com>
-Date: Sat, 29 Oct 2005 19:04:39 +0200
-From: Patrick Useldinger <uselpa@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Fwd: segmentation fault when accessing /proc/ioports
-In-Reply-To: <b2992ee70510290736l7ec43091o880f141bd8be09e7@mail.gmail.com>
+	Sat, 29 Oct 2005 13:08:48 -0400
+Received: from ns1.suse.de ([195.135.220.2]:4226 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751148AbVJ2RIr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 13:08:47 -0400
+From: Andi Kleen <ak@suse.de>
+To: Janne M O Heikkinen <jmoheikk@cc.helsinki.fi>
+Subject: Re: x86_64: 2.6.14 with NUMA panics at boot
+Date: Sat, 29 Oct 2005 18:41:48 +0200
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org, haveblue@us.ibm.com
+References: <Pine.OSF.4.61.0510282218310.411472@rock.it.helsinki.fi> <Pine.OSF.4.61.0510291312160.426625@rock.it.helsinki.fi> <Pine.OSF.4.61.0510291749360.404250@rock.it.helsinki.fi>
+In-Reply-To: <Pine.OSF.4.61.0510291749360.404250@rock.it.helsinki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <b2992ee70510290209h26c1fd6ex92fd137cd2c9d747@mail.gmail.com>
-	 <20051029110358.GI4180@stusta.de>
-	 <b2992ee70510290422g1912d1e5sedcdf6fc0155c4b0@mail.gmail.com>
-	 <20051029112617.GJ4180@stusta.de>
-	 <b2992ee70510290736l7ec43091o880f141bd8be09e7@mail.gmail.com>
+Message-Id: <200510291841.49214.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is what I get when I throw out the LVM2 packages
-(device-mapper-1.01.04-i486-1.tgz and lvm2-2.01.09-i486-1.tgz):
+On Saturday 29 October 2005 16:54, Janne M O Heikkinen wrote:
+> On Sat, 29 Oct 2005, Janne M O Heikkinen wrote:
+> 
+> > No, I get same panics with numa=noacpi or even with numa=off. If I compile
+> > 2.6.14 kernel without CONFIG_ACPI_NUMA it does boot.
+> 
+> It wasn't removing of CONFIG_ACPI_NUMA that made it boot after all, I had
+> also changed memory model from "Sparse" to "Discontiguous". And now
+> when I recompiled with CONFIG_ACPI_NUMA=y and with "Discontiguous" memory
+> model it booted just fine.
 
-root@slackw:~$ cat /proc/ioports
-0000-001f : dma1
-0020-0021 : pic1
-0040-0043 : timer0
-0050-0053 : timer1
-0060-006f : keyboard
-0070-0077 : rtc
-0080-008f : dma page reg
-00a0-00a1 : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-0177 : ide1
-01f0-01f7 : ide0
-0376-0376 : ide1
-0378-037a : parport0
-037b-037f : parport0
-03c0-03df : vesafb
-03e0-03e1 : $
-             LB D$B$è~'PÇ·D$S%ÿ
-03f6-03f6 : ide0
-03f8-03ff : serial
-0800-0803 : PM1a_EVT_BLK
-0804-0805 : PM1a_CNT_BLK
-0808-080b : PM_TMR
-0816-0816 : PM2_CNT_BLK
-0820-0823 : GPE0_BLK
-0830-0833 : GPE1_BLK
-0c00-0c1f : 0000:00:02.1
-  0c00-0c1f : sis96x-smbus
-0cf8-0cff : PCI conf1
-1000-1fff : PCI CardBus #03
-2000-2fff : PCI CardBus #03
-3000-3fff : PCI CardBus #07
-4000-4fff : PCI CardBus #07
-b000-bfff : PCI Bus #01
-  bc00-bc7f : 0000:01:00.0
-d400-d4ff : 0000:00:0f.0
-  d400-d4ff : 8139too
-d800-d87f : 0000:00:02.7
-  d800-d87f : SiS SI7012
-dc00-dcff : 0000:00:02.7
-  dc00-dcff : SiS SI7012
-ff00-ff0f : 0000:00:02.5
-  ff00-ff07 : ide0
-  ff08-ff0f : ide1
+Ok, that would explain it. I never test sparse, only discontiguous.
+sparse is only an experimental option that is not really maintained
+yet. 	Probably need to disable it if it's broken.
 
-The address at 03e0-03e1 still looks strange, but no more oopses.
+Perhaps Dave H. knows what to do with it.
 
-... meaning that the module who produces the problem is dm_mod.
-BTW, I have no VGs on my system.
-Anything else I can do to help tracking the problem?
+-Andi
 
-Regards,
--pu

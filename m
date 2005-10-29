@@ -1,245 +1,308 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbVJ2TZL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbVJ2T1Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932124AbVJ2TZL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 15:25:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbVJ2TYZ
+	id S932119AbVJ2T1Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 15:27:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbVJ2T1P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 15:24:25 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:48062 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S932124AbVJ2TYD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 15:24:03 -0400
-Message-Id: <20051029192436.178688000@omelas>
-References: <20051029191229.562454000@omelas>
-Date: Sat, 29 Oct 2005 12:12:34 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, tony@atomide.com
-Subject: [patch 5/5] TI OMAP driver
-Content-Disposition: inline; filename=rng/rng_omap_driver.patch
+	Sat, 29 Oct 2005 15:27:15 -0400
+Received: from smtp100.rog.mail.re2.yahoo.com ([206.190.36.78]:35240 "HELO
+	smtp100.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S932119AbVJ2T1O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 15:27:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=rogers.com;
+  h=Received:Content-Disposition:From:Organization:To:Subject:Date:User-Agent:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id;
+  b=xmO1zu7sLd4TMV3kBxm3pidSuSWdc1ZdlO0J+Af8BP7WPmr4K5jJAopa7irjglCEI0grn2NqjGQe53l9RNHHrDUjTGiFihzuBrjkH/IRDan34cCEPRjr7cKM5ks3ylbzSfl0l0SDhu9LkDc2ZM3Ggw/BJq4KchLw1mHH0Duwcqo=  ;
+Content-Disposition: inline
+From: Shawn Starr <shawn.starr@rogers.com>
+Organization: sh0n.net
+To: linux-kernel@vger.kernel.org
+Subject: Re: Call for PIIX4 chipset testers
+Date: Sat, 29 Oct 2005 15:27:01 -0400
+User-Agent: KMail/1.8.3
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200510291527.01889.shawn.starr@rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch implements the OMAP RNG driver. 
+Hi Linus,
 
-Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
+Here's the information you requested.
 
-Index: linux-2.6-rng/drivers/char/rng/omap-rng.c
-===================================================================
---- /dev/null
-+++ linux-2.6-rng/drivers/char/rng/omap-rng.c
-@@ -0,0 +1,209 @@
-+/*
-+ * driver/char/rng/omap-rng.c
-+ *
-+ * RNG driver for TI OMAP CPU family
-+ *
-+ * Author: Deepak Saxena <dsaxena@plexity.net>
-+ *
-+ * Copyright 2005 (c) MontaVista Software, Inc.
-+ *
-+ * Mostly based on original driver:
-+ *
-+ * Copyright (C) 2005 Nokia Corporation
-+ * Author: Juha Yrjölä <juha.yrjola@nokia.com>
-+ *
-+ * This file is licensed under  the terms of the GNU General Public
-+ * License version 2. This program is licensed "as is" without any
-+ * warranty of any kind, whether express or implied.
-+ *
-+ * TODO:
-+ *
-+ * - Make status updated be interrupt driven so we don't poll
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/random.h>
-+#include <linux/err.h>
-+#include <linux/device.h>
-+
-+#include <asm/io.h>
-+#include <asm/hardware/clock.h>
-+
-+#include "rng.h"
-+
-+#define RNG_OUT_REG		0x00		/* Output register */
-+#define RNG_STAT_REG		0x04		/* Status register
-+							[0] = STAT_BUSY */
-+#define RNG_ALARM_REG		0x24		/* Alarm register
-+							[7:0] = ALARM_COUNTER */
-+#define RNG_CONFIG_REG		0x28		/* Configuration register
-+							[11:6] = RESET_COUNT
-+							[5:3]  = RING2_DELAY
-+							[2:0]  = RING1_DELAY */
-+#define RNG_REV_REG		0x3c		/* Revision register
-+							[7:0] = REV_NB */
-+#define RNG_MASK_REG		0x40		/* Mask and reset register
-+							[2] = IT_EN
-+							[1] = SOFTRESET
-+							[0] = AUTOIDLE */
-+#define RNG_SYSSTATUS		0x44		/* System status
-+							[0] = RESETDONE */
-+
-+static void __iomem *rng_base;
-+static struct clk *rng_ick;
-+static struct device *rng_dev;
-+
-+static u32 omap_rng_read_reg(int reg)
-+{
-+	return __raw_readl(rng_base + reg);
-+}
-+
-+static void omap_rng_write_reg(int reg, u32 val)
-+{
-+	__raw_writel(val, rng_base + reg);
-+}
-+
-+/* REVISIT: Does the status bit really work on 16xx? */
-+static int omap_rng_data_present(void)
-+{
-+	return omap_rng_read_reg(RNG_STAT_REG) ? 0 : 1;
-+}
-+
-+static int omap_rng_data_read(u32 *data)
-+{
-+	*data = omap_rng_read_reg(RNG_OUT_REG);
-+
-+	return 4;
-+}
-+
-+static struct rng_operations omap_rng_ops = {
-+	.data_present	= omap_rng_data_present,
-+	.data_read	= omap_rng_data_read,
-+};
-+
-+static int __init omap_rng_probe(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct resource *res, *mem;
-+	int ret;
-+
-+	/*
-+	 * A bit ugly, and it will never actually happen but there can
-+	 * be only one RNG and this catches any bork
-+	 */
-+	if (rng_dev)
-+		BUG();
-+
-+    	if (cpu_is_omap24xx()) {
-+		rng_ick = clk_get(NULL, "rng_ick");
-+		if (IS_ERR(rng_ick)) {
-+			dev_err(dev, "Could not get rng_ick\n");
-+			ret = PTR_ERR(rng_ick);
-+			return ret;
-+		}
-+		else {
-+			clk_use(rng_ick);
-+		}
-+	}
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+
-+	if (!res)
-+		return -ENOENT;
-+
-+	mem = request_mem_region(res->start, res->end - res->start + 1,
-+				 pdev->name);
-+	if (mem == NULL)
-+		return -EBUSY;
-+
-+	dev_set_drvdata(dev, mem);
-+	rng_base = (u32 __iomem *)io_p2v(res->start);
-+
-+	ret = register_rng(&omap_rng_ops);
-+	if (ret) {
-+		release_resource(mem);
-+		rng_base = NULL;
-+		return ret;
-+	}
-+
-+	dev_info(dev, "OMAP Random Number Generator ver. %02x\n",
-+		omap_rng_read_reg(RNG_REV_REG));
-+	omap_rng_write_reg(RNG_MASK_REG, 0x1);
-+
-+	rng_dev = dev;
-+
-+	return 0;
-+}
-+
-+static int __exit omap_rng_remove(struct device *dev)
-+{
-+	struct resource *mem = dev_get_drvdata(dev);
-+
-+	unregister_rng(&omap_rng_ops);
-+
-+	omap_rng_write_reg(RNG_MASK_REG, 0x0);
-+
-+	if (cpu_is_omap24xx()) {
-+		clk_unuse(rng_ick);
-+		clk_put(rng_ick);
-+	}
-+
-+	release_resource(mem);
-+	rng_base = NULL;
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM
-+
-+static int omap_rng_suspend(struct device *dev, pm_message_t message, u32 level)
-+{
-+	omap_rng_write_reg(RNG_MASK_REG, 0x0);
-+
-+	return 0;
-+}
-+
-+static int omap_rng_resume(struct device *dev, pm_message_t message, u32 level)
-+{
-+	omap_rng_write_reg(RNG_MASK_REG, 0x1);
-+
-+	return 1;
-+}
-+
-+#else
-+
-+#define	omap_rng_suspend	NULL
-+#define	omap_rng_resume		NULL
-+
-+#endif
-+
-+
-+static struct device_driver omap_rng_driver = {
-+	.name		= "omap_rng",
-+	.bus		= &platform_bus_type,
-+	.probe		= omap_rng_probe,
-+	.remove		= __exit_p(omap_rng_remove),
-+	.suspend	= omap_rng_suspend,
-+	.resume		= omap_rng_resume
-+};
-+
-+static int __init omap_rng_init(void)
-+{
-+	if (!cpu_is_omap16xx() && !cpu_is_omap24xx())
-+		return -ENODEV;
-+
-+	return driver_register(&omap_rng_driver);
-+}
-+
-+static void __exit omap_rng_exit(void)
-+{
-+	driver_unregister(&omap_rng_driver);
-+}
-+
-+module_init(omap_rng_init);
-+module_exit(omap_rng_exit);
-+
-+MODULE_AUTHOR("Deepak Saxena (and others)");
-+MODULE_LICENSE("GPL");
+>Linus Torvalds <torvalds AT osdl dot org> writes:
+>
+> It should report a number of quirks, and the easiest way to get them all
+> is to just do
+>
+>       dmesg -s 1000000 | grep PIIX4
 
---
-Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
+IBM 300PL 550Mhz desktop box
+2.6.14 final
 
-Even a stopped clock gives the right time twice a day.
+[42949373.520000] PCI quirk: region fd00-fd3f claimed by PIIX4 ACPI
+[42949373.520000] PCI quirk: region fe00-fe1f claimed by PIIX4 SMB
+[42949374.110000] PIIX4: IDE controller at PCI slot 0000:00:02.1
+[42949374.110000] PIIX4: chipset revision 1
+[42949374.110000] PIIX4: not 100% native mode: will probe irqs later
+
+-su-3.00# cat /proc/ioports
+0000-001f : dma1
+0020-0021 : pic1
+0040-0043 : timer0
+0050-0053 : timer1
+0060-006f : keyboard
+0070-0077 : rtc
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+0213-0213 : ISAPnP
+0220-022f : soundblaster
+02f8-02ff : serial
+0300-0303 : MPU-401 UART
+0370-0371 : pnp 00:0a
+0376-0376 : ide1
+0378-037a : parport0
+037b-037f : parport0
+03c0-03df : vga+
+03f6-03f6 : ide0
+03f8-03ff : serial
+04d0-04d1 : pnp 00:0a
+0620-0623 : sound driver (AWE32)
+0a20-0a23 : sound driver (AWE32)
+0a79-0a79 : isapnp write
+0cf8-0cff : PCI conf1
+0e20-0e23 : sound driver (AWE32)
+74e0-74ff : 0000:00:03.0
+  74e0-74ff : eepro100
+7800-78ff : 0000:00:10.0
+7c00-7c3f : 0000:00:12.0
+  7c00-7c3f : eepro100
+7c40-7c7f : 0000:00:14.0
+  7c40-7c7f : eepro100
+fd00-fd3f : 0000:00:02.3
+  fd00-fd3f : motherboard
+    fd00-fd03 : PM1a_EVT_BLK
+    fd04-fd05 : PM1a_CNT_BLK
+    fd08-fd0b : PM_TMR
+    fd0c-fd0f : GPE0_BLK
+    fd10-fd15 : ACPI CPU throttle
+fe00-fe1f : 0000:00:02.3
+  fe00-fe0f : motherboard
+    fe00-fe0f : pnp 00:0a
+      fe00-fe07 : piix4-smbus
+ff00-ff1f : 0000:00:02.2
+  ff00-ff1f : uhci_hcd
+fff0-ffff : 0000:00:02.1
+  fff0-fff7 : ide0
+  fff8-ffff : ide1
+
+su-3.00# lspci -xxx
+00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 
+03)
+00: 86 80 90 71 46 01 10 22 03 00 00 06 00 20 00 00
+10: 08 00 00 ec 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 a0 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 04 80 00 ff 00 00 00 09 00 10 11 11 11 11 33 33
+60: 10 20 30 40 48 48 48 48 00 3f 28 00 f0 8f 00 00
+70: 20 1f 0a 78 aa 01 03 00 00 3f 10 38 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: c8 00 00 00 04 61 00 00 00 05 00 00 00 00 00 00
+a0: 02 00 10 00 03 02 00 1f 00 00 00 00 00 00 00 00
+b0: 00 a0 00 00 30 00 00 00 00 00 00 00 40 40 00 00
+c0: 00 00 00 00 00 00 00 00 18 0c ff ff 7f 00 00 00
+d0: 00 00 00 00 00 00 00 00 0c 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 01 00 00 00 f8 00 60 20 0f 00 00 00 00 00 00
+
+00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 
+03)
+00: 86 80 91 71 06 01 20 02 03 00 04 06 00 40 01 00
+10: 00 00 00 00 00 00 00 00 00 01 01 40 f0 00 a0 22
+20: 00 f4 f0 f7 00 30 00 30 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 88 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:02.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+00: 86 80 10 71 0f 01 80 02 02 00 01 06 00 00 80 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 4d 00 33 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 05 05 09 0b 90 00 00 00 00 f2 00 00 00 00 00 00
+70: 00 00 00 00 00 00 0c 0c 00 00 00 00 00 00 00 00
+80: 00 00 07 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 45 00 7d f0 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 25 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
+
+00:02.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
+00: 86 80 11 71 05 00 80 02 01 80 01 01 00 20 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: f1 ff 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 07 a3 07 a3 00 00 00 00 01 00 02 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
+
+00:02.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
+00: 86 80 12 71 05 00 80 02 01 00 03 0c 00 30 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 01 ff 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 0b 04 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 20 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
+
+00:02.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
+00: 86 80 13 71 01 00 80 02 02 00 80 06 00 00 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 01 fd 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 23 00 00 02 00 00 00 80
+60: 90 02 87 62 00 00 00 98 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 01 fe 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
+
+00:03.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 05) 
+00: 86 80 29 12 07 01 90 02 05 00 00 02 08 40 00 00
+10: 08 f0 bf f3 e1 74 00 00 00 00 d0 f3 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 14 10 d7 00
+30: 00 00 00 00 dc 00 00 00 00 00 00 00 0b 01 08 38
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 31 fe
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:10.0 SCSI storage controller: Adaptec AHA-7850 (rev 03)
+00: 04 90 78 50 06 01 90 02 03 00 00 01 08 20 00 00
+10: 01 78 00 00 00 d0 cf f3 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 04 90 50 78
+30: 00 00 00 00 dc 00 00 00 00 00 00 00 09 01 04 04
+40: 80 01 00 80 80 01 00 80 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 21 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:12.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08) 
+00: 86 80 29 12 07 01 90 02 08 00 00 02 08 40 00 00
+10: 00 e0 cf f3 01 7c 00 00 00 00 e0 f3 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 86 80 0e 00
+30: 00 00 00 00 dc 00 00 00 00 00 00 00 05 01 08 38
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 22 fe
+e0: 00 40 00 3a 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:14.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08) 
+00: 86 80 29 12 07 01 90 02 08 00 00 02 08 40 00 00
+10: 00 f0 cf f3 41 7c 00 00 00 00 f0 f3 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 14 10 5c 30
+30: 00 00 00 00 dc 00 00 00 00 00 00 00 05 01 08 38
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 22 7e
+e0: 00 40 00 3a 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+01:01.0 VGA compatible controller: S3 Inc. Trio 64 3D (rev 01)
+00: 33 53 04 89 07 00 10 02 01 00 00 03 00 20 00 00
+10: 00 00 00 f4 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 14 10 db 00
+30: 00 00 0c 00 44 00 00 00 00 00 00 00 ff 01 04 ff
+40: 00 00 00 00 01 00 21 02 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+Thanks,
+
+Shawn.

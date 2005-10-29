@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbVJ2E2f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751137AbVJ2Ecn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751133AbVJ2E2f (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 00:28:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbVJ2E2f
+	id S1751137AbVJ2Ecn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 00:32:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbVJ2Ecn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 00:28:35 -0400
-Received: from rwcrmhc14.comcast.net ([204.127.198.54]:5114 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1751133AbVJ2E2e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 00:28:34 -0400
-Message-Id: <6.2.3.4.0.20051028222139.03ff2fa0@no.incoming.mail>
-X-Mailer: QUALCOMM Windows Eudora Version 6.2.3.4
-Date: Fri, 28 Oct 2005 22:28:28 -0600
-To: Lee <linuxtwidler@gmail.com>
-From: Jeff Woods <Kazrak+kernel@cesmail.net>
-Subject: Re: Serial Port Sniffing
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051028132417.6d3dc843@localhost>
-References: <20051028132417.6d3dc843@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Sat, 29 Oct 2005 00:32:43 -0400
+Received: from [67.137.28.189] ([67.137.28.189]:60545 "EHLO vger.utah-nac.org")
+	by vger.kernel.org with ESMTP id S1751137AbVJ2Ecm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 00:32:42 -0400
+Message-ID: <4362E71A.6030904@utah-nac.org>
+Date: Fri, 28 Oct 2005 21:06:02 -0600
+From: jmerkey <jmerkey@utah-nac.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: kernel performance update - 2.6.14
+References: <200510282344.j9SNihg27345@unix-os.sc.intel.com> <4362BA30.2020504@pobox.com> <4362A9A7.2090101@utah-nac.org> <4362E329.8040204@yahoo.com.au>
+In-Reply-To: <4362E329.8040204@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 10/28/2005 13:24 -0500, Lee <linuxtwidler@gmail.com> wrote:
->Does anyone have any experience with sniffing data from a serial 
->port w/o the device attached to the serial port or the application 
->having knowledge of this ?
+Nick Piggin wrote:
+
+> Jeff V. Merkey wrote:
 >
->I had found an old kernel module (for 2.2.0, i think) called 'maxty' 
->which would does this.  Is there something equivalent for the 2.6.x kernels ?
+>>
+>> Verified. These numbers reflect my measurements as well. I have not 
+>> moved off 2.6.9 to newer kernels on shipping products due to these 
+>> issues. There are also serious stability issues as well, though 
+>> 2.6.14 seems a little better than than previous kernels. Jeff
+>>
 >
->Or is there a better way to go about doing this?
+> These issues aren't going to fix themselves. Did you investigate
+> any of the performance or (more importantly) stability problems?
 
-Don't know about software sniffing but hardware sniffing of RS-232 is 
-relatively simple. Splice in a "Y" cable and configure a serial port 
-of another device to listen. Of course, you'll have to configure the 
-serial port to the same rate, parity and stop bits but that's usually 
-easy. Cut the transmit wire on the sniffer side to ensure nothing 
-outbound succeeds in leaving the sniffer machine. Listening to both 
-sides of the conversation would require two sniffer devices, or at 
-least two serial ports.
+Yes I did. The list wasn't too long. I had problems with RCU messages 
+and irq warn messages at very high loads and init respawning itself 
+subjected to loads > 369 MB/S to the disk channels on 2.6.13. 
+Performance was down on disk I/O 2.6.9. I did not investigate the BIO 
+fixes but something changed there. Theres also some memory problems with 
+corruption somewhere in the 2.6.14.
 
---
-Jeff Woods <kazrak+kernel@cesmail.net> 
-
+Jeff

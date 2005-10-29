@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750903AbVJ2JWw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbVJ2Job@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750903AbVJ2JWw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 05:22:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750901AbVJ2JWw
+	id S1750909AbVJ2Job (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 05:44:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750911AbVJ2Job
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 05:22:52 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:60164 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750796AbVJ2JWw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 05:22:52 -0400
-Date: Sat, 29 Oct 2005 11:22:50 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Ioan Ionita <opslynx@gmail.com>
-Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: [2.6 patch] fs/reiser4/: possible cleanups
-Message-ID: <20051029092250.GG4180@stusta.de>
-References: <20051028223547.GF4180@stusta.de> <df47b87a0510282058t37e8393o60e7f592ea5b19e5@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <df47b87a0510282058t37e8393o60e7f592ea5b19e5@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+	Sat, 29 Oct 2005 05:44:31 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:21479 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750908AbVJ2Joa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 05:44:30 -0400
+Subject: Re: segmentation fault when accessing /proc/ioports
+From: Arjan van de Ven <arjan@infradead.org>
+To: Patrick Useldinger <uselpa@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <b2992ee70510290209h26c1fd6ex92fd137cd2c9d747@mail.gmail.com>
+References: <b2992ee70510290209h26c1fd6ex92fd137cd2c9d747@mail.gmail.com>
+Content-Type: text/plain
+Date: Sat, 29 Oct 2005 11:44:18 +0200
+Message-Id: <1130579058.2908.6.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 28, 2005 at 11:58:40PM -0400, Ioan Ionita wrote:
 
-> When I read the Subject (*[2.6 patch] fs/reiser4/: possible cleanups)* for a
-> second, I thought that this patch was against Linus' tree. I concluded that
-> reiser4 must have been recently merged in mainline, since there's a patch
-> for it. But no, it's a -mm patch. Gah! Shouldn't the Subject be more like [
-> 2.6-mm patch] as to not mislead us dreamers?
+> I have read on the kernel mailing lists that this is due to drivers
+> not properly unloading, so I won't post an lsmod.
 
-It should have been [-mm patch], but everyone makes mistakes...
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+this makes no sense. A driver is not properly doing it's unloading.. to
+find out which that is an lsmod is NEEDED .....
+unless people on this list are clearvoyant nobody can help you
+otherwise...
 

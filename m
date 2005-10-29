@@ -1,74 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbVJ2TqS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750854AbVJ2TvW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750756AbVJ2TqS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 15:46:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbVJ2TqS
+	id S1750854AbVJ2TvW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 15:51:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750852AbVJ2TvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 15:46:18 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:39176 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750756AbVJ2TqR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 15:46:17 -0400
-Date: Sat, 29 Oct 2005 21:46:16 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, reiserfs-dev@namesys.com
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.14-rc5-mm1: reiser4: ICE with gcc 2.95
-Message-ID: <20051029194616.GL4180@stusta.de>
-References: <20051024014838.0dd491bb.akpm@osdl.org>
-MIME-Version: 1.0
+	Sat, 29 Oct 2005 15:51:22 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17166 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750786AbVJ2TvW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 15:51:22 -0400
+Date: Sat, 29 Oct 2005 20:51:15 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Tony Luck <tony.luck@gmail.com>
+Cc: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: New (now current development process)
+Message-ID: <20051029195115.GD14039@flint.arm.linux.org.uk>
+Mail-Followup-To: Tony Luck <tony.luck@gmail.com>,
+	Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com> <12c511ca0510291157u5557b6b1x85a47311f0e16436@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051024014838.0dd491bb.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <12c511ca0510291157u5557b6b1x85a47311f0e16436@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trying to compile 2.6.14-rc5-mm1 with gcc 2.95 and 
-CONFIG_REISER4_DEBUG=y results in the following ICE:
+On Sat, Oct 29, 2005 at 11:57:30AM -0700, Tony Luck wrote:
+> > - Process continues until the kernel is considered "ready", the
+> > process should last three months ( 4 kernels per yeard should be
+> > released).
+> IIRC the goal was to make a release in around 8 weeks (which would
+> be closer to six per year).  But you have the important part, which is
+> that Linus doesn't make the release until it is "ready".  2.6.13 was
+> released on August 28th, and 2.6.14 on October 27th ... so we
+> appear to have hit the goal this time through.
 
-<--  snip  -->
+However, three months is _far_ too long.  Look at what is happening
+post-2.6.14?  There's loads of really huge changes going in which
+were backed up over the last two months.
 
-...
-  CC      fs/reiser4/plugin/space/bitmap.o
-fs/reiser4/plugin/space/bitmap.c: In function `parse_blocknr':
-fs/reiser4/plugin/space/bitmap.c:608: Internal compiler error:
-fs/reiser4/plugin/space/bitmap.c:608: internal error--unrecognizable 
-insn:
-(insn 93 266 269 (parallel[ 
-            (set (reg:SI 0 %eax)
-                (asm_operands ("") ("=a") 0[ 
-                        (reg:DI 1 %edx)
-                    ] 
-                    [ 
-                        (asm_input:DI ("A"))
-                    ]  ("fs/reiser4/plugin/space/bitmap.c") 603))
-            (set (reg:SI 1 %edx)
-                (asm_operands ("") ("=d") 1[ 
-                        (reg:DI 1 %edx)
-                    ] 
-                    [ 
-                        (asm_input:DI ("A"))
-                    ]  ("fs/reiser4/plugin/space/bitmap.c") 603))
-        ] ) -1 (insn_list 83 (nil))
-    (nil))
-make[2]: *** [fs/reiser4/plugin/space/bitmap.o] Error 1
-make[1]: *** [fs/reiser4] Error 2
-make: *** [fs] Error 2
+Continuing like this will just push the release of each kernel further
+and further out as there's more stuff merged during the mayhem than
+can possibly be properly reviewed and tested.
 
-<--  snip  -->
-
-Although this is technically an error in gcc 2.95, the code should be 
-fixed to work around this issue since gcc 2.95 is a supported compiler 
-for compiling kernel 2.6.
-
-cu
-Adrian
+Shorter release cycles means that there's less mayhem, which in turn
+means more time to review.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

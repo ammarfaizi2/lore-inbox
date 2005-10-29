@@ -1,39 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751115AbVJ2DQr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbVJ2D1L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751115AbVJ2DQr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 23:16:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbVJ2DQr
+	id S1751123AbVJ2D1L (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 23:27:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVJ2D1L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 23:16:47 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:26277 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751115AbVJ2DQq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 23:16:46 -0400
-Subject: Re: Still no USB 2.0 with 2.6.14 (on AMD64+nForce4)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Marek Szuba <cyberman@if.pw.edu.pl>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.62.0510290423010.23723@gyrvynk.vs.cj.rqh.cy>
-References: <Pine.LNX.4.62.0510290423010.23723@gyrvynk.vs.cj.rqh.cy>
-Content-Type: text/plain
-Date: Fri, 28 Oct 2005 23:14:37 -0400
-Message-Id: <1130555677.32367.96.camel@mindpipe>
+	Fri, 28 Oct 2005 23:27:11 -0400
+Received: from mail22.bluewin.ch ([195.186.19.66]:47794 "EHLO
+	mail22.bluewin.ch") by vger.kernel.org with ESMTP id S1751123AbVJ2D1K
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 23:27:10 -0400
+Date: Fri, 28 Oct 2005 23:26:35 -0400
+To: akpm@osdl.org
+Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: [PATCH] arm: struct semaphore.sleepers initialization
+Message-ID: <20051029032635.GA1870@krypton>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+From: a.othieno@bluewin.ch (Arthur Othieno)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-10-29 at 04:30 +0200, Marek Szuba wrote:
->  Unfortunately the workaround I found on 
-> kerneltrap by googling, i.e. disabling USB 2.0 in BIOS, doesn't work for 
+No one may sleep on us until we've been down()'d. So on allocation,
+initialize `sleepers' to 0, just like everyone else (including arm26).
 
-How about a link to this or any other reports of this issue?  Is it in
-the kernel bugzilla?
+Signed-off-by: Arthur Othieno <a.othieno@bluewin.ch>
 
-Lee
+---
 
--- 
-"I am not a crook."
-        - Richard M. Nixon
+ include/asm-arm/semaphore.h |    9 +++++----
+ 1 files changed, 5 insertions(+), 4 deletions(-)
 
+bbf19d06faa9dc51fe084cc8d0b7fac933771528
+diff --git a/include/asm-arm/semaphore.h b/include/asm-arm/semaphore.h
+--- a/include/asm-arm/semaphore.h
++++ b/include/asm-arm/semaphore.h
+@@ -18,10 +18,11 @@ struct semaphore {
+ 	wait_queue_head_t wait;
+ };
+ 
+-#define __SEMAPHORE_INIT(name, cnt)				\
+-{								\
+-	.count	= ATOMIC_INIT(cnt),				\
+-	.wait	= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait),	\
++#define __SEMAPHORE_INIT(name, cnt)					\
++{									\
++	.count		= ATOMIC_INIT(cnt),				\
++	.sleepers 	= 0,						\
++	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait),	\
+ }
+ 
+ #define __DECLARE_SEMAPHORE_GENERIC(name,count)	\

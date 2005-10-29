@@ -1,59 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbVJ2Ul5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbVJ2Usg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932065AbVJ2Ul5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 16:41:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932109AbVJ2Ul5
+	id S932148AbVJ2Usg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 16:48:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbVJ2Usf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 16:41:57 -0400
-Received: from c-24-14-93-109.hsd1.il.comcast.net ([24.14.93.109]:14277 "EHLO
-	topaz") by vger.kernel.org with ESMTP id S932065AbVJ2Ulw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 16:41:52 -0400
-From: Narayan Desai <desai@mcs.anl.gov>
-To: linux-kernel@vger.kernel.org
-Subject: acpi problem on 2.6.14-rc5-mm1
-Date: Sat, 29 Oct 2005 15:41:46 -0500
-Message-ID: <87mzksukc5.fsf@topaz.mcs.anl.gov>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) XEmacs/21.4.17 (linux)
+	Sat, 29 Oct 2005 16:48:35 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:58120 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932148AbVJ2Usf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 16:48:35 -0400
+Date: Sat, 29 Oct 2005 22:48:24 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: [-mm patch] EDAC drivers: missing PCI dependencies
+Message-ID: <20051029204824.GN4180@stusta.de>
+References: <20051024014838.0dd491bb.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051024014838.0dd491bb.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been encountering a problem for a little while (since rc3 at
-least) where acpi goes out to lunch with respect to battery
-information. This works properly for a while, but then the following
-kernel errors appear:
-Oct 28 22:01:50 topaz kernel: [17298549.952000]     ACPI-0292: *** Error: Looking up [SERN] in namespace, AE_ALREADY_EXISTS
-Oct 28 22:01:50 topaz kernel: [17298549.952000]     ACPI-0508: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.GBIF] (Node c18f6540), AE_ALREADY_EXISTS
-Oct 28 22:01:50 topaz kernel: [17298549.980000]     ACPI-0213: *** Error: Method reached maximum reentrancy limit (255)
-Oct 28 22:01:50 topaz kernel: [17298549.980000]     ACPI-0508: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BAT1._BIF] (Node c18f6280), AE_AML_METHOD_LIMIT
-Oct 28 22:01:52 topaz kernel: [17298551.972000]     ACPI-0213: *** Error: Method reached maximum reentrancy limit (255)
-Oct 28 22:01:52 topaz kernel: [17298551.972000]     ACPI-0508: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BAT0._BIF] (Node c18f6400), AE_AML_METHOD_LIMIT
-Oct 28 22:01:52 topaz kernel: [17298551.972000]     ACPI-0213: *** Error: Method reached maximum reentrancy limit (255)
-Oct 28 22:01:52 topaz kernel: [17298551.972000]     ACPI-0508: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BAT1._BIF] (Node c18f6280), AE_AML_METHOD_LIMIT
-Oct 28 22:01:54 topaz kernel: [17298553.980000]     ACPI-0213: *** Error: Method reached maximum reentrancy limit (255)
-Oct 28 22:01:54 topaz kernel: [17298553.980000]     ACPI-0508: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BAT0._BIF] (Node c18f6400), AE_AML_METHOD_LIMIT
-Oct 28 22:01:54 topaz kernel: [17298553.980000]     ACPI-0213: *** Error: Method reached maximum reentrancy limit (255)
-Oct 28 22:01:54 topaz kernel: [17298553.980000]     ACPI-0508: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BAT1._BIF] (Node c18f6280), AE_AML_METHOD_LIMIT
-Oct 28 22:01:56 topaz kernel: [17298555.988000]     ACPI-0213: *** Error: Method reached maximum reentrancy limit (255)
-Oct 28 22:01:56 topaz kernel: [17298555.988000]     ACPI-0508: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BAT0._BIF] (Node c18f6400), AE_AML_METHOD_LIMIT
-Oct 28 22:01:56 topaz kernel: [17298555.988000]     ACPI-0213: *** Error: Method reached maximum reentrancy limit (255)
-Oct 28 22:01:56 topaz kernel: [17298555.988000]     ACPI-0508: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BAT1._BIF] (Node c18f6280), AE_AML_METHOD_LIMIT
-Oct 28 22:01:58 topaz kernel: [17298557.996000]     ACPI-0213: *** Error: Method reached maximum reentrancy limit (255)
-Oct 28 22:01:58 topaz kernel: [17298557.996000]     ACPI-0508: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BAT0._BIF] (Node c18f6400), AE_AML_METHOD_LIMIT
-Oct 28 22:01:58 topaz kernel: [17298557.996000]     ACPI-0213: *** Error: Method reached maximum reentrancy limit (255)
-Oct 28 22:01:58 topaz kernel: [17298557.996000]     ACPI-0508: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BAT1._BIF] (Node c18f6280), AE_AML_METHOD_LIMIT
+This patch fixes the following compile errors with CONFIG_PCI=n:
 
-These continue to occur, every two seconds, until the machine is
-rebooted. After this error happens, all acpi battery information
-disappears. 
+<--  snip  -->
 
-topaz# cat /proc/acpi/battery/BAT0/info 
-present:                 yes
-ERROR: Unable to read battery information
+...
+  LD      .tmp_vmlinux1
+drivers/built-in.o: In function `amd76x_probe1':
+amd76x_edac.c:(.text+0x56dc56): undefined reference to `pci_dev_get'
+drivers/built-in.o: In function `e752x_probe1':
+e752x_edac.c:(.text+0x56f152): undefined reference to `pci_scan_single_device'
+e752x_edac.c:(.text+0x56f330): undefined reference to `pci_dev_get'
+drivers/built-in.o: In function `i82875p_probe1':
+i82875p_edac.c:(.text+0x56f6b4): undefined reference to `pci_scan_single_device'
+i82875p_edac.c:(.text+0x56f6dd): undefined reference to `pci_release_regions'
+i82875p_edac.c:(.text+0x56f6ef): undefined reference to `pci_proc_attach_device'
+make: *** [.tmp_vmlinux1] Error 1
 
-The hardware in question is a thinkpad t41p. It has two
-batteries. Please let me know if I can provide any more
-information. Does anyone have any suggestions?
- -nld
+<--  snip  -->
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.14-rc5-mm1/drivers/edac/Kconfig.old	2005-10-29 22:42:51.000000000 +0200
++++ linux-2.6.14-rc5-mm1/drivers/edac/Kconfig	2005-10-29 22:44:22.000000000 +0200
+@@ -43,7 +43,7 @@
+ 
+ config EDAC_AMD76X
+ 	tristate "AMD 76x (760, 762, 768)"
+-	depends on EDAC
++	depends on EDAC && PCI
+ 
+ config EDAC_E7XXX
+ 	tristate "Intel e7xxx (e7205, e7500, e7501, e7505)"
+@@ -51,11 +51,11 @@
+ 
+ config EDAC_E752X
+ 	tristate "Intel e752x (e7520, e7525, e7320)"
+-	depends on EDAC
++	depends on EDAC && PCI
+ 
+ config EDAC_I82875P
+ 	tristate "Intel 82875p (D82875P, E7210)"
+-	depends on EDAC
++	depends on EDAC && PCI
+ 
+ config EDAC_I82860
+ 	tristate "Intel 82860"
+

@@ -1,45 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751001AbVJ2RFp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751015AbVJ2REk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751001AbVJ2RFp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 13:05:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751063AbVJ2RFp
+	id S1751015AbVJ2REk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 13:04:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751018AbVJ2REk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 13:05:45 -0400
-Received: from zproxy.gmail.com ([64.233.162.206]:12493 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751001AbVJ2RFo convert rfc822-to-8bit
+	Sat, 29 Oct 2005 13:04:40 -0400
+Received: from xproxy.gmail.com ([66.249.82.207]:28751 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751001AbVJ2REk convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 13:05:44 -0400
+	Sat, 29 Oct 2005 13:04:40 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iVMKHcY7ElHKTekBcSpkJRaTDPGCgJZ1ULy7nq+CENgdDuQarKbAZa7z6i30b2La2CprFVntvHTEtFqj5mAbq0yGWxNrq8ay8SJA+OAex/47oQOuTJFKKMqDhCs/R4+ZITn+tP5tYclH4J8ualDigT31qS8MAJ3CDYLLGBj8gZQ=
-Message-ID: <35fb2e590510291005r2ddfca97n330a4d07d3cfde4f@mail.gmail.com>
-Date: Sat, 29 Oct 2005 18:05:43 +0100
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: Evgeny Stambulchik <Evgeny.Stambulchik@weizmann.ac.il>
-Subject: Re: Weirdness of "mount -o remount,rw" with write-protected floppy
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <35fb2e590510290902y2152f703t56d0cc688f3c64cb@mail.gmail.com>
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Gc5Bj/pFngOIM3OhT7fgmdYpyltQSrqV8nzuIGJGHanZ1XVaHMjGWXoPo/+d2smEI+qIqbnOvAFhLd/5cw+LIIWdVIJ+9O3Jr6oyIAkXGPlvh301BaGEXYXhOD8dcVI7vj6VXY/jvNYkPwxOCQXiU+4Wp2vQRlMcMYYoGZRRdhk=
+Message-ID: <b2992ee70510291004n66537b79h38c6d94005b82cf4@mail.gmail.com>
+Date: Sat, 29 Oct 2005 19:04:39 +0200
+From: Patrick Useldinger <uselpa@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Fwd: segmentation fault when accessing /proc/ioports
+In-Reply-To: <b2992ee70510290736l7ec43091o880f141bd8be09e7@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-References: <4360C0A7.4050708@weizmann.ac.il>
-	 <35fb2e590510290902y2152f703t56d0cc688f3c64cb@mail.gmail.com>
+References: <b2992ee70510290209h26c1fd6ex92fd137cd2c9d747@mail.gmail.com>
+	 <20051029110358.GI4180@stusta.de>
+	 <b2992ee70510290422g1912d1e5sedcdf6fc0155c4b0@mail.gmail.com>
+	 <20051029112617.GJ4180@stusta.de>
+	 <b2992ee70510290736l7ec43091o880f141bd8be09e7@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/29/05, Jon Masters <jonmasters@gmail.com> wrote:
+This is what I get when I throw out the LVM2 packages
+(device-mapper-1.01.04-i486-1.tgz and lvm2-2.01.09-i486-1.tgz):
 
-> The /only/ way I can see to "fix" this is to do a pointless open on
-> the block device and see if that returns EROFS before allowing a
-> remount. But I don't know what other hassle that will cause - I'll
-> make the hack, but someone (Al?) who knows the code will need to
-> comment because this might completely fuck up a lock somewhere.
+root@slackw:~$ cat /proc/ioports
+0000-001f : dma1
+0020-0021 : pic1
+0040-0043 : timer0
+0050-0053 : timer1
+0060-006f : keyboard
+0070-0077 : rtc
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+0376-0376 : ide1
+0378-037a : parport0
+037b-037f : parport0
+03c0-03df : vesafb
+03e0-03e1 : $
+             LB D$B$è~'PÇ·D$S%ÿ
+03f6-03f6 : ide0
+03f8-03ff : serial
+0800-0803 : PM1a_EVT_BLK
+0804-0805 : PM1a_CNT_BLK
+0808-080b : PM_TMR
+0816-0816 : PM2_CNT_BLK
+0820-0823 : GPE0_BLK
+0830-0833 : GPE1_BLK
+0c00-0c1f : 0000:00:02.1
+  0c00-0c1f : sis96x-smbus
+0cf8-0cff : PCI conf1
+1000-1fff : PCI CardBus #03
+2000-2fff : PCI CardBus #03
+3000-3fff : PCI CardBus #07
+4000-4fff : PCI CardBus #07
+b000-bfff : PCI Bus #01
+  bc00-bc7f : 0000:01:00.0
+d400-d4ff : 0000:00:0f.0
+  d400-d4ff : 8139too
+d800-d87f : 0000:00:02.7
+  d800-d87f : SiS SI7012
+dc00-dcff : 0000:00:02.7
+  dc00-dcff : SiS SI7012
+ff00-ff0f : 0000:00:02.5
+  ff00-ff07 : ide0
+  ff08-ff0f : ide1
 
-Or change the policy for the underlying gendisk in floppy.c according
-to what we find when we do an floppy_open on the device. Which is what
-I'm looking at as a workaround.
+The address at 03e0-03e1 still looks strange, but no more oopses.
 
-Jon.
+... meaning that the module who produces the problem is dm_mod.
+BTW, I have no VGs on my system.
+Anything else I can do to help tracking the problem?
+
+Regards,
+-pu

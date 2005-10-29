@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbVJ2PQl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbVJ2PYM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751188AbVJ2PQl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 11:16:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbVJ2PQk
+	id S1751195AbVJ2PYM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 11:24:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbVJ2PYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 11:16:40 -0400
-Received: from mtiwmhc13.worldnet.att.net ([204.127.131.117]:49042 "EHLO
-	mtiwmhc13.worldnet.att.net") by vger.kernel.org with ESMTP
-	id S1751188AbVJ2PQk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 11:16:40 -0400
-From: larry.finger@att.net (Larry.Finger@lwfinger.net)
+	Sat, 29 Oct 2005 11:24:12 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:7333 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751195AbVJ2PYM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 11:24:12 -0400
+Message-ID: <43639744.94BA6AA4@tv-sign.ru>
+Date: Sat, 29 Oct 2005 19:37:40 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.14 - Fix for incorrect CPU speed determination in powernow for i386
-Date: Sat, 29 Oct 2005 15:16:37 +0000
-Message-Id: <102920051516.7776.43639255000A849F00001E6021603762239D0A09020700D2979D9D0E04@att.net>
-X-Mailer: AT&T Message Center Version 1 (Feb 14 2005)
-X-Authenticated-Sender: bGFycnkuZmluZ2VyQGF0dC5uZXQ=
+Cc: Roland McGrath <roland@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       Chris Wright <chrisw@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] fix signal->live leak in copy_process()
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Oeser pointed out that my original patch unnecessarily initialized a variable that was already in the BSS section. I have therefore removed that hunk of the patch. The revised patch is given below.
+[PATCH] fix ->signal->live leak in copy_process()
+
+exit_signal() (called from copy_process's error path) should decrement
+->signal->live, otherwise forking process will miss 'group_dead' in
+do_exit().
+
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+
+--- 2.6.14/kernel/signal.c~	2005-10-29 01:14:57.000000000 +0400
++++ 2.6.14/kernel/signal.c	2005-10-29 22:40:37.000000000 +0400
+@@ -406,6 +406,8 @@ void __exit_signal(struct task_struct *t
  
-Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-
----
-
-diff --git a/arch/i386/kernel/timers/common.c b/arch/i386/kernel/timers/common.c
---- a/arch/i386/kernel/timers/common.c
-+++ b/arch/i386/kernel/timers/common.c
-@@ -151,7 +151,7 @@ unsigned long read_timer_tsc(void)
- /* calculate cpu_khz */
- void init_cpu_khz(void)
+ void exit_signal(struct task_struct *tsk)
  {
--       if (cpu_has_tsc) {
-+       if (cpu_has_tsc && !cpu_khz) {
-                unsigned long tsc_quotient = calibrate_tsc();
-                if (tsc_quotient) {
-                        /* report CPU clock rate in Hz.
-
-
-
++	atomic_dec(&tsk->signal->live);
++
+ 	write_lock_irq(&tasklist_lock);
+ 	__exit_signal(tsk);
+ 	write_unlock_irq(&tasklist_lock);

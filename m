@@ -1,76 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751041AbVJ2NzV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751056AbVJ2N5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751041AbVJ2NzV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 09:55:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751056AbVJ2NzV
+	id S1751056AbVJ2N5E (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 09:57:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbVJ2N5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 09:55:21 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:57736 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S1751033AbVJ2NzU
+	Sat, 29 Oct 2005 09:57:04 -0400
+Received: from xproxy.gmail.com ([66.249.82.204]:4225 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751070AbVJ2N5C convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 09:55:20 -0400
-Subject: Re: Intel D945GNT crashes with AGP enabled
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Alan Hourihane <alanh@fairlite.demon.co.uk>
-Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1130593470.6786.4.camel@jetpack.demon.co.uk>
-References: <1130506715.5345.7.camel@blade>
-	 <20051028162806.GA4340@redhat.com>  <1130518160.5372.6.camel@blade>
-	 <1130585267.5360.12.camel@blade>  <1130588872.24907.1.camel@blade>
-	 <1130593470.6786.4.camel@jetpack.demon.co.uk>
-Content-Type: text/plain
-Date: Sat, 29 Oct 2005 15:55:10 +0200
-Message-Id: <1130594110.5396.8.camel@blade>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Sat, 29 Oct 2005 09:57:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=KRAjBZR6FCMcAHOT6AKowsjO8XqS2nbnECcUkJuDFMDV3oaAvGnEEv7Ok6FgXjichA+r88+4rRCRJl0brRZhscsT4xTNskTCfbS44Io26W6rl+tVoGd9jDHclSHRXa4YqKEckUXieLSkQMGBh58eOZxN+Qr9CXofefOrvHafKbQ=
+Message-ID: <9a8748490510290656v3227bd5bl144baee8faa398dc@mail.gmail.com>
+Date: Sat, 29 Oct 2005 15:56:31 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH 02/14] Big kfree NULL check cleanup - drivers/net
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       "David S. Miller" <davem@davemloft.net>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Matt Porter <mporter@kernel.crashing.org>,
+       Michael Chan <mchan@broadcom.com>, linux.nics@intel.com,
+       hans@esrac.ele.tue.nl, Santiago Leon <santil@us.ibm.com>,
+       Jean Tourrilhes <jt@hpl.hp.com>, Paul Mackerras <paulus@samba.org>,
+       Michael Hipp <hippm@informatik.uni-tuebingen.de>,
+       Jes Sorensen <jes@wildopensource.com>,
+       Carsten Langgaard <carstenl@mips.com>,
+       Benjamin Reed <breed@users.sourceforge.net>,
+       Jouni Malinen <jkmaline@cc.hut.fi>, prism54-private@prism54.org,
+       netdev@vger.kernel.org, Stuart Cheshire <cheshire@cs.stanford.edu>,
+       g4klx@g4klx.demon.co.uk, Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <43628FCB.9060202@pobox.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200510132122.48035.jesper.juhl@gmail.com>
+	 <43628FCB.9060202@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+On 10/28/05, Jeff Garzik <jgarzik@pobox.com> wrote:
+> Jesper Juhl wrote:
+> > This is the drivers/net/ part of the big kfree cleanup patch.
+> >
+> > Remove pointless checks for NULL prior to calling kfree() in drivers/net/.
+> >
+> >
+> > Sorry about the long Cc: list, but I wanted to make sure I included everyone
+> > who's code I've changed with this patch.
+> >
+> >
+> > Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+>
+> applied 98% of this
+>
 
-> > > And btw why can't I compile the intelfb on x86_64? I use the internal
-> > > graphics card (8086:2772) of the D945GNT motherboard.
-> > > 
-> > > 0000:00:02.0 VGA compatible controller: Intel Corporation 945G Integrated Graphics Controller (rev 02)
-> > > 
-> > > The Kconfig file makes it unselectable on x86_64 system.
-> > > 
-> > > config FB_INTEL
-> > >         tristate "Intel 830M/845G/852GM/855GM/865G support (EXPERIMENTAL)"
-> > >         depends on FB && EXPERIMENTAL && PCI && X86 && !X86_64
-> > > 
-> > > It seems that the most recent support in this driver is for the 915G and
-> > > not for the 945G. Are they so different that we need a complete new
-> > > driver or is the !X86_64 a relict from old times?
-> > 
-> > it seems that the first problem is:
-> > 
-> > arch/x86_64/kernel/built-in.o: In function `pci_iommu_init':
-> > pci-gart.c:(.init.text+0x8f0c): undefined reference to `agp_amd64_init'
-> > pci-gart.c:(.init.text+0x8f1a): undefined reference to `agp_bridge'
-> > pci-gart.c:(.init.text+0x8f1f): undefined reference to `agp_copy_info'
-> > make: *** [.tmp_vmlinux1] Error 1
-> > 
-> > Is this fixable or will the intelfb never work on x86_64 system?
-> 
-> You are barking up the wrong tree with this. Read the tristate line.
-> 
-> It doesn't mention 915 or 945 support. Intelfb only supports upto the
-> 865G anyway.
+Just currious, what bits are the 2% you did not apply?
 
-I read that line and enabling the compilation of the intelfb on x86_64
-was only a simple try to see if it compiles. It doesn't and basically I
-have no idea how to fix it.
-
-The 915G (8086:2582) is supported by the driver in the latest vanilla
-kernel. Look at intelfb.h file and then you will see that the comment
-line in Kconfig is outdated. I also found a patch to support the 915GM
-(8086:2592) and maybe a similar patch will make the 945 work with the
-intelfb driver.
-
-Regards
-
-Marcel
-
-
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

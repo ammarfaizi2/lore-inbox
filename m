@@ -1,35 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbVJ2Ixn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750848AbVJ2Iyx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750840AbVJ2Ixn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 04:53:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750846AbVJ2Ixm
+	id S1750848AbVJ2Iyx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 04:54:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750846AbVJ2Iyx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 04:53:42 -0400
-Received: from rollcage.inittab.de ([194.150.191.146]:36370 "EHLO
-	rollcage.inittab.de") by vger.kernel.org with ESMTP
-	id S1750840AbVJ2Ixm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 04:53:42 -0400
-Date: Sat, 29 Oct 2005 10:53:31 +0200
-From: Norbert Tretkowski <norbert@tretkowski.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix alpha breakage
-Message-ID: <20051029085331.GT4333@rollcage.inittab.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Sat, 29 Oct 2005 04:54:53 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9737 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750796AbVJ2Iyw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 04:54:52 -0400
+Date: Sat, 29 Oct 2005 09:54:47 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] MACHINE_START fix
+Message-ID: <20051029085447.GB32513@flint.arm.linux.org.uk>
+Mail-Followup-To: Al Viro <viro@ftp.linux.org.uk>,
+	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+References: <20051029054301.GZ7992@ftp.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20051029054301.GZ7992@ftp.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ivan Kokshaysky wrote:
-> On Wed, Oct 26, 2005 at 11:06:23AM +0100, Al Viro wrote:
->> barrier.h uses barrier() in non-SMP case.  And doesn't include
->> compiler.h.
->
-> Thanks, but better use <asm-alpha/compiler.h> because of potential
-> problems with the "inline" redefinition.
+On Sat, Oct 29, 2005 at 06:43:01AM +0100, Al Viro wrote:
+> 	unreferenced static variables can be killed by cc(1), so when
+> we want them to survive (we collect these suckers in array in special
+> section), we'd better not make them static.
 
-Uhm, looks like this wasn't included in the final 2.6.14 release.
+Except this causes sparse to complain, which is why I made it static
+last night.  Patch nacked.
 
-Norbert
+What I did miss was making it __attribute_used__ which would be the
+correct answer.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,125 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751086AbVJ2BpZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbVJ2C04@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751086AbVJ2BpZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 21:45:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbVJ2BpY
+	id S1751092AbVJ2C04 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 22:26:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbVJ2C0z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 21:45:24 -0400
-Received: from hulk.hostingexpert.com ([69.57.134.39]:47045 "EHLO
-	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S1751086AbVJ2BpY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 21:45:24 -0400
-Message-ID: <4362D420.5040809@m1k.net>
-Date: Fri, 28 Oct 2005 21:45:04 -0400
-From: Michael Krufky <mkrufky@m1k.net>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
+	Fri, 28 Oct 2005 22:26:55 -0400
+Received: from zproxy.gmail.com ([64.233.162.201]:41751 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751092AbVJ2C0z convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 22:26:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=N3OYId6oNbdEXvD3kI0kPlCZ+qgvA/RcgQfXAubaYx+Fzdayph4+nIp3SpBZPYOO6u2lmdlxAc/CYbh3+hskxGm7Y9xNZFpgWfSsgvzxEFwwxQya+af1wqmPKGi5ZgfOgHKQ2ntyP5N1SY+ftCHzG3Bxl1/puIVA1c6LFNnuMQc=
+Message-ID: <174467f50510281926tfcbcc4bi@mail.gmail.com>
+Date: Sat, 29 Oct 2005 10:26:54 +0800
+From: Boxer Gnome <aiko.sex@gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: boot ok,but reboot hang, from 2.6.10 to 2.6.14
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0510280733000.4664@g5.osdl.org>
 MIME-Version: 1.0
-To: Johannes Stezenbach <js@linuxtv.org>
-CC: Andrew Morton <akpm@osdl.org>, Alexey Dobriyan <adobriyan@gmail.com>,
-       Mauro Carvalho Chehab <mauro_chehab@yahoo.com.br>,
-       Michael Krufky <mkrufky@linuxtv.org>,
-       Linux and Kernel Video <video4linux-list@redhat.com>,
-       linux-kernel@vger.kernel.org, rbultje@ronald.bitfreak.net,
-       middelin@polyware.nl
-Subject: Re: Fw: zoran drivers: absense of locking?
-References: <20051028163219.340fa347.akpm@osdl.org> <20051029013252.GC15903@linuxtv.org>
-In-Reply-To: <20051029013252.GC15903@linuxtv.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <174467f50510280544g5fffdfaeq@mail.gmail.com>
+	 <Pine.LNX.4.64.0510280733000.4664@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Johannes Stezenbach wrote:
-
->On Fri, Oct 28, 2005 Andrew Morton wrote:
->  
+2005/10/28, Linus Torvalds <torvalds@osdl.org>:
 >
->>Alexey, please don't assume that everyone reads lkml.
->>    
->>
->I Cc: the v4l people, maybe they can answer the question.
 >
->Johannes
+> On Fri, 28 Oct 2005, Boxer Gnome wrote:
+> >
+> > This only happens in reboot from linux kernel within 2.6.10-2.6.14.
+> >
+> > I tested the older kernel version from 2.6.8 to 2.6.14,and 2.4.31 .I
+> > found the 2.6.8 and the 2.6.9,2.4.31 worked well without above
+> > reboot_from_linux_with_hang_after_POST,and the 2.6.10-2.6.14 all have
+> > this.
 >
->  
+> Can you try to pinpoint when it started happening more closely?
 >
-It's not in our tree... This is what I can see in the MAINTAINERS file:
+> The differences between 2.6.9 and 2.6.10 are pretty big, and it would be
+> much better if you can pinpoint it to a smaller range.
+>
+> You can find three "release candidates" for 2.6.10 in
+>
+>        http://www.kernel.org/pub/linux/kernel/v2.6/testing
+>
+> and if you first test 2.6.10-rc2, and then depending on whether that
+> already has the bug or not, you'd test 2.6.10-rc1 or 2.6.10-rc2. That
+> would help pinpoint the difference to between two particular -rc kernels,
+> which would be much better.
+>
+> After that, I might end up still asking you to test one or two daily
+> snapshots, but it may be that pinpointing when your reboot troubles
+> started to just the -rc kernel might be good enough.
+>
+>                Linus
+>
+I tested the 2.6.10-rc1 and 2.6.10-rc2,the 2.6.10-rc1 rebooted ok,but
+the 2.6.10-rc2 has that problem.
 
-ZR36067 VIDEO FOR LINUX DRIVER
-P:      Ronald Bultje
-M:      rbultje@ronald.bitfreak.net
-L:      mjpeg-users@lists.sourceforge.net
-W:      http://mjpeg.sourceforge.net/driver-zoran/
-S:      Maintained
+Then I test the snapshot
+2.6.10-rc2-bk1,2.6.10-rc2-bk4,2.6.10-rc2-bk8,they all have this reboot
+hang.
 
-ZR36120 VIDEO FOR LINUX DRIVER
-P:      Pauline Middelink
-M:      middelin@polyware.nl
-W:      http://www.polyware.nl/~middelin/En/hobbies.html
-W:      http://www.polyware.nl/~middelin/hobbies.html
-S:      Maintained
+SO,I think the 2.6.10-rc1 is the last worked ok version.
 
-I can only guess that this falls under ZR36067 ??  (cc's added)
 
->>Begin forwarded message:
->>
->>Date: Sat, 29 Oct 2005 01:16:47 +0400
->>From: Alexey Dobriyan <adobriyan@gmail.com>
->>To: linux-kernel@vger.kernel.org
->>Subject: zoran drivers: absense of locking?
->>
->>
->>I've tried to read random part of a tree and now scratching my head
->>with a question:
->>
->>	what protects the number and a list of registered codecs in
->>	zoran drivers?
->>
->>Example: drivers/media/video/zr36050.c:
->>
->>	/* amount of chips attached via this driver */
->>	static int zr36050_codecs = 0;
->>
->>Decremented in zr36050_unset().
->>Checked for maximum value, used and incremented in zr36050_setup().
->>
->>[Assigment to 0 in zr36050_init_module is not needed. dprintk() in
->>zr36050_cleanup_module() should be converted to BUG_ON, so I'll ignore
->>them.]
->>
->>	zr36050_codecs
->>		zr36050_unset()	= struct videocodec::unset
->>		zr36050_setup()	= struct videocodec::setup
->>
->>The only place where ->unset and ->setup methods are called is
->>drivers/media/video/videocodec.c:
->>
->>	zr36050_codecs
->>		zr36050_unset()
->>			videocodec_detach()
->>		zr36050_setup()
->>			videocodec_attach()
->>
->>Both videocodec functions are exported.
->>
->>No spinlocks or semaphores in sight.
->>
->>Does anybody know what protects the list of registered codecs in zoran
->>drivers?
->>
->>-
->>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->>the body of a message to majordomo@vger.kernel.org
->>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>Please read the FAQ at  http://www.tux.org/lkml/
->>
 
+Thanks

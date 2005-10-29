@@ -1,128 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbVJ2AvV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750974AbVJ2BAY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750961AbVJ2AvV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 20:51:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750966AbVJ2AvV
+	id S1750974AbVJ2BAY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 21:00:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750976AbVJ2BAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 20:51:21 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:43207 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S1750961AbVJ2AvU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 20:51:20 -0400
-Date: Fri, 28 Oct 2005 18:51:19 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Roland Dreier <rolandd@cisco.com>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH/v2] PCI: add pci_find_next_capability()
-Message-ID: <20051029005119.GD21871@parisc-linux.org>
-References: <52u0f1p3c9.fsf@cisco.com>
+	Fri, 28 Oct 2005 21:00:24 -0400
+Received: from animx.eu.org ([216.98.75.249]:3278 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S1750974AbVJ2BAX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 21:00:23 -0400
+Date: Fri, 28 Oct 2005 21:12:28 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: linux-kernel@vger.kernel.org
+Subject: NFS permission denied error
+Message-ID: <20051029011228.GA28695@animx.eu.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <52u0f1p3c9.fsf@cisco.com>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 28, 2005 at 05:35:34PM -0700, Roland Dreier wrote:
-> Signed-off-by: Roland Dreier <rolandd@cisco.com>
+I have a server setup (2.6.10 vanilla kernel, nfsroot with local hard disks
+that are exported).  Recently the motherboard died and had to be replaced. 
+No configuration changes were performed to the system otherwise.  Now I see
+Permission Denied errors when attempting to mount any of the exported
+directories.  Server is called "nail" with IP of 192.168.2.15 (x86)
 
-Signed-off-by: Matthew Wilcox <matthew@wil.cx>
+kmountd nfs-utils 1.0.6
 
-> 
-> ---
-> 
-> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-> index 259d247..b852959 100644
-> --- a/drivers/pci/pci.c
-> +++ b/drivers/pci/pci.c
-> @@ -62,11 +62,38 @@ pci_max_busnr(void)
->  	return max;
->  }
->  
-> +static int __pci_find_next_cap(struct pci_bus *bus, unsigned int devfn, u8 pos, int cap)
-> +{
-> +	u8 id;
-> +	int ttl = 48;
-> +
-> +	while (ttl--) {
-> +		pci_bus_read_config_byte(bus, devfn, pos, &pos);
-> +		if (pos < 0x40)
-> +			break;
-> +		pos &= ~3;
-> +		pci_bus_read_config_byte(bus, devfn, pos + PCI_CAP_LIST_ID,
-> +					 &id);
-> +		if (id == 0xff)
-> +			break;
-> +		if (id == cap)
-> +			return pos;
-> +		pos += PCI_CAP_LIST_NEXT;
-> +	}
-> +	return 0;
-> +}
-> +
-> +int pci_find_next_capability(struct pci_dev *dev, u8 pos, int cap)
-> +{
-> +	return __pci_find_next_cap(dev->bus, dev->devfn,
-> +				   pos + PCI_CAP_LIST_NEXT, cap);
-> +}
-> +EXPORT_SYMBOL(pci_find_next_capability);
-> +
->  static int __pci_bus_find_cap(struct pci_bus *bus, unsigned int devfn, u8 hdr_type, int cap)
->  {
->  	u16 status;
-> -	u8 pos, id;
-> -	int ttl = 48;
-> +	u8 pos;
->  
->  	pci_bus_read_config_word(bus, devfn, PCI_STATUS, &status);
->  	if (!(status & PCI_STATUS_CAP_LIST))
-> @@ -75,24 +102,15 @@ static int __pci_bus_find_cap(struct pci
->  	switch (hdr_type) {
->  	case PCI_HEADER_TYPE_NORMAL:
->  	case PCI_HEADER_TYPE_BRIDGE:
-> -		pci_bus_read_config_byte(bus, devfn, PCI_CAPABILITY_LIST, &pos);
-> +		pos = PCI_CAPABILITY_LIST;
->  		break;
->  	case PCI_HEADER_TYPE_CARDBUS:
-> -		pci_bus_read_config_byte(bus, devfn, PCI_CB_CAPABILITY_LIST, &pos);
-> +		pos = PCI_CB_CAPABILITY_LIST;
->  		break;
->  	default:
->  		return 0;
->  	}
-> -	while (ttl-- && pos >= 0x40) {
-> -		pos &= ~3;
-> -		pci_bus_read_config_byte(bus, devfn, pos + PCI_CAP_LIST_ID, &id);
-> -		if (id == 0xff)
-> -			break;
-> -		if (id == cap)
-> -			return pos;
-> -		pci_bus_read_config_byte(bus, devfn, pos + PCI_CAP_LIST_NEXT, &pos);
-> -	}
-> -	return 0;
-> +	return __pci_find_next_cap(bus, devfn, pos, cap);
->  }
->  
->  /**
-> diff --git a/include/linux/pci.h b/include/linux/pci.h
-> index 7349058..8016d14 100644
-> --- a/include/linux/pci.h
-> +++ b/include/linux/pci.h
-> @@ -337,6 +337,7 @@ struct pci_dev *pci_find_device (unsigne
->  struct pci_dev *pci_find_device_reverse (unsigned int vendor, unsigned int device, const struct pci_dev *from);
->  struct pci_dev *pci_find_slot (unsigned int bus, unsigned int devfn);
->  int pci_find_capability (struct pci_dev *dev, int cap);
-> +int pci_find_next_capability (struct pci_dev *dev, u8 pos, int cap);
->  int pci_find_ext_capability (struct pci_dev *dev, int cap);
->  struct pci_bus * pci_find_next_bus(const struct pci_bus *from);
->  
-> @@ -546,6 +547,7 @@ static inline int pci_assign_resource(st
->  static inline int pci_register_driver(struct pci_driver *drv) { return 0;}
->  static inline void pci_unregister_driver(struct pci_driver *drv) { }
->  static inline int pci_find_capability (struct pci_dev *dev, int cap) {return 0; }
-> +static inline int pci_find_next_capability (struct pci_dev *dev, u8 post, int cap) {return 0; }
->  static inline int pci_find_ext_capability (struct pci_dev *dev, int cap) {return 0; }
->  static inline const struct pci_device_id *pci_match_device(const struct pci_device_id *ids, const struct pci_dev *dev) { return NULL; }
->  
+exports:
+/backup         192.168.0.0/255.255.0.0(rw,async,wdelay,no_root_squash)
+/160g           192.168.0.0/255.255.0.0(rw,async,wdelay,no_root_squash)
+/80g            192.168.0.0/255.255.0.0(rw,async,wdelay,no_root_squash)
+Those are hdc sda and hda respectively
+
+The clients are "vegeta" 192.168.2.7 2.6.12 (x86) and "kakarot" 192.168.2.6
+2.4.20 (alpha)
+
+The only workaround I found is to use exportfs -f and everything works fine. 
+I can't understand why this is now giving me problems.
+
+I set nfsd_debug to 65535 and I see this:
+Oct 28 21:14:27 nail kernel: nfsd: exp_rootfh(/backup [ef3c15a4]
+192.168.0.0/255.255.0.0:hdc/2)
+Oct 28 21:14:27 nail kernel: nfsd: exp_rootfh export not found.
+
+However, running exportfs shows:
+/backup         192.168.0.0/255.255.0.0
+/160g           192.168.0.0/255.255.0.0
+/80g            192.168.0.0/255.255.0.0
+
+After exportfs -f:
+Oct 28 21:15:07 nail kernel: nfsd: exp_rootfh(/backup [ef3c15a4]
+192.168.0.0/255.255.0.0:hdc/2)
+Oct 28 21:15:07 nail kernel: nfsd: fh_compose(exp 16:00/2 ///, ino=2)
+Oct 28 21:15:07 nail kernel: nfsd_dispatch: vers 3 proc 19
+Oct 28 21:15:07 nail kernel: nfsd: FSINFO(3)   12: 00000001 00001600
+00000002 00000000 00000000 00000000
+Oct 28 21:15:07 nail kernel: nfsd: fh_verify(12: 00000001 00001600 00000002
+00000000 00000000 00000000)
+Oct 28 21:15:07 nail kernel: nfsd: Dropping request due to malloc failure!
+Oct 28 21:15:07 nail kernel: found domain 192.168.0.0/255.255.0.0
+Oct 28 21:15:07 nail kernel: found fsidtype 0
+Oct 28 21:15:07 nail kernel: found fsid length 8
+Oct 28 21:15:07 nail kernel: Path seems to be </backup>
+Oct 28 21:15:07 nail kernel: Found the path /backup
+Oct 28 21:15:07 nail kernel: And found export
+Oct 28 21:15:07 nail kernel: nfsd_dispatch: vers 3 proc 19
+Oct 28 21:15:07 nail kernel: nfsd: FSINFO(3)   12: 00000001 00001600
+00000002 00000000 00000000 00000000
+Oct 28 21:15:07 nail kernel: nfsd: fh_verify(12: 00000001 00001600 00000002
+00000000 00000000 00000000)
+Oct 28 21:15:08 nail kernel: nfsd_dispatch: vers 3 proc 19
+Oct 28 21:15:08 nail kernel: nfsd: FSINFO(3)   12: 00000001 00001600
+00000002 00000000 00000000 00000000
+Oct 28 21:15:08 nail kernel: nfsd: fh_verify(12: 00000001 00001600 00000002
+00000000 00000000 00000000)
+Oct 28 21:15:08 nail kernel: nfsd_dispatch: vers 3 proc 1
+Oct 28 21:15:08 nail kernel: nfsd: GETATTR(3)  12: 00000001 00001600
+00000002 00000000 00000000 00000000
+Oct 28 21:15:08 nail kernel: nfsd: fh_verify(12: 00000001 00001600 00000002
+00000000 00000000 00000000)
+
+At this point I have no idea what's going on.
+
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals
+ Got Gas???

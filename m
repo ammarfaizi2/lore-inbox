@@ -1,73 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbVJ2EZP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbVJ2E2f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751125AbVJ2EZP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 00:25:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751126AbVJ2EZO
+	id S1751133AbVJ2E2f (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 00:28:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbVJ2E2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 00:25:14 -0400
-Received: from smtp105.rog.mail.re2.yahoo.com ([206.190.36.83]:11186 "HELO
-	smtp105.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1751125AbVJ2EZN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 00:25:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=rogers.com;
-  h=Received:Subject:From:Reply-To:To:Cc:Content-Type:Date:Message-Id:Mime-Version:X-Mailer;
-  b=KE/QLWbCAXe8DXu69OzkSv3Rw3PutxnJNWZLIDl66vK2L2Bw5qIHCrhnvymBLh/y04LFeovSBGlRDNua7mJTqZSN9SVHrtl5bsXrIpvm6X71S0cpPkcbj7W8XAjiQShaOMKHcJnuFYnPGH8rTX9BJ6S4FXtXOFvUAFLI3Mk1SRI=  ;
-Subject: [PATCH] Add ctag support for function prototypes and external
-	variable declarations
-From: John Kacur <jkacur@rogers.com>
-Reply-To: jkacur@rogers.com
-To: kai@germaschewski.name, sam@ravnborg.org
+	Sat, 29 Oct 2005 00:28:35 -0400
+Received: from rwcrmhc14.comcast.net ([204.127.198.54]:5114 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1751133AbVJ2E2e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 00:28:34 -0400
+Message-Id: <6.2.3.4.0.20051028222139.03ff2fa0@no.incoming.mail>
+X-Mailer: QUALCOMM Windows Eudora Version 6.2.3.4
+Date: Fri, 28 Oct 2005 22:28:28 -0600
+To: Lee <linuxtwidler@gmail.com>
+From: Jeff Woods <Kazrak+kernel@cesmail.net>
+Subject: Re: Serial Port Sniffing
 Cc: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-JYWnmZbdiLMKoqbJbKEu"
-Date: Sat, 29 Oct 2005 00:25:13 -0400
-Message-Id: <1130559913.5606.41.camel@moblin.torolab.ibm.com>
+In-Reply-To: <20051028132417.6d3dc843@localhost>
+References: <20051028132417.6d3dc843@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 10/28/2005 13:24 -0500, Lee <linuxtwidler@gmail.com> wrote:
+>Does anyone have any experience with sniffing data from a serial 
+>port w/o the device attached to the serial port or the application 
+>having knowledge of this ?
+>
+>I had found an old kernel module (for 2.2.0, i think) called 'maxty' 
+>which would does this.  Is there something equivalent for the 2.6.x kernels ?
+>
+>Or is there a better way to go about doing this?
 
---=-JYWnmZbdiLMKoqbJbKEu
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Don't know about software sniffing but hardware sniffing of RS-232 is 
+relatively simple. Splice in a "Y" cable and configure a serial port 
+of another device to listen. Of course, you'll have to configure the 
+serial port to the same rate, parity and stop bits but that's usually 
+easy. Cut the transmit wire on the sniffer side to ensure nothing 
+outbound succeeds in leaving the sniffer machine. Listening to both 
+sides of the conversation would require two sniffer devices, or at 
+least two serial ports.
 
-
-This patch adds function prototypes and external variable declarations
-to the set of tag kinds when running ctags. I find this useful when
-perusing the kernel. Please apply.
-
-Signed-off-by: John Kacur <jkacur@rogers.com>
-
----
-diff -u linux-2.6.14/Makefile{orig,}
-
-
---=-JYWnmZbdiLMKoqbJbKEu
-Content-Disposition: attachment; filename=Makefile.patch
-Content-Type: text/x-patch; name=Makefile.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
---- linux-2.6.14/Makefile.orig	2005-10-28 22:08:31.828865544 -0400
-+++ linux-2.6.14/Makefile	2005-10-28 22:18:26.528457464 -0400
-@@ -1227,7 +1227,7 @@
- quiet_cmd_TAGS = MAKE   $@
- define cmd_TAGS
- 	rm -f $@; \
--	ETAGSF=`etags --version | grep -i exuberant >/dev/null && echo "-I __initdata,__exitdata,EXPORT_SYMBOL,EXPORT_SYMBOL_GPL --extra=+f"`; \
-+	ETAGSF=`etags --version | grep -i exuberant >/dev/null && echo "-I __initdata,__exitdata,EXPORT_SYMBOL,EXPORT_SYMBOL_GPL --extra=+f --c-kinds=+px"`; \
- 	$(all-sources) | xargs etags $$ETAGSF -a
- endef
- 
-@@ -1238,7 +1238,7 @@
- quiet_cmd_tags = MAKE   $@
- define cmd_tags
- 	rm -f $@; \
--	CTAGSF=`ctags --version | grep -i exuberant >/dev/null && echo "-I __initdata,__exitdata,EXPORT_SYMBOL,EXPORT_SYMBOL_GPL --extra=+f"`; \
-+	CTAGSF=`ctags --version | grep -i exuberant >/dev/null && echo "-I __initdata,__exitdata,EXPORT_SYMBOL,EXPORT_SYMBOL_GPL --extra=+f --c-kinds=+px"`; \
- 	$(all-sources) | xargs ctags $$CTAGSF -a
- endef
- 
-
---=-JYWnmZbdiLMKoqbJbKEu--
+--
+Jeff Woods <kazrak+kernel@cesmail.net> 
 

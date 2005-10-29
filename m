@@ -1,42 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751116AbVJ2DRf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751115AbVJ2DQr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751116AbVJ2DRf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Oct 2005 23:17:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbVJ2DRf
+	id S1751115AbVJ2DQr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Oct 2005 23:16:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbVJ2DQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Oct 2005 23:17:35 -0400
-Received: from mail.kroah.org ([69.55.234.183]:29077 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751116AbVJ2DRe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Oct 2005 23:17:34 -0400
-Date: Fri, 28 Oct 2005 20:17:06 -0700
-From: Greg KH <greg@kroah.com>
-To: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>,
-       dtor_core@ameritech.net
-Cc: linux-kernel@vger.kernel.org, rml@novell.com
-Subject: Re: Kernel Badness 2.6.14-Git
-Message-ID: <20051029031706.GA26123@kroah.com>
-References: <4362BFF1.3040304@linuxwireless.org>
+	Fri, 28 Oct 2005 23:16:47 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:26277 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751115AbVJ2DQq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Oct 2005 23:16:46 -0400
+Subject: Re: Still no USB 2.0 with 2.6.14 (on AMD64+nForce4)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Marek Szuba <cyberman@if.pw.edu.pl>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.62.0510290423010.23723@gyrvynk.vs.cj.rqh.cy>
+References: <Pine.LNX.4.62.0510290423010.23723@gyrvynk.vs.cj.rqh.cy>
+Content-Type: text/plain
+Date: Fri, 28 Oct 2005 23:14:37 -0400
+Message-Id: <1130555677.32367.96.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4362BFF1.3040304@linuxwireless.org>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 28, 2005 at 06:18:57PM -0600, Alejandro Bonilla Beeche wrote:
-> Hi,
-> 
->    I just pulled from Linus Tree and I'm getting this badness in dmesg.
-> 
-> Please let me know if it is too soon to start reporting this. 2.6.14 is 
-> OK and does not output this.
+On Sat, 2005-10-29 at 04:30 +0200, Marek Szuba wrote:
+>  Unfortunately the workaround I found on 
+> kerneltrap by googling, i.e. disabling USB 2.0 in BIOS, doesn't work for 
 
-If you disable PNP does it go away?
+How about a link to this or any other reports of this issue?  Is it in
+the kernel bugzilla?
 
-Dmitry, any thoughts?  This looks like the other reported issue.
+Lee
 
-thanks,
+-- 
+"I am not a crook."
+        - Richard M. Nixon
 
-greg k-h

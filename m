@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbVJ2OLA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbVJ2OKv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751155AbVJ2OLA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 10:11:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbVJ2OLA
+	id S1751152AbVJ2OKv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 10:10:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbVJ2OKu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 10:11:00 -0400
-Received: from ns1.enidan.ch ([217.8.216.11]:30653 "EHLO mail.local.net")
-	by vger.kernel.org with ESMTP id S1751155AbVJ2OK7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 10:10:59 -0400
-From: "Per Jessen" <per@computer.org>
-To: "Adrian Bunk" <bunk@stusta.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Date: Sat, 29 Oct 2005 15:58:11 +0200
-X-Mailer: PMMail 2000 Professional (2.20.2711) For Windows 2000 (5.0.2195;4)
-In-Reply-To: <20051029121812.GK4180@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Subject: Re: building 2.4.31 for a non-smp system
-Message-Id: <20051029141058.E103A74056@mail.local.net>
+	Sat, 29 Oct 2005 10:10:50 -0400
+Received: from leon.mat.uni.torun.pl ([158.75.2.17]:445 "EHLO
+	Leon.mat.uni.torun.pl") by vger.kernel.org with ESMTP
+	id S1751152AbVJ2OKu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 10:10:50 -0400
+Date: Sat, 29 Oct 2005 16:10:46 +0200
+From: Michal Srajer <michal@mat.uni.torun.pl>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] include/linux/etherdevice.h, kernel 2.6.14
+Message-ID: <20051029141046.GA17715@ultra60.mat.uni.torun.pl>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Oct 2005 14:18:12 +0200, Adrian Bunk wrote:
 
->Is your problem reproducible when starting from a freshly unpacked 
->2.4.31 tree?
+--r5Pyd7+fXNt84Ff3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Nope - see my earlier post.  Thanks the fast response. 
+Description: Very small optimization patch for include/linux/etherdevice.h in 2.6.14 kernel.
 
->BTW: Please don't strip people from the Cc when replying to 
->     linux-kernel.
+Patch:
+---------------cut-here---------------
+--- linux-2.6.14/include/linux/etherdevice.h    2005-10-28 00:02:08.000000000 +0000
++++ linux/include/linux/etherdevice.h   2005-10-29 14:57:20.000000000 +0000
+@@ -53,7 +53,7 @@
+  */
+ static inline int is_zero_ether_addr(const u8 *addr)
+ {
+-       return !(addr[0] | addr[1] | addr[2] | addr[3] | addr[4] | addr[5]);
++       return !(addr[0] || addr[1] || addr[2] || addr[3] || addr[4] || addr[5]);
+ }
 
-Sorry about that - I'm feeding the list into a news-server, and the ccs got
-unintentionally stripped.
+ /**
+---------------cut-here---------------
+
+Michal Srajer
+michal@post.pl, michal@mat.uni.torun.pl
 
 
-regards
-Per
+--r5Pyd7+fXNt84Ff3
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
--- 
-regards,
-Per Jessen, Zurich
-http://www.spamchek.com - let your spam stop here!
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (SunOS)
 
+iD8DBQFDY4LkglPy9O/yglURAoNRAJ4vh0rTVdhW8fRNwivGlYg2Sop/TACg4hmh
+VH1Br7i9HJaXPSM2c5yp/g4=
+=K0p1
+-----END PGP SIGNATURE-----
 
+--r5Pyd7+fXNt84Ff3--

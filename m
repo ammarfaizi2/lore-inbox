@@ -1,370 +1,466 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbVJ2Fty@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751346AbVJ2Fr6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751344AbVJ2Fty (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 01:49:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbVJ2Fr7
+	id S1751346AbVJ2Fr6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 01:47:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbVJ2Frz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 01:47:59 -0400
-Received: from ns.ustc.edu.cn ([202.38.64.1]:31627 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1751344AbVJ2Fra (ORCPT
+	Sat, 29 Oct 2005 01:47:55 -0400
+Received: from ns.ustc.edu.cn ([202.38.64.1]:36491 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S1751355AbVJ2Frc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 01:47:30 -0400
-Message-Id: <20051029060237.568186000@localhost.localdomain>
+	Sat, 29 Oct 2005 01:47:32 -0400
+Message-Id: <20051029060242.816955000@localhost.localdomain>
 References: <20051029060216.159380000@localhost.localdomain>
-Date: Sat, 29 Oct 2005 14:02:18 +0800
+Date: Sat, 29 Oct 2005 14:02:27 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Magnus Damm <magnus.damm@gmail.com>,
-       Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 02/13] mm: balance page aging between zones
-Content-Disposition: inline; filename=mm-balanced-aging.patch
+Cc: Andrew Morton <akpm@osdl.org>, Wu Fengguang <wfg@mail.ustc.edu.cn>
+Subject: [PATCH 11/13] readahead: thrashing protection
+Content-Disposition: inline; filename=readahead-thrashing-protection.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The page aging rates are currently imbalanced, the gap can be as large as 3
-times, which can severely damage read-ahead requests and shorten their
-effective life time.
+It tries to identify and protect live pages (sequential pages that are going
+to be accessed in the near future) on vmscan time.
 
-This patch adds three variables in struct zone to keep track of page aging
-rate, and keeps them in sync on vmscan/pagealloc time. The nr_page_aging is
-a per-zone counter-part to the per-cpu pgscan_{kswapd,direct}_{zone name}.
+Almost all live pages can be sorted out and saved. The only problem is that
+relavant pages can be mutilated into tiny chunks and ignored as random pages.
 
-The direct page reclaim path is not touched, for it needs non-trival changes.
-It is ok as long as (pgscan_kswapd_* > pgscan_direct_*).
+The cost: dead pages that won't be read will be kept in inactive_list for
+another round. Hopefully there won't be much.
 
-__alloc_pages() is changed a lot, which needs comfirmation from NUMA gurus.
-The basic idea is to do reclaim in batches, and keep the zones inside one
-batch balanced.  There can be different policies in the partitioning.  One
-obvious choice for the first batch would be the zones on current node and
-nearby memory nodes without cpu.
+This feature is greatly demanded by file servers, though should be useless
+for desktop. It saves the case when one fast reader flushes the cache and
+strips the read-ahead size of slow readers, or the case where caching is just
+a wasting of memory. Then you can raise readahead_ratio to 200 or more to
+enforce a larger read-ahead size and strip the useless cached data out of lru.
 
+Its use is currently limited, for the context based method is not ready for
+the case. This problem will be solved when the timing info of evicted pages
+are available. It can also be extended to further benefit large memory
+systems.  I'll leave them as future work.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- include/linux/mmzone.h |   51 +++++++++++++++++++++++++
- mm/page_alloc.c        |   97 ++++++++++++++++++++++++++++++++++++++++---------
- mm/vmscan.c            |   32 +++++++++++++---
- 3 files changed, 158 insertions(+), 22 deletions(-)
+ include/linux/mm.h         |    2 
+ include/linux/page-flags.h |    2 
+ mm/page_alloc.c            |    2 
+ mm/readahead.c             |  319 ++++++++++++++++++++++++++++++++++++++++++++-
+ mm/vmscan.c                |    8 +
+ 5 files changed, 332 insertions(+), 1 deletion(-)
 
---- linux-2.6.14-rc5-mm1.orig/include/linux/mmzone.h
-+++ linux-2.6.14-rc5-mm1/include/linux/mmzone.h
-@@ -160,6 +160,20 @@ struct zone {
- 	unsigned long		pages_scanned;	   /* since last reclaim */
- 	int			all_unreclaimable; /* All pages pinned */
+--- linux-2.6.14-rc5-mm1.orig/include/linux/page-flags.h
++++ linux-2.6.14-rc5-mm1/include/linux/page-flags.h
+@@ -107,6 +107,8 @@ struct page_state {
+ 	unsigned long pgfree;		/* page freeings */
+ 	unsigned long pgactivate;	/* pages moved inactive->active */
+ 	unsigned long pgdeactivate;	/* pages moved active->inactive */
++	unsigned long pgkeephot;	/* pages sent back to active */
++	unsigned long pgkeepcold;	/* pages sent back to inactive */
  
-+	/* Fields for balanced page aging:
-+	 * nr_page_aging   - The accumulated number of activities that may
-+	 *                   cause page aging, that is, make some pages closer
-+	 *                   to the tail of inactive_list.
-+	 * aging_milestone - A snapshot of nr_page_aging every time a full
-+	 *                   inactive_list of pages become aged.
-+	 * page_age        - A normalized value showing the percent of pages
-+	 *                   have been aged.  It is compared between zones to
-+	 *                   balance the rate of page aging.
-+	 */
-+	unsigned long		nr_page_aging;
-+	unsigned long		aging_milestone;
-+	unsigned long		page_age;
+ 	unsigned long pgfault;		/* faults (major+minor) */
+ 	unsigned long pgmajfault;	/* faults (major only) */
+--- linux-2.6.14-rc5-mm1.orig/include/linux/mm.h
++++ linux-2.6.14-rc5-mm1/include/linux/mm.h
+@@ -954,6 +954,8 @@ page_cache_readahead_adaptive(struct add
+ 			unsigned long first_index,
+ 			unsigned long index, unsigned long last_index);
+ void fastcall ra_access(struct file_ra_state *ra, struct page *page);
++int rescue_ra_pages(struct list_head *page_list, struct list_head *save_list);
 +
- 	/*
- 	 * Does the allocator try to reclaim pages from the zone as soon
- 	 * as it fails a watermark_ok() in __alloc_pages?
-@@ -343,6 +357,43 @@ static inline void memory_present(int ni
- unsigned long __init node_memmap_size_bytes(int, unsigned long, unsigned long);
- #endif
  
-+#ifdef CONFIG_HIGHMEM64G
-+#define		PAGE_AGE_SHIFT  8
-+#elif BITS_PER_LONG == 32
-+#define		PAGE_AGE_SHIFT  12
-+#elif BITS_PER_LONG == 64
-+#define		PAGE_AGE_SHIFT  20
-+#else
-+#error unknown BITS_PER_LONG
-+#endif
-+#define		PAGE_AGE_MASK   ((1 << PAGE_AGE_SHIFT) - 1)
-+
-+/*
-+ * The percent of pages in inactive_list that have been scanned / aged.
-+ * It's not really ##%, but a high resolution normalized value.
-+ */
-+static inline void update_page_age(struct zone *z)
-+{
-+	if (z->nr_page_aging - z->aging_milestone > z->nr_inactive)
-+		z->aging_milestone += z->nr_inactive;
-+
-+	z->page_age = ((z->nr_page_aging - z->aging_milestone)
-+				<< PAGE_AGE_SHIFT) / (1 + z->nr_inactive);
-+}
-+
-+/*
-+ * The simplified code is:
-+ *         return (a->page_age > b->page_age);
-+ * The complexity deals with the wrap-around problem.
-+ * Two page ages not close enough should also be ignored:
-+ * they are out of sync and the comparison may be nonsense.
-+ */
-+static inline int pages_more_aged(struct zone *a, struct zone *b)
-+{
-+	return ((b->page_age - a->page_age) & PAGE_AGE_MASK) >
-+			PAGE_AGE_MASK - (1 << (PAGE_AGE_SHIFT - 2));
-+}
-+
- /*
-  * zone_idx() returns 0 for the ZONE_DMA zone, 1 for the ZONE_NORMAL zone, etc.
-  */
+ /* Do stack extension */
+ extern int expand_stack(struct vm_area_struct *vma, unsigned long address);
 --- linux-2.6.14-rc5-mm1.orig/mm/page_alloc.c
 +++ linux-2.6.14-rc5-mm1/mm/page_alloc.c
-@@ -488,7 +488,7 @@ static void prep_new_page(struct page *p
+@@ -2389,6 +2389,8 @@ static char *vmstat_text[] = {
+ 	"pgfree",
+ 	"pgactivate",
+ 	"pgdeactivate",
++	"pgkeephot",
++	"pgkeepcold",
  
- 	page->flags &= ~(1 << PG_uptodate | 1 << PG_error |
- 			1 << PG_referenced | 1 << PG_arch_1 |
--			1 << PG_activate |
-+			1 << PG_activate | 1 << PG_readahead |
- 			1 << PG_checked | 1 << PG_mappedtodisk);
- 	set_page_private(page, 0);
- 	set_page_refs(page, order);
-@@ -871,9 +871,15 @@ __alloc_pages(gfp_t gfp_mask, unsigned i
- 	struct task_struct *p = current;
- 	int i;
- 	int classzone_idx;
-+	int do_reclaim;
- 	int do_retry;
- 	int can_try_harder;
- 	int did_some_progress;
-+	unsigned long zones_mask;
-+	int left_count;
-+	int batch_size;
-+	int batch_base;
-+	int batch_idx;
- 
- 	might_sleep_if(wait);
- 
-@@ -893,13 +899,62 @@ __alloc_pages(gfp_t gfp_mask, unsigned i
- 
- 	classzone_idx = zone_idx(zones[0]);
- 
--restart:
- 	/*
- 	 * Go through the zonelist once, looking for a zone with enough free.
- 	 * See also cpuset_zone_allowed() comment in kernel/cpuset.c.
- 	 */
--	for (i = 0; (z = zones[i]) != NULL; i++) {
--		int do_reclaim = should_reclaim_zone(z, gfp_mask);
-+restart:
-+	/*
-+	 * To fulfill three goals:
-+	 * - balanced page aging
-+	 * - locality
-+	 * - predefined zonelist priority
-+	 *
-+	 * The logic employs the following rules:
-+	 * 1. Zones are checked in predefined order in general.
-+	 * 2. Skip to the next zone if it has lower page_age.
-+	 * 3. Checkings are carried out in batch, all zones in a batch must be
-+	 *    checked before entering the next batch.
-+	 * 4. All local zones in the zonelist forms the first batch.
-+	 */
-+
-+	/* TODO: Avoid this loop by putting the values into struct zonelist.
-+	 * The (more general) desired batch counts can also go there.
-+	 */
-+	for (batch_size = 0, i = 0; (z = zones[i]) != NULL; i++) {
-+		if (z->zone_pgdat == zones[0]->zone_pgdat)
-+			batch_size++;
-+	}
-+	BUG_ON(!batch_size);
-+
-+	left_count = i - batch_size;
-+	batch_base = 0;
-+	batch_idx = 0;
-+	zones_mask = 0;
-+
-+	for (;;) {
-+		if (zones_mask == (1 << batch_size) - 1) {
-+			if (left_count <= 0) {
-+				break;
-+			}
-+			batch_base += batch_size;
-+			batch_size = min(left_count, (int)sizeof(zones_mask) * 8);
-+			left_count -= batch_size;
-+			batch_idx = 0;
-+			zones_mask = 0;
-+		}
-+
-+		do {
-+			i = batch_idx;
-+			do {
-+				if (++batch_idx >= batch_size)
-+					batch_idx = 0;
-+			} while (zones_mask & (1 << batch_idx));
-+		} while (pages_more_aged(zones[batch_base + i],
-+					 zones[batch_base + batch_idx]));
-+
-+		zones_mask |= (1 << i);
-+		z = zones[batch_base + i];
- 
- 		if (!cpuset_zone_allowed(z, __GFP_HARDWALL))
- 			continue;
-@@ -909,11 +964,12 @@ restart:
- 		 * will try to reclaim pages and check the watermark a second
- 		 * time before giving up and falling back to the next zone.
- 		 */
-+		do_reclaim = should_reclaim_zone(z, gfp_mask);
- zone_reclaim_retry:
- 		if (!zone_watermark_ok(z, order, z->pages_low,
- 				       classzone_idx, 0, 0)) {
- 			if (!do_reclaim)
--				continue;
-+				goto try_harder;
- 			else {
- 				zone_reclaim(z, gfp_mask, order);
- 				/* Only try reclaim once */
-@@ -925,20 +981,18 @@ zone_reclaim_retry:
- 		page = buffered_rmqueue(z, order, gfp_mask);
- 		if (page)
- 			goto got_pg;
--	}
- 
--	for (i = 0; (z = zones[i]) != NULL; i++)
-+try_harder:
- 		wakeup_kswapd(z, order);
- 
--	/*
--	 * Go through the zonelist again. Let __GFP_HIGH and allocations
--	 * coming from realtime tasks to go deeper into reserves
--	 *
--	 * This is the last chance, in general, before the goto nopage.
--	 * Ignore cpuset if GFP_ATOMIC (!wait) rather than fail alloc.
--	 * See also cpuset_zone_allowed() comment in kernel/cpuset.c.
--	 */
--	for (i = 0; (z = zones[i]) != NULL; i++) {
-+		/*
-+		 * Put stress on the zone. Let __GFP_HIGH and allocations
-+		 * coming from realtime tasks to go deeper into reserves.
-+		 *
-+		 * This is the last chance, in general, before the goto nopage.
-+		 * Ignore cpuset if GFP_ATOMIC (!wait) rather than fail alloc.
-+		 * See also cpuset_zone_allowed() comment in kernel/cpuset.c.
-+		 */
- 		if (!zone_watermark_ok(z, order, z->pages_min,
- 				       classzone_idx, can_try_harder,
- 				       gfp_mask & __GFP_HIGH))
-@@ -1446,6 +1500,8 @@ void show_free_areas(void)
- 			" active:%lukB"
- 			" inactive:%lukB"
- 			" present:%lukB"
-+			" aging:%lukB"
-+			" age:%lu"
- 			" pages_scanned:%lu"
- 			" all_unreclaimable? %s"
- 			"\n",
-@@ -1457,6 +1513,8 @@ void show_free_areas(void)
- 			K(zone->nr_active),
- 			K(zone->nr_inactive),
- 			K(zone->present_pages),
-+			K(zone->nr_page_aging),
-+			zone->page_age,
- 			zone->pages_scanned,
- 			(zone->all_unreclaimable ? "yes" : "no")
- 			);
-@@ -2073,6 +2131,9 @@ static void __init free_area_init_core(s
- 		zone->nr_scan_inactive = 0;
- 		zone->nr_active = 0;
- 		zone->nr_inactive = 0;
-+		zone->nr_page_aging = 0;
-+		zone->aging_milestone = 0;
-+		zone->page_age = 0;
- 		atomic_set(&zone->reclaim_in_progress, 0);
- 		if (!size)
- 			continue;
-@@ -2221,6 +2282,8 @@ static int zoneinfo_show(struct seq_file
- 			   "\n        high     %lu"
- 			   "\n        active   %lu"
- 			   "\n        inactive %lu"
-+			   "\n        aging    %lu"
-+			   "\n        age      %lu"
- 			   "\n        scanned  %lu (a: %lu i: %lu)"
- 			   "\n        spanned  %lu"
- 			   "\n        present  %lu",
-@@ -2230,6 +2293,8 @@ static int zoneinfo_show(struct seq_file
- 			   zone->pages_high,
- 			   zone->nr_active,
- 			   zone->nr_inactive,
-+			   zone->nr_page_aging,
-+			   zone->page_age,
- 			   zone->pages_scanned,
- 			   zone->nr_scan_active, zone->nr_scan_inactive,
- 			   zone->spanned_pages,
+ 	"pgfault",
+ 	"pgmajfault",
 --- linux-2.6.14-rc5-mm1.orig/mm/vmscan.c
 +++ linux-2.6.14-rc5-mm1/mm/vmscan.c
-@@ -653,6 +653,8 @@ static void shrink_cache(struct zone *zo
- 			goto done;
+@@ -370,6 +370,7 @@ static pageout_t pageout(struct page *pa
+ 	return PAGE_CLEAN;
+ }
  
- 		max_scan -= nr_scan;
-+		zone->nr_page_aging += nr_scan;
-+		update_page_age(zone);
- 		if (current_is_kswapd())
- 			mod_page_state_zone(zone, pgscan_kswapd, nr_scan);
- 		else
-@@ -1068,6 +1070,7 @@ loop_again:
++extern int readahead_ratio;
+ DECLARE_PER_CPU(unsigned long, smooth_aging);
  
- 	for (priority = DEF_PRIORITY; priority >= 0; priority--) {
- 		int end_zone = 0;	/* Inclusive.  0 = ZONE_DMA */
-+		int begin_zone = -1;
- 		unsigned long lru_pages = 0;
+ /*
+@@ -380,10 +381,14 @@ static int shrink_list(struct list_head 
+ 	LIST_HEAD(ret_pages);
+ 	struct pagevec freed_pvec;
+ 	int pgactivate = 0;
++	int pgkeep = 0;
+ 	int reclaimed = 0;
  
- 		all_zones_ok = 1;
-@@ -1089,16 +1092,33 @@ loop_again:
+ 	cond_resched();
  
- 				if (!zone_watermark_ok(zone, order,
- 						zone->pages_high, 0, 0, 0)) {
--					end_zone = i;
--					goto scan;
-+					if (!end_zone)
-+						begin_zone = end_zone = i;
-+					else /* if (begin_zone == i + 1) */
-+						begin_zone = i;
- 				}
- 			}
--			goto out;
-+			if (begin_zone < 0)
-+				goto out;
- 		} else {
-+			begin_zone = 0;
- 			end_zone = pgdat->nr_zones - 1;
- 		}
--scan:
--		for (i = 0; i <= end_zone; i++) {
++	if (readahead_ratio >= VM_READAHEAD_PROTECT_RATIO)
++		rescue_ra_pages(page_list, &ret_pages);
 +
-+		/*
-+		 * Prepare enough free pages for zones with small page_age,
-+		 * they are going to be reclaimed in the page allocation.
-+		 */
-+		while (end_zone < pgdat->nr_zones - 1 &&
-+			pages_more_aged(pgdat->node_zones + end_zone,
-+					pgdat->node_zones + end_zone + 1))
-+			end_zone++;
-+		while (begin_zone &&
-+			pages_more_aged(pgdat->node_zones + begin_zone,
-+					pgdat->node_zones + begin_zone - 1))
-+			begin_zone--;
+ 	pagevec_init(&freed_pvec, 1);
+ 	while (!list_empty(page_list)) {
+ 		struct address_space *mapping;
+@@ -569,11 +574,13 @@ keep_locked:
+ keep:
+ 		list_add(&page->lru, &ret_pages);
+ 		BUG_ON(PageLRU(page));
++		pgkeep++;
+ 	}
+ 	list_splice(&ret_pages, page_list);
+ 	if (pagevec_count(&freed_pvec))
+ 		__pagevec_release_nonlru(&freed_pvec);
+ 	mod_page_state(pgactivate, pgactivate);
++	mod_page_state(pgkeepcold, pgkeep - pgactivate);
+ 	sc->nr_reclaimed += reclaimed;
+ 	return reclaimed;
+ }
+@@ -837,6 +844,7 @@ refill_inactive_zone(struct zone *zone, 
+ 
+ 	mod_page_state_zone(zone, pgrefill, pgscanned);
+ 	mod_page_state(pgdeactivate, pgdeactivate);
++	mod_page_state(pgkeephot, pgmoved);
+ }
+ 
+ /*
+--- linux-2.6.14-rc5-mm1.orig/mm/readahead.c
++++ linux-2.6.14-rc5-mm1/mm/readahead.c
+@@ -345,7 +345,7 @@ __do_page_cache_readahead(struct address
+ 	read_lock_irq(&mapping->tree_lock);
+ 	for (page_idx = 0; page_idx < nr_to_read; page_idx++) {
+ 		unsigned long page_offset = offset + page_idx;
+-		
 +
-+		for (i = begin_zone; i <= end_zone; i++) {
- 			struct zone *zone = pgdat->node_zones + i;
+ 		if (page_offset > end_index)
+ 			break;
  
- 			lru_pages += zone->nr_active + zone->nr_inactive;
-@@ -1113,7 +1133,7 @@ scan:
- 		 * pages behind kswapd's direction of progress, which would
- 		 * cause too much scanning of the lower zones.
- 		 */
--		for (i = 0; i <= end_zone; i++) {
-+		for (i = begin_zone; i <= end_zone; i++) {
- 			struct zone *zone = pgdat->node_zones + i;
- 			int nr_slab;
+@@ -1676,3 +1676,320 @@ void fastcall ra_access(struct file_ra_s
+ 		ra_account(ra, RA_EVENT_READAHEAD_HIT, -1);
+ }
  
++/*
++ * Detect and protect live read-ahead pages.
++ *
++ * This function provides safty guarantee for file servers with big
++ * readahead_ratio(>=VM_READAHEAD_PROTECT_RATIO) set.  The goal is to save all
++ * and only the sequential pages that are to be accessed in the near future.
++ *
++ * This function is called when pages in @page_list are to be freed,
++ * it protects live read-ahead pages by moving them into @save_list.
++ *
++ * The general idea is to classify pages of a file into random pages and groups
++ * of sequential accessed pages. Random pages and dead sequential pages are
++ * left over, live sequential pages are saved.
++ *
++ * Live read-ahead pages are defined as sequential pages that have reading in
++ * progress. They are detected by reference count pattern of:
++ *
++ *                        live head       live pages
++ *  ra pages group -->   ------------___________________
++ *                                   [  pages to save  ] (*)
++ *
++ * (*) for now, an extra page from the live head may also be saved.
++ *
++ * In pratical, the group of pages are fragmented into chunks. To tell whether
++ * pages inside a chunk are alive, we must check:
++ * 1) Are there any live heads inside the chunk?
++ * 2) Are there any live heads in the group before the chunk?
++ * 3) Sepcial case: live head just sits on the boundary of current chunk?
++ *
++ * The detailed rules employed must ensure:
++ * - no page is pinned in inactive_list.
++ * - no excessive pages are saved.
++ *
++ * A picture of common cases:
++ *             back search            chunk             case
++ *           -----___________|[____________________]    Normal
++ *           ----------------|----[________________]    Normal
++ *                           |----[________________]    Normal
++ *           ----------------|----------------------    Normal
++ *                           |----------------------    Normal
++ *           ________________|______________________    ra miss
++ *                           |______________________    ra miss
++ *           ________________|_______--------[_____]    two readers
++ *           ----____________|[______--------______]    two readers
++ *                           |_______--------[_____]    two readers
++ *                           |----[____------______]    two readers
++ *           ----------------|----[____------______]    two readers
++ *           _______---------|---------------[_____]    two readers
++ *           ----___---------|[--------------______]    two readers
++ *           ________________|---------------[_____]    two readers
++ *           ----____________|[--------------______]    two readers
++ *           ====------------|[---_________________]    two readers
++ *                           |====[----------______]    two readers
++ *                           |###======[-----------]    three readers
++ *
++ * Read backward pattern support is possible, in which case the pages should be
++ * pushed into inactive_list in reverse order.
++ *
++ * The two special cases are awkwardly delt with for now. They will be all set
++ * when the timing information of recently evicted pages are available.
++ * Dead pages can also be purged earlier with the timing info.
++ */
++static int save_chunk(struct page *head, struct page *live_head,
++			struct page *tail, struct list_head *save_list)
++{
++	struct page *page;
++	struct address_space *mapping;
++	struct radix_tree_cache cache;
++	int i;
++	unsigned long index;
++	unsigned long refcnt;
++
++#ifdef DEBUG_READAHEAD
++	static char static_buf[PAGE_SIZE];
++	static char *zone_names[1 << ZONES_SHIFT] = {
++			"DMA", "DMA32", "Normal", "HighMem", "Z5", "Z6", "Z7" };
++	char *pat = static_buf;
++	unsigned long pidx = PAGE_SIZE / 2;
++
++	if ((readahead_ratio & 3) == 3) {
++		pat = (char *)get_zeroed_page(GFP_KERNEL);
++		if (!pat)
++			pat = static_buf;
++	}
++#endif
++
++#define LIVE_PAGE_SCAN		(4 * MAX_RA_PAGES)
++	index = head->index;
++	refcnt = page_refcnt(head);
++	mapping = head->mapping;
++	radix_tree_cache_init(&cache);
++
++	BUG_ON(!mapping); /* QUESTION: in what case mapping will be NULL ? */
++	read_lock_irq(&mapping->tree_lock);
++
++	/*
++	 * Common case test:
++	 * Does the far end indicates a leading live head?
++	 */
++	index = radix_tree_lookup_head(&mapping->page_tree,
++						index, LIVE_PAGE_SCAN);
++	page = __find_page(mapping, index);
++	if (cold_page_refcnt(page) > refcnt) {
++#ifdef DEBUG_READAHEAD
++		if ((readahead_ratio & 3) == 3) {
++			pat[--pidx] = '.';
++			pat[--pidx] = '.';
++			pat[--pidx] = '.';
++			pat[--pidx] = page_refcnt_symbol(page);
++			pat[--pidx] = '|';
++		}
++#endif
++		live_head = head;
++		goto skip_scan_locked;
++	}
++
++	/*
++	 * Special case 1:
++	 * If @head is a live head, rescue_ra_pages() will not detect it.
++	 * Check it here.
++	 */
++	index = head->index;
++	page = radix_tree_cache_lookup(&mapping->page_tree, &cache, --index);
++	if (!page || PageActive(page)) {
++#ifdef DEBUG_READAHEAD
++		if ((readahead_ratio & 3) == 3)
++			pat[--pidx] = page_refcnt_symbol(page);
++#endif
++		goto skip_scan_locked;
++	}
++	if (refcnt > page_refcnt(next_page(head)) &&
++			page_refcnt(page) > page_refcnt(next_page(head))) {
++#ifdef DEBUG_READAHEAD
++		if ((readahead_ratio & 3) == 3)
++			pat[--pidx] = page_refcnt_symbol(page);
++#endif
++		live_head = head;
++		goto skip_scan_locked;
++	}
++
++	/*
++	 * Scan backward to see if the whole chunk should be saved.
++	 * It can be costly. But can be made rare in future.
++	 */
++	for (i = LIVE_PAGE_SCAN; i >= 0; i--) {
++		page = radix_tree_cache_lookup(&mapping->page_tree, &cache,
++								--index);
++#ifdef DEBUG_READAHEAD
++		if ((readahead_ratio & 3) == 3 && pidx)
++			pat[--pidx] = page_refcnt_symbol(page);
++#endif
++
++		if (!page)
++			break;
++
++		/* Avoid being pinned by active page. */
++		if (unlikely(PageActive(page)))
++			break;
++
++		if (page_refcnt(page) > refcnt) { /* So we are alive! */
++			live_head = head;
++			break;
++		}
++
++		refcnt = page_refcnt(page);
++	}
++
++skip_scan_locked:
++	/*
++	 * Special case 2:
++	 * Save one extra page if it is a live head of the following chunk.
++	 * Just to be safe.  It protects the rare situation when the reader
++	 * is just crossing the chunk boundary, and the following chunk is not
++	 * far away from tail of inactive_list.
++	 */
++	if (live_head != head) {
++		struct page *last_page = prev_page(tail);
++		page = radix_tree_cache_lookup(&mapping->page_tree, &cache,
++						last_page->index + 1);
++		if (page && !live_head) {
++			refcnt = page_refcnt(last_page);
++			if (page_refcnt(page) >= refcnt)
++				page = radix_tree_cache_lookup(
++						&mapping->page_tree, &cache,
++						last_page->index + 2);
++			if (page && page_refcnt(page) < refcnt)
++				live_head = last_page;
++		} else if (!page && live_head)
++			live_head = next_page(live_head);
++	}
++
++	read_unlock_irq(&mapping->tree_lock);
++
++#ifdef DEBUG_READAHEAD
++	if ((readahead_ratio & 3) == 3) {
++		for (i = 0; pidx < PAGE_SIZE / 2;)
++			pat[i++] = pat[pidx++];
++		pat[i++] = '|';
++		for (page = head; page != tail; page = next_page(page)) {
++			pidx = page->index;
++			if (page == live_head)
++				pat[i++] = '[';
++			pat[i++] = page_refcnt_symbol(page);
++			BUG_ON(PageAnon(page));
++			BUG_ON(PageSwapCache(page));
++			/* BUG_ON(page_mapped(page)); */
++			if (i >= PAGE_SIZE - 2)
++				break;
++		}
++		if (live_head)
++			pat[i++] = ']';
++		pat[i] = 0;
++		pat[PAGE_SIZE - 1] = 0;
++	}
++#endif
++
++	/*
++	 * Now save the alive pages.
++	 */
++	i = 0;
++	if (live_head) {
++		for (; live_head != tail;) { /* never dereference tail! */
++			page = next_page(live_head);
++			if (!PageActivate(live_head)) {
++				if (!page_refcnt(live_head))
++					__get_cpu_var(smooth_aging)++;
++				i++;
++				list_move(&live_head->lru, save_list);
++			}
++			live_head = page;
++		}
++
++		if (i)
++			ra_account(0, RA_EVENT_READAHEAD_RESCUE, i);
++	}
++
++#ifdef DEBUG_READAHEAD
++	if ((readahead_ratio & 3) == 3) {
++		ddprintk("save_chunk(ino=%lu, idx=%lu-%lu-%lu, %s@%s:%s)"
++				" = %d\n",
++				mapping->host->i_ino,
++				index, head->index, pidx,
++				mapping_mapped(mapping) ? "mmap" : "file",
++				zone_names[page_zonenum(head)], pat, i);
++		if (pat != static_buf)
++			free_page((unsigned long)pat);
++	}
++#endif
++
++	return i;
++}
++
++int rescue_ra_pages(struct list_head *page_list, struct list_head *save_list)
++{
++	struct address_space *mapping;
++	struct page *chunk_head;
++	struct page *live_head;
++	struct page *page;
++	unsigned long refcnt;
++	int n;
++	int ret = 0;
++
++	page = list_to_page(page_list);
++
++next_chunk:
++	chunk_head = page;
++	live_head = NULL;
++	mapping = page->mapping;
++	n = 0;
++
++next_rs_page:
++	refcnt = page_refcnt(page);
++	page = next_page(page);
++
++	if (mapping != page->mapping || &page->lru == page_list)
++		goto save_chunk;
++
++	if (refcnt == page_refcnt(page))
++		n++;
++	else if (refcnt < page_refcnt(page))
++		n = 0;
++	else if (n < 1)
++		n = INT_MIN;
++	else
++		goto got_live_head;
++
++	goto next_rs_page;
++
++got_live_head:
++	n = 0;
++	live_head = prev_page(page);
++
++next_page:
++	if (refcnt < page_refcnt(page))
++		n++;
++	refcnt = page_refcnt(page);
++	page = next_page(page);
++
++	if (mapping != page->mapping || &page->lru == page_list)
++		goto save_chunk;
++
++	goto next_page;
++
++save_chunk:
++	if (mapping && !PageAnon(chunk_head) &&
++			!PageSwapCache(chunk_head) &&
++			/* !page_mapped(chunk_head) && */
++			n <= 3 &&
++			(!refcnt ||
++			 prev_page(page)->index >= chunk_head->index + 5))
++		ret += save_chunk(chunk_head, live_head, page, save_list);
++
++	if (&page->lru != page_list)
++		goto next_chunk;
++
++	return ret;
++}
 
 --

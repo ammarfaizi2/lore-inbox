@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbVJ3K4m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbVJ3LAq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932135AbVJ3K4m (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 05:56:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbVJ3K4m
+	id S932128AbVJ3LAq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 06:00:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbVJ3LAq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 05:56:42 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:20392 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932138AbVJ3K4l (ORCPT
+	Sun, 30 Oct 2005 06:00:46 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:30867 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S932128AbVJ3LAq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 05:56:41 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: amd64 bitops fix for -Os
-References: <orvezggf7x.fsf@livre.oliva.athome.lsd.ic.unicamp.br>
-From: Alexandre Oliva <aoliva@redhat.com>
-Organization: Red Hat OS Tools Group
-Date: Sun, 30 Oct 2005 08:56:21 -0200
-In-Reply-To: <orvezggf7x.fsf@livre.oliva.athome.lsd.ic.unicamp.br> (Alexandre
- Oliva's message of "Sat, 29 Oct 2005 19:56:02 -0200")
-Message-ID: <orfyqjgtnu.fsf@livre.oliva.athome.lsd.ic.unicamp.br>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+	Sun, 30 Oct 2005 06:00:46 -0500
+Message-ID: <4364A7D6.2060006@drzeus.cx>
+Date: Sun, 30 Oct 2005 12:00:38 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.7-2.1.fc4.nr (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+To: ralf@linux-mips.org
+CC: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [FIXME] Comments on serial and MMC changes in MIPS merge
+References: <20051029220722.GI14039@flint.arm.linux.org.uk>
+In-Reply-To: <20051029220722.GI14039@flint.arm.linux.org.uk>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 29, 2005, Alexandre Oliva <aoliva@redhat.com> wrote:
+Russell King wrote:
+> Some comments on the recent MIPS merge:
+> 
+> 1. au1xxx mmc driver
+> 
+>    mmc_remove_host() does a safe shutdown of the MMC host, removing
+>    cards and then powering down.  This must be called prior to the
+>    driver thinking of tearing anything down.
+> 
+>    As for those disable_irq()...enable_irq(), are you aware that MMC
+>    can start talking to the host as soon as you've called mmc_add_host() ?
+> 
 
-> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=171672
+I'm also concerned about the ammount of protocol awareness in this
+driver. Is there a spec available for this hardware? Perhaps the MMC
+layer can export more information so that we can avoid switches on
+specific MMC commands?
 
-> In teh find_first_zero_bit case, this comes at pretty much no cost,
-> since we already test size for non-zero, but we used to do that
-> adjusting it from bits to words; changing it should have no visible
-> effect on performance.
-
-I forgot to mention that this approach to fix the problem was
-suggested by Al Viro.  Sorry, Al.
-
--- 
-Alexandre Oliva         http://www.lsd.ic.unicamp.br/~oliva/
-Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
-Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}
+Rgds
+Pierre

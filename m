@@ -1,81 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbVJ3NdW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750843AbVJ3Nkt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750825AbVJ3NdW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 08:33:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbVJ3NdW
+	id S1750843AbVJ3Nkt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 08:40:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbVJ3Nkt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 08:33:22 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:43974 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750825AbVJ3NdV (ORCPT
+	Sun, 30 Oct 2005 08:40:49 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:53182 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750835AbVJ3Nks (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 08:33:21 -0500
-Date: Sun, 30 Oct 2005 14:33:16 +0100
+	Sun, 30 Oct 2005 08:40:48 -0500
+Date: Sun, 30 Oct 2005 14:41:08 +0100
 From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>, Steven Rostedt <rostedt@goodmis.org>,
-       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Mark Knecht <markknecht@gmail.com>, john stultz <johnstul@us.ibm.com>,
-       Florian Schmidt <mista.tapas@gmx.net>, "K.R. Foley" <kr@cybsft.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: 2.6.14-rt1
-Message-ID: <20051030133316.GA11225@elte.hu>
-References: <20051017160536.GA2107@elte.hu> <20051020195432.GA21903@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: art@usfltd.com, linux-kernel@vger.kernel.org
+Subject: Re: kernel-2.6.14-rc5-rt7 - 604.62 BogoMIPS (2.6.14-rc5 - 6024.43 BogoMIPS) problem with bogometer ?
+Message-ID: <20051030134108.GA13564@elte.hu>
+References: <200510281828.AA38666812@usfltd.com> <1130544313.6169.57.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051020195432.GA21903@elte.hu>
+In-Reply-To: <1130544313.6169.57.camel@localhost.localdomain>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamScore: 0.0
 X-ELTE-SpamLevel: 
 X-ELTE-SpamCheck: no
 X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
 	0.0 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-i have released the 2.6.14-rt1 tree, which can be downloaded from the 
-usual place:
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-   http://redhat.com/~mingo/realtime-preempt/
+> On Fri, 2005-10-28 at 18:28 -0500, art wrote:
+> > kernel-2.6.14-rc5-rt7 - 604.62 BogoMIPS (2.6.14-rc5 - 6024.43 BogoMIPS) problem with bogometer ?
+> > 
+> > kernel-2.6.14-rc5-rt7 -- Calibrating delay using timer specific routine.. 604.62 BogoMIPS (lpj=302311)
+> > 
+> > kernel-2.6.14-rc5 -- Calibrating delay using timer specific routine.. 6024.43 BogoMIPS (lpj=12048877)
+> 
+> Already been fixed and will be out in Ingo's next release.  Before 
+> high-res was activated, the ktimers was causing jiffies to go up 
+> faster than HZ and this caused bad calculations of BogoMIPS.  So for 
+> now just sit back and relax, it doesn't harm anything right now. :)
 
-this release is mainly about ktimer fixes: it updates to the latest 
-ktimer tree from Thomas Gleixner (which includes John Stultz's latest 
-GTOD tree), it fixes TSC synchronization problems on HT systems, and 
-updates the ktimers debugging code.
-
-These together could fix most of the timer warnings and annoyances 
-reported for 2.6.14-rc5-rt kernels. In particular the new 
-TSC-synchronization code could fix SMP systems: the upstream TSC 
-synchronization method is fine for 1 usec resolution, but it was not 
-good enough for 1 nsec resolution and likely caused the SMP bugs 
-reported by Fernando Lopez-Lezcano and Rui Nuno Capela.
-
-Please re-report any bugs that remain.
-
-Changes since 2.6.14-rc5-rt1:
-
- - GTOD -B9 (John Stultz)
-
- - ktimer updates (Thomas Gleixner, me)
-
- - ktimer debugging check fixes (Steven Rostedt)
-
- - smarter TSC synchronization on SMP - we now rely on it for nsecs (me)
-
- - x64 build fix (reported by Mark Knecht)
-
- - tracing fix (reported by Florian Schmidt)
-
- - rtc histogram fixes (K.R. Foley)
-
- - merge to 2.6.14
-
-to build a 2.6.14-rt1 tree, the following patches should be applied:
-
-  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.14.tar.bz2
-  http://redhat.com/~mingo/realtime-preempt/patch-2.6.14-rt1
+yeah. Should be fixed in 2.6.14-rt1.
 
 	Ingo

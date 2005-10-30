@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbVJ3VYi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbVJ3V0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932283AbVJ3VYi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 16:24:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932158AbVJ3VXz
+	id S932349AbVJ3V0S (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 16:26:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbVJ3V0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 16:23:55 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:32430 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932150AbVJ3VXv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 16:23:51 -0500
-Date: Sun, 30 Oct 2005 11:12:41 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: ak@suse.de, torvalds@osdl.org, tony.luck@gmail.com,
-       paolo.ciarrocchi@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: New (now current development process)
-Message-Id: <20051030111241.74c5b1a6.akpm@osdl.org>
-In-Reply-To: <20051029223723.GJ14039@flint.arm.linux.org.uk>
-References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com>
-	<12c511ca0510291157u5557b6b1x85a47311f0e16436@mail.gmail.com>
-	<20051029195115.GD14039@flint.arm.linux.org.uk>
-	<Pine.LNX.4.64.0510291314100.3348@g5.osdl.org>
-	<p73r7a4t0s7.fsf@verdi.suse.de>
-	<20051029223723.GJ14039@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 30 Oct 2005 16:26:17 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:21186 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932318AbVJ3V0P
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 16:26:15 -0500
+Date: Sun, 30 Oct 2005 13:26:19 -0800
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Michael Madore <michael.madore@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: PCI-DMA: high address but no IOMMU
+Message-ID: <20051030212619.GB30183@us.ibm.com>
+References: <d4b6d3ea0510271047t413e9ea8l333a532c1a5f3d77@mail.gmail.com> <20051028015900.GB4141@us.ibm.com> <20051030142924.GA30183@us.ibm.com> <200510301559.15423.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200510301559.15423.ak@suse.de>
+X-Operating-System: Linux 2.6.14 (x86_64)
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
->
-> On Sun, Oct 30, 2005 at 12:29:28AM +0200, Andi Kleen wrote:
-> > Linus Torvalds <torvalds@osdl.org> writes:
-> > > I don't think anybody has been really unhappy with this approach? Hmm?
-> > 
-> > The long freeze periods were nothing much happens are painful. It
-> > would be better to have some more overlap of merging and stabilizing
-> > (stable does that already kind of, but not enough)
+On 30.10.2005 [15:59:15 +0100], Andi Kleen wrote:
+> On Sunday 30 October 2005 15:29, Nishanth Aravamudan wrote:
 > 
-> Violently agree.  I find the long freeze periods painful and very very
-> very boring, to the point of looking for other stuff to do (such as
-> cleaning up bits of the kernel and queuing mega-patches for the next
-> round of merging.)
+> > 
+> > Ah, silly me, I set IOMMU_DEBUG to Y at some point without realizing.
+> > Taking that away removed the issues and I now only get:
+> > 
+> > [    0.000000] Checking aperture...
+> > [    0.000000] CPU 0: aperture @ 4000000 size 32 MB
+> > [    0.000000] Aperture from northbridge cpu 0 too small (32 MB)
+> > [    0.000000] No AGP bridge found
+> > 
+> > ...
+> > 
+> > [   47.737770] PCI-DMA: Disabling IOMMU.
+> > 
+> > Which makes a lot more sense.
+> 
+> And everything works when you disable IOMMU_DEBUG? Is that the case
+> with the other reporters of this problem too?
 
-The freezes are for fixing bugs, especially recent regressions.  There's no
-shortage of them, you know.
+Sorry, I realize in retrospect that my post may have been misleading. I
+was only commenting that I was seeing the same messages (but not the
+same "Kernel panic - not syncing: PCI-DMA: high address but no IOMMU.")
+So it works with either IOMMU_DEBUG (which I guess forces the IOMMU on?
+-- hence the output of "PCI-DMA: More than 4GB of RAM and no IOMMU"?) or
+not. Also note that I only have 2 GB of RAM, so I believe the kernel
+made the right decision in disabling the IOMMU (which is used with more
+than 3 GB of RAM?) Still, if Michael has IOMMU_DEBUG enabled, it might
+change things.
 
-I you can think of a better way to get kernel developers off their butts
-and actually fixing bugs, I'm all ears.
+Thanks,
+Nish

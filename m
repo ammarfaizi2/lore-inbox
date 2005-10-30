@@ -1,49 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbVJ3KXI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbVJ3Koj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751223AbVJ3KXI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 05:23:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbVJ3KXI
+	id S1751265AbVJ3Koj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 05:44:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbVJ3Koi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 05:23:08 -0500
-Received: from reserv6.univ-lille1.fr ([193.49.225.20]:12752 "EHLO
-	reserv6.univ-lille1.fr") by vger.kernel.org with ESMTP
-	id S1751223AbVJ3KXH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 05:23:07 -0500
-Message-ID: <43649ECD.3020700@tremplin-utc.net>
-Date: Sun, 30 Oct 2005 19:22:05 +0900
-From: Eric Piel <eric.piel@tremplin-utc.net>
-User-Agent: Thunderbird 1.4.1 (Windows/20051006)
+	Sun, 30 Oct 2005 05:44:38 -0500
+Received: from cassarossa.samfundet.no ([129.241.93.19]:63135 "EHLO
+	cassarossa.samfundet.no") by vger.kernel.org with ESMTP
+	id S1751265AbVJ3Koi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 05:44:38 -0500
+Date: Sun, 30 Oct 2005 11:45:02 +0100
+From: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
+To: Paul Erkkila <pee@erkkila.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BIND hangs with 2.6.14
+Message-ID: <20051030104502.GA32446@uio.no>
+References: <20051030023557.GA7798@uio.no> <4364337F.4090201@erkkila.org>
 MIME-Version: 1.0
-To: "J.A. Magallon" <jamagallon@able.es>
-CC: Russell King <rmk@arm.linux.org.uk>,
-       Michal Srajer <michal@mat.uni.torun.pl>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] include/linux/etherdevice.h, kernel 2.6.14
-References: <20051029141046.GA17715@ultra60.mat.uni.torun.pl> <20051029141757.GA14039@flint.arm.linux.org.uk> <20051029154027.GC17715@ultra60.mat.uni.torun.pl> <20051029160019.GB14039@flint.arm.linux.org.uk> <95B34D3D-B658-4933-81CF-4DA25BD0F37F@able.es>
-In-Reply-To: <95B34D3D-B658-4933-81CF-4DA25BD0F37F@able.es>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-USTL-MailScanner-Information: Please contact the ISP for more information
-X-USTL-MailScanner: Found to be clean
-X-USTL-MailScanner-From: eric.piel@tremplin-utc.net
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <4364337F.4090201@erkkila.org>
+X-Operating-System: Linux 2.6.14-rc5 on a x86_64
+X-Message-Flag: Outlook? --> http://www.mozilla.org/products/thunderbird/
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J.A. Magallon wrote:
-> 
-> Just for curiosity, could you both benchmark this also:
-> 
-> int is_zero_ether_addr0(const unsigned char *addr)
-> {
->     return !(((unsigned long *)addr)[0] | ((unsigned short*)addr)[2]);
-> }
-> 
+On Sun, Oct 30, 2005 at 02:44:15AM +0000, Paul Erkkila wrote:
+>    You check dmesg for kernel tracebacks in udp6_receive? or somewhere 
+> there about? I've hit a bug there I havn't had a chance to debug yet.
 
-This is probably safer (wrt 64 bits systems):
+No kernel tracebacks, sorry.
 
-int is_zero_ether_addr0(const unsigned char *addr)
-{
-     return !(((u32*)addr)[0] | ((u16*)addr)[2]);
-}
-
-Eric
+/* Steinar */
+-- 
+Homepage: http://www.sesse.net/

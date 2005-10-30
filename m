@@ -1,55 +1,238 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932758AbVJ2X4S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932763AbVJ3ADG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932758AbVJ2X4S (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 19:56:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932759AbVJ2X4S
+	id S932763AbVJ3ADG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 20:03:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932765AbVJ3ADG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 19:56:18 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:20674 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932758AbVJ2X4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 19:56:17 -0400
-Date: Sat, 29 Oct 2005 19:56:13 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-To: Matt Mackall <mpm@selenic.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [ketchup] patch to allow for moving of .gitignore in 2.6.14
-In-Reply-To: <20051029210643.GR4367@waste.org>
-Message-ID: <Pine.LNX.4.58.0510291952350.10073@localhost.localdomain>
-References: <Pine.LNX.4.58.0510170316310.5859@localhost.localdomain>
- <20051017213915.GN26160@waste.org> <Pine.LNX.4.58.0510180211320.13581@localhost.localdomain>
- <20051018063031.GR26160@waste.org> <Pine.LNX.4.58.0510180239550.13581@localhost.localdomain>
- <20051018072927.GU26160@waste.org> <1130504043.9574.56.camel@localhost.localdomain>
- <Pine.LNX.4.58.0510291659140.10073@localhost.localdomain>
- <20051029210643.GR4367@waste.org>
+	Sat, 29 Oct 2005 20:03:06 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:60681 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932763AbVJ3ADD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 20:03:03 -0400
+Date: Sun, 30 Oct 2005 02:03:01 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: matthew@wil.cx, grundler@parisc-linux.org
+Cc: parisc-linux@parisc-linux.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] parisc: "extern inline" -> "static inline"
+Message-ID: <20051030000301.GO4180@stusta.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"extern inline" doesn't make much sense.
 
-On Sat, 29 Oct 2005, Matt Mackall wrote:
 
-> On Sat, Oct 29, 2005 at 05:06:21PM -0400, Steven Rostedt wrote:
-> >
-> > I already posted this patch to Matt and LKML, but I'm posting it again
-> > incase anyone else has this problem using ketchup on 2.6.14 from nothing,
-> > and does a google looking for a fix.
->
-> This needs a more robust fix. Like perhaps passing --strip-components
-> to tar.
->
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-OK, but I was just adding a fix that was closest to what was already
-there.  I can play around with other fixes, and try that out too. The
-change I made was just like the current method, but it allowed for all
-files to be copied instead of just the non-dot ones.
+---
 
-Also, have you looked at the addition to the version_info for alternate
-urls.  I think that this can even be added to do multiple urls, as well
-as testing for different filenames in all urls first. ie. .bz2 or .gz,
-etc.
+ arch/parisc/lib/memcpy.c       |    4 +--
+ include/asm-parisc/bitops.h    |    2 -
+ include/asm-parisc/io.h        |    4 +--
+ include/asm-parisc/pci.h       |    2 -
+ include/asm-parisc/pgtable.h   |   40 ++++++++++++++++-----------------
+ include/asm-parisc/processor.h |    4 +--
+ include/asm-parisc/semaphore.h |   10 ++++----
+ include/asm-parisc/tlbflush.h  |    2 -
+ 8 files changed, 34 insertions(+), 34 deletions(-)
 
--- Steve
+--- linux-2.6.14-rc5-mm1-full/arch/parisc/lib/memcpy.c.old	2005-10-30 01:58:43.000000000 +0200
++++ linux-2.6.14-rc5-mm1-full/arch/parisc/lib/memcpy.c	2005-10-30 01:59:11.000000000 +0200
+@@ -158,12 +158,12 @@
+ #define stw(_s,_t,_o,_a,_e) 	def_store_insn(stw,"r",_s,_t,_o,_a,_e)
+ 
+ #ifdef  CONFIG_PREFETCH
+-extern inline void prefetch_src(const void *addr)
++static inline void prefetch_src(const void *addr)
+ {
+ 	__asm__("ldw 0(" s_space ",%0), %%r0" : : "r" (addr));
+ }
+ 
+-extern inline void prefetch_dst(const void *addr)
++static inline void prefetch_dst(const void *addr)
+ {
+ 	__asm__("ldd 0(" d_space ",%0), %%r0" : : "r" (addr));
+ }
+--- linux-2.6.14-rc5-mm1-full/include/asm-parisc/bitops.h.old	2005-10-30 01:59:21.000000000 +0200
++++ linux-2.6.14-rc5-mm1-full/include/asm-parisc/bitops.h	2005-10-30 01:59:35.000000000 +0200
+@@ -474,7 +474,7 @@
+ #define ext2_find_first_zero_bit(addr, size) \
+         ext2_find_next_zero_bit((addr), (size), 0)
+ 
+-extern __inline__ unsigned long ext2_find_next_zero_bit(void *addr,
++static inline unsigned long ext2_find_next_zero_bit(void *addr,
+ 	unsigned long size, unsigned long offset)
+ {
+ 	unsigned int *p = ((unsigned int *) addr) + (offset >> 5);
+--- linux-2.6.14-rc5-mm1-full/include/asm-parisc/io.h.old	2005-10-30 01:59:44.000000000 +0200
++++ linux-2.6.14-rc5-mm1-full/include/asm-parisc/io.h	2005-10-30 01:59:49.000000000 +0200
+@@ -163,7 +163,7 @@
+ 
+ extern void __iomem * __ioremap(unsigned long offset, unsigned long size, unsigned long flags);
+ 
+-extern inline void __iomem * ioremap(unsigned long offset, unsigned long size)
++static inline void __iomem * ioremap(unsigned long offset, unsigned long size)
+ {
+ 	return __ioremap(offset, size, 0);
+ }
+@@ -173,7 +173,7 @@
+  * it's useful if some control registers are in such an area and write combining
+  * or read caching is not desirable:
+  */
+-extern inline void * ioremap_nocache(unsigned long offset, unsigned long size)
++static inline void * ioremap_nocache(unsigned long offset, unsigned long size)
+ {
+         return __ioremap(offset, size, _PAGE_NO_CACHE /* _PAGE_PCD */);
+ }
+--- linux-2.6.14-rc5-mm1-full/include/asm-parisc/pci.h.old	2005-10-30 01:59:57.000000000 +0200
++++ linux-2.6.14-rc5-mm1-full/include/asm-parisc/pci.h	2005-10-30 02:00:01.000000000 +0200
+@@ -193,7 +193,7 @@
+ extern void pcibios_register_hba(struct pci_hba_data *);
+ extern void pcibios_set_master(struct pci_dev *);
+ #else
+-extern inline void pcibios_register_hba(struct pci_hba_data *x)
++static inline void pcibios_register_hba(struct pci_hba_data *x)
+ {
+ }
+ #endif
+--- linux-2.6.14-rc5-mm1-full/include/asm-parisc/pgtable.h.old	2005-10-30 02:00:14.000000000 +0200
++++ linux-2.6.14-rc5-mm1-full/include/asm-parisc/pgtable.h	2005-10-30 02:00:18.000000000 +0200
+@@ -316,31 +316,31 @@
+  * setup: the pgd is never bad, and a pmd always exists (as it's folded
+  * into the pgd entry)
+  */
+-extern inline int pgd_none(pgd_t pgd)		{ return 0; }
+-extern inline int pgd_bad(pgd_t pgd)		{ return 0; }
+-extern inline int pgd_present(pgd_t pgd)	{ return 1; }
+-extern inline void pgd_clear(pgd_t * pgdp)	{ }
++static inline int pgd_none(pgd_t pgd)		{ return 0; }
++static inline int pgd_bad(pgd_t pgd)		{ return 0; }
++static inline int pgd_present(pgd_t pgd)	{ return 1; }
++static inline void pgd_clear(pgd_t * pgdp)	{ }
+ #endif
+ 
+ /*
+  * The following only work if pte_present() is true.
+  * Undefined behaviour if not..
+  */
+-extern inline int pte_read(pte_t pte)		{ return pte_val(pte) & _PAGE_READ; }
+-extern inline int pte_dirty(pte_t pte)		{ return pte_val(pte) & _PAGE_DIRTY; }
+-extern inline int pte_young(pte_t pte)		{ return pte_val(pte) & _PAGE_ACCESSED; }
+-extern inline int pte_write(pte_t pte)		{ return pte_val(pte) & _PAGE_WRITE; }
+-extern inline int pte_file(pte_t pte)		{ return pte_val(pte) & _PAGE_FILE; }
+-extern inline int pte_user(pte_t pte) 		{ return pte_val(pte) & _PAGE_USER; }
+-
+-extern inline pte_t pte_rdprotect(pte_t pte)	{ pte_val(pte) &= ~_PAGE_READ; return pte; }
+-extern inline pte_t pte_mkclean(pte_t pte)	{ pte_val(pte) &= ~_PAGE_DIRTY; return pte; }
+-extern inline pte_t pte_mkold(pte_t pte)	{ pte_val(pte) &= ~_PAGE_ACCESSED; return pte; }
+-extern inline pte_t pte_wrprotect(pte_t pte)	{ pte_val(pte) &= ~_PAGE_WRITE; return pte; }
+-extern inline pte_t pte_mkread(pte_t pte)	{ pte_val(pte) |= _PAGE_READ; return pte; }
+-extern inline pte_t pte_mkdirty(pte_t pte)	{ pte_val(pte) |= _PAGE_DIRTY; return pte; }
+-extern inline pte_t pte_mkyoung(pte_t pte)	{ pte_val(pte) |= _PAGE_ACCESSED; return pte; }
+-extern inline pte_t pte_mkwrite(pte_t pte)	{ pte_val(pte) |= _PAGE_WRITE; return pte; }
++static inline int pte_read(pte_t pte)		{ return pte_val(pte) & _PAGE_READ; }
++static inline int pte_dirty(pte_t pte)		{ return pte_val(pte) & _PAGE_DIRTY; }
++static inline int pte_young(pte_t pte)		{ return pte_val(pte) & _PAGE_ACCESSED; }
++static inline int pte_write(pte_t pte)		{ return pte_val(pte) & _PAGE_WRITE; }
++static inline int pte_file(pte_t pte)		{ return pte_val(pte) & _PAGE_FILE; }
++static inline int pte_user(pte_t pte) 		{ return pte_val(pte) & _PAGE_USER; }
++
++static inline pte_t pte_rdprotect(pte_t pte)	{ pte_val(pte) &= ~_PAGE_READ; return pte; }
++static inline pte_t pte_mkclean(pte_t pte)	{ pte_val(pte) &= ~_PAGE_DIRTY; return pte; }
++static inline pte_t pte_mkold(pte_t pte)	{ pte_val(pte) &= ~_PAGE_ACCESSED; return pte; }
++static inline pte_t pte_wrprotect(pte_t pte)	{ pte_val(pte) &= ~_PAGE_WRITE; return pte; }
++static inline pte_t pte_mkread(pte_t pte)	{ pte_val(pte) |= _PAGE_READ; return pte; }
++static inline pte_t pte_mkdirty(pte_t pte)	{ pte_val(pte) |= _PAGE_DIRTY; return pte; }
++static inline pte_t pte_mkyoung(pte_t pte)	{ pte_val(pte) |= _PAGE_ACCESSED; return pte; }
++static inline pte_t pte_mkwrite(pte_t pte)	{ pte_val(pte) |= _PAGE_WRITE; return pte; }
+ 
+ /*
+  * Conversion functions: convert a page and protection to a page entry,
+@@ -368,7 +368,7 @@
+ #define mk_pte_phys(physpage, pgprot) \
+ ({ pte_t __pte; pte_val(__pte) = physpage + pgprot_val(pgprot); __pte; })
+ 
+-extern inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
++static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
+ { pte_val(pte) = (pte_val(pte) & _PAGE_CHG_MASK) | pgprot_val(newprot); return pte; }
+ 
+ /* Permanent address of a page.  On parisc we don't have highmem. */
+--- linux-2.6.14-rc5-mm1-full/include/asm-parisc/processor.h.old	2005-10-30 02:00:28.000000000 +0200
++++ linux-2.6.14-rc5-mm1-full/include/asm-parisc/processor.h	2005-10-30 02:00:36.000000000 +0200
+@@ -327,12 +327,12 @@
+ #define ARCH_HAS_PREFETCH
+ #define ARCH_HAS_PREFETCHW
+ 
+-extern inline void prefetch(const void *addr)
++static inline void prefetch(const void *addr)
+ {
+ 	__asm__("ldw 0(%0), %%r0" : : "r" (addr));
+ }
+ 
+-extern inline void prefetchw(const void *addr)
++static inline void prefetchw(const void *addr)
+ {
+ 	__asm__("ldd 0(%0), %%r0" : : "r" (addr));
+ }
+--- linux-2.6.14-rc5-mm1-full/include/asm-parisc/semaphore.h.old	2005-10-30 02:00:45.000000000 +0200
++++ linux-2.6.14-rc5-mm1-full/include/asm-parisc/semaphore.h	2005-10-30 02:00:51.000000000 +0200
+@@ -58,7 +58,7 @@
+ #define DECLARE_MUTEX(name) __DECLARE_SEMAPHORE_GENERIC(name,1)
+ #define DECLARE_MUTEX_LOCKED(name) __DECLARE_SEMAPHORE_GENERIC(name,0)
+ 
+-extern inline void sema_init (struct semaphore *sem, int val)
++static inline void sema_init (struct semaphore *sem, int val)
+ {
+ 	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
+ }
+@@ -86,7 +86,7 @@
+  * interrupts while we're messing with the semaphore.  Sorry.
+  */
+ 
+-extern __inline__ void down(struct semaphore * sem)
++static inline void down(struct semaphore * sem)
+ {
+ 	might_sleep();
+ 	spin_lock_irq(&sem->sentry);
+@@ -98,7 +98,7 @@
+ 	spin_unlock_irq(&sem->sentry);
+ }
+ 
+-extern __inline__ int down_interruptible(struct semaphore * sem)
++static inline int down_interruptible(struct semaphore * sem)
+ {
+ 	int ret = 0;
+ 	might_sleep();
+@@ -116,7 +116,7 @@
+  * down_trylock returns 0 on success, 1 if we failed to get the lock.
+  * May not sleep, but must preserve irq state
+  */
+-extern __inline__ int down_trylock(struct semaphore * sem)
++static inline int down_trylock(struct semaphore * sem)
+ {
+ 	int flags, count;
+ 
+@@ -132,7 +132,7 @@
+  * Note! This is subtle. We jump to wake people up only if
+  * the semaphore was negative (== somebody was waiting on it).
+  */
+-extern __inline__ void up(struct semaphore * sem)
++static inline void up(struct semaphore * sem)
+ {
+ 	int flags;
+ 	spin_lock_irqsave(&sem->sentry, flags);
+--- linux-2.6.14-rc5-mm1-full/include/asm-parisc/tlbflush.h.old	2005-10-30 02:01:00.000000000 +0200
++++ linux-2.6.14-rc5-mm1-full/include/asm-parisc/tlbflush.h	2005-10-30 02:01:06.000000000 +0200
+@@ -42,7 +42,7 @@
+ #endif
+ }
+ 
+-extern __inline__ void flush_tlb_pgtables(struct mm_struct *mm, unsigned long start, unsigned long end)
++static inline void flush_tlb_pgtables(struct mm_struct *mm, unsigned long start, unsigned long end)
+ {
+ }
+  
 

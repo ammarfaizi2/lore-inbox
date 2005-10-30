@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbVJ3OpG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbVJ3OtE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750720AbVJ3OpG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 09:45:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbVJ3OpG
+	id S1750709AbVJ3OtE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 09:49:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbVJ3OtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 09:45:06 -0500
-Received: from psionic.psi5.com ([212.112.229.180]:19098 "EHLO
-	psionic8.psi5.com") by vger.kernel.org with ESMTP id S1750720AbVJ3OpE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 09:45:04 -0500
-Message-ID: <4364DC64.5000103@in.tum.de>
-Date: Sun, 30 Oct 2005 15:44:52 +0100
-From: Simon Richter <Simon.Richter@in.tum.de>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051018)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-Cc: kkeil@suse.de, kai.germaschewski@gmx.de, isdn4linux@listserv.isdn4linux.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/isdn/: "extern inline" -> "static inline"
-References: <20051030004304.GQ4180@stusta.de>
-In-Reply-To: <20051030004304.GQ4180@stusta.de>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig3A5F1E1491C9861615E5F7FE"
+	Sun, 30 Oct 2005 09:49:04 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:33676 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S1750709AbVJ3OtB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 09:49:01 -0500
+Date: Sun, 30 Oct 2005 15:48:57 +0100
+From: bert hubert <bert.hubert@netherlabs.nl>
+To: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BIND hangs with 2.6.14
+Message-ID: <20051030144857.GA23438@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
+	"Steinar H. Gunderson" <sgunderson@bigfoot.com>,
+	linux-kernel@vger.kernel.org
+References: <20051030023557.GA7798@uio.no> <20051030101148.GA18854@outpost.ds9a.nl> <20051030104527.GB32446@uio.no> <20051030110021.GA19680@outpost.ds9a.nl> <20051030113651.GA1780@uio.no> <20051030114537.GA20564@outpost.ds9a.nl> <20051030142223.GA12146@uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051030142223.GA12146@uio.no>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig3A5F1E1491C9861615E5F7FE
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Sun, Oct 30, 2005 at 03:22:23PM +0100, Steinar H. Gunderson wrote:
 
-Hi,
+> I've compiled some extra debugging code (printing the msg_hdr structure if
+> recvmsg() should fail with a hard error) into named, so I'm waiting for the
+> problem to manifest itself again.
 
-Adrian Bunk schrieb:
+Sounds like a wise move, the msg_hdr structure again contains pointers which
+might point to invalid memory.
 
-> "extern inline" doesn't make much sense.
+What you could try to do is master git and get it to output a diff of
+relevant files from your previous version to 2.6.14. Sadly, that might be a
+lot of files.. If you start tracing from udp_recvmsg you quickly end up in a
+heap of files which might be generating EFAULT.
 
-In fact, it does[1], but not in this particular case.
+Good luck!
 
-   Simon
-
-[1] "if this function is not inlined, treat it as extern instead of
-creating a copy in this TU".
-
---------------enig3A5F1E1491C9861615E5F7FE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iQCVAwUBQ2TcZFYr4CN7gCINAQJcKAP+MwZTNGvo0hoMlLFXqrsj7+mtx3K5Ijfq
-pUr0yuNBV4eeihI7IocPJAjO8N4QOgh9/+MRTvbpoU5gkb/T6AZu2dJWByPUz1Zv
-WJ3djCcuv1lPJJVdZMtxXGqWDBTuwPC3j4RgkWvgGBZB2nzLkdHqmwmjMjDcUaVk
-DvwOlIwxxFc=
-=4dqp
------END PGP SIGNATURE-----
-
---------------enig3A5F1E1491C9861615E5F7FE--
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

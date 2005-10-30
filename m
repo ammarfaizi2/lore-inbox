@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbVJ3KQw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbVJ3KXI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751218AbVJ3KQw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 05:16:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbVJ3KQw
+	id S1751223AbVJ3KXI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 05:23:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbVJ3KXI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 05:16:52 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:36365 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751218AbVJ3KQv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 05:16:51 -0500
-Date: Sun, 30 Oct 2005 10:16:46 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pierre Ossman <drzeus@drzeus.cx>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [MMC] Use command class to determine read-only status.
-Message-ID: <20051030101646.GA26501@flint.arm.linux.org.uk>
-Mail-Followup-To: Pierre Ossman <drzeus@drzeus.cx>,
-	linux-kernel@vger.kernel.org
-References: <20051028073605.4108.41408.stgit@poseidon.drzeus.cx> <20051028201455.GI4464@flint.arm.linux.org.uk> <4363FA3E.3000701@drzeus.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4363FA3E.3000701@drzeus.cx>
-User-Agent: Mutt/1.4.1i
+	Sun, 30 Oct 2005 05:23:08 -0500
+Received: from reserv6.univ-lille1.fr ([193.49.225.20]:12752 "EHLO
+	reserv6.univ-lille1.fr") by vger.kernel.org with ESMTP
+	id S1751223AbVJ3KXH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 05:23:07 -0500
+Message-ID: <43649ECD.3020700@tremplin-utc.net>
+Date: Sun, 30 Oct 2005 19:22:05 +0900
+From: Eric Piel <eric.piel@tremplin-utc.net>
+User-Agent: Thunderbird 1.4.1 (Windows/20051006)
+MIME-Version: 1.0
+To: "J.A. Magallon" <jamagallon@able.es>
+CC: Russell King <rmk@arm.linux.org.uk>,
+       Michal Srajer <michal@mat.uni.torun.pl>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] include/linux/etherdevice.h, kernel 2.6.14
+References: <20051029141046.GA17715@ultra60.mat.uni.torun.pl> <20051029141757.GA14039@flint.arm.linux.org.uk> <20051029154027.GC17715@ultra60.mat.uni.torun.pl> <20051029160019.GB14039@flint.arm.linux.org.uk> <95B34D3D-B658-4933-81CF-4DA25BD0F37F@able.es>
+In-Reply-To: <95B34D3D-B658-4933-81CF-4DA25BD0F37F@able.es>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-USTL-MailScanner-Information: Please contact the ISP for more information
+X-USTL-MailScanner: Found to be clean
+X-USTL-MailScanner-From: eric.piel@tremplin-utc.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 30, 2005 at 12:39:58AM +0200, Pierre Ossman wrote:
-> Russell King wrote:
-> >On Fri, Oct 28, 2005 at 09:36:05AM +0200, Pierre Ossman wrote:
-> >>If a card doesn't support the "write block" command class then
-> >>any attempts to open the device should reflect this by denying
-> >>write access.
-> >
-> >I'd rather we kept printk messages as one printk if at all possible.
-> >How about encapsulating both of these conditions into an inline
-> >function:
-> >
+J.A. Magallon wrote:
 > 
-> Ok with me. New patch included.
+> Just for curiosity, could you both benchmark this also:
+> 
+> int is_zero_ether_addr0(const unsigned char *addr)
+> {
+>     return !(((unsigned long *)addr)[0] | ((unsigned short*)addr)[2]);
+> }
+> 
 
-Applied, thanks.
+This is probably safer (wrt 64 bits systems):
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+int is_zero_ether_addr0(const unsigned char *addr)
+{
+     return !(((u32*)addr)[0] | ((u16*)addr)[2]);
+}
+
+Eric

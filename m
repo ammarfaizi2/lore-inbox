@@ -1,131 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932648AbVJ3Apb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbVJ3AsQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932648AbVJ3Apb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 20:45:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932697AbVJ3Apb
+	id S932199AbVJ3AsQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 20:48:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932680AbVJ3AsP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 20:45:31 -0400
-Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:9358 "HELO
-	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932607AbVJ3Ap3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 20:45:29 -0400
+	Sat, 29 Oct 2005 20:48:15 -0400
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:49040 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932607AbVJ3AsP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 20:48:15 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com.au;
   h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:Subject:References:In-Reply-To:Content-Type;
-  b=aMzqVEE7D8NU+9bpLau1jIfK/fsCX19zJ4l4DNHbJ04IlOk61aVTwf70hC46rz48k8GxQUDrLF2KlUT2y1qLlfBy+OD+i/9NgAwDufjtRBxKZIbGESnubaCQV7UWfAAc7jP3ZC0f62ZppMOfbV50iyGjq1ELWvkbUNqT+rf8B/8=  ;
-Message-ID: <43641808.5000705@yahoo.com.au>
-Date: Sun, 30 Oct 2005 11:47:04 +1100
+  b=c6PcttihawROTh6UQ7cU/VqhE2H88DOFkNx/81maQwgu0JPk8H7uFYCvmtc7J89ew1bciKczDx5lxwEg1s9HJJR8jttbMu1Lq5aoTyMNq6ER1YY0APK3294DG5HRxUC9unnY0IB4fPnTKM0Q6gT6AI9YVclYnxrH/DYi/RnQU6A=  ;
+Message-ID: <436418A8.9000505@yahoo.com.au>
+Date: Sun, 30 Oct 2005 11:49:44 +1100
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
 X-Accept-Language: en
 MIME-Version: 1.0
 To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [patch 5/5] atomic: dec_and_lock use atomic primitives
-References: <436416AD.3050709@yahoo.com.au> <4364171C.7020103@yahoo.com.au> <43641755.5010004@yahoo.com.au> <4364178E.8040502@yahoo.com.au> <436417C2.3050703@yahoo.com.au>
-In-Reply-To: <436417C2.3050703@yahoo.com.au>
+Subject: [patch 2/5] radix tree: use prealloc
+References: <436416AD.3050709@yahoo.com.au> <4364186F.60206@yahoo.com.au>
+In-Reply-To: <4364186F.60206@yahoo.com.au>
 Content-Type: multipart/mixed;
- boundary="------------010502050602010205070501"
+ boundary="------------030504090708030507000603"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------010502050602010205070501
+--------------030504090708030507000603
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-5/5
+2/5
 
 -- 
 SUSE Labs, Novell Inc.
 
 
---------------010502050602010205070501
+--------------030504090708030507000603
 Content-Type: text/plain;
- name="atomic-dec_and_lock-use-atomic-primitives.patch"
+ name="radix-tree-use-prealloc.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="atomic-dec_and_lock-use-atomic-primitives.patch"
+ filename="radix-tree-use-prealloc.patch"
 
-Index: linux-2.6/lib/dec_and_lock.c
+Prefer radix_tree_preloads to kmem_cache_alloc. If we've allocated them,
+why not use them? They're also faster because they needn't turn off
+interrupts, so using them in radix tree critical sections is a good idea.
+
+Signed-off-by: Nick Piggin <npiggin@suse.de>
+
+Index: linux-2.6/lib/radix-tree.c
 ===================================================================
---- linux-2.6.orig/lib/dec_and_lock.c
-+++ linux-2.6/lib/dec_and_lock.c
-@@ -1,47 +1,11 @@
- #include <linux/module.h>
- #include <linux/spinlock.h>
- #include <asm/atomic.h>
--#include <asm/system.h>
- 
--#ifdef __HAVE_ARCH_CMPXCHG
- /*
-  * This is an implementation of the notion of "decrement a
-  * reference count, and return locked if it decremented to zero".
-  *
-- * This implementation can be used on any architecture that
-- * has a cmpxchg, and where atomic->value is an int holding
-- * the value of the atomic (i.e. the high bits aren't used
-- * for a lock or anything like that).
-- */
--int _atomic_dec_and_lock(atomic_t *atomic, spinlock_t *lock)
--{
--	int counter;
--	int newcount;
--
--	for (;;) {
--		counter = atomic_read(atomic);
--		newcount = counter - 1;
--		if (!newcount)
--			break;		/* do it the slow way */
--
--		newcount = cmpxchg(&atomic->counter, counter, newcount);
--		if (newcount == counter)
--			return 0;
--	}
--
--	spin_lock(lock);
--	if (atomic_dec_and_test(atomic))
--		return 1;
--	spin_unlock(lock);
--	return 0;
--}
--#else
--/*
-- * This is an architecture-neutral, but slow,
-- * implementation of the notion of "decrement
-- * a reference count, and return locked if it
-- * decremented to zero".
-- *
-  * NOTE NOTE NOTE! This is _not_ equivalent to
-  *
-  *	if (atomic_dec_and_test(&atomic)) {
-@@ -52,21 +16,20 @@ int _atomic_dec_and_lock(atomic_t *atomi
-  *
-  * because the spin-lock and the decrement must be
-  * "atomic".
-- *
-- * This slow version gets the spinlock unconditionally,
-- * and releases it if it isn't needed. Architectures
-- * are encouraged to come up with better approaches,
-- * this is trivially done efficiently using a load-locked
-- * store-conditional approach, for example.
-  */
- int _atomic_dec_and_lock(atomic_t *atomic, spinlock_t *lock)
+--- linux-2.6.orig/lib/radix-tree.c
++++ linux-2.6/lib/radix-tree.c
+@@ -82,20 +82,18 @@ DEFINE_PER_CPU(struct radix_tree_preload
+ static struct radix_tree_node *
+ radix_tree_node_alloc(struct radix_tree_root *root)
  {
-+#ifdef CONFIG_SMP
-+	/* Subtract 1 from counter unless that drops it to 0 (ie. it was 1) */
-+	if (atomic_add_unless(atomic, -1, 1))
-+		return 0;
-+#endif
-+	/* Otherwise do it the slow way */
- 	spin_lock(lock);
- 	if (atomic_dec_and_test(atomic))
- 		return 1;
- 	spin_unlock(lock);
- 	return 0;
- }
--#endif
+-	struct radix_tree_node *ret;
+-
+-	ret = kmem_cache_alloc(radix_tree_node_cachep, root->gfp_mask);
+-	if (ret == NULL && !(root->gfp_mask & __GFP_WAIT)) {
+-		struct radix_tree_preload *rtp;
++	struct radix_tree_preload *rtp;
  
- EXPORT_SYMBOL(_atomic_dec_and_lock);
+-		rtp = &__get_cpu_var(radix_tree_preloads);
+-		if (rtp->nr) {
+-			ret = rtp->nodes[rtp->nr - 1];
+-			rtp->nodes[rtp->nr - 1] = NULL;
+-			rtp->nr--;
+-		}
++	rtp = &__get_cpu_var(radix_tree_preloads);
++	if (rtp->nr) {
++		struct radix_tree_node *ret;
++		ret = rtp->nodes[rtp->nr - 1];
++		rtp->nodes[rtp->nr - 1] = NULL;
++		rtp->nr--;
++		return ret;
+ 	}
+-	return ret;
++
++	return kmem_cache_alloc(radix_tree_node_cachep, root->gfp_mask);
+ }
+ 
+ static inline void
 
---------------010502050602010205070501--
+--------------030504090708030507000603--
 Send instant messages to your online friends http://au.messenger.yahoo.com 

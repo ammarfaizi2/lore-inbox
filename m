@@ -1,70 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbVJ3SfE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbVJ3SiY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932209AbVJ3SfE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 13:35:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbVJ3Sen
+	id S932206AbVJ3SiY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 13:38:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbVJ3SiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 13:34:43 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:46763 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S932209AbVJ3SeV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 13:34:21 -0500
-From: Mel Gorman <mel@csn.ul.ie>
-To: akpm@osdl.org
-Cc: linux-mm@kvack.org, lhms-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, Mel Gorman <mel@csn.ul.ie>
-Message-Id: <20051030183419.22266.99114.sendpatchset@skynet.csn.ul.ie>
-In-Reply-To: <20051030183354.22266.42795.sendpatchset@skynet.csn.ul.ie>
-References: <20051030183354.22266.42795.sendpatchset@skynet.csn.ul.ie>
-Subject: [PATCH 5/7] Fragmentation Avoidance V19: 005_largealloc_tryharder
-Date: Sun, 30 Oct 2005 18:34:20 +0000 (GMT)
+	Sun, 30 Oct 2005 13:38:24 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:3600 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932206AbVJ3SiW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 13:38:22 -0500
+Date: Sun, 30 Oct 2005 19:38:21 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Message-ID: <20051030183821.GI4180@stusta.de>
+References: <20051030105118.GW4180@stusta.de> <p73mzkqubf4.fsf@verdi.suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73mzkqubf4.fsf@verdi.suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fragmentation avoidance patches increase our chances of satisfying high
-order allocations.  So this patch takes more than one iteration at trying
-to fulfill those allocations because, unlike before, the extra iterations
-are often useful.
+On Sun, Oct 30, 2005 at 07:06:39PM +0100, Andi Kleen wrote:
+> Adrian Bunk <bunk@stusta.de> writes:
+> 
+> > This patch schedules obsolete OSS drivers (with ALSA drivers that support the
+> > same hardware) for removal.
+> > 
+> > Scheduling the via82cxxx driver for removal was ACK'ed by Jeff Garzik.
+> 
+> I would prefer if the ICH driver be kept. It works just fine on near
+> all my systems and has a much smaller binary size than the ALSA
+> variant. Moving to ALSA would bloat the kernels considerably.
 
-Signed-off-by: Mel Gorman <mel@csn.ul.ie>
-Signed-off-by: Mike Kravetz <kravetz@us.ibm.com>
-Signed-off-by: Joel Schopp <jschopp@austin.ibm.com>
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.14-rc5-mm1-004_fallback/mm/page_alloc.c linux-2.6.14-rc5-mm1-005_largealloc_tryharder/mm/page_alloc.c
---- linux-2.6.14-rc5-mm1-004_fallback/mm/page_alloc.c	2005-10-30 13:36:56.000000000 +0000
-+++ linux-2.6.14-rc5-mm1-005_largealloc_tryharder/mm/page_alloc.c	2005-10-30 13:37:34.000000000 +0000
-@@ -1127,6 +1127,7 @@ __alloc_pages(gfp_t gfp_mask, unsigned i
- 	int do_retry;
- 	int can_try_harder;
- 	int did_some_progress;
-+	int highorder_retry = 3;
- 
- 	might_sleep_if(wait);
- 
-@@ -1275,7 +1276,17 @@ rebalance:
- 				goto got_pg;
- 		}
- 
--		out_of_memory(gfp_mask, order);
-+		if (order < MAX_ORDER / 2)
-+			out_of_memory(gfp_mask, order);
-+
-+		/*
-+		 * Due to low fragmentation efforts, we try a little
-+		 * harder to satisfy high order allocations and only
-+		 * go OOM for low-order allocations
-+		 */
-+		if (order >= MAX_ORDER/2 && --highorder_retry > 0)
-+				goto rebalance;
-+
- 		goto restart;
- 	}
- 
-@@ -1292,6 +1303,8 @@ rebalance:
- 			do_retry = 1;
- 		if (gfp_mask & __GFP_NOFAIL)
- 			do_retry = 1;
-+		if (order >= MAX_ORDER/2 && --highorder_retry > 0)
-+			do_retry = 1;
- 	}
- 	if (do_retry) {
- 		blk_congestion_wait(WRITE, HZ/50);
+???
+
+$ ls -la sound/oss/i810_audio.o sound/pci/intel8x0.o
+-rw-rw-r--  1 bunk bunk 38056 2005-10-30 13:43 sound/oss/i810_audio.o
+-rw-rw-r--  1 bunk bunk 34344 2005-10-30 13:44 sound/pci/intel8x0.o
+$ 
+
+The general decision for the OSS -> ALSA move was long ago.
+
+If you have a real issue with the ALSA driver please submit a proper 
+bug report to the ALSA bug tracking system and tell me the bug number.
+
+> -Andi
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,59 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbVJ3VnU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932354AbVJ3VrI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932353AbVJ3VnU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 16:43:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932354AbVJ3VnT
+	id S932354AbVJ3VrI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 16:47:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbVJ3VrI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 16:43:19 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54283 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932353AbVJ3VnT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 16:43:19 -0500
-Date: Sun, 30 Oct 2005 21:43:09 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ak@suse.de, torvalds@osdl.org, tony.luck@gmail.com,
-       paolo.ciarrocchi@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: New (now current development process)
-Message-ID: <20051030214309.GE2846@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, ak@suse.de,
-	torvalds@osdl.org, tony.luck@gmail.com, paolo.ciarrocchi@gmail.com,
-	linux-kernel@vger.kernel.org
-References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com> <12c511ca0510291157u5557b6b1x85a47311f0e16436@mail.gmail.com> <20051029195115.GD14039@flint.arm.linux.org.uk> <Pine.LNX.4.64.0510291314100.3348@g5.osdl.org> <p73r7a4t0s7.fsf@verdi.suse.de> <20051029223723.GJ14039@flint.arm.linux.org.uk> <20051030111241.74c5b1a6.akpm@osdl.org>
+	Sun, 30 Oct 2005 16:47:08 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:53407 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S932354AbVJ3VrH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 16:47:07 -0500
+Subject: Re: 2.6.14 assorted warnings
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dave Jones <davej@redhat.com>
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051028073049.GA27389@redhat.com>
+References: <5455.1130484079@kao2.melbourne.sgi.com>
+	 <20051028073049.GA27389@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sun, 30 Oct 2005 22:15:31 +0000
+Message-Id: <1130710531.32734.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051030111241.74c5b1a6.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 30, 2005 at 11:12:41AM -0800, Andrew Morton wrote:
-> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> >
-> > On Sun, Oct 30, 2005 at 12:29:28AM +0200, Andi Kleen wrote:
-> > > Linus Torvalds <torvalds@osdl.org> writes:
-> > > > I don't think anybody has been really unhappy with this approach? Hmm?
-> > > 
-> > > The long freeze periods were nothing much happens are painful. It
-> > > would be better to have some more overlap of merging and stabilizing
-> > > (stable does that already kind of, but not enough)
-> > 
-> > Violently agree.  I find the long freeze periods painful and very very
-> > very boring, to the point of looking for other stuff to do (such as
-> > cleaning up bits of the kernel and queuing mega-patches for the next
-> > round of merging.)
+On Gwe, 2005-10-28 at 03:30 -0400, Dave Jones wrote:
+> gcc is dumb, it doesn't realise that the variable will be filled by another
+> function if its passed thus..
 > 
-> The freezes are for fixing bugs, especially recent regressions.
+> 	unsigned long foo
+> 	bar(&foo)
+> 	if (foo==1)
+> 		...
+> 
+> With bar() filling in content of foo.
+> I believe there's at least once instance of this in gcc bugzilla.
 
-Given my stated low activity during the -rc periods, well, you draw
-your conclusion from that.
+gcc is a *LOT* smarter than you give it credit for. It will not warn for
+cases where it isn't able to tell how foo is used passed with &foo. It
+will warn for cases where it can
 
-> There's no shortage of them, you know.
+Compile the following program with and without -O2 and you'll see just
+how smart gcc actually is
 
-Please let me know when there's something in my area regresses.
+#include <stdio.h>
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+static void bar(char *x) {
+  *x = 1;
+}
+
+static void baz(char *x) {
+  printf("Wombat\n");
+}
+
+int main(int argc, char *argv[]) {
+  char x,y;
+  bar(&x);
+  baz(&y);
+
+  printf("%c,%c\n", x, y);
+}
+
+So I'd go look deeper for real bugs 
+
+Alan
+
+

@@ -1,72 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbVJ3Wpj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932379AbVJ3WxP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932373AbVJ3Wpj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 17:45:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbVJ3Wpj
+	id S932379AbVJ3WxP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 17:53:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932380AbVJ3WxP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 17:45:39 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:35598 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932373AbVJ3Wpj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 17:45:39 -0500
-Date: Sun, 30 Oct 2005 22:45:25 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
+	Sun, 30 Oct 2005 17:53:15 -0500
+Received: from mtiwmhc13.worldnet.att.net ([204.127.131.117]:52438 "EHLO
+	mtiwmhc13.worldnet.att.net") by vger.kernel.org with ESMTP
+	id S932379AbVJ3WxO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 17:53:14 -0500
+From: larry.finger@att.net (Larry.Finger@lwfinger.net)
 To: Andrew Morton <akpm@osdl.org>
-Cc: ak@suse.de, torvalds@osdl.org, tony.luck@gmail.com,
-       paolo.ciarrocchi@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: New (now current development process)
-Message-ID: <20051030224524.GG2846@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, ak@suse.de,
-	torvalds@osdl.org, tony.luck@gmail.com, paolo.ciarrocchi@gmail.com,
-	linux-kernel@vger.kernel.org
-References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com> <12c511ca0510291157u5557b6b1x85a47311f0e16436@mail.gmail.com> <20051029195115.GD14039@flint.arm.linux.org.uk> <Pine.LNX.4.64.0510291314100.3348@g5.osdl.org> <p73r7a4t0s7.fsf@verdi.suse.de> <20051029223723.GJ14039@flint.arm.linux.org.uk> <20051030111241.74c5b1a6.akpm@osdl.org> <20051030214309.GE2846@flint.arm.linux.org.uk> <20051030143103.17f2835c.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051030143103.17f2835c.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Broken "make install" in 2.6.14-git1
+Date: Sun, 30 Oct 2005 22:53:13 +0000
+Message-Id: <103020052253.1700.43654ED8000ED00F000006A421603759649D0A09020700D2979D9D0E04@att.net>
+X-Mailer: AT&T Message Center Version 1 (Feb 14 2005)
+X-Authenticated-Sender: bGFycnkuZmluZ2VyQGF0dC5uZXQ=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 30, 2005 at 02:31:03PM -0800, Andrew Morton wrote:
-> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+
+ -------------- Original message ----------------------
+From: Andrew Morton <akpm@osdl.org>
+> larry.finger@att.net (Larry.Finger@lwfinger.net) wrote:
 > >
-> > On Sun, Oct 30, 2005 at 11:12:41AM -0800, Andrew Morton wrote:
-> > > Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> >  -------------- Original message ----------------------
+> > From: Andrew Morton <akpm@osdl.org>
+> > > larry.finger@att.net (Larry.Finger@lwfinger.net) wrote:
 > > > >
-> > > > On Sun, Oct 30, 2005 at 12:29:28AM +0200, Andi Kleen wrote:
-> > > > > Linus Torvalds <torvalds@osdl.org> writes:
-> > > > > > I don't think anybody has been really unhappy with this approach? Hmm?
-> > > > > 
-> > > > > The long freeze periods were nothing much happens are painful. It
-> > > > > would be better to have some more overlap of merging and stabilizing
-> > > > > (stable does that already kind of, but not enough)
-> > > > 
-> > > > Violently agree.  I find the long freeze periods painful and very very
-> > > > very boring, to the point of looking for other stuff to do (such as
-> > > > cleaning up bits of the kernel and queuing mega-patches for the next
-> > > > round of merging.)
+> > > > The changes introduced the commit 596c96ba05e5d56e72451e02f93f4e15e17458df 
+> > > break the initrd building step of the "make install" process. The console 
+> output 
+> > > is as follows:
 > > > 
-> > > The freezes are for fixing bugs, especially recent regressions.
+> > > I'm unable to locate that commit, perhaps due to a local lack of gittiness.
+> > > 
+> > > Can you describe the patch less cryptically?
+> > > 
 > > 
-> > Given my stated low activity during the -rc periods, well, you draw
-> > your conclusion from that.
+> > I'm not very good with git. All that bisect visualize shows for the patch is 
+> the following:
 > > 
-> > > There's no shortage of them, you know.
+> > Author: Linus Torvalds <torvalds@g5.osdl.org>  2005-10-29 16:02:16
+> > Committer: Linus Torvalds <torvalds@g5.osdl.org>  2005-10-29 16:02:16
+> > Parent: e9d52234e35b27ea4ea5f2ab64ca47b1a0c740ab (Merge branch 'upstream' of 
+> git://ftp.linux-mips.org/pub/scm/upstream-linus)
 > > 
-> > Please let me know when there's something in my area regresses.
+> > Obviously, it consists of a number of patches, but I don't know how to 
+> elaborate. Is there some git command to get the full description?
+> 
+> Yes, that's a sort of empty marker which indicates the point at which Linus
+> merged the MIPS git tree.  It's rather bad of git-bisect if it told you
+> that this was offending patch.
+> 
+> > > > >sudo make install
+> > > >   CHK     include/linux/version.h
+> > > >   CHK     include/linux/compile.h
+> > > >   SKIPPED include/linux/compile.h
+> > > >   CHK     usr/initramfs_list
+> > > > Kernel: arch/i386/boot/bzImage is ready  (#97)
+> > > > sh /home/finger/kernel/linux/arch/i386/boot/install.sh 2.6.14-g596c96ba 
+> > > arch/i386/boot/bzImage System.map "/boot"
+> > > > Root device:    /dev/hda6 (mounted on / as reiserfs)
+> > > > Module list:    via82cxxx processor thermal fan reiserfs
+> > > > 
+> > > > Kernel image:   /boot/vmlinuz-2.6.14-g596c96ba
+> > > > Initrd image:   /boot/initrd-2.6.14-g596c96ba
+> > > > Shared libs:    lib/ld-2.3.5.so lib/libblkid.so.1.0 lib/libc-2.3.5.so 
+> > > lib/libselinux.so.1 lib/libuuid.so.1.2
+> > > > Driver modules: via82cxxx processor thermal fan reiserfs
+> > > > Filesystem modules:
+> > > > Including:      klibc initramfs udev fsck.reiserfs
+> > > > Bootsplash:     SuSE (1024x768)
+> > > > 8358 blocks
+> > > > no record for '/block/hdc/uevent' in database
+> > > > Use of uninitialized value in scalar chomp at 
+> > > > /usr/lib/perl5/vendor_perl/5.8.7/Bootloader/Tools.pm line 139.
+> > > > Use of uninitialized value in concatenation (.) or string at 
+> > > /usr/lib/perl5/vendor_perl/5.8.7/Bootloader/Tools.pm line 140.
+> > > > ......
+> > > > 
+> > > > I used git bisect to localize the bad commit. I also observed that if the 
+> > > kernel created /sys/block/hdc/uevent, it failed. If this "file" does not 
+> exist, 
+> > > the install worked.
+> > > 
+> > > What does "it failed" mean?   Is this the same bug, or a different one?
+> > 
+> > Same bug. _make install_ fails if the uevent files are present. Sorry for the 
+> imprecision.
 > > 
 > 
-> a) you're sitting around feeling very very very bored while
-> 
-> b) the kernel is in long freeze due to the lack of kernel developer
->    attention to known bugs
-> 
-> The solution seems fairly obvious to me?
+> I don't know what'a happening here.  What program is saying "no record for
+> '/block/hdc/uevent' in database"?
 
-That's fine if you have the hardware to be able to debug these issues.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+It is coming from somewhere a SuSE script named /sbin/mk_initrd. I have not yet localized where the problem is in the script.

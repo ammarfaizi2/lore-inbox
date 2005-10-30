@@ -1,73 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932815AbVJ3E0L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932825AbVJ3E16@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932815AbVJ3E0L (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 00:26:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932825AbVJ3E0L
+	id S932825AbVJ3E16 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 00:27:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932828AbVJ3E16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 00:26:11 -0400
-Received: from pippin.dreamhost.com ([66.33.211.27]:1195 "EHLO
-	pippin.dreamhost.com") by vger.kernel.org with ESMTP
-	id S932815AbVJ3E0K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 00:26:10 -0400
-Message-ID: <43644B56.5070100@jstenback.com>
-Date: Sat, 29 Oct 2005 21:25:58 -0700
-From: Johnny Stenback <jst@jstenback.com>
-User-Agent: Mail/News 1.6a1 (X11/20051025)
+	Sun, 30 Oct 2005 00:27:58 -0400
+Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:47255 "HELO
+	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932825AbVJ3E15 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 00:27:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=Hr/dJEtXP9/D6Z8AKGMMVLzkw7OXZYolyA6YOnpDTC0beItbHHPGx/qhSRmNG2QbxTe2Lk5pC39QkRQiB8QtJhgiKPiVTiAF0GzMWHwV2xABXHpV05mO9WjFsekvcmHfuhgc09qmo6GyeTyy0uzy3cnHI4NcVu91CUKJTLHH+Ro=  ;
+Message-ID: <43644C22.8050501@yahoo.com.au>
+Date: Sun, 30 Oct 2005 15:29:22 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Alexander Nyberg <alexn@telia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: gcc coredump with 2.6.12+ kernels
-References: <4319DC91.4020406@jstenback.com> <20050903174030.GA5406@localhost.localdomain>
-In-Reply-To: <20050903174030.GA5406@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Hugh Dickins <hugh@veritas.com>
+CC: Robin Holt <holt@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: munmap extremely slow even with untouched mapping.
+References: <20051028013738.GA19727@attica.americas.sgi.com> <43620138.6060707@yahoo.com.au> <Pine.LNX.4.61.0510281557440.3229@goblin.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.61.0510281557440.3229@goblin.wat.veritas.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FWIW, this issue was resolved in 2.6.14. I don't know off hand which 
-patch did it, but I don't see this problem now after upgrading to 2.6.14.
+Hugh Dickins wrote:
 
-Thanks to whoever figured this out :)
+> Yes, it's a good observation from Robin.
+> 
+> It'll have been spoiling the exit speedup we expected from your
+> 2.6.14 copy_page_range "Don't copy [faultable] ptes" fork speedup.
+> 
 
-Alexander Nyberg wrote:
-> On Sat, Sep 03, 2005 at 10:25:37AM -0700 Johnny Stenback wrote:
+Yep. Not to mention it is probably responsible for some of the
+4 level page table performance slowdowns on x86-64.
+
 > 
->> Hey all,
->>
->> I just attempted to upgrade my kernel to 2.6.13. The kernel appears to 
->> boot and run just fine, but when I try to build any larger projects like 
->> Mozilla or the Linux kernel I constantly get segfaults from gcc. All 
->> other apps *seem* to work fine. I remember seeing this with 2.6.12 too 
->> when I tried to upgrade to it too but I didn't have the time to 
->> investigate at all then, but now I see the same problem with 2.6.13. The 
->> last version I've used that didn't show this problem is 2.6.11.3, and 
->> that's running with no problems here.
->>
->> When gcc segfaults I get the following messages in the messages log:
->>
->> cc1[16775]: segfault at 0000000000000000 rip 00000036f2b0119e rsp 
->> 00007fffffaaf0a0 error 4
->> cc1[17086]: segfault at 0000000000000000 rip 00000036f2b0119e rsp 
->> 00007fffffc4dfc0 error 4
->> cc1[17788]: segfault at 0000000000000000 rip 00000036f2b0119e rsp 
->> 00007fffffd777e0 error 4
->> cc1[17823]: segfault at 0000000000000000 rip 00000036f2b0119e rsp 
->> 00007fffffc4d630 error 4
->> cc1[17895]: segfault at 0000000000000000 rip 00000036f2b0119e rsp 
->> 00007ffffffd2330 error 4
->>
->> I'm on a dual AMD Opteron system, running x86_64 code. Using Fedora Core 
->> 2 (yeah, old, I know...) and gcc 3.3.3 20040412.
 > 
-> Does it still happen if you run:
+> I prefer your patch too.  But I'm not very interested in temporary
+> speedups relative to 2.6.14.  Attacking this is a job I'd put off
+> until after the page fault scalability changes, which make it much
+> easier to do a proper job.
 > 
-> echo 0 > /proc/sys/kernel/randomize_va_space
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+
+Yeah definitely.
+
+I wonder if we should go with Robin's fix (+/- my variation)
+as a temporary measure for 2.6.15?
 
 -- 
-jst
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbVJ3TEp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbVJ3TFm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932219AbVJ3TEp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 14:04:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbVJ3TEp
+	id S932220AbVJ3TFm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 14:05:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbVJ3TFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 14:04:45 -0500
-Received: from moutng.kundenserver.de ([212.227.126.186]:28634 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932219AbVJ3TEp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 14:04:45 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: madhu.subbaiah@wipro.com
-Subject: Re: select() for delay.
-Date: Sun, 30 Oct 2005 20:06:15 +0100
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <EE111F112BBFF24FB11DB557FA2E5BF301992F02@BLR-EC-MBX02.wipro.com>
-In-Reply-To: <EE111F112BBFF24FB11DB557FA2E5BF301992F02@BLR-EC-MBX02.wipro.com>
+	Sun, 30 Oct 2005 14:05:42 -0500
+Received: from cassarossa.samfundet.no ([129.241.93.19]:22686 "EHLO
+	cassarossa.samfundet.no") by vger.kernel.org with ESMTP
+	id S932220AbVJ3TFl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 14:05:41 -0500
+Date: Sun, 30 Oct 2005 20:05:38 +0100
+From: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
+To: ray@madrabbit.org
+Cc: linux-kernel@vger.kernel.org, ray-lk@madrabbit.org
+Subject: Re: BIND hangs with 2.6.14
+Message-ID: <20051030190538.GA25940@uio.no>
+References: <20051030023557.GA7798@uio.no> <2c0942db0510301054j64e650efqe416e14fc1e3bff2@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Message-Id: <200510302006.15892.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+In-Reply-To: <2c0942db0510301054j64e650efqe416e14fc1e3bff2@mail.gmail.com>
+X-Operating-System: Linux 2.6.14-rc5 on a x86_64
+X-Message-Flag: Outlook? --> http://www.mozilla.org/products/thunderbird/
+User-Agent: Mutt/1.5.11
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: Status=No hits=-2.8 required=5.0 tests=ALL_TRUSTED version=3.0.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maandag 24 Oktober 2005 12:55, madhu.subbaiah@wipro.com wrote:
- 
-> This is regarding select() system call.
-> 
-> Linux select() man page mentions " Some  code  calls  select with all
-> three sets empty, n zero, and a non-null timeout as a fairly portable
-> way to sleep  with  subsecond  precision".
+On Sun, Oct 30, 2005 at 11:54:37AM -0700, Ray Lee wrote:
+> It seems a not unreasonable assumption that 2.6.13 works okay, or
+> there would have been reports of unhappiness (though that is a pure
+> assumption). Since it only takes a few hours to get the problem to
+> occur, is it feasible to try to bisect the problem space by testing
+> some snapshots between 2.6.13 and 2.6.14?
 
-When you make a change to a system call, you should always check
-if the change makes sense for the 32 bit emulation path as well.
+Unfortunately, the machine does quite a bit of other work apart from BIND, so
+unless somebody can reproduce this on another machine, it will be a bit
+difficult.
 
-In this case, you should definitely do the same thing to both
-sys_select and compat_sys_select if this is found worthwhile.
- 
-> This patch improves the sys_select() execution when used for delay. 
+I have a run going in valgrind now to see if it can find anything bad about
+the pointers in the msg_hdr structure (the structure itself appears to be OK,
+judging from my printf-debugging); it's been going for a few hours, so I hope
+it will be entering its zombie mode now soon :-)
 
-Please describe what aspect of the syscall is improved. Is this only
-speeding up the execution for the delay case while slowing down
-the normal case, or do the actual semantics improve?
-
-	Arnd <><
+/* Steinar */
+-- 
+Homepage: http://www.sesse.net/

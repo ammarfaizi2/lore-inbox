@@ -1,57 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932811AbVJ3Dvs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932810AbVJ3DsP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932811AbVJ3Dvs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 23:51:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932813AbVJ3Dvr
+	id S932810AbVJ3DsP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 23:48:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932811AbVJ3DsP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 23:51:47 -0400
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:31068 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932811AbVJ3Dvr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 23:51:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=bORpModnqFtjlv5hCp1ugQ9YtN1BK7SAwCHGVVeIg2PyyhVbxi2Wp0HvODHjaSlE5/kMSM8OqT99qjjxngmm6IdxZdbX5kyWPt+mtMdQWbZxNNHWVSvWZjiQRqzqAKnopk3IIauiyP74h9n+qJhopegDwR/kNDD/ZbGlDspJyOU=  ;
-Message-ID: <436443A0.1000508@yahoo.com.au>
-Date: Sun, 30 Oct 2005 14:53:04 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Sat, 29 Oct 2005 23:48:15 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:54979 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932810AbVJ3DsP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 23:48:15 -0400
+Date: Sat, 29 Oct 2005 23:48:07 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+To: David Weinehall <tao@acc.umu.se>
+cc: linux-kernel@vger.kernel.org, Matt Mackall <mpm@selenic.com>
+Subject: Re: [ketchup] patch to allow for moving of .gitignore in 2.6.14
+In-Reply-To: <20051030011959.GA17750@vasa.acc.umu.se>
+Message-ID: <Pine.LNX.4.58.0510292343280.10073@localhost.localdomain>
+References: <Pine.LNX.4.58.0510170316310.5859@localhost.localdomain>
+ <20051017213915.GN26160@waste.org> <Pine.LNX.4.58.0510180211320.13581@localhost.localdomain>
+ <20051018063031.GR26160@waste.org> <Pine.LNX.4.58.0510180239550.13581@localhost.localdomain>
+ <20051018072927.GU26160@waste.org> <1130504043.9574.56.camel@localhost.localdomain>
+ <Pine.LNX.4.58.0510291659140.10073@localhost.localdomain>
+ <20051030011959.GA17750@vasa.acc.umu.se>
 MIME-Version: 1.0
-To: Paul Jackson <pj@sgi.com>
-CC: rohit.seth@intel.com, akpm@osdl.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: Clean up of __alloc_pages
-References: <20051028183326.A28611@unix-os.sc.intel.com>	<20051029184728.100e3058.pj@sgi.com>	<4364296E.1080905@yahoo.com.au>	<20051029191946.1832adaf.pj@sgi.com>	<436430BA.4010606@yahoo.com.au> <20051029200634.778a57d6.pj@sgi.com>
-In-Reply-To: <20051029200634.778a57d6.pj@sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson wrote:
-> Nick, replying to pj:
-> 
 
->>Hmm, where is the other callsite? 
-> 
-> 
-> The other callsite is mm/swap_prefetch.c:prefetch_get_page(), from Con
-> Kolivas's mm-implement-swap-prefetching.patch patch in *-mm, dated
-> about six days ago.
-> 
+On Sun, 30 Oct 2005, David Weinehall wrote:
+>
+> Uhm, this patch assumes that you're using bash as /bin/sh.
+> Not everyone does.  (I haven't checked the rest of the system calls
+> in ketchup though, maybe this is a more generic problem?)
 
-OK, I haven't looked at those patches really. I think some of that
-stuff should go into page_alloc.c and I'd prefer to keep
-buffered_rmqueue static.
+OK, if I work any more on ketchup, I'm going to convert the whole damn
+thing into perl! ;-} (and call it "mustard").
 
-But no matter for the cleanup patch at hand: let's leave the inline
-off, and the compiler will do the right thing if it is static and
-there is just a single call site (and I think newer gccs will do
-function versioning if there are constant arguments).
+Is this patch better? It even tests the version of tar and if it is less
+than 1.15 it uses --strip-path (the old name) and if it is 1.15 or greater
+it uses --strip-components (the new name).  And if it fails the version
+test all together, it goes back to the old (broken) method of just moving
+the contents.
 
--- 
-SUSE Labs, Novell Inc.
+Is this robust enough for you?
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+-- Steve
+
+Index: Ketchup-d9503020b3c1/ketchup
+===================================================================
+--- Ketchup-d9503020b3c1.orig/ketchup	2005-10-29 17:02:26.000000000 -0400
++++ Ketchup-d9503020b3c1/ketchup	2005-10-29 23:41:32.000000000 -0400
+@@ -477,16 +477,37 @@
+     qprint("Unpacking %s" % os.path.basename(file))
+     if options["dry-run"]: return ver
+
+-    err = os.system("tar xjf %s" % file)
+-    if err:
++    f = os.popen('tar --version', 'r')
++    if not f:
+         error("Unpacking failed: ", err)
+         sys.exit(-1)
+
+-    err = os.system("mv linux*/* . ; rmdir linux*")
++    strip = ""
++    line = f.readline()
++    while line:
++        m = re.match(r'.*?(\d+)\.(\d+)', line)
++        if m:
++            v1 = int(m.group(1))
++            v2 = int(m.group(2))
++            if v1 > 1 or (v1 == 1 and v2 >= 15):
++                strip = "--strip-components 1 "
++            else:
++                strip = "--strip-path 1 "
++	    break
++        line = f.readline()
++    f.close()
++
++    err = os.system("tar %s-xjf %s" % (strip, file))
+     if err:
+         error("Unpacking failed: ", err)
+         sys.exit(-1)
+
++    if not len(strip):
++        err = os.system("mv linux*/* . ; rmdir linux*")
++        if err:
++            error("Unpacking failed: ", err)
++            sys.exit(-1)
++
+     return ver
+
+ def find_ver(ver):

@@ -1,72 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbVJ3RED@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbVJ3ROn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932183AbVJ3RED (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 12:04:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbVJ3RED
+	id S932186AbVJ3ROn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 12:14:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbVJ3ROm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 12:04:03 -0500
-Received: from noname.neutralserver.com ([70.84.186.210]:8900 "EHLO
-	noname.neutralserver.com") by vger.kernel.org with ESMTP
-	id S932183AbVJ3REC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 12:04:02 -0500
-Date: Sun, 30 Oct 2005 19:03:57 +0200
-From: Dan Aloni <da-x@monatomic.org>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: [PATCH] fix memory leak in sd_mod.o
-Message-ID: <20051030170357.GA21497@localdomain>
+	Sun, 30 Oct 2005 12:14:42 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:23567 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932186AbVJ3ROm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 12:14:42 -0500
+Date: Sun, 30 Oct 2005 18:14:31 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: John David Anglin <dave@hiauly1.hia.nrc.ca>
+Cc: matthew@wil.cx, parisc-linux@parisc-linux.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [parisc-linux] [2.6 patch] parisc: "extern inline" -> "static
+Message-ID: <20051030171431.GH4180@stusta.de>
+References: <20051030155624.GG4180@stusta.de> <200510301642.j9UGgqp3000803@hiauly1.hia.nrc.ca>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200510301642.j9UGgqp3000803@hiauly1.hia.nrc.ca>
 User-Agent: Mutt/1.5.11
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - noname.neutralserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - monatomic.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Handle freeing of sd_max_sectors in sd_exit().
+On Sun, Oct 30, 2005 at 11:42:52AM -0500, John David Anglin wrote:
+> > > I really don't think it makes any difference.  Such a function (returning
+> > > always 0) is always going to be inlined, and the only difference between
+> > > static inline and extern inline is what happens when it can't be inlined.
+> > 
+> > On !alpha we are defining inline to __attribute__((always_inline)) for 
+> > any non-ancient gcc making this a zero difference.
+> 
+> It looks as if there are subtle differences between "always_inline"
+> and "extern inline".  From the GCC extensions document:
+> 
+>   [always_inline]
+>   Generally, functions are not inlined unless optimization is specified.
+>   For functions declared inline, this attribute inlines the function even
+>   if no optimization level was specified.
+> 
+>   [extern inline]
+>   If you specify both @code{inline} and @code{extern} in the function
+>   definition, then the definition is used only for inlining.  In no case
+>   is the function compiled on its own, not even if you refer to its
+>   address explicitly.  Such an address becomes an external reference, as
+>   if you had only declared the function, and had not defined it.
+> 
+> The primary difference between "static inline" and "extern inline"
+> is in what happens when the address of the function is referenced.
+> With "extern inline", you need a unique library function to resolve
+> external references.  With "static inline", you may end up with
+> multiple copies of a function if its address is taken.
+>...
 
-Signed-off-by: Dan Aloni <da-x@monatomic.org>
+In the kernel, "static inline" expands to
+"static inline __attribute__((always_inline))" and
+"extern inline" expands to 
+"extern inline __attribute__((always_inline))".
 
----
-commit 94e91dcc1b0903a45642fcb906d8a26c996db277
-tree b1d1b44ab4738268f839c83e5e56832124d4b2f3
-parent 2afb6d8ea04e81a1547e8e51b7550a8fd69b9fce
-author Dan Aloni <da-x@monatomic.org> Sun, 30 Oct 2005 18:56:35 +0200
-committer Dan Aloni <da-x@monatomic.org> Sun, 30 Oct 2005 18:56:35 +0200
+> Dave
 
- drivers/scsi/sd.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
---- a/drivers/scsi/sd.c
-+++ b/drivers/scsi/sd.c
-@@ -1472,6 +1472,7 @@ static void __exit exit_sd(void)
- 		kfree(sd_sizes);
- 		kfree(sd_blocksizes);
- 		kfree(sd_hardsizes);
-+		kfree(sd_max_sectors);
- 		for (i = 0; i < N_USED_SD_MAJORS; i++) {
- 			kfree(sd_gendisks[i].de_arr);
- 			kfree(sd_gendisks[i].flags);
-@@ -1482,6 +1483,7 @@ static void __exit exit_sd(void)
- 		del_gendisk(&sd_gendisks[i]);
- 		blksize_size[SD_MAJOR(i)] = NULL;
- 		hardsect_size[SD_MAJOR(i)] = NULL;
-+		max_sectors[SD_MAJOR(i)] = NULL;
- 		read_ahead[SD_MAJOR(i)] = 0;
- 	}
- 	sd_template.dev_max = 0;
-
-
-
+cu
+Adrian
 
 -- 
-Dan Aloni
-da-x@monatomic.org, da-x@colinux.org, da-x@gmx.net
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

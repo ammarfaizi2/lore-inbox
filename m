@@ -1,43 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbVJ3Lj7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbVJ3Lg1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932075AbVJ3Lj7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 06:39:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932077AbVJ3Lj7
+	id S932067AbVJ3Lg1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 06:36:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbVJ3Lg1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 06:39:59 -0500
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:44208 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S932075AbVJ3Lj7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 06:39:59 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [RFC][PATCH 4/6] swsusp: move swap check out of swsusp_suspend
-Date: Sun, 30 Oct 2005 13:40:20 +0100
-User-Agent: KMail/1.8.2
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-pm@osdl.org
-References: <200510292158.11089.rjw@sisk.pl> <200510292236.47960.rjw@sisk.pl> <20051029232134.GG14209@elf.ucw.cz>
-In-Reply-To: <20051029232134.GG14209@elf.ucw.cz>
+	Sun, 30 Oct 2005 06:36:27 -0500
+Received: from cassarossa.samfundet.no ([129.241.93.19]:36480 "EHLO
+	cassarossa.samfundet.no") by vger.kernel.org with ESMTP
+	id S932067AbVJ3Lg1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 06:36:27 -0500
+Date: Sun, 30 Oct 2005 12:36:51 +0100
+From: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
+To: bert hubert <bert.hubert@netherlabs.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BIND hangs with 2.6.14
+Message-ID: <20051030113651.GA1780@uio.no>
+References: <20051030023557.GA7798@uio.no> <20051030101148.GA18854@outpost.ds9a.nl> <20051030104527.GB32446@uio.no> <20051030110021.GA19680@outpost.ds9a.nl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Message-Id: <200510301340.20959.rjw@sisk.pl>
+In-Reply-To: <20051030110021.GA19680@outpost.ds9a.nl>
+X-Operating-System: Linux 2.6.14-rc5 on a x86_64
+X-Message-Flag: Outlook? --> http://www.mozilla.org/products/thunderbird/
+User-Agent: Mutt/1.5.11
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: Status=No hits=-2.8 required=5.0 tests=ALL_TRUSTED version=3.0.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Oct 30, 2005 at 12:00:21PM +0100, bert hubert wrote:
+> Ok - no further ideas then. I think people would be interested in the strace
+> you describe as 'garbage'.
 
-On Sunday, 30 of October 2005 01:21, Pavel Machek wrote:
-> Hi!
-> 
-> > This is a non-essential step making the next patch possible.  No functionality
-> > changes.
-> 
-> If you can push this before 3/6, that would be nice.
+The strace is a little big (1.5GB), but sure, people can have it if they're
+interested. OTOH, I just noticed that syslogd shows:
 
-Sure.  I think I'll send the two patches you have already acked and this one
-to Andrew as a separate series.  Then I'll get back to the 3/6 etc.
+  Oct 30 09:55:50 cirkus named[13364]: errno2result.c:109: unexpected error:
+  Oct 30 09:55:50 cirkus named[13364]: unable to convert errno to isc_result: 14: Bad address
+  Oct 30 09:55:50 cirkus named[13364]: UDP client handler shutting down due to fatal receive error: unexpected error
 
-Greetings,
-Rafael
+...and after that, everything seems to crash and burn. The related strace
+call is:
+
+  [pid 13365] recvmsg(22, 0x561329b0, 0)  = -1 EFAULT (Bad address)
+
+Might this be a BIND bug instead? In that case, why doesn't it show up with
+2.6.11.9? I've restarted BIND now without NPTL, to see if it might be
+thread-related.
+
+> Alternatively, give PowerDNS 2.9.19 a try :-) It reads most bind named.conf
+> files directly, especially if you don't do views, dynamic updates etc.
+
+We're not going to change DNS server software anytime soon on our production
+servers, but thanks for the tip :-)
+
+/* Steinar */
+-- 
+Homepage: http://www.sesse.net/

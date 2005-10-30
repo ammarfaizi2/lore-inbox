@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbVJ3W1T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbVJ3WcO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932365AbVJ3W1T (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 17:27:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbVJ3W1T
+	id S932369AbVJ3WcO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 17:32:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbVJ3WcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 17:27:19 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:53953 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932365AbVJ3W1S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 17:27:18 -0500
-Date: Sun, 30 Oct 2005 14:27:11 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Call for PIIX4 chipset testers
-In-Reply-To: <43652F1C.7010500@vc.cvut.cz>
-Message-ID: <Pine.LNX.4.64.0510301348540.27915@g5.osdl.org>
-References: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
- <1cb7.435fd492.4a69a@altium.nl> <Pine.LNX.4.61.0510281056230.24372@yvahk01.tjqt.qr>
- <43652F1C.7010500@vc.cvut.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 30 Oct 2005 17:32:13 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:37587 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932369AbVJ3WcM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 17:32:12 -0500
+Date: Sun, 30 Oct 2005 22:32:04 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Dave Jones <davej@redhat.com>, Keith Owens <kaos@ocs.com.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14 assorted warnings
+Message-ID: <20051030223204.GO7992@ftp.linux.org.uk>
+References: <5455.1130484079@kao2.melbourne.sgi.com> <20051028073049.GA27389@redhat.com> <1130710531.32734.5.camel@localhost.localdomain> <20051030222543.GN7992@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051030222543.GN7992@ftp.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 30 Oct 2005, Petr Vandrovec wrote:
->
-> Jan Engelhardt wrote:
-> > > Linus Torvalds <torvalds@osdl.org> wrote:
-> > > | can you please test out this patch and report what it says in dmesg?
-> > 
-> > 
-> > Here is an exotic one, from VMware (uses PIIX too). Says
-> > 
-> > 
-> > PCI quirk: region 1000-103f claimed by PIIX4 ACPI
-> > PCI quirk: region 1040-105f claimed by PIIX4 SMB
-> > ...later...
-> > PCI: Cannot allocate resource region 4 of device 0000:00:07.1
+On Sun, Oct 30, 2005 at 10:25:43PM +0000, Al Viro wrote:
+> static inline __attribute__((always_inline)) int bar(int n, int *idx)
+> {
+>         if (n != 1) 
+>                 return 0; 
+>         *idx = 1;
+>         return 1;  
+> }
+> void baz(int *v, int n)
+> {
+>         int idx;
+>         int p = bar(n, &idx);
+>         if (__builtin_expect(!p, 0))
+>                 return; 
+>         *v |= idx;
+> }
 > 
-> It is caused by Linux quirk which believes that SMB region needs 32 bytes,
-> while i440BX datasheet says that 16 bytes are needed, and as we've not found
-> any errata which would say that SMB region is 32 bytes on some revisions,
-> system BIOS (and emulation) just allocates 16 bytes here.  Thus system BIOS
-> puts SMB at 0x1040-0x104f (you can see it below as motherboard reported
-> resource), and IDE busmastering registers are put at 0x1050-0x105f.
+> and try gcc -Wall on that.
 
-Hey, good point. I wonder where I got that 32 bytes from.
-
-Fixed to 16.
-
-		Linus
+Duh.  gcc -Wall -Os, of course

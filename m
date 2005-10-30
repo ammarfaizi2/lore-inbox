@@ -1,66 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932751AbVJ3BFk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932760AbVJ3BMU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932751AbVJ3BFk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 21:05:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932760AbVJ3BFk
+	id S932760AbVJ3BMU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 21:12:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932764AbVJ3BMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 21:05:40 -0400
-Received: from nproxy.gmail.com ([64.233.182.202]:61911 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932751AbVJ3BFb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 21:05:31 -0400
+	Sat, 29 Oct 2005 21:12:20 -0400
+Received: from xproxy.gmail.com ([66.249.82.197]:43384 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932760AbVJ3BMT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 21:12:19 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=kucJdnN2b9S7VvVM0HVZs5nsoJHoEowUGobZSmr+WWBzMXJ7IBecCeOpos3h0fJZwm7A0vM6OfCAdyGLDPQcSoBO+2Y9nQVkaqR1qxKpydxdKHQhgivGinJCU0WWzEuqOCOFMOVBCj8lTcF5Pi9OnML+GkgKNV7L4Y1tFG8o/s8=
-Date: Sun, 30 Oct 2005 04:18:17 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Sergey S. Kostyliov" <rathamahata@php4.ru>, linux-kernel@vger.kernel.org
-Subject: [PATCH] befs: use strlcpy()
-Message-ID: <20051030011817.GA32602@mipter.zuzino.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fPyjLDJREwCkVz2P3y+NGXWaKWLccJVGwvhY6acD5abcGGPEW8UhwhE0yQS6TjIrgYm95TXv+MydFI6xgnjdR4lb9xjK+xcgrQFUvr0UB68znR+UcpPOc65If7zXbYtePl7ZayVdBn8AGvGzCYBnNDadupURR92B4vpzTgcqn+A=
+Message-ID: <12c511ca0510291812y20df2a71n1eea45d7da49a1c7@mail.gmail.com>
+Date: Sat, 29 Oct 2005 18:12:18 -0700
+From: Tony Luck <tony.luck@intel.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: New (now current development process)
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0510291314100.3348@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com>
+	 <12c511ca0510291157u5557b6b1x85a47311f0e16436@mail.gmail.com>
+	 <20051029195115.GD14039@flint.arm.linux.org.uk>
+	 <Pine.LNX.4.64.0510291314100.3348@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
-	Looks like second strncpy() can fill symlink buffer without
-	NUL-termination which would cause bad things later, though I
-	may be wrong.
+On 10/29/05, Linus Torvalds <torvalds@osdl.org> wrote:
+> But to hit that, we'd might need to shrink the "merge window" from two
+> weeks to just one, otherwise there's not enough time to calm down.
 
- fs/befs/btree.c    |    3 +--
- fs/befs/linuxvfs.c |    4 ++--
- 2 files changed, 3 insertions(+), 4 deletions(-)
+The problem with just one week to merge would be if other stuff
+happened that ate up the merge period (e.g. this coming week I'm
+travelling and will spend all day Tuesday and Wednesday in meetings).
 
---- a/fs/befs/btree.c
-+++ b/fs/befs/btree.c
-@@ -503,10 +503,9 @@ befs_btree_read(struct super_block *sb, 
- 		goto error_alloc;
- 	};
- 
--	strncpy(keybuf, keystart, keylen);
-+	strlcpy(keybuf, keystart, keylen);
- 	*value = fs64_to_cpu(sb, valarray[cur_key]);
- 	*keysize = keylen;
--	keybuf[keylen] = '\0';
- 
- 	befs_debug(sb, "Read [%Lu,%d]: Key \"%.*s\", Value %Lu", node_off,
- 		   cur_key, keylen, keybuf, *value);
---- linux-vanilla/fs/befs/linuxvfs.c
-+++ linux-strlcpy/fs/befs/linuxvfs.c
-@@ -381,8 +381,8 @@ befs_read_inode(struct inode *inode)
- 	if (S_ISLNK(inode->i_mode) && !(befs_ino->i_flags & BEFS_LONG_SYMLINK)){
- 		inode->i_size = 0;
- 		inode->i_blocks = befs_sb->block_size / VFS_BLOCK_SIZE;
--		strncpy(befs_ino->i_data.symlink, raw_inode->data.symlink,
--			BEFS_SYMLINK_LEN);
-+		strlcpy(befs_ino->i_data.symlink, raw_inode->data.symlink,
-+			sizeof(befs_ino->i_data.symlink));
- 	} else {
- 		int num_blks;
- 
+It would be easier to manage if I could be sure which week was going
+to be the merge window ... but I know that it is hard to predict when
+a release will happen.  Overall I'd be much happier sticking with a
+two week window.
 
+-Tony

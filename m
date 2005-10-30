@@ -1,131 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932759AbVJ3BFW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932751AbVJ3BFk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932759AbVJ3BFW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 21:05:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932760AbVJ3BFW
+	id S932751AbVJ3BFk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 21:05:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932760AbVJ3BFk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 21:05:22 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:24586 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932759AbVJ3BFU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 21:05:20 -0400
-Date: Sun, 30 Oct 2005 02:05:09 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] mm/: small cleanups
-Message-ID: <20051030010508.GU4180@stusta.de>
-MIME-Version: 1.0
+	Sat, 29 Oct 2005 21:05:40 -0400
+Received: from nproxy.gmail.com ([64.233.182.202]:61911 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932751AbVJ3BFb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 21:05:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=kucJdnN2b9S7VvVM0HVZs5nsoJHoEowUGobZSmr+WWBzMXJ7IBecCeOpos3h0fJZwm7A0vM6OfCAdyGLDPQcSoBO+2Y9nQVkaqR1qxKpydxdKHQhgivGinJCU0WWzEuqOCOFMOVBCj8lTcF5Pi9OnML+GkgKNV7L4Y1tFG8o/s8=
+Date: Sun, 30 Oct 2005 04:18:17 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Sergey S. Kostyliov" <rathamahata@php4.ru>, linux-kernel@vger.kernel.org
+Subject: [PATCH] befs: use strlcpy()
+Message-ID: <20051030011817.GA32602@mipter.zuzino.mipt.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following cleanups:
-- make some needlessly global functions static
-- vmscan.c: #if 0 the unused global function sys_set_zone_reclaim
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
 ---
+	Looks like second strncpy() can fill symlink buffer without
+	NUL-termination which would cause bad things later, though I
+	may be wrong.
 
- mm/page_alloc.c |   12 +++++++-----
- mm/vmalloc.c    |   12 +++++++-----
- mm/vmscan.c     |    3 +++
- 3 files changed, 17 insertions(+), 10 deletions(-)
+ fs/befs/btree.c    |    3 +--
+ fs/befs/linuxvfs.c |    4 ++--
+ 2 files changed, 3 insertions(+), 4 deletions(-)
 
---- linux-2.6.14-rc5-mm1-full/mm/page_alloc.c.old	2005-10-30 02:35:18.000000000 +0200
-+++ linux-2.6.14-rc5-mm1-full/mm/page_alloc.c	2005-10-30 02:36:49.000000000 +0200
-@@ -393,7 +393,7 @@
- 	return ret;
- }
+--- a/fs/befs/btree.c
++++ b/fs/befs/btree.c
+@@ -503,10 +503,9 @@ befs_btree_read(struct super_block *sb, 
+ 		goto error_alloc;
+ 	};
  
--void __free_pages_ok(struct page *page, unsigned int order)
-+static void __free_pages_ok(struct page *page, unsigned int order)
- {
- 	LIST_HEAD(list);
- 	int i;
-@@ -1228,7 +1228,8 @@
- DEFINE_PER_CPU(long, nr_pagecache_local) = 0;
- #endif
+-	strncpy(keybuf, keystart, keylen);
++	strlcpy(keybuf, keystart, keylen);
+ 	*value = fs64_to_cpu(sb, valarray[cur_key]);
+ 	*keysize = keylen;
+-	keybuf[keylen] = '\0';
  
--void __get_page_state(struct page_state *ret, int nr, cpumask_t *cpumask)
-+static void __get_page_state(struct page_state *ret, int nr,
-+			     cpumask_t *cpumask)
- {
- 	int cpu = 0;
+ 	befs_debug(sb, "Read [%Lu,%d]: Key \"%.*s\", Value %Lu", node_off,
+ 		   cur_key, keylen, keybuf, *value);
+--- linux-vanilla/fs/befs/linuxvfs.c
++++ linux-strlcpy/fs/befs/linuxvfs.c
+@@ -381,8 +381,8 @@ befs_read_inode(struct inode *inode)
+ 	if (S_ISLNK(inode->i_mode) && !(befs_ino->i_flags & BEFS_LONG_SYMLINK)){
+ 		inode->i_size = 0;
+ 		inode->i_blocks = befs_sb->block_size / VFS_BLOCK_SIZE;
+-		strncpy(befs_ino->i_data.symlink, raw_inode->data.symlink,
+-			BEFS_SYMLINK_LEN);
++		strlcpy(befs_ino->i_data.symlink, raw_inode->data.symlink,
++			sizeof(befs_ino->i_data.symlink));
+ 	} else {
+ 		int num_blks;
  
-@@ -1786,8 +1787,8 @@
- 	}
- }
- 
--void zone_init_free_lists(struct pglist_data *pgdat, struct zone *zone,
--				unsigned long size)
-+static void zone_init_free_lists(struct pglist_data *pgdat, struct zone *zone,
-+				 unsigned long size)
- {
- 	int order;
- 	for (order = 0; order < MAX_ORDER ; order++) {
-@@ -1847,7 +1848,8 @@
- 	return batch;
- }
- 
--inline void setup_pageset(struct per_cpu_pageset *p, unsigned long batch)
-+static inline void setup_pageset(struct per_cpu_pageset *p,
-+				 unsigned long batch)
- {
- 	struct per_cpu_pages *pcp;
- 
---- linux-2.6.14-rc5-mm1-full/mm/vmscan.c.old	2005-10-30 02:37:46.000000000 +0200
-+++ linux-2.6.14-rc5-mm1-full/mm/vmscan.c	2005-10-30 02:38:13.000000000 +0200
-@@ -1387,6 +1387,7 @@
- 	return total_reclaimed;
- }
- 
-+#if 0
- asmlinkage long sys_set_zone_reclaim(unsigned int node, unsigned int zone,
- 				     unsigned int state)
- {
-@@ -1417,3 +1418,5 @@
- 
- 	return 0;
- }
-+#endif  /*  0  */
-+
---- linux-2.6.14-rc5-mm1-full/mm/vmalloc.c.old	2005-10-30 02:38:49.000000000 +0200
-+++ linux-2.6.14-rc5-mm1-full/mm/vmalloc.c	2005-10-30 02:39:42.000000000 +0200
-@@ -157,8 +157,10 @@
- 	return err;
- }
- 
--struct vm_struct *__get_vm_area_node(unsigned long size, unsigned long flags,
--				unsigned long start, unsigned long end, int node)
-+static struct vm_struct *__get_vm_area_node(unsigned long size,
-+					    unsigned long flags,
-+					    unsigned long start,
-+					    unsigned long end, int node)
- {
- 	struct vm_struct **p, *tmp, *area;
- 	unsigned long align = 1;
-@@ -296,7 +298,7 @@
- 	return v;
- }
- 
--void __vunmap(void *addr, int deallocate_pages)
-+static void __vunmap(void *addr, int deallocate_pages)
- {
- 	struct vm_struct *area;
- 
-@@ -402,8 +404,8 @@
- }
- EXPORT_SYMBOL(vmap);
- 
--void *__vmalloc_area_node(struct vm_struct *area, gfp_t gfp_mask,
--				pgprot_t prot, int node)
-+static void *__vmalloc_area_node(struct vm_struct *area, gfp_t gfp_mask,
-+				 pgprot_t prot, int node)
- {
- 	struct page **pages;
- 	unsigned int nr_pages, array_size, i;
 

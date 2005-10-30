@@ -1,65 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932772AbVJ3CKS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932790AbVJ3CUF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932772AbVJ3CKS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 22:10:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932785AbVJ3CKS
+	id S932790AbVJ3CUF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 22:20:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932791AbVJ3CUE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 22:10:18 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:43969 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932772AbVJ3CKR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 22:10:17 -0400
-Date: Sat, 29 Oct 2005 22:10:05 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-To: David Weinehall <tao@acc.umu.se>
-cc: linux-kernel@vger.kernel.org, Matt Mackall <mpm@selenic.com>
-Subject: Re: [ketchup] patch to allow for moving of .gitignore in 2.6.14
-In-Reply-To: <20051030011959.GA17750@vasa.acc.umu.se>
-Message-ID: <Pine.LNX.4.58.0510292204170.10073@localhost.localdomain>
-References: <Pine.LNX.4.58.0510170316310.5859@localhost.localdomain>
- <20051017213915.GN26160@waste.org> <Pine.LNX.4.58.0510180211320.13581@localhost.localdomain>
- <20051018063031.GR26160@waste.org> <Pine.LNX.4.58.0510180239550.13581@localhost.localdomain>
- <20051018072927.GU26160@waste.org> <1130504043.9574.56.camel@localhost.localdomain>
- <Pine.LNX.4.58.0510291659140.10073@localhost.localdomain>
- <20051030011959.GA17750@vasa.acc.umu.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 29 Oct 2005 22:20:04 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:42201 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932790AbVJ3CUD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 22:20:03 -0400
+Date: Sat, 29 Oct 2005 19:19:46 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: rohit.seth@intel.com, akpm@osdl.org, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: Clean up of __alloc_pages
+Message-Id: <20051029191946.1832adaf.pj@sgi.com>
+In-Reply-To: <4364296E.1080905@yahoo.com.au>
+References: <20051028183326.A28611@unix-os.sc.intel.com>
+	<20051029184728.100e3058.pj@sgi.com>
+	<4364296E.1080905@yahoo.com.au>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nick, replying to pj:
+> >  3) The "inline" you added to buffered_rmqueue() blew up my compile.
+> 
+> How? Why? This should be solved because a future possible feature
+> (early allocation from pcp lists) will want inlining in order to
+> propogate the constant 'replenish' argument.
 
+If I make the following change to a copy of mm/page_alloc.c:
 
-On Sun, 30 Oct 2005, David Weinehall wrote:
+=================================
+--- 2.6.14-rc5-mm1-cpuset-patches.orig/mm/page_alloc.c  2005-10-29 19:04:13.745641793 -0700
++++ 2.6.14-rc5-mm1-cpuset-patches/mm/page_alloc.c       2005-10-29 19:04:03.085367810 -0700
+@@ -713,7 +713,7 @@ static inline void prep_zero_page(struct
+  * we cheat by calling it from here, in the order > 0 path.  Saves a branch
+  * or two.
+  */
+-struct page *
++struct inline page *
+ buffered_rmqueue(struct zone *zone, int order, gfp_t gfp_flags)
+ {
+ 	unsigned long flags;
+=================================
 
-> On Sat, Oct 29, 2005 at 05:06:21PM -0400, Steven Rostedt wrote:
-> [snip]
->
-> >
-> > -    err = os.system("mv linux*/* . ; rmdir linux*")
-> > +    err = os.system("shopt -s dotglob; mv linux*/* . ; rmdir linux*")
-> >      if err:
-> >          error("Unpacking failed: ", err)
-> >          sys.exit(-1)
->
->
-> Uhm, this patch assumes that you're using bash as /bin/sh.
+Then it goes from compiling ok, to failing with 61 lines of
+error output, beginning with:
 
-Well, aren't you?  :-)
+mm/page_alloc.c:716: error: parse error before "inline"
+mm/page_alloc.c:721: error: `gfp_flags' undeclared here (not in a function)
+mm/page_alloc.c:723: error: parse error before "if"
+mm/page_alloc.c:726: warning: type defaults to `int' in declaration of `pcp'
+mm/page_alloc.c:726: error: `zone' undeclared here (not in a function)
+mm/page_alloc.c:726: error: braced-group within expression allowed only inside a function
+mm/page_alloc.c:726: warning: data definition has no type or storage class
+mm/page_alloc.c:726: warning: type defaults to `int' in declaration of `debug_smp_processor_id'
+mm/page_alloc.c:726: warning: function declaration isn't a prototype
+mm/page_alloc.c:726: error: conflicting types for `debug_smp_processor_id'
+include/linux/smp.h:131: error: previous declaration of `debug_smp_processor_id'          
 
-> Not everyone does.  (I haven't checked the rest of the system calls
-> in ketchup though, maybe this is a more generic problem?)
+This is gcc 3.3.3, compiling sn2_defconfig on and for an SN2.
 
-Yeah, the thought did occur to me that this is bash specific, and would
-not be "portable".  But I did think that this is very Linux specific, and
-I'll go with the 99% of most Linux boxes use bash.  But you are right to
-complain because, like Linux, I like to be compatible with even the most
-obscure setups.
+Perhaps "inline struct page *" would work better than "struct inline page *" ?
+... yes ... that fixes my compiler complaints.
 
-When I get some more time, I'll play with some other methods, like what
-Matt suggested.  But this is the quick fix for those that do use bash as
-the system shell, and want it to work for their system.  Since currently,
-it doesn't work for 2.6.14 from scratch.
+Also ... buffered_rmqueue() is a rather large function to be inlining.
+And if it is inlined, then are you expecting to also have an out of
+line copy, for use by the call to it from mm/swap_prefetch.c
+prefetch_get_page()?
 
--- Steve
+Adding the 'inline' keyword increases my kernel text size by
+1448 bytes, for the extra copy of this code used inline from
+the call to it from mm/page_alloc.c:get_page_from_freelist().
+Is that really worth it?
 
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

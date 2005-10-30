@@ -1,49 +1,283 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750901AbVJ3UYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750921AbVJ3U0j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750901AbVJ3UYa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 15:24:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750889AbVJ3UYa
+	id S1750921AbVJ3U0j (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 15:26:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750955AbVJ3U0j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 15:24:30 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:40336
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1750838AbVJ3UYa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 15:24:30 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Jeff Dike <jdike@addtoit.com>
-Subject: Re: What's wrong with tmpfs?
-Date: Sun, 30 Oct 2005 14:24:08 -0600
-User-Agent: KMail/1.8
-Cc: jonathan@jonmasters.org, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-References: <200510300624.38794.rob@landley.net> <35fb2e590510300453q520a9ce7ua1d74d7790b3a6b8@mail.gmail.com> <20051030151506.GA3354@ccure.user-mode-linux.org>
-In-Reply-To: <20051030151506.GA3354@ccure.user-mode-linux.org>
-MIME-Version: 1.0
+	Sun, 30 Oct 2005 15:26:39 -0500
+Received: from xproxy.gmail.com ([66.249.82.206]:6258 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750889AbVJ3U0i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 15:26:38 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
+        b=kcKo8t6g9g2k71ZVPOInm1tOr5jvqGJ739jAUnBaCuPjyPe2uO3s0rZahKnnm8V+xdpLyKm4jW68vbk3AJOgS6XUy2VndCizitKFpd7yRZFNfT8DYBwp4rphGFb1jCQZzbhpDpURLx+e/jqzj0+KpMt+8afo7vuF6DAZDpedX+M=
+Date: Sun, 30 Oct 2005 17:26:26 -0300
+From: Alberto Bertogli <albertogli@telpin.com.ar>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Call for PIIX4 chipset testers
+Message-ID: <20051030202626.GF15953@telpin.com.ar>
+References: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="WhfpMioaduB5tiZL"
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200510301424.09100.rob@landley.net>
+In-Reply-To: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 30 October 2005 09:15, Jeff Dike wrote:
-> On Sun, Oct 30, 2005 at 12:53:00PM +0000, Jon Masters wrote:
-> > On 10/30/05, Rob Landley <rob@landley.net> wrote:
-> > > If somebody needs a reproduction sequence, I'm happy to oblige.  In
-> > > theory "mount -t tmpfs /mnt /mnt" should do it, but if it was _that_
-> > > simple it wouldn't have shipped...
-> >
-> > I don't see this behaviour on a regular desktop box running 2.6.14.
-> > Guess it's UML specific.
->
-> Sorry, but wrong.
->
-> IIRC, this triggers when you don't have CONFIG_TMPFS enabled.  If you
-> don't, you still get it, but you get a version that's only usable
-> in-kernel.
 
-Yup.  Not CONFIG_TEMPFS.  My bad.
+--WhfpMioaduB5tiZL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Rob
+On Tue, Oct 25, 2005 at 10:51:24AM -0700, Linus Torvalds wrote:
+> can you please test out this patch and report what it says in dmesg?
+> 
+> It should report a number of quirks, and the easiest way to get them all 
+> is to just do
+> 
+> 	dmesg -s 1000000 | grep PIIX4
+> 
+> and send it to me (and you might as well cc linux-kernel too in this 
+> thread, so that we'll get the thing archived for later). Preferably 
+> together with the output of "cat /proc/ioport" and "/sbin/lspci -xxx".
+
+This is the output in a Pentium 2 400Mhz with 2.6.14 final. I hope it's
+useful!
+
+Thanks,
+		Alberto
+
+
+--WhfpMioaduB5tiZL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p2_dmesg
+
+[   50.297648] PCI quirk: region 8000-803f claimed by PIIX4 ACPI
+[   50.297713] PCI quirk: region 7000-701f claimed by PIIX4 SMB
+[   50.356621] PIIX4: IDE controller at PCI slot 0000:00:07.1
+[   50.356675] PIIX4: chipset revision 1
+[   50.356703] PIIX4: not 100% native mode: will probe irqs later
+
+--WhfpMioaduB5tiZL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p2_ioports
+
+0000-001f : dma1
+0020-0021 : pic1
+0040-0043 : timer0
+0050-0053 : timer1
+0060-006f : keyboard
+0070-0077 : rtc
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+02f8-02ff : serial
+0376-0376 : ide1
+03c0-03df : vga+
+03f6-03f6 : ide0
+03f8-03ff : serial
+0cf8-0cff : PCI conf1
+1000-100f : 0000:00:07.1
+  1000-1007 : ide0
+  1008-100f : ide1
+1020-103f : 0000:00:07.2
+1040-105f : 0000:00:0e.0
+  1040-105f : ne2k-pci
+1060-107f : 0000:00:0f.0
+1080-109f : 0000:00:0f.0
+7000-701f : 0000:00:07.3
+8000-803f : 0000:00:07.3
+
+--WhfpMioaduB5tiZL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p2_lspci
+
+00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 03)
+00: 86 80 90 71 06 01 10 22 03 00 00 06 00 40 00 00
+10: 08 00 00 f8 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 a0 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 0c 02 00 ff 00 00 00 09 03 10 11 00 00 00 13 11
+60: 08 10 18 18 18 18 18 18 00 2f c0 31 00 c0 00 00
+70: 20 1f 1a 38 15 00 03 01 06 07 94 00 10 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 04 61 00 00 00 05 00 00 00 00 00 00
+a0: 02 00 10 00 03 02 00 1f 00 00 00 00 00 00 00 00
+b0: 80 20 00 00 30 00 00 00 00 00 2f 04 20 10 00 00
+c0: 00 00 00 00 00 00 00 00 18 0c ff ff 7f 00 00 00
+d0: 00 00 00 00 00 00 00 00 0c 00 00 00 00 00 00 00
+e0: 9c b3 ff 7f 8f 3e 00 80 2c d3 f7 cf 9d 3e 00 00
+f0: 40 01 00 00 00 f8 00 60 20 0f 00 00 00 00 00 00
+
+00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 03)
+00: 86 80 91 71 1f 01 20 02 03 00 04 06 00 80 01 00
+10: 00 00 00 00 00 00 00 00 00 01 01 40 f0 00 a0 22
+20: 10 f4 f0 f4 00 fc f0 fc 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 8c 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+00: 86 80 10 71 0f 00 80 02 02 00 01 06 00 00 80 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 4d 00 e0 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 0b 05 0a 09 d0 00 00 00 00 f2 80 00 00 00 00 00
+70: 00 00 00 00 00 00 0c 0c 00 00 00 00 00 00 00 00
+80: 00 00 07 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 4d 41 15 40 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 25 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
+
+00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
+00: 86 80 11 71 05 00 80 02 01 80 01 01 00 40 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 01 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 07 a3 07 a3 00 00 00 00 01 00 02 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
+
+00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
+00: 86 80 12 71 05 00 80 02 01 00 03 0c 00 40 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 21 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 09 04 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 1f 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
+
+00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
+00: 86 80 13 71 03 00 80 02 02 00 80 06 00 00 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 01 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 40 01 00 00 00 00 00 14 00 00 02 00 00 00 00
+60: 00 00 00 00 00 00 00 98 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 01 70 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
+
+00:0c.0 Multimedia audio controller: Yamaha Corporation DS1L Audio (rev 04)
+00: 73 10 0a 00 04 01 10 02 04 00 01 04 00 40 00 00
+10: 00 00 00 f4 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 86 80 32 53
+30: 00 00 00 00 50 00 00 00 00 00 00 00 0a 01 05 19
+40: 7f 90 00 00 86 80 32 53 01 00 00 00 00 00 00 00
+50: 01 00 01 04 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:0e.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8029(AS)
+00: ec 10 29 80 03 00 00 02 00 00 00 02 00 00 00 00
+10: 41 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 00
+40: ec 10 29 80 03 00 00 02 00 00 00 02 00 00 00 00
+50: 41 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 00
+80: ec 10 29 80 03 00 00 02 00 00 00 02 00 00 00 00
+90: 41 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 00
+c0: ec 10 29 80 03 00 00 02 00 00 00 02 00 00 00 00
+d0: 41 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 00
+
+00:0f.0 Multimedia audio controller: Quicknet Technologies Inc: Unknown device 0500
+00: e2 15 00 05 00 01 80 02 00 00 01 04 00 00 80 00
+10: 81 10 00 00 00 90 00 f4 61 10 00 00 00 80 00 f4
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 40 00 00 00 00 00 00 00 ff 00 00 00
+40: 01 00 01 6c 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G100 [Productiva] AGP (rev 02)
+00: 2b 10 01 10 87 00 90 02 02 00 00 03 00 40 00 00
+10: 08 00 00 fc 00 00 10 f4 00 00 80 f4 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 2b 10 00 ff
+30: 00 00 00 00 dc 00 00 00 00 00 00 00 0b 01 00 00
+40: 21 d1 07 40 08 3c 00 00 00 00 ff 00 00 00 00 00
+50: 07 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 f0 21 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 02 00 10 00 01 02 00 01 01 03 00 01 00 00 00 00
+
+
+--WhfpMioaduB5tiZL--

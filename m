@@ -1,266 +1,277 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932200AbVJ3SeL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbVJ3Sek@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932200AbVJ3SeL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 13:34:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbVJ3SeL
+	id S932215AbVJ3Sek (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 13:34:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbVJ3Sej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 13:34:11 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:40363 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S932200AbVJ3SeJ (ORCPT
+	Sun, 30 Oct 2005 13:34:39 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:49067 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S932212AbVJ3Sec (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 13:34:09 -0500
+	Sun, 30 Oct 2005 13:34:32 -0500
 From: Mel Gorman <mel@csn.ul.ie>
 To: akpm@osdl.org
 Cc: linux-mm@kvack.org, lhms-devel@lists.sourceforge.net,
        linux-kernel@vger.kernel.org, Mel Gorman <mel@csn.ul.ie>
-Message-Id: <20051030183359.22266.52500.sendpatchset@skynet.csn.ul.ie>
+Message-Id: <20051030183429.22266.85501.sendpatchset@skynet.csn.ul.ie>
 In-Reply-To: <20051030183354.22266.42795.sendpatchset@skynet.csn.ul.ie>
 References: <20051030183354.22266.42795.sendpatchset@skynet.csn.ul.ie>
-Subject: [PATCH 1/7] Fragmentation Avoidance V19: 001_antidefrag_flags
-Date: Sun, 30 Oct 2005 18:34:00 +0000 (GMT)
+Subject: [PATCH 7/7] Fragmentation Avoidance V19: 007_stats
+Date: Sun, 30 Oct 2005 18:34:30 +0000 (GMT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds two flags __GFP_EASYRCLM and __GFP_KERNRCLM that are used
-to trap the type of allocation the caller is made. Allocations using
-the __GFP_EASYRCLM flag are expected to be easily reclaimed by syncing
-with backing storage (be it a file or swap) or cleaning the buffers and
-discarding. Allocations using the __GFP_KERNRCLM flag belong to slab caches
-that can be shrunk by the kernel.
+It is not necessary to apply this patch to get all the anti-fragmentation
+code. This patch adds a new config option called CONFIG_ALLOCSTATS. If
+set, a number of new bean counters are added that are related to the
+anti-fragmentation code. The information is exported via /proc/buddyinfo. This
+is very useful when debugging why high-order pages are not available for
+allocation.
 
 Signed-off-by: Mel Gorman <mel@csn.ul.ie>
-Signed-off-by: Mike Kravetz <kravetz@us.ibm.com>
-Signed-off-by: Joel Schopp <jschopp@austin.ibm.com>
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.14-rc5-mm1-clean/fs/buffer.c linux-2.6.14-rc5-mm1-001_antidefrag_flags/fs/buffer.c
---- linux-2.6.14-rc5-mm1-clean/fs/buffer.c	2005-10-30 13:19:59.000000000 +0000
-+++ linux-2.6.14-rc5-mm1-001_antidefrag_flags/fs/buffer.c	2005-10-30 13:34:50.000000000 +0000
-@@ -1119,7 +1119,8 @@ grow_dev_page(struct block_device *bdev,
- 	struct page *page;
- 	struct buffer_head *bh;
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.14-rc5-mm1-006_percpu/include/linux/mmzone.h linux-2.6.14-rc5-mm1-007_stats/include/linux/mmzone.h
+--- linux-2.6.14-rc5-mm1-006_percpu/include/linux/mmzone.h	2005-10-30 13:38:14.000000000 +0000
++++ linux-2.6.14-rc5-mm1-007_stats/include/linux/mmzone.h	2005-10-30 13:38:56.000000000 +0000
+@@ -193,6 +193,17 @@ struct zone {
+ 	/* Number of pages currently used for RCLM_FALLBACK */
+ 	unsigned long		fallback_reserve;
  
--	page = find_or_create_page(inode->i_mapping, index, GFP_NOFS);
-+	page = find_or_create_page(inode->i_mapping, index,
-+				   GFP_NOFS|__GFP_EASYRCLM);
- 	if (!page)
- 		return NULL;
++#ifdef CONFIG_ALLOCSTATS
++	/*
++	 * These are beancounters that track how the placement policy
++	 * of the buddy allocator is performing
++	 */
++	unsigned long fallback_count[RCLM_TYPES];
++	unsigned long alloc_count[RCLM_TYPES];
++	unsigned long reserve_count[RCLM_TYPES];
++	unsigned long kernnorclm_full_steal;
++	unsigned long kernnorclm_partial_steal;
++#endif
+ 	ZONE_PADDING(_pad1_)
  
-@@ -3058,7 +3059,8 @@ static void recalc_bh_state(void)
- 	
- struct buffer_head *alloc_buffer_head(gfp_t gfp_flags)
- {
--	struct buffer_head *ret = kmem_cache_alloc(bh_cachep, gfp_flags);
-+	struct buffer_head *ret = kmem_cache_alloc(bh_cachep,
-+						   gfp_flags|__GFP_KERNRCLM);
- 	if (ret) {
- 		get_cpu_var(bh_accounting).nr++;
- 		recalc_bh_state();
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.14-rc5-mm1-clean/fs/compat.c linux-2.6.14-rc5-mm1-001_antidefrag_flags/fs/compat.c
---- linux-2.6.14-rc5-mm1-clean/fs/compat.c	2005-10-30 13:19:59.000000000 +0000
-+++ linux-2.6.14-rc5-mm1-001_antidefrag_flags/fs/compat.c	2005-10-30 13:34:50.000000000 +0000
-@@ -1363,7 +1363,7 @@ static int compat_copy_strings(int argc,
- 			page = bprm->page[i];
- 			new = 0;
- 			if (!page) {
--				page = alloc_page(GFP_HIGHUSER);
-+				page = alloc_page(GFP_HIGHUSER|__GFP_EASYRCLM);
- 				bprm->page[i] = page;
- 				if (!page) {
- 					ret = -ENOMEM;
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.14-rc5-mm1-clean/fs/dcache.c linux-2.6.14-rc5-mm1-001_antidefrag_flags/fs/dcache.c
---- linux-2.6.14-rc5-mm1-clean/fs/dcache.c	2005-10-30 13:19:59.000000000 +0000
-+++ linux-2.6.14-rc5-mm1-001_antidefrag_flags/fs/dcache.c	2005-10-30 13:34:50.000000000 +0000
-@@ -878,7 +878,7 @@ struct dentry *d_alloc(struct dentry * p
- 	struct dentry *dentry;
- 	char *dname;
+ 	/* Fields commonly accessed by the page reclaim scanner */
+@@ -292,6 +303,17 @@ struct zone {
+ 	char			*name;
+ } ____cacheline_maxaligned_in_smp;
  
--	dentry = kmem_cache_alloc(dentry_cache, GFP_KERNEL); 
-+	dentry = kmem_cache_alloc(dentry_cache, GFP_KERNEL|__GFP_KERNRCLM);
- 	if (!dentry)
- 		return NULL;
- 
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.14-rc5-mm1-clean/fs/exec.c linux-2.6.14-rc5-mm1-001_antidefrag_flags/fs/exec.c
---- linux-2.6.14-rc5-mm1-clean/fs/exec.c	2005-10-30 13:19:59.000000000 +0000
-+++ linux-2.6.14-rc5-mm1-001_antidefrag_flags/fs/exec.c	2005-10-30 13:34:50.000000000 +0000
-@@ -237,7 +237,7 @@ static int copy_strings(int argc, char _
- 			page = bprm->page[i];
- 			new = 0;
- 			if (!page) {
--				page = alloc_page(GFP_HIGHUSER);
-+				page = alloc_page(GFP_HIGHUSER|__GFP_EASYRCLM);
- 				bprm->page[i] = page;
- 				if (!page) {
- 					ret = -ENOMEM;
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.14-rc5-mm1-clean/fs/ext2/super.c linux-2.6.14-rc5-mm1-001_antidefrag_flags/fs/ext2/super.c
---- linux-2.6.14-rc5-mm1-clean/fs/ext2/super.c	2005-10-20 07:23:05.000000000 +0100
-+++ linux-2.6.14-rc5-mm1-001_antidefrag_flags/fs/ext2/super.c	2005-10-30 13:34:50.000000000 +0000
-@@ -141,7 +141,8 @@ static kmem_cache_t * ext2_inode_cachep;
- static struct inode *ext2_alloc_inode(struct super_block *sb)
- {
- 	struct ext2_inode_info *ei;
--	ei = (struct ext2_inode_info *)kmem_cache_alloc(ext2_inode_cachep, SLAB_KERNEL);
-+	ei = (struct ext2_inode_info *)kmem_cache_alloc(ext2_inode_cachep,
-+						SLAB_KERNEL|__GFP_KERNRCLM);
- 	if (!ei)
- 		return NULL;
- #ifdef CONFIG_EXT2_FS_POSIX_ACL
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.14-rc5-mm1-clean/fs/ext3/super.c linux-2.6.14-rc5-mm1-001_antidefrag_flags/fs/ext3/super.c
---- linux-2.6.14-rc5-mm1-clean/fs/ext3/super.c	2005-10-30 13:20:00.000000000 +0000
-+++ linux-2.6.14-rc5-mm1-001_antidefrag_flags/fs/ext3/super.c	2005-10-30 13:34:50.000000000 +0000
-@@ -444,7 +444,7 @@ static struct inode *ext3_alloc_inode(st
- {
- 	struct ext3_inode_info *ei;
- 
--	ei = kmem_cache_alloc(ext3_inode_cachep, SLAB_NOFS);
-+	ei = kmem_cache_alloc(ext3_inode_cachep, SLAB_NOFS|__GFP_KERNRCLM);
- 	if (!ei)
- 		return NULL;
- #ifdef CONFIG_EXT3_FS_POSIX_ACL
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.14-rc5-mm1-clean/fs/inode.c linux-2.6.14-rc5-mm1-001_antidefrag_flags/fs/inode.c
---- linux-2.6.14-rc5-mm1-clean/fs/inode.c	2005-10-20 07:23:05.000000000 +0100
-+++ linux-2.6.14-rc5-mm1-001_antidefrag_flags/fs/inode.c	2005-10-30 13:34:50.000000000 +0000
-@@ -146,7 +146,7 @@ static struct inode *alloc_inode(struct 
- 		mapping->a_ops = &empty_aops;
-  		mapping->host = inode;
- 		mapping->flags = 0;
--		mapping_set_gfp_mask(mapping, GFP_HIGHUSER);
-+		mapping_set_gfp_mask(mapping, GFP_HIGHUSER|__GFP_EASYRCLM);
- 		mapping->assoc_mapping = NULL;
- 		mapping->backing_dev_info = &default_backing_dev_info;
- 
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.14-rc5-mm1-clean/fs/ntfs/inode.c linux-2.6.14-rc5-mm1-001_antidefrag_flags/fs/ntfs/inode.c
---- linux-2.6.14-rc5-mm1-clean/fs/ntfs/inode.c	2005-10-30 13:20:01.000000000 +0000
-+++ linux-2.6.14-rc5-mm1-001_antidefrag_flags/fs/ntfs/inode.c	2005-10-30 13:34:50.000000000 +0000
-@@ -318,7 +318,7 @@ struct inode *ntfs_alloc_big_inode(struc
- 	ntfs_inode *ni;
- 
- 	ntfs_debug("Entering.");
--	ni = kmem_cache_alloc(ntfs_big_inode_cache, SLAB_NOFS);
-+	ni = kmem_cache_alloc(ntfs_big_inode_cache, SLAB_NOFS|__GFP_KERNRCLM);
- 	if (likely(ni != NULL)) {
- 		ni->state = 0;
- 		return VFS_I(ni);
-@@ -343,7 +343,7 @@ static inline ntfs_inode *ntfs_alloc_ext
- 	ntfs_inode *ni;
- 
- 	ntfs_debug("Entering.");
--	ni = kmem_cache_alloc(ntfs_inode_cache, SLAB_NOFS);
-+	ni = kmem_cache_alloc(ntfs_inode_cache, SLAB_NOFS|__GFP_KERNRCLM);
- 	if (likely(ni != NULL)) {
- 		ni->state = 0;
- 		return ni;
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.14-rc5-mm1-clean/include/asm-i386/page.h linux-2.6.14-rc5-mm1-001_antidefrag_flags/include/asm-i386/page.h
---- linux-2.6.14-rc5-mm1-clean/include/asm-i386/page.h	2005-10-20 07:23:05.000000000 +0100
-+++ linux-2.6.14-rc5-mm1-001_antidefrag_flags/include/asm-i386/page.h	2005-10-30 13:34:50.000000000 +0000
-@@ -36,7 +36,8 @@
- #define clear_user_page(page, vaddr, pg)	clear_page(page)
- #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
- 
--#define alloc_zeroed_user_highpage(vma, vaddr) alloc_page_vma(GFP_HIGHUSER | __GFP_ZERO, vma, vaddr)
-+#define alloc_zeroed_user_highpage(vma, vaddr) \
-+	alloc_page_vma(GFP_HIGHUSER | __GFP_ZERO | __GFP_EASYRCLM, vma, vaddr)
- #define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE
++#ifdef CONFIG_ALLOCSTATS
++#define inc_fallback_count(zone, type) zone->fallback_count[type]++
++#define inc_alloc_count(zone, type) zone->alloc_count[type]++
++#define inc_kernnorclm_partial_steal(zone) zone->kernnorclm_partial_steal++
++#define inc_kernnorclm_full_steal(zone) zone->kernnorclm_full_steal++
++#else
++#define inc_fallback_count(zone, type) do {} while (0)
++#define inc_alloc_count(zone, type) do {} while (0)
++#define inc_kernnorclm_partial_steal(zone) do {} while (0)
++#define inc_kernnorclm_full_steal(zone) do {} while (0)
++#endif
  
  /*
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.14-rc5-mm1-clean/include/linux/gfp.h linux-2.6.14-rc5-mm1-001_antidefrag_flags/include/linux/gfp.h
---- linux-2.6.14-rc5-mm1-clean/include/linux/gfp.h	2005-10-30 13:20:05.000000000 +0000
-+++ linux-2.6.14-rc5-mm1-001_antidefrag_flags/include/linux/gfp.h	2005-10-30 13:34:50.000000000 +0000
-@@ -50,14 +50,27 @@ struct vm_area_struct;
- #define __GFP_HARDWALL   0x40000u /* Enforce hardwall cpuset memory allocs */
- #define __GFP_VALID	0x80000000u /* valid GFP flags */
+  * The "priority" of VM scanning is how much of the queues we will scan in one
+@@ -319,12 +341,19 @@ static inline void inc_reserve_count(str
+ {
+ 	if (type == RCLM_FALLBACK)
+ 		zone->fallback_reserve += PAGES_PER_MAXORDER;
++#ifdef CONFIG_ALLOCSTATS
++	zone->reserve_count[type]++;
++#endif
+ }
  
--#define __GFP_BITS_SHIFT 20	/* Room for 20 __GFP_FOO bits */
-+/*
-+ * Allocation type modifiers, these are required to be adjacent
-+ * __GFP_EASYRCLM: Easily reclaimed pages like userspace or buffer pages
-+ * __GFP_KERNRCLM: Short-lived or reclaimable kernel allocation
-+ * Both bits off: Kernel non-reclaimable or very hard to reclaim
-+ * __GFP_EASYRCLM and __GFP_KERNRCLM should not be specified at the same time
-+ * RCLM_SHIFT (defined elsewhere) depends on the location of these bits
-+ */
-+#define __GFP_EASYRCLM   0x80000u  /* User and other easily reclaimed pages */
-+#define __GFP_KERNRCLM   0x100000u /* Kernel page that is reclaimable */
-+#define __GFP_RCLM_BITS  (__GFP_EASYRCLM|__GFP_KERNRCLM)
+ static inline void dec_reserve_count(struct zone *zone, int type)
+ {
+ 	if (type == RCLM_FALLBACK && zone->fallback_reserve)
+ 		zone->fallback_reserve -= PAGES_PER_MAXORDER;
++#ifdef CONFIG_ALLOCSTATS
++	if (zone->reserve_count[type] > 0)
++		zone->reserve_count[type]--;
++#endif
+ }
+ 
+ /*
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.14-rc5-mm1-006_percpu/lib/Kconfig.debug linux-2.6.14-rc5-mm1-007_stats/lib/Kconfig.debug
+--- linux-2.6.14-rc5-mm1-006_percpu/lib/Kconfig.debug	2005-10-30 13:20:06.000000000 +0000
++++ linux-2.6.14-rc5-mm1-007_stats/lib/Kconfig.debug	2005-10-30 13:38:56.000000000 +0000
+@@ -77,6 +77,17 @@ config SCHEDSTATS
+ 	  application, you can say N to avoid the very slight overhead
+ 	  this adds.
+ 
++config ALLOCSTATS
++	bool "Collection buddy allocator statistics"
++	depends on DEBUG_KERNEL && PROC_FS
++	help
++	  If you say Y here, additional code will be inserted into the
++	  page allocator routines to collect statistics on the allocator
++	  behavior and provide them in /proc/buddyinfo. These stats are
++	  useful for measuring fragmentation in the buddy allocator. If
++	  you are not debugging or measuring the allocator, you can say N
++	  to avoid the slight overhead this adds.
 +
-+#define __GFP_BITS_SHIFT 21	/* Room for 21 __GFP_FOO bits */
- #define __GFP_BITS_MASK ((1 << __GFP_BITS_SHIFT) - 1)
+ config DEBUG_SLAB
+ 	bool "Debug memory allocations"
+ 	depends on DEBUG_KERNEL
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.14-rc5-mm1-006_percpu/mm/page_alloc.c linux-2.6.14-rc5-mm1-007_stats/mm/page_alloc.c
+--- linux-2.6.14-rc5-mm1-006_percpu/mm/page_alloc.c	2005-10-30 13:38:14.000000000 +0000
++++ linux-2.6.14-rc5-mm1-007_stats/mm/page_alloc.c	2005-10-30 13:38:56.000000000 +0000
+@@ -187,6 +187,11 @@ EXPORT_SYMBOL(zone_table);
+ static char *zone_names[MAX_NR_ZONES] = { "DMA", "DMA32", "Normal", "HighMem" };
+ int min_free_kbytes = 1024;
  
- /* if you forget to add the bitmask here kernel will crash, period */
- #define GFP_LEVEL_MASK (__GFP_WAIT|__GFP_HIGH|__GFP_IO|__GFP_FS| \
- 			__GFP_COLD|__GFP_NOWARN|__GFP_REPEAT| \
- 			__GFP_NOFAIL|__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP| \
--			__GFP_NOMEMALLOC|__GFP_NORECLAIM|__GFP_HARDWALL)
-+			__GFP_NOMEMALLOC|__GFP_NORECLAIM|__GFP_HARDWALL| \
-+			__GFP_EASYRCLM|__GFP_KERNRCLM)
++#ifdef CONFIG_ALLOCSTATS
++static char *type_names[RCLM_TYPES] = { "KernNoRclm", "EasyRclm",
++					"KernRclm", "Fallback"};
++#endif /* CONFIG_ALLOCSTATS */
++
+ unsigned long __initdata nr_kernel_pages;
+ unsigned long __initdata nr_all_pages;
  
- #define GFP_ATOMIC	(__GFP_VALID | __GFP_HIGH)
- #define GFP_NOIO	(__GFP_VALID | __GFP_WAIT)
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.14-rc5-mm1-clean/include/linux/highmem.h linux-2.6.14-rc5-mm1-001_antidefrag_flags/include/linux/highmem.h
---- linux-2.6.14-rc5-mm1-clean/include/linux/highmem.h	2005-10-20 07:23:05.000000000 +0100
-+++ linux-2.6.14-rc5-mm1-001_antidefrag_flags/include/linux/highmem.h	2005-10-30 13:34:50.000000000 +0000
-@@ -47,7 +47,8 @@ static inline void clear_user_highpage(s
- static inline struct page *
- alloc_zeroed_user_highpage(struct vm_area_struct *vma, unsigned long vaddr)
- {
--	struct page *page = alloc_page_vma(GFP_HIGHUSER, vma, vaddr);
-+	struct page *page = alloc_page_vma(GFP_HIGHUSER|__GFP_EASYRCLM,
-+							vma, vaddr);
- 
- 	if (page)
- 		clear_user_highpage(page, vaddr);
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.14-rc5-mm1-clean/mm/memory.c linux-2.6.14-rc5-mm1-001_antidefrag_flags/mm/memory.c
---- linux-2.6.14-rc5-mm1-clean/mm/memory.c	2005-10-30 13:20:06.000000000 +0000
-+++ linux-2.6.14-rc5-mm1-001_antidefrag_flags/mm/memory.c	2005-10-30 13:34:50.000000000 +0000
-@@ -1295,7 +1295,8 @@ static int do_wp_page(struct mm_struct *
- 		if (!new_page)
- 			goto oom;
- 	} else {
--		new_page = alloc_page_vma(GFP_HIGHUSER, vma, address);
-+		new_page = alloc_page_vma(GFP_HIGHUSER|__GFP_EASYRCLM,
-+							vma, address);
- 		if (!new_page)
- 			goto oom;
- 		copy_user_highpage(new_page, old_page, address);
-@@ -1858,7 +1859,8 @@ retry:
- 
- 		if (unlikely(anon_vma_prepare(vma)))
- 			goto oom;
--		page = alloc_page_vma(GFP_HIGHUSER, vma, address);
-+		page = alloc_page_vma(GFP_HIGHUSER|__GFP_EASYRCLM,
-+							vma, address);
- 		if (!page)
- 			goto oom;
- 		copy_user_highpage(page, new_page, address);
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.14-rc5-mm1-clean/mm/shmem.c linux-2.6.14-rc5-mm1-001_antidefrag_flags/mm/shmem.c
---- linux-2.6.14-rc5-mm1-clean/mm/shmem.c	2005-10-30 13:20:06.000000000 +0000
-+++ linux-2.6.14-rc5-mm1-001_antidefrag_flags/mm/shmem.c	2005-10-30 13:34:50.000000000 +0000
-@@ -906,7 +906,7 @@ shmem_alloc_page(unsigned long gfp, stru
- 	pvma.vm_policy = mpol_shared_policy_lookup(&info->policy, idx);
- 	pvma.vm_pgoff = idx;
- 	pvma.vm_end = PAGE_SIZE;
--	page = alloc_page_vma(gfp | __GFP_ZERO, &pvma, 0);
-+	page = alloc_page_vma(gfp | __GFP_ZERO | __GFP_EASYRCLM, &pvma, 0);
- 	mpol_free(pvma.vm_policy);
- 	return page;
+@@ -684,6 +689,9 @@ fallback_buddy_reserve(int start_allocty
+ 		dec_reserve_count(zone, get_pageblock_type(zone,page));
+ 		set_pageblock_type(zone, page, reserve_type);
+ 		inc_reserve_count(zone, reserve_type);
++		inc_kernnorclm_full_steal(zone);
++	} else {
++		inc_kernnorclm_partial_steal(zone);
+ 	}
+ 	return area;
  }
-@@ -921,7 +921,7 @@ shmem_swapin(struct shmem_inode_info *in
- static inline struct page *
- shmem_alloc_page(gfp_t gfp,struct shmem_inode_info *info, unsigned long idx)
- {
--	return alloc_page(gfp | __GFP_ZERO);
-+	return alloc_page(gfp | __GFP_ZERO | __GFP_EASYRCLM);
- }
- #endif
+@@ -726,6 +734,15 @@ fallback_alloc(int alloctype, struct zon
+ 					current_order, area);
  
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.14-rc5-mm1-clean/mm/swap_state.c linux-2.6.14-rc5-mm1-001_antidefrag_flags/mm/swap_state.c
---- linux-2.6.14-rc5-mm1-clean/mm/swap_state.c	2005-10-30 13:20:06.000000000 +0000
-+++ linux-2.6.14-rc5-mm1-001_antidefrag_flags/mm/swap_state.c	2005-10-30 13:34:50.000000000 +0000
-@@ -341,7 +341,8 @@ struct page *read_swap_cache_async(swp_e
- 		 * Get a new page to read into from swap.
- 		 */
- 		if (!new_page) {
--			new_page = alloc_page_vma(GFP_HIGHUSER, vma, addr);
-+			new_page = alloc_page_vma(GFP_HIGHUSER|__GFP_EASYRCLM,
-+							vma, addr);
- 			if (!new_page)
- 				break;		/* Out of memory */
  		}
++
++		/*
++		 * If the current alloctype is RCLM_FALLBACK, it means
++		 * that the requested pool and fallback pool are both
++		 * depleted and we are falling back to other pools.
++		 * At this point, pools are starting to get fragmented
++		 */
++		if (alloctype == RCLM_FALLBACK)
++			inc_fallback_count(zone, start_alloctype);
+ 	}
+ 
+ 	return NULL;
+@@ -742,6 +759,8 @@ static struct page *__rmqueue(struct zon
+ 	unsigned int current_order;
+ 	struct page *page;
+ 
++	inc_alloc_count(zone, alloctype);
++
+ 	for (current_order = order; current_order < MAX_ORDER; ++current_order) {
+ 		area = &zone->free_area_lists[alloctype][current_order];
+ 		if (list_empty(&area->free_list))
+@@ -2373,6 +2392,9 @@ static __devinit void init_currently_emp
+ 	memmap_init(size, pgdat->node_id, zone_idx(zone), zone_start_pfn);
+ 
+ 	zone_init_free_lists(pgdat, zone, zone->spanned_pages);
++#ifdef CONFIG_ALLOCSTATS
++	zone->reserve_count[RCLM_NORCLM] = zone->present_pages >> (MAX_ORDER-1);
++#endif /* CONFIG_ALLOCSTATS */
+ }
+ 
+ /*
+@@ -2528,6 +2550,18 @@ static int frag_show(struct seq_file *m,
+ 	int order, t;
+ 	struct free_area *area;
+ 	unsigned long nr_bufs = 0;
++#ifdef CONFIG_ALLOCSTATS
++	int i;
++	unsigned long kernnorclm_full_steal = 0;
++	unsigned long kernnorclm_partial_steal = 0;
++	unsigned long reserve_count[RCLM_TYPES];
++	unsigned long fallback_count[RCLM_TYPES];
++	unsigned long alloc_count[RCLM_TYPES];
++
++	memset(reserve_count, 0, sizeof(reserve_count));
++	memset(fallback_count, 0, sizeof(fallback_count));
++	memset(alloc_count, 0, sizeof(alloc_count));
++#endif
+ 
+ 	for (zone = node_zones; zone - node_zones < MAX_NR_ZONES; ++zone) {
+ 		if (!zone->present_pages)
+@@ -2548,6 +2582,86 @@ static int frag_show(struct seq_file *m,
+ 		spin_unlock_irqrestore(&zone->lock, flags);
+ 		seq_putc(m, '\n');
+ 	}
++
++#ifdef CONFIG_ALLOCSTATS
++ 	/* Show statistics for each allocation type */
++ 	seq_printf(m, "\nPer-allocation-type statistics");
++ 	for (zone = node_zones; zone - node_zones < MAX_NR_ZONES; ++zone) {
++ 		if (!zone->present_pages)
++ 			continue;
++
++ 		spin_lock_irqsave(&zone->lock, flags);
++ 		for (t = 0; t < RCLM_TYPES; t++) {
++			struct list_head *elem;
++ 			seq_printf(m, "\nNode %d, zone %8s, type %10s ",
++ 					pgdat->node_id, zone->name,
++ 					type_names[t]);
++ 			for (order = 0; order < MAX_ORDER; ++order) {
++ 				nr_bufs = 0;
++
++ 				list_for_each(elem, &zone->free_area_lists[t][order].free_list)
++ 					++nr_bufs;
++ 				seq_printf(m, "%6lu ", nr_bufs);
++ 			}
++		}
++
++ 		/* Scan global list */
++ 		seq_printf(m, "\n");
++ 		seq_printf(m, "Node %d, zone %8s, type %10s",
++ 					pgdat->node_id, zone->name,
++ 					"MAX_ORDER");
++		nr_bufs = 0;
++		for (t = 0; t < RCLM_TYPES; t++) {
++			nr_bufs +=
++				zone->free_area_lists[t][MAX_ORDER-1].nr_free;
++		}
++ 		seq_printf(m, "%6lu ", nr_bufs);
++		seq_printf(m, "\n");
++
++ 		seq_printf(m, "%s Zone beancounters\n", zone->name);
++		seq_printf(m, "Fallback reserve: %lu (%lu blocks)\n",
++				zone->fallback_reserve,
++				zone->fallback_reserve >> (MAX_ORDER-1));
++		seq_printf(m, "Fallback needed:  %lu (%lu blocks)\n",
++				zone->present_pages >> 3,
++				(zone->present_pages >> 3) >> (MAX_ORDER-1));
++		seq_printf(m, "Partial steal:    %lu\n",
++						zone->kernnorclm_partial_steal);
++		seq_printf(m, "Full steal:       %lu\n",
++						zone->kernnorclm_full_steal);
++
++		kernnorclm_partial_steal += zone->kernnorclm_partial_steal;
++		kernnorclm_full_steal += zone->kernnorclm_full_steal;
++		seq_putc(m, '\n');
++
++		for (i = 0; i< RCLM_TYPES; i++) {
++			seq_printf(m, "%-10s Allocs: %-10lu Reserve: %-10lu Fallbacks: %-10lu\n",
++					type_names[i],
++					zone->alloc_count[i],
++					zone->reserve_count[i],
++					zone->fallback_count[i]);
++			alloc_count[i] += zone->alloc_count[i];
++			reserve_count[i] += zone->reserve_count[i];
++			fallback_count[i] += zone->fallback_count[i];
++		}
++
++		spin_unlock_irqrestore(&zone->lock, flags);
++	}
++
++
++ 	/* Show bean counters */
++ 	seq_printf(m, "\nGlobal beancounters\n");
++	seq_printf(m, "Partial steal:    %lu\n", kernnorclm_partial_steal);
++	seq_printf(m, "Full steal:       %lu\n", kernnorclm_full_steal);
++
++	for (i = 0; i< RCLM_TYPES; i++) {
++ 		seq_printf(m, "%-10s Allocs: %-10lu Reserve: %-10lu Fallbacks: %-10lu\n",
++				type_names[i],
++				alloc_count[i],
++				reserve_count[i],
++				fallback_count[i]);
++	}
++#endif /* CONFIG_ALLOCSTATS */
+ 	return 0;
+ }
+ 

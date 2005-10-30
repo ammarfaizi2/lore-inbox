@@ -1,28 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbVJ3PLV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbVJ3PM6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750790AbVJ3PLV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 10:11:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbVJ3PLV
+	id S1750849AbVJ3PM6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 10:12:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750816AbVJ3PM6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 10:11:21 -0500
-Received: from [69.222.0.20] ([69.222.0.20]:24332 "EHLO usfltd.com")
-	by vger.kernel.org with ESMTP id S1750790AbVJ3PLV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 10:11:21 -0500
-Date: Sun, 30 Oct 2005 09:11:38 -0600
-Message-Id: <200510300911.AA3342892@usfltd.com>
-Mime-Version: 1.0
+	Sun, 30 Oct 2005 10:12:58 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:30478 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750839AbVJ3PM6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 10:12:58 -0500
+Date: Sun, 30 Oct 2005 16:12:56 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Kyle McMartin <kyle@parisc-linux.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Message-ID: <20051030151256.GZ4180@stusta.de>
+References: <20051030105118.GW4180@stusta.de> <20051030142752.GE6475@tachyon.int.mcmartin.ca>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-From: "art" <art@usfltd.com>
-Reply-To: <art@usfltd.com>
-To: <linux-kernel@vger.kernel.org>
-CC: <mingo@elte.hu>
-Subject: kernel-2.6.x-rt -- Ingo compress & pgp sign patches PLEASE !!!
-X-Mailer: <IMail v8.05>
+Content-Disposition: inline
+In-Reply-To: <20051030142752.GE6475@tachyon.int.mcmartin.ca>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kernel-2.6.x-rt -- Ingo compress & pgp sign patches PLEASE !!!
-save net bandwidth & protect data --- can you ?
+On Sun, Oct 30, 2005 at 09:27:52AM -0500, Kyle McMartin wrote:
+> On Sun, Oct 30, 2005 at 11:51:18AM +0100, Adrian Bunk wrote:
+> > 
+> > This patch schedules obsolete OSS drivers (with ALSA drivers that support the
+> > same hardware) for removal.
+> >
+> 
+> I didn't see it here, but SOUND_AD1889 can definitely be removed
+> as well. The driver never worked properly to begin with. This was
+> ACK'd by the author last time this thread reared it's head.
 
-xboom
+ALSA bugs [1] #1301 and #1302 are still open.
+
+If they are resolved, SOUND_AD1889 will part of the next batch of OSS 
+driver removal a few months from now.
+
+> Cheers,
+> 	Kyle
+
+cu
+Adrian
+
+[1] https://bugtrack.alsa-project.org/
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

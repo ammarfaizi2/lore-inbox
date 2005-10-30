@@ -1,95 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750967AbVJ3Ux0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbVJ3VPz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750967AbVJ3Ux0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 15:53:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751126AbVJ3Ux0
+	id S1751122AbVJ3VPz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 16:15:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbVJ3VPz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 15:53:26 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:4483 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750967AbVJ3UxZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 15:53:25 -0500
-Date: Sun, 30 Oct 2005 12:53:45 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org, dwmw2@infradead.org, linux-audit@redhat.com,
-       faith@redhat.com, george@mvista.com, netdev@vger.kernel.org
-Subject: Re: [2.6 patch] kernel/: small cleanups
-Message-ID: <20051030205345.GA32111@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20051030010200.GT4180@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 30 Oct 2005 16:15:55 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:28338 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S1751122AbVJ3VPy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 16:15:54 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: [PATCH 2/3] swsusp: move snapshot-handling functions to snapshot.c
+Date: Sun, 30 Oct 2005 22:16:16 +0100
+User-Agent: KMail/1.8.2
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+References: <200510301637.48842.rjw@sisk.pl> <200510301644.44874.rjw@sisk.pl> <20051030195254.GA1729@openzaurus.ucw.cz>
+In-Reply-To: <20051030195254.GA1729@openzaurus.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051030010200.GT4180@stusta.de>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200510302216.17413.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 30, 2005 at 02:02:00AM +0100, Adrian Bunk wrote:
-> This patch contains the following cleanups:
-> - make needlessly global functions static
+Hi,
 
-Good catch on rcu_torture_alloc()!
+On Sunday, 30 of October 2005 20:52, Pavel Machek wrote:
+> Hi!
+> 
+> > This patch moves the snapshot-handling functions remaining in swsusp.c
+> > to snapshot.c (ie. it moves the code without changing the functionality).
+> >
+> I'm sorry, but I acked this one too quickly. I'd prefer to keep "relocate" code where
+> it is, and define "must not collide" as a part of interface.
 
-							Thanx, Paul
+That's doable, but frankly I don't like the idea.
 
-> - every file should include the headers containing the prototypes for
->   it's global functions
+> That will keep snapshot.c smaller/simpler, and I plan to
+> eventually put responsibility for relocation to userspace.
 
-Acked-by: <paulmck@us.ibm.com>
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> ---
-> 
->  kernel/audit.c      |    2 +-
->  kernel/irq/proc.c   |    2 ++
->  kernel/rcutorture.c |    2 +-
->  kernel/timer.c      |    1 +
->  4 files changed, 5 insertions(+), 2 deletions(-)
-> 
-> --- linux-2.6.14-rc5-mm1-full/kernel/timer.c.old	2005-10-30 02:27:36.000000000 +0200
-> +++ linux-2.6.14-rc5-mm1-full/kernel/timer.c	2005-10-30 02:27:56.000000000 +0200
-> @@ -33,6 +33,7 @@
->  #include <linux/posix-timers.h>
->  #include <linux/cpu.h>
->  #include <linux/syscalls.h>
-> +#include <linux/delay.h>
->  
->  #include <asm/uaccess.h>
->  #include <asm/unistd.h>
-> --- linux-2.6.14-rc5-mm1-full/kernel/irq/proc.c.old	2005-10-30 02:31:31.000000000 +0200
-> +++ linux-2.6.14-rc5-mm1-full/kernel/irq/proc.c	2005-10-30 02:31:48.000000000 +0200
-> @@ -10,6 +10,8 @@
->  #include <linux/proc_fs.h>
->  #include <linux/interrupt.h>
->  
-> +#include "internals.h"
-> +
->  static struct proc_dir_entry *root_irq_dir, *irq_dir[NR_IRQS];
->  
->  #ifdef CONFIG_SMP
-> --- linux-2.6.14-rc5-mm1-full/kernel/audit.c.old	2005-10-30 02:33:08.000000000 +0200
-> +++ linux-2.6.14-rc5-mm1-full/kernel/audit.c	2005-10-30 02:33:15.000000000 +0200
-> @@ -272,7 +272,7 @@
->  	return old;
->  }
->  
-> -int kauditd_thread(void *dummy)
-> +static int kauditd_thread(void *dummy)
->  {
->  	struct sk_buff *skb;
->  
-> --- linux-2.6.14-rc5-mm1-full/kernel/rcutorture.c.old	2005-10-30 02:33:35.000000000 +0200
-> +++ linux-2.6.14-rc5-mm1-full/kernel/rcutorture.c	2005-10-30 02:33:53.000000000 +0200
-> @@ -99,7 +99,7 @@
->  /*
->   * Allocate an element from the rcu_tortures pool.
->   */
-> -struct rcu_torture *
-> +static struct rcu_torture *
->  rcu_torture_alloc(void)
->  {
->  	struct list_head *p;
-> 
-> 
+Please note that the relocating code uses the page flags to mark the allocated
+pages as well as to avoid the pages that should not be used.  In my opinion
+no userspace process should be allowed to fiddle with the page flags.
+
+Moreover, get_safe_page() is called directly by the arch code on x86-64,
+so it has to stay in the kernel and hence it should be in snapshot.c.
+OTOH the relocating code is nothing more than "if the page is not safe,
+use get_safe_page() to allocate one" kind of thing, so I don't see a point
+in taking it out of the kernel (in the future) too.
+
+> That should simplify error handling at least: data structures
+> needed for relocation can be kept in userspace memory,
+
+Well, after the patches that are already in -mm we don't use any additional
+data structures for this purpose, so that's not a problem, I think. ;-)
+
+> and therefore we do not risk memory leak in case something goes wrong.
+
+We don't.  All memory allocated with either get_image_page() or
+get_safe_page() will eventually be released by swsusp_free(), no matter
+what happens.
+
+Greetings,
+Rafael

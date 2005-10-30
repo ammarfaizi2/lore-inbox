@@ -1,60 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbVJ3XE7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbVJ3XJD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932396AbVJ3XE7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 18:04:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbVJ3XE7
+	id S932397AbVJ3XJD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 18:09:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbVJ3XJD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 18:04:59 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:45776 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932398AbVJ3XE6
+	Sun, 30 Oct 2005 18:09:03 -0500
+Received: from smtpout4.uol.com.br ([200.221.4.195]:18863 "EHLO
+	smtp.uol.com.br") by vger.kernel.org with ESMTP id S932397AbVJ3XJB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 18:04:58 -0500
-Message-ID: <43655188.3000808@zytor.com>
-Date: Sun, 30 Oct 2005 15:04:40 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sun, 30 Oct 2005 18:09:01 -0500
+Date: Sun, 30 Oct 2005 21:08:55 -0200
+From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
 To: Linus Torvalds <torvalds@osdl.org>
-CC: Deepak Saxena <dsaxena@plexity.net>, Jeff Garzik <jgarzik@pobox.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       tony@atomide.com
-Subject: Re: [patch 0/5] HW RNG cleanup & new drivers
-References: <20051029191229.562454000@omelas> <4363F31F.2040303@pobox.com> <20051030200219.GB4794@plexity.net> <Pine.LNX.4.64.0510301433070.27915@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0510301433070.27915@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Call for PIIX4 chipset testers
+Message-ID: <20051030230854.GA1730@ime.usp.br>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org> <20051030202626.GF15953@telpin.com.ar>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20051030202626.GF15953@telpin.com.ar>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Oct 30 2005, Alberto Bertogli wrote:
+> On Tue, Oct 25, 2005 at 10:51:24AM -0700, Linus Torvalds wrote:
+> > can you please test out this patch and report what it says in dmesg?
+(...)
 > 
-> On Sun, 30 Oct 2005, Deepak Saxena wrote:
-> 
->>I think moving it to user space will add more complexity for
->>the case where the HW unit is shared with an in in-kernel driver.
-> 
-> 
-> Moving it to user space is just generally stupid.
-> 
-> Often, the random stuff comes from chipsets, not the CPU itself. Not 
-> user-accessible at all, and even if it were, it would be a bad idea to 
-> have user space do things the kernel does normally ("what northbridge do I 
-> have").
-> 
-> There may be use for a user-level library that handles the native CPU 
-> instructions for high performance, but that in no way negates the reason 
-> why /dev/random and friends exist in the first place.
-> 
+> This is the output in a Pentium 2 400Mhz with 2.6.14 final. I hope it's
+> useful!
 
-We're not talking about /dev/random, we're talking about /dev/hw_random 
-which is read by rndg and then fed by userspace back into /dev/[u]random.
+Are any other reports still desired? I have an old Compaq Armada V300
+here with a Celeron 466MHz (Mendocino, if I am not mistaken) and I serve
+here as a guinea pig, since I'm going to be revamping its installation.
 
-Clearly, there are cases (e.g. VIA) where rndg or a library called from 
-rngd could just as easily have done the extraction in userspace, and for 
-that, it makes no sense to force it to do it in the kernel.  For some, 
-it could be done either way, and for others a kernel driver is clearly 
-needed.  Integrating them all into /dev/hw_random was probably a 
-mistake, though.
 
-	-hpa
+Thanks, Rogério Brito.
+
+-- 
+Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
+Homepage of the algorithms package : http://algorithms.berlios.de
+Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/

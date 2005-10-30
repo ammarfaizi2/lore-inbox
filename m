@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbVJ3Syl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbVJ3TEp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932210AbVJ3Syl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 13:54:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbVJ3Syl
+	id S932219AbVJ3TEp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 14:04:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbVJ3TEp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 13:54:41 -0500
-Received: from xproxy.gmail.com ([66.249.82.204]:6520 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932210AbVJ3Syk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 13:54:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=lVqHN+ddy5xBr6B3MyZwsq7lH/r5VbZ7s4k4X6KKvFLGcSGnZjAwcVQt9APU36jJuI3oJLyWw5nRkOky7PpBHxxzHeVeQjOt9ykib+y7byIwrX0L0gf2s+oi5g6wOgLDSpNa/Pe5H5yQcrtuzMzL6LWJ7uL/Lg9Ikd5N9lJNSmw=
-Message-ID: <2c0942db0510301054j64e650efqe416e14fc1e3bff2@mail.gmail.com>
-Date: Sun, 30 Oct 2005 11:54:37 -0700
-From: Ray Lee <madrabbit@gmail.com>
-Reply-To: ray@madrabbit.org
-To: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-Subject: Re: BIND hangs with 2.6.14
-Cc: linux-kernel@vger.kernel.org, ray-lk@madrabbit.org
-In-Reply-To: <20051030023557.GA7798@uio.no>
+	Sun, 30 Oct 2005 14:04:45 -0500
+Received: from moutng.kundenserver.de ([212.227.126.186]:28634 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932219AbVJ3TEp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 14:04:45 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: madhu.subbaiah@wipro.com
+Subject: Re: select() for delay.
+Date: Sun, 30 Oct 2005 20:06:15 +0100
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
+References: <EE111F112BBFF24FB11DB557FA2E5BF301992F02@BLR-EC-MBX02.wipro.com>
+In-Reply-To: <EE111F112BBFF24FB11DB557FA2E5BF301992F02@BLR-EC-MBX02.wipro.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20051030023557.GA7798@uio.no>
+Message-Id: <200510302006.15892.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We upgraded one of our servers (single Opteron, running 64-bit kernel but
-> 32-bit userland) from 2.6.11.9 to 2.6.14 (with the additional NFS patches,
-> but that shouldn't really matter) today, and now BIND seems to hang every few
-> hours. (Everything on the machine except for the kernel is Debian sarge, so
-> we're using BIND 9.2.4 and glibc 2.3.2, with NPTL.) I'm unsure what's really
-> happening, but it doesn't respond to any requests at all, a plain strace on
-> the process gives nothing, ltrace gives nothing, and it doesn't use any CPU.
+On Maandag 24 Oktober 2005 12:55, madhu.subbaiah@wipro.com wrote:
+ 
+> This is regarding select() system call.
+> 
+> Linux select() man page mentions " Some  code  calls  select with all
+> three sets empty, n zero, and a non-null timeout as a fairly portable
+> way to sleep  with  subsecond  precision".
 
-It seems a not unreasonable assumption that 2.6.13 works okay, or
-there would have been reports of unhappiness (though that is a pure
-assumption). Since it only takes a few hours to get the problem to
-occur, is it feasible to try to bisect the problem space by testing
-some snapshots between 2.6.13 and 2.6.14?
+When you make a change to a system call, you should always check
+if the change makes sense for the 32 bit emulation path as well.
 
-Ray
+In this case, you should definitely do the same thing to both
+sys_select and compat_sys_select if this is found worthwhile.
+ 
+> This patch improves the sys_select() execution when used for delay. 
+
+Please describe what aspect of the syscall is improved. Is this only
+speeding up the execution for the delay case while slowing down
+the normal case, or do the actual semantics improve?
+
+	Arnd <><

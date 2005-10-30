@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbVJ3Vc2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbVJ3Vcu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932089AbVJ3Vc2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 16:32:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932105AbVJ3Vc2
+	id S932105AbVJ3Vcu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 16:32:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbVJ3Vcu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 16:32:28 -0500
-Received: from thunk.org ([69.25.196.29]:10377 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S932089AbVJ3Vc2 (ORCPT
+	Sun, 30 Oct 2005 16:32:50 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:39299 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932105AbVJ3Vcs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 16:32:28 -0500
-Date: Sun, 30 Oct 2005 16:32:21 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Andi Kleen <ak@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Tony Luck <tony.luck@gmail.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: New (now current development process)
-Message-ID: <20051030213221.GA28020@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>, Andi Kleen <ak@suse.de>,
-	Linus Torvalds <torvalds@osdl.org>, Tony Luck <tony.luck@gmail.com>,
-	Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com> <12c511ca0510291157u5557b6b1x85a47311f0e16436@mail.gmail.com> <20051029195115.GD14039@flint.arm.linux.org.uk> <Pine.LNX.4.64.0510291314100.3348@g5.osdl.org> <p73r7a4t0s7.fsf@verdi.suse.de>
+	Sun, 30 Oct 2005 16:32:48 -0500
+From: Neil Brown <neilb@suse.de>
+To: Greg KH <greg@kroah.com>
+Date: Mon, 31 Oct 2005 08:32:39 +1100
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <p73r7a4t0s7.fsf@verdi.suse.de>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 7bit
+Message-ID: <17253.15351.332298.116824@cse.unsw.edu.au>
+Cc: Daniele Orlandi <daniele@orlandi.com>, linux-kernel@vger.kernel.org
+Subject: Re: An idea on devfs vs. udev
+In-Reply-To: message from Greg KH on Sunday October 30
+References: <200510301907.11860.daniele@orlandi.com>
+	<17253.14484.653996.225212@cse.unsw.edu.au>
+	<20051030222309.GA9423@kroah.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 30, 2005 at 12:29:28AM +0200, Andi Kleen wrote:
-> Please don't. Even the two weeks are too short IMHO, because it is
-> hard to digest so much code in such a short time and also it is not
-> always easy for maintainers to hit such short time windows for sending
-> patches.
+On Sunday October 30, greg@kroah.com wrote:
+> On Mon, Oct 31, 2005 at 08:18:12AM +1100, Neil Brown wrote:
+> > But then to make matters worse, there is this "sample.sh" file.  UGH!
+> > It's a bit of shell code exported by the kernel.
+> >    #!/bin/sh
+> >    mknod /dev/hda  b 3 0
 > 
-> > I don't think anybody has been really unhappy with this approach? Hmm?
-> 
-> The long freeze periods were nothing much happens are painful. It
-> would be better to have some more overlap of merging and stabilizing
-> (stable does that already kind of, but not enough)
+> That's just a "joke" patch that is only in the -mm tree, as it gets
+> pulled in from my tree.  It's not in mainline, and will never go there.
 
-I thought Andrew was accepting patches targeted at 2.6.n+1 into the
--mm tree during the freeze periods, yes?  If so, why would it be a
-case of "nothing much happens"?  Nothing much might be happening in
-Linus's git tree, but that doesn't that they can't be happening in
-Andrew's -mm patchsets....
-
-						- Ted
+That's a relief,
+thanks,
+NeilBrown

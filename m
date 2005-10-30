@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbVJ3RcI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbVJ3SE3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751095AbVJ3RcI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 12:32:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbVJ3RcI
+	id S932093AbVJ3SE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 13:04:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932141AbVJ3SE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 12:32:08 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:44947 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751089AbVJ3RcH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 12:32:07 -0500
-In-Reply-To: <4364EA58.7040707@21cn.com>
-To: Yan Zheng <yanzheng@21cn.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       netdev-owner@vger.kernel.org
-MIME-Version: 1.0
-Subject: Re: [PATCH][MCAST]IPv6: doubt about ipv6_sk_mc_lock usage.
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OFE9824801.1D574FF8-ON882570AA.005FC39C-882570AA.006050CD@us.ibm.com>
-From: David Stevens <dlstevens@us.ibm.com>
-Date: Sun, 30 Oct 2005 09:32:14 -0800
-X-MIMETrack: Serialize by Router on D03NM121/03/M/IBM(Release 6.53HF654 | July 22, 2005) at
- 10/30/2005 10:32:19,
-	Serialize complete at 10/30/2005 10:32:19
-Content-Type: text/plain; charset="US-ASCII"
+	Sun, 30 Oct 2005 13:04:29 -0500
+Received: from waste.org ([216.27.176.166]:27273 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S932093AbVJ3SE2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 13:04:28 -0500
+Date: Sun, 30 Oct 2005 09:59:11 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: David Weinehall <tao@acc.umu.se>, linux-kernel@vger.kernel.org
+Subject: Re: [ketchup] patch to allow for moving of .gitignore in 2.6.14
+Message-ID: <20051030175911.GS4367@waste.org>
+References: <Pine.LNX.4.58.0510170316310.5859@localhost.localdomain> <20051017213915.GN26160@waste.org> <Pine.LNX.4.58.0510180211320.13581@localhost.localdomain> <20051018063031.GR26160@waste.org> <Pine.LNX.4.58.0510180239550.13581@localhost.localdomain> <20051018072927.GU26160@waste.org> <1130504043.9574.56.camel@localhost.localdomain> <Pine.LNX.4.58.0510291659140.10073@localhost.localdomain> <20051030011959.GA17750@vasa.acc.umu.se> <Pine.LNX.4.58.0510292343280.10073@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0510292343280.10073@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No, ipv6_sk_mc_lock is required for join and leave to protect 
-inet6_mc_check()
-calls, and modifications to the filter list only happen via ioctls that 
-are protected
-by the socket lock.
-
-I don't think any of these changes are correct.
-
-                                                +-DLS
-
-
-netdev-owner@vger.kernel.org wrote on 10/30/2005 07:44:24 AM:
-
-> Hello.
+On Sat, Oct 29, 2005 at 11:48:07PM -0400, Steven Rostedt wrote:
 > 
-> I think ipv6_sk_mc_lock should protest both ipv6_mc_list and it's 
-sflist. 
-> because they can are used by 
-> inet6_mc_check(...) in softirq and be modified by ip6_mc_source(...) or 
-> ip6_mc_msfilter(...) simultaneity.
-> I also remove read_lock when traverse ipv6_mc_list, because it's 
-protected by 
-> lock_sock(sk).
+> On Sun, 30 Oct 2005, David Weinehall wrote:
+> >
+> > Uhm, this patch assumes that you're using bash as /bin/sh.
+> > Not everyone does.  (I haven't checked the rest of the system calls
+> > in ketchup though, maybe this is a more generic problem?)
 > 
+> OK, if I work any more on ketchup, I'm going to convert the whole damn
+> thing into perl! ;-} (and call it "mustard").
+> 
+> Is this patch better? It even tests the version of tar and if it is less
+> than 1.15 it uses --strip-path (the old name) and if it is 1.15 or greater
+> it uses --strip-components (the new name).  And if it fails the version
+> test all together, it goes back to the old (broken) method of just moving
+> the contents.
+> 
+> Is this robust enough for you?
 
+Yep, looks good. Applied and pushed.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

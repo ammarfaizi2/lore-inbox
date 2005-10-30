@@ -1,74 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbVJ3Qzb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbVJ3RED@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932178AbVJ3Qzb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 11:55:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbVJ3Qzb
+	id S932183AbVJ3RED (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 12:04:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbVJ3RED
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 11:55:31 -0500
-Received: from imf22aec.mail.bellsouth.net ([205.152.59.70]:52366 "EHLO
-	imf22aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S932178AbVJ3Qza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 11:55:30 -0500
-Subject: patch to add a config option to enable SATA ATAPI by default
-From: Mark Tomich <tomichm@bellsouth.net>
-To: linux-kernel@vger.kernel.org
-Cc: jgarzik@pobox.com
-Content-Type: text/plain
-Date: Sun, 30 Oct 2005 11:55:28 -0500
-Message-Id: <1130691328.8303.8.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Sun, 30 Oct 2005 12:04:03 -0500
+Received: from noname.neutralserver.com ([70.84.186.210]:8900 "EHLO
+	noname.neutralserver.com") by vger.kernel.org with ESMTP
+	id S932183AbVJ3REC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 12:04:02 -0500
+Date: Sun, 30 Oct 2005 19:03:57 +0200
+From: Dan Aloni <da-x@monatomic.org>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: [PATCH] fix memory leak in sd_mod.o
+Message-ID: <20051030170357.GA21497@localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - noname.neutralserver.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - monatomic.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Below is a very straight-forward patch to add a config option to
-enabling SATA ATAPI by default.
-Please CC me with any comments.
+Handle freeing of sd_max_sectors in sd_exit().
 
-diff -u -r linux-2.6.14-rc5/drivers/scsi/Kconfig
-linux-2.6.14-rc5-patched/drivers/scsi/Kconfig
---- linux-2.6.14-rc5/drivers/scsi/Kconfig	2005-10-30 11:09:15.533533419
--0500
-+++ linux-2.6.14-rc5-patched/drivers/scsi/Kconfig	2005-10-30
-11:21:39.735696058 -0500
-@@ -445,6 +445,17 @@
- 
- 	  If unsure, say N.
- 
-+config SCSI_SATA_ENABLE_ATAPI
-+	bool "Enable SATA ATAPI by default"
-+	depends on SCSI_SATA
-+	help
-+	  SATA ATAPI is disabled by default.
-+	  Use this option to enable it by default.
-+	  
-+	  You probably want this if you have a CDROM attached on the SATA bus.
-+
-+	  If unsure, say Y.
-+
- config SCSI_SATA_AHCI
- 	tristate "AHCI SATA support"
- 	depends on SCSI_SATA && PCI
-diff -u -r linux-2.6.14-rc5/drivers/scsi/libata-core.c
-linux-2.6.14-rc5-patched/drivers/scsi/libata-core.c
---- linux-2.6.14-rc5/drivers/scsi/libata-core.c	2005-10-30
-11:09:15.614522543 -0500
-+++ linux-2.6.14-rc5-patched/drivers/scsi/libata-core.c	2005-10-30
-11:44:45.776652352 -0500
-@@ -75,7 +75,12 @@
- static unsigned int ata_unique_id = 1;
- static struct workqueue_struct *ata_wq;
- 
-+#ifdef CONFIG_SCSI_SATA_ENABLE_ATAPI
-+int atapi_enabled = 1;
-+#else
- int atapi_enabled = 0;
-+#endif
-+
- module_param(atapi_enabled, int, 0444);
- MODULE_PARM_DESC(atapi_enabled, "Enable discovery of ATAPI devices
-(0=off, 1=on)");
- 
+Signed-off-by: Dan Aloni <da-x@monatomic.org>
+
+---
+commit 94e91dcc1b0903a45642fcb906d8a26c996db277
+tree b1d1b44ab4738268f839c83e5e56832124d4b2f3
+parent 2afb6d8ea04e81a1547e8e51b7550a8fd69b9fce
+author Dan Aloni <da-x@monatomic.org> Sun, 30 Oct 2005 18:56:35 +0200
+committer Dan Aloni <da-x@monatomic.org> Sun, 30 Oct 2005 18:56:35 +0200
+
+ drivers/scsi/sd.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
+--- a/drivers/scsi/sd.c
++++ b/drivers/scsi/sd.c
+@@ -1472,6 +1472,7 @@ static void __exit exit_sd(void)
+ 		kfree(sd_sizes);
+ 		kfree(sd_blocksizes);
+ 		kfree(sd_hardsizes);
++		kfree(sd_max_sectors);
+ 		for (i = 0; i < N_USED_SD_MAJORS; i++) {
+ 			kfree(sd_gendisks[i].de_arr);
+ 			kfree(sd_gendisks[i].flags);
+@@ -1482,6 +1483,7 @@ static void __exit exit_sd(void)
+ 		del_gendisk(&sd_gendisks[i]);
+ 		blksize_size[SD_MAJOR(i)] = NULL;
+ 		hardsect_size[SD_MAJOR(i)] = NULL;
++		max_sectors[SD_MAJOR(i)] = NULL;
+ 		read_ahead[SD_MAJOR(i)] = 0;
+ 	}
+ 	sd_template.dev_max = 0;
 
 
+
+
+-- 
+Dan Aloni
+da-x@monatomic.org, da-x@colinux.org, da-x@gmx.net

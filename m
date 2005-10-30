@@ -1,74 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbVJ3VSU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbVJ3VSW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932072AbVJ3VSU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 16:18:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932073AbVJ3VSU
+	id S932073AbVJ3VSW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 16:18:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932076AbVJ3VSW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 16:18:20 -0500
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:31154 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S932072AbVJ3VSU convert rfc822-to-8bit (ORCPT
+	Sun, 30 Oct 2005 16:18:22 -0500
+Received: from mx2.suse.de ([195.135.220.15]:14466 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932073AbVJ3VSV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 16:18:20 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Subject: Re: [PATCH 1/3] swsusp: rework swsusp_suspend
-Date: Sun, 30 Oct 2005 22:18:43 +0100
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@suse.cz>,
-       linux-kernel@vger.kernel.org
-References: <200510301637.48842.rjw@sisk.pl> <200510301640.34306.rjw@sisk.pl> <200510301854.25637.ioe-lkml@rameria.de>
-In-Reply-To: <200510301854.25637.ioe-lkml@rameria.de>
+	Sun, 30 Oct 2005 16:18:21 -0500
+From: Neil Brown <neilb@suse.de>
+To: Daniele Orlandi <daniele@orlandi.com>
+Date: Mon, 31 Oct 2005 08:18:12 +1100
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200510302218.43871.rjw@sisk.pl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17253.14484.653996.225212@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: An idea on devfs vs. udev
+In-Reply-To: message from Daniele Orlandi on Sunday October 30
+References: <200510301907.11860.daniele@orlandi.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sunday October 30, daniele@orlandi.com wrote:
+> 
+> So, why cannot we substitute the "dev" file within /sys with the actual device 
+> file?
 
-On Sunday, 30 of October 2005 18:54, Ingo Oeser wrote:
-> Hi Rafael,
-> 
-> On Sunday 30 October 2005 16:40, Rafael J. Wysocki wrote:
-> > This patch makes only the functions in swsusp.c call functions in snapshot.c
-> > and not both ways.  Basically, it moves the code without changing its
-> > functionality.
->  
-> This is not quite true.
-> 
-> >  #else
-> > -static int save_highmem(void) { return 0; }
-> > +int save_highmem(void) { return 0; }
-> >  int restore_highmem(void) { return 0; }
-> >  #endif /* CONFIG_HIGHMEM */
-> 
-> Here you change code, which will be optimized completely away to
-> an empty function, which bloats the kernel.
-> 
-> Please put these two functions into a local header like this:
-> 
-> #ifdef CONFIG_HIGHMEM
-> int save_highmem(void);
-> int restore_highmem(void);
-> #else
-> static inline int save_highmem(void) { return 0; }
-> static inline int restore_highmem(void) { return 0; }
-> #endif
-> 
-> 
-> That way no having no highmem means, this code is not used at all
-> and everything using the return code and expecting != 0 is going
-> to be optimized away. 
-> 
-> I think everyone CCed will agree here :-)
+I'd just like to say that I am 100% in favour of this idea.
 
-Of course you're right, I'll do that.
+The argument against it seems to be something that I have never
+managed to understand about "policy not belonging in the kernel".
+Now I agree that the kernel should avoid implementing policy, but I
+fail to see how that relates to the current issue.
 
-Thanks a lot for the comment.
+In fact, the way I see it, the current practice clearly violates the
+"avoid policy" policy.
 
-Greetings,
-Rafael
+The kernel needs to export major/minor information through the
+file system.  The "obvious" mechanism for doing this is through a
+device special file.
+But instead, a text file with %d:%d is used.  Why?  I presume to stop
+people from just opening /sys/.../dev.  Stopping people from doing
+such a thing is clearly implementing a "Thou shall not" policy.
+
+But then to make matters worse, there is this "sample.sh" file.  UGH!
+It's a bit of shell code exported by the kernel.
+   #!/bin/sh
+   mknod /dev/hda  b 3 0
+
+This contortion would be totally unnecessary if 'dev' were an honest
+device special file.  Then instead of 
+   sh $sysfspath/sample.sh
+you could
+   cp -R $sysfspath/dev /dev/`basename $sysfspath`
+
+Notes:
+  - obviously a different name would have to be chosen for back
+    compatibility (rdev?).
+  - I would *not* be in favour of then allowing chown/chmod.  These 
+    special files should stay root/root/0600.
+
+NeilBrown
+
+
+

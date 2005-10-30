@@ -1,99 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbVJ3VjD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932352AbVJ3Vkz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932350AbVJ3VjD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 16:39:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbVJ3VjD
+	id S932352AbVJ3Vkz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 16:40:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbVJ3Vkz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 16:39:03 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:8068 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932350AbVJ3VjB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 16:39:01 -0500
-Date: Sun, 30 Oct 2005 22:39:00 +0100
-From: Olaf Hering <olh@suse.de>
-To: Paul Mackeras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>
-Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] ppc64: add MODALIAS= for vio bus
-Message-ID: <20051030213900.GA22510@suse.de>
-Mime-Version: 1.0
+	Sun, 30 Oct 2005 16:40:55 -0500
+Received: from cassarossa.samfundet.no ([129.241.93.19]:26788 "EHLO
+	cassarossa.samfundet.no") by vger.kernel.org with ESMTP
+	id S932352AbVJ3Vky (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 16:40:54 -0500
+Date: Sun, 30 Oct 2005 22:40:52 +0100
+From: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: BIND hangs with 2.6.14
+Message-ID: <20051030214052.GA1454@uio.no>
+References: <20051030023557.GA7798@uio.no> <2c0942db0510301054j64e650efqe416e14fc1e3bff2@mail.gmail.com> <20051030190538.GA25940@uio.no>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20051030190538.GA25940@uio.no>
+X-Operating-System: Linux 2.6.14-rc5 on a x86_64
+X-Message-Flag: Outlook? --> http://www.mozilla.org/products/thunderbird/
+User-Agent: Mutt/1.5.11
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: Status=No hits=-2.8 required=5.0 tests=ALL_TRUSTED version=3.0.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A non-broken udev would autoload also the drivers for devices on the
-pseries vio bus, like ibmveth, ibmvscsic and hvsc. This is similar to
-pci, usb and ieee1394:
+On Sun, Oct 30, 2005 at 08:05:38PM +0100, Steinar H. Gunderson wrote:
+> I have a run going in valgrind now to see if it can find anything bad about
+> the pointers in the msg_hdr structure (the structure itself appears to be OK,
+> judging from my printf-debugging); it's been going for a few hours, so I hope
+> it will be entering its zombie mode now soon :-)
 
- /lib/modules/`uname -r`/modules.alias
-alias vio:TvscsiSIBM,v-scsi* ibmvscsic
-alias vio:TnetworkSIBM,l-lan* ibmveth
-alias vio:Tserial-serverShvterm2* hvcs
+I finally caught it with gdb, after inserting some debug probes. Excerpts
+(removed a few syntax errors):
 
-/events/debug.00004.pci.add.1394:MODALIAS='pci:v00001014d00000188sv00000000sd00000000bc06sc04i0f'
-/events/debug.00005.pci.add.1509:MODALIAS='pci:v00008086d00001229sv00001014sd000001FFbc02sc00i00'
-/events/debug.00026.vio.add.1519:MODALIAS='vio:TserialShvterm1'
-/events/debug.00027.vio.add.1446:MODALIAS='vio:TvscsiSIBM,v-scsi'
-/events/debug.00028.vio.add.1451:MODALIAS='vio:TnetworkSIBM,l-lan'
+(gdb) bt
+#0  0xffffe405 in __kernel_vsyscall ()
+#1  0x55840885 in raise () from /lib/tls/i686/cmov/libc.so.6
+#2  0x55842002 in abort () from /lib/tls/i686/cmov/libc.so.6
+#3  0x557e1383 in doio_recv (sock=0x80d1230, dev=0x8197ac8) at socket.c:917
+#4  0x557e41d5 in internal_recv (me=0x81975a0, ev=0x80d1284) at socket.c:2012
+#5  0x557d6259 in dispatch (manager=0x8094960) at task.c:855
+#6  0x557d64c7 in run (uap=0x8094960) at task.c:998
+#7  0x5580cca3 in start_thread () from /lib/tls/i686/cmov/libpthread.so.0
+#8  0x558eff5a in clone () from /lib/tls/i686/cmov/libc.so.6
+(gdb) up
+#1  0x55840885 in raise () from /lib/tls/i686/cmov/libc.so.6
+(gdb)
+#2  0x55842002 in abort () from /lib/tls/i686/cmov/libc.so.6
+(gdb)
+#3  0x557e1383 in doio_recv (sock=0x80d1230, dev=0x8197ac8) at socket.c:917
+917                     abort();
+(gdb) print msghdr
+$1 = {msg_name = 0x8197b14, msg_namelen = 28, msg_iov = 0x561519e0, msg_iovlen = 1, msg_control = 0x809a810, msg_controllen = 52, msg_flags = 0}
+(gdb) print msghdr.msg_name
+$2 = (void *) 0x8197b14
+(gdb) print (char *)msghdr.msg_name
+$3 = 0x8197b14 ""
+(gdb) print ((char *)msghdr.msg_name)[0]
+$4 = 0 '\0'
+(gdb) print ((char *)msghdr.msg_name)[27]
+$5 = 0 '\0'
+(gdb) print ((char *)msghdr.msg_control)[0]
+$6 = 20 '\024'
+(gdb) print ((char *)msghdr.msg_control)[51]
+$7 = -66 '¾'
+(gdb) print *(msghdr.msg_iov)
+$9 = {iov_base = 0x8171208, iov_len = 4096}
+(gdb) print ((char*)msghdr.msg_iov.iov_base)[0]
+$10 = -30 'â'
+(gdb) print ((char*)msghdr.msg_iov.iov_base)[4095]
+$11 = -66 '¾'
+(gdb) print sock->fd
+$12 = 22
+(gdb) print recvmsg(sock->fd, &msghdr, 0)
+$14 = 42
 
- modprobe -v vio:TnetworkSIBM,l-lan
-insmod /lib/modules/2.6.14-20051030_vio-ppc64/kernel/drivers/net/ibmveth.ko 
+IOW, the call that just failed suddenly worked in the debugger. I can't
+really believe this is a BIND bug anymore... I'm lost here. Anyone?
 
-
-Signed-off-by: Olaf Hering <olh@suse.de>
-
- arch/ppc64/kernel/vio.c |   27 +++++++++++++++++++++++++++
- 1 files changed, 27 insertions(+)
-
-Index: linux-2.6.14-olh/arch/ppc64/kernel/vio.c
-===================================================================
---- linux-2.6.14-olh.orig/arch/ppc64/kernel/vio.c
-+++ linux-2.6.14-olh/arch/ppc64/kernel/vio.c
-@@ -21,6 +21,7 @@
- #include <asm/iommu.h>
- #include <asm/dma.h>
- #include <asm/vio.h>
-+#include <asm/prom.h>
- 
- static const struct vio_device_id *vio_match_device(
- 		const struct vio_device_id *, const struct vio_dev *);
-@@ -255,7 +256,33 @@ static int vio_bus_match(struct device *
- 	return (ids != NULL) && (vio_match_device(ids, vio_dev) != NULL);
- }
- 
-+static int pseries_vio_hotplug (struct device *dev, char **envp, int num_envp,
-+                          char *buffer, int buffer_size)
-+{
-+	const struct vio_dev *vio_dev = to_vio_dev(dev);
-+	char *cp;
-+	int length;
-+
-+	if (!num_envp)
-+		return -ENOMEM;
-+
-+	if (!vio_dev->dev.platform_data)
-+		return -ENODEV;
-+	cp = (char *)get_property(vio_dev->dev.platform_data, "compatible", &length);
-+	if (!cp)
-+		return -ENODEV;
-+
-+	envp[0] = buffer;
-+	length = scnprintf (buffer, buffer_size, "MODALIAS=vio:T%sS%s",
-+	                     vio_dev->type, cp);
-+	if (buffer_size - length <= 0)
-+		return -ENOMEM;
-+	envp[1] = NULL;
-+	return 0;
-+}
-+
- struct bus_type vio_bus_type = {
- 	.name = "vio",
-+	.hotplug = pseries_vio_hotplug,
- 	.match = vio_bus_match,
- };
+/* Steinar */
 -- 
-short story of a lazy sysadmin:
- alias appserv=wotan
+Homepage: http://www.sesse.net/

@@ -1,51 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932793AbVJ3Cfh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932803AbVJ3DAL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932793AbVJ3Cfh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 22:35:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932803AbVJ3Cfg
+	id S932803AbVJ3DAL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 23:00:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932804AbVJ3DAK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 22:35:36 -0400
-Received: from cassarossa.samfundet.no ([129.241.93.19]:9707 "EHLO
-	cassarossa.samfundet.no") by vger.kernel.org with ESMTP
-	id S932793AbVJ3Cfg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 22:35:36 -0400
-Date: Sun, 30 Oct 2005 03:35:57 +0100
-From: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-To: linux-kernel@vger.kernel.org
-Subject: BIND hangs with 2.6.14
-Message-ID: <20051030023557.GA7798@uio.no>
+	Sat, 29 Oct 2005 23:00:10 -0400
+Received: from zproxy.gmail.com ([64.233.162.193]:823 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932803AbVJ3DAJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 23:00:09 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=RyKoU1gZxdGrUy0tW+FCg8FPG8OxdkB0tLOEx3TC4ezpSymgtuCAcPC6KIW/trtkGoU2+qkPzjwTwRYifw7ZdeEJSY3zroz7h6bBF7ApQTdFW4cy/ke+CH9SU41qA7R2XbvQDBVYsp4tAOYUsyLVHkisAhYATqOPs7TxYg/jB6k=
+Message-ID: <4364372E.2010904@gmail.com>
+Date: Sun, 30 Oct 2005 11:59:58 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-Operating-System: Linux 2.6.14-rc5 on a x86_64
-X-Message-Flag: Outlook? --> http://www.mozilla.org/products/thunderbird/
-User-Agent: Mutt/1.5.11
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: Status=No hits=-2.8 required=5.0 tests=ALL_TRUSTED version=3.0.3
+To: Paul Collins <paul@briny.ondioline.org>
+CC: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: 2.6.14: Oops on suspend after on-the-fly switch to anticipatory
+ i/o scheduler - PowerBook5,4
+References: <87mzkscjz3.fsf@briny.internal.ondioline.org>
+In-Reply-To: <87mzkscjz3.fsf@briny.internal.ondioline.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Please Cc me on any replies, I'm not subscribed]
+Hello, Paul.
 
-Hi,
+Paul Collins wrote:
+> I boot with elevator=cfq (wanted to try the ionice stuff, never got
+> around to it).  Having decided to go back to the anticipatory
+> scheduler, I did the following:
+> 
+> # echo anticipatory > /sys/block/hda/queue/scheduler
+> # echo anticipatory > /sys/block/hdc/queue/scheduler
+> 
+> A while later I did 'sudo snooze', which produced the Oops below.
+> 
+> Booting with elevator=as and then changing to cfq, sleep works fine.
+> But if I resume and change back to anticipatory I get a similar Oops
+> on the next 'sudo snooze'.
+> 
+> 
+>   Oops: kernel access of bad area, sig: 11 [#1]
+>   NIP: C01E1948 LR: C01D6A60 SP: EFBC5C20 REGS: efbc5b70 TRAP: 0300    Not tainted
+>   MSR: 00001032 EE: 0 PR: 0 FP: 0 ME: 1 IR/DR: 11
+>   DAR: 00000020, DSISR: 40000000
+>   TASK = efb012c0[1213] 'pmud' THREAD: efbc4000
+>   Last syscall: 54 
+>   GPR00: 00080000 EFBC5C20 EFB012C0 EFE9E044 EFBC5CE8 00000002 00000000 C03B0000 
+>   GPR08: C046E5D8 00000000 C03B47C8 E6A58360 22042422 1001E4DC 10010000 10000000 
+>   GPR16: 10000000 10000000 10000000 7FE4EB40 10000000 10000000 10010000 C0400000 
+>   GPR24: C0380000 00000002 00000002 C046E0C0 00000000 00000002 00000000 EFBC5CE8 
+>   NIP [c01e1948] as_insert_request+0xa8/0x6b0
+>   LR [c01d6a60] __elv_add_request+0xa0/0x100
+>   Call trace:
+>    [c01d6a60] __elv_add_request+0xa0/0x100
+>    [c01ffb84] ide_do_drive_cmd+0xb4/0x190
+>    [c01fc1c0] generic_ide_suspend+0x80/0xa0
+>    [c01d4574] suspend_device+0x104/0x160
+>    [c01d47c0] device_suspend+0x120/0x330
+>    [c03f3b50] pmac_suspend_devices+0x50/0x1b0
+>    [c03f4294] pmu_ioctl+0x344/0x9b0
+>    [c0082aa4] do_ioctl+0x84/0x90
+>    [c0082b3c] vfs_ioctl+0x8c/0x460
+>    [c0082f50] sys_ioctl+0x40/0x80
+>    [c0004850] ret_from_syscall+0x0/0x4c
+> 
 
-We upgraded one of our servers (single Opteron, running 64-bit kernel but
-32-bit userland) from 2.6.11.9 to 2.6.14 (with the additional NFS patches,
-but that shouldn't really matter) today, and now BIND seems to hang every few
-hours. (Everything on the machine except for the kernel is Debian sarge, so
-we're using BIND 9.2.4 and glibc 2.3.2, with NPTL.) I'm unsure what's really
-happening, but it doesn't respond to any requests at all, a plain strace on
-the process gives nothing, ltrace gives nothing, and it doesn't use any CPU.
+Can you please post assembly of as_insert_request?  You can get this by 
+doing 'objdump -d drivers/block/as-iosched.o | less' and copy & pasting 
+as_insert_request part.
 
-gdb shows four threads, one of them in sigsuspend, another in select, a third
-in __JCR_LIST__ and the fourth just showing garbage. I'm sorry I can't be
-more specific here -- I can't find a reliable way to provoke it into this
-hanging behaviour, but I've got an strace running now to at least have _some_
-tracking information when it goes awry.
+I'm also trying to reproduce the oops but haven't succeeded yet.  Does 
+the oops occur only if the disk is loaded while switching scheduler / 
+snoozing or does it happen regardless of disk load?
 
-Does anybody have a clue as of what might break it in this way? I've skimmed
-the changelogs, but couldn't find anything obvious.
+And one more thing.  Can you please try the following program and see if 
+it causes the oops?  The program simply writes 3, sleeps one second and 
+then writes 0.  When redirected to the disk's power/state sysfs node, it 
+will make the disk sleep for 1 second and then wake it up.
 
-/* Steinar */
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(int argc, char **argv)
+{
+	int level = 3;
+	if (argc > 1)
+		level = atoi(argv[1]);
+	setvbuf(stdout, NULL, _IONBF, 0);
+	printf("%d", level);
+	sleep(1);
+	printf("0");
+	return 0;
+}
+
+After compiling, do the following.
+
+./a.out > /sys/block/hd?/device/power/state
+
+Thanks. :-)
+
 -- 
-Homepage: http://www.sesse.net/
+tejun

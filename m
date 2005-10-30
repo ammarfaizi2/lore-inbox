@@ -1,61 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932784AbVJ3CAM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932772AbVJ3CKS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932784AbVJ3CAM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 22:00:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932781AbVJ3CAM
+	id S932772AbVJ3CKS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 22:10:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932785AbVJ3CKS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 22:00:12 -0400
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:18016 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932784AbVJ3CAK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 22:00:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=sIHVoM4X8KrPWbTOye5/EqjB2p+8BGV84izM/6NGClMjUSejpwN8gIA9Ld5J0w6syRG4H59pA/2SSm6CIhowbzvMiw+1KEruIFMt/A05LTG5sNauQtjU+wXo3ftiLKVNq6cr29TLKZEDyralPqzBOQr6e9rYEu9NuVBAl0Ihleo=  ;
-Message-ID: <4364296E.1080905@yahoo.com.au>
-Date: Sun, 30 Oct 2005 13:01:18 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Sat, 29 Oct 2005 22:10:18 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:43969 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932772AbVJ3CKR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 22:10:17 -0400
+Date: Sat, 29 Oct 2005 22:10:05 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+To: David Weinehall <tao@acc.umu.se>
+cc: linux-kernel@vger.kernel.org, Matt Mackall <mpm@selenic.com>
+Subject: Re: [ketchup] patch to allow for moving of .gitignore in 2.6.14
+In-Reply-To: <20051030011959.GA17750@vasa.acc.umu.se>
+Message-ID: <Pine.LNX.4.58.0510292204170.10073@localhost.localdomain>
+References: <Pine.LNX.4.58.0510170316310.5859@localhost.localdomain>
+ <20051017213915.GN26160@waste.org> <Pine.LNX.4.58.0510180211320.13581@localhost.localdomain>
+ <20051018063031.GR26160@waste.org> <Pine.LNX.4.58.0510180239550.13581@localhost.localdomain>
+ <20051018072927.GU26160@waste.org> <1130504043.9574.56.camel@localhost.localdomain>
+ <Pine.LNX.4.58.0510291659140.10073@localhost.localdomain>
+ <20051030011959.GA17750@vasa.acc.umu.se>
 MIME-Version: 1.0
-To: Paul Jackson <pj@sgi.com>
-CC: "Rohit, Seth" <rohit.seth@intel.com>, akpm@osdl.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: Clean up of __alloc_pages
-References: <20051028183326.A28611@unix-os.sc.intel.com> <20051029184728.100e3058.pj@sgi.com>
-In-Reply-To: <20051029184728.100e3058.pj@sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson wrote:
-> A couple more items:
->  1) Lets try for a consistent use of type "gfp_t" for gfp_mask.
->  2) The can_try_harder flag values were driving me nuts.
 
-Please instead use a second argument 'gfp_high', which will nicely
-match zone_watermark_ok, and use that consistently when converting
-__alloc_pages code to use get_page_from_freelist. Ie. keep current
-behaviour.
 
-That would solve my issues with the patch.
+On Sun, 30 Oct 2005, David Weinehall wrote:
 
->  3) The "inline" you added to buffered_rmqueue() blew up my compile.
+> On Sat, Oct 29, 2005 at 05:06:21PM -0400, Steven Rostedt wrote:
+> [snip]
+>
+> >
+> > -    err = os.system("mv linux*/* . ; rmdir linux*")
+> > +    err = os.system("shopt -s dotglob; mv linux*/* . ; rmdir linux*")
+> >      if err:
+> >          error("Unpacking failed: ", err)
+> >          sys.exit(-1)
+>
+>
+> Uhm, this patch assumes that you're using bash as /bin/sh.
 
-How? Why? This should be solved because a future possible feature
-(early allocation from pcp lists) will want inlining in order to
-propogate the constant 'replenish' argument.
+Well, aren't you?  :-)
 
->  4) The return from try_to_free_pages() was put in "i" for no evident reason.
->  5) I have no clue what the replenish flag you added to buffered_rmqueue does.
-> 
+> Not everyone does.  (I haven't checked the rest of the system calls
+> in ketchup though, maybe this is a more generic problem?)
 
-Slight patch mis-split I guess. For the cleanup patch, you're right,
-this should be removed.
+Yeah, the thought did occur to me that this is bash specific, and would
+not be "portable".  But I did think that this is very Linux specific, and
+I'll go with the 99% of most Linux boxes use bash.  But you are right to
+complain because, like Linux, I like to be compatible with even the most
+obscure setups.
 
--- 
-SUSE Labs, Novell Inc.
+When I get some more time, I'll play with some other methods, like what
+Matt suggested.  But this is the quick fix for those that do use bash as
+the system shell, and want it to work for their system.  Since currently,
+it doesn't work for 2.6.14 from scratch.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+-- Steve
+

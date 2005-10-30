@@ -1,55 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbVJ3Qcg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751059AbVJ3Qak@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932175AbVJ3Qcg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 11:32:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbVJ3Qcg
+	id S1751059AbVJ3Qak (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 11:30:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751081AbVJ3Qak
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 11:32:36 -0500
-Received: from ams-iport-1.cisco.com ([144.254.224.140]:33296 "EHLO
-	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S932175AbVJ3Qcf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 11:32:35 -0500
-To: Andi Kleen <ak@suse.de>
-Cc: "Martin J. Bligh" <mbligh@mbligh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, discuss@x86-64.org
-Subject: Re: [PATCH] x86_64: Work around Re: 2.6.14-git1 (and -git2) build
- failure on AMD64
-X-Message-Flag: Warning: May contain useful information
-References: <16080000.1130681008@[10.10.2.4]> <200510301649.42064.ak@suse.de>
-	<52br17nfmk.fsf@cisco.com> <200510301723.31561.ak@suse.de>
-From: Roland Dreier <rolandd@cisco.com>
-Date: Sun, 30 Oct 2005 08:32:28 -0800
-In-Reply-To: <200510301723.31561.ak@suse.de> (Andi Kleen's message of "Sun,
- 30 Oct 2005 17:23:31 +0100")
-Message-ID: <523bmjnexv.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+	Sun, 30 Oct 2005 11:30:40 -0500
+Received: from xproxy.gmail.com ([66.249.82.192]:38620 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751059AbVJ3Qaj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 11:30:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=UyAW8YNOioBdYi41EkXuzZG90vgi7Kbt7bNj9NGpUgc4SNhbEtg9YWn/ehUCBzTCvdEm6HExla1y75ajBo3DXSLLdptrcxnO5Sfnyma/ggbIkMEfZmGZ+9ELuvd2EeUVGXhxkgEARECbOoEz3awZaEAsEtcb94+MnkQ0N+mP/rk=
+Message-ID: <5bdc1c8b0510300830p7a8690b0h5581835502e88093@mail.gmail.com>
+Date: Sun, 30 Oct 2005 08:30:38 -0800
+From: Mark Knecht <markknecht@gmail.com>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.14-rt1
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       john stultz <johnstul@us.ibm.com>,
+       Florian Schmidt <mista.tapas@gmx.net>, "K.R. Foley" <kr@cybsft.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>
+In-Reply-To: <20051030133316.GA11225@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 30 Oct 2005 16:32:29.0448 (UTC) FILETIME=[851FA880:01C5DD6F]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051017160536.GA2107@elte.hu> <20051020195432.GA21903@elte.hu>
+	 <20051030133316.GA11225@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Andi> While not correct I don't see how it should guarantee it
-    Andi> will work around that gcc bug on all possible gcc versions
-    Andi> (which show different behaviour) My patch is more
-    Andi> conservative and safer.
+On 10/30/05, Ingo Molnar <mingo@elte.hu> wrote:
+>
+> i have released the 2.6.14-rt1 tree, which can be downloaded from the
+> usual place:
+>
+>    http://redhat.com/~mingo/realtime-preempt/
+>
+> this release is mainly about ktimer fixes: it updates to the latest
+> ktimer tree from Thomas Gleixner (which includes John Stultz's latest
+> GTOD tree), it fixes TSC synchronization problems on HT systems, and
+> updates the ktimers debugging code.
+>
+> These together could fix most of the timer warnings and annoyances
+> reported for 2.6.14-rc5-rt kernels. In particular the new
+> TSC-synchronization code could fix SMP systems: the upstream TSC
+> synchronization method is fine for 1 usec resolution, but it was not
+> good enough for 1 nsec resolution and likely caused the SMP bugs
+> reported by Fernando Lopez-Lezcano and Rui Nuno Capela.
+>
+> Please re-report any bugs that remain.
+>
+> Changes since 2.6.14-rc5-rt1:
+>
+>  - GTOD -B9 (John Stultz)
+>
+>  - ktimer updates (Thomas Gleixner, me)
 
-What's the gcc bug?  The current fixup.c code is asking gcc to put
-toshiba_ohci1394_dmi_table[] in the .init.text section.  This makes
-gcc think that .init.text contains writable data.  Then some other
-declaration in the file asks gcc to put a function in .init.text.  gcc
-correctly complains that text and writable data can't share a section.
+I am no longer seeing any ktimer messages in dmesg after booting. So
+far so good.
 
-If we fix toshiba_ohci1394_dmi_table[] to go into .init.data as is
-intended, then gcc is happy.
+>
+>  - ktimer debugging check fixes (Steven Rostedt)
+>
+>  - smarter TSC synchronization on SMP - we now rely on it for nsecs (me)
+>
+>  - x64 build fix (reported by Mark Knecht)
 
-The only thing remotely like a gcc bug is that the diagnostic gcc
-prints does not flag toshiba_ohci1394_dmi_table[] as the problem.
+Thanks Ingo. This seems fixed. 2.6.14-rt1 up and running here.
 
-Admittedly I have only tested gcc 4.0 and gcc 3.4, but given that no
-one reported this problem before toshiba_ohci1394_dmi_table[] was
-added, and that the __devinit declaration of an array is obviously
-wrong and would cause exactly this sort of section conflict, I think
-we should at least try the correct fix.
+>
+>  - tracing fix (reported by Florian Schmidt)
+>
+>  - rtc histogram fixes (K.R. Foley)
+>
+>  - merge to 2.6.14
+>
+> to build a 2.6.14-rt1 tree, the following patches should be applied:
+>
+>   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.14.tar.bz2
+>   http://redhat.com/~mingo/realtime-preempt/patch-2.6.14-rt1
+>
+>         Ingo
+>
 
- - R.
+Cheers,
+Mark

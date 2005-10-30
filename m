@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbVJ3KpF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbVJ3Kiq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751283AbVJ3KpF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 05:45:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbVJ3KpE
+	id S1751212AbVJ3Kiq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 05:38:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbVJ3Kiq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 05:45:04 -0500
-Received: from cassarossa.samfundet.no ([129.241.93.19]:65183 "EHLO
-	cassarossa.samfundet.no") by vger.kernel.org with ESMTP
-	id S1751283AbVJ3KpC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 05:45:02 -0500
-Date: Sun, 30 Oct 2005 11:45:27 +0100
-From: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-To: bert hubert <bert.hubert@netherlabs.nl>, linux-kernel@vger.kernel.org
-Subject: Re: BIND hangs with 2.6.14
-Message-ID: <20051030104527.GB32446@uio.no>
-References: <20051030023557.GA7798@uio.no> <20051030101148.GA18854@outpost.ds9a.nl>
+	Sun, 30 Oct 2005 05:38:46 -0500
+Received: from ns2.suse.de ([195.135.220.15]:5318 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751212AbVJ3Kip (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 05:38:45 -0500
+From: Andreas Schwab <schwab@suse.de>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, "Sergey S. Kostyliov" <rathamahata@php4.ru>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] befs: use strlcpy()
+References: <20051030011817.GA32602@mipter.zuzino.mipt.ru>
+X-Yow: I think I'll make SCRAMBLED EGGS!!  They're each in LITTLE SHELLS..
+Date: Sun, 30 Oct 2005 11:38:36 +0100
+In-Reply-To: <20051030011817.GA32602@mipter.zuzino.mipt.ru> (Alexey Dobriyan's
+	message of "Sun, 30 Oct 2005 04:18:17 +0300")
+Message-ID: <jebr175lxv.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20051030101148.GA18854@outpost.ds9a.nl>
-X-Operating-System: Linux 2.6.14-rc5 on a x86_64
-X-Message-Flag: Outlook? --> http://www.mozilla.org/products/thunderbird/
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 30, 2005 at 11:11:48AM +0100, bert hubert wrote:
->> We upgraded one of our servers (single Opteron, running 64-bit kernel but
->> 32-bit userland) from 2.6.11.9 to 2.6.14 (with the additional NFS patches,
->> but that shouldn't really matter) today, and now BIND seems to hang every few
->> hours. (Everything on the machine except for the kernel is Debian sarge, so
->> we're using BIND 9.2.4 and glibc 2.3.2, with NPTL.) I'm unsure what's really
->> happening, but it doesn't respond to any requests at all, a plain strace on
->> the process gives nothing, ltrace gives nothing, and it doesn't use any CPU.
-> Is BIND touching anything on NFS?
+Alexey Dobriyan <adobriyan@gmail.com> writes:
 
-No, it isn't.
+> --- a/fs/befs/btree.c
+> +++ b/fs/befs/btree.c
+> @@ -503,10 +503,9 @@ befs_btree_read(struct super_block *sb, 
+>  		goto error_alloc;
+>  	};
+>  
+> -	strncpy(keybuf, keystart, keylen);
+> +	strlcpy(keybuf, keystart, keylen);
+>  	*value = fs64_to_cpu(sb, valarray[cur_key]);
+>  	*keysize = keylen;
+> -	keybuf[keylen] = '\0';
 
-/* Steinar */
+You are now cutting off the last character of the string.  keylen is the
+exact size of the string to be copied, _not_ the size of the buffer (which
+is bufsize and guaranteed to be big enough at this point).
+
+Andreas.
+
 -- 
-Homepage: http://www.sesse.net/
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

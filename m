@@ -1,91 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbVJ3WTt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbVJ3WZx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932364AbVJ3WTt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 17:19:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbVJ3WTt
+	id S932366AbVJ3WZx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 17:25:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbVJ3WZx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 17:19:49 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:32448 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932364AbVJ3WTt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 17:19:49 -0500
-Date: Sun, 30 Oct 2005 14:19:14 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: larry.finger@att.net (Larry.Finger@lwfinger.net)
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Broken "make install" in 2.6.14-git1
-Message-Id: <20051030141914.51033f02.akpm@osdl.org>
-In-Reply-To: <103020052203.28455.436543310008FB9900006F2721603759649D0A09020700D2979D9D0E04@att.net>
-References: <103020052203.28455.436543310008FB9900006F2721603759649D0A09020700D2979D9D0E04@att.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 30 Oct 2005 17:25:53 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:16871 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932366AbVJ3WZw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 17:25:52 -0500
+Date: Sun, 30 Oct 2005 22:25:43 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Dave Jones <davej@redhat.com>, Keith Owens <kaos@ocs.com.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14 assorted warnings
+Message-ID: <20051030222543.GN7992@ftp.linux.org.uk>
+References: <5455.1130484079@kao2.melbourne.sgi.com> <20051028073049.GA27389@redhat.com> <1130710531.32734.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1130710531.32734.5.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-larry.finger@att.net (Larry.Finger@lwfinger.net) wrote:
->
->  -------------- Original message ----------------------
-> From: Andrew Morton <akpm@osdl.org>
-> > larry.finger@att.net (Larry.Finger@lwfinger.net) wrote:
-> > >
-> > > The changes introduced the commit 596c96ba05e5d56e72451e02f93f4e15e17458df 
-> > break the initrd building step of the "make install" process. The console output 
-> > is as follows:
-> > 
-> > I'm unable to locate that commit, perhaps due to a local lack of gittiness.
-> > 
-> > Can you describe the patch less cryptically?
-> > 
-> 
-> I'm not very good with git. All that bisect visualize shows for the patch is the following:
-> 
-> Author: Linus Torvalds <torvalds@g5.osdl.org>  2005-10-29 16:02:16
-> Committer: Linus Torvalds <torvalds@g5.osdl.org>  2005-10-29 16:02:16
-> Parent: e9d52234e35b27ea4ea5f2ab64ca47b1a0c740ab (Merge branch 'upstream' of git://ftp.linux-mips.org/pub/scm/upstream-linus)
-> 
-> Obviously, it consists of a number of patches, but I don't know how to elaborate. Is there some git command to get the full description?
+On Sun, Oct 30, 2005 at 10:15:31PM +0000, Alan Cox wrote:
+> gcc is a *LOT* smarter than you give it credit for. It will not warn for
+> cases where it isn't able to tell how foo is used passed with &foo. It
+> will warn for cases where it can
 
-Yes, that's a sort of empty marker which indicates the point at which Linus
-merged the MIPS git tree.  It's rather bad of git-bisect if it told you
-that this was offending patch.
+static inline __attribute__((always_inline)) int bar(int n, int *idx)
+{
+        if (n != 1) 
+                return 0; 
+        *idx = 1;
+        return 1;  
+}
+void baz(int *v, int n)
+{
+        int idx;
+        int p = bar(n, &idx);
+        if (__builtin_expect(!p, 0))
+                return; 
+        *v |= idx;
+}
 
-> > > >sudo make install
-> > >   CHK     include/linux/version.h
-> > >   CHK     include/linux/compile.h
-> > >   SKIPPED include/linux/compile.h
-> > >   CHK     usr/initramfs_list
-> > > Kernel: arch/i386/boot/bzImage is ready  (#97)
-> > > sh /home/finger/kernel/linux/arch/i386/boot/install.sh 2.6.14-g596c96ba 
-> > arch/i386/boot/bzImage System.map "/boot"
-> > > Root device:    /dev/hda6 (mounted on / as reiserfs)
-> > > Module list:    via82cxxx processor thermal fan reiserfs
-> > > 
-> > > Kernel image:   /boot/vmlinuz-2.6.14-g596c96ba
-> > > Initrd image:   /boot/initrd-2.6.14-g596c96ba
-> > > Shared libs:    lib/ld-2.3.5.so lib/libblkid.so.1.0 lib/libc-2.3.5.so 
-> > lib/libselinux.so.1 lib/libuuid.so.1.2
-> > > Driver modules: via82cxxx processor thermal fan reiserfs
-> > > Filesystem modules:
-> > > Including:      klibc initramfs udev fsck.reiserfs
-> > > Bootsplash:     SuSE (1024x768)
-> > > 8358 blocks
-> > > no record for '/block/hdc/uevent' in database
-> > > Use of uninitialized value in scalar chomp at 
-> > > /usr/lib/perl5/vendor_perl/5.8.7/Bootloader/Tools.pm line 139.
-> > > Use of uninitialized value in concatenation (.) or string at 
-> > /usr/lib/perl5/vendor_perl/5.8.7/Bootloader/Tools.pm line 140.
-> > > ......
-> > > 
-> > > I used git bisect to localize the bad commit. I also observed that if the 
-> > kernel created /sys/block/hdc/uevent, it failed. If this "file" does not exist, 
-> > the install worked.
-> > 
-> > What does "it failed" mean?   Is this the same bug, or a different one?
-> 
-> Same bug. _make install_ fails if the uevent files are present. Sorry for the imprecision.
-> 
-
-I don't know what'a happening here.  What program is saying "no record for
-'/block/hdc/uevent' in database"?
+and try gcc -Wall on that.  Watch it warn about idx being possibly
+uninitialized.  Replace __builtin_expect(!p, 0) with !p and see
+the warning go away.  That, BTW, is a trimmed-down source of bogus
+warning in bio.c.  And a lot of its analogs all over the tree.

@@ -1,71 +1,204 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbVJ3AlU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbVJ3All@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932225AbVJ3AlU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 20:41:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbVJ3AlU
+	id S932308AbVJ3All (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 20:41:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbVJ3All
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 20:41:20 -0400
-Received: from ms-smtp-01-smtplb.rdc-nyc.rr.com ([24.29.109.5]:9654 "EHLO
-	ms-smtp-01.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id S932225AbVJ3AlT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 20:41:19 -0400
-Subject: [PATCH / 2.6.14] prevent dmesg warning in zr36067 driver
-From: "Ronald S. Bultje" <rbultje@ronald.bitfreak.net>
-To: akpm@osdl.org
-Cc: casteyde.christian@free.fr, mjpeg-developer@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-LDAFd4bBqhZUDZCOuwfA"
-Date: Sat, 29 Oct 2005 20:42:03 -0400
-Message-Id: <1130632924.2690.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sat, 29 Oct 2005 20:41:41 -0400
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:32122 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932308AbVJ3Alk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 20:41:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:Subject:References:In-Reply-To:Content-Type;
+  b=f2QlQ+O86p4780DnkmEPX2AXwA5bcCCR6Vp2/E6aFqwpwbJcfxWhR0cGLV7usEM/MwOp7Qqq15o3H5JE1Z6EEGIeyEh+4ersiyTpODYnZsa9B4FoTr4XnT/sba4CkyoI5bhKSxJpB4XwZkciLlNXX9/pW06VNlQwgbPlm+V3IDY=  ;
+Message-ID: <4364171C.7020103@yahoo.com.au>
+Date: Sun, 30 Oct 2005 11:43:08 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [patch 1/5] i386 generic cmpxchg
+References: <436416AD.3050709@yahoo.com.au>
+In-Reply-To: <436416AD.3050709@yahoo.com.au>
+Content-Type: multipart/mixed;
+ boundary="------------050704020804070905000204"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-LDAFd4bBqhZUDZCOuwfA
-Content-Type: text/plain
+This is a multi-part message in MIME format.
+--------------050704020804070905000204
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Hi,
+1/5
 
-attached patch fixes the warning "Debug: sleeping function called from
-invalid context at include/asm/semaphore.h:102" that the zr36067 driver
-emits every time an application using JPEG capture starts up (e.g.
-mjpegtools' lavrec). The warning is harmless, but clogs up the dmesg
-output. This was logged as bugzilla #5403. (Thanks to Christian Casteyde
-for helping me in fixing this long-standing annoyance.)
+-- 
+SUSE Labs, Novell Inc.
 
-Signed-off-by: Ronald S. Bultje <rbultje@ronald.bitfreak.net>
 
-Cheers,
-Ronald
-
---=-LDAFd4bBqhZUDZCOuwfA
-Content-Disposition: attachment; filename=p
-Content-Type: text/plain; name=p; charset=UTF-8
+--------------050704020804070905000204
+Content-Type: text/plain;
+ name="i386-generic-cmpxchg.patch"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="i386-generic-cmpxchg.patch"
 
---- linux-2.6.14/drivers/media/video/zoran_driver.c.old	2005-10-29 20:36:24.000000000 -0400
-+++ linux-2.6.14/drivers/media/video/zoran_driver.c	2005-10-29 20:36:48.000000000 -0400
-@@ -996,8 +996,6 @@
- 		return -EINVAL;
- 	}
+Changelog
+        * Make cmpxchg generally available on the i386 platform.
+        * Provide emulation of cmpxchg suitable for uniprocessor if
+	  built and run on 386.
+
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
+
+	* Cut down patch and small style changes.
+
+Signed-off-by: Nick Piggin <npiggin@suse.de>
+
+Index: linux-2.6/arch/i386/kernel/cpu/intel.c
+===================================================================
+--- linux-2.6.orig/arch/i386/kernel/cpu/intel.c
++++ linux-2.6/arch/i386/kernel/cpu/intel.c
+@@ -6,6 +6,7 @@
+ #include <linux/bitops.h>
+ #include <linux/smp.h>
+ #include <linux/thread_info.h>
++#include <linux/module.h>
  
--	spin_lock_irqsave(&zr->spinlock, flags);
--
- 	if (fh->jpg_buffers.active == ZORAN_FREE) {
- 		if (zr->jpg_buffers.active == ZORAN_FREE) {
- 			zr->jpg_buffers = fh->jpg_buffers;
-@@ -1016,6 +1014,8 @@
- 		zr36057_enable_jpg(zr, mode);
- 	}
+ #include <asm/processor.h>
+ #include <asm/msr.h>
+@@ -264,5 +265,55 @@ __init int intel_cpu_init(void)
+ 	return 0;
+ }
  
-+	spin_lock_irqsave(&zr->spinlock, flags);
++#ifndef CONFIG_X86_CMPXCHG
++unsigned long cmpxchg_386_u8(volatile void *ptr, u8 old, u8 new)
++{
++	u8 prev;
++	unsigned long flags;
 +
- 	if (!res) {
- 		switch (zr->jpg_buffers.buffer[num].state) {
- 		case BUZ_STATE_DONE:
++	/* Poor man's cmpxchg for 386. Unsuitable for SMP */
++	local_irq_save(flags);
++	prev = *(u8 *)ptr;
++	if (prev == old)
++		*(u8 *)ptr = new;
++	local_irq_restore(flags);
++	return prev;
++}
++
++EXPORT_SYMBOL(cmpxchg_386_u8);
++
++unsigned long cmpxchg_386_u16(volatile void *ptr, u16 old, u16 new)
++{
++	u16 prev;
++	unsigned long flags;
++
++	/* Poor man's cmpxchg for 386. Unsuitable for SMP */
++	local_irq_save(flags);
++	prev = *(u16 *)ptr;
++	if (prev == old)
++		*(u16 *)ptr = new;
++	local_irq_restore(flags);
++	return prev;
++}
++
++EXPORT_SYMBOL(cmpxchg_386_u16);
++
++unsigned long cmpxchg_386_u32(volatile void *ptr, u32 old, u32 new)
++{
++	u32 prev;
++	unsigned long flags;
++
++	/* Poor man's cmpxchg for 386. Unsuitable for SMP */
++	local_irq_save(flags);
++	prev = *(u32 *)ptr;
++	if (prev == old)
++		*(u32 *)ptr = new;
++	local_irq_restore(flags);
++	return prev;
++}
++
++EXPORT_SYMBOL(cmpxchg_386_u32);
++#endif
++
+ // arch_initcall(intel_cpu_init);
+ 
+Index: linux-2.6/include/asm-i386/system.h
+===================================================================
+--- linux-2.6.orig/include/asm-i386/system.h
++++ linux-2.6/include/asm-i386/system.h
+@@ -256,11 +256,6 @@ static inline unsigned long __xchg(unsig
+  * store NEW in MEM.  Return the initial value in MEM.  Success is
+  * indicated by comparing RETURN with OLD.
+  */
+-
+-#ifdef CONFIG_X86_CMPXCHG
+-#define __HAVE_ARCH_CMPXCHG 1
+-#endif
+-
+ static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
+ 				      unsigned long new, int size)
+ {
+@@ -288,12 +283,53 @@ static inline unsigned long __cmpxchg(vo
+ 	return old;
+ }
+ 
++#ifdef CONFIG_X86_CMPXCHG
++#define __HAVE_ARCH_CMPXCHG 1
+ #define cmpxchg(ptr,o,n)\
+-	((__typeof__(*(ptr)))__cmpxchg((ptr),(unsigned long)(o),\
+-					(unsigned long)(n),sizeof(*(ptr))))
+-    
++	((__typeof__(*(ptr)))__cmpxchg((ptr), (unsigned long)(o), \
++					(unsigned long)(n), sizeof(*(ptr))))
++
++#else
++
++/*
++ * Building a kernel capable running on 80386. It may be necessary to
++ * simulate the cmpxchg on the 80386 CPU. For that purpose we define
++ * a function for each of the sizes we support.
++ */
++
++extern unsigned long cmpxchg_386_u8(volatile void *, u8, u8);
++extern unsigned long cmpxchg_386_u16(volatile void *, u16, u16);
++extern unsigned long cmpxchg_386_u32(volatile void *, u32, u32);
++
++static inline unsigned long cmpxchg_386(volatile void *ptr, unsigned long old,
++				      unsigned long new, int size)
++{
++	switch (size) {
++	case 1:
++		return cmpxchg_386_u8(ptr, old, new);
++	case 2:
++		return cmpxchg_386_u16(ptr, old, new);
++	case 4:
++		return cmpxchg_386_u32(ptr, old, new);
++	}
++	return old;
++}
++
++#define cmpxchg(ptr,o,n)						\
++({									\
++	__typeof__(*(ptr)) __ret;					\
++	if (likely(boot_cpu_data.x86 > 3))				\
++		__ret = __cmpxchg((ptr), (unsigned long)(o),		\
++					(unsigned long)(n), sizeof(*(ptr))); \
++	else								\
++		__ret = cmpxchg_386((ptr), (unsigned long)(o),		\
++					(unsigned long)(n), sizeof(*(ptr))); \
++	__ret;								\
++})
++#endif
++
+ #ifdef __KERNEL__
+-struct alt_instr { 
++struct alt_instr {
+ 	__u8 *instr; 		/* original instruction */
+ 	__u8 *replacement;
+ 	__u8  cpuid;		/* cpuid bit set for replacement */
 
---=-LDAFd4bBqhZUDZCOuwfA--
-
+--------------050704020804070905000204--
+Send instant messages to your online friends http://au.messenger.yahoo.com 

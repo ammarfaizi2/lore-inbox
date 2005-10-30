@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbVJ3Ahm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbVJ3AkP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932100AbVJ3Ahm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 20:37:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbVJ3Ahm
+	id S932214AbVJ3AkP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 20:40:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbVJ3AkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 20:37:42 -0400
-Received: from xproxy.gmail.com ([66.249.82.197]:43109 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932100AbVJ3Ahl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 20:37:41 -0400
+	Sat, 29 Oct 2005 20:40:14 -0400
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:17298 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932207AbVJ3AkN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 20:40:13 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=sflwmrVTo1TFG9WlA6J8ld5dHiIJXyc19GJYtd8BW4GAXdwMDHp6Mb+k66jLRYJDVWHbxlbDki9kFsocpQuBbYqZ2/nWu5T+lKkxdPix7h8LO3r0cp6Vt5BAiMI/qfmfW0lIV4gFmk6Kz7MLeOOqoIf3vwd0EMcVL0GRQfOtU/o=
-Message-ID: <9a8748490510291737jf901dfr9876bb73d4ab6a63@mail.gmail.com>
-Date: Sun, 30 Oct 2005 02:37:11 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Subject: Re: New (now current development process)
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com>
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:Subject:Content-Type:Content-Transfer-Encoding;
+  b=alwUMaNb+uSiDbfG6fKfNmFvfQR6XPJooo+PCrlCwk5bys+Jxq8rHGhcpTHalXJX92b7JoOATUMwZ/sJwCuF5/Css+4hoy3/H8JjrW+ARmeI/1HrSTRG1VcTTDUEgdy3TvdaLjnx3pMKbgvFCFg9V1+BrNFhErDDQ7xuSvKc638=  ;
+Message-ID: <436416AD.3050709@yahoo.com.au>
+Date: Sun, 30 Oct 2005 11:41:17 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [patches] lockless pagecache prep round 1
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/29/05, Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote:
-> Hi all,
-> I would like to write a short article about the new development
-> process discussed during last Linux Kernel Developers' Summit for my
-> local LUG.
->
-> Since I'm not able to find an accurate report of what has been
-> discussed during that meeting I try to summariza what is my
-> understanding of the current process:
->
-> The are two kind of releases, 2.6.x kerneles and 2.6.x.y
->
-I recently wrote a document on the different kernel trees and how to
-apply patches for them. In that document I also give a description of
-the various trees.
-Perhaps that document will be useful to you. You can find it in a
-recent kernel source tree as Documentation/applying-patches.txt or you
-can read it online via lrx at this URL :
-http://sosdg.org/~coywolf/lxr/source/Documentation/applying-patches.txt
+Hi List,
 
-Good luck on your article. Once you are done with it I'd love to read
-it and I guess a lot of other people would too, so please supply an
-URL to it at that time :-)
+Following this are some prep patches from my lockless pagecache
+patch stack, though they are nice patches that stand by themselves.
+I would be interested in getting them merged soon, they have
+survived quite a lot of stress testing here. Reviews and Acks from
+interested parties would be helpful.
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+First is the generic atomic_cmpxchg stuff. These are really useful
+primitives to have in general as can be seen by their subsequent
+application. I've tried to do lots of compile testing, but if this
+causes failures, then it is exposing bugs already in the code that
+need fixing.
+
+Second is some radix tree improvements and cleanups. This patchset
+does introduce an "unused" radix tree API (lookup_slot), however
+I thought it was appropriate to include this patch here because
+there seem to be a number of users interested in this functionality
+(lockless pagecache, reiser4, adaptive readahead), and I don't want
+to see 3 different implementations!
+
+Thanks,
+Nick
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,31 +1,68 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751233AbVJ2U1X (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sat, 29 Oct 2005 16:27:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbVJ2U1X
+	id S932177AbVJ3AH4 (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 29 Oct 2005 20:07:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbVJ3AH4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 16:27:23 -0400
-Received: from chello212186153151.chello.pl ([212.186.153.151]:48388 "HELO
-	chello212186153151.chello.pl") by vger.kernel.org with SMTP
-	id S1751233AbVJ2U1X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 16:27:23 -0400
-Reply-To: "Misty Byrne" <david0gswa@quatuor.com>
-From: "Misty" <david0gswa@quatuor.com>
-Message-ID: <7113004382.355846805711@quatuor.com>
-Date: Sat, 29 Oct 2005 16:28:44 -0400
-To: <linux-kernel@vger.kernel.org>
-Subject: Detection $$$ Horny College Babe Black Lingerie Posing
+	Sat, 29 Oct 2005 20:07:56 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:30928 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S932177AbVJ3AHz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 20:07:55 -0400
+Message-Id: <200510300007.j9U07koG018771@zeus1.kernel.org>
+From: =?ISO-8859-1?Q?=20=22G=F6rsel?=  =?ISO-8859-1?Q?=20Tasar=FDm?= -  =?ISO-8859-1?Q?=20Foto=F0?=
+	=?ISO-8859-1?Q?rafc=FDl=FDk?=  =?ISO-8859-1?Q?=20Reklamc=FDl=FDk?= Hizmetleri" 
+	<ismailacar.net@gmail.com>
+Illegal-Object: Syntax error in From: address found on vger.kernel.org:
+	From:	Hizmetleri
+				  ^-missing closing '"' in token
+Illegal-Object: Syntax error in From: address found on vger.kernel.org:
+	From:	Hizmetleri
+				  ^-missing closing '"' in token
+Reply-To: ismailacar.net@gmail.com
+To: linux-kernel@vger.kernel.org
+Date: Sun, 30 Oct 2005 02:07:50 +0200
+Subject: =?ISO-8859-1?Q?=20=DEirketlere?=  =?ISO-8859-1?Q?=20=F6zel?= Katalog - Profesyonel  =?ISO-8859-1?Q?=20g?=
+	=?ISO-8859-1?Q?=F6rsel?= Hizmetlerimiz  =?ISO-8859-1?Q?=20Hakk=FDnda?=
+X-Mailer: Microsoft Outlook Express 5.00.2919.7000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=windows-1254
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751233AbVJ2U1X@vger.kernel.org>
-
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932177AbVJ3AH4@vger.kernel.org>
 
 
-http://tawuqeco.com/main/
-Nude18yo Blonde Facial Cumshot Close Up
-18yo Blond Doll In Stockings Posing In Lingerie18yo Babysitter Suck Fat Cock On Knees
-18yo Teen Fingering Snatch On Bed & Dildo Fuck18yo Long Haired Mexican Beauty Posing OutdoorBlond 18yo Teen Undressing & Posing NudeGorgeous 18yo Asian Teen Fucking For Facial
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * *=20
+          ISMAIL ACAR TANITIM H=DDZMETLERI
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * *=20
+     Iyi g=FCnler...
+      =20
+    Tan=FDt=FDm foto=F0raf=E7=FDl=FD=F0=FD yapan firmam=FDz size profes=
+yonel alternatif=20
+ g=F6rsel =E7=F6z=FCmler sunuyor.Bizi arayarak Katalaog tasar=FDmlar=FD=
+n=FDz ve=20
+ firmam=FDz=FDn =E7al=FD=FEmalar=FD ve referanslar=FD hakk=FDnda bilgi =
+alabilirsiniz.
+
+ Bize 212 2191782=20
+        536 2768940 ' dan yada
+ ismailacar.net-den bize ula=FEabilirsiniz.
+
+                                                               Sayg=FDl=
+ar=FDmla
+                                                               Ismail A=
+CAR
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+          REKLAMCILIK VE TANITIM HIZMETLER=DD
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

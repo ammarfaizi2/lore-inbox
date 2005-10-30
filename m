@@ -1,70 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932733AbVJ3GSq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932761AbVJ3Gr0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932733AbVJ3GSq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 01:18:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932739AbVJ3GSp
+	id S932761AbVJ3Gr0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 01:47:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932798AbVJ3Gr0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 01:18:45 -0500
-Received: from gate.crashing.org ([63.228.1.57]:29420 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932733AbVJ3GSp (ORCPT
+	Sun, 30 Oct 2005 01:47:26 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:62096 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S932761AbVJ3GrZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 01:18:45 -0500
-Subject: Re: [PATCH] .text page fault SMP scalability optimization
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       olof@austin.ibm.com
-In-Reply-To: <20051019090632.GC30541@x30.random>
-References: <20051019075255.GB30541@x30.random>
-	 <20051019011420.032ccd6d.akpm@osdl.org> <20051019090632.GC30541@x30.random>
-Content-Type: text/plain
-Date: Sun, 30 Oct 2005 17:17:31 +1100
-Message-Id: <1130653052.29054.237.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Sun, 30 Oct 2005 01:47:25 -0500
+Message-Id: <200510300228.j9U2SAd3031713@inti.inf.utfsm.cl>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [git patches] 2.6.x libata updates 
+In-Reply-To: Message from Linus Torvalds <torvalds@osdl.org> 
+   of "Sat, 29 Oct 2005 12:37:58 PDT." <Pine.LNX.4.64.0510291229330.3348@g5.osdl.org> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Sat, 29 Oct 2005 23:28:10 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-10-19 at 11:06 +0200, Andrea Arcangeli wrote:
-> On Wed, Oct 19, 2005 at 01:14:20AM -0700, Andrew Morton wrote:
-> > How strange.  Do you mena that all CPUs were entering the pagefault handler
-> > on behalf of the same pte all the time?  That they're staying in lockstep?
+Linus Torvalds <torvalds@osdl.org> wrote:
+> On Sat, 29 Oct 2005, Jeff Garzik wrote:
+> > 
+> > Even so, it's easy, to I'll ask him to test 2.6.14, 2.6.14-git1, and
+> > (tonight's upcoming) 2.6.14-git2 (with my latest pull included) to see if
+> > anything breaks.
 > 
-> Yes.
+> Side note: one of the downsides of the new "merge lots of stuff early in 
+> the development series" approach is that the first few daily snapshots end 
+> up being _huge_. 
 
-Nice catch Andrea !
-
-> > If so, there must be a bunch of page_table_lock contention too?
-> 
-> Not really as much. Note also that with latest mainline the ppc64 kernel
-> was going well even without this patch, it was some older codebase
-> falling apart, primarly because it was still doing pte_establish there
-> see:
-> 
-> 	young_entry = pte_mkyoung(entry);
-> 	if (!pte_same(young_entry, entry)) {
-> 		ptep_establish(vma, address, pte, young_entry);
-> 		update_mmu_cache(vma, address, young_entry);
-> 		lazy_mmu_prot_update(young_entry);
-> 	}
-
-Yes, that's one reason why I introduced ptep_set_access_flags() to be
-used when relaxing access permissions to a PTE.
-
-> So those flush actions were a bottleneck when executed by all cpus at
-> the same time. But some archs still implement it like with the old
-> codebase, and the patch is quite an obvious optimization that can
-> clearly avoid useless tlb flushes (and that fixed the problem completely
-> with the older codebase still dong ptep_establish even on ppc64).
-
-Note that we should really pass more than just "write_access" from the
-arch code. We could make good use of "execute" in some cases as well,
-also knowing wether this is a real fault or the result of
-get_user_pages() (in some case, the former could use more agressive TLB
-pre-loading, not the later). Finally, those infos should be passed to
-update_mmu_cache().
-
-Ben.
-
-
+How about doing it in several stages at the beginning? I.e., have -git1
+after one set of patches (pulling in from somebody, etc), and so on?
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

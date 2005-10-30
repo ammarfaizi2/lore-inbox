@@ -1,40 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932358AbVJ3V4e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932359AbVJ3WDb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932358AbVJ3V4e (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 16:56:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbVJ3V4e
+	id S932359AbVJ3WDb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 17:03:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbVJ3WDb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 16:56:34 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:24499 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1751169AbVJ3V4d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 16:56:33 -0500
-Subject: Re: 4GB memory and Intel Dual-Core system
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Alejandro Bonilla <abonilla@linuxwireless.org>
-Cc: Marcel Holtmann <marcel@holtmann.org>, Dave Jones <davej@redhat.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20051027221756.M55421@linuxwireless.org>
-References: <1130445194.5416.3.camel@blade> <52mzkuwuzg.fsf@cisco.com>
-	 <20051027204923.M89071@linuxwireless.org> <1130446667.5416.14.camel@blade>
-	 <20051027205921.M81949@linuxwireless.org> <1130447261.5416.20.camel@blade>
-	 <20051027211203.M33358@linuxwireless.org>
-	 <20051027220533.GA18773@redhat.com> <1130451071.5416.32.camel@blade>
-	 <20051027221253.GA25932@redhat.com> <1130451421.5416.35.camel@blade>
-	 <20051027221756.M55421@linuxwireless.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sun, 30 Oct 2005 22:26:05 +0000
-Message-Id: <1130711165.32734.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sun, 30 Oct 2005 17:03:31 -0500
+Received: from mtiwmhc11.worldnet.att.net ([204.127.131.115]:21892 "EHLO
+	mtiwmhc11.worldnet.att.net") by vger.kernel.org with ESMTP
+	id S1751201AbVJ3WDb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 17:03:31 -0500
+From: larry.finger@att.net (Larry.Finger@lwfinger.net)
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Broken "make install" in 2.6.14-git1
+Date: Sun, 30 Oct 2005 22:03:29 +0000
+Message-Id: <103020052203.28455.436543310008FB9900006F2721603759649D0A09020700D2979D9D0E04@att.net>
+X-Mailer: AT&T Message Center Version 1 (Feb 14 2005)
+X-Authenticated-Sender: bGFycnkuZmluZ2VyQGF0dC5uZXQ=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-10-27 at 18:20 -0400, Alejandro Bonilla wrote:
-> Dude, again. This has nothing to do with the CPU. The arch IA32 is simply
-> _not_ made for 4GB, so, some motherboards manufacturers make a workaround like
+ -------------- Original message ----------------------
+From: Andrew Morton <akpm@osdl.org>
+> larry.finger@att.net (Larry.Finger@lwfinger.net) wrote:
+> >
+> > The changes introduced the commit 596c96ba05e5d56e72451e02f93f4e15e17458df 
+> break the initrd building step of the "make install" process. The console output 
+> is as follows:
+> 
+> I'm unable to locate that commit, perhaps due to a local lack of gittiness.
+> 
+> Can you describe the patch less cryptically?
+> 
 
-Wrong IA-32 supports more than 4Gb in PAE 36bit physical 32bit virtual
-mode and has done since the Preventium Pro
+I'm not very good with git. All that bisect visualize shows for the patch is the following:
+
+Author: Linus Torvalds <torvalds@g5.osdl.org>  2005-10-29 16:02:16
+Committer: Linus Torvalds <torvalds@g5.osdl.org>  2005-10-29 16:02:16
+Parent: e9d52234e35b27ea4ea5f2ab64ca47b1a0c740ab (Merge branch 'upstream' of git://ftp.linux-mips.org/pub/scm/upstream-linus)
+
+Obviously, it consists of a number of patches, but I don't know how to elaborate. Is there some git command to get the full description?
+
+> > >sudo make install
+> >   CHK     include/linux/version.h
+> >   CHK     include/linux/compile.h
+> >   SKIPPED include/linux/compile.h
+> >   CHK     usr/initramfs_list
+> > Kernel: arch/i386/boot/bzImage is ready  (#97)
+> > sh /home/finger/kernel/linux/arch/i386/boot/install.sh 2.6.14-g596c96ba 
+> arch/i386/boot/bzImage System.map "/boot"
+> > Root device:    /dev/hda6 (mounted on / as reiserfs)
+> > Module list:    via82cxxx processor thermal fan reiserfs
+> > 
+> > Kernel image:   /boot/vmlinuz-2.6.14-g596c96ba
+> > Initrd image:   /boot/initrd-2.6.14-g596c96ba
+> > Shared libs:    lib/ld-2.3.5.so lib/libblkid.so.1.0 lib/libc-2.3.5.so 
+> lib/libselinux.so.1 lib/libuuid.so.1.2
+> > Driver modules: via82cxxx processor thermal fan reiserfs
+> > Filesystem modules:
+> > Including:      klibc initramfs udev fsck.reiserfs
+> > Bootsplash:     SuSE (1024x768)
+> > 8358 blocks
+> > no record for '/block/hdc/uevent' in database
+> > Use of uninitialized value in scalar chomp at 
+> > /usr/lib/perl5/vendor_perl/5.8.7/Bootloader/Tools.pm line 139.
+> > Use of uninitialized value in concatenation (.) or string at 
+> /usr/lib/perl5/vendor_perl/5.8.7/Bootloader/Tools.pm line 140.
+> > ......
+> > 
+> > I used git bisect to localize the bad commit. I also observed that if the 
+> kernel created /sys/block/hdc/uevent, it failed. If this "file" does not exist, 
+> the install worked.
+> 
+> What does "it failed" mean?   Is this the same bug, or a different one?
+
+Same bug. _make install_ fails if the uevent files are present. Sorry for the imprecision.
+
+Larry
 

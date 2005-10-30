@@ -1,49 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbVJ3TFm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbVJ3TMq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbVJ3TFm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 14:05:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbVJ3TFm
+	id S932224AbVJ3TMq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 14:12:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbVJ3TMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 14:05:42 -0500
-Received: from cassarossa.samfundet.no ([129.241.93.19]:22686 "EHLO
-	cassarossa.samfundet.no") by vger.kernel.org with ESMTP
-	id S932220AbVJ3TFl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 14:05:41 -0500
-Date: Sun, 30 Oct 2005 20:05:38 +0100
-From: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-To: ray@madrabbit.org
-Cc: linux-kernel@vger.kernel.org, ray-lk@madrabbit.org
-Subject: Re: BIND hangs with 2.6.14
-Message-ID: <20051030190538.GA25940@uio.no>
-References: <20051030023557.GA7798@uio.no> <2c0942db0510301054j64e650efqe416e14fc1e3bff2@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <2c0942db0510301054j64e650efqe416e14fc1e3bff2@mail.gmail.com>
-X-Operating-System: Linux 2.6.14-rc5 on a x86_64
-X-Message-Flag: Outlook? --> http://www.mozilla.org/products/thunderbird/
-User-Agent: Mutt/1.5.11
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: Status=No hits=-2.8 required=5.0 tests=ALL_TRUSTED version=3.0.3
+	Sun, 30 Oct 2005 14:12:46 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:40935 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932224AbVJ3TMp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 14:12:45 -0500
+Subject: Re: select() for delay.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: madhu.subbaiah@wipro.com, linux-kernel@vger.kernel.org
+In-Reply-To: <200510302006.15892.arnd@arndb.de>
+References: <EE111F112BBFF24FB11DB557FA2E5BF301992F02@BLR-EC-MBX02.wipro.com>
+	 <200510302006.15892.arnd@arndb.de>
+Content-Type: text/plain
+Date: Sun, 30 Oct 2005 20:12:29 +0100
+Message-Id: <1130699550.2829.8.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 30, 2005 at 11:54:37AM -0700, Ray Lee wrote:
-> It seems a not unreasonable assumption that 2.6.13 works okay, or
-> there would have been reports of unhappiness (though that is a pure
-> assumption). Since it only takes a few hours to get the problem to
-> occur, is it feasible to try to bisect the problem space by testing
-> some snapshots between 2.6.13 and 2.6.14?
+On Sun, 2005-10-30 at 20:06 +0100, Arnd Bergmann wrote:
+> On Maandag 24 Oktober 2005 12:55, madhu.subbaiah@wipro.com wrote:
+>  
+> > This is regarding select() system call.
+> > 
+> > Linux select() man page mentions " Some  code  calls  select with all
+> > three sets empty, n zero, and a non-null timeout as a fairly portable
+> > way to sleep  with  subsecond  precision".
+> 
+> When you make a change to a system call, you should always check
+> if the change makes sense for the 32 bit emulation path as well.
+> 
+> In this case, you should definitely do the same thing to both
+> sys_select and compat_sys_select if this is found worthwhile.
+>  
+> > This patch improves the sys_select() execution when used for delay. 
+> 
+> Please describe what aspect of the syscall is improved. Is this only
+> speeding up the execution for the delay case while slowing down
+> the normal case, or do the actual semantics improve?
 
-Unfortunately, the machine does quite a bit of other work apart from BIND, so
-unless somebody can reproduce this on another machine, it will be a bit
-difficult.
+there is something funky about increasing the speed of a delay ;)
 
-I have a run going in valgrind now to see if it can find anything bad about
-the pointers in the msg_hdr structure (the structure itself appears to be OK,
-judging from my printf-debugging); it's been going for a few hours, so I hope
-it will be entering its zombie mode now soon :-)
-
-/* Steinar */
--- 
-Homepage: http://www.sesse.net/

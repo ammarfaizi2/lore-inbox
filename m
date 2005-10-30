@@ -1,51 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbVJ3VgA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbVJ3VjD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932347AbVJ3VgA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 16:36:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbVJ3VgA
+	id S932350AbVJ3VjD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 16:39:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbVJ3VjD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 16:36:00 -0500
-Received: from mail.suse.de ([195.135.220.2]:52613 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932347AbVJ3Vf7 (ORCPT
+	Sun, 30 Oct 2005 16:39:03 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:8068 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932350AbVJ3VjB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 16:35:59 -0500
-From: Neil Brown <neilb@suse.de>
-To: Greg KH <greg@kroah.com>
-Date: Mon, 31 Oct 2005 08:35:53 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17253.15545.627386.416345@cse.unsw.edu.au>
-Cc: Daniele Orlandi <daniele@orlandi.com>, linux-kernel@vger.kernel.org
-Subject: Re: An idea on devfs vs. udev
-In-Reply-To: message from Greg KH on Sunday October 30
-References: <200510301907.11860.daniele@orlandi.com>
-	<20051030221817.GA9335@kroah.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	Sun, 30 Oct 2005 16:39:01 -0500
+Date: Sun, 30 Oct 2005 22:39:00 +0100
+From: Olaf Hering <olh@suse.de>
+To: Paul Mackeras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>
+Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] ppc64: add MODALIAS= for vio bus
+Message-ID: <20051030213900.GA22510@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday October 30, greg@kroah.com wrote:
-> On Sun, Oct 30, 2005 at 08:07:11PM +0200, Daniele Orlandi wrote:
-> > 
-> > So, why cannot we substitute the "dev" file within /sys with the actual device 
-> > file?
-> 
-> Please read the archives, this comes up every few months or so.
+A non-broken udev would autoload also the drivers for devices on the
+pseries vio bus, like ibmveth, ibmvscsic and hvsc. This is similar to
+pci, usb and ieee1394:
 
-..thus making it a Frequently Asked Question.  However it isn't
-answered in the FAQ.
+ /lib/modules/`uname -r`/modules.alias
+alias vio:TvscsiSIBM,v-scsi* ibmvscsic
+alias vio:TnetworkSIBM,l-lan* ibmveth
+alias vio:Tserial-serverShvterm2* hvcs
 
-Any chance of writing a little FAQ entry for us and getting it into 
+/events/debug.00004.pci.add.1394:MODALIAS='pci:v00001014d00000188sv00000000sd00000000bc06sc04i0f'
+/events/debug.00005.pci.add.1509:MODALIAS='pci:v00008086d00001229sv00001014sd000001FFbc02sc00i00'
+/events/debug.00026.vio.add.1519:MODALIAS='vio:TserialShvterm1'
+/events/debug.00027.vio.add.1446:MODALIAS='vio:TvscsiSIBM,v-scsi'
+/events/debug.00028.vio.add.1451:MODALIAS='vio:TnetworkSIBM,l-lan'
 
-> Please read the FAQ at  http://www.tux.org/lkml/
+ modprobe -v vio:TnetworkSIBM,l-lan
+insmod /lib/modules/2.6.14-20051030_vio-ppc64/kernel/drivers/net/ibmveth.ko 
 
-Maybe it could replace entry 9.5:
-  What's devfs and why is it a Good Idea (tm)?
-:-)
 
-NeilBrown
+Signed-off-by: Olaf Hering <olh@suse.de>
 
+ arch/ppc64/kernel/vio.c |   27 +++++++++++++++++++++++++++
+ 1 files changed, 27 insertions(+)
+
+Index: linux-2.6.14-olh/arch/ppc64/kernel/vio.c
+===================================================================
+--- linux-2.6.14-olh.orig/arch/ppc64/kernel/vio.c
++++ linux-2.6.14-olh/arch/ppc64/kernel/vio.c
+@@ -21,6 +21,7 @@
+ #include <asm/iommu.h>
+ #include <asm/dma.h>
+ #include <asm/vio.h>
++#include <asm/prom.h>
+ 
+ static const struct vio_device_id *vio_match_device(
+ 		const struct vio_device_id *, const struct vio_dev *);
+@@ -255,7 +256,33 @@ static int vio_bus_match(struct device *
+ 	return (ids != NULL) && (vio_match_device(ids, vio_dev) != NULL);
+ }
+ 
++static int pseries_vio_hotplug (struct device *dev, char **envp, int num_envp,
++                          char *buffer, int buffer_size)
++{
++	const struct vio_dev *vio_dev = to_vio_dev(dev);
++	char *cp;
++	int length;
++
++	if (!num_envp)
++		return -ENOMEM;
++
++	if (!vio_dev->dev.platform_data)
++		return -ENODEV;
++	cp = (char *)get_property(vio_dev->dev.platform_data, "compatible", &length);
++	if (!cp)
++		return -ENODEV;
++
++	envp[0] = buffer;
++	length = scnprintf (buffer, buffer_size, "MODALIAS=vio:T%sS%s",
++	                     vio_dev->type, cp);
++	if (buffer_size - length <= 0)
++		return -ENOMEM;
++	envp[1] = NULL;
++	return 0;
++}
++
+ struct bus_type vio_bus_type = {
+ 	.name = "vio",
++	.hotplug = pseries_vio_hotplug,
+ 	.match = vio_bus_match,
+ };
+-- 
+short story of a lazy sysadmin:
+ alias appserv=wotan

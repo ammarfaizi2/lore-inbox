@@ -1,87 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932352AbVJ3Vkz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbVJ3VnU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932352AbVJ3Vkz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 16:40:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbVJ3Vkz
+	id S932353AbVJ3VnU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 16:43:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932354AbVJ3VnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 16:40:55 -0500
-Received: from cassarossa.samfundet.no ([129.241.93.19]:26788 "EHLO
-	cassarossa.samfundet.no") by vger.kernel.org with ESMTP
-	id S932352AbVJ3Vky (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 16:40:54 -0500
-Date: Sun, 30 Oct 2005 22:40:52 +0100
-From: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: BIND hangs with 2.6.14
-Message-ID: <20051030214052.GA1454@uio.no>
-References: <20051030023557.GA7798@uio.no> <2c0942db0510301054j64e650efqe416e14fc1e3bff2@mail.gmail.com> <20051030190538.GA25940@uio.no>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Sun, 30 Oct 2005 16:43:19 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54283 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932353AbVJ3VnT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 16:43:19 -0500
+Date: Sun, 30 Oct 2005 21:43:09 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ak@suse.de, torvalds@osdl.org, tony.luck@gmail.com,
+       paolo.ciarrocchi@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: New (now current development process)
+Message-ID: <20051030214309.GE2846@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, ak@suse.de,
+	torvalds@osdl.org, tony.luck@gmail.com, paolo.ciarrocchi@gmail.com,
+	linux-kernel@vger.kernel.org
+References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com> <12c511ca0510291157u5557b6b1x85a47311f0e16436@mail.gmail.com> <20051029195115.GD14039@flint.arm.linux.org.uk> <Pine.LNX.4.64.0510291314100.3348@g5.osdl.org> <p73r7a4t0s7.fsf@verdi.suse.de> <20051029223723.GJ14039@flint.arm.linux.org.uk> <20051030111241.74c5b1a6.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20051030190538.GA25940@uio.no>
-X-Operating-System: Linux 2.6.14-rc5 on a x86_64
-X-Message-Flag: Outlook? --> http://www.mozilla.org/products/thunderbird/
-User-Agent: Mutt/1.5.11
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: Status=No hits=-2.8 required=5.0 tests=ALL_TRUSTED version=3.0.3
+In-Reply-To: <20051030111241.74c5b1a6.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 30, 2005 at 08:05:38PM +0100, Steinar H. Gunderson wrote:
-> I have a run going in valgrind now to see if it can find anything bad about
-> the pointers in the msg_hdr structure (the structure itself appears to be OK,
-> judging from my printf-debugging); it's been going for a few hours, so I hope
-> it will be entering its zombie mode now soon :-)
+On Sun, Oct 30, 2005 at 11:12:41AM -0800, Andrew Morton wrote:
+> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> >
+> > On Sun, Oct 30, 2005 at 12:29:28AM +0200, Andi Kleen wrote:
+> > > Linus Torvalds <torvalds@osdl.org> writes:
+> > > > I don't think anybody has been really unhappy with this approach? Hmm?
+> > > 
+> > > The long freeze periods were nothing much happens are painful. It
+> > > would be better to have some more overlap of merging and stabilizing
+> > > (stable does that already kind of, but not enough)
+> > 
+> > Violently agree.  I find the long freeze periods painful and very very
+> > very boring, to the point of looking for other stuff to do (such as
+> > cleaning up bits of the kernel and queuing mega-patches for the next
+> > round of merging.)
+> 
+> The freezes are for fixing bugs, especially recent regressions.
 
-I finally caught it with gdb, after inserting some debug probes. Excerpts
-(removed a few syntax errors):
+Given my stated low activity during the -rc periods, well, you draw
+your conclusion from that.
 
-(gdb) bt
-#0  0xffffe405 in __kernel_vsyscall ()
-#1  0x55840885 in raise () from /lib/tls/i686/cmov/libc.so.6
-#2  0x55842002 in abort () from /lib/tls/i686/cmov/libc.so.6
-#3  0x557e1383 in doio_recv (sock=0x80d1230, dev=0x8197ac8) at socket.c:917
-#4  0x557e41d5 in internal_recv (me=0x81975a0, ev=0x80d1284) at socket.c:2012
-#5  0x557d6259 in dispatch (manager=0x8094960) at task.c:855
-#6  0x557d64c7 in run (uap=0x8094960) at task.c:998
-#7  0x5580cca3 in start_thread () from /lib/tls/i686/cmov/libpthread.so.0
-#8  0x558eff5a in clone () from /lib/tls/i686/cmov/libc.so.6
-(gdb) up
-#1  0x55840885 in raise () from /lib/tls/i686/cmov/libc.so.6
-(gdb)
-#2  0x55842002 in abort () from /lib/tls/i686/cmov/libc.so.6
-(gdb)
-#3  0x557e1383 in doio_recv (sock=0x80d1230, dev=0x8197ac8) at socket.c:917
-917                     abort();
-(gdb) print msghdr
-$1 = {msg_name = 0x8197b14, msg_namelen = 28, msg_iov = 0x561519e0, msg_iovlen = 1, msg_control = 0x809a810, msg_controllen = 52, msg_flags = 0}
-(gdb) print msghdr.msg_name
-$2 = (void *) 0x8197b14
-(gdb) print (char *)msghdr.msg_name
-$3 = 0x8197b14 ""
-(gdb) print ((char *)msghdr.msg_name)[0]
-$4 = 0 '\0'
-(gdb) print ((char *)msghdr.msg_name)[27]
-$5 = 0 '\0'
-(gdb) print ((char *)msghdr.msg_control)[0]
-$6 = 20 '\024'
-(gdb) print ((char *)msghdr.msg_control)[51]
-$7 = -66 '¾'
-(gdb) print *(msghdr.msg_iov)
-$9 = {iov_base = 0x8171208, iov_len = 4096}
-(gdb) print ((char*)msghdr.msg_iov.iov_base)[0]
-$10 = -30 'â'
-(gdb) print ((char*)msghdr.msg_iov.iov_base)[4095]
-$11 = -66 '¾'
-(gdb) print sock->fd
-$12 = 22
-(gdb) print recvmsg(sock->fd, &msghdr, 0)
-$14 = 42
+> There's no shortage of them, you know.
 
-IOW, the call that just failed suddenly worked in the debugger. I can't
-really believe this is a BIND bug anymore... I'm lost here. Anyone?
+Please let me know when there's something in my area regresses.
 
-/* Steinar */
 -- 
-Homepage: http://www.sesse.net/
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

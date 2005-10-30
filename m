@@ -1,43 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbVJ3OWf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbVJ3O22@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750995AbVJ3OWf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 09:22:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751042AbVJ3OWf
+	id S1751049AbVJ3O22 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 09:28:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751055AbVJ3O22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 09:22:35 -0500
-Received: from lakshmi.addtoit.com ([198.99.130.6]:14598 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S1750995AbVJ3OWe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 09:22:34 -0500
-Date: Sun, 30 Oct 2005 10:15:06 -0500
-From: Jeff Dike <jdike@addtoit.com>
-To: jonathan@jonmasters.org
-Cc: Rob Landley <rob@landley.net>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: What's wrong with tmpfs?
-Message-ID: <20051030151506.GA3354@ccure.user-mode-linux.org>
-References: <200510300624.38794.rob@landley.net> <35fb2e590510300453q520a9ce7ua1d74d7790b3a6b8@mail.gmail.com>
+	Sun, 30 Oct 2005 09:28:28 -0500
+Received: from fattire.cabal.ca ([134.117.69.58]:2512 "EHLO fattire.cabal.ca")
+	by vger.kernel.org with ESMTP id S1751042AbVJ3O21 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 09:28:27 -0500
+X-IMAP-Sender: kyle
+Date: Sun, 30 Oct 2005 09:27:52 -0500
+X-OfflineIMAP-x412032614-52656d6f746546617454697265-494e424f582e4f7574626f78: 1130682510-0824069331762-v4.0.11
+From: Kyle McMartin <kyle@parisc-linux.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+Message-ID: <20051030142752.GE6475@tachyon.int.mcmartin.ca>
+References: <20051030105118.GW4180@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <35fb2e590510300453q520a9ce7ua1d74d7790b3a6b8@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20051030105118.GW4180@stusta.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 30, 2005 at 12:53:00PM +0000, Jon Masters wrote:
-> On 10/30/05, Rob Landley <rob@landley.net> wrote:
+On Sun, Oct 30, 2005 at 11:51:18AM +0100, Adrian Bunk wrote:
 > 
-> > If somebody needs a reproduction sequence, I'm happy to oblige.  In theory
-> > "mount -t tmpfs /mnt /mnt" should do it, but if it was _that_ simple it
-> > wouldn't have shipped...
-> 
-> I don't see this behaviour on a regular desktop box running 2.6.14.
-> Guess it's UML specific.
+> This patch schedules obsolete OSS drivers (with ALSA drivers that support the
+> same hardware) for removal.
+>
 
-Sorry, but wrong.
+I didn't see it here, but SOUND_AD1889 can definitely be removed
+as well. The driver never worked properly to begin with. This was
+ACK'd by the author last time this thread reared it's head.
 
-IIRC, this triggers when you don't have CONFIG_TMPFS enabled.  If you don't,
-you still get it, but you get a version that's only usable in-kernel.
-
-				Jeff
+Cheers,
+	Kyle

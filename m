@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932763AbVJ3ADG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932765AbVJ3AF2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932763AbVJ3ADG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 20:03:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932765AbVJ3ADG
+	id S932765AbVJ3AF2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 20:05:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932769AbVJ3AF1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 20:03:06 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:60681 "HELO
+	Sat, 29 Oct 2005 20:05:27 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:62473 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932763AbVJ3ADD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 20:03:03 -0400
-Date: Sun, 30 Oct 2005 02:03:01 +0200
+	id S932765AbVJ3AF1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 20:05:27 -0400
+Date: Sun, 30 Oct 2005 02:05:26 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: matthew@wil.cx, grundler@parisc-linux.org
-Cc: parisc-linux@parisc-linux.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] parisc: "extern inline" -> "static inline"
-Message-ID: <20051030000301.GO4180@stusta.de>
+To: ralf@linux-mips.org
+Cc: linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] OSS MIPS drivers: "extern inline" -> "static inline"
+Message-ID: <20051030000526.GP4180@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -29,210 +29,65 @@ Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- arch/parisc/lib/memcpy.c       |    4 +--
- include/asm-parisc/bitops.h    |    2 -
- include/asm-parisc/io.h        |    4 +--
- include/asm-parisc/pci.h       |    2 -
- include/asm-parisc/pgtable.h   |   40 ++++++++++++++++-----------------
- include/asm-parisc/processor.h |    4 +--
- include/asm-parisc/semaphore.h |   10 ++++----
- include/asm-parisc/tlbflush.h  |    2 -
- 8 files changed, 34 insertions(+), 34 deletions(-)
+ sound/oss/au1000.c      |    6 +++---
+ sound/oss/nec_vrc5477.c |    6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
---- linux-2.6.14-rc5-mm1-full/arch/parisc/lib/memcpy.c.old	2005-10-30 01:58:43.000000000 +0200
-+++ linux-2.6.14-rc5-mm1-full/arch/parisc/lib/memcpy.c	2005-10-30 01:59:11.000000000 +0200
-@@ -158,12 +158,12 @@
- #define stw(_s,_t,_o,_a,_e) 	def_store_insn(stw,"r",_s,_t,_o,_a,_e)
+--- linux-2.6.14-rc5-mm1-full/sound/oss/au1000.c.old	2005-10-30 02:03:31.000000000 +0200
++++ linux-2.6.14-rc5-mm1-full/sound/oss/au1000.c	2005-10-30 02:03:38.000000000 +0200
+@@ -563,7 +563,7 @@
+ #define DMABUF_DEFAULTORDER (17-PAGE_SHIFT)
+ #define DMABUF_MINORDER 1
  
- #ifdef  CONFIG_PREFETCH
--extern inline void prefetch_src(const void *addr)
-+static inline void prefetch_src(const void *addr)
+-extern inline void dealloc_dmabuf(struct au1000_state *s, struct dmabuf *db)
++static inline void dealloc_dmabuf(struct au1000_state *s, struct dmabuf *db)
  {
- 	__asm__("ldw 0(" s_space ",%0), %%r0" : : "r" (addr));
+ 	struct page    *page, *pend;
+ 
+@@ -667,14 +667,14 @@
+ 	return 0;
  }
  
--extern inline void prefetch_dst(const void *addr)
-+static inline void prefetch_dst(const void *addr)
+-extern inline int prog_dmabuf_adc(struct au1000_state *s)
++static inline int prog_dmabuf_adc(struct au1000_state *s)
  {
- 	__asm__("ldd 0(" d_space ",%0), %%r0" : : "r" (addr));
- }
---- linux-2.6.14-rc5-mm1-full/include/asm-parisc/bitops.h.old	2005-10-30 01:59:21.000000000 +0200
-+++ linux-2.6.14-rc5-mm1-full/include/asm-parisc/bitops.h	2005-10-30 01:59:35.000000000 +0200
-@@ -474,7 +474,7 @@
- #define ext2_find_first_zero_bit(addr, size) \
-         ext2_find_next_zero_bit((addr), (size), 0)
+ 	stop_adc(s);
+ 	return prog_dmabuf(s, &s->dma_adc);
  
--extern __inline__ unsigned long ext2_find_next_zero_bit(void *addr,
-+static inline unsigned long ext2_find_next_zero_bit(void *addr,
- 	unsigned long size, unsigned long offset)
- {
- 	unsigned int *p = ((unsigned int *) addr) + (offset >> 5);
---- linux-2.6.14-rc5-mm1-full/include/asm-parisc/io.h.old	2005-10-30 01:59:44.000000000 +0200
-+++ linux-2.6.14-rc5-mm1-full/include/asm-parisc/io.h	2005-10-30 01:59:49.000000000 +0200
-@@ -163,7 +163,7 @@
- 
- extern void __iomem * __ioremap(unsigned long offset, unsigned long size, unsigned long flags);
- 
--extern inline void __iomem * ioremap(unsigned long offset, unsigned long size)
-+static inline void __iomem * ioremap(unsigned long offset, unsigned long size)
- {
- 	return __ioremap(offset, size, 0);
- }
-@@ -173,7 +173,7 @@
-  * it's useful if some control registers are in such an area and write combining
-  * or read caching is not desirable:
-  */
--extern inline void * ioremap_nocache(unsigned long offset, unsigned long size)
-+static inline void * ioremap_nocache(unsigned long offset, unsigned long size)
- {
-         return __ioremap(offset, size, _PAGE_NO_CACHE /* _PAGE_PCD */);
- }
---- linux-2.6.14-rc5-mm1-full/include/asm-parisc/pci.h.old	2005-10-30 01:59:57.000000000 +0200
-+++ linux-2.6.14-rc5-mm1-full/include/asm-parisc/pci.h	2005-10-30 02:00:01.000000000 +0200
-@@ -193,7 +193,7 @@
- extern void pcibios_register_hba(struct pci_hba_data *);
- extern void pcibios_set_master(struct pci_dev *);
- #else
--extern inline void pcibios_register_hba(struct pci_hba_data *x)
-+static inline void pcibios_register_hba(struct pci_hba_data *x)
- {
- }
- #endif
---- linux-2.6.14-rc5-mm1-full/include/asm-parisc/pgtable.h.old	2005-10-30 02:00:14.000000000 +0200
-+++ linux-2.6.14-rc5-mm1-full/include/asm-parisc/pgtable.h	2005-10-30 02:00:18.000000000 +0200
-@@ -316,31 +316,31 @@
-  * setup: the pgd is never bad, and a pmd always exists (as it's folded
-  * into the pgd entry)
-  */
--extern inline int pgd_none(pgd_t pgd)		{ return 0; }
--extern inline int pgd_bad(pgd_t pgd)		{ return 0; }
--extern inline int pgd_present(pgd_t pgd)	{ return 1; }
--extern inline void pgd_clear(pgd_t * pgdp)	{ }
-+static inline int pgd_none(pgd_t pgd)		{ return 0; }
-+static inline int pgd_bad(pgd_t pgd)		{ return 0; }
-+static inline int pgd_present(pgd_t pgd)	{ return 1; }
-+static inline void pgd_clear(pgd_t * pgdp)	{ }
- #endif
- 
- /*
-  * The following only work if pte_present() is true.
-  * Undefined behaviour if not..
-  */
--extern inline int pte_read(pte_t pte)		{ return pte_val(pte) & _PAGE_READ; }
--extern inline int pte_dirty(pte_t pte)		{ return pte_val(pte) & _PAGE_DIRTY; }
--extern inline int pte_young(pte_t pte)		{ return pte_val(pte) & _PAGE_ACCESSED; }
--extern inline int pte_write(pte_t pte)		{ return pte_val(pte) & _PAGE_WRITE; }
--extern inline int pte_file(pte_t pte)		{ return pte_val(pte) & _PAGE_FILE; }
--extern inline int pte_user(pte_t pte) 		{ return pte_val(pte) & _PAGE_USER; }
--
--extern inline pte_t pte_rdprotect(pte_t pte)	{ pte_val(pte) &= ~_PAGE_READ; return pte; }
--extern inline pte_t pte_mkclean(pte_t pte)	{ pte_val(pte) &= ~_PAGE_DIRTY; return pte; }
--extern inline pte_t pte_mkold(pte_t pte)	{ pte_val(pte) &= ~_PAGE_ACCESSED; return pte; }
--extern inline pte_t pte_wrprotect(pte_t pte)	{ pte_val(pte) &= ~_PAGE_WRITE; return pte; }
--extern inline pte_t pte_mkread(pte_t pte)	{ pte_val(pte) |= _PAGE_READ; return pte; }
--extern inline pte_t pte_mkdirty(pte_t pte)	{ pte_val(pte) |= _PAGE_DIRTY; return pte; }
--extern inline pte_t pte_mkyoung(pte_t pte)	{ pte_val(pte) |= _PAGE_ACCESSED; return pte; }
--extern inline pte_t pte_mkwrite(pte_t pte)	{ pte_val(pte) |= _PAGE_WRITE; return pte; }
-+static inline int pte_read(pte_t pte)		{ return pte_val(pte) & _PAGE_READ; }
-+static inline int pte_dirty(pte_t pte)		{ return pte_val(pte) & _PAGE_DIRTY; }
-+static inline int pte_young(pte_t pte)		{ return pte_val(pte) & _PAGE_ACCESSED; }
-+static inline int pte_write(pte_t pte)		{ return pte_val(pte) & _PAGE_WRITE; }
-+static inline int pte_file(pte_t pte)		{ return pte_val(pte) & _PAGE_FILE; }
-+static inline int pte_user(pte_t pte) 		{ return pte_val(pte) & _PAGE_USER; }
-+
-+static inline pte_t pte_rdprotect(pte_t pte)	{ pte_val(pte) &= ~_PAGE_READ; return pte; }
-+static inline pte_t pte_mkclean(pte_t pte)	{ pte_val(pte) &= ~_PAGE_DIRTY; return pte; }
-+static inline pte_t pte_mkold(pte_t pte)	{ pte_val(pte) &= ~_PAGE_ACCESSED; return pte; }
-+static inline pte_t pte_wrprotect(pte_t pte)	{ pte_val(pte) &= ~_PAGE_WRITE; return pte; }
-+static inline pte_t pte_mkread(pte_t pte)	{ pte_val(pte) |= _PAGE_READ; return pte; }
-+static inline pte_t pte_mkdirty(pte_t pte)	{ pte_val(pte) |= _PAGE_DIRTY; return pte; }
-+static inline pte_t pte_mkyoung(pte_t pte)	{ pte_val(pte) |= _PAGE_ACCESSED; return pte; }
-+static inline pte_t pte_mkwrite(pte_t pte)	{ pte_val(pte) |= _PAGE_WRITE; return pte; }
- 
- /*
-  * Conversion functions: convert a page and protection to a page entry,
-@@ -368,7 +368,7 @@
- #define mk_pte_phys(physpage, pgprot) \
- ({ pte_t __pte; pte_val(__pte) = physpage + pgprot_val(pgprot); __pte; })
- 
--extern inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
-+static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
- { pte_val(pte) = (pte_val(pte) & _PAGE_CHG_MASK) | pgprot_val(newprot); return pte; }
- 
- /* Permanent address of a page.  On parisc we don't have highmem. */
---- linux-2.6.14-rc5-mm1-full/include/asm-parisc/processor.h.old	2005-10-30 02:00:28.000000000 +0200
-+++ linux-2.6.14-rc5-mm1-full/include/asm-parisc/processor.h	2005-10-30 02:00:36.000000000 +0200
-@@ -327,12 +327,12 @@
- #define ARCH_HAS_PREFETCH
- #define ARCH_HAS_PREFETCHW
- 
--extern inline void prefetch(const void *addr)
-+static inline void prefetch(const void *addr)
- {
- 	__asm__("ldw 0(%0), %%r0" : : "r" (addr));
  }
  
--extern inline void prefetchw(const void *addr)
-+static inline void prefetchw(const void *addr)
+-extern inline int prog_dmabuf_dac(struct au1000_state *s)
++static inline int prog_dmabuf_dac(struct au1000_state *s)
  {
- 	__asm__("ldd 0(%0), %%r0" : : "r" (addr));
- }
---- linux-2.6.14-rc5-mm1-full/include/asm-parisc/semaphore.h.old	2005-10-30 02:00:45.000000000 +0200
-+++ linux-2.6.14-rc5-mm1-full/include/asm-parisc/semaphore.h	2005-10-30 02:00:51.000000000 +0200
-@@ -58,7 +58,7 @@
- #define DECLARE_MUTEX(name) __DECLARE_SEMAPHORE_GENERIC(name,1)
- #define DECLARE_MUTEX_LOCKED(name) __DECLARE_SEMAPHORE_GENERIC(name,0)
+ 	stop_dac(s);
+ 	return prog_dmabuf(s, &s->dma_dac);
+--- linux-2.6.14-rc5-mm1-full/sound/oss/nec_vrc5477.c.old	2005-10-30 02:03:46.000000000 +0200
++++ linux-2.6.14-rc5-mm1-full/sound/oss/nec_vrc5477.c	2005-10-30 02:03:56.000000000 +0200
+@@ -435,7 +435,7 @@
  
--extern inline void sema_init (struct semaphore *sem, int val)
-+static inline void sema_init (struct semaphore *sem, int val)
- {
- 	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
- }
-@@ -86,7 +86,7 @@
-  * interrupts while we're messing with the semaphore.  Sorry.
-  */
+ /* --------------------------------------------------------------------- */
  
--extern __inline__ void down(struct semaphore * sem)
-+static inline void down(struct semaphore * sem)
+-extern inline void
++static inline void
+ stop_dac(struct vrc5477_ac97_state *s)
  {
- 	might_sleep();
- 	spin_lock_irq(&sem->sentry);
-@@ -98,7 +98,7 @@
- 	spin_unlock_irq(&sem->sentry);
- }
+ 	struct dmabuf* db = &s->dma_dac;
+@@ -553,7 +553,7 @@
+ 	spin_unlock_irqrestore(&s->lock, flags);
+ }	
  
--extern __inline__ int down_interruptible(struct semaphore * sem)
-+static inline int down_interruptible(struct semaphore * sem)
+-extern inline void stop_adc(struct vrc5477_ac97_state *s)
++static inline void stop_adc(struct vrc5477_ac97_state *s)
  {
- 	int ret = 0;
- 	might_sleep();
-@@ -116,7 +116,7 @@
-  * down_trylock returns 0 on success, 1 if we failed to get the lock.
-  * May not sleep, but must preserve irq state
-  */
--extern __inline__ int down_trylock(struct semaphore * sem)
-+static inline int down_trylock(struct semaphore * sem)
- {
- 	int flags, count;
+ 	struct dmabuf* db = &s->dma_adc;
+ 	unsigned long flags;
+@@ -652,7 +652,7 @@
+ #define DMABUF_DEFAULTORDER (16-PAGE_SHIFT)
+ #define DMABUF_MINORDER 1
  
-@@ -132,7 +132,7 @@
-  * Note! This is subtle. We jump to wake people up only if
-  * the semaphore was negative (== somebody was waiting on it).
-  */
--extern __inline__ void up(struct semaphore * sem)
-+static inline void up(struct semaphore * sem)
+-extern inline void dealloc_dmabuf(struct vrc5477_ac97_state *s,
++static inline void dealloc_dmabuf(struct vrc5477_ac97_state *s,
+ 				  struct dmabuf *db)
  {
- 	int flags;
- 	spin_lock_irqsave(&sem->sentry, flags);
---- linux-2.6.14-rc5-mm1-full/include/asm-parisc/tlbflush.h.old	2005-10-30 02:01:00.000000000 +0200
-+++ linux-2.6.14-rc5-mm1-full/include/asm-parisc/tlbflush.h	2005-10-30 02:01:06.000000000 +0200
-@@ -42,7 +42,7 @@
- #endif
- }
- 
--extern __inline__ void flush_tlb_pgtables(struct mm_struct *mm, unsigned long start, unsigned long end)
-+static inline void flush_tlb_pgtables(struct mm_struct *mm, unsigned long start, unsigned long end)
- {
- }
-  
+ 	if (db->lbuf) {
 

@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750839AbVJ3PWT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbVJ3P1j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750839AbVJ3PWT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 10:22:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbVJ3PWT
+	id S1750898AbVJ3P1j (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 10:27:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbVJ3P1j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 10:22:19 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:16049 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S1750839AbVJ3PWS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 10:22:18 -0500
-Date: Sun, 30 Oct 2005 08:22:15 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: grundler@parisc-linux.org, linux-kernel@vger.kernel.org,
-       parisc-linux@parisc-linux.org
-Subject: Re: [parisc-linux] [2.6 patch] parisc: "extern inline" -> "static inline"
-Message-ID: <20051030152215.GB9235@parisc-linux.org>
-References: <20051030000301.GO4180@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 30 Oct 2005 10:27:39 -0500
+Received: from mail.suse.de ([195.135.220.2]:40406 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750898AbVJ3P1i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 10:27:38 -0500
+From: Andi Kleen <ak@suse.de>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Subject: Re: 2.6.14-git1 (and -git2) build failure on AMD64
+Date: Sun, 30 Oct 2005 16:28:29 +0100
+User-Agent: KMail/1.8.2
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <16080000.1130681008@[10.10.2.4]>
+In-Reply-To: <16080000.1130681008@[10.10.2.4]>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051030000301.GO4180@stusta.de>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200510301628.29560.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 30, 2005 at 02:03:01AM +0200, Adrian Bunk wrote:
-> "extern inline" doesn't make much sense.
+On Sunday 30 October 2005 15:03, Martin J. Bligh wrote:
+> CC      arch/x86_64/pci/../../i386/pci/fixup.o
+> arch/x86_64/pci/../../i386/pci/fixup.c: In function `pci_fixup_i450nx':
+> arch/x86_64/pci/../../i386/pci/fixup.c:13: error: pci_fixup_i450nx causes a section type conflict
+> make[1]: *** [arch/x86_64/pci/../../i386/pci/fixup.o] Error 1
+> make: *** [arch/x86_64/pci] Error 2
+> 
+> Config: http://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/abat/amd64
 
-Are you sure?  It used to.  Taking just one sample, pgd_none:
+What compiler do you use? I cannot make sense of the error - as far
+as I can see the function only has a single section attribute.
+But gcc 4.0.2 reports the same error for me on a different function.
 
-extern inline: alpha, parisc, s390
-static inline: frv, ppc, sh64
-define: arm, arm26, frv, h8300, m68knommu, ppc64, v850
-
-I really don't think it makes any difference.  Such a function (returning
-always 0) is always going to be inlined, and the only difference between
-static inline and extern inline is what happens when it can't be inlined.
+-Andi 

@@ -1,39 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbVJ3OW3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750985AbVJ3OR5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751000AbVJ3OW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 09:22:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751004AbVJ3OW3
+	id S1750985AbVJ3OR5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 09:17:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750995AbVJ3OR4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 09:22:29 -0500
-Received: from cassarossa.samfundet.no ([129.241.93.19]:25003 "EHLO
-	cassarossa.samfundet.no") by vger.kernel.org with ESMTP
-	id S1750995AbVJ3OW2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 09:22:28 -0500
-Date: Sun, 30 Oct 2005 15:22:23 +0100
-From: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-To: bert hubert <bert.hubert@netherlabs.nl>, linux-kernel@vger.kernel.org
-Subject: Re: BIND hangs with 2.6.14
-Message-ID: <20051030142223.GA12146@uio.no>
-References: <20051030023557.GA7798@uio.no> <20051030101148.GA18854@outpost.ds9a.nl> <20051030104527.GB32446@uio.no> <20051030110021.GA19680@outpost.ds9a.nl> <20051030113651.GA1780@uio.no> <20051030114537.GA20564@outpost.ds9a.nl>
+	Sun, 30 Oct 2005 09:17:56 -0500
+Received: from ams-iport-1.cisco.com ([144.254.224.140]:28803 "EHLO
+	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1750984AbVJ3OR4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 09:17:56 -0500
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
+Subject: Re: 2.6.14-git1 (and -git2) build failure on AMD64
+X-Message-Flag: Warning: May contain useful information
+References: <16080000.1130681008@[10.10.2.4]>
+From: Roland Dreier <rolandd@cisco.com>
+Date: Sun, 30 Oct 2005 06:17:47 -0800
+In-Reply-To: <16080000.1130681008@[10.10.2.4]> (Martin J. Bligh's message of
+ "Sun, 30 Oct 2005 06:03:28 -0800")
+Message-ID: <52k6fvnl6c.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20051030114537.GA20564@outpost.ds9a.nl>
-X-Operating-System: Linux 2.6.14-rc5 on a x86_64
-X-Message-Flag: Outlook? --> http://www.mozilla.org/products/thunderbird/
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 30 Oct 2005 14:17:48.0645 (UTC) FILETIME=[B496F950:01C5DD5C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 30, 2005 at 12:45:38PM +0100, bert hubert wrote:
-> Switching to/from NPTL might very well change the address btw.
+Fixed by:
+    http://lkml.org/lkml/2005/10/29/12
 
-FWIW, I tried without NPTL, and it gave the same problem after an hour or so.
+You .config breaks because it has
+    # CONFIG_HOTPLUG is not set
 
-I've compiled some extra debugging code (printing the msg_hdr structure if
-recvmsg() should fail with a hard error) into named, so I'm waiting for the
-problem to manifest itself again.
-
-/* Steinar */
--- 
-Homepage: http://www.sesse.net/
+ - R.

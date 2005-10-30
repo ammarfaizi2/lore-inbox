@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbVJ3MRg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbVJ3MYx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932143AbVJ3MRg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 07:17:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbVJ3MRg
+	id S932140AbVJ3MYx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 07:24:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbVJ3MYx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 07:17:36 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26558 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932143AbVJ3MRf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 07:17:35 -0500
-Date: Sun, 30 Oct 2005 13:17:20 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-pm@osdl.org, ast@domdv.de
-Subject: Re: [RFC][PATCH 0/6] swsusp: rework swap handling
-Message-ID: <20051030121719.GA19134@elf.ucw.cz>
-References: <200510292158.11089.rjw@sisk.pl> <20051029230515.GE14209@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 30 Oct 2005 07:24:53 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:59611
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S932140AbVJ3MYw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 07:24:52 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: What's wrong with tmpfs?
+Date: Sun, 30 Oct 2005 06:24:38 -0600
+User-Agent: KMail/1.8
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051029230515.GE14209@elf.ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Message-Id: <200510300624.38794.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Under User Mode Linux in 2.6.14, would someone please explain to me why this 
+test:
 
-> > I have divided the changes into some more or less logical steps for clarity.
-> > Although the code has been designed as proof-of-concept, it is functional
-> > and has been tested on x86-64, except for the cryptographic functionality
-> > and error paths.
-> 
-> Don't worry about crypto paths too much. It is my fault, I should not
-> have taken them in the first place. Just ask ast for testing when you
-> are reasonably confident it will work.
+static int graft_tree(struct vfsmount *mnt, struct nameidata *nd)
+{
+        int err;
 
-We exchanged few emails with ast, and he'll probably not kill me if I
-remove crypto swsusp support. That's good news ;-).
-								Pavel
--- 
-Thanks, Sharp!
+        if (mnt->mnt_sb->s_flags & MS_NOUSER)
+                return -EINVAL;
+
+Is triggering when I try to mount tmpfs?  Is this happening for anybody else?  
+Shouldn't I be getting a fresh superblock or something?  (Is this just a User 
+Mode Linux issue?  Haven't got a spare box set up to boot it on real hardware 
+just yet...)
+
+If somebody needs a reproduction sequence, I'm happy to oblige.  In theory 
+"mount -t tmpfs /mnt /mnt" should do it, but if it was _that_ simple it 
+wouldn't have shipped...
+
+Rob

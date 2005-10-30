@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbVJ3RRk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbVJ3RRp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932194AbVJ3RRk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 12:17:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbVJ3RRj
+	id S932196AbVJ3RRp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 12:17:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932197AbVJ3RRp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 12:17:39 -0500
-Received: from mail.parknet.co.jp ([210.171.160.6]:28684 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S932194AbVJ3RRj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 12:17:39 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Don't use pdflush for filesystems has BDI_CAP_NO_WRITEBACK
-References: <43288A84.2090107@sm.sony.co.jp>
-	<87oe6uwjy7.fsf@devron.myhome.or.jp> <433C25D9.9090602@sm.sony.co.jp>
-	<20051011142608.6ff3ca58.akpm@osdl.org>
-	<87r7armlgz.fsf@ibmpc.myhome.or.jp>
-	<20051011211601.72a0f91c.akpm@osdl.org>
-	<87vezgd89q.fsf_-_@devron.myhome.or.jp>
-	<87r7a4d7if.fsf_-_@devron.myhome.or.jp>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Mon, 31 Oct 2005 02:15:47 +0900
-In-Reply-To: <87r7a4d7if.fsf_-_@devron.myhome.or.jp> (OGAWA Hirofumi's message of "Sat, 29 Oct 2005 17:58:32 +0900")
-Message-ID: <87wtjvexj0.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
+	Sun, 30 Oct 2005 12:17:45 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:49806 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932196AbVJ3RRo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 12:17:44 -0500
+Date: Sun, 30 Oct 2005 18:17:36 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Mark Knecht <markknecht@gmail.com>, john stultz <johnstul@us.ibm.com>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: 2.6.14-rt1
+Message-ID: <20051030171736.GA17262@elte.hu>
+References: <20051017160536.GA2107@elte.hu> <20051020195432.GA21903@elte.hu> <20051030133316.GA11225@elte.hu> <4364DFA5.3000109@cybsft.com> <Pine.LNX.4.58.0510301037520.2819@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0510301037520.2819@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> writes:
 
-> diff -puN fs/hugetlbfs/inode.c~add-set_inode_noflush fs/hugetlbfs/inode.c
-> --- linux-2.6.14/fs/hugetlbfs/inode.c~add-set_inode_noflush	2005-10-29 08:13:57.000000000 +0900
-> +++ linux-2.6.14-hirofumi/fs/hugetlbfs/inode.c	2005-10-29 08:13:57.000000000 +0900
-> @@ -394,6 +394,7 @@ static struct inode *hugetlbfs_get_inode
->  	inode = new_inode(sb);
->  	if (inode) {
->  		struct hugetlbfs_inode_info *info;
-> +		set_inode_noflush(inode);
->  		inode->i_mode = mode;
->  		inode->i_uid = uid;
->  		inode->i_gid = gid;
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-Sigh, I'm forgetting block special file again. Sorry for wrong patch.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+> > >  - tracing fix (reported by Florian Schmidt)
+> > >
+> > >  - rtc histogram fixes (K.R. Foley)
+> >
+> > Actually it doesn't look like these made it into the patch. :)
+> 
+> Yeah, I noticed that there isn't even a check anymore in 
+> get_monotonic_clock_ts for time warping backwards.  I guess John's new 
+> updates and Ingo's "smarter" code makes it unnecessary ;-)
+
+well, the nsec_offset check was bogus (since it was relative to the last 
+tick) - but still your fundamental fix for disabling interrupts is 
+present, via the tsc_lock. I have moved the remaining checks to 
+__get_nsec_offset(), so they are still there.
+
+	Ingo

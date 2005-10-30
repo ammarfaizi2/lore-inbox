@@ -1,58 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbVJ3XRL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbVJ3XRj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932401AbVJ3XRL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 18:17:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbVJ3XRL
+	id S932403AbVJ3XRj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 18:17:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbVJ3XRj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 18:17:11 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:43788 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932401AbVJ3XRK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 18:17:10 -0500
-Date: Sun, 30 Oct 2005 23:17:02 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ak@suse.de, torvalds@osdl.org, tony.luck@gmail.com,
-       paolo.ciarrocchi@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: New (now current development process)
-Message-ID: <20051030231702.GH2846@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, ak@suse.de,
-	torvalds@osdl.org, tony.luck@gmail.com, paolo.ciarrocchi@gmail.com,
-	linux-kernel@vger.kernel.org
-References: <12c511ca0510291157u5557b6b1x85a47311f0e16436@mail.gmail.com> <20051029195115.GD14039@flint.arm.linux.org.uk> <Pine.LNX.4.64.0510291314100.3348@g5.osdl.org> <p73r7a4t0s7.fsf@verdi.suse.de> <20051029223723.GJ14039@flint.arm.linux.org.uk> <20051030111241.74c5b1a6.akpm@osdl.org> <20051030214309.GE2846@flint.arm.linux.org.uk> <20051030143103.17f2835c.akpm@osdl.org> <20051030224524.GG2846@flint.arm.linux.org.uk> <20051030145533.5733b12d.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 30 Oct 2005 18:17:39 -0500
+Received: from smtp108.sbc.mail.re2.yahoo.com ([68.142.229.97]:19631 "HELO
+	smtp108.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S932403AbVJ3XRi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 18:17:38 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: SPARC64: Configuration offers keyboards that don't make sense
+Date: Sun, 30 Oct 2005 18:17:32 -0500
+User-Agent: KMail/1.8.3
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Jan-Benedict Glaw <jbglaw@lug-owl.de>
+References: <200510300326.j9U3QXeT027101@inti.inf.utfsm.cl>
+In-Reply-To: <200510300326.j9U3QXeT027101@inti.inf.utfsm.cl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051030145533.5733b12d.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200510301817.33363.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 30, 2005 at 02:55:33PM -0800, Andrew Morton wrote:
-> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> >
-> >  That's fine if you have the hardware to be able to debug these issues.
+On Saturday 29 October 2005 22:26, Horst von Brand wrote:
+> Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+> > On Friday 28 October 2005 19:06, Horst von Brand wrote:
+> > > Jan-Benedict Glaw <jbglaw@lug-owl.de> wrote:
+> > > > On Fri, 2005-10-28 17:09:31 -0300, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
 > 
-> Most driver bugs cannot be reproduced by the developer.  Almost by
-> definition: if the patch had caused problems on the developer's machine, he
-> wouldn't have shipped it.
+> [...]
 > 
-> This is why we have this wonderful group of long-suffering people who
-> download and test development kernels for us, and who take the time to
-> report defects.
+> > > > > Also, configuring this one gives a non-functional keyboard (the
+> > > > > machine is running, I can log in over SSH, but keypresses have no
+> > > > > effect at all).
 > 
-> Yes, it's painful to get into a long-range debugging session, sending debug
-> patches, twelve-hour turnaround, etc.  But what alternative have we?
+> > > > Did the serial port register serio ports?
+> 
+> > > How can I find this out?
+> 
+> > Just post your dmesg..
+> 
+> Nothing relevant I can see.
+> 
+> >                        Or ssh into it and poke around /sys/bus/serio...
+> 
+> Got /sys/sun/bus/serio/drivers/subkbd/ with several files inside
+>
 
-However, it helps if you have a grasp of technologies like ACPI,
-IO-APICs, APICs, PCI IRQ routing for x86 problems.  Since I don't
-work in the x86 field, I have _zero_ knowledge of such things
-because they just don't apply when working on ARM.
+BUt nothing in /sys/bus/serio/devices, right? That means you don't have any
+serial port drivers loaded so sunkbd does not have aport to attach to.
 
-That makes debugging x86 problems a nightmare.  Remember I gave
-up with trying to sort out peoples PCMCIA problems?
+> > Sun keyboard can be autodetected AFAIK so you don't need to fiddle with
+> > inputattach.
+> 
+> The setup works for the shipped Aurora kernel, but to compile that
+> configuration would take a few days...
+> 
+> >              Do you have sunsu or sunzilog drivers selected?
+> 
+> SUNZILOG is module, and is not loaded right now. No serials in use.
+
+Please try loading it (or compile it in).
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Dmitry

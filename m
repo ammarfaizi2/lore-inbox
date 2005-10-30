@@ -1,68 +1,29 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932177AbVJ3AH4 (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sat, 29 Oct 2005 20:07:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbVJ3AH4
+	id S1751368AbVJaFiN (ORCPT <rfc822;ralf@linux-mips.org>);
+	Mon, 31 Oct 2005 00:38:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbVJaFiN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 20:07:56 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:30928 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S932177AbVJ3AHz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 20:07:55 -0400
-Message-Id: <200510300007.j9U07koG018771@zeus1.kernel.org>
-From: =?ISO-8859-1?Q?=20=22G=F6rsel?=  =?ISO-8859-1?Q?=20Tasar=FDm?= -  =?ISO-8859-1?Q?=20Foto=F0?=
-	=?ISO-8859-1?Q?rafc=FDl=FDk?=  =?ISO-8859-1?Q?=20Reklamc=FDl=FDk?= Hizmetleri" 
-	<ismailacar.net@gmail.com>
-Illegal-Object: Syntax error in From: address found on vger.kernel.org:
-	From:	Hizmetleri
-				  ^-missing closing '"' in token
-Illegal-Object: Syntax error in From: address found on vger.kernel.org:
-	From:	Hizmetleri
-				  ^-missing closing '"' in token
-Reply-To: ismailacar.net@gmail.com
-To: linux-kernel@vger.kernel.org
-Date: Sun, 30 Oct 2005 02:07:50 +0200
-Subject: =?ISO-8859-1?Q?=20=DEirketlere?=  =?ISO-8859-1?Q?=20=F6zel?= Katalog - Profesyonel  =?ISO-8859-1?Q?=20g?=
-	=?ISO-8859-1?Q?=F6rsel?= Hizmetlerimiz  =?ISO-8859-1?Q?=20Hakk=FDnda?=
-X-Mailer: Microsoft Outlook Express 5.00.2919.7000
+	Mon, 31 Oct 2005 00:38:13 -0500
+Received: from www.cybercable.net.mx ([200.53.250.2]:27878 "HELO
+	correo.cybercable.net.mx") by vger.kernel.org with SMTP
+	id S1751368AbVJaFiN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 00:38:13 -0500
+Message-ID: <000b01c5dd2d$6cbc6540$3afc35c8@zptutv>
+From: =?Windows-1251?Q?=CF=E0=E2=E5=EB_=CF=E0=E2=EB=EE=E2=E8=F7_=D2=E5=EC=FF=EA=EE=E2?= 
+	<maren.ebeling@grudziadz.com.pl>
+To: =?Windows-1251?Q?=C3=E5=ED=E0=E4=E8=E9_=CC=E0=F2=E2=E5=E5=E2=E8=F7_=CA=EE=F2=E5=F6?= 
+	<cjodoin@grudziadz.net.pl>
+Subject: =?Windows-1251?Q?Re[5]:_=F0=E5=EA=EB=E0=EC=ED=E0=FF_=EA=EE=EC=EF=E0=ED=E8=FF_oxnziv?=
+Date: Sun, 30 Oct 2005 8:39:21 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=windows-1254
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain;
+        charset="windows-1251"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932177AbVJ3AH4@vger.kernel.org>
-
-
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * *=20
-          ISMAIL ACAR TANITIM H=DDZMETLERI
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * *=20
-     Iyi g=FCnler...
-      =20
-    Tan=FDt=FDm foto=F0raf=E7=FDl=FD=F0=FD yapan firmam=FDz size profes=
-yonel alternatif=20
- g=F6rsel =E7=F6z=FCmler sunuyor.Bizi arayarak Katalaog tasar=FDmlar=FD=
-n=FDz ve=20
- firmam=FDz=FDn =E7al=FD=FEmalar=FD ve referanslar=FD hakk=FDnda bilgi =
-alabilirsiniz.
-
- Bize 212 2191782=20
-        536 2768940 ' dan yada
- ismailacar.net-den bize ula=FEabilirsiniz.
-
-                                                               Sayg=FDl=
-ar=FDmla
-                                                               Ismail A=
-CAR
-
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-          REKLAMCILIK VE TANITIM HIZMETLER=DD
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751368AbVJaFiN@vger.kernel.org>
 
 
 
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

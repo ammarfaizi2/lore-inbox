@@ -1,93 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932765AbVJ3AF2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932768AbVJ3AGH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932765AbVJ3AF2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 20:05:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932769AbVJ3AF1
+	id S932768AbVJ3AGH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 20:06:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932769AbVJ3AGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 20:05:27 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:62473 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932765AbVJ3AF1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 20:05:27 -0400
-Date: Sun, 30 Oct 2005 02:05:26 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: ralf@linux-mips.org
-Cc: linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] OSS MIPS drivers: "extern inline" -> "static inline"
-Message-ID: <20051030000526.GP4180@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Sat, 29 Oct 2005 20:06:07 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:37583 "EHLO
+	pd2mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S932768AbVJ3AGF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 20:06:05 -0400
+Date: Sat, 29 Oct 2005 18:05:52 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: LSI LOGIC I/O Error on 2.6.12.6
+In-reply-to: <51NTC-5i3-5@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <43640E60.8040705@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <51NTC-5i3-5@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"extern inline" doesn't make much sense.
+govind wrote:
+> Hi,
+> 
+> We are trying to make use of a LSI LOGICS SAS drives in a customized
+> Linux distribution of 2.6.12.6 kernel version. We are hitting upon an
+> I/O Error on trying to access the drives. Have anybody faced this
+> problem?
+> 
+> The following are the details:
+> sdb: Current: sense key=0x3
+>     ASC=0x11 ASCQ=0x0
+> end_request: I/O error, dev sdb, sector 0
+> Buffer I/O error on device sdb, logical block 0
+> SCSI error : <1 0 8 0> return code = 0x8000002
+> sdb: Current: sense key=0x3
+>     ASC=0x11 ASCQ=0x0
+> end_request: I/O error, dev sdb, sector 0
+> Buffer I/O error on device sdb, logical block 0
+>  unable to read partition table
 
+Sense 0x3, ASC 0x11, ASCQ 0x00 seems to be "Unrecovered Read Error". Are 
+you sure that drive for sdb is not faulty?
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
- sound/oss/au1000.c      |    6 +++---
- sound/oss/nec_vrc5477.c |    6 +++---
- 2 files changed, 6 insertions(+), 6 deletions(-)
-
---- linux-2.6.14-rc5-mm1-full/sound/oss/au1000.c.old	2005-10-30 02:03:31.000000000 +0200
-+++ linux-2.6.14-rc5-mm1-full/sound/oss/au1000.c	2005-10-30 02:03:38.000000000 +0200
-@@ -563,7 +563,7 @@
- #define DMABUF_DEFAULTORDER (17-PAGE_SHIFT)
- #define DMABUF_MINORDER 1
- 
--extern inline void dealloc_dmabuf(struct au1000_state *s, struct dmabuf *db)
-+static inline void dealloc_dmabuf(struct au1000_state *s, struct dmabuf *db)
- {
- 	struct page    *page, *pend;
- 
-@@ -667,14 +667,14 @@
- 	return 0;
- }
- 
--extern inline int prog_dmabuf_adc(struct au1000_state *s)
-+static inline int prog_dmabuf_adc(struct au1000_state *s)
- {
- 	stop_adc(s);
- 	return prog_dmabuf(s, &s->dma_adc);
- 
- }
- 
--extern inline int prog_dmabuf_dac(struct au1000_state *s)
-+static inline int prog_dmabuf_dac(struct au1000_state *s)
- {
- 	stop_dac(s);
- 	return prog_dmabuf(s, &s->dma_dac);
---- linux-2.6.14-rc5-mm1-full/sound/oss/nec_vrc5477.c.old	2005-10-30 02:03:46.000000000 +0200
-+++ linux-2.6.14-rc5-mm1-full/sound/oss/nec_vrc5477.c	2005-10-30 02:03:56.000000000 +0200
-@@ -435,7 +435,7 @@
- 
- /* --------------------------------------------------------------------- */
- 
--extern inline void
-+static inline void
- stop_dac(struct vrc5477_ac97_state *s)
- {
- 	struct dmabuf* db = &s->dma_dac;
-@@ -553,7 +553,7 @@
- 	spin_unlock_irqrestore(&s->lock, flags);
- }	
- 
--extern inline void stop_adc(struct vrc5477_ac97_state *s)
-+static inline void stop_adc(struct vrc5477_ac97_state *s)
- {
- 	struct dmabuf* db = &s->dma_adc;
- 	unsigned long flags;
-@@ -652,7 +652,7 @@
- #define DMABUF_DEFAULTORDER (16-PAGE_SHIFT)
- #define DMABUF_MINORDER 1
- 
--extern inline void dealloc_dmabuf(struct vrc5477_ac97_state *s,
-+static inline void dealloc_dmabuf(struct vrc5477_ac97_state *s,
- 				  struct dmabuf *db)
- {
- 	if (db->lbuf) {
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 

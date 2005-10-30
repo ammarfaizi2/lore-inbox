@@ -1,111 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751076AbVJ3AQq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbVJ3AXL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751076AbVJ3AQq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 20:16:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751032AbVJ3AQq
+	id S1751032AbVJ3AXL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 20:23:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbVJ3AXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 20:16:46 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:26555 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750818AbVJ3AQq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 20:16:46 -0400
-Date: Sat, 29 Oct 2005 17:16:30 -0700
-From: Paul Jackson <pj@sgi.com>
-To: "Rohit, Seth" <rohit.seth@intel.com>
-Cc: akpm@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: Clean up of __alloc_pages
-Message-Id: <20051029171630.04a69660.pj@sgi.com>
-In-Reply-To: <20051028183326.A28611@unix-os.sc.intel.com>
-References: <20051028183326.A28611@unix-os.sc.intel.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 29 Oct 2005 20:23:11 -0400
+Received: from vms048pub.verizon.net ([206.46.252.48]:39310 "EHLO
+	vms048pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1751032AbVJ3AXJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 20:23:09 -0400
+Date: Sat, 29 Oct 2005 20:23:01 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: [patch 0/5] HW RNG cleanup & new drivers
+In-reply-to: <4363F31F.2040303@pobox.com>
+To: linux-kernel@vger.kernel.org
+Message-id: <200510292023.01984.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <20051029191229.562454000@omelas> <4363F31F.2040303@pobox.com>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seth wroteL
-> @@ -851,19 +853,11 @@
->  	 * Ignore cpuset if GFP_ATOMIC (!wait) rather than fail alloc.
->  	 * See also cpuset_zone_allowed() comment in kernel/cpuset.c.
->  	 */
-> -	for (i = 0; (z = zones[i]) != NULL; i++) {
-> -		if (!zone_watermark_ok(z, order, z->pages_min,
-> -				       classzone_idx, can_try_harder,
-> -				       gfp_mask & __GFP_HIGH))
-> -			continue;
-> -
-> -		if (wait && !cpuset_zone_allowed(z, gfp_mask))
-> -			continue;
-> -
-> -		page = buffered_rmqueue(z, order, gfp_mask);
-> -		if (page)
-> -			goto got_pg;
-> -	}
-> +	if (!wait)
-> +		page = get_page_from_freelist(gfp_mask, order, zones, 
-> +						can_try_harder);
+On Saturday 29 October 2005 18:09, Jeff Garzik wrote:
+>Deepak Saxena wrote:
+>> This patch adds support to the kernel for some more HW RNG devices
+>> and cleans up the code a bit.  My basic goal was to keep the same
+>> user space interface as exists, but not have to reproduce all
+>> the same 100 lines of user space interface code across every new
+>> driver (as we currently do with watchdogs...)
+>>
+>> The new code separates the HW specific driver from the user
+>> interface code and just adds a few function pointers so that
+>> the two can talk to each other. I opted out of using a sysfs
+>> class and all that complication b/c there will be one and only
+>> one RNG device at a time on a given system.
+>>
+>> I've added drivers for Intels' IXP4xx and for the TI OMAP and
+>> these have both been tested.
+>
+>I would prefer to let this live in -mm at least for a little while.
+>Confirmation from AMD, Intel and VIA owners would be really nice, too.
+>AMD and Intel might be a little bit hard to find.  I think Peter Anvin
+>had an Intel ICH w/ RNG at one time...
 
-Thanks for the clean-up work.  Good stuff.
-
-I think you've changed the affect that the cpuset check has on the
-above pass.
-
-As you know, the above is the last chance we have for GFP_ATOMIC (can't
-wait) allocations before getting into the oom_kill code.  The code had
-been written to ignore cpuset constraints for GFP_ATOMIC (that is,
-"!wait") allocations.  The intent is to allow taking GFP_ATOMIC memory
-from any damn node we can find it on, rather than start killing.
-
-Your change will call into get_page_from_freelist() in such cases,
-where the cpuset check is still done.
-
-I would be tempted instead to:
- 1) pass 'can_try_harder' value of -1, instead of the the local value
-    of 1 (which it certainly is, since we are in !wait code).
- 2) condition the cpuset check in get_page_from_freelist() on
-    can_try_harder being not equal to -1.
-
-The item (2) -does- change the existing cpuset conditions as well,
-allowing cpuset boundaries to be violated for the cases that would
-"allow future memory freeing" (such as GFP_MEMALLOC or TIF_MEMDIE),
-whereas until now, we did not allow violating cpuset conditions
-for this.  But that is arguably a good change.
-
-The following patch, on top of yours, shows what I have in mind here:
-
---- 2.6.14-rc5-mm1.orig/mm/page_alloc.c	2005-10-29 14:45:07.000000000 -0700
-+++ 2.6.14-rc5-mm1/mm/page_alloc.c	2005-10-29 16:35:55.000000000 -0700
-@@ -777,7 +777,7 @@ get_page_from_freelist(unsigned int __no
- 	 * See also cpuset_zone_allowed() comment in kernel/cpuset.c.
- 	 */
- 	for (i = 0; (z = zones[i]) != NULL; i++) {
--		if (!cpuset_zone_allowed(z, gfp_mask))
-+		if (can_try_harder != -1 && !cpuset_zone_allowed(z, gfp_mask))
- 			continue;
- 
- 		if ((can_try_harder >= 0) && 
-@@ -940,8 +940,7 @@ restart:
- 	 * See also cpuset_zone_allowed() comment in kernel/cpuset.c.
- 	 */
- 	if (!wait)
--		page = get_page_from_freelist(gfp_mask, order, zones, 
--						can_try_harder);
-+		page = get_page_from_freelist(gfp_mask, order, zones, -1);
- 	if (page)
- 		goto got_pg;
- 
-
-However ...
- 1) The above also would change __GFP_HIGH and rt allocations to also
-    ignore mins entirely, instead of just going deeper into reserves,
-    on this pass.  That is likely not good.
- 2) I can't get my head wrapped around Nick's reply to this patch.
-
-So my above patch is no doubt flawed in one or more ways.
+Does anyone know if there is a hardware RNG in my Athlons?  XP-2800
+here, XP-1400 in the shop box, & a K6-III in the firewall.
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Free OpenDocument reader/writer/converter download:
+http://www.openoffice.org
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+

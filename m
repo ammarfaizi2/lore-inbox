@@ -1,131 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932776AbVJ3B3O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932775AbVJ3BfA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932776AbVJ3B3O (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 21:29:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932775AbVJ3B3O
+	id S932775AbVJ3BfA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 21:35:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932778AbVJ3BfA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 21:29:14 -0400
-Received: from fed1rmmtao06.cox.net ([68.230.241.33]:41858 "EHLO
-	fed1rmmtao06.cox.net") by vger.kernel.org with ESMTP
-	id S932770AbVJ3B3N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 21:29:13 -0400
-From: Junio C Hamano <junkio@cox.net>
-To: git@vger.kernel.org
-Subject: GIT 0.99.9
-cc: linux-kernel@vger.kernel.org
-Date: Sat, 29 Oct 2005 18:29:12 -0700
-Message-ID: <7vd5lnztav.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Sat, 29 Oct 2005 21:35:00 -0400
+Received: from zproxy.gmail.com ([64.233.162.195]:44978 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932775AbVJ3Be7 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 21:34:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=cS7808rmRfcrQJd1e0IuAjsk2ILe43WqBM+jQngnbEyd33+HSwi+zHbzx6yOvzZsFR40jEtW4P3hb0Qs2A9QbSCxlSUjo7din+0Gq1maX9+KfnJvFQHabXLgS3CnRqdWvptPVPe1xsToGSZDa/LwwNBrUCDpOiombs615vG+PQM=
+Message-ID: <af6853e00510291834uc25e0f4q29af72ab3ef5dcc3@mail.gmail.com>
+Date: Sat, 29 Oct 2005 19:34:58 -0600
+From: Alex Hsia <xanderhsia@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Fwd: Odd problems with cdrom not finding media
+In-Reply-To: <af6853e00510291832lb64515dt1d5d9a5661fb1ae1@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <af6853e00510291831m29c1b817padba0c1c88c81299@mail.gmail.com>
+	 <af6853e00510291832lb64515dt1d5d9a5661fb1ae1@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-GIT 0.99.9 is found at usual places.
+Greets everyone,
 
-As I said in the 0.99.8 announcement, git already does
-everything I want it to do, and from here on I'd like to see us
-concentrate on fixes (both correctness and performance) until we
-hit 1.0 which should happen shortly.
+ I am running into an odd problem with a NEC-3520AW (firmware 3.06)
+attached to a Promise Ultra TX2 100 pci card (pdc20268 kernel driver).
+DVD's and DVD-R's seem to be recognized fine when inserted; however
+CDs (pressed, cdr, cdrw, audio) are not. I always end up with a
+message to effect of "No media found" when trying to use those.
 
-Many thanks to everybody who contributed the comments, extra set
-of eyeballs, and code.
+ I googled for quite a bit, but wasn't able to narrow the problem
+down. I don't know if it is the promise driver or something in the
+ide-cd module. A fair bit of my log looks like the following after
+trying various mounting operations.
 
+ cdrom: open failed.
+ cdrom_pc_intr, write: dev hdf: flags = REQ_STARTED REQ_PC REQ_QUIET
+ sector 0, nr/cnr 0/0
+ bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
+ cdb: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ hdf: cdrom_pc_intr: The drive appears confused (ireason = 0xd0)
+ cdrom: This disc doesn't have any tracks I recognize!
 
-Done in 0.99.9
-==============
+ I am running vanilla-2.6.14-rc2 no enhancements. The drive itself
+worked fine in another computer. Any ideas on where to go hunting?
+ I can provide lots of info if needed, just give me a idea of what.
 
-Ports
-~~~~~
+ Thanks,
 
-* Cygwin port [HPA].
+ -A
 
-* OpenBSD build [Merlyn and others].
-
-
-Fixes
-~~~~~
-
-* clone request over git native protocol from a repository with
-  too many refs did not work; this has been fixed.
-
-* git-daemon got safer for kernel.org use [HPA].
-
-* Extended SHA1 parser was not enforcing uniqueness for
-  abbreviated SHA1; this has been fixed.
-
-* http transport does not barf on funny characters in URL.
-
-* The ref naming restrictions have been formalized and the
-  coreish refuses to create funny refs; we still need to audit
-  importers.  See git-check-ref-format(1).
-
-
-New Features and Commands
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* .git/config file as a per-repository configuration mechanism,
-  and some commands understand it [Linus].  See
-  git(7).
-
-* The core.filemode configuration item can be used to make us a
-  bit more FAT friendly.  See git(7).
-
-* The extended SHA1 notation acquired Peel-the-onion operator
-  ^{type} and ^{}.  See git-rev-parse(1).
-
-* SVN importer [Matthias].  See git-svnimport(1).
-
-* .git/objects/[0-9a-f]{2} directories are created on demand,
-  and removed when becomes empty after prune-packed [Linus].
-
-* Filenames output from various commands without -z option are
-  quoted when they embed funny characters (TAB and LF) using
-  C-style quoting within double-quotes, to match the proposed
-  GNU diff/patch notation [me, but many people contributed in
-  the discussion].
-
-* git-mv is expected to be a better replacement for git-rename.
-  While the latter has two parameter restriction, it acts more
-  like the regular 'mv' that can move multiple things to one
-  destinatino directory [Josef Weidendorfer].
-
-* git-checkout can take filenames to revert the changes to
-  them.  See git-checkout(1)
-
-* The new program git-am is a replacement for git-applymbox that
-  has saner command line options and a bit easier to use when a
-  patch does not apply cleanly.
-
-* git-ls-remote can show unwrapped onions using ^{} notation, to
-  help Cogito to track tags.
-
-* git-merge-recursive backend can merge unrelated projects.
-
-* git-clone over native transport leaves the result packed.
-
-* git-http-fetch issues multiple requests in parallel when
-  underlying cURL library supports it [Nick and Daniel].
-
-* git-fetch-pack and git-upload-pack try harder to figure out
-  better common commits [Johannes].
-
-* git-read-tree -u removes a directory when it makes it empty.
-
-* git-diff-* records abbreviated SHA1 names of original and
-  resulting blob; this sometimes helps to apply otherwise an
-  unapplicable patch by falling back to 3-way merge.
-
-* git-format-patch now takes series of from..to rev ranges and
-  with '-m --stdout', writes them out to the standard output.
-  This can be piped to 'git-am' to implement cheaper
-  cherry-picking.
-
-* git-tag takes '-u' to specify the tag signer identity [Linus].
-
-* git-rev-list can take optional pathspecs to skip commits that
-  do not touch them (--dense) [Linus].
-
-* Comes with new and improved gitk [Paulus and Linus].
-
-
+ Please cc me as I am not subscribed to lkml

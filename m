@@ -1,72 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbVJ3TcS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbVJ3TcT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932235AbVJ3TcS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 14:32:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbVJ3TcR
+	id S932248AbVJ3TcT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 14:32:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbVJ3TcS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 14:32:17 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:43162 "EHLO
+	Sun, 30 Oct 2005 14:32:18 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:42906 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S932233AbVJ3TcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S932226AbVJ3TcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 30 Oct 2005 14:32:16 -0500
-Date: Sun, 30 Oct 2005 14:33:25 +0100
+Date: Sun, 30 Oct 2005 14:11:53 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Pavel Machek <pavel@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
-       linux-pm@osdl.org
-Subject: Re: [RFC][PATCH 5/6] swsusp: move swap-handling functions to separate file
-Message-ID: <20051030133325.GE657@openzaurus.ucw.cz>
-References: <200510292158.11089.rjw@sisk.pl> <200510292241.05312.rjw@sisk.pl>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [git patches] 2.6.x libata updates
+Message-ID: <20051030131152.GD657@openzaurus.ucw.cz>
+References: <20051029182228.GA14495@havoc.gtf.org> <20051029121454.5d27aecb.akpm@osdl.org> <4363CB60.2000201@pobox.com> <Pine.LNX.4.64.0510291229330.3348@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200510292241.05312.rjw@sisk.pl>
+In-Reply-To: <Pine.LNX.4.64.0510291229330.3348@g5.osdl.org>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> This patch is to show that the swap-handling part of swsusp is really independent
-> and it can be moved entirely to a separate file.  It introduces the file swap.c
-> containing all of the swap-handling code.
+> > Even so, it's easy, to I'll ask him to test 2.6.14, 2.6.14-git1, and
+> > (tonight's upcoming) 2.6.14-git2 (with my latest pull included) to see if
+> > anything breaks.
 > 
-> After the change swsusp.c contains the functions that in my opinion do not
-> belong to either the snapshot-handling part or the swap-handling part
-> (swsusp_suspend(), swsusp_resume() and the functions related to highmem).
+> Side note: one of the downsides of the new "merge lots of stuff early in 
+> the development series" approach is that the first few daily snapshots end 
+> up being _huge_. 
+> 
+> So the -git1 and -git2 patches are/will be very big indeed.
+> 
+> For example, patch-2.6.14-git1 literally ended up being a megabyte 
+> compressed. Right now my diff to 2.6.14 (after just two days) is 1.6MB 
+> compressed.
+...
+> Now, I've gotten several positive comments on how easy "git bisect" is to 
+> use, and I've used it myself, but this is the first time that patch users 
+> _really_ become very much second-class citizens, and you can't necessarily 
+> always do useful things with just the tar-trees and patches. That's sad, 
+> and possibly a really big downside.
+> 
+> Don't get me wrong - I personally think that the new merge policy is a 
+> clear improvement, but it does have this downside.
 
-Highmem handling should go to snapshot.c. Other parts do not need to know about
-it.
-
-
-linux-2.6.14-rc5-mm1/kernel/power/swap.c
-> ===================================================================
-> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> +++ linux-2.6.14-rc5-mm1/kernel/power/swap.c	2005-10-29 13:26:26.000000000 +0200
-> @@ -0,0 +1,915 @@
-> +/*
-> + * linux/kernel/power/snapshot.c
-
-wrong name.
-
-> +static void dump_info(void)
-> +{
-> +	pr_debug(" swsusp: Version: %u\n",swsusp_info.version_code);
-> +	pr_debug(" swsusp: Num Pages: %ld\n",swsusp_info.num_physpages);
-> +	pr_debug(" swsusp: UTS Sys: %s\n",swsusp_info.uts.sysname);
-> +	pr_debug(" swsusp: UTS Node: %s\n",swsusp_info.uts.nodename);
-> +	pr_debug(" swsusp: UTS Release: %s\n",swsusp_info.uts.release);
-> +	pr_debug(" swsusp: UTS Version: %s\n",swsusp_info.uts.version);
-> +	pr_debug(" swsusp: UTS Machine: %s\n",swsusp_info.uts.machine);
-> +	pr_debug(" swsusp: UTS Domain: %s\n",swsusp_info.uts.domainname);
-> +	pr_debug(" swsusp: CPUs: %d\n",swsusp_info.cpus);
-> +	pr_debug(" swsusp: Image: %ld Pages\n",swsusp_info.image_pages);
-> +	pr_debug(" swsusp: Total: %ld Pages\n", swsusp_info.pages);
-> +}
-
-I'd rather get rid of this, or at least made it *way* more terse.
-
-Ok, that probably belongs to separate patch.
+Well, git bisect helps a bit, but does not really cut it. If changes are
+merged slowly enough, you usually don't need to go through history;
+you know it is broken, you know it worked yesterday, and diff is small enough...
 
 				Pavel
 -- 

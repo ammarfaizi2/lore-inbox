@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbVJ3OtE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbVJ3O6U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750709AbVJ3OtE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 09:49:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbVJ3OtE
+	id S1750770AbVJ3O6U (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 09:58:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbVJ3O6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 09:49:04 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:33676 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S1750709AbVJ3OtB (ORCPT
+	Sun, 30 Oct 2005 09:58:20 -0500
+Received: from ns1.suse.de ([195.135.220.2]:42708 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750770AbVJ3O6T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 09:49:01 -0500
-Date: Sun, 30 Oct 2005 15:48:57 +0100
-From: bert hubert <bert.hubert@netherlabs.nl>
-To: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BIND hangs with 2.6.14
-Message-ID: <20051030144857.GA23438@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
-	"Steinar H. Gunderson" <sgunderson@bigfoot.com>,
-	linux-kernel@vger.kernel.org
-References: <20051030023557.GA7798@uio.no> <20051030101148.GA18854@outpost.ds9a.nl> <20051030104527.GB32446@uio.no> <20051030110021.GA19680@outpost.ds9a.nl> <20051030113651.GA1780@uio.no> <20051030114537.GA20564@outpost.ds9a.nl> <20051030142223.GA12146@uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 30 Oct 2005 09:58:19 -0500
+From: Andi Kleen <ak@suse.de>
+To: Nishanth Aravamudan <nacc@us.ibm.com>
+Subject: Re: PCI-DMA: high address but no IOMMU
+Date: Sun, 30 Oct 2005 15:59:15 +0100
+User-Agent: KMail/1.8.2
+Cc: Michael Madore <michael.madore@gmail.com>, linux-kernel@vger.kernel.org
+References: <d4b6d3ea0510271047t413e9ea8l333a532c1a5f3d77@mail.gmail.com> <20051028015900.GB4141@us.ibm.com> <20051030142924.GA30183@us.ibm.com>
+In-Reply-To: <20051030142924.GA30183@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051030142223.GA12146@uio.no>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200510301559.15423.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 30, 2005 at 03:22:23PM +0100, Steinar H. Gunderson wrote:
+On Sunday 30 October 2005 15:29, Nishanth Aravamudan wrote:
 
-> I've compiled some extra debugging code (printing the msg_hdr structure if
-> recvmsg() should fail with a hard error) into named, so I'm waiting for the
-> problem to manifest itself again.
+> 
+> Ah, silly me, I set IOMMU_DEBUG to Y at some point without realizing.
+> Taking that away removed the issues and I now only get:
+> 
+> [    0.000000] Checking aperture...
+> [    0.000000] CPU 0: aperture @ 4000000 size 32 MB
+> [    0.000000] Aperture from northbridge cpu 0 too small (32 MB)
+> [    0.000000] No AGP bridge found
+> 
+> ...
+> 
+> [   47.737770] PCI-DMA: Disabling IOMMU.
+> 
+> Which makes a lot more sense.
 
-Sounds like a wise move, the msg_hdr structure again contains pointers which
-might point to invalid memory.
+And everything works when you disable IOMMU_DEBUG? Is that the case
+with the other reporters of this problem too?
 
-What you could try to do is master git and get it to output a diff of
-relevant files from your previous version to 2.6.14. Sadly, that might be a
-lot of files.. If you start tracing from udp_recvmsg you quickly end up in a
-heap of files which might be generating EFAULT.
-
-Good luck!
-
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://netherlabs.nl              Open and Closed source services
+-Andi

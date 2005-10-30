@@ -1,67 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbVJ3Q7U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbVJ3Qzb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932181AbVJ3Q7U (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 11:59:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbVJ3Q7U
+	id S932178AbVJ3Qzb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 11:55:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbVJ3Qzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 11:59:20 -0500
-Received: from gold.veritas.com ([143.127.12.110]:32855 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S932181AbVJ3Q7T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 11:59:19 -0500
-Date: Sun, 30 Oct 2005 16:58:14 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Robin Holt <holt@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: munmap extremely slow even with untouched mapping.
-In-Reply-To: <43644C22.8050501@yahoo.com.au>
-Message-ID: <Pine.LNX.4.61.0510301631360.2848@goblin.wat.veritas.com>
-References: <20051028013738.GA19727@attica.americas.sgi.com>
- <43620138.6060707@yahoo.com.au> <Pine.LNX.4.61.0510281557440.3229@goblin.wat.veritas.com>
- <43644C22.8050501@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 30 Oct 2005 16:59:15.0071 (UTC) FILETIME=[422648F0:01C5DD73]
+	Sun, 30 Oct 2005 11:55:31 -0500
+Received: from imf22aec.mail.bellsouth.net ([205.152.59.70]:52366 "EHLO
+	imf22aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S932178AbVJ3Qza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 11:55:30 -0500
+Subject: patch to add a config option to enable SATA ATAPI by default
+From: Mark Tomich <tomichm@bellsouth.net>
+To: linux-kernel@vger.kernel.org
+Cc: jgarzik@pobox.com
+Content-Type: text/plain
+Date: Sun, 30 Oct 2005 11:55:28 -0500
+Message-Id: <1130691328.8303.8.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 30 Oct 2005, Nick Piggin wrote:
-> Hugh Dickins wrote:
-> > 
-> > I prefer your patch too.  But I'm not very interested in temporary
-> > speedups relative to 2.6.14.  Attacking this is a job I'd put off
-> > until after the page fault scalability changes, which make it much
-> > easier to do a proper job.
-> 
-> Yeah definitely.
-> 
-> I wonder if we should go with Robin's fix (+/- my variation)
-> as a temporary measure for 2.6.15?
+Below is a very straight-forward patch to add a config option to
+enabling SATA ATAPI by default.
+Please CC me with any comments.
 
-You're right, I was too dismissive.  I've now spent a day looking into
-the larger rework, and it's a bigger job than I'd thought - partly the
-architecture variations, partly the fast/slow paths and other "tlb" cruft,
-partly the truncation case's i_mmap_lock (and danger of making no progress
-whenever we drop it).  I'll have to set all that aside for now.
+diff -u -r linux-2.6.14-rc5/drivers/scsi/Kconfig
+linux-2.6.14-rc5-patched/drivers/scsi/Kconfig
+--- linux-2.6.14-rc5/drivers/scsi/Kconfig	2005-10-30 11:09:15.533533419
+-0500
++++ linux-2.6.14-rc5-patched/drivers/scsi/Kconfig	2005-10-30
+11:21:39.735696058 -0500
+@@ -445,6 +445,17 @@
+ 
+ 	  If unsure, say N.
+ 
++config SCSI_SATA_ENABLE_ATAPI
++	bool "Enable SATA ATAPI by default"
++	depends on SCSI_SATA
++	help
++	  SATA ATAPI is disabled by default.
++	  Use this option to enable it by default.
++	  
++	  You probably want this if you have a CDROM attached on the SATA bus.
++
++	  If unsure, say Y.
++
+ config SCSI_SATA_AHCI
+ 	tristate "AHCI SATA support"
+ 	depends on SCSI_SATA && PCI
+diff -u -r linux-2.6.14-rc5/drivers/scsi/libata-core.c
+linux-2.6.14-rc5-patched/drivers/scsi/libata-core.c
+--- linux-2.6.14-rc5/drivers/scsi/libata-core.c	2005-10-30
+11:09:15.614522543 -0500
++++ linux-2.6.14-rc5-patched/drivers/scsi/libata-core.c	2005-10-30
+11:44:45.776652352 -0500
+@@ -75,7 +75,12 @@
+ static unsigned int ata_unique_id = 1;
+ static struct workqueue_struct *ata_wq;
+ 
++#ifdef CONFIG_SCSI_SATA_ENABLE_ATAPI
++int atapi_enabled = 1;
++#else
+ int atapi_enabled = 0;
++#endif
++
+ module_param(atapi_enabled, int, 0444);
+ MODULE_PARM_DESC(atapi_enabled, "Enable discovery of ATAPI devices
+(0=off, 1=on)");
+ 
 
-I've taken another look at the two patches.  The main reason I preferred
-yours was that I misread Robin's!  But yes, yours takes it a bit further,
-and I think that is worthwhile.
 
-But a built and tested version would be better.  Aren't you trying to
-return addr from each level (that's what I liked, and what I'll want to
-do in the end)?  But some levels are returning nothing, and unmap_vmas
-does start +=, and the huge case leaves start unchanged, and zap_work
-should be a long so it doesn't need casting almost everywhere, and...
-given all that, I bet there's more!
-
-As to whether p??_none should count for 1 where !pte_none counts for
-PAGE_SIZE, well, they say a picture is worth a thousand words, and I'm
-sure that's entered your calculation ;-)  I'd probably make the p??_none
-count for a little more.  Perhaps we should get everyone involved in a
-great profiling effort across the architectures to determine it.
-Config option.  Sys tunable.  I'll shut up.
-
-Hugh

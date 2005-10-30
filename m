@@ -1,60 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932766AbVJ3BUD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932776AbVJ3B3O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932766AbVJ3BUD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Oct 2005 21:20:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932770AbVJ3BUD
+	id S932776AbVJ3B3O (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Oct 2005 21:29:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932775AbVJ3B3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Oct 2005 21:20:03 -0400
-Received: from mail.acc.umu.se ([130.239.18.156]:24529 "EHLO mail.acc.umu.se")
-	by vger.kernel.org with ESMTP id S932766AbVJ3BUB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Oct 2005 21:20:01 -0400
-Date: Sun, 30 Oct 2005 02:19:59 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org, Matt Mackall <mpm@selenic.com>
-Subject: Re: [ketchup] patch to allow for moving of .gitignore in 2.6.14
-Message-ID: <20051030011959.GA17750@vasa.acc.umu.se>
-Mail-Followup-To: Steven Rostedt <rostedt@goodmis.org>,
-	linux-kernel@vger.kernel.org, Matt Mackall <mpm@selenic.com>
-References: <Pine.LNX.4.58.0510170316310.5859@localhost.localdomain> <20051017213915.GN26160@waste.org> <Pine.LNX.4.58.0510180211320.13581@localhost.localdomain> <20051018063031.GR26160@waste.org> <Pine.LNX.4.58.0510180239550.13581@localhost.localdomain> <20051018072927.GU26160@waste.org> <1130504043.9574.56.camel@localhost.localdomain> <Pine.LNX.4.58.0510291659140.10073@localhost.localdomain>
-Mime-Version: 1.0
+	Sat, 29 Oct 2005 21:29:14 -0400
+Received: from fed1rmmtao06.cox.net ([68.230.241.33]:41858 "EHLO
+	fed1rmmtao06.cox.net") by vger.kernel.org with ESMTP
+	id S932770AbVJ3B3N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Oct 2005 21:29:13 -0400
+From: Junio C Hamano <junkio@cox.net>
+To: git@vger.kernel.org
+Subject: GIT 0.99.9
+cc: linux-kernel@vger.kernel.org
+Date: Sat, 29 Oct 2005 18:29:12 -0700
+Message-ID: <7vd5lnztav.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0510291659140.10073@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-Editor: Vi Improved <http://www.vim.org/>
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 29, 2005 at 05:06:21PM -0400, Steven Rostedt wrote:
-[snip]
+GIT 0.99.9 is found at usual places.
 
-> Index: Ketchup-d9503020b3c1/ketchup
-> ===================================================================
-> --- Ketchup-d9503020b3c1.orig/ketchup	2005-10-28 08:38:50.000000000 -0400
-> +++ Ketchup-d9503020b3c1/ketchup	2005-10-28 10:45:43.000000000 -0400
-> @@ -482,7 +482,7 @@
->          error("Unpacking failed: ", err)
->          sys.exit(-1)
-> 
-> -    err = os.system("mv linux*/* . ; rmdir linux*")
-> +    err = os.system("shopt -s dotglob; mv linux*/* . ; rmdir linux*")
->      if err:
->          error("Unpacking failed: ", err)
->          sys.exit(-1)
+As I said in the 0.99.8 announcement, git already does
+everything I want it to do, and from here on I'd like to see us
+concentrate on fixes (both correctness and performance) until we
+hit 1.0 which should happen shortly.
+
+Many thanks to everybody who contributed the comments, extra set
+of eyeballs, and code.
 
 
-Uhm, this patch assumes that you're using bash as /bin/sh.
-Not everyone does.  (I haven't checked the rest of the system calls
-in ketchup though, maybe this is a more generic problem?)
+Done in 0.99.9
+==============
+
+Ports
+~~~~~
+
+* Cygwin port [HPA].
+
+* OpenBSD build [Merlyn and others].
 
 
-Regards: David Weinehall
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+Fixes
+~~~~~
+
+* clone request over git native protocol from a repository with
+  too many refs did not work; this has been fixed.
+
+* git-daemon got safer for kernel.org use [HPA].
+
+* Extended SHA1 parser was not enforcing uniqueness for
+  abbreviated SHA1; this has been fixed.
+
+* http transport does not barf on funny characters in URL.
+
+* The ref naming restrictions have been formalized and the
+  coreish refuses to create funny refs; we still need to audit
+  importers.  See git-check-ref-format(1).
+
+
+New Features and Commands
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* .git/config file as a per-repository configuration mechanism,
+  and some commands understand it [Linus].  See
+  git(7).
+
+* The core.filemode configuration item can be used to make us a
+  bit more FAT friendly.  See git(7).
+
+* The extended SHA1 notation acquired Peel-the-onion operator
+  ^{type} and ^{}.  See git-rev-parse(1).
+
+* SVN importer [Matthias].  See git-svnimport(1).
+
+* .git/objects/[0-9a-f]{2} directories are created on demand,
+  and removed when becomes empty after prune-packed [Linus].
+
+* Filenames output from various commands without -z option are
+  quoted when they embed funny characters (TAB and LF) using
+  C-style quoting within double-quotes, to match the proposed
+  GNU diff/patch notation [me, but many people contributed in
+  the discussion].
+
+* git-mv is expected to be a better replacement for git-rename.
+  While the latter has two parameter restriction, it acts more
+  like the regular 'mv' that can move multiple things to one
+  destinatino directory [Josef Weidendorfer].
+
+* git-checkout can take filenames to revert the changes to
+  them.  See git-checkout(1)
+
+* The new program git-am is a replacement for git-applymbox that
+  has saner command line options and a bit easier to use when a
+  patch does not apply cleanly.
+
+* git-ls-remote can show unwrapped onions using ^{} notation, to
+  help Cogito to track tags.
+
+* git-merge-recursive backend can merge unrelated projects.
+
+* git-clone over native transport leaves the result packed.
+
+* git-http-fetch issues multiple requests in parallel when
+  underlying cURL library supports it [Nick and Daniel].
+
+* git-fetch-pack and git-upload-pack try harder to figure out
+  better common commits [Johannes].
+
+* git-read-tree -u removes a directory when it makes it empty.
+
+* git-diff-* records abbreviated SHA1 names of original and
+  resulting blob; this sometimes helps to apply otherwise an
+  unapplicable patch by falling back to 3-way merge.
+
+* git-format-patch now takes series of from..to rev ranges and
+  with '-m --stdout', writes them out to the standard output.
+  This can be piped to 'git-am' to implement cheaper
+  cherry-picking.
+
+* git-tag takes '-u' to specify the tag signer identity [Linus].
+
+* git-rev-list can take optional pathspecs to skip commits that
+  do not touch them (--dense) [Linus].
+
+* Comes with new and improved gitk [Paulus and Linus].
+
+

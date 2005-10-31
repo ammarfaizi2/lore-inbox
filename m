@@ -1,100 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbVJaDrs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbVJaDtE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751320AbVJaDrs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 22:47:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbVJaDrQ
+	id S1751319AbVJaDtE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 22:49:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbVJaDsk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 22:47:16 -0500
-Received: from lakshmi.addtoit.com ([198.99.130.6]:34566 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S1751317AbVJaDqv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 22:46:51 -0500
-Message-Id: <200510310439.j9V4dimX000883@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: [PATCH 10/10] UML - Make tt mode-dependent options depend on MODE_TT
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 30 Oct 2005 23:39:44 -0500
-From: Jeff Dike <jdike@addtoit.com>
+	Sun, 30 Oct 2005 22:48:40 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:12172 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751319AbVJaDsc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 22:48:32 -0500
+Message-ID: <43659404.6050605@pobox.com>
+Date: Sun, 30 Oct 2005 22:48:20 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] ide-scsi highmem cleanup
+References: <200510310302.j9V32hO4009277@hera.kernel.org>
+In-Reply-To: <200510310302.j9V32hO4009277@hera.kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This makes some of the tt-specific options actually depend on
-CONFIG_MODE_TT.
+Linux Kernel Mailing List wrote:
+> tree c6016a8741a2527acac0ceb6e6ce431a798d6708
+> parent f1fc78a8c7f3a784b9fd1e07cc1438a0ea569555
+> author Andrew Morton <akpm@osdl.org> Mon, 31 Oct 2005 07:00:13 -0800
+> committer Linus Torvalds <torvalds@g5.osdl.org> Mon, 31 Oct 2005 09:37:17 -0800
+> 
+> [PATCH] ide-scsi highmem cleanup
+> 
+> It's not necessary to test PageHighmem in here - kmap_atomic() does the right
+> thing.
+> 
+> Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+> 
+>  drivers/scsi/ide-scsi.c |   38 ++++++++++++--------------------------
+>  1 files changed, 12 insertions(+), 26 deletions(-)
+> 
+> diff --git a/drivers/scsi/ide-scsi.c b/drivers/scsi/ide-scsi.c
+> --- a/drivers/scsi/ide-scsi.c
+> +++ b/drivers/scsi/ide-scsi.c
+> @@ -180,19 +180,12 @@ static void idescsi_input_buffers (ide_d
+>  			return;
+>  		}
+>  		count = min(pc->sg->length - pc->b_count, bcount);
+> -		if (PageHighMem(pc->sg->page)) {
+> -			unsigned long flags;
+> -
+> -			local_irq_save(flags);
+> -			buf = kmap_atomic(pc->sg->page, KM_IRQ0) + pc->sg->offset;
+> -			drive->hwif->atapi_input_bytes(drive, buf + pc->b_count, count);
+> -			kunmap_atomic(buf - pc->sg->offset, KM_IRQ0);
+> -			local_irq_restore(flags);
+> -		} else {
+> -			buf = page_address(pc->sg->page) + pc->sg->offset;
+> -			drive->hwif->atapi_input_bytes(drive, buf + pc->b_count, count);
+> -		}
+> -		bcount -= count; pc->b_count += count;
+> +		buf = kmap_atomic(pc->sg->page, KM_IRQ0);
+> +		drive->hwif->atapi_input_bytes(drive,
+> +				buf + pc->b_count + pc->sg->offset, count);
+> +		kunmap_atomic(buf, KM_IRQ0);
+> +		bcount -= count;
+> +		pc->b_count += count;
+>  		if (pc->b_count == pc->sg->length) {
+>  			pc->sg++;
+>  			pc->b_count = 0;
+> @@ -212,19 +205,12 @@ static void idescsi_output_buffers (ide_
+>  			return;
+>  		}
+>  		count = min(pc->sg->length - pc->b_count, bcount);
+> -		if (PageHighMem(pc->sg->page)) {
+> -			unsigned long flags;
+> -
+> -			local_irq_save(flags);
+> -			buf = kmap_atomic(pc->sg->page, KM_IRQ0) + pc->sg->offset;
+> -			drive->hwif->atapi_output_bytes(drive, buf + pc->b_count, count);
+> -			kunmap_atomic(buf - pc->sg->offset, KM_IRQ0);
+> -			local_irq_restore(flags);
+> -		} else {
+> -			buf = page_address(pc->sg->page) + pc->sg->offset;
+> -			drive->hwif->atapi_output_bytes(drive, buf + pc->b_count, count);
+> -		}
+> -		bcount -= count; pc->b_count += count;
+> +		buf = kmap_atomic(pc->sg->page, KM_IRQ0);
+> +		drive->hwif->atapi_output_bytes(drive,
+> +				buf + pc->b_count + pc->sg->offset, count);
+> +		kunmap_atomic(buf, KM_IRQ0);
+> +		bcount -= count;
+> +		pc->b_count += count;
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+Unless I'm missing something, this patch looks very wrong.
 
-Index: linux-2.6.14/arch/um/Kconfig
-===================================================================
---- linux-2.6.14.orig/arch/um/Kconfig	2005-10-28 12:58:12.000000000 -0400
-+++ linux-2.6.14/arch/um/Kconfig	2005-10-30 19:29:28.000000000 -0500
-@@ -63,6 +63,30 @@ config STATIC_LINK
- 	chroot, and you disable CONFIG_MODE_TT, you probably want to say Y
- 	here.
- 
-+config HOST_2G_2G
-+	bool "2G/2G host address space split"
-+	default n
-+	depends on MODE_TT
-+	help
-+	This is needed when the host on which you run has a 2G/2G memory
-+	split, instead of the customary 3G/1G.
-+
-+	Note that to enable such a host
-+	configuration, which makes sense only in some cases, you need special
-+	host patches.
-+
-+	So, if you do not know what to do here, say 'N'.
-+
-+config KERNEL_HALF_GIGS
-+	int "Kernel address space size (in .5G units)"
-+	default "1"
-+	depends on MODE_TT
-+	help
-+        This determines the amount of address space that UML will allocate for
-+        its own, measured in half Gigabyte units.  The default is 1.
-+        Change this only if you need to boot UML with an unusually large amount
-+        of physical memory.
-+
- config MODE_SKAS
- 	bool "Separate Kernel Address Space support"
- 	default y
-@@ -180,19 +204,6 @@ config MAGIC_SYSRQ
- 	The keys are documented in <file:Documentation/sysrq.txt>. Don't say Y
- 	unless you really know what this hack does.
- 
--config HOST_2G_2G
--	bool "2G/2G host address space split"
--	default n
--	help
--	This is needed when the host on which you run has a 2G/2G memory
--	split, instead of the customary 3G/1G.
--
--	Note that to enable such a host
--	configuration, which makes sense only in some cases, you need special
--	host patches.
--
--	So, if you do not know what to do here, say 'N'.
--
- config SMP
- 	bool "Symmetric multi-processing support (EXPERIMENTAL)"
- 	default n
-@@ -239,15 +250,6 @@ config NEST_LEVEL
-         set to the host's CONFIG_NEST_LEVEL + CONFIG_KERNEL_HALF_GIGS.
-         Only change this if you are running nested UMLs.
- 
--config KERNEL_HALF_GIGS
--	int "Kernel address space size (in .5G units)"
--	default "1"
--	help
--        This determines the amount of address space that UML will allocate for
--        its own, measured in half Gigabyte units.  The default is 1.
--        Change this only if you need to boot UML with an unusually large amount
--        of physical memory.
--
- config HIGHMEM
- 	bool "Highmem support"
- 	depends on !64BIT
+kmap_atomic(..., KM_IRQx) needs to be inside local_irq_save().
+
+As such, the PageHighMem() does have clear benefits.
+
+	Jeff
+
 

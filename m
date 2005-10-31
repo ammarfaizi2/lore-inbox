@@ -1,67 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbVJaGeu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932492AbVJaGgV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932490AbVJaGeu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 01:34:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932491AbVJaGeu
+	id S932492AbVJaGgV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 01:36:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932494AbVJaGgV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 01:34:50 -0500
-Received: from ns1.suse.de ([195.135.220.2]:13487 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932490AbVJaGeu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 01:34:50 -0500
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Mon, 31 Oct 2005 17:34:44 +1100
-Message-Id: <1051031063444.9586@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH against 2.6.14] truncate() or ftruncate shouldn't change mtime if size doesn't change.
-References: <20051031173358.9566.patches@notabene>
+	Mon, 31 Oct 2005 01:36:21 -0500
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:18523 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932492AbVJaGgU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 01:36:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=F6oQy5x3DWLaGA9Q9BTfxQu2GYd1ULYcQTY5W76qo4Nw4QD3Fq5UbXHdtyfdhTLf51yWByQW6VjxFtcIVzPUExUJMCaFE+ItXQ8wtalJoC2k38lt5en74icAynGurmZWGkIvQQIsmzu38Gyo2OkJ75jF5CmFyCShbawLEviuOvQ=  ;
+Message-ID: <4365BBC4.2090906@yahoo.com.au>
+Date: Mon, 31 Oct 2005 17:37:56 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mike Kravetz <kravetz@us.ibm.com>
+CC: Mel Gorman <mel@csn.ul.ie>, akpm@osdl.org, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+References: <20051030183354.22266.42795.sendpatchset@skynet.csn.ul.ie> <20051031055725.GA3820@w-mikek2.ibm.com>
+In-Reply-To: <20051031055725.GA3820@w-mikek2.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mike Kravetz wrote:
+> On Sun, Oct 30, 2005 at 06:33:55PM +0000, Mel Gorman wrote:
+> 
+>>Here are a few brief reasons why this set of patches is useful;
+>>
+>>o Reduced fragmentation improves the chance a large order allocation succeeds
+>>o General-purpose memory hotplug needs the page/memory groupings provided
+>>o Reduces the number of badly-placed pages that page migration mechanism must
+>>  deal with. This also applies to any active page defragmentation mechanism.
+> 
+> 
+> I can say that this patch set makes hotplug memory remove be of
+> value on ppc64.  My system has 6GB of memory and I would 'load
+> it up' to the point where it would just start to swap and let it
+> run for an hour.  Without these patches, it was almost impossible
+> to find a section that could be offlined.  With the patches, I
+> can consistently reduce memory to somewhere between 512MB and 1GB.
+> Of course, results will vary based on workload.  Also, this is
+> most advantageous for memory hotlug on ppc64 due to relatively
+> small section size (16MB) as compared to the page grouping size
+> (8MB).  A more general purpose solution is needed for memory hotplug
+> support on architectures with larger section sizes.
+> 
+> Just another data point,
 
+Despite what people were trying to tell me at Ottawa, this patch
+set really does add quite a lot of complexity to the page
+allocator, and it seems to be increasingly only of benefit to
+dynamically allocating hugepages and memory hot unplug.
 
-According to Posix and SUS, truncate(2) and ftruncate(2) only update
-ctime and mtime if the size actually changes.  Linux doesn't currently
-obey this.
+If that is the case, do we really want to make such sacrifices
+for the huge machines that want these things? What about just
+making an extra zone for easy-to-reclaim things to live in?
 
-There is no need to test the size under i_sem, as loosing any race
-will not make a noticable different the mtime or ctime.
+This could possibly even be resized at runtime according to
+demand with the memory hotplug stuff (though I haven't been
+following that).
 
-(According to SUS, truncate and ftruncate 'may' clear setuid/setgid
- as well, currently we don't.  Should we?
-)
+Don't take this as criticism of the actual implementation or its
+effectiveness.
 
+Nick
 
-Signed-off-by: Neil Brown <neilb@suse.de>
+-- 
+SUSE Labs, Novell Inc.
 
-### Diffstat output
- ./fs/open.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff ./fs/open.c~current~ ./fs/open.c
---- ./fs/open.c~current~	2005-10-31 16:22:44.000000000 +1100
-+++ ./fs/open.c	2005-10-31 16:22:44.000000000 +1100
-@@ -260,7 +260,8 @@ static inline long do_sys_truncate(const
- 		goto dput_and_out;
- 
- 	error = locks_verify_truncate(inode, NULL, length);
--	if (!error) {
-+	if (!error &&
-+	    length != i_size_read(dentry->d_inode)) {
- 		DQUOT_INIT(inode);
- 		error = do_truncate(nd.dentry, length);
- 	}
-@@ -313,7 +314,8 @@ static inline long do_sys_ftruncate(unsi
- 		goto out_putf;
- 
- 	error = locks_verify_truncate(inode, file, length);
--	if (!error)
-+	if (!error &&
-+	    length != i_size_read(dentry->d_inode))
- 		error = do_truncate(dentry, length);
- out_putf:
- 	fput(file);
+Send instant messages to your online friends http://au.messenger.yahoo.com 

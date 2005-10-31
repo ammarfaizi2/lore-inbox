@@ -1,27 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751061AbVJaLIW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750752AbVJaLDt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751061AbVJaLIW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 06:08:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751069AbVJaLIW
+	id S1750752AbVJaLDt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 06:03:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbVJaLDt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 06:08:22 -0500
-Received: from wg.technophil.ch ([213.189.149.230]:40593 "HELO
+	Mon, 31 Oct 2005 06:03:49 -0500
+Received: from wg.technophil.ch ([213.189.149.230]:28909 "HELO
 	hydrogenium.schottelius.org") by vger.kernel.org with SMTP
-	id S1751051AbVJaLIV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 06:08:21 -0500
-Date: Mon, 31 Oct 2005 12:08:16 +0100
+	id S1750752AbVJaLDt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 06:03:49 -0500
+Date: Mon, 31 Oct 2005 12:03:44 +0100
 From: Nico Schottelius <nico-kernel@schottelius.org>
 To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Rescan SCSI Bus without /proc/scsi?
-Message-ID: <20051031110816.GB16691@schottelius.org>
+Subject: Rescan SCSI Bus without /proc/scsi?
+Message-ID: <20051031110344.GA16691@schottelius.org>
 Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
 	LKML <linux-kernel@vger.kernel.org>
-References: <20051031110344.GA16691@schottelius.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="A6N2fC+uXW/VQSAv"
+	protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
 Content-Disposition: inline
-In-Reply-To: <20051031110344.GA16691@schottelius.org>
 User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
 X-Linux-Info: http://linux.schottelius.org/
 X-Operating-System: Linux 2.6.14
@@ -29,44 +27,28 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---A6N2fC+uXW/VQSAv
+--r5Pyd7+fXNt84Ff3
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Googling better before makes sense:
+Hello!
 
-On
-http://bash.cyberciti.biz/diskadmin/rescan-scsi-bus.sh.html
-is a script using /sys. Though it does not work on linux-2.6.13 here,
-I'll search what's broken.
+As noticed in 2.6 kernels, on should not use /proc/scsi anymore.
+
+This breaks the popular rescan-scsi-bus.sh from Kurt Garloff.
+Is there a possibility to do that through /sys somehow or do I have
+to reanable /proc/scsi?
+
+Greetings,
 
 Nico
-
-Nico Schottelius [Mon, Oct 31, 2005 at 12:03:44PM +0100]:
-> Hello!
->=20
-> As noticed in 2.6 kernels, on should not use /proc/scsi anymore.
->=20
-> This breaks the popular rescan-scsi-bus.sh from Kurt Garloff.
-> Is there a possibility to do that through /sys somehow or do I have
-> to reanable /proc/scsi?
->=20
-> Greetings,
->=20
-> Nico
->=20
-> --=20
-> Latest project: cconfig (http://nico.schotteli.us/papers/linux/cconfig/)
-> Open Source nutures open minds and free, creative developers.
-
-
 
 --=20
 Latest project: cconfig (http://nico.schotteli.us/papers/linux/cconfig/)
 Open Source nutures open minds and free, creative developers.
 
---A6N2fC+uXW/VQSAv
+--r5Pyd7+fXNt84Ff3
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 Content-Disposition: inline
@@ -74,19 +56,19 @@ Content-Disposition: inline
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.2 (GNU/Linux)
 
-iQIVAwUBQ2X7H7OTBMvCUbrlAQIVpg//X0Gx3/eO5m4wS5ogVy22y8i3rwKZqBQD
-ESsuyJ2lwh6caYcsqnOo5YB5svEW/HcFaDxlR+lRnMwMGeYd7C7kHhZ/8XYFMBct
-SJGljYEdQtSle98qpMaN+Ldw0Bts5EO4w+rP5jrmsKruXRAcxYmfjAQGwmQ8m00a
-VKqGVGihbzgAKF7OByUBWUZD4zquErPe4GXDIfbaPOr3ck0hidsWDEsGdcExbxko
-EJ3gdV7QABCar1BMDTXuzyE/y1ycV8nSJJwqTdOP0MQYi3j1vXRIbIO+7+FF+FHH
-TkunHSN76uxWRo2cd/jd5KYXn6xQkmf71FcYDVGXi060fl3AWf1GLWjJikHpVyEp
-Mkbs21ITBMg9I+aXXtSp9NwpHxY/zviuHH74uab55MmqbFIDQmUfCz9LZg0HKB9B
-WBVm4BIuFcf+otytGDMmVXbhFuF7wUCMH3pEs9rh/BjqHkLJjcgc5Wr2YN81clgJ
-BuGBeEqfyPy7n0M54jIF1J4cqgrKqIOcxz93w7G1ggk930dpa/jZjFnrZGOw2CPY
-PU0xAHXXTHkZ91JLfxygk9hnpKPYMRtznPlTYpEXuZKn+5ZI3tIIQbMhqcoWdB1Y
-xe+0YUtSccTs5uyrLpzTnHXxMW2d6MDcQEa5UEax9IChSUxZDIqjHdH/e8S0CAtN
-0bN7QwR59Ls=
-=urXG
+iQIVAwUBQ2X6D7OTBMvCUbrlAQILuQ/8Cbc7au80P+N8qzVsOTAxyWE9XHR0OwyM
+hVUVP3Ft0Nc5BMz6OAG0mHMvm0a9fZ5vMelgrLWWU5mLuxi91p6x4LAvmHi/ip8b
+I40xzjooBa6vgLRDEAYLEfm2zQvk5uuRYfnwDrrELkCNsLUbuTgIEALgUDIF4B7p
+JZZ2YJpG1zZ5Ac9/mwagwo3l6tsT55vqnJEtp4PKn8WIuWLd0kyAOORzUPFOou9C
+9BdKQcoYoCITPluSbehv0VkSo2gCQMnGl/lXNbCVdRaUoee0vfHwBGJbVtym99SP
+HwviCwOI30toqarJcd8mXdI/RfypAfm1yBGKLyxwueiDVW4uofQfPJdf9ylSY1N2
+Ph7ZxqeAtJ9vRQy9XAxIZvESilQa8oP1mcC7q8GiGIRgA2vEa9gx3P8d3ojQ4fnw
+ikmRhBSxogllJIrnwW5QNyr1Jeb3hiUktSs91go0KxLfv9KGTTDlg2KN4XXV0dvq
+SuyyeS8EVUKP4ZoFDyxGQRD/Ry/qaeMFQtzaDyK1HNyAlL+QgW9RKC5G5v5ekWeB
+FK0qw+8pfVh+bMKgVr8YusMUImdjNUNd4AXAtuaW+LLre6uL9I5eyblrQfHDIm+T
+gUNgy+ii44jnyT9OjZ2d01D6bUNxdXhntMUL41HAtlZ9SeLYGDTGebeMSiJFUaMx
+mfs+kOxl/fU=
+=ceSm
 -----END PGP SIGNATURE-----
 
---A6N2fC+uXW/VQSAv--
+--r5Pyd7+fXNt84Ff3--

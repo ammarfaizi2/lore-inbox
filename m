@@ -1,70 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbVJaECf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbVJaENY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750853AbVJaECf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 23:02:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751308AbVJaECf
+	id S1751331AbVJaENY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 23:13:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751351AbVJaENY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 23:02:35 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:38016
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1750853AbVJaECe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 23:02:34 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Andrew Morton <akpm@digeo.com>
-Subject: Re: [git patches] 2.6.x libata update
-Date: Sun, 30 Oct 2005 22:02:28 -0600
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org
-References: <20051030194512.GA21782@havoc.gtf.org> <20051030123907.6ea5d442.akpm@digeo.com>
-In-Reply-To: <20051030123907.6ea5d442.akpm@digeo.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 30 Oct 2005 23:13:24 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:27090 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751331AbVJaENX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 23:13:23 -0500
+Date: Sun, 30 Oct 2005 23:13:13 -0500
+From: Dave Jones <davej@redhat.com>
+To: Grant Coady <gcoady@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pci_ids: remove non-referenced symbols from pci_ids.h
+Message-ID: <20051031041313.GA1939@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Grant Coady <gcoady@gmail.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200510290000.j9T00Bqd001135@hera.kernel.org> <20051031024217.GA25709@redhat.com> <436591A5.20609@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200510302202.28690.rob@landley.net>
+In-Reply-To: <436591A5.20609@gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 30 October 2005 14:39, Andrew Morton wrote:
-> Jeff Garzik <jgarzik@pobox.com> wrote:
-> > Please pull from 'upstream-linus' branch of
-> >  master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
->
-> Linus may not receive this.  For me at least, large amounts of incoming and
-> outgoing OSDL email have been disappearing into the ether for the past 12
-> hours or so.
+On Mon, Oct 31, 2005 at 02:38:13PM +1100, Grant Coady wrote:
 
-It's probably delayed.  I got the "could not deliver for 4 hours, connection 
-with smtp.osdl.org timed out" warning on the original "Is this a viable 
-option?" question, and Linus has since replied, so it went through...
+ > > This patch is removing some PCI idents from drivers that are currently
+ > > marked BROKEN on some/all architectures.  It seems counterproductive
+ > > to create even more work to get those drivers fixed.
+ > 
+ > Nobody cares, the drivers are dying of bit-rot :)
 
-Rob
+Remove the BROKEN, and it builds, and runs just fine on most systems.
+(Or it least it did, until this intentional breakage occured).
 
-P.S.  The git source also wanted the -dev version of libcurl installed, 
-whatever that is.  Been happily banging on this box for months without ever 
-needing it.  Am now reading through the git tutorial.  Very dry.
+ > > Especially in the case of for eg, the advansys scsi driver, which
+ > > actually works for some people, even though it isn't updated to use
+ > > modern scsi layer interfaces.
+ > 
+ > Any positive suggestions?
 
-I read through the git bisect source (well, the bits in rev-list.c anyway), 
-and yeah it's cheating mightily with the "distance" thing, and by supplying 
-"good" and "bad" you're actually making the greater than or less than 
-decisions yourself.  Whee.
+Yes. Don't remove symbols that are referenced by code in the rest of the
+tree (even if it isn't buildable).  It's not as though leaving those
+symbols there breaks anything, or even bloats the kernel.
 
-If all else fails, it's got a sort-by-date function in there, so if you plug 
-the date thing in for the good and bad you at least get something consistent, 
-but I can see Linus's warnings about huge, evil, unintelligible revisions 
-from jumping around like that.
+ > How many years does a driver remain broken before it gets removed?  These
+ > drivers don't compile cleanly thus are not in use, no?  Perhaps a set of
+ > patches scheduling removal is in order.
 
-Of course you don't have to make the ordering decision right away: I get two 
-halves, and can bisect each one all the way to binary tree without having to 
-make a single greater than or less than decision.  Then when putting the tree 
-back together, the criteria is "which direction produces the smallest 
-cumulative patch", which isn't nicely resolving in my head into code yet but 
-I'm working on it...
+At least 2 distros are carrying patches removing the BROKEN attribute
+on the advansys Kconfig for some architectures. The users of those kernels
+using their advansys controllers without any issue at all.
 
-Need to get a kernel tree to play with, which means finishing this tutorial.
+Even if this were not the case, randomly removing bits of a driver so that
+it has no chance of working isn't how we schedule removal. 
 
-Need... more... caffeine.
+		Dave
 
-Still Rob

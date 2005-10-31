@@ -1,41 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964793AbVJaTHl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbVJaTHK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964793AbVJaTHl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 14:07:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964797AbVJaTHl
+	id S964792AbVJaTHK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 14:07:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964793AbVJaTHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 14:07:41 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:51780 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S964794AbVJaTHk (ORCPT
+	Mon, 31 Oct 2005 14:07:10 -0500
+Received: from mail.satronet.sk ([217.144.16.198]:40357 "EHLO mail.satronet.sk")
+	by vger.kernel.org with ESMTP id S964792AbVJaTHJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 14:07:40 -0500
-Date: Mon, 31 Oct 2005 20:08:13 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Mark Seger <Mark.Seger@hp.com>
+	Mon, 31 Oct 2005 14:07:09 -0500
+From: Michal Vanco <michal.vanco@satro.sk>
+Organization: Satro, s.r.o.
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: HDD LED on 82801FBM
+Date: Mon, 31 Oct 2005 20:06:35 +0100
+User-Agent: KMail/1.8.2
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: Re: Patch for inconsistent recording of block device statistics]
-Message-ID: <20051031190813.GC19267@suse.de>
-References: <435D0F45.90906@hp.com> <20051025064014.GO2811@suse.de> <435E7A7B.3040806@hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <435E7A7B.3040806@hp.com>
+References: <200510311944.45295.michal.vanco@satro.sk> <20051031190537.GB19267@suse.de>
+In-Reply-To: <20051031190537.GB19267@suse.de>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1733358.hTzUEfVNCR";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200510312006.37425.michal.vanco@satro.sk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 25 2005, Mark Seger wrote:
-> yes, the patch worked.  The general discussion was that the byte counter 
-> gets incremented when requests are queued, not when they're acted upon 
-> as is the case with the count of I/Os.  As a result, the disk write 
-> numbers don't make any sense reporting impossibly high numbers (>100MB 
-> and as high as 450!) during some times and at other reporting zeros.  
-> The entire time, the I/O counts are happily showing what appear to be 
-> correct numbers.  Here's a snapshot taken during a portion of a 2GB file 
-> file to /tmp.
+--nextPart1733358.hTzUEfVNCR
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I've applied my path to the for-linus git branch, I will push it for
-2.6.15 as well. Thanks for reminding me!
+D=C5=88a Monday 31 October 2005 20:05 Jens Axboe nap=C3=ADsal:
+> On Mon, Oct 31 2005, Michal Vanco wrote:
+> > Hi all,
+> >
+> > HDD LED on my Laptop (Fujitsu-Siemens LB E8020) never goes off when
+> > 2.6 kernel is running (tested with 2.6.10-2.6.13.4).
+>
+> It's a bug in the ahci driver, which coincidentally is fixed with
+> 2.6.14. So you should upgrade :)
 
--- 
-Jens Axboe
+:) thanks ... i should read changelogs :)
 
+=2Dm
+
+--nextPart1733358.hTzUEfVNCR
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBDZms9cNQdtX6Dm/0RAuiBAJ0eKZJGmTYKs7yKIMeuw7P998pGfgCgmR2X
+H0CDbAr3Hupzev7XC1S3tqo=
+=q16r
+-----END PGP SIGNATURE-----
+
+--nextPart1733358.hTzUEfVNCR--

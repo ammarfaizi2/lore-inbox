@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbVJaBN5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbVJaBXb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbVJaBN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 20:13:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbVJaBN5
+	id S1751268AbVJaBXb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 20:23:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbVJaBXb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 20:13:57 -0500
-Received: from cantor.suse.de ([195.135.220.2]:37271 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750754AbVJaBN5 (ORCPT
+	Sun, 30 Oct 2005 20:23:31 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:29926 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751268AbVJaBXa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 20:13:57 -0500
-From: Andi Kleen <ak@suse.de>
-To: Bob Picco <bob.picco@hp.com>
-Subject: Re: x86_64: 2.6.14 with NUMA panics at boot
-Date: Mon, 31 Oct 2005 03:12:17 +0100
-User-Agent: KMail/1.8
-Cc: Dave Hansen <haveblue@us.ibm.com>,
-       Janne M O Heikkinen <jmoheikk@cc.helsinki.fi>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.OSF.4.61.0510282218310.411472@rock.it.helsinki.fi> <1130607017.12551.5.camel@localhost> <20051031001727.GC6019@localhost.localdomain>
-In-Reply-To: <20051031001727.GC6019@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 30 Oct 2005 20:23:30 -0500
+Date: Sun, 30 Oct 2005 17:22:47 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: ak@suse.de, torvalds@osdl.org, tony.luck@gmail.com,
+       paolo.ciarrocchi@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: New (now current development process)
+Message-Id: <20051030172247.743d77fa.akpm@osdl.org>
+In-Reply-To: <20051031001647.GK2846@flint.arm.linux.org.uk>
+References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com>
+	<20051029223723.GJ14039@flint.arm.linux.org.uk>
+	<20051030111241.74c5b1a6.akpm@osdl.org>
+	<200510310148.57021.ak@suse.de>
+	<20051031001647.GK2846@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510310312.18395.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 31 October 2005 01:17, Bob Picco wrote:
-
-> This is a slightly modified patch I used on x86_64 for EXTREME testing. The
-> original 2.6.13-rc1-mhp1 patch didn't apply cleanly against 2.6.14. It will
-> apply with this untested patch.  The patch needs to have arch_sparse_init
-> which is only active for SPARSEMEM. This patch was just for testing EXTREME
-> on x86_64 NUMA and needs review.
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 >
-> I think the bootmem allocator is being used before initialized.  This
-> wouldn't have happened before SPARSEMEM_EXTREME became the default.
->
-> If you feel my analysis is correct, I'll generate a cleaner patch and
-> test on my 4 way.
+> > It might work better if we were told when the releases would actually
+>  > happen and you don't need to fear that this not quite tested everywhere
+>  > bugfix you're about to submit might make it into the gold kernel, breaking
+>  > the world for some subset of users.
+> 
+>  Indeed - a prime example is the bootmem initialisation problem.
 
-Ok the question is - why did nobody submit this patch in time? When
-sparse was merged I assumed folks would actually test and maintain
-it. But that doesn't seem to be the case? Somewhat surprising.
+No, I'd say that was an *exception*, not a "prime example".
 
-I personally don't care much about sparsemem right now because it doesn't have 
-any advantage and if it's unmaintained would consider to mark it 
-CONFIG_BROKEN. That's simply because we can't have highly experimental 
-CONFIGs in a production kernel that unsuspecting users can just set and break 
-their configuration.
+I've filed away 322 unresolved bug reports here.  The great majority are
+busted drivers on random hardware dating back as far as 2.6.11.  Many of
+them are regressions.
 
-Dave, is there someone in charge for sparsemem on x86-64?
+There is nothing stopping anyone from working with the originators to get
+these things fixed up at any time.
 
--Andi
+Why is it necessary for me to chase maintainers to get their bugs fixed?
+
+Why are maintainers working on new features when they have unresolved bugs?
+
+Why is it so often me who has to do the followup for un-responded-to bug
+reports against subsystems which I don't know anything about?
+
+(Those are rhetorical questions, btw).

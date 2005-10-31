@@ -1,57 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbVJaJNq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbVJaJSA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932319AbVJaJNq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 04:13:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbVJaJNq
+	id S932070AbVJaJSA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 04:18:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbVJaJSA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 04:13:46 -0500
-Received: from warden2-p.diginsite.com ([209.195.52.120]:63412 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S932319AbVJaJNp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 04:13:45 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Junio C Hamano <junkio@cox.net>
-Cc: linux-kernel@vger.kernel.org, Rob Landley <rob@landley.net>
-X-X-Sender: dlang@dlang.diginsite.com
-In-Reply-To: <7vpspmhxhz.fsf@assigned-by-dhcp.cox.net>
-References: <20051029182228.GA14495@havoc.gtf.org><200510301731.47825.rob@landley.net><Pine.LNX.4.64.0510301654310.27915@g5.osdl.org><200510302035.26523.rob@landley.net><7v7jbujfh6.fsf@assigned-by-dhcp.cox.net><20051029182228.GA14495@havoc.gtf.org><200510301731.47825.rob@landley.net><Pine.LNX.4.64.0510301654310.27915@g5.osdl.org><200510302035.26523.rob@landley.net><7v7jbujfh6.fsf@assigned-by-dhcp.cox.net><Pine.LNX.4.62.0510302353370.16065@qynat.qvtvafvgr.pbz> <7vpspmhxhz.fsf@assigned-by-dhcp.cox.net>
-Date: Mon, 31 Oct 2005 01:13:18 -0800 (PST)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: [git patches] 2.6.x libata updates
-In-Reply-To: <7vpspmhxhz.fsf@assigned-by-dhcp.cox.net>
-Message-ID: <Pine.LNX.4.62.0510310109250.16065@qynat.qvtvafvgr.pbz>
-References: <20051029182228.GA14495@havoc.gtf.org><200510301731.47825.rob@landley.net><Pine.LNX.4.64.0510301654310.27915@g5.osdl.org><200510302035.26523.rob@landley.net><7v7jbujfh6.fsf@assigned-by-dhcp.cox.net><20051029182228.GA14495@havoc.gtf.org><200510301731.47825.rob@landley.net><Pine.LNX.4.64.0510301654310.27915@g5.osdl.org><200510302035.26523.rob@landley.net><7v7jbujfh6.fsf@assigned-by-dhcp.cox.net><Pine.LNX.4.62.0510302353370.16065@qynat.qvtvafvgr.pbz>
- <7vpspmhxhz.fsf@assigned-by-dhcp.cox.net>
+	Mon, 31 Oct 2005 04:18:00 -0500
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:42857 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932070AbVJaJSA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 04:18:00 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=VIQZICkFcG0+aYxAvGnXzOqXH0t+ndEx0aPHR4qkdHw6pO8BcM22cGAkpKfALmOdnhb4Uig3Y+GWOyra4WhSnQh4vzev/Vi+UPVSHQBE0oYLqovDYSVMCWczKdydV1M7TXuuv1FNJgJONm7yDRVCzWeVfnhlA0Z3mbZHbrVhRh0=  ;
+Message-ID: <4365E1B4.4050409@yahoo.com.au>
+Date: Mon, 31 Oct 2005 20:19:48 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Hugh Dickins <hugh@veritas.com>
+CC: Robin Holt <holt@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: munmap extremely slow even with untouched mapping.
+References: <20051028013738.GA19727@attica.americas.sgi.com> <43620138.6060707@yahoo.com.au> <Pine.LNX.4.61.0510281557440.3229@goblin.wat.veritas.com> <43644C22.8050501@yahoo.com.au> <Pine.LNX.4.61.0510301631360.2848@goblin.wat.veritas.com> <4365DF9A.5040101@yahoo.com.au>
+In-Reply-To: <4365DF9A.5040101@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Oct 2005, Junio C Hamano wrote:
+Nick Piggin wrote:
 
-> David Lang <david.lang@digitalinsight.com> writes:
->
->> given the time required to compile a kernel and reboot you can't plan to
->> keep the info server side (browser connections will time out well before
->> this finishes)
->>
->> instead this will require saving something on the client and passing it
->> back to the server.
->
-> I was thinking about doing thatn in hidden input fields and
-> passing form back and forth.  After all what real git bisect
-> keeps locally are one bad commit ID and bunch of good commit
-> IDs.
+> The address based work estimate for unmapping (for lockbreak) is and
+> always was horribly inefficient for sparse mappings. The problem is most
+> simply explained with an example:
+> 
+> If we find a pgd is clear, we still have to call into unmap_page_range
+> PGDIR_SIZE / ZAP_BLOCK_SIZE times, each time checking the clear pgd, in
+> order to progress the working address to the next pgd.
+> 
+> The fundamental way to solve the problem is to keep track of the end address
+> we've processed and pass it back to the higher layers.
+> 
+> From: Robin Holt <holt@sgi.com>
+> 
+> Modification to completely get away from address based work estimate and
+> instead use an abstract count, with a very small cost for empty entries as
+> opposed to present pages.
+> 
+> On 2.6.14-git2, ppc64, and CONFIG_PREEMPT=y, mapping and unmapping 1TB of
+> virtual address space takes 1.69s; with the following patch applied, this
+> operation can be done 1000 times in less than 0.01s
+> 
+> Signed-off-by: Nick Piggin <npiggin@suse.de>
+> 
 
-if it's kept in a file or cookie then it can survive a reboot and other 
-distractions (remember that this process can take days if the problem 
-doesn't show up at boot). a cookie can hold a couple K worth of data, a 
-file has no size limit.
+Note that I think this patch will cripple our nice page table folding
+in the unmap path, due to no longer using the 'next' from p??_addr_end,
+even if the compiler is very smart.
 
-it would also be a good idea if the web page could give an estimate 
-estimate of how many additional tests may end up being required.
+I haven't confirmed this by looking at assembly, however I'd be almost
+sure this is the case. Possibly a followup patch would be in order so
+as to restore this, but I couldn't think of a really nice way to do it.
 
-David Lang
+Basically we only want to return the return of the next level
+zap_p??_range in the case that it returns with zap_work < 0.
+
 -- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

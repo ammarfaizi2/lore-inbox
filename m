@@ -1,140 +1,188 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbVJaIXF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbVJaI3f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750847AbVJaIXF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 03:23:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750953AbVJaIXF
+	id S932151AbVJaI3f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 03:29:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbVJaI3f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 03:23:05 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:3105 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750952AbVJaIXE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 03:23:04 -0500
-Date: Mon, 31 Oct 2005 09:23:54 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Tejun Heo <htejun@gmail.com>
-Cc: Arnaldo Carvalho de Melo <acme@mandriva.com>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH][noop-iosched] don't reuse a freed request
-Message-ID: <20051031082354.GO19267@suse.de>
-References: <20051031023024.GC5632@mandriva.com> <20051031074022.GN19267@suse.de> <4365D01D.2040406@gmail.com>
+	Mon, 31 Oct 2005 03:29:35 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:23428 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932151AbVJaI3e
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 03:29:34 -0500
+Date: Mon, 31 Oct 2005 10:29:30 +0200 (EET)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] mm: rename kmem_cache_s to kmem_cache
+In-Reply-To: <20051031011501.3caeba18.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0510311024340.11869@sbz-30.cs.Helsinki.FI>
+References: <ip33z2.vtcnft.4nw33ugftrecz8r4nb1via846.beaver@cs.helsinki.fi>
+ <20051031011501.3caeba18.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4365D01D.2040406@gmail.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 31 2005, Tejun Heo wrote:
-> Hi, guys.
-> 
-> Jens Axboe wrote:
-> >On Mon, Oct 31 2005, Arnaldo Carvalho de Melo wrote:
-> >
-> >>Hi,
-> >>
-> >>	I'm getting the oops below when trying to use qemu with a kernel
-> >>built with just the noop iosched, I'm never had looked at this code 
-> >>before,
-> >>so I did a quick hack that seems enough for my case.
-> >>
-> >>	Ah, this is with a fairly recent git tree (today), haven't checked
-> >>if it is present in 2.6.14.
-> >>
-> >>Best Regards,
-> >>
-> >>- Arnaldo
-> >>
-> >>Unable to handle kernel paging request at virtual address c5f20f60
-> >>printing eip:
-> >>c01b0ecd
-> >>*pde = 00017067
-> >>*pte = 05f20000
-> >>Oops: 0000 [#1]
-> >>DEBUG_PAGEALLOC
-> >>Modules linked in:
-> >>CPU:    0
-> >>EIP:    0060:[<c01b0ecd>]    Not tainted VLI
-> >>EFLAGS: 00000046   (2.6.14acme)
-> >>EIP is at elv_rq_merge_ok+0x15/0x7b
-> >>eax: 00000014   ebx: c5f20f58   ecx: 000003f8   edx: 00000046
-> >>esi: c12a5a90   edi: c5f20f58   ebp: c11658d0   esp: c11658c4
-> >>ds: 007b   es: 007b   ss: 0068
-> >>Process swapper (pid: 1, threadinfo=c1165000 task=c1164af0)
-> >>Stack: c0251883 c5ecfe4c c5d688c0 c1165904 c01b0f48 c5f20f58 c12a5a90 
-> >>00000000
-> >>      c5874000 c018c5e1 c5f15f24 0000002b 00000000 c5ecfe4c c5d688c0 
-> >>      c12a5a90
-> >>      c1165920 c01b128d c5f20f58 c12a5a90 000a568a 00000000 00000002 
-> >>      c1165960
-> >>Call Trace:
-> >>[<c0102a63>] show_stack+0x78/0x83
-> >>[<c0102b88>] show_registers+0x100/0x167
-> >>[<c0102d35>] die+0xcb/0x140
-> >>[<c0234308>] do_page_fault+0x393/0x53a
-> >>[<c0102777>] error_code+0x4f/0x54
-> >>[<c01b0f48>] elv_try_merge+0x15/0x84
-> >>[<c01b128d>] elv_merge+0x1d/0x4f
-> >>[<c01b41d9>] __make_request+0xb2/0x425
-> >>[<c01b46f9>] generic_make_request+0x125/0x137
-> >
-> >
-> >Hrmpf, this looks really bad. Tejun, clearly there are still paths where
-> >->last_rq isn't being cleared.
-> >
-> 
-> I'm currently debugging this.  The problem is that we are using generic 
-> dispatch queue directly in the noop and merging is NOT allowed on 
-> dispatch queues but generic handling of last_merge tries to merge 
-> requests.  I'm still trying to verify this, so I'll be back with results 
-> soon.
-> 
-> >
-> >>--- a/drivers/block/ll_rw_blk.c
-> >>+++ b/drivers/block/ll_rw_blk.c
-> >>@@ -1787,6 +1787,9 @@ static inline void blk_free_request(requ
-> >>	if (rq->flags & REQ_ELVPRIV)
-> >>		elv_put_request(q, rq);
-> >>	mempool_free(rq, q->rq.rq_pool);
-> >>+
-> >>+	if (rq == q->last_merge)
-> >>+		q->last_merge = NULL;
-> >>}
-> >>
-> >>static inline struct request *
-> >
-> >
-> >It's most likely a bug getting this far in the first place, but does it
-> >fix things for you? I'll get on this asap.
-> >
-> 
-> If the bug is where I think it is, I think the proper thing to do is to 
-> use separate list_head in noop instead of using generic dispatch queue 
-> directly thus making noop consistent with other ioscheds.
-> 
-> I'm more worried about oops w/ cfq Arnaldo reported in this thread. 
-> I'll track that down as soon as I'm done with this one.
+Hi,
 
-So either we disable merging for noop by setting REQ_NOMERGE in
-elevator_noop_add_request(), or we add a noop_list and do the
-dispatching like in the other io schedulers. I'd prefer the latter,
-merging is still beneficial for noop (and it has always done it).
+On Mon, 31 Oct 2005, Andrew Morton wrote:
+> Well I stared at these diffs for a long time.  They don't really add a lot
+> of value to the kernel and they do risk breaking other people's patches. 
+> Generally they have a high hassle/value ratio.
 
-For now, we should add the former.
+I would sort of disagree with this. The slab allocator wants cleaning up 
+badly and while killing a typedef is not a lot, it's a start...
 
-Signed-off-by: Jens Axboe <axboe@suse.de>
+On Mon, 31 Oct 2005, Andrew Morton wrote: 
+> I could merge them up and see how it goes, but given that there are many
+> more kmem_cache_t->struct kmem_cache conversions to go, and that I hit
+> seven rejects in mm/slab.c, I think I'll duck the patches, sorry.
 
-diff --git a/drivers/block/noop-iosched.c b/drivers/block/noop-iosched.c
---- a/drivers/block/noop-iosched.c
-+++ b/drivers/block/noop-iosched.c
-@@ -9,6 +9,7 @@
- 
- static void elevator_noop_add_request(request_queue_t *q, struct request *rq)
+Please consider merging this patch that just renames kmem_cache_s to 
+kmem_cache. I can kill try to kill kmem_cache_t incrementally over time.
+
+On Mon, 31 Oct 2005, Andrew Morton wrote: 
+> > -void filp_ctor(void * objp, struct kmem_cache_s *cachep, unsigned long cflags)
+> > +void filp_ctor(void * objp, struct kmem_cache *cachep, unsigned long cflags)
+> 
+> See the inconsistent coding style there?  This would have been a zero-cost
+> opportunity to fix that up.  (Nuke the space after the asterisk).
+
+As an added bonus, the following patch does that. :-)
+
+				Pekka
+
+[PATCH] mm: rename kmem_cache_s to kmem_cache
+
+This patch renames struct kmem_cache_s to kmem_cache so we can start using it
+instead of kmem_cache_t typedef.
+
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+---
+
+ Documentation/magic-number.txt |    2 +-
+ fs/file_table.c                |    4 ++--
+ fs/freevxfs/vxfs_extern.h      |    4 ++--
+ fs/xfs/linux-2.6/kmem.h        |    4 ++--
+ include/linux/file.h           |    6 +++---
+ include/linux/slab.h           |    2 +-
+ mm/slab.c                      |    2 +-
+ 7 files changed, 12 insertions(+), 12 deletions(-)
+
+
+Index: 2.6/Documentation/magic-number.txt
+===================================================================
+--- 2.6.orig/Documentation/magic-number.txt
++++ 2.6/Documentation/magic-number.txt
+@@ -120,7 +120,7 @@ ISDN_NET_MAGIC        0x49344C02  isdn_n
+ SAVEKMSG_MAGIC2       0x4B4D5347  savekmsg          arch/*/amiga/config.c
+ STLI_BOARDMAGIC       0x4bc6c825  stlibrd           include/linux/istallion.h
+ CS_STATE_MAGIC        0x4c4f4749  cs_state          sound/oss/cs46xx.c
+-SLAB_C_MAGIC          0x4f17a36d  kmem_cache_s      mm/slab.c
++SLAB_C_MAGIC          0x4f17a36d  kmem_cache        mm/slab.c
+ COW_MAGIC             0x4f4f4f4d  cow_header_v1     arch/um/drivers/ubd_user.c
+ I810_CARD_MAGIC       0x5072696E  i810_card         sound/oss/i810_audio.c
+ TRIDENT_CARD_MAGIC    0x5072696E  trident_card      sound/oss/trident.c
+Index: 2.6/fs/file_table.c
+===================================================================
+--- 2.6.orig/fs/file_table.c
++++ 2.6/fs/file_table.c
+@@ -35,7 +35,7 @@ static DEFINE_SPINLOCK(filp_count_lock);
+  * context and must be fully threaded - use a local spinlock
+  * to protect files_stat.nr_files
+  */
+-void filp_ctor(void * objp, struct kmem_cache_s *cachep, unsigned long cflags)
++void filp_ctor(void *objp, struct kmem_cache *cachep, unsigned long cflags)
  {
-+	rq->flags |= REQ_NOMERGE;
- 	elv_dispatch_add_tail(q, rq);
+ 	if ((cflags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
+ 	    SLAB_CTOR_CONSTRUCTOR) {
+@@ -46,7 +46,7 @@ void filp_ctor(void * objp, struct kmem_
+ 	}
  }
  
-
--- 
-Jens Axboe
-
+-void filp_dtor(void * objp, struct kmem_cache_s *cachep, unsigned long dflags)
++void filp_dtor(void *objp, struct kmem_cache *cachep, unsigned long dflags)
+ {
+ 	unsigned long flags;
+ 	spin_lock_irqsave(&filp_count_lock, flags);
+Index: 2.6/fs/freevxfs/vxfs_extern.h
+===================================================================
+--- 2.6.orig/fs/freevxfs/vxfs_extern.h
++++ 2.6/fs/freevxfs/vxfs_extern.h
+@@ -38,7 +38,7 @@
+  */
+ 
+ 
+-struct kmem_cache_s;
++struct kmem_cache;
+ struct super_block;
+ struct vxfs_inode_info;
+ struct inode;
+@@ -51,7 +51,7 @@ extern daddr_t			vxfs_bmap1(struct inode
+ extern int			vxfs_read_fshead(struct super_block *);
+ 
+ /* vxfs_inode.c */
+-extern struct kmem_cache_s	*vxfs_inode_cachep;
++extern struct kmem_cache	*vxfs_inode_cachep;
+ extern void			vxfs_dumpi(struct vxfs_inode_info *, ino_t);
+ extern struct inode *		vxfs_get_fake_inode(struct super_block *,
+ 					struct vxfs_inode_info *);
+Index: 2.6/fs/xfs/linux-2.6/kmem.h
+===================================================================
+--- 2.6.orig/fs/xfs/linux-2.6/kmem.h
++++ 2.6/fs/xfs/linux-2.6/kmem.h
+@@ -44,8 +44,8 @@
+ #define KM_NOFS		0x0004u
+ #define KM_MAYFAIL	0x0008u
+ 
+-#define	kmem_zone	kmem_cache_s
+-#define kmem_zone_t	kmem_cache_t
++#define	kmem_zone	kmem_cache
++#define kmem_zone_t	struct kmem_cache
+ 
+ typedef unsigned long xfs_pflags_t;
+ 
+Index: 2.6/include/linux/file.h
+===================================================================
+--- 2.6.orig/include/linux/file.h
++++ 2.6/include/linux/file.h
+@@ -59,9 +59,9 @@ extern void FASTCALL(set_close_on_exec(u
+ extern void put_filp(struct file *);
+ extern int get_unused_fd(void);
+ extern void FASTCALL(put_unused_fd(unsigned int fd));
+-struct kmem_cache_s;
+-extern void filp_ctor(void * objp, struct kmem_cache_s *cachep, unsigned long cflags);
+-extern void filp_dtor(void * objp, struct kmem_cache_s *cachep, unsigned long dflags);
++struct kmem_cache;
++extern void filp_ctor(void * objp, struct kmem_cache *cachep, unsigned long cflags);
++extern void filp_dtor(void * objp, struct kmem_cache *cachep, unsigned long dflags);
+ 
+ extern struct file ** alloc_fd_array(int);
+ extern void free_fd_array(struct file **, int);
+Index: 2.6/include/linux/slab.h
+===================================================================
+--- 2.6.orig/include/linux/slab.h
++++ 2.6/include/linux/slab.h
+@@ -9,7 +9,7 @@
+ 
+ #if	defined(__KERNEL__)
+ 
+-typedef struct kmem_cache_s kmem_cache_t;
++typedef struct kmem_cache kmem_cache_t;
+ 
+ #include	<linux/config.h>	/* kmalloc_sizes.h needs CONFIG_ options */
+ #include	<linux/gfp.h>
+Index: 2.6/mm/slab.c
+===================================================================
+--- 2.6.orig/mm/slab.c
++++ 2.6/mm/slab.c
+@@ -368,7 +368,7 @@ static inline void kmem_list3_init(struc
+  * manages a cache.
+  */
+ 	
+-struct kmem_cache_s {
++struct kmem_cache {
+ /* 1) per-cpu data, touched during every alloc/free */
+ 	struct array_cache	*array[NR_CPUS];
+ 	unsigned int		batchcount;

@@ -1,63 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbVJaENY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbVJaExI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751331AbVJaENY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 23:13:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751351AbVJaENY
+	id S1751339AbVJaExI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 23:53:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbVJaExI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 23:13:24 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:27090 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751331AbVJaENX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 23:13:23 -0500
-Date: Sun, 30 Oct 2005 23:13:13 -0500
-From: Dave Jones <davej@redhat.com>
-To: Grant Coady <gcoady@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pci_ids: remove non-referenced symbols from pci_ids.h
-Message-ID: <20051031041313.GA1939@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Grant Coady <gcoady@gmail.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200510290000.j9T00Bqd001135@hera.kernel.org> <20051031024217.GA25709@redhat.com> <436591A5.20609@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 30 Oct 2005 23:53:08 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:46520
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1751339AbVJaExH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 23:53:07 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Andi Kleen <ak@suse.de>
+Subject: Re: New (now current development process)
+Date: Sun, 30 Oct 2005 22:52:54 -0600
+User-Agent: KMail/1.8
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com> <20051030213221.GA28020@thunk.org> <200510310145.43663.ak@suse.de>
+In-Reply-To: <200510310145.43663.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <436591A5.20609@gmail.com>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200510302252.55283.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 31, 2005 at 02:38:13PM +1100, Grant Coady wrote:
+On Sunday 30 October 2005 18:45, Andi Kleen wrote:
+> The problem is that -mm* contains typically so many more or less
+> broken changes that any extensive work on there is futile
+> because you never know whose bugs you're debugging
+> (and if the patch that is broken will even make it anywhere)
+>
+> In short mainline is frozen too long and -mm* is too unstable.
 
- > > This patch is removing some PCI idents from drivers that are currently
- > > marked BROKEN on some/all architectures.  It seems counterproductive
- > > to create even more work to get those drivers fixed.
- > 
- > Nobody cares, the drivers are dying of bit-rot :)
+Are you implying that if mainline wasn't frozen so much, it would still be 
+more stable than -mm?
 
-Remove the BROKEN, and it builds, and runs just fine on most systems.
-(Or it least it did, until this intentional breakage occured).
-
- > > Especially in the case of for eg, the advansys scsi driver, which
- > > actually works for some people, even though it isn't updated to use
- > > modern scsi layer interfaces.
- > 
- > Any positive suggestions?
-
-Yes. Don't remove symbols that are referenced by code in the rest of the
-tree (even if it isn't buildable).  It's not as though leaving those
-symbols there breaks anything, or even bloats the kernel.
-
- > How many years does a driver remain broken before it gets removed?  These
- > drivers don't compile cleanly thus are not in use, no?  Perhaps a set of
- > patches scheduling removal is in order.
-
-At least 2 distros are carrying patches removing the BROKEN attribute
-on the advansys Kconfig for some architectures. The users of those kernels
-using their advansys controllers without any issue at all.
-
-Even if this were not the case, randomly removing bits of a driver so that
-it has no chance of working isn't how we schedule removal. 
-
-		Dave
-
+Rob

@@ -1,105 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932536AbVJaVtL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932544AbVJaVu2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932536AbVJaVtL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 16:49:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932537AbVJaVtL
+	id S932544AbVJaVu2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 16:50:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932537AbVJaVu2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 16:49:11 -0500
-Received: from serv01.siteground.net ([70.85.91.68]:21649 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S932536AbVJaVtK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 16:49:10 -0500
-Date: Mon, 31 Oct 2005 13:48:59 -0800
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [was Re: Linux 2.6.14 ] Revert "x86-64: Avoid unnecessary double bouncing for swiotlb"
-Message-ID: <20051031214859.GA3721@localhost.localdomain>
-References: <Pine.LNX.4.64.0510271717190.4664@g5.osdl.org> <20051028225812.GA6744@localhost.localdomain> <200510291214.34718.ak@suse.de>
+	Mon, 31 Oct 2005 16:50:28 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:17859 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932544AbVJaVu1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 16:50:27 -0500
+Date: Mon, 31 Oct 2005 22:50:44 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, linux-kernel@vger.kernel.org,
+       tytso@us.ibm.com, sripathi@in.ibm.com, dipankar@in.ibm.com,
+       oleg@tv-sign.ru
+Subject: Re: [RFC,PATCH] RCUify single-thread case of clock_gettime()
+Message-ID: <20051031215044.GA20926@elte.hu>
+References: <20051031174416.GA2762@us.ibm.com> <Pine.LNX.4.61.0510311802550.9631@goblin.wat.veritas.com> <20051031195425.GA14806@elte.hu> <Pine.LNX.4.61.0510312004460.10705@goblin.wat.veritas.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200510291214.34718.ak@suse.de>
+In-Reply-To: <Pine.LNX.4.61.0510312004460.10705@goblin.wat.veritas.com>
 User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 29, 2005 at 12:14:34PM +0200, Andi Kleen wrote:
-> On Saturday 29 October 2005 00:58, Ravikiran G Thirumalai wrote:
-> > On Thu, Oct 27, 2005 at 05:28:50PM -0700, Linus Torvalds wrote:
-> > >       Revert "x86-64: Avoid unnecessary double bouncing for swiotlb"
-> >
-> > (http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=com
-> >mitdiff;h=79b95a454bb5c1d9b7287d1016a70885ba3f346c)
-> >
-> > Well, Andi's patch here wasn't just a small optimization as the changelog
-> > suggests. It helped EM64T boxes a great deal.  \
+
+* Hugh Dickins <hugh@veritas.com> wrote:
+
+> On Mon, 31 Oct 2005, Ingo Molnar wrote:
+> > * Hugh Dickins <hugh@veritas.com> wrote:
+> > > 
+> > > Not my area at all, but this looks really dodgy to me, Paul:
+> > > could you explain it further?
+> > 
+> > the patch below (included in the -rt tree) is the prerequisite. That's 
+> > what Paul's "requires RCU on task_struct" comment refers to.
 > 
-> First to be honest swiotlb performance is not very high on the priority list. 
-> It will always be bad. If you care about performance you should use devices 
-> that can address all your memory.
+> Thanks, Ingo: Sorry, Paul: I missed that it was an -rt patch: Ignore 
+> me.
 
-I realise swiotlb will have bad performance.  But with the revert, swiotlb
-is not going to be used at all!!.  PCI_DMA_BUS_IS_PHYS is used by the block
-subsystem to check if any kind of iommu (soft or hard) is available. If none
-is present, block layer uses the ISA pool for bounce buffering bringing down 
-performance.
+btw., since the RCU-task-struct thing is beneficial to upstream SMP 
+kernels (even without any preempt option enabled), it should be 
+considered for upstream too. The tasklist_lock is one of our last 
+remaining monolithic and globally-bouncing locks. The patch i attached 
+to the previous mail is against the upstream kernel and implements the 
+RCU-task-struct logic, without any PREEMPT_RT dependency. (the -rt tree 
+is a collection of various preemption related patches, not just 
+PREEMPT_RT)
 
-> 
-> EM64T server boxes shouldn't have big problems with that because they usually
-> support AHCI for IDE, and firewire/usb2/sound is not that critical. 
-
-But you have to use SATA disks to use AHCI right?.  IDE disks will work with 
-32bit dma addresses only (please correct me if I am wrong).  And I belive 
-there are 1U racks/blades out there with IDE disks on these server boards with 
-more than 4G memory (I am told it saves them $$ to use IDE disks over SATA
-when you deploy large numbers).
-Whatever the reasons might be, IMHO, it is not correct to assume no one is 
-going to use 32 bit capable only devices on 64bit boxes.  swiotlb code need 
-not have been in the kernel otherwise.  This one line revert is just force 
-turning off swiotlb on x86_64 boxes with no option whatsover :(
-
-> EM64T boxes with other chipsets typically don't support >4G phys because they 
-> only support the lowerend Intel CPUs. Summit might be an exception, but those
-> normally only use IDE for CDROMs, which are also not a big issue.
-> 
-> > Just to make sure, I 
-> > reran 2.6.14 with the attached patch and got about 45% better performance
-> > with iozone Initial write.  This was on a 2 cpu 4 thread SMP Xeon with 8G
-> > ram, with 2 processes performing io to 4G files on a IDE drive.
-> > Maybe it wouldn't have caused breakage on some AMD boxes if the following
-> > additional check for swiotlb was added.  Can this go into 2.6.15 please?
-> 
-> Not in this form no. Problem first needs to be understood fully and
-> then no_iommu should be set properly.
-> 
-> >   * On AMD64 it mostly equals, but we set it to zero to tell some
-> > subsystems - * that an IOMMU is available.
-> > + * that a hard or soft IOMMU is available.
-> >   */
-> > -#define PCI_DMA_BUS_IS_PHYS	(no_iommu ? 1 : 0)
-> > +#define PCI_DMA_BUS_IS_PHYS	((no_iommu && !swiotlb) ? 1 : 0)
-> 
-> That is ugly and I don't like it.  Need to track down the real problem 
-
-I agree it is ugly.  But it atleast shows and does what the comment says.
-Is reverting a bug-fix to mask another bug (probably due to a broken bios or
-user not setting the IOMMU in the bios) any cleaner?  Yes it doesn't show
-though ;)
-
-Seriously, are there plans to fix the broken AMD boxes for 2.6.15?  Will
-swiotlb be forced off even for 2.6.15?  Linus, Andrew?
-
-Thanks,
-Kiran
+	Ingo

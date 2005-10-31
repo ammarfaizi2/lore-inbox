@@ -1,39 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbVJaOPr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbVJaOSR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932435AbVJaOPr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 09:15:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbVJaOPr
+	id S1750740AbVJaOSR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 09:18:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbVJaOSR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 09:15:47 -0500
-Received: from mail.parknet.co.jp ([210.171.160.6]:14 "EHLO mail.parknet.co.jp")
-	by vger.kernel.org with ESMTP id S932435AbVJaOPq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 09:15:46 -0500
-To: Ben Dooks <ben-linux@fluff.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: fs/fat - fix sparse warning
-References: <20051031113639.GA30667@home.fluff.org>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Mon, 31 Oct 2005 23:15:34 +0900
-In-Reply-To: <20051031113639.GA30667@home.fluff.org> (Ben Dooks's message of "Mon, 31 Oct 2005 11:36:39 +0000")
-Message-ID: <87zmophiwp.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+	Mon, 31 Oct 2005 09:18:17 -0500
+Received: from xproxy.gmail.com ([66.249.82.202]:25935 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750740AbVJaOSQ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 09:18:16 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=d8Iqu78vIEWolBNZFOx0hIwI64MyMl9lxcsokBXz9Wa9tzk3vghgptVgUahMGTrDOR3Up7Z8OHSc8fIwdIigYqdzHP7pvaXkiIo9HyTvqIJoukhCe/Bzsh0KGh4nuLpbJI3gs5Ve8HOTlRvyK4Kb/aLxKia9iqRjNKNiwnqE8bQ=
+Message-ID: <5a4c581d0510310618u61238417r69fe701e46612160@mail.gmail.com>
+Date: Mon, 31 Oct 2005 15:18:15 +0100
+From: Alessandro Suardi <alessandro.suardi@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [2.6.14-git3] KDGKBSENT: Operation not permitted upon login
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Dooks <ben-linux@fluff.org> writes:
+Freshly built 2.6.14-git3, upon logging on virtual consoles
+ (tty2, tty3) I get this on the virtual console (not in dmesg,
+ not in /var/log/messages):
 
-> move fat_cache_init/fat_cache_destroy to a common
-> header file in fs/fat so that inode.c and cache.c
-> see the same definition, and to stop warnings
-> from sparse about undeclared functions
+KDGKBSENT: Operation not permitted
+KDGKBSENT failed at index 0:
 
-The fs/fat/* has many internal functions, it is in
-include/linux/msdos_fs.h.  Please move those internal functions to one
-internal header (probably fs/fat/fat.h?).
+The messages seem harmless, I can startx fine and have
+ so far no problem from the X session started from that tty.
 
-This seems be just for sparse, please do real cleanup instead.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+--alessandro
+
+ "All it takes is one decision
+  A lot of guts, a little vision to wave
+  Your worries, and cares goodbye"
+
+   (Placebo - "Slave To The Wage")

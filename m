@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbVJaIPe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbVJaIUX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750735AbVJaIPe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 03:15:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbVJaIPe
+	id S1750801AbVJaIUX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 03:20:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbVJaIUW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 03:15:34 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:59864 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750735AbVJaIPe (ORCPT
+	Mon, 31 Oct 2005 03:20:22 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:29614 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1750801AbVJaIUW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 03:15:34 -0500
-Date: Mon, 31 Oct 2005 01:15:01 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] mm: rename kmem_cache_s to kmem_cache
-Message-Id: <20051031011501.3caeba18.akpm@osdl.org>
-In-Reply-To: <ip33z2.vtcnft.4nw33ugftrecz8r4nb1via846.beaver@cs.helsinki.fi>
-References: <ip33z2.vtcnft.4nw33ugftrecz8r4nb1via846.beaver@cs.helsinki.fi>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 31 Oct 2005 03:20:22 -0500
+Date: Mon, 31 Oct 2005 00:19:50 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: akpm@osdl.org, ak@suse.de, tytso@mit.edu, torvalds@osdl.org,
+       tony.luck@gmail.com, paolo.ciarrocchi@gmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: New (now current development process)
+Message-Id: <20051031001950.62dc7a18.pj@sgi.com>
+In-Reply-To: <20051031072714.GU7992@ftp.linux.org.uk>
+References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com>
+	<p73r7a4t0s7.fsf@verdi.suse.de>
+	<20051030213221.GA28020@thunk.org>
+	<200510310145.43663.ak@suse.de>
+	<20051031001810.GQ7992@ftp.linux.org.uk>
+	<20051030191402.669273d5.pj@sgi.com>
+	<20051031033426.GT7992@ftp.linux.org.uk>
+	<20051030232234.3ebf77c8.akpm@osdl.org>
+	<20051031072714.GU7992@ftp.linux.org.uk>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka Enberg <penberg@cs.helsinki.fi> wrote:
->
-> This patch renames struct kmem_cache_s to kmem_cache so we can start using it
->  instead of kmem_cache_t typedef.
+Al Viro wrote:
+> I do cross-builds for allmodconfig on a *lot* more targets than what you've
+> mentioned
 
-Well I stared at these diffs for a long time.  They don't really add a lot
-of value to the kernel and they do risk breaking other people's patches. 
-Generally they have a high hassle/value ratio.
+Apples to oranges, and half full versus half empty.
 
-I could merge them up and see how it goes, but given that there are many
-more kmem_cache_t->struct kmem_cache conversions to go, and that I hit
-seven rejects in mm/slab.c, I think I'll duck the patches, sorry.
+If Al is testing combinations that Andrew doesn't regularly test,
+then Al might expect to find problems that Andrew didn't find.
 
+Non-specific complaints that make it all sound too hard are
+not particularly constructive.  But then Al was trying for the
+"particularly constructive" achievement award of the day ;).
 
-> -void filp_ctor(void * objp, struct kmem_cache_s *cachep, unsigned long cflags)
-> +void filp_ctor(void * objp, struct kmem_cache *cachep, unsigned long cflags)
+I find that the defconfig crosstool builds of *-mm more or less always
+work for the popular configurations.  That meets my needs just fine.
 
-See the inconsistent coding style there?  This would have been a zero-cost
-opportunity to fix that up.  (Nuke the space after the asterisk).
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

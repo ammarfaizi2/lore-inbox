@@ -1,63 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbVJaOm0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbVJaO7K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932302AbVJaOm0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 09:42:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbVJaOm0
+	id S1750762AbVJaO7K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 09:59:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750981AbVJaO7K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 09:42:26 -0500
-Received: from styx.suse.cz ([82.119.242.94]:59786 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S932302AbVJaOmZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 09:42:25 -0500
-Date: Mon, 31 Oct 2005 15:42:23 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFT/PATCH] atkbd - speed up setting leds/repeat state
-Message-ID: <20051031144223.GB18711@ucw.cz>
-References: <200510310224.03010.dtor_core@ameritech.net> <20051031124746.GC18147@ucw.cz> <200510310905.32269.dtor_core@ameritech.net>
+	Mon, 31 Oct 2005 09:59:10 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:34251 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750917AbVJaO7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 09:59:09 -0500
+Subject: Re: 2.6.14-rc5-mm1: EDAC: several options without a help text
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051028175849.GC4180@stusta.de>
+References: <20051024014838.0dd491bb.akpm@osdl.org>
+	 <20051028175849.GC4180@stusta.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 31 Oct 2005 15:26:50 +0000
+Message-Id: <1130772410.9145.31.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200510310905.32269.dtor_core@ameritech.net>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 31, 2005 at 09:05:31AM -0500, Dmitry Torokhov wrote:
-> On Monday 31 October 2005 07:47, Vojtech Pavlik wrote:
-> > On Mon, Oct 31, 2005 at 02:24:02AM -0500, Dmitry Torokhov wrote:
-> > > Input: atkbd - speed up setting leds/repeat state
-> > > 
-> > > Changing led state is pretty slow operation; when there are multiple
-> > > requests coming at a high rate they may interfere with normal typing.
-> > > Try optimize (skip) changing hardware state when multiple requests
-> > > are coming back-to-back.
-> > > 
-> > > Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> >  
-> > It looks good - just two comments:
-> > 
-> > 	1) wmb() shouldn't be needed after set_bit()
-> >
+On Gwe, 2005-10-28 at 19:58 +0200, Adrian Bunk wrote:
+> Hi Alan,
 > 
-> Judging by the comments in bitops only i386 implementation of set_bit
-> implies memory barrier, other arches do not guarantee it. That's why
-> I added wmb() there.
+> the hardware-specific EDAC drivers don't have a help text.
+> 
+> Can you add help texts?
 
-Hmm, OK. I always forget that atomicity doesn't imply a memory barrier.
+Done
 
-> > 	2) maybe we want to enforce the delay before we send the 
-> >            next SET_LED command.
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-> Well, with this patch "while true; do xset led 3; xset led -3; done"
-> does not interfere with typing on my box and system load is staying
-> low which means we don't have too many outstanding requests.
+--- drivers/edac/Kconfig~	2005-10-31 14:49:10.707520192 +0000
++++ drivers/edac/Kconfig	2005-10-31 14:49:10.707520192 +0000
+@@ -44,26 +44,44 @@
+ config EDAC_AMD76X
+ 	tristate "AMD 76x (760, 762, 768)"
+ 	depends on EDAC
++	help
++	  Support for error detection and correction on the AMD 76x
++	  series of chipsets used with the Athlon processor.
+ 
+ config EDAC_E7XXX
+ 	tristate "Intel e7xxx (e7205, e7500, e7501, e7505)"
+ 	depends on EDAC
++	help
++	  Support for error detection and correction on the Intel
++	  E7205, E7500, E7501 and E7505 server chipsets.
+ 
+ config EDAC_E752X
+ 	tristate "Intel e752x (e7520, e7525, e7320)"
+ 	depends on EDAC
++	help
++	  Support for error detection and correction on the Intel
++	  E7520, E7525, E7320 server chipsets.
+ 
+ config EDAC_I82875P
+ 	tristate "Intel 82875p (D82875P, E7210)"
+ 	depends on EDAC
++	help
++	  Support for error detection and correction on the Intel
++	  DP82785P and E7210 server chipsets.
+ 
+ config EDAC_I82860
+ 	tristate "Intel 82860"
+ 	depends on EDAC
++	help
++	  Support for error detection and correction on the Intel
++	  82860 chipset.
+ 
+ config EDAC_R82600
+ 	tristate "Radisys 82600 embedded chipset"
+ 	depends on EDAC
++	help
++	  Support for error detection and correction on the Radisys
++	  82600 embedded chipset.
+ 
+ choice
+ 	prompt "Error detecting method"
 
-OK. I'll give it a spin if I find the time to.
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR

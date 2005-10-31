@@ -1,72 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbVJaADw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932409AbVJaAJI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932413AbVJaADw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 19:03:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbVJaADw
+	id S932409AbVJaAJI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 19:09:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbVJaAJI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 19:03:52 -0500
-Received: from rwcrmhc11.comcast.net ([216.148.227.117]:4828 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S932407AbVJaADv convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 19:03:51 -0500
-Date: Mon, 31 Oct 2005 00:03:49 +0000
-From: Willem Riede <wrlk@riede.org>
-Reply-To: wrlk@riede.org
-Subject: [PATCH] ide-scsi fails to call idescsi_check_condition for things
- like "Medium not present"
-To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-X-Mailer: Balsa 2.3.5
-Message-Id: <1130717029l.3354l.18l@serve.riede.org>
+	Sun, 30 Oct 2005 19:09:08 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:38572
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S932409AbVJaAJH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 19:09:07 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: linux-kernel@vger.kernel.org
+Subject: echo 0 > /proc/sys/vm/swappiness triggers OOM killer under 2.6.14.
+Date: Sun, 30 Oct 2005 18:09:04 -0600
+User-Agent: KMail/1.8
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
+Message-Id: <200510301809.04245.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch started life as a response to fedora specific ide subsystem changes 
-that made error handling of my ATAPI tape drive fail; the specifics are in
+Under 2.6.14 (UML), I have a workload that runs with 64 megs ram and 256 megs 
+swap space.  It completes (albeit swapping like mad) with swappiness at the 
+default 60, but if I set it to 0 the OOM killer kicks in and the script 
+aborts.
 
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=160868
+The workload is basically compiling gcc 4.0.2 with gcc 3.3.2.  Now gcc a pig 
+(hence the reason for feeding it 256 megs of swap space), but twiddling 
+swappiness shouldn't make the difference between success and failure.
 
-The insertion of the statement rq->errors = err; near the end of 
-ide_end_drive_cmd() in drivers/ide/ide-io.c means that rq->errors does not 
-contain what it needs to in idescsi_end_request() in drivers/scsi/ide-scsi.c 
-anymore. Recent mainline kernels now also have this change.
+Why does the OOM killer ever trigger when there are _any_ dirty pages queued 
+up for DMA to an existing local block device?  (Or when there is SWAP SPACE 
+LEFT?)  This is memory that will be freed in time, thus the system isn't 
+guaranteed to hang yet.  Don't we only need to trigger the OOM killer if the 
+alternative is the system hanging?
 
-The patch below makes ide-scsi whole.
+Rob
 
-Signed-off-by: Willem Riede <wrlk@riede.org>
-
---- linux-2.6.14/drivers/scsi/ide-scsi.c	2005-10-27 20:02:08.000000000
--0400
-+++ linux-2.6.14w/drivers/scsi/ide-scsi.c	2005-10-29 09:22:47.000000000
--0400
-@@ -389,6 +389,7 @@
- 	int log = test_bit(IDESCSI_LOG_CMD, &scsi->log);
- 	struct Scsi_Host *host;
- 	u8 *scsi_buf;
-+	int errors = rq->errors;
- 	unsigned long flags;
- 
- 	if (!(rq->flags & (REQ_SPECIAL|REQ_SENSE))) {
-@@ -415,11 +416,11 @@
- 			printk (KERN_WARNING "ide-scsi: %s: timed out for
-%lu\n",
- 					drive->name, pc->scsi_cmd->serial_number);
- 		pc->scsi_cmd->result = DID_TIME_OUT << 16;
--	} else if (rq->errors >= ERROR_MAX) {
-+	} else if (errors >= ERROR_MAX) {
- 		pc->scsi_cmd->result = DID_ERROR << 16;
- 		if (log)
- 			printk ("ide-scsi: %s: I/O error for %lu\n",
-drive->name, pc->scsi_cmd->serial_number);
--	} else if (rq->errors) {
-+	} else if (errors) {
- 		if (log)
- 			printk ("ide-scsi: %s: check condition for %lu\n",
-drive->name, pc->scsi_cmd->serial_number);
- 		if (!idescsi_check_condition(drive, rq))
-
-
+P.S.  Not only is this repeatable, but I have a script that I run that 
+downloads the UML and gcc sources, builds UML, and tries to build GCC under 
+it.  I can put this up somewhere if anybody would like to try to reproduce 
+this themselves...

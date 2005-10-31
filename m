@@ -1,296 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbVJaOh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbVJaOiT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932271AbVJaOh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 09:37:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbVJaOh2
+	id S932292AbVJaOiT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 09:38:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbVJaOiT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 09:37:28 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:2785 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932271AbVJaOh1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 09:37:27 -0500
-Subject: [PATCH] tpm: support PPC64 hardware
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, moilanen@austin.ibm.com
-Content-Type: text/plain
-Date: Mon, 31 Oct 2005 08:37:59 -0600
-Message-Id: <1130769479.4882.35.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
-Content-Transfer-Encoding: 7bit
+	Mon, 31 Oct 2005 09:38:19 -0500
+Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:16599 "EHLO
+	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S932280AbVJaOiS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 09:38:18 -0500
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Mon, 31 Oct 2005 14:38:13 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+Subject: [PATCH 13/17] NTFS: $EA attributes can be both resident non-resident.
+In-Reply-To: <Pine.LNX.4.64.0510311408160.27357@hermes-1.csi.cam.ac.uk>
+Message-ID: <Pine.LNX.4.64.0510311436400.27357@hermes-1.csi.cam.ac.uk>
+References: <Pine.LNX.4.64.0510311408160.27357@hermes-1.csi.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The TPM is discovered differently on PPC64 because the device must be
-discovered through the device tree in order to open the proper holes in
-the io_page_mask for reading and writing in the low memory space.  This
-does not happen automatically like most devices because the tpm is not a
-normal pci device and lives under the root node.
+NTFS: $EA attributes can be both resident non-resident.
+      Minor tidying.
 
-This patch contains the necessary changes to the tpm logic.
+Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
-This depends on patches submitted by Jake Moilanen (10/28) to allow for
-the opening of holes in the io_page_mask for this device.
+---
 
-Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
+ fs/ntfs/ChangeLog |    1 +
+ fs/ntfs/aops.c    |    5 ++---
+ fs/ntfs/attrib.c  |    2 +-
+ fs/ntfs/file.c    |   14 ++++++++++++++
+ fs/ntfs/layout.h  |   27 +++++++++++++++++----------
+ 5 files changed, 35 insertions(+), 14 deletions(-)
 
---- 
-diff -uprN --exclude='*.ko' --exclude='*.o' --exclude='.*' --exclude='*mod*' linux-2.6.14-rc4/drivers/char/tpm/tpm_atmel.c linux-2.6.14-rc4-tpm/drivers/char/tpm/tpm_atmel.c
---- linux-2.6.14-rc4/drivers/char/tpm/tpm_atmel.c	2005-10-28 14:34:47.000000000 +0200
-+++ linux-2.6.14-rc4-tpm/drivers/char/tpm/tpm_atmel.c	2005-10-28 14:34:07.000000000 +0200
-@@ -20,10 +20,5 @@
+applies-to: 8892cc84dbee2b4387c9f2604a7892b6ef3aab25
+7d0ffdb279105d9a87b447758ce4a634496abfd1
+diff --git a/fs/ntfs/ChangeLog b/fs/ntfs/ChangeLog
+index 03015c7..bc6ec16 100644
+--- a/fs/ntfs/ChangeLog
++++ b/fs/ntfs/ChangeLog
+@@ -75,6 +75,7 @@ ToDo/Notes:
+ 	  for highly fragmented files, i.e. ones whose data attribute is split
+ 	  across multiple extents.   When such a case is encountered,
+ 	  EOPNOTSUPP is returned.
++	- $EA attributes can be both resident non-resident.
+ 
+ 2.1.24 - Lots of bug fixes and support more clean journal states.
+ 
+diff --git a/fs/ntfs/aops.c b/fs/ntfs/aops.c
+index 8f23c60..1c0a431 100644
+--- a/fs/ntfs/aops.c
++++ b/fs/ntfs/aops.c
+@@ -1391,8 +1391,7 @@ retry_writepage:
+ 		if (NInoEncrypted(ni)) {
+ 			unlock_page(page);
+ 			BUG_ON(ni->type != AT_DATA);
+-			ntfs_debug("Denying write access to encrypted "
+-					"file.");
++			ntfs_debug("Denying write access to encrypted file.");
+ 			return -EACCES;
+ 		}
+ 		/* Compressed data streams are handled in compress.c. */
+@@ -1508,8 +1507,8 @@ retry_writepage:
+ 	/* Zero out of bounds area in the page cache page. */
+ 	memset(kaddr + attr_len, 0, PAGE_CACHE_SIZE - attr_len);
+ 	kunmap_atomic(kaddr, KM_USER0);
+-	flush_dcache_mft_record_page(ctx->ntfs_ino);
+ 	flush_dcache_page(page);
++	flush_dcache_mft_record_page(ctx->ntfs_ino);
+ 	/* We are done with the page. */
+ 	end_page_writeback(page);
+ 	/* Finally, mark the mft record dirty, so it gets written back. */
+diff --git a/fs/ntfs/attrib.c b/fs/ntfs/attrib.c
+index 338e471..df2e209 100644
+--- a/fs/ntfs/attrib.c
++++ b/fs/ntfs/attrib.c
+@@ -1411,7 +1411,7 @@ int ntfs_attr_can_be_non_resident(const 
   */
- 
- #include "tpm.h"
-- 
--/* Atmel definitions */
--enum tpm_atmel_addr {
--	TPM_ATMEL_BASE_ADDR_LO = 0x08,
--	TPM_ATMEL_BASE_ADDR_HI = 0x09
--};
-+#include "tpm_atmel.h"
-
-@@ -165,7 +166,7 @@ static void __devexit tpm_atml_remove(st
+ int ntfs_attr_can_be_resident(const ntfs_volume *vol, const ATTR_TYPE type)
  {
- 	struct tpm_chip *chip = dev_get_drvdata(dev);
- 	if (chip) {
--		release_region(chip->vendor->base, 2);
-+		atmel_release_region(chip->vendor->base, 2);
- 		tpm_remove_hardware(chip->dev);
- 	}
- }
-@@ -181,59 +182,54 @@ static struct device_driver atml_drv = {
- static int __init init_atmel(void)
- {
- 	int rc = 0;
--	int lo, hi;
- 
-+	if ( atmel_verify_tpm11() != 0 )
-+		return -ENODEV;
-+
- 	driver_register(&atml_drv);
- 
--	lo = tpm_read_index(TPM_ADDR, TPM_ATMEL_BASE_ADDR_LO);
--	hi = tpm_read_index(TPM_ADDR, TPM_ATMEL_BASE_ADDR_HI);
--
--	tpm_atmel.base = (hi<<8)|lo;
--
--	/* verify that it is an Atmel part */
--	if (tpm_read_index(TPM_ADDR, 4) != 'A' || tpm_read_index(TPM_ADDR, 5) != 'T'
--	    || tpm_read_index(TPM_ADDR, 6) != 'M' || tpm_read_index(TPM_ADDR, 7) != 'L') {
--		return -ENODEV;
-+	tpm_atmel.base = atmel_get_base_addr(TPM_ADDR, 2);
-+	if (tpm_atmel.base == 0) {
-+		rc = -ENODEV;
-+		goto err_unreg_drv;
- 	}
- 
--	/* verify chip version number is 1.1 */
--	if (	(tpm_read_index(TPM_ADDR, 0x00) != 0x01) ||
--		(tpm_read_index(TPM_ADDR, 0x01) != 0x01 ))
--		return -ENODEV;
--	
- 	pdev = kzalloc(sizeof(struct platform_device), GFP_KERNEL);
--	if ( !pdev ) 
--		return -ENOMEM;
-+	if ( !pdev ) {
-+		rc = -ENOMEM; 
-+		goto err_unreg_drv;
-+	}
- 
- 	pdev->name = "tpm_atmel0";
- 	pdev->id = -1;
- 	pdev->num_resources = 0;
--	pdev->dev.release = tpm_atml_remove;	
-+	pdev->dev.release = tpm_atml_remove;
- 	pdev->dev.driver = &atml_drv;
- 
--	if ((rc = platform_device_register(pdev)) < 0) {
--		kfree(pdev);
--		pdev = NULL;
--		return rc;
--	}
-+	if ((rc = platform_device_register(pdev)) < 0) 
-+		goto err_free_dev;
- 
--	if (request_region(tpm_atmel.base, 2, "tpm_atmel0") == NULL ) {
--		platform_device_unregister(pdev);
--		kfree(pdev);
--		pdev = NULL;
--		return -EBUSY;
-+	if (atmel_request_region(tpm_atmel.base, 2, "tpm_atmel0") == NULL ) {
-+		rc = -EBUSY;
-+		goto err_unreg_dev;
- 	}
- 
--	if ((rc = tpm_register_hardware(&pdev->dev, &tpm_atmel)) < 0) {
--		release_region(tpm_atmel.base, 2);
--		platform_device_unregister(pdev);
--		kfree(pdev);
--		pdev = NULL;
--		return rc;
--	}
-+	if ((rc = tpm_register_hardware(&pdev->dev, &tpm_atmel)) < 0) 
-+		goto err_rel_reg;
- 
-	dev_info(&pdev->dev, "Atmel TPM 1.1, Base Address: 0x%x\n",
-			tpm_atmel.base);
+-	if (type == AT_INDEX_ALLOCATION || type == AT_EA)
++	if (type == AT_INDEX_ALLOCATION)
+ 		return -EPERM;
  	return 0;
-+
-+err_rel_reg:
-+	atmel_release_region(tpm_atmel.base, 2);
-+err_unreg_dev:
-+	platform_device_unregister(pdev);
-+err_free_dev:
-+	kfree(pdev);
-+	pdev = NULL;
-+err_unreg_drv:
-+	driver_unregister(&atml_drv);
-+	return rc;
  }
+diff --git a/fs/ntfs/file.c b/fs/ntfs/file.c
+index cf2a0e2..5fb341a 100644
+--- a/fs/ntfs/file.c
++++ b/fs/ntfs/file.c
+@@ -1857,10 +1857,24 @@ static ssize_t ntfs_file_buffered_write(
+ 	if (ni->type != AT_INDEX_ALLOCATION) {
+ 		/* If file is encrypted, deny access, just like NT4. */
+ 		if (NInoEncrypted(ni)) {
++			/*
++			 * Reminder for later: Encrypted files are _always_
++			 * non-resident so that the content can always be
++			 * encrypted.
++			 */
+ 			ntfs_debug("Denying write access to encrypted file.");
+ 			return -EACCES;
+ 		}
+ 		if (NInoCompressed(ni)) {
++			/* Only unnamed $DATA attribute can be compressed. */
++			BUG_ON(ni->type != AT_DATA);
++			BUG_ON(ni->name_len);
++			/*
++			 * Reminder for later: If resident, the data is not
++			 * actually compressed.  Only on the switch to non-
++			 * resident does compression kick in.  This is in
++			 * contrast to encrypted files (see above).
++			 */
+ 			ntfs_error(vi->i_sb, "Writing to compressed files is "
+ 					"not implemented yet.  Sorry.");
+ 			return -EOPNOTSUPP;
+diff --git a/fs/ntfs/layout.h b/fs/ntfs/layout.h
+index 5c248d4..71b25da 100644
+--- a/fs/ntfs/layout.h
++++ b/fs/ntfs/layout.h
+@@ -1021,10 +1021,17 @@ enum {
+ 	FILE_NAME_POSIX		= 0x00,
+ 	/* This is the largest namespace. It is case sensitive and allows all
+ 	   Unicode characters except for: '\0' and '/'.  Beware that in
+-	   WinNT/2k files which eg have the same name except for their case
+-	   will not be distinguished by the standard utilities and thus a "del
+-	   filename" will delete both "filename" and "fileName" without
+-	   warning. */
++	   WinNT/2k/2003 by default files which eg have the same name except
++	   for their case will not be distinguished by the standard utilities
++	   and thus a "del filename" will delete both "filename" and "fileName"
++	   without warning.  However if for example Services For Unix (SFU) are
++	   installed and the case sensitive option was enabled at installation
++	   time, then you can create/access/delete such files.
++	   Note that even SFU places restrictions on the filenames beyond the
++	   '\0' and '/' and in particular the following set of characters is
++	   not allowed: '"', '/', '<', '>', '\'.  All other characters,
++	   including the ones no allowed in WIN32 namespace are allowed.
++	   Tested with SFU 3.5 (this is now free) running on Windows XP. */
+ 	FILE_NAME_WIN32		= 0x01,
+ 	/* The standard WinNT/2k NTFS long filenames. Case insensitive.  All
+ 	   Unicode chars except: '\0', '"', '*', '/', ':', '<', '>', '?', '\',
+@@ -2375,20 +2382,20 @@ typedef u8 EA_FLAGS;
+ /*
+  * Attribute: Extended attribute (EA) (0xe0).
+  *
+- * NOTE: Always non-resident. (Is this true?)
++ * NOTE: Can be resident or non-resident.
+  *
+  * Like the attribute list and the index buffer list, the EA attribute value is
+  * a sequence of EA_ATTR variable length records.
+- *
+- * FIXME: It appears weird that the EA name is not unicode. Is it true?
+  */
+ typedef struct {
+ 	le32 next_entry_offset;	/* Offset to the next EA_ATTR. */
+ 	EA_FLAGS flags;		/* Flags describing the EA. */
+-	u8 ea_name_length;	/* Length of the name of the EA in bytes. */
++	u8 ea_name_length;	/* Length of the name of the EA in bytes
++				   excluding the '\0' byte terminator. */
+ 	le16 ea_value_length;	/* Byte size of the EA's value. */
+-	u8 ea_name[0];		/* Name of the EA. */
+-	u8 ea_value[0];		/* The value of the EA. Immediately follows
++	u8 ea_name[0];		/* Name of the EA.  Note this is ASCII, not
++				   Unicode and it is zero terminated. */
++	u8 ea_value[0];		/* The value of the EA.  Immediately follows
+ 				   the name. */
+ } __attribute__ ((__packed__)) EA_ATTR;
  
- static void __exit cleanup_atmel(void)
-diff -uprN --exclude='*.ko' --exclude='*.o' --exclude='.*' --exclude='*mod*' linux-2.6.14-rc4/drivers/char/tpm/tpm_atmel.h linux-2.6.14-rc4-tpm/drivers/char/tpm/tpm_atmel.h
---- linux-2.6.14-rc4/drivers/char/tpm/tpm_atmel.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.14-rc4-tpm/drivers/char/tpm/tpm_atmel.h	2005-10-28 13:32:04.000000000 +0200
-@@ -0,0 +1,137 @@
-+/*
-+ * Copyright (C) 2005 IBM Corporation
-+ *
-+ * Authors:
-+ * Kylene Hall <kjhall@us.ibm.com>
-+ *
-+ * Maintained by: <tpmdd_devel@lists.sourceforge.net>
-+ *
-+ * Device driver for TCG/TCPA TPM (trusted platform module).
-+ * Specifications at www.trustedcomputinggroup.org
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License as
-+ * published by the Free Software Foundation, version 2 of the
-+ * License.
-+ *
-+ * These differences are required on power because the device must be
-+ * discovered through the device tree in order to open the proper holes 
-+ * in the io_page_mask for reading and writing in the low memory space.  
-+ * This does not happen automatically like most devices because the tpm 
-+ * is not a normal pci device and lives under the root node.
-+ *
-+ */
-+
-+#ifdef CONFIG_PPC64
-+#define atmel_request_region request_mem_region
-+#define atmel_release_region release_mem_region
-+
-+/* Verify this is a 1.1 Atmel TPM */
-+static int atmel_verify_tpm11(void)
-+{
-+	struct device_node * dn;
-+	char *compat;
-+	int compat_len;
-+
-+	dn = find_devices("tpm");
-+
-+	if (!dn)
-+		return 1;
-+
-+	compat = (char *) get_property(dn, "compatible", &compat_len);
-+	if (!compat)
-+		return 1;
-+
-+	if ( strcmp( compat,"AT97SC3201_r") == 0 )
-+		return 0;
-+
-+	return 1;
-+}
-+
-+static unsigned long atmel_get_base_addr(unsigned long base_addr, 
-+					unsigned long base_size)
-+{
-+	struct device_node * dn;
-+	unsigned long address, size;
-+	unsigned int * reg;
-+	long tpm_addr = 0;
-+	int reglen;
-+	int naddrc;
-+	int nsizec;
-+	int i;
-+
-+	dn = find_devices("tpm");
-+
-+	if (!dn)
-+		return 0;
-+
-+	reg = (unsigned int *) get_property(dn, "reg", &reglen);
-+	naddrc = prom_n_addr_cells(dn);
-+	nsizec = prom_n_size_cells(dn);
-+
-+	for (i = 0; i < reglen; i = i + naddrc + nsizec) {
-+
-+		if (naddrc == 2)
-+			address = ((unsigned long)reg[i] << 32) | reg[i+1];
-+		else
-+			address = reg[i];
-+
-+		address = address - pci_io_base_phys;
-+
-+		/* Use the first address */
-+		if (tpm_addr == 0)
-+			tpm_addr = address;
-+
-+		if (nsizec == 2)
-+			size = ((unsigned long)reg[naddrc] << 32) | reg[naddrc+1];
-+		else
-+			size = reg[naddrc];
-+
-+		allow_isa_address(address, address+size-1);
-+	}
-+
-+	return tpm_addr;
-+
-+}
-+#else
-+/* Atmel definitions */
-+enum tpm_atmel_addr {
-+	TPM_ATMEL_BASE_ADDR_LO = 0x08,
-+	TPM_ATMEL_BASE_ADDR_HI = 0x09
-+};
-+
-+#define atmel_request_region request_region
-+#define atmel_release_region release_region
-+
-+/* Verify this is a 1.1 Atmel TPM */
-+static int atmel_verify_tpm11(void)
-+{
-+
-+	/* verify that it is an Atmel part */
-+	if (	tpm_read_index(TPM_ADDR, 4) != 'A' || 
-+		tpm_read_index(TPM_ADDR, 5) != 'T' ||
-+		tpm_read_index(TPM_ADDR, 6) != 'M' || 
-+		tpm_read_index(TPM_ADDR, 7) != 'L') 
-+		return 1;
-+
-+	/* query chip for its version number */
-+	if (	tpm_read_index(TPM_ADDR, 0x00) != 1 ||
-+		tpm_read_index(TPM_ADDR, 0x01) != 1 )
-+		return 1;
-+
-+	/* This is an atmel supported part */
-+	return 0;
-+}
-+
-+/* Determine where to talk to device */
-+static unsigned long atmel_get_base_addr(unsigned long base_addr, 
-+					unsigned long size)
-+{
-+	int lo, hi;
-+
-+	lo = tpm_read_index(base_addr, TPM_ATMEL_BASE_ADDR_LO);
-+	hi = tpm_read_index(base_addr, TPM_ATMEL_BASE_ADDR_HI);
-+
-+	return (hi<<8)|lo;
-+}
-+#endif
-
-
+---
+0.99.9

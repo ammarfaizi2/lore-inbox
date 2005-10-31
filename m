@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932529AbVJaVZI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932526AbVJaV2a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932529AbVJaVZI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 16:25:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932531AbVJaVZH
+	id S932526AbVJaV2a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 16:28:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932535AbVJaV2a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 16:25:07 -0500
-Received: from moraine.clusterfs.com ([66.96.26.190]:44985 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S932529AbVJaVZF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 16:25:05 -0500
-Date: Mon, 31 Oct 2005 14:25:03 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: ext2-devel@lists.sourceforge.net, sct@redhat.com, akpm@osdl.org,
-       ext3-users@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: What is the history of CONFIG_EXT{2,3}_CHECK?
-Message-ID: <20051031212503.GY31368@schatzie.adilger.int>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	ext2-devel@lists.sourceforge.net, sct@redhat.com, akpm@osdl.org,
-	ext3-users@redhat.com, linux-kernel@vger.kernel.org
-References: <20051031001334.GP4180@stusta.de>
+	Mon, 31 Oct 2005 16:28:30 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:24731 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S932526AbVJaV23 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 16:28:29 -0500
+Date: Mon, 31 Oct 2005 13:28:20 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Rohit Seth <rohit.seth@intel.com>
+Cc: akpm@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [PATCH]: Clean up of __alloc_pages
+Message-Id: <20051031132820.62a18822.pj@sgi.com>
+In-Reply-To: <1130793655.4853.41.camel@akash.sc.intel.com>
+References: <20051028183326.A28611@unix-os.sc.intel.com>
+	<20051029184728.100e3058.pj@sgi.com>
+	<1130793655.4853.41.camel@akash.sc.intel.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051031001334.GP4180@stusta.de>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 31, 2005  01:13 +0100, Adrian Bunk wrote:
-> Can anyone tell me the history of CONFIG_EXT{2,3}_CHECK?
-> 
-> There is code for a "check" option for mount if these options are 
-> enabled, but there's no way to enable them.
+Rohit wrote:
+> Not sure why?  Let me see if some new values could better articulate the
+> meaning. 
 
-These are expensive debugging options, which walk the inode/block bitmaps
-for getting the group inode/block usage instead of using the group
-summary data.  Not used very often but I suspect occasionally useful for
-developers mucking with ext[23] internals.  Since it is developer-only
-code it needs to be enabled with #define CONFIG_EXT[23]_CHECK in a
-header or compile option.
+See also Nick's comments, before going too far.  He was advocating
+just using binary flags and adding a gfp_high flag, or something
+like that.
 
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

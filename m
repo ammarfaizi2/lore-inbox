@@ -1,90 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbVJaWQK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbVJaWTX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964800AbVJaWQK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 17:16:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964801AbVJaWQK
+	id S1751329AbVJaWTX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 17:19:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbVJaWTX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 17:16:10 -0500
-Received: from smtp017.mail.yahoo.com ([216.136.174.114]:34689 "HELO
-	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S964800AbVJaWQJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 17:16:09 -0500
+	Mon, 31 Oct 2005 17:19:23 -0500
+Received: from xproxy.gmail.com ([66.249.82.202]:64025 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751329AbVJaWTW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 17:19:22 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.de;
-  h=Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To:User-Agent;
-  b=Abm2U1TMYXEybrtp0axb6eX5E+dzNDWN4dBqUOy6f9ZhLY2qOq2dOV0dEffL/dpSbMu1JYVlzTKuvCB+q7pBLBIDB1X4cENEHWnPVK5JHzofmr35HuaC/eDU0GCeGjMXg2mP6w85R33b1T3sJbpYKAO538umvAUDnERv3gJuIuo=  ;
-Date: Mon, 31 Oct 2005 23:15:41 +0100
-From: Borislav Petkov <bbpetkov@yahoo.de>
-To: Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>
-Cc: Borislav Petkov <bbpetkov@yahoo.de>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       dbrownell@users.sourceforge.net, greg@kroah.com
-Subject: Re: Linux 2.6.14 ehci-hcd hangs machine
-Message-ID: <20051031221541.GA31948@gollum.tnic>
-References: <0EF82802ABAA22479BC1CE8E2F60E8C376CE22@scl-exch2k3.phoenix.com>
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fY6wtMz8LTZYAjCVQrqnWvKcAOxo0EURyrCO5UUD/3oBmiOjG62OMu4wBILaKwVnjjsQgb8wAMRe/AYZC/jDCd7L+g0333niVw6SZYCyQgc2VgxiN0aM3NHL3KYVq+yUFroZyPnUK/5Dr6Imjz9hbQVM1BKqcwdtou3WJ7hXvks=
+Message-ID: <9a8748490510311419o7c4cc615qa7123d7aa124e3df@mail.gmail.com>
+Date: Mon, 31 Oct 2005 23:19:21 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [PATCH 2/9] mm: arm ready for split ptlock
+Cc: Nicolas Pitre <nico@cam.org>, Hugh Dickins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051026002016.GB25420@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <0EF82802ABAA22479BC1CE8E2F60E8C376CE22@scl-exch2k3.phoenix.com>
-User-Agent: Mutt/1.5.11
+References: <Pine.LNX.4.61.0510221716380.18047@goblin.wat.veritas.com>
+	 <Pine.LNX.4.61.0510221719370.18047@goblin.wat.veritas.com>
+	 <20051022170240.GA10631@flint.arm.linux.org.uk>
+	 <Pine.LNX.4.64.0510241922040.5288@localhost.localdomain>
+	 <20051025075555.GA25020@flint.arm.linux.org.uk>
+	 <Pine.LNX.4.64.0510251056380.5288@localhost.localdomain>
+	 <20051026002016.GB25420@flint.arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 31, 2005 at 09:53:15AM -0800, Aleksey Gorelov wrote:
-> >-----Original Message-----
-> >From: linux-kernel-owner@vger.kernel.org 
-> >[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
-> >Borislav Petkov
-> >Sent: Sunday, October 30, 2005 12:36 AM
-> >To: Linus Torvalds
-> >Cc: Linux Kernel Mailing List; 
-> >dbrownell@users.sourceforge.net; greg@kroah.com
-> >Subject: Re: Linux 2.6.14 ehci-hcd hangs machine
+On 10/26/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> On Tue, Oct 25, 2005 at 11:00:09AM -0400, Nicolas Pitre wrote:
+> > On Tue, 25 Oct 2005, Russell King wrote:
 > >
-> >On Thu, Oct 27, 2005 at 05:28:50PM -0700, Linus Torvalds wrote:
-> >> 
-> >> Ok, it's finally there. 
-> >... and it still won't boot on my machine. It hangs while initializing
-> >the ehci usb host controller saying:
+> > > On Mon, Oct 24, 2005 at 10:45:04PM -0400, Nicolas Pitre wrote:
+> > > > On Sat, 22 Oct 2005, Russell King wrote:
+> > > > > Please contact Nicolas Pitre about that - that was my suggestion,
+> > > > > but ISTR apparantly the overhead is too high.
+> > > >
+> > > > Going through a kernel buffer will simply double the overhead.  Let's
+> > > > suppose it should not be a big enough issue to stop the patch from being
+> > > > merged though (and it looks cleaner that way). However I'd like for the
+> > > > WARN_ON((unsigned long)frame & 7) to remain as both the kernel and user
+> > > > buffers should be 64-bit aligned.
+> > >
+> > > The WARN_ON is pointless because we guarantee that the stack is always
+> > > 64-bit aligned on signal handler setup and return.
 > >
-> ><snip>
-> >...
-> >[4294691.834000] usb usb3: Product: UHCI Host Controller
-> >[4294691.840000] usb usb3: Manufacturer: Linux 2.6.14 uhci_hcd
-> >[4294691.847000] usb usb3: SerialNumber: 0000:00:1d.2
-> >[4294691.880000] hub 3-0:1.0: USB hub found
-> >[4294691.885000] hub 3-0:1.0: 2 ports detected
-> >[4294694.855000] ACPI: PCI Interrupt 0000:00:1d.7[D] -> GSI 23 (level,
-> >				low) -> IRQ 20
-> >[4294694.864000] ehci_hcd 0000:00:1d.7: EHCI Host Controller
-> >[4294694.870000] ehci_hcd 0000:00:1d.7: debug port 1
-> ></snip>
+> > Sure, but the iWMMXt context is stored after the standard sigcontext
+> > which also must be 64 bits in size (which might not be always the case
+> > if things change in the structure or in its padding).
 > >
-> >and dies. This bug is actually in there since 2.6.14-rc4 (see:
-> >http://bugzilla.kernel.org/show_bug.cgi?id=5428) and David Brownell
-> >supplied a patch which turned out to be useless eventually 
-> >since _rebooting_ 
-> >the kernel with the 'usb-handoff' (and without the patch) 
-> >solved the problem. 
-> >As it turns out, it actually solves the problem only for the 
-> >reboot case.
-> >My machine still hangs on an initial boot with and without 
-> >'usb-handoff'.
-> >.config attached.
-> 
-> Boris, 
-> 
->   While running with 'usb-handoff' turned on, do you see something like
-> "EHCI early BIOS handoff failed" (in power on or reboot cases) ? 
-Nope,
-		nothing of the like in the serial console log.
+> > > > I don't see how standard COW could not happen.  The only difference with
+> > > > a true write fault as if we used put_user() is that we bypassed the data
+> > > > abort vector and the code to get the FAR value.  Or am I missing
+> > > > something?
+> > >
+> > > pte_write() just says that the page _may_ be writable.  It doesn't say
+> > > that the MMU is programmed to allow writes.  If pte_dirty() doesn't
+> > > return true, that means that the page is _not_ writable from userspace.
+> >
+> > Argh...  So only suffice to s/pte_write/pte_dirty/ I'd guess?
+>
+> No.  If we're emulating a cmpxchg() on a clean BSS page, this code
+> as it stands today will write to the zero page making it a page which
+> is mostly zero.  Bad news when it's mapped into other processes BSS
+> pages.
+>
+> Changing this for pte_dirty() means that we'll refuse to do a cmpxchg()
+> on a clean BSS page.  The data may compare correctly, but because it
+> isn't already dirty, you'll fail.
+>
+> If we still had it, I'd say you need to use verify_area() to tell the
+> kernel to pre-COW the pages.  However, that got removed a while back.
+>
 
-Regards,
-		Boris.
+Yes, I removed verify_area() since it was just a wrapper for access_ok().
+If verify_area() was/is needed, then access_ok() should be just fine
+as a replacement as far as I can see.
 
-	
-
-	
-		
-___________________________________________________________ 
-Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

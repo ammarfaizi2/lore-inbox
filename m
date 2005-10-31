@@ -1,70 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932456AbVJaQhw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932457AbVJaQim@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932456AbVJaQhw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 11:37:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbVJaQhw
+	id S932457AbVJaQim (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 11:38:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932460AbVJaQim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 11:37:52 -0500
-Received: from amdext4.amd.com ([163.181.251.6]:31365 "EHLO amdext4.amd.com")
-	by vger.kernel.org with ESMTP id S932456AbVJaQhv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 11:37:51 -0500
-X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
-Date: Mon, 31 Oct 2005 09:40:21 -0700
-From: "Jordan Crouse" <jordan.crouse@amd.com>
-To: drzeus-list@drzeus.cx
-cc: linux-kernel@vger.kernel.org, ralf.baechle@linux-mips.org,
-       ppopov@embeddedalley.com
-Subject: Au1xxx MMC driver
-Message-ID: <20051031164021.GG20777@cosmic.amd.com>
+	Mon, 31 Oct 2005 11:38:42 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:59153 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S932457AbVJaQil
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 11:38:41 -0500
+To: Michael Buesch <mbuesch@freenet.de>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+References: <20051030105118.GW4180@stusta.de>
+	<20051030194951.GJ4180@stusta.de> <87wtjt7k55.fsf@amaterasu.srvr.nix>
+	<200510311727.09261.mbuesch@freenet.de>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: it's all fun and games, until somebody tries to edit a file.
+Date: Mon, 31 Oct 2005 16:36:18 +0000
+In-Reply-To: <200510311727.09261.mbuesch@freenet.de> (Michael Buesch's
+ message of "Mon, 31 Oct 2005 17:27:09 +0100")
+Message-ID: <87pspl7if1.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-User-Agent: Mutt/1.5.11
-X-WSS-ID: 6F7897C122C3870055-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Sucked off of gmane):
+On Mon, 31 Oct 2005, Michael Buesch said:
+>> .data.read_mostly             428      13144  -12716
+> +12716
 
->> 1. au1xxx mmc driver
->> 
->>    mmc_remove_host() does a safe shutdown of the MMC host, removing
->>    cards and then powering down.  This must be called prior to the
->>    driver thinking of tearing anything down.
->> 
->>    As for those disable_irq()...enable_irq(), are you aware that MMC
->>    can start talking to the host as soon as you've called mmc_add_host() ?
->> 
+Um. Yes. Of course.
 
-> I'm also concerned about the ammount of protocol awareness in this
-> driver. Is there a spec available for this hardware? Perhaps the MMC
-> layer can export more information so that we can avoid switches on
-> specific MMC commands?
+(I *knew* I should have automated that. Bah. *slaps self*)
 
-Spec is here: 
-
-http://tinyurl.com/dslkv  (Horribly long URL and registration required,
-unfortunately).
-
-In this case, the controller needs to be specifically told what command
-and response type it should expect, thus the opcode switch.
-I don't really think this is an  unreasonable demand to be put on the 
-hardware driver, and its certainly way more HW specific then the upper 
-layers need to be.
-
-As for Russell's comments - yes, the mm_remove_host() should be called
-first, thats my ugly.  As for the second one - we haven't had problems
-so far with enabling the interrupt after the mmc_add_host() command -
-but I can see how its entirely possible thats just a result of luck, and
-not skill.   I'll look in to ways to fix that up. 
-
-Jordan
 -- 
-Jordan Crouse
-Senior Linux Engineer
-AMD - Personal Connectivity Solutions Group
-<www.amd.com/embeddedprocessors>
-
+`"Gun-wielding recluse gunned down by local police" isn't the epitaph
+ I want. I am hoping for "Witnesses reported the sound up to two hundred
+ kilometers away" or "Last body part finally located".' --- James Nicoll

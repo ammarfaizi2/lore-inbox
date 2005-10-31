@@ -1,87 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbVJaWfs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbVJaWgE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964807AbVJaWfs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 17:35:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbVJaWfE
+	id S964874AbVJaWgE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 17:36:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbVJaWfB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 17:35:04 -0500
+	Mon, 31 Oct 2005 17:35:01 -0500
 Received: from ams-iport-1.cisco.com ([144.254.224.140]:59658 "EHLO
 	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S932166AbVJaWet (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 17:34:49 -0500
-Subject: [git patch review 3/5] [IB] uverbs: Avoid NULL pointer deref on CQ
-	async event
+	id S964810AbVJaWev (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 17:34:51 -0500
+Subject: [git patch review 5/5] [IPoIB] cleanups: fix comment,
+	remove useless variables
 From: Roland Dreier <rolandd@cisco.com>
 Date: Mon, 31 Oct 2005 22:34:42 +0000
 To: linux-kernel@vger.kernel.org, openib-general@openib.org
 X-Mailer: IB-patch-reviewer
 Content-Transfer-Encoding: 8bit
-Message-ID: <1130798082548-f241f7f48ee0a31b@cisco.com>
-In-Reply-To: <1130798082548-c351d7732f360685@cisco.com>
-X-OriginalArrivalTime: 31 Oct 2005 22:34:43.0729 (UTC) FILETIME=[4A2D8010:01C5DE6B]
+Message-ID: <1130798082548-b095f02a09987549@cisco.com>
+In-Reply-To: <1130798082548-8e2587fc62785f94@cisco.com>
+X-OriginalArrivalTime: 31 Oct 2005 22:34:43.0745 (UTC) FILETIME=[4A2FF110:01C5DE6B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Userspace CQs that have no completion event channel attached end up
-with their cq_context set to NULL.  However, asynchronous events like
-"CQ overrun" can still occur on such CQs, so add a uverbs_file member
-to struct ib_ucq_object that we can follow to deliver these events.
+Minor cleanups: fix a misleading comment, and get rid of attr_mask
+variables that are only used to hold constants (just use the constants
+directly).
 
 Signed-off-by: Roland Dreier <rolandd@cisco.com>
 
 ---
 
- drivers/infiniband/core/uverbs.h      |    1 +
- drivers/infiniband/core/uverbs_cmd.c  |    1 +
- drivers/infiniband/core/uverbs_main.c |    9 +++------
- 3 files changed, 5 insertions(+), 6 deletions(-)
+ drivers/infiniband/ulp/ipoib/ipoib_ib.c    |   12 ++++++------
+ drivers/infiniband/ulp/ipoib/ipoib_verbs.c |    4 +---
+ 2 files changed, 7 insertions(+), 9 deletions(-)
 
-applies-to: e7fbd856e7522b65d309e9dfd425541d8f45a0bd
-7162a3e0db34e914a8bc5bf74bbae0b386310cf8
-diff --git a/drivers/infiniband/core/uverbs.h b/drivers/infiniband/core/uverbs.h
-index 031cdf3..ecb8301 100644
---- a/drivers/infiniband/core/uverbs.h
-+++ b/drivers/infiniband/core/uverbs.h
-@@ -113,6 +113,7 @@ struct ib_uevent_object {
- 
- struct ib_ucq_object {
- 	struct ib_uobject	uobject;
-+	struct ib_uverbs_file  *uverbs_file;
- 	struct list_head	comp_list;
- 	struct list_head	async_list;
- 	u32			comp_events_reported;
-diff --git a/drivers/infiniband/core/uverbs_cmd.c b/drivers/infiniband/core/uverbs_cmd.c
-index 8c89abc..63a7415 100644
---- a/drivers/infiniband/core/uverbs_cmd.c
-+++ b/drivers/infiniband/core/uverbs_cmd.c
-@@ -602,6 +602,7 @@ ssize_t ib_uverbs_create_cq(struct ib_uv
- 
- 	uobj->uobject.user_handle   = cmd.user_handle;
- 	uobj->uobject.context       = file->ucontext;
-+	uobj->uverbs_file	    = file;
- 	uobj->comp_events_reported  = 0;
- 	uobj->async_events_reported = 0;
- 	INIT_LIST_HEAD(&uobj->comp_list);
-diff --git a/drivers/infiniband/core/uverbs_main.c b/drivers/infiniband/core/uverbs_main.c
-index 0eb38f4..e58a7b2 100644
---- a/drivers/infiniband/core/uverbs_main.c
-+++ b/drivers/infiniband/core/uverbs_main.c
-@@ -442,13 +442,10 @@ static void ib_uverbs_async_handler(stru
- 
- void ib_uverbs_cq_event_handler(struct ib_event *event, void *context_ptr)
+applies-to: c29760bafd7107252389712965ad7e4ed0791a82
+3bc12e75b23c0499cc2c0873a5f77494be173761
+diff --git a/drivers/infiniband/ulp/ipoib/ipoib_ib.c b/drivers/infiniband/ulp/ipoib/ipoib_ib.c
+index 192fef8..0a6f578 100644
+--- a/drivers/infiniband/ulp/ipoib/ipoib_ib.c
++++ b/drivers/infiniband/ulp/ipoib/ipoib_ib.c
+@@ -486,15 +486,16 @@ int ipoib_ib_dev_stop(struct net_device 
  {
--	struct ib_uverbs_event_file *ev_file = context_ptr;
--	struct ib_ucq_object *uobj;
-+	struct ib_ucq_object *uobj = container_of(event->element.cq->uobject,
-+						  struct ib_ucq_object, uobject);
+ 	struct ipoib_dev_priv *priv = netdev_priv(dev);
+ 	struct ib_qp_attr qp_attr;
+-	int attr_mask;
+ 	unsigned long begin;
+ 	struct ipoib_tx_buf *tx_req;
+ 	int i;
  
--	uobj = container_of(event->element.cq->uobject,
--			    struct ib_ucq_object, uobject);
--
--	ib_uverbs_async_handler(ev_file->uverbs_file, uobj->uobject.user_handle,
-+	ib_uverbs_async_handler(uobj->uverbs_file, uobj->uobject.user_handle,
- 				event->event, &uobj->async_list,
- 				&uobj->async_events_reported);
- 				
+-	/* Kill the existing QP and allocate a new one */
++	/*
++	 * Move our QP to the error state and then reinitialize in
++	 * when all work requests have completed or have been flushed.
++	 */
+ 	qp_attr.qp_state = IB_QPS_ERR;
+-	attr_mask        = IB_QP_STATE;
+-	if (ib_modify_qp(priv->qp, &qp_attr, attr_mask))
++	if (ib_modify_qp(priv->qp, &qp_attr, IB_QP_STATE))
+ 		ipoib_warn(priv, "Failed to modify QP to ERROR state\n");
+ 
+ 	/* Wait for all sends and receives to complete */
+@@ -541,8 +542,7 @@ int ipoib_ib_dev_stop(struct net_device 
+ 
+ timeout:
+ 	qp_attr.qp_state = IB_QPS_RESET;
+-	attr_mask        = IB_QP_STATE;
+-	if (ib_modify_qp(priv->qp, &qp_attr, attr_mask))
++	if (ib_modify_qp(priv->qp, &qp_attr, IB_QP_STATE))
+ 		ipoib_warn(priv, "Failed to modify QP to RESET state\n");
+ 
+ 	/* Wait for all AHs to be reaped */
+diff --git a/drivers/infiniband/ulp/ipoib/ipoib_verbs.c b/drivers/infiniband/ulp/ipoib/ipoib_verbs.c
+index b5902a7..e829e10 100644
+--- a/drivers/infiniband/ulp/ipoib/ipoib_verbs.c
++++ b/drivers/infiniband/ulp/ipoib/ipoib_verbs.c
+@@ -41,7 +41,6 @@ int ipoib_mcast_attach(struct net_device
+ {
+ 	struct ipoib_dev_priv *priv = netdev_priv(dev);
+ 	struct ib_qp_attr *qp_attr;
+-	int attr_mask;
+ 	int ret;
+ 	u16 pkey_index;
+ 
+@@ -59,8 +58,7 @@ int ipoib_mcast_attach(struct net_device
+ 
+ 	/* set correct QKey for QP */
+ 	qp_attr->qkey = priv->qkey;
+-	attr_mask = IB_QP_QKEY;
+-	ret = ib_modify_qp(priv->qp, qp_attr, attr_mask);
++	ret = ib_modify_qp(priv->qp, qp_attr, IB_QP_QKEY);
+ 	if (ret) {
+ 		ipoib_warn(priv, "failed to modify QP, ret = %d\n", ret);
+ 		goto out;
 ---
 0.99.9

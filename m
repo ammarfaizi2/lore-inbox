@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbVJaVTg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932521AbVJaVWb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751302AbVJaVTg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 16:19:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbVJaVTg
+	id S932521AbVJaVWb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 16:22:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbVJaVWb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 16:19:36 -0500
-Received: from waste.org ([216.27.176.166]:32203 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1751296AbVJaVTe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 16:19:34 -0500
-Date: Mon, 31 Oct 2005 13:14:22 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 13/20] inflate: (arch) kill silly zlib typedefs
-Message-ID: <20051031211422.GC4367@waste.org>
-References: <14.196662837@selenic.com> <Pine.LNX.4.62.0510312204400.26471@numbat.sonytel.be>
+	Mon, 31 Oct 2005 16:22:31 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:26534 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932521AbVJaVWa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 16:22:30 -0500
+Subject: Re: BUG?: request_irq can apparently sleep
+From: Arjan van de Ven <arjan@infradead.org>
+To: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051031104110.18938.qmail@thales.mathematik.uni-ulm.de>
+References: <20051031104110.18938.qmail@thales.mathematik.uni-ulm.de>
+Content-Type: text/plain
+Date: Mon, 31 Oct 2005 22:22:23 +0100
+Message-Id: <1130793744.2798.8.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0510312204400.26471@numbat.sonytel.be>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 31, 2005 at 10:05:15PM +0100, Geert Uytterhoeven wrote:
-> On Mon, 31 Oct 2005, Matt Mackall wrote:
-> > inflate: remove legacy type definitions from callers
-> > 
-> > This replaces the legacy zlib typedefs and usage with kernel types in
-> > all the inflate users.
+On Mon, 2005-10-31 at 11:41 +0100, Christian Ehrhardt wrote:
+> Hi,
 > 
-> > -static ulg free_mem_ptr;
-> > -static ulg free_mem_ptr_end;
-> > +static u32 free_mem_ptr;
-> > +static u32 free_mem_ptr_end;
-> 
-> Bang, on 64-bit platforms...
+> the basic question is: Is request_irq allowed to sleep?
 
-That was quick.
+yes it sleeps.
 
-Yes, this is broken on Alpha. The other 64-bit arches use proper pointers
-here. But I need to change all the arches to use the same pointer
-type, probably as patch 8.5 in the series.
+problem is some (IDE) code calls it really early during boot in a place
+you can't sleep, and during that early boot it also usually won't sleep.
+Just that if we make request_irq() a might_sleep() then everyone gets
+spew in their dmesg... and lots of bugreports
 
--- 
-Mathematics is the supreme nostalgia of our time.
+
+

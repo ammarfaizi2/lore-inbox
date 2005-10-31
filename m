@@ -1,58 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932328AbVJaHig@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbVJaHj1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932328AbVJaHig (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 02:38:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932334AbVJaHig
+	id S932330AbVJaHj1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 02:39:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbVJaHj0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 02:38:36 -0500
-Received: from mx1.suse.de ([195.135.220.2]:8116 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932328AbVJaHig (ORCPT
+	Mon, 31 Oct 2005 02:39:26 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:37894 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932330AbVJaHj0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 02:38:36 -0500
-Date: Mon, 31 Oct 2005 08:38:34 +0100
-From: Olaf Hering <olh@suse.de>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: paulus@samba.org, akpm@osdl.org, linuxppc64-dev@ozlabs.org,
+	Mon, 31 Oct 2005 02:39:26 -0500
+Date: Mon, 31 Oct 2005 08:40:23 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Arnaldo Carvalho de Melo <acme@mandriva.com>, Tejun Heo <htejun@gmail.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ppc64: add MODALIAS= for vio bus
-Message-ID: <20051031073834.GA4868@suse.de>
-References: <20051030213900.GA22510@suse.de> <20051031134814.42940751.sfr@canb.auug.org.au>
+Subject: Re: [PATCH][noop-iosched] don't reuse a freed request
+Message-ID: <20051031074022.GN19267@suse.de>
+References: <20051031023024.GC5632@mandriva.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051031134814.42940751.sfr@canb.auug.org.au>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+In-Reply-To: <20051031023024.GC5632@mandriva.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Mon, Oct 31, Stephen Rothwell wrote:
-
-> Hi Olaf,
+On Mon, Oct 31 2005, Arnaldo Carvalho de Melo wrote:
+> Hi,
 > 
-> This patch breaks lagacy iSeries i.e. it won't link (iSeries has no get_property()).
-> It may be easier to redo this patch against Paulus' merge tree.
-
-Can you fix it up, why is there no get_property for iseries, yet?
-iseries_veth should be autoloaded in a similar way.
-Maybe it should just go into a CONFIG_PSERIES or whatever.
-
-> A couple of trivial comments:
+> 	I'm getting the oops below when trying to use qemu with a kernel
+> built with just the noop iosched, I'm never had looked at this code before,
+> so I did a quick hack that seems enough for my case.
 > 
-> On Sun, 30 Oct 2005 22:39:00 +0100 Olaf Hering <olh@suse.de> wrote:
-> >
-> > +static int pseries_vio_hotplug (struct device *dev, char **envp, int num_envp,
->                                  ^
-> No space here, please.
+> 	Ah, this is with a fairly recent git tree (today), haven't checked
+> if it is present in 2.6.14.
 > 
-> > +	length = scnprintf (buffer, buffer_size, "MODALIAS=vio:T%sS%s",
->                           ^
-> No space here either, please.
+> Best Regards,
+> 
+> - Arnaldo
+> 
+> Unable to handle kernel paging request at virtual address c5f20f60
+>  printing eip:
+> c01b0ecd
+> *pde = 00017067
+> *pte = 05f20000
+> Oops: 0000 [#1]
+> DEBUG_PAGEALLOC
+> Modules linked in:
+> CPU:    0
+> EIP:    0060:[<c01b0ecd>]    Not tainted VLI
+> EFLAGS: 00000046   (2.6.14acme)
+> EIP is at elv_rq_merge_ok+0x15/0x7b
+> eax: 00000014   ebx: c5f20f58   ecx: 000003f8   edx: 00000046
+> esi: c12a5a90   edi: c5f20f58   ebp: c11658d0   esp: c11658c4
+> ds: 007b   es: 007b   ss: 0068
+> Process swapper (pid: 1, threadinfo=c1165000 task=c1164af0)
+> Stack: c0251883 c5ecfe4c c5d688c0 c1165904 c01b0f48 c5f20f58 c12a5a90 00000000
+>        c5874000 c018c5e1 c5f15f24 0000002b 00000000 c5ecfe4c c5d688c0 c12a5a90
+>        c1165920 c01b128d c5f20f58 c12a5a90 000a568a 00000000 00000002 c1165960
+> Call Trace:
+>  [<c0102a63>] show_stack+0x78/0x83
+>  [<c0102b88>] show_registers+0x100/0x167
+>  [<c0102d35>] die+0xcb/0x140
+>  [<c0234308>] do_page_fault+0x393/0x53a
+>  [<c0102777>] error_code+0x4f/0x54
+>  [<c01b0f48>] elv_try_merge+0x15/0x84
+>  [<c01b128d>] elv_merge+0x1d/0x4f
+>  [<c01b41d9>] __make_request+0xb2/0x425
+>  [<c01b46f9>] generic_make_request+0x125/0x137
 
-I copied it from macio_asic.c.
+Hrmpf, this looks really bad. Tejun, clearly there are still paths where
+->last_rq isn't being cleared.
 
+> --- a/drivers/block/ll_rw_blk.c
+> +++ b/drivers/block/ll_rw_blk.c
+> @@ -1787,6 +1787,9 @@ static inline void blk_free_request(requ
+>  	if (rq->flags & REQ_ELVPRIV)
+>  		elv_put_request(q, rq);
+>  	mempool_free(rq, q->rq.rq_pool);
+> +
+> +	if (rq == q->last_merge)
+> +		q->last_merge = NULL;
+>  }
+>  
+>  static inline struct request *
+
+It's most likely a bug getting this far in the first place, but does it
+fix things for you? I'll get on this asap.
 
 -- 
-short story of a lazy sysadmin:
- alias appserv=wotan
+Jens Axboe
+

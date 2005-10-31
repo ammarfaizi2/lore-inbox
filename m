@@ -1,108 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751358AbVJaGza@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751065AbVJaGzV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751358AbVJaGza (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 01:55:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751297AbVJaGza
+	id S1751065AbVJaGzV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 01:55:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbVJaGzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 01:55:30 -0500
-Received: from ozlabs.org ([203.10.76.45]:39096 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751358AbVJaGz3 (ORCPT
+	Mon, 31 Oct 2005 01:55:21 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:35528 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751065AbVJaGzU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 01:55:29 -0500
-Date: Mon, 31 Oct 2005 17:55:21 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Roman Zippel <zippel@linux-m68k.org>, kbuild-devel@lists.sourceforge.net,
-       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix Kconfig performance bug
-Message-ID: <20051031065521.GE6622@localhost.localdomain>
-Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
-	kbuild-devel@lists.sourceforge.net, linuxppc64-dev@ozlabs.org,
-	linux-kernel@vger.kernel.org
-References: <20051020032342.GA11273@localhost.localdomain> <Pine.LNX.4.61.0510210132210.1386@scrub.home> <20051021014955.GA12976@localhost.localdomain>
+	Mon, 31 Oct 2005 01:55:20 -0500
+Date: Sun, 30 Oct 2005 23:54:40 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: kravetz@us.ibm.com, mel@csn.ul.ie, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+Message-Id: <20051030235440.6938a0e9.akpm@osdl.org>
+In-Reply-To: <4365BBC4.2090906@yahoo.com.au>
+References: <20051030183354.22266.42795.sendpatchset@skynet.csn.ul.ie>
+	<20051031055725.GA3820@w-mikek2.ibm.com>
+	<4365BBC4.2090906@yahoo.com.au>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051021014955.GA12976@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 21, 2005 at 11:49:55AM +1000, David Gibson wrote:
-> On Fri, Oct 21, 2005 at 02:46:30AM +0200, Roman Zippel wrote:
-> > Hi,
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>
+> Mike Kravetz wrote:
+> > On Sun, Oct 30, 2005 at 06:33:55PM +0000, Mel Gorman wrote:
 > > 
-> > On Thu, 20 Oct 2005, David Gibson wrote:
+> >>Here are a few brief reasons why this set of patches is useful;
+> >>
+> >>o Reduced fragmentation improves the chance a large order allocation succeeds
+> >>o General-purpose memory hotplug needs the page/memory groupings provided
+> >>o Reduces the number of badly-placed pages that page migration mechanism must
+> >>  deal with. This also applies to any active page defragmentation mechanism.
 > > 
-> > > When doing its recursive dependency check, scripts/kconfig/conf uses
-> > > the flag SYMBOL_CHECK_DONE to avoid rechecking a symbol it has already
-> > > checked.  However, that flag is only set at the top level, so if a
-> > > symbol is first encountered as a dependency of another symbol it will
-> > > be rechecked every time it is encountered until it's encountered at
-> > > the top level.
 > > 
-> > You're correct, the check does too much.
+> > I can say that this patch set makes hotplug memory remove be of
+> > value on ppc64.  My system has 6GB of memory and I would 'load
+> > it up' to the point where it would just start to swap and let it
+> > run for an hour.  Without these patches, it was almost impossible
+> > to find a section that could be offlined.  With the patches, I
+> > can consistently reduce memory to somewhere between 512MB and 1GB.
+> > Of course, results will vary based on workload.  Also, this is
+> > most advantageous for memory hotlug on ppc64 due to relatively
+> > small section size (16MB) as compared to the page grouping size
+> > (8MB).  A more general purpose solution is needed for memory hotplug
+> > support on architectures with larger section sizes.
 > > 
-> > > Index: working-2.6/scripts/kconfig/symbol.c
-> > > ===================================================================
-> > > --- working-2.6.orig/scripts/kconfig/symbol.c	2005-10-20 12:40:45.000000000 +1000
-> > > +++ working-2.6/scripts/kconfig/symbol.c	2005-10-20 12:41:43.000000000 +1000
-> > > @@ -758,6 +758,8 @@
-> > >  out:
-> > >  	if (sym2)
-> > >  		printf(" %s", sym->name);
-> > > +	else
-> > > +		sym->flags |= SYMBOL_CHECK_DONE;
-> > >  	sym->flags &= ~SYMBOL_CHECK;
-> > >  	return sym2;
-> > >  }
-> > 
-> > Actually this way it becomes redundant with SYMBOL_CHECKED, could you 
-> > merge these two flags? The above check would be also probably better:
+> > Just another data point,
 > 
-> Ok, done.  There is now only SYMBOL_CHECKED (seemed a clearer name to
-> me), but it's semantics are like those of SYMBOL_CHECK_DONE were.
-> 
-> > 	if (sym2) {
-> > 		printf(" %s", sym->name);
-> > 		if (sym2 == sym) {
-> > 			printf("\n");
-> > 			sym2 = NULL;
-> > 		}
-> > 	}
-> > 
-> > So that this check will stop when it hits the start symbol and continue 
-> > looking for more dependency problems, which is I think I intended with the 
-> > original code.
-> 
-> Erm.. ok.  I don't entirely understand the intent of this is, but
-> applied anyway.
-> 
-> > > Index: working-2.6/scripts/kconfig/zconf.y
-> > > ===================================================================
-> > > --- working-2.6.orig/scripts/kconfig/zconf.y	2005-10-20 12:40:45.000000000 +1000
-> > > +++ working-2.6/scripts/kconfig/zconf.y	2005-10-20 12:41:43.000000000 +1000
-> > > @@ -495,10 +495,9 @@
-> > >  		exit(1);
-> > >  	menu_finalize(&rootmenu);
-> > >  	for_all_symbols(i, sym) {
-> > > +/* 		fprintf(stderr, "Checking %s...\n", sym->name); */
-> > 
-> > One "quilt refresh" missing? :-)
-> 
-> Oops.  Something like that.
-> 
-> Oh.. one caveat, the diffs I have here to zconf.tab.c_shipped are
-> direct edits to match zconf.y - I didn't regenerate the file with
-> bison.  I've done that to getting a whole lot of irrelevant changes in
-> the patch because I'm using a different version of bison to that used
-> for the existing zconf.tab.[ch]_shipped
-> 
-> Anyway, revised version below:
+> Despite what people were trying to tell me at Ottawa, this patch
+> set really does add quite a lot of complexity to the page
+> allocator, and it seems to be increasingly only of benefit to
+> dynamically allocating hugepages and memory hot unplug.
 
-Now that 2.6.14 is out, do you intend to pass this patch on to Linus?
+Remember that Rohit is seeing ~10% variation between runs of scientific
+software, and that his patch to use higher-order pages to preload the
+percpu-pages magazines fixed that up.  I assume this means that it provided
+up to 10% speedup, which is a lot.
 
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/people/dgibson
+But the patch caused page allocator fragmentation and several reports of
+gigE Tx buffer allocation failures, so I dropped it.
+
+We think that Mel's patches will allow us to reintroduce Rohit's
+optimisation.
+
+> If that is the case, do we really want to make such sacrifices
+> for the huge machines that want these things? What about just
+> making an extra zone for easy-to-reclaim things to live in?
+> 
+> This could possibly even be resized at runtime according to
+> demand with the memory hotplug stuff (though I haven't been
+> following that).
+> 
+> Don't take this as criticism of the actual implementation or its
+> effectiveness.
+> 
+
+But yes, adding additional complexity is a black mark, and these patches
+add quite a bit.  (Ditto the fine-looking adaptive readahead patches, btw).

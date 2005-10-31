@@ -1,88 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbVJaWem@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932480AbVJaWes@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964803AbVJaWem (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 17:34:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbVJaWem
+	id S932480AbVJaWes (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 17:34:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbVJaWes
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 17:34:42 -0500
-Received: from xproxy.gmail.com ([66.249.82.197]:61091 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932166AbVJaWel convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 17:34:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QMO1ECV6/MGHQK0ewuAHgoNLmnnshygoPZYiax3T48gvV0i2juxDpQk5VDkJRcJa19DHwZ0tuU5m6SCM4NEwTF1ZBW5WMZnguDZU7cuD9eQnEPbCE7gvxXJmmIi9+daTlaLYeAdhbvaYHac20o+xHZv0rhBhVP3Mwkbg91c8rLQ=
-Message-ID: <9a8748490510311434m1803851bpad0225feff037e6b@mail.gmail.com>
-Date: Mon, 31 Oct 2005 23:34:39 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [PATCH 2/9] mm: arm ready for split ptlock
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, Nicolas Pitre <nico@cam.org>,
-       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20051031222731.GE20452@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.61.0510221716380.18047@goblin.wat.veritas.com>
-	 <Pine.LNX.4.61.0510221719370.18047@goblin.wat.veritas.com>
-	 <20051022170240.GA10631@flint.arm.linux.org.uk>
-	 <Pine.LNX.4.64.0510241922040.5288@localhost.localdomain>
-	 <20051025075555.GA25020@flint.arm.linux.org.uk>
-	 <Pine.LNX.4.64.0510251056380.5288@localhost.localdomain>
-	 <20051026002016.GB25420@flint.arm.linux.org.uk>
-	 <9a8748490510311419o7c4cc615qa7123d7aa124e3df@mail.gmail.com>
-	 <20051031222731.GE20452@flint.arm.linux.org.uk>
+	Mon, 31 Oct 2005 17:34:48 -0500
+Received: from ams-iport-1.cisco.com ([144.254.224.140]:59658 "EHLO
+	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S932166AbVJaWer (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 17:34:47 -0500
+Subject: [git patch review 1/5] [IB] mthca: report asynchronous CQ events
+From: Roland Dreier <rolandd@cisco.com>
+Date: Mon, 31 Oct 2005 22:34:42 +0000
+To: linux-kernel@vger.kernel.org, openib-general@openib.org
+X-Mailer: IB-patch-reviewer
+Content-Transfer-Encoding: 8bit
+Message-ID: <1130798082548-646b24d6f405c5f5@cisco.com>
+X-OriginalArrivalTime: 31 Oct 2005 22:34:43.0729 (UTC) FILETIME=[4A2D8010:01C5DE6B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/31/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> On Mon, Oct 31, 2005 at 11:19:21PM +0100, Jesper Juhl wrote:
-> > On 10/26/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> > > No.  If we're emulating a cmpxchg() on a clean BSS page, this code
-> > > as it stands today will write to the zero page making it a page which
-> > > is mostly zero.  Bad news when it's mapped into other processes BSS
-> > > pages.
-> > >
-> > > Changing this for pte_dirty() means that we'll refuse to do a cmpxchg()
-> > > on a clean BSS page.  The data may compare correctly, but because it
-> > > isn't already dirty, you'll fail.
-> > >
-> > > If we still had it, I'd say you need to use verify_area() to tell the
-> > > kernel to pre-COW the pages.  However, that got removed a while back.
-> > >
-> >
-> > Yes, I removed verify_area() since it was just a wrapper for access_ok().
-> > If verify_area() was/is needed, then access_ok() should be just fine
-> > as a replacement as far as I can see.
->
-> Except verify_area() would pre-fault the pages in whereas access_ok()
-> just verifies that the address is a user page.  That's quite important
-> in this case because in order to fault the page in, we need to use
-> put_user() to get the permission checking correct.
->
-> However, we can't use put_user() because then the cmpxchg emulation
-> becomes completely non-atomic.
->
-Colour me stupid, but I don't see how that can be.
+Implement reporting asynchronous CQ events in Mellanox HCA driver.
 
-Looking at verify_area() from 2.6.13 - the arm version (
-http://sosdg.org/~coywolf/lxr/source/include/asm-arm/uaccess.h?v=2.6.13#L81
-) :
+Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
+Signed-off-by: Roland Dreier <rolandd@cisco.com>
 
-static inline int __deprecated verify_area(int type, const void __user
-*addr, unsigned long size)
-{
-        return access_ok(type, addr, size) ? 0 : -EFAULT;
-}
+---
 
-How will this cause pre-faulting if a call to access_ok() will not?
-Please enlighten me.
+ drivers/infiniband/hw/mthca/mthca_cq.c  |   31 ++++++++++++++++++++++++++++++-
+ drivers/infiniband/hw/mthca/mthca_dev.h |    4 +++-
+ drivers/infiniband/hw/mthca/mthca_eq.c  |    4 +++-
+ 3 files changed, 36 insertions(+), 3 deletions(-)
 
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+applies-to: d918cd1ba0ef9afa692cef281afee2f6d6634a1e
+affcd50546d4788b7849e2b2e2ec7bc50d64c5f8
+diff --git a/drivers/infiniband/hw/mthca/mthca_cq.c b/drivers/infiniband/hw/mthca/mthca_cq.c
+index 8600b6c..f98e235 100644
+--- a/drivers/infiniband/hw/mthca/mthca_cq.c
++++ b/drivers/infiniband/hw/mthca/mthca_cq.c
+@@ -208,7 +208,7 @@ static inline void update_cons_index(str
+ 	}
+ }
+ 
+-void mthca_cq_event(struct mthca_dev *dev, u32 cqn)
++void mthca_cq_completion(struct mthca_dev *dev, u32 cqn)
+ {
+ 	struct mthca_cq *cq;
+ 
+@@ -224,6 +224,35 @@ void mthca_cq_event(struct mthca_dev *de
+ 	cq->ibcq.comp_handler(&cq->ibcq, cq->ibcq.cq_context);
+ }
+ 
++void mthca_cq_event(struct mthca_dev *dev, u32 cqn,
++		    enum ib_event_type event_type)
++{
++	struct mthca_cq *cq;
++	struct ib_event event;
++
++	spin_lock(&dev->cq_table.lock);
++
++	cq = mthca_array_get(&dev->cq_table.cq, cqn & (dev->limits.num_cqs - 1));
++
++	if (cq)
++		atomic_inc(&cq->refcount);
++	spin_unlock(&dev->cq_table.lock);
++
++	if (!cq) {
++		mthca_warn(dev, "Async event for bogus CQ %08x\n", cqn);
++		return;
++	}
++
++	event.device      = &dev->ib_dev;
++	event.event       = event_type;
++	event.element.cq  = &cq->ibcq;
++	if (cq->ibcq.event_handler)
++		cq->ibcq.event_handler(&event, cq->ibcq.cq_context);
++
++	if (atomic_dec_and_test(&cq->refcount))
++		wake_up(&cq->wait);
++}
++
+ void mthca_cq_clean(struct mthca_dev *dev, u32 cqn, u32 qpn,
+ 		    struct mthca_srq *srq)
+ {
+diff --git a/drivers/infiniband/hw/mthca/mthca_dev.h b/drivers/infiniband/hw/mthca/mthca_dev.h
+index 7e68bd4..e7e5d3b 100644
+--- a/drivers/infiniband/hw/mthca/mthca_dev.h
++++ b/drivers/infiniband/hw/mthca/mthca_dev.h
+@@ -460,7 +460,9 @@ int mthca_init_cq(struct mthca_dev *dev,
+ 		  struct mthca_cq *cq);
+ void mthca_free_cq(struct mthca_dev *dev,
+ 		   struct mthca_cq *cq);
+-void mthca_cq_event(struct mthca_dev *dev, u32 cqn);
++void mthca_cq_completion(struct mthca_dev *dev, u32 cqn);
++void mthca_cq_event(struct mthca_dev *dev, u32 cqn,
++		    enum ib_event_type event_type);
+ void mthca_cq_clean(struct mthca_dev *dev, u32 cqn, u32 qpn,
+ 		    struct mthca_srq *srq);
+ 
+diff --git a/drivers/infiniband/hw/mthca/mthca_eq.c b/drivers/infiniband/hw/mthca/mthca_eq.c
+index e5a047a..34d68e5 100644
+--- a/drivers/infiniband/hw/mthca/mthca_eq.c
++++ b/drivers/infiniband/hw/mthca/mthca_eq.c
+@@ -292,7 +292,7 @@ static int mthca_eq_int(struct mthca_dev
+ 		case MTHCA_EVENT_TYPE_COMP:
+ 			disarm_cqn = be32_to_cpu(eqe->event.comp.cqn) & 0xffffff;
+ 			disarm_cq(dev, eq->eqn, disarm_cqn);
+-			mthca_cq_event(dev, disarm_cqn);
++			mthca_cq_completion(dev, disarm_cqn);
+ 			break;
+ 
+ 		case MTHCA_EVENT_TYPE_PATH_MIG:
+@@ -364,6 +364,8 @@ static int mthca_eq_int(struct mthca_dev
+ 				   eqe->event.cq_err.syndrome == 1 ?
+ 				   "overrun" : "access violation",
+ 				   be32_to_cpu(eqe->event.cq_err.cqn) & 0xffffff);
++			mthca_cq_event(dev, be32_to_cpu(eqe->event.cq_err.cqn),
++				       IB_EVENT_CQ_ERR);
+ 			break;
+ 
+ 		case MTHCA_EVENT_TYPE_EQ_OVERFLOW:
+---
+0.99.9

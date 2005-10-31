@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbVJaF5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbVJaF5i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932281AbVJaF5E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 00:57:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbVJaF5E
+	id S932307AbVJaF5i (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 00:57:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932319AbVJaF5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 00:57:04 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:4494 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932281AbVJaF5A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 00:57:00 -0500
-Date: Mon, 31 Oct 2005 00:56:48 -0500
-From: Dave Jones <davej@redhat.com>
-To: Grant Coady <gcoady@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pci_ids: remove non-referenced symbols from pci_ids.h
-Message-ID: <20051031055648.GA4795@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Grant Coady <gcoady@gmail.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200510290000.j9T00Bqd001135@hera.kernel.org> <20051031024217.GA25709@redhat.com> <436591A5.20609@gmail.com> <20051031041313.GA1939@redhat.com> <4365AAEE.9000409@gmail.com>
+	Mon, 31 Oct 2005 00:57:38 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:55430 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932317AbVJaF5h
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 00:57:37 -0500
+Date: Sun, 30 Oct 2005 21:57:25 -0800
+From: Mike Kravetz <kravetz@us.ibm.com>
+To: Mel Gorman <mel@csn.ul.ie>
+Cc: akpm@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       lhms-devel@lists.sourceforge.net
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+Message-ID: <20051031055725.GA3820@w-mikek2.ibm.com>
+References: <20051030183354.22266.42795.sendpatchset@skynet.csn.ul.ie>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4365AAEE.9000409@gmail.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20051030183354.22266.42795.sendpatchset@skynet.csn.ul.ie>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 31, 2005 at 04:26:06PM +1100, Grant Coady wrote:
- > Dave Jones wrote:
- > > At least 2 distros are carrying patches removing the BROKEN attribute
- > > on the advansys Kconfig for some architectures. The users of those kernels
- > > using their advansys controllers without any issue at all.
- > 
- > So why are your driver patches not in mainline then?
+On Sun, Oct 30, 2005 at 06:33:55PM +0000, Mel Gorman wrote:
+> Here are a few brief reasons why this set of patches is useful;
+> 
+> o Reduced fragmentation improves the chance a large order allocation succeeds
+> o General-purpose memory hotplug needs the page/memory groupings provided
+> o Reduces the number of badly-placed pages that page migration mechanism must
+>   deal with. This also applies to any active page defragmentation mechanism.
 
-Because it serves as a reminder that it needs fixing.
+I can say that this patch set makes hotplug memory remove be of
+value on ppc64.  My system has 6GB of memory and I would 'load
+it up' to the point where it would just start to swap and let it
+run for an hour.  Without these patches, it was almost impossible
+to find a section that could be offlined.  With the patches, I
+can consistently reduce memory to somewhere between 512MB and 1GB.
+Of course, results will vary based on workload.  Also, this is
+most advantageous for memory hotlug on ppc64 due to relatively
+small section size (16MB) as compared to the page grouping size
+(8MB).  A more general purpose solution is needed for memory hotplug
+support on architectures with larger section sizes.
 
-		Dave
-
+Just another data point,
+-- 
+Mike

@@ -1,70 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbVJaOmj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbVJaOm0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932315AbVJaOmj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 09:42:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbVJaOmj
+	id S932302AbVJaOm0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 09:42:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbVJaOm0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 09:42:39 -0500
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:58598 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S932315AbVJaOmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 09:42:38 -0500
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Mon, 31 Oct 2005 14:42:33 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
-Subject: [PATCH 17/17] NTFS: Document extended attribute ($EA) NEED_EA flag.
-In-Reply-To: <Pine.LNX.4.64.0510311408160.27357@hermes-1.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.64.0510311441460.27357@hermes-1.csi.cam.ac.uk>
-References: <Pine.LNX.4.64.0510311408160.27357@hermes-1.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 31 Oct 2005 09:42:26 -0500
+Received: from styx.suse.cz ([82.119.242.94]:59786 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S932302AbVJaOmZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 09:42:25 -0500
+Date: Mon, 31 Oct 2005 15:42:23 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFT/PATCH] atkbd - speed up setting leds/repeat state
+Message-ID: <20051031144223.GB18711@ucw.cz>
+References: <200510310224.03010.dtor_core@ameritech.net> <20051031124746.GC18147@ucw.cz> <200510310905.32269.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200510310905.32269.dtor_core@ameritech.net>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NTFS: Document extended attribute ($EA) NEED_EA flag.  (Based on libntfs
-      patch by Yura Pakhuchiy.)
+On Mon, Oct 31, 2005 at 09:05:31AM -0500, Dmitry Torokhov wrote:
+> On Monday 31 October 2005 07:47, Vojtech Pavlik wrote:
+> > On Mon, Oct 31, 2005 at 02:24:02AM -0500, Dmitry Torokhov wrote:
+> > > Input: atkbd - speed up setting leds/repeat state
+> > > 
+> > > Changing led state is pretty slow operation; when there are multiple
+> > > requests coming at a high rate they may interfere with normal typing.
+> > > Try optimize (skip) changing hardware state when multiple requests
+> > > are coming back-to-back.
+> > > 
+> > > Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> >  
+> > It looks good - just two comments:
+> > 
+> > 	1) wmb() shouldn't be needed after set_bit()
+> >
+> 
+> Judging by the comments in bitops only i386 implementation of set_bit
+> implies memory barrier, other arches do not guarantee it. That's why
+> I added wmb() there.
 
-Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
+Hmm, OK. I always forget that atomicity doesn't imply a memory barrier.
 
----
+> > 	2) maybe we want to enforce the delay before we send the 
+> >            next SET_LED command.
 
- fs/ntfs/ChangeLog |    2 ++
- fs/ntfs/layout.h  |    4 +++-
- 2 files changed, 5 insertions(+), 1 deletions(-)
+> Well, with this patch "while true; do xset led 3; xset led -3; done"
+> does not interfere with typing on my box and system load is staying
+> low which means we don't have too many outstanding requests.
 
-applies-to: 27468ef642b1d6e7a8b3c7f7f9a842e5ad92456e
-c9c2009a4e915db17f32701d1f0535b400e61b58
-diff --git a/fs/ntfs/ChangeLog b/fs/ntfs/ChangeLog
-index dea7424..50a7749 100644
---- a/fs/ntfs/ChangeLog
-+++ b/fs/ntfs/ChangeLog
-@@ -78,6 +78,8 @@ ToDo/Notes:
- 	- $EA attributes can be both resident and non-resident.
- 	- Use %z for size_t to fix compilation warnings.  (Andrew Morton)
- 	- Fix compilation warnings with gcc-4.0.2 on SUSE 10.0.
-+	- Document extended attribute ($EA) NEED_EA flag.  (Based on libntfs
-+	  patch by Yura Pakhuchiy.)
- 
- 2.1.24 - Lots of bug fixes and support more clean journal states.
- 
-diff --git a/fs/ntfs/layout.h b/fs/ntfs/layout.h
-index 71b25da..f5678d5 100644
---- a/fs/ntfs/layout.h
-+++ b/fs/ntfs/layout.h
-@@ -2374,7 +2374,9 @@ typedef struct {
-  * Extended attribute flags (8-bit).
-  */
- enum {
--	NEED_EA	= 0x80
-+	NEED_EA	= 0x80		/* If set the file to which the EA belongs
-+				   cannot be interpreted without understanding
-+				   the associates extended attributes. */
- } __attribute__ ((__packed__));
- 
- typedef u8 EA_FLAGS;
----
-0.99.9
+OK. I'll give it a spin if I find the time to.
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

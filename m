@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964775AbVJaPaz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbVJaPen@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964775AbVJaPaz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 10:30:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbVJaPaz
+	id S932161AbVJaPen (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 10:34:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbVJaPen
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 10:30:55 -0500
-Received: from nproxy.gmail.com ([64.233.182.196]:53602 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932161AbVJaPay (ORCPT
+	Mon, 31 Oct 2005 10:34:43 -0500
+Received: from amdext4.amd.com ([163.181.251.6]:52441 "EHLO amdext4.amd.com")
+	by vger.kernel.org with ESMTP id S932161AbVJaPem (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 10:30:54 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:subject:x-enigmail-version:content-type:content-transfer-encoding;
-        b=Qq13Be7TDwRNGbHpCwIHY8gw9HE45nulrS1tim3OU74A1DQbcfK2NK3MCajfo0q+U4HHvuiMmFJZaJLQPL79cRXvhEg0BUYFS1eaUIIXExvGal6RRhCZjzOCpke23jLsICR2J0hM+rc3aoK7ajZqdMEu7sKg7Lh9gNOkGgVSEPc=
-Message-ID: <436638A8.3000604@gmail.com>
-Date: Mon, 31 Oct 2005 16:30:48 +0100
-From: Patrizio Bassi <patrizio.bassi@gmail.com>
-Reply-To: patrizio.bassi@gmail.com
-Organization: patrizio.bassi@gmail.com
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051027)
-X-Accept-Language: it, it-it, en-us, en
+	Mon, 31 Oct 2005 10:34:42 -0500
+X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
+Date: Mon, 31 Oct 2005 08:37:15 -0700
+From: "Jordan Crouse" <jordan.crouse@amd.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org, info-linux@ldcmail.amd.com
+Subject: Re: AMD Geode GX/LX Support (Refreshed)
+Message-ID: <20051031153715.GE20777@cosmic.amd.com>
+References: <LYRIS-4270-74122-2005.10.28-09.38.17--jordan.crouse#amd.com@whitestar.amd.com>
+ <20051028154430.GB19854@cosmic.amd.com>
+ <1130711970.32734.13.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: "Kernel, " <linux-kernel@vger.kernel.org>
-Subject: [BUG 2579] linux 2.6.* sound problems
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-15
+In-Reply-To: <1130711970.32734.13.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
+X-WSS-ID: 6F78E60935K3817125-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-starting from 2.6.0 (2 years ago) i have the following bug.
+> Does this mean you've now done actual performance analysis on whether
+> this is a good idea for Geode GX/LX ?
 
-link: http://bugzilla.kernel.org/show_bug.cgi?id=2579
-and https://bugtrack.alsa-project.org/alsa-bug/view.php?id=230
 
-fast summary:
-when playing audio and using a bit the harddisk (i.e. md5sum of a 200mb
-file)
-i hear noises, related to disk activity. more hd is used, more chicks
-and ZZZZ noises happen.
+I'm fairly sure that the ppro checksum is faster, but you're exactly right,
+we should publish some numbers.  Mia culpa.
 
-linux 2.4.x and windows has no problems, perfect.
-tried module/standalone alsa drivers.
+Jordan
 
-Please fix that...2 years' bug!
-Ready to test any patch/solution.
+-- 
+Jordan Crouse
+Senior Linux Engineer
+AMD - Personal Connectivity Solutions Group
+<www.amd.com/embeddedprocessors>
 

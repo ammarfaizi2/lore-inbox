@@ -1,55 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932420AbVJaAdr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbVJaAfU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932420AbVJaAdr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 19:33:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbVJaAdr
+	id S932424AbVJaAfU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 19:35:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbVJaAfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 19:33:47 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:22802 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932420AbVJaAdq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 19:33:46 -0500
-Date: Mon, 31 Oct 2005 01:33:45 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: jgarzik@pobox.com
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/net/hamradio/dmascc.c: remove dmascc_setup()
-Message-ID: <20051031003345.GB8009@stusta.de>
+	Sun, 30 Oct 2005 19:35:19 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:53683 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S932424AbVJaAfS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 19:35:18 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH 2/3] swsusp: move snapshot-handling functions to snapshot.c
+Date: Mon, 31 Oct 2005 01:35:41 +0100
+User-Agent: KMail/1.8.2
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+References: <200510301637.48842.rjw@sisk.pl> <200510302337.41526.rjw@sisk.pl> <20051030230407.GA1655@elf.ucw.cz>
+In-Reply-To: <20051030230407.GA1655@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Message-Id: <200510310135.42190.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems dmascc_setup() is a leftover time before dmascc_init() was 
-there.
+Hi,
 
+On Monday, 31 of October 2005 00:04, Pavel Machek wrote:
+> Hi!
+> 
+> > > > Please note that the relocating code uses the page flags to mark the allocated
+> > > > pages as well as to avoid the pages that should not be used.  In my opinion
+> > > > no userspace process should be allowed to fiddle with the page
+> > > > flags.
+> > > 
+> > > Of course, userspace would have to use separate data structure. [Hash table?]
+> > 
+> > IMO a bitmap could be used.  Anyway in that case the x86-64 arch code
+> > would need to have access either to this structure or to the image metadata,
+> > because it must figure out which pages are not safe.  I don't see any simple
+> > way of making this work ...
+> 
+> Can you elaborate? resume is certainly going to get list of pbes...
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+OK
+On x86-64 we have to allocate a few safe pages to put the temporary page
+tables on them.  In principle I can imagine the following code for this:
 
----
+do {
+	get a page;
+	walk the list of pbes to verify that the page is safe;
+	if (the page is not safe)
+		keep track of it;
+} while (the page is not safe)
 
- drivers/net/hamradio/dmascc.c |   10 ----------
- 1 file changed, 10 deletions(-)
+but I'd rather not like to propose Andi to merge it. ;-)  Currently the x86-64 arch
+code uses the same method of marking non-safe pages that is used by
+the rest of swsusp for efficiency and I think it should stay this way.
 
---- linux-2.6.14-rc5-mm1-full/drivers/net/hamradio/dmascc.c.old	2005-10-31 01:21:39.000000000 +0100
-+++ linux-2.6.14-rc5-mm1-full/drivers/net/hamradio/dmascc.c	2005-10-31 01:21:49.000000000 +0100
-@@ -311,16 +311,6 @@
- 	}
- }
+}-- snip --{
+> > 
+> > Well, you have taken these things out of context.  Namely, the userspace
+> > process cannot freeze the other tasks, suspend devices etc., so it
+> > has to
+> 
+> Yes, process freezing probably needs to be separate. Suspending
+> devices can well be part of atomic_snapshot operation; userspace does
+> not need to care.
+> 
+> > call the kernel for these purposes anyway.  Of course if something goes
+> > wrong it has to call the kernel to revert these steps too.  Similarly it
+> > can call the kernel to allocate the image memory and to free it in case
+> > something's wrong.  For example, if the userspace initiates the resume:
+> > 
+> > - if (image not found)
+> > 	exit
+> > - sys_freeze_processes /* this one will be tricky ;-) */
+> 
+> Why, I have it implemented? Just do not freeze the process calling you.
+
+"tricky" != "impossible" ;-)
+
+> > - sys_create_pagedir
+> 
+> Ugly...
+
+Oh, it can be done on-the-fly in
+sys_put_this_stuff_where_appropriate(image data) (at the expense of one
+redundant check per call).
+
+> > - while (image data) {
+> > 	sys_put_this_stuff_where_appropriate(image data);
+> > 	/* Here the kernel will do the relocation etc. if necessary */
+> > 	if (something's wrong)
+> > 		goto Cleanup; }
+> > - sys_atomic_restore /* suspend devices, disable IRQs, restore */
+> 
+> Exactly. I'd like to go a
+> 
+> > Cleanup: /* certainly something's gone wrong */
+> > - sys_destroy_pagedir /* that's it */
+> > - sys_resume_devices
+> 
+> You should not need to do this one. resuming devices is going to be
+> integrated in atomic_restore, because suspending devices is there, too.
+
+Yes, but I need to thaw processes anyway, so I can release memory as well.
+OTOH, if sys_atomic_restore fails because of the lack of memory, the memory
+should be freed _before_ resuming devices, since otherwise subsequent
+failures are almost certain to appear (I've seen what happens in that case).
+Now, if the memory is allocated by the kernel, I can easily put an
+emergency memory-freeing call in sys_atomic_restore (in that case
+sys_destroy_pagedir will be redundant, but so what?).
+
+> Here's how it looks... additionaly, I have ioctl for getting one
+> usable page. It is true that I did not solve error paths, yet; I'll
+> certainly need some way to free memory, too.
+
+IMHO, these are important issues.
  
--#ifndef MODULE
--void __init dmascc_setup(char *str, int *ints)
--{
--	int i;
--
--	for (i = 0; i < MAX_NUM_DEVS && i < ints[0]; i++)
--		io[i] = ints[i + 1];
--}
--#endif
--
- static int __init dmascc_init(void)
- {
- 	int h, i, j, n;
+Greetings,
+Rafael
 

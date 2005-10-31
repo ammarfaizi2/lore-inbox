@@ -1,73 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932393AbVJaAz1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbVJaA5e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932393AbVJaAz1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 19:55:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbVJaAz1
+	id S932389AbVJaA5e (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 19:57:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbVJaA5e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 19:55:27 -0500
-Received: from atlrel7.hp.com ([156.153.255.213]:63179 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S932390AbVJaAz0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 19:55:26 -0500
-Date: Sun, 30 Oct 2005 19:55:28 -0500
-From: Bob Picco <bob.picco@hp.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz, ak@muc.de,
-       clemens@ladisch.de, venkatesh.pallipadi@intel.com, bob.picco@hp.com
-Subject: [PATCH] HPET, Maintainers
-Message-ID: <20051031005528.GD6019@localhost.localdomain>
+	Sun, 30 Oct 2005 19:57:34 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:56714 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932389AbVJaA5d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 19:57:33 -0500
+Date: Mon, 31 Oct 2005 00:57:26 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Jones <davej@redhat.com>,
+       Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14 assorted warnings
+Message-ID: <20051031005726.GS7992@ftp.linux.org.uk>
+References: <5455.1130484079@kao2.melbourne.sgi.com> <20051028073049.GA27389@redhat.com> <1130710531.32734.5.camel@localhost.localdomain> <17253.27399.700034.125453@cargo.ozlabs.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <17253.27399.700034.125453@cargo.ozlabs.ibm.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+On Mon, Oct 31, 2005 at 11:53:27AM +1100, Paul Mackerras wrote:
+> Gcc will warn on the use of x when in fact it is perfectly OK, and we
+> get quite a few of these in compiling a kernel.  At a minimum, I would
+> like to be able to disable the "may be used uninitialized" warnings
+> while still getting the "is used uninitialized" warnings.
 
-This patch identifies the HPET Maintainers.  Clemens in taking over as
-primary maintainer for the HPET driver.  Clemens has i386 hardware with HPET
-and is a better choice than me because of this.  I've shared this patch
-with all cc: recipients and there is agreement on ownership.  Hopefully this
-eliminates future confusion in terms of where HPET maintenance is owned.
-
-thanks,
-
-bob
-
-Signed-off-by: Bob Picco <bob.picco@hp.com>
-
- MAINTAINERS |   20 ++++++++++++++++++++
- 1 files changed, 20 insertions(+)
-
-Index: linux-2.6.14/MAINTAINERS
-===================================================================
---- linux-2.6.14.orig/MAINTAINERS	2005-10-28 14:24:57.000000000 -0400
-+++ linux-2.6.14/MAINTAINERS	2005-10-30 19:31:35.000000000 -0500
-@@ -1060,6 +1060,26 @@ P:	Jaroslav Kysela
- M:	perex@suse.cz
- S:	Maintained
- 
-+HPET:	High Precision Event Timers driver (hpet.c)
-+P:	Clemens Ladisch
-+M:	clemens@ladisch.de 
-+S:	Maintained
-+
-+HPET:	i386
-+P:	Venkatesh Pallipadi (Venki)
-+M:	venkatesh.pallipadi@intel.com
-+S:	Maintained
-+
-+HPET:	x86_64
-+P:	Andi Kleen and Vojtech Pavlik
-+M:	ak@muc.de and vojtech@suse.cz
-+S:	Maintained
-+
-+HPET:	ACPI hpet.c
-+P:	Bob Picco
-+M:	bob.picco@hp.com
-+S:	Maintained
-+
- HPFS FILESYSTEM
- P:	Mikulas Patocka
- M:	mikulas@artax.karlin.mff.cuni.cz
+Quite.  "may be used uninitialized" has _way_ too low S/N ratio - absolute
+majority of these warnings are bogus.  Moreover, several very common use
+patterns reliably trigger them.

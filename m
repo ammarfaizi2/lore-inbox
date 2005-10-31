@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbVJaLsZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbVJaL72@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751124AbVJaLsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 06:48:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbVJaLsZ
+	id S932306AbVJaL72 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 06:59:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbVJaL72
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 06:48:25 -0500
-Received: from main.gmane.org ([80.91.229.2]:6340 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751124AbVJaLsZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 06:48:25 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: [git patches] 2.6.x libata updates
-Date: Mon, 31 Oct 2005 12:45:05 +0100
-Message-ID: <xuqtrovd2yxc$.u541lhorc80y.dlg@40tude.net>
-References: <20051029182228.GA14495@havoc.gtf.org> <7vpspmhxhz.fsf@assigned-by-dhcp.cox.net> <Pine.LNX.4.62.0510310109250.16065@qynat.qvtvafvgr.pbz> <200510310334.35597.rob@landley.net>
+	Mon, 31 Oct 2005 06:59:28 -0500
+Received: from extgw-uk.mips.com ([62.254.210.129]:15119 "EHLO
+	bacchus.net.dhis.org") by vger.kernel.org with ESMTP
+	id S932306AbVJaL71 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 06:59:27 -0500
+Date: Mon, 31 Oct 2005 11:59:06 +0000
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Pete Popov <ppopov@embeddedalley.com>
+Subject: Re: [FIXME] Comments on serial and MMC changes in MIPS merge
+Message-ID: <20051031115906.GE13561@linux-mips.org>
+References: <20051029220722.GI14039@flint.arm.linux.org.uk> <4364A7D6.2060006@drzeus.cx>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: adsl-138-251.37-151.net24.it
-User-Agent: 40tude_Dialog/2.0.15.1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4364A7D6.2060006@drzeus.cx>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Oct 2005 03:34:34 -0600, Rob Landley wrote:
+On Sun, Oct 30, 2005 at 12:00:38PM +0100, Pierre Ossman wrote:
 
-> On Monday 31 October 2005 03:13, David Lang wrote:
->>> I was thinking about doing thatn in hidden input fields and
->>> passing form back and forth.  After all what real git bisect
->>> keeps locally are one bad commit ID and bunch of good commit
->>> IDs.
->>
->> if it's kept in a file or cookie then it can survive a reboot and other
->> distractions (remember that this process can take days if the problem
->> doesn't show up at boot). a cookie can hold a couple K worth of data, a
->> file has no size limit.
+> > 1. au1xxx mmc driver
+> > 
+> >    mmc_remove_host() does a safe shutdown of the MMC host, removing
+> >    cards and then powering down.  This must be called prior to the
+> >    driver thinking of tearing anything down.
+> > 
+> >    As for those disable_irq()...enable_irq(), are you aware that MMC
+> >    can start talking to the host as soon as you've called mmc_add_host() ?
+> > 
 > 
-> Actually, lots of Linux browsers these days treats all cookies as session 
-> cookies for security reasons.  So surviving a reboot still isn't guaranteed.  
-> But it's possible.
-> 
-> You can also have 'em bookmark a URL...
+> I'm also concerned about the ammount of protocol awareness in this
+> driver. Is there a spec available for this hardware? Perhaps the MMC
+> layer can export more information so that we can avoid switches on
+> specific MMC commands?
 
-Trac has a 'Session ID' key that stores something like a cookie,
-except that it's serverside. Something halfway a cookie and an actual
-login. The user can write down the session ID or just assign its own,
-and the re-enter the session ID and all things are restored to the
-settings he had chosen. Something like this, maybe?
+Cc'ed to ppopov, the actual author.
 
--- 
-Giuseppe "Oblomov" Bilotta
-
-"I'm never quite so stupid
- as when I'm being smart" --Linus van Pelt
-
+  Ralf

@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbVJaFqn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbVJaF5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932238AbVJaFqn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 00:46:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbVJaFqm
+	id S932281AbVJaF5E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 00:57:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbVJaF5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 00:46:42 -0500
-Received: from smtp113.sbc.mail.re2.yahoo.com ([68.142.229.92]:63366 "HELO
-	smtp113.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932238AbVJaFqm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 00:46:42 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Paul Mackerras <paulus@samba.org>
-Subject: Re: Fix drivers/macintosh/adbhid.c stupid breakage
-Date: Mon, 31 Oct 2005 00:46:36 -0500
-User-Agent: KMail/1.8.3
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org
-References: <17253.44515.562667.86040@cargo.ozlabs.ibm.com>
-In-Reply-To: <17253.44515.562667.86040@cargo.ozlabs.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 31 Oct 2005 00:57:04 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:4494 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932281AbVJaF5A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 00:57:00 -0500
+Date: Mon, 31 Oct 2005 00:56:48 -0500
+From: Dave Jones <davej@redhat.com>
+To: Grant Coady <gcoady@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pci_ids: remove non-referenced symbols from pci_ids.h
+Message-ID: <20051031055648.GA4795@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Grant Coady <gcoady@gmail.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200510290000.j9T00Bqd001135@hera.kernel.org> <20051031024217.GA25709@redhat.com> <436591A5.20609@gmail.com> <20051031041313.GA1939@redhat.com> <4365AAEE.9000409@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200510310046.37341.dtor_core@ameritech.net>
+In-Reply-To: <4365AAEE.9000409@gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 31 October 2005 00:38, Paul Mackerras wrote:
-> Commit c7f7a569d9b4ea7c53ab6fcd1377895312d8372b ("[PATCH] Input:
-> convert drivers/macintosh to dynamic input_dev allocation") breaks any
-> machine with an ADB keyboard or mouse, which includes my G4
-> powerbook.  Was it given any testing at all?
-> 
+On Mon, Oct 31, 2005 at 04:26:06PM +1100, Grant Coady wrote:
+ > Dave Jones wrote:
+ > > At least 2 distros are carrying patches removing the BROKEN attribute
+ > > on the advansys Kconfig for some architectures. The users of those kernels
+ > > using their advansys controllers without any issue at all.
+ > 
+ > So why are your driver patches not in mainline then?
 
-No it wasn't because I only have x86 to test with. HOwever it was in -mm
-tree for a while...
+Because it serves as a reminder that it needs fixing.
 
-Sorry about the breakage.
+		Dave
 
--- 
-Dmitry

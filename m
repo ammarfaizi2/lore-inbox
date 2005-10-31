@@ -1,87 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932517AbVJaGtL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbVJaGv4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932517AbVJaGtL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 01:49:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932551AbVJaGtL
+	id S1751392AbVJaGv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 01:51:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbVJaGvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 01:49:11 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:8903 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932534AbVJaGtJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 01:49:09 -0500
-Date: Sun, 30 Oct 2005 23:48:37 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: NeilBrown <neilb@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH against 2.6.14] truncate() or ftruncate shouldn't change
- mtime if size doesn't change.
-Message-Id: <20051030234837.36c7a249.akpm@osdl.org>
-In-Reply-To: <1051031063444.9586@suse.de>
-References: <20051031173358.9566.patches@notabene>
-	<1051031063444.9586@suse.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 31 Oct 2005 01:51:55 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:16904 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1751392AbVJaGvw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 01:51:52 -0500
+Date: Mon, 31 Oct 2005 07:41:09 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Tony Luck <tony.luck@gmail.com>,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: New (now current development process)
+Message-ID: <20051031064109.GO22601@alpha.home.local>
+References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com> <12c511ca0510291157u5557b6b1x85a47311f0e16436@mail.gmail.com> <20051029195115.GD14039@flint.arm.linux.org.uk> <Pine.LNX.4.64.0510291314100.3348@g5.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0510291314100.3348@g5.osdl.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NeilBrown <neilb@suse.de> wrote:
->
+On Sat, Oct 29, 2005 at 01:28:23PM -0700, Linus Torvalds wrote:
+ 
+> So I'm planning on continuing with it unchanged for now. Two-week merge 
+> window until -rc1, and then another -rc kernel roughly every week until 
+> release. With the goal being 6 weeks, and 8 weeks being ok.
 > 
-> 
-> According to Posix and SUS, truncate(2) and ftruncate(2) only update
-> ctime and mtime if the size actually changes.  Linux doesn't currently
-> obey this.
-> 
-> There is no need to test the size under i_sem, as loosing any race
-> will not make a noticable different the mtime or ctime.
+> I don't think anybody has been really unhappy with this approach? Hmm?
 
-Well if there's a race then the file may end up not being truncated after
-this patch is applied.  But that could have happened anwyay, so I don't see
-a need for i_sem synchronisation either.
+I believe it was a good experience. However, I still find it sad that
+there are changes between the latest -rc and the final version. This
+time, it seems it did not cause trouble, but in the past, it happened
+several times, because any valid fix can have side effects.
 
-> (According to SUS, truncate and ftruncate 'may' clear setuid/setgid
->  as well, currently we don't.  Should we?
-> )
-> 
-> 
-> Signed-off-by: Neil Brown <neilb@suse.de>
-> 
-> ### Diffstat output
->  ./fs/open.c |    6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
-> 
-> diff ./fs/open.c~current~ ./fs/open.c
-> --- ./fs/open.c~current~	2005-10-31 16:22:44.000000000 +1100
-> +++ ./fs/open.c	2005-10-31 16:22:44.000000000 +1100
-> @@ -260,7 +260,8 @@ static inline long do_sys_truncate(const
->  		goto dput_and_out;
->  
->  	error = locks_verify_truncate(inode, NULL, length);
-> -	if (!error) {
-> +	if (!error &&
-> +	    length != i_size_read(dentry->d_inode)) {
+I think that if you could announce what you intend to release with a
+message like "I will make this -final tomorrow", there would be some
+time to test builds in various configs, and check that no obvious bug
+has been introduced.
 
-Odd code layout?
-
->  		DQUOT_INIT(inode);
->  		error = do_truncate(nd.dentry, length);
->  	}
-> @@ -313,7 +314,8 @@ static inline long do_sys_ftruncate(unsi
->  		goto out_putf;
->  
->  	error = locks_verify_truncate(inode, file, length);
-> -	if (!error)
-> +	if (!error &&
-> +	    length != i_size_read(dentry->d_inode))
->  		error = do_truncate(dentry, length);
->  out_putf:
->  	fput(file);
-
-This partially obsoletes the similar optimisation in inode_setattr().  I
-guess the optimisation there retains some usefulness for O_TRUNC opens of
-zero-length files, but for symettry and micro-efficiency, perhaps we should
-remvoe the inode_setattr() test and check for i_size==0 in may_open()?
-
+Regards,
+Willy
 

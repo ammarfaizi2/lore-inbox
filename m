@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932408AbVJaMdH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932428AbVJaMfG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932408AbVJaMdH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 07:33:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbVJaMdH
+	id S932428AbVJaMfG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 07:35:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbVJaMfF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 07:33:07 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:58261 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932408AbVJaMdG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 07:33:06 -0500
-Subject: Re: 4GB memory and Intel Dual-Core system
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>
-Cc: Marcel Holtmann <marcel@holtmann.org>, Dave Jones <davej@redhat.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <4365920D.2080009@linuxwireless.org>
-References: <1130445194.5416.3.camel@blade> <52mzkuwuzg.fsf@cisco.com>
-	 <20051027204923.M89071@linuxwireless.org> <1130446667.5416.14.camel@blade>
-	 <20051027205921.M81949@linuxwireless.org> <1130447261.5416.20.camel@blade>
-	 <20051027211203.M33358@linuxwireless.org>
-	 <20051027220533.GA18773@redhat.com> <1130451071.5416.32.camel@blade>
-	 <20051027221253.GA25932@redhat.com> <1130451421.5416.35.camel@blade>
-	 <20051027221756.M55421@linuxwireless.org>
-	 <1130711165.32734.11.camel@localhost.localdomain>
-	 <4365920D.2080009@linuxwireless.org>
+	Mon, 31 Oct 2005 07:35:05 -0500
+Received: from pat.uio.no ([129.240.130.16]:47769 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932428AbVJaMfE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 07:35:04 -0500
+Subject: Re: fs/nfs - cleanup function declarations
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Ben Dooks <ben-linux@fluff.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051031122950.GA12009@home.fluff.org>
+References: <20051031122950.GA12009@home.fluff.org>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 31 Oct 2005 13:02:39 +0000
-Message-Id: <1130763759.9145.7.camel@localhost.localdomain>
+Date: Mon, 31 Oct 2005 07:34:52 -0500
+Message-Id: <1130762092.8802.14.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.743, required 12,
+	autolearn=disabled, AWL 1.07, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2005-10-30 at 20:39 -0700, Alejandro Bonilla Beeche wrote:
-> I guess you are right and wrong. The architecture has the limitation, 
-> the chipset as well and the OS. According to this document, it is the 
-> fault of the architecture as well as it requires to support addressing 
-> which is not available *stock*, only several other providers have added 
-> such "mapping" to get a better use of the memory.
+On Mon, 2005-10-31 at 12:29 +0000, Ben Dooks wrote:
+> Cleanup sparse warnings from fs/nfs, mainly
+> due to undeclared functions or missing static
+> from functions.
+> 
+> This patch does the following:
+> 
+> 1) place static on both the nfs_llseek_dir and
+>    nfs_fsync_dir in dir.c as they where earlier
+>    declared static
+> 
+> 2) add shared.h, and put declarations of the
+>    init functions into it.
+> 
+> 3) use inline to remove DIRECTIO initialisation
+>    support to cleanup the init/exit code paths
+> 
+> Signed-off-by: Ben Dooks <ben-linux@fluff.org>
 
-That document reads like a "don't blame us because we didn't bother to
-do remapping". That is an Intel business decision not a hardware limit,
-as is shown by other vendors whose hardware can do the remap.
+ACKed
 
+Cheers,
+  Trond
 

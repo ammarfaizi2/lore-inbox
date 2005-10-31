@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbVJaK13@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbVJaK2K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751017AbVJaK13 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 05:27:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbVJaK13
+	id S932446AbVJaK2K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 05:28:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbVJaK2K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 05:27:29 -0500
-Received: from mail.suse.de ([195.135.220.2]:56001 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751018AbVJaK12 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 05:27:28 -0500
-Date: Mon, 31 Oct 2005 11:27:23 +0100
-From: Olaf Hering <olh@suse.de>
-To: jgarzik@pobox.com
-Cc: linux-kernel@vger.kernel.org, Mark Tomich <tomichm@bellsouth.net>
-Subject: Re: patch to add a config option to enable SATA ATAPI by default
-Message-ID: <20051031102723.GA10037@suse.de>
-References: <1130691328.8303.8.camel@localhost>
-Mime-Version: 1.0
+	Mon, 31 Oct 2005 05:28:10 -0500
+Received: from cassarossa.samfundet.no ([129.241.93.19]:38556 "EHLO
+	cassarossa.samfundet.no") by vger.kernel.org with ESMTP
+	id S932446AbVJaK2J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 05:28:09 -0500
+Date: Mon, 31 Oct 2005 11:28:10 +0100
+From: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
+To: bert hubert <bert.hubert@netherlabs.nl>, linux-kernel@vger.kernel.org
+Subject: Re: BIND hangs with 2.6.14
+Message-ID: <20051031102810.GA13389@uio.no>
+References: <20051030023557.GA7798@uio.no> <20051030101148.GA18854@outpost.ds9a.nl> <20051030104527.GB32446@uio.no> <20051030110021.GA19680@outpost.ds9a.nl> <20051030113651.GA1780@uio.no> <20051030114537.GA20564@outpost.ds9a.nl> <20051030115430.GA2747@uio.no> <20051031072020.GA5028@capsaicin.mamane.lu>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <1130691328.8303.8.camel@localhost>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+In-Reply-To: <20051031072020.GA5028@capsaicin.mamane.lu>
+X-Operating-System: Linux 2.6.14-rc5 on a x86_64
+X-Message-Flag: Outlook? --> http://www.mozilla.org/products/thunderbird/
+User-Agent: Mutt/1.5.11
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: Status=No hits=-2.8 required=5.0 tests=ALL_TRUSTED version=3.0.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Sun, Oct 30, Mark Tomich wrote:
+On Mon, Oct 31, 2005 at 08:20:20AM +0100, Lionel Elie Mamane wrote:
+>> strace doesn't show the address except when something fails, but these are
+>> the distinct calls to recvmsg with given addresses (sorted):
+> Try "strace -e verbose=none" to always get an address.
 
-> Below is a very straight-forward patch to add a config option to
-> enabling SATA ATAPI by default.
+Well, the address was definitely valid (as the gdb session showed). Anyhow,
+the machine is down to 2.6.13.4 now (otherwise same .config file, etc.), and
+it seems to have fixed the problem (>10 hours with no problem so far).
 
-> diff -u -r linux-2.6.14-rc5/drivers/scsi/Kconfig
-> linux-2.6.14-rc5-patched/drivers/scsi/Kconfig
-> --- linux-2.6.14-rc5/drivers/scsi/Kconfig	2005-10-30 11:09:15.533533419 -0500
-> +++ linux-2.6.14-rc5-patched/drivers/scsi/Kconfig	2005-10-30 11:21:39.735696058 -0500
-> @@ -445,6 +445,17 @@
->  
->  	  If unsure, say N.
->  
-> +config SCSI_SATA_ENABLE_ATAPI
-> +	bool "Enable SATA ATAPI by default"
-
-Jeff, will you apply this?
-
+/* Steinar */
 -- 
-short story of a lazy sysadmin:
- alias appserv=wotan
+Homepage: http://www.sesse.net/

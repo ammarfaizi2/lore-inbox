@@ -1,218 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbVJaFoN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbVJaFqr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751384AbVJaFoN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 00:44:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbVJaFoN
+	id S932297AbVJaFqr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 00:46:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbVJaFqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 00:44:13 -0500
-Received: from ns.isp.nsc.ru ([194.226.178.19]:3981 "EHLO ns.isp.nsc.ru")
-	by vger.kernel.org with ESMTP id S1751384AbVJaFoM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 00:44:12 -0500
-Subject: Re: cpufreq driver + wrong cpu time
-From: Alexander Shaposhnikov <shaposh@isp.nsc.ru>
-To: Eric Piel <eric.piel@tremplin-utc.net>
-Cc: linux-kernel@vger.kernel.org, cpufreq@lists.linux.org.uk
-In-Reply-To: <4365394B.4000907@tremplin-utc.net>
-References: <1130677884.3318.15.camel@m00>
-	 <4365394B.4000907@tremplin-utc.net>
-Content-Type: multipart/mixed; boundary="=-t7lNc0np1Y62l+q2lSog"
-Date: Mon, 31 Oct 2005 11:44:20 +0600
-Message-Id: <1130737460.3422.17.camel@m00>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Mon, 31 Oct 2005 00:46:47 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:27411 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932297AbVJaFqp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 00:46:45 -0500
+Date: Mon, 31 Oct 2005 06:46:42 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: James Morris <jmorris@redhat.com>
+Cc: Kausty <kkumbhalkar@gmail.com>, linux-kernel@vger.kernel.org,
+       herbert@gondor.apana.org.au, davem@davemloft.net,
+       linux-crypto@vger.kernel.org
+Subject: [2.6 patch] crypto/api.c: remove the second argument of crypto_alg_available()
+Message-ID: <20051031054642.GD8009@stusta.de>
+References: <41ae44840501200448197d18c0@mail.gmail.com> <Xine.LNX.4.44.0501200952440.952-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Xine.LNX.4.44.0501200952440.952-100000@thoron.boston.redhat.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-t7lNc0np1Y62l+q2lSog
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-Hello Eric,
-
-Its my first foray into kernel driver programming,
-so please don't be too hard on me:)
-
-The total elapsed time (by "time foo") is OK.
-The problem is, cputime reported by, for example, "top" 
-utility, is wrong. The same problem with fortran intrinsic routine
-"ETIME", so quantum chemistry codes i use (all written in fortran) 
-reports wrong cputime, but correct "wall(elapsed) time". 
-
-I've attached the code. I was able to test it only on my own dual
-Opteron system, so have no idea about other MB.
-
-P.S.
-Please include me in CC explicitly! 
-
-Best Regards,
-Alexander Shaposhnikov
-
-
-
-On Mon, 2005-10-31 at 06:21 +0900, Eric Piel wrote:
-> Alexander Shaposhnikov wrote:
-> > Hello to everyone.
+On Thu, Jan 20, 2005 at 09:54:28AM -0500, James Morris wrote:
+> On Thu, 20 Jan 2005, Kausty wrote:
+> 
+> > hi
+> > A small observation. In crypto/api.c in linux-2.6.8.1
 > > 
-> Hello Alexander,
-> 
-> > I have written cpufreq_nForce4 kernel driver for  cpufreq subsystem.
-> > It allows for CPU frequency changing by adjusting FSB speed, for nForce4
-> > based motherboards. 
-> > Works for single-cpu systems, as well as for SMP.
-> > The problem is, after changing CPU(s) speed on SMP systems, programs
-> > report wrong cpu time (wall time is OK). 
-> What do you mean by CPU time? Do you mean the output of "time foo" ? How 
-> do you know the *right* CPU time? Could you provide some examples :-)
-> 
-> Well, anyway, by _rough_ guess, if on UP it works and on SMP it doesn't, 
-> we could imagine that the difference comes from the fact the tick 
-> interrupt source is not the same on those systems. You could try to boot 
-> a UP kernel with local APIC (selectable in the .config) on the 
-> multi-processor computer to check. Then it might mean that after 
-> changing the FSB speed, the interrupt source has to be re-programmed...
-> 
-> > What would be the best way to fix this, and shouldn't this be done by
-> > the cpufreq subsystem, rather than by hardware driver? 
+> > The function:
+> > int crypto_alg_available(const char *name, u32 flags)
 > > 
-> Probably the best place to discuss about cpufreq is the dedicated 
-> mailing list : cpufreq@lists.linux.org.uk . If you don't mind, you could 
->   continue there.
+> > has a flags param which does not seem to be used.
+> > 
+> > though it does not matter much but has this been fixed in later releases?
+> > xfrm functions in ipsec do call this function but always with flags as 0.
+> > 
+> > Thanks and regards
+> > kausty
 > 
-> Also please, provide the sources of your driver to have a look :-)
-> 
-> cu,
-> Eric
+> IIRC, this was to allow future code to specify preferences for the type of
+> algorithm driver (e.g. hardware), but has not been used.  This is an
+> example of why it's a bad idea to add infrastructure which isn't being
+> used at the time.
 
---=-t7lNc0np1Y62l+q2lSog
-Content-Disposition: attachment; filename=cpufreq_nForce4.tar.bz2
-Content-Type: application/x-bzip-compressed-tar; name=cpufreq_nForce4.tar.bz2
-Content-Transfer-Encoding: base64
+Since it's still unused, a patch to remove this second argument is 
+below.
 
-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
+> - James
+
+cu
+Adrian
 
 
---=-t7lNc0np1Y62l+q2lSog--
+<--  snip  -->
+
+
+The second argument of crypto_alg_available() was not used and is 
+therefore removed in this patch.
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+ crypto/api.c           |    2 +-
+ crypto/tcrypt.c        |    2 +-
+ drivers/net/ppp_mppe.c |    4 ++--
+ include/linux/crypto.h |    4 ++--
+ net/xfrm/xfrm_algo.c   |    8 ++++----
+ 5 files changed, 10 insertions(+), 10 deletions(-)
+
+--- linux-2.6.14-rc5-mm1-full/include/linux/crypto.h.old	2005-10-31 06:23:42.000000000 +0100
++++ linux-2.6.14-rc5-mm1-full/include/linux/crypto.h	2005-10-31 06:23:56.000000000 +0100
+@@ -152,9 +152,9 @@
+  * Algorithm query interface.
+  */
+ #ifdef CONFIG_CRYPTO
+-int crypto_alg_available(const char *name, u32 flags);
++int crypto_alg_available(const char *name);
+ #else
+-static inline int crypto_alg_available(const char *name, u32 flags)
++static inline int crypto_alg_available(const char *name)
+ {
+ 	return 0;
+ }
+--- linux-2.6.14-rc5-mm1-full/crypto/api.c.old	2005-10-31 06:24:05.000000000 +0100
++++ linux-2.6.14-rc5-mm1-full/crypto/api.c	2005-10-31 06:24:12.000000000 +0100
+@@ -300,7 +300,7 @@
+ 	return ret;
+ }
+ 
+-int crypto_alg_available(const char *name, u32 flags)
++int crypto_alg_available(const char *name)
+ {
+ 	int ret = 0;
+ 	struct crypto_alg *alg = crypto_alg_mod_lookup(name);
+--- linux-2.6.14-rc5-mm1-full/crypto/tcrypt.c.old	2005-10-31 06:24:20.000000000 +0100
++++ linux-2.6.14-rc5-mm1-full/crypto/tcrypt.c	2005-10-31 06:24:26.000000000 +0100
+@@ -753,7 +753,7 @@
+ 
+ 	while (*name) {
+ 		printk("alg %s ", *name);
+-		printk((crypto_alg_available(*name, 0)) ?
++		printk((crypto_alg_available(*name)) ?
+ 			"found\n" : "not found\n");
+ 		name++;
+ 	}
+--- linux-2.6.14-rc5-mm1-full/drivers/net/ppp_mppe.c.old	2005-10-31 06:24:35.000000000 +0100
++++ linux-2.6.14-rc5-mm1-full/drivers/net/ppp_mppe.c	2005-10-31 06:24:41.000000000 +0100
+@@ -695,8 +695,8 @@
+ static int __init ppp_mppe_init(void)
+ {
+ 	int answer;
+-	if (!(crypto_alg_available("arc4", 0) &&
+-	      crypto_alg_available("sha1", 0)))
++	if (!(crypto_alg_available("arc4") &&
++	      crypto_alg_available("sha1")))
+ 		return -ENODEV;
+ 
+ 	sha_pad = kmalloc(sizeof(struct sha_pad), GFP_KERNEL);
+--- linux-2.6.14-rc5-mm1-full/net/xfrm/xfrm_algo.c.old	2005-10-31 06:24:51.000000000 +0100
++++ linux-2.6.14-rc5-mm1-full/net/xfrm/xfrm_algo.c	2005-10-31 06:25:06.000000000 +0100
+@@ -369,7 +369,7 @@
+ 		if (!probe)
+ 			break;
+ 
+-		status = crypto_alg_available(name, 0);
++		status = crypto_alg_available(name);
+ 		if (!status)
+ 			break;
+ 
+@@ -428,19 +428,19 @@
+ 	BUG_ON(in_softirq());
+ 
+ 	for (i = 0; i < aalg_entries(); i++) {
+-		status = crypto_alg_available(aalg_list[i].name, 0);
++		status = crypto_alg_available(aalg_list[i].name);
+ 		if (aalg_list[i].available != status)
+ 			aalg_list[i].available = status;
+ 	}
+ 	
+ 	for (i = 0; i < ealg_entries(); i++) {
+-		status = crypto_alg_available(ealg_list[i].name, 0);
++		status = crypto_alg_available(ealg_list[i].name);
+ 		if (ealg_list[i].available != status)
+ 			ealg_list[i].available = status;
+ 	}
+ 	
+ 	for (i = 0; i < calg_entries(); i++) {
+-		status = crypto_alg_available(calg_list[i].name, 0);
++		status = crypto_alg_available(calg_list[i].name);
+ 		if (calg_list[i].available != status)
+ 			calg_list[i].available = status;
+ 	}
 

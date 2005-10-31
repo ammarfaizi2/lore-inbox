@@ -1,245 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbVJaO2l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751258AbVJaO2U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751276AbVJaO2l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 09:28:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751303AbVJaO2k
+	id S1751258AbVJaO2U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 09:28:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbVJaO2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 09:28:40 -0500
-Received: from havoc.gtf.org ([69.61.125.42]:17823 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1751276AbVJaO2i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 09:28:38 -0500
-Date: Mon, 31 Oct 2005 09:28:35 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [git patches] 2.6.x libata fixes, cleanup
-Message-ID: <20051031142835.GA30792@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 31 Oct 2005 09:28:20 -0500
+Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:20966 "EHLO
+	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1751258AbVJaO2T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 09:28:19 -0500
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Mon, 31 Oct 2005 14:27:57 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+Subject: [PATCH 5/17] NTFS: Change ntfs_attr_make_non_resident to take the
+ attribute value size
+In-Reply-To: <Pine.LNX.4.64.0510311408160.27357@hermes-1.csi.cam.ac.uk>
+Message-ID: <Pine.LNX.4.64.0510311427190.27357@hermes-1.csi.cam.ac.uk>
+References: <Pine.LNX.4.64.0510311408160.27357@hermes-1.csi.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+NTFS: Change ntfs_attr_make_non_resident to take the attribute value size
+      as an extra parameter.  This is needed since we need to know the size
+      before we can map the mft record and our callers always know it.  The
+      reason we cannot simply read the size from the vfs inode i_size is
+      that this is not necessarily uptodate.  This happens when
+      ntfs_attr_make_non_resident() is called in the ->truncate call path.
 
-Please pull from 'upstream-linus' branch of
-master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
+Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
-to obtain the following locking rewrite (deadlock fix), and minor cleanups.
+---
 
- drivers/scsi/libata-core.c |   59 +++++++--------------------------------------
- drivers/scsi/libata-scsi.c |    9 ++++++
- drivers/scsi/libata.h      |    1 
- 3 files changed, 18 insertions(+), 51 deletions(-)
+ fs/ntfs/ChangeLog |    6 ++++++
+ fs/ntfs/attrib.c  |   13 ++++++++++---
+ fs/ntfs/attrib.h  |    2 +-
+ 3 files changed, 17 insertions(+), 4 deletions(-)
 
-commit 005a5a06a6dd13a0ca3f2c6a0218e8d94ed36d8a
-Author: Jeff Garzik <jgarzik@pobox.com>
-Date:   Sun Oct 30 23:31:48 2005 -0500
-
-    [libata] locking rewrite (== fix)
-    
-    A lot of power packed into a little patch.
-    
-    This change eliminates the sharing between our controller-wide spinlock
-    and the SCSI core's Scsi_Host lock.  As the locking in libata was
-    already highly compartmentalized, always referencing our own lock, and
-    never scsi_host::host_lock.
-    
-    As a side effect, this change eliminates a deadlock from calling
-    scsi_finish_command() while inside our spinlock.
-
-commit e533825447dcb60a82b7cc9d73d06423c849b9a2
-Author: Jeff Garzik <jgarzik@pobox.com>
-Date:   Sun Oct 30 21:37:17 2005 -0500
-
-    [libata] ata_tf_to_host cleanups
-    
-    Integrate ata_exec() and ata_tf_to_host() into their only caller,
-    ata_bus_edd().
-    
-    Rename ata_tf_to_host_nolock() to ata_tf_to_host().
-    
-    This makes locking a bit easier to review, and may help pave the way for
-    future changes.
-
-diff --git a/drivers/scsi/libata-core.c b/drivers/scsi/libata-core.c
-index 8be7dc0..ff18fa7 100644
---- a/drivers/scsi/libata-core.c
-+++ b/drivers/scsi/libata-core.c
-@@ -295,28 +295,6 @@ void ata_exec_command(struct ata_port *a
- }
+applies-to: 67f28282e658eba6ed0daac0553a77f8352c21bc
+8925d4f0d3479b9c5ed7e49acc648beccca95f21
+diff --git a/fs/ntfs/ChangeLog b/fs/ntfs/ChangeLog
+index aad2a3f..60ba3c5 100644
+--- a/fs/ntfs/ChangeLog
++++ b/fs/ntfs/ChangeLog
+@@ -37,6 +37,12 @@ ToDo/Notes:
+ 	- Change ntfs_attr_make_non_resident() to call ntfs_cluster_alloc()
+ 	  with @is_extension set to TRUE and remove the runlist terminator
+ 	  fixup code as this is now done by ntfs_cluster_alloc().
++	- Change ntfs_attr_make_non_resident to take the attribute value size
++	  as an extra parameter.  This is needed since we need to know the size
++	  before we can map the mft record and our callers always know it.  The
++	  reason we cannot simply read the size from the vfs inode i_size is
++	  that this is not necessarily uptodate.  This happens when
++	  ntfs_attr_make_non_resident() is called in the ->truncate call path.
  
+ 2.1.24 - Lots of bug fixes and support more clean journal states.
+ 
+diff --git a/fs/ntfs/attrib.c b/fs/ntfs/attrib.c
+index 33e689f..380f70a 100644
+--- a/fs/ntfs/attrib.c
++++ b/fs/ntfs/attrib.c
+@@ -1501,10 +1501,17 @@ int ntfs_resident_attr_value_resize(MFT_
  /**
-- *	ata_exec - issue ATA command to host controller
-- *	@ap: port to which command is being issued
-- *	@tf: ATA taskfile register set
-- *
-- *	Issues PIO/MMIO write to ATA command register, with proper
-- *	synchronization with interrupt handler / other threads.
-- *
-- *	LOCKING:
-- *	Obtains host_set lock.
-- */
--
--static inline void ata_exec(struct ata_port *ap, const struct ata_taskfile *tf)
--{
--	unsigned long flags;
--
--	DPRINTK("ata%u: cmd 0x%X\n", ap->id, tf->command);
--	spin_lock_irqsave(&ap->host_set->lock, flags);
--	ap->ops->exec_command(ap, tf);
--	spin_unlock_irqrestore(&ap->host_set->lock, flags);
--}
--
--/**
-  *	ata_tf_to_host - issue ATA taskfile to host controller
-  *	@ap: port to which command is being issued
-  *	@tf: ATA taskfile register set
-@@ -326,30 +304,11 @@ static inline void ata_exec(struct ata_p
-  *	other threads.
+  * ntfs_attr_make_non_resident - convert a resident to a non-resident attribute
+  * @ni:		ntfs inode describing the attribute to convert
++ * @data_size:	size of the resident data to copy to the non-resident attribute
   *
-  *	LOCKING:
-- *	Obtains host_set lock.
-- */
--
--static void ata_tf_to_host(struct ata_port *ap, const struct ata_taskfile *tf)
--{
--	ap->ops->tf_load(ap, tf);
--
--	ata_exec(ap, tf);
--}
--
--/**
-- *	ata_tf_to_host_nolock - issue ATA taskfile to host controller
-- *	@ap: port to which command is being issued
-- *	@tf: ATA taskfile register set
-- *
-- *	Issues ATA taskfile register set to ATA host controller,
-- *	with proper synchronization with interrupt handler and
-- *	other threads.
-- *
-- *	LOCKING:
-  *	spin_lock_irqsave(host_set lock)
+  * Convert the resident ntfs attribute described by the ntfs inode @ni to a
+  * non-resident one.
+  *
++ * @data_size must be equal to the attribute value size.  This is needed since
++ * we need to know the size before we can map the mft record and our callers
++ * always know it.  The reason we cannot simply read the size from the vfs
++ * inode i_size is that this is not necessarily uptodate.  This happens when
++ * ntfs_attr_make_non_resident() is called in the ->truncate call path(s).
++ *
+  * Return 0 on success and -errno on error.  The following error return codes
+  * are defined:
+  *	-EPERM	- The attribute is not allowed to be non-resident.
+@@ -1525,7 +1532,7 @@ int ntfs_resident_attr_value_resize(MFT_
+  *
+  * Locking: - The caller must hold i_sem on the inode.
   */
- 
--void ata_tf_to_host_nolock(struct ata_port *ap, const struct ata_taskfile *tf)
-+static inline void ata_tf_to_host(struct ata_port *ap,
-+				  const struct ata_taskfile *tf)
+-int ntfs_attr_make_non_resident(ntfs_inode *ni)
++int ntfs_attr_make_non_resident(ntfs_inode *ni, const u32 data_size)
  {
- 	ap->ops->tf_load(ap, tf);
- 	ap->ops->exec_command(ap, tf);
-@@ -1912,12 +1871,14 @@ static void ata_bus_post_reset(struct at
-  *
-  *	LOCKING:
-  *	PCI/etc. bus probe sem.
-+ *	Obtains host_set lock.
-  *
-  */
+ 	s64 new_size;
+ 	struct inode *vi = VFS_I(ni);
+@@ -1563,7 +1570,7 @@ int ntfs_attr_make_non_resident(ntfs_ino
+ 	 * The size needs to be aligned to a cluster boundary for allocation
+ 	 * purposes.
+ 	 */
+-	new_size = (i_size_read(vi) + vol->cluster_size - 1) &
++	new_size = (data_size + vol->cluster_size - 1) &
+ 			~(vol->cluster_size - 1);
+ 	if (new_size > 0) {
+ 		/*
+@@ -1647,7 +1654,7 @@ int ntfs_attr_make_non_resident(ntfs_ino
+ 	 * attribute value.
+ 	 */
+ 	attr_size = le32_to_cpu(a->data.resident.value_length);
+-	BUG_ON(attr_size != i_size_read(vi));
++	BUG_ON(attr_size != data_size);
+ 	if (page && !PageUptodate(page)) {
+ 		kaddr = kmap_atomic(page, KM_USER0);
+ 		memcpy(kaddr, (u8*)a +
+diff --git a/fs/ntfs/attrib.h b/fs/ntfs/attrib.h
+index 62f7625..a959af9 100644
+--- a/fs/ntfs/attrib.h
++++ b/fs/ntfs/attrib.h
+@@ -103,7 +103,7 @@ extern int ntfs_attr_record_resize(MFT_R
+ extern int ntfs_resident_attr_value_resize(MFT_RECORD *m, ATTR_RECORD *a,
+ 		const u32 new_size);
  
- static unsigned int ata_bus_edd(struct ata_port *ap)
- {
- 	struct ata_taskfile tf;
-+	unsigned long flags;
+-extern int ntfs_attr_make_non_resident(ntfs_inode *ni);
++extern int ntfs_attr_make_non_resident(ntfs_inode *ni, const u32 data_size);
  
- 	/* set up execute-device-diag (bus reset) taskfile */
- 	/* also, take interrupts to a known state (disabled) */
-@@ -1928,7 +1889,9 @@ static unsigned int ata_bus_edd(struct a
- 	tf.protocol = ATA_PROT_NODATA;
- 
- 	/* do bus reset */
-+	spin_lock_irqsave(&ap->host_set->lock, flags);
- 	ata_tf_to_host(ap, &tf);
-+	spin_unlock_irqrestore(&ap->host_set->lock, flags);
- 
- 	/* spec says at least 2ms.  but who knows with those
- 	 * crazy ATAPI devices...
-@@ -3555,7 +3518,7 @@ int ata_qc_issue_prot(struct ata_queued_
- 
- 	switch (qc->tf.protocol) {
- 	case ATA_PROT_NODATA:
--		ata_tf_to_host_nolock(ap, &qc->tf);
-+		ata_tf_to_host(ap, &qc->tf);
- 		break;
- 
- 	case ATA_PROT_DMA:
-@@ -3566,20 +3529,20 @@ int ata_qc_issue_prot(struct ata_queued_
- 
- 	case ATA_PROT_PIO: /* load tf registers, initiate polling pio */
- 		ata_qc_set_polling(qc);
--		ata_tf_to_host_nolock(ap, &qc->tf);
-+		ata_tf_to_host(ap, &qc->tf);
- 		ap->hsm_task_state = HSM_ST;
- 		queue_work(ata_wq, &ap->pio_task);
- 		break;
- 
- 	case ATA_PROT_ATAPI:
- 		ata_qc_set_polling(qc);
--		ata_tf_to_host_nolock(ap, &qc->tf);
-+		ata_tf_to_host(ap, &qc->tf);
- 		queue_work(ata_wq, &ap->packet_task);
- 		break;
- 
- 	case ATA_PROT_ATAPI_NODATA:
- 		ap->flags |= ATA_FLAG_NOINTR;
--		ata_tf_to_host_nolock(ap, &qc->tf);
-+		ata_tf_to_host(ap, &qc->tf);
- 		queue_work(ata_wq, &ap->packet_task);
- 		break;
- 
-@@ -4126,8 +4089,6 @@ static void ata_host_init(struct ata_por
- 	host->unique_id = ata_unique_id++;
- 	host->max_cmd_len = 12;
- 
--	scsi_assign_lock(host, &host_set->lock);
--
- 	ap->flags = ATA_FLAG_PORT_DISABLED;
- 	ap->id = host->unique_id;
- 	ap->host = host;
-diff --git a/drivers/scsi/libata-scsi.c b/drivers/scsi/libata-scsi.c
-index 1e3792f..248baae 100644
---- a/drivers/scsi/libata-scsi.c
-+++ b/drivers/scsi/libata-scsi.c
-@@ -39,6 +39,7 @@
- #include <scsi/scsi.h>
- #include "scsi.h"
- #include <scsi/scsi_host.h>
-+#include <scsi/scsi_device.h>
- #include <linux/libata.h>
- #include <linux/hdreg.h>
- #include <asm/uaccess.h>
-@@ -2405,8 +2406,12 @@ int ata_scsi_queuecmd(struct scsi_cmnd *
- 	struct ata_port *ap;
- 	struct ata_device *dev;
- 	struct scsi_device *scsidev = cmd->device;
-+	struct Scsi_Host *shost = scsidev->host;
- 
--	ap = (struct ata_port *) &scsidev->host->hostdata[0];
-+	ap = (struct ata_port *) &shost->hostdata[0];
-+
-+	spin_unlock(shost->host_lock);
-+	spin_lock(&ap->host_set->lock);
- 
- 	ata_scsi_dump_cdb(ap, cmd);
- 
-@@ -2429,6 +2434,8 @@ int ata_scsi_queuecmd(struct scsi_cmnd *
- 		ata_scsi_translate(ap, dev, cmd, done, atapi_xlat);
- 
- out_unlock:
-+	spin_unlock(&ap->host_set->lock);
-+	spin_lock(shost->host_lock);
- 	return 0;
- }
- 
-diff --git a/drivers/scsi/libata.h b/drivers/scsi/libata.h
-index 10ecd9e..fad051c 100644
---- a/drivers/scsi/libata.h
-+++ b/drivers/scsi/libata.h
-@@ -48,7 +48,6 @@ extern int ata_qc_issue(struct ata_queue
- extern int ata_check_atapi_dma(struct ata_queued_cmd *qc);
- extern void ata_dev_select(struct ata_port *ap, unsigned int device,
-                            unsigned int wait, unsigned int can_sleep);
--extern void ata_tf_to_host_nolock(struct ata_port *ap, const struct ata_taskfile *tf);
- extern void swap_buf_le16(u16 *buf, unsigned int buf_words);
- extern int ata_task_ioctl(struct scsi_device *scsidev, void __user *arg);
- extern int ata_cmd_ioctl(struct scsi_device *scsidev, void __user *arg);
+ extern int ntfs_attr_set(ntfs_inode *ni, const s64 ofs, const s64 cnt,
+ 		const u8 val);
+---
+0.99.9

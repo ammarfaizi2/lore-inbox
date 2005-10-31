@@ -1,69 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964819AbVJaUJd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbVJaURD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964819AbVJaUJd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 15:09:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964822AbVJaUJd
+	id S964825AbVJaURD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 15:17:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbVJaURC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 15:09:33 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:38300 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964819AbVJaUJd (ORCPT
+	Mon, 31 Oct 2005 15:17:02 -0500
+Received: from guru.webcon.ca ([216.194.67.26]:51692 "EHLO guru.webcon.ca")
+	by vger.kernel.org with ESMTP id S964821AbVJaUQ5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 15:09:33 -0500
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: amd64 bitops fix for -Os
-References: <orvezggf7x.fsf@livre.oliva.athome.lsd.ic.unicamp.br>
-	<20051030192323.GF657@openzaurus.ucw.cz>
-From: Alexandre Oliva <aoliva@redhat.com>
-Organization: Red Hat OS Tools Group
-Date: Mon, 31 Oct 2005 18:09:15 -0200
-In-Reply-To: <20051030192323.GF657@openzaurus.ucw.cz> (Pavel Machek's
- message of "Sun, 30 Oct 2005 20:23:24 +0100")
-Message-ID: <or8xw9v47o.fsf@livre.oliva.athome.lsd.ic.unicamp.br>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+	Mon, 31 Oct 2005 15:16:57 -0500
+Date: Mon, 31 Oct 2005 15:16:56 -0500 (EST)
+From: "Ian E. Morgan" <imorgan@webcon.ca>
+X-X-Sender: imorgan@light.int.webcon.net
+To: linux-kernel@vger.kernel.org
+Subject: TI FlashMedia driver
+Message-ID: <Pine.LNX.4.64.0510311510130.8105@light.int.webcon.net>
+Organization: Webcon, Inc
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Assp-Spam-Prob: 0.00000
+X-Assp-Envelope-From: imorgan@webcon.ca
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 30, 2005, Pavel Machek <pavel@suse.cz> wrote:
+Given the number of people annoyed by the lack of a driver for TI's
+FlashMedia controller (part of the 6xx1 & 7xx1 series chips), myself one of
+them, I've started a project to reverse-engineer the device.
 
->> This patches fixes a bug that comes up when compiling the kernel for
->> x86_64 optimizing for size.  It affects 2.6.14 for sure, but I'm
->> pretty sure many earlier kernels are affected as well.
+Basic details available here, adding new info whenever I get/discover it:
+http://www.webcon.ca/~imorgan/tifm21/
 
-> Is the same problem in i386, too?
+Anyone with one of these devices (common in newer notebooks, especially
+HP/Compaq units) interested in helping, please check out the above web page
+and get on board!
 
-No, it doesn't use custom versions of find_first*bit.
+P.S. There are a few reports that a company has already written a Linux
+driver for this device, but it was only made available to Texas Instruments.
+Although TI's documents do mention Linux support for these devices, there is
+absolutely no sign of a driver available anywhere. Queries to TI by myself
+any several other people in the past have gone unanswered.
 
->> --- arch/x86_64/lib/bitops.c~	2005-10-27 22:02:08.000000000 -0200
->> +++ arch/x86_64/lib/bitops.c	2005-10-29 18:24:27.000000000 -0200
->> @@ -1,5 +1,11 @@
->> #include <linux/bitops.h>
->> 
->> +#define BITOPS_CHECK_UNDERFLOW_RANGE 0
->> +
->> +#if BITOPS_CHECK_UNDERFLOW_RANGE
->> +# include <linux/kernel.h>
->> +#endif
-
-> Could you drop the ifdefs? Nice for debugging but we don't
-> want them in mainline.
-
-Are you absolutely sure we don't?  I'd almost left them in, enabled
-unconditionally.  Note that the ifdef will make no difference
-whatsoever for the case I've just fixed, but it would help catch any
-other (ab)uses(?) elsewhere that may have gone unnoticed until now.
-
-> Plus you want to add signed-off-by: header and send it to ak@suse.de.
-> 				Pavel
-
-Err...  The header was right there.  Or do you mean as an e-mail
-header, as opposed to a regular line in the e-mail body?
-
-I'll forward the patch to ak.
+Regards,
+Ian Morgan
 
 -- 
-Alexandre Oliva         http://www.lsd.ic.unicamp.br/~oliva/
-Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
-Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}
+-------------------------------------------------------------------
+ Ian E. Morgan          Vice President & C.O.O.       Webcon, Inc.
+ imorgan at webcon dot ca       PGP: #2DA40D07       www.webcon.ca
+    *  Customized Linux Network Solutions for your Business  *
+-------------------------------------------------------------------

@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932501AbVJaVQT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751094AbVJaVSQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932501AbVJaVQT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 16:16:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932521AbVJaVQT
+	id S1751094AbVJaVSQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 16:18:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbVJaVSQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 16:16:19 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:3223 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S932501AbVJaVQS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 16:16:18 -0500
-Date: Tue, 1 Nov 2005 08:13:27 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       stable@kernel.org, linux-xfs@oss.sgi.com, xfs-masters@oss.sgi.com,
-       Dimitri Puzin <tristan-777@ddkom-online.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [stable] [2.6 patch] fix XFS_QUOTA for modular XFS
-Message-ID: <20051101081327.C6220221@wobbly.melbourne.sgi.com>
-References: <20051028203325.GD4180@stusta.de> <20051031210305.GR5856@shell0.pdx.osdl.net>
+	Mon, 31 Oct 2005 16:18:16 -0500
+Received: from fmr19.intel.com ([134.134.136.18]:9385 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751094AbVJaVSP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 16:18:15 -0500
+Date: Mon, 31 Oct 2005 13:20:02 -0800
+From: Randy Dunlap <randy_d_dunlap@linux.intel.com>
+To: perex@suse.cz, akpm <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] sound/hda: rate-limit timeout message
+Message-Id: <20051031132002.14b7aedb.randy_d_dunlap@linux.intel.com>
+X-Mailer: Sylpheed version 2.0.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+X-Face: "}I"O`t9.W]b]8SycP0Jap#<FU!b:16h{lR\#aFEpEf\3c]wtAL|,'>)%JR<P#Yg.88}`$#
+ A#bhRMP(=%<w07"0#EoCxXWD%UDdeU]>,H)Eg(FP)?S1qh0ZJRu|mz*%SKpL7rcKI3(OwmK2@uo\b2
+ GB:7w&?a,*<8v[ldN`5)MXFcm'cjwRs5)ui)j
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20051031210305.GR5856@shell0.pdx.osdl.net>; from chrisw@osdl.org on Mon, Oct 31, 2005 at 01:03:05PM -0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 31, 2005 at 01:03:05PM -0800, Chris Wright wrote:
-> * Adrian Bunk (bunk@stusta.de) wrote:
-> > This patch by Dimitri Puzin submitted through kernel Bugzilla #5514 
-> > fixes the following issue:
-> > 
-> > Cannot build XFS filesystem support as module with quota support. It 
-> > works only when the XFS filesystem support is compiled into the kernel. 
-> > Menuconfig prevents from setting CONFIG_XFS_FS=m and CONFIG_XFS_QUOTA=y.
-> 
-> Thanks, will queue for -stable, but this hasn't made it upstream yet.
+From: Randy Dunlap <randy_d_dunlap@linux.intel.com>
 
-Sorry, public holiday here has meant no action on that front - it
-is "good to go" though, and will be sent to Linus when I'm back in
-the office.
+Rate-limit the azx_get_response timeout message.
+A continuous 2 per second is too much.
 
-cheers.
+Signed-off-by: Randy Dunlap <randy_d_dunlap@linux.intel.com>
+---
 
--- 
-Nathan
+ sound/pci/hda/hda_intel.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletion(-)
+
+diff -Naurp linux-2614-work/sound/pci/hda/hda_intel.c~hda_rate_limit linux-2614-work/sound/pci/hda/hda_intel.c
+--- linux-2614-work/sound/pci/hda/hda_intel.c~hda_rate_limit	2005-10-27 17:02:08.000000000 -0700
++++ linux-2614-work/sound/pci/hda/hda_intel.c	2005-10-31 13:11:33.000000000 -0800
+@@ -37,6 +37,7 @@
+ #include <asm/io.h>
+ #include <linux/delay.h>
+ #include <linux/interrupt.h>
++#include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/init.h>
+@@ -508,7 +509,9 @@ static unsigned int azx_get_response(str
+ 
+ 	while (chip->rirb.cmds) {
+ 		if (! --timeout) {
+-			snd_printk(KERN_ERR "azx_get_response timeout\n");
++			if (printk_ratelimit())
++				snd_printk(KERN_ERR
++					"azx_get_response timeout\n");
+ 			chip->rirb.rp = azx_readb(chip, RIRBWP);
+ 			chip->rirb.cmds = 0;
+ 			return -1;
+
+
+---

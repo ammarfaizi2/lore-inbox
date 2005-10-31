@@ -1,68 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbVJ3X7x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbVJaADw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932411AbVJ3X7x (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 18:59:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932409AbVJ3X7x
+	id S932413AbVJaADw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 19:03:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbVJaADw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 18:59:53 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:28341
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S932252AbVJ3X7w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 18:59:52 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [git patches] 2.6.x libata updates
-Date: Sun, 30 Oct 2005 17:59:39 -0600
-User-Agent: KMail/1.8
-Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20051029182228.GA14495@havoc.gtf.org> <200510300644.20225.rob@landley.net> <Pine.LNX.4.64.0510301435520.27915@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0510301435520.27915@g5.osdl.org>
+	Sun, 30 Oct 2005 19:03:52 -0500
+Received: from rwcrmhc11.comcast.net ([216.148.227.117]:4828 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S932407AbVJaADv convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 19:03:51 -0500
+Date: Mon, 31 Oct 2005 00:03:49 +0000
+From: Willem Riede <wrlk@riede.org>
+Reply-To: wrlk@riede.org
+Subject: [PATCH] ide-scsi fails to call idescsi_check_condition for things
+ like "Medium not present"
+To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+X-Mailer: Balsa 2.3.5
+Message-Id: <1130717029l.3354l.18l@serve.riede.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200510301759.39498.rob@landley.net>
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 30 October 2005 16:36, Linus Torvalds wrote:
+This patch started life as a response to fedora specific ide subsystem changes 
+that made error handling of my ATAPI tape drive fail; the specifics are in
 
-> > Is this a viable option?
->
-> No.
->
-> There is no "ordering" in a distributed environment. We have things
-> happening in parallel, adn you can't really linearize the patches.
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=160868
 
-To clarify my thinking:
+The insertion of the statement rq->errors = err; near the end of 
+ide_end_drive_cmd() in drivers/ide/ide-io.c means that rq->errors does not 
+contain what it needs to in idescsi_end_request() in drivers/scsi/ide-scsi.c 
+anymore. Recent mainline kernels now also have this change.
 
-It doesn't matter what the ordering is, as long as A) the patches are 
-separated somehow, B) the resulting kernel from applying any initial subset 
-(patches 1-X in the series) has some reasonable chance to build and work.
+The patch below makes ide-scsi whole.
 
-Any arbitrary order is theoretically fine for (A).  Alphabetical by msgid or 
-sha1sum.  Or the order they appear in the changelog.
+Signed-off-by: Willem Riede <wrlk@riede.org>
 
-It's (B) that's the tricky bit, but not an insoluble problem.  "The order 
-Linux imported them into his tree" might give that.
+--- linux-2.6.14/drivers/scsi/ide-scsi.c	2005-10-27 20:02:08.000000000
+-0400
++++ linux-2.6.14w/drivers/scsi/ide-scsi.c	2005-10-29 09:22:47.000000000
+-0400
+@@ -389,6 +389,7 @@
+ 	int log = test_bit(IDESCSI_LOG_CMD, &scsi->log);
+ 	struct Scsi_Host *host;
+ 	u8 *scsi_buf;
++	int errors = rq->errors;
+ 	unsigned long flags;
+ 
+ 	if (!(rq->flags & (REQ_SPECIAL|REQ_SENSE))) {
+@@ -415,11 +416,11 @@
+ 			printk (KERN_WARNING "ide-scsi: %s: timed out for
+%lu\n",
+ 					drive->name, pc->scsi_cmd->serial_number);
+ 		pc->scsi_cmd->result = DID_TIME_OUT << 16;
+-	} else if (rq->errors >= ERROR_MAX) {
++	} else if (errors >= ERROR_MAX) {
+ 		pc->scsi_cmd->result = DID_ERROR << 16;
+ 		if (log)
+ 			printk ("ide-scsi: %s: I/O error for %lu\n",
+drive->name, pc->scsi_cmd->serial_number);
+-	} else if (rq->errors) {
++	} else if (errors) {
+ 		if (log)
+ 			printk ("ide-scsi: %s: check condition for %lu\n",
+drive->name, pc->scsi_cmd->serial_number);
+ 		if (!idescsi_check_condition(drive, rq))
 
-> The closest you can get is "git bisect", which does the right thing.
 
-Ok, so we've already got an order, whatever order git bisect puts them in.  
-(It doesn't have to be stable between releases, just a snapshot in time of a 
-set of individual patches which, cumulatively applied,would have the same 
-effect as the big rc1->rc2 diffs we've been getting.)
-
-It doesn't sound like it would be _too_ hard to abuse the "git bisect" 
-mechanism to work out each possible bisection point between -rc1 and -rc1, 
-and if that can be done why can't it spit out the individual patches (with 
-descriptions) and cat them together?
-
-Why wouldn't this work?
-
->   Linus
-
-Rob

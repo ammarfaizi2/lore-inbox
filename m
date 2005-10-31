@@ -1,78 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbVJaDw7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbVJaD4S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932294AbVJaDw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 22:52:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbVJaDw6
+	id S1751334AbVJaD4S (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 22:56:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbVJaD4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 22:52:58 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:20997 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S1751329AbVJaDw5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 22:52:57 -0500
-Date: Mon, 31 Oct 2005 01:52:49 -0200
-From: Arnaldo Carvalho de Melo <acme@mandriva.com>
-To: Jens Axboe <axboe@suse.de>, Tejun Heo <htejun@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][noop-iosched] don't reuse a freed request
-Message-ID: <20051031035249.GE5632@mandriva.com>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@mandriva.com>,
-	Jens Axboe <axboe@suse.de>, Tejun Heo <htejun@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <20051031023024.GC5632@mandriva.com> <20051031025526.GD5632@mandriva.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051031025526.GD5632@mandriva.com>
-X-Url: http://advogato.org/person/acme
-User-Agent: Mutt/1.5.9i
+	Sun, 30 Oct 2005 22:56:18 -0500
+Received: from warden2-p.diginsite.com ([209.195.52.120]:47031 "HELO
+	warden2.diginsite.com") by vger.kernel.org with SMTP
+	id S1751329AbVJaD4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 22:56:17 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+X-X-Sender: dlang@dlang.diginsite.com
+In-Reply-To: <Pine.LNX.4.64.0510291229330.3348@g5.osdl.org>
+References: <20051029182228.GA14495@havoc.gtf.org> <20051029121454.5d27aecb.akpm@osdl.org><4363CB60.2000201@pobox.com> <Pine.LNX.4.64.0510291229330.3348@g5.osdl.org>
+Date: Sun, 30 Oct 2005 19:55:40 -0800 (PST)
+X-X-Sender: dlang@dlang.diginsite.com
+Subject: Re: [git patches] 2.6.x libata updates
+In-Reply-To: <Pine.LNX.4.64.0510291229330.3348@g5.osdl.org>
+Message-ID: <Pine.LNX.4.62.0510301952550.16065@qynat.qvtvafvgr.pbz>
+References: <20051029182228.GA14495@havoc.gtf.org>
+ <20051029121454.5d27aecb.akpm@osdl.org><4363CB60.2000201@pobox.com>
+ <Pine.LNX.4.64.0510291229330.3348@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Mon, Oct 31, 2005 at 12:55:26AM -0200, Arnaldo Carvalho de Melo escreveu:
-> Em Mon, Oct 31, 2005 at 12:30:24AM -0200, Arnaldo Carvalho de Melo escreveu:
-> > Hi,
-> > 
-> > 	I'm getting the oops below when trying to use qemu with a kernel
-> > built with just the noop iosched, I'm never had looked at this code before,
-> > so I did a quick hack that seems enough for my case.
-> > 
-> > 	Ah, this is with a fairly recent git tree (today), haven't checked
-> > if it is present in 2.6.14.
-> 
-> Further info: building with all the io schedulers and using 'elevator=cfq'
-> in the kernel cmd line produces another oops, with or without my patch:
-> 
-> hda:<1>Unable to handle kernel paging request at virtual address c554ef60
-> printing eip:
-> 01b14f7
-> pde = 00015067
-> pte = 0554e000
-> ops: 0000 [#1]
-> EBUG_PAGEALLOC
-> odules linked in:
-> PU:    0
-> IP:    0060:[<c01b14f7>]    Not tainted VLI
-> FLAGS: 00000046   (2.6.14acme)
-> IP is at __elv_add_request+0xe7/0x13f
+On Sat, 29 Oct 2005, Linus Torvalds wrote:
 
-Ok, some more info, hope it'll be useful: I narrowed it down to this part
-of __elv_add_request:
+> On Sat, 29 Oct 2005, Jeff Garzik wrote:
+>>
+>> Even so, it's easy, to I'll ask him to test 2.6.14, 2.6.14-git1, and
+>> (tonight's upcoming) 2.6.14-git2 (with my latest pull included) to see if
+>> anything breaks.
+>
+> Side note: one of the downsides of the new "merge lots of stuff early in
+> the development series" approach is that the first few daily snapshots end
+> up being _huge_.
+>
+> So the -git1 and -git2 patches are/will be very big indeed.
+>
+> For example, patch-2.6.14-git1 literally ended up being a megabyte
+> compressed. Right now my diff to 2.6.14 (after just two days) is 1.6MB
+> compressed.
+>
+> Admittedly, some of it is due to things like the MIPS merge, but the point
+> I'm trying to make is that it makes the daily snapshot diffs a lot less
+> useful to people who try to figure out where something broke.
+>
+> Now, I've gotten several positive comments on how easy "git bisect" is to
+> use, and I've used it myself, but this is the first time that patch users
+> _really_ become very much second-class citizens, and you can't necessarily
+> always do useful things with just the tar-trees and patches. That's sad,
+> and possibly a really big downside.
+>
+> Don't get me wrong - I personally think that the new merge policy is a
+> clear improvement, but it does have this downside.
+>
+> 			Linus
 
-	case ELEVATOR_INSERT_SORT:
-                BUG_ON(!blk_fs_request(rq));
-                rq->flags |= REQ_SORTED;
-                q->elevator->ops->elevator_add_req_fn(q, rq);
-                if (q->last_merge == NULL && rq_mergeable(rq))
-                        q->last_merge = rq;
-                break;
+how about setting up something on a webserver (ideally kernel.org) to do 
+the git bisect and output patches against the daily snapshots.
 
-It seems it is not safe to touch the request (rq) after calling
-elevator_add_req_fn, as the panic happens when rq_mergeable tries
-to read rq->flags, or cfq_insert_request is doing something bad, well,
-enough for my block layer wanderings :-)
+if a lot of people used it the load would be an issue, but if it's only 
+used by a relativly few people tracking down bugs it's probably worth it.
 
-Best Regards,
+David Lang
 
-- Arnaldo
-
-P.S. the last patches to touch this code are post 2.6.14
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare

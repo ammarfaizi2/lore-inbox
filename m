@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932355AbVJaJfB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbVJaJgr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932355AbVJaJfB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 04:35:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932362AbVJaJfB
+	id S932362AbVJaJgr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 04:36:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbVJaJgr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 04:35:01 -0500
-Received: from zproxy.gmail.com ([64.233.162.194]:47832 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932355AbVJaJfB convert rfc822-to-8bit
+	Mon, 31 Oct 2005 04:36:47 -0500
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:46784 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S932341AbVJaJgp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 04:35:01 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=mJ/syYWZ7bVpzxryzP1KSgyJqmw3YhSe49fGd+g/U/ttkZi7n3zGTVhtD3A66IItaL1c9HBTgEPFECnE0Lf46mai0iGWL/93xCkIUTJtRi6BM3Zjbl7N8A0x8Fbf6QFhVealX7OBIBfLKvAMFeovSuZW20fvDcu6lhb9V9kvU+E=
-Message-ID: <460afdfa0510310134n1742e1fk95116b85df485dfc@mail.gmail.com>
-Date: Mon, 31 Oct 2005 10:34:59 +0100
-From: Luca <luca.foppiano@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: sata problem
+	Mon, 31 Oct 2005 04:36:45 -0500
+Subject: Re: [patch 1/14] s390: statistics infrastructure.
+To: Christoph Hellwig <hch@infradead.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, mschwid2@de.ibm.com
+X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
+Message-ID: <OFBB1FC9BA.70D071A5-ONC12570AB.00342B9E-C12570AB.003B1DB2@de.ibm.com>
+From: Martin Peschke3 <MPESCHKE@de.ibm.com>
+Date: Mon, 31 Oct 2005 10:36:42 +0100
+X-MIMETrack: Serialize by Router on D12ML067/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
+ 31/10/2005 10:36:43
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
- I have abit aa8xe with intel  925Xe chipset. I have kernel 2.6.14 and
-I have this error:
+Christoph,
 
-ata1: SATA max UDMA/133 cmd 0xFA00 ctl 0xF902 bmdma 0xF600 irq 193
-ata2: SATA max UDMA/133 cmd 0xF800 ctl 0xF702 bmdma 0xF608 irq 193
-ata1: dev 0 cfg 49:2f00 82:7c6b 83:7f09 84:4673 85:7c69 86:3e01 87:4663 88:207f
-ata1: dev 0 ATA, max UDMA/133, 320173056 sectors: lba48
-ata1: dev 0 configured for UDMA/133
-scsi0 : ata_piix
-ATA: abnormal status 0x7F on port 0xF807
-ata2: disabling port
+> On Fri, Oct 28, 2005 at 04:06:17PM +0200, Martin Schwidefsky wrote:
+> > From: Martin Peschke <mpeschke@de.ibm.com>
+> >
+> > [patch 1/14] s390: statistics infrastructure.
+> >
+> > Add the statistics facility. This features offers a simple way to
+> > gather statistical data and to display them via the debugfs.
+> > An example how this is used:
+> >
+> >          struct statistic_interface *stat_if;
+> >          struct statistic *stat;
+> >
+> >          statistic_interface_create(&stat_if, "whatever");
+> >          statistic_create(&stat, stat_if, "stat-name", "unit");
+> >          statistic_define_value(stat, range_min, range_max, def_mode);
+> >          ...
+> >          statistic_inc(stat, value);         /* repeat.. */
+> >          ...
+> >          statistic_interface_remove(&stat_if);
+>
+> This certainly doesn't belong into arch code.  Please move to common
+> code and send over to lkml for detailed review.
 
-why I return this error? Sata work with enchanced mode. If I do:
+Sure, I am happy to do so.
+I will try to answer Andrew's questions first, though. I think I will
+want to pick up some of his suggestions prior to resubmission.
 
-pj@crumble:~$ sudo hdparm -tT /dev/sda
+Thanks,
+Martin
 
-/dev/sda:
- Timing cached reads:   4152 MB in  2.00 seconds = 2075.28 MB/sec
-HDIO_DRIVE_CMD(null) (wait for flush complete) failed: Inappropriate
-ioctl for device
- Timing buffered disk reads:  164 MB in  3.02 seconds =  54.31 MB/sec
-HDIO_DRIVE_CMD(null) (wait for flush complete) failed: Inappropriate
-ioctl for device
-
-I return an error. Is critical? When kernel will support my controller?
-tnks very much
-bye
-Luca

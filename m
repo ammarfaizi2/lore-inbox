@@ -1,49 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbVJaSJx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932528AbVJaSLt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932348AbVJaSJx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 13:09:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932527AbVJaSJx
+	id S932528AbVJaSLt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 13:11:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932530AbVJaSLt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 13:09:53 -0500
-Received: from silver.veritas.com ([143.127.12.111]:58934 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S932348AbVJaSJx
+	Mon, 31 Oct 2005 13:11:49 -0500
+Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:11786 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932528AbVJaSLs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 13:09:53 -0500
-Date: Mon, 31 Oct 2005 18:08:51 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-cc: mingo@elte.hu, linux-kernel@vger.kernel.org, tytso@us.ibm.com,
-       sripathi@in.ibm.com, dipankar@in.ibm.com, oleg@tv-sign.ru
-Subject: Re: [RFC,PATCH] RCUify single-thread case of clock_gettime()
-In-Reply-To: <20051031174416.GA2762@us.ibm.com>
-Message-ID: <Pine.LNX.4.61.0510311802550.9631@goblin.wat.veritas.com>
-References: <20051031174416.GA2762@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 31 Oct 2005 18:09:52.0850 (UTC) FILETIME=[4A79CB20:01C5DE46]
+	Mon, 31 Oct 2005 13:11:48 -0500
+Date: Mon, 31 Oct 2005 19:11:33 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6] i2c: writing-client doc update complement
+Message-Id: <20051031191133.24ee03f7.khali@linux-fr.org>
+X-Mailer: Sylpheed version 2.0.3 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Oct 2005, Paul E. McKenney wrote:
-> 
-> The attached patch uses RCU to avoid the need to acquire tasklist_lock
-> in the single-thread case of clock_gettime().  Still acquires tasklist_lock
-> when asking for the time of a (potentially multithreaded) process.
-> 
-> Experimental, has been touch-tested on x86 and POWER.  Requires RCU on
-> task_struct.  Further more focused testing in progress.
-> 
-> Thoughts?  (Why?  Some off-list users want to be able to monitor CPU
-> consumption of specific threads.  They need to do so quite frequently,
-> so acquiring tasklist_lock is inappropriate.)
+Hi Linus,
 
-Not my area at all, but this looks really dodgy to me, Paul:
-could you explain it further?
+Can you please apply the following patch to your git tree? Thanks.
 
-First off, I don't see what's "RCU" about it at all.  Essentially,
-you're replacing read_lock(&tasklist_lock) by preempt_disable(),
-but calling it by the fancier rcu_read_lock() alias.  I thought there
-would need to be some more infrastructure to make this RCU and safe?
+* * * * *
 
-Hugh
+My latest update to the writing-clients i2c documentation file was
+incomplete, here's the complement.
+
+Large parts of this file are still way out-of-date, but at least now
+the memory allocation and freeing instructions are consistent.
+
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+---
+
+ Documentation/i2c/writing-clients |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- linux-2.6.14-git.orig/Documentation/i2c/writing-clients	2005-10-31 18:44:21.000000000 +0100
++++ linux-2.6.14-git/Documentation/i2c/writing-clients	2005-10-31 19:07:22.000000000 +0100
+@@ -412,7 +412,7 @@
+         release_region(address,FOO_EXTENT);
+     /* SENSORS ONLY END */
+     ERROR1:
+-      kfree(new_client);
++      kfree(data);
+     ERROR0:
+       return err;
+   }
+@@ -443,7 +443,7 @@
+       release_region(client->addr,LM78_EXTENT);
+     /* HYBRID SENSORS CHIP ONLY END */
+ 
+-    kfree(data);
++    kfree(i2c_get_clientdata(client));
+     return 0;
+   }
+ 
+
+
+-- 
+Jean Delvare

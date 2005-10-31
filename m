@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbVJaL5Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbVJaMCi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932066AbVJaL5Z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 06:57:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932306AbVJaL5Z
+	id S932309AbVJaMCi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 07:02:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932320AbVJaMCh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 06:57:25 -0500
-Received: from plasma-gate.weizmann.ac.il ([132.77.150.54]:34968 "EHLO
-	plasma-gate.weizmann.ac.il") by vger.kernel.org with ESMTP
-	id S932066AbVJaL5Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 06:57:24 -0500
-Message-ID: <43660693.6040601@weizmann.ac.il>
-Date: Mon, 31 Oct 2005 13:57:07 +0200
-From: Evgeny Stambulchik <Evgeny.Stambulchik@weizmann.ac.il>
-Organization: Weizmann Institute of Science
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: jonathan@jonmasters.org
-CC: Rob Landley <rob@landley.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix floppy.c to store correct ro/rw status in underlying
- gendisk
-References: <4363B081.7050300@jonmasters.org> <35fb2e590510291035n297aa22cv303ae77baeb5c213@mail.gmail.com>
-In-Reply-To: <35fb2e590510291035n297aa22cv303ae77baeb5c213@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 31 Oct 2005 07:02:37 -0500
+Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:54026 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932309AbVJaMCh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 07:02:37 -0500
+Date: Mon, 31 Oct 2005 22:58:37 +1100
+To: Adrian Bunk <bunk@stusta.de>
+Cc: James Morris <jmorris@redhat.com>, Kausty <kkumbhalkar@gmail.com>,
+       linux-kernel@vger.kernel.org, davem@davemloft.net,
+       linux-crypto@vger.kernel.org
+Subject: Re: [2.6 patch] crypto/api.c: remove the second argument of crypto_alg_available()
+Message-ID: <20051031115837.GA352@gondor.apana.org.au>
+References: <41ae44840501200448197d18c0@mail.gmail.com> <Xine.LNX.4.44.0501200952440.952-100000@thoron.boston.redhat.com> <20051031054642.GD8009@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051031054642.GD8009@stusta.de>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Masters wrote:
+On Mon, Oct 31, 2005 at 06:46:42AM +0100, Adrian Bunk wrote:
+>
+> > IIRC, this was to allow future code to specify preferences for the type of
+> > algorithm driver (e.g. hardware), but has not been used.  This is an
+> > example of why it's a bad idea to add infrastructure which isn't being
+> > used at the time.
+> 
+> Since it's still unused, a patch to remove this second argument is 
+> below.
 
-> Let me know if this fixes it for you - should bomb out now if you try.
-> The error isn't the cleanest (blame mount), but it does fail.
+I'll be using this field very soon to indicate that the caller intends
+to find synchronous algorithms only as opposed to either synchronous or
+asynchronous.  So I'd like to keep it for now.
 
-This works fine, thanks! For what it worth, though, mount -o remount,rw 
-says remounting read-only yet still returns success. (Opposite to 
-busybox, which now says "Permission denied" - rather misleading, but at 
-least it fails).
-
-My question is, shouldn't it be implemented at a more generic level? 
-Floppy is just one example. Others are all kind of USB storage, ZIP/Jazz 
-drives, and even normal SCSI disks (which have a RO jumper - at least 
-some of them do).
-
-I got an ancient USB disk on key with a write-protection switch. When I 
-plug it in in the RO mode, everything goes exactly as it was (before 
-your patch) with floppy. Now something interesting:
-1. The thingy is plugged in RW and mounted
-2. While connected, I switch it to RO
-   dmesg says:
-   -> SCSI device sda: 129024 512-byte hdwr sectors (66 MB)
-   -> sda: Write Protect is on
-   -> sda: Mode Sense: 03 00 80 00
-   -> sda: assuming drive cache: write through
-3.
-# mount -o remount,rw  /mnt
-mount: block device /dev/sda1 is write-protected, mounting read-only
-# echo $?
-0
-
-So it seems there is some layer in bd which does know about RO status 
-(and furthermore it's set by hot events)?
-
-Regards,
-
-Evgeny
+Thanks,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

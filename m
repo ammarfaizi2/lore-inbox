@@ -1,43 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbVJaXQ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbVJaXR1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964867AbVJaXQ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 18:16:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbVJaXQ1
+	id S964866AbVJaXR1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 18:17:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964871AbVJaXR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 18:16:27 -0500
-Received: from waste.org ([216.27.176.166]:48519 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S964864AbVJaXQ0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 18:16:26 -0500
-Date: Mon, 31 Oct 2005 15:11:21 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 17/20] inflate: mark some arrays as initdata
-Message-ID: <20051031231120.GF4367@waste.org>
-References: <17.196662837@selenic.com> <18.196662837@selenic.com> <20051031224301.GF20452@flint.arm.linux.org.uk> <20051031225746.GD4367@waste.org> <20051031231052.GA1710@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 31 Oct 2005 18:17:27 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:50843
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S964866AbVJaXR0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 18:17:26 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Evgeny Stambulchik <Evgeny.Stambulchik@weizmann.ac.il>
+Subject: Re: [PATCH] fix floppy.c to store correct ro/rw status in underlying gendisk
+Date: Mon, 31 Oct 2005 17:17:21 -0600
+User-Agent: KMail/1.8
+Cc: jonathan@jonmasters.org, linux-kernel@vger.kernel.org
+References: <4363B081.7050300@jonmasters.org> <35fb2e590510291035n297aa22cv303ae77baeb5c213@mail.gmail.com> <43660693.6040601@weizmann.ac.il>
+In-Reply-To: <43660693.6040601@weizmann.ac.il>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051031231052.GA1710@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200510311717.21676.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 31, 2005 at 11:10:52PM +0000, Russell King wrote:
-> That's what threading is for. 8)
+On Monday 31 October 2005 05:57, Evgeny Stambulchik wrote:
+> Jon Masters wrote:
+> > Let me know if this fixes it for you - should bomb out now if you try.
+> > The error isn't the cleanest (blame mount), but it does fail.
+>
+> This works fine, thanks! For what it worth, though, mount -o remount,rw
+> says remounting read-only yet still returns success. (Opposite to
+> busybox, which now says "Permission denied" - rather misleading, but at
+> least it fails).
 
-What's what's threading is for?
+That sounds like the string translation of EPERM returned by libc's 
+strerror().  (At busybox we're frugal bastards; we don't include text 
+messages when we can get the C library to provide them for us. :)
 
-> > I think for ARM, we can simply do -DINITDATA=const, yes?
-> 
-> No, unless you want to make this const:
-> 
-> -static u8 window[0x8000]; /* use a statically allocated window */
-> +static u8 INITDATA window[0x8000]; /* use a statically allocated window */
+But yeah, we're sticklers for correct behavior, and only attempt to remount 
+readonly if we get EACCES or EROFS, not _just_ because we attempted a 
+read/write mount and it failed.  (And yes, I personally tested this corner 
+case.  We haven't started on an automated regression test script for mount 
+yet because running it would require root access, but it's on the todo list 
+as we upgrade the test suite in our Copious Free Time...)
 
-Ok, that bit can just be dropped. It needn't be INITDATA anyway, as it
-now gets kmalloc'ed for users in the kernel proper. Anything else?
-
--- 
-Mathematics is the supreme nostalgia of our time.
+Rob

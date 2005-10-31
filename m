@@ -1,91 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932327AbVJaP7D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbVJaQBj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932327AbVJaP7D (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 10:59:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbVJaP7D
+	id S932344AbVJaQBj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 11:01:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbVJaQBj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 10:59:03 -0500
-Received: from zproxy.gmail.com ([64.233.162.205]:14473 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932327AbVJaP7C convert rfc822-to-8bit
+	Mon, 31 Oct 2005 11:01:39 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:48396 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S932344AbVJaQBi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 10:59:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=M2RG5Rup8eUcFd/bXDFQVUYB9mGwVfkAzGzAiUbQPQ2SqBEuBjuJfbBqW1+7xgP1PdFGavgQ5Np04jE15hlnPHwn8uc1mHyJx05kO3o6V5A1yHo6vfeAbSrYll2jkaZz1Z28Ijw0b9/YDxbLDkjCs/z72+vM0ek+lktP5ONUNDI=
-Message-ID: <35fb2e590510310758t7fd13cd1nec5a4881ccd9e5fa@mail.gmail.com>
-Date: Mon, 31 Oct 2005 15:58:59 +0000
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: Evgeny Stambulchik <Evgeny.Stambulchik@weizmann.ac.il>
-Subject: Re: [PATCH] fix floppy.c to store correct ro/rw status in underlying gendisk
-Cc: Rob Landley <rob@landley.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <43660693.6040601@weizmann.ac.il>
+	Mon, 31 Oct 2005 11:01:38 -0500
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+References: <20051030105118.GW4180@stusta.de> <p73mzkqubf4.fsf@verdi.suse.de>
+	<20051030183821.GI4180@stusta.de> <200510302035.49765.ak@suse.de>
+	<20051030194951.GJ4180@stusta.de>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: featuring the world's first municipal garbage collector!
+Date: Mon, 31 Oct 2005 15:59:02 +0000
+In-Reply-To: <20051030194951.GJ4180@stusta.de> (Adrian Bunk's message of "30
+ Oct 2005 19:50:22 -0000")
+Message-ID: <87wtjt7k55.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4363B081.7050300@jonmasters.org>
-	 <35fb2e590510291035n297aa22cv303ae77baeb5c213@mail.gmail.com>
-	 <43660693.6040601@weizmann.ac.il>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/31/05, Evgeny Stambulchik <Evgeny.Stambulchik@weizmann.ac.il> wrote:
-> Jon Masters wrote:
+On 30 Oct 2005, Adrian Bunk said:
+> E.g. it's clear that unused code or unused EXPORT_SYMBOL's in the kernel 
+> are bloat, so I am working on eliminating such bloat.
 
-> > Let me know if this fixes it for you - should bomb out now if you try.
-> > The error isn't the cleanest (blame mount), but it does fail.
+And thank you very much for that!
 
-> This works fine, thanks!
+What's most notable to me is a substantial cross-arch reduction in .data
+space consumed. This non-FUSE-2.6.13 versus FUSE-2.6.14 UltraSPARC
+comparison shows this effect clearly:
 
-Good. This raises the general problem of devices knowing about their
-underlying media status.
+-rwxr-xr-x  1 root root 3460304 Oct 13 00:55 vmlinux-2.6.13.4
+-rwxr-xr-x  1 root root 3190448 Oct 29 17:18 vmlinux-2.6.14
 
-> For what it worth, though, mount -o remount,rw
-> says remounting read-only yet still returns success. (Opposite to
-> busybox, which now says "Permission denied" - rather misleading, but at
-> least it fails).
+                         2.6.13.4     2.6.14 
+section                      size       size    diff
+.text                     2330144    2341280  +10236
+.rodata                    198361     199009    +648
+.pci_fixup                   1536       1536       0
+__ksymtab                   32352      32336     -16
+__ksymtab_gpl                3536       4048    +512
+__kcrctab                       0          0       0
+__kcrctab_gpl                   0          0       0
+__ksymtab_strings           44688      45424    +736
+__param                      1640       1640       0
+.data                      669288     387576 -281712
+.data.cacheline_aligned       704        704       0
+.data.read_mostly             428      13144  -12716
+.fixup                      18256      18268     +12
+__ex_table                  15760      15768      +8
+.init.text                 109728      94528  -15200
+.init.data                   7280       8712   +1432
+.init.setup                   792        816     +24
+.initcall.init                784        808     +24
+.con_initcall.init             16         16       0
+.security_initcall.init         0          0       0
+.init.ramfs                   134        134       0
+.bss                       226528     226152    -376
+.note.GNU-stack                 0          0       0
+__ex_table.1                  216        216       0
+__ex_table.2                   16        496    +480
+Total                     3662187    3392611 -269576
 
-Mount needs some fixing :-) It just tries calling sys_mount and
-retries ro if that fails, then returns success because the last call
-worked ok. Or so it would seem from the strace output.
+On a similarly-configured Athlon the difference in .data is a little
+less pronounced, but still there.
 
-> My question is, shouldn't it be implemented at a more generic level?
+UltraSPARC 2.6.13.4 versus 2.6.14 at boot:
 
-Yes. Right now, I think the gendisk policy is the best place to store
-this - but having some generic "check the media status" VFS callback
-might be a good thing.
+Memory: 511576k available (2280k kernel code, 936k data, 128k init) [fffff80000000000,0000000037ebc000]
+Memory: 511848k available (2288k kernel code, 672k data, 112k init) [fffff80000000000,0000000037ebc000]
 
-> Floppy is just one example. Others are all kind of USB storage, ZIP/Jazz
-> drives, and even normal SCSI disks (which have a RO jumper - at least
-> some of them do).
+(that's 264K, the same as the .data size difference above)
 
-I'll check, but they probably do something like this in their implementation.
+Athlon 2.6.13.4 versus 2.6.14 at book:
 
-> I got an ancient USB disk on key with a write-protection switch. When I
-> plug it in in the RO mode, everything goes exactly as it was (before
-> your patch) with floppy. Now something interesting:
-> 1. The thingy is plugged in RW and mounted
-> 2. While connected, I switch it to RO
->    dmesg says:
->    -> SCSI device sda: 129024 512-byte hdwr sectors (66 MB)
->    -> sda: Write Protect is on
->    -> sda: Mode Sense: 03 00 80 00
->    -> sda: assuming drive cache: write through
-> 3.
-> # mount -o remount,rw  /mnt
-> mount: block device /dev/sda1 is write-protected, mounting read-only
-> # echo $?
-> 0
->
-> So it seems there is some layer in bd which does know about RO status
-> (and furthermore it's set by hot events)?
+Memory: 774828k/786432k available (2794k kernel code, 11156k reserved, 1022k data, 148k init, 0k highmem)
+Memory: 774996k/786432k available (2833k kernel code, 10988k reserved, 808k data, 152k init, 0k highmem)
 
-There's a callback for remount requests, perhaps they use that. Bear
-in mind that USB devices tend to be more communicative than ancient
-floppy disk drives. I'll have a look into this though - anyone else
-reading who thinks we need a generic way of checking media read/write
-status in addition to media change detect?
+(that's 214K different in .data although kernel code has grown a little
+here, probably thanks to FUSE).
 
-Jon.
+Most OSes cannot claim to shrink across upgrades. Linux, at least the
+kernel, can. :)
+
+-- 
+`"Gun-wielding recluse gunned down by local police" isn't the epitaph
+ I want. I am hoping for "Witnesses reported the sound up to two hundred
+ kilometers away" or "Last body part finally located".' --- James Nicoll

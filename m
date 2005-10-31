@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751279AbVJaCkT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbVJaCmb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751279AbVJaCkT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 21:40:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbVJaCkT
+	id S1751281AbVJaCmb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 21:42:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbVJaCmb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 21:40:19 -0500
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:28894
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S1751279AbVJaCkR (ORCPT
+	Sun, 30 Oct 2005 21:42:31 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:64168 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751281AbVJaCma (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 21:40:17 -0500
-Message-ID: <4365920D.2080009@linuxwireless.org>
-Date: Sun, 30 Oct 2005 20:39:57 -0700
-From: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Marcel Holtmann <marcel@holtmann.org>, Dave Jones <davej@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 4GB memory and Intel Dual-Core system
-References: <1130445194.5416.3.camel@blade> <52mzkuwuzg.fsf@cisco.com>	 <20051027204923.M89071@linuxwireless.org> <1130446667.5416.14.camel@blade>	 <20051027205921.M81949@linuxwireless.org> <1130447261.5416.20.camel@blade>	 <20051027211203.M33358@linuxwireless.org>	 <20051027220533.GA18773@redhat.com> <1130451071.5416.32.camel@blade>	 <20051027221253.GA25932@redhat.com> <1130451421.5416.35.camel@blade>	 <20051027221756.M55421@linuxwireless.org> <1130711165.32734.11.camel@localhost.localdomain>
-In-Reply-To: <1130711165.32734.11.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 30 Oct 2005 21:42:30 -0500
+Date: Sun, 30 Oct 2005 21:42:17 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pci_ids: remove non-referenced symbols from pci_ids.h
+Message-ID: <20051031024217.GA25709@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200510290000.j9T00Bqd001135@hera.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200510290000.j9T00Bqd001135@hera.kernel.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Fri, Oct 28, 2005 at 05:00:11PM -0700, Linux Kernel wrote:
+ > tree 68609a74c3bc43e510f58f9c808a0a74e9d23452
+ > parent 4153812fc10ea91cb1a7b6ea4f4337dd211c1ef7
+ > author Grant Coady <gcoady@gmail.com> Thu, 29 Sep 2005 11:06:40 +1000
+ > committer Greg Kroah-Hartman <gregkh@suse.de> Sat, 29 Oct 2005 05:36:59 -0700
+ > 
+ > [PATCH] pci_ids: remove non-referenced symbols from pci_ids.h
+ > 
+ > pci_ids.h cleanup: removed non-referenced symbols, compile tested
+ > with 'make allmodconfig'
+ > 
+ > Signed-off-by: Grant Coady <gcoady@gmail.com>
+ > Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
->On Iau, 2005-10-27 at 18:20 -0400, Alejandro Bonilla wrote:
->  
->
->>Dude, again. This has nothing to do with the CPU. The arch IA32 is simply
->>_not_ made for 4GB, so, some motherboards manufacturers make a workaround like
->>    
->>
->
->Wrong IA-32 supports more than 4Gb in PAE 36bit physical 32bit virtual
->mode and has done since the Preventium Pro
->  
->
+This patch is removing some PCI idents from drivers that are currently
+marked BROKEN on some/all architectures.  It seems counterproductive
+to create even more work to get those drivers fixed.
 
-I guess you are right and wrong. The architecture has the limitation, 
-the chipset as well and the OS. According to this document, it is the 
-fault of the architecture as well as it requires to support addressing 
-which is not available *stock*, only several other providers have added 
-such "mapping" to get a better use of the memory.
+Especially in the case of for eg, the advansys scsi driver, which
+actually works for some people, even though it isn't updated to use
+modern scsi layer interfaces.
 
-http://www.intel.com/support/motherboards/server/sb/cs-010458.htm
+		Dave
 
-I really don't want to argue on who knows more or less, just want to 
-clarify the fact that IA32 will have this problem normally and that the 
-chipsets that go with it also will make this noticeable.
-
-If you don't believe me, contact the guys who built the Arch which I 
-think are the ones that made the document?
-
-.Alejandro

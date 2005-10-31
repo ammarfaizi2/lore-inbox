@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbVJaOSR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbVJaOVp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750740AbVJaOSR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 09:18:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbVJaOSR
+	id S932232AbVJaOVp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 09:21:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbVJaOVo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 09:18:17 -0500
-Received: from xproxy.gmail.com ([66.249.82.202]:25935 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750740AbVJaOSQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 09:18:16 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=d8Iqu78vIEWolBNZFOx0hIwI64MyMl9lxcsokBXz9Wa9tzk3vghgptVgUahMGTrDOR3Up7Z8OHSc8fIwdIigYqdzHP7pvaXkiIo9HyTvqIJoukhCe/Bzsh0KGh4nuLpbJI3gs5Ve8HOTlRvyK4Kb/aLxKia9iqRjNKNiwnqE8bQ=
-Message-ID: <5a4c581d0510310618u61238417r69fe701e46612160@mail.gmail.com>
-Date: Mon, 31 Oct 2005 15:18:15 +0100
-From: Alessandro Suardi <alessandro.suardi@gmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [2.6.14-git3] KDGKBSENT: Operation not permitted upon login
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 31 Oct 2005 09:21:44 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:30414 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751244AbVJaOVo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 09:21:44 -0500
+Date: Mon, 31 Oct 2005 15:22:04 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark Knecht <markknecht@gmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>
+Subject: Re: 2.6.14-rt1 - xruns in a certain circumstance
+Message-ID: <20051031142204.GA6136@elte.hu>
+References: <5bdc1c8b0510301828p29ea517ew467a5f6503435314@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <5bdc1c8b0510301828p29ea517ew467a5f6503435314@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Freshly built 2.6.14-git3, upon logging on virtual consoles
- (tty2, tty3) I get this on the virtual console (not in dmesg,
- not in /var/log/messages):
 
-KDGKBSENT: Operation not permitted
-KDGKBSENT failed at index 0:
+* Mark Knecht <markknecht@gmail.com> wrote:
 
-The messages seem harmless, I can startx fine and have
- so far no problem from the X session started from that tty.
+> What I'm seeing is that when using basic menus, or when watching 
+> videos I get no xruns. However, if I'm in the preview menu I get an 
+> xrun every few minutes. [...]
 
---alessandro
+this could be some sort of hardware latency, as Lee suspects. Videocards 
+are known to be pretty agressively holding the system bus, for the last 
+few percentiles of Quake performance ... Also, mainboard chipsets are 
+sometimes not that good at enforcing fairness between DMA agents - 
+possibly starving the CPU itself for lengthly amounts of time. We have 
+seen such incidents before, and latency tracing ought to be able to show 
+this with reasonable certainty. If it's some sort of generic hardware 
+latency then you ought to see weird traces when enabling WAKEUP_TIMING 
+and LATENCY_TRACING in the .config. No need for any other debug options 
+or Jack level hackery at this point - just enable these and do a:
 
- "All it takes is one decision
-  A lot of guts, a little vision to wave
-  Your worries, and cares goodbye"
+	echo 0 > /proc/sys/kernel/preempt_max_latency
 
-   (Placebo - "Slave To The Wage")
+and try to trigger as large latencies as possible via MythTV. (you wont 
+necessarily see a large latency reported by the kernel when you see an 
+xrun. We can trace xruns too, but that needs Jackd changes and is more 
+effort to set up.)
+
+	Ingo

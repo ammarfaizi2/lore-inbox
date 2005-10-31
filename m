@@ -1,56 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbVJaNOo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbVJaN2K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751136AbVJaNOo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 08:14:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbVJaNOo
+	id S932158AbVJaN2K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 08:28:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbVJaN2K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 08:14:44 -0500
-Received: from nproxy.gmail.com ([64.233.182.204]:12237 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751136AbVJaNOn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 08:14:43 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=G0XlZyd6+CbB6/iFkTA0oB7YMvyDQyX4BLtrf4ujBWvK0SbCh1cGweP0hlusq/KRUwbrkH2SpTQA4KG6ZPq/m3UMcDF+ppTv2+kZf76yNPMIv1Q+TOtOD961rqDkoV+KT2Egk11kvJVcJxnDb8h7f0IvSWi01sOoWRQTd3MH7LM=
-Date: Mon, 31 Oct 2005 16:27:34 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Ben Dooks <ben-linux@fluff.org>
-Cc: hirofumi@mail.parknet.co.jp, linux-kernel@vger.kernel.org
-Subject: Re: fs/fat - fix sparse warning
-Message-ID: <20051031123525.GA7614@mipter.zuzino.mipt.ru>
-References: <20051031113639.GA30667@home.fluff.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051031113639.GA30667@home.fluff.org>
-User-Agent: Mutt/1.5.8i
+	Mon, 31 Oct 2005 08:28:10 -0500
+Received: from wombat.indigo.net.au ([202.0.185.19]:64266 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S1751145AbVJaN2J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 08:28:09 -0500
+Date: Mon, 31 Oct 2005 21:27:32 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+To: Jeff Moyer <jmoyer@redhat.com>
+cc: autofs@linux.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: autofs4 looks up wrong path element when ghosting is enabled
+In-Reply-To: <17254.252.746357.935671@segfault.boston.redhat.com>
+Message-ID: <Pine.LNX.4.63.0510312119320.2069@donald.themaw.net>
+References: <17200.23724.686149.394150@segfault.boston.redhat.com>
+ <Pine.LNX.4.58.0509210916040.26144@wombat.indigo.net.au>
+ <17203.7543.949262.883138@segfault.boston.redhat.com>
+ <Pine.LNX.4.63.0509241644420.2069@donald.themaw.net>
+ <17205.48192.180623.885538@segfault.boston.redhat.com>
+ <Pine.LNX.4.63.0509250918150.2191@donald.themaw.net>
+ <17208.24786.729632.221157@segfault.boston.redhat.com>
+ <Pine.LNX.4.63.0510152006340.30122@donald.themaw.net>
+ <17238.45372.628520.739194@segfault.boston.redhat.com>
+ <Pine.LNX.4.63.0510291536320.2949@donald.themaw.net>
+ <17254.252.746357.935671@segfault.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-yoursite-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=-2.599,
+	required 5, autolearn=not spam, BAYES_00 -2.60)
+X-yoursite-MailScanner-From: raven@themaw.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 31, 2005 at 11:36:39AM +0000, Ben Dooks wrote:
-> move fat_cache_init/fat_cache_destroy to a common
-> header file in fs/fat so that inode.c and cache.c
-> see the same definition, and to stop warnings
-> from sparse about undeclared functions
+On Mon, 31 Oct 2005, Jeff Moyer wrote:
 
-> --- linux-2.6.14-git3/fs/fat/cache.h
-> +++ linux-2.6.14-git3-bjd1/fs/fat/cache.h
-> @@ -0,0 +1,8 @@
-> +/*  linux/fs/fat/cache.h
+> ==> Regarding Re: autofs4 looks up wrong path element when ghosting is enabled; Ian Kent <raven@themaw.net> adds:
+> 
+> raven> So to resolve this we need to ignore negative and unhashed dentries
+> raven> when checking if directory dentry is empty.
+> >>
+> raven> Please test this patch and let me know how you go.
+> >> OK, I've finally got 'round to testing your patch.  It does fix the test
+> >> case I was using.  My only concern is the potential for regressions.
+> >> I'll try making sure all of my various maps still work as advertised.
+> 
+> raven> I've spotted a regression with this patch.  It doesn't stop autofs
+> raven> from appearing to function correctly. It causes mount callbacks when
+> raven> they shouldn't made. So it seems that there is a case when an autofs
+> raven> directory is, as yet unhashed, but should be used.
+> 
+> I'm not sure I follow.  What do you mean it doesn't stop autofs from
+> *appearing* to function correctly?  Do you have a reproducer that fails?
 
-Every editor can show the name of the current file.
+Any pseudo direct map will produce the behaviour.
 
-> + *
-> + *  Written 1992,1993 by Werner Almesberger
-> + *	header, 2005, Ben Dooks
-> +*/
+It behaves as if the ghost option was not specified even when it has. 
+This is because the altered test for an empty directory is always 
+returning true even though the directory isn't empty.
 
-Too much for two-line file.
+I'm still trying to understand why this happens. In theory it's just not 
+the expected behaviour. I must be missing something in the directory 
+creation. I've been here before and looked several times and I just can't 
+see why it happens this way.
 
-> +
-> +extern int __init fat_cache_init(void);
-> +extern void fat_cache_destroy(void);
-
-Where did you pick up "extern"? Prototypes in *.c don't have it.
+Ian
 

@@ -1,77 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932418AbVJaARE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932417AbVJaAQ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932418AbVJaARE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 19:17:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbVJaARE
+	id S932417AbVJaAQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 19:16:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932418AbVJaAQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 19:17:04 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17427 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932418AbVJaARC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 19:17:02 -0500
-Date: Mon, 31 Oct 2005 00:16:47 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, tony.luck@gmail.com,
-       paolo.ciarrocchi@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: New (now current development process)
-Message-ID: <20051031001647.GK2846@flint.arm.linux.org.uk>
-Mail-Followup-To: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-	torvalds@osdl.org, tony.luck@gmail.com, paolo.ciarrocchi@gmail.com,
-	linux-kernel@vger.kernel.org
-References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com> <20051029223723.GJ14039@flint.arm.linux.org.uk> <20051030111241.74c5b1a6.akpm@osdl.org> <200510310148.57021.ak@suse.de>
+	Sun, 30 Oct 2005 19:16:56 -0500
+Received: from xenotime.net ([66.160.160.81]:17075 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932417AbVJaAQv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 19:16:51 -0500
+Date: Sun, 30 Oct 2005 16:16:48 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Rob Landley <rob@landley.net>
+Cc: torvalds@osdl.org, jgarzik@pobox.com, akpm@osdl.org,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [git patches] 2.6.x libata updates
+Message-Id: <20051030161648.1faeb77e.rdunlap@xenotime.net>
+In-Reply-To: <200510301759.39498.rob@landley.net>
+References: <20051029182228.GA14495@havoc.gtf.org>
+	<200510300644.20225.rob@landley.net>
+	<Pine.LNX.4.64.0510301435520.27915@g5.osdl.org>
+	<200510301759.39498.rob@landley.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200510310148.57021.ak@suse.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 31, 2005 at 01:48:56AM +0100, Andi Kleen wrote:
-> On Sunday 30 October 2005 20:12, Andrew Morton wrote:
+On Sun, 30 Oct 2005 17:59:39 -0600 Rob Landley wrote:
+
+> On Sunday 30 October 2005 16:36, Linus Torvalds wrote:
 > 
-> > The freezes are for fixing bugs, especially recent regressions.  There's no
-> > shortage of them, you know.
+> > > Is this a viable option?
 > >
-> > I you can think of a better way to get kernel developers off their butts
-> > and actually fixing bugs, I'm all ears.
+> > No.
+> >
+> > There is no "ordering" in a distributed environment. We have things
+> > happening in parallel, adn you can't really linearize the patches.
 > 
-> The problem is that you usually cannot do proper bug fixing because
-> the release might be just around the corner, so you typically
-> chose the ugly workaround or revert, or just reject changes for bugs that a 
-> are too risky or the impact too low because there is not enough time to 
-> properly test anymore.
+> To clarify my thinking:
 > 
-> It might work better if we were told when the releases would actually
-> happen and you don't need to fear that this not quite tested everywhere
-> bugfix you're about to submit might make it into the gold kernel, breaking
-> the world for some subset of users.
+> It doesn't matter what the ordering is, as long as A) the patches are 
+> separated somehow, B) the resulting kernel from applying any initial subset 
+> (patches 1-X in the series) has some reasonable chance to build and work.
+> 
+> Any arbitrary order is theoretically fine for (A).  Alphabetical by msgid or 
+> sha1sum.  Or the order they appear in the changelog.
+> 
+> It's (B) that's the tricky bit, but not an insoluble problem.  "The order 
+> Linux imported them into his tree" might give that.
+> 
+> > The closest you can get is "git bisect", which does the right thing.
+> 
+> Ok, so we've already got an order, whatever order git bisect puts them in.  
+> (It doesn't have to be stable between releases, just a snapshot in time of a 
+> set of individual patches which, cumulatively applied,would have the same 
+> effect as the big rc1->rc2 diffs we've been getting.)
+> 
+> It doesn't sound like it would be _too_ hard to abuse the "git bisect" 
+> mechanism to work out each possible bisection point between -rc1 and -rc1, 
+> and if that can be done why can't it spit out the individual patches (with 
+> descriptions) and cat them together?
+> 
+> Why wouldn't this work?
 
-Indeed - a prime example is the bootmem initialisation problem.  Had
-I known on 1st October that the final release wouldn't have been for
-a long time, I'd have applied that patch and you wouldn't have had
-that problem with ARM relying on the bootmem initialisation order
-clashing with your ia64 (or x86_64) swiotlb fix.
+Why isn't there a linus.git ordering?  that can be made to work.
 
-But stupid rmk - again I hasten to add - was suckered into this "-rc
-is frozen" idea again and decided it wasn't appropriate to submit it.
-In hind-sight, there would have been plenty of time to sort out any
-issues.
-
-Hell, we held up 2.6.14 for swiotlb _anyway_.
-
-Time to start writing those lines...
-I must learn to ignore what Linus says about frozen releases.
-I must learn to ignore what Linus says about frozen releases.
-I must learn to ignore what Linus says about frozen releases.
-I must learn to ignore what Linus says about frozen releases.
-I must learn to ignore what Linus says about frozen releases.
-I must learn to ignore what Linus says about frozen releases.
-I must learn to ignore what Linus says about frozen releases.
-I must learn to ignore what Linus says about frozen releases.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+---
+~Randy

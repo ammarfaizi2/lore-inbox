@@ -1,74 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbVJaWCp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbVJaWDA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964857AbVJaWCp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 17:02:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbVJaWCp
+	id S964860AbVJaWDA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 17:03:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964859AbVJaWDA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 17:02:45 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:17352 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964857AbVJaWCo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 17:02:44 -0500
-Date: Mon, 31 Oct 2005 23:02:33 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] swsusp: move snapshot-handling functions to snapshot.c
-Message-ID: <20051031220233.GC14877@elf.ucw.cz>
-References: <200510301637.48842.rjw@sisk.pl> <200510301644.44874.rjw@sisk.pl> <20051030195254.GA1729@openzaurus.ucw.cz> <200510312036.36335.rjw@sisk.pl>
+	Mon, 31 Oct 2005 17:03:00 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:13485 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S964858AbVJaWC6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 17:02:58 -0500
+Subject: [PATCH] SHM_NORESERVE flags for shmget()
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm@osdl.org
+Content-Type: multipart/mixed; boundary="=-pw4MyCvMfx0RBbXuyB5J"
+Date: Mon, 31 Oct 2005 14:02:32 -0800
+Message-Id: <1130796152.24503.26.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200510312036.36335.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > > This patch moves the snapshot-handling functions remaining in swsusp.c
-> > > to snapshot.c (ie. it moves the code without changing the functionality).
-> > >
-> > 
-> > I'm sorry, but I acked this one too quickly. I'd prefer to keep "relocate" code where
-> > it is, and define "must not collide" as a part of interface. That will keep snapshot.c
-> > smaller/simpler,
-> 
-> Speaking of simplifications and having seen your code I hope you will agree with
-> the appended patch against vanilla 2.6.14-git3 (it reduces the duplication of code,
-> and replaces swsusp_pagedir_relocate with a simpler mechanism).
+--=-pw4MyCvMfx0RBbXuyB5J
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-...and also moves stuff around in a way
+Hi Andrew,
 
-a) I don't like
+Here is the patch to add SHM_NORESERVE functionality
+similar to MAP_NORESERVE for shared memory segments.
 
-and
+This mainly to avoid abuse of OVERCOMMIT_ALWAYS and
+this flag is ignored for OVERCOMMIT_NEVER. 
+Hugh reviewed the patch earlier and had no objections 
+to it. Could you include this ?
 
-b) is almost impossible to review
+Thanks,
+Badari
 
-:-). Can you keep "relocate" code in swsusp.c, just making it simpler?
 
-> @@ -997,20 +870,22 @@
->  	int error = 0;
->  	struct pbe *p;
->  
-> -	if (!(p = alloc_pagedir(nr_copy_pages)))
-> +	if (!(p = alloc_pagedir(nr_copy_pages, 0)))
->  		return -ENOMEM;
->  
->  	if ((error = read_pagedir(p)))
->  		return error;
-> -
->  	create_pbe_list(p, nr_copy_pages);
-> -
-> -	if (!(pagedir_nosave = swsusp_pagedir_relocate(p)))
-> +	mark_unsafe_pages(p);
-> +	if (!(pagedir_nosave = alloc_pagedir(nr_copy_pages, 1)))
->  		return -ENOMEM;
 
-Okay, this is probably better approach than copying pagedir around...
 
-								Pavel
--- 
-Thanks, Sharp!
+
+--=-pw4MyCvMfx0RBbXuyB5J
+Content-Disposition: attachment; filename=shm-noreserve.patch
+Content-Type: text/x-patch; name=shm-noreserve.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
+diff -Naurp -X dontdiff linux-2.6.14/include/linux/shm.h linux-2.6.14.new/include/linux/shm.h
+--- linux-2.6.14/include/linux/shm.h	2005-09-30 14:17:35.000000000 -0700
++++ linux-2.6.14.new/include/linux/shm.h	2005-10-18 08:46:03.000000000 -0700
+@@ -92,6 +92,7 @@ struct shmid_kernel /* private to the ke
+ #define	SHM_DEST	01000	/* segment will be destroyed on last detach */
+ #define SHM_LOCKED      02000   /* segment will not be swapped */
+ #define SHM_HUGETLB     04000   /* segment will use huge TLB pages */
++#define SHM_NORESERVE   010000  /* don't check for reservations */
+ 
+ #ifdef CONFIG_SYSVIPC
+ long do_shmat(int shmid, char __user *shmaddr, int shmflg, unsigned long *addr);
+diff -Naurp -X dontdiff linux-2.6.14/ipc/shm.c linux-2.6.14.new/ipc/shm.c
+--- linux-2.6.14/ipc/shm.c	2005-09-30 14:17:35.000000000 -0700
++++ linux-2.6.14.new/ipc/shm.c	2005-10-20 14:14:40.000000000 -0700
+@@ -212,8 +212,16 @@ static int newseg (key_t key, int shmflg
+ 		file = hugetlb_zero_setup(size);
+ 		shp->mlock_user = current->user;
+ 	} else {
++		int acctflag = VM_ACCOUNT;
++		/*
++		 * Do not allow no accounting for OVERCOMMIT_NEVER, even
++	 	 * if it's asked for.
++		 */
++		if  ((shmflg & SHM_NORESERVE) && 
++			sysctl_overcommit_memory != OVERCOMMIT_NEVER)
++			acctflag = 0;
+ 		sprintf (name, "SYSV%08x", key);
+-		file = shmem_file_setup(name, size, VM_ACCOUNT);
++		file = shmem_file_setup(name, size, acctflag);
+ 	}
+ 	error = PTR_ERR(file);
+ 	if (IS_ERR(file))
+
+--=-pw4MyCvMfx0RBbXuyB5J--
+

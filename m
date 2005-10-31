@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932499AbVJaVOm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932501AbVJaVQT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932499AbVJaVOm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 16:14:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932501AbVJaVOm
+	id S932501AbVJaVQT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 16:16:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932521AbVJaVQT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 16:14:42 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:47313 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932499AbVJaVOk (ORCPT
+	Mon, 31 Oct 2005 16:16:19 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:3223 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S932501AbVJaVQS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 16:14:40 -0500
-Date: Mon, 31 Oct 2005 22:14:31 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Alexandre Oliva <aoliva@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: amd64 bitops fix for -Os
-Message-ID: <20051031211431.GA14877@elf.ucw.cz>
-References: <orvezggf7x.fsf@livre.oliva.athome.lsd.ic.unicamp.br> <20051030192323.GF657@openzaurus.ucw.cz> <or8xw9v47o.fsf@livre.oliva.athome.lsd.ic.unicamp.br>
+	Mon, 31 Oct 2005 16:16:18 -0500
+Date: Tue, 1 Nov 2005 08:13:27 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       stable@kernel.org, linux-xfs@oss.sgi.com, xfs-masters@oss.sgi.com,
+       Dimitri Puzin <tristan-777@ddkom-online.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [stable] [2.6 patch] fix XFS_QUOTA for modular XFS
+Message-ID: <20051101081327.C6220221@wobbly.melbourne.sgi.com>
+References: <20051028203325.GD4180@stusta.de> <20051031210305.GR5856@shell0.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <or8xw9v47o.fsf@livre.oliva.athome.lsd.ic.unicamp.br>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20051031210305.GR5856@shell0.pdx.osdl.net>; from chrisw@osdl.org on Mon, Oct 31, 2005 at 01:03:05PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >> --- arch/x86_64/lib/bitops.c~	2005-10-27 22:02:08.000000000 -0200
-> >> +++ arch/x86_64/lib/bitops.c	2005-10-29 18:24:27.000000000 -0200
-> >> @@ -1,5 +1,11 @@
-> >> #include <linux/bitops.h>
-> >> 
-> >> +#define BITOPS_CHECK_UNDERFLOW_RANGE 0
-> >> +
-> >> +#if BITOPS_CHECK_UNDERFLOW_RANGE
-> >> +# include <linux/kernel.h>
-> >> +#endif
+On Mon, Oct 31, 2005 at 01:03:05PM -0800, Chris Wright wrote:
+> * Adrian Bunk (bunk@stusta.de) wrote:
+> > This patch by Dimitri Puzin submitted through kernel Bugzilla #5514 
+> > fixes the following issue:
+> > 
+> > Cannot build XFS filesystem support as module with quota support. It 
+> > works only when the XFS filesystem support is compiled into the kernel. 
+> > Menuconfig prevents from setting CONFIG_XFS_FS=m and CONFIG_XFS_QUOTA=y.
 > 
-> > Could you drop the ifdefs? Nice for debugging but we don't
-> > want them in mainline.
-> 
-> Are you absolutely sure we don't?  I'd almost left them in, enabled
-> unconditionally.  Note that the ifdef will make no difference
-> whatsoever for the case I've just fixed, but it would help catch any
-> other (ab)uses(?) elsewhere that may have gone unnoticed until now.
+> Thanks, will queue for -stable, but this hasn't made it upstream yet.
 
-Well, ifdefs need to be gone. Maybe you should unconditionally check
-it (I do not think so, but...) but ifdefs are certainly wrong.
+Sorry, public holiday here has meant no action on that front - it
+is "good to go" though, and will be sent to Linus when I'm back in
+the office.
 
-> > Plus you want to add signed-off-by: header and send it to ak@suse.de.
-> 
-> Err...  The header was right there.  Or do you mean as an e-mail
-> header, as opposed to a regular line in the e-mail body?
+cheers.
 
-Okay, so I'm blind. Sorry. (Yes, it should be in body).
-
-> I'll forward the patch to ak.
-
-Thanks.
-								Pavel
 -- 
-Thanks, Sharp!
+Nathan

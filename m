@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbVJ3Xum@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751263AbVJ3XrQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751264AbVJ3Xum (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 18:50:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbVJ3Xum
+	id S1751263AbVJ3XrQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 18:47:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751264AbVJ3XrQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 18:50:42 -0500
-Received: from ns.suse.de ([195.135.220.2]:40849 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751264AbVJ3Xul (ORCPT
+	Sun, 30 Oct 2005 18:47:16 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:40846 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751263AbVJ3XrQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 18:50:41 -0500
+	Sun, 30 Oct 2005 18:47:16 -0500
 From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <akpm@osdl.org>
+To: "Theodore Ts'o" <tytso@mit.edu>
 Subject: Re: New (now current development process)
-Date: Mon, 31 Oct 2005 01:48:56 +0100
+Date: Mon, 31 Oct 2005 01:45:43 +0100
 User-Agent: KMail/1.8
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, torvalds@osdl.org,
-       tony.luck@gmail.com, paolo.ciarrocchi@gmail.com,
-       linux-kernel@vger.kernel.org
-References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com> <20051029223723.GJ14039@flint.arm.linux.org.uk> <20051030111241.74c5b1a6.akpm@osdl.org>
-In-Reply-To: <20051030111241.74c5b1a6.akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Tony Luck <tony.luck@gmail.com>,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com> <p73r7a4t0s7.fsf@verdi.suse.de> <20051030213221.GA28020@thunk.org>
+In-Reply-To: <20051030213221.GA28020@thunk.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200510310148.57021.ak@suse.de>
+Message-Id: <200510310145.43663.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 30 October 2005 20:12, Andrew Morton wrote:
+On Sunday 30 October 2005 22:32, Theodore Ts'o wrote:
 
-> The freezes are for fixing bugs, especially recent regressions.  There's no
-> shortage of them, you know.
->
-> I you can think of a better way to get kernel developers off their butts
-> and actually fixing bugs, I'm all ears.
+> I thought Andrew was accepting patches targeted at 2.6.n+1 into the
+> -mm tree during the freeze periods, yes?  If so, why would it be a
+> case of "nothing much happens"?  Nothing much might be happening in
+> Linus's git tree, but that doesn't that they can't be happening in
+> Andrew's -mm patchsets....
 
-The problem is that you usually cannot do proper bug fixing because
-the release might be just around the corner, so you typically
-chose the ugly workaround or revert, or just reject changes for bugs that a 
-are too risky or the impact too low because there is not enough time to 
-properly test anymore.
+The problem is that -mm* contains typically so many more or less
+broken changes that any extensive work on there is futile 
+because you never know whose bugs you're debugging
+(and if the patch that is broken will even make it anywhere) 
 
-It might work better if we were told when the releases would actually
-happen and you don't need to fear that this not quite tested everywhere
-bugfix you're about to submit might make it into the gold kernel, breaking
-the world for some subset of users.
+In short mainline is frozen too long and -mm* is too unstable.
 
 -Andi

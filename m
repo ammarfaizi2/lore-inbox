@@ -1,195 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbVJaVy7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbVJaV7w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964836AbVJaVy7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 16:54:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964852AbVJaVy7
+	id S964856AbVJaV7w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 16:59:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964857AbVJaV7v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 16:54:59 -0500
-Received: from ppsw-7.csi.cam.ac.uk ([131.111.8.137]:31685 "EHLO
-	ppsw-7.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S964836AbVJaVy6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 16:54:58 -0500
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Mon, 31 Oct 2005 21:54:54 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Yura Pakhuchiy <pakhuchiy@gmail.com>
-cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ntfs-dev@lists.sourceforge.net
-Subject: Re: [Linux-NTFS-Dev] [2.6-GIT] NTFS: Release 2.1.25.
-In-Reply-To: <1130793939.2104.19.camel@localhost>
-Message-ID: <Pine.LNX.4.64.0510312136500.10190@hermes-1.csi.cam.ac.uk>
-References: <Pine.LNX.4.64.0510311408160.27357@hermes-1.csi.cam.ac.uk> 
- <1130790267.2276.8.camel@localhost>  <Pine.LNX.4.64.0510312040010.10190@hermes-1.csi.cam.ac.uk>
- <1130793939.2104.19.camel@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 31 Oct 2005 16:59:51 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:49316 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964856AbVJaV7u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 16:59:50 -0500
+Date: Mon, 31 Oct 2005 22:59:38 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/3] swsusp: move snapshot-handling functions to snapshot.c
+Message-ID: <20051031215938.GB14877@elf.ucw.cz>
+References: <200510301637.48842.rjw@sisk.pl> <200510302337.41526.rjw@sisk.pl> <20051030230407.GA1655@elf.ucw.cz> <200510310135.42190.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200510310135.42190.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Oct 2005, Yura Pakhuchiy wrote:
-> On Mon, 2005-10-31 at 20:49 +0000, Anton Altaparmakov wrote:
-> > On Mon, 31 Oct 2005, Yura Pakhuchiy wrote:
-> > > On Mon, 2005-10-31 at 14:22 +0000, Anton Altaparmakov wrote:
-> > > > And people: please try it before Linus releases 2.6.15 and report back 
-> > > > (especially if you find bugs but even a "it works" would be nice to hear 
-> > > > from a few more people)...
-> > > 
-> > > One more bug, steps to reproduce:
-> > > 1) Create fragmented file with DATA attribute split on several records.
-> > > (using windows or ntfsmount)
-> > 
-> > That is just evil.  Attribute list attribute is not supported yet!  And 
-> > majority of files are not fragmented like that...
+Hi!
+
+> > Can you elaborate? resume is certainly going to get list of pbes...
 > 
-> It seems you forgot to place somewhere "return -EOPNOTSUPP;", if I was
-> able to overwrite them.
-
-Not necessarily.  It is not as easy as you ma think.  In kernel, 
-a filesystem's ->truncate _cannot_ return an error as it has a void return 
-value...  I can just disable this at a higer level ->setattr however and 
-this is probably the solution until truncates are implemented fully, i.e. 
-I will not allow vmtruncate() to be called on inodes with an attribute 
-list attribute.  This means one will not be able to truncate some more 
-files than would have been otherwise possible but it would also mean than 
-an error can be reported to the caller...  I thought I had managed to work 
-around all this in my code but obviously not...  )-:
-
-> > btw. Did you run a chkdsk fter using ntfsmount and before mounting with 
-> > the ntfs driver?  I keep finding that chkdsk finds lots of (minor) 
-> > problems after ntfsmount has written to a drive (I haven't investigated 
-> > since then only times I have done it I was also messing with "strange" 
-> > filenames and things like that so I was not expecting it to necessarily 
-> > work and I haven't had time since to do it again on a clean volume).
+> OK
+> On x86-64 we have to allocate a few safe pages to put the temporary page
+> tables on them.  In principle I can imagine the following code for this:
 > 
-> Yes, I was forced to do that, because after I received NULL pointer
-> dereference first time umount failed and thus dirty bit was on the
-> volume.
-
-Ah, yes, of course.  (-:
-
-> BTW, ntfsmount in almost all truncating cases leave absolutely clean
-> volume chkdsk happy with, except one case with updating length of
-> resident file length in index. About file creation/deletion yes, volume
-> sometimes have minor inconsistencies, but windows driver itself often
-> leave them (in case file have 2 names, when you change size for one,
-> windows does not update another size in index).
-
-Ah, cool.  I didn't know even Windows did that.  (-:
- 
-> > Not that that is any excuse for the ntfs driver to crash...  It should 
-> > deal with corruption...
-> > 
-> > > 2) Overwrite this file with some small (few bytes, but non-zero) file.
-> > > (using kernel driver)
-> > 
-> > Again, the required truncate is not supported so this cannot work.
+> do {
+> 	get a page;
+> 	walk the list of pbes to verify that the page is safe;
+> 	if (the page is not safe)
+> 		keep track of it;
+> } while (the page is not safe)
 > 
-> Again, it works, but not in such way as it should.
+> but I'd rather not like to propose Andi to merge it. ;-)  Currently the x86-64 arch
+> code uses the same method of marking non-safe pages that is used by
+> the rest of swsusp for efficiency and I think it should stay this
+> way.
 
-Indeed.
- 
-> > > After this cp segfaults on my system and I receive following in dmesg:
+Ok, I see.
+
+> > > - sys_create_pagedir
 > > 
-> > Ouch!  It certainly should not do that!  )-:
-> > 
-> > > NTFS-fs error (device hda4): ntfs_truncate(): Cannot truncate inode 
-> > > 0x169e, attribute type 0x80, because the attribute is highly fragmented 
-> > > (it consists of multiple extents) and this case is not implemented yet.
-> > 
-> > That is correct.  Attribute list attribute is not supported yet.
-> > 
-> > > Unable to handle kernel NULL pointer dereference at virtual address 00000029
-> > >  printing eip:
-> > > c01ece9e
-> > > *pde = 00000000
-> > > Oops: 0000 [#1]
-> > > PREEMPT 
-> > > Modules linked in: ltserial ltmodem fglrx vmmon subfs
-> > > CPU:    0
-> > > EIP:    0060:[<c01ece9e>]    Tainted: P      VLI
-> > > EFLAGS: 00010246   (2.6.14-ck1) 
-> > > EIP is at ntfs_prepare_pages_for_non_resident_write+0x4ce/0x1f70
-> > > eax: 00000200   ebx: 00000000   ecx: c78ebcd8   edx: 00000029
-> > > esi: c774e9c4   edi: 00000000   ebp: 00000000   esp: c78ebbec
-> > > ds: 007b   es: 007b   ss: 0068
-> > > Process cp (pid: 2420, threadinfo=c78ea000 task=c9178ad0)
-> > > Stack: c87c1b44 c774e9c4 00000000 ceee43c0 cf596030 c04fd960 00000001 00000000 
-> > >        00000096 00000000 cf603f3c 00000001 c78ebc5c c90bbc54 c78ea000 00000000 
-> > >        00001000 00000000 c90bbc20 09003200 00000000 00000000 00000000 00000000 
-> > > Call Trace:
-> > >  [<c01c40c7>] journal_end+0xa7/0x100
-> > >  [<c01218f1>] current_fs_time+0x51/0x70
-> > >  [<c017d453>] inode_update_time+0xb3/0xe0
-> > >  [<c01f04d6>] ntfs_file_aio_write_nolock+0x216/0x260
-> > >  [<c013f5e1>] __generic_file_aio_read+0x1f1/0x230
-> > >  [<c013f310>] file_read_actor+0x0/0xe0
-> > >  [<c01f06c2>] ntfs_file_writev+0xc2/0x140
-> > >  [<c01320e0>] autoremove_wake_function+0x0/0x60
-> > >  [<c01f0777>] ntfs_file_write+0x37/0x40
-> > >  [<c0160c57>] vfs_write+0xa7/0x180
-> > >  [<c0160e01>] sys_write+0x51/0x80
-> > >  [<c01032e1>] syscall_call+0x7/0xb
-> > > Code: 00 00 00 39 4c 24 74 0f 87 66 ff ff ff 8b 6c 24 58 85 ed 75 69 c7 44 24 5c 00 00 00 00 8b 5c 24 5c 8b b4 24 08 01 00 00 8b 14 9e <8b> 02 f6 c4 08 74 42 8b 52 0c 89 54 24 78 89 d5 89 f6 8b 45 00 
-> > 
-> > Hmm.  Looks like error handling gone wrong.  Will investigate tomorrow.  
-> > It is osx evening now.
-> > 
-> > > BTW, great work, but IMHO to early for mainline.
-> > 
-> > Too late!  (-;  It it there already.  Also it really is not too early!  
-> > Look yourself: you tested it only when I sent it to mainline, you must 
-> > have seen the posts when I asked for testers and also when it was in 
-> > -mm but you didn't test it then.  And I imagine neither did anyone else 
-> > except for me and one other person who reported a bug which I fixed 
-> > prompty...
+> > Ugly...
 > 
-> Anyway mainline is not place for unstable code IMHO, or people will
-> simply stop trust it. You have test your code better (at least such
-> obvious cases), even if no one except you do not want to test it. BTW,
+> Oh, it can be done on-the-fly in
+> sys_put_this_stuff_where_appropriate(image data) (at the expense of one
+> redundant check per call).
 
-I have full confidence it will be stable by the time 2.6.15 is released 
-which is the time it actually matters.  The time between full kernel 
-releases is exactly the time to get things fixed...  And "normal" users 
-never use in-between kernels since they have no idea what a kernel is 
-never mind how to compile one...
+Yes, but it is still ugly, as you keep some context across the
+syscalls.
 
-Well, it is not an obvious case at all.  It works fine if you stay within 
-supported cases.  My time is very limited and I rely on user testing and 
-bug reporting to a large extent...  I simply did not have a fragmented 
-file to hand that was not compressed (those do not work as we refuse to 
-operate on compressed files altogether).
+> > > Cleanup: /* certainly something's gone wrong */
+> > > - sys_destroy_pagedir /* that's it */
+> > > - sys_resume_devices
+> > 
+> > You should not need to do this one. resuming devices is going to be
+> > integrated in atomic_restore, because suspending devices is there, too.
+> 
+> Yes, but I need to thaw processes anyway, so I can release memory as well.
+> OTOH, if sys_atomic_restore fails because of the lack of memory, the memory
+> should be freed _before_ resuming devices, since otherwise subsequent
+> failures are almost certain to appear (I've seen what happens in that case).
+> Now, if the memory is allocated by the kernel, I can easily put an
+> emergency memory-freeing call in sys_atomic_restore (in that case
+> sys_destroy_pagedir will be redundant, but so what?).
 
-> when I implemented file creation in libntfs, almost no one except
-> several persons tested it too.
+Ugh, I'd say "don't care about this one too much". If resume is
+failing, we have bad problems anyway.
 
-Yep, such is life.  So one publishes the code officially and then people 
-test it...  (-:
+> > Here's how it looks... additionaly, I have ioctl for getting one
+> > usable page. It is true that I did not solve error paths, yet; I'll
+> > certainly need some way to free memory, too.
+> 
+> IMHO, these are important issues.
 
-> About me, I did not tested this code before, at least because you had
-> not posted patches to mailing list when you send it to -mm. Sorry, but I
-> do not have git repository.
+Yes, but I do not expect any problems while actually coding that...
 
-That is a lame excuse:
-
-1) -mm contains the patch (obviously) as a single file in the split out 
-directory in Andrew's file space on kernel.org (where you would go to 
-download the -mm kernel anyway).
-
-2) If you had told me so I could have either posted the patches or put 
-them somewhere for you...  It takes me about 10 seconds to generate them:
-
-cd /usr/src/ntfs-2.6-devel
-git format-patch -n <linus' head>
-
-And I get all the patches output to disk...
-
-Best regards,
-
-	Anton
+								Pavel
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Thanks, Sharp!

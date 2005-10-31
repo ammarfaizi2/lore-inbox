@@ -1,63 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbVJaEB1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbVJaECf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751345AbVJaEB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 23:01:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751339AbVJaEB1
+	id S1750853AbVJaECf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 23:02:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751308AbVJaECf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 23:01:27 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:60826 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751330AbVJaEB0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 23:01:26 -0500
-Date: Sun, 30 Oct 2005 20:00:33 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, bzolnier@gmail.com,
-       linux-ide@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH] ide-scsi highmem cleanup
-Message-Id: <20051030200033.31a34b5c.akpm@osdl.org>
-In-Reply-To: <43659404.6050605@pobox.com>
-References: <200510310302.j9V32hO4009277@hera.kernel.org>
-	<43659404.6050605@pobox.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 30 Oct 2005 23:02:35 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:38016
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1750853AbVJaECe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 23:02:34 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Andrew Morton <akpm@digeo.com>
+Subject: Re: [git patches] 2.6.x libata update
+Date: Sun, 30 Oct 2005 22:02:28 -0600
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+References: <20051030194512.GA21782@havoc.gtf.org> <20051030123907.6ea5d442.akpm@digeo.com>
+In-Reply-To: <20051030123907.6ea5d442.akpm@digeo.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510302202.28690.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> wrote:
+On Sunday 30 October 2005 14:39, Andrew Morton wrote:
+> Jeff Garzik <jgarzik@pobox.com> wrote:
+> > Please pull from 'upstream-linus' branch of
+> >  master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
 >
-> > @@ -212,19 +205,12 @@ static void idescsi_output_buffers (ide_
->  >  			return;
->  >  		}
->  >  		count = min(pc->sg->length - pc->b_count, bcount);
->  > -		if (PageHighMem(pc->sg->page)) {
->  > -			unsigned long flags;
->  > -
->  > -			local_irq_save(flags);
->  > -			buf = kmap_atomic(pc->sg->page, KM_IRQ0) + pc->sg->offset;
->  > -			drive->hwif->atapi_output_bytes(drive, buf + pc->b_count, count);
->  > -			kunmap_atomic(buf - pc->sg->offset, KM_IRQ0);
->  > -			local_irq_restore(flags);
->  > -		} else {
->  > -			buf = page_address(pc->sg->page) + pc->sg->offset;
->  > -			drive->hwif->atapi_output_bytes(drive, buf + pc->b_count, count);
->  > -		}
->  > -		bcount -= count; pc->b_count += count;
->  > +		buf = kmap_atomic(pc->sg->page, KM_IRQ0);
->  > +		drive->hwif->atapi_output_bytes(drive,
->  > +				buf + pc->b_count + pc->sg->offset, count);
->  > +		kunmap_atomic(buf, KM_IRQ0);
->  > +		bcount -= count;
->  > +		pc->b_count += count;
-> 
->  Unless I'm missing something, this patch looks very wrong.
-> 
->  kmap_atomic(..., KM_IRQx) needs to be inside local_irq_save().
+> Linus may not receive this.  For me at least, large amounts of incoming and
+> outgoing OSDL email have been disappearing into the ether for the past 12
+> hours or so.
 
-Yeah, shared interrupts.
+It's probably delayed.  I got the "could not deliver for 4 hours, connection 
+with smtp.osdl.org timed out" warning on the original "Is this a viable 
+option?" question, and Linus has since replied, so it went through...
 
->  As such, the PageHighMem() does have clear benefits.
+Rob
 
-Yep, thanks.  I'll fix that up.
+P.S.  The git source also wanted the -dev version of libcurl installed, 
+whatever that is.  Been happily banging on this box for months without ever 
+needing it.  Am now reading through the git tutorial.  Very dry.
+
+I read through the git bisect source (well, the bits in rev-list.c anyway), 
+and yeah it's cheating mightily with the "distance" thing, and by supplying 
+"good" and "bad" you're actually making the greater than or less than 
+decisions yourself.  Whee.
+
+If all else fails, it's got a sort-by-date function in there, so if you plug 
+the date thing in for the good and bad you at least get something consistent, 
+but I can see Linus's warnings about huge, evil, unintelligible revisions 
+from jumping around like that.
+
+Of course you don't have to make the ordering decision right away: I get two 
+halves, and can bisect each one all the way to binary tree without having to 
+make a single greater than or less than decision.  Then when putting the tree 
+back together, the criteria is "which direction produces the smallest 
+cumulative patch", which isn't nicely resolving in my head into code yet but 
+I'm working on it...
+
+Need to get a kernel tree to play with, which means finishing this tutorial.
+
+Need... more... caffeine.
+
+Still Rob

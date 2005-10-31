@@ -1,194 +1,245 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbVJaO1e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbVJaO2l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751255AbVJaO1e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 09:27:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbVJaO1d
+	id S1751276AbVJaO2l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 09:28:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751303AbVJaO2k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 09:27:33 -0500
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:5807 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1751255AbVJaO1b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 09:27:31 -0500
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Mon, 31 Oct 2005 14:27:14 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
-Subject: [PATCH 4/17] NTFS: - Change ntfs_cluster_alloc() to take an extra
- boolean parameter
-In-Reply-To: <Pine.LNX.4.64.0510311408160.27357@hermes-1.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.64.0510311426310.27357@hermes-1.csi.cam.ac.uk>
-References: <Pine.LNX.4.64.0510311408160.27357@hermes-1.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 31 Oct 2005 09:28:40 -0500
+Received: from havoc.gtf.org ([69.61.125.42]:17823 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1751276AbVJaO2i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 09:28:38 -0500
+Date: Mon, 31 Oct 2005 09:28:35 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [git patches] 2.6.x libata fixes, cleanup
+Message-ID: <20051031142835.GA30792@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NTFS: - Change ntfs_cluster_alloc() to take an extra boolean parameter
-        specifying whether the cluster are being allocated to extend an
-        attribute or to fill a hole.
-      - Change ntfs_attr_make_non_resident() to call ntfs_cluster_alloc()
-        with @is_extension set to TRUE and remove the runlist terminator
-        fixup code as this is now done by ntfs_cluster_alloc().
 
-Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
+Please pull from 'upstream-linus' branch of
+master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
 
----
+to obtain the following locking rewrite (deadlock fix), and minor cleanups.
 
- fs/ntfs/ChangeLog  |    6 ++++++
- fs/ntfs/attrib.c   |   10 +---------
- fs/ntfs/lcnalloc.c |   15 ++++++++++++---
- fs/ntfs/lcnalloc.h |    3 ++-
- fs/ntfs/mft.c      |    6 ++++--
- 5 files changed, 25 insertions(+), 15 deletions(-)
+ drivers/scsi/libata-core.c |   59 +++++++--------------------------------------
+ drivers/scsi/libata-scsi.c |    9 ++++++
+ drivers/scsi/libata.h      |    1 
+ 3 files changed, 18 insertions(+), 51 deletions(-)
 
-applies-to: 142b89f44ebb15f2db326a246e0eb6c454ade6e7
-fc0fa7dc7d243afabdb3fb6a11d59a944a9c91f8
-diff --git a/fs/ntfs/ChangeLog b/fs/ntfs/ChangeLog
-index 6e4f44e..aad2a3f 100644
---- a/fs/ntfs/ChangeLog
-+++ b/fs/ntfs/ChangeLog
-@@ -31,6 +31,12 @@ ToDo/Notes:
- 	- Fix potential deadlock in ntfs_mft_data_extend_allocation_nolock()
- 	  error handling by passing in the active search context when calling
- 	  ntfs_cluster_free().
-+	- Change ntfs_cluster_alloc() to take an extra boolean parameter
-+	  specifying whether the cluster are being allocated to extend an
-+	  attribute or to fill a hole.
-+	- Change ntfs_attr_make_non_resident() to call ntfs_cluster_alloc()
-+	  with @is_extension set to TRUE and remove the runlist terminator
-+	  fixup code as this is now done by ntfs_cluster_alloc().
+commit 005a5a06a6dd13a0ca3f2c6a0218e8d94ed36d8a
+Author: Jeff Garzik <jgarzik@pobox.com>
+Date:   Sun Oct 30 23:31:48 2005 -0500
+
+    [libata] locking rewrite (== fix)
+    
+    A lot of power packed into a little patch.
+    
+    This change eliminates the sharing between our controller-wide spinlock
+    and the SCSI core's Scsi_Host lock.  As the locking in libata was
+    already highly compartmentalized, always referencing our own lock, and
+    never scsi_host::host_lock.
+    
+    As a side effect, this change eliminates a deadlock from calling
+    scsi_finish_command() while inside our spinlock.
+
+commit e533825447dcb60a82b7cc9d73d06423c849b9a2
+Author: Jeff Garzik <jgarzik@pobox.com>
+Date:   Sun Oct 30 21:37:17 2005 -0500
+
+    [libata] ata_tf_to_host cleanups
+    
+    Integrate ata_exec() and ata_tf_to_host() into their only caller,
+    ata_bus_edd().
+    
+    Rename ata_tf_to_host_nolock() to ata_tf_to_host().
+    
+    This makes locking a bit easier to review, and may help pave the way for
+    future changes.
+
+diff --git a/drivers/scsi/libata-core.c b/drivers/scsi/libata-core.c
+index 8be7dc0..ff18fa7 100644
+--- a/drivers/scsi/libata-core.c
++++ b/drivers/scsi/libata-core.c
+@@ -295,28 +295,6 @@ void ata_exec_command(struct ata_port *a
+ }
  
- 2.1.24 - Lots of bug fixes and support more clean journal states.
- 
-diff --git a/fs/ntfs/attrib.c b/fs/ntfs/attrib.c
-index 2aafc87..33e689f 100644
---- a/fs/ntfs/attrib.c
-+++ b/fs/ntfs/attrib.c
-@@ -1566,8 +1566,6 @@ int ntfs_attr_make_non_resident(ntfs_ino
- 	new_size = (i_size_read(vi) + vol->cluster_size - 1) &
- 			~(vol->cluster_size - 1);
- 	if (new_size > 0) {
--		runlist_element *rl2;
+ /**
+- *	ata_exec - issue ATA command to host controller
+- *	@ap: port to which command is being issued
+- *	@tf: ATA taskfile register set
+- *
+- *	Issues PIO/MMIO write to ATA command register, with proper
+- *	synchronization with interrupt handler / other threads.
+- *
+- *	LOCKING:
+- *	Obtains host_set lock.
+- */
 -
- 		/*
- 		 * Will need the page later and since the page lock nests
- 		 * outside all ntfs locks, we need to get the page now.
-@@ -1578,7 +1576,7 @@ int ntfs_attr_make_non_resident(ntfs_ino
- 			return -ENOMEM;
- 		/* Start by allocating clusters to hold the attribute value. */
- 		rl = ntfs_cluster_alloc(vol, 0, new_size >>
--				vol->cluster_size_bits, -1, DATA_ZONE);
-+				vol->cluster_size_bits, -1, DATA_ZONE, TRUE);
- 		if (IS_ERR(rl)) {
- 			err = PTR_ERR(rl);
- 			ntfs_debug("Failed to allocate cluster%s, error code "
-@@ -1587,12 +1585,6 @@ int ntfs_attr_make_non_resident(ntfs_ino
- 					err);
- 			goto page_err_out;
- 		}
--		/* Change the runlist terminator to LCN_ENOENT. */
--		rl2 = rl;
--		while (rl2->length)
--			rl2++;
--		BUG_ON(rl2->lcn != LCN_RL_NOT_MAPPED);
--		rl2->lcn = LCN_ENOENT;
- 	} else {
- 		rl = NULL;
- 		page = NULL;
-diff --git a/fs/ntfs/lcnalloc.c b/fs/ntfs/lcnalloc.c
-index 75313f4..29cabf9 100644
---- a/fs/ntfs/lcnalloc.c
-+++ b/fs/ntfs/lcnalloc.c
-@@ -76,6 +76,7 @@ int ntfs_cluster_free_from_rl_nolock(ntf
-  * @count:	number of clusters to allocate
-  * @start_lcn:	starting lcn at which to allocate the clusters (or -1 if none)
-  * @zone:	zone from which to allocate the clusters
-+ * @is_extension:	if TRUE, this is an attribute extension
+-static inline void ata_exec(struct ata_port *ap, const struct ata_taskfile *tf)
+-{
+-	unsigned long flags;
+-
+-	DPRINTK("ata%u: cmd 0x%X\n", ap->id, tf->command);
+-	spin_lock_irqsave(&ap->host_set->lock, flags);
+-	ap->ops->exec_command(ap, tf);
+-	spin_unlock_irqrestore(&ap->host_set->lock, flags);
+-}
+-
+-/**
+  *	ata_tf_to_host - issue ATA taskfile to host controller
+  *	@ap: port to which command is being issued
+  *	@tf: ATA taskfile register set
+@@ -326,30 +304,11 @@ static inline void ata_exec(struct ata_p
+  *	other threads.
   *
-  * Allocate @count clusters preferably starting at cluster @start_lcn or at the
-  * current allocator position if @start_lcn is -1, on the mounted ntfs volume
-@@ -86,6 +87,13 @@ int ntfs_cluster_free_from_rl_nolock(ntf
-  * @start_vcn specifies the vcn of the first allocated cluster.  This makes
-  * merging the resulting runlist with the old runlist easier.
-  *
-+ * If @is_extension is TRUE, the caller is allocating clusters to extend an
-+ * attribute and if it is FALSE, the caller is allocating clusters to fill a
-+ * hole in an attribute.  Practically the difference is that if @is_extension
-+ * is TRUE the returned runlist will be terminated with LCN_ENOENT and if
-+ * @is_extension is FALSE the runlist will be terminated with
-+ * LCN_RL_NOT_MAPPED.
-+ *
-  * You need to check the return value with IS_ERR().  If this is false, the
-  * function was successful and the return value is a runlist describing the
-  * allocated cluster(s).  If IS_ERR() is true, the function failed and
-@@ -137,7 +145,8 @@ int ntfs_cluster_free_from_rl_nolock(ntf
+  *	LOCKING:
+- *	Obtains host_set lock.
+- */
+-
+-static void ata_tf_to_host(struct ata_port *ap, const struct ata_taskfile *tf)
+-{
+-	ap->ops->tf_load(ap, tf);
+-
+-	ata_exec(ap, tf);
+-}
+-
+-/**
+- *	ata_tf_to_host_nolock - issue ATA taskfile to host controller
+- *	@ap: port to which command is being issued
+- *	@tf: ATA taskfile register set
+- *
+- *	Issues ATA taskfile register set to ATA host controller,
+- *	with proper synchronization with interrupt handler and
+- *	other threads.
+- *
+- *	LOCKING:
+  *	spin_lock_irqsave(host_set lock)
   */
- runlist_element *ntfs_cluster_alloc(ntfs_volume *vol, const VCN start_vcn,
- 		const s64 count, const LCN start_lcn,
--		const NTFS_CLUSTER_ALLOCATION_ZONES zone)
-+		const NTFS_CLUSTER_ALLOCATION_ZONES zone,
-+		const BOOL is_extension)
+ 
+-void ata_tf_to_host_nolock(struct ata_port *ap, const struct ata_taskfile *tf)
++static inline void ata_tf_to_host(struct ata_port *ap,
++				  const struct ata_taskfile *tf)
  {
- 	LCN zone_start, zone_end, bmp_pos, bmp_initial_pos, last_read_pos, lcn;
- 	LCN prev_lcn = 0, prev_run_len = 0, mft_zone_size;
-@@ -310,7 +319,7 @@ runlist_element *ntfs_cluster_alloc(ntfs
- 				continue;
- 			}
- 			bit = 1 << (lcn & 7);
--			ntfs_debug("bit %i.", bit);
-+			ntfs_debug("bit 0x%x.", bit);
- 			/* If the bit is already set, go onto the next one. */
- 			if (*byte & bit) {
- 				lcn++;
-@@ -729,7 +738,7 @@ out:
- 	/* Add runlist terminator element. */
- 	if (likely(rl)) {
- 		rl[rlpos].vcn = rl[rlpos - 1].vcn + rl[rlpos - 1].length;
--		rl[rlpos].lcn = LCN_RL_NOT_MAPPED;
-+		rl[rlpos].lcn = is_extension ? LCN_ENOENT : LCN_RL_NOT_MAPPED;
- 		rl[rlpos].length = 0;
- 	}
- 	if (likely(page && !IS_ERR(page))) {
-diff --git a/fs/ntfs/lcnalloc.h b/fs/ntfs/lcnalloc.h
-index aa05185..72cbca7 100644
---- a/fs/ntfs/lcnalloc.h
-+++ b/fs/ntfs/lcnalloc.h
-@@ -42,7 +42,8 @@ typedef enum {
+ 	ap->ops->tf_load(ap, tf);
+ 	ap->ops->exec_command(ap, tf);
+@@ -1912,12 +1871,14 @@ static void ata_bus_post_reset(struct at
+  *
+  *	LOCKING:
+  *	PCI/etc. bus probe sem.
++ *	Obtains host_set lock.
+  *
+  */
  
- extern runlist_element *ntfs_cluster_alloc(ntfs_volume *vol,
- 		const VCN start_vcn, const s64 count, const LCN start_lcn,
--		const NTFS_CLUSTER_ALLOCATION_ZONES zone);
-+		const NTFS_CLUSTER_ALLOCATION_ZONES zone,
-+		const BOOL is_extension);
+ static unsigned int ata_bus_edd(struct ata_port *ap)
+ {
+ 	struct ata_taskfile tf;
++	unsigned long flags;
  
- extern s64 __ntfs_cluster_free(ntfs_inode *ni, const VCN start_vcn,
- 		s64 count, ntfs_attr_search_ctx *ctx, const BOOL is_rollback);
-diff --git a/fs/ntfs/mft.c b/fs/ntfs/mft.c
-index 5577fc6..0c65cbb 100644
---- a/fs/ntfs/mft.c
-+++ b/fs/ntfs/mft.c
-@@ -1355,7 +1355,8 @@ static int ntfs_mft_bitmap_extend_alloca
- 		up_write(&vol->lcnbmp_lock);
- 		ntfs_unmap_page(page);
- 		/* Allocate a cluster from the DATA_ZONE. */
--		rl2 = ntfs_cluster_alloc(vol, rl[1].vcn, 1, lcn, DATA_ZONE);
-+		rl2 = ntfs_cluster_alloc(vol, rl[1].vcn, 1, lcn, DATA_ZONE,
-+				TRUE);
- 		if (IS_ERR(rl2)) {
- 			up_write(&mftbmp_ni->runlist.lock);
- 			ntfs_error(vol->sb, "Failed to allocate a cluster for "
-@@ -1780,7 +1781,8 @@ static int ntfs_mft_data_extend_allocati
- 			nr > min_nr ? "default" : "minimal", (long long)nr);
- 	old_last_vcn = rl[1].vcn;
- 	do {
--		rl2 = ntfs_cluster_alloc(vol, old_last_vcn, nr, lcn, MFT_ZONE);
-+		rl2 = ntfs_cluster_alloc(vol, old_last_vcn, nr, lcn, MFT_ZONE,
-+				TRUE);
- 		if (likely(!IS_ERR(rl2)))
- 			break;
- 		if (PTR_ERR(rl2) != -ENOSPC || nr == min_nr) {
----
-0.99.9
+ 	/* set up execute-device-diag (bus reset) taskfile */
+ 	/* also, take interrupts to a known state (disabled) */
+@@ -1928,7 +1889,9 @@ static unsigned int ata_bus_edd(struct a
+ 	tf.protocol = ATA_PROT_NODATA;
+ 
+ 	/* do bus reset */
++	spin_lock_irqsave(&ap->host_set->lock, flags);
+ 	ata_tf_to_host(ap, &tf);
++	spin_unlock_irqrestore(&ap->host_set->lock, flags);
+ 
+ 	/* spec says at least 2ms.  but who knows with those
+ 	 * crazy ATAPI devices...
+@@ -3555,7 +3518,7 @@ int ata_qc_issue_prot(struct ata_queued_
+ 
+ 	switch (qc->tf.protocol) {
+ 	case ATA_PROT_NODATA:
+-		ata_tf_to_host_nolock(ap, &qc->tf);
++		ata_tf_to_host(ap, &qc->tf);
+ 		break;
+ 
+ 	case ATA_PROT_DMA:
+@@ -3566,20 +3529,20 @@ int ata_qc_issue_prot(struct ata_queued_
+ 
+ 	case ATA_PROT_PIO: /* load tf registers, initiate polling pio */
+ 		ata_qc_set_polling(qc);
+-		ata_tf_to_host_nolock(ap, &qc->tf);
++		ata_tf_to_host(ap, &qc->tf);
+ 		ap->hsm_task_state = HSM_ST;
+ 		queue_work(ata_wq, &ap->pio_task);
+ 		break;
+ 
+ 	case ATA_PROT_ATAPI:
+ 		ata_qc_set_polling(qc);
+-		ata_tf_to_host_nolock(ap, &qc->tf);
++		ata_tf_to_host(ap, &qc->tf);
+ 		queue_work(ata_wq, &ap->packet_task);
+ 		break;
+ 
+ 	case ATA_PROT_ATAPI_NODATA:
+ 		ap->flags |= ATA_FLAG_NOINTR;
+-		ata_tf_to_host_nolock(ap, &qc->tf);
++		ata_tf_to_host(ap, &qc->tf);
+ 		queue_work(ata_wq, &ap->packet_task);
+ 		break;
+ 
+@@ -4126,8 +4089,6 @@ static void ata_host_init(struct ata_por
+ 	host->unique_id = ata_unique_id++;
+ 	host->max_cmd_len = 12;
+ 
+-	scsi_assign_lock(host, &host_set->lock);
+-
+ 	ap->flags = ATA_FLAG_PORT_DISABLED;
+ 	ap->id = host->unique_id;
+ 	ap->host = host;
+diff --git a/drivers/scsi/libata-scsi.c b/drivers/scsi/libata-scsi.c
+index 1e3792f..248baae 100644
+--- a/drivers/scsi/libata-scsi.c
++++ b/drivers/scsi/libata-scsi.c
+@@ -39,6 +39,7 @@
+ #include <scsi/scsi.h>
+ #include "scsi.h"
+ #include <scsi/scsi_host.h>
++#include <scsi/scsi_device.h>
+ #include <linux/libata.h>
+ #include <linux/hdreg.h>
+ #include <asm/uaccess.h>
+@@ -2405,8 +2406,12 @@ int ata_scsi_queuecmd(struct scsi_cmnd *
+ 	struct ata_port *ap;
+ 	struct ata_device *dev;
+ 	struct scsi_device *scsidev = cmd->device;
++	struct Scsi_Host *shost = scsidev->host;
+ 
+-	ap = (struct ata_port *) &scsidev->host->hostdata[0];
++	ap = (struct ata_port *) &shost->hostdata[0];
++
++	spin_unlock(shost->host_lock);
++	spin_lock(&ap->host_set->lock);
+ 
+ 	ata_scsi_dump_cdb(ap, cmd);
+ 
+@@ -2429,6 +2434,8 @@ int ata_scsi_queuecmd(struct scsi_cmnd *
+ 		ata_scsi_translate(ap, dev, cmd, done, atapi_xlat);
+ 
+ out_unlock:
++	spin_unlock(&ap->host_set->lock);
++	spin_lock(shost->host_lock);
+ 	return 0;
+ }
+ 
+diff --git a/drivers/scsi/libata.h b/drivers/scsi/libata.h
+index 10ecd9e..fad051c 100644
+--- a/drivers/scsi/libata.h
++++ b/drivers/scsi/libata.h
+@@ -48,7 +48,6 @@ extern int ata_qc_issue(struct ata_queue
+ extern int ata_check_atapi_dma(struct ata_queued_cmd *qc);
+ extern void ata_dev_select(struct ata_port *ap, unsigned int device,
+                            unsigned int wait, unsigned int can_sleep);
+-extern void ata_tf_to_host_nolock(struct ata_port *ap, const struct ata_taskfile *tf);
+ extern void swap_buf_le16(u16 *buf, unsigned int buf_words);
+ extern int ata_task_ioctl(struct scsi_device *scsidev, void __user *arg);
+ extern int ata_cmd_ioctl(struct scsi_device *scsidev, void __user *arg);

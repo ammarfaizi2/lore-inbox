@@ -1,46 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964882AbVJaXHj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964883AbVJaXLS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964882AbVJaXHj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 18:07:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964881AbVJaXHj
+	id S964883AbVJaXLS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 18:11:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964885AbVJaXLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 18:07:39 -0500
-Received: from waste.org ([216.27.176.166]:23764 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S964880AbVJaXHi (ORCPT
+	Mon, 31 Oct 2005 18:11:17 -0500
+Received: from hera.kernel.org ([140.211.167.34]:37095 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S964886AbVJaXLQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 18:07:38 -0500
-Date: Mon, 31 Oct 2005 15:02:33 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 19/20] inflate: (arch) use proper linking
-Message-ID: <20051031230233.GE4367@waste.org>
-References: <19.196662837@selenic.com> <20.196662837@selenic.com> <20051031224501.GG20452@flint.arm.linux.org.uk>
+	Mon, 31 Oct 2005 18:11:16 -0500
+Date: Mon, 31 Oct 2005 15:57:04 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.32-rc2
+Message-ID: <20051031175704.GA619@logos.cnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051031224501.GG20452@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 31, 2005 at 10:45:01PM +0000, Russell King wrote:
-> On Mon, Oct 31, 2005 at 02:54:52PM -0600, Matt Mackall wrote:
-> > inflate: remove include of lib/inflate.c and use proper linking
-> > 
-> > - make free_mem_ptr vars nonstatic
-> > - make gunzip nonstatic
-> > - add gunzip prototype to new inflate.h
-> > - add per-arch Makefile bits
-> > - change inflate.c includes to inflate.h includes
-> > - change NO_INFLATE_MALLOC to CORE
-> > - compile core kernel version of inflate with -DCORE
-> 
-> We need to build inflate.c with -Dstatic= to disable static data, 
-> and text so that we get the correct binary layout for ARM PIC
-> decompressors.  This patch breaks that.
+Hi, 
 
-So.. we need to add CFLAGS_inflate.o := -Dstatic=? Or is more needed?
+Here goes the second release candidate for v2.4.32.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+The most significant changes are v2.6 backports of IPv4/IPv6 bugfixes,
+and a USB OHCI regression introduced during v2.4.28 which could lead to
+crashes on SMP kernels.
+
+
+Summary of changes from v2.4.32-rc1 to v2.4.32-rc2
+============================================
+
+Aleksey Gorelov:
+      asus vt8235 router buggy bios workaround
+
+Alexey Kuznetsov:
+      [TCP]: Don't over-clamp window in tcp_clamp_window()
+
+Andrew Morton:
+      loadkeys requires root priviledges
+
+Dan Aloni:
+      fix memory leak in sd_mod.o
+
+Denis Lukianov:
+      [MCAST]: Fix MCAST_EXCLUDE line dupes
+
+Herbert Xu:
+      Clear stale pred_flags when snd_wnd change
+
+Horms:
+      [IPVS]: Add netdev and me as maintainer contacts
+      Fix infinite loop in udp_v6_get_port()
+
+Julian Anastasov:
+      [IPVS]: ip_vs_ftp breaks connections using persistence
+      [IPVS]: really invalidate persistent templates
+
+Marcelo Tosatti:
+      Change VERSION to 2.4.32-rc2
+
+Marcus Sundberg:
+      [NETFILTER]: this patch fixes a compilation issue with gcc 3.4.3.
+
+Nick Piggin:
+      possible memory ordering bug in page reclaim
+
+Pete Zaitcev:
+      usb: regression in usb-ohci
+
+Ralf Baechle:
+      AX.25: signed char bug
+
+Willy Tarreau:
+      Fix jiffies overflow in delay.h
+

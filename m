@@ -1,60 +1,195 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932544AbVJaVu2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbVJaVy7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932544AbVJaVu2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 16:50:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932537AbVJaVu2
+	id S964836AbVJaVy7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 16:54:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964852AbVJaVy7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 16:50:28 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:17859 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932544AbVJaVu1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 16:50:27 -0500
-Date: Mon, 31 Oct 2005 22:50:44 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, linux-kernel@vger.kernel.org,
-       tytso@us.ibm.com, sripathi@in.ibm.com, dipankar@in.ibm.com,
-       oleg@tv-sign.ru
-Subject: Re: [RFC,PATCH] RCUify single-thread case of clock_gettime()
-Message-ID: <20051031215044.GA20926@elte.hu>
-References: <20051031174416.GA2762@us.ibm.com> <Pine.LNX.4.61.0510311802550.9631@goblin.wat.veritas.com> <20051031195425.GA14806@elte.hu> <Pine.LNX.4.61.0510312004460.10705@goblin.wat.veritas.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0510312004460.10705@goblin.wat.veritas.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Mon, 31 Oct 2005 16:54:59 -0500
+Received: from ppsw-7.csi.cam.ac.uk ([131.111.8.137]:31685 "EHLO
+	ppsw-7.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S964836AbVJaVy6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 16:54:58 -0500
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Mon, 31 Oct 2005 21:54:54 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Yura Pakhuchiy <pakhuchiy@gmail.com>
+cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-ntfs-dev@lists.sourceforge.net
+Subject: Re: [Linux-NTFS-Dev] [2.6-GIT] NTFS: Release 2.1.25.
+In-Reply-To: <1130793939.2104.19.camel@localhost>
+Message-ID: <Pine.LNX.4.64.0510312136500.10190@hermes-1.csi.cam.ac.uk>
+References: <Pine.LNX.4.64.0510311408160.27357@hermes-1.csi.cam.ac.uk> 
+ <1130790267.2276.8.camel@localhost>  <Pine.LNX.4.64.0510312040010.10190@hermes-1.csi.cam.ac.uk>
+ <1130793939.2104.19.camel@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Hugh Dickins <hugh@veritas.com> wrote:
-
-> On Mon, 31 Oct 2005, Ingo Molnar wrote:
-> > * Hugh Dickins <hugh@veritas.com> wrote:
+On Mon, 31 Oct 2005, Yura Pakhuchiy wrote:
+> On Mon, 2005-10-31 at 20:49 +0000, Anton Altaparmakov wrote:
+> > On Mon, 31 Oct 2005, Yura Pakhuchiy wrote:
+> > > On Mon, 2005-10-31 at 14:22 +0000, Anton Altaparmakov wrote:
+> > > > And people: please try it before Linus releases 2.6.15 and report back 
+> > > > (especially if you find bugs but even a "it works" would be nice to hear 
+> > > > from a few more people)...
 > > > 
-> > > Not my area at all, but this looks really dodgy to me, Paul:
-> > > could you explain it further?
+> > > One more bug, steps to reproduce:
+> > > 1) Create fragmented file with DATA attribute split on several records.
+> > > (using windows or ntfsmount)
 > > 
-> > the patch below (included in the -rt tree) is the prerequisite. That's 
-> > what Paul's "requires RCU on task_struct" comment refers to.
+> > That is just evil.  Attribute list attribute is not supported yet!  And 
+> > majority of files are not fragmented like that...
 > 
-> Thanks, Ingo: Sorry, Paul: I missed that it was an -rt patch: Ignore 
-> me.
+> It seems you forgot to place somewhere "return -EOPNOTSUPP;", if I was
+> able to overwrite them.
 
-btw., since the RCU-task-struct thing is beneficial to upstream SMP 
-kernels (even without any preempt option enabled), it should be 
-considered for upstream too. The tasklist_lock is one of our last 
-remaining monolithic and globally-bouncing locks. The patch i attached 
-to the previous mail is against the upstream kernel and implements the 
-RCU-task-struct logic, without any PREEMPT_RT dependency. (the -rt tree 
-is a collection of various preemption related patches, not just 
-PREEMPT_RT)
+Not necessarily.  It is not as easy as you ma think.  In kernel, 
+a filesystem's ->truncate _cannot_ return an error as it has a void return 
+value...  I can just disable this at a higer level ->setattr however and 
+this is probably the solution until truncates are implemented fully, i.e. 
+I will not allow vmtruncate() to be called on inodes with an attribute 
+list attribute.  This means one will not be able to truncate some more 
+files than would have been otherwise possible but it would also mean than 
+an error can be reported to the caller...  I thought I had managed to work 
+around all this in my code but obviously not...  )-:
 
-	Ingo
+> > btw. Did you run a chkdsk fter using ntfsmount and before mounting with 
+> > the ntfs driver?  I keep finding that chkdsk finds lots of (minor) 
+> > problems after ntfsmount has written to a drive (I haven't investigated 
+> > since then only times I have done it I was also messing with "strange" 
+> > filenames and things like that so I was not expecting it to necessarily 
+> > work and I haven't had time since to do it again on a clean volume).
+> 
+> Yes, I was forced to do that, because after I received NULL pointer
+> dereference first time umount failed and thus dirty bit was on the
+> volume.
+
+Ah, yes, of course.  (-:
+
+> BTW, ntfsmount in almost all truncating cases leave absolutely clean
+> volume chkdsk happy with, except one case with updating length of
+> resident file length in index. About file creation/deletion yes, volume
+> sometimes have minor inconsistencies, but windows driver itself often
+> leave them (in case file have 2 names, when you change size for one,
+> windows does not update another size in index).
+
+Ah, cool.  I didn't know even Windows did that.  (-:
+ 
+> > Not that that is any excuse for the ntfs driver to crash...  It should 
+> > deal with corruption...
+> > 
+> > > 2) Overwrite this file with some small (few bytes, but non-zero) file.
+> > > (using kernel driver)
+> > 
+> > Again, the required truncate is not supported so this cannot work.
+> 
+> Again, it works, but not in such way as it should.
+
+Indeed.
+ 
+> > > After this cp segfaults on my system and I receive following in dmesg:
+> > 
+> > Ouch!  It certainly should not do that!  )-:
+> > 
+> > > NTFS-fs error (device hda4): ntfs_truncate(): Cannot truncate inode 
+> > > 0x169e, attribute type 0x80, because the attribute is highly fragmented 
+> > > (it consists of multiple extents) and this case is not implemented yet.
+> > 
+> > That is correct.  Attribute list attribute is not supported yet.
+> > 
+> > > Unable to handle kernel NULL pointer dereference at virtual address 00000029
+> > >  printing eip:
+> > > c01ece9e
+> > > *pde = 00000000
+> > > Oops: 0000 [#1]
+> > > PREEMPT 
+> > > Modules linked in: ltserial ltmodem fglrx vmmon subfs
+> > > CPU:    0
+> > > EIP:    0060:[<c01ece9e>]    Tainted: P      VLI
+> > > EFLAGS: 00010246   (2.6.14-ck1) 
+> > > EIP is at ntfs_prepare_pages_for_non_resident_write+0x4ce/0x1f70
+> > > eax: 00000200   ebx: 00000000   ecx: c78ebcd8   edx: 00000029
+> > > esi: c774e9c4   edi: 00000000   ebp: 00000000   esp: c78ebbec
+> > > ds: 007b   es: 007b   ss: 0068
+> > > Process cp (pid: 2420, threadinfo=c78ea000 task=c9178ad0)
+> > > Stack: c87c1b44 c774e9c4 00000000 ceee43c0 cf596030 c04fd960 00000001 00000000 
+> > >        00000096 00000000 cf603f3c 00000001 c78ebc5c c90bbc54 c78ea000 00000000 
+> > >        00001000 00000000 c90bbc20 09003200 00000000 00000000 00000000 00000000 
+> > > Call Trace:
+> > >  [<c01c40c7>] journal_end+0xa7/0x100
+> > >  [<c01218f1>] current_fs_time+0x51/0x70
+> > >  [<c017d453>] inode_update_time+0xb3/0xe0
+> > >  [<c01f04d6>] ntfs_file_aio_write_nolock+0x216/0x260
+> > >  [<c013f5e1>] __generic_file_aio_read+0x1f1/0x230
+> > >  [<c013f310>] file_read_actor+0x0/0xe0
+> > >  [<c01f06c2>] ntfs_file_writev+0xc2/0x140
+> > >  [<c01320e0>] autoremove_wake_function+0x0/0x60
+> > >  [<c01f0777>] ntfs_file_write+0x37/0x40
+> > >  [<c0160c57>] vfs_write+0xa7/0x180
+> > >  [<c0160e01>] sys_write+0x51/0x80
+> > >  [<c01032e1>] syscall_call+0x7/0xb
+> > > Code: 00 00 00 39 4c 24 74 0f 87 66 ff ff ff 8b 6c 24 58 85 ed 75 69 c7 44 24 5c 00 00 00 00 8b 5c 24 5c 8b b4 24 08 01 00 00 8b 14 9e <8b> 02 f6 c4 08 74 42 8b 52 0c 89 54 24 78 89 d5 89 f6 8b 45 00 
+> > 
+> > Hmm.  Looks like error handling gone wrong.  Will investigate tomorrow.  
+> > It is osx evening now.
+> > 
+> > > BTW, great work, but IMHO to early for mainline.
+> > 
+> > Too late!  (-;  It it there already.  Also it really is not too early!  
+> > Look yourself: you tested it only when I sent it to mainline, you must 
+> > have seen the posts when I asked for testers and also when it was in 
+> > -mm but you didn't test it then.  And I imagine neither did anyone else 
+> > except for me and one other person who reported a bug which I fixed 
+> > prompty...
+> 
+> Anyway mainline is not place for unstable code IMHO, or people will
+> simply stop trust it. You have test your code better (at least such
+> obvious cases), even if no one except you do not want to test it. BTW,
+
+I have full confidence it will be stable by the time 2.6.15 is released 
+which is the time it actually matters.  The time between full kernel 
+releases is exactly the time to get things fixed...  And "normal" users 
+never use in-between kernels since they have no idea what a kernel is 
+never mind how to compile one...
+
+Well, it is not an obvious case at all.  It works fine if you stay within 
+supported cases.  My time is very limited and I rely on user testing and 
+bug reporting to a large extent...  I simply did not have a fragmented 
+file to hand that was not compressed (those do not work as we refuse to 
+operate on compressed files altogether).
+
+> when I implemented file creation in libntfs, almost no one except
+> several persons tested it too.
+
+Yep, such is life.  So one publishes the code officially and then people 
+test it...  (-:
+
+> About me, I did not tested this code before, at least because you had
+> not posted patches to mailing list when you send it to -mm. Sorry, but I
+> do not have git repository.
+
+That is a lame excuse:
+
+1) -mm contains the patch (obviously) as a single file in the split out 
+directory in Andrew's file space on kernel.org (where you would go to 
+download the -mm kernel anyway).
+
+2) If you had told me so I could have either posted the patches or put 
+them somewhere for you...  It takes me about 10 seconds to generate them:
+
+cd /usr/src/ntfs-2.6-devel
+git format-patch -n <linus' head>
+
+And I get all the patches output to disk...
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

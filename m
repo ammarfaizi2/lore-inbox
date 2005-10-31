@@ -1,149 +1,422 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbVJaPKy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbVJaPMh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932104AbVJaPKy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 10:10:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbVJaPKy
+	id S932112AbVJaPMh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 10:12:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbVJaPMh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 10:10:54 -0500
-Received: from wbm2.pair.net ([209.68.3.43]:61452 "HELO wbm2.pair.net")
-	by vger.kernel.org with SMTP id S932104AbVJaPKx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 10:10:53 -0500
-Message-ID: <50256.192.249.47.11.1130771450.squirrel@webmail2.pair.com>
-In-Reply-To: <5bdc1c8b0510301828p29ea517ew467a5f6503435314@mail.gmail.com>
-References: <5bdc1c8b0510301828p29ea517ew467a5f6503435314@mail.gmail.com>
-Date: Mon, 31 Oct 2005 09:10:50 -0600 (CST)
-Subject: Re: 2.6.14-rt1 - xruns in a certain circumstance
-From: "K.R. Foley" <kr@cybsft.com>
-To: "Mark Knecht" <markknecht@gmail.com>
-Cc: "lkml" <linux-kernel@vger.kernel.org>, "Ingo Molnar" <mingo@elte.hu>,
-       "Lee Revell" <rlrevell@joe-job.com>
-User-Agent: SquirrelMail/1.4.5
+	Mon, 31 Oct 2005 10:12:37 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:11192 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S932112AbVJaPMg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 10:12:36 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: [PATCH] swsusp: rework swsusp_suspend
+Date: Mon, 31 Oct 2005 16:12:59 +0100
+User-Agent: KMail/1.8.2
+Cc: Andrew Morton <akpm@zip.com.au>, LKML <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510311612.59736.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> Hi,
->    I've been running 2.6.14-rt1 today. For the most part there seem to
-> be no changes for me from 2.6.14-rc5-rt3. One place I saw xruns
-> earlier is still there and I do not understand why this situation
-> should be able to create xruns.
->
->    I really think there is something to be learned from this problem.
-> The way I see it What's going on with Myth is completely separate from
-> what's going on with Jack, but Myth is causing xruns somehow.
->
-> 1) I have Jack running. It is using sound card #2, my RME HDSP 9652. I
-> can run for hours and see no xruns.
->
-> 2) I start MythTV using sound card #1. Within MythTV there are
-> essentially 3 types  of operation:
->
-> a) Basic menus
-> b) Preview menu
-> c) Full screen video watching
->
-> What I'm seeing is that when using basic menus, or when watching
-> videos I get no xruns. However, if I'm in the preview menu I get an
-> xrun every few minutes. In the following snippet I started Jack and
-> ran for about 20 minutes with no problems. I was using MythTV and
-> watching videos. I spent very little time in the preview menu:
->
-> 16:19:26.184 Server configuration saved to "/home/mark/.jackdrc".
-> 16:19:26.185 Statistics reset.
-> 16:19:26.411 Client activated.
-> 16:19:26.412 Audio connection change.
-> 16:19:26.415 Audio connection graph change.
-> 16:20:34.918 Audio connection graph change.
-> 16:20:34.977 Audio connection change.
-> 16:20:37.842 Audio connection graph change.
->
-> At about 4:45PM I exited the videos and left Myth sitting in a preview
-> menu. In this mode Myth puts a small video screen in the bottom right
-> corner where oyu get a low quality picture so you can see what the
-> start of the program looks like. While sitting in this mode for about
-> 45  minutes I got 10 xruns:
->
-> 16:45:45.670 XRUN callback (1).
-> **** alsa_pcm: xrun of at least 0.663 msecs
-> 16:47:41.697 XRUN callback (2).
-> **** alsa_pcm: xrun of at least 0.415 msecs
-> subgraph starting at qjackctl-8363 timed out (subgraph_wait_fd=17,
-> status = 0, state = Finished)
-> 17:06:47.023 XRUN callback (3).
-> **** alsa_pcm: xrun of at least 0.781 msecs
-> **** alsa_pcm: xrun of at least 4.924 msecs
-> 17:06:49.003 XRUN callback (1 skipped).
-> subgraph starting at qjackctl-8363 timed out (subgraph_wait_fd=17,
-> status = 0, state = Finished)
-> 17:15:36.697 XRUN callback (5).
-> **** alsa_pcm: xrun of at least 0.831 msecs
-> **** alsa_pcm: xrun of at least 2.850 msecs
-> 17:15:37.707 XRUN callback (1 skipped).
-> 17:17:38.387 XRUN callback (7).
-> **** alsa_pcm: xrun of at least 0.617 msecs
-> subgraph starting at qjackctl-8363 timed out (subgraph_wait_fd=17,
-> status = 0, state = Finished)
-> 17:18:52.275 XRUN callback (8).
-> **** alsa_pcm: xrun of at least 1.654 msecs
-> 17:20:44.214 XRUN callback (9).
-> **** alsa_pcm: xrun of at least 0.664 msecs
-> 17:28:00.610 XRUN callback (10).
-> **** alsa_pcm: xrun of at least 0.244 msecs
-> subgraph starting at qjackctl-8363 timed out (subgraph_wait_fd=17,
-> status = 0, state = Finished)
->
-> At this point I exited the preview menu and went to a higher level
-> menu and just let the machine sit in Myth for about 20 minutes. No
-> xruns: At about 5:50PM I went back into the preview menu and got an
-> xrun within 2 minutes:
->
-> 17:51:59.548 XRUN callback (11).
-> **** alsa_pcm: xrun of at least 1.156 msecs
-> 17:52:32.464 XRUN callback (12).
-> subgraph starting at qjackctl-8363 timed out (subgraph_wait_fd=17,
-> status = 0, state = Finished)
-> **** alsa_pcm: xrun of at least 1.326 msecs
->
->    Note that on this machine I can browse the web, transfer files via
-> the network, build kernels, do an emerge world, run cpuburn, etc., and
-> I get no xruns. However, if I run MythTV in the preview menu I get
-> them consistently.
->
->    Also note that the MythTV server is actually located over a
-> wireless connection. There is no wireless on my machine - the
-> connection is between the router and the machines in another part of
-> the house. I bring this up in case it indirectly bears upon the
-> networking, etc.
->
->    I look forward to hearing what you all think I should look at here.
->
->    I have not yet turned on the preempt debugging stuff. I'll work on
-> that after I hear back that I'm not wasting my time.
->
-> Thanks,
-> Mark
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
+The following patch makes only the functions in swsusp.c call functions in
+snapshot.c and not both ways.  It also moves the check for available swap
+out of swsusp_suspend() which is necessary for separating the swap-handling
+functions in swsusp from the core code.
 
-Mark,
+Basically, it moves the code without changing its functionality.
 
-If I am not mistaken, aren't you running the ivtv driver for your video
-card (I think I have seen you on that list also)? Since that driver is
-being developed outside the mainline kernel, isn't it likely that it
-hasn't received many of the improvements that the rest of the kernel has
-(latency and preemption wise)? Just a thought.
--- 
+Please consider for applying.
 
-kr
+Greetings,
+Rafael
 
+
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+
+ kernel/power/power.h    |    2 
+ kernel/power/snapshot.c |  102 ------------------------------
+ kernel/power/swsusp.c   |  158 ++++++++++++++++++++++++++++++++++++++----------
+ 3 files changed, 128 insertions(+), 134 deletions(-)
+
+Index: linux-2.6.14-git3/kernel/power/snapshot.c
+===================================================================
+--- linux-2.6.14-git3.orig/kernel/power/snapshot.c	2005-10-31 15:27:01.000000000 +0100
++++ linux-2.6.14-git3/kernel/power/snapshot.c	2005-10-31 15:36:10.000000000 +0100
+@@ -33,98 +33,6 @@
+ 
+ #include "power.h"
+ 
+-#ifdef CONFIG_HIGHMEM
+-struct highmem_page {
+-	char *data;
+-	struct page *page;
+-	struct highmem_page *next;
+-};
+-
+-static struct highmem_page *highmem_copy;
+-
+-static int save_highmem_zone(struct zone *zone)
+-{
+-	unsigned long zone_pfn;
+-	mark_free_pages(zone);
+-	for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn) {
+-		struct page *page;
+-		struct highmem_page *save;
+-		void *kaddr;
+-		unsigned long pfn = zone_pfn + zone->zone_start_pfn;
+-
+-		if (!(pfn%1000))
+-			printk(".");
+-		if (!pfn_valid(pfn))
+-			continue;
+-		page = pfn_to_page(pfn);
+-		/*
+-		 * This condition results from rvmalloc() sans vmalloc_32()
+-		 * and architectural memory reservations. This should be
+-		 * corrected eventually when the cases giving rise to this
+-		 * are better understood.
+-		 */
+-		if (PageReserved(page)) {
+-			printk("highmem reserved page?!\n");
+-			continue;
+-		}
+-		BUG_ON(PageNosave(page));
+-		if (PageNosaveFree(page))
+-			continue;
+-		save = kmalloc(sizeof(struct highmem_page), GFP_ATOMIC);
+-		if (!save)
+-			return -ENOMEM;
+-		save->next = highmem_copy;
+-		save->page = page;
+-		save->data = (void *) get_zeroed_page(GFP_ATOMIC);
+-		if (!save->data) {
+-			kfree(save);
+-			return -ENOMEM;
+-		}
+-		kaddr = kmap_atomic(page, KM_USER0);
+-		memcpy(save->data, kaddr, PAGE_SIZE);
+-		kunmap_atomic(kaddr, KM_USER0);
+-		highmem_copy = save;
+-	}
+-	return 0;
+-}
+-
+-
+-static int save_highmem(void)
+-{
+-	struct zone *zone;
+-	int res = 0;
+-
+-	pr_debug("swsusp: Saving Highmem\n");
+-	for_each_zone (zone) {
+-		if (is_highmem(zone))
+-			res = save_highmem_zone(zone);
+-		if (res)
+-			return res;
+-	}
+-	return 0;
+-}
+-
+-int restore_highmem(void)
+-{
+-	printk("swsusp: Restoring Highmem\n");
+-	while (highmem_copy) {
+-		struct highmem_page *save = highmem_copy;
+-		void *kaddr;
+-		highmem_copy = save->next;
+-
+-		kaddr = kmap_atomic(save->page, KM_USER0);
+-		memcpy(kaddr, save->data, PAGE_SIZE);
+-		kunmap_atomic(kaddr, KM_USER0);
+-		free_page((long) save->data);
+-		kfree(save);
+-	}
+-	return 0;
+-}
+-#else
+-static int save_highmem(void) { return 0; }
+-int restore_highmem(void) { return 0; }
+-#endif /* CONFIG_HIGHMEM */
+-
+ 
+ static int pfn_is_nosave(unsigned long pfn)
+ {
+@@ -383,11 +291,6 @@
+ 	unsigned nr_pages;
+ 
+ 	pr_debug("swsusp: critical section: \n");
+-	if (save_highmem()) {
+-		printk(KERN_CRIT "swsusp: Not enough free pages for highmem\n");
+-		restore_highmem();
+-		return -ENOMEM;
+-	}
+ 
+ 	drain_local_pages();
+ 	nr_pages = count_data_pages();
+@@ -407,11 +310,6 @@
+ 		return -ENOMEM;
+ 	}
+ 
+-	if (!enough_swap(nr_pages)) {
+-		printk(KERN_ERR "swsusp: Not enough free swap\n");
+-		return -ENOSPC;
+-	}
+-
+ 	pagedir_nosave = swsusp_alloc(nr_pages);
+ 	if (!pagedir_nosave)
+ 		return -ENOMEM;
+Index: linux-2.6.14-git3/kernel/power/swsusp.c
+===================================================================
+--- linux-2.6.14-git3.orig/kernel/power/swsusp.c	2005-10-31 15:27:01.000000000 +0100
++++ linux-2.6.14-git3/kernel/power/swsusp.c	2005-10-31 15:36:00.000000000 +0100
+@@ -73,6 +73,97 @@
+ 
+ #include "power.h"
+ 
++#ifdef CONFIG_HIGHMEM
++struct highmem_page {
++	char *data;
++	struct page *page;
++	struct highmem_page *next;
++};
++
++static struct highmem_page *highmem_copy;
++
++static int save_highmem_zone(struct zone *zone)
++{
++	unsigned long zone_pfn;
++	mark_free_pages(zone);
++	for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn) {
++		struct page *page;
++		struct highmem_page *save;
++		void *kaddr;
++		unsigned long pfn = zone_pfn + zone->zone_start_pfn;
++
++		if (!(pfn%1000))
++			printk(".");
++		if (!pfn_valid(pfn))
++			continue;
++		page = pfn_to_page(pfn);
++		/*
++		 * This condition results from rvmalloc() sans vmalloc_32()
++		 * and architectural memory reservations. This should be
++		 * corrected eventually when the cases giving rise to this
++		 * are better understood.
++		 */
++		if (PageReserved(page)) {
++			printk("highmem reserved page?!\n");
++			continue;
++		}
++		BUG_ON(PageNosave(page));
++		if (PageNosaveFree(page))
++			continue;
++		save = kmalloc(sizeof(struct highmem_page), GFP_ATOMIC);
++		if (!save)
++			return -ENOMEM;
++		save->next = highmem_copy;
++		save->page = page;
++		save->data = (void *) get_zeroed_page(GFP_ATOMIC);
++		if (!save->data) {
++			kfree(save);
++			return -ENOMEM;
++		}
++		kaddr = kmap_atomic(page, KM_USER0);
++		memcpy(save->data, kaddr, PAGE_SIZE);
++		kunmap_atomic(kaddr, KM_USER0);
++		highmem_copy = save;
++	}
++	return 0;
++}
++
++static int save_highmem(void)
++{
++	struct zone *zone;
++	int res = 0;
++
++	pr_debug("swsusp: Saving Highmem\n");
++	for_each_zone (zone) {
++		if (is_highmem(zone))
++			res = save_highmem_zone(zone);
++		if (res)
++			return res;
++	}
++	return 0;
++}
++
++static int restore_highmem(void)
++{
++	printk("swsusp: Restoring Highmem\n");
++	while (highmem_copy) {
++		struct highmem_page *save = highmem_copy;
++		void *kaddr;
++		highmem_copy = save->next;
++
++		kaddr = kmap_atomic(save->page, KM_USER0);
++		memcpy(kaddr, save->data, PAGE_SIZE);
++		kunmap_atomic(kaddr, KM_USER0);
++		free_page((long) save->data);
++		kfree(save);
++	}
++	return 0;
++}
++#else
++static int save_highmem(void) { return 0; }
++static int restore_highmem(void) { return 0; }
++#endif
++
+ #define CIPHER "aes"
+ #define MAXKEY 32
+ #define MAXIV  32
+@@ -507,6 +598,26 @@
+ }
+ 
+ /**
++ *	enough_swap - Make sure we have enough swap to save the image.
++ *
++ *	Returns TRUE or FALSE after checking the total amount of swap
++ *	space avaiable.
++ *
++ *	FIXME: si_swapinfo(&i) returns all swap devices information.
++ *	We should only consider resume_device.
++ */
++
++static int enough_swap(unsigned long nr_pages)
++{
++	struct sysinfo i;
++
++	si_swapinfo(&i);
++	pr_debug("swsusp: available swap: %lu pages\n", i.freeswap);
++	return i.freeswap > (nr_pages + PAGES_FOR_IO +
++		(nr_pages + PBES_PER_PAGE - 1) / PBES_PER_PAGE);
++}
++
++/**
+  *	write_suspend_image - Write entire image and metadata.
+  *
+  */
+@@ -514,6 +625,11 @@
+ {
+ 	int error;
+ 
++	if (!enough_swap(nr_copy_pages)) {
++		printk(KERN_ERR "swsusp: Not enough free swap\n");
++		return -ENOSPC;
++	}
++
+ 	init_header();
+ 	if ((error = data_write()))
+ 		goto FreeData;
+@@ -533,27 +649,6 @@
+ 	goto Done;
+ }
+ 
+-/**
+- *	enough_swap - Make sure we have enough swap to save the image.
+- *
+- *	Returns TRUE or FALSE after checking the total amount of swap
+- *	space avaiable.
+- *
+- *	FIXME: si_swapinfo(&i) returns all swap devices information.
+- *	We should only consider resume_device.
+- */
+-
+-int enough_swap(unsigned nr_pages)
+-{
+-	struct sysinfo i;
+-
+-	si_swapinfo(&i);
+-	pr_debug("swsusp: available swap: %lu pages\n", i.freeswap);
+-	return i.freeswap > (nr_pages + PAGES_FOR_IO +
+-		(nr_pages + PBES_PER_PAGE - 1) / PBES_PER_PAGE);
+-}
+-
+-
+ /* It is important _NOT_ to umount filesystems at this point. We want
+  * them synced (in case something goes wrong) but we DO not want to mark
+  * filesystem clean: it is not. (And it does not matter, if we resume
+@@ -563,12 +658,15 @@
+ {
+ 	int error;
+ 
++	if ((error = swsusp_swap_check())) {
++		printk(KERN_ERR "swsusp: cannot find swap device, try swapon -a.\n");
++		return error;
++	}
+ 	lock_swapdevices();
+ 	error = write_suspend_image();
+ 	/* This will unlock ignored swap devices since writing is finished */
+ 	lock_swapdevices();
+ 	return error;
+-
+ }
+ 
+ 
+@@ -576,6 +674,7 @@
+ int swsusp_suspend(void)
+ {
+ 	int error;
++
+ 	if ((error = arch_prepare_suspend()))
+ 		return error;
+ 	local_irq_disable();
+@@ -587,15 +686,12 @@
+ 	 */
+ 	if ((error = device_power_down(PMSG_FREEZE))) {
+ 		printk(KERN_ERR "Some devices failed to power down, aborting suspend\n");
+-		local_irq_enable();
+-		return error;
++		goto Enable_irqs;
+ 	}
+ 
+-	if ((error = swsusp_swap_check())) {
+-		printk(KERN_ERR "swsusp: cannot find swap device, try swapon -a.\n");
+-		device_power_up();
+-		local_irq_enable();
+-		return error;
++	if ((error = save_highmem())) {
++		printk(KERN_ERR "swsusp: Not enough free pages for highmem\n");
++		goto Restore_highmem;
+ 	}
+ 
+ 	save_processor_state();
+@@ -603,8 +699,10 @@
+ 		printk(KERN_ERR "Error %d suspending\n", error);
+ 	/* Restore control flow magically appears here */
+ 	restore_processor_state();
++Restore_highmem:
+ 	restore_highmem();
+ 	device_power_up();
++Enable_irqs:
+ 	local_irq_enable();
+ 	return error;
+ }
+@@ -895,7 +993,7 @@
+ 		 * Reset swap signature now.
+ 		 */
+ 		error = bio_write_page(0, &swsusp_header);
+-	} else { 
++	} else {
+ 		return -EINVAL;
+ 	}
+ 	if (!error)
+Index: linux-2.6.14-git3/kernel/power/power.h
+===================================================================
+--- linux-2.6.14-git3.orig/kernel/power/power.h	2005-10-31 15:27:01.000000000 +0100
++++ linux-2.6.14-git3/kernel/power/power.h	2005-10-31 15:31:52.000000000 +0100
+@@ -65,8 +65,6 @@
+ extern asmlinkage int swsusp_arch_suspend(void);
+ extern asmlinkage int swsusp_arch_resume(void);
+ 
+-extern int restore_highmem(void);
+ extern struct pbe * alloc_pagedir(unsigned nr_pages);
+ extern void create_pbe_list(struct pbe *pblist, unsigned nr_pages);
+ extern void swsusp_free(void);
+-extern int enough_swap(unsigned nr_pages);

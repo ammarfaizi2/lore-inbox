@@ -1,48 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbVJaMCi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932343AbVJaMIt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932309AbVJaMCi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 07:02:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932320AbVJaMCh
+	id S932343AbVJaMIt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 07:08:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbVJaMIt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 07:02:37 -0500
-Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:54026 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932309AbVJaMCh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 07:02:37 -0500
-Date: Mon, 31 Oct 2005 22:58:37 +1100
-To: Adrian Bunk <bunk@stusta.de>
-Cc: James Morris <jmorris@redhat.com>, Kausty <kkumbhalkar@gmail.com>,
-       linux-kernel@vger.kernel.org, davem@davemloft.net,
-       linux-crypto@vger.kernel.org
-Subject: Re: [2.6 patch] crypto/api.c: remove the second argument of crypto_alg_available()
-Message-ID: <20051031115837.GA352@gondor.apana.org.au>
-References: <41ae44840501200448197d18c0@mail.gmail.com> <Xine.LNX.4.44.0501200952440.952-100000@thoron.boston.redhat.com> <20051031054642.GD8009@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051031054642.GD8009@stusta.de>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Mon, 31 Oct 2005 07:08:49 -0500
+Received: from send.forptr.21cn.com ([202.105.45.48]:47539 "HELO 21cn.com")
+	by vger.kernel.org with SMTP id S932071AbVJaMIs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 07:08:48 -0500
+Message-ID: <43660989.2000100@21cn.com>
+Date: Mon, 31 Oct 2005 20:09:45 +0800
+From: Yan Zheng <yanzheng@21cn.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: netdev@vger.kernel.org
+CC: linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
+Subject: Re: [PATCH][MCAST]IPv6: Check packet size when process Multicast
+ Address and Source Specific Query
+References: <4365A995.3050404@21cn.com> <20051031.142717.40152885.yoshfuji@linux-ipv6.org>
+In-Reply-To: <20051031.142717.40152885.yoshfuji@linux-ipv6.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AIMC-AUTH: yanzheng
+X-AIMC-MAILFROM: yanzheng@21cn.com
+X-AIMC-Msg-ID: Pa1486OB
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 31, 2005 at 06:46:42AM +0100, Adrian Bunk wrote:
->
-> > IIRC, this was to allow future code to specify preferences for the type of
-> > algorithm driver (e.g. hardware), but has not been used.  This is an
-> > example of why it's a bad idea to add infrastructure which isn't being
-> > used at the time.
 > 
-> Since it's still unused, a patch to remove this second argument is 
-> below.
+> You cannot continue using mlh2, local copy of skb->h.raw
+> after pskb_may_pull(). Please refresh it.
+> 
+> --yoshfuji
+> 
 
-I'll be using this field very soon to indicate that the caller intends
-to find synchronous algorithms only as opposed to either synchronous or
-asynchronous.  So I'd like to keep it for now.
+My mistake. sorry.
+I hope the new one is correct.
 
-Thanks,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Regards
+================================================================================
+--- linux-2.6.14/net/ipv6/mcast.c	2005-10-30 23:09:33.000000000 +0800
++++ linux/net/ipv6/mcast.c	2005-10-31 14:16:19.000000000 +0800
+@@ -1087,7 +1087,7 @@ static void mld_marksources(struct ifmca
+ 
+ int igmp6_event_query(struct sk_buff *skb)
+ {
+-	struct mld2_query *mlh2 = (struct mld2_query *) skb->h.raw;
++	struct mld2_query *mlh2 = NULL;
+ 	struct ifmcaddr6 *ma;
+ 	struct in6_addr *group;
+ 	unsigned long max_delay;
+@@ -1140,6 +1140,13 @@ int igmp6_event_query(struct sk_buff *sk
+ 		/* clear deleted report items */
+ 		mld_clear_delrec(idev);
+ 	} else if (len >= 28) {
++		int srcs_offset = sizeof(struct mld2_query) - 
++				  sizeof(struct icmp6hdr);
++		if (!pskb_may_pull(skb, srcs_offset)) {
++			in6_dev_put(idev);
++			return -EINVAL;
++		}
++		mlh2 = (struct mld2_query *) skb->h.raw;
+ 		max_delay = (MLDV2_MRC(ntohs(mlh2->mrc))*HZ)/1000;
+ 		if (!max_delay)
+ 			max_delay = 1;
+@@ -1156,7 +1163,15 @@ int igmp6_event_query(struct sk_buff *sk
+ 			return 0;
+ 		}
+ 		/* mark sources to include, if group & source-specific */
+-		mark = mlh2->nsrcs != 0;
++		if (mlh2->nsrcs != 0) {
++			if (!pskb_may_pull(skb, srcs_offset + 
++				mlh2->nsrcs * sizeof(struct in6_addr))) {
++				in6_dev_put(idev);
++				return -EINVAL;
++			}
++			mlh2 = (struct mld2_query *) skb->h.raw;
++			mark = 1;
++		}
+ 	} else {
+ 		in6_dev_put(idev);
+ 		return -EINVAL;

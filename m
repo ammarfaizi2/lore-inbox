@@ -1,66 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932528AbVJaSLt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbVJaSOu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932528AbVJaSLt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 13:11:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932530AbVJaSLt
+	id S932298AbVJaSOu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 13:14:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbVJaSOu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 13:11:49 -0500
-Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:11786 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932528AbVJaSLs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 13:11:48 -0500
-Date: Mon, 31 Oct 2005 19:11:33 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6] i2c: writing-client doc update complement
-Message-Id: <20051031191133.24ee03f7.khali@linux-fr.org>
-X-Mailer: Sylpheed version 2.0.3 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 31 Oct 2005 13:14:50 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:35732 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S932298AbVJaSOt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 13:14:49 -0500
+Message-ID: <43665F14.9040700@drzeus.cx>
+Date: Mon, 31 Oct 2005 19:14:44 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mail/News 1.4.1 (X11/20051008)
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: LKML <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
+       Felipe Damasio <felipewd@terra.com.br>
+Subject: Re: [PATCH] 8139cp: Catch all interrupts
+References: <431761BA.5080007@drzeus.cx>
+In-Reply-To: <431761BA.5080007@drzeus.cx>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+Pierre Ossman wrote:
+> Register interrupt handler when net device is registered. Avoids missing
+> interrupts if the interrupt mask gets out of sync.
+> 
+> Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
+> 
+> ---
+> 
+> The reason this patch is needed for me is that the resume function is
+> broken. It enables interrupts unconditionally, but the interrupt handler
+> is only registered when the device is up.
+> 
+> I don't have enough knowledge about the driver to fix the resume
+> function so this patch will instead make sure that the interrupt handler
+> is registered at all times (which can be a nice safeguard even when the
+> resume function gets fixed).
+> 
 
-Can you please apply the following patch to your git tree? Thanks.
-
-* * * * *
-
-My latest update to the writing-clients i2c documentation file was
-incomplete, here's the complement.
-
-Large parts of this file are still way out-of-date, but at least now
-the memory allocation and freeing instructions are consistent.
-
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
----
-
- Documentation/i2c/writing-clients |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
---- linux-2.6.14-git.orig/Documentation/i2c/writing-clients	2005-10-31 18:44:21.000000000 +0100
-+++ linux-2.6.14-git/Documentation/i2c/writing-clients	2005-10-31 19:07:22.000000000 +0100
-@@ -412,7 +412,7 @@
-         release_region(address,FOO_EXTENT);
-     /* SENSORS ONLY END */
-     ERROR1:
--      kfree(new_client);
-+      kfree(data);
-     ERROR0:
-       return err;
-   }
-@@ -443,7 +443,7 @@
-       release_region(client->addr,LM78_EXTENT);
-     /* HYBRID SENSORS CHIP ONLY END */
- 
--    kfree(data);
-+    kfree(i2c_get_clientdata(client));
-     return 0;
-   }
- 
-
-
--- 
-Jean Delvare
+Any comments on this?

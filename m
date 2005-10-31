@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964783AbVJaQnx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932458AbVJaQuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964783AbVJaQnx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 11:43:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbVJaQnx
+	id S932458AbVJaQuE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 11:50:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbVJaQuE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 11:43:53 -0500
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:48340 "EHLO
-	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
-	id S932465AbVJaQnw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 11:43:52 -0500
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-Subject: Re: [BUG 2579] linux 2.6.* sound problems
-To: patrizio.bassi@gmail.com, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Mon, 31 Oct 2005 17:43:37 +0100
-References: <53JVy-4yi-19@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Mon, 31 Oct 2005 11:50:04 -0500
+Received: from mail.ncipher.com ([82.108.130.24]:15238 "EHLO mail.ncipher.com")
+	by vger.kernel.org with ESMTP id S932458AbVJaQuC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 11:50:02 -0500
+Message-ID: <43664B31.3000305@f0rmula.com>
+Date: Mon, 31 Oct 2005 16:49:53 +0000
+From: James Hansen <linux-kernel-list@f0rmula.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1EWcl3-0001cd-2b@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+To: linux-kernel-list <linux-kernel@vger.kernel.org>
+Subject: Trouble unloading a module..
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrizio Bassi <patrizio.bassi@gmail.com> wrote:
-> starting from 2.6.0 (2 years ago) i have the following bug.
+I've having trouble unloading a kernel module for a PCI card that I'm 
+porting to 64bit linux.  It doesn't seem to be unloading correctly.  
+It's tested, stable and unloads perfectly on a 32bit machine, running 
+2.6.10 (and all other 32bit kernels I've tried).
 
-> link: http://bugzilla.kernel.org/show_bug.cgi?id=2579
-> and https://bugtrack.alsa-project.org/alsa-bug/view.php?id=230
-> 
-> fast summary:
-> when playing audio and using a bit the harddisk (i.e. md5sum of a 200mb
-> file)
-> i hear noises, related to disk activity. more hd is used, more chicks
-> and ZZZZ noises happen.
+However, on a 64bit machine (unofficial amd/emt64 debian with 2.6.8), 
+even though it seems to unload corrrectly, I get a kernel oops if an 
+application that uses the driver attempts to connect to the device after 
+it's been unloaded.
 
-Maybe you just need to tune down unused and non-connected inputs in the
-mixer, especially microphone? Happened to me once.
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+Being relatively inexperienced at kernel programming, does this point to 
+anything that might be obvious to any of you, yet not to me? :)   Or are 
+there any common stumbling blocks in terms of unloading modules on 64bit 
+linux.
+
+Thanks for any suggestions.
+
+James

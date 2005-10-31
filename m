@@ -1,75 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbVJaUnP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbVJaUop@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751183AbVJaUnP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 15:43:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbVJaUnP
+	id S964828AbVJaUop (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 15:44:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964829AbVJaUop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 15:43:15 -0500
-Received: from fmr24.intel.com ([143.183.121.16]:59109 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751183AbVJaUnO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 15:43:14 -0500
-Date: Mon, 31 Oct 2005 12:42:17 -0800
-From: Ashok Raj <ashok.raj@intel.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Ashok Raj <ashok.raj@intel.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Ingo Molnar <mingo@elte.hu>, linux@brodo.de
-Subject: Re: 2.6.14-git3: scheduling while atomic from cpufreq on Athlon64
-Message-ID: <20051031124216.A18213@unix-os.sc.intel.com>
-References: <200510311606.36615.rjw@sisk.pl> <20051031113413.34a599cd.akpm@osdl.org> <200510312045.32908.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200510312045.32908.rjw@sisk.pl>; from rjw@sisk.pl on Mon, Oct 31, 2005 at 08:45:32PM +0100
+	Mon, 31 Oct 2005 15:44:45 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:16607 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S964828AbVJaUoo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 15:44:44 -0500
+Subject: Re: [patch 1/14] s390: statistics infrastructure.
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, mschwid2@de.ibm.com
+X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
+Message-ID: <OF9C74DB95.E7B40CED-ONC12570AB.006DF2D4-C12570AB.007844F9@de.ibm.com>
+From: Martin Peschke3 <MPESCHKE@de.ibm.com>
+Date: Mon, 31 Oct 2005 21:44:39 +0100
+X-MIMETrack: Serialize by Router on D12ML067/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
+ 31/10/2005 21:44:42
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 31, 2005 at 08:45:32PM +0100, Rafael J. Wysocki wrote:
-> On Monday, 31 of October 2005 20:34, Andrew Morton wrote:
-> > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> }-- snip --{
-> > > scheduling while atomic: swapper/0x00000001/1
-> > > 
-> > > Call Trace:<ffffffff8035014a>{schedule+122} <ffffffff802e2453>{cpufreq_frequency_table_target+371}
-> > >        <ffffffff8011d60c>{powernowk8_target+1916} <ffffffff802dfdb4>{__cpufreq_driver_target+116}
-> > >        <ffffffff801be269>{sysfs_new_dirent+41} <ffffffff802e097e>{cpufreq_governor_performance+62}
-> > >        <ffffffff802dec8d>{__cpufreq_governor+173} <ffffffff802df417>{__cpufreq_set_policy+551}
-> > >        <ffffffff802df5bf>{cpufreq_set_policy+79} <ffffffff802df946>{cpufreq_add_dev+806}
-> > >        <ffffffff802df540>{handle_update+0} <ffffffff802ae21a>{sysdev_driver_register+170}
-> > >        <ffffffff802df106>{cpufreq_register_driver+198} <ffffffff8010c122>{init+194}
-> > >        <ffffffff8010f556>{child_rip+8} <ffffffff8010c060>{init+0}
-> > >        <ffffffff8010f54e>{child_rip+0} 
-> > 
-> > Well I can't find it.  Ingo, didn't you have a debug patch which would help
-> > us identify where this atomic section started?
-> 
-> This is 100% reproducible on my box so I'll try to figure out what's up tomorrow
-> (unless someone else does it earlier ;-)).  Now I can only say it did not happen
-> with 2.6.14-rc5-mm1.
+Andrew,
 
-This could be because of the new patch, i added preempt_disable() instead
-of taking cpucontrol lock in __cpufreq_driver_target().
+> There is a patch in -mm which moves oprofile and kprobes into a new
+> "instrumentation" menu.
+>
+>
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc5/2.6.14-rc5-mm1/broken-out/moving-kprobes-and-oprofile-to-instrumentation-support-menu.patch
 
-The reason is we now enter the same code path from the cpu_up() and cpu_down()
-generated cpu notifier callbacks and ends up trying to lock when the 
-call path already has the cpucontrol lock.
+>
+> I held off on merging that because the oprofile guys asked "why bother".
+> I guess the statistics infrastructure answers that question.  I'll send
+> it on.
 
-Its happening because we do set_cpus_allowed() in powernowk8_target().
+sounds reasonable
 
+> > > (If we end up deciding to keep all this in arch/s390 then I
+> > > guess we can live with s390 peculiarities though)
+> >
+> > I will be happy to see some feature like this included outside
+> > arch/s390. What is about lib/, or kernel/?
+>
+> lib/, I guess.
 
-> 
-> > > Additionally there are some problems with freezing processes by swsusp.
-> 
-> Once the box has not suspended due to a process refusing to freeze, but I was
-> unable to trace the problem at that time.  This does not seem to be readily
-> reproducible, however.
-> 
-> Greetings,
-> Rafael
+fine
 
--- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center
+> It could concievably go in fs/debugfs, depending upon how tightly
+> coupled it is to debugfs.
+
+No, I don't think so. debufs has been my choice for the user interface.
+But it is only one aspect of the statistics infrastructure, not even the
+most important one, in my eyes. It's not an enhancement of debugfs,
+but an exploitation. And the statistics code could be changed to use
+something else than debugfs with moderate effort.
+
+> > +        list_for_each_entry(seg, &rb->seg_lh, list)
+> > +                    break;
+...
+> Yes, we do poke inside list_head a lot and yes, it does feel a bit wrong.
+>
+> Do whatever you think is best here.  A little explanatory comment would
+> help.
+
+Then I will opt for a comment, rather than touching tested code.
+
+> I noticed that there was a /* in there somewhere where a kerneldoc /**
+> was intended.
+
+Looked for it without success.
+I am not consistent as to */ or **/ at the end of kerneldoc comments, yet.
+
+THanks for your comments,
+Martin Peschke
+

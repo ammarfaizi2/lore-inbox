@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932460AbVJaQkv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964783AbVJaQnx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932460AbVJaQkv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 11:40:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932466AbVJaQkv
+	id S964783AbVJaQnx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 11:43:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbVJaQnx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 11:40:51 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:10212 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932460AbVJaQku (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 11:40:50 -0500
-Subject: Re: 2.6.14-rt1 - xruns in a certain circumstance
-From: Lee Revell <rlrevell@joe-job.com>
-To: Mark Knecht <markknecht@gmail.com>
-Cc: "K.R. Foley" <kr@cybsft.com>, lkml <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <5bdc1c8b0510310726t105f8f8emd1d044f760a8a1eb@mail.gmail.com>
-References: <5bdc1c8b0510301828p29ea517ew467a5f6503435314@mail.gmail.com>
-	 <50256.192.249.47.11.1130771450.squirrel@webmail2.pair.com>
-	 <5bdc1c8b0510310726t105f8f8emd1d044f760a8a1eb@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 31 Oct 2005 11:39:19 -0500
-Message-Id: <1130776760.32101.40.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Mon, 31 Oct 2005 11:43:53 -0500
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:48340 "EHLO
+	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
+	id S932465AbVJaQnw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 11:43:52 -0500
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: [BUG 2579] linux 2.6.* sound problems
+To: patrizio.bassi@gmail.com, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Mon, 31 Oct 2005 17:43:37 +0100
+References: <53JVy-4yi-19@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1EWcl3-0001cd-2b@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-10-31 at 07:26 -0800, Mark Knecht wrote:
->    I'm going to do as Lee and Ingo suggest, now that I have a test
-> that seems to create xruns pretty qickly. Hopefully I'll capture
-> something of interest. However I'm questioning exactly what the video
-> problem would be since I don't create xruns when watching MythTV full
-> screen. Only get them when watching in this preview window. That said
-> it is an ATI PCI-Express card but since it's 2.6.14 there is no ATI
-> driver support. My kernel is currently trying to load fglrx (the ATI
-> driver) and failing since it doesn't support this kernel. I'll clean
-> up the video driver setup and retest.
+Patrizio Bassi <patrizio.bassi@gmail.com> wrote:
+> starting from 2.6.0 (2 years ago) i have the following bug.
 
-Please try my first suggestion, just set Option "NoAccel" to the Device
-section of your xorg.conf.
+> link: http://bugzilla.kernel.org/show_bug.cgi?id=2579
+> and https://bugtrack.alsa-project.org/alsa-bug/view.php?id=230
+> 
+> fast summary:
+> when playing audio and using a bit the harddisk (i.e. md5sum of a 200mb
+> file)
+> i hear noises, related to disk activity. more hd is used, more chicks
+> and ZZZZ noises happen.
 
-Lee
-
+Maybe you just need to tune down unused and non-connected inputs in the
+mixer, especially microphone? Happened to me once.
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbVJaVGN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932498AbVJaVLz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964843AbVJaVGN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 16:06:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964850AbVJaVGF
+	id S932498AbVJaVLz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 16:11:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932499AbVJaVLz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 16:06:05 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:29136 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S964836AbVJaVFu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 16:05:50 -0500
-Date: Mon, 31 Oct 2005 22:05:15 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Matt Mackall <mpm@selenic.com>
-cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 13/20] inflate: (arch) kill silly zlib typedefs
-In-Reply-To: <14.196662837@selenic.com>
-Message-ID: <Pine.LNX.4.62.0510312204400.26471@numbat.sonytel.be>
-References: <14.196662837@selenic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 31 Oct 2005 16:11:55 -0500
+Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:62733 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932498AbVJaVLx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 16:11:53 -0500
+Date: Tue, 1 Nov 2005 08:11:43 +1100
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kill 8139too kernel thread (sorta)
+Message-ID: <20051031211143.GA6409@gondor.apana.org.au>
+References: <20051031130255.GA26626@havoc.gtf.org> <E1EWgcG-0001dZ-00@gondolin.me.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1EWgcG-0001dZ-00@gondolin.me.apana.org.au>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Oct 2005, Matt Mackall wrote:
-> inflate: remove legacy type definitions from callers
+On Tue, Nov 01, 2005 at 07:50:52AM +1100, Herbert Xu wrote:
 > 
-> This replaces the legacy zlib typedefs and usage with kernel types in
-> all the inflate users.
+> However, in this case it's much easier than that.  Simply change
+> rtl8139_thread to do
+> 
+> 	rtnl_lock();
+> 	if (tp->time_to_die == 0) {
+> 		rtl8139_thread_iter(dev, tp, tp->mmio_addr);
+> 		schedule_delayed_work(&tp->thread, next_tick);
+> 	}
+> 	rtnl_unlock();
 
-> -static ulg free_mem_ptr;
-> -static ulg free_mem_ptr_end;
-> +static u32 free_mem_ptr;
-> +static u32 free_mem_ptr_end;
+Actually this is no good either.  The reason is that rtl8139_stop_thread
+never relinquinshes the RTNL so it has no way of waiting for this to
+complete.
 
-Bang, on 64-bit platforms...
+So I suppose we will have to use cancel_rearming_delayed_workqueue or
+create an rtl-specific semaphore for this.
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

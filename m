@@ -1,136 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932474AbVJaREg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932477AbVJaRFK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932474AbVJaREg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 12:04:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbVJaREg
+	id S932477AbVJaRFK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 12:05:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbVJaRFJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 12:04:36 -0500
-Received: from nproxy.gmail.com ([64.233.182.200]:4079 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932474AbVJaREf (ORCPT
+	Mon, 31 Oct 2005 12:05:09 -0500
+Received: from usbb-lacimss1.unisys.com ([192.63.108.51]:59913 "EHLO
+	usbb-lacimss1.unisys.com") by vger.kernel.org with ESMTP
+	id S932477AbVJaRFH convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 12:04:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=GqWBQtmfsptd2v2Zvo5obJKLqPp8YGjigCoQ/SDIhkP6c8EQ8ZC+jg/kfo39PuC+1i7rvzfDWroktJIun2C26BfEtmUnW047qB7owVGreGZfG+6RlZF6rZlmhc05FUxhhUq7r0IBQZfnDMC0lM5n/QPpyG4mVxtkruhfxvWs6LA=
-Message-ID: <43664E9C.2030808@gmail.com>
-Date: Mon, 31 Oct 2005 18:04:28 +0100
-From: Patrizio Bassi <patrizio.bassi@gmail.com>
-Reply-To: patrizio.bassi@gmail.com
-Organization: patrizio.bassi@gmail.com
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051027)
-X-Accept-Language: it, it-it, en-us, en
+	Mon, 31 Oct 2005 12:05:07 -0500
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: ray-gmail@madrabbit.org, "Kernel, " <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG 2579] linux 2.6.* sound problems
-References: <53JVy-4yi-19@gated-at.bofh.it> <53Kyw-5Bt-53@gated-at.bofh.it>
-In-Reply-To: <53Kyw-5Bt-53@gated-at.bofh.it>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Subject: RE: [Fastboot] [PATCH] i386: move apic init in init_IRQs
+Date: Mon, 31 Oct 2005 11:04:52 -0600
+Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04DFF@USRV-EXCH4.na.uis.unisys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Fastboot] [PATCH] i386: move apic init in init_IRQs
+Thread-Index: AcXZNNn/f3wYHXDSQ9qNT8MiitVEJwFBslCw
+From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>, <vgoyal@in.ibm.com>
+Cc: "Andrew Morton" <akpm@osdl.org>, <fastboot@osdl.org>,
+       <linux-kernel@vger.kernel.org>, "Andi Kleen" <ak@suse.de>,
+       "Zwane Mwaikambo" <zwane@arm.linux.org.uk>,
+       "Brown, Len" <len.brown@intel.com>
+X-OriginalArrivalTime: 31 Oct 2005 17:04:52.0772 (UTC) FILETIME=[35D91E40:01C5DE3D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ray Lee ha scritto:
-> On 10/31/05, Patrizio Bassi <patrizio.bassi@gmail.com> wrote:
-> 
->>starting from 2.6.0 (2 years ago) i have the following bug.
-> 
-> 
-> Well, the problem probably started before then.
-> 
-> 
->>link: http://bugzilla.kernel.org/show_bug.cgi?id=2579
+> Vivek Goyal <vgoyal@in.ibm.com> writes:
+> > I have attached a patch with the mail which is now using 
+> > boot_cpu_physical_apicid to hard set presence of boot cpu 
+> instead of 
+> > hard_smp_processor_id(). But the interesting questoin 
+> remains why BIOS 
+> > is not reporting the boot cpu.
 > 
 > 
->>Please fix that...2 years' bug!
+> Ok.  I don't know if we care but I do know why we were not 
+> seeing the report from the bios about your boot processor.  
+> We record information about cpus for up to NR_CPUS, and since 
+> you had a UP kernel NR_CPUS was one.
 > 
+> From your earlier boot log.
 > 
-> Speaking as a programmer, that's not a lot to go off of to find the
-> bug. I think everyone would agree it's a bug, but we'll need more help
-> from you.
+> > ACPI: LAPIC (acpi_id[0x00] lapic_id[0x03] enabled) 
+> Processor #3 6:10 
+> > APIC version 17
+> > ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled) 
+> Processor #0 6:10 
+> > APIC version 17
+> > WARNING: NR_CPUS limit of 1 reached.  Processor ignored.
+> > ACPI: LAPIC (acpi_id[0x02] lapic_id[0x01] enabled) 
+> Processor #1 6:10 
+> > APIC version 17
+> > WARNING: NR_CPUS limit of 1 reached.  Processor ignored.
+> > ACPI: LAPIC (acpi_id[0x03] lapic_id[0x02] enabled) 
+> Processor #2 6:10 
+> > APIC version 17
+> > WARNING: NR_CPUS limit of 1 reached.  Processor ignored.
 > 
+> So it looks like we have this problem completely fixed.  
 > 
->>fast summary:
->>when playing audio and using a bit the harddisk (i.e. md5sum of a 200mb
->>file) i hear noises, related to disk activity. more hd is used, more chicks
->>and ZZZZ noises happen.
-> 
-> 
-> Does hdparm -i (or -I) show differences between the 2.4 kernels and
-> 2.6? 2.6 has new IDE drivers, and so perhaps your system isn't using
-> the best driver any more.
-> 
-> You may also want to compare lspci -vv of your IDE controller and
-> sound card between 2.4 and 2.6, and see if there are any differences.
-> 
-> No guarantees, but this is where you'd start.
-> 
-> 
->>Ready to test any patch/solution.
-> 
-> 
-> Try that. If nothing obvious appears in the examination, you may want
-> to try the 2.6.14-rt1 patchset from Ingo Molnar. It's designed to
-> reduce latency in the kernel, but also has a latency tracer that may
-> be particularly useful for your problem. (Assuming it's a latency
-> issue, and not a hardware misconfiguration due to 2.6 doing something
-> wrong.)
-> 
-> Ray
+> I don't see a good way to ensure that we always record our 
+> boot apicid when we boot a multiple processor system and only 
+> use one processor.
 
-actually i don't have any more 2.4 kernels due to some problems with
-other devices.
+Hi Eric,
 
-however i remember i checked that and it was pretty the same
+There is another problem with that patch - it broke ES7000, I kept
+getting timer panics. It turned out that check_timer() runs before the
+actual APIC destination is set up. The IO-APIC uses
+cpu_to_logical_apicid to find the destination - which needs
+cpu_2_logical_apicid[] to be filled - which only happens after
+processors are booted. At the time when check_timer() runs, it will
+always be BAD_APICID (0xFF - broadcast) as the IO-APIC rte destination
+for the timer, but ES7000 hardware happened not to support 0xFF so it
+panics. I used bios_cpu_apicid[] to bring it up, but
+cpu_to_logical_apicid is the only one that is kept up-to-date in the
+hotplug case, so I cannot replace it in the cpu_mask_to_apicid(). 
 
-i know i gave you all few infos, but, ask me and i'll try more.
+There are probably some ways to fix this such as one below that I tried
+(in mpparse.c):
 
-i have an intel bx440 chipset, udma33.
+        if (m->mpc_cpuflag & CPU_BOOTPROCESSOR) {
+                Dprintk("    Bootup CPU\n");
+                boot_cpu_physical_apicid = m->mpc_apicid;
++               cpu_2_logical_apicid[num_processors] = m->mpc_apicid;
+        }
+it  worked, but looks more like a kludge of course. I think IO-APIC
+setup has to happen after processors were brought online and so is
+check_timer(), if timer is connected through the IO-APIC.
 
-kernel is perfectly tuned.
+--Natalie
 
-i notice that with dma disabled it works much better.
-problem happens with hda/hdc, so both ide channels.
-
-
-
-
-hdparm -i /dev/hda
-
-/dev/hda:
-
- Model=IBM-DTLA-307030, FwRev=TX4OA50C, SerialNo=YKDYKV9J094
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
- BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=off
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=60036480
- IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4
- DMA modes:  mdma0 mdma1 mdma2
- UDMA modes: udma0 udma1 *udma2
- AdvancedPM=yes: disabled (255) WriteCache=enabled
- Drive conforms to: ATA/ATAPI-5 T13 1321D revision 1:
-
- * signifies the current active mode
-
- hdparm -i /dev/hdc
-
-/dev/hdc:
-
- Model=IC35L060AVV207-0, FwRev=V22OA63A, SerialNo=VNVB07G2RJ2X4M
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=52
- BuffType=DualPortCache, BuffSize=1821kB, MaxMultSect=16, MultSect=off
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=120103200
- IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4
- DMA modes:  mdma0 mdma1 mdma2
- UDMA modes: udma0 udma1 *udma2
- AdvancedPM=yes: disabled (255) WriteCache=enabled
- Drive conforms to: ATA/ATAPI-6 T13 1410D revision 3a:
-
- * signifies the current active mode
-
-
-
+ 

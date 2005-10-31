@@ -1,115 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932476AbVJaKVt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbVJaK0Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932476AbVJaKVt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 05:21:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbVJaKVt
+	id S932133AbVJaK0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 05:26:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751018AbVJaK0Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 05:21:49 -0500
-Received: from mail.mnsspb.ru ([84.204.75.2]:45705 "EHLO mail.mnsspb.ru")
-	by vger.kernel.org with ESMTP id S932476AbVJaKVr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 05:21:47 -0500
-From: Kirill Smelkov <kirr@mns.spb.ru>
-Organization: MNS
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] serial moxa: fix leaks of struct tty_driver
-Date: Mon, 31 Oct 2005 13:21:29 +0300
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
+	Mon, 31 Oct 2005 05:26:25 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:59141 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750752AbVJaK0Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 05:26:24 -0500
+Date: Mon, 31 Oct 2005 11:26:21 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org
+Subject: [2.6 patch] fix the "QoS and/or fair queueing" menu
+Message-ID: <20051031102621.GF8009@stusta.de>
+References: <Pine.LNX.4.61.0510280902470.6910@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_pAfZDcUqHBVI99S"
-Message-Id: <200510311321.29929.kirr@mns.spb.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0510280902470.6910@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_pAfZDcUqHBVI99S
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Fri, Oct 28, 2005 at 09:04:31AM +0200, Jan Engelhardt wrote:
 
-Fix leak of struct tty_driver in mxser_init & mxser_module_exit
+> Hi,
 
-Signed-off-by: Kirill Smelkov <kirr@mns.spb.ru>
+Hi Jan,
+
+> When CONFIG_NET_CLS is enabled, then "Firewall based classifier", "U32 
+> classifier" and some more appear under the "Network options" menu rather 
+> than "QoS and/or fair queueing" menu.
+> This bug is in the recently released 2.6.14. (And earlier).
+
+thanks for this report, a patch is below.
+
+> Jan Engelhardt
+
+cu
+Adrian
 
 
---Boundary-00=_pAfZDcUqHBVI99S
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="mxser-leaks.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="mxser-leaks.patch"
+<--  snip  -->
 
-Fix leak of struct tty_driver in mxser_init & mxser_module_exit
 
-Signed-off-by: Kirill Smelkov <kirr@mns.spb.ru>
+This patch adjust some dependencies in net/sched/Kconfig for getting all 
+options that belong there under "QoS and/or fair queueing".
 
-Index: linux-2.6.14/drivers/char/mxser.c
-===================================================================
---- linux-2.6.14.orig/drivers/char/mxser.c	2005-10-31 12:10:11.000000000 +0300
-+++ linux-2.6.14/drivers/char/mxser.c	2005-10-31 12:10:47.000000000 +0300
-@@ -494,14 +494,18 @@
+There is no actual semantic change in any dependency, the additional 
+dependencies are added for helping kconfig to figure out what belongs to 
+that menu.
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+ net/sched/Kconfig |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+--- linux-2.6.14-rc5-mm1-full/net/sched/Kconfig.old	2005-10-31 11:08:50.000000000 +0100
++++ linux-2.6.14-rc5-mm1-full/net/sched/Kconfig	2005-10-31 11:18:48.000000000 +0100
+@@ -343,6 +343,7 @@
  
- static void __exit mxser_module_exit(void)
- {
--	int i, err = 0;
-+	int i, err;
+ config NET_CLS_ROUTE
+ 	bool
++	depends on NET_CLS
+ 	default n
  
- 	if (verbose)
- 		printk(KERN_DEBUG "Unloading module mxser ...\n");
+ config NET_CLS_FW
+@@ -375,7 +376,7 @@
  
--	if ((err |= tty_unregister_driver(mxvar_sdriver)))
-+	err = tty_unregister_driver(mxvar_sdriver);
-+	if (!err)
-+		put_tty_driver(mxvar_sdriver);
-+	else
- 		printk(KERN_ERR "Couldn't unregister MOXA Smartio/Industio family serial driver\n");
+ config NET_CLS_IND
+ 	bool "classify input device (slows things u32/fw) "
+-	depends on NET_CLS_U32 || NET_CLS_FW
++	depends on NET_CLS && (NET_CLS_U32 || NET_CLS_FW)
+ 	help
+ 	  This option will be killed eventually when a 
+           metadata action appears because it slows things a little
+@@ -552,13 +553,6 @@
+         requires new iproute2
+         This allows for packets to be generically edited
  
-+
- 	for (i = 0; i < MXSER_BOARDS; i++) {
- 		struct pci_dev *pdev;
- 
-@@ -690,7 +694,6 @@
- static int mxser_init(void)
- {
- 	int i, m, retval, b, n;
--	int ret1;
- 	struct pci_dev *pdev = NULL;
- 	int index;
- 	unsigned char busnum, devnum;
-@@ -854,14 +857,11 @@
- 	}
- #endif
- 
--	ret1 = 0;
--	if (!(ret1 = tty_register_driver(mxvar_sdriver))) {
--		return 0;
--	} else
-+	retval = tty_register_driver(mxvar_sdriver);
-+	if (retval) {
- 		printk(KERN_ERR "Couldn't install MOXA Smartio/Industio family driver !\n");
-+		put_tty_driver(mxvar_sdriver);
- 
+-config NET_CLS_POLICE
+-	bool "Traffic policing (needed for in/egress)"
+-	depends on NET_CLS && NET_QOS && NET_CLS_ACT!=y
+-	help
+-	  Say Y to support traffic policing (bandwidth limits).  Needed for
+-	  ingress and egress rate limiting.
 -
--	if (ret1) {
- 		for (i = 0; i < MXSER_BOARDS; i++) {
- 			if (mxsercfg[i].board_type == -1)
- 				continue;
-@@ -870,10 +870,10 @@
- 				//todo: release io, vector
- 			}
- 		}
--		return -1;
-+		return retval;
- 	}
+ config NET_ACT_SIMP
+         tristate "Simple action"
+         depends on NET_CLS_ACT
+@@ -569,3 +563,9 @@
+ 	All this action will do is print on the console the configured
+ 	policy string followed by _ then packet count.
  
--	return (0);
-+	return 0;
- }
- 
- static void mxser_do_softint(void *private_)
-
---Boundary-00=_pAfZDcUqHBVI99S--
++config NET_CLS_POLICE
++        bool "Traffic policing (needed for in/egress)"
++        depends on NET_CLS && NET_QOS && NET_CLS_ACT!=y
++        help
++          Say Y to support traffic policing (bandwidth limits).  Needed for
++          ingress and egress rate limiting.
 

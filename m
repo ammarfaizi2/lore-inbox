@@ -1,78 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbVJaUop@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751210AbVJaUsN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964828AbVJaUop (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 15:44:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964829AbVJaUop
+	id S1751210AbVJaUsN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 15:48:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbVJaUsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 15:44:45 -0500
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:16607 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S964828AbVJaUoo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 15:44:44 -0500
-Subject: Re: [patch 1/14] s390: statistics infrastructure.
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, mschwid2@de.ibm.com
-X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
-Message-ID: <OF9C74DB95.E7B40CED-ONC12570AB.006DF2D4-C12570AB.007844F9@de.ibm.com>
-From: Martin Peschke3 <MPESCHKE@de.ibm.com>
-Date: Mon, 31 Oct 2005 21:44:39 +0100
-X-MIMETrack: Serialize by Router on D12ML067/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
- 31/10/2005 21:44:42
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Mon, 31 Oct 2005 15:48:13 -0500
+Received: from fmr22.intel.com ([143.183.121.14]:19423 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1751210AbVJaUsM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 15:48:12 -0500
+Subject: Re: [PATCH]: Clean up of __alloc_pages
+From: Rohit Seth <rohit.seth@intel.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: akpm@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+In-Reply-To: <4362DF80.3060802@yahoo.com.au>
+References: <20051028183326.A28611@unix-os.sc.intel.com>
+	 <4362DF80.3060802@yahoo.com.au>
+Content-Type: text/plain
+Organization: Intel 
+Date: Mon, 31 Oct 2005 12:55:07 -0800
+Message-Id: <1130792107.4853.24.camel@akash.sc.intel.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 31 Oct 2005 20:47:56.0985 (UTC) FILETIME=[5F75F290:01C5DE5C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+On Sat, 2005-10-29 at 12:33 +1000, Nick Piggin wrote:
 
-> There is a patch in -mm which moves oprofile and kprobes into a new
-> "instrumentation" menu.
->
->
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14-rc5/2.6.14-rc5-mm1/broken-out/moving-kprobes-and-oprofile-to-instrumentation-support-menu.patch
+> Rohit, Seth wrote:
+> > the only changes in this clean up are:
+> > 
+> 
+> Looking good. I imagine it must be good for icache.
+> Man, the page allocator somehow turned unreadable since I last
+> looked at it! We will want this patch.
+> 
 
->
-> I held off on merging that because the oprofile guys asked "why bother".
-> I guess the statistics infrastructure answers that question.  I'll send
-> it on.
+Thanks for your comments.
 
-sounds reasonable
+> > 	1- remove the initial direct reclaim logic
+> > 	2- GFP_HIGH pages are allowed to go little below low watermark sooner
+> 
+> I don't think #2 is any good. The reason we don't check GFP_HIGH on
+> the first time round is because we simply want to kick kswapd at its
+> normal watermark - ie. it doesn't matter what kind of allocation this
+> is, kswapd should start at the same time no matter what.
+> 
+> If you don't do this, then a GFP_HIGH allocator can allocate right
+> down to its limit before it kicks kswapd, then it either will fail or
+> will have to do direct reclaim.
+> 
 
-> > > (If we end up deciding to keep all this in arch/s390 then I
-> > > guess we can live with s390 peculiarities though)
+You are right if there are only GFP_HIGH requests coming in then the
+allocation will go down to (min - min/2) before kicking in kswapd.
+Though if the requester is not ready to wait, there is another good shot
+at allocation succeed before we get into direct reclaim (and this is
+happening based on can_try_harder flag).
+
 > >
-> > I will be happy to see some feature like this included outside
-> > arch/s390. What is about lib/, or kernel/?
->
-> lib/, I guess.
+> >  got_pg:
+> > -	zone_statistics(zonelist, z);
+> > +	zone_statistics(zonelist, page_zone(page));
+> >  	return page;
+> 
+> How about moving the zone_statistics up into the 'if (page)'
+> test of get_page_from_freelist? This way we don't have to
+> evaluate page_zone().
+> 
 
-fine
+Let us keep this as is for now.  Will revisit once after the
+pcp_prefer_allocation patches get in place. 
 
-> It could concievably go in fs/debugfs, depending upon how tightly
-> coupled it is to debugfs.
-
-No, I don't think so. debufs has been my choice for the user interface.
-But it is only one aspect of the statistics infrastructure, not even the
-most important one, in my eyes. It's not an enhancement of debugfs,
-but an exploitation. And the statistics code could be changed to use
-something else than debugfs with moderate effort.
-
-> > +        list_for_each_entry(seg, &rb->seg_lh, list)
-> > +                    break;
-...
-> Yes, we do poke inside list_head a lot and yes, it does feel a bit wrong.
->
-> Do whatever you think is best here.  A little explanatory comment would
-> help.
-
-Then I will opt for a comment, rather than touching tested code.
-
-> I noticed that there was a /* in there somewhere where a kerneldoc /**
-> was intended.
-
-Looked for it without success.
-I am not consistent as to */ or **/ at the end of kerneldoc comments, yet.
-
-THanks for your comments,
-Martin Peschke
+Thanks,
+-rohit
 

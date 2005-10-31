@@ -1,73 +1,232 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbVJaJSA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932339AbVJaJVh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932070AbVJaJSA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 04:18:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbVJaJSA
+	id S932339AbVJaJVh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 04:21:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbVJaJVh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 04:18:00 -0500
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:42857 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932070AbVJaJSA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 04:18:00 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=VIQZICkFcG0+aYxAvGnXzOqXH0t+ndEx0aPHR4qkdHw6pO8BcM22cGAkpKfALmOdnhb4Uig3Y+GWOyra4WhSnQh4vzev/Vi+UPVSHQBE0oYLqovDYSVMCWczKdydV1M7TXuuv1FNJgJONm7yDRVCzWeVfnhlA0Z3mbZHbrVhRh0=  ;
-Message-ID: <4365E1B4.4050409@yahoo.com.au>
-Date: Mon, 31 Oct 2005 20:19:48 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Mon, 31 Oct 2005 04:21:37 -0500
+Received: from www.tuxrocks.com ([64.62.190.123]:23301 "EHLO tuxrocks.com")
+	by vger.kernel.org with ESMTP id S932339AbVJaJVh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 04:21:37 -0500
+Message-ID: <4365E216.5000403@tuxrocks.com>
+Date: Mon, 31 Oct 2005 02:21:26 -0700
+From: Frank Sorenson <frank@tuxrocks.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: Robin Holt <holt@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: munmap extremely slow even with untouched mapping.
-References: <20051028013738.GA19727@attica.americas.sgi.com> <43620138.6060707@yahoo.com.au> <Pine.LNX.4.61.0510281557440.3229@goblin.wat.veritas.com> <43644C22.8050501@yahoo.com.au> <Pine.LNX.4.61.0510301631360.2848@goblin.wat.veritas.com> <4365DF9A.5040101@yahoo.com.au>
-In-Reply-To: <4365DF9A.5040101@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Rob Landley <rob@landley.net>
+CC: Daniele Orlandi <daniele@orlandi.com>, linux-kernel@vger.kernel.org
+Subject: Re: An idea on devfs vs. udev
+References: <200510301907.11860.daniele@orlandi.com> <200510301557.29024.rob@landley.net>
+In-Reply-To: <200510301557.29024.rob@landley.net>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: multipart/mixed;
+ boundary="------------090701020700040700050308"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
+This is a multi-part message in MIME format.
+--------------090701020700040700050308
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-> The address based work estimate for unmapping (for lockbreak) is and
-> always was horribly inefficient for sparse mappings. The problem is most
-> simply explained with an example:
-> 
-> If we find a pgd is clear, we still have to call into unmap_page_range
-> PGDIR_SIZE / ZAP_BLOCK_SIZE times, each time checking the clear pgd, in
-> order to progress the working address to the next pgd.
-> 
-> The fundamental way to solve the problem is to keep track of the end address
-> we've processed and pass it back to the higher layers.
-> 
-> From: Robin Holt <holt@sgi.com>
-> 
-> Modification to completely get away from address based work estimate and
-> instead use an abstract count, with a very small cost for empty entries as
-> opposed to present pages.
-> 
-> On 2.6.14-git2, ppc64, and CONFIG_PREEMPT=y, mapping and unmapping 1TB of
-> virtual address space takes 1.69s; with the following patch applied, this
-> operation can be done 1000 times in less than 0.01s
-> 
-> Signed-off-by: Nick Piggin <npiggin@suse.de>
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Note that I think this patch will cripple our nice page table folding
-in the unmap path, due to no longer using the 'next' from p??_addr_end,
-even if the compiler is very smart.
+Rob Landley wrote:
+> I'm pondering adding a micro-udev to busybox (it's fairly far down on the todo 
+> list).
 
-I haven't confirmed this by looking at assembly, however I'd be almost
-sure this is the case. Possibly a followup patch would be in order so
-as to restore this, but I couldn't think of a really nice way to do it.
+snip
 
-Basically we only want to return the return of the next level
-zap_p??_range in the case that it returns with zap_work < 0.
+> function makedev
+> {
+>   j=`echo "$1" | sed 's .*/\(.*\)/dev \1 '`
+>   minor=`cat "$1" | sed 's .*:  '`
+>   major=`cat "$1" | sed 's :.*  '`
+>   mknod tmpdir/"$j" $2 $major $minor
+> }
+> 
+> for i in `find /sys/block -name "dev"`
+> do
+>   makedev -m 700 $i b $major $minor
+>   echo -n b
+> done
+> 
+> for i in `find /sys/class -name "dev"`
+> do
+>   makedev -m 700 $i c $major $minor
+>   echo -n c
+> done
+> 
+> You think implementing that in C would take more than 4k?
 
--- 
-SUSE Labs, Novell Inc.
+I'm certain that someone can do better than this, but here's a C version
+that does it in 4684 bytes (stripped).  It's simple, and runs fast.  I'm
+sure that someone could optimize this much further.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Frank
+- --
+Frank Sorenson - KD7TZK
+Systems Manager, Computer Science Department
+Brigham Young University
+frank@tuxrocks.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFDZeIWaI0dwg4A47wRAiWgAJ9LzBcNhfrW5KHP9f8qg+spfGUSKwCdFTlw
+grK0kedpIQ/JRDN2yMqLG4U=
+=K4vE
+-----END PGP SIGNATURE-----
+
+--------------090701020700040700050308
+Content-Type: text/x-csrc;
+ name="miniudev.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="miniudev.c"
+
+/*
+* miniudev - implement a small udev that can run at bootup
+* Copyright Frank Sorenson <frank@tuxrocks.com> 2005
+*
+* Permission is hereby granted to copy, modify and redistribute this code
+* in terms of the GNU Library General Public License, Version 2 or later,
+* at your option.
+*
+*/
+
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <dirent.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/sysmacros.h>
+
+#define DEV_PATH	"/dev"
+#define DEV_MODE	0700
+
+int get_device_info(const char *path, int *major, int *minor)
+{
+	char buf[512];
+	int fd;
+	int ret;
+	char *chr;
+	char got_colon = 0;
+	int tempval = 0;
+
+	sprintf(buf, "%s/dev", path);
+	fd = open(buf, O_RDONLY);
+	ret = read(fd, buf, 1024);
+	buf[ret - 1] = '\0';
+	if (ret == 0)
+		return -1;
+	close(fd);
+
+	chr = buf;
+	while (*chr != '\0') {
+		if (*chr == ':') {
+			*major = tempval;
+			tempval = 0;
+			got_colon ++;
+		} else {
+			tempval *= 10;
+			tempval += (*chr - '0');
+		}
+		chr ++;
+	}
+	*minor = tempval;
+
+	return 0;
+}
+
+int make_device(const char *path, int type)
+{
+	char buf[512];
+	const char *device_name;
+	int major;
+	int minor;
+	int ret;
+	int local_errno;
+
+	device_name = path;
+	while (*device_name != '\0')
+		device_name ++;
+	while ((*(device_name - 1) != '/') && (device_name > path)) {
+		device_name --;
+	}
+	get_device_info(path, &major, &minor);
+	printf("%s: %d %d\n", device_name, major, minor);
+
+	sprintf(buf, "%s/%s", DEV_PATH, device_name);
+	ret = mknod(buf, DEV_MODE | type, makedev(major, minor));
+	if (ret != 0) {
+		local_errno = errno;
+		printf("Could not create device node %s: error %d\n", buf, local_errno);
+	}
+
+	return 0;
+}
+
+char cmp(const char *s1, const char *s2)
+{
+	int n = 0;
+
+	while (s1[n] == s2[n]) {
+		if (s1[n] == '\0')
+			return 1;
+		n++;
+	}
+	return 0;
+}
+
+int find_dev(const char *path, int type)
+{
+	DIR *dir;
+	struct dirent *entry;
+	char temp_path[512];
+	int local_errno;
+
+	dir = opendir(path);
+	if (dir == NULL) {
+		printf("Could not open path %s: error %d\n", path, local_errno);
+		exit(-1);
+	}
+
+	do {
+		entry = readdir(dir);
+		if (entry == NULL)
+			break;
+		if (cmp(entry->d_name, "."))
+			continue;
+		if (cmp(entry->d_name, ".."))
+			continue;
+		if (entry->d_type == DT_DIR) {
+			sprintf(temp_path, "%s/%s", path, entry->d_name);
+			find_dev(temp_path, type);
+		}
+		if (cmp(entry->d_name, "dev")) {
+			make_device(path, type);
+		}
+	} while (entry != NULL);
+	closedir(dir);
+
+	return 0;
+}
+
+
+int main(int argc, char *argv[])
+{
+	find_dev("/sys/block", S_IFBLK);
+	find_dev("/sys/class", S_IFCHR);
+
+	return 0;
+}
+
+
+--------------090701020700040700050308--

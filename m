@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751311AbVJaDqj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbVJaDqG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751311AbVJaDqj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 22:46:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbVJaDqj
+	id S1751309AbVJaDqG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 22:46:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbVJaDqG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 22:46:39 -0500
-Received: from lakshmi.addtoit.com ([198.99.130.6]:24838 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S1751311AbVJaDqi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 22:46:38 -0500
-Message-Id: <200510310439.j9V4dKTN000834@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: [PATCH 1/10] UML - Improve stub debugging
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 30 Oct 2005 23:39:20 -0500
-From: Jeff Dike <jdike@addtoit.com>
+	Sun, 30 Oct 2005 22:46:06 -0500
+Received: from bdsl.66.14.168.118.gte.net ([66.14.168.118]:12815 "EHLO
+	ispwest-email1.mdeinc.com") by vger.kernel.org with ESMTP
+	id S1751309AbVJaDqE convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 22:46:04 -0500
+X-Modus-BlackList: 216.52.245.25=OK;kjak@ispwest.com=OK
+X-Modus-Trusted: 216.52.245.25=YES
+Message-ID: <614bc6487d064108ba9b11455687a5df.kjak@ispwest.com>
+X-EM-APIVersion: 2, 0, 1, 0
+X-Priority: 3 (Normal)
+Reply-To: "Kris Katterjohn" <kjak@users.sourceforge.net>
+From: "Kris Katterjohn" <kjak@ispwest.com>
+To: jschlst@samba.org
+CC: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] net/core/filter.c, kernel 2.6.14
+Date: Sun, 30 Oct 2005 19:46:01 -0800
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add some more debugging information when a stub does something unexpected,
-usually segfaulting.  Now, it dumps out the stub's registers as well as
-the signal.
+Before, the socket filter would apply the filter, then, while running through the steps of the filter on each packet, it would check for division by zero. This patch checks for division by zero (when dividing by a constant) in sk_chk_filter() so the filter won't be applied if a divide-by-zero instruction is found.
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+This patch is a diff from kernel version 2.6.14.
 
-Index: linux-2.6.14-rc2-mm1/arch/um/kernel/skas/process.c
-===================================================================
---- linux-2.6.14-rc2-mm1.orig/arch/um/kernel/skas/process.c	2005-10-05 18:37:51.000000000 -0400
-+++ linux-2.6.14-rc2-mm1/arch/um/kernel/skas/process.c	2005-10-05 18:50:23.000000000 -0400
-@@ -69,6 +69,17 @@
+Signed-off-by: Kris Katterjohn <kjak@users.sourceforge.net>
+
+---
+
+--- x/net/core/filter.c	2005-10-27 19:02:08.000000000 -0500
++++ y/net/core/filter.c	2005-10-30 21:38:41.000000000 -0600
+@@ -116,8 +116,6 @@ int sk_run_filter(struct sk_buff *skb, s
+ 			A /= X;
+ 			continue;
+ 		case BPF_ALU|BPF_DIV|BPF_K:
+-			if (fentry->k == 0)
+-				return 0;
+ 			A /= fentry->k;
+ 			continue;
+ 		case BPF_ALU|BPF_AND|BPF_X:
+@@ -320,6 +318,10 @@ int sk_chk_filter(struct sock_filter *fi
+ 			}
+ 		}
  
-         if((n < 0) || !WIFSTOPPED(status) ||
-            (WSTOPSIG(status) != SIGUSR1 && WSTOPSIG(status) != SIGTRAP)){
-+		unsigned long regs[FRAME_SIZE];
-+		if(ptrace(PTRACE_GETREGS, pid, 0, regs) < 0)
-+			printk("Failed to get registers from stub, "
-+			       "errno = %d\n", errno);
-+		else {
-+			int i;
++		/* check for division by zero   -Kris Katterjohn 2005-10-30 */
++		if (ftest->code == (BPF_ALU|BPF_DIV|BPF_K) && ftest->k == 0)
++			return -EINVAL;
 +
-+			printk("Stub registers -\n");
-+			for(i = 0; i < FRAME_SIZE; i++)
-+				printk("\t%d - %lx\n", i, regs[i]);
-+		}
-                 panic("%s : failed to wait for SIGUSR1/SIGTRAP, "
-                       "pid = %d, n = %d, errno = %d, status = 0x%x\n",
-                       fname, pid, n, errno, status);
+ 		/* check that memory operations use valid addresses. */
+ 		if (ftest->k >= BPF_MEMWORDS) {
+ 			/* but it might not be a memory operation... */
+
 

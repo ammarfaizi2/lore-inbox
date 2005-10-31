@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbVJaHCS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932276AbVJaHJz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932273AbVJaHCS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 02:02:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932274AbVJaHCS
+	id S932276AbVJaHJz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 02:09:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbVJaHJz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 02:02:18 -0500
-Received: from smtp103.sbc.mail.re2.yahoo.com ([68.142.229.102]:5513 "HELO
-	smtp103.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932273AbVJaHCS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 02:02:18 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-Subject: Re: [PATCH] drivers/input/keyboard: convert to dynamic input_dev allocation
-Date: Mon, 31 Oct 2005 02:02:15 -0500
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org, Greg K-H <greg@kroah.com>
-References: <1130481024363@kroah.com> <200510291128.48203.dtor_core@ameritech.net> <20051029185321.GY27184@lug-owl.de>
-In-Reply-To: <20051029185321.GY27184@lug-owl.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Mon, 31 Oct 2005 02:09:55 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:2466 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932276AbVJaHJy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 02:09:54 -0500
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+From: Lee Revell <rlrevell@joe-job.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <p73mzkqubf4.fsf@verdi.suse.de>
+References: <20051030105118.GW4180@stusta.de>
+	 <p73mzkqubf4.fsf@verdi.suse.de>
+Content-Type: text/plain
+Date: Mon, 31 Oct 2005 02:06:31 -0500
+Message-Id: <1130742392.32101.16.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510310202.16104.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 29 October 2005 13:53, Jan-Benedict Glaw wrote:
-> Here's a revised version of the patch, making the function and it's
-> data static, as well as stuffing them into #ifdef DEBUG.
+On Sun, 2005-10-30 at 19:06 +0100, Andi Kleen wrote:
+> Adrian Bunk <bunk@stusta.de> writes:
+> 
+> > This patch schedules obsolete OSS drivers (with ALSA drivers that support the
+> > same hardware) for removal.
+> > 
+> > Scheduling the via82cxxx driver for removal was ACK'ed by Jeff Garzik.
+> 
+> I would prefer if the ICH driver be kept. It works just fine on near
+> all my systems and has a much smaller binary size than the ALSA
+> variant. Moving to ALSA would bloat the kernels considerably.
 > 
 
-If you could resend the patch with Signed-off-by line I would add it
-to my input tree.
+The emu10k1 ALSA driver is considerably smaller than the OSS driver and
+has more features, like most ALSA drivers.  If the ICH driver is really
+smaller I suspect it's missing some functionality.
 
-Thanks!
+Lee
 
--- 
-Dmitry

@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932530AbVJaVok@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932543AbVJaVpU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932530AbVJaVok (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 16:44:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932537AbVJaVok
+	id S932543AbVJaVpU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 16:45:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932545AbVJaVpU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 16:44:40 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:31685 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932530AbVJaVoj (ORCPT
+	Mon, 31 Oct 2005 16:45:20 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:31369 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932544AbVJaVpT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 16:44:39 -0500
-Date: Mon, 31 Oct 2005 22:44:49 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, tytso@us.ibm.com, sripathi@in.ibm.com,
-       dipankar@in.ibm.com, oleg@tv-sign.ru
-Subject: Re: [RFC,PATCH] RCUify single-thread case of clock_gettime()
-Message-ID: <20051031214449.GB17489@elte.hu>
-References: <20051031174416.GA2762@us.ibm.com>
+	Mon, 31 Oct 2005 16:45:19 -0500
+Date: Mon, 31 Oct 2005 13:45:14 -0800
+To: Wu Fengguang <wfg@mail.ustc.edu.cn>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       slpratt@us.ibm.com
+Subject: Re: [PATCH 00/13] Adaptive read-ahead V5
+Message-ID: <20051031214514.GA4967@RAM>
+References: <20051029060216.159380000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051031174416.GA2762@us.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20051029060216.159380000@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040907i
+From: linuxram@us.ibm.com (Ram Pai)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Wu,
 
-* Paul E. McKenney <paulmck@us.ibm.com> wrote:
+I will run some standard benchmarks and post the results soon.
+The benchmarks I have are (1) DSS (TPCH)  (2) iozone (3) sysbench  (4)
+tiobench
 
-> Hello!
+It will take atleast a week, since some disks on my machine have to be
+replaced and the setup has to be remade.
+
+RP
+
+On Sat, Oct 29, 2005 at 02:02:16PM +0800, Wu Fengguang wrote:
+> This version of adaptive read-ahead patch features various clean ups.
+> Changes include:
+> 	- rewrote context based method to make it clean and robust
+> 	- improved accuracy of stateful thrashing threshold estimation
+> 	- nr_page_aging made right
+> 	- sorted out the thrashing protection logic
+> 	- enhanced debug/accounting facilities
 > 
-> The attached patch uses RCU to avoid the need to acquire tasklist_lock 
-> in the single-thread case of clock_gettime().  Still acquires 
-> tasklist_lock when asking for the time of a (potentially 
-> multithreaded) process.
-> 
-> Experimental, has been touch-tested on x86 and POWER.  Requires RCU on 
-> task_struct.  Further more focused testing in progress.
-> 
-> Thoughts?  (Why?  Some off-list users want to be able to monitor CPU 
-> consumption of specific threads.  They need to do so quite frequently, 
-> so acquiring tasklist_lock is inappropriate.)
-
-looks good to me - i have added this to the -rt tree, it should show up 
-in 2.6.14-rt3.
-
-	Ingo
+> Regards,
+> Wu Fengguang
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,88 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbVJaPxc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932327AbVJaP7D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932301AbVJaPxc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 10:53:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbVJaPxc
+	id S932327AbVJaP7D (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 10:59:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbVJaP7D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 10:53:32 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:61130 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932282AbVJaPxb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 10:53:31 -0500
-Date: Mon, 31 Oct 2005 07:53:20 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jens Axboe <axboe@suse.de>
-cc: Tejun Heo <htejun@gmail.com>, Arnaldo Carvalho de Melo <acme@mandriva.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][noop-iosched] don't reuse a freed request
-In-Reply-To: <20051031082354.GO19267@suse.de>
-Message-ID: <Pine.LNX.4.64.0510310746340.27915@g5.osdl.org>
-References: <20051031023024.GC5632@mandriva.com> <20051031074022.GN19267@suse.de>
- <4365D01D.2040406@gmail.com> <20051031082354.GO19267@suse.de>
+	Mon, 31 Oct 2005 10:59:03 -0500
+Received: from zproxy.gmail.com ([64.233.162.205]:14473 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932327AbVJaP7C convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 10:59:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=M2RG5Rup8eUcFd/bXDFQVUYB9mGwVfkAzGzAiUbQPQ2SqBEuBjuJfbBqW1+7xgP1PdFGavgQ5Np04jE15hlnPHwn8uc1mHyJx05kO3o6V5A1yHo6vfeAbSrYll2jkaZz1Z28Ijw0b9/YDxbLDkjCs/z72+vM0ek+lktP5ONUNDI=
+Message-ID: <35fb2e590510310758t7fd13cd1nec5a4881ccd9e5fa@mail.gmail.com>
+Date: Mon, 31 Oct 2005 15:58:59 +0000
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: Evgeny Stambulchik <Evgeny.Stambulchik@weizmann.ac.il>
+Subject: Re: [PATCH] fix floppy.c to store correct ro/rw status in underlying gendisk
+Cc: Rob Landley <rob@landley.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <43660693.6040601@weizmann.ac.il>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4363B081.7050300@jonmasters.org>
+	 <35fb2e590510291035n297aa22cv303ae77baeb5c213@mail.gmail.com>
+	 <43660693.6040601@weizmann.ac.il>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 10/31/05, Evgeny Stambulchik <Evgeny.Stambulchik@weizmann.ac.il> wrote:
+> Jon Masters wrote:
 
+> > Let me know if this fixes it for you - should bomb out now if you try.
+> > The error isn't the cleanest (blame mount), but it does fail.
 
-On Mon, 31 Oct 2005, Jens Axboe wrote:
-> 
-> So either we disable merging for noop by setting REQ_NOMERGE in
-> elevator_noop_add_request(), or we add a noop_list and do the
-> dispatching like in the other io schedulers. I'd prefer the latter,
-> merging is still beneficial for noop (and it has always done it).
-> 
-> For now, we should add the former.
-> 
-> Signed-off-by: Jens Axboe <axboe@suse.de>
+> This works fine, thanks!
 
-Btw, Jens, I appreciate seeing the discussion history when applying a 
-patch, but at the same time I do _not_ want to use it as a commit message, 
-it's just too confusing and worthless in that context. 
+Good. This raises the general problem of devices knowing about their
+underlying media status.
 
-And yet, your final comments don't much make sense without the background, 
-so I can't just use them either.
+> For what it worth, though, mount -o remount,rw
+> says remounting read-only yet still returns success. (Opposite to
+> busybox, which now says "Permission denied" - rather misleading, but at
+> least it fails).
 
-So, I rewrote the explanation. Which is fine, but I wish people who sent 
-patches would think more about what message they want to have in the 
-commit logs, so that (a) Lazy-Linus doesn't have to write his own message 
-and (b) so that the message is correct when Lazy-and-Stupid-Linus 
-sometimes doesn't necessarily see/understand all the problems it fixes.
+Mount needs some fixing :-) It just tries calling sys_mount and
+retries ro if that fails, then returns success because the last call
+worked ok. Or so it would seem from the strace output.
 
-Btw, the email-patch-sending protocol still allows for putting all the 
-ugly history in for my (and the mailing lists) pleasure: that's what the 
-"---" marker after the explanation is for. So you can _both_ have a nice 
-clean commit message _and_ give more of a historical background for the 
-patch.
+> My question is, shouldn't it be implemented at a more generic level?
 
-Anyway, in this case, the commit message ended up looking like this::
+Yes. Right now, I think the gendisk policy is the best place to store
+this - but having some generic "check the media status" VFS callback
+might be a good thing.
 
-commit 581c1b14394aee60aff46ea67d05483261ed6527
-Author: Jens Axboe <axboe@suse.de>
-Date:   Mon Oct 31 09:23:54 2005 +0100
+> Floppy is just one example. Others are all kind of USB storage, ZIP/Jazz
+> drives, and even normal SCSI disks (which have a RO jumper - at least
+> some of them do).
 
-    [PATCH] noop-iosched: avoid corrupted request merging
+I'll check, but they probably do something like this in their implementation.
 
-    Tejun Heo notes:
+> I got an ancient USB disk on key with a write-protection switch. When I
+> plug it in in the RO mode, everything goes exactly as it was (before
+> your patch) with floppy. Now something interesting:
+> 1. The thingy is plugged in RW and mounted
+> 2. While connected, I switch it to RO
+>    dmesg says:
+>    -> SCSI device sda: 129024 512-byte hdwr sectors (66 MB)
+>    -> sda: Write Protect is on
+>    -> sda: Mode Sense: 03 00 80 00
+>    -> sda: assuming drive cache: write through
+> 3.
+> # mount -o remount,rw  /mnt
+> mount: block device /dev/sda1 is write-protected, mounting read-only
+> # echo $?
+> 0
+>
+> So it seems there is some layer in bd which does know about RO status
+> (and furthermore it's set by hot events)?
 
-       "I'm currently debugging this.  The problem is that we are using the
-        generic dispatch queue directly in the noop sched and merging is NOT
-        allowed on dispatch queues but generic handling of last_merge tries
-        to merge requests.  I'm still trying to verify this, so I'll be back
-        with results soon."
+There's a callback for remount requests, perhaps they use that. Bear
+in mind that USB devices tend to be more communicative than ancient
+floppy disk drives. I'll have a look into this though - anyone else
+reading who thinks we need a generic way of checking media read/write
+status in addition to media change detect?
 
-    In the meantime, disable merging for noop by setting REQ_NOMERGE in
-    elevator_noop_add_request().
-
-    Eventually, we should add a noop_list and do the dispatching like in the
-    other io schedulers.  Merging is still beneficial for noop (and it has
-    always done it).
-
-    Signed-off-by: Jens Axboe <axboe@suse.de>
-    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-
-which is basically your email cleaned up and compressed into a readable 
-commit message.
-
-			Linus
+Jon.

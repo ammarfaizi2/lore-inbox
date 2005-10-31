@@ -1,12 +1,12 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964833AbVJaVCX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964834AbVJaVDr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964833AbVJaVCX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 16:02:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964831AbVJaVCD
+	id S964834AbVJaVDr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 16:03:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbVJaVDS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 16:02:03 -0500
-Received: from waste.org ([216.27.176.166]:11160 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S932540AbVJaVAi (ORCPT
+	Mon, 31 Oct 2005 16:03:18 -0500
+Received: from waste.org ([216.27.176.166]:10904 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S932538AbVJaVAi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 31 Oct 2005 16:00:38 -0500
 Date: Mon, 31 Oct 2005 14:54:48 -0600
@@ -14,980 +14,573 @@ From: Matt Mackall <mpm@selenic.com>
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 X-PatchBomber: http://selenic.com/scripts/mailpatches
 Cc: linux-arch@vger.kernel.org
-In-Reply-To: <9.196662837@selenic.com>
-Message-Id: <10.196662837@selenic.com>
-Subject: [PATCH 9/20] inflate: (arch) refactor inflate malloc code
+In-Reply-To: <10.196662837@selenic.com>
+Message-Id: <11.196662837@selenic.com>
+Subject: [PATCH 10/20] inflate: (arch) kill external CRC calculation
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-inflate: refactor inflate malloc code
+inflate: move CRC calculation
 
-Inflate requires some dynamic memory allocation very early in the boot
-process and this is provided with a set of four functions:
-malloc/free/gzip_mark/gzip_release.
-
-The old inflate code used a mark/release strategy rather than
-implement free. This new version instead keeps a count on the number
-of outstanding allocations and when it hits zero, it resets the malloc
-arena.
-
-This allows removing all the mark and release implementations and
-unifying all the malloc/free implementations.
-
-This also fixes bogus usage of malloc/free rather than kmalloc/kfree
-in initramfs.c.
+Each inflate user was doing its own open-coded CRC calculation and
+initializing its own CRC table. This is now hidden inside
+lib/inflate.c
 
 Signed-off-by: Matt Mackall <mpm@selenic.com>
 
 Index: 2.6.14/arch/alpha/boot/misc.c
 ===================================================================
---- 2.6.14.orig/arch/alpha/boot/misc.c	2005-10-28 22:03:58.000000000 -0700
-+++ 2.6.14/arch/alpha/boot/misc.c	2005-10-28 22:04:13.000000000 -0700
-@@ -4,8 +4,6 @@
-  * This is a collection of several routines from gzip-1.0.3 
-  * adapted for Linux.
-  *
-- * malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
-- *
-  * Modified for ARM Linux by Russell King
-  *
-  * Nicolas Pitre <nico@visuaide.com>  1999/04/14 :
-@@ -49,8 +47,6 @@ static unsigned outcnt;		/* bytes in out
- static int  fill_inbuf(void);
- static void flush_window(void);
- static void error(char *m);
--static void gzip_mark(void **);
--static void gzip_release(void **);
+--- 2.6.14.orig/arch/alpha/boot/misc.c	2005-10-28 22:04:13.000000000 -0700
++++ 2.6.14/arch/alpha/boot/misc.c	2005-10-28 22:04:15.000000000 -0700
+@@ -80,22 +80,19 @@ int fill_inbuf(void)
+ }
  
- static char *input_data;
- static int  input_data_size;
-@@ -59,12 +55,6 @@ static uch *output_data;
- static ulg output_ptr;
- static ulg bytes_out;
- 
--static void *malloc(int size);
--static void free(void *where);
--static void error(char *m);
--static void gzip_mark(void **);
--static void gzip_release(void **);
--
- extern int end;
- static ulg free_mem_ptr;
- static ulg free_mem_ptr_end;
-@@ -73,37 +63,6 @@ static ulg free_mem_ptr_end;
- 
- #include "../../../lib/inflate.c"
- 
--static void *malloc(int size)
--{
--	void *p;
--
--	if (size <0) error("Malloc error");
--	if (free_mem_ptr <= 0) error("Memory error");
--
--	free_mem_ptr = (free_mem_ptr + 3) & ~3;	/* Align */
--
--	p = (void *)free_mem_ptr;
--	free_mem_ptr += size;
--
--	if (free_mem_ptr >= free_mem_ptr_end)
--		error("Out of memory");
--	return p;
--}
--
--static void free(void *where)
--{ /* gzip_mark & gzip_release do the free */
--}
--
--static void gzip_mark(void **ptr)
--{
--	*ptr = (void *) free_mem_ptr;
--}
--
--static void gzip_release(void **ptr)
--{
--	free_mem_ptr = (long) *ptr;
--}
--
  /* ===========================================================================
-  * Fill the input buffer. This is called only when the buffer is empty
-  * and at least one byte is really needed.
+- * Write the output window window[0..outcnt-1] and update crc and bytes_out.
++ * Write the output window window[0..outcnt-1] and update bytes_out.
+  * (Used for the decompressed data only.)
+  */
+ void flush_window(void)
+ {
+-	ulg c = crc;
+ 	unsigned n;
+ 	uch *in, *out, ch;
+ 
+ 	in = window;
+ 	out = &output_data[output_ptr];
+-	for (n = 0; n < outcnt; n++) {
++	for (n = 0; n < outcnt; n++)
+ 		ch = *out++ = *in++;
+-		c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
+-	}
+-	crc = c;
++
+ 	bytes_out += (ulg)outcnt;
+ 	output_ptr += (ulg)outcnt;
+ 	outcnt = 0;
+@@ -129,7 +126,6 @@ decompress_kernel(void *output_start,
+ 	/* put in temp area to reduce initial footprint */
+ 	window = malloc(WSIZE);
+ 
+-	makecrc();
+ /*	puts("Uncompressing Linux..."); */
+ 	gunzip();
+ /*	puts(" done, booting the kernel.\n"); */
 Index: 2.6.14/arch/arm/boot/compressed/misc.c
 ===================================================================
---- 2.6.14.orig/arch/arm/boot/compressed/misc.c	2005-10-28 22:03:58.000000000 -0700
-+++ 2.6.14/arch/arm/boot/compressed/misc.c	2005-10-28 22:04:13.000000000 -0700
-@@ -4,8 +4,6 @@
-  * This is a collection of several routines from gzip-1.0.3 
-  * adapted for Linux.
-  *
-- * malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
-- *
-  * Modified for ARM Linux by Russell King
-  *
-  * Nicolas Pitre <nico@visuaide.com>  1999/04/14 :
-@@ -67,8 +65,6 @@ static unsigned outcnt;		/* bytes in out
- static int  fill_inbuf(void);
- static void flush_window(void);
- static void error(char *m);
--static void gzip_mark(void **);
--static void gzip_release(void **);
- 
- extern char input_data[];
- extern char input_data_end[];
-@@ -77,12 +73,6 @@ static uch *output_data;
- static ulg output_ptr;
- static ulg bytes_out;
- 
--static void *malloc(int size);
--static void free(void *where);
--static void error(char *m);
--static void gzip_mark(void **);
--static void gzip_release(void **);
--
- static void putstr(const char *);
- 
- extern int end;
-@@ -93,47 +83,8 @@ static ulg free_mem_ptr_end;
- 
- #include "../../../../lib/inflate.c"
- 
--#ifndef STANDALONE_DEBUG
--static void *malloc(int size)
--{
--	void *p;
--
--	if (size <0) error("Malloc error");
--	if (free_mem_ptr <= 0) error("Memory error");
--
--	free_mem_ptr = (free_mem_ptr + 3) & ~3;	/* Align */
--
--	p = (void *)free_mem_ptr;
--	free_mem_ptr += size;
--
--	if (free_mem_ptr >= free_mem_ptr_end)
--		error("Out of memory");
--	return p;
--}
--
--static void free(void *where)
--{ /* gzip_mark & gzip_release do the free */
--}
--
--static void gzip_mark(void **ptr)
--{
--	arch_decomp_wdog();
--	*ptr = (void *) free_mem_ptr;
--}
--
--static void gzip_release(void **ptr)
--{
--	arch_decomp_wdog();
--	free_mem_ptr = (long) *ptr;
--}
--#else
--static void gzip_mark(void **ptr)
--{
--}
--
--static void gzip_release(void **ptr)
--{
--}
-+#ifdef STANDALONE_DEBUG
-+#define NO_INFLATE_MALLOC
- #endif
+--- 2.6.14.orig/arch/arm/boot/compressed/misc.c	2005-10-28 22:04:13.000000000 -0700
++++ 2.6.14/arch/arm/boot/compressed/misc.c	2005-10-28 22:04:15.000000000 -0700
+@@ -104,22 +104,19 @@ int fill_inbuf(void)
+ }
  
  /* ===========================================================================
+- * Write the output window window[0..outcnt-1] and update crc and bytes_out.
++ * Write the output window window[0..outcnt-1] and update bytes_out.
+  * (Used for the decompressed data only.)
+  */
+ void flush_window(void)
+ {
+-	ulg c = crc;
+ 	unsigned n;
+ 	uch *in, *out, ch;
+ 
+ 	in = window;
+ 	out = &output_data[output_ptr];
+-	for (n = 0; n < outcnt; n++) {
++	for (n = 0; n < outcnt; n++)
+ 		ch = *out++ = *in++;
+-		c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
+-	}
+-	crc = c;
++
+ 	bytes_out += (ulg)outcnt;
+ 	output_ptr += (ulg)outcnt;
+ 	outcnt = 0;
+@@ -148,7 +145,6 @@ decompress_kernel(ulg output_start, ulg 
+ 
+ 	arch_decomp_setup();
+ 
+-	makecrc();
+ 	putstr("Uncompressing Linux...");
+ 	gunzip();
+ 	putstr(" done, booting the kernel.\n");
+@@ -162,7 +158,6 @@ int main()
+ {
+ 	output_data = output_buffer;
+ 
+-	makecrc();
+ 	putstr("Uncompressing Linux...");
+ 	gunzip();
+ 	putstr("done.\n");
 Index: 2.6.14/arch/arm26/boot/compressed/misc.c
 ===================================================================
---- 2.6.14.orig/arch/arm26/boot/compressed/misc.c	2005-10-28 22:03:58.000000000 -0700
-+++ 2.6.14/arch/arm26/boot/compressed/misc.c	2005-10-28 22:04:13.000000000 -0700
-@@ -4,8 +4,6 @@
-  * This is a collection of several routines from gzip-1.0.3 
-  * adapted for Linux.
-  *
-- * malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
-- *
-  * Modified for ARM Linux by Russell King
-  *
-  * Nicolas Pitre <nico@visuaide.com>  1999/04/14 :
-@@ -52,8 +50,6 @@ static unsigned outcnt;		/* bytes in out
- static int  fill_inbuf(void);
- static void flush_window(void);
- static void error(char *m);
--static void gzip_mark(void **);
--static void gzip_release(void **);
- 
- extern char input_data[];
- extern char input_data_end[];
-@@ -62,12 +58,6 @@ static uch *output_data;
- static ulg output_ptr;
- static ulg bytes_out;
- 
--static void *malloc(int size);
--static void free(void *where);
--static void error(char *m);
--static void gzip_mark(void **);
--static void gzip_release(void **);
--
- static void puts(const char *);
- 
- extern int end;
-@@ -78,47 +68,8 @@ static ulg free_mem_ptr_end;
- 
- #include "../../../../lib/inflate.c"
- 
--#ifndef STANDALONE_DEBUG
--static void *malloc(int size)
--{
--	void *p;
--
--	if (size <0) error("Malloc error");
--	if (free_mem_ptr <= 0) error("Memory error");
--
--	free_mem_ptr = (free_mem_ptr + 3) & ~3;	/* Align */
--
--	p = (void *)free_mem_ptr;
--	free_mem_ptr += size;
--
--	if (free_mem_ptr >= free_mem_ptr_end)
--		error("Out of memory");
--	return p;
--}
--
--static void free(void *where)
--{ /* gzip_mark & gzip_release do the free */
--}
--
--static void gzip_mark(void **ptr)
--{
--	arch_decomp_wdog();
--	*ptr = (void *) free_mem_ptr;
--}
--
--static void gzip_release(void **ptr)
--{
--	arch_decomp_wdog();
--	free_mem_ptr = (long) *ptr;
--}
--#else
--static void gzip_mark(void **ptr)
--{
--}
--
--static void gzip_release(void **ptr)
--{
--}
-+#ifdef STANDALONE_DEBUG
-+#define NO_INFLATE_MALLOC
- #endif
+--- 2.6.14.orig/arch/arm26/boot/compressed/misc.c	2005-10-28 22:04:13.000000000 -0700
++++ 2.6.14/arch/arm26/boot/compressed/misc.c	2005-10-28 22:04:15.000000000 -0700
+@@ -89,22 +89,19 @@ int fill_inbuf(void)
+ }
  
  /* ===========================================================================
+- * Write the output window window[0..outcnt-1] and update crc and bytes_out.
++ * Write the output window window[0..outcnt-1] and update bytes_out.
+  * (Used for the decompressed data only.)
+  */
+ void flush_window(void)
+ {
+-	ulg c = crc;
+ 	unsigned n;
+ 	uch *in, *out, ch;
+ 
+ 	in = window;
+ 	out = &output_data[output_ptr];
+-	for (n = 0; n < outcnt; n++) {
++	for (n = 0; n < outcnt; n++)
+ 		ch = *out++ = *in++;
+-		c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
+-	}
+-	crc = c;
++
+ 	bytes_out += (ulg)outcnt;
+ 	output_ptr += (ulg)outcnt;
+ 	outcnt = 0;
+@@ -135,7 +132,6 @@ decompress_kernel(ulg output_start, ulg 
+ 
+ 	arch_decomp_setup();
+ 
+-	makecrc();
+ 	puts("Uncompressing Linux...");
+ 	gunzip();
+ 	puts(" done, booting the kernel.\n");
+@@ -149,7 +145,6 @@ int main()
+ {
+ 	output_data = output_buffer;
+ 
+-	makecrc();
+ 	puts("Uncompressing Linux...");
+ 	gunzip();
+ 	puts("done.\n");
 Index: 2.6.14/arch/cris/arch-v10/boot/compressed/misc.c
 ===================================================================
---- 2.6.14.orig/arch/cris/arch-v10/boot/compressed/misc.c	2005-10-28 22:03:58.000000000 -0700
-+++ 2.6.14/arch/cris/arch-v10/boot/compressed/misc.c	2005-10-28 22:04:13.000000000 -0700
-@@ -6,7 +6,6 @@
-  * This is a collection of several routines from gzip-1.0.3 
-  * adapted for Linux.
-  *
-- * malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
-  * puts by Nick Holloway 1993, better puts by Martin Mares 1995
-  * adoptation for Linux/CRIS Axis Communications AB, 1999
-  * 
-@@ -51,57 +50,22 @@ static unsigned outcnt = 0;  /* bytes in
- static int  fill_inbuf(void);
- static void flush_window(void);
- static void error(char *m);
--static void gzip_mark(void **);
--static void gzip_release(void **);
+--- 2.6.14.orig/arch/cris/arch-v10/boot/compressed/misc.c	2005-10-28 22:04:13.000000000 -0700
++++ 2.6.14/arch/cris/arch-v10/boot/compressed/misc.c	2005-10-28 22:04:15.000000000 -0700
+@@ -95,24 +95,21 @@ puts(const char *s)
+ }
  
- extern char *input_data;  /* lives in head.S */
+ /* ===========================================================================
+- * Write the output window window[0..outcnt-1] and update crc and bytes_out.
++ * Write the output window window[0..outcnt-1] and update bytes_out.
+  * (Used for the decompressed data only.)
+  */
  
- static long bytes_out = 0;
- static uch *output_data;
- static unsigned long output_ptr = 0;
-- 
--static void *malloc(int size);
--static void free(void *where);
--static void error(char *m);
--static void gzip_mark(void **);
--static void gzip_release(void **);
-- 
+ static void
+ flush_window()
+ {
+-    ulg c = crc;         /* temporary variable */
+     unsigned n;
+     uch *in, *out, ch;
+-    
 +
- static void puts(const char *);
+     in = window;
+-    out = &output_data[output_ptr]; 
+-    for (n = 0; n < outcnt; n++) {
++    out = &output_data[output_ptr];
++    for (n = 0; n < outcnt; n++)
+ 	    ch = *out++ = *in++;
+-	    c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
+-    }
+-    crc = c;
++
+     bytes_out += (ulg)outcnt;
+     output_ptr += (ulg)outcnt;
+     outcnt = 0;
+@@ -167,8 +164,6 @@ decompress_kernel()
  
- /* the "heap" is put directly after the BSS ends, at end */
-   
- extern int end;
- static long free_mem_ptr = (long)&end;
-- 
--#include "../../../../../lib/inflate.c"
--
--static void *malloc(int size)
--{
--	void *p;
--
--	if (size <0) error("Malloc error");
--
--	free_mem_ptr = (free_mem_ptr + 3) & ~3;	/* Align */
--
--	p = (void *)free_mem_ptr;
--	free_mem_ptr += size;
--
--	return p;
--}
--
--static void free(void *where)
--{	/* Don't care */
--}
-+static long free_mem_end_ptr = 0xffffffff;
+ 	setup_normal_output_buffer();
  
--static void gzip_mark(void **ptr)
--{
--	*ptr = (void *) free_mem_ptr;
--}
+-	makecrc();
 -
--static void gzip_release(void **ptr)
--{
--	free_mem_ptr = (long) *ptr;
--}
-+#include "../../../../../lib/inflate.c"
- 
- /* decompressor info and error messages to serial console */
- 
+ 	__asm__ volatile ("move vr,%0" : "=rm" (revision));
+ 	if (revision < 10)
+ 	{
 Index: 2.6.14/arch/cris/arch-v32/boot/compressed/misc.c
 ===================================================================
---- 2.6.14.orig/arch/cris/arch-v32/boot/compressed/misc.c	2005-10-28 22:03:58.000000000 -0700
-+++ 2.6.14/arch/cris/arch-v32/boot/compressed/misc.c	2005-10-28 22:04:13.000000000 -0700
-@@ -6,7 +6,6 @@
-  * This is a collection of several routines from gzip-1.0.3
-  * adapted for Linux.
-  *
-- * malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
-  * puts by Nick Holloway 1993, better puts by Martin Mares 1995
-  * adoptation for Linux/CRIS Axis Communications AB, 1999
-  *
-@@ -53,8 +52,6 @@ static unsigned outcnt = 0;  /* bytes in
- static int  fill_inbuf(void);
- static void flush_window(void);
- static void error(char *m);
--static void gzip_mark(void **);
--static void gzip_release(void **);
+--- 2.6.14.orig/arch/cris/arch-v32/boot/compressed/misc.c	2005-10-28 22:04:13.000000000 -0700
++++ 2.6.14/arch/cris/arch-v32/boot/compressed/misc.c	2005-10-28 22:04:15.000000000 -0700
+@@ -109,24 +109,21 @@ puts(const char *s)
+ }
  
- extern char *input_data;  /* lives in head.S */
+ /* ===========================================================================
+- * Write the output window window[0..outcnt-1] and update crc and bytes_out.
++ * Write the output window window[0..outcnt-1] and update bytes_out.
+  * (Used for the decompressed data only.)
+  */
  
-@@ -62,49 +59,16 @@ static long bytes_out = 0;
- static uch *output_data;
- static unsigned long output_ptr = 0;
+ static void
+ flush_window()
+ {
+-    ulg c = crc;         /* temporary variable */
+     unsigned n;
+     uch *in, *out, ch;
  
--static void *malloc(int size);
--static void free(void *where);
--static void error(char *m);
--static void gzip_mark(void **);
--static void gzip_release(void **);
--
- static void puts(const char *);
+     in = window;
+     out = &output_data[output_ptr];
+-    for (n = 0; n < outcnt; n++) {
++    for (n = 0; n < outcnt; n++)
+ 	    ch = *out++ = *in++;
+-	    c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
+-    }
+-    crc = c;
++
+     bytes_out += (ulg)outcnt;
+     output_ptr += (ulg)outcnt;
+     outcnt = 0;
+@@ -212,8 +209,6 @@ decompress_kernel()
  
- /* the "heap" is put directly after the BSS ends, at end */
+ 	setup_normal_output_buffer();
  
- extern int _end;
- static long free_mem_ptr = (long)&_end;
-+static long free_mem_end_ptr = 0xffffffff;
- 
- #include "../../../../../lib/inflate.c"
- 
--static void *malloc(int size)
--{
--	void *p;
+-	makecrc();
 -
--	if (size <0) error("Malloc error");
--
--	free_mem_ptr = (free_mem_ptr + 3) & ~3;	/* Align */
--
--	p = (void *)free_mem_ptr;
--	free_mem_ptr += size;
--
--	return p;
--}
--
--static void free(void *where)
--{	/* Don't care */
--}
--
--static void gzip_mark(void **ptr)
--{
--	*ptr = (void *) free_mem_ptr;
--}
--
--static void gzip_release(void **ptr)
--{
--	free_mem_ptr = (long) *ptr;
--}
--
- /* decompressor info and error messages to serial console */
- 
- static inline void
+ 	__asm__ volatile ("move $vr,%0" : "=rm" (revision));
+ 	if (revision < 32)
+ 	{
 Index: 2.6.14/arch/i386/boot/compressed/misc.c
 ===================================================================
---- 2.6.14.orig/arch/i386/boot/compressed/misc.c	2005-10-28 22:03:58.000000000 -0700
-+++ 2.6.14/arch/i386/boot/compressed/misc.c	2005-10-28 22:04:13.000000000 -0700
-@@ -4,7 +4,6 @@
-  * This is a collection of several routines from gzip-1.0.3 
-  * adapted for Linux.
-  *
-- * malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
-  * puts by Nick Holloway 1993, better puts by Martin Mares 1995
-  * High loaded stuff by Hans Lermen & Werner Almesberger, Feb. 1996
+--- 2.6.14.orig/arch/i386/boot/compressed/misc.c	2005-10-28 22:04:13.000000000 -0700
++++ 2.6.14/arch/i386/boot/compressed/misc.c	2005-10-28 22:04:15.000000000 -0700
+@@ -150,22 +150,19 @@ static int fill_inbuf(void)
+ }
+ 
+ /* ===========================================================================
+- * Write the output window window[0..outcnt-1] and update crc and bytes_out.
++ * Write the output window window[0..outcnt-1] and update bytes_out.
+  * (Used for the decompressed data only.)
   */
-@@ -43,9 +42,7 @@ static unsigned outcnt = 0;  /* bytes in
- static int  fill_inbuf(void);
- static void flush_window(void);
- static void error(char *m);
--static void gzip_mark(void **);
--static void gzip_release(void **);
--  
-+
- /*
-  * This is set up by the setup-routine at boot-time
-  */
-@@ -64,9 +61,6 @@ static long bytes_out = 0;
- static uch *output_data;
- static unsigned long output_ptr = 0;
- 
--static void *malloc(int size);
--static void free(void *where);
--
- static void putstr(const char *);
- 
- extern int end;
-@@ -91,38 +85,6 @@ static void * xquad_portio = NULL;
- 
- #include "../../../../lib/inflate.c"
- 
--static void *malloc(int size)
--{
--	void *p;
--
--	if (size <0) error("Malloc error");
--	if (free_mem_ptr <= 0) error("Memory error");
--
--	free_mem_ptr = (free_mem_ptr + 3) & ~3;	/* Align */
--
--	p = (void *)free_mem_ptr;
--	free_mem_ptr += size;
--
--	if (free_mem_ptr >= free_mem_end_ptr)
--		error("Out of memory");
--
--	return p;
--}
--
--static void free(void *where)
--{	/* Don't care */
--}
--
--static void gzip_mark(void **ptr)
--{
--	*ptr = (void *) free_mem_ptr;
--}
--
--static void gzip_release(void **ptr)
--{
--	free_mem_ptr = (long) *ptr;
--}
-- 
- static void scroll(void)
+ static void flush_window_low(void)
  {
- 	int i;
+-    ulg c = crc;         /* temporary variable */
+     unsigned n;
+     uch *in, *out, ch;
+-    
++
+     in = window;
+-    out = &output_data[output_ptr]; 
+-    for (n = 0; n < outcnt; n++) {
++    out = &output_data[output_ptr];
++    for (n = 0; n < outcnt; n++)
+ 	    ch = *out++ = *in++;
+-	    c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
+-    }
+-    crc = c;
++
+     bytes_out += (ulg)outcnt;
+     output_ptr += (ulg)outcnt;
+     outcnt = 0;
+@@ -173,16 +170,14 @@ static void flush_window_low(void)
+ 
+ static void flush_window_high(void)
+ {
+-    ulg c = crc;         /* temporary variable */
+     unsigned n;
+     uch *in,  ch;
+     in = window;
+     for (n = 0; n < outcnt; n++) {
+ 	ch = *output_data++ = *in++;
+ 	if ((ulg)output_data == low_buffer_end) output_data=high_buffer_start;
+-	c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
+     }
+-    crc = c;
++
+     bytes_out += (ulg)outcnt;
+     outcnt = 0;
+ }
+@@ -281,7 +276,6 @@ asmlinkage int decompress_kernel(struct 
+ 	if (free_mem_ptr < 0x100000) setup_normal_output_buffer();
+ 	else setup_output_buffer_if_we_run_high(mv);
+ 
+-	makecrc();
+ 	putstr("Uncompressing Linux... ");
+ 	gunzip();
+ 	putstr("Ok, booting the kernel.\n");
 Index: 2.6.14/arch/m32r/boot/compressed/misc.c
 ===================================================================
---- 2.6.14.orig/arch/m32r/boot/compressed/misc.c	2005-10-28 22:03:58.000000000 -0700
-+++ 2.6.14/arch/m32r/boot/compressed/misc.c	2005-10-28 22:04:13.000000000 -0700
-@@ -4,8 +4,6 @@
-  * This is a collection of several routines from gzip-1.0.3
-  * adapted for Linux.
-  *
-- * malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
-- *
-  * Adapted for SH by Stuart Menefy, Aug 1999
-  *
-  * 2003-02-12:	Support M32R by Takeo Takahashi
-@@ -38,8 +36,6 @@ static unsigned outcnt = 0;  /* bytes in
- static int  fill_inbuf(void);
- static void flush_window(void);
- static void error(char *m);
--static void gzip_mark(void **);
--static void gzip_release(void **);
+--- 2.6.14.orig/arch/m32r/boot/compressed/misc.c	2005-10-28 22:04:13.000000000 -0700
++++ 2.6.14/arch/m32r/boot/compressed/misc.c	2005-10-28 22:04:15.000000000 -0700
+@@ -70,22 +70,19 @@ static int fill_inbuf(void)
+ }
  
- static unsigned char *input_data;
- static int input_len;
-@@ -50,9 +46,6 @@ static unsigned long output_ptr = 0;
- 
- #include "m32r_sio.c"
- 
--static void *malloc(int size);
--static void free(void *where);
--
- static unsigned long free_mem_ptr;
- static unsigned long free_mem_end_ptr;
- 
-@@ -60,38 +53,6 @@ static unsigned long free_mem_end_ptr;
- 
- #include "../../../../lib/inflate.c"
- 
--static void *malloc(int size)
--{
--	void *p;
--
--	if (size <0) error("Malloc error");
--	if (free_mem_ptr == 0) error("Memory error");
--
--	free_mem_ptr = (free_mem_ptr + 3) & ~3;	/* Align */
--
--	p = (void *)free_mem_ptr;
--	free_mem_ptr += size;
--
--	if (free_mem_ptr >= free_mem_end_ptr)
--		error("Out of memory");
--
--	return p;
--}
--
--static void free(void *where)
--{	/* Don't care */
--}
--
--static void gzip_mark(void **ptr)
--{
--	*ptr = (void *) free_mem_ptr;
--}
--
--static void gzip_release(void **ptr)
--{
--	free_mem_ptr = (long) *ptr;
--}
--
  /* ===========================================================================
-  * Fill the input buffer. This is called only when the buffer is empty
-  * and at least one byte is really needed.
+- * Write the output window window[0..outcnt-1] and update crc and bytes_out.
++ * Write the output window window[0..outcnt-1] and update bytes_out.
+  * (Used for the decompressed data only.)
+  */
+ static void flush_window(void)
+ {
+-    ulg c = crc;         /* temporary variable */
+     unsigned n;
+     uch *in, *out, ch;
+ 
+     in = window;
+     out = &output_data[output_ptr];
+-    for (n = 0; n < outcnt; n++) {
++    for (n = 0; n < outcnt; n++)
+ 	    ch = *out++ = *in++;
+-	    c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
+-    }
+-    crc = c;
++
+     bytes_out += (ulg)outcnt;
+     output_ptr += (ulg)outcnt;
+     outcnt = 0;
+@@ -112,7 +109,6 @@ decompress_kernel(int mmu_on, unsigned c
+ 	input_data = zimage_data;
+ 	input_len = zimage_len;
+ 
+-	makecrc();
+ 	puts("Uncompressing Linux... ");
+ 	gunzip();
+ 	puts("Ok, booting the kernel.\n");
 Index: 2.6.14/arch/sh/boot/compressed/misc.c
 ===================================================================
---- 2.6.14.orig/arch/sh/boot/compressed/misc.c	2005-10-28 22:03:58.000000000 -0700
-+++ 2.6.14/arch/sh/boot/compressed/misc.c	2005-10-28 22:04:13.000000000 -0700
-@@ -4,8 +4,6 @@
-  * This is a collection of several routines from gzip-1.0.3
-  * adapted for Linux.
-  *
-- * malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
-- *
-  * Adapted for SH by Stuart Menefy, Aug 1999
-  *
-  * Modified to use standard LinuxSH BIOS by Greg Banks 7Jul2000
-@@ -40,8 +38,6 @@ static unsigned outcnt = 0;  /* bytes in
- static int  fill_inbuf(void);
- static void flush_window(void);
- static void error(char *m);
--static void gzip_mark(void **);
--static void gzip_release(void **);
+--- 2.6.14.orig/arch/sh/boot/compressed/misc.c	2005-10-28 22:04:13.000000000 -0700
++++ 2.6.14/arch/sh/boot/compressed/misc.c	2005-10-28 22:04:15.000000000 -0700
+@@ -98,22 +98,19 @@ static int fill_inbuf(void)
+ }
  
- extern char input_data[];
- extern int input_len;
-@@ -50,12 +46,6 @@ static long bytes_out = 0;
- static uch *output_data;
- static unsigned long output_ptr = 0;
- 
--static void *malloc(int size);
--static void free(void *where);
--static void error(char *m);
--static void gzip_mark(void **);
--static void gzip_release(void **);
--
- int puts(const char *);
- 
- extern int _text;		/* Defined in vmlinux.lds.S */
-@@ -67,38 +57,6 @@ static unsigned long free_mem_end_ptr;
- 
- #include "../../../../lib/inflate.c"
- 
--static void *malloc(int size)
--{
--	void *p;
--
--	if (size <0) error("Malloc error");
--	if (free_mem_ptr == 0) error("Memory error");
--
--	free_mem_ptr = (free_mem_ptr + 3) & ~3;	/* Align */
--
--	p = (void *)free_mem_ptr;
--	free_mem_ptr += size;
--
--	if (free_mem_ptr >= free_mem_end_ptr)
--		error("Out of memory");
--
--	return p;
--}
--
--static void free(void *where)
--{	/* Don't care */
--}
--
--static void gzip_mark(void **ptr)
--{
--	*ptr = (void *) free_mem_ptr;
--}
--
--static void gzip_release(void **ptr)
--{
--	free_mem_ptr = (long) *ptr;
--}
--
- #ifdef CONFIG_SH_STANDARD_BIOS
- size_t strlen(const char *s)
+ /* ===========================================================================
+- * Write the output window window[0..outcnt-1] and update crc and bytes_out.
++ * Write the output window window[0..outcnt-1] and update bytes_out.
+  * (Used for the decompressed data only.)
+  */
+ static void flush_window(void)
  {
+-    ulg c = crc;         /* temporary variable */
+     unsigned n;
+     uch *in, *out, ch;
+ 
+     in = window;
+     out = &output_data[output_ptr];
+-    for (n = 0; n < outcnt; n++) {
++    for (n = 0; n < outcnt; n++)
+ 	    ch = *out++ = *in++;
+-	    c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
+-    }
+-    crc = c;
++
+     bytes_out += (ulg)outcnt;
+     output_ptr += (ulg)outcnt;
+     outcnt = 0;
+@@ -139,7 +136,6 @@ void decompress_kernel(void)
+ 	free_mem_ptr = (unsigned long)&_end;
+ 	free_mem_end_ptr = free_mem_ptr + HEAP_SIZE;
+ 
+-	makecrc();
+ 	puts("Uncompressing Linux... ");
+ 	gunzip();
+ 	puts("Ok, booting the kernel.\n");
 Index: 2.6.14/arch/sh64/boot/compressed/misc.c
 ===================================================================
---- 2.6.14.orig/arch/sh64/boot/compressed/misc.c	2005-10-28 22:03:58.000000000 -0700
-+++ 2.6.14/arch/sh64/boot/compressed/misc.c	2005-10-28 22:04:13.000000000 -0700
-@@ -4,8 +4,6 @@
-  * This is a collection of several routines from gzip-1.0.3
-  * adapted for Linux.
-  *
-- * malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
-- *
-  * Adapted for SHmedia from sh by Stuart Menefy, May 2002
-  */
- 
-@@ -40,8 +38,6 @@ static unsigned outcnt = 0;	/* bytes in 
- static int fill_inbuf(void);
- static void flush_window(void);
- static void error(char *m);
--static void gzip_mark(void **);
--static void gzip_release(void **);
- 
- extern char input_data[];
- extern int input_len;
-@@ -50,12 +46,6 @@ static long bytes_out = 0;
- static uch *output_data;
- static unsigned long output_ptr = 0;
- 
--static void *malloc(int size);
--static void free(void *where);
--static void error(char *m);
--static void gzip_mark(void **);
--static void gzip_release(void **);
--
- static void puts(const char *);
- 
- extern int _text;		/* Defined in vmlinux.lds.S */
-@@ -67,40 +57,6 @@ static unsigned long free_mem_end_ptr;
- 
- #include "../../../../lib/inflate.c"
- 
--static void *malloc(int size)
--{
--	void *p;
--
--	if (size < 0)
--		error("Malloc error\n");
--	if (free_mem_ptr == 0)
--		error("Memory error\n");
--
--	free_mem_ptr = (free_mem_ptr + 3) & ~3;	/* Align */
--
--	p = (void *) free_mem_ptr;
--	free_mem_ptr += size;
--
--	if (free_mem_ptr >= free_mem_end_ptr)
--		error("\nOut of memory\n");
--
--	return p;
--}
--
--static void free(void *where)
--{				/* Don't care */
--}
--
--static void gzip_mark(void **ptr)
--{
--	*ptr = (void *) free_mem_ptr;
--}
--
--static void gzip_release(void **ptr)
--{
--	free_mem_ptr = (long) *ptr;
--}
--
- void puts(const char *s)
- {
+--- 2.6.14.orig/arch/sh64/boot/compressed/misc.c	2005-10-28 22:04:13.000000000 -0700
++++ 2.6.14/arch/sh64/boot/compressed/misc.c	2005-10-28 22:04:15.000000000 -0700
+@@ -78,22 +78,19 @@ static int fill_inbuf(void)
  }
+ 
+ /* ===========================================================================
+- * Write the output window window[0..outcnt-1] and update crc and bytes_out.
++ * Write the output window window[0..outcnt-1] and update bytes_out.
+  * (Used for the decompressed data only.)
+  */
+ static void flush_window(void)
+ {
+-	ulg c = crc;		/* temporary variable */
+ 	unsigned n;
+ 	uch *in, *out, ch;
+ 
+ 	in = window;
+ 	out = &output_data[output_ptr];
+-	for (n = 0; n < outcnt; n++) {
++	for (n = 0; n < outcnt; n++)
+ 		ch = *out++ = *in++;
+-		c = crc_32_tab[((int) c ^ ch) & 0xff] ^ (c >> 8);
+-	}
+-	crc = c;
++
+ 	bytes_out += (ulg) outcnt;
+ 	output_ptr += (ulg) outcnt;
+ 	outcnt = 0;
+@@ -119,7 +116,6 @@ void decompress_kernel(void)
+ 	free_mem_ptr = (unsigned long) &_end;
+ 	free_mem_end_ptr = free_mem_ptr + HEAP_SIZE;
+ 
+-	makecrc();
+ 	puts("Uncompressing Linux... ");
+ 	cache_control(CACHE_ENABLE);
+ 	gunzip();
 Index: 2.6.14/arch/x86_64/boot/compressed/misc.c
 ===================================================================
---- 2.6.14.orig/arch/x86_64/boot/compressed/misc.c	2005-10-28 22:03:58.000000000 -0700
-+++ 2.6.14/arch/x86_64/boot/compressed/misc.c	2005-10-28 22:04:13.000000000 -0700
-@@ -4,7 +4,6 @@
-  * This is a collection of several routines from gzip-1.0.3 
-  * adapted for Linux.
-  *
-- * malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
-  * puts by Nick Holloway 1993, better puts by Martin Mares 1995
-  * High loaded stuff by Hans Lermen & Werner Almesberger, Feb. 1996
+--- 2.6.14.orig/arch/x86_64/boot/compressed/misc.c	2005-10-28 22:04:13.000000000 -0700
++++ 2.6.14/arch/x86_64/boot/compressed/misc.c	2005-10-28 22:04:15.000000000 -0700
+@@ -139,22 +139,19 @@ static int fill_inbuf(void)
+ }
+ 
+ /* ===========================================================================
+- * Write the output window window[0..outcnt-1] and update crc and bytes_out.
++ * Write the output window window[0..outcnt-1] and update bytes_out.
+  * (Used for the decompressed data only.)
   */
-@@ -36,9 +35,7 @@ static unsigned outcnt = 0;  /* bytes in
- static int  fill_inbuf(void);
- static void flush_window(void);
- static void error(char *m);
--static void gzip_mark(void **);
--static void gzip_release(void **);
--  
-+
- /*
-  * This is set up by the setup-routine at boot-time
-  */
-@@ -57,9 +54,6 @@ static long bytes_out = 0;
- static uch *output_data;
- static unsigned long output_ptr = 0;
- 
--static void *malloc(int size);
--static void free(void *where);
--
- static void putstr(const char *);
- 
- extern int end;
-@@ -80,38 +74,6 @@ static int lines, cols;
- 
- #include "../../../../lib/inflate.c"
- 
--static void *malloc(int size)
--{
--	void *p;
--
--	if (size <0) error("Malloc error");
--	if (free_mem_ptr <= 0) error("Memory error");
--
--	free_mem_ptr = (free_mem_ptr + 3) & ~3;	/* Align */
--
--	p = (void *)free_mem_ptr;
--	free_mem_ptr += size;
--
--	if (free_mem_ptr >= free_mem_end_ptr)
--		error("Out of memory");
--
--	return p;
--}
--
--static void free(void *where)
--{	/* Don't care */
--}
--
--static void gzip_mark(void **ptr)
--{
--	*ptr = (void *) free_mem_ptr;
--}
--
--static void gzip_release(void **ptr)
--{
--	free_mem_ptr = (long) *ptr;
--}
-- 
- static void scroll(void)
+ static void flush_window_low(void)
  {
- 	int i;
+-    ulg c = crc;         /* temporary variable */
+     unsigned n;
+     uch *in, *out, ch;
+-    
++
+     in = window;
+-    out = &output_data[output_ptr]; 
+-    for (n = 0; n < outcnt; n++) {
++    out = &output_data[output_ptr];
++    for (n = 0; n < outcnt; n++)
+ 	    ch = *out++ = *in++;
+-	    c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
+-    }
+-    crc = c;
++
+     bytes_out += (ulg)outcnt;
+     output_ptr += (ulg)outcnt;
+     outcnt = 0;
+@@ -162,16 +159,14 @@ static void flush_window_low(void)
+ 
+ static void flush_window_high(void)
+ {
+-    ulg c = crc;         /* temporary variable */
+     unsigned n;
+     uch *in,  ch;
+     in = window;
+     for (n = 0; n < outcnt; n++) {
+ 	ch = *output_data++ = *in++;
+ 	if ((ulg)output_data == low_buffer_end) output_data=high_buffer_start;
+-	c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
+     }
+-    crc = c;
++
+     bytes_out += (ulg)outcnt;
+     outcnt = 0;
+ }
+@@ -259,7 +254,6 @@ int decompress_kernel(struct moveparams 
+ 	if (free_mem_ptr < 0x100000) setup_normal_output_buffer();
+ 	else setup_output_buffer_if_we_run_high(mv);
+ 
+-	makecrc();
+ 	putstr(".\nDecompressing Linux...");
+ 	gunzip();
+ 	putstr("done.\nBooting the kernel.\n");
 Index: 2.6.14/init/do_mounts_rd.c
 ===================================================================
---- 2.6.14.orig/init/do_mounts_rd.c	2005-10-28 22:03:58.000000000 -0700
-+++ 2.6.14/init/do_mounts_rd.c	2005-10-28 22:04:13.000000000 -0700
-@@ -298,32 +298,11 @@ static int crd_infd, crd_outfd;
- 
- static int  __init fill_inbuf(void);
- static void __init flush_window(void);
--static void __init *malloc(size_t size);
--static void __init free(void *where);
- static void __init error(char *m);
--static void __init gzip_mark(void **);
--static void __init gzip_release(void **);
- 
--#include "../lib/inflate.c"
--
--static void __init *malloc(size_t size)
--{
--	return kmalloc(size, GFP_KERNEL);
--}
--
--static void __init free(void *where)
--{
--	kfree(where);
--}
--
--static void __init gzip_mark(void **ptr)
--{
--}
--
--static void __init gzip_release(void **ptr)
--{
--}
-+#define NO_INFLATE_MALLOC
- 
-+#include "../lib/inflate.c"
+--- 2.6.14.orig/init/do_mounts_rd.c	2005-10-28 22:04:13.000000000 -0700
++++ 2.6.14/init/do_mounts_rd.c	2005-10-28 22:04:15.000000000 -0700
+@@ -325,15 +325,14 @@ static int __init fill_inbuf(void)
+ }
  
  /* ===========================================================================
-  * Fill the input buffer. This is called only when the buffer is empty
+- * Write the output window window[0..outcnt-1] and update crc and bytes_out.
++ * Write the output window window[0..outcnt-1] and update bytes_out.
+  * (Used for the decompressed data only.)
+  */
+ static void __init flush_window(void)
+ {
+-    ulg c = crc;         /* temporary variable */
+     unsigned n, written;
+     uch *in, ch;
+-    
++
+     written = sys_write(crd_outfd, window, outcnt);
+     if (written != outcnt && unzip_error == 0) {
+ 	printk(KERN_ERR "RAMDISK: incomplete write (%d != %d) %ld\n",
+@@ -341,11 +340,9 @@ static void __init flush_window(void)
+ 	unzip_error = 1;
+     }
+     in = window;
+-    for (n = 0; n < outcnt; n++) {
++    for (n = 0; n < outcnt; n++)
+ 	    ch = *in++;
+-	    c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
+-    }
+-    crc = c;
++
+     bytes_out += (ulg)outcnt;
+     outcnt = 0;
+ }
+@@ -366,7 +363,6 @@ static int __init crd_load(int in_fd, in
+ 	outcnt = 0;		/* bytes in output buffer */
+ 	exit_code = 0;
+ 	bytes_out = 0;
+-	crc = (ulg)0xffffffffL; /* shift register contents */
+ 
+ 	crd_infd = in_fd;
+ 	crd_outfd = out_fd;
+@@ -381,7 +377,6 @@ static int __init crd_load(int in_fd, in
+ 		kfree(inbuf);
+ 		return -1;
+ 	}
+-	makecrc();
+ 	result = gunzip();
+ 	if (unzip_error)
+ 		result = 1;
 Index: 2.6.14/init/initramfs.c
 ===================================================================
---- 2.6.14.orig/init/initramfs.c	2005-10-28 22:03:58.000000000 -0700
-+++ 2.6.14/init/initramfs.c	2005-10-28 22:04:13.000000000 -0700
-@@ -14,16 +14,6 @@ static void __init error(char *x)
- 		message = x;
- }
- 
--static void __init *malloc(size_t size)
--{
--	return kmalloc(size, GFP_KERNEL);
--}
--
--static void __init free(void *where)
--{
--	kfree(where);
--}
--
- /* link hash */
- 
- static __initdata struct hash {
-@@ -51,7 +41,7 @@ static char __init *find_link(int major,
- 			continue;
- 		return (*p)->name;
- 	}
--	q = (struct hash *)malloc(sizeof(struct hash));
-+	q = kmalloc(sizeof(struct hash), GFP_KERNEL);
- 	if (!q)
- 		panic("can't allocate link hash entry");
- 	q->ino = ino;
-@@ -70,7 +60,7 @@ static void __init free_hash(void)
- 		while (*p) {
- 			q = *p;
- 			*p = q->next;
--			free(q);
-+			kfree(q);
- 		}
- 	}
- }
-@@ -364,18 +354,10 @@ static long bytes_out;
- 
- static void __init flush_window(void);
- static void __init error(char *m);
--static void __init gzip_mark(void **);
--static void __init gzip_release(void **);
- 
--#include "../lib/inflate.c"
-+#define NO_INFLATE_MALLOC
- 
--static void __init gzip_mark(void **ptr)
--{
--}
--
--static void __init gzip_release(void **ptr)
--{
--}
-+#include "../lib/inflate.c"
+--- 2.6.14.orig/init/initramfs.c	2005-10-28 22:04:13.000000000 -0700
++++ 2.6.14/init/initramfs.c	2005-10-28 22:04:15.000000000 -0700
+@@ -360,22 +360,19 @@ static void __init error(char *m);
+ #include "../lib/inflate.c"
  
  /* ===========================================================================
-  * Write the output window window[0..outcnt-1] and update crc and bytes_out.
-@@ -402,10 +384,10 @@ static char * __init unpack_to_rootfs(ch
+- * Write the output window window[0..outcnt-1] and update crc and bytes_out.
++ * Write the output window window[0..outcnt-1] and update bytes_out.
+  * (Used for the decompressed data only.)
+  */
+ static void __init flush_window(void)
  {
- 	int written;
- 	dry_run = check_only;
--	header_buf = malloc(110);
--	symlink_buf = malloc(PATH_MAX + N_ALIGN(PATH_MAX) + 1);
--	name_buf = malloc(N_ALIGN(PATH_MAX));
--	window = malloc(WSIZE);
-+	header_buf = kmalloc(110, GFP_KERNEL);
-+	symlink_buf = kmalloc(PATH_MAX + N_ALIGN(PATH_MAX) + 1, GFP_KERNEL);
-+	name_buf = kmalloc(N_ALIGN(PATH_MAX), GFP_KERNEL);
-+	window = kmalloc(WSIZE, GFP_KERNEL);
- 	if (!window || !header_buf || !symlink_buf || !name_buf)
- 		panic("can't allocate buffers");
- 	state = Start;
-@@ -441,10 +423,10 @@ static char * __init unpack_to_rootfs(ch
- 		buf += inptr;
- 		len -= inptr;
- 	}
--	free(window);
--	free(name_buf);
--	free(symlink_buf);
--	free(header_buf);
-+	kfree(window);
-+	kfree(name_buf);
-+	kfree(symlink_buf);
-+	kfree(header_buf);
- 	return message;
- }
+-	ulg c = crc;         /* temporary variable */
+ 	unsigned n;
+ 	uch *in, ch;
  
+ 	flush_buffer(window, outcnt);
+ 	in = window;
+-	for (n = 0; n < outcnt; n++) {
++	for (n = 0; n < outcnt; n++)
+ 		ch = *in++;
+-		c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
+-	}
+-	crc = c;
++
+ 	bytes_out += (ulg)outcnt;
+ 	outcnt = 0;
+ }
+@@ -414,8 +411,6 @@ static char * __init unpack_to_rootfs(ch
+ 		inptr = 0;
+ 		outcnt = 0;		/* bytes in output buffer */
+ 		bytes_out = 0;
+-		crc = (ulg)0xffffffffL; /* shift register contents */
+-		makecrc();
+ 		gunzip();
+ 		if (state != Reset)
+ 			error("junk in gzipped archive");
 Index: 2.6.14/lib/inflate.c
 ===================================================================
---- 2.6.14.orig/lib/inflate.c	2005-10-28 22:03:58.000000000 -0700
-+++ 2.6.14/lib/inflate.c	2005-10-28 22:04:13.000000000 -0700
-@@ -109,6 +109,46 @@
+--- 2.6.14.orig/lib/inflate.c	2005-10-28 22:04:13.000000000 -0700
++++ 2.6.14/lib/inflate.c	2005-10-28 22:04:15.000000000 -0700
+@@ -150,7 +150,6 @@ static void free(void *where)
+ #endif
  
- #include <asm/types.h>
- 
-+#ifndef NO_INFLATE_MALLOC
-+/* A trivial malloc implementation, adapted from
-+ *  malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
-+ */
-+
-+static unsigned long malloc_ptr;
-+static int malloc_count;
-+
-+static void *malloc(int size)
-+{
-+	void *p;
-+
-+	if (size <0)
-+		error("Malloc error");
-+	if (!malloc_ptr)
-+		malloc_ptr = free_mem_ptr;
-+
-+	malloc_ptr = (malloc_ptr + 3) & ~3;	/* Align */
-+
-+	p = (void *)malloc_ptr;
-+	malloc_ptr += size;
-+
-+	if (malloc_ptr >= free_mem_end_ptr)
-+		error("Out of memory");
-+
-+	malloc_count++;
-+	return p;
-+}
-+
-+static void free(void *where)
-+{
-+	malloc_count--;
-+	if (!malloc_count)
-+		malloc_ptr = free_mem_ptr;
-+}
-+#else
-+#define malloc(a) kmalloc(a, GFP_KERNEL)
-+#define free(a) kfree(a)
-+#endif
-+
  static u32 crc_32_tab[256];
- static u32 crc;		/* dummy var until users get cleaned up */
+-static u32 crc;		/* dummy var until users get cleaned up */
  #define CRCPOLY_LE 0xedb88320
-@@ -895,16 +935,12 @@ static int INIT inflate(struct iostate *
- {
- 	int e;			/* last block flag */
- 	int r;			/* result code */
--	void *ptr;
  
- 	/* decompress until the last block */
- 	do {
--		gzip_mark(&ptr);
--		if ((r = inflate_block(io, &e))) {
--			gzip_release(&ptr);
-+		r = inflate_block(io, &e);
-+		if (r)
- 			return r;
--		}
--		gzip_release(&ptr);
- 	} while (!e);
+ /* Huffman code lookup table entry--this entry is four bytes for machines
+@@ -993,6 +992,8 @@ static int INIT gunzip(void)
+ 	io.opos = io.bits = io.buf = 0;
+ 	io.crc = 0xffffffffUL;
  
- 	popbytes(io);
++	makecrc(); /* initialize the CRC table */
++
+ 	magic[0] = get_byte();
+ 	magic[1] = get_byte();
+ 	method = get_byte();

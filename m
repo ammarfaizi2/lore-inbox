@@ -1,640 +1,309 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbVJaVCY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964844AbVJaVEh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964832AbVJaVCY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 16:02:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964830AbVJaVB7
+	id S964844AbVJaVEh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 16:04:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964835AbVJaVEg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 16:01:59 -0500
-Received: from waste.org ([216.27.176.166]:11416 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S932542AbVJaVAj (ORCPT
+	Mon, 31 Oct 2005 16:04:36 -0500
+Received: from waste.org ([216.27.176.166]:10136 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S932536AbVJaVAh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 16:00:39 -0500
-Date: Mon, 31 Oct 2005 14:54:52 -0600
+	Mon, 31 Oct 2005 16:00:37 -0500
+Date: Mon, 31 Oct 2005 14:54:51 -0600
 From: Matt Mackall <mpm@selenic.com>
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 X-PatchBomber: http://selenic.com/scripts/mailpatches
 Cc: linux-arch@vger.kernel.org
-In-Reply-To: <19.196662837@selenic.com>
-Message-Id: <20.196662837@selenic.com>
-Subject: [PATCH 19/20] inflate: (arch) use proper linking
+In-Reply-To: <16.196662837@selenic.com>
+Message-Id: <17.196662837@selenic.com>
+Subject: [PATCH 16/20] inflate: remove legacy DEBG macros
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-inflate: remove include of lib/inflate.c and use proper linking
-
-- make free_mem_ptr vars nonstatic
-- make gunzip nonstatic
-- add gunzip prototype to new inflate.h
-- add per-arch Makefile bits
-- change inflate.c includes to inflate.h includes
-- change NO_INFLATE_MALLOC to CORE
-- compile core kernel version of inflate with -DCORE
+inflate: remove legacy DEBG macros
 
 Signed-off-by: Matt Mackall <mpm@selenic.com>
 
-Index: 2.6.14/arch/alpha/boot/misc.c
-===================================================================
---- 2.6.14.orig/arch/alpha/boot/misc.c	2005-10-30 13:07:19.000000000 -0800
-+++ 2.6.14/arch/alpha/boot/misc.c	2005-10-30 13:07:25.000000000 -0800
-@@ -14,6 +14,7 @@
-  */
- 
- #include <linux/kernel.h>
-+#include <linux/inflate.h>
- #include <asm/uaccess.h>
- 
- #define puts		srm_printk
-@@ -27,11 +28,7 @@ static u8 *output_data;
- 
- #define HEAP_SIZE 0x2000
- 
--/* gzip delarations */
--static u32 free_mem_ptr;
--static u32 free_mem_ptr_end;
--
--#include "../../../lib/inflate.c"
-+static u32 free_mem_ptr, free_mem_ptr_end; /* for gunzip */
- 
- /* flush gunzip output window */
- static void flush_window(const u8 *buf, int len)
-Index: 2.6.14/arch/arm/boot/compressed/Makefile
-===================================================================
---- 2.6.14.orig/arch/arm/boot/compressed/Makefile	2005-10-30 13:07:19.000000000 -0800
-+++ 2.6.14/arch/arm/boot/compressed/Makefile	2005-10-30 13:07:25.000000000 -0800
-@@ -95,8 +95,11 @@ LDFLAGS_vmlinux += -p --no-undefined -X 
- # would otherwise mess up our GOT table
- CFLAGS_misc.o := -Dstatic=
- 
-+$(obj)/inflate.o: lib/inflate.c
-+	$(call cmd,cc_o_c)
-+
- $(obj)/vmlinux: $(obj)/vmlinux.lds $(obj)/$(HEAD) $(obj)/piggy.o \
--	 	$(addprefix $(obj)/, $(OBJS)) FORCE
-+	 	$(addprefix $(obj)/, $(OBJS)) $(obj)/inflate.o FORCE
- 	$(call if_changed,ld)
- 	@:
- 
-Index: 2.6.14/arch/arm/boot/compressed/misc.c
-===================================================================
---- 2.6.14.orig/arch/arm/boot/compressed/misc.c	2005-10-30 13:07:19.000000000 -0800
-+++ 2.6.14/arch/arm/boot/compressed/misc.c	2005-10-30 13:07:25.000000000 -0800
-@@ -14,6 +14,7 @@
- unsigned int __machine_arch_type;
- 
- #include <linux/string.h>
-+#include <linux/inflate.h>
- #include <asm/arch/uncompress.h>
- 
- #ifdef STANDALONE_DEBUG
-@@ -36,31 +37,17 @@ icedcc_putstr(const char *ptr)
- 
- #endif
- 
--#define __ptr_t void *
--
--/*
-- * gzip declarations
-- */
--
- extern char input_data[];
- extern char input_data_end[];
-+extern int end;
- 
- static u8 *output_data;
--
- static void putstr(const char *);
- 
--extern int end;
--static u32 free_mem_ptr;
--static u32 free_mem_ptr_end;
-+u32 free_mem_ptr, free_mem_ptr_end; /* for gunzip */
- 
- #define HEAP_SIZE 0x2000
- 
--#include "../../../../lib/inflate.c"
--
--#ifdef STANDALONE_DEBUG
--#define NO_INFLATE_MALLOC
--#endif
--
- /* flush gunzip output window */
- static void flush_window(const u8 *buf, int len)
- {
-Index: 2.6.14/arch/arm26/boot/compressed/Makefile
-===================================================================
---- 2.6.14.orig/arch/arm26/boot/compressed/Makefile	2005-10-30 13:07:19.000000000 -0800
-+++ 2.6.14/arch/arm26/boot/compressed/Makefile	2005-10-30 13:07:25.000000000 -0800
-@@ -8,7 +8,7 @@
- #
- 
- HEAD	= head.o
--OBJS	= misc.o
-+OBJS	= misc.o inflate.o
- FONTC	= drivers/video/console/font_acorn_8x8.c
- 
- OBJS		+= ll_char_wr.o font.o
-@@ -40,11 +40,14 @@ LDFLAGS_piggy.o := -r -b binary
- $(obj)/piggy.o:  $(obj)/piggy.gz FORCE
- 	$(call if_changed,ld)
- 
-+$(obj)/inflate.o: lib/inflate.c
-+        $(call cmd,cc_o_c)
-+
- $(obj)/font.o: $(FONTC)
- 	$(CC) $(CFLAGS) -Dstatic= -c $(FONTC) -o $(obj)/font.o
- 
- $(obj)/vmlinux.lds: $(obj)/vmlinux.lds.in Makefile arch/arm26/boot/Makefile .config
- 	@sed "$(SEDFLAGS)" < $< > $@
- 
--$(obj)/misc.o: $(obj)/misc.c $(obj)/uncompress.h lib/inflate.c
-+$(obj)/misc.o: $(obj)/misc.c $(obj)/uncompress.h
- 
-Index: 2.6.14/arch/arm26/boot/compressed/misc.c
-===================================================================
---- 2.6.14.orig/arch/arm26/boot/compressed/misc.c	2005-10-30 13:07:19.000000000 -0800
-+++ 2.6.14/arch/arm26/boot/compressed/misc.c	2005-10-30 13:07:25.000000000 -0800
-@@ -14,6 +14,7 @@
- unsigned int __machine_arch_type;
- 
- #include <linux/kernel.h>
-+#include <linux/inflate.h>
- #include <asm/uaccess.h>
- #include "uncompress.h"
- 
-@@ -30,15 +31,7 @@ static void puts(const char *);
- 
- #define HEAP_SIZE 0x2000
- 
--/* gzip delarations */
--static u32 free_mem_ptr;
--static u32 free_mem_ptr_end;
--
--#include "../../../../lib/inflate.c"
--
--#ifdef STANDALONE_DEBUG
--#define NO_INFLATE_MALLOC
--#endif
-+u32 free_mem_ptr, free_mem_ptr_end; /* for gunzip */
- 
- /* flush the gunzip output window */
- static void flush_window(const u8 *buf, int len)
-Index: 2.6.14/arch/cris/arch-v10/boot/compressed/Makefile
-===================================================================
---- 2.6.14.orig/arch/cris/arch-v10/boot/compressed/Makefile	2005-10-30 13:07:19.000000000 -0800
-+++ 2.6.14/arch/cris/arch-v10/boot/compressed/Makefile	2005-10-30 13:07:25.000000000 -0800
-@@ -9,7 +9,7 @@ CFLAGS = -O2
- LD = ld-cris
- OBJCOPY = objcopy-cris
- OBJCOPYFLAGS = -O binary --remove-section=.bss
--OBJECTS = $(target)/head.o $(target)/misc.o
-+OBJECTS = $(target)/head.o $(target)/misc.o $(target)/inflate.o
- 
- # files to compress
- SYSTEM = $(objtree)/vmlinux.bin
-@@ -29,6 +29,9 @@ $(target_compressed_dir)/vmlinuz: $(targ
- $(target)/head.o: $(src)/head.S
- 	$(CC) -D__ASSEMBLY__ -traditional -c $< -o $@
- 
-+$(target)/inflate.o: lib/inflate.c
-+	$(CC) -D__KERNEL__ -c $< -o $@
-+
- $(target)/misc.o: $(src)/misc.c
- 	$(CC) -D__KERNEL__ -c $< -o $@
- 
-Index: 2.6.14/arch/cris/arch-v10/boot/compressed/misc.c
-===================================================================
---- 2.6.14.orig/arch/cris/arch-v10/boot/compressed/misc.c	2005-10-30 13:07:19.000000000 -0800
-+++ 2.6.14/arch/cris/arch-v10/boot/compressed/misc.c	2005-10-30 13:07:25.000000000 -0800
-@@ -16,6 +16,7 @@
- 
- #include <linux/config.h>
- #include <linux/types.h>
-+#include <linux/inflate.h>
- #include <asm/arch/svinto.h>
- 
- extern int end; /* the "heap" is put directly after the BSS ends, at end */
-@@ -25,11 +26,8 @@ static u8 *output_data;
- 
- static void puts(const char *);
- 
--/* gzip declarations */
--static long free_mem_ptr = (long)&end;
--static long free_mem_end_ptr = 0xffffffff;
--
--#include "../../../../../lib/inflate.c"
-+/* for gunzip */
-+long free_mem_ptr = (long)&end, free_mem_end_ptr = 0xffffffff;
- 
- /* decompressor info and error messages to serial console */
- 
-Index: 2.6.14/arch/cris/arch-v32/boot/compressed/Makefile
-===================================================================
---- 2.6.14.orig/arch/cris/arch-v32/boot/compressed/Makefile	2005-10-30 13:07:19.000000000 -0800
-+++ 2.6.14/arch/cris/arch-v32/boot/compressed/Makefile	2005-10-30 13:07:25.000000000 -0800
-@@ -12,7 +12,7 @@ CFLAGS = -O2
- LD = gcc-cris -mlinux -march=v32 -nostdlib
- OBJCOPY = objcopy-cris
- OBJCOPYFLAGS = -O binary --remove-section=.bss
--OBJECTS = $(target)/head.o $(target)/misc.o
-+OBJECTS = $(target)/head.o $(target)/misc.o $(target)/inflate.o
- 
- # files to compress
- SYSTEM = $(objtree)/vmlinux.bin
-@@ -28,6 +28,9 @@ $(objtree)/vmlinuz: $(target) piggy.img 
- 	rm -f piggy.img
- 	cp $(objtree)/vmlinuz $(src)
- 
-+$(target)/inflate.o: lib/inflate.c
-+	$(call cmd,cc_o_c)
-+
- $(target)/head.o: $(src)/head.S
- 	$(CC) -D__ASSEMBLY__ -c $< -o $@
- 
-Index: 2.6.14/arch/cris/arch-v32/boot/compressed/misc.c
-===================================================================
---- 2.6.14.orig/arch/cris/arch-v32/boot/compressed/misc.c	2005-10-30 13:07:19.000000000 -0800
-+++ 2.6.14/arch/cris/arch-v32/boot/compressed/misc.c	2005-10-30 13:07:25.000000000 -0800
-@@ -16,6 +16,7 @@
- 
- #include <linux/config.h>
- #include <linux/types.h>
-+#include <linux/inflate.h>
- #include <asm/arch/hwregs/reg_rdwr.h>
- #include <asm/arch/hwregs/reg_map.h>
- #include <asm/arch/hwregs/ser_defs.h>
-@@ -26,11 +27,8 @@ static u8 *output_data;
- 
- static void puts(const char *);
- 
--/* gzip declarations */
--static long free_mem_ptr = (long)&_end;
--static long free_mem_end_ptr = 0xffffffff;
--
--#include "../../../../../lib/inflate.c"
-+/* for gunzip */
-+long free_mem_ptr = (long)&_end, free_mem_end_ptr = 0xffffffff;
- 
- /* decompressor info and error messages to serial console */
- 
-Index: 2.6.14/arch/i386/boot/compressed/Makefile
-===================================================================
---- 2.6.14.orig/arch/i386/boot/compressed/Makefile	2005-10-30 13:07:19.000000000 -0800
-+++ 2.6.14/arch/i386/boot/compressed/Makefile	2005-10-30 13:07:25.000000000 -0800
-@@ -9,7 +9,11 @@ EXTRA_AFLAGS	:= -traditional
- 
- LDFLAGS_vmlinux := -Ttext $(IMAGE_OFFSET) -e startup_32
- 
--$(obj)/vmlinux: $(obj)/head.o $(obj)/misc.o $(obj)/piggy.o FORCE
-+$(obj)/inflate.o: lib/inflate.c
-+	$(call cmd,cc_o_c)
-+
-+$(obj)/vmlinux: $(obj)/head.o $(obj)/misc.o $(obj)/piggy.o $(obj)/inflate.o \
-+		FORCE
- 	$(call if_changed,ld)
- 	@:
- 
-Index: 2.6.14/arch/i386/boot/compressed/misc.c
-===================================================================
---- 2.6.14.orig/arch/i386/boot/compressed/misc.c	2005-10-30 13:07:19.000000000 -0800
-+++ 2.6.14/arch/i386/boot/compressed/misc.c	2005-10-30 13:07:25.000000000 -0800
-@@ -8,6 +8,7 @@
- #include <linux/linkage.h>
- #include <linux/vmalloc.h>
- #include <linux/tty.h>
-+#include <linux/inflate.h>
- #include <asm/io.h>
- #include <asm/page.h>
- 
-@@ -46,11 +47,7 @@ static int lines, cols;
- static void * xquad_portio = NULL;
- #endif
- 
--/* gzip declarations */
--static long free_mem_ptr = (long)&end;
--static long free_mem_end_ptr;
--
--#include "../../../../lib/inflate.c"
-+long free_mem_ptr = (long)&end, free_mem_end_ptr; /* for gunzip */
- 
- static void scroll(void)
- {
-Index: 2.6.14/arch/m32r/boot/compressed/Makefile
-===================================================================
---- 2.6.14.orig/arch/m32r/boot/compressed/Makefile	2005-10-30 13:07:19.000000000 -0800
-+++ 2.6.14/arch/m32r/boot/compressed/Makefile	2005-10-30 13:07:25.000000000 -0800
-@@ -18,7 +18,11 @@ OBJECTS = $(obj)/head.o $(obj)/misc.o
- 
- LDFLAGS_vmlinux := -T
- 
--$(obj)/vmlinux: $(obj)/vmlinux.lds $(OBJECTS) $(obj)/piggy.o FORCE
-+$(obj)/inflate.o: lib/inflate.c
-+	$(call cmd,cc_o_c)
-+
-+$(obj)/vmlinux: $(obj)/vmlinux.lds $(OBJECTS) $(obj)/piggy.o $(obj)/inflate.o \
-+		FORCE
- 	$(call if_changed,ld)
- 	@:
- 
-Index: 2.6.14/arch/m32r/boot/compressed/misc.c
-===================================================================
---- 2.6.14.orig/arch/m32r/boot/compressed/misc.c	2005-10-30 13:07:19.000000000 -0800
-+++ 2.6.14/arch/m32r/boot/compressed/misc.c	2005-10-30 13:07:25.000000000 -0800
-@@ -9,6 +9,7 @@
- 
- #include <linux/config.h>
- #include <linux/string.h>
-+#include <linux/inflate.h>
- 
- static unsigned char *input_data;
- static int input_len;
-@@ -18,11 +19,7 @@ static u8 *output_data;
- 
- #define HEAP_SIZE             0x10000
- 
--/* gzip declarations */
--static unsigned long free_mem_ptr;
--static unsigned long free_mem_end_ptr;
--
--#include "../../../../lib/inflate.c"
-+unsigned long free_mem_ptr, free_mem_end_ptr; /* for gunzip */
- 
- /* flush the gunzip output buffer */
- static void flush_window(const u8 *buf, int len)
-Index: 2.6.14/arch/sh/boot/compressed/Makefile
-===================================================================
---- 2.6.14.orig/arch/sh/boot/compressed/Makefile	2005-10-30 13:07:19.000000000 -0800
-+++ 2.6.14/arch/sh/boot/compressed/Makefile	2005-10-30 13:07:25.000000000 -0800
-@@ -24,7 +24,10 @@ IMAGE_OFFSET := $(shell printf "0x%8x" $
- 
- LDFLAGS_vmlinux := -Ttext $(IMAGE_OFFSET) -e startup -T $(obj)/../../kernel/vmlinux.lds
- 
--$(obj)/vmlinux: $(OBJECTS) $(obj)/piggy.o FORCE
-+$(obj)/inflate.o: lib/inflate.c
-+	$(call cmd,cc_o_c)
-+
-+$(obj)/vmlinux: $(OBJECTS) $(obj)/piggy.o $(obj)/inflate.o FORCE
- 	$(call if_changed,ld)
- 	@:
- 
-Index: 2.6.14/arch/sh/boot/compressed/misc.c
-===================================================================
---- 2.6.14.orig/arch/sh/boot/compressed/misc.c	2005-10-30 13:07:19.000000000 -0800
-+++ 2.6.14/arch/sh/boot/compressed/misc.c	2005-10-30 13:07:59.000000000 -0800
-@@ -7,6 +7,7 @@
-  */
- 
- #include <linux/config.h>
-+#include <linux/inflate.h>
- #include <asm/uaccess.h>
- #ifdef CONFIG_SH_STANDARD_BIOS
- #include <asm/sh_bios.h>
-@@ -22,11 +23,7 @@ int puts(const char *);
- 
- #define HEAP_SIZE             0x10000
- 
--/* gzip declarations */
--static unsigned long free_mem_ptr;
--static unsigned long free_mem_end_ptr;
--
--#include "../../../../lib/inflate.c"
-+unsigned long free_mem_ptr, free_mem_end_ptr; /* for gunzip */
- 
- #ifdef CONFIG_SH_STANDARD_BIOS
- size_t strlen(const char *s)
-Index: 2.6.14/arch/sh64/boot/compressed/Makefile
-===================================================================
---- 2.6.14.orig/arch/sh64/boot/compressed/Makefile	2005-10-30 13:07:19.000000000 -0800
-+++ 2.6.14/arch/sh64/boot/compressed/Makefile	2005-10-30 13:07:25.000000000 -0800
-@@ -28,7 +28,10 @@ LDFLAGS_vmlinux := -Ttext $(ZIMAGE_OFFSE
- 		    -T $(obj)/../../kernel/vmlinux.lds \
- 		    --no-warn-mismatch
- 
--$(obj)/vmlinux: $(OBJECTS) $(obj)/piggy.o FORCE
-+$(obj)/inflate.o: lib/inflate.c
-+	$(call cmd,cc_o_c)
-+
-+$(obj)/vmlinux: $(OBJECTS) $(obj)/piggy.o $(obj)/inflate.o FORCE
- 	$(call if_changed,ld)
- 	@:
- 
-Index: 2.6.14/arch/sh64/boot/compressed/misc.c
-===================================================================
---- 2.6.14.orig/arch/sh64/boot/compressed/misc.c	2005-10-30 13:07:19.000000000 -0800
-+++ 2.6.14/arch/sh64/boot/compressed/misc.c	2005-10-30 13:07:25.000000000 -0800
-@@ -5,6 +5,7 @@
-  */
- 
- #include <linux/config.h>
-+#include <linux/inflate.h>
- #include <asm/uaccess.h>
- 
- /* cache.c */
-@@ -22,11 +23,7 @@ static void puts(const char *);
- 
- #define HEAP_SIZE             0x10000
- 
--/* gzip declarations */
--static unsigned long free_mem_ptr;
--static unsigned long free_mem_end_ptr;
--
--#include "../../../../lib/inflate.c"
-+unsigned long free_mem_ptr, free_mem_end_ptr; /* for gunzip */
- 
- void puts(const char *s)
- {
-Index: 2.6.14/arch/x86_64/boot/compressed/Makefile
-===================================================================
---- 2.6.14.orig/arch/x86_64/boot/compressed/Makefile	2005-10-30 13:07:19.000000000 -0800
-+++ 2.6.14/arch/x86_64/boot/compressed/Makefile	2005-10-30 13:07:25.000000000 -0800
-@@ -16,7 +16,11 @@ LDFLAGS := -m elf_i386
- 
- LDFLAGS_vmlinux := -Ttext $(IMAGE_OFFSET) -e startup_32 -m elf_i386
- 
--$(obj)/vmlinux: $(obj)/head.o $(obj)/misc.o $(obj)/piggy.o FORCE
-+$(obj)/inflate.o: lib/inflate.c
-+	$(call cmd,cc_o_c)
-+
-+$(obj)/vmlinux: $(obj)/head.o $(obj)/misc.o $(obj)/piggy.o $(obj)/inflate.o \
-+		FORCE
- 	$(call if_changed,ld)
- 	@:
- 
-Index: 2.6.14/arch/x86_64/boot/compressed/misc.c
-===================================================================
---- 2.6.14.orig/arch/x86_64/boot/compressed/misc.c	2005-10-30 13:07:19.000000000 -0800
-+++ 2.6.14/arch/x86_64/boot/compressed/misc.c	2005-10-30 13:07:25.000000000 -0800
-@@ -6,6 +6,7 @@
-  */
- 
- #include "miscsetup.h"
-+#include <linux/inflate.h>
- #include <asm/io.h>
- #include <asm/page.h>
- 
-@@ -39,11 +40,7 @@ static char *vidmem = (char *)0xb8000;
- static int vidport;
- static int lines, cols;
- 
--/* gzip declarations */
--static long free_mem_ptr = (long)&end;
--static long free_mem_end_ptr;
--
--#include "../../../../lib/inflate.c"
-+long free_mem_ptr = (long)&end, free_mem_end_ptr; /* for gunzip */
- 
- static void scroll(void)
- {
-Index: 2.6.14/include/linux/inflate.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ 2.6.14/include/linux/inflate.h	2005-10-30 13:07:25.000000000 -0800
-@@ -0,0 +1,9 @@
-+#ifndef _LINUX_INFLATE_H
-+#define _LINUX_INFLATE_H
-+
-+int gunzip(u8 *ibuf, int isize, void (*fill)(u8 *buf, int size),
-+	   void (*flush)(const u8 *buf, int size),
-+	   void (*error)(const char *msg));
-+
-+#endif /* _LINUX_INFLATE_H */
-+
-Index: 2.6.14/init/do_mounts_rd.c
-===================================================================
---- 2.6.14.orig/init/do_mounts_rd.c	2005-10-30 13:07:19.000000000 -0800
-+++ 2.6.14/init/do_mounts_rd.c	2005-10-30 13:07:25.000000000 -0800
-@@ -1,4 +1,3 @@
--
- #include <linux/kernel.h>
- #include <linux/fs.h>
- #include <linux/minix_fs.h>
-@@ -7,6 +6,7 @@
- #include <linux/cramfs_fs.h>
- #include <linux/initrd.h>
- #include <linux/string.h>
-+#include <linux/inflate.h>
- 
- #include "do_mounts.h"
- 
-@@ -269,13 +269,6 @@ int __init rd_load_disk(int n)
- 
- #ifdef BUILD_CRAMDISK
- 
--/* gzip declarations */
--#define INIT __init
--#define INITDATA __initdata
--#define NO_INFLATE_MALLOC
--
--#include "../lib/inflate.c"
--
- #define INBUFSIZ 4096
- static u8 *inbuf;
- static int exit_code;
-Index: 2.6.14/init/initramfs.c
-===================================================================
---- 2.6.14.orig/init/initramfs.c	2005-10-30 13:07:19.000000000 -0800
-+++ 2.6.14/init/initramfs.c	2005-10-30 13:07:25.000000000 -0800
-@@ -6,6 +6,7 @@
- #include <linux/delay.h>
- #include <linux/string.h>
- #include <linux/syscalls.h>
-+#include <linux/inflate.h>
- 
- static __initdata const char *message;
- static void __init error(const char *x)
-@@ -329,14 +330,6 @@ static void __init flush_buffer(const u8
- 	}
- }
- 
--/* gzip declarations */
--
--#define INIT __init
--#define INITDATA __initdata
--#define NO_INFLATE_MALLOC
--
--#include "../lib/inflate.c"
--
- static const char * __init unpack_to_rootfs(char *buf, unsigned len,
- 					    int check_only)
- {
-Index: 2.6.14/lib/Makefile
-===================================================================
---- 2.6.14.orig/lib/Makefile	2005-10-30 13:07:19.000000000 -0800
-+++ 2.6.14/lib/Makefile	2005-10-30 13:07:25.000000000 -0800
-@@ -5,12 +5,14 @@
- lib-y := errno.o ctype.o string.o vsprintf.o cmdline.o \
- 	 bust_spinlocks.o rbtree.o radix-tree.o dump_stack.o \
- 	 idr.o div64.o int_sqrt.o bitmap.o extable.o prio_tree.o \
--	 sha1.o
-+	 sha1.o inflate.o
- 
- lib-y	+= kobject.o kref.o kobject_uevent.o klist.o
- 
- obj-y += sort.o parser.o halfmd4.o
- 
-+CFLAGS_inflate.o += -DCORE
-+
- ifeq ($(CONFIG_DEBUG_KOBJECT),y)
- CFLAGS_kobject.o += -DDEBUG
- CFLAGS_kobject_uevent.o += -DDEBUG
 Index: 2.6.14/lib/inflate.c
 ===================================================================
---- 2.6.14.orig/lib/inflate.c	2005-10-30 13:07:19.000000000 -0800
-+++ 2.6.14/lib/inflate.c	2005-10-30 13:07:25.000000000 -0800
-@@ -99,22 +99,19 @@
-       a repeat code (16, 17, or 18) to go across the boundary between
-       the two sets of lengths.
-  */
-+#include <linux/kernel.h>
- #include <linux/compiler.h>
-+#include <asm/types.h>
+--- 2.6.14.orig/lib/inflate.c	2005-10-28 22:04:23.000000000 -0700
++++ 2.6.14/lib/inflate.c	2005-10-28 22:04:27.000000000 -0700
+@@ -1,5 +1,3 @@
+-#define DEBG(x)
+-#define DEBG1(x)
+ /* inflate.c -- Not copyrighted 1992 by Mark Adler
+  * version c10p1, 10 January 1993
+  *
+@@ -416,8 +414,6 @@ static int INIT huft_build(unsigned *b, 
+ 	int y;			/* number of dummy codes added */
+ 	unsigned z;		/* number of entries in current table */
  
--#ifndef INIT
-+#ifndef CORE
- #define INIT
--#endif
--#ifndef INITDATA
- #define INITDATA
--#endif
+-	DEBG("huft1 ");
 -
--#include <asm/types.h>
+ 	for (i = 0; i < BMAX + 1; i++)
+ 		c[i] = 0;
  
--#ifndef NO_INFLATE_MALLOC
- /* A trivial malloc implementation, adapted from
-  *  malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
-  */
+@@ -435,8 +431,6 @@ static int INIT huft_build(unsigned *b, 
+ 		return 2;
+ 	}
  
-+extern long free_mem_ptr, free_mem_end_ptr;
- static unsigned long malloc_ptr;
- static int malloc_count;
+-	DEBG("huft2 ");
+-
+ 	/* Find minimum and maximum length, bound *m by those */
+ 	l = *m;
+ 	for (j = 1; j <= BMAX; j++)
+@@ -455,8 +449,6 @@ static int INIT huft_build(unsigned *b, 
+ 		l = i;
+ 	*m = l;
  
-@@ -148,10 +145,17 @@ static void free(void *where)
+-	DEBG("huft3 ");
+-
+ 	/* Adjust last length count to fill out codes, if needed */
+ 	for (y = 1 << j; j < i; j++, y <<= 1) {
+ 		y -= c[j];
+@@ -469,8 +461,6 @@ static int INIT huft_build(unsigned *b, 
+ 		return 2;
+ 	c[i] += y;
+ 
+-	DEBG("huft4 ");
+-
+ 	/* Generate starting offsets into the value table for each length */
+ 	x[1] = j = 0;
+ 	p = c + 1;
+@@ -483,8 +473,6 @@ static int INIT huft_build(unsigned *b, 
+ 		xp++;
+ 	}
+ 
+-	DEBG("huft5 ");
+-
+ 	/* Make a table of values in order of bit lengths */
+ 	p = b;
+ 	i = 0;
+@@ -496,8 +484,6 @@ static int INIT huft_build(unsigned *b, 
+ 
+ 	n = x[g];                   /* set n to length of v */
+ 
+-	DEBG("h6 ");
+-
+ 	/* Generate the Huffman codes and for each, make the table entries */
+ 	x[0] = i = 0; /* first Huffman code is zero */
+ 	p = v; /* grab values in bit order */
+@@ -506,18 +492,14 @@ static int INIT huft_build(unsigned *b, 
+ 	u[0] = NULL; /* just to keep compilers happy */
+ 	q = NULL; /* ditto */
+ 	z = 0; /* ditto */
+-	DEBG("h6a ");
+ 
+ 	/* go through the bit lengths (k already is bits in shortest code) */
+ 	for (; k <= g; k++) {
+-		DEBG("h6b ");
+ 		a = c[k];
+ 		while (a--) {
+-			DEBG("h6b1 ");
+ 			/* i is the Huffman code of length k for value *p */
+ 			/* make tables up to required level */
+ 			while (k > w + l) {
+-				DEBG1("1 ");
+ 				h++;
+ 				w += l;	/* previous table always l bits */
+ 
+@@ -530,7 +512,6 @@ static int INIT huft_build(unsigned *b, 
+ 				f = 1 << j;
+ 				if (f > a + 1) {
+ 					/* too few codes for k-w bit table */
+-					DEBG1("2 ");
+ 					/* deduct codes from patterns left */
+ 					f -= a + 1;
+ 					xp = c + k;
+@@ -547,7 +528,6 @@ static int INIT huft_build(unsigned *b, 
+ 					}
+     				}
+ 
+-				DEBG1("3 ");
+ 				/* table entries for j-bit table */
+ 				z = 1 << j;
+ 
+@@ -559,13 +539,11 @@ static int INIT huft_build(unsigned *b, 
+ 					return 3;	/* not enough memory */
+ 				}
+ 
+-				DEBG1("4 ");
+ 				*t = q + 1; /* link to list for huft_free */
+ 				t = &q->next;
+ 				*t = NULL;
+ 				u[h] = ++q;	/* table starts after link */
+ 
+-				DEBG1("5 ");
+ 				/* connect to last table, if there is one */
+ 				if (h) {
+ 					/* save pattern for backing up */
+@@ -581,9 +559,7 @@ static int INIT huft_build(unsigned *b, 
+ 					/* connect to last table */
+ 					u[h - 1][j] = r;
+ 				}
+-				DEBG1("6 ");
+ 			}
+-			DEBG("h6c ");
+ 
+ 			/* set up table entry in r */
+ 			r.bits = (u8)(k - w);
+@@ -601,7 +577,6 @@ static int INIT huft_build(unsigned *b, 
+ 				r.extra = (u8)e[*p - s];
+ 				r.val = d[*p++ - s];
+ 			}
+-			DEBG("h6d ");
+ 
+ 			/* fill code-like entries with r */
+ 			f = 1 << (k - w);
+@@ -618,13 +593,9 @@ static int INIT huft_build(unsigned *b, 
+ 				h--;	/* don't need to update q */
+ 				w -= l;
+ 			}
+-			DEBG("h6e ");
+ 		}
+-		DEBG("h6f ");
+ 	}
+ 
+-	DEBG("huft7 ");
+-
+ 	/* Return true (1) if we were given an incomplete table */
+ 	return y && g != 1;
+ }
+@@ -713,8 +684,6 @@ static int INIT inflate_stored(struct io
+ {
+ 	unsigned n;		/* number of bytes in block */
+ 
+-	DEBG("<stor");
+-
+ 	/* go to byte boundary */
+ 	dumpbits(io, io->bits & 7);
+ 
+@@ -727,7 +696,6 @@ static int INIT inflate_stored(struct io
+ 	while (n--)
+ 		put_byte(io, readbyte(io));
+ 
+-	DEBG(">");
+ 	return 0;
  }
  
- static u8 INITDATA window[0x8000]; /* use a statically allocated window */
-+
- #else
-+
-+#include <linux/module.h>
-+
- static u8 *window; /* dynamically allocate */
- #define malloc(a) kmalloc(a, GFP_KERNEL)
- #define free(a) kfree(a)
-+#define INIT __init
-+#define INITDATA __initdata
-+
- #endif
+@@ -750,8 +718,6 @@ static int noinline INIT inflate_fixed(s
+ 	int bd;			/* lookup bits for td */
+ 	unsigned l[N_MAX];	/* length list for huft_build */
  
- static u32 crc_32_tab[256];
-@@ -937,9 +941,9 @@ static void INIT makecrc(void)
-  * @flush: function to flush the output pool
-  * @error: function to report an error
-  */
--static int INIT gunzip(u8 *ibuf, int isize, void (*fill)(u8 *buf, int size),
--		       void (*flush)(const u8 *buf, int size),
--		       void (*error)(const char *msg))
-+int INIT gunzip(u8 *ibuf, int isize, void (*fill)(u8 *buf, int size),
-+		void (*flush)(const u8 *buf, int size),
-+		void (*error)(const char *msg))
+-	DEBG("<fix");
+-
+ 	/* set up literal table */
+ 	for (i = 0; i < 144; i++)
+ 		l[i] = 8;
+@@ -772,7 +738,6 @@ static int noinline INIT inflate_fixed(s
+ 	if ((i = huft_build(l, 30, 0, cpdist, cpdext, &td, &bd)) > 1) {
+ 		huft_free(tl);
+ 
+-		DEBG(">");
+ 		return i;
+ 	}
+ 
+@@ -806,8 +771,6 @@ static int noinline INIT inflate_dynamic
+ 	unsigned nd;		/* number of distance codes */
+ 	unsigned ll[286 + 30];	/* literal/length and distance code lengths */
+ 
+-	DEBG("<dyn");
+-
+ 	/* read in table lengths */
+ 	nl = 257 + pullbits(io, 5); /* number of literal/length codes */
+ 	nd = 1 + pullbits(io, 5); /* number of distance codes */
+@@ -815,16 +778,12 @@ static int noinline INIT inflate_dynamic
+ 	if (nl > 286 || nd > 30)
+ 		return 1;	/* bad lengths */
+ 
+-	DEBG("dyn1 ");
+-
+ 	/* read in bit-length-code lengths */
+ 	for (j = 0; j < nb; j++)
+ 		ll[border[j]] = pullbits(io, 3);
+ 	for (; j < 19; j++)
+ 		ll[border[j]] = 0;
+ 
+-	DEBG("dyn2 ");
+-
+ 	/* build decoding table for trees--single level, 7 bit lookup */
+ 	bl = 7;
+ 	if ((i = huft_build(ll, 19, 19, 0, 0, &tl, &bl))) {
+@@ -833,8 +792,6 @@ static int noinline INIT inflate_dynamic
+ 		return i;	/* incomplete code set */
+ 	}
+ 
+-	DEBG("dyn3 ");
+-
+ 	/* read in literal and distance code lengths */
+ 	n = nl + nd;
+ 	i = l = 0;
+@@ -867,29 +824,21 @@ static int noinline INIT inflate_dynamic
+ 		}
+ 	}
+ 
+-	DEBG("dyn4 ");
+-
+ 	/* free decoding table for trees */
+ 	huft_free(tl);
+ 
+-	DEBG("dyn5 ");
+-
+-	DEBG("dyn5a ");
+-
+ 	/* build the decoding tables for literal/length and distance codes */
+ 	bl = lbits;
+ 	if ((i = huft_build(ll, nl, 257, cplens, cplext, &tl, &bl))) {
+-		DEBG("dyn5b ");
+ 		if (i == 1) {
+ 			io->error("incomplete literal tree");
+ 			huft_free(tl);
+ 		}
+ 		return i;	/* incomplete code set */
+ 	}
+-	DEBG("dyn5c ");
++
+ 	bd = dbits;
+ 	if ((i = huft_build(ll + nl, nd, 0, cpdist, cpdext, &td, &bd))) {
+-		DEBG("dyn5d ");
+ 		if (i == 1) {
+ 			io->error("incomplete distance tree");
+ 			huft_free(td);
+@@ -898,19 +847,14 @@ static int noinline INIT inflate_dynamic
+ 		return i;	/* incomplete code set */
+ 	}
+ 
+-	DEBG("dyn6 ");
+-
+ 	/* decompress until an end-of-block code */
+ 	if (inflate_codes(io, tl, td, bl, bd))
+ 		return 1;
+ 
+-	DEBG("dyn7 ");
+-
+ 	/* free the decoding tables, return */
+ 	huft_free(tl);
+ 	huft_free(td);
+ 
+-	DEBG(">");
+ 	return 0;
+ }
+ 
+@@ -922,8 +866,6 @@ static int INIT inflate_block(struct ios
  {
- 	u8 flags;
- 	unsigned char magic[2];	/* magic header */
+ 	unsigned t;		/* block type */
+ 
+-	DEBG("<blk");
+-
+ 	*e = pullbits(io, 1); /* read in last block bit */
+ 	t = pullbits(io, 2); /* read in block type */
+ 
+@@ -935,8 +877,6 @@ static int INIT inflate_block(struct ios
+ 	if (t == 1)
+ 		return inflate_fixed(io);
+ 
+-	DEBG(">");
+-
+ 	/* bad block type */
+ 	return 2;
+ }

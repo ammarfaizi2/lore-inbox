@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbVJaGv4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbVJaGwQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751392AbVJaGv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 01:51:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbVJaGvz
+	id S1751364AbVJaGwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 01:52:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbVJaGwP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 01:51:55 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:16904 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1751392AbVJaGvw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 01:51:52 -0500
-Date: Mon, 31 Oct 2005 07:41:09 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Tony Luck <tony.luck@gmail.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: New (now current development process)
-Message-ID: <20051031064109.GO22601@alpha.home.local>
-References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com> <12c511ca0510291157u5557b6b1x85a47311f0e16436@mail.gmail.com> <20051029195115.GD14039@flint.arm.linux.org.uk> <Pine.LNX.4.64.0510291314100.3348@g5.osdl.org>
+	Mon, 31 Oct 2005 01:52:15 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:62111 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751364AbVJaGwO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 01:52:14 -0500
+Subject: Re: 2.6.14-rt1 - xruns in a certain circumstance
+From: Lee Revell <rlrevell@joe-job.com>
+To: Mark Knecht <markknecht@gmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <5bdc1c8b0510301828p29ea517ew467a5f6503435314@mail.gmail.com>
+References: <5bdc1c8b0510301828p29ea517ew467a5f6503435314@mail.gmail.com>
+Content-Type: text/plain
+Date: Mon, 31 Oct 2005 01:49:03 -0500
+Message-Id: <1130741343.32101.10.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0510291314100.3348@g5.osdl.org>
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 29, 2005 at 01:28:23PM -0700, Linus Torvalds wrote:
- 
-> So I'm planning on continuing with it unchanged for now. Two-week merge 
-> window until -rc1, and then another -rc kernel roughly every week until 
-> release. With the goal being 6 weeks, and 8 weeks being ok.
+On Sun, 2005-10-30 at 18:28 -0800, Mark Knecht wrote:
+> Hi,
+>    I've been running 2.6.14-rt1 today. For the most part there seem to
+> be no changes for me from 2.6.14-rc5-rt3. One place I saw xruns
+> earlier is still there and I do not understand why this situation
+> should be able to create xruns.
 > 
-> I don't think anybody has been really unhappy with this approach? Hmm?
+>    I really think there is something to be learned from this problem.
+> The way I see it What's going on with Myth is completely separate from
+> what's going on with Jack, but Myth is causing xruns somehow.
 
-I believe it was a good experience. However, I still find it sad that
-there are changes between the latest -rc and the final version. This
-time, it seems it did not cause trouble, but in the past, it happened
-several times, because any valid fix can have side effects.
+Some buggy video drivers can cause this.
 
-I think that if you could announce what you intend to release with a
-message like "I will make this -final tomorrow", there would be some
-time to test builds in various configs, and check that no obvious bug
-has been introduced.
+Are you using a DRI driver?  What video driver are you using?
 
-Regards,
-Willy
+Try setting:
+
+Option "NoAccel"
+
+in the Device section of your xorg.conf.
+
+Lee
 

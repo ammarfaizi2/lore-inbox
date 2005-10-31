@@ -1,63 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbVJaHqr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbVJaIE5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751179AbVJaHqr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 02:46:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbVJaHqr
+	id S1751239AbVJaIE5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 03:04:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbVJaIE5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 02:46:47 -0500
-Received: from fed1rmmtao01.cox.net ([68.230.241.38]:2016 "EHLO
-	fed1rmmtao01.cox.net") by vger.kernel.org with ESMTP
-	id S1751179AbVJaHqr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 02:46:47 -0500
-From: Junio C Hamano <junkio@cox.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [git patches] 2.6.x libata updates
-References: <20051029182228.GA14495@havoc.gtf.org>
-	<200510301731.47825.rob@landley.net>
-	<Pine.LNX.4.64.0510301654310.27915@g5.osdl.org>
-	<200510302035.26523.rob@landley.net>
-cc: Rob Landley <rob@landley.net>
-Date: Sun, 30 Oct 2005 23:46:45 -0800
-In-Reply-To: <200510302035.26523.rob@landley.net> (Rob Landley's message of
-	"Sun, 30 Oct 2005 20:35:26 -0600")
-Message-ID: <7v7jbujfh6.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Mon, 31 Oct 2005 03:04:57 -0500
+Received: from zproxy.gmail.com ([64.233.162.195]:33391 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751239AbVJaIE4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 03:04:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=LdIknfAjxGlbIA5hU2icXy6FhVpo+14+UqgiQ5Ld6tw5bGkW2RoyM8hUiYh1phEH/vjYvPaVL4OOcOHV+sNb2Ffzy/t6wBoQSStELGfWUlqzLRLpr++hAoweGbRWghMXsGcF1XsAxwA3wqh6xHonoUPzXtadq9eUbdHXr80sf9w=
+Message-ID: <4365D01D.2040406@gmail.com>
+Date: Mon, 31 Oct 2005 17:04:45 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Jens Axboe <axboe@suse.de>
+CC: Arnaldo Carvalho de Melo <acme@mandriva.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][noop-iosched] don't reuse a freed request
+References: <20051031023024.GC5632@mandriva.com> <20051031074022.GN19267@suse.de>
+In-Reply-To: <20051031074022.GN19267@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley <rob@landley.net> writes:
+Hi, guys.
 
-> grep -n MARKER bisect.patch | less
-> (pick a line number)
-> head -n linenumber bisect.patch > test.patch
->
-> If that's not it, revert test.patch and then try again.  Tell us the first 
-> line number that failed, which is the end of the patch we want...
->
-> Hmmm...  The logical place to put the URL to gitweb is at the _end_ of the 
-> patch, attached to the marker.  So that's what they see in the grep, and the 
-> last thing they test when they cut at that line with head -n...
+Jens Axboe wrote:
+> On Mon, Oct 31 2005, Arnaldo Carvalho de Melo wrote:
+> 
+>>Hi,
+>>
+>>	I'm getting the oops below when trying to use qemu with a kernel
+>>built with just the noop iosched, I'm never had looked at this code before,
+>>so I did a quick hack that seems enough for my case.
+>>
+>>	Ah, this is with a fairly recent git tree (today), haven't checked
+>>if it is present in 2.6.14.
+>>
+>>Best Regards,
+>>
+>>- Arnaldo
+>>
+>>Unable to handle kernel paging request at virtual address c5f20f60
+>> printing eip:
+>>c01b0ecd
+>>*pde = 00017067
+>>*pte = 05f20000
+>>Oops: 0000 [#1]
+>>DEBUG_PAGEALLOC
+>>Modules linked in:
+>>CPU:    0
+>>EIP:    0060:[<c01b0ecd>]    Not tainted VLI
+>>EFLAGS: 00000046   (2.6.14acme)
+>>EIP is at elv_rq_merge_ok+0x15/0x7b
+>>eax: 00000014   ebx: c5f20f58   ecx: 000003f8   edx: 00000046
+>>esi: c12a5a90   edi: c5f20f58   ebp: c11658d0   esp: c11658c4
+>>ds: 007b   es: 007b   ss: 0068
+>>Process swapper (pid: 1, threadinfo=c1165000 task=c1164af0)
+>>Stack: c0251883 c5ecfe4c c5d688c0 c1165904 c01b0f48 c5f20f58 c12a5a90 00000000
+>>       c5874000 c018c5e1 c5f15f24 0000002b 00000000 c5ecfe4c c5d688c0 c12a5a90
+>>       c1165920 c01b128d c5f20f58 c12a5a90 000a568a 00000000 00000002 c1165960
+>>Call Trace:
+>> [<c0102a63>] show_stack+0x78/0x83
+>> [<c0102b88>] show_registers+0x100/0x167
+>> [<c0102d35>] die+0xcb/0x140
+>> [<c0234308>] do_page_fault+0x393/0x53a
+>> [<c0102777>] error_code+0x4f/0x54
+>> [<c01b0f48>] elv_try_merge+0x15/0x84
+>> [<c01b128d>] elv_merge+0x1d/0x4f
+>> [<c01b41d9>] __make_request+0xb2/0x425
+>> [<c01b46f9>] generic_make_request+0x125/0x137
+> 
+> 
+> Hrmpf, this looks really bad. Tejun, clearly there are still paths where
+> ->last_rq isn't being cleared.
+> 
 
-Well, do people realize that 'git bisect' is *not* a textual
-half-way between, but rather is computed every time you feed
-new "the patch you told me to test last time was good/bad"
-information?  I do not think statically generating a huge text
-and telling the user to apply up to halfway and bisect by hand
-would not work -- it would be quite different from what git
-bisect would give you.
+I'm currently debugging this.  The problem is that we are using generic 
+dispatch queue directly in the noop and merging is NOT allowed on 
+dispatch queues but generic handling of last_merge tries to merge 
+requests.  I'm still trying to verify this, so I'll be back with results 
+soon.
 
-I think public webserver based bisect service David Lang
-suggests might work.  The interaction with it would start by the
-end user somehow giving it the last known-working commit ID (A)
-(pick from gitweb shortlog, perhaps) and a commit ID newer than
-that that broke things (B) (again, pick from gitweb shortlog).
-Then the service runs bisect on the server side, spit out a diff
-against (A).  The end user applies the patch, try it, and then
-come back and tell if it worked or not,...  Since we are talking
-about the kernel development, I think the cycle might involve
-rebooting the machine; so you would probably need two machines
-(one guinea-pig machine to reboot, another to keep the browser
-open so that your state can be kept somehow).
+> 
+>>--- a/drivers/block/ll_rw_blk.c
+>>+++ b/drivers/block/ll_rw_blk.c
+>>@@ -1787,6 +1787,9 @@ static inline void blk_free_request(requ
+>> 	if (rq->flags & REQ_ELVPRIV)
+>> 		elv_put_request(q, rq);
+>> 	mempool_free(rq, q->rq.rq_pool);
+>>+
+>>+	if (rq == q->last_merge)
+>>+		q->last_merge = NULL;
+>> }
+>> 
+>> static inline struct request *
+> 
+> 
+> It's most likely a bug getting this far in the first place, but does it
+> fix things for you? I'll get on this asap.
+> 
 
+If the bug is where I think it is, I think the proper thing to do is to 
+use separate list_head in noop instead of using generic dispatch queue 
+directly thus making noop consistent with other ioscheds.
+
+I'm more worried about oops w/ cfq Arnaldo reported in this thread. 
+I'll track that down as soon as I'm done with this one.
+
+Many bugs.  Sorry. :-)
+
+-- 
+tejun

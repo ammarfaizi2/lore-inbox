@@ -1,40 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbVJaKSG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932506AbVJaKWT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932429AbVJaKSG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 05:18:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932476AbVJaKSG
+	id S932506AbVJaKWT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 05:22:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbVJaKVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 05:18:06 -0500
-Received: from shinjuku.zaphods.net ([194.97.108.52]:29874 "EHLO
-	shinjuku.zaphods.net") by vger.kernel.org with ESMTP
-	id S932429AbVJaKSF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 05:18:05 -0500
-To: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
+	Mon, 31 Oct 2005 05:21:50 -0500
+Received: from mail.mnsspb.ru ([84.204.75.2]:46217 "EHLO mail.mnsspb.ru")
+	by vger.kernel.org with ESMTP id S932487AbVJaKVs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 05:21:48 -0500
+From: Kirill Smelkov <kirr@mns.spb.ru>
+Organization: MNS
+Date: Mon, 31 Oct 2005 13:21:32 +0300
+User-Agent: KMail/1.7.2
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: BIND hangs with 2.6.14
-In-Reply-To: <53qJ9-1YO-5@gated-at.bofh.it>
-References: <53bh4-4UB-5@gated-at.bofh.it> <53qzy-1yA-7@gated-at.bofh.it> <53qJ9-1YO-5@gated-at.bofh.it>
-Date: Mon, 31 Oct 2005 11:17:56 +0100
-Message-Id: <E1EWWjk-000583-NS@shinjuku.zaphods.net>
-From: "Stefan Schmidt,,," <zaphodb@shinjuku.zaphods.net>
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: zaphodb@shinjuku.zaphods.net
-X-SA-Exim-Scanned: No (on shinjuku.zaphods.net); SAEximRunCond expanded to false
+MIME-Version: 1.0
+Content-Disposition: inline
+Subject: [PATCH] serial moxa: fix wrong BUG
+To: Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200510311321.33214.kirr@mns.spb.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In linux.kernel, you wrote:
-> Unfortunately, the machine does quite a bit of other work apart from BIND, so
-> unless somebody can reproduce this on another machine, it will be a bit
-> difficult.
+There is a wrong BUG in mxser_close.
 
-I saw the same error with 2.6.14-rc5 and filed bug #5505 against it. I
-was also able to reproduce the behaviour using the same kernel and same
-library/compiler versions on another machine using the same set of zones
-and tcpreplay to simulate the query load. Our machine gets around 10
-queries per second at ~40k slave zones. BIND version is 9.3.2v1 which
-runs smoothly on our in-production nameserver with kernel 2.6.13.4 now.
+The BUG is triggered when tty->driver_data == NULL,
+But in fact this is not a bug, because tty->driver->close is called
+even when tty->driver->open fails.
 
-netdev and the usual suspects are aware of the problem.
+LDD3 tells us to do nothing in such cases.
 
-	Stefan
+Signed-off-by: Kirill Smelkov <kirr@mns.spb.ru>
+
+Index: linux-2.6.14/drivers/char/mxser.c
+===================================================================
+--- linux-2.6.14.orig/drivers/char/mxser.c	2005-10-31 10:57:16.000000000 +0300
++++ linux-2.6.14/drivers/char/mxser.c	2005-10-31 11:24:58.000000000 +0300
+@@ -917,6 +917,9 @@
+ 	struct mxser_struct *info;
+ 	int retval, line;
+ 
++	/* initialize driver_data in case something fails */
++	tty->driver_data = NULL;
++
+ 	line = tty->index;
+ 	if (line == MXSER_PORTS)
+ 		return 0;
+@@ -979,7 +982,7 @@
+ 	if (tty->index == MXSER_PORTS)
+ 		return;
+ 	if (!info)
+-		BUG();
++		return;
+ 
+ 	spin_lock_irqsave(&info->slock, flags);
+ 
+

@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbVJaQwb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbVJaQwW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932467AbVJaQwb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 11:52:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbVJaQwb
+	id S964784AbVJaQwW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 11:52:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbVJaQwW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 11:52:31 -0500
-Received: from host62-24-231-115.dsl.vispa.com ([62.24.231.115]:26752 "EHLO
-	orac.walrond.org") by vger.kernel.org with ESMTP id S932467AbVJaQwa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 11:52:30 -0500
-From: Andrew Walrond <andrew@walrond.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: BIND hangs with 2.6.14
-Date: Mon, 31 Oct 2005 16:52:28 +0000
-User-Agent: KMail/1.8.2
-References: <53bh4-4UB-5@gated-at.bofh.it> <53qJ9-1YO-5@gated-at.bofh.it> <E1EWWjk-000583-NS@shinjuku.zaphods.net>
-In-Reply-To: <E1EWWjk-000583-NS@shinjuku.zaphods.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-6"
+	Mon, 31 Oct 2005 11:52:22 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:13285 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932467AbVJaQwW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 11:52:22 -0500
+Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
+From: Lee Revell <rlrevell@joe-job.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Kyle McMartin <kyle@parisc-linux.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20051030151256.GZ4180@stusta.de>
+References: <20051030105118.GW4180@stusta.de>
+	 <20051030142752.GE6475@tachyon.int.mcmartin.ca>
+	 <20051030151256.GZ4180@stusta.de>
+Content-Type: text/plain
+Date: Mon, 31 Oct 2005 11:50:52 -0500
+Message-Id: <1130777453.32101.46.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510311652.28993.andrew@walrond.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 31 October 2005 10:17, Stefan Schmidt,,, wrote:
-> In linux.kernel, you wrote:
-> > Unfortunately, the machine does quite a bit of other work apart from
-> > BIND, so unless somebody can reproduce this on another machine, it will
-> > be a bit difficult.
->
-> I saw the same error with 2.6.14-rc5 and filed bug #5505 against it. I
+On Sun, 2005-10-30 at 16:12 +0100, Adrian Bunk wrote:
+> On Sun, Oct 30, 2005 at 09:27:52AM -0500, Kyle McMartin wrote:
+> > On Sun, Oct 30, 2005 at 11:51:18AM +0100, Adrian Bunk wrote:
+> > > 
+> > > This patch schedules obsolete OSS drivers (with ALSA drivers that support the
+> > > same hardware) for removal.
+> > >
+> > 
+> > I didn't see it here, but SOUND_AD1889 can definitely be removed
+> > as well. The driver never worked properly to begin with. This was
+> > ACK'd by the author last time this thread reared it's head.
+> 
+> ALSA bugs [1] #1301 and #1302 are still open.
 
-I'm suprised 2.6.14 went out the door without this being resolved. I'm glad I 
-spotted this thread in time to avoid upgrading my servers! I guess it was 
-reported on the cusp of the release though.
+I think these bug reports can be disregarded.  The submitter never
+responded to requests to retest with the latest ALSA version.  #1302 is
+almost certainly a bug in kphone anyway.
 
-> was also able to reproduce the behaviour using the same kernel and same
-> library/compiler versions on another machine using the same set of zones
-> and tcpreplay to simulate the query load. Our machine gets around 10
-> queries per second at ~40k slave zones. BIND version is 9.3.2v1 which
-> runs smoothly on our in-production nameserver with kernel 2.6.13.4 now.
->
-> netdev and the usual suspects are aware of the problem.
+Lee
 
-I guess I'll  follow this on bugzilla.
-
-Andrew Walrond

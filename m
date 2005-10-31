@@ -1,39 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932488AbVJaG2s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbVJaGeu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932488AbVJaG2s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 01:28:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbVJaG2s
+	id S932490AbVJaGeu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 01:34:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932491AbVJaGeu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 01:28:48 -0500
-Received: from S01060013109fe3d4.vc.shawcable.net ([24.85.133.133]:58062 "EHLO
-	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S932488AbVJaG2r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 01:28:47 -0500
-Date: Sun, 30 Oct 2005 22:34:28 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Andi Kleen <ak@suse.de>
-cc: Andrew Morton <akpm@osdl.org>, Russell King <rmk+lkml@arm.linux.org.uk>,
-       torvalds@osdl.org, tony.luck@gmail.com, paolo.ciarrocchi@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: New (now current development process)
-In-Reply-To: <200510310341.02897.ak@suse.de>
-Message-ID: <Pine.LNX.4.61.0510302232050.1526@montezuma.fsmlabs.com>
-References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com>
- <20051031001647.GK2846@flint.arm.linux.org.uk> <20051030172247.743d77fa.akpm@osdl.org>
- <200510310341.02897.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 31 Oct 2005 01:34:50 -0500
+Received: from ns1.suse.de ([195.135.220.2]:13487 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932490AbVJaGeu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 01:34:50 -0500
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Mon, 31 Oct 2005 17:34:44 +1100
+Message-Id: <1051031063444.9586@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH against 2.6.14] truncate() or ftruncate shouldn't change mtime if size doesn't change.
+References: <20051031173358.9566.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Oct 2005, Andi Kleen wrote:
 
-> Perhaps some people could volunteer to set some flags in bugzilla for obvious 
-> things, like regression or new hardware or missing basic information or for 
-> really old kernel and no report for a new one and that could be used to 
-> filter the queries better. Should be an relatively easy task.
 
-I don't think we need any special flags, we just need more people paying 
-attention to it. It doesn't take that much time to go through pending bugs 
-and trying to identify real ones, but the problem is that we need 
-knowledgeable people to do this.
+According to Posix and SUS, truncate(2) and ftruncate(2) only update
+ctime and mtime if the size actually changes.  Linux doesn't currently
+obey this.
+
+There is no need to test the size under i_sem, as loosing any race
+will not make a noticable different the mtime or ctime.
+
+(According to SUS, truncate and ftruncate 'may' clear setuid/setgid
+ as well, currently we don't.  Should we?
+)
+
+
+Signed-off-by: Neil Brown <neilb@suse.de>
+
+### Diffstat output
+ ./fs/open.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff ./fs/open.c~current~ ./fs/open.c
+--- ./fs/open.c~current~	2005-10-31 16:22:44.000000000 +1100
++++ ./fs/open.c	2005-10-31 16:22:44.000000000 +1100
+@@ -260,7 +260,8 @@ static inline long do_sys_truncate(const
+ 		goto dput_and_out;
+ 
+ 	error = locks_verify_truncate(inode, NULL, length);
+-	if (!error) {
++	if (!error &&
++	    length != i_size_read(dentry->d_inode)) {
+ 		DQUOT_INIT(inode);
+ 		error = do_truncate(nd.dentry, length);
+ 	}
+@@ -313,7 +314,8 @@ static inline long do_sys_ftruncate(unsi
+ 		goto out_putf;
+ 
+ 	error = locks_verify_truncate(inode, file, length);
+-	if (!error)
++	if (!error &&
++	    length != i_size_read(dentry->d_inode))
+ 		error = do_truncate(dentry, length);
+ out_putf:
+ 	fput(file);

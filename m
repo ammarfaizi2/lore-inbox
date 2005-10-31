@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbVJaBXb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751269AbVJaB1h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751268AbVJaBXb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Oct 2005 20:23:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbVJaBXb
+	id S1751269AbVJaB1h (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Oct 2005 20:27:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751272AbVJaB1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Oct 2005 20:23:31 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:29926 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751268AbVJaBXa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Oct 2005 20:23:30 -0500
-Date: Sun, 30 Oct 2005 17:22:47 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: ak@suse.de, torvalds@osdl.org, tony.luck@gmail.com,
-       paolo.ciarrocchi@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: New (now current development process)
-Message-Id: <20051030172247.743d77fa.akpm@osdl.org>
-In-Reply-To: <20051031001647.GK2846@flint.arm.linux.org.uk>
-References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com>
-	<20051029223723.GJ14039@flint.arm.linux.org.uk>
-	<20051030111241.74c5b1a6.akpm@osdl.org>
-	<200510310148.57021.ak@suse.de>
-	<20051031001647.GK2846@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 30 Oct 2005 20:27:37 -0500
+Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:44883 "HELO
+	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751269AbVJaB1f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Oct 2005 20:27:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=vF1/UnORzCNk38qXjPRKj1R5eEkdjGKbxhl8iSqkAfOBRFsucE4VwqDnpzSPqXABVGv/tyZwQnRsJuhRcf2KNyzVAE1qNmH6ZKg96yCveTp2IkBehQ53T40VJoVtZA1/sUSczowv92dXPQ3MuQQtn6j8bK8BfPgEXVM582kl6uU=  ;
+Message-ID: <4365736B.4050506@yahoo.com.au>
+Date: Mon, 31 Oct 2005 12:29:15 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 1/5] i386 generic cmpxchg
+References: <436416AD.3050709@yahoo.com.au> <4364171C.7020103@yahoo.com.au> <Pine.LNX.4.61.0510301157440.1526@montezuma.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.61.0510301157440.1526@montezuma.fsmlabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
->
-> > It might work better if we were told when the releases would actually
->  > happen and you don't need to fear that this not quite tested everywhere
->  > bugfix you're about to submit might make it into the gold kernel, breaking
->  > the world for some subset of users.
+Zwane Mwaikambo wrote:
+> Hi Nick,
 > 
->  Indeed - a prime example is the bootmem initialisation problem.
+> On Sun, 30 Oct 2005, Nick Piggin wrote:
+> 
+> +#define cmpxchg(ptr,o,n)						\
+> +({									\
+> +	__typeof__(*(ptr)) __ret;					\
+> +	if (likely(boot_cpu_data.x86 > 3))				\
+> +		__ret = __cmpxchg((ptr), (unsigned long)(o),		\
+> +					(unsigned long)(n), sizeof(*(ptr))); \
+> +	else								\
+> +		__ret = cmpxchg_386((ptr), (unsigned long)(o),		\
+> +					(unsigned long)(n), sizeof(*(ptr))); \
+> +	__ret;								\
+> +})
+> +#endif
+> 
+> How about something similar to the following to remove the branch on 
+> optimised kernels?
+> 
 
-No, I'd say that was an *exception*, not a "prime example".
+Hi Zwane,
+This is only in the !CONFIG_X86_CMPXCHG case, though, so the branch would
+only be there on a 386 kernel, I think?
 
-I've filed away 322 unresolved bug reports here.  The great majority are
-busted drivers on random hardware dating back as far as 2.6.11.  Many of
-them are regressions.
+-- 
+SUSE Labs, Novell Inc.
 
-There is nothing stopping anyone from working with the originators to get
-these things fixed up at any time.
-
-Why is it necessary for me to chase maintainers to get their bugs fixed?
-
-Why are maintainers working on new features when they have unresolved bugs?
-
-Why is it so often me who has to do the followup for un-responded-to bug
-reports against subsystems which I don't know anything about?
-
-(Those are rhetorical questions, btw).
+Send instant messages to your online friends http://au.messenger.yahoo.com 

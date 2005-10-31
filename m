@@ -1,41 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbVJaUIK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964819AbVJaUJd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964817AbVJaUIK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 15:08:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964819AbVJaUIJ
+	id S964819AbVJaUJd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 15:09:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964822AbVJaUJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 15:08:09 -0500
-Received: from silver.veritas.com ([143.127.12.111]:19788 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S964817AbVJaUII
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 15:08:08 -0500
-Date: Mon, 31 Oct 2005 20:07:07 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: "Paul E. McKenney" <paulmck@us.ibm.com>, linux-kernel@vger.kernel.org,
-       tytso@us.ibm.com, sripathi@in.ibm.com, dipankar@in.ibm.com,
-       oleg@tv-sign.ru
-Subject: Re: [RFC,PATCH] RCUify single-thread case of clock_gettime()
-In-Reply-To: <20051031195425.GA14806@elte.hu>
-Message-ID: <Pine.LNX.4.61.0510312004460.10705@goblin.wat.veritas.com>
-References: <20051031174416.GA2762@us.ibm.com>
- <Pine.LNX.4.61.0510311802550.9631@goblin.wat.veritas.com> <20051031195425.GA14806@elte.hu>
+	Mon, 31 Oct 2005 15:09:33 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:38300 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964819AbVJaUJd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 15:09:33 -0500
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: amd64 bitops fix for -Os
+References: <orvezggf7x.fsf@livre.oliva.athome.lsd.ic.unicamp.br>
+	<20051030192323.GF657@openzaurus.ucw.cz>
+From: Alexandre Oliva <aoliva@redhat.com>
+Organization: Red Hat OS Tools Group
+Date: Mon, 31 Oct 2005 18:09:15 -0200
+In-Reply-To: <20051030192323.GF657@openzaurus.ucw.cz> (Pavel Machek's
+ message of "Sun, 30 Oct 2005 20:23:24 +0100")
+Message-ID: <or8xw9v47o.fsf@livre.oliva.athome.lsd.ic.unicamp.br>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 31 Oct 2005 20:08:08.0263 (UTC) FILETIME=[CFABE570:01C5DE56]
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Oct 2005, Ingo Molnar wrote:
-> * Hugh Dickins <hugh@veritas.com> wrote:
-> > 
-> > Not my area at all, but this looks really dodgy to me, Paul:
-> > could you explain it further?
-> 
-> the patch below (included in the -rt tree) is the prerequisite. That's 
-> what Paul's "requires RCU on task_struct" comment refers to.
+On Oct 30, 2005, Pavel Machek <pavel@suse.cz> wrote:
 
-Thanks, Ingo: Sorry, Paul: I missed that it was an -rt patch: Ignore me.
+>> This patches fixes a bug that comes up when compiling the kernel for
+>> x86_64 optimizing for size.  It affects 2.6.14 for sure, but I'm
+>> pretty sure many earlier kernels are affected as well.
 
-Hugh
+> Is the same problem in i386, too?
+
+No, it doesn't use custom versions of find_first*bit.
+
+>> --- arch/x86_64/lib/bitops.c~	2005-10-27 22:02:08.000000000 -0200
+>> +++ arch/x86_64/lib/bitops.c	2005-10-29 18:24:27.000000000 -0200
+>> @@ -1,5 +1,11 @@
+>> #include <linux/bitops.h>
+>> 
+>> +#define BITOPS_CHECK_UNDERFLOW_RANGE 0
+>> +
+>> +#if BITOPS_CHECK_UNDERFLOW_RANGE
+>> +# include <linux/kernel.h>
+>> +#endif
+
+> Could you drop the ifdefs? Nice for debugging but we don't
+> want them in mainline.
+
+Are you absolutely sure we don't?  I'd almost left them in, enabled
+unconditionally.  Note that the ifdef will make no difference
+whatsoever for the case I've just fixed, but it would help catch any
+other (ab)uses(?) elsewhere that may have gone unnoticed until now.
+
+> Plus you want to add signed-off-by: header and send it to ak@suse.de.
+> 				Pavel
+
+Err...  The header was right there.  Or do you mean as an e-mail
+header, as opposed to a regular line in the e-mail body?
+
+I'll forward the patch to ak.
+
+-- 
+Alexandre Oliva         http://www.lsd.ic.unicamp.br/~oliva/
+Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
+Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}

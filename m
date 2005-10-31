@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbVJaPrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbVJaPpz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964778AbVJaPrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 10:47:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbVJaPrJ
+	id S964776AbVJaPpz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 10:45:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964778AbVJaPpz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 10:47:09 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:16570 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S932282AbVJaPrI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 10:47:08 -0500
-Message-ID: <43663C67.2080902@nortel.com>
-Date: Mon, 31 Oct 2005 09:46:47 -0600
-From: "Christopher Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: madhu.subbaiah@wipro.com, linux-kernel@vger.kernel.org
-Subject: Re: select() for delay.
-References: <EE111F112BBFF24FB11DB557FA2E5BF301992F02@BLR-EC-MBX02.wipro.com> <200510302006.15892.arnd@arndb.de>
-In-Reply-To: <200510302006.15892.arnd@arndb.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 31 Oct 2005 10:45:55 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:30598 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S964776AbVJaPpz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 10:45:55 -0500
+Subject: Re: Make spitz compile again
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051031134255.GA8093@elf.ucw.cz>
+References: <20051031134255.GA8093@elf.ucw.cz>
+Content-Type: text/plain
+Date: Mon, 31 Oct 2005 15:45:30 +0000
+Message-Id: <1130773530.8353.39.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 31 Oct 2005 15:46:47.0682 (UTC) FILETIME=[4D511E20:01C5DE32]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann wrote:
-> On Maandag 24 Oktober 2005 12:55, madhu.subbaiah@wipro.com wrote:
+Hi Pavel,
 
->>This patch improves the sys_select() execution when used for delay. 
+> This is what I needed to do after update to latest linus
+> kernel. Perhaps it helps someone. 
+> 
+> Signed-off-by: Pavel Machek <pavel@suse.cz>
+> 
+> , but it is against Richard's tree merged into my tree, so do not
+> expect to apply it over mainline. Akita code movement is needed if I
+> want to compile kernel without akita support...
 
-> Please describe what aspect of the syscall is improved. Is this only
-> speeding up the execution for the delay case while slowing down
-> the normal case, or do the actual semantics improve?
+This is an update of my tree against 2.6.14-git3:
 
-It appears to simply speed up the delay case.
+http://www.rpsys.net/openzaurus/temp/total-2.6.14-git3-r0.patch.gz
 
-One thing that I noticed though--the patch had the following line:
+I realise a number of the tosa and ipaq drivers are no longer in sync
+with the recent changes in mainline but the other drivers all should be
+and cxx00 and c7x0 should work.
 
-if ((n == 0) && (inp == NULL) && (outp == NULL) && (exp == NULL)) {
+This has some interesting alpha code from various places including ALSA
+SoC code from Liam Girdwood (I've added a wm8750 codec driver to this
+which sort of works on cxx00) and framebuffer console rotation from
+Antonino Daplas.
 
+A suitable defconfig is:
 
-Would it be enought to just do the following?
+http://www.rpsys.net/openzaurus/temp/total-2.6.14-git3-r0-defconfig-cxx00
 
-if (n == 0) {
+This adds compiles console rotation support into the kernel and enables
+it on the commandline. Let Antonino know how much nicer the device is
+with this :) 
 
-Given that if any of the fd_set pointers are non-empty, "n" ought to be 
-non-zero, would this be a sufficient check?
+Cheers,
 
-Chris
+Richard
+

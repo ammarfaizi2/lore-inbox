@@ -1,65 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbVJaWfX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbVJaWfs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964810AbVJaWfX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 17:35:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbVJaWfG
+	id S964807AbVJaWfs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 17:35:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbVJaWfE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 17:35:06 -0500
+	Mon, 31 Oct 2005 17:35:04 -0500
 Received: from ams-iport-1.cisco.com ([144.254.224.140]:59658 "EHLO
 	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S964807AbVJaWeu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 17:34:50 -0500
-Subject: [git patch review 4/5] [IB] mthca: Avoid SRQ free WQE list corruption
+	id S932166AbVJaWet (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 17:34:49 -0500
+Subject: [git patch review 3/5] [IB] uverbs: Avoid NULL pointer deref on CQ
+	async event
 From: Roland Dreier <rolandd@cisco.com>
 Date: Mon, 31 Oct 2005 22:34:42 +0000
 To: linux-kernel@vger.kernel.org, openib-general@openib.org
 X-Mailer: IB-patch-reviewer
 Content-Transfer-Encoding: 8bit
-Message-ID: <1130798082548-8e2587fc62785f94@cisco.com>
-In-Reply-To: <1130798082548-f241f7f48ee0a31b@cisco.com>
-X-OriginalArrivalTime: 31 Oct 2005 22:34:43.0834 (UTC) FILETIME=[4A3D85A0:01C5DE6B]
+Message-ID: <1130798082548-f241f7f48ee0a31b@cisco.com>
+In-Reply-To: <1130798082548-c351d7732f360685@cisco.com>
+X-OriginalArrivalTime: 31 Oct 2005 22:34:43.0729 (UTC) FILETIME=[4A2D8010:01C5DE6B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix wqe_to_link() to use a structure field that we know is definitely
-always unused for receive work requests, so that it really avoids the
-free list corruption bug that the comment claims it does.
+Userspace CQs that have no completion event channel attached end up
+with their cq_context set to NULL.  However, asynchronous events like
+"CQ overrun" can still occur on such CQs, so add a uverbs_file member
+to struct ib_ucq_object that we can follow to deliver these events.
 
 Signed-off-by: Roland Dreier <rolandd@cisco.com>
 
 ---
 
- drivers/infiniband/hw/mthca/mthca_srq.c |   13 +++++++------
- 1 files changed, 7 insertions(+), 6 deletions(-)
+ drivers/infiniband/core/uverbs.h      |    1 +
+ drivers/infiniband/core/uverbs_cmd.c  |    1 +
+ drivers/infiniband/core/uverbs_main.c |    9 +++------
+ 3 files changed, 5 insertions(+), 6 deletions(-)
 
-applies-to: ffd7eba03f29dd2932dd32ac4adc2921bde7644b
-e5b251a24a9cd34a7ef98e361eb94e7ab122a554
-diff --git a/drivers/infiniband/hw/mthca/mthca_srq.c b/drivers/infiniband/hw/mthca/mthca_srq.c
-index 64f70aa..292f55b 100644
---- a/drivers/infiniband/hw/mthca/mthca_srq.c
-+++ b/drivers/infiniband/hw/mthca/mthca_srq.c
-@@ -75,15 +75,16 @@ static void *get_wqe(struct mthca_srq *s
+applies-to: e7fbd856e7522b65d309e9dfd425541d8f45a0bd
+7162a3e0db34e914a8bc5bf74bbae0b386310cf8
+diff --git a/drivers/infiniband/core/uverbs.h b/drivers/infiniband/core/uverbs.h
+index 031cdf3..ecb8301 100644
+--- a/drivers/infiniband/core/uverbs.h
++++ b/drivers/infiniband/core/uverbs.h
+@@ -113,6 +113,7 @@ struct ib_uevent_object {
  
- /*
-  * Return a pointer to the location within a WQE that we're using as a
-- * link when the WQE is in the free list.  We use an offset of 4
-- * because in the Tavor case, posting a WQE may overwrite the first
-- * four bytes of the previous WQE.  The offset avoids corrupting our
-- * free list if the WQE has already completed and been put on the free
-- * list when we post the next WQE.
-+ * link when the WQE is in the free list.  We use the imm field
-+ * because in the Tavor case, posting a WQE may overwrite the next
-+ * segment of the previous WQE, but a receive WQE will never touch the
-+ * imm field.  This avoids corrupting our free list if the previous
-+ * WQE has already completed and been put on the free list when we
-+ * post the next WQE.
-  */
- static inline int *wqe_to_link(void *wqe)
+ struct ib_ucq_object {
+ 	struct ib_uobject	uobject;
++	struct ib_uverbs_file  *uverbs_file;
+ 	struct list_head	comp_list;
+ 	struct list_head	async_list;
+ 	u32			comp_events_reported;
+diff --git a/drivers/infiniband/core/uverbs_cmd.c b/drivers/infiniband/core/uverbs_cmd.c
+index 8c89abc..63a7415 100644
+--- a/drivers/infiniband/core/uverbs_cmd.c
++++ b/drivers/infiniband/core/uverbs_cmd.c
+@@ -602,6 +602,7 @@ ssize_t ib_uverbs_create_cq(struct ib_uv
+ 
+ 	uobj->uobject.user_handle   = cmd.user_handle;
+ 	uobj->uobject.context       = file->ucontext;
++	uobj->uverbs_file	    = file;
+ 	uobj->comp_events_reported  = 0;
+ 	uobj->async_events_reported = 0;
+ 	INIT_LIST_HEAD(&uobj->comp_list);
+diff --git a/drivers/infiniband/core/uverbs_main.c b/drivers/infiniband/core/uverbs_main.c
+index 0eb38f4..e58a7b2 100644
+--- a/drivers/infiniband/core/uverbs_main.c
++++ b/drivers/infiniband/core/uverbs_main.c
+@@ -442,13 +442,10 @@ static void ib_uverbs_async_handler(stru
+ 
+ void ib_uverbs_cq_event_handler(struct ib_event *event, void *context_ptr)
  {
--	return (int *) (wqe + 4);
-+	return (int *) (wqe + offsetof(struct mthca_next_seg, imm));
- }
+-	struct ib_uverbs_event_file *ev_file = context_ptr;
+-	struct ib_ucq_object *uobj;
++	struct ib_ucq_object *uobj = container_of(event->element.cq->uobject,
++						  struct ib_ucq_object, uobject);
  
- static void mthca_tavor_init_srq_context(struct mthca_dev *dev,
+-	uobj = container_of(event->element.cq->uobject,
+-			    struct ib_ucq_object, uobject);
+-
+-	ib_uverbs_async_handler(ev_file->uverbs_file, uobj->uobject.user_handle,
++	ib_uverbs_async_handler(uobj->uverbs_file, uobj->uobject.user_handle,
+ 				event->event, &uobj->async_list,
+ 				&uobj->async_events_reported);
+ 				
 ---
 0.99.9

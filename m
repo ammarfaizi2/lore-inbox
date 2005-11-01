@@ -1,64 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbVKANvY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbVKANxe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750787AbVKANvY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 08:51:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbVKANvX
+	id S1750788AbVKANxe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 08:53:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbVKANxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 08:51:23 -0500
-Received: from mail.gondor.com ([212.117.64.182]:35845 "EHLO moria.gondor.com")
-	by vger.kernel.org with ESMTP id S1750787AbVKANvX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 08:51:23 -0500
-Date: Tue, 1 Nov 2005 14:51:23 +0100
-From: Jan Niehusmann <jan@gondor.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ext3 corruption: "JBD: no valid journal superblock found"
-Message-ID: <20051101135123.GB9234@knautsch.gondor.com>
-References: <20051101134232.GA9234@knautsch.gondor.com>
+	Tue, 1 Nov 2005 08:53:34 -0500
+Received: from plasma-gate.weizmann.ac.il ([132.77.150.54]:42168 "EHLO
+	plasma-gate.weizmann.ac.il") by vger.kernel.org with ESMTP
+	id S1750788AbVKANxd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 08:53:33 -0500
+Message-ID: <4367734E.6050600@weizmann.ac.il>
+Date: Tue, 01 Nov 2005 15:53:18 +0200
+From: Evgeny Stambulchik <Evgeny.Stambulchik@weizmann.ac.il>
+Organization: Weizmann Institute of Science
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050802)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IrhDeMKUP4DT/M7F"
-Content-Disposition: inline
-In-Reply-To: <20051101134232.GA9234@knautsch.gondor.com>
-User-Agent: Mutt/1.5.11
+To: Rob Landley <rob@landley.net>
+CC: jonathan@jonmasters.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix floppy.c to store correct ro/rw status in underlying
+ gendisk
+References: <4363B081.7050300@jonmasters.org> <35fb2e590510291035n297aa22cv303ae77baeb5c213@mail.gmail.com> <43660693.6040601@weizmann.ac.il> <200510311717.21676.rob@landley.net>
+In-Reply-To: <200510311717.21676.rob@landley.net>
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rob Landley wrote:
 
---IrhDeMKUP4DT/M7F
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> But yeah, we're sticklers for correct behavior, and only attempt to remount 
+> readonly if we get EACCES or EROFS, not _just_ because we attempted a 
+> read/write mount and it failed.
 
-On Tue, Nov 01, 2005 at 02:42:33PM +0100, Jan Niehusmann wrote:
-> Currently, I'm experiencing a strange problem with one of my ext3
-> filesystems: There seems to be some journal corruption, but up to now I
+BTW, busybox doesn't agree to do just mount -o remount,... /mountpoint, 
+it wants also either the device name passed or the entry be present in 
+fstab.
 
-Well, of course I forgot one important detail: The kernel version. This
-is a 2.6.14 with additional patches for CardMan 4000 support (as posted
-on this list by Harald Welte), updated ipw2200 support (from
-ipw2200.sourceforge.net) and btsco bluetooth headset support (from
-bluetooth-alsa.sourceforge.net).
+Regards,
 
-By now, I did an e2fsck which removed the ext3 journal and recovered the
-ext2 without problems - unfortunately I don't have an easy way to verify
-if files are corrupted, but up to now everything looks fine.
-
-Jan
-
-
---IrhDeMKUP4DT/M7F
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iQCVAwUBQ2dy1oFL8fYptN/eAQLyVQP+NVIKa47Kz+Txak5H3dWPVXRlwbXp9+g3
-23odv137NXU+/Rl881/5h+p8gbMztJzfm1KNVNtXI4/9WgDthT0ddMsCDOXZlf1n
-ktBhdSnh8ZyeSz1t0HEW7UrPkUNKrB7fZ8VJRNuTTnkzozcffyCNEEcHIC2uLhKC
-bVz0wKqq+Dg=
-=CCfJ
------END PGP SIGNATURE-----
-
---IrhDeMKUP4DT/M7F--
+Evgeny

@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964934AbVKAEwH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964941AbVKAEup@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964934AbVKAEwH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 23:52:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964950AbVKAEwH
+	id S964941AbVKAEup (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 23:50:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964936AbVKAEup
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 23:52:07 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:40650 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964934AbVKAEwB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 23:52:01 -0500
-Date: Mon, 31 Oct 2005 20:51:19 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: paulmck@us.ibm.com, linux-kernel@vger.kernel.org, oleg@tv-sign.ru,
-       dipankar@in.ibm.com, suzannew@cs.pdx.edu
-Subject: Re: [PATCH] Fixes for RCU handling of task_struct
-Message-Id: <20051031205119.5bd897f3.akpm@osdl.org>
-In-Reply-To: <20051031140459.GA5664@elte.hu>
-References: <20051031020535.GA46@us.ibm.com>
-	<20051031140459.GA5664@elte.hu>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 31 Oct 2005 23:50:45 -0500
+Received: from smtp112.sbc.mail.mud.yahoo.com ([68.142.198.211]:24932 "HELO
+	smtp112.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S964934AbVKAEuo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 23:50:44 -0500
+From: David Brownell <david-b@pacbell.net>
+To: Paul Mackerras <paulus@samba.org>
+Subject: Re: [PATCH] Don't touch USB controllers with MMIO disabled in quirks
+Date: Mon, 31 Oct 2005 20:50:41 -0800
+User-Agent: KMail/1.7.1
+Cc: akpm@osdl.org, torvalds@osdl.org, Alan Stern <stern@rowland.harvard.edu>,
+       Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org
+References: <17254.59690.713323.294726@cargo.ozlabs.ibm.com>
+In-Reply-To: <17254.59690.713323.294726@cargo.ozlabs.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510312050.42008.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> wrote:
->
-> @@ -1433,7 +1485,16 @@ send_group_sigqueue(int sig, struct sigq
->   	int ret = 0;
->   
->   	BUG_ON(!(q->flags & SIGQUEUE_PREALLOC));
->  -	read_lock(&tasklist_lock);
->  +
->  +	while(!read_trylock(&tasklist_lock)) {
->  +		if (!p->sighand)
->  +			return -1;
->  +		cpu_relax();
->  +	}
+On Monday 31 October 2005 8:03 pm, Paul Mackerras wrote:
 
-This looks kind of ugly and quite unobvious.
+>  static void __devinit quirk_usb_early_handoff(struct pci_dev *pdev)
+>  {
+> +	u16 cmd;
+> +
+> +	if (pci_read_config_word(pdev, PCI_COMMAND, &cmd) ||
+> +	    (cmd & PCI_COMMAND_MEMORY) == 0)
 
-What's going on there?
+I suspect that should be
+
+	(tabs)	|| (cmd & (PCI_COMMAND_MEMORY|PCI_COMMAND_IO)) == 0
+
+Admittedly that'll matter only for UHCI, which isn't much used out of
+x86 and ia64 ... but testing for both is more correct.  Other than that,
+this looks good to me.
+
+- Dave
+
+
+> +		return;
+>  	if (pdev->class == PCI_CLASS_SERIAL_USB_UHCI)
+>  		quirk_usb_handoff_uhci(pdev);
+>  	else if (pdev->class == PCI_CLASS_SERIAL_USB_OHCI)
+> 

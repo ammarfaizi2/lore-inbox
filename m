@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbVKAFJP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965019AbVKAFMe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964774AbVKAFJP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 00:09:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932592AbVKAFJP
+	id S965019AbVKAFMe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 00:12:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbVKAFMe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 00:09:15 -0500
-Received: from verein.lst.de ([213.95.11.210]:23469 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S932574AbVKAFJN (ORCPT
+	Tue, 1 Nov 2005 00:12:34 -0500
+Received: from verein.lst.de ([213.95.11.210]:41389 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S964980AbVKAFMd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 00:09:13 -0500
-Date: Tue, 1 Nov 2005 06:09:00 +0100
+	Tue, 1 Nov 2005 00:12:33 -0500
+Date: Tue, 1 Nov 2005 06:12:21 +0100
 From: Christoph Hellwig <hch@lst.de>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: [PATCH consolidate sys_ptrace
-Message-ID: <20051101050900.GA25793@lst.de>
+Subject: Re: [PATCH consolidate sys_ptrace
+Message-ID: <20051101051221.GA26017@lst.de>
+References: <20051101050900.GA25793@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20051101050900.GA25793@lst.de>
 User-Agent: Mutt/1.3.28i
 X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Let's try again now that sys_ptrace returns long everywhere mainline..]
+On Tue, Nov 01, 2005 at 06:09:00AM +0100, Christoph Hellwig wrote:
+> [Let's try again now that sys_ptrace returns long everywhere mainline..]
+> 
+> The sys_ptrace boilerplate code (everything outside the big switch
+> statement for the arch-specific requests) is shared by most
+> architectures.  This patch moves it to kernel/ptrace.c and leaves the
+> arch-specific code as arch_ptrace.
+> 
+> Some architectures have a too different ptrace so we have to exclude
+> them.  They continue to keep their implementations.  For sh64 I had to
+> add a sh64_ptrace wrapper because it does some initialization on the
+> first call.  For um I removed an ifdefed SUBARCH_PTRACE_SPECIAL block,
+> but SUBARCH_PTRACE_SPECIAL isn't defined anywhere in the tree.
 
-The sys_ptrace boilerplate code (everything outside the big switch
-statement for the arch-specific requests) is shared by most
-architectures.  This patch moves it to kernel/ptrace.c and leaves the
-arch-specific code as arch_ptrace.
-
-Some architectures have a too different ptrace so we have to exclude
-them.  They continue to keep their implementations.  For sh64 I had to
-add a sh64_ptrace wrapper because it does some initialization on the
-first call.  For um I removed an ifdefed SUBARCH_PTRACE_SPECIAL block,
-but SUBARCH_PTRACE_SPECIAL isn't defined anywhere in the tree.
+Umm, it might be a good idea to actually send the current patch instead
+of the old one.  I really should write this text from scratch instead
+of copying it :)
 
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 
 Index: linux-2.6/arch/arm/kernel/ptrace.c
 ===================================================================
---- linux-2.6.orig/arch/arm/kernel/ptrace.c	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/arch/arm/kernel/ptrace.c	2005-08-24 11:37:13.000000000 +0200
+--- linux-2.6.orig/arch/arm/kernel/ptrace.c	2005-10-31 13:15:47.000000000 +0100
++++ linux-2.6/arch/arm/kernel/ptrace.c	2005-10-31 17:30:43.000000000 +0100
 @@ -648,7 +648,7 @@
  
  #endif
@@ -56,7 +63,7 @@ Index: linux-2.6/arch/arm/kernel/ptrace.c
  	return ret;
  }
  
--asmlinkage int sys_ptrace(long request, long pid, long addr, long data)
+-asmlinkage long sys_ptrace(long request, long pid, long addr, long data)
 -{
 -	struct task_struct *child;
 -	int ret;
@@ -108,8 +115,8 @@ Index: linux-2.6/arch/arm/kernel/ptrace.c
  	unsigned long ip;
 Index: linux-2.6/arch/arm26/kernel/ptrace.c
 ===================================================================
---- linux-2.6.orig/arch/arm26/kernel/ptrace.c	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/arch/arm26/kernel/ptrace.c	2005-08-24 11:37:13.000000000 +0200
+--- linux-2.6.orig/arch/arm26/kernel/ptrace.c	2005-10-31 13:15:48.000000000 +0100
++++ linux-2.6/arch/arm26/kernel/ptrace.c	2005-10-31 17:30:43.000000000 +0100
 @@ -546,7 +546,7 @@
  			      sizeof(struct user_fp)) ? -EFAULT : 0;
  }
@@ -123,7 +130,7 @@ Index: linux-2.6/arch/arm26/kernel/ptrace.c
  	return ret;
  }
  
--asmlinkage int sys_ptrace(long request, long pid, long addr, long data)
+-asmlinkage long sys_ptrace(long request, long pid, long addr, long data)
 -{
 -	struct task_struct *child;
 -	int ret;
@@ -175,13 +182,13 @@ Index: linux-2.6/arch/arm26/kernel/ptrace.c
  	unsigned long ip;
 Index: linux-2.6/arch/frv/kernel/ptrace.c
 ===================================================================
---- linux-2.6.orig/arch/frv/kernel/ptrace.c	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/arch/frv/kernel/ptrace.c	2005-08-24 11:37:13.000000000 +0200
+--- linux-2.6.orig/arch/frv/kernel/ptrace.c	2005-10-31 13:15:48.000000000 +0100
++++ linux-2.6/arch/frv/kernel/ptrace.c	2005-10-31 17:31:24.000000000 +0100
 @@ -106,48 +106,11 @@
  	child->thread.frame0->__status |= REG__STATUS_STEP;
  }
  
--asmlinkage int sys_ptrace(long request, long pid, long addr, long data)
+-asmlinkage long sys_ptrace(long request, long pid, long addr, long data)
 +long arch_ptrace(struct task_struct *child, long request, long addr, long data)
  {
 -	struct task_struct *child;
@@ -240,13 +247,13 @@ Index: linux-2.6/arch/frv/kernel/ptrace.c
  
 Index: linux-2.6/arch/h8300/kernel/ptrace.c
 ===================================================================
---- linux-2.6.orig/arch/h8300/kernel/ptrace.c	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/arch/h8300/kernel/ptrace.c	2005-08-24 11:37:13.000000000 +0200
+--- linux-2.6.orig/arch/h8300/kernel/ptrace.c	2005-10-31 13:15:48.000000000 +0100
++++ linux-2.6/arch/h8300/kernel/ptrace.c	2005-10-31 17:30:43.000000000 +0100
 @@ -57,43 +57,10 @@
  	h8300_disable_trace(child);
  }
  
--asmlinkage int sys_ptrace(long request, long pid, long addr, long data)
+-asmlinkage long sys_ptrace(long request, long pid, long addr, long data)
 +long arch_ptrace(struct task_struct *child, long request, long addr, long data)
  {
 -	struct task_struct *child;
@@ -300,13 +307,13 @@ Index: linux-2.6/arch/h8300/kernel/ptrace.c
  
 Index: linux-2.6/arch/i386/kernel/ptrace.c
 ===================================================================
---- linux-2.6.orig/arch/i386/kernel/ptrace.c	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/arch/i386/kernel/ptrace.c	2005-08-24 11:37:13.000000000 +0200
-@@ -352,49 +352,12 @@
+--- linux-2.6.orig/arch/i386/kernel/ptrace.c	2005-10-31 13:15:48.000000000 +0100
++++ linux-2.6/arch/i386/kernel/ptrace.c	2005-10-31 17:40:06.000000000 +0100
+@@ -354,49 +354,12 @@
  	return 0;
  }
  
--asmlinkage int sys_ptrace(long request, long pid, long addr, long data)
+-asmlinkage long sys_ptrace(long request, long pid, long addr, long data)
 +long arch_ptrace(struct task_struct *child, long request, long addr, long data)
  {
 -	struct task_struct *child;
@@ -353,7 +360,7 @@ Index: linux-2.6/arch/i386/kernel/ptrace.c
  	switch (request) {
  	/* when I and D space are separate, these will need to be fixed. */
  	case PTRACE_PEEKTEXT: /* read word at location addr. */ 
-@@ -649,10 +612,7 @@
+@@ -663,10 +626,7 @@
  		ret = ptrace_request(child, request, addr, data);
  		break;
  	}
@@ -361,19 +368,19 @@ Index: linux-2.6/arch/i386/kernel/ptrace.c
 -	put_task_struct(child);
 -out:
 -	unlock_kernel();
-+
++ out_tsk:
  	return ret;
  }
  
 Index: linux-2.6/arch/m68knommu/kernel/ptrace.c
 ===================================================================
---- linux-2.6.orig/arch/m68knommu/kernel/ptrace.c	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/arch/m68knommu/kernel/ptrace.c	2005-08-24 11:37:13.000000000 +0200
+--- linux-2.6.orig/arch/m68knommu/kernel/ptrace.c	2005-10-31 13:15:48.000000000 +0100
++++ linux-2.6/arch/m68knommu/kernel/ptrace.c	2005-10-31 17:30:43.000000000 +0100
 @@ -101,43 +101,10 @@
  	put_reg(child, PT_SR, tmp);
  }
  
--asmlinkage int sys_ptrace(long request, long pid, long addr, long data)
+-asmlinkage long sys_ptrace(long request, long pid, long addr, long data)
 +long arch_ptrace(truct task_struct *child, long request, long addr, long data)
  {
 -	struct task_struct *child;
@@ -427,13 +434,13 @@ Index: linux-2.6/arch/m68knommu/kernel/ptrace.c
  
 Index: linux-2.6/arch/mips/kernel/ptrace.c
 ===================================================================
---- linux-2.6.orig/arch/mips/kernel/ptrace.c	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/arch/mips/kernel/ptrace.c	2005-08-24 11:37:13.000000000 +0200
-@@ -47,51 +47,10 @@
- 	/* Nothing to do.. */
+--- linux-2.6.orig/arch/mips/kernel/ptrace.c	2005-10-31 13:15:48.000000000 +0100
++++ linux-2.6/arch/mips/kernel/ptrace.c	2005-10-31 17:40:36.000000000 +0100
+@@ -174,51 +174,10 @@
+ 	return 0;
  }
  
--asmlinkage int sys_ptrace(long request, long pid, long addr, long data)
+-asmlinkage long sys_ptrace(long request, long pid, long addr, long data)
 +long arch_ptrace(struct task_struct *child, long request, long addr, long data)
  {
 -	struct task_struct *child;
@@ -482,154 +489,54 @@ Index: linux-2.6/arch/mips/kernel/ptrace.c
  	switch (request) {
  	/* when I and D space are separate, these will need to be fixed. */
  	case PTRACE_PEEKTEXT: /* read word at location addr. */
-@@ -294,10 +253,6 @@
+@@ -319,7 +278,7 @@
+ 			if (!cpu_has_dsp) {
+ 				tmp = 0;
+ 				ret = -EIO;
+-				goto out_tsk;
++				goto out;
+ 			}
+ 			if (child->thread.dsp.used_dsp) {
+ 				dregs = __get_dsp_regs(child);
+@@ -333,14 +292,14 @@
+ 			if (!cpu_has_dsp) {
+ 				tmp = 0;
+ 				ret = -EIO;
+-				goto out_tsk;
++				goto out;
+ 			}
+ 			tmp = child->thread.dsp.dspcontrol;
+ 			break;
+ 		default:
+ 			tmp = 0;
+ 			ret = -EIO;
+-			goto out_tsk;
++			goto out;
+ 		}
+ 		ret = put_user(tmp, (unsigned long __user *) data);
  		break;
- 	}
- 
--out_tsk:
--	put_task_struct(child);
--out:
--	unlock_kernel();
- 	return ret;
- }
- 
-Index: linux-2.6/arch/ppc/kernel/ptrace.c
-===================================================================
---- linux-2.6.orig/arch/ppc/kernel/ptrace.c	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/arch/ppc/kernel/ptrace.c	2005-08-24 11:37:13.000000000 +0200
-@@ -240,46 +240,10 @@
- 	clear_single_step(child);
- }
- 
--int sys_ptrace(long request, long pid, long addr, long data)
-+long arch_ptrace(struct task_struct *child, long request, long addr, long data)
- {
--	struct task_struct *child;
- 	int ret = -EPERM;
- 
--	lock_kernel();
--	if (request == PTRACE_TRACEME) {
--		/* are we already being traced? */
--		if (current->ptrace & PT_PTRACED)
--			goto out;
--		ret = security_ptrace(current->parent, current);
--		if (ret)
--			goto out;
--		/* set the ptrace bit in the process flags. */
--		current->ptrace |= PT_PTRACED;
--		ret = 0;
--		goto out;
--	}
--	ret = -ESRCH;
--	read_lock(&tasklist_lock);
--	child = find_task_by_pid(pid);
--	if (child)
--		get_task_struct(child);
--	read_unlock(&tasklist_lock);
--	if (!child)
--		goto out;
--
--	ret = -EPERM;
--	if (pid == 1)		/* you may not mess with init */
--		goto out_tsk;
--
--	if (request == PTRACE_ATTACH) {
--		ret = ptrace_attach(child);
--		goto out_tsk;
--	}
--
--	ret = ptrace_check_attach(child, request == PTRACE_KILL);
--	if (ret < 0)
--		goto out_tsk;
--
- 	switch (request) {
- 	/* when I and D space are separate, these will need to be fixed. */
- 	case PTRACE_PEEKTEXT: /* read word at location addr. */
-@@ -451,10 +415,7 @@
+@@ -495,11 +454,7 @@
  		ret = ptrace_request(child, request, addr, data);
  		break;
  	}
+-
 -out_tsk:
 -	put_task_struct(child);
 -out:
 -	unlock_kernel();
-+
- 	return ret;
- }
- 
-Index: linux-2.6/arch/ppc64/kernel/ptrace.c
-===================================================================
---- linux-2.6.orig/arch/ppc64/kernel/ptrace.c	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/arch/ppc64/kernel/ptrace.c	2005-08-24 11:37:13.000000000 +0200
-@@ -52,46 +52,10 @@
- 	clear_single_step(child);
- }
- 
--int sys_ptrace(long request, long pid, long addr, long data)
-+long arch_ptrace(struct task_struct *child, long request, long addr, long data)
- {
--	struct task_struct *child;
- 	int ret = -EPERM;
- 
--	lock_kernel();
--	if (request == PTRACE_TRACEME) {
--		/* are we already being traced? */
--		if (current->ptrace & PT_PTRACED)
--			goto out;
--		ret = security_ptrace(current->parent, current);
--		if (ret)
--			goto out;
--		/* set the ptrace bit in the process flags. */
--		current->ptrace |= PT_PTRACED;
--		ret = 0;
--		goto out;
--	}
--	ret = -ESRCH;
--	read_lock(&tasklist_lock);
--	child = find_task_by_pid(pid);
--	if (child)
--		get_task_struct(child);
--	read_unlock(&tasklist_lock);
--	if (!child)
--		goto out;
--
--	ret = -EPERM;
--	if (pid == 1)		/* you may not mess with init */
--		goto out_tsk;
--
--	if (request == PTRACE_ATTACH) {
--		ret = ptrace_attach(child);
--		goto out_tsk;
--	}
--
--	ret = ptrace_check_attach(child, request == PTRACE_KILL);
--	if (ret < 0)
--		goto out_tsk;
--
- 	switch (request) {
- 	/* when I and D space are separate, these will need to be fixed. */
- 	case PTRACE_PEEKTEXT: /* read word at location addr. */ 
-@@ -278,10 +242,7 @@
- 		ret = ptrace_request(child, request, addr, data);
- 		break;
- 	}
--out_tsk:
--	put_task_struct(child);
--out:
--	unlock_kernel();
-+
++ out:
  	return ret;
  }
  
 Index: linux-2.6/arch/sh/kernel/ptrace.c
 ===================================================================
---- linux-2.6.orig/arch/sh/kernel/ptrace.c	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/arch/sh/kernel/ptrace.c	2005-08-24 11:37:13.000000000 +0200
+--- linux-2.6.orig/arch/sh/kernel/ptrace.c	2005-10-31 13:15:49.000000000 +0100
++++ linux-2.6/arch/sh/kernel/ptrace.c	2005-10-31 17:30:43.000000000 +0100
 @@ -80,48 +80,11 @@
  	/* nothing to do.. */
  }
  
--asmlinkage int sys_ptrace(long request, long pid, long addr, long data)
+-asmlinkage long sys_ptrace(long request, long pid, long addr, long data)
 +long arch_ptrace(struct task_struct *child, long request, long addr, long data)
  {
 -	struct task_struct *child;
@@ -689,13 +596,13 @@ Index: linux-2.6/arch/sh/kernel/ptrace.c
  
 Index: linux-2.6/arch/v850/kernel/ptrace.c
 ===================================================================
---- linux-2.6.orig/arch/v850/kernel/ptrace.c	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/arch/v850/kernel/ptrace.c	2005-08-24 11:37:13.000000000 +0200
+--- linux-2.6.orig/arch/v850/kernel/ptrace.c	2005-10-31 13:15:49.000000000 +0100
++++ linux-2.6/arch/v850/kernel/ptrace.c	2005-10-31 17:38:42.000000000 +0100
 @@ -113,45 +113,10 @@
  	return 1;
  }
  
--int sys_ptrace(long request, long pid, long addr, long data)
+-long sys_ptrace(long request, long pid, long addr, long data)
 +long arch_ptrace(struct task_struct *child, long request, long addr, long data)
  {
 -	struct task_struct *child;
@@ -738,21 +645,23 @@ Index: linux-2.6/arch/v850/kernel/ptrace.c
  	switch (request) {
  		unsigned long val, copied;
  
-@@ -249,10 +214,6 @@
+@@ -248,11 +213,7 @@
+ 		rval = -EIO;
  		goto out;
  	}
- 
+-
 -out_tsk:
 -	put_task_struct(child);
 -out:
 -	unlock_kernel();
++ out:
  	return rval;
  }
  
 Index: linux-2.6/arch/x86_64/kernel/ptrace.c
 ===================================================================
---- linux-2.6.orig/arch/x86_64/kernel/ptrace.c	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/arch/x86_64/kernel/ptrace.c	2005-08-24 11:37:13.000000000 +0200
+--- linux-2.6.orig/arch/x86_64/kernel/ptrace.c	2005-10-31 12:23:20.000000000 +0100
++++ linux-2.6/arch/x86_64/kernel/ptrace.c	2005-10-31 17:38:52.000000000 +0100
 @@ -313,48 +313,11 @@
  
  }
@@ -816,13 +725,13 @@ Index: linux-2.6/arch/x86_64/kernel/ptrace.c
  
 Index: linux-2.6/arch/xtensa/kernel/ptrace.c
 ===================================================================
---- linux-2.6.orig/arch/xtensa/kernel/ptrace.c	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/arch/xtensa/kernel/ptrace.c	2005-08-24 11:37:13.000000000 +0200
+--- linux-2.6.orig/arch/xtensa/kernel/ptrace.c	2005-10-31 13:15:49.000000000 +0100
++++ linux-2.6/arch/xtensa/kernel/ptrace.c	2005-10-31 17:39:06.000000000 +0100
 @@ -45,58 +45,10 @@
  	/* Nothing to do.. */
  }
  
--int sys_ptrace(long request, long pid, long addr, long data)
+-long sys_ptrace(long request, long pid, long addr, long data)
 +long arch_ptrace(struct task_struct *child, long request, long addr, long data)
  {
 -	struct task_struct *child;
@@ -886,15 +795,15 @@ Index: linux-2.6/arch/xtensa/kernel/ptrace.c
 -	put_task_struct(child);
 -out:
 -	unlock_kernel();
-+
++ out:
  	return ret;
  }
  
 Index: linux-2.6/kernel/ptrace.c
 ===================================================================
---- linux-2.6.orig/kernel/ptrace.c	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/kernel/ptrace.c	2005-08-24 11:37:13.000000000 +0200
-@@ -388,3 +388,85 @@
+--- linux-2.6.orig/kernel/ptrace.c	2005-10-31 13:15:52.000000000 +0100
++++ linux-2.6/kernel/ptrace.c	2005-10-31 17:30:43.000000000 +0100
+@@ -406,3 +406,85 @@
  
  	return ret;
  }
@@ -982,8 +891,8 @@ Index: linux-2.6/kernel/ptrace.c
 +#endif /* __ARCH_SYS_PTRACE */
 Index: linux-2.6/arch/cris/arch-v10/kernel/ptrace.c
 ===================================================================
---- linux-2.6.orig/arch/cris/arch-v10/kernel/ptrace.c	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/arch/cris/arch-v10/kernel/ptrace.c	2005-08-24 11:37:13.000000000 +0200
+--- linux-2.6.orig/arch/cris/arch-v10/kernel/ptrace.c	2005-10-31 12:23:04.000000000 +0100
++++ linux-2.6/arch/cris/arch-v10/kernel/ptrace.c	2005-10-31 17:30:43.000000000 +0100
 @@ -76,55 +76,11 @@
   * (in user space) where the result of the ptrace call is written (instead of
   * being returned).
@@ -1055,8 +964,8 @@ Index: linux-2.6/arch/cris/arch-v10/kernel/ptrace.c
  
 Index: linux-2.6/arch/cris/arch-v32/kernel/ptrace.c
 ===================================================================
---- linux-2.6.orig/arch/cris/arch-v32/kernel/ptrace.c	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/arch/cris/arch-v32/kernel/ptrace.c	2005-08-24 11:37:13.000000000 +0200
+--- linux-2.6.orig/arch/cris/arch-v32/kernel/ptrace.c	2005-10-31 12:23:04.000000000 +0100
++++ linux-2.6/arch/cris/arch-v32/kernel/ptrace.c	2005-10-31 17:30:43.000000000 +0100
 @@ -99,55 +99,11 @@
  }
  
@@ -1128,8 +1037,8 @@ Index: linux-2.6/arch/cris/arch-v32/kernel/ptrace.c
  
 Index: linux-2.6/arch/um/kernel/ptrace.c
 ===================================================================
---- linux-2.6.orig/arch/um/kernel/ptrace.c	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/arch/um/kernel/ptrace.c	2005-08-24 11:37:14.000000000 +0200
+--- linux-2.6.orig/arch/um/kernel/ptrace.c	2005-10-31 12:23:19.000000000 +0100
++++ linux-2.6/arch/um/kernel/ptrace.c	2005-10-31 17:30:43.000000000 +0100
 @@ -43,53 +43,10 @@
  extern int peek_user(struct task_struct * child, long addr, long data);
  extern int poke_user(struct task_struct * child, long addr, long data);
@@ -1199,8 +1108,8 @@ Index: linux-2.6/arch/um/kernel/ptrace.c
  
 Index: linux-2.6/include/asm-alpha/ptrace.h
 ===================================================================
---- linux-2.6.orig/include/asm-alpha/ptrace.h	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/include/asm-alpha/ptrace.h	2005-08-24 11:37:14.000000000 +0200
+--- linux-2.6.orig/include/asm-alpha/ptrace.h	2005-10-31 12:24:00.000000000 +0100
++++ linux-2.6/include/asm-alpha/ptrace.h	2005-10-31 17:30:43.000000000 +0100
 @@ -67,6 +67,9 @@
  };
  
@@ -1211,71 +1120,11 @@ Index: linux-2.6/include/asm-alpha/ptrace.h
  #define user_mode(regs) (((regs)->ps & 8) != 0)
  #define instruction_pointer(regs) ((regs)->pc)
  #define profile_pc(regs) instruction_pointer(regs)
-Index: linux-2.6/include/asm-arm/unistd.h
-===================================================================
---- linux-2.6.orig/include/asm-arm/unistd.h	2005-08-24 11:34:25.000000000 +0200
-+++ linux-2.6/include/asm-arm/unistd.h	2005-08-24 11:37:14.000000000 +0200
-@@ -542,7 +542,6 @@
- asmlinkage int sys_fork(struct pt_regs *regs);
- asmlinkage int sys_vfork(struct pt_regs *regs);
- asmlinkage int sys_pipe(unsigned long *fildes);
--asmlinkage int sys_ptrace(long request, long pid, long addr, long data);
- struct sigaction;
- asmlinkage long sys_rt_sigaction(int sig,
- 				const struct sigaction __user *act,
-Index: linux-2.6/include/asm-arm26/unistd.h
-===================================================================
---- linux-2.6.orig/include/asm-arm26/unistd.h	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/include/asm-arm26/unistd.h	2005-08-24 11:37:14.000000000 +0200
-@@ -480,7 +480,6 @@
- asmlinkage int sys_fork(struct pt_regs *regs);
- asmlinkage int sys_vfork(struct pt_regs *regs);
- asmlinkage int sys_pipe(unsigned long *fildes);
--asmlinkage int sys_ptrace(long request, long pid, long addr, long data);
- struct sigaction;
- asmlinkage long sys_rt_sigaction(int sig,
- 				const struct sigaction __user *act,
-Index: linux-2.6/include/asm-cris/unistd.h
-===================================================================
---- linux-2.6.orig/include/asm-cris/unistd.h	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/include/asm-cris/unistd.h	2005-08-24 11:37:14.000000000 +0200
-@@ -367,7 +367,6 @@
- asmlinkage int sys_vfork(long r10, long r11, long r12, long r13,
- 			long mof, long srp, struct pt_regs *regs);
- asmlinkage int sys_pipe(unsigned long __user *fildes);
--asmlinkage int sys_ptrace(long request, long pid, long addr, long data);
- struct sigaction;
- asmlinkage long sys_rt_sigaction(int sig,
- 				const struct sigaction __user *act,
-Index: linux-2.6/include/asm-h8300/unistd.h
-===================================================================
---- linux-2.6.orig/include/asm-h8300/unistd.h	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/include/asm-h8300/unistd.h	2005-08-24 11:37:14.000000000 +0200
-@@ -528,7 +528,6 @@
- asmlinkage int sys_execve(char *name, char **argv, char **envp,
- 			int dummy, ...);
- asmlinkage int sys_pipe(unsigned long *fildes);
--asmlinkage int sys_ptrace(long request, long pid, long addr, long data);
- struct sigaction;
- asmlinkage long sys_rt_sigaction(int sig,
- 				const struct sigaction __user *act,
-Index: linux-2.6/include/asm-i386/unistd.h
-===================================================================
---- linux-2.6.orig/include/asm-i386/unistd.h	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/include/asm-i386/unistd.h	2005-08-24 11:37:14.000000000 +0200
-@@ -448,7 +448,6 @@
- asmlinkage int sys_fork(struct pt_regs regs);
- asmlinkage int sys_vfork(struct pt_regs regs);
- asmlinkage int sys_pipe(unsigned long __user *fildes);
--asmlinkage int sys_ptrace(long request, long pid, long addr, long data);
- asmlinkage long sys_iopl(unsigned long unused);
- struct sigaction;
- asmlinkage long sys_rt_sigaction(int sig,
 Index: linux-2.6/include/asm-ia64/ptrace.h
 ===================================================================
---- linux-2.6.orig/include/asm-ia64/ptrace.h	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/include/asm-ia64/ptrace.h	2005-08-24 11:37:14.000000000 +0200
-@@ -227,6 +227,9 @@
+--- linux-2.6.orig/include/asm-ia64/ptrace.h	2005-10-31 12:24:05.000000000 +0100
++++ linux-2.6/include/asm-ia64/ptrace.h	2005-10-31 17:30:43.000000000 +0100
+@@ -229,6 +229,9 @@
  };
  
  #ifdef __KERNEL__
@@ -1287,8 +1136,8 @@ Index: linux-2.6/include/asm-ia64/ptrace.h
   * instructions in bundle (16 bytes) took the sample. Generate
 Index: linux-2.6/include/asm-m32r/ptrace.h
 ===================================================================
---- linux-2.6.orig/include/asm-m32r/ptrace.h	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/include/asm-m32r/ptrace.h	2005-08-24 11:37:14.000000000 +0200
+--- linux-2.6.orig/include/asm-m32r/ptrace.h	2005-10-31 12:24:05.000000000 +0100
++++ linux-2.6/include/asm-m32r/ptrace.h	2005-10-31 17:30:43.000000000 +0100
 @@ -145,6 +145,9 @@
  #define PTRACE_O_TRACESYSGOOD	0x00000001
  
@@ -1299,84 +1148,10 @@ Index: linux-2.6/include/asm-m32r/ptrace.h
  #if defined(CONFIG_ISA_M32R2) || defined(CONFIG_CHIP_VDEC2)
  #define user_mode(regs) ((M32R_PSW_BPM & (regs)->psw) != 0)
  #elif defined(CONFIG_ISA_M32R)
-Index: linux-2.6/include/asm-m68knommu/unistd.h
-===================================================================
---- linux-2.6.orig/include/asm-m68knommu/unistd.h	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/include/asm-m68knommu/unistd.h	2005-08-24 11:37:14.000000000 +0200
-@@ -504,7 +504,6 @@
- 			unsigned long fd, unsigned long pgoff);
- asmlinkage int sys_execve(char *name, char **argv, char **envp);
- asmlinkage int sys_pipe(unsigned long *fildes);
--asmlinkage int sys_ptrace(long request, long pid, long addr, long data);
- struct pt_regs;
- int sys_request_irq(unsigned int,
- 			irqreturn_t (*)(int, void *, struct pt_regs *),
-Index: linux-2.6/include/asm-mips/unistd.h
-===================================================================
---- linux-2.6.orig/include/asm-mips/unistd.h	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/include/asm-mips/unistd.h	2005-08-24 11:37:14.000000000 +0200
-@@ -1164,7 +1164,6 @@
- 			unsigned long fd, unsigned long pgoff);
- asmlinkage int sys_execve(nabi_no_regargs struct pt_regs regs);
- asmlinkage int sys_pipe(nabi_no_regargs struct pt_regs regs);
--asmlinkage int sys_ptrace(long request, long pid, long addr, long data);
- struct sigaction;
- asmlinkage long sys_rt_sigaction(int sig,
- 				const struct sigaction __user *act,
-Index: linux-2.6/include/asm-parisc/ptrace.h
-===================================================================
---- linux-2.6.orig/include/asm-parisc/ptrace.h	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/include/asm-parisc/ptrace.h	2005-08-24 11:37:14.000000000 +0200
-@@ -45,6 +45,9 @@
- #define PTRACE_SINGLEBLOCK	12	/* resume execution until next branch */
- #ifdef __KERNEL__
- 
-+#define __ARCH_SYS_PTRACE	1
-+
-+
- /* XXX should we use iaoq[1] or iaoq[0] ? */
- #define user_mode(regs)			(((regs)->iaoq[0] & 3) ? 1 : 0)
- #define user_space(regs)		(((regs)->iasq[1] != 0) ? 1 : 0)
-Index: linux-2.6/include/asm-ppc/unistd.h
-===================================================================
---- linux-2.6.orig/include/asm-ppc/unistd.h	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/include/asm-ppc/unistd.h	2005-08-24 11:37:14.000000000 +0200
-@@ -469,7 +469,6 @@
- int sys_vfork(int p1, int p2, int p3, int p4, int p5, int p6,
- 		struct pt_regs *regs);
- int sys_pipe(int __user *fildes);
--int sys_ptrace(long request, long pid, long addr, long data);
- struct sigaction;
- long sys_rt_sigaction(int sig,
- 		      const struct sigaction __user *act,
-Index: linux-2.6/include/asm-ppc64/unistd.h
-===================================================================
---- linux-2.6.orig/include/asm-ppc64/unistd.h	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/include/asm-ppc64/unistd.h	2005-08-24 11:37:14.000000000 +0200
-@@ -467,7 +467,6 @@
- 		unsigned long p4, unsigned long p5, unsigned long p6,
- 		struct pt_regs *regs);
- int sys_pipe(int __user *fildes);
--int sys_ptrace(long request, long pid, long addr, long data);
- struct sigaction;
- long sys_rt_sigaction(int sig, const struct sigaction __user *act,
- 		      struct sigaction __user *oact, size_t sigsetsize);
-Index: linux-2.6/include/asm-sh/unistd.h
-===================================================================
---- linux-2.6.orig/include/asm-sh/unistd.h	2005-08-24 11:34:25.000000000 +0200
-+++ linux-2.6/include/asm-sh/unistd.h	2005-08-24 11:37:14.000000000 +0200
-@@ -503,7 +503,6 @@
- asmlinkage int sys_pipe(unsigned long r4, unsigned long r5,
- 			unsigned long r6, unsigned long r7,
- 			struct pt_regs regs);
--asmlinkage int sys_ptrace(long request, long pid, long addr, long data);
- asmlinkage ssize_t sys_pread_wrapper(unsigned int fd, char *buf,
- 				size_t count, long dummy, loff_t pos);
- asmlinkage ssize_t sys_pwrite_wrapper(unsigned int fd, const char *buf,
 Index: linux-2.6/include/asm-sparc/ptrace.h
 ===================================================================
---- linux-2.6.orig/include/asm-sparc/ptrace.h	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/include/asm-sparc/ptrace.h	2005-08-24 11:37:14.000000000 +0200
+--- linux-2.6.orig/include/asm-sparc/ptrace.h	2005-10-31 12:24:12.000000000 +0100
++++ linux-2.6/include/asm-sparc/ptrace.h	2005-10-31 17:30:43.000000000 +0100
 @@ -60,6 +60,9 @@
  #define STACKFRAME_SZ sizeof(struct sparc_stackf)
  
@@ -1389,8 +1164,8 @@ Index: linux-2.6/include/asm-sparc/ptrace.h
  unsigned long profile_pc(struct pt_regs *);
 Index: linux-2.6/include/asm-sparc64/ptrace.h
 ===================================================================
---- linux-2.6.orig/include/asm-sparc64/ptrace.h	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/include/asm-sparc64/ptrace.h	2005-08-24 11:37:14.000000000 +0200
+--- linux-2.6.orig/include/asm-sparc64/ptrace.h	2005-10-31 12:24:12.000000000 +0100
++++ linux-2.6/include/asm-sparc64/ptrace.h	2005-10-31 17:30:43.000000000 +0100
 @@ -94,6 +94,9 @@
  #define STACKFRAME32_SZ	sizeof(struct sparc_stackf32)
  
@@ -1401,36 +1176,11 @@ Index: linux-2.6/include/asm-sparc64/ptrace.h
  #define force_successful_syscall_return()	    \
  do {	current_thread_info()->syscall_noerror = 1; \
  } while (0)
-Index: linux-2.6/include/asm-v850/unistd.h
-===================================================================
---- linux-2.6.orig/include/asm-v850/unistd.h	2005-08-14 12:03:17.000000000 +0200
-+++ linux-2.6/include/asm-v850/unistd.h	2005-08-24 11:37:14.000000000 +0200
-@@ -452,7 +452,6 @@
- struct pt_regs;
- int sys_execve (char *name, char **argv, char **envp, struct pt_regs *regs);
- int sys_pipe (int *fildes);
--int sys_ptrace(long request, long pid, long addr, long data);
- struct sigaction;
- asmlinkage long sys_rt_sigaction(int sig,
- 				const struct sigaction __user *act,
-Index: linux-2.6/include/asm-x86_64/unistd.h
-===================================================================
---- linux-2.6.orig/include/asm-x86_64/unistd.h	2005-08-14 12:03:17.000000000 +0200
-+++ linux-2.6/include/asm-x86_64/unistd.h	2005-08-24 11:37:14.000000000 +0200
-@@ -780,8 +780,6 @@
- #include <linux/types.h>
- #include <asm/ptrace.h>
- 
--asmlinkage long sys_ptrace(long request, long pid,
--				unsigned long addr, long data);
- asmlinkage long sys_iopl(unsigned int level, struct pt_regs *regs);
- asmlinkage long sys_ioperm(unsigned long from, unsigned long num, int turn_on);
- struct sigaction;
 Index: linux-2.6/include/linux/ptrace.h
 ===================================================================
---- linux-2.6.orig/include/linux/ptrace.h	2005-08-14 12:03:17.000000000 +0200
-+++ linux-2.6/include/linux/ptrace.h	2005-08-24 11:37:14.000000000 +0200
-@@ -76,6 +76,8 @@
+--- linux-2.6.orig/include/linux/ptrace.h	2005-10-31 12:24:14.000000000 +0100
++++ linux-2.6/include/linux/ptrace.h	2005-10-31 17:30:43.000000000 +0100
+@@ -78,6 +78,8 @@
  #include <linux/compiler.h>		/* For unlikely.  */
  #include <linux/sched.h>		/* For struct task_struct.  */
  
@@ -1441,8 +1191,8 @@ Index: linux-2.6/include/linux/ptrace.h
  extern int ptrace_attach(struct task_struct *tsk);
 Index: linux-2.6/arch/sh64/kernel/ptrace.c
 ===================================================================
---- linux-2.6.orig/arch/sh64/kernel/ptrace.c	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/arch/sh64/kernel/ptrace.c	2005-08-24 11:44:32.000000000 +0200
+--- linux-2.6.orig/arch/sh64/kernel/ptrace.c	2005-10-31 13:15:49.000000000 +0100
++++ linux-2.6/arch/sh64/kernel/ptrace.c	2005-10-31 17:30:43.000000000 +0100
 @@ -28,6 +28,7 @@
  #include <linux/ptrace.h>
  #include <linux/user.h>
@@ -1455,7 +1205,7 @@ Index: linux-2.6/arch/sh64/kernel/ptrace.c
  	return 0;
  }
  
--asmlinkage int sys_ptrace(long request, long pid, long addr, long data)
+-asmlinkage long sys_ptrace(long request, long pid, long addr, long data)
 +
 +long arch_ptrace(struct task_struct *child, long request, long addr, long data)
  {
@@ -1555,8 +1305,8 @@ Index: linux-2.6/arch/sh64/kernel/ptrace.c
  	struct task_struct *tsk = current;
 Index: linux-2.6/arch/sh64/kernel/syscalls.S
 ===================================================================
---- linux-2.6.orig/arch/sh64/kernel/syscalls.S	2005-08-24 11:34:24.000000000 +0200
-+++ linux-2.6/arch/sh64/kernel/syscalls.S	2005-08-24 11:37:14.000000000 +0200
+--- linux-2.6.orig/arch/sh64/kernel/syscalls.S	2005-10-31 12:23:19.000000000 +0100
++++ linux-2.6/arch/sh64/kernel/syscalls.S	2005-10-31 17:30:43.000000000 +0100
 @@ -46,7 +46,7 @@
  	.long sys_setuid16
  	.long sys_getuid16
@@ -1566,22 +1316,10 @@ Index: linux-2.6/arch/sh64/kernel/syscalls.S
  	.long sys_alarm
  	.long sys_fstat
  	.long sys_pause
-Index: linux-2.6/include/asm-m68k/ptrace.h
-===================================================================
---- linux-2.6.orig/include/asm-m68k/ptrace.h	2005-08-14 12:03:17.000000000 +0200
-+++ linux-2.6/include/asm-m68k/ptrace.h	2005-08-24 11:37:14.000000000 +0200
-@@ -65,6 +65,7 @@
- #define PTRACE_SETFPREGS          15
- 
- #ifdef __KERNEL__
-+#define __ARCH_SYS_PTRACE	1
- 
- #ifndef PS_S
- #define PS_S  (0x2000)
 Index: linux-2.6/include/asm-s390/ptrace.h
 ===================================================================
---- linux-2.6.orig/include/asm-s390/ptrace.h	2005-08-14 12:03:17.000000000 +0200
-+++ linux-2.6/include/asm-s390/ptrace.h	2005-08-24 11:37:14.000000000 +0200
+--- linux-2.6.orig/include/asm-s390/ptrace.h	2005-10-31 12:24:12.000000000 +0100
++++ linux-2.6/include/asm-s390/ptrace.h	2005-10-31 17:30:43.000000000 +0100
 @@ -468,6 +468,8 @@
  };
  
@@ -1591,37 +1329,222 @@ Index: linux-2.6/include/asm-s390/ptrace.h
  #define user_mode(regs) (((regs)->psw.mask & PSW_MASK_PSTATE) != 0)
  #define instruction_pointer(regs) ((regs)->psw.addr & PSW_ADDR_INSN)
  #define profile_pc(regs) instruction_pointer(regs)
-Index: linux-2.6/arch/ia64/ia32/sys_ia32.c
+Index: linux-2.6/arch/m68k/kernel/ptrace.c
 ===================================================================
---- linux-2.6.orig/arch/ia64/ia32/sys_ia32.c	2005-08-14 12:03:16.000000000 +0200
-+++ linux-2.6/arch/ia64/ia32/sys_ia32.c	2005-08-24 11:44:49.000000000 +0200
-@@ -50,6 +50,7 @@
- #include <linux/compat.h>
- #include <linux/vfs.h>
- #include <linux/mman.h>
-+#include <linux/syscalls.h>
+--- linux-2.6.orig/arch/m68k/kernel/ptrace.c	2005-10-31 13:15:48.000000000 +0100
++++ linux-2.6/arch/m68k/kernel/ptrace.c	2005-10-31 17:33:38.000000000 +0100
+@@ -121,48 +121,11 @@
+ 	child->thread.work.syscall_trace = 0;
+ }
  
- #include <asm/intrinsics.h>
- #include <asm/semaphore.h>
-Index: linux-2.6/include/linux/syscalls.h
+-asmlinkage long sys_ptrace(long request, long pid, long addr, long data)
++long arch_ptrace(struct task_struct *child, long request, long addr, long data)
+ {
+-	struct task_struct *child;
+ 	unsigned long tmp;
+ 	int i, ret = 0;
+ 
+-	lock_kernel();
+-	if (request == PTRACE_TRACEME) {
+-		/* are we already being traced? */
+-		if (current->ptrace & PT_PTRACED) {
+-			ret = -EPERM;
+-			goto out;
+-		}
+-		/* set the ptrace bit in the process flags. */
+-		current->ptrace |= PT_PTRACED;
+-		goto out;
+-	}
+-	read_lock(&tasklist_lock);
+-	child = find_task_by_pid(pid);
+-	if (child)
+-		get_task_struct(child);
+-	read_unlock(&tasklist_lock);
+-	if (unlikely(!child)) {
+-		ret = -ESRCH;
+-		goto out;
+-	}
+-
+-	/* you may not mess with init */
+-	if (unlikely(pid == 1)) {
+-		ret = -EPERM;
+-		goto out_tsk;
+-	}
+-
+-	if (request == PTRACE_ATTACH) {
+-		ret = ptrace_attach(child);
+-		goto out_tsk;
+-	}
+-
+-	ret = ptrace_check_attach(child, request == PTRACE_KILL);
+-	if (ret)
+-		goto out_tsk;
+-
+ 	switch (request) {
+ 	/* when I and D space are separate, these will need to be fixed. */
+ 	case PTRACE_PEEKTEXT:	/* read word at location addr. */
+@@ -317,14 +280,10 @@
+ 		ret = ptrace_request(child, request, addr, data);
+ 		break;
+ 	}
+-out_tsk:
+-	put_task_struct(child);
+-out:
+-	unlock_kernel();
++
+ 	return ret;
+ out_eio:
+-	ret = -EIO;
+-	goto out_tsk;
++	return -EIO;
+ }
+ 
+ asmlinkage void syscall_trace(void)
+Index: linux-2.6/arch/parisc/kernel/ptrace.c
 ===================================================================
---- linux-2.6.orig/include/linux/syscalls.h	2005-08-11 16:46:06.000000000 +0200
-+++ linux-2.6/include/linux/syscalls.h	2005-08-24 11:39:22.000000000 +0200
-@@ -60,6 +60,7 @@
- #include <asm/semaphore.h>
- #include <asm/siginfo.h>
- #include <asm/signal.h>
-+#include <asm/ptrace.h> /* for __ARCH_SYS_PTRACE */
- #include <linux/quota.h>
- #include <linux/key.h>
+--- linux-2.6.orig/arch/parisc/kernel/ptrace.c	2005-10-31 13:15:48.000000000 +0100
++++ linux-2.6/arch/parisc/kernel/ptrace.c	2005-10-31 17:36:23.000000000 +0100
+@@ -78,52 +78,13 @@
+ 	pa_psw(child)->l = 0;
+ }
  
-@@ -477,6 +478,9 @@
- 				unsigned long off, unsigned long len,
- 				void __user *buf);
+-long sys_ptrace(long request, long pid, long addr, long data)
++long arch_ptrace(struct task_struct *child, long request, long addr, long data)
+ {
+-	struct task_struct *child;
+ 	long ret;
+ #ifdef DEBUG_PTRACE
+ 	long oaddr=addr, odata=data;
+ #endif
  
-+#ifndef __ARCH_SYS_PTRACE
-+asmlinkage long sys_ptrace(long request, long pid, long addr, long data);
-+#endif
- asmlinkage long sys_prctl(int option, unsigned long arg2, unsigned long arg3,
- 			unsigned long arg4, unsigned long arg5);
- asmlinkage long sys_swapon(const char __user *specialfile, int swap_flags);
+-	lock_kernel();
+-	ret = -EPERM;
+-	if (request == PTRACE_TRACEME) {
+-		/* are we already being traced? */
+-		if (current->ptrace & PT_PTRACED)
+-			goto out;
+-
+-		ret = security_ptrace(current->parent, current);
+-		if (ret) 
+-			goto out;
+-
+-		/* set the ptrace bit in the process flags. */
+-		current->ptrace |= PT_PTRACED;
+-		ret = 0;
+-		goto out;
+-	}
+-
+-	ret = -ESRCH;
+-	read_lock(&tasklist_lock);
+-	child = find_task_by_pid(pid);
+-	if (child)
+-		get_task_struct(child);
+-	read_unlock(&tasklist_lock);
+-	if (!child)
+-		goto out;
+-	ret = -EPERM;
+-	if (pid == 1)		/* no messing around with init! */
+-		goto out_tsk;
+-
+-	if (request == PTRACE_ATTACH) {
+-		ret = ptrace_attach(child);
+-		goto out_tsk;
+-	}
+-
+-	ret = ptrace_check_attach(child, request == PTRACE_KILL);
+-	if (ret < 0)
+-		goto out_tsk;
+-
+ 	switch (request) {
+ 	case PTRACE_PEEKTEXT: /* read word at location addr. */ 
+ 	case PTRACE_PEEKDATA: {
+@@ -383,11 +344,11 @@
+ 
+ 	case PTRACE_GETEVENTMSG:
+                 ret = put_user(child->ptrace_message, (unsigned int __user *) data);
+-		goto out_tsk;
++		goto out;
+ 
+ 	default:
+ 		ret = ptrace_request(child, request, addr, data);
+-		goto out_tsk;
++		goto out;
+ 	}
+ 
+ out_wake_notrap:
+@@ -396,10 +357,7 @@
+ 	wake_up_process(child);
+ 	ret = 0;
+ out_tsk:
+-	put_task_struct(child);
+-out:
+-	unlock_kernel();
+-	DBG("sys_ptrace(%ld, %d, %lx, %lx) returning %ld\n",
++	DBG("arch_ptrace(%ld, %d, %lx, %lx) returning %ld\n",
+ 		request, pid, oaddr, odata, ret);
+ 	return ret;
+ }
+Index: linux-2.6/arch/powerpc/kernel/ptrace.c
+===================================================================
+--- linux-2.6.orig/arch/powerpc/kernel/ptrace.c	2005-10-31 13:15:48.000000000 +0100
++++ linux-2.6/arch/powerpc/kernel/ptrace.c	2005-10-31 17:40:41.000000000 +0100
+@@ -248,46 +248,10 @@
+ 	clear_single_step(child);
+ }
+ 
+-long sys_ptrace(long request, long pid, long addr, long data)
++long arch_ptrace(struct task_struct *child, long request, long addr, long data)
+ {
+-	struct task_struct *child;
+ 	int ret = -EPERM;
+ 
+-	lock_kernel();
+-	if (request == PTRACE_TRACEME) {
+-		/* are we already being traced? */
+-		if (current->ptrace & PT_PTRACED)
+-			goto out;
+-		ret = security_ptrace(current->parent, current);
+-		if (ret)
+-			goto out;
+-		/* set the ptrace bit in the process flags. */
+-		current->ptrace |= PT_PTRACED;
+-		ret = 0;
+-		goto out;
+-	}
+-	ret = -ESRCH;
+-	read_lock(&tasklist_lock);
+-	child = find_task_by_pid(pid);
+-	if (child)
+-		get_task_struct(child);
+-	read_unlock(&tasklist_lock);
+-	if (!child)
+-		goto out;
+-
+-	ret = -EPERM;
+-	if (pid == 1)		/* you may not mess with init */
+-		goto out_tsk;
+-
+-	if (request == PTRACE_ATTACH) {
+-		ret = ptrace_attach(child);
+-		goto out_tsk;
+-	}
+-
+-	ret = ptrace_check_attach(child, request == PTRACE_KILL);
+-	if (ret < 0)
+-		goto out_tsk;
+-
+ 	switch (request) {
+ 	/* when I and D space are separate, these will need to be fixed. */
+ 	case PTRACE_PEEKTEXT: /* read word at location addr. */
+@@ -540,10 +504,7 @@
+ 		ret = ptrace_request(child, request, addr, data);
+ 		break;
+ 	}
+-out_tsk:
+-	put_task_struct(child);
+-out:
+-	unlock_kernel();
++
+ 	return ret;
+ }
+ 

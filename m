@@ -1,88 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbVKALf3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbVKALiL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750756AbVKALf3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 06:35:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbVKALf3
+	id S1750761AbVKALiL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 06:38:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbVKALiL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 06:35:29 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:26840 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750756AbVKALf2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 06:35:28 -0500
-To: OBATA Noboru <noboru.obata.ar@hitachi.com>
-Cc: fastboot@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [KDUMP] pending interrupts problem
-References: <m13bmnc7jr.fsf@ebiederm.dsl.xmission.com>
-	<20051101.181319.92587627.noboru.obata.ar@hitachi.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 01 Nov 2005 04:34:49 -0700
-In-Reply-To: <20051101.181319.92587627.noboru.obata.ar@hitachi.com> (OBATA
- Noboru's message of "Tue, 01 Nov 2005 18:13:19 +0900 (JST)")
-Message-ID: <m1d5lk8uue.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 1 Nov 2005 06:38:11 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:30612 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750758AbVKALiK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 06:38:10 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20051101051221.GA26017@lst.de> 
+References: <20051101051221.GA26017@lst.de>  <20051101050900.GA25793@lst.de> 
+To: Christoph Hellwig <hch@lst.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH consolidate sys_ptrace 
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Tue, 01 Nov 2005 11:37:54 +0000
+Message-ID: <10611.1130845074@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OBATA Noboru <noboru.obata.ar@hitachi.com> writes:
+Christoph Hellwig <hch@lst.de> wrote:
 
-> On Thu, 27 Oct 2005, Eric W. Biederman wrote:
->> 
->> > But pending interrupts on other vectors may cause another
->> > problem.  They would cause misrouted IRQs, which are now
->> > addressed by "irqpoll" kernel parameter.  But I'm not sure this
->> > solves all the problems.
->> 
->> The irqs should not be misrouted.  They simply come at an unexpected
->> time.
->
-> Okay, I guess the irqs are not misrouted because kdump does not
-> touch the IO-APIC routing table, and the second kernel will
-> build the same one.
+> > The sys_ptrace boilerplate code (everything outside the big switch
+> > statement for the arch-specific requests) is shared by most
+> > architectures.  This patch moves it to kernel/ptrace.c and leaves the
+> > arch-specific code as arch_ptrace.
 
-Right the problem irqpoll addresses is irqs that get stuck on.
-The kernel will disable them at the interrupt controller and
-we need a way to continue.  Mostly that only happens if the
-irq is shared with something else, that we don't load a driver for,
-or if an irq comes in before the driver initializes.
+Looks okay to me. I do have a concern about all the extra indirections we're
+acquiring by this mad rush to centralise everything. It's going to slow things
+down and consume more stack space. Is there any way we can:
 
->> > So another way to solve this problem is to clear all such
->> > pending interrupts before booting the second kernel.  
->> 
->> No.  The second kernel gets to cope, because we cannot
->> do anything reliable in the crashed kernel.
->
-> Well, I first thought that restoring the hardware status back to
-> normal before booting the second kernel is better because it may
-> require fewer changes on the kernel core code.
->
-> But now I'm getting the idea what kdump is trying to do.  Kdump
-> wants to do less in the crashed kernel, and solve problems in
-> the second kernel.
+ (1) Make a sys_ptrace() *jump* to arch_ptrace() instead of calling it, thus
+     obviating the extra return step.
 
-Right and the result is a more robust kernel in general.  In most
-cases the failure mode is a second kernel that doesn't boot,
-or it doesn't successfully initialize the drivers.  Which is
-a much better failure than potentially scribbling random
-data all over you disk, which is what using drivers in a broken
-kernel can do.
+ (2) Drop the use of lock_kernel().
 
-> I think we need more test cases, especially the cases that focus
-> on "status" of hardware, to make kdump more reliable.  Kdump
-> should recover from all possible status of supported hardware.
+Otherwise, the patch looks valid:
 
-Given that part of all possible status is broken hardware,
-that isn't necessarily possible. Still attempting to recover
-from all possible status is a sound plan.
+Acked-By: David Howells <dhowells@redhat.com>
 
-> Is anyone working on developing such test cases for kdump?
-
-Not to my knowledge.  The big push until just lately has simply
-been to get the core working.  Vivek Goyal would be the most
-likely suspect. But feel free to work on pathological scenarios.
-
-I'm still not quite convinced that crashdumps are interesting yet :)
-
-Eric
-
+David

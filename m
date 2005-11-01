@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965041AbVKAIWK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965080AbVKAIWI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965041AbVKAIWK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 03:22:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965060AbVKAIPL
+	id S965080AbVKAIWI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 03:22:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965041AbVKAIPP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 03:15:11 -0500
-Received: from hulk.hostingexpert.com ([69.57.134.39]:64216 "EHLO
+	Tue, 1 Nov 2005 03:15:15 -0500
+Received: from hulk.hostingexpert.com ([69.57.134.39]:52391 "EHLO
 	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S965041AbVKAIPG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S965042AbVKAIPG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 1 Nov 2005 03:15:06 -0500
-Message-ID: <436723DB.2000300@m1k.net>
-Date: Tue, 01 Nov 2005 03:14:19 -0500
+Message-ID: <436723E8.1000300@m1k.net>
+Date: Tue, 01 Nov 2005 03:14:32 -0500
 From: Michael Krufky <mkrufky@m1k.net>
 User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
 CC: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org
-Subject: [PATCH 18/37] dvb: let other frontends support FE_DISHNETWORK_SEND_LEGACY_CMD
+Subject: [PATCH 19/37] dvb: Remove broken stv0299 enhanced tuning code
 Content-Type: multipart/mixed;
- boundary="------------030907040907070400060109"
+ boundary="------------000004010709080501070703"
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -32,224 +32,213 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------030907040907070400060109
+--------------000004010709080501070703
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
 
 
---------------030907040907070400060109
+--------------000004010709080501070703
 Content-Type: text/x-patch;
- name="2382.patch"
+ name="2388.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="2382.patch"
+ filename="2388.patch"
 
-From: NooneImportant <nxhxzi702@sneakemail.com>
+From: Andrew de Quincy <quincy@linuxtv.org>
 
-Add support to FE_DISHNETWORK_SEND_LEGACY_CMD code to support other
-frontends besides stv0299.  The generic code is a fallback in the case
-that it doesn't work for some specific frontends (again stv0299 being
-a good example).
+Remove broken stv0299 enhanced tuning code
 
-Signed-off-by: NooneImportant <nxhxzi702@sneakemail.com>
-Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
 Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
 
- drivers/media/dvb/dvb-core/dvb_frontend.c |   97 ++++++++++++++++++++++++++++++
- drivers/media/dvb/dvb-core/dvb_frontend.h |    3 
- drivers/media/dvb/frontends/stv0299.c     |   38 +----------
- 3 files changed, 104 insertions(+), 34 deletions(-)
+ drivers/media/dvb/b2c2/flexcop-fe-tuner.c         |    1 
+ drivers/media/dvb/frontends/stv0299.c             |   53 ++++------------------
+ drivers/media/dvb/frontends/stv0299.h             |    3 -
+ drivers/media/dvb/ttpci/av7110.c                  |    2 
+ drivers/media/dvb/ttpci/budget-av.c               |    2 
+ drivers/media/dvb/ttpci/budget-ci.c               |    2 
+ drivers/media/dvb/ttpci/budget-patch.c            |    1 
+ drivers/media/dvb/ttpci/budget.c                  |    2 
+ drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c |    1 
+ 9 files changed, 10 insertions(+), 57 deletions(-)
 
---- linux-2.6.14-git3.orig/drivers/media/dvb/dvb-core/dvb_frontend.c
-+++ linux-2.6.14-git3/drivers/media/dvb/dvb-core/dvb_frontend.c
-@@ -577,6 +577,49 @@
- 				fepriv->thread_pid);
- }
- 
-+s32 timeval_usec_diff(struct timeval lasttime, struct timeval curtime)
-+{
-+	return ((curtime.tv_usec < lasttime.tv_usec) ?
-+		1000000 - lasttime.tv_usec + curtime.tv_usec :
-+		curtime.tv_usec - lasttime.tv_usec);
-+}
-+EXPORT_SYMBOL(timeval_usec_diff);
-+
-+static inline void timeval_usec_add(struct timeval *curtime, u32 add_usec)
-+{
-+	curtime->tv_usec += add_usec;
-+	if (curtime->tv_usec >= 1000000) {
-+		curtime->tv_usec -= 1000000;
-+		curtime->tv_sec++;
-+	}
-+}
-+
-+/*
-+ * Sleep until gettimeofday() > waketime + add_usec
-+ * This needs to be as precise as possible, but as the delay is
-+ * usually between 2ms and 32ms, it is done using a scheduled msleep
-+ * followed by usleep (normally a busy-wait loop) for the remainder
-+ */
-+void dvb_frontend_sleep_until(struct timeval *waketime, u32 add_usec)
-+{
-+	struct timeval lasttime;
-+	s32 delta, newdelta;
-+
-+	timeval_usec_add(waketime, add_usec);
-+
-+	do_gettimeofday(&lasttime);
-+	delta = timeval_usec_diff(lasttime, *waketime);
-+	if (delta > 2500) {
-+		msleep((delta - 1500) / 1000);
-+		do_gettimeofday(&lasttime);
-+		newdelta = timeval_usec_diff(lasttime, *waketime);
-+		delta = (newdelta > delta) ? 0 : newdelta;
-+	}
-+	if (delta > 0)
-+		udelay(delta);
-+}
-+EXPORT_SYMBOL(dvb_frontend_sleep_until);
-+
- static int dvb_frontend_start(struct dvb_frontend *fe)
- {
- 	int ret;
-@@ -728,6 +771,60 @@
- 			err = fe->ops->dishnetwork_send_legacy_command(fe, (unsigned int) parg);
- 			fepriv->state = FESTATE_DISEQC;
- 			fepriv->status = 0;
-+		} else if (fe->ops->set_voltage) {
-+			/*
-+			 * NOTE: This is a fallback condition.  Some frontends
-+			 * (stv0299 for instance) take longer than 8msec to
-+			 * respond to a set_voltage command.  Those switches
-+			 * need custom routines to switch properly.  For all
-+			 * other frontends, the following shoule work ok.
-+			 * Dish network legacy switches (as used by Dish500)
-+			 * are controlled by sending 9-bit command words
-+			 * spaced 8msec apart.
-+			 * the actual command word is switch/port dependant
-+			 * so it is up to the userspace application to send
-+			 * the right command.
-+			 * The command must always start with a '0' after
-+			 * initialization, so parg is 8 bits and does not
-+			 * include the initialization or start bit
-+			 */
-+			unsigned int cmd = ((unsigned int) parg) << 1;
-+			struct timeval nexttime;
-+			struct timeval tv[10];
-+			int i;
-+			u8 last = 1;
-+			if (dvb_frontend_debug)
-+				printk("%s switch command: 0x%04x\n", __FUNCTION__, cmd);
-+			do_gettimeofday(&nexttime);
-+			if (dvb_frontend_debug)
-+				memcpy(&tv[0], &nexttime, sizeof(struct timeval));
-+			/* before sending a command, initialize by sending
-+			 * a 32ms 18V to the switch
-+			 */
-+			fe->ops->set_voltage(fe, SEC_VOLTAGE_18);
-+			dvb_frontend_sleep_until(&nexttime, 32000);
-+
-+			for (i = 0; i < 9; i++) {
-+				if (dvb_frontend_debug)
-+					do_gettimeofday(&tv[i + 1]);
-+				if ((cmd & 0x01) != last) {
-+					/* set voltage to (last ? 13V : 18V) */
-+					fe->ops->set_voltage(fe, (last) ? SEC_VOLTAGE_13 : SEC_VOLTAGE_18);
-+					last = (last) ? 0 : 1;
-+				}
-+				cmd = cmd >> 1;
-+				if (i != 8)
-+					dvb_frontend_sleep_until(&nexttime, 8000);
-+			}
-+			if (dvb_frontend_debug) {
-+				printk("%s(%d): switch delay (should be 32k followed by all 8k\n",
-+					__FUNCTION__, fe->dvb->num);
-+				for (i = 1; i < 10; i++)
-+					printk("%d: %d\n", i, timeval_usec_diff(tv[i-1] , tv[i]));
-+			}
-+			err = 0;
-+			fepriv->state = FESTATE_DISEQC;
-+			fepriv->status = 0;
- 		}
- 		break;
- 
---- linux-2.6.14-git3.orig/drivers/media/dvb/dvb-core/dvb_frontend.h
-+++ linux-2.6.14-git3/drivers/media/dvb/dvb-core/dvb_frontend.h
-@@ -101,4 +101,7 @@
- 
- extern int dvb_unregister_frontend(struct dvb_frontend* fe);
- 
-+extern void dvb_frontend_sleep_until(struct timeval *waketime, u32 add_usec);
-+extern s32 timeval_usec_diff(struct timeval lasttime, struct timeval curtime);
-+
- #endif
+--- linux-2.6.14-git3.orig/drivers/media/dvb/b2c2/flexcop-fe-tuner.c
++++ linux-2.6.14-git3/drivers/media/dvb/b2c2/flexcop-fe-tuner.c
+@@ -234,7 +234,6 @@
+ 	.inittab = samsung_tbmu24112_inittab,
+ 	.mclk = 88000000UL,
+ 	.invert = 0,
+-	.enhanced_tuning = 0,
+ 	.skip_reinit = 0,
+ 	.lock_output = STV0229_LOCKOUTPUT_LK,
+ 	.volt13_op0_op1 = STV0299_VOLT13_OP1,
 --- linux-2.6.14-git3.orig/drivers/media/dvb/frontends/stv0299.c
 +++ linux-2.6.14-git3/drivers/media/dvb/frontends/stv0299.c
-@@ -387,36 +387,6 @@
- 	};
- }
+@@ -553,49 +553,16 @@
+ 	if (state->config->invert) invval = (~invval) & 1;
+ 	stv0299_writeregI(state, 0x0c, (stv0299_readreg(state, 0x0c) & 0xfe) | invval);
  
--static inline s32 stv0299_calc_usec_delay (struct timeval lasttime, struct timeval curtime)
--{
--	return ((curtime.tv_usec < lasttime.tv_usec) ?
--		1000000 - lasttime.tv_usec + curtime.tv_usec :
--		curtime.tv_usec - lasttime.tv_usec);
--}
+-	if (state->config->enhanced_tuning) {
+-		/* check if we should do a finetune */
+-		int frequency_delta = p->frequency - state->tuner_frequency;
+-		int minmax = p->u.qpsk.symbol_rate / 2000;
+-		if (minmax < 5000) minmax = 5000;
 -
--static void stv0299_sleep_until (struct timeval *waketime, u32 add_usec)
--{
--	struct timeval lasttime;
--	s32 delta, newdelta;
+-		if ((frequency_delta > -minmax) && (frequency_delta < minmax) && (frequency_delta != 0) &&
+-		    (state->fec_inner == p->u.qpsk.fec_inner) &&
+-		    (state->symbol_rate == p->u.qpsk.symbol_rate)) {
+-			int Drot_freq = (frequency_delta << 16) / (state->config->mclk / 1000);
 -
--	waketime->tv_usec += add_usec;
--	if (waketime->tv_usec >= 1000000) {
--		waketime->tv_usec -= 1000000;
--		waketime->tv_sec++;
+-			// zap the derotator registers first
+-			stv0299_writeregI(state, 0x22, 0x00);
+-			stv0299_writeregI(state, 0x23, 0x00);
+-
+-			// now set them as we want
+-			stv0299_writeregI(state, 0x22, Drot_freq >> 8);
+-			stv0299_writeregI(state, 0x23, Drot_freq);
+-		} else {
+-			/* A "normal" tune is requested */
+-			stv0299_writeregI(state, 0x05, 0xb5);	/*  enable i2c repeater on stv0299  */
+-			state->config->pll_set(fe, state->i2c, p);
+-			stv0299_writeregI(state, 0x05, 0x35);	/*  disable i2c repeater on stv0299  */
+-
+-			stv0299_writeregI(state, 0x32, 0x80);
+-			stv0299_writeregI(state, 0x22, 0x00);
+-			stv0299_writeregI(state, 0x23, 0x00);
+-			stv0299_writeregI(state, 0x32, 0x19);
+-			stv0299_set_symbolrate (fe, p->u.qpsk.symbol_rate);
+-			stv0299_set_FEC (state, p->u.qpsk.fec_inner);
+-		}
+-	} else {
+-		stv0299_writeregI(state, 0x05, 0xb5);	/*  enable i2c repeater on stv0299  */
+-		state->config->pll_set(fe, state->i2c, p);
+-		stv0299_writeregI(state, 0x05, 0x35);	/*  disable i2c repeater on stv0299  */
+-
+-		stv0299_set_FEC (state, p->u.qpsk.fec_inner);
+-		stv0299_set_symbolrate (fe, p->u.qpsk.symbol_rate);
+-		stv0299_writeregI(state, 0x22, 0x00);
+-		stv0299_writeregI(state, 0x23, 0x00);
+-		stv0299_readreg (state, 0x23);
+-		stv0299_writeregI(state, 0x12, 0xb9);
 -	}
++	stv0299_writeregI(state, 0x05, 0xb5);	/*  enable i2c repeater on stv0299  */
++	state->config->pll_set(fe, state->i2c, p);
++	stv0299_writeregI(state, 0x05, 0x35);	/*  disable i2c repeater on stv0299  */
++
++	stv0299_set_FEC (state, p->u.qpsk.fec_inner);
++	stv0299_set_symbolrate (fe, p->u.qpsk.symbol_rate);
++	stv0299_writeregI(state, 0x22, 0x00);
++	stv0299_writeregI(state, 0x23, 0x00);
++	stv0299_readreg (state, 0x23);
++	stv0299_writeregI(state, 0x12, 0xb9);
+ 
+ 	state->tuner_frequency = p->frequency;
+ 	state->fec_inner = p->u.qpsk.fec_inner;
+--- linux-2.6.14-git3.orig/drivers/media/dvb/frontends/stv0299.h
++++ linux-2.6.14-git3/drivers/media/dvb/frontends/stv0299.h
+@@ -73,9 +73,6 @@
+ 	/* does the inversion require inversion? */
+ 	u8 invert:1;
+ 
+-	/* Should the enhanced tuning code be used? */
+-	u8 enhanced_tuning:1;
 -
--	do_gettimeofday (&lasttime);
--	delta = stv0299_calc_usec_delay (lasttime, *waketime);
--	if (delta > 2500) {
--		msleep ((delta - 1500) / 1000);
--		do_gettimeofday (&lasttime);
--		newdelta = stv0299_calc_usec_delay (lasttime, *waketime);
--		delta = (newdelta > delta) ? 0 : newdelta;
--	}
--	if (delta > 0)
--		udelay (delta);
--}
--
- static int stv0299_send_legacy_dish_cmd (struct dvb_frontend* fe, u32 cmd)
- {
- 	struct stv0299_state* state = fe->demodulator_priv;
-@@ -444,7 +414,7 @@
- 		memcpy (&tv[0], &nexttime, sizeof (struct timeval));
- 	stv0299_writeregI (state, 0x0c, reg0x0c | 0x50); /* set LNB to 18V */
+ 	/* Skip reinitialisation? */
+ 	u8 skip_reinit:1;
  
--	stv0299_sleep_until (&nexttime, 32000);
-+	dvb_frontend_sleep_until(&nexttime, 32000);
- 
- 	for (i=0; i<9; i++) {
- 		if (debug_legacy_dish_switch)
-@@ -458,13 +428,13 @@
- 		cmd = cmd >> 1;
- 
- 		if (i != 8)
--			stv0299_sleep_until (&nexttime, 8000);
-+			dvb_frontend_sleep_until(&nexttime, 8000);
- 	}
- 	if (debug_legacy_dish_switch) {
- 		printk ("%s(%d): switch delay (should be 32k followed by all 8k\n",
- 			__FUNCTION__, fe->dvb->num);
--		for (i=1; i < 10; i++)
--			printk ("%d: %d\n", i, stv0299_calc_usec_delay (tv[i-1] , tv[i]));
-+		for (i = 1; i < 10; i++)
-+			printk ("%d: %d\n", i, timeval_usec_diff(tv[i-1] , tv[i]));
- 	}
- 
- 	return 0;
+--- linux-2.6.14-git3.orig/drivers/media/dvb/ttpci/av7110.c
++++ linux-2.6.14-git3/drivers/media/dvb/ttpci/av7110.c
+@@ -1644,7 +1644,6 @@
+ 	.inittab = alps_bsru6_inittab,
+ 	.mclk = 88000000UL,
+ 	.invert = 1,
+-	.enhanced_tuning = 0,
+ 	.skip_reinit = 0,
+ 	.lock_output = STV0229_LOCKOUTPUT_1,
+ 	.volt13_op0_op1 = STV0299_VOLT13_OP1,
+@@ -1721,7 +1720,6 @@
+ 	.inittab = alps_bsbe1_inittab,
+ 	.mclk = 88000000UL,
+ 	.invert = 1,
+-	.enhanced_tuning = 0,
+ 	.skip_reinit = 0,
+ 	.min_delay_ms = 100,
+ 	.set_symbol_rate = alps_bsru6_set_symbol_rate,
+--- linux-2.6.14-git3.orig/drivers/media/dvb/ttpci/budget-av.c
++++ linux-2.6.14-git3/drivers/media/dvb/ttpci/budget-av.c
+@@ -531,7 +531,6 @@
+ 	.inittab = typhoon_cinergy1200s_inittab,
+ 	.mclk = 88000000UL,
+ 	.invert = 0,
+-	.enhanced_tuning = 0,
+ 	.skip_reinit = 0,
+ 	.lock_output = STV0229_LOCKOUTPUT_1,
+ 	.volt13_op0_op1 = STV0299_VOLT13_OP0,
+@@ -546,7 +545,6 @@
+ 	.inittab = typhoon_cinergy1200s_inittab,
+ 	.mclk = 88000000UL,
+ 	.invert = 0,
+-	.enhanced_tuning = 0,
+ 	.skip_reinit = 0,
+ 	.lock_output = STV0229_LOCKOUTPUT_0,
+ 	.volt13_op0_op1 = STV0299_VOLT13_OP0,
+--- linux-2.6.14-git3.orig/drivers/media/dvb/ttpci/budget-ci.c
++++ linux-2.6.14-git3/drivers/media/dvb/ttpci/budget-ci.c
+@@ -580,7 +580,6 @@
+ 	.inittab = alps_bsru6_inittab,
+ 	.mclk = 88000000UL,
+ 	.invert = 1,
+-	.enhanced_tuning = 0,
+ 	.skip_reinit = 0,
+ 	.lock_output = STV0229_LOCKOUTPUT_1,
+ 	.volt13_op0_op1 = STV0299_VOLT13_OP1,
+@@ -710,7 +709,6 @@
+ 	.inittab = philips_su1278_tt_inittab,
+ 	.mclk = 64000000UL,
+ 	.invert = 0,
+-	.enhanced_tuning = 1,
+ 	.skip_reinit = 1,
+ 	.lock_output = STV0229_LOCKOUTPUT_1,
+ 	.volt13_op0_op1 = STV0299_VOLT13_OP1,
+--- linux-2.6.14-git3.orig/drivers/media/dvb/ttpci/budget-patch.c
++++ linux-2.6.14-git3/drivers/media/dvb/ttpci/budget-patch.c
+@@ -379,7 +379,6 @@
+ 	.inittab = alps_bsru6_inittab,
+ 	.mclk = 88000000UL,
+ 	.invert = 1,
+-	.enhanced_tuning = 0,
+ 	.skip_reinit = 0,
+ 	.lock_output = STV0229_LOCKOUTPUT_1,
+ 	.volt13_op0_op1 = STV0299_VOLT13_OP1,
+--- linux-2.6.14-git3.orig/drivers/media/dvb/ttpci/budget.c
++++ linux-2.6.14-git3/drivers/media/dvb/ttpci/budget.c
+@@ -360,7 +360,6 @@
+ 	.inittab = alps_bsru6_inittab,
+ 	.mclk = 88000000UL,
+ 	.invert = 1,
+-	.enhanced_tuning = 0,
+ 	.skip_reinit = 0,
+ 	.lock_output = STV0229_LOCKOUTPUT_1,
+ 	.volt13_op0_op1 = STV0299_VOLT13_OP1,
+@@ -436,7 +435,6 @@
+ 	.inittab = alps_bsbe1_inittab,
+ 	.mclk = 88000000UL,
+ 	.invert = 1,
+-	.enhanced_tuning = 0,
+ 	.skip_reinit = 0,
+ 	.min_delay_ms = 100,
+ 	.set_symbol_rate = alps_bsru6_set_symbol_rate,
+--- linux-2.6.14-git3.orig/drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c
++++ linux-2.6.14-git3/drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c
+@@ -1335,7 +1335,6 @@
+ 	.inittab = alps_bsru6_inittab,
+ 	.mclk = 88000000UL,
+ 	.invert = 1,
+-	.enhanced_tuning = 0,
+ 	.skip_reinit = 0,
+ 	.lock_output = STV0229_LOCKOUTPUT_1,
+ 	.volt13_op0_op1 = STV0299_VOLT13_OP1,
 
 
---------------030907040907070400060109--
+--------------000004010709080501070703--

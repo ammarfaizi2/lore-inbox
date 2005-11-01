@@ -1,89 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbVKAOlf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbVKAOt2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750818AbVKAOlf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 09:41:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbVKAOlf
+	id S1750823AbVKAOt2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 09:49:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbVKAOt2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 09:41:35 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:26050 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1750818AbVKAOle (ORCPT
+	Tue, 1 Nov 2005 09:49:28 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:27058 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750823AbVKAOt1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 09:41:34 -0500
-Date: Tue, 1 Nov 2005 14:41:27 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       kravetz@us.ibm.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net
+	Tue, 1 Nov 2005 09:49:27 -0500
 Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-In-Reply-To: <20051101135651.GA8502@elte.hu>
-Message-ID: <Pine.LNX.4.58.0511011358520.14884@skynet>
-References: <20051030235440.6938a0e9.akpm@osdl.org> <27700000.1130769270@[10.10.2.4]>
- <4366A8D1.7020507@yahoo.com.au> <Pine.LNX.4.58.0510312333240.29390@skynet>
- <4366C559.5090504@yahoo.com.au> <Pine.LNX.4.58.0511010137020.29390@skynet>
- <4366D469.2010202@yahoo.com.au> <Pine.LNX.4.58.0511011014060.14884@skynet>
- <20051101135651.GA8502@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Mel Gorman <mel@csn.ul.ie>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       kravetz@us.ibm.com, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lhms <lhms-devel@lists.sourceforge.net>
+In-Reply-To: <20051101142959.GA9272@elte.hu>
+References: <20051030235440.6938a0e9.akpm@osdl.org>
+	 <27700000.1130769270@[10.10.2.4]> <4366A8D1.7020507@yahoo.com.au>
+	 <Pine.LNX.4.58.0510312333240.29390@skynet> <4366C559.5090504@yahoo.com.au>
+	 <Pine.LNX.4.58.0511010137020.29390@skynet> <4366D469.2010202@yahoo.com.au>
+	 <Pine.LNX.4.58.0511011014060.14884@skynet> <20051101135651.GA8502@elte.hu>
+	 <1130854224.14475.60.camel@localhost>  <20051101142959.GA9272@elte.hu>
+Content-Type: text/plain
+Date: Tue, 01 Nov 2005 15:49:15 +0100
+Message-Id: <1130856555.14475.77.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Nov 2005, Ingo Molnar wrote:
+On Tue, 2005-11-01 at 15:29 +0100, Ingo Molnar wrote:
+> * Dave Hansen <haveblue@us.ibm.com> wrote:
+> > > can you always, under any circumstance hot unplug RAM with these patches 
+> > > applied? If not, do you have any expectation to reach 100%?
+> > 
+> > With these patches, no.  There are currently some very nice, 
+> > pathological workloads which will still cause fragmentation.  But, in 
+> > the interest of incremental feature introduction, I think they're a 
+> > fine first step.  We can effectively reach toward a more comprehensive 
+> > solution on top of these patches.
+> > 
+> > Reaching truly 100% will require some other changes such as being able 
+> > to virtually remap things like kernel text.
+> 
+> then we need to see that 100% solution first - at least in terms of 
+> conceptual steps.
 
-> * Mel Gorman <mel@csn.ul.ie> wrote:
->
-> > The set of patches do fix a lot and make a strong start at addressing
-> > the fragmentation problem, just not 100% of the way. [...]
->
-> do you have an expectation to be able to solve the 'fragmentation
-> problem', all the time, in a 100% way, now or in the future?
->
+I don't think saying "truly 100%" really even makes sense.  There will
+always be restrictions of some kind.  For instance, with a 10MB kernel
+image, should you be able to shrink the memory in the system below
+10MB? ;)  
 
-Not now, but I expect to make 100% on demand in the future for all but
-GFP_ATOMIC and GFP_NOFS allocations. As GFP_ATOMIC and GFP_NOFS cannot do
-any reclaim work themselves, they will still be required to use smaller
-orders or private pools that are refilled using GFP_KERNEL if necessary.
-The high order pages would have to be reclaimed by another process like
-kswapd just like what happens for order-0 pages today.
+There is also no precedent in existing UNIXes for a 100% solution.  From
+http://publib.boulder.ibm.com/infocenter/pseries/index.jsp?topic=/com.ibm.aix.doc/aixbman/prftungd/dlpar.htm , a seemingly arbitrary restriction:
 
-> > So, with this set of patches, how fragmented you get is dependant on
-> > the workload and it may still break down and high order allocations
-> > will fail. But the current situation is that it will defiantly break
-> > down. The fact is that it has been reported that memory hotplug remove
-> > works with these patches and doesn't without them. Granted, this is
-> > just one feature on a high-end machine, but it is one solid operation
-> > we can perform with the patches and cannot without them. [...]
->
-> can you always, under any circumstance hot unplug RAM with these patches
-> applied? If not, do you have any expectation to reach 100%?
->
+	A memory region that contains a large page cannot be removed.
 
-No, you cannot guarantee hot unplug RAM with these patches applied.
-Anecdotal evidence suggests your chances are better on PPC64 which is a
-start but we have to start somewhere. The full 100% solution would be a
-large set of far reaching patches that would touch a lot of the memory
-manager. This would get rejected because the patches should have have
-arrived piecemeal. These patches are one piece. To reach 100%, other
-mechanisms are also needed such as;
+What the fragmentation patches _can_ give us is the ability to have 100%
+success in removing certain areas: the "user-reclaimable" areas
+referenced in the patch.  This gives a customer at least the ability to
+plan for how dynamically reconfigurable a system should be.
 
-o Page migration to move unreclaimable pages like mlock()ed pages or
-  kernel pages that had fallen back into easy-reclaim areas. A mechanism
-  would also be needed to move things like kernel text. I think the memory
-  hotplug tree has done a lot of work here
-o Mechanism for taking regions of memory offline. Again, I think the
-  memory hotplug crowd have something for this. If they don't, one of them
-  will chime in.
-o linear page reclaim that linearly scans a region of memory reclaims or
-  moves all the pages it. I have a proof-of-concept patch that does the
-  linear scan and reclaim but it's currently ugly and depends on this set
-  of patches been applied.
+After these patches, the next logical steps are to increase the
+knowledge that the slabs have about fragmentation, and to teach some of
+the shrinkers about fragmentation.
 
-These patches are the *starting* point that other things like linear page
-reclaim can be based on.
+After that, we'll need some kind of virtual remapping, breaking the 1:1
+kernel virtual mapping, so that the most problematic pages can be
+remapped.  These pages would retain their virtual address, but getting a
+new physical.  However, this is quite far down the road and will require
+some serious evaluation because it impacts how normal devices are able
+to to DMA.  The ppc64 proprietary hypervisor has features to work around
+these issues, and any new hypervisors wishing to support partition
+memory hotplug would likely have to follow suit.
 
--- 
-Mel Gorman
-Part-time Phd Student                          Java Applications Developer
-University of Limerick                         IBM Dublin Software Lab
+-- Dave
+

@@ -1,41 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932578AbVKAE7i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932582AbVKAE6M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932578AbVKAE7i (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 23:59:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbVKAE7i
+	id S932582AbVKAE6M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 23:58:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbVKAE6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 23:59:38 -0500
-Received: from teetot.devrandom.net ([66.35.250.243]:31906 "EHLO
-	teetot.devrandom.net") by vger.kernel.org with ESMTP
-	id S932578AbVKAE7i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 23:59:38 -0500
-Date: Mon, 31 Oct 2005 21:03:57 -0800
-From: thockin@hockin.org
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Alejandro Bonilla <abonilla@linuxwireless.org>,
-       Marcel Holtmann <marcel@holtmann.org>, Dave Jones <davej@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 4GB memory and Intel Dual-Core system
-Message-ID: <20051101050357.GA15949@hockin.org>
-References: <20051027205921.M81949@linuxwireless.org> <1130447261.5416.20.camel@blade> <20051027211203.M33358@linuxwireless.org> <20051027220533.GA18773@redhat.com> <1130451071.5416.32.camel@blade> <20051027221253.GA25932@redhat.com> <1130451421.5416.35.camel@blade> <20051027221756.M55421@linuxwireless.org> <1130711165.32734.11.camel@localhost.localdomain> <12100000.1130799788@flay>
+	Mon, 31 Oct 2005 23:58:12 -0500
+Received: from verein.lst.de ([213.95.11.210]:6317 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S932575AbVKAE6K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 23:58:10 -0500
+Date: Tue, 1 Nov 2005 05:58:00 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: Roland Dreier <rolandd@cisco.com>
+Cc: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>, openib-general@openib.org,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [openib-general] Re: [PATCH/RFC] IB: Add SCSI RDMA Protocol (SRP) initiator
+Message-ID: <20051101045800.GA25519@lst.de>
+References: <52wtjtk3d1.fsf@cisco.com> <20051101110409V.fujita.tomonori@lab.ntt.co.jp> <52irvdge6c.fsf@cisco.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <12100000.1130799788@flay>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <52irvdge6c.fsf@cisco.com>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 31, 2005 at 03:03:08PM -0800, Martin J. Bligh wrote:
-> > Wrong IA-32 supports more than 4Gb in PAE 36bit physical 32bit virtual
-> > mode and has done since the Preventium Pro
+On Mon, Oct 31, 2005 at 08:55:23PM -0800, Roland Dreier wrote:
+> Anyway, looking at drivers/scsi/ibmvscsi/srp.h, the main problem I see
+> is that the file has a bunch of bitfields that are big-endian only
+> (which makes sense because the driver can only be compiled for pSeries
+> or iSeries anyway).
 > 
-> Indeed ... I have 64GB ia32 boxes ;-)
+> But I have no objection to moving the file to include/scsi/srp.h,
+> adding a bunch of
+> 
+>     #if defined(__LITTLE_ENDIAN_BITFIELD)
+>     #elif defined(__BIG_ENDIAN_BITFIELD)
+>     #endif
+> 
+> and adding a few missing defines, and then converting ib_srp to use
+> the same file.
+> 
+> Does that seem like the right thing to do?
 
-And Intel server chipsets do support remapping.  I've seen boards with 2
-GB IO holes remapped above 4 GB.
+No. Bitfields for accessing hardware/wire datastructures are wrong and
+will always break in some circumstances.  Your header is much better.
 
-A 4 GB system reports 6 GB of memory, 4 of which are usable as DRAM.
-Intel doesn't document it, but there's a slight performance hit for the
-remapped memory, too.
+> 
+> Thanks,
+>   Roland
+> _______________________________________________
+> openib-general mailing list
+> openib-general@openib.org
+> http://openib.org/mailman/listinfo/openib-general
+> 
+> To unsubscribe, please visit http://openib.org/mailman/listinfo/openib-general
+---end quoted text---

@@ -1,91 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750940AbVKAQoA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750942AbVKAQpM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750940AbVKAQoA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 11:44:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbVKAQoA
+	id S1750942AbVKAQpM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 11:45:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750943AbVKAQpM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 11:44:00 -0500
-Received: from ns.dynamicweb.hu ([195.228.155.139]:58850 "EHLO dynamicweb.hu")
-	by vger.kernel.org with ESMTP id S1750939AbVKAQn7 (ORCPT
+	Tue, 1 Nov 2005 11:45:12 -0500
+Received: from nproxy.gmail.com ([64.233.182.207]:45104 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750942AbVKAQpK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 11:43:59 -0500
-Message-ID: <021a01c5df04$43d457e0$0400a8c0@dcccs>
-From: "JaniD++" <djani22@dynamicweb.hu>
-To: <linux-kernel@vger.kernel.org>
-Subject: *** glibc detected *** nmap: malloc(): memory corruption: 0x08718a50 ***
-Date: Tue, 1 Nov 2005 17:49:43 +0100
+	Tue, 1 Nov 2005 11:45:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=V70HJ/f3aGDmLn5j9Wxt+PqCTKfl4p+QaDxtTgm2LxKraRDvVIue2I7ms28O92zktHX4aGSVRAJMAK3QrQjhK4cpTAnT/DLZlgU9MJ3TXLnJXaL+rYTRrdxsXF2owPMFiN+/FBH6NgtpPqAcP9ed0rjp488drK8SNShgTgwPtXE=
+Message-ID: <43679B8F.8000305@gmail.com>
+Date: Tue, 01 Nov 2005 17:45:03 +0100
+From: Patrizio Bassi <patrizio.bassi@gmail.com>
+Reply-To: patrizio.bassi@gmail.com
+Organization: patrizio.bassi@gmail.com
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051027)
+X-Accept-Language: it, it-it, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-2"
+To: Tomasz Torcz <zdzichu@irc.pl>, "Kernel, " <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG 2579] linux 2.6.* sound problems (SOLVED)
+References: <53JVy-4yi-19@gated-at.bofh.it> <545a6-2GZ-17@gated-at.bofh.it>
+In-Reply-To: <545a6-2GZ-17@gated-at.bofh.it>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello list,
+Tomasz Torcz ha scritto:
+> On Mon, Oct 31, 2005 at 04:30:48PM +0100, Patrizio Bassi wrote:
+> 
+>>when playing audio and using a bit the harddisk (i.e. md5sum of a 200mb
+>>file)
+>>i hear noises, related to disk activity. more hd is used, more chicks
+>>and ZZZZ noises happen.
+>>
+>>linux 2.4.x and windows has no problems, perfect.
+> 
+> 
+>  I remeber similar problems with es1370 and OSS/ALSA driver. OSS were
+> fine, ALSA produced noise.
+>  It turned to be PCI latency timer issues. OSS driver changed it's value
+> to working good values. ALSA didn't touch latency timer, and during hard
+> disk activity sound stuttered.
+>  Got rid of problem by running setpci -d CARD:ID latency_timer=40
 
-I get this, on my dual-xeon ECC-reg memory system.
-What is this? :-)
 
-kernel: 2.6.13
-(everything looks like normal)
+seems now i got it **pretty** fixed.
 
-Thanks,
+what i did:
+1) updated kernel to 2.6.14-git4
+2) setted 100Hz instead of 250
+3) setted latency to 0x40 (64) instead of old 0x20 (32)
+4) disabled pci 2.1 in my bios.
 
-Janos
+i summed all solutions proposed by you all.
 
-[root@dy-xeon-1 r]# nmap -O 80.99.___.__
+it seems much much better, even if problem is not completly disappeared.
+i still get some ZzZ sounds, but they're so few i can declare problem fixed.
 
-Starting nmap V. 3.00 ( www.insecure.org/nmap/ )
-*** glibc detected *** nmap: malloc(): memory corruption: 0x08718a50 ***
-======= Backtrace: =========
-/lib/libc.so.6[0xb7e793ea]
-/lib/libc.so.6(calloc+0x91)[0xb7e7a4d9]
-nmap[0x8055cf0]
-nmap[0x805a6c3]
-nmap[0x805b6e8]
-nmap(vfprintf+0x3195)[0x804ca49]
-nmap(__strtoul_internal+0x3a6)[0x8049f4a]
-/lib/libc.so.6(__libc_start_main+0xc6)[0xb7e29de6]
-nmap(wait+0x5d)[0x8049cc1]
-======= Memory map: ========
-08048000-08086000 r-xp 00000000 00:0e 20707825   /usr/bin/nmap
-08086000-08088000 rwxp 0003d000 00:0e 20707825   /usr/bin/nmap
-08088000-08759000 rwxp 08088000 00:00 0          [heap]
-b7c00000-b7c21000 rwxp b7c00000 00:00 0
-b7c21000-b7d00000 ---p b7c21000 00:00 0
-b7d9e000-b7da7000 r-xp 00000000 00:0e 4107664
-/lib/libgcc_s-4.0.0-20050520.so.1
-b7da7000-b7da8000 rwxp 00009000 00:0e 4107664
-/lib/libgcc_s-4.0.0-20050520.so.1
-b7da8000-b7de9000 rwxp b7da8000 00:00 0
-b7de9000-b7df8000 r-xp 00000000 00:0e 4107341    /lib/libresolv-2.3.5.so
-b7df8000-b7df9000 r-xp 0000e000 00:0e 4107341    /lib/libresolv-2.3.5.so
-b7df9000-b7dfa000 rwxp 0000f000 00:0e 4107341    /lib/libresolv-2.3.5.so
-b7dfa000-b7dfc000 rwxp b7dfa000 00:00 0
-b7dfc000-b7e00000 r-xp 00000000 00:0e 4107328    /lib/libnss_dns-2.3.5.so
-b7e00000-b7e01000 r-xp 00003000 00:0e 4107328    /lib/libnss_dns-2.3.5.so
-b7e01000-b7e02000 rwxp 00004000 00:0e 4107328    /lib/libnss_dns-2.3.5.so
-b7e09000-b7e12000 r-xp 00000000 00:0e 4107329    /lib/libnss_files-2.3.5.so
-b7e12000-b7e13000 r-xp 00008000 00:0e 4107329    /lib/libnss_files-2.3.5.so
-b7e13000-b7e14000 rwxp 00009000 00:0e 4107329    /lib/libnss_files-2.3.5.so
-b7e14000-b7e15000 rwxp b7e14000 00:00 0
-b7e15000-b7f39000 r-xp 00000000 00:0e 4107308    /lib/libc-2.3.5.so
-b7f39000-b7f3b000 r-xp 00124000 00:0e 4107308    /lib/libc-2.3.5.so
-b7f3b000-b7f3d000 rwxp 00126000 00:0e 4107308    /lib/libc-2.3.5.so
-b7f3d000-b7f3f000 rwxp b7f3d000 00:00 0
-b7f3f000-b7f61000 r-xp 00000000 00:0e 4107319    /lib/libm-2.3.5.so
-b7f61000-b7f62000 r-xp 00021000 00:0e 4107319    /lib/libm-2.3.5.so
-b7f62000-b7f63000 rwxp 00022000 00:0e 4107319    /lib/libm-2.3.5.so
-b7f69000-b7f6b000 rwxp b7f69000 00:00 0
-b7f6b000-b7f85000 r-xp 00000000 00:0e 4105556    /lib/ld-2.3.5.so
-b7f85000-b7f86000 r-xp 00019000 00:0e 4105556    /lib/ld-2.3.5.so
-b7f86000-b7f87000 rwxp 0001a000 00:0e 4105556    /lib/ld-2.3.5.so
-bfe3a000-bfe85000 rwxp bfe3a000 00:00 0          [stack]
-ffffe000-fffff000 ---p 00000000 00:00 0          [vdso]
-Aborted
+i'm gonna set fixed status to kernel and alsa bugzilla too.
 
+Next step will be trying to get back to 250hz.
+
+Thanks for all your help
+
+Patrizio Bassi
 

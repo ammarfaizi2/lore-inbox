@@ -1,69 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbVKAVnq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbVKAVrK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751272AbVKAVnq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 16:43:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbVKAVnq
+	id S1751219AbVKAVrK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 16:47:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbVKAVrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 16:43:46 -0500
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:52650 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1751270AbVKAVnp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 16:43:45 -0500
-Message-ID: <4367E1CA.9040400@tmr.com>
-Date: Tue, 01 Nov 2005 16:44:42 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>,
-       "Kernel," <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG 2579] linux 2.6.* sound problems (SOLVED)
-References: <53JVy-4yi-19@gated-at.bofh.it> <545a6-2GZ-17@gated-at.bofh.it>	 <43679B8F.8000305@gmail.com> <43679FFB.6040504@mnsu.edu>	 <4367A369.5030003@gmail.com> <1130872775.22089.1.camel@mindpipe>
-In-Reply-To: <1130872775.22089.1.camel@mindpipe>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 1 Nov 2005 16:47:10 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:56226 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1751219AbVKAVrJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 16:47:09 -0500
+Subject: Re: Make spitz compile again
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Russell King <rmk@arm.linux.org.uk>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051101200516.GA7172@elf.ucw.cz>
+References: <20051031134255.GA8093@elf.ucw.cz>
+	 <1130773530.8353.39.camel@localhost.localdomain>
+	 <20051101200516.GA7172@elf.ucw.cz>
+Content-Type: text/plain
+Date: Tue, 01 Nov 2005 21:46:52 +0000
+Message-Id: <1130881612.8489.33.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> On Tue, 2005-11-01 at 18:18 +0100, Patrizio Bassi wrote:
+On Tue, 2005-11-01 at 21:05 +0100, Pavel Machek wrote:
+> Hi!
 > 
->>Jeffrey Hundstad ha scritto:
->>
->>
->>>Since you're going to 250 Hz.  Please, if you would, see if you can
->>>tell any performance change and report that as well.  I'm more than a
->>>little skeptical that you'll notice.  BTW: Your battery life should be
->>>a little better at 100 Hz also.
->>>
->>
->>sincerely i can notice that task and application switching is a bit slower.
->>i have a 500mhz cpu so i think i can notice a bit the difference.
->>i can't estimate it mmm...
->>i'll say no more that 5-8%.
->>but i don't know where i'm gaining speed..
+> > > This is what I needed to do after update to latest linus
+> > > kernel. Perhaps it helps someone. 
+> > > 
+> > > Signed-off-by: Pavel Machek <pavel@suse.cz>
+> > > 
+> > > , but it is against Richard's tree merged into my tree, so do not
+> > > expect to apply it over mainline. Akita code movement is needed if I
+> > > want to compile kernel without akita support...
+> > 
+> > This is an update of my tree against 2.6.14-git3:
+> > 
+> > http://www.rpsys.net/openzaurus/temp/total-2.6.14-git3-r0.patch.gz
 > 
+> I did compile fixing, but it still will not boot. With neither my
+> config, not with yours. Just blank screen. Any ideas?
 > 
-> Um, wasn't a consensus reached at OLS two years ago that the target for
-> desktop responsiveness would be 1ms which is impossible with HZ=100 or
-> 250?
+> > http://www.rpsys.net/openzaurus/temp/total-2.6.14-git3-r0-defconfig-cxx00
 
-Go back and reread the thread in the archives. The short answer is that 
-he who controls the code controls the decisions. I just fix it 
-everywhere, since 250 is too fast for optimal battery life, too slow for 
-optimal response or multimedia, and not optimal for any server 
-application I run (usenet, dns, mail, http, firewall).
+I've worked out a patch to revert the change that broke things for c7x0:
 
-A perfect compromise is one which makes everyone reasonably happy; this 
-is like the XOR of that, it leaves everyone slightly dissatisfied. ;-)
+http://www.rpsys.net/openzaurus/patches/revert_bootmem-r0.patch
 
-I'm convinced that Linus choose this value to make everyone slightly 
-unhappy, so development of various variable rate and tick skipping 
-projects would continue. Unfortunately that doesn't seem to have 
-happened :-(
+I'd be interested to know if this helps your spitz kernel as its gets
+c7x0 working again. Obviously the next step is to work out why this
+breaks things but reverting it gets my Zaurus dev tree working again
+which stops users c7x0 complaining :)
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Richard
+

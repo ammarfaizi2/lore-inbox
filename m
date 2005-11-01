@@ -1,102 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbVKAPs2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750916AbVKAPyZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750909AbVKAPs2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 10:48:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750911AbVKAPs2
+	id S1750916AbVKAPyZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 10:54:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750918AbVKAPyZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 10:48:28 -0500
-Received: from nwd2mail3.analog.com ([137.71.25.52]:23434 "EHLO
-	nwd2mail3.analog.com") by vger.kernel.org with ESMTP
-	id S1750908AbVKAPs1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 10:48:27 -0500
-Message-Id: <6.1.1.1.0.20051101075832.01ebc3b0@ptg1.spd.analog.com>
-X-Mailer: QUALCOMM Windows Eudora Version 6.1.1.1
-Date: Tue, 01 Nov 2005 10:48:07 -0500
-To: Jacques Moreau <jacques.moreau@imag.imag.fr>
-From: Robin Getz <rgetz@blackfin.uclinux.org>
-Subject: Re: ADI Blackfin porting for kernel-2.6.13
-Cc: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Tue, 1 Nov 2005 10:54:25 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:403 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750915AbVKAPyY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 10:54:24 -0500
+Date: Tue, 1 Nov 2005 07:54:12 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+cc: Paul Mackerras <paulus@samba.org>, akpm@osdl.org,
+       David Brownell <david-b@pacbell.net>,
+       Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Don't touch USB controllers with MMIO disabled in quirks
+In-Reply-To: <Pine.LNX.4.44L0.0511011029040.5081-100000@iolanthe.rowland.org>
+Message-ID: <Pine.LNX.4.64.0511010748430.27915@g5.osdl.org>
+References: <Pine.LNX.4.44L0.0511011029040.5081-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat 10/22/2005, Jacques asked:
->Does this patch is only for Blackfin processor or it add some support for 
->fusiv [1] communications processor that are in residential Gateway ?
 
-The Blackfin/uClinux 2.6.x patch which was prepared (and will be 
-maintained) by a separate team(1) who is not working on any fusiv 
-processors (which are MIPS-based).
 
->If no, do you know if analog plans to realease the linux 2.4/2.6 
->modification that have been made in order to support these processors ?
+On Tue, 1 Nov 2005, Alan Stern wrote:
+> 
+> In theory, is it possible for a UHCI controller still to be running, doing 
+> DMA and/or generating interrupts, even if PCI_COMMAND_IO isn't set?
 
-Not sure - Since the two groups are separate, no one on the team here knows 
-the plans of the Fusiv team.
+Yes, it's possible in theory. I guess we could check whether BUS_MASTER is 
+enabled (which _does_ need to be enabled, otherwise it couldn't function), 
+and then enable it.
 
->IRRC some Sagem residential Gateways (will) run on Linux OS and the users 
->sould be able ask for the GPL code.
+> Or is this scenario not worth worrying about?
 
-So, the best place to go would be to Sagem (or any company shipping a 
-product with Embedded Linux/uClinux). Since they are responsible for 
-distributing the binary, it is their responsibility to make the source 
-released under GPL or derived from previously GPL'ed software available.
+It's probably not worth worrying about. After all, this is really just for 
+when something else (firmware) has enabled the USB controller for its own 
+nefarious purposes (ie it also wanted keyboard input), and left it 
+running. If something has left it running by mistake, it won't have 
+disabled IO access either.
 
-If you received a product from Sagem, which you believe includes GPL'ed 
-software - call them and ask for the source:
-http://www.sagem.com/index.php?id=445&L=0
+And if it _has_ disabled IO access, we wouldn't know how to enable it at 
+this point. Sure, we could enable the command bit, but this is too early 
+for us to know where in the IO address space it would be safe to enable 
+it.
 
-If you received a development kit, or other reference design from ADI, 
-which you believe includes GPL'ed software, call them and ask for the source:
-http://www.analog.com/salesdir/continent.asp
+But an alternative strategy (which might be very sensible) is to forget 
+about the handoff entirely, and just shut down the bus master flag 
+unconditionally. Just make sure that the eventual driver will reset the 
+controller before it re-enables bus mastering.
 
-Thanks
--Robin
+That would seem to be the simplest possible "handoff". The only danger is 
+that I could imagine that there would be controllers out there that get 
+really confused (ie "I'm not going to play nice any more") if we shut them 
+up that way.
 
-<shameless plug>
-(1)There is a small group of open source developers inside of ADI, focusing 
-on the support of the Blackfin processor with various open source projects. 
-We have people dedicated to:
-  - the FSF's Toolchain (gcc, gdb, binutils) where our patches have
-     been accepted into the mainline projects (still working on the
-     last kinks gdb pthreads support).
-  - Das U-Boot as our chip initialization and bootloader. Booting from the
-     network is very powerful in many embedded environments.
-  - the GNU/uClinux kernel (Luke's recent patch for 2.6.14), where end
-     products are beginning to ship in volume.
-  - open source hardware design - free (speech) software isn't any good
-     on closed hardware. All of our schematics, gerbers, PCB manufacturing
-     files are released under the GPL, and are mostly avalible from
-     Digikey, at sub $225 price points.
-  - Simulation support with Skyeye
-     http://gro.clinux.org/forum/forum.php?forum_id=2619
-
-Our team completely embraces the open source model (release early, release 
-often) - using open source tools (GForge, Tinderbox, cvs, dokuwiki), 
-publishing everything we do/understand on the web(2). We have been 
-responsible for contributions in other open source projects:
-   - helped port Linux Test Project (LTP) so it could run on a
-      uClinux/uclibc/no-mmu environment
-   - helped port Speex to the Blackfin, to run a completely open
-       source embedded VoIP phone, based on Linphone.
-   - helping update uClinux-dist to other main-line projects.
-   - others, but I am starting to get a little wordy.
-
-The combination of Blackfin/uClinux is pretty compelling - the hardware(3) 
-has a pretty good span of price(as low as $4.95)/performance(BF561 include 
-Dual Core, 600MHz each) & I won't go into the benefits of uClinux and open 
-source here :)
-
-If anyone is interested in looking at things running on real hardware, I do 
-have a limited amount of hardware I can lend people for poking/porting. 
-Some of the things we have working are pretty cool[4]. Send me a private email.
-
-</shameless plug>
-
-[2]http://blackfin.uclinux.org
-[2]http://docs.blackfin.uclinux.org
-[2]http://cvs.blackfin.uclinux.org
-[3]http://www.analog.com/processors/processors/blackfin/index.html
-[4]http://www.linuxdevices.com/articles/AT9272421886.html 
-
+		Linus

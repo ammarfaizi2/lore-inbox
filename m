@@ -1,51 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbVKAUou@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbVKAUps@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751193AbVKAUou (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 15:44:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbVKAUou
+	id S1751205AbVKAUps (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 15:45:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbVKAUpr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 15:44:50 -0500
-Received: from host175-37.pool8253.interbusiness.it ([82.53.37.175]:53966 "EHLO
-	zion.home.lan") by vger.kernel.org with ESMTP id S1751193AbVKAUot
+	Tue, 1 Nov 2005 15:45:47 -0500
+Received: from mx.laposte.net ([81.255.54.11]:60904 "EHLO mx.laposte.net")
+	by vger.kernel.org with ESMTP id S1751205AbVKAUpr convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 15:44:49 -0500
-From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 1/2] uml: build host-binaries with the native host arch again
-Date: Tue, 01 Nov 2005 21:48:37 +0100
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Message-Id: <20051101204836.27258.46611.stgit@zion.home.lan>
+	Tue, 1 Nov 2005 15:45:47 -0500
+Date: Tue,  1 Nov 2005 21:45:45 +0100
+Message-Id: <IPAN09$F220C6FBBDF3524C13AB2361041E77E0@laposte.net>
+Subject: Re:[patch 000/176] Video4Linux Updates
+MIME-Version: 1.0
+X-Sensitivity: 3
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+From: "emmanuel\.fuste" <emmanuel.fuste@laposte.net>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Cc: "mchehab" <mchehab@brturbo.com.br>
+X-XaM3-API-Version: 4.1 (B103)
+X-SenderIP: 127.0.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+Hello,
 
-This patch reverts back the changes to HOSTCFLAGS and HOSTLDFLAGS
+Small comment: do not add your own MIN/MAX macro please.
+(v4l_758_some_improvements_at_msp3400_c_from_ivtv_code.patch)
 
-When we were building complete binaries to get constants (such as ptrace
-register layout on stack) from host userspace headers, we needed to make the
-arch for building HOST binaries match our one: i.e. on a 64bit system compiling
-32bit binaries, we compile 32-bit hostprogs and need, say, 32-bit ncurses. Now
-we can revert that - that avoids problem with, say, menuconfig and ncurses, on a
-system which can't compile well 32-bit programs.
+Bye.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
+Accédez au courrier électronique de La Poste : www.laposte.net ; 
+3615 LAPOSTENET (0,34€/mn) ; tél : 08 92 68 13 50 (0,34€/mn)
 
- arch/um/Makefile-i386 |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
 
-diff --git a/arch/um/Makefile-i386 b/arch/um/Makefile-i386
---- a/arch/um/Makefile-i386
-+++ b/arch/um/Makefile-i386
-@@ -17,8 +17,6 @@ ifeq ("$(origin SUBARCH)", "command line
- ifneq ("$(shell uname -m | sed -e s/i.86/i386/)", "$(SUBARCH)")
- CFLAGS			+= $(call cc-option,-m32)
- USER_CFLAGS		+= $(call cc-option,-m32)
--HOSTCFLAGS		+= $(call cc-option,-m32)
--HOSTLDFLAGS		+= $(call cc-option,-m32)
- AFLAGS			+= $(call cc-option,-m32)
- LINK-y			+= $(call cc-option,-m32)
- UML_OBJCOPYFLAGS	+= -F $(ELF_FORMAT)
 

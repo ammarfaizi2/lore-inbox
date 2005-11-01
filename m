@@ -1,89 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964928AbVKAAeI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbVKAAfU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964928AbVKAAeI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 19:34:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964930AbVKAAeI
+	id S1751202AbVKAAfU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 19:35:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbVKAAfU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 19:34:08 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:48008 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964928AbVKAAeH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 19:34:07 -0500
-Date: Mon, 31 Oct 2005 16:34:08 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: zippel@linux-m68k.org, ak@suse.de, rmk+lkml@arm.linux.org.uk,
-       tony.luck@gmail.com, paolo.ciarrocchi@gmail.com,
-       linux-kernel@vger.kernel.org
+	Mon, 31 Oct 2005 19:35:20 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:15510 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1751202AbVKAAfT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 19:35:19 -0500
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: Roman Zippel <zippel@linux-m68k.org>
 Subject: Re: New (now current development process)
-Message-Id: <20051031163408.41a266f3.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0510311611540.27915@g5.osdl.org>
-References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com>
-	<20051031001647.GK2846@flint.arm.linux.org.uk>
-	<20051030172247.743d77fa.akpm@osdl.org>
-	<200510310341.02897.ak@suse.de>
-	<Pine.LNX.4.61.0511010039370.1387@scrub.home>
-	<20051031160557.7540cd6a.akpm@osdl.org>
-	<Pine.LNX.4.64.0510311611540.27915@g5.osdl.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Date: Mon, 31 Oct 2005 16:34:30 -0800
+User-Agent: KMail/1.8.91
+Cc: Andrew Morton <akpm@osdl.org>, ak@suse.de, rmk+lkml@arm.linux.org.uk,
+       torvalds@osdl.org, tony.luck@gmail.com, paolo.ciarrocchi@gmail.com,
+       linux-kernel@vger.kernel.org
+References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com> <20051031160557.7540cd6a.akpm@osdl.org> <Pine.LNX.4.61.0511010109100.1386@scrub.home>
+In-Reply-To: <Pine.LNX.4.61.0511010109100.1386@scrub.home>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200510311634.31764.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
->
-> 
-> 
-> On Mon, 31 Oct 2005, Andrew Morton wrote:
-> > 
+On Monday, October 31, 2005 4:17 pm, Roman Zippel wrote:
 > > Are you sure these kernels are feature-equivalent?
-> 
-> They may not be feature-equivalent in reality, but it's hard to generate 
-> something that has the features (or lack there-of) of old kernels these 
-> days. Which is problematic.
+>
+> Pretty much, on this machine I generally only include what I need, so
+> only a few drivers were added, I even have KALLSYMS disabled.
 
-Probably.
+Is it just one top level subsystem that's increasing in size faster than 
+the others?  Last time I broke it down, networking (net/built-in.o) was 
+the biggest by far, and it does seem to add features at a fast rate (not 
+that I'm complaining!).  On FC devel with the FC kernel config:
 
-> But some of it is likely also compilers. gcc does insane padding in many 
-> cases these days. 
+-rw-rw-r--  1 jbarnes jbarnes 555088 Oct 31 16:33 net/built-in.o 
+(stripped)
 
-2.6.14 `make allnoconfig':
-
-gcc-2.95.4:
-
-	bix:/usr/src/25> size vmlinux 
-	   text    data     bss     dec     hex filename
-	 665502  152379   55120  873001   d5229 vmlinux
-
-gcc version 4.1.0 20050513 (experimental):
-
-	bix:/usr/src/25> size vmlinux
-	   text    data     bss     dec     hex filename
-	 761415  151851   55280  968546   ec762 vmlinux
-
-(There's a new reason for retaining gcc-2.95.x support)
-
-(gcc-4.x can probably be tuned up with appropriate `-malign' options)
-
-> And a lot of it is us just being bloated. Argh.
-
-2.5.71, gcc-2.95.4:
-
-	bix:/usr/src/aa/linux-2.5.71> size vmlinux 
-	   text    data     bss     dec     hex filename
-	 501892   54163   40420  596475   919fb vmlinux
-
-yes, it got bigger.   .data went through the roof - maybe inlined debug stuff?
-
-2.6.8.1, gcc-2.95.4:
-
-	bix:/usr/src/aa/linux-2.6.8.1> size vmlinux
-	   text    data     bss     dec     hex filename
-	 605032  153817   58176  817025   c7781 vmlinux
-
-
-It happened somewhere between 2.5.71 and 2.6.8.
-
-2.4.x doesn't have allnoconfig, so no numbers for that.
+Jesse

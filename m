@@ -1,68 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbVKAG6s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964815AbVKAIke@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932187AbVKAG6s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 01:58:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932564AbVKAG6s
+	id S964815AbVKAIke (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 03:40:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbVKAIke
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 01:58:48 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:8275 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932187AbVKAG6r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 01:58:47 -0500
-Date: Tue, 1 Nov 2005 07:59:12 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Bongani Hlope <bonganilinux@mweb.co.za>
-Cc: linux-kernel@vger.kernel.org, piggin@cyberone.com.au
-Subject: Re: Badness in as_insert_request at drivers/block/as-iosched.c:1519
-Message-ID: <20051101065911.GD19267@suse.de>
-References: <200510312240.49228.bonganilinux@mweb.co.za>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 1 Nov 2005 03:40:34 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:50062
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S964815AbVKAIkd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 03:40:33 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: jonathan@jonmasters.org
+Subject: Re: [PATCH] fix floppy.c to store correct ro/rw status in underlying gendisk
+Date: Tue, 1 Nov 2005 01:21:53 -0600
+User-Agent: KMail/1.8
+Cc: Evgeny Stambulchik <Evgeny.Stambulchik@weizmann.ac.il>,
+       linux-kernel@vger.kernel.org
+References: <4363B081.7050300@jonmasters.org> <200510311717.21676.rob@landley.net> <35fb2e590510311836j4c7fbdf2u77a72ebbfd53790c@mail.gmail.com>
+In-Reply-To: <35fb2e590510311836j4c7fbdf2u77a72ebbfd53790c@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200510312240.49228.bonganilinux@mweb.co.za>
+Message-Id: <200511010121.53889.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 31 2005, Bongani Hlope wrote:
-> Hi Jens,
-> 
-> When I rip a music CD I get these for each track that is ripped. 
-> 
-> 
->  Badness in as_insert_request at drivers/block/as-iosched.c:1519
-> 
->  Call Trace:<ffffffff80281b0f>{as_insert_request+111} 
-> <ffffffff80278689>{__elv_add_request+105}
-> <ffffffff802787a8>{elv_add_request+72} 
-> <ffffffff8027b9f6>{blk_execute_rq_nowait+54}
-> <ffffffff8027bac8>{blk_execute_rq+184} 
-> <ffffffff80184ee7>{bio_phys_segments+23}
-> <ffffffff8027b67b>{blk_rq_bio_prep+59} 
-> <ffffffff8817226b>{:cdrom:mmc_ioctl+1275}
-> <ffffffff8817c51e>{:ide_cd:cdrom_queue_packet_command+78}
-> <ffffffff8028d838>{ide_init_drive_cmd+24} 
-> <ffffffff8817d47f>{:ide_cd:cdrom_check_status+127}
-> <ffffffff8015eae0>{__rmqueue+192} <ffffffff8015f200>{buffered_rmqueue+544}
-> <ffffffff8028050d>{scsi_cmd_ioctl+1997} <ffffffff80341841>{thread_return+193}
-> <ffffffff8010c552>{__switch_to+50} <ffffffff80341841>{thread_return+193}
-> <ffffffff80342f73>{_spin_unlock_irqrestore+19} 
-> <ffffffff8015e8f6>{free_pages_bulk+582}
-> <ffffffff88173e51>{:cdrom:cdrom_ioctl+2529} 
-> <ffffffff80166aa3>{release_pages+387}
-> <ffffffff8817ebb6>{:ide_cd:idecd_ioctl+102} 
-> <ffffffff8027dc88>{blkdev_driver_ioctl+104}
-> <ffffffff8027e40b>{blkdev_ioctl+1883} 
-> <ffffffff8016dc67>{__handle_mm_fault+407}
-> <ffffffff80342f73>{_spin_unlock_irqrestore+19} 
-> <ffffffff801fb261>{__up_read+161}
-> <ffffffff80344b9d>{do_page_fault+1213} <ffffffff80188b3b>{block_ioctl+27}
-> <ffffffff80193aee>{do_ioctl+62} <ffffffff80193e1b>{vfs_ioctl+715}
-> <ffffffff80193e8d>{sys_ioctl+77} <ffffffff8010dd5e>{system_call+126}
+On Monday 31 October 2005 20:36, Jon Masters wrote:
+> On 10/31/05, Rob Landley <rob@landley.net> wrote:
+> > On Monday 31 October 2005 05:57, Evgeny Stambulchik wrote:
+> > > Jon Masters wrote:
+> > > > Let me know if this fixes it for you - should bomb out now if you
+> > > > try. The error isn't the cleanest (blame mount), but it does fail.
+> > >
+> > > This works fine, thanks! For what it worth, though, mount -o remount,rw
+> > > says remounting read-only yet still returns success. (Opposite to
+> > > busybox, which now says "Permission denied" - rather misleading, but at
+> > > least it fails).
+> >
+> > That sounds like the string translation of EPERM returned by libc's
+> > strerror().  (At busybox we're frugal bastards; we don't include text
+> > messages when we can get the C library to provide them for us. :)
+>
+> Indeed. Reminds me that I should clean up and send a form parser I
+> wrote for busybox to handle multi-part mime form posts in its
+> webserver while I'm at it. That's something it could do with even if
+> it's being frugal.
 
-With what kernel? And what program are you using? Is dma turned on?
+Oh we'll accept a suprising amount of functionality as long as it's the 
+smallest possible implementation and you can easily configure it out if you 
+don't want it.
 
-Please be a little more specific!
+We're starting to draw the line at servers, though.  I personally think our 
+existing httpd/dhcpd/telnetd servers should probably be broken off into a 
+separate package.  (We've wandered a touch beyond the mandate of standard 
+command line utilities, in places.  An agenda item for version 1.2...)
 
--- 
-Jens Axboe
+> > But yeah, we're sticklers for correct behavior, and only attempt to
+> > remount readonly if we get EACCES or EROFS, not _just_ because we
+> > attempted a read/write mount and it failed.  (And yes, I personally
+> > tested this corner case.  We haven't started on an automated regression
+> > test script for mount yet because running it would require root access,
+> > but it's on the todo list as we upgrade the test suite in our Copious
+> > Free Time...)
+>
+> You looked at running this inside a qemu environment (scratchbox), huh?
 
+I use User Mode Linux, actually.  (I finally downloaded qemu a couple days 
+ago, to test non-x86 builds.  But I could only build a crippled version at 
+the time, because ubuntu doesn't have the SDL headers installed either.  It's 
+sort of development whack-a-mole...)
+
+No, I'm building my own distro from source code, based on busybox and uClibc.  
+(And when I mean "based on busybox" I mean I'm using it to completely replace 
+bzip2, coreutils, e2fsprogs, file, findutils, gawk, grep, gzip, inetutils, 
+less, modutils, net-tools, patch, procps, sed, shadow, sysklogd, sysvinit, 
+tar, util-linux, and vim.)  And yes, this is a complete self-hosting 
+development environment.  (By self-hosting I mean capable of rebuilding 
+itself from source.)
+
+You can download the build script here:
+http://www.landley.net/code/firmware
+
+Untar it and run build.sh (as a normal user, not as root), and it'll download 
+all the software packages it needs, build User Mode Linux, and run the rest 
+of the build under UML.  The result is a self-contained "firmware-uml" you 
+can run to try it out.  It's a User Mode Linux kernel with appended squashfs 
+root partion, which automatically loopback mounts itself during initramfs.  A 
+bootable version is in the works.  (I already have a patched lilo that'll 
+boot it, the hard part is making an installer.)
+
+I've only got two gnu packages left other than development tools: I still need 
+to untangle busybox's command shell mess so I can stop using bash, and I need 
+to add "diff -u" so I can drop diffutils.  (And while I'm at it, I need to 
+find another compiler to replace gcc and binutils, and find another make 
+implementation, at least as an _option_.  Then I can ask Richard Stallman if 
+the resulting system is still "GNU/Linux", despite not using any GNU packages 
+or libraries even to build it.  Ooh, software development to advance a 
+political agenda, a _totally_ unfair thing to pull on RMS...)
+
+And yes, I've found (and fixed) eight gazillion bugs over the past two years 
+working on this system.  You want to shake out all the bugs and weird corner 
+cases an implementation of sed/awk/sort?  I mean after you've read through 
+the relevant Open Group base standard, line by line taking copious notes, and 
+implemented everything you can see?  Try to get it to handle the ./configure 
+of binutils and gcc.  Those suckers are _evil_.
+
+And by evil I mean I had to add this to busybox sed to get the darn thing to 
+actually use it:
+
+#define LIE_TO_AUTOCONF
+#ifdef LIE_TO_AUTOCONF
+    if(argc==2 && !strcmp(argv[1],"--version")) {
+        printf("This is not GNU sed version 4.0\n");
+        exit(0);
+    }
+#endif
+
+You guessed it: the configure regexp checks for _GNU_ sed.  Grrr...
+
+> Jon.
+
+Rob

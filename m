@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965067AbVKAIQM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965079AbVKAIRK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965067AbVKAIQM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 03:16:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965069AbVKAIQK
+	id S965079AbVKAIRK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 03:17:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964993AbVKAIQf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 03:16:10 -0500
-Received: from hulk.hostingexpert.com ([69.57.134.39]:32878 "EHLO
+	Tue, 1 Nov 2005 03:16:35 -0500
+Received: from hulk.hostingexpert.com ([69.57.134.39]:19941 "EHLO
 	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S965068AbVKAIQD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 03:16:03 -0500
-Message-ID: <4367241A.1060300@m1k.net>
-Date: Tue, 01 Nov 2005 03:15:22 -0500
+	id S965069AbVKAIQP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 03:16:15 -0500
+Message-ID: <43672420.90700@m1k.net>
+Date: Tue, 01 Nov 2005 03:15:28 -0500
 From: Michael Krufky <mkrufky@m1k.net>
 User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
 CC: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org
-Subject: [PATCH 26/37] dvb: add support for plls used by nxt200x
+Subject: [PATCH 27/37] dvb: Nebula nxt6000 requires fe reset
 Content-Type: multipart/mixed;
- boundary="------------030400000004020006080904"
+ boundary="------------020507000306010702010504"
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -32,111 +32,51 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------030400000004020006080904
+--------------020507000306010702010504
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
 
 
---------------030400000004020006080904
+--------------020507000306010702010504
 Content-Type: text/x-patch;
- name="2400.patch"
+ name="2402.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="2400.patch"
+ filename="2402.patch"
 
-From: Kirk Lapray <kirk.lapray@gmail.com>
+From: Stuart Auchterlonie <stuarta@squashedfrog.net>
 
-- Added support for the following:
-  Philips TUV1236D - ATI HDTV Wonder
-  ALPS TDHU2 - AverTVHD MCE A180
-  Samsung TBMV30111IN - Air2PC ATSC - 2nd generation
+Nebula nxt6000 requires fe reset.
 
-These will be used in a new NXT200X driver that incorporates the
-NXT2002 driver and adds support for a couple NXT2004 based cards.
-
-Signed-off-by: Kirk Lapray <kirk.lapray@gmail.com>
+Signed-off-by: Stuart Auchterlonie <stuarta@squashedfrog.net>
 Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
 
- drivers/media/dvb/frontends/dvb-pll.c |   52 ++++++++++++++++++++++++++++++++++
- drivers/media/dvb/frontends/dvb-pll.h |    4 ++
- 2 files changed, 56 insertions(+)
+ drivers/media/dvb/bt8xx/dvb-bt8xx.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- linux-2.6.14-git3.orig/drivers/media/dvb/frontends/dvb-pll.c
-+++ linux-2.6.14-git3/drivers/media/dvb/frontends/dvb-pll.c
-@@ -292,6 +292,58 @@
- };
- EXPORT_SYMBOL(dvb_pll_tded4);
+--- linux-2.6.14-git3.orig/drivers/media/dvb/bt8xx/dvb-bt8xx.c
++++ linux-2.6.14-git3/drivers/media/dvb/bt8xx/dvb-bt8xx.c
+@@ -523,9 +523,7 @@
+ 	/*
+ 	 * Reset the frontend, must be called before trying
+ 	 * to initialise the MT352 or mt352_attach
+-	 * will fail.
+-	 *
+-	 * Presumably not required for the NXT6000 frontend.
++	 * will fail. Same goes for the nxt6000 frontend.
+ 	 *
+ 	 */
  
-+/* ALPS TDHU2
-+ * used in AverTVHD MCE A180
-+ */
-+struct dvb_pll_desc dvb_pll_tdhu2 = {
-+	.name = "ALPS TDHU2",
-+	.min = 54000000,
-+	.max = 864000000,
-+	.count = 4,
-+	.entries = {
-+		{ 162000000, 44000000, 62500, 0x85, 0x01 },
-+		{ 426000000, 44000000, 62500, 0x85, 0x02 },
-+		{ 782000000, 44000000, 62500, 0x85, 0x08 },
-+		{ 999999999, 44000000, 62500, 0x85, 0x88 },
-+	}
-+};
-+EXPORT_SYMBOL(dvb_pll_tdhu2);
-+
-+/* Philips TUV1236D
-+ * used in ATI HDTV Wonder
-+ */
-+struct dvb_pll_desc dvb_pll_tuv1236d = {
-+	.name  = "Philips TUV1236D",
-+	.min   =  57000000,
-+	.max   = 864000000,
-+	.count = 3,
-+	.entries = {
-+		{ 157250000, 44000000, 62500, 0xc6, 0x41 },
-+		{ 454000000, 44000000, 62500, 0xc6, 0x42 },
-+		{ 999999999, 44000000, 62500, 0xc6, 0x44 },
-+	},
-+};
-+EXPORT_SYMBOL(dvb_pll_tuv1236d);
-+
-+/* Samsung TBMV30111IN
-+ * used in Air2PC ATSC - 2nd generation (nxt2002)
-+ */
-+struct dvb_pll_desc dvb_pll_tbmv30111in = {
-+	.name = "Samsung TBMV30111IN",
-+	.min = 54000000,
-+	.max = 860000000,
-+	.count = 4,
-+	.entries = {
-+		{ 172000000, 44000000, 166666, 0xb4, 0x01 },
-+		{ 214000000, 44000000, 166666, 0xb4, 0x02 },
-+		{ 467000000, 44000000, 166666, 0xbc, 0x02 },
-+		{ 721000000, 44000000, 166666, 0xbc, 0x08 },
-+		{ 841000000, 44000000, 166666, 0xf4, 0x08 },
-+		{ 999999999, 44000000, 166666, 0xfc, 0x02 },
-+	}
-+};
-+EXPORT_SYMBOL(dvb_pll_tbmv30111in);
-+
- /* ----------------------------------------------------------- */
- /* code                                                        */
+@@ -632,6 +630,7 @@
+ 		 */
  
---- linux-2.6.14-git3.orig/drivers/media/dvb/frontends/dvb-pll.h
-+++ linux-2.6.14-git3/drivers/media/dvb/frontends/dvb-pll.h
-@@ -36,6 +36,10 @@
- extern struct dvb_pll_desc dvb_pll_fmd1216me;
- extern struct dvb_pll_desc dvb_pll_tded4;
- 
-+extern struct dvb_pll_desc dvb_pll_tuv1236d;
-+extern struct dvb_pll_desc dvb_pll_tdhu2;
-+extern struct dvb_pll_desc dvb_pll_tbmv30111in;
-+
- int dvb_pll_configure(struct dvb_pll_desc *desc, u8 *buf,
- 		      u32 freq, int bandwidth);
- 
+ 		/* Old Nebula (marked (c)2003 on high profile pci card) has nxt6000 demod */
++		digitv_alps_tded4_reset(card);
+ 		card->fe = nxt6000_attach(&vp3021_alps_tded4_config, card->i2c_adapter);
+ 		if (card->fe != NULL) {
+ 			dprintk ("dvb_bt8xx: an nxt6000 was detected on your digitv card\n");
 
 
---------------030400000004020006080904--
+--------------020507000306010702010504--

@@ -1,87 +1,43 @@
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932588AbVKAFDn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751158AbVJaXcM (ORCPT <rfc822;ralf@linux-mips.org>);
-	Mon, 31 Oct 2005 18:32:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbVJaXcM
+	id S932588AbVKAFDn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 00:03:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932587AbVKAFDn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 18:32:12 -0500
-Received: from bay20-f13.bay20.hotmail.com ([64.4.54.102]:55898 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S1751158AbVJaXcM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 18:32:12 -0500
-Message-ID: <BAY20-F13E282CDDBD31D14628D76F26C0@phx.gbl>
-X-Originating-IP: [193.220.178.110]
-X-Originating-Email: [captlouise2@hotmail.com]
-From: "Brian Louise" <captlouise2@hotmail.com>
-Subject: Dear friend
-Date: Mon, 31 Oct 2005 23:32:09 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 31 Oct 2005 23:32:09.0621 (UTC) FILETIME=[5016E450:01C5DE73]
-To: unlisted-recipients:; (no To-header on input)
+	Tue, 1 Nov 2005 00:03:43 -0500
+Received: from ams-iport-1.cisco.com ([144.254.224.140]:8570 "EHLO
+	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S932585AbVKAFDm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 00:03:42 -0500
+To: Christoph Hellwig <hch@lst.de>
+Cc: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>, openib-general@openib.org,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [openib-general] Re: [PATCH/RFC] IB: Add SCSI RDMA Protocol
+ (SRP) initiator
+X-Message-Flag: Warning: May contain useful information
+References: <52wtjtk3d1.fsf@cisco.com>
+	<20051101110409V.fujita.tomonori@lab.ntt.co.jp>
+	<52irvdge6c.fsf@cisco.com> <20051101045800.GA25519@lst.de>
+From: Roland Dreier <rolandd@cisco.com>
+Date: Mon, 31 Oct 2005 21:03:35 -0800
+In-Reply-To: <20051101045800.GA25519@lst.de> (Christoph Hellwig's message of
+ "Tue, 1 Nov 2005 05:58:00 +0100")
+Message-ID: <52acgpgdso.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 01 Nov 2005 05:03:36.0233 (UTC) FILETIME=[9D6F1190:01C5DEA1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751158AbVJaXcM@vger.kernel.org>
 
-Dear friend,
+    Christoph> No. Bitfields for accessing hardware/wire
+    Christoph> datastructures are wrong and will always break in some
+    Christoph> circumstances.  Your header is much better.
 
-As you read this, I don't want you to feel sorry for
-me, because I believe everyone will die someday.
+OK, that's my feeling as well.
 
-My name is Capt.Brian Louise a merchant in Cotonou- Benin Republic
-i am 51 yrs of age I lost my wife and two dauthers in a car accident
-here in the Benin Republic. I have been diagnosed with Esophageal
-cancer and have been in the hospital hear in Benin Republic for a
-very long time. It has defied all forms of medical treatment, and
-right now I have about few months to live, according to the
-medical experts.
+Would it make sense for me to split the pure SRP spec structures and
+so on into a separate file and put it in include/scsi/srp.h?  Then we
+can move ibmvscsi towards using that file.
 
-I have not particularly lived my life so well, as I
-never really cared for anyone (not even myself) but my
-business and wealth. Though I am very rich, I was
-never generous, I was always hostile to people and
-only focused on my business as that was the only thing
-I cared for. But now I regret all this as I now know
-that there is more to life than just wanting to have
-or make all the money in the world.
-
-I believe when God gives me a second chance to come to
-this world I would live my life a different way from
-how I have lived it till date. Now that God is calling
-me, I have willed and shared most of my properties and
-assets to my immediate and extended family members,
-including few close friends.
-
-I want God to be merciful to me and accept my soul, so
-I have decided to give alms to charity organizations,
-as I want this to be one of the last good deeds I do
-on earth before Gods call. So far, I have distributed
-money to some charity organizations hear in Senegal,
-Algeria ,Malaysia and also the Tsunami victims. Now that
-my health has been deteriorated so badly, I cannot do
-this myself anymore.
-
-I once asked members of my family to close one of my
-account and distribute the money which I have there
-to charity organization in Bulgaria and Pakistan, they
-refused and kept the money to themselves. Hence, I do
-not trust them anymore, as they seem not to be
-contended with what I have left for them.
-
-The last of my money which no one knows of is the huge
-cash deposit of  (£8.000.000.00) Eight Million Pounds Sterling that I
-have with a finance and trust Company in Europe. I would want you to
-help me collect this deposit and distribute part of it to charity
-organizations in your country.
-
-I would want you to keep 30% of the funds to yourself for your help
-and dispatch the rest to charity organizations. Please reply
-this mail as soon as possible if you are willing to assist me.
-Please feel free to dis-regard this proposal if it is not in line
-with your principles.
-
-God be with you,
-
-Capt.Brian Louise.
-Direct email contact : louisbriancapt@yahoo.it
-
-
+ - R.

@@ -1,167 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbVKATWE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbVKATah@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751174AbVKATWE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 14:22:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbVKATWE
+	id S1751180AbVKATah (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 14:30:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbVKATah
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 14:22:04 -0500
-Received: from europa.telenet-ops.be ([195.130.137.75]:14482 "EHLO
-	europa.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S1751174AbVKATWC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 14:22:02 -0500
-Date: Tue, 1 Nov 2005 20:21:43 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [WATCHDOG] small trivial fixes + add .owner to driver struct's
-Message-ID: <20051101192143.GG7795@infomag.infomag.iguana.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.1i
+	Tue, 1 Nov 2005 14:30:37 -0500
+Received: from mailgw.cvut.cz ([147.32.3.235]:37320 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S1751180AbVKATag (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 14:30:36 -0500
+Message-ID: <4367C25B.7010300@vc.cvut.cz>
+Date: Tue, 01 Nov 2005 20:30:35 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686 (x86_64); en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: cs, en
+MIME-Version: 1.0
+To: nickpiggin@yahoo.com.au
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Nick's core remove PageReserved broke vmware...
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+Hello Nick,
+   what's the reason behind disallowing get_user_pages() on VM_RESERVED regions? 
+  vmmon uses VM_RESERVED on its 'vma' as otherwise some kernels used by SUSE 
+complained loudly about mismatch between PageReserved() and VM_RESERVED flags.
 
-please do a
-
-	git pull rsync://rsync.kernel.org/pub/scm/linux/kernel/git/wim/linux-2.6-watchdog.git
-
-This will update the following files:
-
- drivers/char/watchdog/mpcore_wdt.c   |    1 +
- drivers/char/watchdog/mv64x60_wdt.c  |    1 +
- drivers/char/watchdog/pcwd_pci.c     |    6 ++++--
- drivers/char/watchdog/s3c2410_wdt.c  |    1 +
- drivers/char/watchdog/w83627hf_wdt.c |    2 +-
- 5 files changed, 8 insertions(+), 3 deletions(-)
-
-with these Changes:
-
-Author: Wim Van Sebroeck <wim@iguana.be>
-Date:   Sun Oct 23 15:21:44 2005 +0200
-
-    [WATCHDOG] adds device_driver .owner field
-    
-    Initialise the .owner field of the device driver
-    with the module that owns it, for easier tracking
-    of device driver ownership. (probably also better
-    for sysfs...)
-    
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-Author: Wim Van Sebroeck <wim@iguana.be>
-Date:   Sat Oct 22 16:27:19 2005 +0200
-
-    [WATCHDOG] pcwd_pci.c update comments
-    
-    update copyright + update bells and whistles driver for v2.6
-    
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-Author: Pozsar Balazs <pozsy@uhulinux.hu>
-Date:   Fri Oct 21 10:52:01 2005 +0100
-
-    [WATCHDOG] w83627hf_wdt trivial typo
-    
-    The most trivial typo fix in the world.
-    
-    Signed-off-by: Pozsar Balazs <pozsy@uhulinux.hu>
-    Signed-off-by: Pádraig Brady <P@draigBrady.com>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-Author: Ben Dooks <ben-linux@fluff.org>
-Date:   Mon Oct 10 01:28:30 2005 +0100
-
-    [WATCHDOG] s3c2410 wdt - add .owner field
-    
-    Initialise the .owner field of the device driver
-    with the module that owns it, for easier tracking
-    of device driver ownership.
-    
-    Signed-off-by: Ben Dooks <ben-linux@fluff.org>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+   I'll remove it from vmmon for >= 2.6.14 kernels as that bogus test never made 
+to Linux kernel, but I cannot find any reason why get_user_pages() should not 
+work on VM_RESERVED (or VM_IO for that matter) user pages.  Can you show me 
+reasoning behind that decision ?
+							Thanks,
+								Petr Vandrovec
 
 
-The Changes can also be looked at on:
-	http://www.kernel.org/git/?p=linux/kernel/git/wim/linux-2.6-watchdog.git;a=summary
-
-For completeness, I added the overal diff below.
-
-Greetings,
-Wim.
-
-================================================================================
-diff --git a/drivers/char/watchdog/mpcore_wdt.c b/drivers/char/watchdog/mpcore_wdt.c
-index 47a5f6a..da631c1 100644
---- a/drivers/char/watchdog/mpcore_wdt.c
-+++ b/drivers/char/watchdog/mpcore_wdt.c
-@@ -396,6 +396,7 @@ static int __devexit mpcore_wdt_remove(s
- }
+b5810039a54e5babf428e9a1e89fc1940fabff11 
  
- static struct device_driver mpcore_wdt_driver = {
-+	.owner		= THIS_MODULE,
- 	.name		= "mpcore_wdt",
- 	.bus		= &platform_bus_type,
- 	.probe		= mpcore_wdt_probe,
-diff --git a/drivers/char/watchdog/mv64x60_wdt.c b/drivers/char/watchdog/mv64x60_wdt.c
-index 04e0d7e..119b3c5 100644
---- a/drivers/char/watchdog/mv64x60_wdt.c
-+++ b/drivers/char/watchdog/mv64x60_wdt.c
-@@ -213,6 +213,7 @@ static int __devexit mv64x60_wdt_remove(
- }
+
+tree 835836cb527ec9bd525f93eb7e016f3dfb8c8ae2 
  
- static struct device_driver mv64x60_wdt_driver = {
-+	.owner = THIS_MODULE,
- 	.name = MV64x60_WDT_NAME,
- 	.bus = &platform_bus_type,
- 	.probe = mv64x60_wdt_probe,
-diff --git a/drivers/char/watchdog/pcwd_pci.c b/drivers/char/watchdog/pcwd_pci.c
-index 5308e5c..d9ef55b 100644
---- a/drivers/char/watchdog/pcwd_pci.c
-+++ b/drivers/char/watchdog/pcwd_pci.c
-@@ -1,7 +1,7 @@
- /*
-  *	Berkshire PCI-PC Watchdog Card Driver
-  *
-- *	(c) Copyright 2003 Wim Van Sebroeck <wim@iguana.be>.
-+ *	(c) Copyright 2003-2005 Wim Van Sebroeck <wim@iguana.be>.
-  *
-  *	Based on source code of the following authors:
-  *	  Ken Hollis <kenji@bitgate.com>,
-@@ -21,7 +21,9 @@
-  */
+
+parent f9c98d0287de42221c624482fd4f8d485c98ab22 
  
- /*
-- *	A bells and whistles driver is available from http://www.pcwd.de/
-+ *	A bells and whistles driver is available from: 
-+ *	http://www.kernel.org/pub/linux/kernel/people/wim/pcwd/pcwd_pci/
-+ *
-  *	More info available at http://www.berkprod.com/ or http://www.pcwatchdog.com/
-  */
+
+author Nick Piggin <nickpiggin@yahoo.com.au> Sat, 29 Oct 2005 18:16:12 -0700 
  
-diff --git a/drivers/char/watchdog/s3c2410_wdt.c b/drivers/char/watchdog/s3c2410_wdt.c
-index e7e20a6..751cb77 100644
---- a/drivers/char/watchdog/s3c2410_wdt.c
-+++ b/drivers/char/watchdog/s3c2410_wdt.c
-@@ -497,6 +497,7 @@ static int s3c2410wdt_resume(struct devi
+
+committer Linus Torvalds <torvalds@g5.osdl.org> Sat, 29 Oct 2005 21:40:39 -0700 
+ 
+
  
  
- static struct device_driver s3c2410wdt_driver = {
-+	.owner		= THIS_MODULE,
- 	.name		= "s3c2410-wdt",
- 	.bus		= &platform_bus_type,
- 	.probe		= s3c2410wdt_probe,
-diff --git a/drivers/char/watchdog/w83627hf_wdt.c b/drivers/char/watchdog/w83627hf_wdt.c
-index b5d8210..d15ca9a 100644
---- a/drivers/char/watchdog/w83627hf_wdt.c
-+++ b/drivers/char/watchdog/w83627hf_wdt.c
-@@ -359,5 +359,5 @@ module_exit(wdt_exit);
+
+     [PATCH] core remove PageReserved 
  
- MODULE_LICENSE("GPL");
- MODULE_AUTHOR("Pádraig Brady <P@draigBrady.com>");
--MODULE_DESCRIPTION("w38627hf WDT driver");
-+MODULE_DESCRIPTION("w83627hf WDT driver");
- MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
+
+ 
+ 
+
+     Remove PageReserved() calls from core code by tightening VM_RESERVED 
+ 
+
+     handling in mm/ to cover PageReserved functionality. 
+ 
+
+ 
+ 
+
+

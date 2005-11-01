@@ -1,72 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbVKAVUq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751262AbVKAV1a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751250AbVKAVUq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 16:20:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbVKAVUq
+	id S1751262AbVKAV1a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 16:27:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbVKAV1a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 16:20:46 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:61914 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1751250AbVKAVUp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 16:20:45 -0500
-Date: Tue, 1 Nov 2005 16:20:43 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Chandra Seetharaman <sekharan@us.ibm.com>
-cc: Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: Notifier chains are unsafe
-In-Reply-To: <1130876434.3586.378.camel@linuxchandra>
-Message-ID: <Pine.LNX.4.44L0.0511011610470.4473-100000@iolanthe.rowland.org>
+	Tue, 1 Nov 2005 16:27:30 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:37008 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751253AbVKAV1a
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 16:27:30 -0500
+In-Reply-To: <436586F0.9080101@21cn.com>
+To: Yan Zheng <yanzheng@21cn.com>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       netdev-owner@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [PATCH][MCAST]IPv6: small fix for ip6_mc_msfilter(...)
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OF395F8772.5B834BF9-ON882570AC.0075ACD7-882570AC.0075DC3C@us.ibm.com>
+From: David Stevens <dlstevens@us.ibm.com>
+Date: Tue, 1 Nov 2005 13:27:36 -0800
+X-MIMETrack: Serialize by Router on D03NM121/03/M/IBM(Release 6.53HF654 | July 22, 2005) at
+ 11/01/2005 14:27:37,
+	Serialize complete at 11/01/2005 14:27:37
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Nov 2005, Chandra Seetharaman wrote:
+Yan,
+        Please also make this equivalent change in IPv4 with
+ip_mc_msfilter() and ip_mc_add_src().
 
-> > Register and unregister will continue to work as before, requiring a
-> > process context and the ability to sleep.  notifier_block_enable/disable
-> > should be used when:
-> > 
-> > 	a callout wants to disable itself as it is running, or
-> > 
-> > 	someone running in an atomic context wants to enable or disable
-> > 	a callout.
-> > 
-> > In the first case, unregister can't be used because it would hang.  In the 
-> > second case, register/unregister can't be used because they need to be 
-> > able to sleep.
-> > 
-> > In both cases the notifier block would have to be registered beforehand 
-> > and unregistered later.
+                                                +-DLS
+
+Acked-by: David L Stevens <dlstevens@us.ibm.com> 
 > 
-> I understand. Thanks for the explanation. I like the option below better
-> (no new interface).
-
-You mean the RCU-style update?  It will hang when a callout routine tries 
-to deregister itself as it is running, although we could add a new 
-unregister_self API to handle that.  Just check for num_callers equal to 1 
-instead of 0.
-
-> > No; the list _won't_ be protected in call_chain.  It will be possible to
-> > unregister a callout while the chain is in use.  That's how the RCU
-> > approach works -- it uses no read locks, only write locks.
+> Signed-off-by: Yan Zheng <yanzheng@21cn.com> 
 > 
-> but, list_del poisons the next pointer which is not good for a reader
-> that is walking through the list, we have to use list_del_rcu instead.
-
-Agreed.
-
-> Also, do you think we have to use _rcu versions of list traversal
-> functions in call_chain ?
-
-Yes.
-
-Note that on an SMP system you run the risk of starvation (the chain gets
-called so frequently that it's _always_ running on some CPU).  We can
-probably ignore that possibility.
-
-Would you like to code up these ideas?
-
-Alan Stern
+> Index: net/ipv6/mcast.c
+> 
+================================================================================
+> --- linux-2.6.14/net/ipv6/mcast.c   2005-10-30 23:09:33.000000000 +0800
+> +++ linux/net/ipv6/mcast.c   2005-10-31 10:37:36.000000000 +0800
+> @@ -545,8 +545,10 @@ int ip6_mc_msfilter(struct sock *sk, str
+>           sock_kfree_s(sk, newpsl, IP6_SFLSIZE(newpsl->sl_max));
+>           goto done;
+>        }
+> -   } else
+> +   } else {
+>        newpsl = NULL;
+> +      ip6_mc_add_src(idev, group, gsf->gf_fmode, 0, NULL, 0);
+> +   }
+>     psl = pmc->sflist;
+>     if (psl) {
+>        (void) ip6_mc_del_src(idev, group, pmc->sfmode,
+> -
+> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 

@@ -1,61 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750916AbVKAPyZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbVKAQKX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750916AbVKAPyZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 10:54:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750918AbVKAPyZ
+	id S1750763AbVKAQKX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 11:10:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbVKAQKX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 10:54:25 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:403 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750915AbVKAPyY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 10:54:24 -0500
-Date: Tue, 1 Nov 2005 07:54:12 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alan Stern <stern@rowland.harvard.edu>
-cc: Paul Mackerras <paulus@samba.org>, akpm@osdl.org,
-       David Brownell <david-b@pacbell.net>,
-       Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Don't touch USB controllers with MMIO disabled in quirks
-In-Reply-To: <Pine.LNX.4.44L0.0511011029040.5081-100000@iolanthe.rowland.org>
-Message-ID: <Pine.LNX.4.64.0511010748430.27915@g5.osdl.org>
-References: <Pine.LNX.4.44L0.0511011029040.5081-100000@iolanthe.rowland.org>
+	Tue, 1 Nov 2005 11:10:23 -0500
+Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:59039 "EHLO
+	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1750763AbVKAQKW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 11:10:22 -0500
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Tue, 1 Nov 2005 16:10:07 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net,
+       Yura Pakhuchiy <pakhuchiy@gmail.com>
+Subject: [2.6-GIT] NTFS: Fix the segfault in the new write code.
+Message-ID: <Pine.LNX.4.64.0511011605240.17031@hermes-1.csi.cam.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linus, please pull from
 
+git://git.kernel.org/pub/scm/linux/kernel/git/aia21/ntfs-2.6.git
 
-On Tue, 1 Nov 2005, Alan Stern wrote:
-> 
-> In theory, is it possible for a UHCI controller still to be running, doing 
-> DMA and/or generating interrupts, even if PCI_COMMAND_IO isn't set?
+This fixes the segfault reported by Yura Pakhuchiy in the new write code.
 
-Yes, it's possible in theory. I guess we could check whether BUS_MASTER is 
-enabled (which _does_ need to be enabled, otherwise it couldn't function), 
-and then enable it.
+Diffstat:
 
-> Or is this scenario not worth worrying about?
+ fs/ntfs/file.c |   17 +++++++++--------
+ 1 files changed, 9 insertions(+), 8 deletions(-)
 
-It's probably not worth worrying about. After all, this is really just for 
-when something else (firmware) has enabled the USB controller for its own 
-nefarious purposes (ie it also wanted keyboard input), and left it 
-running. If something has left it running by mistake, it won't have 
-disabled IO access either.
+The diff is below for non-git users.
 
-And if it _has_ disabled IO access, we wouldn't know how to enable it at 
-this point. Sure, we could enable the command bit, but this is too early 
-for us to know where in the IO address space it would be safe to enable 
-it.
+Best regards,
 
-But an alternative strategy (which might be very sensible) is to forget 
-about the handoff entirely, and just shut down the bus master flag 
-unconditionally. Just make sure that the eventual driver will reset the 
-controller before it re-enables bus mastering.
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 
-That would seem to be the simplest possible "handoff". The only danger is 
-that I could imagine that there would be controllers out there that get 
-really confused (ie "I'm not going to play nice any more") if we shut them 
-up that way.
+---
 
-		Linus
+NTFS: Fix a stupid bug causing writes to non-initialized pages to segfault.
+
+Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
+
+applies-to: d7e2216b6e65b833c0c2b79b478d13ce17dbf296
+3aebf25bdcf030f3e4afeb9340486d5b46deb46e
+diff --git a/fs/ntfs/file.c b/fs/ntfs/file.c
+index cf3e6ce..7275338 100644
+--- a/fs/ntfs/file.c
++++ b/fs/ntfs/file.c
+@@ -668,10 +668,10 @@ map_buffer_cached:
+ 				 * to, we need to read it in before the write,
+ 				 * i.e. now.
+ 				 */
+-				if (!buffer_uptodate(bh) && ((bh_pos < pos &&
+-						bh_end > pos) ||
+-						(bh_end > end &&
+-						bh_end > end))) {
++				if (!buffer_uptodate(bh) && bh_pos < end &&
++						bh_end > pos &&
++						(bh_pos < pos ||
++						bh_end > end)) {
+ 					/*
+ 					 * If the buffer is fully or partially
+ 					 * within the initialized size, do an
+@@ -784,10 +784,11 @@ retry_remap:
+ 						blocksize_bits);
+ 				cdelta = 0;
+ 				/*
+-				 * If the number of remaining clusters in the
+-				 * @pages is smaller or equal to the number of
+-				 * cached clusters, unlock the runlist as the
+-				 * map cache will be used from now on.
++				 * If the number of remaining clusters touched
++				 * by the write is smaller or equal to the
++				 * number of cached clusters, unlock the
++				 * runlist as the map cache will be used from
++				 * now on.
+ 				 */
+ 				if (likely(vcn + vcn_len >= cend)) {
+ 					if (rl_write_locked) {
+---
+0.99.9

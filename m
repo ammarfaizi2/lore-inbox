@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964972AbVKAIpp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964879AbVKAIzm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964972AbVKAIpp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 03:45:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbVKAIpp
+	id S964879AbVKAIzm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 03:55:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965059AbVKAIzm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 03:45:45 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:2445 "EHLO
-	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S964972AbVKAIpo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 03:45:44 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Miklos Szeredi <miklos@szeredi.hu>
-Subject: Re: /etc/mtab and per-process namespaces
-Date: Tue, 1 Nov 2005 02:44:49 -0600
-User-Agent: KMail/1.8
-Cc: linuxram@us.ibm.com, greg@enjellic.com, mikew@google.com,
-       linux-kernel@vger.kernel.org, leimy2k@gmail.com
-References: <200510221323.j9MDNimA009898@wind.enjellic.com> <200510311727.27145.rob@landley.net> <E1EWqgc-0006AY-00@dorka.pomaz.szeredi.hu>
-In-Reply-To: <E1EWqgc-0006AY-00@dorka.pomaz.szeredi.hu>
+	Tue, 1 Nov 2005 03:55:42 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:15509 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S964879AbVKAIzl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 03:55:41 -0500
+Message-ID: <43672D74.1090106@drzeus.cx>
+Date: Tue, 01 Nov 2005 09:55:16 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mail/News 1.4.1 (X11/20051008)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: "Ian E. Morgan" <imorgan@webcon.ca>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: TI FlashMedia driver
+References: <Pine.LNX.4.64.0510311510130.8105@light.int.webcon.net>
+In-Reply-To: <Pine.LNX.4.64.0510311510130.8105@light.int.webcon.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511010244.49532.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 01 November 2005 01:36, Miklos Szeredi wrote:
-> > (Then, of course, there's FUSE.  Does killing the FUSE helper
-> > prevent the mount from being umounted?)
->
-> No.  On clean exit (via INT, TERM, HUP handlers installed by library)
-> it will lazy umount itself.  Violent death of a filesystem daemon will
-> leave the mount intact, but umountable.
+Ian E. Morgan wrote:
+> Given the number of people annoyed by the lack of a driver for TI's
+> FlashMedia controller (part of the 6xx1 & 7xx1 series chips), myself one of
+> them, I've started a project to reverse-engineer the device.
+> 
+> Basic details available here, adding new info whenever I get/discover it:
+> http://www.webcon.ca/~imorgan/tifm21/
+> 
 
-Ok, so it sounds like the proper init-go-byebye procedure once namespaces get 
-deployed is for init to kill all child processes, umount -a what's left in 
-its namespace, and all is well.  So no changes are needed to the umount -a 
-implementation...
+There is some information about at least MMC controllers at:
 
-Rob
+http://mmc.drzeus.cx
+
+The controller your working with is found here:
+
+http://mmc.drzeus.cx/wiki/Controllers/TexasInstruments
+
+
+ From your page:
+
+> I was hoping the data block would reveal some basic information about the card that was inserted (capacity at least), but the above observations seem to deny that assumption.
+
+All controllers I've seen so far either give raw access to the MMC bus 
+or completely abstracts the MMC bits (making it a USB storage device or 
+similar). In other words, you probably won't see any information other 
+than the fact that a card has been inserted.
+
+Rgds
+Pierre

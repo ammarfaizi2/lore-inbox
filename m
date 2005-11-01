@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965072AbVKAIUh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965187AbVKAIVM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965072AbVKAIUh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 03:20:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964981AbVKAIUK
+	id S965187AbVKAIVM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 03:21:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965064AbVKAIUI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 03:20:10 -0500
-Received: from hulk.hostingexpert.com ([69.57.134.39]:23775 "EHLO
+	Tue, 1 Nov 2005 03:20:08 -0500
+Received: from hulk.hostingexpert.com ([69.57.134.39]:24722 "EHLO
 	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S965080AbVKAIQ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 03:16:58 -0500
-Message-ID: <43672459.7050402@m1k.net>
-Date: Tue, 01 Nov 2005 03:16:25 -0500
+	id S965069AbVKAIRH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 03:17:07 -0500
+Message-ID: <4367245F.9080502@m1k.net>
+Date: Tue, 01 Nov 2005 03:16:31 -0500
 From: Michael Krufky <mkrufky@m1k.net>
 User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
 CC: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org
-Subject: [PATCH 34/37] dvb: fix bug in demux that caused lost mpeg sections
+Subject: [PATCH 35/37] dvb: Remove status check from nxt200x_readreg_multibyte
 Content-Type: multipart/mixed;
- boundary="------------010801020609000504080100"
+ boundary="------------090502090500000605080200"
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -32,69 +32,64 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------010801020609000504080100
+--------------090502090500000605080200
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
 
 
---------------010801020609000504080100
+--------------090502090500000605080200
 Content-Type: text/x-patch;
- name="2411.patch"
+ name="2413.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="2411.patch"
+ filename="2413.patch"
 
-From: Mark Adams <mark147m@gmail.com>
+From: Kirk Lapray <kirk.lapray@gmail.com>
 
-Fix a bug in the software demux which causes large MPEG sections to be lost
-when they follow very small sections.
+- Remove status check from nxt200x_readreg_multibyte,
+  it really shouldn't be necessary.
 
-The problem happens when two sections begin in the same transport
-packet.  The dvb_demux code resets its buffer only before the first of
-these sections.  This means that when the second (or subsequent)
-section begins, there is up to 182 bytes of buffer space already used.
-If the following section is close to the maximum size, it currently
-won't fit in the (4096-byte) buffer and is thrown away.
+Signed-off-by: Kirk Lapray <kirk.lapray@gmail.com>
+Signed-off-by: Michael Krufky <mkrufky@m1k.net>
 
-The fix is simply to enlarge the buffer by the size of one transport
-packet and correct one usage of the SECFEED_SIZE definition where what
-is really meant is the maximum size of a section.
+ drivers/media/dvb/frontends/nxt200x.c |   18 ++++--------------
+ 1 file changed, 4 insertions(+), 14 deletions(-)
 
-Signed-off-by: Mark Adams <mark147m@gmail.com>
-Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
-
- drivers/media/dvb/dvb-core/demux.h     |    5 ++++-
- drivers/media/dvb/dvb-core/dvb_demux.c |    2 +-
- 2 files changed, 5 insertions(+), 2 deletions(-)
-
---- linux-2.6.14-git3.orig/drivers/media/dvb/dvb-core/demux.h
-+++ linux-2.6.14-git3/drivers/media/dvb/dvb-core/demux.h
-@@ -48,8 +48,11 @@
-  * DMX_MAX_SECFEED_SIZE: Maximum length (in bytes) of a private section feed filter.
-  */
+--- linux-2.6.14-git3.orig/drivers/media/dvb/frontends/nxt200x.c
++++ linux-2.6.14-git3/drivers/media/dvb/frontends/nxt200x.c
+@@ -239,26 +239,16 @@
+ 			buf = 0x80;
+ 			nxt200x_writebytes(state, 0x21, &buf, 1);
  
-+#ifndef DMX_MAX_SECTION_SIZE
-+#define DMX_MAX_SECTION_SIZE 4096
-+#endif
- #ifndef DMX_MAX_SECFEED_SIZE
--#define DMX_MAX_SECFEED_SIZE 4096
-+#define DMX_MAX_SECFEED_SIZE (DMX_MAX_SECTION_SIZE + 188)
- #endif
+-			/* read status */
+-			nxt200x_readbytes(state, 0x21, &buf, 1);
+-
+-			if (buf == 0)
+-			{
+-				/* read the actual data */
+-				for(i = 0; i < len; i++) {
+-                    nxt200x_readbytes(state, 0x36 + i, &data[i], 1);
+-				}
+-				return 0;
++			/* read the actual data */
++			for(i = 0; i < len; i++) {
++				nxt200x_readbytes(state, 0x36 + i, &data[i], 1);
+ 			}
++			return 0;
+ 			break;
+ 		default:
+ 			return -EINVAL;
+ 			break;
+ 	}
+-
+-	printk(KERN_WARNING "nxt200x: Error reading multireg register 0x%02X\n",reg);
+-
+-	return 0;
+ }
  
- 
---- linux-2.6.14-git3.orig/drivers/media/dvb/dvb-core/dvb_demux.c
-+++ linux-2.6.14-git3/drivers/media/dvb/dvb-core/dvb_demux.c
-@@ -246,7 +246,7 @@
- 
- 	for (n = 0; sec->secbufp + 2 < limit; n++) {
- 		seclen = section_length(sec->secbuf);
--		if (seclen <= 0 || seclen > DMX_MAX_SECFEED_SIZE
-+		if (seclen <= 0 || seclen > DMX_MAX_SECTION_SIZE
- 		    || seclen + sec->secbufp > limit)
- 			return 0;
- 		sec->seclen = seclen;
+ static void nxt200x_microcontroller_stop (struct nxt200x_state* state)
 
 
---------------010801020609000504080100--
+--------------090502090500000605080200--

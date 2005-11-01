@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbVKAF2B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbVKAFtT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932345AbVKAF2B (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 00:28:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbVKAF2B
+	id S1751088AbVKAFtT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 00:49:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbVKAFtT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 00:28:01 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:50897 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932345AbVKAF2A (ORCPT
+	Tue, 1 Nov 2005 00:49:19 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:54154 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750976AbVKAFtS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 00:28:00 -0500
-Date: Mon, 31 Oct 2005 21:27:42 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: torvalds@osdl.org, marcelo.tosatti@cyclades.com, kravetz@us.ibm.com,
-       raybry@mpdtxmail.amd.com, lee.schermerhorn@hp.com,
-       linux-kernel@vger.kernel.org, clameter@sgi.com, magnus.damm@gmail.com,
-       pj@sgi.com, haveblue@us.ibm.com, kamezawa.hiroyu@jp.fujitsu.com
-Subject: Re: [PATCH 5/5] Swap Migration V5: sys_migrate_pages interface
-Message-Id: <20051031212742.3e43c829.akpm@osdl.org>
-In-Reply-To: <20051101031305.12488.1224.sendpatchset@schroedinger.engr.sgi.com>
-References: <20051101031239.12488.76816.sendpatchset@schroedinger.engr.sgi.com>
-	<20051101031305.12488.1224.sendpatchset@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 1 Nov 2005 00:49:18 -0500
+Date: Mon, 31 Oct 2005 21:49:31 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: mingo@elte.hu
+Cc: linux-kernel@vger.kernel.org, oleg@tv-sign.ru, dipankar@in.ibm.com,
+       suzannew@cs.pdx.edu, akpm@osdl.org
+Subject: [PATCH] Fixes for RCU handling of sighand_struct
+Message-ID: <20051101054931.GA4399@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <clameter@sgi.com> wrote:
->
-> ...
-> Changes V3->V4:
-> - Add Ray's permissions check based on check_kill_permission().
-> 
-> ...
-> +	/*
-> +	 * Permissions check like for signals.
-> +	 * See check_kill_permission()
-> +	 */
-> +	if ((current->euid ^ task->suid) && (current->euid ^ task->uid) &&
-> +	    (current->uid ^ task->suid) && (current->uid ^ task->uid) &&
-> +	    !capable(CAP_SYS_ADMIN)) {
-> +		err = -EPERM;
-> +		goto out;
-> +	}
+Hello!
 
-Obscure.  Can you please explain the thinking behind putting this check in
-here?  Preferably via a comment...
+Some fixes to RCU usage for sighand_struct, adding a couple of needed
+rcu_assign_pointer() calls.
+
+Signed-off-by: <paulmck@us.ibm.com>
+
+---
+
+diff -urpNa linux-2.6.14-rc5-rt5/fs/exec.c linux-2.6.14-rc5-rt5-sighandRCUfix/fs/exec.c
+--- linux-2.6.14-rc5-rt5/fs/exec.c	2005-10-24 05:59:08.000000000 -0700
++++ linux-2.6.14-rc5-rt5-sighandRCUfix/fs/exec.c	2005-10-31 15:38:02.000000000 -0800
+@@ -777,7 +777,7 @@ no_thread_group:
+ 		spin_lock(&oldsighand->siglock);
+ 		spin_lock(&newsighand->siglock);
+ 
+-		current->sighand = newsighand;
++		rcu_assign_pointer(current->sighand, newsighand);
+ 		recalc_sigpending();
+ 
+ 		spin_unlock(&newsighand->siglock);
+diff -urpNa linux-2.6.14-rc5-rt5/kernel/fork.c linux-2.6.14-rc5-rt5-sighandRCUfix/kernel/fork.c
+--- linux-2.6.14-rc5-rt5/kernel/fork.c	2005-10-24 05:59:08.000000000 -0700
++++ linux-2.6.14-rc5-rt5-sighandRCUfix/kernel/fork.c	2005-10-31 15:35:14.000000000 -0800
+@@ -816,7 +816,7 @@ static inline int copy_sighand(unsigned 
+ 		return 0;
+ 	}
+ 	sig = kmem_cache_alloc(sighand_cachep, GFP_KERNEL);
+-	tsk->sighand = sig;
++	rcu_assign_pointer(tsk->sighand, sig);
+ 	if (!sig)
+ 		return -ENOMEM;
+ 	spin_lock_init(&sig->siglock);

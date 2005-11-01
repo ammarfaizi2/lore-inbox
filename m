@@ -1,93 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750962AbVKARBh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750968AbVKAREP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750962AbVKARBh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 12:01:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750950AbVKARBh
+	id S1750968AbVKAREP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 12:04:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750960AbVKAREP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 12:01:37 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:30889 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750960AbVKARBg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 12:01:36 -0500
-Date: Tue, 1 Nov 2005 09:01:53 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: mingo@elte.hu
-Subject: [PATCH] additional -rt RCU usage fixes
-Message-ID: <20051101170153.GA6564@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 1 Nov 2005 12:04:15 -0500
+Received: from the-penguin.otak.com ([65.37.126.18]:47322 "EHLO
+	the-penguin.otak.com") by vger.kernel.org with ESMTP
+	id S1750963AbVKAREO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 12:04:14 -0500
+Date: Tue, 1 Nov 2005 09:04:13 -0800
+From: Lawrence Walton <lawrence@the-penguin.otak.com>
+To: Florian Weimer <fw@deneb.enyo.de>
+Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 3ware 9550SX problems - mke2fs incredibly slow writing last third of inode tables
+Message-ID: <20051101170413.GA11640@the-penguin.otak.com>
+References: <BEDEA151E8B1D6CEDD295442@[192.168.100.25]> <87oe54cza8.fsf@mid.deneb.enyo.de>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FL5UXtIhxfXey3p5"
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <87oe54cza8.fsf@mid.deneb.enyo.de>
+X-Operating-System: Linux 2.6.14-rc4-mm1 on an i686
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-I guess I need to be more careful when creating experimental RCU patches,
-as people have been copying my mistakes.  Here is a patch to fix some of
-them in -rt.
+--FL5UXtIhxfXey3p5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: <paulmck@us.ibm.com>
+Florian Weimer [fw@deneb.enyo.de] wrote:
+> * Alex Bligh:
+>=20
+> > All seems to go well until I try and do mke2fs. This appears to work,
+> > and tries to write the inode tables. However, at (about) 3400 inodes
+> > (of 11176), it slows to a crawl, writing one table every 10 seconds.
+> > strace shows it is still running, and no errors are being reported.
+> > However, it seems very sick.
+>=20
+> In my experience, the 3ware SATA controllers which are not NCQ-capable
+> have very, very lousy write performance with some drives, unless you
+> enable the write cache (which is, of course, a bit dangerous without
+> UPS or battery backup on the controller).
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+Not to sound like the a 3ware chearleader, but this card does support NCQ.
+--=20
+*--* Mail: lawrence@otak.com
+*--* Voice: 425.739.4247
+*--* Fax: 425.827.9577
+*--* HTTP://the-penguin.otak.com/~lawrence
+--------------------------------------
+- - - - - - O t a k  i n c . - - - - -=20
 
----
 
- signal.c |   11 +++++++----
- 1 files changed, 7 insertions(+), 4 deletions(-)
 
-diff -urpNa -X dontdiff linux-2.6.14-rc5-rt2-ckhandRCUfix/kernel/signal.c linux-2.6.14-rc5-rt2-signalRCUfix/kernel/signal.c
---- linux-2.6.14-rc5-rt2-ckhandRCUfix/kernel/signal.c	2005-10-31 22:28:45.000000000 -0800
-+++ linux-2.6.14-rc5-rt2-signalRCUfix/kernel/signal.c	2005-10-31 22:40:07.000000000 -0800
-@@ -338,7 +338,7 @@ void exit_sighand(struct task_struct *ts
- 	write_lock_irq(&tasklist_lock);
- 	rcu_read_lock();
- 	if (tsk->sighand != NULL) {
--		struct sighand_struct *sighand = tsk->sighand;
-+		struct sighand_struct *sighand = rcu_dereference(tsk->sighand);
- 		spin_lock(&sighand->siglock);
- 		__exit_sighand(tsk);
- 		spin_unlock(&sighand->siglock);
-@@ -353,13 +353,14 @@ void exit_sighand(struct task_struct *ts
- void __exit_signal(struct task_struct *tsk)
- {
- 	struct signal_struct * sig = tsk->signal;
--	struct sighand_struct * sighand = tsk->sighand;
-+	struct sighand_struct * sighand;
- 
- 	if (!sig)
- 		BUG();
- 	if (!atomic_read(&sig->count))
- 		BUG();
- 	rcu_read_lock();
-+	sighand = rcu_dereference(tsk->sighand);
- 	spin_lock(&sighand->siglock);
- 	posix_cpu_timers_exit(tsk);
- 	if (atomic_dec_and_test(&sig->count)) {
-@@ -1140,7 +1141,7 @@ void zap_other_threads(struct task_struc
- }
- 
- /*
-- * Must be called with the tasklist_lock held for reading!
-+ * Must be called under rcu_read_lock() or with tasklist_lock read-held.
-  */
- int group_send_sig_info(int sig, struct siginfo *info, struct task_struct *p)
- {
-@@ -1422,7 +1423,7 @@ send_sigqueue(int sig, struct sigqueue *
- {
- 	unsigned long flags;
- 	int ret = 0;
--	struct sighand_struct *sh = p->sighand;
-+	struct sighand_struct *sh;
- 
- 	BUG_ON(!(q->flags & SIGQUEUE_PREALLOC));
- 
-@@ -1442,6 +1443,8 @@ send_sigqueue(int sig, struct sigqueue *
- 		goto out_err;
- 	}
- 
-+	sh = rcu_dereference(p->sighand);
-+
- 	spin_lock_irqsave(&sh->siglock, flags);
- 
- 	/*
+--FL5UXtIhxfXey3p5
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDZ6ANsgPkFxgrWYkRAkl2AJsHGL7jhENEYdq1mZkWV7WADg9KaQCfXSN4
+zVcNTjygjvj9LngXQuXZRho=
+=RQ20
+-----END PGP SIGNATURE-----
+
+--FL5UXtIhxfXey3p5--

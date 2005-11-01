@@ -1,96 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbVKASff@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbVKASgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751102AbVKASff (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 13:35:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbVKASff
+	id S1751103AbVKASgX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 13:36:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbVKASgX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 13:35:35 -0500
-Received: from streetfiresound.liquidweb.com ([64.91.233.29]:35997 "EHLO
-	host.streetfiresound.liquidweb.com") by vger.kernel.org with ESMTP
-	id S1751102AbVKASfe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 13:35:34 -0500
-Subject: Re: [PATCH/RFC] simple SPI controller on PXA2xx SSP port, refresh
-From: Stephen Street <stephen@streetfiresound.com>
-Reply-To: stephen@streetfiresound.com
-To: Mike Lee <eemike@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1ffb4b070510291125j1fad2362xe40843f7719c611d@mail.gmail.com>
-References: <435ec45a.j4jWbfXLISIZdYJa%stephen@streetfiresound.com>
-	 <1ffb4b070510270433t2d45cd5cwe71705f7aeddb283@mail.gmail.com>
-	 <1130431260.22836.19.camel@localhost.localdomain>
-	 <1ffb4b070510291125j1fad2362xe40843f7719c611d@mail.gmail.com>
-Content-Type: text/plain
-Organization: StreetFire Sound Labs
-Date: Tue, 01 Nov 2005 10:35:31 -0800
-Message-Id: <1130870131.10324.51.camel@localhost.localdomain>
+	Tue, 1 Nov 2005 13:36:23 -0500
+Received: from duke.math.cinvestav.mx ([148.247.14.23]:32264 "EHLO duke")
+	by vger.kernel.org with ESMTP id S1751103AbVKASgW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 13:36:22 -0500
+Date: Tue, 1 Nov 2005 12:35:34 -0600
+From: Yuri Vasilevski <yvasilev@duke.math.cinvestav.mx>
+To: Nish Aravamudan <nish.aravamudan@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Arnaldo Carvalho de Melo <acme@ghostprotocols.net>,
+       Daniel Drake <dsd@gentoo.org>
+Subject: Re: Patch that allows >=2.6.12 kernel to build on nls free systems
+Message-ID: <20051101123534.39d273c3@dune.math.cinvestav.mx>
+In-Reply-To: <29495f1d0511010913l540ce99bkc9488fa21c0a250b@mail.gmail.com>
+References: <20051026115014.2dbb0bfc@dune.math.cinvestav.mx>
+	<29495f1d0511010913l540ce99bkc9488fa21c0a250b@mail.gmail.com>
+X-Mailer: Sylpheed-Claws 1.9.15 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-16) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - host.streetfiresound.liquidweb.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - streetfiresound.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-10-30 at 02:25 +0800, Mike Lee wrote:
-> Thanks for your info. I am working hard with that.
-> 
-Sorry for delayed response.
+Hi,
 
-I'm assuming the you board is configured with the PXA as a SPI master
-and the chip you are talking to is the slave (part number of the slave
-chip would be helpful).  Which SSP port are you trying to use?
+It was caused by my copy/pasting error.
 
-> What in my mind is that SPI clk is only triggered by master and master
-> read/write at the same time. But how could master know the read data
-> is valid? 
-The master determines when the data is valid by asserting the slave chip
-select.
+On Tue, 1 Nov 2005 09:13:50 -0800
+Nish Aravamudan <nish.aravamudan@gmail.com> wrote:
 
-> is it determine by the protocol driver? 
-Yes, but setup by the board init code.
+> On 10/26/05, Yuri Vasilevski <yvasilev@duke.math.cinvestav.mx> wrote:
+> > diff -Naur linux-2.6.14_rc2.orig/scripts/kconfig/Makefile linux-2.6.14_rc2/scripts/kconfig/Makefile
+> > --- linux-2.6.14_rc2.orig/scripts/kconfig/Makefile      2005-11-06 04:13:01 +0000
+> > +++ linux-2.6.14_rc2/scripts/kconfig/Makefile   2005-11-18 03:52:03 +0000
+> > @@ -116,6 +116,15 @@
+> >  clean-files    := lkc_defs.h qconf.moc .tmp_qtcheck \
+> >                    .tmp_gtkcheck zconf.tab.c zconf.tab.h lex.zconf.c
+> >
+> > +# Needed for systems without gettext
+> > +KBUILD_HAVE_NLS := $(shell \
+> > +     if echo "\#include <libint.h>" | $(HOSTCC) $(HOSTCFLAGS) -E - > /dev/null 2>&1 ; \
 
-> In a case, when
-> master place a tx-only msg to the controller driver, and slave request
-> to send in the middle of the transaction. The data from slave will
-> push into the rx buffer of the tx-only msg and finally ignore by the
-> protocol driver...... 
-I do not believe this can happen when the PXA is in master mode and the
-chip is a slave.
-
-> I really get confused to this "full" duplex
-> transmittion. Could anyone tell me the real situation?
-> 
-The PXA SPI master setup only generates a spi data clock when there is
-data in the tx fifo thus to read you must write first even if you only
-send zeros. The SSP port can be setup to use a free running clock but
-this leads to coordination problems with the chip select and is a
-limited use when the PXA is the SPI master.  To make this work you will
-need to allow the SSP to manage the chip select, see the PXA
-documentation.
-
-I would strongly recommend attaching a logic analyzer to the SSP port
-you are trying to get working.
+The file name is libintl.h and not libint.h (patch in the next e-mail)
 
 > 
-> Also, in your pxa_spi driver, you always read before write in the
-> interrupt handler. If rx and tx is pointing to the same buffer,
-> reading data will always overwrite the tx data. why not write before
-> read?
-See above. Must write to read.
-
+> Looks like this patch was merged:
 > 
-> I am new to SPI , and with this loose bus structure i could not find a
-> good reference for me to study deeper. Do you have any reference
-> source?
-I never found any documentation on the net, usually the data-sheet for
-the chip you are talking to specifies the SPI requirements (master,
-slave, clocks, chip selects, etc). Can you send me a link to the chip?
+> http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=70a6a0cb92f24fd6bbe2e75299168909f735676a
+> 
+> I noticed with builds of -git3/-git4, I get the following complaints
+> from oldconfig:
+> 
+> scripts/kconfig/mconf.c: In function `main':
+> scripts/kconfig/mconf.c:1048: warning: statement with no effect
+> scripts/kconfig/mconf.c:1049: warning: statement with no effect
 
--Stephen
+This should be the output on nls free systems, but all systems were
+detected as nls free because of that error.
+
+> Not a big deal, just more complaints to have to see during the build
+> process (with CONFIG_NLS=y) :)
+> 
+> Thanks,
+> Nish
+
+Sorry for this mistake.
+
+Yuri.
 

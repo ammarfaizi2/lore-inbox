@@ -1,61 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964999AbVKAJI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965000AbVKAI7u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964999AbVKAJI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 04:08:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964996AbVKAJI2
+	id S965000AbVKAI7u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 03:59:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964996AbVKAI7u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 04:08:28 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:20232 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1751267AbVKAJI1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 04:08:27 -0500
-Date: Tue, 1 Nov 2005 09:57:40 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 13/20] inflate: (arch) kill silly zlib typedefs
-Message-ID: <20051101085740.GR22601@alpha.home.local>
-References: <14.196662837@selenic.com> <Pine.LNX.4.62.0510312204400.26471@numbat.sonytel.be> <20051031211422.GC4367@waste.org> <20051101065327.GP22601@alpha.home.local> <Pine.LNX.4.62.0511010850190.2739@numbat.sonytel.be>
+	Tue, 1 Nov 2005 03:59:50 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:42118 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965003AbVKAI7t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 03:59:49 -0500
+Subject: Re: [PATCH 3/5] Swap Migration V5: migrate_pages() function
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Rob Landley <rob@landley.net>
+Cc: Christoph Lameter <clameter@sgi.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Mike Kravetz <kravetz@us.ibm.com>,
+       Ray Bryant <raybry@mpdtxmail.amd.com>,
+       Lee Schermerhorn <lee.schermerhorn@hp.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Magnus Damm <magnus.damm@gmail.com>, Paul Jackson <pj@sgi.com>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <200511010206.24800.rob@landley.net>
+References: <20051101031239.12488.76816.sendpatchset@schroedinger.engr.sgi.com>
+	 <20051101031254.12488.18612.sendpatchset@schroedinger.engr.sgi.com>
+	 <200511010206.24800.rob@landley.net>
+Content-Type: text/plain
+Date: Tue, 01 Nov 2005 09:59:35 +0100
+Message-Id: <1130835575.14475.40.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0511010850190.2739@numbat.sonytel.be>
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 01, 2005 at 08:50:43AM +0100, Geert Uytterhoeven wrote:
-> On Tue, 1 Nov 2005, Willy Tarreau wrote:
-> > But if it's a pointer why don't you declare them unsigned long then ?
-> > C defines the long as the integer the right size to store a pointer.
->   ^
-> Is it C?
-
-Yes, that's what I read quite a time ago, and it appears that it was an
-interpretation of the spec which is not true anymore with LLP64 models :-(
-
-> Since on Wintendo P64 it's not true...
-
-I don't know if x86_64 is LP64 or LLP64 on Linux, but at least my alpha
-and sparc64 are LP64, so is another PPC64 I use for code validation.
-LPC64 is the recommended model for easier 32 to 64 portability (where
-ints are 32 ; long, longlong, ptrs are 64).
-
-There's an interesting reading about this here :
-
-   http://www.usenix.org/publications/login/standards/10.data.html
-
-So Matt, you have to use void* or char* in your types.
-
-> Gr{oetje,eeting}s,
+On Tue, 2005-11-01 at 02:06 -0600, Rob Landley wrote:
+> On Monday 31 October 2005 21:12, Christoph Lameter wrote:
+> > Page migration support in vmscan.c
 > 
-> 						Geert
+> This has no #ifdef SWAP:
+> 
+> > + if (PageSwapCache(page)) {
+> > +  swp_entry_t swap = { .val = page_private(page) };
+> > +  add_to_swapped_list(swap.val);
+> > +  __delete_from_swap_cache(page);
+> > +  write_unlock_irq(&mapping->tree_lock);
+> > +  swap_free(swap);
+> > +  __put_page(page); /* The pagecache ref */
+> > +  return 1;
+> > + }
+> 
+> But what you removed did:
+> 
+> > -#ifdef CONFIG_SWAP
+> > -  if (PageSwapCache(page)) {
+> > -   swp_entry_t swap = { .val = page_private(page) };
+> > -   add_to_swapped_list(swap.val);
+> > -   __delete_from_swap_cache(page);
+> > -   write_unlock_irq(&mapping->tree_lock);
+> > -   swap_free(swap);
+> > -   __put_page(page); /* The pagecache ref */
+> > -   goto free_it;
+> > -  }
+> > -#endif /* CONFIG_SWAP */
+> 
+> What happens if you build without swap?
 
-Thanks Geert for the notification, it was an opportunity to refresh my
-thoughts about portability practices. I think it will be time to buy
-an x86_64 :-/
+You don't need an explicit #ifdef.
 
-Willy
+PageSwapCache() has an #ifdef for its declaration which gets it down to
+'0'.  That should get gcc to completely kill the if(){} block, with no
+explicit #ifdef.  
+
+-- Dave
 

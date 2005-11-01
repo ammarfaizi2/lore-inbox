@@ -1,94 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750918AbVKAVcw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbVKAVfc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750918AbVKAVcw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 16:32:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbVKAVcw
+	id S1751265AbVKAVfc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 16:35:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbVKAVfc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 16:32:52 -0500
-Received: from ns.dynamicweb.hu ([195.228.155.139]:9146 "EHLO dynamicweb.hu")
-	by vger.kernel.org with ESMTP id S1750918AbVKAVcv (ORCPT
+	Tue, 1 Nov 2005 16:35:32 -0500
+Received: from soundwarez.org ([217.160.171.123]:60846 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S1751265AbVKAVfc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 16:32:51 -0500
-Message-ID: <03c501c5df2c$9a19e2f0$0400a8c0@dcccs>
-From: "JaniD++" <djani22@dynamicweb.hu>
-To: "Paul Jackson" <pj@sgi.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <035101c5df17$223eccb0$0400a8c0@dcccs> <20051101123648.5743a5cf.pj@sgi.com>
-Subject: Re: cpuset - question
-Date: Tue, 1 Nov 2005 22:38:28 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+	Tue, 1 Nov 2005 16:35:32 -0500
+Date: Tue, 1 Nov 2005 22:35:25 +0100
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: Sergey Vlasov <vsu@altlinux.ru>
+Cc: Al Viro <viro@ftp.linux.org.uk>, Roderich.Schupp.extern@mch.siemens.de,
+       linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net,
+       Greg KH <greg@kroah.com>
+Subject: Re: Race between "mount" uevent and /proc/mounts?
+Message-ID: <20051101213525.GA17207@vrfy.org>
+References: <0AD07C7729CA42458B22AFA9C72E7011C8EF@mhha22kc.mchh.siemens.de> <20051025140041.GO7992@ftp.linux.org.uk> <20051026142710.1c3fa2da.vsu@altlinux.ru> <20051026111506.GQ7992@ftp.linux.org.uk> <20051026143417.GA18949@vrfy.org> <20051026192858.GR7992@ftp.linux.org.uk> <20051101002846.GA5097@vrfy.org> <20051101035816.GA7788@vrfy.org> <20051101195449.GA9162@procyon.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051101195449.GA9162@procyon.home>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, Nov 01, 2005 at 10:54:49PM +0300, Sergey Vlasov wrote:
+> On Tue, Nov 01, 2005 at 04:58:16AM +0100, Kay Sievers wrote:
+> > On Tue, Nov 01, 2005 at 01:28:46AM +0100, Kay Sievers wrote:
+> > > Ok, makes sense. The attached seems to work for me. If we can get
+> > > something like this, we can remove the superblock claim/release events
+> > > completely and just read the events from the /proc/mounts file itself.
+> 
+> No, we need both events.  When you need to tell the user when it is
+> safe to disconnect the storage device, the event from detach_mnt() is
+> useless - it happens too early.  In fact, even the current way of
+> sending the event from kill_block_super() is broken, because the event
+> is generated before generic_shutdown_super() and sync_blockdev(), and
+> writing out cached data may take some time.
+> 
+> We could try to emit busy/free events from bd_claim() and
+> bd_release(); this would be triggered by most "interesting" users
+> (even opens with O_EXCL), but not by things like volume_id.
 
------ Original Message ----- 
-From: "Paul Jackson" <pj@sgi.com>
-To: "JaniD++" <djani22@dynamicweb.hu>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Tuesday, November 01, 2005 9:36 PM
-Subject: Re: cpuset - question
+Hmm, HAL polls optical drives every 2 seconds with O_EXCL to detect media
+changes. You need to do it EXCL, cause otherwise some cd burners fail.
 
+> > New patch. Missed a check for namespace == NULL in detach_mnt().
+> [skip]
+> > +static unsigned int mounts_poll(struct file *file, poll_table *wait)
+> > +{
+> > +	struct task_struct *task = proc_task(file->f_dentry->d_inode);
+> > +	struct namespace *namespace;
+> > +	int ret = 0;
+> > +
+> > +	task_lock(task);
+> > +	namespace = task->namespace;
+> > +	if (namespace)
+> > +		get_namespace(namespace);
+> > +	task_unlock(task);
+> > +
+> > +	if (!namespace)
+> > +		return -EINVAL;
+> > +
+> > +	poll_wait(file, &mounts_wait, wait);
+> > +	if (namespace->mounts_poll_pending) {
+> > +		namespace->mounts_poll_pending = 0;
+> > +		ret = POLLIN | POLLRDNORM;
+> > +	}
+> 
+> This assumes that there will be only one process per namespace which
+> will call poll() on /proc/mounts.  Even though someone may argue that
+> it is the right approach (have a single process which watches
+> /proc/mounts and broadcasts updates to other interested processes,
+> e.g., over dbus), with the above implementation any unprivileged user
+> can call poll() and interfere with the operation of that designated
+> process.
 
-> JaniD++ wrote:
-> > [root@dy-xeon-1 cpus_0]# /bin/echo 1 > mems
-> > /bin/echo: write error: Numerical result out of range
-> > [root@dy-xeon-1 cpus_0]# echo 1 >mems
-> > [root@dy-xeon-1 cpus_0]# cat mems
-> >
-> > [root@dy-xeon-1 cpus_0]# /bin/echo $$ > tasks
-> > /bin/echo: write error: No space left on device
->
-> I'm guessing you are on a multi-processor, with a single
-> memory node, not a NUMA system with multiple memory nodes.
->
-> Or, at least, your kernel was compiled for that (with the
-> CONFIG_NUMA option disabled).
+Sure, capable(CAP_SYS_ADMIN) could prevent this.
 
-Yes, this option is disabled.
-This is a dual-xeon server with HT.
-With HT looks 4 CPU.
-
-In this config i need NUMA option enabled to use cpusets?
-
-I only need to move my 4 gnbd-client process to 4 cpuset, but i don't want
-to touch the memory.
-This is possible, or need the CONFIG_NUMA=y option?
-
-Thanks
-
-Janos
-
->
-> The first echo above failed because you tried to set bit 1
-> in mems, but only bit 0 is valid (only one memory node).
->
-> The second echo failed too, but your shells (like most
-> shells) builtin echo didn't display the error.
->
-> The 'cat mems' command showed that mems was not yet set,
-> which is indeed the case.
->
-> The third and final echo above, into 'tasks' failed because
-> you can't attach a task to a cpuset that has no memory specified.
->
-> If you had done '/bin/echo 0 > mems', it would have worked
-> much better.
->
-> -- 
->                   I won't rest till it's the best ...
->                   Programmer, Linux Scalability
->                   Paul Jackson <pj@sgi.com> 1.925.600.0401
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Thanks,
+Kay
 

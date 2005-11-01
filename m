@@ -1,149 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964989AbVKAIZR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbVKAIlG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964989AbVKAIZR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 03:25:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965035AbVKAIZO
+	id S964981AbVKAIlG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 03:41:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965032AbVKAIlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 03:25:14 -0500
-Received: from mail.gmx.net ([213.165.64.20]:5309 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964989AbVKAIY7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 03:24:59 -0500
-X-Authenticated: #1700068
-From: Torsten Foertsch <torsten.foertsch@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: /proc/*/smaps
-Date: Tue, 1 Nov 2005 09:24:56 +0100
-User-Agent: KMail/1.7.1
-References: <787b0d920510312113v715b22e0m8e25dbf0aac317b@mail.gmail.com>
-In-Reply-To: <787b0d920510312113v715b22e0m8e25dbf0aac317b@mail.gmail.com>
+	Tue, 1 Nov 2005 03:41:06 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:54670
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S964981AbVKAIlE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 03:41:04 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: echo 0 > /proc/sys/vm/swappiness triggers OOM killer under 2.6.14.
+Date: Tue, 1 Nov 2005 02:37:01 -0600
+User-Agent: KMail/1.8
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <53vpu-s9-17@gated-at.bofh.it> <4366E99D.7070606@shaw.ca>
+In-Reply-To: <4366E99D.7070606@shaw.ca>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200511010924.56783.torsten.foertsch@gmx.net>
-X-Y-GMX-Trusted: 0
+Message-Id: <200511010237.01737.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 01 November 2005 06:13, Albert Cahalan wrote:
-> Take a look at those files, trying not to crack up laughing
-> at the file format. Maybe you will cry. Imagine that some
-> apps try to parse those... all of them, repeatedly, while
-> being tolerant of unspecified future changes.
-
-The Perl module Linux::Smaps already parses it.
-
-r2@s93:~> cp /bin/bash 'b
-a
-:s:h'
-r2@s93:~> ./'b
-> a
-> :s:h'
-s93:~$ more /proc/$$/smaps
-08048000-080ba000 r-xp 00000000 08:02 152476     /home/r2/b\012a\012:s:h
-Size:               456 kB
-Rss:                368 kB
-Shared_Clean:       368 kB
-Shared_Dirty:         0 kB
-Private_Clean:        0 kB
-Private_Dirty:        0 kB
-080ba000-080bd000 rwxp 00072000 08:02 152476     /home/r2/b\012a\012:s:h
-Size:                12 kB
-Rss:                 12 kB
-Shared_Clean:         0 kB
-Shared_Dirty:         0 kB
-Private_Clean:        0 kB
-Private_Dirty:       12 kB
-080bd000-08126000 rwxp 080bd000 00:00 0          [heap]
-Size:               420 kB
-Rss:                312 kB
-...
-
-s93:~$ perl -MLinux::Smaps -e 'foreach (Linux::Smaps->new('$$')->names) {print 
-"$_\n"}'
-...
-/lib/libdl.so.2
-/home/r2/b\012a\012:s:h
-/usr/lib/locale/en_US.utf8/LC_NUMERIC
-
-Where is your problem? You see, the vma names are properly parsed.
-
-Here is my parser:
-    if( $l=~/([\da-f]+)-([\da-f]+)\s                # range
-             ([r\-])([w\-])([x\-])([sp])\s          # access mode
-             ([\da-f]+)\s                           # page offset in file
-             ([\da-f]+):([\da-f]+)\s                # device
-             (\d+)\s*                               # inode
-             (.*)		                    # file name
-	    /xi ) {
-      push @{$I->_elem}, $current=Linux::Smaps::VMA->new;
-      $current->vma_start=hex $1;
-      $current->vma_end=hex $2;
-      $current->r=($3 eq 'r');
-      $current->w=($4 eq 'w');
-      $current->x=($5 eq 'x');
-      $current->mayshare=($6 eq 's');
-      $current->file_off=hex $7;
-      $current->dev_major=hex $8;
-      $current->dev_minor=hex $9;
-      $current->inode=$10;
-      $current->file_name=$11;
-    } elsif( $l=~/^(\w+):\s*(\d+) kB$/ ) {
-      my $m=lc $1;
-      $current->$m=$2;
-    } else {
-      die __PACKAGE__.":: not parsed: $l\n";
-    }
-
-Torsten
-
-> (remember that a filename may have a colon, new fields
-> may be added, new lines may differ in unknown ways, etc.)
+On Monday 31 October 2005 22:05, Robert Hancock wrote:
+> Rob Landley wrote:
+> > Under 2.6.14 (UML), I have a workload that runs with 64 megs ram and 256
+> > megs swap space.  It completes (albeit swapping like mad) with swappiness
+> > at the default 60, but if I set it to 0 the OOM killer kicks in and the
+> > script aborts.
 >
-> Could we fix this ASAP? How about just commenting it
-> out right now, so nothing important starts to rely on it.
-> CONFIG_EXPERIMENTAL would do I guess.
->
-> I'll gladly do something sane, but not tonight. I'm sorry I
-> did not catch this earlier; I've been rather sick and I never
-> imagined that this thing would get accepted without a
-> major rework of the file format.
->
-> -------- unbelievable example follows --------
->
-> 08048000-080dc000 r-xp /bin/bash
-> Size:               592 KB
-> Rss:                500 KB
-> Shared_Clean:       500 KB
-> Shared_Dirty:         0 KB
-> Private_Clean:        0 KB
-> Private_Dirty:        0 KB
-> 080dc000-080e2000 rw-p /bin/bash
-> Size:                24 KB
-> Rss:                 24 KB
-> Shared_Clean:         0 KB
-> Shared_Dirty:         0 KB
-> Private_Clean:        0 KB
-> Private_Dirty:       24 KB
-> 080e2000-08116000 rw-p
-> Size:               208 KB
-> Rss:                208 KB
-> Shared_Clean:         0 KB
-> Shared_Dirty:         0 KB
-> Private_Clean:        0 KB
-> Private_Dirty:      208 KB
-> b7e2b000-b7e34000 r-xp /lib/tls/libnss_files-2.3.2.so
-> Size:                36 KB
-> Rss:                 12 KB
-> Shared_Clean:        12 KB
-> Shared_Dirty:         0 KB
-> Private_Clean:        0 KB
-> Private_Dirty:        0 KB
-> ...
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> You should get some debugging output in dmesg when the OOM killer kicks
+> in, can you post this?
+
+Sure:
+
+VFS: Mounted root (hostfs filesystem).
+Adding 262136k swap on tmp/ubda.  Priority:-1 extents:1 across:262136k
+oom-killer: gfp_mask=0x400d2, order=0
+Mem-info:
+DMA per-cpu:
+cpu 0 hot: low 14, high 42, batch 7 used:20
+cpu 0 cold: low 0, high 14, batch 7 used:8
+Normal per-cpu: empty
+HighMem per-cpu: empty
+Free pages:        1416kB (0kB HighMem)
+Active:14014 inactive:718 dirty:1 writeback:0 unstable:0 free:354 slab:468 
+mapped:14722 pagetables:58
+DMA free:1416kB min:1024kB low:1280kB high:1536kB active:56056kB 
+inactive:2872kB present:65536kB pages_scanned:26577 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0
+Normal free:0kB min:0kB low:0kB high:0kB active:0kB inactive:0kB present:0kB 
+pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0
+HighMem free:0kB min:128kB low:160kB high:192kB active:0kB inactive:0kB 
+present:0kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0
+DMA: 98*4kB 0*8kB 0*16kB 0*32kB 4*64kB 2*128kB 0*256kB 1*512kB 0*1024kB 
+0*2048kB 0*4096kB = 1416kB
+Normal: empty
+HighMem: empty
+Swap cache: add 5689, delete 5485, find 583/725, race 0+0
+Free swap  = 255420kB
+Total swap = 262136kB
+Free swap:       255420kB
+16384 pages of RAM
+0 pages of HIGHMEM
+671 reserved pages
+1034 pages shared
+204 pages swap cached
+Out of Memory: Killed process 30055 (cc1).
+Badness in handle_page_fault 
+at /home/landley/newbuild/firmware-build/tmpdir/linux-2.6.14/arch/um/kernel/trap_kern.c:98
+08bafb10:  [<0805d064>] handle_page_fault+0x1c4/0x260
+08bafb50:  [<0805d1a7>] segv+0xa7/0x2e0
+08bafb70:  [<0805e713>] setjmp_wrapper+0x83/0x90
+08bafba8:  [<0805e6c7>] setjmp_wrapper+0x37/0x90
+08bafbd0:  [<0805b1a5>] change_signals+0x65/0x90
+08bafbe0:  [<08060d3a>] do_ops+0x14a/0x150
+08bafc10:  [<0805f29f>] wait_stub_done+0x5f/0x110
+08bafc40:  [<0805d67c>] segv_handler+0x7c/0x90
+08bafc60:  [<08060fbe>] user_signal+0x3e/0x70
+08bafc80:  [<0805faa0>] userspace+0x180/0x220
+08bafcf0:  [<08060711>] fork_handler+0xc1/0xe0
+
+System halted.

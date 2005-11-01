@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbVKAU3T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbVKAU3m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751155AbVKAU3T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 15:29:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbVKAU3T
+	id S1751128AbVKAU3m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 15:29:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbVKAU3m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 15:29:19 -0500
-Received: from smtp105.sbc.mail.mud.yahoo.com ([68.142.198.204]:37284 "HELO
-	smtp105.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751128AbVKAU3R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 15:29:17 -0500
-From: David Brownell <david-b@pacbell.net>
-To: Borislav Petkov <bbpetkov@yahoo.de>
-Subject: Re: Linux 2.6.14 ehci-hcd hangs machine
-Date: Tue, 1 Nov 2005 10:18:04 -0800
-User-Agent: KMail/1.7.1
-Cc: Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       greg@kroah.com
-References: <0EF82802ABAA22479BC1CE8E2F60E8C376CE22@scl-exch2k3.phoenix.com> <200510311624.31680.david-b@pacbell.net> <20051101112321.GA8691@gollum.tnic>
-In-Reply-To: <20051101112321.GA8691@gollum.tnic>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Tue, 1 Nov 2005 15:29:42 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:41384 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751128AbVKAU3l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 15:29:41 -0500
+Subject: Re: Would I be violating the GPL?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Michael Buesch <mbuesch@freenet.de>
+Cc: alex@alexfisher.me.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <200511012000.21176.mbuesch@freenet.de>
+References: <5449aac20511010949x5d96c7e0meee4d76a67a06c01@mail.gmail.com>
+	 <200511012000.21176.mbuesch@freenet.de>
+Content-Type: text/plain
+Date: Tue, 01 Nov 2005 14:58:00 -0500
+Message-Id: <1130875080.22089.14.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511011018.05117.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 01 November 2005 3:23 am, Borislav Petkov wrote:
-> Yeah, the symptoms are really weird. Let me rehash the whole history:
-> First, we did some testing with 2.6.14-rc4, _with_ the patch and the
-> 'handoff' cmd option and it worked. Then, several boots later, I noticed
-> that it started hanging itself again at the same position not while rebooting 
-> but at _initial_ boot in the morning. ...
+On Tue, 2005-11-01 at 20:00 +0100, Michael Buesch wrote:
+> On Tuesday 01 November 2005 18:49, Alexander Fisher wrote:
+> > Hello.
+> > 
+> > A supplier of a PCI mezzanine digital IO card has provided a linux 2.4
+> > driver as source code.  They have provided this code source with a
+> > license stating I won't redistribute it in anyway.
+> > My concern is that if I build this code into a module, I won't be able
+> > to distribute it to customers without violating either the GPL (by not
+> > distributing the source code), or the proprietary source code license
+> > as currently imposed by the supplier.
+> > From what I have read, this concern is only valid if the binary module
+> > is considered to be a 'derived work' of the kernel.  The module source
+> > directly includes the following kernel headers :
+> 
+> Take the code and write a specification for the device.
+> Should be fairly easy.
+> Someone else will pick up the spec and write a clean GPLed driver.
 
-So you're saying your hardware doesn't act consistently.
-Is there a BIOS update you can try?  The failure sure seems
-to be board-specific.
+Seems excessive, why not just use a kernel debugger to capture all PIO
+traffic to the device and write a driver based on that?
 
+Lee
 
-> ... 2.6.13, in contrast, boots just fine. Hope
-> that helps,
-
-Well that's news, and not mentioned in the bug report; in fact, you
-said explicitly that it _never_ worked on earlier kernels (see your
-comment #2).
-
-This means you could use "git bisect" to point a finger at a patch that,
-if it doesn't actually cause the problem, at least surfaces a latent bug
-in other code.  Could you please try that?
-
-I'm starting to suspect some IRQ setup problem here; those are classically
-issues in ACPI code, even when the breakage shows only with USB.
-
-- Dave

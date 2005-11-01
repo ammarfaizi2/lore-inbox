@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbVKANtJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbVKANvY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750767AbVKANtJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 08:49:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbVKANtI
+	id S1750787AbVKANvY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 08:51:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbVKANvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 08:49:08 -0500
-Received: from smtp1-g19.free.fr ([212.27.42.27]:22717 "EHLO smtp1-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1750767AbVKANtH (ORCPT
+	Tue, 1 Nov 2005 08:51:23 -0500
+Received: from mail.gondor.com ([212.117.64.182]:35845 "EHLO moria.gondor.com")
+	by vger.kernel.org with ESMTP id S1750787AbVKANvX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 08:49:07 -0500
-Message-ID: <43677257.4090506@free.fr>
-Date: Tue, 01 Nov 2005 14:49:11 +0100
-From: matthieu castet <castet.matthieu@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: fr-fr, en, en-us
+	Tue, 1 Nov 2005 08:51:23 -0500
+Date: Tue, 1 Nov 2005 14:51:23 +0100
+From: Jan Niehusmann <jan@gondor.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ext3 corruption: "JBD: no valid journal superblock found"
+Message-ID: <20051101135123.GB9234@knautsch.gondor.com>
+References: <20051101134232.GA9234@knautsch.gondor.com>
 MIME-Version: 1.0
-To: Duncan Sands <duncan.sands@math.u-psud.fr>
-CC: Andrew Morton <akpm@osdl.org>, linux-usb-devel@lists.sourceforge.net,
-       usbatm@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]  Eagle and ADI 930 usb adsl modem driver
-References: <4363F9B5.6010907@free.fr> <20051031155803.2e94069f.akpm@osdl.org> <200511011340.41266.duncan.sands@math.u-psud.fr>
-In-Reply-To: <200511011340.41266.duncan.sands@math.u-psud.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="IrhDeMKUP4DT/M7F"
+Content-Disposition: inline
+In-Reply-To: <20051101134232.GA9234@knautsch.gondor.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Duncan,
 
-Duncan Sands wrote:
-> Hi Andrew,
-> 
-> 
-> this code looks like a 'orrible hack to work around a common problem
-> with USB modem's of this type: if the modem is plugged in while the
-> system boots, the driver may look for firmware before the filesystem
+--IrhDeMKUP4DT/M7F
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-No, it wasn't the problem, even when loading with insmod/modprobe the 
-timeout occurs on some configurations. For example on 
-http://atm.eagle-usb.org/wakka.php?wiki=TestUEagleAtmBaud123, you could 
-see the 'firmware ueagle-atm/eagleIII.fw is not available' error.
+On Tue, Nov 01, 2005 at 02:42:33PM +0100, Jan Niehusmann wrote:
+> Currently, I'm experiencing a strange problem with one of my ext3
+> filesystems: There seems to be some journal corruption, but up to now I
 
-It is only happen for pre-firmware modem (uea_load_firmware) ie where we 
-just do a request_firmware in the probe without any initialisation before.
-So the problem seems to appear when we do a request_firmware too early 
-in the usb_probe.
+Well, of course I forgot one important detail: The kernel version. This
+is a 2.6.14 with additional patches for CardMan 4000 support (as posted
+on this list by Harald Welte), updated ipw2200 support (from
+ipw2200.sourceforge.net) and btsco bluetooth headset support (from
+bluetooth-alsa.sourceforge.net).
+
+By now, I did an e2fsck which removed the ext3 journal and recovered the
+ext2 without problems - unfortunately I don't have an easy way to verify
+if files are corrupted, but up to now everything looks fine.
+
+Jan
 
 
-Matthieu
+--IrhDeMKUP4DT/M7F
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iQCVAwUBQ2dy1oFL8fYptN/eAQLyVQP+NVIKa47Kz+Txak5H3dWPVXRlwbXp9+g3
+23odv137NXU+/Rl881/5h+p8gbMztJzfm1KNVNtXI4/9WgDthT0ddMsCDOXZlf1n
+ktBhdSnh8ZyeSz1t0HEW7UrPkUNKrB7fZ8VJRNuTTnkzozcffyCNEEcHIC2uLhKC
+bVz0wKqq+Dg=
+=CCfJ
+-----END PGP SIGNATURE-----
+
+--IrhDeMKUP4DT/M7F--

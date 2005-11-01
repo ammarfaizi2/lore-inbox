@@ -1,93 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbVKAMEe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbVKAMC4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750766AbVKAMEe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 07:04:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbVKAMEe
+	id S1750760AbVKAMC4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 07:02:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbVKAMC4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 07:04:34 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:45016 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750766AbVKAMEd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 07:04:33 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-       Doug Thompson <dthompson@lnxi.com>
-Subject: Re: PATCH: EDAC - clean up atomic stuff
-References: <1129902050.26367.50.camel@localhost.localdomain>
-	<m164rhbnyk.fsf@ebiederm.dsl.xmission.com>
-	<1130772628.9145.35.camel@localhost.localdomain>
-	<m1oe55abm4.fsf@ebiederm.dsl.xmission.com>
-	<20051031120254.4579dc9a.akpm@osdl.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 01 Nov 2005 05:03:57 -0700
-In-Reply-To: <20051031120254.4579dc9a.akpm@osdl.org> (Andrew Morton's
- message of "Mon, 31 Oct 2005 12:02:54 -0800")
-Message-ID: <m18xw88thu.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Tue, 1 Nov 2005 07:02:56 -0500
+Received: from spirit.analogic.com ([204.178.40.4]:21003 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP
+	id S1750760AbVKAMCz convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 07:02:55 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <20051031212742.3e43c829.akpm@osdl.org>
+References: <20051101031239.12488.76816.sendpatchset@schroedinger.engr.sgi.com><20051101031305.12488.1224.sendpatchset@schroedinger.engr.sgi.com> <20051031212742.3e43c829.akpm@osdl.org>
+X-OriginalArrivalTime: 01 Nov 2005 12:00:48.0017 (UTC) FILETIME=[E58A3010:01C5DEDB]
+Content-class: urn:content-classes:message
+Subject: Re: [PATCH 5/5] Swap Migration V5: sys_migrate_pages interface
+Date: Tue, 1 Nov 2005 07:00:44 -0500
+Message-ID: <Pine.LNX.4.61.0511010658270.31439@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 5/5] Swap Migration V5: sys_migrate_pages interface
+Thread-Index: AcXe2+WWKMfS+qpRQuywhtZJeTK9Ew==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Cc: "Christoph Lameter" <clameter@sgi.com>, <torvalds@osdl.org>,
+       <marcelo.tosatti@cyclades.com>, <kravetz@us.ibm.com>,
+       <raybry@mpdtxmail.amd.com>, <lee.schermerhorn@hp.com>,
+       <linux-kernel@vger.kernel.org>, <magnus.damm@gmail.com>, <pj@sgi.com>,
+       <haveblue@us.ibm.com>, <kamezawa.hiroyu@jp.fujitsu.com>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
 
-> ebiederm@xmission.com (Eric W. Biederman) wrote:
+On Tue, 1 Nov 2005, Andrew Morton wrote:
+
+> Christoph Lameter <clameter@sgi.com> wrote:
 >>
->> Ok.  If I recall correctly atomic kmaps have the rule that they are
->>  per cpu, and you can't be interrupted when the map is taken, by
->>  something else that will use the map.  But they are safe to use from
->>  interrupt context.  As I recall the code needs to ensure that an
->>  interrupt handler doesn't use the same buffer and that it isn't
->>  preempted where another thread will use the buffer.  The preemption
->>  angle is new since that piece of code was written.
+>> ...
+>> Changes V3->V4:
+>> - Add Ray's permissions check based on check_kill_permission().
+>>
+>> ...
+>> +	/*
+>> +	 * Permissions check like for signals.
+>> +	 * See check_kill_permission()
+>> +	 */
+>> +	if ((current->euid ^ task->suid) && (current->euid ^ task->uid) &&
+>> +	    (current->uid ^ task->suid) && (current->uid ^ task->uid) &&
+>> +	    !capable(CAP_SYS_ADMIN)) {
+>> +		err = -EPERM;
+>> +		goto out;
+>> +	}
 >
-> Yes, a particular atomic kmap slot is simply a static, per-cpu scalar. 
-> It's just like
->
-> int foo[NR_CPUS];
->
-> 	...
-> 	foo(smp_processor_id());
->
-> and all the same rules apply.
->
-> The use of KM_BOUNCE_READ does appear to be incorrect.  bounce_copy_vec()
-> will use KM_BOUNCE_READ from interrupt context, so if the EDAC code is
-> interrupted by the block layer while it holds that kmap, it will find that
-> it's suddenly diddling with a different physical page.
->
-> So to use KM_BOUNCE_READ, the EDAC code nees to disable local interrupts,
-> or to use a different (or new) slot.
->
-> In what contexts is edac_mc_scrub_block() called?  If process context, then
-> KM_USER0 would suit.
+> Obscure.  Can you please explain the thinking behind putting this check in
+> here?  Preferably via a comment...
 
-That function is very nice functionality but we could not implement it
-properly outside of the kernel.  So the code has been disabled until
-just recently. 
+Also XOR is not a good substitute for a compare. Except in some
+strange corner cases, the code will always take more CPU cycles
+because XOR modifies oprands while compares don't need to.
 
-Hmm.  Looking at the patch it is most definitely being called from
-process context.  Although I think the original was ok from interrupt
-context as well.
 
-> Ah, edac_mc_scrub_block() is passing the pageframe address to
-> kunmap_atomic() - that's a common bug.  It needs to pass in the virtual
-> address which kmap_atomic() returned.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13.4 on an i686 machine (5589.55 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+.
 
-Oops.  Although I am actually surprised kunmap_atomic even needs the address.
-Although I can see the kmap type being equally redundant.
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
-There is a much more serious bug there as well.  The code as it
-exists is flatly impossible on x86_64 and some other architectures
-as they do not support kmap.  It is also broken on x86 as grain can
-easily be larger than page size, on old memory controllers where this
-is most needed it is the frequently the size of a memory chip select
-(aka the size of a single sided DIMM).
-
-We need to do two things.
-- Remove a factor from edac_mc_scrub_block (call it edac_mc_scrub_page)
-  that simply scrubs a page or maybe a sub page.
-- Place the edac_mc_scrub_page which does the kmap and a loop through
-  the page contents in arch specific code.
-
-Eric
+Thank you.

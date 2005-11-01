@@ -1,154 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751238AbVKATzv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbVKATzN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751238AbVKATzv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 14:55:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbVKATzv
+	id S1751229AbVKATzN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 14:55:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbVKATzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 14:55:51 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19334 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751238AbVKATzu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 14:55:50 -0500
-Date: Tue, 1 Nov 2005 20:31:35 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Make spitz compile again
-Message-ID: <20051101193135.GA7075@elf.ucw.cz>
-References: <20051031134255.GA8093@elf.ucw.cz> <1130773530.8353.39.camel@localhost.localdomain>
+	Tue, 1 Nov 2005 14:55:13 -0500
+Received: from master.altlinux.ru ([62.118.250.235]:5642 "EHLO
+	master.altlinux.org") by vger.kernel.org with ESMTP
+	id S1751229AbVKATzL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 14:55:11 -0500
+Date: Tue, 1 Nov 2005 22:54:49 +0300
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Kay Sievers <kay.sievers@vrfy.org>
+Cc: Al Viro <viro@ftp.linux.org.uk>, Roderich.Schupp.extern@mch.siemens.de,
+       linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net,
+       Greg KH <greg@kroah.com>
+Subject: Re: Race between "mount" uevent and /proc/mounts?
+Message-ID: <20051101195449.GA9162@procyon.home>
+References: <0AD07C7729CA42458B22AFA9C72E7011C8EF@mhha22kc.mchh.siemens.de> <20051025140041.GO7992@ftp.linux.org.uk> <20051026142710.1c3fa2da.vsu@altlinux.ru> <20051026111506.GQ7992@ftp.linux.org.uk> <20051026143417.GA18949@vrfy.org> <20051026192858.GR7992@ftp.linux.org.uk> <20051101002846.GA5097@vrfy.org> <20051101035816.GA7788@vrfy.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
 Content-Disposition: inline
-In-Reply-To: <1130773530.8353.39.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20051101035816.GA7788@vrfy.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > This is what I needed to do after update to latest linus
-> > kernel. Perhaps it helps someone. 
-> > 
-> > Signed-off-by: Pavel Machek <pavel@suse.cz>
-> > 
-> > , but it is against Richard's tree merged into my tree, so do not
-> > expect to apply it over mainline. Akita code movement is needed if I
-> > want to compile kernel without akita support...
-> 
-> This is an update of my tree against 2.6.14-git3:
-> 
-> http://www.rpsys.net/openzaurus/temp/total-2.6.14-git3-r0.patch.gz
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I needed this to get it to compile... Please apply (probably modulo //
-part).
+On Tue, Nov 01, 2005 at 04:58:16AM +0100, Kay Sievers wrote:
+> On Tue, Nov 01, 2005 at 01:28:46AM +0100, Kay Sievers wrote:
+> > Ok, makes sense. The attached seems to work for me. If we can get
+> > something like this, we can remove the superblock claim/release events
+> > completely and just read the events from the /proc/mounts file itself.
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
-								Pavel
+No, we need both events.  When you need to tell the user when it is
+safe to disconnect the storage device, the event from detach_mnt() is
+useless - it happens too early.  In fact, even the current way of
+sending the event from kill_block_super() is broken, because the event
+is generated before generic_shutdown_super() and sync_blockdev(), and
+writing out cached data may take some time.
 
+We could try to emit busy/free events from bd_claim() and
+bd_release(); this would be triggered by most "interesting" users
+(even opens with O_EXCL), but not by things like volume_id.
 
---- clean-rp/arch/arm/mach-pxa/pxa_keys.c	2005-11-01 19:32:56.000000000 +0100
-+++ linux-rp/arch/arm/mach-pxa/pxa_keys.c	2005-11-01 20:17:38.000000000 +0100
-@@ -55,24 +55,20 @@
- }
- 
- #ifdef CONFIG_PM
--static int pxa_keys_suspend(struct device *dev, pm_message_t state, uint32_t level)
-+static int pxa_keys_suspend(struct device *dev, pm_message_t state)
- {
--	if (level == SUSPEND_POWER_DOWN) {
--		struct pxa_keys_platform_data *k = dev_get_drvdata(dev);
--		k->suspended = 1;
--	}
-+	struct pxa_keys_platform_data *k = dev_get_drvdata(dev);
-+	k->suspended = 1;
- 	return 0;
- }
- 
--static int pxa_keys_resume(struct device *dev, uint32_t level)
-+static int pxa_keys_resume(struct device *dev)
- {
--	if (level == RESUME_POWER_ON) {
--		struct pxa_keys_platform_data *k = dev_get_drvdata(dev);
-+	struct pxa_keys_platform_data *k = dev_get_drvdata(dev);
- 
--		/* Upon resume, ignore the suspend key for a short while */
--		k->suspend_jiffies=jiffies;
--		k->suspended = 0;
--	}
-+	/* Upon resume, ignore the suspend key for a short while */
-+	k->suspend_jiffies=jiffies;
-+	k->suspended = 0;
- 	return 0;
- }
- #else
---- clean-rp/arch/arm/mach-pxa/spitz.c	2005-11-01 19:32:56.000000000 +0100
-+++ linux-rp/arch/arm/mach-pxa/spitz.c	2005-11-01 20:28:43.000000000 +0100
-@@ -321,6 +321,7 @@
- };
- 
- 
-+#ifdef CONFIG_MACH_AKITA
- /*
-  * Irda
-  */
-@@ -339,10 +340,11 @@
- 	else
- 		akita_reset_ioexp(&akitaioexp_device.dev, AKITA_IOEXP_IR_ON);
- }
-+#endif
- 
- static struct pxaficp_platform_data spitz_ficp_platform_data = {
- 	.transceiver_cap  = IR_SIRMODE | IR_OFF,
--	.transceiver_mode = spitz_irda_transceiver_mode,
-+//	.transceiver_mode = spitz_irda_transceiver_mode,
- };
- 
- 
-@@ -422,21 +424,6 @@
- 	platform_device_register(&spitzscoop2_device);
- }
- 
--static void __init akita_init(void)
--{
--	spitz_ficp_platform_data.transceiver_mode = akita_irda_transceiver_mode;
--
--	/* We just pretend the second element of the array doesn't exist */
--	scoop_num = 1;
--	scoop_devs = &spitz_pcmcia_scoop[0];
--	spitz_bl_machinfo.set_bl_intensity = akita_bl_set_intensity;
--
--	platform_device_register(&akitaioexp_device);
--
--	spitzscoop_device.dev.parent=&akitaioexp_device.dev;
--	common_init();
--}
--
- static void __init fixup_spitz(struct machine_desc *desc,
- 		struct tag *tags, char **cmdline, struct meminfo *mi)
- {
-@@ -474,6 +461,21 @@
- #endif
- 
- #ifdef CONFIG_MACH_AKITA
-+static void __init akita_init(void)
-+{
-+	spitz_ficp_platform_data.transceiver_mode = akita_irda_transceiver_mode;
-+
-+	/* We just pretend the second element of the array doesn't exist */
-+	scoop_num = 1;
-+	scoop_devs = &spitz_pcmcia_scoop[0];
-+	spitz_bl_machinfo.set_bl_intensity = akita_bl_set_intensity;
-+
-+	platform_device_register(&akitaioexp_device);
-+
-+	spitzscoop_device.dev.parent=&akitaioexp_device.dev;
-+	common_init();
-+}
-+
- MACHINE_START(AKITA, "SHARP Akita")
- 	.phys_ram	= 0xa0000000,
- 	.phys_io	= 0x40000000,
+> New patch. Missed a check for namespace == NULL in detach_mnt().
+[skip]
+> +static unsigned int mounts_poll(struct file *file, poll_table *wait)
+> +{
+> +	struct task_struct *task = proc_task(file->f_dentry->d_inode);
+> +	struct namespace *namespace;
+> +	int ret = 0;
+> +
+> +	task_lock(task);
+> +	namespace = task->namespace;
+> +	if (namespace)
+> +		get_namespace(namespace);
+> +	task_unlock(task);
+> +
+> +	if (!namespace)
+> +		return -EINVAL;
+> +
+> +	poll_wait(file, &mounts_wait, wait);
+> +	if (namespace->mounts_poll_pending) {
+> +		namespace->mounts_poll_pending = 0;
+> +		ret = POLLIN | POLLRDNORM;
+> +	}
 
--- 
-Thanks, Sharp!
+This assumes that there will be only one process per namespace which
+will call poll() on /proc/mounts.  Even though someone may argue that
+it is the right approach (have a single process which watches
+/proc/mounts and broadcasts updates to other interested processes,
+e.g., over dbus), with the above implementation any unprivileged user
+can call poll() and interfere with the operation of that designated
+process.
+
+--BXVAT5kNtrzKuDFl
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDZ8gJW82GfkQfsqIRAm1kAJ43NKZGRAFtuuROcePiY9NZt4wGngCfU4wC
+QR6WV2EYpF2KCaNbI3XJWfE=
+=CQuP
+-----END PGP SIGNATURE-----
+
+--BXVAT5kNtrzKuDFl--

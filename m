@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932567AbVKAHzy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932555AbVKAHmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932567AbVKAHzy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 02:55:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbVKAHzy
+	id S932555AbVKAHmz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 02:42:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbVKAHmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 02:55:54 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:17830 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932567AbVKAHzx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 02:55:53 -0500
-Subject: Re: 2.6.14-rt1 - xruns in a certain circumstance
-From: Lee Revell <rlrevell@joe-job.com>
-To: Nuno Silva <nuno.silva@vgertech.com>
-Cc: Mark Knecht <markknecht@gmail.com>, "K.R. Foley" <kr@cybsft.com>,
-       lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <4366C95B.1040400@vgertech.com>
-References: <5bdc1c8b0510301828p29ea517ew467a5f6503435314@mail.gmail.com>
-	 <50256.192.249.47.11.1130771450.squirrel@webmail2.pair.com>
-	 <5bdc1c8b0510310726t105f8f8emd1d044f760a8a1eb@mail.gmail.com>
-	 <1130776760.32101.40.camel@mindpipe>
-	 <5bdc1c8b0510311522r530eefbfmf15b860ac8352824@mail.gmail.com>
-	 <4366C95B.1040400@vgertech.com>
-Content-Type: text/plain
-Date: Tue, 01 Nov 2005 02:37:57 -0500
-Message-Id: <1130830677.32101.101.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Nov 2005 02:42:55 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:15574 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932555AbVKAHmy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 02:42:54 -0500
+To: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+Cc: <vgoyal@in.ibm.com>, "Andrew Morton" <akpm@osdl.org>, <fastboot@osdl.org>,
+       <linux-kernel@vger.kernel.org>, "Andi Kleen" <ak@suse.de>,
+       "Zwane Mwaikambo" <zwane@arm.linux.org.uk>,
+       "Brown, Len" <len.brown@intel.com>
+Subject: Re: [Fastboot] [PATCH] i386: move apic init in init_IRQs
+References: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04E00@USRV-EXCH4.na.uis.unisys.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 01 Nov 2005 00:41:57 -0700
+In-Reply-To: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04E00@USRV-EXCH4.na.uis.unisys.com> (Natalie
+ Protasevich's message of "Mon, 31 Oct 2005 12:31:56 -0600")
+Message-ID: <m1k6fs95mi.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-01 at 01:48 +0000, Nuno Silva wrote:
-> Mark Knecht wrote:
-> 
-> [..]
-> 
-> > I took a quick look. If you get a chance where does the NoAccel option
-> > go? Inside of the section for the radeon driver? I'm sure I can find
-> > this online but won't have much of an opportunity for the next few
-> > hours.
-> 
-> IMHO this wont matter because, IIRC, the preview window in mythtv 
-> doesn't even use xv... It's a straight x11 bitmap beeing drawn, after 
-> scaling (so it's very CPU intensive... It's like having the HDD without 
-> DMA enabled).
+"Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com> writes:
 
-Does not matter, a buggy 2D XAA implementation can stall the PCI bus and
-produce xruns.  I had an almost identical problem about a year ago with
-the via driver and the gmplayer "splash screen" was the most reliable
-way to trigger xruns.
+>> The first cpu is brought online much earlier than the rest.  
+>> So we just need to setup a table for boot cpu earlier.  From 
+>> the looks of it mach-es700 won't work if you compile a 
+>> uniprocessor kernel for it right now.
+>
+> Yea, I didn't even try this - but I think it will produce the same
+> result with regard to timer IOAPIC rte.
+>
+>> We need to do this a little later than in mptable but this 
+>> should be a fairly simple one or two line change.
+>
+> Yes, it is maybe something like running map_cpu_to_logical_apicid() from
+> APIC_init() just before the setup_IO_APIC().
 
-Lee
+The core piece of the puzzle is cpu_mask_to_apicid().  At the
+time we setup the io_apic TARGET_CPUS will just be the bootstrap
+processor.    So we might be able to get away with hard coding
+the bootstrap processor in the non-SMP sections of the ioapic
+startup code.
+
+setup_ioapic_dest is going to fix things after we start the
+cpus anyway so it should not be a problem.
+
+Does that sound like a sane thing to do?
+
+This code appears to affect all of the subarchitectures but the
+default x86 one.  So it is clearly not just an ES7000 problem.
+
+Now to figure out why Linus's laptop hates this patch...
+
+Eric
 

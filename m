@@ -1,141 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965087AbVKAIRv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964978AbVKAIYX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965087AbVKAIRv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 03:17:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965068AbVKAIRt
+	id S964978AbVKAIYX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 03:24:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbVKAIYB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 03:17:49 -0500
-Received: from hulk.hostingexpert.com ([69.57.134.39]:48621 "EHLO
-	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S965077AbVKAIR2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 03:17:28 -0500
-Message-ID: <4367246F.1080802@m1k.net>
-Date: Tue, 01 Nov 2005 03:16:47 -0500
-From: Michael Krufky <mkrufky@m1k.net>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
+	Tue, 1 Nov 2005 03:24:01 -0500
+Received: from zproxy.gmail.com ([64.233.162.196]:41278 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964978AbVKAIX4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 03:23:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=O5XUa89BwQTQKIlPzCzJpWoDmy8lR5Rr7lUOxY0KQUmfAb4yRp31JP2JiV12W43ywc0F3uU+ygpH46vzU6xs8H9mN0HqHX5lfMFYguKH/A9a8EwZApGp40dLntmfmo87Xd6rL240ZVtMLYOw0SPgBkufTq8qInU3KKrjRWagjNA=
+Date: Tue, 1 Nov 2005 17:23:49 +0900
+From: Tejun Heo <htejun@gmail.com>
+To: torvalds@osdl.org, axboe@suse.de, acme@mandriva.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] blk: fix dangling pointer access in __elv_add_request
+Message-ID: <20051101082349.GA17756@htj.dyndns.org>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org
-Subject: [PATCH 37/37] dvb: documentation updates for hybrid v4l/dvb cards.
-Content-Type: multipart/mixed;
- boundary="------------030002000103090803010009"
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030002000103090803010009
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+cfq's add_req_fn callback may invoke q->request_fn directly and
+depending on low-level driver used and timing, a queued request may be
+finished & deallocated before add_req_fn callback returns.  So,
+__elv_add_request must not access rq after it's passed to add_req_fn
+callback.
 
+This patch moves rq_mergeable test above add_req_fn().  This may
+result in q->last_merge pointing to REQ_NOMERGE request if add_req_fn
+callback sets it but as RQ_NOMERGE is checked again when blk layer
+actually tries to merge requests, this does not cause any problem.
 
+Signed-off-by: Tejun Heo <htejun@gmail.com>
+---
 
+Arnaldo, I think this patch should fix the oops you're seeing.  Please
+let me know how it works.  And thanks again for detailed reporting.
 
---------------030002000103090803010009
-Content-Type: text/x-patch;
- name="2415.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2415.patch"
+Jens, does generalizing queue kicking functions and disallowing
+ioscheds from directly calling q->request_fn sound like a good idea?
 
-Updated documentation to include "hybrid" v4l/dvb and ATSC cards.
+Linus, with or without Arnaldo's confirmation, this patch fixes an
+existing bug.  Please apply.  Thanks.
 
-Signed-off-by: Michael Krufky <mkrufky@m1k.net>
-
- Documentation/dvb/cards.txt        |   37 +++++++++++++++++++++++++++++++++++++
- Documentation/dvb/contributors.txt |   17 +++++++++++++++++
- 2 files changed, 54 insertions(+)
-
---- linux-2.6.14-git3.orig/Documentation/dvb/cards.txt
-+++ linux-2.6.14-git3/Documentation/dvb/cards.txt
-@@ -41,6 +41,12 @@
-    - dib3000mb	: DiBcom 3000-MB demodulator
-   DVB-S/C/T:
-    - dst		: TwinHan DST Frontend
-+  ATSC:
-+   - nxt200x		: Nxtwave NXT2002 & NXT2004
-+   - or51211		: or51211 based (pcHDTV HD2000 card)
-+   - or51132		: or51132 based (pcHDTV HD3000 card)
-+   - bcm3510		: Broadcom BCM3510
-+   - lgdt330x		: LG Electronics DT3302 & DT3303
+diff --git a/drivers/block/elevator.c b/drivers/block/elevator.c
+--- a/drivers/block/elevator.c
++++ b/drivers/block/elevator.c
+@@ -369,9 +369,14 @@ void __elv_add_request(request_queue_t *
+ 	case ELEVATOR_INSERT_SORT:
+ 		BUG_ON(!blk_fs_request(rq));
+ 		rq->flags |= REQ_SORTED;
+-		q->elevator->ops->elevator_add_req_fn(q, rq);
+ 		if (q->last_merge == NULL && rq_mergeable(rq))
+ 			q->last_merge = rq;
++		/*
++		 * Some ioscheds (cfq) run q->request_fn directly, so
++		 * rq cannot be accessed after calling
++		 * elevator_add_req_fn.
++		 */
++		q->elevator->ops->elevator_add_req_fn(q, rq);
+ 		break;
  
- 
- o Cards based on the Phillips saa7146 multimedia PCI bridge chip:
-@@ -62,6 +68,10 @@
-   - Nebula Electronics DigiTV
-   - TwinHan DST
-   - Avermedia DVB-T
-+  - ChainTech digitop DST-1000 DVB-S
-+  - pcHDTV HD-2000 TV
-+  - DViCO FusionHDTV DVB-T Lite
-+  - DViCO FusionHDTV5 Lite
- 
- o Technotrend / Hauppauge DVB USB devices:
-   - Nova USB
-@@ -83,3 +93,30 @@
-   - DiBcom USB2.0 DVB-T reference device (non-public)
- 
- o Experimental support for the analog module of the Siemens DVB-C PCI card
-+
-+o Cards based on the Conexant cx2388x PCI bridge:
-+  - ADS Tech Instant TV DVB-T PCI
-+  - ATI HDTV Wonder
-+  - digitalnow DNTV Live! DVB-T
-+  - DViCO FusionHDTV DVB-T1
-+  - DViCO FusionHDTV DVB-T Plus
-+  - DViCO FusionHDTV3 Gold-Q
-+  - DViCO FusionHDTV3 Gold-T
-+  - DViCO FusionHDTV5 Gold
-+  - Hauppauge Nova-T DVB-T
-+  - KWorld/VStream XPert DVB-T
-+  - pcHDTV HD3000 HDTV
-+  - TerraTec Cinergy 1400 DVB-T
-+  - WinFast DTV1000-T
-+
-+o Cards based on the Phillips saa7134 PCI bridge:
-+  - Medion 7134
-+  - Pinnacle PCTV 300i DVB-T + PAL
-+  - LifeView FlyDVB-T DUO
-+  - Typhoon DVB-T Duo Digital/Analog Cardbus
-+  - Philips TOUGH DVB-T reference design
-+  - Philips EUROPA V3 reference design
-+  - Compro Videomate DVB-T300
-+  - Compro Videomate DVB-T200
-+  - AVerMedia AVerTVHD MCE A180
-+
---- linux-2.6.14-git3.orig/Documentation/dvb/contributors.txt
-+++ linux-2.6.14-git3/Documentation/dvb/contributors.txt
-@@ -75,5 +75,22 @@
- Peter Beutner <p.beutner@gmx.net>
-   for the IR code for the ttusb-dec driver
- 
-+Wilson Michaels <wilsonmichaels@earthlink.net>
-+  for the lgdt330x frontend driver, and various bugfixes
-+
-+Michael Krufky <mkrufky@m1k.net>
-+  for maintaining v4l/dvb inter-tree dependencies
-+
-+Taylor Jacob <rtjacob@earthlink.net>
-+  for the nxt2002 frontend driver
-+
-+Jean-Francois Thibert <jeanfrancois@sagetv.com>
-+  for the nxt2004 frontend driver
-+
-+Kirk Lapray <kirk.lapray@gmail.com>
-+  for the or51211 and or51132 frontend drivers, and
-+  for merging the nxt2002 and nxt2004 modules into a
-+  single nxt200x frontend driver.
-+
- (If you think you should be in this list, but you are not, drop a
-  line to the DVB mailing list)
-
-
---------------030002000103090803010009--
+ 	default:

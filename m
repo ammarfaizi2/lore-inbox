@@ -1,76 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbVKAVwP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbVKAWB1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751316AbVKAVwP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 16:52:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbVKAVwO
+	id S1751286AbVKAWB1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 17:01:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbVKAWB1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 16:52:14 -0500
-Received: from [67.137.28.189] ([67.137.28.189]:55426 "EHLO vger.utah-nac.org")
-	by vger.kernel.org with ESMTP id S1751316AbVKAVwN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 16:52:13 -0500
-Message-ID: <4367D04B.80906@utah-nac.org>
-Date: Tue, 01 Nov 2005 13:30:03 -0700
-From: "Jeff V. Merkey" <jmerkey@utah-nac.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Tue, 1 Nov 2005 17:01:27 -0500
+Received: from the-penguin.otak.com ([65.37.126.18]:2500 "EHLO
+	the-penguin.otak.com") by vger.kernel.org with ESMTP
+	id S1751286AbVKAWB1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 17:01:27 -0500
+Date: Tue, 1 Nov 2005 14:01:30 -0800
+From: Lawrence Walton <lawrence@the-penguin.otak.com>
+To: russb@emc.com
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: sata_mv
+Message-ID: <20051101220129.GA18919@the-penguin.otak.com>
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Michael Buesch <mbuesch@freenet.de>, alex@alexfisher.me.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: Would I be violating the GPL?
-References: <5449aac20511010949x5d96c7e0meee4d76a67a06c01@mail.gmail.com>	 <200511012000.21176.mbuesch@freenet.de> <1130875080.22089.14.camel@mindpipe>
-In-Reply-To: <1130875080.22089.14.camel@mindpipe>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
+Content-Disposition: inline
+X-Operating-System: Linux 2.6.14-rc4-mm1 on an i686
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
 
->On Tue, 2005-11-01 at 20:00 +0100, Michael Buesch wrote:
->  
->
->>On Tuesday 01 November 2005 18:49, Alexander Fisher wrote:
->>    
->>
->>>Hello.
->>>
->>>A supplier of a PCI mezzanine digital IO card has provided a linux 2.4
->>>driver as source code.  They have provided this code source with a
->>>license stating I won't redistribute it in anyway.
->>>My concern is that if I build this code into a module, I won't be able
->>>to distribute it to customers without violating either the GPL (by not
->>>distributing the source code), or the proprietary source code license
->>>as currently imposed by the supplier.
->>>From what I have read, this concern is only valid if the binary module
->>>is considered to be a 'derived work' of the kernel.  The module source
->>>directly includes the following kernel headers :
->>>      
->>>
->>Take the code and write a specification for the device.
->>Should be fairly easy.
->>Someone else will pick up the spec and write a clean GPLed driver.
->>    
->>
->
->Seems excessive, why not just use a kernel debugger to capture all PIO
->traffic to the device and write a driver based on that?
->
->Lee
->
->  
->
-That's legal, and good advice.
+--RnlQjJ0d97Da+TV1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Jeff
+Hi I've put a server together, and it has a
 
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+Marvell Technology Group Ltd. MV88SX6041 4-port SATA II PCI-X Controller=20
 
+After a great deal of work I've got it booting with the .25 version of the =
+marvel driver.=20
+But It's generating many many of these kinds of errors.
+
+ Assertion failed! 0 =3D=3D (sg_len & ~MV_DMA_BOUNDARY),drivers/scsi/sata_m=
+v.c,mv_fill_sg,line=3D798
+
+
+How close is the driver to being reliable enough to use in a single drive
+environment?=20
+
+is there anything I can do to help debug further?
+
+
+
+--=20
+*--* Mail: lawrence@otak.com
+*--* Voice: 425.739.4247
+*--* Fax: 425.827.9577
+*--* HTTP://the-penguin.otak.com/~lawrence
+--------------------------------------
+- - - - - - O t a k  i n c . - - - - -=20
+
+
+
+--RnlQjJ0d97Da+TV1
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDZ+W5sgPkFxgrWYkRArNqAJoCwzel06qf0fQPnbxzFPeW+0svMACfc0tq
+cbD/w5MJedr1OAyA+fa+4WU=
+=BiTG
+-----END PGP SIGNATURE-----
+
+--RnlQjJ0d97Da+TV1--

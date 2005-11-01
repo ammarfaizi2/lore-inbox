@@ -1,145 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750936AbVKAQnY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750940AbVKAQoA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750936AbVKAQnY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 11:43:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750939AbVKAQnY
+	id S1750940AbVKAQoA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 11:44:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbVKAQoA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 11:43:24 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:31725 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1750936AbVKAQnY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 11:43:24 -0500
-Date: Tue, 1 Nov 2005 11:43:22 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Paul Mackerras <paulus@samba.org>, <akpm@osdl.org>,
-       David Brownell <david-b@pacbell.net>,
-       Greg Kroah-Hartman <gregkh@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Don't touch USB controllers with MMIO disabled in quirks
-In-Reply-To: <Pine.LNX.4.64.0511010748430.27915@g5.osdl.org>
-Message-ID: <Pine.LNX.4.44L0.0511011140390.5081-100000@iolanthe.rowland.org>
+	Tue, 1 Nov 2005 11:44:00 -0500
+Received: from ns.dynamicweb.hu ([195.228.155.139]:58850 "EHLO dynamicweb.hu")
+	by vger.kernel.org with ESMTP id S1750939AbVKAQn7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 11:43:59 -0500
+Message-ID: <021a01c5df04$43d457e0$0400a8c0@dcccs>
+From: "JaniD++" <djani22@dynamicweb.hu>
+To: <linux-kernel@vger.kernel.org>
+Subject: *** glibc detected *** nmap: malloc(): memory corruption: 0x08718a50 ***
+Date: Tue, 1 Nov 2005 17:49:43 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Nov 2005, Linus Torvalds wrote:
+Hello list,
 
-> On Tue, 1 Nov 2005, Alan Stern wrote:
-> > 
-> > In theory, is it possible for a UHCI controller still to be running, doing 
-> > DMA and/or generating interrupts, even if PCI_COMMAND_IO isn't set?
-> 
-> Yes, it's possible in theory. I guess we could check whether BUS_MASTER is 
-> enabled (which _does_ need to be enabled, otherwise it couldn't function), 
-> and then enable it.
-> 
-> > Or is this scenario not worth worrying about?
-> 
-> It's probably not worth worrying about. After all, this is really just for 
-> when something else (firmware) has enabled the USB controller for its own 
-> nefarious purposes (ie it also wanted keyboard input), and left it 
-> running. If something has left it running by mistake, it won't have 
-> disabled IO access either.
-> 
-> And if it _has_ disabled IO access, we wouldn't know how to enable it at 
-> this point. Sure, we could enable the command bit, but this is too early 
-> for us to know where in the IO address space it would be safe to enable 
-> it.
-> 
-> But an alternative strategy (which might be very sensible) is to forget 
-> about the handoff entirely, and just shut down the bus master flag 
-> unconditionally. Just make sure that the eventual driver will reset the 
-> controller before it re-enables bus mastering.
-> 
-> That would seem to be the simplest possible "handoff". The only danger is 
-> that I could imagine that there would be controllers out there that get 
-> really confused (ie "I'm not going to play nice any more") if we shut them 
-> up that way.
+I get this, on my dual-xeon ECC-reg memory system.
+What is this? :-)
 
-Then here's a patch to do that.
+kernel: 2.6.13
+(everything looks like normal)
 
-Unfortunately, the current setup _does_ enable bus mastering before 
-resetting the controller.  That deserves to be fixed in a separate patch.
+Thanks,
 
-Alan Stern
+Janos
 
+[root@dy-xeon-1 r]# nmap -O 80.99.___.__
 
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Starting nmap V. 3.00 ( www.insecure.org/nmap/ )
+*** glibc detected *** nmap: malloc(): memory corruption: 0x08718a50 ***
+======= Backtrace: =========
+/lib/libc.so.6[0xb7e793ea]
+/lib/libc.so.6(calloc+0x91)[0xb7e7a4d9]
+nmap[0x8055cf0]
+nmap[0x805a6c3]
+nmap[0x805b6e8]
+nmap(vfprintf+0x3195)[0x804ca49]
+nmap(__strtoul_internal+0x3a6)[0x8049f4a]
+/lib/libc.so.6(__libc_start_main+0xc6)[0xb7e29de6]
+nmap(wait+0x5d)[0x8049cc1]
+======= Memory map: ========
+08048000-08086000 r-xp 00000000 00:0e 20707825   /usr/bin/nmap
+08086000-08088000 rwxp 0003d000 00:0e 20707825   /usr/bin/nmap
+08088000-08759000 rwxp 08088000 00:00 0          [heap]
+b7c00000-b7c21000 rwxp b7c00000 00:00 0
+b7c21000-b7d00000 ---p b7c21000 00:00 0
+b7d9e000-b7da7000 r-xp 00000000 00:0e 4107664
+/lib/libgcc_s-4.0.0-20050520.so.1
+b7da7000-b7da8000 rwxp 00009000 00:0e 4107664
+/lib/libgcc_s-4.0.0-20050520.so.1
+b7da8000-b7de9000 rwxp b7da8000 00:00 0
+b7de9000-b7df8000 r-xp 00000000 00:0e 4107341    /lib/libresolv-2.3.5.so
+b7df8000-b7df9000 r-xp 0000e000 00:0e 4107341    /lib/libresolv-2.3.5.so
+b7df9000-b7dfa000 rwxp 0000f000 00:0e 4107341    /lib/libresolv-2.3.5.so
+b7dfa000-b7dfc000 rwxp b7dfa000 00:00 0
+b7dfc000-b7e00000 r-xp 00000000 00:0e 4107328    /lib/libnss_dns-2.3.5.so
+b7e00000-b7e01000 r-xp 00003000 00:0e 4107328    /lib/libnss_dns-2.3.5.so
+b7e01000-b7e02000 rwxp 00004000 00:0e 4107328    /lib/libnss_dns-2.3.5.so
+b7e09000-b7e12000 r-xp 00000000 00:0e 4107329    /lib/libnss_files-2.3.5.so
+b7e12000-b7e13000 r-xp 00008000 00:0e 4107329    /lib/libnss_files-2.3.5.so
+b7e13000-b7e14000 rwxp 00009000 00:0e 4107329    /lib/libnss_files-2.3.5.so
+b7e14000-b7e15000 rwxp b7e14000 00:00 0
+b7e15000-b7f39000 r-xp 00000000 00:0e 4107308    /lib/libc-2.3.5.so
+b7f39000-b7f3b000 r-xp 00124000 00:0e 4107308    /lib/libc-2.3.5.so
+b7f3b000-b7f3d000 rwxp 00126000 00:0e 4107308    /lib/libc-2.3.5.so
+b7f3d000-b7f3f000 rwxp b7f3d000 00:00 0
+b7f3f000-b7f61000 r-xp 00000000 00:0e 4107319    /lib/libm-2.3.5.so
+b7f61000-b7f62000 r-xp 00021000 00:0e 4107319    /lib/libm-2.3.5.so
+b7f62000-b7f63000 rwxp 00022000 00:0e 4107319    /lib/libm-2.3.5.so
+b7f69000-b7f6b000 rwxp b7f69000 00:00 0
+b7f6b000-b7f85000 r-xp 00000000 00:0e 4105556    /lib/ld-2.3.5.so
+b7f85000-b7f86000 r-xp 00019000 00:0e 4105556    /lib/ld-2.3.5.so
+b7f86000-b7f87000 rwxp 0001a000 00:0e 4105556    /lib/ld-2.3.5.so
+bfe3a000-bfe85000 rwxp bfe3a000 00:00 0          [stack]
+ffffe000-fffff000 ---p 00000000 00:00 0          [vdso]
+Aborted
 
----
-
-Index: usb-2.6/drivers/usb/host/pci-quirks.c
-===================================================================
---- usb-2.6.orig/drivers/usb/host/pci-quirks.c
-+++ usb-2.6/drivers/usb/host/pci-quirks.c
-@@ -138,11 +138,47 @@ reset_needed:
- }
- EXPORT_SYMBOL_GPL(uhci_check_and_reset_hc);
- 
-+static int __devinit io_type_enabled(struct pci_dev *pdev, unsigned int mask)
-+{
-+	u16 cmd = 0;
-+
-+	if (pci_read_config_word(pdev, PCI_COMMAND, &cmd) || !(cmd & mask)) {
-+
-+		/* The controller is at least partially disabled.
-+		 * To be on the safe side, we'll turn off the COMMAND_MASTER
-+		 * bit so that it can't do DMA.
-+		 */
-+		if (cmd & PCI_COMMAND_MASTER)
-+			pci_write_config_word(pdev, PCI_COMMAND,
-+					cmd & ~PCI_COMMAND_MASTER);
-+		cmd = 0;
-+	}
-+	return cmd;
-+}
-+
-+#define pio_enabled(dev) io_type_enabled(dev, PCI_COMMAND_IO)
-+#define mmio_enabled(dev) io_type_enabled(dev, PCI_COMMAND_MEMORY)
-+
-+static int __devinit mmio_resource_enabled(struct pci_dev *pdev, int idx)
-+{
-+	return mmio_enabled(pdev) && pci_resource_start(pdev, idx);
-+}
-+
- static void __devinit quirk_usb_handoff_uhci(struct pci_dev *pdev)
- {
- 	unsigned long base = 0;
- 	int i;
- 
-+	if (!pio_enabled(pdev)) {
-+
-+		/* The controller is at least partially disabled.
-+		 * To be safe, we'll disable PIRQD and SMI so that
-+		 * it can't generate interrupts.
-+		 */
-+		pci_write_config_word(pdev, UHCI_USBLEGSUP, 0);
-+		return;
-+	}
-+
- 	for (i = 0; i < PCI_ROM_RESOURCE; i++)
- 		if ((pci_resource_flags(pdev, i) & IORESOURCE_IO)) {
- 			base = pci_resource_start(pdev, i);
-@@ -159,6 +195,9 @@ static void __devinit quirk_usb_handoff_
- 	int wait_time;
- 	u32 control;
- 
-+	if (!mmio_resource_enabled(pdev, 0))
-+		return;
-+
- 	base = ioremap_nocache(pci_resource_start(pdev, 0),
- 				     pci_resource_len(pdev, 0));
- 	if (base == NULL) return;
-@@ -201,6 +240,9 @@ static void __devinit quirk_usb_disable_
- 	u32 hcc_params, val, temp;
- 	u8 cap_length;
- 
-+	if (!mmio_resource_enabled(pdev, 0))
-+		return;
-+
- 	base = ioremap_nocache(pci_resource_start(pdev, 0),
- 				pci_resource_len(pdev, 0));
- 	if (base == NULL) return;
 

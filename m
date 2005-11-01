@@ -1,85 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbVKAM4w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbVKANDk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750782AbVKAM4w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 07:56:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbVKAM4w
+	id S1750780AbVKANDk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 08:03:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbVKANDk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 07:56:52 -0500
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:45757 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S1750783AbVKAM4w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 07:56:52 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH 2/3] swsusp: move snapshot-handling functions to snapshot.c
-Date: Tue, 1 Nov 2005 13:57:16 +0100
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <200510301637.48842.rjw@sisk.pl> <200510312036.36335.rjw@sisk.pl> <20051031220233.GC14877@elf.ucw.cz>
-In-Reply-To: <20051031220233.GC14877@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 1 Nov 2005 08:03:40 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:38335 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750780AbVKANDj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 08:03:39 -0500
+Subject: Re: [PATCH]  Eagle and ADI 930 usb adsl modem driver
+From: David Woodhouse <dwmw2@infradead.org>
+To: Duncan Sands <duncan.sands@math.u-psud.fr>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net, usbatm@lists.infradead.org
+In-Reply-To: <200511011340.41266.duncan.sands@math.u-psud.fr>
+References: <4363F9B5.6010907@free.fr>
+	 <20051031155803.2e94069f.akpm@osdl.org>
+	 <200511011340.41266.duncan.sands@math.u-psud.fr>
+Content-Type: text/plain
+Date: Tue, 01 Nov 2005 13:04:02 +0000
+Message-Id: <1130850242.21212.29.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511011357.16995.rjw@sisk.pl>
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 2005-11-01 at 13:40 +0100, Duncan Sands wrote:
+> this code looks like a 'orrible hack to work around a common problem
+> with USB modem's of this type: if the modem is plugged in while the
+> system boots, the driver may look for firmware before the filesystem
+> holding the firmware is mounted; I guess the delay usually gives
+> the filesystem enough time to be mounted.  I'm told that the correct
+> solution is to stick the firmware in an initramfs as well. 
 
-On Monday, 31 of October 2005 23:02, Pavel Machek wrote:
-> Hi!
-> 
-> > > > This patch moves the snapshot-handling functions remaining in swsusp.c
-> > > > to snapshot.c (ie. it moves the code without changing the functionality).
-> > > >
-> > > 
-> > > I'm sorry, but I acked this one too quickly. I'd prefer to keep "relocate" code where
-> > > it is, and define "must not collide" as a part of interface. That will keep snapshot.c
-> > > smaller/simpler,
-> > 
-> > Speaking of simplifications and having seen your code I hope you will agree with
-> > the appended patch against vanilla 2.6.14-git3 (it reduces the duplication of code,
-> > and replaces swsusp_pagedir_relocate with a simpler mechanism).
-> 
-> ...and also moves stuff around in a way
-> 
-> a) I don't like
-> 
-> and
-> 
-> b) is almost impossible to review
+Why can't we request the firmware again when the device is first used,
+if it wasn't present when the driver was first loaded?
 
-OK, I'll try to split it into two patches to make it cleaner.
+-- 
+dwmw2
 
-> :-). Can you keep "relocate" code in swsusp.c, just making it simpler?
-
-If you mean mark_unsafe_pages() and copy_backup_list(), no problem.
-The rest is still there.
-
-> 
-> > @@ -997,20 +870,22 @@
-> >  	int error = 0;
-> >  	struct pbe *p;
-> >  
-> > -	if (!(p = alloc_pagedir(nr_copy_pages)))
-> > +	if (!(p = alloc_pagedir(nr_copy_pages, 0)))
-> >  		return -ENOMEM;
-> >  
-> >  	if ((error = read_pagedir(p)))
-> >  		return error;
-> > -
-> >  	create_pbe_list(p, nr_copy_pages);
-> > -
-> > -	if (!(pagedir_nosave = swsusp_pagedir_relocate(p)))
-> > +	mark_unsafe_pages(p);
-> > +	if (!(pagedir_nosave = alloc_pagedir(nr_copy_pages, 1)))
-> >  		return -ENOMEM;
-> 
-> Okay, this is probably better approach than copying pagedir around...
-
-It's nice you agree here. :-)
-
-Greetings,
-Rafael

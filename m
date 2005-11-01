@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965077AbVKAIRu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965100AbVKAITa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965077AbVKAIRu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 03:17:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964993AbVKAIRW
+	id S965100AbVKAITa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 03:19:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965096AbVKAIRK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 03:17:22 -0500
-Received: from hulk.hostingexpert.com ([69.57.134.39]:63602 "EHLO
+	Tue, 1 Nov 2005 03:17:10 -0500
+Received: from hulk.hostingexpert.com ([69.57.134.39]:45536 "EHLO
 	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S965068AbVKAIQm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 03:16:42 -0500
-Message-ID: <43672443.9050106@m1k.net>
-Date: Tue, 01 Nov 2005 03:16:03 -0500
+	id S965063AbVKAIQp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 03:16:45 -0500
+Message-ID: <4367244B.60700@m1k.net>
+Date: Tue, 01 Nov 2005 03:16:11 -0500
 From: Michael Krufky <mkrufky@m1k.net>
 User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
 CC: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org
-Subject: [PATCH 31/37] dvb: nxt200x: check callback fix
+Subject: [PATCH 32/37] dvb: nxt200x: remove null check before kfree()
 Content-Type: multipart/mixed;
- boundary="------------000307060204060609000508"
+ boundary="------------020503020908080807020603"
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -32,48 +32,40 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------000307060204060609000508
+--------------020503020908080807020603
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
 
 
---------------000307060204060609000508
+--------------020503020908080807020603
 Content-Type: text/x-patch;
- name="2408.patch"
+ name="2409.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="2408.patch"
+ filename="2409.patch"
 
-Check that a callback (set_ts_params) is set before calling it.
+Removed unnecessary null check before kfree()
+...inspired by the big patch from Jesper Juhl.
 
 Signed-off-by: Michael Krufky <mkrufky@m1k.net>
 
- drivers/media/dvb/frontends/nxt200x.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/media/dvb/frontends/nxt200x.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
 --- linux-2.6.14-git3.orig/drivers/media/dvb/frontends/nxt200x.c
 +++ linux-2.6.14-git3/drivers/media/dvb/frontends/nxt200x.c
-@@ -557,14 +557,16 @@
- 		case QAM_256:
- 			/* Set punctured clock for QAM */
- 			/* This is just a guess since I am unable to test it */
--			state->config->set_ts_params(fe, 1);
-+			if (state->config->set_ts_params)
-+				state->config->set_ts_params(fe, 1);
+@@ -1159,8 +1159,7 @@
+ 	return &state->frontend;
  
- 			/* set to use cable input */
- 			buf[3] |= 0x08;
- 			break;
- 		case VSB_8:
- 			/* Set non-punctured clock for VSB */
--			state->config->set_ts_params(fe, 0);
-+			if (state->config->set_ts_params)
-+				state->config->set_ts_params(fe, 0);
- 			break;
- 		default:
- 			return -EINVAL;
+ error:
+-	if (state)
+-		kfree(state);
++	kfree(state);
+ 	printk("Unknown/Unsupported NXT chip: %02X %02X %02X %02X %02X\n",
+ 		buf[0], buf[1], buf[2], buf[3], buf[4]);
+ 	return NULL;
 
 
---------------000307060204060609000508--
+--------------020503020908080807020603--

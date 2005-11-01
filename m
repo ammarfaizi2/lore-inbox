@@ -1,64 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbVKACgo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964947AbVKACo6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964930AbVKACgo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 21:36:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964933AbVKACgo
+	id S964947AbVKACo6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 21:44:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964948AbVKACo6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 21:36:44 -0500
-Received: from zproxy.gmail.com ([64.233.162.205]:57409 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964930AbVKACgn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 21:36:43 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rUM6uRe85HTOGs/fcumwCOuzTWkPsq/MGFe3+8krzcLAmNQKd5ca3TilOd2QRoWfb9HjpfqvdzXKsufpGqppthvM82Jp0QPj78eg4Xb87CC7n+NlVMTXjdRmknQSe2k+noV8x93VZ4HPvts/1fV0vQ7KJIveORjI0fICGnF3izc=
-Message-ID: <35fb2e590510311836j4c7fbdf2u77a72ebbfd53790c@mail.gmail.com>
-Date: Tue, 1 Nov 2005 02:36:42 +0000
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: Rob Landley <rob@landley.net>
-Subject: Re: [PATCH] fix floppy.c to store correct ro/rw status in underlying gendisk
-Cc: Evgeny Stambulchik <Evgeny.Stambulchik@weizmann.ac.il>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200510311717.21676.rob@landley.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4363B081.7050300@jonmasters.org>
-	 <35fb2e590510291035n297aa22cv303ae77baeb5c213@mail.gmail.com>
-	 <43660693.6040601@weizmann.ac.il> <200510311717.21676.rob@landley.net>
+	Mon, 31 Oct 2005 21:44:58 -0500
+Received: from gate.crashing.org ([63.228.1.57]:24473 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S964947AbVKACo6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 21:44:58 -0500
+Subject: Re: [linux-usb-devel] Re: Commit "[PATCH] USB: Always do
+	usb-handoff" breaks my powerbook
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-usb-devel@lists.sourceforge.net, Paul Mackerras <paulus@samba.org>,
+       Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <200510311741.56638.david-b@pacbell.net>
+References: <17253.43605.659634.454466@cargo.ozlabs.ibm.com>
+	 <1130804214.29054.390.camel@gaston>
+	 <200510311741.56638.david-b@pacbell.net>
+Content-Type: text/plain
+Date: Tue, 01 Nov 2005 13:41:43 +1100
+Message-Id: <1130812903.29054.408.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/31/05, Rob Landley <rob@landley.net> wrote:
-> On Monday 31 October 2005 05:57, Evgeny Stambulchik wrote:
-> > Jon Masters wrote:
-> > > Let me know if this fixes it for you - should bomb out now if you try.
-> > > The error isn't the cleanest (blame mount), but it does fail.
-> >
-> > This works fine, thanks! For what it worth, though, mount -o remount,rw
-> > says remounting read-only yet still returns success. (Opposite to
-> > busybox, which now says "Permission denied" - rather misleading, but at
-> > least it fails).
->
-> That sounds like the string translation of EPERM returned by libc's
-> strerror().  (At busybox we're frugal bastards; we don't include text
-> messages when we can get the C library to provide them for us. :)
 
-Indeed. Reminds me that I should clean up and send a form parser I
-wrote for busybox to handle multi-part mime form posts in its
-webserver while I'm at it. That's something it could do with even if
-it's being frugal.
+> No PCI quirk code has ever called pci_enable_device() AFAICT.
 
-> But yeah, we're sticklers for correct behavior, and only attempt to remount
-> readonly if we get EACCES or EROFS, not _just_ because we attempted a
-> read/write mount and it failed.  (And yes, I personally tested this corner
-> case.  We haven't started on an automated regression test script for mount
-> yet because running it would require root access, but it's on the todo list
-> as we upgrade the test suite in our Copious Free Time...)
+Most PCI quirks only do config space accesses
 
-You looked at running this inside a qemu environment (scratchbox), huh?
+> Of course the _need_ to do such a thing might be another PPC-specific
+> (or OpenFirmware-specific?) PCI thing ... we've hit other cases where
+> PPC breaks things that work on other PCI systems (and vice versa).
 
-Jon.
+"ppc" doens't do anything fancy that other archs don't do too, please
+stop with your "ppc specific" thing all over the place.
+
+It is illegal, whatever the platform is, to tap a PCI device MMIO like
+that without calling pci_enable_device(), requesting resources etc... or
+at the very least, testing if MMIO decoding is enabled on the chip.
+Period. It has nothing to do with PPC and all to do with correctness.
+
+> If quirk code can't rely on BARs, then the PCI system needs some
+> basic overhauls ... yes?  I mean, how could quirk code ever work
+> if it can't access the relevant chip registers??
+
+Most quirk only ever use config space. BARs are _not_ guaranteed to be
+set at quirk time. In fact, those devices are left disabled on purpose,
+thus you should at least test if MMIO access is enabled, and if not,
+avoid touching the device at all.
+
+> > I'm not sure it's legal to do pci_enable_device() from within a pci
+> > quirk anyway. I really wonder what that code is doing in the quirks, I
+> > don't think it's the right place, but I may be wrong.
+> 
+> Erm, what "code is doing" what, that you mean ??
+
+What _That_ code is doing in the quirks... shouldn't it be in the
+{U,O,E}HCI drivers instead ?
+
+> > What is the logic supposed to be there ?
+> 
+> Which logic?  The fundamental thing those USB handoff functions do
+> is make sure that BIOS code lets go of the host controllers.  The
+> main reason it'd be using a controller is because of USB keyboards,
+> mice, or maybe boot disks.  Secondarily, that code needs to make
+> sure the controller is really quiesced before Linux starts using it.
+
+So you rant about "ppc specific" whatever while the entire point of this
+code is to workaround x86 specific BIOS junk ...
+
+Ben.
+
+

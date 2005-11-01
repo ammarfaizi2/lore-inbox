@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964879AbVKAIzm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964999AbVKAJI3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964879AbVKAIzm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 03:55:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965059AbVKAIzm
+	id S964999AbVKAJI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 04:08:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964996AbVKAJI2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 03:55:42 -0500
-Received: from [85.8.13.51] ([85.8.13.51]:15509 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S964879AbVKAIzl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 03:55:41 -0500
-Message-ID: <43672D74.1090106@drzeus.cx>
-Date: Tue, 01 Nov 2005 09:55:16 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mail/News 1.4.1 (X11/20051008)
-MIME-Version: 1.0
-To: "Ian E. Morgan" <imorgan@webcon.ca>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: TI FlashMedia driver
-References: <Pine.LNX.4.64.0510311510130.8105@light.int.webcon.net>
-In-Reply-To: <Pine.LNX.4.64.0510311510130.8105@light.int.webcon.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Nov 2005 04:08:28 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:20232 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1751267AbVKAJI1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 04:08:27 -0500
+Date: Tue, 1 Nov 2005 09:57:40 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 13/20] inflate: (arch) kill silly zlib typedefs
+Message-ID: <20051101085740.GR22601@alpha.home.local>
+References: <14.196662837@selenic.com> <Pine.LNX.4.62.0510312204400.26471@numbat.sonytel.be> <20051031211422.GC4367@waste.org> <20051101065327.GP22601@alpha.home.local> <Pine.LNX.4.62.0511010850190.2739@numbat.sonytel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0511010850190.2739@numbat.sonytel.be>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian E. Morgan wrote:
-> Given the number of people annoyed by the lack of a driver for TI's
-> FlashMedia controller (part of the 6xx1 & 7xx1 series chips), myself one of
-> them, I've started a project to reverse-engineer the device.
+On Tue, Nov 01, 2005 at 08:50:43AM +0100, Geert Uytterhoeven wrote:
+> On Tue, 1 Nov 2005, Willy Tarreau wrote:
+> > But if it's a pointer why don't you declare them unsigned long then ?
+> > C defines the long as the integer the right size to store a pointer.
+>   ^
+> Is it C?
+
+Yes, that's what I read quite a time ago, and it appears that it was an
+interpretation of the spec which is not true anymore with LLP64 models :-(
+
+> Since on Wintendo P64 it's not true...
+
+I don't know if x86_64 is LP64 or LLP64 on Linux, but at least my alpha
+and sparc64 are LP64, so is another PPC64 I use for code validation.
+LPC64 is the recommended model for easier 32 to 64 portability (where
+ints are 32 ; long, longlong, ptrs are 64).
+
+There's an interesting reading about this here :
+
+   http://www.usenix.org/publications/login/standards/10.data.html
+
+So Matt, you have to use void* or char* in your types.
+
+> Gr{oetje,eeting}s,
 > 
-> Basic details available here, adding new info whenever I get/discover it:
-> http://www.webcon.ca/~imorgan/tifm21/
-> 
+> 						Geert
 
-There is some information about at least MMC controllers at:
+Thanks Geert for the notification, it was an opportunity to refresh my
+thoughts about portability practices. I think it will be time to buy
+an x86_64 :-/
 
-http://mmc.drzeus.cx
+Willy
 
-The controller your working with is found here:
-
-http://mmc.drzeus.cx/wiki/Controllers/TexasInstruments
-
-
- From your page:
-
-> I was hoping the data block would reveal some basic information about the card that was inserted (capacity at least), but the above observations seem to deny that assumption.
-
-All controllers I've seen so far either give raw access to the MMC bus 
-or completely abstracts the MMC bits (making it a USB storage device or 
-similar). In other words, you probably won't see any information other 
-than the fact that a card has been inserted.
-
-Rgds
-Pierre

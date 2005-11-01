@@ -1,106 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964801AbVKAEet@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932568AbVKAEjt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964801AbVKAEet (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 23:34:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932569AbVKAEet
+	id S932568AbVKAEjt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 23:39:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932570AbVKAEjt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 23:34:49 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:19144 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932538AbVKAEes (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 23:34:48 -0500
-Date: Mon, 31 Oct 2005 20:33:53 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Paul Mackerras <paulus@samba.org>
-cc: akpm@osdl.org, David Brownell <david-b@pacbell.net>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Don't touch USB controllers with MMIO disabled in quirks
-In-Reply-To: <17254.59690.713323.294726@cargo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.64.0510312026300.27915@g5.osdl.org>
-References: <17254.59690.713323.294726@cargo.ozlabs.ibm.com>
+	Mon, 31 Oct 2005 23:39:49 -0500
+Received: from smtp103.sbc.mail.mud.yahoo.com ([68.142.198.202]:14000 "HELO
+	smtp103.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932568AbVKAEjs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 23:39:48 -0500
+From: David Brownell <david-b@pacbell.net>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [linux-usb-devel] Re: Commit "[PATCH] USB: Always do usb-handoff" breaks my powerbook
+Date: Mon, 31 Oct 2005 20:39:46 -0800
+User-Agent: KMail/1.7.1
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-usb-devel@lists.sourceforge.net,
+       Paul Mackerras <paulus@samba.org>,
+       Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org
+References: <17253.43605.659634.454466@cargo.ozlabs.ibm.com> <200510311909.32694.david-b@pacbell.net> <BC88D0A1-453F-4716-96E6-3C89B915C477@mac.com>
+In-Reply-To: <BC88D0A1-453F-4716-96E6-3C89B915C477@mac.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200510312039.46646.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> Why should x86-specific-BIOS-USB-handoff-specific-crap-PCI-quirks be  
+> even _compiled_ on PowerPC systems that have nothing remotely like  
+> the affected hardware (BIOS & PS/2 serio chip)?
 
-On Tue, 1 Nov 2005, Paul Mackerras wrote:
-> 
-> I still think that a FIXUP_HEADER header is the wrong place to be
-> doing this sort of thing, and that code that touches a device without
-> doing pci_enable_device is just asking for trouble; however, in order
-> to get my machine to be able to boot, this patch adds a check that
-> MMIO is enabled for the device, and if it isn't, leaves the device
-> alone.  With this patch my powerbook will boot.
+For starters, none of the controller specs say that the handshaking
+is x86-specific.  There's a certain amount of "x86 Linux gets the
+most testing" going on here.  Plus a lot of "nobody really used that
+usb-handoff code before, except to fix semi-broken x86 systems".
 
-Well, this can't be right, because depending on which controller type it 
-is, the handoff code uses PIO, not MMIO. In fact, a uhci controller 
-wouldn't necessarily ever have PCI_COMMAND_MEMORY set afaik, since it 
-doesn't even _have_ MMIO.
+One requirement coming from x86/DOS legacy support though is that the
+system probably expects to "work like DOS" at various boot stages.
+Hence the way some systems take kbd/mouse input from USB and jam it
+through PS2 serio hardware, so DOS will see it.  Which is why x86
+hardware generally _does_ need to use these handhaking mechanisms,
+to kick the BIOS off the hardware.  (And why the USB folk have been
+very used to telling folk to disable BIOS support for USB.  That's
+fine advice unless you've got a USB keyboard or mouse.)
 
-Would something like the appended work instead?
 
-		Linus
+> The difference is, OpenFirmware is nice and clean and stops messing  
+> with hardware before handing off to the new kernel. 
 
----
-diff --git a/drivers/usb/host/pci-quirks.c b/drivers/usb/host/pci-quirks.c
-index b7fd3f6..b1aa350 100644
---- a/drivers/usb/host/pci-quirks.c
-+++ b/drivers/usb/host/pci-quirks.c
-@@ -138,11 +138,23 @@ reset_needed:
- }
- EXPORT_SYMBOL_GPL(uhci_check_and_reset_hc);
- 
-+static inline int io_type_enabled(struct pci_dev *pdev, unsigned int mask)
-+{
-+	u16 cmd;
-+	return !pci_read_config_word(pdev, PCI_COMMAND, &cmd) && (cmd & mask);
-+}
-+
-+#define pio_enabled(dev) io_type_enabled(dev, PCI_COMMAND_IO)
-+#define mmio_enabled(dev) io_type_enabled(dev, PCI_COMMAND_MEMORY)
-+
- static void __devinit quirk_usb_handoff_uhci(struct pci_dev *pdev)
- {
- 	unsigned long base = 0;
- 	int i;
- 
-+	if (!pio_enabled(pdev))
-+		return;
-+
- 	for (i = 0; i < PCI_ROM_RESOURCE; i++)
- 		if ((pci_resource_flags(pdev, i) & IORESOURCE_IO)) {
- 			base = pci_resource_start(pdev, i);
-@@ -153,12 +165,20 @@ static void __devinit quirk_usb_handoff_
- 		uhci_check_and_reset_hc(pdev, base);
- }
- 
-+static int __devinit mmio_resource_enabled(struct pci_dev *pdev, int idx)
-+{
-+	return pci_resource_start(pdev, idx) && mmio_enabled(pdev);
-+}
-+
- static void __devinit quirk_usb_handoff_ohci(struct pci_dev *pdev)
- {
- 	void __iomem *base;
- 	int wait_time;
- 	u32 control;
- 
-+	if (!mmio_resource_enabled(pdev, 0))
-+		return;
-+
- 	base = ioremap_nocache(pci_resource_start(pdev, 0),
- 				     pci_resource_len(pdev, 0));
- 	if (base == NULL) return;
-@@ -201,6 +221,9 @@ static void __devinit quirk_usb_disable_
- 	u32 hcc_params, val, temp;
- 	u8 cap_length;
- 
-+	if (!mmio_resource_enabled(pdev, 0))
-+		return;
-+
- 	base = ioremap_nocache(pci_resource_start(pdev, 0),
- 				pci_resource_len(pdev, 0));
- 	if (base == NULL) return;
+That's a nice design policy (IMO) but sometimes folk also like to
+draw the firmware/OS boundary in different ways.
+
+In any case ... let's all just blame this on DOS, and move on to
+something that's not as twentieth-century.  :)
+
+- Dave
+

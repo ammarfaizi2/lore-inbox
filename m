@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbVKAVLa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751237AbVKAVMi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751231AbVKAVLa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 16:11:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbVKAVLa
+	id S1751237AbVKAVMi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 16:12:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbVKAVMi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 16:11:30 -0500
-Received: from waste.org ([216.27.176.166]:8154 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1751231AbVKAVL3 (ORCPT
+	Tue, 1 Nov 2005 16:12:38 -0500
+Received: from gate.crashing.org ([63.228.1.57]:64420 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751237AbVKAVMh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 16:11:29 -0500
-Date: Tue, 1 Nov 2005 13:06:18 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Rob Landley <rob@landley.net>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] slob: introduce the SLOB allocator
-Message-ID: <20051101210617.GS4367@waste.org>
-References: <3.494767362@selenic.com> <200511011451.55362.rob@landley.net>
+	Tue, 1 Nov 2005 16:12:37 -0500
+Subject: Re: [linux-usb-devel] Re: Commit "[PATCH] USB: Always do
+	usb-handoff" breaks my powerbook
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: David Brownell <david-b@pacbell.net>,
+       linux-usb-devel@lists.sourceforge.net,
+       Paul Mackerras <paulus@samba.org>,
+       Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <1130837294.9145.80.camel@localhost.localdomain>
+References: <17253.43605.659634.454466@cargo.ozlabs.ibm.com>
+	 <200510311741.56638.david-b@pacbell.net>
+	 <1130812903.29054.408.camel@gaston>
+	 <200510311909.32694.david-b@pacbell.net>
+	 <1130815836.29054.420.camel@gaston>
+	 <1130837294.9145.80.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 02 Nov 2005 08:09:45 +1100
+Message-Id: <1130879386.29054.457.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200511011451.55362.rob@landley.net>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 01, 2005 at 02:51:54PM -0600, Rob Landley wrote:
-> On Tuesday 01 November 2005 12:33, Matt Mackall wrote:
-> > SLOB is a traditional K&R/UNIX allocator with a SLAB emulation layer,
-> > similar to the original Linux kmalloc allocator that SLAB replaced.
-> > It's signicantly smaller code and is more memory efficient. But like
-> > all similar allocators, it scales poorly and suffers from
-> > fragmentation more than SLAB, so it's only appropriate for small
-> > systems.
+On Tue, 2005-11-01 at 09:28 +0000, Alan Cox wrote:
+> On Maw, 2005-11-01 at 14:30 +1100, Benjamin Herrenschmidt wrote:
+> > Damn, those quirks should really be either more careful or be made
+> > platform specific if they are x86 junk workarounds.
 > 
-> Just to clarify: define "small".  My current laptop has half a gigabyte of 
-> ram.  (Yeah, I broke down and bought a real machine, and even kept a World of 
-> Warcraft partition this time...)
+> USB handoff is fairly x86 specific. The x86 folks took great care to
+> handle back compatibility while Apple was content to just dump the users
+> and machines.
+
+What is this comment supposed to mean ? Backward compatiblity on Macs is
+very high, thanks to mostly software not relying on stupid & broken
+hardware implementation details...
+
+> Not "illegal" -> "invalid".
 > 
-> Does small mean "this is better for laptops with < 4gig"?  In which case, 
-> possibly this should be tied to CONFIG_HIGHMEM or some such?
+> Please get that right as we have far too many incorrect uses of
+> "illegal" in publically visible printk calls. Illegal means "prohibited
+> by law".
 
-This is targeted at the bottom of the range that Linux supports, ie
-less than 32MB. I originally tested it with _2MB_.
+Oh well, whatever you say..
 
-This allocator's performance is linear in the number of
-smaller-than-a-page memory fragments (page-sized fragments get
-coalesced and handed back to the buddy allocator). When you've only
-got 4MB, scanning through all those fragments doesn't take long. When
-you've got 400MB, and a lot of fragmentation, it can be very slow
-indeed. SLAB, on the other hand, is nearly O(1).
+Ben.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+

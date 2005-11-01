@@ -1,63 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932555AbVKAHmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964924AbVKAHpd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932555AbVKAHmz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 02:42:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbVKAHmz
+	id S964924AbVKAHpd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 02:45:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964929AbVKAHpd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 02:42:55 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:15574 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932555AbVKAHmy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 02:42:54 -0500
-To: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-Cc: <vgoyal@in.ibm.com>, "Andrew Morton" <akpm@osdl.org>, <fastboot@osdl.org>,
-       <linux-kernel@vger.kernel.org>, "Andi Kleen" <ak@suse.de>,
-       "Zwane Mwaikambo" <zwane@arm.linux.org.uk>,
-       "Brown, Len" <len.brown@intel.com>
-Subject: Re: [Fastboot] [PATCH] i386: move apic init in init_IRQs
-References: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04E00@USRV-EXCH4.na.uis.unisys.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 01 Nov 2005 00:41:57 -0700
-In-Reply-To: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04E00@USRV-EXCH4.na.uis.unisys.com> (Natalie
- Protasevich's message of "Mon, 31 Oct 2005 12:31:56 -0600")
-Message-ID: <m1k6fs95mi.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Tue, 1 Nov 2005 02:45:33 -0500
+Received: from [219.239.136.158] ([219.239.136.158]:34579 "HELO
+	redflag-linux.com") by vger.kernel.org with SMTP id S964924AbVKAHpd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 02:45:33 -0500
+From: Pengcheng Zou <pczou@redflag-linux.com>
+Organization: Red Flag Linux
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] logging coredump event
+Date: Tue, 1 Nov 2005 15:45:46 +0800
+User-Agent: KMail/1.7
+Cc: "Peter Wang" <spwang@corp.netease.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_q0xZD1A9+ysXkFg"
+Message-Id: <200511011545.46402.pczou@redflag-linux.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com> writes:
+--Boundary-00=_q0xZD1A9+ysXkFg
+Content-Type: text/plain;
+  charset="gbk"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
->> The first cpu is brought online much earlier than the rest.  
->> So we just need to setup a table for boot cpu earlier.  From 
->> the looks of it mach-es700 won't work if you compile a 
->> uniprocessor kernel for it right now.
->
-> Yea, I didn't even try this - but I think it will produce the same
-> result with regard to timer IOAPIC rte.
->
->> We need to do this a little later than in mptable but this 
->> should be a fairly simple one or two line change.
->
-> Yes, it is maybe something like running map_cpu_to_logical_apicid() from
-> APIC_init() just before the setup_IO_APIC().
+Hi, 
 
-The core piece of the puzzle is cpu_mask_to_apicid().  At the
-time we setup the io_apic TARGET_CPUS will just be the bootstrap
-processor.    So we might be able to get away with hard coding
-the bootstrap processor in the non-SMP sections of the ioapic
-startup code.
+sometimes daemon dies silently, dont know why, dont know when, dont know where 
+the coredump is. attached with a patch (made by "Peter Wang" 
+<spwang@corp.netease.com>) to make the sysadm's life a little bit easier, by 
+logging the coredump event in syslog (if user allows). 
 
-setup_ioapic_dest is going to fix things after we start the
-cpus anyway so it should not be a problem.
+when enabled (sysctl -w kernel.log_sig_exit=1), some syslog message will be 
+generated if a process crash:
 
-Does that sound like a sane thing to do?
+Nov  1 15:32:54 localhost kernel: pid 4649 (coredump), uid 0: exited on signal 
+11 (core dumped)
 
-This code appears to affect all of the subarchitectures but the
-default x86 one.  So it is clearly not just an ES7000 problem.
+and then the sysadm can react promptly.
 
-Now to figure out why Linus's laptop hates this patch...
+trivial patch, but IMHO, very useful.
 
-Eric
+cheers,
+  -- Pengcheng
 
+--Boundary-00=_q0xZD1A9+ysXkFg
+Content-Type: text/x-diff;
+  charset="gbk";
+  name=""linux-2.6.14-log-sig-exit.patch""
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="linux-2.6.14-log-sig-exit.patch"
+
+diff -uprN linux-2.6.13.4.orig/fs/exec.c linux-2.6.13.4/fs/exec.c
+--- linux-2.6.13.4.orig/fs/exec.c	2005-10-11 02:54:29.000000000 +0800
++++ linux-2.6.13.4/fs/exec.c	2005-11-01 13:55:50.000000000 +0800
+@@ -58,6 +58,7 @@
+ 
+ int core_uses_pid;
+ char core_pattern[65] = "core";
++int log_sig_exit=0;
+ int suid_dumpable = 0;
+ 
+ EXPORT_SYMBOL(suid_dumpable);
+@@ -1523,5 +1524,8 @@ fail_unlock:
+ 	current->fsuid = fsuid;
+ 	complete_all(&mm->core_done);
+ fail:
++	if(log_sig_exit)
++		printk(KERN_INFO "pid %d (%s), uid %d: exited on signal %u %s\n",
++			current->pid,current->comm,current->uid,signr,retval?"(core dumped)":"");
+ 	return retval;
+ }
+diff -uprN linux-2.6.13.4.orig/include/linux/sysctl.h linux-2.6.13.4/include/linux/sysctl.h
+--- linux-2.6.13.4.orig/include/linux/sysctl.h	2005-10-11 02:54:29.000000000 +0800
++++ linux-2.6.13.4/include/linux/sysctl.h	2005-11-01 13:56:47.000000000 +0800
+@@ -146,6 +146,7 @@ enum
+ 	KERN_RANDOMIZE=68, /* int: randomize virtual address space */
+ 	KERN_SETUID_DUMPABLE=69, /* int: behaviour of dumps for setuid core */
+ 	KERN_SPIN_RETRY=70,	/* int: number of spinlock retries */
++	KERN_LOG_SIG_EXIT=71, /* int: log when task exits because of some signals */
+ };
+ 
+ 
+diff -uprN linux-2.6.13.4.orig/kernel/sysctl.c linux-2.6.13.4/kernel/sysctl.c
+--- linux-2.6.13.4.orig/kernel/sysctl.c	2005-10-11 02:54:29.000000000 +0800
++++ linux-2.6.13.4/kernel/sysctl.c	2005-11-01 13:58:21.000000000 +0800
+@@ -60,6 +60,7 @@ extern int sysrq_enabled;
+ extern int core_uses_pid;
+ extern int suid_dumpable;
+ extern char core_pattern[];
++extern int log_sig_exit;
+ extern int cad_pid;
+ extern int pid_max;
+ extern int min_free_kbytes;
+@@ -298,6 +299,14 @@ static ctl_table kern_table[] = {
+ 		.strategy	= &sysctl_string,
+ 	},
+ 	{
++		.ctl_name = KERN_LOG_SIG_EXIT,
++		.procname = "log_sig_exit",
++		.data  = &log_sig_exit,
++		.maxlen  = sizeof(int),
++		.mode  = 0644,
++		.proc_handler = &proc_dointvec,
++	},
++	{
+ 		.ctl_name	= KERN_TAINTED,
+ 		.procname	= "tainted",
+ 		.data		= &tainted,
+
+--Boundary-00=_q0xZD1A9+ysXkFg--

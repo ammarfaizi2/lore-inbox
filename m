@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbVKANDk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbVKANDz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750780AbVKANDk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 08:03:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbVKANDk
+	id S1750783AbVKANDz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 08:03:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbVKANDz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 08:03:40 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:38335 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750780AbVKANDj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 08:03:39 -0500
-Subject: Re: [PATCH]  Eagle and ADI 930 usb adsl modem driver
-From: David Woodhouse <dwmw2@infradead.org>
-To: Duncan Sands <duncan.sands@math.u-psud.fr>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, usbatm@lists.infradead.org
-In-Reply-To: <200511011340.41266.duncan.sands@math.u-psud.fr>
-References: <4363F9B5.6010907@free.fr>
-	 <20051031155803.2e94069f.akpm@osdl.org>
-	 <200511011340.41266.duncan.sands@math.u-psud.fr>
-Content-Type: text/plain
-Date: Tue, 01 Nov 2005 13:04:02 +0000
-Message-Id: <1130850242.21212.29.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 1 Nov 2005 08:03:55 -0500
+Received: from nproxy.gmail.com ([64.233.182.206]:18815 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750783AbVKANDy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 08:03:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WTIuD6KrAWAt2hC9743ln+U/6g1G/j63vXYgSBYqGlU9RN82TcsTAj74rxhkBCEJLJy8D8BTT5tEsnLBSM95tAXXBs49vaS+ixjyQuo3DDTIYUXnJm2FxJDLcOCYbZQ0yotPQdp1Qf/5MlfpQ4SRVcGUetrIHlPCHdPZ4Bpq+S0=
+Message-ID: <84144f020511010503n740f296ev149ac33a443b9ca3@mail.gmail.com>
+Date: Tue, 1 Nov 2005 15:03:53 +0200
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Ian Wienand <ianw@gelato.unsw.edu.au>
+Subject: Re: [PATCH] Convert dmasound_awacs to dynamic input_dev allocation
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051101103358.GA28394@cse.unsw.EDU.AU>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051101020329.GA7773@cse.unsw.EDU.AU>
+	 <200511010055.32726.dtor_core@ameritech.net>
+	 <20051101060443.GF11202@cse.unsw.EDU.AU>
+	 <200511010114.38632.dtor_core@ameritech.net>
+	 <20051101103358.GA28394@cse.unsw.EDU.AU>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-01 at 13:40 +0100, Duncan Sands wrote:
-> this code looks like a 'orrible hack to work around a common problem
-> with USB modem's of this type: if the modem is plugged in while the
-> system boots, the driver may look for firmware before the filesystem
-> holding the firmware is mounted; I guess the delay usually gives
-> the filesystem enough time to be mounted.  I'm told that the correct
-> solution is to stick the firmware in an initramfs as well. 
+On 11/1/05, Ian Wienand <ianw@gelato.unsw.edu.au> wrote:
+> Does anyone know what the eqivalent of 'cvs update -C file' is with
+> git?  It is a common use-case for me to make a few changes, send off a
+> diff and then get another one back which I want to apply to the
+> orignal.
 
-Why can't we request the firmware again when the device is first used,
-if it wasn't present when the driver was first loaded?
+Sounds you're looking for git checkout -f ?
 
--- 
-dwmw2
-
+                        Pekka

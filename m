@@ -1,58 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbVKAL1q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbVKALc6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750753AbVKAL1q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 06:27:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbVKAL1q
+	id S1750744AbVKALc6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 06:32:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbVKALc6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 06:27:46 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:48832 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S1750737AbVKAL1p (ORCPT
+	Tue, 1 Nov 2005 06:32:58 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:33978 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750744AbVKALc6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 06:27:45 -0500
-Date: Tue, 1 Nov 2005 12:27:36 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Willy Tarreau <willy@w.ods.org>
-cc: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 13/20] inflate: (arch) kill silly zlib typedefs
-In-Reply-To: <20051101085740.GR22601@alpha.home.local>
-Message-ID: <Pine.LNX.4.62.0511011223410.2739@numbat.sonytel.be>
-References: <14.196662837@selenic.com> <Pine.LNX.4.62.0510312204400.26471@numbat.sonytel.be>
- <20051031211422.GC4367@waste.org> <20051101065327.GP22601@alpha.home.local>
- <Pine.LNX.4.62.0511010850190.2739@numbat.sonytel.be> <20051101085740.GR22601@alpha.home.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 1 Nov 2005 06:32:58 -0500
+Date: Tue, 1 Nov 2005 12:33:04 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.14-rc5-rt6  -- False NMI lockup detects
+Message-ID: <20051101113304.GB2871@elte.hu>
+References: <1130250219.21118.11.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1130250219.21118.11.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Nov 2005, Willy Tarreau wrote:
-> On Tue, Nov 01, 2005 at 08:50:43AM +0100, Geert Uytterhoeven wrote:
-> > On Tue, 1 Nov 2005, Willy Tarreau wrote:
-> > > But if it's a pointer why don't you declare them unsigned long then ?
-> > > C defines the long as the integer the right size to store a pointer.
-> >   ^
-> > Is it C?
+
+* Steven Rostedt <rostedt@goodmis.org> wrote:
+
+> Hi Ingo and Thomas,
 > 
-> Yes, that's what I read quite a time ago, and it appears that it was an
-> interpretation of the spec which is not true anymore with LLP64 models :-(
+> On some of my machines, I've been experiencing false NMI lockups.  
+> This usually happens on slower machines, and taking a look into this, 
+> it seems to be due to a short time where no processes are using 
+> timers, and the ktimer interrupts aren't needed. So the APIC timer, 
+> which now is used only for the ktimers, has a five second pause, and 
+> causes the NMI to go off.  The NMI uses the apic timer to determine 
+> lockups.
 > 
-> > Since on Wintendo P64 it's not true...
-> 
-> I don't know if x86_64 is LP64 or LLP64 on Linux, but at least my alpha
-> and sparc64 are LP64, so is another PPC64 I use for code validation.
-> LPC64 is the recommended model for easier 32 to 64 portability (where
-> ints are 32 ; long, longlong, ptrs are 64).
+> So, I added a more generic method. This only works for x86 for now, 
+> but it has a #ifdef to keep other archs working until it implements 
+> this as well.  I added a nmi_irq_incr which is called by __do_IRQ in 
+> the generic code.  This is what is used in the NMI code to determine 
+> if the CPU has locked up.  This way we don't have to worry about what 
+> resource we are using for timers.
 
-Linux on x86_64 uses LP64, like all other 64-bit platforms Linux runs on.
+but e.g. the APIC timer doesnt go through do_IRQ(), it has its own 
+special IRQ entry code. The simple solution would be to also include the 
+IRQ#0 count in the NMI watchdog detection condition - i.e. something 
+like the patch below. Hm?
 
-Gr{oetje,eeting}s,
+	Ingo
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Index: linux/arch/i386/kernel/nmi.c
+===================================================================
+--- linux.orig/arch/i386/kernel/nmi.c
++++ linux/arch/i386/kernel/nmi.c
+@@ -521,7 +521,7 @@ void notrace nmi_watchdog_tick (struct p
+ 	 */
+ 	int sum, cpu = smp_processor_id();
+ 
+-	sum = per_cpu(irq_stat, cpu).apic_timer_irqs;
++	sum = per_cpu(irq_stat, cpu).apic_timer_irqs + kstat_irqs(0);
+ 
+ 	profile_tick(CPU_PROFILING, regs);
+ 	if (nmi_show_regs[cpu]) {

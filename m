@@ -1,56 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbVKAVJu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbVKAVKp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751195AbVKAVJu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 16:09:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbVKAVJu
+	id S1751204AbVKAVKp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 16:10:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbVKAVKp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 16:09:50 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:35778 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751195AbVKAVJt (ORCPT
+	Tue, 1 Nov 2005 16:10:45 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:49553 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751204AbVKAVKo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 16:09:49 -0500
-Date: Tue, 1 Nov 2005 22:09:11 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] swsusp: reduce code duplication (was: Re: [PATCH 2/3] swsusp: move snapshot-handling functions to snapshot.c)
-Message-ID: <20051101210911.GI7172@elf.ucw.cz>
-References: <200510301637.48842.rjw@sisk.pl> <20051031220233.GC14877@elf.ucw.cz> <200511011357.16995.rjw@sisk.pl> <200511011833.19585.rjw@sisk.pl>
+	Tue, 1 Nov 2005 16:10:44 -0500
+Subject: Re: [RFC: 2.6 patch] remove fs/jffs2/ioctl.c
+From: Josh Boyer <jdub@us.ibm.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: dwmw2@infradead.org, jffs-dev@axis.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20051101205119.GY8009@stusta.de>
+References: <20051101205119.GY8009@stusta.de>
+Content-Type: text/plain
+Date: Tue, 01 Nov 2005 15:10:36 -0600
+Message-Id: <1130879436.3775.1.camel@windu.rchland.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200511011833.19585.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 2005-11-01 at 21:51 +0100, Adrian Bunk wrote:
+> Is there any reason for keeping fs/jffs2/ioctl.c?
 
-> > > > Speaking of simplifications and having seen your code I hope you will agree with
-> > > > the appended patch against vanilla 2.6.14-git3 (it reduces the duplication of code,
-> > > > and replaces swsusp_pagedir_relocate with a simpler mechanism).
-> > > 
-> > > ...and also moves stuff around in a way
-> > > 
-> > > a) I don't like
-> > > 
-> > > and
-> > > 
-> > > b) is almost impossible to review
-> > 
-> > OK, I'll try to split it into two patches to make it cleaner.
-> 
-> The first patch is appended, the next one will be in the reply to this message.
-> 
-> The changes made by the appended patch are necessary for the relocation
-> simplification in the next patch.  Still, the changes allow us to drop
-> check_pagedir() and make get_safe_page() be a one-line wrapper around
-> alloc_image_page() (get_safe_page() goes to snapshot.c, because
-> alloc_image_page() is static and it does not make sense to export
-> it).
+I can think of some various things that could be done with it, but that
+would require time and effort.  Unless David or Thomas have an
+objections, I think it can go.
 
-ACK.
-								Pavel
--- 
-Thanks, Sharp!
+josh
+

@@ -1,53 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750879AbVKAPYK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750882AbVKAPYk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750879AbVKAPYK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 10:24:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750881AbVKAPYK
+	id S1750882AbVKAPYk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 10:24:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750885AbVKAPYk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 10:24:10 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:59334 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1750879AbVKAPYH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 10:24:07 -0500
-Date: Tue, 1 Nov 2005 15:24:03 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       kravetz@us.ibm.com, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-In-Reply-To: <1130856658.14475.79.camel@localhost>
-Message-ID: <Pine.LNX.4.58.0511011523130.14884@skynet>
-References: <20051030235440.6938a0e9.akpm@osdl.org>  <27700000.1130769270@[10.10.2.4]>
- <4366A8D1.7020507@yahoo.com.au>  <Pine.LNX.4.58.0510312333240.29390@skynet>
- <4366C559.5090504@yahoo.com.au>  <Pine.LNX.4.58.0511010137020.29390@skynet>
- <4366D469.2010202@yahoo.com.au>  <Pine.LNX.4.58.0511011014060.14884@skynet>
- <20051101135651.GA8502@elte.hu>  <Pine.LNX.4.58.0511011358520.14884@skynet>
- <1130856658.14475.79.camel@localhost>
+	Tue, 1 Nov 2005 10:24:40 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:9415 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1750882AbVKAPYj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 10:24:39 -0500
+Date: Tue, 1 Nov 2005 10:24:37 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Chandra Seetharaman <sekharan@us.ibm.com>
+cc: Keith Owens <kaos@ocs.com.au>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Notifier chains are unsafe
+In-Reply-To: <1130797377.3586.357.camel@linuxchandra>
+Message-ID: <Pine.LNX.4.44L0.0511011010350.5081-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Nov 2005, Dave Hansen wrote:
+On Mon, 31 Oct 2005, Chandra Seetharaman wrote:
 
-> On Tue, 2005-11-01 at 14:41 +0000, Mel Gorman wrote:
-> > o Mechanism for taking regions of memory offline. Again, I think the
-> >   memory hotplug crowd have something for this. If they don't, one of them
-> >   will chime in.
->
-> I'm not sure what you're asking for here.
->
-> Right now, you can offline based on NUMA node, or physical address.
-> It's all revealed in sysfs.  Sounds like "regions" to me. :)
->
+> > #define notifier_block_enable(b)      set_wmb((b)->enabled, 1)
+> > #define notifier_block_disable(b)     set_wmb((b)->enabled, 0)
+> 
+> I am not getting the complete picture. So, in unregister we would just
+> disable and never delete the notifier_block ? Or
+> notifier_block_enable/disable will be used by external entities
+> directly ?
 
-Ah yes, that would do the job all right.
+Register and unregister will continue to work as before, requiring a
+process context and the ability to sleep.  notifier_block_enable/disable
+should be used when:
 
--- 
-Mel Gorman
-Part-time Phd Student                          Java Applications Developer
-University of Limerick                         IBM Dublin Software Lab
+	a callout wants to disable itself as it is running, or
+
+	someone running in an atomic context wants to enable or disable
+	a callout.
+
+In the first case, unregister can't be used because it would hang.  In the 
+second case, register/unregister can't be used because they need to be 
+able to sleep.
+
+In both cases the notifier block would have to be registered beforehand 
+and unregistered later.
+
+
+> > It occurred to me that there _is_ a way to do unregister for atomic chains 
+> > without blocking.  Add to struct notifier_head
+> > 
+> > 	atomic_t num_callers;
+> > 
+> > Then in notifier_call_chain, do atomic_inc(&nh->num_callers) at the start
+> > and atomic_dec(&nh->num_callers) at the end.  Finally, make unregister do
+> > this:
+> > 
+> > int notifier_chain_unregister(struct notifier_head *nh,
+> >         struct notifier_block *n)
+> > {
+> > 	if (nh->type == ATOMIC_NOTIFIER) {
+> > 	        spin_lock(nh->lock);
+> > 	        list_del(&n->node);
+> > 		smp_mb();
+> > 		while (atomic_read(&nh->num_callers) > 0)
+> > 			cpu_relax();
+> > 	        spin_unlock(nh->lock);
+> > 	} else {
+> > 	...
+> > 	}
+> >         return 0;
+> > }
+> 
+> But, how is the list protected in call_chain (will you be holding the
+> lock in call_chain() while incrementing the atomic variable).
+
+No; the list _won't_ be protected in call_chain.  It will be possible to
+unregister a callout while the chain is in use.  That's how the RCU
+approach works -- it uses no read locks, only write locks.
+
+Deleting an entry while the list is in use is safe, because readers will
+encounter either the old or the new value of the .next pointer, and either
+one will be valid.  The important thing is to make sure that no one will
+ever encounter the old pointer after unregister returns; that's what the
+"while" loop is for.
+
+Alan Stern
+

@@ -1,64 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbVKAMko@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbVKAMpa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750778AbVKAMko (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 07:40:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750779AbVKAMkn
+	id S1750779AbVKAMpa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 07:45:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbVKAMpa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 07:40:43 -0500
-Received: from smtp1-g19.free.fr ([212.27.42.27]:38119 "EHLO smtp1-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1750778AbVKAMkn (ORCPT
+	Tue, 1 Nov 2005 07:45:30 -0500
+Received: from mail.enyo.de ([212.9.189.167]:8172 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S1750779AbVKAMp3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 07:40:43 -0500
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH]  Eagle and ADI 930 usb adsl modem driver
-Date: Tue, 1 Nov 2005 13:40:41 +0100
-User-Agent: KMail/1.8.3
-Cc: matthieu castet <castet.matthieu@free.fr>,
-       linux-usb-devel@lists.sourceforge.net, usbatm@lists.infradead.org,
-       linux-kernel@vger.kernel.org
-References: <4363F9B5.6010907@free.fr> <20051031155803.2e94069f.akpm@osdl.org>
-In-Reply-To: <20051031155803.2e94069f.akpm@osdl.org>
+	Tue, 1 Nov 2005 07:45:29 -0500
+From: Florian Weimer <fw@deneb.enyo.de>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 3ware 9550SX problems - mke2fs incredibly slow writing last third of inode tables
+References: <BEDEA151E8B1D6CEDD295442@[192.168.100.25]>
+Date: Tue, 01 Nov 2005 13:45:19 +0100
+In-Reply-To: <BEDEA151E8B1D6CEDD295442@[192.168.100.25]> (Alex Bligh's message
+	of "Sun, 30 Oct 2005 21:10:56 +0000")
+Message-ID: <87oe54cza8.fsf@mid.deneb.enyo.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511011340.41266.duncan.sands@math.u-psud.fr>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+* Alex Bligh:
 
-> > +/*
-> > + * sometime hotplug don't have time to give the firmware the
-> > + * first time, retry it.
-> > + */
-> > +static int sleepy_request_firmware(const struct firmware **fw, 
-> > +		const char *name, struct device *dev)
-> > +{
-> > +	if (request_firmware(fw, name, dev) == 0)
-> > +		return 0;
-> > +	msleep(1000);
-> > +	return request_firmware(fw, name, dev);
-> > +}
-> 
-> egad.   Is there no better way?
+> All seems to go well until I try and do mke2fs. This appears to work,
+> and tries to write the inode tables. However, at (about) 3400 inodes
+> (of 11176), it slows to a crawl, writing one table every 10 seconds.
+> strace shows it is still running, and no errors are being reported.
+> However, it seems very sick.
 
-this code looks like a 'orrible hack to work around a common problem
-with USB modem's of this type: if the modem is plugged in while the
-system boots, the driver may look for firmware before the filesystem
-holding the firmware is mounted; I guess the delay usually gives
-the filesystem enough time to be mounted.  I'm told that the correct
-solution is to stick the firmware in an initramfs as well.  That's a
-pity: it would be nice if users could just dump the firmware in an
-appropriate directory and have everything work [*].  As it is, they
-also have to regenerate an initramfs.
-
-Ciao,
-
-Duncan.
-
-[*] For legal reasons, users usually have to download and install
-the firmware themselves.  For the speedtouch modems I don't know
-of any distribution which comes with the firmware preinstalled.
+In my experience, the 3ware SATA controllers which are not NCQ-capable
+have very, very lousy write performance with some drives, unless you
+enable the write cache (which is, of course, a bit dangerous without
+UPS or battery backup on the controller).

@@ -1,85 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbVKAVfc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbVKAVnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751265AbVKAVfc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 16:35:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbVKAVfc
+	id S1751272AbVKAVnq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 16:43:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbVKAVnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 16:35:32 -0500
-Received: from soundwarez.org ([217.160.171.123]:60846 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S1751265AbVKAVfc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 16:35:32 -0500
-Date: Tue, 1 Nov 2005 22:35:25 +0100
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Sergey Vlasov <vsu@altlinux.ru>
-Cc: Al Viro <viro@ftp.linux.org.uk>, Roderich.Schupp.extern@mch.siemens.de,
-       linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net,
-       Greg KH <greg@kroah.com>
-Subject: Re: Race between "mount" uevent and /proc/mounts?
-Message-ID: <20051101213525.GA17207@vrfy.org>
-References: <0AD07C7729CA42458B22AFA9C72E7011C8EF@mhha22kc.mchh.siemens.de> <20051025140041.GO7992@ftp.linux.org.uk> <20051026142710.1c3fa2da.vsu@altlinux.ru> <20051026111506.GQ7992@ftp.linux.org.uk> <20051026143417.GA18949@vrfy.org> <20051026192858.GR7992@ftp.linux.org.uk> <20051101002846.GA5097@vrfy.org> <20051101035816.GA7788@vrfy.org> <20051101195449.GA9162@procyon.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051101195449.GA9162@procyon.home>
-User-Agent: Mutt/1.5.9i
+	Tue, 1 Nov 2005 16:43:46 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:52650 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1751270AbVKAVnp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 16:43:45 -0500
+Message-ID: <4367E1CA.9040400@tmr.com>
+Date: Tue, 01 Nov 2005 16:44:42 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>,
+       "Kernel," <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG 2579] linux 2.6.* sound problems (SOLVED)
+References: <53JVy-4yi-19@gated-at.bofh.it> <545a6-2GZ-17@gated-at.bofh.it>	 <43679B8F.8000305@gmail.com> <43679FFB.6040504@mnsu.edu>	 <4367A369.5030003@gmail.com> <1130872775.22089.1.camel@mindpipe>
+In-Reply-To: <1130872775.22089.1.camel@mindpipe>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 01, 2005 at 10:54:49PM +0300, Sergey Vlasov wrote:
-> On Tue, Nov 01, 2005 at 04:58:16AM +0100, Kay Sievers wrote:
-> > On Tue, Nov 01, 2005 at 01:28:46AM +0100, Kay Sievers wrote:
-> > > Ok, makes sense. The attached seems to work for me. If we can get
-> > > something like this, we can remove the superblock claim/release events
-> > > completely and just read the events from the /proc/mounts file itself.
+Lee Revell wrote:
+> On Tue, 2005-11-01 at 18:18 +0100, Patrizio Bassi wrote:
 > 
-> No, we need both events.  When you need to tell the user when it is
-> safe to disconnect the storage device, the event from detach_mnt() is
-> useless - it happens too early.  In fact, even the current way of
-> sending the event from kill_block_super() is broken, because the event
-> is generated before generic_shutdown_super() and sync_blockdev(), and
-> writing out cached data may take some time.
+>>Jeffrey Hundstad ha scritto:
+>>
+>>
+>>>Since you're going to 250 Hz.  Please, if you would, see if you can
+>>>tell any performance change and report that as well.  I'm more than a
+>>>little skeptical that you'll notice.  BTW: Your battery life should be
+>>>a little better at 100 Hz also.
+>>>
+>>
+>>sincerely i can notice that task and application switching is a bit slower.
+>>i have a 500mhz cpu so i think i can notice a bit the difference.
+>>i can't estimate it mmm...
+>>i'll say no more that 5-8%.
+>>but i don't know where i'm gaining speed..
 > 
-> We could try to emit busy/free events from bd_claim() and
-> bd_release(); this would be triggered by most "interesting" users
-> (even opens with O_EXCL), but not by things like volume_id.
-
-Hmm, HAL polls optical drives every 2 seconds with O_EXCL to detect media
-changes. You need to do it EXCL, cause otherwise some cd burners fail.
-
-> > New patch. Missed a check for namespace == NULL in detach_mnt().
-> [skip]
-> > +static unsigned int mounts_poll(struct file *file, poll_table *wait)
-> > +{
-> > +	struct task_struct *task = proc_task(file->f_dentry->d_inode);
-> > +	struct namespace *namespace;
-> > +	int ret = 0;
-> > +
-> > +	task_lock(task);
-> > +	namespace = task->namespace;
-> > +	if (namespace)
-> > +		get_namespace(namespace);
-> > +	task_unlock(task);
-> > +
-> > +	if (!namespace)
-> > +		return -EINVAL;
-> > +
-> > +	poll_wait(file, &mounts_wait, wait);
-> > +	if (namespace->mounts_poll_pending) {
-> > +		namespace->mounts_poll_pending = 0;
-> > +		ret = POLLIN | POLLRDNORM;
-> > +	}
 > 
-> This assumes that there will be only one process per namespace which
-> will call poll() on /proc/mounts.  Even though someone may argue that
-> it is the right approach (have a single process which watches
-> /proc/mounts and broadcasts updates to other interested processes,
-> e.g., over dbus), with the above implementation any unprivileged user
-> can call poll() and interfere with the operation of that designated
-> process.
+> Um, wasn't a consensus reached at OLS two years ago that the target for
+> desktop responsiveness would be 1ms which is impossible with HZ=100 or
+> 250?
 
-Sure, capable(CAP_SYS_ADMIN) could prevent this.
+Go back and reread the thread in the archives. The short answer is that 
+he who controls the code controls the decisions. I just fix it 
+everywhere, since 250 is too fast for optimal battery life, too slow for 
+optimal response or multimedia, and not optimal for any server 
+application I run (usenet, dns, mail, http, firewall).
 
-Thanks,
-Kay
+A perfect compromise is one which makes everyone reasonably happy; this 
+is like the XOR of that, it leaves everyone slightly dissatisfied. ;-)
 
+I'm convinced that Linus choose this value to make everyone slightly 
+unhappy, so development of various variable rate and tick skipping 
+projects would continue. Unfortunately that doesn't seem to have 
+happened :-(
+
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

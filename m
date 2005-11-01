@@ -1,61 +1,154 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751234AbVKATyr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751238AbVKATzv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751234AbVKATyr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 14:54:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbVKATyr
+	id S1751238AbVKATzv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 14:55:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbVKATzv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 14:54:47 -0500
-Received: from xproxy.gmail.com ([66.249.82.194]:39903 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751230AbVKATyq convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 14:54:46 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=hrF1l1ww9XGXtmBiDlPhob01huW1Fm/Ed7x6Ve1dKIdAUGiew5srxI2xf/U340yH22U/ICu0bb9tebwovnJigYwNwcuOq887emVi86Tn1j7HUjrGUQBIcBr9PDnDm8n18DV/+5nqENJ2nNalgKeOXGJ5JrRPIvATgOZE4sp8r1s=
-Message-ID: <cbec11ac0511011154r13e7b695g@mail.gmail.com>
-Date: Wed, 2 Nov 2005 08:54:45 +1300
-From: Ian McDonald <imcdnzl@gmail.com>
-To: Thomas Graf <tgraf@suug.ch>
-Subject: Re: [PKT_SCHED]: Rework QoS and/or fair queueing configuration
-Cc: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>, bunk@stusta.de,
-       jengelh@linux01.gwdg.de, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-In-Reply-To: <20051101141302.GM23537@postel.suug.ch>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 1 Nov 2005 14:55:51 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19334 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751238AbVKATzu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 14:55:50 -0500
+Date: Tue, 1 Nov 2005 20:31:35 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Make spitz compile again
+Message-ID: <20051101193135.GA7075@elf.ucw.cz>
+References: <20051031134255.GA8093@elf.ucw.cz> <1130773530.8353.39.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.LNX.4.61.0510280902470.6910@yvahk01.tjqt.qr>
-	 <20051031102621.GF8009@stusta.de>
-	 <20051031132729.GK23537@postel.suug.ch>
-	 <20051101141302.GM23537@postel.suug.ch>
+In-Reply-To: <1130773530.8353.39.camel@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 02/11/05, Thomas Graf <tgraf@suug.ch> wrote:
->
-> Make "QoS and/or fair queueing" have its own menu, it's too big to be
-> inlined into "Network options". Remove the obsolete NET_QOS option.
-> Automatically select NET_CLS if needed. Do the same for NET_ESTIMATOR
-> but allow it to be selected manually for statistical purposes. Add
-> comments to separate queueing from classification. Fix dependencies
-> and ordering of classifiers. Improve descriptions/help texts and
-> remove outdated pieces.
->
-Thomas I think the timing ones can be improved slightly out of the
-discussion at here:
-http://marc.theaimsgroup.com/?l=linux-netdev&m=112912015311659&w=2
+Hi!
 
-I keep meaning to submit a patch but low on my todo list. Feel free to
-do so if you wish or else I will get around to it one day. I know
-Arnaldo has also mentioned ktimers for the future (which I haven't yet
-read) which may help in this area as well.
+> > This is what I needed to do after update to latest linus
+> > kernel. Perhaps it helps someone. 
+> > 
+> > Signed-off-by: Pavel Machek <pavel@suse.cz>
+> > 
+> > , but it is against Richard's tree merged into my tree, so do not
+> > expect to apply it over mainline. Akita code movement is needed if I
+> > want to compile kernel without akita support...
+> 
+> This is an update of my tree against 2.6.14-git3:
+> 
+> http://www.rpsys.net/openzaurus/temp/total-2.6.14-git3-r0.patch.gz
 
-Ian
---
-Ian McDonald
-http://wand.net.nz/~iam4
-WAND Network Research Group
-University of Waikato
-New Zealand
+I needed this to get it to compile... Please apply (probably modulo //
+part).
+
+Signed-off-by: Pavel Machek <pavel@suse.cz>
+								Pavel
+
+
+--- clean-rp/arch/arm/mach-pxa/pxa_keys.c	2005-11-01 19:32:56.000000000 +0100
++++ linux-rp/arch/arm/mach-pxa/pxa_keys.c	2005-11-01 20:17:38.000000000 +0100
+@@ -55,24 +55,20 @@
+ }
+ 
+ #ifdef CONFIG_PM
+-static int pxa_keys_suspend(struct device *dev, pm_message_t state, uint32_t level)
++static int pxa_keys_suspend(struct device *dev, pm_message_t state)
+ {
+-	if (level == SUSPEND_POWER_DOWN) {
+-		struct pxa_keys_platform_data *k = dev_get_drvdata(dev);
+-		k->suspended = 1;
+-	}
++	struct pxa_keys_platform_data *k = dev_get_drvdata(dev);
++	k->suspended = 1;
+ 	return 0;
+ }
+ 
+-static int pxa_keys_resume(struct device *dev, uint32_t level)
++static int pxa_keys_resume(struct device *dev)
+ {
+-	if (level == RESUME_POWER_ON) {
+-		struct pxa_keys_platform_data *k = dev_get_drvdata(dev);
++	struct pxa_keys_platform_data *k = dev_get_drvdata(dev);
+ 
+-		/* Upon resume, ignore the suspend key for a short while */
+-		k->suspend_jiffies=jiffies;
+-		k->suspended = 0;
+-	}
++	/* Upon resume, ignore the suspend key for a short while */
++	k->suspend_jiffies=jiffies;
++	k->suspended = 0;
+ 	return 0;
+ }
+ #else
+--- clean-rp/arch/arm/mach-pxa/spitz.c	2005-11-01 19:32:56.000000000 +0100
++++ linux-rp/arch/arm/mach-pxa/spitz.c	2005-11-01 20:28:43.000000000 +0100
+@@ -321,6 +321,7 @@
+ };
+ 
+ 
++#ifdef CONFIG_MACH_AKITA
+ /*
+  * Irda
+  */
+@@ -339,10 +340,11 @@
+ 	else
+ 		akita_reset_ioexp(&akitaioexp_device.dev, AKITA_IOEXP_IR_ON);
+ }
++#endif
+ 
+ static struct pxaficp_platform_data spitz_ficp_platform_data = {
+ 	.transceiver_cap  = IR_SIRMODE | IR_OFF,
+-	.transceiver_mode = spitz_irda_transceiver_mode,
++//	.transceiver_mode = spitz_irda_transceiver_mode,
+ };
+ 
+ 
+@@ -422,21 +424,6 @@
+ 	platform_device_register(&spitzscoop2_device);
+ }
+ 
+-static void __init akita_init(void)
+-{
+-	spitz_ficp_platform_data.transceiver_mode = akita_irda_transceiver_mode;
+-
+-	/* We just pretend the second element of the array doesn't exist */
+-	scoop_num = 1;
+-	scoop_devs = &spitz_pcmcia_scoop[0];
+-	spitz_bl_machinfo.set_bl_intensity = akita_bl_set_intensity;
+-
+-	platform_device_register(&akitaioexp_device);
+-
+-	spitzscoop_device.dev.parent=&akitaioexp_device.dev;
+-	common_init();
+-}
+-
+ static void __init fixup_spitz(struct machine_desc *desc,
+ 		struct tag *tags, char **cmdline, struct meminfo *mi)
+ {
+@@ -474,6 +461,21 @@
+ #endif
+ 
+ #ifdef CONFIG_MACH_AKITA
++static void __init akita_init(void)
++{
++	spitz_ficp_platform_data.transceiver_mode = akita_irda_transceiver_mode;
++
++	/* We just pretend the second element of the array doesn't exist */
++	scoop_num = 1;
++	scoop_devs = &spitz_pcmcia_scoop[0];
++	spitz_bl_machinfo.set_bl_intensity = akita_bl_set_intensity;
++
++	platform_device_register(&akitaioexp_device);
++
++	spitzscoop_device.dev.parent=&akitaioexp_device.dev;
++	common_init();
++}
++
+ MACHINE_START(AKITA, "SHARP Akita")
+ 	.phys_ram	= 0xa0000000,
+ 	.phys_io	= 0x40000000,
+
+-- 
+Thanks, Sharp!

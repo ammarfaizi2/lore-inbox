@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750888AbVKAP2I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbVKAP3Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750888AbVKAP2I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 10:28:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbVKAP2H
+	id S1750894AbVKAP3Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 10:29:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbVKAP3Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 10:28:07 -0500
-Received: from xproxy.gmail.com ([66.249.82.197]:8234 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750888AbVKAP2G convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 10:28:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=sz1W3Yp4b6SY05K7ZiRwgQgzxxkx7zNTmI7YM71IciaXYU32C/sav5/0Sz/bhBUWgPxaNEuxWZr8KrNjC6Iz4K0INweQXBfFN9khI8jBVS7uB2/+FmDnX4a5KdRni1RNtSAX1bRzzyyizvuqLsA9LpNiQsU5OnMiIs+NdFKLr0A=
-Message-ID: <d120d5000511010728o79303ebcw2a4e3c2c3c201a1b@mail.gmail.com>
-Date: Tue, 1 Nov 2005 10:28:04 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Bill Davidsen <davidsen@tmr.com>
-Subject: Re: Kernel Badness 2.6.14-Git
-Cc: Robert Love <rml@novell.com>,
-       Alejandro Bonilla Beeche <abonilla@linuxwireless.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <43678814.80407@tmr.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 1 Nov 2005 10:29:16 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:41938 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750890AbVKAP3P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 10:29:15 -0500
+Date: Tue, 1 Nov 2005 07:29:33 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix remaining list_for_each_safe_rcu in -mm
+Message-ID: <20051101152933.GA6210@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <4362BFF1.3040304@linuxwireless.org>
-	 <200510312221.13217.dtor_core@ameritech.net>
-	 <20051101073530.GB27536@kroah.com>
-	 <200511010258.14313.dtor_core@ameritech.net>
-	 <20051101081433.GB28048@kroah.com>
-	 <1130854317.16163.52.camel@phantasy> <43678814.80407@tmr.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/1/05, Bill Davidsen <davidsen@tmr.com> wrote:
->
-> What about serio? Can that be used too early as well? Serial console?
+Hello!
 
-Serio seems to be in the right place for now but if pulling input.o to
-the top works well I think I'll do the same with serio.
+I missed a use of list_for_each_rcu_safe() in -mm tree.  Here is a patch
+to fix it.
 
---
-Dmitry
+Signed-off-by: <paulmck@us.ibm.com>
+
+---
+
+ ipmi_msghandler.c |    5 ++---
+ 1 files changed, 2 insertions(+), 3 deletions(-)
+
+diff -urpNa -X dontdiff linux-2.6.14-rc5-mm1/drivers/char/ipmi/ipmi_msghandler.c linux-2.6.14-rc5-mm1-safe_rcu/drivers/char/ipmi/ipmi_msghandler.c
+--- linux-2.6.14-rc5-mm1/drivers/char/ipmi/ipmi_msghandler.c	2005-11-01 06:44:09.000000000 -0800
++++ linux-2.6.14-rc5-mm1-safe_rcu/drivers/char/ipmi/ipmi_msghandler.c	2005-11-01 07:00:50.000000000 -0800
+@@ -788,7 +788,7 @@ int ipmi_destroy_user(ipmi_user_t user)
+ 	int              i;
+ 	unsigned long    flags;
+ 	struct cmd_rcvr  *rcvr;
+-	struct list_head *entry1, *entry2;
++	struct list_head *entry1;
+ 	struct cmd_rcvr  *rcvrs = NULL;
+ 
+ 	user->valid = 1;
+@@ -813,8 +813,7 @@ int ipmi_destroy_user(ipmi_user_t user)
+ 	 * synchronize_rcu()) then free everything in that list.
+ 	 */
+ 	spin_lock_irqsave(&intf->cmd_rcvrs_lock, flags);
+-	list_for_each_safe_rcu(entry1, entry2, &intf->cmd_rcvrs) {
+-		rcvr = list_entry(entry1, struct cmd_rcvr, link);
++	list_for_each_entry_rcu(entry1, &intf->cmd_rcvrs, link) {
+ 		if (rcvr->user == user) {
+ 			list_del_rcu(&rcvr->link);
+ 			rcvr->next = rcvrs;

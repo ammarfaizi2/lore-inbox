@@ -1,100 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbVKAKL2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbVKAKN1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750703AbVKAKL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 05:11:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbVKAKL2
+	id S1750708AbVKAKN1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 05:13:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbVKAKN1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 05:11:28 -0500
-Received: from main.gmane.org ([80.91.229.2]:24269 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750703AbVKAKL1 (ORCPT
+	Tue, 1 Nov 2005 05:13:27 -0500
+Received: from zproxy.gmail.com ([64.233.162.207]:30163 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750708AbVKAKN0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 05:11:27 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Norbert Kiesel <nk@iname.com>
-Subject: Re: [PATCH consolidate sys_ptrace
-Date: Tue, 01 Nov 2005 01:51:51 -0800
-Message-ID: <pan.2005.11.01.09.51.40.860720@iname.com>
-References: <20051101050900.GA25793@lst.de> <20051101051221.GA26017@lst.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ppp-71-139-205-74.dsl.snfc21.pacbell.net
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+	Tue, 1 Nov 2005 05:13:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=MmNlqfmVX9L3ejxcdOMYsfxvQPihgrCC7WZHz+E4SfuBp2USvr5kyt1NgvwBj2FQwgwRSIuZXkAmM09nY71OKehoFizPDb3YbtWJZlE828mhS0zW4BjyVW+2dTP8UvL/PJ3d6yBL0LDAb7wxPu1x/kLcFl2n/CFL7jYaAtTCLrc=
+Message-ID: <43673FBC.3070403@gmail.com>
+Date: Tue, 01 Nov 2005 19:13:16 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: torvalds@osdl.org, acme@mandriva.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] blk: fix dangling pointer access in __elv_add_request
+References: <20051101082349.GA17756@htj.dyndns.org> <20051101090857.GC26049@suse.de>
+In-Reply-To: <20051101090857.GC26049@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 01 Nov 2005 06:12:21 +0100, Christoph Hellwig wrote:
+Jens Axboe wrote:
+> On Tue, Nov 01 2005, Tejun Heo wrote:
+> 
+>>cfq's add_req_fn callback may invoke q->request_fn directly and
+>>depending on low-level driver used and timing, a queued request may be
+>>finished & deallocated before add_req_fn callback returns.  So,
+>>__elv_add_request must not access rq after it's passed to add_req_fn
+>>callback.
+> 
+> 
+> It's a generel problem, you may get the queue run at any time regardless
+> of what the io scheduler is doing. CFQ does run the queue manully
+> sometimes, but SCSI may do the very same thing for you as well. Given
+> that SCSI also shortly reenables interrupts in the ->request_fn()
+> handling, it's quite possible for the request to be completed.
+ >
+ > So, as we don't hold a reference to the request, I'd say your patch
+ > looks correct and should be applied right away.
+ >
+ >
+ >>Jens, does generalizing queue kicking functions and disallowing
+ >>ioscheds from directly calling q->request_fn sound like a good idea?
+ >
+ >
+ > Yes certainly.
+ >
 
-<snip>
+The thing is that we are holding queue_lock before calling add_req_fn 
+callback and also after it finishes giving it an appearance of 
+atomicity.  I think q->request_fn semantics is peculiar and a bit prone 
+to bug, so it might be better to make ioscheds always use generic queue 
+kicking function which always uses work queue to run q->request_fn so 
+that we don't have queue_lock releasing and regrabbing inbetween.  Do 
+you think there can be any noticieable performance issues?
 
-> Index: linux-2.6/kernel/ptrace.c
-> ===================================================================
-> --- linux-2.6.orig/kernel/ptrace.c	2005-10-31 13:15:52.000000000 +0100
-> +++ linux-2.6/kernel/ptrace.c	2005-10-31 17:30:43.000000000 +0100
-> @@ -406,3 +406,85 @@
->  
->  	return ret;
->  }
-> +
-> +#ifndef __ARCH_SYS_PTRACE
-> +static int ptrace_get_task_struct(long request, long pid,
-> +		struct task_struct **childp)
-> +{
-> +	struct task_struct *child;
-> +	int ret;
-This "ret" is basically unused and should go away
+Hmmmm... One more thing about q->request_fn's locking behavior is that, 
+as I noted while posting the ordered patchset, for SCSI, the behavior 
+can reorder issued requests making it impossible to use ordered tags for 
+flushing.  I'm thinking of submitting a patch to make scsi request_fn 
+atomic w.r.t. queue_lock, but there might be some performance issues I'm 
+not aware of.  Functions which release and regrab locks underneath the 
+caller are just... hard.  :-p
 
-> +
-> +	/*
-> +	 * Callers use child == NULL as an indication to exit early even
-> +	 * when the return value is 0, so make sure it is non-NULL here.
-> +	 */
-> +	*childp = NULL;
-> +
-> +	if (request == PTRACE_TRACEME) {
-> +		/*
-> +		 * Are we already being traced?
-> +		 */
-> +		if (current->ptrace & PT_PTRACED)
-> +			return -EPERM;
-> +		ret = security_ptrace(current->parent, current);
-> +		if (ret)
-	if (security_ptrace(current->parent, current))
+Thanks.
 
-> +			return -EPERM;
-> +		/*
-> +		 * Set the ptrace bit in the process ptrace flags.
-> +		 */
-> +		current->ptrace |= PT_PTRACED;
-> +		return 0;
-> +	}
-> +
-> +	/*
-> +	 * You may not mess with init
-> +	 */
-> +	if (pid == 1)
-> +		return -EPERM;
-> +
-> +	ret = -ESRCH;
-Not needed (anymore)
-
-> +	read_lock(&tasklist_lock);
-> +	child = find_task_by_pid(pid);
-> +	if (child)
-> +		get_task_struct(child);
-> +	read_unlock(&tasklist_lock);
-> +	if (!child)
-> +		return -ESRCH;
-> +
-> +	*childp = child;
-> +	return 0;
-> +}
-> +
-
-
-Best,
-  Norbert
-
-
+-- 
+tejun

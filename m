@@ -1,93 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbVKAQKX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbVKAQRD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750763AbVKAQKX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 11:10:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbVKAQKX
+	id S1750834AbVKAQRD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 11:17:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbVKAQRD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 11:10:23 -0500
-Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:59039 "EHLO
-	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1750763AbVKAQKW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 11:10:22 -0500
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Tue, 1 Nov 2005 16:10:07 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net,
-       Yura Pakhuchiy <pakhuchiy@gmail.com>
-Subject: [2.6-GIT] NTFS: Fix the segfault in the new write code.
-Message-ID: <Pine.LNX.4.64.0511011605240.17031@hermes-1.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 1 Nov 2005 11:17:03 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:8384 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750834AbVKAQRB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 11:17:01 -0500
+Date: Tue, 1 Nov 2005 08:17:18 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, serue@us.ibm.com, minyard@acm.org
+Subject: [PATCH] fix remaining list_for_each_safe_rcu in -mm (take 2)
+Message-ID: <20051101161717.GA6346@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20051101152933.GA6210@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051101152933.GA6210@us.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus, please pull from
+Hello!
 
-git://git.kernel.org/pub/scm/linux/kernel/git/aia21/ntfs-2.6.git
+I missed a use of list_for_each_rcu_safe() in -mm tree.  Here is an updated
+patch to fix it.  This time tested on a machine that actually uses IPMI...
+(Thanks to Serge Hallyn for spotting this.)
 
-This fixes the segfault reported by Yura Pakhuchiy in the new write code.
-
-Diffstat:
-
- fs/ntfs/file.c |   17 +++++++++--------
- 1 files changed, 9 insertions(+), 8 deletions(-)
-
-The diff is below for non-git users.
-
-Best regards,
-
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Signed-off-by: <paulmck@us.ibm.com>
 
 ---
 
-NTFS: Fix a stupid bug causing writes to non-initialized pages to segfault.
-
-Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
-
-applies-to: d7e2216b6e65b833c0c2b79b478d13ce17dbf296
-3aebf25bdcf030f3e4afeb9340486d5b46deb46e
-diff --git a/fs/ntfs/file.c b/fs/ntfs/file.c
-index cf3e6ce..7275338 100644
---- a/fs/ntfs/file.c
-+++ b/fs/ntfs/file.c
-@@ -668,10 +668,10 @@ map_buffer_cached:
- 				 * to, we need to read it in before the write,
- 				 * i.e. now.
- 				 */
--				if (!buffer_uptodate(bh) && ((bh_pos < pos &&
--						bh_end > pos) ||
--						(bh_end > end &&
--						bh_end > end))) {
-+				if (!buffer_uptodate(bh) && bh_pos < end &&
-+						bh_end > pos &&
-+						(bh_pos < pos ||
-+						bh_end > end)) {
- 					/*
- 					 * If the buffer is fully or partially
- 					 * within the initialized size, do an
-@@ -784,10 +784,11 @@ retry_remap:
- 						blocksize_bits);
- 				cdelta = 0;
- 				/*
--				 * If the number of remaining clusters in the
--				 * @pages is smaller or equal to the number of
--				 * cached clusters, unlock the runlist as the
--				 * map cache will be used from now on.
-+				 * If the number of remaining clusters touched
-+				 * by the write is smaller or equal to the
-+				 * number of cached clusters, unlock the
-+				 * runlist as the map cache will be used from
-+				 * now on.
- 				 */
- 				if (likely(vcn + vcn_len >= cend)) {
- 					if (rl_write_locked) {
----
-0.99.9
+diff -urpNa -X dontdiff linux-2.6.14-rc5-mm1/drivers/char/ipmi/ipmi_msghandler.c linux-2.6.14-rc5-mm1-safe_rcu/drivers/char/ipmi/ipmi_msghandler.c
+--- linux-2.6.14-rc5-mm1/drivers/char/ipmi/ipmi_msghandler.c	2005-11-01 06:44:09.000000000 -0800
++++ linux-2.6.14-rc5-mm1-safe_rcu/drivers/char/ipmi/ipmi_msghandler.c	2005-11-01 08:03:45.000000000 -0800
+@@ -788,7 +788,6 @@ int ipmi_destroy_user(ipmi_user_t user)
+ 	int              i;
+ 	unsigned long    flags;
+ 	struct cmd_rcvr  *rcvr;
+-	struct list_head *entry1, *entry2;
+ 	struct cmd_rcvr  *rcvrs = NULL;
+ 
+ 	user->valid = 1;
+@@ -813,8 +812,7 @@ int ipmi_destroy_user(ipmi_user_t user)
+ 	 * synchronize_rcu()) then free everything in that list.
+ 	 */
+ 	spin_lock_irqsave(&intf->cmd_rcvrs_lock, flags);
+-	list_for_each_safe_rcu(entry1, entry2, &intf->cmd_rcvrs) {
+-		rcvr = list_entry(entry1, struct cmd_rcvr, link);
++	list_for_each_entry_rcu(rcvr, &intf->cmd_rcvrs, link) {
+ 		if (rcvr->user == user) {
+ 			list_del_rcu(&rcvr->link);
+ 			rcvr->next = rcvrs;

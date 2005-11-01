@@ -1,69 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbVKALUV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbVKALX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbVKALUV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 06:20:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbVKALUU
+	id S1750748AbVKALX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 06:23:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbVKALX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 06:20:20 -0500
-Received: from twister.ispgateway.de ([80.67.18.17]:6036 "EHLO
-	twister.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1750747AbVKALUU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 06:20:20 -0500
-Date: Tue, 1 Nov 2005 12:20:08 +0100
-From: Steffen Moser <lists@steffen-moser.de>
-To: David R <david@unsolicited.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.14 and old versions of traceroute
-Message-ID: <20051101112008.GR22057@steffen-moser.de>
-Mail-Followup-To: David R <david@unsolicited.net>,
-	linux-kernel@vger.kernel.org
-References: <fa.e5044g2.p4421e@ifi.uio.no>
-Mime-Version: 1.0
+	Tue, 1 Nov 2005 06:23:27 -0500
+Received: from smtp013.mail.yahoo.com ([216.136.173.57]:24208 "HELO
+	smtp013.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1750748AbVKALX0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 06:23:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.de;
+  h=Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To:User-Agent;
+  b=4ZwIi3cbJhpavPzOkjXW6iU5uD9rc1dJ3Bch1F6I4AaezDufvsN665YVDGNn8MPE+CQdpruRlWGfUpVO614802G+b6onOd1Al1YCvU+zpm7aB8Y/silAXe39htrNBBXCIyxSOkUOtslhEM+syCXWrdoNNHvdT29J/jkd1pxjaLI=  ;
+Date: Tue, 1 Nov 2005 12:23:21 +0100
+From: Borislav Petkov <bbpetkov@yahoo.de>
+To: David Brownell <david-b@pacbell.net>
+Cc: Borislav Petkov <bbpetkov@yahoo.de>,
+       Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       greg@kroah.com
+Subject: Re: Linux 2.6.14 ehci-hcd hangs machine
+Message-ID: <20051101112321.GA8691@gollum.tnic>
+References: <0EF82802ABAA22479BC1CE8E2F60E8C376CE22@scl-exch2k3.phoenix.com> <20051031221541.GA31948@gollum.tnic> <200510311624.31680.david-b@pacbell.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <fa.e5044g2.p4421e@ifi.uio.no>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <200510311624.31680.david-b@pacbell.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
+On Mon, Oct 31, 2005 at 04:24:31PM -0800, David Brownell wrote:
+> On Monday 31 October 2005 2:15 pm, Borislav Petkov wrote:
+> > > >and dies. This bug is actually in there since 2.6.14-rc4 (see:
+> > > >http://bugzilla.kernel.org/show_bug.cgi?id=5428) and David Brownell
+> > > >supplied a patch which turned out to be useless eventually 
+> > > >since _rebooting_ 
+> > > >the kernel with the 'usb-handoff' (and without the patch) 
+> > > >solved the problem. 
+> 
+> In current GIT kernels (2.6.14+) that patch is now merged, and
+> also usb-handoff is the default.
+Just tested 2.6.14 from the git repo of today and the machine hangs at
+the same point in the boot process.
+> 
+> 
+> > > >As it turns out, it actually solves the problem only for the 
+> > > >reboot case.
+> > > >My machine still hangs on an initial boot with and without 
+> > > >'usb-handoff'.
+> 
+> Huh?  That's not what you'd reported before.  What changed?
+> You're saying that _with_ that patch, and usb-handoff, it fails?
+Yeah, the symptoms are really weird. Let me rehash the whole history:
+First, we did some testing with 2.6.14-rc4, _with_ the patch and the
+'handoff' cmd option and it worked. Then, several boots later, I noticed
+that it started hanging itself again at the same position not while rebooting 
+but at _initial_ boot in the morning. Then, you told me on bugzilla that
+in my case the patch shouldn't be needed since i'm using 'usb-handoff'
+but, unfortunately, without the patch and with usb-handoff it hangs itself too. 
+2.6.14 shows the same behavior and the git kernel i compiled this morning hangs 
+itself too, as i said above.
 
-* On Mon, Oct 31, 2005 at 07:30 PM (+0000), David R wrote:
+To sum up, IMHO, the patch helps partially only while rebooting. Initial
+boots still remain hanging so there's got to be something else that
+kills the machine. maybe some IRQs or something? The thing is that not
+even sysrq is functional, I don't get any BUG() traces or anything - 
+the hang is pretty tough. 2.6.13, in contrast, boots just fine. Hope
+that helps,
 
-> I've noticed that old versions of traceroute no longer work properly
-> with the latest kernel. 2.6.13.4 is OK. I've done a bit of strace and am
-> posting the differences here. These are from a 64 bit kernel using
-> traceroute 0.6.2 as shipped with most versions of SuSE. 
+	 Boris.
 
-I am experiencing exactly the same problem with traceroute-0.6.2 
-running on SuSE 10.0 together with kernel 2.6.14. The whole thing
-happens on a single core dual Opteron machine. I've tested this
-kernel version on that machine only, yet.
+	
 
-I've also tried the latest traceroute version (1.0.2) from
-
-  ftp://ftp.lst.de/pub/people/okir/traceroute/
-
-and experienced the same behaviour.
-
-Olaf Kirch has just sent me a patch against 2.6.14. It has also 
-been discussed in NETDEV. 
-
-This fixed it for me:
-
---- a/net/core/datagram.c       2005-11-01 11:38:31.000000000 +0100
-+++ b/net/core/datagram.c       2005-11-01 11:38:45.000000000 +0100
-@@ -213,6 +213,10 @@
- {
-        int i, err, fraglen, end = 0;
-        struct sk_buff *next = skb_shinfo(skb)->frag_list;
-+
-+       if (!len)
-+               return 0;
-+
- next_skb:
-        fraglen = skb_headlen(skb);
-        i = -1;
-
-Bye,
-Steffen
+	
+		
+___________________________________________________________ 
+Gesendet von Yahoo! Mail - Jetzt mit 1GB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de

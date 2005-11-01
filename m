@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbVKAJ6g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbVKAKF0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750723AbVKAJ6g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 04:58:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbVKAJ6g
+	id S1750724AbVKAKF0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 05:05:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbVKAKFZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 04:58:36 -0500
-Received: from ozlabs.org ([203.10.76.45]:24729 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750716AbVKAJ6f (ORCPT
+	Tue, 1 Nov 2005 05:05:25 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:17045 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S1750724AbVKAKFZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 04:58:35 -0500
+	Tue, 1 Nov 2005 05:05:25 -0500
+Message-ID: <43673DDC.6090303@drzeus.cx>
+Date: Tue, 01 Nov 2005 11:05:16 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mail/News 1.4.1 (X11/20051008)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Jordan Crouse <jordan.crouse@amd.com>
+CC: linux-kernel@vger.kernel.org, ralf.baechle@linux-mips.org,
+       ppopov@embeddedalley.com
+Subject: Re: Au1xxx MMC driver
+References: <20051031164021.GG20777@cosmic.amd.com>
+In-Reply-To: <20051031164021.GG20777@cosmic.amd.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17255.15408.824123.131620@cargo.ozlabs.ibm.com>
-Date: Tue, 1 Nov 2005 20:58:08 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH consolidate sys_ptrace
-In-Reply-To: <20051101051221.GA26017@lst.de>
-References: <20051101050900.GA25793@lst.de>
-	<20051101051221.GA26017@lst.de>
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig writes:
+Just a quick extra comment. It would be nice if you could use the host 
+controller name when doing the initial printk:
 
-> > Some architectures have a too different ptrace so we have to exclude
-> > them.  They continue to keep their implementations.  For sh64 I had to
-> > add a sh64_ptrace wrapper because it does some initialization on the
-> > first call.  For um I removed an ifdefed SUBARCH_PTRACE_SPECIAL block,
-> > but SUBARCH_PTRACE_SPECIAL isn't defined anywhere in the tree.
-> 
-> Umm, it might be a good idea to actually send the current patch instead
-> of the old one.  I really should write this text from scratch instead
-> of copying it :)
-> 
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+-         printk(KERN_INFO DRIVER_NAME ": MMC Controller %d set up at 
+%8.8X (mode=%s)\n",
+-                host->id, host->iobase, dma ? "dma" : "pio");
++         printk(KERN_INFO "%s: MMC Controller %d set up at %8.8X 
+(mode=%s)\n",
++                mmc_hostname(mmc), host->id, host->iobase, dma ? "dma" 
+: "pio");
 
-Acked-by: Paul Mackerras <paulus@samba.org>
+It gives a nice, visible connection between the host name and the hardware.
+
+Rgds
+Pierre
+

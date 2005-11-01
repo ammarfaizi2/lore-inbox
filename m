@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbVKAUc6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbVKAUg6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751167AbVKAUc6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 15:32:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751159AbVKAUc5
+	id S1751170AbVKAUg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 15:36:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbVKAUg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 15:32:57 -0500
-Received: from host175-37.pool8253.interbusiness.it ([82.53.37.175]:51368 "EHLO
-	zion.home.lan") by vger.kernel.org with ESMTP id S1751167AbVKAUc5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 15:32:57 -0500
-From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH] uml: fix hardcoded ZONE_* constants in zone setup
-Date: Tue, 01 Nov 2005 21:37:21 +0100
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Message-Id: <20051101203721.26156.11021.stgit@zion.home.lan>
-In-Reply-To: <20051101170633.GB6448@ccure.user-mode-linux.org>
-References: <20051101170633.GB6448@ccure.user-mode-linux.org>
+	Tue, 1 Nov 2005 15:36:58 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:20368 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1751178AbVKAUg5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 15:36:57 -0500
+Date: Tue, 1 Nov 2005 12:36:48 -0800
+From: Paul Jackson <pj@sgi.com>
+To: "JaniD++" <djani22@dynamicweb.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cpuset - question
+Message-Id: <20051101123648.5743a5cf.pj@sgi.com>
+In-Reply-To: <035101c5df17$223eccb0$0400a8c0@dcccs>
+References: <035101c5df17$223eccb0$0400a8c0@dcccs>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+JaniD++ wrote:
+> [root@dy-xeon-1 cpus_0]# /bin/echo 1 > mems
+> /bin/echo: write error: Numerical result out of range
+> [root@dy-xeon-1 cpus_0]# echo 1 >mems
+> [root@dy-xeon-1 cpus_0]# cat mems
+> 
+> [root@dy-xeon-1 cpus_0]# /bin/echo $$ > tasks
+> /bin/echo: write error: No space left on device
 
-Remove usage of hardcoded constants in paging_init().
+I'm guessing you are on a multi-processor, with a single
+memory node, not a NUMA system with multiple memory nodes.
 
-By chance I spotted a bug in zones_setup involving a change to ZONE_* constants,
-due to the ZONE_DMA32 patch from Andi Kleen (which is in -mm). So, possibly,
-instead of zones_size[2] you will find zones_size[3] in the code, but that
-change is wrong and this patch is still correct.
+Or, at least, your kernel was compiled for that (with the
+CONFIG_NUMA option disabled).
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
+The first echo above failed because you tried to set bit 1
+in mems, but only bit 0 is valid (only one memory node).
 
- arch/um/kernel/mem.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+The second echo failed too, but your shells (like most
+shells) builtin echo didn't display the error.
 
-diff --git a/arch/um/kernel/mem.c b/arch/um/kernel/mem.c
---- a/arch/um/kernel/mem.c
-+++ b/arch/um/kernel/mem.c
-@@ -234,8 +234,8 @@ void paging_init(void)
- 	empty_bad_page = (unsigned long *) alloc_bootmem_low_pages(PAGE_SIZE);
- 	for(i=0;i<sizeof(zones_size)/sizeof(zones_size[0]);i++) 
- 		zones_size[i] = 0;
--	zones_size[0] = (end_iomem >> PAGE_SHIFT) - (uml_physmem >> PAGE_SHIFT);
--	zones_size[2] = highmem >> PAGE_SHIFT;
-+	zones_size[ZONE_DMA] = (end_iomem >> PAGE_SHIFT) - (uml_physmem >> PAGE_SHIFT);
-+	zones_size[ZONE_HIGHMEM] = highmem >> PAGE_SHIFT;
- 	free_area_init(zones_size);
- 
- 	/*
+The 'cat mems' command showed that mems was not yet set,
+which is indeed the case.
 
+The third and final echo above, into 'tasks' failed because
+you can't attach a task to a cpuset that has no memory specified.
+
+If you had done '/bin/echo 0 > mems', it would have worked
+much better.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

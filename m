@@ -1,75 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbVKAS2z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbVKASdZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751096AbVKAS2z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 13:28:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751074AbVKAS2z
+	id S1751101AbVKASdZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 13:33:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbVKASdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 13:28:55 -0500
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:2751 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S1751077AbVKAS2z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 13:28:55 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH 2/3] swsusp: move snapshot-handling functions to snapshot.c
-Date: Tue, 1 Nov 2005 19:29:19 +0100
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-References: <200510301637.48842.rjw@sisk.pl> <200510310135.42190.rjw@sisk.pl> <20051031215938.GB14877@elf.ucw.cz>
-In-Reply-To: <20051031215938.GB14877@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Nov 2005 13:33:24 -0500
+Received: from waste.org ([216.27.176.166]:41358 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1751074AbVKASdY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 13:33:24 -0500
+Date: Tue, 1 Nov 2005 10:28:16 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Cc: linux-arch@vger.kernel.org
+Subject: Oops! Forgot [PATCH 0/20] inflate cleanups
+Message-ID: <20051101182816.GA8126@waste.org>
+References: <2.196662837@selenic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511011929.20073.rjw@sisk.pl>
+In-Reply-To: <2.196662837@selenic.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+[Just realized that my 0/20 description didn't go out, so here it is.
+I'll wait a bit more before respinning the set with feedback.]
 
-On Monday, 31 of October 2005 22:59, Pavel Machek wrote:
-}-- snip --{
-> 
-> > > > - sys_create_pagedir
-> > > 
-> > > Ugly...
-> > 
-> > Oh, it can be done on-the-fly in
-> > sys_put_this_stuff_where_appropriate(image data) (at the expense of one
-> > redundant check per call).
-> 
-> Yes, but it is still ugly, as you keep some context across the
-> syscalls.
+This is a refactored version of the lib/inflate.c I posted about a
+year ago. It has a few end goals:
 
-That depends on how you implement the interface.  If you insist on using
-ioctls then yes, it's ugly.  However, if it is a file in sysfs, for example,
-then you have well-defined open(), close(), read() and write() operations
-and it is assumed you will keep some context accross eg. write()s.
- 
-> > > > Cleanup: /* certainly something's gone wrong */
-> > > > - sys_destroy_pagedir /* that's it */
-> > > > - sys_resume_devices
-> > > 
-> > > You should not need to do this one. resuming devices is going to be
-> > > integrated in atomic_restore, because suspending devices is there, too.
-> > 
-> > Yes, but I need to thaw processes anyway, so I can release memory as well.
-> > OTOH, if sys_atomic_restore fails because of the lack of memory, the memory
-> > should be freed _before_ resuming devices, since otherwise subsequent
-> > failures are almost certain to appear (I've seen what happens in that case).
-> > Now, if the memory is allocated by the kernel, I can easily put an
-> > emergency memory-freeing call in sys_atomic_restore (in that case
-> > sys_destroy_pagedir will be redundant, but so what?).
-> 
-> Ugh, I'd say "don't care about this one too much". If resume is
-> failing, we have bad problems anyway.
+- clean up some really ugly code
+- clean up atrocities like '#include "../../../lib/inflate.c"'
+- drop a ton of cut and paste code from the kernel boot
+- move towards making the boot decompressor pluggable
+- move towards unifying the multiple inflate implementations
+- save space
 
-We loose the saved system state, but the kernel that has just booted is
-supposed to continue, so we should make it possible.  Alternatively,
-we can do something like a panic and force the user to reboot,
-in which case we can forget about the error paths, freeing memory
-etc. altogether.
+This touches 11 architectures, which makes things slightly
+interesting. Rather than break the patches out by arch, I've gone the
+route of making a number of small incremental changes that sweep
+across the tree. Patches that touch the per-arch code are marked
+"(arch)".
 
-Greetings,
-Rafael
+I've been primarily testing this on x86, but various versions of this
+code have gotten testing on a variety of architectures as part of my
+linux-tiny tree.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

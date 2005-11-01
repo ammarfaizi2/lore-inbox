@@ -1,45 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964933AbVKAHux@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932564AbVKAHwp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964933AbVKAHux (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 02:50:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964929AbVKAHux
+	id S932564AbVKAHwp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 02:52:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932567AbVKAHwo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 02:50:53 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:41636 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S964815AbVKAHuw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 02:50:52 -0500
-Date: Tue, 1 Nov 2005 08:50:43 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Willy Tarreau <willy@w.ods.org>
-cc: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 13/20] inflate: (arch) kill silly zlib typedefs
-In-Reply-To: <20051101065327.GP22601@alpha.home.local>
-Message-ID: <Pine.LNX.4.62.0511010850190.2739@numbat.sonytel.be>
-References: <14.196662837@selenic.com> <Pine.LNX.4.62.0510312204400.26471@numbat.sonytel.be>
- <20051031211422.GC4367@waste.org> <20051101065327.GP22601@alpha.home.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 1 Nov 2005 02:52:44 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54540 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932564AbVKAHwo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 02:52:44 -0500
+Date: Tue, 1 Nov 2005 07:52:29 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Roman Zippel <zippel@linux-m68k.org>,
+       ak@suse.de, tony.luck@gmail.com, paolo.ciarrocchi@gmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: New (now current development process)
+Message-ID: <20051101075229.GB22053@flint.arm.linux.org.uk>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Andrew Morton <akpm@osdl.org>, Roman Zippel <zippel@linux-m68k.org>,
+	ak@suse.de, tony.luck@gmail.com, paolo.ciarrocchi@gmail.com,
+	linux-kernel@vger.kernel.org
+References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com> <20051031001647.GK2846@flint.arm.linux.org.uk> <20051030172247.743d77fa.akpm@osdl.org> <200510310341.02897.ak@suse.de> <Pine.LNX.4.61.0511010039370.1387@scrub.home> <20051031160557.7540cd6a.akpm@osdl.org> <Pine.LNX.4.64.0510311611540.27915@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0510311611540.27915@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Nov 2005, Willy Tarreau wrote:
-> But if it's a pointer why don't you declare them unsigned long then ?
-> C defines the long as the integer the right size to store a pointer.
-  ^
-Is it C?
+On Mon, Oct 31, 2005 at 04:13:22PM -0800, Linus Torvalds wrote:
+> On Mon, 31 Oct 2005, Andrew Morton wrote:
+> > Are you sure these kernels are feature-equivalent?
+> 
+> They may not be feature-equivalent in reality, but it's hard to generate 
+> something that has the features (or lack there-of) of old kernels these 
+> days. Which is problematic.
+> 
+> But some of it is likely also compilers. gcc does insane padding in many 
+> cases these days. 
+> 
+> And a lot of it is us just being bloated. Argh.
 
-Since on Wintendo P64 it's not true...
+Which is one of the reasons I've started working on fixing up the
+platform device/driver stuff to conform to the "usual" method,
+with the view to killing off _all_ the function pointers in
+struct device_driver.
 
-Gr{oetje,eeting}s,
+Most bus types wrap struct device_driver, and then provide their own
+function pointers which pass their bus-type specific device structure.
+This does two things: 1. it centralises the conversion from struct
+device to struct whatever_device, and 2. improves typechecking.
 
-						Geert
+However, once the use of the function pointers in struct device_driver
+have been eliminated, we can be sure of reclaiming at least 20 bytes
+per device driver, maybe more if GCC does insane padding.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

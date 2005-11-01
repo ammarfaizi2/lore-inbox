@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751086AbVKASMB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751072AbVKASMJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751086AbVKASMB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 13:12:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbVKASMB
+	id S1751072AbVKASMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 13:12:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751076AbVKASMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 13:12:01 -0500
-Received: from www1.cdi.cz ([194.213.194.49]:59276 "EHLO www1.cdi.cz")
-	by vger.kernel.org with ESMTP id S1751086AbVKASL7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 13:11:59 -0500
-Message-ID: <4367AFE8.9080206@cdi.cz>
-Date: Tue, 01 Nov 2005 19:11:52 +0100
-From: Martin Devera <devik@cdi.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: cs, en-us, en
-MIME-Version: 1.0
-To: "Moore, Eric Dean" <Eric.Moore@lsil.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Fusion-MPT slowness workaround
-References: <91888D455306F94EBD4D168954A9457C04BE82D0@nacos172.co.lsil.com>
-In-Reply-To: <91888D455306F94EBD4D168954A9457C04BE82D0@nacos172.co.lsil.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.9 (----)
+	Tue, 1 Nov 2005 13:12:09 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:36616 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751072AbVKASMH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 13:12:07 -0500
+Date: Tue, 1 Nov 2005 18:12:00 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Christoph Hellwig <hch@lst.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH consolidate sys_ptrace
+Message-ID: <20051101181200.GB18205@flint.arm.linux.org.uk>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+References: <20051101050900.GA25793@lst.de> <20051101051221.GA26017@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051101051221.GA26017@lst.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Moore, Eric Dean wrote:
-> On Tuesday, November 01, 2005 10:46 AM,  Martin Devera wrote:
+On Tue, Nov 01, 2005 at 06:12:21AM +0100, Christoph Hellwig wrote:
+> On Tue, Nov 01, 2005 at 06:09:00AM +0100, Christoph Hellwig wrote:
+> > [Let's try again now that sys_ptrace returns long everywhere mainline..]
+> > 
+> > The sys_ptrace boilerplate code (everything outside the big switch
+> > statement for the arch-specific requests) is shared by most
+> > architectures.  This patch moves it to kernel/ptrace.c and leaves the
+> > arch-specific code as arch_ptrace.
+> > 
+> > Some architectures have a too different ptrace so we have to exclude
+> > them.  They continue to keep their implementations.  For sh64 I had to
+> > add a sh64_ptrace wrapper because it does some initialization on the
+> > first call.  For um I removed an ifdefed SUBARCH_PTRACE_SPECIAL block,
+> > but SUBARCH_PTRACE_SPECIAL isn't defined anywhere in the tree.
 > 
->>because I ran into problem with fusion mpt scsi with 2.6.14 yesterday
->>I tried to find a workaround.
->>Because it seems that there is bug in DV code I patched driver to skip
->>DV and use firmware negotiation data.
->>It "works for me" both compiled-in and as module.
->>
+> Umm, it might be a good idea to actually send the current patch instead
+> of the old one.  I really should write this text from scratch instead
+> of copying it :)
 > 
 > 
-> NACK. Disabling DV is not the solution.
-> 
-> I have a fix I will post sometime this week.
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Russell King <rmk+kernel@arm.linux.org.uk>
 
-excellent. Just to make it clear, I posted this one as quick workaround not
-as final solution attempt.
-Please consider CCing me when the patch will be available - I'll be pleased
-to test it :-)
+Thanks Christoph.
 
-Martin
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

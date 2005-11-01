@@ -1,90 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750907AbVKAQ5h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750922AbVKAQ76@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750907AbVKAQ5h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 11:57:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750911AbVKAQ5h
+	id S1750922AbVKAQ76 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 11:59:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750923AbVKAQ76
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 11:57:37 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:7888 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1750906AbVKAQ5g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 11:57:36 -0500
-Date: Tue, 1 Nov 2005 16:57:28 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: "Martin J. Bligh" <mbligh@mbligh.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+	Tue, 1 Nov 2005 11:59:58 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:434 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1750911AbVKAQ75 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 11:59:57 -0500
+Message-ID: <43679EE6.7000706@jp.fujitsu.com>
+Date: Wed, 02 Nov 2005 01:59:18 +0900
+From: Kamezawa Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: ja, en-us, en
+MIME-Version: 1.0
+To: Kamezawa Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+CC: Ingo Molnar <mingo@elte.hu>, Dave Hansen <haveblue@us.ibm.com>,
+       Mel Gorman <mel@csn.ul.ie>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
        kravetz@us.ibm.com, linux-mm <linux-mm@kvack.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>, Ingo Molnar <mingo@elte.hu>
+       lhms <lhms-devel@lists.sourceforge.net>
 Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-In-Reply-To: <1130859193.14475.104.camel@localhost>
-Message-ID: <Pine.LNX.4.58.0511011641100.14884@skynet>
-References: <20051030183354.22266.42795.sendpatchset@skynet.csn.ul.ie> 
- <20051031055725.GA3820@w-mikek2.ibm.com><4365BBC4.2090906@yahoo.com.au> 
- <20051030235440.6938a0e9.akpm@osdl.org> <27700000.1130769270@[10.10.2.4]> 
- <4366A8D1.7020507@yahoo.com.au> <Pine.LNX.4.58.0510312333240.29390@skynet>
-  <4366C559.5090504@yahoo.com.au>  <45430000.1130858744@[10.10.2.4]>
- <1130859193.14475.104.camel@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+References: <4366A8D1.7020507@yahoo.com.au> <Pine.LNX.4.58.0510312333240.29390@skynet> <4366C559.5090504@yahoo.com.au> <Pine.LNX.4.58.0511010137020.29390@skynet> <4366D469.2010202@yahoo.com.au> <Pine.LNX.4.58.0511011014060.14884@skynet> <20051101135651.GA8502@elte.hu> <1130854224.14475.60.camel@localhost> <20051101142959.GA9272@elte.hu> <1130856555.14475.77.camel@localhost> <20051101150142.GA10636@elte.hu> <43679C69.6050107@jp.fujitsu.com>
+In-Reply-To: <43679C69.6050107@jp.fujitsu.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Nov 2005, Dave Hansen wrote:
+Kamezawa Hiroyuki wrote:
+> Ingo Molnar wrote:
+> 
+>> so it's all about expectations: _could_ you reasonably remove a piece 
+>> of RAM? Customer will say: "I have stopped all nonessential services, 
+>> and free RAM is at 90%, still I cannot remove that piece of faulty 
+>> RAM, fix the kernel!". No reasonable customer will say: "True, I have 
+>> all RAM used up in mlock()ed sections, but i want to remove some RAM 
+>> nevertheless".
+>>
+> Hi, I'm one of men in -lhms
+> 
+> In my understanding...
+> - Memory Hotremove on IBM's LPAR? approach is
+>   [remove some amount of memory from somewhere.]
+>   For this approach, Mel's patch will work well.
+>   But this will not guaranntee a user can remove specified range of
+>   memory at any time because how memory range is used is not defined by 
+> an admin
+>   but by the kernel automatically. But to extract some amount of memory,
+>   Mel's patch is very important and they need this.
+> 
+One more consideration...
+Some cpus which support virtialization will be shipped by some vendor in near future.
+If someone uses vitualized OS, only problem is *resizing*.
+Hypervisor will be able to remap semi-physical pages anyware with hardware assistance
+but system resizing needs operating system assistance.
+To this direction, [remove some amount of memory from somewhere.] is important approach.
 
-> On Tue, 2005-11-01 at 07:25 -0800, Martin J. Bligh wrote:
-> > > I really don't think we *want* to say we support higher order allocations
-> > > absolutely robustly, nor do we want people using them if possible. Because
-> > > we don't. Even with your patches.
-> > >
-> > > Ingo also brought up this point at Ottawa.
-> >
-> > Some of the driver issues can be fixed by scatter-gather DMA *if* the
-> > h/w supports it. But what exactly do you propose to do about kernel
-> > stacks, etc? By the time you've fixed all the individual usages of it,
-> > frankly, it would be easier to provide a generic mechanism to fix the
-> > problem ...
->
-> That generic mechanism is the kernel virtual remapping.  However, it has
-> a runtime performance cost, which is increased TLB footprint inside the
-> kernel, and a more costly implementation of __pa() and __va().
->
-> I'll admit, I'm biased toward partial solutions without runtime cost
-> before we start incurring constant cost across the entire kernel,
-> especially when those partial solutions have other potential in-kernel
-> users.
+-- Kame
 
-To give an idea of the increased TLB footprint, I ran an aim9 test with
-cpu_has_pse disabled in include/arch-i386/cpufeature.h to force the use
-of small pages for the physical memory mappings.
 
-This is the -clean results
-
-                    clean  clean-nopse
- 1 creat-clo      16006.00   15294.90    -711.10 -4.44% File Creations and Closes/second
- 2 page_test     117515.83  118677.11    1161.28  0.99% System Allocations & Pages/second
- 3 brk_test      440289.81  436042.64   -4247.17 -0.96% System Memory Allocations/second
- 4 jmp_test     4179466.67 4173266.67   -6200.00 -0.15% Non-local gotos/second
- 5 signal_test    80803.20   78286.95   -2516.25 -3.11% Signal Traps/second
- 6 exec_test         61.75      60.45      -1.30 -2.11% Program Loads/second
- 7 fork_test       1327.01    1318.11      -8.90 -0.67% Task Creations/second
- 8 link_test       5531.53    5406.60    -124.93 -2.26% Link/Unlink Pairs/second
-
-This is what mbuddy-v19 with and without pse looks like
-
-                 mbuddy-v19 mbuddy-v19-nopse
- 1 creat-clo      15889.41   15328.22    -561.19 -3.53% File Creations and Closes/second
- 2 page_test     117082.15  116892.70    -189.45 -0.16% System Allocations & Pages/second
- 3 brk_test      437887.37  432716.97   -5170.40 -1.18% System Memory Allocations/second
- 4 jmp_test     4179950.00 4176087.32   -3862.68 -0.09% Non-local gotos/second
- 5 signal_test    85335.78   78553.57   -6782.21 -7.95% Signal Traps/second
- 6 exec_test         61.92      60.61      -1.31 -2.12% Program Loads/second
- 7 fork_test       1342.21    1292.26     -49.95 -3.72% Task Creations/second
- 8 link_test       5555.55    5412.90    -142.65 -2.57% Link/Unlink Pairs/second
-
--- 
-Mel Gorman
-Part-time Phd Student                          Java Applications Developer
-University of Limerick                         IBM Dublin Software Lab

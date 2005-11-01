@@ -1,75 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbVKASYk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbVKAS2z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751098AbVKASYk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 13:24:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbVKASYk
+	id S1751096AbVKAS2z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 13:28:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751074AbVKAS2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 13:24:40 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:6638 "EHLO
-	grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1751098AbVKASYj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 13:24:39 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-Date: Tue, 1 Nov 2005 12:23:42 -0600
-User-Agent: KMail/1.8
-Cc: Mel Gorman <mel@csn.ul.ie>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       kravetz@us.ibm.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net
-References: <20051030235440.6938a0e9.akpm@osdl.org> <Pine.LNX.4.58.0511011014060.14884@skynet> <20051101135651.GA8502@elte.hu>
-In-Reply-To: <20051101135651.GA8502@elte.hu>
+	Tue, 1 Nov 2005 13:28:55 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:2751 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S1751077AbVKAS2z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 13:28:55 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH 2/3] swsusp: move snapshot-handling functions to snapshot.c
+Date: Tue, 1 Nov 2005 19:29:19 +0100
+User-Agent: KMail/1.8.2
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+References: <200510301637.48842.rjw@sisk.pl> <200510310135.42190.rjw@sisk.pl> <20051031215938.GB14877@elf.ucw.cz>
+In-Reply-To: <20051031215938.GB14877@elf.ucw.cz>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200511011223.43841.rob@landley.net>
+Message-Id: <200511011929.20073.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 01 November 2005 07:56, Ingo Molnar wrote:
-> * Mel Gorman <mel@csn.ul.ie> wrote:
-> > The set of patches do fix a lot and make a strong start at addressing
-> > the fragmentation problem, just not 100% of the way. [...]
->
-> do you have an expectation to be able to solve the 'fragmentation
-> problem', all the time, in a 100% way, now or in the future?
+Hi,
 
-Considering anybody can allocate memory and never release it, _any_ 100% 
-solution is going to require migrating existing pages, regardless of 
-allocation strategy.
+On Monday, 31 of October 2005 22:59, Pavel Machek wrote:
+}-- snip --{
+> 
+> > > > - sys_create_pagedir
+> > > 
+> > > Ugly...
+> > 
+> > Oh, it can be done on-the-fly in
+> > sys_put_this_stuff_where_appropriate(image data) (at the expense of one
+> > redundant check per call).
+> 
+> Yes, but it is still ugly, as you keep some context across the
+> syscalls.
 
-> > So, with this set of patches, how fragmented you get is dependant on
-> > the workload and it may still break down and high order allocations
-> > will fail. But the current situation is that it will defiantly break
-> > down. The fact is that it has been reported that memory hotplug remove
-> > works with these patches and doesn't without them. Granted, this is
-> > just one feature on a high-end machine, but it is one solid operation
-> > we can perform with the patches and cannot without them. [...]
->
-> can you always, under any circumstance hot unplug RAM with these patches
-> applied? If not, do you have any expectation to reach 100%?
+That depends on how you implement the interface.  If you insist on using
+ioctls then yes, it's ugly.  However, if it is a file in sysfs, for example,
+then you have well-defined open(), close(), read() and write() operations
+and it is assumed you will keep some context accross eg. write()s.
+ 
+> > > > Cleanup: /* certainly something's gone wrong */
+> > > > - sys_destroy_pagedir /* that's it */
+> > > > - sys_resume_devices
+> > > 
+> > > You should not need to do this one. resuming devices is going to be
+> > > integrated in atomic_restore, because suspending devices is there, too.
+> > 
+> > Yes, but I need to thaw processes anyway, so I can release memory as well.
+> > OTOH, if sys_atomic_restore fails because of the lack of memory, the memory
+> > should be freed _before_ resuming devices, since otherwise subsequent
+> > failures are almost certain to appear (I've seen what happens in that case).
+> > Now, if the memory is allocated by the kernel, I can easily put an
+> > emergency memory-freeing call in sys_atomic_restore (in that case
+> > sys_destroy_pagedir will be redundant, but so what?).
+> 
+> Ugh, I'd say "don't care about this one too much". If resume is
+> failing, we have bad problems anyway.
 
-You're asking intentionally leading questions, aren't you?  Without on-demand 
-page migration a given area of physical memory would only ever be free by 
-sheer coincidence.  Less fragmented page allocation doesn't address _where_ 
-the free areas are, it just tries to make them contiguous.
+We loose the saved system state, but the kernel that has just booted is
+supposed to continue, so we should make it possible.  Alternatively,
+we can do something like a panic and force the user to reboot,
+in which case we can forget about the error paths, freeing memory
+etc. altogether.
 
-A page migration strategy would have to do less work if there's less 
-fragmention, and it also allows you to cluster the "difficult" cases (such as 
-kernel structures that just ain't moving) so you can much more easily 
-hot-unplug everything else.  It also makes larger order allocations easier to 
-do so drivers needing that can load as modules after boot, and it also means 
-hugetlb comes a lot closer to general purpose infrastructure rather than a 
-funky boot-time reservation thing.  Plus page prezeroing approaches get to 
-work on larger chunks, and so on.
-
-But any strategy to demand that "this physical memory range must be freed up 
-now" will by definition require moving pages...
-
->  Ingo
-
-Rob
+Greetings,
+Rafael

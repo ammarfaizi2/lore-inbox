@@ -1,37 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751220AbVKAVM3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbVKAVOQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751220AbVKAVM3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 16:12:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751237AbVKAVM2
+	id S1751249AbVKAVOQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 16:14:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbVKAVOQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 16:12:28 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:13970 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751220AbVKAVM2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 16:12:28 -0500
-Date: Tue, 1 Nov 2005 22:11:35 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] swsusp: simplify pagedir relocation
-Message-ID: <20051101211135.GJ7172@elf.ucw.cz>
-References: <200510301637.48842.rjw@sisk.pl> <200511011357.16995.rjw@sisk.pl> <200511011833.19585.rjw@sisk.pl> <200511011837.10386.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200511011837.10386.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Tue, 1 Nov 2005 16:14:16 -0500
+Received: from aak110.neoplus.adsl.tpnet.pl ([83.25.10.110]:4157 "HELO
+	aak110.neoplus.adsl.tpnet.pl") by vger.kernel.org with SMTP
+	id S1751246AbVKAVOP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 16:14:15 -0500
+Reply-To: "Burt Tovar" <techzthk@media-beat.com>
+From: "Burt" <techzthk@media-beat.com>
+Message-ID: <1410986272.20051101161606@lcsvjng>
+Date: Tue, 1 Nov 2005 16:16:06 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: 21 Oct ! Brunette Nympho In Kitchen Gets Licked
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> The appended patch simplifies the relocation of the page backup list
-> (aka pagedir) during resume.
+Hallo!
+Mature Slut Toying Pussy Sweet Young GirlPale Nympho MILF Get Snatch Licked
+Whoever slaps you on your right cheek, turn to him the other also. [Matthew 5:39]A leader has been defined as one who knows the way, goes the way, and shows the way.
+It is in the shelter of each other that the people live.
 
-ACK and thanks for patience.
+http://bumohonyxiku.com/main/
+A little, round, fat, oily man of God.A drinker has a hole under his nose that all his money runs into.It doesn't matter to me if a man is from Harvard or Sing Sing. We hire the man, not his history.
+All human beings are also dream beings. Dreaming ties all mankind together.
 
-								Pavel
 
--- 
-Thanks, Sharp!

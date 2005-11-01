@@ -1,81 +1,207 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750841AbVKAPG2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbVKAPMI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750841AbVKAPG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 10:06:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750846AbVKAPG2
+	id S1750830AbVKAPMI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 10:12:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750846AbVKAPMI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 10:06:28 -0500
-Received: from smtp006.mail.ukl.yahoo.com ([217.12.11.95]:6581 "HELO
-	smtp006.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1750841AbVKAPG1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 10:06:27 -0500
+	Tue, 1 Nov 2005 10:12:08 -0500
+Received: from xproxy.gmail.com ([66.249.82.197]:51086 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750830AbVKAPMH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 10:12:07 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Content-Type:Content-Transfer-Encoding:Message-Id;
-  b=IHBIOskHxOoIzd4Z+lU6nLmLqSAvHD0D0gpsrJEi8kKV/xPZDJyWVw+qPO6/bpdWo6gCDYGUVvKT6gyEKqC+2E7y+v6NPNfMwiqaTQ86fujf85m8MYF/MMcdZ74cJzNADdmBKfZlDI+FBkXovoNk5q8QLU7CcggQkofVv7tPc0s=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] [PATCH 9/10] UML - Big memory fixes
-Date: Tue, 1 Nov 2005 16:11:04 +0100
-User-Agent: KMail/1.8.3
-Cc: Jeff Dike <jdike@addtoit.com>, akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <200510310439.j9V4dgqP000878@ccure.user-mode-linux.org>
-In-Reply-To: <200510310439.j9V4dgqP000878@ccure.user-mode-linux.org>
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=jCJUQKbn4PH2aZIPbpdIwzz/fKaq3X/NnToVZ2kXocDDwIYOKk8gJgOZe9+1m54ytxuhb1mTBzubbnx7oDZH251WE5lxDhL0SDlUJAH4Z4g5booSfbRu7HqmIOSNEmxPH1o+1yglAGDeDvu0nBvodLHbJY/V/Yn+lneKsQIO2Xk=
+Message-ID: <d120d5000511010712o77b2b1afie52e47ac07b09a8c@mail.gmail.com>
+Date: Tue, 1 Nov 2005 10:12:05 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: after latest input updates, locomo keyboard kills boot
+Cc: vojtech@suse.cz, kernel list <linux-kernel@vger.kernel.org>,
+       rpurdie@rpsys.net, lenz@cs.wisc.edu
+In-Reply-To: <20051101094945.GA7293@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200511011611.09532.blaisorblade@yahoo.it>
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_16644_7091670.1130857925802"
+References: <20051101094945.GA7293@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 31 October 2005 05:39, Jeff Dike wrote:
-> A number of fixes to improve behavior when large physical memory sizes
-> are specified:
->     libc files need -D_FILE_OFFSET_BITS=64 because there are unavoidable
-> uses of non-64 interfaces in libc
->     some %d need to be %u
+------=_Part_16644_7091670.1130857925802
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+On 11/1/05, Pavel Machek <pavel@suse.cz> wrote:
+> Hi!
 >
-> Signed-off-by: Jeff Dike <jdike@addtoit.com>
+> drivers/input/keyboard/locomokbd.c:
+>
+> struct locomokbd {
+>        unsigned char keycode[LOCOMOKBD_NUMKEYS];
+>        struct input_dev input;
+>        ~~~~~~~~~~~~~~~~~~~~~~~
+>
+> ...and I guess that's the problem. What needs to be done? Just replace
+> it with struct input_dev *?
+>
 
-Jeff, please always make patch and ChangeLog match. Yes, it matters - when it 
-doesn't happen there's always something bad going on.
+Try the attached. BTW, shouldn't input->id.bus be BUS_HOST and not BUS_XTKB=
+D?
 
-> Index: linux-2.6.14/arch/um/kernel/mem.c
-> ===================================================================
-> --- linux-2.6.14.orig/arch/um/kernel/mem.c	2005-10-28 12:58:12.000000000
-> -0400 +++ linux-2.6.14/arch/um/kernel/mem.c	2005-10-30 19:29:04.000000000
-> -0500 @@ -235,7 +235,7 @@ void paging_init(void)
->  	for(i=0;i<sizeof(zones_size)/sizeof(zones_size[0]);i++)
->  		zones_size[i] = 0;
->  	zones_size[0] = (end_iomem >> PAGE_SHIFT) - (uml_physmem >> PAGE_SHIFT);
-> -	zones_size[2] = highmem >> PAGE_SHIFT;
-> +	zones_size[3] = highmem >> PAGE_SHIFT;
->  	free_area_init(zones_size);
+--
+Dmitry
 
-What's this? It's IMHO invalid. free_area_init() intereprets these values with 
-include/linux/mmzone.h: ZONE_* constants.
+------=_Part_16644_7091670.1130857925802
+Content-Type: application/octet-stream; name=input-dynalloc-locomo.patch
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="input-dynalloc-locomo.patch"
 
-Why those are not used here it's a nice question.
+Input: locomokbd - convert to dynamic input allocation
 
-I think this came up because there's (in -mm) Andi Kleen created a new zone 
-(ZONE_DMA32) for devices using 32-bit only DMA - but it seems it's not in 
-mainline).  (I don't know if that patch is in -mm actually, but I guess it 
-from this patch content).
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-Actually, since MAX_NR_ZONES is 3, and we are assigning to zones_size[3],
-we're corrupting data:
+ drivers/input/keyboard/locomokbd.c |   63 ++++++++++++++++++-------------------
+ 1 file changed, 31 insertions(+), 32 deletions(-)
 
-        unsigned long zones_size[MAX_NR_ZONES], vaddr;
+Index: linux/drivers/input/keyboard/locomokbd.c
+===================================================================
+--- linux.orig/drivers/input/keyboard/locomokbd.c
++++ linux/drivers/input/keyboard/locomokbd.c
+@@ -76,7 +76,7 @@ static unsigned char locomokbd_keycode[L
+ 
+ struct locomokbd {
+ 	unsigned char keycode[LOCOMOKBD_NUMKEYS];
+-	struct input_dev input;
++	struct input_dev *input;
+ 	char phys[32];
+ 
+ 	struct locomo_dev *ldev;
+@@ -136,8 +136,7 @@ static void locomokbd_scankeyboard(struc
+ 
+ 	spin_lock_irqsave(&locomokbd->lock, flags);
+ 
+-	if (regs)
+-		input_regs(&locomokbd->input, regs);
++	input_regs(locomokbd->input, regs);
+ 
+ 	locomokbd_charge_all(membase);
+ 
+@@ -152,16 +151,16 @@ static void locomokbd_scankeyboard(struc
+ 			scancode = SCANCODE(col, row);
+ 			if (rowd & KB_ROWMASK(row)) {
+ 				num_pressed += 1;
+-				input_report_key(&locomokbd->input, locomokbd->keycode[scancode], 1);
++				input_report_key(locomokbd->input, locomokbd->keycode[scancode], 1);
+ 			} else {
+-				input_report_key(&locomokbd->input, locomokbd->keycode[scancode], 0);
++				input_report_key(locomokbd->input, locomokbd->keycode[scancode], 0);
+ 			}
+ 		}
+ 		locomokbd_reset_col(membase, col);
+ 	}
+ 	locomokbd_activate_all(membase);
+ 
+-	input_sync(&locomokbd->input);
++	input_sync(locomokbd->input);
+ 
+ 	/* if any keys are pressed, enable the timer */
+ 	if (num_pressed)
+@@ -196,13 +195,15 @@ static void locomokbd_timer_callback(uns
+ static int locomokbd_probe(struct locomo_dev *dev)
+ {
+ 	struct locomokbd *locomokbd;
++	struct input_dev *input_dev;
+ 	int i, ret;
+ 
+-	locomokbd = kmalloc(sizeof(struct locomokbd), GFP_KERNEL);
+-	if (!locomokbd)
+-		return -ENOMEM;
+-
+-	memset(locomokbd, 0, sizeof(struct locomokbd));
++	locomokbd = kzalloc(sizeof(struct locomokbd), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!locomokbd || !input_dev) {
++		ret = -ENOMEM;
++		goto free;
++	}
+ 
+ 	/* try and claim memory region */
+ 	if (!request_mem_region((unsigned long) dev->mapbase,
+@@ -224,27 +225,26 @@ static int locomokbd_probe(struct locomo
+ 	locomokbd->timer.function = locomokbd_timer_callback;
+ 	locomokbd->timer.data = (unsigned long) locomokbd;
+ 
+-	locomokbd->input.evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
++	locomokbd->input = input_dev;
++	strcpy(locomokbd->phys, "locomokbd/input0");
+ 
+-	init_input_dev(&locomokbd->input);
+-	locomokbd->input.keycode = locomokbd->keycode;
+-	locomokbd->input.keycodesize = sizeof(unsigned char);
+-	locomokbd->input.keycodemax = ARRAY_SIZE(locomokbd_keycode);
+-	locomokbd->input.private = locomokbd;
++	input_dev->name = "LoCoMo keyboard";
++	input_dev->phys = locomokbd->phys;
++	input_dev->id.bustype = BUS_XTKBD;
++	input_dev->id.vendor = 0x0001;
++	input_dev->id.product = 0x0001;
++	input_dev->id.version = 0x0100;
++	input_dev->private = locomokbd;
++
++	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
++	input_dev->keycode = locomokbd->keycode;
++	input_dev->keycodesize = sizeof(unsigned char);
++	input_dev->keycodemax = ARRAY_SIZE(locomokbd_keycode);
+ 
+ 	memcpy(locomokbd->keycode, locomokbd_keycode, sizeof(locomokbd->keycode));
+ 	for (i = 0; i < LOCOMOKBD_NUMKEYS; i++)
+-		set_bit(locomokbd->keycode[i], locomokbd->input.keybit);
+-	clear_bit(0, locomokbd->input.keybit);
+-
+-	strcpy(locomokbd->phys, "locomokbd/input0");
+-
+-	locomokbd->input.name = "LoCoMo keyboard";
+-	locomokbd->input.phys = locomokbd->phys;
+-	locomokbd->input.id.bustype = BUS_XTKBD;
+-	locomokbd->input.id.vendor = 0x0001;
+-	locomokbd->input.id.product = 0x0001;
+-	locomokbd->input.id.version = 0x0100;
++		set_bit(locomokbd->keycode[i], input_dev->keybit);
++	clear_bit(0, input_dev->keybit);
+ 
+ 	/* attempt to get the interrupt */
+ 	ret = request_irq(dev->irq[0], locomokbd_interrupt, 0, "locomokbd", locomokbd);
+@@ -253,9 +253,7 @@ static int locomokbd_probe(struct locomo
+ 		goto out;
+ 	}
+ 
+-	input_register_device(&locomokbd->input);
+-
+-	printk(KERN_INFO "input: LoCoMo keyboard on locomokbd\n");
++	input_register_device(locomokbd->input);
+ 
+ 	return 0;
+ 
+@@ -263,6 +261,7 @@ out:
+ 	release_mem_region((unsigned long) dev->mapbase, dev->length);
+ 	locomo_set_drvdata(dev, NULL);
+ free:
++	input_free_device(input_dev)
+ 	kfree(locomokbd);
+ 
+ 	return ret;
+@@ -276,7 +275,7 @@ static int locomokbd_remove(struct locom
+ 
+ 	del_timer_sync(&locomokbd->timer);
+ 
+-	input_unregister_device(&locomokbd->input);
++	input_unregister_device(locomokbd->input);
+ 	locomo_set_drvdata(dev, NULL);
+ 
+ 	release_mem_region((unsigned long) dev->mapbase, dev->length);
 
-Don't drop the patch however, I'm fixing all this up.
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
-
-		
-___________________________________ 
-Yahoo! Messenger: chiamate gratuite in tutto il mondo 
-http://it.messenger.yahoo.com
+------=_Part_16644_7091670.1130857925802--

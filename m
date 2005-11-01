@@ -1,58 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbVKAQRD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750904AbVKAQTL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbVKAQRD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 11:17:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbVKAQRD
+	id S1750904AbVKAQTL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 11:19:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750911AbVKAQTL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 11:17:03 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:8384 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750834AbVKAQRB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 11:17:01 -0500
-Date: Tue, 1 Nov 2005 08:17:18 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, serue@us.ibm.com, minyard@acm.org
-Subject: [PATCH] fix remaining list_for_each_safe_rcu in -mm (take 2)
-Message-ID: <20051101161717.GA6346@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20051101152933.GA6210@us.ibm.com>
+	Tue, 1 Nov 2005 11:19:11 -0500
+Received: from lakshmi.addtoit.com ([198.99.130.6]:8455 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S1750904AbVKAQTJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 11:19:09 -0500
+Date: Tue, 1 Nov 2005 12:06:33 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: user-mode-linux-devel@lists.sourceforge.net, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [uml-devel] [PATCH 9/10] UML - Big memory fixes
+Message-ID: <20051101170633.GB6448@ccure.user-mode-linux.org>
+References: <200510310439.j9V4dgqP000878@ccure.user-mode-linux.org> <200511011611.09532.blaisorblade@yahoo.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051101152933.GA6210@us.ibm.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200511011611.09532.blaisorblade@yahoo.it>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Tue, Nov 01, 2005 at 04:11:04PM +0100, Blaisorblade wrote:
+> I think this came up because there's (in -mm) Andi Kleen created a new zone 
+> (ZONE_DMA32) for devices using 32-bit only DMA - but it seems it's not in 
+> mainline).  (I don't know if that patch is in -mm actually, but I guess it 
+> from this patch content).
 
-I missed a use of list_for_each_rcu_safe() in -mm tree.  Here is an updated
-patch to fix it.  This time tested on a machine that actually uses IPMI...
-(Thanks to Serge Hallyn for spotting this.)
+Correct, nice spotting.
 
-Signed-off-by: <paulmck@us.ibm.com>
+This chunk leaked from my -mm tree accidentally, so it is appropriate for -mm,
+but it should be its own separate -mm-only patch.
 
----
-
-diff -urpNa -X dontdiff linux-2.6.14-rc5-mm1/drivers/char/ipmi/ipmi_msghandler.c linux-2.6.14-rc5-mm1-safe_rcu/drivers/char/ipmi/ipmi_msghandler.c
---- linux-2.6.14-rc5-mm1/drivers/char/ipmi/ipmi_msghandler.c	2005-11-01 06:44:09.000000000 -0800
-+++ linux-2.6.14-rc5-mm1-safe_rcu/drivers/char/ipmi/ipmi_msghandler.c	2005-11-01 08:03:45.000000000 -0800
-@@ -788,7 +788,6 @@ int ipmi_destroy_user(ipmi_user_t user)
- 	int              i;
- 	unsigned long    flags;
- 	struct cmd_rcvr  *rcvr;
--	struct list_head *entry1, *entry2;
- 	struct cmd_rcvr  *rcvrs = NULL;
- 
- 	user->valid = 1;
-@@ -813,8 +812,7 @@ int ipmi_destroy_user(ipmi_user_t user)
- 	 * synchronize_rcu()) then free everything in that list.
- 	 */
- 	spin_lock_irqsave(&intf->cmd_rcvrs_lock, flags);
--	list_for_each_safe_rcu(entry1, entry2, &intf->cmd_rcvrs) {
--		rcvr = list_entry(entry1, struct cmd_rcvr, link);
-+	list_for_each_entry_rcu(rcvr, &intf->cmd_rcvrs, link) {
- 		if (rcvr->user == user) {
- 			list_del_rcu(&rcvr->link);
- 			rcvr->next = rcvrs;
+				Jeff

@@ -1,58 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932573AbVKAHEa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbVKAG6s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932573AbVKAHEa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 02:04:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932567AbVKAHEa
+	id S932187AbVKAG6s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 01:58:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932564AbVKAG6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 02:04:30 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:18440 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S932564AbVKAHE3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 02:04:29 -0500
-Date: Tue, 1 Nov 2005 07:53:27 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 13/20] inflate: (arch) kill silly zlib typedefs
-Message-ID: <20051101065327.GP22601@alpha.home.local>
-References: <14.196662837@selenic.com> <Pine.LNX.4.62.0510312204400.26471@numbat.sonytel.be> <20051031211422.GC4367@waste.org>
+	Tue, 1 Nov 2005 01:58:48 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:8275 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932187AbVKAG6r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 01:58:47 -0500
+Date: Tue, 1 Nov 2005 07:59:12 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Bongani Hlope <bonganilinux@mweb.co.za>
+Cc: linux-kernel@vger.kernel.org, piggin@cyberone.com.au
+Subject: Re: Badness in as_insert_request at drivers/block/as-iosched.c:1519
+Message-ID: <20051101065911.GD19267@suse.de>
+References: <200510312240.49228.bonganilinux@mweb.co.za>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051031211422.GC4367@waste.org>
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <200510312240.49228.bonganilinux@mweb.co.za>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 31, 2005 at 01:14:22PM -0800, Matt Mackall wrote:
-> On Mon, Oct 31, 2005 at 10:05:15PM +0100, Geert Uytterhoeven wrote:
-> > On Mon, 31 Oct 2005, Matt Mackall wrote:
-> > > inflate: remove legacy type definitions from callers
-> > > 
-> > > This replaces the legacy zlib typedefs and usage with kernel types in
-> > > all the inflate users.
-> > 
-> > > -static ulg free_mem_ptr;
-> > > -static ulg free_mem_ptr_end;
-> > > +static u32 free_mem_ptr;
-> > > +static u32 free_mem_ptr_end;
-> > 
-> > Bang, on 64-bit platforms...
+On Mon, Oct 31 2005, Bongani Hlope wrote:
+> Hi Jens,
 > 
-> That was quick.
+> When I rip a music CD I get these for each track that is ripped. 
 > 
-> Yes, this is broken on Alpha. The other 64-bit arches use proper pointers
-> here. But I need to change all the arches to use the same pointer
-> type, probably as patch 8.5 in the series.
+> 
+>  Badness in as_insert_request at drivers/block/as-iosched.c:1519
+> 
+>  Call Trace:<ffffffff80281b0f>{as_insert_request+111} 
+> <ffffffff80278689>{__elv_add_request+105}
+> <ffffffff802787a8>{elv_add_request+72} 
+> <ffffffff8027b9f6>{blk_execute_rq_nowait+54}
+> <ffffffff8027bac8>{blk_execute_rq+184} 
+> <ffffffff80184ee7>{bio_phys_segments+23}
+> <ffffffff8027b67b>{blk_rq_bio_prep+59} 
+> <ffffffff8817226b>{:cdrom:mmc_ioctl+1275}
+> <ffffffff8817c51e>{:ide_cd:cdrom_queue_packet_command+78}
+> <ffffffff8028d838>{ide_init_drive_cmd+24} 
+> <ffffffff8817d47f>{:ide_cd:cdrom_check_status+127}
+> <ffffffff8015eae0>{__rmqueue+192} <ffffffff8015f200>{buffered_rmqueue+544}
+> <ffffffff8028050d>{scsi_cmd_ioctl+1997} <ffffffff80341841>{thread_return+193}
+> <ffffffff8010c552>{__switch_to+50} <ffffffff80341841>{thread_return+193}
+> <ffffffff80342f73>{_spin_unlock_irqrestore+19} 
+> <ffffffff8015e8f6>{free_pages_bulk+582}
+> <ffffffff88173e51>{:cdrom:cdrom_ioctl+2529} 
+> <ffffffff80166aa3>{release_pages+387}
+> <ffffffff8817ebb6>{:ide_cd:idecd_ioctl+102} 
+> <ffffffff8027dc88>{blkdev_driver_ioctl+104}
+> <ffffffff8027e40b>{blkdev_ioctl+1883} 
+> <ffffffff8016dc67>{__handle_mm_fault+407}
+> <ffffffff80342f73>{_spin_unlock_irqrestore+19} 
+> <ffffffff801fb261>{__up_read+161}
+> <ffffffff80344b9d>{do_page_fault+1213} <ffffffff80188b3b>{block_ioctl+27}
+> <ffffffff80193aee>{do_ioctl+62} <ffffffff80193e1b>{vfs_ioctl+715}
+> <ffffffff80193e8d>{sys_ioctl+77} <ffffffff8010dd5e>{system_call+126}
 
-But if it's a pointer why don't you declare them unsigned long then ?
-C defines the long as the integer the right size to store a pointer.
-u32 is just a 32 bits unsigned integer, which will not always do what
-you're looking for. Having read the rest of the patch, I guess you can
-also make the pointer (void *) and avoid a few casts later.
+With what kernel? And what program are you using? Is dma turned on?
 
-Regards,
-Willy
+Please be a little more specific!
+
+-- 
+Jens Axboe
 

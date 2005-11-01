@@ -1,61 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750850AbVKAPQF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750855AbVKAPRS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750850AbVKAPQF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 10:16:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750854AbVKAPQF
+	id S1750855AbVKAPRS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 10:17:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbVKAPRS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 10:16:05 -0500
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:22277 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1750850AbVKAPQD
+	Tue, 1 Nov 2005 10:17:18 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:20651 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750851AbVKAPRR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 10:16:03 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, zippel@linux-m68k.org, ak@suse.de,
-       rmk+lkml@arm.linux.org.uk, tony.luck@gmail.com,
-       paolo.ciarrocchi@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: New (now current development process)
-References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com>
-	<20051031001647.GK2846@flint.arm.linux.org.uk>
-	<20051030172247.743d77fa.akpm@osdl.org>
-	<200510310341.02897.ak@suse.de>
-	<Pine.LNX.4.61.0511010039370.1387@scrub.home>
-	<20051031160557.7540cd6a.akpm@osdl.org>
-	<Pine.LNX.4.64.0510311611540.27915@g5.osdl.org>
-	<20051031163408.41a266f3.akpm@osdl.org>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: where editing text is like playing Paganini on a glass harmonica.
-Date: Tue, 01 Nov 2005 15:15:03 +0000
-In-Reply-To: <20051031163408.41a266f3.akpm@osdl.org> (Andrew Morton's
- message of "1 Nov 2005 00:34:30 -0000")
-Message-ID: <87k6fs4cy0.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
+	Tue, 1 Nov 2005 10:17:17 -0500
+Date: Tue, 1 Nov 2005 15:17:16 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
+Subject: [PATCH] ppc bug.h namespace pollution
+Message-ID: <20051101151716.GY7992@ftp.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1 Nov 2005, Andrew Morton stated:
-> gcc-2.95.4:
-> 
-> 	bix:/usr/src/25> size vmlinux 
-> 	   text    data     bss     dec     hex filename
-> 	 665502  152379   55120  873001   d5229 vmlinux
-> 
-> gcc version 4.1.0 20050513 (experimental):
-> 
-> 	bix:/usr/src/25> size vmlinux
-> 	   text    data     bss     dec     hex filename
-> 	 761415  151851   55280  968546   ec762 vmlinux
-> 
-> (There's a new reason for retaining gcc-2.95.x support)
-
-What if you build with -Os? That tends to hold alignments down quite a
-bit.
-
-(I'll try it this evening...)
-
--- 
-`"Gun-wielding recluse gunned down by local police" isn't the epitaph
- I want. I am hoping for "Witnesses reported the sound up to two hundred
- kilometers away" or "Last body part finally located".' --- James Nicoll
+	DATA_TYPE is really not a good thing to put into header that
+gets included all over the tree...
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+----
+diff -urN RC14-base/include/asm-powerpc/bug.h current/include/asm-powerpc/bug.h
+--- RC14-base/include/asm-powerpc/bug.h	2005-11-01 02:39:50.000000000 -0500
++++ current/include/asm-powerpc/bug.h	2005-11-01 04:50:01.000000000 -0500
+@@ -15,12 +15,12 @@
+ #define BUG_TABLE_ENTRY(label, line, file, func) \
+ 	".llong " #label "\n .long " #line "\n .llong " #file ", " #func "\n"
+ #define TRAP_OP(ra, rb) "1: tdnei " #ra ", " #rb "\n"
+-#define DATA_TYPE long long
++#define BUG_DATA_TYPE long long
+ #else 
+ #define BUG_TABLE_ENTRY(label, line, file, func) \
+ 	".long " #label ", " #line ", " #file ", " #func "\n"
+ #define TRAP_OP(ra, rb) "1: twnei " #ra ", " #rb "\n"
+-#define DATA_TYPE int
++#define BUG_DATA_TYPE int
+ #endif /* __powerpc64__ */
+ 
+ struct bug_entry {
+@@ -55,7 +55,7 @@
+ 		".section __bug_table,\"a\"\n\t"		\
+ 		BUG_TABLE_ENTRY(1b,%1,%2,%3)			\
+ 		".previous"					\
+-		: : "r" ((DATA_TYPE)(x)), "i" (__LINE__),	\
++		: : "r" ((BUG_DATA_TYPE)(x)), "i" (__LINE__),	\
+ 		    "i" (__FILE__), "i" (__FUNCTION__));	\
+ } while (0)
+ 
+@@ -65,7 +65,7 @@
+ 		".section __bug_table,\"a\"\n\t"		\
+ 		BUG_TABLE_ENTRY(1b,%1,%2,%3)			\
+ 		".previous"					\
+-		: : "r" ((DATA_TYPE)(x)),			\
++		: : "r" ((BUG_DATA_TYPE)(x)),			\
+ 		    "i" (__LINE__ + BUG_WARNING_TRAP),		\
+ 		    "i" (__FILE__), "i" (__FUNCTION__));	\
+ } while (0)

@@ -1,61 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751194AbVKAU5s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbVKAU7P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751194AbVKAU5s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 15:57:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbVKAU5s
+	id S1751186AbVKAU7P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 15:59:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbVKAU7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 15:57:48 -0500
-Received: from zproxy.gmail.com ([64.233.162.205]:61289 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751194AbVKAU5r convert rfc822-to-8bit
+	Tue, 1 Nov 2005 15:59:15 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:51123 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751186AbVKAU7O
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 15:57:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rFwSF8zTgbSnh+EsE+XWu4496SUFvOi6lWczflFXrtgC7tQntq+KFWQlFG7V6hf0oSz5y1jiBLz7N3zf9b4Gl718wRZLviclJlYBaxynE+1yTXv/Ia/c9MxUEWUaOnUg0WAO+8vhDTOiupTSBVY4NFW5QVbubcwBt5kLxVUkBk8=
-Message-ID: <5449aac20511011257n6b081b5qa20af928a2f9e98f@mail.gmail.com>
-Date: Tue, 1 Nov 2005 20:57:46 +0000
-From: Alexander Fisher <alexjfisher@gmail.com>
-Reply-To: alex@alexfisher.me.uk
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: Would I be violating the GPL?
-Cc: Michael Buesch <mbuesch@freenet.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <1130875080.22089.14.camel@mindpipe>
+	Tue, 1 Nov 2005 15:59:14 -0500
+Message-ID: <4367D71A.1030208@austin.ibm.com>
+Date: Tue, 01 Nov 2005 14:59:06 -0600
+From: Joel Schopp <jschopp@austin.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <5449aac20511010949x5d96c7e0meee4d76a67a06c01@mail.gmail.com>
-	 <200511012000.21176.mbuesch@freenet.de>
-	 <1130875080.22089.14.camel@mindpipe>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Mel Gorman <mel@csn.ul.ie>, "Martin J. Bligh" <mbligh@mbligh.org>,
+       Andrew Morton <akpm@osdl.org>, kravetz@us.ibm.com, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+References: <20051030183354.22266.42795.sendpatchset@skynet.csn.ul.ie><20051031055725.GA3820@w-mikek2.ibm.com><4365BBC4.2090906@yahoo.com.au> <20051030235440.6938a0e9.akpm@osdl.org> <27700000.1130769270@[10.10.2.4]> <4366A8D1.7020507@yahoo.com.au> <Pine.LNX.4.58.0510312333240.29390@skynet> <4366C559.5090504@yahoo.com.au> <Pine.LNX.4.58.0511010137020.29390@skynet> <4366D469.2010202@yahoo.com.au>
+In-Reply-To: <4366D469.2010202@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/1/05, Lee Revell <rlrevell@joe-job.com> wrote:
-> On Tue, 2005-11-01 at 20:00 +0100, Michael Buesch wrote:
-> > On Tuesday 01 November 2005 18:49, Alexander Fisher wrote:
-> > > Hello.
-> > >
-> > > A supplier of a PCI mezzanine digital IO card has provided a linux 2.4
-> > > driver as source code.  They have provided this code source with a
-> > > license stating I won't redistribute it in anyway.
-> > > My concern is that if I build this code into a module, I won't be able
-> > > to distribute it to customers without violating either the GPL (by not
-> > > distributing the source code), or the proprietary source code license
-> > > as currently imposed by the supplier.
-> > > From what I have read, this concern is only valid if the binary module
-> > > is considered to be a 'derived work' of the kernel.  The module source
-> > > directly includes the following kernel headers :
-> >
-> > Take the code and write a specification for the device.
-> > Should be fairly easy.
-> > Someone else will pick up the spec and write a clean GPLed driver.
->
-> Seems excessive, why not just use a kernel debugger to capture all PIO
-> traffic to the device and write a driver based on that?
 
-Interesting, I hadn't thought of that.  Alternatively, if I really
-wanted to upset them (which I don't), I could use one of the very
-expensive PCI bus analysers we've bought off them in the past!
+>> The patches have gone through a large number of revisions, have been
+>> heavily tested and reviewed by a few people. The memory footprint of this
+>> approach is smaller than introducing new zones. If the cache footprint,
+>> increased branches and instructions were a problem, I would expect 
+>> them to
+>> show up in the aim9 benchmark or the benchmark that ran ghostscript
+>> multiple times on a large file.
+>>
+> 
+> I appreciate that a lot of work has gone into them. You must appreciate
+> that they add a reasonable amount of complexity and a non-zero perormance
+> cost to the page allocator.
 
-Alex
+The patches do ad a reasonable amount of complexity to the page allocator.  In 
+my opinion that is the only downside of these patches, even though it is a big 
+one.  What we need to decide as a community is if there is a less complex way to 
+do this, and if there isn't a less complex way then is the benefit worth the 
+increased complexity.
+
+As to the non-zero performance cost, I think hard numbers should carry more 
+weight than they have been given in this area.  Mel has posted hard numbers that 
+say the patches are a wash with respect to performance.  I don't see any 
+evidence to contradict those results.
+
+>> The will need high order allocations if we want to provide HugeTLB pages
+>> to userspace on-demand rather than reserving at boot-time. This is a
+>> future problem, but it's one that is not worth tackling until the
+>> fragmentation problem is fixed first.
+>>
+> 
+> Sure. In what form, we haven't agreed. I vote zones! :)
+
+I'd like to hear more details of how zones would be less complex while still 
+solving the problem.  I just don't get it.

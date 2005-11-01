@@ -1,45 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964950AbVKAEw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965014AbVKAEw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964950AbVKAEw4 (ORCPT <rfc822;willy@w.ods.org>);
+	id S965014AbVKAEw4 (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 31 Oct 2005 23:52:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbVKAEw4
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964979AbVKAEwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 23:52:56 -0500
-Received: from ozlabs.org ([203.10.76.45]:23945 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S964958AbVKAEwy (ORCPT
+	Mon, 31 Oct 2005 23:52:55 -0500
+Received: from ozlabs.org ([203.10.76.45]:23689 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S964950AbVKAEwy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 31 Oct 2005 23:52:54 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17254.62622.780185.729677@cargo.ozlabs.ibm.com>
-Date: Tue, 1 Nov 2005 15:52:46 +1100
+Message-ID: <17254.62394.445512.359175@cargo.ozlabs.ibm.com>
+Date: Tue, 1 Nov 2005 15:48:58 +1100
 From: Paul Mackerras <paulus@samba.org>
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-usb-devel@lists.sourceforge.net,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: Commit "[PATCH] USB: Always do usb-handoff" breaks my powerbook
-In-Reply-To: <200510312017.39915.david-b@pacbell.net>
-References: <17253.43605.659634.454466@cargo.ozlabs.ibm.com>
-	<200510311909.32694.david-b@pacbell.net>
-	<1130815836.29054.420.camel@gaston>
-	<200510312017.39915.david-b@pacbell.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: akpm@osdl.org, David Brownell <david-b@pacbell.net>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Don't touch USB controllers with MMIO disabled in quirks
+In-Reply-To: <Pine.LNX.4.64.0510312026300.27915@g5.osdl.org>
+References: <17254.59690.713323.294726@cargo.ozlabs.ibm.com>
+	<Pine.LNX.4.64.0510312026300.27915@g5.osdl.org>
 X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell writes:
+Linus Torvalds writes:
 
-> Maybe you should first pay attention to what I pointed out:  that
-> the problem reports I've seen have ONLY been on PPC systems.
+> Would something like the appended work instead?
 
-Well, there is a problem in the code which is clearly visible just by
-inspection: that it is touching a pci device without having called
-pci_enable_device on it.  That is well known to cause problems on many
-platforms, and it is not guaranteed to work on any platform.
-
-With a clearly visible bug like that in there, it doesn't matter what
-platform(s) the problem is reported on.
+Looks fine to me, and it fixes the problem on my powerbook.
 
 Paul.

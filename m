@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932568AbVKAEjt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964926AbVKAEu2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932568AbVKAEjt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 23:39:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932570AbVKAEjt
+	id S964926AbVKAEu2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 23:50:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964936AbVKAEu2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 23:39:49 -0500
-Received: from smtp103.sbc.mail.mud.yahoo.com ([68.142.198.202]:14000 "HELO
-	smtp103.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932568AbVKAEjs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 23:39:48 -0500
-From: David Brownell <david-b@pacbell.net>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [linux-usb-devel] Re: Commit "[PATCH] USB: Always do usb-handoff" breaks my powerbook
-Date: Mon, 31 Oct 2005 20:39:46 -0800
-User-Agent: KMail/1.7.1
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-usb-devel@lists.sourceforge.net,
-       Paul Mackerras <paulus@samba.org>,
-       Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org
-References: <17253.43605.659634.454466@cargo.ozlabs.ibm.com> <200510311909.32694.david-b@pacbell.net> <BC88D0A1-453F-4716-96E6-3C89B915C477@mac.com>
-In-Reply-To: <BC88D0A1-453F-4716-96E6-3C89B915C477@mac.com>
+	Mon, 31 Oct 2005 23:50:28 -0500
+Received: from THUNK.ORG ([69.25.196.29]:35748 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S964934AbVKAEu2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 23:50:28 -0500
+Date: Mon, 31 Oct 2005 23:46:58 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Adrian Bunk <bunk@stusta.de>, ext2-devel@lists.sourceforge.net,
+       sct@redhat.com, akpm@osdl.org, ext3-users@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: What is the history of CONFIG_EXT{2,3}_CHECK?
+Message-ID: <20051101044658.GA7500@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Adrian Bunk <bunk@stusta.de>, ext2-devel@lists.sourceforge.net,
+	sct@redhat.com, akpm@osdl.org, ext3-users@redhat.com,
+	linux-kernel@vger.kernel.org
+References: <20051031001334.GP4180@stusta.de> <20051031212503.GY31368@schatzie.adilger.int>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200510312039.46646.david-b@pacbell.net>
+In-Reply-To: <20051031212503.GY31368@schatzie.adilger.int>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 31, 2005 at 02:25:03PM -0700, Andreas Dilger wrote:
+> On Oct 31, 2005  01:13 +0100, Adrian Bunk wrote:
+> > Can anyone tell me the history of CONFIG_EXT{2,3}_CHECK?
+> > 
+> > There is code for a "check" option for mount if these options are 
+> > enabled, but there's no way to enable them.
+> 
+> These are expensive debugging options, which walk the inode/block bitmaps
+> for getting the group inode/block usage instead of using the group
+> summary data.  Not used very often but I suspect occasionally useful for
+> developers mucking with ext[23] internals.  Since it is developer-only
+> code it needs to be enabled with #define CONFIG_EXT[23]_CHECK in a
+> header or compile option.
 
-> Why should x86-specific-BIOS-USB-handoff-specific-crap-PCI-quirks be  
-> even _compiled_ on PowerPC systems that have nothing remotely like  
-> the affected hardware (BIOS & PS/2 serio chip)?
+It's basically a stripped down version of e2fsck pass #5, though.  Is
+there any reason why this needs to be in the kernel?  If it would be
+useful I could easily make a userspace implementation of these checks.
 
-For starters, none of the controller specs say that the handshaking
-is x86-specific.  There's a certain amount of "x86 Linux gets the
-most testing" going on here.  Plus a lot of "nobody really used that
-usb-handoff code before, except to fix semi-broken x86 systems".
-
-One requirement coming from x86/DOS legacy support though is that the
-system probably expects to "work like DOS" at various boot stages.
-Hence the way some systems take kbd/mouse input from USB and jam it
-through PS2 serio hardware, so DOS will see it.  Which is why x86
-hardware generally _does_ need to use these handhaking mechanisms,
-to kick the BIOS off the hardware.  (And why the USB folk have been
-very used to telling folk to disable BIOS support for USB.  That's
-fine advice unless you've got a USB keyboard or mouse.)
-
-
-> The difference is, OpenFirmware is nice and clean and stops messing  
-> with hardware before handing off to the new kernel. 
-
-That's a nice design policy (IMO) but sometimes folk also like to
-draw the firmware/OS boundary in different ways.
-
-In any case ... let's all just blame this on DOS, and move on to
-something that's not as twentieth-century.  :)
-
-- Dave
-
+						- Ted

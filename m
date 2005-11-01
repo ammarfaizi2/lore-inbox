@@ -1,70 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964978AbVKAIYX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964989AbVKAIZR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964978AbVKAIYX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 03:24:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbVKAIYB
+	id S964989AbVKAIZR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 03:25:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965035AbVKAIZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 03:24:01 -0500
-Received: from zproxy.gmail.com ([64.233.162.196]:41278 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964978AbVKAIX4 (ORCPT
+	Tue, 1 Nov 2005 03:25:14 -0500
+Received: from mail.gmx.net ([213.165.64.20]:5309 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964989AbVKAIY7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 03:23:56 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=O5XUa89BwQTQKIlPzCzJpWoDmy8lR5Rr7lUOxY0KQUmfAb4yRp31JP2JiV12W43ywc0F3uU+ygpH46vzU6xs8H9mN0HqHX5lfMFYguKH/A9a8EwZApGp40dLntmfmo87Xd6rL240ZVtMLYOw0SPgBkufTq8qInU3KKrjRWagjNA=
-Date: Tue, 1 Nov 2005 17:23:49 +0900
-From: Tejun Heo <htejun@gmail.com>
-To: torvalds@osdl.org, axboe@suse.de, acme@mandriva.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] blk: fix dangling pointer access in __elv_add_request
-Message-ID: <20051101082349.GA17756@htj.dyndns.org>
+	Tue, 1 Nov 2005 03:24:59 -0500
+X-Authenticated: #1700068
+From: Torsten Foertsch <torsten.foertsch@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: /proc/*/smaps
+Date: Tue, 1 Nov 2005 09:24:56 +0100
+User-Agent: KMail/1.7.1
+References: <787b0d920510312113v715b22e0m8e25dbf0aac317b@mail.gmail.com>
+In-Reply-To: <787b0d920510312113v715b22e0m8e25dbf0aac317b@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Message-Id: <200511010924.56783.torsten.foertsch@gmx.net>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cfq's add_req_fn callback may invoke q->request_fn directly and
-depending on low-level driver used and timing, a queued request may be
-finished & deallocated before add_req_fn callback returns.  So,
-__elv_add_request must not access rq after it's passed to add_req_fn
-callback.
+On Tuesday 01 November 2005 06:13, Albert Cahalan wrote:
+> Take a look at those files, trying not to crack up laughing
+> at the file format. Maybe you will cry. Imagine that some
+> apps try to parse those... all of them, repeatedly, while
+> being tolerant of unspecified future changes.
 
-This patch moves rq_mergeable test above add_req_fn().  This may
-result in q->last_merge pointing to REQ_NOMERGE request if add_req_fn
-callback sets it but as RQ_NOMERGE is checked again when blk layer
-actually tries to merge requests, this does not cause any problem.
+The Perl module Linux::Smaps already parses it.
 
-Signed-off-by: Tejun Heo <htejun@gmail.com>
----
+r2@s93:~> cp /bin/bash 'b
+a
+:s:h'
+r2@s93:~> ./'b
+> a
+> :s:h'
+s93:~$ more /proc/$$/smaps
+08048000-080ba000 r-xp 00000000 08:02 152476     /home/r2/b\012a\012:s:h
+Size:               456 kB
+Rss:                368 kB
+Shared_Clean:       368 kB
+Shared_Dirty:         0 kB
+Private_Clean:        0 kB
+Private_Dirty:        0 kB
+080ba000-080bd000 rwxp 00072000 08:02 152476     /home/r2/b\012a\012:s:h
+Size:                12 kB
+Rss:                 12 kB
+Shared_Clean:         0 kB
+Shared_Dirty:         0 kB
+Private_Clean:        0 kB
+Private_Dirty:       12 kB
+080bd000-08126000 rwxp 080bd000 00:00 0          [heap]
+Size:               420 kB
+Rss:                312 kB
+...
 
-Arnaldo, I think this patch should fix the oops you're seeing.  Please
-let me know how it works.  And thanks again for detailed reporting.
+s93:~$ perl -MLinux::Smaps -e 'foreach (Linux::Smaps->new('$$')->names) {print 
+"$_\n"}'
+...
+/lib/libdl.so.2
+/home/r2/b\012a\012:s:h
+/usr/lib/locale/en_US.utf8/LC_NUMERIC
 
-Jens, does generalizing queue kicking functions and disallowing
-ioscheds from directly calling q->request_fn sound like a good idea?
+Where is your problem? You see, the vma names are properly parsed.
 
-Linus, with or without Arnaldo's confirmation, this patch fixes an
-existing bug.  Please apply.  Thanks.
+Here is my parser:
+    if( $l=~/([\da-f]+)-([\da-f]+)\s                # range
+             ([r\-])([w\-])([x\-])([sp])\s          # access mode
+             ([\da-f]+)\s                           # page offset in file
+             ([\da-f]+):([\da-f]+)\s                # device
+             (\d+)\s*                               # inode
+             (.*)		                    # file name
+	    /xi ) {
+      push @{$I->_elem}, $current=Linux::Smaps::VMA->new;
+      $current->vma_start=hex $1;
+      $current->vma_end=hex $2;
+      $current->r=($3 eq 'r');
+      $current->w=($4 eq 'w');
+      $current->x=($5 eq 'x');
+      $current->mayshare=($6 eq 's');
+      $current->file_off=hex $7;
+      $current->dev_major=hex $8;
+      $current->dev_minor=hex $9;
+      $current->inode=$10;
+      $current->file_name=$11;
+    } elsif( $l=~/^(\w+):\s*(\d+) kB$/ ) {
+      my $m=lc $1;
+      $current->$m=$2;
+    } else {
+      die __PACKAGE__.":: not parsed: $l\n";
+    }
 
-diff --git a/drivers/block/elevator.c b/drivers/block/elevator.c
---- a/drivers/block/elevator.c
-+++ b/drivers/block/elevator.c
-@@ -369,9 +369,14 @@ void __elv_add_request(request_queue_t *
- 	case ELEVATOR_INSERT_SORT:
- 		BUG_ON(!blk_fs_request(rq));
- 		rq->flags |= REQ_SORTED;
--		q->elevator->ops->elevator_add_req_fn(q, rq);
- 		if (q->last_merge == NULL && rq_mergeable(rq))
- 			q->last_merge = rq;
-+		/*
-+		 * Some ioscheds (cfq) run q->request_fn directly, so
-+		 * rq cannot be accessed after calling
-+		 * elevator_add_req_fn.
-+		 */
-+		q->elevator->ops->elevator_add_req_fn(q, rq);
- 		break;
- 
- 	default:
+Torsten
+
+> (remember that a filename may have a colon, new fields
+> may be added, new lines may differ in unknown ways, etc.)
+>
+> Could we fix this ASAP? How about just commenting it
+> out right now, so nothing important starts to rely on it.
+> CONFIG_EXPERIMENTAL would do I guess.
+>
+> I'll gladly do something sane, but not tonight. I'm sorry I
+> did not catch this earlier; I've been rather sick and I never
+> imagined that this thing would get accepted without a
+> major rework of the file format.
+>
+> -------- unbelievable example follows --------
+>
+> 08048000-080dc000 r-xp /bin/bash
+> Size:               592 KB
+> Rss:                500 KB
+> Shared_Clean:       500 KB
+> Shared_Dirty:         0 KB
+> Private_Clean:        0 KB
+> Private_Dirty:        0 KB
+> 080dc000-080e2000 rw-p /bin/bash
+> Size:                24 KB
+> Rss:                 24 KB
+> Shared_Clean:         0 KB
+> Shared_Dirty:         0 KB
+> Private_Clean:        0 KB
+> Private_Dirty:       24 KB
+> 080e2000-08116000 rw-p
+> Size:               208 KB
+> Rss:                208 KB
+> Shared_Clean:         0 KB
+> Shared_Dirty:         0 KB
+> Private_Clean:        0 KB
+> Private_Dirty:      208 KB
+> b7e2b000-b7e34000 r-xp /lib/tls/libnss_files-2.3.2.so
+> Size:                36 KB
+> Rss:                 12 KB
+> Shared_Clean:        12 KB
+> Shared_Dirty:         0 KB
+> Private_Clean:        0 KB
+> Private_Dirty:        0 KB
+> ...
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

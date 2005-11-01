@@ -1,40 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbVKAMxn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbVKAM4w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750772AbVKAMxn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 07:53:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbVKAMxn
+	id S1750782AbVKAM4w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 07:56:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbVKAM4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 07:53:43 -0500
-Received: from imf22aec.mail.bellsouth.net ([205.152.59.70]:10624 "EHLO
-	imf22aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S1750772AbVKAMxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 07:53:42 -0500
-Subject: Re: patch to add a config option to enable SATA ATAPI by default
-From: Mark Tomich <tomichm@bellsouth.net>
-To: Olaf Hering <olh@suse.de>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051101073555.GA11890@suse.de>
-References: <1130691328.8303.8.camel@localhost>
-	 <20051031102723.GA10037@suse.de> <4365FF53.8000707@pobox.com>
-	 <1130810963.21921.4.camel@localhost>  <20051101073555.GA11890@suse.de>
-Content-Type: text/plain
-Date: Tue, 01 Nov 2005 07:53:40 -0500
-Message-Id: <1130849620.8067.0.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Tue, 1 Nov 2005 07:56:52 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:45757 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S1750783AbVKAM4w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 07:56:52 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH 2/3] swsusp: move snapshot-handling functions to snapshot.c
+Date: Tue, 1 Nov 2005 13:57:16 +0100
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <200510301637.48842.rjw@sisk.pl> <200510312036.36335.rjw@sisk.pl> <20051031220233.GC14877@elf.ucw.cz>
+In-Reply-To: <20051031220233.GC14877@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511011357.16995.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sounds good.  Thanks again!
+Hi,
 
-On Tue, 2005-11-01 at 08:35 +0100, Olaf Hering wrote:
->  On Mon, Oct 31, Mark Tomich wrote:
+On Monday, 31 of October 2005 23:02, Pavel Machek wrote:
+> Hi!
 > 
-> > Maybe I'm just not doing it properly, but I wasn't able to specify the
-> > "atapi_enabled" option on the kernel command line.  I tried it, but it
-> > still didn't see my  CD-ROM drive.  That's why I wrote the patch.
+> > > > This patch moves the snapshot-handling functions remaining in swsusp.c
+> > > > to snapshot.c (ie. it moves the code without changing the functionality).
+> > > >
+> > > 
+> > > I'm sorry, but I acked this one too quickly. I'd prefer to keep "relocate" code where
+> > > it is, and define "must not collide" as a part of interface. That will keep snapshot.c
+> > > smaller/simpler,
+> > 
+> > Speaking of simplifications and having seen your code I hope you will agree with
+> > the appended patch against vanilla 2.6.14-git3 (it reduces the duplication of code,
+> > and replaces swsusp_pagedir_relocate with a simpler mechanism).
 > 
-> Use modulename.moduleoption=value, libata.atapi_enabled=1 will likely work.
+> ...and also moves stuff around in a way
 > 
+> a) I don't like
+> 
+> and
+> 
+> b) is almost impossible to review
 
+OK, I'll try to split it into two patches to make it cleaner.
+
+> :-). Can you keep "relocate" code in swsusp.c, just making it simpler?
+
+If you mean mark_unsafe_pages() and copy_backup_list(), no problem.
+The rest is still there.
+
+> 
+> > @@ -997,20 +870,22 @@
+> >  	int error = 0;
+> >  	struct pbe *p;
+> >  
+> > -	if (!(p = alloc_pagedir(nr_copy_pages)))
+> > +	if (!(p = alloc_pagedir(nr_copy_pages, 0)))
+> >  		return -ENOMEM;
+> >  
+> >  	if ((error = read_pagedir(p)))
+> >  		return error;
+> > -
+> >  	create_pbe_list(p, nr_copy_pages);
+> > -
+> > -	if (!(pagedir_nosave = swsusp_pagedir_relocate(p)))
+> > +	mark_unsafe_pages(p);
+> > +	if (!(pagedir_nosave = alloc_pagedir(nr_copy_pages, 1)))
+> >  		return -ENOMEM;
+> 
+> Okay, this is probably better approach than copying pagedir around...
+
+It's nice you agree here. :-)
+
+Greetings,
+Rafael

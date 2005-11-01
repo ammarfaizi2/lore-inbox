@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751261AbVKAUCp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751291AbVKAUFe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751261AbVKAUCp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 15:02:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbVKAUCo
+	id S1751291AbVKAUFe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 15:05:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751301AbVKAUFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 15:02:44 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:27162 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751261AbVKAUCo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 15:02:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=lTnFyxTC56dcsye5u3J9N401+b1vAuNZxSHVzT1qo5S5GIx6ZhGXNYE/0U/U19+vlJKUk746a3GwPaHCtX2enIp4Mn29dBFl1uEF9S/XM2zmYYA/5Gi0RXP3fvfvzD8C2lwkmwu7ijOKzuJHJF6aI3EDNkgpDK3SZOZWHSgazQM=
-Message-ID: <cb2ad8b50511011202l5bdc8c82se145adf158221e28@mail.gmail.com>
-Date: Tue, 1 Nov 2005 15:02:43 -0500
-From: Carlos Antunes <cmantunes@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Realtime-preempt performs worse for many threads?
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 1 Nov 2005 15:05:34 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:65428 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751291AbVKAUFd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 15:05:33 -0500
+Date: Tue, 1 Nov 2005 21:05:17 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Make spitz compile again
+Message-ID: <20051101200516.GA7172@elf.ucw.cz>
+References: <20051031134255.GA8093@elf.ucw.cz> <1130773530.8353.39.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1130773530.8353.39.camel@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-I've been developing some code for the OpenPBX project
-(http://www.openpbx.org) and wrote a program to test how the system,
-responds when hundreds of threads are spawned. These threads run at
-high priority (SCHED_FIFO) and use clock_nanocleep with absolute
-timeouts on a 20ms loop cycle.
+> > This is what I needed to do after update to latest linus
+> > kernel. Perhaps it helps someone. 
+> > 
+> > Signed-off-by: Pavel Machek <pavel@suse.cz>
+> > 
+> > , but it is against Richard's tree merged into my tree, so do not
+> > expect to apply it over mainline. Akita code movement is needed if I
+> > want to compile kernel without akita support...
+> 
+> This is an update of my tree against 2.6.14-git3:
+> 
+> http://www.rpsys.net/openzaurus/temp/total-2.6.14-git3-r0.patch.gz
 
-With the stock 2.6.14 kernel, I get latencies in the order of several
-milliseconds (but less than 20ms) when running 1250 threads
-simultaneously. However, when I switch to a kernel patched with
-realtime-preempt latency increases to several hundred milliseconds in
-many cases.
+I did compile fixing, but it still will not boot. With neither my
+config, not with yours. Just blank screen. Any ideas?
 
-When I only only spawn 10 or so threads, realtime-preempt gives me
-latencies of less than 1ms while the stock kernel still gives me a few
-milliseconds. However, when the number of threads sleeping on
-clock_nanosleep increases to several hundred, things just break.
+> http://www.rpsys.net/openzaurus/temp/total-2.6.14-git3-r0-defconfig-cxx00
 
-Should I assume that realtime-preempt at this time is not ready to
-deal with hundreds of realtime threads sleeping most of the time on
-clock_nanosleep?
-
-Any ideas on how to maybe debug this and see if there is some kind of problem?
-
-Thanks!
-
-Carlos
-
-
-
---
-"We hold [...] that all men are created equal; that they are
-endowed [...] with certain inalienable rights; that among
-these are life, liberty, and the pursuit of happiness"
-        -- Thomas Jefferson
+								Pavel
+-- 
+Thanks, Sharp!

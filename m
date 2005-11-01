@@ -1,44 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbVKAGOl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932573AbVKAHEa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932378AbVKAGOl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 01:14:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932400AbVKAGOl
+	id S932573AbVKAHEa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 02:04:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932567AbVKAHEa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 01:14:41 -0500
-Received: from smtp111.sbc.mail.re2.yahoo.com ([68.142.229.94]:42879 "HELO
-	smtp111.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932378AbVKAGOl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 01:14:41 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Ian Wienand <ianw@gelato.unsw.edu.au>
-Subject: Re: [PATCH] Convert dmasound_awacs to dynamic input_dev allocation
-Date: Tue, 1 Nov 2005 01:14:38 -0500
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org
-References: <20051101020329.GA7773@cse.unsw.EDU.AU> <200511010055.32726.dtor_core@ameritech.net> <20051101060443.GF11202@cse.unsw.EDU.AU>
-In-Reply-To: <20051101060443.GF11202@cse.unsw.EDU.AU>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Nov 2005 02:04:30 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:18440 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S932564AbVKAHE3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 02:04:29 -0500
+Date: Tue, 1 Nov 2005 07:53:27 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 13/20] inflate: (arch) kill silly zlib typedefs
+Message-ID: <20051101065327.GP22601@alpha.home.local>
+References: <14.196662837@selenic.com> <Pine.LNX.4.62.0510312204400.26471@numbat.sonytel.be> <20051031211422.GC4367@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511010114.38632.dtor_core@ameritech.net>
+In-Reply-To: <20051031211422.GC4367@waste.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 01 November 2005 01:04, Ian Wienand wrote:
-> On Tue, Nov 01, 2005 at 12:55:31AM -0500, Dmitry Torokhov wrote:
-> > Now you are leaking memory if something else fails... FOr example when
-> > chip is not present.
+On Mon, Oct 31, 2005 at 01:14:22PM -0800, Matt Mackall wrote:
+> On Mon, Oct 31, 2005 at 10:05:15PM +0100, Geert Uytterhoeven wrote:
+> > On Mon, 31 Oct 2005, Matt Mackall wrote:
+> > > inflate: remove legacy type definitions from callers
+> > > 
+> > > This replaces the legacy zlib typedefs and usage with kernel types in
+> > > all the inflate users.
+> > 
+> > > -static ulg free_mem_ptr;
+> > > -static ulg free_mem_ptr_end;
+> > > +static u32 free_mem_ptr;
+> > > +static u32 free_mem_ptr_end;
+> > 
+> > Bang, on 64-bit platforms...
 > 
-> Good point.  I guess the original comment is because the final
-> dmasound_init() can fail but we'll still have all sorts of memory,
-> irq's and io that aren't cleaned up.  So your previous patch probably
-> introduces the least problems.
->
+> That was quick.
+> 
+> Yes, this is broken on Alpha. The other 64-bit arches use proper pointers
+> here. But I need to change all the arches to use the same pointer
+> type, probably as patch 8.5 in the series.
 
-Have you tried it by any chance? I'd feel much better pushing it upstream
-knowing that it was tested at least once...
+But if it's a pointer why don't you declare them unsigned long then ?
+C defines the long as the integer the right size to store a pointer.
+u32 is just a 32 bits unsigned integer, which will not always do what
+you're looking for. Having read the rest of the patch, I guess you can
+also make the pointer (void *) and avoid a few casts later.
 
--- 
-Dmitry
+Regards,
+Willy
+

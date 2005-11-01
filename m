@@ -1,51 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbVKAUqW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbVKAUqO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751212AbVKAUqW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 15:46:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbVKAUqW
+	id S1751216AbVKAUqO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 15:46:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbVKAUqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 15:46:22 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:60048 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751212AbVKAUqV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 15:46:21 -0500
+	Tue, 1 Nov 2005 15:46:13 -0500
+Received: from zproxy.gmail.com ([64.233.162.194]:5565 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751212AbVKAUqM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 15:46:12 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MWgaLzFnBmdlXGNbvKnuMCz8b4H6qsgv/x39o4fjFxvFF0KmOui09dRCwcfGjeZ46vg084HEgDzg7w93bhnN74n6C1ZNGlDpeoPbgAaapQf+cdYlPOPkrNQhddGxBTujtdm7qwoCLsayyzwJ1Bj0NZPk+hltlhYPqnWmwdy+9fs=
+Message-ID: <5449aac20511011246r6ece9f18rb3b7353dbfc2dedb@mail.gmail.com>
+Date: Tue, 1 Nov 2005 20:46:11 +0000
+From: Alexander Fisher <alexjfisher@gmail.com>
+Reply-To: alex@alexfisher.me.uk
+To: Michael Buesch <mbuesch@freenet.de>
 Subject: Re: Would I be violating the GPL?
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Jeff V. Merkey" <jmerkey@utah-nac.org>
-Cc: alex@alexfisher.me.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <43679B22.8070905@utah-nac.org>
+Cc: "Jeff V. Merkey" <jmerkey@utah-nac.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200511012012.32995.mbuesch@freenet.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 References: <5449aac20511010949x5d96c7e0meee4d76a67a06c01@mail.gmail.com>
-	 <43679B22.8070905@utah-nac.org>
-Content-Type: text/plain
-Date: Tue, 01 Nov 2005 21:46:09 +0100
-Message-Id: <1130877969.2777.4.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[84.119.168.181 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	 <200511012000.21176.mbuesch@freenet.de>
+	 <4367A990.2040301@utah-nac.org>
+	 <200511012012.32995.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-01 at 09:43 -0700, Jeff V. Merkey wrote:
-> 
-> Alan Cox and others have publicly stated that drivers, if complied stand 
-> alone with NO DEPENDENCIES ON KERNEL HEADERS (i.e. they do not 
-> incorporate in any way any kernel headers or source code tagged GPL)
+On 11/1/05, Michael Buesch <mbuesch@freenet.de> wrote:
+> On Tuesday 01 November 2005 18:44, you wrote:
+> > No, don't take the code without the suppliers permission.
+>
+> I interpreted his text as if he already has permission to use the code.
+>
+> > It contains
+> > trade secrets and you can get into a ot of trouble if there's an
+> > agreement between the two of you.  Contact the supplier.  Tell them to
+> > abstract away thre kernel headers, or rewrite to remove them, or grant
+> > you persmission to open source the driver.
+>
+> I did not say he should open source the driver. That will give trouble.
+> I suggested to write a _device_ specification. Driver specific things do not
+> care.
 
-can you give a reference to that? I can't imagine Alan saying that
-(probably the negative of the opposite).. since even without using any
-kernel headers you can be a derived work (when/how/what is up to
-lawyers, but I assume you can agree that it is possible to create a
-kernel module that is a derived work even without the condition you
-describe) and in that case it HAS to be GPL. Alan isn't alone in the
-position to make that exception, you'd need permission from all kernel
-authors, but I also find it sort of hard to believe he said that. 
+I've got the source code to the device firmware too.  So despite the
+fact the driver has been written in c++, it might be possible to write
+a usable specification.  This isn't something I want to do.  I'd
+imagine this sort of action can really ruin a supplier/customer
+relationship.  What good is a GPLed driver if no one is prepared to
+sell you the hardware?
+So if the conclusion is that the driver can't be distributed under
+anything other than the GPL (further opinions/confirmations welcome),
+I think I've got two options.  Find a different hardware vendor or
+convince the current supplier to relicense their code.
+I'm hoping that the opinions from one or two major linux kernel
+copyright holders will help me in convincing them to do this.
 
+Thanks,
+Alex

@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbVKAOQA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbVKAORE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750803AbVKAOQA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 09:16:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbVKAOQA
+	id S1750806AbVKAORE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 09:17:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbVKAORE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 09:16:00 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:51474 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750803AbVKAOP7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 09:15:59 -0500
-Date: Tue, 1 Nov 2005 15:15:54 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Roman Zippel <zippel@linux-m68k.org>,
-       ak@suse.de, rmk+lkml@arm.linux.org.uk, tony.luck@gmail.com,
-       paolo.ciarrocchi@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: New (now current development process)
-Message-ID: <20051101141554.GQ8009@stusta.de>
-References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com> <20051031001647.GK2846@flint.arm.linux.org.uk> <20051030172247.743d77fa.akpm@osdl.org> <200510310341.02897.ak@suse.de> <Pine.LNX.4.61.0511010039370.1387@scrub.home> <20051031160557.7540cd6a.akpm@osdl.org> <Pine.LNX.4.64.0510311611540.27915@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0510311611540.27915@g5.osdl.org>
-User-Agent: Mutt/1.5.11
+	Tue, 1 Nov 2005 09:17:04 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:23016 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750806AbVKAORC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 09:17:02 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <11615.1128694058@warthog.cambridge.redhat.com> 
+References: <11615.1128694058@warthog.cambridge.redhat.com> 
+To: torvalds@osdl.org, akpm@osdl.org, pageexec@freemail.hu
+Cc: keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Keys: Remove incorrect and obsolete '!' operators
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Tue, 01 Nov 2005 14:16:39 +0000
+Message-ID: <23655.1130854599@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 31, 2005 at 04:13:22PM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Mon, 31 Oct 2005, Andrew Morton wrote:
-> > 
-> > Are you sure these kernels are feature-equivalent?
-> 
-> They may not be feature-equivalent in reality, but it's hard to generate 
-> something that has the features (or lack there-of) of old kernels these 
-> days. Which is problematic.
->...
 
-There's also the question how to define feature-equivalent.
+The attached patch removes a couple of incorrect and obsolete '!' operators
+left over from the conversion of the key permission functions from true/false
+returns to zero/error returns.
 
-I want my computer to power off after "halt".
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+warthog>diffstat -p1 keys-debang-2614rc5mm1.diff
+ security/keys/keyring.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-There's a significant difference between how much kernel code was 
-required for this feature for my old computer and what is required for 
-my new computer (in kernel 2.6.14):
-
-   text    data     bss     dec     hex filename
-  12721    2124     104   14949    3a65 arch/i386/kernel/apm.o
- 136789    5724    4788  147301   23f65 drivers/acpi/built-in.o
-
-> 		Linus
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+diff -uNrp linux-2.6.14-rc5-mm1/security/keys/keyring.c linux-2.6.14-rc5-mm1-keys/security/keys/keyring.c
+--- linux-2.6.14-rc5-mm1/security/keys/keyring.c	2005-11-01 13:22:53.000000000 +0000
++++ linux-2.6.14-rc5-mm1-keys/security/keys/keyring.c	2005-11-01 13:40:52.000000000 +0000
+@@ -434,8 +434,8 @@ ascend:
+ 		if (sp >= KEYRING_SEARCH_MAX_DEPTH)
+ 			continue;
+ 
+-		if (!key_task_permission(make_key_ref(key, possessed),
+-					 context, KEY_SEARCH) < 0)
++		if (key_task_permission(make_key_ref(key, possessed),
++					context, KEY_SEARCH) < 0)
+ 			continue;
+ 
+ 		/* stack the current position */
+@@ -621,8 +621,8 @@ struct key *find_keyring_by_name(const c
+ 			if (strcmp(keyring->description, name) != 0)
+ 				continue;
+ 
+-			if (!key_permission(make_key_ref(keyring, 0),
+-					    KEY_SEARCH) < 0)
++			if (key_permission(make_key_ref(keyring, 0),
++					   KEY_SEARCH) < 0)
+ 				continue;
+ 
+ 			/* found a potential candidate, but we still need to

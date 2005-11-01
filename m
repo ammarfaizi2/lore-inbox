@@ -1,78 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751425AbVKAXHt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751427AbVKAXWE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751425AbVKAXHt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 18:07:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbVKAXHt
+	id S1751427AbVKAXWE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 18:22:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbVKAXWE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 18:07:49 -0500
-Received: from amdext4.amd.com ([163.181.251.6]:20444 "EHLO amdext4.amd.com")
-	by vger.kernel.org with ESMTP id S1751425AbVKAXHs (ORCPT
+	Tue, 1 Nov 2005 18:22:04 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:31974 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751427AbVKAXWD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 18:07:48 -0500
-X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
-Date: Tue, 1 Nov 2005 16:10:51 -0700
-From: "Jordan Crouse" <jordan.crouse@amd.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org, info-linux@ldcmail.amd.com
-Subject: Re: AMD Geode GX/LX Support (Refreshed)
-Message-ID: <20051101231051.GM9947@cosmic.amd.com>
-References: <LYRIS-4270-74122-2005.10.28-09.38.17--jordan.crouse#amd.com@whitestar.amd.com>
- <20051028154430.GB19854@cosmic.amd.com>
- <1130711970.32734.13.camel@localhost.localdomain>
-MIME-Version: 1.0
-In-Reply-To: <1130711970.32734.13.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
-X-WSS-ID: 6F792AB622C4154630-01-01
-Content-Type: text/plain;
- charset=us-ascii
+	Tue, 1 Nov 2005 18:22:03 -0500
+Date: Wed, 2 Nov 2005 00:21:22 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>, rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: [patch] collie: enable frontlight
+Message-ID: <20051101232122.GA27107@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >  config X86_USE_PPRO_CHECKSUM
-> Does this mean you've now done actual performance analysis on whether
-> this is a good idea for Geode GX/LX ?
+Enable frontlight on collie, so that display can be actually read
+indoors.
 
-Ok - here is some data that should put your mind at ease.  I pulled
-the checksum functions from the kernel, stuck them in userland, and
-ran each one N times at a variety of byte sizes (where N=10,000), took the
-start and stop times with gettimeofday(), and added it all up.  The results
-for the Geode LX platfrom are below.
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-I think the data shows that the ppro checksum is indeed useful on the
-Geode LX platform (and the GX should have similar results, since the
-pipelines are pretty close).  Unless I made a really boneheaded mistake
-in my app, I think we should leave X86_USE_PPRO_CHECKSUM enabled for Geode
-GX/LX.
+---
+commit dc507abbd6658927bdef7a521c4aa16c511ec62f
+tree 666babf57b70cdf7fbac66c96defc9be4eb2518a
+parent 8d04f63101774a56e80ef76b4d40ab782541dd94
+author <pavel@amd.(none)> Wed, 02 Nov 2005 00:20:26 +0100
+committer <pavel@amd.(none)> Wed, 02 Nov 2005 00:20:26 +0100
 
-Jordan
+ arch/arm/common/locomo.c |   22 ++++++++++++++++++++++
+ 1 files changed, 22 insertions(+), 0 deletions(-)
 
-Starting non-ppro test....
-Bytes   Time    Avg (usec/run)
-----------------------------
-16      2029    0.202900
-32      1666    0.166600
-64      2548    0.254800
-128     3429    0.342900
-256     5268    0.526800
-512     8781    0.878100
-1024    16031   1.603100
-2048    30548   3.054800
-4096    59265   5.926500
-Total time: 129565
+diff --git a/arch/arm/common/locomo.c b/arch/arm/common/locomo.c
+--- a/arch/arm/common/locomo.c
++++ b/arch/arm/common/locomo.c
+@@ -631,6 +631,23 @@ static int locomo_resume(struct device *
+ }
+ #endif
+ 
++static spinlock_t fl_lock = SPIN_LOCK_UNLOCKED;
++
++#define LCM_ALC_EN	0x8000
++
++void frontlight_set(struct locomo *lchip, int duty, int vr, int bpwf)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&fl_lock, flags);
++	locomo_writel(bpwf, lchip->base + LOCOMO_FRONTLIGHT + LOCOMO_ALS);
++	udelay(100);
++	locomo_writel(duty, lchip->base + LOCOMO_FRONTLIGHT + LOCOMO_ALD);
++	locomo_writel(bpwf | LCM_ALC_EN, lchip->base + LOCOMO_FRONTLIGHT + LOCOMO_ALS);
++	spin_unlock_irqrestore(&fl_lock, flags);
++}
++
++
+ /**
+  *	locomo_probe - probe for a single LoCoMo chip.
+  *	@phys_addr: physical address of device.
+@@ -690,6 +707,11 @@ __locomo_probe(struct device *me, struct
+ 	/* FrontLight */
+ 	locomo_writel(0, lchip->base + LOCOMO_FRONTLIGHT + LOCOMO_ALS);
+ 	locomo_writel(0, lchip->base + LOCOMO_FRONTLIGHT + LOCOMO_ALD);
++
++	/* Same constants can be used for collie and poodle
++	   (depending on CONFIG options in original sharp code)? */
++	frontlight_set(lchip, 163, 0, 148);
++
+ 	/* Longtime timer */
+ 	locomo_writel(0, lchip->base + LOCOMO_LTINT);
+ 	/* SPI */
 
-Starting ppro test....
-Bytes   Time    Avg (usec/run)
-----------------------------
-16      1579    0.157900
-32      1655    0.165500
-64      1841    0.184100
-128     2721    0.272100
-256     3582    0.358200
-512     5264    0.526400
-1024    8900    0.890000
-2048    15919   1.591900
-4096    29369   2.936900
-Total time: 70830
-
+-- 
+Thanks, Sharp!

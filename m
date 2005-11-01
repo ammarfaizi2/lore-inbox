@@ -1,75 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbVKAWB1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbVKAWFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751286AbVKAWB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 17:01:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbVKAWB1
+	id S1751321AbVKAWFF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 17:05:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbVKAWFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 17:01:27 -0500
-Received: from the-penguin.otak.com ([65.37.126.18]:2500 "EHLO
-	the-penguin.otak.com") by vger.kernel.org with ESMTP
-	id S1751286AbVKAWB1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 17:01:27 -0500
-Date: Tue, 1 Nov 2005 14:01:30 -0800
-From: Lawrence Walton <lawrence@the-penguin.otak.com>
-To: russb@emc.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: sata_mv
-Message-ID: <20051101220129.GA18919@the-penguin.otak.com>
+	Tue, 1 Nov 2005 17:05:05 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:21166
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1751321AbVKAWFE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 17:05:04 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: "Jeff V. Merkey" <jmerkey@utah-nac.org>
+Subject: Re: Would I be violating the GPL?
+Date: Tue, 1 Nov 2005 16:04:53 -0600
+User-Agent: KMail/1.8
+Cc: Michael Buesch <mbuesch@freenet.de>, alex@alexfisher.me.uk,
+       linux-kernel@vger.kernel.org
+References: <5449aac20511010949x5d96c7e0meee4d76a67a06c01@mail.gmail.com> <200511012000.21176.mbuesch@freenet.de> <4367A990.2040301@utah-nac.org>
+In-Reply-To: <4367A990.2040301@utah-nac.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-X-Operating-System: Linux 2.6.14-rc4-mm1 on an i686
-User-Agent: Mutt/1.5.11
+Message-Id: <200511011604.54317.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 01 November 2005 11:44, Jeff V. Merkey wrote:
+> No, don't take the code without the suppliers permission.  It contains
+> trade secrets and you can get into a ot of trouble if there's an
+> agreement between the two of you.  Contact the supplier.  Tell them to
+> abstract away thre kernel headers, or rewrite to remove them, or grant
+> you persmission to open source the driver.  The UK is the land of
+> frivilous lawsuits (I should know a lot about this :-)  ), so don;t
+> expose yourself and breach any agreements.
+>
+> Jeff
 
---RnlQjJ0d97Da+TV1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Translation to what a sane person might have said:
 
-Hi I've put a server together, and it has a
+Make sure you aren't bound by any non-disclosure agreements before posting a 
+driver specification for public viewing.  Writing up such a spec from the 
+source code (if the supplier didn't give you one) is probably a darn good 
+idea either way, for your own internal maintenance purposes.  If you have the 
+spare cycles...
 
-Marvell Technology Group Ltd. MV88SX6041 4-port SATA II PCI-X Controller=20
-
-After a great deal of work I've got it booting with the .25 version of the =
-marvel driver.=20
-But It's generating many many of these kinds of errors.
-
- Assertion failed! 0 =3D=3D (sg_len & ~MV_DMA_BOUNDARY),drivers/scsi/sata_m=
-v.c,mv_fill_sg,line=3D798
-
-
-How close is the driver to being reliable enough to use in a single drive
-environment?=20
-
-is there anything I can do to help debug further?
-
-
-
---=20
-*--* Mail: lawrence@otak.com
-*--* Voice: 425.739.4247
-*--* Fax: 425.827.9577
-*--* HTTP://the-penguin.otak.com/~lawrence
---------------------------------------
-- - - - - - O t a k  i n c . - - - - -=20
-
-
-
---RnlQjJ0d97Da+TV1
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDZ+W5sgPkFxgrWYkRArNqAJoCwzel06qf0fQPnbxzFPeW+0svMACfc0tq
-cbD/w5MJedr1OAyA+fa+4WU=
-=BiTG
------END PGP SIGNATURE-----
-
---RnlQjJ0d97Da+TV1--
+Rob

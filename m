@@ -1,93 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbVKAUTH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbVKAUUk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751344AbVKAUTH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 15:19:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751355AbVKAUTH
+	id S1751118AbVKAUUk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 15:20:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbVKAUUk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 15:19:07 -0500
-Received: from smtp1.Stanford.EDU ([171.67.16.123]:31665 "EHLO
-	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S1751344AbVKAUTF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 15:19:05 -0500
-Subject: Re: 2.6.14-rt1
-From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       john stultz <johnstul@us.ibm.com>, Mark Knecht <markknecht@gmail.com>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-       nando@ccrma.Stanford.EDU
-In-Reply-To: <20051030133316.GA11225@elte.hu>
-References: <20051017160536.GA2107@elte.hu> <20051020195432.GA21903@elte.hu>
-	 <20051030133316.GA11225@elte.hu>
+	Tue, 1 Nov 2005 15:20:40 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:2762 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751118AbVKAUUj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 15:20:39 -0500
+Subject: Re: Notifier chains are unsafe
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Kernel development list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L0.0511011010350.5081-100000@iolanthe.rowland.org>
+References: <Pine.LNX.4.44L0.0511011010350.5081-100000@iolanthe.rowland.org>
 Content-Type: text/plain
-Date: Tue, 01 Nov 2005 12:18:13 -0800
-Message-Id: <1130876293.6178.6.camel@cmn3.stanford.edu>
+Organization: IBM
+Date: Tue, 01 Nov 2005 12:20:34 -0800
+Message-Id: <1130876434.3586.378.camel@linuxchandra>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.0.4 (2.0.4-6) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-10-30 at 14:33 +0100, Ingo Molnar wrote: 
-> i have released the 2.6.14-rt1 tree, which can be downloaded from the 
-> usual place:
+On Tue, 2005-11-01 at 10:24 -0500, Alan Stern wrote:
+> On Mon, 31 Oct 2005, Chandra Seetharaman wrote:
 > 
->    http://redhat.com/~mingo/realtime-preempt/
+> > > #define notifier_block_enable(b)      set_wmb((b)->enabled, 1)
+> > > #define notifier_block_disable(b)     set_wmb((b)->enabled, 0)
+> > 
+> > I am not getting the complete picture. So, in unregister we would just
+> > disable and never delete the notifier_block ? Or
+> > notifier_block_enable/disable will be used by external entities
+> > directly ?
 > 
-> this release is mainly about ktimer fixes: it updates to the latest 
-> ktimer tree from Thomas Gleixner (which includes John Stultz's latest 
-> GTOD tree), it fixes TSC synchronization problems on HT systems, and 
-> updates the ktimers debugging code.
+> Register and unregister will continue to work as before, requiring a
+> process context and the ability to sleep.  notifier_block_enable/disable
+> should be used when:
 > 
-> These together could fix most of the timer warnings and annoyances 
-> reported for 2.6.14-rc5-rt kernels. In particular the new 
-> TSC-synchronization code could fix SMP systems: the upstream TSC 
-> synchronization method is fine for 1 usec resolution, but it was not 
-> good enough for 1 nsec resolution and likely caused the SMP bugs 
-> reported by Fernando Lopez-Lezcano and Rui Nuno Capela.
+> 	a callout wants to disable itself as it is running, or
 > 
-> Please re-report any bugs that remain.
+> 	someone running in an atomic context wants to enable or disable
+> 	a callout.
+> 
+> In the first case, unregister can't be used because it would hang.  In the 
+> second case, register/unregister can't be used because they need to be 
+> able to sleep.
+> 
+> In both cases the notifier block would have to be registered beforehand 
+> and unregistered later.
 
-2.6.14-rt2 seems to be running fine on my athlon x2 smp system. Apart
-from some time warp messages when starting up it looks fine so far (this
-is on fc4). 
+I understand. Thanks for the explanation. I like the option below better
+(no new interface).
+> 
+> 
+> > > It occurred to me that there _is_ a way to do unregister for atomic chains 
+> > > without blocking.  Add to struct notifier_head
+> > > 
+> > > 	atomic_t num_callers;
+> > > 
+> > > Then in notifier_call_chain, do atomic_inc(&nh->num_callers) at the start
+> > > and atomic_dec(&nh->num_callers) at the end.  Finally, make unregister do
+> > > this:
+> > > 
+> > > int notifier_chain_unregister(struct notifier_head *nh,
+> > >         struct notifier_block *n)
+> > > {
+> > > 	if (nh->type == ATOMIC_NOTIFIER) {
+> > > 	        spin_lock(nh->lock);
+> > > 	        list_del(&n->node);
+> > > 		smp_mb();
+> > > 		while (atomic_read(&nh->num_callers) > 0)
+> > > 			cpu_relax();
+> > > 	        spin_unlock(nh->lock);
+> > > 	} else {
+> > > 	...
+> > > 	}
+> > >         return 0;
+> > > }
+> > 
+> > But, how is the list protected in call_chain (will you be holding the
+> > lock in call_chain() while incrementing the atomic variable).
+> 
+> No; the list _won't_ be protected in call_chain.  It will be possible to
+> unregister a callout while the chain is in use.  That's how the RCU
+> approach works -- it uses no read locks, only write locks.
 
-The same kernel built for fc3 fails to boot in my Sony laptop. I see
-this:
+but, list_del poisons the next pointer which is not good for a reader
+that is walking through the list, we have to use list_del_rcu instead.
 
-Kernel panic - not syncing: Attempted to kill init!
+Also, do you think we have to use _rcu versions of list traversal
+functions in call_chain ?
+> 
+> Deleting an entry while the list is in use is safe, because readers will
+> encounter either the old or the new value of the .next pointer, and either
+> one will be valid.  The important thing is to make sure that no one will
+> ever encounter the old pointer after unregister returns; that's what the
+> "while" loop is for.
+>
+> Alan Stern
+> 
+> 
+-- 
 
-... then it sits there for some time, no traceback or anything and
-then...
-
-<3>BUG: init:1, possible softlockup detected on CPU#0
-[<c0148760>] softlockup_detected+0x30/0x40 (8)
-[] softlockup_tick+0xa0/0xb0 (20)
-[] update_process_times+0x62/0x70 (8)
-[] timer_interrupt+0x3b/0x70 (8)
-[] handle_IRQ_event+0x56/0xd0 (12)
-[] handle_IRQ_event+0x56/0xd0 (4)
-[] printk+0x17/0x20 (8)
-[] __do_IRQ+0x9e/0x140 (36)
-[] do_IRQ+0x34/0x70 (32)
-[] do_IRQ+0x34/0x70 (4)
-[] common_interrupt+0x1a/0x20 (16)
-[] __delay+0x20/0x30 (44)
-[] panic+0xe5/0xf0 (12)
-[] do_exit+0x3d1/0x400 (16)
-[] vfs_write+0x133/0x180 (20)
-[] do_group_exit+0x35/0xc0 (20)
-[] sys_write+0x41/0x70 (4)
-[] sysenter_past_esp+0x54/0x75 (28)
-
-This message keeps repeating at regular intervals. Subsequent prints
-don't start with the "<3>". 
-
-There could be typos and I ommited beginning addresses to save time,
-copied directly from my laptop screen. 
-
--- Fernando
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
 
 

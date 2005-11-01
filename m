@@ -1,118 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbVKAFPA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965025AbVKAFQt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964965AbVKAFPA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 00:15:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965025AbVKAFPA
+	id S965025AbVKAFQt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 00:16:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965027AbVKAFQt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 00:15:00 -0500
-Received: from smtp101.sbc.mail.re2.yahoo.com ([68.142.229.104]:49032 "HELO
-	smtp101.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S964965AbVKAFO7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 00:14:59 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Ian Wienand <ianw@gelato.unsw.edu.au>
-Subject: Re: [PATCH] Convert dmasound_awacs to dynamic input_dev allocation
-Date: Tue, 1 Nov 2005 00:14:56 -0500
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org
-References: <20051101020329.GA7773@cse.unsw.EDU.AU> <200510312217.08935.dtor_core@ameritech.net> <20051101035926.GE11202@cse.unsw.EDU.AU>
-In-Reply-To: <20051101035926.GE11202@cse.unsw.EDU.AU>
+	Tue, 1 Nov 2005 00:16:49 -0500
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:22662 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S965025AbVKAFQs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 00:16:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:Subject:Content-Type:Content-Transfer-Encoding;
+  b=03sYZ+dwrupYIkTylX7YpABlSFrWOjAA7DPAVjVv2yxgFtwUDHT/QNtG4e7IoWRWg2CgEarhjMlejn0tAwYo+Og5vNAd80+GiZ70wjM8dbV+Xgi48qVxdhv64t2Gf8DRsn2ccwJTFYhvvxZgx3Kn+8iCQPrg6y8XO0q4eZuciu8=  ;
+Message-ID: <4366FA9A.20402@yahoo.com.au>
+Date: Tue, 01 Nov 2005 16:18:18 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH 0/3] better zone and watermark balancing
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511010014.57026.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 31 October 2005 22:59, Ian Wienand wrote:
-> On Mon, Oct 31, 2005 at 10:17:08PM -0500, Dmitry Torokhov wrote:
-> > > +	awacs_beep_dev = input_allocate_device();
-> > 
-> > We really need to check whether device was allocated here...
-> 
-> AFAICS there is no easy way to bail without leaking from that point
-> (the comment already there suggests as much).  Would it be appropriate
-> to just BUG() out in that case and save somebody auditing and
-> re-architecturing for an unlikely error in a deprecated interface?
+This patchset I have had around for a long time and improves
+various zone and watermark balancing by making calculations
+more logical.
 
-It seems that the change is pretty straightforward... Could you please try
-this one?
- 
+When reading 128GB through the pagecache, in 4 concurrent
+streams, the final page residency and total reclaim ratios
+look like this (no highmem, ~900MB RAM):
+
+2.6.14-git3
+DMA pages=  2214, scan= 124146
+NRM pages=215966, scan=3990129
+
+      Pages  Scan
+DMA  01.01  03.01
+NRM  98.99  96.99
+
+
+2.6.14-git3-vm
+DMA pages=  2220, scan=  99264
+NRM pages=216373, scan=4011975
+
+      Pages  Scan
+DMA  01.01  02.41
+NRM  98.99  97.59
+
+So in this case, DMA is still getting a beating, but things have
+improved nicely. Now are results with highmem and ~4GB RAM:
+
+2.6.14-git3
+DMA pages=0, scan=0
+NRM pages=177241, scan=1607991
+HIG pages=817122, scan=1607166
+
+     Pages  Scan
+DMA 00.00  00.00
+NRM 17.83  50.01
+HIG 82.17  49.99
+
+2.6.14-git3-vm
+DMA pages=0, scan=0
+NRM pages=178215, scan=553311
+HIG pages=815771, scan=2757744
+
+     Pages  Scan
+DMA 00.00  00.00
+NRM 17.92  16.71
+HIG 82.07  83.28
+
+Current kernels are abysmal, while the patches bring scanning to
+an almost perfect ratio.
+
 -- 
-Dmitry
+SUSE Labs, Novell Inc.
 
-From: Ian Wienand <ianw@gelato.unsw.edu.au>
-
-Input: convert dmasound_awacs (OSS) to dynamic input allocation
-
-Signed-off-by: Ian Wienand <ianw@gelato.unsw.edu.au>
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- sound/oss/dmasound/dmasound_awacs.c |   31 +++++++++++++++++++------------
- 1 files changed, 19 insertions(+), 12 deletions(-)
-
-Index: work/sound/oss/dmasound/dmasound_awacs.c
-===================================================================
---- work.orig/sound/oss/dmasound/dmasound_awacs.c
-+++ work/sound/oss/dmasound/dmasound_awacs.c
-@@ -2805,16 +2805,7 @@ __init setup_beep(void)
- 	return 0 ;
- }
- 
--static struct input_dev awacs_beep_dev = {
--	.evbit		= { BIT(EV_SND) },
--	.sndbit		= { BIT(SND_BELL) | BIT(SND_TONE) },
--	.event		= awacs_beep_event,
--	.name		= "dmasound beeper",
--	.phys		= "macio/input0", /* what the heck is this?? */
--	.id		= {
--		.bustype	= BUS_HOST,
--	},
--};
-+static struct input_dev *awacs_beep_dev;
- 
- int __init dmasound_awacs_init(void)
- {
-@@ -2907,6 +2898,22 @@ printk("dmasound_pmac: couldn't find a C
- 		return -ENODEV;
- 	}
- 
-+	awacs_beep_dev = input_allocate_device();
-+	if (!awacs_beep_dev) {
-+		release_OF_resource(io, 0);
-+		release_OF_resource(io, 1);
-+		release_OF_resource(io, 2);
-+		printk(KERN_ERR "dmasound: can't allocate input device !\n");
-+		return -ENOMEM;
-+	}
-+
-+	awacs_beep_dev->name = "dmasound beeper";
-+	awacs_beep_dev->phys = "macio/input0";
-+	awacs_beep_dev->id.bustype = BUS_HOST;
-+	awacs_beep_dev->event = awacs_beep_event;
-+	awacs_beep_dev->sndbit[0] = BIT(SND_BELL) | BIT(SND_TONE);
-+	awacs_beep_dev->evbit[0] = BIT(EV_SND);
-+
- 	/* all OF versions I've seen use this value */
- 	if (i2s_node)
- 		i2s = ioremap(io->addrs[0].address, 0x1000);
-@@ -3140,14 +3147,14 @@ printk("dmasound_pmac: Awacs/Screamer Co
- 	 * XXX: we should handle errors here, but that would mean
- 	 * rewriting the whole init code.  later..
- 	 */
--	input_register_device(&awacs_beep_dev);
-+	input_register_device(awacs_beep_dev);
- 
- 	return dmasound_init();
- }
- 
- static void __exit dmasound_awacs_cleanup(void)
- {
--	input_unregister_device(&awacs_beep_dev);
-+	input_unregister_device(awacs_beep_dev);
- 
- 	switch (awacs_revision) {
- 		case AWACS_TUMBLER:
+Send instant messages to your online friends http://au.messenger.yahoo.com 

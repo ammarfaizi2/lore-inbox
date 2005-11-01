@@ -1,65 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbVKAUTo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbVKAUTH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750961AbVKAUTo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 15:19:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbVKAUTn
+	id S1751344AbVKAUTH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 15:19:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751355AbVKAUTH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 15:19:43 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:55728 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1750961AbVKAUTm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 15:19:42 -0500
-Subject: Re: Make spitz compile again
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: LKML <linux-kernel@vger.kernel.org>, Russell King <rmk@arm.linux.org.uk>
-In-Reply-To: <20051101200516.GA7172@elf.ucw.cz>
-References: <20051031134255.GA8093@elf.ucw.cz>
-	 <1130773530.8353.39.camel@localhost.localdomain>
-	 <20051101200516.GA7172@elf.ucw.cz>
+	Tue, 1 Nov 2005 15:19:07 -0500
+Received: from smtp1.Stanford.EDU ([171.67.16.123]:31665 "EHLO
+	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S1751344AbVKAUTF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 15:19:05 -0500
+Subject: Re: 2.6.14-rt1
+From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       john stultz <johnstul@us.ibm.com>, Mark Knecht <markknecht@gmail.com>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+       nando@ccrma.Stanford.EDU
+In-Reply-To: <20051030133316.GA11225@elte.hu>
+References: <20051017160536.GA2107@elte.hu> <20051020195432.GA21903@elte.hu>
+	 <20051030133316.GA11225@elte.hu>
 Content-Type: text/plain
-Date: Tue, 01 Nov 2005 20:19:31 +0000
-Message-Id: <1130876371.8489.27.camel@localhost.localdomain>
+Date: Tue, 01 Nov 2005 12:18:13 -0800
+Message-Id: <1130876293.6178.6.camel@cmn3.stanford.edu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-01 at 21:05 +0100, Pavel Machek wrote:
-> Hi!
+On Sun, 2005-10-30 at 14:33 +0100, Ingo Molnar wrote: 
+> i have released the 2.6.14-rt1 tree, which can be downloaded from the 
+> usual place:
 > 
-> > > This is what I needed to do after update to latest linus
-> > > kernel. Perhaps it helps someone. 
-> > > 
-> > > Signed-off-by: Pavel Machek <pavel@suse.cz>
-> > > 
-> > > , but it is against Richard's tree merged into my tree, so do not
-> > > expect to apply it over mainline. Akita code movement is needed if I
-> > > want to compile kernel without akita support...
-> > 
-> > This is an update of my tree against 2.6.14-git3:
-> > 
-> > http://www.rpsys.net/openzaurus/temp/total-2.6.14-git3-r0.patch.gz
+>    http://redhat.com/~mingo/realtime-preempt/
 > 
-> I did compile fixing, but it still will not boot. With neither my
-> config, not with yours. Just blank screen. Any ideas?
+> this release is mainly about ktimer fixes: it updates to the latest 
+> ktimer tree from Thomas Gleixner (which includes John Stultz's latest 
+> GTOD tree), it fixes TSC synchronization problems on HT systems, and 
+> updates the ktimers debugging code.
 > 
-> > http://www.rpsys.net/openzaurus/temp/total-2.6.14-git3-r0-defconfig-cxx00
+> These together could fix most of the timer warnings and annoyances 
+> reported for 2.6.14-rc5-rt kernels. In particular the new 
+> TSC-synchronization code could fix SMP systems: the upstream TSC 
+> synchronization method is fine for 1 usec resolution, but it was not 
+> good enough for 1 nsec resolution and likely caused the SMP bugs 
+> reported by Fernando Lopez-Lezcano and Rui Nuno Capela.
+> 
+> Please re-report any bugs that remain.
 
-I'm seeing the blank screen on the c7x0 models but my spitz kernels are
-all working.
+2.6.14-rt2 seems to be running fine on my athlon x2 smp system. Apart
+from some time warp messages when starting up it looks fine so far (this
+is on fc4). 
 
-I've traced the c7x0 problem to this patch:
+The same kernel built for fc3 fails to boot in my Sony laptop. I see
+this:
 
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=90072059d2963dec237ae0cf49831ef77ddb5739
+Kernel panic - not syncing: Attempted to kill init!
 
-I've asked Russell and he doesn't know what's wrong. I'm trying to write
-a patch which reverts this from 2.6.13-git3 but its complicated by some
-of the later arm patches.
+... then it sits there for some time, no traceback or anything and
+then...
 
-I was surprised the c7x0 problem happened and yet spitz was fine so
-perhaps this is related to your problem.
+<3>BUG: init:1, possible softlockup detected on CPU#0
+[<c0148760>] softlockup_detected+0x30/0x40 (8)
+[] softlockup_tick+0xa0/0xb0 (20)
+[] update_process_times+0x62/0x70 (8)
+[] timer_interrupt+0x3b/0x70 (8)
+[] handle_IRQ_event+0x56/0xd0 (12)
+[] handle_IRQ_event+0x56/0xd0 (4)
+[] printk+0x17/0x20 (8)
+[] __do_IRQ+0x9e/0x140 (36)
+[] do_IRQ+0x34/0x70 (32)
+[] do_IRQ+0x34/0x70 (4)
+[] common_interrupt+0x1a/0x20 (16)
+[] __delay+0x20/0x30 (44)
+[] panic+0xe5/0xf0 (12)
+[] do_exit+0x3d1/0x400 (16)
+[] vfs_write+0x133/0x180 (20)
+[] do_group_exit+0x35/0xc0 (20)
+[] sys_write+0x41/0x70 (4)
+[] sysenter_past_esp+0x54/0x75 (28)
 
-Richard
+This message keeps repeating at regular intervals. Subsequent prints
+don't start with the "<3>". 
+
+There could be typos and I ommited beginning addresses to save time,
+copied directly from my laptop screen. 
+
+-- Fernando
+
 

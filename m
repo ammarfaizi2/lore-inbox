@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbVKALtd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbVKAMHi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750739AbVKALtd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 06:49:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbVKALtd
+	id S1750768AbVKAMHi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 07:07:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbVKAMHi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 06:49:33 -0500
-Received: from hera.kernel.org ([140.211.167.34]:23199 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1750739AbVKALtc (ORCPT
+	Tue, 1 Nov 2005 07:07:38 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:21653 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S1750768AbVKAMHh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 06:49:32 -0500
-Date: Tue, 1 Nov 2005 04:34:02 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Grant Coady <gcoady@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.32-rc2
-Message-ID: <20051101063402.GA3311@logos.cnet>
-References: <20051031175704.GA619@logos.cnet> <4366E9AA.4040001@gmail.com> <20051101074959.GQ22601@alpha.home.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051101074959.GQ22601@alpha.home.local>
-User-Agent: Mutt/1.5.5.1i
+	Tue, 1 Nov 2005 07:07:37 -0500
+From: Pierre Ossman <drzeus@drzeus.cx>
+Subject: [PATCH] [MMC] Use controller id instead of driver name for printks
+Date: Tue, 01 Nov 2005 13:07:32 +0100
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>
+To: rmk+lkml@arm.linux.org.uk
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <20051101120731.8145.20792.stgit@poseidon.drzeus.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 01, 2005 at 08:49:59AM +0100, Willy Tarreau wrote:
-> Hi Marcelo, Hi Grant,
-> 
-> On Tue, Nov 01, 2005 at 03:06:02PM +1100, Grant Coady wrote:
-> > Marcelo Tosatti wrote:
-> > > Hi, 
-> > > 
-> > > Here goes the second release candidate for v2.4.32.
-> > > 
-> > Not break half a dozen boxen here :o)  Just a compile, boot, net login.
-> >   http://bugsplatter.mine.nu/test/linux-2.4/
-> > 
-> > Grant.
-> 
-> Using it to assemble and build 2.4.31-hf7 on athlon-SMP, and everything
-> is fine so far. Now building it on sparc64-SMP and alpha. Marcelo, will
-> you release this one as 2.4.32, or do you still have patches to be added ?
+The printks that aren't for debugging should use the name of the controller,
+not the driver name. Multiple MMC controllers aren't that common today, but
+this is the right way to do things.
 
-Hi Willy,
+Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
+---
 
-There is nothing else pending for v2.4.32 on my part. 
+ drivers/mmc/wbsd.c |   11 ++++++-----
+ 1 files changed, 6 insertions(+), 5 deletions(-)
 
-Will wait a couple of days and tag it as v2.4.32.
+diff --git a/drivers/mmc/wbsd.c b/drivers/mmc/wbsd.c
+--- a/drivers/mmc/wbsd.c
++++ b/drivers/mmc/wbsd.c
+@@ -201,7 +201,7 @@ static void wbsd_reset(struct wbsd_host*
+ {
+ 	u8 setup;
+ 
+-	printk(KERN_ERR DRIVER_NAME ": Resetting chip\n");
++	printk(KERN_ERR "%s: Resetting chip\n", mmc_hostname(host->mmc));
+ 
+ 	/*
+ 	 * Soft reset of chip (SD/MMC part).
+@@ -880,8 +880,9 @@ static void wbsd_finish_data(struct wbsd
+ 		 */
+ 		if (count)
+ 		{
+-			printk(KERN_ERR DRIVER_NAME ": Incomplete DMA "
+-				"transfer. %d bytes left.\n", count);
++			printk(KERN_ERR "%s: Incomplete DMA transfer. "
++				"%d bytes left.\n",
++				mmc_hostname(host->mmc), count);
+ 
+ 			data->error = MMC_ERR_FAILED;
+ 		}
+@@ -1169,8 +1170,8 @@ static void wbsd_tasklet_card(unsigned l
+ 
+ 		if (host->mrq)
+ 		{
+-			printk(KERN_ERR DRIVER_NAME
+-				": Card removed during transfer!\n");
++			printk(KERN_ERR "%s: Card removed during transfer!\n",
++				mmc_hostname(host->mmc));
+ 			wbsd_reset(host);
+ 
+ 			host->mrq->cmd->error = MMC_ERR_FAILED;
 
-Thanks guys!

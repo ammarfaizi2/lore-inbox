@@ -1,52 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbVKAOzn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbVKAO4g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750827AbVKAOzn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 09:55:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbVKAOzn
+	id S1750828AbVKAO4g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 09:56:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750832AbVKAO4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 09:55:43 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:7955 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750828AbVKAOzm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 09:55:42 -0500
-Date: Tue, 1 Nov 2005 15:55:38 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Kyle McMartin <kyle@parisc-linux.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] schedule obsolete OSS drivers for removal
-Message-ID: <20051101145538.GS8009@stusta.de>
-References: <20051030105118.GW4180@stusta.de> <20051030142752.GE6475@tachyon.int.mcmartin.ca> <20051030151256.GZ4180@stusta.de> <1130777453.32101.46.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1130777453.32101.46.camel@mindpipe>
-User-Agent: Mutt/1.5.11
+	Tue, 1 Nov 2005 09:56:35 -0500
+Received: from ppsw-7.csi.cam.ac.uk ([131.111.8.137]:59566 "EHLO
+	ppsw-7.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1750828AbVKAO4f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 09:56:35 -0500
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Subject: Re: [Linux-NTFS-Dev] [2.6-GIT] NTFS: Release 2.1.25.
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Yura Pakhuchiy <pakhuchiy@gmail.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-ntfs-dev@lists.sourceforge.net
+In-Reply-To: <1130856488.12766.14.camel@pc299.sam-solutions.net>
+References: <Pine.LNX.4.64.0510311408160.27357@hermes-1.csi.cam.ac.uk>
+	 <1130790267.2276.8.camel@localhost>
+	 <Pine.LNX.4.64.0510312040010.10190@hermes-1.csi.cam.ac.uk>
+	 <1130793939.2104.19.camel@localhost>
+	 <Pine.LNX.4.64.0510312136500.10190@hermes-1.csi.cam.ac.uk>
+	 <1130856488.12766.14.camel@pc299.sam-solutions.net>
+Content-Type: text/plain
+Organization: Computing Service, University of Cambridge, UK
+Date: Tue, 01 Nov 2005 14:56:27 +0000
+Message-Id: <1130856987.7361.1.camel@imp.csi.cam.ac.uk>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 31, 2005 at 11:50:52AM -0500, Lee Revell wrote:
-> On Sun, 2005-10-30 at 16:12 +0100, Adrian Bunk wrote:
+On Tue, 2005-11-01 at 16:48 +0200, Yura Pakhuchiy wrote:
+> On Mon, 2005-10-31 at 21:54 +0000, Anton Altaparmakov wrote:
+> > > About me, I did not tested this code before, at least because you had
+> > > not posted patches to mailing list when you send it to -mm. Sorry, but I
+> > > do not have git repository.
 > > 
-> > ALSA bugs [1] #1301 and #1302 are still open.
+> > That is a lame excuse:
+> > 
+> > 1) -mm contains the patch (obviously) as a single file in the split out 
+> > directory in Andrew's file space on kernel.org (where you would go to 
+> > download the -mm kernel anyway).
+> > 
+> > 2) If you had told me so I could have either posted the patches or put 
+> > them somewhere for you...  It takes me about 10 seconds to generate them:
+> > 
+> > cd /usr/src/ntfs-2.6-devel
+> > git format-patch -n <linus' head>
+> > 
+> > And I get all the patches output to disk...
 > 
-> I think these bug reports can be disregarded.  The submitter never
-> responded to requests to retest with the latest ALSA version.  #1302 is
-> almost certainly a bug in kphone anyway.
+> That was explanation, not excuse. If you want people to test your code,
+> you should prepare it in form comfortable for them to test. Sorry, but I
+> do not have time for searching where I can download code you need to
+> test. I think that many others potential testers do not use git too, and
+> link to patch or inlined patches much more comfortable for them.
 
-If these bugs will be marked as resolved/closed when I'll send the next 
-batch of OSS driver removals a few months from now, SOUND_AD1816 will be 
-part of this batch.
+I guess I just assume that anyone using -mm kernels know where the
+patches are (in case you did not know -mm is not in git, it is simple
+pathes, one for the whole -mm and then there are broken out patches, so
+there is an ntfs patch).
 
-> Lee
+But ok, I will point to patches next time round.  (-:
 
-cu
-Adrian
+Best regards,
 
+        Anton
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

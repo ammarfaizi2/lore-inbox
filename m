@@ -1,98 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbVKARqg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbVKARtG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751046AbVKARqg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 12:46:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751058AbVKARqg
+	id S1751052AbVKARtG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 12:49:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751058AbVKARtF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 12:46:36 -0500
-Received: from www1.cdi.cz ([194.213.194.49]:57268 "EHLO www1.cdi.cz")
-	by vger.kernel.org with ESMTP id S1751041AbVKARqf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 12:46:35 -0500
-Message-ID: <4367A9ED.5050306@cdi.cz>
-Date: Tue, 01 Nov 2005 18:46:21 +0100
-From: Martin Devera <devik@cdi.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: cs, en-us, en
-MIME-Version: 1.0
+	Tue, 1 Nov 2005 12:49:05 -0500
+Received: from zproxy.gmail.com ([64.233.162.205]:30491 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751052AbVKARtE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 12:49:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=LFF2GwVCCqdB88VbLz10BBOoyw4cnhN4cpBluXvH4XmayG03ZduQjL3cKmSWkni2AIwv63xbBe5B0yyQ819tRFXDGgd+MPRcXtSiq4FI9gmq4qQ5onLW2xQAa6lwtp3a3v1yamt37U6oQQ7CKrhvNa9c8ZvGJue7VlXo/Otc7UI=
+Message-ID: <5449aac20511010949x5d96c7e0meee4d76a67a06c01@mail.gmail.com>
+Date: Tue, 1 Nov 2005 17:49:03 +0000
+From: Alexander Fisher <alexjfisher@gmail.com>
+Reply-To: alex@alexfisher.me.uk
 To: linux-kernel@vger.kernel.org
-CC: phil@icglink.com, akpm@osdl.org, Eric.Moore@lsil.com, Holger.Kiehl@dwd.de,
-       James.Bottomley@SteelEye.com, artur.kedzierski@navy.mil
-Subject: Fusion-MPT slowness workaround
-Content-Type: multipart/mixed;
- boundary="------------010609040404020808020703"
-X-Spam-Score: -4.8 (----)
+Subject: Would I be violating the GPL?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010609040404020808020703
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hello.
 
-Hello,
+A supplier of a PCI mezzanine digital IO card has provided a linux 2.4
+driver as source code.  They have provided this code source with a
+license stating I won't redistribute it in anyway.
+My concern is that if I build this code into a module, I won't be able
+to distribute it to customers without violating either the GPL (by not
+distributing the source code), or the proprietary source code license
+as currently imposed by the supplier.
+>From what I have read, this concern is only valid if the binary module
+is considered to be a 'derived work' of the kernel.  The module source
+directly includes the following kernel headers :
 
-because I ran into problem with fusion mpt scsi with 2.6.14 yesterday
-I tried to find a workaround.
-Because it seems that there is bug in DV code I patched driver to skip
-DV and use firmware negotiation data.
-It "works for me" both compiled-in and as module.
+#include <linux/kernel.h>
+#include <linux/types.h>
+#include <linux/fs.h>
+#include <linux/errno.h>
+#include <linux/wrapper.h>
+#include <linux/module.h>
+#include <linux/iobuf.h>
+#include <linux/highmem.h>
+#include <asm/uaccess.h>
+#include <linux/mm.h>
+#include <asm/unistd.h>
 
-I tried to Cc all ppl who were working on the issue in past.
+Does this make the compiled module a derived work?  Are the 'static
+inlines' from the headers substantial enough?
 
-Martin Devera aka devik
-
---------------010609040404020808020703
-Content-Type: text/plain;
- name="mpt-dv-off.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="mpt-dv-off.diff"
-
-diff -urpb linux-2.6.14/drivers/message/fusion/mptscsih.c drivers/message/fusion/mptscsih.c
---- linux-2.6.14/drivers/message/fusion/mptscsih.c	Fri Oct 28 02:02:08 2005
-+++ drivers/message/fusion/mptscsih.c	Tue Nov  1 15:27:23 2005
-@@ -163,10 +163,10 @@ static int	mptscsih_synchronize_cache(MP
- 
- static struct work_struct   mptscsih_persistTask;
- 
-+static int	mptscsih_is_phys_disk(MPT_ADAPTER *ioc, int id);
- #ifdef MPTSCSIH_ENABLE_DOMAIN_VALIDATION
- static int	mptscsih_do_raid(MPT_SCSI_HOST *hd, u8 action, INTERNAL_CMD *io);
- static void	mptscsih_domainValidation(void *hd);
--static int	mptscsih_is_phys_disk(MPT_ADAPTER *ioc, int id);
- static void	mptscsih_qas_check(MPT_SCSI_HOST *hd, int id);
- static int	mptscsih_doDv(MPT_SCSI_HOST *hd, int channel, int target);
- static void	mptscsih_dv_parms(MPT_SCSI_HOST *hd, DVPARAMETERS *dv,void *pPage);
-@@ -4196,7 +4196,7 @@ mptscsih_domainValidation(void *arg)
- 
- 	return;
- }
--
-+#endif
- /* Search IOC page 3 to determine if this is hidden physical disk
-  */
- /* Search IOC page 3 to determine if this is hidden physical disk
-@@ -4216,6 +4216,7 @@ mptscsih_is_phys_disk(MPT_ADAPTER *ioc, 
- 
- 	return 0;
- }
-+#ifdef MPTSCSIH_ENABLE_DOMAIN_VALIDATION
- 
- /* Write SDP1 if no QAS has been enabled
-  */
-diff -urpb linux-2.6.14/drivers/message/fusion/mptscsih.h drivers/message/fusion/mptscsih.h
---- linux-2.6.14/drivers/message/fusion/mptscsih.h	Fri Oct 28 02:02:08 2005
-+++ drivers/message/fusion/mptscsih.h	Tue Nov  1 15:24:55 2005
-@@ -67,7 +67,7 @@
-  * capabilities.
-  */
- 
--#define MPTSCSIH_ENABLE_DOMAIN_VALIDATION
-+//#define MPTSCSIH_ENABLE_DOMAIN_VALIDATION
- 
- 
- /* SCSI driver setup structure. Settings can be overridden
-
-
---------------010609040404020808020703--
+I really want to have a clear understanding of the issues before
+contacting the supplier.  Any advice would be very much appreciated.
+Kind regards,
+Alex

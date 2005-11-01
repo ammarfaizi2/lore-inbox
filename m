@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964941AbVKAEup@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964950AbVKAEw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964941AbVKAEup (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 23:50:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964936AbVKAEup
+	id S964950AbVKAEw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 23:52:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbVKAEw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 23:50:45 -0500
-Received: from smtp112.sbc.mail.mud.yahoo.com ([68.142.198.211]:24932 "HELO
-	smtp112.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S964934AbVKAEuo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 23:50:44 -0500
-From: David Brownell <david-b@pacbell.net>
-To: Paul Mackerras <paulus@samba.org>
-Subject: Re: [PATCH] Don't touch USB controllers with MMIO disabled in quirks
-Date: Mon, 31 Oct 2005 20:50:41 -0800
-User-Agent: KMail/1.7.1
-Cc: akpm@osdl.org, torvalds@osdl.org, Alan Stern <stern@rowland.harvard.edu>,
-       Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org
-References: <17254.59690.713323.294726@cargo.ozlabs.ibm.com>
-In-Reply-To: <17254.59690.713323.294726@cargo.ozlabs.ibm.com>
+	Mon, 31 Oct 2005 23:52:56 -0500
+Received: from ozlabs.org ([203.10.76.45]:23945 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S964958AbVKAEwy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 23:52:54 -0500
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200510312050.42008.david-b@pacbell.net>
+Message-ID: <17254.62622.780185.729677@cargo.ozlabs.ibm.com>
+Date: Tue, 1 Nov 2005 15:52:46 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-usb-devel@lists.sourceforge.net,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Re: Commit "[PATCH] USB: Always do usb-handoff" breaks my powerbook
+In-Reply-To: <200510312017.39915.david-b@pacbell.net>
+References: <17253.43605.659634.454466@cargo.ozlabs.ibm.com>
+	<200510311909.32694.david-b@pacbell.net>
+	<1130815836.29054.420.camel@gaston>
+	<200510312017.39915.david-b@pacbell.net>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 31 October 2005 8:03 pm, Paul Mackerras wrote:
+David Brownell writes:
 
->  static void __devinit quirk_usb_early_handoff(struct pci_dev *pdev)
->  {
-> +	u16 cmd;
-> +
-> +	if (pci_read_config_word(pdev, PCI_COMMAND, &cmd) ||
-> +	    (cmd & PCI_COMMAND_MEMORY) == 0)
+> Maybe you should first pay attention to what I pointed out:  that
+> the problem reports I've seen have ONLY been on PPC systems.
 
-I suspect that should be
+Well, there is a problem in the code which is clearly visible just by
+inspection: that it is touching a pci device without having called
+pci_enable_device on it.  That is well known to cause problems on many
+platforms, and it is not guaranteed to work on any platform.
 
-	(tabs)	|| (cmd & (PCI_COMMAND_MEMORY|PCI_COMMAND_IO)) == 0
+With a clearly visible bug like that in there, it doesn't matter what
+platform(s) the problem is reported on.
 
-Admittedly that'll matter only for UHCI, which isn't much used out of
-x86 and ia64 ... but testing for both is more correct.  Other than that,
-this looks good to me.
-
-- Dave
-
-
-> +		return;
->  	if (pdev->class == PCI_CLASS_SERIAL_USB_UHCI)
->  		quirk_usb_handoff_uhci(pdev);
->  	else if (pdev->class == PCI_CLASS_SERIAL_USB_OHCI)
-> 
+Paul.

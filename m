@@ -1,82 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751373AbVKAWid@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751377AbVKAWrN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751373AbVKAWid (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 17:38:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751374AbVKAWid
+	id S1751377AbVKAWrN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 17:47:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbVKAWrN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 17:38:33 -0500
-Received: from ns.dynamicweb.hu ([195.228.155.139]:56785 "EHLO dynamicweb.hu")
-	by vger.kernel.org with ESMTP id S1751373AbVKAWic (ORCPT
+	Tue, 1 Nov 2005 17:47:13 -0500
+Received: from mail.gmx.de ([213.165.64.20]:55533 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751377AbVKAWrN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 17:38:32 -0500
-Message-ID: <044801c5df35$c6ffc9c0$0400a8c0@dcccs>
-From: "JaniD++" <djani22@dynamicweb.hu>
-To: "Paul Jackson" <pj@sgi.com>
-Cc: <linux-kernel@vger.kernel.org>, "Bill Davidsen" <davidsen@tmr.com>
-References: <035101c5df17$223eccb0$0400a8c0@dcccs><20051101123648.5743a5cf.pj@sgi.com><03c501c5df2c$9a19e2f0$0400a8c0@dcccs> <20051101142403.4b0897c9.pj@sgi.com>
-Subject: Re: cpuset - question
-Date: Tue, 1 Nov 2005 23:44:05 +0100
+	Tue, 1 Nov 2005 17:47:13 -0500
+X-Authenticated: #527675
+Message-ID: <4367F06D.2080405@gmx.de>
+Date: Tue, 01 Nov 2005 23:47:09 +0100
+From: Reinhard Nissl <rnissl@gmx.de>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+CC: linux-kernel@vger.kernel.org, "Brown, Len" <len.brown@intel.com>
+Subject: Re: processor module locks up hyperthreading enabled machine
+References: <88056F38E9E48644A0F562A38C64FB6005FDFBEA@scsmsx403.amr.corp.intel.com>
+In-Reply-To: <88056F38E9E48644A0F562A38C64FB6005FDFBEA@scsmsx403.amr.corp.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Paul Jackson, Bill Davidsen!
+Hi,
 
-Yes, with echo 0 > mems, this is works fine! :-)
+I'm sorry for the delay. Here are the results:
 
-But the documentation is a little small for cpusets...
+Pallipadi, Venkatesh wrote:
 
-Thanks
+> 1) Does this problem go way if you boot with maxcpus=1?
 
-Janos
------ Original Message ----- 
-From: "Paul Jackson" <pj@sgi.com>
-To: "JaniD++" <djani22@dynamicweb.hu>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Tuesday, November 01, 2005 11:24 PM
-Subject: Re: cpuset - question
+No.
 
+The modules are loaded via initrd and SuSE prints the name of the module 
+before loading it. So I get on console
 
-> > In this config i need NUMA option enabled to use cpusets?
->
-> No - if you got this far, cpusets are working for you.
->
-> You would need NUMA if you had multiple memory nodes.
->
-> I'm guessing you have one collection of RAM modules,
-> all equally distant from the processors, which is not
-> a NUMA (Non-Uniform-Memory-Architecture) system.
->
-> I only mentioned NUMA because if you did have NUMA
-> hardware, then you would need to CONFIG it into to
-> your kernel to make full use of your multiple memory
-> nodes.  I doubt that applies to you.
->
-> It looks like you have multiple (4 logical with HT)
-> CPUs, numbered 0, 1, 2, and 3, and one Memory Node,
-> numbered 0.
->
-> Cpusets should work for you - just "echo 0", not "echo 1"
-> into the "mems" files.  Your one and only Memory Node
-> is numbered "0", not "1".
->
-> Actually, make that "/bin/echo", not "echo", so you can
-> see the error messages.
->
-> -- 
->                   I won't rest till it's the best ...
->                   Programmer, Linux Scalability
->                   Paul Jackson <pj@sgi.com> 1.925.600.0401
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Loading processor
+ACPI: CPU0 (power states:C1[C1])
+ACPI: CPU0 (power states:C1[C1])
+Loading thermal
+Loading fan
+Waiting for device /dev/sda1 to appear: ok
+Attempting manual resume
+Loading jdb
+Loading ext
+Waiting for device /dev/sda2 to appear: ok
+rootfs: major=8 minor=2 devn=2050
 
+Then the system freezes.
+
+Without the maxcpus argument the freeze happens already in front of the 
+above "Loading thermal" line.
+
+> 2) Does the problem go away if you not load the acpi processor module?
+
+Yes.
+
+When I remove processor (and thermal as it has a dependency on 
+processor) to be loaded by initrd then the freeze happens at some time 
+later when acpid gets started, as SuSE loads these modules at that time 
+again in case they were not loaded already.
+
+When I remove loading the processor (and thermal) module at this 
+location too, then the system is running ok so far besides the 
+restrictions which result from not loading these modules.
+
+What should I try next?
+
+Bye.
+-- 
+Dipl.-Inform. (FH) Reinhard Nissl
+mailto:rnissl@gmx.de

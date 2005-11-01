@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbVKAMip@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbVKAMko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750776AbVKAMip (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 07:38:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbVKAMip
+	id S1750778AbVKAMko (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 07:40:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750779AbVKAMkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 07:38:45 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:7385 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750776AbVKAMip (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 07:38:45 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Doug Thompson <dthompson@lnxi.com>
-Subject: Re: PATCH: EDAC - clean up atomic stuff
-References: <1129902050.26367.50.camel@localhost.localdomain>
-	<m164rhbnyk.fsf@ebiederm.dsl.xmission.com>
-	<1130772628.9145.35.camel@localhost.localdomain>
-	<m1oe55abm4.fsf@ebiederm.dsl.xmission.com>
-	<20051031120254.4579dc9a.akpm@osdl.org>
-	<m18xw88thu.fsf@ebiederm.dsl.xmission.com>
-	<1130849199.9145.94.camel@localhost.localdomain>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 01 Nov 2005 05:38:07 -0700
-In-Reply-To: <1130849199.9145.94.camel@localhost.localdomain> (Alan Cox's
- message of "Tue, 01 Nov 2005 12:46:39 +0000")
-Message-ID: <m1zmoo7dcg.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Tue, 1 Nov 2005 07:40:43 -0500
+Received: from smtp1-g19.free.fr ([212.27.42.27]:38119 "EHLO smtp1-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1750778AbVKAMkn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 07:40:43 -0500
+From: Duncan Sands <duncan.sands@math.u-psud.fr>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH]  Eagle and ADI 930 usb adsl modem driver
+Date: Tue, 1 Nov 2005 13:40:41 +0100
+User-Agent: KMail/1.8.3
+Cc: matthieu castet <castet.matthieu@free.fr>,
+       linux-usb-devel@lists.sourceforge.net, usbatm@lists.infradead.org,
+       linux-kernel@vger.kernel.org
+References: <4363F9B5.6010907@free.fr> <20051031155803.2e94069f.akpm@osdl.org>
+In-Reply-To: <20051031155803.2e94069f.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511011340.41266.duncan.sands@math.u-psud.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+Hi Andrew,
 
->> There is a much more serious bug there as well.  The code as it
->> exists is flatly impossible on x86_64 and some other architectures
->> as they do not support kmap.  It is also broken on x86 as grain can
->
-> All platforms have kmap. On systems without "highmem" the kmap functions
-> simply return the page address of the existing permanent physical
-> mapping for the page. See include/linux/highmem.h
+> > +/*
+> > + * sometime hotplug don't have time to give the firmware the
+> > + * first time, retry it.
+> > + */
+> > +static int sleepy_request_firmware(const struct firmware **fw, 
+> > +		const char *name, struct device *dev)
+> > +{
+> > +	if (request_firmware(fw, name, dev) == 0)
+> > +		return 0;
+> > +	msleep(1000);
+> > +	return request_firmware(fw, name, dev);
+> > +}
+> 
+> egad.   Is there no better way?
 
-Duh, I just looked again.  I knew we had kmap, I had thought kmap_atomic
-was special enough that it wasn't always there.  I'm wrong. 
+this code looks like a 'orrible hack to work around a common problem
+with USB modem's of this type: if the modem is plugged in while the
+system boots, the driver may look for firmware before the filesystem
+holding the firmware is mounted; I guess the delay usually gives
+the filesystem enough time to be mounted.  I'm told that the correct
+solution is to stick the firmware in an initramfs as well.  That's a
+pity: it would be nice if users could just dump the firmware in an
+appropriate directory and have everything work [*].  As it is, they
+also have to regenerate an initramfs.
 
-> So it's all fine and larger than page sized scrubs can be added to the
-> core code when they are needed.
+Ciao,
 
-The set of memory controllers where software scrubbing is interesting
-and the set of memory controllers that need larger than page sized scrubs
-intersect quite strongly.  Although I don't think any of those
-memory controllers ever migrated over from the old ecc.c code base.
-We should at least have a BUG_ON((offset+size) > PAGE_SIZE) so we
-don't forget to fix it.
+Duncan.
 
-Eric
-
+[*] For legal reasons, users usually have to download and install
+the firmware themselves.  For the speedtouch modems I don't know
+of any distribution which comes with the firmware preinstalled.

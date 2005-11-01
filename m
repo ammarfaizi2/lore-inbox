@@ -1,40 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965012AbVKAEGr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965015AbVKAEHe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965012AbVKAEGr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Oct 2005 23:06:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbVKAEGr
+	id S965015AbVKAEHe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Oct 2005 23:07:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbVKAEHe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Oct 2005 23:06:47 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:41679 "EHLO
-	pd3mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S965012AbVKAEGq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Oct 2005 23:06:46 -0500
-Date: Mon, 31 Oct 2005 22:05:49 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: echo 0 > /proc/sys/vm/swappiness triggers OOM killer under 2.6.14.
-In-reply-to: <53vpu-s9-17@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <4366E99D.7070606@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <53vpu-s9-17@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+	Mon, 31 Oct 2005 23:07:34 -0500
+Received: from smtpout.mac.com ([17.250.248.88]:40183 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S965015AbVKAEHd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Oct 2005 23:07:33 -0500
+In-Reply-To: <200510311909.32694.david-b@pacbell.net>
+References: <17253.43605.659634.454466@cargo.ozlabs.ibm.com> <200510311741.56638.david-b@pacbell.net> <1130812903.29054.408.camel@gaston> <200510311909.32694.david-b@pacbell.net>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <BC88D0A1-453F-4716-96E6-3C89B915C477@mac.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-usb-devel@lists.sourceforge.net,
+       Paul Mackerras <paulus@samba.org>,
+       Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [linux-usb-devel] Re: Commit "[PATCH] USB: Always do usb-handoff" breaks my powerbook
+Date: Mon, 31 Oct 2005 23:06:53 -0500
+To: David Brownell <david-b@pacbell.net>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
-> Under 2.6.14 (UML), I have a workload that runs with 64 megs ram and 256 megs 
-> swap space.  It completes (albeit swapping like mad) with swappiness at the 
-> default 60, but if I set it to 0 the OOM killer kicks in and the script 
-> aborts.
+On Oct 31, 2005, at 22:09:32, David Brownell wrote:
+>>> Which logic?  The fundamental thing those USB handoff functions  
+>>> do is make sure that BIOS code lets go of the host controllers.   
+>>> The main reason it'd be using a controller is because of USB  
+>>> keyboards, mice, or maybe boot disks.  Secondarily, that code  
+>>> needs to make sure the controller is really quiesced before Linux  
+>>> starts using it.
+>>
+>> So you rant about "ppc specific" whatever while the entire point  
+>> of this code is to workaround x86 specific BIOS junk ...
+>
+> Actually any "sophisticated" boot loader nowadays will know  
+> something about USB, to handle keyboards, mice, or maybe boot disks.
 
-You should get some debugging output in dmesg when the OOM killer kicks 
-in, can you post this?
+OpenFirmware is quite knowledgeable about USB devices, both disks,  
+mice, keyboards, and IIRC there's even a USB<=>serial bridge useable  
+as an OpenFirmware console.
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+> On some platforms, u-Boot understands OHCI ... so that's not just  
+> x86 BIOS or other closed-source firmware.
+
+On other platforms, OpenFirmware supports direct ELF loading without  
+any extra code.  If you want initrd support, you need a little Forth  
+script (IE: yaboot) to load it into some RAM first.
+
+The difference is, OpenFirmware is nice and clean and stops messing  
+with hardware before handing off to the new kernel.  If you ever try  
+to boot from an invalid ELF file on an OpenFirmware machine, you'll  
+see that's fairly obvious, because the screen flashes and changes  
+state slightly during the failed boot attempt (after which it  
+reconnects to the hardware again to display messages).
+
+Why should x86-specific-BIOS-USB-handoff-specific-crap-PCI-quirks be  
+even _compiled_ on PowerPC systems that have nothing remotely like  
+the affected hardware (BIOS & PS/2 serio chip)?
+
+Cheers,
+Kyle Moffett
+
+--
+Simple things should be simple and complex things should be possible
+   -- Alan Kay
+
+
 

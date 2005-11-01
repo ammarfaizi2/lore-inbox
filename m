@@ -1,97 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbVKAVLv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbVKAVLa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751247AbVKAVLv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 16:11:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751237AbVKAVLu
+	id S1751231AbVKAVLa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 16:11:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbVKAVLa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 16:11:50 -0500
-Received: from zeus1.kernel.org ([204.152.191.4]:22733 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751220AbVKAVLt (ORCPT
+	Tue, 1 Nov 2005 16:11:30 -0500
+Received: from waste.org ([216.27.176.166]:8154 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1751231AbVKAVL3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 16:11:49 -0500
-Message-ID: <435FC01D.4090807@handhelds.org>
-Date: Wed, 26 Oct 2005 19:42:53 +0200
-From: Koen Kooi <koen@handhelds.org>
-Reply-To: koen@dominion.kabel.utwente.nl
-User-Agent: Mozilla Thunderbird 1.0.2 (Macintosh/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] correct wording in drivers/usb/net/KConfig
-References: <435E2362.6010203@handhelds.org> <20051026170349.GA3921@kroah.com>
-In-Reply-To: <20051026170349.GA3921@kroah.com>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: multipart/mixed;
- boundary="------------050702090409070205080304"
-X-UTwente-MailScanner-Information: Scanned by MailScanner. Contact helpdesk@ITBE.utwente.nl for more information.
-X-UTwente-MailScanner: Found to be clean
-X-MailScanner-From: koen@handhelds.org
+	Tue, 1 Nov 2005 16:11:29 -0500
+Date: Tue, 1 Nov 2005 13:06:18 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Rob Landley <rob@landley.net>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] slob: introduce the SLOB allocator
+Message-ID: <20051101210617.GS4367@waste.org>
+References: <3.494767362@selenic.com> <200511011451.55362.rob@landley.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200511011451.55362.rob@landley.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050702090409070205080304
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Greg KH wrote:
-> On Tue, Oct 25, 2005 at 02:21:54PM +0200, Koen Kooi wrote:
+On Tue, Nov 01, 2005 at 02:51:54PM -0600, Rob Landley wrote:
+> On Tuesday 01 November 2005 12:33, Matt Mackall wrote:
+> > SLOB is a traditional K&R/UNIX allocator with a SLAB emulation layer,
+> > similar to the original Linux kmalloc allocator that SLAB replaced.
+> > It's signicantly smaller code and is more memory efficient. But like
+> > all similar allocators, it scales poorly and suffers from
+> > fragmentation more than SLAB, so it's only appropriate for small
+> > systems.
 > 
->>+++ drivers/usb/net/Kconfig     2005-10-25 14:10:30.644935296 +0200
->>@@ -294,7 +294,7 @@
->>          This also supports some related device firmware, as used in some
->>          PDAs from Olympus and some cell phones from Motorola.
->> 
->>-         If you install an alternate ROM image, such as the Linux 2.6 based
->>+         If you install an alternate image, such as the Linux 2.6 based
+> Just to clarify: define "small".  My current laptop has half a gigabyte of 
+> ram.  (Yeah, I broke down and bought a real machine, and even kept a World of 
+> Warcraft partition this time...)
 > 
-> 
-> Your email client ate the tabs in the patch, and you forgot a
-> "Signed-off-by:" line for the patch.  Care to try it again?
+> Does small mean "this is better for laptops with < 4gig"?  In which case, 
+> possibly this should be tied to CONFIG_HIGHMEM or some such?
 
-Sure, attached should be a patch with correct tabs and a signed-off-by line.
+This is targeted at the bottom of the range that Linux supports, ie
+less than 32MB. I originally tested it with _2MB_.
 
-regards,
+This allocator's performance is linear in the number of
+smaller-than-a-page memory fragments (page-sized fragments get
+coalesced and handed back to the buddy allocator). When you've only
+got 4MB, scanning through all those fragments doesn't take long. When
+you've got 400MB, and a lot of fragmentation, it can be very slow
+indeed. SLAB, on the other hand, is nearly O(1).
 
-Koen
-
-> 
-> thanks,
-> 
-> greg k-h
-> 
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
-
-iD8DBQFDX8AdMkyGM64RGpERAohSAKCO1G22HGwFbl4UPOkHm7BzmpBpggCeIPO9
-RMhvH5wW/n7BFjPGc00FSlc=
-=DLez
------END PGP SIGNATURE-----
-
---------------050702090409070205080304
-Content-Type: text/x-patch; x-mac-type="0"; x-mac-creator="0";
- name="no-ROM.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="no-ROM.patch"
-
-# Signed-off-by: Koen Kooi <koen@handhelds.org>
-============================================================================================================================================================================================
---- ../Kconfig	2005-10-25 14:09:29.000000000 +0200
-+++ drivers/usb/net/Kconfig	2005-10-25 14:10:30.000000000 +0200
-@@ -294,7 +294,7 @@
- 	  This also supports some related device firmware, as used in some
- 	  PDAs from Olympus and some cell phones from Motorola.
- 
--	  If you install an alternate ROM image, such as the Linux 2.6 based
-+	  If you install an alternate image, such as the Linux 2.6 based
- 	  versions of OpenZaurus, you should no longer need to support this
- 	  protocol.  Only the "eth-fd" or "net_fd" drivers in these devices
- 	  really need this non-conformant variant of CDC Ethernet (or in
-
---------------050702090409070205080304--
+-- 
+Mathematics is the supreme nostalgia of our time.

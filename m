@@ -1,103 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbVKAU2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbVKAU3T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751127AbVKAU2y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 15:28:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbVKAU2y
+	id S1751155AbVKAU3T (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 15:29:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbVKAU3T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 15:28:54 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:17366 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751127AbVKAU2x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 15:28:53 -0500
-Date: Tue, 1 Nov 2005 20:05:56 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: dtor_core@ameritech.net
-Cc: vojtech@suse.cz, kernel list <linux-kernel@vger.kernel.org>,
-       rpurdie@rpsys.net, lenz@cs.wisc.edu
-Subject: Re: after latest input updates, locomo keyboard kills boot
-Message-ID: <20051101190556.GD29974@elf.ucw.cz>
-References: <20051101094945.GA7293@elf.ucw.cz> <d120d5000511010712o77b2b1afie52e47ac07b09a8c@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 1 Nov 2005 15:29:19 -0500
+Received: from smtp105.sbc.mail.mud.yahoo.com ([68.142.198.204]:37284 "HELO
+	smtp105.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751128AbVKAU3R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 15:29:17 -0500
+From: David Brownell <david-b@pacbell.net>
+To: Borislav Petkov <bbpetkov@yahoo.de>
+Subject: Re: Linux 2.6.14 ehci-hcd hangs machine
+Date: Tue, 1 Nov 2005 10:18:04 -0800
+User-Agent: KMail/1.7.1
+Cc: Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       greg@kroah.com
+References: <0EF82802ABAA22479BC1CE8E2F60E8C376CE22@scl-exch2k3.phoenix.com> <200510311624.31680.david-b@pacbell.net> <20051101112321.GA8691@gollum.tnic>
+In-Reply-To: <20051101112321.GA8691@gollum.tnic>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <d120d5000511010712o77b2b1afie52e47ac07b09a8c@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Message-Id: <200511011018.05117.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tuesday 01 November 2005 3:23 am, Borislav Petkov wrote:
+> Yeah, the symptoms are really weird. Let me rehash the whole history:
+> First, we did some testing with 2.6.14-rc4, _with_ the patch and the
+> 'handoff' cmd option and it worked. Then, several boots later, I noticed
+> that it started hanging itself again at the same position not while rebooting 
+> but at _initial_ boot in the morning. ...
 
-> > drivers/input/keyboard/locomokbd.c:
-> >
-> > struct locomokbd {
-> >        unsigned char keycode[LOCOMOKBD_NUMKEYS];
-> >        struct input_dev input;
-> >        ~~~~~~~~~~~~~~~~~~~~~~~
-> >
-> > ...and I guess that's the problem. What needs to be done? Just replace
-> > it with struct input_dev *?
-> 
-> Try the attached. BTW, shouldn't input->id.bus be BUS_HOST and not
-> >BUS_XTKBD?
-
-Yes, that helped, thanks a lot. Will you take care of merging, or
-should I push it through akpm?
-							Pavel
-
-Fix compilation of locomokbd.
-
-Signed-off-by: Pavel Machek <pavel@suse.cz>
-
----
-commit ea66607091fbd8cfd2f0ab3a6218ec4d0ba399e4
-tree 95f52c3742913a93cfdc6e15b43561cb1011ed2f
-parent 5e047cfca8cb5833ac7c96d7c000270307316d1f
-author <pavel@amd.(none)> Tue, 01 Nov 2005 20:03:07 +0100
-committer <pavel@amd.(none)> Tue, 01 Nov 2005 20:03:07 +0100
-
- drivers/input/keyboard/locomokbd.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/input/keyboard/locomokbd.c b/drivers/input/keyboard/locomokbd.c
---- a/drivers/input/keyboard/locomokbd.c
-+++ b/drivers/input/keyboard/locomokbd.c
-@@ -261,7 +261,7 @@ out:
- 	release_mem_region((unsigned long) dev->mapbase, dev->length);
- 	locomo_set_drvdata(dev, NULL);
- free:
--	input_free_device(input_dev)
-+	input_free_device(input_dev);
- 	kfree(locomokbd);
- 
- 	return ret;
+So you're saying your hardware doesn't act consistently.
+Is there a BIOS update you can try?  The failure sure seems
+to be board-specific.
 
 
-Fix wrong bustype.
+> ... 2.6.13, in contrast, boots just fine. Hope
+> that helps,
 
----
-commit cb4e751101b0e359cec50565caba977c1e6d5709
-tree b6779a09e5685efd00e72e5161f08bd6bc5b494a
-parent ea66607091fbd8cfd2f0ab3a6218ec4d0ba399e4
-author <pavel@amd.(none)> Tue, 01 Nov 2005 20:05:23 +0100
-committer <pavel@amd.(none)> Tue, 01 Nov 2005 20:05:23 +0100
+Well that's news, and not mentioned in the bug report; in fact, you
+said explicitly that it _never_ worked on earlier kernels (see your
+comment #2).
 
- drivers/input/keyboard/locomokbd.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+This means you could use "git bisect" to point a finger at a patch that,
+if it doesn't actually cause the problem, at least surfaces a latent bug
+in other code.  Could you please try that?
 
-diff --git a/drivers/input/keyboard/locomokbd.c b/drivers/input/keyboard/locomokbd.c
---- a/drivers/input/keyboard/locomokbd.c
-+++ b/drivers/input/keyboard/locomokbd.c
-@@ -230,7 +230,7 @@ static int locomokbd_probe(struct locomo
- 
- 	input_dev->name = "LoCoMo keyboard";
- 	input_dev->phys = locomokbd->phys;
--	input_dev->id.bustype = BUS_XTKBD;
-+	input_dev->id.bustype = BUS_HOST;
- 	input_dev->id.vendor = 0x0001;
- 	input_dev->id.product = 0x0001;
- 	input_dev->id.version = 0x0100;
+I'm starting to suspect some IRQ setup problem here; those are classically
+issues in ACPI code, even when the breakage shows only with USB.
 
-
--- 
-Thanks, Sharp!
+- Dave

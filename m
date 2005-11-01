@@ -1,36 +1,39 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751365AbVLAEKZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751365AbVLAEKZ (ORCPT <rfc822;akpm@zip.com.au>);
-	Wed, 30 Nov 2005 23:10:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbVLAEKZ
+	id S1751460AbVKAX5i (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 1 Nov 2005 18:57:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbVKAX5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Nov 2005 23:10:25 -0500
-Received: from host6.veoweb.net ([205.214.84.48]:19614 "EHLO host6.veoweb.net")
-	by vger.kernel.org with ESMTP id S1751365AbVLAEKY (ORCPT
+	Tue, 1 Nov 2005 18:57:38 -0500
+Received: from exprod5ob4.obsmtp.com ([64.18.0.104]:38609 "HELO psmtp.com")
+	by vger.kernel.org with SMTP id S1751460AbVKAX5L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Nov 2005 23:10:24 -0500
-Message-ID: <438E77B2.8090409@shurson.net>
-Date: Wed, 30 Nov 2005 22:10:26 -0600
-From: Glenn L Shurson <glenn@shurson.net>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Tue, 1 Nov 2005 18:57:11 -0500
+Reply-To: "Dalma" <dalma@vfemail.net>
+From: "Dalma" <dalma@vfemail.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Risparmia benzina fino al 25%
+Date: Wed, 2 Nov 2005 00:56:19 +0100
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: (no subject)
-References: <20051130055607.GA4406@kroah.com> <Pine.LNX.4.64.0511301018280.3099@g5.osdl.org> <20051130193559.GA13615@suse.de>
-In-Reply-To: <20051130193559.GA13615@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - host6.veoweb.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - shurson.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express
+Message-ID: <GMAILtwD43oFLaqSOc700001fe2@painterman.com>
+X-OriginalArrivalTime: 01 Nov 2005 23:46:54.0046 (UTC) FILETIME=[89A92FE0:01C5DF3E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751460AbVKAX5i@vger.kernel.org>
 
-unsubscribe linux-kernel
+
+Con il nuovo FuelSaver la tua auto consumera' fino al 25% di carburante
+in meno.Adatta a tutti i modelli di auto,camion,scooter,furgoni,ecc.Benzina,
+diesel o gpl e di semplicissima installazione.
+* Meno consumi
+* Maggiore potenza
+Per vedere il FuelSaver,come funziona e i risultati dei test ufficiali clicca su:
+http://fuelsaver.subito.cc/
+
+Garanzia 2 anni.14 giorni per provarlo di persona.Soddisfatti o rimborsati!
 

@@ -1,75 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932669AbVKBM1h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932670AbVKBMgL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932669AbVKBM1h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 07:27:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932670AbVKBM1h
+	id S932670AbVKBMgL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 07:36:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932671AbVKBMgL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 07:27:37 -0500
-Received: from silver.veritas.com ([143.127.12.111]:4898 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S932669AbVKBM1g
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 07:27:36 -0500
-Date: Wed, 2 Nov 2005 12:26:34 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Nick's core remove PageReserved broke vmware...
-In-Reply-To: <4368139A.30701@vc.cvut.cz>
-Message-ID: <Pine.LNX.4.61.0511021208070.7300@goblin.wat.veritas.com>
-References: <4367C25B.7010300@vc.cvut.cz> <4368097A.1080601@yahoo.com.au>
- <4368139A.30701@vc.cvut.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 02 Nov 2005 12:27:36.0572 (UTC) FILETIME=[CEB9F3C0:01C5DFA8]
+	Wed, 2 Nov 2005 07:36:11 -0500
+Received: from sv1.valinux.co.jp ([210.128.90.2]:63906 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S932670AbVKBMgK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 07:36:10 -0500
+Date: Wed, 02 Nov 2005 21:26:51 +0900 (JST)
+Message-Id: <20051102.212651.25143264.taka@valinux.co.jp>
+To: clameter@engr.sgi.com
+Cc: rob@landley.net, akpm@osdl.org, torvalds@osdl.org, kravetz@us.ibm.com,
+       raybry@mpdtxmail.amd.com, linux-kernel@vger.kernel.org,
+       lee.schermerhorn@hp.com, haveblue@us.ibm.com, magnus.damm@gmail.com,
+       pj@sgi.com, marcelo.tosatti@cyclades.com,
+       kamezawa.hiroyu@jp.fujitsu.com
+Subject: Re: [PATCH 0/5] Swap Migration V5: Overview
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <Pine.LNX.4.62.0511020030210.19157@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.62.0511010943310.16224@schroedinger.engr.sgi.com>
+	<20051102.143047.35521963.taka@valinux.co.jp>
+	<Pine.LNX.4.62.0511020030210.19157@schroedinger.engr.sgi.com>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Nov 2005, Petr Vandrovec wrote:
-> 
-> Nope.  We are not having PageReserved() set on our pages since we want them
-> refcounted.  But old SuSE kernels contained this code which was rather unhappy
-> if page did not have ->mapping set.
+Hi Christoph,
 
-Yes, Andrea's do_no_page enforced some tests which I found confusing and
-unhelpful, so I didn't propagate them to mainline when porting his rmap.
+>> > > > Do you think the features which these patches add should be Kconfigurable?
+>> 
+>> This code looks no help for hot-remove. It seems able to handle only
+>> pages easily to migrate, while hot-remove has to guarantee all pages
+>> can be migrated.
+>
+>Right.
+>
+>> Hi Christoph, sorry I've been off from lhms for long time.
+>> 
+>> Shall I port the generic memory migration code for hot-remove to -mm tree
+>> directly, and add some new interface like migrate_page_to(struct page *from,
+>> struct page *to) so this may probably fit for your purpose.
+>> 
+>> The code is still in Dave's mhp1 tree waiting for being merged to -mm tree.
+>> The port will be easy because the migration code is independent to the
+>> memory hotplug code. The core code isn't so big.
+>
+>Please follow the discussion on lhms-devel. I am trying to bring these two 
+>things together.
 
-> So we just marked vma VM_RESERVED, as it
-> did not hurt, and all pages in this vma have refcount > 1 anyway so there is
-> no point in trying to cleanup these page tables.  Now rmap catches this by
-> page_count() != page_mapcount(), so VM_RESERVED is not needed anymore, but
-> there did not seem to be any reason to remove it.
+I've read the archive of lhms-devel.
+You're going to take in most of the original migration code
+except for some tricks to migrate pages which are hard to move.
+I think this is what you said the complexity, which you
+want to remove forever.
 
-Well, beware.  That "page_count() != page_mapcount() + 2" check in rmap.c
-went away in 2.6.13: the problem it was there to solve being solved
-instead by a can_share_swap_page based on page_mapcount instead of
-page_count (partly to fix a page migration progress problem).
+I have to explain that this complexity came from making the code
+guarantee to be able to migrate any pages. So the code is designed:
+  - to migrate heavily accessed pages.
+  - to migrate pages without backing-store.
+  - to migrate pages without I/O's.
+  - to migrate pages of which status may be changed during the migration
+    correctly.
 
-So, you may still be in trouble?  But how do the pages you're concerned
-with come to be on the LRU in the first place?  If they're not on the
-LRU, vmscanning will never try to take them away.  Most drivers with
-special pages, and ->mapping unset, don't put the pages on the LRU.
+This have to be implemented if the hotplug memory use it.
+It seems to become a reinvention of the wheel to me.
 
-> --- vmmon-only/linux/driver.c.orig	2005-11-02 02:00:46.000000000 +0100
-> +++ vmmon-only/linux/driver.c	2005-11-01 20:12:13.000000000 +0100
-> @@ -1283,9 +1283,13 @@
-> /*
-> * It seems that SuSE's 2.6.4-52 needs this.  Hopefully
-> * it will not break anything else.
-> +    *
-> +    * It breaks on post 2.6.14 kernels, so get rid of it on them.
->    */
->  #ifdef VM_RESERVED
-> +#  if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 14)
->     vma->vm_flags |= VM_RESERVED;
-> +#  endif
-> #endif
->   return 0;
-> }
+It's easy to add a new interface to the code for memory policy aware
+migration. It will be wonderful doing process migration prior to
+planed hotremove momory. This decision should be done out of kernel.
 
-Nick's PageReserved/VM_RESERVED changes are not in 2.6.14 so I'd expect
-2.6.15 there.  Ah, you're trying to handle this awkward interval before
-2.6.15-rc1 brings the numbering up to 2.6.15, okay.
-
-Hugh
+Thanks,
+Hirokazu Takahashi.

@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932641AbVKBIMG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932647AbVKBIWD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932641AbVKBIMG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 03:12:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932642AbVKBIMG
+	id S932647AbVKBIWD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 03:22:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932646AbVKBIWB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 03:12:06 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:30157 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932641AbVKBIMF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 03:12:05 -0500
-Subject: Re: Trouble unloading a module..
-From: Arjan van de Ven <arjan@infradead.org>
-To: James Hansen <linux-kernel-list@f0rmula.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43664B31.3000305@f0rmula.com>
-References: <43664B31.3000305@f0rmula.com>
-Content-Type: text/plain
-Date: Wed, 02 Nov 2005 09:11:59 +0100
-Message-Id: <1130919119.2826.5.camel@laptopd505.fenrus.org>
+	Wed, 2 Nov 2005 03:22:01 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:49593 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932644AbVKBIV6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 03:21:58 -0500
+Date: Wed, 2 Nov 2005 00:21:42 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Andrew Vasquez <andrew.vasquez@qlogic.com>
+Cc: Ashutosh Naik <ashutosh.naik@gmail.com>, support@qlogic.com,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       stable@kernel.org
+Subject: Re: [stable] Re: [PATCH] scsi - Fix Broken Qlogic ISP2x00 Device Driver
+Message-ID: <20051102082142.GW5856@shell0.pdx.osdl.net>
+References: <81083a450511012313v25e292duf7b64da0ebf07835@mail.gmail.com> <20051102080711.GB626@plapn>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[84.119.168.181 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051102080711.GB626@plapn>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Andrew Vasquez (andrew.vasquez@qlogic.com) wrote:
+> On Wed, 02 Nov 2005, Ashutosh Naik wrote:
+> 
+> > This patch fixes the fact that although the scsi_transport_fc.h header
+> > file is not included in qla_def.h, we still reference the function
+> > fc_remote_port_unlock in the qlogic  ISP2x00 device driver ,
+> > qla2xxx/qla_rscn.c
+> 
+> Perhaps for the stable tree (2.6.14.x) this fix is appropriate.  The
+> scsi-misc-2.6.git tree already has codes which address this issue.
 
-> Being relatively inexperienced at kernel programming, does this point to 
-> anything that might be obvious to any of you, yet not to me? :)   Or are 
-> there any common stumbling blocks in terms of unloading modules on 64bit 
-> linux.
+It's preferable to have that fix pending in scsi-misc for -stable.
 
-you
-1) didn't give the oops here
-2) didn't post a URL to the driver source
-
-so.. how is anyone supposed to help?
-
+thanks,
+-chris

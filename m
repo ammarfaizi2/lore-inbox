@@ -1,66 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbVKBWxJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751526AbVKBWyj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751437AbVKBWxJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 17:53:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751527AbVKBWxJ
+	id S1751526AbVKBWyj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 17:54:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751528AbVKBWyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 17:53:09 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:22031 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751437AbVKBWxI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 17:53:08 -0500
-Date: Wed, 2 Nov 2005 22:52:57 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andy Isaacson <adi@hexapodia.org>
-Cc: Pavel Machek <pavel@suse.cz>, Richard Purdie <richard@openedhand.com>,
-       LKML <linux-kernel@vger.kernel.org>, Greg KH <gregkh@suse.de>,
-       linux-mips@linux-mips.org
-Subject: Re: [RFC] The driver model, I2C and gpio provision on Sharp SL-C1000 (Akita)
-Message-ID: <20051102225257.GE4778@flint.arm.linux.org.uk>
-Mail-Followup-To: Andy Isaacson <adi@hexapodia.org>,
-	Pavel Machek <pavel@suse.cz>,
-	Richard Purdie <richard@openedhand.com>,
-	LKML <linux-kernel@vger.kernel.org>, Greg KH <gregkh@suse.de>,
-	linux-mips@linux-mips.org
-References: <20051029190819.GB657@openzaurus.ucw.cz> <20051102194453.GF26542@hexapodia.org>
+	Wed, 2 Nov 2005 17:54:39 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:60577 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751526AbVKBWyi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 17:54:38 -0500
+Date: Wed, 2 Nov 2005 23:53:37 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Carlos Martin <carlosmn@gmail.com>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: sharp zaurus-5500: looking for testers
+Message-ID: <20051102225337.GJ23943@elf.ucw.cz>
+References: <20051102000003.GA467@elf.ucw.cz> <fe726f4e0511021440xdb80808p@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051102194453.GF26542@hexapodia.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <fe726f4e0511021440xdb80808p@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 02, 2005 at 11:44:53AM -0800, Andy Isaacson wrote:
-> On Sat, Oct 29, 2005 at 09:08:19PM +0200, Pavel Machek wrote:
-> > > I2C drivers appear relatively late in the boot procedure and changing
-> > > that isn't practical. I therefore ended up writing akita-ioexp which
-> > 
-> > It seems that making i2c init early is only sane choice. I realize PC people
-> > will hate it... but apart from that, why is it impractical?
+Hi!
+
+> > Is there someone out there, with sharp zaurus sl-5500, willing to test
+> > kernels? There's a linux-z tree on kernel.org, which I try to more or
+> > less keep in sync with mainline, that is slowly starting to get
+> > usable. It could use some testing.
 > 
-> FWIW, I have also run into this "I need I2C early in boot, but it's not
-> inited until late" on SiByte (arch/mips/sibyte/{sb1250,bcm1480}/setup.c).  
-> For the time being in the linux-mips tree we simply have two drivers
-> talking to the I2C interface - sibyte/swarm/rtc_* and i2c-sibyte.c,
-> and they are currently lacking even any trivial locking.  We haven't
-> seen any problems yet but that's due to limited exercise - the default
-> config doesn't hook up any drivers for the other chips on I2C.
+> I cloned your tree but it said one of the packs wasn't in the index. I
+> don't have the exact error message, sorry. I'll try again tomorrow.
+> Also your git tree (repository?) in kernel.org is a bit broken. The
+> git web interface gives me 403 error when I try to see a diff in your
+> zaurus.git tree, and there's stuff that appears to be missing (history
+> and commits).
+
+Yes, I'm working on that. Slow line, so I try to pick pack files from
+linus locally.
+
+> > Main drawback is that battery charging is not yet done; touchscreen is
+> > there but I did not have chance to test it with proper userspace
+> > filtering.
 > 
-> How do other arches that have I2C RTCs deal with this problem?  Or is
-> there something wrong with how arch/mips/kernel/time.c:time_init deals
-> with the rtc?
+> Does this mean the battery won't get charged when using the 2.6
+> kernel, or that it won't get reported?
 
-On ARM, where we have I2C RTCs, I tend to leave xtime well alone in
-time_init and just setup the timer.  When i2c is initialised, and
-the bus and RTC have been detected, I set the time from them at
-that point.
+Won't get charged. One trick is remove battery before booting 2.6 and
+work from AC power.
 
-I haven't seen any problems with this approach.  In fact, I'd
-rather time_init() just setup the timer, and we set the time of
-day later during the kernels initialisation.
-
+								Pavel
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Thanks, Sharp!

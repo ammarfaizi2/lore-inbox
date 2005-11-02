@@ -1,56 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbVKBCdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932229AbVKBCs3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932222AbVKBCdo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 21:33:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbVKBCdo
+	id S932229AbVKBCs3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 21:48:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbVKBCs3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 21:33:44 -0500
-Received: from fmr18.intel.com ([134.134.136.17]:39880 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932222AbVKBCdn convert rfc822-to-8bit (ORCPT
-	<rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Tue, 1 Nov 2005 21:33:43 -0500
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Subject: RE: [PATCH 2.6.14-rc1-git5] sched: disable preempt in idle tasks
-Date: Wed, 2 Nov 2005 10:33:19 +0800
-Message-ID: <59D45D057E9702469E5775CBB56411F1C19A01@pdsmsx406>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2.6.14-rc1-git5] sched: disable preempt in idle tasks
-thread-index: AcW+7lBaYVOB5k1ET+aChvJ2/+Z7ZwgZq0hg
-From: "Li, Shaohua" <shaohua.li@intel.com>
-To: "Nick Piggin" <nickpiggin@yahoo.com.au>, "Andrew Morton" <akpm@osdl.org>,
-       "Nigel Cunningham" <ncunningham@cyclades.com>,
-       "Srivatsa Vaddagiri" <vatsa@in.ibm.com>,
-       "Linux Kernel Mailing List" <Linux-Kernel@vger.kernel.org>,
-       "Ian Molton" <spyro@f2s.com>
-X-OriginalArrivalTime: 02 Nov 2005 02:33:17.0249 (UTC) FILETIME=[C81D1310:01C5DF55]
+	Tue, 1 Nov 2005 21:48:29 -0500
+Received: from host-84-9-201-132.bulldogdsl.com ([84.9.201.132]:24962 "EHLO
+	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S932229AbVKBCs3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 21:48:29 -0500
+Date: Wed, 2 Nov 2005 02:47:55 +0000
+From: Ben Dooks <ben@fluff.org.uk>
+To: Pavel Machek <pavel@suse.cz>
+Cc: vojtech@suse.cz, rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: Re: best way to handle LEDs
+Message-ID: <20051102024755.GA14148@home.fluff.org>
+References: <20051101234459.GA443@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051101234459.GA443@elf.ucw.cz>
+X-Disclaimer: I speak for me, myself, and the other one of me.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nick,
->This patch should hopefully fix Nigel's bug.
->
->Split out from sched-resched-opt.patch. Tested on i386 with acpi idle
->and poll idle (previous iterations tested on various other
-architectures).
->
->CCed Ian because I am amazed that arm26 ever managed to reschedule
->out of the idle task without this... what am I missing?
->
->Andrew please apply
-What's the status of the patch? I didn't see it in base kernel.
-We found another bug related with this issue. On UP system, if a CPU
-enters 
-'mwait_idle', it never leaves it, as the 'mwait_idle' loop will never
-end.
-Disabling preempt fixes the bug. Should I submit a patch just disabling
-preempt in 'mwait_idle' or wait for your patch?
+On Wed, Nov 02, 2005 at 12:44:59AM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> Handheld machines have limited number of software-controlled status
+> LEDs. Collie, for example has two of them; one is labeled "charge" and
+> second is labeled "mail".
+> 
+> At least the "mail" led should be handled from userspace, and it would
+> be nice if (at least) different speeds of blinking could be used --
+> original Sharp ROM uses at least:
+> 
+> yellow off: 	not charging
+> yellow on:	charging
+> yellow fast blink: charge error
+> 
+> I think even slow blinking was used somewhere. I have some code from
+> John Lenz (attached); it uses sysfs interface, exports led collor, and
+> allows setting different frequencies.
+> 
+> Is that acceptable, or should some other interface be used?
 
-Thanks,
-Shaohua
+there is already an LED interface for linux-arm, which is
+used by a number of the extant machines in the sa11x0 and
+pxa range.
+
+-- 
+Ben (ben@fluff.org, http://www.fluff.org/)
+
+  'a smiley only costs 4 bytes'

@@ -1,59 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965201AbVKBTuu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965204AbVKBTyN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965201AbVKBTuu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 14:50:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965202AbVKBTuu
+	id S965204AbVKBTyN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 14:54:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965205AbVKBTyN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 14:50:50 -0500
-Received: from de01egw02.freescale.net ([192.88.165.103]:3985 "EHLO
-	de01egw02.freescale.net") by vger.kernel.org with ESMTP
-	id S965201AbVKBTut (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 14:50:49 -0500
-From: Steve Snyder <R00020C@freescale.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Can I reduce CPU use of conntrack/masq?
-Date: Wed, 2 Nov 2005 14:50:47 -0500
-User-Agent: KMail/1.8.2
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Nov 2005 14:54:13 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:13709 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S965204AbVKBTyM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 14:54:12 -0500
+Date: Thu, 3 Nov 2005 01:18:00 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>,
+       Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
+Subject: Re: bad page state under possibly oom situation
+Message-ID: <20051102194800.GM6137@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20051102143502.GE6137@in.ibm.com> <Pine.LNX.4.61.0511021614110.10299@goblin.wat.veritas.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511021450.47657.R00020C@freescale.com>
+In-Reply-To: <Pine.LNX.4.61.0511021614110.10299@goblin.wat.veritas.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Wed, Nov 02, 2005 at 04:33:21PM +0000, Hugh Dickins wrote:
+> On Wed, 2 Nov 2005, Dipankar Sarma wrote:
+> > 
+> > Bad page state at prep_new_page (in process 'rename14', page ffff810008002aa8)
+> > flags:0x4000000000000090 mapping:0000000000000000 mapcount:0 count:0
+> > Backtrace:
+> > 
+> 
+> (I don't know that it makes any difference, but was this particular report
+> from 2.6.9-rc2 or from 2.6.14 or from something else?  In both 2.6.9 and
+> 2.6.14, flags 0x90 mean PG_slab|PG_dirty.)
+> 
+> > Recently, I tested this with 2.6.14 and it worked. I then tried
+> > setting rcupdate.maxbatch=10 as it was before 2.6.14 and the bad
+> > page state problem happened again. Looks like it happens only under
+> > memory pressure and likely have something to do with slab.
+> > I am wondering if that rings a bell with anyone. Manfred ?
+> 
+> 
+> I did look back at that when we discussed your Bad page state before,
+> and didn't find anything wrong.  But now you're reproducing it again,
+> it would be good to rule it in or out.
+> 
+> Could you run the rename14 test on whatever kernel suits you, but
+> built with mm/rmap.c omitting the SLAB_DESTROY_BY_RCU flag to
+> kmem_cache_create?  There's then a tiny chance that rmap will try
+> to access a freed anon_vma struct, I'm not sure how that would
+> behave offhand; but that chance should be a lot tinier than what
+> you're finding quite easy to reproduce.
 
-I am working on what amounts to a Ethernet to Ultra-Wide Band (UWB) 
-converter box.  Packets are simply routed from 1 interface to 
-another.
+I am really not comfortable with the SLAB_DESTROY_BY_RCU thing.
+I am not familiar with rmap code, so I could be wrong but
+it isn't clear to me why you are protecting only the slab
+and not the anon_vma slab objects. How do you ensure that
+the anon_vma objects don't get re-used ? If they do,
+then how do you prevent freeing an in-use anon_vma ?
+It seems that the critical sections are not clearly
+identified here.
 
-This box is based on an ARM7TDMI CPU, running Linux 2.4.26, and the 
-network throughput of the box is CPU-limited.  How limited?  The 
-100Mbps/FD Ethernet can do no better than 35Mbps.
+> 
+> If you don't get the Bad page state with that kernel, then it'll
+> be worth scrutinizing the SLAB_DESTROY_BY_RCU path in mm/slab.c.
 
-I've discovered that I can improve Ethernet throughput by about %20 by 
-removing the the conntrack/masq support from the kernel.  The removal 
-is good only as a test, though, since I need this functionality to 
-move the packets between interfaces.  
+I tried commenting out SLAB_DESTROY_BY_RCU for anon_vma caache,
+but I still hit the problem. So, that may not be it. I guess I can
+look at the bad page and see if I can extract some information
+from there.
 
-This is the relevant config:
-
-CONFIG_IP_NF_CONNTRACK=y
-CONFIG_IP_NF_IPTABLES=y
-CONFIG_IP_NF_NAT=y
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=y
-
-Enabled at boot time like this:
-
-/sbin/iptables -t nat -A POSTROUTING -o uwb0 -j MASQUERADE
-echo "1" > /proc/sys/net/ipv4/ip_forward
-
-I wonder if I can improve conntrack/masq performance at the expense of 
-flexibility.  This will be a closed system, with simple and static 
-routing.  Are there any trade-offs I can make to sacrifice unneeded 
-flexibility in routing for reduced CPU utilization in conntrack/masq?
-
-Thanks.
+Thanks
+Dipankar

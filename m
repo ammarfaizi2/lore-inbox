@@ -1,69 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbVKBAxV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbVKBBDk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932114AbVKBAxV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 19:53:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbVKBAxV
+	id S932119AbVKBBDk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 20:03:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbVKBBDk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 19:53:21 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:23049 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932113AbVKBAxU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 19:53:20 -0500
-Date: Wed, 2 Nov 2005 01:53:16 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, jgarzik@pobox.com
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: [-mm patch] fix NET_RADIO=n, IEEE80211=y compile
-Message-ID: <20051102005316.GC8009@stusta.de>
-References: <20051024014838.0dd491bb.akpm@osdl.org>
+	Tue, 1 Nov 2005 20:03:40 -0500
+Received: from sabe.cs.wisc.edu ([128.105.6.20]:50598 "EHLO sabe.cs.wisc.edu")
+	by vger.kernel.org with ESMTP id S932119AbVKBBDk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 20:03:40 -0500
+Message-ID: <55055.192.168.0.12.1130893399.squirrel@192.168.0.2>
+In-Reply-To: <1130891953.8489.83.camel@localhost.localdomain>
+References: <20051101234459.GA443@elf.ucw.cz>
+    <1130891953.8489.83.camel@localhost.localdomain>
+Date: Tue, 1 Nov 2005 19:03:19 -0600 (CST)
+Subject: Re: best way to handle LEDs
+From: "John Lenz" <lenz@cs.wisc.edu>
+To: "Richard Purdie" <rpurdie@rpsys.net>
+Cc: "Pavel Machek" <pavel@suse.cz>, vojtech@suse.cz,
+       "kernel list" <linux-kernel@vger.kernel.org>,
+       "Russell King" <rmk@arm.linux.org.uk>
+User-Agent: SquirrelMail/1.4.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051024014838.0dd491bb.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 24, 2005 at 01:48:38AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.14-rc4-mm1:
->...
->  git-netdev-all.patch
->...
->  Subsystem trees
->...
+On Tue, November 1, 2005 6:39 pm, Richard Purdie said:
+> On Wed, 2005-11-02 at 00:44 +0100, Pavel Machek wrote:
+>> Handheld machines have limited number of software-controlled status
+>> LEDs. Collie, for example has two of them; one is labeled "charge" and
+>> second is labeled "mail".
+>
+>> I think even slow blinking was used somewhere. I have some code from
+>> John Lenz (attached); it uses sysfs interface, exports led collor, and
+>> allows setting different frequencies.
+>>
+>> Is that acceptable, or should some other interface be used?
+>
+> This has been discussed before and I know there are several differing
+> opinions.
+>
+> Based upon previous discussion both here, on linux-arm-kernel and in the
+> handhelds community in general I came up with some ideas which I've yet
+> to have time to code. I'll try and describe it though:
+>
+> The system would be in two sections (classes?), leds themselves and led
+> triggers. The leds would be driven by something similar to John's driver
+> Pavel attached. I think colour and other unchanging properties of the
+> device should be something exported in the device name which could have
+> some format like: device_name-colour-otherprops.
 
+I believe that this can be built on top of my patch.  If you take a look
+at the led patch Pavel posted, it allows for in kernel code to acquire the
+led by calling leds_acquire. Once a led is acquired through leds_acquire
+function, any input from userspace is ignored.
 
-<--  snip  -->
+Any interested kernel code can also register an interface to watch for led
+additions and removals.
 
+>
+> Led triggers would be kernel sources of led on/off events. Some
+> examples:
+>
+> 2Hz Heartbeat - useful for debugging (and/or Generic Timer)
 
-This patch fixes the following compile error with CONFIG_NET_RADIO=n and 
-CONFIG_IEEE80211=y:
+This is included already in the leds driver part, although it could be
+removed I guess...
 
-  LD      .tmp_vmlinux1
-net/built-in.o: In function `ieee80211_rx':
-: undefined reference to `wireless_spy_update'
-make: *** [.tmp_vmlinux1] Error 1
+> CPU Load indicator
+> Charging indicator
+> HDD activity (useful for microdrive on handheld)
+> Network activity
+> no doubt many more
 
+All these are great ideas for triggers.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>
+> led triggers would be connected to leds via sysfs. Each trigger would
+> probably have a number you could echo into an led's trigger attribute.
+> Sensible default mappings could be had by assigning a default trigger to
+> a device by name in the platform code that declares the led.
 
---- linux-2.6.14-rc5-mm1-full/net/ieee80211/ieee80211_rx.c.old	2005-11-01 22:17:45.000000000 +0100
-+++ linux-2.6.14-rc5-mm1-full/net/ieee80211/ieee80211_rx.c	2005-11-01 22:17:01.000000000 +0100
-@@ -370,6 +370,7 @@
- 	/* Put this code here so that we avoid duplicating it in all
- 	 * Rx paths. - Jean II */
- #ifdef IW_WIRELESS_SPY		/* defined in iw_handler.h */
-+#ifdef CONFIG_NET_RADIO
- 	/* If spy monitoring on */
- 	if (ieee->spy_data.spy_number > 0) {
- 		struct iw_quality wstats;
-@@ -396,6 +397,7 @@
- 		/* Update spy records */
- 		wireless_spy_update(ieee->dev, hdr->addr2, &wstats);
- 	}
-+#endif				/* CONFIG_NET_RADIO */
- #endif				/* IW_WIRELESS_SPY */
- 
- #ifdef NOT_YET
+This would be part of the triggers module... passing the right stuff into
+those sysfs options would cause the triggers module to call leds_acquire
+on the right led_properties structure.
+
+>
+> A trigger of "0" would mean the led becomes under userspace control via
+> sysfs for whatever userspace wishes to do with it.
+
+A trigger of "0" would call leds_release, which would cause the input from
+userspace in the leds driver to be accepted again.
+
+>
+> The underlying principle would be to keep this class as simple as
+> possible whilst maximising the options open for triggering the leds from
+> both the kernel and userspace.
+>
+> Does this sound like a sensible way forward?
+>
+
+I think it can already be done from my patch... all the functions are
+already there for in kernel manipulation.
+
+John
 

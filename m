@@ -1,60 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965196AbVKBToz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965197AbVKBTqd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965196AbVKBToz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 14:44:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965197AbVKBToz
+	id S965197AbVKBTqd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 14:46:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965199AbVKBTqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 14:44:55 -0500
-Received: from straum.hexapodia.org ([64.81.70.185]:39705 "EHLO
-	straum.hexapodia.org") by vger.kernel.org with ESMTP
-	id S965196AbVKBToy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 14:44:54 -0500
-Date: Wed, 2 Nov 2005 11:44:53 -0800
-From: Andy Isaacson <adi@hexapodia.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Richard Purdie <richard@openedhand.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>, Greg KH <gregkh@suse.de>,
-       linux-mips@linux-mips.org
-Subject: Re: [RFC] The driver model, I2C and gpio provision on Sharp SL-C1000 (Akita)
-Message-ID: <20051102194453.GF26542@hexapodia.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 2 Nov 2005 14:46:33 -0500
+Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:21905 "HELO
+	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S965197AbVKBTqc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 14:46:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=SRux+Z2pSfDBg87DNrKd+/fB+eMujetP1PV5fSr8wWeiTYFA81wHyPaxvpdkDCebjJmPPllv/bJOKHkzyWuJNegbDGwSmvrYqcXDyx8Dvzt9VS+MA3Sf//OlEsXwqwqD3x9/bL8sjUfdlvDSFtj01CDgRZErrKDeDUtQ7S7OEEc=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] [PATCH 8/10] UML - Maintain own LDT entries
+Date: Wed, 2 Nov 2005 20:51:22 +0100
+User-Agent: KMail/1.8.3
+Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
+       bstroesser@fujitsu-siemens.com, Allan Graves <allan.graves@oracle.com>
+References: <200510310439.j9V4dfbw000872@ccure.user-mode-linux.org>
+In-Reply-To: <200510310439.j9V4dfbw000872@ccure.user-mode-linux.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051029190819.GB657@openzaurus.ucw.cz>
-User-Agent: Mutt/1.4.2i
+Message-Id: <200511022051.24335.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 29, 2005 at 09:08:19PM +0200, Pavel Machek wrote:
-> > I2C drivers appear relatively late in the boot procedure and changing
-> > that isn't practical. I therefore ended up writing akita-ioexp which
-> 
-> It seems that making i2c init early is only sane choice. I realize PC people
-> will hate it... but apart from that, why is it impractical?
+On Monday 31 October 2005 05:39, Jeff Dike wrote:
+> From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+>
+> Patch imlements full LDT handling in SKAS:
+>  * UML holds it's own LDT table, used to deliver data on
+>    modify_ldt(READ)
+>  * UML disables the default_ldt, inherited from the host (SKAS3)
+>    or resets LDT entries, set by host's clib and inherited in
+>    SKAS0
+>  * A new global variable skas_needs_stub is inserted, that
+>    can be used to decide, whether stub-pages must be supported
+>    or not.
+>  * Uses the syscall-stub to replace missing PTRACE_LDT (therefore,
+>    write_ldt_entry needs to be modified)
+Two complaints against this patch (to be fixed afterwards, so I'm not CC'ing 
+akpm):
 
-FWIW, I have also run into this "I need I2C early in boot, but it's not
-inited until late" on SiByte (arch/mips/sibyte/{sb1250,bcm1480}/setup.c).  
-For the time being in the linux-mips tree we simply have two drivers
-talking to the I2C interface - sibyte/swarm/rtc_* and i2c-sibyte.c,
-and they are currently lacking even any trivial locking.  We haven't
-seen any problems yet but that's due to limited exercise - the default
-config doesn't hook up any drivers for the other chips on I2C.
+*) It reverts my cleanup and consolidation of ldt.c wrt. SKAS vs TT.
 
-How do other arches that have I2C RTCs deal with this problem?  Or is
-there something wrong with how arch/mips/kernel/time.c:time_init deals
-with the rtc?
+Or at least so I think (I must still give a proper look afterwards, and I'll 
+post patches). Actually it seems that this is done on purpose, but I don't 
+agree too much on this. I will see.
 
-> > There is a fundamental problem with the lack of a proper gpio interface
-> > in Linux. Every driver does something different with them (be it pxa
-> > specific gpios, SCOOP gpios, those on a IO expander, those on a video
-> > chip (w100fb springs to mind) to name just the Zaurus specific ones.
-> 
-> Yup. GPIOs are not problem on i386, so noone solved this one :-(.
+*) Doesn't compile on old GCC's - it uses anonymous unions:
+(it's asm-um/ldt-i386.h).
+> +
+> +struct ldt_entry {
+> +	__u32 a;
+> +	__u32 b;
+> +};
 
-I would also be overjoyed to have a GPIO infrastructure to plug into.
+> +typedef struct uml_ldt {
+> +	int entry_count;
+> +	struct semaphore semaphore;
+> +	union {
+> +		struct ldt_entry * pages[LDT_PAGES_MAX];
+> +		struct ldt_entry entries[LDT_DIRECT_ENTRIES];
+> +	};
+> +} uml_ldt_t;
 
-(And I would say "GPIOs are not used on PCs"; I am confident the Geode
-driving the seat-back TV on this Song flight has GPIOs...)
+Suggestions for almost free replacement of anonymous union: 
+> Index: 2.6.14-akpm/include/asm-um/ldt.h
+> ===================================================================
+> --- 2.6.14-akpm.orig/include/asm-um/ldt.h	2005-08-28 19:41:01.000000000
+> -0400 +++ 2.6.14-akpm/include/asm-um/ldt.h	2005-10-28 17:31:07.000000000
+AAAAAAAAAAAARGH!!!!!!!!!!!!!! This is supposed to be a  _SYMLINK_!
 
--andy
+-- 
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
+
+	
+
+	
+		
+___________________________________ 
+Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
+http://mail.yahoo.it

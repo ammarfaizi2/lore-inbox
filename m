@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965054AbVKBOjB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965053AbVKBOkZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965054AbVKBOjB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 09:39:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965053AbVKBOjB
+	id S965053AbVKBOkZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 09:40:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965056AbVKBOkZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 09:39:01 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:35561 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S965054AbVKBOjB (ORCPT
+	Wed, 2 Nov 2005 09:40:25 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:46278 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965053AbVKBOkY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 09:39:01 -0500
-Subject: Re: best way to handle LEDs
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Pavel Machek <pavel@suse.cz>
-Cc: vojtech@suse.cz, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>
-In-Reply-To: <20051102135614.GL30194@elf.ucw.cz>
-References: <20051101234459.GA443@elf.ucw.cz>
-	 <1130891953.8489.83.camel@localhost.localdomain>
-	 <20051102135614.GL30194@elf.ucw.cz>
-Content-Type: text/plain
-Date: Wed, 02 Nov 2005 14:38:41 +0000
-Message-Id: <1130942322.8523.15.camel@localhost.localdomain>
+	Wed, 2 Nov 2005 09:40:24 -0500
+Date: Wed, 2 Nov 2005 15:40:15 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Carlos Antunes <cmantunes@gmail.com>
+Cc: Florian Schmidt <mista.tapas@gmx.net>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>,
+       john stultz <johnstul@us.ibm.com>, Mark Knecht <markknecht@gmail.com>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-rt1
+Message-ID: <20051102144015.GA19845@elte.hu>
+References: <20051030133316.GA11225@elte.hu> <1130876293.6178.6.camel@cmn3.stanford.edu> <1130899662.12101.2.camel@cmn3.stanford.edu> <cb2ad8b50511011855w41bf4a30l3127cc36dcacb094@mail.gmail.com> <1130900716.29788.22.camel@localhost.localdomain> <cb2ad8b50511011926w11116fdasd22227ca249f18fc@mail.gmail.com> <1130902342.29788.23.camel@localhost.localdomain> <cb2ad8b50511012005g3bc39f36odd0ae1038e2b9b52@mail.gmail.com> <20051102102116.3b0c75d1@mango.fruits.de> <cb2ad8b50511020635qb355f33w6f3638972556c242@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cb2ad8b50511020635qb355f33w6f3638972556c242@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-02 at 14:56 +0100, Pavel Machek wrote:
-> > Led triggers would be kernel sources of led on/off events. Some
-> > examples:
-> > 
-> > 2Hz Heartbeat - useful for debugging (and/or Generic Timer)
-> > CPU Load indicator
-> > Charging indicator
-> > HDD activity (useful for microdrive on handheld)
-> > Network activity
-> > no doubt many more
-> > 
-> > led triggers would be connected to leds via sysfs. Each trigger would
-> > probably have a number you could echo into an led's trigger attribute.
-> > Sensible default mappings could be had by assigning a default trigger to
-> > a device by name in the platform code that declares the led.
-> 
-> Perhaps I'd keep it simple and leave it at
-> 
-> * do hardcoded kernel action for this led
-> 
-> or
-> 
-> * do whatever userspace tells you.
-> 
-> That way you will not be able to remap charger LED onto hard disk
-> indicator, but we can support that on ibm-acpi too. (Where hw controls
-> LEDs like "sleep", but lets you control them. You can't remap,
-> though).
 
-Then the arguments start about which function should be hardcoded to
-which leds and why can't userspace access these triggers?
+* Carlos Antunes <cmantunes@gmail.com> wrote:
 
-I'd prefer a totally flexible system and it doesn't really add much
-complexity once you have a trigger framework which we're going to need
-to handle mutiple led trigger sources sanely anyway.
+> > running the code i simply get:
+> >
+> > ~$ ./timing
+> > Failed to create thread # 382
 
-Richard
+i suspect this is due to the stack ulimit being too high. Try something 
+like 'ulimit -s 128', which will make it 128K, instead of the default 
+8MB.
 
+	Ingo

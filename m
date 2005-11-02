@@ -1,37 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932462AbVKBJuX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932505AbVKBJvz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932462AbVKBJuX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 04:50:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932586AbVKBJuX
+	id S932505AbVKBJvz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 04:51:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932537AbVKBJvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 04:50:23 -0500
-Received: from mail.ocs.com.au ([202.147.117.210]:60611 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S932537AbVKBJuV (ORCPT
+	Wed, 2 Nov 2005 04:51:55 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:44425 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932505AbVKBJvy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 04:50:21 -0500
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
-From: Keith Owens <kaos@ocs.com.au>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Chandra Seetharaman <sekharan@us.ibm.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: Notifier chains are unsafe 
-In-reply-to: Your message of "Tue, 01 Nov 2005 16:20:43 CDT."
-             <Pine.LNX.4.44L0.0511011610470.4473-100000@iolanthe.rowland.org> 
+	Wed, 2 Nov 2005 04:51:54 -0500
+Date: Wed, 2 Nov 2005 10:51:39 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Ben Dooks <ben@fluff.org.uk>
+Cc: vojtech@suse.cz, rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: Re: best way to handle LEDs
+Message-ID: <20051102095139.GB30220@elf.ucw.cz>
+References: <20051101234459.GA443@elf.ucw.cz> <20051102024755.GA14148@home.fluff.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 02 Nov 2005 20:50:11 +1100
-Message-ID: <5979.1130925011@ocs3.ocs.com.au>
+Content-Disposition: inline
+In-Reply-To: <20051102024755.GA14148@home.fluff.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Nov 2005 16:20:43 -0500 (EST), 
-Alan Stern <stern@rowland.harvard.edu> wrote:
->You mean the RCU-style update?  It will hang when a callout routine tries 
->to deregister itself as it is running, although we could add a new 
->unregister_self API to handle that.  Just check for num_callers equal to 1 
->instead of 0.
+Hi!
 
-A callout on an atomic notifer chain has no business calling the
-register/unregister functions.  It makes no sense for an atomic context
-to call a routine that can sleep or block.
+> > I think even slow blinking was used somewhere. I have some code from
+> > John Lenz (attached); it uses sysfs interface, exports led collor, and
+> > allows setting different frequencies.
+> > 
+> > Is that acceptable, or should some other interface be used?
+> 
+> there is already an LED interface for linux-arm, which is
+> used by a number of the extant machines in the sa11x0 and
+> pxa range.
 
+Where is that interface? I think that making collie use it is obvious
+first step...
+								Pavel
+-- 
+Thanks, Sharp!

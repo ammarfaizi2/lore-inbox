@@ -1,106 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932600AbVKBIl2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932657AbVKBIlq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932600AbVKBIl2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 03:41:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932653AbVKBIl2
+	id S932657AbVKBIlq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 03:41:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932659AbVKBIlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 03:41:28 -0500
-Received: from pop3.ispwest.com ([216.52.245.18]:20498 "EHLO
-	ispwest-email1.mdeinc.com") by vger.kernel.org with ESMTP
-	id S932600AbVKBIl1 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 03:41:27 -0500
-X-Modus-BlackList: 216.52.245.25=OK;kjak@ispwest.com=OK
-X-Modus-Trusted: 216.52.245.25=YES
-Message-ID: <e626300280b94e0abc26defcc6043b91.kjak@ispwest.com>
-X-EM-APIVersion: 2, 0, 1, 0
-X-Priority: 3 (Normal)
-Reply-To: "Kris Katterjohn" <kjak@users.sourceforge.net>
-From: "Kris Katterjohn" <kjak@ispwest.com>
-To: jschlst@samba.org
-CC: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] Merge __load_pointer() and load_pointer() in net/core/filter.c; kernel 2.6.14
-Date: Wed, 2 Nov 2005 00:41:15 -0800
+	Wed, 2 Nov 2005 03:41:46 -0500
+Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:58755 "HELO
+	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932657AbVKBIlp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 03:41:45 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=CZ9yBOtNuiLW2n4yUK3dyYs4A4Tnnhd5pf7+nIyL/2FUsHFzPy2qlkfBeMkITd8YfMoxrFpAyTfaGvnUa8rM/SfxAxewpz4p83ACLTl2o7o9RnMKOiUSlhOCE5M8LYxiF1lfLQ9MopDOWcNzfbU1HtDHvkF/ob+bmExHsdCpANY=  ;
+Message-ID: <43687C3D.7060706@yahoo.com.au>
+Date: Wed, 02 Nov 2005 19:43:41 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Yasunori Goto <y-goto@jp.fujitsu.com>
+CC: Dave Hansen <haveblue@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+       Mel Gorman <mel@csn.ul.ie>, "Martin J. Bligh" <mbligh@mbligh.org>,
+       Andrew Morton <akpm@osdl.org>, kravetz@us.ibm.com,
+       linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lhms <lhms-devel@lists.sourceforge.net>
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+References: <1130917338.14475.133.camel@localhost> <436877DB.7020808@yahoo.com.au> <20051102172729.9E7C.Y-GOTO@jp.fujitsu.com>
+In-Reply-To: <20051102172729.9E7C.Y-GOTO@jp.fujitsu.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Another patch for net/core/filter.c by me. I merged __load_pointer() into
-load_pointer(). I don't see a point in having two seperate functions when
-both functions are really small and load_pointer() calls __load_pointer().
-Renamed the variable "k" to "offset" since that's what it is, and in
-skb_header_pointer() it's "offset".
+Yasunori Goto wrote:
+>>>One other thing, if we decide to take the zones approach, it would have
+>>>no other side benefits for the kernel.  It would be for hotplug only and
+>>>I don't think even the large page users would get much benefit.  
+>>>
+>>
+>>Hugepage users? They can be satisfied with ZONE_REMOVABLE too. If you're
+>>talking about other higher-order users, I still think we can't guarantee
+>>past about order 1 or 2 with Mel's patch and they simply need to have
+>>some other ways to do things.
+> 
+> 
+> Hmmm. I don't see at this point.
+> Why do you think ZONE_REMOVABLE can satisfy for hugepage.
+> At leaset, my ZONE_REMOVABLE patch doesn't any concern about
+> fragmentation.
+> 
 
-This patch is a diff from kernel 2.6.14
+Well I think it can satisfy hugepage allocations simply because
+we can be reasonably sure of being able to free contiguous regions.
+Of course it will be memory no longer easily reclaimable, same as
+the case for the frag patches. Nor would be name ZONE_REMOVABLE any
+longer be the most appropriate!
 
-Thanks
+But my point is, the basic mechanism is there and is workable.
+Hugepages and memory unplug are the two main reasons for IBM to be
+pushing this AFAIKS.
 
+-- 
+SUSE Labs, Novell Inc.
 
-
-Signed-off-by: Kris Katterjohn <kjak@users.sourceforge.net>
-
----
-
-
---- x/net/core/filter.c	2005-10-27 19:02:08.000000000 -0500
-+++ y/net/core/filter.c	2005-11-02 02:05:40.000000000 -0600
-@@ -13,6 +13,8 @@
-  * 2 of the License, or (at your option) any later version.
-  *
-  * Andi Kleen - Fix a few bad bugs and races.
-+ * Kris Katterjohn - Merged __load_pointer() into load_pointer() and
-+ *                   cleaned it up a little bit - 2005-11-01
-  */
- 
- #include <linux/module.h>
-@@ -35,31 +37,27 @@
- #include <asm/uaccess.h>
- #include <linux/filter.h>
- 
--/* No hurry in this branch */
--static void *__load_pointer(struct sk_buff *skb, int k)
-+static inline void *load_pointer(struct sk_buff *skb, int offset,
-+                                 unsigned int size, void *buffer)
- {
- 	u8 *ptr = NULL;
- 
--	if (k >= SKF_NET_OFF)
--		ptr = skb->nh.raw + k - SKF_NET_OFF;
--	else if (k >= SKF_LL_OFF)
--		ptr = skb->mac.raw + k - SKF_LL_OFF;
-+	if (offset >= 0)
-+		return skb_header_pointer(skb, offset, size, buffer);
-+
-+	if (offset >= SKF_AD_OFF)
-+		return NULL;
-+
-+	if (offset >= SKF_NET_OFF)
-+		ptr = skb->nh.raw + offset - SKF_NET_OFF;
-+
-+	else if (offset >= SKF_LL_OFF)
-+		ptr = skb->mac.raw + offset - SKF_LL_OFF;
- 
- 	if (ptr >= skb->head && ptr < skb->tail)
- 		return ptr;
--	return NULL;
--}
- 
--static inline void *load_pointer(struct sk_buff *skb, int k,
--                                 unsigned int size, void *buffer)
--{
--	if (k >= 0)
--		return skb_header_pointer(skb, k, size, buffer);
--	else {
--		if (k >= SKF_AD_OFF)
--			return NULL;
--		return __load_pointer(skb, k);
--	}
-+	return NULL;
- }
- 
- /**
-
-
-
+Send instant messages to your online friends http://au.messenger.yahoo.com 

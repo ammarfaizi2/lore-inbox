@@ -1,47 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932461AbVKBGse@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932451AbVKBHBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932461AbVKBGse (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 01:48:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbVKBGse
+	id S932451AbVKBHBE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 02:01:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbVKBHBE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 01:48:34 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:9164 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932461AbVKBGsd (ORCPT
+	Wed, 2 Nov 2005 02:01:04 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:64939 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932451AbVKBHBD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 01:48:33 -0500
-Date: Wed, 2 Nov 2005 07:48:54 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cpu hoptlug: avoid usage of smp_processor_id() in preemptible code
-Message-ID: <20051102064854.GB943@elte.hu>
-References: <20051101145402.GA20255@osiris.ibm.com>
+	Wed, 2 Nov 2005 02:01:03 -0500
+Date: Wed, 2 Nov 2005 17:00:53 +1100
+From: Andrew Morton <akpm@osdl.org>
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] slob: move kstrdup to lib/string.c
+Message-Id: <20051102170053.1c120a03.akpm@osdl.org>
+In-Reply-To: <2.494767362@selenic.com>
+References: <2.494767362@selenic.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051101145402.GA20255@osiris.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matt Mackall <mpm@selenic.com> wrote:
+>
+> This move kstrdup to lib/string.c
 
-* Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
+The placement in slab.c was deliberate.  Putting it in lib/string.c breaks
+ppc32.
 
-> From: Heiko Carstens <heiko.carstens@de.ibm.com>
-> 
-> Replace smp_processor_id() with any_online_cpu(cpu_online_map) in 
-> order to avoid lots of "BUG: using smp_processor_id() in preemptible 
-> [00000001] code:..." messages in case taking a cpu online fails.
-
-could you post the full message, including the stacktrace? I think this 
-patch just works around the debugging message, and there might be some 
-real bug to fix.
-
-	Ingo
+ppc32 is reusing lib/string.c to build early userspace or something
+like that, and calling kmalloc from there broke stuff.

@@ -1,58 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965299AbVKBWD4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965300AbVKBWEQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965299AbVKBWD4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 17:03:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965297AbVKBWD4
+	id S965300AbVKBWEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 17:04:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965297AbVKBWEP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 17:03:56 -0500
-Received: from gold.veritas.com ([143.127.12.110]:1168 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S965294AbVKBWDz (ORCPT
+	Wed, 2 Nov 2005 17:04:15 -0500
+Received: from gw0.infiniconsys.com ([65.219.193.226]:55394 "EHLO
+	mail.infiniconsys.com") by vger.kernel.org with ESMTP
+	id S965294AbVKBWEN convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 17:03:55 -0500
-Date: Wed, 2 Nov 2005 22:02:49 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Nick's core remove PageReserved broke vmware...
-In-Reply-To: <1130967936.20136.65.camel@gaston>
-Message-ID: <Pine.LNX.4.61.0511022157130.18559@goblin.wat.veritas.com>
-References: <4367C25B.7010300@vc.cvut.cz> <4368097A.1080601@yahoo.com.au> 
- <4368139A.30701@vc.cvut.cz>  <Pine.LNX.4.61.0511021208070.7300@goblin.wat.veritas.com>
-  <1130965454.20136.50.camel@gaston>  <Pine.LNX.4.61.0511022112530.18174@goblin.wat.veritas.com>
- <1130967936.20136.65.camel@gaston>
+	Wed, 2 Nov 2005 17:04:13 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 02 Nov 2005 22:03:54.0850 (UTC) FILETIME=[50FC7420:01C5DFF9]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [openib-general] Re: [PATCH/RFC v2] IB: Add SCSI RDMA Protocol(SRP) initiator
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+Date: Wed, 2 Nov 2005 17:04:07 -0500
+Message-ID: <5D78D28F88822E4D8702BB9EEF1A436773E947@mercury.infiniconsys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [openib-general] Re: [PATCH/RFC v2] IB: Add SCSI RDMA Protocol(SRP) initiator
+Thread-Index: AcXf+PCKEJQnC0JPSImA1j2jmF38WgAAF4zg
+From: "Rimmer, Todd" <trimmer@silverstorm.com>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       "Roland Dreier" <rolandd@cisco.com>
+Cc: <openib-general@openib.org>, <linux-kernel@vger.kernel.org>,
+       <linux-scsi@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Nov 2005, Benjamin Herrenschmidt wrote:
-> On Wed, 2005-11-02 at 21:41 +0000, Hugh Dickins wrote:
+also leaks it on success
+
+> -----Original Message-----
+> From: Michael S. Tsirkin [mailto:mst@mellanox.co.il]
+> Sent: Wednesday, November 02, 2005 5:04 PM
+> To: Roland Dreier
+> Cc: openib-general@openib.org; linux-kernel@vger.kernel.org;
+> linux-scsi@vger.kernel.org
+> Subject: [openib-general] Re: [PATCH/RFC v2] IB: Add SCSI RDMA
+> Protocol(SRP) initiator
 > 
-> > The only extant problem here is if the pages are private, and you
-> > fork while this is going on, and the parent user process writes to the
-> > area before completion: then COW leaves the child with the page being
-> > DMAed into, giving the parent a copied page which may be incomplete.
 > 
-> Won't happen, and if it does, it's a user error to rely on that working,
-> so it doesn't matter.
-
-I wish everyone else would see it that way!  (But some people do
-have valid scenarios where it can't just be ruled out completely.)
-
-> > Take a look at Andrew's educational comment on set_page_dirty_lock
-> > in mm/page-writeback.c.  You do have the list of pages you need to
-> > page_cache_release, don't you?  So it should be easy to dirty them.
+> Hello, Roland!
+> Quoting Roland Dreier <rolandd@cisco.com>:
+> > +static int srp_init_qp(struct srp_target_port *target,
+> > +		       struct ib_qp *qp)
+> > +{
+> > +	struct ib_qp_attr *attr;
+> > +	int ret;
+> > +
+> > +	attr = kmalloc(sizeof *attr, GFP_KERNEL);
+> > +	if (!attr)
+> > +		return -ENOMEM;
+> > +
+> > +	ret = ib_find_cached_pkey(target->srp_host->dev,
+> > +				  target->srp_host->port,
+> > +				  be16_to_cpu(target->path.pkey),
+> > +				  &attr->pkey_index);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	attr->qp_state        = IB_QPS_INIT;
+> > +	attr->qp_access_flags = (IB_ACCESS_REMOTE_READ |
+> > +				    IB_ACCESS_REMOTE_WRITE);
+> > +	attr->port_num        = target->srp_host->port;
+> > +
+> > +	return ib_modify_qp(qp, attr,
+> > +			    IB_QP_STATE		|
+> > +			    IB_QP_PKEY_INDEX	|
+> > +			    IB_QP_ACCESS_FLAGS	|
+> > +			    IB_QP_PORT);
+> > +}
 > 
-> Ok, so just passing 'write' to get_user_pages() is good enough; right ?
-
-Not quite, I think: you need to pass 'write' to get_user_pages()
-initially; but at the end, if it was indeed writing into user space,
-you need to do the set_page_dirty_lock thing on each of the pages
-before page_cache_release, just in case a race cleaned them before
-the DMA completed.  I think (I've never used it myself).
-
-Hugh
+> This seems to leak sizeof *attr bytes if ib_find_cached_pkey
+> returns an error.
+> 
+> -- 
+> MST
+> _______________________________________________
+> openib-general mailing list
+> openib-general@openib.org
+> http://openib.org/mailman/listinfo/openib-general
+> 
+> To unsubscribe, please visit 
+> http://openib.org/mailman/listinfo/openib-general
+> 

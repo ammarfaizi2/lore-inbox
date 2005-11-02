@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030194AbVKBX2m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030197AbVKBX3c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030194AbVKBX2m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 18:28:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030193AbVKBX2m
+	id S1030197AbVKBX3c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 18:29:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbVKBX3b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 18:28:42 -0500
-Received: from zproxy.gmail.com ([64.233.162.202]:25205 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030191AbVKBX2l convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 18:28:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=sTTiNb77erLlmH4vdFPmz4ij25yotMy7EjxCl8Dmah9ytGapF/rxlv44tLE5JNJwqWIQkhSdT5xHcdx+nAE8y/ug87SfgRQW3XA9wBfYGyUpm/IaJg0G+EDoA5CQkkf58o7OHAzEGm+UIQepv74lugdsfBFUJeSCwPvuwB3ppQE=
-Message-ID: <39e6f6c70511021528u513a9b4fn44497ddb2f672a28@mail.gmail.com>
-Date: Wed, 2 Nov 2005 21:28:40 -0200
-From: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>
-To: Yan Zheng <yanzheng@21cn.com>
-Subject: Re: [PATCH][MCAST]IPv6: small fix for ip6_mc_msfilter(...)
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       David Stevens <dlstevens@us.ibm.com>
-In-Reply-To: <43694B94.7010605@21cn.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 2 Nov 2005 18:29:31 -0500
+Received: from mail.kroah.org ([69.55.234.183]:35025 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030200AbVKBX3a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 18:29:30 -0500
+Date: Wed, 2 Nov 2005 13:59:12 -0800
+From: Greg KH <greg@kroah.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org, david-b@pacbell.net
+Subject: Re: [PATCH] driver model wakeup flags
+Message-ID: <20051102215912.GL23247@kroah.com>
+References: <11304810223093@kroah.com> <1130481022955@kroah.com> <20051029075540.GA2579@openzaurus.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <OF395F8772.5B834BF9-ON882570AC.0075ACD7-882570AC.0075DC3C@us.ibm.com>
-	 <4367FF22.3030601@21cn.com>
-	 <39e6f6c70511021355i52aff7e4n19ca4c1e24b21bb7@mail.gmail.com>
-	 <43694B94.7010605@21cn.com>
+In-Reply-To: <20051029075540.GA2579@openzaurus.ucw.cz>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/2/05, Yan Zheng <yanzheng@21cn.com> wrote:
-> >
-> > Could you please compile test it next time :-) hint, missing ';'.
-> > Anyway, fixed up by hand.
-> >
-> > - Arnaldo
-> >
-> >
->
-> I'm so sorry.
+On Sat, Oct 29, 2005 at 09:55:41AM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> >   * There's a writeable sysfs "wakeup" file, with one of two values:
+> >       - "enabled", when the policy is to allow wakeup
+> >       - "disabled", when the policy is not to allow it
+> >       - "" if the device can't currently issue wakeups
+> 
+> Could we either get "not-supported" value here, or remove the file if it is not
+> supported? Having empty file is ugly...
 
-Don't worry, I already fixed it and published in my net-2.6.git tree at
-www.kernel.org, its just that the same confidence that makes one
-commit something simple as in your case could introduce something
-nasty :-)
+Sure, have a patch for this?  :)
 
-- Arnaldo
+thanks,
+
+greg k-h

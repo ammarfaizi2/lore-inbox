@@ -1,58 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932229AbVKBCs3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbVKBCqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932229AbVKBCs3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 21:48:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbVKBCs3
+	id S932227AbVKBCqH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 21:46:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbVKBCqH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 21:48:29 -0500
-Received: from host-84-9-201-132.bulldogdsl.com ([84.9.201.132]:24962 "EHLO
-	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S932229AbVKBCs3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 21:48:29 -0500
-Date: Wed, 2 Nov 2005 02:47:55 +0000
-From: Ben Dooks <ben@fluff.org.uk>
-To: Pavel Machek <pavel@suse.cz>
-Cc: vojtech@suse.cz, rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: Re: best way to handle LEDs
-Message-ID: <20051102024755.GA14148@home.fluff.org>
-References: <20051101234459.GA443@elf.ucw.cz>
-Mime-Version: 1.0
+	Tue, 1 Nov 2005 21:46:07 -0500
+Received: from ozlabs.org ([203.10.76.45]:26599 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932227AbVKBCqG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 21:46:06 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051101234459.GA443@elf.ucw.cz>
-X-Disclaimer: I speak for me, myself, and the other one of me.
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17256.10342.228209.745529@cargo.ozlabs.ibm.com>
+Date: Wed, 2 Nov 2005 13:45:58 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ppc bug.h namespace pollution
+In-Reply-To: <20051101151716.GY7992@ftp.linux.org.uk>
+References: <20051101151716.GY7992@ftp.linux.org.uk>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 02, 2005 at 12:44:59AM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> Handheld machines have limited number of software-controlled status
-> LEDs. Collie, for example has two of them; one is labeled "charge" and
-> second is labeled "mail".
-> 
-> At least the "mail" led should be handled from userspace, and it would
-> be nice if (at least) different speeds of blinking could be used --
-> original Sharp ROM uses at least:
-> 
-> yellow off: 	not charging
-> yellow on:	charging
-> yellow fast blink: charge error
-> 
-> I think even slow blinking was used somewhere. I have some code from
-> John Lenz (attached); it uses sysfs interface, exports led collor, and
-> allows setting different frequencies.
-> 
-> Is that acceptable, or should some other interface be used?
+Al Viro writes:
 
-there is already an LED interface for linux-arm, which is
-used by a number of the extant machines in the sa11x0 and
-pxa range.
+> 	DATA_TYPE is really not a good thing to put into header that
+> gets included all over the tree...
 
--- 
-Ben (ben@fluff.org, http://www.fluff.org/)
+Very true.  However, I don't see any reason why the cast shouldn't
+just be (long) on both 32-bit and 64-bit, so we can get rid of that
+define altogether.
 
-  'a smiley only costs 4 bytes'
+Paul.

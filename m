@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932649AbVKBId4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932654AbVKBIfu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932649AbVKBId4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 03:33:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932652AbVKBId4
+	id S932654AbVKBIfu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 03:35:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932657AbVKBIfu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 03:33:56 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:52384 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932649AbVKBIdz (ORCPT
+	Wed, 2 Nov 2005 03:35:50 -0500
+Received: from smtp21.cstnet.cn ([159.226.251.21]:18856 "HELO cstnet.cn")
+	by vger.kernel.org with SMTP id S932654AbVKBIft (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 03:33:55 -0500
-Date: Wed, 2 Nov 2005 00:31:15 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Hirokazu Takahashi <taka@valinux.co.jp>
-cc: rob@landley.net, akpm@osdl.org, torvalds@osdl.org, kravetz@us.ibm.com,
-       raybry@mpdtxmail.amd.com, linux-kernel@vger.kernel.org,
-       lee.schermerhorn@hp.com, haveblue@us.ibm.com, magnus.damm@gmail.com,
-       pj@sgi.com, marcelo.tosatti@cyclades.com,
-       kamezawa.hiroyu@jp.fujitsu.com
-Subject: Re: [PATCH 0/5] Swap Migration V5: Overview
-In-Reply-To: <20051102.143047.35521963.taka@valinux.co.jp>
-Message-ID: <Pine.LNX.4.62.0511020030210.19157@schroedinger.engr.sgi.com>
-References: <20051031192506.100d03fa.akpm@osdl.org> <200511010208.49662.rob@landley.net>
- <Pine.LNX.4.62.0511010943310.16224@schroedinger.engr.sgi.com>
- <20051102.143047.35521963.taka@valinux.co.jp>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 2 Nov 2005 03:35:49 -0500
+X-Originating-IP: [159.226.10.6]
+Message-ID: <01bd01c5df88$4d6d9260$060ae29f@javaboy>
+From: "jywang" <jywang@cnic.cn>
+To: <linux-kernel@vger.kernel.org>
+Subject: how to replace a skb within NF_IP_LOCAL_OUT hook
+Date: Wed, 2 Nov 2005 16:34:55 +0800
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1506
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Nov 2005, Hirokazu Takahashi wrote:
+Hi,all
+i do it as below.
 
-> > > > Do you think the features which these patches add should be Kconfigurable?
-> 
-> This code looks no help for hot-remove. It seems able to handle only
-> pages easily to migrate, while hot-remove has to guarantee all pages
-> can be migrated.
+ cp = skb_copy_expand(*skb, skb_headroom(*skb)+12, skb_tailroom(*skb),
+GFP_ATOMIC);
+ cp->csum = (*skb)->csum;
+ skb_set_owner_w(cp, (*skb)->sk);
+ *skb = cp;
+ return NF_ACCEPT;
 
-Right.
+but it can't work perfectly.
 
-> Hi Christoph, sorry I've been off from lhms for long time.
-> 
-> Shall I port the generic memory migration code for hot-remove to -mm tree
-> directly, and add some new interface like migrate_page_to(struct page *from,
-> struct page *to) so this may probably fit for your purpose.
-> 
-> The code is still in Dave's mhp1 tree waiting for being merged to -mm tree.
-> The port will be easy because the migration code is independent to the
-> memory hotplug code. The core code isn't so big.
+How?
 
-Please follow the discussion on lhms-devel. I am trying to bring these two 
-things together.
+
+
 

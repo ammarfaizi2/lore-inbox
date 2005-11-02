@@ -1,61 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965266AbVKBVmD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965269AbVKBVmw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965266AbVKBVmD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 16:42:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965269AbVKBVmD
+	id S965269AbVKBVmw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 16:42:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965272AbVKBVmv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 16:42:03 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:46562 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S965266AbVKBVmB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 16:42:01 -0500
-Subject: 2.6.14-rt4:  __get_nsec_offset() false positives
-From: john stultz <johnstul@us.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Mark Knecht <markknecht@gmail.com>,
-       Florian Schmidt <mista.tapas@gmx.net>, "K.R. Foley" <kr@cybsft.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-In-Reply-To: <20051030133316.GA11225@elte.hu>
-References: <20051017160536.GA2107@elte.hu> <20051020195432.GA21903@elte.hu>
-	 <20051030133316.GA11225@elte.hu>
-Content-Type: text/plain
-Date: Wed, 02 Nov 2005 13:41:42 -0800
-Message-Id: <1130967703.27168.503.camel@cog.beaverton.ibm.com>
+	Wed, 2 Nov 2005 16:42:51 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:29704 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S965269AbVKBVmt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 16:42:49 -0500
+Date: Wed, 2 Nov 2005 22:31:09 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: David Stevens <dlstevens@us.ibm.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, Yan Zheng <yzcorp@gmail.com>,
+       "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH-2.4][MCAST]IPv6: small fix for ip6_mc_msfilter(...)
+Message-ID: <20051102213109.GA17369@alpha.home.local>
+References: <20051102054702.GB11266@alpha.home.local> <OF0C913512.B3EB99A5-ON882570AD.0025FB9D-882570AD.00276427@us.ibm.com> <20051102092959.GA15515@alpha.home.local> <20051102134112.GB2609@logos.cnet>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051102134112.GB2609@logos.cnet>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey Ingo,
-	I just booted 2.6.14-rt4 and I'm getting lots of the
-__get_nsec_offset() warnings where there isn't really a problem.
+Hi Marcelo,
 
-The main issue is that the clocksource may not be a TSC (acpi_pm in my
-case), so the check to see if the cycle value ever goes backwards will
-falsely trigger when the 24bit wide ACPI PM counter wraps.
+On Wed, Nov 02, 2005 at 11:41:12AM -0200, Marcelo Tosatti wrote:
+> Given the fact that it is a bug correction, sure. 
+> Could you please prepare a nice e-mail with the full description?
 
-To properly check for algorithmic inconsistencies, the checks should
-probably be similar to what you had earlier inside
-__get_monotonic_clock(), since at __get_nsec_offset() you really don't
-have enough information to sort out if an inconsistency has occurred.
+Yes, I see... email was not nice enough to the scripts :-)
+Here it is complete and clean below.
 
-If we want to watch for hardware inconsistencies (like unsynced TSCs),
-those checks really need to go inside the clocksource drivers
-themselves. 
+Regards,
+Willy
 
-I'll write up a paranoid debug patch that provides similar checks for
-both cases and include it in my patch set so you don't have to keep
-forward porting your own versions. 
+[PATCH-2.4][MCAST]IPv6: small fix for ip6_mc_msfilter(...)
 
-thanks
--john
+Multicast source filters aren't widely used yet, and that's really
+the only feature that's affected if an application actually exercises
+this bug, as far as I can tell. An ordinary filter-less multicast join
+should still work, and only forwarded multicast traffic making use of
+filters and doing empty-source filters with the MSFILTER ioctl would
+be at risk of not getting multicast traffic forwarded to them because
+the reports generated would not be based on the correct counts.
+Initial 2.6 patch by Yan Zheng, bug explanation by David Stevens,
+patch ACKed by David.
 
+     Signed-off-by: Willy Tarreau <willy@w.ods.org>
 
-
-
+diff -urN linux-2.4.32-rc2/net/ipv4/igmp.c linux-2.4.32-rc2-mcast/net/ipv4/igmp.c
+--- linux-2.4.32-rc2/net/ipv4/igmp.c	2005-11-02 10:16:03.000000000 +0100
++++ linux-2.4.32-rc2-mcast/net/ipv4/igmp.c	2005-11-02 10:20:33.000000000 +0100
+@@ -1876,8 +1876,11 @@
+ 			sock_kfree_s(sk, newpsl, IP_SFLSIZE(newpsl->sl_max));
+ 			goto done;
+ 		}
+-	} else
+-		newpsl = 0;
++	} else {
++		newpsl = NULL;
++		(void) ip_mc_add_src(in_dev, &msf->imsf_multiaddr,
++		       msf->imsf_fmode, 0, NULL, 0);
++	}
+ 	psl = pmc->sflist;
+ 	if (psl) {
+ 		(void) ip_mc_del_src(in_dev, &msf->imsf_multiaddr, pmc->sfmode,
+diff -urN linux-2.4.32-rc2/net/ipv6/mcast.c linux-2.4.32-rc2-mcast/net/ipv6/mcast.c
+--- linux-2.4.32-rc2/net/ipv6/mcast.c	2005-11-02 10:16:03.000000000 +0100
++++ linux-2.4.32-rc2-mcast/net/ipv6/mcast.c	2005-11-02 10:21:49.000000000 +0100
+@@ -505,8 +505,11 @@
+ 			sock_kfree_s(sk, newpsl, IP6_SFLSIZE(newpsl->sl_max));
+ 			goto done;
+ 		}
+-	} else
+-		newpsl = 0;
++	} else {
++		newpsl = NULL;
++		(void) ip6_mc_add_src(idev, group, gsf->gf_fmode, 0, NULL, 0);
++	}
++
+ 	psl = pmc->sflist;
+ 	if (psl) {
+ 		(void) ip6_mc_del_src(idev, group, pmc->sfmode,
 
 

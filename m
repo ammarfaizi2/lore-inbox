@@ -1,60 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbVKBAmF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbVKBAnx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932078AbVKBAmF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 19:42:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbVKBAmF
+	id S932086AbVKBAnx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 19:43:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbVKBAnx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 19:42:05 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:16905 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932078AbVKBAmE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 19:42:04 -0500
-Date: Wed, 2 Nov 2005 01:41:59 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Steven French <sfrench@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, samba-technical@lists.samba.org,
-       sfrench@samba.org
-Subject: Re: [2.6 patch] let CIFS_EXPERIMENTAL depend on EXPERIMENTAL
-Message-ID: <20051102004159.GB8009@stusta.de>
-References: <20051031111359.GI8009@stusta.de> <OFB4C871B0.47755748-ON872570AB.0059A91D-862570AB.00596022@us.ibm.com>
+	Tue, 1 Nov 2005 19:43:53 -0500
+Received: from zproxy.gmail.com ([64.233.162.194]:12268 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932086AbVKBAnw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 19:43:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=Kw2lzL0hazNeK8bP6npHW/w81Mpn0dGTyeSPh3tm7lWA3gFOmtYjl7TMTx97bEHnDmI/rLnTFuLvV2jYKAMuyO+gQbJ6Ra4eQuFuQ+nXatql64SdUIL9G3bFP5283zdBbzitmt4kM9rpAR6Aqit8TNfzK7ymfakaTgyPOOvPwEQ=
+Message-ID: <43680BC0.70805@pol.net>
+Date: Wed, 02 Nov 2005 08:43:44 +0800
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OFB4C871B0.47755748-ON872570AB.0059A91D-862570AB.00596022@us.ibm.com>
-User-Agent: Mutt/1.5.11
+To: Adrian Bunk <bunk@stusta.de>
+CC: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: [RFC: 2.6 patch] i386: EXPORT_SYMBOL(screen_info) even #ifndef
+ CONFIG_VT
+References: <20051101152207.GT8009@stusta.de>
+In-Reply-To: <20051101152207.GT8009@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+From: "Antonino A. Daplas" <adaplas@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 31, 2005 at 10:21:36AM -0600, Steven French wrote:
+Adrian Bunk wrote:
+> The folllowing modules require screen_info but don't depend
+> on CONFIG_VT:
+> - vga16fb.ko
+> - intelfb.ko
 > 
-> If users really remember that CONFIG_EXPERIMENTAL does not enable anything
-> than it is probably a good idea -
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-I'd express it differently:
+Ok with me.
 
-People interested in experimental options like CIFS_EXPERIMENTAL did 
-already enable EXPERIMENTAL.
-
-> There is a minor problem - ie that there are some features in CIFS that
-> with 2.6.14 out are no longer really experimental that need to be pulled
-> out of the ifdef.   I have a pretty big cifs merge to do, but I have no
-> real problem with your patch (we have enough time to add one or two more
-> cifs config options, clean up others)
-
-I don't see any problem with this.
-
-It's quite normal that code moves out of an EXPERIMENTAL option once 
-it's matured.
-
-> Steve French
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Tony

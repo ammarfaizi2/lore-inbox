@@ -1,65 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965278AbVKBVzw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965288AbVKBV5D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965278AbVKBVzw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 16:55:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965284AbVKBVzw
+	id S965288AbVKBV5D (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 16:57:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965290AbVKBV5C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 16:55:52 -0500
-Received: from zproxy.gmail.com ([64.233.162.200]:63838 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965278AbVKBVzv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 16:55:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=B9+YQIPGy3e0iZEJqEvs9zNzrQBhd1oalo5cnaYhtiAaYsUjxj67G81d1hb0u4Vh8sOmlYKNyTEtocvYzmLdn2m60StgEe1lM1yv1IkRk6mc9C6ppyQfshoatuFZLh84/xPzaVCXuUq7xUCTVS973BPRB8CBeEfYw6dG6+EYuTI=
-Message-ID: <39e6f6c70511021355i52aff7e4n19ca4c1e24b21bb7@mail.gmail.com>
-Date: Wed, 2 Nov 2005 19:55:50 -0200
-From: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>
-To: Yan Zheng <yanzheng@21cn.com>
-Subject: Re: [PATCH][MCAST]IPv6: small fix for ip6_mc_msfilter(...)
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       David Stevens <dlstevens@us.ibm.com>
-In-Reply-To: <4367FF22.3030601@21cn.com>
+	Wed, 2 Nov 2005 16:57:02 -0500
+Received: from gold.veritas.com ([143.127.12.110]:41870 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S965288AbVKBV5A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 16:57:00 -0500
+Date: Wed, 2 Nov 2005 21:55:54 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Badari Pulavarty <pbadari@us.ibm.com>
+cc: Blaisorblade <blaisorblade@yahoo.it>, Andrea Arcangeli <andrea@suse.de>,
+       lkml <linux-kernel@vger.kernel.org>, akpm@osdl.org, dvhltc@us.ibm.com,
+       linux-mm <linux-mm@kvack.org>, Jeff Dike <jdike@addtoit.com>
+Subject: Re: New bug in patch and existing Linux code - race with install_page()
+ (was: Re: [PATCH] 2.6.14 patch for supporting madvise(MADV_REMOVE))
+In-Reply-To: <1130967383.24503.112.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0511022145450.18444@goblin.wat.veritas.com>
+References: <1130366995.23729.38.camel@localhost.localdomain> 
+ <20051102014321.GG24051@opteron.random>  <1130947957.24503.70.camel@localhost.localdomain>
+  <200511022054.15119.blaisorblade@yahoo.it> <1130967383.24503.112.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <OF395F8772.5B834BF9-ON882570AC.0075ACD7-882570AC.0075DC3C@us.ibm.com>
-	 <4367FF22.3030601@21cn.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 02 Nov 2005 21:57:00.0428 (UTC) FILETIME=[59F8ACC0:01C5DFF8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/1/05, Yan Zheng <yanzheng@21cn.com> wrote:
-> David Stevens wrote:
-> > Yan,
-> >         Please also make this equivalent change in IPv4 with
-> > ip_mc_msfilter() and ip_mc_add_src().
-> >
-> >                                                 +-DLS
-> >
-> > Acked-by: David L Stevens <dlstevens@us.ibm.com>
->
-> To keep code style, I also create a new patch for IPv6. :-)
->
-> Signed-off-by: Yan Zheng <yanzheng@21cn.com>
->
-> Patch for IPv4
-> Index:net/ipv4/igmp.c
-> ============================================================
-> --- linux-2.6.14/net/ipv4/igmp.c        2005-10-28 08:02:08.000000000 +0800
-> +++ linux/net/ipv4/igmp.c       2005-11-02 07:31:01.000000000 +0800
-> @@ -1908,8 +1908,11 @@ int ip_mc_msfilter(struct sock *sk, stru
->                         sock_kfree_s(sk, newpsl, IP_SFLSIZE(newpsl->sl_max));
->                         goto done;
->                 }
-> -       } else
-> +       } else {
->                 newpsl = NULL;
-> +               (void) ip_mc_add_src(in_dev, &msf->imsf_multiaddr,
-> +                       msf->imsf_fmode, 0, NULL, 0)
+On Wed, 2 Nov 2005, Badari Pulavarty wrote:
+> On Wed, 2005-11-02 at 20:54 +0100, Blaisorblade wrote:
+> > > +       /* XXX - Do we need both i_sem and i_allocsem all the way ? */
+> > > +       down(&inode->i_sem);
+> > > +       down_write(&inode->i_alloc_sem);
+> > > +       unmap_mapping_range(mapping, offset, (end - offset), 1);
+> > In my opinion, as already said, unmap_mapping_range can be called without 
+> > these two locks, as it operates only on mappings for the file.
+> > 
+> > However currently it's called with these locks held in vmtruncate, but I think 
+> > the locks are held in that case only because we need to truncate the file, 
+> > and are hold in excess also across this call.
+> 
+> I agree, I can push down the locking only for ->truncate_range - if
+> no one has objections. (But again, it so special case - no one really
+> cares about the performance of this interface ?).
 
-Could you please compile test it next time :-) hint, missing ';'.
-Anyway, fixed up by hand.
+I can't remember why i_alloc_sem got introduced, and don't have time to
+work it out: something to do with direct I/O races, perhaps?  Someone
+else must advise, perhaps you will be able to drop that one.
 
-- Arnaldo
+But I think you'd be very unwise to drop i_sem too.  i_mmap_lock gets
+dropped whenever preemption demands here, i_sem is what's preventing
+someone else coming along and doing a concurrent truncate or remove.
+You don't want that.
+
+Sorry, I've not yet had time to study your patch: I do intend to,
+but cannot promise when.  I fear it won't be as easy as making
+these occasional responses.
+
+Hugh

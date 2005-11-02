@@ -1,64 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965081AbVKBP3u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965089AbVKBPcJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965081AbVKBP3u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 10:29:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965082AbVKBP3u
+	id S965089AbVKBPcJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 10:32:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965091AbVKBPcJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 10:29:50 -0500
-Received: from [85.8.13.51] ([85.8.13.51]:30869 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S965081AbVKBP3t (ORCPT
+	Wed, 2 Nov 2005 10:32:09 -0500
+Received: from ra.sai.msu.su ([158.250.29.2]:36807 "EHLO ra.sai.msu.su")
+	by vger.kernel.org with ESMTP id S965089AbVKBPcI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 10:29:49 -0500
-Message-ID: <4368DB5C.7070609@drzeus.cx>
-Date: Wed, 02 Nov 2005 16:29:32 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mail/News 1.4.1 (X11/20051008)
+	Wed, 2 Nov 2005 10:32:08 -0500
+Date: Wed, 2 Nov 2005 18:32:06 +0300 (MSK)
+From: Evgeny Rodichev <er@sai.msu.su>
+To: linux-kernel@vger.kernel.org
+Subject: x86_64 mce_log question
+Message-ID: <Pine.GSO.4.63.0511021822010.28234@ra.sai.msu.su>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp not able to stop tasks
-References: <4368BDA7.6060401@drzeus.cx> <20051102133825.GG30194@elf.ucw.cz>
-In-Reply-To: <20051102133825.GG30194@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
->
->   
->> I'm having problem with swsusp in the recent kernels (somewhere around 
->> the late 2.6.14 rc:s). It says it cannot suspend all tasks:
->>     
->
->   
->> [ 7223.525225] Stopping tasks: 
->> =======================================================================================================================================
->> [ 7229.532506]  stopping tasks failed (1 tasks remaining)
->> [ 7229.532529] Restarting tasks...<6> Strange, kauditd not stopped
->>     
->
-> What is this kauditd? Try turning auditing off in kernel config, and
-> it should go away. If it does, add try_to_freeze() at place where
-> sleep is possible into kauditd...
->
->   
+Hello,
 
-That it did. And the machine suspends fine with audit removed. I'll have 
-a look at inserting those try_to_freeze().
+at Opteron-based x86_64 system sometimes I get message
 
->> Some late addition (post 2.6.14) also makes my keyboard crap out after 
->> one of these cycles. Not sure it the TSC funkiness was present
->> before this.
->>     
->
-> Is that reproducible?
-> 								Pavel
->   
+Machine check events logged
 
-Somewhat. My short test now seems to indicate that it happens about 50% 
-of the time.
+(non-fatal). How can I read the correspondent events? From the source
+code (arch/x86_64/kernel/mce.c) it sounds like some misc device with
+MISC_MCELOG_MINOR 227 is registered (with name "mcelog"?), but there is
+no such device under /dev.
 
-Rgds
-Pierre
+Thank you.
+_________________________________________________________________________
+Evgeny Rodichev                          Sternberg Astronomical Institute
+email: er@sai.msu.su                              Moscow State University
+Phone: 007 (095) 939 2383
+Fax:   007 (095) 932 8841                       http://www.sai.msu.su/~er

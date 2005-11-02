@@ -1,44 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932700AbVKBJrs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932698AbVKBJrh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932700AbVKBJrs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 04:47:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932699AbVKBJrr
+	id S932698AbVKBJrh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 04:47:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932699AbVKBJrh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 04:47:47 -0500
-Received: from mail.fh-wedel.de ([213.39.232.198]:48866 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S932700AbVKBJrq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 04:47:46 -0500
-Date: Wed, 2 Nov 2005 10:47:18 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Josh Boyer <jdub@us.ibm.com>
-Cc: Adrian Bunk <bunk@stusta.de>, dwmw2@infradead.org, jffs-dev@axis.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] remove fs/jffs2/ioctl.c
-Message-ID: <20051102094718.GA18857@wohnheim.fh-wedel.de>
-References: <20051101205119.GY8009@stusta.de> <1130879436.3775.1.camel@windu.rchland.ibm.com>
+	Wed, 2 Nov 2005 04:47:37 -0500
+Received: from jack.kinetikon.it ([62.152.125.81]:62667 "EHLO
+	mail.towertech.it") by vger.kernel.org with ESMTP id S932698AbVKBJrg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 04:47:36 -0500
+Date: Wed, 2 Nov 2005 10:48:22 +0100
+From: Alessandro Zummo <alessandro.zummo@towertech.it>
+To: Ben Dooks <ben@fluff.org.uk>
+Cc: Pavel Machek <pavel@suse.cz>, vojtech@suse.cz, rpurdie@rpsys.net,
+       lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: Re: best way to handle LEDs
+Message-ID: <20051102104822.552b3971@inspiron>
+In-Reply-To: <20051102024755.GA14148@home.fluff.org>
+References: <20051101234459.GA443@elf.ucw.cz>
+	<20051102024755.GA14148@home.fluff.org>
+Organization: Tower Technologies
+X-Mailer: Sylpheed
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1130879436.3775.1.camel@windu.rchland.ibm.com>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 November 2005 15:10:36 -0600, Josh Boyer wrote:
-> On Tue, 2005-11-01 at 21:51 +0100, Adrian Bunk wrote:
-> > Is there any reason for keeping fs/jffs2/ioctl.c?
+On Wed, 2 Nov 2005 02:47:55 +0000
+Ben Dooks <ben@fluff.org.uk> wrote:
+
+> > I think even slow blinking was used somewhere. I have some code from
+> > John Lenz (attached); it uses sysfs interface, exports led collor, and
+> > allows setting different frequencies.
+> > 
+> > Is that acceptable, or should some other interface be used?
 > 
-> I can think of some various things that could be done with it, but that
-> would require time and effort.  Unless David or Thomas have an
-> objections, I think it can go.
+> there is already an LED interface for linux-arm, which is
+> used by a number of the extant machines in the sa11x0 and
+> pxa range.
 
-And for the last couple of years, no problem seemed urgent enough for
-someone to actually implement something.  I vote for removal.
+ Hello,
 
-Jörn
+   the current interface is very low-level, while the proposal
+ from Pavel/John has a much different scope, imho.
+ 
+  I'm working on a led driver for the ixp4xx/NSLU2 which
+ has 2 leds plus a multi-coloured one. 
+
+  We would benefit a lot from such an implementation so,
+ FWIW, I express my personal support and the one
+ of the whole nslu2-linux community. 
+
+  Once this patch is upstream, the linux-arm interface could easily 
+ be adapted to use it or cooperate nicely.
 
 -- 
-This above all: to thine own self be true.
--- Shakespeare
+
+ Best regards,
+
+ Alessandro Zummo,
+  Tower Technologies - Turin, Italy
+
+  http://www.towertech.it
+

@@ -1,102 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932636AbVKBIXO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932646AbVKBI2F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932636AbVKBIXO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 03:23:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932645AbVKBIXO
+	id S932646AbVKBI2F (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 03:28:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932651AbVKBI2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 03:23:14 -0500
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:8085 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932636AbVKBIXN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 03:23:13 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=IOo+wNEk2ypmTApExmyMCqoK5H92u6mcco5LxeA1WihNPk09+IKLIOd5n7eGuFhVGQGboCsUgh8SN0eTpupS3sLNfDisf4e+M29dAEt7uezNxcFzsD2P61nyLmGVrewXs+3/dybPRspMSFrBZs8y1y2wSMlVon6jwNOEa/YpBUc=  ;
-Message-ID: <436877DB.7020808@yahoo.com.au>
-Date: Wed, 02 Nov 2005 19:24:59 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Wed, 2 Nov 2005 03:28:04 -0500
+Received: from send.forptr.21cn.com ([202.105.45.51]:30116 "HELO 21cn.com")
+	by vger.kernel.org with SMTP id S932646AbVKBI2D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 03:28:03 -0500
+Message-ID: <436878E7.3030303@21cn.com>
+Date: Wed, 02 Nov 2005 16:29:27 +0800
+From: Yan Zheng <yanzheng@21cn.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: Ingo Molnar <mingo@elte.hu>, Mel Gorman <mel@csn.ul.ie>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       kravetz@us.ibm.com, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-References: <20051030235440.6938a0e9.akpm@osdl.org>	 <27700000.1130769270@[10.10.2.4]> <4366A8D1.7020507@yahoo.com.au>	 <Pine.LNX.4.58.0510312333240.29390@skynet> <4366C559.5090504@yahoo.com.au>	 <Pine.LNX.4.58.0511010137020.29390@skynet> <4366D469.2010202@yahoo.com.au>	 <Pine.LNX.4.58.0511011014060.14884@skynet> <20051101135651.GA8502@elte.hu>	 <1130854224.14475.60.camel@localhost>  <20051101142959.GA9272@elte.hu>	 <1130856555.14475.77.camel@localhost>  <43680D8C.5080500@yahoo.com.au> <1130917338.14475.133.camel@localhost>
-In-Reply-To: <1130917338.14475.133.camel@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: netdev@vger.kernel.org
+CC: linux-kernel@vger.kernel.org, David Stevens <dlstevens@us.ibm.com>
+Subject: [PATCH][MCAST]Two fix for implementation of MLDv2 .
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AIMC-AUTH: yanzheng
+X-AIMC-MAILFROM: yanzheng@21cn.com
+X-AIMC-Msg-ID: MpZAO7OB
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
-> On Wed, 2005-11-02 at 11:51 +1100, Nick Piggin wrote:
-> 
->>Look: if you have to guarantee memory can be shrunk, set aside a zone
->>for it (that only fills with user reclaimable areas). This is better
->>than the current frag patches because it will give you the 100%
->>guarantee that you need (provided we have page migration to move mlocked
->>pages).
-> 
-> 
-> With Mel's patches, you can easily add the same guarantee.  Look at the
-> code in  fallback_alloc() (patch 5/8).  It would be quite easy to modify
-> the fallback lists to disallow fallbacks into areas from which we would
-> like to remove memory.  That was left out for simplicity.  As you say,
-> they're quite complex as it is.  Would you be interested in seeing a
-> patch to provide those kinds of guarantees?
-> 
+Hi.
+I find two bug yesterday when I was thinking whether ip6_mc_del_src(...) should be called in __ipv6_dev_mc_dec(...).
 
-On top of Mel's patch? I think this is essiential for any guarantees
-that you might be interested... but it would just mean that now you
-have a redundant extra zoning layer.
 
-I think ZONE_REMOVABLE is something that really needs to be looked at
-again if you need a hotunplug solution in the kernel.
+The first change in function is_in(...) is to make process Multicast Address and Source Specific Query same as Multicast Address Specific Query.
+Although it still doesn't satisfy the requirement in rfc3810, but not at risk of losing multicast traffic.
+For example:
+A Node's filter for Multicast address M is EXCLUDE (X,Y) and receice a Multicast Address and Source Specific Query Q(M,Z).
+Without the change No report will send to router, so the node may get multicast traffic from address Z lost.
 
-> We've had a bit of experience with a hotpluggable zone approach  before.
-> Just like the current topic patches, you're right, that approach can
-> also provide strong guarantees.  However, the issue comes if the system
-> ever needs to move memory between such zones, such as if a user ever
-> decides that they'd prefer to break hotplug guarantees rather than OOM.
-> 
 
-I can imagine one could have a sysctl to allow/disallow non-easy-reclaim
-allocations from ZONE_REMOVABLE.
+The second change in function add_grec(...) is to make sure Mode Change Report send properly.
+When A filter's source address list is not empty, but none of them can be included in report.
 
-As Ingo says, neither way is going to give a 100% solution - I wouldn't
-like to see so much complexity added to bring us from a ZONE_REMOVABLE 80%
-solution to a 90% solution. I believe this is where Linus' "perfect is
-the enemy of good" quote applies.
 
-> Do you think changing what a particular area of memory is being used for
-> would ever be needed?
-> 
+Regards
 
-Perhaps, but Mel's patch only guarantees you to change once, same as
-ZONE_REMOVABLE. Once you eat up those easy-to-reclaim areas, you can't
-get them back.
 
-> One other thing, if we decide to take the zones approach, it would have
-> no other side benefits for the kernel.  It would be for hotplug only and
-> I don't think even the large page users would get much benefit.  
-> 
+Signed-off-by: Yan Zheng <yanzheng@21cn.com>
 
-Hugepage users? They can be satisfied with ZONE_REMOVABLE too. If you're
-talking about other higher-order users, I still think we can't guarantee
-past about order 1 or 2 with Mel's patch and they simply need to have
-some other ways to do things.
-
-But I think using zones would have advantages in that they would help
-give zones and zone balancing more scrutiny and test coverage in the
-kernel, which is sorely needed since everyone threw out their highmem
-systems :P
-
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Index:net/ipv6/mcast.c
+============================================================
+--- linux-2.6.14/net/ipv6/mcast.c	2005-10-30 23:09:33.000000000 +0800
++++ linux/net/ipv6/mcast.c	2005-11-02 15:01:28.000000000 +0800
+@@ -1256,10 +1256,13 @@ static int is_in(struct ifmcaddr6 *pmc, 
+ {
+ 	switch (type) {
+ 	case MLD2_MODE_IS_INCLUDE:
+-	case MLD2_MODE_IS_EXCLUDE:
+ 		if (gdeleted || sdeleted)
+ 			return 0;
+ 		return !((pmc->mca_flags & MAF_GSQUERY) && !psf->sf_gsresp);
++	case MLD2_MODE_IS_EXCLUDE:
++		if (gdeleted || sdeleted)
++			return 0;
++		return 1;
+ 	case MLD2_CHANGE_TO_INCLUDE:
+ 		if (gdeleted || sdeleted)
+ 			return 0;
+@@ -1428,13 +1431,15 @@ static struct sk_buff *add_grec(struct s
+ 	struct mld2_report *pmr;
+ 	struct mld2_grec *pgr = NULL;
+ 	struct ip6_sf_list *psf, *psf_next, *psf_prev, **psf_list;
+-	int scount, first, isquery, truncate;
++	int scount, first, isquery, ischange, truncate;
+ 
+ 	if (pmc->mca_flags & MAF_NOREPORT)
+ 		return skb;
+ 
+ 	isquery = type == MLD2_MODE_IS_INCLUDE ||
+ 		  type == MLD2_MODE_IS_EXCLUDE;
++	ischange = type == MLD2_CHANGE_TO_INCLUDE ||
++		   type == MLD2_CHANGE_TO_EXCLUDE; 
+ 	truncate = type == MLD2_MODE_IS_EXCLUDE ||
+ 		    type == MLD2_CHANGE_TO_EXCLUDE;
+ 
+@@ -1444,7 +1449,7 @@ static struct sk_buff *add_grec(struct s
+ 		if (type == MLD2_ALLOW_NEW_SOURCES ||
+ 		    type == MLD2_BLOCK_OLD_SOURCES)
+ 			return skb;
+-		if (pmc->mca_crcount || isquery) {
++		if (ischange || isquery) {
+ 			/* make sure we have room for group header and at
+ 			 * least one source.
+ 			 */
+@@ -1460,9 +1465,12 @@ static struct sk_buff *add_grec(struct s
+ 	pmr = skb ? (struct mld2_report *)skb->h.raw : NULL;
+ 
+ 	/* EX and TO_EX get a fresh packet, if needed */
+-	if (truncate) {
+-		if (pmr && pmr->ngrec &&
+-		    AVAILABLE(skb) < grec_size(pmc, type, gdeleted, sdeleted)) {
++	if (truncate || ischange) {
++		int min_len;
++		min_len	= truncate ? grec_size(pmc, type, gdeleted, sdeleted) : 
++			  (sizeof(struct mld2_grec) + sizeof(struct in6_addr));
++		if (((pmr && pmr->ngrec) || ischange) &&
++		    AVAILABLE(skb) < min_len) {
+ 			if (skb)
+ 				mld_sendpack(skb);
+ 			skb = mld_newpack(dev, dev->mtu);
+@@ -1471,6 +1479,10 @@ static struct sk_buff *add_grec(struct s
+ 	first = 1;
+ 	scount = 0;
+ 	psf_prev = NULL;
++	if (ischange) {
++		skb = add_grhead(skb, pmc, type, &pgr);
++		first = 0;
++	}
+ 	for (psf=*psf_list; psf; psf=psf_next) {
+ 		struct in6_addr *psrc;
+ 

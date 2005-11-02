@@ -1,88 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932704AbVKBNR7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932703AbVKBNQL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932704AbVKBNR7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 08:17:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932705AbVKBNR7
+	id S932703AbVKBNQL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 08:16:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932705AbVKBNQL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 08:17:59 -0500
-Received: from sv1.valinux.co.jp ([210.128.90.2]:2980 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S932704AbVKBNR6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 08:17:58 -0500
-Date: Wed, 02 Nov 2005 22:08:39 +0900 (JST)
-Message-Id: <20051102.220839.00469746.taka@valinux.co.jp>
-To: clameter@engr.sgi.com
-Cc: rob@landley.net, akpm@osdl.org, torvalds@osdl.org, kravetz@us.ibm.com,
-       raybry@mpdtxmail.amd.com, linux-kernel@vger.kernel.org,
-       lee.schermerhorn@hp.com, haveblue@us.ibm.com, magnus.damm@gmail.com,
-       pj@sgi.com, marcelo.tosatti@cyclades.com,
-       kamezawa.hiroyu@jp.fujitsu.com
-Subject: Re: [PATCH 0/5] Swap Migration V5: Overview
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <20051102.212651.25143264.taka@valinux.co.jp>
-References: <20051102.143047.35521963.taka@valinux.co.jp>
-	<Pine.LNX.4.62.0511020030210.19157@schroedinger.engr.sgi.com>
-	<20051102.212651.25143264.taka@valinux.co.jp>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Nov 2005 08:16:11 -0500
+Received: from nproxy.gmail.com ([64.233.182.192]:59018 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932703AbVKBNQJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 08:16:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=sSqMCiq76avp7mI8N8Dxse5bTh0Qbxys29q4zRfPWFoRzyq1VFDEY/7RICPDw3PCJGkzHqAyjxgScF/oKmEn/8KZ18ZH44JrgCEamwegRZkNG3biIN6XQepxRNT4C6LXiycYds52QQGmR82GHeKWneOH1Hc3zQQUyrZnJkKbHQY=
+Message-ID: <c216304e0511020516o5cfcd0b9u96a3220bf2694928@mail.gmail.com>
+Date: Wed, 2 Nov 2005 18:46:08 +0530
+From: Ashutosh Naik <ashutosh.lkml@gmail.com>
+To: Richard Knutsson <ricknu-0@student.ltu.se>
+Subject: Re: [PATCH]dgrs - Fixes Warnings when CONFIG_ISA and CONFIG_PCI are not enabled
+Cc: Ashutosh Naik <ashutosh.naik@gmail.com>, rick@remotepoint.com,
+       davej@suse.de, acme@conectiva.com.br, linux-net@vger.kernel.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, stable@kernel.org
+In-Reply-To: <4368878D.4040406@student.ltu.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <81083a450511012314q4ec69927gfa60cb19ba8f437a@mail.gmail.com>
+	 <4368878D.4040406@student.ltu.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Christoph,
-
-The page migration code is waiting for something appearing to
-use it but memory hotremove. I thought it would be memory
-defragmentation or process migration.
-
-> >> > > > Do you think the features which these patches add should be Kconfigurable?
-> >> 
-> >> This code looks no help for hot-remove. It seems able to handle only
-> >> pages easily to migrate, while hot-remove has to guarantee all pages
-> >> can be migrated.
+On 11/2/05, Richard Knutsson <ricknu-0@student.ltu.se> wrote:
+> Ashutosh Naik wrote:
+>
+> >This patch fixes compiler warnings when CONFIG_ISA and CONFIG_PCI are
+> >not enabled in the dgrc network driver.
 > >
-> >Right.
+> >Signed-off-by: Ashutosh Naik <ashutosh.naik@gmail.com>
 > >
-> >> Hi Christoph, sorry I've been off from lhms for long time.
-> >> 
-> >> Shall I port the generic memory migration code for hot-remove to -mm tree
-> >> directly, and add some new interface like migrate_page_to(struct page *from,
-> >> struct page *to) so this may probably fit for your purpose.
-> >> 
-> >> The code is still in Dave's mhp1 tree waiting for being merged to -mm tree.
-> >> The port will be easy because the migration code is independent to the
-> >> memory hotplug code. The core code isn't so big.
+> >--
+> >diff -Naurp linux-2.6.14/drivers/net/dgrs.c
+> >linux-2.6.14-git1/drivers/net/dgrs.c---
+> >linux-2.6.14/drivers/net/dgrs.c     2005-10-28 05:32:08.000000000
+> >+0530
+> >+++ linux-2.6.14-git1/drivers/net/dgrs.c        2005-11-01
+> >10:30:03.000000000 +0530
+> >@@ -1549,8 +1549,12 @@ MODULE_PARM_DESC(nicmode, "Digi RightSwi
+> > static int __init dgrs_init_module (void)  {
+> >        int     i;
+> >-       int eisacount = 0, pcicount = 0;
+> >-
+> >+#ifdef CONFIG_EISA
+> >+       int eisacount = 0;
+> >+#endif
+> >+#ifdef CONFIG_PCI
+> >+       int pcicount = 0;
+> >+#endif
+> >        /*
+> >         *      Command line variable overrides
+> >         *              debug=NNN
+> >-
 > >
-> >Please follow the discussion on lhms-devel. I am trying to bring these two 
-> >things together.
-> 
-> I've read the archive of lhms-devel.
-> You're going to take in most of the original migration code
-> except for some tricks to migrate pages which are hard to move.
-> I think this is what you said the complexity, which you
-> want to remove forever.
+> >
+> Since eisacount and pcicount is doing the same task (and they are only
+> used in sequence) and to preventing more #ifdef in the source-code, why
+> not use the same variable? It will give an warning if both of them is
+> not defined, but is that an issue? If so,
+> #if !defined CONFIG_EISA && !defined CONFIG_PCI
+> could encapsulate the variable to prevent that.
+>
+> Posted 26'th of October and now also checked against 2.6.14-git1.
+>
+> Signed-off-by: Richard Knutsson <ricknu-0@student.ltu.se>
+>
+> ---
+>
+> diff -uNr a/drivers/net/dgrs.c b/drivers/net/dgrs.c
+> --- a/drivers/net/dgrs.c        2005-08-29 01:41:01.000000000 +0200
+> +++ b/drivers/net/dgrs.c        2005-10-26 15:53:43.000000000 +0200
+> @@ -1549,7 +1549,7 @@
+>  static int __init dgrs_init_module (void)
+>  {
+>         int     i;
+> -       int eisacount = 0, pcicount = 0;
+> +       int     count;
+>
+>         /*
+>          *      Command line variable overrides
+> @@ -1591,14 +1591,14 @@
+>          *      Find and configure all the cards
+>          */
+>  #ifdef CONFIG_EISA
+> -       eisacount = eisa_driver_register(&dgrs_eisa_driver);
+> -       if (eisacount < 0)
+> -               return eisacount;
+> +       count = eisa_driver_register(&dgrs_eisa_driver);
+> +       if (count < 0)
+> +               return count;
+>  #endif
+>  #ifdef CONFIG_PCI
+> -       pcicount = pci_register_driver(&dgrs_pci_driver);
+> -       if (pcicount)
+> -               return pcicount;
+> +       count = pci_register_driver(&dgrs_pci_driver);
+> +       if (count)
+> +               return count;
+>  #endif
+>         return 0;
+>  }
 
-If you don't like the code is devided into a lot of small pieces,
-I can merge their patches into several patches.
+Well, both of them do the same stuff, but one of these patches needs
+to be committed.
 
-> I have to explain that this complexity came from making the code
-> guarantee to be able to migrate any pages. So the code is designed:
->   - to migrate heavily accessed pages.
->   - to migrate pages without backing-store.
->   - to migrate pages without I/O's.
->   - to migrate pages of which status may be changed during the migration
->     correctly.
-> 
-> This have to be implemented if the hotplug memory use it.
-> It seems to become a reinvention of the wheel to me.
-> 
-> It's easy to add a new interface to the code for memory policy aware
-> migration. It will be wonderful doing process migration prior to
-> planed hotremove momory. This decision should be done out of kernel.
-
-If you really want to skip the complex part, I can easily add a non-wait
-mode to the migration code. 
-
-Thanks,
-Hirokazu Takahashi.
+Cheers
+Ashutosh

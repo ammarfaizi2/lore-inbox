@@ -1,56 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965123AbVKBQZX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965122AbVKBQYd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965123AbVKBQZX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 11:25:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965129AbVKBQZX
+	id S965122AbVKBQYd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 11:24:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965123AbVKBQYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 11:25:23 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:52165 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S965123AbVKBQZW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 11:25:22 -0500
-Subject: Re: 2.6.14-rt1
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Carlos Antunes <cmantunes@gmail.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>,
-       john stultz <johnstul@us.ibm.com>, Mark Knecht <markknecht@gmail.com>,
-       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <cb2ad8b50511020807y4617c6a4pcd0ee27b635c9c34@mail.gmail.com>
-References: <20051030133316.GA11225@elte.hu>
-	 <1130900716.29788.22.camel@localhost.localdomain>
-	 <cb2ad8b50511011926w11116fdasd22227ca249f18fc@mail.gmail.com>
-	 <1130902342.29788.23.camel@localhost.localdomain>
-	 <cb2ad8b50511012005g3bc39f36odd0ae1038e2b9b52@mail.gmail.com>
-	 <20051102102116.3b0c75d1@mango.fruits.de>
-	 <cb2ad8b50511020635qb355f33w6f3638972556c242@mail.gmail.com>
-	 <20051102144015.GA19845@elte.hu>
-	 <cb2ad8b50511020645i23c164d4h7140c4c352159974@mail.gmail.com>
-	 <1130945876.29788.28.camel@localhost.localdomain>
-	 <cb2ad8b50511020807y4617c6a4pcd0ee27b635c9c34@mail.gmail.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Wed, 02 Nov 2005 11:24:41 -0500
-Message-Id: <1130948681.29788.30.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Nov 2005 11:24:33 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:56848 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S965122AbVKBQYc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 11:24:32 -0500
+Date: Wed, 2 Nov 2005 17:24:22 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: [-mm patch] EDAC: remove proc_ent from struct mem_ctl_info
+Message-ID: <20051102162421.GJ8009@stusta.de>
+References: <20051024014838.0dd491bb.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051024014838.0dd491bb.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-02 at 11:07 -0500, Carlos Antunes wrote:
+While fixing a compile error with CONFIG_PROC_FS=n in the EDAC code, I 
+discovered that the proc_ent member of struct mem_ctl_info is only used 
+in a debug printk.
 
-> >
-> > Now could you post/send your CONFIG_FILE. I'm currently getting a test
-> > machine ready to run your program.
-> >
-> 
-> Given rt3 changes, do you still need my config?
+Is this patch to remove proc_ent OK?
 
-Nope,
 
-So Ingo,  what did you fix?  :)  (since now it's also at -rt4)
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
--- Steve
+ drivers/edac/edac_mc.c |    8 ++------
+ drivers/edac/edac_mc.h |    3 ---
+ 2 files changed, 2 insertions(+), 9 deletions(-)
+
+--- linux-2.6.14-rc5-mm1-modular-2.95/drivers/edac/edac_mc.h.old	2005-11-02 02:38:08.000000000 +0100
++++ linux-2.6.14-rc5-mm1-modular-2.95/drivers/edac/edac_mc.h	2005-11-02 02:38:19.000000000 +0100
+@@ -313,9 +313,6 @@
+ 	const char *mod_ver;
+ 	const char *ctl_name;
+ 	char proc_name[MC_PROC_NAME_MAX_LEN + 1];
+-#ifdef CONFIG_PROC_FS
+-	struct proc_dir_entry *proc_ent;
+-#endif
+ 	void *pvt_info;
+ 	u32 ue_noinfo_count;	/* Uncorrectable Errors w/o info */
+ 	u32 ce_noinfo_count;	/* Correctable Errors w/o info */
+--- linux-2.6.14-rc5-mm1-modular-2.95/drivers/edac/edac_mc.c.old	2005-11-02 02:38:30.000000000 +0100
++++ linux-2.6.14-rc5-mm1-modular-2.95/drivers/edac/edac_mc.c	2005-11-02 02:39:44.000000000 +0100
+@@ -362,8 +362,6 @@
+ 	printk(KERN_INFO "\tpdev = %p\n", mci->pdev);
+ 	printk(KERN_INFO "\tmod_name:ctl_name = %s:%s\n",
+ 	       mci->mod_name, mci->ctl_name);
+-	printk(KERN_INFO "\tproc_name = %s, proc_ent = %p\n",
+-	       mci->proc_name, mci->proc_ent);
+ 	printk(KERN_INFO "\tpvt_info = %p\n\n", mci->pvt_info);
+ }
+ 
+@@ -575,10 +573,8 @@
+ 		goto finish;
+ 	}
+ 
+-	mci->proc_ent = create_proc_read_entry(mci->proc_name, 0, proc_mc,
+-					       mc_read_proc, (void *) mci);
+-
+-	if (mci->proc_ent == NULL) {
++	if(create_proc_read_entry(mci->proc_name, 0, proc_mc,
++	                          mc_read_proc, (void *) mci) == NULL) {
+ 		printk(KERN_WARNING
+ 		       "MC%d: failed to create proc entry for controller\n",
+ 		       mci->mc_idx);
 

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965318AbVKBWbm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965319AbVKBWcm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965318AbVKBWbm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 17:31:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965319AbVKBWbm
+	id S965319AbVKBWcm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 17:32:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965324AbVKBWcm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 17:31:42 -0500
-Received: from smtp3.pp.htv.fi ([213.243.153.36]:31396 "EHLO smtp3.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S965318AbVKBWbl (ORCPT
+	Wed, 2 Nov 2005 17:32:42 -0500
+Received: from smtp1.pp.htv.fi ([213.243.153.37]:49577 "EHLO smtp1.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S965319AbVKBWcl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 17:31:41 -0500
-Date: Thu, 3 Nov 2005 00:31:40 +0200
+	Wed, 2 Nov 2005 17:32:41 -0500
+Date: Thu, 3 Nov 2005 00:32:40 +0200
 From: Paul Mundt <lethal@linux-sh.org>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 5/7] sh: pte_mkhuge() compile fix for !CONFIG_HUGETLB_PAGE.
-Message-ID: <20051102223140.GE27200@linux-sh.org>
+Subject: [PATCH 7/7] sh: Use pfn_valid() for lazy dcache write-back on SH7705.
+Message-ID: <20051102223240.GG27200@linux-sh.org>
 Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
 	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
@@ -24,34 +24,58 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Presently it is bogus to call pte_mkhuge() outside of the
-CONFIG_HUGETLB_PAGE context, as the only processors that support
-_PAGE_SZHUGE do so in the hugetlbpage context only (and this is the only
-time that _PAGE_SZHUGE is even defined). SH-2 and SH-3 do not support
-huge pages at all, and so it is not possible to enable this.
+SH7705 in extended cache mode has some left-over VALID_PAGE() cruft that
+it checks when doing lazy dcache write-back. This has been gone for some
+time (the last bits were in the discontig code, which should now also be
+gone -- this also fixes up a build error in the non-discontig case).
+
+pfn_valid() gives the desired behaviour, so we switch to that.
 
 Signed-off-by: Paul Mundt <lethal@linux-sh.org>
 
 ---
 
- include/asm-sh/pgtable.h |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+ arch/sh/mm/tlb-sh3.c |   19 ++++++++++++-------
+ 1 files changed, 12 insertions(+), 7 deletions(-)
 
-applies-to: 0aae3fb59b1e7a2877f297fbdc5acb7d281498ad
-e1789731db5df57ba5a775be94f4d4e2a5a1c6de
-diff --git a/include/asm-sh/pgtable.h b/include/asm-sh/pgtable.h
-index aef8ae4..dee36bc 100644
---- a/include/asm-sh/pgtable.h
-+++ b/include/asm-sh/pgtable.h
-@@ -196,7 +196,9 @@ static inline pte_t pte_mkexec(pte_t pte
- static inline pte_t pte_mkdirty(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) | _PAGE_DIRTY)); return pte; }
- static inline pte_t pte_mkyoung(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) | _PAGE_ACCESSED)); return pte; }
- static inline pte_t pte_mkwrite(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) | _PAGE_RW)); return pte; }
-+#ifdef CONFIG_HUGETLB_PAGE
- static inline pte_t pte_mkhuge(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) | _PAGE_SZHUGE)); return pte; }
-+#endif
+applies-to: e05fa4b455e074c8f5e7ce3604d86367cf793e35
+35cbddae99cc6382932f930bb6db3a4499279377
+diff --git a/arch/sh/mm/tlb-sh3.c b/arch/sh/mm/tlb-sh3.c
+index 7a0d5c1..46b09e2 100644
+--- a/arch/sh/mm/tlb-sh3.c
++++ b/arch/sh/mm/tlb-sh3.c
+@@ -40,12 +40,17 @@ void update_mmu_cache(struct vm_area_str
+ 		return;
  
- /*
-  * Macro and implementation to make a page protection as uncachable.
+ #if defined(CONFIG_SH7705_CACHE_32KB)
+-	struct page *page;
+-	page = pte_page(pte);
+-	if (VALID_PAGE(page) && !test_bit(PG_mapped, &page->flags)) {
+-		unsigned long phys = pte_val(pte) & PTE_PHYS_MASK;
+-		__flush_wback_region((void *)P1SEGADDR(phys), PAGE_SIZE);
+-		__set_bit(PG_mapped, &page->flags);
++	{
++		struct page *page = pte_page(pte);
++		unsigned long pfn = pte_pfn(pte);
++
++		if (pfn_valid(pfn) && !test_bit(PG_mapped, &page->flags)) {
++			unsigned long phys = pte_val(pte) & PTE_PHYS_MASK;
++
++			__flush_wback_region((void *)P1SEGADDR(phys),
++					     PAGE_SIZE);
++			__set_bit(PG_mapped, &page->flags);
++		}
+ 	}
+ #endif
+ 
+@@ -80,7 +85,7 @@ void __flush_tlb_page(unsigned long asid
+ 	 */
+ 	addr = MMU_TLB_ADDRESS_ARRAY | (page & 0x1F000);
+ 	data = (page & 0xfffe0000) | asid; /* VALID bit is off */
+-	
++
+ 	if ((cpu_data->flags & CPU_HAS_MMU_PAGE_ASSOC)) {
+ 		addr |= MMU_PAGE_ASSOC_BIT;
+ 		ways = 1;	/* we already know the way .. */
 ---
 0.99.8.GIT

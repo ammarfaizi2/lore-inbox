@@ -1,50 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbVKBBxU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbVKBB5s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932160AbVKBBxU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 20:53:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932167AbVKBBxU
+	id S932167AbVKBB5s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 20:57:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbVKBB5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 20:53:20 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:41737 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932148AbVKBBxT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 20:53:19 -0500
-Date: Wed, 2 Nov 2005 02:53:12 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: jgarzik@pobox.com
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] update S2IO help text
-Message-ID: <20051102015311.GE8009@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Tue, 1 Nov 2005 20:57:47 -0500
+Received: from quechua.inka.de ([193.197.184.2]:61661 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S932167AbVKBB5r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 20:57:47 -0500
+From: root <root@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: best way to handle LEDs
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <20051101234459.GA443@elf.ucw.cz>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
+Message-Id: <E1EX7sn-0006It-00@calista.inka.de>
+Date: Wed, 02 Nov 2005 02:57:45 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following updates to the S2IO help text:
-- correct the patch to the README
-- there is no information regarding compilation and installation of the
-  driver in the README
+In article <20051101234459.GA443@elf.ucw.cz> you wrote:
+> +static ssize_t leds_store_frequency(struct class_device *dev, const char *buf, size_t size)
 
+how about using a on and a off timer, so you can set up 50,50 or 10,90 or
+stuff like that to make different pulse.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+I know the TI avalanch  platform has a quite complicated led driver, which I
+think is much overworked since it allows led settings based on logical
+states. This should all be in userspace. 
 
---- linux-2.6.14-rc5-mm1-modular-2.95/drivers/net/Kconfig.old	2005-11-02 02:46:21.000000000 +0100
-+++ linux-2.6.14-rc5-mm1-modular-2.95/drivers/net/Kconfig	2005-11-02 02:50:13.000000000 +0100
-@@ -2253,12 +2253,12 @@
- config S2IO
- 	tristate "S2IO 10Gbe XFrame NIC"
- 	depends on PCI
- 	---help---
- 	  This driver supports the 10Gbe XFrame NIC of S2IO. 
--	  For help regarding driver compilation, installation and 
--	  tuning please look into ~/drivers/net/s2io/README.txt.
-+	  For help regarding driver tuning please look into
-+	  <file:Documentation/networking/s2io.txt>.
- 
- config S2IO_NAPI
- 	bool "Use Rx Polling (NAPI) (EXPERIMENTAL)"
- 	depends on S2IO && EXPERIMENTAL
- 	help
-
+Gruss
+Bernd

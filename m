@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751506AbVKBFQz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751512AbVKBFcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751506AbVKBFQz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 00:16:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751507AbVKBFQz
+	id S1751512AbVKBFcM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 00:32:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751511AbVKBFcM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 00:16:55 -0500
-Received: from dvhart.com ([64.146.134.43]:33194 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S1751506AbVKBFQy (ORCPT
+	Wed, 2 Nov 2005 00:32:12 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:40347 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751510AbVKBFcL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 00:16:54 -0500
-Date: Tue, 01 Nov 2005 21:16:59 -0800
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Roland Dreier <rolandd@cisco.com>, Andi Kleen <ak@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, discuss@x86-64.org
-Subject: Re: [PATCH] x86_64: Work around Re: 2.6.14-git1 (and -git2) build failure on AMD64
-Message-ID: <231750000.1130908618@[10.10.2.4]>
-In-Reply-To: <52br17nfmk.fsf@cisco.com>
-References: <16080000.1130681008@[10.10.2.4]> <200510301649.42064.ak@suse.de> <52br17nfmk.fsf@cisco.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 2 Nov 2005 00:32:11 -0500
+Date: Wed, 2 Nov 2005 15:31:43 +1100
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: hch@lst.de, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH consolidate sys_ptrace
+Message-Id: <20051102153143.5005a87b.akpm@osdl.org>
+In-Reply-To: <10611.1130845074@warthog.cambridge.redhat.com>
+References: <20051101051221.GA26017@lst.de>
+	<20051101050900.GA25793@lst.de>
+	<10611.1130845074@warthog.cambridge.redhat.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
---Roland Dreier <rolandd@cisco.com> wrote (on Sunday, October 30, 2005 08:17:39 -0800):
-
->     Andi> Linus, can you please apply it?
+David Howells <dhowells@redhat.com> wrote:
+>
+> Christoph Hellwig <hch@lst.de> wrote:
 > 
-> No, please don't apply this.  The correct fix is to mark
-> toshiba_ohci1394_dmi_table[] as __devinitdata in that file, as in the
-> patch I posted here:
+> > > The sys_ptrace boilerplate code (everything outside the big switch
+> > > statement for the arch-specific requests) is shared by most
+> > > architectures.  This patch moves it to kernel/ptrace.c and leaves the
+> > > arch-specific code as arch_ptrace.
 > 
->     http://lkml.org/lkml/2005/10/29/12
+> Looks okay to me. I do have a concern about all the extra indirections we're
+> acquiring by this mad rush to centralise everything. It's going to slow things
+> down and consume more stack space. Is there any way we can:
+> 
+>  (1) Make a sys_ptrace() *jump* to arch_ptrace() instead of calling it, thus
+>      obviating the extra return step.
+> 
+>  (2) Drop the use of lock_kernel().
 
-Tested, fixes it for me. Linus - this is still broken in -git4, any chance
-you could pick this one up? Makes nasty red marks across my shiny green
-test matrix ;-)
+If we can remove the lock_kernel() and move the final put_task_struct()
+into each arch_ptrace() then we can end sys_ptrace() with
 
-Thanks,
+	return arch_ptrace(....);
 
-M.
+and with luck, gcc will convert it into a tailcall for us.
 
+It's probably not the first place to start doing such optimisation tho.
 

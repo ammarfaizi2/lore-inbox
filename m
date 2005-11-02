@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965316AbVKBWaw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965317AbVKBWbV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965316AbVKBWaw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 17:30:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965317AbVKBWaw
+	id S965317AbVKBWbV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 17:31:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965318AbVKBWbU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 17:30:52 -0500
-Received: from smtp2.pp.htv.fi ([213.243.153.35]:43918 "EHLO smtp2.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S965316AbVKBWav (ORCPT
+	Wed, 2 Nov 2005 17:31:20 -0500
+Received: from smtp1.pp.htv.fi ([213.243.153.37]:31401 "EHLO smtp1.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S965317AbVKBWbT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 17:30:51 -0500
-Date: Thu, 3 Nov 2005 00:30:50 +0200
+	Wed, 2 Nov 2005 17:31:19 -0500
+Date: Thu, 3 Nov 2005 00:31:18 +0200
 From: Paul Mundt <lethal@linux-sh.org>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 3/7] superhyway: multiple block support and VCR rework.
-Message-ID: <20051102223050.GC27200@linux-sh.org>
+Subject: [PATCH 4/7] sh: SuperHyway support for SH4-202.
+Message-ID: <20051102223118.GD27200@linux-sh.org>
 Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
 	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
@@ -24,242 +24,226 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This extends the API somewhat to allow for platform-specific VCR reading
-and writing. Some platforms (like SH4-202) implement the VCR in a split
-VCRL and VCRH, but end up being in reverse order or have other quirks
-that need to be dealt with, so we add a set of superhyway_ops per-bus to
-accomodate this.
-
-We also have to extend the per-device resources somewhat, as some devices
-now conveniently split control and data blocks. So we allow a platform to
-register its set of SuperHyway devices via superhyway_add_devices() with
-the control block always ordered as the first resource (as this is the
-one that userspace cares about).
+This adds support for the relatively quirky (ie, not in line with
+any known documentation, and amazed it works at all) SuperHyway
+implementation on SH4-202. This depends on the earlier SuperHyway
+patch for multiple block support and VCR refactoring.
 
 Signed-off-by: Paul Mundt <lethal@linux-sh.org>
 
 ---
 
- drivers/sh/superhyway/superhyway-sysfs.c |    2 -
- drivers/sh/superhyway/superhyway.c       |   75 ++++++++++++++++++++++--------
- include/linux/superhyway.h               |   38 +++++++++++++--
- 3 files changed, 89 insertions(+), 26 deletions(-)
+ arch/sh/drivers/Makefile                 |    5 +
+ arch/sh/drivers/superhyway/Makefile      |    6 +
+ arch/sh/drivers/superhyway/ops-sh4-202.c |  171 ++++++++++++++++++++++++++++++
+ 3 files changed, 180 insertions(+), 2 deletions(-)
+ create mode 100644 arch/sh/drivers/superhyway/Makefile
+ create mode 100644 arch/sh/drivers/superhyway/ops-sh4-202.c
 
-applies-to: 5fc5d4c409d79b3169d83d4c328594ee04d04e89
-6953dc79aabf3938acfe2cb0860a3ea7da08dc54
-diff --git a/drivers/sh/superhyway/superhyway-sysfs.c b/drivers/sh/superhyway/superhyway-sysfs.c
-index dc119ce..5543433 100644
---- a/drivers/sh/superhyway/superhyway-sysfs.c
-+++ b/drivers/sh/superhyway/superhyway-sysfs.c
-@@ -30,7 +30,7 @@ superhyway_ro_attr(bot_mb, "0x%02x\n", v
- superhyway_ro_attr(top_mb, "0x%02x\n", vcr.top_mb);
+applies-to: 1e8c6a6fee2c7973ff121392a9535f554e1a8075
+d80a13cfb77f09f5b205c3eb34974357eb1bff56
+diff --git a/arch/sh/drivers/Makefile b/arch/sh/drivers/Makefile
+index bd6726c..338c372 100644
+--- a/arch/sh/drivers/Makefile
++++ b/arch/sh/drivers/Makefile
+@@ -2,6 +2,7 @@
+ # Makefile for the Linux SuperH-specific device drivers.
+ #
  
- /* Misc */
--superhyway_ro_attr(resource, "0x%08lx\n", resource.start);
-+superhyway_ro_attr(resource, "0x%08lx\n", resource[0].start);
+-obj-$(CONFIG_PCI)	+= pci/
+-obj-$(CONFIG_SH_DMA)	+= dma/
++obj-$(CONFIG_PCI)		+= pci/
++obj-$(CONFIG_SH_DMA)		+= dma/
++obj-$(CONFIG_SUPERHYWAY)	+= superhyway/
  
- struct device_attribute superhyway_dev_attrs[] = {
- 	__ATTR_RO(perr_flags),
-diff --git a/drivers/sh/superhyway/superhyway.c b/drivers/sh/superhyway/superhyway.c
-index 28757cb..7bdab2a 100644
---- a/drivers/sh/superhyway/superhyway.c
-+++ b/drivers/sh/superhyway/superhyway.c
-@@ -27,19 +27,20 @@ static struct device superhyway_bus_devi
- 
- static void superhyway_device_release(struct device *dev)
- {
--	kfree(to_superhyway_device(dev));
-+	struct superhyway_device *sdev = to_superhyway_device(dev);
+diff --git a/arch/sh/drivers/superhyway/Makefile b/arch/sh/drivers/superhyway/Makefile
+new file mode 100644
+index 0000000..5b8e0c7
+--- /dev/null
++++ b/arch/sh/drivers/superhyway/Makefile
+@@ -0,0 +1,6 @@
++#
++# Makefile for the SuperHyway specific kernel interface routines under Linux.
++#
 +
-+	kfree(sdev->resource);
-+	kfree(sdev);
- }
- 
- /**
-  * superhyway_add_device - Add a SuperHyway module
-- * @mod_id: Module ID (taken from MODULE.VCR.MOD_ID).
-  * @base: Physical address where module is mapped.
-- * @vcr: VCR value.
-+ * @sdev: SuperHyway device to add, or NULL to allocate a new one.
-+ * @bus: Bus where SuperHyway module resides.
-  *
-  * This is responsible for adding a new SuperHyway module. This sets up a new
-- * struct superhyway_device for the module being added. Each one of @mod_id,
-- * @base, and @vcr are registered with the new device for further use
-- * elsewhere.
-+ * struct superhyway_device for the module being added if @sdev == NULL.
-  *
-  * Devices are initially added in the order that they are scanned (from the
-  * top-down of the memory map), and are assigned an ID based on the order that
-@@ -49,28 +50,40 @@ static void superhyway_device_release(st
-  * Further work can and should be done in superhyway_scan_bus(), to be sure
-  * that any new modules are properly discovered and subsequently registered.
-  */
--int superhyway_add_device(unsigned int mod_id, unsigned long base,
--			  unsigned long long vcr)
-+int superhyway_add_device(unsigned long base, struct superhyway_device *sdev,
-+			  struct superhyway_bus *bus)
- {
--	struct superhyway_device *dev;
-+	struct superhyway_device *dev = sdev;
- 
--	dev = kmalloc(sizeof(struct superhyway_device), GFP_KERNEL);
--	if (!dev)
--		return -ENOMEM;
-+	if (!dev) {
-+		dev = kmalloc(sizeof(struct superhyway_device), GFP_KERNEL);
-+		if (!dev)
-+			return -ENOMEM;
- 
--	memset(dev, 0, sizeof(struct superhyway_device));
-+		memset(dev, 0, sizeof(struct superhyway_device));
-+	}
- 
--	dev->id.id = mod_id;
--	sprintf(dev->name, "SuperHyway device %04x", dev->id.id);
-+	dev->bus = bus;
-+	superhyway_read_vcr(dev, base, &dev->vcr);
++obj-$(CONFIG_CPU_SUBTYPE_SH4_202)	+= ops-sh4-202.o
 +
-+	if (!dev->resource) {
-+		dev->resource = kmalloc(sizeof(struct resource), GFP_KERNEL);
-+		if (!dev->resource) {
-+			kfree(dev);
-+			return -ENOMEM;
-+		}
+diff --git a/arch/sh/drivers/superhyway/ops-sh4-202.c b/arch/sh/drivers/superhyway/ops-sh4-202.c
+new file mode 100644
+index 0000000..a55c98a
+--- /dev/null
++++ b/arch/sh/drivers/superhyway/ops-sh4-202.c
+@@ -0,0 +1,171 @@
++/*
++ * arch/sh/drivers/superhyway/ops-sh4-202.c
++ *
++ * SuperHyway bus support for SH4-202
++ *
++ * Copyright (C) 2005  Paul Mundt
++ *
++ * This file is subject to the terms and conditions of the GNU
++ * General Public License.  See the file "COPYING" in the main
++ * directory of this archive for more details.
++ */
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/superhyway.h>
++#include <linux/string.h>
++#include <asm/addrspace.h>
++#include <asm/io.h>
 +
-+		dev->resource->name	= dev->name;
-+		dev->resource->start	= base;
-+		dev->resource->end	= dev->resource->start + 0x01000000;
-+	}
- 
--	dev->vcr		= *((struct vcr_info *)(&vcr));
--	dev->resource.name	= dev->name;
--	dev->resource.start	= base;
--	dev->resource.end	= dev->resource.start + 0x01000000;
- 	dev->dev.parent		= &superhyway_bus_device;
- 	dev->dev.bus		= &superhyway_bus_type;
- 	dev->dev.release	= superhyway_device_release;
-+	dev->id.id		= dev->vcr.mod_id;
- 
-+	sprintf(dev->name, "SuperHyway device %04x", dev->id.id);
- 	sprintf(dev->dev.bus_id, "%02x", superhyway_devices);
- 
- 	superhyway_devices++;
-@@ -78,10 +91,31 @@ int superhyway_add_device(unsigned int m
- 	return device_register(&dev->dev);
- }
- 
-+int superhyway_add_devices(struct superhyway_bus *bus,
-+			   struct superhyway_device **devices,
-+			   int nr_devices)
-+{
-+	int i, ret = 0;
++#define PHYS_EMI_CBLOCK		P4SEGADDR(0x1ec00000)
++#define PHYS_EMI_DBLOCK		P4SEGADDR(0x08000000)
++#define PHYS_FEMI_CBLOCK	P4SEGADDR(0x1f800000)
++#define PHYS_FEMI_DBLOCK	P4SEGADDR(0x00000000)
 +
-+	for (i = 0; i < nr_devices; i++) {
-+		struct superhyway_device *dev = devices[i];
-+		ret |= superhyway_add_device(dev->resource[0].start, dev, bus);
-+	}
++#define PHYS_EPBR_BLOCK		P4SEGADDR(0x1de00000)
++#define PHYS_DMAC_BLOCK		P4SEGADDR(0x1fa00000)
++#define PHYS_PBR_BLOCK		P4SEGADDR(0x1fc00000)
 +
-+	return ret;
-+}
-+
- static int __init superhyway_init(void)
- {
-+	struct superhyway_bus *bus;
-+	int ret = 0;
-+
- 	device_register(&superhyway_bus_device);
--	return superhyway_scan_bus();
-+
-+	for (bus = superhyway_channels; bus->ops; bus++)
-+		ret |= superhyway_scan_bus(bus);
-+
-+	return ret;
- }
- 
- postcore_initcall(superhyway_init);
-@@ -197,6 +231,7 @@ module_exit(superhyway_bus_exit);
- 
- EXPORT_SYMBOL(superhyway_bus_type);
- EXPORT_SYMBOL(superhyway_add_device);
-+EXPORT_SYMBOL(superhyway_add_devices);
- EXPORT_SYMBOL(superhyway_register_driver);
- EXPORT_SYMBOL(superhyway_unregister_driver);
- 
-diff --git a/include/linux/superhyway.h b/include/linux/superhyway.h
-index c906c5a..17ea468 100644
---- a/include/linux/superhyway.h
-+++ b/include/linux/superhyway.h
-@@ -19,7 +19,7 @@
-  */
- #define SUPERHYWAY_DEVICE_ID_SH5_DMAC	0x0183
- 
--struct vcr_info {
-+struct superhyway_vcr_info {
- 	u8	perr_flags;	/* P-port Error flags */
- 	u8	merr_flags;	/* Module Error flags */
- 	u16	mod_vers;	/* Module Version */
-@@ -28,6 +28,17 @@ struct vcr_info {
- 	u8	top_mb;		/* Top Memory block */
- };
- 
-+struct superhyway_ops {
-+	int (*read_vcr)(unsigned long base, struct superhyway_vcr_info *vcr);
-+	int (*write_vcr)(unsigned long base, struct superhyway_vcr_info vcr);
++static struct resource emi_resources[] = {
++	[0] = {
++		.start	= PHYS_EMI_CBLOCK,
++		.end	= PHYS_EMI_CBLOCK + 0x00300000 - 1,
++		.flags	= IORESOURCE_MEM,
++	},
++	[1] = {
++		.start	= PHYS_EMI_DBLOCK,
++		.end	= PHYS_EMI_DBLOCK + 0x08000000 - 1,
++		.flags	= IORESOURCE_MEM,
++	},
 +};
 +
-+struct superhyway_bus {
-+	struct superhyway_ops *ops;
++static struct superhyway_device emi_device = {
++	.name		= "emi",
++	.num_resources	= ARRAY_SIZE(emi_resources),
++	.resource	= emi_resources,
 +};
 +
-+extern struct superhyway_bus superhyway_channels[];
++static struct resource femi_resources[] = {
++	[0] = {
++		.start	= PHYS_FEMI_CBLOCK,
++		.end	= PHYS_FEMI_CBLOCK + 0x00100000 - 1,
++		.flags	= IORESOURCE_MEM,
++	},
++	[1] = {
++		.start	= PHYS_FEMI_DBLOCK,
++		.end	= PHYS_FEMI_DBLOCK + 0x08000000 - 1,
++		.flags	= IORESOURCE_MEM,
++	},
++};
 +
- struct superhyway_device_id {
- 	unsigned int id;
- 	unsigned long driver_data;
-@@ -55,9 +66,11 @@ struct superhyway_device {
- 
- 	struct superhyway_device_id id;
- 	struct superhyway_driver *drv;
-+	struct superhyway_bus *bus;
- 
--	struct resource resource;
--	struct vcr_info vcr;
-+	int num_resources;
-+	struct resource *resource;
-+	struct superhyway_vcr_info vcr;
- };
- 
- #define to_superhyway_device(d)	container_of((d), struct superhyway_device, dev)
-@@ -65,12 +78,27 @@ struct superhyway_device {
- #define superhyway_get_drvdata(d)	dev_get_drvdata(&(d)->dev)
- #define superhyway_set_drvdata(d,p)	dev_set_drvdata(&(d)->dev, (p))
- 
--extern int superhyway_scan_bus(void);
-+static inline int
-+superhyway_read_vcr(struct superhyway_device *dev, unsigned long base,
-+		    struct superhyway_vcr_info *vcr)
++static struct superhyway_device femi_device = {
++	.name		= "femi",
++	.num_resources	= ARRAY_SIZE(femi_resources),
++	.resource	= femi_resources,
++};
++
++static struct resource epbr_resources[] = {
++	[0] = {
++		.start	= P4SEGADDR(0x1e7ffff8),
++		.end	= P4SEGADDR(0x1e7ffff8 + (sizeof(u32) * 2) - 1),
++		.flags	= IORESOURCE_MEM,
++	},
++	[1] = {
++		.start	= PHYS_EPBR_BLOCK,
++		.end	= PHYS_EPBR_BLOCK + 0x00a00000 - 1,
++		.flags	= IORESOURCE_MEM,
++	},
++};
++
++static struct superhyway_device epbr_device = {
++	.name		= "epbr",
++	.num_resources	= ARRAY_SIZE(epbr_resources),
++	.resource	= epbr_resources,
++};
++
++static struct resource dmac_resource = {
++	.start	= PHYS_DMAC_BLOCK,
++	.end	= PHYS_DMAC_BLOCK + 0x00100000 - 1,
++	.flags	= IORESOURCE_MEM,
++};
++
++static struct superhyway_device dmac_device = {
++	.name		= "dmac",
++	.num_resources	= 1,
++	.resource	= &dmac_resource,
++};
++
++static struct resource pbr_resources[] = {
++	[0] = {
++		.start	= P4SEGADDR(0x1ffffff8),
++		.end	= P4SEGADDR(0x1ffffff8 + (sizeof(u32) * 2) - 1),
++		.flags	= IORESOURCE_MEM,
++	},
++	[1] = {
++		.start	= PHYS_PBR_BLOCK,
++		.end	= PHYS_PBR_BLOCK + 0x00400000 - (sizeof(u32) * 2) - 1,
++		.flags	= IORESOURCE_MEM,
++	},
++};
++
++static struct superhyway_device pbr_device = {
++	.name		= "pbr",
++	.num_resources	= ARRAY_SIZE(pbr_resources),
++	.resource	= pbr_resources,
++};
++
++static struct superhyway_device *sh4202_devices[] __initdata = {
++	&emi_device, &femi_device, &epbr_device, &dmac_device, &pbr_device,
++};
++
++static int sh4202_read_vcr(unsigned long base, struct superhyway_vcr_info *vcr)
 +{
-+	return dev->bus->ops->read_vcr(base, vcr);
++	u32 vcrh, vcrl;
++	u64 tmp;
++
++	/*
++	 * XXX: Even though the SH4-202 Evaluation Device documentation
++	 * indicates that VCRL is mapped first with VCRH at a + 0x04
++	 * offset, the opposite seems to be true.
++	 *
++	 * Some modules (PBR and ePBR for instance) also appear to have
++	 * VCRL/VCRH flipped in the documentation, but on the SH4-202
++	 * itself it appears that these are all consistently mapped with
++	 * VCRH preceeding VCRL.
++	 *
++	 * Do not trust the documentation, for it is evil.
++	 */
++	vcrh = ctrl_inl(base);
++	vcrl = ctrl_inl(base + sizeof(u32));
++
++	tmp = ((u64)vcrh << 32) | vcrl;
++	memcpy(vcr, &tmp, sizeof(u64));
++
++	return 0;
 +}
 +
-+static inline int
-+superhyway_write_vcr(struct superhyway_device *dev, unsigned long base,
-+		     struct superhyway_vcr_info vcr)
++static int sh4202_write_vcr(unsigned long base, struct superhyway_vcr_info vcr)
 +{
-+	return dev->bus->ops->write_vcr(base, vcr);
++	u64 tmp = *(u64 *)&vcr;
++
++	ctrl_outl((tmp >> 32) & 0xffffffff, base);
++	ctrl_outl(tmp & 0xffffffff, base + sizeof(u32));
++
++	return 0;
 +}
 +
-+extern int superhyway_scan_bus(struct superhyway_bus *);
- 
- /* drivers/sh/superhyway/superhyway.c */
- int superhyway_register_driver(struct superhyway_driver *);
- void superhyway_unregister_driver(struct superhyway_driver *);
--int superhyway_add_device(unsigned int, unsigned long, unsigned long long);
-+int superhyway_add_device(unsigned long base, struct superhyway_device *, struct superhyway_bus *);
-+int superhyway_add_devices(struct superhyway_bus *bus, struct superhyway_device **devices, int nr_devices);
- 
- /* drivers/sh/superhyway/superhyway-sysfs.c */
- extern struct device_attribute superhyway_dev_attrs[];
++static struct superhyway_ops sh4202_superhyway_ops = {
++	.read_vcr	= sh4202_read_vcr,
++	.write_vcr	= sh4202_write_vcr,
++};
++
++struct superhyway_bus superhyway_channels[] = {
++	{ &sh4202_superhyway_ops, },
++	{ 0, },
++};
++
++int __init superhyway_scan_bus(struct superhyway_bus *bus)
++{
++	return superhyway_add_devices(bus, sh4202_devices,
++				      ARRAY_SIZE(sh4202_devices));
++}
++
 ---
 0.99.8.GIT

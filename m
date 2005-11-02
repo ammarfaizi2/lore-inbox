@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965028AbVKBNpA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965029AbVKBNpM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965028AbVKBNpA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 08:45:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965029AbVKBNpA
+	id S965029AbVKBNpM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 08:45:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965033AbVKBNpM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 08:45:00 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:45328 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S965028AbVKBNo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 08:44:59 -0500
-Date: Wed, 2 Nov 2005 13:44:52 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>, rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch, rfc] LEDs support for collie
-Message-ID: <20051102134452.GA4778@flint.arm.linux.org.uk>
-Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
-	Andrew Morton <akpm@osdl.org>, rpurdie@rpsys.net, lenz@cs.wisc.edu,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <20051102132145.GA14946@elf.ucw.cz>
+	Wed, 2 Nov 2005 08:45:12 -0500
+Received: from i-195-137-43-42.freedom2surf.net ([195.137.43.42]:28618 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S965029AbVKBNpK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 08:45:10 -0500
+Date: Wed, 2 Nov 2005 13:45:01 +0000
+From: bloch@verdurin.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: Ext3 error with Megaraid on x86_64 with 8GB RAM
+Message-ID: <20051102134501.GC16564@bloch.smith.man.ac.uk>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20051102132034.GB16564@bloch.smith.man.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051102132145.GA14946@elf.ucw.cz>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20051102132034.GB16564@bloch.smith.man.ac.uk>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 02, 2005 at 02:21:45PM +0100, Pavel Machek wrote:
-> This adds support for controlling LEDs on sharp zaurus sl-5500. It may
-> look a little bit complex, but it probably needs to be complex --
-> blinking is pretty much mandatory when you only have two leds, and we
-> want to support charging led (controlled by kernel).
+On Wed, 02 Nov 2005, bloch@verdurin.com wrote:
 
-Isn't "blinking" a kind of policy, as is brightness (== duty cycle of
-a high speed toggling)?  What if someone wants synchronised toggling?
+> Three times now I've seen severe ext3 problems on two different Opteron
+> machines with 8G RAM.  Two other machines with 4G are otherwise
+> identical but haven't exhibited the same filesystem problems.
+> 
+> The corruption occurs on a Megaraid RAID 1 array.
+> 
+> Here's the error message:
+> 
+> EXT3-fs error (device sdb2): ext3_new_block: Allocating block in system
+> zone - block = 55593720
+> Aborting journal on device sdb2.
+> EXT3-fs error (device sdb2) in ext3_prepare_write: Journal has aborted
+> ext3_abort called.
+> EXT3-fs error (device sdb2): ext3_journal_start_sb: Detected aborted
+> journal
+> Remounting filesystem read-only
+> __journal_remove_journal_head: freeing b_committed_data
+> 
+> The motherboard is a Tyan Thunder K8W.
+> 
+> The first time this happened fsck could not fix the errors and I had to
+> wipe the partition.
+> 
 
-I still think anything over a very simple interface being exported to
-userspace is completely overkill and completely bloated.  Hell, I got
-laughed at for creating an abstracted LEDs interface in the first
-place because many thought the current version was far too bloated.
-
-I _know_ people have issues with the current interface, whinging that
-"it only exports the colour" but that's something which is actually
-very trivially solvable and therefore _not_ a major problem to solve.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+This is with a Fedora 4 kernel 2.6.13-1.1532_FC4smp

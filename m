@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965016AbVKBNey@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932592AbVKBNij@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965016AbVKBNey (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 08:34:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965021AbVKBNey
+	id S932592AbVKBNij (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 08:38:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932707AbVKBNij
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 08:34:54 -0500
-Received: from zeus1.kernel.org ([204.152.191.4]:59812 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S965016AbVKBNex (ORCPT
+	Wed, 2 Nov 2005 08:38:39 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:54252 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932592AbVKBNii (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 08:34:53 -0500
-Message-Id: <200511021334.jA2DYdOw023519@zeus1.kernel.org>
-From: "news@travelmedia.fr" <news@travelmedia.fr>
-To: <linux-kernel@vger.kernel.org>
-Reply-To: "news@travelmedia.fr" <news@travelmedia.fr>
-Subject: Invitation to ChateauToChateau Club Free registration
-Date: Fri, 21 Oct 2005 09:02:13 +0100
+	Wed, 2 Nov 2005 08:38:38 -0500
+Date: Wed, 2 Nov 2005 14:38:25 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp not able to stop tasks
+Message-ID: <20051102133825.GG30194@elf.ucw.cz>
+References: <4368BDA7.6060401@drzeus.cx>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="--=4285-cqyo-3421-rzqr"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4368BDA7.6060401@drzeus.cx>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multipart message in MIME format
+Hi!
 
-----=4285-cqyo-3421-rzqr
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: quoted-printable
+> I'm having problem with swsusp in the recent kernels (somewhere around 
+> the late 2.6.14 rc:s). It says it cannot suspend all tasks:
 
-Chateau To Chateau - leader in tours and vacations in France
-with chateaux accommodation
+> [ 7223.525225] Stopping tasks: 
+> =======================================================================================================================================
+> [ 7229.532506]  stopping tasks failed (1 tasks remaining)
+> [ 7229.532529] Restarting tasks...<6> Strange, kauditd not stopped
 
-Invitation to ChateauToChateau The Club new free registration
- http://www.ChateauToChateau.com
-Paris and France Visits - Wine Tours - Perfume Tours - Cycling Tours
-Advanges, Events, Special Tours, Special Offers
+What is this kauditd? Try turning auditing off in kernel config, and
+it should go away. If it does, add try_to_freeze() at place where
+sleep is possible into kauditd...
 
-to unsubscribe send a blank email to leavesub@travelmedia.fr
+> Some late addition (post 2.6.14) also makes my keyboard crap out after 
+> one of these cycles. Not sure it the TSC funkiness was present
+> before this.
 
-
-
-----=4285-cqyo-3421-rzqr--
-
-
+Is that reproducible?
+								Pavel
+-- 
+Thanks, Sharp!

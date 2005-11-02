@@ -1,60 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751498AbVKBFEs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbVKBFHp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751498AbVKBFEs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 00:04:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbVKBFEs
+	id S932268AbVKBFHp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 00:07:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751502AbVKBFHp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 00:04:48 -0500
-Received: from dvhart.com ([64.146.134.43]:26026 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S1751498AbVKBFEr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 00:04:47 -0500
-Date: Tue, 01 Nov 2005 21:04:52 -0800
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Andrew Morton <akpm@osdl.org>, Rob Landley <rob@landley.net>
-Cc: ak@suse.de, rmk+lkml@arm.linux.org.uk, torvalds@osdl.org,
-       tony.luck@gmail.com, paolo.ciarrocchi@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: New (now current development process)
-Message-ID: <221880000.1130907891@[10.10.2.4]>
-In-Reply-To: <20051030231723.71c72865.akpm@osdl.org>
-References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com><20051030111241.74c5b1a6.akpm@osdl.org><200510310148.57021.ak@suse.de><200510302305.46532.rob@landley.net> <20051030231723.71c72865.akpm@osdl.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 2 Nov 2005 00:07:45 -0500
+Received: from [203.171.93.254] ([203.171.93.254]:13455 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S1751501AbVKBFHo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 00:07:44 -0500
+Subject: Re: [PATCH 2.6.14-rc1-git5] sched: disable preempt in idle tasks
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Li Shaohua <shaohua.li@intel.com>, Andrew Morton <akpm@osdl.org>,
+       Srivatsa Vaddagiri <vatsa@in.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ian Molton <spyro@f2s.com>
+In-Reply-To: <43682878.3040800@yahoo.com.au>
+References: <59D45D057E9702469E5775CBB56411F1C19A01@pdsmsx406>
+	 <43682878.3040800@yahoo.com.au>
+Content-Type: text/plain
+Organization: Cyclades
+Message-Id: <1130907843.3853.1.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Wed, 02 Nov 2005 16:04:04 +1100
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That's what I was thinking ;)
+Hi Nick.
+
+On Wed, 2005-11-02 at 13:46, Nick Piggin wrote:
+> Hi Shaohua,
 > 
-> The simple fact is that we have more developers doing more stuff faster
-> than they used to.  All within a coupled system which has a lot of
-> interactions.
+> Li, Shaohua wrote:
 > 
-> End result: yes, we do all need to spend more time looking at other
-> people's code and less time looking at our own.  That's just life in a
-> large project.
+> > 
+> > What's the status of the patch? I didn't see it in base kernel.
+> > We found another bug related with this issue. On UP system, if a CPU
+> > enters 
+> > 'mwait_idle', it never leaves it, as the 'mwait_idle' loop will never
+> > end.
+> > Disabling preempt fixes the bug. Should I submit a patch just disabling
+> > preempt in 'mwait_idle' or wait for your patch?
+> > 
 > 
-> I'm very careful to make sure that relevant developers are copied on
-> patches which go into -mm.  In fact there's significantly better review
-> opportunity on patches which go developer->mm->Linus than there are on
-> patches which go developer->maintainer-git->Linus.
+> The patch is in Andrew's tree, and it should get merged for 2.6.15.
+> If you have verified that disabling preempt in mwait_idle fixes the
+> bug, then you may like to send that to the 2.6.14.stable guys.
 
-Moreover, it's fairly easy to test stuff that's all in one place, in a
-consistent format, with a simple linear stack of patches to sort through 
-to find culprits.
+I sent an email a couple of weeks ago saying that it looked like it did
+the trick for me - no problems in two weeks of testing. (I would have
+easily seen it within a day or two prior to this).
 
-Plus you have a great tendency of dropping stuff like a stone when it's
-broken, which helps a lot. Having some basic pre-mainline-merge testing
-keeps the quality of mainline way up.
+Regards,
 
-It'd help more if people focused more on testing their own shit before
-submitting it than complaining about -mm. If it's the same people breaking 
-the tree all the time, I'm sure we can find a recycled set of stocks 
-somewhere.
+Nigel
 
-M.
+> Thanks,
+> Nick
+-- 
+
 

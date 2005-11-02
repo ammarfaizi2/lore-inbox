@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965301AbVKBWIo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965304AbVKBWLU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965301AbVKBWIo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 17:08:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965304AbVKBWIo
+	id S965304AbVKBWLU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 17:11:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965305AbVKBWLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 17:08:44 -0500
-Received: from ams-iport-1.cisco.com ([144.254.224.140]:52860 "EHLO
-	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S965301AbVKBWIn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 17:08:43 -0500
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [PATCH/RFC v2] IB: Add SCSI RDMA Protocol (SRP) initiator
-X-Message-Flag: Warning: May contain useful information
-References: <52r79y91jz.fsf_-_@cisco.com>
-	<20051102220358.GA27132@mellanox.co.il>
-From: Roland Dreier <rolandd@cisco.com>
-Date: Wed, 02 Nov 2005 14:08:35 -0800
-In-Reply-To: <20051102220358.GA27132@mellanox.co.il> (Michael S. Tsirkin's
- message of "Thu, 3 Nov 2005 00:03:58 +0200")
-Message-ID: <52irva8zz0.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+	Wed, 2 Nov 2005 17:11:19 -0500
+Received: from vscan.kent.edu ([131.123.246.3]:3991 "EHLO smtp.kent.edu")
+	by vger.kernel.org with ESMTP id S965304AbVKBWLT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 17:11:19 -0500
+From: <ppunnam@kent.edu>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-ID: <1932830193449a.193449a1932830@kent.edu>
+Date: Wed, 02 Nov 2005 17:11:19 -0500
+X-Mailer: iPlanet Messenger Express 5.2 Patch 2 (built Jul 14 2004)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 02 Nov 2005 22:08:37.0079 (UTC) FILETIME=[F9352E70:01C5DFF9]
+Content-Language: en
+Subject: send_sigqueue problem..
+X-Accept-Language: en
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, I replaced the function with:
 
-+static int srp_init_qp(struct srp_target_port *target,
-+		       struct ib_qp *qp)
-+{
-+	struct ib_qp_attr *attr;
-+	int ret;
-+
-+	attr = kmalloc(sizeof *attr, GFP_KERNEL);
-+	if (!attr)
-+		return -ENOMEM;
-+
-+	ret = ib_find_cached_pkey(target->srp_host->dev,
-+				  target->srp_host->port,
-+				  be16_to_cpu(target->path.pkey),
-+				  &attr->pkey_index);
-+	if (ret)
-+		goto out;
-+
-+	attr->qp_state        = IB_QPS_INIT;
-+	attr->qp_access_flags = (IB_ACCESS_REMOTE_READ |
-+				    IB_ACCESS_REMOTE_WRITE);
-+	attr->port_num        = target->srp_host->port;
-+
-+	ret = ib_modify_qp(qp, attr,
-+			   IB_QP_STATE		|
-+			   IB_QP_PKEY_INDEX	|
-+			   IB_QP_ACCESS_FLAGS	|
-+			   IB_QP_PORT);
-+
-+out:
-+	kfree(attr);
-+	return ret;
-+}
+Hi guys,
+
+i am trying to use the linux signaling to signal a user process from 
+the kernel..
+i require a reliable(without any signal loss) and fast signaling 
+mechanism.
+i tried to use the send_sigqueue to send the signals...here what i did
+
+1) creted the sigqueue structure using the sigqueue_alloc()..
+2) called the send_sigqueue() function...
+it worked fine for some time(around 1000 sig) but after that 
+sigqueue_alloc failing..may be becuse of not enough memory  available 
+to allocate sigqueue..
+i got few question about this..
+
+1) does sigqueue structure need to be removed explisitly or it will be 
+autometically cleared after the signal delivery (i did't used the 
+sigqueue_free() becuse i dont know when the signal is deliverd).
+2)there is any another way i can implement such a signaling mechanism.
+
+i will be thankful for your help...
+
+-prady
+
+ 

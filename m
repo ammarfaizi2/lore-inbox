@@ -1,36 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965111AbVKBQLj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965114AbVKBQMd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965111AbVKBQLj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 11:11:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965112AbVKBQLj
+	id S965114AbVKBQMd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 11:12:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965116AbVKBQMd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 11:11:39 -0500
-Received: from verein.lst.de ([213.95.11.210]:34774 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S965111AbVKBQLi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 11:11:38 -0500
-Date: Wed, 2 Nov 2005 17:11:03 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Christoph Hellwig <hch@lst.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] TIOC* compat ioctl handling
-Message-ID: <20051102161103.GA22389@lst.de>
-References: <20051103002012.5e422ae5.sfr@canb.auug.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051103002012.5e422ae5.sfr@canb.auug.org.au>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+	Wed, 2 Nov 2005 11:12:33 -0500
+Received: from smarthost1.sentex.ca ([64.7.153.18]:13761 "EHLO
+	smarthost1.sentex.ca") by vger.kernel.org with ESMTP
+	id S965114AbVKBQMc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 11:12:32 -0500
+From: "Stuart MacDonald" <stuartm@connecttech.com>
+To: <alex@alexfisher.me.uk>, <linux-kernel@vger.kernel.org>
+Subject: RE: Would I be violating the GPL?
+Date: Wed, 2 Nov 2005 11:12:27 -0500
+Organization: Connect Tech Inc.
+Message-ID: <049c01c5dfc8$37e3b3d0$294b82ce@stuartm>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+In-Reply-To: <5449aac20511010949x5d96c7e0meee4d76a67a06c01@mail.gmail.com>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 03, 2005 at 12:20:12AM +1100, Stephen Rothwell wrote:
-> Because bash (on ppc64 at least) does a TIOCSTART ioctl when ^C is
-> pressed.  The ioctl always returned EINVAL but now we also get the log
-> message.  Should we put the COMPATIBLE_IOCTL bits back?
+From: Alexander Fisher [alexjfisher@gmail.com]
+> A supplier of a PCI mezzanine digital IO card has provided a linux 2.4
+> driver as source code.  They have provided this code source with a
+> license stating I won't redistribute it in anyway.
 
-Hmm.  Checking my syslog I see these aswell.  I'd say put them back into
-common code, with a big comment explaining this. Unless someone beats me
-I'll hack up a patch today.
+It seems to me that the supplier is violating the GPL.
+
+They've distributed a linux driver.
+
+There are rare exceptions, but most linux drivers are considered
+derived works of the kernel and must also be licenced under the GPL
+(GPL 2.b).
+
+As such, further restrictions on the rights that come with the driver
+are prohibited (GPL 6.). Or, this may count as sublicencing, which is
+also prohibited (GPL 4.).
+
+So their licence prohibiting redistribution is in violation of the GPL.
+
+Since no one else has commented on this, I'm wondering if I'm wrong.
+Comments?
+
+If I'm right, I believe that GPL 4. allows you to proceed with the
+driver as per the GPL...
+
+> My concern is that if I build this code into a module, I won't be able
+> to distribute it to customers
+
+..and you can redistribute it.
+
+>                               without violating either the GPL (by not
+> distributing the source code), or the proprietary source code license
+> as currently imposed by the supplier.
+
+In my mind, this is exactly what the GPL is designed to prevent.
+
+..Stu
 

@@ -1,119 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932691AbVKBJV1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964896AbVKBJ21@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932691AbVKBJV1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 04:21:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932693AbVKBJV1
+	id S964896AbVKBJ21 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 04:28:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964888AbVKBJ21
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 04:21:27 -0500
-Received: from mail.gmx.net ([213.165.64.20]:41436 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932691AbVKBJV0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 04:21:26 -0500
-X-Authenticated: #4399952
-Date: Wed, 2 Nov 2005 10:21:16 +0100
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Carlos Antunes <cmantunes@gmail.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>,
-       Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Ingo Molnar <mingo@elte.hu>, Rui Nuno Capela <rncbc@rncbc.org>,
-       "K.R. Foley" <kr@cybsft.com>, john stultz <johnstul@us.ibm.com>,
-       Mark Knecht <markknecht@gmail.com>,
-       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rt1
-Message-ID: <20051102102116.3b0c75d1@mango.fruits.de>
-In-Reply-To: <cb2ad8b50511012005g3bc39f36odd0ae1038e2b9b52@mail.gmail.com>
-References: <20051017160536.GA2107@elte.hu>
-	<20051020195432.GA21903@elte.hu>
-	<20051030133316.GA11225@elte.hu>
-	<1130876293.6178.6.camel@cmn3.stanford.edu>
-	<1130899662.12101.2.camel@cmn3.stanford.edu>
-	<cb2ad8b50511011855w41bf4a30l3127cc36dcacb094@mail.gmail.com>
-	<1130900716.29788.22.camel@localhost.localdomain>
-	<cb2ad8b50511011926w11116fdasd22227ca249f18fc@mail.gmail.com>
-	<1130902342.29788.23.camel@localhost.localdomain>
-	<cb2ad8b50511012005g3bc39f36odd0ae1038e2b9b52@mail.gmail.com>
-X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 2 Nov 2005 04:28:27 -0500
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:46272 "EHLO
+	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S964785AbVKBJ20
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 04:28:26 -0500
+Message-ID: <4368878D.4040406@student.ltu.se>
+Date: Wed, 02 Nov 2005 10:31:57 +0100
+From: Richard Knutsson <ricknu-0@student.ltu.se>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ashutosh Naik <ashutosh.naik@gmail.com>
+CC: rick@remotepoint.com, davej@suse.de, acme@conectiva.com.br,
+       linux-net@vger.kernel.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       stable@kernel.org
+Subject: Re: [PATCH]dgrs - Fixes Warnings when CONFIG_ISA and CONFIG_PCI are
+ not enabled
+References: <81083a450511012314q4ec69927gfa60cb19ba8f437a@mail.gmail.com>
+In-Reply-To: <81083a450511012314q4ec69927gfa60cb19ba8f437a@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Nov 2005 23:05:09 -0500
-Carlos Antunes <cmantunes@gmail.com> wrote:
+Ashutosh Naik wrote:
 
-> Here's the thing:
-> http://www.nowthor.com/OpenPBX/timing.c
-> 
-> Let me know what kind of results you get.
+>This patch fixes compiler warnings when CONFIG_ISA and CONFIG_PCI are
+>not enabled in the dgrc network driver.
+>
+>Signed-off-by: Ashutosh Naik <ashutosh.naik@gmail.com>
+>
+>--
+>diff -Naurp linux-2.6.14/drivers/net/dgrs.c
+>linux-2.6.14-git1/drivers/net/dgrs.c---
+>linux-2.6.14/drivers/net/dgrs.c     2005-10-28 05:32:08.000000000
+>+0530
+>+++ linux-2.6.14-git1/drivers/net/dgrs.c        2005-11-01
+>10:30:03.000000000 +0530
+>@@ -1549,8 +1549,12 @@ MODULE_PARM_DESC(nicmode, "Digi RightSwi
+> static int __init dgrs_init_module (void)  {
+>        int     i;
+>-       int eisacount = 0, pcicount = 0;
+>-
+>+#ifdef CONFIG_EISA
+>+       int eisacount = 0;
+>+#endif
+>+#ifdef CONFIG_PCI
+>+       int pcicount = 0;
+>+#endif
+>        /*
+>         *      Command line variable overrides
+>         *              debug=NNN
+>-
+>  
+>
+Since eisacount and pcicount is doing the same task (and they are only 
+used in sequence) and to preventing more #ifdef in the source-code, why 
+not use the same variable? It will give an warning if both of them is 
+not defined, but is that an issue? If so,
+#if !defined CONFIG_EISA && !defined CONFIG_PCI
+could encapsulate the variable to prevent that.
 
-Hi,
+Posted 26'th of October and now also checked against 2.6.14-git1.
 
-running the code i simply get:
+Signed-off-by: Richard Knutsson <ricknu-0@student.ltu.se>
 
-~$ ./timing 
-Failed to create thread # 382
-Failed to create thread # 383
-Failed to create thread # 384
-Failed to create thread # 385
-Failed to create thread # 386
-Failed to create thread # 387
-..
-Failed to create thread # 498
-Failed to create thread # 499
+---
 
-and then
+diff -uNr a/drivers/net/dgrs.c b/drivers/net/dgrs.c
+--- a/drivers/net/dgrs.c	2005-08-29 01:41:01.000000000 +0200
++++ b/drivers/net/dgrs.c	2005-10-26 15:53:43.000000000 +0200
+@@ -1549,7 +1549,7 @@
+ static int __init dgrs_init_module (void)
+ {
+ 	int	i;
+-	int eisacount = 0, pcicount = 0;
++	int	count;
+ 
+ 	/*
+ 	 *	Command line variable overrides
+@@ -1591,14 +1591,14 @@
+ 	 *	Find and configure all the cards
+ 	 */
+ #ifdef CONFIG_EISA
+-	eisacount = eisa_driver_register(&dgrs_eisa_driver);
+-	if (eisacount < 0)
+-		return eisacount;
++	count = eisa_driver_register(&dgrs_eisa_driver);
++	if (count < 0)
++		return count;
+ #endif
+ #ifdef CONFIG_PCI
+-	pcicount = pci_register_driver(&dgrs_pci_driver);
+-	if (pcicount)
+-		return pcicount;
++	count = pci_register_driver(&dgrs_pci_driver);
++	if (count)
++		return count;
+ #endif
+ 	return 0;
+ }
 
-Segmentation fault
 
-Probably caused by not handling that some threads didn't get created. I
-reduced the number down to 300:
-
-~$ ./timing 
-Histogram
-Delay(ms)       Count
- 0              300000
- 1              0
- 2              0
- 3              0
- 4              0
- 5              0
- 6              0
- 7              0
- 8              0
- 9              0
-10              0
-11              0
-12              0
-13              0
-14              0
-15              0
-16              0
-17              0
-18              0
-19              0
-20              0
-Num threads = 300
-Total sleeps = 300000
-Min error = 0.014 ms
-Max error = 0.133 ms
-
-What would you expect to see? BTW: cpu load stayed moderately small with
-this setting here.
-
-As a sidenote: Of course the scheduling works completely different with
-hundreds of threads running SCHED_FIFO at the same priority than with
-hundreds of threads running SCHED_OTHER. SCHED_OTHER threads can preempt
-each other when the dynamic priority changes. SCHED_FIFO threads OTOH
-just sit and wait until they get to run, not preempting other SCHED_FIFO
-threads of the same priority. So basically each SCHED_FIFO thread waits
-until all others have run.
-
-Dunno, if that would make a difference in this case though..
-
-Flo
-
--- 
-Palimm Palimm!
-http://tapas.affenbande.org

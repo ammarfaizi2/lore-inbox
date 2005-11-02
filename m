@@ -1,50 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932675AbVKBMnG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932672AbVKBMsk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932675AbVKBMnG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 07:43:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932672AbVKBMnG
+	id S932672AbVKBMsk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 07:48:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932676AbVKBMsk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 07:43:06 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:49645 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932675AbVKBMnF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 07:43:05 -0500
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Gerrit Huizenga <gh@us.ibm.com>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       Mel Gorman <mel@csn.ul.ie>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       kravetz@us.ibm.com, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>
-In-Reply-To: <20051102120048.GA10081@elte.hu>
-References: <20051102104131.GA7780@elte.hu>
-	 <E1EXGPs-0006JA-00@w-gerrit.beaverton.ibm.com>
-	 <20051102120048.GA10081@elte.hu>
-Content-Type: text/plain
-Date: Wed, 02 Nov 2005 13:42:49 +0100
-Message-Id: <1130935369.15627.37.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Wed, 2 Nov 2005 07:48:40 -0500
+Received: from mail24.syd.optusnet.com.au ([211.29.133.165]:26056 "EHLO
+	mail24.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932672AbVKBMsj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 07:48:39 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.6.14-ck2
+Date: Wed, 2 Nov 2005 23:48:07 +1100
+User-Agent: KMail/1.8.3
+Cc: ck@vds.kolivas.org, Wu Fengguang <wfg@mail.ustc.edu.cn>, mpm@selenic.com
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2801608.KQ6clzeF0H";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200511022348.09812.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-02 at 13:00 +0100, Ingo Molnar wrote:
-> 
-> >  Yeah - and that isn't what is being proposed here.  The goal is to 
-> >  ask the kernel to identify some memory which can be legitimately 
-> >  freed and hasten the freeing of that memory.
-> 
-> but that's very easy to identify: check the free list or the clean 
-> list(s). No defragmentation necessary. [unless the unit of RAM mapping 
-> between hypervisor and guest is too coarse (i.e. not 4K pages).]
+--nextPart2801608.KQ6clzeF0H
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-It needs to be that coarse in cases where HugeTLB is desired for use.
-I'm not sure I could convince the DB guys to give up large pages,
-they're pretty hooked on them. ;)
+These are patches designed to improve system responsiveness and interactivi=
+ty.=20
+It is configurable to any workload but the default ck* patch is aimed at th=
+e=20
+desktop and ck*-server is available with more emphasis on serverspace.
 
--- Dave
+Apply to 2.6.14
+http://ck.kolivas.org/patches/2.6/2.6.14/2.6.14-ck2/patch-2.6.14-ck2.bz2
 
+or server version
+http://ck.kolivas.org/patches/2.6/2.6.14/2.6.14-ck2/patch-2.6.14-cks2.bz2
+
+*note name change for server version
+
+web:
+http://kernel.kolivas.org
+all patches:
+http://ck.kolivas.org/patches/
+Split patches available.
+
+
+Changes:
+ The server patch has had its name changed to cks* to support patching with=
+=20
+ketchup which Matt Mackall has kindly enabled for -ck.
+
+Added:
++sched-staircase12.1_12.2.patch
+ A small buglet fix for the staircase cpu scheduler (mostly harmless)
+
++mm-kswapd_inherit_prio.patch
++mm-prio_dependant_scan.patch
++mm-batch_prio.patch
+ These are patches designed to change the way the virtual memory subsystem=
+=20
+behaves according to the 'nice' level of the task that called it. This has=
+=20
+some weak influence on how much cpu ram allocation takes, and how quickly i=
+t=20
+will try to allocate that ram, thus providing some support for 'nice' withi=
+n=20
+the vm. In the presence of an obscene memory load that was niced this showe=
+d=20
+some improvement in the time taken to compile a minimal kernel config (2:10=
+=20
+vs 2:55).
+
+
+Modified:
+=2Dadaptive-readahead-4.patch
++adaptive-readahead-6.patch
+ Updated to the latest adaptive readahead code (thanks Wu Fengguang) which=
+=20
+enables the thrash protection by default and has numerous other enhancement=
+s.=20
+Please cc him if you have any feedback about it.
+
+=2D2614ck1-version.diff
++2614ck2-version.diff
+ Version
+
+
+Cheers,
+Con
+
+--nextPart2801608.KQ6clzeF0H
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDaLWJZUg7+tp6mRURAo18AJ43s3X2EUtwFjcH59MFm0hjE0lZjgCdFKT4
+a1jfgfl1fvACwVWSftyp0Og=
+=onjj
+-----END PGP SIGNATURE-----
+
+--nextPart2801608.KQ6clzeF0H--

@@ -1,42 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932363AbVKBG2N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbVKBGbc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932363AbVKBG2N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 01:28:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932381AbVKBG2N
+	id S932381AbVKBGbc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 01:31:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbVKBGbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 01:28:13 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:21421 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932363AbVKBG2M (ORCPT
+	Wed, 2 Nov 2005 01:31:32 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:20134 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932381AbVKBGbb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 01:28:12 -0500
-Date: Wed, 2 Nov 2005 01:27:35 -0500
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org,
-       Ashok Raj <ashok.raj@intel.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.14-git3: scheduling while atomic from cpufreq on Athlon64
-Message-ID: <20051102062735.GF16880@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-	linux-kernel@vger.kernel.org, Ashok Raj <ashok.raj@intel.com>,
-	Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>
-References: <200510311606.36615.rjw@sisk.pl> <20051031113413.34a599cd.akpm@osdl.org>
+	Wed, 2 Nov 2005 01:31:31 -0500
+Date: Wed, 2 Nov 2005 16:29:58 +1100
+From: Andrew Morton <akpm@osdl.org>
+To: matthieu castet <castet.matthieu@free.fr>
+Cc: duncan.sands@math.u-psud.fr, linux-usb-devel@lists.sourceforge.net,
+       usbatm@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]  Eagle and ADI 930 usb adsl modem driver
+Message-Id: <20051102162958.11c1983a.akpm@osdl.org>
+In-Reply-To: <43677257.4090506@free.fr>
+References: <4363F9B5.6010907@free.fr>
+	<20051031155803.2e94069f.akpm@osdl.org>
+	<200511011340.41266.duncan.sands@math.u-psud.fr>
+	<43677257.4090506@free.fr>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051031113413.34a599cd.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 31, 2005 at 11:34:13AM -0800, Andrew Morton wrote:
+matthieu castet <castet.matthieu@free.fr> wrote:
+>
+> Hi Duncan,
+> 
+> Duncan Sands wrote:
+> > Hi Andrew,
+> > 
+> > 
+> > this code looks like a 'orrible hack to work around a common problem
+> > with USB modem's of this type: if the modem is plugged in while the
+> > system boots, the driver may look for firmware before the filesystem
+> 
+> No, it wasn't the problem, even when loading with insmod/modprobe the 
+> timeout occurs on some configurations. For example on 
+> http://atm.eagle-usb.org/wakka.php?wiki=TestUEagleAtmBaud123, you could 
+> see the 'firmware ueagle-atm/eagleIII.fw is not available' error.
+> 
+> It is only happen for pre-firmware modem (uea_load_firmware) ie where we 
+> just do a request_firmware in the probe without any initialisation before.
+> So the problem seems to appear when we do a request_firmware too early 
+> in the usb_probe.
+> 
 
- > > Additionally there are some problems with freezing processes by swsusp.
- > More details on this?
+Can you please work out exactly what's happening and come up with a more
+solid solution than msleep(1)?
 
-I've seen this recently. It was kauditd refusing to freeze
-for some reason.  I've not had chance to look into the code yet.
-
-		Dave
-
+Because other drivers may hit this problem (whatever it is) and fixes in
+core kernel might be needed.  If we just work around stuff, core kernel
+remains unfixed...

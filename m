@@ -1,22 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932577AbVKBLMe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932580AbVKBLUf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932577AbVKBLMe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 06:12:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932580AbVKBLMe
+	id S932580AbVKBLUf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 06:20:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932586AbVKBLUf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 06:12:34 -0500
-Received: from mx2.suse.de ([195.135.220.15]:17101 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932577AbVKBLMe (ORCPT
+	Wed, 2 Nov 2005 06:20:35 -0500
+Received: from mx2.suse.de ([195.135.220.15]:56269 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932580AbVKBLUf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 06:12:34 -0500
-Date: Wed, 02 Nov 2005 12:12:32 +0100
-Message-ID: <s5hzmon717j.wl%tiwai@suse.de>
+	Wed, 2 Nov 2005 06:20:35 -0500
+Date: Wed, 02 Nov 2005 12:20:32 +0100
+Message-ID: <s5hy84770u7.wl%tiwai@suse.de>
 From: Takashi Iwai <tiwai@suse.de>
-To: Narayan Desai <desai@mcs.anl.gov>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: alsa 2.6.14 record problem
-In-Reply-To: <87d5ljpuu8.fsf@topaz.mcs.anl.gov>
-References: <87d5ljpuu8.fsf@topaz.mcs.anl.gov>
+To: Tomasz Torcz <zdzichu@irc.pl>
+Cc: Patrizio Bassi <patrizio.bassi@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG 2579] linux 2.6.* sound problems
+In-Reply-To: <20051031221003.GA26784@irc.pl>
+References: <436638A8.3000604@gmail.com>
+	<20051031221003.GA26784@irc.pl>
 User-Agent: Wanderlust/2.12.0 (Your Wildest Dreams) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.7 (=?ISO-8859-4?Q?Sanj=F2?=) APEL/10.6 MULE XEmacs/21.5 (beta18)
  (chestnut) (+CVS-20041021) (i386-suse-linux)
@@ -25,26 +26,29 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At Tue, 01 Nov 2005 21:55:11 -0600,
-Narayan Desai wrote:
+At Mon, 31 Oct 2005 23:10:03 +0100,
+Tomasz Torcz wrote:
 > 
-> Hi. I am running 2.6.14 on a shuttle sn41g2. I have a bttv card setup
-> with a cable connection into the cd input on the nforce audio. I
-> upgraded from 2.4.30 directly to 2.6.14. This included the switch from
-> OSS to ALSA. This setup previously worked with mythtv flawlessly. 
+> [1  <text/plain; us-ascii (quoted-printable)>]
+> On Mon, Oct 31, 2005 at 04:30:48PM +0100, Patrizio Bassi wrote:
+> > when playing audio and using a bit the harddisk (i.e. md5sum of a 200mb
+> > file)
+> > i hear noises, related to disk activity. more hd is used, more chicks
+> > and ZZZZ noises happen.
+> > 
+> > linux 2.4.x and windows has no problems, perfect.
 > 
-> After the upgrade, (now using snd_intel8x0) recording from /dev/dsp
-> works fine, except if I have audio playing at the same
-> time. Recordings made while audio playing have the correct audio on
-> the left channel, but the right channel includes whatever was being
-> played during recording.
-> 
-> Is this a driver bug or do I have alsa mixer settings wrong? This
-> seems like a odd occurrence, even with mixer settings wrong.
+>  I remeber similar problems with es1370 and OSS/ALSA driver. OSS were
+> fine, ALSA produced noise.
+>  It turned to be PCI latency timer issues. OSS driver changed it's value
+> to working good values. ALSA didn't touch latency timer, and during hard
+> disk activity sound stuttered.
 
-I guess the latter.  You can choose a different capture source for
-each left/right channel.  The right channel seems to be selected to
-"Mix" in your case.
+Hmm, I don't see any relevant code in OSS es137*.c.
+
+>  Got rid of problem by running setpci -d CARD:ID latency_timer=40
+
+If this helps, the fix would be easy...
 
 
 Takashi

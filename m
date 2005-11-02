@@ -1,26 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbVKBGbc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbVKBGem@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932381AbVKBGbc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 01:31:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbVKBGbc
+	id S932449AbVKBGem (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 01:34:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbVKBGem
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 01:31:32 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:20134 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932381AbVKBGbb (ORCPT
+	Wed, 2 Nov 2005 01:34:42 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:25255 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932451AbVKBGem (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 01:31:31 -0500
-Date: Wed, 2 Nov 2005 16:29:58 +1100
+	Wed, 2 Nov 2005 01:34:42 -0500
+Date: Wed, 2 Nov 2005 16:34:23 +1100
 From: Andrew Morton <akpm@osdl.org>
 To: matthieu castet <castet.matthieu@free.fr>
-Cc: duncan.sands@math.u-psud.fr, linux-usb-devel@lists.sourceforge.net,
-       usbatm@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: linux-usb-devel@lists.sourceforge.net, usbatm@lists.infradead.org,
+       linux-kernel@vger.kernel.org
 Subject: Re: [PATCH]  Eagle and ADI 930 usb adsl modem driver
-Message-Id: <20051102162958.11c1983a.akpm@osdl.org>
-In-Reply-To: <43677257.4090506@free.fr>
+Message-Id: <20051102163423.460fe9c5.akpm@osdl.org>
+In-Reply-To: <436776C6.3040900@free.fr>
 References: <4363F9B5.6010907@free.fr>
 	<20051031155803.2e94069f.akpm@osdl.org>
-	<200511011340.41266.duncan.sands@math.u-psud.fr>
-	<43677257.4090506@free.fr>
+	<436776C6.3040900@free.fr>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -30,30 +29,18 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 matthieu castet <castet.matthieu@free.fr> wrote:
 >
-> Hi Duncan,
+> >>+
+>  >>+	*cmvs = (struct uea_cmvs *)(data + 1);
+>  > 
+>  > 
+>  > That's a bit rude - asking the compiler to perform a structure copy from an
+>  > odd address.  memcpy() would be saner.
+>  > 
+>  Could you elaborate a bit more ?
+>  I don't see where there is a copy.
+>  *cmvs is a pointer to the structure, not the structure. And when we 
+>  parse the structure, we use get_unaligned functions.
 > 
-> Duncan Sands wrote:
-> > Hi Andrew,
-> > 
-> > 
-> > this code looks like a 'orrible hack to work around a common problem
-> > with USB modem's of this type: if the modem is plugged in while the
-> > system boots, the driver may look for firmware before the filesystem
-> 
-> No, it wasn't the problem, even when loading with insmod/modprobe the 
-> timeout occurs on some configurations. For example on 
-> http://atm.eagle-usb.org/wakka.php?wiki=TestUEagleAtmBaud123, you could 
-> see the 'firmware ueagle-atm/eagleIII.fw is not available' error.
-> 
-> It is only happen for pre-firmware modem (uea_load_firmware) ie where we 
-> just do a request_firmware in the probe without any initialisation before.
-> So the problem seems to appear when we do a request_firmware too early 
-> in the usb_probe.
 > 
 
-Can you please work out exactly what's happening and come up with a more
-solid solution than msleep(1)?
-
-Because other drivers may hit this problem (whatever it is) and fixes in
-core kernel might be needed.  If we just work around stuff, core kernel
-remains unfixed...
+Ah, I misread the code.

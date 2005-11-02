@@ -1,68 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932657AbVKBIlq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932653AbVKBInE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932657AbVKBIlq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 03:41:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932659AbVKBIlq
+	id S932653AbVKBInE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 03:43:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932659AbVKBInD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 03:41:46 -0500
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:58755 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932657AbVKBIlp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 03:41:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=CZ9yBOtNuiLW2n4yUK3dyYs4A4Tnnhd5pf7+nIyL/2FUsHFzPy2qlkfBeMkITd8YfMoxrFpAyTfaGvnUa8rM/SfxAxewpz4p83ACLTl2o7o9RnMKOiUSlhOCE5M8LYxiF1lfLQ9MopDOWcNzfbU1HtDHvkF/ob+bmExHsdCpANY=  ;
-Message-ID: <43687C3D.7060706@yahoo.com.au>
-Date: Wed, 02 Nov 2005 19:43:41 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Wed, 2 Nov 2005 03:43:03 -0500
+Received: from smtp111.sbc.mail.re2.yahoo.com ([68.142.229.94]:21689 "HELO
+	smtp111.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S932653AbVKBInB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 03:43:01 -0500
+Message-ID: <43687BE4.3000708@gmail.com>
+Date: Wed, 02 Nov 2005 02:42:12 -0600
+From: Hareesh Nagarajan <hnagar2@gmail.com>
+User-Agent: Thunderbird 1.4 (X11/20050908)
 MIME-Version: 1.0
-To: Yasunori Goto <y-goto@jp.fujitsu.com>
-CC: Dave Hansen <haveblue@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       Mel Gorman <mel@csn.ul.ie>, "Martin J. Bligh" <mbligh@mbligh.org>,
-       Andrew Morton <akpm@osdl.org>, kravetz@us.ibm.com,
-       linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-References: <1130917338.14475.133.camel@localhost> <436877DB.7020808@yahoo.com.au> <20051102172729.9E7C.Y-GOTO@jp.fujitsu.com>
-In-Reply-To: <20051102172729.9E7C.Y-GOTO@jp.fujitsu.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+CC: akpm@osdl.org
+Subject: [PATCH] register_filesystem() must return -EEXIST if the filesystem
+ with the same name is already registered
+Content-Type: multipart/mixed;
+ boundary="------------090901040900030402050304"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yasunori Goto wrote:
->>>One other thing, if we decide to take the zones approach, it would have
->>>no other side benefits for the kernel.  It would be for hotplug only and
->>>I don't think even the large page users would get much benefit.  
->>>
->>
->>Hugepage users? They can be satisfied with ZONE_REMOVABLE too. If you're
->>talking about other higher-order users, I still think we can't guarantee
->>past about order 1 or 2 with Mel's patch and they simply need to have
->>some other ways to do things.
-> 
-> 
-> Hmmm. I don't see at this point.
-> Why do you think ZONE_REMOVABLE can satisfy for hugepage.
-> At leaset, my ZONE_REMOVABLE patch doesn't any concern about
-> fragmentation.
-> 
+This is a multi-part message in MIME format.
+--------------090901040900030402050304
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Well I think it can satisfy hugepage allocations simply because
-we can be reasonably sure of being able to free contiguous regions.
-Of course it will be memory no longer easily reclaimable, same as
-the case for the frag patches. Nor would be name ZONE_REMOVABLE any
-longer be the most appropriate!
+If we have a look at the register_filesystem() function defined in 
+fs/filesystems.c, we see that if a filesystem with a same name has 
+already been registered then the find_filesystem() function will return 
+NON-NULL otherwise it will return NULL.
 
-But my point is, the basic mechanism is there and is workable.
-Hugepages and memory unplug are the two main reasons for IBM to be
-pushing this AFAIKS.
+Hence, register_filesystem() should return EEXIST instead of EBUSY. 
+Returning EBUSY is misleading (unless of course I'm missing something 
+obvious) to the caller of register_filesystem().
 
--- 
-SUSE Labs, Novell Inc.
+Thanks,
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Hareesh Nagarajan
+
+
+--------------090901040900030402050304
+Content-Type: text/x-patch;
+ name="err-register-filesystem.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="err-register-filesystem.patch"
+
+--- linux-2.6.13.4/fs/filesystems.c	2005-10-10 13:54:29.000000000 -0500
++++ linux-2.6.13.4-edit/fs/filesystems.c	2005-11-02 02:33:30.685600000 -0600
+@@ -76,7 +76,7 @@
+ 	write_lock(&file_systems_lock);
+ 	p = find_filesystem(fs->name);
+ 	if (*p)
+-		res = -EBUSY;
++		res = -EEXIST;
+ 	else
+ 		*p = fs;
+ 	write_unlock(&file_systems_lock);
+
+--------------090901040900030402050304--

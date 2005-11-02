@@ -1,61 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932537AbVKBKNb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751541AbVKBKSi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932537AbVKBKNb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 05:13:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932577AbVKBKNa
+	id S1751541AbVKBKSi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 05:18:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751545AbVKBKSi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 05:13:30 -0500
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:5558 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932537AbVKBKNa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 05:13:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=Acy22bsa1ejQtuVAzMid7OpKCH15QyC+6tkp70FzLwMQ1y4Jm2SKonDtXoypK+cFJKb+NJqX0qDXUN0/cTdTGWfTjiyEWXxxIdVQFTWXHvWdJ62zPHmIthzOWHNqYxY9onh9DtsqSNK/hYrKG/GOe9u9YKsmRt8DDxYsS/gRn5U=  ;
-Message-ID: <436891AE.1040709@yahoo.com.au>
-Date: Wed, 02 Nov 2005 21:15:10 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-CC: "Martin J. Bligh" <mbligh@mbligh.org>,
-       Joel Schopp <jschopp@austin.ibm.com>, Mel Gorman <mel@csn.ul.ie>,
-       Andrew Morton <akpm@osdl.org>, kravetz@us.ibm.com, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-References: <20051030183354.22266.42795.sendpatchset@skynet.csn.ul.ie><20051031055725.GA3820@w-mikek2.ibm.com><4365BBC4.2090906@yahoo.com.au> <20051030235440.6938a0e9.akpm@osdl.org> <27700000.1130769270@[10.10.2.4]> <4366A8D1.7020507@yahoo.com.au> <Pine.LNX.4.58.0510312333240.29390@skynet> <4366C559.5090504@yahoo.com.au> <Pine.LNX.4.58.0511010137020.29390@skynet> <4366D469.2010202@yahoo.com.au> <4367D71A.1030208@austin.ibm.com> <43681100.1000603@yahoo.com.au> <214340000.1130895665@[10.10.2.4]> <43681E89.8070905@yahoo.com.au> <216280000.1130898244@[10.10.2.4]> <43682940.3020200@yahoo.com.au> <217570000.1130906356@[10.10.2.4]> <43684A16.70401@yahoo.com.au> <231260000.1130908490@[10.10.2.4]> <43685B63.7020701@jp.fujitsu.com>
-In-Reply-To: <43685B63.7020701@jp.fujitsu.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Nov 2005 05:18:38 -0500
+Received: from smtp2.pp.htv.fi ([213.243.153.35]:21191 "EHLO smtp2.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S1751541AbVKBKSh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 05:18:37 -0500
+Date: Wed, 2 Nov 2005 12:18:35 +0200
+From: Paul Mundt <lethal@linux-sh.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: vojtech@suse.cz, rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: Re: best way to handle LEDs
+Message-ID: <20051102101835.GA14639@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	Pavel Machek <pavel@suse.cz>, vojtech@suse.cz, rpurdie@rpsys.net,
+	lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>,
+	Russell King <rmk@arm.linux.org.uk>
+References: <20051101234459.GA443@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
+Content-Disposition: inline
+In-Reply-To: <20051101234459.GA443@elf.ucw.cz>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-KAMEZAWA Hiroyuki wrote:
-> Martin J. Bligh wrote:
-> 
 
-> please check kmalloc(32k,64k)
-> 
-> For example, loopback device's default MTU=16436 means order=3 and
-> maybe there are other high MTU device.
-> 
-> I suspect skb_makewritable()/skb_copy()/skb_linearize() function can be
-> sufferd from fragmentation when MTU is big. They allocs large skb by
-> gathering fragmented skbs.When these skb_* funcs failed, the packet
-> is silently discarded by netfilter. If fragmentation is heavy, packets
-> (especialy TCP) uses large MTU never reachs its end, even if loopback.
-> 
-> Honestly, I'm not familiar with network code, could anyone comment this ?
-> 
+--2fHTh5uZTiUOsy+g
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I'd be interested to know, actually. I was hoping loopback should always
-use order-0 allocations, because the loopback driver is SG, FRAGLIST,
-and HIGHDMA capable. However I'm likewise not familiar with network code.
+On Wed, Nov 02, 2005 at 12:44:59AM +0100, Pavel Machek wrote:
+> Handheld machines have limited number of software-controlled status
+> LEDs. Collie, for example has two of them; one is labeled "charge" and
+> second is labeled "mail".
+>=20
+> At least the "mail" led should be handled from userspace, and it would
+> be nice if (at least) different speeds of blinking could be used --
+> original Sharp ROM uses at least:
+>=20
+> yellow off: 	not charging
+> yellow on:	charging
+> yellow fast blink: charge error
+>=20
+> I think even slow blinking was used somewhere. I have some code from
+> John Lenz (attached); it uses sysfs interface, exports led collor, and
+> allows setting different frequencies.
+>=20
+> Is that acceptable, or should some other interface be used?
+>=20
+I would also be in favour of having a more generic interface for
+something like this (as opposed to each architecture rolling their own).
 
--- 
-SUSE Labs, Novell Inc.
+For example, sh currently has a very simplistic framework in place where
+LED manipulation is done via a heartbeat callback in the machvec for each
+timer tick, so it would be nice to have things somewhat more flexible in
+this regard (especially for boards with multi-coloured LEDs, and for
+userspace input).
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+--2fHTh5uZTiUOsy+g
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDaJJ71K+teJFxZ9wRAhnCAJ9t4Z7+3fa8V3ndYIbFSO3fg3WeGgCfZSsh
+xZYQ0X1G2PllXLp+ZnGJUzQ=
+=VMoB
+-----END PGP SIGNATURE-----
+
+--2fHTh5uZTiUOsy+g--

@@ -1,66 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965182AbVKBTCX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965181AbVKBTNn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965182AbVKBTCX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 14:02:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965183AbVKBTCX
+	id S965181AbVKBTNn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 14:13:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965185AbVKBTNm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 14:02:23 -0500
-Received: from orb.pobox.com ([207.8.226.5]:58520 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S965182AbVKBTCX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 14:02:23 -0500
-Date: Wed, 2 Nov 2005 09:46:39 -0800
-From: Chip Salzenberg <chip@pobox.com>
-To: linux-kernel@vger.kernel.org
-Subject: hostap interrupt problems, maintainers unresponsive - "wifi0: interrupt delivery does not seem to work"
-Message-ID: <20051102174639.GB6816@tytlal.topaz.cx>
+	Wed, 2 Nov 2005 14:13:42 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:9640 "EHLO
+	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S965181AbVKBTNm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 14:13:42 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Dave Jones <davej@redhat.com>
+Subject: Re: echo 0 > /proc/sys/vm/swappiness triggers OOM killer under 2.6.14.
+Date: Wed, 2 Nov 2005 13:13:24 -0600
+User-Agent: KMail/1.8
+Cc: Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <53vpu-s9-17@gated-at.bofh.it> <200511010237.01737.rob@landley.net> <20051102073251.GB23297@redhat.com>
+In-Reply-To: <20051102073251.GB23297@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Message-Id: <200511021313.25198.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've sent this problem description to the upstream maintainers three
-times and received no reply, let alone illumination.  Thus:
+On Wednesday 02 November 2005 01:32, Dave Jones wrote:
+> On Tue, Nov 01, 2005 at 02:37:01AM -0600, Rob Landley wrote:
+>  > oom-killer: gfp_mask=0x400d2, order=0
+>
+> something explicitly asked for a highmem page.
+>
+>  > 0 pages of HIGHMEM
+>
+> You don't have any.
+>
+> Calling the oom-killer in this situation seems drastic though.
+>
+>   Dave
 
-Hostap 0.3.9 under kernel 2.6.12 works fine with the D-Link DWL-650.
+Except that the only difference between this test and the one that succeeds is 
+the value of "/proc/sys/vm/swappiness".  With 60 it finishes, with 0 it 
+fails.  The same binaries are being run by the same script, and in neither 
+case is there highmem in the kernel.
 
-Hostap 0.4.4-kernel, included with kernel 2.6.14, does not work; nor
-do versions 0.3.9 nor 0.4.1 compiled separately against 2.6.14.  There
-seems to be a problem with interrupt delivery.  Soon after the module
-is installed, keystrokes and all other interrupt-driven activity pause
-periodically for a LONG time (on the order of five seconds).
-Keystrokes will often auto-repeat because the key-raise interrupt gets
-delayed and the kernel thinks the key is still down.
+The test system is a User Mode Linux instance, running a shell script in place 
+of init.  As a result, there are very few processes running in this system, 
+and only one is really active at a time.
 
-Here's a log excerpt:
+At the failure point, the shell script calls the "make" of gcc 4.0.2, and far 
+and away the high point of memory usage is gcc's "genattrtab", which creates 
+and then compiles a .c file that causes the system to swap for about 5 
+minutes before it completes.  (This is an extreme memory hog: Before I 
+started feeding UML a swap file, it couldn't complete with only 128 megs of 
+ram, but finished with 256.  Now I'm telling UML mem=64M and attaching a 256 
+megabyte file to the Usermode Block Device driver, to act as a swap 
+partition.)
 
-Oct 29 16:34:11 tytlal kernel: usb 2-1: new full speed USB device using uhci_hcd and address 3
-Oct 29 16:34:11 tytlal kernel: usb 2-1: configuration #1 chosen from 2 choices
-Oct 29 16:34:11 tytlal kernel: cdc_acm 2-1:1.0: ttyACM0: USB ACM device
-Oct 29 16:34:23 tytlal kernel: hostap_cs: 0.4.4-kernel (Jouni Malinen <jkmaline@cc.hut.fi>)
-Oct 29 16:34:23 tytlal kernel: hostap_cs: Registered netdevice wifi0
-Oct 29 16:34:23 tytlal kernel: hostap_cs: index 0x01: Vcc 3.3, irq 3, io 0x4100-0x413f
-Oct 29 16:34:23 tytlal kernel: wifi0: NIC: id=0x800c v1.0.0
-Oct 29 16:34:23 tytlal kernel: wifi0: PRI: id=0x15 v1.1.1
-Oct 29 16:34:23 tytlal kernel: wifi0: STA: id=0x1f v1.8.4
-Oct 29 16:34:26 tytlal kernel: wifi0: Interrupt, but SWSUPPORT0 does not match: 0000 != 8A32 - card removed?
-Oct 29 16:34:26 tytlal kernel: hostap_cs: wifi0: resetting card
-Oct 29 16:34:42 tytlal pppd[6511]: tcsetattr: No such device or address (line 1010)
-Oct 29 16:34:42 tytlal pppd[6511]: Exit.
-Oct 29 16:35:57 tytlal kernel: wifi0: interrupt delivery does not seem to work
-Oct 29 16:35:57 tytlal kernel: wifi0: cnfAuthentication setting to 0x1 failed
-Oct 29 16:37:03 tytlal kernel: hostap_cs: Registered netdevice wifi0
-Oct 29 16:37:03 tytlal kernel: hostap_cs: index 0x01: Vcc 3.3, irq 3, io 0x4100-0x413f
-Oct 29 16:37:03 tytlal kernel: wifi0: NIC: id=0x800c v1.0.0
-Oct 29 16:37:03 tytlal kernel: wifi0: PRI: id=0x15 v1.1.1
-Oct 29 16:37:03 tytlal kernel: wifi0: STA: id=0x1f v1.8.4
-Oct 29 16:37:05 tytlal kernel: wifi0: Interrupt, but SWSUPPORT0 does not match: 0000 != 8A32 - card removed?
-Oct 29 16:37:05 tytlal kernel: hostap_cs: wifi0: resetting card
-Oct 29 16:37:10 tytlal kernel: hostap_cs: wifi0: resetting card
-Oct 29 16:37:16 tytlal kernel: wifi0: Interrupt, but SWSUPPORT0 does not match: 0000 != 8A32 - card removed?
-Oct 29 16:37:16 tytlal kernel: hostap_cs: wifi0: resetting card
+So at the point of failure, bash is blocked waiting on a child, make is 
+blocked waiting on a child, gcc is building its attrtab pig, and nothing else 
+(no daemons, not even init) is running on the system.  It's a pretty 
+straightforward "the VM goes nuts in a low memory situation" case.
 
--- 
-Chip Salzenberg <chip@pobox.com>
+If you'd like to reproduce this, I can send you my build script.  It's 
+self-contained, downloads all  the source code it needs automatically, and 
+either succeeds or reproduces the problem quite deterministically depending 
+on whether or not the "echo 0 > /proc/sys/vm/swappiness" line is present or 
+not.
+
+Rob

@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965071AbVKBOob@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965055AbVKBOoP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965071AbVKBOob (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 09:44:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965062AbVKBOob
+	id S965055AbVKBOoP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 09:44:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965059AbVKBOoP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 09:44:31 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:26271 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S965059AbVKBOoa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 09:44:30 -0500
-Subject: Re: Make spitz compile again
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Pavel Machek <pavel@suse.cz>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051102135253.GK30194@elf.ucw.cz>
-References: <20051031134255.GA8093@elf.ucw.cz>
-	 <1130773530.8353.39.camel@localhost.localdomain>
-	 <20051102125107.GA12891@elf.ucw.cz>
-	 <1130939279.8523.10.camel@localhost.localdomain>
-	 <20051102135253.GK30194@elf.ucw.cz>
-Content-Type: text/plain
-Date: Wed, 02 Nov 2005 14:44:07 +0000
-Message-Id: <1130942647.8523.19.camel@localhost.localdomain>
+	Wed, 2 Nov 2005 09:44:15 -0500
+Received: from ns.suse.de ([195.135.220.2]:19857 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S965055AbVKBOoO convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 09:44:14 -0500
+Message-ID: <4984321.1130942649111.SLOX.WebMail.wwwrun@imap-dhs.suse.de>
+Date: Wed, 2 Nov 2005 15:44:09 +0100 (CET)
+From: Andreas Kleen <ak@suse.de>
+To: Rob Landley <rob@landley.net>
+Subject: Re: New (now current development process)
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200510302252.55283.rob@landley.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (normal)
+X-Mailer: SuSE Linux Openexchange Server 4 - WebMail (Build 2.4160)
+X-Operating-System: Linux 2.4.21-295-smp i386 (JVM 1.3.1_13)
+Organization: SuSE Linux AG
+References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com> <20051030213221.GA28020@thunk.org> <200510310145.43663.ak@suse.de> <200510302252.55283.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-02 at 14:52 +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > On Wed, 2005-11-02 at 13:51 +0100, Pavel Machek wrote:
-> > > Did you see any problems with touchscreen? I see "ts" registered,
-> > > interrupts coming, but opie does not see any clicks :-(.
-> > 
-> > Update to udev 071 ;-)
-> 
-> Is there some other workaround? I'm not able to do that on spitz --
-> you know my bitbake capabilities :-(.
+Am Mo 31.10.2005 05:52 schrieb Rob Landley <rob@landley.net>:
 
-Create /dev/input/ and add event0 and event1 nodes. You'll have to hack
-the init scripts to do this and fight off udev.
+> On Sunday 30 October 2005 18:45, Andi Kleen wrote:
+> > The problem is that -mm* contains typically so many more or less
+> > broken changes that any extensive work on there is futile
+> > because you never know whose bugs you're debugging
+> > (and if the patch that is broken will even make it anywhere)
+> >
+> > In short mainline is frozen too long and -mm* is too unstable.
+>
+> Are you implying that if mainline wasn't frozen so much, it would
+> still be
+> more stable than -mm?
 
-or
-
-Download and copy this to the device:
-http://www.rpsys.net/openzaurus/temp/udev_071-r5_armv5te.ipk
-
-and ipkg install udev_071-r5_armv5te.ipk
-
-I'm not sure these kind of things should be going to LKML in future
-though...
-
-Richard
+Yes. Historically 2.<odd> kernels were like this.
+ 
+-Andi
+ 
 

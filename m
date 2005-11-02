@@ -1,84 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbVKBAvj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbVKBAxV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932115AbVKBAvj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 19:51:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbVKBAvj
+	id S932114AbVKBAxV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 19:53:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbVKBAxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 19:51:39 -0500
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:22441 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932115AbVKBAvi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 19:51:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=YW1JxnYUA5oFwSzn0PmOH0Y8wU0Je2e1puCD7MzDCgHF4oz5k4vRBxLVum7bb+WBqZ2PwTWQLT4kLtebdKn/SX6A4oI8x2REGmrr1nmpcXcrLPy+pHOaoUQumWMWbn24zadX9ZGXQWUDWFakKzhRjUKYSOknhDcBYfTswl3M5mA=  ;
-Message-ID: <43680D8C.5080500@yahoo.com.au>
-Date: Wed, 02 Nov 2005 11:51:24 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Tue, 1 Nov 2005 19:53:21 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:23049 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932113AbVKBAxU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 19:53:20 -0500
+Date: Wed, 2 Nov 2005 01:53:16 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, jgarzik@pobox.com
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: [-mm patch] fix NET_RADIO=n, IEEE80211=y compile
+Message-ID: <20051102005316.GC8009@stusta.de>
+References: <20051024014838.0dd491bb.akpm@osdl.org>
 MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: Ingo Molnar <mingo@elte.hu>, Mel Gorman <mel@csn.ul.ie>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       kravetz@us.ibm.com, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-References: <20051030235440.6938a0e9.akpm@osdl.org>	 <27700000.1130769270@[10.10.2.4]> <4366A8D1.7020507@yahoo.com.au>	 <Pine.LNX.4.58.0510312333240.29390@skynet> <4366C559.5090504@yahoo.com.au>	 <Pine.LNX.4.58.0511010137020.29390@skynet> <4366D469.2010202@yahoo.com.au>	 <Pine.LNX.4.58.0511011014060.14884@skynet> <20051101135651.GA8502@elte.hu>	 <1130854224.14475.60.camel@localhost>  <20051101142959.GA9272@elte.hu> <1130856555.14475.77.camel@localhost>
-In-Reply-To: <1130856555.14475.77.camel@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051024014838.0dd491bb.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
+On Mon, Oct 24, 2005 at 01:48:38AM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.14-rc4-mm1:
+>...
+>  git-netdev-all.patch
+>...
+>  Subsystem trees
+>...
 
-> What the fragmentation patches _can_ give us is the ability to have 100%
-> success in removing certain areas: the "user-reclaimable" areas
-> referenced in the patch.  This gives a customer at least the ability to
-> plan for how dynamically reconfigurable a system should be.
-> 
 
-But the "user-reclaimable" areas can still be taken over by other
-areas which become fragmented.
+<--  snip  -->
 
-That's like saying we can already guarantee 100% success in removing
-areas that are unfragmented and free, or freeable.
 
-> After these patches, the next logical steps are to increase the
-> knowledge that the slabs have about fragmentation, and to teach some of
-> the shrinkers about fragmentation.
-> 
+This patch fixes the following compile error with CONFIG_NET_RADIO=n and 
+CONFIG_IEEE80211=y:
 
-I don't like all this work and complexity and overheads going into a
-partial solution.
+  LD      .tmp_vmlinux1
+net/built-in.o: In function `ieee80211_rx':
+: undefined reference to `wireless_spy_update'
+make: *** [.tmp_vmlinux1] Error 1
 
-Look: if you have to guarantee memory can be shrunk, set aside a zone
-for it (that only fills with user reclaimable areas). This is better
-than the current frag patches because it will give you the 100%
-guarantee that you need (provided we have page migration to move mlocked
-pages).
 
-If you don't need a guarantee, then our current, simple system does the
-job perfectly.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-> After that, we'll need some kind of virtual remapping, breaking the 1:1
-> kernel virtual mapping, so that the most problematic pages can be
-> remapped.  These pages would retain their virtual address, but getting a
-> new physical.  However, this is quite far down the road and will require
-> some serious evaluation because it impacts how normal devices are able
-> to to DMA.  The ppc64 proprietary hypervisor has features to work around
-> these issues, and any new hypervisors wishing to support partition
-> memory hotplug would likely have to follow suit.
-> 
+--- linux-2.6.14-rc5-mm1-full/net/ieee80211/ieee80211_rx.c.old	2005-11-01 22:17:45.000000000 +0100
++++ linux-2.6.14-rc5-mm1-full/net/ieee80211/ieee80211_rx.c	2005-11-01 22:17:01.000000000 +0100
+@@ -370,6 +370,7 @@
+ 	/* Put this code here so that we avoid duplicating it in all
+ 	 * Rx paths. - Jean II */
+ #ifdef IW_WIRELESS_SPY		/* defined in iw_handler.h */
++#ifdef CONFIG_NET_RADIO
+ 	/* If spy monitoring on */
+ 	if (ieee->spy_data.spy_number > 0) {
+ 		struct iw_quality wstats;
+@@ -396,6 +397,7 @@
+ 		/* Update spy records */
+ 		wireless_spy_update(ieee->dev, hdr->addr2, &wstats);
+ 	}
++#endif				/* CONFIG_NET_RADIO */
+ #endif				/* IW_WIRELESS_SPY */
+ 
+ #ifdef NOT_YET
 
-I would more like to see something like this happen (provided it was
-nicely abstracted away and could be CONFIGed out for the 99.999% of
-users who don't need the overhead or complexity).
-
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 

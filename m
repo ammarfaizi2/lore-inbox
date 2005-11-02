@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932680AbVKBJLG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932695AbVKBJMj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932680AbVKBJLG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 04:11:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932683AbVKBJLG
+	id S932695AbVKBJMj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 04:12:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932693AbVKBJMi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 04:11:06 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:56075 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932680AbVKBJLF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 04:11:05 -0500
-Date: Wed, 2 Nov 2005 10:10:59 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: petero2@telia.com
-Cc: linux-kernel@vger.kernel.org, packet-writing@suse.com, ace@staticwave.ca
-Subject: [2.6 patch] drivers/block/pktcdvd.c: remove write-only variable in pkt_iosched_process_queue()
-Message-ID: <20051102091059.GF8009@stusta.de>
+	Wed, 2 Nov 2005 04:12:38 -0500
+Received: from [218.25.172.144] ([218.25.172.144]:22286 "HELO mail.fc-cn.com")
+	by vger.kernel.org with SMTP id S932691AbVKBJMg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 04:12:36 -0500
+Date: Wed, 2 Nov 2005 17:12:31 +0800
+From: Coywolf Qi Hunt <qiyong@fc-cn.com>
+To: Hareesh Nagarajan <hnagar2@gmail.com>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: [PATCH] register_filesystem() must return -EEXIST if the filesystem with the same name is already registered
+Message-ID: <20051102091231.GA12948@localhost.localdomain>
+References: <43687BE4.3000708@gmail.com> <20051102090656.GA12912@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20051102090656.GA12912@localhost.localdomain>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Found this on Coverty's linux bug database (http://linuxbugsdb.coverity.com).
+On Wed, Nov 02, 2005 at 05:06:56PM +0800, Coywolf Qi Hunt wrote:
+> On Wed, Nov 02, 2005 at 02:42:12AM -0600, Hareesh Nagarajan wrote:
+> > If we have a look at the register_filesystem() function defined in 
+> > fs/filesystems.c, we see that if a filesystem with a same name has 
+> > already been registered then the find_filesystem() function will return 
+> > NON-NULL otherwise it will return NULL.
+> > 
+> > Hence, register_filesystem() should return EEXIST instead of EBUSY. 
+> > Returning EBUSY is misleading (unless of course I'm missing something 
+> > obvious) to the caller of register_filesystem().
+> 
+> This `slot' is buy, so EBUSY makes sense. Filesytem is not file, hence
 
-The function pkt_iosched_process_queue makes a call to bdev_get_queue and stores the result but never uses it, so
-it looks like it can be safely removed. 
+s/buy/busy/
 
-From: Gabriel A. Devenyi <ace@staticwave.ca>
-
-Signed-off-by: Gabriel A. Devenyi <ace@staticwave.ca>
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- a/drivers/block/pktcdvd.c
-+++ b/drivers/block/pktcdvd.c
-@@ -501,14 +501,11 @@ static void pkt_queue_bio(struct pktcdvd
-  */
- static void pkt_iosched_process_queue(struct pktcdvd_device *pd)
- {
--	request_queue_t *q;
- 
- 	if (atomic_read(&pd->iosched.attention) == 0)
- 		return;
- 	atomic_set(&pd->iosched.attention, 0);
- 
--	q = bdev_get_queue(pd->bdev);
--
- 	for (;;) {
- 		struct bio *bio;
- 		int reads_queued, writes_queued;
-
+> EEXIST doesn't apply IMHO.
+> 
+> 		Coywolf
+> 
+> > 
+> > Thanks,
+> > 
+> > Hareesh Nagarajan
+> > 
+> 
+> > --- linux-2.6.13.4/fs/filesystems.c	2005-10-10 13:54:29.000000000 -0500
+> > +++ linux-2.6.13.4-edit/fs/filesystems.c	2005-11-02 02:33:30.685600000 -0600
+> > @@ -76,7 +76,7 @@
+> >  	write_lock(&file_systems_lock);
+> >  	p = find_filesystem(fs->name);
+> >  	if (*p)
+> > -		res = -EBUSY;
+> > +		res = -EEXIST;
+> >  	else
+> >  		*p = fs;
+> >  	write_unlock(&file_systems_lock);

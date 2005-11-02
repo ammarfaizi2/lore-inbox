@@ -1,62 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbVKBRfE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965139AbVKBRhH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750722AbVKBRfE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 12:35:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbVKBRfD
+	id S965139AbVKBRhH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 12:37:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbVKBRhG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 12:35:03 -0500
-Received: from nproxy.gmail.com ([64.233.182.202]:30052 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750722AbVKBRfC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 12:35:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ihI51Av25FX1x4tcK4rwzaH/PZAwdh620g/mhGz9SApDWHrbFU3xsJ0FqAj8AaAOQfuT5vNLuwVjzdqAQ+Y8z756cUFe/qULUWsB5SFjyxKlhpNDdzM2i5gLLQxe2Dyr1hHJ1N7Mevjdt9HWajGUMeJouv2T8+j3EJvcxpTFsAY=
-Message-ID: <6278d2220511020935g6f88d15bp5f1e3bc692c55fe8@mail.gmail.com>
-Date: Wed, 2 Nov 2005 17:35:00 +0000
-From: Daniel J Blueman <daniel.blueman@gmail.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: cpuset - question
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Simon.Derr@bull.net,
-       Sylvain.Jeaugey@bull.net
-In-Reply-To: <Pine.LNX.4.58.0511020825450.6456@shark.he.net>
+	Wed, 2 Nov 2005 12:37:06 -0500
+Received: from agmk.net ([217.73.31.34]:8716 "EHLO mail.agmk.net")
+	by vger.kernel.org with ESMTP id S1751266AbVKBRhF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 12:37:05 -0500
+From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@agmk.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.14-rt1] slowdown / oops.
+Date: Wed, 2 Nov 2005 18:36:58 +0100
+User-Agent: KMail/1.8.3
+Cc: Ingo Molnar <mingo@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <6278d2220511020236l26f74eecp11910e59fd1c432d@mail.gmail.com>
-	 <Pine.LNX.4.58.0511020825450.6456@shark.he.net>
+Message-Id: <200511021836.59055.pluto@agmk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not sure of the true answer; it is likely that CPUSETS was
-designed in the 2.4 timeframe and compatibility was preferred over the
-clean sysfs interface.
+> * Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> > more updates: NETFILTER_DEBUG catches the situation too - the problem 
+> > seems to be wrong reference counts on the skb. [...]
+> 
+> ok, could you check whether the patch below fixes the problem for you?  
+> (I have also put it into -rt4)
+> 
+> local_bh_disable()/enable() is a NOP under PREEMPT_RT, and the 
+> ip_ct_deliver_cached_events PER_CPU code relies on not being preempted 
+> by the net_rx_action softirq handler. So this is a bug in PREEMPT_RT and 
+> the upstream code should be fine.
 
-I've CC'd the authors.
+Thx, -rt4 works fine.
 
-Dan
-
-On 11/2/05, Randy.Dunlap <rdunlap@xenotime.net> wrote:
-> On Wed, 2 Nov 2005, Daniel J Blueman wrote:
-> >
-> > Janos,
-> >
-> > You can see what valid memory nodes are available from the top-level
-> > cpuset directory:
-> >
-> > # cat /dev/cpuset/mems
-> > 0 1 2 3
-> >
-> > If you were to be running on a NUMA-capable system, you'd also want to
-> > ensure page interleaving was disabled in the BIOS/pre-boot firmware
-> > too.
->
-> Just for info, why is this in /dev at all, instead of, say,
-> /sys ??
->
-> --
-> ~Randy
-___
-Daniel J Blueman
+-- 
+The only thing necessary for the triumph of evil
+  is for good men to do nothing.
+                                           - Edmund Burke

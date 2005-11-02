@@ -1,126 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932666AbVKBLsT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932586AbVKBLzo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932666AbVKBLsT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 06:48:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932656AbVKBLsT
+	id S932586AbVKBLzo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 06:55:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932598AbVKBLzo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 06:48:19 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:60321 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S932666AbVKBLsS (ORCPT
+	Wed, 2 Nov 2005 06:55:44 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:32591 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932586AbVKBLzo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 06:48:18 -0500
-Date: Wed, 2 Nov 2005 11:48:07 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: "Martin J. Bligh" <mbligh@mbligh.org>,
-       Joel Schopp <jschopp@austin.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       kravetz@us.ibm.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-In-Reply-To: <43682940.3020200@yahoo.com.au>
-Message-ID: <Pine.LNX.4.58.0511021143590.5235@skynet>
-References: <20051030183354.22266.42795.sendpatchset@skynet.csn.ul.ie><20051031055725.GA3820@w-mikek2.ibm.com><4365BBC4.2090906@yahoo.com.au>
- <20051030235440.6938a0e9.akpm@osdl.org> <27700000.1130769270@[10.10.2.4]>
- <4366A8D1.7020507@yahoo.com.au> <Pine.LNX.4.58.0510312333240.29390@skynet>
- <4366C559.5090504@yahoo.com.au> <Pine.LNX.4.58.0511010137020.29390@skynet>
- <4366D469.2010202@yahoo.com.au> <4367D71A.1030208@austin.ibm.com>
- <43681100.1000603@yahoo.com.au> <214340000.1130895665@[10.10.2.4]>
- <43681E89.8070905@yahoo.com.au> <216280000.1130898244@[10.10.2.4]>
- <43682940.3020200@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 2 Nov 2005 06:55:44 -0500
+Date: Wed, 2 Nov 2005 12:55:43 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem with the default IOSCHED
+Message-ID: <20051102115542.GN26049@suse.de>
+References: <1130891282.5048.50.camel@blade>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1130891282.5048.50.camel@blade>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Nov 2005, Nick Piggin wrote:
+On Wed, Nov 02 2005, Marcel Holtmann wrote:
+> Hi guys,
+> 
+> by accident I selected the anticipatory IO scheduler as default in my
+> kernel config, but only the CFQ was built in. The anticipatory and
+> deadline were only available as modules. This caused an oops at boot.
+> After selecting CFQ as default schedule and a recompile and reboot
+> everything was fine again.
 
-> Martin J. Bligh wrote:
->
-> > > But let's move this to another thread if it is going to continue. I
-> > > would be happy to discuss scheduler problems.
-> >
-> >
-> > My point was that most things we do add complexity to the codebase,
-> > including the things you do yourself ... I'm not saying the we're worse
-> > off for the changes you've made, by any means - I think they've been
-> > mostly beneficial.
->
-> Heh - I like the "mostly" ;)
->
-> > I'm just pointing out that we ALL do it, so let us
-> > not be too quick to judge when others propose adding something that does ;-)
-> >
->
-> What I'm getting worried about is the marked increase in the
-> rate of features and complexity going in.
->
-> I am almost certainly never going to use memory hotplug or
-> demand paging of hugepages. I am pretty likely going to have
-> to wade through this code at some point in the future if it
-> is merged.
->
+Hmm yes, that looks like a bug introduced with the io scheduler
+selection reorg. There's really no support in place for requesting this
+module out of initrd, I'd rather just make your selection illegal. Does
+this work for you?
 
-Plenty of features in the kernel I don't use either :) .
-
-> It is also going to slow down my kernel by maybe 1% when
-> doing kbuilds, but hey let's not worry about that until we've
-> merged 10 more such slowdowns (ok that wasn't aimed at you or
-> Mel, but my perception of the status quo).
->
-
-Ok, my patches show performance gains and losses on different parts of
-Aim9. page_test is slightly down but fork_test was considerably up. Both
-would have an effect on kbuild so more figures are needed on mode
-machines. That will only be found from testing from a variety of machines.
-
-> >
-> > > You can't what? What doesn't work? If you have no hard limits set,
-> > > then the frag patches can't guarantee anything either.
-> > >
-> > > You can't have it both ways. Either you have limits for things or
-> > > you don't need any guarantees. Zones handle the former case nicely,
-> > > and we currently do the latter case just fine (along with the frag
-> > > patches).
-> >
-> >
-> > I'll go look through Mel's current patchset again. I was under the
-> > impression it didn't suffer from this problem, at least not as much
-> > as zones did.
-> >
->
-> Over time, I don't think it can offer any stronger a guarantee
-> than what we currently have. I'm not even sure that it would be
-> any better at all for problematic workloads as time -> infinity.
->
-
-Not as they currently stand no. As I've said elsewhere, to really
-guarantee things, kswapd would need to know how to clear out UesrRclm
-pages from the other reserve types.
-
-> > Nothing is guaranteed. You can shag the whole machine and/or VM in
-> > any number of ways ... if we can significantly improve the probability of
-> > existing higher order allocs working, and new functionality has
-> > an excellent probability of success, that's as good as you're going to get.
-> > Have a free "perfect is the enemy of good" Linus quote, on me ;-)
-> >
->
-> I think it falls down if these higher order allocations actually
-> get *used* for anything. You'll simply be going through the process
-> of replacing your contiguous, easy-to-reclaim memory with pinned
-> kernel memory.
->
-
-And a misconfigured zone-based approach just falls apart. Going to finish
-that summary mail to avoid repetition.
-
-> However, for the purpose of memory hot unplug, a new zone *will*
-> guarantee memory can be reclaimed and unplugged.
->
-
->
+diff --git a/drivers/block/Kconfig.iosched b/drivers/block/Kconfig.iosched
+index 5b90d2f..f3b7753 100644
+--- a/drivers/block/Kconfig.iosched
++++ b/drivers/block/Kconfig.iosched
+@@ -46,13 +46,13 @@ choice
+ 	  block devices.
+ 
+ 	config DEFAULT_AS
+-		bool "Anticipatory" if IOSCHED_AS
++		bool "Anticipatory" if IOSCHED_AS=y
+ 
+ 	config DEFAULT_DEADLINE
+-		bool "Deadline" if IOSCHED_DEADLINE
++		bool "Deadline" if IOSCHED_DEADLINE=y
+ 
+ 	config DEFAULT_CFQ
+-		bool "CFQ" if IOSCHED_CFQ
++		bool "CFQ" if IOSCHED_CFQ=y
+ 
+ 	config DEFAULT_NOOP
+ 		bool "No-op"
 
 -- 
-Mel Gorman
-Part-time Phd Student                          Java Applications Developer
-University of Limerick                         IBM Dublin Software Lab
+Jens Axboe
+

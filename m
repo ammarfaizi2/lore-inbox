@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965154AbVKBSki@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965176AbVKBSrN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965154AbVKBSki (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 13:40:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965163AbVKBSkh
+	id S965176AbVKBSrN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 13:47:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965174AbVKBSrM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 13:40:37 -0500
-Received: from mail.parknet.co.jp ([210.171.160.6]:265 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S965154AbVKBSkh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 13:40:37 -0500
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Ben Dooks <ben-linux@fluff.org>, linux-kernel@vger.kernel.org
-Subject: Re: fs/fat - fix sparse warning
-References: <20051031113639.GA30667@home.fluff.org>
-	<87zmophiwp.fsf@devron.myhome.or.jp> <20051102180401.GA4272@stusta.de>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Thu, 03 Nov 2005 03:39:32 +0900
-In-Reply-To: <20051102180401.GA4272@stusta.de> (Adrian Bunk's message of "Wed, 2 Nov 2005 19:04:01 +0100")
-Message-ID: <87br12c2sb.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
+	Wed, 2 Nov 2005 13:47:12 -0500
+Received: from pat.qlogic.com ([198.70.193.2]:59850 "EHLO avexch01.qlogic.com")
+	by vger.kernel.org with ESMTP id S965173AbVKBSrM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 13:47:12 -0500
+Date: Wed, 2 Nov 2005 10:47:05 -0800
+From: Andrew Vasquez <andrew.vasquez@qlogic.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Ashutosh Naik <ashutosh.naik@gmail.com>, support@qlogic.com,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       stable@kernel.org
+Subject: Re: [stable] Re: [PATCH] scsi - Fix Broken Qlogic ISP2x00 Device Driver
+Message-ID: <20051102184705.GD5889@plapn>
+References: <81083a450511012313v25e292duf7b64da0ebf07835@mail.gmail.com> <20051102080711.GB626@plapn> <20051102082142.GW5856@shell0.pdx.osdl.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051102082142.GW5856@shell0.pdx.osdl.net>
+Organization: QLogic Corporation
+X-Operating-System: Darwin 8.2.0 powerpc
+User-Agent: Mutt/1.5.11
+X-OriginalArrivalTime: 02 Nov 2005 18:47:07.0294 (UTC) FILETIME=[D32263E0:01C5DFDD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> writes:
+On Wed, 02 Nov 2005, Chris Wright wrote:
 
-> It sometimes happens that the signature of a function changes and it is 
-> forgotten to update all prototypes.
->
-> If the prototype is in a header file, gcc tells about the mistake.
->
-> If the prototype is in the C file gcc can't help us and it might take 
-> some time until someone tracks the source of the nasty runtime problems 
-> this might cause.
->
-> It's your choice as subsystem maintainer which header file the 
-> prototypes should go into - it is only important that both the file with 
-> the actual function and all users of this function #include this header.
+> * Andrew Vasquez (andrew.vasquez@qlogic.com) wrote:
+> > On Wed, 02 Nov 2005, Ashutosh Naik wrote:
+> > 
+> > > This patch fixes the fact that although the scsi_transport_fc.h header
+> > > file is not included in qla_def.h, we still reference the function
+> > > fc_remote_port_unlock in the qlogic  ISP2x00 device driver ,
+> > > qla2xxx/qla_rscn.c
+> > 
+> > Perhaps for the stable tree (2.6.14.x) this fix is appropriate.  The
+> > scsi-misc-2.6.git tree already has codes which address this issue.
+> 
+> It's preferable to have that fix pending in scsi-misc for -stable.
 
-Sounds reasonable, although that's unlikely, because those are
-init/exit functions.  OK, I'll do this in header cleanup as soon as possible.
+Sure.  But, the interface changes present in scsi-misc-2.6, notably:
 
-Thanks.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+http://kernel.org/git/?p=linux/kernel/git/jejb/scsi-misc-2.6.git;a=commit;h=19a7b4aebf9ad435c69a7e39930338499af4d152
+
+obviate the need for the explicit '#include' -- there are no longer
+any explicit calls to the fc_remote_port_*() functions within
+qla_rscn.c.
+
+Regards,
+Andrew Vasquez

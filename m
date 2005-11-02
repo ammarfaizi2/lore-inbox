@@ -1,62 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932711AbVKBOOi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932712AbVKBOT4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932711AbVKBOOi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 09:14:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932712AbVKBOOi
+	id S932712AbVKBOT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 09:19:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932715AbVKBOT4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 09:14:38 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:39141 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932711AbVKBOOh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 09:14:37 -0500
-Message-ID: <4368C926.2040102@jp.fujitsu.com>
-Date: Wed, 02 Nov 2005 23:11:50 +0900
-From: Kamezawa Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: ja, en-us, en
-MIME-Version: 1.0
-To: clameter@engr.sgi.com
-CC: Hirokazu Takahashi <taka@valinux.co.jp>, rob@landley.net, akpm@osdl.org,
-       torvalds@osdl.org, kravetz@us.ibm.com, raybry@mpdtxmail.amd.com,
-       linux-kernel@vger.kernel.org, lee.schermerhorn@hp.com,
-       haveblue@us.ibm.com, magnus.damm@gmail.com, pj@sgi.com,
-       marcelo.tosatti@cyclades.com
-Subject: Re: [PATCH 0/5] Swap Migration V5: Overview
-References: <Pine.LNX.4.62.0511010943310.16224@schroedinger.engr.sgi.com>	<20051102.143047.35521963.taka@valinux.co.jp>	<Pine.LNX.4.62.0511020030210.19157@schroedinger.engr.sgi.com> <20051102.212651.25143264.taka@valinux.co.jp>
-In-Reply-To: <20051102.212651.25143264.taka@valinux.co.jp>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Nov 2005 09:19:56 -0500
+Received: from cantor.suse.de ([195.135.220.2]:37518 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932712AbVKBOT4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 09:19:56 -0500
+Date: Wed, 2 Nov 2005 15:19:54 +0100
+From: Olaf Hering <olh@suse.de>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
+       Matt Mackall <mpm@selenic.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] slob: move kstrdup to lib/string.c
+Message-ID: <20051102141954.GA29679@suse.de>
+References: <2.494767362@selenic.com> <20051102170053.1c120a03.akpm@osdl.org> <20051102070337.GC4367@waste.org> <20051102174020.37da0396.akpm@osdl.org> <17256.33817.263105.197325@cargo.ozlabs.ibm.com> <20051102130435.GA24230@suse.de> <20051102141407.GB3839@smtp.west.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20051102141407.GB3839@smtp.west.cox.net>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hirokazu Takahashi wrote:
-> Hi Christoph,
-> I've read the archive of lhms-devel.
-> You're going to take in most of the original migration code
-> except for some tricks to migrate pages which are hard to move.
-> I think this is what you said the complexity, which you
-> want to remove forever.
-> 
-> I have to explain that this complexity came from making the code
-> guarantee to be able to migrate any pages. So the code is designed:
->   - to migrate heavily accessed pages.
->   - to migrate pages without backing-store.
->   - to migrate pages without I/O's.
->   - to migrate pages of which status may be changed during the migration
->     correctly.
-> 
-> This have to be implemented if the hotplug memory use it.
-yes.
+ On Wed, Nov 02, Tom Rini wrote:
 
-> It seems to become a reinvention of the wheel to me.
-> 
-Christoph, I think you should make it clear the advantage of your code
-to the -mhp tree's. I think we can add migrate_page_to() easily to the
--mhp tree's as Takahashi said.
+> I've always thought one of the nice points about ppc linux was that the
+> kernel just booted on your board, no matter what crazy firmware there
+> was.
 
-BTW, could you explain what is done and what is not in your patch set ?
+I cant speak for anything else than CONFIG_PPC_MULTIPLATFORM, but I bet
+almost noone really uses the boot wrapper from the kernel. An external
+mkzimage for the rest of the supported boards sounds like a good plan.
+Cant be that hard to maintain as the kernel interface is stable.
+We have such thing in opensuse, it needs an update for PReP and iSeries
+to provide the flat device tree.
 
--- Kame
-
-
-
+-- 
+short story of a lazy sysadmin:
+ alias appserv=wotan

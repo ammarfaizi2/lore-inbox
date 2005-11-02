@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932614AbVKBHQx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932611AbVKBHOZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932614AbVKBHQx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 02:16:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932615AbVKBHQw
+	id S932611AbVKBHOZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 02:14:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932615AbVKBHOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 02:16:52 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:51882 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932614AbVKBHQw
+	Wed, 2 Nov 2005 02:14:25 -0500
+Received: from zproxy.gmail.com ([64.233.162.197]:25777 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932611AbVKBHOY convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 02:16:52 -0500
-Date: Wed, 2 Nov 2005 12:44:39 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: Setting kernel data breakpoints on x86
-Message-ID: <20051102071438.GA5050@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <Pine.LNX.4.44L0.0511011625280.4473-100000@iolanthe.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 2 Nov 2005 02:14:24 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=TowAEAuqVdabx6BsEm/hnEiwzDy2qxQARF9dHZQhWEKvEp2nHSGyk5q2ucq2A4zCtgYTm8f7diAZeb1x+/tjgcUnpm45L7RgFUP5xS+pqmTYYixHAOntuVnbWGG8SasnNJFfs3xxGalNXl26NKhABzWR/VDEefoBN/VvZj12U7w=
+Message-ID: <81083a450511012314q4ec69927gfa60cb19ba8f437a@mail.gmail.com>
+Date: Wed, 2 Nov 2005 12:44:21 +0530
+From: Ashutosh Naik <ashutosh.naik@gmail.com>
+To: rick@remotepoint.com, davej@suse.de, acme@conectiva.com.br,
+       linux-net@vger.kernel.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       stable@kernel.org
+Subject: [PATCH]dgrs - Fixes Warnings when CONFIG_ISA and CONFIG_PCI are not enabled
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0511011625280.4473-100000@iolanthe.rowland.org>
-User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 01, 2005 at 04:30:26PM -0500, Alan Stern wrote:
-> I'm trying to debug a rather difficult data-overwriting problem, and it 
-> would be a big help to be able to use a data breakpoint.
-> 
-> Is there any easy way of doing this?  I'd prefer not to use a kernel 
-> debugger, because the address of the breakpoint and the time when it's 
-> needed are determined dynamically.
-> 
-> Does anybody have a little lightweight procedure for setting one of the 
-> x86's debug registers to point to a particular location in kernel memory 
-> space?  I don't care if the whole system crashes when the debug exception 
-> occurs, just so long as I can get a stack trace and find out where the 
-> overwrite comes from.
-> 
-> 
+This patch fixes compiler warnings when CONFIG_ISA and CONFIG_PCI are
+not enabled in the dgrc network driver.
 
-Hi Alan
+Signed-off-by: Ashutosh Naik <ashutosh.naik@gmail.com>
 
-Probably watchpoint probes could be useful for this..
-
-http://www.ussg.iu.edu/hypermail/linux/kernel/0508.3/1407.html
-
-http://sourceware.org/ml/systemtap/2005-q3/msg00097.html
-
-Thanks
-Maneesh
-
--- 
-Maneesh Soni
-Linux Technology Center, 
-IBM India Software Labs,
-Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-25044990
+--
+diff -Naurp linux-2.6.14/drivers/net/dgrs.c
+linux-2.6.14-git1/drivers/net/dgrs.c---
+linux-2.6.14/drivers/net/dgrs.c     2005-10-28 05:32:08.000000000
++0530
++++ linux-2.6.14-git1/drivers/net/dgrs.c        2005-11-01
+10:30:03.000000000 +0530
+@@ -1549,8 +1549,12 @@ MODULE_PARM_DESC(nicmode, "Digi RightSwi
+ static int __init dgrs_init_module (void)  {
+        int     i;
+-       int eisacount = 0, pcicount = 0;
+-
++#ifdef CONFIG_EISA
++       int eisacount = 0;
++#endif
++#ifdef CONFIG_PCI
++       int pcicount = 0;
++#endif
+        /*
+         *      Command line variable overrides
+         *              debug=NNN

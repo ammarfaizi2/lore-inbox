@@ -1,55 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932611AbVKBHOZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932489AbVKBHT5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932611AbVKBHOZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 02:14:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932615AbVKBHOZ
+	id S932489AbVKBHT5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 02:19:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932613AbVKBHT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 02:14:25 -0500
-Received: from zproxy.gmail.com ([64.233.162.197]:25777 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932611AbVKBHOY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 02:14:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=TowAEAuqVdabx6BsEm/hnEiwzDy2qxQARF9dHZQhWEKvEp2nHSGyk5q2ucq2A4zCtgYTm8f7diAZeb1x+/tjgcUnpm45L7RgFUP5xS+pqmTYYixHAOntuVnbWGG8SasnNJFfs3xxGalNXl26NKhABzWR/VDEefoBN/VvZj12U7w=
-Message-ID: <81083a450511012314q4ec69927gfa60cb19ba8f437a@mail.gmail.com>
-Date: Wed, 2 Nov 2005 12:44:21 +0530
-From: Ashutosh Naik <ashutosh.naik@gmail.com>
-To: rick@remotepoint.com, davej@suse.de, acme@conectiva.com.br,
-       linux-net@vger.kernel.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       stable@kernel.org
-Subject: [PATCH]dgrs - Fixes Warnings when CONFIG_ISA and CONFIG_PCI are not enabled
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 2 Nov 2005 02:19:57 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:60638 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932489AbVKBHT4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 02:19:56 -0500
+Date: Wed, 2 Nov 2005 08:19:43 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Kamezawa Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: Dave Hansen <haveblue@us.ibm.com>, Mel Gorman <mel@csn.ul.ie>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       kravetz@us.ibm.com, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lhms <lhms-devel@lists.sourceforge.net>
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+Message-ID: <20051102071943.GA1574@elte.hu>
+References: <4366C559.5090504@yahoo.com.au> <Pine.LNX.4.58.0511010137020.29390@skynet> <4366D469.2010202@yahoo.com.au> <Pine.LNX.4.58.0511011014060.14884@skynet> <20051101135651.GA8502@elte.hu> <1130854224.14475.60.camel@localhost> <20051101142959.GA9272@elte.hu> <1130856555.14475.77.camel@localhost> <20051101150142.GA10636@elte.hu> <43679C69.6050107@jp.fujitsu.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <43679C69.6050107@jp.fujitsu.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes compiler warnings when CONFIG_ISA and CONFIG_PCI are
-not enabled in the dgrc network driver.
 
-Signed-off-by: Ashutosh Naik <ashutosh.naik@gmail.com>
+* Kamezawa Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
 
---
-diff -Naurp linux-2.6.14/drivers/net/dgrs.c
-linux-2.6.14-git1/drivers/net/dgrs.c---
-linux-2.6.14/drivers/net/dgrs.c     2005-10-28 05:32:08.000000000
-+0530
-+++ linux-2.6.14-git1/drivers/net/dgrs.c        2005-11-01
-10:30:03.000000000 +0530
-@@ -1549,8 +1549,12 @@ MODULE_PARM_DESC(nicmode, "Digi RightSwi
- static int __init dgrs_init_module (void)  {
-        int     i;
--       int eisacount = 0, pcicount = 0;
--
-+#ifdef CONFIG_EISA
-+       int eisacount = 0;
-+#endif
-+#ifdef CONFIG_PCI
-+       int pcicount = 0;
-+#endif
-        /*
-         *      Command line variable overrides
-         *              debug=NNN
+> My own target is NUMA node hotplug, what NUMA node hotplug want is
+> - [remove the range of memory] For this approach, admin should define
+>   *core* node and removable node. Memory on removable node is removable.
+>   Dividing area into removable and not-removable is needed, because
+>   we cannot allocate any kernel's object on removable area.
+>   Removable area should be 100% removable. Customer can know the limitation 
+>   before using.
+
+that's a perfectly fine method, and is quite similar to the 'separate 
+zone' approach Nick mentioned too. It is also easily understandable for 
+users/customers.
+
+under such an approach, things become easier as well: if you have zones 
+you can to restrict (no kernel pinned-down allocations, no mlock-ed 
+pages, etc.), there's no need for any 'fragmentation avoidance' patches!  
+Basically all of that RAM becomes instantly removable (with some small 
+complications). That's the beauty of the separate-zones approach. It is 
+also a limitation: no kernel allocations, so all the highmem-alike 
+restrictions apply to it too.
+
+but what is a dangerous fallacy is that we will be able to support hot 
+memory unplug of generic kernel RAM in any reliable way!
+
+you really have to look at this from the conceptual angle: 'can an 
+approach ever lead to a satisfactory result'? If the answer is 'no', 
+then we _must not_ add a 90% solution that we _know_ will never be a 
+100% solution.
+
+for the separate-removable-zones approach we see the end of the tunnel.  
+Separate zones are well-understood.
+
+generic unpluggable kernel RAM _will not work_.
+
+	Ingo

@@ -1,82 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965103AbVKBP5O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965107AbVKBQDZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965103AbVKBP5O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 10:57:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965108AbVKBP5N
+	id S965107AbVKBQDZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 11:03:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965108AbVKBQDZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 10:57:13 -0500
-Received: from pcp09898885pcs.ewndsr01.nj.comcast.net ([68.39.7.159]:35334
-	"HELO rivendell.mirkwood.net") by vger.kernel.org with SMTP
-	id S965103AbVKBP5M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 10:57:12 -0500
-Date: Wed, 2 Nov 2005 10:57:11 -0500
-From: PinkFreud <pf-kernel20051102@mirkwood.net>
-To: linux-kernel@vger.kernel.org
-Subject: ECC circuitry error / md weirdness?
-Message-ID: <20051102155711.GT19490@eriador.mirkwood.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Wed, 2 Nov 2005 11:03:25 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:42917 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S965107AbVKBQDY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 11:03:24 -0500
+Date: Wed, 2 Nov 2005 11:03:23 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Keith Owens <kaos@ocs.com.au>
+cc: Chandra Seetharaman <sekharan@us.ibm.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Notifier chains are unsafe 
+In-Reply-To: <5979.1130925011@ocs3.ocs.com.au>
+Message-ID: <Pine.LNX.4.44L0.0511021058260.4928-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have an md array (RAID5) with 3 disks + 1 spare.  Recently, this
-appeared in the logs:
+On Wed, 2 Nov 2005, Keith Owens wrote:
 
-Oct 27 23:44:58 cbs-server kernel: hdk: status timeout: status=0x80 {
-Busy }
-Oct 27 23:44:58 cbs-server kernel: 
-Oct 27 23:44:58 cbs-server kernel: hdk: DMA disabled
-Oct 27 23:44:58 cbs-server kernel: PDC202XX: Secondary channel reset.
-Oct 27 23:44:58 cbs-server kernel: hdk: drive not ready for command
-Oct 27 23:45:04 cbs-server kernel: ide5: reset: master: ECC circuitry
-error
-Oct 27 23:45:04 cbs-server kernel: hdk: status error: status=0x58 {
-DriveReady SeekComplete DataRequest }
+> On Tue, 1 Nov 2005 16:20:43 -0500 (EST), 
+> Alan Stern <stern@rowland.harvard.edu> wrote:
+> >You mean the RCU-style update?  It will hang when a callout routine tries 
+> >to deregister itself as it is running, although we could add a new 
+> >unregister_self API to handle that.  Just check for num_callers equal to 1 
+> >instead of 0.
+> 
+> A callout on an atomic notifer chain has no business calling the
+> register/unregister functions.  It makes no sense for an atomic context
+> to call a routine that can sleep or block.
 
-After that was just a repetition of the 'drive not ready for command'
-and status=0x58 lines.
+Ah, but what if the unregister function for atomic chains is implemented
+in such a way that it doesn't sleep or block?  That's what Chandra and I
+have been discussing.
 
-What really threw me for a loop, though, was the fact that hdk was one
-of the active disks in the array mentioned above.  md was happily
-writing to a disk that the kernel thought was failing!  I had to
-manually fail the disk out of the array to convince md to pull the
-spare in.
+On the other hand, it's still true that for blocking chains, unregister
+will have to acquire a write semaphore.  We won't want callouts on
+blocking chains (which already own the read semaphore) trying to 
+unregister themselves.
 
-The end result is one hell of a corrupt filesystem (I'm now seeing
-'ghost' files that won't go away):
+And in any case, it's cleaner for callouts never to unregister themselves.  
+That's why I tend to prefer the block_enable/disable solution.
 
-[root@cbs-server cope11.feat]# ls -al | grep example_func.nii.gz
-[root@cbs-server cope11.feat]# ls -al example_func.nii.gz
-ls: example_func.nii.gz: Input/output error
-[root@cbs-server cope11.feat]# 
+Alan Stern
 
-fsck has had no luck in fixing these errors, though it does find
-- and fix - problems every time I run it (ext3 fs).
-
-I suspect I'm going to have to mkfs the array (unless someone can
-recommend something else!).  My main concern, though, is figuring out
-what went wrong with hdk and md in the first place.  I've never seen
-the ECC circuitry error that was thrown before.  AFAICT, the hard disk
-appears to be fine.  It's about 3 months old, and both SMART offline
-data collection and extended self test were run last night without a
-single error being logged by the drive.  Likewise, it stopped throwing
-errors in the system logs when it was failed out of the array.
-
-I'm also concerned about why md was writing to a disk that the kernel
-saw as having errors.  Should it not fail the disk out of the array
-automatically?
-
-Specs on the system in question:
-2.4.31 (vanilla) SMP
-2 Promise 20268 IDE controllers
-4 WDC WD3200SB-01KMA0 disks
-
-
--- 
-                                                                      
-Mike Edwards                    |   If this email address disappears,   
-Unsolicited advertisments to    |   assume it was spammed to death.  To
-this address are not welcome.   |   reach me in that case, s/-.*@/@/
-(This means you, Cogent!)       |                                   

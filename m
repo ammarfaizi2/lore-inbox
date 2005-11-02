@@ -1,142 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932677AbVKBTic@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965196AbVKBToz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932677AbVKBTic (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 14:38:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965192AbVKBTic
+	id S965196AbVKBToz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 14:44:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965197AbVKBToz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 14:38:32 -0500
-Received: from agmk.net ([217.73.31.34]:34577 "EHLO mail.agmk.net")
-	by vger.kernel.org with ESMTP id S932677AbVKBTib (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 14:38:31 -0500
-From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@agmk.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-rt4 (ide_core / busybox)
-Date: Wed, 2 Nov 2005 20:38:22 +0100
-User-Agent: KMail/1.8.3
-Cc: Ingo Molnar <mingo@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Nov 2005 14:44:55 -0500
+Received: from straum.hexapodia.org ([64.81.70.185]:39705 "EHLO
+	straum.hexapodia.org") by vger.kernel.org with ESMTP
+	id S965196AbVKBToy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 14:44:54 -0500
+Date: Wed, 2 Nov 2005 11:44:53 -0800
+From: Andy Isaacson <adi@hexapodia.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Richard Purdie <richard@openedhand.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>, Greg KH <gregkh@suse.de>,
+       linux-mips@linux-mips.org
+Subject: Re: [RFC] The driver model, I2C and gpio provision on Sharp SL-C1000 (Akita)
+Message-ID: <20051102194453.GF26542@hexapodia.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511022038.23137.pluto@agmk.net>
+In-Reply-To: <20051029190819.GB657@openzaurus.ucw.cz>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Oct 29, 2005 at 09:08:19PM +0200, Pavel Machek wrote:
+> > I2C drivers appear relatively late in the boot procedure and changing
+> > that isn't practical. I therefore ended up writing akita-ioexp which
+> 
+> It seems that making i2c init early is only sane choice. I realize PC people
+> will hate it... but apart from that, why is it impractical?
 
-The 2.6.14-rt4 works fine but debug code prints warnings:
+FWIW, I have also run into this "I need I2C early in boot, but it's not
+inited until late" on SiByte (arch/mips/sibyte/{sb1250,bcm1480}/setup.c).  
+For the time being in the linux-mips tree we simply have two drivers
+talking to the I2C interface - sibyte/swarm/rtc_* and i2c-sibyte.c,
+and they are currently lacking even any trivial locking.  We haven't
+seen any problems yet but that's due to limited exercise - the default
+config doesn't hook up any drivers for the other chips on I2C.
 
-(...)
-RAMDISK: Compressed image found at block 0
-VFS: Mounted root (romfs filesystem) readonly.
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-BUG: nonzero lock count 10 at exit time?
-         busybox:  738 [c15e7180, 118]
- [<c010418a>] dump_stack+0x1a/0x20 (20)
- [<c0138902>] check_no_held_locks+0x382/0x390 (36)
- [<c01212ab>] do_exit+0x25b/0x490 (44)
- [<c012150f>] sys_exit+0xf/0x10 (8)
- [<c01032a5>] syscall_call+0x7/0xb (-8116)
----------------------------
-| preempt count: 00000000 ]
-| 0-level deep critical section nesting:
-----------------------------------------
+How do other arches that have I2C RTCs deal with this problem?  Or is
+there something wrong with how arch/mips/kernel/time.c:time_init deals
+with the rtc?
 
-------------------------------
-| showing all locks held by: |  (busybox/738 [c15e7180, 118]):
-------------------------------
+> > There is a fundamental problem with the lack of a proper gpio interface
+> > in Linux. Every driver does something different with them (be it pxa
+> > specific gpios, SCOOP gpios, those on a IO expander, those on a video
+> > chip (w100fb springs to mind) to name just the Zaurus specific ones.
+> 
+> Yup. GPIOs are not problem on i386, so noone solved this one :-(.
 
-#001:             [e08429e8] {(struct semaphore *)(&hwif->gendev_rel_sem)}
-... acquired at:               init_hwif_data+0x8f/0x190 [ide_core]
+I would also be overjoyed to have a GPIO infrastructure to plug into.
 
-#002:             [e08434f8] {(struct semaphore *)(&hwif->gendev_rel_sem)}
-... acquired at:               init_hwif_data+0x8f/0x190 [ide_core]
+(And I would say "GPIOs are not used on PCs"; I am confident the Geode
+driving the seat-back TV on this Song flight has GPIOs...)
 
-#003:             [e0844008] {(struct semaphore *)(&hwif->gendev_rel_sem)}
-... acquired at:               init_hwif_data+0x8f/0x190 [ide_core]
-
-#004:             [e0844b18] {(struct semaphore *)(&hwif->gendev_rel_sem)}
-... acquired at:               init_hwif_data+0x8f/0x190 [ide_core]
-
-#005:             [e0845628] {(struct semaphore *)(&hwif->gendev_rel_sem)}
-... acquired at:               init_hwif_data+0x8f/0x190 [ide_core]
-
-#006:             [e0846138] {(struct semaphore *)(&hwif->gendev_rel_sem)}
-... acquired at:               init_hwif_data+0x8f/0x190 [ide_core]
-
-#007:             [e0846c48] {(struct semaphore *)(&hwif->gendev_rel_sem)}
-... acquired at:               init_hwif_data+0x8f/0x190 [ide_core]
-
-#008:             [e0847758] {(struct semaphore *)(&hwif->gendev_rel_sem)}
-... acquired at:               init_hwif_data+0x8f/0x190 [ide_core]
-
-#009:             [e0848268] {(struct semaphore *)(&hwif->gendev_rel_sem)}
-... acquired at:               init_hwif_data+0x8f/0x190 [ide_core]
-
-#010:             [e0848d78] {(struct semaphore *)(&hwif->gendev_rel_sem)}
-... acquired at:               init_hwif_data+0x8f/0x190 [ide_core]
-
-BUG: busybox/738, lock held at task exit time!
- [e08429e8] {(struct semaphore *)(&hwif->gendev_rel_sem)}
-.. held by:           busybox:  738 [c15e7180, 118]
-... acquired at:               init_hwif_data+0x8f/0x190 [ide_core]
-BUG: busybox/738, lock held at task exit time!
- [e08434f8] {(struct semaphore *)(&hwif->gendev_rel_sem)}
-.. held by:           busybox:  738 [c15e7180, 118]
-... acquired at:               init_hwif_data+0x8f/0x190 [ide_core]
-BUG: busybox/738, lock held at task exit time!
- [e0844008] {(struct semaphore *)(&hwif->gendev_rel_sem)}
-.. held by:           busybox:  738 [c15e7180, 118]
-... acquired at:               init_hwif_data+0x8f/0x190 [ide_core]
-BUG: busybox/738, lock held at task exit time!
- [e0844b18] {(struct semaphore *)(&hwif->gendev_rel_sem)}
-.. held by:           busybox:  738 [c15e7180, 118]
-... acquired at:               init_hwif_data+0x8f/0x190 [ide_core]
-BUG: busybox/738, lock held at task exit time!
- [e0845628] {(struct semaphore *)(&hwif->gendev_rel_sem)}
-.. held by:           busybox:  738 [c15e7180, 118]
-... acquired at:               init_hwif_data+0x8f/0x190 [ide_core]
-BUG: busybox/738, lock held at task exit time!
- [e0846138] {(struct semaphore *)(&hwif->gendev_rel_sem)}
-.. held by:           busybox:  738 [c15e7180, 118]
-... acquired at:               init_hwif_data+0x8f/0x190 [ide_core]
-BUG: busybox/738, lock held at task exit time!
- [e0846c48] {(struct semaphore *)(&hwif->gendev_rel_sem)}
-.. held by:           busybox:  738 [c15e7180, 118]
-... acquired at:               init_hwif_data+0x8f/0x190 [ide_core]
-BUG: busybox/738, lock held at task exit time!
- [e0847758] {(struct semaphore *)(&hwif->gendev_rel_sem)}
-.. held by:           busybox:  738 [c15e7180, 118]
-... acquired at:               init_hwif_data+0x8f/0x190 [ide_core]
-BUG: busybox/738, lock held at task exit time!
- [e0848268] {(struct semaphore *)(&hwif->gendev_rel_sem)}
-.. held by:           busybox:  738 [c15e7180, 118]
-... acquired at:               init_hwif_data+0x8f/0x190 [ide_core]
-BUG: busybox/738, lock held at task exit time!
- [e0848d78] {(struct semaphore *)(&hwif->gendev_rel_sem)}
-.. held by:           busybox:  738 [c15e7180, 118]
-... acquired at:               init_hwif_data+0x8f/0x190 [ide_core]
-VP_IDE: IDE controller at PCI slot 0000:00:07.1
-PCI: Via IRQ fixup for 0000:00:07.1, from 255 to 0
-VP_IDE: chipset revision 16
-VP_IDE: not 100% native mode: will probe irqs later
-VP_IDE: VIA vt82c596b (rev 23) IDE UDMA66 controller on pci0000:00:07.1
-    ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:DMA
-Probing IDE interface ide0...
-hda: ST3160023A, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-Probing IDE interface ide1...
-hdc: _NEC DVD_RW ND-3540A, ATAPI CD/DVD-ROM drive
-hdd: TEAC CD-552E, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-JFS: nTxBlock = 4028, nTxLock = 32227
-(...)
-
--- 
-The only thing necessary for the triumph of evil
-  is for good men to do nothing.
-                                           - Edmund Burke
+-andy

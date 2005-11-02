@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932710AbVKBOOJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932711AbVKBOOi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932710AbVKBOOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 09:14:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932711AbVKBOOI
+	id S932711AbVKBOOi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 09:14:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932712AbVKBOOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 09:14:08 -0500
-Received: from fed1rmmtao11.cox.net ([68.230.241.28]:60100 "EHLO
-	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
-	id S932710AbVKBOOI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 09:14:08 -0500
-Date: Wed, 2 Nov 2005 07:14:07 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Olaf Hering <olh@suse.de>
-Cc: Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
-       Matt Mackall <mpm@selenic.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] slob: move kstrdup to lib/string.c
-Message-ID: <20051102141407.GB3839@smtp.west.cox.net>
-References: <2.494767362@selenic.com> <20051102170053.1c120a03.akpm@osdl.org> <20051102070337.GC4367@waste.org> <20051102174020.37da0396.akpm@osdl.org> <17256.33817.263105.197325@cargo.ozlabs.ibm.com> <20051102130435.GA24230@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051102130435.GA24230@suse.de>
-User-Agent: Mutt/1.5.9i
+	Wed, 2 Nov 2005 09:14:38 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:39141 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932711AbVKBOOh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 09:14:37 -0500
+Message-ID: <4368C926.2040102@jp.fujitsu.com>
+Date: Wed, 02 Nov 2005 23:11:50 +0900
+From: Kamezawa Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: ja, en-us, en
+MIME-Version: 1.0
+To: clameter@engr.sgi.com
+CC: Hirokazu Takahashi <taka@valinux.co.jp>, rob@landley.net, akpm@osdl.org,
+       torvalds@osdl.org, kravetz@us.ibm.com, raybry@mpdtxmail.amd.com,
+       linux-kernel@vger.kernel.org, lee.schermerhorn@hp.com,
+       haveblue@us.ibm.com, magnus.damm@gmail.com, pj@sgi.com,
+       marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH 0/5] Swap Migration V5: Overview
+References: <Pine.LNX.4.62.0511010943310.16224@schroedinger.engr.sgi.com>	<20051102.143047.35521963.taka@valinux.co.jp>	<Pine.LNX.4.62.0511020030210.19157@schroedinger.engr.sgi.com> <20051102.212651.25143264.taka@valinux.co.jp>
+In-Reply-To: <20051102.212651.25143264.taka@valinux.co.jp>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 02, 2005 at 02:04:35PM +0100, Olaf Hering wrote:
->  On Wed, Nov 02, Paul Mackeras wrote:
+Hirokazu Takahashi wrote:
+> Hi Christoph,
+> I've read the archive of lhms-devel.
+> You're going to take in most of the original migration code
+> except for some tricks to migrate pages which are hard to move.
+> I think this is what you said the complexity, which you
+> want to remove forever.
 > 
-> > Andrew Morton writes:
-> > 
-> > > > That doesn't sound kosher, have a pointer?
-> > > > 
-> > > 
-> > > http://lkml.org/lkml/2005/4/8/128
-> > 
-> > Yes, we currently use bits of lib/ in the zImage boot wrapper.  I
-> > suspect we used to have our own string routines for the boot wrapper
-> > until somebody said "why do we have all this code duplicated" and
-> > cleaned it up. :)
+> I have to explain that this complexity came from making the code
+> guarantee to be able to migrate any pages. So the code is designed:
+>   - to migrate heavily accessed pages.
+>   - to migrate pages without backing-store.
+>   - to migrate pages without I/O's.
+>   - to migrate pages of which status may be changed during the migration
+>     correctly.
 > 
-> We cant continue to use files from lib/ in arch/powerpc/boot when they
-> start to use kernel internals like kmalloc. I converted a few
-> zlib_inflate files with sed already. But things will get really ugly if
-> we have to do more on-the-fly modifications. After all,
-> arch/$ARCH/boot is no kernel code, it has to be standalone.
-> Maybe we should just have no arch/powerpc/boot.
+> This have to be implemented if the hotplug memory use it.
+yes.
 
-I've always thought one of the nice points about ppc linux was that the
-kernel just booted on your board, no matter what crazy firmware there
-was.
+> It seems to become a reinvention of the wheel to me.
+> 
+Christoph, I think you should make it clear the advantage of your code
+to the -mhp tree's. I think we can add migrate_page_to() easily to the
+-mhp tree's as Takahashi said.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+BTW, could you explain what is done and what is not in your patch set ?
+
+-- Kame
+
+
+

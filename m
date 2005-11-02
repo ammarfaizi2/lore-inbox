@@ -1,76 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965327AbVKBWjb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965329AbVKBWkI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965327AbVKBWjb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 17:39:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965328AbVKBWjb
+	id S965329AbVKBWkI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 17:40:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965331AbVKBWkH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 17:39:31 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:25549 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S965327AbVKBWja (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 17:39:30 -0500
-Message-ID: <43694020.8080208@vc.cvut.cz>
-Date: Wed, 02 Nov 2005 23:39:28 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Wed, 2 Nov 2005 17:40:07 -0500
+Received: from nproxy.gmail.com ([64.233.182.196]:57438 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965329AbVKBWkF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 17:40:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=O1f9htknsh0h2P7lBL5k3J87q6lDwGh+CuKSrKIvnr+h8EuTpcpDdbPbXaewTKkQnDOLcMzAAeB2aBCoL1pu5rux5YxuXykvoMRIWG4QNCvjKdC7EYW0VxBNBccSl/qbevVtieEyUidUnPZcCh4+vJncN+V8AJjHo0i0AHwBLa8=
+Message-ID: <fe726f4e0511021440xdb80808p@mail.gmail.com>
+Date: Thu, 3 Nov 2005 00:40:04 +0200
+From: Carlos Martin <carlosmn@gmail.com>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: sharp zaurus-5500: looking for testers
+Cc: kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051102000003.GA467@elf.ucw.cz>
 MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Nick's core remove PageReserved broke vmware...
-References: <4367C25B.7010300@vc.cvut.cz> <4368097A.1080601@yahoo.com.au>  <4368139A.30701@vc.cvut.cz>  <Pine.LNX.4.61.0511021208070.7300@goblin.wat.veritas.com>  <1130965454.20136.50.camel@gaston>  <Pine.LNX.4.61.0511022112530.18174@goblin.wat.veritas.com> <1130967936.20136.65.camel@gaston> <Pine.LNX.4.61.0511022157130.18559@goblin.wat.veritas.com>
-In-Reply-To: <Pine.LNX.4.61.0511022157130.18559@goblin.wat.veritas.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <20051102000003.GA467@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
-> On Thu, 3 Nov 2005, Benjamin Herrenschmidt wrote:
-> 
->>>Take a look at Andrew's educational comment on set_page_dirty_lock
->>>in mm/page-writeback.c.  You do have the list of pages you need to
->>>page_cache_release, don't you?  So it should be easy to dirty them.
->>
->>Ok, so just passing 'write' to get_user_pages() is good enough; right ?
-> 
-> 
-> Not quite, I think: you need to pass 'write' to get_user_pages()
-> initially; but at the end, if it was indeed writing into user space,
-> you need to do the set_page_dirty_lock thing on each of the pages
-> before page_cache_release, just in case a race cleaned them before
-> the DMA completed.  I think (I've never used it myself).
+On 02/11/05, Pavel Machek <pavel@ucw.cz> wrote:
+> Hi!
+>
+> Is there someone out there, with sharp zaurus sl-5500, willing to test
+> kernels? There's a linux-z tree on kernel.org, which I try to more or
+> less keep in sync with mainline, that is slowly starting to get
+> usable. It could use some testing.
 
-Unfortunately at least for our use set_page_dirty{_lock} has an
-unfortunate feature that it schedules writeback immediately.
+I cloned your tree but it said one of the packs wasn't in the index. I
+don't have the exact error message, sorry. I'll try again tomorrow.
+Also your git tree (repository?) in kernel.org is a bit broken. The
+git web interface gives me 403 error when I try to see a diff in your
+zaurus.git tree, and there's stuff that appears to be missing (history
+and commits).
 
-get_user_pages() through __follow_page() calls set_page_dirty() only
-if pte_dirty() bit is not set (I have no idea why it just does not
-set pte dirty bit instead of doing set_page_dirty(), but there must
-be some reason, yes?), so under normal condition page is marked
-dirty in the page's structure only if it was not marked dirty
-on pte level before.  This way page itself is marked dirty only after
-somebody copies dirty bit from page tables to the page structure, which
-can take a lot of time.
+>
+> Main drawback is that battery charging is not yet done; touchscreen is
+> there but I did not have chance to test it with proper userspace
+> filtering.
 
-On other side when you do set_page_dirty(), page is in few seconds
-written back to the disk - causing quite visible I/O load if you
-perform get_user_pages()/set_page_dirty() when compared with
-situation where you just mark PTE dirty after you are done with
-page.
+Does this mean the battery won't get charged when using the 2.6
+kernel, or that it won't get reported?
 
-(for those interested, in the situation described above we are
-doing get_user_pages() on the file mapped by MAP_SHARED to the
-user's address space to get physical address of these pages,
-then virtual machine monitor uses this physical address to fill
-guest's pagetables, and later (once guest is done with page) we
-mark page dirty and release page; performance difference between
-set_page_dirty() and home grown ptep_set_dirty() is more than
-visible...  but AGP memory in question is probably not
-backed up by some writeable file, so it does not make difference
-here)
+   cmn
+--
+Carlos Martín Nieto        http://www.cmartin.tk
 
-					Petr
-
+"¿Han entendido?"
+"Sí, nosotros vemos La 2" -- Emilio, "Aquí no hay quien viva"

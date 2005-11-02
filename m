@@ -1,37 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965302AbVKBWEt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965297AbVKBWFp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965302AbVKBWEt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 17:04:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965303AbVKBWEt
+	id S965297AbVKBWFp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 17:05:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965294AbVKBWFp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 17:04:49 -0500
-Received: from ams-iport-1.cisco.com ([144.254.224.140]:51311 "EHLO
-	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S965296AbVKBWEs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 17:04:48 -0500
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [PATCH/RFC v2] IB: Add SCSI RDMA Protocol (SRP) initiator
-X-Message-Flag: Warning: May contain useful information
-References: <52r79y91jz.fsf_-_@cisco.com>
-	<20051102220358.GA27132@mellanox.co.il>
-From: Roland Dreier <rolandd@cisco.com>
-Date: Wed, 02 Nov 2005 14:04:41 -0800
-In-Reply-To: <20051102220358.GA27132@mellanox.co.il> (Michael S. Tsirkin's
- message of "Thu, 3 Nov 2005 00:03:58 +0200")
-Message-ID: <52mzkm905i.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 02 Nov 2005 22:04:43.0245 (UTC) FILETIME=[6DD4F1D0:01C5DFF9]
+	Wed, 2 Nov 2005 17:05:45 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:4789 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S965297AbVKBWFo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 17:05:44 -0500
+Subject: Re: best way to handle LEDs
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Pavel Machek <pavel@suse.cz>
+Cc: vojtech@suse.cz, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>
+In-Reply-To: <20051102211146.GG23943@elf.ucw.cz>
+References: <20051101234459.GA443@elf.ucw.cz>
+	 <1130891953.8489.83.camel@localhost.localdomain>
+	 <20051102135614.GL30194@elf.ucw.cz>
+	 <1130942322.8523.15.camel@localhost.localdomain>
+	 <20051102211146.GG23943@elf.ucw.cz>
+Content-Type: text/plain
+Date: Wed, 02 Nov 2005 22:05:23 +0000
+Message-Id: <1130969124.8523.69.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Michael> This seems to leak sizeof *attr bytes if
-    Michael> ib_find_cached_pkey returns an error.
+On Wed, 2005-11-02 at 22:11 +0100, Pavel Machek wrote:
+> > > Perhaps I'd keep it simple and leave it at
+> > > 
+> > > * do hardcoded kernel action for this led
+> > > 
+> > > or
+> > > 
+> > > * do whatever userspace tells you.
+> > > 
+> > > That way you will not be able to remap charger LED onto hard disk
+> > > indicator, but we can support that on ibm-acpi too. (Where hw controls
+> > > LEDs like "sleep", but lets you control them. You can't remap,
+> > > though).
+> > 
+> > Then the arguments start about which function should be hardcoded to
+> > which leds and why can't userspace access these triggers?
+> 
+> Because there are some machines (IBM thinkpad) where LEDs are either
+> driven by userspace, or driven by hardware. I'd like to export that
+> functionality using same interface.
 
-Good catch.  It actually seems to leak attr unconditionally...
-I'll fix it up now.
+A specific limitation of ACPI LEDs shouldn't constrain the interface and
+spoil things for everything that can support generic triggers.
 
- - R.
+> > I'd prefer a totally flexible system and it doesn't really add much
+> > complexity once you have a trigger framework which we're going to need
+> > to handle mutiple led trigger sources sanely anyway.
+> 
+> Unfortunately hardware can not do that, at least for IBM
+> thinkpad. 
+
+So we need to find a way of providing this functionality, maybe by
+allowing leds to provide their own specific triggers. Thinking about
+this limitation, I think it can be handled by the trigger
+implementation.
+
+> Plus, remapping harddisk indicator on battery led is not
+> something I'd like to support :-). 
+
+It wouldn't do that be default but I see no reason to constrain any
+interface to stop this. The kernel isn't supposed to set policy (or in
+my view put unnecessary constraints on interfaces).
+
+Richard
+
+
+

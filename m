@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965312AbVKBW2o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965313AbVKBW3a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965312AbVKBW2o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 17:28:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965313AbVKBW2o
+	id S965313AbVKBW3a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 17:29:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965314AbVKBW33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 17:28:44 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:38443 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S965312AbVKBW2n
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 17:28:43 -0500
-Date: Wed, 2 Nov 2005 23:31:08 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       Roland Dreier <rolandd@cisco.com>, Andrew Morton <akpm@osdl.org>,
-       zippel@linux-m68k.org, ak@suse.de, rmk+lkml@arm.linux.org.uk,
-       tony.luck@gmail.com, paolo.ciarrocchi@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: New (now current development process)
-Message-ID: <20051102223108.GA20416@mars.ravnborg.org>
-References: <Pine.LNX.4.64.0510311611540.27915@g5.osdl.org> <20051031163408.41a266f3.akpm@osdl.org> <52y847abjm.fsf@cisco.com> <Pine.LNX.4.64.0511012142200.27915@g5.osdl.org> <52u0eva8yu.fsf@cisco.com> <Pine.LNX.4.64.0511012203370.27915@g5.osdl.org> <52ll07a844.fsf@cisco.com> <Pine.LNX.4.64.0511020746330.27915@g5.osdl.org> <20051102174852.GB1899@redhat.com> <Pine.LNX.4.62.0511021207550.2820@qynat.qvtvafvgr.pbz>
+	Wed, 2 Nov 2005 17:29:29 -0500
+Received: from smtp3.pp.htv.fi ([213.243.153.36]:59298 "EHLO smtp3.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S965313AbVKBW33 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 17:29:29 -0500
+Date: Thu, 3 Nov 2005 00:29:25 +0200
+From: Paul Mundt <lethal@linux-sh.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 1/7] sh: Re-add sh to drivers/Makefile.
+Message-ID: <20051102222925.GA27200@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0511021207550.2820@qynat.qvtvafvgr.pbz>
-User-Agent: Mutt/1.5.8i
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I used to compile with Os on all my kernels, but when the alignment 
-> settings got added to the embedded section a few kernels ago and I saw 
-> that they all default to 0 (no alignment) it scared me off
+drivers/sh/ got dropped from drivers/Makefile, so add it back in..
 
-Alignment settings in the EMBEDDED menu are ignored if set to 0, in
-other words setting alignment to 0 in Kconfig will fall back to
-compilers default values.
+Signed-off-by: Paul Mundt <lethal@linux-sh.org>
 
-Thats also documented in the help for the config options.
+---
 
-	Sam
+ drivers/Makefile |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+applies-to: b87f06d928e0ea06ae6244c1aeecf3e745f39bb9
+ba95fbff2ea16e371001052759317163b6dbcd5c
+diff --git a/drivers/Makefile b/drivers/Makefile
+index 65670be..61c64f7 100644
+--- a/drivers/Makefile
++++ b/drivers/Makefile
+@@ -67,3 +67,4 @@ obj-$(CONFIG_INFINIBAND)	+= infiniband/
+ obj-$(CONFIG_SGI_IOC4)		+= sn/
+ obj-y				+= firmware/
+ obj-$(CONFIG_CRYPTO)		+= crypto/
++obj-$(CONFIG_SUPERH)		+= sh/
+---
+0.99.8.GIT

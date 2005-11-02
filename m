@@ -1,100 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965152AbVKBSG6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965143AbVKBSJL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965152AbVKBSG6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 13:06:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965159AbVKBSG5
+	id S965143AbVKBSJL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 13:09:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965165AbVKBSJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 13:06:57 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:42448 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S965152AbVKBSG4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 13:06:56 -0500
-Message-ID: <4369003F.8020205@vc.cvut.cz>
-Date: Wed, 02 Nov 2005 19:06:55 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Wed, 2 Nov 2005 13:09:11 -0500
+Received: from hellhawk.shadowen.org ([80.68.90.175]:65041 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S965143AbVKBSJJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 13:09:09 -0500
+Message-ID: <43690083.5020605@shadowen.org>
+Date: Wed, 02 Nov 2005 18:08:03 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: Nick Piggin <nickpiggin@yahoo.com.au>,
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+CC: Andi Kleen <ak@suse.de>, Bob Picco <bob.picco@hp.com>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Janne M O Heikkinen <jmoheikk@cc.helsinki.fi>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Nick's core remove PageReserved broke vmware...
-References: <4367C25B.7010300@vc.cvut.cz> <4368097A.1080601@yahoo.com.au> <4368139A.30701@vc.cvut.cz> <Pine.LNX.4.61.0511021208070.7300@goblin.wat.veritas.com>
-In-Reply-To: <Pine.LNX.4.61.0511021208070.7300@goblin.wat.veritas.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: Re: x86_64: 2.6.14 with NUMA panics at boot
+References: <Pine.OSF.4.61.0510282218310.411472@rock.it.helsinki.fi> <1130607017.12551.5.camel@localhost> <20051031001727.GC6019@localhost.localdomain> <200510310312.18395.ak@suse.de> <222900000.1130908059@[10.10.2.4]>
+In-Reply-To: <222900000.1130908059@[10.10.2.4]>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
-> On Wed, 2 Nov 2005, Petr Vandrovec wrote:
+Martin J. Bligh wrote:
 > 
->>So we just marked vma VM_RESERVED, as it
->>did not hurt, and all pages in this vma have refcount > 1 anyway so there is
->>no point in trying to cleanup these page tables.  Now rmap catches this by
->>page_count() != page_mapcount(), so VM_RESERVED is not needed anymore, but
->>there did not seem to be any reason to remove it.
+> --Andi Kleen <ak@suse.de> wrote (on Monday, October 31, 2005 03:12:17 +0100):
 > 
 > 
-> Well, beware.  That "page_count() != page_mapcount() + 2" check in rmap.c
-> went away in 2.6.13: the problem it was there to solve being solved
-> instead by a can_share_swap_page based on page_mapcount instead of
-> page_count (partly to fix a page migration progress problem).
-> 
-> So, you may still be in trouble?  But how do the pages you're concerned
-> with come to be on the LRU in the first place?  If they're not on the
-> LRU, vmscanning will never try to take them away.  Most drivers with
-> special pages, and ->mapping unset, don't put the pages on the LRU.
+>>On Monday 31 October 2005 01:17, Bob Picco wrote:
+>>Ok the question is - why did nobody submit this patch in time? When
+>>sparse was merged I assumed folks would actually test and maintain
+>>it. But that doesn't seem to be the case? Somewhat surprising.
 
-No, we do not put pages on LRU.  Older kernels were removing once
-instantiated page entries from pagetables.  It did not cause any
-problems, but as VM cannot gain anything from this removal, we were
-happy to find that VM did not clear page tables for VM_RESERVED vmas.
-But primary motivation for VM_RESERVED was to get rid warning on SuSE
-2.6.4.  As one VMware instance uses 4 to 6 pages allocated this way,
-it is really not big problem even if VM will try to remove them from
-pagetables...
+We are activly maintaining sparsemem.  But we do seem to have fallen
+short on the testing front on some of the architectures.  I'm looking
+right now into getting some automated testing sorted out for SPARSEMEM
+specifically so that we catch this stuff much earlier in the pipeline,
+as its much simpler for us to find the earlier a problem appears.
 
->>--- vmmon-only/linux/driver.c.orig	2005-11-02 02:00:46.000000000 +0100
->>+++ vmmon-only/linux/driver.c	2005-11-01 20:12:13.000000000 +0100
->>@@ -1283,9 +1283,13 @@
->>/*
->>* It seems that SuSE's 2.6.4-52 needs this.  Hopefully
->>* it will not break anything else.
->>+    *
->>+    * It breaks on post 2.6.14 kernels, so get rid of it on them.
->>   */
->> #ifdef VM_RESERVED
->>+#  if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 14)
->>    vma->vm_flags |= VM_RESERVED;
->>+#  endif
->>#endif
->>  return 0;
->>}
-> 
-> 
-> Nick's PageReserved/VM_RESERVED changes are not in 2.6.14 so I'd expect
-> 2.6.15 there.  Ah, you're trying to handle this awkward interval before
-> 2.6.15-rc1 brings the numbering up to 2.6.15, okay.
+>>I personally don't care much about sparsemem right now because it doesn't have 
+>>any advantage and if it's unmaintained would consider to mark it 
+>>CONFIG_BROKEN. That's simply because we can't have highly experimental 
+>>CONFIGs in a production kernel that unsuspecting users can just set and break 
+>>their configuration.
+>>
+>>Dave, is there someone in charge for sparsemem on x86-64?
 
-For our purpose anything between 2.6.6 and 2.6.14 is fine as for us.
-Allocated pages are normal memory pages, they just were allocated to
-meet specific criteria - being allocated either from low 4GB (accessible in
-32bit mode without paging), or being physically contiguous, so they all
-have 'struct page' and can be happily refcounted.
+I had assumed that it was being maintained, but its not obvious from
+this thread that we're all on the same page.  But we'll find out and get
+that sorted.
 
-Only really obscure thing we do is that we allocate order 1 or 2 (8/16KB)
-regions, bump refcount by 1 on all pages except first one (if CONFIG_MMU
-is set), and then pass independent pages from this region through nopage
-handler to the VM to map them to the user level.  It means that region
-is allocated by alloc_pages(GFP_USER, 2), while it is released by 4 calls
-to put_page(), for page+0...page+3.
-
-It works on all Linux kernels with MMU I've tested, and it would be nice
-if this could continue to work.  Current kernels seems to provide PageCompound,
-which would fit our needs as well after some changes, but as long as
-PageCompound is build time option it is not possible to rely on it.
-
-						Best regards,
-							Petr Vandrovec
-
+-apw

@@ -1,62 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965242AbVKBVMd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965245AbVKBVNw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965242AbVKBVMd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 16:12:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965244AbVKBVMd
+	id S965245AbVKBVNw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 16:13:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965246AbVKBVNw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 16:12:33 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:33497 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S965242AbVKBVMc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 16:12:32 -0500
-Date: Wed, 2 Nov 2005 22:11:46 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: vojtech@suse.cz, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: Re: best way to handle LEDs
-Message-ID: <20051102211146.GG23943@elf.ucw.cz>
-References: <20051101234459.GA443@elf.ucw.cz> <1130891953.8489.83.camel@localhost.localdomain> <20051102135614.GL30194@elf.ucw.cz> <1130942322.8523.15.camel@localhost.localdomain>
+	Wed, 2 Nov 2005 16:13:52 -0500
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:53665 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S965245AbVKBVNv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 16:13:51 -0500
+Date: Wed, 2 Nov 2005 16:13:50 -0500
+To: tcrix@att.net
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: No sharing IRQ broken board problem
+Message-ID: <20051102211350.GD9488@csclub.uwaterloo.ca>
+References: <110220052106.23704.43692A6C000AA6AE00005C98215876675598079D0C9B@att.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1130942322.8523.15.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <110220052106.23704.43692A6C000AA6AE00005C98215876675598079D0C9B@att.net>
 User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Perhaps I'd keep it simple and leave it at
-> > 
-> > * do hardcoded kernel action for this led
-> > 
-> > or
-> > 
-> > * do whatever userspace tells you.
-> > 
-> > That way you will not be able to remap charger LED onto hard disk
-> > indicator, but we can support that on ibm-acpi too. (Where hw controls
-> > LEDs like "sleep", but lets you control them. You can't remap,
-> > though).
+On Wed, Nov 02, 2005 at 09:06:53PM +0000, tcrix@att.net wrote:
+> I have a pci board in development that works but..
+> it can not share the interrupt line.  
 > 
-> Then the arguments start about which function should be hardcoded to
-> which leds and why can't userspace access these triggers?
+> Has someone hacked through the problem of reserving one of the inta, intb, .. 's for a single device?  I would love to see how you did so I could continue on with my driver while I wait for the !@$#!@ hardware guys to fix the board. 
 
-Because there are some machines (IBM thinkpad) where LEDs are either
-driven by userspace, or driven by hardware. I'd like to export that
-functionality using same interface.
+As far as I understand the PCI specs, your device is currently NOT a PCI
+device.
 
-> I'd prefer a totally flexible system and it doesn't really add much
-> complexity once you have a trigger framework which we're going to need
-> to handle mutiple led trigger sources sanely anyway.
+Support for shared IRQs on PCI is as far as I can tell not optional.
+Short of designing your own mainboard there is no way to prevent the
+interrupt lines from being joined.  One one board I use there are 6 PCI
+devices, with 3 on INT-A and 3 on INT-B (The SBC doesn't have INT-C and
+INT-D).  On my desktop machine, INT A is the same on slot 1 and 5, 2,
+and 6 and onyl 3 and 4 have INT-A to themselves.  Of course this doesn't
+prevent the bios from assigning the same IRQ to INT-A on multiple sets
+as well.  I have run a PPro some years ago with a single IRQ shared
+among all the PCI devices in the system.  Neither linux nor windows had
+a problem with that and neither did any of the many PCI devices.
 
-Unfortunately hardware can not do that, at least for IBM
-thinkpad. Plus, remapping harddisk indicator on battery led is not
-something I'd like to support :-). 
+I think you are stuck waiting for the hardware guys to give you a PCI
+device that is really a PCI device.  If you are lucky you can find one
+slot in your machine that doesn't share INT-A with any other PCI device,
+although on most modern machines there are so many PCI devices that it
+is imposible to find one that isn't shared.
 
-								Pavel
--- 
-Thanks, Sharp!
+Len Sorensen

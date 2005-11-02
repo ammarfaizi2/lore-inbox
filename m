@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbVKBGem@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932461AbVKBGse@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932449AbVKBGem (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 01:34:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbVKBGem
+	id S932461AbVKBGse (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 01:48:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbVKBGse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 01:34:42 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:25255 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932451AbVKBGem (ORCPT
+	Wed, 2 Nov 2005 01:48:34 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:9164 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932461AbVKBGsd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 01:34:42 -0500
-Date: Wed, 2 Nov 2005 16:34:23 +1100
-From: Andrew Morton <akpm@osdl.org>
-To: matthieu castet <castet.matthieu@free.fr>
-Cc: linux-usb-devel@lists.sourceforge.net, usbatm@lists.infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]  Eagle and ADI 930 usb adsl modem driver
-Message-Id: <20051102163423.460fe9c5.akpm@osdl.org>
-In-Reply-To: <436776C6.3040900@free.fr>
-References: <4363F9B5.6010907@free.fr>
-	<20051031155803.2e94069f.akpm@osdl.org>
-	<436776C6.3040900@free.fr>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Wed, 2 Nov 2005 01:48:33 -0500
+Date: Wed, 2 Nov 2005 07:48:54 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cpu hoptlug: avoid usage of smp_processor_id() in preemptible code
+Message-ID: <20051102064854.GB943@elte.hu>
+References: <20051101145402.GA20255@osiris.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051101145402.GA20255@osiris.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-matthieu castet <castet.matthieu@free.fr> wrote:
->
-> >>+
->  >>+	*cmvs = (struct uea_cmvs *)(data + 1);
->  > 
->  > 
->  > That's a bit rude - asking the compiler to perform a structure copy from an
->  > odd address.  memcpy() would be saner.
->  > 
->  Could you elaborate a bit more ?
->  I don't see where there is a copy.
->  *cmvs is a pointer to the structure, not the structure. And when we 
->  parse the structure, we use get_unaligned functions.
-> 
-> 
 
-Ah, I misread the code.
+* Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
+
+> From: Heiko Carstens <heiko.carstens@de.ibm.com>
+> 
+> Replace smp_processor_id() with any_online_cpu(cpu_online_map) in 
+> order to avoid lots of "BUG: using smp_processor_id() in preemptible 
+> [00000001] code:..." messages in case taking a cpu online fails.
+
+could you post the full message, including the stacktrace? I think this 
+patch just works around the debugging message, and there might be some 
+real bug to fix.
+
+	Ingo

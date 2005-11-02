@@ -1,90 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965270AbVKBVmu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965272AbVKBVoV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965270AbVKBVmu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 16:42:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965271AbVKBVmu
+	id S965272AbVKBVoV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 16:44:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965277AbVKBVoV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 16:42:50 -0500
-Received: from gold.veritas.com ([143.127.12.110]:2956 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S965270AbVKBVmt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 16:42:49 -0500
-Date: Wed, 2 Nov 2005 21:41:41 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Nick's core remove PageReserved broke vmware...
-In-Reply-To: <1130965454.20136.50.camel@gaston>
-Message-ID: <Pine.LNX.4.61.0511022112530.18174@goblin.wat.veritas.com>
-References: <4367C25B.7010300@vc.cvut.cz> <4368097A.1080601@yahoo.com.au> 
- <4368139A.30701@vc.cvut.cz>  <Pine.LNX.4.61.0511021208070.7300@goblin.wat.veritas.com>
- <1130965454.20136.50.camel@gaston>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 02 Nov 2005 21:42:48.0403 (UTC) FILETIME=[5E1FFA30:01C5DFF6]
+	Wed, 2 Nov 2005 16:44:21 -0500
+Received: from bay101-f4.bay101.hotmail.com ([64.4.56.14]:12559 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S965272AbVKBVoU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 16:44:20 -0500
+Message-ID: <BAY101-F4507935C4D38603757606B66E0@phx.gbl>
+X-Originating-IP: [198.161.246.2]
+X-Originating-Email: [mineown@hotmail.com]
+In-Reply-To: <200510092142.33332.blaisorblade@yahoo.it>
+From: "Kai Tan" <mineown@hotmail.com>
+To: blaisorblade@yahoo.it, user-mode-linux-devel@lists.sourceforge.net
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org
+Subject: Re: [uml-devel] Uml left showstopper bugs for 2.6.14
+Date: Wed, 02 Nov 2005 21:44:17 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 02 Nov 2005 21:44:18.0280 (UTC) FILETIME=[93B21E80:01C5DFF6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Nov 2005, Benjamin Herrenschmidt wrote:
-> 
-> Not completely related to this thread, but ... I have been working on
-> the radeon DRI driver to add some non-AGP DMA functionality. That needs
-> to pin some userpages for DMA. It's currently doing get_user_pages(),
-> and later on, page_cache_release() when the DMA is done. In between
-> however, it returns to userland.
+I tried the first patch, got the following error:
 
-That's the right way to do it.
+Kernel panic - not syncing: copy_context_skas0 : failed to wait for 
+SIGUSR1/SIGTRAP, pid = 7182, n = 7182, errno = 0, status = 0xb7f
 
-> I haven't been able to find a firm grasp on what is needed to make sure
-> those pages won't be mucked with by rmap or others during that proc ess.
-> Should I set PG_locked ? if yes why and if not why not ? (you may figure
-> out at this point that I have a poor understanding of this part of the
-> VM subsystem). Will get_user_pages() increase page_mapcount or only
-> page_count (relative to your quote above) ?
+I got the same error even after applying the second patch.
 
-get_user_pages() raises page_count, not page_mapcount.  You shouldn't set
-PG_locked (and if you did, ought only to do so via lock_page): that was
-done at one time in early 2.4, but it's irrelevant (and a problem when
-the same page appears more than once in the list).
+My run command is the following:
 
-It remains unlikely but possible that rmap will come along and remove
-the page from its place in the user address space before the DMAing
-has finished; but that does not matter, so long as any user access
-to that address faults the right pinned page back in.
+linux stderr=1 ubd0=../../root_fs.rh-7.2-full.pristine.20020312
 
-The only extant problem here is if the pages are private, and you
-fork while this is going on, and the parent user process writes to the
-area before completion: then COW leaves the child with the page being
-DMAed into, giving the parent a copied page which may be incomplete.
+>From: Blaisorblade <blaisorblade@yahoo.it>
+>To: user-mode-linux-devel@lists.sourceforge.net
+>CC: Jeff Dike <jdike@addtoit.com>, LKML <linux-kernel@vger.kernel.org>, 
+>"Kai Tan" <mineown@hotmail.com>
+>Subject: Re: [uml-devel] Uml left showstopper bugs for 2.6.14
+>Date: Sun, 9 Oct 2005 21:42:32 +0200
+>
+>Kai - go to the end, there are patches for your SKAS0 problem.
+>
+>On Sunday 09 October 2005 21:18, Blaisorblade wrote:
+> > Here's a short and updated list of showstoppers for 2.6.14 release, from
+> > the UML point of view.
+>
+> > 2) Someone broke endianness of COW driver macros in a header cleanup. I
+> > have fixes.
+>Just sent them.
+> > 3) SKAS0 is broken on amd64 hosts, when frame pointers are disabled. 
+>Jeff
+> > has the fix, waiting end of testing.
+>
+> > 4) SKAS0 is broken with GCC 3.2.3, and potentially other GCC releases -
+> > look at arch/um/include/sysdep-i386/stub.h: stub_syscall*() to see how. 
+>I
+> > have two fixes, choosing the safer one (it's all just simply reusing 
+>code
+> > from <asm/unistd.h>).
+>Jeff, I've attached patches for this. Also found another problematic piece 
+>of
+>code, in stub-segv (same bad idea).
+>
+>The patch for that changes a bit more things that strictly needed - 
+>complain
+>if that's a problem for merging in 2.6.14.
+>
+>Kai Tan, the order of the patches is:
+>
+>uml-fix-misassembling-skas0-stub
+>uml-fix-misassembling-skas0-stub-segv
+>
+>Note that the second is a bit less tested, so if both together cause 
+>problems,
+>try with only the first one.
+>
+>And remember to add "skas0" to the cmd line, to force UML to run in SKAS0
+>mode.
+>--
+>Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+>Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 
+>215621894)
+>http://www.user-mode-linux.org/~blaisorblade
 
-> Also, I'm not too sure how to handle dirtyness. It _seems_ to be that
-> for a DMA transfer from device to memory, I will have to call
-> get_user_pages() for write, thus setting dirty at that moment. However,
-> this is not very optimal. I want X to be able to "prepare" pixmaps for
-> DMA (keeping the user pages locked and the DMA sglists ready) (up to a
-> given threshold of memory of course) and later on, kick DMA operations.
-> In that context, X doesn't know in advance what direction the DMA will
-> take. Pixmaps can be migrated to/from vram at any time depending on the
-> type of rendering operation.
 
-It's important that any necessary COW be done at get_user_pages time,
-if there's any possibility that you'll be DMAing into them.  So when
-in doubt, call it for write access.
+><< uml-fix-misassembling-skas0-stub >>
 
-> But I'm not sure I have a proper way to set those pages dirty after the
-> call to get_user_pages(), do I have a guarantee that they haven't been
-> unmapped from the user process for example ?
 
-You don't have that guarantee, but you shouldn't need it: when in doubt,
-let it set them dirty beforehand.  As to afterwards, if I remember
-rightly, there's a race by which the pages might be written out and
-dirty cleared before your DMA completed, so you actually do need to
-mark them dirty after - searching fs/ for get_user_pages() use suggests
-so.  Take a look at Andrew's educational comment on set_page_dirty_lock
-in mm/page-writeback.c.  You do have the list of pages you need to
-page_cache_release, don't you?  So it should be easy to dirty them.
+><< uml-fix-misassembling-skas0-stub-segv >>
 
-Hugh
+

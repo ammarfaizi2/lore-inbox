@@ -1,76 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965122AbVKBQYd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965129AbVKBQ02@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965122AbVKBQYd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 11:24:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965123AbVKBQYd
+	id S965129AbVKBQ02 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 11:26:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965131AbVKBQ02
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 11:24:33 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:56848 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965122AbVKBQYc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 11:24:32 -0500
-Date: Wed, 2 Nov 2005 17:24:22 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] EDAC: remove proc_ent from struct mem_ctl_info
-Message-ID: <20051102162421.GJ8009@stusta.de>
-References: <20051024014838.0dd491bb.akpm@osdl.org>
+	Wed, 2 Nov 2005 11:26:28 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:32995 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S965129AbVKBQ01
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 11:26:27 -0500
+Date: Wed, 2 Nov 2005 11:26:26 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Maneesh Soni <maneesh@in.ibm.com>
+cc: Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Setting kernel data breakpoints on x86
+In-Reply-To: <20051102071438.GA5050@in.ibm.com>
+Message-ID: <Pine.LNX.4.44L0.0511021125520.4928-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051024014838.0dd491bb.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While fixing a compile error with CONFIG_PROC_FS=n in the EDAC code, I 
-discovered that the proc_ent member of struct mem_ctl_info is only used 
-in a debug printk.
+On Wed, 2 Nov 2005, Maneesh Soni wrote:
 
-Is this patch to remove proc_ent OK?
+> On Tue, Nov 01, 2005 at 04:30:26PM -0500, Alan Stern wrote:
+> > I'm trying to debug a rather difficult data-overwriting problem, and it 
+> > would be a big help to be able to use a data breakpoint.
+> > 
+> > Is there any easy way of doing this?  I'd prefer not to use a kernel 
+> > debugger, because the address of the breakpoint and the time when it's 
+> > needed are determined dynamically.
+> > 
+> > Does anybody have a little lightweight procedure for setting one of the 
+> > x86's debug registers to point to a particular location in kernel memory 
+> > space?  I don't care if the whole system crashes when the debug exception 
+> > occurs, just so long as I can get a stack trace and find out where the 
+> > overwrite comes from.
+> > 
+> > 
+> 
+> Hi Alan
+> 
+> Probably watchpoint probes could be useful for this..
+> 
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0508.3/1407.html
+> 
+> http://sourceware.org/ml/systemtap/2005-q3/msg00097.html
 
+Hi Maneesh:
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+That's exactly what I was looking for.  Thanks!
 
- drivers/edac/edac_mc.c |    8 ++------
- drivers/edac/edac_mc.h |    3 ---
- 2 files changed, 2 insertions(+), 9 deletions(-)
-
---- linux-2.6.14-rc5-mm1-modular-2.95/drivers/edac/edac_mc.h.old	2005-11-02 02:38:08.000000000 +0100
-+++ linux-2.6.14-rc5-mm1-modular-2.95/drivers/edac/edac_mc.h	2005-11-02 02:38:19.000000000 +0100
-@@ -313,9 +313,6 @@
- 	const char *mod_ver;
- 	const char *ctl_name;
- 	char proc_name[MC_PROC_NAME_MAX_LEN + 1];
--#ifdef CONFIG_PROC_FS
--	struct proc_dir_entry *proc_ent;
--#endif
- 	void *pvt_info;
- 	u32 ue_noinfo_count;	/* Uncorrectable Errors w/o info */
- 	u32 ce_noinfo_count;	/* Correctable Errors w/o info */
---- linux-2.6.14-rc5-mm1-modular-2.95/drivers/edac/edac_mc.c.old	2005-11-02 02:38:30.000000000 +0100
-+++ linux-2.6.14-rc5-mm1-modular-2.95/drivers/edac/edac_mc.c	2005-11-02 02:39:44.000000000 +0100
-@@ -362,8 +362,6 @@
- 	printk(KERN_INFO "\tpdev = %p\n", mci->pdev);
- 	printk(KERN_INFO "\tmod_name:ctl_name = %s:%s\n",
- 	       mci->mod_name, mci->ctl_name);
--	printk(KERN_INFO "\tproc_name = %s, proc_ent = %p\n",
--	       mci->proc_name, mci->proc_ent);
- 	printk(KERN_INFO "\tpvt_info = %p\n\n", mci->pvt_info);
- }
- 
-@@ -575,10 +573,8 @@
- 		goto finish;
- 	}
- 
--	mci->proc_ent = create_proc_read_entry(mci->proc_name, 0, proc_mc,
--					       mc_read_proc, (void *) mci);
--
--	if (mci->proc_ent == NULL) {
-+	if(create_proc_read_entry(mci->proc_name, 0, proc_mc,
-+	                          mc_read_proc, (void *) mci) == NULL) {
- 		printk(KERN_WARNING
- 		       "MC%d: failed to create proc entry for controller\n",
- 		       mci->mc_idx);
+Alan Stern
 

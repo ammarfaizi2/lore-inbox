@@ -1,25 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965243AbVKBVJU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965242AbVKBVMd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965243AbVKBVJU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 16:09:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965244AbVKBVJU
+	id S965242AbVKBVMd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 16:12:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965244AbVKBVMd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 16:09:20 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:25527 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S965243AbVKBVJT (ORCPT
+	Wed, 2 Nov 2005 16:12:33 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:33497 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S965242AbVKBVMc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 16:09:19 -0500
-Date: Wed, 2 Nov 2005 22:08:43 +0100
+	Wed, 2 Nov 2005 16:12:32 -0500
+Date: Wed, 2 Nov 2005 22:11:46 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/3] swsusp: move snapshot-handling functions to snapshot.c
-Message-ID: <20051102210843.GF23943@elf.ucw.cz>
-References: <200510301637.48842.rjw@sisk.pl> <200511011929.20073.rjw@sisk.pl> <20051101210452.GH7172@elf.ucw.cz> <200511020053.25123.rjw@sisk.pl>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: vojtech@suse.cz, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: Re: best way to handle LEDs
+Message-ID: <20051102211146.GG23943@elf.ucw.cz>
+References: <20051101234459.GA443@elf.ucw.cz> <1130891953.8489.83.camel@localhost.localdomain> <20051102135614.GL30194@elf.ucw.cz> <1130942322.8523.15.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200511020053.25123.rjw@sisk.pl>
+In-Reply-To: <1130942322.8523.15.camel@localhost.localdomain>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,24 +29,34 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > That depends on how you implement the interface.  If you insist on using
-> > > ioctls then yes, it's ugly.  However, if it is a file in sysfs, for example,
-> > > then you have well-defined open(), close(), read() and write() operations
-> > > and it is assumed you will keep some context accross eg. write()s.
+> > Perhaps I'd keep it simple and leave it at
 > > 
-> > I was trying to keep kernel code simple. Yes, if we do it sysfs based,
-> > that's probably not a problem. I'm not sure if nice sysfs interface
-> > can be done without excessive ammount of code.
+> > * do hardcoded kernel action for this led
+> > 
+> > or
+> > 
+> > * do whatever userspace tells you.
+> > 
+> > That way you will not be able to remap charger LED onto hard disk
+> > indicator, but we can support that on ibm-acpi too. (Where hw controls
+> > LEDs like "sleep", but lets you control them. You can't remap,
+> > though).
 > 
-> I'm not sure either, but I'm going to try.
+> Then the arguments start about which function should be hardcoded to
+> which leds and why can't userspace access these triggers?
 
-Ok, I'm looking forward. We still have my ugly ioctls as a fallback :-).
+Because there are some machines (IBM thinkpad) where LEDs are either
+driven by userspace, or driven by hardware. I'd like to export that
+functionality using same interface.
 
-> Still first I'd like to make swsusp free only as much memory as needed
-> and not as much as possible which should improve its performance
-> quite a bit.
+> I'd prefer a totally flexible system and it doesn't really add much
+> complexity once you have a trigger framework which we're going to need
+> to handle mutiple led trigger sources sanely anyway.
 
-Yes, I'd like that patch in. It will make many people happy.
+Unfortunately hardware can not do that, at least for IBM
+thinkpad. Plus, remapping harddisk indicator on battery led is not
+something I'd like to support :-). 
+
 								Pavel
 -- 
 Thanks, Sharp!

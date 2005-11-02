@@ -1,47 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965082AbVKBPaV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965081AbVKBP3u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965082AbVKBPaV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 10:30:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965085AbVKBPaV
+	id S965081AbVKBP3u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 10:29:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965082AbVKBP3u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 10:30:21 -0500
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:12049 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S965082AbVKBPaT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 10:30:19 -0500
-To: Alex Lyashkov <umka@sevcity.net>
-Cc: Giuliano Pochini <pochini@shiny.it>, alex@alexfisher.me.uk,
-       linux-kernel@vger.kernel.org, "Jeff V. Merkey" <jmerkey@utah-nac.org>,
-       Michael Buesch <mbuesch@freenet.de>
-Subject: Re: Would I be violating the GPL?
-References: <XFMail.20051102104916.pochini@shiny.it>
-	<1130943242.3367.39.camel@berloga.shadowland>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: there's a reason it comes with a built-in psychotherapist.
-Date: Wed, 02 Nov 2005 15:29:38 +0000
-In-Reply-To: <1130943242.3367.39.camel@berloga.shadowland> (Alex Lyashkov's
- message of "2 Nov 2005 14:55:14 -0000")
-Message-ID: <87fyqfm5jx.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Wed, 2 Nov 2005 10:29:50 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:30869 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S965081AbVKBP3t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 10:29:49 -0500
+Message-ID: <4368DB5C.7070609@drzeus.cx>
+Date: Wed, 02 Nov 2005 16:29:32 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mail/News 1.4.1 (X11/20051008)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Pavel Machek <pavel@suse.cz>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp not able to stop tasks
+References: <4368BDA7.6060401@drzeus.cx> <20051102133825.GG30194@elf.ucw.cz>
+In-Reply-To: <20051102133825.GG30194@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2 Nov 2005, Alex Lyashkov moaned:
->> > So despite the fact the driver has been written in c++, it
->> > might be possible to write a usable specification.
->> 
->> Linux 2.6 doesn't accept c++, so you have to rewrite it anyway.
->> You should ask them if you can publish your own driver based
->> on infos you extract from their driver.
->> 
-> without exeption c++ code can be used at drivers.
+Pavel Machek wrote:
+> Hi!
+>
+>   
+>> I'm having problem with swsusp in the recent kernels (somewhere around 
+>> the late 2.6.14 rc:s). It says it cannot suspend all tasks:
+>>     
+>
+>   
+>> [ 7223.525225] Stopping tasks: 
+>> =======================================================================================================================================
+>> [ 7229.532506]  stopping tasks failed (1 tasks remaining)
+>> [ 7229.532529] Restarting tasks...<6> Strange, kauditd not stopped
+>>     
+>
+> What is this kauditd? Try turning auditing off in kernel config, and
+> it should go away. If it does, add try_to_freeze() at place where
+> sleep is possible into kauditd...
+>
+>   
 
-The rather important `struct class' may give you trouble there.
+That it did. And the machine suspends fine with audit removed. I'll have 
+a look at inserting those try_to_freeze().
 
--- 
-`"Gun-wielding recluse gunned down by local police" isn't the epitaph
- I want. I am hoping for "Witnesses reported the sound up to two hundred
- kilometers away" or "Last body part finally located".' --- James Nicoll
+>> Some late addition (post 2.6.14) also makes my keyboard crap out after 
+>> one of these cycles. Not sure it the TSC funkiness was present
+>> before this.
+>>     
+>
+> Is that reproducible?
+> 								Pavel
+>   
+
+Somewhat. My short test now seems to indicate that it happens about 50% 
+of the time.
+
+Rgds
+Pierre

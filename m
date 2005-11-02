@@ -1,57 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932624AbVKBIEw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932637AbVKBIHR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932624AbVKBIEw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 03:04:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932636AbVKBIEw
+	id S932637AbVKBIHR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 03:07:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932638AbVKBIHQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 03:04:52 -0500
-Received: from mail.kroah.org ([69.55.234.183]:27583 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932624AbVKBIEv (ORCPT
+	Wed, 2 Nov 2005 03:07:16 -0500
+Received: from pat.qlogic.com ([198.70.193.2]:18952 "EHLO avexch01.qlogic.com")
+	by vger.kernel.org with ESMTP id S932637AbVKBIHP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 03:04:51 -0500
-Date: Wed, 2 Nov 2005 00:03:16 -0800
-From: Greg KH <greg@kroah.com>
-To: Duncan Sands <duncan.sands@math.u-psud.fr>
-Cc: usbatm@lists.infradead.org, matthieu castet <castet.matthieu@free.fr>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [PATCH]  Eagle and ADI 930 usb adsl modem driver
-Message-ID: <20051102080316.GA17989@kroah.com>
-References: <4363F9B5.6010907@free.fr> <20051101224510.GB28193@kroah.com> <200511020854.22799.duncan.sands@math.u-psud.fr>
+	Wed, 2 Nov 2005 03:07:15 -0500
+Date: Wed, 2 Nov 2005 00:07:11 -0800
+From: Andrew Vasquez <andrew.vasquez@qlogic.com>
+To: Ashutosh Naik <ashutosh.naik@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       support@qlogic.com, akpm@osdl.org, stable@kernel.org
+Subject: Re: [PATCH] scsi - Fix Broken Qlogic ISP2x00 Device Driver
+Message-ID: <20051102080711.GB626@plapn>
+References: <81083a450511012313v25e292duf7b64da0ebf07835@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200511020854.22799.duncan.sands@math.u-psud.fr>
+In-Reply-To: <81083a450511012313v25e292duf7b64da0ebf07835@mail.gmail.com>
+Organization: QLogic Corporation
+X-Operating-System: Darwin 8.2.0 powerpc
 User-Agent: Mutt/1.5.11
+X-OriginalArrivalTime: 02 Nov 2005 08:07:14.0097 (UTC) FILETIME=[6F017210:01C5DF84]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 02, 2005 at 08:54:22AM +0100, Duncan Sands wrote:
-> > > + * sometime hotplug don't have time to give the firmware the
-> > > + * first time, retry it.
-> > > + */
-> > > +static int sleepy_request_firmware(const struct firmware **fw, 
-> > > +		const char *name, struct device *dev)
-> > > +{
-> > > +	if (request_firmware(fw, name, dev) == 0)
-> > > +		return 0;
-> > > +	msleep(1000);
-> > > +	return request_firmware(fw, name, dev);
-> > > +}
-> > 
-> > No, use the async firmware download mode instead of this.  That will
-> > solve all of your problems.
-> 
-> Hi Greg, it looks like you understand what the problem is here.  Could
-> you please explain to us lesser mortals ;)
+On Wed, 02 Nov 2005, Ashutosh Naik wrote:
 
-If you use the async mode, there is no timeout.  When userspace gets
-around to giving you the firmware, then you continue on with the rest of
-your device initialization (don't block the usb probe function though.)
+> This patch fixes the fact that although the scsi_transport_fc.h header
+> file is not included in qla_def.h, we still reference the function
+> fc_remote_port_unlock in the qlogic  ISP2x00 device driver ,
+> qla2xxx/qla_rscn.c
 
-Everyone should switch to that interface, then we would not have any
-timeout issues anymore...
+Perhaps for the stable tree (2.6.14.x) this fix is appropriate.  The
+scsi-misc-2.6.git tree already has codes which address this issue.
 
-thanks,
-
-greg k-h
+Regards,
+Andrew Vasquez

@@ -1,55 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbVKBRid@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbVKBRm1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751092AbVKBRid (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 12:38:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751266AbVKBRic
+	id S1751348AbVKBRm1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 12:42:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbVKBRm1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 12:38:32 -0500
-Received: from smtp109.sbc.mail.re2.yahoo.com ([68.142.229.96]:56992 "HELO
-	smtp109.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1751092AbVKBRic (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 12:38:32 -0500
-Message-ID: <4368F966.20901@gmail.com>
-Date: Wed, 02 Nov 2005 11:37:42 -0600
-From: Hareesh Nagarajan <hnagar2@gmail.com>
-User-Agent: Thunderbird 1.4 (X11/20050908)
-MIME-Version: 1.0
-To: Coywolf Qi Hunt <qiyong@fc-cn.com>
-CC: Linux Kernel Development <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: [PATCH] register_filesystem() must return -EEXIST if the filesystem
- with the same name is already registered
-References: <43687BE4.3000708@gmail.com> <20051102090656.GA12912@localhost.localdomain>
-In-Reply-To: <20051102090656.GA12912@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Nov 2005 12:42:27 -0500
+Received: from mivlgu.ru ([81.18.140.87]:53383 "EHLO mail.mivlgu.ru")
+	by vger.kernel.org with ESMTP id S1751348AbVKBRm1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 12:42:27 -0500
+Date: Wed, 2 Nov 2005 20:42:12 +0300
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Ilya <khext@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PAE bug in 2.4?!
+Message-Id: <20051102204212.256584e7.vsu@altlinux.ru>
+In-Reply-To: <1130946595.4434.20.camel@localhost.localdomain>
+References: <1130946595.4434.20.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.0beta4 (GTK+ 1.2.10; i586-alt-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Wed__2_Nov_2005_20_42_12_+0300_rUkl3xrs92NBhMtq"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Coywolf Qi Hunt wrote:
-> On Wed, Nov 02, 2005 at 02:42:12AM -0600, Hareesh Nagarajan wrote:
->> If we have a look at the register_filesystem() function defined in 
->> fs/filesystems.c, we see that if a filesystem with a same name has 
->> already been registered then the find_filesystem() function will return 
->> NON-NULL otherwise it will return NULL.
->>
->> Hence, register_filesystem() should return EEXIST instead of EBUSY. 
->> Returning EBUSY is misleading (unless of course I'm missing something 
->> obvious) to the caller of register_filesystem().
-> 
-> This `slot' is buy, so EBUSY makes sense. Filesytem is not file, hence
-> EEXIST doesn't apply IMHO.
+--Signature=_Wed__2_Nov_2005_20_42_12_+0300_rUkl3xrs92NBhMtq
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-Earlier this week, my calls to register_filesystem(struct 
-file_system_type * fs) were failing returning an -EBUSY. Now I didn't 
-know if it was failing because of:
-	if (fs->next)	return -EBUSY;
-Or:
-	p = find_filesystem(fs->name);
-         if (*p)	res = -EBUSY;
-	...
-	return res;
+On Wed, 02 Nov 2005 18:49:55 +0300 Ilya wrote:
 
-It is for this reason I thought it would make sense to differentiate 
-between the two points of failure.
+> I've ASUS P4P800-Mx-EAYVZ motherboard and have to use a 2GB memory. But
+> after including PAE support in kernel it almost twice... Surely, i
+> understand, that it's inevitable, the slowing of PAE, but twice?! Does
+> anybody faced this problem? Or is there some bug in PAE?! I tested the
+> PAE at some other motherboards, but only on this model on asus it works
+> strange) 
+[skip]
+> Here is the difference in kernels:
+> khext@al:~$ diff linux-2.4.31/.config linux-2.4.31-PAE/.config
+> 61,62c61,62
+> < CONFIG_NOHIGHMEM=y
+> < # CONFIG_HIGHMEM4G is not set
+> ---
+> > # CONFIG_NOHIGHMEM is not set
+> > CONFIG_HIGHMEM4G=y
+> 64c64,65
+> < # CONFIG_HIGHMEM is not set
+> ---
+> > CONFIG_HIGHMEM=y
+> > CONFIG_HIGHIO=y
 
-Hareesh Nagarajan
+CONFIG_HIGHMEM4G does not enable PAE - it is CONFIG_HIGHMEM64G which
+does it.  So the slowdown must be due to something other than PAE.
+
+Please also show the start of dmesg output - lines which look like:
+
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+ ...
+xxxMB HIGHMEM available.
+xxxMB LOWMEM available.
+
+Also show the output of "cat /proc/mtrr".  Some systems have buggy MTRR
+setup done by BIOS, which can lead to such slowness when using the full
+amount of memory.  Such problems may be fixed by a BIOS upgrade, or
+worked around by specifying the mem=... option to avoid using the memory
+which is not covered by MTTRs (if the amount of such misconfigured
+memory is not excessively large).
+
+--Signature=_Wed__2_Nov_2005_20_42_12_+0300_rUkl3xrs92NBhMtq
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFDaPp3W82GfkQfsqIRAsjLAJ9MDdXRT8RLVQpBcSQ4NCRSW1zFFgCfd3vn
+6MfENVt1PVdmztlnUYQGHzY=
+=7QXo
+-----END PGP SIGNATURE-----
+
+--Signature=_Wed__2_Nov_2005_20_42_12_+0300_rUkl3xrs92NBhMtq--

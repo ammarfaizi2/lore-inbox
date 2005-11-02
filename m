@@ -1,38 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965109AbVKBQVi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965123AbVKBQZX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965109AbVKBQVi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 11:21:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965120AbVKBQVi
+	id S965123AbVKBQZX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 11:25:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965129AbVKBQZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 11:21:38 -0500
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:11402 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S965109AbVKBQVh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 11:21:37 -0500
-Date: Wed, 2 Nov 2005 11:21:36 -0500
-To: Vladimir Lazarenko <vlad@lazarenko.net>
-Cc: Dave Jones <davej@redhat.com>,
-       Alejandro Bonilla <abonilla@linuxwireless.org>,
-       Marcel Holtmann <marcel@holtmann.org>, linux-kernel@vger.kernel.org
-Subject: Re: 4GB memory and Intel Dual-Core system
-Message-ID: <20051102162136.GB9488@csclub.uwaterloo.ca>
-References: <1130445194.5416.3.camel@blade> <52mzkuwuzg.fsf@cisco.com> <20051027204923.M89071@linuxwireless.org> <1130446667.5416.14.camel@blade> <20051027205921.M81949@linuxwireless.org> <1130447261.5416.20.camel@blade> <20051027211203.M33358@linuxwireless.org> <20051027220533.GA18773@redhat.com> <43615015.7090308@lazarenko.net>
+	Wed, 2 Nov 2005 11:25:23 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:52165 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S965123AbVKBQZW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 11:25:22 -0500
+Subject: Re: 2.6.14-rt1
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Carlos Antunes <cmantunes@gmail.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>,
+       john stultz <johnstul@us.ibm.com>, Mark Knecht <markknecht@gmail.com>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <cb2ad8b50511020807y4617c6a4pcd0ee27b635c9c34@mail.gmail.com>
+References: <20051030133316.GA11225@elte.hu>
+	 <1130900716.29788.22.camel@localhost.localdomain>
+	 <cb2ad8b50511011926w11116fdasd22227ca249f18fc@mail.gmail.com>
+	 <1130902342.29788.23.camel@localhost.localdomain>
+	 <cb2ad8b50511012005g3bc39f36odd0ae1038e2b9b52@mail.gmail.com>
+	 <20051102102116.3b0c75d1@mango.fruits.de>
+	 <cb2ad8b50511020635qb355f33w6f3638972556c242@mail.gmail.com>
+	 <20051102144015.GA19845@elte.hu>
+	 <cb2ad8b50511020645i23c164d4h7140c4c352159974@mail.gmail.com>
+	 <1130945876.29788.28.camel@localhost.localdomain>
+	 <cb2ad8b50511020807y4617c6a4pcd0ee27b635c9c34@mail.gmail.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Wed, 02 Nov 2005 11:24:41 -0500
+Message-Id: <1130948681.29788.30.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43615015.7090308@lazarenko.net>
-User-Agent: Mutt/1.5.9i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 28, 2005 at 12:09:25AM +0200, Vladimir Lazarenko wrote:
-> I have Tyan k8e which supports memory remapping. Question, however, will 
-> that work with i686-based kernel? Or do we have to switch to x86_64?
+On Wed, 2005-11-02 at 11:07 -0500, Carlos Antunes wrote:
 
-I suspect with PAE it will still work yes.  I haven't tried it of course
-(I don't have that much ram).  It will still have the PAE performance
-hit on memory access to memory past 4GB just because that's what PAE
-does.
+> >
+> > Now could you post/send your CONFIG_FILE. I'm currently getting a test
+> > machine ready to run your program.
+> >
+> 
+> Given rt3 changes, do you still need my config?
 
-Len Sorensen
+Nope,
+
+So Ingo,  what did you fix?  :)  (since now it's also at -rt4)
+
+-- Steve
+

@@ -1,36 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751474AbVKBDzR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751486AbVKBEAj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751474AbVKBDzR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 22:55:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751486AbVKBDzQ
+	id S1751486AbVKBEAj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 23:00:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751487AbVKBEAj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 22:55:16 -0500
-Received: from c-24-14-93-109.hsd1.il.comcast.net ([24.14.93.109]:61087 "EHLO
-	topaz") by vger.kernel.org with ESMTP id S1751474AbVKBDzP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 22:55:15 -0500
-From: Narayan Desai <desai@mcs.anl.gov>
-To: linux-kernel@vger.kernel.org
-Subject: alsa 2.6.14 record problem
-Date: Tue, 01 Nov 2005 21:55:11 -0600
-Message-ID: <87d5ljpuu8.fsf@topaz.mcs.anl.gov>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) XEmacs/21.4.17 (linux)
+	Tue, 1 Nov 2005 23:00:39 -0500
+Received: from pacific.moreton.com.au ([203.143.235.130]:29966 "EHLO
+	cyberguard.com.au") by vger.kernel.org with ESMTP id S1751486AbVKBEAi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 23:00:38 -0500
+Message-ID: <43683A03.9010104@snapgear.com>
+Date: Wed, 02 Nov 2005 14:01:07 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH]: linux-2.6.14-uc0 (MMU-less support)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi. I am running 2.6.14 on a shuttle sn41g2. I have a bttv card setup
-with a cable connection into the cd input on the nforce audio. I
-upgraded from 2.4.30 directly to 2.6.14. This included the switch from
-OSS to ALSA. This setup previously worked with mythtv flawlessly. 
 
-After the upgrade, (now using snd_intel8x0) recording from /dev/dsp
-works fine, except if I have audio playing at the same
-time. Recordings made while audio playing have the correct audio on
-the left channel, but the right channel includes whatever was being
-played during recording.
+Hi All,
 
-Is this a driver bug or do I have alsa mixer settings wrong? This
-seems like a odd occurrence, even with mixer settings wrong.
- -nld
+An update of the uClinux (MMU-less) fixups against 2.6.14.
+
+Some new platform support, for the 5207/5208 ColdFire parts.
+A few bug fixes and some other minor cleanups.
+
+http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.14-uc0.patch.gz
+
+
+Change log:
+
+. merge with 2.6.14                             <gerg@uclinux.org>
+. remove some MAGIC_ROM_PTR code                <gerg@uclinux.org>
+. ColdFire 5208 support                         Matt Wadell
+. fix module loading                            <gerg@uclinux.org>
+. re-order FEC ethernet init sequence           <gerg@uclinux.org>
+. FEC ethernet phy and restart fixes            Philippe De Muyter
+. change names "Motorola" -> "Freescale"        <gerg@uclinux.org>
+. remove generated asm-offsets.h file           <gerg@uclinux.org>
+. remove unmaintained asm-m68knommu/ide.h       <gerg@uclinux.org>
+. change "extern inline" -> "static inline"     Adrian Bunk
+
+
+Regards
+Greg
+
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
+SnapGear -- a CyberGuard Company            PHONE:       +61 7 3435 2888
+825 Stanley St,                             FAX:         +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com
+
+
+
+
+

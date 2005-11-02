@@ -1,43 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965138AbVKBRQ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965140AbVKBR0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965138AbVKBRQ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 12:16:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965139AbVKBRQ0
+	id S965140AbVKBR0p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 12:26:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965141AbVKBR0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 12:16:26 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:34724 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S965138AbVKBRQZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 12:16:25 -0500
-Subject: Re: [-mm patch] EDAC: remove proc_ent from struct mem_ctl_info
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051102162421.GJ8009@stusta.de>
-References: <20051024014838.0dd491bb.akpm@osdl.org>
-	 <20051102162421.GJ8009@stusta.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 02 Nov 2005 17:44:13 +0000
-Message-Id: <1130953454.2432.29.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 2 Nov 2005 12:26:45 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:64262 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S965140AbVKBR0o
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 12:26:44 -0500
+To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Cc: "Alex Lyashkov" <umka@sevcity.net>, "Giuliano Pochini" <pochini@shiny.it>,
+       <alex@alexfisher.me.uk>, <linux-kernel@vger.kernel.org>,
+       "Jeff V. Merkey" <jmerkey@utah-nac.org>,
+       "Michael Buesch" <mbuesch@freenet.de>
+Subject: Re: Would I be violating the GPL?
+References: <XFMail.20051102104916.pochini@shiny.it>
+	<1130943242.3367.39.camel@berloga.shadowland>
+	<87fyqfm5jx.fsf@amaterasu.srvr.nix>
+	<Pine.LNX.4.61.0511021108410.15964@chaos.analogic.com>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: Lovecraft was an optimist.
+Date: Wed, 02 Nov 2005 17:26:17 +0000
+In-Reply-To: <Pine.LNX.4.61.0511021108410.15964@chaos.analogic.com> (linux-os@analogic.com's
+ message of "Wed, 2 Nov 2005 11:16:03 -0500")
+Message-ID: <87br13m05i.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-11-02 at 17:24 +0100, Adrian Bunk wrote:
-> While fixing a compile error with CONFIG_PROC_FS=n in the EDAC code, I 
-> discovered that the proc_ent member of struct mem_ctl_info is only used 
-> in a debug printk.
-> 
-> Is this patch to remove proc_ent OK?
+On Wed, 2 Nov 2005, linux-os@analogic.com announced authoritatively:
+> 2. New and delete are a bitch.
 
-Looks sane to me. 
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+s/a bitch/trivial/
 
-Acked-by: Alan Cox <alan@redhat.com>
+they're wrappers around the appropriate kernel memory allocators.
 
+> 3. Link will fail because of the hidden stuff C++ needs that it
+>     can't find. Okay, just generate some dummy symbols in asm,
+>     all pointing to the same junk.
 
+Obviously if you try using EH it will always crash hard. That
+would be really stupid.
 
+> 4. Once you got it to load, gigantic stack usage will crash.
+
+Er, C++ does not imply `gigantic stack usage'.
+
+However, C++ *will* be discomfited by `struct class', and unless you
+want to rule out use of sysfs you're going to have to use it at some
+point. And *that* is a bit of a killer unless you want to write half
+your app in C and half in C++, which is getting a bit silly.
+
+> So much for C++. Just use C. He probably didn't remember that
+> it's a simpler variant.
+
+It's a quite different language which happens to share a lot of ancestry
+with C, and which happens to make link-time compatibility with C fairly
+easy. Therefore it looks fairly similar; but it is *not* that similar,
+not any more. Good C code and good C++ code look utterly different,
+and good C++ code probably has no place in the kernel (making, as it
+does, heavy use of the templated standard C++ library).
+
+But, no, it doesn't belong in the kernel. (If you're writing a
+filesystem, though, filesystem drivers in C++ --- or, for that matter,
+Perl, Java or Haskell --- are quite practicable, thanks to the merging
+of FUSE.)
+
+-- 
+`"Gun-wielding recluse gunned down by local police" isn't the epitaph
+ I want. I am hoping for "Witnesses reported the sound up to two hundred
+ kilometers away" or "Last body part finally located".' --- James Nicoll

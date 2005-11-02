@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965259AbVKBVcx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965258AbVKBVdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965259AbVKBVcx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 16:32:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965258AbVKBVcw
+	id S965258AbVKBVdj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 16:33:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965260AbVKBVdj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 16:32:52 -0500
-Received: from mx01.stofanet.dk ([212.10.10.11]:59789 "EHLO mx01.stofanet.dk")
-	by vger.kernel.org with ESMTP id S965254AbVKBVcw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 16:32:52 -0500
-Message-ID: <43692FBB.1000409@stud.feec.vutbr.cz>
-Date: Wed, 02 Nov 2005 22:29:31 +0100
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bill Moss <bmoss@CLEMSON.EDU>
-CC: linville@tuxdriver.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.13] airo.c: remove delay in airo_get_scan
-References: <200511020347.jA23lvi9028538@localhost.localdomain>
-In-Reply-To: <200511020347.jA23lvi9028538@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Nov 2005 16:33:39 -0500
+Received: from metis.extern.pengutronix.de ([83.236.181.26]:14796 "EHLO
+	metis.extern.pengutronix.de") by vger.kernel.org with ESMTP
+	id S965258AbVKBVdi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 16:33:38 -0500
+Date: Wed, 2 Nov 2005 22:33:54 +0100
+From: Robert Schwebel <robert@schwebel.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Robert Schwebel <r.schwebel@pengutronix.de>, vojtech@suse.cz,
+       rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: Re: best way to handle LEDs
+Message-ID: <20051102213354.GO23316@pengutronix.de>
+References: <20051101234459.GA443@elf.ucw.cz> <20051102202622.GN23316@pengutronix.de> <20051102211334.GH23943@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <20051102211334.GH23943@elf.ucw.cz>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Moss wrote:
-> Remove 3 second delay in airo_get_scan. Testing shows this delay is unnecessary. Users of NetworkManager
-> find this delay make NetworkManager slow to connect.
-> 
-> --- a/drivers/net/wireless/airo.c	2005-11-01 21:21:04.000000000 -0500
-> +++ b/drivers/net/wireless/airo.c	2005-11-01 21:22:41.000000000 -0500
-> @@ -6918,7 +6918,7 @@
->  	/* When we are associated again, the scan has surely finished.
->  	 * Just in case, let's make sure enough time has elapsed since
->  	 * we started the scan. - Javier */
-> -	if(ai->scan_timestamp && time_before(jiffies,ai->scan_timestamp+3*HZ)) {
-> +	if(ai->scan_timestamp && time_before(jiffies,ai->scan_timestamp)) {
->  		/* Important note : we don't want to block the caller
->  		 * until results are ready for various reasons.
->  		 * First, managing wait queues is complex and racy
-> 
-> Signed-off-by: Bill Moss <bmoss@clemson.edu>
+On Wed, Nov 02, 2005 at 10:13:34PM +0100, Pavel Machek wrote:
+> We have some leds that are *not* on GPIO pins (like driven by
+> ACPI). We'd like to support those, too.
 
-With this change, the time_before() test can't possibly succeed, can it? 
-In that case, why not remove the if and its body completely?
+One more argument to have a LED framework which sits ontop of a lowlevel
+one. 
 
-Michal
+Robert
+-- 
+ Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
+   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
+     Hannoversche Str. 2, 31134 Hildesheim, Germany
+   Phone: +49-5121-206917-0 |  Fax: +49-5121-206917-9
+

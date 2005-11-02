@@ -1,77 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965057AbVKBPCL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965070AbVKBPCi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965057AbVKBPCL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 10:02:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965069AbVKBPCL
+	id S965070AbVKBPCi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 10:02:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965069AbVKBPCi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 10:02:11 -0500
-Received: from dvhart.com ([64.146.134.43]:26795 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S965057AbVKBPCK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 10:02:10 -0500
-Date: Wed, 02 Nov 2005 07:02:03 -0800
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>, Dave Hansen <haveblue@us.ibm.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Mel Gorman <mel@csn.ul.ie>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+	Wed, 2 Nov 2005 10:02:38 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:56963 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S965070AbVKBPCh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 10:02:37 -0500
+To: Ingo Molnar <mingo@elte.hu>
+cc: Kamezawa Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       Dave Hansen <haveblue@us.ibm.com>, Mel Gorman <mel@csn.ul.ie>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
        kravetz@us.ibm.com, linux-mm <linux-mm@kvack.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>,
-       Arjan van de Ven <arjanv@infradead.org>
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-Message-ID: <255360000.1130943722@[10.10.2.4]>
-In-Reply-To: <43688B74.20002@yahoo.com.au>
-References: <4366C559.5090504@yahoo.com.au>	 <Pine.LNX.4.58.0511010137020.29390@skynet> <4366D469.2010202@yahoo.com.au>	 <Pine.LNX.4.58.0511011014060.14884@skynet> <20051101135651.GA8502@elte.hu>	 <1130854224.14475.60.camel@localhost> <20051101142959.GA9272@elte.hu>	 <1130856555.14475.77.camel@localhost> <20051101150142.GA10636@elte.hu>	 <1130858580.14475.98.camel@localhost> <20051102084946.GA3930@elte.hu>	 <436880B8.1050207@yahoo.com.au> <1130923969.15627.11.camel@localhost> <43688B74.20002@yahoo.com.au>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+       lhms <lhms-devel@lists.sourceforge.net>
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19 
+In-reply-to: Your message of Wed, 02 Nov 2005 13:00:48 +0100.
+             <20051102120048.GA10081@elte.hu> 
+Date: Wed, 02 Nov 2005 07:02:23 -0800
+Message-Id: <E1EXK87-0008JB-00@w-gerrit.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I agree enough on concept that I think we can go implement at least a
->> demonstration of how easy it is to perform.
->> 
->> There are a couple of implementation details that will require some
->> changes to the current zone model, however.  Perhaps you have some
->> suggestions on those.
->> 
->> In which zone do we place hot-added RAM?  I don't think answer can
->> simply be the HOTPLUGGABLE zone.  If you start with sufficiently small
->> of a machine, you'll degrade into the same horrible HIGHMEM behavior
->> that a 64GB ia32 machine has today, despite your architecture.  Think of
->> a machine that starts out with a size of 256MB and grows to 1TB.
->> 
-> 
-> What can we do reasonably sanely? I think we can drive about 16GB of
-> highmem per 1GB of normal fairly well. So on your 1TB system, you
-> should be able to unplug 960GB RAM.
 
-I think you need to talk to some more users trying to run 16GB ia32
-systems. Feel the pain.
+On Wed, 02 Nov 2005 13:00:48 +0100, Ingo Molnar wrote:
+> 
+> * Gerrit Huizenga <gh@us.ibm.com> wrote:
+> 
+> > 
+> > On Wed, 02 Nov 2005 11:41:31 +0100, Ingo Molnar wrote:
+> > > 
+> > > * Gerrit Huizenga <gh@us.ibm.com> wrote:
+> > > 
+> > > > > generic unpluggable kernel RAM _will not work_.
+> > > > 
+> > > > Actually, it will.  Well, depending on terminology.
+> > > 
+> > > 'generic unpluggable kernel RAM' means what it says: any RAM seen by the 
+> > > kernel can be unplugged, always. (as long as the unplug request is 
+> > > reasonable and there is enough free space to migrate in-use pages to).
+> >  
+> >  Okay, I understand your terminology.  Yes, I can not point to any
+> >  particular piece of memory and say "I want *that* one" and have that
+> >  request succeed.  However, I can say "find me 50 chunks of memory
+> >  of your choosing" and have a very good chance of finding enough
+> >  memory to satisfy my request.
+> 
+> but that's obviously not 'generic unpluggable kernel RAM'. It's very 
+> special RAM: RAM that is free or easily freeable. I never argued that 
+> such RAM is not returnable to the hypervisor.
  
-> Lower the ratio to taste if you happen to be doing something
-> particularly zone normal intensive - remember in that case the frag
-> patches won't buy you anything more because a zone normal intensive
-> workload is going to cause unreclaimable regions by definition.
-> 
->> So, if you have to add to NORMAL/DMA on the fly, how do you handle a
->> case where the new NORMAL/DMA ram is physically above
->> HIGHMEM/HOTPLUGGABLE?  Is there any other course than to make a zone
->> required to be able to span other zones, and be noncontiguous?  Would
->> that represent too much of a change to the current model?
->> 
-> 
-> Perhaps. Perhaps it wouldn't be required to get a solution that is
-> "good enough" though.
-> 
-> But if you can reclaim your ZONE_RECLAIMABLE, then you could reclaim
-> it all and expand your normal zones into it, bottom up.
+ Okay - and 'generic unpluggable kernel RAM' has not been a goal for
+ the hypervisor based environments.  I believe it is closer to being
+ a goal for those machines which want to hot-remove DIMMs or physical
+ memory, e.g. those with IA64 machines wishing to remove entire nodes.
 
-Can we quit coming up with specialist hacks for hotplug, and try to solve
-the generic problem please? hotplug is NOT the only issue here. Fragmentation
-in general is.
+> > > reliable unmapping of "generic kernel RAM" is not possible even in a 
+> > > virtualized environment. Think of the 'live pointers' problem i outlined 
+> > > in an earlier mail in this thread today.
+> > 
+> >  Yeah - and that isn't what is being proposed here.  The goal is to 
+> >  ask the kernel to identify some memory which can be legitimately 
+> >  freed and hasten the freeing of that memory.
+> 
+> but that's very easy to identify: check the free list or the clean 
+> list(s). No defragmentation necessary. [unless the unit of RAM mapping 
+> between hypervisor and guest is too coarse (i.e. not 4K pages).]
 
+ Ah, but the hypervisor often manages large page sizes, e.g. 64 MB.
+ It doesn't manage page rights for each guest OS at the 4 K granularity.
+ Hypervisors are theoretically light in terms of memory needs and
+ general footprint.  Picture the overhead of tracking rights/permissions
+ of each page of memory and its assignment to any of, say, 256 different
+ guest operating systems.  For a machine of any size, that would be
+ a huge amount of state for a hypervisor to maintain.  Would you
+ really want a hypervisor to keep that much state?  Or is it more
+ reasonably for a hypervisor to track, say, 64 MB chunks and the
+ rights of that memory for a number of guest operating systems?  Even
+ if the number of guests is small, the data structures for fast
+ memory management would grow quickly.
 
+gerrit

@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932625AbVKBHdF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932607AbVKBHkb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932625AbVKBHdF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 02:33:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932637AbVKBHdE
+	id S932607AbVKBHkb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 02:40:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932623AbVKBHkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 02:33:04 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:26056 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932626AbVKBHdD (ORCPT
+	Wed, 2 Nov 2005 02:40:31 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:46002 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932607AbVKBHka (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 02:33:03 -0500
-Date: Wed, 2 Nov 2005 02:32:51 -0500
-From: Dave Jones <davej@redhat.com>
-To: Rob Landley <rob@landley.net>
-Cc: Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: echo 0 > /proc/sys/vm/swappiness triggers OOM killer under 2.6.14.
-Message-ID: <20051102073251.GB23297@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Rob Landley <rob@landley.net>, Robert Hancock <hancockr@shaw.ca>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <53vpu-s9-17@gated-at.bofh.it> <4366E99D.7070606@shaw.ca> <200511010237.01737.rob@landley.net>
+	Wed, 2 Nov 2005 02:40:30 -0500
+Date: Wed, 2 Nov 2005 17:40:20 +1100
+From: Andrew Morton <akpm@osdl.org>
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] slob: move kstrdup to lib/string.c
+Message-Id: <20051102174020.37da0396.akpm@osdl.org>
+In-Reply-To: <20051102070337.GC4367@waste.org>
+References: <2.494767362@selenic.com>
+	<20051102170053.1c120a03.akpm@osdl.org>
+	<20051102070337.GC4367@waste.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200511010237.01737.rob@landley.net>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 01, 2005 at 02:37:01AM -0600, Rob Landley wrote:
+Matt Mackall <mpm@selenic.com> wrote:
+>
+> On Wed, Nov 02, 2005 at 05:00:53PM +1100, Andrew Morton wrote:
+> > Matt Mackall <mpm@selenic.com> wrote:
+> > >
+> > > This move kstrdup to lib/string.c
+> > 
+> > The placement in slab.c was deliberate.  Putting it in lib/string.c breaks
+> > ppc32.
+> > 
+> > ppc32 is reusing lib/string.c to build early userspace or something
+> > like that, and calling kmalloc from there broke stuff.
+> 
+> That doesn't sound kosher, have a pointer?
+> 
 
-
- > oom-killer: gfp_mask=0x400d2, order=0
-
-something explicitly asked for a highmem page.
-
- > 0 pages of HIGHMEM
-
-You don't have any.
-
-Calling the oom-killer in this situation seems drastic though.
-
-		Dave
-
+http://lkml.org/lkml/2005/4/8/128

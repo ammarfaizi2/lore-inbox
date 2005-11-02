@@ -1,37 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbVKBCqH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbVKBCsu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932227AbVKBCqH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 21:46:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbVKBCqH
+	id S932234AbVKBCsu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 21:48:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbVKBCsu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 21:46:07 -0500
-Received: from ozlabs.org ([203.10.76.45]:26599 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932227AbVKBCqG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 21:46:06 -0500
+	Tue, 1 Nov 2005 21:48:50 -0500
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:64131 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932234AbVKBCst (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Tue, 1 Nov 2005 21:48:49 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=wlM4/TvL2DRPpGbu+/1+i9Xo2JE14wvN5ZveJXeX4eqYAjdchtel6qhXkKx4eDA0kgiWjlhvb16cF5XZMw1P1mqJGcNgOMk4CFKBovM3rjbye9u6/OX29BSG2Dg9Cgd8LdGT5pdwFqCxV8+6YoqFVL8jqJTgY8P2FH0Aloq7xOI=  ;
+Message-ID: <43682878.3040800@yahoo.com.au>
+Date: Wed, 02 Nov 2005 13:46:16 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Li, Shaohua" <shaohua.li@intel.com>
+CC: Andrew Morton <akpm@osdl.org>, Nigel Cunningham <ncunningham@cyclades.com>,
+       Srivatsa Vaddagiri <vatsa@in.ibm.com>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
+       Ian Molton <spyro@f2s.com>
+Subject: Re: [PATCH 2.6.14-rc1-git5] sched: disable preempt in idle tasks
+References: <59D45D057E9702469E5775CBB56411F1C19A01@pdsmsx406>
+In-Reply-To: <59D45D057E9702469E5775CBB56411F1C19A01@pdsmsx406>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17256.10342.228209.745529@cargo.ozlabs.ibm.com>
-Date: Wed, 2 Nov 2005 13:45:58 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ppc bug.h namespace pollution
-In-Reply-To: <20051101151716.GY7992@ftp.linux.org.uk>
-References: <20051101151716.GY7992@ftp.linux.org.uk>
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro writes:
 
-> 	DATA_TYPE is really not a good thing to put into header that
-> gets included all over the tree...
+Hi Shaohua,
 
-Very true.  However, I don't see any reason why the cast shouldn't
-just be (long) on both 32-bit and 64-bit, so we can get rid of that
-define altogether.
+Li, Shaohua wrote:
 
-Paul.
+> 
+> What's the status of the patch? I didn't see it in base kernel.
+> We found another bug related with this issue. On UP system, if a CPU
+> enters 
+> 'mwait_idle', it never leaves it, as the 'mwait_idle' loop will never
+> end.
+> Disabling preempt fixes the bug. Should I submit a patch just disabling
+> preempt in 'mwait_idle' or wait for your patch?
+> 
+
+The patch is in Andrew's tree, and it should get merged for 2.6.15.
+If you have verified that disabling preempt in mwait_idle fixes the
+bug, then you may like to send that to the 2.6.14.stable guys.
+
+Thanks,
+Nick
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

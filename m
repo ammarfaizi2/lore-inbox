@@ -1,65 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965308AbVKBWZV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965312AbVKBW2o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965308AbVKBWZV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 17:25:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965309AbVKBWZV
+	id S965312AbVKBW2o (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 17:28:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965313AbVKBW2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 17:25:21 -0500
-Received: from gate.crashing.org ([63.228.1.57]:41652 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S965308AbVKBWZU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 17:25:20 -0500
-Subject: Re: Nick's core remove PageReserved broke vmware...
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0511022157130.18559@goblin.wat.veritas.com>
-References: <4367C25B.7010300@vc.cvut.cz> <4368097A.1080601@yahoo.com.au>
-	 <4368139A.30701@vc.cvut.cz>
-	 <Pine.LNX.4.61.0511021208070.7300@goblin.wat.veritas.com>
-	 <1130965454.20136.50.camel@gaston>
-	 <Pine.LNX.4.61.0511022112530.18174@goblin.wat.veritas.com>
-	 <1130967936.20136.65.camel@gaston>
-	 <Pine.LNX.4.61.0511022157130.18559@goblin.wat.veritas.com>
-Content-Type: text/plain
-Date: Thu, 03 Nov 2005 09:22:10 +1100
-Message-Id: <1130970131.20136.73.camel@gaston>
+	Wed, 2 Nov 2005 17:28:44 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:38443 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S965312AbVKBW2n
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 17:28:43 -0500
+Date: Wed, 2 Nov 2005 23:31:08 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: David Lang <david.lang@digitalinsight.com>
+Cc: Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Roland Dreier <rolandd@cisco.com>, Andrew Morton <akpm@osdl.org>,
+       zippel@linux-m68k.org, ak@suse.de, rmk+lkml@arm.linux.org.uk,
+       tony.luck@gmail.com, paolo.ciarrocchi@gmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: New (now current development process)
+Message-ID: <20051102223108.GA20416@mars.ravnborg.org>
+References: <Pine.LNX.4.64.0510311611540.27915@g5.osdl.org> <20051031163408.41a266f3.akpm@osdl.org> <52y847abjm.fsf@cisco.com> <Pine.LNX.4.64.0511012142200.27915@g5.osdl.org> <52u0eva8yu.fsf@cisco.com> <Pine.LNX.4.64.0511012203370.27915@g5.osdl.org> <52ll07a844.fsf@cisco.com> <Pine.LNX.4.64.0511020746330.27915@g5.osdl.org> <20051102174852.GB1899@redhat.com> <Pine.LNX.4.62.0511021207550.2820@qynat.qvtvafvgr.pbz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0511021207550.2820@qynat.qvtvafvgr.pbz>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-02 at 22:02 +0000, Hugh Dickins wrote:
+> I used to compile with Os on all my kernels, but when the alignment 
+> settings got added to the embedded section a few kernels ago and I saw 
+> that they all default to 0 (no alignment) it scared me off
 
-> I wish everyone else would see it that way!  (But some people do
-> have valid scenarios where it can't just be ruled out completely.)
+Alignment settings in the EMBEDDED menu are ignored if set to 0, in
+other words setting alignment to 0 in Kconfig will fall back to
+compilers default values.
 
-Hehe, well, in my case it's not one, at least not yet :)
+Thats also documented in the help for the config options.
 
-> > > Take a look at Andrew's educational comment on set_page_dirty_lock
-> > > in mm/page-writeback.c.  You do have the list of pages you need to
-> > > page_cache_release, don't you?  So it should be easy to dirty them.
-> > 
-> > Ok, so just passing 'write' to get_user_pages() is good enough; right ?
-> 
-> Not quite, I think: you need to pass 'write' to get_user_pages()
-> initially; but at the end, if it was indeed writing into user space,
-> you need to do the set_page_dirty_lock thing on each of the pages
-> before page_cache_release, just in case a race cleaned them before
-> the DMA completed.  I think (I've never used it myself).
-
-Oh, I see... I can't prevent them from being cleaned during the DMA
-then... Ok, will do that.
-
-Also, what do you suggest as a good threshold to use on the max amount
-of memory I can let the X server "pin" that way ? I was thinking it as
-equivalent to mlock, thus I could maybe hijack mm->locked_vm & use
-RLIMIT_MEMLOCK or is that too gross ?
-
-Ben.
-
-
-
+	Sam

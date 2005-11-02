@@ -1,64 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932587AbVKBLW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932590AbVKBLVt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932587AbVKBLW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 06:22:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932591AbVKBLW0
+	id S932590AbVKBLVt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 06:21:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932587AbVKBLVt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 06:22:26 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:928 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S932587AbVKBLWZ (ORCPT
+	Wed, 2 Nov 2005 06:21:49 -0500
+Received: from smtp3.pp.htv.fi ([213.243.153.36]:43747 "EHLO smtp3.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S932586AbVKBLVs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 06:22:25 -0500
-Date: Wed, 2 Nov 2005 11:22:06 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Dave Hansen <haveblue@us.ibm.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       kravetz@us.ibm.com, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-In-Reply-To: <43680923.1040007@jp.fujitsu.com>
-Message-ID: <Pine.LNX.4.58.0511021121220.5235@skynet>
-References: <4366A8D1.7020507@yahoo.com.au> <Pine.LNX.4.58.0510312333240.29390@skynet>
- <4366C559.5090504@yahoo.com.au> <Pine.LNX.4.58.0511010137020.29390@skynet>
- <4366D469.2010202@yahoo.com.au> <Pine.LNX.4.58.0511011014060.14884@skynet>
- <20051101135651.GA8502@elte.hu> <1130854224.14475.60.camel@localhost>
- <20051101142959.GA9272@elte.hu> <1130856555.14475.77.camel@localhost>
- <20051101150142.GA10636@elte.hu> <43679C69.6050107@jp.fujitsu.com>
- <Pine.LNX.4.58.0511011708000.14884@skynet> <43680923.1040007@jp.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 2 Nov 2005 06:21:48 -0500
+Date: Wed, 2 Nov 2005 13:21:46 +0200
+From: Paul Mundt <lethal@linux-sh.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH consolidate sys_ptrace
+Message-ID: <20051102112146.GB14639@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	Christoph Hellwig <hch@lst.de>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+References: <20051101050900.GA25793@lst.de> <20051101051221.GA26017@lst.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="s/l3CgOIzMHHjg/5"
+Content-Disposition: inline
+In-Reply-To: <20051101051221.GA26017@lst.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Nov 2005, KAMEZAWA Hiroyuki wrote:
 
-> Mel Gorman wrote:
-> > 3. When adding a node that must be removable, make the array look like
-> > this
-> >
-> > int fallback_allocs[RCLM_TYPES-1][RCLM_TYPES+1] = {
-> >         {RCLM_NORCLM,   RCLM_TYPES,    RCLM_TYPES,  RCLM_TYPES, RCLM_TYPES},
-> >         {RCLM_EASY,     RCLM_FALLBACK, RCLM_NORCLM, RCLM_KERN, RCLM_TYPES},
-> >         {RCLM_KERN,     RCLM_TYPES,    RCLM_TYPES,  RCLM_TYPES, RCLM_TYPES},
-> > };
-> >
-> > The effect of this is only allocations that are easily reclaimable will
-> > end up in this node. This would be a straight-forward addition to build
-> > upon this set of patches. The difference would only be visible to
-> > architectures that cared.
-> >
-> Thank you for illustration.
-> maybe fallback_list per pgdat/zone is what I need with your patch.  right ?
->
+--s/l3CgOIzMHHjg/5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-With my patch, yes. With zones, you need to change how zonelists are built
-for each node.
+On Tue, Nov 01, 2005 at 06:12:21AM +0100, Christoph Hellwig wrote:
+> On Tue, Nov 01, 2005 at 06:09:00AM +0100, Christoph Hellwig wrote:
+> > Some architectures have a too different ptrace so we have to exclude
+> > them.  They continue to keep their implementations.  For sh64 I had to
+> > add a sh64_ptrace wrapper because it does some initialization on the
+> > first call.  For um I removed an ifdefed SUBARCH_PTRACE_SPECIAL block,
+> > but SUBARCH_PTRACE_SPECIAL isn't defined anywhere in the tree.
+>=20
+> Umm, it might be a good idea to actually send the current patch instead
+> of the old one.  I really should write this text from scratch instead
+> of copying it :)
+>=20
+>=20
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+>=20
+sh and sh64 bits look fine, thanks.
 
--- 
-Mel Gorman
-Part-time Phd Student                          Java Applications Developer
-University of Limerick                         IBM Dublin Software Lab
+Acked-by: Paul Mundt <lethal@linux-sh.org>
+
+--s/l3CgOIzMHHjg/5
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDaKFJ1K+teJFxZ9wRAu/kAJ4+xE34Y9SpqHD1mwAwv1P1YO4vuwCfcWzM
+1YYaghhmIfXY0dwXbb/S+eg=
+=7bi9
+-----END PGP SIGNATURE-----
+
+--s/l3CgOIzMHHjg/5--

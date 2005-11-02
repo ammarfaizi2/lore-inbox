@@ -1,61 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965267AbVKBVsq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965278AbVKBVzw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965267AbVKBVsq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 16:48:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965277AbVKBVsq
+	id S965278AbVKBVzw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 16:55:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965284AbVKBVzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 16:48:46 -0500
-Received: from gate.crashing.org ([63.228.1.57]:2740 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S965267AbVKBVsp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 16:48:45 -0500
-Subject: Re: Nick's core remove PageReserved broke vmware...
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0511022112530.18174@goblin.wat.veritas.com>
-References: <4367C25B.7010300@vc.cvut.cz> <4368097A.1080601@yahoo.com.au>
-	 <4368139A.30701@vc.cvut.cz>
-	 <Pine.LNX.4.61.0511021208070.7300@goblin.wat.veritas.com>
-	 <1130965454.20136.50.camel@gaston>
-	 <Pine.LNX.4.61.0511022112530.18174@goblin.wat.veritas.com>
-Content-Type: text/plain
-Date: Thu, 03 Nov 2005 08:45:36 +1100
-Message-Id: <1130967936.20136.65.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Nov 2005 16:55:52 -0500
+Received: from zproxy.gmail.com ([64.233.162.200]:63838 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965278AbVKBVzv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 16:55:51 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=B9+YQIPGy3e0iZEJqEvs9zNzrQBhd1oalo5cnaYhtiAaYsUjxj67G81d1hb0u4Vh8sOmlYKNyTEtocvYzmLdn2m60StgEe1lM1yv1IkRk6mc9C6ppyQfshoatuFZLh84/xPzaVCXuUq7xUCTVS973BPRB8CBeEfYw6dG6+EYuTI=
+Message-ID: <39e6f6c70511021355i52aff7e4n19ca4c1e24b21bb7@mail.gmail.com>
+Date: Wed, 2 Nov 2005 19:55:50 -0200
+From: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>
+To: Yan Zheng <yanzheng@21cn.com>
+Subject: Re: [PATCH][MCAST]IPv6: small fix for ip6_mc_msfilter(...)
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       David Stevens <dlstevens@us.ibm.com>
+In-Reply-To: <4367FF22.3030601@21cn.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <OF395F8772.5B834BF9-ON882570AC.0075ACD7-882570AC.0075DC3C@us.ibm.com>
+	 <4367FF22.3030601@21cn.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-02 at 21:41 +0000, Hugh Dickins wrote:
+On 11/1/05, Yan Zheng <yanzheng@21cn.com> wrote:
+> David Stevens wrote:
+> > Yan,
+> >         Please also make this equivalent change in IPv4 with
+> > ip_mc_msfilter() and ip_mc_add_src().
+> >
+> >                                                 +-DLS
+> >
+> > Acked-by: David L Stevens <dlstevens@us.ibm.com>
+>
+> To keep code style, I also create a new patch for IPv6. :-)
+>
+> Signed-off-by: Yan Zheng <yanzheng@21cn.com>
+>
+> Patch for IPv4
+> Index:net/ipv4/igmp.c
+> ============================================================
+> --- linux-2.6.14/net/ipv4/igmp.c        2005-10-28 08:02:08.000000000 +0800
+> +++ linux/net/ipv4/igmp.c       2005-11-02 07:31:01.000000000 +0800
+> @@ -1908,8 +1908,11 @@ int ip_mc_msfilter(struct sock *sk, stru
+>                         sock_kfree_s(sk, newpsl, IP_SFLSIZE(newpsl->sl_max));
+>                         goto done;
+>                 }
+> -       } else
+> +       } else {
+>                 newpsl = NULL;
+> +               (void) ip_mc_add_src(in_dev, &msf->imsf_multiaddr,
+> +                       msf->imsf_fmode, 0, NULL, 0)
 
-> The only extant problem here is if the pages are private, and you
-> fork while this is going on, and the parent user process writes to the
-> area before completion: then COW leaves the child with the page being
-> DMAed into, giving the parent a copied page which may be incomplete.
+Could you please compile test it next time :-) hint, missing ';'.
+Anyway, fixed up by hand.
 
-Won't happen, and if it does, it's a user error to rely on that working,
-so it doesn't matter.
-
-> It's important that any necessary COW be done at get_user_pages time,
-> if there's any possibility that you'll be DMAing into them.  So when
-> in doubt, call it for write access.
-
-True, I forgot about COW... it still annoys me to mark dirty pages that
-may not be in the end... but hell, the main usefulness of this DMA stuff
-is DMA to memory anyway (AGP is good enough for the other direction most
-of the time).
-
-> Take a look at Andrew's educational comment on set_page_dirty_lock
-> in mm/page-writeback.c.  You do have the list of pages you need to
-> page_cache_release, don't you?  So it should be easy to dirty them.
-
-Ok, so just passing 'write' to get_user_pages() is good enough; right ?
-
-Thanks,
-Ben.
-
-
+- Arnaldo

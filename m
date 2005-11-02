@@ -1,93 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932662AbVKBI47@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932643AbVKBJHH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932662AbVKBI47 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 03:56:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932666AbVKBI47
+	id S932643AbVKBJHH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 04:07:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932666AbVKBJHH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 03:56:59 -0500
-Received: from mail9.messagelabs.com ([194.205.110.133]:28816 "HELO
-	mail9.messagelabs.com") by vger.kernel.org with SMTP
-	id S932662AbVKBI47 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 03:56:59 -0500
-X-VirusChecked: Checked
-X-Env-Sender: icampbell@arcom.com
-X-Msg-Ref: server-24.tower-9.messagelabs.com!1130921809!21487380!1
-X-StarScan-Version: 5.5.9.1; banners=arcom.com,-,-
-X-Originating-IP: [194.200.159.164]
-Subject: [WATCHDOG] sa1100_wdt.c sparse cleanups
-From: Ian Campbell <icampbell@arcom.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Arcom Control Systems
-Date: Wed, 02 Nov 2005 08:56:49 +0000
-Message-Id: <1130921809.12578.179.camel@icampbell-debian>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Nov 2005 04:07:07 -0500
+Received: from [218.25.172.144] ([218.25.172.144]:41990 "HELO mail.fc-cn.com")
+	by vger.kernel.org with SMTP id S932643AbVKBJHG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 04:07:06 -0500
+Date: Wed, 2 Nov 2005 17:06:56 +0800
+From: Coywolf Qi Hunt <qiyong@fc-cn.com>
+To: Hareesh Nagarajan <hnagar2@gmail.com>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: [PATCH] register_filesystem() must return -EEXIST if the filesystem with the same name is already registered
+Message-ID: <20051102090656.GA12912@localhost.localdomain>
+References: <43687BE4.3000708@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43687BE4.3000708@gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following makes drivers/char/watchdog/sa1100_wdt.c sparse clean.
+On Wed, Nov 02, 2005 at 02:42:12AM -0600, Hareesh Nagarajan wrote:
+> If we have a look at the register_filesystem() function defined in 
+> fs/filesystems.c, we see that if a filesystem with a same name has 
+> already been registered then the find_filesystem() function will return 
+> NON-NULL otherwise it will return NULL.
+> 
+> Hence, register_filesystem() should return EEXIST instead of EBUSY. 
+> Returning EBUSY is misleading (unless of course I'm missing something 
+> obvious) to the caller of register_filesystem().
 
-Signed-off-by: Ian Campbell <icampbell@arcom.com>
+This `slot' is buy, so EBUSY makes sense. Filesytem is not file, hence
+EEXIST doesn't apply IMHO.
 
-Index: 2.6/drivers/char/watchdog/sa1100_wdt.c
-===================================================================
---- 2.6.orig/drivers/char/watchdog/sa1100_wdt.c	2005-10-28 14:31:05.000000000 +0100
-+++ 2.6/drivers/char/watchdog/sa1100_wdt.c	2005-10-28 14:31:16.000000000 +0100
-@@ -74,7 +74,7 @@
- 	return 0;
- }
- 
--static ssize_t sa1100dog_write(struct file *file, const char *data, size_t len, loff_t *ppos)
-+static ssize_t sa1100dog_write(struct file *file, const char __user *data, size_t len, loff_t *ppos)
- {
- 	if (len)
- 		/* Refresh OSMR3 timer. */
-@@ -96,20 +96,20 @@
- 
- 	switch (cmd) {
- 	case WDIOC_GETSUPPORT:
--		ret = copy_to_user((struct watchdog_info *)arg, &ident,
-+		ret = copy_to_user((struct watchdog_info __user *)arg, &ident,
- 				   sizeof(ident)) ? -EFAULT : 0;
- 		break;
- 
- 	case WDIOC_GETSTATUS:
--		ret = put_user(0, (int *)arg);
-+		ret = put_user(0, (int __user *)arg);
- 		break;
- 
- 	case WDIOC_GETBOOTSTATUS:
--		ret = put_user(boot_status, (int *)arg);
-+		ret = put_user(boot_status, (int __user *)arg);
- 		break;
- 
- 	case WDIOC_SETTIMEOUT:
--		ret = get_user(time, (int *)arg);
-+		ret = get_user(time, (int __user *)arg);
- 		if (ret)
- 			break;
- 
-@@ -123,7 +123,7 @@
- 		/*fall through*/
- 
- 	case WDIOC_GETTIMEOUT:
--		ret = put_user(pre_margin / OSCR_FREQ, (int *)arg);
-+		ret = put_user(pre_margin / OSCR_FREQ, (int __user *)arg);
- 		break;
- 
- 	case WDIOC_KEEPALIVE:
+		Coywolf
 
--- 
-Ian Campbell, Senior Design Engineer
-                                        Web: http://www.arcom.com
-Arcom, Clifton Road, 			Direct: +44 (0)1223 403 465
-Cambridge CB1 7EA, United Kingdom	Phone:  +44 (0)1223 411 200
+> 
+> Thanks,
+> 
+> Hareesh Nagarajan
+> 
 
+> --- linux-2.6.13.4/fs/filesystems.c	2005-10-10 13:54:29.000000000 -0500
+> +++ linux-2.6.13.4-edit/fs/filesystems.c	2005-11-02 02:33:30.685600000 -0600
+> @@ -76,7 +76,7 @@
+>  	write_lock(&file_systems_lock);
+>  	p = find_filesystem(fs->name);
+>  	if (*p)
+> -		res = -EBUSY;
+> +		res = -EEXIST;
+>  	else
+>  		*p = fs;
+>  	write_unlock(&file_systems_lock);
 
-_____________________________________________________________________
-The message in this transmission is sent in confidence for the attention of the addressee only and should not be disclosed to any other party. Unauthorised recipients are requested to preserve this confidentiality. Please advise the sender if the addressee is not resident at the receiving end.  Email to and from Arcom is automatically monitored for operational and lawful business reasons.
-
-This message has been virus scanned by MessageLabs.

@@ -1,65 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751483AbVKBAgD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbVKBAjc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751483AbVKBAgD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 19:36:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbVKBAgB
+	id S932074AbVKBAjc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 19:39:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbVKBAjb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 19:36:01 -0500
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:24766 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1751484AbVKBAgA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 19:36:00 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=wR43B0Y4XgJHs3zlFzxe4DooK6iFodGwKbnDcC3hW1clw2GQOGRNTBWg31S9YESPrQx5w92onJY2wyafV4qP8OdKUfEWysVLpr2/snOIxZks9zLeNuKoMnP65aDIZxFtM181/DRBl0W6Z/sPJgs+cEji0/mKVWHnCda4kVKI64g=  ;
-Message-ID: <4368097A.1080601@yahoo.com.au>
-Date: Wed, 02 Nov 2005 11:34:02 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Nick's core remove PageReserved broke vmware...
-References: <4367C25B.7010300@vc.cvut.cz>
-In-Reply-To: <4367C25B.7010300@vc.cvut.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 1 Nov 2005 19:39:31 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:21709 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S932074AbVKBAja (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 19:39:30 -0500
+Subject: Re: best way to handle LEDs
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Pavel Machek <pavel@suse.cz>
+Cc: vojtech@suse.cz, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>
+In-Reply-To: <20051101234459.GA443@elf.ucw.cz>
+References: <20051101234459.GA443@elf.ucw.cz>
+Content-Type: text/plain
+Date: Wed, 02 Nov 2005 00:39:13 +0000
+Message-Id: <1130891953.8489.83.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Vandrovec wrote:
-> Hello Nick,
->   what's the reason behind disallowing get_user_pages() on VM_RESERVED 
-> regions?  vmmon uses VM_RESERVED on its 'vma' as otherwise some kernels 
-> used by SUSE complained loudly about mismatch between PageReserved() and 
-> VM_RESERVED flags.
+On Wed, 2005-11-02 at 00:44 +0100, Pavel Machek wrote:
+> Handheld machines have limited number of software-controlled status
+> LEDs. Collie, for example has two of them; one is labeled "charge" and
+> second is labeled "mail".
+
+> I think even slow blinking was used somewhere. I have some code from
+> John Lenz (attached); it uses sysfs interface, exports led collor, and
+> allows setting different frequencies.
 > 
+> Is that acceptable, or should some other interface be used?
 
-Hi Petr,
+This has been discussed before and I know there are several differing
+opinions.
 
-The reason is that VM_RESERVED indicates that the core vm is not allowed
-to touch any 'struct page' through this mapping, which get_user_pages
-would do.
+Based upon previous discussion both here, on linux-arm-kernel and in the
+handhelds community in general I came up with some ideas which I've yet
+to have time to code. I'll try and describe it though:
 
->   I'll remove it from vmmon for >= 2.6.14 kernels as that bogus test 
-> never made to Linux kernel, but I cannot find any reason why 
-> get_user_pages() should not work on VM_RESERVED (or VM_IO for that 
-> matter) user pages.  Can you show me reasoning behind that decision ?
+The system would be in two sections (classes?), leds themselves and led
+triggers. The leds would be driven by something similar to John's driver
+Pavel attached. I think colour and other unchanging properties of the
+device should be something exported in the device name which could have
+some format like: device_name-colour-otherprops. 
 
-The reasoning behind the decision was so VM_RESERVED is usable for a
-complete replacement to PageReserved. For example mappings through
-/dev/mem should not touch the page count.
+Led triggers would be kernel sources of led on/off events. Some
+examples:
 
-You may be able to go a step further and clear PageReserved from your
-pages as well, and thus have a working driver without special casing
-for both kernels.
+2Hz Heartbeat - useful for debugging (and/or Generic Timer)
+CPU Load indicator
+Charging indicator
+HDD activity (useful for microdrive on handheld)
+Network activity
+no doubt many more
 
-Thanks,
-Nick
+led triggers would be connected to leds via sysfs. Each trigger would
+probably have a number you could echo into an led's trigger attribute.
+Sensible default mappings could be had by assigning a default trigger to
+a device by name in the platform code that declares the led.
 
--- 
-SUSE Labs, Novell Inc.
+A trigger of "0" would mean the led becomes under userspace control via
+sysfs for whatever userspace wishes to do with it.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+The underlying principle would be to keep this class as simple as
+possible whilst maximising the options open for triggering the leds from
+both the kernel and userspace. 
+
+Does this sound like a sensible way forward?
+
+Richard
+
+
+
+
+

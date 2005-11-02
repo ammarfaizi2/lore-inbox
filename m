@@ -1,90 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751481AbVKBAdE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751480AbVKBAdO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751481AbVKBAdE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 19:33:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751480AbVKBAdD
+	id S1751480AbVKBAdO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 19:33:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751482AbVKBAdO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 19:33:03 -0500
-Received: from lirs02.phys.au.dk ([130.225.28.43]:3465 "EHLO lirs02.phys.au.dk")
-	by vger.kernel.org with ESMTP id S1751481AbVKBAdC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 19:33:02 -0500
-Date: Wed, 2 Nov 2005 01:32:58 +0100 (MET)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Carlos Antunes <cmantunes@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Realtime-preempt performs worse for many threads?
-In-Reply-To: <cb2ad8b50511011629g3e5c4b41t82c1763b029acae2@mail.gmail.com>
-Message-Id: <Pine.OSF.4.05.10511020130510.3269-100000@da410.phys.au.dk>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 1 Nov 2005 19:33:14 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:41940 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751480AbVKBAdM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 19:33:12 -0500
+Message-ID: <43680923.1040007@jp.fujitsu.com>
+Date: Wed, 02 Nov 2005 09:32:35 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: ja, en-us, en
+MIME-Version: 1.0
+To: Mel Gorman <mel@csn.ul.ie>
+CC: Ingo Molnar <mingo@elte.hu>, Dave Hansen <haveblue@us.ibm.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       kravetz@us.ibm.com, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lhms <lhms-devel@lists.sourceforge.net>
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+References: <4366A8D1.7020507@yahoo.com.au> <Pine.LNX.4.58.0510312333240.29390@skynet> <4366C559.5090504@yahoo.com.au> <Pine.LNX.4.58.0511010137020.29390@skynet> <4366D469.2010202@yahoo.com.au> <Pine.LNX.4.58.0511011014060.14884@skynet> <20051101135651.GA8502@elte.hu> <1130854224.14475.60.camel@localhost> <20051101142959.GA9272@elte.hu> <1130856555.14475.77.camel@localhost> <20051101150142.GA10636@elte.hu> <43679C69.6050107@jp.fujitsu.com> <Pine.LNX.4.58.0511011708000.14884@skynet>
+In-Reply-To: <Pine.LNX.4.58.0511011708000.14884@skynet>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 1 Nov 2005, Carlos Antunes wrote:
-
-> On 11/1/05, Carlos Antunes <cmantunes@gmail.com> wrote:
-> > On 11/1/05, Esben Nielsen <simlo@phys.au.dk> wrote:
-> > > On Tue, 1 Nov 2005, Carlos Antunes wrote:
-> > >
-> > > > Hi!
-> > > >
-> > > > I've been developing some code for the OpenPBX project
-> > > > (http://www.openpbx.org) and wrote a program to test how the system,
-> > > > responds when hundreds of threads are spawned. These threads run at
-> > > > high priority (SCHED_FIFO) and use clock_nanocleep with absolute
-> > > > timeouts on a 20ms loop cycle.
-> > > >
-> > > > With the stock 2.6.14 kernel, I get latencies in the order of several
-> > > > milliseconds (but less than 20ms) when running 1250 threads
-> > > > simultaneously. However, when I switch to a kernel patched with
-> > > > realtime-preempt latency increases to several hundred milliseconds in
-> > > > many cases.
-> > >
-> > > There is only one explanation:
-> > > Some of the operations (task switch, nanosleep etc.) are more expensive in
-> > > the RT kernel. Thus your 1250 threads spend 100% CPU doing what they do.
-> > > You therefore get very bad latencies.
-> > >
-> >
-> > Esben,
-> >
-> > Thanks for replying. Let me chalenge this assumption of yours, though.
-> >
-> > I just ran a test with those 1250 threads (all they do is sleep for
-> > 20ms, wake up, increment a number, and repeat the process). The CPU
-> > was 86% *IDLE* while running this. One thread took 1.3 seconds to wake
-> > up once. Do you think this is, well, normal, given how RT is supposed
-> > to operate?
-> >
+Mel Gorman wrote:
+> 3. When adding a node that must be removable, make the array look like
+> this
 > 
-> Esben,
+> int fallback_allocs[RCLM_TYPES-1][RCLM_TYPES+1] = {
+>         {RCLM_NORCLM,   RCLM_TYPES,    RCLM_TYPES,  RCLM_TYPES, RCLM_TYPES},
+>         {RCLM_EASY,     RCLM_FALLBACK, RCLM_NORCLM, RCLM_KERN, RCLM_TYPES},
+>         {RCLM_KERN,     RCLM_TYPES,    RCLM_TYPES,  RCLM_TYPES, RCLM_TYPES},
+> };
 > 
-> If, instead of SCHD_FIFO, I use SCHED_OTHER, I get max latency in the
-> order 13ms running those 1250 threads. With SCHED_FIFO (the only
-> change), I get 1.3 seconds. Makes sense to you?
+> The effect of this is only allocations that are easily reclaimable will
+> end up in this node. This would be a straight-forward addition to build
+> upon this set of patches. The difference would only be visible to
+> architectures that cared.
 > 
+Thank you for illustration.
+maybe fallback_list per pgdat/zone is what I need with your patch.  right ?
 
-No. I can't explain that one. You might have discovered a bug in
-SCHED_FIFO. What about SCHED_RR?
+-- Kame
 
-Esben
-
-> Thanks!
-> 
-> Carlos
-> 
-> --
-> "We hold [...] that all men are created equal; that they are
-> endowed [...] with certain inalienable rights; that among
-> these are life, liberty, and the pursuit of happiness"
->         -- Thomas Jefferson
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 

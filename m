@@ -1,111 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbVKBBDk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbVKBBEm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932119AbVKBBDk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 20:03:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbVKBBDk
+	id S932124AbVKBBEm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 20:04:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbVKBBEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 20:03:40 -0500
-Received: from sabe.cs.wisc.edu ([128.105.6.20]:50598 "EHLO sabe.cs.wisc.edu")
-	by vger.kernel.org with ESMTP id S932119AbVKBBDk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 20:03:40 -0500
-Message-ID: <55055.192.168.0.12.1130893399.squirrel@192.168.0.2>
-In-Reply-To: <1130891953.8489.83.camel@localhost.localdomain>
-References: <20051101234459.GA443@elf.ucw.cz>
-    <1130891953.8489.83.camel@localhost.localdomain>
-Date: Tue, 1 Nov 2005 19:03:19 -0600 (CST)
-Subject: Re: best way to handle LEDs
-From: "John Lenz" <lenz@cs.wisc.edu>
-To: "Richard Purdie" <rpurdie@rpsys.net>
-Cc: "Pavel Machek" <pavel@suse.cz>, vojtech@suse.cz,
-       "kernel list" <linux-kernel@vger.kernel.org>,
-       "Russell King" <rmk@arm.linux.org.uk>
-User-Agent: SquirrelMail/1.4.4
+	Tue, 1 Nov 2005 20:04:42 -0500
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:4720 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932121AbVKBBEl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 20:04:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=dXzkUUE/7wD/QO7IUbPU+7NmLJ92iP2eBbAfAt9X1Nzjm00uvKqc4uSOtE+WKmgNFlAQWWbESRa7xOtwrq9rTABj1brGrSEXHP0UkaJBvMK4+hS1p7YuEs6kVa+qUM8U3HX+mk8+V3ruX33WWmT4FecF7GxRtigi4+hU1+i8ZTo=  ;
+Message-ID: <43681100.1000603@yahoo.com.au>
+Date: Wed, 02 Nov 2005 12:06:08 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+To: Joel Schopp <jschopp@austin.ibm.com>
+CC: Mel Gorman <mel@csn.ul.ie>, "Martin J. Bligh" <mbligh@mbligh.org>,
+       Andrew Morton <akpm@osdl.org>, kravetz@us.ibm.com, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+References: <20051030183354.22266.42795.sendpatchset@skynet.csn.ul.ie><20051031055725.GA3820@w-mikek2.ibm.com><4365BBC4.2090906@yahoo.com.au> <20051030235440.6938a0e9.akpm@osdl.org> <27700000.1130769270@[10.10.2.4]> <4366A8D1.7020507@yahoo.com.au> <Pine.LNX.4.58.0510312333240.29390@skynet> <4366C559.5090504@yahoo.com.au> <Pine.LNX.4.58.0511010137020.29390@skynet> <4366D469.2010202@yahoo.com.au> <4367D71A.1030208@austin.ibm.com>
+In-Reply-To: <4367D71A.1030208@austin.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, November 1, 2005 6:39 pm, Richard Purdie said:
-> On Wed, 2005-11-02 at 00:44 +0100, Pavel Machek wrote:
->> Handheld machines have limited number of software-controlled status
->> LEDs. Collie, for example has two of them; one is labeled "charge" and
->> second is labeled "mail".
->
->> I think even slow blinking was used somewhere. I have some code from
->> John Lenz (attached); it uses sysfs interface, exports led collor, and
->> allows setting different frequencies.
+Joel Schopp wrote:
+
+> The patches do ad a reasonable amount of complexity to the page 
+> allocator.  In my opinion that is the only downside of these patches, 
+> even though it is a big one.  What we need to decide as a community is 
+> if there is a less complex way to do this, and if there isn't a less 
+> complex way then is the benefit worth the increased complexity.
+> 
+> As to the non-zero performance cost, I think hard numbers should carry 
+> more weight than they have been given in this area.  Mel has posted hard 
+> numbers that say the patches are a wash with respect to performance.  I 
+> don't see any evidence to contradict those results.
+> 
+
+The numbers I have seen show that performance is decreased. People
+like Ken Chen spend months trying to find a 0.05% improvement in
+performance. Not long ago I just spent days getting our cached
+kbuild performance back to where 2.4 is on my build system.
+
+I can simply see they will cost more icache, more dcache, more branches,
+etc. in what is the hottest part of the kernel in some workloads (kernel
+compiles, for one).
+
+I'm sorry if I sound like a wet blanket. I just don't look at a patch
+and think "wow all those 3 guys with Linux on IBM mainframes and using
+lpars are going to be so much happier now, this is something we need".
+
+>>> The will need high order allocations if we want to provide HugeTLB pages
+>>> to userspace on-demand rather than reserving at boot-time. This is a
+>>> future problem, but it's one that is not worth tackling until the
+>>> fragmentation problem is fixed first.
+>>>
 >>
->> Is that acceptable, or should some other interface be used?
->
-> This has been discussed before and I know there are several differing
-> opinions.
->
-> Based upon previous discussion both here, on linux-arm-kernel and in the
-> handhelds community in general I came up with some ideas which I've yet
-> to have time to code. I'll try and describe it though:
->
-> The system would be in two sections (classes?), leds themselves and led
-> triggers. The leds would be driven by something similar to John's driver
-> Pavel attached. I think colour and other unchanging properties of the
-> device should be something exported in the device name which could have
-> some format like: device_name-colour-otherprops.
+>> Sure. In what form, we haven't agreed. I vote zones! :)
+> 
+> 
+> I'd like to hear more details of how zones would be less complex while 
+> still solving the problem.  I just don't get it.
+> 
 
-I believe that this can be built on top of my patch.  If you take a look
-at the led patch Pavel posted, it allows for in kernel code to acquire the
-led by calling leds_acquire. Once a led is acquired through leds_acquire
-function, any input from userspace is ignored.
+You have an extra zone. You size that zone at boot according to the
+amount of memory you need to be able to free. Only easy-reclaim stuff
+goes in that zone.
 
-Any interested kernel code can also register an interface to watch for led
-additions and removals.
+It is less complex because zones are a complexity we already have to
+live with. 99% of the infrastructure is already there to do this.
 
->
-> Led triggers would be kernel sources of led on/off events. Some
-> examples:
->
-> 2Hz Heartbeat - useful for debugging (and/or Generic Timer)
+If you want to hot unplug memory or guarantee hugepage allocation,
+this is the way to do it. Nobody has told me why this *doesn't* work.
 
-This is included already in the leds driver part, although it could be
-removed I guess...
+-- 
+SUSE Labs, Novell Inc.
 
-> CPU Load indicator
-> Charging indicator
-> HDD activity (useful for microdrive on handheld)
-> Network activity
-> no doubt many more
-
-All these are great ideas for triggers.
-
->
-> led triggers would be connected to leds via sysfs. Each trigger would
-> probably have a number you could echo into an led's trigger attribute.
-> Sensible default mappings could be had by assigning a default trigger to
-> a device by name in the platform code that declares the led.
-
-This would be part of the triggers module... passing the right stuff into
-those sysfs options would cause the triggers module to call leds_acquire
-on the right led_properties structure.
-
->
-> A trigger of "0" would mean the led becomes under userspace control via
-> sysfs for whatever userspace wishes to do with it.
-
-A trigger of "0" would call leds_release, which would cause the input from
-userspace in the leds driver to be accepted again.
-
->
-> The underlying principle would be to keep this class as simple as
-> possible whilst maximising the options open for triggering the leds from
-> both the kernel and userspace.
->
-> Does this sound like a sensible way forward?
->
-
-I think it can already be done from my patch... all the functions are
-already there for in kernel manipulation.
-
-John
-
+Send instant messages to your online friends http://au.messenger.yahoo.com 

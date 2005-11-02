@@ -1,68 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932661AbVKBIxA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932665AbVKBIyX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932661AbVKBIxA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 03:53:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932663AbVKBIxA
+	id S932665AbVKBIyX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 03:54:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932666AbVKBIyX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 03:53:00 -0500
-Received: from smtp2-g19.free.fr ([212.27.42.28]:51663 "EHLO smtp2-g19.free.fr")
-	by vger.kernel.org with ESMTP id S932661AbVKBIw7 (ORCPT
+	Wed, 2 Nov 2005 03:54:23 -0500
+Received: from sv1.valinux.co.jp ([210.128.90.2]:156 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S932665AbVKBIyW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 03:52:59 -0500
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: Oliver Neukum <oliver@neukum.org>
-Subject: Re: [linux-usb-devel] Re: [PATCH]  Eagle and ADI 930 usb adsl modem driver
-Date: Wed, 2 Nov 2005 09:52:56 +0100
-User-Agent: KMail/1.8.3
-Cc: linux-usb-devel@lists.sourceforge.net, Greg KH <greg@kroah.com>,
-       usbatm@lists.infradead.org, matthieu castet <castet.matthieu@free.fr>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <4363F9B5.6010907@free.fr> <20051102080316.GA17989@kroah.com> <200511020945.28345.oliver@neukum.org>
-In-Reply-To: <200511020945.28345.oliver@neukum.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 2 Nov 2005 03:54:22 -0500
+Date: Wed, 02 Nov 2005 17:45:04 +0900 (JST)
+Message-Id: <20051102.174504.83606193.taka@valinux.co.jp>
+To: clameter@engr.sgi.com
+Cc: rob@landley.net, akpm@osdl.org, torvalds@osdl.org, kravetz@us.ibm.com,
+       raybry@mpdtxmail.amd.com, linux-kernel@vger.kernel.org,
+       lee.schermerhorn@hp.com, haveblue@us.ibm.com, magnus.damm@gmail.com,
+       pj@sgi.com, marcelo.tosatti@cyclades.com,
+       kamezawa.hiroyu@jp.fujitsu.com
+Subject: Re: [PATCH 0/5] Swap Migration V5: Overview
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <Pine.LNX.4.62.0511020030210.19157@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.62.0511010943310.16224@schroedinger.engr.sgi.com>
+	<20051102.143047.35521963.taka@valinux.co.jp>
+	<Pine.LNX.4.62.0511020030210.19157@schroedinger.engr.sgi.com>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511020952.56673.duncan.sands@math.u-psud.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 2 November 2005 09:45, Oliver Neukum wrote:
-> Am Mittwoch, 2. November 2005 09:03 schrieb Greg KH:
-> > On Wed, Nov 02, 2005 at 08:54:22AM +0100, Duncan Sands wrote:
-> > > > > + * sometime hotplug don't have time to give the firmware the
-> > > > > + * first time, retry it.
-> > > > > + */
-> > > > > +static int sleepy_request_firmware(const struct firmware **fw, 
-> > > > > +		const char *name, struct device *dev)
-> > > > > +{
-> > > > > +	if (request_firmware(fw, name, dev) == 0)
-> > > > > +		return 0;
-> > > > > +	msleep(1000);
-> > > > > +	return request_firmware(fw, name, dev);
-> > > > > +}
-> > > > 
-> > > > No, use the async firmware download mode instead of this.  That will
-> > > > solve all of your problems.
-> > > 
-> > > Hi Greg, it looks like you understand what the problem is here.  Could
-> > > you please explain to us lesser mortals ;)
+Hi Christoph,
+
+> > > > > Do you think the features which these patches add should be Kconfigurable?
 > > 
-> > If you use the async mode, there is no timeout.  When userspace gets
-> > around to giving you the firmware, then you continue on with the rest of
-> > your device initialization (don't block the usb probe function though.)
+> > This code looks no help for hot-remove. It seems able to handle only
+> > pages easily to migrate, while hot-remove has to guarantee all pages
+> > can be migrated.
 > 
-> How would you handle errors in setting up the device?
-> A driver cannot reject a device after probe, yet you need to handle
-> errors appearing only after the firmware is in the device.
+> Right.
+> 
+> > Hi Christoph, sorry I've been off from lhms for long time.
+> > 
+> > Shall I port the generic memory migration code for hot-remove to -mm tree
+> > directly, and add some new interface like migrate_page_to(struct page *from,
+> > struct page *to) so this may probably fit for your purpose.
+> > 
+> > The code is still in Dave's mhp1 tree waiting for being merged to -mm tree.
+> > The port will be easy because the migration code is independent to the
+> > memory hotplug code. The core code isn't so big.
+> 
+> Please follow the discussion on lhms-devel. I am trying to bring these two 
+> things together.
 
-Isn't that the case anyway with the sync version?  After all, sync loading
-of firmware from the probe method is unacceptable, since it can block khubd
-for a long time (also, if the firmware lives on a USB device that gets
-disconnected just as probe for the device that loads firmware is called,
-or some variation of this theme, couldn't horrible blockage happen?).
+OK, I'll look over it.
 
-Ciao,
-
-D.
+Thanks.

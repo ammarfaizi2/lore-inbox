@@ -1,74 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751487AbVKBEFM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751491AbVKBEVE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751487AbVKBEFM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 23:05:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbVKBEFM
+	id S1751491AbVKBEVE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 23:21:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbVKBEVD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 23:05:12 -0500
-Received: from wproxy.gmail.com ([64.233.184.198]:41107 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751487AbVKBEFK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 23:05:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tqUTULy4B9wofrP/sDq7rdd82eoD7Vq3XcH6Nvq19kH8/4N8UktpAmq3JrXjYj329xQDhpwDKm89UzWDSaYMsg01sHkh02JeN8u+TTsQ1NxfD8ctPAKCVuQM8TiU+ddco5CmI7G69DeindqhU+B95cJIHXnKR+/I9zgoe3jZPpk=
-Message-ID: <cb2ad8b50511012005g3bc39f36odd0ae1038e2b9b52@mail.gmail.com>
-Date: Tue, 1 Nov 2005 23:05:09 -0500
-From: Carlos Antunes <cmantunes@gmail.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: 2.6.14-rt1
-Cc: Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Ingo Molnar <mingo@elte.hu>, Rui Nuno Capela <rncbc@rncbc.org>,
-       "K.R. Foley" <kr@cybsft.com>, Florian Schmidt <mista.tapas@gmx.net>,
-       john stultz <johnstul@us.ibm.com>, Mark Knecht <markknecht@gmail.com>,
-       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <1130902342.29788.23.camel@localhost.localdomain>
+	Tue, 1 Nov 2005 23:21:03 -0500
+Received: from scl-ims.phoenix.com ([216.148.212.222]:28758 "EHLO
+	scl-exch2k.phoenix.com") by vger.kernel.org with ESMTP
+	id S1751491AbVKBEVD convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 23:21:03 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051017160536.GA2107@elte.hu> <20051020195432.GA21903@elte.hu>
-	 <20051030133316.GA11225@elte.hu>
-	 <1130876293.6178.6.camel@cmn3.stanford.edu>
-	 <1130899662.12101.2.camel@cmn3.stanford.edu>
-	 <cb2ad8b50511011855w41bf4a30l3127cc36dcacb094@mail.gmail.com>
-	 <1130900716.29788.22.camel@localhost.localdomain>
-	 <cb2ad8b50511011926w11116fdasd22227ca249f18fc@mail.gmail.com>
-	 <1130902342.29788.23.camel@localhost.localdomain>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [linux-usb-devel] Re: Commit "[PATCH] USB: Always do usb-handoff" breaks my powerbook
+Date: Tue, 1 Nov 2005 20:21:01 -0800
+Message-ID: <0EF82802ABAA22479BC1CE8E2F60E8C376D363@scl-exch2k3.phoenix.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [linux-usb-devel] Re: Commit "[PATCH] USB: Always do usb-handoff" breaks my powerbook
+Thread-Index: AcXeljeYjTCqrCwUTFKFPefYOWgPeQAze5yQ
+From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
+To: "Dmitry Torokhov" <dtor_core@ameritech.net>,
+       <linux-kernel@vger.kernel.org>
+Cc: "David Brownell" <david-b@pacbell.net>,
+       "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
+       <linux-usb-devel@lists.sourceforge.net>,
+       "Paul Mackerras" <paulus@samba.org>,
+       "Alan Stern" <stern@rowland.harvard.edu>
+X-OriginalArrivalTime: 02 Nov 2005 04:21:02.0723 (UTC) FILETIME=[D5D61D30:01C5DF64]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/1/05, Steven Rostedt <rostedt@goodmis.org> wrote:
-> On Tue, 2005-11-01 at 22:26 -0500, Carlos Antunes wrote:
+ 
+
+>-----Original Message-----
+>From: linux-kernel-owner@vger.kernel.org 
+>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
+>Dmitry Torokhov
+>Sent: Monday, October 31, 2005 7:40 PM
+>To: linux-kernel@vger.kernel.org
+>Cc: David Brownell; Benjamin Herrenschmidt; 
+>linux-usb-devel@lists.sourceforge.net; Paul Mackerras; Alan Stern
+>Subject: Re: [linux-usb-devel] Re: Commit "[PATCH] USB: Always 
+>do usb-handoff" breaks my powerbook
 >
-> >
-> > It's a simple program I put together to test wakeup latency. Each
-> > thread basically sleeps for 20ms, wakes up and executes a couple of
-> > instructions and goes back to sleep for another 20ms. Multiply this by
-> > a thousand. What I found out is that, inthis situation, and using
-> > realtime-preempt, SCHED_OTHER offers 3 orders of magnitude less
-> > latency than SCHED_FIFO or SCHED_RR. Which suggests to me there is
-> > something fishy going on.
+>On Monday 31 October 2005 22:09, David Brownell wrote:
+>> > > > I'm not sure it's legal to do pci_enable_device() from 
+>within a pci
+>> > > > quirk anyway. I really wonder what that code is doing 
+>in the quirks, I
+>> > > > don't think it's the right place, but I may be wrong.
+>> > > 
+>> > > Erm, what "code is doing" what, that you mean ??
+>> > 
+>> > What _That_ code is doing in the quirks... shouldn't it be in the
+>> > {U,O,E}HCI drivers instead ?
+>> 
+>> Not for PCI.  Vojtech, this is your cue to explain some of 
+>how late handoff
+>> borks the input layer, as observed by SuSE on way too many 
+>BIOS/hardware combos
+>> for me to remember ... :)
+>> 
 >
-> Could you supply this program?  I like to see what it does on my
-> systems.
+>Not Vojtech, but here is goes... Not everyone has USB compiled in and
+>even then I think USB is registered after serio. So when we probe for
+>i8042 BIOS still has its dirty hands on USB controllers and pretends
+>that they are in fact PS/2 devices. Crazy stuff like that... That's
+>why we can't keep that code in HCI drivers. 
+
+It is even worse in some cases, especially when USB host controller shares 
+interrupt with other PCI devices. I've seen systems which have just been 
+swamped by interrupts if shared device driver enables IRQ before HCD starts...
+
+Aleks.
+
 >
-
-Steve,
-
-Here's the thing:
-http://www.nowthor.com/OpenPBX/timing.c
-
-Let me know what kind of results you get.
-
-Thanks!
-
-Carlos
-
-
---
-"We hold [...] that all men are created equal; that they are
-endowed [...] with certain inalienable rights; that among
-these are life, liberty, and the pursuit of happiness"
-        -- Thomas Jefferson
+>-- 
+>Dmitry
+>-
+>To unsubscribe from this list: send the line "unsubscribe 
+>linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>

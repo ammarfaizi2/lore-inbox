@@ -1,47 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932701AbVKBJtR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932471AbVKBJtw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932701AbVKBJtR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 04:49:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932702AbVKBJtQ
+	id S932471AbVKBJtw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 04:49:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932537AbVKBJtw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 04:49:16 -0500
-Received: from denise.shiny.it ([194.20.232.1]:17832 "EHLO denise.shiny.it")
-	by vger.kernel.org with ESMTP id S932701AbVKBJtQ (ORCPT
+	Wed, 2 Nov 2005 04:49:52 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:43145 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932471AbVKBJtv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 04:49:16 -0500
-Message-ID: <XFMail.20051102104916.pochini@shiny.it>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
+	Wed, 2 Nov 2005 04:49:51 -0500
+Date: Wed, 2 Nov 2005 10:49:31 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/3] swsusp: simplifications and cleanups
+Message-ID: <20051102094931.GA30220@elf.ucw.cz>
+References: <200511020000.11183.rjw@sisk.pl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <5449aac20511011246r6ece9f18rb3b7353dbfc2dedb@mail.gmail.com>
-Date: Wed, 02 Nov 2005 10:49:16 +0100 (CET)
-From: Giuliano Pochini <pochini@shiny.it>
-To: alex@alexfisher.me.uk
-Subject: Re: Would I be violating the GPL?
-Cc: linux-kernel@vger.kernel.org, "Jeff V. Merkey" <jmerkey@utah-nac.org>,
-       Michael Buesch <mbuesch@freenet.de>
+Content-Disposition: inline
+In-Reply-To: <200511020000.11183.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On 01-Nov-2005 Alexander Fisher wrote:
+> The following series of patches implements some simplifications
+> and cleanups of swsusp.
+> 
+> The patches have been acked by Pavel (Pavel, please confirm).
 
-> I've got the source code to the device firmware too.
-
-Maybe they only care on keeping the firmware secret. Try asking
-them if you can disclose the driver sources only. The firmware
-can be used in binary form.
-
-
-> So despite the fact the driver has been written in c++, it
-> might be possible to write a usable specification.
-
-Linux 2.6 doesn't accept c++, so you have to rewrite it anyway.
-You should ask them if you can publish your own driver based
-on infos you extract from their driver.
-
-
---
-Giuliano.
+Yes, I have acked those.
+								Pavel
+-- 
+Thanks, Sharp!

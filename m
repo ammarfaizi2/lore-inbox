@@ -1,99 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932671AbVKBMlI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932675AbVKBMnG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932671AbVKBMlI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 07:41:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932672AbVKBMlI
+	id S932675AbVKBMnG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 07:43:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932672AbVKBMnG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 07:41:08 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:28168 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S932671AbVKBMlH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 07:41:07 -0500
-Date: Wed, 2 Nov 2005 13:29:50 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Roberto Nibali <ratz@drugphish.ch>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Grant Coady <gcoady@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.32-rc2
-Message-ID: <20051102122950.GB15515@alpha.home.local>
-References: <20051031175704.GA619@logos.cnet> <4366E9AA.4040001@gmail.com> <20051101074959.GQ22601@alpha.home.local> <20051101063402.GA3311@logos.cnet> <4367C95D.3050108@drugphish.ch> <20051102002821.GC13557@alpha.home.local> <43689CCF.1060102@drugphish.ch>
+	Wed, 2 Nov 2005 07:43:06 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:49645 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932675AbVKBMnF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 07:43:05 -0500
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Gerrit Huizenga <gh@us.ibm.com>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       Mel Gorman <mel@csn.ul.ie>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       kravetz@us.ibm.com, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lhms <lhms-devel@lists.sourceforge.net>
+In-Reply-To: <20051102120048.GA10081@elte.hu>
+References: <20051102104131.GA7780@elte.hu>
+	 <E1EXGPs-0006JA-00@w-gerrit.beaverton.ibm.com>
+	 <20051102120048.GA10081@elte.hu>
+Content-Type: text/plain
+Date: Wed, 02 Nov 2005 13:42:49 +0100
+Message-Id: <1130935369.15627.37.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43689CCF.1060102@drugphish.ch>
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Roberto,
-
-On Wed, Nov 02, 2005 at 12:02:39PM +0100, Roberto Nibali wrote:
-> Bonjour Willy,
+On Wed, 2005-11-02 at 13:00 +0100, Ingo Molnar wrote:
 > 
-> >>Willy, if you have time, could you check your non-i386 boxes with a
-> >>2.95.x compiled 2.4.x kernel, with IPVS enabled?
-> >  
-> > Yes, no problem, but you'll have to tell me what to test ! (a config
-> > or script will save me some time). I have a Sun Ultra60 (ultrasparc SMP)
-> > which matches your description. I just have a doubt about gcc-2.95
-> > availability on this box, I know I have a 3.3.6, do you think that the
-> > problem is gcc-related (too strong optimization or de-inlining, etc) ?
+> >  Yeah - and that isn't what is being proposed here.  The goal is to 
+> >  ask the kernel to identify some memory which can be legitimately 
+> >  freed and hasten the freeing of that memory.
 > 
-> At least following should be set, the rest you can leave to your gusto:
-> 
-> CONFIG_ACPI=y
-> CONFIG_ACPI_BOOT=y
-> CONFIG_ACPI_BUS=y
-> CONFIG_ACPI_INTERPRETER=y
-> CONFIG_ACPI_EC=y
-> CONFIG_ACPI_POWER=y
-> CONFIG_ACPI_PCI=y
-> CONFIG_ACPI_MMCONFIG=y
-> CONFIG_ACPI_SLEEP=y
-> CONFIG_ACPI_SYSTEM=y
+> but that's very easy to identify: check the free list or the clean 
+> list(s). No defragmentation necessary. [unless the unit of RAM mapping 
+> between hypervisor and guest is too coarse (i.e. not 4K pages).]
 
-But this is purely x86-related, I won't have it on sparc.
+It needs to be that coarse in cases where HugeTLB is desired for use.
+I'm not sure I could convince the DB guys to give up large pages,
+they're pretty hooked on them. ;)
 
-> CONFIG_IP_VS=m
-> CONFIG_IP_VS_DEBUG=y
-> CONFIG_IP_VS_TAB_BITS=12
-> CONFIG_IP_VS_RR=m
-> CONFIG_IP_VS_WRR=m
-> CONFIG_IP_VS_LC=m
-> CONFIG_IP_VS_WLC=m
-> CONFIG_IP_VS_LBLC=m
-> CONFIG_IP_VS_LBLCR=m
-> CONFIG_IP_VS_DH=m
-> CONFIG_IP_VS_SH=m
-> CONFIG_IP_VS_SED=m
-> CONFIG_IP_VS_NQ=m
-> CONFIG_IP_VS_HPRIO=m
-> CONFIG_IP_VS_FTP=m
-> 
-> One issue is a possible C99'ism in the last IPVS patch. If you find
-> time, please have a 2.95.x compiler installed.
-
-You mean that it's a build issue ? I first thought that you got erroneous
-behaviour.
-
-> Another thing that could fail is if you additionally set
-> 
-> CONFIG_ACPI_FAN=m
-> 
-> and compile with CFLAGS="-g -ggdb"
-
-will test too
-
-> > Please keep us informed when you have more info.
-> 
-> I will, and I will get more details, as time permits. My beef with the
-> IPVS code seems to be wrong, the code works as expected so far. I'm
-> stress-testing it though until Sunday on a 4GB Dual P4 Xeon with HT combo.
-
-How could I stress it ? what ipvs config, what type of traffic ? I'm used
-to stress-test firewalls and load-balancers, but there is a wide choice of
-possibilities, and all cannot be explored in a short timeframe.
-
-Regards,
-Willy
+-- Dave
 

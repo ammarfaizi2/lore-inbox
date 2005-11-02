@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030183AbVKBWst@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbVKBWxJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030183AbVKBWst (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 17:48:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030182AbVKBWst
+	id S1751437AbVKBWxJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 17:53:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751527AbVKBWxJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 17:48:49 -0500
-Received: from mail16.syd.optusnet.com.au ([211.29.132.197]:477 "EHLO
-	mail16.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1030184AbVKBWss (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 17:48:48 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: ck@vds.kolivas.org
-Subject: Re: [ck] 2.6.14-ck1
-Date: Thu, 3 Nov 2005 09:51:00 +1100
-User-Agent: KMail/1.8.3
-Cc: Predrag Ivanovic <predivan@ptt.yu>, linux-kernel@vger.kernel.org,
-       wfg@mail.ustc.edu.cn
-References: <200510282118.11704.kernel@kolivas.org> <20051102213814.15724994.predivan@ptt.yu>
-In-Reply-To: <20051102213814.15724994.predivan@ptt.yu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Nov 2005 17:53:09 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:22031 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751437AbVKBWxI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 17:53:08 -0500
+Date: Wed, 2 Nov 2005 22:52:57 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andy Isaacson <adi@hexapodia.org>
+Cc: Pavel Machek <pavel@suse.cz>, Richard Purdie <richard@openedhand.com>,
+       LKML <linux-kernel@vger.kernel.org>, Greg KH <gregkh@suse.de>,
+       linux-mips@linux-mips.org
+Subject: Re: [RFC] The driver model, I2C and gpio provision on Sharp SL-C1000 (Akita)
+Message-ID: <20051102225257.GE4778@flint.arm.linux.org.uk>
+Mail-Followup-To: Andy Isaacson <adi@hexapodia.org>,
+	Pavel Machek <pavel@suse.cz>,
+	Richard Purdie <richard@openedhand.com>,
+	LKML <linux-kernel@vger.kernel.org>, Greg KH <gregkh@suse.de>,
+	linux-mips@linux-mips.org
+References: <20051029190819.GB657@openzaurus.ucw.cz> <20051102194453.GF26542@hexapodia.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511030951.00679.kernel@kolivas.org>
+In-Reply-To: <20051102194453.GF26542@hexapodia.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Nov 2005 07:38 am, Predrag Ivanovic wrote:
-> On Fri, 28 Oct 2005 21:18:09 +1000
-> Con Kolivas wrote:
->
-> <snip>
->
-> > Changes:
-> >
-> > Added:
-> > +adaptive-readahead-4.patch
-> > We Fengguang's adaptive readahead patch. Please test and report
-> > experiences - Wu has been cc'ed on this email, please keep him cc'ed
-> > for reports.
->
-> Con,any recommended value for /proc/sys/kernel/readahead_ratio,
-> or is it automagicly set?It's value is 0 ATM.
+On Wed, Nov 02, 2005 at 11:44:53AM -0800, Andy Isaacson wrote:
+> On Sat, Oct 29, 2005 at 09:08:19PM +0200, Pavel Machek wrote:
+> > > I2C drivers appear relatively late in the boot procedure and changing
+> > > that isn't practical. I therefore ended up writing akita-ioexp which
+> > 
+> > It seems that making i2c init early is only sane choice. I realize PC people
+> > will hate it... but apart from that, why is it impractical?
+> 
+> FWIW, I have also run into this "I need I2C early in boot, but it's not
+> inited until late" on SiByte (arch/mips/sibyte/{sb1250,bcm1480}/setup.c).  
+> For the time being in the linux-mips tree we simply have two drivers
+> talking to the I2C interface - sibyte/swarm/rtc_* and i2c-sibyte.c,
+> and they are currently lacking even any trivial locking.  We haven't
+> seen any problems yet but that's due to limited exercise - the default
+> config doesn't hook up any drivers for the other chips on I2C.
+> 
+> How do other arches that have I2C RTCs deal with this problem?  Or is
+> there something wrong with how arch/mips/kernel/time.c:time_init deals
+> with the rtc?
 
-Yes. First it's supposed to be in /proc/sys/vm (my fault on the merge), and it 
-should be set to about 50. All this is corrected in 2.6.14-ck2 which has the 
-new readahead code, the tunable in the correct location, and the default set 
-to 50. 
+On ARM, where we have I2C RTCs, I tend to leave xtime well alone in
+time_init and just setup the timer.  When i2c is initialised, and
+the bus and RTC have been detected, I set the time from them at
+that point.
 
-> Great work with ck.BTW :-)
+I haven't seen any problems with this approach.  In fact, I'd
+rather time_init() just setup the timer, and we set the time of
+day later during the kernels initialisation.
 
-Thanks!
-
-Cheers,
-Con
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

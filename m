@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965288AbVKBV5D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965293AbVKBWBH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965288AbVKBV5D (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 16:57:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965290AbVKBV5C
+	id S965293AbVKBWBH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 17:01:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965292AbVKBWBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 16:57:02 -0500
-Received: from gold.veritas.com ([143.127.12.110]:41870 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S965288AbVKBV5A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 16:57:00 -0500
-Date: Wed, 2 Nov 2005 21:55:54 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Badari Pulavarty <pbadari@us.ibm.com>
-cc: Blaisorblade <blaisorblade@yahoo.it>, Andrea Arcangeli <andrea@suse.de>,
-       lkml <linux-kernel@vger.kernel.org>, akpm@osdl.org, dvhltc@us.ibm.com,
-       linux-mm <linux-mm@kvack.org>, Jeff Dike <jdike@addtoit.com>
-Subject: Re: New bug in patch and existing Linux code - race with install_page()
- (was: Re: [PATCH] 2.6.14 patch for supporting madvise(MADV_REMOVE))
-In-Reply-To: <1130967383.24503.112.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0511022145450.18444@goblin.wat.veritas.com>
-References: <1130366995.23729.38.camel@localhost.localdomain> 
- <20051102014321.GG24051@opteron.random>  <1130947957.24503.70.camel@localhost.localdomain>
-  <200511022054.15119.blaisorblade@yahoo.it> <1130967383.24503.112.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 02 Nov 2005 21:57:00.0428 (UTC) FILETIME=[59F8ACC0:01C5DFF8]
+	Wed, 2 Nov 2005 17:01:06 -0500
+Received: from [194.90.237.34] ([194.90.237.34]:53219 "EHLO
+	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S965293AbVKBWBF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 17:01:05 -0500
+Date: Thu, 3 Nov 2005 00:03:58 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Roland Dreier <rolandd@cisco.com>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [PATCH/RFC v2] IB: Add SCSI RDMA Protocol (SRP) initiator
+Message-ID: <20051102220358.GA27132@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <52r79y91jz.fsf_-_@cisco.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <52r79y91jz.fsf_-_@cisco.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Nov 2005, Badari Pulavarty wrote:
-> On Wed, 2005-11-02 at 20:54 +0100, Blaisorblade wrote:
-> > > +       /* XXX - Do we need both i_sem and i_allocsem all the way ? */
-> > > +       down(&inode->i_sem);
-> > > +       down_write(&inode->i_alloc_sem);
-> > > +       unmap_mapping_range(mapping, offset, (end - offset), 1);
-> > In my opinion, as already said, unmap_mapping_range can be called without 
-> > these two locks, as it operates only on mappings for the file.
-> > 
-> > However currently it's called with these locks held in vmtruncate, but I think 
-> > the locks are held in that case only because we need to truncate the file, 
-> > and are hold in excess also across this call.
-> 
-> I agree, I can push down the locking only for ->truncate_range - if
-> no one has objections. (But again, it so special case - no one really
-> cares about the performance of this interface ?).
+Hello, Roland!
+Quoting Roland Dreier <rolandd@cisco.com>:
+> +static int srp_init_qp(struct srp_target_port *target,
+> +		       struct ib_qp *qp)
+> +{
+> +	struct ib_qp_attr *attr;
+> +	int ret;
+> +
+> +	attr = kmalloc(sizeof *attr, GFP_KERNEL);
+> +	if (!attr)
+> +		return -ENOMEM;
+> +
+> +	ret = ib_find_cached_pkey(target->srp_host->dev,
+> +				  target->srp_host->port,
+> +				  be16_to_cpu(target->path.pkey),
+> +				  &attr->pkey_index);
+> +	if (ret)
+> +		return ret;
+> +
+> +	attr->qp_state        = IB_QPS_INIT;
+> +	attr->qp_access_flags = (IB_ACCESS_REMOTE_READ |
+> +				    IB_ACCESS_REMOTE_WRITE);
+> +	attr->port_num        = target->srp_host->port;
+> +
+> +	return ib_modify_qp(qp, attr,
+> +			    IB_QP_STATE		|
+> +			    IB_QP_PKEY_INDEX	|
+> +			    IB_QP_ACCESS_FLAGS	|
+> +			    IB_QP_PORT);
+> +}
 
-I can't remember why i_alloc_sem got introduced, and don't have time to
-work it out: something to do with direct I/O races, perhaps?  Someone
-else must advise, perhaps you will be able to drop that one.
+This seems to leak sizeof *attr bytes if ib_find_cached_pkey
+returns an error.
 
-But I think you'd be very unwise to drop i_sem too.  i_mmap_lock gets
-dropped whenever preemption demands here, i_sem is what's preventing
-someone else coming along and doing a concurrent truncate or remove.
-You don't want that.
-
-Sorry, I've not yet had time to study your patch: I do intend to,
-but cannot promise when.  I fear it won't be as easy as making
-these occasional responses.
-
-Hugh
+-- 
+MST

@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965282AbVKBVqJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965279AbVKBVrA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965282AbVKBVqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 16:46:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965281AbVKBVqI
+	id S965279AbVKBVrA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 16:47:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965277AbVKBVq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 16:46:08 -0500
-Received: from xproxy.gmail.com ([66.249.82.206]:54944 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965276AbVKBVqH convert rfc822-to-8bit
+	Wed, 2 Nov 2005 16:46:58 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:15368 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S965267AbVKBVq5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 16:46:07 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=i0vhq4hzJWuuYCTq2xaVu2kVt1vtrPvtFCQubxtN2OF4cFmO8y6GFiqijrCfOuOnBjYBw1tOMumkOiP6HQEpDOc9e29Z1R5FOnegq1IgCMF5jAP4NSOFEoG8v8hEmd3j0b9IP1uQ+fx6vlGBcRZFgE79q9gt4GCOoeOnvVwIEQs=
-Message-ID: <39e6f6c70511021346g43fcba88y77c63fdff8cf9bb6@mail.gmail.com>
-Date: Wed, 2 Nov 2005 19:46:06 -0200
-From: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>
-To: David Stevens <dlstevens@us.ibm.com>
-Subject: Re: [PATCH][MCAST]IPv6: small fix for ip6_mc_msfilter(...)
-Cc: Willy Tarreau <willy@w.ods.org>, "David S. Miller" <davem@davemloft.net>,
-       linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>, netdev@vger.kernel.org,
-       Yan Zheng <yzcorp@gmail.com>
-In-Reply-To: <OF9D4BE592.A4BBC034-ON882570AD.00608386-882570AD.006143BA@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 2 Nov 2005 16:46:57 -0500
+Date: Wed, 2 Nov 2005 22:49:31 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Nicolas Pitre <nico@cam.org>
+Cc: Russell King <linux@arm.linux.org.uk>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: kernel library ordering
+Message-ID: <20051102214931.GA18668@mars.ravnborg.org>
+References: <Pine.LNX.4.64.0510311333320.5288@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20051102092959.GA15515@alpha.home.local>
-	 <OF9D4BE592.A4BBC034-ON882570AD.00608386-882570AD.006143BA@us.ibm.com>
+In-Reply-To: <Pine.LNX.4.64.0510311333320.5288@localhost.localdomain>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/2/05, David Stevens <dlstevens@us.ibm.com> wrote:
-> Willy Tarreau <willy@w.ods.org> wrote on 11/02/2005 01:29:59 AM:
->
-> > Marcelo, David, does this backport seem appropriate for 2.4.32 ? I
-> verified
-> > that it compiles, nothing more.
->
->         Yes.
->
-> > If it's OK, I've noticed another patch that
-> > Yan posted today and which might be of interest before a very solid
-> release.
->
->         I think they should be reviewed first. :-)
+On Mon, Oct 31, 2005 at 01:48:49PM -0500, Nicolas Pitre wrote:
+> 
+> In the latest kernel, there is an optimized sha1 routine 
+> (arch/arm/lib/sha1.S) meant to override the generic one in lib/sha1.c.
+> 
+> The problem is that lib/lib.a is listed _before_ arch/arm/lib/lib.a in 
+> the link argument list so the architecture specific lib functions are 
+> not picked up in priority.
+> 
+> To work around this the following patch is needed:
+> 
+> --- a/arch/arm/Makefile
+> +++ b/arch/arm/Makefile
+> @@ -142,7 +142,7 @@ drivers-$(CONFIG_OPROFILE)      += arch/
+>  drivers-$(CONFIG_ARCH_CLPS7500)	+= drivers/acorn/char/
+>  drivers-$(CONFIG_ARCH_L7200)	+= drivers/acorn/char/
+>  
+> -libs-y				+= arch/arm/lib/
+> +libs-y				:= arch/arm/lib/ $(libs-y)
+>  
+>  # Default target when executing plain make
+>  ifeq ($(CONFIG_XIP_KERNEL),y)
+> 
+> However I was wondering if there should be a better and generic way to 
+> fix that.
+This looks like an obvious way to achive correct ordering.
+We could change it so arch defines always took precedence but
+the above is so simple that it is not worth the effort.
 
-Sure thing David, and thanks for your much appreciated review of patches for
-the area.
-
-- Arnaldo
+	Sam

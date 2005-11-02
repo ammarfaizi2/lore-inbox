@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965134AbVKBQys@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965138AbVKBRQ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965134AbVKBQys (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 11:54:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965135AbVKBQys
+	id S965138AbVKBRQ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 12:16:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965139AbVKBRQ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 11:54:48 -0500
-Received: from agmk.net ([217.73.31.34]:1802 "EHLO mail.agmk.net")
-	by vger.kernel.org with ESMTP id S965134AbVKBQyr (ORCPT
+	Wed, 2 Nov 2005 12:16:26 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:34724 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S965138AbVKBRQZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 11:54:47 -0500
-From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@agmk.net>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6.14] ipt_TARPIT vs sysctl_ip_default_ttl.
-Date: Wed, 2 Nov 2005 17:54:41 +0100
-User-Agent: KMail/1.8.3
-Cc: netfilter-devel@lists.netfilter.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Wed, 2 Nov 2005 12:16:25 -0500
+Subject: Re: [-mm patch] EDAC: remove proc_ent from struct mem_ctl_info
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051102162421.GJ8009@stusta.de>
+References: <20051024014838.0dd491bb.akpm@osdl.org>
+	 <20051102162421.GJ8009@stusta.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511021754.41694.pluto@agmk.net>
+Date: Wed, 02 Nov 2005 17:44:13 +0000
+Message-Id: <1130953454.2432.29.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mer, 2005-11-02 at 17:24 +0100, Adrian Bunk wrote:
+> While fixing a compile error with CONFIG_PROC_FS=n in the EDAC code, I 
+> discovered that the proc_ent member of struct mem_ctl_info is only used 
+> in a debug printk.
+> 
+> Is this patch to remove proc_ent OK?
 
-The ipt_TARPIT module uses sysctl_ip_default_ttl
-variable but kernel doesn't export this symbol.
+Looks sane to me. 
+> 
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-ipt_TARPIT.c:
-(...)
-        /* Adjust IP TTL */
-#ifdef CONFIG_SYSCTL
-        nskb->nh.iph->ttl = sysctl_ip_default_ttl;
-#else
-        nskb->nh.iph->ttl = IPDEFTTL;
-#endif
-(...)
+Acked-by: Alan Cox <alan@redhat.com>
 
-Finally we get undefined symbol in TARPIT module.
 
---- linux-2.6.14/net/ipv4/ip_output.c.orig
-+++ linux-2.6.14/net/ipv4/ip_output.c
-@@ -1329,3 +1329,4 @@
- EXPORT_SYMBOL(ip_generic_getfrag);
- EXPORT_SYMBOL(ip_queue_xmit);
- EXPORT_SYMBOL(ip_send_check);
-+EXPORT_SYMBOL(sysctl_ip_default_ttl);
 
--- 
-The only thing necessary for the triumph of evil
-  is for good men to do nothing.
-                                           - Edmund Burke

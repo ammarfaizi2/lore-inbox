@@ -1,53 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751480AbVKBAdO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751483AbVKBAgD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751480AbVKBAdO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 19:33:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751482AbVKBAdO
+	id S1751483AbVKBAgD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 19:36:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbVKBAgB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 19:33:14 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:41940 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751480AbVKBAdM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 19:33:12 -0500
-Message-ID: <43680923.1040007@jp.fujitsu.com>
-Date: Wed, 02 Nov 2005 09:32:35 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
+	Tue, 1 Nov 2005 19:36:01 -0500
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:24766 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751484AbVKBAgA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Nov 2005 19:36:00 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=wR43B0Y4XgJHs3zlFzxe4DooK6iFodGwKbnDcC3hW1clw2GQOGRNTBWg31S9YESPrQx5w92onJY2wyafV4qP8OdKUfEWysVLpr2/snOIxZks9zLeNuKoMnP65aDIZxFtM181/DRBl0W6Z/sPJgs+cEji0/mKVWHnCda4kVKI64g=  ;
+Message-ID: <4368097A.1080601@yahoo.com.au>
+Date: Wed, 02 Nov 2005 11:34:02 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Mel Gorman <mel@csn.ul.ie>
-CC: Ingo Molnar <mingo@elte.hu>, Dave Hansen <haveblue@us.ibm.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       kravetz@us.ibm.com, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-References: <4366A8D1.7020507@yahoo.com.au> <Pine.LNX.4.58.0510312333240.29390@skynet> <4366C559.5090504@yahoo.com.au> <Pine.LNX.4.58.0511010137020.29390@skynet> <4366D469.2010202@yahoo.com.au> <Pine.LNX.4.58.0511011014060.14884@skynet> <20051101135651.GA8502@elte.hu> <1130854224.14475.60.camel@localhost> <20051101142959.GA9272@elte.hu> <1130856555.14475.77.camel@localhost> <20051101150142.GA10636@elte.hu> <43679C69.6050107@jp.fujitsu.com> <Pine.LNX.4.58.0511011708000.14884@skynet>
-In-Reply-To: <Pine.LNX.4.58.0511011708000.14884@skynet>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Nick's core remove PageReserved broke vmware...
+References: <4367C25B.7010300@vc.cvut.cz>
+In-Reply-To: <4367C25B.7010300@vc.cvut.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mel Gorman wrote:
-> 3. When adding a node that must be removable, make the array look like
-> this
+Petr Vandrovec wrote:
+> Hello Nick,
+>   what's the reason behind disallowing get_user_pages() on VM_RESERVED 
+> regions?  vmmon uses VM_RESERVED on its 'vma' as otherwise some kernels 
+> used by SUSE complained loudly about mismatch between PageReserved() and 
+> VM_RESERVED flags.
 > 
-> int fallback_allocs[RCLM_TYPES-1][RCLM_TYPES+1] = {
->         {RCLM_NORCLM,   RCLM_TYPES,    RCLM_TYPES,  RCLM_TYPES, RCLM_TYPES},
->         {RCLM_EASY,     RCLM_FALLBACK, RCLM_NORCLM, RCLM_KERN, RCLM_TYPES},
->         {RCLM_KERN,     RCLM_TYPES,    RCLM_TYPES,  RCLM_TYPES, RCLM_TYPES},
-> };
-> 
-> The effect of this is only allocations that are easily reclaimable will
-> end up in this node. This would be a straight-forward addition to build
-> upon this set of patches. The difference would only be visible to
-> architectures that cared.
-> 
-Thank you for illustration.
-maybe fallback_list per pgdat/zone is what I need with your patch.  right ?
 
--- Kame
+Hi Petr,
 
+The reason is that VM_RESERVED indicates that the core vm is not allowed
+to touch any 'struct page' through this mapping, which get_user_pages
+would do.
 
+>   I'll remove it from vmmon for >= 2.6.14 kernels as that bogus test 
+> never made to Linux kernel, but I cannot find any reason why 
+> get_user_pages() should not work on VM_RESERVED (or VM_IO for that 
+> matter) user pages.  Can you show me reasoning behind that decision ?
+
+The reasoning behind the decision was so VM_RESERVED is usable for a
+complete replacement to PageReserved. For example mappings through
+/dev/mem should not touch the page count.
+
+You may be able to go a step further and clear PageReserved from your
+pages as well, and thus have a working driver without special casing
+for both kernels.
+
+Thanks,
+Nick
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

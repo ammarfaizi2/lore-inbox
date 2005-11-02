@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751517AbVKBFim@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751518AbVKBFkG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751517AbVKBFim (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 00:38:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751516AbVKBFim
+	id S1751518AbVKBFkG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 00:40:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751516AbVKBFkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 00:38:42 -0500
-Received: from zproxy.gmail.com ([64.233.162.192]:15223 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751513AbVKBFil (ORCPT
+	Wed, 2 Nov 2005 00:40:05 -0500
+Received: from sv1.valinux.co.jp ([210.128.90.2]:35476 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S1751514AbVKBFkE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 00:38:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:organization:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=pA7huA0k1dHbkvg5NsZds1B3FTUZwKr7DC5jKXFjOMbdT61hDNga+UaLPwSxngXAZXm7CoF3h1EEW8VPB7CYH/KN+Mkmx88LHFNfdPHtiuMiycZoZVX8qI8LPbdMAvRjNlah5xLJX2i2DxgqQj4A1H0mswyW8Y2b2NTlIDkZ6hQ=
-Message-ID: <436850BA.5010808@gmail.com>
-Date: Wed, 02 Nov 2005 16:38:02 +1100
-From: Grant Coady <gcoady@gmail.com>
-Organization: http://bugsplatter.mine.nu/
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Greg KH <greg@kroah.com>, Grant Coady <lkml@dodo.com.au>,
-       "Gaston, Jason D" <jason.d.gaston@intel.com>, mj@ucw.cz, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 2.6.13-rc4 1/1] pci_ids: patch for Intel ICH7R
-References: <26CEE2C804D7BE47BC4686CDE863D0F5046EA44B@orsmsx410> <42EAABD1.8050903@pobox.com> <n4ple1haga8eano2vt2ipl17mrrmmi36jr@4ax.com> <42EAF987.7020607@pobox.com> <6f0me1p2q3g9ralg4a2k2mcra21lhpg6ij@4ax.com> <20050911031150.GA20536@kroah.com> <pfn7i1ll7g5bs8sm8kq0md33f8khsujrbf@4ax.com> <4323EFFE.2040102@pobox.com>
-In-Reply-To: <4323EFFE.2040102@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 2 Nov 2005 00:40:04 -0500
+Date: Wed, 02 Nov 2005 14:30:47 +0900 (JST)
+Message-Id: <20051102.143047.35521963.taka@valinux.co.jp>
+To: clameter@engr.sgi.com
+Cc: rob@landley.net, akpm@osdl.org, torvalds@osdl.org, kravetz@us.ibm.com,
+       raybry@mpdtxmail.amd.com, linux-kernel@vger.kernel.org,
+       lee.schermerhorn@hp.com, haveblue@us.ibm.com, magnus.damm@gmail.com,
+       pj@sgi.com, marcelo.tosatti@cyclades.com,
+       kamezawa.hiroyu@jp.fujitsu.com
+Subject: Re: [PATCH 0/5] Swap Migration V5: Overview
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <Pine.LNX.4.62.0511010943310.16224@schroedinger.engr.sgi.com>
+References: <20051031192506.100d03fa.akpm@osdl.org>
+	<200511010208.49662.rob@landley.net>
+	<Pine.LNX.4.62.0511010943310.16224@schroedinger.engr.sgi.com>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 
-> pci_ids.h should be the place where PCI IDs (class, vendor, device) are 
-> collected.
-> 
-> Long term, we should be able to trim a lot of device ids, since they are 
-> usually only used in one place.
-> 
-These two sentences seem mutually exclusive to me, you want pci_ids collected
-in the header file, _and_ then trim single use IDs from which: the header,
-or the source.c file defining them?  Present usage is ~50/50, which way to
-go?
+Hi,
 
-Grant.
+> > > So I'll queue this up for -mm, but I think we need to see an entire
+> > > hot-remove implementation based on this, and have all the interested
+> > > parties signed up to it before we can start moving the infrastructure into
+> > > mainline.
+> > >
+> > > Do you think the features which these patches add should be Kconfigurable?
+
+This code looks no help for hot-remove. It seems able to handle only
+pages easily to migrate, while hot-remove has to guarantee all pages
+can be migrated.
+
+> > Yes please.  At least something under CONFIG_EMBEDDED to save poor Matt the 
+> > trouble of chopping it out himself. :)
+> 
+> Ok. We will think of something to switch this off.
+
+Hi Christoph, sorry I've been off from lhms for long time.
+
+Shall I port the generic memory migration code for hot-remove to -mm tree
+directly, and add some new interface like migrate_page_to(struct page *from,
+struct page *to) so this may probably fit for your purpose.
+
+The code is still in Dave's mhp1 tree waiting for being merged to -mm tree.
+The port will be easy because the migration code is independent to the
+memory hotplug code. The core code isn't so big.
+
+
+Thanks,
+Hirokazu Takahashi.

@@ -1,109 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964896AbVKBJ21@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964893AbVKBJdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964896AbVKBJ21 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 04:28:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964888AbVKBJ21
+	id S964893AbVKBJdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 04:33:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbVKBJdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 04:28:27 -0500
-Received: from gepetto.dc.ltu.se ([130.240.42.40]:46272 "EHLO
-	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S964785AbVKBJ20
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 04:28:26 -0500
-Message-ID: <4368878D.4040406@student.ltu.se>
-Date: Wed, 02 Nov 2005 10:31:57 +0100
-From: Richard Knutsson <ricknu-0@student.ltu.se>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ashutosh Naik <ashutosh.naik@gmail.com>
-CC: rick@remotepoint.com, davej@suse.de, acme@conectiva.com.br,
-       linux-net@vger.kernel.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       stable@kernel.org
-Subject: Re: [PATCH]dgrs - Fixes Warnings when CONFIG_ISA and CONFIG_PCI are
- not enabled
-References: <81083a450511012314q4ec69927gfa60cb19ba8f437a@mail.gmail.com>
-In-Reply-To: <81083a450511012314q4ec69927gfa60cb19ba8f437a@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 2 Nov 2005 04:33:09 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:8852 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964893AbVKBJdI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 04:33:08 -0500
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Ingo Molnar <mingo@elte.hu>, Mel Gorman <mel@csn.ul.ie>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, kravetz@us.ibm.com,
+       linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lhms <lhms-devel@lists.sourceforge.net>,
+       Arjan van de Ven <arjanv@infradead.org>
+In-Reply-To: <436880B8.1050207@yahoo.com.au>
+References: <4366C559.5090504@yahoo.com.au>
+	 <Pine.LNX.4.58.0511010137020.29390@skynet> <4366D469.2010202@yahoo.com.au>
+	 <Pine.LNX.4.58.0511011014060.14884@skynet> <20051101135651.GA8502@elte.hu>
+	 <1130854224.14475.60.camel@localhost> <20051101142959.GA9272@elte.hu>
+	 <1130856555.14475.77.camel@localhost> <20051101150142.GA10636@elte.hu>
+	 <1130858580.14475.98.camel@localhost> <20051102084946.GA3930@elte.hu>
+	 <436880B8.1050207@yahoo.com.au>
+Content-Type: text/plain
+Date: Wed, 02 Nov 2005 10:32:49 +0100
+Message-Id: <1130923969.15627.11.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ashutosh Naik wrote:
+On Wed, 2005-11-02 at 20:02 +1100, Nick Piggin wrote:
+> I agree. Especially considering that all this memory hotplug usage for
+> hypervisors etc. is a relatively new thing with few of our userbase
+> actually using it. I think a simple zones solution is the right way to
+> go for now.
 
->This patch fixes compiler warnings when CONFIG_ISA and CONFIG_PCI are
->not enabled in the dgrc network driver.
->
->Signed-off-by: Ashutosh Naik <ashutosh.naik@gmail.com>
->
->--
->diff -Naurp linux-2.6.14/drivers/net/dgrs.c
->linux-2.6.14-git1/drivers/net/dgrs.c---
->linux-2.6.14/drivers/net/dgrs.c     2005-10-28 05:32:08.000000000
->+0530
->+++ linux-2.6.14-git1/drivers/net/dgrs.c        2005-11-01
->10:30:03.000000000 +0530
->@@ -1549,8 +1549,12 @@ MODULE_PARM_DESC(nicmode, "Digi RightSwi
-> static int __init dgrs_init_module (void)  {
->        int     i;
->-       int eisacount = 0, pcicount = 0;
->-
->+#ifdef CONFIG_EISA
->+       int eisacount = 0;
->+#endif
->+#ifdef CONFIG_PCI
->+       int pcicount = 0;
->+#endif
->        /*
->         *      Command line variable overrides
->         *              debug=NNN
->-
->  
->
-Since eisacount and pcicount is doing the same task (and they are only 
-used in sequence) and to preventing more #ifdef in the source-code, why 
-not use the same variable? It will give an warning if both of them is 
-not defined, but is that an issue? If so,
-#if !defined CONFIG_EISA && !defined CONFIG_PCI
-could encapsulate the variable to prevent that.
+I agree enough on concept that I think we can go implement at least a
+demonstration of how easy it is to perform.
 
-Posted 26'th of October and now also checked against 2.6.14-git1.
+There are a couple of implementation details that will require some
+changes to the current zone model, however.  Perhaps you have some
+suggestions on those.
 
-Signed-off-by: Richard Knutsson <ricknu-0@student.ltu.se>
+In which zone do we place hot-added RAM?  I don't think answer can
+simply be the HOTPLUGGABLE zone.  If you start with sufficiently small
+of a machine, you'll degrade into the same horrible HIGHMEM behavior
+that a 64GB ia32 machine has today, despite your architecture.  Think of
+a machine that starts out with a size of 256MB and grows to 1TB.
 
----
+So, if you have to add to NORMAL/DMA on the fly, how do you handle a
+case where the new NORMAL/DMA ram is physically above
+HIGHMEM/HOTPLUGGABLE?  Is there any other course than to make a zone
+required to be able to span other zones, and be noncontiguous?  Would
+that represent too much of a change to the current model?
 
-diff -uNr a/drivers/net/dgrs.c b/drivers/net/dgrs.c
---- a/drivers/net/dgrs.c	2005-08-29 01:41:01.000000000 +0200
-+++ b/drivers/net/dgrs.c	2005-10-26 15:53:43.000000000 +0200
-@@ -1549,7 +1549,7 @@
- static int __init dgrs_init_module (void)
- {
- 	int	i;
--	int eisacount = 0, pcicount = 0;
-+	int	count;
- 
- 	/*
- 	 *	Command line variable overrides
-@@ -1591,14 +1591,14 @@
- 	 *	Find and configure all the cards
- 	 */
- #ifdef CONFIG_EISA
--	eisacount = eisa_driver_register(&dgrs_eisa_driver);
--	if (eisacount < 0)
--		return eisacount;
-+	count = eisa_driver_register(&dgrs_eisa_driver);
-+	if (count < 0)
-+		return count;
- #endif
- #ifdef CONFIG_PCI
--	pcicount = pci_register_driver(&dgrs_pci_driver);
--	if (pcicount)
--		return pcicount;
-+	count = pci_register_driver(&dgrs_pci_driver);
-+	if (count)
-+		return count;
- #endif
- 	return 0;
- }
+>From where do we perform reclaim when we run out of a particular zone?
+Getting reclaim rates of the HIGHMEM and NORMAL zones balanced has been
+hard, and I worry that we never got it quite.  Introducing yet another
+zone makes this harder.
 
+Should we allow allocations for NORMAL to fall back into HOTPLUGGABLE in
+any case?
+
+-- Dave
 

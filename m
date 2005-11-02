@@ -1,60 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965148AbVKBRtU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751489AbVKBSBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965148AbVKBRtU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 12:49:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965150AbVKBRtU
+	id S1751489AbVKBSBg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 13:01:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751511AbVKBSBg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 12:49:20 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:40133 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965148AbVKBRtT (ORCPT
+	Wed, 2 Nov 2005 13:01:36 -0500
+Received: from [67.137.28.189] ([67.137.28.189]:10883 "EHLO vger.utah-nac.org")
+	by vger.kernel.org with ESMTP id S1751489AbVKBSBf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 12:49:19 -0500
-Date: Wed, 2 Nov 2005 12:48:52 -0500
-From: Dave Jones <davej@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Roland Dreier <rolandd@cisco.com>, Andrew Morton <akpm@osdl.org>,
-       zippel@linux-m68k.org, ak@suse.de, rmk+lkml@arm.linux.org.uk,
-       tony.luck@gmail.com, paolo.ciarrocchi@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: New (now current development process)
-Message-ID: <20051102174852.GB1899@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Roland Dreier <rolandd@cisco.com>, Andrew Morton <akpm@osdl.org>,
-	zippel@linux-m68k.org, ak@suse.de, rmk+lkml@arm.linux.org.uk,
-	tony.luck@gmail.com, paolo.ciarrocchi@gmail.com,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.61.0511010039370.1387@scrub.home> <20051031160557.7540cd6a.akpm@osdl.org> <Pine.LNX.4.64.0510311611540.27915@g5.osdl.org> <20051031163408.41a266f3.akpm@osdl.org> <52y847abjm.fsf@cisco.com> <Pine.LNX.4.64.0511012142200.27915@g5.osdl.org> <52u0eva8yu.fsf@cisco.com> <Pine.LNX.4.64.0511012203370.27915@g5.osdl.org> <52ll07a844.fsf@cisco.com> <Pine.LNX.4.64.0511020746330.27915@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0511020746330.27915@g5.osdl.org>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 2 Nov 2005 13:01:35 -0500
+Message-ID: <4368EBBF.2000302@wolfmountaingroup.com>
+Date: Wed, 02 Nov 2005 09:39:27 -0700
+From: "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: listmonkey@neo.relay-host.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SMP CPU affinity questions
+References: <20051102175022.13637.qmail@neo.relay-host.net>
+In-Reply-To: <20051102175022.13637.qmail@neo.relay-host.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 02, 2005 at 07:54:04AM -0800, Linus Torvalds wrote:
+listmonkey@neo.relay-host.net wrote:
 
- > > For your last suggestion, maybe someone can automate running Andi's
- > > bloat-o-meter?  I think the hard part is maintaining comparable configs.
- > 
- > Yes. And we should probably make -Os the default. Apparently Fedora 
- > already does that by just forcibly hacking the Kconfig files.
+>Hi-
+>
+>I am trying to use a quad Opteron motherboard with SMP Kernel 2.6.5 for a quasi-real-time task.
+>I need to assign all processes to specific CPUs, including interrupt handlers.
+>I have had success using sched_setaffinity() to set the CPU for processes I create, but I am unable,
+>as root, to force system processes to move to another CPU.  Any ideas?
+>
+>I can find no documentation about how to force an interrupt handler to a specific CPU - is this
+>possible without modifying the kernel?
+>
+>  
+>
 
-(excuse any typos, this wireless connection is god-awful)
-We do. We rip out the dependancyon CONFIG_EMBEDDED, and build
-with OPTIMISE_FOR_SIZE set. At least we usually do.
-Once every so often, we hit something which throws a spanner
-in the works, like the "x86-64 doesn't boot any more" problem
-that was fixed by the patch that Alexandre posted earlier
-this week.
 
-Most of the time now, when we hit bugs with -Os, it seems to be due
-to broken asm constraints in the kernel rather than actual
-gcc bugs, but of course, they also occur from time to time,
-whereas the same code works just fine with -O2.
-I think part of th reason for this is exactly because it
-doesn't get a great deal of testing.
+IOApic's support binding of interrupt delivery in intel based platforms, 
+but I am unaware of tools which force this
+setting by default on Linux, but someone else may be able to point you 
+in that direction.  Most folks code APIC ICC delivery to
+AV_LOPRI (meaning lowest priority processor gets next interrupt).   This 
+is advantageous for cache coherency since the IRQ code
+is probaby still in that processors cache.  You may have to modify the 
+kernel.  Linux doesn't allow processors to be shutdown and
+reactiviated real time, it just starts them and lets them run, so you 
+don;t have to worry about the case of migrating interrupts
+off pinned APICs.  The APIC supports what you are asking for, but I am 
+not certain anyone implemented anything other
+than AV_LOPRI settings by default in the IO APIC code.  I would suggest 
+you look over the IO APIC Code -- this is a lot
+of work, BTW.
 
-		Dave
+Jeff
+
+>--Pete
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
 

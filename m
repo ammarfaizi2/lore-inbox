@@ -1,65 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965294AbVKBW7R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030184AbVKBXD6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965294AbVKBW7R (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 17:59:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965332AbVKBW7R
+	id S1030184AbVKBXD6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 18:03:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965333AbVKBXD6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 17:59:17 -0500
-Received: from xproxy.gmail.com ([66.249.82.200]:25882 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965294AbVKBW7Q convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 17:59:16 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bQEUww1envYex0HDRarEEMrp7JmUGDWu+/NO2AYZ3cGadOYJBdyUGvCr3AlZjLsWx0NjAkgH3tgll7/LtgokF81lT2+PH4aqHf5ANUT9tzysfQJpUHA4hbSL7AkeGsVAXllfKEK53NhgweYG/mNUsEnwl5OLWDoCvcJeor3EyN0=
-Message-ID: <b1bc6a000511021459h1a2f5089q3b37b56460b7799d@mail.gmail.com>
-Date: Wed, 2 Nov 2005 15:59:16 -0700
-From: adam radford <aradford@gmail.com>
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: 3ware 9550SX problems - mke2fs incredibly slow writing last third of inode tables
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <BEDEA151E8B1D6CEDD295442@192.168.100.25>
+	Wed, 2 Nov 2005 18:03:58 -0500
+Received: from www.eclis.ch ([144.85.15.72]:37086 "EHLO mail.eclis.ch")
+	by vger.kernel.org with ESMTP id S965332AbVKBXD5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 18:03:57 -0500
+Message-ID: <4369464B.6040707@eclis.ch>
+Date: Thu, 03 Nov 2005 00:05:47 +0100
+From: Jean-Christian de Rivaz <jc@eclis.ch>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <BEDEA151E8B1D6CEDD295442@192.168.100.25>
+To: linux-kernel@vger.kernel.org
+Subject: NTP broken with 2.6.14
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/30/05, Alex Bligh - linux-kernel <linux-kernel@alex.org.uk> wrote:
+Since I have installed the new kernel 2.6.14, ntpd is unable to
+synchronize the time:
 
-> All seems to go well until I try and do mke2fs. This appears to work,
-> and tries to write the inode tables. However, at (about) 3400 inodes
-> (of 11176), it slows to a crawl, writing one table every 10 seconds.
-> strace shows it is still running, and no errors are being reported.
-> However, it seems very sick.
+talla:~# ntpq
+ntpq> pe
+      remote           refid      st t when poll reach   delay   offset 
+  jitter
+==============================================================================
+  10.0.0.1        129.132.2.21     3 u   25   64  377    0.871  -88310. 
+4885.09
+ntpq> as
 
-Do you have cache turned on or off?  If it's off, try turning it on.
+ind assID status  conf reach auth condition  last_event cnt
+===========================================================
+   1 14484  9014   yes   yes  none    reject   reachable  1
+ntpq> rv 14484
+assID=14484 status=9014 reach, conf, 1 event, event_reach,
+srcadr=10.0.0.1, srcport=123, dstadr=10.0.33.10, dstport=123, leap=00,
+stratum=3, precision=-17, rootdelay=37.842, rootdispersion=59.311,
+refid=129.132.2.21, reach=377, unreach=0, hmode=3, pmode=4, hpoll=6,
+ppoll=6, flash=00 ok, keyid=0, ttl=0, offset=-88310.312, delay=0.871,
+dispersion=2.484, jitter=4885.096,
+reftime=c713bf2b.ed424e59  Wed, Nov  2 2005 23:41:47.926,
+org=c713c16b.0e8ee6b8  Wed, Nov  2 2005 23:51:23.056,
+rec=c713c1c6.a420b3d4  Wed, Nov  2 2005 23:52:54.641,
+xmt=c713c1c6.a3c7f77a  Wed, Nov  2 2005 23:52:54.639,
+filtdelay=     0.89    0.89    0.87    0.88    0.90    0.88    0.90    0.90,
+filtoffset= -91583. -90207. -88310. -86973. -85104. -83843. -81507. -79682.,
+filtdisp=      0.01    0.96    1.93    2.88    3.85    4.83    5.79    6.75
+ntpq>
 
->
-> No debug messages indicating any errors.
->
-> The only other clue as to what may be wrong is in the boot sequence.
-> I see lots of bad LUN messages (detail below). However, it does appear
-> to be detecting the disks right in the end.
->
-> Anyone got any ideas?
->
->
-> Oct 30 20:09:09 localhost kernel: [ 138.688249]
-> /dev/scsi/host4/bus0/target0/lun0: p1 < p5 >
-> Oct 30 20:09:09 localhost kernel: [ 138.712496] Attached scsi disk sdb at
-> scsi4, channel 0, id 0, lun 0
-> Oct 30 20:09:09 localhost kernel: [ 138.712814] scsi: On host 4 channel 0
-> id 0
-> only 511 (max_scsi_report_luns) of 214715501 luns reported, try increasing
-> max_scsi_report_luns.
-> Oct 30 20:09:09 localhost kernel: [ 138.712817] scsi: host 4 channel 0 id 0
-> lun 0x383438203636202d has a LUN larger than currently supported.
+The offset alway grow without correction from ntpd. This was perfectly
+working with the previouse 2.6.8 kernel used on this machine and the
+10.0.0.1 router still work as others machines on the network work well
+at the same time:
 
-There were some changes to scsi_scan.c between 2.6.12 and 2.6.14 that
-seem to have fixed this issue.  Reproduce with 2.6.14.
+craie:~# ntpq -p
+      remote           refid      st t when poll reach   delay   offset 
+  jitter
+==============================================================================
+*10.0.0.1        129.132.2.21     3 u  636 1024  377    1.170    2.184 
+0.369
 
--Adam
+ From the /var/log/ntpstats/peerstats history, the offset start growing
+exactly at the same time I rebooted with the new 2.6.14 kernel. The ntpd
+is the from the Debian Sarge version "ntpd 4.2.0a@1:4.2.0a+stable-2-r
+Fri Aug 26 10:30:12 UTC 2005 (1)".
+-- 
+Jean-Christian de Rivaz

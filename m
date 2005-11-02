@@ -1,59 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965143AbVKBSJL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965159AbVKBSME@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965143AbVKBSJL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 13:09:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965165AbVKBSJL
+	id S965159AbVKBSME (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 13:12:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965161AbVKBSME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 13:09:11 -0500
-Received: from hellhawk.shadowen.org ([80.68.90.175]:65041 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S965143AbVKBSJJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 13:09:09 -0500
-Message-ID: <43690083.5020605@shadowen.org>
-Date: Wed, 02 Nov 2005 18:08:03 +0000
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
+	Wed, 2 Nov 2005 13:12:04 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:8722 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S965159AbVKBSMD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 13:12:03 -0500
+Date: Wed, 2 Nov 2005 19:12:01 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Roland Dreier <rolandd@cisco.com>, Andrew Morton <akpm@osdl.org>,
+       zippel@linux-m68k.org, ak@suse.de, rmk+lkml@arm.linux.org.uk,
+       tony.luck@gmail.com, paolo.ciarrocchi@gmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: New (now current development process)
+Message-ID: <20051102181201.GB4272@stusta.de>
+References: <20051031160557.7540cd6a.akpm@osdl.org> <Pine.LNX.4.64.0510311611540.27915@g5.osdl.org> <20051031163408.41a266f3.akpm@osdl.org> <52y847abjm.fsf@cisco.com> <Pine.LNX.4.64.0511012142200.27915@g5.osdl.org> <52u0eva8yu.fsf@cisco.com> <Pine.LNX.4.64.0511012203370.27915@g5.osdl.org> <52ll07a844.fsf@cisco.com> <Pine.LNX.4.64.0511020746330.27915@g5.osdl.org> <20051102174852.GB1899@redhat.com>
 MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-CC: Andi Kleen <ak@suse.de>, Bob Picco <bob.picco@hp.com>,
-       Dave Hansen <haveblue@us.ibm.com>,
-       Janne M O Heikkinen <jmoheikk@cc.helsinki.fi>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: x86_64: 2.6.14 with NUMA panics at boot
-References: <Pine.OSF.4.61.0510282218310.411472@rock.it.helsinki.fi> <1130607017.12551.5.camel@localhost> <20051031001727.GC6019@localhost.localdomain> <200510310312.18395.ak@suse.de> <222900000.1130908059@[10.10.2.4]>
-In-Reply-To: <222900000.1130908059@[10.10.2.4]>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051102174852.GB1899@redhat.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
+On Wed, Nov 02, 2005 at 12:48:52PM -0500, Dave Jones wrote:
+> On Wed, Nov 02, 2005 at 07:54:04AM -0800, Linus Torvalds wrote:
 > 
-> --Andi Kleen <ak@suse.de> wrote (on Monday, October 31, 2005 03:12:17 +0100):
+>  > > For your last suggestion, maybe someone can automate running Andi's
+>  > > bloat-o-meter?  I think the hard part is maintaining comparable configs.
+>  > 
+>  > Yes. And we should probably make -Os the default. Apparently Fedora 
+>  > already does that by just forcibly hacking the Kconfig files.
 > 
+> (excuse any typos, this wireless connection is god-awful)
+> We do. We rip out the dependancyon CONFIG_EMBEDDED, and build
+> with OPTIMISE_FOR_SIZE set. At least we usually do.
+> Once every so often, we hit something which throws a spanner
+> in the works, like the "x86-64 doesn't boot any more" problem
+> that was fixed by the patch that Alexandre posted earlier
+> this week.
 > 
->>On Monday 31 October 2005 01:17, Bob Picco wrote:
->>Ok the question is - why did nobody submit this patch in time? When
->>sparse was merged I assumed folks would actually test and maintain
->>it. But that doesn't seem to be the case? Somewhat surprising.
+> Most of the time now, when we hit bugs with -Os, it seems to be due
+> to broken asm constraints in the kernel rather than actual
+> gcc bugs, but of course, they also occur from time to time,
+> whereas the same code works just fine with -O2.
+> I think part of th reason for this is exactly because it
+> doesn't get a great deal of testing.
 
-We are activly maintaining sparsemem.  But we do seem to have fallen
-short on the testing front on some of the architectures.  I'm looking
-right now into getting some automated testing sorted out for SPARSEMEM
-specifically so that we catch this stuff much earlier in the pipeline,
-as its much simpler for us to find the earlier a problem appears.
+Is the usage of -Os in Fedora based on actual measurements?
 
->>I personally don't care much about sparsemem right now because it doesn't have 
->>any advantage and if it's unmaintained would consider to mark it 
->>CONFIG_BROKEN. That's simply because we can't have highly experimental 
->>CONFIGs in a production kernel that unsuspecting users can just set and break 
->>their configuration.
->>
->>Dave, is there someone in charge for sparsemem on x86-64?
+> 		Dave
 
-I had assumed that it was being maintained, but its not obvious from
-this thread that we're all on the same page.  But we'll find out and get
-that sorted.
+cu
+Adrian
 
--apw
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

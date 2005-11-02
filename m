@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965279AbVKBVrA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965267AbVKBVsq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965279AbVKBVrA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 16:47:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965277AbVKBVq6
+	id S965267AbVKBVsq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 16:48:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965277AbVKBVsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 16:46:58 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:15368 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S965267AbVKBVq5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 16:46:57 -0500
-Date: Wed, 2 Nov 2005 22:49:31 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Nicolas Pitre <nico@cam.org>
-Cc: Russell King <linux@arm.linux.org.uk>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: kernel library ordering
-Message-ID: <20051102214931.GA18668@mars.ravnborg.org>
-References: <Pine.LNX.4.64.0510311333320.5288@localhost.localdomain>
+	Wed, 2 Nov 2005 16:48:46 -0500
+Received: from gate.crashing.org ([63.228.1.57]:2740 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S965267AbVKBVsp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 16:48:45 -0500
+Subject: Re: Nick's core remove PageReserved broke vmware...
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0511022112530.18174@goblin.wat.veritas.com>
+References: <4367C25B.7010300@vc.cvut.cz> <4368097A.1080601@yahoo.com.au>
+	 <4368139A.30701@vc.cvut.cz>
+	 <Pine.LNX.4.61.0511021208070.7300@goblin.wat.veritas.com>
+	 <1130965454.20136.50.camel@gaston>
+	 <Pine.LNX.4.61.0511022112530.18174@goblin.wat.veritas.com>
+Content-Type: text/plain
+Date: Thu, 03 Nov 2005 08:45:36 +1100
+Message-Id: <1130967936.20136.65.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0510311333320.5288@localhost.localdomain>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 31, 2005 at 01:48:49PM -0500, Nicolas Pitre wrote:
-> 
-> In the latest kernel, there is an optimized sha1 routine 
-> (arch/arm/lib/sha1.S) meant to override the generic one in lib/sha1.c.
-> 
-> The problem is that lib/lib.a is listed _before_ arch/arm/lib/lib.a in 
-> the link argument list so the architecture specific lib functions are 
-> not picked up in priority.
-> 
-> To work around this the following patch is needed:
-> 
-> --- a/arch/arm/Makefile
-> +++ b/arch/arm/Makefile
-> @@ -142,7 +142,7 @@ drivers-$(CONFIG_OPROFILE)      += arch/
->  drivers-$(CONFIG_ARCH_CLPS7500)	+= drivers/acorn/char/
->  drivers-$(CONFIG_ARCH_L7200)	+= drivers/acorn/char/
->  
-> -libs-y				+= arch/arm/lib/
-> +libs-y				:= arch/arm/lib/ $(libs-y)
->  
->  # Default target when executing plain make
->  ifeq ($(CONFIG_XIP_KERNEL),y)
-> 
-> However I was wondering if there should be a better and generic way to 
-> fix that.
-This looks like an obvious way to achive correct ordering.
-We could change it so arch defines always took precedence but
-the above is so simple that it is not worth the effort.
+On Wed, 2005-11-02 at 21:41 +0000, Hugh Dickins wrote:
 
-	Sam
+> The only extant problem here is if the pages are private, and you
+> fork while this is going on, and the parent user process writes to the
+> area before completion: then COW leaves the child with the page being
+> DMAed into, giving the parent a copied page which may be incomplete.
+
+Won't happen, and if it does, it's a user error to rely on that working,
+so it doesn't matter.
+
+> It's important that any necessary COW be done at get_user_pages time,
+> if there's any possibility that you'll be DMAing into them.  So when
+> in doubt, call it for write access.
+
+True, I forgot about COW... it still annoys me to mark dirty pages that
+may not be in the end... but hell, the main usefulness of this DMA stuff
+is DMA to memory anyway (AGP is good enough for the other direction most
+of the time).
+
+> Take a look at Andrew's educational comment on set_page_dirty_lock
+> in mm/page-writeback.c.  You do have the list of pages you need to
+> page_cache_release, don't you?  So it should be easy to dirty them.
+
+Ok, so just passing 'write' to get_user_pages() is good enough; right ?
+
+Thanks,
+Ben.
+
+

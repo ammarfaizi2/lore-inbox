@@ -1,85 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbVKBCzc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbVKBC40@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932240AbVKBCzc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Nov 2005 21:55:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbVKBCzc
+	id S932242AbVKBC40 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Nov 2005 21:56:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbVKBC4Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Nov 2005 21:55:32 -0500
-Received: from wproxy.gmail.com ([64.233.184.199]:61337 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932240AbVKBCzc convert rfc822-to-8bit
+	Tue, 1 Nov 2005 21:56:25 -0500
+Received: from xproxy.gmail.com ([66.249.82.206]:57756 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932242AbVKBC4Y convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Nov 2005 21:55:32 -0500
+	Tue, 1 Nov 2005 21:56:24 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=cuWImGq5rLlqSpAdeMCi7TwORCBFkES50W5TG4zkCkTHM3rLCIuyCiTxf5ea+z4j2rCFysgDBj7lacdQ4OBxvIX+kCN90WexodWJfUIi2Wm8qwMto3V75pamsJYkS6X0YXzZwkhdeAur9Tr8+DWSHRj5XEe85zjzWMk/q1DnXfg=
-Message-ID: <cb2ad8b50511011855w41bf4a30l3127cc36dcacb094@mail.gmail.com>
-Date: Tue, 1 Nov 2005 21:55:31 -0500
-From: Carlos Antunes <cmantunes@gmail.com>
-To: Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>
-Subject: Re: 2.6.14-rt1
-Cc: Ingo Molnar <mingo@elte.hu>, Rui Nuno Capela <rncbc@rncbc.org>,
-       "K.R. Foley" <kr@cybsft.com>, Florian Schmidt <mista.tapas@gmx.net>,
-       john stultz <johnstul@us.ibm.com>, Mark Knecht <markknecht@gmail.com>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <1130899662.12101.2.camel@cmn3.stanford.edu>
+        b=jRScFGdxdiDlu/yqXXlfeIe4f/IBtcHZB9Oa+i2l1iek3d1wYmgYTou4t0wGUESRWGMgdJZH/ewVRoMcUmO2QrP+c51IBdf76uyLYmBzr5SHwlMMKihNfQtIkaGL6P059L8DIOU2stYwxzH//uKNl/7SlZc93lMHeh/W7INqvk8=
+Message-ID: <38bdcd1f0511011856i3780bf55q3013956dc7e06e3e@mail.gmail.com>
+Date: Wed, 2 Nov 2005 11:56:24 +0900
+From: Masanari Iida <standby24x7@gmail.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-usb-devel] Re: oops with USB Storage on 2.6.14
+Cc: Andrew Morton <akpm@osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       SCSI development list <linux-scsi@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.44L0.0510311055270.13355-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <20051017160536.GA2107@elte.hu> <20051020195432.GA21903@elte.hu>
-	 <20051030133316.GA11225@elte.hu>
-	 <1130876293.6178.6.camel@cmn3.stanford.edu>
-	 <1130899662.12101.2.camel@cmn3.stanford.edu>
+References: <20051030170244.4a8c06b7.akpm@osdl.org>
+	 <Pine.LNX.4.44L0.0510311055270.13355-100000@iolanthe.rowland.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/1/05, Fernando Lopez-Lezcano <nando@ccrma.stanford.edu> wrote:
-> On Tue, 2005-11-01 at 12:18 -0800, Fernando Lopez-Lezcano wrote:
-> > On Sun, 2005-10-30 at 14:33 +0100, Ingo Molnar wrote:
-> > > i have released the 2.6.14-rt1 tree, which can be downloaded from the
-> > > usual place:
+On 11/1/05, Alan Stern <stern@rowland.harvard.edu> wrote:
+> On Sun, 30 Oct 2005, Andrew Morton wrote:
+>
+> > Masanari Iida <standby24x7@gmail.com> wrote:
+>
+> > > Hello Andrew,
 > > >
-> > >    http://redhat.com/~mingo/realtime-preempt/
-> > >
-> > > this release is mainly about ktimer fixes: it updates to the latest
-> > > ktimer tree from Thomas Gleixner (which includes John Stultz's latest
-> > > GTOD tree), it fixes TSC synchronization problems on HT systems, and
-> > > updates the ktimers debugging code.
-> > >
-> > > These together could fix most of the timer warnings and annoyances
-> > > reported for 2.6.14-rc5-rt kernels. In particular the new
-> > > TSC-synchronization code could fix SMP systems: the upstream TSC
-> > > synchronization method is fine for 1 usec resolution, but it was not
-> > > good enough for 1 nsec resolution and likely caused the SMP bugs
-> > > reported by Fernando Lopez-Lezcano and Rui Nuno Capela.
-> > >
-> > > Please re-report any bugs that remain.
+> > > I did disabled CONFIG_DEBUG_PAGEALLOC and re-tested on 2.6.14-rc1.
+> > > Now the oops didn't happen when I connect digital camera to the USB.
 > >
-> > 2.6.14-rt2 seems to be running fine on my athlon x2 smp system. Apart
-> > from some time warp messages when starting up it looks fine so far (this
-> > is on fc4).
+> > So the first oops was probably use-after-free.
+> >
+> > > I could mount the camera as USB storage.
+> > > But oops still happen when I turned the camera power off.
+> > > (This oops didn't halt my system, BTW)
+> > >
+> > > # Unable to handle kernel paging request at virtual address 6b6b6bb3
+> > >   printing eip:
+> > > c02b88ca
+> > > *pde = 00000000
+> > > Oops: 0002 [#1]
+> > > SMP
+> > > Modules linked in: autofs e100 ipt_LOG ipt_state ip_conntrack
+> > > ipt_recent iptable_filter ip_tables video rtc
+> > > CPU:    0
+> > > EIP:    0060:[<c02b88ca>]    Not tainted VLI
+> > > EFLAGS: 00010296   (2.6.14-rc1)
+> > > EIP is at scsi_remove_device+0x3a/0x50
 >
-> Actually, after enough time logged in (or maybe just with the kernel
-> running without a reboot) I still get the usual Jack warnings:
+> > > If you need some more test, let me know.
+> > > In that case, please specify which version of kernel you want me to test.
+> > >
+> >
+> > OK, thanks.  This is a different bug.  Presumably in USB.
 >
-> delay of 5469.000 usecs exceeds estimated spare time of 2641.000;
-> restart ...
+> This was fixed in later releases of 2.6.14-rc.
 >
+> I wasn't able to reproduce the original problem, even after setting
+> CONFIG_DEBUG_PAGEALLOC.
+>
+> Alan Stern
+>
+Alan,
 
-Fernando,
+Confirm the " scsi_remove_device " oops didn't happen on 2.4.14.
+Talking about the original PANIC, as I have a workaround
+(CONFIG_DEBUG_PAGEALLOC disabled),  I agree to close my report, now.
 
-I'm also having some when using SCHED_FIFO and SCHED_RR. When running
-several hundred threads, each sleeping on a loop for 20ms, SCHED_OTHER
-performs ok with latencies of less than 10ms while with SCHED_FIFO or
-SCHED_RR, I see latencies exceeding 1 full second!
+Thank you.
 
-Carlos
-
-
---
-"We hold [...] that all men are created equal; that they are
-endowed [...] with certain inalienable rights; that among
-these are life, liberty, and the pursuit of happiness"
-        -- Thomas Jefferson
+Masanari Iida

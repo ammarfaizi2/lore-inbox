@@ -1,164 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbVKCKMf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbVKCKTs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964785AbVKCKMf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 05:12:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbVKCKMf
+	id S964791AbVKCKTs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 05:19:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbVKCKTs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 05:12:35 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:43428 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964785AbVKCKMe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 05:12:34 -0500
-Date: Thu, 3 Nov 2005 11:12:49 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: =?utf-8?B?UGF3ZcWC?= Sikora <pluto@agmk.net>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       netfilter-devel@lists.netfilter.org
-Subject: Re: [2.6.14-rt1] slowdown / oops.
-Message-ID: <20051103101249.GB18467@elte.hu>
-References: <200511021420.28104.pluto@agmk.net> <20051102134723.GB13468@elte.hu> <20051102135516.GA16175@elte.hu> <20051102140025.GA17385@elte.hu> <20051102142533.GA18453@elte.hu> <20051102151242.GA23809@elte.hu> <20051102153352.GA26115@elte.hu> <1130983742.8734.19.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1130983742.8734.19.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Thu, 3 Nov 2005 05:19:48 -0500
+Received: from gate.terreactive.ch ([212.90.202.121]:64871 "HELO
+	toe-A.terreactive.ch") by vger.kernel.org with SMTP id S964791AbVKCKTr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 05:19:47 -0500
+Message-ID: <4369E43A.2080800@drugphish.ch>
+Date: Thu, 03 Nov 2005 11:19:38 +0100
+From: Roberto Nibali <ratz@drugphish.ch>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
+X-Accept-Language: .
+MIME-Version: 1.0
+To: Willy Tarreau <willy@w.ods.org>
+CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Grant Coady <gcoady@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.32-rc2
+References: <20051031175704.GA619@logos.cnet> <4366E9AA.4040001@gmail.com> <20051101074959.GQ22601@alpha.home.local> <20051101063402.GA3311@logos.cnet> <4367C95D.3050108@drugphish.ch> <20051102002821.GC13557@alpha.home.local> <43689CCF.1060102@drugphish.ch> <20051102122950.GB15515@alpha.home.local>
+In-Reply-To: <20051102122950.GB15515@alpha.home.local>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>CONFIG_ACPI=y
+>>CONFIG_ACPI_BOOT=y
+>>CONFIG_ACPI_BUS=y
+>>CONFIG_ACPI_INTERPRETER=y
+>>CONFIG_ACPI_EC=y
+>>CONFIG_ACPI_POWER=y
+>>CONFIG_ACPI_PCI=y
+>>CONFIG_ACPI_MMCONFIG=y
+>>CONFIG_ACPI_SLEEP=y
+>>CONFIG_ACPI_SYSTEM=y
+> 
+> But this is purely x86-related, I won't have it on sparc.
 
-* Rusty Russell <rusty@rustcorp.com.au> wrote:
+Indeed ;).
 
-> > -	local_bh_disable();
-> > +	read_lock_bh(&ip_conntrack_lock);
+>>CONFIG_IP_VS=m
+>>CONFIG_IP_VS_DEBUG=y
+>>CONFIG_IP_VS_TAB_BITS=12
+>>CONFIG_IP_VS_RR=m
+>>CONFIG_IP_VS_WRR=m
+>>CONFIG_IP_VS_LC=m
+>>CONFIG_IP_VS_WLC=m
+>>CONFIG_IP_VS_LBLC=m
+>>CONFIG_IP_VS_LBLCR=m
+>>CONFIG_IP_VS_DH=m
+>>CONFIG_IP_VS_SH=m
+>>CONFIG_IP_VS_SED=m
+>>CONFIG_IP_VS_NQ=m
+>>CONFIG_IP_VS_HPRIO=m
+>>CONFIG_IP_VS_FTP=m
+>>
+>>One issue is a possible C99'ism in the last IPVS patch. If you find
+>>time, please have a 2.95.x compiler installed.
+>  
+> You mean that it's a build issue ? I first thought that you got erroneous
+> behaviour.
 
-> This kind of change is troubling.  I suppose we could go to per-cpu 
-> locks, but it's still a loss.
+Yes, the erroneous stuff I'm tracking down and it looks like I've found
+it (actually, Julian Anastasov fixed it):
 
-yeah, that's the right solution i think - with a small twist that should 
-address your remaining concern: in the -rt tree there is already an API 
-variant that gives us per-cpu locks on PREEMPT_RT but which maps to a 
-plain per-cpu data structure on non-PREEMPT_RT builds. The idea is to 
-pick a CPU once, and to stick to that choice during the critical 
-section. This gives us nice per-CPU scalability, keeps the locks 
-finegrained so that are no unnecessary interactions between critical 
-sections - and keeps things fully preemptible at a small cost.
-
-the patch below shows the API usage - it's pretty straightforward, and 
-this has solved the bug too. Conversion is easy: all places that needed 
-changing were triggered at build-time, and once converted the first 
-attempt booted and worked just fine.
-
-I dont yet want to submit this approach upstream because right now only 
-PREEMPT_RT needs it, but what do you think about the approach? It could 
-be used by the upstream kernel too, to enable the use of PER_CPU data 
-structures in cases where preemption can not always be avoided.
-
-	Ingo
-
-Index: linux/include/linux/netfilter_ipv4/ip_conntrack.h
-===================================================================
---- linux.orig/include/linux/netfilter_ipv4/ip_conntrack.h
-+++ linux/include/linux/netfilter_ipv4/ip_conntrack.h
-@@ -460,10 +460,8 @@ struct ip_conntrack_ecache {
- 	struct ip_conntrack *ct;
- 	unsigned int events;
- };
--DECLARE_PER_CPU(struct ip_conntrack_ecache, ip_conntrack_ecache);
-+DECLARE_PER_CPU_LOCKED(struct ip_conntrack_ecache, ip_conntrack_ecache);
- 
--#define CONNTRACK_ECACHE(x)	(__get_cpu_var(ip_conntrack_ecache).x)
-- 
- extern struct notifier_block *ip_conntrack_chain;
- extern struct notifier_block *ip_conntrack_expect_chain;
- 
-@@ -498,12 +496,14 @@ ip_conntrack_event_cache(enum ip_conntra
- {
- 	struct ip_conntrack *ct = (struct ip_conntrack *)skb->nfct;
- 	struct ip_conntrack_ecache *ecache;
--	
-+	int cpu;
-+
- 	local_bh_disable();
--	ecache = &__get_cpu_var(ip_conntrack_ecache);
-+	ecache = &get_cpu_var_locked(ip_conntrack_ecache, &cpu);
- 	if (ct != ecache->ct)
- 		__ip_ct_event_cache_init(ct);
- 	ecache->events |= event;
-+	put_cpu_var_locked(ip_conntrack_ecache, cpu);
- 	local_bh_enable();
- }
- 
-Index: linux/net/ipv4/netfilter/ip_conntrack_core.c
-===================================================================
---- linux.orig/net/ipv4/netfilter/ip_conntrack_core.c
-+++ linux/net/ipv4/netfilter/ip_conntrack_core.c
-@@ -83,7 +83,7 @@ static unsigned int ip_conntrack_expect_
- struct notifier_block *ip_conntrack_chain;
- struct notifier_block *ip_conntrack_expect_chain;
- 
--DEFINE_PER_CPU(struct ip_conntrack_ecache, ip_conntrack_ecache);
-+DEFINE_PER_CPU_LOCKED(struct ip_conntrack_ecache, ip_conntrack_ecache);
- 
- /* deliver cached events and clear cache entry - must be called with locally
-  * disabled softirqs */
-@@ -104,20 +104,23 @@ __ip_ct_deliver_cached_events(struct ip_
- void ip_ct_deliver_cached_events(const struct ip_conntrack *ct)
- {
- 	struct ip_conntrack_ecache *ecache;
--	
-+	int cpu;
-+
- 	local_bh_disable();
--	ecache = &__get_cpu_var(ip_conntrack_ecache);
-+	ecache = &get_cpu_var_locked(ip_conntrack_ecache, &cpu);
- 	if (ecache->ct == ct)
- 		__ip_ct_deliver_cached_events(ecache);
-+	put_cpu_var_locked(ip_conntrack_ecache, cpu);
- 	local_bh_enable();
- }
- 
- void __ip_ct_event_cache_init(struct ip_conntrack *ct)
- {
- 	struct ip_conntrack_ecache *ecache;
-+	int cpu = raw_smp_processor_id();
- 
- 	/* take care of delivering potentially old events */
--	ecache = &__get_cpu_var(ip_conntrack_ecache);
-+	ecache = &__get_cpu_var_locked(ip_conntrack_ecache, cpu);
- 	BUG_ON(ecache->ct == ct);
- 	if (ecache->ct)
- 		__ip_ct_deliver_cached_events(ecache);
-@@ -133,8 +136,11 @@ static void ip_ct_event_cache_flush(void
- 	struct ip_conntrack_ecache *ecache;
- 	int cpu;
- 
-+	/*
-+	 * First get all locks, then do the flush and drop the locks.
-+	 */
- 	for_each_cpu(cpu) {
--		ecache = &per_cpu(ip_conntrack_ecache, cpu);
-+		ecache = &__get_cpu_var_locked(ip_conntrack_ecache, cpu);
- 		if (ecache->ct)
- 			ip_conntrack_put(ecache->ct);
+diff -ur v2.4.32-rc2/linux/net/ipv4/ipvs/ip_vs_core.c
+linux/net/ipv4/ipvs/ip_vs_core.c
+--- v2.4.32-rc2/linux/net/ipv4/ipvs/ip_vs_core.c	2005-11-03
+01:20:02.000000000 +0200
++++ linux/net/ipv4/ipvs/ip_vs_core.c	2005-11-03 01:22:36.347895544 +0200
+@@ -1111,11 +1111,10 @@
+ 		if (sysctl_ip_vs_expire_nodest_conn) {
+ 			/* try to expire the connection immediately */
+ 			ip_vs_conn_expire_now(cp);
+-		} else {
+-			/* don't restart its timer, and silently
+-			   drop the packet. */
+-			__ip_vs_conn_put(cp);
+ 		}
++		/* don't restart its timer, and silently
++		   drop the packet. */
++		__ip_vs_conn_put(cp);
+ 		return NF_DROP;
  	}
-Index: linux/net/ipv4/netfilter/ip_conntrack_standalone.c
-===================================================================
---- linux.orig/net/ipv4/netfilter/ip_conntrack_standalone.c
-+++ linux/net/ipv4/netfilter/ip_conntrack_standalone.c
-@@ -977,7 +977,7 @@ EXPORT_SYMBOL_GPL(ip_conntrack_expect_ch
- EXPORT_SYMBOL_GPL(ip_conntrack_register_notifier);
- EXPORT_SYMBOL_GPL(ip_conntrack_unregister_notifier);
- EXPORT_SYMBOL_GPL(__ip_ct_event_cache_init);
--EXPORT_PER_CPU_SYMBOL_GPL(ip_conntrack_ecache);
-+EXPORT_PER_CPU_LOCKED_SYMBOL_GPL(ip_conntrack_ecache);
- #endif
- EXPORT_SYMBOL(ip_conntrack_protocol_register);
- EXPORT_SYMBOL(ip_conntrack_protocol_unregister);
+
+I will send a proper signed-off and acked-by patch against rc2 after
+some more stress testing. So, please hold off releasing until then. I'm
+done testing this piece of code by tomorrow noon (GMT+1).
+
+What I wasn't sure is if the latest patches still compiled on 2.95.x
+gcc. That's the only thing I wanted you to test. I cannot ask you to run
+fully fledged LVS tests, as this requires quite some setup time.
+
+> How could I stress it ? what ipvs config, what type of traffic ? I'm used
+> to stress-test firewalls and load-balancers, but there is a wide choice of
+> possibilities, and all cannot be explored in a short timeframe.
+
+You would need to test IPVS on a SMP box using persistent setup and 0
+port feature and the expire_nodest_conn proc-fs entry set to 1. Hit the
+LB with 100Mbit/s traffic balancing it on 2-3 RS and reload the
+configuration using ipvsadm, _but_ without rmmod'ing the ip_vs_* kernel
+modules. Set the persistency timeout low (60 secs) and the
+timeout_finwait to 10*HZ. You need 2 clients which connect over a Linux
+router to a LVS_DR setup, one needs to be router through and the other
+should be NAT'd on the Linux router using a NAT pool to simulate 100's
+of clients. This way you have the slashdot-hype and the AOL proxy boost
+hitting your LB and generating loaded persistency templates which will
+then hit the code in question, wenn the internal timer expires. You need
+to grep for NONE in ipvsadm -L -n -c to get the template entries. You
+must stop the client connecting directly through the Linux router after
+you reloaded the LB setup and then you observe the persistent template
+created for this client until the timer expires. Then you start it again
+and with luck you should see the abberant behaviour of a missed
+__ip_vs_conn_put(cp) :). I am pretty sure you do not want to go through
+this setup. I have it here and I'm stress testing all possible
+combinations of this szenario.
+
+Thanks for your help, Willy.
+
+A bientôt,
+Roberto Nibali, ratz
+-- 
+-------------------------------------------------------------
+addr://Kasinostrasse 30, CH-5001 Aarau tel://++41 62 823 9355
+http://www.terreactive.com             fax://++41 62 823 9356
+-------------------------------------------------------------
+terreActive AG                       Wir sichern Ihren Erfolg
+-------------------------------------------------------------

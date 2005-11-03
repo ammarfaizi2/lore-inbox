@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030387AbVKCRGI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030390AbVKCRHn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030387AbVKCRGI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 12:06:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030388AbVKCRGI
+	id S1030390AbVKCRHn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 12:07:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030391AbVKCRHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 12:06:08 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:64980 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S1030387AbVKCRGG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 12:06:06 -0500
-Date: Thu, 3 Nov 2005 10:05:59 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: First steps towards making NO_IRQ a generic concept
-Message-ID: <20051103170559.GB23749@parisc-linux.org>
-References: <20051103144926.GV23749@parisc-linux.org> <20051103145118.GW23749@parisc-linux.org> <20051103154439.GA28190@elte.hu> <20051103160252.GA23749@parisc-linux.org> <20051103162059.GA495@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051103162059.GA495@elte.hu>
-User-Agent: Mutt/1.5.9i
+	Thu, 3 Nov 2005 12:07:43 -0500
+Received: from hellhawk.shadowen.org ([80.68.90.175]:53764 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S1030390AbVKCRHm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 12:07:42 -0500
+Message-ID: <436A4394.5080608@shadowen.org>
+Date: Thu, 03 Nov 2005 17:06:28 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bob Picco <bob.picco@hp.com>
+CC: "Martin J. Bligh" <mbligh@mbligh.org>, Andi Kleen <ak@suse.de>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Janne M O Heikkinen <jmoheikk@cc.helsinki.fi>,
+       matthew.e.tolentino@intel.com, discuss@x86-64.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: x86_64: 2.6.14 with NUMA panics at boot
+References: <Pine.OSF.4.61.0510282218310.411472@rock.it.helsinki.fi> <1130607017.12551.5.camel@localhost> <20051031001727.GC6019@localhost.localdomain> <200510310312.18395.ak@suse.de> <222900000.1130908059@[10.10.2.4]> <43690083.5020605@shadowen.org> <20051103144305.GA22938@localhost.localdomain>
+In-Reply-To: <20051103144305.GA22938@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 03, 2005 at 05:20:59PM +0100, Ingo Molnar wrote:
-> ok, understood. I'm wondering, why is there any need to do a PCI_NO_IRQ?  
-> Why not just a generic NO_IRQ. It's not like we can or want to make them 
-> different in the future. The interrupt vector number is a generic thing 
-> that attaches to the platform via request_irq() - there is nothing 'PCI' 
-> about it. So the PCI layer shouldnt pretend it has its own IRQ 
-> abstraction - the two are forcibly joined. The same goes for 
-> pci_valid_irq() - we should only have valid_irq(). Am i missing 
-> anything?
+Bob Picco wrote:
 
-The last patch in this vein will delete PCI_NO_IRQ, replacing it with
-NO_IRQ.  To make that final patch small, I wanted to introduce an
-abstraction that PCI drivers could use.  Possibly it's not well thought
-out.  Do you think we should put in the explicit compares against
-PCI_NO_IRQ as we find drivers that care and then do a big sweep when we
-think we've found them all?
+> Matt responded to a private that I posted to Dave and Matt. Matt is
+> traveling and told me to go ahead and post a fix.
+> 
+> I removed memory_present called from the FLATMEM routine contig_initmem_init.
+> Otherwise my original quick patch used for testing SPARSEMEM EXTREME
+> was nearly complete.
+> 
+> I've boot tested all three configurations (SPARSEMEM, DISCONTIGMEM and CONTIG)
+> on my DL585 (4 node machine).
+
+I'll test on it and let you know if it works for me too.
+
+Thanks.
+
+-apw

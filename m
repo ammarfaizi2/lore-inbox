@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030182AbVKCNcB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030186AbVKCNdW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030182AbVKCNcB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 08:32:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932540AbVKCNcA
+	id S1030186AbVKCNdW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 08:33:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030192AbVKCNdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 08:32:00 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:34200 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S932472AbVKCNcA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 08:32:00 -0500
-Date: Thu, 3 Nov 2005 10:57:26 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: John Lenz <lenz@cs.wisc.edu>, Robert Schwebel <robert@schwebel.de>,
-       Pavel Machek <pavel@suse.cz>,
-       Robert Schwebel <r.schwebel@pengutronix.de>, vojtech@suse.cz,
-       rpurdie@rpsys.net, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: best way to handle LEDs
-Message-ID: <20051103095725.GA703@openzaurus.ucw.cz>
-References: <20051101234459.GA443@elf.ucw.cz> <20051102202622.GN23316@pengutronix.de> <20051102211334.GH23943@elf.ucw.cz> <20051102213354.GO23316@pengutronix.de> <38523.192.168.0.12.1130986361.squirrel@192.168.0.2> <20051103081522.GA21663@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051103081522.GA21663@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.3.27i
+	Thu, 3 Nov 2005 08:33:22 -0500
+Received: from silver.veritas.com ([143.127.12.111]:51024 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1030186AbVKCNdV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 08:33:21 -0500
+Date: Thu, 3 Nov 2005 13:32:15 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Gleb Natapov <gleb@minantech.com>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Nick's core remove PageReserved broke vmware...
+In-Reply-To: <20051103080341.GB22185@minantech.com>
+Message-ID: <Pine.LNX.4.61.0511031327360.22826@goblin.wat.veritas.com>
+References: <4367C25B.7010300@vc.cvut.cz> <4368097A.1080601@yahoo.com.au>
+ <4368139A.30701@vc.cvut.cz> <Pine.LNX.4.61.0511021208070.7300@goblin.wat.veritas.com>
+ <1130965454.20136.50.camel@gaston> <Pine.LNX.4.61.0511022112530.18174@goblin.wat.veritas.com>
+ <1130967936.20136.65.camel@gaston> <Pine.LNX.4.61.0511022157130.18559@goblin.wat.veritas.com>
+ <1130970131.20136.73.camel@gaston> <20051103080341.GB22185@minantech.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 03 Nov 2005 13:33:21.0124 (UTC) FILETIME=[28469240:01C5E07B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 3 Nov 2005, Gleb Natapov wrote:
+> On Thu, Nov 03, 2005 at 09:22:10AM +1100, Benjamin Herrenschmidt wrote:
+> > Also, what do you suggest as a good threshold to use on the max amount
+> > of memory I can let the X server "pin" that way ? I was thinking it as
+> > equivalent to mlock, thus I could maybe hijack mm->locked_vm & use
+> > RLIMIT_MEMLOCK or is that too gross ?
+> > 
+> This is what infiniband does, so it should be good for you too.
 
-> > Except the led code that is being proposed CAN sit on top of a generic
-> > GPIO layer.
-> 
-> I also have issues with a generic GPIO layer.  As I mentioned in the
-> past, there's serious locking issues with any generic abstraction of
-> GPIOs.
-> 
-> 1. You want to be able to change GPIO state from interrupts.  This
->    implies you can not sleep in GPIO state changing functions.
-> 
-> 2. Some GPIOs are implemented on I2C devices.  This means that to
->    change state, you must sleep.
+Yes, I noticed that code a couple of days ago, I think you're setting a
+good example there, for long-term or large-area uses of get_user_pages():
+Ben, take a look at drivers/infiniband/core/uverbs_mem.c
 
-Can't you just busywait? Yes, it is ugly in general, but perhaps it
-is better than alternatives...
-
-
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
-
+Hugh

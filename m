@@ -1,124 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030242AbVKCBMh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030234AbVKCBOE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030242AbVKCBMh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 20:12:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030243AbVKCBMh
+	id S1030234AbVKCBOE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 20:14:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030244AbVKCBOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 20:12:37 -0500
-Received: from www.eclis.ch ([144.85.15.72]:2701 "EHLO mail.eclis.ch")
-	by vger.kernel.org with ESMTP id S1030242AbVKCBMh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 20:12:37 -0500
-Message-ID: <4369641D.6020301@eclis.ch>
-Date: Thu, 03 Nov 2005 02:13:01 +0100
-From: Jean-Christian de Rivaz <jc@eclis.ch>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: fr, en
+	Wed, 2 Nov 2005 20:14:04 -0500
+Received: from zproxy.gmail.com ([64.233.162.199]:29215 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030234AbVKCBOD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 20:14:03 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Nst+VGHlEBqX4mgle9WNvVa6eK3wU3yxAfeyv/uknBYZb8CcA/LrjeI9uN4D3VmZs4SMdFWb/bCHlnacZporLK58Pd3cGSFAq4S2eNPOcBJtqqZuWxYkEqrC6BSxtNUEprj8cfC73LSiAsY74DouvAPxZ0+QPOgJnxiCoNqzPTg=
+Message-ID: <39e6f6c70511021714m3023b686jcd7be2bb9ec9a3d3@mail.gmail.com>
+Date: Wed, 2 Nov 2005 23:14:02 -0200
+From: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>
+To: Yan Zheng <yanzheng@21cn.com>
+Subject: Re: [PATCH]A old patch for addrconf_ifdown(...).
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <43695E77.3080707@21cn.com>
 MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org, johnstul@us.ibm.com
-Subject: Re: NTP broken with 2.6.14
-References: <4369464B.6040707@eclis.ch> <Pine.LNX.4.61.0511030134580.1387@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0511030134580.1387@scrub.home>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <43695E77.3080707@21cn.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel a écrit :
-> Hi,
-> 
-> On Thu, 3 Nov 2005, Jean-Christian de Rivaz wrote:
-> 
-> 
->>From the /var/log/ntpstats/peerstats history, the offset start growing
->>exactly at the same time I rebooted with the new 2.6.14 kernel. The ntpd
->>is the from the Debian Sarge version "ntpd 4.2.0a@1:4.2.0a+stable-2-r
->>Fri Aug 26 10:30:12 UTC 2005 (1)".
-> 
-> 
-> Could you post a few lines from loopstats from before and after the 
-> upgrade? Do you have adjtimex installed? If yes, what's in 
-> /etc/default/adjtimex?
+On 11/2/05, Yan Zheng <yanzheng@21cn.com> wrote:
+> Hi.
+>
+> The patch may be got lost. It's already acked by YOSHIFUJI.
+>
+>
+> Signed-off-by: Yan Zheng<yanzheng@21cn.com>
 
-Here is a visible transition into the loopstats history:
+I tought it had already been applied by Dave:
 
-53675 46251.308 0.004081011 -194.259811 0.005871592 17.580735 10
-53675 47277.997 -0.000660212 -194.262329 0.005610392 15.279835 10
-53675 48303.646 0.002776830 -194.251724 0.005153706 14.303375 10
-53675 49330.304 0.004138248 -194.235901 0.004514851 14.801189 10
-53675 50353.973 0.003474513 -194.222672 0.003924034 14.497788 10
-53675 51379.750 0.000253633 -194.221710 0.003760592 12.565096 10
-53675 52406.302 0.003895862 -194.206818 0.003731353 13.287282 10
-53675 53432.968 0.004171375 -194.190887 0.003234381 14.104549 10
-53675 54456.672 0.000078349 -194.190598 0.003469025 12.215800 10
-53675 55481.298 0.003641894 -194.176697 0.003492895 12.750438 10
-53675 56504.967 0.002649463 -194.166611 0.003065365 12.190070 10
-53675 57531.730 0.000912963 -194.163132 0.002793064 10.706129 10
-53675 58558.296 0.003194148 -194.150925 0.002674295 11.181610 10
-53675 59584.996 0.002605389 -194.140976 0.002334641 10.941553 10
-53675 60611.694 0.004877513 -194.122314 0.002319170 13.456606 10
-53675 61636.321 0.003967914 -194.107178 0.002059309 13.995452 10
-53675 62660.051 0.007092572 -194.080124 0.002370957 18.405714 10
-53675 63684.643 0.001312519 -194.075119 0.003545184 16.144477 10
-53675 64710.293 -0.000216660 -194.075943 0.003163992 13.987890 10
-53675 65735.018 0.002720645 -194.065567 0.003108870 13.227565 10
-53675 66759.621 0.000030339 -194.065460 0.003009692 11.455537 10
-53675 67784.291 -0.000155943 -194.066055 0.002608133 9.925464 10
-53675 68426.784 0.000000000 -194.065994 0.000003304 0.000184 6
-53675 68491.127 -0.013804111 -194.921677 0.006902056 27.381836 6
-53675 68748.284 -0.003905727 -195.879013 0.007760366 38.740322 6
-53675 68811.324 -0.003714981 -196.102203 0.006721351 34.301879 6
-53675 69440.055 0.000000000 -194.065994 0.000003304 0.000184 6
-53675 69503.047 0.000000000 -194.065994 0.000002861 0.000159 6
-53675 69569.039 0.000000000 -194.065994 0.000002478 0.000138 6
-53675 69635.029 0.000000000 -194.065994 0.000002146 0.000119 6
-53675 69699.021 0.000000000 -194.065994 0.000001858 0.000103 6
-53675 69762.012 0.000000000 -194.065994 0.000001609 0.000089 7
-53675 69825.004 0.000000000 -194.065994 0.000001394 0.000077 7
-53675 69889.996 0.000000000 -194.065994 0.000001207 0.000067 7
-53675 69952.987 0.000000000 -194.065994 0.000001045 0.000058 7
-53675 70017.979 0.000000000 -194.065994 0.000000905 0.000050 7
-53675 70083.970 0.000000000 -194.065994 0.000000784 0.000044 8
-53675 70149.961 0.000000000 -194.065994 0.000000679 0.000038 8
-53675 70213.953 0.000000000 -194.065994 0.000000588 0.000033 8
-53675 70276.945 0.000000000 -194.065994 0.000000509 0.000028 8
-53675 70339.936 0.000000000 -194.065994 0.000000441 0.000025 9
-53675 70403.928 0.000000000 -194.065994 0.000000382 0.000021 9
-53675 70471.919 0.000000000 -194.065994 0.000000331 0.000018 9
-53675 70536.910 0.000000000 -194.065994 0.000000286 0.000016 9
-53675 70601.906 0.000000000 -194.065994 0.000000248 0.000014 10
-53675 70665.893 0.000000000 -194.065994 0.000000215 0.000012 10
-53675 70728.885 0.000000000 -194.065994 0.000000186 0.000010 10
-53675 70791.878 0.000000000 -194.065994 0.000000161 0.000009 10
-53675 70854.869 0.000000000 -194.065994 0.000000140 0.000008 10
-53675 70918.860 0.000000000 -194.065994 0.000000121 0.000007 10
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0510.1/1290.html
 
-I did not have adjtimex installed. I just intalled it to see what 
-happens. The adjtimexconfig calculate the following values into the 
-/etc/default/adjtimex file:
-TICK=121
-FREQ=3597582
+Anyway, applying it now, thanks.
 
-When I do a "/etc/init.d/adjtimex start" I get an error and a strange 
-value of USER_HZ since the kernel is configured for a HZ of 250 (maybe 
-this two values are not related, I don't know about this):
-
-talla:~# /etc/init.d/adjtimex start
-Regulating system clock...adjtimex: Invalid argument
-for this kernel:
-    USER_HZ = 100 (nominally 100 ticks per second)
-    9000 <= tick <= 11000
-    -33554432 <= frequency <= 33554432
-done.
-
-talla:~# zcat /proc/config.gz | egrep HZ
-# CONFIG_HZ_100 is not set
-CONFIG_HZ_250=y
-# CONFIG_HZ_1000 is not set
-CONFIG_HZ=250
-CONFIG_MACHZ_WDT=m
-
-Thanks,
--- 
-Jean-Christian de Rivaz
+- Arnaldo

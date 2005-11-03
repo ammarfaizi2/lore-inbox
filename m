@@ -1,119 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751397AbVKCWG5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751270AbVKCWKi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751397AbVKCWG5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 17:06:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbVKCWG5
+	id S1751270AbVKCWKi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 17:10:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbVKCWKi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 17:06:57 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:15570 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751397AbVKCWG4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 17:06:56 -0500
-Subject: Re: [PATCH 12/12: eCryptfs] Crypto functions
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Phillip Hellewell <phillip@hellewell.homeip.net>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       mike@halcrow.us, mhalcrow@us.ibm.com, mcthomps@us.ibm.com,
-       yoder1@us.ibm.com
-In-Reply-To: <20051103035659.GL3005@sshock.rn.byu.edu>
-References: <20051103033220.GD2772@sshock.rn.byu.edu>
-	 <20051103035659.GL3005@sshock.rn.byu.edu>
-Content-Type: text/plain
-Date: Thu, 03 Nov 2005 16:06:50 -0600
-Message-Id: <1131055610.9365.17.camel@kleikamp.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Nov 2005 17:10:38 -0500
+Received: from www.eclis.ch ([144.85.15.72]:19082 "EHLO mail.eclis.ch")
+	by vger.kernel.org with ESMTP id S1751270AbVKCWKh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 17:10:37 -0500
+Message-ID: <436A8ADB.2090307@eclis.ch>
+Date: Thu, 03 Nov 2005 23:10:35 +0100
+From: Jean-Christian de Rivaz <jc@eclis.ch>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: john stultz <johnstul@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, dean@arctic.org, zippel@linux-m68k.org
+Subject: Re: NTP broken with 2.6.14
+References: <4369464B.6040707@eclis.ch>	 <1130973717.27168.504.camel@cog.beaverton.ibm.com>	 <43694DD1.3020908@eclis.ch>	 <1130976935.27168.512.camel@cog.beaverton.ibm.com>	 <43695D94.10901@eclis.ch>	 <1130980031.27168.527.camel@cog.beaverton.ibm.com>	 <43697550.7030400@eclis.ch>	 <1131046348.27168.537.camel@cog.beaverton.ibm.com>	 <436A7D4B.8080109@eclis.ch> <1131054087.27168.595.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1131054087.27168.595.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-02 at 20:56 -0700, Phillip Hellewell wrote:
-> +/**
-> + * Write the file headers out.  This will likely involve a userspace
-> + * callout, in which the session key is encrypted with one or more
-> + * public keys and/or the passphrase necessary to do the encryption
-> is
-> + * retrieved via a prompt.  Exactly what happens at this point should
-> + * be policy-dependent.
-> + *
-> + * @param lower_file The lower file struct, which was returned from
-> + * dentry_open
-> + * @return Zero on success; non-zero on error
-> + */
-> +int ecryptfs_write_headers(struct dentry *ecryptfs_dentry,
-> +                          struct file *lower_file)
-> +{
-> +       int rc = 0;
-> +       char *page_virt;
-> +       struct ecryptfs_crypt_stats *crypt_stats;
-> +       mm_segment_t oldfs;
-> +       int ecryptfs_marker_len;
-> +       ecryptfs_printk(1, KERN_NOTICE, "Enter\n");
-> +       crypt_stats =
-> &INODE_TO_PRIVATE(ecryptfs_dentry->d_inode)->crypt_stats;
-> +       if (likely(1 == crypt_stats->encrypted)) {
-> +               if (!crypt_stats->key_valid) {
-> +                       ecryptfs_printk(1, KERN_NOTICE, "Key is "
-> +                                       "invalid; bailing out\n");
-> +                       rc = -EINVAL;
-> +                       goto out;
-> +               }
-> +       } else {
-> +               rc = -EINVAL;
-> +               ecryptfs_printk(0, KERN_WARNING,
-> +                               "Called with crypt_stats->encrypted ==
-> 0\n");
-> +               goto out;
-> +       }
-> +       /* Released in this function */
-> +       page_virt =
-> +           ecryptfs_kmem_cache_alloc(ecryptfs_header_cache_0,
-> SLAB_USER);
-> +       if (!page_virt) {
-> +               ecryptfs_printk(0, KERN_ERR, "Out of memory\n");
-> +               return -ENOMEM;
-> +       }
-> +       ecryptfs_marker_len = write_ecryptfs_marker(page_virt,
-> +
-> ECRYPTFS_FILE_SIZE_BYTES);
-> +       rc = ecryptfs_generate_key_packet_set(page_virt,
-> +
-> (ECRYPTFS_FILE_SIZE_BYTES
-> +                                              + ecryptfs_marker_len),
-> +                                             crypt_stats,
-> ecryptfs_dentry);
-> +       if (unlikely(rc == 0)) {
-> +               rc = -EIO;
-> +               ecryptfs_printk(0, KERN_ERR, "Error whilst generating
-> the key "
-> +                               "packet set; writing zero's\n");
-> +               goto out_free;
-> +       }
-> +       rc = 0;
-> +       ecryptfs_printk(1, KERN_NOTICE,
-> +                       "Writing key packet set to underlying file
-> \n");
-> +       lower_file->f_pos = 0;
-> +       oldfs = get_fs();
-> +       set_fs(get_ds());
-> +       lower_file->f_op->write(lower_file, (char __user *)page_virt,
-> +                               PAGE_CACHE_SIZE, &lower_file->f_pos);
-> +       set_fs(oldfs);
-> +       ecryptfs_fput(lower_file);
+john stultz a écrit :
+> On Thu, 2005-11-03 at 22:12 +0100, Jean-Christian de Rivaz wrote:
+> 
+>>A have tested 7 differents vanilla kernel on the same suspect hardware:
+>>
+>>                2.6.8  : ntpd working : drift from    -77ppm to   -144ppm
+>>                2.6.9  : ntpd working : drift from    -99ppm to   -231ppm
+>>                2.6.10 : ntpd failed  : drift from -37825ppm to -29912ppm
+>>                2.6.12 : ntpd failed  : drift from -43429ppm to -45251ppm
+> 
+> 
+> Ok, that makes it pretty clear we have a regression w/ 2.6.10. I really
+> appreciate your helping narrow down this issue. If you have the time,
+> could you test the three 2.6.10-rcX patches? 
+> 
+> You can find them here: 
+> ftp://ftp.kernel.org/pub/linux/kernel/v2.6/testing/
+> 
+> And they apply independently (not cumulatively) ontop of 2.6.9
 
-Why the call to ecryptfs_fput() here?  The caller does it's own fput on
-lower_file.
+I will try, but compiling the kernels take time even with 3 machines 
+(one per kernel version)...
 
-> +       ecryptfs_printk(1, KERN_NOTICE,
-> +                       "Done writing key packet set to underlying
-> file.\n");
-> +out_free:
-> +       ecryptfs_kmem_cache_free(ecryptfs_header_cache_0, page_virt);
-> +out:
-> +       ecryptfs_printk(1, KERN_NOTICE, "Exit; rc = [%d]\n", rc);
-> +       return rc;
-> +}
+
+I compared the dmesg log of the different kernel, but since I don't know 
+what I should find it's a little difficult. There is many differences 
+between each kernels. Despit that, I noticed this difference between the 
+kernel 2.6.9 (ntps working) and the kernel 2.6.10 (ntpd failed):
+
+--- linux-2.6.9.txt  2005-11-03 22:49:29.000000000 +0100
++++ linux-2.6.10.txt  2005-11-03 22:48:41.000000000 +0100
+[...snip...]
+@@ -67,16 +68,12 @@
+   Enabling unmasked SIMD FPU exception support... done.
+   Checking 'hlt' instruction... OK.
+   ENABLING IO-APIC IRQs
+- vector=0x31 pin1=2 pin2=-1
+- 8254 timer not connected to IO-APIC
+- ...trying to set up timer (IRQ0) through the 8259A ...  failed.
+- ...trying to set up timer as Virtual Wire IRQ... failed.
+- ...trying to set up timer as ExtINT IRQ... works.
++ vector=0x31 pin1=0 pin2=-1
+   Registered protocol family 16
+   PCI BIOS revision 2.10 entry at 0xfbbb0, last bus=3
+   Using configuration type 1
+[..snip...]
+
+Maybe a way to go ?
+
 -- 
-David Kleikamp
-IBM Linux Technology Center
-
+Jean-Christian de Rivaz

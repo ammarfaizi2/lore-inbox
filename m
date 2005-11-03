@@ -1,68 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030370AbVKCXB5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030397AbVKCXDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030370AbVKCXB5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 18:01:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030397AbVKCXB4
+	id S1030397AbVKCXDy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 18:03:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbVKCXDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 18:01:56 -0500
-Received: from kirby.webscope.com ([204.141.84.57]:25228 "EHLO
-	kirby.webscope.com") by vger.kernel.org with ESMTP id S1030370AbVKCXBx
+	Thu, 3 Nov 2005 18:03:54 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:5513 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S1751300AbVKCXDx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 18:01:53 -0500
-Message-ID: <436A96A8.4080906@linuxtv.org>
-Date: Thu, 03 Nov 2005 18:00:56 -0500
-From: Mike Krufky <mkrufky@linuxtv.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org,
-       Johannes Stezenbach <js@linuxtv.org>
-Subject: Re: [PATCH 26/37] dvb: add support for plls used by nxt200x
-References: <4367241A.1060300@m1k.net> <20051103135910.3bf893d9.akpm@osdl.org>
-In-Reply-To: <20051103135910.3bf893d9.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Nov 2005 18:03:53 -0500
+Date: Fri, 4 Nov 2005 00:06:47 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/9] kconfig: update kconfig Makefile
+Message-ID: <20051103230647.GA7722@mars.ravnborg.org>
+References: <Pine.LNX.4.61.0511031607490.2509@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0511031607490.2509@scrub.home>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Hi Roman.
 
->Michael Krufky <mkrufky@m1k.net> wrote:
->  
->
->>+struct dvb_pll_desc dvb_pll_tdhu2 = {
->> +	.name = "ALPS TDHU2",
->> +	.min = 54000000,
->> +	.max = 864000000,
->> +	.count = 4,
->> +	.entries = {
->> +		{ 162000000, 44000000, 62500, 0x85, 0x01 },
->> +		{ 426000000, 44000000, 62500, 0x85, 0x02 },
->> +		{ 782000000, 44000000, 62500, 0x85, 0x08 },
->> +		{ 999999999, 44000000, 62500, 0x85, 0x88 },
->> +	}
->> +};
->> +EXPORT_SYMBOL(dvb_pll_tdhu2);
->>    
->>
->
->The new driver is to have a GPL license, I assume?
->
->Generally, EXPORT_SYMBOL_GPL seems more appropriate for the DVB subsystem.
->
-Yes, GPL'd of course.  But these pll definitions are not strictly tied 
-to nxt200x -- they may very well be used by another frontend module in 
-the future.
+> -$(obj)/zconf.tab.c: $(src)/zconf.tab.c_shipped
+> -$(obj)/lex.zconf.c: $(src)/lex.zconf.c_shipped
+They were required to support building with a seperate output directory.
 
-Actually, we keep pll info in a separate file (dvb-pll.c) so that the 
-tuner programming can be used by any frontend module, depending on the 
-design..... About EXPORT_SYMBOL, this is how it's done all over dvb-pll.c
+make O=...
+And I do not see any changes that fixes this.
 
-If this needs to change, then it should apply to the entire dvb-pll.
+They broke the build with LKC_GENPARSER set to 1 but the right fix
+would be to include them in the else part instead.
 
-I'll wait for Johannes' comments on this.
-
-Michael Krufky
-
-
+	Sam

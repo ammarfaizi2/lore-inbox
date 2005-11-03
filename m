@@ -1,37 +1,46 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751162AbVKEN5v (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sat, 5 Nov 2005 08:57:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbVKEN5v
+	id S932218AbVKEXvj (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 5 Nov 2005 18:51:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbVKEXvj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 08:57:51 -0500
-Received: from sr-slo-gw.cza.warszawa.supermedia.pl ([212.180.147.130]:35340
-	"HELO sr-slo-gw.cza.warszawa.supermedia.pl") by vger.kernel.org
-	with SMTP id S1751162AbVKEN5v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 08:57:51 -0500
-From: "Elena Goldstein" <itinain@ititranslates.com>
-Reply-To: "Elena Goldstein" <itinain@ititranslates.com>
-Message-ID: <9150398179.2027046544@ititranslates.com>
-Date: Sat, 5 Nov 2005 09:00:16 -0500
-To: <linux-kernel@vger.kernel.org>
-Subject: Hi
+	Sat, 5 Nov 2005 18:51:39 -0500
+Received: from [209.97.201.16] ([209.97.201.16]:51930 "EHLO
+	server1.ginster-web.com") by vger.kernel.org with ESMTP
+	id S932218AbVKEXvi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 18:51:38 -0500
+Message-ID: <20051103155805.4B3583BFA7F85B7F@gmail.com>
+X-IMBH: Yes
+From: doublingyourmoney@gmail.com
+To: linux-kernel@vger.kernel.org
+Subject: Receive a FREE HYIP Script!
+Date: 03 Nov 2005 15:58:05 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - server1.ginster-web.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - gmail.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751162AbVKEN5v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932218AbVKEXvj@vger.kernel.org>
 
 
-Things done well and with a care, exempt themselves from fear.Reputation is what men and women think of us. Character is what God and the angels know of us.
-If you've heard this story before, don't stop me, because I'd like to hear it again.One chance is all you need.
-A decision without the pressure of consequence is hardly a decision at all.A man of genius has a right to any mode of expression.A real friend is one who walks in when the rest of the world walks out.
+http://www.xyzdoubler.com/?tydog22
 
-Cute Long Legged Teen In Sexy Thong Posing Topless
+XYZ Doubler-Brand New Cash Doubler!
+FOR LIMITED TIME ONLY RECEIVE A FREE E-GOLD HYIP SCRIPT WITH PURCHASE OF 
+$10 OR MORE!!
 
-http://diqafuti.com/main/
+Need more e-gold/stormpay?
 
-Every failure is a step to success.It is better to be a coward for a minute than dead for the rest of your life.
-It's not the size of the dog in the fight, it's the size of the fight in the dog.
+Get In Early While Its HOT!
+Join this brand new cash doubler and double your money in 1 day!
+A great way to earn some extra cash on the side!
+Simple but brilliant way of doubling your investment!
 
-
+http://www.xyzdoubler.com/?tydog22

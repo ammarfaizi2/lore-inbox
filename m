@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030267AbVKCBvO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030264AbVKCBzE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030267AbVKCBvO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 20:51:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030265AbVKCBvO
+	id S1030264AbVKCBzE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 20:55:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030265AbVKCBzE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 20:51:14 -0500
-Received: from ozlabs.org ([203.10.76.45]:12735 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1030264AbVKCBvN (ORCPT
+	Wed, 2 Nov 2005 20:55:04 -0500
+Received: from mail.isurf.ca ([66.154.97.68]:5049 "EHLO columbo.isurf.ca")
+	by vger.kernel.org with ESMTP id S1030264AbVKCBzD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 20:51:13 -0500
-Subject: Re: Percpu data in a vsyscall page
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051102105405.GA5320@ucw.cz>
-References: <20051102105405.GA5320@ucw.cz>
-Content-Type: text/plain
-Date: Thu, 03 Nov 2005 12:51:11 +1100
-Message-Id: <1130982671.8734.15.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Wed, 2 Nov 2005 20:55:03 -0500
+From: "Gabriel A. Devenyi" <ace@staticwave.ca>
+To: davej@codemonkey.org.uk
+Subject: [PATCH] arch/i386/kernel/cpu/cpufreq/cpufreq-nforce2.c
+Date: Wed, 2 Nov 2005 20:55:46 -0500
+User-Agent: KMail/1.8.3
+Cc: cpufreq@lists.linux.org.uk, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511022055.47183.ace@staticwave.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-02 at 11:54 +0100, Vojtech Pavlik wrote:
-> Hi!
-> 
-> I'm working on a RDTSCP support on x86-64, and for that, I'll need
-> per-cpu time offset table in a vsyscall page. I saw the percpu.h header,
-> and thought - "Hey, I could use that!", but I think I really can't.
-> 
-> The data need to be in a vsyscall page, which is mapped to userspace via
-> linker magic, and the percpu stuff uses a different mapping.
+Thanks to LinuxICC (http://linuxicc.sf.net), a comparison of a u32 less than 0 was found, this patch changes the variable to a signed int so that comparison is meaningful.
 
-Yes.  The percpu stuff uses a single add to find the local value of a
-variable.  This per-cpu offset can be kept in a register (I think
-Sparc64 already does this) making it v. fast.
+This patch applies to linus' git tree as of 02.11.2005
 
-You're going to have to stick with an array I think.
+Signed-off-by: Gabriel A. Devenyi <ace@staticwave.ca>
 
-Sorry,
-Rusty.
+--
+diff --git a/arch/i386/kernel/cpu/cpufreq/cpufreq-nforce2.c b/arch/i386/kernel/cpu/cpufreq/cpufreq-nforce2.c
+index 04a4053..039297b 100644
+--- a/arch/i386/kernel/cpu/cpufreq/cpufreq-nforce2.c
++++ b/arch/i386/kernel/cpu/cpufreq/cpufreq-nforce2.c
+@@ -177,9 +177,9 @@ static unsigned int nforce2_fsb_read(int
+  */
+ static int nforce2_set_fsb(unsigned int fsb)
+ {
+-	u32 pll, temp = 0;
++	u32 temp = 0;
+ 	unsigned int tfsb;
+-	int diff;
++	int diff, pll = 0;
+ 
+ 	if ((fsb > max_fsb) || (fsb < NFORCE2_MIN_FSB)) {
+ 		printk(KERN_ERR "cpufreq: FSB %d is out of range!\n", fsb);
+
+
 -- 
-A bad analogy is like a leaky screwdriver -- Richard Braakman
-
+Gabriel A. Devenyi
+ace@staticwave.ca

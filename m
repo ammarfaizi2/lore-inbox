@@ -1,122 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030404AbVKCRi2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030391AbVKCRiT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030404AbVKCRi2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 12:38:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030403AbVKCRi2
+	id S1030391AbVKCRiT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 12:38:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030392AbVKCRiS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 12:38:28 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:58533
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1030396AbVKCRi1 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 12:38:27 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Robert Schwebel <r.schwebel@pengutronix.de>
-Subject: Re: initramfs for /dev/console with udev?
-Date: Thu, 3 Nov 2005 11:38:09 -0600
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org
-References: <20051102222030.GP23316@pengutronix.de> <200511022140.25268.rob@landley.net> <20051103064727.GR23316@pengutronix.de>
-In-Reply-To: <20051103064727.GR23316@pengutronix.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 3 Nov 2005 12:38:18 -0500
+Received: from lakshmi.addtoit.com ([198.99.130.6]:57863 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S1030391AbVKCRiS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 12:38:18 -0500
+Date: Thu, 3 Nov 2005 13:27:34 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: Badari Pulavarty <pbadari@gmail.com>
+Cc: Rob Landley <rob@landley.net>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Gerrit Huizenga <gh@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+       Kamezawa Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       Dave Hansen <haveblue@us.ibm.com>, Mel Gorman <mel@csn.ul.ie>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       kravetz@us.ibm.com, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lhms <lhms-devel@lists.sourceforge.net>
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+Message-ID: <20051103182734.GA6639@ccure.user-mode-linux.org>
+References: <E1EXEfW-0005ON-00@w-gerrit.beaverton.ibm.com> <200511021747.45599.rob@landley.net> <43699573.4070301@yahoo.com.au> <200511030007.34285.rob@landley.net> <20051103163555.GA4174@ccure.user-mode-linux.org> <1131035000.24503.135.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511031138.10414.rob@landley.net>
+In-Reply-To: <1131035000.24503.135.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 03 November 2005 00:47, Robert Schwebel wrote:
-> On Wed, Nov 02, 2005 at 09:40:24PM -0600, Rob Landley wrote:
-> > > dir /dev 0755 0 0
-> > > nod /dev/console 0600 0 0 c 5 1
-> > > nod /dev/null 0600 0 0 c 1 3
-> > > dir /root 0700 0 0
-> > >
-> > > and let CONFIG_INITRAMFS_SOURCE point to that file. The gpio archive is
-> > > built correctly with that, but my kernel doesn't seem to use it.
-> >
-> > 1) You have no init in initramfs, so it goes ahead and mounts whatever
-> > root= points to over it. I'm guessing that's where it's looking for
-> > /dev/console from.
->
-> Hmm, I thought something like that. That means that I do need a complete
-> klibc based early userspace, just to get these two device nodes?
+On Thu, Nov 03, 2005 at 08:23:20AM -0800, Badari Pulavarty wrote:
+> Yep. This is the exactly the issue other product groups normally raise
+> on Linux. How do we measure memory pressure in linux ? Some of our
+> software products want to grow or shrink their memory usage depending
+> on the memory pressure in the system.
 
-No, you just need a statically linked init program.  (Which can be a shell 
-script using a statically linked shell.  For testing purposes it can be 
-statically linked against glibc, it'll just be a bloated pig.)
+I think this is wrong.  Applications shouldn't be measuring host
+memory pressure and trying to react to it.
 
-I have a /tools directory that builds uClibc executables.  (Like Linux From 
-Scratch Chapter 5: extract it as /tools, export PATH=/tools/bin:$PATH, and 
-then build software as normal.)  I can post that somewhere if you'd like, or 
-you can extract it yourself out of my firmware linux build 
-(http://www.landley.net/code/firmware)...
+This gives you no way to implement a global memory use policy - you
+can't say "App X is the most important thing on the system and must
+have all the memory it needs in order run as quickly as possible".
 
-The switch_root program in busybox is still being banged on (by me).  I 
-haven't quite worked out what to do about /dev/console yet.  I'm thinking if 
-it's not there, keep the one from initramfs, but haven't implemented that 
-tweak yet...
+You can't establish any sort of priority between apps when it comes to
+memory use, or change those priorities.
 
-You also have the option of putting a single static node (console) in the /dev 
-directory you're going to overmount.  It shouldn't hurt anything at present.  
-And if nothing else, it'll confirm where it's trying to get the sucker 
-from...
+And how does this work when the system can change the amount of memory
+that it has, such as when the app is inside a UML?
 
-> Seems 
-> like I'll have to do some deeper investigation of klibc; last time I
-> looked it didn't even compile for ARCH=um.
+I think the right way to go is for willing apps to have an interface
+through which they can be told "change your memory consumption by +-X"
+and have a single daemon on the host tracking memory use and memory
+pressure, and shuffling memory between the apps.
 
-Klibc didn't, or the kernel didn't?
+This allows the admin to set memory use priorities between the apps
+and to exempt important ones from having memory pulled.
 
-> > 2) What's the directory /root for?
->
-> Just a relict from the default script; the first three lines should be
-> enought. But it shouldn't matter.
->
-> > > Is anything else needed to use an initrd, like a command line argument?
-> > > My kernel boots from a nfs partition, so it sets nfsroot=...
-> >
-> > Note that initramfs and initrd and very different things.
->
-> Is there any other known possibility to get just these two device nodes
-> in an automatic way?
+Measuring at the bottom and pushing memory pressure upwards also works
+naturally for virtual machines and the apps running inside them.  The
+host will push memory pressure at the virtual machines, which in turn
+will push that pressure at their apps.
 
->From initramfs, you could try:
+With UML, I have an interface where a daemon on the host can add or
+remove memory from an instance.  I think the apps that are willing to
+adjust should implement something similar.
 
-mount -t sysfs /sys /sys
-CDEV=`cat /sys/class/tty/console`
-mknod /dev/console c $(echo $CDEV | sed 's/:.*//') \
-  $(echo $CDEV | sed 's/.*://')
-
-Bit of a chicken and egg problem if it refuses to run /init if it's not 
-already there, though.  We're heading towards fully dynamic devices, but not 
-quite there yet...
-
-> I'm trying to get rid of devfs, and udev works just 
-> fine. The only thing not solved yet is how to get the beast started
-> without /dev/console and /dev/null. I don't want to create the nodes
-> statically, because that's only possible with root permissions.
-
-You don't need root access to make an initramfs configuration text file. :)
-
-> Some background: I'm building root filesystems for embedded systems with
-> PTXdist; the user is able to build the whole thing without root
-> permissions; either with a cross compiler and mount it via NFS or build
-> a JFFS2 image, or, with one switch, build and run it with an uml kernel.
-
-I did something like that, only from scratch:
-http://www.landley.net/code/firmware
-
-I'll probably release version 0.8.10 later today.  (Still need to make an 
-installer for the bootable version before I can call it 0.9...)
-
-> I also tried ndevfs, just to get these two nodes, but I didn't find out
-> how to automatically mount it on boot yet.
-
-Presumably, either via initramfs or from init/main.c
-
-> Robert
-
-Rob
+				Jeff

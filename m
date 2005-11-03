@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030276AbVKCCxN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030311AbVKCDM0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030276AbVKCCxN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 21:53:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030285AbVKCCxN
+	id S1030311AbVKCDM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 22:12:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030309AbVKCDM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 21:53:13 -0500
-Received: from sabe.cs.wisc.edu ([128.105.6.20]:63931 "EHLO sabe.cs.wisc.edu")
-	by vger.kernel.org with ESMTP id S1030276AbVKCCxN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 21:53:13 -0500
-Message-ID: <38523.192.168.0.12.1130986361.squirrel@192.168.0.2>
-In-Reply-To: <20051102213354.GO23316@pengutronix.de>
-References: <20051101234459.GA443@elf.ucw.cz>
-    <20051102202622.GN23316@pengutronix.de>
-    <20051102211334.GH23943@elf.ucw.cz>
-    <20051102213354.GO23316@pengutronix.de>
-Date: Wed, 2 Nov 2005 20:52:41 -0600 (CST)
+	Wed, 2 Nov 2005 22:12:26 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:21693
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1030308AbVKCDMZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 22:12:25 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Robert Schwebel <robert@schwebel.de>
 Subject: Re: best way to handle LEDs
-From: "John Lenz" <lenz@cs.wisc.edu>
-To: "Robert Schwebel" <robert@schwebel.de>
-Cc: "Pavel Machek" <pavel@suse.cz>,
-       "Robert Schwebel" <r.schwebel@pengutronix.de>, vojtech@suse.cz,
-       rpurdie@rpsys.net, "kernel list" <linux-kernel@vger.kernel.org>,
-       "Russell King" <rmk@arm.linux.org.uk>
-User-Agent: SquirrelMail/1.4.4
+Date: Wed, 2 Nov 2005 21:09:55 -0600
+User-Agent: KMail/1.8
+Cc: Pavel Machek <pavel@suse.cz>, Robert Schwebel <r.schwebel@pengutronix.de>,
+       vojtech@suse.cz, rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>
+References: <20051101234459.GA443@elf.ucw.cz> <20051102211334.GH23943@elf.ucw.cz> <20051102213354.GO23316@pengutronix.de>
+In-Reply-To: <20051102213354.GO23316@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511022109.57214.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, November 2, 2005 3:33 pm, Robert Schwebel said:
+On Wednesday 02 November 2005 15:33, Robert Schwebel wrote:
 > On Wed, Nov 02, 2005 at 10:13:34PM +0100, Pavel Machek wrote:
->> We have some leds that are *not* on GPIO pins (like driven by
->> ACPI). We'd like to support those, too.
+> > We have some leds that are *not* on GPIO pins (like driven by
+> > ACPI). We'd like to support those, too.
 >
 > One more argument to have a LED framework which sits ontop of a lowlevel
 > one.
->
 
-Except the led code that is being proposed CAN sit on top of a generic
-GPIO layer.  If a generic GPIO layer is created, you can create a led
-driver that calls out to that GPIO layer.
+In which case, why not submit the standalone LED framework now and shoehorn 
+the low-level one underneath later.  From a userspace API perspective, it 
+really shouldn't matter...
 
-You just need to fill in the following functions with some that raise and
-lower the GPIO on the correct line....
-
-int (*color_get)(struct device *, struct led_properties *props);
-void (*color_set)(struct device *, struct led_properties *props, int value);
-
-int (*brightness_get)(struct device *, struct led_properties *props);
-void (*brightness_set)(struct device *, struct led_properties *props, int
-value);
-
-John
-
+Rob

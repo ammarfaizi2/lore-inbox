@@ -1,68 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750982AbVKCW3Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751414AbVKCWaP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750982AbVKCW3Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 17:29:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbVKCW3Z
+	id S1751414AbVKCWaP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 17:30:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751411AbVKCWaP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 17:29:25 -0500
-Received: from smtp2-g19.free.fr ([212.27.42.28]:19640 "EHLO smtp2-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1750982AbVKCW3Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 17:29:25 -0500
-Subject: PROBLEM: potential null-pointer dereference in fs/bfs/inode.c
-From: Nic Volanschi <nic.volanschi@free.fr>
-To: tigran@veritas.com
-Cc: linux-kernel@vger.kernel.org
+	Thu, 3 Nov 2005 17:30:15 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:25991 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751410AbVKCWaM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 17:30:12 -0500
+Subject: Re: [PATCH 12/12: eCryptfs] Crypto functions
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Michael Thompson <michael.craig.thompson@gmail.com>
+Cc: Phillip Hellewell <phillip@hellewell.homeip.net>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       mike@halcrow.us, mhalcrow@us.ibm.com, mcthomps@us.ibm.com,
+       yoder1@us.ibm.com
+In-Reply-To: <afcef88a0511031425u1fa5838fic86cbd7a341cb0a6@mail.gmail.com>
+References: <20051103033220.GD2772@sshock.rn.byu.edu>
+	 <20051103035659.GL3005@sshock.rn.byu.edu>
+	 <1131055610.9365.17.camel@kleikamp.austin.ibm.com>
+	 <afcef88a0511031425u1fa5838fic86cbd7a341cb0a6@mail.gmail.com>
 Content-Type: text/plain
-Message-Id: <1131057113.5733.21.camel@localhost.localdomain>
+Date: Thu, 03 Nov 2005 16:30:09 -0600
+Message-Id: <1131057009.9365.21.camel@kleikamp.austin.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9.1.aur.2) 
-Date: Thu, 03 Nov 2005 23:31:54 +0100
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Tigran,
+On Thu, 2005-11-03 at 16:25 -0600, Michael Thompson wrote:
+> On 11/3/05, Dave Kleikamp <shaggy@austin.ibm.com> wrote:
+> > On Wed, 2005-11-02 at 20:56 -0700, Phillip Hellewell wrote:
+> > > +       ecryptfs_fput(lower_file);
+> >
+> > Why the call to ecryptfs_fput() here?  The caller does it's own fput on
+> > lower_file.
+> 
+> Hmm, good catch. That slipped through us - and to be hoenst, I have no
+> explination other than, it's wrong. ecryptfs_write_headers should not
+> be responsible for put'ing that which it did not get.
+> 
+> I'm wondering if I should be sending 1 patch per tiny fix like this,
+> or if I should be waiting for a few more changes, so as to not flood
+> the threads with minor patches?
 
-While looking into the BFS code of kernel 2.6.13, I noticed what seems
-to be a potential null-pointer dereference bug in file fs/bfs/inode.c,
-function bfs_fill_super(), within the following piece of code:
+Well, I found it trying to look for the cause of bug 1228303, but I
+haven't actually run anything to verify it.  It may be worth checking if
+it fixes that problem, and if it does, it would bump up its importance.
 
-		inode = iget(s,i);
-		if (BFS_I(inode)->i_dsk_ino == 0)
-			info->si_freei++;
-
-Is it correct that iget() may return a Null value, and in that case, we
-have a null-pointer exception on the subsequent line?
-
-Please let me know if you confirm or not this diagnostics.
-Best regards,
-Nic.
-
-
-[1.] One line summary of the problem:    
- potential null-pointer dereference in fs/bfs/inode.c
-[2.] Full description of the problem/report:
-  see above
-[3.] Keywords (i.e., modules, networking, kernel): 
- BFS file system
-[4.] Kernel version (from /proc/version): 2.6.13
-[5.] Most recent kernel version which did not have the bug:
-[6.] Output of Oops.. message (if applicable) with symbolic information
-     resolved (see Documentation/oops-tracing.txt)
-[7.] A small shell script or example program which triggers the
-     problem (if possible)
-[8.] Environment
-[8.1.] Software (add the output of the ver_linux script here)
-[8.2.] Processor information (from /proc/cpuinfo): AMD athlon XP 2800+
-[8.3.] Module information (from /proc/modules):
-[8.4.] Loaded driver and hardware information (/proc/ioports,
-/proc/iomem)
-[8.5.] PCI information ('lspci -vvv' as root)
-[8.6.] SCSI information (from /proc/scsi/scsi)
-[8.7.] Other information that might be relevant to the problem
-       (please look in /proc and include all information that you
-       think to be relevant):
-[X.] Other notes, patches, fixes, workarounds:
-
+> Thanks,
+> Mike
+> 
+-- 
+David Kleikamp
+IBM Linux Technology Center
 

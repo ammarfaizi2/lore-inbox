@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030344AbVKCPfT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030342AbVKCPge@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030344AbVKCPfT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 10:35:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030343AbVKCPex
+	id S1030342AbVKCPge (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 10:36:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030341AbVKCPge
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 10:34:53 -0500
-Received: from styx.suse.cz ([82.119.242.94]:17589 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1030342AbVKCPer (ORCPT
+	Thu, 3 Nov 2005 10:36:34 -0500
+Received: from dvhart.com ([64.146.134.43]:55469 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S1030342AbVKCPgd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 10:34:47 -0500
-Date: Thu, 3 Nov 2005 16:34:45 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Pavel Machek <pavel@suse.cz>, John Lenz <lenz@cs.wisc.edu>,
-       Robert Schwebel <robert@schwebel.de>,
-       Robert Schwebel <r.schwebel@pengutronix.de>, rpurdie@rpsys.net,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: best way to handle LEDs
-Message-ID: <20051103153445.GA3530@ucw.cz>
-References: <20051101234459.GA443@elf.ucw.cz> <20051102202622.GN23316@pengutronix.de> <20051102211334.GH23943@elf.ucw.cz> <20051102213354.GO23316@pengutronix.de> <38523.192.168.0.12.1130986361.squirrel@192.168.0.2> <20051103081522.GA21663@flint.arm.linux.org.uk> <20051103095725.GA703@openzaurus.ucw.cz> <20051103144904.GG28038@flint.arm.linux.org.uk>
-Mime-Version: 1.0
+	Thu, 3 Nov 2005 10:36:33 -0500
+Date: Thu, 03 Nov 2005 07:36:34 -0800
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Dave Hansen <haveblue@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+       Mel Gorman <mel@csn.ul.ie>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, kravetz@us.ibm.com,
+       linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lhms <lhms-devel@lists.sourceforge.net>,
+       Arjan van de Ven <arjanv@infradead.org>
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+Message-ID: <306020000.1131032193@[10.10.2.4]>
+In-Reply-To: <4369824E.2020407@yahoo.com.au>
+References: <4366C559.5090504@yahoo.com.au>	 <Pine.LNX.4.58.0511010137020.29390@skynet> <4366D469.2010202@yahoo.com.au>	 <Pine.LNX.4.58.0511011014060.14884@skynet> <20051101135651.GA8502@elte.hu>	 <1130854224.14475.60.camel@localhost> <20051101142959.GA9272@elte.hu>	 <1130856555.14475.77.camel@localhost> <20051101150142.GA10636@elte.hu>	 <1130858580.14475.98.camel@localhost> <20051102084946.GA3930@elte.hu>	 <436880B8.1050207@yahoo.com.au> <1130923969.15627.11.camel@localhost> <43688B74.20002@yahoo.com.au> <255360000.1130943722@[10.10.2.4]> <4369824E.2020407@yahoo.com.au>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051103144904.GG28038@flint.arm.linux.org.uk>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 03, 2005 at 02:49:04PM +0000, Russell King wrote:
-> On Thu, Nov 03, 2005 at 10:57:26AM +0100, Pavel Machek wrote:
-> > Hi!
-> > 
-> > > > Except the led code that is being proposed CAN sit on top of a generic
-> > > > GPIO layer.
-> > > 
-> > > I also have issues with a generic GPIO layer.  As I mentioned in the
-> > > past, there's serious locking issues with any generic abstraction of
-> > > GPIOs.
-> > > 
-> > > 1. You want to be able to change GPIO state from interrupts.  This
-> > >    implies you can not sleep in GPIO state changing functions.
-> > > 
-> > > 2. Some GPIOs are implemented on I2C devices.  This means that to
-> > >    change state, you must sleep.
-> > 
-> > Can't you just busywait? Yes, it is ugly in general, but perhaps it
-> > is better than alternatives...
+>> Can we quit coming up with specialist hacks for hotplug, and try to solve
+>> the generic problem please? hotplug is NOT the only issue here. Fragmentation
+>> in general is.
+>> 
 > 
-> Does the i2c layer support busy waiting or are you suggesting something
-> else?
+> Not really it isn't. There have been a few cases (e1000 being the main
+> one, and is fixed upstream) where fragmentation in general is a problem.
+> But mostly it is not.
 
-It usually doesn't support anything else. At least on the controllers
-I've seen the drivers for.
+Sigh. OK, tell me how you're going to fix kernel stacks > 4K please. And 
+devices that don't support scatter-gather DMA.
+ 
+M.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR

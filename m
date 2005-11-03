@@ -1,52 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030482AbVKCVHy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030483AbVKCVJZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030482AbVKCVHy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 16:07:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030483AbVKCVHy
+	id S1030483AbVKCVJZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 16:09:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030486AbVKCVJZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 16:07:54 -0500
-Received: from mtaout4.012.net.il ([84.95.2.10]:36321 "EHLO mtaout4.012.net.il")
-	by vger.kernel.org with ESMTP id S1030482AbVKCVHx (ORCPT
+	Thu, 3 Nov 2005 16:09:25 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:12489 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030485AbVKCVJY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 16:07:53 -0500
-Date: Thu, 03 Nov 2005 23:07:38 +0200
-From: Muli Ben-Yehuda <mulix@mulix.org>
-Subject: Re: [was Re: Linux 2.6.14 ] Revert
- "x86-64: Avoid unnecessary double bouncing for swiotlb"
-In-reply-to: <200511031935.56160.ak@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Ravikiran G Thirumalai <kiran@scalex86.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       Andrew Morton <akpm@osdl.org>
-Message-id: <20051103210738.GL31790@granada.merseine.nu>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-References: <Pine.LNX.4.64.0510271717190.4664@g5.osdl.org>
- <200510291214.34718.ak@suse.de> <20051031214859.GA3721@localhost.localdomain>
- <200511031935.56160.ak@suse.de>
-User-Agent: Mutt/1.5.11
+	Thu, 3 Nov 2005 16:09:24 -0500
+Message-ID: <436A7C75.8050101@redhat.com>
+Date: Thu, 03 Nov 2005 16:09:09 -0500
+From: Peter Staubach <staubach@redhat.com>
+User-Agent: Mozilla Thunderbird  (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] memory leak in dentry_open()
+Content-Type: multipart/mixed;
+ boundary="------------010207000501050402080806"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 03, 2005 at 07:35:55PM +0100, Andi Kleen wrote:
+This is a multi-part message in MIME format.
+--------------010207000501050402080806
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Anyways, with the dma_ops patch we can probably separate it cleanly
-> and avoid the problem.
+Hi.
 
-Hi Andi, Kiran, would something like:
+There is a memory leak possible in dentry_open().  If get_empty_filp()
+fails, then the references to dentry and mnt need to be released.
+The attached patch adds the calls to dput() and mntput() to release
+these two references.
 
-#define PCI_DMA_BUS_IS_PHYS (mapping_ops->bus_is_phys) 
+    Thanx...
 
-do the job, where mapping_ops->bus_is_phys is set to 0 for gart and
-swiotlb, and 1 for nommu?
+       ps
 
-Cheers,
-Muli
--- 
-Muli Ben-Yehuda
-http://www.mulix.org | http://mulix.livejournal.com/
+Signed-off-by: Peter Staubach <staubach@redhat.com>
 
+--------------010207000501050402080806
+Content-Type: text/plain;
+ name="open-enfile.devel"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="open-enfile.devel"
+
+--- linux-2.6.14/fs/open.c.org
++++ linux-2.6.14/fs/open.c
+@@ -894,8 +894,11 @@ struct file *dentry_open(struct dentry *
+ 
+ 	error = -ENFILE;
+ 	f = get_empty_filp();
+-	if (f == NULL)
++	if (f == NULL) {
++		dput(dentry);
++		mntput(mnt);
+ 		return ERR_PTR(error);
++	}
+ 
+ 	return __dentry_open(dentry, mnt, flags, f, NULL);
+ }
+
+--------------010207000501050402080806--

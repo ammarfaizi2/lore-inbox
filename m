@@ -1,50 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030403AbVKCSNM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030408AbVKCSO1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030403AbVKCSNM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 13:13:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030405AbVKCSNM
+	id S1030408AbVKCSO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 13:14:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030412AbVKCSO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 13:13:12 -0500
-Received: from mail.ispwest.com ([216.52.245.18]:52486 "EHLO
-	ispwest-email1.mdeinc.com") by vger.kernel.org with ESMTP
-	id S1030403AbVKCSNL convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 13:13:11 -0500
-X-Modus-BlackList: 216.52.245.25=OK;kjak@ispwest.com=OK
-X-Modus-Trusted: 216.52.245.25=YES
-Message-ID: <cff2d7595303438db8feb9237d6c835b.kjak@ispwest.com>
-X-EM-APIVersion: 2, 0, 1, 0
-X-Priority: 3 (Normal)
-Reply-To: "Kris Katterjohn" <kjak@users.sourceforge.net>
-From: "Kris Katterjohn" <kjak@ispwest.com>
-To: "Mitchell Blank Jr" <mitch@sfgoth.com>,
-       "Patrick McHardy" <kaber@trash.net>
-CC: "Herbert Xu" <herbert@gondor.apana.org.au>, jschlst@samba.org,
-       davem@davemloft.net, acme@ghostprotocols.net, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Merge __load_pointer() and load_pointer() in net/core/filter.c;kernel 2.6.14
-Date: Thu, 3 Nov 2005 10:13:04 -0800
+	Thu, 3 Nov 2005 13:14:27 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:59919 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030408AbVKCSO0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 13:14:26 -0500
+Date: Thu, 3 Nov 2005 19:14:15 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: [2.6 patch] drivers/ide/: possible cleanups
+Message-ID: <20051103181414.GD23366@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Patrick McHardy
-> Mitchell Blank Jr wrote:
-> > Well the original author presumably thought that the fast-path of
-> > load_pointer() was critical enough to keep inline (since it can be run many
-> > times per packet)  So they made the deliberate choice of separating it
-> > into two functions - one inline, one non-inline.
-> 
-> Exactly. __load_pointer is only called rarely, while load_pointer is
-> called whenever data needs to be read from the packet. It shouldn't
-> be changed without any justification.
+This patch contains the following possible cleanups:
+- pci/cy82c693.c: make a needlessly global function static
+- remove the following unneeded EXPORT_SYMBOL's:
+  - ide-taskfile.c: do_rw_taskfile
+  - ide-iops.c: default_hwif_iops
+  - ide-iops.c: default_hwif_transport
+  - ide-iops.c: wait_for_ready
 
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-That's a good enough answer for me!
+---
 
+This patch was already sent on:
+- 1 Oct 2005
+- 20 Aug 2005
 
-Thanks
+ drivers/ide/ide-iops.c     |    6 ------
+ drivers/ide/ide-taskfile.c |    2 --
+ drivers/ide/pci/cy82c693.c |    2 +-
+ 3 files changed, 1 insertion(+), 9 deletions(-)
 
+--- linux-2.6.11-rc3-mm1-full/drivers/ide/ide-taskfile.c.old	2005-02-05 02:57:03.000000000 +0100
++++ linux-2.6.11-rc3-mm1-full/drivers/ide/ide-taskfile.c	2005-02-05 02:57:12.000000000 +0100
+@@ -161,8 +161,6 @@
+ 	return ide_stopped;
+ }
+ 
+-EXPORT_SYMBOL(do_rw_taskfile);
+-
+ /*
+  * set_multmode_intr() is invoked on completion of a WIN_SETMULT cmd.
+  */
+
+--- linux-2.6.12-rc2-mm3-full/drivers/ide/pci/cy82c693.c.old	2005-04-17 21:11:22.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/ide/pci/cy82c693.c	2005-04-17 21:11:30.000000000 +0200
+@@ -469,7 +469,7 @@
+ 
+ static __initdata ide_hwif_t *primary;
+ 
+-void __devinit init_iops_cy82c693(ide_hwif_t *hwif)
++static void __devinit init_iops_cy82c693(ide_hwif_t *hwif)
+ {
+ 	if (PCI_FUNC(hwif->pci_dev->devfn) == 1)
+ 		primary = hwif;
+--- linux-2.6.12-rc2-mm3-full/drivers/ide/ide-iops.c.old	2005-04-17 21:12:44.000000000 +0200
++++ linux-2.6.12-rc2-mm3-full/drivers/ide/ide-iops.c	2005-04-17 21:12:54.000000000 +0200
+@@ -104,8 +104,6 @@
+ 	hwif->INSL	= ide_insl;
+ }
+ 
+-EXPORT_SYMBOL(default_hwif_iops);
+-
+ /*
+  *	MMIO operations, typically used for SATA controllers
+  */
+@@ -329,8 +327,6 @@
+ 	hwif->atapi_output_bytes	= atapi_output_bytes;
+ }
+ 
+-EXPORT_SYMBOL(default_hwif_transport);
+-
+ /*
+  * Beginning of Taskfile OPCODE Library and feature sets.
+  */
+@@ -525,8 +525,6 @@
+ 	return 0;
+ }
+ 
+-EXPORT_SYMBOL(wait_for_ready);
+-
+ /*
+  * This routine busy-waits for the drive status to be not "busy".
+  * It then checks the status for all of the "good" bits and none
 

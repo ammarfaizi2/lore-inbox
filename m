@@ -1,77 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbVKCJgA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbVKCJme@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932148AbVKCJgA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 04:36:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbVKCJgA
+	id S932159AbVKCJme (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 04:42:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbVKCJme
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 04:36:00 -0500
-Received: from penta.pentaserver.com ([66.45.247.194]:53709 "EHLO
-	penta.pentaserver.com") by vger.kernel.org with ESMTP
-	id S932148AbVKCJf7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 04:35:59 -0500
-Message-ID: <4369D6B3.60501@linuxtv.org>
-Date: Thu, 03 Nov 2005 13:21:55 +0400
-From: Manu Abraham <manu@linuxtv.org>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Thu, 3 Nov 2005 04:42:34 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:35271 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932159AbVKCJmd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 04:42:33 -0500
+Date: Thu, 3 Nov 2005 10:42:31 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Jean-Christian de Rivaz <jc@eclis.ch>
+cc: linux-kernel@vger.kernel.org, johnstul@us.ibm.com
+Subject: Re: NTP broken with 2.6.14
+In-Reply-To: <4369641D.6020301@eclis.ch>
+Message-ID: <Pine.LNX.4.61.0511030306150.1387@scrub.home>
+References: <4369464B.6040707@eclis.ch> <Pine.LNX.4.61.0511030134580.1387@scrub.home>
+ <4369641D.6020301@eclis.ch>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Michael Krufky <mkrufky@m1k.net>, linux-kernel@vger.kernel.org,
-       linux-dvb-maintainer@linuxtv.org
-Subject: Re: [PATCH 01/37] dvb: dst: Correcty Identify Tuner and Daughterboards
-References: <4367235B.40608@m1k.net> <20051103132412.6266ccf0.akpm@osdl.org>
-In-Reply-To: <20051103132412.6266ccf0.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - penta.pentaserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - linuxtv.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Hi,
 
->Michael Krufky <mkrufky@m1k.net> wrote:
->  
->
->> +static int dst_get_tuner_info(struct dst_state *state)
->> +{
->> +	u8 get_tuner_1[] = { 0x00, 0x13, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
->> +	u8 get_tuner_2[] = { 0x00, 0x0b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
->> +
->> +	get_tuner_1[7] = dst_check_sum(get_tuner_1, 7);
->> +	get_tuner_2[7] = dst_check_sum(get_tuner_2, 7);
->> +	if (state->type_flags & DST_TYPE_HAS_MULTI_FE) {
->> +		if (dst_command(state, get_tuner_2, 8) < 0) {
->> +			dprintk(verbose, DST_INFO, 1, "Unsupported Command");
->> +			return -1;
->> +		}
->> +	} else {
->> +		if (dst_command(state, get_tuner_1, 8) < 0) {
->> +			dprintk(verbose, DST_INFO, 1, "Unsupported Command");
->> +			return -1;
->> +		}
->> +	}
->> +	memset(&state->board_info, '\0', 8);
->> +	memcpy(&state->board_info, &state->rxbuffer, 8);
->>    
->>
->
->The memset is unneeded...
->  
->
-Hello Andrew,
+On Thu, 3 Nov 2005, Jean-Christian de Rivaz wrote:
 
-I will have that changed in dvb-kernel CVS. Would you like me to send in 
-a patch for the same. Or you can have it changed .. ?
+> talla:~# zcat /proc/config.gz | egrep HZ
+> # CONFIG_HZ_100 is not set
+> CONFIG_HZ_250=y
+> # CONFIG_HZ_1000 is not set
+> CONFIG_HZ=250
 
+It's possible that it works again, if you change this back to 1000, but 
+that would mean something is still wrong.
+Could you compare the compare the boot messages, if you find any 
+suspicious differences?
 
-Thanks,
-Manu
-
+bye, Roman

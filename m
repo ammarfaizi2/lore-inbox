@@ -1,61 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030343AbVKCXBo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030370AbVKCXB5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030343AbVKCXBo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 18:01:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030357AbVKCXBo
+	id S1030370AbVKCXB5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 18:01:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030397AbVKCXB4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 18:01:44 -0500
-Received: from dvhart.com ([64.146.134.43]:33711 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S1030343AbVKCXBn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 18:01:43 -0500
-Date: Thu, 03 Nov 2005 15:01:38 -0800
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Arjan van de Ven <arjan@infradead.org>, Mel Gorman <mel@csn.ul.ie>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Dave Hansen <haveblue@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, kravetz@us.ibm.com,
-       linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>,
-       Arjan van de Ven <arjanv@infradead.org>
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-Message-ID: <51160000.1131058898@flay>
-In-Reply-To: <Pine.LNX.4.64.0511031454050.27915@g5.osdl.org>
-References: <4366C559.5090504@yahoo.com.au><Pine.LNX.4.58.0511011014060.14884@skynet><20051101135651.GA8502@elte.hu><1130854224.14475.60.camel@localhost><20051101142959.GA9272@elte.hu><1130856555.14475.77.camel@localhost><20051101150142.GA10636@elte.hu><1130858580.14475.98.camel@localhost><20051102084946.GA3930@elte.hu><436880B8.1050207@yahoo.com.au><1130923969.15627.11.camel@localhost><43688B74.20002@yahoo.com.au><255360000.1130943722@[10.10.2.4]><4369824E.2020407@yahoo.com.au><1131040786.2839.18.camel@laptopd505.fenrus.org><Pine.LNX.4.64.0511031006550.27915@g5.osdl.org><312300000.1131041824@[10.10.2.4]><Pine.LNX.4.64.0511031029090.27915@g5.osdl.org><314480000.1131043874@[10.10.2.4]><Pine.LNX.4.64.0511031133040.27915@g5.osdl.org>
- <44190000.1131057630@flay> <Pine.LNX.4.64.0511031454050.27915@g5.osdl.org>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Thu, 3 Nov 2005 18:01:56 -0500
+Received: from kirby.webscope.com ([204.141.84.57]:25228 "EHLO
+	kirby.webscope.com") by vger.kernel.org with ESMTP id S1030370AbVKCXBx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 18:01:53 -0500
+Message-ID: <436A96A8.4080906@linuxtv.org>
+Date: Thu, 03 Nov 2005 18:00:56 -0500
+From: Mike Krufky <mkrufky@linuxtv.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org,
+       Johannes Stezenbach <js@linuxtv.org>
+Subject: Re: [PATCH 26/37] dvb: add support for plls used by nxt200x
+References: <4367241A.1060300@m1k.net> <20051103135910.3bf893d9.akpm@osdl.org>
+In-Reply-To: <20051103135910.3bf893d9.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> But pages_min is based on the zone size, not the system size. And we
->> still cap it. Maybe that's just a mistake?
-> 
-> The per-zone watermarking is actually the "modern" and "working" approach. 
-> 
-> We didn't always do it that way. I would not be at all surprised if the 
-> capping was from the global watermarking days.
-> 
-> Of course, I would _also_ not be at all surprised if it wasn't just out of 
-> habit. Most of the things where we try to scale things up by memory size, 
-> we cap for various reasons. Ie we tend to try to scale things like hash 
-> sizes for core data structures by memory size, but then we tend to cap 
-> them to "sane" versions.
-> 
-> So quite frankly, it's entirely possible that the capping is there not 
-> because it _ever_ was a good idea, but just because it's what we almost 
-> always do ;)
-> 
-> Mental inertia is definitely alive and well.
+Andrew Morton wrote:
 
-Ha ;-) Well thanks for the explanation. I would suggest the patch I sent
-you makes some semblence of sense then ...
+>Michael Krufky <mkrufky@m1k.net> wrote:
+>  
+>
+>>+struct dvb_pll_desc dvb_pll_tdhu2 = {
+>> +	.name = "ALPS TDHU2",
+>> +	.min = 54000000,
+>> +	.max = 864000000,
+>> +	.count = 4,
+>> +	.entries = {
+>> +		{ 162000000, 44000000, 62500, 0x85, 0x01 },
+>> +		{ 426000000, 44000000, 62500, 0x85, 0x02 },
+>> +		{ 782000000, 44000000, 62500, 0x85, 0x08 },
+>> +		{ 999999999, 44000000, 62500, 0x85, 0x88 },
+>> +	}
+>> +};
+>> +EXPORT_SYMBOL(dvb_pll_tdhu2);
+>>    
+>>
+>
+>The new driver is to have a GPL license, I assume?
+>
+>Generally, EXPORT_SYMBOL_GPL seems more appropriate for the DVB subsystem.
+>
+Yes, GPL'd of course.  But these pll definitions are not strictly tied 
+to nxt200x -- they may very well be used by another frontend module in 
+the future.
 
-M.
+Actually, we keep pll info in a separate file (dvb-pll.c) so that the 
+tuner programming can be used by any frontend module, depending on the 
+design..... About EXPORT_SYMBOL, this is how it's done all over dvb-pll.c
+
+If this needs to change, then it should apply to the entire dvb-pll.
+
+I'll wait for Johannes' comments on this.
+
+Michael Krufky
+
 

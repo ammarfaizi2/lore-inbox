@@ -1,39 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030501AbVKCVhn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030505AbVKCVlb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030501AbVKCVhn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 16:37:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030504AbVKCVhn
+	id S1030505AbVKCVlb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 16:41:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030508AbVKCVlb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 16:37:43 -0500
-Received: from hell.sks3.muni.cz ([147.251.210.189]:57272 "EHLO
-	anubis.fi.muni.cz") by vger.kernel.org with ESMTP id S1030501AbVKCVhn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 16:37:43 -0500
-Date: Thu, 3 Nov 2005 22:37:09 +0100
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: Nathan Scott <nathans@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Large file system oddities
-Message-ID: <20051103213709.GJ2507@mail.muni.cz>
-References: <20051103190334.GI2507@mail.muni.cz> <20051104081959.C6290773@wobbly.melbourne.sgi.com>
+	Thu, 3 Nov 2005 16:41:31 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:52635
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1030505AbVKCVla (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 16:41:30 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Roland Dreier <rolandd@cisco.com>
+Subject: Re: initramfs for /dev/console with udev?
+Date: Thu, 3 Nov 2005 15:41:13 -0600
+User-Agent: KMail/1.8
+Cc: Robert Schwebel <r.schwebel@pengutronix.de>, linux-kernel@vger.kernel.org
+References: <20051102222030.GP23316@pengutronix.de> <200511031313.47820.rob@landley.net> <52mzkl4i8y.fsf@cisco.com>
+In-Reply-To: <52mzkl4i8y.fsf@cisco.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20051104081959.C6290773@wobbly.melbourne.sgi.com>
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.11
+Message-Id: <200511031541.14197.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 04, 2005 at 08:19:59AM +1100, Nathan Scott wrote:
-> Why?  Just use /dev/sdc directly, and you'll avoid the 32 bit
-> problems fdisk (or the default partition table type, I can't
-> remember which it is now) evidently has.
-> 
-> Try without the partition, looks like that'll work.
+On Thursday 03 November 2005 13:57, Roland Dreier wrote:
+>  > On Thursday 03 November 2005 12:51, Robert Schwebel wrote:
+>  > > [...] klibc didn't compile for ARCH=um.
+>  >
+>  > I repeat my question: what is it that didn't compile, klibc or the
+>  > kernel?
+>
+> come on, dude -- how much clearer can he be?
 
-Yes, this one works ok. I can see 3.2TB of free space. Thanks.
+And confirming:
 
--- 
-Luká¹ Hejtmánek
+cd ~
+tar xvjf linux-2.6.14.tar.bz2
+cd linux-2.6.14
+make allyesconfig
+cd ~
+tar xvzf klibc-1.1.tar.gz
+cd klibc-1.1
+ln -s ~/linux-2.6.14/include/asm-i386 include/asm
+ln -s ~/linux-2.6.14/include/asm-generic/ include/asm-generic
+ln -s ~/linux-2.6.14/include/linux include/linux
+make  
+
+Does indeed build klibc.
+
+I get the strong feeling klibc-1.1 should be called klibc-2.6.14, but oh 
+well...
+
+Rob

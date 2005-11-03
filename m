@@ -1,90 +1,204 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030394AbVKCRvP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030395AbVKCRy5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030394AbVKCRvP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 12:51:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030395AbVKCRvP
+	id S1030395AbVKCRy5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 12:54:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030399AbVKCRy5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 12:51:15 -0500
-Received: from dvhart.com ([64.146.134.43]:28078 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S1030394AbVKCRvP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 12:51:15 -0500
-Date: Thu, 03 Nov 2005 09:51:16 -0800
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Mel Gorman <mel@csn.ul.ie>, Arjan van de Ven <arjan@infradead.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Dave Hansen <haveblue@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, kravetz@us.ibm.com,
-       linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>,
-       Arjan van de Ven <arjanv@infradead.org>
+	Thu, 3 Nov 2005 12:54:57 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:28126
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1030395AbVKCRy5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 12:54:57 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Nick Piggin <nickpiggin@yahoo.com.au>
 Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-Message-ID: <311050000.1131040276@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.64.0511030918110.27915@g5.osdl.org>
-References: <4366C559.5090504@yahoo.com.au> <Pine.LNX.4.58.0511010137020.29390@skynet><4366D469.2010202@yahoo.com.au> <Pine.LNX.4.58.0511011014060.14884@skynet><20051101135651.GA8502@elte.hu> <1130854224.14475.60.camel@localhost><20051101142959.GA9272@elte.hu> <1130856555.14475.77.camel@localhost><20051101150142.GA10636@elte.hu> <1130858580.14475.98.camel@localhost><20051102084946.GA3930@elte.hu> <436880B8.1050207@yahoo.com.au><1130923969.15627.11.camel@localhost> <43688B74.20002@yahoo.com.au><255360000.1130943722@[10.10.2.4]> <4369824E.2020407@yahoo.com.au> <306020000.1131032193@[10.10.2.4]><1131032422.2839.8.camel@laptopd505.fenrus.org><Pine.LNX.4.64.0511030747450.27915@g5.osdl.org><Pine.LNX.4.58.0511031613560.3571@skynet>
- <Pine.LNX.4.64.0511030842050.27915@g5.osdl.org><309420000.1131036740@[10.10.2.4]> <Pine.LNX.4.64.0511030918110.27915@g5.osdl.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+Date: Thu, 3 Nov 2005 11:54:10 -0600
+User-Agent: KMail/1.8
+Cc: Gerrit Huizenga <gh@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+       Kamezawa Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       Dave Hansen <haveblue@us.ibm.com>, Mel Gorman <mel@csn.ul.ie>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       kravetz@us.ibm.com, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lhms <lhms-devel@lists.sourceforge.net>
+References: <E1EXEfW-0005ON-00@w-gerrit.beaverton.ibm.com> <200511030007.34285.rob@landley.net> <4369BD7D.6050507@yahoo.com.au>
+In-Reply-To: <4369BD7D.6050507@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200511031154.11219.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Linus Torvalds <torvalds@osdl.org> wrote (on Thursday, November 03, 2005 09:19:35 -0800):
+On Thursday 03 November 2005 01:34, Nick Piggin wrote:
+> Rob Landley wrote:
+> > On Wednesday 02 November 2005 22:43, Nick Piggin wrote:
+> >>I'd just be happy with UML handing back page sized chunks of memory that
+> >>it isn't currently using. How does contiguous memory (in either the host
+> >>or the guest) help this?
+> >
+> > Smaller chunks of memory are likely to be reclaimed really soon, and
+> > adding in the syscall overhead working with individual pages of memory is
+> > almost guaranteed to slow us down.
+>
+> Because UML doesn't already make a syscall per individual page of
+> memory freed? (If I read correctly)
 
-> 
-> 
-> On Thu, 3 Nov 2005, Martin J. Bligh wrote:
->> 
->> The problem is how these zones get resized. Can we hotplug memory between 
->> them, with some sparsemem like indirection layer?
-> 
-> I think you should be able to add them. You can remove them. But you can't 
-> resize them.
-> 
-> And I suspect that by default, there should be zero of them. Ie you'd have 
-> to set them up the same way you now set up a hugetlb area.
+UML does a big mmap to get "physical" memory, and then manages itself using 
+the normal Linux kernel mechanisms for doing so.  We even have page tables, 
+although I'm still somewhat unclear on quite how that works.
 
-So ... if there are 0 by default, and I run for a while and dirty up
-memory, how do I free any pages up to put into them? Not sure how that
-works.
+> >  Plus with punch, we'd be fragmenting the heck
+> > out of the underlying file.
+>
+> Why? No you wouldn't.
 
-Going back to finding contig pages for a sec ... I don't disagree with
-your assertion that order 1 is doable (however, we do need to make one
-fix ...see below). It's > 1 that's a problem.
+Creating holes in the file and freeing up the underlying blocks on disk?  4k 
+at a time?  Randomly scattered?
 
-For amusement, let me put in some tritely oversimplified math. For the
-sake of arguement, assume the free watermarks are 8MB or so. Let's assume
-a clean 64-bit system with no zone issues, etc (ie all one zone). 4K pages.
-I'm going to assume random distribution of free pages, which is 
-oversimplified, but I'm trying to demonstrate a general premise, not get
-accurate numbers.
+> > I read it.  It just didn't contain an answer the the question.  I want
+> > UML to be able to hand back however much memory it's not using, but
+> > handing back individual pages as we free them and inserting a syscall
+> > overhead for every page freed and allocated is just nuts.  (Plus, at page
+> > size, the OS isn't likely to zero them much faster than we can ourselves
+> > even without the syscall overhead.)  Defragmentation means we can batch
+> > this into a granularity that makes it worth it.
+>
+> Oh you have measured it and found out that "defragmentation" makes
+> it worthwhile?
 
-8MB = 2048 pages.
+Lots of work has gone into batching up syscalls and making as few of them as 
+possible because they are a performance bottleneck.  You want to introduce a 
+syscall for every single individual page of memory allocated or freed.
 
-On a 64MB system, we have 16384 pages, 2048 free. Very rougly speaking, for
-each free page, chance of it's buddy being free is 2048/16384. So in 
-grossly-oversimplified stats-land, if I can remember anything at all,
-chance of finding one page with a free buddy is 1-(1-2048/16384)^2048, 
-which is, for all intents and purposes ... 1.
+That's stupid.
 
-1 GB. system, 262144 pages 1-(1-2048/16384)^2048 = 0.9999989
+> > This has nothing to do with hard limits on anything.
+>
+> You said:
+>
+>    "What does this have to do with specifying hard limits of
+>     anything? What's to specify?  Workloads vary.  Deal with it."
+>
+> And I was answering your very polite questions.
 
-128GB system. 33554432 pages. 0.1175 probability
+You didn't answer.  You keep saying you've already answered, but there 
+continues to be no answer.  Maybe you think you've answered, but I haven't 
+seen it yet.  You brought up hard limits, I asked what that had to do with 
+anything, and in response you quote my question back at me.
 
-yes, yes, my math sucks and I'm a simpleton. The point is that as memory
-gets bigger, the odds suck for getting contiguous pages. And would also
-explain why you think there's no problem, and I do ;-) And bear in mind
-that's just for order 1 allocs. For bigger stuff, it REALLY sucks - I'll
-spare you more wild attempts at foully-approximated math.
+> >>Have you looked at the frag patches?
+> >
+> > I've read Mel's various descriptions, and tried to stay more or less up
+> > to date ever since LWN brought it to my attention.  But I can't say I'm a
+> > linux VM system expert.  (The last time I felt I had a really firm grasp
+> > on it was before Andrea and Rik started arguing circa 2.4 and Andrea
+> > spent six months just assuming everybody already knew what a classzone
+> > was.  I've had other things to do since then...)
+>
+> Maybe you have better things to do now as well?
 
-Hmmm. If we keep 128MB free, that totally kills off the above calculation
-I think I'll just tweak it so the limit is not so hard on really big 
-systems. Will send you a patch. However ... larger allocs will still 
-suck ... I guess I'd better gross you out with more incorrect math after
-all ...
+Yeah, thanks for reminding me.  I need to test Mel's newest round of 
+fragmentation avoidance patches in my UML build system...
 
+> >>Duplicating the
+> >>same or similar infrastructure (in this case, a memory zoning facility)
+> >>is a bad thing in general.
+> >
+> > Even when they keep track of very different things?  The memory zoning
+> > thing is about where stuff is in physical memory, and it exists because
+> > various hardware that wants to access memory (24 bit DMA, 32 bit DMA, and
+> > PAE) is evil and crippled and we have to humor it by not asking it to do
+> > stuff it can't.
+>
+> No, the buddy allocator is and always has been what tracks the "long
+> contiguous runs of free memory".
+
+We are still discussing fragmentation avoidance, right?  (I know _I'm_ trying 
+to...)
+
+> Both zones and Mels patches classify blocks of memory according to some
+> criteria. They're not exactly the  same obviously, but they're equivalent in
+> terms of capability to guarantee contiguous freeable regions.
+
+Back up.
+
+I don't care _where_ the freeable regions are.  I just wan't them coalesced.
+
+Zones are all about _where_ the memory is.
+
+I'm pretty sure we're arguing past each other.
+
+> > I was under the impression it was orthogonal to figuring out whether or
+> > not a given bank of physical memory is accessable to your sound blaster
+> > without an IOMMU.
+>
+> Huh?
+
+Fragmentation avoidance is what is orthogonal to...
+
+> >>Err, the point is so we don't now have 2 layers doing very similar
+> >> things, at least one of which has "particularly silly" bugs in it.
+> >
+> > Similar is not identical.  You seem to be implying that the IO elevator
+> > and the network stack queueing should be merged because they do similar
+> > things.
+>
+> No I don't.
+
+They're similar though, aren't they?  Why should we have different code in 
+there to do both?  (I know why, but that's what your argument sounds like to 
+me.)
+
+> > If you'd like to write a counter-patch to Mel's to prove it...
+>
+> It has already been written as you have been told numerous times.
+
+Quoting Yasunori Goto, Yesterday at 2:33 pm,
+Message-Id: <20051102172729.9E7C.Y-GOTO@jp.fujitsu.com>
+
+> Hmmm. I don't see at this point.
+> Why do you think ZONE_REMOVABLE can satisfy for hugepage.
+> At leaset, my ZONE_REMOVABLE patch doesn't any concern about
+> fragmentation.
+
+He's NOT ADDRESSING FRAGMENTATION.
+
+So unless you're talking about some OTHER patch, we're talking past each other 
+again.
+
+> Now if you'd like to actually learn about what you're commenting on,
+> that would be really good too.
+
+The feeling is mutual.
+
+> >>So you didn't look at Yasunori Goto's patch from last year that
+> >> implements exactly what I described, then?
+> >
+> > I saw the patch he just posted, if that's what you mean.  By his own
+> > admission, it doesn't address fragmentation at all.
+>
+> It seems to be that it provides exactly the same (actually stronger)
+> guarantees than the current frag patches do. Or were you going to point
+> out a bug in the implementation?
+
+No, I'm going to point out that the author of the patch contradicts you.
+
+> >>>Yes, zones are a way of categorizing memory.
+> >>
+> >>Yes, have you read Mel's patches? Guess what they do?
+> >
+> > The swap file is a way of storing data on disk.  So is ext3.  Obviously,
+> > one is a trivial extension of the other and there's no reason to have
+> > both.
+>
+> Don't try to bullshit your way around with stupid analogies please, it
+> is an utter waste of time.
+
+I agree that this conversation is a waste of time, and will stop trying to 
+reason with you now.
+
+Rob

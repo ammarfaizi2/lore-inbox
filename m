@@ -1,39 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030222AbVKCAhD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbVKCAiG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030222AbVKCAhD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 19:37:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030223AbVKCAhC
+	id S1030229AbVKCAiG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 19:38:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030230AbVKCAiG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 19:37:02 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:14532 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1030222AbVKCAhB (ORCPT
+	Wed, 2 Nov 2005 19:38:06 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:25824 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030229AbVKCAiE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 19:37:01 -0500
-Date: Thu, 3 Nov 2005 01:36:51 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Jean-Christian de Rivaz <jc@eclis.ch>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: NTP broken with 2.6.14
-In-Reply-To: <4369464B.6040707@eclis.ch>
-Message-ID: <Pine.LNX.4.61.0511030134580.1387@scrub.home>
-References: <4369464B.6040707@eclis.ch>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 2 Nov 2005 19:38:04 -0500
+Date: Thu, 3 Nov 2005 11:38:01 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Cc: Jan Kasprzak <kas@fi.muni.cz>, linux-kernel@vger.kernel.org,
+       linux-xfs@oss.sgi.com
+Subject: Re: XFS information leak during crash
+Message-ID: <20051103113801.E6081538@wobbly.melbourne.sgi.com>
+References: <20051102212722.GC6759@fi.muni.cz> <20051103101107.O6239737@wobbly.melbourne.sgi.com> <Pine.LNX.4.62.0511030116160.2023@artax.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.62.0511030116160.2023@artax.karlin.mff.cuni.cz>; from mikulas@artax.karlin.mff.cuni.cz on Thu, Nov 03, 2005 at 01:19:10AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Nov 03, 2005 at 01:19:10AM +0100, Mikulas Patocka wrote:
+> >> either). Does XFS support a something like ext3's "data=ordered" mount
+> >> option?
+> >
+> > No, it doesn't.
+> 
+> BTW. Why does it sometimes overwrite files with zeros after crash and 
+> journal replay then? I thought that this was because it tries to avoid 
+> users seeing uninitialized data.
 
-On Thu, 3 Nov 2005, Jean-Christian de Rivaz wrote:
+No, thats kinda related but not the same issue, its more to do
+with a truncate (or open(O_TRUNC)) followed by buffered writes
+to an existing file, which some applications do, and how that
+interacts poorly with delayed allocation (nothing is "overwritten
+with zeroes", its actually just a "hole").
 
-> From the /var/log/ntpstats/peerstats history, the offset start growing
-> exactly at the same time I rebooted with the new 2.6.14 kernel. The ntpd
-> is the from the Debian Sarge version "ntpd 4.2.0a@1:4.2.0a+stable-2-r
-> Fri Aug 26 10:30:12 UTC 2005 (1)".
+But I do intend to get _some_ work done today, so you can google
+for a more detailed answer there if you're interested.
 
-Could you post a few lines from loopstats from before and after the 
-upgrade? Do you have adjtimex installed? If yes, what's in 
-/etc/default/adjtimex?
+cheers.
 
-bye, Roman
+-- 
+Nathan

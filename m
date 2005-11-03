@@ -1,53 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030265AbVKCPSi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030330AbVKCPT3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030265AbVKCPSi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 10:18:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030269AbVKCPSi
+	id S1030330AbVKCPT3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 10:19:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030334AbVKCPT3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 10:18:38 -0500
-Received: from scifi.dolphinics.no ([193.71.152.62]:22662 "EHLO
-	poesci.dolphinics.no") by vger.kernel.org with ESMTP
-	id S1030265AbVKCPSh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 10:18:37 -0500
-Message-ID: <436A29D4.1080700@dolphinics.no>
-Date: Thu, 03 Nov 2005 16:16:36 +0100
-From: Simen Thoresen <simentt@dolphinics.no>
-Organization: Dolphin ICS
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Thu, 3 Nov 2005 10:19:29 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:35017 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1030330AbVKCPT2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 10:19:28 -0500
+Date: Thu, 3 Nov 2005 16:19:25 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] hfsplus: don't modify journaled volume
+Message-ID: <Pine.LNX.4.61.0511031617090.12843@scrub.home>
 MIME-Version: 1.0
-To: Simen Thoresen <simentt@dolphinics.no>
-Cc: Devesh Sharma <devesh28@gmail.com>, linux-kernel@vger.kernel.org,
-       rdunlap@xenotime.net
-Subject: Re: Issues in Booting kernel 2.6.13
-References: <309a667c0510052216n784e229ei69b3a3a2a9e93f4b@mail.gmail.com>	 <20051006190806.388289ff.rdunlap@xenotime.net>	 <43481D0F.9020407@dolphinics.no>	 <20051008123131.41d85d45.rdunlap@xenotime.net>	 <434A23A2.1020407@dolphinics.no>	 <309a667c0510100215wcf311bcr3cc0555cc4557d39@mail.gmail.com> <309a667c0510100228s5c9bac7cwaf74548520bba808@mail.gmail.com> <434A38D0.9040103@dolphinics.no>
-In-Reply-To: <434A38D0.9040103@dolphinics.no>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Simen Thoresen wrote:
-> Hi Devesh,
-> 
-> I still have problems, and I see both mptbase and mptscsih loading, so 
-> I've assumed that mkinitrd is not happy with the new kernel.
-> 
-> Could you please mail me your .config directly so I can have a look at it?
-> 
-> -S
+Until support for HFS+ journaling is supported and the journal can be 
+replayed, don't modify a journaled volume.
 
-Hi Devesh, Randy
+Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 
-Sorry about not following this up earlier, but I've resolved my problem, and 
-am booting happily. CONFIG_FUSION_SPI=y (rather than =m), and then tell 
-mkinitrd not to care about scsi-devices.
+---
 
-Than you for your help :-)
+ fs/hfsplus/hfsplus_raw.h |   12 +++++++-----
+ fs/hfsplus/super.c       |    8 ++++++++
+ 2 files changed, 15 insertions(+), 5 deletions(-)
 
-Yours,
--S
--- 
-Simen Thoresen, Wulfkit Support, Dolphin ICS
-http://www.tysland.com/~simentt/cluster
+Index: linux-2.6/fs/hfsplus/hfsplus_raw.h
+===================================================================
+--- linux-2.6.orig/fs/hfsplus/hfsplus_raw.h	2005-11-03 16:15:40.000000000 +0100
++++ linux-2.6/fs/hfsplus/hfsplus_raw.h	2005-11-03 16:15:44.000000000 +0100
+@@ -123,11 +123,13 @@ struct hfsplus_vh {
+ } __packed;
+ 
+ /* HFS+ volume attributes */
+-#define HFSPLUS_VOL_UNMNT     (1 << 8)
+-#define HFSPLUS_VOL_SPARE_BLK (1 << 9)
+-#define HFSPLUS_VOL_NOCACHE   (1 << 10)
+-#define HFSPLUS_VOL_INCNSTNT  (1 << 11)
+-#define HFSPLUS_VOL_SOFTLOCK  (1 << 15)
++#define HFSPLUS_VOL_UNMNT		(1 << 8)
++#define HFSPLUS_VOL_SPARE_BLK		(1 << 9)
++#define HFSPLUS_VOL_NOCACHE		(1 << 10)
++#define HFSPLUS_VOL_INCNSTNT		(1 << 11)
++#define HFSPLUS_VOL_NODEID_REUSED	(1 << 12)
++#define HFSPLUS_VOL_JOURNALED		(1 << 13)
++#define HFSPLUS_VOL_SOFTLOCK		(1 << 15)
+ 
+ /* HFS+ BTree node descriptor */
+ struct hfs_bnode_desc {
+Index: linux-2.6/fs/hfsplus/super.c
+===================================================================
+--- linux-2.6.orig/fs/hfsplus/super.c	2005-11-03 16:15:40.000000000 +0100
++++ linux-2.6/fs/hfsplus/super.c	2005-11-03 16:15:44.000000000 +0100
+@@ -262,6 +262,10 @@ static int hfsplus_remount(struct super_
+ 			printk("HFS+-fs: Filesystem is marked locked, leaving read-only.\n");
+ 			sb->s_flags |= MS_RDONLY;
+ 			*flags |= MS_RDONLY;
++		} else if (vhdr->attributes & cpu_to_be32(HFSPLUS_VOL_JOURNALED)) {
++			printk("HFS+-fs: Filesystem is marked journaled, leaving read-only.\n");
++			sb->s_flags |= MS_RDONLY;
++			*flags |= MS_RDONLY;
+ 		}
+ 	}
+ 	return 0;
+@@ -357,6 +361,10 @@ static int hfsplus_fill_super(struct sup
+ 		if (!silent)
+ 			printk("HFS+-fs: Filesystem is marked locked, mounting read-only.\n");
+ 		sb->s_flags |= MS_RDONLY;
++	} else if (vhdr->attributes & cpu_to_be32(HFSPLUS_VOL_JOURNALED)) {
++		if (!silent)
++			printk("HFS+-fs: Filesystem is marked journaled, mounting read-only.\n");
++		sb->s_flags |= MS_RDONLY;
+ 	}
+ 
+ 	/* Load metadata objects (B*Trees) */

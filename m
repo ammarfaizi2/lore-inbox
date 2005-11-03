@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030514AbVKCVyg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbVKCWAM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030514AbVKCVyg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 16:54:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030515AbVKCVyg
+	id S1750786AbVKCWAM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 17:00:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbVKCWAL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 16:54:36 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:29970 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030514AbVKCVyg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 16:54:36 -0500
-Date: Thu, 3 Nov 2005 22:54:25 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: ben-s3c2410@fluff.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] cleanup include/asm-arm/arch-s3c2410/system.h
-Message-ID: <20051103215425.GA7724@stusta.de>
-References: <20051103181916.GE23366@stusta.de> <20051103184126.GK28038@flint.arm.linux.org.uk> <20051103212949.GM23366@stusta.de> <20051103214941.GM28038@flint.arm.linux.org.uk>
+	Thu, 3 Nov 2005 17:00:11 -0500
+Received: from silver.veritas.com ([143.127.12.111]:20415 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1750786AbVKCWAK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 17:00:10 -0500
+Date: Thu, 3 Nov 2005 21:59:01 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Dipankar Sarma <dipankar@in.ibm.com>
+cc: Manfred Spraul <manfred@colorfullife.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: bad page state under possibly oom situation
+In-Reply-To: <20051103211151.GA22769@in.ibm.com>
+Message-ID: <Pine.LNX.4.61.0511032144110.537@goblin.wat.veritas.com>
+References: <20051102143502.GE6137@in.ibm.com>
+ <Pine.LNX.4.61.0511021614110.10299@goblin.wat.veritas.com>
+ <4369B051.7050303@colorfullife.com> <20051103211151.GA22769@in.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051103214941.GM28038@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 03 Nov 2005 22:00:10.0124 (UTC) FILETIME=[F573BCC0:01C5E0C1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 03, 2005 at 09:49:41PM +0000, Russell King wrote:
-> On Thu, Nov 03, 2005 at 10:29:51PM +0100, Adrian Bunk wrote:
-> > On Thu, Nov 03, 2005 at 06:41:26PM +0000, Russell King wrote:
-> > > On Thu, Nov 03, 2005 at 07:19:16PM +0100, Adrian Bunk wrote:
-> > > > Can anyone please explain the contents of 
-> > > > include/asm-arm/arch-s3c2410/system.h ?
-> > > > 
-> > > > This file looks like a C file accidentially named .h ...
-> > > 
-> > > It's the machine specific bits for arch/arm/kernel/process.c, part of
-> > > the structure left over from 1996ish time.
-> > > 
-> > > The functions in there are supposed to be inlined.
-> > 
-> > IOW, the (untested) patch below changes them to what was intended?
-> 
-> Yes.  Ben's away for a bit - can we wait for his ack please?
+On Fri, 4 Nov 2005, Dipankar Sarma wrote:
+> On Thu, Nov 03, 2005 at 07:38:09AM +0100, Manfred Spraul wrote:
+> > Hugh Dickins wrote:
+> > > flags 0x90 mean PG_slab|PG_dirty.)
+> > A very odd combination:
+> > Or change the value of PG_slab to 20 
+> > and check if page->flags remains 0x90.
 
-OK, this is not urgent.
+Good observation and suggestion from Manfred.
 
-> Russell King
+> Here is a dump of the page struct when this happens (two different
+> instances) - 
 
-cu
-Adrian
+Yuk!
 
--- 
+page ffff810008005550 flags 4000005500009090, but the rest is okay.
+page ffff81000800aaa0 count 00900055, but the rest is okay (including
+                                      mapcount, the int above count).
+Even the page addresses seem related.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+You seem to be infected with 55s and 90s,
+nothing to do with PG_slab|PG_dirty; but I don't know what it means.
 
+Hugh

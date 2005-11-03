@@ -1,70 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030478AbVKCVAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030482AbVKCVHy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030478AbVKCVAb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 16:00:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030479AbVKCVAb
+	id S1030482AbVKCVHy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 16:07:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030483AbVKCVHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 16:00:31 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:47525 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030478AbVKCVAa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 16:00:30 -0500
-Subject: Re: NTP broken with 2.6.14
-From: john stultz <johnstul@us.ibm.com>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Cc: Jean-Christian de Rivaz <jc@eclis.ch>, linux-kernel@vger.kernel.org,
-       dean@arctic.org
-In-Reply-To: <20051103204807.GT9486@csclub.uwaterloo.ca>
-References: <4369464B.6040707@eclis.ch>
-	 <1130973717.27168.504.camel@cog.beaverton.ibm.com>
-	 <43694DD1.3020908@eclis.ch>
-	 <1130976935.27168.512.camel@cog.beaverton.ibm.com>
-	 <43695D94.10901@eclis.ch>
-	 <1130980031.27168.527.camel@cog.beaverton.ibm.com>
-	 <43697550.7030400@eclis.ch>
-	 <1131046348.27168.537.camel@cog.beaverton.ibm.com>
-	 <20051103195124.GE9488@csclub.uwaterloo.ca>
-	 <1131048670.27168.573.camel@cog.beaverton.ibm.com>
-	 <20051103204807.GT9486@csclub.uwaterloo.ca>
-Content-Type: text/plain
-Date: Thu, 03 Nov 2005 13:00:27 -0800
-Message-Id: <1131051627.27168.590.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Nov 2005 16:07:54 -0500
+Received: from mtaout4.012.net.il ([84.95.2.10]:36321 "EHLO mtaout4.012.net.il")
+	by vger.kernel.org with ESMTP id S1030482AbVKCVHx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 16:07:53 -0500
+Date: Thu, 03 Nov 2005 23:07:38 +0200
+From: Muli Ben-Yehuda <mulix@mulix.org>
+Subject: Re: [was Re: Linux 2.6.14 ] Revert
+ "x86-64: Avoid unnecessary double bouncing for swiotlb"
+In-reply-to: <200511031935.56160.ak@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Ravikiran G Thirumalai <kiran@scalex86.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
+       Andrew Morton <akpm@osdl.org>
+Message-id: <20051103210738.GL31790@granada.merseine.nu>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+References: <Pine.LNX.4.64.0510271717190.4664@g5.osdl.org>
+ <200510291214.34718.ak@suse.de> <20051031214859.GA3721@localhost.localdomain>
+ <200511031935.56160.ak@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-11-03 at 15:48 -0500, Lennart Sorensen wrote:
-> On Thu, Nov 03, 2005 at 12:11:10PM -0800, john stultz wrote:
-> > Yea, we have some issues with a few specific chipsets, but those were
-> > not regressions to my knowledge. 
-> 
-> Well my nforce2 worked with 2.6.8 and earlier, and I believe it was even
-> fine with 2.6.10 and 2.6.11, but certainly 2.6.12 ran rather awful time
-> sync wise, and 2.6.14 appears so far to be running a little fast,
-> although I can't say for sure.  It is much better than 2.6.12 was.  It
-> may be that 2.6.14 is running correctly, but that the previous drift has
-> caused something to need to be realigned.
+On Thu, Nov 03, 2005 at 07:35:55PM +0100, Andi Kleen wrote:
 
-You could try disabling NTP and running the python script I sent out
-earlier in this thread to determine your systems ppm drift. Outside
-+/-500ppm is def broken, outside of +/-250ppm is probably broken,
-outside +/-100ppm isn't great but correctable and inside +/-100ppm is
-(unfortunately) pretty average for most hardware.
+> Anyways, with the dma_ops patch we can probably separate it cleanly
+> and avoid the problem.
 
-> 
-> > Hmm. Check bug #5038 to see if sounds familiar.
-> > http://bugzilla.kernel.org/show_bug.cgi?id=5038
-> 
-> I was seeting WAY more drift than that with 2.6.12.
+Hi Andi, Kiran, would something like:
 
-Ok, do you want to open your own bug on this and we'll mark them
-duplicate as needed?
+#define PCI_DMA_BUS_IS_PHYS (mapping_ops->bus_is_phys) 
 
-Please attach dmesg output to the bug as well.
+do the job, where mapping_ops->bus_is_phys is set to 0 for gart and
+swiotlb, and 1 for nommu?
 
-thanks
--john
-
+Cheers,
+Muli
+-- 
+Muli Ben-Yehuda
+http://www.mulix.org | http://mulix.livejournal.com/
 

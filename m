@@ -1,99 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030408AbVKCSO1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030405AbVKCSRQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030408AbVKCSO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 13:14:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030412AbVKCSO1
+	id S1030405AbVKCSRQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 13:17:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030409AbVKCSRQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 13:14:27 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:59919 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030408AbVKCSO0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 13:14:26 -0500
-Date: Thu, 3 Nov 2005 19:14:15 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: [2.6 patch] drivers/ide/: possible cleanups
-Message-ID: <20051103181414.GD23366@stusta.de>
+	Thu, 3 Nov 2005 13:17:16 -0500
+Received: from dvhart.com ([64.146.134.43]:34990 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S1030405AbVKCSRP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 13:17:15 -0500
+Date: Thu, 03 Nov 2005 10:17:12 -0800
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Linus Torvalds <torvalds@osdl.org>, Arjan van de Ven <arjan@infradead.org>
+Cc: Mel Gorman <mel@csn.ul.ie>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Dave Hansen <haveblue@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, kravetz@us.ibm.com,
+       linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lhms <lhms-devel@lists.sourceforge.net>,
+       Arjan van de Ven <arjanv@infradead.org>
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+Message-ID: <312300000.1131041824@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.64.0511031006550.27915@g5.osdl.org>
+References: <4366C559.5090504@yahoo.com.au> <Pine.LNX.4.58.0511010137020.29390@skynet><4366D469.2010202@yahoo.com.au> <Pine.LNX.4.58.0511011014060.14884@skynet><20051101135651.GA8502@elte.hu> <1130854224.14475.60.camel@localhost><20051101142959.GA9272@elte.hu> <1130856555.14475.77.camel@localhost><20051101150142.GA10636@elte.hu> <1130858580.14475.98.camel@localhost><20051102084946.GA3930@elte.hu> <436880B8.1050207@yahoo.com.au><1130923969.15627.11.camel@localhost> <43688B74.20002@yahoo.com.au><255360000.1130943722@[10.10.2.4]> <4369824E.2020407@yahoo.com.au> <306020000.1131032193@[10.10.2.4]> <1131032422.2839.8.camel@laptopd505.fenrus.org>  <Pine.LNX.4.64.0511030747450.27915@g5.osdl.org> <Pine.LNX.4.58.0511031613560.3571@skynet> 
+ <Pine.LNX.4.64.0511030842050.27915@g5.osdl.org> <309420000.1131036740@[10.10.2.4]>  <Pine.LNX.4.64.0511030918110.27915@g5.osdl.org> <311050000.1131040276@[10.10.2.4]> <1131040786.2839.18.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0511031006550.27915@g5.osdl.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- pci/cy82c693.c: make a needlessly global function static
-- remove the following unneeded EXPORT_SYMBOL's:
-  - ide-taskfile.c: do_rw_taskfile
-  - ide-iops.c: default_hwif_iops
-  - ide-iops.c: default_hwif_transport
-  - ide-iops.c: wait_for_ready
+>> > For amusement, let me put in some tritely oversimplified math. For the
+>> > sake of arguement, assume the free watermarks are 8MB or so. Let's assume
+>> > a clean 64-bit system with no zone issues, etc (ie all one zone). 4K pages.
+>> > I'm going to assume random distribution of free pages, which is 
+>> > oversimplified, but I'm trying to demonstrate a general premise, not get
+>> > accurate numbers.
+>> 
+>> that is VERY over simplified though, given the anti-fragmentation
+>> property of buddy algorithm
+> 
+> Indeed. I write a program at one time doing random allocation and 
+> de-allocation and looking at what the output was, and buddy is very good 
+> at avoiding fragmentation.
+> 
+> These days we have things like per-cpu lists in front of the buddy 
+> allocator that will make fragmentation somewhat higher, but it's still 
+> absolutely true that the page allocation layout is _not_ random.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+OK, well I'll quit torturing you with incorrect math if you'll concede
+that the situation gets much much worse as memory sizes get larger ;-)
 
----
+For order > 1 allocs, I think it's fixable. For order > 1, I think we
+basically don't have a prayer on a largish system under pressure.
 
-This patch was already sent on:
-- 1 Oct 2005
-- 20 Aug 2005
-
- drivers/ide/ide-iops.c     |    6 ------
- drivers/ide/ide-taskfile.c |    2 --
- drivers/ide/pci/cy82c693.c |    2 +-
- 3 files changed, 1 insertion(+), 9 deletions(-)
-
---- linux-2.6.11-rc3-mm1-full/drivers/ide/ide-taskfile.c.old	2005-02-05 02:57:03.000000000 +0100
-+++ linux-2.6.11-rc3-mm1-full/drivers/ide/ide-taskfile.c	2005-02-05 02:57:12.000000000 +0100
-@@ -161,8 +161,6 @@
- 	return ide_stopped;
- }
- 
--EXPORT_SYMBOL(do_rw_taskfile);
--
- /*
-  * set_multmode_intr() is invoked on completion of a WIN_SETMULT cmd.
-  */
-
---- linux-2.6.12-rc2-mm3-full/drivers/ide/pci/cy82c693.c.old	2005-04-17 21:11:22.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/ide/pci/cy82c693.c	2005-04-17 21:11:30.000000000 +0200
-@@ -469,7 +469,7 @@
- 
- static __initdata ide_hwif_t *primary;
- 
--void __devinit init_iops_cy82c693(ide_hwif_t *hwif)
-+static void __devinit init_iops_cy82c693(ide_hwif_t *hwif)
- {
- 	if (PCI_FUNC(hwif->pci_dev->devfn) == 1)
- 		primary = hwif;
---- linux-2.6.12-rc2-mm3-full/drivers/ide/ide-iops.c.old	2005-04-17 21:12:44.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/ide/ide-iops.c	2005-04-17 21:12:54.000000000 +0200
-@@ -104,8 +104,6 @@
- 	hwif->INSL	= ide_insl;
- }
- 
--EXPORT_SYMBOL(default_hwif_iops);
--
- /*
-  *	MMIO operations, typically used for SATA controllers
-  */
-@@ -329,8 +327,6 @@
- 	hwif->atapi_output_bytes	= atapi_output_bytes;
- }
- 
--EXPORT_SYMBOL(default_hwif_transport);
--
- /*
-  * Beginning of Taskfile OPCODE Library and feature sets.
-  */
-@@ -525,8 +525,6 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(wait_for_ready);
--
- /*
-  * This routine busy-waits for the drive status to be not "busy".
-  * It then checks the status for all of the "good" bits and none
+M.
 

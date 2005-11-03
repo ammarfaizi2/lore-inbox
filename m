@@ -1,89 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbVKCJHf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbVKCJKn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751248AbVKCJHf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 04:07:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbVKCJHf
+	id S1751267AbVKCJKn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 04:10:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbVKCJKn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 04:07:35 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:41182 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1751248AbVKCJHe (ORCPT
+	Thu, 3 Nov 2005 04:10:43 -0500
+Received: from zeus1.kernel.org ([204.152.191.4]:65179 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751267AbVKCJKm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 04:07:34 -0500
-Subject: Re: [RFC] The driver model, I2C and gpio provision on Sharp
-	SL-C1000 (Akita)
-From: Richard Purdie <rpurdie@rpsys.net>
-To: David Brownell <david-b@pacbell.net>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, andy@hexapodia.org
-In-Reply-To: <200511022306.48405.david-b@pacbell.net>
-References: <200511022306.48405.david-b@pacbell.net>
-Content-Type: text/plain
-Date: Thu, 03 Nov 2005 09:07:23 +0000
-Message-Id: <1131008844.8523.35.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Thu, 3 Nov 2005 04:10:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:subject:x-enigmail-version:content-type:content-transfer-encoding;
+        b=bZqKPemcOMRSON68f6QiBNJCM9OGDeh+8lFI5U4k9IDDJvipYCsmRHOZZnhVgs+NiYfWRdqNGa+gwy7Q04ILDp0yza22SZ3Yoh4KinFJZ/QcZbzZxrDnef2nk+uP4+6Qo4ANUp7BW/i8+ioGsw4T7N6ORkrPobHB8o8eWU5By84=
+Message-ID: <4369D3C6.4060806@gmail.com>
+Date: Thu, 03 Nov 2005 10:09:26 +0100
+From: Patrizio Bassi <patrizio.bassi@gmail.com>
+Reply-To: patrizio.bassi@gmail.com
+Organization: patrizio.bassi@gmail.com
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051027)
+X-Accept-Language: it, it-it, en-us, en
+MIME-Version: 1.0
+To: "Kernel, " <linux-kernel@vger.kernel.org>
+Subject: 2.6.14-git4 suspend fails: kernel NULL pointer dereference
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-02 at 23:06 -0800, David Brownell wrote:
-> Likewise on many OMAP boards, which tend to have the power management
-> and other essential features on I2C.
-> 
-> Some board-specific init code ends up needing to run after the probe()
-> logic of the tps6501x driver ... like for example, using a GPIO (!)
-> there to power up the Ethernet controller which may be needed for the
-> root filesystem.  (At least on many development systems!)
-> 
-> You can see where that leads:  we patched the i2c subsystem so that
-> it runs at subsys_initcall ... and also the omap_i2c driver, and
-> the tps65010 driver.  No other drivers need to be changed, just the
-> ones involved in that board's power management.
+echo shutdown > /sys/power/disk
+echo disk > /sys/power/state
 
-Its not as simple as this in my case. Yes, you can patch the maxim i2c
-driver and the pxa i2c controller to run at subsys_initcall level which
-is fine. akita-ioexp has to run at a higher level (fs_initcall) as it
-will run before the i2c subsystem (being in arch as against drivers).
+Unable to handle kernel NULL pointer dereference at virtual address 00000004
+ printing eip:
+c0132a5e
+*pde = 00000000
+Oops: 0000 [#1]
+Modules linked in:
+CPU:    0
+EIP:    0060:[<c0132a5e>]    Not tainted VLI
+EFLAGS: 00010286   (2.6.14-git4)
+EIP is at enter_state+0xe/0x90
+eax: 00000000   ebx: c03b1178   ecx: ffffffff   edx: d1c25000
+esi: 00000004   edi: c03b117c   ebp: 00000004   esp: ddf09ef0
+ds: 007b   es: 007b   ss: 0068
+Process bash (pid: 21862, threadinfo=ddf08000 task=dcf9b540)
+Stack: c03e82cc c03b1178 d1c25004 c0132c4c 00000004 00000004 00000000
+00000001
+       c03e7de0 c03e7e34 ddf09fa4 b7d4c000 c018c6d7 c03e7de0 d1c25000
+00000005
+       c03eb460 c018c97e c03e7df0 c03e7e34 d1c25000 00000005 d62d4c60
+d3ef8980
+Call Trace:
+ [<c0132c4c>] state_store+0x9c/0xaf
+ [<c018c6d7>] subsys_attr_store+0x37/0x40
+ [<c018c97e>] flush_write_buffer+0x3e/0x50
+ [<c018c9e9>] sysfs_write_file+0x59/0x80
+ [<c0155f8c>] vfs_write+0x14c/0x160
+ [<c0156071>] sys_write+0x51/0x80
+ [<c0102cbf>] sysenter_past_esp+0x54/0x75
+Code: ff 50 10 e8 75 04 00 00 58 5b e9 ce 05 00 00 8d b4 26 00 00 00 00
+8d bc 27 00 00 00 00 56 53 83 ec 04 a1 00 e0 48 c0 8b 74 24 10 <8b> 58
+04 85 db 75 52 ff 0d a0 7d 3e c0 0f 88 0e 02 00 00 31 c0
 
-I don't think is feasible to go through the LCD, IrDA and sound
-subsystems trying to guarantee what init levels they're going to access
-the gpios at once you start getting to fs_initcall level.
 
-This could be a case for putting akita-ioexp into drivers/i2c/chips but
-see my other thoughts below...
 
-> Richard:
-> 
-> > I had to turn akita-ioexp into a platform device to get the suspend
-> > signal which is used to flush the workqueue. With a platform device
-> > available at machine init time, I can insert it as a parent of the corgi
-> > device chain which means its one of the last devices to be suspended.
-> 
-> By doing all that stuff as "subsys_initcall", the relevant I2C gpio
-> hardware will be also be suspended "late" ... without such a fake
-> platform device.  Unless you're doing selective suspend, details of
-> the device tree matter less than the order used to create devices.
-
-I'd like to keep the device tree correct, then if anyone does want to
-selectively suspend things, it will work and it also works if someone
-decides to change the device init order around at some later date and
-not everything will break.
-
-I'm coming to the view that I should merge the max7310 i2c driver into
-akita-ioexp and lose the general case driver for the following reasons:
-
-1. Having a header file around for two functions seems excessive and I
-can't see any alternative
-2. The MAX7310 has 56 different i2c addresses and no way of detecting
-the presence of the chip. Autoprobing on akita means you end up with the
-sound codec being taken by the max7310 driver. I don't like to think
-what it would do on other systems.
-3. There's no interdependency between two drivers and hence it should be
-more robust.
-4. I can lose the workqueue "find the i2c client" routine as the driver
-can know when the i2c device has been detected and the client setup.
-(the workqueue is still needed to act on gpio requests in case they come
-from interrupt context but the driver becomes simpler and of a more sane
-design).
-
-Richard
-
+i had 2.6.14-rc2-git4 working, didn't try other rc releases.

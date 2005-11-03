@@ -1,39 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751015AbVKCIei@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbVKCIid@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751015AbVKCIei (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 03:34:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbVKCIei
+	id S1751090AbVKCIid (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 03:38:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbVKCIid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 03:34:38 -0500
-Received: from twin.jikos.cz ([213.151.79.26]:2945 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id S1751015AbVKCIeh (ORCPT
+	Thu, 3 Nov 2005 03:38:33 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:7076 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S1751090AbVKCIid (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 03:34:37 -0500
-Date: Thu, 3 Nov 2005 09:34:30 +0100
-From: Rudo Thomas <rudo@matfyz.cz>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: ck@vds.kolivas.org, linux-kernel@vger.kernel.org, wfg@mail.ustc.edu.cn
-Subject: Re: 2.6.14-ck1
-Message-ID: <20051103083430.GA16957@jikos.cz>
-Mail-Followup-To: Con Kolivas <kernel@kolivas.org>, ck@vds.kolivas.org,
-	linux-kernel@vger.kernel.org, wfg@mail.ustc.edu.cn
-References: <200510282118.11704.kernel@kolivas.org> <20051102213814.15724994.predivan@ptt.yu> <200511030951.00679.kernel@kolivas.org>
+	Thu, 3 Nov 2005 03:38:33 -0500
+Date: Thu, 3 Nov 2005 09:37:52 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Pavel Machek <pavel@suse.cz>
+cc: Robert Schwebel <r.schwebel@pengutronix.de>,
+       Vojtech Pavlik <vojtech@suse.cz>, rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: Re: best way to handle LEDs
+In-Reply-To: <20051102211334.GH23943@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.62.0511030937220.30253@numbat.sonytel.be>
+References: <20051101234459.GA443@elf.ucw.cz> <20051102202622.GN23316@pengutronix.de>
+ <20051102211334.GH23943@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200511030951.00679.kernel@kolivas.org>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Con,any recommended value for /proc/sys/kernel/readahead_ratio, or
-> > is it automagicly set?It's value is 0 ATM.
+On Wed, 2 Nov 2005, Pavel Machek wrote:
+> > > yellow off: 	not charging
+> > > yellow on:	charging
+> > > yellow fast blink: charge error
+> > > 
+> > > I think even slow blinking was used somewhere. I have some code from
+> > > John Lenz (attached); it uses sysfs interface, exports led collor, and
+> > > allows setting different frequencies.
+> > > 
+> > > Is that acceptable, or should some other interface be used?
+> > 
+> > IMHO reducing digital outputs to LEDs goes not far enough. All System-
+> > on-Chip CPUs have General Purpose I/O pins today, which can act as
+> > inputs or outputs and may be used for LEDs, matrix keyboard lines,
 > 
-> Yes. First it's supposed to be in /proc/sys/vm (my fault on the
-> merge), and it should be set to about 50. All this is corrected in
-> 2.6.14-ck2 which has the new readahead code, the tunable in the
-> correct location, and the default set to 50. 
+> We have some leds that are *not* on GPIO pins (like driven by
+> ACPI). We'd like to support those, too.
 
-Con, it's still in /proc/sys/kernel in ck2, AFAICT.
+I though ACPI was software? These LEDs have to be driven by some hardware,
+right?
 
-Rudo.
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

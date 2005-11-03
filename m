@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbVKCJ5R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbVKCJ6q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932337AbVKCJ5R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 04:57:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbVKCJ5R
+	id S932351AbVKCJ6q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 04:58:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbVKCJ6q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 04:57:17 -0500
-Received: from nproxy.gmail.com ([64.233.182.202]:58929 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932337AbVKCJ5R convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 04:57:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=sLUkKmx2LdgnUUVFxl5lwDMh+Euv1GZJrbJJNYqjmjITGKwIAYmnRKS6q5Nc1rDbO1kLZfR8E8MI/pBy5SPcnxlsNWAHlU9EDJ8XendLLkWNWflaNx4DbSBL0knHK9B1YrD6WMnAgH2+w3eiipjc9zhXDEH4XUnqUF3dOgNqfHw=
-Message-ID: <58cb370e0511030157l5e47a15h25832fb98e46173a@mail.gmail.com>
-Date: Thu, 3 Nov 2005 10:57:15 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Hannes Reinecke <hare@suse.de>
-Subject: Re: [PATCH] Incorrect device link for ide-cs
-Cc: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Jens Axboe <axboe@suse.de>
-In-Reply-To: <4369D693.4040500@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 3 Nov 2005 04:58:46 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:65288 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932351AbVKCJ6p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 04:58:45 -0500
+Date: Thu, 3 Nov 2005 09:58:40 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       trond.myklebust@fys.uio.no
+Subject: Failure: ARM clps7500
+Message-ID: <20051103095840.GA28038@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	trond.myklebust@fys.uio.no
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <4369D693.4040500@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This default configuration (arch/arm/configs/clps7500_defconfig) fails
+to build:
 
->      hw_regs_t hw;
->      memset(&hw, 0, sizeof(hw));
-> -    ide_init_hwif_ports(&hw, io, ctl, NULL);
-> +    ide_std_init_ports(&hw, io, ctl);
+  LD      .tmp_vmlinux1
+net/built-in.o: In function `xs_bindresvport':
+stats.c:(.text+0x54654): undefined reference to `xprt_min_resvport'
+stats.c:(.text+0x54658): undefined reference to `xprt_max_resvport'
+net/built-in.o: In function `xs_setup_tcp':
+stats.c:(.text+0x54bcc): undefined reference to `xprt_tcp_slot_table_entries'
+stats.c:(.text+0x54bd0): undefined reference to `xprt_max_resvport'
+net/built-in.o: In function `xs_setup_udp':
+stats.c:(.text+0x54d34): undefined reference to `xprt_udp_slot_table_entries'
+stats.c:(.text+0x54d38): undefined reference to `xprt_max_resvport'
+make: *** [.tmp_vmlinux1] Error 1
 
-Could you separate this into another patch?
+Maybe related to CONFIG_SYSCTL=n ?
 
-This change fixes ide-cs for some archs but OTOH we should verify that
-there are no ide-cs specific hacks in ide_init_hwif_ports() on other archs.
+Complete build log:
 
-Otherwise patch looks fine.
+http://armlinux.simtec.co.uk/kautobuild/2.6.14-git5/clps7500_defconfig/zimage.log
 
-Thanks,
-Bartlomiej
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

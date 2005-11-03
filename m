@@ -1,69 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030279AbVKCClQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030275AbVKCCqA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030279AbVKCClQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 21:41:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030276AbVKCClQ
+	id S1030275AbVKCCqA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 21:46:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030271AbVKCCp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 21:41:16 -0500
-Received: from sabe.cs.wisc.edu ([128.105.6.20]:59579 "EHLO sabe.cs.wisc.edu")
-	by vger.kernel.org with ESMTP id S1030279AbVKCClP (ORCPT
+	Wed, 2 Nov 2005 21:45:59 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:41345 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030269AbVKCCp7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 21:41:15 -0500
-Message-ID: <42702.192.168.0.12.1130985661.squirrel@192.168.0.2>
-In-Reply-To: <20051102134452.GA4778@flint.arm.linux.org.uk>
-References: <20051102132145.GA14946@elf.ucw.cz>
-    <20051102134452.GA4778@flint.arm.linux.org.uk>
-Date: Wed, 2 Nov 2005 20:41:01 -0600 (CST)
-Subject: Re: [patch, rfc] LEDs support for collie
-From: "John Lenz" <lenz@cs.wisc.edu>
-To: "Russell King" <rmk+lkml@arm.linux.org.uk>
-Cc: "Pavel Machek" <pavel@ucw.cz>, "Andrew Morton" <akpm@osdl.org>,
-       rpurdie@rpsys.net, "kernel list" <linux-kernel@vger.kernel.org>
-User-Agent: SquirrelMail/1.4.4
-MIME-Version: 1.0
+	Wed, 2 Nov 2005 21:45:59 -0500
+Date: Thu, 3 Nov 2005 12:45:36 +1100
+From: Andrew Morton <akpm@osdl.org>
+To: Zach Brown <zach.brown@oracle.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       hch@infradead.org, mark.fasheh@oracle.com
+Subject: Re: [Patch] add AOP_TRUNCATED_PAGE, prepend AOP_ to
+ WRITEPAGE_ACTIVATE
+Message-Id: <20051103124536.0191bea6.akpm@osdl.org>
+In-Reply-To: <43667913.4030401@oracle.com>
+References: <43667913.4030401@oracle.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, November 2, 2005 7:44 am, Russell King said:
-> On Wed, Nov 02, 2005 at 02:21:45PM +0100, Pavel Machek wrote:
->> This adds support for controlling LEDs on sharp zaurus sl-5500. It may
->> look a little bit complex, but it probably needs to be complex --
->> blinking is pretty much mandatory when you only have two leds, and we
->> want to support charging led (controlled by kernel).
+Zach Brown <zach.brown@oracle.com> wrote:
 >
-> Isn't "blinking" a kind of policy, as is brightness (== duty cycle of
-> a high speed toggling)?  What if someone wants synchronised toggling?
->
-> I still think anything over a very simple interface being exported to
-> userspace is completely overkill and completely bloated.  Hell, I got
-> laughed at for creating an abstracted LEDs interface in the first
-> place because many thought the current version was far too bloated.
+> readpage(), prepare_write(), and commit_write() callers are updated to
+>  understand the special return code AOP_TRUNCATED_PAGE in the style of
+>  writepage() and WRITEPAGE_ACTIVATE.  AOP_TRUNCATED_PAGE tells the caller that
+>  the callee has unlocked the page and that the operation should be tried again
+>  with a new page.  OCFS2 uses this to detect and work around a lock inversion in
+>  its aop methods.  There should be no change in behaviour for methods that don't
+>  return AOP_TRUNCATED_PAGE.
+> 
+>  WRITEPAGE_ACTIVATE is also prepended with AOP_ for consistency and they are
+>  made enums so that kerneldoc can be used to document their semantics.
 
-I can strip out the timer stuff.... without the frequency stuff the patch
-is  an interface that allows userspace and other kernel code to adjust the
-color and brightness of leds.
-
-Then Richard can implement his triggers code, which uses the exported
-in-kernel api for controlling leds.  That triggers code can do whatever,
-including blink the led on a frequency.  (And the discussion of the
-triggers stuff can continue unrelated to this basic led framework).
-
-Now that I think about it more, the frequency stuff should really be
-ripped out of the led code and put somewhere else (like either userspace
-or some other triggers code).
-
->
-> I _know_ people have issues with the current interface, whinging that
-> "it only exports the colour" but that's something which is actually
-> very trivially solvable and therefore _not_ a major problem to solve.
->
-
-I believe it is already solved this using my patch ignoring the frequency....
-
-John
-
-
+Looks sane to me.   Can you carry this in the ocfs2 tree?

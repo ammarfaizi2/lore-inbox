@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030449AbVKCTVl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030450AbVKCTYi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030449AbVKCTVl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 14:21:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030450AbVKCTVl
+	id S1030450AbVKCTYi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 14:24:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932565AbVKCTYi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 14:21:41 -0500
-Received: from lakshmi.addtoit.com ([198.99.130.6]:62983 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S1030449AbVKCTVk
+	Thu, 3 Nov 2005 14:24:38 -0500
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:42254 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S932472AbVKCTYh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 14:21:40 -0500
-Date: Thu, 3 Nov 2005 15:13:17 -0500
-From: Jeff Dike <jdike@addtoit.com>
-To: Rob Landley <rob@landley.net>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Gerrit Huizenga <gh@us.ibm.com>,
-       Ingo Molnar <mingo@elte.hu>,
-       Kamezawa Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       Dave Hansen <haveblue@us.ibm.com>, Mel Gorman <mel@csn.ul.ie>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       kravetz@us.ibm.com, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-Message-ID: <20051103201317.GA8341@ccure.user-mode-linux.org>
-References: <E1EXEfW-0005ON-00@w-gerrit.beaverton.ibm.com> <200511030007.34285.rob@landley.net> <4369BD7D.6050507@yahoo.com.au> <200511031154.11219.rob@landley.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200511031154.11219.rob@landley.net>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 3 Nov 2005 14:24:37 -0500
+Date: Thu, 3 Nov 2005 19:24:44 +0000 (GMT)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: "David S. Miller" <davem@davemloft.net>, gregkh@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: post-2.6.14 USB change breaks sparc64 boot
+In-Reply-To: <Pine.LNX.4.44L0.0511031352480.5056-100000@iolanthe.rowland.org>
+Message-ID: <Pine.LNX.4.55.0511031913500.24109@blysk.ds.pg.gda.pl>
+References: <Pine.LNX.4.44L0.0511031352480.5056-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 03, 2005 at 11:54:10AM -0600, Rob Landley wrote:
-> Lots of work has gone into batching up syscalls and making as few of them as 
-> possible because they are a performance bottleneck.  You want to introduce a 
-> syscall for every single individual page of memory allocated or freed.
+On Thu, 3 Nov 2005, Alan Stern wrote:
+
+> >  This might actually want to be split to disable legacy stuff as soon as
+> > possible to prevent a flood of interrupts, sending SMIs and what not else.  
+> > That just requires poking at the PCI config space.  Whatever's the rest
+> > could be done later.  I guess hot-plugged USB host controllers are not
+> > configured for legacy support, so the early bits should not matter for
+> > them.
 > 
-> That's stupid.
+> See this email thread:
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=113081793516723&w=2
 
-I think what I'm optimizing is TLB flushes, not system calls.  With
-mmap et al, they are effectively the same thing though.
+ Hmm, how does this relate to my suggestion?  Apart from me having to note
+that I have a MIPS-based system with an UHCI -- so these HCs are not
+completely limited to Intel-based systems.  Though, unsurprisingly, it
+doesn't use any of the legacy crap.  SMI from the south bridge is routed
+to somewhere IIRC; probably an ordinary interrupt (and happily ignored).
 
-				Jeff
+  Maciej

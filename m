@@ -1,142 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030268AbVKCB6c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030277AbVKCCJE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030268AbVKCB6c (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 20:58:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030269AbVKCB6b
+	id S1030277AbVKCCJE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 21:09:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030278AbVKCCJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 20:58:31 -0500
-Received: from nproxy.gmail.com ([64.233.182.192]:1294 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030268AbVKCB6b convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 20:58:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Xpp2xg2VNvUjVDIZS3KptpdJlugSZhkCSJU3dV7MtObAJl4ljv5Rs+avi7YqmCztN/No4DaM8Uv8f8LxLVmtkZ5azgbEfVzJiuXeMlRgVEUQDK8Gskw9FWHQtEg6eu0Nvi9P8qXlfpf844EyDbFfRhvbqasA13cdvYoij1Y5A68=
-Message-ID: <2cd57c900511021758j29ffb5f4l@mail.gmail.com>
-Date: Thu, 3 Nov 2005 09:58:29 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: + readahead-commentary.patch added to -mm tree
-Cc: akpm@osdl.org
-In-Reply-To: <200511030145.jA31j8eB021068@shell0.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200511030145.jA31j8eB021068@shell0.pdx.osdl.net>
+	Wed, 2 Nov 2005 21:09:04 -0500
+Received: from ozlabs.org ([203.10.76.45]:54975 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1030277AbVKCCJC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 21:09:02 -0500
+Subject: Re: [2.6.14-rt1] slowdown / oops.
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: =?iso-8859-2?Q?Pawe=B3?= Sikora <pluto@agmk.net>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       netfilter-devel@lists.netfilter.org
+In-Reply-To: <20051102153352.GA26115@elte.hu>
+References: <200511021420.28104.pluto@agmk.net>
+	 <20051102134723.GB13468@elte.hu> <20051102135516.GA16175@elte.hu>
+	 <20051102140025.GA17385@elte.hu> <20051102142533.GA18453@elte.hu>
+	 <20051102151242.GA23809@elte.hu>  <20051102153352.GA26115@elte.hu>
+Content-Type: text/plain
+Date: Thu, 03 Nov 2005 13:09:01 +1100
+Message-Id: <1130983742.8734.19.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 03/11/05, akpm@osdl.org <akpm@osdl.org> wrote:
->
-> The patch titled
->
->      readahead commentary
->
-> has been added to the -mm tree.  Its filename is
->
->      readahead-commentary.patch
->
->
-> From: Andrew Morton <akpm@osdl.org>
->
-> Add a few comments surrounding thr generic readahead API.
->
-> Also convert some ulongs into pgoff_t: the identifier for PAGE_CACHE_SIZE
-> offsets into pagecache.
->
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
-> ---
->
->  include/linux/mm.h |    8 ++++----
->  mm/readahead.c     |   31 ++++++++++++++++++++++---------
->  2 files changed, 26 insertions(+), 13 deletions(-)
->
-> diff -puN mm/readahead.c~readahead-commentary mm/readahead.c
-> --- 25/mm/readahead.c~readahead-commentary      2005-11-03 08:06:16.000000000 +1100
-> +++ 25-akpm/mm/readahead.c      2005-11-03 08:16:16.000000000 +1100
-> @@ -254,7 +254,7 @@ out:
->   */
->  static int
->  __do_page_cache_readahead(struct address_space *mapping, struct file *filp,
-> -                       unsigned long offset, unsigned long nr_to_read)
-> +                       pgoff_t offset, unsigned long nr_to_read)
+On Wed, 2005-11-02 at 16:33 +0100, Ingo Molnar wrote:
+> local_bh_disable()/enable() is a NOP under PREEMPT_RT, and the 
+> ip_ct_deliver_cached_events PER_CPU code relies on not being preempted 
+> by the net_rx_action softirq handler. So this is a bug in PREEMPT_RT and 
+> the upstream code should be fine.
+> 
+> 	Ingo
+> 
+> Index: linux/net/ipv4/netfilter/ip_conntrack_core.c
+> ===================================================================
+> --- linux.orig/net/ipv4/netfilter/ip_conntrack_core.c
+> +++ linux/net/ipv4/netfilter/ip_conntrack_core.c
+> @@ -105,11 +105,11 @@ void ip_ct_deliver_cached_events(const s
 >  {
->         struct inode *inode = mapping->host;
->         struct page *page;
-> @@ -274,7 +274,7 @@ __do_page_cache_readahead(struct address
->          */
->         read_lock_irq(&mapping->tree_lock);
->         for (page_idx = 0; page_idx < nr_to_read; page_idx++) {
-> -               unsigned long page_offset = offset + page_idx;
-> +               pgoff_t page_offset = offset + page_idx;
->
->                 if (page_offset > end_index)
->                         break;
-> @@ -311,7 +311,7 @@ out:
->   * memory at once.
->   */
->  int force_page_cache_readahead(struct address_space *mapping, struct file *filp,
-> -               unsigned long offset, unsigned long nr_to_read)
-> +               pgoff_t offset, unsigned long nr_to_read)
->  {
->         int ret = 0;
->
-> @@ -368,7 +368,7 @@ static inline int check_ra_success(struc
->   * request queues.
->   */
->  int do_page_cache_readahead(struct address_space *mapping, struct file *filp,
-> -                       unsigned long offset, unsigned long nr_to_read)
-> +                       pgoff_t offset, unsigned long nr_to_read)
->  {
->         if (bdi_read_congested(mapping->backing_dev_info))
->                 return -1;
-> @@ -385,7 +385,7 @@ int do_page_cache_readahead(struct addre
->   */
->  static int
->  blockable_page_cache_readahead(struct address_space *mapping, struct file *filp,
-> -                       unsigned long offset, unsigned long nr_to_read,
-> +                       pgoff_t offset, unsigned long nr_to_read,
->                         struct file_ra_state *ra, int block)
->  {
->         int actual;
-> @@ -430,14 +430,27 @@ static int make_ahead_window(struct addr
->         return ret;
->  }
->
-> -/*
-> - * page_cache_readahead is the main function.  If performs the adaptive
-> +/**
-> + * page_cache_readahead - generic adaptive readahead
-> + * @mapping: address_space which holds te pagecache and I/O vectors
+>  	struct ip_conntrack_ecache *ecache;
+>  	
+> -	local_bh_disable();
+> +	read_lock_bh(&ip_conntrack_lock);
+>  	ecache = &__get_cpu_var(ip_conntrack_ecache);
+>  	if (ecache->ct == ct)
+>  		__ip_ct_deliver_cached_events(ecache);
+> -	local_bh_enable();
+> +	read_unlock_bh(&ip_conntrack_lock);
 
-typo. s/te/the/
+This kind of change is troubling.  I suppose we could go to per-cpu
+locks, but it's still a loss.
 
-> + * @ra: file_ra_state which holds the readahead state
-> + * @filp: passed on to ->readpage() and ->readpages()
-> + * @offset: start offset into @mapping, in PAGE_CACHE_SIZE units
-> + * @req_size: hint: total size of the read which the caller is performing in
-> + *            PAGE_CACHE_SIZE units
-> + *
-> + * page_cache_readahead() is the main function.  If performs the adaptive
->   * readahead window size management and submits the readahead I/O.
-> + *
-> + * Note that @filp is purely used for passing on to the ->readpage[s]()
-> + * handler: it may refer to a different file from @mapping (so we may not use
-> + * @filp->f_mapping or @filp->f_dentry->d_inode here).
-> + * Also, @ra may not be equal to &@filp->f_ra.
-> + *
->   */
->  unsigned long
->  page_cache_readahead(struct address_space *mapping, struct file_ra_state *ra,
-> -                    struct file *filp, unsigned long offset,
-> -                    unsigned long req_size)
-> +                    struct file *filp, pgoff_t offset, unsigned long req_size)
->  {
->         unsigned long max, newsize;
->         int sequential;
+Rusty.
+-- 
+A bad analogy is like a leaky screwdriver -- Richard Braakman
 
---
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/

@@ -1,130 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030291AbVKCELr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030299AbVKCERP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030291AbVKCELr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 23:11:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751601AbVKCELr
+	id S1030299AbVKCERP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 23:17:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030300AbVKCERP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 23:11:47 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:30355 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750807AbVKCELq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 23:11:46 -0500
-Date: Thu, 3 Nov 2005 14:11:25 +1100
-From: Andrew Morton <akpm@osdl.org>
-To: Michael Krufky <mkrufky@m1k.net>
-Cc: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org,
-       Kirk Lapray <kirk.lapray@gmail.com>
-Subject: Re: [PATCH 30/37] dvb: add nxt200x frontend module
-Message-Id: <20051103141125.1463c1bd.akpm@osdl.org>
-In-Reply-To: <43672436.6000006@m1k.net>
-References: <43672436.6000006@m1k.net>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
+	Wed, 2 Nov 2005 23:17:15 -0500
+Received: from sneakemail.com ([38.113.6.61]:64698 "HELO monkey.sneakemail.com")
+	by vger.kernel.org with SMTP id S1030299AbVKCERO convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 23:17:14 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lWlGdmL052q4Tk2rtZl3ImlfGYUzf9074nynSvpqPRG7HLc5OZkQbTyV9+WmYSY+AsmqtkB4/X3ZOKaM1Hwy8eI7bMKc/XJucPg9LNCZ20jaS665GwsZMXKr4+suWW2ZNlawFJGfkYBXlgkbpNQpFjg3A9bvzzueEyc82JeNFOo=
+Message-ID: <20172-97280@sneakemail.com>
+Date: Wed, 2 Nov 2005 20:17:10 -0800
+From: "NooneImportant" <nxhxzi702@sneakemail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 18/37] dvb: let other frontends support FE_DISHNETWORK_SEND_LEGACY_CMD
+In-Reply-To: <20051103135210.21cdcf77.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <436723DB.2000300@m1k.net> <20051103135210.21cdcf77.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Krufky <mkrufky@m1k.net> wrote:
+On 11/2/05, Andrew Morton wrote:
+> Michael Krufky <mkrufky@m1k.net> wrote:
+> >
+> > +s32 timeval_usec_diff(struct timeval lasttime, struct timeval curtime)
+> >  +{
+> >  +    return ((curtime.tv_usec < lasttime.tv_usec) ?
+> >  +            1000000 - lasttime.tv_usec + curtime.tv_usec :
+> >  +            curtime.tv_usec - lasttime.tv_usec);
+> >  +}
+> >  +EXPORT_SYMBOL(timeval_usec_diff);
+> >  +
+> >  +static inline void timeval_usec_add(struct timeval *curtime, u32 add_usec)
+> >  +{
+> >  +    curtime->tv_usec += add_usec;
+> >  +    if (curtime->tv_usec >= 1000000) {
+> >  +            curtime->tv_usec -= 1000000;
+> >  +            curtime->tv_sec++;
+> >  +    }
+> >  +}
 >
-> 
-> From: Kirk Lapray <kirk.lapray@gmail.com>
-> 
-> * nxt200x.c, nxt200x.h
-> - New frontend module that supports both NXT2002 and NXT2004.
->   So far, only tested on NXT2004.  After testing on NXT2002, we should
->   deprecate the nxt2002 module, and implement this one instead on the
->   applicable cards.
-> 
-> * get_dvb_firmware:
-> - Added support for the NXT2004 firmware. This firmware works with both
->   the ATI HDTV Wonder and the AVerTVHD MCE a180.
->   This was originally written by Jean-Francois Thibert
-> 
-> * dvb-pll.c
-> - Fixed minimum frequency for tuv1236d. It seems that the data sheets
->   are wrong.
-> 
-> ...
-> +static int nxt200x_writebytes (struct nxt200x_state* state, u8 reg, u8 *buf, u8 len)
-> +{
-> +	u8 buf2 [len+1];
+> timeval arithmetic like this really shouldn't be hidden in a dvb driver -
+> it's generic code.
+> However I don't believe that the driver should be using timevals and
+> do_gettimeofday() at all.  Why not use jiffies-based timing like so
+> many other parts of the kernel?
+>
+To be honest, I don't like this solution very much either.  It only
+works when HZ is ~1000, and even then isn't reliable for everyone who
+uses this code.  All this is attempting to be is a high precision 8ms
+timer.  Accuracy needs to be +/- 500us for the code to work.  I am not
+a (very good) kernel programmer, and didn't find anything that would
+really fit the bill when trying to figure out how to ensure a routine
+gets called every 8ms (9 times).  The ktimers stuff I saw recently on
+lwn would seem to work well here, but if there is a way to do it with
+what is in the kernel today, I'm just not aware of how to do it.  So
+if someone will show me the right way (or point me in the irght
+direction even), I'll be happy to rework the patch.
 
-hm, a variable-sized array, with the size defined by the caller.   I guess as the size is
-in a u8 it's unlikely to cause too much trouble.
-
-(Wonders what the compiler will do if len==255.  256, I think.)
-
-> +static int nxt200x_readreg_multibyte (struct nxt200x_state* state, u8 reg, u8* data, u8 len)
-> +{
-> +	int i;
-> +	u8 buf, len2, attr;
-> +	dprintk("%s\n", __FUNCTION__);
-> +
-> +	/* set mutli register register */
-> +	nxt200x_writebytes(state, 0x35, &reg, 1);
-> +
-> +	switch (state->demod_chip) {
-> +		case NXT2002:
-> +			/* set multi register length */
-> +			len2 = len & 0x80;
-> +			nxt200x_writebytes(state, 0x34, &len2, 1);
-> +
-> +			/* read the actual data */
-> +			nxt200x_readbytes(state, reg, data, len);
-> +			return 0;
-> +			break;
-> +		case NXT2004:
-> +			/* probably not right, but gives correct values */
-> +			attr = 0x02;
-> +			if (reg & 0x80) {
-> +				attr = attr << 1;
-> +				if (reg & 0x04)
-> +					attr = attr >> 1;
-> +			}
-> +
-> +			/* set multi register length */
-> +			len2 = (attr << 4) | len;
-> +			nxt200x_writebytes(state, 0x34, &len2, 1);
-> +
-> +			/* toggle the multireg bit*/
-> +			buf = 0x80;
-> +			nxt200x_writebytes(state, 0x21, &buf, 1);
-> +
-> +			/* read status */
-> +			nxt200x_readbytes(state, 0x21, &buf, 1);
-> +
-> +			if (buf == 0)
-> +			{
-> +				/* read the actual data */
-> +				for(i = 0; i < len; i++) {
-> +                    nxt200x_readbytes(state, 0x36 + i, &data[i], 1);
-> +				}
-> +				return 0;
-
-whitespace broke.
-
-> +			}
-> +			break;
-> +		default:
-> +			return -EINVAL;
-> +			break;
-> +	}
-
-We usually indent the body of a switch statement one tab further to the left.
-
-> +
-> +static int nxt200x_writetuner (struct nxt200x_state* state, u8* data)
-> +{
-> +	u8 buf, count = 0;
-> +
-> +	dprintk("%s\n", __FUNCTION__);
-> +
-> +	dprintk("Tuner Bytes: %02X %02X %02X %02X\n", data[0], data[1], data[2], data[3]);
-> +
-> +	/* if pll is a Philips TUV1236D then write directly to tuner */
-> +	if (strcmp(state->config->pll_desc->name, "Philips TUV1236D") == 0) {
-
-Does DVB have a better way of identifying a device type than strcmp?
-
-
+Thanks,
+Noone

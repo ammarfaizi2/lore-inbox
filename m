@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751414AbVKCWaP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932571AbVKCWfr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751414AbVKCWaP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 17:30:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751411AbVKCWaP
+	id S932571AbVKCWfr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 17:35:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932584AbVKCWfr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 17:30:15 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:25991 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751410AbVKCWaM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 17:30:12 -0500
-Subject: Re: [PATCH 12/12: eCryptfs] Crypto functions
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Michael Thompson <michael.craig.thompson@gmail.com>
-Cc: Phillip Hellewell <phillip@hellewell.homeip.net>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       mike@halcrow.us, mhalcrow@us.ibm.com, mcthomps@us.ibm.com,
-       yoder1@us.ibm.com
-In-Reply-To: <afcef88a0511031425u1fa5838fic86cbd7a341cb0a6@mail.gmail.com>
-References: <20051103033220.GD2772@sshock.rn.byu.edu>
-	 <20051103035659.GL3005@sshock.rn.byu.edu>
-	 <1131055610.9365.17.camel@kleikamp.austin.ibm.com>
-	 <afcef88a0511031425u1fa5838fic86cbd7a341cb0a6@mail.gmail.com>
+	Thu, 3 Nov 2005 17:35:47 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:27565 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S932571AbVKCWfr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 17:35:47 -0500
+Subject: Re: pxa27x_udc -- support for usb gadget for pxa27x?
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>,
+       dkrivoschokov@dev.rtsoft.ru
+In-Reply-To: <20051103221402.GA28206@elf.ucw.cz>
+References: <20051103221402.GA28206@elf.ucw.cz>
 Content-Type: text/plain
-Date: Thu, 03 Nov 2005 16:30:09 -0600
-Message-Id: <1131057009.9365.21.camel@kleikamp.austin.ibm.com>
+Date: Thu, 03 Nov 2005 22:35:08 +0000
+Message-Id: <1131057308.8523.92.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-11-03 at 16:25 -0600, Michael Thompson wrote:
-> On 11/3/05, Dave Kleikamp <shaggy@austin.ibm.com> wrote:
-> > On Wed, 2005-11-02 at 20:56 -0700, Phillip Hellewell wrote:
-> > > +       ecryptfs_fput(lower_file);
-> >
-> > Why the call to ecryptfs_fput() here?  The caller does it's own fput on
-> > lower_file.
-> 
-> Hmm, good catch. That slipped through us - and to be hoenst, I have no
-> explination other than, it's wrong. ecryptfs_write_headers should not
-> be responsible for put'ing that which it did not get.
-> 
-> I'm wondering if I should be sending 1 patch per tiny fix like this,
-> or if I should be waiting for a few more changes, so as to not flood
-> the threads with minor patches?
+On Thu, 2005-11-03 at 23:14 +0100, Pavel Machek wrote:
+> Is there recent version somewhere? I found one version
+> (pxa27x-0218.patch), but it is *really* old.
 
-Well, I found it trying to look for the cause of bug 1228303, but I
-haven't actually run anything to verify it.  It may be worth checking if
-it fixes that problem, and if it does, it would bump up its importance.
+Pull it out of handhelds.org kernel26 cvs tree and let me and the usb
+developers have the patch please :)
 
-> Thanks,
-> Mike
-> 
--- 
-David Kleikamp
-IBM Linux Technology Center
+> I'd like to connect zaurus c-3000 to desktop somehow... what is the
+> recommended way? I wanted to use bluetooth originally, but billionton
+> card is way too slow.
+
+I use a CF wifi card.
+
+USB Host works so a usb host<->host cable might work but is untested.
+
+> Is there chance for usb-gadget support for collie (sl-5500, sa1100
+> cpu)?
+
+I think 2.4 drivers exist but nothing for 2.6 :-(. Someone needs to
+write that driver...
+
+Richard
+
+
 

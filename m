@@ -1,110 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbVKCJJg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbVKCJHf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932122AbVKCJJg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 04:09:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbVKCJJg
+	id S1751248AbVKCJHf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 04:07:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbVKCJHf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 04:09:36 -0500
-Received: from baldrick.bootc.net ([83.142.228.48]:9118 "EHLO
-	baldrick.bootc.net") by vger.kernel.org with ESMTP id S1751267AbVKCJJg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 04:09:36 -0500
-Mime-Version: 1.0 (Apple Message framework v746.2)
-To: linux-kernel@vger.kernel.org
-Message-Id: <71832A43-F7BD-48EC-B0B9-DB1877794F2D@bootc.net>
-Content-Type: multipart/signed; micalg=sha1; boundary=Apple-Mail-1-230432833; protocol="application/pkcs7-signature"
-From: Chris Boot <bootc@bootc.net>
-Subject: GIT Help (branches and all that stuff)
-Date: Thu, 3 Nov 2005 09:09:31 +0000
-X-Mailer: Apple Mail (2.746.2)
+	Thu, 3 Nov 2005 04:07:35 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:41182 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1751248AbVKCJHe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 04:07:34 -0500
+Subject: Re: [RFC] The driver model, I2C and gpio provision on Sharp
+	SL-C1000 (Akita)
+From: Richard Purdie <rpurdie@rpsys.net>
+To: David Brownell <david-b@pacbell.net>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, andy@hexapodia.org
+In-Reply-To: <200511022306.48405.david-b@pacbell.net>
+References: <200511022306.48405.david-b@pacbell.net>
+Content-Type: text/plain
+Date: Thu, 03 Nov 2005 09:07:23 +0000
+Message-Id: <1131008844.8523.35.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2005-11-02 at 23:06 -0800, David Brownell wrote:
+> Likewise on many OMAP boards, which tend to have the power management
+> and other essential features on I2C.
+> 
+> Some board-specific init code ends up needing to run after the probe()
+> logic of the tps6501x driver ... like for example, using a GPIO (!)
+> there to power up the Ethernet controller which may be needed for the
+> root filesystem.  (At least on many development systems!)
+> 
+> You can see where that leads:  we patched the i2c subsystem so that
+> it runs at subsys_initcall ... and also the omap_i2c driver, and
+> the tps65010 driver.  No other drivers need to be changed, just the
+> ones involved in that board's power management.
 
---Apple-Mail-1-230432833
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	charset=US-ASCII;
-	delsp=yes;
-	format=flowed
+Its not as simple as this in my case. Yes, you can patch the maxim i2c
+driver and the pxa i2c controller to run at subsys_initcall level which
+is fine. akita-ioexp has to run at a higher level (fs_initcall) as it
+will run before the i2c subsystem (being in arch as against drivers).
 
-Hi all,
+I don't think is feasible to go through the LCD, IrDA and sound
+subsystems trying to guarantee what init levels they're going to access
+the gpios at once you start getting to fs_initcall level.
 
-I'm having a bit of a hard time trying to figure out a few things  
-using GIT. Mainly, I'd like to run a non-GIT 2.6.14 kernel, but with  
-Jeff Garzik's latest libata patches from his GIT repo. I've tried  
-quite a few things to generate a patch from Jeff's repo that will  
-apply to 2.6.14, but nothing I do generates a working patch. Can  
-someone give me some guidance?
+This could be a case for putting akita-ioexp into drivers/i2c/chips but
+see my other thoughts below...
 
-I've tried various iterations of the following:
+> Richard:
+> 
+> > I had to turn akita-ioexp into a platform device to get the suspend
+> > signal which is used to flush the workqueue. With a platform device
+> > available at machine init time, I can insert it as a parent of the corgi
+> > device chain which means its one of the last devices to be suspended.
+> 
+> By doing all that stuff as "subsys_initcall", the relevant I2C gpio
+> hardware will be also be suspended "late" ... without such a fake
+> platform device.  Unless you're doing selective suspend, details of
+> the device tree matter less than the order used to create devices.
 
-git diff master..ALL
-git diff master..v2.6.14
-git diff v2.6.14..master
+I'd like to keep the device tree correct, then if anyone does want to
+selectively suspend things, it will work and it also works if someone
+decides to change the device init order around at some later date and
+not everything will break.
 
-and various other such iterations. As you can probably tell I don't  
-know much about git, but all the tutorials haven't helped get me a  
-working patch!
+I'm coming to the view that I should merge the max7310 i2c driver into
+akita-ioexp and lose the general case driver for the following reasons:
 
-Cheers,
-Chris
+1. Having a header file around for two functions seems excessive and I
+can't see any alternative
+2. The MAX7310 has 56 different i2c addresses and no way of detecting
+the presence of the chip. Autoprobing on akita means you end up with the
+sound codec being taken by the max7310 driver. I don't like to think
+what it would do on other systems.
+3. There's no interdependency between two drivers and hence it should be
+more robust.
+4. I can lose the workqueue "find the i2c client" routine as the driver
+can know when the i2c device has been detected and the client setup.
+(the workqueue is still needed to act on gpio requests in case they come
+from interrupt context but the driver becomes simpler and of a more sane
+design).
 
--- 
-Chris Boot
-bootc@bootc.net
-http://www.bootc.net/
+Richard
 
-
-
---Apple-Mail-1-230432833
-Content-Transfer-Encoding: base64
-Content-Type: application/pkcs7-signature;
-	name=smime.p7s
-Content-Disposition: attachment;
-	filename=smime.p7s
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIGEjCCAssw
-ggI0oAMCAQICAw4IwzANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhh
-d3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVt
-YWlsIElzc3VpbmcgQ0EwHhcNMDUwMjE0MjEyNjMzWhcNMDYwMjE0MjEyNjMzWjBBMR8wHQYDVQQD
-ExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMR4wHAYJKoZIhvcNAQkBFg9ib290Y0Bib290Yy5uZXQw
-ggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC6aATCjyi9z5A42up8tmL1D0gc/TvBsCIJ
-ehXpdQJ1gGC5d6MlKLpQIF8zVzOjwOkFO7hluPVVAzrSo5/jvcSCl2SYj0OMiBS3BZh7JBMb6Ld+
-+I5zrKnQFA4OCtBfaDS4xpErhjCgxYo4uk0HCJyI9T/foELKVJba4iRdnmggI513ifG8eIV94y+Z
-rSVgejMisnLOM9xg0LfWwJZmbnYcszvkGKmAWzzqGfZFig2AR8I/NnVqYwr42JDlFMNKsz0kNdeq
-ED29yI8IGITfzk3Xc5eMfm2PPEs1drf6vfR38GBLYL8UkgAbtTBiRvte4jS+aA6kKyvN0gIDq2+S
-r06HAgMBAAGjLDAqMBoGA1UdEQQTMBGBD2Jvb3RjQGJvb3RjLm5ldDAMBgNVHRMBAf8EAjAAMA0G
-CSqGSIb3DQEBBAUAA4GBAID0mAm4oxd1eY6KoCmdoTGfkeaYBnP+vd00juiKXwlYfZ1/TPMCbIeD
-KHINuQbIUVH3u+vga56aaiwj31EG6D/7O8GePQPDo4HSgbo6cfGM21ELowr2e/qUg1EyoWwhATak
-QDYLSBEIdAsQJnUwV32LZA/PFYGu0S5i25u7d4FpMIIDPzCCAqigAwIBAgIBDTANBgkqhkiG9w0B
-AQUFADCB0TELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2Fw
-ZSBUb3duMRowGAYDVQQKExFUaGF3dGUgQ29uc3VsdGluZzEoMCYGA1UECxMfQ2VydGlmaWNhdGlv
-biBTZXJ2aWNlcyBEaXZpc2lvbjEkMCIGA1UEAxMbVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIENB
-MSswKQYJKoZIhvcNAQkBFhxwZXJzb25hbC1mcmVlbWFpbEB0aGF3dGUuY29tMB4XDTAzMDcxNzAw
-MDAwMFoXDTEzMDcxNjIzNTk1OVowYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25z
-dWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1
-aW5nIENBMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDEpjxVc1X7TrnKmVoeaMB1BHCd3+n/
-ox7svc31W/Iadr1/DDph8r9RzgHU5VAKMNcCY1osiRVwjt3J8CuFWqo/cVbLrzwLB+fxH5E2JCoT
-zyvV84J3PQO+K/67GD4Hv0CAAmTXp6a7n2XRxSpUhQ9IBH+nttE8YQRAHmQZcmC3+wIDAQABo4GU
-MIGRMBIGA1UdEwEB/wQIMAYBAf8CAQAwQwYDVR0fBDwwOjA4oDagNIYyaHR0cDovL2NybC50aGF3
-dGUuY29tL1RoYXd0ZVBlcnNvbmFsRnJlZW1haWxDQS5jcmwwCwYDVR0PBAQDAgEGMCkGA1UdEQQi
-MCCkHjAcMRowGAYDVQQDExFQcml2YXRlTGFiZWwyLTEzODANBgkqhkiG9w0BAQUFAAOBgQBIjNFQ
-g+oLLswNo2asZw9/r6y+whehQ5aUnX9MIbj4Nh+qLZ82L8D0HFAgk3A8/a3hYWLD2ToZfoSxmRsA
-xRoLgnSeJVCUYsfbJ3FXJY3dqZw5jowgT2Vfldr394fWxghOrvbqNOUQGls1TXfjViF4gtwhGTXe
-JLHTHUb/XV9lTzGCAucwggLjAgEBMGkwYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBD
-b25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJ
-c3N1aW5nIENBAgMOCMMwCQYFKw4DAhoFAKCCAVMwGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAc
-BgkqhkiG9w0BCQUxDxcNMDUxMTAzMDkwOTMyWjAjBgkqhkiG9w0BCQQxFgQUd9+/48KRS3yC/rRl
-K7NgRk3VsuMweAYJKwYBBAGCNxAEMWswaTBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3Rl
-IENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWls
-IElzc3VpbmcgQ0ECAw4IwzB6BgsqhkiG9w0BCRACCzFroGkwYjELMAkGA1UEBhMCWkExJTAjBgNV
-BAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25h
-bCBGcmVlbWFpbCBJc3N1aW5nIENBAgMOCMMwDQYJKoZIhvcNAQEBBQAEggEAhFBwZevDWKMEhKI4
-BVF5bAQkjStVI5PBYKhpuFGdq6H2ZE6/eEo4utiLZ4WnWjBe/tF6ha4/j0spRdLjTZ7XBKO1G8Hi
-3OEwnd0bHr4uP5LL9hHIjuOyfEjp0d7UQgAIdjmL2eCVcIFBmmKFkn0v9jxLZ2dpENGS88MRCyhO
-znrXtk3ifKA/3JRfD4zH6/9/1JVuW8Cwu3yFaVQ+GBl/29yLNC4icLXdGstoeVDhUP82uJCFkfEv
-0Krwh0se+WofMlqxfvx1kR/pvNL+BTy4YrSQ+/rO+EG157FZvyCWnDwiTihdr74uS5y1HfnDe68C
-B7FVBlHf9GlBKjqWcmUxbQAAAAAAAA==
-
---Apple-Mail-1-230432833--

@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030207AbVKCOt2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030201AbVKCOtY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030207AbVKCOt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 09:49:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbVKCOt2
+	id S1030201AbVKCOtY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 09:49:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030207AbVKCOtY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 09:49:28 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:58569 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S1030207AbVKCOt1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 09:49:27 -0500
-Date: Thu, 3 Nov 2005 07:49:26 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Matthew Wilcox <matthew@wil.cx>
-Subject: First steps towards making NO_IRQ a generic concept
-Message-ID: <20051103144926.GV23749@parisc-linux.org>
+	Thu, 3 Nov 2005 09:49:24 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29971 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1030201AbVKCOtX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 09:49:23 -0500
+Date: Thu, 3 Nov 2005 14:49:04 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pavel Machek <pavel@suse.cz>
+Cc: John Lenz <lenz@cs.wisc.edu>, Robert Schwebel <robert@schwebel.de>,
+       Robert Schwebel <r.schwebel@pengutronix.de>, vojtech@suse.cz,
+       rpurdie@rpsys.net, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: best way to handle LEDs
+Message-ID: <20051103144904.GG28038@flint.arm.linux.org.uk>
+Mail-Followup-To: Pavel Machek <pavel@suse.cz>,
+	John Lenz <lenz@cs.wisc.edu>, Robert Schwebel <robert@schwebel.de>,
+	Robert Schwebel <r.schwebel@pengutronix.de>, vojtech@suse.cz,
+	rpurdie@rpsys.net, kernel list <linux-kernel@vger.kernel.org>
+References: <20051101234459.GA443@elf.ucw.cz> <20051102202622.GN23316@pengutronix.de> <20051102211334.GH23943@elf.ucw.cz> <20051102213354.GO23316@pengutronix.de> <38523.192.168.0.12.1130986361.squirrel@192.168.0.2> <20051103081522.GA21663@flint.arm.linux.org.uk> <20051103095725.GA703@openzaurus.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20051103095725.GA703@openzaurus.ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Nov 03, 2005 at 10:57:26AM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > > Except the led code that is being proposed CAN sit on top of a generic
+> > > GPIO layer.
+> > 
+> > I also have issues with a generic GPIO layer.  As I mentioned in the
+> > past, there's serious locking issues with any generic abstraction of
+> > GPIOs.
+> > 
+> > 1. You want to be able to change GPIO state from interrupts.  This
+> >    implies you can not sleep in GPIO state changing functions.
+> > 
+> > 2. Some GPIOs are implemented on I2C devices.  This means that to
+> >    change state, you must sleep.
+> 
+> Can't you just busywait? Yes, it is ugly in general, but perhaps it
+> is better than alternatives...
 
-Hi Linus,
+Does the i2c layer support busy waiting or are you suggesting something
+else?
 
-This series of four patches are the first step towards making NO_IRQ a
-pervasive concept.  It's bundled up in a git tree for your convenience
-(unless I bodged it up, in which case it's your inconvenience).
-
-git://git.kernel.org/pub/scm/linux/kernel/git/willy/misc-2.6.git no_irq
-
- - Check the irq number is within bounds in the functions which weren't
-   already checking.
- - Introduce PCI_NO_IRQ and pci_valid_irq()
-   Explicitly initialise pci_dev->irq with PCI_NO_IRQ, allowing us to change
-   the value of PCI_NO_IRQ when all drivers have been audited.
- - Use pci_valid_irq() instead of a custom NO_IRQ definition.
-   It probably didn't work on half a dozen architectures.
- - Move the definition of NO_IRQ from asm directories to <linux/hardirq.h>.
-   Individual architectures can still override it if they want to, but all
-   existing definitions were -1.
-
- drivers/pci/probe.c       |    7 +++++--
- drivers/pcmcia/pd6729.c   |    6 +-----
- include/asm-arm/irq.h     |    8 --------
- include/asm-arm26/irq.h   |    8 --------
- include/asm-frv/irq.h     |    3 ---
- include/asm-parisc/irq.h  |    2 --
- include/asm-powerpc/irq.h |    3 ---
- include/linux/hardirq.h   |   10 ++++++++++
- include/linux/pci.h       |    9 +++++++++
- kernel/irq/manage.c       |   15 +++++++++++++++
- 10 files changed, 40 insertions(+), 31 deletions(-)
-
-I'll follow this mail with the patches for other peoples benefits.  They
-were previously posted to linux-arch with no responses.
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

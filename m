@@ -1,73 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030341AbVKCPss@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030354AbVKCPvs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030341AbVKCPss (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 10:48:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030355AbVKCPss
+	id S1030354AbVKCPvs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 10:51:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030355AbVKCPvs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 10:48:48 -0500
-Received: from nproxy.gmail.com ([64.233.182.200]:36437 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030341AbVKCPsr convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 10:48:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EUp+6dGsNf+RfLThO24DHV8YMn83XE/pqBzuhtdiElAJFivg2Nh5fgXuCMZyr1bAloIYnc+dCXb1i9MPQDF9kBCELIBMMHJQHTWnKx49sy2Fffr/KVAVfcXG6yptUH/taPMv3ZU/O5Ebwv2cz3/2eJZW/zcFlZ23wFnQ4pDhi20=
-Message-ID: <58cb370e0511030748r1cd78522o6b33d68df5a77098@mail.gmail.com>
-Date: Thu, 3 Nov 2005 16:48:45 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: "David S. Miller" <davem@davemloft.net>
-Subject: Re: Parallel ATA with libata status with the patches I'm working on
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <20051103.072810.129576574.davem@davemloft.net>
+	Thu, 3 Nov 2005 10:51:48 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:29123 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030354AbVKCPvr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 10:51:47 -0500
+Date: Thu, 3 Nov 2005 07:51:11 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Arjan van de Ven <arjan@infradead.org>
+cc: "Martin J. Bligh" <mbligh@mbligh.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Dave Hansen <haveblue@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+       Mel Gorman <mel@csn.ul.ie>, Andrew Morton <akpm@osdl.org>,
+       kravetz@us.ibm.com, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lhms <lhms-devel@lists.sourceforge.net>,
+       Arjan van de Ven <arjanv@infradead.org>
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+In-Reply-To: <1131032422.2839.8.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.64.0511030747450.27915@g5.osdl.org>
+References: <4366C559.5090504@yahoo.com.au>  <Pine.LNX.4.58.0511010137020.29390@skynet>
+ <4366D469.2010202@yahoo.com.au>  <Pine.LNX.4.58.0511011014060.14884@skynet>
+ <20051101135651.GA8502@elte.hu>  <1130854224.14475.60.camel@localhost>
+ <20051101142959.GA9272@elte.hu>  <1130856555.14475.77.camel@localhost>
+ <20051101150142.GA10636@elte.hu>  <1130858580.14475.98.camel@localhost>
+ <20051102084946.GA3930@elte.hu>  <436880B8.1050207@yahoo.com.au>
+ <1130923969.15627.11.camel@localhost>  <43688B74.20002@yahoo.com.au>
+ <255360000.1130943722@[10.10.2.4]>  <4369824E.2020407@yahoo.com.au> 
+ <306020000.1131032193@[10.10.2.4]> <1131032422.2839.8.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1131029686.18848.48.camel@localhost.localdomain>
-	 <20051103144830.GF28038@flint.arm.linux.org.uk>
-	 <58cb370e0511030702hb06a5f3qc2dfe465ee1d784c@mail.gmail.com>
-	 <20051103.072810.129576574.davem@davemloft.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/3/05, David S. Miller <davem@davemloft.net> wrote:
-> From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-> Date: Thu, 3 Nov 2005 16:02:45 +0100
->
-> > IMO porting/rewriting host-drivers to libata now is just
-> > counter-productive waste of time...
->
-> This would be an interesting opinion if you were asked for it.
-> But you were not, yet you keep stating it, therefore you must
-> feel threatened in some way.
 
-I'm worried about crap being pushed into libata, that's all.
 
-Besides does current situation of ALSA and OSS bring any bells?
+On Thu, 3 Nov 2005, Arjan van de Ven wrote:
 
-> I have to admit that your handling of Alan's desire to do this work
-> makes you look very non-transparent as the IDE layer maintainer.
+> On Thu, 2005-11-03 at 07:36 -0800, Martin J. Bligh wrote:
+> > >> Can we quit coming up with specialist hacks for hotplug, and try to solve
+> > >> the generic problem please? hotplug is NOT the only issue here. Fragmentation
+> > >> in general is.
+> > >> 
+> > > 
+> > > Not really it isn't. There have been a few cases (e1000 being the main
+> > > one, and is fixed upstream) where fragmentation in general is a problem.
+> > > But mostly it is not.
+> > 
+> > Sigh. OK, tell me how you're going to fix kernel stacks > 4K please. 
+> 
+> with CONFIG_4KSTACKS :)
 
-By reading linux-ide ML you will see that actually
-I help in development of libata PATA support.
+2-page allocations are _not_ a problem.
 
-> What do you care if Alan converts all the drivers with his own time
-> and effort?  If it's a waste of time, it's his time, which he can
+Especially not for fork()/clone(). If you don't even have 2-page 
+contiguous areas, you are doing something _wrong_, or you're so low on 
+memory that there's no point in forking any more. 
 
-Are you familiar with background discussions before Alan started
-this work?  Never explained FUD about current state of drivers/ide,
-personal attacks and replying to eny post relating to IDE with either
-FUD or "IDE driver is going away"...
+Don't confuse "fragmentation" with "perfectly spread out page 
+allocations". 
 
-Alan plays dirty game and don't say me that this doesn't influnce
-my work...
+Fragmentation means that it gets _exponentially_ more unlikely that you 
+can allocate big contiguous areas. But contiguous areas of order 1 are 
+very very likely indeed. It's only the _big_ areas that aren't going to 
+happen.
 
-> spend in any way he so chooses.  You've already stated that you think
-> it's a waste of time on at least 2 or 3 occaisions, so I think he and
-> everyone else gets your point and you don't need to restate this over
-> and over again.
+This is why fragmentation avoidance has always been totally useless. It is
+ - only useful for big areas
+ - very hard for big areas
 
-OK, I'll shut up now.
+(Corollary: when it's easy and possible, it's not useful).
 
-Bartlomiej (no more mr nice guy)
+Don't do it. We've never done it, and we've been fine. Claiming that 
+fork() is a reason to do fragmentation avoidance is invalid.
+
+		Linus

@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbVKCJ6q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932518AbVKCKJ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932351AbVKCJ6q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 04:58:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbVKCJ6q
+	id S932518AbVKCKJ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 05:09:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932540AbVKCKJ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 04:58:46 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:65288 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932351AbVKCJ6p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 04:58:45 -0500
-Date: Thu, 3 Nov 2005 09:58:40 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       trond.myklebust@fys.uio.no
-Subject: Failure: ARM clps7500
-Message-ID: <20051103095840.GA28038@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	trond.myklebust@fys.uio.no
-Mime-Version: 1.0
+	Thu, 3 Nov 2005 05:09:29 -0500
+Received: from [218.25.172.144] ([218.25.172.144]:518 "HELO mail.fc-cn.com")
+	by vger.kernel.org with SMTP id S932518AbVKCKJ3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 05:09:29 -0500
+Date: Thu, 3 Nov 2005 18:08:44 +0800
+From: Coywolf Qi Hunt <qiyong@fc-cn.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] __find_get_block_slow() cleanup
+Message-ID: <20051103100520.GA4321@localhost.localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This default configuration (arch/arm/configs/clps7500_defconfig) fails
-to build:
+Hello,
 
-  LD      .tmp_vmlinux1
-net/built-in.o: In function `xs_bindresvport':
-stats.c:(.text+0x54654): undefined reference to `xprt_min_resvport'
-stats.c:(.text+0x54658): undefined reference to `xprt_max_resvport'
-net/built-in.o: In function `xs_setup_tcp':
-stats.c:(.text+0x54bcc): undefined reference to `xprt_tcp_slot_table_entries'
-stats.c:(.text+0x54bd0): undefined reference to `xprt_max_resvport'
-net/built-in.o: In function `xs_setup_udp':
-stats.c:(.text+0x54d34): undefined reference to `xprt_udp_slot_table_entries'
-stats.c:(.text+0x54d38): undefined reference to `xprt_max_resvport'
-make: *** [.tmp_vmlinux1] Error 1
-
-Maybe related to CONFIG_SYSCTL=n ?
-
-Complete build log:
-
-http://armlinux.simtec.co.uk/kautobuild/2.6.14-git5/clps7500_defconfig/zimage.log
+Get rid of the `int unused' parameter of __find_get_block_slow().
 
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+		Coywolf
+
+Signed-off-by: Coywolf Qi Hunt <qiyong@fc-cn.com>
+---
+
+
+--- 2.6.14-cy/fs/buffer.c~__find_get_block_slow-cleanup	2005-10-31 15:24:11.000000000 +0800
++++ 2.6.14-cy/fs/buffer.c	2005-11-03 17:58:54.000000000 +0800
+@@ -396,7 +396,7 @@ asmlinkage long sys_fdatasync(unsigned i
+  * private_lock is contended then so is mapping->tree_lock).
+  */
+ static struct buffer_head *
+-__find_get_block_slow(struct block_device *bdev, sector_t block, int unused)
++__find_get_block_slow(struct block_device *bdev, sector_t block)
+ {
+ 	struct inode *bd_inode = bdev->bd_inode;
+ 	struct address_space *bd_mapping = bd_inode->i_mapping;
+@@ -1438,7 +1438,7 @@ __find_get_block(struct block_device *bd
+ 	struct buffer_head *bh = lookup_bh_lru(bdev, block, size);
+ 
+ 	if (bh == NULL) {
+-		bh = __find_get_block_slow(bdev, block, size);
++		bh = __find_get_block_slow(bdev, block);
+ 		if (bh)
+ 			bh_lru_install(bh);
+ 	}
+@@ -1694,7 +1694,7 @@ void unmap_underlying_metadata(struct bl
+ 
+ 	might_sleep();
+ 
+-	old_bh = __find_get_block_slow(bdev, block, 0);
++	old_bh = __find_get_block_slow(bdev, block);
+ 	if (old_bh) {
+ 		clear_buffer_dirty(old_bh);
+ 		wait_on_buffer(old_bh);

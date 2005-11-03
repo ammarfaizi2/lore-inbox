@@ -1,115 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030320AbVKCQ1a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030378AbVKCQe1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030320AbVKCQ1a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 11:27:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030375AbVKCQ1a
+	id S1030378AbVKCQe1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 11:34:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030379AbVKCQe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 11:27:30 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:150 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1030320AbVKCQ13 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 11:27:29 -0500
-Date: Thu, 3 Nov 2005 16:27:18 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Dave Hansen <haveblue@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, kravetz@us.ibm.com,
-       linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>,
-       Arjan van de Ven <arjanv@infradead.org>
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-In-Reply-To: <Pine.LNX.4.64.0511030747450.27915@g5.osdl.org>
-Message-ID: <Pine.LNX.4.58.0511031613560.3571@skynet>
-References: <4366C559.5090504@yahoo.com.au>  <Pine.LNX.4.58.0511010137020.29390@skynet>
- <4366D469.2010202@yahoo.com.au>  <Pine.LNX.4.58.0511011014060.14884@skynet>
- <20051101135651.GA8502@elte.hu>  <1130854224.14475.60.camel@localhost>
- <20051101142959.GA9272@elte.hu>  <1130856555.14475.77.camel@localhost>
- <20051101150142.GA10636@elte.hu>  <1130858580.14475.98.camel@localhost>
- <20051102084946.GA3930@elte.hu>  <436880B8.1050207@yahoo.com.au>
- <1130923969.15627.11.camel@localhost>  <43688B74.20002@yahoo.com.au>
- <255360000.1130943722@[10.10.2.4]>  <4369824E.2020407@yahoo.com.au> 
- <306020000.1131032193@[10.10.2.4]> <1131032422.2839.8.camel@laptopd505.fenrus.org>
- <Pine.LNX.4.64.0511030747450.27915@g5.osdl.org>
+	Thu, 3 Nov 2005 11:34:27 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:19731 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1030378AbVKCQe0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 11:34:26 -0500
+Message-ID: <436A3C10.9050302@vmware.com>
+Date: Thu, 03 Nov 2005 08:34:24 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14: CR4 not needed to be inspected on the 486 anymore?
+References: <Pine.LNX.4.55.0511031600010.24109@blysk.ds.pg.gda.pl>
+In-Reply-To: <Pine.LNX.4.55.0511031600010.24109@blysk.ds.pg.gda.pl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 03 Nov 2005 16:34:39.0241 (UTC) FILETIME=[7C237F90:01C5E094]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Nov 2005, Linus Torvalds wrote:
+Maciej W. Rozycki wrote:
 
+>Hello,
 >
+> The following hunk of the 2.6.14 patch:
 >
-> On Thu, 3 Nov 2005, Arjan van de Ven wrote:
+>diff --git a/arch/i386/kernel/process.c b/arch/i386/kernel/process.c
+>index e3f362e..7a14fdf 100644
+>--- a/arch/i386/kernel/process.c
+>+++ b/arch/i386/kernel/process.c
+>@@ -313,16 +311,12 @@ void show_regs(struct pt_regs * regs)
+> 	printk(" DS: %04x ES: %04x\n",
+> 		0xffff & regs->xds,0xffff & regs->xes);
+> 
+>-	__asm__("movl %%cr0, %0": "=r" (cr0));
+>-	__asm__("movl %%cr2, %0": "=r" (cr2));
+>-	__asm__("movl %%cr3, %0": "=r" (cr3));
+>-	/* This could fault if %cr4 does not exist */
+>-	__asm__("1: movl %%cr4, %0		\n"
+>-		"2:				\n"
+>-		".section __ex_table,\"a\"	\n"
+>-		".long 1b,2b			\n"
+>-		".previous			\n"
+>-		: "=r" (cr4): "0" (0));
+>+	cr0 = read_cr0();
+>+	cr2 = read_cr2();
+>+	cr3 = read_cr3();
+>+	if (current_cpu_data.x86 > 4) {
+>+		cr4 = read_cr4();
+>+	}
+> 	printk("CR0: %08lx CR2: %08lx CR3: %08lx CR4: %08lx\n", cr0, cr2, cr3, cr4);
+> 	show_trace(NULL, &regs->esp);
+> }
 >
-> > On Thu, 2005-11-03 at 07:36 -0800, Martin J. Bligh wrote:
-> > > >> Can we quit coming up with specialist hacks for hotplug, and try to solve
-> > > >> the generic problem please? hotplug is NOT the only issue here. Fragmentation
-> > > >> in general is.
-> > > >>
-> > > >
-> > > > Not really it isn't. There have been a few cases (e1000 being the main
-> > > > one, and is fixed upstream) where fragmentation in general is a problem.
-> > > > But mostly it is not.
-> > >
-> > > Sigh. OK, tell me how you're going to fix kernel stacks > 4K please.
-> >
-> > with CONFIG_4KSTACKS :)
->
-> 2-page allocations are _not_ a problem.
->
-> Especially not for fork()/clone(). If you don't even have 2-page
-> contiguous areas, you are doing something _wrong_, or you're so low on
-> memory that there's no point in forking any more.
->
-> Don't confuse "fragmentation" with "perfectly spread out page
-> allocations".
->
-> Fragmentation means that it gets _exponentially_ more unlikely that you
-> can allocate big contiguous areas. But contiguous areas of order 1 are
-> very very likely indeed. It's only the _big_ areas that aren't going to
-> happen.
->
-
-For me, it's the big areas that I am interested in, especially if we want
-to give HugeTLB pages to a user when they are asking for them. The obvious
-one here is database and HPC loads, particularly the HPC loads which may
-not have had a chance to reserve what they needed at boot time. These
-loads need 1024 contiguous pages on the x86 at least, not 2. We can free
-all we want on todays kernels and you're not going to get more than 1 or
-two blocks this large unless you are very lucky.
-
-Hotplug is, for me, an additional benefit. For others, it is the main
-benefit. For others of course, they don't care, but others don't are about
-scalability to 64 processors either but we provide it anyway at a low cost
-to smaller machines.
-
-> This is why fragmentation avoidance has always been totally useless. It is
->  - only useful for big areas
->  - very hard for big areas
->
-> (Corollary: when it's easy and possible, it's not useful).
+>disables code to retrieve the actual value of CR4 on 486-class systems
+>(which may or may not implement the register, depending on the exact CPU
+>type and stepping).  This seems suspicious to me, but I have to admit I
+>haven't followed the discussion on the issue if there was any.
+>  
 >
 
-Unless you are a user that wants a large area when it suddenly is useful.
+This was deliberate.  CR4 doesn't exist on standard 486 class systems, 
+and I'm not sure how you could make use of it anyway, since the features 
+used by Linux - machine check, page size extensions, time stamp counter, 
+global pages, are only available in Pentium and later class systems, and 
+identified by CPUID, which also doesn't exist on 486.
 
-> Don't do it. We've never done it, and we've been fine. Claiming that
-> fork() is a reason to do fragmentation avoidance is invalid.
->
+There may be some funky Cyrix or even Intel CPUs that have CR4 
+registers, but showing the output in a register dump seems very 
+useless.  I would also not recommend using undocumented features in CR4 
+even if you have such a freaky processor - there were bugs and/or 
+missing functionality with the early large page and global page 
+extensions that were not ironed out until the features became 
+documented, IIRC.  YMMV - please let me know if anyone has found ways to 
+make this useful.
 
-We've never done it but, but we've only supported HugeTLB pages being
-reserved at boot time and nothing else as well.
+If I am wrong, I am happy to correct this, but I would like to do so 
+properly by adding safe_read_cr4() or equivalent rather than using raw 
+inlines assembler to catch the fault.
 
-I'm going to setup a kbuild environment, hopefully this evening, and see
-are these patches adversely impacting a load that kernel developers care
-about. If I am impacting it, oops I'm in some trouble. If I'm not, then
-why not try and help out the people who care about the big areas.
+Thanks,
 
--- 
-Mel Gorman
-Part-time Phd Student                          Java Applications Developer
-University of Limerick                         IBM Dublin Software Lab
+Zach

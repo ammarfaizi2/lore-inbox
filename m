@@ -1,71 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932599AbVKCFmn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750913AbVKCFv1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932599AbVKCFmn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 00:42:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932591AbVKCFmn
+	id S1750913AbVKCFv1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 00:51:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750914AbVKCFv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 00:42:43 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:389 "EHLO
-	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S932581AbVKCFmm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 00:42:42 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Jeff Dike <jdike@addtoit.com>
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-Date: Wed, 2 Nov 2005 23:41:49 -0600
-User-Agent: KMail/1.8
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       user-mode-linux-devel@lists.sourceforge.net,
-       Yasunori Goto <y-goto@jp.fujitsu.com>,
-       Dave Hansen <haveblue@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       Mel Gorman <mel@csn.ul.ie>, "Martin J. Bligh" <mbligh@mbligh.org>,
-       Andrew Morton <akpm@osdl.org>, kravetz@us.ibm.com,
-       linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>
-References: <1130917338.14475.133.camel@localhost> <200511021728.36745.rob@landley.net> <20051103052649.GA16508@ccure.user-mode-linux.org>
-In-Reply-To: <20051103052649.GA16508@ccure.user-mode-linux.org>
+	Thu, 3 Nov 2005 00:51:27 -0500
+Received: from mail2.ispwest.com ([216.52.245.18]:64009 "EHLO
+	ispwest-email1.mdeinc.com") by vger.kernel.org with ESMTP
+	id S1750881AbVKCFv0 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 00:51:26 -0500
+X-Modus-BlackList: 216.52.245.25=OK;kjak@ispwest.com=OK
+X-Modus-Trusted: 216.52.245.25=YES
+Message-ID: <a323eed56c0f4695bec595264cddc4a2.kjak@ispwest.com>
+X-EM-APIVersion: 2, 0, 1, 0
+X-Priority: 3 (Normal)
+Reply-To: "Kris Katterjohn" <kjak@users.sourceforge.net>
+From: "Kris Katterjohn" <kjak@ispwest.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Merge __load_pointer() and load_pointer() in net/core/filter.c; kernel 2.6.14
+Date: Wed, 2 Nov 2005 21:51:23 -0800
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511022341.50524.rob@landley.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 November 2005 23:26, Jeff Dike wrote:
-> On Wed, Nov 02, 2005 at 05:28:35PM -0600, Rob Landley wrote:
-> > With fragmentation reduction and prezeroing, UML suddenly gains the
-> > option of calling madvise(DONT_NEED) on sufficiently large blocks as A) a
-> > fast way of prezeroing, B) a way of giving memory back to the host OS
-> > when it's not in use.
->
-> DONT_NEED is insufficient.  It doesn't discard the data in dirty
-> file-backed pages.
+From: Mitchell Blank Jr
+> > Kris Katterjohn wrote:
+> > Forgive me because this is one of my first attempts at anything related to the
+> > kernel, but...
+> > 
+> > 1) How would I go about benchmarking this?
+> 
+> The first thing to do is run "size net/core/filter.o" before and after and
+> see if your change makes the "text" section larger.
+> 
+> The risk of putting more stuff into the inlined function is just that
+> the rarely-executed path will end up duplicated in a bunch of places, bloating
+> the generated code.  It's hard to directly benchmark the effects of this but
+> it will generally make the fast-path code less compact in the L1 I-cache
+> which (if you do it enough) slows everything down.  Thats one reason why
+> kernel developers try to keep a close eye on bloat.
+> 
+> -Mitch
 
-I thought DONT_NEED would discard the page cache, and punch was only needed to 
-free up the disk space.
 
-I was hoping that since the file was deleted from disk and is already getting 
-_some_ special treatment (since it's a longstanding "poor man's shared 
-memory" hack), that madvise wouldn't flush the data to disk, but would just 
-zero it out.  A bit optimistic on my part, I know. :)
+Before patch:
 
-> Badari Pulavarty has a test patch (google for madvise(MADV_REMOVE))
-> which does do the trick, and I have a UML patch which adds memory
-> hotplug.  This combination does free memory back to the host.
+   text	   data	    bss	    dec	    hex	filename
+   2399	      0	      0	   2399	    95f	x/net/core/filter.o
 
-I saw it wander by, and am all for it.  If it goes in, it's obviously the 
-right thing to use.  You may remember I asked about this two years ago:
-http://seclists.org/lists/linux-kernel/2003/Dec/0919.html
+After patch:
 
-And a reply indicated that SVr4 had it, but we don't.  I assume the "naming 
-discussion" mentioned in the recent thread already scrubbed through this old 
-thread to determine that the SVr4 API was icky.
-http://seclists.org/lists/linux-kernel/2003/Dec/0955.html
+   text	   data	    bss	    dec	    hex	filename
+   2589	      0	      0	   2589	    a1d	y/net/core/filter.o
 
->     Jeff
+After patch without inlining the function:
 
-Rob
+   text	   data	    bss	    dec	    hex	filename
+   2127	      0	      0	   2127	    84f	y/net/core/filter.o
+
+
+So I guess use my patch and take "inline" off? What do you think?
+
+
+Thanks
+
+

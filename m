@@ -1,191 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030319AbVKCEbn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030332AbVKCEbn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030319AbVKCEbn (ORCPT <rfc822;willy@w.ods.org>);
+	id S1030332AbVKCEbn (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 2 Nov 2005 23:31:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030332AbVKCEbf
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030320AbVKCEae
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 23:31:35 -0500
-Received: from smtp102.sbc.mail.re2.yahoo.com ([68.142.229.103]:31607 "HELO
-	smtp102.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1030319AbVKCEbX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 23:31:23 -0500
-Message-Id: <20051103042818.847868000.dtor_core@ameritech.net>
+	Wed, 2 Nov 2005 23:30:34 -0500
+Received: from smtp109.sbc.mail.re2.yahoo.com ([68.142.229.96]:10628 "HELO
+	smtp109.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1030319AbVKCEac (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 23:30:32 -0500
+Message-Id: <20051103042818.283137000.dtor_core@ameritech.net>
 References: <20051103042121.394220000.dtor_core@ameritech.net>
-Date: Wed, 02 Nov 2005 23:21:28 -0500
+Date: Wed, 02 Nov 2005 23:21:23 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
        Vojtech Pavlik <vojtech@ucw.cz>
-Subject: [patch 7/7] lkkbd: misc fixes
-Content-Disposition: inline; filename=lkkbd-misc-fixes.patch
+Subject: [patch 2/7] locomokbd: convert to dynamic input allocation
+Content-Disposition: inline; filename=input-dynalloc-locomo.patch
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-
-Input: lkkbd - miscellaneous fixes
-
-* Hide debugging code into #ifdef, which allows to simplify
-  the large switch statement
-* Update macros to not reference variables not given as
-  arguments
-
-Signed-off-by: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+Input: locomokbd - convert to dynamic input allocation
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/input/keyboard/lkkbd.c |  101 +++++++++++++++++++++++------------------
- 1 files changed, 59 insertions(+), 42 deletions(-)
+ drivers/input/keyboard/locomokbd.c |   63 ++++++++++++++++++-------------------
+ 1 files changed, 31 insertions(+), 32 deletions(-)
 
-Index: work/drivers/input/keyboard/lkkbd.c
+Index: work/drivers/input/keyboard/locomokbd.c
 ===================================================================
---- work.orig/drivers/input/keyboard/lkkbd.c
-+++ work/drivers/input/keyboard/lkkbd.c
-@@ -273,11 +273,11 @@ static lk_keycode_t lkkbd_keycode[LK_NUM
- 	[0xfb] = KEY_APOSTROPHE,
- };
+--- work.orig/drivers/input/keyboard/locomokbd.c
++++ work/drivers/input/keyboard/locomokbd.c
+@@ -76,7 +76,7 @@ static unsigned char locomokbd_keycode[L
  
--#define CHECK_LED(LED, BITS) do {		\
--	if (test_bit (LED, lk->dev->led))	\
--		leds_on |= BITS;		\
--	else					\
--		leds_off |= BITS;		\
-+#define CHECK_LED(LK, VAR_ON, VAR_OFF, LED, BITS) do {		\
-+	if (test_bit (LED, (LK)->dev->led))			\
-+		VAR_ON |= BITS;					\
-+	else							\
-+		VAR_OFF |= BITS;				\
- 	} while (0)
+ struct locomokbd {
+ 	unsigned char keycode[LOCOMOKBD_NUMKEYS];
+-	struct input_dev input;
++	struct input_dev *input;
+ 	char phys[32];
  
- /*
-@@ -298,6 +298,42 @@ struct lkkbd {
- 	int ctrlclick_volume;
- };
+ 	struct locomo_dev *ldev;
+@@ -136,8 +136,7 @@ static void locomokbd_scankeyboard(struc
  
-+#ifdef LKKBD_DEBUG
-+/*
-+ * Responses from the keyboard and mapping back to their names.
-+ */
-+static struct {
-+	unsigned char value;
-+	unsigned char *name;
-+} lk_response[] = {
-+#define RESPONSE(x) { .value = (x), .name = #x, }
-+	RESPONSE (LK_STUCK_KEY),
-+	RESPONSE (LK_SELFTEST_FAILED),
-+	RESPONSE (LK_ALL_KEYS_UP),
-+	RESPONSE (LK_METRONOME),
-+	RESPONSE (LK_OUTPUT_ERROR),
-+	RESPONSE (LK_INPUT_ERROR),
-+	RESPONSE (LK_KBD_LOCKED),
-+	RESPONSE (LK_KBD_TEST_MODE_ACK),
-+	RESPONSE (LK_PREFIX_KEY_DOWN),
-+	RESPONSE (LK_MODE_CHANGE_ACK),
-+	RESPONSE (LK_RESPONSE_RESERVED),
-+#undef RESPONSE
-+};
-+
-+static unsigned char *
-+response_name (unsigned char value)
-+{
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE (lk_response); i++)
-+		if (lk_response[i].value == value)
-+			return lk_response[i].name;
-+
-+	return "<unknown>";
-+}
-+#endif /* LKKBD_DEBUG */
-+
- /*
-  * Calculate volume parameter byte for a given volume.
-  */
-@@ -440,43 +476,24 @@ lkkbd_interrupt (struct serio *serio, un
- 					input_report_key (lk->dev, lk->keycode[i], 0);
- 			input_sync (lk->dev);
- 			break;
--		case LK_METRONOME:
--			DBG (KERN_INFO "Got LK_METRONOME and don't "
--					"know how to handle...\n");
-+
-+		case 0x01:
-+			DBG (KERN_INFO "Got 0x01, scheduling re-initialization\n");
-+			lk->ignore_bytes = LK_NUM_IGNORE_BYTES;
-+			lk->id[LK_NUM_IGNORE_BYTES - lk->ignore_bytes--] = data;
-+			schedule_work (&lk->tq);
- 			break;
-+
-+		case LK_METRONOME:
- 		case LK_OUTPUT_ERROR:
--			DBG (KERN_INFO "Got LK_OUTPUT_ERROR and don't "
--					"know how to handle...\n");
--			break;
- 		case LK_INPUT_ERROR:
--			DBG (KERN_INFO "Got LK_INPUT_ERROR and don't "
--					"know how to handle...\n");
--			break;
- 		case LK_KBD_LOCKED:
--			DBG (KERN_INFO "Got LK_KBD_LOCKED and don't "
--					"know how to handle...\n");
--			break;
- 		case LK_KBD_TEST_MODE_ACK:
--			DBG (KERN_INFO "Got LK_KBD_TEST_MODE_ACK and don't "
--					"know how to handle...\n");
--			break;
- 		case LK_PREFIX_KEY_DOWN:
--			DBG (KERN_INFO "Got LK_PREFIX_KEY_DOWN and don't "
--					"know how to handle...\n");
--			break;
- 		case LK_MODE_CHANGE_ACK:
--			DBG (KERN_INFO "Got LK_MODE_CHANGE_ACK and ignored "
--					"it properly...\n");
--			break;
- 		case LK_RESPONSE_RESERVED:
--			DBG (KERN_INFO "Got LK_RESPONSE_RESERVED and don't "
--					"know how to handle...\n");
--			break;
--		case 0x01:
--			DBG (KERN_INFO "Got 0x01, scheduling re-initialization\n");
--			lk->ignore_bytes = LK_NUM_IGNORE_BYTES;
--			lk->id[LK_NUM_IGNORE_BYTES - lk->ignore_bytes--] = data;
--			schedule_work (&lk->tq);
-+			DBG (KERN_INFO "Got %s and don't know how to handle...\n",
-+					response_name (data));
- 			break;
+ 	spin_lock_irqsave(&locomokbd->lock, flags);
  
- 		default:
-@@ -509,10 +526,10 @@ lkkbd_event (struct input_dev *dev, unsi
+-	if (regs)
+-		input_regs(&locomokbd->input, regs);
++	input_regs(locomokbd->input, regs);
  
- 	switch (type) {
- 		case EV_LED:
--			CHECK_LED (LED_CAPSL, LK_LED_SHIFTLOCK);
--			CHECK_LED (LED_COMPOSE, LK_LED_COMPOSE);
--			CHECK_LED (LED_SCROLLL, LK_LED_SCROLLLOCK);
--			CHECK_LED (LED_SLEEP, LK_LED_WAIT);
-+			CHECK_LED (lk, leds_on, leds_off, LED_CAPSL, LK_LED_SHIFTLOCK);
-+			CHECK_LED (lk, leds_on, leds_off, LED_COMPOSE, LK_LED_COMPOSE);
-+			CHECK_LED (lk, leds_on, leds_off, LED_SCROLLL, LK_LED_SCROLLLOCK);
-+			CHECK_LED (lk, leds_on, leds_off, LED_SLEEP, LK_LED_WAIT);
- 			if (leds_on != 0) {
- 				lk->serio->write (lk->serio, LK_CMD_LED_ON);
- 				lk->serio->write (lk->serio, leds_on);
-@@ -574,10 +591,10 @@ lkkbd_reinit (void *data)
- 	lk->serio->write (lk->serio, LK_CMD_SET_DEFAULTS);
+ 	locomokbd_charge_all(membase);
  
- 	/* Set LEDs */
--	CHECK_LED (LED_CAPSL, LK_LED_SHIFTLOCK);
--	CHECK_LED (LED_COMPOSE, LK_LED_COMPOSE);
--	CHECK_LED (LED_SCROLLL, LK_LED_SCROLLLOCK);
--	CHECK_LED (LED_SLEEP, LK_LED_WAIT);
-+	CHECK_LED (lk, leds_on, leds_off, LED_CAPSL, LK_LED_SHIFTLOCK);
-+	CHECK_LED (lk, leds_on, leds_off, LED_COMPOSE, LK_LED_COMPOSE);
-+	CHECK_LED (lk, leds_on, leds_off, LED_SCROLLL, LK_LED_SCROLLLOCK);
-+	CHECK_LED (lk, leds_on, leds_off, LED_SLEEP, LK_LED_WAIT);
- 	if (leds_on != 0) {
- 		lk->serio->write (lk->serio, LK_CMD_LED_ON);
- 		lk->serio->write (lk->serio, leds_on);
+@@ -152,16 +151,16 @@ static void locomokbd_scankeyboard(struc
+ 			scancode = SCANCODE(col, row);
+ 			if (rowd & KB_ROWMASK(row)) {
+ 				num_pressed += 1;
+-				input_report_key(&locomokbd->input, locomokbd->keycode[scancode], 1);
++				input_report_key(locomokbd->input, locomokbd->keycode[scancode], 1);
+ 			} else {
+-				input_report_key(&locomokbd->input, locomokbd->keycode[scancode], 0);
++				input_report_key(locomokbd->input, locomokbd->keycode[scancode], 0);
+ 			}
+ 		}
+ 		locomokbd_reset_col(membase, col);
+ 	}
+ 	locomokbd_activate_all(membase);
+ 
+-	input_sync(&locomokbd->input);
++	input_sync(locomokbd->input);
+ 
+ 	/* if any keys are pressed, enable the timer */
+ 	if (num_pressed)
+@@ -196,13 +195,15 @@ static void locomokbd_timer_callback(uns
+ static int locomokbd_probe(struct locomo_dev *dev)
+ {
+ 	struct locomokbd *locomokbd;
++	struct input_dev *input_dev;
+ 	int i, ret;
+ 
+-	locomokbd = kmalloc(sizeof(struct locomokbd), GFP_KERNEL);
+-	if (!locomokbd)
+-		return -ENOMEM;
+-
+-	memset(locomokbd, 0, sizeof(struct locomokbd));
++	locomokbd = kzalloc(sizeof(struct locomokbd), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!locomokbd || !input_dev) {
++		ret = -ENOMEM;
++		goto free;
++	}
+ 
+ 	/* try and claim memory region */
+ 	if (!request_mem_region((unsigned long) dev->mapbase,
+@@ -224,27 +225,26 @@ static int locomokbd_probe(struct locomo
+ 	locomokbd->timer.function = locomokbd_timer_callback;
+ 	locomokbd->timer.data = (unsigned long) locomokbd;
+ 
+-	locomokbd->input.evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
++	locomokbd->input = input_dev;
++	strcpy(locomokbd->phys, "locomokbd/input0");
+ 
+-	init_input_dev(&locomokbd->input);
+-	locomokbd->input.keycode = locomokbd->keycode;
+-	locomokbd->input.keycodesize = sizeof(unsigned char);
+-	locomokbd->input.keycodemax = ARRAY_SIZE(locomokbd_keycode);
+-	locomokbd->input.private = locomokbd;
++	input_dev->name = "LoCoMo keyboard";
++	input_dev->phys = locomokbd->phys;
++	input_dev->id.bustype = BUS_XTKBD;
++	input_dev->id.vendor = 0x0001;
++	input_dev->id.product = 0x0001;
++	input_dev->id.version = 0x0100;
++	input_dev->private = locomokbd;
++
++	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
++	input_dev->keycode = locomokbd->keycode;
++	input_dev->keycodesize = sizeof(unsigned char);
++	input_dev->keycodemax = ARRAY_SIZE(locomokbd_keycode);
+ 
+ 	memcpy(locomokbd->keycode, locomokbd_keycode, sizeof(locomokbd->keycode));
+ 	for (i = 0; i < LOCOMOKBD_NUMKEYS; i++)
+-		set_bit(locomokbd->keycode[i], locomokbd->input.keybit);
+-	clear_bit(0, locomokbd->input.keybit);
+-
+-	strcpy(locomokbd->phys, "locomokbd/input0");
+-
+-	locomokbd->input.name = "LoCoMo keyboard";
+-	locomokbd->input.phys = locomokbd->phys;
+-	locomokbd->input.id.bustype = BUS_XTKBD;
+-	locomokbd->input.id.vendor = 0x0001;
+-	locomokbd->input.id.product = 0x0001;
+-	locomokbd->input.id.version = 0x0100;
++		set_bit(locomokbd->keycode[i], input_dev->keybit);
++	clear_bit(0, input_dev->keybit);
+ 
+ 	/* attempt to get the interrupt */
+ 	ret = request_irq(dev->irq[0], locomokbd_interrupt, 0, "locomokbd", locomokbd);
+@@ -253,9 +253,7 @@ static int locomokbd_probe(struct locomo
+ 		goto out;
+ 	}
+ 
+-	input_register_device(&locomokbd->input);
+-
+-	printk(KERN_INFO "input: LoCoMo keyboard on locomokbd\n");
++	input_register_device(locomokbd->input);
+ 
+ 	return 0;
+ 
+@@ -263,6 +261,7 @@ out:
+ 	release_mem_region((unsigned long) dev->mapbase, dev->length);
+ 	locomo_set_drvdata(dev, NULL);
+ free:
++	input_free_device(input_dev);
+ 	kfree(locomokbd);
+ 
+ 	return ret;
+@@ -276,7 +275,7 @@ static int locomokbd_remove(struct locom
+ 
+ 	del_timer_sync(&locomokbd->timer);
+ 
+-	input_unregister_device(&locomokbd->input);
++	input_unregister_device(locomokbd->input);
+ 	locomo_set_drvdata(dev, NULL);
+ 
+ 	release_mem_region((unsigned long) dev->mapbase, dev->length);
 

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030350AbVKCD4l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030345AbVKCDzx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030350AbVKCD4l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 22:56:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030349AbVKCD4k
+	id S1030345AbVKCDzx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 22:55:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030346AbVKCDzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 22:56:40 -0500
-Received: from c-67-182-200-232.hsd1.ut.comcast.net ([67.182.200.232]:62446
+	Wed, 2 Nov 2005 22:55:52 -0500
+Received: from c-67-182-200-232.hsd1.ut.comcast.net ([67.182.200.232]:58350
 	"EHLO sshock.homelinux.net") by vger.kernel.org with ESMTP
-	id S1030348AbVKCD4i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 22:56:38 -0500
-Date: Wed, 2 Nov 2005 20:56:59 -0700
+	id S1030340AbVKCDzt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 22:55:49 -0500
+Date: Wed, 2 Nov 2005 20:56:11 -0700
 From: Phillip Hellewell <phillip@hellewell.homeip.net>
 To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
 Cc: phillip@hellewell.homeip.net, mike@halcrow.us, mhalcrow@us.ibm.com,
        mcthomps@us.ibm.com, yoder1@us.ibm.com
-Subject: [PATCH 12/12: eCryptfs] Crypto functions
-Message-ID: <20051103035659.GL3005@sshock.rn.byu.edu>
+Subject: [PATCH 11/12: eCryptfs] Keystore
+Message-ID: <20051103035611.GK3005@sshock.rn.byu.edu>
 References: <20051103033220.GD2772@sshock.rn.byu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,30 +26,29 @@ User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-eCryptfs crypto functions. Scatterlist abstraction functions. Page
-encryption/decryption functions. Inode cryptographic context
-initialization functions. Header region manipulation
-functions. Functions in which filename encoding/decoding can be
-implemented.
+eCryptfs keystore. Packet generation and parsing code. Authentication
+token management code. This file has been trimmed down considerably to
+support only mount-wide passphrases in the 0.1 release.
 
 Signed off by: Phillip Hellewell <phillip@hellewell.homeip.net>
 Signed off by: Michael Halcrow <mhalcrow@us.ibm.com>
 Signed off by: Michael Thompson <mmcthomps@us.ibm.com>
 Signed off by: Kent Yoder <yoder1@us.ibm.com>
 
- crypto.c |  822 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 822 insertions(+)
---- linux-2.6.14-rc5-mm1/fs/ecryptfs/crypto.c	1969-12-31 18:00:00.000000000 -0600
-+++ linux-2.6.14-rc5-mm1-ecryptfs/fs/ecryptfs/crypto.c	2005-11-01 15:55:57.000000000 -0600
-@@ -0,0 +1,822 @@
+ keystore.c |  860 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 860 insertions(+)
+--- linux-2.6.14-rc5-mm1/fs/ecryptfs/keystore.c	1969-12-31 18:00:00.000000000 -0600
++++ linux-2.6.14-rc5-mm1-ecryptfs/fs/ecryptfs/keystore.c	2005-11-01 15:51:59.000000000 -0600
+@@ -0,0 +1,860 @@
 +/**
 + * eCryptfs: Linux filesystem encryption layer
++ * In-kernel key management code.  Includes functions to parse and
++ * write authentication token-related packets with the underlying
++ * file.
 + *
-+ * Copyright (c) 1997-2004 Erez Zadok
-+ * Copyright (c) 2001-2004 Stony Brook University
 + * Copyright (c) 2005 International Business Machines Corp.
-+ *   Author(s): Michael A. Halcrow <mahalcro@us.ibm.com>
-+ *   		Michael C. Thompson <mcthomps@us.ibm.com>
++ *   Author(s): Michael A. Halcrow <mhalcrow@us.ibm.com>
++ *              Michael C. Thompson <mcthomps@us.ibm.com>
 + *
 + * This program is free software; you can redistribute it and/or
 + * modify it under the terms of the GNU General Public License as
@@ -67,800 +66,837 @@ Signed off by: Kent Yoder <yoder1@us.ibm.com>
 + * 02111-1307, USA.
 + */
 +
-+#ifdef HAVE_CONFIG_H
-+# include <config.h>
-+#endif				/* HAVE_CONFIG_H */
-+#include <linux/fs.h>
-+#include <linux/mount.h>
++#include <linux/string.h>
++#include <linux/sched.h>
++#include <linux/syscalls.h>
 +#include <linux/pagemap.h>
-+#include <linux/random.h>
-+#include <linux/compiler.h>
 +#include <linux/key.h>
-+#include <linux/namei.h>
++#include <linux/random.h>
 +#include <linux/crypto.h>
-+#include <linux/file.h>
 +#include <asm/scatterlist.h>
 +#include "ecryptfs_kernel.h"
 +
 +/**
-+ * Requirement:
-+ *	Size of dst buffer needs to be atleast src_size * 2
++ * request_key returned an error instead of a valid key address;
++ * determine the type of error, make appropriate log entries, and
++ * return an error code.
 + */
-+inline void ecryptfs_to_hex(char *dst, char *src, int src_size)
-+{
-+	int x;
-+	for (x = 0; x < src_size; x++)
-+		sprintf(&dst[x * 2], "%.2x", (unsigned char)src[x]);
-+}
-+
-+/**
-+ * Requirement:
-+ * 	Size of src buffer needs to be atleast twice that of dst_size
-+ */
-+inline void ecryptfs_from_hex(char *dst, char *src, int dst_size)
-+{
-+	int x;
-+	char tmp[3] = { 0, };
-+	for (x = 0; x < dst_size; x++) {
-+		tmp[0] = src[x * 2];
-+		tmp[1] = src[x * 2 + 1];
-+		dst[x] = (unsigned char)simple_strtol(tmp, NULL, 16);
-+	}
-+}
-+
-+static int iv_mixer;
-+
-+/**
-+ * Rotate the initialization vector for an extent.  This stirs things
-+ * up to help protect against linear cryptanalysis when an attacker
-+ * may have access to several encryptions based on the same IV.
-+ */
-+void ecryptfs_rotate_iv(unsigned char *iv)
-+{
-+	int i = (ECRYPTFS_MAX_IV_BYTES - sizeof(iv_mixer));
-+	int zero_test = 0;
-+	while ((i -= sizeof(iv_mixer)) >= 0)
-+		zero_test |= ((*((int *)(iv + i))) ^=
-+			      (iv_mixer *= (*(int *)(iv + i))));
-+	while (unlikely(!zero_test)) {
-+		get_random_bytes(iv, ECRYPTFS_MAX_IV_BYTES);
-+		zero_test = 0;
-+		i = ECRYPTFS_MAX_IV_BYTES / sizeof(int);
-+		while (i--)
-+			zero_test |= *((int *)(iv + i));
-+	}
-+}
-+
-+/**
-+ * Initialize the crypt_stats structure.  This involves setting an
-+ * initial IV, indicating how many header pages we have on the file by
-+ * default, initializing the list of raw authentication token packets
-+ * (TODO: deprecated/replaced w/ auth_tok sigs pointing to keyring
-+ * structures), setting the extent size (TODO: this is the page size;
-+ * as it now stands, everything falls apart if the page size is
-+ * anything but 4096), and finally setting a flag to indicate that the
-+ * structure is initialized.
-+ *
-+ * @param crypt_stats Pointer to the crypt_stats struct to
-+ *                    initialize.
-+ */
-+void ecryptfs_init_crypt_stats(struct ecryptfs_crypt_stats *crypt_stats)
-+{
-+	ecryptfs_printk(1, KERN_NOTICE, "Enter\n");
-+	memset((void *)crypt_stats, 0, sizeof(struct ecryptfs_crypt_stats));
-+	init_MUTEX(&crypt_stats->iv_sem);
-+	down(&crypt_stats->iv_sem);
-+	get_random_bytes(&crypt_stats->iv, ECRYPTFS_MAX_IV_BYTES);
-+	up(&crypt_stats->iv_sem);
-+	get_random_bytes(&iv_mixer, sizeof(iv_mixer));
-+	crypt_stats->num_header_pages = 1;	/* TODO: Remove with policy */
-+	crypt_stats->struct_initialized = 1;
-+	ecryptfs_printk(1, KERN_NOTICE, "Exit\n");
-+}
-+
-+/**
-+ * Releases all memory associated with a crypt_stats struct.
-+ */
-+void ecryptfs_destruct_crypt_stats(struct ecryptfs_crypt_stats *crypt_stats)
-+{
-+	ecryptfs_printk(1, KERN_NOTICE, "Enter\n");
-+	if (crypt_stats->tfm) {
-+		crypto_free_tfm(crypt_stats->tfm);
-+		crypt_stats->tfm = NULL;
-+	}
-+	ecryptfs_printk(1, KERN_NOTICE, "Exit\n");
-+}
-+
-+/**
-+ * Dump hexadecimal representation of char array
-+ *
-+ * @param data
-+ * @param bytes
-+ */
-+void ecryptfs_dump_hex(char *data, int bytes)
-+{
-+	int i = 0;
-+	int pretty_print = 1;
-+	if (ecryptfs_verbosity < 1) {
-+		return;
-+	}
-+	if (bytes != 0) {
-+		printk(KERN_NOTICE "0x%.2x.", (unsigned char)data[i]);
-+		i++;
-+	}
-+	while (i < bytes) {
-+		printk("0x%.2x.", (unsigned char)data[i]);
-+		i++;
-+		if (i % 16 == 0) {
-+			printk("\n");
-+			pretty_print = 0;
-+		} else {
-+			pretty_print = 1;
-+		}
-+	}
-+	if (pretty_print) {
-+		printk("\n");
-+	}
-+}
-+
-+/**
-+ * Fills in a scatterlist array with page references for a passed
-+ * virtual address: James Morris
-+ *
-+ * @param addr Virtual address
-+ * @param size Size of data; should be an even multiple of the block
-+ *             size
-+ * @param sg Pointer to scatterlist array
-+ * @param sg_size Max array size
-+ * @return Number of scatterlist structs in array used
-+ */
-+int virt_to_scatterlist(const void *addr, int size, struct scatterlist *sg,
-+			int sg_size)
-+{
-+	int i = 0;
-+	struct page *pg;
-+	int offset;
-+	int remainder_of_page;
-+	while (size > 0 && i < sg_size) {
-+		pg = virt_to_page(addr);
-+		offset = offset_in_page(addr);
-+		sg[i].page = pg;
-+		sg[i].offset = offset;
-+		remainder_of_page = PAGE_CACHE_SIZE - offset;
-+		if (size >= remainder_of_page) {
-+			sg[i].length = remainder_of_page;
-+			addr += remainder_of_page;
-+			size -= remainder_of_page;
-+		} else {
-+			sg[i].length = size;
-+			addr += size;
-+			size = 0;
-+		}
-+		i++;
-+	}
-+	if (size > 0) {
-+		return -ENOMEM;
-+	}
-+	return i;
-+}
-+
-+/**
-+ * @return Number of bytes encrypted
-+ */
-+static int do_encrypt_scatterlist(struct ecryptfs_crypt_stats *crypt_stats,
-+				  struct scatterlist *dest_sg,
-+				  struct scatterlist *src_sg, int size,
-+				  unsigned char *iv)
-+{
-+	if (!crypt_stats || !crypt_stats->tfm
-+	    || !crypt_stats->struct_initialized) {
-+		ecryptfs_printk(0, KERN_ERR,
-+				"Called w/ invalid crypt_stats state\n");
-+		size = -EINVAL;
-+		BUG();
-+		goto out;
-+	}
-+	ecryptfs_printk(1, KERN_NOTICE, "Key size [%d]; key:\n",
-+			crypt_stats->key_size_bits / 8);
-+	if (ecryptfs_verbosity > 0) {
-+		ecryptfs_dump_hex(crypt_stats->key,
-+				  crypt_stats->key_size_bits / 8);
-+	}
-+	crypto_cipher_setkey(crypt_stats->tfm, crypt_stats->key,
-+			     crypt_stats->key_size_bits / 8);
-+	ecryptfs_printk(1, KERN_NOTICE, "Encrypting [%d] bytes.\n", size);
-+	if (crypt_stats->tfm->crt_cipher.cit_mode == CRYPTO_TFM_MODE_ECB) {
-+		crypt_stats->security_warning = 1;
-+		crypto_cipher_encrypt(crypt_stats->tfm, dest_sg, src_sg, size);
-+	} else if (crypt_stats->tfm->crt_cipher.cit_mode
-+		   == CRYPTO_TFM_MODE_CFB
-+		   || crypt_stats->tfm->crt_cipher.cit_mode
-+		   == CRYPTO_TFM_MODE_CBC) {
-+		crypto_cipher_encrypt_iv(crypt_stats->tfm, dest_sg, src_sg,
-+					 size, iv);
-+	} else {
-+		ecryptfs_printk(0, KERN_ERR,
-+				"Unsupported block cipher mode: [%d]\n",
-+				crypt_stats->tfm->crt_cipher.cit_mode);
-+		size = -ENOSYS;
-+	}
-+	/* TODO: crypt_stats->iv size must be equal to the block size */
-+out:
-+	return size;
-+}
-+
-+int do_encrypt_page_offset(struct ecryptfs_crypt_stats *crypt_stats,
-+			   struct page *dest_page, int dest_offset,
-+			   struct page *src_page, int src_offset, int size,
-+			   unsigned char *iv)
-+{
-+	int rc;
-+	struct scatterlist src_sg[2], dest_sg[2];
-+	ecryptfs_printk(1, KERN_NOTICE, "Called with dest_page->index = [%lu], "
-+			"src_page->index = [%lu], dest_offset = [%d], "
-+			"src_offset = [%d]\n", dest_page->index,
-+			src_page->index, dest_offset, src_offset);
-+	src_sg[0].page = src_page;
-+	src_sg[0].offset = src_offset;
-+	src_sg[0].length = size;
-+	dest_sg[0].page = dest_page;
-+	dest_sg[0].offset = dest_offset;
-+	dest_sg[0].length = size;
-+	rc = do_encrypt_scatterlist(crypt_stats, dest_sg, src_sg, size, iv);
-+	return rc;
-+}
-+
-+int
-+do_encrypt_page(struct ecryptfs_crypt_stats *crypt_stats,
-+		struct page *dest_page, struct page *src_page,
-+		unsigned char *iv)
-+{
-+	ecryptfs_printk(1, KERN_NOTICE, "Called with dest_page->index = [%lu] "
-+			"and src_page->index = [%lu]\n", dest_page->index,
-+			src_page->index);
-+	return do_encrypt_page_offset(crypt_stats, dest_page, 0, src_page, 0,
-+				      PAGE_CACHE_SIZE, iv);
-+}
-+
-+/**
-+ * Encrypt from a virtual address to a virtual address.
-+ * 
-+ * @return 
-+ */
-+int do_encrypt_virt(struct ecryptfs_crypt_stats *crypt_stats,
-+		    char *dest_virt_addr, const char *src_virt_addr,
-+		    int size, unsigned char *iv)
-+{
-+	/* TODO: 32 is a magic number */
-+	struct scatterlist src_sg[32];
-+	struct scatterlist dest_sg[32];
-+	int rc;
-+	ecryptfs_printk(1, KERN_NOTICE, "Source:\n");
-+	if (ecryptfs_verbosity > 0) {
-+		ecryptfs_dump_hex((char *)src_virt_addr, size);
-+	}
-+	if ((rc = virt_to_scatterlist(src_virt_addr, size, src_sg, 32))
-+	    == -ENOMEM) {
-+		ecryptfs_printk(0, KERN_ERR, "do_encrypt_virt: No memory for "
-+				"this operation\n");
-+		goto out;
-+
-+	}
-+	if ((rc = virt_to_scatterlist(dest_virt_addr, size, dest_sg, 32))
-+	    == -ENOMEM) {
-+		ecryptfs_printk(0, KERN_ERR, "do_encrypt_virt: No memory for "
-+				"this operation\n");
-+		goto out;
-+	}
-+	rc = do_encrypt_scatterlist(crypt_stats, dest_sg, src_sg, size, iv);
-+	ecryptfs_printk(1, KERN_NOTICE, "Destination:\n");
-+	if (ecryptfs_verbosity > 0) {
-+		ecryptfs_dump_hex((char *)dest_virt_addr, size);
-+	}
-+out:
-+	return rc;
-+}
-+
-+/**
-+ * @return Number of bytes decrypted
-+ */
-+static int do_decrypt_scatterlist(struct ecryptfs_crypt_stats *crypt_stats,
-+				  struct scatterlist *dest_sg,
-+				  struct scatterlist *src_sg, int size,
-+				  unsigned char *iv)
-+{
-+	ecryptfs_printk(1, KERN_NOTICE, "Enter\n");
-+	/* TODO: This should be done when the file is opened */
-+	ecryptfs_printk(1, KERN_NOTICE, "Key size [%d]; key:\n",
-+			crypt_stats->key_size_bits / 8);
-+	if (ecryptfs_verbosity > 0) {
-+		ecryptfs_dump_hex(crypt_stats->key,
-+				  crypt_stats->key_size_bits / 8);
-+	}
-+	crypto_cipher_setkey(crypt_stats->tfm, crypt_stats->key,
-+			     crypt_stats->key_size_bits / 8);
-+	ecryptfs_printk(1, KERN_NOTICE, "Decrypting [%d] bytes.\n", size);
-+	if (crypt_stats->tfm->crt_cipher.cit_mode == CRYPTO_TFM_MODE_ECB) {
-+		crypto_cipher_decrypt(crypt_stats->tfm, dest_sg, src_sg, size);
-+	} else if (crypt_stats->tfm->crt_cipher.cit_mode
-+		   == CRYPTO_TFM_MODE_CFB
-+		   || crypt_stats->tfm->crt_cipher.cit_mode
-+		   == CRYPTO_TFM_MODE_CBC) {
-+		crypto_cipher_decrypt_iv(crypt_stats->tfm, dest_sg, src_sg,
-+					 size, iv);
-+	} else {
-+		ecryptfs_printk(0, KERN_ERR,
-+				"Unsupported block cipher mode: [%d]\n",
-+				crypt_stats->tfm->crt_cipher.cit_mode);
-+		size = -ENOSYS;
-+	}
-+	ecryptfs_printk(1, KERN_NOTICE, "Exit; size = [%d]\n", size);
-+	return size;
-+}
-+
-+/**
-+ * @return Number of bytes decrypted
-+ */
-+int do_decrypt_page_offset(struct ecryptfs_crypt_stats *crypt_stats,
-+			   struct page *dest_page, int dest_offset,
-+			   struct page *src_page, int src_offset, int size,
-+			   unsigned char *iv)
-+{
-+	int rc;
-+	struct scatterlist src_sg[2], dest_sg[2];
-+	src_sg[0].page = src_page;
-+	src_sg[0].offset = src_offset;
-+	src_sg[0].length = size;
-+	dest_sg[0].page = dest_page;
-+	dest_sg[0].offset = dest_offset;
-+	dest_sg[0].length = size;
-+	rc = do_decrypt_scatterlist(crypt_stats, dest_sg, src_sg, size, iv);
-+	return rc;
-+}
-+
-+int
-+do_decrypt_page(struct ecryptfs_crypt_stats *crypt_stats,
-+		struct page *dest_page, struct page *src_page,
-+		unsigned char *iv)
-+{
-+	return do_decrypt_page_offset(crypt_stats, dest_page, 0, src_page, 0,
-+				      PAGE_CACHE_SIZE, iv);
-+}
-+
-+int do_decrypt_virt(struct ecryptfs_crypt_stats *crypt_stats,
-+		    char *dest_virt_addr, const char *src_virt_addr,
-+		    int size, unsigned char *iv)
-+{
-+	/* TODO: 32 is a magic number; minimize stack usage here */
-+	struct scatterlist src_sg[32];
-+	struct scatterlist dest_sg[32];
-+	int rc;
-+	ecryptfs_printk(1, KERN_NOTICE, "Source:\n");
-+	if (ecryptfs_verbosity > 0) {
-+		ecryptfs_dump_hex((char *)src_virt_addr, size);
-+	}
-+	if ((rc = virt_to_scatterlist(src_virt_addr, size, src_sg, 32))
-+	    == -ENOMEM) {
-+		ecryptfs_printk(0, KERN_ERR, "do_decrypt_virt: No memory for "
-+				"this operation\n");
-+		goto out;
-+
-+	}
-+	if ((rc = virt_to_scatterlist(dest_virt_addr, size, dest_sg, 32))
-+	    == -ENOMEM) {
-+		ecryptfs_printk(0, KERN_ERR, "do_decrypt_virt: No memory for "
-+				"this operation\n");
-+		goto out;
-+	}
-+	rc = do_decrypt_scatterlist(crypt_stats, dest_sg, src_sg, size, iv);
-+	ecryptfs_printk(1, KERN_NOTICE, "Destination:\n");
-+	if (ecryptfs_verbosity > 0) {
-+		ecryptfs_dump_hex((char *)dest_virt_addr, size);
-+	}
-+out:
-+	return rc;
-+}
-+
-+/**
-+ * Initialize the crypto context
-+ *
-+ * TODO: Performance: Keep a cache of initialized cipher contexts;
-+ * only init if needed
-+ */
-+int ecryptfs_init_crypt_ctx(struct ecryptfs_crypt_stats *crypt_stats)
-+{
-+	int rc = -EINVAL;
-+	ecryptfs_printk(1, KERN_NOTICE, "Enter\n");
-+	if (crypt_stats->cipher == NULL) {
-+		ecryptfs_printk(1, KERN_NOTICE, "No cipher specified\n");
-+		goto out;
-+	}
-+	ecryptfs_printk(1, KERN_NOTICE,
-+			"Initializing cipher [%s]; strlen = [%d]\n",
-+			crypt_stats->cipher, (int)strlen(crypt_stats->cipher));
-+	if (crypt_stats->tfm != NULL) {
-+		ecryptfs_printk(1, KERN_WARNING, "Crypto context already "
-+				"initialized\n");
-+		goto out;
-+	}
-+	crypt_stats->tfm = crypto_alloc_tfm(crypt_stats->cipher,
-+					    CRYPTO_TFM_MODE_CBC);
-+	if (crypt_stats->tfm == NULL) {
-+		ecryptfs_printk(0, KERN_ERR, "cryptfs: init_crypt_ctx(): Error "
-+				"initializing cipher [%s]\n",
-+				crypt_stats->cipher);
-+		goto out;
-+	}
-+	rc = 0;
-+out:
-+	ecryptfs_printk(1, KERN_NOTICE, "Exit; rc = [%d]\n", rc);
-+	return rc;
-+}
-+
-+static void generate_random_key(unsigned char *key, int num_bytes)
-+{
-+	get_random_bytes(key, num_bytes);
-+}
-+
-+void ecryptfs_set_default_sizes(struct ecryptfs_crypt_stats *crypt_stats)
-+{
-+	ecryptfs_printk(1, KERN_NOTICE, "Enter\n");
-+	/* Default values; may be overwritten as we are parsing the
-+	 * packets. */
-+	crypt_stats->extent_size = PAGE_SIZE;
-+	crypt_stats->iv_bytes = ECRYPTFS_DEFAULT_IV_BYTES;
-+	crypt_stats->records_per_page = RECORDS_PER_PAGE(crypt_stats);
-+	ecryptfs_printk(1, KERN_NOTICE, "Exit\n");
-+}
-+
-+/**
-+ * Default values in the event that policy does not override them.
-+ */
-+static void
-+ecryptfs_set_default_crypt_stats_vals(struct ecryptfs_crypt_stats *crypt_stats)
-+{
-+	int key_size_bits = ECRYPTFS_DEFAULT_KEY_BYTES * 8;
-+	ecryptfs_printk(1, KERN_NOTICE, "Enter\n");
-+	strcpy(crypt_stats->cipher, ECRYPTFS_DEFAULT_CIPHER);
-+	generate_random_key(crypt_stats->key, key_size_bits / 8);
-+	crypt_stats->key_size_bits = key_size_bits;
-+	crypt_stats->key_valid = 1;
-+	ecryptfs_printk(1, KERN_NOTICE, "Generated new session key:\n");
-+	if (ecryptfs_verbosity > 0) {
-+		ecryptfs_dump_hex(crypt_stats->key,
-+				  crypt_stats->key_size_bits / 8);
-+	}
-+	ecryptfs_set_default_sizes(crypt_stats);
-+	ecryptfs_printk(1, KERN_NOTICE, "Exit\n");
-+}
-+
-+/**
-+ * If the crypto context for the file has not yet been established,
-+ * this is where we do that.  Establishing a new crypto context
-+ * involves the following decisions:
-+ *  - What cipher to use?
-+ *  - What set of authentication tokens to use?
-+ * Here we just worry about getting enough information into the
-+ * authentication tokens so that we know that they are available.
-+ * We associate the available authentication tokens with the new file
-+ * via the set of signatures in the crypt_stats struct.  Later, when
-+ * the headers are actually written out, we may again defer to
-+ * userspace to perform the encryption of the session key; for the
-+ * foreseeable future, this will be the case with public key packets.
-+ *
-+ * @param ecryptfs_dentry
-+ * @return Zero on success; non-zero otherwise
-+ */
-+/* Associate an authentication token(s) with the file */
-+int ecryptfs_new_file_context(struct dentry *ecryptfs_dentry)
++int process_request_key_err(long err_code)
 +{
 +	int rc = 0;
-+	struct ecryptfs_crypt_stats *crypt_stats =
-+	    &INODE_TO_PRIVATE(ecryptfs_dentry->d_inode)->crypt_stats;
-+	struct ecryptfs_mount_crypt_stats *mount_crypt_stats =
-+	    &(SUPERBLOCK_TO_PRIVATE(ecryptfs_dentry->d_sb)->mount_crypt_stats);
++	switch (err_code) {
++	case ENOKEY:
++		ecryptfs_printk(0, KERN_WARNING, "No key\n");
++		rc = -ENOENT;
++		break;
++	case EKEYEXPIRED:
++		ecryptfs_printk(0, KERN_WARNING, "Key expired\n");
++		rc = -ETIME;
++		break;
++	case EKEYREVOKED:
++		ecryptfs_printk(0, KERN_WARNING, "Key revoked\n");
++		rc = -EINVAL;
++		break;
++	default:
++		ecryptfs_printk(0, KERN_WARNING, "Unknown error code: "
++				"[%lu]\n", err_code);
++		rc = -EINVAL;
++	}
++	return rc;
++}
 +
-+	ecryptfs_printk(1, KERN_NOTICE, "Enter\n");
-+	ecryptfs_set_default_crypt_stats_vals(crypt_stats);
-+	/* See if there are mount crypt options */
-+	if (mount_crypt_stats->global_auth_tok) {
-+		int cipher_name_len;
-+		ecryptfs_printk(1, KERN_NOTICE, "Initializing context for new "
-+				"file using mount_crypt_stats\n");
-+		crypt_stats->encrypted = 1;
-+		crypt_stats->key_valid = 1;
-+		memcpy(crypt_stats->keysigs[crypt_stats->num_keysigs++],
-+		       mount_crypt_stats->global_auth_tok_sig,
++static void ecryptfs_dump_auth_tok(struct ecryptfs_auth_tok *auth_tok)
++{
++	ecryptfs_printk(1, KERN_NOTICE, "Auth tok at mem loc [%p]:\n",
++			auth_tok);
++	ecryptfs_printk(1, KERN_NOTICE, " * instanceof = [%d]\n",
++			auth_tok->instanceof);
++	ecryptfs_printk(1, KERN_NOTICE, " * instantiated = [%d]\n",
++			auth_tok->instantiated);
++	switch (auth_tok->instanceof) {
++		char salt[ECRYPTFS_SALT_SIZE * 2 + 1];
++		char sig[ECRYPTFS_SIG_SIZE_HEX + 1];
++	case ECRYPTFS_PASSWORD:
++		ecryptfs_printk(1, KERN_NOTICE, " * password = [%s]\n",
++				auth_tok->token.password.password);
++		ecryptfs_printk(1, KERN_NOTICE, " * password_size = [%d]\n",
++				auth_tok->token.password.password_size);
++		ecryptfs_to_hex(salt, auth_tok->token.password.salt,
++				ECRYPTFS_SALT_SIZE);
++		salt[ECRYPTFS_SALT_SIZE * 2] = '\0';
++		ecryptfs_printk(1, KERN_NOTICE, " * salt = [%s]\n", salt);
++		ecryptfs_printk(1, KERN_NOTICE, " * saltless = [%d]\n",
++				auth_tok->token.password.saltless);
++		memcpy(sig, auth_tok->token.password.signature,
 +		       ECRYPTFS_SIG_SIZE_HEX);
-+		cipher_name_len =
-+		    strlen(mount_crypt_stats->global_default_cipher_name);
-+		memcpy(crypt_stats->cipher,
-+		       mount_crypt_stats->global_default_cipher_name,
-+		       cipher_name_len);
-+		crypt_stats->cipher[cipher_name_len] = '\0';
-+	} else {
-+		/* We should not encounter this scenario since we
-+		 * should detect lack of global_auth_tok at mount time
-+		 * TODO: Applies to 0.1 release only; remember to
-+		 * remove in future release */
-+		BUG();
++		sig[ECRYPTFS_SIG_SIZE_HEX] = '\0';
++		ecryptfs_printk(1, KERN_NOTICE, " * signature = [%s]\n", sig);
++		break;
++	case ECRYPTFS_PRIVATE_KEY:
++		ecryptfs_printk(1, KERN_NOTICE, " * (NO PRIVATE KEY SUPPORT "
++				"IN ECRYPTFS VERSION 0.1)\n");
++		break;
++	default:
++		ecryptfs_printk(1, KERN_NOTICE, " * Unrecognized instanceof\n");
 +	}
-+	ecryptfs_printk(1, KERN_NOTICE, "Exit; rc = [%d]\n", rc);
-+	return rc;
++	ecryptfs_printk(1, KERN_NOTICE, " * session_key.flags = [0x%x]\n",
++			auth_tok->session_key.flags);
++	if (auth_tok->session_key.flags
++	    & ECRYPTFS_USERSPACE_SHOULD_TRY_TO_DECRYPT) {
++		ecryptfs_printk(1, KERN_NOTICE,
++				" * Userspace decrypt request set\n");
++	}
++	if (auth_tok->session_key.flags
++	    & ECRYPTFS_USERSPACE_SHOULD_TRY_TO_ENCRYPT) {
++		ecryptfs_printk(1, KERN_NOTICE,
++				" * Userspace encrypt request set\n");
++	}
++	if (auth_tok->session_key.flags & ECRYPTFS_CONTAINS_DECRYPTED_KEY) {
++		ecryptfs_printk(1, KERN_NOTICE, " * Contains decrypted key\n");
++		ecryptfs_printk(1, KERN_NOTICE,
++				" * session_key.decrypted_key_size = [0x%x]\n",
++				auth_tok->session_key.decrypted_key_size);
++		ecryptfs_printk(1, KERN_NOTICE, " * Decrypted session key "
++				"dump:\n");
++		if (ecryptfs_verbosity > 0) {
++			ecryptfs_dump_hex(auth_tok->session_key.decrypted_key,
++					  ECRYPTFS_DEFAULT_KEY_BYTES);
++		}
++	}
++	if (auth_tok->session_key.flags & ECRYPTFS_CONTAINS_ENCRYPTED_KEY) {
++		ecryptfs_printk(1, KERN_NOTICE, " * Contains encrypted key\n");
++		ecryptfs_printk(1, KERN_NOTICE,
++				" * session_key.encrypted_key_size = [0x%x]\n",
++				auth_tok->session_key.encrypted_key_size);
++		ecryptfs_printk(1, KERN_NOTICE, " * Encrypted session key "
++				"dump:\n");
++		if (ecryptfs_verbosity > 0) {
++			ecryptfs_dump_hex(auth_tok->session_key.encrypted_key,
++					  auth_tok->session_key.
++					  encrypted_key_size);
++		}
++	}
 +}
++
++static void wipe_auth_tok_list(struct list_head *auth_tok_list_head)
++{
++	struct list_head *walker;
++	ecryptfs_printk(1, KERN_NOTICE, "Enter\n");
++	walker = auth_tok_list_head->next;
++	while (walker != auth_tok_list_head) {
++		struct ecryptfs_auth_tok_list_item *auth_tok_list_item;
++		auth_tok_list_item =
++		    list_entry(walker, struct ecryptfs_auth_tok_list_item,
++			       list);
++		walker = auth_tok_list_item->list.next;
++		ecryptfs_kmem_cache_free(ecryptfs_auth_tok_list_item_cache,
++					 auth_tok_list_item);
++	}
++	ecryptfs_printk(1, KERN_NOTICE, "Exit\n");
++}
++
++kmem_cache_t *ecryptfs_auth_tok_list_item_cache;
 +
 +/**
-+ * @return One if marker found; zero if not found
++ * @return Zero on success
 + */
-+int contains_ecryptfs_marker(char *data)
-+{
-+	u32 num;
-+	u32 marker;
-+	memcpy(&num, (data + ECRYPTFS_FILE_SIZE_BYTES), 4);
-+	num ^= MAGIC_ECRYPTFS_MARKER;
-+	memcpy(&marker, (data + ECRYPTFS_FILE_SIZE_BYTES + 4), 4);
-+	return (num == marker);
-+}
-+
-+static int write_ecryptfs_marker(char *page_virt, int start_offset)
-+{
-+	u32 marker;
-+	/* Generate the eCryptfs marker, which is a 4-byte random
-+	 * value, followed by another 4-byte random value that is
-+	 * formed by xor'ing the first value by 0x3c81b7f5. This could
-+	 * also be just the 0x3c81b7f5 value, but that is more likely
-+	 * to cause a misread; especially, for example, with the
-+	 * crypto.o object file, which has that number in its text
-+	 * area. */
-+	get_random_bytes(&marker, (MAGIC_ECRYPTFS_MARKER_SIZE_BYTES / 2));
-+	memcpy(page_virt + start_offset, &marker,
-+	       (MAGIC_ECRYPTFS_MARKER_SIZE_BYTES / 2));
-+	ecryptfs_printk(1, KERN_NOTICE, "Wrote first val:\n");
-+	if (ecryptfs_verbosity > 0) {
-+		ecryptfs_dump_hex(page_virt + start_offset,
-+				  (MAGIC_ECRYPTFS_MARKER_SIZE_BYTES / 2));
-+	}
-+	marker ^= MAGIC_ECRYPTFS_MARKER;
-+	memcpy(page_virt + start_offset +
-+	       (MAGIC_ECRYPTFS_MARKER_SIZE_BYTES / 2), &marker,
-+	       (MAGIC_ECRYPTFS_MARKER_SIZE_BYTES / 2));
-+	ecryptfs_printk(1, KERN_NOTICE, "Wrote second val:\n");
-+	if (ecryptfs_verbosity > 0) {
-+		ecryptfs_dump_hex(page_virt + start_offset
-+				  + (MAGIC_ECRYPTFS_MARKER_SIZE_BYTES / 2),
-+				  (MAGIC_ECRYPTFS_MARKER_SIZE_BYTES / 2));
-+	}
-+	return MAGIC_ECRYPTFS_MARKER_SIZE_BYTES;
-+}
-+
-+/**
-+ * @return Zero on success; non-zero otherwise
-+ */
-+int ecryptfs_read_header_region(char *data, struct dentry *dentry,
-+				struct nameidata *nd)
++static int parse_packet_length(unsigned char *data, int *offset, int *size)
 +{
 +	int rc = 0;
-+	struct vfsmount *mnt = NULL;
-+	struct file *file = NULL;
-+	mm_segment_t oldfs;
-+	ecryptfs_printk(1, KERN_NOTICE, "Enter\n");
-+	/* TODO: Do we really need to grab the mount here? */
-+	mnt = mntget(nd->mnt);
-+	file = dentry_open(dentry, mnt, O_RDONLY);
-+	if (IS_ERR(file)) {
-+		ecryptfs_printk(1, KERN_NOTICE, "Error opening file to "
-+				"determine interpolated filesize\n");
-+		mntput(mnt);
-+		rc = PTR_ERR(file);
++	if (data[(*offset)] < 192) {
++		/* One-byte length */
++/*		(*size) = data[(*offset)++] - 0x05 - ECRYPTFS_SALT_SIZE; */
++		(*size) = data[(*offset)++];
++	} else if (data[(*offset)] < 224) {
++		/* Two-byte length */
++		(*size) = ((data[(*offset)++] - 192) * 256);
++		(*size) += (data[(*offset)++] + 192);
++	} else if (data[(*offset)] == 255) {
++		/* Three-byte length; we're not supposed to see this */
++		ecryptfs_printk(0, KERN_ERR, "Three-byte packet length\n");
++		rc = -EINVAL;
 +		goto out;
-+	}
-+	if (!file || !file->f_op || !file->f_op->read) {
-+		ecryptfs_printk(1, KERN_NOTICE, "File has no read op\n");
++	} else {
++		ecryptfs_printk(0, KERN_ERR, "Error parsing packet length\n");
 +		rc = -EINVAL;
 +		goto out;
 +	}
-+	file->f_pos = 0;
-+	oldfs = get_fs();
-+	set_fs(get_ds());
-+	rc = file->f_op->read(file, (char __user *)data,
-+			      PAGE_CACHE_SIZE, &file->f_pos);
-+	set_fs(oldfs);
-+	fput(file);
-+	rc = 0;
 +out:
-+	ecryptfs_printk(1, KERN_NOTICE, "Exit; rc = [%d]\n",rc);
 +	return rc;
 +}
 +
-+kmem_cache_t *ecryptfs_header_cache_0;
-+kmem_cache_t *ecryptfs_header_cache_1;
-+kmem_cache_t *ecryptfs_header_cache_2;
-+
-+/**
-+ * Write the file headers out.  This will likely involve a userspace
-+ * callout, in which the session key is encrypted with one or more
-+ * public keys and/or the passphrase necessary to do the encryption is
-+ * retrieved via a prompt.  Exactly what happens at this point should
-+ * be policy-dependent.
-+ *
-+ * @param lower_file The lower file struct, which was returned from
-+ * dentry_open
-+ * @return Zero on success; non-zero on error
-+ */
-+int ecryptfs_write_headers(struct dentry *ecryptfs_dentry,
-+			   struct file *lower_file)
++static int write_packet_length(char *dest, int *dest_offset, int size)
 +{
 +	int rc = 0;
-+	char *page_virt;
-+	struct ecryptfs_crypt_stats *crypt_stats;
-+	mm_segment_t oldfs;
-+	int ecryptfs_marker_len;
++	if (size < 192) {
++		dest[(*dest_offset)] = size;
++		(*dest_offset)++;
++	} else if (size < 65536) {
++		dest[(*dest_offset)] = (((size - 192) / 256) + 192);
++		(*dest_offset)++;
++		dest[(*dest_offset)] = ((size - 192) % 256);
++		(*dest_offset)++;
++	} else {
++		/**
++		*p++ = 255;
++		*p++ = size >> 24;
++		*p++ = size >> 16;
++		*p++ = size >>  8;
++		*p++ = size;
++		*/
++		rc = -EINVAL;
++		ecryptfs_printk(0, KERN_WARNING,
++				"Unsupported packet size: [%d]\n", size);
++	}
++	return rc;
++}
++
++/**
++ * Passphrase packet.
++ *
++ * @return New offset in the packet set page; error value on error.
++ */
++static int
++parse_tag_3_packet(struct ecryptfs_crypt_stats *crypt_stats,
++		   unsigned char *data, struct list_head *auth_tok_list)
++{
++	int i = 0;
++	int rc = 0;
++	int body_size = 0;
++	struct ecryptfs_auth_tok *auth_tok;
++	struct ecryptfs_auth_tok_list_item *auth_tok_list_item;
++
 +	ecryptfs_printk(1, KERN_NOTICE, "Enter\n");
-+	crypt_stats = &INODE_TO_PRIVATE(ecryptfs_dentry->d_inode)->crypt_stats;
-+	if (likely(1 == crypt_stats->encrypted)) {
-+		if (!crypt_stats->key_valid) {
-+			ecryptfs_printk(1, KERN_NOTICE, "Key is "
-+					"invalid; bailing out\n");
++	if (data[i++] != 0x8c) {
++		ecryptfs_printk(0, KERN_ERR, "Enter w/ first byte != 0x8c\n");
++		rc = -EINVAL;
++		goto out_no_mem;
++	}
++	/* Released: wipe_auth_tok_list called in ecryptfs_parse_packet_set or
++	 * at end of function upon failure */
++	auth_tok_list_item =
++	    ecryptfs_kmem_cache_alloc(ecryptfs_auth_tok_list_item_cache,
++				      SLAB_KERNEL);
++	if (!auth_tok_list_item) {
++		ecryptfs_printk(0, KERN_ERR, "Unable to allocate memory\n");
++		rc = -ENOMEM;
++		goto out_no_mem;
++	}
++	auth_tok = &auth_tok_list_item->auth_tok;
++	memset(auth_tok, 0, sizeof(struct ecryptfs_auth_tok));
++	/* TODO: Make *sure* it's encrypted; do this w/ policy tokens.
++	 * Actually, this is probably not the right place to set this
++	 * flag. If the eCryptfs marker matches, then we probably have
++	 * a real tag 3 packet, and hence the file is most likely
++	 * encrypted. */
++	rc = parse_packet_length(data, &i, &body_size);
++	if (rc) {
++		goto out;
++	}
++	auth_tok->session_key.encrypted_key_size =
++	    body_size - (0x05 + ECRYPTFS_SALT_SIZE);
++	ecryptfs_printk(1, KERN_NOTICE, "Encrypted key size = [%d]\n",
++			auth_tok->session_key.encrypted_key_size);
++	if (data[i++] != 0x04) {
++		ecryptfs_printk(1, KERN_NOTICE, "Unknown version number "
++				"[%d]\n", data[i - 1]);
++		rc = -EINVAL;
++		goto out;
++	}
++	/* TODO: finish the cipher mapping */
++	switch (data[i++]) {
++	case 0x01:
++		/* IDEA not supported */
++		crypt_stats->cipher[0] = '\0';
++		/* TODO: Error msg */
++		rc = -ENOSYS;
++		goto out;
++	case 0x02:
++		/* Choose Triple-DES */
++		strcpy(crypt_stats->cipher, "des3_ede");
++		break;
++	case 0x03:
++		/* Choose CAST5 */
++		strcpy(crypt_stats->cipher, "cast5");
++		break;
++	case 0x04:
++		/* Choose blowfish */
++		strcpy(crypt_stats->cipher, "blowfish");
++		break;
++	case 0x07:
++		/* Choose AES-128 */
++		strcpy(crypt_stats->cipher, "aes");
++		crypt_stats->key_size_bits = 128;
++		break;
++	case 0x08:
++		/* Choose AES-192 */
++		strcpy(crypt_stats->cipher, "aes");
++		crypt_stats->key_size_bits = 192;
++		break;
++	case 0x09:
++		/* Choose AES-256 */
++		strcpy(crypt_stats->cipher, "aes");
++		crypt_stats->key_size_bits = 256;
++		break;
++	default:
++		crypt_stats->cipher[0] = '\0';
++		/* TODO: Error msg */
++		rc = -EINVAL;
++		goto out;
++	}
++	ecryptfs_init_crypt_ctx(crypt_stats);
++	if (data[i++] != 0x03) {
++		ecryptfs_printk(0, KERN_ERR, "Only S2K ID 3 is currently "
++				"supported\n");
++		rc = -ENOSYS;
++		goto out;
++	}
++	/* TODO: finish the hash mapping */
++	switch (data[i++]) {
++	case 0x01:
++		/* Choose MD5 */
++		memcpy(auth_tok->token.password.salt, &data[i],
++		       ECRYPTFS_SALT_SIZE);
++		i += ECRYPTFS_SALT_SIZE;
++		auth_tok->token.password.hash_iterations =
++		    ((u32) 16 + (data[i] & 15)) << ((data[i] >> 4) + 6);
++		i++;
++		memcpy(auth_tok->session_key.encrypted_key, &data[i],
++		       auth_tok->session_key.encrypted_key_size);
++		i += auth_tok->session_key.encrypted_key_size;
++		auth_tok->session_key.flags &= ~ECRYPTFS_CONTAINS_DECRYPTED_KEY;
++		auth_tok->session_key.flags |= ECRYPTFS_CONTAINS_ENCRYPTED_KEY;
++		auth_tok->token.password.hash_algo = 0x01;
++		break;
++	default:
++		ecryptfs_printk(0, KERN_ERR, "Unsupported hash algorithm: "
++				"[%d]\n", data[i - 1]);
++		rc = -ENOSYS;
++		goto out;
++	}
++	/* TODO: Use the keyring */
++	auth_tok->uid = current->uid;
++	auth_tok->instanceof = ECRYPTFS_PASSWORD;
++	if (data[i++] != 0xed) {
++		ecryptfs_printk(0, KERN_ERR, "No (ecryptfs-specific) literal "
++				"packet containing authentication token "
++				"signature found after tag 3 packet\n");
++		rc = -EINVAL;
++		goto out;
++	}
++	if (data[i++] != (ECRYPTFS_SIG_SIZE + 13)) {
++		ecryptfs_printk(0, KERN_ERR, "Unrecognizable packet\n");
++		rc = -EINVAL;
++		goto out;
++	}
++	if (data[i++] != 0x62) {
++		ecryptfs_printk(0, KERN_ERR, "Unrecognizable packet\n");
++		rc = -EINVAL;
++		goto out;
++	}
++	if (data[i++] != 0x08) {
++		ecryptfs_printk(0, KERN_ERR, "Unrecognizable packet\n");
++		rc = -EINVAL;
++		goto out;
++	}
++	i += 12;		/* We don't care about the filename or the timestamp */
++	/* TODO: Parametarize; we might actually want userspace to
++	 * decrypt the session key. */
++	auth_tok->session_key.flags &=
++	    ~ECRYPTFS_USERSPACE_SHOULD_TRY_TO_DECRYPT;
++	auth_tok->session_key.flags &=
++	    ~ECRYPTFS_USERSPACE_SHOULD_TRY_TO_ENCRYPT;
++	ecryptfs_to_hex(auth_tok->token.password.signature, &data[i],
++			ECRYPTFS_SIG_SIZE);
++	auth_tok->token.password.signature[ECRYPTFS_PASSWORD_SIG_SIZE] = '\0';
++	rc = i;
++	list_add(&auth_tok_list_item->list, auth_tok_list);
++	crypt_stats->encrypted = 1;
++	goto out_success;
++out:
++	ecryptfs_kmem_cache_free(ecryptfs_auth_tok_list_item_cache,
++				 auth_tok_list_item);
++out_no_mem:
++out_success:
++	ecryptfs_printk(1, KERN_NOTICE, "Exit; rc = [%d]\n", rc);
++	return rc;
++}
++
++/**
++ * Decrypt the session key with the given auth_tok.
++ *
++ * TODO: Performance: This is a good candidate for optimization.
++ *
++ * @param auth_tok
++ * @return 0 on success; non-zero error otherwise
++ */
++static int decrypt_session_key(struct ecryptfs_auth_tok *auth_tok,
++			       struct ecryptfs_crypt_stats *crypt_stats)
++{
++	int rc = 0;
++	struct ecryptfs_password *password_s_ptr;
++	struct crypto_tfm *tfm = NULL;
++	struct scatterlist src_sg[2], dst_sg[2];
++	/* TODO: Use virt_to_scatterlist for these */
++	char *encrypted_session_key;
++	char *session_key;
++	password_s_ptr = &auth_tok->token.password;
++	if (password_s_ptr->session_key_encryption_key_set) {
++		ecryptfs_printk(1, KERN_NOTICE, "Session key encryption key "
++				"set; skipping key generation\n");
++		goto session_key_encryption_key_set;
++	}
++      session_key_encryption_key_set:
++	ecryptfs_printk(1, KERN_NOTICE, "Session key encryption key (size [%d])"
++			":\n", password_s_ptr->session_key_encryption_key_size);
++	if (ecryptfs_verbosity > 0) {
++		ecryptfs_dump_hex(password_s_ptr->session_key_encryption_key,
++				  password_s_ptr->
++				  session_key_encryption_key_size);
++	}
++	tfm = crypto_alloc_tfm(crypt_stats->cipher, 0);
++	crypto_cipher_setkey(tfm, password_s_ptr->session_key_encryption_key,
++			     password_s_ptr->session_key_encryption_key_size);
++	/* TODO: virt_to_scatterlist */
++	encrypted_session_key = (char *)__get_free_page(GFP_KERNEL);
++	if (!encrypted_session_key) {
++		ecryptfs_printk(0, KERN_ERR, "Out of memory\n");
++		rc = -ENOMEM;
++		goto out;
++	}
++	session_key = (char *)__get_free_page(GFP_KERNEL);
++	if (!session_key) {
++		ecryptfs_kfree(encrypted_session_key);
++		ecryptfs_printk(0, KERN_ERR, "Out of memory\n");
++		rc = -ENOMEM;
++		goto out;
++	}
++	memcpy(encrypted_session_key, auth_tok->session_key.encrypted_key,
++	       auth_tok->session_key.encrypted_key_size);
++	src_sg[0].page = virt_to_page(encrypted_session_key);
++	src_sg[0].offset = 0;
++	/* TODO: key_size < PAGE_CACHE_SIZE */
++	src_sg[0].length = auth_tok->session_key.encrypted_key_size;
++	dst_sg[0].page = virt_to_page(session_key);
++	dst_sg[0].offset = 0;
++	auth_tok->session_key.decrypted_key_size =
++	    auth_tok->session_key.encrypted_key_size;
++	dst_sg[0].length = auth_tok->session_key.encrypted_key_size;
++	/* TODO: Handle error condition */
++	crypto_cipher_decrypt(tfm, dst_sg, src_sg,
++			      auth_tok->session_key.encrypted_key_size);
++	auth_tok->session_key.decrypted_key_size =
++	    auth_tok->session_key.encrypted_key_size;
++	memcpy(auth_tok->session_key.decrypted_key, session_key,
++	       auth_tok->session_key.decrypted_key_size);
++	auth_tok->session_key.flags |= ECRYPTFS_CONTAINS_DECRYPTED_KEY;
++	memcpy(crypt_stats->key, auth_tok->session_key.decrypted_key,
++	       auth_tok->session_key.decrypted_key_size);
++	crypt_stats->key_valid = 1;
++	crypt_stats->key_size_bits =
++	    auth_tok->session_key.decrypted_key_size * 8;
++	ecryptfs_printk(1, KERN_NOTICE, "Decrypted session key:\n");
++	if (ecryptfs_verbosity > 0) {
++		ecryptfs_dump_hex(crypt_stats->key,
++				  crypt_stats->key_size_bits / 8);
++	}
++	free_page((unsigned long)encrypted_session_key);
++	free_page((unsigned long)session_key);
++out:
++	if (tfm)
++		crypto_free_tfm(tfm);
++	return rc;
++}
++
++/**
++ * N.B. This comment is applicable to 0.2 release (and later) only.
++ * Extract the authentication token signatures.  eCryptfs expects this
++ * function to recover the symmetric key of the crypt_stats structure
++ * if at all possible, given the current packet set.  Authentication
++ * tokens are composed of the tokens themselves and their descriptors.
++ * It is possible to have an authentication token object in the
++ * keyring that only has a descriptor and not a token component.  Each
++ * eCryptfs file header contains a concatenation of descriptors.  For
++ * each descriptor, this function assures that an authentication token
++ * object is instantiated in the keyring.  This instantiation takes
++ * place in the request_key callout application.  Thus, the callout
++ * application requires the complete descriptor.  The crypt_stats
++ * object contains a set of descriptors that apply to this file.  When
++ * the headers are written out, they are re-constructed from the set
++ * of authentication token descriptors.
++ *
++ * If at any point we have a problem parsing the packets, we will -EIO and
++ * just bail out.
++ *
++ * GOAL: Get crypt_stats to have the file's session key.
++ * 
++ * @param dest	The header page in memory
++ * @return	0 if a valid authentication token was retrieved and processed;
++ * 		negative value for file not encrypted or for error conditions
++ */
++int ecryptfs_parse_packet_set(unsigned char *dest,
++			      struct ecryptfs_crypt_stats *crypt_stats,
++			      struct dentry *ecryptfs_dentry)
++{
++	int i = (ECRYPTFS_FILE_SIZE_BYTES + MAGIC_ECRYPTFS_MARKER_SIZE_BYTES);
++	int rc = 0;
++	int found_auth_tok = 0;
++	int next_packet_is_auth_tok_packet;
++	char sig[ECRYPTFS_SIG_SIZE_HEX];
++	struct list_head auth_tok_list;
++	struct list_head *walker;
++	struct ecryptfs_auth_tok *chosen_auth_tok = NULL;
++	struct ecryptfs_mount_crypt_stats *mount_crypt_stats =
++	    &(SUPERBLOCK_TO_PRIVATE(ecryptfs_dentry->d_sb)->mount_crypt_stats);
++	struct ecryptfs_auth_tok *candidate_auth_tok = NULL;
++
++	ecryptfs_printk(1, KERN_NOTICE, "Enter\n");
++	if (!contains_ecryptfs_marker(dest)) {
++		ecryptfs_printk(0, KERN_NOTICE, "eCryptfs marker not found\n");
++		rc = -EINVAL;	/* TODO: Make this a #define */
++		goto out;
++	}
++	ecryptfs_set_default_sizes(crypt_stats);
++	INIT_LIST_HEAD(&auth_tok_list);
++
++	/* Parse the header to find as many packets as we can, these will be
++	 * added the our &auth_tok_list */
++	next_packet_is_auth_tok_packet = 1;
++	while (next_packet_is_auth_tok_packet) {
++		switch (dest[i]) {
++		case 0x8c:	/* tag 3 packet; s2k */
++			rc = parse_tag_3_packet(crypt_stats,
++						(unsigned char *)&dest[i],
++						&auth_tok_list);
++			if (rc != -EINVAL && rc != -ENOMEM) {
++				i += rc;
++				rc = 0;
++			} else {
++				ecryptfs_printk(0, KERN_ERR, "Error parsing "
++						"tag 3 packet\n");
++				rc = -EIO;
++				goto out_wipe_list;
++			}
++			break;
++		default:
++			ecryptfs_printk(1, KERN_NOTICE, "No packet at offset "
++					"[%d] of the file header; hex value of "
++					"character is [0x%.2x]\n", i, dest[i]);
++			next_packet_is_auth_tok_packet = 0;
++		}
++	}
++	if (list_empty(&auth_tok_list)) {
++		rc = -EINVAL;	/* Do not support non-encrypted files */
++		goto out;
++	}
++
++	/* If we have a global auth tok, then use it should be tried */
++	if (mount_crypt_stats->global_auth_tok) {
++		memcpy(sig, mount_crypt_stats->global_auth_tok_sig,
++		       ECRYPTFS_SIG_SIZE_HEX);
++		chosen_auth_tok = mount_crypt_stats->global_auth_tok;
++	} else {
++		BUG();		/* This should not be the case in 0.1 release */
++	}
++	/* Scan list to see if our chosen_auth_tok works */
++	list_for_each(walker, &auth_tok_list) {
++		struct ecryptfs_auth_tok_list_item *auth_tok_list_item;
++		auth_tok_list_item =
++		    list_entry(walker, struct ecryptfs_auth_tok_list_item,
++			       list);
++		candidate_auth_tok = &auth_tok_list_item->auth_tok;
++		if (unlikely(ecryptfs_verbosity > 0)) {
++			ecryptfs_printk(1, KERN_NOTICE,
++					"Considering cadidate auth tok:\n");
++			ecryptfs_dump_auth_tok(candidate_auth_tok);
++		}
++		/* TODO: Replace ECRYPTFS_SIG_SIZE_HEX w/ dynamic value */
++		if ((candidate_auth_tok->instanceof == ECRYPTFS_PASSWORD) &&
++		    !strncmp(candidate_auth_tok->token.password.signature,
++			     sig, ECRYPTFS_SIG_SIZE_HEX)) {
++			found_auth_tok = 1;
++			goto leave_list;
++			/* TODO: Transfer the common salt into the
++			 * crypt_stats salt */
++		}
++	}
++leave_list:
++	if (!found_auth_tok) {
++		ecryptfs_printk(0, KERN_ERR, "Could not find authentication "
++				"token on temporary list for sig [%.*s]\n",
++				ECRYPTFS_SIG_SIZE_HEX, sig);
++		goto out_wipe_list;
++	} else {
++		memcpy(&(candidate_auth_tok->token.password),
++		       &(chosen_auth_tok->token.password),
++		       sizeof(struct ecryptfs_password));
++		decrypt_session_key(candidate_auth_tok, crypt_stats);
++	}
++
++out_wipe_list:
++	wipe_auth_tok_list(&auth_tok_list);
++out:
++	ecryptfs_printk(1, KERN_NOTICE, "Exit; rc = [%d]\n", rc);
++	return rc;
++}
++
++/**
++ * Write passphrase packet
++ *
++ * @param dest Buffer into which to write the packet
++ * @param max Maximum number of bytes that can be writtn
++ * @return Number of bytes written; 0 on error
++ */
++static int
++write_tag_3_packet(char *dest, int dest_offset, int max,
++		   struct ecryptfs_auth_tok *auth_tok,
++		   struct ecryptfs_crypt_stats *crypt_stats)
++{
++	int rc = 0;
++	struct ecryptfs_key_record key_rec;
++	int i;
++	int signature_is_valid = 0;
++	int encrypted_session_key_valid = 0;
++	char session_key_encryption_key[ECRYPTFS_MAX_KEY_BYTES];
++	struct scatterlist dest_sg[2];
++	struct scatterlist src_sg[2];
++	struct crypto_tfm *tfm = NULL;
++	int key_rec_size;
++	int offset_save = 0;
++
++	ecryptfs_printk(1, KERN_NOTICE, "Enter; dest_offset = [%d]\n",
++			dest_offset);
++	/* Check for a valid signature on the auth_tok */
++	for (i = 0; i < ECRYPTFS_SIG_SIZE_HEX; i++)
++		signature_is_valid |= auth_tok->token.password.signature[i];
++	if (!signature_is_valid) {
++		BUG();
++	}
++	ecryptfs_from_hex(key_rec.sig, auth_tok->token.password.signature,
++			  ECRYPTFS_SIG_SIZE);
++	key_rec.enc_key_size_bits = crypt_stats->key_size_bits;
++	key_rec.type = ECRYPTFS_PACKET_SET_TYPE_PASSWORD;
++
++	encrypted_session_key_valid = 0;
++	if (auth_tok->session_key.encrypted_key_size == 0) {
++		auth_tok->session_key.encrypted_key_size =
++		    ECRYPTFS_MAX_ENCRYPTED_KEY_BYTES;
++	}
++	for (i = 0; i < auth_tok->session_key.encrypted_key_size; i++)
++		encrypted_session_key_valid |=
++		    auth_tok->session_key.encrypted_key[i];
++	if (auth_tok->session_key.encrypted_key_size == 0) {
++		ecryptfs_printk(0, KERN_WARNING, "auth_tok->session_key."
++				"encrypted_key_size == 0");
++		auth_tok->session_key.encrypted_key_size =
++		    ECRYPTFS_DEFAULT_KEY_BYTES;
++	}
++	if (encrypted_session_key_valid) {
++		memcpy(key_rec.enc_key,
++		       auth_tok->session_key.encrypted_key,
++		       auth_tok->session_key.encrypted_key_size);
++		goto encrypted_session_key_set;
++	}
++	if (auth_tok->token.password.session_key_encryption_key_set) {
++		ecryptfs_printk(1, KERN_NOTICE, "Using previously generated "
++				"session key encryption key of size [%d]\n",
++				auth_tok->token.password.
++				session_key_encryption_key_size);
++		memcpy(session_key_encryption_key,
++		       auth_tok->token.password.session_key_encryption_key,
++		       auth_tok->token.password.
++		       session_key_encryption_key_size);
++		ecryptfs_printk(1, KERN_NOTICE,
++				"Cached session key " "encryption key: \n");
++		ecryptfs_dump_hex(session_key_encryption_key, 16);
++
++		goto session_key_encryption_key_set;
++	}
++      session_key_encryption_key_set:
++	if (unlikely(ecryptfs_verbosity > 0)) {
++		ecryptfs_printk(1, KERN_NOTICE, "Session key encryption key:"
++				"\n");
++		ecryptfs_dump_hex(session_key_encryption_key, 16);
++	}
++	/* Encrypt the key with the key encryption key */
++	/* Set up the scatterlists */
++	rc = virt_to_scatterlist(crypt_stats->key,
++				 crypt_stats->key_size_bits / 8, src_sg, 2);
++	if (!rc) {
++		ecryptfs_printk(0, KERN_ERR, "Error generating scatterlist "
++				"for crypt_stats session key\n");
++		rc = -ENOMEM;
++		goto out;
++	}
++	rc = virt_to_scatterlist(key_rec.enc_key,
++				 key_rec.enc_key_size_bits / 8, dest_sg, 2);
++	if (!rc) {
++		ecryptfs_printk(0, KERN_ERR, "Error generating scatterlist "
++				"for crypt_stats encrypted session key\n");
++		rc = -ENOMEM;
++		goto out;
++	}
++	/* Initialize the key encryption context */
++	ASSERT(crypt_stats->cipher);
++	if ((tfm = crypto_alloc_tfm(crypt_stats->cipher, 0)) == NULL) {
++		ecryptfs_printk(0, KERN_ERR, "Could not initialize crypto "
++				"context for cipher [%s]\n",
++				crypt_stats->cipher);
++		rc = 0;
++		goto out;
++	}
++	/* Set the key encryption key */
++	rc = crypto_cipher_setkey(tfm, session_key_encryption_key,
++				  ECRYPTFS_DEFAULT_KEY_BYTES);
++	if (rc < 0) {
++		ecryptfs_printk(0, KERN_ERR, "Error setting key for crypto "
++				"context\n");
++		rc = 0;
++		goto out;
++	}
++	ecryptfs_printk(1, KERN_NOTICE, "Encrypting [%d] bytes of the key\n",
++			crypt_stats->key_size_bits / 8);
++	crypto_cipher_encrypt(tfm, dest_sg, src_sg,
++			      crypt_stats->key_size_bits / 8);
++
++	ecryptfs_printk(1, KERN_NOTICE, "This should be the encrypted key:\n");
++	ecryptfs_dump_hex(key_rec.enc_key, key_rec.enc_key_size_bits / 8);
++encrypted_session_key_set:
++	/* Now we have a valid key_rec.  Append it to the
++	 * key_rec set. */
++	key_rec_size = KEY_REC_SIZE(key_rec);
++	if ((dest_offset + key_rec_size) >= ECRYPTFS_MAX_KEYSET_SIZE) {
++		ecryptfs_printk(0, KERN_ERR, "Keyset too large\n");
++		rc = 0;
++		goto out;
++	}
++	offset_save = dest_offset;
++	if ((dest_offset + 0x05 + ECRYPTFS_SALT_SIZE
++	     + (key_rec.enc_key_size_bits / 8)) >= PAGE_CACHE_SIZE) {
++		ecryptfs_printk(0, KERN_ERR, "Too many authentication tokens; "
++				"cryptfs does not yet support this many\n");
++		rc = 0;
++		goto out;
++	}
++	/* This format is inspired by OpenPGP; see RFC 2440
++	 * packet tag 3 */
++	*(dest + (dest_offset++)) = 0x8c;	/* tag 3 */
++	/* ver+cipher+s2k+hash+salt+iter+enc_key */
++	rc = write_packet_length(dest, &dest_offset,
++				 (0x05 + ECRYPTFS_SALT_SIZE
++				  + (key_rec.enc_key_size_bits / 8)));
++	*(dest + (dest_offset++)) = 0x04;	/* version 4 */
++	if (strcmp(crypt_stats->cipher, "des3_ede") == 0) {
++		*(dest + (dest_offset++)) = 0x02;	/* Triple-DES */
++	} else if (strcmp(crypt_stats->cipher, "cast5") == 0) {
++		*(dest + (dest_offset++)) = 0x03;	/* CAST5 */
++	} else if (strcmp(crypt_stats->cipher, "blowfish") == 0) {
++		*(dest + (dest_offset++)) = 0x04;	/* BLOWFISH */
++	} else if (strcmp(crypt_stats->cipher, "aes") == 0) {
++		switch (crypt_stats->key_size_bits) {
++		case 128:
++			*(dest + (dest_offset++)) = 0x07;	/* AES-128 */
++			break;
++		case 192:
++			*(dest + (dest_offset++)) = 0x08;	/* AES-192 */
++			break;
++		case 256:
++			*(dest + (dest_offset++)) = 0x09;	/* AES-256 */
++			break;
++		default:
 +			rc = -EINVAL;
++			ecryptfs_printk(0, KERN_WARNING, "Unsupported AES key "
++					"size: [%d]\n", 
++					crypt_stats->key_size_bits);
 +			goto out;
 +		}
 +	} else {
 +		rc = -EINVAL;
-+		ecryptfs_printk(0, KERN_WARNING,
-+				"Called with crypt_stats->encrypted == 0\n");
++		ecryptfs_printk(0, KERN_WARNING, "Unsupported cipher: [%s]\n",
++				crypt_stats->cipher);
++
 +		goto out;
 +	}
-+	/* Released in this function */
-+	page_virt =
-+	    ecryptfs_kmem_cache_alloc(ecryptfs_header_cache_0, SLAB_USER);
-+	if (!page_virt) {
-+		ecryptfs_printk(0, KERN_ERR, "Out of memory\n");
-+		return -ENOMEM;
-+	}
-+	ecryptfs_marker_len = write_ecryptfs_marker(page_virt,
-+						    ECRYPTFS_FILE_SIZE_BYTES);
-+	rc = ecryptfs_generate_key_packet_set(page_virt,
-+					      (ECRYPTFS_FILE_SIZE_BYTES
-+					       + ecryptfs_marker_len),
-+					      crypt_stats, ecryptfs_dentry);
-+	if (unlikely(rc == 0)) {
-+		rc = -EIO;
-+		ecryptfs_printk(0, KERN_ERR, "Error whilst generating the key "
-+				"packet set; writing zero's\n");
-+		goto out_free;
-+	}
-+	rc = 0;
-+	ecryptfs_printk(1, KERN_NOTICE,
-+			"Writing key packet set to underlying file\n");
-+	lower_file->f_pos = 0;
-+	oldfs = get_fs();
-+	set_fs(get_ds());
-+	lower_file->f_op->write(lower_file, (char __user *)page_virt,
-+				PAGE_CACHE_SIZE, &lower_file->f_pos);
-+	set_fs(oldfs);
-+	ecryptfs_fput(lower_file);
-+	ecryptfs_printk(1, KERN_NOTICE,
-+			"Done writing key packet set to underlying file.\n");
-+out_free:
-+	ecryptfs_kmem_cache_free(ecryptfs_header_cache_0, page_virt);
++	*(dest + (dest_offset++)) = 0x03;	/* S2K */
++	*(dest + (dest_offset++)) = 0x01;	/* MD5 (TODO) */
++	memcpy((dest + dest_offset), auth_tok->token.password.salt,
++	       ECRYPTFS_SALT_SIZE);
++	dest_offset += ECRYPTFS_SALT_SIZE;	/* salt */
++	*(dest + (dest_offset++)) = 0x60;	/* hash iterations */
++	memcpy((dest + dest_offset), key_rec.enc_key,
++	       key_rec.enc_key_size_bits / 8);
++	dest_offset += (key_rec.enc_key_size_bits / 8);
++	/* Write auth tok signature packet */
++	*(dest + (dest_offset++)) = 0xed;	/* tag 11 */
++	*(dest + (dest_offset++)) = ECRYPTFS_SIG_SIZE + 13;	/* packet
++								 * length */
++	*(dest + (dest_offset++)) = 0x62;	/* binary type */
++	*(dest + (dest_offset++)) = 0x08;	/* filename length */
++	strncpy((dest + dest_offset), "_CONSOLE", 0x08);
++	dest_offset += 0x08;
++	memset((dest + dest_offset), 0, 4);
++	dest_offset += 4;
++	memcpy((dest + dest_offset), key_rec.sig, ECRYPTFS_SIG_SIZE);
++	dest_offset += ECRYPTFS_SIG_SIZE;
++	*(dest + (dest_offset)) = 0x00;	/* NULL terminator */
++	rc = dest_offset;
 +out:
++	if (tfm)
++		crypto_free_tfm(tfm);
 +	ecryptfs_printk(1, KERN_NOTICE, "Exit; rc = [%d]\n", rc);
 +	return rc;
 +}
 +
 +/**
-+ * @return	Zero if valid headers found and parsed; non-zero otherwise
++ * Generates a key packet set and writes it to the virtual address
++ * passed in.
++ *
++ * @param dest		Page to which to write the key record set
++ * @param crypt_stats	The cryptographic context from which the authentication
++ * 			tokens will be retrieved
++ * @return		Size of the data written; 0 if there was nothing to
++ * 			write or if a problem was encountered
 + */
-+int ecryptfs_read_headers(struct dentry *ecryptfs_dentry,
-+			  struct file *lower_file)
++int
++ecryptfs_generate_key_packet_set(char *dest_base, int start_offset,
++				 struct ecryptfs_crypt_stats *crypt_stats,
++				 struct dentry *ecryptfs_dentry)
 +{
 +	int rc = 0;
-+	char *page_virt;
-+	mm_segment_t oldfs;
-+	ssize_t bytes_read;
-+	struct ecryptfs_crypt_stats *crypt_stats =
-+	    &INODE_TO_PRIVATE(ecryptfs_dentry->d_inode)->crypt_stats;
++	struct ecryptfs_auth_tok *auth_tok;
++	int dest_offset = start_offset;
++	struct ecryptfs_mount_crypt_stats *mount_crypt_stats =
++	    &(SUPERBLOCK_TO_PRIVATE(ecryptfs_dentry->d_sb)->mount_crypt_stats);
 +
-+	ecryptfs_printk(1, KERN_NOTICE, "Enter\n");
-+	/* Read the first page from the underlying file */
-+	page_virt =
-+	    ecryptfs_kmem_cache_alloc(ecryptfs_header_cache_1, SLAB_USER);
-+	if (IS_ERR(page_virt)) {
-+		rc = -ENOMEM;
-+		ecryptfs_printk(0, KERN_ERR, "Unable to allocate page_virt\n");
-+		goto out;
++	ecryptfs_printk(1, KERN_NOTICE, "Enter; start_offset = [%d]\n",
++			start_offset);
++	if (mount_crypt_stats->global_auth_tok) {
++		auth_tok = mount_crypt_stats->global_auth_tok;
++		switch (auth_tok->instanceof) {
++		case ECRYPTFS_PASSWORD:
++			rc = write_tag_3_packet(dest_base, dest_offset,
++						PAGE_CACHE_SIZE, auth_tok,
++						crypt_stats);
++			break;
++		default:
++			ecryptfs_printk(0, KERN_WARNING, "Unknown "
++					"authentication token type [%d]\n",
++					auth_tok->instanceof);
++			rc = 0;
++		}
++		if (rc == 0) {
++			ecryptfs_printk(1, KERN_WARNING, "Error writing "
++					"authentication token packet with sig "
++					"= [%s]\n",
++					mount_crypt_stats->global_auth_tok_sig);
++			goto out;
++		} else {
++			dest_offset += rc;
++		}
++	} else {
++		BUG();
 +	}
-+	lower_file->f_pos = 0;
-+	oldfs = get_fs();
-+	set_fs(get_ds());
-+	bytes_read =
-+	    lower_file->f_op->read(lower_file, (char __user *)page_virt,
-+				   PAGE_CACHE_SIZE, &lower_file->f_pos);
-+	set_fs(oldfs);
-+	if (bytes_read != PAGE_CACHE_SIZE) {
-+		rc = -EINVAL;
-+		ecryptfs_printk(0, KERN_ERR, "Expected size of header not read."
-+				"Instead [%d] bytes were read\n", bytes_read);
-+		goto out;
-+	}
-+	rc = ecryptfs_parse_packet_set(page_virt, crypt_stats, ecryptfs_dentry);
-+	ecryptfs_kmem_cache_free(ecryptfs_header_cache_1, page_virt);
-+	if (rc) {
-+		ecryptfs_printk(1, KERN_NOTICE, "File not encrypted\n");
-+		rc = -EINVAL;
-+		goto out;
-+	}
-+out:
++      out:
 +	ecryptfs_printk(1, KERN_NOTICE, "Exit; rc = [%d]\n", rc);
 +	return rc;
-+}
-+
-+/**
-+ * N.B. The concept of encoded filenames does not apply for 0.1 release
-+ *
-+ * Encrypts and encodes a filename into something that constitutes a
-+ * valid filename for a filesystem, with printable characters.
-+ *
-+ * We assume that we have a properly initialized crypto context,
-+ * pointed to by crypt_stats->tfm.
-+ *
-+ * TODO: Implement filename encryption and encoding here, in place of
-+ * memcpy.
-+ *
-+ * @return	Length of encoded filename; negative if error
-+ */
-+int
-+ecryptfs_encode_filename(const char *name, int length, char **encoded_name,
-+			 int skip_dots,
-+			 struct ecryptfs_crypt_stats *crypt_stats)
-+{
-+	int error = 0;
-+	ecryptfs_printk(1, KERN_NOTICE, "Enter; length = [%d]\n", length);
-+	(*encoded_name) = ecryptfs_kmalloc(length + 2, GFP_KERNEL);
-+	if (!(*encoded_name)) {
-+		error = -ENOMEM;
-+		goto out;
-+	}
-+	memcpy((void *)(*encoded_name), (void *)name, length);
-+	(*encoded_name)[length] = '\0';
-+	error = length + 1;
-+      out:
-+	ecryptfs_printk(1, KERN_NOTICE, "Exit; error = [%d]\n", error);
-+	return error;
-+}
-+
-+/**
-+ * N.B. The concept of encoded filenames does not apply for 0.1 release
-+ *
-+ * Decrypts and decodes the filename
-+ *
-+ * TODO: Implement filename decoding and decryption here, in place of
-+ * memcpy.
-+ *
-+ * @return	Length of decoded filename; negative if error
-+ */
-+int
-+ecryptfs_decode_filename(const char *name, int length, char **decrypted_name,
-+			 int skip_dots,
-+			 struct ecryptfs_crypt_stats *crypt_stats)
-+{
-+	int error = 0;
-+
-+	ecryptfs_printk(1, KERN_NOTICE, "Enter; length = [%d]\n", length);
-+	/* Make sure we are called correctly */
-+	BUG_ON(length < 0);
-+	(*decrypted_name) = ecryptfs_kmalloc(length + 2, GFP_KERNEL);
-+	if (!(*decrypted_name)) {
-+		error = -ENOMEM;
-+		goto out;
-+	}
-+	memcpy((void *)(*decrypted_name), (void *)name, length);
-+	(*decrypted_name)[length + 1] = '\0';	/* Only for convenience
-+						 * in printing out the
-+						 * string in debug
-+						 * messages */
-+	error = length;
-+out:
-+	ecryptfs_printk(1, KERN_NOTICE, "Exit; error = [%d]\n", error);
-+	return error;
 +}

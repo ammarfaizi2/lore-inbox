@@ -1,68 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932640AbVKCWzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbVKCW5W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932640AbVKCWzW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 17:55:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932658AbVKCWzW
+	id S964812AbVKCW5W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 17:57:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932658AbVKCW5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 17:55:22 -0500
-Received: from [203.171.93.254] ([203.171.93.254]:51369 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S932640AbVKCWzU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 17:55:20 -0500
-Subject: Re: Problems with 2.6.13.4 and sws2 2.2-rc6
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Eric Sandall <eric@sandall.us>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.63.0511021848420.5265@cerberus>
-References: <Pine.LNX.4.63.0511021848420.5265@cerberus>
-Content-Type: text/plain
-Organization: Cyclades
-Message-Id: <1131054277.5497.1.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 04 Nov 2005 08:44:38 +1100
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Nov 2005 17:57:22 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:9675 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932656AbVKCW5V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 17:57:21 -0500
+Date: Thu, 3 Nov 2005 14:56:48 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+cc: Arjan van de Ven <arjan@infradead.org>, Mel Gorman <mel@csn.ul.ie>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Dave Hansen <haveblue@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, kravetz@us.ibm.com,
+       linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lhms <lhms-devel@lists.sourceforge.net>,
+       Arjan van de Ven <arjanv@infradead.org>
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+In-Reply-To: <44190000.1131057630@flay>
+Message-ID: <Pine.LNX.4.64.0511031454050.27915@g5.osdl.org>
+References: <4366C559.5090504@yahoo.com.au><Pine.LNX.4.58.0511011014060.14884@skynet><20051101135651.GA8502@elte.hu><1130854224.14475.60.camel@localhost><20051101142959.GA9272@elte.hu><1130856555.14475.77.camel@localhost><20051101150142.GA10636@elte.hu><1130858580.14475.98.camel@localhost><20051102084946.GA3930@elte.hu><436880B8.1050207@yahoo.com.au><1130923969.15627.11.camel@localhost><43688B74.20002@yahoo.com.au><255360000.1130943722@[10.10.2.4]><4369824E.2020407@yahoo.com.au><1131040786.2839.18.camel@laptopd505.fenrus.org><Pine.LNX.4.64.0511031006550.27915@g5.osdl.org><312300000.1131041824@[10.10.2.4]>
+ <Pine.LNX.4.64.0511031029090.27915@g5.osdl.org><314480000.1131043874@[10.10.2.4]>
+ <Pine.LNX.4.64.0511031133040.27915@g5.osdl.org> <44190000.1131057630@flay>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Eric.
 
-On Thu, 2005-11-03 at 13:56, Eric Sandall wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+
+On Thu, 3 Nov 2005, Martin J. Bligh wrote:
 > 
-> I cannot seem to hibernate this machine (Dell Inspiron 5100) after
-> 2.6.12. When I do try, I'm told to report what's in dmesg.log
-> (attached). I've also included the hibernate log (hibernate.log) and
-> the output of `lspci -vv` (lspci.log).
-> 
-> Let me know if you need more information or want me to test any
-> patches.
-> 
-> Thank you,
+> But pages_min is based on the zone size, not the system size. And we
+> still cap it. Maybe that's just a mistake?
 
-Please post to the Suspend2 lists (found via suspend2.net). If you
-download rc7 or (preferably) rc8, this will be fixed.
+The per-zone watermarking is actually the "modern" and "working" approach. 
 
-Regards,
+We didn't always do it that way. I would not be at all surprised if the 
+capping was from the global watermarking days.
 
-Nigel
+Of course, I would _also_ not be at all surprised if it wasn't just out of 
+habit. Most of the things where we try to scale things up by memory size, 
+we cap for various reasons. Ie we tend to try to scale things like hash 
+sizes for core data structures by memory size, but then we tend to cap 
+them to "sane" versions.
 
-> - -sandalle
-> 
-> - --
-> Eric Sandall                     |  Source Mage GNU/Linux Developer
-> eric@sandall.us                  |  http://www.sourcemage.org/
-> http://eric.sandall.us/          |  SysAdmin @ Inst. Shock Physics @ WSU
-> http://counter.li.org/  #196285  |  http://www.shock.wsu.edu/
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.1 (GNU/Linux)
-> 
-> iD8DBQFDaXxVHXt9dKjv3WERAjhBAJ4nKdU9ohlD3gT5bUgxH6dBSvLvLgCgnzJL
-> IvEw3GyK0i1HrcKGpA/zKvs=
-> =sVWM
-> -----END PGP SIGNATURE-----
--- 
+So quite frankly, it's entirely possible that the capping is there not 
+because it _ever_ was a good idea, but just because it's what we almost 
+always do ;)
 
+Mental inertia is definitely alive and well.
 
+		Linus

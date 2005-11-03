@@ -1,106 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030347AbVKCPew@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030334AbVKCPem@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030347AbVKCPew (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 10:34:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030343AbVKCPem
-	(ORCPT <rfc822;linux-kernel-outgoing>);
+	id S1030334AbVKCPem (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 3 Nov 2005 10:34:42 -0500
-Received: from nproxy.gmail.com ([64.233.182.204]:54330 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030341AbVKCPel convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 10:34:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=h8GufZ/rYt1NspaB/St8i8WNiPnguxFs0xHTttl0C8cVvNxJsm4gxgRImnVI+g8s3RKXKgYt3vxaaTFNehjntTI8UqV3bxy2HIEbqch8qm1YBJk9bIJPAOiE4e3zqp+fOigYvhnnoHcQU7KHqIb3hlTbZqRPLjmlICb8r5mmjNE=
-Message-ID: <58cb370e0511030734w632ca78fu8e46156397457da8@mail.gmail.com>
-Date: Thu, 3 Nov 2005 16:34:39 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Parallel ATA with libata status with the patches I'm working on
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1131032974.18848.60.camel@localhost.localdomain>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030342AbVKCPek
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 3 Nov 2005 10:34:40 -0500
+Received: from dvhart.com ([64.146.134.43]:52397 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S1030334AbVKCPeb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 10:34:31 -0500
+Date: Thu, 03 Nov 2005 07:34:31 -0800
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>, Mel Gorman <mel@csn.ul.ie>
+Cc: Dave Hansen <haveblue@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, kravetz@us.ibm.com,
+       linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lhms <lhms-devel@lists.sourceforge.net>
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19 - Summary
+Message-ID: <305710000.1131032071@[10.10.2.4]>
+In-Reply-To: <43698080.3040800@yahoo.com.au>
+References: <20051030235440.6938a0e9.akpm@osdl.org>  <27700000.1130769270@[10.10.2.4]> <4366A8D1.7020507@yahoo.com.au>  <Pine.LNX.4.58.0510312333240.29390@skynet> <4366C559.5090504@yahoo.com.au>  <Pine.LNX.4.58.0511010137020.29390@skynet> <4366D469.2010202@yahoo.com.au>  <Pine.LNX.4.58.0511011014060.14884@skynet> <20051101135651.GA8502@elte.hu>  <1130854224.14475.60.camel@localhost>  <20051101142959.GA9272@elte.hu> <1130856555.14475.77.camel@localhost> <43680D8C.5080500@yahoo.com.au> <Pine.LNX.4.58.0511021231440.5235@skynet> <43698080.3040800@yahoo.com.au>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <1131029686.18848.48.camel@localhost.localdomain>
-	 <58cb370e0511030658tb23cecds2ed8cc63570a68d5@mail.gmail.com>
-	 <1131032974.18848.60.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/3/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Iau, 2005-11-03 at 15:58 +0100, Bartlomiej Zolnierkiewicz wrote:
-> > On 11/3/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > > Core Features Fixed
-> > > - Per drive tuning
-> > > - Filter quirk lists
-> > > - Single channel support
-> >
-> > Are these the same changes that have been recently pushed into
-> > Linus' tree without any previous public review or some new ones?
->
-> Some of the changes have gone to Jeff Garzik others are pending
-> improvments/driver fixes for existing drivers and testing before Jeff
-> accepts them. Beyond that its up to Jeff what is merged into -mm and on.
+>>   Physical hotplug remove: Vendors of the hardware that support this -
+>> 	Fujitsu, HP (I think), IBM etc
+>> 
+>>   Virtualization hotplug remove: Sellers of virtualization software, some
+>> 	hardware like any IBM machine that lists LPAR in it's list of
+>> 	features.  Probably software solutions like Xen are also affected
+>> 	if they want to be able to grow and shrink the virtual machines on
+>> 	demand
+> 
+> Ingo said that Xen is fine with per page granular freeing - this covers
+> embedded, desktop and small server users of VMs into the future I'd say.
 
-Of course it is up to Jeff but still it would be nice to see them on linux-ide
-ML before hitting -mm or mainline...
+Not using large page mappings for the kernel area will be a substantial
+performance hit. It's a less efficient approach inside the hypervisor, 
+and not all VMs / hardware can support it.
+ 
+>>   High order allocations: Ultimately, hugepage users. Today, that is a
+>> 	feature only big server users like Oracle care about. In the
+>> 	future I reckon applications will be able to use them for things
+>> 	like backing the heap by huge pages. Other users like GigE,
+>> 	loopback devices with large MTUs, some filesystem like CIFS are
+>> 	all interested although they are also been told use use smaller
+>> 	pages.
+> 
+> I think that saying its now OK to use higher order allocations is wrong
+> because as I said even with your patches they are going to run into
+> problems.
+> 
+> Actually I think one reason your patches may perform so well is because
+> there aren't actually a lot of higher order allocations in the kernel.
+> 
+> I think that probably leaves us realistically with demand hugepages,
+> hot unplug memory, and IBM lpars?
 
-> > > Drivers so far written for the libata parallel work I'm doing
-> >
-> > Are the patches available somewhere?
->
-> Yes. I'll post updated sets at some point soon. The patch I posted
-> pointers to before is now well out of date.
->
-> > > AMD
-> > > Driver written, given basic testing and equivalent to current
-> > > drivers/ide
-> >
-> > Functionality can't be the same as drivers/ide because libata
-> > lacks some core features.
->
-> Well duh, other than core differences. Functionality is indeed different
-> - CRC errors dont crash SMP boxes for example ;)
->
-> > > CS5520
-> > > Driver written, some debug work to do. Works unlike the drivers/ide one
-> >
-> > Please fix drivers/ide also if not a big problem.
->
-> I started this work in part because it was impossible to work with you.
+Sigh. You seem obsessed with this. There are various critical places in
+the kernel that use higher order allocations. Yes, they're normally
+smaller ones rather than larger ones, but .... please try re-reading
+the earlier portions of this thread. You are NOT going to be able to
+get rid of all higher-order allocations - please quit pretending you
+can - living in denial is not going to help us.
 
-Yes, I don't ack patches only because name of the submitter... ;)
+If you really, really believe you can do that, please go ahead and prove
+it. Until that point, please let go of the "it's only for a few specialized
+users" arguement, and acknowledge we DO actually use higher order allocs
+in the kernel right now.
 
-> I've no interest in fixing drivers/ide and in fact I'm now running as
-> much as I can with CONFIG_IDE=n, because the only way to really test
-> code is to use it all the time.
->
-> The things I've fixed however if you want to go fix them in drivers/ide
-> are
->
-> CS5520 is totally broken. You want the fixes I sent you over a year ago
-> and maybe more. Its probably best left as I doubt anyone else has a 5520
-> any more 8)
->
-> Serverworks runs the wrong cable detect routine in some cases
-> (conditions ordered wrongly)
+>>   o Aim9 shows no significant regressions (.37% on page_test). On some
+>>     tests, it shows performance gains (> 5% on fork_test)
+>>   o Stress tests show that it manages to keep fragmentation down to a far
+>>     lower level even without teaching kswapd how to linear reclaim
+> 
+> This sounds like a kind of funny test to me if nobody is actually
+> using higher order allocations.
 
-OK, thanks for the hint.
+It's a regression test. To, like, test for regressions in the normal
+case ;-)
 
-> I think the HPT366 driver contains several bugs looking at it in
-> comparison with hpts driver and the data sheets I can get hold of. It's
-> hard to be sure however because at times all three disagree with each
-> other. In particular it doesn't know about 302N but think its a 37x and
-> the PLL tune code appears to be unrelated to either data sheet or hpt
-> code. Can't be sure yet on the PLL until I've got PLL modes working in
-> the libata driver.
->
->
-> Alan (drivers/ide elimination department)
+>> New Zone Cons
+>>   o Zones historically have introduced balancing problems
+>>   o Been tried for hotplug and dropped because of being awkward to work with
+>>   o It only helps hotplug and potentially HugeTLB pages for userspace
+>>   o Tunable required. If you get it wrong, the system suffers a lot
+> 
+> Pro: it keeps IBM mainframe and pseries sysadmins in a job ;) Let
+> them get it right.
 
-I see... same goal here but in more peaceful way...
+Having met some of them ... that's not a pro ;-) We have quite enough
+meaningless tunables already. And to be honest, the bigger problem is
+that it's a problem with no correct answer - workloads shift day vs.
+night, etc.
+ 
+> You don't need to continually tune things for each and every possible
+> workload under the sun. It is like how we currently drive 16GB highmem
+> systems quite nicely under most workloads with 1GB of normal memory.
+> Make that an 8:1 ratio if you're worried.
 
-Bartlomiej
+Thanks for turning my 64 bit system back into a 32 bit one. really 
+appreciate that. Note the last 5 years of endless whining about all
+the problems with large 32 bit systems, and how they're unfixable
+and we should all move to 64 bit please.
+ 
+> To me it seems like it solves the hotplug, lpar hotplug, and hugepages
+> problems which seem to be the main ones.
+
+That's because you're not listening, you're going on your own preconcieved
+notions ...
+ 
+> I think it is very cool because it means the tiny minority of Linux
+> users who want this can do so without impacting the rest of the code
+> or users.
+
+Ditto.
+ 
+M.
+

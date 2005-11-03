@@ -1,72 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030406AbVKCTIa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030422AbVKCTJK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030406AbVKCTIa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 14:08:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030443AbVKCTIa
+	id S1030422AbVKCTJK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 14:09:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030444AbVKCTJK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 14:08:30 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:910 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030406AbVKCTIa (ORCPT
+	Thu, 3 Nov 2005 14:09:10 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:43196 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030422AbVKCTJI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 14:08:30 -0500
-Date: Thu, 3 Nov 2005 11:08:01 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-cc: Mel Gorman <mel@csn.ul.ie>, Arjan van de Ven <arjan@infradead.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Dave Hansen <haveblue@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, kravetz@us.ibm.com,
-       linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>,
-       Arjan van de Ven <arjanv@infradead.org>
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-In-Reply-To: <314040000.1131043735@[10.10.2.4]>
-Message-ID: <Pine.LNX.4.64.0511031102590.27915@g5.osdl.org>
-References: <4366C559.5090504@yahoo.com.au>
- <Pine.LNX.4.58.0511010137020.29390@skynet><4366D469.2010202@yahoo.com.au>
- <Pine.LNX.4.58.0511011014060.14884@skynet><20051101135651.GA8502@elte.hu>
- <1130854224.14475.60.camel@localhost><20051101142959.GA9272@elte.hu>
- <1130856555.14475.77.camel@localhost><20051101150142.GA10636@elte.hu>
- <1130858580.14475.98.camel@localhost><20051102084946.GA3930@elte.hu>
- <436880B8.1050207@yahoo.com.au><1130923969.15627.11.camel@localhost>
- <43688B74.20002@yahoo.com.au><255360000.1130943722@[10.10.2.4]>
- <4369824E.2020407@yahoo.com.au>
- <306020000.1131032193@[10.10.2.4]><1131032422.2839.8.camel@laptopd505.fenrus.org><Pine.LNX.4.64.0511030747450.27915@g5.osdl.org><Pine.LNX.4.58.0511031613560.3571@skynet><Pine.LNX.4.64.0511030842050.27915@g5.osdl.org><309420000.1131036740@[10.10.2.4]>
- <Pine.LNX.4.64.0511030918110.27915@g5.osdl.org> <311050000.1131040276@[10.10.2.4]>
- <314040000.1131043735@[10.10.2.4]>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 3 Nov 2005 14:09:08 -0500
+Date: Thu, 3 Nov 2005 11:09:16 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org, oleg@tv-sign.ru,
+       dipankar@in.ibm.com, suzannew@cs.pdx.edu
+Subject: Re: [PATCH] Fixes for RCU handling of task_struct
+Message-ID: <20051103190916.GA13417@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20051031020535.GA46@us.ibm.com> <20051031140459.GA5664@elte.hu> <20051031205119.5bd897f3.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051031205119.5bd897f3.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 3 Nov 2005, Martin J. Bligh wrote:
+On Mon, Oct 31, 2005 at 08:51:19PM -0800, Andrew Morton wrote:
+> Ingo Molnar <mingo@elte.hu> wrote:
+> >
+> > @@ -1433,7 +1485,16 @@ send_group_sigqueue(int sig, struct sigq
+> >   	int ret = 0;
+> >   
+> >   	BUG_ON(!(q->flags & SIGQUEUE_PREALLOC));
+> >  -	read_lock(&tasklist_lock);
+> >  +
+> >  +	while(!read_trylock(&tasklist_lock)) {
+> >  +		if (!p->sighand)
+> >  +			return -1;
+> >  +		cpu_relax();
+> >  +	}
 > 
-> Ha. Just because I don't think I made you puke hard enough already with
-> foul approximations ... for order 2, I think it's
+> This looks kind of ugly and quite unobvious.
+> 
+> What's going on there?
 
-Your basic fault is in believing that the free watermark would stay 
-constant.
+This was discussed in the following thread:
 
-That's insane.
+	http://marc.theaimsgroup.com/?l=linux-kernel&m=112756875713008&w=2
 
-Would you keep 8MB free on a 64MB system?
+Looks like its author asked for it to be withdrawn in favor of Roland's
+"[PATCH] Call exit_itimers from do_exit, not __exit_signal" patch:
 
-Would you keep 8MB free on a 8GB system?
+	http://marc.theaimsgroup.com/?l=linux-kernel&m=113008567108608&w=2
 
-The point being, that if you start with insane assumptions, you'll get 
-insane answers.
+My guess is that "Roland" is "Roland McGrath", but I cannot find the
+referenced patch.  Oleg, any enlightenment?
 
-The _correct_ assumption is that you aim to keep some fixed percentage of 
-memory free. With that assumption and your math, finding higher-order 
-pages is equally hard regardless of amount of memory. 
-
-Now, your math then doesn't allow for the fact that buddy automatically 
-coalesces for you, so in fact things get _easier_ with more memory, but 
-hey, that needs more math than I can come up with (I never did it as math, 
-only as simulations with allocation patterns - "smart people use math, 
-plodding people just try to simulate an estimate" ;)
-
-		Linus
+						Thanx, Paul

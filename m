@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030384AbVKCRFp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030387AbVKCRGI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030384AbVKCRFp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 12:05:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030385AbVKCRFp
+	id S1030387AbVKCRGI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 12:06:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030388AbVKCRGI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 12:05:45 -0500
-Received: from thunk.org ([69.25.196.29]:64729 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1030384AbVKCRFp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 12:05:45 -0500
-Date: Thu, 3 Nov 2005 12:05:27 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Nathan Scott <nathans@sgi.com>, Jan Kasprzak <kas@fi.muni.cz>,
-       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: XFS information leak during crash
-Message-ID: <20051103170527.GA7113@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Nathan Scott <nathans@sgi.com>,
-	Jan Kasprzak <kas@fi.muni.cz>, linux-kernel@vger.kernel.org,
-	linux-xfs@oss.sgi.com
-References: <20051102212722.GC6759@fi.muni.cz> <20051103101107.O6239737@wobbly.melbourne.sgi.com> <20051102233629.GD6759@fi.muni.cz> <20051103104956.B6081538@wobbly.melbourne.sgi.com> <20051103000317.GE6759@fi.muni.cz> <20051103111115.C6081538@wobbly.melbourne.sgi.com> <1131021949.18848.21.camel@localhost.localdomain>
-MIME-Version: 1.0
+	Thu, 3 Nov 2005 12:06:08 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:64980 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S1030387AbVKCRGG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 12:06:06 -0500
+Date: Thu, 3 Nov 2005 10:05:59 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: First steps towards making NO_IRQ a generic concept
+Message-ID: <20051103170559.GB23749@parisc-linux.org>
+References: <20051103144926.GV23749@parisc-linux.org> <20051103145118.GW23749@parisc-linux.org> <20051103154439.GA28190@elte.hu> <20051103160252.GA23749@parisc-linux.org> <20051103162059.GA495@elte.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1131021949.18848.21.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20051103162059.GA495@elte.hu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 03, 2005 at 12:45:49PM +0000, Alan Cox wrote:
-> On Iau, 2005-11-03 at 11:11 +1100, Nathan Scott wrote:
-> > On Thu, Nov 03, 2005 at 01:03:17AM +0100, Jan Kasprzak wrote:
-> > > : it would only ever be uninitialised, previously-free space.
-> > > 
-> > > 	Yes, but an old data from previously deleted files
-> > > (sendmail's temporary files, vim save files, etc) may contain
-> > > a sensitive information.
-> > 
-> > Indeed.  But this is a generic issue affecting most filesystems;
-> > its not specific to XFS as your original mail claimed.
-> 
-> Very true. You can use ext3 in data journalling mode if this is a
-> concern but that guarantee has a performance cost
+On Thu, Nov 03, 2005 at 05:20:59PM +0100, Ingo Molnar wrote:
+> ok, understood. I'm wondering, why is there any need to do a PCI_NO_IRQ?  
+> Why not just a generic NO_IRQ. It's not like we can or want to make them 
+> different in the future. The interrupt vector number is a generic thing 
+> that attaches to the platform via request_irq() - there is nothing 'PCI' 
+> about it. So the PCI layer shouldnt pretend it has its own IRQ 
+> abstraction - the two are forcibly joined. The same goes for 
+> pci_valid_irq() - we should only have valid_irq(). Am i missing 
+> anything?
 
-The default ordered journalling mode solves this problem at a much
-lower cost.
-
-						- Ted
+The last patch in this vein will delete PCI_NO_IRQ, replacing it with
+NO_IRQ.  To make that final patch small, I wanted to introduce an
+abstraction that PCI drivers could use.  Possibly it's not well thought
+out.  Do you think we should put in the explicit compares against
+PCI_NO_IRQ as we find drivers that care and then do a big sweep when we
+think we've found them all?

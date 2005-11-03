@@ -1,38 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030355AbVKCPxG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030360AbVKCPxm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030355AbVKCPxG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 10:53:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030356AbVKCPxF
+	id S1030360AbVKCPxm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 10:53:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030359AbVKCPxm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 10:53:05 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:28856 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030355AbVKCPxE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 10:53:04 -0500
-Subject: Re: Parallel ATA with libata status with the patches I'm working on
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051103153017.GH28038@flint.arm.linux.org.uk>
-References: <1131029686.18848.48.camel@localhost.localdomain>
-	 <20051103144830.GF28038@flint.arm.linux.org.uk>
-	 <1131033483.18848.71.camel@localhost.localdomain>
-	 <20051103153017.GH28038@flint.arm.linux.org.uk>
-Content-Type: text/plain
+	Thu, 3 Nov 2005 10:53:42 -0500
+Received: from dvhart.com ([64.146.134.43]:59565 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S1030357AbVKCPxl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 10:53:41 -0500
+Date: Thu, 03 Nov 2005 07:53:42 -0800
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Dave Hansen <haveblue@us.ibm.com>,
+       Ingo Molnar <mingo@elte.hu>, Mel Gorman <mel@csn.ul.ie>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       kravetz@us.ibm.com, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lhms <lhms-devel@lists.sourceforge.net>,
+       Arjan van de Ven <arjanv@infradead.org>
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+Message-ID: <307050000.1131033222@[10.10.2.4]>
+In-Reply-To: <1131032422.2839.8.camel@laptopd505.fenrus.org>
+References: <4366C559.5090504@yahoo.com.au> <Pine.LNX.4.58.0511010137020.29390@skynet> <4366D469.2010202@yahoo.com.au> <Pine.LNX.4.58.0511011014060.14884@skynet> <20051101135651.GA8502@elte.hu> <1130854224.14475.60.camel@localhost> <20051101142959.GA9272@elte.hu> <1130856555.14475.77.camel@localhost> <20051101150142.GA10636@elte.hu> <1130858580.14475.98.camel@localhost> <20051102084946.GA3930@elte.hu> <436880B8.1050207@yahoo.com.au> <1130923969.15627.11.camel@localhost> <43688B74.20002@yahoo.com.au> <255360000.1130943722@[10.10.2.4]> <4369824E.2020407@yahoo.com.au>  <306020000.1131032193@[10.10.2.4]> <1131032422.2839.8.camel@laptopd505.fenrus.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Thu, 03 Nov 2005 16:23:20 +0000
-Message-Id: <1131035000.18848.74.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-11-03 at 15:30 +0000, Russell King wrote:
-> Ok, I look forward to fiddling with libata on ARM. 8)
+
+
+--Arjan van de Ven <arjan@infradead.org> wrote (on Thursday, November 03, 2005 16:40:21 +0100):
+
+> On Thu, 2005-11-03 at 07:36 -0800, Martin J. Bligh wrote:
+>> >> Can we quit coming up with specialist hacks for hotplug, and try to solve
+>> >> the generic problem please? hotplug is NOT the only issue here. Fragmentation
+>> >> in general is.
+>> >> 
+>> > 
+>> > Not really it isn't. There have been a few cases (e1000 being the main
+>> > one, and is fixed upstream) where fragmentation in general is a problem.
+>> > But mostly it is not.
+>> 
+>> Sigh. OK, tell me how you're going to fix kernel stacks > 4K please. 
 > 
-> You mentioned that libata doesn't do SWDMA - does it do MWDMA and PIO?
+> with CONFIG_4KSTACKS :)
 
-Yes. MWDMA works well, PIO is pretty crap in the base -mm tree but much
-improved in the devel trees. I've generally been running stuff pio
-before adding the DMA code in fact.
-
+I've been told previously that doesn't work for x86_64, and other 64 bit
+platforms. Is that incorrect?

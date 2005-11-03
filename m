@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030396AbVKCSAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030400AbVKCSEZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030396AbVKCSAF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 13:00:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030399AbVKCSAE
+	id S1030400AbVKCSEZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 13:04:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030401AbVKCSEZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 13:00:04 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:64947 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030396AbVKCSAD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 13:00:03 -0500
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-From: Arjan van de Ven <arjan@infradead.org>
+	Thu, 3 Nov 2005 13:04:25 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:12268 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030400AbVKCSEY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 13:04:24 -0500
+Date: Thu, 3 Nov 2005 10:03:46 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
 To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Mel Gorman <mel@csn.ul.ie>,
+cc: Mel Gorman <mel@csn.ul.ie>, Arjan van de Ven <arjan@infradead.org>,
        Nick Piggin <nickpiggin@yahoo.com.au>,
        Dave Hansen <haveblue@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
        Andrew Morton <akpm@osdl.org>, kravetz@us.ibm.com,
@@ -20,52 +20,81 @@ Cc: Linus Torvalds <torvalds@osdl.org>, Mel Gorman <mel@csn.ul.ie>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        lhms <lhms-devel@lists.sourceforge.net>,
        Arjan van de Ven <arjanv@infradead.org>
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
 In-Reply-To: <311050000.1131040276@[10.10.2.4]>
+Message-ID: <Pine.LNX.4.64.0511030955110.27915@g5.osdl.org>
 References: <4366C559.5090504@yahoo.com.au>
-	 <Pine.LNX.4.58.0511010137020.29390@skynet><4366D469.2010202@yahoo.com.au>
-	 <Pine.LNX.4.58.0511011014060.14884@skynet><20051101135651.GA8502@elte.hu>
-	 <1130854224.14475.60.camel@localhost><20051101142959.GA9272@elte.hu>
-	 <1130856555.14475.77.camel@localhost><20051101150142.GA10636@elte.hu>
-	 <1130858580.14475.98.camel@localhost><20051102084946.GA3930@elte.hu>
-	 <436880B8.1050207@yahoo.com.au><1130923969.15627.11.camel@localhost>
-	 <43688B74.20002@yahoo.com.au><255360000.1130943722@[10.10.2.4]>
-	 <4369824E.2020407@yahoo.com.au> <306020000.1131032193@[10.10.2.4]>
-	 <1131032422.2839.8.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.64.0511030747450.27915@g5.osdl.org>
-	 <Pine.LNX.4.58.0511031613560.3571@skynet>
-	 <Pine.LNX.4.64.0511030842050.27915@g5.osdl.org>
-	 <309420000.1131036740@[10.10.2.4]>
-	 <Pine.LNX.4.64.0511030918110.27915@g5.osdl.org>
-	 <311050000.1131040276@[10.10.2.4]>
-Content-Type: text/plain
-Date: Thu, 03 Nov 2005 18:59:45 +0100
-Message-Id: <1131040786.2839.18.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+ <Pine.LNX.4.58.0511010137020.29390@skynet><4366D469.2010202@yahoo.com.au>
+ <Pine.LNX.4.58.0511011014060.14884@skynet><20051101135651.GA8502@elte.hu>
+ <1130854224.14475.60.camel@localhost><20051101142959.GA9272@elte.hu>
+ <1130856555.14475.77.camel@localhost><20051101150142.GA10636@elte.hu>
+ <1130858580.14475.98.camel@localhost><20051102084946.GA3930@elte.hu>
+ <436880B8.1050207@yahoo.com.au><1130923969.15627.11.camel@localhost>
+ <43688B74.20002@yahoo.com.au><255360000.1130943722@[10.10.2.4]>
+ <4369824E.2020407@yahoo.com.au>
+ <306020000.1131032193@[10.10.2.4]><1131032422.2839.8.camel@laptopd505.fenrus.org><Pine.LNX.4.64.0511030747450.27915@g5.osdl.org><Pine.LNX.4.58.0511031613560.3571@skynet>
+ <Pine.LNX.4.64.0511030842050.27915@g5.osdl.org><309420000.1131036740@[10.10.2.4]>
+ <Pine.LNX.4.64.0511030918110.27915@g5.osdl.org> <311050000.1131040276@[10.10.2.4]>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-11-03 at 09:51 -0800, Martin J. Bligh wrote:
 
-> For amusement, let me put in some tritely oversimplified math. For the
-> sake of arguement, assume the free watermarks are 8MB or so. Let's assume
-> a clean 64-bit system with no zone issues, etc (ie all one zone). 4K pages.
-> I'm going to assume random distribution of free pages, which is 
-> oversimplified, but I'm trying to demonstrate a general premise, not get
-> accurate numbers.
 
-that is VERY over simplified though, given the anti-fragmentation
-property of buddy algorithm
+On Thu, 3 Nov 2005, Martin J. Bligh wrote:
+> > And I suspect that by default, there should be zero of them. Ie you'd have 
+> > to set them up the same way you now set up a hugetlb area.
+> 
+> So ... if there are 0 by default, and I run for a while and dirty up
+> memory, how do I free any pages up to put into them? Not sure how that
+> works.
 
+You don't.
+
+Just face it - people who want memory hotplug had better know that 
+beforehand (and let's be honest - in practice it's only going to work in 
+virtualized environments or in environments where you can insert the new 
+bank of memory and copy it over and remove the old one with hw support).
+
+Same as hugetlb.
+
+Nobody sane _cares_. Nobody sane is asking for these things. Only people 
+with special needs are asking for it, and they know their needs.
+
+You have to realize that the first rule of engineering is to work out the 
+balances. The undeniable fact is, that 99.99% of all users will never care 
+one whit, and memory management is complex and fragile. End result: the 
+0.01% of users will have to do some manual configuration to keep things 
+simpler for the cases that really matter.
+
+Because the case that really matters is the sane case. The one where we
+ - don't change memory (normal)
+ - only add memory (easy)
+ - only switch out memory with hardware support (ie the _hardware_ 
+   supports parallel memory, and you can switch out a DIMM without 
+   software ever really even noticing)
+ - have system maintainers that do strange things, but _know_ that.
+
+We simply DO NOT CARE about some theoretical "general case", because the 
+general case is (a) insane and (b) impossible to cater to without 
+excessive complexity.
+
+Guys, a kernel developer needs to know when to say NO.
+
+And we say NO, HELL NO!! to generic software-only memory hotplug.
+
+If you are running a DB that needs to benchmark well, you damn well KNOW 
+IT IN ADVANCE, AND YOU TUNE FOR IT.
+
+Nobody takes a random machine and says "ok, we'll now put our most 
+performance-critical database on this machine, and oh, btw, you can't 
+reboot it and tune for it beforehand". And if you have such a person, you 
+need to learn to IGNORE THE CRAZY PEOPLE.
+
+When you hear voices in your head that tell you to shoot the pope, do you 
+do what they say? Same thing goes for customers and managers. They are the 
+crazy voices in your head, and you need to set them right, not just 
+blindly do what they ask for.
+
+		Linus

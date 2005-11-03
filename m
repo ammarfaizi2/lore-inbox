@@ -1,146 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964805AbVKCKVx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964842AbVKCKpo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964805AbVKCKVx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 05:21:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964812AbVKCKVx
+	id S964842AbVKCKpo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 05:45:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbVKCKpo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 05:21:53 -0500
-Received: from cantor.suse.de ([195.135.220.2]:23951 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964805AbVKCKVw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 05:21:52 -0500
-Message-ID: <4369E4BF.4010706@suse.de>
-Date: Thu, 03 Nov 2005 11:21:51 +0100
-From: Hannes Reinecke <hare@suse.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.11) Gecko/20050727
-X-Accept-Language: en-us, en
+	Thu, 3 Nov 2005 05:45:44 -0500
+Received: from smtp5-g19.free.fr ([212.27.42.35]:35286 "EHLO smtp5-g19.free.fr")
+	by vger.kernel.org with ESMTP id S964842AbVKCKpo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 05:45:44 -0500
+From: Duncan Sands <duncan.sands@math.u-psud.fr>
+To: mchehab@brturbo.com.br
+Subject: 2.6.14: Oops in bttv_irq_wakeup_video
+Date: Thu, 3 Nov 2005 11:45:40 +0100
+User-Agent: KMail/1.8.3
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH] Incorrect device link for ide-cs
-References: <4369D693.4040500@suse.de> <58cb370e0511030157l5e47a15h25832fb98e46173a@mail.gmail.com>
-In-Reply-To: <58cb370e0511030157l5e47a15h25832fb98e46173a@mail.gmail.com>
-Content-Type: multipart/mixed;
- boundary="------------060208070700090402050305"
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200511031145.41163.duncan.sands@math.u-psud.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060208070700090402050305
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Linux version 2.6.14 (root@baldrick) (gcc version 4.0.2 20050808 (prerelease) (Ubuntu 4.0.1-4ubuntu9)) #1 Sun Oct 30 12:30:39 CET 2005
+x86
 
-Bartlomiej Zolnierkiewicz wrote:
-> Hi,
->=20
->>      hw_regs_t hw;
->>      memset(&hw, 0, sizeof(hw));
->> -    ide_init_hwif_ports(&hw, io, ctl, NULL);
->> +    ide_std_init_ports(&hw, io, ctl);
->=20
-> Could you separate this into another patch?
->=20
-> This change fixes ide-cs for some archs but OTOH we should verify that
-> there are no ide-cs specific hacks in ide_init_hwif_ports() on other ar=
-chs.
->=20
-Oops, you are correct. The main reason why I did this is this comment in
-include/linux/ide.h:
- * ide_init_hwif_ports() is OBSOLETE and will be removed in 2.7 series.
+Got this the moment I launched xawtv (using "grabdisplay").  The card is
+a cheap and nasty wintv:
 
-Arch specific codes are in:
-cris/v10
-arm/sa1100
-arch-m68knommu
+0000:00:08.0 Multimedia video controller: Brooktree Corporation Bt878 Video Capture (rev 11)
+        Subsystem: Hauppauge computer works Inc. WinTV Series
+        Flags: bus master, medium devsel, latency 32, IRQ 20
+        Memory at dfbfe000 (32-bit, prefetchable) [size=4K]
+        Capabilities: <available only to root>
 
-Neither of which is using the irq parameter anyway, so it would make
-sense to remove that interface completely.
+on a VIA chipset:
 
-Updated patch attached.
+0000:00:00.0 Host bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333]
+        Subsystem: VIA Technologies, Inc.: Unknown device 0000
+        Flags: bus master, 66MHz, medium devsel, latency 0
+        Memory at e0000000 (32-bit, prefetchable) [size=128M]
+        Capabilities: <available only to root>
 
-Cheers,
+0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333 AGP] (prog-if 00 [Normal decode])
+        Flags: bus master, 66MHz, medium devsel, latency 0
+        Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+        I/O behind bridge: 0000c000-0000cfff
+        Memory behind bridge: dfc00000-dfcfffff
+        Prefetchable memory behind bridge: bfb00000-dfafffff
+        Capabilities: <available only to root>
 
-Hannes
---=20
-Dr. Hannes Reinecke			hare@suse.de
-SuSE Linux Products GmbH		S390 & zSeries
-Maxfeldstra=DFe 5				+49 911 74053 688
-90409 N=FCrnberg				http://www.suse.de
+I don't use overlay, since it always eventually manages to freeze the machine.
+Oops captured via serial console:
 
---------------060208070700090402050305
-Content-Type: text/plain;
- name="ide-cs-correct-device-link"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ide-cs-correct-device-link"
-
-From: Hannes Reinecke <hare@suse.de>
-Subject: Incorrect device link for ide-cs
-
-Devices driven by ide-cs will appear under /sys/devices instead of the
-appropriate PCMCIA device. To fix this I had to extend the hw_regs_t
-structure with a 'struct device' field, which allows us to set the
-parent link for the appropriate hwif.
-
-Signed-off-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Jens Axboe <axboe@suse.com>
-
-diff --git a/drivers/ide/ide.c b/drivers/ide/ide.c
---- a/drivers/ide/ide.c
-+++ b/drivers/ide/ide.c
-@@ -803,6 +803,7 @@ found:
- 	hwif->irq = hw->irq;
- 	hwif->noprobe = 0;
- 	hwif->chipset = hw->chipset;
-+	hwif->gendev.parent = hw->dev;
- 
- 	if (!initializing) {
- 		probe_hwif_init_with_fixup(hwif, fixup);
-diff --git a/drivers/ide/legacy/ide-cs.c b/drivers/ide/legacy/ide-cs.c
---- a/drivers/ide/legacy/ide-cs.c
-+++ b/drivers/ide/legacy/ide-cs.c
-@@ -182,13 +182,14 @@ static void ide_detach(dev_link_t *link)
-     
- } /* ide_detach */
- 
--static int idecs_register(unsigned long io, unsigned long ctl, unsigned long irq)
-+static int idecs_register(unsigned long io, unsigned long ctl, unsigned long irq, struct pcmcia_device *handle)
- {
-     hw_regs_t hw;
-     memset(&hw, 0, sizeof(hw));
-     ide_init_hwif_ports(&hw, io, ctl, NULL);
-     hw.irq = irq;
-     hw.chipset = ide_pci;
-+    hw.dev = &handle->dev;
-     return ide_register_hw_with_fixup(&hw, NULL, ide_undecoded_slave);
- }
- 
-@@ -328,12 +329,12 @@ static void ide_config(dev_link_t *link)
- 
-     /* retry registration in case device is still spinning up */
-     for (hd = -1, i = 0; i < 10; i++) {
--	hd = idecs_register(io_base, ctl_base, link->irq.AssignedIRQ);
-+	hd = idecs_register(io_base, ctl_base, link->irq.AssignedIRQ, handle);
- 	if (hd >= 0) break;
- 	if (link->io.NumPorts1 == 0x20) {
- 	    outb(0x02, ctl_base + 0x10);
- 	    hd = idecs_register(io_base + 0x10, ctl_base + 0x10,
--				link->irq.AssignedIRQ);
-+				link->irq.AssignedIRQ, handle);
- 	    if (hd >= 0) {
- 		io_base += 0x10;
- 		ctl_base += 0x10;
-diff --git a/include/linux/ide.h b/include/linux/ide.h
---- a/include/linux/ide.h
-+++ b/include/linux/ide.h
-@@ -230,6 +230,7 @@ typedef struct hw_regs_s {
- 	int		dma;			/* our dma entry */
- 	ide_ack_intr_t	*ack_intr;		/* acknowledge interrupt */
- 	hwif_chipset_t  chipset;
-+	struct device	*dev;
- } hw_regs_t;
- 
- /*
-
---------------060208070700090402050305--
+[17179710.648000] bttv0: OCERR @ 1d36b01c,bits: HSYNC OFLOW RISCI* OCERR*
+[17179710.672000] bttv0: OCERR @ 1d36b01c,bits: HSYNC OFLOW OCERR*
+[17179710.708000] bttv0: OCERR @ 1d36b01c,bits: HSYNC OFLOW OCERR*
+[17179710.748000] bttv0: OCERR @ 1d36b01c,bits: HSYNC OFLOW OCERR*
+[17179710.808000] bttv0: OCERR @ 1d36b01c,bits: HSYNC OFLOW OCERR*
+[17179710.848000] bttv0: OCERR @ 1d36b01c,bits: HSYNC OFLOW OCERR*
+[17179710.888000] bttv0: OCERR @ 1d36b01c,bits: HSYNC OFLOW OCERR*
+[17179710.928000] bttv0: OCERR @ 1d36b01c,bits: HSYNC OFLOW OCERR*
+[17179710.968000] bttv0: OCERR @ 1d36b01c,bits: HSYNC OFLOW OCERR*
+[17179711.008000] bttv0: OCERR @ 1d36b01c,bits: HSYNC OFLOW OCERR*
+[17179711.048000] bttv0: OCERR @ 1d36b01c,bits: HSYNC OFLOW OCERR*
+[17179711.088000] bttv0: timeout: drop=0 irq=147/147, risc=1d36b03c, <6>bttv0: OCERR @ 1d36b01c,bits: VSYNC* HSYNC OFLOW FBUS OCERR*
+[17179711.124000] bits:<6>bttv0: OCERR @ 1d36b01c,bits: VSYNC* HSYNC OFLOW FBUS OCERR*
+[17179711.148000]  OFLOW
+[17179711.156000] Unable to handle kernel NULL pointer dereference at virtual address 00000000
+[17179711.156000]  printing eip:
+[17179711.156000] 00000000
+[17179711.156000] *pde = 00000000
+[17179711.156000] Oops: 0000 [#1]
+[17179711.156000] Modules linked in: rfcomm l2cap bluetooth cpufreq_stats cpufreq_powersave cpufreq_ondemand cpufreq_userspace freq_table cpufreq_conservative usblp radeon drm tun video battery container button ac ipv6 ipt_TOS ipt_MASQUERADE ipt_REJECT ipt_LOG ipt_state ipt_pkttype ipt_owner ipt_iprange ipt_physdev ipt_multiport ipt_conntrack iptable_mangle ip_nat_irc ip_nat_tftp ip_nat_ftp iptable_nat ip_nat ip_conntrack_irc ip_conntrack_tftp ip_conntrack_ftp ip_conntrack iptable_filter ip_tables floppy pcspkr rtc cdc_ether usbnet snd_seq_dummy snd_seq_oss snd_seq_midi snd_seq_midi_event snd_seq snd_via82xx snd_mpu401_uart i2c_viapro via_ircc irda crc_ccitt snd_bt87x bt878 tuner tvaudio bttv video_buf firmware_class i2c_algo_bit v4l2_common btcx_risc tveeprom i2c_core videodev snd_cs46xx gameport snd_rawmidi snd_seq_device snd_ac97_codec snd_ac97_bus snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd soundcore snd_page_alloc shpchp pci_hotplug via_agp agpgart nls_cp437 ntfs reiserfs dm_mod tsdev parport_pc lp parport mousedev psmouse md_mod ext3 jbd mbcache thermal processor fan ehci_hcd uhci_hcd usbcore 8139too 8139cp mii ide_cd cdrom ide_disk ide_generic via82cxxx generic ide_core unix vga16fb vgastate softcursor cfbimgblt cfbfillrect cfbcopyarea fbcon tileblit font bitblit
+[17179711.156000] CPU:    0
+[17179711.156000] EIP:    0060:[<00000000>]    Not tainted VLI
+[17179711.156000] EFLAGS: 00010017   (2.6.14)
+[17179711.156000] EIP is at rest_init+0x3feffde0/0x30
+[17179711.156000] eax: 0804cff4   ebx: ffffffff   ecx: 00000001   edx: 00000003
+[17179711.156000] esi: 00000000   edi: 00000001   ebp: d86ebed0   esp: d86ebeb0
+[17179711.156000] ds: 007b   es: 007b   ss: 0068
+[17179711.156000] Process modprobe (pid: 10883, threadinfo=d86ea000 task=d86530b0)
+[17179711.156000] Stack: c0118263 0804cff4 00000003 00000000 00000000 00000000 00000096 d86ebf3c
+[17179711.156000]        d86ebef4 c01182be dc2d6cec 00000003 00000001 00000000 00000000 00000000
+[17179711.156000]        d86ebf4c e0cb29e0 e0c977c4 00000000 e0cb29e0 e0c9e080 4369e7d9 00069a62
+[17179711.156000] Call Trace:
+[17179711.156000]  [<c0118263>] __wake_up_common+0x43/0x70
+[17179711.156000]  [<c01182be>] __wake_up+0x2e/0x40
+[17179711.156000]  [<e0c977c4>] bttv_irq_wakeup_video+0x114/0x180 [bttv]
+[17179711.156000]  [<e0c9e080>] bttv_buffer_activate_vbi+0xc0/0xd0 [bttv]
+[17179711.156000]  [<e0c97973>] bttv_irq_timeout+0xe3/0x220 [bttv]
+[17179711.156000]  [<e0c97890>] bttv_irq_timeout+0x0/0x220 [bttv]
+[17179711.156000]  [<c0124635>] run_timer_softirq+0xb5/0x190
+[17179711.156000]  [<c0120473>] __do_softirq+0x43/0x90
+[17179711.156000]  [<c01204e6>] do_softirq+0x26/0x30
+[17179711.156000]  [<c01051fe>] do_IRQ+0x1e/0x30
+[17179711.156000]  [<c0103a72>] common_interrupt+0x1a/0x20
+[17179711.156000] Code:  Bad EIP value.
+[17179711.156000]  <0>Kernel panic - not syncing: Fatal exception in interrupt

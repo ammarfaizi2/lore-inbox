@@ -1,69 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030299AbVKCERP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030315AbVKCEZG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030299AbVKCERP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 23:17:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030300AbVKCERP
+	id S1030315AbVKCEZG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 23:25:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030309AbVKCEZG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 23:17:15 -0500
-Received: from sneakemail.com ([38.113.6.61]:64698 "HELO monkey.sneakemail.com")
-	by vger.kernel.org with SMTP id S1030299AbVKCERO convert rfc822-to-8bit
+	Wed, 2 Nov 2005 23:25:06 -0500
+Received: from zproxy.gmail.com ([64.233.162.192]:38816 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030307AbVKCEZF convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 23:17:14 -0500
+	Wed, 2 Nov 2005 23:25:05 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=lWlGdmL052q4Tk2rtZl3ImlfGYUzf9074nynSvpqPRG7HLc5OZkQbTyV9+WmYSY+AsmqtkB4/X3ZOKaM1Hwy8eI7bMKc/XJucPg9LNCZ20jaS665GwsZMXKr4+suWW2ZNlawFJGfkYBXlgkbpNQpFjg3A9bvzzueEyc82JeNFOo=
-Message-ID: <20172-97280@sneakemail.com>
-Date: Wed, 2 Nov 2005 20:17:10 -0800
-From: "NooneImportant" <nxhxzi702@sneakemail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 18/37] dvb: let other frontends support FE_DISHNETWORK_SEND_LEGACY_CMD
-In-Reply-To: <20051103135210.21cdcf77.akpm@osdl.org>
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=qzl6lwa8sGMjEpKG7YVw0n2ZGltwSKk5Q1kUtnJWvnlKj+ag0jP+9SfVKE2yPAC4peuOPhoFoupfZD6CEjR2YCacu8iWZ+xFIxqahQhzhzIljk409GY2CvxCXw0cpQCuPUS4eMQy9td41/QBTmOODDsWmP8fkmZjyZui3qOLjtY=
+Message-ID: <39e6f6c70511022025x17d14571rf306f2b926a56efb@mail.gmail.com>
+Date: Thu, 3 Nov 2005 02:25:04 -0200
+From: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>
+To: Thomas Graf <tgraf@suug.ch>
+Subject: Re: [PKT_SCHED]: Rework QoS and/or fair queueing configuration
+Cc: bunk@stusta.de, jengelh@linux01.gwdg.de, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+In-Reply-To: <20051101141302.GM23537@postel.suug.ch>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <436723DB.2000300@m1k.net> <20051103135210.21cdcf77.akpm@osdl.org>
+References: <Pine.LNX.4.61.0510280902470.6910@yvahk01.tjqt.qr>
+	 <20051031102621.GF8009@stusta.de>
+	 <20051031132729.GK23537@postel.suug.ch>
+	 <20051101141302.GM23537@postel.suug.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/2/05, Andrew Morton wrote:
-> Michael Krufky <mkrufky@m1k.net> wrote:
-> >
-> > +s32 timeval_usec_diff(struct timeval lasttime, struct timeval curtime)
-> >  +{
-> >  +    return ((curtime.tv_usec < lasttime.tv_usec) ?
-> >  +            1000000 - lasttime.tv_usec + curtime.tv_usec :
-> >  +            curtime.tv_usec - lasttime.tv_usec);
-> >  +}
-> >  +EXPORT_SYMBOL(timeval_usec_diff);
-> >  +
-> >  +static inline void timeval_usec_add(struct timeval *curtime, u32 add_usec)
-> >  +{
-> >  +    curtime->tv_usec += add_usec;
-> >  +    if (curtime->tv_usec >= 1000000) {
-> >  +            curtime->tv_usec -= 1000000;
-> >  +            curtime->tv_sec++;
-> >  +    }
-> >  +}
+On 11/1/05, Thomas Graf <tgraf@suug.ch> wrote:
 >
-> timeval arithmetic like this really shouldn't be hidden in a dvb driver -
-> it's generic code.
-> However I don't believe that the driver should be using timevals and
-> do_gettimeofday() at all.  Why not use jiffies-based timing like so
-> many other parts of the kernel?
+> Make "QoS and/or fair queueing" have its own menu, it's too big to be
+> inlined into "Network options". Remove the obsolete NET_QOS option.
+> Automatically select NET_CLS if needed. Do the same for NET_ESTIMATOR
+> but allow it to be selected manually for statistical purposes. Add
+> comments to separate queueing from classification. Fix dependencies
+> and ordering of classifiers. Improve descriptions/help texts and
+> remove outdated pieces.
 >
-To be honest, I don't like this solution very much either.  It only
-works when HZ is ~1000, and even then isn't reliable for everyone who
-uses this code.  All this is attempting to be is a high precision 8ms
-timer.  Accuracy needs to be +/- 500us for the code to work.  I am not
-a (very good) kernel programmer, and didn't find anything that would
-really fit the bill when trying to figure out how to ensure a routine
-gets called every 8ms (9 times).  The ktimers stuff I saw recently on
-lwn would seem to work well here, but if there is a way to do it with
-what is in the kernel today, I'm just not aware of how to do it.  So
-if someone will show me the right way (or point me in the irght
-direction even), I'll be happy to rework the patch.
+> Signed-off-by: Thomas Graf <tgraf@suug.ch>
 
-Thanks,
-Noone
+Thanks, applied.

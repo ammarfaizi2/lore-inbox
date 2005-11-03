@@ -1,70 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750913AbVKCFv1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750956AbVKCFz0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750913AbVKCFv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 00:51:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750914AbVKCFv1
+	id S1750956AbVKCFz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 00:55:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750982AbVKCFzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 00:51:27 -0500
-Received: from mail2.ispwest.com ([216.52.245.18]:64009 "EHLO
-	ispwest-email1.mdeinc.com") by vger.kernel.org with ESMTP
-	id S1750881AbVKCFv0 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 00:51:26 -0500
-X-Modus-BlackList: 216.52.245.25=OK;kjak@ispwest.com=OK
-X-Modus-Trusted: 216.52.245.25=YES
-Message-ID: <a323eed56c0f4695bec595264cddc4a2.kjak@ispwest.com>
-X-EM-APIVersion: 2, 0, 1, 0
-X-Priority: 3 (Normal)
-Reply-To: "Kris Katterjohn" <kjak@users.sourceforge.net>
-From: "Kris Katterjohn" <kjak@ispwest.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Merge __load_pointer() and load_pointer() in net/core/filter.c; kernel 2.6.14
-Date: Wed, 2 Nov 2005 21:51:23 -0800
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 3 Nov 2005 00:55:25 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:32520 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1750951AbVKCFzZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 00:55:25 -0500
+Date: Thu, 3 Nov 2005 06:43:43 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Roberto Nibali <ratz@drugphish.ch>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Grant Coady <gcoady@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.32-rc2
+Message-ID: <20051103054343.GA19202@alpha.home.local>
+References: <20051031175704.GA619@logos.cnet> <4366E9AA.4040001@gmail.com> <20051101074959.GQ22601@alpha.home.local> <20051101063402.GA3311@logos.cnet> <4367C95D.3050108@drugphish.ch> <20051102002821.GC13557@alpha.home.local> <43689CCF.1060102@drugphish.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43689CCF.1060102@drugphish.ch>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Mitchell Blank Jr
-> > Kris Katterjohn wrote:
-> > Forgive me because this is one of my first attempts at anything related to the
-> > kernel, but...
-> > 
-> > 1) How would I go about benchmarking this?
+Hi Roberto,
+
+On Wed, Nov 02, 2005 at 12:02:39PM +0100, Roberto Nibali wrote:
+> Bonjour Willy,
 > 
-> The first thing to do is run "size net/core/filter.o" before and after and
-> see if your change makes the "text" section larger.
+> >>Willy, if you have time, could you check your non-i386 boxes with a
+> >>2.95.x compiled 2.4.x kernel, with IPVS enabled?
+> >  
+> > Yes, no problem, but you'll have to tell me what to test ! (a config
+> > or script will save me some time). I have a Sun Ultra60 (ultrasparc SMP)
+> > which matches your description. I just have a doubt about gcc-2.95
+> > availability on this box, I know I have a 3.3.6, do you think that the
+> > problem is gcc-related (too strong optimization or de-inlining, etc) ?
 > 
-> The risk of putting more stuff into the inlined function is just that
-> the rarely-executed path will end up duplicated in a bunch of places, bloating
-> the generated code.  It's hard to directly benchmark the effects of this but
-> it will generally make the fast-path code less compact in the L1 I-cache
-> which (if you do it enough) slows everything down.  Thats one reason why
-> kernel developers try to keep a close eye on bloat.
+> At least following should be set, the rest you can leave to your gusto:
 > 
-> -Mitch
+> CONFIG_ACPI=y
+> CONFIG_ACPI_BOOT=y
+> CONFIG_ACPI_BUS=y
+> CONFIG_ACPI_INTERPRETER=y
+> CONFIG_ACPI_EC=y
+> CONFIG_ACPI_POWER=y
+> CONFIG_ACPI_PCI=y
+> CONFIG_ACPI_MMCONFIG=y
+> CONFIG_ACPI_SLEEP=y
+> CONFIG_ACPI_SYSTEM=y
 
+OK, I can confirm that these ones get washed out
 
-Before patch:
+> CONFIG_IP_VS=m
+> CONFIG_IP_VS_DEBUG=y
+> CONFIG_IP_VS_TAB_BITS=12
+> CONFIG_IP_VS_RR=m
+> CONFIG_IP_VS_WRR=m
+> CONFIG_IP_VS_LC=m
+> CONFIG_IP_VS_WLC=m
+> CONFIG_IP_VS_LBLC=m
+> CONFIG_IP_VS_LBLCR=m
+> CONFIG_IP_VS_DH=m
+> CONFIG_IP_VS_SH=m
+> CONFIG_IP_VS_SED=m
+> CONFIG_IP_VS_NQ=m
+> CONFIG_IP_VS_HPRIO=m
+> CONFIG_IP_VS_FTP=m
 
-   text	   data	    bss	    dec	    hex	filename
-   2399	      0	      0	   2399	    95f	x/net/core/filter.o
+These ones stay enabled.
 
-After patch:
+> One issue is a possible C99'ism in the last IPVS patch. If you find
+> time, please have a 2.95.x compiler installed.
 
-   text	   data	    bss	    dec	    hex	filename
-   2589	      0	      0	   2589	    a1d	y/net/core/filter.o
+I discovered that gcc-2.95.4 cannot compile kernel on sparc64 anymore :-(
+I even wonder if it ever had been able to, because it does not know about
+the -mmedlow option. I removed it to check further, but then ld segfaults
+complaining that v8plus objects are not compatible with v9 output. Retrying
+with 3.3.5 so...
 
-After patch without inlining the function:
+> Another thing that could fail is if you additionally set
+> 
+> CONFIG_ACPI_FAN=m
+> 
+> and compile with CFLAGS="-g -ggdb"
 
-   text	   data	    bss	    dec	    hex	filename
-   2127	      0	      0	   2127	    84f	y/net/core/filter.o
+I bet you guessed it gets ignored too :-) But I could test this on my
+dual-athlon with gcc-2.95 if it is of any interest.
 
-
-So I guess use my patch and take "inline" off? What do you think?
-
-
-Thanks
-
+Regards,
+Willy
 

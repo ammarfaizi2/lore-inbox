@@ -1,55 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbVKCWAM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbVKCWCr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750786AbVKCWAM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 17:00:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbVKCWAL
+	id S1751152AbVKCWCr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 17:02:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbVKCWCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 17:00:11 -0500
-Received: from silver.veritas.com ([143.127.12.111]:20415 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1750786AbVKCWAK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 17:00:10 -0500
-Date: Thu, 3 Nov 2005 21:59:01 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Dipankar Sarma <dipankar@in.ibm.com>
-cc: Manfred Spraul <manfred@colorfullife.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: bad page state under possibly oom situation
-In-Reply-To: <20051103211151.GA22769@in.ibm.com>
-Message-ID: <Pine.LNX.4.61.0511032144110.537@goblin.wat.veritas.com>
-References: <20051102143502.GE6137@in.ibm.com>
- <Pine.LNX.4.61.0511021614110.10299@goblin.wat.veritas.com>
- <4369B051.7050303@colorfullife.com> <20051103211151.GA22769@in.ibm.com>
+	Thu, 3 Nov 2005 17:02:47 -0500
+Received: from ms-smtp-05.texas.rr.com ([24.93.47.44]:41370 "EHLO
+	ms-smtp-05-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S1751152AbVKCWCr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 17:02:47 -0500
+Message-ID: <436A892B.9080806@austin.rr.com>
+Date: Thu, 03 Nov 2005 16:03:23 -0600
+From: Steve French <smfrench@austin.rr.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 03 Nov 2005 22:00:10.0124 (UTC) FILETIME=[F573BCC0:01C5E0C1]
+To: linux-kernel@vger.kernel.org
+Subject: recommended sparse checks on kernel code
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Nov 2005, Dipankar Sarma wrote:
-> On Thu, Nov 03, 2005 at 07:38:09AM +0100, Manfred Spraul wrote:
-> > Hugh Dickins wrote:
-> > > flags 0x90 mean PG_slab|PG_dirty.)
-> > A very odd combination:
-> > Or change the value of PG_slab to 20 
-> > and check if page->flags remains 0x90.
-
-Good observation and suggestion from Manfred.
-
-> Here is a dump of the page struct when this happens (two different
-> instances) - 
-
-Yuk!
-
-page ffff810008005550 flags 4000005500009090, but the rest is okay.
-page ffff81000800aaa0 count 00900055, but the rest is okay (including
-                                      mapcount, the int above count).
-Even the page addresses seem related.
-
-You seem to be infected with 55s and 90s,
-nothing to do with PG_slab|PG_dirty; but I don't know what it means.
-
-Hugh
+Are there other interesting/useful sparse checks that can be done beyond
+    make C=2 -Wbitwise
+for kernel code?  Is that the maximum checks that sparse can do without 
+hacking it up?

@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030294AbVKCD03@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751534AbVKCD33@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030294AbVKCD03 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 22:26:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030296AbVKCD03
+	id S1751534AbVKCD33 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 22:29:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751533AbVKCD32
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 22:26:29 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:38025 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030294AbVKCD02 (ORCPT
+	Wed, 2 Nov 2005 22:29:28 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:26762 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751111AbVKCD32 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 22:26:28 -0500
-Date: Thu, 3 Nov 2005 13:26:14 +1100
+	Wed, 2 Nov 2005 22:29:28 -0500
+Date: Thu, 3 Nov 2005 13:29:14 +1100
 From: Andrew Morton <akpm@osdl.org>
 To: Michael Krufky <mkrufky@m1k.net>
 Cc: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org
-Subject: Re: [PATCH 03/37] dvb: stv0299: revert improper method
-Message-Id: <20051103132614.4f46bb8f.akpm@osdl.org>
-In-Reply-To: <43672368.6080705@m1k.net>
-References: <43672368.6080705@m1k.net>
+Subject: Re: [PATCH 04/37] dvb: Add ATSC support for DViCO FusionHDTV5 Lite
+Message-Id: <20051103132914.64e971b9.akpm@osdl.org>
+In-Reply-To: <4367236E.90008@m1k.net>
+References: <4367236E.90008@m1k.net>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -26,14 +26,10 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Michael Krufky <mkrufky@m1k.net> wrote:
 >
->  +	if (state->errmode != STATUS_UCBLOCKS) *ucblocks = 0;
->  +	else *ucblocks = (stv0299_readreg (state, 0x1d) << 8) | stv0299_readreg (state, 0x1e);
+> +static int tdvs_tua6034_pll_set(struct dvb_frontend* fe, struct dvb_frontend_parameters* params)
+>  +{
+>  +	struct dvb_bt8xx_card *card = (struct dvb_bt8xx_card *) fe->dvb->priv;
 
-Preferred kernel tyle is
-
-	if (expr)
-		statement;
-	else
-		statement;
-
-please.
+The cast of a void* is unneeded.  It's actually undesirable: if someone
+were to convert the thing-being-casted to some other scalar type, the cast
+would prevent the desired compiler warning.

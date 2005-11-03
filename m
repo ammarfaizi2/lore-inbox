@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbVKCF0M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932514AbVKCFgi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750721AbVKCF0M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 00:26:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750881AbVKCF0M
+	id S932514AbVKCFgi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 00:36:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbVKCFgi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 00:26:12 -0500
-Received: from mail2.sasken.com ([203.200.200.72]:38843 "EHLO mail2.sasken.com")
-	by vger.kernel.org with ESMTP id S1750721AbVKCF0L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 00:26:11 -0500
-From: "Ravichandran" <sravich@sasken.com>
-Subject: urgent anyone help me
-Date: Thu, 3 Nov 2005 10:56:00 +0530
-Message-ID: <dkc718$kvl$1@ncc-t.sasken.com>
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Newsreader: Microsoft Outlook Express 6.00.2800.1478
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
-To: linux-kernel@vger.kernel.org
-X-News-Gateway: ncc-z.sasken.com
-X-imss-version: 2.032
-X-imss-result: Passed
-X-imss-scores: Clean:1.64108 C:2 M:3 S:5 R:5
-X-imss-settings: Baseline:3 C:3 M:3 S:3 R:3 (0.5000 0.5000)
+	Thu, 3 Nov 2005 00:36:38 -0500
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:32949 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S932225AbVKCFgh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 00:36:37 -0500
+X-ORBL: [69.149.117.103]
+Date: Wed, 2 Nov 2005 23:32:58 -0600
+From: Michael Halcrow <lkml@halcrow.us>
+To: Phillip Hellewell <phillip@hellewell.homeip.net>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       mhalcrow@us.ibm.com, mcthomps@us.ibm.com, yoder1@us.ibm.com
+Subject: Re: [PATCH 10/12: eCryptfs] Mmap operations
+Message-ID: <20051103053258.GA32733@halcrow.us>
+Reply-To: Michael Halcrow <lkml@halcrow.us>
+References: <20051103033220.GD2772@sshock.rn.byu.edu> <20051103035530.GJ3005@sshock.rn.byu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051103035530.GJ3005@sshock.rn.byu.edu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 02, 2005 at 08:55:30PM -0700, Phillip Hellewell wrote:
+> +static int ecryptfs_writepage(struct page *page, struct writeback_control *wbc)
+> +{
+> ...
+> +	ecryptfs_printk(1, KERN_NOTICE, "Copying page\n");
+> +	memcpy(lower_kaddr, kaddr, crypt_stats->extent_size);
 
-Hi,
+Note that this serves only to reduce the complexity of the execution
+path while we try to pin down the kernel oops that shows up on certain
+sets of concurrent gcc jobs. When actually encrypting, we are doing
+extra page reads and writes with the underlying file to juggle the
+initialization vectors. This part will, of course, need to be replaced
+with the same crypto operations being done in ecryptfs_commit_write()
+in order to encrypt the data on its way out via ecryptfs_writepage().
+I will test the patch to do this and offer it as a follow-up once I am
+satisfied that it does not regress any of our testcases; this patch
+will also reduce the size of the ecryptfs_commit_write() function to
+be closer to what it should be.
 
-can anyone tell me which linux is suitable for an 32 MB USB or a Compaq
-flash card? Pl mail me as it is urgent.
-
-Regards
-Ravi chandran
-
-
-
-
-
-"SASKEN RATED THE BEST COMPANY TO WORK FOR IN INDIA - SURVEY 2004 conducted by the BUSINESS TODAY -Mercer-TNS India"
-
-                           SASKEN BUSINESS DISCLAIMER
-This message may contain confidential, proprietary or legally Privileged information. In case you are not the original intended Recipient of the message, you must not, directly or indirectly, use, Disclose, distribute, print, or copy any part of this message and you are requested to delete it and inform the sender. Any views expressed in this message are those of the individual sender unless otherwise stated. Nothing contained in this message shall be construed as an offer or acceptance of any offer by Sasken Communication Technologies Limited ("Sasken") unless sent with that express intent and with due authority of Sasken. Sasken has taken enough precautions to prevent the spread of viruses. However the company accepts no liability for any damage caused by any virus transmitted by this email
+Thanks,
+Mike

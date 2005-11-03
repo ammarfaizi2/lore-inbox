@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030257AbVKCPRB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030265AbVKCPSi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030257AbVKCPRB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 10:17:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030293AbVKCPQ7
+	id S1030265AbVKCPSi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 10:18:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030269AbVKCPSi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 10:16:59 -0500
-Received: from main.gmane.org ([80.91.229.2]:10948 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1030257AbVKCPQ6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 10:16:58 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Rich Walker <rw@shadow.org.uk>
-Subject: Re: best way to handle LEDs
-Date: Thu, 03 Nov 2005 14:26:28 +0000
-Organization: Shadow Robot Company
-Message-ID: <m3oe51erjf.fsf@shadow.org.uk>
-References: <20051101234459.GA443@elf.ucw.cz> <20051102202622.GN23316@pengutronix.de>
- <20051102211334.GH23943@elf.ucw.cz>
- <20051102213354.GO23316@pengutronix.de>
- <38523.192.168.0.12.1130986361.squirrel@192.168.0.2>
- <20051103081522.GA21663@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 84-45-206-219.no-dns-yet.enta.net
-X-Plan: Building the future with general-purpose robots
-X-Plan2: mail contact@shadow.org.uk for more details and to help
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.4 (gnu/linux)
-Cancel-Lock: sha1:aSmAveNoKqx2CfS/BUracfnxtXc=
+	Thu, 3 Nov 2005 10:18:38 -0500
+Received: from scifi.dolphinics.no ([193.71.152.62]:22662 "EHLO
+	poesci.dolphinics.no") by vger.kernel.org with ESMTP
+	id S1030265AbVKCPSh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 10:18:37 -0500
+Message-ID: <436A29D4.1080700@dolphinics.no>
+Date: Thu, 03 Nov 2005 16:16:36 +0100
+From: Simen Thoresen <simentt@dolphinics.no>
+Organization: Dolphin ICS
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Simen Thoresen <simentt@dolphinics.no>
+Cc: Devesh Sharma <devesh28@gmail.com>, linux-kernel@vger.kernel.org,
+       rdunlap@xenotime.net
+Subject: Re: Issues in Booting kernel 2.6.13
+References: <309a667c0510052216n784e229ei69b3a3a2a9e93f4b@mail.gmail.com>	 <20051006190806.388289ff.rdunlap@xenotime.net>	 <43481D0F.9020407@dolphinics.no>	 <20051008123131.41d85d45.rdunlap@xenotime.net>	 <434A23A2.1020407@dolphinics.no>	 <309a667c0510100215wcf311bcr3cc0555cc4557d39@mail.gmail.com> <309a667c0510100228s5c9bac7cwaf74548520bba808@mail.gmail.com> <434A38D0.9040103@dolphinics.no>
+In-Reply-To: <434A38D0.9040103@dolphinics.no>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> writes:
 
->
-> I also have issues with a generic GPIO layer.  As I mentioned in the
-> past, there's serious locking issues with any generic abstraction of
-> GPIOs.
->
-> 1. You want to be able to change GPIO state from interrupts.  This
->    implies you can not sleep in GPIO state changing functions.
->
-> 2. Some GPIOs are implemented on I2C devices.  This means that to
->    change state, you must sleep.
->
-> (1) and (2) are incompatible requirements, so you can not offer a
-> generic interface for these GPIOs which has a consistent behaviour -
-> where users of the interface know whether the function may sleep or
-> may be used from interrupt context.
->
+Simen Thoresen wrote:
+> Hi Devesh,
+> 
+> I still have problems, and I see both mptbase and mptscsih loading, so 
+> I've assumed that mkinitrd is not happy with the new kernel.
+> 
+> Could you please mail me your .config directly so I can have a look at it?
+> 
+> -S
 
-So you have a request_gpio API, where you specify usage characteristics
-and get back a handle?
+Hi Devesh, Randy
 
-cheers, Rich.
+Sorry about not following this up earlier, but I've resolved my problem, and 
+am booting happily. CONFIG_FUSION_SPI=y (rather than =m), and then tell 
+mkinitrd not to care about scsi-devices.
 
+Than you for your help :-)
+
+Yours,
+-S
 -- 
-rich walker         |  Shadow Robot Company | rw@shadow.org.uk
-technical director     251 Liverpool Road   |
-need a Hand?           London  N1 1LX       | +UK 20 7700 2487
-www.shadow.org.uk/products/newhand.shtml
-
+Simen Thoresen, Wulfkit Support, Dolphin ICS
+http://www.tysland.com/~simentt/cluster

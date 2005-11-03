@@ -1,94 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030373AbVKCQU5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030371AbVKCQUl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030373AbVKCQU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 11:20:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030375AbVKCQU5
+	id S1030371AbVKCQUl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 11:20:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030372AbVKCQUk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 11:20:57 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:48770 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030373AbVKCQU4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 11:20:56 -0500
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-From: Arjan van de Ven <arjan@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Martin J. Bligh" <mbligh@mbligh.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Dave Hansen <haveblue@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       Mel Gorman <mel@csn.ul.ie>, Andrew Morton <akpm@osdl.org>,
-       kravetz@us.ibm.com, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>,
-       Arjan van de Ven <arjanv@infradead.org>
-In-Reply-To: <Pine.LNX.4.64.0511030747450.27915@g5.osdl.org>
-References: <4366C559.5090504@yahoo.com.au>
-	 <Pine.LNX.4.58.0511010137020.29390@skynet> <4366D469.2010202@yahoo.com.au>
-	 <Pine.LNX.4.58.0511011014060.14884@skynet> <20051101135651.GA8502@elte.hu>
-	 <1130854224.14475.60.camel@localhost> <20051101142959.GA9272@elte.hu>
-	 <1130856555.14475.77.camel@localhost> <20051101150142.GA10636@elte.hu>
-	 <1130858580.14475.98.camel@localhost> <20051102084946.GA3930@elte.hu>
-	 <436880B8.1050207@yahoo.com.au> <1130923969.15627.11.camel@localhost>
-	 <43688B74.20002@yahoo.com.au> <255360000.1130943722@[10.10.2.4]>
-	 <4369824E.2020407@yahoo.com.au>  <306020000.1131032193@[10.10.2.4]>
-	 <1131032422.2839.8.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.64.0511030747450.27915@g5.osdl.org>
-Content-Type: text/plain
-Date: Thu, 03 Nov 2005 17:20:32 +0100
-Message-Id: <1131034832.2839.13.camel@laptopd505.fenrus.org>
+	Thu, 3 Nov 2005 11:20:40 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:31972 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030371AbVKCQUj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 11:20:39 -0500
+Date: Thu, 3 Nov 2005 17:20:59 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: First steps towards making NO_IRQ a generic concept
+Message-ID: <20051103162059.GA495@elte.hu>
+References: <20051103144926.GV23749@parisc-linux.org> <20051103145118.GW23749@parisc-linux.org> <20051103154439.GA28190@elte.hu> <20051103160252.GA23749@parisc-linux.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051103160252.GA23749@parisc-linux.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-11-03 at 07:51 -0800, Linus Torvalds wrote:
-> 
-> On Thu, 3 Nov 2005, Arjan van de Ven wrote:
-> 
-> > On Thu, 2005-11-03 at 07:36 -0800, Martin J. Bligh wrote:
-> > > >> Can we quit coming up with specialist hacks for hotplug, and try to solve
-> > > >> the generic problem please? hotplug is NOT the only issue here. Fragmentation
-> > > >> in general is.
-> > > >> 
-> > > > 
-> > > > Not really it isn't. There have been a few cases (e1000 being the main
-> > > > one, and is fixed upstream) where fragmentation in general is a problem.
-> > > > But mostly it is not.
-> > > 
-> > > Sigh. OK, tell me how you're going to fix kernel stacks > 4K please. 
+
+* Matthew Wilcox <matthew@wil.cx> wrote:
+
+> On Thu, Nov 03, 2005 at 04:44:39PM +0100, Ingo Molnar wrote:
+> > > +	if (irq >= NR_IRQS)
+> > > +		return;
 > > 
-> > with CONFIG_4KSTACKS :)
+> > hm, why not start with the -1 value for PCI_NO_IRQ, instead of 0:
+> > 
+> > > +#define PCI_NO_IRQ             0
+> > 
+> > and be done with it.
 > 
-> 2-page allocations are _not_ a problem.
+> There's a number of drivers which check "if (!irq) ...".  For example:
+> 
+> drivers/net/3c523.c:            if ((irq && irq != dev->irq) || 
+> drivers/net/atarilance.c:               if (!irq) {
+> drivers/net/cs89x0.c:           if (!dev->irq)
+> drivers/net/depca.c:                    if (!dev->irq) {
+> drivers/net/eexpress.c: if (!dev->irq || !irqrmap[dev->irq])
+> drivers/net/ewrk3.c:                            if (!dev->irq) {
+> drivers/net/ibmlana.c:          return (base != 0 || irq != 0) ? -ENXIO
+> : -ENODE
+> drivers/net/lasi_82596.c:       if (!dev->irq) {
+> drivers/net/ne-h8300.c: if (! dev->irq) {
+> drivers/net/ne.c:       if (! dev->irq) {
+> drivers/net/ni52.c:             if(!dev->irq)
+> drivers/net/ni65.c:                     if(!dev->irq)
+> drivers/net/pcnet32.c:  if (!dev->irq) {
+> 
+> ... and that's just drivers/net, and that doesn't include other ways
+> for checking if irq is not 0, and doesn't include irqs referred to
+> under different names not including the string 'irq'.  Against that,
+> I know not all of these are PCI drivers.  So we need to spend some time
+> checking drivers for this assumption.
+> 
+> We also need to figure out what to do with non-PCI drivers.  Some of 
+> them need more work than others to work with a -1 NO_IRQ.  There's 
+> also plenty of janitorial work with people misusing the 
+> probe_irq_off() interface.
 
-agreed for the general case. There are some corner cases that you can
-trigger deliberate in an artifical setting with lots of java threads
-(esp on x86 on a 32Gb box; the lowmem zone works as a lever here leading
-to "hyperfragmentation"; otoh on x86 you can do 4k stacks and it's gone
-mostly)
+ok, understood. I'm wondering, why is there any need to do a PCI_NO_IRQ?  
+Why not just a generic NO_IRQ. It's not like we can or want to make them 
+different in the future. The interrupt vector number is a generic thing 
+that attaches to the platform via request_irq() - there is nothing 'PCI' 
+about it. So the PCI layer shouldnt pretend it has its own IRQ 
+abstraction - the two are forcibly joined. The same goes for 
+pci_valid_irq() - we should only have valid_irq(). Am i missing 
+anything?
 
+> > plus, shouldnt this go into -mm first, since it clearly affects some 
+> > drivers? Why into Linus' tree immediately?
+> 
+> With the way I'm staging it, it shouldn't affect drivers.  The only 
+> exception was the pcmcia driver that defined its own NO_IRQ macro.  So 
+> I converted that one to the new preferred way to check the irq is 
+> unset.
 
-> Fragmentation means that it gets _exponentially_ more unlikely that you 
-> can allocate big contiguous areas. But contiguous areas of order 1 are 
-> very very likely indeed. It's only the _big_ areas that aren't going to 
-> happen.
+ok. Your transition path looks safe to me.
 
-yup. only possible exception is the leveraged scenario .. thank god for
-64 bit x86-64.
-
-
-
-(and in the leveraged scenario I don't think active defragmentation will
-buy you much over the long term at all)
-
+	Ingo

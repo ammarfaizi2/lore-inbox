@@ -1,92 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030372AbVKCQXw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030320AbVKCQ1a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030372AbVKCQXw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 11:23:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030375AbVKCQXw
+	id S1030320AbVKCQ1a (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 11:27:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030375AbVKCQ1a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 11:23:52 -0500
-Received: from zproxy.gmail.com ([64.233.162.204]:56103 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030372AbVKCQXv (ORCPT
+	Thu, 3 Nov 2005 11:27:30 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:150 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S1030320AbVKCQ13 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 11:23:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=NSixCAaShh7Kplr7+tVape/XNqVi/Hc90U2QzftJ5kq7N35ksrvtcbxDOqXmtkvIJn29S30Oxw+e9fOcmpx6faevbHBBPjpz5SAoUrFRnOrAeF2MnqJm13ncxbFpy2qfR9MYu2QPc6jumajT8F1zsTNsidn9BlpfHz+MRaYexTY=
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-From: Badari Pulavarty <pbadari@gmail.com>
-To: Jeff Dike <jdike@addtoit.com>
-Cc: Rob Landley <rob@landley.net>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Gerrit Huizenga <gh@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       Kamezawa Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       Dave Hansen <haveblue@us.ibm.com>, Mel Gorman <mel@csn.ul.ie>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       kravetz@us.ibm.com, linux-mm <linux-mm@kvack.org>,
+	Thu, 3 Nov 2005 11:27:29 -0500
+Date: Thu, 3 Nov 2005 16:27:18 +0000 (GMT)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Dave Hansen <haveblue@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, kravetz@us.ibm.com,
+       linux-mm <linux-mm@kvack.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>
-In-Reply-To: <20051103163555.GA4174@ccure.user-mode-linux.org>
-References: <E1EXEfW-0005ON-00@w-gerrit.beaverton.ibm.com>
-	 <200511021747.45599.rob@landley.net> <43699573.4070301@yahoo.com.au>
-	 <200511030007.34285.rob@landley.net>
-	 <20051103163555.GA4174@ccure.user-mode-linux.org>
-Content-Type: text/plain
-Date: Thu, 03 Nov 2005 08:23:20 -0800
-Message-Id: <1131035000.24503.135.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+       lhms <lhms-devel@lists.sourceforge.net>,
+       Arjan van de Ven <arjanv@infradead.org>
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+In-Reply-To: <Pine.LNX.4.64.0511030747450.27915@g5.osdl.org>
+Message-ID: <Pine.LNX.4.58.0511031613560.3571@skynet>
+References: <4366C559.5090504@yahoo.com.au>  <Pine.LNX.4.58.0511010137020.29390@skynet>
+ <4366D469.2010202@yahoo.com.au>  <Pine.LNX.4.58.0511011014060.14884@skynet>
+ <20051101135651.GA8502@elte.hu>  <1130854224.14475.60.camel@localhost>
+ <20051101142959.GA9272@elte.hu>  <1130856555.14475.77.camel@localhost>
+ <20051101150142.GA10636@elte.hu>  <1130858580.14475.98.camel@localhost>
+ <20051102084946.GA3930@elte.hu>  <436880B8.1050207@yahoo.com.au>
+ <1130923969.15627.11.camel@localhost>  <43688B74.20002@yahoo.com.au>
+ <255360000.1130943722@[10.10.2.4]>  <4369824E.2020407@yahoo.com.au> 
+ <306020000.1131032193@[10.10.2.4]> <1131032422.2839.8.camel@laptopd505.fenrus.org>
+ <Pine.LNX.4.64.0511030747450.27915@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-11-03 at 11:35 -0500, Jeff Dike wrote:
-> On Thu, Nov 03, 2005 at 12:07:33AM -0600, Rob Landley wrote:
-> > I want UML to 
-> > be able to hand back however much memory it's not using, but handing back 
-> > individual pages as we free them and inserting a syscall overhead for every 
-> > page freed and allocated is just nuts.  (Plus, at page size, the OS isn't 
-> > likely to zero them much faster than we can ourselves even without the 
-> > syscall overhead.)  Defragmentation means we can batch this into a 
-> > granularity that makes it worth it.
-> 
-> I don't think that freeing pages back to the host in free_pages is the
-> way to go.  The normal behavior for a Linux system, virtual or
-> physical, is to use all the memory it has.  So, any memory that's
-> freed is pretty likely to be reused for something else, wasting any
-> effort that's made to free pages back to the host.
-> 
-> The one counter-example I can think of is when a large process with a
-> lot of data exits.  Then its data pages will be freed and they may
-> stay free for a while until the system finds other data to fill them
-> with.
-> 
-> Also, it's not the virtual machine's job to know how to make the host
-> perform optimally.  It doesn't have the information to do it.  It's
-> perfectly OK for a UML to hang on to memory if the host has plenty
-> free.  So, it's the host's job to make sure that its memory pressure
-> is reflected to the UMLs.
-> 
-> My current thinking is that you'll have a daemon on the host keeping
-> track of memory pressure on the host and the UMLs, plugging and
-> unplugging memory in order to keep the busy machines, including the
-> host, supplied with memory, and periodically pushing down the memory
-> of idle UMLs in order to force them to GC their page caches.
-> 
-> With Badari's patch and UML memory hotplug, the infrastructure is
-> there to make this work.  The one thing I'm puzzling over right now is
-> how to measure memory pressure.
+On Thu, 3 Nov 2005, Linus Torvalds wrote:
 
-Yep. This is the exactly the issue other product groups normally raise
-on Linux. How do we measure memory pressure in linux ? Some of our
-software products want to grow or shrink their memory usage depending
-on the memory pressure in the system. Since most memory is used for
-cache, "free" really doesn't indicate anything -they are monitoring
-info in /proc/meminfo and swapping rates to "guess" on the memory
-pressure. They want a clear way of finding out "how badly" system
-is under memory pressure. (As a starting point, they want to find out
-out of "cached" memory - how much is really easily "reclaimable" 
-under memory pressure - without swapping). I know this is kind of 
-crazy, but interesting to think about :)
+>
+>
+> On Thu, 3 Nov 2005, Arjan van de Ven wrote:
+>
+> > On Thu, 2005-11-03 at 07:36 -0800, Martin J. Bligh wrote:
+> > > >> Can we quit coming up with specialist hacks for hotplug, and try to solve
+> > > >> the generic problem please? hotplug is NOT the only issue here. Fragmentation
+> > > >> in general is.
+> > > >>
+> > > >
+> > > > Not really it isn't. There have been a few cases (e1000 being the main
+> > > > one, and is fixed upstream) where fragmentation in general is a problem.
+> > > > But mostly it is not.
+> > >
+> > > Sigh. OK, tell me how you're going to fix kernel stacks > 4K please.
+> >
+> > with CONFIG_4KSTACKS :)
+>
+> 2-page allocations are _not_ a problem.
+>
+> Especially not for fork()/clone(). If you don't even have 2-page
+> contiguous areas, you are doing something _wrong_, or you're so low on
+> memory that there's no point in forking any more.
+>
+> Don't confuse "fragmentation" with "perfectly spread out page
+> allocations".
+>
+> Fragmentation means that it gets _exponentially_ more unlikely that you
+> can allocate big contiguous areas. But contiguous areas of order 1 are
+> very very likely indeed. It's only the _big_ areas that aren't going to
+> happen.
+>
 
-Thanks,
-Badari
+For me, it's the big areas that I am interested in, especially if we want
+to give HugeTLB pages to a user when they are asking for them. The obvious
+one here is database and HPC loads, particularly the HPC loads which may
+not have had a chance to reserve what they needed at boot time. These
+loads need 1024 contiguous pages on the x86 at least, not 2. We can free
+all we want on todays kernels and you're not going to get more than 1 or
+two blocks this large unless you are very lucky.
 
+Hotplug is, for me, an additional benefit. For others, it is the main
+benefit. For others of course, they don't care, but others don't are about
+scalability to 64 processors either but we provide it anyway at a low cost
+to smaller machines.
+
+> This is why fragmentation avoidance has always been totally useless. It is
+>  - only useful for big areas
+>  - very hard for big areas
+>
+> (Corollary: when it's easy and possible, it's not useful).
+>
+
+Unless you are a user that wants a large area when it suddenly is useful.
+
+> Don't do it. We've never done it, and we've been fine. Claiming that
+> fork() is a reason to do fragmentation avoidance is invalid.
+>
+
+We've never done it but, but we've only supported HugeTLB pages being
+reserved at boot time and nothing else as well.
+
+I'm going to setup a kbuild environment, hopefully this evening, and see
+are these patches adversely impacting a load that kernel developers care
+about. If I am impacting it, oops I'm in some trouble. If I'm not, then
+why not try and help out the people who care about the big areas.
+
+-- 
+Mel Gorman
+Part-time Phd Student                          Java Applications Developer
+University of Limerick                         IBM Dublin Software Lab

@@ -1,75 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030300AbVKCPiw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030274AbVKCPlB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030300AbVKCPiw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 10:38:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030346AbVKCPiw
+	id S1030274AbVKCPlB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 10:41:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030353AbVKCPlA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 10:38:52 -0500
-Received: from gold.veritas.com ([143.127.12.110]:21096 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1030300AbVKCPiv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 10:38:51 -0500
-Date: Thu, 3 Nov 2005 15:37:44 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-cc: Gleb Natapov <gleb@minantech.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Nick's core remove PageReserved broke vmware...
-In-Reply-To: <20051103151421.GD31134@mellanox.co.il>
-Message-ID: <Pine.LNX.4.61.0511031526410.23783@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0511031447080.23441@goblin.wat.veritas.com>
- <20051103151421.GD31134@mellanox.co.il>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 03 Nov 2005 15:38:50.0840 (UTC) FILETIME=[B0560D80:01C5E08C]
+	Thu, 3 Nov 2005 10:41:00 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:59542 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030354AbVKCPk7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 10:40:59 -0500
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Dave Hansen <haveblue@us.ibm.com>,
+       Ingo Molnar <mingo@elte.hu>, Mel Gorman <mel@csn.ul.ie>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       kravetz@us.ibm.com, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lhms <lhms-devel@lists.sourceforge.net>,
+       Arjan van de Ven <arjanv@infradead.org>
+In-Reply-To: <306020000.1131032193@[10.10.2.4]>
+References: <4366C559.5090504@yahoo.com.au>
+	 <Pine.LNX.4.58.0511010137020.29390@skynet> <4366D469.2010202@yahoo.com.au>
+	 <Pine.LNX.4.58.0511011014060.14884@skynet> <20051101135651.GA8502@elte.hu>
+	 <1130854224.14475.60.camel@localhost> <20051101142959.GA9272@elte.hu>
+	 <1130856555.14475.77.camel@localhost> <20051101150142.GA10636@elte.hu>
+	 <1130858580.14475.98.camel@localhost> <20051102084946.GA3930@elte.hu>
+	 <436880B8.1050207@yahoo.com.au> <1130923969.15627.11.camel@localhost>
+	 <43688B74.20002@yahoo.com.au> <255360000.1130943722@[10.10.2.4]>
+	 <4369824E.2020407@yahoo.com.au>  <306020000.1131032193@[10.10.2.4]>
+Content-Type: text/plain
+Date: Thu, 03 Nov 2005 16:40:21 +0100
+Message-Id: <1131032422.2839.8.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Nov 2005, Michael S. Tsirkin wrote:
-> Quoting Hugh Dickins <hugh@veritas.com>:
-> > > All existing drivers that set VM_DONTCOPY also set VM_IO.
-> > > So lets just disable playing with these flags from madvise if VM_IO is set.
-> > > There's no reason I can see that the driver should have a say
-> > > on what the process does with its own (non-IO) memory.
-> > > Sounds good?
+On Thu, 2005-11-03 at 07:36 -0800, Martin J. Bligh wrote:
+> >> Can we quit coming up with specialist hacks for hotplug, and try to solve
+> >> the generic problem please? hotplug is NOT the only issue here. Fragmentation
+> >> in general is.
+> >> 
 > > 
-> > You're then saying that a process cannot set VM_DONTCOPY on a VM_IO
-> > area to prevent the first child getting the area, but clear it after
-> > so the next child does get a copy of the area.  I think it'd be wrong
-> > (surprising) to limit the functionality in that way.
+> > Not really it isn't. There have been a few cases (e1000 being the main
+> > one, and is fixed upstream) where fragmentation in general is a problem.
+> > But mostly it is not.
 > 
-> Okay, I guess. I am just trying to avoid more VM_ flags.
-> Cant we get rid of the last requirement, then?
+> Sigh. OK, tell me how you're going to fix kernel stacks > 4K please. 
 
-What last requirement?
+with CONFIG_4KSTACKS :)
 
-> I dont see why the driver should have a say on what the process does with its
-> own memory.
 
-If a driver sets VM_DONTCOPY, it's likely to be because the driver knows
-it'll cause some nastiness (memory corruption, memory leak, lockup...) if
-it were copied.  The memory belongs to the driver, it's letting the process
-have a window on it.  I don't think we should now let the process overrule it.
-
-> > > By the way, as a separate issue, we still have a problem with DMA to pages
-> > > which are *needed* by the child process. What do you think about VM_COPY
-> > > (to do the old unix thing of actually copying the page instead of
-> > > setting the COW flag) and a matching madvise call to set/clear it?
-> > 
-> > I don't much want to add another path into copy_pte_range, actually
-> > copying pages.  If the process really wants DMA into such areas,
-> > then it should contain the code for the child to COW them itself?
-> 
-> How do you do that, say, for a stack page, or global data section?
-
-And why do you need to?
-
-You seem to be saying, actually DONTCOPY isn't enough of a solution,
-we need something else instead.
-
-Hugh

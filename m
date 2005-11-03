@@ -1,88 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030488AbVKCVSM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030490AbVKCVUA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030488AbVKCVSM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 16:18:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030487AbVKCVSM
+	id S1030490AbVKCVUA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 16:20:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030491AbVKCVUA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 16:18:12 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:5312 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030490AbVKCVSL (ORCPT
+	Thu, 3 Nov 2005 16:20:00 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:26254 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030490AbVKCVT7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 16:18:11 -0500
-Date: Fri, 4 Nov 2005 02:41:51 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: bad page state under possibly oom situation
-Message-ID: <20051103211151.GA22769@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20051102143502.GE6137@in.ibm.com> <Pine.LNX.4.61.0511021614110.10299@goblin.wat.veritas.com> <4369B051.7050303@colorfullife.com>
+	Thu, 3 Nov 2005 16:19:59 -0500
+Date: Fri, 4 Nov 2005 08:19:59 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Large file system oddities
+Message-ID: <20051104081959.C6290773@wobbly.melbourne.sgi.com>
+References: <20051103190334.GI2507@mail.muni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4369B051.7050303@colorfullife.com>
-User-Agent: Mutt/1.5.10i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20051103190334.GI2507@mail.muni.cz>; from xhejtman@mail.muni.cz on Thu, Nov 03, 2005 at 08:03:34PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 03, 2005 at 07:38:09AM +0100, Manfred Spraul wrote:
-> Hugh Dickins wrote:
+On Thu, Nov 03, 2005 at 08:03:34PM +0100, Lukas Hejtmanek wrote:
+> Hello,
 > 
-> >(I don't know that it makes any difference, but was this particular report
-> >from 2.6.9-rc2 or from 2.6.14 or from something else?  In both 2.6.9 and
-> >2.6.14, flags 0x90 mean PG_slab|PG_dirty.)
-> >
-> A very odd combination:
-> - free_pages_check() ensures that neither PG_slab nor PG_dirty are set
-> - prep_new_page() complains that both PG_slab and PG_dirty are set
-> - AFAICS slab doesn't set PG_dirty, and noone except slab set PG_slab.
+> I use vanilla kernel 2.6.13.4 on Pentium 4 with EM64T extensions in x86_64 mode.
 > 
-> I don't understand how two wrong bits can end up in page->flags.
-> Dipankar, could you modify bad_page() and hexdump +-128 bytes? Perhaps 
-> someone overwrites random memory. Or change the value of PG_slab to 20 
-> and check if page->flags remains 0x90.
+> I have 3.5TB partition formated as XFS.
 
-Here is a dump of the page struct when this happens (two different
-instances) - 
+Looks like you actually ended up with a 1.2TB partition formatted
+as XFS on a 3.5TB device...
 
-/* Dump of struct page */
-page = ffff810008005550
-4000005500009090        ffffffffffffffff        0       0
-0       100100  200200  4000000000000000
-ffffffffffffffff        0       0       0
-ffff8100080055e8        ffffffff805ba370        4000000000000000        ffffffffffffffff
+> Using fdisk I made one big partition accross whole disk:
 
-Bad page state at prep_new_page (in process 'rename14', page ffff810008005550)
-flags:0x4000005500009090 mapping:0000000000000000 mapcount:0 count:0
-Backtrace:
+Why?  Just use /dev/sdc directly, and you'll avoid the 32 bit
+problems fdisk (or the default partition table type, I can't
+remember which it is now) evidently has.
 
-Call Trace:<ffffffff80150388>{bad_page+115} <ffffffff80150bf0>{buffered_rmqueue+501}
-       <ffffffff8017e2da>{alloc_inode+18} <ffffffff80150de7>{__alloc_pages+251}
-       <ffffffff801535f3>{cache_alloc_refill+581} <ffffffff8015388f>{kmem_cache_alloc+44}
-       <ffffffff80169440>{get_empty_filp+71} <ffffffff801670af>{filp_open+49}
-       <ffffffff80166e28>{get_unused_fd+98} <ffffffff8016713d>{do_sys_open+59}
-       <ffffffff8010e636>{system_call+126}
-Trying to fix it up, but a reboot is needed
-page = ffff81000800aaa0
-4000000000000000        ffffffff00900055        0       0
-0       100100  200200  4000000000000000
-ffffffffffffffff        0       0       0
-ffff81000800ab38        ffffffff805ba370        4000000000000000        ffffffffffffffff
-Bad page state at prep_new_page (in process 'rename14', page ffff81000800aaa0)
-flags:0x4000000000000000 mapping:0000000000000000 mapcount:0 count:9437270
-Backtrace:
+>    Device Boot      Start         End      Blocks   Id  System
+> /dev/sdc1               1       53201  3418696008   83  Linux
 
-Call Trace:<ffffffff80150388>{bad_page+115} <ffffffff80150bf0>{buffered_rmqueue+501}
-       <ffffffff80150de7>{__alloc_pages+251} <ffffffff801535f3>{cache_alloc_refill+581}
-       <ffffffff8015388f>{kmem_cache_alloc+44} <ffffffff8017cd95>{d_alloc+33}
-       <ffffffff801750be>{__lookup_hash+206} <ffffffff8017677b>{open_namei+276}
-       <ffffffff801670ce>{filp_open+80} <ffffffff80166e28>{get_unused_fd+98}
-       <ffffffff8016713d>{do_sys_open+59} <ffffffff8010e636>{system_call+1
+> # cat /proc/partitions 
+>    8    32 3418704128 sdc
+>    8    33 1271212360 sdc1
 
-I had set PG_slab to 20, so it is not necessarily a corrupted slab
-page.
+Yes, there's your problem.
 
-Thanks
-Dipankar
+> I made XFS file system on it:
+> # mkfs.xfs -f -s size=4096 -d su=65536,sw=7 /dev/sdc1
+
+mkfs.xfs is just using the information that its given from the
+kernel, which is the second /proc/partitions line above.
+
+> So what's wrong? Or am I something missing?
+
+Try without the partition, looks like that'll work.
+
+cheers.
+
+-- 
+Nathan

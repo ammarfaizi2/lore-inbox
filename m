@@ -1,69 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbVKCJKn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbVKCJV2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751267AbVKCJKn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 04:10:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbVKCJKn
+	id S932246AbVKCJV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 04:21:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbVKCJV2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 04:10:43 -0500
-Received: from zeus1.kernel.org ([204.152.191.4]:65179 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751267AbVKCJKm (ORCPT
+	Thu, 3 Nov 2005 04:21:28 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:29393 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932150AbVKCJV1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 04:10:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:subject:x-enigmail-version:content-type:content-transfer-encoding;
-        b=bZqKPemcOMRSON68f6QiBNJCM9OGDeh+8lFI5U4k9IDDJvipYCsmRHOZZnhVgs+NiYfWRdqNGa+gwy7Q04ILDp0yza22SZ3Yoh4KinFJZ/QcZbzZxrDnef2nk+uP4+6Qo4ANUp7BW/i8+ioGsw4T7N6ORkrPobHB8o8eWU5By84=
-Message-ID: <4369D3C6.4060806@gmail.com>
-Date: Thu, 03 Nov 2005 10:09:26 +0100
-From: Patrizio Bassi <patrizio.bassi@gmail.com>
-Reply-To: patrizio.bassi@gmail.com
-Organization: patrizio.bassi@gmail.com
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051027)
-X-Accept-Language: it, it-it, en-us, en
+	Thu, 3 Nov 2005 04:21:27 -0500
+Message-ID: <4369D693.4040500@suse.de>
+Date: Thu, 03 Nov 2005 10:21:23 +0100
+From: Hannes Reinecke <hare@suse.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.11) Gecko/20050727
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Kernel, " <linux-kernel@vger.kernel.org>
-Subject: 2.6.14-git4 suspend fails: kernel NULL pointer dereference
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Jens Axboe <axboe@suse.de>
+Subject: [PATCH] Incorrect device link for ide-cs
+Content-Type: multipart/mixed;
+ boundary="------------040104080100090507080704"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-echo shutdown > /sys/power/disk
-echo disk > /sys/power/state
+This is a multi-part message in MIME format.
+--------------040104080100090507080704
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000004
- printing eip:
-c0132a5e
-*pde = 00000000
-Oops: 0000 [#1]
-Modules linked in:
-CPU:    0
-EIP:    0060:[<c0132a5e>]    Not tainted VLI
-EFLAGS: 00010286   (2.6.14-git4)
-EIP is at enter_state+0xe/0x90
-eax: 00000000   ebx: c03b1178   ecx: ffffffff   edx: d1c25000
-esi: 00000004   edi: c03b117c   ebp: 00000004   esp: ddf09ef0
-ds: 007b   es: 007b   ss: 0068
-Process bash (pid: 21862, threadinfo=ddf08000 task=dcf9b540)
-Stack: c03e82cc c03b1178 d1c25004 c0132c4c 00000004 00000004 00000000
-00000001
-       c03e7de0 c03e7e34 ddf09fa4 b7d4c000 c018c6d7 c03e7de0 d1c25000
-00000005
-       c03eb460 c018c97e c03e7df0 c03e7e34 d1c25000 00000005 d62d4c60
-d3ef8980
-Call Trace:
- [<c0132c4c>] state_store+0x9c/0xaf
- [<c018c6d7>] subsys_attr_store+0x37/0x40
- [<c018c97e>] flush_write_buffer+0x3e/0x50
- [<c018c9e9>] sysfs_write_file+0x59/0x80
- [<c0155f8c>] vfs_write+0x14c/0x160
- [<c0156071>] sys_write+0x51/0x80
- [<c0102cbf>] sysenter_past_esp+0x54/0x75
-Code: ff 50 10 e8 75 04 00 00 58 5b e9 ce 05 00 00 8d b4 26 00 00 00 00
-8d bc 27 00 00 00 00 56 53 83 ec 04 a1 00 e0 48 c0 8b 74 24 10 <8b> 58
-04 85 db 75 52 ff 0d a0 7d 3e c0 0f 88 0e 02 00 00 31 c0
+Hi Bartlomiej,
 
+I just came across a patch which appearently never made it anywhere near
+mainline. It is, however, still valid.
 
+Problem is that devices driven by ide-cs will appear under /sys/devices
+instead of the appropriate PCMCIA device. To fix this I had to extend
+the hw_regs_t structure with a 'struct device' field, which allows us to
+set the parent link for the appropriate hwif.
 
-i had 2.6.14-rc2-git4 working, didn't try other rc releases.
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+
+Cheers,
+
+Hannes
+--=20
+Dr. Hannes Reinecke			hare@suse.de
+SuSE Linux Products GmbH		S390 & zSeries
+Maxfeldstra=DFe 5				+49 911 74053 688
+90409 N=FCrnberg				http://www.suse.de
+
+--------------040104080100090507080704
+Content-Type: text/plain;
+ name="ide-cs-correct-device-link"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ide-cs-correct-device-link"
+
+From: Hannes Reinecke <hare@suse.de>
+Subject: Incorrect device link for ide-cs
+
+Devices driven by ide-cs will appear under /sys/devices instead of the
+appropriate PCMCIA device. To fix this I had to extend the hw_regs_t
+structure with a 'struct device' field, which allows us to set the
+parent link for the appropriate hwif.
+
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Jens Axboe <axboe@suse.com>
+
+diff --git a/drivers/ide/ide.c b/drivers/ide/ide.c
+--- a/drivers/ide/ide.c
++++ b/drivers/ide/ide.c
+@@ -803,6 +803,7 @@ found:
+ 	hwif->irq = hw->irq;
+ 	hwif->noprobe = 0;
+ 	hwif->chipset = hw->chipset;
++	hwif->gendev.parent = hw->dev;
+ 
+ 	if (!initializing) {
+ 		probe_hwif_init_with_fixup(hwif, fixup);
+diff --git a/drivers/ide/legacy/ide-cs.c b/drivers/ide/legacy/ide-cs.c
+--- a/drivers/ide/legacy/ide-cs.c
++++ b/drivers/ide/legacy/ide-cs.c
+@@ -182,13 +182,14 @@ static void ide_detach(dev_link_t *link)
+     
+ } /* ide_detach */
+ 
+-static int idecs_register(unsigned long io, unsigned long ctl, unsigned long irq)
++static int idecs_register(unsigned long io, unsigned long ctl, unsigned long irq, struct pcmcia_device *handle)
+ {
+     hw_regs_t hw;
+     memset(&hw, 0, sizeof(hw));
+-    ide_init_hwif_ports(&hw, io, ctl, NULL);
++    ide_std_init_ports(&hw, io, ctl);
+     hw.irq = irq;
+     hw.chipset = ide_pci;
++    hw.dev = &handle->dev;
+     return ide_register_hw_with_fixup(&hw, NULL, ide_undecoded_slave);
+ }
+ 
+@@ -328,12 +329,12 @@ static void ide_config(dev_link_t *link)
+ 
+     /* retry registration in case device is still spinning up */
+     for (hd = -1, i = 0; i < 10; i++) {
+-	hd = idecs_register(io_base, ctl_base, link->irq.AssignedIRQ);
++	hd = idecs_register(io_base, ctl_base, link->irq.AssignedIRQ, handle);
+ 	if (hd >= 0) break;
+ 	if (link->io.NumPorts1 == 0x20) {
+ 	    outb(0x02, ctl_base + 0x10);
+ 	    hd = idecs_register(io_base + 0x10, ctl_base + 0x10,
+-				link->irq.AssignedIRQ);
++				link->irq.AssignedIRQ, handle);
+ 	    if (hd >= 0) {
+ 		io_base += 0x10;
+ 		ctl_base += 0x10;
+diff --git a/include/linux/ide.h b/include/linux/ide.h
+--- a/include/linux/ide.h
++++ b/include/linux/ide.h
+@@ -230,6 +230,7 @@ typedef struct hw_regs_s {
+ 	int		dma;			/* our dma entry */
+ 	ide_ack_intr_t	*ack_intr;		/* acknowledge interrupt */
+ 	hwif_chipset_t  chipset;
++	struct device	*dev;
+ } hw_regs_t;
+ 
+ /*
+
+--------------040104080100090507080704--

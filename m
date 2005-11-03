@@ -1,101 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030499AbVKCXLF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030524AbVKCXLe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030499AbVKCXLF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 18:11:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030515AbVKCXLF
+	id S1030524AbVKCXLe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 18:11:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030520AbVKCXLM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 18:11:05 -0500
+	Thu, 3 Nov 2005 18:11:12 -0500
 Received: from ams-iport-1.cisco.com ([144.254.224.140]:22347 "EHLO
 	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S1030499AbVKCXLE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 18:11:04 -0500
-Subject: [git patch review 4/7] [IPoIB] don't compile debug code if debugging
-	isn't enabled
+	id S1030519AbVKCXLL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 18:11:11 -0500
+Subject: [git patch review 3/7] [IPoIB] remove unneeded initializations to 0
 From: Roland Dreier <rolandd@cisco.com>
 Date: Thu, 03 Nov 2005 23:10:59 +0000
 To: linux-kernel@vger.kernel.org, openib-general@openib.org
 X-Mailer: IB-patch-reviewer
 Content-Transfer-Encoding: 8bit
-Message-ID: <1131059459423-c39565dcb8db8aaa@cisco.com>
-In-Reply-To: <1131059459423-3dc7f03665037bf0@cisco.com>
-X-OriginalArrivalTime: 03 Nov 2005 23:11:00.0495 (UTC) FILETIME=[DADEE1F0:01C5E0CB]
+Message-ID: <1131059459423-3dc7f03665037bf0@cisco.com>
+In-Reply-To: <1131059459423-f6e7ac335ed94eef@cisco.com>
+X-OriginalArrivalTime: 03 Nov 2005 23:11:00.0574 (UTC) FILETIME=[DAEAEFE0:01C5E0CB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don't build ipoib_mcast_iter_ functions if CONFIG_INFINIBAND_IPOIB_DEBUG
-is not enabled -- their only callers will not be built either.
-
-Also move the prototype for ipoib_open() to ipoib.h to fix a sparse warning.
+Shrink our source and .text a little by removing a few assignments of
+NULL and 0 to memory that is already cleared as part of the allocation.
 
 Signed-off-by: Roland Dreier <rolandd@cisco.com>
 
 ---
 
- drivers/infiniband/ulp/ipoib/ipoib.h           |    3 +++
- drivers/infiniband/ulp/ipoib/ipoib_ib.c        |    1 -
- drivers/infiniband/ulp/ipoib/ipoib_multicast.c |    4 ++++
- 3 files changed, 7 insertions(+), 1 deletions(-)
+ drivers/infiniband/ulp/ipoib/ipoib_main.c |   11 ++---------
+ 1 files changed, 2 insertions(+), 9 deletions(-)
 
-applies-to: 3179960b8e0f3ccb4feff19eb5582298d48324a0
-8ae5a8a24f7fe797027d481f88c1464b0e47eede
-diff --git a/drivers/infiniband/ulp/ipoib/ipoib.h b/drivers/infiniband/ulp/ipoib/ipoib.h
-index c994a91..0095acc 100644
---- a/drivers/infiniband/ulp/ipoib/ipoib.h
-+++ b/drivers/infiniband/ulp/ipoib/ipoib.h
-@@ -235,6 +235,7 @@ static inline void ipoib_put_ah(struct i
- 	kref_put(&ah->ref, ipoib_free_ah);
- }
+applies-to: 7463446a05b5e9a5d2fc400da0be8d4a6c2ff6f1
+21a384897d48c116b879924c3dd9e96f6f1e764b
+diff --git a/drivers/infiniband/ulp/ipoib/ipoib_main.c b/drivers/infiniband/ulp/ipoib/ipoib_main.c
+index 8b67db8..ce02962 100644
+--- a/drivers/infiniband/ulp/ipoib/ipoib_main.c
++++ b/drivers/infiniband/ulp/ipoib/ipoib_main.c
+@@ -356,18 +356,15 @@ static struct ipoib_path *path_rec_creat
+ 	struct ipoib_dev_priv *priv = netdev_priv(dev);
+ 	struct ipoib_path *path;
  
-+int ipoib_open(struct net_device *dev);
- int ipoib_add_pkey_attr(struct net_device *dev);
+-	path = kmalloc(sizeof *path, GFP_ATOMIC);
++	path = kzalloc(sizeof *path, GFP_ATOMIC);
+ 	if (!path)
+ 		return NULL;
  
- void ipoib_send(struct net_device *dev, struct sk_buff *skb,
-@@ -267,6 +268,7 @@ int ipoib_mcast_stop_thread(struct net_d
- void ipoib_mcast_dev_down(struct net_device *dev);
- void ipoib_mcast_dev_flush(struct net_device *dev);
+-	path->dev          = dev;
+-	path->pathrec.dlid = 0;
+-	path->ah           = NULL;
++	path->dev = dev;
  
-+#ifdef CONFIG_INFINIBAND_IPOIB_DEBUG
- struct ipoib_mcast_iter *ipoib_mcast_iter_init(struct net_device *dev);
- void ipoib_mcast_iter_free(struct ipoib_mcast_iter *iter);
- int ipoib_mcast_iter_next(struct ipoib_mcast_iter *iter);
-@@ -276,6 +278,7 @@ void ipoib_mcast_iter_read(struct ipoib_
- 				  unsigned int *queuelen,
- 				  unsigned int *complete,
- 				  unsigned int *send_only);
-+#endif
+ 	skb_queue_head_init(&path->queue);
  
- int ipoib_mcast_attach(struct net_device *dev, u16 mlid,
- 		       union ib_gid *mgid);
-diff --git a/drivers/infiniband/ulp/ipoib/ipoib_ib.c b/drivers/infiniband/ulp/ipoib/ipoib_ib.c
-index 0a6f578..54ef2fe 100644
---- a/drivers/infiniband/ulp/ipoib/ipoib_ib.c
-+++ b/drivers/infiniband/ulp/ipoib/ipoib_ib.c
-@@ -636,7 +636,6 @@ void ipoib_ib_dev_cleanup(struct net_dev
-  * Bug #2507. This implementation will probably be removed when the P_Key
-  * change async notification is available.
-  */
--int ipoib_open(struct net_device *dev);
+ 	INIT_LIST_HEAD(&path->neigh_list);
+-	path->query = NULL;
+ 	init_completion(&path->done);
  
- static void ipoib_pkey_dev_check_presence(struct net_device *dev)
- {
-diff --git a/drivers/infiniband/ulp/ipoib/ipoib_multicast.c b/drivers/infiniband/ulp/ipoib/ipoib_multicast.c
-index 022eec7..3ecf78a 100644
---- a/drivers/infiniband/ulp/ipoib/ipoib_multicast.c
-+++ b/drivers/infiniband/ulp/ipoib/ipoib_multicast.c
-@@ -917,6 +917,8 @@ void ipoib_mcast_restart_task(void *dev_
- 		ipoib_mcast_start_thread(dev);
- }
+ 	memcpy(path->pathrec.dgid.raw, gid->raw, sizeof (union ib_gid));
+@@ -800,10 +797,6 @@ static void ipoib_setup(struct net_devic
  
-+#ifdef CONFIG_INFINIBAND_IPOIB_DEBUG
-+
- struct ipoib_mcast_iter *ipoib_mcast_iter_init(struct net_device *dev)
- {
- 	struct ipoib_mcast_iter *iter;
-@@ -989,3 +991,5 @@ void ipoib_mcast_iter_read(struct ipoib_
- 	*complete  = iter->complete;
- 	*send_only = iter->send_only;
- }
-+
-+#endif /* CONFIG_INFINIBAND_IPOIB_DEBUG */
+ 	dev->watchdog_timeo 	 = HZ;
+ 
+-	dev->rebuild_header 	 = NULL;
+-	dev->set_mac_address 	 = NULL;
+-	dev->header_cache_update = NULL;
+-
+ 	dev->flags              |= IFF_BROADCAST | IFF_MULTICAST;
+ 
+ 	/*
 ---
 0.99.9

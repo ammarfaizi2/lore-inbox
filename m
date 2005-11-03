@@ -1,41 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030282AbVKCCb2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030278AbVKCCcI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030282AbVKCCb2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 21:31:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030276AbVKCCb2
+	id S1030278AbVKCCcI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 21:32:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030286AbVKCCcH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 21:31:28 -0500
-Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:53774 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1030272AbVKCCb1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 21:31:27 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: "Kris Katterjohn" <kjak@users.sourceforge.net>
-Subject: Re: [PATCH] Merge __load_pointer() and load_pointer() in net/core/filter.c; kernel 2.6.14
-Cc: herbert@gondor.apana.org.au, jschlst@samba.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, davem@davemloft.net,
-       acme@ghostprotocols.net, netdev@vger.kernel.org
-Organization: Core
-In-Reply-To: <310a17ad00f84c389e64ae26656ce1a1.kjak@ispwest.com>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1EXUsN-0006r9-00@gondolin.me.apana.org.au>
-Date: Thu, 03 Nov 2005 13:30:51 +1100
+	Wed, 2 Nov 2005 21:32:07 -0500
+Received: from sabe.cs.wisc.edu ([128.105.6.20]:54203 "EHLO sabe.cs.wisc.edu")
+	by vger.kernel.org with ESMTP id S1030278AbVKCCcG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 21:32:06 -0500
+Message-ID: <43093.192.168.0.12.1130985101.squirrel@192.168.0.2>
+In-Reply-To: <20051102095139.GB30220@elf.ucw.cz>
+References: <20051101234459.GA443@elf.ucw.cz>
+    <20051102024755.GA14148@home.fluff.org>
+    <20051102095139.GB30220@elf.ucw.cz>
+Date: Wed, 2 Nov 2005 20:31:41 -0600 (CST)
+Subject: Re: best way to handle LEDs
+From: "John Lenz" <lenz@cs.wisc.edu>
+To: "Pavel Machek" <pavel@suse.cz>
+Cc: "Ben Dooks" <ben@fluff.org.uk>, vojtech@suse.cz, rpurdie@rpsys.net,
+       "kernel list" <linux-kernel@vger.kernel.org>,
+       "Russell King" <rmk@arm.linux.org.uk>
+User-Agent: SquirrelMail/1.4.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kris Katterjohn <kjak@ispwest.com> wrote:
-> I wasn't actually changing it to add performance, but to make the code look
-> cleaner. The new load_pointer() is virtually the same as having the seperate
-> functions that are currently there, but the code, I think, is "better looking".
-> If you look at the current net/core/filter.c and then my patched version, the
-> steps are done in the exact same order and same way, but all in that one
-> function.
+On Wed, November 2, 2005 3:51 am, Pavel Machek said:
+> Hi!
+>
+>> > I think even slow blinking was used somewhere. I have some code from
+>> > John Lenz (attached); it uses sysfs interface, exports led collor, and
+>> > allows setting different frequencies.
+>> >
+>> > Is that acceptable, or should some other interface be used?
+>>
+>> there is already an LED interface for linux-arm, which is
+>> used by a number of the extant machines in the sa11x0 and
+>> pxa range.
+>
+> Where is that interface? I think that making collie use it is obvious
+> first step...
+> 								Pavel
+>
 
-You've just changed an out-of-line function (__load_pointer) into an
-inlined function.  There may be a cost to that.
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+I originally wrote the collie led code to use that interface, and you
+might look at some of the old versions of the patch on my web site.  The
+actual code is in arch/arm/kernel/time.c, but this code calls out to an
+individual machine function through say arch/arm/mach-sa1100/leds.c... 
+The problem for collie was that the device model for locomo did not allow
+an easy way to do it... as you can see, in my patch it implements a driver
+for those leds and the driver model takes care of it.
+
+I just looked, and
+http://www.cs.wisc.edu/~lenz/zaurus/files/patch-2.6.7-jl2.diff.gz contins
+the implementation of the arm led interface for collie.... not sure if it
+will still work anymore, but...
+
+I then grew the led code to support more than four leds, multi color leds,
+more than just the arm architecture, etc... Russell has been very critical
+of my patch on the "waste" of memory (a struct device for each led, along
+with a bunch of struct attributes for each led), where by contrast the arm
+one has a single attribute.
+
+But this led interface and the one arm provides can almost not even be
+compared.  My patch correctly implements the sysfs model of one attribute,
+one file (instead of all leds controlled through a single file).  My patch
+also is more flexible and provides needed options for many leds.  The
+downside is, it makes the leds hard to use for debugging, which is the
+primary purpose of the original arm led code.
+
+For debugging, the arm specific led code is a great tool, and I am not
+meaning to replace it.  For debugging, you can just specifiy
+CONFIG_CLASS_LEDS=n.
+
+John
+

@@ -1,93 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030447AbVKCTEM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030406AbVKCTIa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030447AbVKCTEM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 14:04:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030448AbVKCTEL
+	id S1030406AbVKCTIa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 14:08:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030443AbVKCTIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 14:04:11 -0500
-Received: from hell.sks3.muni.cz ([147.251.210.189]:31880 "EHLO
-	anubis.fi.muni.cz") by vger.kernel.org with ESMTP id S1030447AbVKCTEK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 14:04:10 -0500
-Date: Thu, 3 Nov 2005 20:03:34 +0100
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Large file system oddities
-Message-ID: <20051103190334.GI2507@mail.muni.cz>
+	Thu, 3 Nov 2005 14:08:30 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:910 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030406AbVKCTIa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 14:08:30 -0500
+Date: Thu, 3 Nov 2005 11:08:01 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+cc: Mel Gorman <mel@csn.ul.ie>, Arjan van de Ven <arjan@infradead.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Dave Hansen <haveblue@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, kravetz@us.ibm.com,
+       linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lhms <lhms-devel@lists.sourceforge.net>,
+       Arjan van de Ven <arjanv@infradead.org>
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+In-Reply-To: <314040000.1131043735@[10.10.2.4]>
+Message-ID: <Pine.LNX.4.64.0511031102590.27915@g5.osdl.org>
+References: <4366C559.5090504@yahoo.com.au>
+ <Pine.LNX.4.58.0511010137020.29390@skynet><4366D469.2010202@yahoo.com.au>
+ <Pine.LNX.4.58.0511011014060.14884@skynet><20051101135651.GA8502@elte.hu>
+ <1130854224.14475.60.camel@localhost><20051101142959.GA9272@elte.hu>
+ <1130856555.14475.77.camel@localhost><20051101150142.GA10636@elte.hu>
+ <1130858580.14475.98.camel@localhost><20051102084946.GA3930@elte.hu>
+ <436880B8.1050207@yahoo.com.au><1130923969.15627.11.camel@localhost>
+ <43688B74.20002@yahoo.com.au><255360000.1130943722@[10.10.2.4]>
+ <4369824E.2020407@yahoo.com.au>
+ <306020000.1131032193@[10.10.2.4]><1131032422.2839.8.camel@laptopd505.fenrus.org><Pine.LNX.4.64.0511030747450.27915@g5.osdl.org><Pine.LNX.4.58.0511031613560.3571@skynet><Pine.LNX.4.64.0511030842050.27915@g5.osdl.org><309420000.1131036740@[10.10.2.4]>
+ <Pine.LNX.4.64.0511030918110.27915@g5.osdl.org> <311050000.1131040276@[10.10.2.4]>
+ <314040000.1131043735@[10.10.2.4]>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-I use vanilla kernel 2.6.13.4 on Pentium 4 with EM64T extensions in x86_64 mode.
-
-I have 3.5TB partition formated as XFS.
-
-This is from dmesg:
-scsi2 : Adaptec AIC79XX PCI-X SCSI HBA DRIVER, Rev 1.3.11
-        <Adaptec 39320A Ultra320 SCSI adapter>
-        aic7902: Ultra320 Wide Channel A, SCSI Id=7, PCI-X 101-133Mhz, 512 SCBs
-
-(scsi2:A:0): 160.000MB/s transfers (80.000MHz DT, 16bit)
-  Vendor: SB-3163S  Model: Volume Set # 00   Rev: R001
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-scsi2:A:0:0: Tagged Queuing enabled.  Depth 32
-SCSI device sdc: 854676032 4096-byte hdwr sectors (3500753 MB)
-SCSI device sdc: drive cache: write back
-SCSI device sdc: 854676032 4096-byte hdwr sectors (3500753 MB)
-SCSI device sdc: drive cache: write back
- sdc: unknown partition table
 
 
-Using fdisk I made one big partition accross whole disk:
+On Thu, 3 Nov 2005, Martin J. Bligh wrote:
+> 
+> Ha. Just because I don't think I made you puke hard enough already with
+> foul approximations ... for order 2, I think it's
 
-fdisk /dev/sdc
-Note: sector size is 4096 (not 512)
+Your basic fault is in believing that the free watermark would stay 
+constant.
 
-The number of cylinders for this disk is set to 53201.
-There is nothing wrong with that, but this is larger than 1024,
-and could in certain setups cause problems with:
-1) software that runs at boot time (e.g., old versions of LILO)
-2) booting and partitioning software from other OSs
-   (e.g., DOS FDISK, OS/2 FDISK)
+That's insane.
 
-Command (m for help): p
+Would you keep 8MB free on a 64MB system?
 
-Disk /dev/sdc: 3500.7 GB, 3500753027072 bytes
-255 heads, 63 sectors/track, 53201 cylinders
-Units = cylinders of 16065 * 4096 = 65802240 bytes
+Would you keep 8MB free on a 8GB system?
 
-   Device Boot      Start         End      Blocks   Id  System
-/dev/sdc1               1       53201  3418696008   83  Linux
+The point being, that if you start with insane assumptions, you'll get 
+insane answers.
 
-However, cat /proc/partitions produces:
-# cat /proc/partitions 
-major minor  #blocks  name
+The _correct_ assumption is that you aim to keep some fixed percentage of 
+memory free. With that assumption and your math, finding higher-order 
+pages is equally hard regardless of amount of memory. 
 
-   8     0  244198584 sda
-   8     1   39062016 sda1
-   8     2    3903795 sda2
-   8     3  201230190 sda3
-   8    32 3418704128 sdc
-   8    33 1271212360 sdc1
+Now, your math then doesn't allow for the fact that buddy automatically 
+coalesces for you, so in fact things get _easier_ with more memory, but 
+hey, that needs more math than I can come up with (I never did it as math, 
+only as simulations with allocation patterns - "smart people use math, 
+plodding people just try to simulate an estimate" ;)
 
-I made XFS file system on it:
-# mkfs.xfs -f -s size=4096 -d su=65536,sw=7 /dev/sdc1
-
-mounted partition results in:
-# df -h
-Filesystem            Size  Used Avail Use% Mounted on
-/dev/sdc1             1.2T  332G  882G  28% /mnt/export1
-
-
-So what's wrong? Or am I something missing?
-
-
--- 
-Luká¹ Hejtmánek
+		Linus

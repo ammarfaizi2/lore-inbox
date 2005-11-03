@@ -1,69 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030465AbVKCUAu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbVKCULS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030465AbVKCUAu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 15:00:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030466AbVKCUAu
+	id S1751163AbVKCULS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 15:11:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750852AbVKCULS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 15:00:50 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:29660 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030465AbVKCUAt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 15:00:49 -0500
-Date: Thu, 3 Nov 2005 12:00:13 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: mbligh@mbligh.org, mel@csn.ul.ie, arjan@infradead.org,
-       nickpiggin@yahoo.com.au, haveblue@us.ibm.com, mingo@elte.hu,
-       akpm@osdl.org, kravetz@us.ibm.com, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net,
-       arjanv@infradead.org
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-Message-Id: <20051103120013.093b698f.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0511030955110.27915@g5.osdl.org>
-References: <4366C559.5090504@yahoo.com.au>
-	<Pine.LNX.4.58.0511010137020.29390@skynet>
-	<4366D469.2010202@yahoo.com.au>
-	<Pine.LNX.4.58.0511011014060.14884@skynet>
-	<20051101135651.GA8502@elte.hu>
-	<1130854224.14475.60.camel@localhost>
-	<20051101142959.GA9272@elte.hu>
-	<1130856555.14475.77.camel@localhost>
-	<20051101150142.GA10636@elte.hu>
-	<1130858580.14475.98.camel@localhost>
-	<20051102084946.GA3930@elte.hu>
-	<436880B8.1050207@yahoo.com.au>
-	<1130923969.15627.11.camel@localhost>
-	<43688B74.20002@yahoo.com.au>
-	<255360000.1130943722@[10.10.2.4]>
-	<4369824E.2020407@yahoo.com.au>
-	<306020000.1131032193@[10.10.2.4]>
-	<1131032422.2839.8.camel@laptopd505.fenrus.org>
-	<Pine.LNX.4.64.0511030747450.27915@g5.osdl.org>
-	<Pine.LNX.4.58.0511031613560.3571@skynet>
-	<Pine.LNX.4.64.0511030842050.27915@g5.osdl.org>
-	<309420000.1131036740@[10.10.2.4]>
-	<Pine.LNX.4.64.0511030918110.27915@g5.osdl.org>
-	<311050000.1131040276@[10.10.2.4]>
-	<Pine.LNX.4.64.0511030955110.27915@g5.osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Thu, 3 Nov 2005 15:11:18 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:18900 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750774AbVKCULR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 15:11:17 -0500
+Subject: Re: NTP broken with 2.6.14
+From: john stultz <johnstul@us.ibm.com>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Cc: Jean-Christian de Rivaz <jc@eclis.ch>, linux-kernel@vger.kernel.org,
+       dean@arctic.org
+In-Reply-To: <20051103195124.GE9488@csclub.uwaterloo.ca>
+References: <4369464B.6040707@eclis.ch>
+	 <1130973717.27168.504.camel@cog.beaverton.ibm.com>
+	 <43694DD1.3020908@eclis.ch>
+	 <1130976935.27168.512.camel@cog.beaverton.ibm.com>
+	 <43695D94.10901@eclis.ch>
+	 <1130980031.27168.527.camel@cog.beaverton.ibm.com>
+	 <43697550.7030400@eclis.ch>
+	 <1131046348.27168.537.camel@cog.beaverton.ibm.com>
+	 <20051103195124.GE9488@csclub.uwaterloo.ca>
+Content-Type: text/plain
+Date: Thu, 03 Nov 2005 12:11:10 -0800
+Message-Id: <1131048670.27168.573.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We simply DO NOT CARE about some theoretical "general case", because the 
-> general case is (a) insane and (b) impossible to cater to without 
-> excessive complexity.
+On Thu, 2005-11-03 at 14:51 -0500, Lennart Sorensen wrote:
+> On Thu, Nov 03, 2005 at 11:32:28AM -0800, john stultz wrote:
+> > Yep. Thats what I was guessing. For some reason time is running too
+> > quickly on your system. Since it is more then +/-500ppm NTP gives up and
+> > won't sync.
+> > 
+> > Time running too fast can have a number of causes.
+> > 
+> > Could you open a bugme bug on this and tag me as the owner?
+> > http://bugzilla.kernel.org
+> > 
+> > Also attach dmesg output and we'll see if that doesn't provide more
+> > clues.
+> 
+> I have no idea if this is related at all, but I have had system time
+> speed issues on my machine for a while too.
+> 
+> With 2.6.8 it always ran fine, with 2.6.12 it seemed to gain around 10
+> minutes per hour, and so far today with 2.6.14 it seems to be gaining
+> about 3 or 4 minutes per hour.  These are all Debian kernels, although I
+> hope they haven't added/removed anything that would affect this.
+> 
+> This is happening on an Asus A7N8X-E-DX with an Athlon XP 2800+.  I have
+> acpi enabled, so who knows if that is what is breaking things.  There
+> does seem to have been time keeping issues on ati chipsets big time in
+> recent kernels, and some other acpi issues at times, so it wouldn't
+> surprise me if a fix for one issue causes problems on another chipset.
+> The chipset on this board is the nforce2.
 
-The lawyers have a phrase for this:
+Yea, we have some issues with a few specific chipsets, but those were
+not regressions to my knowledge. 
 
-	Hard cases make bad law.
+Hmm. Check bug #5038 to see if sounds familiar.
+http://bugzilla.kernel.org/show_bug.cgi?id=5038
 
-For us, that's bad code.
+thanks
+-john
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+
+
+

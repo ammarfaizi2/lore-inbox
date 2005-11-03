@@ -1,69 +1,264 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030228AbVKCAZz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030223AbVKCAhe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030228AbVKCAZz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Nov 2005 19:25:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030223AbVKCAZM
+	id S1030223AbVKCAhe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Nov 2005 19:37:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030225AbVKCAhe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Nov 2005 19:25:12 -0500
-Received: from fmr19.intel.com ([134.134.136.18]:50639 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1030199AbVKCAYq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Nov 2005 19:24:46 -0500
-Subject: [patch 2/4] apci: use pin stored in pci_dev
-From: Kristen Accardi <kristen.c.accardi@intel.com>
-To: pcihpd-discuss@lists.sourceforge.net, acpi-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, rajesh.shah@intel.com, greg@kroah.com,
-       len.brown@intel.com
-References: <20051103001540.365407000@whizzy>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 02 Nov 2005 16:24:35 -0800
-Message-Id: <1130977475.8321.40.camel@whizzy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-6) 
-X-OriginalArrivalTime: 03 Nov 2005 00:24:36.0630 (UTC) FILETIME=[F8ADDB60:01C5E00C]
+	Wed, 2 Nov 2005 19:37:34 -0500
+Received: from rwcrmhc14.comcast.net ([204.127.198.54]:5321 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1030223AbVKCAhd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Nov 2005 19:37:33 -0500
+From: Willem Riede <wrlk@riede.org>
+Subject: Re: Call for PIIX4 chipset testers
+Date: Wed, 02 Nov 2005 19:37:26 -0500
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+Message-Id: <pan.2005.11.03.00.37.24.908880@riede.org>
+References: <Pine.LNX.4.64.0510251042420.10477@g5.osdl.org>
+Reply-To: wrlk@riede.org
+To: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use the stored value of the Interrupt Pin, rather than try to read
-it again.
+On Tue, 25 Oct 2005 10:51:24 -0700, Linus Torvalds wrote:
+> 
+> It's an old chipset by now, but it was very very common, so I bet people 
+> still have them around. If doing /sbin/lspci on your machine mentions 
+> something like
+> 
+> 	Intel Corporation 82371AB/EB/MB PIIX4 ISA
+> 
+> can you please test out this patch and report what it says in dmesg?
 
-Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
- 
- drivers/acpi/pci_irq.c |    7 +++----
- 1 files changed, 3 insertions(+), 4 deletions(-)
+This is on a dual PIII - Supermicro P6DBS motherboard.
 
-Index: linux-2.6.13/drivers/acpi/pci_irq.c
-===================================================================
---- linux-2.6.13.orig/drivers/acpi/pci_irq.c
-+++ linux-2.6.13/drivers/acpi/pci_irq.c
-@@ -361,8 +361,7 @@ acpi_pci_irq_derive(struct pci_dev *dev,
- 
- 		if ((bridge->class >> 8) == PCI_CLASS_BRIDGE_CARDBUS) {
- 			/* PC card has the same IRQ as its cardbridge */
--			pci_read_config_byte(bridge, PCI_INTERRUPT_PIN,
--					     &bridge_pin);
-+			bridge_pin = bridge->pin;
- 			if (!bridge_pin) {
- 				ACPI_DEBUG_PRINT((ACPI_DB_INFO,
- 						  "No interrupt pin configured for device %s\n",
-@@ -412,7 +411,7 @@ int acpi_pci_irq_enable(struct pci_dev *
- 	if (!dev)
- 		return_VALUE(-EINVAL);
- 
--	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin);
-+	pin = dev->pin;
- 	if (!pin) {
- 		ACPI_DEBUG_PRINT((ACPI_DB_INFO,
- 				  "No interrupt pin configured for device %s\n",
-@@ -503,7 +502,7 @@ void acpi_pci_irq_disable(struct pci_dev
- 	if (!dev || !dev->bus)
- 		return_VOID;
- 
--	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin);
-+	pin = dev->pin;
- 	if (!pin)
- 		return_VOID;
- 	pin--;
+Regards, Willem Riede.
 
---
+dmesg
+PCI quirk: region 0400-043f claimed by PIIX4 ACPI
+PCI quirk: region 0440-045f claimed by PIIX4 SMB
+PIIX4 devres B PIO at 0290-0297
+PIIX4: IDE controller at PCI slot 0000:00:07.1
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+
+ioport
+0000-001f : dma1
+0020-0021 : pic1
+0040-0043 : timer0
+0050-0053 : timer1
+0060-006f : keyboard
+0070-0077 : rtc
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+02f8-02ff : serial
+0376-0376 : ide1
+0378-037a : parport0
+03c0-03df : vga+
+03f6-03f6 : ide0
+03f8-03ff : serial
+0400-043f : 0000:00:07.3
+0440-045f : 0000:00:07.3
+  0440-0447 : piix4-smbus
+0cf8-0cff : PCI conf1
+d000-dfff : PCI Bus #01
+  dc00-dc7f : 0000:01:00.0
+e400-e4ff : 0000:00:0e.0
+e800-e8ff : 0000:00:0e.1
+ef20-ef3f : 0000:00:12.0
+  ef20-ef3f : e100
+ef80-ef9f : 0000:00:07.2
+  ef80-ef9f : uhci_hcd
+ffa0-ffaf : 0000:00:07.1
+  ffa0-ffa7 : ide0
+  ffa8-ffaf : ide1
+
+lspci
+00:00.0 Host bridge: Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 02)
+00: 86 80 90 71 06 00 10 22 02 00 00 06 00 40 00 00
+10: 08 00 00 f8 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 a0 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 0c 02 00 00 00 00 00 09 03 10 11 11 01 00 00 10
+60: 08 10 18 20 30 30 40 40 00 b0 ea a7 a0 fa 00 00
+70: 20 1f 0a 78 55 22 10 01 07 5f 14 38 00 00 00 00
+80: 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 03 00 00 00 04 61 00 00 00 05 00 00 00 00 00 00
+a0: 02 00 10 00 03 02 00 1f 00 00 00 00 00 00 00 00
+b0: 80 20 00 00 30 00 00 00 00 00 61 1f 00 00 00 00
+c0: 00 00 00 00 ff ff ff ff 18 0c ff ff 7f 00 00 00
+d0: a5 5f 5f 00 24 22 00 00 00 00 00 00 00 00 00 00
+e0: d4 b6 ff e3 91 3e 00 80 2c d3 f7 cf 9d 3e 00 00
+f0: 40 01 00 00 00 f8 00 60 20 0f 00 00 00 00 00 00
+
+00:01.0 PCI bridge: Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 02)
+00: 86 80 91 71 1f 00 20 02 02 00 04 06 00 40 01 00
+10: 00 00 00 00 00 00 00 00 00 01 01 40 d0 d0 a0 22
+20: 50 ff 50 ff a0 f5 a0 f6 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 88 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:07.0 ISA bridge: Intel Corporation 82371AB/EB/MB PIIX4 ISA (rev 02)
+00: 86 80 10 71 0f 00 80 02 02 00 01 06 00 00 80 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 30 01
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 0b 80 05 0a 10 00 00 00 00 fe 80 00 00 00 00 00
+70: 00 00 00 00 00 00 0c 0c 00 00 00 00 00 00 00 00
+80: 00 00 07 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 05 40 90 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 25 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
+
+00:07.1 IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 01)
+00: 86 80 11 71 05 00 80 02 01 80 01 01 00 40 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: a1 ff 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 00 c0 07 e3 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
+
+00:07.2 USB Controller: Intel Corporation 82371AB/EB/MB PIIX4 USB (rev 01)
+00: 86 80 12 71 05 00 80 02 01 00 03 0c 00 40 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 81 ef 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 0a 04 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 20 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 10
+
+00:07.3 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ACPI (rev 02)
+00: 86 80 13 71 01 00 80 02 02 00 80 06 00 00 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 01 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 58 1d 00 ef c9 7b 02 04 00 00 02 02 00 00 10
+60: 90 02 e7 40 00 00 00 10 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 41 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 09 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
+
+00:0e.0 SCSI storage controller: Adaptec AHA-2940U/UW / AHA-39xx / AIC-7895 (rev 04)
+00: 04 90 95 78 16 01 90 02 04 00 00 01 00 40 80 00
+10: 01 e4 00 00 00 e0 af ff 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 04 90 95 78
+30: 00 00 ae ff dc 00 00 00 00 00 00 00 0b 01 08 08
+40: a0 15 01 80 a0 15 01 80 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 01 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:0e.1 SCSI storage controller: Adaptec AHA-2940U/UW / AHA-39xx / AIC-7895 (rev 04)
+00: 04 90 95 78 16 01 90 02 04 00 00 01 00 40 80 00
+10: 01 e8 00 00 00 f0 af ff 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 04 90 95 78
+30: 00 00 00 00 dc 00 00 00 00 00 00 00 0b 02 08 08
+40: a0 15 01 80 a0 15 01 80 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 01 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:12.0 Ethernet controller: Intel Corporation 82557/8/9 [Ethernet Pro 100] (rev 05)
+00: 86 80 29 12 17 01 90 02 05 00 00 02 08 40 00 00
+10: 08 f0 bf fe 21 ef 00 00 00 00 90 ff 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 86 80 0a 00
+30: 00 00 80 ff dc 00 00 00 00 00 00 00 05 01 08 38
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 31 fe
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+01:00.0 VGA compatible controller: Silicon Integrated Systems [SiS] 86C326 5598/6326 (rev 0b)
+00: 39 10 26 63 07 00 30 02 0b 00 00 03 00 40 00 00
+10: 08 00 00 f6 00 00 5f ff 01 dc 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 39 10 26 63
+30: 00 00 5e ff 40 00 00 00 00 00 00 00 00 00 02 00
+40: 01 50 01 04 00 00 00 00 00 00 00 00 00 00 00 00
+50: 02 00 10 00 03 00 00 01 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+

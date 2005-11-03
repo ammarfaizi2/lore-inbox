@@ -1,248 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030414AbVKCS1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030412AbVKCSbP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030414AbVKCS1K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 13:27:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030412AbVKCS1J
+	id S1030412AbVKCSbP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 13:31:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030413AbVKCSbP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 13:27:09 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:5904 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030414AbVKCS1I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 13:27:08 -0500
-Date: Thu, 3 Nov 2005 19:26:58 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: uclinux-v850@lsi.nec.co.jp, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] include/asm-v850/ "extern inline" -> "static inline"
-Message-ID: <20051103182658.GH23366@stusta.de>
+	Thu, 3 Nov 2005 13:31:15 -0500
+Received: from none.schoollink.net ([65.254.202.50]:60170 "HELO
+	none.schoollink.net") by vger.kernel.org with SMTP id S1030412AbVKCSbO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 13:31:14 -0500
+From: "Wilfred Holloway" <aoaoiqef@ft.catv.ne.jp>
+Reply-To: "Wilfred Holloway" <aoaoiqef@ft.catv.ne.jp>
+Message-ID: <7582590703.7081170424@ft.catv.ne.jp>
+Date: Thu, 3 Nov 2005 13:32:49 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: Error Messages
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"extern inline" doesn't make much sense.
 
+Things will get better -- despite our efforts to improve them.While we look to the dramatist to give romance to realism, we ask of the actor to give realism to romance.The logic of the world is prior to all truth and falsehood.
+http://datymicoluvylo.com/main/
+18yo Tanned Lesbian Couple Fucking Oral
+The moment of enlightenment is when a person's dreams of possibilities become images of probabilities.
+I am tomorrow, or some future day, what I establish today. I am today what I established yesterday or some previous day.God doesn't have any grandchildren.Dog. A kind of additional or subsidiary Deity designed to catch the overflow and surplus of the world's worship.
+Public instruction should be the first object of government.Nobody goes there anymore. It's too crowded.An incompetent attorney can delay a trial for years or months. A competent attorney can delay one even longer.
+Shelving hard decisions is the least ethical course.When you have them by the balls, their hearts and minds will follow.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
-This patch was already sent on:
-- 2 Oct 2005
-
- include/asm-v850/atomic.h    |    2 +-
- include/asm-v850/bitops.h    |    6 +++---
- include/asm-v850/delay.h     |    4 ++--
- include/asm-v850/hw_irq.h    |    2 +-
- include/asm-v850/processor.h |    4 ++--
- include/asm-v850/semaphore.h |   10 +++++-----
- include/asm-v850/system.h    |    2 +-
- include/asm-v850/tlbflush.h  |    4 ++--
- include/asm-v850/uaccess.h   |    2 +-
- include/asm-v850/unaligned.h |    6 +++---
- 10 files changed, 21 insertions(+), 21 deletions(-)
-
---- linux-2.6.14-rc2-mm2-full/include/asm-v850/atomic.h.old	2005-10-02 02:00:29.000000000 +0200
-+++ linux-2.6.14-rc2-mm2-full/include/asm-v850/atomic.h	2005-10-02 02:00:32.000000000 +0200
-@@ -31,7 +31,7 @@
- #define atomic_read(v)		((v)->counter)
- #define atomic_set(v,i)		(((v)->counter) = (i))
- 
--extern __inline__ int atomic_add_return (int i, volatile atomic_t *v)
-+static inline int atomic_add_return (int i, volatile atomic_t *v)
- {
- 	unsigned long flags;
- 	int res;
---- linux-2.6.14-rc2-mm2-full/include/asm-v850/bitops.h.old	2005-10-02 02:00:43.000000000 +0200
-+++ linux-2.6.14-rc2-mm2-full/include/asm-v850/bitops.h	2005-10-02 02:00:46.000000000 +0200
-@@ -30,7 +30,7 @@
-  * ffz = Find First Zero in word. Undefined if no zero exists,
-  * so code should check against ~0UL first..
-  */
--extern __inline__ unsigned long ffz (unsigned long word)
-+static inline unsigned long ffz (unsigned long word)
- {
- 	unsigned long result = 0;
- 
-@@ -135,7 +135,7 @@
- 			     "m" (*((const char *)(addr) + ((nr) >> 3))));    \
-      __test_bit_res;							      \
-   })
--extern __inline__ int __test_bit (int nr, const void *addr)
-+static inline int __test_bit (int nr, const void *addr)
- {
- 	int res;
- 	__asm__ __volatile__ ("tst1 %1, [%2]; setf nz, %0"
-@@ -157,7 +157,7 @@
- #define find_first_zero_bit(addr, size) \
-   find_next_zero_bit ((addr), (size), 0)
- 
--extern __inline__ int find_next_zero_bit(const void *addr, int size, int offset)
-+static inline int find_next_zero_bit(const void *addr, int size, int offset)
- {
- 	unsigned long *p = ((unsigned long *) addr) + (offset >> 5);
- 	unsigned long result = offset & ~31UL;
---- linux-2.6.14-rc2-mm2-full/include/asm-v850/delay.h.old	2005-10-02 02:00:54.000000000 +0200
-+++ linux-2.6.14-rc2-mm2-full/include/asm-v850/delay.h	2005-10-02 02:00:58.000000000 +0200
-@@ -16,7 +16,7 @@
- 
- #include <asm/param.h>
- 
--extern __inline__ void __delay(unsigned long loops)
-+static inline void __delay(unsigned long loops)
- {
- 	if (loops)
- 		__asm__ __volatile__ ("1: add -1, %0; bnz 1b"
-@@ -33,7 +33,7 @@
- 
- extern unsigned long loops_per_jiffy;
- 
--extern __inline__ void udelay(unsigned long usecs)
-+static inline void udelay(unsigned long usecs)
- {
- 	register unsigned long full_loops, part_loops;
- 
---- linux-2.6.14-rc2-mm2-full/include/asm-v850/hw_irq.h.old	2005-10-02 02:01:06.000000000 +0200
-+++ linux-2.6.14-rc2-mm2-full/include/asm-v850/hw_irq.h	2005-10-02 02:01:12.000000000 +0200
-@@ -1,7 +1,7 @@
- #ifndef __V850_HW_IRQ_H__
- #define __V850_HW_IRQ_H__
- 
--extern inline void hw_resend_irq (struct hw_interrupt_type *h, unsigned int i)
-+static inline void hw_resend_irq (struct hw_interrupt_type *h, unsigned int i)
- {
- }
- 
---- linux-2.6.14-rc2-mm2-full/include/asm-v850/processor.h.old	2005-10-02 02:01:20.000000000 +0200
-+++ linux-2.6.14-rc2-mm2-full/include/asm-v850/processor.h	2005-10-02 02:01:24.000000000 +0200
-@@ -59,7 +59,7 @@
- 
- 
- /* Do necessary setup to start up a newly executed thread.  */
--extern inline void start_thread (struct pt_regs *regs,
-+static inline void start_thread (struct pt_regs *regs,
- 				 unsigned long pc, unsigned long usp)
- {
- 	regs->pc = pc;
-@@ -68,7 +68,7 @@
- }
- 
- /* Free all resources held by a thread. */
--extern inline void release_thread (struct task_struct *dead_task)
-+static inline void release_thread (struct task_struct *dead_task)
- {
- }
- 
---- linux-2.6.14-rc2-mm2-full/include/asm-v850/semaphore.h.old	2005-10-02 02:01:32.000000000 +0200
-+++ linux-2.6.14-rc2-mm2-full/include/asm-v850/semaphore.h	2005-10-02 02:01:35.000000000 +0200
-@@ -27,7 +27,7 @@
- #define DECLARE_MUTEX(name)		__DECLARE_SEMAPHORE_GENERIC (name,1)
- #define DECLARE_MUTEX_LOCKED(name)	__DECLARE_SEMAPHORE_GENERIC (name,0)
- 
--extern inline void sema_init (struct semaphore *sem, int val)
-+static inline void sema_init (struct semaphore *sem, int val)
- {
- 	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
- }
-@@ -55,14 +55,14 @@
- extern int  __down_trylock (struct semaphore * sem);
- extern void __up (struct semaphore * sem);
- 
--extern inline void down (struct semaphore * sem)
-+static inline void down (struct semaphore * sem)
- {
- 	might_sleep();
- 	if (atomic_dec_return (&sem->count) < 0)
- 		__down (sem);
- }
- 
--extern inline int down_interruptible (struct semaphore * sem)
-+static inline int down_interruptible (struct semaphore * sem)
- {
- 	int ret = 0;
- 	might_sleep();
-@@ -71,7 +71,7 @@
- 	return ret;
- }
- 
--extern inline int down_trylock (struct semaphore *sem)
-+static inline int down_trylock (struct semaphore *sem)
- {
- 	int ret = 0;
- 	if (atomic_dec_return (&sem->count) < 0)
-@@ -79,7 +79,7 @@
- 	return ret;
- }
- 
--extern inline void up (struct semaphore * sem)
-+static inline void up (struct semaphore * sem)
- {
- 	if (atomic_inc_return (&sem->count) <= 0)
- 		__up (sem);
---- linux-2.6.14-rc2-mm2-full/include/asm-v850/system.h.old	2005-10-02 02:01:44.000000000 +0200
-+++ linux-2.6.14-rc2-mm2-full/include/asm-v850/system.h	2005-10-02 02:01:48.000000000 +0200
-@@ -81,7 +81,7 @@
-   ((__typeof__ (*(ptr)))__xchg ((unsigned long)(with), (ptr), sizeof (*(ptr))))
- #define tas(ptr) (xchg ((ptr), 1))
- 
--extern inline unsigned long __xchg (unsigned long with,
-+static inline unsigned long __xchg (unsigned long with,
- 				    __volatile__ void *ptr, int size)
- {
- 	unsigned long tmp, flags;
---- linux-2.6.14-rc2-mm2-full/include/asm-v850/tlbflush.h.old	2005-10-02 02:01:55.000000000 +0200
-+++ linux-2.6.14-rc2-mm2-full/include/asm-v850/tlbflush.h	2005-10-02 02:01:58.000000000 +0200
-@@ -56,12 +56,12 @@
- 	BUG ();
- }
- 
--extern inline void flush_tlb_kernel_page(unsigned long addr)
-+static inline void flush_tlb_kernel_page(unsigned long addr)
- {
- 	BUG ();
- }
- 
--extern inline void flush_tlb_pgtables(struct mm_struct *mm,
-+static inline void flush_tlb_pgtables(struct mm_struct *mm,
- 				      unsigned long start, unsigned long end)
- {
- 	BUG ();
---- linux-2.6.14-rc2-mm2-full/include/asm-v850/uaccess.h.old	2005-10-02 02:02:06.000000000 +0200
-+++ linux-2.6.14-rc2-mm2-full/include/asm-v850/uaccess.h	2005-10-02 02:02:10.000000000 +0200
-@@ -14,7 +14,7 @@
- #define VERIFY_READ	0
- #define VERIFY_WRITE	1
- 
--extern inline int access_ok (int type, const void *addr, unsigned long size)
-+static inline int access_ok (int type, const void *addr, unsigned long size)
- {
- 	/* XXX I guess we should check against real ram bounds at least, and
- 	   possibly make sure ADDR is not within the kernel.
---- linux-2.6.14-rc2-mm2-full/include/asm-v850/unaligned.h.old	2005-10-02 02:02:19.000000000 +0200
-+++ linux-2.6.14-rc2-mm2-full/include/asm-v850/unaligned.h	2005-10-02 02:02:33.000000000 +0200
-@@ -82,19 +82,19 @@
- 	})
- 
- 
--extern inline void __put_unaligned_2(__u32 __v, register __u8 *__p)
-+static inline void __put_unaligned_2(__u32 __v, register __u8 *__p)
- {
- 	*__p++ = __v;
- 	*__p++ = __v >> 8;
- }
- 
--extern inline void __put_unaligned_4(__u32 __v, register __u8 *__p)
-+static inline void __put_unaligned_4(__u32 __v, register __u8 *__p)
- {
- 	__put_unaligned_2(__v >> 16, __p + 2);
- 	__put_unaligned_2(__v, __p);
- }
- 
--extern inline void __put_unaligned_8(const unsigned long long __v, register __u8 *__p)
-+static inline void __put_unaligned_8(const unsigned long long __v, register __u8 *__p)
- {
- 	/*
- 	 * tradeoff: 8 bytes of stack for all unaligned puts (2
 

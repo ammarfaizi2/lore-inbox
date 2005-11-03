@@ -1,66 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030274AbVKCPlB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030351AbVKCPkV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030274AbVKCPlB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 10:41:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030353AbVKCPlA
+	id S1030351AbVKCPkV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 10:40:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030354AbVKCPkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 10:41:00 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:59542 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030354AbVKCPk7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 10:40:59 -0500
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Dave Hansen <haveblue@us.ibm.com>,
-       Ingo Molnar <mingo@elte.hu>, Mel Gorman <mel@csn.ul.ie>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       kravetz@us.ibm.com, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>,
-       Arjan van de Ven <arjanv@infradead.org>
-In-Reply-To: <306020000.1131032193@[10.10.2.4]>
-References: <4366C559.5090504@yahoo.com.au>
-	 <Pine.LNX.4.58.0511010137020.29390@skynet> <4366D469.2010202@yahoo.com.au>
-	 <Pine.LNX.4.58.0511011014060.14884@skynet> <20051101135651.GA8502@elte.hu>
-	 <1130854224.14475.60.camel@localhost> <20051101142959.GA9272@elte.hu>
-	 <1130856555.14475.77.camel@localhost> <20051101150142.GA10636@elte.hu>
-	 <1130858580.14475.98.camel@localhost> <20051102084946.GA3930@elte.hu>
-	 <436880B8.1050207@yahoo.com.au> <1130923969.15627.11.camel@localhost>
-	 <43688B74.20002@yahoo.com.au> <255360000.1130943722@[10.10.2.4]>
-	 <4369824E.2020407@yahoo.com.au>  <306020000.1131032193@[10.10.2.4]>
-Content-Type: text/plain
-Date: Thu, 03 Nov 2005 16:40:21 +0100
-Message-Id: <1131032422.2839.8.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 3 Nov 2005 10:40:20 -0500
+Received: from xproxy.gmail.com ([66.249.82.193]:44377 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030351AbVKCPkS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 10:40:18 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Jx3P/tUkFOfBJ9WCxZ4jMJW7mcpXf/FIV98i2Dh5q6tUeWl+mn6EWuM5HjhQulbScLx/aevf5jg2oBrC79kinK85fmJb+bXS+QKLr6vU+694AhPkNAXhjqmHUEg70rsH14TQnFmuMU0hu+ZtcH2OPEFGsm+AkiRJmoldkgcQSg0=
+Message-ID: <afcef88a0511030740r6464e7e3ia7467f0c58a459fa@mail.gmail.com>
+Date: Thu, 3 Nov 2005 09:40:17 -0600
+From: Michael Thompson <michael.craig.thompson@gmail.com>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: [PATCH 4/12: eCryptfs] Main module functions
+Cc: Greg KH <greg@kroah.com>, Phillip Hellewell <phillip@hellewell.homeip.net>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       mike@halcrow.us, mhalcrow@us.ibm.com, mcthomps@us.ibm.com,
+       yoder1@us.ibm.com
+In-Reply-To: <20051103154726.GA7614@mipter.zuzino.mipt.ru>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051103033220.GD2772@sshock.rn.byu.edu>
+	 <20051103034929.GD3005@sshock.rn.byu.edu>
+	 <20051103060236.GB5044@kroah.com>
+	 <afcef88a0511030709v1589ffe7s9052cd636d61c956@mail.gmail.com>
+	 <20051103154726.GA7614@mipter.zuzino.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-11-03 at 07:36 -0800, Martin J. Bligh wrote:
-> >> Can we quit coming up with specialist hacks for hotplug, and try to solve
-> >> the generic problem please? hotplug is NOT the only issue here. Fragmentation
-> >> in general is.
-> >> 
-> > 
-> > Not really it isn't. There have been a few cases (e1000 being the main
-> > one, and is fixed upstream) where fragmentation in general is a problem.
-> > But mostly it is not.
-> 
-> Sigh. OK, tell me how you're going to fix kernel stacks > 4K please. 
-
-with CONFIG_4KSTACKS :)
-
-
+On 11/3/05, Alexey Dobriyan <adobriyan@gmail.com> wrote:
+> On Thu, Nov 03, 2005 at 09:09:24AM -0600, Michael Thompson wrote:
+> > On 11/3/05, Greg KH <greg@kroah.com> wrote:
+> > > > +/**
+> > > > + * Module parameter that defines the ecryptfs_verbosity level.
+> > > > + */
+> > > > +#define VERBOSE_DUMP 9
+> > > > +#ifdef DEBUG
+> > > > +int ecryptfs_verbosity = VERBOSE_DUMP;
+> > > > +#else
+> > > > +int ecryptfs_verbosity = 1;
+> > > > +#endif
+> > > > +module_param(ecryptfs_verbosity, int, 1);
+> > >
+> > > I don't think you want a "1" here, do you?  Hint, it's not doing what
+> > > you think it is doing...
+> > Would you care to explain, providing its short, what it does? I don't
+> > mind admitting I don't know everything, especially when it comes to
+> > kernel code. If I am to RTFM, please point me to the right M. :)
+>
+> include/linux/moduleparam.h:#define module_param(name, type, perm)
+>                                                              ^^^^
+Thanks, my ability to read has improved. This will now be used properly :)

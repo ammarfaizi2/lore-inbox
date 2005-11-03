@@ -1,153 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbVKCT1v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030453AbVKCTcc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932472AbVKCT1v (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 14:27:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932540AbVKCT1v
+	id S1030453AbVKCTcc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 14:32:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030454AbVKCTcb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 14:27:51 -0500
-Received: from gold.veritas.com ([143.127.12.110]:1691 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S932472AbVKCT1u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 14:27:50 -0500
-Date: Thu, 3 Nov 2005 19:26:37 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] mm: poison struct page for ptlock
-Message-ID: <Pine.LNX.4.61.0511031924210.31509@goblin.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 03 Nov 2005 19:27:45.0292 (UTC) FILETIME=[AAB51CC0:01C5E0AC]
+	Thu, 3 Nov 2005 14:32:31 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:29837 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030453AbVKCTcb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 14:32:31 -0500
+Subject: Re: NTP broken with 2.6.14
+From: john stultz <johnstul@us.ibm.com>
+To: Jean-Christian de Rivaz <jc@eclis.ch>
+Cc: linux-kernel@vger.kernel.org, dean@arctic.org
+In-Reply-To: <43697550.7030400@eclis.ch>
+References: <4369464B.6040707@eclis.ch>
+	 <1130973717.27168.504.camel@cog.beaverton.ibm.com>
+	 <43694DD1.3020908@eclis.ch>
+	 <1130976935.27168.512.camel@cog.beaverton.ibm.com>
+	 <43695D94.10901@eclis.ch>
+	 <1130980031.27168.527.camel@cog.beaverton.ibm.com>
+	 <43697550.7030400@eclis.ch>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Thu, 03 Nov 2005 11:32:28 -0800
+Message-Id: <1131046348.27168.537.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The split ptlock patch enlarged the default SMP PREEMPT struct page from
-32 to 36 bytes on most 32-bit platforms, from 32 to 44 bytes on PA-RISC
-7xxx (without PREEMPT).  That was not my intention, and I don't believe
-that split ptlock deserves any such slice of the user's memory.
+On Thu, 2005-11-03 at 03:26 +0100, Jean-Christian de Rivaz wrote:
+> john stultz a écrit :
+> > Hmm. Ok, so network wise you seem to be communicating with the server
+> > without an issue. The other reasons for a reject condition are sync-loop
+> > (your NTP server isn't synced to your box I'd assume), or your host is
+> > drifting too severely from the NTP server for ntpd to compensate.
+> > 
+> > Attached is a cruddy python script I wrote that should provide you with
+> > your ppm drift from your server.
+> > To run:
+> > o Disable ntpd
+> > o Run "./drift-test.py <server>"
+> > o Let it run for 10 minutes to get a decent drift value.
 
-While leaving most of the page_private() mods in place for the moment,
-could we please try this patch, or something like it?  Again to overlay
-the spinlock_t from &page->private onwards, with corrected BUILD_BUG_ON
-that we don't go beyond ->lru; with poisoning of the fields overlaid,
-and unsplit config verifying that the split config is safe to use them.
+[snip]
+> So with 2.6.8 this machine have a working ntpd. Now I stopped ntpd and 
+> used your script with the server 10.0.0.1:
+> 
+> 03 Nov 02:36:32         offset: -6.9e-05        drift: -77.0 ppm
+> 03 Nov 02:37:32         offset: -0.005162       drift: -84.7540983607 ppm
+> 03 Nov 02:38:32         offset: -0.011573       drift: -95.7107438017 ppm
+> 03 Nov 02:39:32         offset: -0.019045       drift: -105.26519337 ppm
+> 03 Nov 02:40:32         offset: -0.02732        drift: -113.394190871 ppm
+> 03 Nov 02:41:32         offset: -0.036287       drift: -120.581395349 ppm
+> 03 Nov 02:42:32         offset: -0.045824       drift: -126.958448753 ppm
+> 03 Nov 02:43:32         offset: -0.055755       drift: -132.45368171 ppm
+> 03 Nov 02:44:33         offset: -0.065992       drift: -136.929460581 ppm
+> 03 Nov 02:45:33         offset: -0.076472       drift: -141.10701107 ppm
+> 03 Nov 02:46:33         offset: -0.087156       drift: -144.790697674 ppm
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
----
+[snip]
+> As before, the ntpd is not working properly with the 2.6.14 kernel. Now 
+> I stopped ntpd and used your script with the 10.0.0.1 server:
+> 
+> 03 Nov 02:54:56         offset: -0.008247       drift: -4236.0 ppm
+> 03 Nov 02:55:56         offset: -0.828716       drift: -13519.7540984 ppm
+> 03 Nov 02:56:57         offset: -1.593172       drift: -13025.9098361 ppm
+> 03 Nov 02:57:57         offset: -2.817531       drift: -15458.9010989 ppm
+> 03 Nov 02:58:57         offset: -3.442019       drift: -14206.6446281 ppm
+> 03 Nov 02:59:57         offset: -4.070492       drift: -13465.1688742 ppm
+> 03 Nov 03:00:57         offset: -4.658962       drift: -12858.980663 ppm
+> 03 Nov 03:01:57         offset: -5.267374       drift: -12472.4241706 ppm
+> 03 Nov 03:02:57         offset: -5.843858       drift: -12115.8651452 ppm
+> 03 Nov 03:03:57         offset: -7.052287       drift: -13004.199262 ppm
+> 03 Nov 03:04:58         offset: -7.564786       drift: -12538.5986733 ppm
+> 
+> Interresting! So if I understand correctly the ntpd problem is because 
+> the kernel 2.6.14 kernel show a drift about 100 time bigger than with 
+> the kernel 2.6.8 on the same hardware. For information the mainboard is 
+> the MSI K7N2 (nForce 2). Here is the cpuinfo in case that matter:
 
- include/linux/mm.h |   69 +++++++++++++++++++++++++++++++++++++++++++----------
- 1 files changed, 56 insertions(+), 13 deletions(-)
+Yep. Thats what I was guessing. For some reason time is running too
+quickly on your system. Since it is more then +/-500ppm NTP gives up and
+won't sync.
 
---- 2.6.14-git6/include/linux/mm.h	2005-11-03 18:38:01.000000000 +0000
-+++ linux/include/linux/mm.h	2005-11-03 18:46:06.000000000 +0000
-@@ -226,18 +226,19 @@ struct page {
- 					 * to show when page is mapped
- 					 * & limit reverse map searches.
- 					 */
--	union {
--		unsigned long private;	/* Mapping-private opaque data:
-+	unsigned long private;		/* Mapping-private opaque data:
- 					 * usually used for buffer_heads
- 					 * if PagePrivate set; used for
- 					 * swp_entry_t if PageSwapCache
- 					 * When page is free, this indicates
- 					 * order in the buddy system.
- 					 */
--#if NR_CPUS >= CONFIG_SPLIT_PTLOCK_CPUS
--		spinlock_t ptl;
--#endif
--	} u;
-+	/*
-+	 * Along with private, the mapping, index and lru fields of a
-+	 * page table page's struct page may be overlaid by a spinlock
-+	 * for pte locking: see comment on "split ptlock" below.  Please
-+	 * do not rearrange these fields without considering that usage.
-+	 */
- 	struct address_space *mapping;	/* If low bit clear, points to
- 					 * inode address_space, or NULL.
- 					 * If page mapped as anonymous
-@@ -265,8 +266,8 @@ struct page {
- #endif /* WANT_PAGE_VIRTUAL */
- };
- 
--#define page_private(page)		((page)->u.private)
--#define set_page_private(page, v)	((page)->u.private = (v))
-+#define page_private(page)		((page)->private)
-+#define set_page_private(page, v)	((page)->private = (v))
- 
- /*
-  * FIXME: take this include out, include page-flags.h in
-@@ -787,25 +788,67 @@ static inline pmd_t *pmd_alloc(struct mm
- }
- #endif /* CONFIG_MMU && !__ARCH_HAS_4LEVEL_HACK */
- 
-+/*
-+ * In the split ptlock case, we shall be overlaying the struct page
-+ * of a page table page with a spinlock starting at &page->private,
-+ * ending dependent on architecture and config, but never beyond lru.
-+ *
-+ * So poison the struct page in all cases (in part to assert our
-+ * territory: that pte locking owns these fields of a page table
-+ * struct page), and verify it when freeing in the unsplit ptlock
-+ * case, when none of these fields should have been touched.
-+ * Poison lru back-to-front, to make sure list_del was not used.
-+ *
-+ * The time may come when important configs requiring split ptlock
-+ * have a spinlock_t which cannot fit here: then kmalloc a spinlock_t
-+ * (perhaps in its own cacheline) and keep the pointer in struct page.
-+ */
-+static inline void poison_struct_page(struct page *page)
-+{
-+	page->private = (unsigned long) page;
-+	page->mapping = (struct address_space *) page;
-+	page->index   = (pgoff_t) page;
-+	page->lru.next = LIST_POISON2;
-+	page->lru.prev = LIST_POISON1;
-+}
-+
-+static inline void verify_struct_page(struct page *page)
-+{
-+	BUG_ON(page->private != (unsigned long) page);
-+	BUG_ON(page->mapping != (struct address_space *) page);
-+	BUG_ON(page->index   != (pgoff_t) page);
-+	BUG_ON(page->lru.next != LIST_POISON2);
-+	BUG_ON(page->lru.prev != LIST_POISON1);
-+	/*
-+	 * Reset page->mapping so free_pages_check won't complain.
-+	 */
-+	page->mapping = NULL;
-+}
-+
- #if NR_CPUS >= CONFIG_SPLIT_PTLOCK_CPUS
- /*
-  * We tuck a spinlock to guard each pagetable page into its struct page,
-  * at page->private, with BUILD_BUG_ON to make sure that this will not
-- * overflow into the next struct page (as it might with DEBUG_SPINLOCK).
-- * When freeing, reset page->mapping so free_pages_check won't complain.
-+ * overflow beyond page->lru (as it might with PA-RISC DEBUG_SPINLOCK).
-  */
--#define __pte_lockptr(page)	&((page)->u.ptl)
-+#define __pte_lockptr(page)	((spinlock_t *)&((page)->private))
- #define pte_lock_init(_page)	do {					\
-+	BUILD_BUG_ON(__pte_lockptr((struct page *)0) + 1 >		\
-+			(spinlock_t *)(&((struct page *)0)->lru + 1));	\
-+	poison_struct_page(_page);					\
- 	spin_lock_init(__pte_lockptr(_page));				\
- } while (0)
-+/*
-+ * When freeing, reset page->mapping so free_pages_check won't complain.
-+ */
- #define pte_lock_deinit(page)	((page)->mapping = NULL)
- #define pte_lockptr(mm, pmd)	({(void)(mm); __pte_lockptr(pmd_page(*(pmd)));})
- #else
- /*
-  * We use mm->page_table_lock to guard all pagetable pages of the mm.
-  */
--#define pte_lock_init(page)	do {} while (0)
--#define pte_lock_deinit(page)	do {} while (0)
-+#define pte_lock_init(page)	poison_struct_page(page)
-+#define pte_lock_deinit(page)	verify_struct_page(page)
- #define pte_lockptr(mm, pmd)	({(void)(pmd); &(mm)->page_table_lock;})
- #endif /* NR_CPUS < CONFIG_SPLIT_PTLOCK_CPUS */
- 
+Time running too fast can have a number of causes.
+
+Could you open a bugme bug on this and tag me as the owner?
+http://bugzilla.kernel.org
+
+Also attach dmesg output and we'll see if that doesn't provide more
+clues.
+
+> > Would you mind confirming 2.6.12 does not have the issue on the same
+> > hardware?
+> 
+> The kernel 2.6.12 run on a different hardware and is not configured to 
+> work on the hardware that have the problem with 2.6.14, so I can't 
+> confime exactly your question yet. If you don't have any better idea, I 
+> can try several kernel version to find when the problem start. But I 
+> will make that after I sleep because I you look at the time field into 
+> the test result this is very late now for me...
+
+When you get a chance starting with a binary search of kernel versions
+would help narrow down the issue (start w/ 2.6.8 vanilla to make sure
+something in the distro tree isn't avoiding this issue). 
+
+> Thanks for you support, I hope we will quicky find to solution.
+
+I really appreciate your immediate feedback and testing! I'm sure we can
+resolve this soon, esp since you do have a working configuration to
+compare against.
+
+thanks
+-john
+

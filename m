@@ -1,47 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030349AbVKCQxO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030383AbVKCQwi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030349AbVKCQxO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 11:53:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030384AbVKCQxO
+	id S1030383AbVKCQwi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 11:52:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030384AbVKCQwi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 11:53:14 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:57748 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030349AbVKCQxN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 11:53:13 -0500
-Date: Thu, 3 Nov 2005 16:53:06 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>, Zach Brown <zach.brown@oracle.com>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       hch@infradead.org, mark.fasheh@oracle.com
-Subject: Re: [Patch] add AOP_TRUNCATED_PAGE, prepend AOP_ to WRITEPAGE_ACTIVATE
-Message-ID: <20051103165306.GA4923@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, Zach Brown <zach.brown@oracle.com>,
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-	mark.fasheh@oracle.com
-References: <43667913.4030401@oracle.com> <20051103124536.0191bea6.akpm@osdl.org> <20051103074312.GQ11488@ca-server1.us.oracle.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051103074312.GQ11488@ca-server1.us.oracle.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 3 Nov 2005 11:52:38 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:57816 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030383AbVKCQwh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 11:52:37 -0500
+Date: Thu, 3 Nov 2005 08:46:12 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Mel Gorman <mel@csn.ul.ie>
+cc: Arjan van de Ven <arjan@infradead.org>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Dave Hansen <haveblue@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, kravetz@us.ibm.com,
+       linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lhms <lhms-devel@lists.sourceforge.net>,
+       Arjan van de Ven <arjanv@infradead.org>
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+In-Reply-To: <Pine.LNX.4.58.0511031613560.3571@skynet>
+Message-ID: <Pine.LNX.4.64.0511030842050.27915@g5.osdl.org>
+References: <4366C559.5090504@yahoo.com.au>  <Pine.LNX.4.58.0511010137020.29390@skynet>
+ <4366D469.2010202@yahoo.com.au>  <Pine.LNX.4.58.0511011014060.14884@skynet>
+ <20051101135651.GA8502@elte.hu>  <1130854224.14475.60.camel@localhost>
+ <20051101142959.GA9272@elte.hu>  <1130856555.14475.77.camel@localhost>
+ <20051101150142.GA10636@elte.hu>  <1130858580.14475.98.camel@localhost>
+ <20051102084946.GA3930@elte.hu>  <436880B8.1050207@yahoo.com.au>
+ <1130923969.15627.11.camel@localhost>  <43688B74.20002@yahoo.com.au>
+ <255360000.1130943722@[10.10.2.4]>  <4369824E.2020407@yahoo.com.au> 
+ <306020000.1131032193@[10.10.2.4]> <1131032422.2839.8.camel@laptopd505.fenrus.org>
+ <Pine.LNX.4.64.0511030747450.27915@g5.osdl.org> <Pine.LNX.4.58.0511031613560.3571@skynet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 02, 2005 at 11:43:12PM -0800, Joel Becker wrote:
-> > Looks sane to me.   Can you carry this in the ocfs2 tree?
+
+
+On Thu, 3 Nov 2005, Mel Gorman wrote:
+
+> On Thu, 3 Nov 2005, Linus Torvalds wrote:
 > 
-> 	No problem.  Give us a day or two to merge the changes to our
-> main trees.
+> > This is why fragmentation avoidance has always been totally useless. It is
+> >  - only useful for big areas
+> >  - very hard for big areas
+> >
+> > (Corollary: when it's easy and possible, it's not useful).
+> >
+> 
+> Unless you are a user that wants a large area when it suddenly is useful.
 
-I think I disagree with Andew here.  Having a core patch separate
-from a new drivers/filesystem/etc.. is always a good idea.  It makes
-reviewing a lot easier and allows independant handling, e.g. merging it
-earlier than the new driver for some reason - as happened for example
-with the clear_inode changes we needed earlier for ocfs or the pagevec
-exports that came in via the reiser4 patches but were needed in mainline
-for cifs now.
+No. It's _not_ suddenly useful.
 
+It might be something you _want_, but that's a totally different issue.
+
+My point is that regardless of what you _want_, defragmentation is 
+_useless_. It's useless simply because for big areas it is so expensive as 
+to be impractical.
+
+Put another way: you may _want_ the moon to be made of cheese, but a moon 
+made out of cheese is _useless_ because it is impractical.
+
+The only way to support big areas is to have special zones for them.
+
+(Then, we may be able to use the special zones for small things too, but 
+under special rules, like "only used for anonymous mappings" where we 
+can just always remove them by paging them out. But it would still be a 
+special area meant for big pages, just temporarily "on loan").
+
+			Linus

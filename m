@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030508AbVKCVsK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030511AbVKCVts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030508AbVKCVsK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 16:48:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030509AbVKCVsK
+	id S1030511AbVKCVts (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 16:49:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030513AbVKCVts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 16:48:10 -0500
-Received: from allen.werkleitz.de ([80.190.251.108]:35802 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S1030508AbVKCVsI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 16:48:08 -0500
-Date: Thu, 3 Nov 2005 13:47:51 -0800
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Michael Krufky <mkrufky@m1k.net>, linux-kernel@vger.kernel.org,
-       linux-dvb-maintainer@linuxtv.org
-Message-ID: <20051103214751.GA9407@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Andrew Morton <akpm@osdl.org>, Michael Krufky <mkrufky@m1k.net>,
-	linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org
-References: <436723F8.4000602@m1k.net> <20051103135504.1dfa2db1.akpm@osdl.org>
-MIME-Version: 1.0
+	Thu, 3 Nov 2005 16:49:48 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49421 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1030511AbVKCVtr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 16:49:47 -0500
+Date: Thu, 3 Nov 2005 21:49:41 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: ben-s3c2410@fluff.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] cleanup include/asm-arm/arch-s3c2410/system.h
+Message-ID: <20051103214941.GM28038@flint.arm.linux.org.uk>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>, ben-s3c2410@fluff.org,
+	linux-kernel@vger.kernel.org
+References: <20051103181916.GE23366@stusta.de> <20051103184126.GK28038@flint.arm.linux.org.uk> <20051103212949.GM23366@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051103135504.1dfa2db1.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: 12.154.195.17
-Subject: Re: [PATCH 21/37] dvb: Add support for Air2PC/AirStar 2 ATSC 3rd generation (HD5000)
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+In-Reply-To: <20051103212949.GM23366@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 03, 2005 at 01:55:04PM +1100, Andrew Morton wrote:
-> Michael Krufky <mkrufky@m1k.net> wrote:
-> >
-> > +			return -EREMOTEIO;
+On Thu, Nov 03, 2005 at 10:29:51PM +0100, Adrian Bunk wrote:
+> On Thu, Nov 03, 2005 at 06:41:26PM +0000, Russell King wrote:
+> > On Thu, Nov 03, 2005 at 07:19:16PM +0100, Adrian Bunk wrote:
+> > > Can anyone please explain the contents of 
+> > > include/asm-arm/arch-s3c2410/system.h ?
+> > > 
+> > > This file looks like a C file accidentially named .h ...
+> > 
+> > It's the machine specific bits for arch/arm/kernel/process.c, part of
+> > the structure left over from 1996ish time.
+> > 
+> > The functions in there are supposed to be inlined.
 > 
-> That's the first time I've seen anyone use EREMOTEIO ;) Any idea what it
-> was added to Unix for?
-> 
-> hm, DVB seems to like it.
+> IOW, the (untested) patch below changes them to what was intended?
 
-DVB's usage of EREMOTEIO actually comes from drivers/i2c/.
-I suppose it means that the error didn't happen at the
-bus driver but was caused the device behind the bus,
-although I'm not sure if one can really tell those cases
-from one another.
+Yes.  Ben's away for a bit - can we wait for his ack please?
 
-Johannes
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030490AbVKCVUA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030492AbVKCVW3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030490AbVKCVUA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 16:20:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030491AbVKCVUA
+	id S1030492AbVKCVW3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 16:22:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030493AbVKCVW3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 16:20:00 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:26254 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030490AbVKCVT7 (ORCPT
+	Thu, 3 Nov 2005 16:22:29 -0500
+Received: from gate.crashing.org ([63.228.1.57]:16833 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1030492AbVKCVW2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 16:19:59 -0500
-Date: Fri, 4 Nov 2005 08:19:59 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Large file system oddities
-Message-ID: <20051104081959.C6290773@wobbly.melbourne.sgi.com>
-References: <20051103190334.GI2507@mail.muni.cz>
+	Thu, 3 Nov 2005 16:22:28 -0500
+Subject: Re: Nick's core remove PageReserved broke vmware...
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Gleb Natapov <gleb@minantech.com>
+Cc: Hugh Dickins <hugh@veritas.com>, Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051103135542.GD22185@minantech.com>
+References: <4368097A.1080601@yahoo.com.au> <4368139A.30701@vc.cvut.cz>
+	 <Pine.LNX.4.61.0511021208070.7300@goblin.wat.veritas.com>
+	 <1130965454.20136.50.camel@gaston>
+	 <Pine.LNX.4.61.0511022112530.18174@goblin.wat.veritas.com>
+	 <1130967936.20136.65.camel@gaston>
+	 <Pine.LNX.4.61.0511022157130.18559@goblin.wat.veritas.com>
+	 <1130970131.20136.73.camel@gaston> <20051103080341.GB22185@minantech.com>
+	 <Pine.LNX.4.61.0511031327360.22826@goblin.wat.veritas.com>
+	 <20051103135542.GD22185@minantech.com>
+Content-Type: text/plain
+Date: Fri, 04 Nov 2005 08:21:53 +1100
+Message-Id: <1131052914.4680.80.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20051103190334.GI2507@mail.muni.cz>; from xhejtman@mail.muni.cz on Thu, Nov 03, 2005 at 08:03:34PM +0100
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 03, 2005 at 08:03:34PM +0100, Lukas Hejtmanek wrote:
-> Hello,
-> 
-> I use vanilla kernel 2.6.13.4 on Pentium 4 with EM64T extensions in x86_64 mode.
-> 
-> I have 3.5TB partition formated as XFS.
+On Thu, 2005-11-03 at 15:55 +0200, Gleb Natapov wrote:
+> On Thu, Nov 03, 2005 at 01:32:15PM +0000, Hugh Dickins wrote:
+> > On Thu, 3 Nov 2005, Gleb Natapov wrote:
+> > > On Thu, Nov 03, 2005 at 09:22:10AM +1100, Benjamin Herrenschmidt wrote:
+> > > > Also, what do you suggest as a good threshold to use on the max amount
+> > > > of memory I can let the X server "pin" that way ? I was thinking it as
+> > > > equivalent to mlock, thus I could maybe hijack mm->locked_vm & use
+> > > > RLIMIT_MEMLOCK or is that too gross ?
+> > > > 
+> > > This is what infiniband does, so it should be good for you too.
+> > 
+> > Yes, I noticed that code a couple of days ago, I think you're setting a
+> > good example there, for long-term or large-area uses of get_user_pages():
+> > Ben, take a look at drivers/infiniband/core/uverbs_mem.c
 
-Looks like you actually ended up with a 1.2TB partition formatted
-as XFS on a 3.5TB device...
+Ok, thanks guys, will have a look.
 
-> Using fdisk I made one big partition accross whole disk:
+Ben.
 
-Why?  Just use /dev/sdc directly, and you'll avoid the 32 bit
-problems fdisk (or the default partition table type, I can't
-remember which it is now) evidently has.
-
->    Device Boot      Start         End      Blocks   Id  System
-> /dev/sdc1               1       53201  3418696008   83  Linux
-
-> # cat /proc/partitions 
->    8    32 3418704128 sdc
->    8    33 1271212360 sdc1
-
-Yes, there's your problem.
-
-> I made XFS file system on it:
-> # mkfs.xfs -f -s size=4096 -d su=65536,sw=7 /dev/sdc1
-
-mkfs.xfs is just using the information that its given from the
-kernel, which is the second /proc/partitions line above.
-
-> So what's wrong? Or am I something missing?
-
-Try without the partition, looks like that'll work.
-
-cheers.
-
--- 
-Nathan

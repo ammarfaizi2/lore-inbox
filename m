@@ -1,131 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbVKCKTs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964805AbVKCKVx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964791AbVKCKTs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 05:19:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbVKCKTs
+	id S964805AbVKCKVx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 05:21:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964812AbVKCKVx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 05:19:48 -0500
-Received: from gate.terreactive.ch ([212.90.202.121]:64871 "HELO
-	toe-A.terreactive.ch") by vger.kernel.org with SMTP id S964791AbVKCKTr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 05:19:47 -0500
-Message-ID: <4369E43A.2080800@drugphish.ch>
-Date: Thu, 03 Nov 2005 11:19:38 +0100
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: .
+	Thu, 3 Nov 2005 05:21:53 -0500
+Received: from cantor.suse.de ([195.135.220.2]:23951 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964805AbVKCKVw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 05:21:52 -0500
+Message-ID: <4369E4BF.4010706@suse.de>
+Date: Thu, 03 Nov 2005 11:21:51 +0100
+From: Hannes Reinecke <hare@suse.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.11) Gecko/20050727
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Willy Tarreau <willy@w.ods.org>
-CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Grant Coady <gcoady@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.32-rc2
-References: <20051031175704.GA619@logos.cnet> <4366E9AA.4040001@gmail.com> <20051101074959.GQ22601@alpha.home.local> <20051101063402.GA3311@logos.cnet> <4367C95D.3050108@drugphish.ch> <20051102002821.GC13557@alpha.home.local> <43689CCF.1060102@drugphish.ch> <20051102122950.GB15515@alpha.home.local>
-In-Reply-To: <20051102122950.GB15515@alpha.home.local>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH] Incorrect device link for ide-cs
+References: <4369D693.4040500@suse.de> <58cb370e0511030157l5e47a15h25832fb98e46173a@mail.gmail.com>
+In-Reply-To: <58cb370e0511030157l5e47a15h25832fb98e46173a@mail.gmail.com>
+Content-Type: multipart/mixed;
+ boundary="------------060208070700090402050305"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>CONFIG_ACPI=y
->>CONFIG_ACPI_BOOT=y
->>CONFIG_ACPI_BUS=y
->>CONFIG_ACPI_INTERPRETER=y
->>CONFIG_ACPI_EC=y
->>CONFIG_ACPI_POWER=y
->>CONFIG_ACPI_PCI=y
->>CONFIG_ACPI_MMCONFIG=y
->>CONFIG_ACPI_SLEEP=y
->>CONFIG_ACPI_SYSTEM=y
-> 
-> But this is purely x86-related, I won't have it on sparc.
+This is a multi-part message in MIME format.
+--------------060208070700090402050305
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Indeed ;).
+Bartlomiej Zolnierkiewicz wrote:
+> Hi,
+>=20
+>>      hw_regs_t hw;
+>>      memset(&hw, 0, sizeof(hw));
+>> -    ide_init_hwif_ports(&hw, io, ctl, NULL);
+>> +    ide_std_init_ports(&hw, io, ctl);
+>=20
+> Could you separate this into another patch?
+>=20
+> This change fixes ide-cs for some archs but OTOH we should verify that
+> there are no ide-cs specific hacks in ide_init_hwif_ports() on other ar=
+chs.
+>=20
+Oops, you are correct. The main reason why I did this is this comment in
+include/linux/ide.h:
+ * ide_init_hwif_ports() is OBSOLETE and will be removed in 2.7 series.
 
->>CONFIG_IP_VS=m
->>CONFIG_IP_VS_DEBUG=y
->>CONFIG_IP_VS_TAB_BITS=12
->>CONFIG_IP_VS_RR=m
->>CONFIG_IP_VS_WRR=m
->>CONFIG_IP_VS_LC=m
->>CONFIG_IP_VS_WLC=m
->>CONFIG_IP_VS_LBLC=m
->>CONFIG_IP_VS_LBLCR=m
->>CONFIG_IP_VS_DH=m
->>CONFIG_IP_VS_SH=m
->>CONFIG_IP_VS_SED=m
->>CONFIG_IP_VS_NQ=m
->>CONFIG_IP_VS_HPRIO=m
->>CONFIG_IP_VS_FTP=m
->>
->>One issue is a possible C99'ism in the last IPVS patch. If you find
->>time, please have a 2.95.x compiler installed.
->  
-> You mean that it's a build issue ? I first thought that you got erroneous
-> behaviour.
+Arch specific codes are in:
+cris/v10
+arm/sa1100
+arch-m68knommu
 
-Yes, the erroneous stuff I'm tracking down and it looks like I've found
-it (actually, Julian Anastasov fixed it):
+Neither of which is using the irq parameter anyway, so it would make
+sense to remove that interface completely.
 
-diff -ur v2.4.32-rc2/linux/net/ipv4/ipvs/ip_vs_core.c
-linux/net/ipv4/ipvs/ip_vs_core.c
---- v2.4.32-rc2/linux/net/ipv4/ipvs/ip_vs_core.c	2005-11-03
-01:20:02.000000000 +0200
-+++ linux/net/ipv4/ipvs/ip_vs_core.c	2005-11-03 01:22:36.347895544 +0200
-@@ -1111,11 +1111,10 @@
- 		if (sysctl_ip_vs_expire_nodest_conn) {
- 			/* try to expire the connection immediately */
- 			ip_vs_conn_expire_now(cp);
--		} else {
--			/* don't restart its timer, and silently
--			   drop the packet. */
--			__ip_vs_conn_put(cp);
- 		}
-+		/* don't restart its timer, and silently
-+		   drop the packet. */
-+		__ip_vs_conn_put(cp);
- 		return NF_DROP;
- 	}
+Updated patch attached.
 
-I will send a proper signed-off and acked-by patch against rc2 after
-some more stress testing. So, please hold off releasing until then. I'm
-done testing this piece of code by tomorrow noon (GMT+1).
+Cheers,
 
-What I wasn't sure is if the latest patches still compiled on 2.95.x
-gcc. That's the only thing I wanted you to test. I cannot ask you to run
-fully fledged LVS tests, as this requires quite some setup time.
+Hannes
+--=20
+Dr. Hannes Reinecke			hare@suse.de
+SuSE Linux Products GmbH		S390 & zSeries
+Maxfeldstra=DFe 5				+49 911 74053 688
+90409 N=FCrnberg				http://www.suse.de
 
-> How could I stress it ? what ipvs config, what type of traffic ? I'm used
-> to stress-test firewalls and load-balancers, but there is a wide choice of
-> possibilities, and all cannot be explored in a short timeframe.
+--------------060208070700090402050305
+Content-Type: text/plain;
+ name="ide-cs-correct-device-link"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ide-cs-correct-device-link"
 
-You would need to test IPVS on a SMP box using persistent setup and 0
-port feature and the expire_nodest_conn proc-fs entry set to 1. Hit the
-LB with 100Mbit/s traffic balancing it on 2-3 RS and reload the
-configuration using ipvsadm, _but_ without rmmod'ing the ip_vs_* kernel
-modules. Set the persistency timeout low (60 secs) and the
-timeout_finwait to 10*HZ. You need 2 clients which connect over a Linux
-router to a LVS_DR setup, one needs to be router through and the other
-should be NAT'd on the Linux router using a NAT pool to simulate 100's
-of clients. This way you have the slashdot-hype and the AOL proxy boost
-hitting your LB and generating loaded persistency templates which will
-then hit the code in question, wenn the internal timer expires. You need
-to grep for NONE in ipvsadm -L -n -c to get the template entries. You
-must stop the client connecting directly through the Linux router after
-you reloaded the LB setup and then you observe the persistent template
-created for this client until the timer expires. Then you start it again
-and with luck you should see the abberant behaviour of a missed
-__ip_vs_conn_put(cp) :). I am pretty sure you do not want to go through
-this setup. I have it here and I'm stress testing all possible
-combinations of this szenario.
+From: Hannes Reinecke <hare@suse.de>
+Subject: Incorrect device link for ide-cs
 
-Thanks for your help, Willy.
+Devices driven by ide-cs will appear under /sys/devices instead of the
+appropriate PCMCIA device. To fix this I had to extend the hw_regs_t
+structure with a 'struct device' field, which allows us to set the
+parent link for the appropriate hwif.
 
-A bientôt,
-Roberto Nibali, ratz
--- 
--------------------------------------------------------------
-addr://Kasinostrasse 30, CH-5001 Aarau tel://++41 62 823 9355
-http://www.terreactive.com             fax://++41 62 823 9356
--------------------------------------------------------------
-terreActive AG                       Wir sichern Ihren Erfolg
--------------------------------------------------------------
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Jens Axboe <axboe@suse.com>
+
+diff --git a/drivers/ide/ide.c b/drivers/ide/ide.c
+--- a/drivers/ide/ide.c
++++ b/drivers/ide/ide.c
+@@ -803,6 +803,7 @@ found:
+ 	hwif->irq = hw->irq;
+ 	hwif->noprobe = 0;
+ 	hwif->chipset = hw->chipset;
++	hwif->gendev.parent = hw->dev;
+ 
+ 	if (!initializing) {
+ 		probe_hwif_init_with_fixup(hwif, fixup);
+diff --git a/drivers/ide/legacy/ide-cs.c b/drivers/ide/legacy/ide-cs.c
+--- a/drivers/ide/legacy/ide-cs.c
++++ b/drivers/ide/legacy/ide-cs.c
+@@ -182,13 +182,14 @@ static void ide_detach(dev_link_t *link)
+     
+ } /* ide_detach */
+ 
+-static int idecs_register(unsigned long io, unsigned long ctl, unsigned long irq)
++static int idecs_register(unsigned long io, unsigned long ctl, unsigned long irq, struct pcmcia_device *handle)
+ {
+     hw_regs_t hw;
+     memset(&hw, 0, sizeof(hw));
+     ide_init_hwif_ports(&hw, io, ctl, NULL);
+     hw.irq = irq;
+     hw.chipset = ide_pci;
++    hw.dev = &handle->dev;
+     return ide_register_hw_with_fixup(&hw, NULL, ide_undecoded_slave);
+ }
+ 
+@@ -328,12 +329,12 @@ static void ide_config(dev_link_t *link)
+ 
+     /* retry registration in case device is still spinning up */
+     for (hd = -1, i = 0; i < 10; i++) {
+-	hd = idecs_register(io_base, ctl_base, link->irq.AssignedIRQ);
++	hd = idecs_register(io_base, ctl_base, link->irq.AssignedIRQ, handle);
+ 	if (hd >= 0) break;
+ 	if (link->io.NumPorts1 == 0x20) {
+ 	    outb(0x02, ctl_base + 0x10);
+ 	    hd = idecs_register(io_base + 0x10, ctl_base + 0x10,
+-				link->irq.AssignedIRQ);
++				link->irq.AssignedIRQ, handle);
+ 	    if (hd >= 0) {
+ 		io_base += 0x10;
+ 		ctl_base += 0x10;
+diff --git a/include/linux/ide.h b/include/linux/ide.h
+--- a/include/linux/ide.h
++++ b/include/linux/ide.h
+@@ -230,6 +230,7 @@ typedef struct hw_regs_s {
+ 	int		dma;			/* our dma entry */
+ 	ide_ack_intr_t	*ack_intr;		/* acknowledge interrupt */
+ 	hwif_chipset_t  chipset;
++	struct device	*dev;
+ } hw_regs_t;
+ 
+ /*
+
+--------------060208070700090402050305--

@@ -1,90 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030535AbVKCXjm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030539AbVKCXqV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030535AbVKCXjm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 18:39:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030537AbVKCXjm
+	id S1030539AbVKCXqV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 18:46:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030540AbVKCXqV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 18:39:42 -0500
-Received: from dvhart.com ([64.146.134.43]:45487 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S1030535AbVKCXjl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 18:39:41 -0500
-Date: Thu, 03 Nov 2005 15:39:36 -0800
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Mel Gorman <mel@csn.ul.ie>, Arjan van de Ven <arjan@infradead.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Dave Hansen <haveblue@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, kravetz@us.ibm.com,
-       linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>,
-       Arjan van de Ven <arjanv@infradead.org>
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-Message-ID: <53860000.1131061176@flay>
-In-Reply-To: <Pine.LNX.4.64.0511031459110.27915@g5.osdl.org>
-References: <4366C559.5090504@yahoo.com.au><Pine.LNX.4.58.0511010137020.29390@skynet><4366D469.2010202@yahoo.com.au><Pine.LNX.4.58.0511011014060.14884@skynet><20051101135651.GA8502@elte.hu><1130854224.14475.60.camel@localhost><20051101142959.GA9272@elte.hu><1130856555.14475.77.camel@localhost><20051101150142.GA10636@elte.hu><1130858580.14475.98.camel@localhost><20051102084946.GA3930@elte.hu><436880B8.1050207@yahoo.com.au><1130923969.15627.11.camel@localhost><43688B74.20002@yahoo.com.au><255360000.1130943722@[10.10.2.4]><4369824E.2020407@yahoo.com.au><306020000.1131032193@[10.10.2.4]><1131032422.2839.8.camel@laptopd505.fenrus.org><Pine.LNX.4.64.0511030747450.27915@g5.osdl.org><Pine.LNX.4.58.0511031613560.3571@skynet>
- <Pine.LNX.4.64.0511030842050.27915@g5.osdl.org><309420000.1131036740@[10.10.2.4]><Pine.LNX.4.64.0511030918110.27915@g5.osdl.org><311050000.1131040276@[10.10.2.4]><314040000.1131043735@[10.10.2.4]><Pine.LNX.4.64.0511031102590.27915@g5.osdl.org> <43370000.1131057466@flay> <Pine.LNX.4.64.0511031459110.27915@g5.osdl.org>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Thu, 3 Nov 2005 18:46:21 -0500
+Received: from zproxy.gmail.com ([64.233.162.194]:33075 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030539AbVKCXqU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 18:46:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ePyeTizSdiB7XCpBGQM/hyfuU3wk4PLxbF99N1uArlvp+TMwJwWpGJfhgE7uw8uSAfn3NVUKqQapV0KuC5QtaUnrsfLN3txHKpehDq/+JMRUBjk+nDnXysbqa/XAzv/hmePg0qdKGQPR4idILhJPLNWD5nGuoASwx+WIzWRpzxI=
+Message-ID: <5a4c581d0511031546k537392adg1a5f68a35072b310@mail.gmail.com>
+Date: Fri, 4 Nov 2005 00:46:19 +0100
+From: Alessandro Suardi <alessandro.suardi@gmail.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Subject: Re: 2.6.14-git6.{gz,bz2} patches on kernel.org are empty
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <9a8748490511031509p16623571xf4c77df4881f4b18@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
+References: <5a4c581d0511030525y8d587f9x880281abaffbf50c@mail.gmail.com>
+	 <9a8748490511031509p16623571xf4c77df4881f4b18@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ahh, you're right, there's a totally separate watermark for highmem.
-> 
-> I think I even remember this. I may even be responsible. I know some of 
-> our less successful highmem balancing efforts in the 2.4.x timeframe had 
-> serious trouble when they ran out of highmem, and started pruning lowmem 
-> very very aggressively. Limiting the highmem water marks meant that it 
-> wouldn't do that very often.
-> 
-> I think your patch may in fact be fine, but quite frankly, it needs 
-> testing under real load with highmem.
-> 
-> In general, I don't _think_ we should do anything different for highmem at 
-> all, and we should just in general try to keep a percentage of pages 
-> available. Now, the percentage probably does depend on the zone: we should 
-> be more aggressive about more "limited" zones, ie the old 16MB DMA zone 
-> should probably try to keep a higher percentage of free pages around than 
-> the normal zone, and that in turn should probably keep a higher percentage 
-> of pages around than the highmem zones.
+On 11/4/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> On 11/3/05, Alessandro Suardi <alessandro.suardi@gmail.com> wrote:
+> > .log is present, .gz and .bz2 patches are empty.
+> >
+>
+> I just downloaded the .gz and -bz2 files of the 2.6.14-git6 patches
+> from kernel.org and they are far from empty :
+>
+> $ ls -l patch-2.6.14-git6.*
+> -rw-r--r--  1 juhl users 2896172 2005-11-04 00:10 patch-2.6.14-git6.bz2
+> -rw-r--r--  1 juhl users 3552327 2005-11-04 00:10 patch-2.6.14-git6.gz
+>
+> Also, extracting the files yields nice working patches.
+>
+> You must have a broken download or similar problem. The patches are fine.
 
-Hmm. it strikes me that there will be few (if any?) allocations out of 
-highmem. PPC64 et al dump everything into ZONE_DMA though - so those should
-be uncapped already.
- 
-> And that's not because of fragmentation so much, but simply because the 
-> lower zones tend to have more "desperate" users. Running out of the normal 
-> zone is thus a "worse" situation than running out of highmem. And we 
-> effectively never want to allocate from the 16MB DMA zone at all, unless 
-> it is our only choice.
+Yes, now they are. 10 hours ago, not so.
 
-Well it's not 16MB on the other platforms, but ...
+This is a report from someone who tried two hours later than me:
 
-> We actually do try to do that with that "lowmem_reserve[]" logic, which 
-> reserves more pages in the lower zones the bigger the upper zones are (ie 
-> if we _only_ have memory in the low 16MB, then we don't reserve any of it, 
-> but if we have _tons_ of memory in the high zones, then we reserve more 
-> memory for the low zones and thus make the watermarks higher for them).
-> 
-> So the watermarking interacts with that lowmem_reserve logic, and I think 
-> that on HIGHMEM, you'd be screwed _twice_: first because the "pages_min" 
-> is limited, and second because HIGHMEM has no lowmem_reserve.
-> 
-> Does that make sense?
+http://www.ussg.iu.edu/hypermail/linux/kernel/0511.0/0950.html
 
-Yes. So we were only capping highmem before, now I squint at it closer.
-I was going off a simplification I'd written for a paper, which is
-not generally correct. I doubt frag is a problem in highmem, so maybe
-the code is correct as-is. We only want contig allocs for virtual when
-it's mapped 1-1 to physical (ie the kernel mapping) or real physical
-things. 
+No download problems at all... fairly regular -gitX tester here:
 
-I suppose I could write something to trawl the source tree to check
-that assumption, but it feels right ...
+[asuardi@incident src]$ ls -ltr .config-2.6.14*
+-rw-r--r--  1 asuardi asuardi 35313 Sep 20 00:43 .config-2.6.14-rc1
+-rw-r--r--  1 asuardi asuardi 35388 Sep 24 21:01 .config-2.6.14-rc1-git5
+-rw-r--r--  1 asuardi asuardi 35450 Oct  2 17:14 .config-2.6.14-rc2-git4
+-rw-r--r--  1 asuardi asuardi 35519 Oct  4 15:23 .config-2.6.14-rc3-git2
+-rw-r--r--  1 asuardi asuardi 35552 Oct  7 21:01 .config-2.6.14-rc3-git4
+-rw-r--r--  1 asuardi asuardi 35583 Oct  9 23:53 .config-2.6.14-rc3-git7
+-rw-r--r--  1 asuardi asuardi 35583 Oct 12 14:31 .config-2.6.14-rc3-git8
+-rw-r--r--  1 asuardi asuardi 35583 Oct 14 09:45 .config-2.6.14-rc4-git1
+-rw-r--r--  1 asuardi asuardi 35583 Oct 15 05:21 .config-2.6.14-rc4-git2
+-rw-r--r--  1 asuardi asuardi 35608 Oct 17 20:47 .config-2.6.14-rc4-git4
+-rw-r--r--  1 asuardi asuardi 35608 Oct 18 22:44 .config-2.6.14-rc4-git5
+-rw-r--r--  1 asuardi asuardi 35608 Oct 19 14:50 .config-2.6.14-rc4-git6
+-rw-r--r--  1 asuardi asuardi 35608 Oct 21 00:17 .config-2.6.14-rc4-git7
+-rw-r--r--  1 asuardi asuardi 35608 Oct 25 14:10 .config-2.6.14-rc5-git1
+-rw-r--r--  1 asuardi asuardi 35608 Oct 28 07:50 .config-2.6.14-rc5-git5
+-rw-r--r--  1 asuardi asuardi 35599 Oct 29 14:57 .config-2.6.14
+-rw-r--r--  1 asuardi asuardi 35607 Oct 30 15:25 .config-2.6.14-git1
+-rw-r--r--  1 asuardi asuardi 35634 Oct 31 14:48 .config-2.6.14-git2
+-rw-r--r--  1 asuardi asuardi 35928 Nov  1 15:04 .config-2.6.14-git3
+-rw-r--r--  1 asuardi asuardi 35916 Nov  2 20:18 .config-2.6.14-git4
+-rw-r--r--  1 asuardi asuardi 35916 Nov  3 14:22 .config-2.6.14-git5
 
-M.
+You must be slacking on checking kernel.org patches, that's why
+ you didn't notice :)
+
+--alessandro
+
+ "So much can happen by accident
+  No rhyme, no reason - no one's innocent"
+
+   (Steve Wynn - "Under The Weather")

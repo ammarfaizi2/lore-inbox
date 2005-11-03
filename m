@@ -1,54 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932716AbVKCGVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbVKCGln@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932716AbVKCGVE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 01:21:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932692AbVKCGVD
+	id S1751146AbVKCGln (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 01:41:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751140AbVKCGlm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 01:21:03 -0500
-Received: from metis.extern.pengutronix.de ([83.236.181.26]:37839 "EHLO
-	metis.extern.pengutronix.de") by vger.kernel.org with ESMTP
-	id S932716AbVKCGVB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 01:21:01 -0500
-Date: Thu, 3 Nov 2005 07:21:13 +0100
-From: Robert Schwebel <r.schwebel@pengutronix.de>
-To: John Lenz <lenz@cs.wisc.edu>
-Cc: Robert Schwebel <robert@schwebel.de>, Pavel Machek <pavel@suse.cz>,
-       Robert Schwebel <r.schwebel@pengutronix.de>, vojtech@suse.cz,
-       rpurdie@rpsys.net, kernel list <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: Re: best way to handle LEDs
-Message-ID: <20051103062113.GQ23316@pengutronix.de>
-References: <20051101234459.GA443@elf.ucw.cz> <20051102202622.GN23316@pengutronix.de> <20051102211334.GH23943@elf.ucw.cz> <20051102213354.GO23316@pengutronix.de> <38523.192.168.0.12.1130986361.squirrel@192.168.0.2>
+	Thu, 3 Nov 2005 01:41:42 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:33544 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1751146AbVKCGlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 01:41:42 -0500
+Date: Thu, 3 Nov 2005 07:41:33 +0100
+From: Willy TARREAU <willy@w.ods.org>
+To: Roberto Nibali <ratz@drugphish.ch>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Grant Coady <gcoady@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.32-rc2
+Message-ID: <20051103064133.GA11619@pcw.home.local>
+References: <20051031175704.GA619@logos.cnet> <4366E9AA.4040001@gmail.com> <20051101074959.GQ22601@alpha.home.local> <20051101063402.GA3311@logos.cnet> <4367C95D.3050108@drugphish.ch> <20051102002821.GC13557@alpha.home.local> <43689CCF.1060102@drugphish.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <38523.192.168.0.12.1130986361.squirrel@192.168.0.2>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <43689CCF.1060102@drugphish.ch>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 02, 2005 at 08:52:41PM -0600, John Lenz wrote:
-> Except the led code that is being proposed CAN sit on top of a generic
-> GPIO layer.  If a generic GPIO layer is created, you can create a led
-> driver that calls out to that GPIO layer.
+On Wed, Nov 02, 2005 at 12:02:39PM +0100, Roberto Nibali wrote:
+> Bonjour Willy,
 > 
-> You just need to fill in the following functions with some that raise and
-> lower the GPIO on the correct line....
+> >>Willy, if you have time, could you check your non-i386 boxes with a
+> >>2.95.x compiled 2.4.x kernel, with IPVS enabled?
+> >  
+> > Yes, no problem, but you'll have to tell me what to test ! (a config
+> > or script will save me some time). I have a Sun Ultra60 (ultrasparc SMP)
+> > which matches your description. I just have a doubt about gcc-2.95
+> > availability on this box, I know I have a 3.3.6, do you think that the
+> > problem is gcc-related (too strong optimization or de-inlining, etc) ?
 > 
-> int (*color_get)(struct device *, struct led_properties *props);
-> void (*color_set)(struct device *, struct led_properties *props, int value);
+> At least following should be set, the rest you can leave to your gusto:
 > 
-> int (*brightness_get)(struct device *, struct led_properties *props);
-> void (*brightness_set)(struct device *, struct led_properties *props, int
-> value);
- 
-Ok, great! I'll see that I update my patch for 2.6.14. 
+> CONFIG_ACPI=y
+> CONFIG_ACPI_BOOT=y
+> CONFIG_ACPI_BUS=y
+> CONFIG_ACPI_INTERPRETER=y
+> CONFIG_ACPI_EC=y
+> CONFIG_ACPI_POWER=y
+> CONFIG_ACPI_PCI=y
+> CONFIG_ACPI_MMCONFIG=y
+> CONFIG_ACPI_SLEEP=y
+> CONFIG_ACPI_SYSTEM=y
+> 
+> CONFIG_IP_VS=m
+> CONFIG_IP_VS_DEBUG=y
+> CONFIG_IP_VS_TAB_BITS=12
+> CONFIG_IP_VS_RR=m
+> CONFIG_IP_VS_WRR=m
+> CONFIG_IP_VS_LC=m
+> CONFIG_IP_VS_WLC=m
+> CONFIG_IP_VS_LBLC=m
+> CONFIG_IP_VS_LBLCR=m
+> CONFIG_IP_VS_DH=m
+> CONFIG_IP_VS_SH=m
+> CONFIG_IP_VS_SED=m
+> CONFIG_IP_VS_NQ=m
+> CONFIG_IP_VS_HPRIO=m
+> CONFIG_IP_VS_FTP=m
+> 
+> One issue is a possible C99'ism in the last IPVS patch. If you find
+> time, please have a 2.95.x compiler installed.
+> 
+> Another thing that could fail is if you additionally set
+> 
+> CONFIG_ACPI_FAN=m
+> 
+> and compile with CFLAGS="-g -ggdb"
+> 
+> > Please keep us informed when you have more info.
+> 
+> I will, and I will get more details, as time permits. My beef with the
+> IPVS code seems to be wrong, the code works as expected so far. I'm
+> stress-testing it though until Sunday on a 4GB Dual P4 Xeon with HT combo.
 
-Robert
--- 
- Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
-     Hannoversche Str. 2, 31134 Hildesheim, Germany
-   Phone: +49-5121-206917-0 |  Fax: +49-5121-206917-9
+Well, finally built on sparc64-smp with gcc-3.3.5 (minus CONFIG_ACPI_*) and
+on athlon-smp with gcc-2.95.3. So if you want me to do some tests, it will
+be possible.
+
+Regards,
+Willy
 

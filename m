@@ -1,67 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030497AbVKCVaU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030498AbVKCVcb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030497AbVKCVaU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 16:30:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030498AbVKCVaT
+	id S1030498AbVKCVcb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 16:32:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030499AbVKCVcb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 16:30:19 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:17547
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1030497AbVKCVaS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 16:30:18 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Roland Dreier <rolandd@cisco.com>
-Subject: Re: initramfs for /dev/console with udev?
-Date: Thu, 3 Nov 2005 15:29:59 -0600
-User-Agent: KMail/1.8
-Cc: Robert Schwebel <r.schwebel@pengutronix.de>, linux-kernel@vger.kernel.org
-References: <20051102222030.GP23316@pengutronix.de> <200511031313.47820.rob@landley.net> <52mzkl4i8y.fsf@cisco.com>
-In-Reply-To: <52mzkl4i8y.fsf@cisco.com>
+	Thu, 3 Nov 2005 16:32:31 -0500
+Received: from zeus2.kernel.org ([204.152.191.36]:46759 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S1030498AbVKCVca (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 16:32:30 -0500
+Date: Thu, 3 Nov 2005 22:29:51 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: ben-s3c2410@fluff.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] cleanup include/asm-arm/arch-s3c2410/system.h
+Message-ID: <20051103212949.GM23366@stusta.de>
+References: <20051103181916.GE23366@stusta.de> <20051103184126.GK28038@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511031529.59529.rob@landley.net>
+In-Reply-To: <20051103184126.GK28038@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 03 November 2005 13:57, Roland Dreier wrote:
->  > On Thursday 03 November 2005 12:51, Robert Schwebel wrote:
->  > > [...] klibc didn't compile for ARCH=um.
->  >
->  > I repeat my question: what is it that didn't compile, klibc or the
->  > kernel?
->
-> come on, dude -- how much clearer can he be?
+On Thu, Nov 03, 2005 at 06:41:26PM +0000, Russell King wrote:
+> On Thu, Nov 03, 2005 at 07:19:16PM +0100, Adrian Bunk wrote:
+> > Can anyone please explain the contents of 
+> > include/asm-arm/arch-s3c2410/system.h ?
+> > 
+> > This file looks like a C file accidentially named .h ...
+> 
+> It's the machine specific bits for arch/arm/kernel/process.c, part of
+> the structure left over from 1996ish time.
+> 
+> The functions in there are supposed to be inlined.
 
-Ah, I see.  The linux kernel headers you feed it were from a kernel compiled 
-with ARCH=um.  Right.  It's been a while since I tried feeding any libc 
-actual kernel headers.  (I build uClibc against the cleaned up userspace ones 
-here: http://ep09.pld-linux.org/~mmazur/linux-libc-headers/ .)
+IOW, the (untested) patch below changes them to what was intended?
 
-It's also been a while since I played with klibc, and I notice that it doesn't 
-work with Maszur's headers.  (It sort of works, with lots of warnings, until 
-about halfway through when it wants to touch "asm/signal.h", when Maszur's 
-just has linux/signal.h, and symlinking the two still isn't happy because 
-sigset_t is never defined...  In klibc there's definitions for ia64, sparc, 
-and parisc.  But nothing for x86...
+> Russell King
 
-Ok, checking 2.6.14/include/asm-i386 it's an unsigned long, so typedef that...  
-Nope, still not happy, wants numerous other symbols now...  Okay, try 
-grabbing asm-i386/signal.h from libc...  And asm-generic/signal.h which 
-_that_ includes...  And now there's a "previous declaration of 'wait3"' 
-conflicting.  Beautiful...)
+cu
+Adrian
 
-Ok, I remember why I stopped playing with klibc now.  It's still deep in 
-alpha-test stage, requires way more incestuous knowledge of the kernel 
-headers than anything not bundled with the kernel itself has any excuse for, 
-and I'm still not sure what advantage it claims to have over uClibc except 
-for being BSD licensed.
 
-If you have to make it work, I'd suggest extracting a fresh kernel tarball, do 
-"make allyesconfig" (without ARCH=um), and use _those_ headers.  Or just 
-accept that it doesn't work and try uClibc. :)
+<--  snip  -->
 
-Rob
+
+This patch makes the functions in include/asm-arm/arch-s3c2410/system.h 
+static inline as they should be.
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+ arch/arm/mach-s3c2410/mach-smdk2440.c |    2 -
+ include/asm-arm/arch-s3c2410/idle.h   |   28 --------------------------
+ include/asm-arm/arch-s3c2410/system.h |   10 +++------
+ 3 files changed, 5 insertions(+), 35 deletions(-)
+
+--- linux-2.6.14-rc5-mm1-full/include/asm-arm/arch-s3c2410/system.h.old	2005-11-03 22:13:46.000000000 +0100
++++ linux-2.6.14-rc5-mm1-full/include/asm-arm/arch-s3c2410/system.h	2005-11-03 22:14:13.000000000 +0100
+@@ -21,14 +21,13 @@
+ #include <asm/io.h>
+ 
+ #include <asm/arch/map.h>
+-#include <asm/arch/idle.h>
+ 
+ #include <asm/arch/regs-watchdog.h>
+ #include <asm/arch/regs-clock.h>
+ 
+-void (*s3c24xx_idle)(void);
++static void (*s3c24xx_idle)(void);
+ 
+-void s3c24xx_default_idle(void)
++static inline void s3c24xx_default_idle(void)
+ {
+ 	void __iomem *reg = S3C2410_CLKCON;
+ 	unsigned long tmp;
+@@ -52,7 +51,7 @@
+ 	__raw_writel(__raw_readl(reg) & ~(1<<2), reg);
+ }
+ 
+-static void arch_idle(void)
++static inline void arch_idle(void)
+ {
+ 	if (s3c24xx_idle != NULL)
+ 		(s3c24xx_idle)();
+@@ -61,8 +60,7 @@
+ }
+ 
+ 
+-static void
+-arch_reset(char mode)
++static inline void arch_reset(char mode)
+ {
+ 	if (mode == 's') {
+ 		cpu_reset(0);
+--- linux-2.6.14-rc5-mm1-full/arch/arm/mach-s3c2410/mach-smdk2440.c.old	2005-11-03 22:14:24.000000000 +0100
++++ linux-2.6.14-rc5-mm1-full/arch/arm/mach-s3c2410/mach-smdk2440.c	2005-11-03 22:28:48.000000000 +0100
+@@ -41,7 +41,7 @@
+ //#include <asm/debug-ll.h>
+ #include <asm/arch/regs-serial.h>
+ #include <asm/arch/regs-gpio.h>
+-#include <asm/arch/idle.h>
++#include <asm/arch/system.h>
+ 
+ #include "s3c2410.h"
+ #include "s3c2440.h"
+--- linux-2.6.14-rc5-mm1-modular-2.95/include/asm-arm/arch-s3c2410/idle.h	2005-08-29 01:41:01.000000000 +0200
++++ /dev/null	2005-04-28 03:52:17.000000000 +0200
+@@ -1,28 +0,0 @@
+-/* linux/include/asm-arm/arch-s3c2410/idle.h
+- *
+- * Copyright (c) 2004 Simtec Electronics <linux@simtec.co.uk>
+- *		http://www.simtec.co.uk/products/SWLINUX/
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 2 as
+- * published by the Free Software Foundation.
+- *
+- * S3C2410 CPU Idle controls
+- *
+- *  Changelog:
+- *	28-Oct-2004  BJD  Initial version
+- *
+-*/
+-
+-#ifndef __ASM_ARCH_IDLE_H
+-#define __ASM_ARCH_IDLE_H __FILE__
+-
+-/* This allows the over-ride of the default idle code, in case there
+- * is any other things to be done over idle (like DVS)
+-*/
+-
+-extern void (*s3c24xx_idle)(void);
+-
+-extern void s3c24xx_default_idle(void);
+-
+-#endif /* __ASM_ARCH_IDLE_H */
+

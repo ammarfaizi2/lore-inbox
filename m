@@ -1,90 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbVKCGln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbVKCGoW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751146AbVKCGln (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 01:41:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751140AbVKCGlm
+	id S1751171AbVKCGoW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 01:44:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbVKCGoW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 01:41:42 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:33544 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1751146AbVKCGlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 01:41:42 -0500
-Date: Thu, 3 Nov 2005 07:41:33 +0100
-From: Willy TARREAU <willy@w.ods.org>
-To: Roberto Nibali <ratz@drugphish.ch>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Grant Coady <gcoady@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.32-rc2
-Message-ID: <20051103064133.GA11619@pcw.home.local>
-References: <20051031175704.GA619@logos.cnet> <4366E9AA.4040001@gmail.com> <20051101074959.GQ22601@alpha.home.local> <20051101063402.GA3311@logos.cnet> <4367C95D.3050108@drugphish.ch> <20051102002821.GC13557@alpha.home.local> <43689CCF.1060102@drugphish.ch>
+	Thu, 3 Nov 2005 01:44:22 -0500
+Received: from gaz.sfgoth.com ([69.36.241.230]:17605 "EHLO gaz.sfgoth.com")
+	by vger.kernel.org with ESMTP id S1750707AbVKCGoV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 01:44:21 -0500
+Date: Wed, 2 Nov 2005 22:58:09 -0800
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: Kris Katterjohn <kjak@users.sourceforge.net>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, jschlst@samba.org,
+       davem@davemloft.net, acme@ghostprotocols.net, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Merge __load_pointer() and load_pointer() in net/core/filter.c; kernel 2.6.14
+Message-ID: <20051103065809.GC27232@gaz.sfgoth.com>
+References: <5b1bc8f2a7f34523b323fc1b58ef4c26.kjak@ispwest.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43689CCF.1060102@drugphish.ch>
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <5b1bc8f2a7f34523b323fc1b58ef4c26.kjak@ispwest.com>
+User-Agent: Mutt/1.4.2.1i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Wed, 02 Nov 2005 22:58:10 -0800 (PST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 02, 2005 at 12:02:39PM +0100, Roberto Nibali wrote:
-> Bonjour Willy,
-> 
-> >>Willy, if you have time, could you check your non-i386 boxes with a
-> >>2.95.x compiled 2.4.x kernel, with IPVS enabled?
-> >  
-> > Yes, no problem, but you'll have to tell me what to test ! (a config
-> > or script will save me some time). I have a Sun Ultra60 (ultrasparc SMP)
-> > which matches your description. I just have a doubt about gcc-2.95
-> > availability on this box, I know I have a 3.3.6, do you think that the
-> > problem is gcc-related (too strong optimization or de-inlining, etc) ?
-> 
-> At least following should be set, the rest you can leave to your gusto:
-> 
-> CONFIG_ACPI=y
-> CONFIG_ACPI_BOOT=y
-> CONFIG_ACPI_BUS=y
-> CONFIG_ACPI_INTERPRETER=y
-> CONFIG_ACPI_EC=y
-> CONFIG_ACPI_POWER=y
-> CONFIG_ACPI_PCI=y
-> CONFIG_ACPI_MMCONFIG=y
-> CONFIG_ACPI_SLEEP=y
-> CONFIG_ACPI_SYSTEM=y
-> 
-> CONFIG_IP_VS=m
-> CONFIG_IP_VS_DEBUG=y
-> CONFIG_IP_VS_TAB_BITS=12
-> CONFIG_IP_VS_RR=m
-> CONFIG_IP_VS_WRR=m
-> CONFIG_IP_VS_LC=m
-> CONFIG_IP_VS_WLC=m
-> CONFIG_IP_VS_LBLC=m
-> CONFIG_IP_VS_LBLCR=m
-> CONFIG_IP_VS_DH=m
-> CONFIG_IP_VS_SH=m
-> CONFIG_IP_VS_SED=m
-> CONFIG_IP_VS_NQ=m
-> CONFIG_IP_VS_HPRIO=m
-> CONFIG_IP_VS_FTP=m
-> 
-> One issue is a possible C99'ism in the last IPVS patch. If you find
-> time, please have a 2.95.x compiler installed.
-> 
-> Another thing that could fail is if you additionally set
-> 
-> CONFIG_ACPI_FAN=m
-> 
-> and compile with CFLAGS="-g -ggdb"
-> 
-> > Please keep us informed when you have more info.
-> 
-> I will, and I will get more details, as time permits. My beef with the
-> IPVS code seems to be wrong, the code works as expected so far. I'm
-> stress-testing it though until Sunday on a 4GB Dual P4 Xeon with HT combo.
+Kris Katterjohn wrote:
+> > From: Mitchell Blank Jr
+> > > (I trimmed the cc: list a bit; no need for this to be on LKML in my opinion)
 
-Well, finally built on sparc64-smp with gcc-3.3.5 (minus CONFIG_ACPI_*) and
-on athlon-smp with gcc-2.95.3. So if you want me to do some tests, it will
-be possible.
+I see you just added it back.  Oh well.
 
-Regards,
-Willy
+> > So I guess use my patch and take "inline" off? What do you think?
 
+Well the original author presumably thought that the fast-path of
+load_pointer() was critical enough to keep inline (since it can be run many
+times per packet)  So they made the deliberate choice of separating it
+into two functions - one inline, one non-inline.
+
+So my personal feeling is that the code is probably fine as it stands today.
+
+> Maybe "static" should be removed, too? Oh well.
+
+Uh, why?  It's clearly a file-local function.
+
+-Mitch

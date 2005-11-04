@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030585AbVKDBDb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161017AbVKDBEg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030585AbVKDBDb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 20:03:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161025AbVKDAuq
+	id S1161017AbVKDBEg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 20:04:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161018AbVKDAty
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 19:50:46 -0500
-Received: from h-67-100-217-179.hstqtx02.covad.net ([67.100.217.179]:54675
+	Thu, 3 Nov 2005 19:49:54 -0500
+Received: from h-67-100-217-179.hstqtx02.covad.net ([67.100.217.179]:45203
 	"EHLO mail.gnucash.org") by vger.kernel.org with ESMTP
-	id S1161022AbVKDAuS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 19:50:18 -0500
-Date: Thu, 3 Nov 2005 18:50:17 -0600
+	id S1161017AbVKDAtj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 19:49:39 -0500
+Date: Thu, 3 Nov 2005 18:49:38 -0600
 From: Linas Vepstas <linas@linas.org>
 To: paulus@samba.org, linuxppc64-dev@ozlabs.org
 Cc: johnrose@austin.ibm.com, linux-pci@atrey.karlin.mff.cuni.cz,
        bluesmoke-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 14/42]: ppc64: Save & restore of PCI device BARS
-Message-ID: <20051104005017.GA26911@mail.gnucash.org>
+Subject: [PATCH 9/42]: ppc64: bugfix: crash on PCI hotplug
+Message-ID: <20051104004938.GA26852@mail.gnucash.org>
 Reply-To: linas@austin.ibm.com
 References: <20051103235918.GA25616@mail.gnucash.org>
 Mime-Version: 1.0
@@ -25,215 +25,78 @@ User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-14-eeh-device-bar-save.patch
+09-hotplug-bugfix.patch
 
-After a PCI device has been resest, the device BAR's and other config
-space info must be restored to the same state as they were in when 
-the firmware first handed us this device.  This will allow the 
-PCI device driver, when restarted, to correctly recognize and set up
-the device.
+In the current 2.6.14-rc2-git6 kernel, performing a Dynamic LPAR Add 
+of a hotplug slot will crash the system, with the following (abbreviated) 
+stack trace:
 
-Tis patch saves the device config space as early as reasonable after
-the firmware has handed over the device.  Te state resore funcion 
-is inteded for use by the EEH recovery routines.
+cpu 0x3: Vector: 700 (Program Check) at [c000000053dff7f0]
+    pc: c0000000004f5974: .__alloc_bootmem+0x0/0xb0
+    lr: c0000000000258a0: .update_dn_pci_info+0x108/0x118
+        c0000000000257c8 .update_dn_pci_info+0x30/0x118 (unreliable)
+        c0000000000258fc .pci_dn_reconfig_notifier+0x4c/0x64
+        c000000000060754 .notifier_call_chain+0x68/0x9c
+
+The root cause was that __init __alloc_bootmem() was called long after 
+boot had finished, resulting in a crash because this routine is undefined
+after boot time.  The patch below fixes this crash, and adds some docs to 
+clarify the code.
+
+p.s. congrats to all for getting slashdotted on this yesterday!
 
 Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
 
+Mailed to: paulus@samba.org
+CC: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org, johnrose@linux.ibm.com
+On Monday 3 October 2005
 
-Index: linux-2.6.14-git3/arch/powerpc/platforms/pseries/eeh.c
+revised on 4 Ocober to
+[PATCH 1/2] ppc64: Crash in DLPAR code on PCI hotplug add
+
+Index: linux-2.6.14-git3/arch/ppc64/kernel/pci_dn.c
 ===================================================================
---- linux-2.6.14-git3.orig/arch/powerpc/platforms/pseries/eeh.c	2005-11-02 14:33:42.096436081 -0600
-+++ linux-2.6.14-git3/arch/powerpc/platforms/pseries/eeh.c	2005-11-02 14:34:19.926132452 -0600
-@@ -77,6 +77,9 @@
-  */
- #define EEH_MAX_FAILS	100000
+--- linux-2.6.14-git3.orig/arch/ppc64/kernel/pci_dn.c	2005-10-31 12:19:03.211506966 -0600
++++ linux-2.6.14-git3/arch/ppc64/kernel/pci_dn.c	2005-10-31 12:19:47.420303479 -0600
+@@ -43,7 +43,7 @@
+ 	u32 *regs;
+ 	struct pci_dn *pdn;
  
-+/* Misc forward declaraions */
-+static void eeh_save_bars(struct pci_dev * pdev, struct pci_dn *pdn);
-+
- /* RTAS tokens */
- static int ibm_set_eeh_option;
- static int ibm_set_slot_reset;
-@@ -366,6 +369,7 @@
-  */
- void __init pci_addr_cache_build(void)
- {
-+	struct device_node *dn;
- 	struct pci_dev *dev = NULL;
- 
- 	if (!eeh_subsystem_enabled)
-@@ -379,6 +383,10 @@
- 			continue;
- 		}
- 		pci_addr_cache_insert_device(dev);
-+
-+		/* Save the BAR's; firmware doesn't restore these after EEH reset */
-+		dn = pci_device_to_OF_node(dev);
-+		eeh_save_bars(dev, PCI_DN(dn));
- 	}
- 
- #ifdef DEBUG
-@@ -775,6 +783,108 @@
- 	}
+-	if (phb->is_dynamic)
++	if (mem_init_done)
+ 		pdn = kmalloc(sizeof(*pdn), GFP_KERNEL);
+ 	else
+ 		pdn = alloc_bootmem(sizeof(*pdn));
+@@ -120,6 +120,14 @@
+ 	return NULL;
  }
- 
-+/* ------------------------------------------------------- */
-+/** Save and restore of PCI BARs
-+ *
-+ * Although firmware will set up BARs during boot, it doesn't
-+ * set up device BAR's after a device reset, although it will,
-+ * if requested, set up bridge configuration. Thus, we need to
-+ * configure the PCI devices ourselves.  
-+ */
-+
-+/**
-+ * __restore_bars - Restore the Base Address Registers
-+ * Loads the PCI configuration space base address registers,
-+ * the expansion ROM base address, the latency timer, and etc.
-+ * from the saved values in the device node.
-+ */
-+static inline void __restore_bars (struct pci_dn *pdn)
-+{
-+	int i;
-+
-+	if (NULL==pdn->phb) return;
-+	for (i=4; i<10; i++) {
-+		rtas_write_config(pdn, i*4, 4, pdn->config_space[i]);
-+	}
-+
-+	/* 12 == Expansion ROM Address */
-+	rtas_write_config(pdn, 12*4, 4, pdn->config_space[12]);
-+
-+#define BYTE_SWAP(OFF) (8*((OFF)/4)+3-(OFF))
-+#define SAVED_BYTE(OFF) (((u8 *)(pdn->config_space))[BYTE_SWAP(OFF)])
-+
-+	rtas_write_config (pdn, PCI_CACHE_LINE_SIZE, 1,
-+	            SAVED_BYTE(PCI_CACHE_LINE_SIZE));
-+
-+	rtas_write_config (pdn, PCI_LATENCY_TIMER, 1,
-+	            SAVED_BYTE(PCI_LATENCY_TIMER));
-+
-+	/* max latency, min grant, interrupt pin and line */
-+	rtas_write_config(pdn, 15*4, 4, pdn->config_space[15]);
-+}
-+
-+/**
-+ * eeh_restore_bars - restore the PCI config space info
-+ *
-+ * This routine performs a recursive walk to the children
-+ * of this device as well.
-+ */
-+void eeh_restore_bars(struct pci_dn *pdn)
-+{
-+	struct device_node *dn;
-+	if (!pdn) 
-+		return;
-+	
-+	if (! pdn->eeh_is_bridge)
-+		__restore_bars (pdn);
-+
-+	dn = pdn->node->child;
-+	while (dn) {
-+		eeh_restore_bars (PCI_DN(dn));
-+		dn = dn->sibling;
-+	}
-+}
-+
-+/**
-+ * eeh_save_bars - save device bars
-+ *
-+ * Save the values of the device bars. Unlike the restore
-+ * routine, this routine is *not* recursive. This is because
-+ * PCI devices are added individuallly; but, for the restore,
-+ * an entire slot is reset at a time.
-+ */
-+static void eeh_save_bars(struct pci_dev * pdev, struct pci_dn *pdn)
-+{
-+	int i;
-+
-+	if (!pdev || !pdn )
-+		return;
-+	
-+	for (i = 0; i < 16; i++)
-+		pci_read_config_dword(pdev, i * 4, &pdn->config_space[i]);
-+
-+	if (pdev->hdr_type == PCI_HEADER_TYPE_BRIDGE)
-+		pdn->eeh_is_bridge = 1;
-+}
-+
-+void
-+rtas_configure_bridge(struct pci_dn *pdn)
-+{
-+	int token = rtas_token ("ibm,configure-bridge");
-+	int rc;
-+
-+	if (token == RTAS_UNKNOWN_SERVICE)
-+		return;
-+	rc = rtas_call(token,3,1, NULL,
-+	               pdn->eeh_config_addr,
-+	               BUID_HI(pdn->phb->buid),
-+	               BUID_LO(pdn->phb->buid));
-+	if (rc) {
-+		printk (KERN_WARNING "EEH: Unable to configure device bridge (%d) for %s\n",
-+		        rc, pdn->node->full_name);
-+	}
-+}
-+
- /* ------------------------------------------------------------- */
- /* The code below deals with enabling EEH for devices during  the
-  * early boot sequence.  EEH must be enabled before any PCI probing
-@@ -977,6 +1087,7 @@
- void eeh_add_device_late(struct pci_dev *dev)
- {
- 	struct device_node *dn;
-+	struct pci_dn *pdn;
- 
- 	if (!dev || !eeh_subsystem_enabled)
- 		return;
-@@ -987,9 +1098,11 @@
- 
- 	pci_dev_get (dev);
- 	dn = pci_device_to_OF_node(dev);
--	PCI_DN(dn)->pcidev = dev;
-+	pdn = PCI_DN(dn);
-+	pdn->pcidev = dev;
- 
- 	pci_addr_cache_insert_device (dev);
-+	eeh_save_bars(dev, pdn);
- }
- EXPORT_SYMBOL_GPL(eeh_add_device_late);
- 
-Index: linux-2.6.14-git3/include/asm-powerpc/ppc-pci.h
-===================================================================
---- linux-2.6.14-git3.orig/include/asm-powerpc/ppc-pci.h	2005-11-02 14:33:42.083437903 -0600
-+++ linux-2.6.14-git3/include/asm-powerpc/ppc-pci.h	2005-11-02 14:34:19.931131751 -0600
-@@ -63,6 +63,29 @@
-  */
- void rtas_set_slot_reset (struct pci_dn *);
  
 +/** 
-+ * eeh_restore_bars - Restore device configuration info.
++ * pci_devs_phb_init_dynamic - setup pci devices under this PHB
++ * phb: pci-to-host bridge (top-level bridge connecting to cpu)
 + *
-+ * A reset of a PCI device will clear out its config space.
-+ * This routines will restore the config space for this
-+ * device, and is children, to values previously obtained
-+ * from the firmware.
++ * This routine is called both during boot, (before the memory
++ * subsystem is set up, before kmalloc is valid) and during the 
++ * dynamic lpar operation of adding a PHB to a running system.
 + */
-+void eeh_restore_bars(struct pci_dn *);
-+
-+/**
-+ * rtas_configure_bridge -- firmware initialization of pci bridge
-+ *
-+ * Ask the firmware to configure all PCI bridges devices
-+ * located behind the indicated node. Required after a
-+ * pci device reset. Does essentially the same hing as
-+ * eeh_restore_bars, but for brdges, and lets firmware 
-+ * do the work.
-+ */
-+void rtas_configure_bridge(struct pci_dn *);
-+
-+int rtas_write_config(struct pci_dn *, int where, int size, u32 val);
-+
- #endif
+ void __devinit pci_devs_phb_init_dynamic(struct pci_controller *phb)
+ {
+ 	struct device_node * dn = (struct device_node *) phb->arch_data;
+@@ -200,9 +208,14 @@
+ 	.notifier_call = pci_dn_reconfig_notifier,
+ };
  
- #endif /* _ASM_POWERPC_PPC_PCI_H */
+-/*
+- * Actually initialize the phbs.
+- * The buswalk on this phb has not happened yet.
++/** 
++ * pci_devs_phb_init - Initialize phbs and pci devs under them.
++ * 
++ * This routine walks over all phb's (pci-host bridges) on the
++ * system, and sets up assorted pci-related structures 
++ * (including pci info in the device node structs) for each
++ * pci device found underneath.  This routine runs once,
++ * early in the boot sequence.
+  */
+ void __init pci_devs_phb_init(void)
+ {

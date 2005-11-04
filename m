@@ -1,71 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030534AbVKDAP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030536AbVKDAPd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030534AbVKDAP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 19:15:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030536AbVKDAP2
+	id S1030536AbVKDAPd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 19:15:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030559AbVKDAPd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 19:15:28 -0500
-Received: from smtp107.sbc.mail.mud.yahoo.com ([68.142.198.206]:31418 "HELO
-	smtp107.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030534AbVKDAP1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 19:15:27 -0500
-From: David Brownell <david-b@pacbell.net>
-To: eemike@gmail.com
-Subject: Re: [PATCH/RFC] simple SPI controller on PXA2xx SSP port, refresh
-Date: Thu, 3 Nov 2005 16:15:22 -0800
-User-Agent: KMail/1.7.1
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+	Thu, 3 Nov 2005 19:15:33 -0500
+Received: from www.eclis.ch ([144.85.15.72]:22725 "EHLO mail.eclis.ch")
+	by vger.kernel.org with ESMTP id S1030536AbVKDAPc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 19:15:32 -0500
+Message-ID: <436AA822.9060403@eclis.ch>
+Date: Fri, 04 Nov 2005 01:15:30 +0100
+From: Jean-Christian de Rivaz <jc@eclis.ch>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511031615.22630.david-b@pacbell.net>
+To: john stultz <johnstul@us.ibm.com>
+Cc: rddunlap@osdl.org, Len Brown <len.brown@intel.com>, macro@linux-mips.org,
+       linux-kernel@vger.kernel.org, dean@arctic.org, zippel@linux-m68k.org
+Subject: Re: NTP broken with 2.6.14
+References: <4369464B.6040707@eclis.ch>	 <1130973717.27168.504.camel@cog.beaverton.ibm.com>	 <43694DD1.3020908@eclis.ch>	 <1130976935.27168.512.camel@cog.beaverton.ibm.com>	 <43695D94.10901@eclis.ch>	 <1130980031.27168.527.camel@cog.beaverton.ibm.com>	 <43697550.7030400@eclis.ch>	 <1131046348.27168.537.camel@cog.beaverton.ibm.com>	 <436A7D4B.8080109@eclis.ch>	 <1131054087.27168.595.camel@cog.beaverton.ibm.com>	 <436A8ADB.2090307@eclis.ch> <1131058482.27168.612.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1131058482.27168.612.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Some question on SPI subsystem:
+john stultz a écrit :
+> You might check booting w/ noapic to see if that changes the behaviour
+> in 2.6.10.
 
-> I really get confused on the structure on the whole system. e.g. the
-> platform_data and controller_data in board_info.  What are thier
-> purposes?
-
-Normally you'd just use platform_data ... which might hold things like
-resistance and capacitance settings for that particular board; or details
-about which SPI chip variant was present. It gets stored in the struct
-device (spi_device->dev) as "platform_data".
-
-Stephen persuaded me to add controller_data too, which is stored in
-"struct spi_device".  His PXA SPI controller driver uses that for a
-structure holding what I'd call DMA tuning information, plus a function
-that tweaks the GPIO used for a chipselect.  Treat it as readonly.
-
-Controller drivers can have two different kinds of state in each
-spi_device:  static, and dynamic/runtime.  The names used for them
-are IMO very confusing (platform_data and controller_data) since
-they don't mean the same as those names do in board_info.  I'd take
-a patch to provide better names for those two.  :)
+Yes! With a vanilla 2.6.10, the noapic solve the problem and ntpd is happy.
 
 
-> Also i found that spi_register_board_info is declared as __init, that
-> mean i can not register board info as a module, is it because there is
-> no 'real' probe on SPI bus?
+> Jean-Christian: Since it ACPI is involved, have you verified that you're
+> running the current BIOS for your system?
 
-Combine that lack of probe with the fact that SPI isn't hotpluggable,
-and that's pretty much why.  You need a table of SPI devices present
-on a given board; that boardinfo should be defined just once, in the
-relevant arch/arm/mach-imx/board-*.c file.  The table never changes,
-so there'd be no point in code to change it after board init is done.
-(Other than wasting some memory!)
+More fun now: it look like the BIOS actually used on this mainboard is 
+not designed for it, but for an other board!!!
 
-You could also use spi_new_device()/spi_unregister_device() if for some
-reason you want to define new boardinfo in a module.  You'd need some
-out-of-band data to determine what devices are present. 
+The board is exactly this one "K7N2 Delta-L":
+http://www.msi.com.tw/program/support/download/dld/spt_dld_detail.php?UID=436&kind=1
+And according to MSI it must use a BIOS version 5.9. But when I enter 
+into the BIOS setup the version info say "W6570MS V7.4 081203".
 
-- Dave
+Here is the BIOS version history: 
+http://www.msi.com.tw/program/support/bios/bos/spt_bos_detail.php?UID=436&kind=1
+The version 7.4 dated 2003-8-12 has a special note:
 
-p.s. There's a minor refresh to the SPI code coming up soonish; just
-     fine tuning, and catching up to 2.6.14-git which has removed a
-     pointless parameter from device_driver.{suspend,resume}() calls.
+1. Only for K7N2 Delta-ILSR
+2. This BIOS cannot be used on K7N2 Delta-L
+
+Crasy. I use this board without any issue since around two years and 
+only found the first problem when upgrading to the kernel 2.6.14!
 
 
+At least the situation is more clear now.
+-- 
+Jean-Christian de Rivaz

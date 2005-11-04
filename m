@@ -1,74 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751538AbVKDPvv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751539AbVKDPw7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751538AbVKDPvv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 10:51:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751539AbVKDPvu
+	id S1751539AbVKDPw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 10:52:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751547AbVKDPw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 10:51:50 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:28634
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1751537AbVKDPvu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 10:51:50 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-Date: Fri, 4 Nov 2005 09:50:58 -0600
-User-Agent: KMail/1.8
-Cc: Blaisorblade <blaisorblade@yahoo.it>, Jeff Dike <jdike@addtoit.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Yasunori Goto <y-goto@jp.fujitsu.com>,
-       Dave Hansen <haveblue@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       Mel Gorman <mel@csn.ul.ie>, "Martin J. Bligh" <mbligh@mbligh.org>,
-       Andrew Morton <akpm@osdl.org>, kravetz@us.ibm.com,
-       linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>
-References: <1130917338.14475.133.camel@localhost> <200511022341.50524.rob@landley.net> <200511040426.47043.blaisorblade@yahoo.it>
-In-Reply-To: <200511040426.47043.blaisorblade@yahoo.it>
+	Fri, 4 Nov 2005 10:52:59 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:57238 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S1751537AbVKDPw7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 10:52:59 -0500
+Message-ID: <436B83D9.8@drzeus.cx>
+Date: Fri, 04 Nov 2005 16:52:57 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.6a1 (X11/20051022)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: dtor_core@ameritech.net
+CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Adam Belay <ambx1@neo.rr.com>
+Subject: Re: [Fwd: [PATCH] [PNP][RFC] Suspend support for PNP bus.]
+References: <436B2819.4090909@drzeus.cx>	 <d120d5000511040649u5b33405an73b5e33fb4ce5cf6@mail.gmail.com>	 <436B7B46.6060205@drzeus.cx> <d120d5000511040727x7d433e08jeb8937cb2e48249a@mail.gmail.com>
+In-Reply-To: <d120d5000511040727x7d433e08jeb8937cb2e48249a@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511040950.59942.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 03 November 2005 21:26, Blaisorblade wrote:
-> > I was hoping that since the file was deleted from disk and is already
-> > getting _some_ special treatment (since it's a longstanding "poor man's
-> > shared memory" hack), that madvise wouldn't flush the data to disk, but
-> > would just zero it out.  A bit optimistic on my part, I know. :)
+Dmitry Torokhov wrote:
+> On 11/4/05, Pierre Ossman <drzeus-list@drzeus.cx> wrote:
+>   
+>> Dmitry Torokhov wrote:
+>>     
+>>> Hmm, would'nt presence of such device stop suspend process? It will
+>>> cause pnp_bus_resume to fail too. Perhaps returning 0 in this case is
+>>> better.
+>>>
+>>>
+>>>       
+>> The problem is that this code is also visited from pnp_activate_dev() &
+>> co where this return value is needed. For pnp_stop_dev() the same check
+>> (pnp_can_disable()) is performed in the suspend routine to avoid that
+>> particular problem. For resume my assumption was that a device that
+>> doesn't support activation will not have a driver attached to it.
+>> Perhaps this is wrong?
+>>
+>>     
 >
-> I read at some time that this optimization existed but was deemed obsolete
-> and removed.
+> i8042 registers drivers for keyboard and AUX ports to gather
+> information whether the ports are present and what IRQ and IO ports
+> shoudl be used to access them. And I have seen a few boxes that do not
+> alloe [de]activate these devices.
 >
-> Why obsolete? Because... we have tmpfs! And that's the point. With
-> DONTNEED, we detach references from page tables, but the content is still
-> pinned: it _is_ the "disk"! (And you have TMPDIR on tmpfs, right?)
+>   
 
-If I had that kind of control over environment my build would always be 
-deployed in (including root access), I wouldn't need UML. :)
+But the activation is performed by the PNP layer when the driver is 
+matched with a driver. So the driver isn't really responsible for the 
+activation. It can prevent activation through 
+PNP_DRIVER_RES_DO_NOT_CHANGE though, but that flag is also checked in 
+the suspend routines.
 
-(P.S. The default for Ubuntu "Horny Hedgehog" is no.  The only tmpfs mount 
-is /dev/shm, and /tmp is on / which is ext3.  Yeah, I need to upgrade my 
-laptop...)
-
-> I guess you refer to using frag. avoidance on the guest
-
-Yes.  Moot point since Linus doesn't want it.
-
-> (if it matters for 
-> the host, let me know). When it will be present using it will be nice, but
-> currently we'd do madvise() on a page-per-page basis, and we'd do it on
-> non-consecutive pages (basically, free pages we either find or free or
-> purpose).
-
-Might be a performance issue if that gets introduced with per-page 
-granularity, and how do you avoid giving back pages we're about to re-use?  
-Oh well, bench it when it happens.  (And in any case, it needs a tunable to 
-beat the page cache into submission or there's no free memory to give back.  
-If there's already such a tuneable, I haven't found it yet.)
-
-Rob
+Rgds
+Pierre

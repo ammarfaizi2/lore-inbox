@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161015AbVKDETJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161018AbVKDEav@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161015AbVKDETJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 23:19:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030601AbVKDETI
+	id S1161018AbVKDEav (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 23:30:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030601AbVKDEav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 23:19:08 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:43189 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030599AbVKDETH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 23:19:07 -0500
-Date: Thu, 3 Nov 2005 23:19:02 -0500
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Dmitry Torokhov <dtor@mail.ru>
-Subject: Re: [PATCH] I8K: convert to seqfile
-Message-ID: <20051104041902.GA23618@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Dmitry Torokhov <dtor@mail.ru>
-References: <200506260103.j5Q13ovn020970@hera.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506260103.j5Q13ovn020970@hera.kernel.org>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 3 Nov 2005 23:30:51 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:28636 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030600AbVKDEau
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 23:30:50 -0500
+In-Reply-To: <7e77d27c0511030526g45d8f6e6l@mail.gmail.com>
+To: Yan Zheng <yzcorp@gmail.com>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+MIME-Version: 1.0
+Subject: Re: [PATCH][MCAST]Two fix for implementation of MLDv2 .
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OF70243A3E.F658C3A4-ON882570AF.001699E7-882570AF.0018C8DB@us.ibm.com>
+From: David Stevens <dlstevens@us.ibm.com>
+Date: Thu, 3 Nov 2005 20:30:57 -0800
+X-MIMETrack: Serialize by Router on D03NM121/03/M/IBM(Release 6.53HF654 | July 22, 2005) at
+ 11/03/2005 21:31:00,
+	Serialize complete at 11/03/2005 21:31:00
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 25, 2005 at 06:03:50PM -0700, Linux Kernel wrote:
- > tree e76bf5589246831604130349ae67b30b998deb29
- > parent e70c9d5e61c6cb2272c866fc1303e62975006752
- > author Dmitry Torokhov <dtor_core@ameritech.net> Sun, 26 Jun 2005 04:54:26 -0700
- > committer Linus Torvalds <torvalds@ppc970.osdl.org> Sun, 26 Jun 2005 06:24:24 -0700
- > 
- > [PATCH] I8K: convert to seqfile
- > 
- > I8K: Change proc code to use seq_file.
- > 
- > Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
- > Signed-off-by: Andrew Morton <akpm@osdl.org>
- > Signed-off-by: Linus Torvalds <torvalds@osdl.org>
- > 
- >  drivers/char/i8k.c |   64 ++++++++++++++++++-----------------------------------
- >  1 files changed, 22 insertions(+), 42 deletions(-)
+Yan,
+        I'm looking at this one. My original interpretation was that a
+group and source specific query should only be answered if the source
+were explicitly listed (which is what the code does), but I see your 
+point.
+A general or group-specific query should still be answered with the
+existing code, and the unsolicited reports will also include the EXCLUDE
+records for that group, so I'm not aware of any actual circumstances
+where a multicast router wouldn't forward. But maybe you have such
+a case. An administrator-initiated query, however, would certainly be
+misleading to the administrator in the example you provided, and so
+far I tend to agree that there should be a record in the report.
+        However, I'm not sure your solution is appropriate since it
+appears to include EXCLUDE records in cases where they aren't
+needed.
+        So, I'll look at this more carefully and see if I still agree
+it needs a fix and whether or not your patch, or some alternative
+method might be more appropriate. But it'll probably be sometime
+next week before I'll be done reviewing/considering alternatives on
+this one.
 
-This took a while to notice somehow, but one of our Fedora users
-upgraded from a 2.6.12 kernel to 2.6.14 today, and noticed
-that his gkrellm segfaulted[1].
-
-The reason is that we've subtley changed the format of /proc/i8k
-
-Before:
-1.0 A38 ? 54 -22 1 -22 79260 -1 2
-
-After:
-1.0 A38  52 -22 1 -22 77340 -1 2
-
-
-The missing '?' field is puzzling though. Looking at the diff,
-this should work.  Is this a shortfalling of seq_file perhaps ?
-
-		Dave
-
-[1] The i8k plugin for that thing is hurrendous btw, don't
-look at it with a weak stomach. It does no sanity checking
-on arguments at all, and assumes things will stay constant.
-Little wonder it blows up when it runs out of things to strcpy()
+                                        +-DLS
 

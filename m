@@ -1,87 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbVKDREL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbVKDRHF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750729AbVKDREL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 12:04:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbVKDREL
+	id S1750735AbVKDRHF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 12:07:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbVKDRHE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 12:04:11 -0500
-Received: from mailwasher.lanl.gov ([192.65.95.54]:64072 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S1750729AbVKDREK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 12:04:10 -0500
-To: torvalds@osdl.org
-Subject: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-Cc: akpm@osdl.org, arjan@infradead.org, arjanv@infradead.org,
-       haveblue@us.ibm.com, kravetz@us.ibm.com,
-       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, mbligh@mbligh.org, mel@csn.ul.ie, mingo@elte.hu,
-       nickpiggin@yahoo.com.au
-Message-Id: <20051104170359.80947184684@thermo.lanl.gov>
-Date: Fri,  4 Nov 2005 10:03:59 -0700 (MST)
-From: andy@thermo.lanl.gov (Andy Nelson)
-X-PMX-Version: 4.7.1.128075
+	Fri, 4 Nov 2005 12:07:04 -0500
+Received: from xproxy.gmail.com ([66.249.82.195]:32474 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750734AbVKDRHC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 12:07:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=j25zTKpLCnMzeY+MtBw80QovAqMNUUmgZJLUELS5pZnra0TkcCw88JI0r6fIzhoudQJlQfE/zSpOGw1urcHnswopxmrNFpQjPamzRd7eRZkBVllos7JdoZVJBJxzurQeqCM9dL0oWPAxHdJr/mjvc/zoHAbj2FGVorRZ+Ajbyqs=
+Message-ID: <afcef88a0511040907ueba985dwe0994f3e78717b08@mail.gmail.com>
+Date: Fri, 4 Nov 2005 11:07:01 -0600
+From: Michael Thompson <michael.craig.thompson@gmail.com>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 1/12: eCryptfs] Makefile and Kconfig
+Cc: Phillip Hellewell <phillip@hellewell.homeip.net>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       mike@halcrow.us, mhalcrow@us.ibm.com, mcthomps@us.ibm.com,
+       yoder1@us.ibm.com
+In-Reply-To: <20051104163555.GA13420@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051103033220.GD2772@sshock.rn.byu.edu>
+	 <20051103034207.GA3005@sshock.rn.byu.edu>
+	 <afcef88a0511030721g68ddf71bjf02397abcd8da30@mail.gmail.com>
+	 <20051103230551.GB30487@kroah.com>
+	 <afcef88a0511040809p4e9cf962me25c037cbfb9e967@mail.gmail.com>
+	 <20051104163555.GA13420@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-
-
-
-
->On Fri, 4 Nov 2005, Andy Nelson wrote:
->> 
->> My measurements of factors of 3-4 on more than one hw arch don't
->> mean anything then?
+On 11/4/05, Greg KH <greg@kroah.com> wrote:
+> On Fri, Nov 04, 2005 at 10:09:43AM -0600, Michael Thompson wrote:
+> > On 11/3/05, Greg KH <greg@kroah.com> wrote:
+> > > On Thu, Nov 03, 2005 at 09:21:16AM -0600, Michael Thompson wrote:
+> > > > On 11/2/05, Phillip Hellewell <phillip@hellewell.homeip.net> wrote:
+> > > > > These patches modify fs/Makefile and fs/Kconfig to provide build
+> > > > > support for eCryptfs.
+> > > > >
+> > > > > Signed off by: Phillip Hellewell <phillip@hellewell.homeip.net>
+> > > > > Signed off by: Michael Halcrow <mhalcrow@us.ibm.com>
+> > > > > Signed off by: Michael Thompson <mmcthomps@us.ibm.com>
+> > > >
+> > > > That should read:
+> > > > Signed off by: Michael Thompson <mcthomps@us.ibm.com>
+> > >
+> > > No, that's not how it is documented on how to do this.  Please try
+> > > again.
+> >
+> > I've just rummaged around in linux/Documentation and I have not been
+> > able to find, either in a specific file, or by looking at "The Perfect
+> > Patch", or other related links, on how to fix an incorrect
+> > "Signed-off-by" line.
 >
->When I _know_ that modern hardware does what you tested at least two 
->orders of magnitude better than the hardware you tested?
+> You do not have the "-"s in the statements above, that is what I was
+> referring to.
+>
+> thanks,
+>
+> greg k-h
+>
 
+You can surely see how I was confused, seeing that you replied to my
+updated and flawed "Signed off by" amendment, stating it was
+incorrect, while the original posting contained exactly the same
+error. However, now that I know what you were talking about, all
+things become clear.
 
-Ok. In other posts you have skeptically accepted Power as a
-`modern' architecture. I have just now dug out some numbers
-of a slightly different problem running on a Power 5. Specifically
-a IBM p575 I think. These tests were done in June, while the others
-were done more than 2.5 years ago. In other words, there may be 
-other small tuning optimizations that have gone in since then too.
+I'll be sure not to make this mistake again, if just for confusion's sake.
 
-The problem is a different configuration of particles, and about
-2 times bigger (7Million) than the one in comp.arch (3million I think).
-I would estimate that the data set in this test spans something like
-2-2.5GB or so.
+Mike
 
-Here are the results:
-
-cpus    4k pages   16m pages
-1       4888.74s   2399.36s
-2       2447.68s   1202.71s
-4       1225.98s    617.23s
-6        790.05s    418.46s
-8        592.26s    310.03s
-12       398.46s    210.62s
-16       296.19s    161.96s
- 
-
-These numbers were on a recent Linux. I don't know which one.
-
-Now it looks like it is down to a factor 2 or slightly more. That
-is a totally different arch, that I think you have accepted as 
-`modern', running the OS that you say doesn't need big page support. 
-
-Still a bit more than insignificant I would say.
-
-
->Think about it. 
-
-Likewise.
-
-
-Andy
-
-
-
-
-
-  
-  
-
+--
+Michael C. Thompson <mcthomps@us.ibm.com>
+Software-Engineer, IBM LTC Security

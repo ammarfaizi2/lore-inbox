@@ -1,64 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbVKDSw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbVKDS7Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750748AbVKDSw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 13:52:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbVKDSw4
+	id S1750822AbVKDS7Z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 13:59:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbVKDS7Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 13:52:56 -0500
-Received: from streetfiresound.liquidweb.com ([64.91.233.29]:37353 "EHLO
-	host.streetfiresound.liquidweb.com") by vger.kernel.org with ESMTP
-	id S1750748AbVKDSwz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 13:52:55 -0500
-Subject: Re: [PATCH/RFC] simple SPI controller on PXA2xx SSP port, refresh
-From: Stephen Street <stephen@streetfiresound.com>
-Reply-To: stephen@streetfiresound.com
-To: David Brownell <david-b@pacbell.net>
-Cc: eemike@gmail.com, Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200511031615.22630.david-b@pacbell.net>
-References: <200511031615.22630.david-b@pacbell.net>
-Content-Type: text/plain
-Organization: StreetFire Sound Labs
-Date: Fri, 04 Nov 2005 10:52:45 -0800
-Message-Id: <1131130365.426.33.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-16) 
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - host.streetfiresound.liquidweb.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - streetfiresound.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Fri, 4 Nov 2005 13:59:25 -0500
+Received: from dslb138.fsr.net ([12.7.7.138]:28907 "EHLO sandall.us")
+	by vger.kernel.org with ESMTP id S1750822AbVKDS7Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 13:59:24 -0500
+Date: Fri, 4 Nov 2005 11:09:07 -0800 (PST)
+From: Eric Sandall <eric@sandall.us>
+X-X-Sender: sandalle@cerberus
+To: Nigel Cunningham <ncunningham@cyclades.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Suspend2-devel@lists.suspend2.net
+Subject: Re: Problems with 2.6.13.4 and sws2 2.2-rc6
+In-Reply-To: <1131054277.5497.1.camel@localhost>
+Message-ID: <Pine.LNX.4.63.0511041108260.2180@cerberus>
+References: <Pine.LNX.4.63.0511021848420.5265@cerberus> <1131054277.5497.1.camel@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-11-03 at 16:15 -0800, David Brownell wrote:
-> Stephen persuaded me to add controller_data too, which is stored in
-> "struct spi_device".  His PXA SPI controller driver uses that for a
-> structure holding what I'd call DMA tuning information, plus a function
-> that tweaks the GPIO used for a chipselect.  Treat it as readonly.
-> 
-> Controller drivers can have two different kinds of state in each
-> spi_device:  static, and dynamic/runtime.  The names used for them
-> are IMO very confusing (platform_data and controller_data) since
-> they don't mean the same as those names do in board_info.  I'd take
-> a patch to provide better names for those two.  :)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I agree, the names are bad...  How about modifying struct spi_board_info
-to
+On Fri, 4 Nov 2005, Nigel Cunningham wrote:
+> Hi Eric.
+> On Thu, 2005-11-03 at 13:56, Eric Sandall wrote:
+>> I cannot seem to hibernate this machine (Dell Inspiron 5100) after
+>> 2.6.12. When I do try, I'm told to report what's in dmesg.log
+>> (attached). I've also included the hibernate log (hibernate.log) and
+>> the output of `lspci -vv` (lspci.log).
+>>
+>> Let me know if you need more information or want me to test any
+>> patches.
+>>
+>> Thank you,
+>
+> Please post to the Suspend2 lists (found via suspend2.net). If you
+> download rc7 or (preferably) rc8, this will be fixed.
+>
+> Regards,
+>
+> Nigel
 
-struct spi_board_info {
-...
+Updating to rc7 (I'm still using the 2.6.13 kernels for now) fixed it,
+thank you. :)
 
-	void *slave_data;
-	void *master_data; 
-...
-};
+- -sandalle
 
--Stephen
+- --
+Eric Sandall                     |  Source Mage GNU/Linux Developer
+eric@sandall.us                  |  http://www.sourcemage.org/
+http://eric.sandall.us/          |  SysAdmin @ Inst. Shock Physics @ WSU
+http://counter.li.org/  #196285  |  http://www.shock.wsu.edu/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-
-
-
+iD8DBQFDa7HVHXt9dKjv3WERAlyDAJ0bc4sQoT1UHEwCjt05ItTTf5fIqACffOBH
+MJ3eg1/1nEUx6cwYtDZrWNM=
+=prG6
+-----END PGP SIGNATURE-----

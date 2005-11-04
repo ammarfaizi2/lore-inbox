@@ -1,37 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750992AbVKDXQA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750918AbVKDXRx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750992AbVKDXQA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 18:16:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbVKDXQA
+	id S1750918AbVKDXRx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 18:17:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750940AbVKDXRx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 18:16:00 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:740 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750987AbVKDXP7 (ORCPT
+	Fri, 4 Nov 2005 18:17:53 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:25551 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750917AbVKDXRw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 18:15:59 -0500
-Date: Fri, 4 Nov 2005 15:15:52 -0800
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: Paul Mackerras <paulus@samba.org>
-Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net
-Subject: [PATCH 0/4] Memory Add Fixes for ppc64
-Message-ID: <20051104231552.GA25545@w-mikek2.ibm.com>
+	Fri, 4 Nov 2005 18:17:52 -0500
+Date: Fri, 4 Nov 2005 15:17:51 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: rpurdie@rpsys.net, lenz@cs.wisc.edu, linux-kernel@vger.kernel.org,
+       rmk@arm.linux.org.uk
+Subject: Re: [patch] collie: enable frontlight
+Message-Id: <20051104151751.32c1abe7.akpm@osdl.org>
+In-Reply-To: <20051101232122.GA27107@elf.ucw.cz>
+References: <20051101232122.GA27107@elf.ucw.cz>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When memory add was merged into mainline in 2.6.14, there were
-various bits and pieces missing that prevent it from working on
-ppc64.  The following patches are against 2.6.14-git7 and address
-all but one of the know issues.
+Pavel Machek <pavel@ucw.cz> wrote:
+>
+> +static spinlock_t fl_lock = SPIN_LOCK_UNLOCKED;
+> +
+> +#define LCM_ALC_EN	0x8000
+> +
+> +void frontlight_set(struct locomo *lchip, int duty, int vr, int bpwf)
+> +{
+> +	unsigned long flags;
+> +
+> +	spin_lock_irqsave(&fl_lock, flags);
+> +	locomo_writel(bpwf, lchip->base + LOCOMO_FRONTLIGHT + LOCOMO_ALS);
+> +	udelay(100);
+> +	locomo_writel(duty, lchip->base + LOCOMO_FRONTLIGHT + LOCOMO_ALD);
+> +	locomo_writel(bpwf | LCM_ALC_EN, lchip->base + LOCOMO_FRONTLIGHT + LOCOMO_ALS);
+> +	spin_unlock_irqrestore(&fl_lock, flags);
+> +}
 
-1) Create hptes for new sections
-2) Clear page count before freeing new pages
-3) Kludge to add new memory to node 0
-4) Ensure probe file is created for memory add via sysfs
-
--- 
-Mike
+ick, a 100 microsecond glitch, quite unnecessary.  Why not use a semaphore
+here, if any locking is actually needed?  (It's called from device probe -
+there's higher-level serialisation, no?)

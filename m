@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbVKDXiN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751115AbVKDXix@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751144AbVKDXiN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 18:38:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbVKDXiN
+	id S1751115AbVKDXix (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 18:38:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbVKDXiS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 18:38:13 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:40343 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751144AbVKDXhy (ORCPT
+	Fri, 4 Nov 2005 18:38:18 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:40631 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1751115AbVKDXhs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 18:37:54 -0500
-Date: Fri, 4 Nov 2005 15:37:43 -0800 (PST)
+	Fri, 4 Nov 2005 18:37:48 -0500
+Date: Fri, 4 Nov 2005 15:37:12 -0800 (PST)
 From: Christoph Lameter <clameter@sgi.com>
 To: akpm@osdl.org
 Cc: Hugh Dickins <hugh@veritas.com>, Mike Kravetz <kravetz@us.ibm.com>,
@@ -20,246 +20,112 @@ Cc: Hugh Dickins <hugh@veritas.com>, Mike Kravetz <kravetz@us.ibm.com>,
        Magnus Damm <magnus.damm@gmail.com>, Paul Jackson <pj@sgi.com>,
        Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
        KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Message-Id: <20051104233743.5459.71557.sendpatchset@schroedinger.engr.sgi.com>
-In-Reply-To: <20051104233712.5459.94627.sendpatchset@schroedinger.engr.sgi.com>
-References: <20051104233712.5459.94627.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 6/7] Direct Migration V1: Avoid writeback using page_migrate() method
+Message-Id: <20051104233712.5459.94627.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [PATCH 0/7] Direct Migration V1: Overview
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Migrate a page with buffers without requiring writeback
+Direct Page Migration
 
-This introduces a new address space operation migrate_page() that
-may be used by a filesystem to implement its own version of page migration.
+This patchset applies on top of the swap based page migration patchset
+V5 and implements direct page migration.
 
-A version is provided that migrates buffers attached to pages. Some
-filesystems (ext2, ext3, xfs) are modified to utilize this feature.
+Note that the page migration here is different from the one of the memory
+hotplug project. Pages are migrated in order to improve performance.
+A best effort is made to migrate all pages that are in use by user space
+and that are swappable. If a couple of pages are not moved then the
+performance of a process will not increase as much as wanted but the
+application will continue to function properly.
 
-The swapper address space operation are modified so that a regular
-migrate_pages() will occur for anonymous pages without writeback
-(migrate_pages forces every anonymous page to have a swap entry).
+Much of the ideas for this code were originally developed in the memory
+hotplug project and we hope that this code also will allow the hotplug
+project to build on this patch in order to get to their goals. We also
+would like to be able to move bad memory at SGI which is likely something
+that will also be based on this patchset.
 
-Signed-off-by: Mike Kravetz <kravetz@us.ibm.com>
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+I am very thankful for the support of the hotplug developers for bringing
+this patchset about. The migration of kernel pages, slab pages and
+other unswappable pages that is also needed by the hotplug project
+and for the remapping of bad memory is likely to require a significant
+amount of additional changes to the Linux kernel beyond the scope of
+this page migration endeavor.
 
-Index: linux-2.6.14-rc5-mm1/include/linux/fs.h
-===================================================================
---- linux-2.6.14-rc5-mm1.orig/include/linux/fs.h	2005-10-31 14:11:15.000000000 -0800
-+++ linux-2.6.14-rc5-mm1/include/linux/fs.h	2005-11-04 11:50:29.000000000 -0800
-@@ -327,6 +327,8 @@ struct address_space_operations {
- 			loff_t offset, unsigned long nr_segs);
- 	struct page* (*get_xip_page)(struct address_space *, sector_t,
- 			int);
-+	/* migrate the contents of a page to the specified target */
-+	int (*migrate_page) (struct page *, struct page *);
- };
- 
- struct backing_dev_info;
-Index: linux-2.6.14-rc5-mm1/mm/swap_state.c
-===================================================================
---- linux-2.6.14-rc5-mm1.orig/mm/swap_state.c	2005-10-31 14:11:17.000000000 -0800
-+++ linux-2.6.14-rc5-mm1/mm/swap_state.c	2005-11-04 11:50:29.000000000 -0800
-@@ -26,6 +26,7 @@ static struct address_space_operations s
- 	.writepage	= swap_writepage,
- 	.sync_page	= block_sync_page,
- 	.set_page_dirty	= __set_page_dirty_nobuffers,
-+	.migrate_page	= migrate_page,
- };
- 
- static struct backing_dev_info swap_backing_dev_info = {
-Index: linux-2.6.14-rc5-mm1/fs/xfs/linux-2.6/xfs_aops.c
-===================================================================
---- linux-2.6.14-rc5-mm1.orig/fs/xfs/linux-2.6/xfs_aops.c	2005-10-19 23:23:05.000000000 -0700
-+++ linux-2.6.14-rc5-mm1/fs/xfs/linux-2.6/xfs_aops.c	2005-11-04 11:50:29.000000000 -0800
-@@ -1356,4 +1356,5 @@ struct address_space_operations linvfs_a
- 	.commit_write		= generic_commit_write,
- 	.bmap			= linvfs_bmap,
- 	.direct_IO		= linvfs_direct_IO,
-+	.migrate_page		= buffer_migrate_page,
- };
-Index: linux-2.6.14-rc5-mm1/fs/buffer.c
-===================================================================
---- linux-2.6.14-rc5-mm1.orig/fs/buffer.c	2005-10-31 14:11:00.000000000 -0800
-+++ linux-2.6.14-rc5-mm1/fs/buffer.c	2005-11-04 14:43:55.000000000 -0800
-@@ -3024,6 +3024,73 @@ asmlinkage long sys_bdflush(int func, lo
- }
- 
- /*
-+ * Migration function for pages with buffers. This function can only be used
-+ * if the underlying filesystem guarantees that no other references to "page"
-+ * exist.
-+ */
-+int buffer_migrate_page(struct page *newpage, struct page *page)
-+{
-+#ifdef CONFIG_MIGRATION
-+	struct address_space *mapping = page->mapping;
-+	struct buffer_head *bh, *head;
-+
-+	if (!mapping)
-+		return -EAGAIN;
-+
-+	if (!page_has_buffers(page))
-+		return migrate_page(newpage, page);
-+
-+	head = page_buffers(page);
-+
-+	/*
-+	 * Remove the mapping so the page can be migrated.
-+	 */
-+	if (migrate_page_remove_references(newpage, page, 3))
-+		return -EAGAIN;
-+
-+	spin_lock(&mapping->private_lock);
-+
-+	bh = head;
-+	do {
-+		get_bh(bh);
-+		lock_buffer(bh);
-+		bh = bh->b_this_page;
-+
-+	} while (bh != head);
-+
-+	ClearPagePrivate(page);
-+	set_page_private(newpage, page_private(page));
-+	set_page_private(page, 0);
-+	put_page(page);
-+	get_page(newpage);
-+
-+	bh = head;
-+	do {
-+		set_bh_page(bh, newpage, bh_offset(bh));
-+		bh = bh->b_this_page;
-+
-+	} while (bh != head);
-+
-+	SetPagePrivate(newpage);
-+	spin_unlock(&mapping->private_lock);
-+
-+	migrate_page_copy(newpage, page);
-+
-+	spin_lock(&mapping->private_lock);
-+	bh = head;
-+	do {
-+		unlock_buffer(bh);
-+ 		put_bh(bh);
-+		bh = bh->b_this_page;
-+
-+	} while (bh != head);
-+	spin_unlock(&mapping->private_lock);
-+
-+#endif
-+	return 0;
-+}
-+
-+/*
-  * Buffer-head allocation
-  */
- static kmem_cache_t *bh_cachep;
-Index: linux-2.6.14-rc5-mm1/fs/ext3/inode.c
-===================================================================
---- linux-2.6.14-rc5-mm1.orig/fs/ext3/inode.c	2005-10-31 14:11:03.000000000 -0800
-+++ linux-2.6.14-rc5-mm1/fs/ext3/inode.c	2005-11-04 11:50:29.000000000 -0800
-@@ -1557,6 +1557,7 @@ static struct address_space_operations e
- 	.invalidatepage	= ext3_invalidatepage,
- 	.releasepage	= ext3_releasepage,
- 	.direct_IO	= ext3_direct_IO,
-+	.migrate_page	= buffer_migrate_page,
- };
- 
- static struct address_space_operations ext3_writeback_aops = {
-@@ -1570,6 +1571,7 @@ static struct address_space_operations e
- 	.invalidatepage	= ext3_invalidatepage,
- 	.releasepage	= ext3_releasepage,
- 	.direct_IO	= ext3_direct_IO,
-+	.migrate_page	= buffer_migrate_page,
- };
- 
- static struct address_space_operations ext3_journalled_aops = {
-Index: linux-2.6.14-rc5-mm1/fs/ext2/inode.c
-===================================================================
---- linux-2.6.14-rc5-mm1.orig/fs/ext2/inode.c	2005-10-31 14:11:03.000000000 -0800
-+++ linux-2.6.14-rc5-mm1/fs/ext2/inode.c	2005-11-04 11:50:29.000000000 -0800
-@@ -706,6 +706,7 @@ struct address_space_operations ext2_aop
- 	.bmap			= ext2_bmap,
- 	.direct_IO		= ext2_direct_IO,
- 	.writepages		= ext2_writepages,
-+	.migrate_page		= buffer_migrate_page,
- };
- 
- struct address_space_operations ext2_aops_xip = {
-@@ -723,6 +724,7 @@ struct address_space_operations ext2_nob
- 	.bmap			= ext2_bmap,
- 	.direct_IO		= ext2_direct_IO,
- 	.writepages		= ext2_writepages,
-+	.migrate_page		= buffer_migrate_page,
- };
- 
- /*
-Index: linux-2.6.14-rc5-mm1/fs/xfs/linux-2.6/xfs_buf.c
-===================================================================
---- linux-2.6.14-rc5-mm1.orig/fs/xfs/linux-2.6/xfs_buf.c	2005-10-31 14:10:52.000000000 -0800
-+++ linux-2.6.14-rc5-mm1/fs/xfs/linux-2.6/xfs_buf.c	2005-11-04 11:50:29.000000000 -0800
-@@ -1633,6 +1633,7 @@ xfs_mapping_buftarg(
- 	struct address_space	*mapping;
- 	static struct address_space_operations mapping_aops = {
- 		.sync_page = block_sync_page,
-+		.migrate_page = fail_migrate_page,
- 	};
- 
- 	inode = new_inode(bdev->bd_inode->i_sb);
-Index: linux-2.6.14-rc5-mm1/include/linux/buffer_head.h
-===================================================================
---- linux-2.6.14-rc5-mm1.orig/include/linux/buffer_head.h	2005-10-31 14:10:59.000000000 -0800
-+++ linux-2.6.14-rc5-mm1/include/linux/buffer_head.h	2005-11-04 11:50:29.000000000 -0800
-@@ -210,6 +210,7 @@ int nobh_truncate_page(struct address_sp
- int nobh_writepage(struct page *page, get_block_t *get_block,
-                         struct writeback_control *wbc);
- 
-+int buffer_migrate_page(struct page *, struct page *);
- 
- /*
-  * inline definitions
-Index: linux-2.6.14-rc5-mm1/mm/vmscan.c
-===================================================================
---- linux-2.6.14-rc5-mm1.orig/mm/vmscan.c	2005-11-04 10:24:57.000000000 -0800
-+++ linux-2.6.14-rc5-mm1/mm/vmscan.c	2005-11-04 11:50:29.000000000 -0800
-@@ -572,6 +572,15 @@ keep:
- 	return reclaimed;
- }
- 
-+/*
-+ * Non migratable page
-+ */
-+int fail_migrate_page(struct page *newpage, struct page *page)
-+{
-+	return -EIO;
-+}
-+
-+
- #ifdef CONFIG_MIGRATION
- /*
-  * swapout a single page
-@@ -885,6 +894,11 @@ redo:
- 		 */
- 		mapping = page_mapping(page);
- 
-+		if (mapping->a_ops->migrate_page) {
-+			rc = mapping->a_ops->migrate_page(newpage, page);
-+			goto unlock_both;
-+                }
-+
- 		/*
- 		 * Trigger writeout if page is dirty
- 		 */
-Index: linux-2.6.14-rc5-mm1/include/linux/swap.h
-===================================================================
---- linux-2.6.14-rc5-mm1.orig/include/linux/swap.h	2005-11-04 10:24:09.000000000 -0800
-+++ linux-2.6.14-rc5-mm1/include/linux/swap.h	2005-11-04 11:50:29.000000000 -0800
-@@ -185,6 +185,7 @@ extern int migrate_pages(struct list_hea
- extern int migrate_page(struct page *, struct page *);
- extern int migrate_page_remove_references(struct page *, struct page *, int);
- extern void migrate_page_copy(struct page *, struct page *);
-+extern int fail_migrate_page(struct page *, struct page *);
- #endif
- 
- #ifdef CONFIG_MMU
+Page migration can be triggered via:
+
+A. Specifying MPOL_MF_MOVE(_ALL) when setting a new policy
+   for a range of addresses of a process.
+
+B. Calling sys_migrate_pages() to control the location of the pages of
+   another process. Pages may migrate back through swapping if memory
+   policies, cpuset nodes and the node on which the process is executing
+   are not changed by other means.
+   sys_migrate_pages() may be particularly useful to move the pages of
+   a process if the scheduler has shifted the execution of a process
+   to a different node.
+
+C. Changing the cpuset of a task (moving tasks to another cpuset or modifying
+   its set of allowed nodes) if a special option is set in the cpuset. The
+   cpuset code will call into the page migration layer in order to move the
+   process to its new environment. This is the preferred and easiest method
+   to use page migration. Thanks to Paul Jackson for realizing this
+   functionality.
+
+Requirements to apply this patch:
+- 2.6.14-rc5-mm1
+- swap migration patchset V5
+- Paul Jackson's newest cpuset patches.
+
+The patchset consists of seven patches (only the first three are necessary to
+have basic direct migration support):
+
+1. CONFIG_MIGRATION patch
+
+   Make page migration configurable and insures that the page migration code
+   is not included in a simple memory configurations.
+
+2. SwapCache patch
+
+   SwapCache pages may have changed their type after lock_page().
+   Check for this and retry lookup if the page is no longer a SwapCache
+   page.
+
+3. migrate_pages()
+
+   Basic direct migration with fallback to swap if all other attempts
+   fail.
+
+4. remove_from_swap()
+
+   Page migration installs swap ptes for anonymous pages in order to
+   preserve the information contained in the page tables. This patch
+   removes the swap ptes and replaces them with real ones after migration.
+
+5. upgrade of MPOL_MF_MOVE and sys_migrate_pages()
+
+   Add logic to mm/mempolicy.c to allow the policy layer to control
+   direct page migration. Thanks to Paul Jackson for the interative
+   logic to move between sets of nodes.
+
+
+6. buffer_migrate_pages() patch
+
+   Allow migration without writing back dirty pages. Add filesystem dependent
+   migration support for ext2/ext3 and xfs. Use swapper space to define a special
+   method to migrate anonymous pages without writeback.
+
+7. add_to_swap with gfp mask
+
+   The default of add_to_swap is to use GFP_ATOMIC for necessary allocations.
+   This may cause out of memory situations during page migration. This patch
+   adds an additional parameter to add_to_swap to allow GFP_KERNEL allocations.
+
+Credits (also in mm/vsmscan.c):
+
+The idea for this scheme of page migration was first developed in the context
+of the memory hotplug project. The main authors of the migration code from
+the memory hotplug project are:
+
+IWAMOTO Toshihiro <iwamoto@valinux.co.jp>
+Hirokazu Takahashi <taka@valinux.co.jp>
+Dave Hansen <haveblue@us.ibm.com>
+

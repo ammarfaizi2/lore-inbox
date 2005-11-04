@@ -1,30 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbVKDQ12@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbVKDQ2Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932130AbVKDQ12 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 11:27:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbVKDQ11
+	id S932136AbVKDQ2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 11:28:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbVKDQ2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 11:27:27 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:31421 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932130AbVKDQ11
+	Fri, 4 Nov 2005 11:28:16 -0500
+Received: from xproxy.gmail.com ([66.249.82.195]:6491 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932136AbVKDQ2N convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 11:27:27 -0500
-Date: Fri, 4 Nov 2005 16:27:26 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: jblunck@suse.de
-Cc: Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC,PATCH] libfs dcache_readdir() and dcache_dir_lseek() bugfix
-Message-ID: <20051104162726.GJ7992@ftp.linux.org.uk>
-References: <20051104115101.GH7992@ftp.linux.org.uk> <20051104122021.GA15061@hasse.suse.de> <E1EY16w-0004HC-00@dorka.pomaz.szeredi.hu> <20051104131858.GA16622@hasse.suse.de> <E1EY1fi-0004LB-00@dorka.pomaz.szeredi.hu> <20051104151104.GA22322@hasse.suse.de> <E1EY3Y8-0004XX-00@dorka.pomaz.szeredi.hu> <20051104154610.GB23962@hasse.suse.de> <E1EY3uI-0004cC-00@dorka.pomaz.szeredi.hu> <20051104160443.GB25491@hasse.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 4 Nov 2005 11:28:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=syjI1K8ZVrPe0yNQNiSi5r0BplPh779HIgTE++wOhdmpvx/jKyQ6qFHxBDNgSKNGnlqRx3ip4eBybKWyA71SWChhhL59QbePm6DvaljQsvnkTfUJ8s34YjCGH9BmhEpokRRzsbb3RGIf8UOdTtJaGZcypkL+Tk06xZ5/Wi+wqjg=
+Message-ID: <afcef88a0511040828w705ffaadn8152ae63cecedc6@mail.gmail.com>
+Date: Fri, 4 Nov 2005 10:28:13 -0600
+From: Michael Thompson <michael.craig.thompson@gmail.com>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: [PATCH 1/12: eCryptfs] Makefile and Kconfig
+Cc: Greg KH <greg@kroah.com>, Phillip Hellewell <phillip@hellewell.homeip.net>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       mike@halcrow.us, mhalcrow@us.ibm.com, mcthomps@us.ibm.com,
+       yoder1@us.ibm.com
+In-Reply-To: <Pine.LNX.4.64.0511041621550.14940@hermes-1.csi.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051104160443.GB25491@hasse.suse.de>
-User-Agent: Mutt/1.4.1i
+References: <20051103033220.GD2772@sshock.rn.byu.edu>
+	 <20051103034207.GA3005@sshock.rn.byu.edu>
+	 <afcef88a0511030721g68ddf71bjf02397abcd8da30@mail.gmail.com>
+	 <20051103230551.GB30487@kroah.com>
+	 <afcef88a0511040809p4e9cf962me25c037cbfb9e967@mail.gmail.com>
+	 <Pine.LNX.4.64.0511041621550.14940@hermes-1.csi.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 04, 2005 at 05:04:43PM +0100, jblunck@suse.de wrote:
-> This is a bug and it should get fixed.
+On 11/4/05, Anton Altaparmakov <aia21@cam.ac.uk> wrote:
+> I have no idea what Greg was talking about either but one thing that is
+> obviously wrong is that as you say it should be "Signed-off-by:" and not
+> "Signed off by:", i.e. you have to have dashes between the words, not
+> spaces.
 
-So fix your libc...
+Signed-off-by: Michael Thompson <mcthomps@us.ibm.com>
+
+I hope this resolves things. If not, do let me know.
+
+Mike Thompson

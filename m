@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932740AbVKDPNz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932745AbVKDPOj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932740AbVKDPNz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 10:13:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932744AbVKDPNz
+	id S932745AbVKDPOj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 10:14:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932746AbVKDPOj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 10:13:55 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:47628 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932740AbVKDPNy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 10:13:54 -0500
-Date: Fri, 4 Nov 2005 16:13:52 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] SCSI_AACRAID: add a help text
-Message-ID: <20051104151352.GA5368@stusta.de>
-References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01D127E0@otce2k03.adaptec.com>
+	Fri, 4 Nov 2005 10:14:39 -0500
+Received: from agmk.net ([217.73.31.34]:17933 "EHLO mail.agmk.net")
+	by vger.kernel.org with ESMTP id S932745AbVKDPOi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 10:14:38 -0500
+From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@agmk.net>
+To: Mark Knecht <markknecht@gmail.com>
+Subject: Re: 3D video card recommendations
+Date: Fri, 4 Nov 2005 16:14:31 +0100
+User-Agent: KMail/1.8.3
+Cc: Steven Rostedt <rostedt@goodmis.org>, LKML <linux-kernel@vger.kernel.org>
+References: <1131112605.14381.34.camel@localhost.localdomain> <5bdc1c8b0511040710q4a4ce3eend6edc2b4027e33b0@mail.gmail.com>
+In-Reply-To: <5bdc1c8b0511040710q4a4ce3eend6edc2b4027e33b0@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-In-Reply-To: <547AF3BD0F3F0B4CBDC379BAC7E4189F01D127E0@otce2k03.adaptec.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200511041614.32219.pluto@agmk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 04, 2005 at 08:35:29AM -0500, Salyzyn, Mark wrote:
+Dnia piątek, 4 listopada 2005 16:10, Mark Knecht napisał:
 
-> It's a good start! I approve. The time stamp and kernel version must
-> have come out of a rift though ;->
+> (...)
+> Currently I haven't found an ATI closed source driver 
+> that supports 2.6.14. so I'm forced to use the Xorg radeon driver.
 
-No, it's an old patch hand-edited to apply against a current kernel...
-
-> The web page covers a broad line of our products, many of which are
-> *not* aacraid based. No big deal, but I must admit Adaptec has not
-> placed a clear delineation. All late model RAID cards from Adaptec are
-> based on the aacraid interface.
-> 
-> Dell CERC, IBM ServeRAID 7t, 8i & 8k and ICP 9014, 9024, 9047, 9087,
-> 5085, 9085 & 9067 SATA and SAS cards are missing.
->...
-
-Thanks for improving the text.
-
-cu
-Adrian
+This patch works fine on my amd64+radeon.
+http://ati.cchtml.com/show_bug.cgi?id=211
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+The only thing necessary for the triumph of evil
+  is for good men to do nothing.
+                                           - Edmund Burke

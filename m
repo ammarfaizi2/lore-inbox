@@ -1,52 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161125AbVKDDRD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030529AbVKDDVh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161125AbVKDDRD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 22:17:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161123AbVKDDRD
+	id S1030529AbVKDDVh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 22:21:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030576AbVKDDVh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 22:17:03 -0500
-Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:60166 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1161125AbVKDDRB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 22:17:01 -0500
-Date: Fri, 4 Nov 2005 14:16:49 +1100
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: do_sendfile ppos check ...
-Message-ID: <20051104031649.GA25858@gondor.apana.org.au>
-References: <20051103175642.GB18015@MAIL.13thfloor.at> <E1EXrRU-0006eK-00@gondolin.me.apana.org.au> <20051104031012.GD22020@MAIL.13thfloor.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 3 Nov 2005 22:21:37 -0500
+Received: from smtp007.mail.ukl.yahoo.com ([217.12.11.96]:6547 "HELO
+	smtp007.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1030529AbVKDDVh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 22:21:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=YeWdmCbETJuvjDUsvB+okD2iMqsSOkQlOR6hwGRoXdqTZbEioPWOq9CXTMFVTBHjAv/N7CXZErKBLPiPwIm1kSw9M4i3xxhYFGqLrZl+stxUwWOGy4OSsfQWXiNHc5m3AkY2eIkwYH/fbjgF5zJS/qwo3bjLAw1eYMlspmQZYQU=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+Date: Fri, 4 Nov 2005 04:26:45 +0100
+User-Agent: KMail/1.8.3
+Cc: Rob Landley <rob@landley.net>, Jeff Dike <jdike@addtoit.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Yasunori Goto <y-goto@jp.fujitsu.com>,
+       Dave Hansen <haveblue@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+       Mel Gorman <mel@csn.ul.ie>, "Martin J. Bligh" <mbligh@mbligh.org>,
+       Andrew Morton <akpm@osdl.org>, kravetz@us.ibm.com,
+       linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lhms <lhms-devel@lists.sourceforge.net>
+References: <1130917338.14475.133.camel@localhost> <20051103052649.GA16508@ccure.user-mode-linux.org> <200511022341.50524.rob@landley.net>
+In-Reply-To: <200511022341.50524.rob@landley.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051104031012.GD22020@MAIL.13thfloor.at>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Message-Id: <200511040426.47043.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 04, 2005 at 04:10:13AM +0100, Herbert Poetzl wrote:
-> 
-> currently investigating ... probably a removal of
-> the 'unnecessary' check (*ppos) would be a better
-> approach, something like:
-> 
-> --- linux-2.6/fs/read_write.c   2005-10-28 23:59:02.000000000 +0200
-> +++ linux-2.6/fs/read_write.c   2005-11-03 17:28:50.000000000 +0100
-> @@ -719,9 +719,6 @@
->        	current->syscr++;
->        	current->syscw++;
-> 
-> -       if (*ppos > max)
-> -               retval = -EOVERFLOW;
-> -
+On Thursday 03 November 2005 06:41, Rob Landley wrote:
+> On Wednesday 02 November 2005 23:26, Jeff Dike wrote:
+> > On Wed, Nov 02, 2005 at 05:28:35PM -0600, Rob Landley wrote:
+> > > With fragmentation reduction and prezeroing, UML suddenly gains the
+> > > option of calling madvise(DONT_NEED) on sufficiently large blocks as A)
+> > > a fast way of prezeroing, B) a way of giving memory back to the host OS
+> > > when it's not in use.
 
-This still doesn't make sense.  If ppos came in as NULL, it should
-have become non-NULL long before it reaches this part of the function.
+> > DONT_NEED is insufficient.  It doesn't discard the data in dirty
+> > file-backed pages.
 
-Look at the top of the do_sendfile function, it sets ppos if it is NULL.
+> I thought DONT_NEED would discard the page cache, and punch was only needed
+> to free up the disk space.
+This is correct, but...
 
-Cheers,
+> I was hoping that since the file was deleted from disk and is already
+> getting _some_ special treatment (since it's a longstanding "poor man's
+> shared memory" hack), that madvise wouldn't flush the data to disk, but
+> would just zero it out.  A bit optimistic on my part, I know. :)
+
+I read at some time that this optimization existed but was deemed obsolete and 
+removed.
+
+Why obsolete? Because... we have tmpfs! And that's the point. With DONTNEED, 
+we detach references from page tables, but the content is still pinned: it 
+_is_ the "disk"! (And you have TMPDIR on tmpfs, right?)
+
+> > Badari Pulavarty has a test patch (google for madvise(MADV_REMOVE))
+> > which does do the trick, and I have a UML patch which adds memory
+> > hotplug.  This combination does free memory back to the host.
+
+> I saw it wander by, and am all for it.  If it goes in, it's obviously the
+> right thing to use.
+Btw, on this side of the picture, I think fragmentation avoidance is not 
+needed for that.
+
+I guess you refer to using frag. avoidance on the guest (if it matters for the 
+host, let me know). When it will be present using it will be nice, but 
+currently we'd do madvise() on a page-per-page basis, and we'd do it on 
+non-consecutive pages (basically, free pages we either find or free or 
+purpose).
+
+> You may remember I asked about this two years ago: 
+> http://seclists.org/lists/linux-kernel/2003/Dec/0919.html
+
+> And a reply indicated that SVr4 had it, but we don't.  I assume the "naming
+> discussion" mentioned in the recent thread already scrubbed through this
+> old thread to determine that the SVr4 API was icky.
+> http://seclists.org/lists/linux-kernel/2003/Dec/0955.html
+
+I assume not everybody did (even if somebody pointed out the existance of the 
+SVr4 API), but there was the need, in at least one usage, for a virtual 
+address-based API rather than a file offset based one, like the SVr4 one - 
+that user would need implementing backward mapping in userspace only for this 
+purpose, while we already have it in the kernel.
+
+Anyway, the sys_punch() API will follow later - customers need mainly 
+madvise() for now.
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
+
+	
+
+	
+		
+___________________________________ 
+Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
+http://mail.yahoo.it

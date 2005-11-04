@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932729AbVKDMTx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932725AbVKDMW5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932729AbVKDMTx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 07:19:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932730AbVKDMTw
+	id S932725AbVKDMW5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 07:22:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932730AbVKDMW5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 07:19:52 -0500
-Received: from mail.suse.de ([195.135.220.2]:20669 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932729AbVKDMTw (ORCPT
+	Fri, 4 Nov 2005 07:22:57 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:22160 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S932725AbVKDMW4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 07:19:52 -0500
-Date: Fri, 4 Nov 2005 13:20:21 +0100
-From: jblunck@suse.de
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC,PATCH] libfs dcache_readdir() and dcache_dir_lseek() bugfix
-Message-ID: <20051104122021.GA15061@hasse.suse.de>
-References: <20051104113851.GA4770@hasse.suse.de> <20051104115101.GH7992@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20051104115101.GH7992@ftp.linux.org.uk>
-"From: jblunck@suse.de"
-User-Agent: Mutt/1.5.9i
+	Fri, 4 Nov 2005 07:22:56 -0500
+Message-Id: <200511041221.jA4CLk78004933@laptop11.inf.utfsm.cl>
+To: "David S. Miller" <davem@davemloft.net>
+cc: vonbrand@inf.utfsm.cl, dtor_core@ameritech.net,
+       linux-kernel@vger.kernel.org, jbglaw@lug-owl.de
+Subject: Re: SPARC64: Configuration offers keyboards that don't make sense 
+In-Reply-To: Message from "David S. Miller" <davem@davemloft.net> 
+   of "Sun, 30 Oct 2005 06:39:23 -0800." <20051030.063923.14657004.davem@davemloft.net> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Fri, 04 Nov 2005 09:21:46 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Fri, 04 Nov 2005 09:21:48 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 04, Al Viro wrote:
-
+David S. Miller <davem@davemloft.net> wrote:
+> From: Horst von Brand <vonbrand@inf.utfsm.cl>
+> Date: Sun, 30 Oct 2005 00:26:33 -0300
+> 
+> > > Sun keyboard can be autodetected AFAIK so you don't need to fiddle with
+> > > inputattach.
 > > 
-> > SuSV3 only says:
-> > "If a file is removed from or added to the directory after the most recent
-> > call to opendir() or rewinddir(), whether a subsequent call to readdir_r()
-> > returns an entry for that file is unspecified."
->  
-> IOW, the applications in question are broken since they rely on unspecified
-> behaviour, not provided by old libc versions.
+> > The setup works for the shipped Aurora kernel, but to compile that
+> > configuration would take a few days...
 
-No. SuSV3 only says that the behavior of readdir() is unspecified w.r.t. an
-entry for the removed/added file. I think readdir() should still return the
-entries which are not removed/added. What do you think?
+> Do you try to load any keymaps at boot time?
+> Try to disable that.
 
-Regards,
-	Jan Blunck
+Finally found the culprit: SERIAL_SUNZILOG can't be module (or has to be
+loaded early, dunno). The Aurora setup tries to load keymaps, and disabling
+that made no difference.
 
+Thanks all for the help!
 -- 
-Jan Blunck                                               jblunck@suse.de
-SuSE LINUX AG - A Novell company
-Maxfeldstr. 5                                          +49-911-74053-608
-D-90409 Nürnberg                                      http://www.suse.de
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+

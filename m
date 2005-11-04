@@ -1,87 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932723AbVKDJmI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161126AbVKDJxx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932723AbVKDJmI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 04:42:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932722AbVKDJmI
+	id S1161126AbVKDJxx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 04:53:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161127AbVKDJxx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 04:42:08 -0500
-Received: from gate.terreactive.ch ([212.90.202.121]:57019 "HELO
-	toe-A.terreactive.ch") by vger.kernel.org with SMTP
-	id S1161094AbVKDJmH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 04:42:07 -0500
-Message-ID: <436B2CE5.5070400@drugphish.ch>
-Date: Fri, 04 Nov 2005 10:41:57 +0100
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: .
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org, ja@ssi.bg
-Subject: [PATCH 2.4] [IPVS] fix missing refcnt put with expire_nodest_conn
-References: <20051031175704.GA619@logos.cnet> <4366E9AA.4040001@gmail.com> <20051101074959.GQ22601@alpha.home.local> <20051101063402.GA3311@logos.cnet>
-In-Reply-To: <20051101063402.GA3311@logos.cnet>
-Content-Type: multipart/mixed;
- boundary="------------090907040204070601040606"
+	Fri, 4 Nov 2005 04:53:53 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:27881 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1161126AbVKDJxx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 04:53:53 -0500
+Date: Fri, 4 Nov 2005 01:52:50 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: bron@bronze.corp.sgi.com, pbadari@gmail.com, jdike@addtoit.com,
+       rob@landley.net, nickpiggin@yahoo.com.au, gh@us.ibm.com, mingo@elte.hu,
+       kamezawa.hiroyu@jp.fujitsu.com, haveblue@us.ibm.com, mel@csn.ul.ie,
+       mbligh@mbligh.org, kravetz@us.ibm.com, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+Message-Id: <20051104015250.42364430.pj@sgi.com>
+In-Reply-To: <20051104000212.2e0e92bd.akpm@osdl.org>
+References: <E1EXEfW-0005ON-00@w-gerrit.beaverton.ibm.com>
+	<200511021747.45599.rob@landley.net>
+	<43699573.4070301@yahoo.com.au>
+	<200511030007.34285.rob@landley.net>
+	<20051103163555.GA4174@ccure.user-mode-linux.org>
+	<1131035000.24503.135.camel@localhost.localdomain>
+	<20051103205202.4417acf4.akpm@osdl.org>
+	<20051103213538.7f037b3a.pj@sgi.com>
+	<20051103214807.68a3063c.akpm@osdl.org>
+	<20051103224239.7a9aee29.pj@sgi.com>
+	<20051103231019.488127a6.akpm@osdl.org>
+	<20051103234530.5fcb2825.pj@sgi.com>
+	<20051104000212.2e0e92bd.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090907040204070601040606
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+> > A per-task stat requires walking the tasklist, to build a list of the
+> > tasks to query.
+> 
+> Nope, just task->mm->whatever.
 
-Hello Marcelo,
+Nope.
 
-It seems we forgot to fix one place where ip_vs_conn_expire_now
-is used. Callers should hold write lock or cp->refcnt (and not forget
-it). This results in hanging template entries when expire_nodest_conn is
-kicking in and trying to remove all connection entries for a specific
-destination.
+Agreed - once you have the task, then sure, that's enough.
 
-Julian Anastasov created a patch to fix this and asked me to forward it
-for inclusion, after test and verification, which have happened the last
-24 hours.
+However - a batch scheduler will end up having to figure out what tasks
+there are to inquire, by either listing the tasks in a cpuset, or
+by listing /proc.  Either way, that's a tasklist scan.  And it will
+have to do that pretty much every iteration of polling, since it has
+no a priori knowledge of what tasks a job is firing up.
 
-This problem also exists in 2.6.x kernels, patch will be sent to netdev.
 
-Signed-off-by: Julian Anastasov <ja@ssi.bg>
-Signed-off-by: Roberto Nibali <ratz@drugphish.ch>
+> Well no.  Because the filtered-whatsit takes two spinlocks and does a bunch
+> of arith for each and every task, each time it calls try_to_free_pages(). 
 
-Please apply this before releasing 2.4.32.
+Neither spinlock is global - the task and a lock in its cpuset.
 
-Best regards,
-Roberto Nibali, ratz
+I see a fair number of existing locks and semaphores, some global
+and some in loops, that look to be in the code invoked by
+try_to_free_pages(). And far more arithmetic than in that little
+filter.
+
+Granted, its cost seen by all, for the benefit of few.  But other sorts
+of per-task or per-mm stats are not going to be free either.  I would
+have figured that doing something per-page, even the most trivial
+"counter++" (better have that mm locked) will likely cost more than
+doing something per try_to_free_pages() call.
+
+
+> The frequency of that could be very high indeed, even when nobody is
+> interested in the metric which is being maintained(!)
+
+When I have a task start allocating memory as fast it can, it is only
+able to call try_to_free_pages() about 10 times a second on an idle
+ia64 SN2 system, with a single thread, or about 20 times a second
+running several threads at once allocating memory.
+
+  That's not "very high" in my book.
+
+What sort of load would hit this much more often?  
+
+
+If more folks need these detailed stats, then that's how it should be.
+
+But I am no fan of exposing more than the minimum kernel vm details for
+use by production software.
+
+We agree that my per-cpuset memory_reclaim_rate meter certainly hides
+more detail than the sorts of stats you are suggesting.  I thought that
+was good, so long as what was needed was still present.
+
 -- 
--------------------------------------------------------------
-addr://Kasinostrasse 30, CH-5001 Aarau tel://++41 62 823 9355
-http://www.terreactive.com             fax://++41 62 823 9356
--------------------------------------------------------------
-terreActive AG                       Wir sichern Ihren Erfolg
--------------------------------------------------------------
-
---------------090907040204070601040606
-Content-Type: text/plain;
- name="linux-2.4.32-rc2-ip_vs_conn_expire_now-fix_refcnt-dec-1.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="linux-2.4.32-rc2-ip_vs_conn_expire_now-fix_refcnt-dec-1.diff"
-
-diff -ur v2.4.32-rc2/linux/net/ipv4/ipvs/ip_vs_core.c linux/net/ipv4/ipvs/ip_vs_core.c
---- v2.4.32-rc2/linux/net/ipv4/ipvs/ip_vs_core.c	2005-11-03 01:20:02.000000000 +0200
-+++ linux/net/ipv4/ipvs/ip_vs_core.c	2005-11-03 01:22:36.347895544 +0200
-@@ -1111,11 +1111,10 @@
- 		if (sysctl_ip_vs_expire_nodest_conn) {
- 			/* try to expire the connection immediately */
- 			ip_vs_conn_expire_now(cp);
--		} else {
--			/* don't restart its timer, and silently
--			   drop the packet. */
--			__ip_vs_conn_put(cp);
- 		}
-+		/* don't restart its timer, and silently
-+		   drop the packet. */
-+		__ip_vs_conn_put(cp);
- 		return NF_DROP;
- 	}
-
---------------090907040204070601040606--
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

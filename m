@@ -1,110 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbVKDRAi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbVKDREL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750728AbVKDRAi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 12:00:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbVKDRAi
+	id S1750729AbVKDREL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 12:04:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbVKDREL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 12:00:38 -0500
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:11864 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S1750728AbVKDRAi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 12:00:38 -0500
-Date: Fri, 4 Nov 2005 18:00:36 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Andrew Morton <akpm@osdl.org>
-cc: Dave Jones <davej@redhat.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2/2] Don't include sched.h from module.h
-In-Reply-To: <Pine.LNX.4.61.0511041746470.4856@gans.physik3.uni-rostock.de>
-Message-ID: <Pine.LNX.4.61.0511041757190.4887@gans.physik3.uni-rostock.de>
-References: <Pine.LNX.4.61.0511041746470.4856@gans.physik3.uni-rostock.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 4 Nov 2005 12:04:11 -0500
+Received: from mailwasher.lanl.gov ([192.65.95.54]:64072 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S1750729AbVKDREK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 12:04:10 -0500
+To: torvalds@osdl.org
+Subject: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+Cc: akpm@osdl.org, arjan@infradead.org, arjanv@infradead.org,
+       haveblue@us.ibm.com, kravetz@us.ibm.com,
+       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, mbligh@mbligh.org, mel@csn.ul.ie, mingo@elte.hu,
+       nickpiggin@yahoo.com.au
+Message-Id: <20051104170359.80947184684@thermo.lanl.gov>
+Date: Fri,  4 Nov 2005 10:03:59 -0700 (MST)
+From: andy@thermo.lanl.gov (Andy Nelson)
+X-PMX-Version: 4.7.1.128075
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Do not include sched.h from module.h. Also move some stuff to wait.h
-where it fits better (this part actually is from a patch by Dave Jones).
-This reduces the number of files directly or indirectly including sched.h
-from 5492 to 5057 on i386. Further reduction of this number is possible
-and will be achieved with future patches.
 
-Extensive ctags- and grep-based analysis was performed for all
-architectures to locate files that rely on indirectly including
-sched.h through module.h. Fixes for these where submitted previously.
-Compile tested with allnoconfig, defconfig and allmodconfig on
-i386, x86_64, alpha, ppc64, ia64, arm, mips and um (not that all
-of these actually build, but make -k gives the same messages with
-and without this patch). Still this patch bears some risk of compile
-breakage, which should however be easily fixed when uncovered.
 
-Analysis and compile tests where done against 2.6.14-git3.
-A quick x86_64 only compile test seems to indicate the patch still
-applies well to 2.6.14-git7.
 
-Signed-off-by: Tim Schmielau <tim@physik3.uni-rostock.de>
----
-diff -urpP linux-2.6.14-git3/include/linux/module.h linux-2.6.14-git3-sr/include/linux/module.h
---- linux-2.6.14-git3/include/linux/module.h	2005-10-31 12:32:56.000000000 +0100
-+++ linux-2.6.14-git3-sr/include/linux/module.h	2005-10-31 12:34:33.000000000 +0100
-@@ -7,7 +7,6 @@
-  * Rewritten again by Rusty Russell, 2002
-  */
- #include <linux/config.h>
--#include <linux/sched.h>
- #include <linux/spinlock.h>
- #include <linux/list.h>
- #include <linux/stat.h>
-@@ -18,8 +17,11 @@
- #include <linux/stringify.h>
- #include <linux/kobject.h>
- #include <linux/moduleparam.h>
--#include <asm/local.h>
-+#include <linux/wait.h>
-+#include <linux/smp.h>
-+#include <linux/threads.h>
+
+
+
+>On Fri, 4 Nov 2005, Andy Nelson wrote:
+>> 
+>> My measurements of factors of 3-4 on more than one hw arch don't
+>> mean anything then?
+>
+>When I _know_ that modern hardware does what you tested at least two 
+>orders of magnitude better than the hardware you tested?
+
+
+Ok. In other posts you have skeptically accepted Power as a
+`modern' architecture. I have just now dug out some numbers
+of a slightly different problem running on a Power 5. Specifically
+a IBM p575 I think. These tests were done in June, while the others
+were done more than 2.5 years ago. In other words, there may be 
+other small tuning optimizations that have gone in since then too.
+
+The problem is a different configuration of particles, and about
+2 times bigger (7Million) than the one in comp.arch (3million I think).
+I would estimate that the data set in this test spans something like
+2-2.5GB or so.
+
+Here are the results:
+
+cpus    4k pages   16m pages
+1       4888.74s   2399.36s
+2       2447.68s   1202.71s
+4       1225.98s    617.23s
+6        790.05s    418.46s
+8        592.26s    310.03s
+12       398.46s    210.62s
+16       296.19s    161.96s
  
-+#include <asm/local.h>
- #include <asm/module.h>
- 
- /* Not Yet Implemented */
-diff -urpP linux-2.6.14-git3/include/linux/sched.h linux-2.6.14-git3-sr/include/linux/sched.h
---- linux-2.6.14-git3/include/linux/sched.h	2005-10-31 12:32:56.000000000 +0100
-+++ linux-2.6.14-git3-sr/include/linux/sched.h	2005-10-31 12:34:33.000000000 +0100
-@@ -1020,15 +1020,8 @@ extern void switch_uid(struct user_struc
- 
- extern void do_timer(struct pt_regs *);
- 
--extern int FASTCALL(wake_up_state(struct task_struct * tsk, unsigned int state));
--extern int FASTCALL(wake_up_process(struct task_struct * tsk));
--extern void FASTCALL(wake_up_new_task(struct task_struct * tsk,
--						unsigned long clone_flags));
--#ifdef CONFIG_SMP
-- extern void kick_process(struct task_struct *tsk);
--#else
-- static inline void kick_process(struct task_struct *tsk) { }
--#endif
-+#include <linux/wait.h>
-+
- extern void FASTCALL(sched_fork(task_t * p, int clone_flags));
- extern void FASTCALL(sched_exit(task_t * p));
- 
-diff -urpP linux-2.6.14-git3/include/linux/wait.h linux-2.6.14-git3-sr/include/linux/wait.h
---- linux-2.6.14-git3/include/linux/wait.h	2005-10-28 02:02:08.000000000 +0200
-+++ linux-2.6.14-git3-sr/include/linux/wait.h	2005-10-31 12:34:33.000000000 +0100
-@@ -148,6 +148,16 @@ int FASTCALL(out_of_line_wait_on_bit(voi
- int FASTCALL(out_of_line_wait_on_bit_lock(void *, int, int (*)(void *), unsigned));
- wait_queue_head_t *FASTCALL(bit_waitqueue(void *, int));
- 
-+extern int FASTCALL(wake_up_state(struct task_struct * tsk, unsigned int state));
-+extern int FASTCALL(wake_up_process(struct task_struct * tsk));
-+extern void FASTCALL(wake_up_new_task(struct task_struct * tsk,
-+				      unsigned long clone_flags));
-+#ifdef CONFIG_SMP
-+ extern void kick_process(struct task_struct *tsk);
-+#else
-+ static inline void kick_process(struct task_struct *tsk) { }
-+#endif
-+
- #define wake_up(x)			__wake_up(x, TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, 1, NULL)
- #define wake_up_nr(x, nr)		__wake_up(x, TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, nr, NULL)
- #define wake_up_all(x)			__wake_up(x, TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, 0, NULL)
+
+These numbers were on a recent Linux. I don't know which one.
+
+Now it looks like it is down to a factor 2 or slightly more. That
+is a totally different arch, that I think you have accepted as 
+`modern', running the OS that you say doesn't need big page support. 
+
+Still a bit more than insignificant I would say.
+
+
+>Think about it. 
+
+Likewise.
+
+
+Andy
+
+
+
+
+
+  
+  
+

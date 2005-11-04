@@ -1,68 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161086AbVKDGnx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbVKDHAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161086AbVKDGnx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 01:43:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161089AbVKDGnw
+	id S1751399AbVKDHAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 02:00:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751410AbVKDHAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 01:43:52 -0500
-Received: from gate.crashing.org ([63.228.1.57]:10952 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1161086AbVKDGnw (ORCPT
+	Fri, 4 Nov 2005 02:00:09 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:30390 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751399AbVKDHAH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 01:43:52 -0500
-Subject: Re: Parallel ATA with libata status with the patches I'm working on
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1131029686.18848.48.camel@localhost.localdomain>
-References: <1131029686.18848.48.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 04 Nov 2005 17:43:05 +1100
-Message-Id: <1131086585.4680.235.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Fri, 4 Nov 2005 02:00:07 -0500
+Message-ID: <436B06F3.80209@pobox.com>
+Date: Fri, 04 Nov 2005 02:00:03 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Parallel ATA with libata status with the patches I'm working
+ on
+References: <1131029686.18848.48.camel@localhost.localdomain> <1131086585.4680.235.camel@gaston>
+In-Reply-To: <1131086585.4680.235.camel@gaston>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-11-03 at 14:54 +0000, Alan Cox wrote:
-> Core Features Fixed
-> - Per drive tuning
-> - Filter quirk lists
-> - Single channel support
+Benjamin Herrenschmidt wrote:
+>>- HPA
+>>- IRQ mask
 > 
-> And To Add
-> - Specify PCI bus speed
+> 
+> Why do we need the above at all ? It always looked to me like a gross
+> hack but then, I don't fully understand what the problem was on those
+> old x86 that needed it :)
 
-Please, do the above such a way that we can have an arch hook for the
-bus speed. It's actually not uncommon to have several busses with
-different speeds in a machine. In addition, I've seen IDE drivers
-calculating based on the bus speed while the HW apparently used a clock
-source that didn't necessarily had to be ... PciClk ... Oh well...
 
-> - HPA
-> - IRQ mask
+Not sure about IRQ mask.
 
-Why do we need the above at all ? It always looked to me like a gross
-hack but then, I don't fully understand what the problem was on those
-old x86 that needed it :)
+For host-protected area (HPA), I've been thinking about a dm-hpa driver, 
+which libata causes to auto-attach to the libata-discovered disks during 
+probe.
 
-> AEC62xx
-> ATIIXP
-> CMD64x
-> CY82C693
-> IT8172
-> NS87415
-> OPTI621
-> PDC202xx
-> SGI IOC4
-> SIS5513
-> SL82C105
-> SLC90E66
-> TRM290
-> PCMCIA (needs hotplug merge first)
+That gives people full access to the disk (and to the HPA), while 
+ensuring that there are no partition mismatch issues.
 
-Add ppc/pmac.c but its up to me to do it :)
+Not sure how well it will work out in practice, but it's worth thinking 
+about.
 
-Ben.
+If auto-attach/etc. doesn't work, I lean towards defaulting libata to 
+enable access to the HPA, under the philosophy "export 100% of the 
+hardware".  Then an interested party could create an optional dm-hpa 
+piece, to split 100%-of-the-hardware into two pieces, one a 
+partitionable device, and the other, the HPA.
+
+	Jeff
 
 

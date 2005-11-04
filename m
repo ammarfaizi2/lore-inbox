@@ -1,219 +1,193 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbVKDWMf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751037AbVKDWOG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751034AbVKDWMf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 17:12:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751038AbVKDWMf
+	id S1751037AbVKDWOG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 17:14:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751039AbVKDWOG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 17:12:35 -0500
-Received: from smtp1-g19.free.fr ([212.27.42.27]:13204 "EHLO smtp1-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1751034AbVKDWMe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 17:12:34 -0500
-Message-ID: <436BDCCE.2070906@free.fr>
-Date: Fri, 04 Nov 2005 23:12:30 +0100
-From: Laurent Riffard <laurent.riffard@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.11) Gecko/20050729
-X-Accept-Language: fr-fr, fr, en
-MIME-Version: 1.0
-To: Stephen Hemminger <shemminger@osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 1/1] PCI: automatically set device_driver.owner
-References: <20051027211253.457180000@antares.localdomain> <20051027161744.623e1ada@dxpl.pdx.osdl.net>
-In-Reply-To: <20051027161744.623e1ada@dxpl.pdx.osdl.net>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: multipart/mixed;
- boundary="------------020200040503020008000406"
+	Fri, 4 Nov 2005 17:14:06 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:25265 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751038AbVKDWOF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 17:14:05 -0500
+Date: Fri, 4 Nov 2005 16:14:00 -0600
+To: paulus@samba.org, linuxppc64-dev@ozlabs.org
+Cc: johnrose@austin.ibm.com, linux-pci@atrey.karlin.mff.cuni.cz,
+       bluesmoke-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 41/42]: ppc64: Save device BARS much earlier in the boot sequence
+Message-ID: <20051104221400.GS19593@austin.ibm.com>
+References: <20051103235918.GA25616@mail.gnucash.org> <20051104005519.GA27189@mail.gnucash.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051104005519.GA27189@mail.gnucash.org>
+User-Agent: Mutt/1.5.6+20040907i
+From: linas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020200040503020008000406
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
+Hi,
 
+On Thu, Nov 03, 2005 at 06:55:19PM -0600, Linas Vepstas was heard to remark:
+> Save the PCI device bars *before* any PCI probing is done. 
 
-Le 28.10.2005 01:17, Stephen Hemminger a écrit :
-> On Thu, 27 Oct 2005 23:12:54 +0200
-> Laurent riffard <laurent.riffard@free.fr> wrote:
-> 
-> 
->>A nice feature of sysfs is that it can create the symlink from the
->>driver to the module that is contained in it.
->>
->>It requires that the device_driver.owner is set, what is not the
->>case for many PCI drivers.
->>
->>This patch allows pci_register_driver to set automatically the
->>device_driver.owner for any PCI driver.
->>
->>Credits to Al Viro who suggested the method.
->>
->>Signed-off-by: Laurent Riffard <laurent.riffard@free.fr>
->>--
-> 
-> 
-> Okay, but a little too much macro trickery for my taste.
+After a tiny bit of extra testing, I found one of those forehead
+slapping bugs in this patch.  Here it is again, with the bug fixed.
 
-It was not clear to me what happened to this patch. Is it rejected?
-Or is it accepted as is? Or is a better version waited?
+(So far, all the other tests look good; I've survived 24 hours of 
+several thousand artifical pci errors injected onto ethernet and scsi
+intermingled with hundreds of pci slot adds/removes.)
 
-So here is a new version using inline functions instead of macros.
--- 
-laurent
+------------
 
---------------020200040503020008000406
-Content-Type: text/x-patch;
- name="pci_driver_auto_set_owner-inline_version.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="pci_driver_auto_set_owner-inline_version.patch"
+241-eeh-save-bars-earlier.patch
 
-A nice feature of sysfs is that it can create the symlink from the
-driver to the module that is contained in it.
+Save the PCI device bars *before* any PCI probing is done. 
 
-It requires that the device_driver.owner is set, what is not the
-case for many PCI drivers.
+Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
 
-This patch allows pci_register_driver to set automatically the
-device_driver.owner for any PCI driver.
-
-Credits to Al Viro who suggested the method.
-
-Signed-off-by: Laurent Riffard <laurent.riffard@free.fr>
 --
-
- drivers/ide/setup-pci.c  |   12 +++++++-----
- drivers/pci/pci-driver.c |    9 +++++----
- include/linux/ide.h      |    6 +++++-
- include/linux/pci.h      |    8 ++++++--
- 4 files changed, 23 insertions(+), 12 deletions(-)
-
-Index: linux-2.6-stable/include/linux/pci.h
+Index: linux-2.6.14-git6/arch/ppc64/kernel/rtas_pci.c
 ===================================================================
---- linux-2.6-stable.orig/include/linux/pci.h
-+++ linux-2.6-stable/include/linux/pci.h
-@@ -433,7 +433,11 @@
- void pci_enable_bridges(struct pci_bus *bus);
- 
- /* New-style probing supporting hot-pluggable devices */
--int pci_register_driver(struct pci_driver *);
-+int __pci_register_driver(struct pci_driver *, struct module *);
-+static inline int pci_register_driver(struct pci_driver *d)
-+{
-+	return __pci_register_driver(d, THIS_MODULE);
-+}
- void pci_unregister_driver(struct pci_driver *);
- void pci_remove_behind_bridge(struct pci_dev *);
- struct pci_driver *pci_dev_driver(const struct pci_dev *);
-@@ -547,7 +551,7 @@
- static inline void pci_disable_device(struct pci_dev *dev) { }
- static inline int pci_set_dma_mask(struct pci_dev *dev, u64 mask) { return -EIO; }
- static inline int pci_assign_resource(struct pci_dev *dev, int i) { return -EBUSY;}
--static inline int pci_register_driver(struct pci_driver *drv) { return 0;}
-+static inline int __pci_register_driver(struct pci_driver *drv, struct module *owner) { return 0;}
- static inline void pci_unregister_driver(struct pci_driver *drv) { }
- static inline int pci_find_capability (struct pci_dev *dev, int cap) {return 0; }
- static inline int pci_find_ext_capability (struct pci_dev *dev, int cap) {return 0; }
-Index: linux-2.6-stable/drivers/pci/pci-driver.c
-===================================================================
---- linux-2.6-stable.orig/drivers/pci/pci-driver.c
-+++ linux-2.6-stable/drivers/pci/pci-driver.c
-@@ -361,15 +361,16 @@
- };
- 
- /**
-- * pci_register_driver - register a new pci driver
-+ * __pci_register_driver - register a new pci driver
-  * @drv: the driver structure to register
-+ * @owner: owner module of drv
-  * 
-  * Adds the driver structure to the list of registered drivers.
-  * Returns a negative value on error, otherwise 0. 
-  * If no error occurred, the driver remains registered even if 
-  * no device was claimed during registration.
-  */
--int pci_register_driver(struct pci_driver *drv)
-+int __pci_register_driver(struct pci_driver *drv, struct module *owner)
- {
- 	int error;
- 
-@@ -386,7 +387,7 @@
- 		printk(KERN_WARNING "Warning: PCI driver %s has a struct "
- 			"device_driver shutdown method, please update!\n",
- 			drv->name);
--	drv->driver.owner = drv->owner;
-+	drv->driver.owner = owner;
- 	drv->driver.kobj.ktype = &pci_driver_kobj_type;
- 
- 	spin_lock_init(&drv->dynids.lock);
-@@ -523,7 +524,7 @@
- 
- EXPORT_SYMBOL(pci_match_id);
- EXPORT_SYMBOL(pci_match_device);
--EXPORT_SYMBOL(pci_register_driver);
-+EXPORT_SYMBOL(__pci_register_driver);
- EXPORT_SYMBOL(pci_unregister_driver);
- EXPORT_SYMBOL(pci_dev_driver);
- EXPORT_SYMBOL(pci_bus_type);
-Index: linux-2.6-stable/drivers/ide/setup-pci.c
-===================================================================
---- linux-2.6-stable.orig/drivers/ide/setup-pci.c
-+++ linux-2.6-stable/drivers/ide/setup-pci.c
-@@ -787,8 +787,9 @@
- static LIST_HEAD(ide_pci_drivers);
- 
- /*
-- *	ide_register_pci_driver		-	attach IDE driver
-+ *	__ide_register_pci_driver	-	attach IDE driver
-  *	@driver: pci driver
-+ *	@module: owner module of the driver
-  *
-  *	Registers a driver with the IDE layer. The IDE layer arranges that
-  *	boot time setup is done in the expected device order and then 
-@@ -801,15 +802,16 @@
-  *	Returns are the same as for pci_register_driver
-  */
- 
--int ide_pci_register_driver(struct pci_driver *driver)
-+int __ide_pci_register_driver(struct pci_driver *driver, struct module *module)
- {
- 	if(!pre_init)
--		return pci_module_init(driver);
-+		return __pci_register_driver(driver, module);
-+	driver->driver.owner = module;
- 	list_add_tail(&driver->node, &ide_pci_drivers);
- 	return 0;
+--- linux-2.6.14-git6.orig/arch/ppc64/kernel/rtas_pci.c	2005-11-03 14:46:40.000000000 -0600
++++ linux-2.6.14-git6/arch/ppc64/kernel/rtas_pci.c	2005-11-03 14:50:22.000000000 -0600
+@@ -72,7 +72,7 @@
+         return 0;
  }
  
--EXPORT_SYMBOL_GPL(ide_pci_register_driver);
-+EXPORT_SYMBOL_GPL(__ide_pci_register_driver);
+-static int rtas_read_config(struct pci_dn *pdn, int where, int size, u32 *val)
++int rtas_read_config(struct pci_dn *pdn, int where, int size, u32 *val)
+ {
+ 	int returnval = -1;
+ 	unsigned long buid, addr;
+Index: linux-2.6.14-git6/include/asm-powerpc/ppc-pci.h
+===================================================================
+--- linux-2.6.14-git6.orig/include/asm-powerpc/ppc-pci.h	2005-11-03 14:50:21.000000000 -0600
++++ linux-2.6.14-git6/include/asm-powerpc/ppc-pci.h	2005-11-03 14:50:22.000000000 -0600
+@@ -59,8 +59,6 @@
+ void pci_addr_cache_build(void);
+ struct pci_dev *pci_get_device_by_addr(unsigned long addr);
+ 
+-void eeh_save_bars(struct pci_dev * pdev, struct pci_dn *pdn);
+-
+ /**
+  * eeh_slot_error_detail -- record and EEH error condition to the log
+  * @severity: 1 if temporary, 2 if permanent failure.
+@@ -104,6 +102,7 @@
+ void rtas_configure_bridge(struct pci_dn *);
+ 
+ int rtas_write_config(struct pci_dn *, int where, int size, u32 val);
++int rtas_read_config(struct pci_dn *, int where, int size, u32 *val);
  
  /**
-  *	ide_unregister_pci_driver	-	unregister an IDE driver
-@@ -897,6 +899,6 @@
- 	{
- 		list_del(l);
- 		d = list_entry(l, struct pci_driver, node);
--		pci_register_driver(d);
-+		__pci_register_driver(d, d->driver.owner);
+  * mark and clear slots: find "partition endpoint" PE and set or 
+Index: linux-2.6.14-git6/include/asm-ppc64/pci-bridge.h
+===================================================================
+--- linux-2.6.14-git6.orig/include/asm-ppc64/pci-bridge.h	2005-11-03 14:50:15.000000000 -0600
++++ linux-2.6.14-git6/include/asm-ppc64/pci-bridge.h	2005-11-03 14:50:22.000000000 -0600
+@@ -58,15 +58,15 @@
+ struct iommu_table;
+ 
+ struct pci_dn {
+-	int	busno;			/* for pci devices */
+-	int	bussubno;		/* for pci devices */
+-	int	devfn;			/* for pci devices */
++	int	busno;			/* pci bus number */
++	int	bussubno;		/* pci subordinate bus number */
++	int	devfn;			/* pci device and function number */
++	int	class_code;		/* pci device class */
+ 	int	eeh_mode;		/* See eeh.h for possible EEH_MODEs */
+ 	int	eeh_config_addr;
+ 	int	eeh_pe_config_addr; /* new-style partition endpoint address */
+ 	int 	eeh_check_count;	/* # times driver ignored error */
+ 	int 	eeh_freeze_count;	/* # times this device froze up. */
+-	int	eeh_is_bridge;		/* device is pci-to-pci bridge */
+ 
+ 	int	pci_ext_config_space;	/* for pci devices */
+ 	struct  pci_controller *phb;	/* for pci devices */
+Index: linux-2.6.14-git6/arch/powerpc/platforms/pseries/eeh.c
+===================================================================
+--- linux-2.6.14-git6.orig/arch/powerpc/platforms/pseries/eeh.c	2005-11-03 14:50:21.000000000 -0600
++++ linux-2.6.14-git6/arch/powerpc/platforms/pseries/eeh.c	2005-11-04 16:07:29.596059751 -0600
+@@ -106,6 +106,8 @@
+ static DEFINE_PER_CPU(unsigned long, ignored_failures);
+ static DEFINE_PER_CPU(unsigned long, slot_resets);
+ 
++#define IS_BRIDGE(class_code) (((class_code)<<16) == PCI_BASE_CLASS_BRIDGE)
++
+ /* --------------------------------------------------------------- */
+ /* Below lies the EEH event infrastructure */
+ 
+@@ -620,7 +622,7 @@
+ 	if (!pdn) 
+ 		return;
+ 	
+-	if ((pdn->eeh_mode & EEH_MODE_SUPPORTED) && (!pdn->eeh_is_bridge))
++	if ((pdn->eeh_mode & EEH_MODE_SUPPORTED) && !IS_BRIDGE(pdn->class_code))
+ 		__restore_bars (pdn);
+ 
+ 	dn = pdn->node->child;
+@@ -638,18 +640,15 @@
+  * PCI devices are added individuallly; but, for the restore,
+  * an entire slot is reset at a time.
+  */
+-void eeh_save_bars(struct pci_dev * pdev, struct pci_dn *pdn)
++static void eeh_save_bars(struct pci_dn *pdn)
+ {
+ 	int i;
+ 
+-	if (!pdev || !pdn )
++	if (!pdn )
+ 		return;
+ 	
+ 	for (i = 0; i < 16; i++)
+-		pci_read_config_dword(pdev, i * 4, &pdn->config_space[i]);
+-
+-	if (pdev->hdr_type == PCI_HEADER_TYPE_BRIDGE)
+-		pdn->eeh_is_bridge = 1;
++		rtas_read_config(pdn, i * 4, 4, &pdn->config_space[i]);
+ }
+ 
+ void
+@@ -703,6 +702,9 @@
+ 	pdn->eeh_check_count = 0;
+ 	pdn->eeh_freeze_count = 0;
+ 
++	if (class_code)
++		pdn->class_code = *class_code;
++	
+ 	if (status && strcmp(status, "ok") != 0)
+ 		return NULL;	/* ignore devices with bad status */
+ 
+@@ -781,6 +783,7 @@
+ 		       dn->full_name);
  	}
- }
-Index: linux-2.6-stable/include/linux/ide.h
-===================================================================
---- linux-2.6-stable.orig/include/linux/ide.h
-+++ linux-2.6-stable/include/linux/ide.h
-@@ -1324,7 +1324,11 @@
- extern int ideprobe_init(void);
  
- extern void ide_scan_pcibus(int scan_direction) __init;
--extern int ide_pci_register_driver(struct pci_driver *driver);
-+extern int __ide_pci_register_driver(struct pci_driver *driver, struct module *owner);
-+static inline int ide_pci_register_driver(struct pci_driver *d)
-+{
-+	return __ide_pci_register_driver(d, THIS_MODULE);
-+}
- extern void ide_pci_unregister_driver(struct pci_driver *driver);
- void ide_pci_setup_ports(struct pci_dev *, struct ide_pci_device_s *, int, ata_index_t *);
- extern void ide_setup_pci_noise (struct pci_dev *dev, struct ide_pci_device_s *d);
++	eeh_save_bars(pdn);
+ 	return NULL;
+ }
+ 
+@@ -915,7 +918,6 @@
+ 	pdn->pcidev = dev;
+ 
+ 	pci_addr_cache_insert_device (dev);
+-	eeh_save_bars(dev, pdn);
+ }
+ EXPORT_SYMBOL_GPL(eeh_add_device_late);
+ 
+Index: linux-2.6.14-git6/arch/powerpc/platforms/pseries/eeh_cache.c
+===================================================================
+--- linux-2.6.14-git6.orig/arch/powerpc/platforms/pseries/eeh_cache.c	2005-11-03 14:50:19.000000000 -0600
++++ linux-2.6.14-git6/arch/powerpc/platforms/pseries/eeh_cache.c	2005-11-04 10:22:51.000000000 -0600
+@@ -304,10 +304,7 @@
+ 
+ 		pci_addr_cache_insert_device(dev);
+ 
+-		/* Save the BAR's; firmware doesn't restore these after EEH reset */
+ 		dn = pci_device_to_OF_node(dev);
+-		eeh_save_bars(dev, PCI_DN(dn));
+-
+ 		pci_dev_get (dev);  /* matching put is in eeh_remove_device() */
+ 		PCI_DN(dn)->pcidev = dev;
+ 	}
 
---------------020200040503020008000406--
+

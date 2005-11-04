@@ -1,76 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161097AbVKDITe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161098AbVKDI2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161097AbVKDITe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 03:19:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161101AbVKDITd
+	id S1161098AbVKDI2x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 03:28:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161101AbVKDI2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 03:19:33 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:51164 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161097AbVKDITd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 03:19:33 -0500
-Subject: Re: [patch] swapin rlimit
-From: Arjan van de Ven <arjan@infradead.org>
+	Fri, 4 Nov 2005 03:28:53 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:56245 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1161098AbVKDI2x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 03:28:53 -0500
+Date: Fri, 4 Nov 2005 00:28:33 -0800 (PST)
+From: Paul Jackson <pj@sgi.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, pbadari@gmail.com, torvalds@osdl.org,
-       jdike@addtoit.com, rob@landley.net, nickpiggin@yahoo.com.au,
-       gh@us.ibm.com, kamezawa.hiroyu@jp.fujitsu.com, haveblue@us.ibm.com,
-       mel@csn.ul.ie, mbligh@mbligh.org, kravetz@us.ibm.com,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net
-In-Reply-To: <20051103233628.12ed1eee.akpm@osdl.org>
-References: <E1EXEfW-0005ON-00@w-gerrit.beaverton.ibm.com>
-	 <200511021747.45599.rob@landley.net> <43699573.4070301@yahoo.com.au>
-	 <200511030007.34285.rob@landley.net>
-	 <20051103163555.GA4174@ccure.user-mode-linux.org>
-	 <1131035000.24503.135.camel@localhost.localdomain>
-	 <20051103205202.4417acf4.akpm@osdl.org> <20051104072628.GA20108@elte.hu>
-	 <20051103233628.12ed1eee.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 04 Nov 2005 09:18:42 +0100
-Message-Id: <1131092322.2799.3.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Cc: Simon Derr <Simon.Derr@bull.net>, Andi Kleen <ak@suse.de>,
+       Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org,
+       Christoph Lameter <clameter@sgi.com>
+Message-Id: <20051104082833.8786.5266.sendpatchset@jackhammer.engr.sgi.com>
+Subject: [PATCH 6/5] cpuset: rebind numa vma mempolicy fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-11-03 at 23:36 -0800, Andrew Morton wrote:
-> Ingo Molnar <mingo@elte.hu> wrote:
-> >
-> > * Andrew Morton <akpm@osdl.org> wrote:
-> > 
-> >  > Similarly, that SGI patch which was rejected 6-12 months ago to kill 
-> >  > off processes once they started swapping.  We thought that it could be 
-> >  > done from userspace, but we need a way for userspace to detect when a 
-> >  > task is being swapped on a per-task basis.
-> > 
-> >  wouldnt the clean solution here be a "swap ulimit"?
-> 
-> Well it's _a_ solution, but it's terribly specific.
-> 
-> How hard is it to read /proc/<pid>/nr_swapped_in_pages and if that's
-> non-zero, kill <pid>?
+The patch:
+  [PATCH 2/5] cpuset: rebind numa vma mempolicy
+requires this fix to avoid a deadlock situation
+in certain cpuset removal cases.
 
-well or do it the other way around
+It's ok to not complete the refresh_mems() operation
+if we notice we are already holding mmap_sem.  We
+will try again, next time we allocate memory.
 
-write a counter to such a thing
-and kill when it hits zero
-(similar to the CPU perf counter stuff on x86)
+Signed-off-by: Paul Jackson <pj@sgi.com>
 
-doing this from userspace is tricky; what if the task dies of natural
-causes and the pid gets reused, between the time the userspace app reads
-the value and the time it decides the time is up and time for a kill....
-(and on a busy server that can be quite a bit of time)
+---
 
+ (This fix was included in my testing, but in another
+  patch that has not been sent in yet.)
+
+ kernel/cpuset.c |    5 +++++
+ 1 files changed, 5 insertions(+)
+
+--- 2.6.14-rc5-mm1-cpuset-patches.orig/kernel/cpuset.c	2005-11-03 21:18:26.783391082 -0800
++++ 2.6.14-rc5-mm1-cpuset-patches/kernel/cpuset.c	2005-11-03 23:11:15.480042373 -0800
+@@ -656,7 +656,12 @@ static void refresh_mems(void)
+ 	if (current->cpuset_mems_generation != my_cpusets_mem_gen) {
+ 		struct cpuset *cs;
+ 		nodemask_t oldmem = current->mems_allowed;
++		struct mm_struct *mm = current->mm;
+ 
++		/* numa_policy_rebind() needs mmap_sem - don't nest */
++		if (!mm || !down_write_trylock(&mm->mmap_sem))
++			return;
++		up_write(&mm->mmap_sem);
+ 		down(&callback_sem);
+ 		task_lock(current);
+ 		cs = current->cpuset;
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

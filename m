@@ -1,68 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161145AbVKDPxm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751537AbVKDPxJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161145AbVKDPxm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 10:53:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161148AbVKDPxm
+	id S1751537AbVKDPxJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 10:53:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751547AbVKDPxJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 10:53:42 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:12430 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1161145AbVKDPxk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 10:53:40 -0500
-Date: Fri, 4 Nov 2005 16:53:17 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Paul Jackson <pj@sgi.com>, andy@thermo.lanl.gov, mbligh@mbligh.org,
-       akpm@osdl.org, arjan@infradead.org, arjanv@infradead.org,
-       haveblue@us.ibm.com, kravetz@us.ibm.com,
-       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, mel@csn.ul.ie, nickpiggin@yahoo.com.au
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-Message-ID: <20051104155317.GA7281@elte.hu>
-References: <20051104010021.4180A184531@thermo.lanl.gov> <Pine.LNX.4.64.0511032105110.27915@g5.osdl.org> <20051103221037.33ae0f53.pj@sgi.com> <20051104063820.GA19505@elte.hu> <Pine.LNX.4.64.0511040725090.27915@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0511040725090.27915@g5.osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 4 Nov 2005 10:53:09 -0500
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:46730 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751537AbVKDPxH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 10:53:07 -0500
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, heicars2@de.ibm.com,
+       linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Subject: Re: [PATCH resubmit] do_mount: reduce stack consumption
+X-Mailer: Lotus Notes Release 5.0.11   July 24, 2002
+From: Andreas Herrmann <AHERRMAN@de.ibm.com>
+X-MIMETrack: S/MIME Sign by Notes Client on Andreas Herrmann/Germany/IBM(Release 5.0.11
+  |July 24, 2002) at 04.11.2005 16:52:39,
+	Serialize by Notes Client on Andreas Herrmann/Germany/IBM(Release 5.0.11  |July
+ 24, 2002) at 04.11.2005 16:52:39,
+	Serialize complete at 04.11.2005 16:52:39,
+	S/MIME Sign failed at 04.11.2005 16:52:39: The cryptographic key was not
+ found,
+	Serialize by Router on D12ML065/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
+ 04/11/2005 16:53:04,
+	Serialize complete at 04/11/2005 16:53:04
+Message-ID: <OFDDB8F7D0.1B3A39C6-ONC12570AF.00570609-C12570AF.005739CC@de.ibm.com>
+Date: Fri, 4 Nov 2005 16:53:03 +0100
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 04.11.2005 15:06 Al Viro wrote:
+> On Fri, Nov 04, 2005 at 01:57:05PM +0100, Heiko Carstens wrote:
+> > Ok, since I can only guess what you don't like: here is an updated 
+patch
+> > that probably addresses a few things.
+> > If you don't like this one too, could you please explain what should 
+be
+> > changed?
 
-* Linus Torvalds <torvalds@osdl.org> wrote:
+> Depth analysis.  E.g. do_move_mount() change is simply nonsense - _this_
+> is not going to overflow, no matter what.  And do_add_mount() change
+> is also very suspicious - looks like you are attacking the wrong place
+> in call chain.
 
-> Boot-time option to set the hugetlb zone, yes.
-> 
-> Grow-or-shrink, probably not. Not in practice after bootup on any 
-> machine that is less than idle.
-> 
-> The zones have to be pretty big to make any sense. You don't just grow 
-> them or shrink them - they'd be on the order of tens of megabytes to 
-> gigabytes. In other words, sized big enough that you will _not_ be 
-> able to create them on demand, except perhaps right after boot.
+Obviously you missed the point that (depending on the compiler version,
+options etc.) do_move_mount() and do_add_mount() can be inlined.
+Hence stack frame size of do_mount is directly influenced by those two
+functions. At least when I performed my "skin-deep" analysis of this
+kernel stack overflow both functions were inlined in do_mount().
 
-i think the current hugepages=<N> boot option could transparently be 
-morphed into a 'separate zone' approach, and /proc/sys/vm/nr_hugepages 
-would just refuse to change (or would go away altogether). Dynamically 
-growing zones seem like a lot of trouble, without much gain. [ OTOH 
-hugepages= parameter unit should be changed from the current 'number of 
-hugepages' to plain RAM metrics - megabytes/gigabytes. ]
+Stack consumptions of all other functions occurring in the backtrace
+were moderate or due to the amount of inlined functions.
 
-that would solve two problems: any 'zone VM statistics skewing effect' 
-of the current hugetlbs (which is a preallocated list of really large 
-pages) would go away, and the hugetlb zone could potentially be utilized 
-for easily freeable objects.
+Just do_mount and its inlined friends use to put larger structures on
+the stack that better should be allocated. There would not be any
+performance impact for the user to allocate the structs.
 
-this would already be alot more flexible that what we have: the hugetlb 
-area would not be 'lost' altogether, like now. Once we are at this stage 
-we can see how usable it is in practice. I strongly suspect it will 
-cover most of the HPC uses.
 
-	Ingo
+Regards,
+
+Andreas

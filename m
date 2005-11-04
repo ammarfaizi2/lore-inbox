@@ -1,43 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbVKDWHt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751011AbVKDWIT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751005AbVKDWHt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 17:07:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751007AbVKDWHt
+	id S1751011AbVKDWIT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 17:08:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751016AbVKDWIT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 17:07:49 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:34749 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750999AbVKDWHs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 17:07:48 -0500
-Date: Fri, 4 Nov 2005 17:07:37 -0500
-From: Dave Jones <davej@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-Subject: [PATCH] export ia64_max_cacheline_size
-Message-ID: <20051104220737.GA16551@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 4 Nov 2005 17:08:19 -0500
+Received: from mail-red.bigfish.com ([216.148.222.61]:34873 "EHLO
+	mail76-red-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1751011AbVKDWIR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 17:08:17 -0500
+X-BigFish: V
+Message-ID: <436BDBCF.6070008@am.sony.com>
+Date: Fri, 04 Nov 2005 14:08:15 -0800
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Roland Dreier <rolandd@cisco.com>, Andrew Morton <akpm@osdl.org>,
+       zippel@linux-m68k.org, ak@suse.de, rmk+lkml@arm.linux.org.uk,
+       tony.luck@gmail.com, paolo.ciarrocchi@gmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: New (now current development process)
+References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com> <20051031001647.GK2846@flint.arm.linux.org.uk> <20051030172247.743d77fa.akpm@osdl.org> <200510310341.02897.ak@suse.de> <Pine.LNX.4.61.0511010039370.1387@scrub.home> <20051031160557.7540cd6a.akpm@osdl.org> <Pine.LNX.4.64.0510311611540.27915@g5.osdl.org> <20051031163408.41a266f3.akpm@osdl.org> <52y847abjm.fsf@cisco.com> <Pine.LNX.4.64.0511012142200.27915@g5.osdl.org> <52u0eva8yu.fsf@cisco.com> <Pine.LNX.4.64.0511012203370.27915@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0511012203370.27915@g5.osdl.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-on ia64, dma_get_cache_alignment() needs ia64_max_cacheline_size,
-which isn't exported. This breaks modular compilation of the b44
-network driver (and possibly others).
+Linus Torvalds wrote:
+> 
+> On Tue, 1 Nov 2005, Roland Dreier wrote:
+> 
+>>Anyway, it would be great to find ways to make big improvements.  But
+>>I think the most realistic way to shrink the kernel is the same way it
+>>grows in the first place -- one small piece at a time.
+> 
+> 
+> No, I think that's a lost cause.
+> 
+> It doesn't grow by 700 bytes once in a while. It grows by much more, and 
+> much more often. And we can't fight it that way, that's just not going to 
+> work. Maybe have something that tracks individual object file sizes and 
+> shames people into not growing them..
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+As mentioned at the kernel summit, we're working on it
+at the CE Linux Forum.  These things take time to set up,
+but we have code already for something that tests
+the size impact of individual kernel configs, and we're
+working on a test to track individual function sizes for
+each new kernel (using Andi Kleen's bloat-o-meter).
 
+We're still in process of setting up the test lab,
+but we have a number of hardware boards already,
+and we're hoping to be publishing size regression data
+for the kernel on a regular basis, starting in about
+April of next year.
+ -- Tim
 
---- linux-2.6.14/arch/ia64/kernel/setup.c~	2005-11-04 17:05:23.000000000 -0500
-+++ linux-2.6.14/arch/ia64/kernel/setup.c	2005-11-04 17:05:40.000000000 -0500
-@@ -92,6 +92,7 @@ extern void efi_initialize_iomem_resourc
- extern char _text[], _end[], _etext[];
- 
- unsigned long ia64_max_cacheline_size;
-+EXPORT_SYMBOL(ia64_max_cacheline_size);
- unsigned long ia64_iobase;	/* virtual address for I/O accesses */
- EXPORT_SYMBOL(ia64_iobase);
- struct io_space io_space[MAX_IO_SPACES];
+=============================
+Tim Bird
+Architecture Group Chair, CE Linux Forum
+Senior Staff Engineer, Sony Electronics
+=============================
+

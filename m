@@ -1,54 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbVKDRoA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbVKDRo0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750762AbVKDRoA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 12:44:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbVKDRn7
+	id S1750758AbVKDRo0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 12:44:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750764AbVKDRoZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 12:43:59 -0500
-Received: from smtp112.sbc.mail.mud.yahoo.com ([68.142.198.211]:57946 "HELO
-	smtp112.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750762AbVKDRn7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 12:43:59 -0500
-From: David Brownell <david-b@pacbell.net>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] driver model wakeup flags
-Date: Fri, 4 Nov 2005 09:43:56 -0800
-User-Agent: KMail/1.7.1
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-References: <11304810223093@kroah.com> <20051029075540.GA2579@openzaurus.ucw.cz> <20051102215912.GL23247@kroah.com>
-In-Reply-To: <20051102215912.GL23247@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Fri, 4 Nov 2005 12:44:25 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:1214
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1750758AbVKDRoY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 12:44:24 -0500
+Date: Fri, 04 Nov 2005 09:40:53 -0800 (PST)
+Message-Id: <20051104.094053.118921373.davem@davemloft.net>
+To: macro@linux-mips.org
+Cc: gregkh@suse.de, stern@rowland.harvard.edu, linux-kernel@vger.kernel.org
+Subject: Re: post-2.6.14 USB change breaks sparc64 boot
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.55.0511031738390.24109@blysk.ds.pg.gda.pl>
+References: <20051103.093328.74747521.davem@davemloft.net>
+	<Pine.LNX.4.55.0511031738390.24109@blysk.ds.pg.gda.pl>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511040943.56887.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 November 2005 1:59 pm, Greg KH wrote:
-> On Sat, Oct 29, 2005 at 09:55:41AM +0200, Pavel Machek wrote:
-> > Hi!
-> > 
-> > >   * There's a writeable sysfs "wakeup" file, with one of two values:
-> > >       - "enabled", when the policy is to allow wakeup
-> > >       - "disabled", when the policy is not to allow it
-> > >       - "" if the device can't currently issue wakeups
-> > 
-> > Could we either get "not-supported" value here, or remove the file if it is not
-> > supported? Having empty file is ugly...
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+Date: Thu, 3 Nov 2005 17:46:20 +0000 (GMT)
+
+> On Thu, 3 Nov 2005, David S. Miller wrote:
 > 
-> Sure, have a patch for this?  :)
+> > Perhaps pci_fixup_final would be a more appropriate time to run this
+> > USB host controller fixup?  One downside to this is that such calls
+> > would not be invoked for hot-plugged USB host controller devices.
+> 
+>  This might actually want to be split to disable legacy stuff as soon as
+> possible to prevent a flood of interrupts, sending SMIs and what not else.  
+> That just requires poking at the PCI config space.  Whatever's the rest
+> could be done later.  I guess hot-plugged USB host controllers are not
+> configured for legacy support, so the early bits should not matter for
+> them.
 
-Turns out that "remove if not supported" is impractical; I did have
-that implemented, and backed it out as I got deeper into testing.
+Would anyone mind if I pushed to Linus the following fix, at
+least for now?  Thanks.
 
-For one example, the "can wakeup" for USB devices is a function of what
-configuration the device is in ... so a device with two configurations
-(call them #5 and #42) as well as "unconfigured" (config #0) might
-not support wakeup in two of its three states; maybe only #42 supports
-remote wakeup.
+diff-tree 834843a8562e6614768d8c8b8a23d94d98af7360 (from 06024f217d607369f0ee0071034ebb03071d5fb2)
+Author: David S. Miller <davem@sunset.davemloft.net>
+Date:   Fri Nov 4 09:38:18 2005 -0800
 
-Yes, those empty files bothered me a bit too.
+    [USB]: Make early handoff a final fixup instead of a header one.
+    
+    At header fixup time, it is not yet legal to ioremap() PCI
+    device registers, yet that is what this quirk code needs to
+    do.
+    
+    Signed-off-by: David S. Miller <davem@davemloft.net>
 
-- Dave
+diff --git a/drivers/usb/host/pci-quirks.c b/drivers/usb/host/pci-quirks.c
+index b1aa350..e46528c 100644
+--- a/drivers/usb/host/pci-quirks.c
++++ b/drivers/usb/host/pci-quirks.c
+@@ -316,4 +316,4 @@ static void __devinit quirk_usb_early_ha
+ 	else if (pdev->class == PCI_CLASS_SERIAL_USB_EHCI)
+ 		quirk_usb_disable_ehci(pdev);
+ }
+-DECLARE_PCI_FIXUP_HEADER(PCI_ANY_ID, PCI_ANY_ID, quirk_usb_early_handoff);
++DECLARE_PCI_FIXUP_FINAL(PCI_ANY_ID, PCI_ANY_ID, quirk_usb_early_handoff);

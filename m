@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161090AbVKDGaL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161073AbVKDG3q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161090AbVKDGaL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 01:30:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161084AbVKDGaL
+	id S1161073AbVKDG3q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 01:29:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161083AbVKDG3q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 01:30:11 -0500
-Received: from waste.org ([216.27.176.166]:34488 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1161083AbVKDGaJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 01:30:09 -0500
-Date: Thu, 3 Nov 2005 22:24:55 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] slob: introduce mm/util.c for shared functions
-Message-ID: <20051104062455.GD4367@waste.org>
-References: <2.505517440@selenic.com> <20051103211357.072c5646.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051103211357.072c5646.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+	Fri, 4 Nov 2005 01:29:46 -0500
+Received: from mail24.sea5.speakeasy.net ([69.17.117.26]:48864 "EHLO
+	mail24.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1161073AbVKDG3p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 01:29:45 -0500
+Date: Fri, 4 Nov 2005 01:29:46 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@excalibur.intercode
+To: Andreas Schwab <schwab@suse.de>
+cc: Phillip Hellewell <phillip@hellewell.homeip.net>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       mike@halcrow.us, mhalcrow@us.ibm.com, mcthomps@us.ibm.com,
+       yoder1@us.ibm.com
+Subject: Re: [PATCH 9/12: eCryptfs] Inode operations
+In-Reply-To: <jesludp8ew.fsf@sykes.suse.de>
+Message-ID: <Pine.LNX.4.63.0511040123310.23744@excalibur.intercode>
+References: <20051103033220.GD2772@sshock.rn.byu.edu> <20051103035411.GI3005@sshock.rn.byu.edu>
+ <Pine.LNX.4.63.0511031850220.22256@excalibur.intercode> <jesludp8ew.fsf@sykes.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 03, 2005 at 09:13:57PM -0800, Andrew Morton wrote:
-> Matt Mackall <mpm@selenic.com> wrote:
-> >
-> >  Add mm/util.c for functions common between SLAB and SLOB.
+On Fri, 4 Nov 2005, Andreas Schwab wrote:
+
+> James Morris <jmorris@namei.org> writes:
 > 
-> We should probably add a ppc32-developers-are-weenies warning to string.c
+> > On Wed, 2 Nov 2005, Phillip Hellewell wrote:
+> >
+> >> +static int grow_file(struct dentry *ecryptfs_dentry, struct file *lower_file,
+> >> +		     struct inode *inode, struct inode *lower_inode)
+> >> +{
+> >> +	int rc = 0;
+> >> +	struct file fake_file;
+> >> +	memset(&fake_file, 0, sizeof(fake_file));
+> >
+> >
+> > You don't need these initializations, bss is always initialized to zero 
+> > in this environment.
+> 
+> Automatic variables are not related to the bss segment.
 
-Well, yes. But I decided not to do that now because I ended up wanting
-to create mm/util.c anyway for kzalloc. I suspect we'll see other
-helper functions like kzalloc and kstrdup down the road.
+Yep, ignore whatever it was I was mis-thinking there.
 
-Also, I haven't investigated the PPC entanglements too closely, but
-converting it to use my cleaned up lib/inflate.c might reduce its
-dependence on lib/string.c
 
+
+- James
 -- 
-Mathematics is the supreme nostalgia of our time.
+James Morris
+<jmorris@namei.org>

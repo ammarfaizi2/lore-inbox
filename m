@@ -1,55 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030594AbVKDDuD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030595AbVKDEBU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030594AbVKDDuD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 22:50:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030564AbVKDDuC
+	id S1030595AbVKDEBU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 23:01:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030596AbVKDEBU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 22:50:02 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:23989 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030595AbVKDDuB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 22:50:01 -0500
-Message-ID: <436ADA63.1090605@pobox.com>
-Date: Thu, 03 Nov 2005 22:49:55 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+	Thu, 3 Nov 2005 23:01:20 -0500
+Received: from hulk.hostingexpert.com ([69.57.134.39]:18153 "EHLO
+	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S1030595AbVKDEBT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 23:01:19 -0500
+Message-ID: <436ADD1E.9080907@m1k.net>
+Date: Thu, 03 Nov 2005 23:01:34 -0500
+From: Michael Krufky <mkrufky@m1k.net>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Parallel ATA with libata status with the patches I'm working
- on
-References: <1131029686.18848.48.camel@localhost.localdomain>
-In-Reply-To: <1131029686.18848.48.camel@localhost.localdomain>
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org,
+       Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: [PATCH 04/37] dvb: Add ATSC support for DViCO FusionHDTV5 Lite
+References: <4367236E.90008@m1k.net> <20051103132914.64e971b9.akpm@osdl.org>
+In-Reply-To: <20051103132914.64e971b9.akpm@osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - m1k.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My general take on things:
+Andrew Morton wrote:
 
-* Supporting PATA has always been a long term libata goal (and people 
-have known this for years).
+>Michael Krufky <mkrufky@m1k.net> wrote:
+>  
+>
+>>+static int tdvs_tua6034_pll_set(struct dvb_frontend* fe, struct dvb_frontend_parameters* params)
+>> +{
+>> +	struct dvb_bt8xx_card *card = (struct dvb_bt8xx_card *) fe->dvb->priv;
+>>    
+>>
+>
+>The cast of a void* is unneeded.  It's actually undesirable: if someone
+>were to convert the thing-being-casted to some other scalar type, the cast
+>would prevent the desired compiler warning.
+>
+Alexey Dobriyan wrote:
 
-* I try to stay as far as possible away from the fight between Alan and 
-Bart.  As the changelog shows, I've merged libata patches from both.
+>Please, also
+>
+>	struct dvb_frontend *fe, struct dvb_frontend_parameters *params)
+>			   ^				       ^
+>
+Both of these problems are all over dvb-kernel... We'll fix it up.
 
-* Alan's patches do tend to come straight to me, and it would be nice if 
-he CC'd them to a list (linux-ide).
+Thanks,
 
-* Nonetheless, they get exposure in -mm (via libata-dev.git) for a 
-while, before going upstream.
-
-* The non-core changes, i.e. Alan and Albert's PATA drivers, aren't 
-going upstream for a while, and will be instead living in -mm (via my 
-"pata-drivers" libata-dev.git branch)  Too much breakage and user 
-confusion will occur if they are pushed {today|soon}.
-
-* CONFIG_IDE=n is still largely for developers and brave souls only (or 
-for lucky owners of the newest boxes, which simply don't have PATA on 
-them at all).
-
-
+Michael Krufky

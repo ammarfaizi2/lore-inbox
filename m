@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932737AbVKDPKc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932742AbVKDPKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932737AbVKDPKc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 10:10:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932740AbVKDPKc
+	id S932742AbVKDPKh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 10:10:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932741AbVKDPKg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 10:10:32 -0500
-Received: from xproxy.gmail.com ([66.249.82.198]:61572 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932737AbVKDPKa convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 10:10:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=uZGNl9Q1J35oxQqDymZPwvj/IfX5P5gSI0YYU52fQd7tgAfly4TdFkUAloF/OdE1ad7sxoPfq0Fr4F5oOZ6gwxlvm/iXLljrIpkkuJ5HjmQo8EE+71w359Ohh1Lx7IaAfoFrlX9DPj7MGS7uHH8oh4l8Y0WTdkkDxe7ftkPeiRs=
-Message-ID: <5bdc1c8b0511040710q4a4ce3eend6edc2b4027e33b0@mail.gmail.com>
-Date: Fri, 4 Nov 2005 07:10:27 -0800
-From: Mark Knecht <markknecht@gmail.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: 3D video card recommendations
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1131112605.14381.34.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 4 Nov 2005 10:10:36 -0500
+Received: from ns2.suse.de ([195.135.220.15]:45724 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932740AbVKDPKf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 10:10:35 -0500
+Date: Fri, 4 Nov 2005 16:11:04 +0100
+From: jblunck@suse.de
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [RFC,PATCH] libfs dcache_readdir() and dcache_dir_lseek() bugfix
+Message-ID: <20051104151104.GA22322@hasse.suse.de>
+References: <20051104113851.GA4770@hasse.suse.de> <20051104115101.GH7992@ftp.linux.org.uk> <20051104122021.GA15061@hasse.suse.de> <E1EY16w-0004HC-00@dorka.pomaz.szeredi.hu> <20051104131858.GA16622@hasse.suse.de> <E1EY1fi-0004LB-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <1131112605.14381.34.camel@localhost.localdomain>
+In-Reply-To: <E1EY1fi-0004LB-00@dorka.pomaz.szeredi.hu>
+"From: jblunck@suse.de"
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/4/05, Steven Rostedt <rostedt@goodmis.org> wrote:
-> I'm currently putting together (ordering parts for) another machine. It
-> will be a AMD64 X2. Now I'm looking into a video card for this.  Up till
-> now, I've always used NVidia.  But I also want to test 3D acceleration
-> under Ingo's -rt patch.  So now I need something that does not have a
-> priority module.
->
-> I'm not much of a gamer, although I do play every so often. So I don't
-> need the highest quality card, but I also want something that is still
-> pretty good. For example, I currently have a NVidia GeForce 6800 GT
-> card.  So I'm hoping to get something equivalent.
->
-> I'm looking at the ATI Radeons.
->
-> Any recommendations? (links to info would also be nice ;-)
->
-> Thanks,
->
-> -- Steve
+On Fri, Nov 04, Miklos Szeredi wrote:
 
-Not a recommendation. Just a point to be aware of. The ATI Radeons, to
-get the best acceleration, seem to require that you use the ATI closed
-source drivers. Currently I haven't found an ATI closed source driver
-that supports 2.6.14. so I'm forced to use the Xorg radeon driver. I
-have no idea if this is very good. I don't think so as my glxgear
-numbers are pretty low. Much lower than the ATI driver running on
-2.6.13-X.
+> > As I said: "Old glibc implementations (e.g. glibc-2.2.5) are
+> > lseeking after every call to getdents() ..."
+> 
+> Hmm, why would it do that?  This seems like it's glibc being stupid.
+> 
 
-NOTE: I'm horrible at setting up all the 3D stuff as I don't
-understand what to chose and what to avoid. This could be far better
-than the results I get!
+Well, glibc is that stupid and triggers the bug.
 
-- Mark
+> That said, you are right that the libfs readdir implementation is not
+> strictly standards conforming.  But neither is your patch: this
+> algorithm will break if the entry at the current position is removed
+> and then a new entry with the same name is created.
+
+True. Seeking to that offset should at least fail and shouldn't stop at the
+new entry. But SuSV3 says that the offset given by telldir() is valid until
+the next rewinddir().  This is no problem for directories that can only grow.
+I tried to implement some kind of deferred dput'ing of the d_child's but that
+was too hackish and was wasting memory. So the best thing I can do now is fail
+if someone wants to seek to an offset of an already unlinked file.
+
+So I can include the inode number in the hashing process somehow. Any ideas on
+that one?
+
+> Unfortunately I can't since I don't have such old glibc.
+
+The testcase is similar to what "rm *" with the old glibc would do. It just
+a testcase to show where the problem is.

@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751421AbVKDNcL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbVKDNaW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751421AbVKDNcL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 08:32:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751435AbVKDNcL
+	id S932156AbVKDNaW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 08:30:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbVKDNaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 08:32:11 -0500
-Received: from 238-193.adsl.pool.ew.hu ([193.226.238.193]:3334 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1751421AbVKDNcK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 08:32:10 -0500
-To: jblunck@suse.de
-CC: viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org
-In-reply-to: <20051104131858.GA16622@hasse.suse.de> (jblunck@suse.de)
-Subject: Re: [RFC,PATCH] libfs dcache_readdir() and dcache_dir_lseek() bugfix
-References: <20051104113851.GA4770@hasse.suse.de> <20051104115101.GH7992@ftp.linux.org.uk> <20051104122021.GA15061@hasse.suse.de> <E1EY16w-0004HC-00@dorka.pomaz.szeredi.hu> <20051104131858.GA16622@hasse.suse.de>
-Message-Id: <E1EY1fi-0004LB-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 04 Nov 2005 14:31:58 +0100
+	Fri, 4 Nov 2005 08:30:22 -0500
+Received: from nproxy.gmail.com ([64.233.182.204]:20742 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751421AbVKDNaW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 08:30:22 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=b+jGd4CW75pYiZMF8piTCt0HLnV6wu6J5te9SDEt1YGGspgPhCgtP+EKetoIeR5UROvbW8s3WPXi8256UpbtEvY6yDoWRS0/FOzM650+6hXJMBsyPmP4LGDPYZ2/0TOfKeIEDv4GN1AvVFE+kp7eVWIGzeDy42HWVTWLH57c1MY=
+Message-ID: <fe726f4e0511040530ia2e3771n@mail.gmail.com>
+Date: Fri, 4 Nov 2005 15:30:20 +0200
+From: Carlos Martin <carlosmn@gmail.com>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: sharp zaurus-5500: looking for testers
+Cc: kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051104000051.GA28331@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <20051102000003.GA467@elf.ucw.cz>
+	 <fe726f4e0511021440xdb80808p@mail.gmail.com>
+	 <20051102225337.GJ23943@elf.ucw.cz>
+	 <20051104000051.GA28331@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> As I said: "Old glibc implementations (e.g. glibc-2.2.5) are
-> lseeking after every call to getdents() ..."
+On 04/11/05, Pavel Machek <pavel@ucw.cz> wrote:
+> My trees on kernel.org should be up-to-date now. I had to play some
+> tricks with find / cp locally on kernel.org, otherwise it would take
+> ages.
 
-Hmm, why would it do that?  This seems like it's glibc being stupid.
+I downloaded it yesterday and I've already built it. Now I just need
+to flash the zarurus and I'll report back.
 
-That said, you are right that the libfs readdir implementation is not
-strictly standards conforming.  But neither is your patch: this
-algorithm will break if the entry at the current position is removed
-and then a new entry with the same name is created.
+--
+Carlos Martín Nieto        http://www.cmartin.tk
 
-> Precisely this is a SLES8 on s390-64bit.
-> s390vm02:/# rpm -qf /bin/rm
-> fileutils-4.1.11-144
-> s390vm02:/# rpm -q glibc
-> glibc-2.2.5-234
-> 
-> But you can also try my testcase.
-
-Unfortunately I can't since I don't have such old glibc.
-
-Miklos
+"¿Han entendido?"
+"Sí, nosotros vemos La 2" -- Emilio, "Aquí no hay quien viva"

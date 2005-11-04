@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750936AbVKDVj3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750939AbVKDVm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750936AbVKDVj3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 16:39:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750937AbVKDVj3
+	id S1750939AbVKDVm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 16:42:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbVKDVm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 16:39:29 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:64185 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750934AbVKDVj2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 16:39:28 -0500
-Date: Fri, 4 Nov 2005 13:39:06 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andy Nelson <andy@thermo.lanl.gov>
-cc: mingo@elte.hu, akpm@osdl.org, arjan@infradead.org, arjanv@infradead.org,
-       haveblue@us.ibm.com, kravetz@us.ibm.com,
-       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, mbligh@mbligh.org, mel@csn.ul.ie,
-       nickpiggin@yahoo.com.au
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-In-Reply-To: <Pine.LNX.4.64.0511041310130.28804@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0511041333560.28804@g5.osdl.org>
-References: <20051104210418.BC56F184739@thermo.lanl.gov>
- <Pine.LNX.4.64.0511041310130.28804@g5.osdl.org>
+	Fri, 4 Nov 2005 16:42:29 -0500
+Received: from moutng.kundenserver.de ([212.227.126.183]:56305 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750937AbVKDVm2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 16:42:28 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Andy Whitcroft <apw@shadowen.org>
+Subject: Re: [PATCH] powerpc: mem_init crash for sparsemem
+Date: Fri, 4 Nov 2005 22:43:48 +0100
+User-Agent: KMail/1.7.2
+Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+References: <200511041631.17237.arnd@arndb.de> <436BC20B.9070704@shadowen.org>
+In-Reply-To: <436BC20B.9070704@shadowen.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200511042243.49661.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 4 Nov 2005, Linus Torvalds wrote:
+On Freedag 04 November 2005 21:18, Andy Whitcroft wrote:
+> Would it not make sense to use pfn_valid(), as that is not sparsemem
+> specific?  Not looked at the code in question specifically, but if you
+> can use section_has_mem_map() it should be equivalent:
 > 
-> But the hint can be pretty friendly. Especially if it's an option to just 
-> load a lot of memory into the boxes, and none of the loads are expected to 
-> want to really be excessively close to memory limits (ie you could just 
-> buy an extra 16GB to allow for "slop").
+>         if (!pfn_valid(pgdat->node_start_pfn + i))
+>                 continue;
+> 
+> Want to spin us a patch and I'll give it some general testing.
 
-One of the issues _will_ be how to allocate things on NUMA. Right now 
-"hugetlb" only allows us to say "this much memory for hugetlb", and it 
-probably needs to be per-zone. 
+Yes, I guess pfn_valid() is the function I was looking for, thanks
+for pointing that out.
 
-Some uses might want to allocate all of the local memory on one node to 
-huge-page usage (and specialized programs would then also like to run 
-pinned to that node), others migth want to spread it out. So the 
-maintenance would need to decide that.
+Unfortunately, I don't have access to the machine over the weekend,
+so I won't be able to test that until Monday.
 
-The good news is that you can boot up with almost all zones being "big 
-page" zones, and you could turn them into "normal zones" dynamically. It's 
-only going the other way that is hard.
-
-So from a maintenance standpoint if you manage lots of machines, you could 
-have them all uniformly boot up with lots of memory set aside for large 
-pages, and then use user-space tools to individually turn the zones into 
-regular allocation zones.
-
-		Linus
+	Arnd <><

@@ -1,60 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161157AbVKDQEO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161159AbVKDQEY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161157AbVKDQEO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 11:04:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161159AbVKDQEO
+	id S1161159AbVKDQEY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 11:04:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161160AbVKDQEY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 11:04:14 -0500
-Received: from ns.suse.de ([195.135.220.2]:47329 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1161157AbVKDQEN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 11:04:13 -0500
-Date: Fri, 4 Nov 2005 17:04:43 +0100
-From: jblunck@suse.de
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: jblunck@suse.de, viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [RFC,PATCH] libfs dcache_readdir() and dcache_dir_lseek() bugfix
-Message-ID: <20051104160443.GB25491@hasse.suse.de>
-References: <20051104113851.GA4770@hasse.suse.de> <20051104115101.GH7992@ftp.linux.org.uk> <20051104122021.GA15061@hasse.suse.de> <E1EY16w-0004HC-00@dorka.pomaz.szeredi.hu> <20051104131858.GA16622@hasse.suse.de> <E1EY1fi-0004LB-00@dorka.pomaz.szeredi.hu> <20051104151104.GA22322@hasse.suse.de> <E1EY3Y8-0004XX-00@dorka.pomaz.szeredi.hu> <20051104154610.GB23962@hasse.suse.de> <E1EY3uI-0004cC-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Fri, 4 Nov 2005 11:04:24 -0500
+Received: from zproxy.gmail.com ([64.233.162.196]:48477 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161159AbVKDQEX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 11:04:23 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=r8Y6M8BsS/WPDXx0Lk17mhRJ0vk9VwFD/DMSeBsIm+SeHRK8j1P0PxQ/iEkibeeJPxf4mIbfk+We7zi8Gjz5mR3Ehqg9MBp8TeBV+0MM/4Hih21XLybDF/2E0JEqXaVJI/z9Q53X96MCVvdV/RM/XnrQERyT4Ts9/bCIrz6V3JQ=
+Message-ID: <569d37b00511040804y7289d623ocd13dd86a9c22082@mail.gmail.com>
+Date: Fri, 4 Nov 2005 11:04:21 -0500
+From: Trevor Woerner <twoerner.k@gmail.com>
+To: Carlos Antunes <cmantunes@gmail.com>
+Subject: Re: latency report
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <cb2ad8b50511040717k61bb560dsbe31a5c25f394bba@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <E1EY3uI-0004cC-00@dorka.pomaz.szeredi.hu>
-"From: jblunck@suse.de"
-User-Agent: Mutt/1.5.9i
+References: <569d37b00511032306y27519a8am69f2385fdbd4b81f@mail.gmail.com>
+	 <cb2ad8b50511040717k61bb560dsbe31a5c25f394bba@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 04, Miklos Szeredi wrote:
+On 11/4/05, Carlos Antunes <cmantunes@gmail.com> wrote:
+> rt2 was seriously screwed up (I posted about the problems in here).
+> rt3 solved the problems. You might want to repeat your testing with at
+> least rt3.
 
-> > > > 
-> > > > Well, glibc is that stupid and triggers the bug.
-> > > 
-> > > Seems to me, the simple solution is to upgrade your glibc.
-> > > 
-> > 
-> > This is SLES8. You don't want to update the glibc.
-> 
-> OK, but then it's basically a SLES8 kernel issue, not a mainline
-> kernel issue.
-> 
-> Probably very few people are using brand new kernels with glibc from
-> the last millennium ;)
-> 
+-rt3 lasted for all of, what, 30 minutes before -rt4 came out? :-)
 
-Hmm, so I should only send patches for bugs that are often triggered
-upstream? Just start using seekdir() and modify the directory contents on an
-upstream tmpfs. You'll see that this isn't working well.
+I tested -rt5 last night and still have problems. I'm trying out -rt6
+now. I was trying to isolate the problem but I haven't had any luck
+yet.
 
-This is a bug and it should get fixed. I hope that it doesn't depend on how
-many people using what library :)
+If I boot a machine with 2.6.14-rt5 running either preemption k3 or
+k4, simply running my "dolots.sh" script (which uses my "drone"
+program, both of which are in the project package) will cause an OOM
+problem after about 15 minutes or so. Running preemption setting k1
+all night I found it was still happily running (and quite responsive
+even with a loadavg of ~70) this morning.
 
-Regards,
-	Jan Blunck
+Increasing the load to upwards to a loadavg of 200 with 2.6.14-rt5 k1
+doesn't seem to have any problems.
 
--- 
-Jan Blunck                                               jblunck@suse.de
-SuSE LINUX AG - A Novell company
-Maxfeldstr. 5                                          +49-911-74053-608
-D-90409 Nürnberg                                      http://www.suse.de
+I was anxious to get my results "out there" and since -rt5 was still
+showing problems I decided to publish with -rt2 anyway (since most of
+that work was already done). I made a note of the problems I
+experience with these two settings in the report.

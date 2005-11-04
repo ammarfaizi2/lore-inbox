@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbVKDRt6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbVKDRus@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750773AbVKDRt6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 12:49:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750775AbVKDRt6
+	id S1750775AbVKDRus (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 12:50:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbVKDRus
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 12:49:58 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:61163 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750773AbVKDRt5 (ORCPT
+	Fri, 4 Nov 2005 12:50:48 -0500
+Received: from mail.kroah.org ([69.55.234.183]:27042 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750775AbVKDRur (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 12:49:57 -0500
-Date: Fri, 4 Nov 2005 09:49:33 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andy Nelson <andy@thermo.lanl.gov>
-cc: akpm@osdl.org, arjan@infradead.org, arjanv@infradead.org,
-       haveblue@us.ibm.com, kravetz@us.ibm.com,
-       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, mbligh@mbligh.org, mel@csn.ul.ie, mingo@elte.hu,
-       nickpiggin@yahoo.com.au
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-In-Reply-To: <20051104170359.80947184684@thermo.lanl.gov>
-Message-ID: <Pine.LNX.4.64.0511040943130.27921@g5.osdl.org>
-References: <20051104170359.80947184684@thermo.lanl.gov>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 4 Nov 2005 12:50:47 -0500
+Date: Fri, 4 Nov 2005 09:49:51 -0800
+From: Greg KH <gregkh@suse.de>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: macro@linux-mips.org, stern@rowland.harvard.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: post-2.6.14 USB change breaks sparc64 boot
+Message-ID: <20051104174951.GA14957@suse.de>
+References: <20051103.093328.74747521.davem@davemloft.net> <Pine.LNX.4.55.0511031738390.24109@blysk.ds.pg.gda.pl> <20051104.094053.118921373.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051104.094053.118921373.davem@davemloft.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 4 Nov 2005, Andy Nelson wrote:
+On Fri, Nov 04, 2005 at 09:40:53AM -0800, David S. Miller wrote:
+> From: "Maciej W. Rozycki" <macro@linux-mips.org>
+> Date: Thu, 3 Nov 2005 17:46:20 +0000 (GMT)
 > 
-> Ok. In other posts you have skeptically accepted Power as a
-> `modern' architecture.
+> > On Thu, 3 Nov 2005, David S. Miller wrote:
+> > 
+> > > Perhaps pci_fixup_final would be a more appropriate time to run this
+> > > USB host controller fixup?  One downside to this is that such calls
+> > > would not be invoked for hot-plugged USB host controller devices.
+> > 
+> >  This might actually want to be split to disable legacy stuff as soon as
+> > possible to prevent a flood of interrupts, sending SMIs and what not else.  
+> > That just requires poking at the PCI config space.  Whatever's the rest
+> > could be done later.  I guess hot-plugged USB host controllers are not
+> > configured for legacy support, so the early bits should not matter for
+> > them.
+> 
+> Would anyone mind if I pushed to Linus the following fix, at
+> least for now?  Thanks.
 
-Yes, sceptically.
+No objection from me, if this fixes your machines.
 
-I'd really like to hear what your numbers are on a modern x86. Any x86-64 
-is interesting, and I can't imagine that with a LANL address you can't 
-find any.
+> diff-tree 834843a8562e6614768d8c8b8a23d94d98af7360 (from 06024f217d607369f0ee0071034ebb03071d5fb2)
+> Author: David S. Miller <davem@sunset.davemloft.net>
+> Date:   Fri Nov 4 09:38:18 2005 -0800
+> 
+>     [USB]: Make early handoff a final fixup instead of a header one.
+>     
+>     At header fixup time, it is not yet legal to ioremap() PCI
+>     device registers, yet that is what this quirk code needs to
+>     do.
+>     
+>     Signed-off-by: David S. Miller <davem@davemloft.net>
 
-I do believe that Power is within one order of magnitude of a modern x86 
-when it comes to TLB fill performance. That's much better than many 
-others, but whether "almost as good" is within the error range, or whether 
-it's "only five times worse", I don't know.
-
-The thing is, there's a reason x86 machines kick ass. They are cheap, and 
-they really _do_ outperform pretty much everything else out there.
-
-Power 5 has a wonderful memory architecture, and those L3 caches kick ass. 
-They probably don't help you as much as they help databases, though, and 
-it's entirely possible that a small cheap Opteron with its integrated 
-memory controller will outperform them on your load if you really don't 
-have a lot of locality.
-
-			Linus
+Acked-by: Greg Kroah-Hartman <gregkh@suse.de>

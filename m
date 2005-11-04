@@ -1,37 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbVKDR43@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbVKDSAg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750780AbVKDR43 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 12:56:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbVKDR43
+	id S1750787AbVKDSAg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 13:00:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbVKDSAg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 12:56:29 -0500
-Received: from mailwasher.lanl.gov ([192.65.95.54]:59757 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S1750780AbVKDR42 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 12:56:28 -0500
-To: torvalds@osdl.org
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-Cc: akpm@osdl.org, arjan@infradead.org, arjanv@infradead.org,
-       haveblue@us.ibm.com, kravetz@us.ibm.com,
-       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, mbligh@mbligh.org, mel@csn.ul.ie, mingo@elte.hu,
-       nickpiggin@yahoo.com.au
-Message-Id: <20051104175620.2201D1846E3@thermo.lanl.gov>
-Date: Fri,  4 Nov 2005 10:56:20 -0700 (MST)
-From: andy@thermo.lanl.gov (Andy Nelson)
-X-PMX-Version: 4.7.1.128075
+	Fri, 4 Nov 2005 13:00:36 -0500
+Received: from [69.222.0.20] ([69.222.0.20]:6404 "EHLO usfltd.com")
+	by vger.kernel.org with ESMTP id S1750787AbVKDSAf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 13:00:35 -0500
+Date: Fri,  4 Nov 2005 12:00:51 -0600
+Message-Id: <200511041200.AA9306758@usfltd.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+From: "art" <art@usfltd.com>
+Reply-To: <art@usfltd.com>
+To: <linux-kernel@vger.kernel.org>
+CC: <mingo@elte.hu>
+Subject: kernel-2.6.14-rt6 Panic! MP-BIOS bug: 8254 timer not connected to IO-APIC
+X-Mailer: <IMail v8.05>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+kernel-2.6.14-rt6 Panic!-MP-BIOS bug: 8254 timer not connected to IO-APIC
+KERNEL PANIC NOT SYNCING......
 
+kernel-2.6.14-rt5 works OK
+kernel-2.6.14-git7 works OK
 
-
-Correction:
->and you'll see why. Capsule form: Every tree node results in several 
-
-read 
-
->and you'll see why. Capsule form: Every tree traversal results in several 
-
-
-Andy
+xboom

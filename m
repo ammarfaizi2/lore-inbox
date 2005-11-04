@@ -1,76 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161121AbVKDDKQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161122AbVKDDQE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161121AbVKDDKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 22:10:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161124AbVKDDKQ
+	id S1161122AbVKDDQE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 22:16:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161123AbVKDDQE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 22:10:16 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.50]:15021 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S1161121AbVKDDKO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 22:10:14 -0500
-Date: Fri, 4 Nov 2005 04:10:13 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: do_sendfile ppos check ...
-Message-ID: <20051104031012.GD22020@MAIL.13thfloor.at>
-Mail-Followup-To: Herbert Xu <herbert@gondor.apana.org.au>,
-	akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <20051103175642.GB18015@MAIL.13thfloor.at> <E1EXrRU-0006eK-00@gondolin.me.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1EXrRU-0006eK-00@gondolin.me.apana.org.au>
-User-Agent: Mutt/1.5.6i
+	Thu, 3 Nov 2005 22:16:04 -0500
+Received: from hulk.hostingexpert.com ([69.57.134.39]:31083 "EHLO
+	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S1161122AbVKDDQD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 22:16:03 -0500
+Message-ID: <436AD27E.2050004@m1k.net>
+Date: Thu, 03 Nov 2005 22:16:14 -0500
+From: Michael Krufky <mkrufky@m1k.net>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, pb@linuxtv.org, js@linuxtv.org,
+       mkrufky@linuxtv.org
+Subject: Re: + dvb-add-alternate-stv0297-driver.patch added to -mm tree
+References: <200511030341.jA33fvLc024773@shell0.pdx.osdl.net>
+In-Reply-To: <200511030341.jA33fvLc024773@shell0.pdx.osdl.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - m1k.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 04, 2005 at 01:36:36PM +1100, Herbert Xu wrote:
-> Herbert Poetzl <herbert@13thfloor.at> wrote:
-> > 
-> > which passes ppos as NULL, which in turn leads to an oops ...
-> 
-> But do_sendfile will set ppos to &in_file->f_pos if it's NULL.
-> Why isn't that working?
-> 
-> > @@ -731,7 +731,8 @@ asmlinkage ssize_t sys_sendfile(int out_
-> >                return ret;
-> >        }
-> > 
-> > -       return do_sendfile(out_fd, in_fd, NULL, count, 0);
-> > +       pos = 0;
-> > +       return do_sendfile(out_fd, in_fd, &pos, count, MAX_NON_LFS);
-> > }
-> 
-> The last argument is meant to be zero if you check the history.
+akpm@osdl.org wrote:
 
-hmm, why a different max than with offset?
+>The patch titled
+>
+>     dvb: add alternate stv0297-driver
+>
+>has been added to the -mm tree.  Its filename is
+>
+>     dvb-add-alternate-stv0297-driver.patch
+>
+>
+>From: Patrick Boettcher <pb@linuxtv.org>
+>
+>adding special stv0297-driver for the Technisat/B2C2 CableStar2 PCI and USB
+>devices (USB untested)
+>
+>This driver could also be used with other stv0297-based cards, but someone has
+>to do it.
+>
+>The CableStar2's stv0297-driver is tested with QAM32/64/128/256 and has a very
+>nice reception-qualitiy.
+>
+>Signed-off-by: Patrick Boettcher <pb@linuxtv.org>
+>Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
+>Cc: Johannes Stezenbach <js@linuxtv.org>
+>Signed-off-by: Andrew Morton <akpm@osdl.org>
+>---
+>
+> drivers/media/dvb/b2c2/Makefile           |    2 
+> drivers/media/dvb/b2c2/flexcop-fe-tuner.c |  143 +----
+> drivers/media/dvb/b2c2/stv0297_cs2.c      |  776 ++++++++++++++++++++++++++++++
+> drivers/media/dvb/b2c2/stv0297_cs2.h      |   51 +
+> drivers/media/dvb/b2c2/stv0297_priv.h     |  154 +++++
+> 5 files changed, 1029 insertions(+), 97 deletions(-)
+>  
+>
+Andrew-
 
-currently investigating ... probably a removal of
-the 'unnecessary' check (*ppos) would be a better
-approach, something like:
+It has come to my attention that this patch should not have been merged 
+upstream.  I apologize for this.  Please drop it from -mm ASAP.
 
---- linux-2.6/fs/read_write.c   2005-10-28 23:59:02.000000000 +0200
-+++ linux-2.6/fs/read_write.c   2005-11-03 17:28:50.000000000 +0100
-@@ -719,9 +719,6 @@
-       	current->syscr++;
-       	current->syscw++;
+Thank you,
 
--       if (*ppos > max)
--               retval = -EOVERFLOW;
--
- fput_out:
-         	ds,   fput_light(out_file, fput_needed_out);
- fput_in:
-
-thanks for the input,
-Herbert
-
-> 
-> Cheers,
-> -- 
-> Visit Openswan at http://www.openswan.org/
-> Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-> Home Page: http://gondor.apana.org.au/~herbert/
-> PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Michael Krufky

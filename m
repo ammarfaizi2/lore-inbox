@@ -1,49 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161014AbVKDEHT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161015AbVKDETJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161014AbVKDEHT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 23:07:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161015AbVKDEHT
+	id S1161015AbVKDETJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 23:19:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030601AbVKDETI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 23:07:19 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:31927 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161014AbVKDEHR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 23:07:17 -0500
-Subject: RE: NTP broken with 2.6.14
-From: john stultz <johnstul@us.ibm.com>
-To: "Brown, Len" <len.brown@intel.com>
-Cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       Jean-Christian de Rivaz <jc@eclis.ch>, macro@linux-mips.org,
-       linux-kernel@vger.kernel.org, dean@arctic.org, zippel@linux-m68k.org
-In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B3005117C9B@hdsmsx401.amr.corp.intel.com>
-References: <F7DC2337C7631D4386A2DF6E8FB22B3005117C9B@hdsmsx401.amr.corp.intel.com>
-Content-Type: text/plain
-Date: Thu, 03 Nov 2005 20:07:13 -0800
-Message-Id: <1131077233.27168.627.camel@cog.beaverton.ibm.com>
+	Thu, 3 Nov 2005 23:19:08 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:43189 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030599AbVKDETH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 23:19:07 -0500
+Date: Thu, 3 Nov 2005 23:19:02 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Dmitry Torokhov <dtor@mail.ru>
+Subject: Re: [PATCH] I8K: convert to seqfile
+Message-ID: <20051104041902.GA23618@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Dmitry Torokhov <dtor@mail.ru>
+References: <200506260103.j5Q13ovn020970@hera.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200506260103.j5Q13ovn020970@hera.kernel.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-11-03 at 22:44 -0500, Brown, Len wrote:
-> NFORCE2 on an ACPI-enabled kernel should automatically invoke
-> the acpi_skip_timer_override BIOS workaround -- as
-> the NFORCE family of chip-sets have the timer interrupt
-> attached to pin-0, but some of them shipped with
-> a bogus BIOS over-ride telling Linux the timer is on pin-2.
-> 
-> This issue is quite old -- google NFORCE2 and acpi_skip_timer_override.
-> IIR there are whole web-sites with NFORCE2
-> workarounds provided by its dedicated fans...
+On Sat, Jun 25, 2005 at 06:03:50PM -0700, Linux Kernel wrote:
+ > tree e76bf5589246831604130349ae67b30b998deb29
+ > parent e70c9d5e61c6cb2272c866fc1303e62975006752
+ > author Dmitry Torokhov <dtor_core@ameritech.net> Sun, 26 Jun 2005 04:54:26 -0700
+ > committer Linus Torvalds <torvalds@ppc970.osdl.org> Sun, 26 Jun 2005 06:24:24 -0700
+ > 
+ > [PATCH] I8K: convert to seqfile
+ > 
+ > I8K: Change proc code to use seq_file.
+ > 
+ > Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+ > Signed-off-by: Andrew Morton <akpm@osdl.org>
+ > Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+ > 
+ >  drivers/char/i8k.c |   64 ++++++++++++++++++-----------------------------------
+ >  1 files changed, 22 insertions(+), 42 deletions(-)
 
-Thanks for the info, Len. Although its odd that the Jean-Christian's
-issue appears to show up around the time the fix you mention shows up. 
+This took a while to notice somehow, but one of our Fedora users
+upgraded from a 2.6.12 kernel to 2.6.14 today, and noticed
+that his gkrellm segfaulted[1].
 
-Regardless, Jean-Chistian has some sever BIOS problems, so until those
-are resolved, I suggest he use the workaround (noapic) and ping us if
-the issue persists once he arrives at a supportable configuration.
+The reason is that we've subtley changed the format of /proc/i8k
 
-thanks
--john
+Before:
+1.0 A38 ? 54 -22 1 -22 79260 -1 2
+
+After:
+1.0 A38  52 -22 1 -22 77340 -1 2
+
+
+The missing '?' field is puzzling though. Looking at the diff,
+this should work.  Is this a shortfalling of seq_file perhaps ?
+
+		Dave
+
+[1] The i8k plugin for that thing is hurrendous btw, don't
+look at it with a weak stomach. It does no sanity checking
+on arguments at all, and assumes things will stay constant.
+Little wonder it blows up when it runs out of things to strcpy()
 

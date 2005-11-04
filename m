@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964957AbVKDPRM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964848AbVKDPQ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964957AbVKDPRM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 10:17:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbVKDPRM
+	id S964848AbVKDPQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 10:16:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbVKDPQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 10:17:12 -0500
-Received: from wproxy.gmail.com ([64.233.184.192]:64005 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964937AbVKDPRK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 10:17:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XO2Ch8oj7iiuIR7FfG4Azr3CDJIrKXilHujogeLo09B7bk1IQ7yVIeUzMWIWdHgqMFCsZ4u58GvtKfiQ0t426jBIhcuUeG1uhbRIF3exyv+10W1UJI0BAMDfgOQpEX7R9nJOZ1RzGjZoDsqtNaVrHzGZmJff9GaP/bbL4iL/tNg=
-Message-ID: <cb2ad8b50511040717k61bb560dsbe31a5c25f394bba@mail.gmail.com>
-Date: Fri, 4 Nov 2005 10:17:09 -0500
-From: Carlos Antunes <cmantunes@gmail.com>
-To: Trevor Woerner <twoerner.k@gmail.com>
-Subject: Re: latency report
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <569d37b00511032306y27519a8am69f2385fdbd4b81f@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 4 Nov 2005 10:16:56 -0500
+Received: from mail.fh-wedel.de ([213.39.232.198]:25057 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S964848AbVKDPQz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 10:16:55 -0500
+Date: Fri, 4 Nov 2005 16:16:46 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: jblunck@suse.de
+Cc: Miklos Szeredi <miklos@szeredi.hu>, viro@ftp.linux.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC,PATCH] libfs dcache_readdir() and dcache_dir_lseek() bugfix
+Message-ID: <20051104151646.GB31827@wohnheim.fh-wedel.de>
+References: <20051104113851.GA4770@hasse.suse.de> <20051104115101.GH7992@ftp.linux.org.uk> <20051104122021.GA15061@hasse.suse.de> <E1EY16w-0004HC-00@dorka.pomaz.szeredi.hu> <20051104131858.GA16622@hasse.suse.de> <E1EY1fi-0004LB-00@dorka.pomaz.szeredi.hu> <20051104151104.GA22322@hasse.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-References: <569d37b00511032306y27519a8am69f2385fdbd4b81f@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20051104151104.GA22322@hasse.suse.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/4/05, Trevor Woerner <twoerner.k@gmail.com> wrote:
->
-> My report currently compares the stock kernel.org 2.6.14 with Ingo's
-> 2.6.14-rt2 patches on two target boards.
->
+On Fri, 4 November 2005 16:11:04 +0100, jblunck@suse.de wrote:
+> 
+> True. Seeking to that offset should at least fail and shouldn't stop at the
+> new entry. But SuSV3 says that the offset given by telldir() is valid until
+> the next rewinddir().  This is no problem for directories that can only grow.
+> I tried to implement some kind of deferred dput'ing of the d_child's but that
+> was too hackish and was wasting memory. So the best thing I can do now is fail
+> if someone wants to seek to an offset of an already unlinked file.
 
-Trevor,
+Does that mean that, to satisfy the standard, you'd have to allow the
+seek, but return 0 bytes on further reads, as you're already at (or
+beyond, whatever) EOF?
 
-rt2 was seriously screwed up (I posted about the problems in here).
-rt3 solved the problems. You might want to repeat your testing with at
-least rt3.
+Sounds quite ugly and it would be nice if this wasn't necessary.
 
-Carlos
+Jörn
 
---
-"We hold [...] that all men are created equal; that they are
-endowed [...] with certain inalienable rights; that among
-these are life, liberty, and the pursuit of happiness"
-        -- Thomas Jefferson
+-- 
+When people work hard for you for a pat on the back, you've got
+to give them that pat.
+-- Robert Heinlein

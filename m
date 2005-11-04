@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932692AbVKDABI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030556AbVKDAIp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932692AbVKDABI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 19:01:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932699AbVKDABI
+	id S1030556AbVKDAIp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 19:08:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030554AbVKDAIo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 19:01:08 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:36022 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932692AbVKDABG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 19:01:06 -0500
-Date: Fri, 4 Nov 2005 01:00:51 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Carlos Martin <carlosmn@gmail.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: sharp zaurus-5500: looking for testers
-Message-ID: <20051104000051.GA28331@elf.ucw.cz>
-References: <20051102000003.GA467@elf.ucw.cz> <fe726f4e0511021440xdb80808p@mail.gmail.com> <20051102225337.GJ23943@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051102225337.GJ23943@elf.ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Thu, 3 Nov 2005 19:08:44 -0500
+Received: from mail25.sea5.speakeasy.net ([69.17.117.27]:41180 "EHLO
+	mail25.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S932702AbVKDAIo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 19:08:44 -0500
+Date: Thu, 3 Nov 2005 19:08:46 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@excalibur.intercode
+To: Phillip Hellewell <phillip@hellewell.homeip.net>
+cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       mike@halcrow.us, mhalcrow@us.ibm.com, mcthomps@us.ibm.com,
+       yoder1@us.ibm.com
+Subject: Re: [PATCH 12/12: eCryptfs] Crypto functions
+In-Reply-To: <20051103035659.GL3005@sshock.rn.byu.edu>
+Message-ID: <Pine.LNX.4.63.0511031902570.22256@excalibur.intercode>
+References: <20051103033220.GD2772@sshock.rn.byu.edu> <20051103035659.GL3005@sshock.rn.byu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 2 Nov 2005, Phillip Hellewell wrote:
 
-> > > Is there someone out there, with sharp zaurus sl-5500, willing to test
-> > > kernels? There's a linux-z tree on kernel.org, which I try to more or
-> > > less keep in sync with mainline, that is slowly starting to get
-> > > usable. It could use some testing.
-> > 
-> > I cloned your tree but it said one of the packs wasn't in the index. I
-> > don't have the exact error message, sorry. I'll try again tomorrow.
-> > Also your git tree (repository?) in kernel.org is a bit broken. The
-> > git web interface gives me 403 error when I try to see a diff in your
-> > zaurus.git tree, and there's stuff that appears to be missing (history
-> > and commits).
-> 
-> Yes, I'm working on that. Slow line, so I try to pick pack files from
-> linus locally.
+> +	crypto_cipher_setkey(crypt_stats->tfm, crypt_stats->key,
+> +			     crypt_stats->key_size_bits / 8);
 
-My trees on kernel.org should be up-to-date now. I had to play some
-tricks with find / cp locally on kernel.org, otherwise it would take
-ages.
+Check return value.
 
-								Pavel
+> +static void generate_random_key(unsigned char *key, int num_bytes)
+> +{
+> +	get_random_bytes(key, num_bytes);
+> +}
+
+Call get_random_bytes() directly.
+
+> +	if (likely(1 == crypt_stats->encrypted)) {
+> +		if (!crypt_stats->key_valid) {
+> +			ecryptfs_printk(1, KERN_NOTICE, "Key is "
+> +					"invalid; bailing out\n");
+> +			rc = -EINVAL;
+> +			goto out;
+> +		}
+> +	} else {
+> +		rc = -EINVAL;
+> +		ecryptfs_printk(0, KERN_WARNING,
+> +				"Called with crypt_stats->encrypted == 0\n");
+> +		goto out;
+> +	}
+
+What's going on here?  Is (crypt_stats->encrypted != 1) a kernel bug?
+
+
+- James
 -- 
-Thanks, Sharp!
+James Morris
+<jmorris@namei.org>

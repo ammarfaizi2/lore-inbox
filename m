@@ -1,86 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160998AbVKDAgW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161000AbVKDAkT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1160998AbVKDAgW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 19:36:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030574AbVKDAgW
+	id S1161000AbVKDAkT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 19:40:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161002AbVKDAkT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 19:36:22 -0500
-Received: from ns.dynamicweb.hu ([195.228.155.139]:59061 "EHLO dynamicweb.hu")
-	by vger.kernel.org with ESMTP id S1030573AbVKDAgW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 19:36:22 -0500
-Message-ID: <028901c5e0d7$52fab640$0400a8c0@dcccs>
-From: "JaniD++" <djani22@dynamicweb.hu>
-To: <linux-kernel@vger.kernel.org>
-Subject: Reboot problem.
-Date: Fri, 4 Nov 2005 01:33:01 +0100
+	Thu, 3 Nov 2005 19:40:19 -0500
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:48049 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1161000AbVKDAkR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 19:40:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=2/dhaDHb1vqXwdcRiyqg6kTsUyDCamVDMHHO9Q6cuNA8y4ijKGbquoBkPfzQtwzjG1iA9WqsRQ8xgdELHubW1RJIAPcJMfpxorku09uKppBsONne6pqxrPBwjtpJaPUsneCb5zG1xELMjda+PU7CcgUilBc/C4m7KD5kUGo50rc=  ;
+Message-ID: <436AAE5E.6010609@yahoo.com.au>
+Date: Fri, 04 Nov 2005 11:42:06 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-2"
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+CC: Linus Torvalds <torvalds@osdl.org>, Mel Gorman <mel@csn.ul.ie>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Dave Hansen <haveblue@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, kravetz@us.ibm.com,
+       linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lhms <lhms-devel@lists.sourceforge.net>,
+       Arjan van de Ven <arjanv@infradead.org>
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+References: <4366C559.5090504@yahoo.com.au><20051101135651.GA8502@elte.hu><1130854224.14475.60.camel@localhost><20051101142959.GA9272@elte.hu><1130856555.14475.77.camel@localhost><20051101150142.GA10636@elte.hu><1130858580.14475.98.camel@localhost><20051102084946.GA3930@elte.hu><436880B8.1050207@yahoo.com.au><1130923969.15627.11.camel@localhost><43688B74.20002@yahoo.com.au><255360000.1130943722@[10.10.2.4]><4369824E.2020407@yahoo.com.au><306020000.1131032193@[10.10.2.4]><1131032422.2839.8.camel@laptopd505.fenrus.org><Pine.LNX.4.64.0511030747450.27915@g5.osdl.org><Pine.LNX.4.58.0511031613560.3571@skynet> <Pine.LNX.4.64.0511030842050.27915@g5.osdl.org><309420000.1131036740@[10.10.2.4]><Pine.LNX.4.64.0511030918110.27915@g5.osdl.org><311050000.1131040276@[10.10.2.4]><314040000.1131043735@[10.10.2.4]><Pine.LNX.4.64.0511031102590.27915@g5.osdl.org> <43370000.1131057466@flay> <Pine.LNX.4.64.0511031459110.27915@g5.osdl.org> <53860000.1131061176@flay>
+In-Reply-To: <53860000.1131061176@flay>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello list,
+Martin J. Bligh wrote:
+>>Ahh, you're right, there's a totally separate watermark for highmem.
+>>
+>>I think I even remember this. I may even be responsible. I know some of 
+>>our less successful highmem balancing efforts in the 2.4.x timeframe had 
+>>serious trouble when they ran out of highmem, and started pruning lowmem 
+>>very very aggressively. Limiting the highmem water marks meant that it 
+>>wouldn't do that very often.
+>>
+>>I think your patch may in fact be fine, but quite frankly, it needs 
+>>testing under real load with highmem.
+>>
 
-Is there any way to force reboot after this:
+I'd prefer not. The reason is that it increases the "min"
+watermark, which only gets used basically by GFP_ATOMIC and
+PF_MEMALLOC allocators - neither of which are likely to want
+highmem.
 
-Nov  3 21:31:39 192.168.2.50 kernel: ------------[ cut here ]------------
-Nov  3 21:31:39 192.168.2.50 kernel: kernel BUG at mm/highmem.c:183!
-Nov  3 21:31:39 192.168.2.50 kernel: invalid operand: 0000 [#1]
-Nov  3 21:31:39 192.168.2.50 kernel: SMP
-Nov  3 21:31:39 192.168.2.50 kernel: Modules linked in: netconsole
-Nov  3 21:31:39 192.168.2.50 kernel: CPU:    3
-Nov  3 21:31:39 192.168.2.50 kernel: EIP:    0060:[<c015094f>]    Not
-tainted VLI
-Nov  3 21:31:39 192.168.2.50 kernel: EFLAGS: 00010246   (2.6.14)
-Nov  3 21:31:39 192.168.2.50 kernel: EIP is at kunmap_high+0x1f/0x93
-Nov  3 21:31:39 192.168.2.50 kernel: eax: 00000000   ebx: c30e1280   ecx:
-c0764a78   edx: 00000286
-Nov  3 21:31:39 192.168.2.50 kernel: esi: 00001000   edi: 00000000   ebp:
-f6eade64   esp: f6eade5c
-Nov  3 21:31:39 192.168.2.50 kernel: ds: 007b   es: 007b   ss: 0068
-Nov  3 21:31:39 192.168.2.50 kernel: Process md4_raid1 (pid: 3367,
-threadinfo=f6eac000 task=f7bd8030)
-Nov  3 21:31:39 192.168.2.50 kernel: Stack: c30e1280 cc31b8d0 f6eade6c
-c0118349 f6eadec4 c038f626 c30e1280 00000001
-Nov  3 21:31:39 192.168.2.50 kernel:        ed143000 00001000 00004000
-c0104e81 f6eadeec f7292d00 c07768ec f179e600
-Nov  3 21:31:39 192.168.2.50 kernel:        13956025 01000000 e25b6edc
-f6eadeec 22010000 00801bbc 00900100 c07768cc
-Nov  3 21:31:39 192.168.2.50 kernel: Call Trace:
-Nov  3 21:31:39 192.168.2.50 kernel:  [<c0103bf2>] show_stack+0x9a/0xd0
-Nov  3 21:31:39 192.168.2.50 kernel:  [<c0103db2>]
-show_registers+0x16a/0x1fa
-Nov  3 21:31:39 192.168.2.50 kernel:  [<c0103fc3>] die+0xfa/0x17c
-Nov  3 21:31:39 192.168.2.50 kernel:  [<c055510e>] do_trap+0x7e/0xb2
-Nov  3 21:31:39 192.168.2.50 kernel:  [<c010432d>] do_invalid_op+0xa9/0xb3
-Nov  3 21:31:39 192.168.2.50 kernel:  [<c01038ab>] error_code+0x4f/0x54
-Nov  3 21:31:39 192.168.2.50 kernel:  [<c0118349>] kunmap+0x42/0x44
-Nov  3 21:31:39 192.168.2.50 kernel:  [<c038f626>] nbd_send_req+0x1fc/0x297
-Nov  3 21:31:39 192.168.2.50 kernel:  [<c038fb17>] do_nbd_request+0xf4/0x27d
-Nov  3 21:31:39 192.168.2.50 kernel:  [<c0380e0c>]
-__generic_unplug_device+0x28/0x2e
-Nov  3 21:31:39 192.168.2.50 kernel:  [<c0380e2f>]
-generic_unplug_device+0x1d/0x2e
-Nov  3 21:31:39 192.168.2.50 kernel:  [<c046910b>] unplug_slaves+0x54/0xaf
-Nov  3 21:31:39 192.168.2.50 kernel:  [<c046a81b>] raid1d+0x288/0x2cb
-Nov  3 21:31:39 192.168.2.50 kernel:  [<c0478d4a>] md_thread+0x5f/0x10b
-Nov  3 21:31:39 192.168.2.50 kernel:  [<c0132f07>] kthread+0xb1/0xb5
-Nov  3 21:31:39 192.168.2.50 kernel:  [<c0101145>]
-kernel_thread_helper+0x5/0xb
-Nov  3 21:31:39 192.168.2.50 kernel: Code: e8 08 06 00 00 89 c7 e9 38 ff ff
-ff 55 89 e5 53 83 ec 04 89 c3 b8 80 6c 68 c0 e8 3e
-Nov  3 21:31:39 192.168.2.50 kernel:  <0>Fatal exception: panic in 5 seconds
+Also, I don't think anybody cares about higher order highmem
+allocations. At least the patches in this thread:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=113082256231168&w=2
 
+Should be applied before this. However they also need more
+testing so I'll be sending them to Andrew first.
 
-At this point the system is freez, and only reset can help.
+Patch 2 does basically the same thing as your patch, without
+increasing the min watermark.
 
-Thanks
+-- 
+SUSE Labs, Novell Inc.
 
-Janos
-
+Send instant messages to your online friends http://au.messenger.yahoo.com 

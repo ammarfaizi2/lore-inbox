@@ -1,49 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbVKDX3e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbVKDXat@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750989AbVKDX3e (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 18:29:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbVKDX3e
+	id S1751082AbVKDXat (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 18:30:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751084AbVKDXat
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 18:29:34 -0500
-Received: from mail.kroah.org ([69.55.234.183]:53940 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750989AbVKDX3d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 18:29:33 -0500
-Date: Fri, 4 Nov 2005 15:28:54 -0800
-From: Greg KH <greg@kroah.com>
-To: Damir Perisa <damir.perisa@solnet.ch>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
-       Archlinux Developers <arch-dev@archlinux.org>
-Subject: Re: ide-cs broken / udev magic
-Message-ID: <20051104232854.GA21173@kroah.com>
-References: <20051103220305.77620d8f.akpm@osdl.org> <20051104071932.GA6362@kroah.com> <200511050022.41472.damir.perisa@solnet.ch>
+	Fri, 4 Nov 2005 18:30:49 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:5385 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1751082AbVKDXat (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 18:30:49 -0500
+Date: Sat, 5 Nov 2005 00:18:15 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: linux-kernel@vger.kernel.org
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Grant Coady <gcoady@gmail.com>, Roberto Nibali <ratz@drugphish.ch>
+Subject: Linux-2.4.31-hf8
+Message-ID: <20051104231815.GA26093@alpha.home.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200511050022.41472.damir.perisa@solnet.ch>
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 05, 2005 at 12:22:36AM +0100, Damir Perisa wrote:
-> as other distros use to ignore removable ide's. now i need to load the 
-> ide-cs module by hand (bad thing, as module should be loaded 
-> automagically with udev/hotplug) but on the other hand, no more 
-> dmesg-spamming, no freezes and also the node is created successfully 
-> after module is loaded. 
+Hi,
 
-This shouldn't have changed the "autoload" capability of the module at
-all.  It should still being loaded with whatever means it was being
-loaded before.  But that's a distro specific question, not a
-linux-kernel issue.
+This is the eighth hotfix for 2.4.31. OK, I know there was one not long ago,
+but a recent fix in IPVS which got merged into -hf7 left a refcnt problem in
+ip_vs_conn_expire_now, which can cause mid-term/long-term stability problems.
+I took this opportunity to merge a backport from 2.6 of another fix from Yan
+Zheng affecting multicast source filters.
 
-> is there planed action to change ide-cs to work without making it being 
-> ignored ... without this exception that needs to be specified in udev 
-> rules? 
+There's no other fix, people not using IPVS nor IPv6 have no reason to upgrade.
 
-Yes, there are patches somewhere to fix this up, I'm trying to track
-them down.
+I'd like to specially thank Roberto Nibali, Yan Zheng and David Stevens for
+their determination in tracking those bugs, and getting them fixed early
+(and most of all, taking some time to explain me what the fixes do !).
 
-thanks,
+Changelog and incremental patch appended. Kernel has been rebuilt on x86.
+As usual, 2.4.29-hf18, 2.4.30-hf11 and 2.4.31-hf8 have been released.
+You can get them from the usual places :
 
-greg k-h
+    hotfixes home : http://linux.exosec.net/kernel/2.4-hf/
+     last version : http://linux.exosec.net/kernel/2.4-hf/LATEST/LATEST/
+         RSS feed : http://linux.exosec.net/kernel/hf.xml
+    build results : http://bugsplatter.mine.nu/test/linux-2.4/ (Grant's site)
+
+I hope I did not forget anything, otherwise please bug me.
+
+Regards,
+Willy
+
+Changelog from 2.4.31-hf7 to 2.4.31-hf8
+---------------------------------------
+'+' = added ; '-' = removed
+
++ 2.4.32-rc2-ip_vs_conn_expire_now-fix_refcnt-dec-1       (Julian Anastasov)
+
+Quoting Roberto Nibali: It is absolutely needed. Without it, people will
+really experience a long term problem with hanging templates in IPVS,
+manifesting itself depending on time and hardware configuration.
+It seems we forgot to fix one place where ip_vs_conn_expire_now is used.
+Callers should hold write lock or cp->refcnt (and not forget it). This
+results in hanging template entries when expire_nodest_conn is kicking
+in and trying to remove all connection entries for a specific
+destination. Julian Anastasov created a patch to fix this and asked me
+to forward it for inclusion, after test and verification, which have
+happened the last 24 hours.
+
++ 2.4.32-rc2-mcast-filter-1                                  (Willy Tarreau)
+
+[PATCH-2.4][MCAST]IPv6: small fix for ip6_mc_msfilter(...)
+Multicast source filters aren't widely used yet, and that's really
+the only feature that's affected if an application actually exercises
+this bug, as far as I can tell. An ordinary filter-less multicast join
+should still work, and only forwarded multicast traffic making use of
+filters and doing empty-source filters with the MSFILTER ioctl would
+be at risk of not getting multicast traffic forwarded to them because
+the reports generated would not be based on the correct counts.
+Initial 2.6 patch by Yan Zheng, bug explanation by David Stevens,
+patch ACKed by David.
+
+--
+
+Incremental diff from 2.4.31-hf7
+--- linux-2.4.31-hf7/Makefile	Tue Nov  1 11:08:11 2005
++++ linux-2.4.31-hf8/Makefile	Fri Nov  4 23:50:30 2005
+@@ -1,7 +1,7 @@
+ VERSION = 2
+ PATCHLEVEL = 4
+ SUBLEVEL = 31
+-EXTRAVERSION = -hf7
++EXTRAVERSION = -hf8
+ 
+ KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
+ 
+--- linux-2.4.31-hf7/net/ipv4/igmp.c	Tue Nov  1 11:08:11 2005
++++ linux-2.4.31-hf8/net/ipv4/igmp.c	Fri Nov  4 23:50:30 2005
+@@ -1876,8 +1876,11 @@
+ 			sock_kfree_s(sk, newpsl, IP_SFLSIZE(newpsl->sl_max));
+ 			goto done;
+ 		}
+-	} else
+-		newpsl = 0;
++	} else {
++		newpsl = NULL;
++		(void) ip_mc_add_src(in_dev, &msf->imsf_multiaddr,
++		       msf->imsf_fmode, 0, NULL, 0);
++	}
+ 	psl = pmc->sflist;
+ 	if (psl) {
+ 		(void) ip_mc_del_src(in_dev, &msf->imsf_multiaddr, pmc->sfmode,
+--- linux-2.4.31-hf7/net/ipv4/ipvs/ip_vs_core.c	Tue Nov  1 11:08:11 2005
++++ linux-2.4.31-hf8/net/ipv4/ipvs/ip_vs_core.c	Fri Nov  4 23:50:29 2005
+@@ -1111,11 +1111,10 @@
+ 		if (sysctl_ip_vs_expire_nodest_conn) {
+ 			/* try to expire the connection immediately */
+ 			ip_vs_conn_expire_now(cp);
+-		} else {
+-			/* don't restart its timer, and silently
+-			   drop the packet. */
+-			__ip_vs_conn_put(cp);
+ 		}
++		/* don't restart its timer, and silently
++		   drop the packet. */
++		__ip_vs_conn_put(cp);
+ 		return NF_DROP;
+ 	}
+ 
+--- linux-2.4.31-hf7/net/ipv6/mcast.c	Tue Nov  1 11:08:11 2005
++++ linux-2.4.31-hf8/net/ipv6/mcast.c	Fri Nov  4 23:50:30 2005
+@@ -505,8 +505,11 @@
+ 			sock_kfree_s(sk, newpsl, IP6_SFLSIZE(newpsl->sl_max));
+ 			goto done;
+ 		}
+-	} else
+-		newpsl = 0;
++	} else {
++		newpsl = NULL;
++		(void) ip6_mc_add_src(idev, group, gsf->gf_fmode, 0, NULL, 0);
++	}
++
+ 	psl = pmc->sflist;
+ 	if (psl) {
+ 		(void) ip6_mc_del_src(idev, group, pmc->sfmode,
+
+

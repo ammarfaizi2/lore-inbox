@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbVKDPjE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751504AbVKDPj1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750816AbVKDPjE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 10:39:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750849AbVKDPjE
+	id S1751504AbVKDPj1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 10:39:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751509AbVKDPj1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 10:39:04 -0500
-Received: from 238-193.adsl.pool.ew.hu ([193.226.238.193]:51206 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1750816AbVKDPjC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 10:39:02 -0500
-To: joern@wohnheim.fh-wedel.de
-CC: jblunck@suse.de, miklos@szeredi.hu, viro@ftp.linux.org.uk,
-       linux-kernel@vger.kernel.org
-In-reply-to: <20051104151646.GB31827@wohnheim.fh-wedel.de> (message from
-	=?iso-8859-1?Q?J=F6rn?= Engel on Fri, 4 Nov 2005 16:16:46 +0100)
-Subject: Re: [RFC,PATCH] libfs dcache_readdir() and dcache_dir_lseek() bugfix
-References: <20051104113851.GA4770@hasse.suse.de> <20051104115101.GH7992@ftp.linux.org.uk> <20051104122021.GA15061@hasse.suse.de> <E1EY16w-0004HC-00@dorka.pomaz.szeredi.hu> <20051104131858.GA16622@hasse.suse.de> <E1EY1fi-0004LB-00@dorka.pomaz.szeredi.hu> <20051104151104.GA22322@hasse.suse.de> <20051104151646.GB31827@wohnheim.fh-wedel.de>
-Message-Id: <E1EY3eK-0004Yb-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 04 Nov 2005 16:38:40 +0100
+	Fri, 4 Nov 2005 10:39:27 -0500
+Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:46296 "EHLO
+	pne-smtpout2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S1751504AbVKDPj0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 10:39:26 -0500
+Date: Fri, 4 Nov 2005 16:39:20 +0100 (CET)
+From: Peter Osterlund <petero2@telia.com>
+X-X-Sender: petero@p4.localdomain
+To: Adrian Bunk <bunk@stusta.de>
+cc: linux-kernel@vger.kernel.org, ace@staticwave.ca
+Subject: Re: [2.6 patch] drivers/block/pktcdvd.c: remove write-only variable
+ in pkt_iosched_process_queue()
+In-Reply-To: <20051102091059.GF8009@stusta.de>
+Message-ID: <Pine.LNX.4.58.0511041638240.17790@telia.com>
+References: <20051102091059.GF8009@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > True. Seeking to that offset should at least fail and shouldn't
-> > stop at the new entry. But SuSV3 says that the offset given by
-> > telldir() is valid until the next rewinddir().  This is no problem
-> > for directories that can only grow.  I tried to implement some
-> > kind of deferred dput'ing of the d_child's but that was too
-> > hackish and was wasting memory. So the best thing I can do now is
-> > fail if someone wants to seek to an offset of an already unlinked
-> > file.
-> 
-> Does that mean that, to satisfy the standard, you'd have to allow the
-> seek, but return 0 bytes on further reads, as you're already at (or
-> beyond, whatever) EOF?
-> 
-> Sounds quite ugly and it would be nice if this wasn't necessary.
+On Wed, 2 Nov 2005, Adrian Bunk wrote:
 
-The directory position not _on_ an entry, but _between_ two entries.
-So it doesn't matter if the next entry is removed, the offset stays
-perfectly valid.
+> Found this on Coverty's linux bug database (http://linuxbugsdb.coverity.com).
+>
+> The function pkt_iosched_process_queue makes a call to bdev_get_queue
+> and stores the result but never uses it, so it looks like it can be
+> safely removed.
+>
+> From: Gabriel A. Devenyi <ace@staticwave.ca>
 
-If there doesn't remain any entries after the position, readdir should
-return EOF.  Otherwise it should continue reading normally.
+Thanks. The patch looks good.
 
-What SUS doesn't specify is what happens entries added between
-opendir() and before rewinddir().
-
-Miklos
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

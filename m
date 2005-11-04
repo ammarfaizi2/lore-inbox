@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161017AbVKDBEg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161025AbVKDBDu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161017AbVKDBEg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 20:04:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161018AbVKDAty
+	id S1161025AbVKDBDu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 20:03:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161023AbVKDAuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 19:49:54 -0500
-Received: from h-67-100-217-179.hstqtx02.covad.net ([67.100.217.179]:45203
+	Thu, 3 Nov 2005 19:50:44 -0500
+Received: from h-67-100-217-179.hstqtx02.covad.net ([67.100.217.179]:56467
 	"EHLO mail.gnucash.org") by vger.kernel.org with ESMTP
-	id S1161017AbVKDAtj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 19:49:39 -0500
-Date: Thu, 3 Nov 2005 18:49:38 -0600
+	id S1161024AbVKDAu2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 19:50:28 -0500
+Date: Thu, 3 Nov 2005 18:50:26 -0600
 From: Linas Vepstas <linas@linas.org>
 To: paulus@samba.org, linuxppc64-dev@ozlabs.org
 Cc: johnrose@austin.ibm.com, linux-pci@atrey.karlin.mff.cuni.cz,
        bluesmoke-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 9/42]: ppc64: bugfix: crash on PCI hotplug
-Message-ID: <20051104004938.GA26852@mail.gnucash.org>
+Subject: [PATCH 15/42]: Documentation:  PCI Error Recovery
+Message-ID: <20051104005026.GA26919@mail.gnucash.org>
 Reply-To: linas@austin.ibm.com
 References: <20051103235918.GA25616@mail.gnucash.org>
 Mime-Version: 1.0
@@ -25,78 +25,288 @@ User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-09-hotplug-bugfix.patch
+215-pci-error-recovery_docs.patch
 
-In the current 2.6.14-rc2-git6 kernel, performing a Dynamic LPAR Add 
-of a hotplug slot will crash the system, with the following (abbreviated) 
-stack trace:
+PCI Error Recovery: documentation patch
 
-cpu 0x3: Vector: 700 (Program Check) at [c000000053dff7f0]
-    pc: c0000000004f5974: .__alloc_bootmem+0x0/0xb0
-    lr: c0000000000258a0: .update_dn_pci_info+0x108/0x118
-        c0000000000257c8 .update_dn_pci_info+0x30/0x118 (unreliable)
-        c0000000000258fc .pci_dn_reconfig_notifier+0x4c/0x64
-        c000000000060754 .notifier_call_chain+0x68/0x9c
-
-The root cause was that __init __alloc_bootmem() was called long after 
-boot had finished, resulting in a crash because this routine is undefined
-after boot time.  The patch below fixes this crash, and adds some docs to 
-clarify the code.
-
-p.s. congrats to all for getting slashdotted on this yesterday!
+Various PCI bus errors can be signaled by newer PCI controllers.
+Recovering from those errors requires an infrastructure to notify
+affected device drivers of the error, and a way of walking through
+a reset sequence.  This patch adds documentation describing the
+current error recovery proposal.
 
 Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
 
-Mailed to: paulus@samba.org
-CC: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org, johnrose@linux.ibm.com
-On Monday 3 October 2005
+ Documentation/pci-error-recovery.txt |  246 +++++++++++++++++++++++++++++++++++
+ MAINTAINERS                          |    7 
+ 2 files changed, 253 insertions(+)
 
-revised on 4 Ocober to
-[PATCH 1/2] ppc64: Crash in DLPAR code on PCI hotplug add
-
-Index: linux-2.6.14-git3/arch/ppc64/kernel/pci_dn.c
+Index: linux-2.6.14-git3/Documentation/pci-error-recovery.txt
 ===================================================================
---- linux-2.6.14-git3.orig/arch/ppc64/kernel/pci_dn.c	2005-10-31 12:19:03.211506966 -0600
-+++ linux-2.6.14-git3/arch/ppc64/kernel/pci_dn.c	2005-10-31 12:19:47.420303479 -0600
-@@ -43,7 +43,7 @@
- 	u32 *regs;
- 	struct pci_dn *pdn;
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.14-git3/Documentation/pci-error-recovery.txt	2005-11-02 14:34:25.663328101 -0600
+@@ -0,0 +1,246 @@
++
++                       PCI Error Recovery
++                       ------------------
++                         May 31, 2005
++
++               Current document maintainer:
++           Linas Vepstas <linas@austin.ibm.com>
++
++
++Some PCI bus controllers are able to detect certain "hard" PCI errors
++on the bus, such as parity errors on the data and address busses, as
++well as SERR and PERR errors.  These chipsets are then able to disable
++I/O to/from the affected device, so that, for example, a bad DMA
++address doesn't end up corrupting system memory.  These same chipsets
++are also able to reset the affected PCI device, and return it to
++working condition.  This document describes a generic API form
++performing error recovery.
++
++The core idea is that after a PCI error has been detected, there must
++be a way for the kernel to coordinate with all affected device drivers
++so that the pci card can be made operational again, possibly after
++performing a full electrical #RST of the PCI card.  The API below
++provides a generic API for device drivers to be notified of PCI
++errors, and to be notified of, and respond to, a reset sequence.
++
++Preliminary sketch of API, cut-n-pasted-n-modified email from
++Ben Herrenschmidt, circa 5 april 2005
++
++The error recovery API support is exposed to the driver in the form of
++a structure of function pointers pointed to by a new field in struct
++pci_driver. The absence of this pointer in pci_driver denotes an
++"non-aware" driver, behaviour on these is platform dependant.
++Platforms like ppc64 can try to simulate pci hotplug remove/add.
++
++The definition of "pci_error_token" is not covered here. It is based on
++Seto's work on the synchronous error detection. We still need to define
++functions for extracting infos out of an opaque error token. This is
++separate from this API.
++
++This structure has the form:
++
++struct pci_error_handlers
++{
++	int (*error_detected)(struct pci_dev *dev, pci_error_token error);
++	int (*mmio_enabled)(struct pci_dev *dev);
++	int (*resume)(struct pci_dev *dev);
++	int (*link_reset)(struct pci_dev *dev);
++	int (*slot_reset)(struct pci_dev *dev);
++};
++
++A driver doesn't have to implement all of these callbacks. The
++only mandatory one is error_detected(). If a callback is not
++implemented, the corresponding feature is considered unsupported.
++For example, if mmio_enabled() and resume() aren't there, then the
++driver is assumed as not doing any direct recovery and requires
++a reset. If link_reset() is not implemented, the card is assumed as
++not caring about link resets, in which case, if recover is supported,
++the core can try recover (but not slot_reset() unless it really did
++reset the slot). If slot_reset() is not supported, link_reset() can
++be called instead on a slot reset.
++
++At first, the call will always be :
++
++	1) error_detected()
++
++	Error detected. This is sent once after an error has been detected. At
++this point, the device might not be accessible anymore depending on the
++platform (the slot will be isolated on ppc64). The driver may already
++have "noticed" the error because of a failing IO, but this is the proper
++"synchronisation point", that is, it gives a chance to the driver to
++cleanup, waiting for pending stuff (timers, whatever, etc...) to
++complete; it can take semaphores, schedule, etc... everything but touch
++the device. Within this function and after it returns, the driver
++shouldn't do any new IOs. Called in task context. This is sort of a
++"quiesce" point. See note about interrupts at the end of this doc.
++
++	Result codes:
++		- PCIERR_RESULT_CAN_RECOVER:
++		  Driever returns this if it thinks it might be able to recover
++		  the HW by just banging IOs or if it wants to be given
++		  a chance to extract some diagnostic informations (see
++		  below).
++		- PCIERR_RESULT_NEED_RESET:
++		  Driver returns this if it thinks it can't recover unless the
++		  slot is reset.
++		- PCIERR_RESULT_DISCONNECT:
++		  Return this if driver thinks it won't recover at all,
++		  (this will detach the driver ? or just leave it
++		  dangling ? to be decided)
++
++So at this point, we have called error_detected() for all drivers
++on the segment that had the error. On ppc64, the slot is isolated. What
++happens now typically depends on the result from the drivers. If all
++drivers on the segment/slot return PCIERR_RESULT_CAN_RECOVER, we would
++re-enable IOs on the slot (or do nothing special if the platform doesn't
++isolate slots) and call 2). If not and we can reset slots, we go to 4),
++if neither, we have a dead slot. If it's an hotplug slot, we might
++"simulate" reset by triggering HW unplug/replug though.
++
++>>> Current ppc64 implementation assumes that a device driver will
++>>> *not* schedule or semaphore in this routine; the current ppc64
++>>> implementation uses one kernel thread to notify all devices;
++>>> thus, of one device sleeps/schedules, all devices are affected.
++>>> Doing better requires complex multi-threaded logic in the error
++>>> recovery implementation (e.g. waiting for all notification threads
++>>> to "join" before proceeding with recovery.)  This seems excessively
++>>> complex and not worth implementing.
++
++>>> The current ppc64 implementation doesn't much care if the device
++>>> attempts i/o at this point, or not.  I/O's will fail, returning
++>>> a value of 0xff on read, and writes will be dropped. If the device
++>>> driver attempts more than 10K I/O's to a frozen adapter, it will
++>>> assume that the device driver has gone into an infinite loop, and
++>>> it will panic the the kernel.
++
++	2) mmio_enabled()
++
++	This is the "early recovery" call. IOs are allowed again, but DMA is
++not (hrm... to be discussed, I prefer not), with some restrictions. This
++is NOT a callback for the driver to start operations again, only to
++peek/poke at the device, extract diagnostic information, if any, and
++eventually do things like trigger a device local reset or some such,
++but not restart operations. This is sent if all drivers on a segment
++agree that they can try to recover and no automatic link reset was
++performed by the HW. If the platform can't just re-enable IOs without
++a slot reset or a link reset, it doesn't call this callback and goes
++directly to 3) or 4). All IOs should be done _synchronously_ from
++within this callback, errors triggered by them will be returned via
++the normal pci_check_whatever() api, no new error_detected() callback
++will be issued due to an error happening here. However, such an error
++might cause IOs to be re-blocked for the whole segment, and thus
++invalidate the recovery that other devices on the same segment might
++have done, forcing the whole segment into one of the next states,
++that is link reset or slot reset.
++
++	Result codes:
++		- PCIERR_RESULT_RECOVERED
++		  Driver returns this if it thinks the device is fully
++		  functionnal and thinks it is ready to start
++		  normal driver operations again. There is no
++		  guarantee that the driver will actually be
++		  allowed to proceed, as another driver on the
++		  same segment might have failed and thus triggered a
++		  slot reset on platforms that support it.
++
++		- PCIERR_RESULT_NEED_RESET
++		  Driver returns this if it thinks the device is not
++		  recoverable in it's current state and it needs a slot
++		  reset to proceed.
++
++		- PCIERR_RESULT_DISCONNECT
++		  Same as above. Total failure, no recovery even after
++		  reset driver dead. (To be defined more precisely)
++
++>>> The current ppc64 implementation does not implement this callback.
++
++	3) link_reset()
++
++	This is called after the link has been reset. This is typically
++a PCI Express specific state at this point and is done whenever a
++non-fatal error has been detected that can be "solved" by resetting
++the link. This call informs the driver of the reset and the driver
++should check if the device appears to be in working condition.
++This function acts a bit like 2) mmio_enabled(), in that the driver
++is not supposed to restart normal driver I/O operations right away.
++Instead, it should just "probe" the device to check it's recoverability
++status. If all is right, then the core will call resume() once all
++drivers have ack'd link_reset().
++
++	Result codes:
++		(identical to mmio_enabled)
++
++>>> The current ppc64 implementation does not implement this callback.
++
++	4) slot_reset()
++
++	This is called after the slot has been soft or hard reset by the
++platform.  A soft reset consists of asserting the adapter #RST line
++and then restoring the PCI BARs and PCI configuration header. If the
++platform supports PCI hotplug, then it might instead perform a hard
++reset by toggling power on the slot off/on. This call gives drivers
++the chance to re-initialize the hardware (re-download firmware, etc.),
++but drivers shouldn't restart normal I/O processing operations at
++this point.  (See note about interrupts; interrupts aren't guaranteed
++to be delivered until the resume() callback has been called). If all
++device drivers report success on this callback, the patform will call
++resume() to complete the error handling and let the driver restart
++normal I/O processing.
++
++A driver can still return a critical failure for this function if
++it can't get the device operational after reset.  If the platform
++previously tried a soft reset, it migh now try a hard reset (power
++cycle) and then call slot_reset() again.  It the device still can't
++be recovered, there is nothing more that can be done;  the platform
++will typically report a "permanent failure" in such a case.  The
++device will be considered "dead" in this case.
++
++	Result codes:
++		- PCIERR_RESULT_DISCONNECT
++		Same as above.
++
++>>> The current ppc64 implementation does not try a power-cycle reset
++>>> if the driver returned PCIERR_RESULT_DISCONNECT. However, it should.
++
++	5) resume()
++
++	This is called if all drivers on the segment have returned
++PCIERR_RESULT_RECOVERED from one of the 3 prevous callbacks.
++That basically tells the driver to restart activity, tht everything
++is back and running. No result code is taken into account here. If
++a new error happens, it will restart a new error handling process.
++
++That's it. I think this covers all the possibilities. The way those
++callbacks are called is platform policy. A platform with no slot reset
++capability for example may want to just "ignore" drivers that can't
++recover (disconnect them) and try to let other cards on the same segment
++recover. Keep in mind that in most real life cases, though, there will
++be only one driver per segment.
++
++Now, there is a note about interrupts. If you get an interrupt and your
++device is dead or has been isolated, there is a problem :)
++
++After much thinking, I decided to leave that to the platform. That is,
++the recovery API only precies that:
++
++ - There is no guarantee that interrupt delivery can proceed from any
++device on the segment starting from the error detection and until the
++restart callback is sent, at which point interrupts are expected to be
++fully operational.
++
++ - There is no guarantee that interrupt delivery is stopped, that is, ad
++river that gets an interrupts after detecting an error, or that detects
++and error within the interrupt handler such that it prevents proper
++ack'ing of the interrupt (and thus removal of the source) should just
++return IRQ_NOTHANDLED. It's up to the platform to deal with taht
++condition, typically by masking the irq source during the duration of
++the error handling. It is expected that the platform "knows" which
++interrupts are routed to error-management capable slots and can deal
++with temporarily disabling that irq number during error processing (this
++isn't terribly complex). That means some IRQ latency for other devices
++sharing the interrupt, but there is simply no other way. High end
++platforms aren't supposed to share interrupts between many devices
++anyway :)
++
++
++Revised: 31 May 2005 Linas Vepstas <linas@austin.ibm.com>
+Index: linux-2.6.14-git3/MAINTAINERS
+===================================================================
+--- linux-2.6.14-git3.orig/MAINTAINERS	2005-11-02 14:29:19.433257684 -0600
++++ linux-2.6.14-git3/MAINTAINERS	2005-11-02 14:34:25.700322915 -0600
+@@ -1885,6 +1885,13 @@
+ L:	linux-abi-devel@lists.sourceforge.net
+ S:	Maintained
  
--	if (phb->is_dynamic)
-+	if (mem_init_done)
- 		pdn = kmalloc(sizeof(*pdn), GFP_KERNEL);
- 	else
- 		pdn = alloc_bootmem(sizeof(*pdn));
-@@ -120,6 +120,14 @@
- 	return NULL;
- }
- 
-+/** 
-+ * pci_devs_phb_init_dynamic - setup pci devices under this PHB
-+ * phb: pci-to-host bridge (top-level bridge connecting to cpu)
-+ *
-+ * This routine is called both during boot, (before the memory
-+ * subsystem is set up, before kmalloc is valid) and during the 
-+ * dynamic lpar operation of adding a PHB to a running system.
-+ */
- void __devinit pci_devs_phb_init_dynamic(struct pci_controller *phb)
- {
- 	struct device_node * dn = (struct device_node *) phb->arch_data;
-@@ -200,9 +208,14 @@
- 	.notifier_call = pci_dn_reconfig_notifier,
- };
- 
--/*
-- * Actually initialize the phbs.
-- * The buswalk on this phb has not happened yet.
-+/** 
-+ * pci_devs_phb_init - Initialize phbs and pci devs under them.
-+ * 
-+ * This routine walks over all phb's (pci-host bridges) on the
-+ * system, and sets up assorted pci-related structures 
-+ * (including pci info in the device node structs) for each
-+ * pci device found underneath.  This routine runs once,
-+ * early in the boot sequence.
-  */
- void __init pci_devs_phb_init(void)
- {
++PCI ERROR RECOVERY
++P: Linas Vepstas
++M: linas@austin.ibm.com
++L:	linux-kernel@vger.kernel.org
++L:	linux-pci@atrey.karlin.mff.cuni.cz
++S:	Supported
++
+ PCI SOUND DRIVERS (ES1370, ES1371 and SONICVIBES)
+ P:	Thomas Sailer
+ M:	sailer@ife.ee.ethz.ch

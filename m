@@ -1,40 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932732AbVKDM4g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932734AbVKDM5s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932732AbVKDM4g (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 07:56:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932734AbVKDM4g
+	id S932734AbVKDM5s (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 07:57:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932738AbVKDM5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 07:56:36 -0500
-Received: from 238-193.adsl.pool.ew.hu ([193.226.238.193]:10 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S932732AbVKDM4f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 07:56:35 -0500
-To: jblunck@suse.de
-CC: viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org
-In-reply-to: <20051104122021.GA15061@hasse.suse.de> (jblunck@suse.de)
-Subject: Re: [RFC,PATCH] libfs dcache_readdir() and dcache_dir_lseek() bugfix
-References: <20051104113851.GA4770@hasse.suse.de> <20051104115101.GH7992@ftp.linux.org.uk> <20051104122021.GA15061@hasse.suse.de>
-Message-Id: <E1EY16w-0004HC-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 04 Nov 2005 13:56:02 +0100
+	Fri, 4 Nov 2005 07:57:47 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:11019 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932734AbVKDM5q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 07:57:46 -0500
+Date: Fri, 4 Nov 2005 13:57:42 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       linux-joystick@atrey.karlin.mff.cuni.cz
+Subject: Re: [2.6 patch] drivers/input/: possible cleanups
+Message-ID: <20051104125742.GE5587@stusta.de>
+References: <20051104123541.GC5587@stusta.de> <20051104124207.GA4937@ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051104124207.GA4937@ucw.cz>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > 
-> > > SuSV3 only says: "If a file is removed from or added to the
-> > > directory after the most recent call to opendir() or
-> > > rewinddir(), whether a subsequent call to readdir_r() returns an
-> > > entry for that file is unspecified."
-> >  
-> > IOW, the applications in question are broken since they rely on
-> > unspecified behaviour, not provided by old libc versions.
+On Fri, Nov 04, 2005 at 01:42:07PM +0100, Vojtech Pavlik wrote:
+> On Fri, Nov 04, 2005 at 01:35:41PM +0100, Adrian Bunk wrote:
+> > This patch contains the following possible cleanups:
+> > - make needlessly glbal code static
 > 
-> No. SuSV3 only says that the behavior of readdir() is unspecified
-> w.r.t. an entry for the removed/added file. I think readdir() should
-> still return the entries which are not removed/added. What do you
-> think?
+> Agreed.
+> 
+> > - gameport/gameport: #if 0 the unused global function gameport_reconnect
+> 
+> That one should be an EXPORT_SYMBOL() API. If the export is missing,
+> then that's the bug that needs to be fixed.
+>...
 
-What 'rm' is this?  Mine (coreutils 5.2.1) doesn't do any seeking and
-I don't think that glibc does either.
+There isn't even a header providing a function prototype which is quite 
+strange for a part of an API.
 
-Miklos
+> Vojtech Pavlik
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

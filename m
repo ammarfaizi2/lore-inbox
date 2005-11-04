@@ -1,100 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbVKDMmL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932730AbVKDMpM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932143AbVKDMmL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 07:42:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932734AbVKDMmL
+	id S932730AbVKDMpM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 07:45:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932733AbVKDMpM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 07:42:11 -0500
-Received: from styx.suse.cz ([82.119.242.94]:64227 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S932143AbVKDMmJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 07:42:09 -0500
-Date: Fri, 4 Nov 2005 13:42:07 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       linux-joystick@atrey.karlin.mff.cuni.cz
-Subject: Re: [2.6 patch] drivers/input/: possible cleanups
-Message-ID: <20051104124207.GA4937@ucw.cz>
-References: <20051104123541.GC5587@stusta.de>
-Mime-Version: 1.0
+	Fri, 4 Nov 2005 07:45:12 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:62474 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932730AbVKDMpL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 07:45:11 -0500
+Date: Fri, 4 Nov 2005 13:45:07 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: mark.gross@intel.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [-mm patch] drivers/char/tlclk.c: make two functions static
+Message-ID: <20051104124507.GD5587@stusta.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051104123541.GC5587@stusta.de>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 04, 2005 at 01:35:41PM +0100, Adrian Bunk wrote:
-> This patch contains the following possible cleanups:
-> - make needlessly glbal code static
+This patch makes two needlessly global functions static.
 
-Agreed.
 
-> - gameport/gameport: #if 0 the unused global function gameport_reconnect
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-That one should be an EXPORT_SYMBOL() API. If the export is missing,
-then that's the bug that needs to be fixed.
+---
 
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> ---
-> 
->  drivers/input/gameport/gameport.c |    2 ++
->  drivers/input/joystick/twidjoy.c  |    4 ++--
->  drivers/input/touchscreen/mk712.c |    2 +-
->  3 files changed, 5 insertions(+), 3 deletions(-)
-> 
-> --- linux-2.6.14-rc5-mm1-full/drivers/input/joystick/twidjoy.c.old	2005-11-04 11:37:38.000000000 +0100
-> +++ linux-2.6.14-rc5-mm1-full/drivers/input/joystick/twidjoy.c	2005-11-04 11:38:01.000000000 +0100
-> @@ -265,13 +265,13 @@
->   * The functions for inserting/removing us as a module.
->   */
->  
-> -int __init twidjoy_init(void)
-> +static int __init twidjoy_init(void)
->  {
->  	serio_register_driver(&twidjoy_drv);
->  	return 0;
->  }
->  
-> -void __exit twidjoy_exit(void)
-> +static void __exit twidjoy_exit(void)
->  {
->  	serio_unregister_driver(&twidjoy_drv);
->  }
-> --- linux-2.6.14-rc5-mm1-full/drivers/input/touchscreen/mk712.c.old	2005-11-04 11:38:20.000000000 +0100
-> +++ linux-2.6.14-rc5-mm1-full/drivers/input/touchscreen/mk712.c	2005-11-04 11:38:29.000000000 +0100
-> @@ -154,7 +154,7 @@
->  	spin_unlock_irqrestore(&mk712_lock, flags);
->  }
->  
-> -int __init mk712_init(void)
-> +static int __init mk712_init(void)
->  {
->  	int err;
->  
-> --- linux-2.6.14-rc5-mm1-full/drivers/input/gameport/gameport.c.old	2005-11-04 11:38:52.000000000 +0100
-> +++ linux-2.6.14-rc5-mm1-full/drivers/input/gameport/gameport.c	2005-11-04 11:39:32.000000000 +0100
-> @@ -637,10 +637,12 @@
->  	gameport_queue_event(gameport, NULL, GAMEPORT_RESCAN);
->  }
->  
-> +#if 0
->  void gameport_reconnect(struct gameport *gameport)
->  {
->  	gameport_queue_event(gameport, NULL, GAMEPORT_RECONNECT);
->  }
-> +#endif  /*  0  */
->  
->  /*
->   * Submits register request to kgameportd for subsequent execution.
-> 
-> 
+ char/tlclk.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+--- linux-2.6.14-rc5-mm1-full/drivers/char/tlclk.c.old	2005-11-04 11:18:45.000000000 +0100
++++ linux-2.6.14-rc5-mm1-full/drivers/char/tlclk.c	2005-11-04 11:19:21.000000000 +0100
+@@ -225,8 +225,8 @@
+ 	return 0;
+ }
+ 
+-ssize_t tlclk_read(struct file *filp, char __user *buf, size_t count,
+-		loff_t *f_pos)
++static ssize_t tlclk_read(struct file *filp, char __user *buf, size_t count,
++			  loff_t *f_pos)
+ {
+ 	if (count < sizeof(struct tlclk_alarms))
+ 		return -EIO;
+@@ -241,8 +241,8 @@
+ 	return  sizeof(struct tlclk_alarms);
+ }
+ 
+-ssize_t tlclk_write(struct file *filp, const char __user *buf, size_t count,
+-	    loff_t *f_pos)
++static ssize_t tlclk_write(struct file *filp, const char __user *buf,
++			   size_t count, loff_t *f_pos)
+ {
+ 	return 0;
+ }
+

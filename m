@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030592AbVKDDqD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030594AbVKDDuD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030592AbVKDDqD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 22:46:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030594AbVKDDqD
+	id S1030594AbVKDDuD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 22:50:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030564AbVKDDuC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 22:46:03 -0500
-Received: from fmr14.intel.com ([192.55.52.68]:55519 "EHLO
-	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1030592AbVKDDqB convert rfc822-to-8bit (ORCPT
+	Thu, 3 Nov 2005 22:50:02 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:23989 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030595AbVKDDuB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 22:46:01 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Thu, 3 Nov 2005 22:50:01 -0500
+Message-ID: <436ADA63.1090605@pobox.com>
+Date: Thu, 03 Nov 2005 22:49:55 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: NTP broken with 2.6.14
-Date: Thu, 3 Nov 2005 22:44:43 -0500
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B3005117C9B@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: NTP broken with 2.6.14
-Thread-Index: AcXg6nzyiX6IAXQmTNOvEE+ISV3o6AABtNzw
-From: "Brown, Len" <len.brown@intel.com>
-To: "Jean-Christian de Rivaz" <jc@eclis.ch>,
-       "john stultz" <johnstul@us.ibm.com>
-Cc: <macro@linux-mips.org>, <linux-kernel@vger.kernel.org>, <dean@arctic.org>,
-       <zippel@linux-m68k.org>
-X-OriginalArrivalTime: 04 Nov 2005 03:44:53.0743 (UTC) FILETIME=[1DD987F0:01C5E0F2]
+To: linux-kernel@vger.kernel.org
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Parallel ATA with libata status with the patches I'm working
+ on
+References: <1131029686.18848.48.camel@localhost.localdomain>
+In-Reply-To: <1131029686.18848.48.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NFORCE2 on an ACPI-enabled kernel should automatically invoke
-the acpi_skip_timer_override BIOS workaround -- as
-the NFORCE family of chip-sets have the timer interrupt
-attached to pin-0, but some of them shipped with
-a bogus BIOS over-ride telling Linux the timer is on pin-2.
+My general take on things:
 
-This issue is quite old -- google NFORCE2 and acpi_skip_timer_override.
-IIR there are whole web-sites with NFORCE2
-workarounds provided by its dedicated fans...
+* Supporting PATA has always been a long term libata goal (and people 
+have known this for years).
 
--Len
+* I try to stay as far as possible away from the fight between Alan and 
+Bart.  As the changelog shows, I've merged libata patches from both.
+
+* Alan's patches do tend to come straight to me, and it would be nice if 
+he CC'd them to a list (linux-ide).
+
+* Nonetheless, they get exposure in -mm (via libata-dev.git) for a 
+while, before going upstream.
+
+* The non-core changes, i.e. Alan and Albert's PATA drivers, aren't 
+going upstream for a while, and will be instead living in -mm (via my 
+"pata-drivers" libata-dev.git branch)  Too much breakage and user 
+confusion will occur if they are pushed {today|soon}.
+
+* CONFIG_IDE=n is still largely for developers and brave souls only (or 
+for lucky owners of the newest boxes, which simply don't have PATA on 
+them at all).
+
+

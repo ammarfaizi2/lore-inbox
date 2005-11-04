@@ -1,50 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbVKDQgC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbVKDQjg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932157AbVKDQgC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 11:36:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbVKDQgB
+	id S932165AbVKDQjg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 11:39:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbVKDQjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 11:36:01 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:51650 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932157AbVKDQgB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 11:36:01 -0500
-Date: Fri, 4 Nov 2005 10:35:57 -0600
-To: John Rose <johnrose@austin.ibm.com>
-Cc: Paul Mackerras <paulus@samba.org>,
-       External List <linuxppc64-dev@ozlabs.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       bluesmoke-devel@lists.sourceforge.net,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 19/42]: ppc64: bugfix: crash on PHB add
-Message-ID: <20051104163557.GR19593@austin.ibm.com>
-References: <20051103235918.GA25616@mail.gnucash.org> <20051104005117.GA26991@mail.gnucash.org> <1131121255.9574.11.camel@sinatra.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1131121255.9574.11.camel@sinatra.austin.ibm.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: linas <linas@austin.ibm.com>
+	Fri, 4 Nov 2005 11:39:36 -0500
+Received: from 238-193.adsl.pool.ew.hu ([193.226.238.193]:4879 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S932165AbVKDQjf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 11:39:35 -0500
+To: trond.myklebust@fys.uio.no
+CC: jblunck@suse.de, viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org
+In-reply-to: <1131121642.8806.42.camel@lade.trondhjem.org> (message from Trond
+	Myklebust on Fri, 04 Nov 2005 11:27:21 -0500)
+Subject: Re: [RFC,PATCH] libfs dcache_readdir() and dcache_dir_lseek()
+	bugfix
+References: <20051104113851.GA4770@hasse.suse.de>
+	 <20051104115101.GH7992@ftp.linux.org.uk>
+	 <20051104122021.GA15061@hasse.suse.de>
+	 <E1EY16w-0004HC-00@dorka.pomaz.szeredi.hu>
+	 <20051104131858.GA16622@hasse.suse.de>
+	 <E1EY1fi-0004LB-00@dorka.pomaz.szeredi.hu>
+	 <20051104151104.GA22322@hasse.suse.de> <1131121642.8806.42.camel@lade.trondhjem.org>
+Message-Id: <E1EY4al-0004lb-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Fri, 04 Nov 2005 17:39:03 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 04, 2005 at 10:20:55AM -0600, John Rose was heard to remark:
-> > This patch fixes a bug related to dlpar PHB add, after a PHB removal.
-> 
-> This and patch 18 seem logically separate from the feature.  This
-> complicates review and adds to an already large patch set.  Could we
-> handle these separately?
+> The new bug is rather that glibc will return EOVERFLOW, and try to
+> rewind your file pointer if your filesystem happens to return 64-bit
+> offsets to getdents64().
 
-I sent these in separetely, a month ago, as bug fixes for the dlpar 
-crashes in the pre-2.6.14 kernels, but these were never applied.  
-Since they're needed to get EEH to work, I just sent them in again 
-with this set.  Yes, I'm aware that the patch you sent yesterday
-fixes the same bug in almost the same way. 
+Well, that's sort of understandable.  It has to map unique 64-bit
+offsets to unique 32-bits offsets, which is rather hard.
 
-What you really want to concentrate on are patches 20 through 23
-which mess with the guts of the rpaphp code. But again, these are 
-the same old patches, they have not changed since the submit last 
-month.
-
---linas
+Miklos
 

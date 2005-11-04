@@ -1,38 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbVKDLsU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932726AbVKDLvE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932075AbVKDLsU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 06:48:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbVKDLsU
+	id S932726AbVKDLvE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 06:51:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932724AbVKDLvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 06:48:20 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:43943 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932075AbVKDLsT
+	Fri, 4 Nov 2005 06:51:04 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:4777 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932727AbVKDLvC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 06:48:19 -0500
-Date: Fri, 4 Nov 2005 11:48:18 +0000
+	Fri, 4 Nov 2005 06:51:02 -0500
+Date: Fri, 4 Nov 2005 11:51:01 +0000
 From: Al Viro <viro@ftp.linux.org.uk>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Andreas Herrmann <aherrman@de.ibm.com>
-Subject: Re: [PATCH resubmit] do_mount: reduce stack consumption
-Message-ID: <20051104114818.GG7992@ftp.linux.org.uk>
-References: <20051104105026.GA12476@osiris.boeblingen.de.ibm.com>
+To: jblunck@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC,PATCH] libfs dcache_readdir() and dcache_dir_lseek() bugfix
+Message-ID: <20051104115101.GH7992@ftp.linux.org.uk>
+References: <20051104113851.GA4770@hasse.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051104105026.GA12476@osiris.boeblingen.de.ibm.com>
+In-Reply-To: <20051104113851.GA4770@hasse.suse.de>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 04, 2005 at 11:50:26AM +0100, Heiko Carstens wrote:
-> From: Andreas Herrmann <aherrman@de.ibm.com>
+On Fri, Nov 04, 2005 at 12:38:51PM +0100, jblunck@suse.de wrote:
+> This patch effects all users of libfs' dcache directory implementation.
 > 
-> This is a resubmit of Andreas' patch that reduces stackframe usage in
-> do_mount. Problem is that without this patch we get a kernel stack
-> overflow if we run with 4k stacks (s390 31 bit mode).
-> See original stack back trace below and Andreas' patch and analysis
-> here:
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0410.3/1844.html
-
-NAK.  Rationale: too ugly.
+> Old glibc implementations (e.g. glibc-2.2.5) are lseeking after every call to
+> getdents(), subsequent calls to getdents() are starting to read from a wrong
+> f_pos, when the directory is modified in between. Therefore not all directory
+> entries are returned. IMHO this is a bug and it breaks applications, e.g. "rm
+> -fr" on tmpfs.
+> 
+> SuSV3 only says:
+> "If a file is removed from or added to the directory after the most recent
+> call to opendir() or rewinddir(), whether a subsequent call to readdir_r()
+> returns an entry for that file is unspecified."
+ 
+IOW, the applications in question are broken since they rely on unspecified
+behaviour, not provided by old libc versions.

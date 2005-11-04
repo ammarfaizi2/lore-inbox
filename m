@@ -1,55 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161130AbVKDKHA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161131AbVKDKIW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161130AbVKDKHA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 05:07:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161131AbVKDKHA
+	id S1161131AbVKDKIW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 05:08:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161132AbVKDKIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 05:07:00 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:55171 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1161130AbVKDKG7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 05:06:59 -0500
-Date: Fri, 4 Nov 2005 02:06:34 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: akpm@osdl.org, pbadari@gmail.com, torvalds@osdl.org, jdike@addtoit.com,
-       rob@landley.net, nickpiggin@yahoo.com.au, gh@us.ibm.com,
-       kamezawa.hiroyu@jp.fujitsu.com, haveblue@us.ibm.com, mel@csn.ul.ie,
-       mbligh@mbligh.org, kravetz@us.ibm.com, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net
-Subject: Re: [patch] swapin rlimit
-Message-Id: <20051104020634.592dd38b.pj@sgi.com>
-In-Reply-To: <20051104080731.GB21321@elte.hu>
-References: <E1EXEfW-0005ON-00@w-gerrit.beaverton.ibm.com>
-	<200511021747.45599.rob@landley.net>
-	<43699573.4070301@yahoo.com.au>
-	<200511030007.34285.rob@landley.net>
-	<20051103163555.GA4174@ccure.user-mode-linux.org>
-	<1131035000.24503.135.camel@localhost.localdomain>
-	<20051103205202.4417acf4.akpm@osdl.org>
-	<20051104072628.GA20108@elte.hu>
-	<20051103233628.12ed1eee.akpm@osdl.org>
-	<20051104080731.GB21321@elte.hu>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Nov 2005 05:08:21 -0500
+Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:13325 "EHLO
+	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
+	id S1161131AbVKDKIV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 05:08:21 -0500
+Date: Fri, 4 Nov 2005 10:08:18 +0000 (GMT)
+From: Mark Fortescue <mark@mtfhpc.demon.co.uk>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel BUG
+In-Reply-To: <1131044351.8830.6.camel@lade.trondhjem.org>
+Message-ID: <Pine.LNX.4.10.10511040959200.1648-100000@mtfhpc.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo wrote:
-> Seriously, while nr_swapped_in_pages ought to be OK, i think there is a 
-> generic problem with /proc based stats.
+Hi Trond,
+
+I have found a working combination of GCC/Binutils [gcc-3.4.3,
+binutils-2.16.1 (GCC needs more work as it got its specs wrong and has a
+bug in it regarding %llu on sparc).
+
+This suggests that there is a kernel build error associated with GCC-4.0.2
+(for sparc-linux). I will need to investigate this as GCC-4.0.2 has a
+veriety of bug fixes in it that affect the sparc-linux target. It also has
+improved configuration/build scripts that are relevent to what I am trying
+to do.
+
+I will let you know what I find. It may take me some time as my sparc
+assembly is not too good and this is the best place to find compiler
+hickups.
+
+Regards
+	Mark Fortescue.
+
+On Thu, 3 Nov 2005, Trond Myklebust wrote:
+
+> On Thu, 2005-11-03 at 18:10 +0000, Mark Fortescue wrote:
+> > Hi Trond,
+> > 
+> > I am running a sparc-linux kernel using an NFS Root and it is falling over
+> > with the trace below.
+> > 
+> > My Kernel is not a standard kernel (I have had to tweek it to get the
+> > SBUS GC3 and the 82077 floppy to work on my OPUS Sparc 1 clone).
+> > 
+> > Can you advise me on any known issues in the NFS Client code that might
+> > enter NULL pointers into the 'slot->slots[i]' in __lookup_tag.
+> > 
+> > If there are none that you are aware of, are there any specific areas that
+> > I should investigate with printk statements.
 > 
-> System instrumentation people are already complaining about how costly 
-> /proc parsing is. If you have to get some nontrivial stat from all 
-> threads in the system, and if Linux doesnt offer that counter or summary 
-> by default, it gets pretty expensive.
+> NFS does not ever directly access the radix tree internals: it always
+> uses the API, and it always protects those operations using the
+> NFS_I(inode)->req_lock.
+> 
+> Are you sure that radix_tree_init() is being called before the NFSroot
+> stuff is started? To me, this whole thing smells of memory scribble.
+> 
+> Cheers,
+>   Trond
+> 
+> 
 
-Agreed.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

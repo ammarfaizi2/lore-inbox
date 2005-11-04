@@ -1,59 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161142AbVKDLo5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbVKDLsU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161142AbVKDLo5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 06:44:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161143AbVKDLo5
+	id S932075AbVKDLsU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 06:48:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbVKDLsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 06:44:57 -0500
-Received: from anchor-post-36.mail.demon.net ([194.217.242.86]:4100 "EHLO
-	anchor-post-36.mail.demon.net") by vger.kernel.org with ESMTP
-	id S1161142AbVKDLo4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 06:44:56 -0500
-Message-ID: <436B49AB.3020307@oxley.org>
-Date: Fri, 04 Nov 2005 11:44:43 +0000
-From: Felix Oxley <lkml@oxley.org>
-User-Agent: Thunderbird 1.4.1 (Macintosh/20051006)
-MIME-Version: 1.0
-To: AndyLiebman@aol.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Premptible Kernels and Timer Frequencies
-References: <8b.32b6b62b.309c2a79@aol.com>
-In-Reply-To: <8b.32b6b62b.309c2a79@aol.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Nov 2005 06:48:20 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:43943 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932075AbVKDLsT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 06:48:19 -0500
+Date: Fri, 4 Nov 2005 11:48:18 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Andreas Herrmann <aherrman@de.ibm.com>
+Subject: Re: [PATCH resubmit] do_mount: reduce stack consumption
+Message-ID: <20051104114818.GG7992@ftp.linux.org.uk>
+References: <20051104105026.GA12476@osiris.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051104105026.GA12476@osiris.boeblingen.de.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-AndyLiebman@aol.com wrote:
-> Thanks again, Steve. That was really well explained. It would be great to  
-> hear from Alan too if he has a moment. And it would be great to post all of this 
->  on the kernel.org site. I'm sure lots of people are scratching their heads 
-> about  these new options and information such as this will help people set off 
-> in the  right direction. 
+On Fri, Nov 04, 2005 at 11:50:26AM +0100, Heiko Carstens wrote:
+> From: Andreas Herrmann <aherrman@de.ibm.com>
 > 
-> Andy
+> This is a resubmit of Andreas' patch that reduces stackframe usage in
+> do_mount. Problem is that without this patch we get a kernel stack
+> overflow if we run with 4k stacks (s390 31 bit mode).
+> See original stack back trace below and Andreas' patch and analysis
+> here:
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0410.3/1844.html
 
-Andy,
-
-I know it would be cool to get a mail from Linux or AM or AC, but you 
-really have no right to expect an answer from anybody in particular, 
-especially with a reasonably straight forward question of a general nature.
-
-After all if you phone Microsoft to discuss whether you should configure 
-Windows to optimize for foreground or background tasks you don't expect 
-to speak to Bill Gates or Steve Balmer do you?
-
-In my view it is bad form and shows you up when you do this.
-
-BTW, you are top posting again.
-
-(Finally, this may be a cheap shot, but it is possible that posting to 
-LKML with an AOL email address carries some stigma :-)
-
-
-regards,
-Felix
-
----
-I lurk therefore I am
-
+NAK.  Rationale: too ugly.

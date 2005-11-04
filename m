@@ -1,70 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161000AbVKDAkT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161003AbVKDAku@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161000AbVKDAkT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 19:40:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161002AbVKDAkT
+	id S1161003AbVKDAku (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 19:40:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161002AbVKDAku
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 19:40:19 -0500
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:48049 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1161000AbVKDAkR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 19:40:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=2/dhaDHb1vqXwdcRiyqg6kTsUyDCamVDMHHO9Q6cuNA8y4ijKGbquoBkPfzQtwzjG1iA9WqsRQ8xgdELHubW1RJIAPcJMfpxorku09uKppBsONne6pqxrPBwjtpJaPUsneCb5zG1xELMjda+PU7CcgUilBc/C4m7KD5kUGo50rc=  ;
-Message-ID: <436AAE5E.6010609@yahoo.com.au>
-Date: Fri, 04 Nov 2005 11:42:06 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-CC: Linus Torvalds <torvalds@osdl.org>, Mel Gorman <mel@csn.ul.ie>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Dave Hansen <haveblue@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, kravetz@us.ibm.com,
-       linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>,
-       Arjan van de Ven <arjanv@infradead.org>
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-References: <4366C559.5090504@yahoo.com.au><20051101135651.GA8502@elte.hu><1130854224.14475.60.camel@localhost><20051101142959.GA9272@elte.hu><1130856555.14475.77.camel@localhost><20051101150142.GA10636@elte.hu><1130858580.14475.98.camel@localhost><20051102084946.GA3930@elte.hu><436880B8.1050207@yahoo.com.au><1130923969.15627.11.camel@localhost><43688B74.20002@yahoo.com.au><255360000.1130943722@[10.10.2.4]><4369824E.2020407@yahoo.com.au><306020000.1131032193@[10.10.2.4]><1131032422.2839.8.camel@laptopd505.fenrus.org><Pine.LNX.4.64.0511030747450.27915@g5.osdl.org><Pine.LNX.4.58.0511031613560.3571@skynet> <Pine.LNX.4.64.0511030842050.27915@g5.osdl.org><309420000.1131036740@[10.10.2.4]><Pine.LNX.4.64.0511030918110.27915@g5.osdl.org><311050000.1131040276@[10.10.2.4]><314040000.1131043735@[10.10.2.4]><Pine.LNX.4.64.0511031102590.27915@g5.osdl.org> <43370000.1131057466@flay> <Pine.LNX.4.64.0511031459110.27915@g5.osdl.org> <53860000.1131061176@flay>
-In-Reply-To: <53860000.1131061176@flay>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Nov 2005 19:40:50 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:27084 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161003AbVKDAkt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 19:40:49 -0500
+Subject: Re: NTP broken with 2.6.14
+From: john stultz <johnstul@us.ibm.com>
+To: Jean-Christian de Rivaz <jc@eclis.ch>
+Cc: rddunlap@osdl.org, Len Brown <len.brown@intel.com>, macro@linux-mips.org,
+       linux-kernel@vger.kernel.org, dean@arctic.org, zippel@linux-m68k.org
+In-Reply-To: <436AA822.9060403@eclis.ch>
+References: <4369464B.6040707@eclis.ch>
+	 <1130973717.27168.504.camel@cog.beaverton.ibm.com>
+	 <43694DD1.3020908@eclis.ch>
+	 <1130976935.27168.512.camel@cog.beaverton.ibm.com>
+	 <43695D94.10901@eclis.ch>
+	 <1130980031.27168.527.camel@cog.beaverton.ibm.com>
+	 <43697550.7030400@eclis.ch>
+	 <1131046348.27168.537.camel@cog.beaverton.ibm.com>
+	 <436A7D4B.8080109@eclis.ch>
+	 <1131054087.27168.595.camel@cog.beaverton.ibm.com>
+	 <436A8ADB.2090307@eclis.ch>
+	 <1131058482.27168.612.camel@cog.beaverton.ibm.com>
+	 <436AA822.9060403@eclis.ch>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Thu, 03 Nov 2005 16:40:45 -0800
+Message-Id: <1131064846.27168.619.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
->>Ahh, you're right, there's a totally separate watermark for highmem.
->>
->>I think I even remember this. I may even be responsible. I know some of 
->>our less successful highmem balancing efforts in the 2.4.x timeframe had 
->>serious trouble when they ran out of highmem, and started pruning lowmem 
->>very very aggressively. Limiting the highmem water marks meant that it 
->>wouldn't do that very often.
->>
->>I think your patch may in fact be fine, but quite frankly, it needs 
->>testing under real load with highmem.
->>
+On Fri, 2005-11-04 at 01:15 +0100, Jean-Christian de Rivaz wrote:
+> john stultz a écrit :
+> > You might check booting w/ noapic to see if that changes the behaviour
+> > in 2.6.10.
+> 
+> Yes! With a vanilla 2.6.10, the noapic solve the problem and ntpd is happy.
 
-I'd prefer not. The reason is that it increases the "min"
-watermark, which only gets used basically by GFP_ATOMIC and
-PF_MEMALLOC allocators - neither of which are likely to want
-highmem.
+Great. Glad you have a workaround now.
 
-Also, I don't think anybody cares about higher order highmem
-allocations. At least the patches in this thread:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=113082256231168&w=2
+> > Jean-Christian: Since it ACPI is involved, have you verified that you're
+> > running the current BIOS for your system?
+> 
+> More fun now: it look like the BIOS actually used on this mainboard is 
+> not designed for it, but for an other board!!!
+> 
+> The board is exactly this one "K7N2 Delta-L":
+> http://www.msi.com.tw/program/support/download/dld/spt_dld_detail.php?UID=436&kind=1
+> And according to MSI it must use a BIOS version 5.9. But when I enter 
+> into the BIOS setup the version info say "W6570MS V7.4 081203".
+> 
+> Here is the BIOS version history: 
+> http://www.msi.com.tw/program/support/bios/bos/spt_bos_detail.php?UID=436&kind=1
+> The version 7.4 dated 2003-8-12 has a special note:
+> 
+> 1. Only for K7N2 Delta-ILSR
+> 2. This BIOS cannot be used on K7N2 Delta-L
+> 
+> Crasy. I use this board without any issue since around two years and 
+> only found the first problem when upgrading to the kernel 2.6.14!
 
-Should be applied before this. However they also need more
-testing so I'll be sending them to Andrew first.
+Heh. Yea, I'm amazed you were able to flash it and still have the system
+boot. I'd suggest making sure you have the proper and current BIOS, as
+its *very* difficult for folks to help debug problems on unofficial or
+unsupported hardware/firmware configs.
 
-Patch 2 does basically the same thing as your patch, without
-increasing the min watermark.
+I believe ioapic support should function correctly regardless (or be
+blacklisted and with others reporting problems, its might not be just
+this BIOS issue), so after you get your BIOS sorted out, please let me
+know if the problem still persists.
 
--- 
-SUSE Labs, Novell Inc.
+thanks
+-john
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+

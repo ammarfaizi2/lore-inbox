@@ -1,102 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbVKDHT4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751417AbVKDH0x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751416AbVKDHT4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 02:19:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbVKDHT4
+	id S1751417AbVKDH0x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 02:26:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751418AbVKDH0x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 02:19:56 -0500
-Received: from mail.kroah.org ([69.55.234.183]:16030 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751416AbVKDHT4 (ORCPT
+	Fri, 4 Nov 2005 02:26:53 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:20392 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751417AbVKDH0w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 02:19:56 -0500
-Date: Thu, 3 Nov 2005 23:19:32 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Cc: damir.perisa@solnet.ch, akpm@osdl.org
-Subject: Re: 2.6.14-rc5-mm1 - ide-cs broken!
-Message-ID: <20051104071932.GA6362@kroah.com>
-References: <20051103220305.77620d8f.akpm@osdl.org>
+	Fri, 4 Nov 2005 02:26:52 -0500
+Date: Fri, 4 Nov 2005 08:26:28 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Badari Pulavarty <pbadari@gmail.com>, Linus Torvalds <torvalds@osdl.org>,
+       jdike@addtoit.com, rob@landley.net, nickpiggin@yahoo.com.au,
+       gh@us.ibm.com, kamezawa.hiroyu@jp.fujitsu.com, haveblue@us.ibm.com,
+       mel@csn.ul.ie, mbligh@mbligh.org, kravetz@us.ibm.com,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       lhms-devel@lists.sourceforge.net
+Subject: [patch] swapin rlimit
+Message-ID: <20051104072628.GA20108@elte.hu>
+References: <E1EXEfW-0005ON-00@w-gerrit.beaverton.ibm.com> <200511021747.45599.rob@landley.net> <43699573.4070301@yahoo.com.au> <200511030007.34285.rob@landley.net> <20051103163555.GA4174@ccure.user-mode-linux.org> <1131035000.24503.135.camel@localhost.localdomain> <20051103205202.4417acf4.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051103220305.77620d8f.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20051103205202.4417acf4.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<apologies for the broken threading>
 
-> [17194333.620000] cs: memory probe 0xf0000000-0xf80fffff: excluding 
-> 0xf0000000-0xf87fffff
-> [17194333.644000] pcmcia: Detected deprecated PCMCIA ioctl usage.
-> [17194333.644000] pcmcia: This interface will soon be removed from the 
-> kernel; please expect breakage unless you upgrade to new tools.
-> [17194333.644000] pcmcia: see 
-> http://www.kernel.org/pub/linux/utils/kernel/pcmcia/pcmcia.html for 
-> details.
-> [17194334.032000] Probing IDE interface ide2...
-> [17194334.320000] hde: 1024MB Flash Card, CFA DISK drive
-> [17194334.992000] ide2 at 0x4100-0x4107,0x410e on irq 3
-> [17194334.992000] hde: max request size: 128KiB
-> [17194334.992000] hde: 2001888 sectors (1024 MB) w/1KiB Cache, 
-> CHS=1986/16/63
-> [17194334.992000] hde: cache flushes not supported
-> [17194334.992000]  hde: hde1
-> [17194335.004000] ide-cs: hde: Vcc = 3.3, Vpp = 0.0
-> [17194335.224000]  hde: hde1
-> [17194335.632000]  hde: hde1
-> [17194335.736000]  hde: hde1
-> [17194335.744000]  hde: hde1
-> ... ("hde: hde1" repeating)...
-> 
-> ok, now the situation is less lethal, but still no proper ide-cs working. 
-> there are no unknown symbols now, but the other output in dmesg is the 
-> same. especially, the loop to output "hde: hde1" is here, but if i remove 
-> the card, it stops and the system is still responsible. 
-> 
-> i checked something i forgot to check before... is the hde device seen 
-> in /sys somewhere, when the card is plugged in. the answer is yes!:
-> 
-> /sys/block/hde/hde1/
-> 
-> presents itself fully normal like other ide drives. in 
-> /sys/block/hde/hde1/sample.sh 
-> i found "mknod /dev/hde1 b 33 1" and tried to run it. successfully!
-> the result is: in dmesg, the "hde: hde1" output loop stopped and my card 
-> is working again!!! 
+* Andrew Morton <akpm@osdl.org> wrote:
 
-Heh, the poor-man's udev worked for someone :)
+> Similarly, that SGI patch which was rejected 6-12 months ago to kill 
+> off processes once they started swapping.  We thought that it could be 
+> done from userspace, but we need a way for userspace to detect when a 
+> task is being swapped on a per-task basis.
 
-> so the trouble seems not only (or not at all) related to the kernel but 
-> (also) to udev (i use 071), hotplug (mine is 2004_09_23), pcmciautils 
-> (010) or something else.
-> 
-> can somebody tell me, what state of this process (discovering device, 
-> loading needed modules, udev creating node under /dev) is the output 
-> "hde: hde1" to dmesg and how can it be possible that it loops? 
+wouldnt the clean solution here be a "swap ulimit"?
 
-The problem is in your udev rules.  You are running something in them
-that is opening up your ide-cs device, which causes another hotplug
-event to happen, which causes udev to run again, and so on.
+I.e. something like the 2-minute quick-hack below (against Linus-curr).  
 
-I suggest you take this up with your distro, they are the ones
-responsible for this problem.
+	Ingo
 
-Hint, gentoo, debian, and suse don't have this problem, so you might
-want to look at their rules files for how to work around this.  Look for
-this line:
+---
+implement a swap ulimit: RLIMIT_SWAP.
 
-# skip accessing removable ide devices, cause the ide drivers are horrible broken
+setting the ulimit to 0 causes any swapin activity to kill the task.  
+Setting the rlimit to 0 is allowed for unprivileged users too, since it 
+is a decrease of the default RLIM_INFINITY value. I.e. users could run 
+known-memory-intense jobs with such an ulimit set, and get a guarantee 
+that they wont put the system into a swap-storm.
 
-and add the rules after it.
+Note: it's just swapin that causes the SIGKILL, because at swapout time 
+it's hard to identify the originating task. Pure swapouts and a buildup 
+in the swap-cache is not punished, only actual hard swapins. I didnt try 
+too hard to make the rlimit particularly finegrained - i.e. right now we 
+only know 'zero' and 'infinity' ...
 
-> it seems that this chain of processing is stuck somewhere and needs a 
-> execution of the command to create the node under /dev by hand to finish.
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-I think the presence of the node causes udev to not generate another
-one, which keeps the rule from being run and another hotplug event from
-being generated.
+ include/asm-generic/resource.h |    4 +++-
+ mm/memory.c                    |   13 +++++++++++++
+ 2 files changed, 16 insertions(+), 1 deletion(-)
 
-Hope this helps,
-
-greg k-h
+Index: linux/include/asm-generic/resource.h
+===================================================================
+--- linux.orig/include/asm-generic/resource.h
++++ linux/include/asm-generic/resource.h
+@@ -44,8 +44,9 @@
+ #define RLIMIT_NICE		13	/* max nice prio allowed to raise to
+ 					   0-39 for nice level 19 .. -20 */
+ #define RLIMIT_RTPRIO		14	/* maximum realtime priority */
++#define RLIMIT_SWAP		15	/* maximum swapspace for task */
+ 
+-#define RLIM_NLIMITS		15
++#define RLIM_NLIMITS		16
+ 
+ /*
+  * SuS says limits have to be unsigned.
+@@ -86,6 +87,7 @@
+ 	[RLIMIT_MSGQUEUE]	= {   MQ_BYTES_MAX,   MQ_BYTES_MAX },	\
+ 	[RLIMIT_NICE]		= { 0, 0 },				\
+ 	[RLIMIT_RTPRIO]		= { 0, 0 },				\
++	[RLIMIT_SWAP]		= {  RLIM_INFINITY,  RLIM_INFINITY },	\
+ }
+ 
+ #endif	/* __KERNEL__ */
+Index: linux/mm/memory.c
+===================================================================
+--- linux.orig/mm/memory.c
++++ linux/mm/memory.c
+@@ -1647,6 +1647,18 @@ void swapin_readahead(swp_entry_t entry,
+ }
+ 
+ /*
++ * Crude first-approximation swapin-avoidance: if there is a zero swap
++ * rlimit then kill the task.
++ */
++static inline void check_swap_rlimit(void)
++{
++	unsigned long limit = current->signal->rlim[RLIMIT_SWAP].rlim_cur;
++
++	if (limit != RLIM_INFINITY)
++		force_sig(SIGKILL, current);
++}
++
++/*
+  * We enter with non-exclusive mmap_sem (to exclude vma changes,
+  * but allow concurrent faults), and pte mapped but not yet locked.
+  * We return with mmap_sem still held, but pte unmapped and unlocked.
+@@ -1667,6 +1679,7 @@ static int do_swap_page(struct mm_struct
+ 	entry = pte_to_swp_entry(orig_pte);
+ 	page = lookup_swap_cache(entry);
+ 	if (!page) {
++		check_swap_rlimit();
+  		swapin_readahead(entry, address, vma);
+  		page = read_swap_cache_async(entry, vma, address);
+ 		if (!page) {

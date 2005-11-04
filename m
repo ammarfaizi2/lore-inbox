@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964902AbVKDPQX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964957AbVKDPRM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964902AbVKDPQX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 10:16:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbVKDPQX
+	id S964957AbVKDPRM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 10:17:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbVKDPRM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 10:16:23 -0500
-Received: from [85.8.13.51] ([85.8.13.51]:50582 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S964902AbVKDPQW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 10:16:22 -0500
-Message-ID: <436B7B46.6060205@drzeus.cx>
-Date: Fri, 04 Nov 2005 16:16:22 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mail/News 1.4.1 (X11/20051008)
+	Fri, 4 Nov 2005 10:17:12 -0500
+Received: from wproxy.gmail.com ([64.233.184.192]:64005 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964937AbVKDPRK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 10:17:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XO2Ch8oj7iiuIR7FfG4Azr3CDJIrKXilHujogeLo09B7bk1IQ7yVIeUzMWIWdHgqMFCsZ4u58GvtKfiQ0t426jBIhcuUeG1uhbRIF3exyv+10W1UJI0BAMDfgOQpEX7R9nJOZ1RzGjZoDsqtNaVrHzGZmJff9GaP/bbL4iL/tNg=
+Message-ID: <cb2ad8b50511040717k61bb560dsbe31a5c25f394bba@mail.gmail.com>
+Date: Fri, 4 Nov 2005 10:17:09 -0500
+From: Carlos Antunes <cmantunes@gmail.com>
+To: Trevor Woerner <twoerner.k@gmail.com>
+Subject: Re: latency report
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <569d37b00511032306y27519a8am69f2385fdbd4b81f@mail.gmail.com>
 MIME-Version: 1.0
-To: dtor_core@ameritech.net
-CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Adam Belay <ambx1@neo.rr.com>
-Subject: Re: [Fwd: [PATCH] [PNP][RFC] Suspend support for PNP bus.]
-References: <436B2819.4090909@drzeus.cx> <d120d5000511040649u5b33405an73b5e33fb4ce5cf6@mail.gmail.com>
-In-Reply-To: <d120d5000511040649u5b33405an73b5e33fb4ce5cf6@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <569d37b00511032306y27519a8am69f2385fdbd4b81f@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> On 11/4/05, Pierre Ossman <drzeus-list@drzeus.cx> wrote:
->   
->> +
->> +int pnp_start_dev(struct pnp_dev *dev)
->> +{
->> +       if (!pnp_can_write(dev)) {
->> +               pnp_info("Device %s does not supported activation.", dev->dev.bus_id);
->>     
+On 11/4/05, Trevor Woerner <twoerner.k@gmail.com> wrote:
 >
-> "...does not support...", there is no "ed" at the end.
+> My report currently compares the stock kernel.org 2.6.14 with Ingo's
+> 2.6.14-rt2 patches on two target boards.
 >
->   
 
-That's just code that's been moved around. But I suppose a speling fix 
-could be included in the same patch. :)
+Trevor,
 
->> +               return -EINVAL;
->> +       }
->>     
->
-> Hmm, would'nt presence of such device stop suspend process? It will
-> cause pnp_bus_resume to fail too. Perhaps returning 0 in this case is
-> better.
->
->   
+rt2 was seriously screwed up (I posted about the problems in here).
+rt3 solved the problems. You might want to repeat your testing with at
+least rt3.
 
-The problem is that this code is also visited from pnp_activate_dev() & 
-co where this return value is needed. For pnp_stop_dev() the same check 
-(pnp_can_disable()) is performed in the suspend routine to avoid that 
-particular problem. For resume my assumption was that a device that 
-doesn't support activation will not have a driver attached to it. 
-Perhaps this is wrong?
+Carlos
 
-Rgds
-Pierre
+--
+"We hold [...] that all men are created equal; that they are
+endowed [...] with certain inalienable rights; that among
+these are life, liberty, and the pursuit of happiness"
+        -- Thomas Jefferson

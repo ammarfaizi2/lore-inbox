@@ -1,85 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751445AbVKDNbU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932739AbVKDNfc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751445AbVKDNbU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 08:31:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbVKDNbU
+	id S932739AbVKDNfc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 08:35:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbVKDNfc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 08:31:20 -0500
-Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:57283 "EHLO
-	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1751422AbVKDNbT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 08:31:19 -0500
-Message-ID: <436B62A5.8040904@gentoo.org>
-Date: Fri, 04 Nov 2005 13:31:17 +0000
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051104)
-X-Accept-Language: en-us, en
+	Fri, 4 Nov 2005 08:35:32 -0500
+Received: from magic.adaptec.com ([216.52.22.17]:32937 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S1751435AbVKDNfb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 08:35:31 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: "alpha @ steudten Engineering" <alpha@steudten.com>
-CC: LinuxAlpha <linux-alpha@vger.kernel.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ALPHA: missing reference to barrier()
-References: <436B3730.2090705@steudten.org>
-In-Reply-To: <436B3730.2090705@steudten.org>
-Content-Type: multipart/mixed;
- boundary="------------090107030603060306050308"
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [2.6 patch] SCSI_AACRAID: add a help text
+Date: Fri, 4 Nov 2005 08:35:29 -0500
+Message-ID: <547AF3BD0F3F0B4CBDC379BAC7E4189F01D127E0@otce2k03.adaptec.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [2.6 patch] SCSI_AACRAID: add a help text
+Thread-Index: AcXg3e9wl9B/dIHbTzCyUnFtxcXLPQAZAjFQ
+From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+To: "Adrian Bunk" <bunk@stusta.de>, <linux-scsi@vger.kernel.org>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090107030603060306050308
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+It's a good start! I approve. The time stamp and kernel version must
+have come out of a rift though ;->
 
-alpha @ steudten Engineering wrote:
-> ONLY for linux ALPHA:
-> 
-> Please add patch to the source tree..
-> 
-> Hello
-> 
-> In the kernel source 2.6.14 from kernel.org build with the given config1, the
-> symbol barrier() is missing in linux/include/asm-alpha/atomic.h with gcc 4.0.1 from
-> FC4.
-> 
-> This is defined in linux/compiler.h or asm/compiler.h.
+The web page covers a broad line of our products, many of which are
+*not* aacraid based. No big deal, but I must admit Adaptec has not
+placed a clear delineation. All late model RAID cards from Adaptec are
+based on the aacraid interface.
 
-An alternative patch has already been merged into Linus' git tree. It should 
-fix your problem.
+Dell CERC, IBM ServeRAID 7t, 8i & 8k and ICP 9014, 9024, 9047, 9087,
+5085, 9085 & 9067 SATA and SAS cards are missing.
 
-Daniel
+Signed-off-by: Mark Salyzyn <aacraid@adaptec.com>
 
---------------090107030603060306050308
-Content-Type: text/x-patch;
- name="1305_alpha-barrier-compile.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="1305_alpha-barrier-compile.patch"
-
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Date: Sun, 30 Oct 2005 01:15:43 +0000 (-0700)
-Subject:     [PATCH] fix alpha breakage
-X-Git-Url: http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=63f324cf0792ed69089b79d6921ba3aaea97af50
-
-  [PATCH] fix alpha breakage
-  
-  barrier.h uses barrier() in non-SMP case.  And doesn't include compiler.h.
-  
-  Cc: Al Viro <viro@ftp.linux.org.uk>
-  Signed-off-by: Andrew Morton <akpm@osdl.org>
-  Signed-off-by: Linus Torvalds <torvalds@osdl.org>
----
-
---- a/include/asm-alpha/barrier.h
-+++ b/include/asm-alpha/barrier.h
-@@ -1,6 +1,8 @@
- #ifndef __BARRIER_H
- #define __BARRIER_H
+--- linux-2.6.6/drivers/scsi/Kconfig        2004-05-17
+20:55:52.074925760 -0500
++++ linux-2.6.6/drivers/scsi/Kconfig.new    2005-10-4 08:28:09
+@@ -318,6 +318,7 @@
+ 	help
+ 	  This driver supports the Dell PERC2, 2/Si, 3/Si, 3/Di,
+-	  HP NetRAID-4M SCSI and the Adaptec Advanced Raid Products
++	  CERC, HP NetRAID-4M SCSI, Adaptec Advanced Raid Products
+ 	  <http://www.adaptec.com/products/solutions/raid.html>
++	  late model IBM ServeRAID and ICP SATA & SAS products.
  
-+#include <asm/compiler.h>
+ 	  To compile this driver as a module, choose M here: the module
+
+Sincerely -- Mark Salyzyn
+
+-----Original Message-----
+From: linux-scsi-owner@vger.kernel.org
+[mailto:linux-scsi-owner@vger.kernel.org] On Behalf Of Adrian Bunk
+Sent: Thursday, November 03, 2005 8:01 PM
+To: linux-scsi@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] SCSI_AACRAID: add a help text
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.6/drivers/scsi/Kconfig.old        2004-05-17
+20:51:21.395075352 -0500
++++ linux-2.6.6/drivers/scsi/Kconfig    2004-05-17 20:55:52.074925760
+-0500
+@@ -315,6 +315,13 @@
+ config SCSI_AACRAID
+ 	tristate "Adaptec AACRAID support"
+ 	depends on SCSI && PCI
++	help
++	  This driver supports the Dell PERC2, 2/Si, 3/Si, 3/Di,
++	  HP NetRAID-4M SCSI and the Adaptec Advanced Raid Products
++	  <http://www.adaptec.com/products/solutions/raid.html>
 +
- #define mb() \
- __asm__ __volatile__("mb": : :"memory")
- 
++	  To compile this driver as a module, choose M here: the module
++	  will be called aacraid.
 
---------------090107030603060306050308--
+ source "drivers/scsi/aic7xxx/Kconfig.aic7xxx"

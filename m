@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751601AbVKDQMr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbVKDQNd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751601AbVKDQMr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 11:12:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751602AbVKDQMr
+	id S932087AbVKDQNd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 11:13:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751591AbVKDQNd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 11:12:47 -0500
-Received: from zproxy.gmail.com ([64.233.162.199]:44171 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751570AbVKDQMq convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 11:12:46 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QXDMM3x7mVMF5HG/whQyYdACxBUCyCpai7lH00pz90ueI1dYqKQhgDDDP303Vm13DsYNnBtB0ExiTEnxiA6p6ouMJcUz+f+iprdAZrNdKTDZWfXF2ovGOkyASSEX7zfacOIKgAYPlxmaVbRdyAB/urOWMoUwqLe0cgG6VMdngMM=
-Message-ID: <d120d5000511040812g1552b610o7523b727323364d1@mail.gmail.com>
-Date: Fri, 4 Nov 2005 11:12:45 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Subject: Re: [Fwd: [PATCH] [PNP][RFC] Suspend support for PNP bus.]
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Adam Belay <ambx1@neo.rr.com>
-In-Reply-To: <d120d5000511040809m745f88a2j4a84715db3e3f01f@mail.gmail.com>
+	Fri, 4 Nov 2005 11:13:33 -0500
+Received: from dvhart.com ([64.146.134.43]:54962 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S1751592AbVKDQNc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 11:13:32 -0500
+Date: Fri, 04 Nov 2005 08:13:28 -0800
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andy Nelson <andy@thermo.lanl.gov>
+Cc: akpm@osdl.org, arjan@infradead.org, arjanv@infradead.org,
+       haveblue@us.ibm.com, kravetz@us.ibm.com,
+       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, mel@csn.ul.ie, mingo@elte.hu,
+       nickpiggin@yahoo.com.au
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+Message-ID: <331390000.1131120808@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.64.0511040738540.27915@g5.osdl.org>
+References: <20051104145628.90DC71845CE@thermo.lanl.gov> <Pine.LNX.4.64.0511040738540.27915@g5.osdl.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <436B2819.4090909@drzeus.cx>
-	 <d120d5000511040649u5b33405an73b5e33fb4ce5cf6@mail.gmail.com>
-	 <436B7B46.6060205@drzeus.cx>
-	 <d120d5000511040727x7d433e08jeb8937cb2e48249a@mail.gmail.com>
-	 <436B83D9.8@drzeus.cx>
-	 <d120d5000511040809m745f88a2j4a84715db3e3f01f@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/4/05, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
->
-> You lost me... We have a scenario when a PNP driver is bound to a PNP
-> device that does not support deactivation. Looking at the proposed PNP
-> bus suspend code presence of such device will cause suspend process to
-> fail. Are you saying this is what you want?
->
 
-Ugh, scratch whatever I wrote earlier. Such devices should be marked
-with RES_DO_NOT_CHANEG so everything is fine.
+> So I suspect Martin's 25% is a lot more accurate on modern hardware (which 
+> means x86, possibly Power. Nothing else much matters).
 
-Sorry about the noise.
+It was PPC64, if that helps.
+ 
+>> If your and other kernel developer's (<<0.01% of the universe) kernel
+>> builds slow down by 5% and my and other people's simulations (perhaps 
+>> 0.01% of the universe) speed up by a factor up to 3 or 4, who wins? 
+> 
+> First off, you won't speed up by a factor of three or four. Not even 
+> _close_. 
 
---
-Dmitry
+Well, I think it depends on the workload a lot. However fast your TLB is,
+if we move from "every cacheline read requires is a TLB miss" to "every
+cacheline read is a TLB hit" that can be a huge performance knee however
+fast your TLB is. Depends heavily on the locality of reference and size
+of data set of the application, I suspect.
+
+M.
+

@@ -1,38 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161148AbVKDPzZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161153AbVKDP7m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161148AbVKDPzZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 10:55:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161151AbVKDPzY
+	id S1161153AbVKDP7m (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 10:59:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161154AbVKDP7m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 10:55:24 -0500
-Received: from 238-193.adsl.pool.ew.hu ([193.226.238.193]:4868 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1161149AbVKDPzY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 10:55:24 -0500
-To: jblunck@suse.de
-CC: viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org
-In-reply-to: <20051104154610.GB23962@hasse.suse.de> (jblunck@suse.de)
-Subject: Re: [RFC,PATCH] libfs dcache_readdir() and dcache_dir_lseek() bugfix
-References: <20051104113851.GA4770@hasse.suse.de> <20051104115101.GH7992@ftp.linux.org.uk> <20051104122021.GA15061@hasse.suse.de> <E1EY16w-0004HC-00@dorka.pomaz.szeredi.hu> <20051104131858.GA16622@hasse.suse.de> <E1EY1fi-0004LB-00@dorka.pomaz.szeredi.hu> <20051104151104.GA22322@hasse.suse.de> <E1EY3Y8-0004XX-00@dorka.pomaz.szeredi.hu> <20051104154610.GB23962@hasse.suse.de>
-Message-Id: <E1EY3uI-0004cC-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 04 Nov 2005 16:55:10 +0100
+	Fri, 4 Nov 2005 10:59:42 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:21773 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1161153AbVKDP7l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 10:59:41 -0500
+Date: Fri, 4 Nov 2005 16:59:39 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jaya Kumar <jayalk@intworks.biz>, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] arch/i386/kernel/reboot_fixups.c should #include <linux/reboot_fixups.h>
+Message-ID: <20051104155939.GC5368@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > 
-> > > Well, glibc is that stupid and triggers the bug.
-> > 
-> > Seems to me, the simple solution is to upgrade your glibc.
-> > 
-> 
-> This is SLES8. You don't want to update the glibc.
+Every file should #include the header files containing the prototypes of 
+it's global functions
 
-OK, but then it's basically a SLES8 kernel issue, not a mainline
-kernel issue.
 
-Probably very few people are using brand new kernels with glibc from
-the last millennium ;)
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Miklos
+---
+
+This patch was already sent on:
+- 3 Oct 2005
+
+--- linux-2.6.14-rc2-mm2-full/arch/i386/kernel/reboot_fixups.c.old	2005-10-02 02:15:19.000000000 +0200
++++ linux-2.6.14-rc2-mm2-full/arch/i386/kernel/reboot_fixups.c	2005-10-02 02:15:37.000000000 +0200
+@@ -10,6 +10,7 @@
+ 
+ #include <asm/delay.h>
+ #include <linux/pci.h>
++#include <linux/reboot_fixups.h>
+ 
+ static void cs5530a_warm_reset(struct pci_dev *dev)
+ {
 

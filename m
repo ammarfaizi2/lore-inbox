@@ -1,53 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161146AbVKDPrF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751538AbVKDPvv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161146AbVKDPrF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 10:47:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161145AbVKDPrE
+	id S1751538AbVKDPvv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 10:51:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751539AbVKDPvu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 10:47:04 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:44970 "EHLO
-	linuxbipbip.grupopie.com") by vger.kernel.org with ESMTP
-	id S1161146AbVKDPrC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 10:47:02 -0500
-Message-ID: <436B8271.7040809@grupopie.com>
-Date: Fri, 04 Nov 2005 15:46:57 +0000
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
+	Fri, 4 Nov 2005 10:51:50 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:28634
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1751537AbVKDPvu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 10:51:50 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+Date: Fri, 4 Nov 2005 09:50:58 -0600
+User-Agent: KMail/1.8
+Cc: Blaisorblade <blaisorblade@yahoo.it>, Jeff Dike <jdike@addtoit.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Yasunori Goto <y-goto@jp.fujitsu.com>,
+       Dave Hansen <haveblue@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+       Mel Gorman <mel@csn.ul.ie>, "Martin J. Bligh" <mbligh@mbligh.org>,
+       Andrew Morton <akpm@osdl.org>, kravetz@us.ibm.com,
+       linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lhms <lhms-devel@lists.sourceforge.net>
+References: <1130917338.14475.133.camel@localhost> <200511022341.50524.rob@landley.net> <200511040426.47043.blaisorblade@yahoo.it>
+In-Reply-To: <200511040426.47043.blaisorblade@yahoo.it>
 MIME-Version: 1.0
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-CC: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] slob: introduce mm/util.c for shared functions
-References: <2.505517440@selenic.com> <20051103211357.072c5646.akpm@osdl.org>	 <20051104062455.GD4367@waste.org> <84144f020511040020n7ae5a460ud9ba5bbec9317748@mail.gmail.com>
-In-Reply-To: <84144f020511040020n7ae5a460ud9ba5bbec9317748@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511040950.59942.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka Enberg wrote:
-> On 11/4/05, Matt Mackall <mpm@selenic.com> wrote:
-> 
->>Well, yes. But I decided not to do that now because I ended up wanting
->>to create mm/util.c anyway for kzalloc. I suspect we'll see other
->>helper functions like kzalloc and kstrdup down the road.
-> 
-> I prefer this as well. kstrdup() is _not_ a string operation but a
-> special purpose memory allocator just like kzalloc() and kcalloc().
+On Thursday 03 November 2005 21:26, Blaisorblade wrote:
+> > I was hoping that since the file was deleted from disk and is already
+> > getting _some_ special treatment (since it's a longstanding "poor man's
+> > shared memory" hack), that madvise wouldn't flush the data to disk, but
+> > would just zero it out.  A bit optimistic on my part, I know. :)
+>
+> I read at some time that this optimization existed but was deemed obsolete
+> and removed.
+>
+> Why obsolete? Because... we have tmpfs! And that's the point. With
+> DONTNEED, we detach references from page tables, but the content is still
+> pinned: it _is_ the "disk"! (And you have TMPDIR on tmpfs, right?)
 
-It is even worse than just personal preference.
+If I had that kind of control over environment my build would always be 
+deployed in (including root access), I wouldn't need UML. :)
 
-Having kstrdup in lib/string was actually tried first, but there are 
-archs that use lib/string for their boot code.
+(P.S. The default for Ubuntu "Horny Hedgehog" is no.  The only tmpfs mount 
+is /dev/shm, and /tmp is on / which is ext3.  Yeah, I need to upgrade my 
+laptop...)
 
-This boot code has no kmalloc available, so the dependency of kstrdup on 
-kmalloc breaks the build for them if kstrdup is moved to lib/string.
+> I guess you refer to using frag. avoidance on the guest
 
--- 
-Paulo Marques - www.grupopie.com
+Yes.  Moot point since Linus doesn't want it.
 
-The rule is perfect: in all matters of opinion our
-adversaries are insane.
-Mark Twain
+> (if it matters for 
+> the host, let me know). When it will be present using it will be nice, but
+> currently we'd do madvise() on a page-per-page basis, and we'd do it on
+> non-consecutive pages (basically, free pages we either find or free or
+> purpose).
+
+Might be a performance issue if that gets introduced with per-page 
+granularity, and how do you avoid giving back pages we're about to re-use?  
+Oh well, bench it when it happens.  (And in any case, it needs a tunable to 
+beat the page cache into submission or there's no free memory to give back.  
+If there's already such a tuneable, I haven't found it yet.)
+
+Rob

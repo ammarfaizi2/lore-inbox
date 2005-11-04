@@ -1,95 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbVKDQkG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbVKDQlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750712AbVKDQkG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 11:40:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbVKDQkE
+	id S1750701AbVKDQlm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 11:41:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750702AbVKDQlm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 11:40:04 -0500
-Received: from www.eclis.ch ([144.85.15.72]:1961 "EHLO mail.eclis.ch")
-	by vger.kernel.org with ESMTP id S1750712AbVKDQkB (ORCPT
+	Fri, 4 Nov 2005 11:41:42 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:19671 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750701AbVKDQll (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 11:40:01 -0500
-Message-ID: <436B8EDD.5050703@eclis.ch>
-Date: Fri, 04 Nov 2005 17:39:57 +0100
-From: Jean-Christian de Rivaz <jc@eclis.ch>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: fr, en
+	Fri, 4 Nov 2005 11:41:41 -0500
+Date: Fri, 4 Nov 2005 08:40:52 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+cc: Andy Nelson <andy@thermo.lanl.gov>, akpm@osdl.org, arjan@infradead.org,
+       arjanv@infradead.org, haveblue@us.ibm.com, kravetz@us.ibm.com,
+       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, mel@csn.ul.ie, mingo@elte.hu,
+       nickpiggin@yahoo.com.au
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+In-Reply-To: <331390000.1131120808@[10.10.2.4]>
+Message-ID: <Pine.LNX.4.64.0511040814530.27915@g5.osdl.org>
+References: <20051104145628.90DC71845CE@thermo.lanl.gov>
+ <Pine.LNX.4.64.0511040738540.27915@g5.osdl.org> <331390000.1131120808@[10.10.2.4]>
 MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-Cc: "Brown, Len" <len.brown@intel.com>,
-       Lennart Sorensen <lsorense@csclub.uwaterloo.ca>, macro@linux-mips.org,
-       linux-kernel@vger.kernel.org, dean@arctic.org, zippel@linux-m68k.org
-Subject: Re: NTP broken with 2.6.14
-References: <F7DC2337C7631D4386A2DF6E8FB22B3005117C9B@hdsmsx401.amr.corp.intel.com> <1131077233.27168.627.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1131077233.27168.627.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz a écrit :
-> On Thu, 2005-11-03 at 22:44 -0500, Brown, Len wrote:
+
+
+On Fri, 4 Nov 2005, Martin J. Bligh wrote:
 > 
->>NFORCE2 on an ACPI-enabled kernel should automatically invoke
->>the acpi_skip_timer_override BIOS workaround -- as
->>the NFORCE family of chip-sets have the timer interrupt
->>attached to pin-0, but some of them shipped with
->>a bogus BIOS over-ride telling Linux the timer is on pin-2.
->>
->>This issue is quite old -- google NFORCE2 and acpi_skip_timer_override.
->>IIR there are whole web-sites with NFORCE2
->>workarounds provided by its dedicated fans...
+> > So I suspect Martin's 25% is a lot more accurate on modern hardware (which 
+> > means x86, possibly Power. Nothing else much matters).
 > 
-> 
-> Thanks for the info, Len. Although its odd that the Jean-Christian's
-> issue appears to show up around the time the fix you mention shows up. 
-> 
-> Regardless, Jean-Chistian has some sever BIOS problems, so until those
-> are resolved, I suggest he use the workaround (noapic) and ping us if
-> the issue persists once he arrives at a supportable configuration.
+> It was PPC64, if that helps.
 
-Well, I finally get evidence that my mainboard is a "K7N2 Delta-ILSR" 
-not a "K7N2 Delta-L" (from the shipping package, the invoice, and online 
-review of the two motherboards). So the BIOS version 7.4 is a valid one. 
-I updated the BIOS to the version 7.8. Now the drift is low and ntpd 
-happy (me too), all that without the "noapic" option.
+Ok. I bet x86 is even better, but Power (and possibly itanium) is the only 
+other architecture that comes close.
 
-Strange is that the kernel log is almost the same but this little 
-difference:
+I don't like the horrible POWER hash-tables, but for static workloads they 
+should perform almost as well as a sane page table (I say "almost", 
+because I bet that the high-performance x86 vendors have spent a lot more 
+time on tlb latency than even IBM has). My dislike for them comes from the 
+fact that they are really only optimized for static behaviour.
 
---- kernel 2.6.14 BIOS V7.4
-+++ kernel 2.6.14 BIOS V7.8
-  talla kernel:   Normal zone: 225280 pages, LIFO batch:31
-  talla kernel:   HighMem zone: 294896 pages, LIFO batch:31
-  talla kernel: DMI 2.3 present.
--talla kernel: ACPI: RSDP (v000 Nvidia                                ) 
-@ 0x000f73b0
-+talla kernel: ACPI: RSDP (v000 Nvidia                                ) 
-@ 0x000f73d0
-  talla kernel: ACPI: RSDT (v001 Nvidia AWRDACPI 0x42302e31 AWRD 
-0x00000000) @ 0x7fff3000
-  talla kernel: ACPI: FADT (v001 Nvidia AWRDACPI 0x42302e31 AWRD 
-0x00000000) @ 0x7fff3040
--talla kernel: ACPI: MADT (v001 Nvidia AWRDACPI 0x42302e31 AWRD 
-0x00000000) @ 0x7fff7780
-+talla kernel: ACPI: MADT (v001 Nvidia AWRDACPI 0x42302e31 AWRD 
-0x00000000) @ 0x7fff77c0
-  talla kernel: ACPI: DSDT (v001 NVIDIA AWRDACPI 0x00001000 MSFT 
-0x0100000e) @ 0x00000000
-  talla kernel: ACPI: PM-Timer IO Port: 0x4008
-  talla kernel: ACPI: Local APIC address 0xfee00000
+(And HPC is almost always static wrt TLB stuff - big, long-running 
+processes).
 
-The following message is still here:
+> Well, I think it depends on the workload a lot. However fast your TLB is,
+> if we move from "every cacheline read requires is a TLB miss" to "every
+> cacheline read is a TLB hit" that can be a huge performance knee however
+> fast your TLB is. Depends heavily on the locality of reference and size
+> of data set of the application, I suspect.
 
-talla kernel: ENABLING IO-APIC IRQs
-talla kernel: ..TIMER: vector=0x31 pin1=0 pin2=-1
+I'm sure there are really pathological examples, but the thing is, they 
+won't be on reasonable code.
 
-But all work fine with the latest BIOS.
+Some modern CPU's have TLB's that can span the whole cache. In other 
+words, if your data is in _any_ level of caches, the TLB will be big 
+enough to find it.
 
-For me the issue is solved. A lot of thanks to all peoples that helped 
-to this thread with special mention for John Stultz. I hope that the 
-others that have the same problem can solve it the same way.
+Yes, that's not universally true, and when it's true, the TLB is two-level 
+and you can have loads where it will usually miss in the first level, but 
+we're now talking about loads where the _data_ will then always miss in 
+the first level cache too. So the TLB miss cost will always be _lower_ 
+than the data miss cost.
 
-Best regards,
--- 
-Jean-Christian de Rivaz
+Right now, you should buy Opteron if you want that kind of large TLB. I 
+_think_ Intel still has "small" TLB's (the cpuid information only goes up 
+to 128 entries, I think), but at least Intel has a really good fill. And I 
+would bet (but have no first-hand information) that next generation 
+processors will only get bigger TLB's. These things don't tend to shrink.
+
+(Itanium also has a two-level TLB, but it's absolutely pitiful in size).
+
+NOTE! It is absolutely true that for a few years we had regular caches 
+growing much faster than TLB's. So there are unquestionably unbalanced 
+machines out there. But it seems that CPU designers started noticing, and 
+every indication is that TLB's are catching up.
+
+In other words, adding lots of kernel complexity is the wrong thing in the 
+long run. This is not a long-term problem, and even in the short term you 
+can fix it by just selecting the right hardware.
+
+In todays world, AMD leads with bug TLB's (1024-entry L2 TLB), but Intel 
+has slightly faster fill and the AMD TLB filtering is sadly turned off on 
+SMP right now, so you might not always get the full effect of the large 
+TLB (but in HPC you probably won't have task switching blowing your TLB 
+away very often).
+
+PPC64 has the huge hashed page tables that work well enough for HPC. 
+
+Itanium has a pitifully small TLB, and an in-order CPU, so it will take a 
+noticeably bigger hit on TLB's than x86 will. But even Itanium will be a 
+_lot_ better than MIPS was.
+
+			Linus

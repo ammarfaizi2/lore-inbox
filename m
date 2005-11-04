@@ -1,56 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161073AbVKDG3q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161083AbVKDGce@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161073AbVKDG3q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 01:29:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161083AbVKDG3q
+	id S1161083AbVKDGce (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 01:32:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161087AbVKDGce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 01:29:46 -0500
-Received: from mail24.sea5.speakeasy.net ([69.17.117.26]:48864 "EHLO
-	mail24.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1161073AbVKDG3p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 01:29:45 -0500
-Date: Fri, 4 Nov 2005 01:29:46 -0500 (EST)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@excalibur.intercode
-To: Andreas Schwab <schwab@suse.de>
-cc: Phillip Hellewell <phillip@hellewell.homeip.net>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       mike@halcrow.us, mhalcrow@us.ibm.com, mcthomps@us.ibm.com,
-       yoder1@us.ibm.com
-Subject: Re: [PATCH 9/12: eCryptfs] Inode operations
-In-Reply-To: <jesludp8ew.fsf@sykes.suse.de>
-Message-ID: <Pine.LNX.4.63.0511040123310.23744@excalibur.intercode>
-References: <20051103033220.GD2772@sshock.rn.byu.edu> <20051103035411.GI3005@sshock.rn.byu.edu>
- <Pine.LNX.4.63.0511031850220.22256@excalibur.intercode> <jesludp8ew.fsf@sykes.suse.de>
+	Fri, 4 Nov 2005 01:32:34 -0500
+Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:1467 "EHLO
+	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S1161083AbVKDGcd convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 01:32:33 -0500
+X-OB-Received: from unknown (205.158.62.49)
+  by wfilter.us4.outblaze.com; 4 Nov 2005 06:32:33 -0000
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: "ambat sasi nair" <sasin@iname.com>
+To: linux-kernel@vger.kernel.org
+Date: Fri, 04 Nov 2005 14:32:33 +0800
+Subject: mmc_block.c - cmd24/25 do not expect r1b
+X-Originating-Ip: 203.125.115.98
+X-Originating-Server: ws1-1.us4.outblaze.com
+Message-Id: <20051104063233.3FA7183C02@ws1-1.us4.outblaze.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Nov 2005, Andreas Schwab wrote:
+hi,
 
-> James Morris <jmorris@namei.org> writes:
-> 
-> > On Wed, 2 Nov 2005, Phillip Hellewell wrote:
-> >
-> >> +static int grow_file(struct dentry *ecryptfs_dentry, struct file *lower_file,
-> >> +		     struct inode *inode, struct inode *lower_inode)
-> >> +{
-> >> +	int rc = 0;
-> >> +	struct file fake_file;
-> >> +	memset(&fake_file, 0, sizeof(fake_file));
-> >
-> >
-> > You don't need these initializations, bss is always initialized to zero 
-> > in this environment.
-> 
-> Automatic variables are not related to the bss segment.
+just for the reference of any1 working on the mmc/sd driver for linux - write block commands (24/25) expect r1 and not r1b as coded in the mmc_block.c.
 
-Yep, ignore whatever it was I was mis-thinking there.
+best regards,
+sasi
 
 
-
-- James
 -- 
-James Morris
-<jmorris@namei.org>
+___________________________________________________
+Play 100s of games for FREE! http://games.mail.com/
+

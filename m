@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161078AbVKDGPM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161077AbVKDGLD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161078AbVKDGPM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 01:15:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161079AbVKDGPM
+	id S1161077AbVKDGLD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 01:11:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161078AbVKDGLC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 01:15:12 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:11191 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161078AbVKDGPK (ORCPT
+	Fri, 4 Nov 2005 01:11:02 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:51663 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1161077AbVKDGLB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 01:15:10 -0500
-Date: Thu, 3 Nov 2005 22:14:51 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Filo <krzysztof.gorgolewski@gmail.com>
-Cc: linux-kernel@vger.kernel.org, gregkh@suse.de,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-pcmcia@lists.infradead.org
-Subject: Re: PROBLEM: Paceblade Pacebook no irq for TI yenta PCMCIA - PCI
- related
-Message-Id: <20051103221451.2799eb17.akpm@osdl.org>
-In-Reply-To: <fda8dbc60510291430w30d8ffdfo80c45595778f938@mail.gmail.com>
-References: <fda8dbc60510291430w30d8ffdfo80c45595778f938@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 4 Nov 2005 01:11:01 -0500
+Date: Thu, 3 Nov 2005 22:10:37 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: andy@thermo.lanl.gov, mbligh@mbligh.org, akpm@osdl.org,
+       arjan@infradead.org, arjanv@infradead.org, haveblue@us.ibm.com,
+       kravetz@us.ibm.com, lhms-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, mel@csn.ul.ie,
+       mingo@elte.hu, nickpiggin@yahoo.com.au
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+Message-Id: <20051103221037.33ae0f53.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0511032105110.27915@g5.osdl.org>
+References: <20051104010021.4180A184531@thermo.lanl.gov>
+	<Pine.LNX.4.64.0511032105110.27915@g5.osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Filo <krzysztof.gorgolewski@gmail.com> wrote:
->
->  I'm trying to get my PCMCIA port running on my pacebook tablet. I'm
->  using 2.6.* kernel (actually 2.6.13-rc4-mm1 but I also tried 2.6.12)
->  and during initialization of yenta_socket I get this message:
-> 
->  Yenta: Routing CardBus interrupts to PCI
->  Yenta TI: socket 0000:00:05.0, mfunc 0x01021c02, devctl 0x64
->  Yenta TI: socket 0000:00:05.0 probing PCI interrupt failed, trying to fix
->  Yenta TI: socket 0000:00:05.0 no PCI interrupts. Fish. Please report.
->  Yenta: no PCI IRQ, CardBus support disabled for this socket.
->  Yenta: check your BIOS CardBus, BIOS IRQ or ACPI settings.
->  Yenta: ISA IRQ mask 0x0ad8, PCI irq 0
-> 
->  It seam that Yenta cant get information about the irq's from the PCI.
->  It's not an ACPI issue because I did not compile it (it's broken on my
->  tablet). I'm quite confused what to do now. Any help (even a dirty
->  hack) would be appreciated.
+Linus wrote:
+> Maybe you'd be willing on compromising by using a few kernel boot-time 
+> command line options for your not-very-common load.
 
-Did the machine work OK under any earlier kernels?  2.4?  If so, which?
+If we were only a few options away from running Andy's varying load
+mix with something close to ideal performance, we'd be in fat city,
+and Andy would never have been driven to write that rant.
 
-Did you try enabling ACPI under the 2.6 kernel, because that might be the
-fix.  If ACPI fails then please raise a separate report for that
-(preferably at bugzilla.kernel.org).
+There's more to it than that, but it is not as impossible as a battery
+with the efficiencies you (and the rest of us) dream of.
 
-Thanks.
+Andy has used systems that resemble what he is seeking.  So he is not
+asking for something clearly impossible.  Though it might not yet be
+possible, in ways that contribute to a continuing healthy kernel code
+base.
 
+It's an interesting challenge - finding ways to improve the kernel's
+performance on such high end loads, that are also suitable and
+desirable (or at least innocent enough) for inclusion in a kernel far
+more widely used in embeddeds, desktops and ordinary servers.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

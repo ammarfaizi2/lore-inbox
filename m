@@ -1,236 +1,349 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161069AbVKDFbs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030597AbVKDFcY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161069AbVKDFbs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 00:31:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030553AbVKDFbr
+	id S1030597AbVKDFcY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 00:32:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030603AbVKDFcX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 00:31:47 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:31669 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1161069AbVKDFbq (ORCPT
+	Fri, 4 Nov 2005 00:32:23 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:47029 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1030597AbVKDFcD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 00:31:46 -0500
-Date: Thu, 3 Nov 2005 21:31:32 -0800 (PST)
+	Fri, 4 Nov 2005 00:32:03 -0500
+Date: Thu, 3 Nov 2005 21:31:53 -0800 (PST)
 From: Paul Jackson <pj@sgi.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Simon Derr <Simon.Derr@bull.net>, Paul Jackson <pj@sgi.com>,
        Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
        Christoph Lameter <clameter@sgi.com>
-Message-Id: <20051104053132.549.16062.sendpatchset@jackhammer.engr.sgi.com>
+Message-Id: <20051104053153.549.83350.sendpatchset@jackhammer.engr.sgi.com>
 In-Reply-To: <20051104053109.549.76824.sendpatchset@jackhammer.engr.sgi.com>
 References: <20051104053109.549.76824.sendpatchset@jackhammer.engr.sgi.com>
-Subject: [PATCH 3/5] cpuset: change marker for relative numbering
+Subject: [PATCH 5/5] cpuset: memory reclaim rate meter
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch provides a minimal mechanism to support the safe
-cpuset-relative management of CPU and Memory placement from
-user library code, in the face of possible external migration
-to different CPU's and Memory Nodes.
+Provide a simple per-cpuset metric of memory stress, tracking the
+-rate- that the tasks in a cpuset call try_to_free_pages(), the
+synchronous (direct) memory reclaim code.
 
-The interface presented to user space for cpusets uses system wide
-numbering of CPUs and Memory Nodes.   It is the responsibility of
-user level code, presumably in a library, to present cpuset-relative
-numbering to applications when that would be more useful to them.
+This enables batch managers monitoring jobs running in dedicated
+cpusets to efficiently detect what level of memory stress that job
+is encountering.
 
-However if a task is moved to a different cpuset, or if the 'cpus'
-or 'mems' of a cpuset are changed, then we need a way for such
-library code to detect that its cpuset-relative numbering has
-changed, when expressed using system wide numbering.
+This is useful both on tightly managed systems running a wide mix
+of submitted jobs, which may choose to terminate or reprioritize
+jobs that are trying to use more memory than allowed on the nodes
+assigned them, and with tightly coupled, long running, massively
+parallel scientific computing jobs that will dramatically fail to
+meet required performance goals if they start to swap.
 
-The kernel cannot safely allow user code to lock kernel resources.
-The kernel could deliver out-of-band notice of cpuset changes by
-such mechanisms as signals or usermodehelper callbacks, however
-this can't be delivered to library code linked in applications
-without intruding on the IPC mechanisms available to the app.
-The kernel could require user level code to do all the work,
-tracking the cpuset state before and during changes, to verify no
-unexpected change occurred, but this becomes an onerous task.
+This patch just provides a very economical way for the batch manager
+to monitor a cpuset for signs of memory distress.  It's up to the
+batch manager or other user code to decide what to do about it and
+take action.
 
-The "marker_pid" cpuset field provides a simple way to make this
-task less onerous on user library code.  The code writes its pid
-to a cpusets "marker_pid" at the start of a sequence of queries
-and updates, and check as it goes that the cpsuets marker_pid
-doesn't change.  The pread(2) system call does a seek and read in
-a single call.  If the marker_pid changes, the library code should
-retry the required sequence of operations.
+A per-cpuset simple digital filter (requires a spinlock and 3 words
+of data per-cpuset) is kept, and updated by any task attached to that
+cpuset, if it enters the synchronous (direct) page reclaim code.
 
-Anytime that a task modifies the "cpus" or "mems" of a cpuset,
-unless it's pid is in the cpusets marker_pid field, the kernel
-zeros this field.
-
-The above was inspired by the load linked and store conditional
-(ll/sc) instructions in the MIPS II instruction set.
+A per-cpuset file provides an integer number representing the recent
+(half-life of 10 seconds) rate of direct page reclaims caused by
+the tasks in the cpuset, in units of reclaims attempted per second,
+times 1000.
 
 Signed-off-by: Paul Jackson <pj@sgi.com>
 
 ---
 
- kernel/cpuset.c |   74 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 74 insertions(+)
+An earlier patch that tried to address this same problem
+is in the thread:
 
---- 2.6.14-rc5-mm1-cpuset-patches.orig/kernel/cpuset.c	2005-11-02 23:16:21.532227825 -0800
-+++ 2.6.14-rc5-mm1-cpuset-patches/kernel/cpuset.c	2005-11-02 23:17:07.102068196 -0800
-@@ -60,6 +60,7 @@ struct cpuset {
+	http://lkml.org/lkml/2005/3/19/148
+	Date	Sat, 19 Mar 2005 17:48:46 -0800 (PST)
+	Subject	[Patch] cpusets policy kill no swap
+
+It was rejected, as it hardwired policy, mechanism and
+detection together, in a manner that would only have
+been useful to very specialized customer needs.
+
+ include/linux/cpuset.h |    3 
+ kernel/cpuset.c        |  158 ++++++++++++++++++++++++++++++++++++++++++++++++-
+ mm/page_alloc.c        |    1 
+ 3 files changed, 161 insertions(+), 1 deletion(-)
+
+--- 2.6.14-rc5-mm1-cpuset-patches.orig/include/linux/cpuset.h	2005-11-03 19:07:00.026535184 -0800
++++ 2.6.14-rc5-mm1-cpuset-patches/include/linux/cpuset.h	2005-11-03 19:07:00.130051971 -0800
+@@ -26,6 +26,7 @@ void cpuset_update_current_mems_allowed(
+ int cpuset_zonelist_valid_mems_allowed(struct zonelist *zl);
+ extern int cpuset_zone_allowed(struct zone *z, gfp_t gfp_mask);
+ extern int cpuset_excl_nodes_overlap(const struct task_struct *p);
++extern void cpuset_synchronous_page_reclaim_bump(void);
+ extern struct file_operations proc_cpuset_operations;
+ extern char *cpuset_task_status_allowed(struct task_struct *task, char *buffer);
+ 
+@@ -60,6 +61,8 @@ static inline int cpuset_excl_nodes_over
+ 	return 1;
+ }
+ 
++static ineline void cpuset_synchronous_page_reclaim_bump(void) {}
++
+ static inline char *cpuset_task_status_allowed(struct task_struct *task,
+ 							char *buffer)
+ {
+--- 2.6.14-rc5-mm1-cpuset-patches.orig/kernel/cpuset.c	2005-11-03 19:07:00.050949521 -0800
++++ 2.6.14-rc5-mm1-cpuset-patches/kernel/cpuset.c	2005-11-03 19:28:12.507607967 -0800
+@@ -56,6 +56,15 @@
+ 
+ #define CPUSET_SUPER_MAGIC 		0x27e0eb
+ 
++/* See "Frequency meter" comments, below. */
++
++struct fmeter {
++	int cnt;		/* unprocessed events count */
++	int val;		/* most recent output value */
++	time_t time;		/* clock (secs) when val computed */
++	spinlock_t lock;	/* guards read or write of above */
++};
++
+ struct cpuset {
  	unsigned long flags;		/* "unsigned long" so bitops work */
  	cpumask_t cpus_allowed;		/* CPUs allowed to tasks in cpuset */
- 	nodemask_t mems_allowed;	/* Memory Nodes allowed to tasks */
-+	pid_t marker_pid;		/* pid of task doing marked updates */
- 
- 	/*
- 	 * Count is atomic so can incr (fork) or decr (exit) without a lock.
-@@ -130,10 +131,49 @@ static inline int notify_on_release(cons
-  */
- static atomic_t cpuset_mems_generation = ATOMIC_INIT(1);
- 
-+/*
-+ * marker_pid -- managing cpuset changes safely from user space.
-+ *
-+ * The interface presented to user space for cpusets uses system wide
-+ * numbering of CPUs and Memory Nodes.   It is the responsibility of
-+ * user level code, presumably in a library, to present cpuset-relative
-+ * numbering to applications when that would be more useful to them.
-+ *
-+ * However if a task is moved to a different cpuset, or if the 'cpus'
-+ * or 'mems' of a cpuset are changed, then we need a way for such
-+ * library code to detect that its cpuset-relative numbering has
-+ * changed, when expressed using system wide numbering.
-+ *
-+ * The kernel cannot safely allow user code to lock kernel resources.
-+ * The kernel could deliver out-of-band notice of cpuset changes by
-+ * such mechanisms as signals or usermodehelper callbacks, however
-+ * this can't be delivered to library code linked in applications
-+ * without intruding on the IPC mechanisms available to the app.
-+ * The kernel could require user level code to do all the work,
-+ * tracking the cpuset state before and during changes, to verify no
-+ * unexpected change occurred, but this becomes an onerous task.
-+ *
-+ * The "marker_pid" cpuset field provides a simple way to make this
-+ * task less onerous on user library code.  A task writes its pid
-+ * to a cpusets "marker_pid" at the start of a sequence of queries
-+ * and updates, and check as it goes that the cpsuets marker_pid
-+ * doesn't change.  The pread(2) system call does a seek and read in
-+ * a single call.  If the marker_pid changes, the user code should
-+ * retry the required sequence of operations.
-+ *
-+ * Anytime that a task modifies the "cpus" or "mems" of a cpuset,
-+ * unless it's pid is in the cpusets marker_pid field, the kernel
-+ * zeros this field.
-+ *
-+ * The above was inspired by the load linked and store conditional
-+ * (ll/sc) instructions in the MIPS II instruction set.
-+ */
+@@ -81,7 +90,9 @@ struct cpuset {
+ 	 * Copy of global cpuset_mems_generation as of the most
+ 	 * recent time this cpuset changed its mems_allowed.
+ 	 */
+-	 int mems_generation;
++	int mems_generation;
 +
- static struct cpuset top_cpuset = {
- 	.flags = ((1 << CS_CPU_EXCLUSIVE) | (1 << CS_MEM_EXCLUSIVE)),
++	struct fmeter fmeter;		/* memory_reclaim_rate filter */
+ };
+ 
+ /* bits in struct cpuset flags field */
+@@ -174,6 +185,9 @@ static struct cpuset top_cpuset = {
  	.cpus_allowed = CPU_MASK_ALL,
  	.mems_allowed = NODE_MASK_ALL,
-+	.marker_pid = 0,
+ 	.marker_pid = 0,
++	.fmeter.cnt = 0,
++	.fmeter.val = 0,
++	.fmeter.time = 0,
  	.count = ATOMIC_INIT(0),
  	.sibling = LIST_HEAD_INIT(top_cpuset.sibling),
  	.children = LIST_HEAD_INIT(top_cpuset.children),
-@@ -793,6 +833,19 @@ static int update_nodemask(struct cpuset
+@@ -887,6 +901,104 @@ static int update_flag(cpuset_flagbits_t
  }
  
  /*
-+ * Call with manage_sem held.
++ * Frequency meter - How fast is some event occuring?
++ *
++ * These routines manage a digitally filtered, constant time based,
++ * event frequency meter.  There are four routines:
++ *   fmeter_init() - initialize a frequency meter.
++ *   fmeter_markevent() - called each time the event happens.
++ *   fmeter_getrate() - returns the recent rate of such events.
++ *   fmeter_update() - internal routine used to update fmeter.
++ *
++ * A common data structure is passed to each of these routines,
++ * which is used to keep track of the state required to manage the
++ * frequency meter and its digital filter.
++ *
++ * The filter works on the number of events marked per unit time.
++ * The filter is single-pole low-pass recursive (IIR).  The time unit
++ * is 1 second.  Arithmetic is done using 32-bit integers scaled to
++ * simulate 3 decimal digits of precision (multiplied by 1000).
++ *
++ * With an FM_COEF of 933, and a time base of 1 second, the filter
++ * has a half-life of 10 seconds, meaning that if the events quit
++ * happening, then the rate returned from the fmeter_getrate()
++ * will be cut in half each 10 seconds, until it converges to zero.
++ *
++ * It is not worth doing a real infinitely recursive filter.  If more
++ * than FM_MAXTICKS ticks have elapsed since the last filter event,
++ * just compute FM_MAXTICKS ticks worth, by which point the level
++ * will be stable.
++ *
++ * Limit the count of unprocessed events to FM_MAXCNT, so as to avoid
++ * arithmetic overflow in the fmeter_update() routine.
++ *
++ * Given the simple 32 bit integer arithmetic used, this meter works
++ * best for reporting rates between one per millisecond (msec) and
++ * one per 32 (approx) seconds.  At constant rates faster than one
++ * per msec it maxes out at values just under 1,000,000.  At constant
++ * rates between one per msec, and one per second it will stabilize
++ * to a value N*1000, where N is the rate of events per second.
++ * At constant rates between one per second and one per 32 seconds,
++ * it will be choppy, moving up on the seconds that have an event,
++ * and then decaying until the next event.  At rates slower than
++ * about one in 32 seconds, it decays all the way back to zero between
++ * each event.
 + */
 +
-+static int update_marker_pid(struct cpuset *cs, char *buf)
++#define FM_COEF 933		/* coefficient for half-life of 10 secs */
++#define FM_MAXTICKS ((time_t)99) /* useless computing more ticks than this */
++#define FM_MAXCNT 1000000	/* limit cnt to avoid overflow */
++#define FM_SCALE 1000		/* faux fixed point scale */
++
++/* Initialize a frequency meter */
++static void fmeter_init(struct fmeter *fmp)
 +{
-+	if (simple_strtoul(buf, NULL, 10) != 0)
-+		cs->marker_pid = current->pid;
-+	else
-+		cs->marker_pid = 0;
-+	return 0;
++	fmp->cnt = 0;
++	fmp->val = 0;
++	fmp->time = 0;
++	spin_lock_init(&fmp->lock);
++}
++
++/* Internal meter update - process cnt events and update value */
++static void fmeter_update(struct fmeter *fmp)
++{
++	time_t now = get_seconds();
++	time_t ticks = now - fmp->time;
++
++	if (ticks == 0)
++		return;
++
++	ticks = min(FM_MAXTICKS, ticks);
++	while (ticks-- > 0)
++		fmp->val = (FM_COEF * fmp->val) / FM_SCALE;
++	fmp->time = now;
++
++	fmp->val += ((FM_SCALE - FM_COEF) * fmp->cnt) / FM_SCALE;
++	fmp->cnt = 0;
++}
++
++/* Process any previous ticks, then bump cnt by one (times scale). */
++static void fmeter_markevent(struct fmeter *fmp)
++{
++	spin_lock(&fmp->lock);
++	fmeter_update(fmp);
++	fmp->cnt = min(FM_MAXCNT, fmp->cnt + FM_SCALE);
++	spin_unlock(&fmp->lock);
++}
++
++/* Process any previous ticks, then return current value. */
++static int fmeter_getrate(struct fmeter *fmp)
++{
++	int val;
++
++	spin_lock(&fmp->lock);
++	fmeter_update(fmp);
++	val = fmp->val;
++	spin_unlock(&fmp->lock);
++	return val;
 +}
 +
 +/*
-  * update_flag - read a 0 or a 1 in a file and update associated flag
-  * bit:	the bit to update (CS_CPU_EXCLUSIVE, CS_MEM_EXCLUSIVE,
-  *						CS_NOTIFY_ON_RELEASE)
-@@ -910,6 +963,7 @@ typedef enum {
- 	FILE_CPU_EXCLUSIVE,
+  * Attack task specified by pid in 'pidbuf' to cpuset 'cs', possibly
+  * writing the path of the old cpuset in 'ppathbuf' if it needs to be
+  * notified on release.
+@@ -964,6 +1076,7 @@ typedef enum {
  	FILE_MEM_EXCLUSIVE,
  	FILE_NOTIFY_ON_RELEASE,
-+	FILE_MARKER_PID,
+ 	FILE_MARKER_PID,
++	FILE_RECLAIM_RATE,
  	FILE_TASKLIST,
  } cpuset_filetype_t;
  
-@@ -922,6 +976,7 @@ static ssize_t cpuset_common_file_write(
- 	char *buffer;
- 	char *pathbuf = NULL;
- 	int retval = 0;
-+	int marked_change;
- 
- 	/* Crude upper limit on largest legitimate cpulist user might write. */
- 	if (nbytes > 100 + 6 * NR_CPUS)
-@@ -944,12 +999,15 @@ static ssize_t cpuset_common_file_write(
- 		goto out2;
- 	}
- 
-+	marked_change = 0;
- 	switch (type) {
- 	case FILE_CPULIST:
- 		retval = update_cpumask(cs, buffer);
-+		marked_change = 1;
+@@ -1021,6 +1134,9 @@ static ssize_t cpuset_common_file_write(
+ 	case FILE_MARKER_PID:
+ 		retval = update_marker_pid(cs, buffer);
  		break;
- 	case FILE_MEMLIST:
- 		retval = update_nodemask(cs, buffer);
-+		marked_change = 1;
- 		break;
- 	case FILE_CPU_EXCLUSIVE:
- 		retval = update_flag(CS_CPU_EXCLUSIVE, cs, buffer);
-@@ -960,6 +1018,9 @@ static ssize_t cpuset_common_file_write(
- 	case FILE_NOTIFY_ON_RELEASE:
- 		retval = update_flag(CS_NOTIFY_ON_RELEASE, cs, buffer);
- 		break;
-+	case FILE_MARKER_PID:
-+		retval = update_marker_pid(cs, buffer);
++	case FILE_RECLAIM_RATE:
++		retval = -EACCES;
 +		break;
  	case FILE_TASKLIST:
  		retval = attach_task(cs, buffer, &pathbuf);
  		break;
-@@ -968,6 +1029,9 @@ static ssize_t cpuset_common_file_write(
- 		goto out2;
- 	}
- 
-+	if (marked_change && retval == 0 && cs->marker_pid != current->pid)
-+		cs->marker_pid = 0;
-+
- 	if (retval == 0)
- 		retval = nbytes;
- out2:
-@@ -1060,6 +1124,9 @@ static ssize_t cpuset_common_file_read(s
- 	case FILE_NOTIFY_ON_RELEASE:
- 		*s++ = notify_on_release(cs) ? '1' : '0';
+@@ -1127,6 +1243,9 @@ static ssize_t cpuset_common_file_read(s
+ 	case FILE_MARKER_PID:
+ 		s += sprintf(s, "%d", cs->marker_pid);
  		break;
-+	case FILE_MARKER_PID:
-+		s += sprintf(s, "%d", cs->marker_pid);
++	case FILE_RECLAIM_RATE:
++		s += sprintf(s, "%d", fmeter_getrate(&cs->fmeter));
 +		break;
  	default:
  		retval = -EINVAL;
  		goto out;
-@@ -1408,6 +1475,11 @@ static struct cftype cft_notify_on_relea
- 	.private = FILE_NOTIFY_ON_RELEASE,
+@@ -1480,6 +1599,11 @@ static struct cftype cft_marker_pid = {
+ 	.private = FILE_MARKER_PID,
  };
  
-+static struct cftype cft_marker_pid = {
-+	.name = "marker_pid",
-+	.private = FILE_MARKER_PID,
++static struct cftype cft_reclaim_rate = {
++	.name = "memory_reclaim_rate",
++	.private = FILE_RECLAIM_RATE,
 +};
 +
  static int cpuset_populate_dir(struct dentry *cs_dentry)
  {
  	int err;
-@@ -1422,6 +1494,8 @@ static int cpuset_populate_dir(struct de
+@@ -1496,6 +1620,8 @@ static int cpuset_populate_dir(struct de
  		return err;
- 	if ((err = cpuset_add_file(cs_dentry, &cft_notify_on_release)) < 0)
+ 	if ((err = cpuset_add_file(cs_dentry, &cft_marker_pid)) < 0)
  		return err;
-+	if ((err = cpuset_add_file(cs_dentry, &cft_marker_pid)) < 0)
++	if ((err = cpuset_add_file(cs_dentry, &cft_reclaim_rate)) < 0)
 +		return err;
  	if ((err = cpuset_add_file(cs_dentry, &cft_tasks)) < 0)
  		return err;
  	return 0;
+@@ -1531,6 +1657,7 @@ static long cpuset_create(struct cpuset 
+ 	INIT_LIST_HEAD(&cs->children);
+ 	atomic_inc(&cpuset_mems_generation);
+ 	cs->mems_generation = atomic_read(&cpuset_mems_generation);
++	fmeter_init(&cs->fmeter);
+ 
+ 	cs->parent = parent;
+ 
+@@ -1620,6 +1747,7 @@ int __init cpuset_init(void)
+ 	top_cpuset.cpus_allowed = CPU_MASK_ALL;
+ 	top_cpuset.mems_allowed = NODE_MASK_ALL;
+ 
++	fmeter_init(&top_cpuset.fmeter);
+ 	atomic_inc(&cpuset_mems_generation);
+ 	top_cpuset.mems_generation = atomic_read(&cpuset_mems_generation);
+ 
+@@ -1929,6 +2057,34 @@ done:
+ 	return overlap;
+ }
+ 
++/**
++ * cpuset_synchronous_page_reclaim_bump - keep stats of per-cpuset relaims.
++ *
++ * Keep a running average of the rate of synchronous (direct)
++ * page reclaim efforts initiated by tasks in each cpuset.
++ *
++ * This represents the rate at which some task in the cpuset
++ * ran low on memory on all nodes it was allowed to use, and
++ * had to enter the kernels page reclaim code in an effort to
++ * create more free memory by tossing clean pages or swapping
++ * or writing dirty pages.
++ *
++ * Display to user space in the per-cpuset read-only file
++ * "memory_reclaim_rate".  Value displayed is an integer
++ * representing the recent rate of entry into the synchronous
++ * (direct) page reclaim by any task attached to the cpuset.
++ **/
++
++void cpuset_synchronous_page_reclaim_bump(void)
++{
++	struct cpuset *cs;
++
++	task_lock(current);
++	cs = current->cpuset;
++	fmeter_markevent(&cs->fmeter);
++	task_unlock(current);
++}
++
+ /*
+  * proc_cpuset_show()
+  *  - Print tasks cpuset path into seq_file.
+--- 2.6.14-rc5-mm1-cpuset-patches.orig/mm/page_alloc.c	2005-11-03 19:06:53.301850334 -0800
++++ 2.6.14-rc5-mm1-cpuset-patches/mm/page_alloc.c	2005-11-03 19:26:02.267868104 -0800
+@@ -976,6 +976,7 @@ rebalance:
+ 	cond_resched();
+ 
+ 	/* We now go into synchronous reclaim */
++	cpuset_synchronous_page_reclaim_bump();
+ 	p->flags |= PF_MEMALLOC;
+ 	reclaim_state.reclaimed_slab = 0;
+ 	p->reclaim_state = &reclaim_state;
 
 -- 
                           I won't rest till it's the best ...

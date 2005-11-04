@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932747AbVKDPPG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964902AbVKDPQX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932747AbVKDPPG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 10:15:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932749AbVKDPPF
+	id S964902AbVKDPQX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 10:16:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbVKDPQX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 10:15:05 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:7608 "EHLO
-	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S932747AbVKDPPC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 10:15:02 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] swapin rlimit
-Date: Fri, 4 Nov 2005 09:14:01 -0600
-User-Agent: KMail/1.8
-Cc: Ingo Molnar <mingo@elte.hu>, pbadari@gmail.com, torvalds@osdl.org,
-       jdike@addtoit.com, nickpiggin@yahoo.com.au, gh@us.ibm.com,
-       kamezawa.hiroyu@jp.fujitsu.com, haveblue@us.ibm.com, mel@csn.ul.ie,
-       mbligh@mbligh.org, kravetz@us.ibm.com, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net
-References: <E1EXEfW-0005ON-00@w-gerrit.beaverton.ibm.com> <20051104072628.GA20108@elte.hu> <20051103233628.12ed1eee.akpm@osdl.org>
-In-Reply-To: <20051103233628.12ed1eee.akpm@osdl.org>
+	Fri, 4 Nov 2005 10:16:23 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:50582 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S964902AbVKDPQW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 10:16:22 -0500
+Message-ID: <436B7B46.6060205@drzeus.cx>
+Date: Fri, 04 Nov 2005 16:16:22 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mail/News 1.4.1 (X11/20051008)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: dtor_core@ameritech.net
+CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Adam Belay <ambx1@neo.rr.com>
+Subject: Re: [Fwd: [PATCH] [PNP][RFC] Suspend support for PNP bus.]
+References: <436B2819.4090909@drzeus.cx> <d120d5000511040649u5b33405an73b5e33fb4ce5cf6@mail.gmail.com>
+In-Reply-To: <d120d5000511040649u5b33405an73b5e33fb4ce5cf6@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511040914.02635.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 04 November 2005 01:36, Andrew Morton wrote:
-> >  wouldnt the clean solution here be a "swap ulimit"?
+Dmitry Torokhov wrote:
+> On 11/4/05, Pierre Ossman <drzeus-list@drzeus.cx> wrote:
+>   
+>> +
+>> +int pnp_start_dev(struct pnp_dev *dev)
+>> +{
+>> +       if (!pnp_can_write(dev)) {
+>> +               pnp_info("Device %s does not supported activation.", dev->dev.bus_id);
+>>     
 >
-> Well it's _a_ solution, but it's terribly specific.
+> "...does not support...", there is no "ed" at the end.
 >
-> How hard is it to read /proc/<pid>/nr_swapped_in_pages and if that's
-> non-zero, kill <pid>?
+>   
 
-Things like make fork lots of short-lived child processes, and some of those 
-can be quite memory intensive.  (The gcc 4.0.2 build causes an outright swap 
-storm for me about halfway through, doing genattrtab and then again compiling 
-the result).
+That's just code that's been moved around. But I suppose a speling fix 
+could be included in the same patch. :)
 
-Is there any way for parents to collect their child process's statistics when 
-the children exit?  Or by the time the actual swapper exits, do we not care 
-anymore?
+>> +               return -EINVAL;
+>> +       }
+>>     
+>
+> Hmm, would'nt presence of such device stop suspend process? It will
+> cause pnp_bus_resume to fail too. Perhaps returning 0 in this case is
+> better.
+>
+>   
 
-Rob
+The problem is that this code is also visited from pnp_activate_dev() & 
+co where this return value is needed. For pnp_stop_dev() the same check 
+(pnp_can_disable()) is performed in the suspend routine to avoid that 
+particular problem. For resume my assumption was that a device that 
+doesn't support activation will not have a driver attached to it. 
+Perhaps this is wrong?
+
+Rgds
+Pierre

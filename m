@@ -1,73 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030596AbVKDEFO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161014AbVKDEHT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030596AbVKDEFO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 23:05:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030597AbVKDEFO
+	id S1161014AbVKDEHT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 23:07:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161015AbVKDEHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 23:05:14 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:41429 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1030596AbVKDEFM convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 23:05:12 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: processor module locks up hyperthreading enabled machine
-Date: Thu, 3 Nov 2005 20:05:08 -0800
-Message-ID: <88056F38E9E48644A0F562A38C64FB6006380C8D@scsmsx403.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: processor module locks up hyperthreading enabled machine
-Thread-Index: AcXf48yPd5/h5R8qSFKjf6r8IOI/yQBEJGZw
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "Reinhard Nissl" <rnissl@gmx.de>
-Cc: <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>
-X-OriginalArrivalTime: 04 Nov 2005 04:05:09.0568 (UTC) FILETIME=[F289B400:01C5E0F4]
+	Thu, 3 Nov 2005 23:07:19 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:31927 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161014AbVKDEHR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 23:07:17 -0500
+Subject: RE: NTP broken with 2.6.14
+From: john stultz <johnstul@us.ibm.com>
+To: "Brown, Len" <len.brown@intel.com>
+Cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       Jean-Christian de Rivaz <jc@eclis.ch>, macro@linux-mips.org,
+       linux-kernel@vger.kernel.org, dean@arctic.org, zippel@linux-m68k.org
+In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B3005117C9B@hdsmsx401.amr.corp.intel.com>
+References: <F7DC2337C7631D4386A2DF6E8FB22B3005117C9B@hdsmsx401.amr.corp.intel.com>
+Content-Type: text/plain
+Date: Thu, 03 Nov 2005 20:07:13 -0800
+Message-Id: <1131077233.27168.627.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
+On Thu, 2005-11-03 at 22:44 -0500, Brown, Len wrote:
+> NFORCE2 on an ACPI-enabled kernel should automatically invoke
+> the acpi_skip_timer_override BIOS workaround -- as
+> the NFORCE family of chip-sets have the timer interrupt
+> attached to pin-0, but some of them shipped with
+> a bogus BIOS over-ride telling Linux the timer is on pin-2.
+> 
+> This issue is quite old -- google NFORCE2 and acpi_skip_timer_override.
+> IIR there are whole web-sites with NFORCE2
+> workarounds provided by its dedicated fans...
 
->-----Original Message-----
->From: Reinhard Nissl [mailto:rnissl@gmx.de] 
->Sent: Wednesday, November 02, 2005 11:30 AM
->To: Pallipadi, Venkatesh
->Cc: linux-kernel@vger.kernel.org; Brown, Len
->Subject: Re: processor module locks up hyperthreading enabled machine
->
->Hi,
->
->Pallipadi, Venkatesh wrote:
->
->> Hmmmmm.... Please try the latest patch here
->> http://bugme.osdl.org/show_bug.cgi?id=5452
->
->Your patch fixed the freeze. Tested with kernel 2.6.14.
->
->I should have mentioned, that my system is equiped with a 
->Fujitsu-Siemens Mainboard D1562-A2, most recent BIOS V4.06 R1.09.
->
->I'll try to get this bug fixed in the BIOS, but chances are not that 
->good as the board is already "quite old".
->
->Would you please be so kind and drop a few lines about the 
->drawbacks of 
->this BIOS bug? What kind of functionality is lost by "ignoring" the 
->second CPU at this particular code section?
->
+Thanks for the info, Len. Although its odd that the Jean-Christian's
+issue appears to show up around the time the fix you mention shows up. 
 
-It will basically disable ACPI Processor Power Management features. 
-P-state (speedstep or dynamic change of frequency to save power) and
-C-states beyond C1 and T-states. 
->From dmesg, I know that on your system C2 and beyond is not supported.
-T-states are kind of unimportantish. Only other difference will be
-P-state. Not sure whether your processor supports speedstep and dynamic
-change of cpufreq. If it doesn't, then you won't loose anything by this
-workaround.
+Regardless, Jean-Chistian has some sever BIOS problems, so until those
+are resolved, I suggest he use the workaround (noapic) and ping us if
+the issue persists once he arrives at a supportable configuration.
 
-Thanks,
-Venki
+thanks
+-john
+

@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751019AbVKDXTh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbVKDXUR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751019AbVKDXTh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 18:19:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751031AbVKDXTg
+	id S1750953AbVKDXUR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 18:20:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751031AbVKDXUR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 18:19:36 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:50076 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751009AbVKDXTf (ORCPT
+	Fri, 4 Nov 2005 18:20:17 -0500
+Received: from gate.crashing.org ([63.228.1.57]:18130 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750953AbVKDXUP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 18:19:35 -0500
-Date: Fri, 4 Nov 2005 15:19:32 -0800
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: Paul Mackerras <paulus@samba.org>
-Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net
-Subject: [PATCH 2/4] Memory Add Fixes for ppc64
-Message-ID: <20051104231932.GC25545@w-mikek2.ibm.com>
-References: <20051104231552.GA25545@w-mikek2.ibm.com>
+	Fri, 4 Nov 2005 18:20:15 -0500
+Subject: Re: Parallel ATA with libata status with the patches I'm working on
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       bzolnier@gmail.com
+In-Reply-To: <20051104231048.GD12026@flint.arm.linux.org.uk>
+References: <1131029686.18848.48.camel@localhost.localdomain>
+	 <20051103144830.GF28038@flint.arm.linux.org.uk>
+	 <58cb370e0511030702hb06a5f3qc2dfe465ee1d784c@mail.gmail.com>
+	 <m3oe51zc2e.fsf@defiant.localdomain>
+	 <58cb370e0511031329h7532259y6d3624fbf2d93f88@mail.gmail.com>
+	 <1131058464.18848.94.camel@localhost.localdomain>
+	 <20051104013054.GF3469@ime.usp.br>
+	 <1131111667.26925.31.camel@localhost.localdomain>
+	 <20051104231048.GD12026@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Sat, 05 Nov 2005 10:19:03 +1100
+Message-Id: <1131146343.29195.34.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051104231552.GA25545@w-mikek2.ibm.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-memmap_init_zone() sets page count to 1.  Before 'freeing' the
-page, we need to clear the count.  This is the same that is done
-on free_all_bootmem_core() for memory discovered at boot time.
+On Fri, 2005-11-04 at 23:10 +0000, Russell King wrote:
+> On Fri, Nov 04, 2005 at 01:41:06PM +0000, Alan Cox wrote:
+> > While writing the new sl82c05 driver I noticed a real nasty lurking in
+> > the old code. According to the errata docs you have to reset the DMA
+> > engine every transfer to work around chip errata. It also says that this
+> > resets any other ATA transfer in progress.
+> > 
+> > If both channels are in use there is no locking between the channels to
+> > stop a reset on one channel as DMA begins making a mess of the other
+> > channel. Looks like serialize should be set on the driver ?
+> 
+> Possibly, though benh needs to comment.  (I think benh has the only
+> hardware which has the possibility of both channels - the NetWinder
+> only has one channel with one disk.)
 
-Signed-off-by: Mike Kravetz <kravetz@us.ibm.com>
+I don't have this hw anymore, it was a design I worked on for my
+previous employer, years ago, I don't have access to it anymore and the
+company doesn't exist anymore.
 
-diff -Naupr linux-2.6.14-git7/arch/powerpc/mm/mem.c linux-2.6.14-git7.work/arch/powerpc/mm/mem.c
---- linux-2.6.14-git7/arch/powerpc/mm/mem.c	2005-11-04 21:21:05.000000000 +0000
-+++ linux-2.6.14-git7.work/arch/powerpc/mm/mem.c	2005-11-04 22:09:59.000000000 +0000
-@@ -107,6 +107,7 @@ EXPORT_SYMBOL(phys_mem_access_prot);
- void online_page(struct page *page)
- {
- 	ClearPageReserved(page);
-+	set_page_count(page, 0);
- 	free_cold_page(page);
- 	totalram_pages++;
- 	num_physpages++;
+Ben.
+
+

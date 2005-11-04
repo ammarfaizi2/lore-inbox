@@ -1,127 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751417AbVKDH0x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751418AbVKDH10@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751417AbVKDH0x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 02:26:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751418AbVKDH0x
+	id S1751418AbVKDH10 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 02:27:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751419AbVKDH1Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 02:26:53 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:20392 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751417AbVKDH0w (ORCPT
+	Fri, 4 Nov 2005 02:27:25 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:21134 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1751418AbVKDH1Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 02:26:52 -0500
-Date: Fri, 4 Nov 2005 08:26:28 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Badari Pulavarty <pbadari@gmail.com>, Linus Torvalds <torvalds@osdl.org>,
-       jdike@addtoit.com, rob@landley.net, nickpiggin@yahoo.com.au,
-       gh@us.ibm.com, kamezawa.hiroyu@jp.fujitsu.com, haveblue@us.ibm.com,
-       mel@csn.ul.ie, mbligh@mbligh.org, kravetz@us.ibm.com,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net
-Subject: [patch] swapin rlimit
-Message-ID: <20051104072628.GA20108@elte.hu>
-References: <E1EXEfW-0005ON-00@w-gerrit.beaverton.ibm.com> <200511021747.45599.rob@landley.net> <43699573.4070301@yahoo.com.au> <200511030007.34285.rob@landley.net> <20051103163555.GA4174@ccure.user-mode-linux.org> <1131035000.24503.135.camel@localhost.localdomain> <20051103205202.4417acf4.akpm@osdl.org>
+	Fri, 4 Nov 2005 02:27:25 -0500
+Date: Thu, 3 Nov 2005 23:26:49 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: torvalds@osdl.org, andy@thermo.lanl.gov, mbligh@mbligh.org, akpm@osdl.org,
+       arjan@infradead.org, arjanv@infradead.org, haveblue@us.ibm.com,
+       kravetz@us.ibm.com, lhms-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, mel@csn.ul.ie,
+       nickpiggin@yahoo.com.au
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+Message-Id: <20051103232649.12e58615.pj@sgi.com>
+In-Reply-To: <20051104063820.GA19505@elte.hu>
+References: <20051104010021.4180A184531@thermo.lanl.gov>
+	<Pine.LNX.4.64.0511032105110.27915@g5.osdl.org>
+	<20051103221037.33ae0f53.pj@sgi.com>
+	<20051104063820.GA19505@elte.hu>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051103205202.4417acf4.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo wrote:
+> to clearly stress the 'might easily fail' restriction. But if userspace 
+> is well-behaved on Andy's systems (which it seems to be), then in 
+> practice it should be resizable. 
 
-* Andrew Morton <akpm@osdl.org> wrote:
+At first glance, this is the sticky point that jumps out at me.
 
-> Similarly, that SGI patch which was rejected 6-12 months ago to kill 
-> off processes once they started swapping.  We thought that it could be 
-> done from userspace, but we need a way for userspace to detect when a 
-> task is being swapped on a per-task basis.
+Andy wrote:
+>    My experience is that after some days or weeks of running have gone
+>    by, there is no possible way short of a reboot to get pages merged
+>    effectively back to any pristine state with the infrastructure that 
+>    exists there.
 
-wouldnt the clean solution here be a "swap ulimit"?
+I take it, from what Andy writes, and from my other experience with
+similar customers, that his workload is not "well-behaved" in the
+sense you hoped for.
 
-I.e. something like the 2-minute quick-hack below (against Linus-curr).  
+After several diverse jobs are run, we cannot, so far as I know,
+merge small pages back to big pages.
 
-	Ingo
+I have not played with Mel Gorman's Fragmentation Avoidance patches,
+so don't know if they would provide a substantial improvement here.
+They well might.
 
----
-implement a swap ulimit: RLIMIT_SWAP.
-
-setting the ulimit to 0 causes any swapin activity to kill the task.  
-Setting the rlimit to 0 is allowed for unprivileged users too, since it 
-is a decrease of the default RLIM_INFINITY value. I.e. users could run 
-known-memory-intense jobs with such an ulimit set, and get a guarantee 
-that they wont put the system into a swap-storm.
-
-Note: it's just swapin that causes the SIGKILL, because at swapout time 
-it's hard to identify the originating task. Pure swapouts and a buildup 
-in the swap-cache is not punished, only actual hard swapins. I didnt try 
-too hard to make the rlimit particularly finegrained - i.e. right now we 
-only know 'zero' and 'infinity' ...
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
- include/asm-generic/resource.h |    4 +++-
- mm/memory.c                    |   13 +++++++++++++
- 2 files changed, 16 insertions(+), 1 deletion(-)
-
-Index: linux/include/asm-generic/resource.h
-===================================================================
---- linux.orig/include/asm-generic/resource.h
-+++ linux/include/asm-generic/resource.h
-@@ -44,8 +44,9 @@
- #define RLIMIT_NICE		13	/* max nice prio allowed to raise to
- 					   0-39 for nice level 19 .. -20 */
- #define RLIMIT_RTPRIO		14	/* maximum realtime priority */
-+#define RLIMIT_SWAP		15	/* maximum swapspace for task */
- 
--#define RLIM_NLIMITS		15
-+#define RLIM_NLIMITS		16
- 
- /*
-  * SuS says limits have to be unsigned.
-@@ -86,6 +87,7 @@
- 	[RLIMIT_MSGQUEUE]	= {   MQ_BYTES_MAX,   MQ_BYTES_MAX },	\
- 	[RLIMIT_NICE]		= { 0, 0 },				\
- 	[RLIMIT_RTPRIO]		= { 0, 0 },				\
-+	[RLIMIT_SWAP]		= {  RLIM_INFINITY,  RLIM_INFINITY },	\
- }
- 
- #endif	/* __KERNEL__ */
-Index: linux/mm/memory.c
-===================================================================
---- linux.orig/mm/memory.c
-+++ linux/mm/memory.c
-@@ -1647,6 +1647,18 @@ void swapin_readahead(swp_entry_t entry,
- }
- 
- /*
-+ * Crude first-approximation swapin-avoidance: if there is a zero swap
-+ * rlimit then kill the task.
-+ */
-+static inline void check_swap_rlimit(void)
-+{
-+	unsigned long limit = current->signal->rlim[RLIMIT_SWAP].rlim_cur;
-+
-+	if (limit != RLIM_INFINITY)
-+		force_sig(SIGKILL, current);
-+}
-+
-+/*
-  * We enter with non-exclusive mmap_sem (to exclude vma changes,
-  * but allow concurrent faults), and pte mapped but not yet locked.
-  * We return with mmap_sem still held, but pte unmapped and unlocked.
-@@ -1667,6 +1679,7 @@ static int do_swap_page(struct mm_struct
- 	entry = pte_to_swp_entry(orig_pte);
- 	page = lookup_swap_cache(entry);
- 	if (!page) {
-+		check_swap_rlimit();
-  		swapin_readahead(entry, address, vma);
-  		page = read_swap_cache_async(entry, vma, address);
- 		if (!page) {
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

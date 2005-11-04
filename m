@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbVKDXUR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbVKDXU3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750953AbVKDXUR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 18:20:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751031AbVKDXUR
+	id S1750846AbVKDXU3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 18:20:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751031AbVKDXU2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 18:20:17 -0500
-Received: from gate.crashing.org ([63.228.1.57]:18130 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750953AbVKDXUP (ORCPT
+	Fri, 4 Nov 2005 18:20:28 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:11982 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750846AbVKDXU1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 18:20:15 -0500
-Subject: Re: Parallel ATA with libata status with the patches I'm working on
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       bzolnier@gmail.com
-In-Reply-To: <20051104231048.GD12026@flint.arm.linux.org.uk>
-References: <1131029686.18848.48.camel@localhost.localdomain>
-	 <20051103144830.GF28038@flint.arm.linux.org.uk>
-	 <58cb370e0511030702hb06a5f3qc2dfe465ee1d784c@mail.gmail.com>
-	 <m3oe51zc2e.fsf@defiant.localdomain>
-	 <58cb370e0511031329h7532259y6d3624fbf2d93f88@mail.gmail.com>
-	 <1131058464.18848.94.camel@localhost.localdomain>
-	 <20051104013054.GF3469@ime.usp.br>
-	 <1131111667.26925.31.camel@localhost.localdomain>
-	 <20051104231048.GD12026@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Date: Sat, 05 Nov 2005 10:19:03 +1100
-Message-Id: <1131146343.29195.34.camel@gaston>
+	Fri, 4 Nov 2005 18:20:27 -0500
+Date: Fri, 4 Nov 2005 15:20:24 -0800
+From: Mike Kravetz <kravetz@us.ibm.com>
+To: Paul Mackerras <paulus@samba.org>
+Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       lhms-devel@lists.sourceforge.net
+Subject: [PATCH 3/4] Memory Add Fixes for ppc64
+Message-ID: <20051104232024.GD25545@w-mikek2.ibm.com>
+References: <20051104231552.GA25545@w-mikek2.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051104231552.GA25545@w-mikek2.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-11-04 at 23:10 +0000, Russell King wrote:
-> On Fri, Nov 04, 2005 at 01:41:06PM +0000, Alan Cox wrote:
-> > While writing the new sl82c05 driver I noticed a real nasty lurking in
-> > the old code. According to the errata docs you have to reset the DMA
-> > engine every transfer to work around chip errata. It also says that this
-> > resets any other ATA transfer in progress.
-> > 
-> > If both channels are in use there is no locking between the channels to
-> > stop a reset on one channel as DMA begins making a mess of the other
-> > channel. Looks like serialize should be set on the driver ?
-> 
-> Possibly, though benh needs to comment.  (I think benh has the only
-> hardware which has the possibility of both channels - the NetWinder
-> only has one channel with one disk.)
+This is a temporary kludge that supports adding all new memory to
+node 0.  I will provide a more complete solution similar to that
+used for dynamically added CPUs in a few days.
 
-I don't have this hw anymore, it was a design I worked on for my
-previous employer, years ago, I don't have access to it anymore and the
-company doesn't exist anymore.
+Signed-off-by: Mike Kravetz <kravetz@us.ibm.com>
 
-Ben.
-
-
+diff -Naupr linux-2.6.14-git7/include/asm-ppc64/mmzone.h linux-2.6.14-git7.work/include/asm-ppc64/mmzone.h
+--- linux-2.6.14-git7/include/asm-ppc64/mmzone.h	2005-11-04 21:21:09.000000000 +0000
++++ linux-2.6.14-git7.work/include/asm-ppc64/mmzone.h	2005-11-04 22:10:44.000000000 +0000
+@@ -33,6 +33,9 @@ extern int numa_cpu_lookup_table[];
+ extern char *numa_memory_lookup_table;
+ extern cpumask_t numa_cpumask_lookup_table[];
+ extern int nr_cpus_in_node[];
++#ifdef CONFIG_MEMORY_HOTPLUG
++extern unsigned long max_pfn;
++#endif
+ 
+ /* 16MB regions */
+ #define MEMORY_INCREMENT_SHIFT 24
+@@ -45,6 +48,11 @@ static inline int pa_to_nid(unsigned lon
+ {
+ 	int nid;
+ 
++#ifdef CONFIG_MEMORY_HOTPLUG
++	/* kludge hot added sections default to node 0 */
++	if (pa >= (max_pfn << PAGE_SHIFT))
++		return 0;
++#endif
+ 	nid = numa_memory_lookup_table[pa >> MEMORY_INCREMENT_SHIFT];
+ 
+ #ifdef DEBUG_NUMA

@@ -1,102 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbVKDRTO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbVKDRXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750741AbVKDRTO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 12:19:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbVKDRTO
+	id S1750746AbVKDRXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 12:23:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbVKDRXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 12:19:14 -0500
-Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:44119 "HELO
-	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1750741AbVKDRTO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 12:19:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=evrTt8SMOFE4ld3toyVOKBjKH36M+JgFrxdnuioBVSGfv9KM9Ecpr8eIUtnNlfRKKr2Em9Mi9ww+WaHZLouzIbqZjMO4FS3vMf2L53Ax64r0oeQDe9m9e0V4LwWvzi4dp3aWx/9FO/BInfN/se7vuuljkSSvWktOiIWqGNtOq+M=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Rob Landley <rob@landley.net>
-Subject: Re: [uml-devel] Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-Date: Fri, 4 Nov 2005 18:18:03 +0100
-User-Agent: KMail/1.8.3
-Cc: user-mode-linux-devel@lists.sourceforge.net, Jeff Dike <jdike@addtoit.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Yasunori Goto <y-goto@jp.fujitsu.com>,
-       Dave Hansen <haveblue@us.ibm.com>, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>
-References: <1130917338.14475.133.camel@localhost> <200511040426.47043.blaisorblade@yahoo.it> <200511040950.59942.rob@landley.net>
-In-Reply-To: <200511040950.59942.rob@landley.net>
+	Fri, 4 Nov 2005 12:23:16 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:50401 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750743AbVKDRXO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 12:23:14 -0500
+Date: Fri, 4 Nov 2005 09:22:43 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Andy Nelson <andy@thermo.lanl.gov>, akpm@osdl.org, arjan@infradead.org,
+       arjanv@infradead.org, haveblue@us.ibm.com, kravetz@us.ibm.com,
+       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, mbligh@mbligh.org, mel@csn.ul.ie,
+       nickpiggin@yahoo.com.au, pj@sgi.com
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+In-Reply-To: <20051104164020.GA9028@elte.hu>
+Message-ID: <Pine.LNX.4.64.0511040900160.27915@g5.osdl.org>
+References: <20051104153903.E5D561845FF@thermo.lanl.gov>
+ <Pine.LNX.4.64.0511040801450.27915@g5.osdl.org> <20051104164020.GA9028@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511041818.04397.blaisorblade@yahoo.it>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Note - I've removed a few CC's since we're too many ones, sorry for any 
-inconvenience).
 
-On Friday 04 November 2005 16:50, Rob Landley wrote:
-> On Thursday 03 November 2005 21:26, Blaisorblade wrote:
-> > > I was hoping that since the file was deleted from disk and is already
-> > > getting _some_ special treatment (since it's a longstanding "poor man's
-> > > shared memory" hack), that madvise wouldn't flush the data to disk, but
-> > > would just zero it out.  A bit optimistic on my part, I know. :)
-> >
-> > I read at some time that this optimization existed but was deemed
-> > obsolete and removed.
-> >
-> > Why obsolete? Because... we have tmpfs! And that's the point. With
-> > DONTNEED, we detach references from page tables, but the content is still
-> > pinned: it _is_ the "disk"! (And you have TMPDIR on tmpfs, right?)
->
-> If I had that kind of control over environment my build would always be
-> deployed in (including root access), I wouldn't need UML. :)
-Yep, right for your case... however currently the majority of users use tmpfs 
-(I hope for them)...
+Andy,
+ let's just take Ingo's numbers, measured on modern hardware.
 
-> > I guess you refer to using frag. avoidance on the guest
->
-> Yes.  Moot point since Linus doesn't want it.
-See lwn.net last issue (when it becomes available) on this issue. In short, 
-however, the real point is that we need this kind of support.
+On Fri, 4 Nov 2005, Ingo Molnar wrote:
+> 
+>   32768 randomly accessed pages, 13 cycles avg, 73.751831% TLB misses.
+>   32768 linearly accessed pages,  0 cycles avg,  0.259399% TLB misses.
+>  131072 randomly accessed pages, 75 cycles avg, 94.162750% TLB misses.
 
-> Might be a performance issue if that gets introduced with per-page
-> granularity,
-I'm aware of this possibility, and I've said in fact "Frag. avoidance will be 
-nice to use". However I'm not sure that the system call overhead is so big, 
-compared to flushing the TLB entries...
+NOTE! It's hard to decide what OoO does - Ingo's load doesn't allow for a 
+whole lot of overlapping stuff, so Ingo's numbers are fairly close to 
+worst case, but on the other hand, that serialization can probably be 
+honestly said to hide a couple of cycles, so let's say that _real_ worst 
+case is five more cycles than the ones quoted. It doesn't change the math, 
+and quite frankly, that way we're really anal about it.
 
-But for now we haven't the issue - you don't do hotunplug frequently. When 
-somebody will write the auto-hotunplug management daemon we could have a 
-problem on this...
-> and how do you avoid giving back pages we're about to re-use? 
+In real life, under real load (especially with Fp operations going on at 
+the same time), OoO might make the cost a few cycles _less_, not more, but 
+hey, lt's not count that.
 
-Jeff's trick is call the buddy allocator (__get_free_pages()) to get a full 
-page (and it will do any needed work to free memory), so nobody else will use 
-it, and then madvise() it.
+So in the absolute worst case, with 95% TLB miss ratio, the TLB cost was 
+an average 75 cycles. Let's be _really_ nice to MIPS, and say that this is 
+only five times faster than the MIPS case you tested (in reality, it's 
+probably over ten).
 
-If a better API exists, that will be used.
+That's the WORST CASE. Realize that MIPS doesn't get better: it will 
+_always_ have a latency of several hundred cycles when the TLB misses. It 
+has absolutely zero OoO activity to hide a TLB miss (a software miss 
+totally serializes the pipeline), and it has zero "code caching", so even 
+with a perfect I$ (which it certainly didn't have), the cost of actually 
+running the TLB miss handler doesn't go down.
 
-> Oh well, bench it when it happens.  (And in any case, it needs a tunable to
-> beat the page cache into submission or there's no free memory to give back.
-I couldn't parse your sentence. The allocation will free memory like when 
-memory is needed.
+In contrast, the x86 hw miss gets better when there is some more locality 
+and the page tables are cached. Much better. Ingo's worst-case example is 
+not realistic (no locality at all in half a gigabyte or totally random 
+examples), yet even for that worst case, modern CPU's beat the MIPS by 
+that big factor. 
 
-However look at /proc/sys/vm/swappiness or use Con Kolivas's patches to find 
-new tunable and policies.
-> If there's already such a tuneable, I haven't found it yet.)
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
+So let's say that the 75% miss ratio was more likely (that's still a high 
+TLB miss ratio). So in the _likely_ case, a P4 did the miss in an average 
+of 13 cycles. The MIPS miss cost won't have come down at all - in fact, it 
+possibly went _up_, since the miss handler now might be getting more I$ 
+misses since it's not called all the time (I don't know if the MIPS miss 
+handler used non-caching loads or not - the positive D$ effects on the 
+page tables from slightly denser TLB behaviour might help some to offset 
+this factor).
 
-	
+That's a likely factor of fifty speedup. But let's be pessimistic again, 
+and say that the P4 number beat the MIPS TLB miss by "only" a factor of 
+twenty. That means that your worst case totally untuned argument (30 times 
+slowdown from TLB misses) on a P4 is only a 120% slowdown. Not a factor of 
+three.
 
-	
-		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it
+But clearly you could tune your code too, and did. To the point that you 
+had a factor of 3.4 on MIPS. Now, let's say that the tuning didn't work as 
+well on P4 (remember, we're still being pessimistic), and you'd only get 
+half of that.
+
+End result? If the slowdown was entirely due to TLB miss costs, your 
+likely slowdown is in the 20-40% range. Pessimistically.
+
+Now, switching to x86 may have _other_ issues. Maybe other things might 
+get slower. [ Mmwwhahahahhahaaa. I crack myself up. x86 slower than MIPS? 
+I'm such a joker. ]
+
+Anyway. The point stands. This is something where hardware really rules, 
+and software can't do a lot of sane stuff. 20-40% may sound like a big 
+number, and it is, but this is all stuff where Moore's Law says that 
+we shouldn't spend software effort.
+
+We'll likely be better off with a smaller, simpler kernel in the future. I 
+hope. And the numbers above back me up. Software complexity for something 
+like this just kills.
+
+		Linus

@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161077AbVKDGLD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161079AbVKDGQr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161077AbVKDGLD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 01:11:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161078AbVKDGLC
+	id S1161079AbVKDGQr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 01:16:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161080AbVKDGQq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 01:11:02 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:51663 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1161077AbVKDGLB (ORCPT
+	Fri, 4 Nov 2005 01:16:46 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:53457 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1161079AbVKDGQq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 01:11:01 -0500
-Date: Thu, 3 Nov 2005 22:10:37 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: andy@thermo.lanl.gov, mbligh@mbligh.org, akpm@osdl.org,
-       arjan@infradead.org, arjanv@infradead.org, haveblue@us.ibm.com,
-       kravetz@us.ibm.com, lhms-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, mel@csn.ul.ie,
-       mingo@elte.hu, nickpiggin@yahoo.com.au
+	Fri, 4 Nov 2005 01:16:46 -0500
+Date: Thu, 3 Nov 2005 22:16:09 -0800
+From: bron@bronze.corp.sgi.com (Bron Nelson)
+Message-Id: <200511040616.WAA21225@bronze.corp.sgi.com>
+To: Paul Jackson <pj@sgi.com>, Andrew Morton <akpm@osdl.org>
 Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-Message-Id: <20051103221037.33ae0f53.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0511032105110.27915@g5.osdl.org>
-References: <20051104010021.4180A184531@thermo.lanl.gov>
-	<Pine.LNX.4.64.0511032105110.27915@g5.osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Cc: lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, kravetz@us.ibm.com, mbligh@mbligh.org,
+       mel@csn.ul.ie, haveblue@us.ibm.com, kamezawa.hiroyu@jp.fujitsu.com,
+       mingo@elte.hu, gh@us.ibm.com, nickpiggin@yahoo.com.au, rob@landley.net,
+       jdike@addtoit.com, pbadari@gmail.com
+References: <E1EXEfW-0005ON-00@w-gerrit.beaverton.ibm.com>
+    <200511021747.45599.rob@landley.net> <43699573.4070301@yahoo.com.au>
+    <200511030007.34285.rob@landley.net>
+    <20051103163555.GA4174@ccure.user-mode-linux.org>
+    <1131035000.24503.135.camel@localhost.localdomain>
+    <20051103205202.4417acf4.akpm@osdl.org> <20051103213538.7f037b3a.pj@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus wrote:
-> Maybe you'd be willing on compromising by using a few kernel boot-time 
-> command line options for your not-very-common load.
+> I was kind of thinking that the stats should be per-process (actually
+> per-mm) rather than bound to cpusets.  /proc/<pid>/pageout-stats or something.
 
-If we were only a few options away from running Andy's varying load
-mix with something close to ideal performance, we'd be in fat city,
-and Andy would never have been driven to write that rant.
+The particular people that I deal with care about constraining things
+on a per-cpuset basis, so that is the information that I personally am
+looking for.  But it is simple enough to map tasks to cpusets and vice-versa,
+so this is not really a serious consideration.  I would generically be in
+favor of the per-process stats (even though the application at hand is
+actually interested in the cpuset aggregate stats), because we can always
+produce an aggregate from the detailed, but not vice-versa.  And no doubt
+some future as-yet-unimagined application will want per-process info.
 
-There's more to it than that, but it is not as impossible as a battery
-with the efficiencies you (and the rest of us) dream of.
 
-Andy has used systems that resemble what he is seeking.  So he is not
-asking for something clearly impossible.  Though it might not yet be
-possible, in ways that contribute to a continuing healthy kernel code
-base.
-
-It's an interesting challenge - finding ways to improve the kernel's
-performance on such high end loads, that are also suitable and
-desirable (or at least innocent enough) for inclusion in a kernel far
-more widely used in embeddeds, desktops and ordinary servers.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+--
+Bron Campbell Nelson      bron@sgi.com
+These statements are my own, not those of Silicon Graphics.

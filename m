@@ -1,70 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751605AbVKDQXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbVKDQ1m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751605AbVKDQXM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 11:23:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbVKDQXM
+	id S932094AbVKDQ1m (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 11:27:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbVKDQ1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 11:23:12 -0500
-Received: from ppsw-7.csi.cam.ac.uk ([131.111.8.137]:40590 "EHLO
-	ppsw-7.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1751605AbVKDQXK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 11:23:10 -0500
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Fri, 4 Nov 2005 16:22:58 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Michael Thompson <michael.craig.thompson@gmail.com>
-cc: Greg KH <greg@kroah.com>, Phillip Hellewell <phillip@hellewell.homeip.net>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       mike@halcrow.us, mhalcrow@us.ibm.com, mcthomps@us.ibm.com,
-       yoder1@us.ibm.com
-Subject: Re: [PATCH 1/12: eCryptfs] Makefile and Kconfig
-In-Reply-To: <afcef88a0511040809p4e9cf962me25c037cbfb9e967@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0511041621550.14940@hermes-1.csi.cam.ac.uk>
-References: <20051103033220.GD2772@sshock.rn.byu.edu> 
- <20051103034207.GA3005@sshock.rn.byu.edu>  <afcef88a0511030721g68ddf71bjf02397abcd8da30@mail.gmail.com>
-  <20051103230551.GB30487@kroah.com> <afcef88a0511040809p4e9cf962me25c037cbfb9e967@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 4 Nov 2005 11:27:42 -0500
+Received: from pat.uio.no ([129.240.130.16]:29136 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932094AbVKDQ1l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 11:27:41 -0500
+Subject: Re: [RFC,PATCH] libfs dcache_readdir() and dcache_dir_lseek()
+	bugfix
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: jblunck@suse.de
+Cc: Miklos Szeredi <miklos@szeredi.hu>, viro@ftp.linux.org.uk,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20051104151104.GA22322@hasse.suse.de>
+References: <20051104113851.GA4770@hasse.suse.de>
+	 <20051104115101.GH7992@ftp.linux.org.uk>
+	 <20051104122021.GA15061@hasse.suse.de>
+	 <E1EY16w-0004HC-00@dorka.pomaz.szeredi.hu>
+	 <20051104131858.GA16622@hasse.suse.de>
+	 <E1EY1fi-0004LB-00@dorka.pomaz.szeredi.hu>
+	 <20051104151104.GA22322@hasse.suse.de>
+Content-Type: text/plain
+Date: Fri, 04 Nov 2005 11:27:21 -0500
+Message-Id: <1131121642.8806.42.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-2.836, required 12,
+	autolearn=disabled, AWL 1.98, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Nov 2005, Michael Thompson wrote:
-> On 11/3/05, Greg KH <greg@kroah.com> wrote:
-> > On Thu, Nov 03, 2005 at 09:21:16AM -0600, Michael Thompson wrote:
-> > > On 11/2/05, Phillip Hellewell <phillip@hellewell.homeip.net> wrote:
-> > > > These patches modify fs/Makefile and fs/Kconfig to provide build
-> > > > support for eCryptfs.
-> > > >
-> > > > Signed off by: Phillip Hellewell <phillip@hellewell.homeip.net>
-> > > > Signed off by: Michael Halcrow <mhalcrow@us.ibm.com>
-> > > > Signed off by: Michael Thompson <mmcthomps@us.ibm.com>
-> > >
-> > > That should read:
-> > > Signed off by: Michael Thompson <mcthomps@us.ibm.com>
-> >
-> > No, that's not how it is documented on how to do this.  Please try
-> > again.
+On Fri, 2005-11-04 at 16:11 +0100, jblunck@suse.de wrote:
+> On Fri, Nov 04, Miklos Szeredi wrote:
 > 
-> I've just rummaged around in linux/Documentation and I have not been
-> able to find, either in a specific file, or by looking at "The Perfect
-> Patch", or other related links, on how to fix an incorrect
-> "Signed-off-by" line.
+> > > As I said: "Old glibc implementations (e.g. glibc-2.2.5) are
+> > > lseeking after every call to getdents() ..."
+> > 
+> > Hmm, why would it do that?  This seems like it's glibc being stupid.
+> > 
 > 
-> Like I've already said, I have no problems with a RTFM response, but
-> point me to the right M.
+> Well, glibc is that stupid and triggers the bug.
 
-I have no idea what Greg was talking about either but one thing that is 
-obviously wrong is that as you say it should be "Signed-off-by:" and not 
-"Signed off by:", i.e. you have to have dashes between the words, not 
-spaces.
+It is due to the kernel's 32-bit struct dirent being smaller than
+glibc's 32-bit struct dirent (glibc has the extra ->d_type field).
+Because the dirent record length depends on the filename length, the
+exact expansion factor for the results of a call to getdents() may not
+be precomputed.
+glibc uses a heuristic in order to estimate the expansion size, and then
+uses that to allocate an intermediate buffer in which to store the
+results of the getdents syscall.
+If the contents of said intermediate buffer still happen to overflow the
+user-allocated buffer, then glibc calls lseek() in order to rewind the
+file pointer to the next entry it wants to read (and screws any
+filesystem that doesn't support lseek on directories).
 
-Best regards,
+This code appears still to be part of glibc, however it is rarely
+triggered these days because glibc's implementation now defaults to
+using the getdents64 syscall (if it exists) instead of the 32-bit
+version. Since the kernel's struct dirent64 is the same size as the
+glibc struct dirent64 (and larger than the 32-bit struct dirent), there
+is never any chance of buffer overflow.
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+The new bug is rather that glibc will return EOVERFLOW, and try to
+rewind your file pointer if your filesystem happens to return 64-bit
+offsets to getdents64().
+
+> > Unfortunately I can't since I don't have such old glibc.
+> 
+> The testcase is similar to what "rm *" with the old glibc would do. It just
+> a testcase to show where the problem is.
+
+'rm -rf' on a large directory used to be a great way to trigger it.
+
+Cheers,
+  Trond
+

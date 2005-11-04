@@ -1,103 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751509AbVKDPjv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751532AbVKDPju@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751509AbVKDPjv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 10:39:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751536AbVKDPjv
+	id S1751532AbVKDPju (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 10:39:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751515AbVKDPju
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 10:39:51 -0500
-Received: from mailwasher.lanl.gov ([192.65.95.54]:23787 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S1751509AbVKDPj3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 10:39:29 -0500
-To: andy@thermo.lanl.gov, mingo@elte.hu
+	Fri, 4 Nov 2005 10:39:50 -0500
+Received: from dvhart.com ([64.146.134.43]:44978 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S1751532AbVKDPjc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 10:39:32 -0500
+Date: Fri, 04 Nov 2005 07:39:33 -0800
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>
+Cc: Paul Jackson <pj@sgi.com>, andy@thermo.lanl.gov, akpm@osdl.org,
+       arjan@infradead.org, arjanv@infradead.org, haveblue@us.ibm.com,
+       kravetz@us.ibm.com, lhms-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, mel@csn.ul.ie,
+       nickpiggin@yahoo.com.au
 Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-Cc: akpm@osdl.org, arjan@infradead.org, arjanv@infradead.org,
-       haveblue@us.ibm.com, kravetz@us.ibm.com,
-       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, mbligh@mbligh.org, mel@csn.ul.ie,
-       nickpiggin@yahoo.com.au, pj@sgi.com, torvalds@osdl.org
-In-Reply-To: <20051104151842.GA5745@elte.hu>
-Message-Id: <20051104153903.E5D561845FF@thermo.lanl.gov>
-Date: Fri,  4 Nov 2005 08:39:03 -0700 (MST)
-From: andy@thermo.lanl.gov (Andy Nelson)
-X-PMX-Version: 4.7.1.128075
+Message-ID: <328940000.1131118773@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.64.0511040725090.27915@g5.osdl.org>
+References: <20051104010021.4180A184531@thermo.lanl.gov><Pine.LNX.4.64.0511032105110.27915@g5.osdl.org> <20051103221037.33ae0f53.pj@sgi.com><20051104063820.GA19505@elte.hu> <Pine.LNX.4.64.0511040725090.27915@g5.osdl.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> just to make sure i didnt get it wrong, wouldnt we get most of the 
+>> benefits Andy is seeking by having a: boot-time option which sets aside 
+>> a "hugetlb zone", with an additional sysctl to grow (or shrink) the pool 
+>> - with the growing happening on a best-effort basis, without guarantees?
+> 
+> Boot-time option to set the hugetlb zone, yes.
+> 
+> Grow-or-shrink, probably not. Not in practice after bootup on any machine 
+> that is less than idle.
+> 
+> The zones have to be pretty big to make any sense. You don't just grow 
+> them or shrink them - they'd be on the order of tens of megabytes to 
+> gigabytes. In other words, sized big enough that you will _not_ be able to 
+> create them on demand, except perhaps right after boot.
+> 
+> Growing these things later simply isn't reasonable. I can pretty much 
+> guarantee that any kernel I maintain will never have dynamic kernel 
+> pointers: when some memory has been allocated with kmalloc() (or 
+> equivalent routines - pretty much _any_ kernel allocation), it stays put. 
+> Which means that if there is a _single_ kernel alloc in such a zone, it 
+> won't ever be then usable for hugetlb stuff.
+> 
+> And I don't want excessive complexity. We can have things like "turn off 
+> kernel allocations from this zone", and then wait a day or two, and hope 
+> that there aren't long-term allocs. It might even work occasionally. But 
+> the fact is, a number of kernel allocations _are_ long-term (superblocks, 
+> root dentries, "struct thread_struct" for long-running user daemons), and 
+> it's simply not going to work well in practice unless you have set aside 
+> the "no kernel alloc" zone pretty early on.
 
+Exactly. But that's what all the anti-fragmentation stuff was about - trying
+to pack unfreeable stuff together. 
 
-Ingo wrote:
->ok, this posting of you seems to be it:
+I don't think anyone is proposing dynamic kernel pointers inside Linux,
+except in that we could possibly change the P-V mapping underneath from
+the hypervisor, so that the phys address would change, but you wouldn't
+see it. Trouble is, that's mostly done on a larger-than-page size
+granularity, so we need SOME larger chunk to switch out (preferably at
+least a large-paged size, so we can continue to use large TLB entries for
+the kernel mapping).
 
-> <elided>
+However, the statically sized option is hugely problematic too.
 
->to me it seems that this slowdown is due to some inefficiency in the
->R12000's TLB-miss handling - possibly very (very!) long TLB-miss
->latencies? On modern CPUs (x86/x64) the TLB-miss latency is rarely
->visible. Would it be possible to run some benchmarks of hugetlbs vs. 4K
->pages on x86/x64?
->
->if my assumption is correct, then hugeTLBs are more of a workaround for
->bad TLB-miss properties of the CPUs you are using, not something that
->will inevitably happen in the future. Hence i think the 'factor 3x'
->slowdown should not be realistic anymore - or are you still running
->R12000 CPUs?
-
->        Ingo
-
-
-AFAIK, mips chips have a software TLB refill that takes 1000
-cycles more or less. I could be wrong. There are sgi folk on this
-thread, perhaps they can correct me. What is important is
-that I have done similar tests on other arch's and found very
-similar results. Specifically with IBM machines running both
-AIX and Linux. I've never had the opportunity to try variable
-page size stuff on amd or intel chips, either itanic or x86
-variants.
-
-The effect is not a consequence of any excessively long tlb 
-handling times for one single arch.
-
-The effect is a property of the code. Which has one part that
-is extremely branchy: traversing a tree, and another part that
-isn't branchy but grabs stuff from all over everywhere.
-
-The tree traversal works like this:  Start from the root and stop at
-each node, load a few numbers, multiply them together and compare to
-another number, then open that node or go on to a sibling node. Net, 
-this is about 5-8 flops and a compare per node. The issue is that the 
-next time you  want to look at a tree node, you are someplace else 
-in memory entirely. That means a TLB miss almost always.
-
-The tree traversal leaves me with a list of a few thousand nodes
-and atoms. I use these nodes and atoms to calculate gravity on some
-particle or small group of particles. How? For each node, I grab about
-10 numbers from a couple of arrays, do about 50 flops with those 
-numbers, and store back 4 more numbers. The store back doesn't hurt
-anything becasuse it really only happens once at the end of the list.
-
-
-In the naive case, grabbing 10 numbers out of arrays that are mutiple
-GB in size means 10 TLB misses. The obvious solution is to stick
-everything together that is needed together, and get that down to
-one or two. I've done that. The results you quoted in your post
-reflect that. In other words, the performance difference is the minimal
-number of TLB misses that I can manage to get. 
-
-Now if you have a list of thousands of nodes to cycle through, each of
-which lives on a different page (ordinarily true), you thrash TLB,
-and you thrash L1, as I noted in my original post. 
-
-Believe me, I have worried about this sort of stuff intensely,
-and recoded around it a lot. The performance number you saw were what
-is left over. 
-
-It is true that other sorts of codes have much more regular memory
-access patterns, and don't have nearly this kind of speedup. Perhaps
-more typical would be the 25% number quoted by Martin Bligh.
-
-
-Andy
-
-
-
+M.

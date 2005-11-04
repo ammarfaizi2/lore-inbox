@@ -1,32 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161101AbVKDIua@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161106AbVKDIy1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161101AbVKDIua (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 03:50:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161105AbVKDIua
+	id S1161106AbVKDIy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 03:54:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161115AbVKDIy1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 03:50:30 -0500
-Received: from zproxy.gmail.com ([64.233.162.207]:42770 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161101AbVKDIu3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 03:50:29 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=sg9FBio5lOEym22IK40M4OkeJbiyQqrfjzWyrb9GFIu/gDvnPbkW8SwlrzEyC/CDQE2x9j5JBBzyZWrYsPomqALmyn44Y9AlUgMfs0rMczQOccvR5qKEU068jxISN3K+HBNvG5l/UKQ4n0qbCDr/usddsMfswmX8yF7xY8tmgQM=
-Message-ID: <7cd5d4b40511040050m4a0471e7pc032f8ef54fa7be3@mail.gmail.com>
-Date: Fri, 4 Nov 2005 16:50:29 +0800
-From: jeff shia <tshxiayu@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: why we set current->state = TASK_RUNNING in handle_mm_fault?
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Fri, 4 Nov 2005 03:54:27 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:14998 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S1161106AbVKDIy0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 03:54:26 -0500
+From: Pierre Ossman <drzeus@drzeus.cx>
+Subject: [PATCH] [MMC] Fix chip config in wbsd
+Date: Fri, 04 Nov 2005 09:54:22 +0100
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>
+To: rmk+lkml@arm.linux.org.uk
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <20051104085410.3457.20238.stgit@poseidon.drzeus.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-But I notice before version 2.4.0,this is not set.
-Thanks.
+There is a broken if clause in the wbsd driver that can cause the
+driver to try and configure the chip even though none is found. This
+results in i/o on invalid ports.
 
-Jeffshia
+Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
+---
+
+ drivers/mmc/wbsd.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/mmc/wbsd.c b/drivers/mmc/wbsd.c
+--- a/drivers/mmc/wbsd.c
++++ b/drivers/mmc/wbsd.c
+@@ -1852,9 +1852,9 @@ static int __devinit wbsd_init(struct de
+ 	/*
+ 	 * See if chip needs to be configured.
+ 	 */
+-	if (pnp && (host->config != 0))
++	if (pnp)
+ 	{
+-		if (!wbsd_chip_validate(host))
++		if ((host->config != 0) && !wbsd_chip_validate(host))
+ 		{
+ 			printk(KERN_WARNING DRIVER_NAME
+ 				": PnP active but chip not configured! "
+

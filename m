@@ -1,80 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161122AbVKDDQE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161125AbVKDDRD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161122AbVKDDQE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 22:16:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161123AbVKDDQE
+	id S1161125AbVKDDRD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 22:17:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161123AbVKDDRD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 22:16:04 -0500
-Received: from hulk.hostingexpert.com ([69.57.134.39]:31083 "EHLO
-	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S1161122AbVKDDQD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 22:16:03 -0500
-Message-ID: <436AD27E.2050004@m1k.net>
-Date: Thu, 03 Nov 2005 22:16:14 -0500
-From: Michael Krufky <mkrufky@m1k.net>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, pb@linuxtv.org, js@linuxtv.org,
-       mkrufky@linuxtv.org
-Subject: Re: + dvb-add-alternate-stv0297-driver.patch added to -mm tree
-References: <200511030341.jA33fvLc024773@shell0.pdx.osdl.net>
-In-Reply-To: <200511030341.jA33fvLc024773@shell0.pdx.osdl.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Thu, 3 Nov 2005 22:17:03 -0500
+Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:60166 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1161125AbVKDDRB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 22:17:01 -0500
+Date: Fri, 4 Nov 2005 14:16:49 +1100
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: do_sendfile ppos check ...
+Message-ID: <20051104031649.GA25858@gondor.apana.org.au>
+References: <20051103175642.GB18015@MAIL.13thfloor.at> <E1EXrRU-0006eK-00@gondolin.me.apana.org.au> <20051104031012.GD22020@MAIL.13thfloor.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051104031012.GD22020@MAIL.13thfloor.at>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-akpm@osdl.org wrote:
+On Fri, Nov 04, 2005 at 04:10:13AM +0100, Herbert Poetzl wrote:
+> 
+> currently investigating ... probably a removal of
+> the 'unnecessary' check (*ppos) would be a better
+> approach, something like:
+> 
+> --- linux-2.6/fs/read_write.c   2005-10-28 23:59:02.000000000 +0200
+> +++ linux-2.6/fs/read_write.c   2005-11-03 17:28:50.000000000 +0100
+> @@ -719,9 +719,6 @@
+>        	current->syscr++;
+>        	current->syscw++;
+> 
+> -       if (*ppos > max)
+> -               retval = -EOVERFLOW;
+> -
 
->The patch titled
->
->     dvb: add alternate stv0297-driver
->
->has been added to the -mm tree.  Its filename is
->
->     dvb-add-alternate-stv0297-driver.patch
->
->
->From: Patrick Boettcher <pb@linuxtv.org>
->
->adding special stv0297-driver for the Technisat/B2C2 CableStar2 PCI and USB
->devices (USB untested)
->
->This driver could also be used with other stv0297-based cards, but someone has
->to do it.
->
->The CableStar2's stv0297-driver is tested with QAM32/64/128/256 and has a very
->nice reception-qualitiy.
->
->Signed-off-by: Patrick Boettcher <pb@linuxtv.org>
->Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
->Cc: Johannes Stezenbach <js@linuxtv.org>
->Signed-off-by: Andrew Morton <akpm@osdl.org>
->---
->
-> drivers/media/dvb/b2c2/Makefile           |    2 
-> drivers/media/dvb/b2c2/flexcop-fe-tuner.c |  143 +----
-> drivers/media/dvb/b2c2/stv0297_cs2.c      |  776 ++++++++++++++++++++++++++++++
-> drivers/media/dvb/b2c2/stv0297_cs2.h      |   51 +
-> drivers/media/dvb/b2c2/stv0297_priv.h     |  154 +++++
-> 5 files changed, 1029 insertions(+), 97 deletions(-)
->  
->
-Andrew-
+This still doesn't make sense.  If ppos came in as NULL, it should
+have become non-NULL long before it reaches this part of the function.
 
-It has come to my attention that this patch should not have been merged 
-upstream.  I apologize for this.  Please drop it from -mm ASAP.
+Look at the top of the do_sendfile function, it sets ppos if it is NULL.
 
-Thank you,
-
-Michael Krufky
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

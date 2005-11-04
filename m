@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbVKDPcs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbVKDPcZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750793AbVKDPcs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 10:32:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750816AbVKDPcs
+	id S1750790AbVKDPcZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 10:32:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbVKDPcZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 10:32:48 -0500
-Received: from 238-193.adsl.pool.ew.hu ([193.226.238.193]:37895 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1750793AbVKDPcr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 10:32:47 -0500
-To: jblunck@suse.de
-CC: viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org
-In-reply-to: <20051104151104.GA22322@hasse.suse.de> (jblunck@suse.de)
-Subject: Re: [RFC,PATCH] libfs dcache_readdir() and dcache_dir_lseek() bugfix
-References: <20051104113851.GA4770@hasse.suse.de> <20051104115101.GH7992@ftp.linux.org.uk> <20051104122021.GA15061@hasse.suse.de> <E1EY16w-0004HC-00@dorka.pomaz.szeredi.hu> <20051104131858.GA16622@hasse.suse.de> <E1EY1fi-0004LB-00@dorka.pomaz.szeredi.hu> <20051104151104.GA22322@hasse.suse.de>
-Message-Id: <E1EY3Y8-0004XX-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 04 Nov 2005 16:32:16 +0100
+	Fri, 4 Nov 2005 10:32:25 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:50115 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750790AbVKDPcY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 10:32:24 -0500
+Date: Fri, 4 Nov 2005 07:31:48 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Paul Jackson <pj@sgi.com>, andy@thermo.lanl.gov, mbligh@mbligh.org,
+       akpm@osdl.org, arjan@infradead.org, arjanv@infradead.org,
+       haveblue@us.ibm.com, kravetz@us.ibm.com,
+       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, mel@csn.ul.ie, nickpiggin@yahoo.com.au
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+In-Reply-To: <20051104063820.GA19505@elte.hu>
+Message-ID: <Pine.LNX.4.64.0511040725090.27915@g5.osdl.org>
+References: <20051104010021.4180A184531@thermo.lanl.gov>
+ <Pine.LNX.4.64.0511032105110.27915@g5.osdl.org> <20051103221037.33ae0f53.pj@sgi.com>
+ <20051104063820.GA19505@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > As I said: "Old glibc implementations (e.g. glibc-2.2.5) are
-> > > lseeking after every call to getdents() ..."
-> > 
-> > Hmm, why would it do that?  This seems like it's glibc being stupid.
-> > 
+
+
+On Fri, 4 Nov 2005, Ingo Molnar wrote:
 > 
-> Well, glibc is that stupid and triggers the bug.
+> just to make sure i didnt get it wrong, wouldnt we get most of the 
+> benefits Andy is seeking by having a: boot-time option which sets aside 
+> a "hugetlb zone", with an additional sysctl to grow (or shrink) the pool 
+> - with the growing happening on a best-effort basis, without guarantees?
 
-Seems to me, the simple solution is to upgrade your glibc.
+Boot-time option to set the hugetlb zone, yes.
 
-> > That said, you are right that the libfs readdir implementation is not
-> > strictly standards conforming.  But neither is your patch: this
-> > algorithm will break if the entry at the current position is removed
-> > and then a new entry with the same name is created.
-> 
-> True. Seeking to that offset should at least fail and shouldn't stop at the
-> new entry.
+Grow-or-shrink, probably not. Not in practice after bootup on any machine 
+that is less than idle.
 
-No it should _not_ fail, it should continue from the next _existing_
-entry.
+The zones have to be pretty big to make any sense. You don't just grow 
+them or shrink them - they'd be on the order of tens of megabytes to 
+gigabytes. In other words, sized big enough that you will _not_ be able to 
+create them on demand, except perhaps right after boot.
 
-> But SuSV3 says that the offset given by telldir() is valid until the
-> next rewinddir().  This is no problem for directories that can only
-> grow.  I tried to implement some kind of deferred dput'ing of the
-> d_child's but that was too hackish and was wasting memory. So the
-> best thing I can do now is fail if someone wants to seek to an
-> offset of an already unlinked file.
-> 
-> So I can include the inode number in the hashing process
-> somehow. Any ideas on that one?
+Growing these things later simply isn't reasonable. I can pretty much 
+guarantee that any kernel I maintain will never have dynamic kernel 
+pointers: when some memory has been allocated with kmalloc() (or 
+equivalent routines - pretty much _any_ kernel allocation), it stays put. 
+Which means that if there is a _single_ kernel alloc in such a zone, it 
+won't ever be then usable for hugetlb stuff.
 
-No good.  Same problem if you move out then move back the entry.
+And I don't want excessive complexity. We can have things like "turn off 
+kernel allocations from this zone", and then wait a day or two, and hope 
+that there aren't long-term allocs. It might even work occasionally. But 
+the fact is, a number of kernel allocations _are_ long-term (superblocks, 
+root dentries, "struct thread_struct" for long-running user daemons), and 
+it's simply not going to work well in practice unless you have set aside 
+the "no kernel alloc" zone pretty early on.
 
-> 
-> > Unfortunately I can't since I don't have such old glibc.
-> 
-> The testcase is similar to what "rm *" with the old glibc would do. It just
-> a testcase to show where the problem is.
-
-I understand, but I have glibc-2.3.5 which apparently doesn't seek
-after readdir().
-
-Miklos
-
+		Linus

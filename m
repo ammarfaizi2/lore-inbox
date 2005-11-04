@@ -1,73 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932714AbVKDBU3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030504AbVKDBZd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932714AbVKDBU3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 20:20:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932699AbVKDBU2
+	id S1030504AbVKDBZd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 20:25:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030570AbVKDBZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 20:20:28 -0500
-Received: from ozlabs.org ([203.10.76.45]:4770 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932697AbVKDBU1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 20:20:27 -0500
+	Thu, 3 Nov 2005 20:25:33 -0500
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:55926 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1030504AbVKDBZc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 20:25:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=g80W0+XQXHVYTMnPjVpfNXhAiJQ4Ff6exi+1uhqsMbRZujgUY96ekdqp2uT2QR1usVpKQa1QI/tnxnU4bxJRLtgX8htG1+cmJAy3cR0D1aMcRRdq5mEXeqMPNVhtw6/0yNCLmNYvAKS58v1uOa2/087Mwsn44GpmMCM7lass58A=  ;
+Message-ID: <436AB902.3000309@yahoo.com.au>
+Date: Fri, 04 Nov 2005 12:27:30 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17258.46930.407556.162321@cargo.ozlabs.ibm.com>
-Date: Fri, 4 Nov 2005 12:20:18 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       Arjan van de Ven <arjan@infradead.org>, Mel Gorman <mel@csn.ul.ie>,
-       Dave Hansen <haveblue@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, kravetz@us.ibm.com,
-       linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>,
-       Arjan van de Ven <arjanv@infradead.org>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+CC: Andy Nelson <andy@thermo.lanl.gov>, torvalds@osdl.org, akpm@osdl.org,
+       arjan@infradead.org, arjanv@infradead.org, haveblue@us.ibm.com,
+       kravetz@us.ibm.com, lhms-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, mel@csn.ul.ie,
+       mingo@elte.hu
 Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-In-Reply-To: <Pine.LNX.4.64.0511031704590.27915@g5.osdl.org>
-References: <4366C559.5090504@yahoo.com.au>
-	<1130854224.14475.60.camel@localhost>
-	<20051101142959.GA9272@elte.hu>
-	<1130856555.14475.77.camel@localhost>
-	<20051101150142.GA10636@elte.hu>
-	<1130858580.14475.98.camel@localhost>
-	<20051102084946.GA3930@elte.hu>
-	<436880B8.1050207@yahoo.com.au>
-	<1130923969.15627.11.camel@localhost>
-	<43688B74.20002@yahoo.com.au>
-	<255360000.1130943722@[10.10.2.4]>
-	<4369824E.2020407@yahoo.com.au>
-	<306020000.1131032193@[10.10.2.4]>
-	<1131032422.2839.8.camel@laptopd505.fenrus.org>
-	<Pine.LNX.4.64.0511030747450.27915@g5.osdl.org>
-	<Pine.LNX.4.58.0511031613560.3571@skynet>
-	<Pine.LNX.4.64.0511030842050.27915@g5.osdl.org>
-	<309420000.1131036740@[10.10.2.4]>
-	<Pine.LNX.4.64.0511030918110.27915@g5.osdl.org>
-	<311050000.1131040276@[10.10.2.4]>
-	<1131040786.2839.18.camel@laptopd505.fenrus.org>
-	<Pine.LNX.4.64.0511031006550.27915@g5.osdl.org>
-	<312300000.1131041824@[10.1!
- 0.2.4]>
-	<436AB241.2030403@yahoo.com.au>
-	<Pine.LNX.4.64.0511031704590.27915@g5.osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+References: <20051104010021.4180A184531@thermo.lanl.gov> <58210000.1131067015@flay>
+In-Reply-To: <58210000.1131067015@flay>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
+Martin J. Bligh wrote:
 
-> 64kB pages are _only_ usable for databases, nothing else.
+> 
+> To provide a slightly shorter version ... we had one customer running
+> similarly large number crunching things in Fortran. Their app ran 25%
+> faster with large pages (not a typo). Because they ran a variety of
+> jobs in batch mode, they need large pages sometimes, and small pages
+> at others - hence they need to dynamically resize the pool. 
+> 
+> That's the sort of thing we were trying to fix with dynamically sized
+> hugepage pools. It does make a huge difference to real-world customers.
+> 
 
-Actually people running HPC apps also like 64kB pages since their TLB
-misses go down significantly, and their data files tend to be large.
+Aren't HPC users very easy? In fact, probably the easiest because they
+generally not very kernel intensive (apart from perhaps some batches of
+IO at the beginning and end of the jobs).
 
-Fileserving for windows boxes should also benefit, since both the
-executables and the data files that typical office applications on
-windows use are largish.  I got a distribution of file sizes for a
-government department office and concluded that 64k pages would only
-bloat the page cache by a few percent for that case.
+A reclaimable zone should provide exactly what they need. I assume the
+sysadmin can give some reasonable upper and lower estimates of the
+memory requirements.
 
-Paul.
+They don't need to dynamically resize the pool because it is all being
+allocated to pagecache anyway, so all jobs are satisfied from the
+reclaimable zone.
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,72 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161074AbVKDFke@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161075AbVKDFm7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161074AbVKDFke (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 00:40:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161075AbVKDFke
+	id S1161075AbVKDFm7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 00:42:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161076AbVKDFm7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 00:40:34 -0500
-Received: from smtp113.sbc.mail.re2.yahoo.com ([68.142.229.92]:43703 "HELO
-	smtp113.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1161074AbVKDFkd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 00:40:33 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: [PATCH] I8K: convert to seqfile
-Date: Fri, 4 Nov 2005 00:40:30 -0500
-User-Agent: KMail/1.8.3
-Cc: Dave Jones <davej@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dmitry Torokhov <dtor@mail.ru>
-References: <200506260103.j5Q13ovn020970@hera.kernel.org> <20051104041902.GA23618@redhat.com> <20051104044118.GF7992@ftp.linux.org.uk>
-In-Reply-To: <20051104044118.GF7992@ftp.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Nov 2005 00:42:59 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:51720 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1161075AbVKDFm6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 00:42:58 -0500
+Date: Fri, 4 Nov 2005 06:30:44 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: JaniD++ <djani22@dynamicweb.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Reboot problem.
+Message-ID: <20051104053044.GC11266@alpha.home.local>
+References: <028901c5e0d7$52fab640$0400a8c0@dcccs>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511040040.31457.dtor_core@ameritech.net>
+In-Reply-To: <028901c5e0d7$52fab640$0400a8c0@dcccs>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 03 November 2005 23:41, Al Viro wrote:
-> On Thu, Nov 03, 2005 at 11:19:02PM -0500, Dave Jones wrote:
-> > The missing '?' field is puzzling though. Looking at the diff,
-> > this should work.  Is this a shortfalling of seq_file perhaps ?
+Hello,
+
+On Fri, Nov 04, 2005 at 01:33:01AM +0100, JaniD++ wrote:
+> Hello list,
 > 
-> dmi_get_system_info() returns "" instead of "?" now, apparently...
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Is there any way to force reboot after this:
 > 
+> Nov  3 21:31:39 192.168.2.50 kernel: ------------[ cut here ]------------
+> Nov  3 21:31:39 192.168.2.50 kernel: kernel BUG at mm/highmem.c:183!
+> Nov  3 21:31:39 192.168.2.50 kernel: invalid operand: 0000 [#1]
+> Nov  3 21:31:39 192.168.2.50 kernel: SMP
+> Nov  3 21:31:39 192.168.2.50 kernel: Modules linked in: netconsole
+> Nov  3 21:31:39 192.168.2.50 kernel: CPU:    3
+(...)
+> Nov  3 21:31:39 192.168.2.50 kernel: Code: e8 08 06 00 00 89 c7 e9 38 ff ff
+> ff 55 89 e5 53 83 ec 04 89 c3 b8 80 6c 68 c0 e8 3e
+> Nov  3 21:31:39 192.168.2.50 kernel:  <0>Fatal exception: panic in 5 seconds
+> 
+> At this point the system is freez, and only reset can help.
 
-Oops! I have that field in my BIOS so I never noticed the problem...
+It should have rebooted, but the system is too instable to be able to
+do so. In this case, the only thing that can help is a hardware watchdog.
+Possibly, you motherboard includes a chipset with a watchdog that you can
+simply enable by loading the module and having a simple daemon to ping it
+(I have one which takes 12 kB of RAM and which tries mallocs, forks and
+FS accesses).
 
-I wonder if something like the patch below will fix it.
+If the daemon stops pinging the hardware watchdog for too long, the chipset
+will simply assert the RESET signal and the system will reboot.
 
--- 
-Dmitry
+> Thanks
+> 
+> Janos
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/char/i8k.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletion(-)
-
-Index: work/drivers/char/i8k.c
-===================================================================
---- work.orig/drivers/char/i8k.c
-+++ work/drivers/char/i8k.c
-@@ -99,7 +99,9 @@ struct smm_regs {
- 
- static inline char *i8k_get_dmi_data(int field)
- {
--	return dmi_get_system_info(field) ? : "N/A";
-+	char *dmi_data = dmi_get_system_info(field);
-+
-+	return dmi_data && *dmi_data ? dmi_data : "?";
- }
- 
- /*
+Regards,
+Willy
 

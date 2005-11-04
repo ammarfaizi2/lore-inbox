@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbVKDPmG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964968AbVKDPpw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750898AbVKDPmG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 10:42:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751533AbVKDPmG
+	id S964968AbVKDPpw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 10:45:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964937AbVKDPpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 10:42:06 -0500
-Received: from vms044pub.verizon.net ([206.46.252.44]:35245 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1750898AbVKDPmC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 10:42:02 -0500
-Date: Fri, 04 Nov 2005 10:42:01 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: latency report
-In-reply-to: <569d37b00511040644j2cf447cexcfba2bd2aaf76f43@mail.gmail.com>
-To: linux-kernel@vger.kernel.org
-Message-id: <200511041042.01469.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <569d37b00511032306y27519a8am69f2385fdbd4b81f@mail.gmail.com>
- <200511040850.16287.gene.heskett@verizon.net>
- <569d37b00511040644j2cf447cexcfba2bd2aaf76f43@mail.gmail.com>
-User-Agent: KMail/1.7
+	Fri, 4 Nov 2005 10:45:52 -0500
+Received: from ns1.suse.de ([195.135.220.2]:56285 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964968AbVKDPpv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 10:45:51 -0500
+Date: Fri, 4 Nov 2005 16:46:10 +0100
+From: jblunck@suse.de
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: jblunck@suse.de, viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [RFC,PATCH] libfs dcache_readdir() and dcache_dir_lseek() bugfix
+Message-ID: <20051104154610.GB23962@hasse.suse.de>
+References: <20051104113851.GA4770@hasse.suse.de> <20051104115101.GH7992@ftp.linux.org.uk> <20051104122021.GA15061@hasse.suse.de> <E1EY16w-0004HC-00@dorka.pomaz.szeredi.hu> <20051104131858.GA16622@hasse.suse.de> <E1EY1fi-0004LB-00@dorka.pomaz.szeredi.hu> <20051104151104.GA22322@hasse.suse.de> <E1EY3Y8-0004XX-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <E1EY3Y8-0004XX-00@dorka.pomaz.szeredi.hu>
+"From: jblunck@suse.de"
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 04 November 2005 09:44, Trevor Woerner wrote:
->On 11/4/05, Gene Heskett <gene.heskett@verizon.net> wrote:
->> >The report is here in html:
->> >http://geek.vtnet.ca/embedded/LatencyTests/html/index.html
->>
->> And while the index displays properly, all links, when clicked on,
->> lead to local files which of course in html, do not exist on my
->> machine.
->
->I'm currently at work (i.e. miles and miles away from my home machine
->and outside my network) and I can read through the report just fine.
->Other people seem to be able to view the report fine (from both the
->comments I've received and the entries in my log files).
->
->Which links in particular are giving you problems?
+On Fri, Nov 04, Miklos Szeredi wrote:
 
-Anything clicked on while displaying the above address in FF-1.07.
+> > 
+> > Well, glibc is that stupid and triggers the bug.
+> 
+> Seems to me, the simple solution is to upgrade your glibc.
+> 
+
+This is SLES8. You don't want to update the glibc.
+
+> > 
+> > True. Seeking to that offset should at least fail and shouldn't stop at the
+> > new entry.
+> 
+> No it should _not_ fail, it should continue from the next _existing_
+> entry.
+> 
+
+And how do we achieve this for all the libfs users like tmpfs etc.? At least
+with my patch you can seek to the offsets of existing entries. Even that isn't
+possible at the moment if you remove directory entries. But I don't know how to
+implement that for the offsets of unlinked entries.
+
+> 
+> No good.  Same problem if you move out then move back the entry.
+> 
+
+Yeah, I know.
+
+Regards,
+	Jan Blunck
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Free OpenDocument reader/writer/converter download:
-http://www.openoffice.org
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
-
+Jan Blunck                                               jblunck@suse.de
+SuSE LINUX AG - A Novell company
+Maxfeldstr. 5                                          +49-911-74053-608
+D-90409 Nürnberg                                      http://www.suse.de

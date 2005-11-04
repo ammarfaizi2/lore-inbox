@@ -1,74 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161128AbVKDKDk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161129AbVKDKFH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161128AbVKDKDk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 05:03:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161129AbVKDKDk
+	id S1161129AbVKDKFH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 05:05:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161130AbVKDKFG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 05:03:40 -0500
-Received: from yzordderrex.netnoteinc.com ([212.17.35.167]:11433 "EHLO
-	yzordderrex.lincor.com") by vger.kernel.org with ESMTP
-	id S1161128AbVKDKDj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 05:03:39 -0500
-Message-ID: <436B31DC.4020207@draigBrady.com>
-Date: Fri, 04 Nov 2005 10:03:08 +0000
-From: =?UTF-8?B?UMOhZHJhaWcgQnJhZHk=?= <P@draigBrady.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: ryan.clayburn@dsto.defence.gov.au
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Advantech Watchdog timer query
-References: <1131082306.2025.10.camel@localhost.localdomain>
-In-Reply-To: <1131082306.2025.10.camel@localhost.localdomain>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Fri, 4 Nov 2005 05:05:06 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:14515 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1161129AbVKDKFF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 05:05:05 -0500
+Date: Fri, 4 Nov 2005 02:04:29 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: akpm@osdl.org, mingo@elte.hu, pbadari@gmail.com, torvalds@osdl.org,
+       jdike@addtoit.com, rob@landley.net, nickpiggin@yahoo.com.au,
+       gh@us.ibm.com, kamezawa.hiroyu@jp.fujitsu.com, haveblue@us.ibm.com,
+       mel@csn.ul.ie, mbligh@mbligh.org, kravetz@us.ibm.com,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       lhms-devel@lists.sourceforge.net
+Subject: Re: [patch] swapin rlimit
+Message-Id: <20051104020429.104c27b3.pj@sgi.com>
+In-Reply-To: <1131092322.2799.3.camel@laptopd505.fenrus.org>
+References: <E1EXEfW-0005ON-00@w-gerrit.beaverton.ibm.com>
+	<200511021747.45599.rob@landley.net>
+	<43699573.4070301@yahoo.com.au>
+	<200511030007.34285.rob@landley.net>
+	<20051103163555.GA4174@ccure.user-mode-linux.org>
+	<1131035000.24503.135.camel@localhost.localdomain>
+	<20051103205202.4417acf4.akpm@osdl.org>
+	<20051104072628.GA20108@elte.hu>
+	<20051103233628.12ed1eee.akpm@osdl.org>
+	<1131092322.2799.3.camel@laptopd505.fenrus.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ryan Clayburn wrote:
+Arjan wrote:
+> doing this from userspace is tricky; what if the task dies of natural
+> causes and the pid gets reused, between the time the userspace app reads
+> the value and the time it decides the time is up and time for a kill....
+> (and on a busy server that can be quite a bit of time)
 
->>Hi Everyone,
->
->
->>I work for a government agency so please forgive me for not having the
->>latest version of the kernel. My question concerns an Advantech card
->>PCI 6870 Single Board Computer and its watchdog timer. I am running
->>Redhat 9 linux 2.4.20-8 and it comes with module that supports the
->>hardware advantechwdt.o. I have been able install and communicate with
->>the card.Get and set the timeout or margin and get the support
->>information of the card. Everything seems to work except when i
->>deliberately delay the ping to the card to let it reboot the system as
->>a watchdog should it does not reboot. Is there something i am missing.
->>Do i need a update to the driver? I am attaching the code. It is fairly
->>simple and a lot of it is just reading and writing information read
->
->>from the driver about the card. I would appreciate any help.
->
->>>Be careful that you're using the correct driver.
->>>Certain newer advantech systems use the w83627hf
->>>chip, which is not supported in 2.4 by default.
->>>Backporting the driver from 2.6 should be trivial.
->
->
->>>Pádraig.
->
->
->I have backported the driver as suggested from 2.6 to 2.4 but that
->didn't help. I then got a fedora core 3 installation on a separate hard
->drive with kernel 2.6.9-1.667. the one thing that i found that is
->peculiar and looks like a bug is that the /usr/include/watchdog.h is not
->the same as the watchdog.h in the src directory. In any case even after
->copying the the header file across i was unable to get the watchdog to
->reset the OS. Is there something i am not doing?
->
-Looking at the datasheet for this system,
-gives the watchdog characteristics of
-15sec - 127min timeout in steps of 30sec.
-This is quite sophisticated and doesn't
-match the original advantechwdt.c, w83627hf.c
-or i810-tco.c. So you need to ask advantech
-exactly what watchdog they're using on that system.
+If pids are being reused within seconds of their being freed up,
+then the batch managers running on the big HPC systems I care
+about are so screwed it isn't even funny.  They depend heavily
+on being able to identify the task pids in a job and then doing
+something to those tasks (suspend, kill, gather stats, ...).
 
-Pádraig.
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

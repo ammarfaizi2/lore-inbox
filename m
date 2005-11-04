@@ -1,64 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030504AbVKDBZd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161037AbVKDB0t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030504AbVKDBZd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 20:25:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030570AbVKDBZd
+	id S1161037AbVKDB0t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 20:26:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030573AbVKDB0t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 20:25:33 -0500
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:55926 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1030504AbVKDBZc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 20:25:32 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=g80W0+XQXHVYTMnPjVpfNXhAiJQ4Ff6exi+1uhqsMbRZujgUY96ekdqp2uT2QR1usVpKQa1QI/tnxnU4bxJRLtgX8htG1+cmJAy3cR0D1aMcRRdq5mEXeqMPNVhtw6/0yNCLmNYvAKS58v1uOa2/087Mwsn44GpmMCM7lass58A=  ;
-Message-ID: <436AB902.3000309@yahoo.com.au>
-Date: Fri, 04 Nov 2005 12:27:30 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Thu, 3 Nov 2005 20:26:49 -0500
+Received: from penta.pentaserver.com ([66.45.247.194]:9424 "EHLO
+	penta.pentaserver.com") by vger.kernel.org with ESMTP
+	id S1030570AbVKDB0s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 20:26:48 -0500
+Message-ID: <436AB58C.30708@linuxtv.org>
+Date: Fri, 04 Nov 2005 05:12:44 +0400
+From: Manu Abraham <manu@linuxtv.org>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-CC: Andy Nelson <andy@thermo.lanl.gov>, torvalds@osdl.org, akpm@osdl.org,
-       arjan@infradead.org, arjanv@infradead.org, haveblue@us.ibm.com,
-       kravetz@us.ibm.com, lhms-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, mel@csn.ul.ie,
-       mingo@elte.hu
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-References: <20051104010021.4180A184531@thermo.lanl.gov> <58210000.1131067015@flay>
-In-Reply-To: <58210000.1131067015@flay>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Andreas Oberritter <obi@linuxtv.org>
+CC: linux-kernel@vger.kernel.org, Mike Krufky <mkrufky@linuxtv.org>,
+       linux-dvb-maintainer@linuxtv.org, Andrew Morton <akpm@osdl.org>,
+       Johannes Stezenbach <js@linuxtv.org>
+Subject: Re: [linux-dvb-maintainer] Re: [PATCH 26/37] dvb: add support for
+ plls used by nxt200x
+References: <4367241A.1060300@m1k.net>	 <20051103135910.3bf893d9.akpm@osdl.org> <436A96A8.4080906@linuxtv.org>	 <436AA148.8090705@linuxtv.org> <1131065468.9376.23.camel@ip6-localhost>
+In-Reply-To: <1131065468.9376.23.camel@ip6-localhost>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - penta.pentaserver.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - linuxtv.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
+Andreas Oberritter wrote:
 
-> 
-> To provide a slightly shorter version ... we had one customer running
-> similarly large number crunching things in Fortran. Their app ran 25%
-> faster with large pages (not a typo). Because they ran a variety of
-> jobs in batch mode, they need large pages sometimes, and small pages
-> at others - hence they need to dynamically resize the pool. 
-> 
-> That's the sort of thing we were trying to fix with dynamically sized
-> hugepage pools. It does make a huge difference to real-world customers.
-> 
+>On Fri, 2005-11-04 at 03:46 +0400, Manu Abraham wrote:
+>  
+>
+>>We have in the DVB subsystem most of the exported symbols as 
+>>EXPORT_SYMBOL itself, rather than EXPORT_SYMBOL_GPL. I think if this 
+>>needs to be changed, we would require a global change of all symbols to 
+>>the same to maintain consistency. If you require that change we can have 
+>>a change but i would think that the discussions be done with the 
+>>relevant copyright holders too, eventhough probably most of the authors 
+>>won't have any objection.
+>>    
+>>
+>
+>I don't know if I ever contributed code to the DVB subsystem which is
+>actually exported, but in case I did, then I am against changing the
+>affected EXPORT_SYMBOLs.
+>  
+>
+Since this issue is subject to discussion, i think a consensus can be 
+reached, with a discussion with the relevant owners, _if_ it needs to be 
+changed. I did not imply that it needs to be changed.
 
-Aren't HPC users very easy? In fact, probably the easiest because they
-generally not very kernel intensive (apart from perhaps some batches of
-IO at the beginning and end of the jobs).
+I have personally contributed some code which does EXPORT_SYMBOL, but 
+for me changing it to EXPORT_SYMBOL_GPL is acceptable if the general 
+consensus is that way, or if there is a valid reason to go either way. I 
+don't mind either.
 
-A reclaimable zone should provide exactly what they need. I assume the
-sysadmin can give some reasonable upper and lower estimates of the
-memory requirements.
+>This would make it impossible to the use source code of most hardware
+>vendors for embedded products because they usually have different
+>licenses for their "run-on-every-embedded-platform-and-even-on-windows"
+>drivers.
+>
+>Also I remember people telling on lkml that EXPORT_SYMBOL_GPL was used
+>for new kernel internal code only and I can't see how this applies to
+>dvb-pll or any other part of the dvb subsystem which grew up outside the
+>kernel tree.
+>  
+>
 
-They don't need to dynamically resize the pool because it is all being
-allocated to pagecache anyway, so all jobs are satisfied from the
-reclaimable zone.
+AFAIK, the only hardware that exports EXPORT_SYMBOL_GPL is only the 
+budget core, other than that all of the code uses EXPORT_SYMBOL only.
 
--- 
-SUSE Labs, Novell Inc.
+Regards,
+Manu
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+

@@ -1,39 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751450AbVKDOpE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbVKDOtb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751450AbVKDOpE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 09:45:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbVKDOpE
+	id S1750706AbVKDOtb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 09:49:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbVKDOtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 09:45:04 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:43952 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751450AbVKDOpB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 09:45:01 -0500
-Subject: Re: 2.6.14-rc5-mm1 - ide-cs broken!
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, damir.perisa@solnet.ch, akpm@osdl.org
-In-Reply-To: <20051104071932.GA6362@kroah.com>
-References: <20051103220305.77620d8f.akpm@osdl.org>
-	 <20051104071932.GA6362@kroah.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 04 Nov 2005 15:14:53 +0000
-Message-Id: <1131117293.26925.46.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 4 Nov 2005 09:49:31 -0500
+Received: from zproxy.gmail.com ([64.233.162.207]:45642 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750706AbVKDOtb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 09:49:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=kgefdikTqYpXUgfEqJm9lxaeEQmEQjOwJF35vodCUbHiEitkMl9pStEeWo1TP8Dr5mJSgjM6ptv90ssPEUms8apuTsnY10/Y1ttiAd3ocd7WcX7TBdY11YrYhQaIuPkEcN5RKNAeeDIUcwLCpXe0rPOtrf/SlAIYutaOptHP6MI=
+Message-ID: <d120d5000511040649u5b33405an73b5e33fb4ce5cf6@mail.gmail.com>
+Date: Fri, 4 Nov 2005 09:49:30 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Subject: Re: [Fwd: [PATCH] [PNP][RFC] Suspend support for PNP bus.]
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Adam Belay <ambx1@neo.rr.com>
+In-Reply-To: <436B2819.4090909@drzeus.cx>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <436B2819.4090909@drzeus.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-11-03 at 23:19 -0800, Greg KH wrote:
-> Hint, gentoo, debian, and suse don't have this problem, so you might
-> want to look at their rules files for how to work around this.  Look for
-> this line:
-> 
-> # skip accessing removable ide devices, cause the ide drivers are horrible broken
+On 11/4/05, Pierre Ossman <drzeus-list@drzeus.cx> wrote:
+> +
+> +int pnp_start_dev(struct pnp_dev *dev)
+> +{
+> +       if (!pnp_can_write(dev)) {
+> +               pnp_info("Device %s does not supported activation.", dev->dev.bus_id);
 
+"...does not support...", there is no "ed" at the end.
 
-I was under the impression people had eventually decided the media
-change patch someone was proposed was ok after investigating one or two
-cases I knew of that turned out to be borked hardware ?
+> +               return -EINVAL;
+> +       }
 
+Hmm, would'nt presence of such device stop suspend process? It will
+cause pnp_bus_resume to fail too. Perhaps returning 0 in this case is
+better.
+
+> +
+> +int pnp_stop_dev(struct pnp_dev *dev)
+> +{
+> +       if (!pnp_can_disable(dev)) {
+> +               pnp_info("Device %s does not supported disabling.", dev->dev.bus_id);
+> +               return -EINVAL;
+
+Same here. No "ed" and -EINVAL will hurt.
+
+--
+Dmitry

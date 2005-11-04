@@ -1,65 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964968AbVKDPpw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751533AbVKDPpO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964968AbVKDPpw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 10:45:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964937AbVKDPpw
+	id S1751533AbVKDPpO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 10:45:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751540AbVKDPpO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 10:45:52 -0500
-Received: from ns1.suse.de ([195.135.220.2]:56285 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964968AbVKDPpv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 10:45:51 -0500
-Date: Fri, 4 Nov 2005 16:46:10 +0100
-From: jblunck@suse.de
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: jblunck@suse.de, viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org
+	Fri, 4 Nov 2005 10:45:14 -0500
+Received: from mail.fh-wedel.de ([213.39.232.198]:34019 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1751533AbVKDPpM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 10:45:12 -0500
+Date: Fri, 4 Nov 2005 16:45:11 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: jblunck@suse.de
+Cc: Miklos Szeredi <miklos@szeredi.hu>, viro@ftp.linux.org.uk,
+       linux-kernel@vger.kernel.org
 Subject: Re: [RFC,PATCH] libfs dcache_readdir() and dcache_dir_lseek() bugfix
-Message-ID: <20051104154610.GB23962@hasse.suse.de>
-References: <20051104113851.GA4770@hasse.suse.de> <20051104115101.GH7992@ftp.linux.org.uk> <20051104122021.GA15061@hasse.suse.de> <E1EY16w-0004HC-00@dorka.pomaz.szeredi.hu> <20051104131858.GA16622@hasse.suse.de> <E1EY1fi-0004LB-00@dorka.pomaz.szeredi.hu> <20051104151104.GA22322@hasse.suse.de> <E1EY3Y8-0004XX-00@dorka.pomaz.szeredi.hu>
+Message-ID: <20051104154511.GC31827@wohnheim.fh-wedel.de>
+References: <20051104113851.GA4770@hasse.suse.de> <20051104115101.GH7992@ftp.linux.org.uk> <20051104122021.GA15061@hasse.suse.de> <E1EY16w-0004HC-00@dorka.pomaz.szeredi.hu> <20051104131858.GA16622@hasse.suse.de> <E1EY1fi-0004LB-00@dorka.pomaz.szeredi.hu> <20051104151104.GA22322@hasse.suse.de> <20051104151646.GB31827@wohnheim.fh-wedel.de> <20051104153420.GA23962@hasse.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <E1EY3Y8-0004XX-00@dorka.pomaz.szeredi.hu>
-"From: jblunck@suse.de"
+In-Reply-To: <20051104153420.GA23962@hasse.suse.de>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 04, Miklos Szeredi wrote:
-
+On Fri, 4 November 2005 16:34:20 +0100, jblunck@suse.de wrote:
+> On Fri, Nov 04, Jörn Engel wrote:
+> > On Fri, 4 November 2005 16:11:04 +0100, jblunck@suse.de wrote:
+> > > 
+> > > True. Seeking to that offset should at least fail and shouldn't stop at the
+> > > new entry. But SuSV3 says that the offset given by telldir() is valid until
+> > > the next rewinddir().  This is no problem for directories that can only grow.
+> > > I tried to implement some kind of deferred dput'ing of the d_child's but that
+> > > was too hackish and was wasting memory. So the best thing I can do now is fail
+> > > if someone wants to seek to an offset of an already unlinked file.
 > > 
-> > Well, glibc is that stupid and triggers the bug.
+> > Does that mean that, to satisfy the standard, you'd have to allow the
+> > seek, but return 0 bytes on further reads, as you're already at (or
+> > beyond, whatever) EOF?
 > 
-> Seems to me, the simple solution is to upgrade your glibc.
+> No. To satisfy the standard, it would be necessary to let the seek succeed and
+> to return the already unlinked dentry or the next dentry (this is
+> unspecified).
+
+Do you have a link to the standard?  Iirc, it is explicitly
+unspecified whether files created/deleted after opendir/rewinddir are
+returned.  Why do you want to return one such unspecified file now?
+Especially when the implementation is ugly and the whole concept
+appears to be plain stupid.
+
+> I think we should return the next dentry, therefore I let the
+> seek fail (seekdir() doesn't even have a return value) and the cursor/f_pos is
+> still at the old offset.
 > 
-
-This is SLES8. You don't want to update the glibc.
-
-> > 
-> > True. Seeking to that offset should at least fail and shouldn't stop at the
-> > new entry.
+> The real problem is this IMHO:
+> ...
+> telldir() = a
+> ...
+> telldir() = b
+> readdir() = foo.txt
+> unlink(foo.txt)
+> seekdir(a)
+> seekdir(b)
+> readdir() = ???
 > 
-> No it should _not_ fail, it should continue from the next _existing_
-> entry.
-> 
+> With my patch the seekdir(b) doesn't find the offset and is placing the cursor
+> at the end of the directory. In my understanding of the SuSV3 this should be
+> possible and should return either "foo.txt" or the next entry after
+> "foo.txt". I don't see any chance how I can implement that.
 
-And how do we achieve this for all the libfs users like tmpfs etc.? At least
-with my patch you can seek to the offsets of existing entries. Even that isn't
-possible at the moment if you remove directory entries. But I don't know how to
-implement that for the offsets of unlinked entries.
+Does the above really happen, or is this just a theoretical case?  At
+least it looks as if ext3 with dir_index will simply barf on it:
+	/* Some one has messed with f_pos; reset the world */
+	if (info->last_pos != filp->f_pos) {
+		...
 
-> 
-> No good.  Same problem if you move out then move back the entry.
-> 
+And imo, that is the correct behaviour.  Anything else would leave the
+door wide open for trivial DOS attacks on kernel memory.
 
-Yeah, I know.
-
-Regards,
-	Jan Blunck
+Jörn
 
 -- 
-Jan Blunck                                               jblunck@suse.de
-SuSE LINUX AG - A Novell company
-Maxfeldstr. 5                                          +49-911-74053-608
-D-90409 Nürnberg                                      http://www.suse.de
+The strong give up and move away, while the weak give up and stay.
+-- unknown

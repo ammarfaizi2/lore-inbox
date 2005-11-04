@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161042AbVKDAzi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161026AbVKDAzO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161042AbVKDAzi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 19:55:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161030AbVKDAzh
+	id S1161026AbVKDAzO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 19:55:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161035AbVKDAyp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 19:55:37 -0500
-Received: from h-67-100-217-179.hstqtx02.covad.net ([67.100.217.179]:42132
+	Thu, 3 Nov 2005 19:54:45 -0500
+Received: from h-67-100-217-179.hstqtx02.covad.net ([67.100.217.179]:20884
 	"EHLO mail.gnucash.org") by vger.kernel.org with ESMTP
-	id S1161044AbVKDAz0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 19:55:26 -0500
-Date: Thu, 3 Nov 2005 18:55:25 -0600
+	id S1161026AbVKDAyM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 19:54:12 -0500
+Date: Thu, 3 Nov 2005 18:54:11 -0600
 From: Linas Vepstas <linas@linas.org>
 To: paulus@samba.org, linuxppc64-dev@ozlabs.org
 Cc: johnrose@austin.ibm.com, linux-pci@atrey.karlin.mff.cuni.cz,
        bluesmoke-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 42/42]: ppc64: get rid of per_cpu counters
-Message-ID: <20051104005525.GA27197@mail.gnucash.org>
+Subject: [PATCH 31/42]: ethernet: add PCI error recovery to ixgb dev driver
+Message-ID: <20051104005411.GA27090@mail.gnucash.org>
 Reply-To: linas@austin.ibm.com
 References: <20051103235918.GA25616@mail.gnucash.org>
 Mime-Version: 1.0
@@ -25,165 +25,129 @@ User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-242-eeh-no-percpu-counters.patch
+Various PCI bus errors can be signaled by newer PCI controllers.  This
+patch adds the PCI error recovery callbacks to the intel ten-gigabit
+ethernet ixgb device driver. The patch has been tested, and appears
+to work well.
 
-Remove per-cpu counters from the EEH code.  These statistics counters are 
-incremented at a very low-frequency, and the performance gains of per-cpu 
-variables are negligable.  By conrast, the counters weren't safe against
-cpu gard operations, and its not worth the effeort to make them so (other
-than to turn them into plain globals).
-
-Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
+Signed-off-by: Linas Vepstas <linas@linas.org>
 
 --
-Index: linux-2.6.14-git3/arch/powerpc/platforms/pseries/eeh.c
+Index: linux-2.6.14-git3/drivers/net/ixgb/ixgb_main.c
 ===================================================================
---- linux-2.6.14-git3.orig/arch/powerpc/platforms/pseries/eeh.c	2005-11-02 18:42:28.243139205 -0600
-+++ linux-2.6.14-git3/arch/powerpc/platforms/pseries/eeh.c	2005-11-02 18:49:24.196716323 -0600
-@@ -97,14 +97,14 @@
- static int eeh_error_buf_size;
+--- linux-2.6.14-git3.orig/drivers/net/ixgb/ixgb_main.c	2005-11-02 14:28:49.225492020 -0600
++++ linux-2.6.14-git3/drivers/net/ixgb/ixgb_main.c	2005-11-02 14:44:02.380460486 -0600
+@@ -132,6 +132,16 @@
+ static void ixgb_netpoll(struct net_device *dev);
+ #endif
  
- /* System monitoring statistics */
--static DEFINE_PER_CPU(unsigned long, no_device);
--static DEFINE_PER_CPU(unsigned long, no_dn);
--static DEFINE_PER_CPU(unsigned long, no_cfg_addr);
--static DEFINE_PER_CPU(unsigned long, ignored_check);
--static DEFINE_PER_CPU(unsigned long, total_mmio_ffs);
--static DEFINE_PER_CPU(unsigned long, false_positives);
--static DEFINE_PER_CPU(unsigned long, ignored_failures);
--static DEFINE_PER_CPU(unsigned long, slot_resets);
-+static unsigned long no_device;
-+static unsigned long no_dn;
-+static unsigned long no_cfg_addr;
-+static unsigned long ignored_check;
-+static unsigned long total_mmio_ffs;
-+static unsigned long false_positives;
-+static unsigned long ignored_failures;
-+static unsigned long slot_resets;
++static int ixgb_io_error_detected (struct pci_dev *pdev, enum pci_channel_state state);
++static int ixgb_io_slot_reset (struct pci_dev *pdev);
++static void ixgb_io_resume (struct pci_dev *pdev);
++
++static struct pci_error_handlers ixgb_err_handler = {
++	.error_detected = ixgb_io_error_detected,
++	.slot_reset = ixgb_io_slot_reset,
++	.resume = ixgb_io_resume,
++};
++
+ /* Exported from other modules */
  
- #define IS_BRIDGE(class_code) (((class_code)<<16) == PCI_BASE_CLASS_BRIDGE)
+ extern void ixgb_check_options(struct ixgb_adapter *adapter);
+@@ -141,6 +151,8 @@
+ 	.id_table = ixgb_pci_tbl,
+ 	.probe    = ixgb_probe,
+ 	.remove   = __devexit_p(ixgb_remove),
++	.err_handler = &ixgb_err_handler,
++
+ };
  
-@@ -288,13 +288,13 @@
- 	enum pci_channel_state state;
- 	int rc = 0;
+ MODULE_AUTHOR("Intel Corporation, <linux.nics@intel.com>");
+@@ -1654,8 +1666,16 @@
+ 	unsigned int i;
+ #endif
  
--	__get_cpu_var(total_mmio_ffs)++;
-+	total_mmio_ffs++;
++#ifdef XXX_CONFIG_IXGB_EEH_RECOVERY
++	if(unlikely(icr==EEH_IO_ERROR_VALUE(4))) {
++		if (eeh_slot_is_isolated (adapter->pdev))
++		// disable_irq_nosync (adapter->pdev->irq);
++		return IRQ_NONE;      /* Not our interrupt */
++	}
++#else
+ 	if(unlikely(!icr))
+ 		return IRQ_NONE;  /* Not our interrupt */
++#endif /* CONFIG_IXGB_EEH_RECOVERY */
  
- 	if (!eeh_subsystem_enabled)
- 		return 0;
+ 	if(unlikely(icr & (IXGB_INT_RXSEQ | IXGB_INT_LSC))) {
+ 		mod_timer(&adapter->watchdog_timer, jiffies);
+@@ -2125,4 +2145,70 @@
+ }
+ #endif
  
- 	if (!dn) {
--		__get_cpu_var(no_dn)++;
-+		no_dn++;
- 		return 0;
- 	}
- 	pdn = PCI_DN(dn);
-@@ -302,7 +302,7 @@
- 	/* Access to IO BARs might get this far and still not want checking. */
- 	if (!(pdn->eeh_mode & EEH_MODE_SUPPORTED) ||
- 	    pdn->eeh_mode & EEH_MODE_NOCHECK) {
--		__get_cpu_var(ignored_check)++;
-+		ignored_check++;
- #ifdef DEBUG
- 		printk ("EEH:ignored check (%x) for %s %s\n", 
- 		        pdn->eeh_mode, pci_name (dev), dn->full_name);
-@@ -311,7 +311,7 @@
- 	}
- 
- 	if (!pdn->eeh_config_addr && !pdn->eeh_pe_config_addr) {
--		__get_cpu_var(no_cfg_addr)++;
-+		no_cfg_addr++;
- 		return 0;
- 	}
- 
-@@ -353,7 +353,7 @@
- 	if (ret != 0) {
- 		printk(KERN_WARNING "EEH: read_slot_reset_state() failed; rc=%d dn=%s\n",
- 		       ret, dn->full_name);
--		__get_cpu_var(false_positives)++;
-+		false_positives++;
- 		rc = 0;
- 		goto dn_unlock;
- 	}
-@@ -362,14 +362,14 @@
- 	if (rets[1] != 1) {
- 		printk(KERN_WARNING "EEH: event on unsupported device, rc=%d dn=%s\n",
- 		       ret, dn->full_name);
--		__get_cpu_var(false_positives)++;
-+		false_positives++;
- 		rc = 0;
- 		goto dn_unlock;
- 	}
- 
- 	/* If not the kind of error we know about, punt. */
- 	if (rets[0] != 2 && rets[0] != 4 && rets[0] != 5) {
--		__get_cpu_var(false_positives)++;
-+		false_positives++;
- 		rc = 0;
- 		goto dn_unlock;
- 	}
-@@ -377,12 +377,12 @@
- 	/* Note that config-io to empty slots may fail;
- 	 * we recognize empty because they don't have children. */
- 	if ((rets[0] == 5) && (dn->child == NULL)) {
--		__get_cpu_var(false_positives)++;
-+		false_positives++;
- 		rc = 0;
- 		goto dn_unlock;
- 	}
- 
--	__get_cpu_var(slot_resets)++;
-+	slot_resets++;
-  
- 	/* Avoid repeated reports of this failure, including problems
- 	 * with other functions on this device, and functions under
-@@ -432,7 +432,7 @@
- 	addr = eeh_token_to_phys((unsigned long __force) token);
- 	dev = pci_get_device_by_addr(addr);
- 	if (!dev) {
--		__get_cpu_var(no_device)++;
-+		no_device++;
- 		return val;
- 	}
- 
-@@ -963,25 +963,9 @@
- 
- static int proc_eeh_show(struct seq_file *m, void *v)
- {
--	unsigned int cpu;
--	unsigned long ffs = 0, positives = 0, failures = 0;
--	unsigned long resets = 0;
--	unsigned long no_dev = 0, no_dn = 0, no_cfg = 0, no_check = 0;
--
--	for_each_cpu(cpu) {
--		ffs += per_cpu(total_mmio_ffs, cpu);
--		positives += per_cpu(false_positives, cpu);
--		failures += per_cpu(ignored_failures, cpu);
--		resets += per_cpu(slot_resets, cpu);
--		no_dev += per_cpu(no_device, cpu);
--		no_dn += per_cpu(no_dn, cpu);
--		no_cfg += per_cpu(no_cfg_addr, cpu);
--		no_check += per_cpu(ignored_check, cpu);
--	}
--
- 	if (0 == eeh_subsystem_enabled) {
- 		seq_printf(m, "EEH Subsystem is globally disabled\n");
--		seq_printf(m, "eeh_total_mmio_ffs=%ld\n", ffs);
-+		seq_printf(m, "eeh_total_mmio_ffs=%ld\n", total_mmio_ffs);
- 	} else {
- 		seq_printf(m, "EEH Subsystem is enabled\n");
- 		seq_printf(m,
-@@ -993,8 +977,10 @@
- 				"eeh_false_positives=%ld\n"
- 				"eeh_ignored_failures=%ld\n"
- 				"eeh_slot_resets=%ld\n",
--				no_dev, no_dn, no_cfg, no_check,
--				ffs, positives, failures, resets);
-+				no_device, no_dn, no_cfg_addr, 
-+				ignored_check, total_mmio_ffs, 
-+				false_positives, ignored_failures, 
-+				slot_resets);
- 	}
- 
- 	return 0;
++/* -------------- PCI Error Recovery infrastructure ---------------- */
++/** ixgb_io_error_detected() is called when PCI error is detected */
++static int ixgb_io_error_detected (struct pci_dev *pdev, enum pci_channel_state state)
++{
++	struct net_device *netdev = pci_get_drvdata(pdev);
++	struct ixgb_adapter *adapter = netdev->priv;
++
++	if(netif_running(netdev))
++		ixgb_down(adapter, TRUE);
++
++	/* Request a slot reset. */
++	return PCIERR_RESULT_NEED_RESET;
++}
++
++/** ixgb_io_slot_reset is called after the pci bus has been reset.
++ *  Restart the card from scratch.
++ *  Implementation resembles the first-half of the
++ *  ixgb_resume routine.
++ */
++static int ixgb_io_slot_reset (struct pci_dev *pdev)
++{
++	struct net_device *netdev = pci_get_drvdata(pdev);
++	struct ixgb_adapter *adapter = netdev->priv;
++
++	if(pci_enable_device(pdev)) {
++		printk(KERN_ERR "ixgb: Cannot re-enable PCI device after reset.\n");
++		return PCIERR_RESULT_DISCONNECT;
++	}
++	pci_set_master(pdev);
++
++	/* Perform card reset only on one instance of the card */
++	if (0 != PCI_FUNC (pdev->devfn))
++		return PCIERR_RESULT_RECOVERED;
++
++	ixgb_reset(adapter);
++
++	return PCIERR_RESULT_RECOVERED;
++}
++
++/** ixgb_io_resume is called when the error recovery driver
++ *  tells us that its OK to resume normal operation.
++ *  Implementation resembles the second-half of the
++ *  ixgb_resume routine.
++ */
++static void ixgb_io_resume (struct pci_dev *pdev)
++{
++	struct net_device *netdev = pci_get_drvdata(pdev);
++	struct ixgb_adapter *adapter = netdev->priv;
++
++	if(netif_running(netdev)) {
++		if(ixgb_up(adapter)) {
++			printk ("ixgb: can't bring device back up after reset\n");
++			return;
++		}
++	}
++
++	netif_device_attach(netdev);
++	if(netif_running(netdev))
++		mod_timer(&adapter->watchdog_timer, jiffies);
++
++	/* Reading all-ff's from the adapter will completely hose
++	 * the counts and statistics. So just clear them out */
++	memset(&adapter->stats, 0, sizeof(struct ixgb_hw_stats));
++	ixgb_update_stats(adapter);
++}
++
+ /* ixgb_main.c */

@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbVKDSrW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbVKDSw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750827AbVKDSrW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 13:47:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbVKDSrV
+	id S1750748AbVKDSw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 13:52:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbVKDSw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 13:47:21 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:15518 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1750827AbVKDSrV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 13:47:21 -0500
-Date: Fri, 4 Nov 2005 13:47:19 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Greg KH <gregkh@suse.de>
-cc: "David S. Miller" <davem@davemloft.net>, <macro@linux-mips.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: post-2.6.14 USB change breaks sparc64 boot
-In-Reply-To: <20051104174951.GA14957@suse.de>
-Message-ID: <Pine.LNX.4.44L0.0511041343110.4480-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 4 Nov 2005 13:52:56 -0500
+Received: from streetfiresound.liquidweb.com ([64.91.233.29]:37353 "EHLO
+	host.streetfiresound.liquidweb.com") by vger.kernel.org with ESMTP
+	id S1750748AbVKDSwz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 13:52:55 -0500
+Subject: Re: [PATCH/RFC] simple SPI controller on PXA2xx SSP port, refresh
+From: Stephen Street <stephen@streetfiresound.com>
+Reply-To: stephen@streetfiresound.com
+To: David Brownell <david-b@pacbell.net>
+Cc: eemike@gmail.com, Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200511031615.22630.david-b@pacbell.net>
+References: <200511031615.22630.david-b@pacbell.net>
+Content-Type: text/plain
+Organization: StreetFire Sound Labs
+Date: Fri, 04 Nov 2005 10:52:45 -0800
+Message-Id: <1131130365.426.33.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-16) 
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - host.streetfiresound.liquidweb.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - streetfiresound.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Nov 2005, Greg KH wrote:
-
-> On Fri, Nov 04, 2005 at 09:40:53AM -0800, David S. Miller wrote:
-> > From: "Maciej W. Rozycki" <macro@linux-mips.org>
-> > Date: Thu, 3 Nov 2005 17:46:20 +0000 (GMT)
-> > 
-> > > On Thu, 3 Nov 2005, David S. Miller wrote:
-> > > 
-> > > > Perhaps pci_fixup_final would be a more appropriate time to run this
-> > > > USB host controller fixup?  One downside to this is that such calls
-> > > > would not be invoked for hot-plugged USB host controller devices.
-> > > 
-> > >  This might actually want to be split to disable legacy stuff as soon as
-> > > possible to prevent a flood of interrupts, sending SMIs and what not else.  
-> > > That just requires poking at the PCI config space.  Whatever's the rest
-> > > could be done later.  I guess hot-plugged USB host controllers are not
-> > > configured for legacy support, so the early bits should not matter for
-> > > them.
-> > 
-> > Would anyone mind if I pushed to Linus the following fix, at
-> > least for now?  Thanks.
+On Thu, 2005-11-03 at 16:15 -0800, David Brownell wrote:
+> Stephen persuaded me to add controller_data too, which is stored in
+> "struct spi_device".  His PXA SPI controller driver uses that for a
+> structure holding what I'd call DMA tuning information, plus a function
+> that tweaks the GPIO used for a chipselect.  Treat it as readonly.
 > 
-> No objection from me, if this fixes your machines.
+> Controller drivers can have two different kinds of state in each
+> spi_device:  static, and dynamic/runtime.  The names used for them
+> are IMO very confusing (platform_data and controller_data) since
+> they don't mean the same as those names do in board_info.  I'd take
+> a patch to provide better names for those two.  :)
 
-It's okay with me -- I think.  The real requirement is that this code 
-needs to run before any devices that share an IRQ with a USB controller 
-can have their IRQ handler registered.  That may not always be possible, 
-but we should come as close as we can.
+I agree, the names are bad...  How about modifying struct spi_board_info
+to
 
-Hot-plugged controllers don't matter, because this code only needs to 
-handle hardware that the BIOS may have initialized.
+struct spi_board_info {
+...
 
-Alan Stern
+	void *slave_data;
+	void *master_data; 
+...
+};
+
+-Stephen
+
+
+
 

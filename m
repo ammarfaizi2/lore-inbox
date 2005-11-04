@@ -1,62 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751539AbVKDPw7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161145AbVKDPxm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751539AbVKDPw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 10:52:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751547AbVKDPw7
+	id S1161145AbVKDPxm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 10:53:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161148AbVKDPxm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 10:52:59 -0500
-Received: from [85.8.13.51] ([85.8.13.51]:57238 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S1751537AbVKDPw7 (ORCPT
+	Fri, 4 Nov 2005 10:53:42 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:12430 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1161145AbVKDPxk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 10:52:59 -0500
-Message-ID: <436B83D9.8@drzeus.cx>
-Date: Fri, 04 Nov 2005 16:52:57 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.6a1 (X11/20051022)
-MIME-Version: 1.0
-To: dtor_core@ameritech.net
-CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Adam Belay <ambx1@neo.rr.com>
-Subject: Re: [Fwd: [PATCH] [PNP][RFC] Suspend support for PNP bus.]
-References: <436B2819.4090909@drzeus.cx>	 <d120d5000511040649u5b33405an73b5e33fb4ce5cf6@mail.gmail.com>	 <436B7B46.6060205@drzeus.cx> <d120d5000511040727x7d433e08jeb8937cb2e48249a@mail.gmail.com>
-In-Reply-To: <d120d5000511040727x7d433e08jeb8937cb2e48249a@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Nov 2005 10:53:40 -0500
+Date: Fri, 4 Nov 2005 16:53:17 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Paul Jackson <pj@sgi.com>, andy@thermo.lanl.gov, mbligh@mbligh.org,
+       akpm@osdl.org, arjan@infradead.org, arjanv@infradead.org,
+       haveblue@us.ibm.com, kravetz@us.ibm.com,
+       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, mel@csn.ul.ie, nickpiggin@yahoo.com.au
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+Message-ID: <20051104155317.GA7281@elte.hu>
+References: <20051104010021.4180A184531@thermo.lanl.gov> <Pine.LNX.4.64.0511032105110.27915@g5.osdl.org> <20051103221037.33ae0f53.pj@sgi.com> <20051104063820.GA19505@elte.hu> <Pine.LNX.4.64.0511040725090.27915@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0511040725090.27915@g5.osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> On 11/4/05, Pierre Ossman <drzeus-list@drzeus.cx> wrote:
->   
->> Dmitry Torokhov wrote:
->>     
->>> Hmm, would'nt presence of such device stop suspend process? It will
->>> cause pnp_bus_resume to fail too. Perhaps returning 0 in this case is
->>> better.
->>>
->>>
->>>       
->> The problem is that this code is also visited from pnp_activate_dev() &
->> co where this return value is needed. For pnp_stop_dev() the same check
->> (pnp_can_disable()) is performed in the suspend routine to avoid that
->> particular problem. For resume my assumption was that a device that
->> doesn't support activation will not have a driver attached to it.
->> Perhaps this is wrong?
->>
->>     
->
-> i8042 registers drivers for keyboard and AUX ports to gather
-> information whether the ports are present and what IRQ and IO ports
-> shoudl be used to access them. And I have seen a few boxes that do not
-> alloe [de]activate these devices.
->
->   
 
-But the activation is performed by the PNP layer when the driver is 
-matched with a driver. So the driver isn't really responsible for the 
-activation. It can prevent activation through 
-PNP_DRIVER_RES_DO_NOT_CHANGE though, but that flag is also checked in 
-the suspend routines.
+* Linus Torvalds <torvalds@osdl.org> wrote:
 
-Rgds
-Pierre
+> Boot-time option to set the hugetlb zone, yes.
+> 
+> Grow-or-shrink, probably not. Not in practice after bootup on any 
+> machine that is less than idle.
+> 
+> The zones have to be pretty big to make any sense. You don't just grow 
+> them or shrink them - they'd be on the order of tens of megabytes to 
+> gigabytes. In other words, sized big enough that you will _not_ be 
+> able to create them on demand, except perhaps right after boot.
+
+i think the current hugepages=<N> boot option could transparently be 
+morphed into a 'separate zone' approach, and /proc/sys/vm/nr_hugepages 
+would just refuse to change (or would go away altogether). Dynamically 
+growing zones seem like a lot of trouble, without much gain. [ OTOH 
+hugepages= parameter unit should be changed from the current 'number of 
+hugepages' to plain RAM metrics - megabytes/gigabytes. ]
+
+that would solve two problems: any 'zone VM statistics skewing effect' 
+of the current hugetlbs (which is a preallocated list of really large 
+pages) would go away, and the hugetlb zone could potentially be utilized 
+for easily freeable objects.
+
+this would already be alot more flexible that what we have: the hugetlb 
+area would not be 'lost' altogether, like now. Once we are at this stage 
+we can see how usable it is in practice. I strongly suspect it will 
+cover most of the HPC uses.
+
+	Ingo

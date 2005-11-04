@@ -1,112 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751410AbVKDHQ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbVKDHT4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751410AbVKDHQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 02:16:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbVKDHQ2
+	id S1751416AbVKDHT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 02:19:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbVKDHT4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 02:16:28 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:62982 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751410AbVKDHQ2 (ORCPT
+	Fri, 4 Nov 2005 02:19:56 -0500
+Received: from mail.kroah.org ([69.55.234.183]:16030 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751416AbVKDHT4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 02:16:28 -0500
-Date: Fri, 4 Nov 2005 08:17:26 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BLOCK] Unify the seperate read/write io stat fields into arrays
-Message-ID: <20051104071725.GV26049@suse.de>
-References: <200511021704.jA2H4X4u027306@hera.kernel.org> <436AD3F6.2050501@pobox.com>
+	Fri, 4 Nov 2005 02:19:56 -0500
+Date: Thu, 3 Nov 2005 23:19:32 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Cc: damir.perisa@solnet.ch, akpm@osdl.org
+Subject: Re: 2.6.14-rc5-mm1 - ide-cs broken!
+Message-ID: <20051104071932.GA6362@kroah.com>
+References: <20051103220305.77620d8f.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <436AD3F6.2050501@pobox.com>
+In-Reply-To: <20051103220305.77620d8f.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 03 2005, Jeff Garzik wrote:
-> Linux Kernel Mailing List wrote:
-> >tree fe4ce823e638ded151edcb142f28a240860f0d33
-> >parent d72d904a5367ad4ca3f2c9a2ce8c3a68f0b28bf0
-> >author Jens Axboe <axboe@suse.de> Tue, 01 Nov 2005 09:26:16 +0100
-> >committer Jens Axboe <axboe@suse.de> Tue, 01 Nov 2005 09:26:16 +0100
-> >
-> >[BLOCK] Unify the seperate read/write io stat fields into arrays
-> >
-> >Instead of having ->read_sectors and ->write_sectors, combine the two
-> >into ->sectors[2] and similar for the other fields. This saves a branch
-> >several places in the io path, since we don't have to care for what the
-> >actual io direction is. On my x86-64 box, that's 200 bytes less text in
-> >just the core (not counting the various drivers).
-> >
-> >Signed-off-by: Jens Axboe <axboe@suse.de>
-> >
-> > drivers/block/genhd.c     |   29 ++++++++++++++---------------
-> > drivers/block/ll_rw_blk.c |   40 ++++++++++++----------------------------
-> > drivers/md/linear.c       |   10 +++-------
-> > drivers/md/md.c           |    4 ++--
-> > drivers/md/multipath.c    |   10 +++-------
-> > drivers/md/raid0.c        |   10 +++-------
-> > drivers/md/raid1.c        |   12 ++++--------
-> > drivers/md/raid10.c       |   12 ++++--------
-> > drivers/md/raid5.c        |   10 +++-------
-> > drivers/md/raid6main.c    |   12 ++++--------
-> > fs/partitions/check.c     |    7 ++++---
-> > include/linux/genhd.h     |   10 +++++-----
-> > 12 files changed, 61 insertions(+), 105 deletions(-)
-> >
-> >diff --git a/drivers/block/genhd.c b/drivers/block/genhd.c
-> >index 486ce1f..54aec4a 100644
-> >--- a/drivers/block/genhd.c
-> >+++ b/drivers/block/genhd.c
-> >@@ -391,13 +391,12 @@ static ssize_t disk_stats_read(struct ge
-> > 		"%8u %8u %8llu %8u "
-> > 		"%8u %8u %8u"
-> > 		"\n",
-> >-		disk_stat_read(disk, reads), disk_stat_read(disk, 
-> >read_merges),
-> >-		(unsigned long long)disk_stat_read(disk, read_sectors),
-> >-		jiffies_to_msecs(disk_stat_read(disk, read_ticks)),
-> >-		disk_stat_read(disk, writes), 
-> >-		disk_stat_read(disk, write_merges),
-> >-		(unsigned long long)disk_stat_read(disk, write_sectors),
-> >-		jiffies_to_msecs(disk_stat_read(disk, write_ticks)),
-> >+		disk_stat_read(disk, ios[0]), disk_stat_read(disk, 
-> >merges[0]),
-> >+		(unsigned long long)disk_stat_read(disk, sectors[0]),
-> >+		jiffies_to_msecs(disk_stat_read(disk, ticks[0])),
-> >+		disk_stat_read(disk, ios[1]), disk_stat_read(disk, 
-> >merges[1]),
-> >+		(unsigned long long)disk_stat_read(disk, sectors[1]),
-> >+		jiffies_to_msecs(disk_stat_read(disk, ticks[1])),
-> > 		disk->in_flight,
-> > 		jiffies_to_msecs(disk_stat_read(disk, io_ticks)),
-> > 		jiffies_to_msecs(disk_stat_read(disk, time_in_queue)));
-> >@@ -583,12 +582,12 @@ static int diskstats_show(struct seq_fil
-> > 	preempt_enable();
-> > 	seq_printf(s, "%4d %4d %s %u %u %llu %u %u %u %llu %u %u %u %u\n",
-> > 		gp->major, n + gp->first_minor, disk_name(gp, n, buf),
-> >-		disk_stat_read(gp, reads), disk_stat_read(gp, read_merges),
-> >-		(unsigned long long)disk_stat_read(gp, read_sectors),
-> >-		jiffies_to_msecs(disk_stat_read(gp, read_ticks)),
-> >-		disk_stat_read(gp, writes), disk_stat_read(gp, write_merges),
-> >-		(unsigned long long)disk_stat_read(gp, write_sectors),
-> >-		jiffies_to_msecs(disk_stat_read(gp, write_ticks)),
-> >+		disk_stat_read(gp, ios[0]), disk_stat_read(gp, merges[0]),
-> >+		(unsigned long long)disk_stat_read(gp, sectors[0]),
-> >+		jiffies_to_msecs(disk_stat_read(gp, ticks[0])),
-> >+		disk_stat_read(gp, ios[1]), disk_stat_read(gp, merges[1]),
-> >+		(unsigned long long)disk_stat_read(gp, sectors[1]),
-> >+		jiffies_to_msecs(disk_stat_read(gp, ticks[1])),
-> > 		gp->in_flight,
-> > 		jiffies_to_msecs(disk_stat_read(gp, io_ticks)),
-> > 		jiffies_to_msecs(disk_stat_read(gp, time_in_queue)));
+<apologies for the broken threading>
+
+> [17194333.620000] cs: memory probe 0xf0000000-0xf80fffff: excluding 
+> 0xf0000000-0xf87fffff
+> [17194333.644000] pcmcia: Detected deprecated PCMCIA ioctl usage.
+> [17194333.644000] pcmcia: This interface will soon be removed from the 
+> kernel; please expect breakage unless you upgrade to new tools.
+> [17194333.644000] pcmcia: see 
+> http://www.kernel.org/pub/linux/utils/kernel/pcmcia/pcmcia.html for 
+> details.
+> [17194334.032000] Probing IDE interface ide2...
+> [17194334.320000] hde: 1024MB Flash Card, CFA DISK drive
+> [17194334.992000] ide2 at 0x4100-0x4107,0x410e on irq 3
+> [17194334.992000] hde: max request size: 128KiB
+> [17194334.992000] hde: 2001888 sectors (1024 MB) w/1KiB Cache, 
+> CHS=1986/16/63
+> [17194334.992000] hde: cache flushes not supported
+> [17194334.992000]  hde: hde1
+> [17194335.004000] ide-cs: hde: Vcc = 3.3, Vpp = 0.0
+> [17194335.224000]  hde: hde1
+> [17194335.632000]  hde: hde1
+> [17194335.736000]  hde: hde1
+> [17194335.744000]  hde: hde1
+> ... ("hde: hde1" repeating)...
 > 
-> While the overall patch is OK, the use of magic numbers makes the code 
-> less readable.  fsck if I know whether "[0]" represents read or write.
+> ok, now the situation is less lethal, but still no proper ide-cs working. 
+> there are no unknown symbols now, but the other output in dmesg is the 
+> same. especially, the loop to output "hde: hde1" is here, but if i remove 
+> the card, it stops and the system is still responsible. 
+> 
+> i checked something i forgot to check before... is the hde device seen 
+> in /sys somewhere, when the card is plugged in. the answer is yes!:
+> 
+> /sys/block/hde/hde1/
+> 
+> presents itself fully normal like other ide drives. in 
+> /sys/block/hde/hde1/sample.sh 
+> i found "mknod /dev/hde1 b 33 1" and tried to run it. successfully!
+> the result is: in dmesg, the "hde: hde1" output loop stopped and my card 
+> is working again!!! 
 
-Does it matter, you know that they are reads and writes obviously. But
-yes, using READ/WRITE would be nicer. I'll queue it up.
+Heh, the poor-man's udev worked for someone :)
 
--- 
-Jens Axboe
+> so the trouble seems not only (or not at all) related to the kernel but 
+> (also) to udev (i use 071), hotplug (mine is 2004_09_23), pcmciautils 
+> (010) or something else.
+> 
+> can somebody tell me, what state of this process (discovering device, 
+> loading needed modules, udev creating node under /dev) is the output 
+> "hde: hde1" to dmesg and how can it be possible that it loops? 
 
+The problem is in your udev rules.  You are running something in them
+that is opening up your ide-cs device, which causes another hotplug
+event to happen, which causes udev to run again, and so on.
+
+I suggest you take this up with your distro, they are the ones
+responsible for this problem.
+
+Hint, gentoo, debian, and suse don't have this problem, so you might
+want to look at their rules files for how to work around this.  Look for
+this line:
+
+# skip accessing removable ide devices, cause the ide drivers are horrible broken
+
+and add the rules after it.
+
+> it seems that this chain of processing is stuck somewhere and needs a 
+> execution of the command to create the node under /dev by hand to finish.
+
+I think the presence of the node causes udev to not generate another
+one, which keeps the rule from being run and another hotplug event from
+being generated.
+
+Hope this helps,
+
+greg k-h

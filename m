@@ -1,68 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030557AbVKDAMZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030558AbVKDAOS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030557AbVKDAMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 19:12:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030559AbVKDAMZ
+	id S1030558AbVKDAOS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 19:14:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030560AbVKDAOS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 19:12:25 -0500
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:31137 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP
-	id S1030557AbVKDAMY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 19:12:24 -0500
-X-ORBL: [69.149.117.103]
-Date: Thu, 3 Nov 2005 18:08:30 -0600
-From: Michael Halcrow <lkml@halcrow.us>
-To: James Morris <jmorris@namei.org>
-Cc: Phillip Hellewell <phillip@hellewell.homeip.net>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       mhalcrow@us.ibm.com, mcthomps@us.ibm.com, yoder1@us.ibm.com
-Subject: Re: [PATCH 11/12: eCryptfs] Keystore
-Message-ID: <20051104000830.GA21628@halcrow.us>
-Reply-To: Michael Halcrow <lkml@halcrow.us>
-References: <20051103033220.GD2772@sshock.rn.byu.edu> <20051103035611.GK3005@sshock.rn.byu.edu> <Pine.LNX.4.63.0511031856050.22256@excalibur.intercode>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0511031856050.22256@excalibur.intercode>
-User-Agent: Mutt/1.5.9i
+	Thu, 3 Nov 2005 19:14:18 -0500
+Received: from smtp.cogeco.net ([216.221.81.25]:25295 "EHLO fep2.cogeco.net")
+	by vger.kernel.org with ESMTP id S1030558AbVKDAOR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 19:14:17 -0500
+Message-ID: <436AA7E0.4010505@pobox.com>
+Date: Thu, 03 Nov 2005 19:14:24 -0500
+From: Mark Lord <mlord@pobox.com>
+Organization: Real-Time Remedies Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050923 Debian/1.7.12-0ubuntu05.04
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Parallel ATA with libata status with the patches I'm working
+ on
+References: <1131029686.18848.48.camel@localhost.localdomain>	 <58cb370e0511030658tb23cecds2ed8cc63570a68d5@mail.gmail.com> <1131032974.18848.60.camel@localhost.localdomain>
+In-Reply-To: <1131032974.18848.60.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 03, 2005 at 06:59:42PM -0500, James Morris wrote:
-> On Wed, 2 Nov 2005, Phillip Hellewell wrote:
-> 
-> > +	password_s_ptr = &auth_tok->token.password;
-> > +	if (password_s_ptr->session_key_encryption_key_set) {
-> > +		ecryptfs_printk(1, KERN_NOTICE, "Session key encryption key "
-> > +				"set; skipping key generation\n");
-> > +		goto session_key_encryption_key_set;
-> > +	}
-> > +      session_key_encryption_key_set:
-> > +	ecryptfs_printk(1, KERN_NOTICE, "Session key encryption key (size [%d])"
-> > +			":\n", password_s_ptr->session_key_encryption_key_size);
-> 
-> Spurious goto?
+ >CS5520 is totally broken. You want the fixes I sent you over a year ago
+ >and maybe more. Its probably best left as I doubt anyone else has a 5520
+ >any more 8)
 
-Yes, that was an artifact caused from the deletion of a block of code
-that we decided to postpone for a future release of eCryptfs
-(in-kernel session key encryption key generation, to be exact...).
+Send them to me.  I still have the original pre-production CS5520 system
+that I used to implement the original (working) driver with.
 
-> > +out:
-> > +	if (tfm)
-> > +		crypto_free_tfm(tfm);
-> > +	return rc;
-> 
-> Just call crypto_free_tfm() unconditionally.
+Thanks.
+-- 
+Mark Lord
+Real-Time Remedies Inc.
+mlord@pobox.com
 
-Yes, and it looks like the check for the failure condition on tfm
-alloc did not get make it into this release either:
-
-+        tfm = crypto_alloc_tfm(crypt_stats->cipher, 0);
-+        crypto_cipher_setkey(tfm, password_s_ptr->session_key_encryption_key,
-+                             password_s_ptr->session_key_encryption_key_size);
-
-We'll be sure that those fixes are included in the next round of
-updates.
-
-Thanks,
-Mike

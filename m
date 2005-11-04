@@ -1,82 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161095AbVKDHz3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161100AbVKDICx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161095AbVKDHz3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 02:55:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161097AbVKDHz3
+	id S1161100AbVKDICx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 03:02:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161101AbVKDICx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 02:55:29 -0500
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:49274 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1161095AbVKDHz2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 02:55:28 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=dSUJaCyWikgpLKBDqwpw5eu3H/SsNnPy+Auw3qsCj5qiQsc+Yi1odush5/JY5OZ8D39dyJLECqGS6Yxsc0iDMwKeQEqkAk2B1TlcACt15iqC/xA4evAyRyF4ooSx0gG3qq4BB/JoUf+6mZH72qqIllIdZSfndMAdodxOOj6nQTI=  ;
-Message-ID: <436B146A.8020209@yahoo.com.au>
-Date: Fri, 04 Nov 2005 18:57:30 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       notting@redhat.com
-Subject: Re: [PATCH] core remove PageReserved
-References: <200510300502.j9U52LE0027873@hera.kernel.org> <20051104044217.GA25858@redhat.com>
-In-Reply-To: <20051104044217.GA25858@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 4 Nov 2005 03:02:53 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:37070 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161100AbVKDICw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 03:02:52 -0500
+Date: Fri, 4 Nov 2005 00:02:12 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: bron@bronze.corp.sgi.com, pbadari@gmail.com, jdike@addtoit.com,
+       rob@landley.net, nickpiggin@yahoo.com.au, gh@us.ibm.com, mingo@elte.hu,
+       kamezawa.hiroyu@jp.fujitsu.com, haveblue@us.ibm.com, mel@csn.ul.ie,
+       mbligh@mbligh.org, kravetz@us.ibm.com, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+Message-Id: <20051104000212.2e0e92bd.akpm@osdl.org>
+In-Reply-To: <20051103234530.5fcb2825.pj@sgi.com>
+References: <E1EXEfW-0005ON-00@w-gerrit.beaverton.ibm.com>
+	<200511021747.45599.rob@landley.net>
+	<43699573.4070301@yahoo.com.au>
+	<200511030007.34285.rob@landley.net>
+	<20051103163555.GA4174@ccure.user-mode-linux.org>
+	<1131035000.24503.135.camel@localhost.localdomain>
+	<20051103205202.4417acf4.akpm@osdl.org>
+	<20051103213538.7f037b3a.pj@sgi.com>
+	<20051103214807.68a3063c.akpm@osdl.org>
+	<20051103224239.7a9aee29.pj@sgi.com>
+	<20051103231019.488127a6.akpm@osdl.org>
+	<20051103234530.5fcb2825.pj@sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> On Sat, Oct 29, 2005 at 10:02:22PM -0700, Linux Kernel wrote:
->  > tree 835836cb527ec9bd525f93eb7e016f3dfb8c8ae2
->  > parent f9c98d0287de42221c624482fd4f8d485c98ab22
->  > author Nick Piggin <nickpiggin@yahoo.com.au> Sun, 30 Oct 2005 08:16:12 -0700
->  > committer Linus Torvalds <torvalds@g5.osdl.org> Sun, 30 Oct 2005 11:40:39 -0700
->  > 
->  > [PATCH] core remove PageReserved
->  > 
->  > Remove PageReserved() calls from core code by tightening VM_RESERVED
->  > handling in mm/ to cover PageReserved functionality.
->  > 
->  > PageReserved special casing is removed from get_page and put_page.
->  > 
->  > All setting and clearing of PageReserved is retained, and it is now flagged
->  > in the page_alloc checks to help ensure we don't introduce any refcount
->  > based freeing of Reserved pages.
->  > 
->  > MAP_PRIVATE, PROT_WRITE of VM_RESERVED regions is tentatively being
->  > deprecated.  We never completely handled it correctly anyway, and is be
->  > reintroduced in future if required (Hugh has a proof of concept).
-> 
-> We've got one user reporting that he's getting the following
-> message..
-> 
-> "program ddcprobe is using MAP_PRIVATE, PROT_WRITE mmap of VM_RESERVED memory"
-> since this cset.
-> 
-> So what should happen here, does that app need changing? Or do we just
-> need to get Hugh's changes merged?
+Paul Jackson <pj@sgi.com> wrote:
+>
+> A per-task stat requires walking the tasklist, to build a list of the
+> tasks to query.
+
+Nope, just task->mm->whatever.
+
+> A raw counter requires repeated polling to determine the recent rate of
+> activity.
+
+True.
+
+> The filtered per-cpuset rate avoids any need to repeatedly access
+> global resources such as the tasklist, and minimizes the total cpu
+> cycles required to get the interesting stat.
 > 
 
-Thanks for reporting this.
+Well no.  Because the filtered-whatsit takes two spinlocks and does a bunch
+of arith for each and every task, each time it calls try_to_free_pages(). 
+The frequency of that could be very high indeed, even when nobody is
+interested in the metric which is being maintained(!).
 
-Can the app use MAP_SHARED? Or PROT_READ and copy the mapped page to
-its own private one before modifying it?
+And I'd suggest that only a minority of workloads would be interested in
+this metric?
 
-It is likely to only be very specific userspace drivers and stuff
-that would ever do this... but if they become a real problem then
-Hugh's patch would be able to solve it. Though I'd like to try to
-avoid relying on that if possible.
-
-Perhaps the nice thing to do would be to include Hugh's patch *and*
-display the warning message, and remove the functionality in a
-later release.
-
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+ergo, polling the thing once per five seconds in those situations where we
+actually want to poll the thing may well be cheaper, in global terms?

@@ -1,85 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932739AbVKDNfc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751435AbVKDNhB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932739AbVKDNfc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 08:35:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbVKDNfc
+	id S1751435AbVKDNhB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 08:37:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbVKDNhB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 08:35:32 -0500
-Received: from magic.adaptec.com ([216.52.22.17]:32937 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S1751435AbVKDNfb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 08:35:31 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [2.6 patch] SCSI_AACRAID: add a help text
-Date: Fri, 4 Nov 2005 08:35:29 -0500
-Message-ID: <547AF3BD0F3F0B4CBDC379BAC7E4189F01D127E0@otce2k03.adaptec.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [2.6 patch] SCSI_AACRAID: add a help text
-Thread-Index: AcXg3e9wl9B/dIHbTzCyUnFtxcXLPQAZAjFQ
-From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-To: "Adrian Bunk" <bunk@stusta.de>, <linux-scsi@vger.kernel.org>
-Cc: <linux-kernel@vger.kernel.org>
+	Fri, 4 Nov 2005 08:37:01 -0500
+Received: from 210-194-250-142.rev.home.ne.jp ([210.194.250.142]:10205 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S1751435AbVKDNhA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 08:37:00 -0500
+Date: Fri, 04 Nov 2005 22:36:54 +0900 (JST)
+Message-Id: <20051104.223654.432830398.whatisthis@jcom.home.ne.jp>
+To: linux-kernel@vger.kernel.org
+Subject: [x86_64] Freeze using IDE as upper than ATA33
+From: Kyuma Ohta <whatisthis@jcom.home.ne.jp>
+X-Mailer: Mew version 4.2.53 on Emacs 22.0.50 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's a good start! I approve. The time stamp and kernel version must
-have come out of a rift though ;->
+Hi,
+I'm using ASUS Mainboard for Athlon 64 3000+ with VIA K8T800Pro
+Host Bridge and VIA VT8237 South Bride for IDE.
 
-The web page covers a broad line of our products, many of which are
-*not* aacraid based. No big deal, but I must admit Adaptec has not
-placed a clear delineation. All late model RAID cards from Adaptec are
-based on the aacraid interface.
+I'm running linux-kernel-2.6.14 , when re-constructureing RAID1 
+ with two ATA100 Drives (IBM/Hitachi) a, kernel was locked with no 
+message.
 
-Dell CERC, IBM ServeRAID 7t, 8i & 8k and ICP 9014, 9024, 9047, 9087,
-5085, 9085 & 9067 SATA and SAS cards are missing.
+I tried to be booting with  "ide0=ata66 ide1=ata66", but freezed yet.
 
-Signed-off-by: Mark Salyzyn <aacraid@adaptec.com>
+I tried  booting with "idebus=33", very stable,not freezed.
 
---- linux-2.6.6/drivers/scsi/Kconfig        2004-05-17
-20:55:52.074925760 -0500
-+++ linux-2.6.6/drivers/scsi/Kconfig.new    2005-10-4 08:28:09
-@@ -318,6 +318,7 @@
- 	help
- 	  This driver supports the Dell PERC2, 2/Si, 3/Si, 3/Di,
--	  HP NetRAID-4M SCSI and the Adaptec Advanced Raid Products
-+	  CERC, HP NetRAID-4M SCSI, Adaptec Advanced Raid Products
- 	  <http://www.adaptec.com/products/solutions/raid.html>
-+	  late model IBM ServeRAID and ICP SATA & SAS products.
- 
- 	  To compile this driver as a module, choose M here: the module
 
-Sincerely -- Mark Salyzyn
+Devices are:
+--
+~$ lspci
+0000:00:00.0 Host bridge: VIA Technologies, Inc. K8T800Pro Host Bridge
+0000:00:00.1 Host bridge: VIA Technologies, Inc. K8T800Pro Host Bridge
+0000:00:00.2 Host bridge: VIA Technologies, Inc. K8T800Pro Host Bridge
+0000:00:00.3 Host bridge: VIA Technologies, Inc. K8T800Pro Host Bridge
+0000:00:00.4 Host bridge: VIA Technologies, Inc. K8T800Pro Host Bridge
+0000:00:00.7 Host bridge: VIA Technologies, Inc. K8T800Pro Host Bridge
+0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT8237 PCI bridge [K8T800/K8T890 South]
+0000:00:09.0 Multimedia video controller: Internext Compression Inc iTVC16 (CX23416) MPEG-2 Encoder (rev 01)
+0000:00:0a.0 Ethernet controller: Marvell Technology Group Ltd. 88E8001 Gigabit Ethernet Controller (rev 13)
+0000:00:0c.0 Multimedia controller: Philips Semiconductors SAA7134 Video Broadcast Decoder (rev 01)
+0000:00:0d.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
+0000:00:0e.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller (rev 46)
+0000:00:0f.0 RAID bus controller: VIA Technologies, Inc. VIA VT6420 SATA RAID Controller (rev 80)
+0000:00:0f.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+0000:00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
+0000:00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
+0000:00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
+0000:00:10.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
+0000:00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86)
+0000:00:11.0 ISA bridge: VIA Technologies, Inc. VT8237 ISA bridge [KT600/K8T800/K8T890 South]
+0000:00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233/A/8235/8237 AC97 Audio Controller (rev 60)
+0000:00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport Technology Configuration
+0000:00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
+0000:00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
+0000:00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
+0000:01:00.0 VGA compatible controller: nVidia Corporation NV34 [GeForce FX 5200] (rev a1)
+--
 
------Original Message-----
-From: linux-scsi-owner@vger.kernel.org
-[mailto:linux-scsi-owner@vger.kernel.org] On Behalf Of Adrian Bunk
-Sent: Thursday, November 03, 2005 8:01 PM
-To: linux-scsi@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] SCSI_AACRAID: add a help text
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.6/drivers/scsi/Kconfig.old        2004-05-17
-20:51:21.395075352 -0500
-+++ linux-2.6.6/drivers/scsi/Kconfig    2004-05-17 20:55:52.074925760
--0500
-@@ -315,6 +315,13 @@
- config SCSI_AACRAID
- 	tristate "Adaptec AACRAID support"
- 	depends on SCSI && PCI
-+	help
-+	  This driver supports the Dell PERC2, 2/Si, 3/Si, 3/Di,
-+	  HP NetRAID-4M SCSI and the Adaptec Advanced Raid Products
-+	  <http://www.adaptec.com/products/solutions/raid.html>
-+
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called aacraid.
-
- source "drivers/scsi/aic7xxx/Kconfig.aic7xxx"
+Best Regards,
+Ohta.

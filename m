@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751600AbVKDQO3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751591AbVKDQTk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751600AbVKDQO3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 11:14:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751571AbVKDQO3
+	id S1751591AbVKDQTk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 11:19:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751602AbVKDQTk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 11:14:29 -0500
-Received: from mailwasher.lanl.gov ([192.65.95.54]:54576 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S1751600AbVKDQO2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 11:14:28 -0500
-To: andy@thermo.lanl.gov, torvalds@osdl.org
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-Cc: akpm@osdl.org, arjan@infradead.org, arjanv@infradead.org,
-       haveblue@us.ibm.com, kravetz@us.ibm.com,
-       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, mbligh@mbligh.org, mel@csn.ul.ie, mingo@elte.hu,
-       nickpiggin@yahoo.com.au
-In-Reply-To: <Pine.LNX.4.64.0511040738540.27915@g5.osdl.org>
-Message-Id: <20051104161420.9CFA8184631@thermo.lanl.gov>
-Date: Fri,  4 Nov 2005 09:14:20 -0700 (MST)
-From: andy@thermo.lanl.gov (Andy Nelson)
-X-PMX-Version: 4.7.1.128075
+	Fri, 4 Nov 2005 11:19:40 -0500
+Received: from 238-193.adsl.pool.ew.hu ([193.226.238.193]:58896 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S1751589AbVKDQTj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 11:19:39 -0500
+To: jblunck@suse.de
+CC: viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org
+In-reply-to: <20051104160443.GB25491@hasse.suse.de> (jblunck@suse.de)
+Subject: Re: [RFC,PATCH] libfs dcache_readdir() and dcache_dir_lseek() bugfix
+References: <20051104113851.GA4770@hasse.suse.de> <20051104115101.GH7992@ftp.linux.org.uk> <20051104122021.GA15061@hasse.suse.de> <E1EY16w-0004HC-00@dorka.pomaz.szeredi.hu> <20051104131858.GA16622@hasse.suse.de> <E1EY1fi-0004LB-00@dorka.pomaz.szeredi.hu> <20051104151104.GA22322@hasse.suse.de> <E1EY3Y8-0004XX-00@dorka.pomaz.szeredi.hu> <20051104154610.GB23962@hasse.suse.de> <E1EY3uI-0004cC-00@dorka.pomaz.szeredi.hu> <20051104160443.GB25491@hasse.suse.de>
+Message-Id: <E1EY4Hp-0004hf-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Fri, 04 Nov 2005 17:19:29 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > > > > 
+> > > > > Well, glibc is that stupid and triggers the bug.
+> > > > 
+> > > > Seems to me, the simple solution is to upgrade your glibc.
+> > > > 
+> > > 
+> > > This is SLES8. You don't want to update the glibc.
+> > 
+> > OK, but then it's basically a SLES8 kernel issue, not a mainline
+> > kernel issue.
+> > 
+> > Probably very few people are using brand new kernels with glibc from
+> > the last millennium ;)
+> > 
+> 
+> Hmm, so I should only send patches for bugs that are often triggered
+> upstream? Just start using seekdir() and modify the directory contents on an
+> upstream tmpfs. You'll see that this isn't working well.
+> 
+> This is a bug and it should get fixed. I hope that it doesn't depend on how
+> many people using what library :)
 
-Linus:
+Ah, but it's a bug in the _system_ and glibc is part of the system
+too, not just the kernel.
 
->> If your and other kernel developer's (<<0.01% of the universe) kernel
->> builds slow down by 5% and my and other people's simulations (perhaps 
->> 0.01% of the universe) speed up by a factor up to 3 or 4, who wins? 
->
->First off, you won't speed up by a factor of three or four. Not even 
->_close_. 
+Upgrading glibc solves the problem, so why work around it in kernel
+too?
 
-My measurements of factors of 3-4 on more than one hw arch don't
-mean anything then? BTW: Ingo Molnar has a response that did find 
-my comp.arch posts. As I indicated to him, I've done a lot of code
-tuning to get better performance even in the presence of tlb issues.
-This factor is what is left. Starting from an untuned code, the factor
-can be up to an order of magnitude larger. As in 30-60. Yes, I've
-measured that too, though these detailed measurments were only on
-mips/origins.
+Your patch is not a solution, since readdir will remain nonconforming.
+It is basically a workaround for a bug in glibc.  It makes readdir
+nonconforming in a different way, but the end result in not
+necessarily better.
 
+If you manage to make dcache_readdir conform to SUS without overly
+bloating the implementation, that's fine.
 
-It is true that I have never had the opportunity to test these
-issues on x86 and its relatives. Perhaps it would be better there.
-The relative insensitivity of the results I have already to hw 
-arch, indicate otherwise though.
-
-
-Re maintainability: Fine. I like maintainable code too. Coding
-standards are great. Language standards are even better.
-
-These are motherhood statements. Your simple rejections
-("NO, HELL NO!!") even of any attempts to make these sorts
-of improvements seems to make that issue pretty moot anyway. 
-
-
-
-Andy
-
-
+Miklos

@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751040AbVKDWP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbVKDWQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751040AbVKDWP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 17:15:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751041AbVKDWP2
+	id S1751048AbVKDWQp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 17:16:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751051AbVKDWQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 17:15:28 -0500
-Received: from mail.kroah.org ([69.55.234.183]:55195 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751039AbVKDWP1 (ORCPT
+	Fri, 4 Nov 2005 17:16:45 -0500
+Received: from verein.lst.de ([213.95.11.210]:11430 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S1751047AbVKDWQp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 17:15:27 -0500
-Date: Fri, 4 Nov 2005 14:14:37 -0800
-From: Greg KH <greg@kroah.com>
-To: linas@austin.ibm.com
-Cc: paulus@samba.org, linuxppc64-dev@ozlabs.org, johnrose@austin.ibm.com,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       bluesmoke-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/42] PCI Error Recovery for PPC64 and misc device drivers
-Message-ID: <20051104221437.GA20004@kroah.com>
-References: <20051103235918.GA25616@mail.gnucash.org>
+	Fri, 4 Nov 2005 17:16:45 -0500
+Date: Fri, 4 Nov 2005 23:16:39 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: akpm@osdl.org, schwidefsky@de.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 3/4] remove TIOCGSERIAL/TIOCSSERIAL compat_ioctl entries for 390
+Message-ID: <20051104221639.GA9384@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051103235918.GA25616@mail.gnucash.org>
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 03, 2005 at 05:59:18PM -0600, Linas Vepstas wrote:
-> What follows is a long sequence of mostly small patches to implement
-> PCI Error Recovery by adding notification callbacks to the PCI device
-> driver structure, implementing the recovery in 5 device drivers
-> (3 ethernet, two scsi drivers), and adding the actual error detection
-> and recovery code to the ppc64/powerpc arch tree.
-> 
-> Highlights:
-> 
-> -- Patches 1-14: Misc required ppc64/powerpc cleanup/bugfixes/restructuring
-> -- Patch 15: Overview documentation
-> -- Patch 16: changes to include/linux/pci.h
-> -- Patches 17-26: error detection and recovery for pSeries PCI bridge chips
-> -- Patchs 27-32: recovery patches for ethernet, scsi device drivers
-> -- Patches 33-42: More misc ppc64-specific changes
+these ioctls are defintily not compat clean, but we already have a
+proper handler in common code, over-riding it in architecture code
+is counter-productive.
 
-Ok, so at first glance, I only need to pay attention to patches 15, 16,
-and 27-32?  If so, please send the ppc64 specific patches through the
-ppc64 maintainers, and the rpaphp specific patches through that specific
-maintainer.  Then care to resend the 8 remaining patches to me, so I can
-stage them in -mm for a while?
 
-thanks,
-
-greg k-h
+Index: linux-2.6/arch/s390/kernel/compat_ioctl.c
+===================================================================
+--- linux-2.6.orig/arch/s390/kernel/compat_ioctl.c	2005-11-02 11:19:07.000000000 +0100
++++ linux-2.6/arch/s390/kernel/compat_ioctl.c	2005-11-02 11:19:08.000000000 +0100
+@@ -45,10 +45,6 @@
+ 
+ /* s390 only ioctls */
+ COMPATIBLE_IOCTL(TAPE390_DISPLAY)
+-
+-/* s390 doesn't need handlers here */
+-COMPATIBLE_IOCTL(TIOCGSERIAL)
+-COMPATIBLE_IOCTL(TIOCSSERIAL)
+ };
+ 
+ int ioctl_table_size = ARRAY_SIZE(ioctl_start);

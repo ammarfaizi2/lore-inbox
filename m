@@ -1,387 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932163AbVKDQhJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbVKDQgC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932163AbVKDQhJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 11:37:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932748AbVKDQhJ
+	id S932157AbVKDQgC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 11:36:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbVKDQgB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 11:37:09 -0500
-Received: from amdext4.amd.com ([163.181.251.6]:19418 "EHLO amdext4.amd.com")
-	by vger.kernel.org with ESMTP id S932165AbVKDQhG convert rfc822-to-8bit
+	Fri, 4 Nov 2005 11:36:01 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:51650 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932157AbVKDQgB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 11:37:06 -0500
-X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Subject: TSC and Power Management Events on AMD Processors
-Date: Fri, 4 Nov 2005 10:36:57 -0600
-Message-ID: <C2BC72CDFC11A44083B660CAC2E9EA67032328C7@SAUSEXMB1.amd.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: TSC and Power Management Events on AMD Processors
-Thread-Index: AcXhXfjbuODMv8ghQN6va9+hGVasDg==
-From: "Brunner, Richard" <richard.brunner@amd.com>
-To: linux-kernel@vger.kernel.org
-cc: "Andi Kleen" <ak@suse.de>, "Langsdorf, Mark" <mark.langsdorf@amd.com>
-X-OriginalArrivalTime: 04 Nov 2005 16:36:57.0062 (UTC)
- FILETIME=[F8B31060:01C5E15D]
-X-WSS-ID: 6F7551A322C4806226-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+	Fri, 4 Nov 2005 11:36:01 -0500
+Date: Fri, 4 Nov 2005 10:35:57 -0600
+To: John Rose <johnrose@austin.ibm.com>
+Cc: Paul Mackerras <paulus@samba.org>,
+       External List <linuxppc64-dev@ozlabs.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       bluesmoke-devel@lists.sourceforge.net,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 19/42]: ppc64: bugfix: crash on PHB add
+Message-ID: <20051104163557.GR19593@austin.ibm.com>
+References: <20051103235918.GA25616@mail.gnucash.org> <20051104005117.GA26991@mail.gnucash.org> <1131121255.9574.11.camel@sinatra.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1131121255.9574.11.camel@sinatra.austin.ibm.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: linas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thought you might find this note useful ...
-
-     -------------------------------------------------
-     TSC and Power Management Events on AMD Processors
-                        Nov 2, 2005
-                  Rich Brunner, AMD Fellow
-     -------------------------------------------------
-
-
-Current AMD Opteron(tm)  and Athlon(tm)64 processors provide
-power  management mechanisms  that independently  adjust the
-performance state ("P-state") and power state ("C-state") of
-the  processor[1][2];  these  state  changes  can  affect  a
-processor  core's  Time   Stamp  Counter  (TSC)  which  some
-operating systems  may use as  a part of their  time keeping
-algorithms.  Most modern operating systems are well aware of
-the  effect  of these  state  changes  on  the TSC  and  the
-potential for  TSC drift[3] across  multiple processor cores
-and properly account for  it.  Although cores may drift with
-respect to  one another, an individual core's  TSC is always
-monotonically  increasing.  This  drift can  *not*  occur on
-single-processor single-core platforms.
-
-This  note reviews  a  few corner  cases  that an  Operating
-System  should consider  when  using the  TSC  to derive  or
-interpolate  time.   It   also  highlights  AMD's  long-term
-direction for the TSC.
-
-Applications  should  avoid   using  the  TSC  directly  for
-timekeeping  and instead rely  on the  appropriate operating
-system  calls.   Using  the   TSC  directly  means  that  an
-application  is not  protected from  TSC-drift and  does not
-benefit  from   the  logic   in  the  operating   system  to
-work-around it; as a result, applications using TSC directly
-could get confused by TSC-drift.
-
-
-
-P-state Changes
-===============
-
-P-state changes are performed by changing a processor core's
-input voltage  and clock  reference rate; thus  this changes
-the rate at which the  TSC increments. The effect of P-state
-changes  on  the TSC  exists  in  all 7th-generation[7]  and
-8th-generation[8] AMD processors.  If unaccounted for by the
-operating system, this can lead to TSC drift across multiple
-processor cores. Also,  on current AMD Dual-core processors,
-the input voltage and frequency of each core is changed in a
-locked-step manner.  Modern operating systems are well aware
-of the restrictions and effect of P-state changes on the TSC
-in current  AMD processors and already  properly account for
-this when using the TSC to derive or interpolate time.
-
-
-
-
-C1-state Change
-===============
-
-The power  savings from entering C1-state are  enhanced by a
-feature  only   recently  enabled  on   multi-processor  and
-multi-core   platforms,  C1-clock  ramping.    This  feature
-significantly reduces the power  consumption of an idle core
-that issues  the HLT instruction by dividing  down its clock
-rate  relative to  its current  P-state's input  voltage and
-clock reference  rate.  When dividing the  core's clock rate
-down, C1-clock ramping adjusts the TSC increment so that the
-TSC appears to continue  incrementing at the undivided clock
-reference  rate of  the current  P-state.  BIOS  enables and
-configures the value of  the divisor by programming the PMM7
-registers  in the  processor's integrated  Northbridge.  The
-operating system initiates the  mechanism by issuing the HLT
-instruction.  As each core in an AMD Dual-core processor has
-its own  clock-grid, only  the core that  issues the  HLT is
-affected.
-
-The adjustment of a core's TSC increment guards against most
-causes  of   drift.   However,  in   certain  circumstances,
-C1-clock  ramping  can  still  cause  TSC  drift  among  the
-processor  cores.  While  the  clock grid  is divided  down,
-various events,  like cache probes, can cause  the core grid
-to temporarily  return to the  original rate to  process the
-event and then  eventually go back to the  divided rate; the
-TSC  increment  is  properly  adjusted  in  each  direction.
-However,  it is  the dynamic  switching of  the size  of the
-increment  as the core  clock grid  transitions up  and down
-through  its  ramping that  eventually  leads  to TSC  drift
-across multiple processor cores.
-
-TSC  drift  due  to  C1-clock  ramping  can  occur  only  on
-8th-generation[8]   AMD    multi-processor   platforms   and
-uni-processor  dual-core platforms.   This  drift can  *not*
-occur  on  single-processor  single-core platforms.   It  is
-generally noticeable only when the operating system uses the
-TSC as either the only source  of time or as a fast timer to
-interpolate  between  periodic  timer interrupts.   C1-clock
-ramping  is a  recent feature  and  at this  moment is  used
-mostly  by single-processor  platforms.   On multi-processor
-platforms, TSC usage is  minimized as most operating systems
-prefer  HPET[5] or  the ACPI  PM  Timer[6] over  TSC.  As  a
-result,  this  TSC  drift  has been  observed  primarily  on
-single-processor  dual-core platforms  which  do not  expose
-HPET and which are running an operating system that is using
-TSC on that platform. Action is required for these operating
-systems as  outlined in the "Solutions"  section below, but,
-fortunately,  many  of  them  already  provide  simple  boot
-configuration  options that  allow  the TSC  to be  bypassed
-(such  as "notsc"  and  "clock=pmtmr") to  work around  this
-problem.
-
-
-
-
-C2 and C3 State Change
-======================
-
-The core-clock grid can be divided up and down when entering
-and  exiting  C2 and  C3  states  and  the TSC  is  adjusted
-accordingly.   However, the  clock-grid  of all  cores on  a
-processor are ramped up and down in lockstep, so the TSC can
-never  drift   between  the  multiple  cores   of  a  single
-processor.  Furthermore, AMD supports  C2 and C3 states only
-on an  uni-processor mobile  system.  As a  result, entering
-and exiting C2 and C3  states does not cause TSC drift among
-processor cores.
-
-
-
-
-STPCLK-Throttling
-=================
-
-STPCLK-throttling   is  supported   on   8th-generation  AMD
-uni-processor and multi-processor platforms; it is supported
-for   7th-generation   processors   only  on   uni-processor
-platforms.  STPCLK-throttling  reduces the power consumption
-of the  entire platform by  dividing down the clock  rate of
-all processor cores in  all processors on the platform.  The
-southbridge  initiates a  STPCLK-throttling  message to  all
-processors based on external temperature sensors, timers, or
-other  external  events that  have  been  designed into  the
-platform.  Platform  vendors typically use STPCLK-throttling
-as a  safeguard to quickly  cool a platform due  to abnormal
-thermal  conditions that  occur on  the platform  or  in the
-environment   the  platform   is  in.    (Unfortunately,  no
-notification  is  given  to  the OS  when  STPCLK-throttling
-occurs  and only  chipset-specific methods  exist  to detect
-whether a platform is planning on using it.)
-
-The  BIOS  enables the  STPCLK-throttling  mechanism in  the
-southbridge and  programs the processor's response  to it in
-the  PMM5 registers  of the  integrated  northbridge.  (Many
-BIOSes by default program PMM5  for this even if the chipset
-is not able or  configured to generate the STPCLK-throttling
-message.)   STPCLK-throttling ramps  up and  down  the clock
-grid of all  cores on a processor equally,  therefore it can
-not cause TSC drift on a uni-processor platform.
-
-STPCLK signaling will  reach processors in a multi-processor
-platform at different times,  and each processor can ramp up
-and down at different times and different durations than the
-others;  therefore TSC  drift can  occur on  such platforms.
-However as stated earlier, the usage of STPCLK-throttling is
-very  recent and  the  possibility is  reduced because  many
-operating  systems   avoid  using  TSC   on  multi-processor
-platforms or  fallback to using  TSC only when  the platform
-does  not expose  an  HPET.  Also,  STPCLK-throttling is  by
-nature an infrequent platform event.
-
-
-
-
-Future TSC Directions and Solutions
-===================================
-
-Future AMD processors will provide a TSC that is P-state and
-C-State invariant and unaffected by STPCLK-throttling.  This
-will make  the TSC immune  to drift.  Because using  the TSC
-for  fast  timer APIs  is  a  desirable  feature that  helps
-performance,  AMD  has  defined  a CPUID  feature  bit  that
-software   can   test   to   determine   if   the   TSC   is
-invariant. Issuing a CPUID instruction with an %eax register
-value of  0x8000_0007, on a  processor whose base  family is
-0xF, returns "Advanced  Power Management Information" in the
-%eax, %ebx, %ecx,  and %edx registers.  Bit 8  of the return
-%edx is  the "TscInvariant" feature  flag which is  set when
-TSC is P-state, C-state, and STPCLK-throttling invariant; it
-is clear otherwise.
-
-The  rate of the  invariant TSC  is implementation-dependent
-and  will likely  *not* be  the frequency  of  the processor
-core; however,  its period should be short  enough such that
-it is  not possible for two  back-to-back rdtsc instructions
-to  return the  same  value.  Software  which  is trying  to
-measure  actual  processor  frequency  or  cycle-performance
-should  use Performance  Event 76h,  CPU Clocks  not Halted,
-rather than the TSC to count CPU cycles.
-
-
-
-
-Current Solutions to TSC Drift due to C1-clock ramping 
-======================================================
-
-In  general,  it  is  likely  that  end  users  should  only
-experience   and  notice   TSC  drift   on  single-processor
-dual-core platforms  which do not expose HPET  and which are
-running an older operating system  that is using TSC on that
-platform. On  such platforms which  run Linux, the  end user
-can correct  the problem by specifying  the appropriate boot
-option  switch  to  bypass   the  TSC  such  as  "notsc"  or
-"clock=pmtmr".    Equivalent  solutions   exist   for  other
-operating systems[4].
-
-Until TSC  becomes invariant, AMD  recommends that operating
-system  developers  avoid TSC  as  a  fast  timer source  on
-affected systems. (AMD  recommends that the operating system
-should  favor these  time sources  in a  prioritized manner:
-HPET first,  then ACPI PM  Timer, then PIT.)   The following
-pseudo-code shows one way of determining when to use TSC:
-
- use_AMD_TSC() { // returns TRUE if ok to use TSC
-
-   if (CPUID.base_family < 0xf) {
-             // TSC drift doesn't exist on 7th Gen or less
-             // However, OS still needs to consider effects
-             // of P-state changes on TSC
-             return TRUE;
-
-   } else if (CPUID.AdvPowerMgmtInfo.TscInvariant) {
-             // Invariant TSC on 8th Gen or newer, use it
-             // (assume all cores have invariant TSC)
-             return TRUE;
-
-   } else if ((number_processors == 1)&&(number_cores == 1)){
-             // OK to use TSC on uni-processor-uni-core
-             // However, OS still needs to consider effects
-             // of P-state changes on TSC
-             return TRUE;
-
-   } else if ( (number_processors == 1) && 
-               (CPUID.effective_family == 0x0f) &&
-               !C1_ramp_8gen                       ){
-             // Use TSC on 8th Gen uni-proc with C1_ramp off 
-             // However, OS still needs to consider effects
-             // of P-state changes on TSC
-             return TRUE;
-
-   } else {
-             return FALSE;
-   }
-
- }
-
- C1_ramp_8gen() {
-    // Check if C1-Clock ramping enabled in  PMM7.CpuLowPwrEnh
-    // On 8th-Generation cores only. Assume BIOS has setup
-    // all Northbridges equivalently.
-
-    return (1 & read_pci_byte(bus=0,dev=0x18,fcn=3,offset=0x87));
- }
-
-
-
-
-When  an operating  system can  not avoid  using TSC  in the
-short-term,  the  operating   system  will  need  to  either
-re-synchronize the TSC of  the halted core when exiting halt
-or disable C1-clock  ramping.  The pseudo-code for disabling
-C1-clock ramping follows:
-
- if ( !use_AMD_TSC() && 
-      (CPUID.effective_family == 0x0f) &&
-      C1_ramp_8gen()                       ){
-
-    for (i=0; i < number_processors; ++i){
-       // Do for all NorthBridges in platform
-       tmp = read_pci_byte(bus=0,dev=0x18+i,fcn=3,offset=0x87);
-       tmp &= 0xFC;    // clears pmm7[1:0]
-       write_pci_byte(bus=0,dev=0x18+i,fcn=3,offset=0x87,tmp)
-      }
-
- }
-
-
-
-Current Solutions to TSC Drift due to STPCLK-Throttling 
-=======================================================
-
-TSC  drift  due  to  STPCLK-throttling  can  occur  only  on
-8th-generation AMD  multi-processor platforms.  Furthermore,
-the  possibility is greatly  reduced because  many operating
-systems  avoid  using TSC  on  multi-processor platforms  or
-fallback to using TSC only when the platform does not expose
-an HPET. Lastly, STPCLK-throttling is an infrequent platform
-event. However,  end users running Linux,  can guard against
-the  possibility by specifying  the appropriate  boot option
-switch to bypass the TSC such as "notsc" or "clock=pmtmr".
-
-An  operating system  that  can  not avoid  using  TSC on  a
-multi-processor  platform  may  choose  to work  around  the
-possibility of  TSC drift  due to STPCLK-throttling.   It is
-very unlikely that the  TSC-drift accumulated in 1 second by
-asserting and de-asserting STPCLK-throttling is significant.
-Therefore an operating system  could choose to re-adjust the
-TSC value of  a processor core relative to  an external time
-source once  a second -- the  cores need not  be adjusted in
-lockstep.  This  would guard against the  possibility of TSC
-drift among multiple processor cores.
-
-
-
-
-Footnotes
-=========
-[1] Throughout this discussion,  a processor is defined as a
-    physical  socketed chip package  containing one  or more
-    on-die CPU cores;  a processor plugs into a  socket on a
-    platform motherboard.
-
-[2] These are described  in the "BIOS and Kernel Developer's
-    Guide  for   AMD  Athlon(tm)  64   and  AMD  Opteron(tm)
-    Processors", Publication 26094
-
-[3] TSC drift occurs when the computed (expected) difference
-    between the  TSCs of two  cores is no longer  a constant
-    value but  varies by a  significant amount to  the shock
-    and surprise of the operating system.
-
-[4] 32-bit  Windows XP SP2,  64-bit Windows XP,  and Windows
-    2003  SP1  provide   the  "/usepmtimer"  switch  in  the
-    boot.ini to  override using the  TSC on single-processor
-    dual-core platforms; these operating systems do not rely
-    upon TSC on multi-processor platforms.
-
-[5] HPET  High Precision  Event  Timer  is  defined in  the
-    "Advanced    Configuration     and    Power    Interface
-    Specification, Revision 3.0"
-
-[6] ACPI Power Management  Timer is defined in the "Advanced
-    Configuration   and   Power   Interface   Specification,
-    Revision 3.0"
-
-[7] AMD's 7th  generation  processors return  a CPUID  base
-    family value of '7'. These include AMD Athlon, AthlonXP,
-    AthlonMP, and Duron.
-
-[8] AMD's  8th generation  processors  return an  effective
-    CPUID family of '0x0F'. These include AMD Opteron, 
-    Athlon64, and Turion.
- 
+On Fri, Nov 04, 2005 at 10:20:55AM -0600, John Rose was heard to remark:
+> > This patch fixes a bug related to dlpar PHB add, after a PHB removal.
+> 
+> This and patch 18 seem logically separate from the feature.  This
+> complicates review and adds to an already large patch set.  Could we
+> handle these separately?
+
+I sent these in separetely, a month ago, as bug fixes for the dlpar 
+crashes in the pre-2.6.14 kernels, but these were never applied.  
+Since they're needed to get EEH to work, I just sent them in again 
+with this set.  Yes, I'm aware that the patch you sent yesterday
+fixes the same bug in almost the same way. 
+
+What you really want to concentrate on are patches 20 through 23
+which mess with the guts of the rpaphp code. But again, these are 
+the same old patches, they have not changed since the submit last 
+month.
+
+--linas
 

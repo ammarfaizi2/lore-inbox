@@ -1,65 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbVKDQzw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbVKDQzq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750711AbVKDQzw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 11:55:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750718AbVKDQzw
+	id S1750708AbVKDQzq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 11:55:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750711AbVKDQzq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 11:55:52 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:42953
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1750711AbVKDQzv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 11:55:51 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: [RFC,PATCH] libfs dcache_readdir() and dcache_dir_lseek() bugfix
-Date: Fri, 4 Nov 2005 10:55:33 -0600
-User-Agent: KMail/1.8
-Cc: jblunck@suse.de, linux-kernel@vger.kernel.org
-References: <20051104113851.GA4770@hasse.suse.de> <20051104115101.GH7992@ftp.linux.org.uk>
-In-Reply-To: <20051104115101.GH7992@ftp.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Nov 2005 11:55:46 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:2827 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1750708AbVKDQzp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 11:55:45 -0500
+Date: Fri, 4 Nov 2005 11:54:34 -0500
+From: Neil Horman <nhorman@tuxdriver.com>
+To: linux-kernel@vger.kernel.org
+Cc: bonding-devel@lists.sourceforge.net, nhorman@tuxdriver.com,
+       ctindel@users.sourceforge.net, fubar@us.ibm.com, akpm@osdl.org
+Subject: [PATCH] fix ifenslave to not fail on lack of IP information
+Message-ID: <20051104165434.GB17181@hmsreliant.homelinux.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="LpQ9ahxlCli8rRTG"
 Content-Disposition: inline
-Message-Id: <200511041055.33882.rob@landley.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 04 November 2005 05:51, Al Viro wrote:
-> On Fri, Nov 04, 2005 at 12:38:51PM +0100, jblunck@suse.de wrote:
-> > This patch effects all users of libfs' dcache directory implementation.
-> >
-> > Old glibc implementations (e.g. glibc-2.2.5) are lseeking after every
-> > call to getdents(), subsequent calls to getdents() are starting to read
-> > from a wrong f_pos, when the directory is modified in between. Therefore
-> > not all directory entries are returned. IMHO this is a bug and it breaks
-> > applications, e.g. "rm -fr" on tmpfs.
-> >
-> > SuSV3 only says:
-> > "If a file is removed from or added to the directory after the most
-> > recent call to opendir() or rewinddir(), whether a subsequent call to
-> > readdir_r() returns an entry for that file is unspecified."
->
-> IOW, the applications in question are broken since they rely on unspecified
-> behaviour, not provided by old libc versions.
 
-Are you sure that's the problem?
+--LpQ9ahxlCli8rRTG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Directory starts with 26 files named A-F.
-Reading through directory starts at A, makes it to J (position 10).
-File B gets deleted.
-directory reading continues at new position 11, which is now L.
+The current version of ifenslave fails to attach slave interfaces to a bond=
+ if
+the masters doesn't have appropriate IP information.  While its common for
+bonded interface to have IP information its not required (bond as part of a
+bridge for instance).  This patch modifies ifenslave to not fail if IP
+information is not available in the master at the time of enslaving.
 
-So directory read returns A-J, L-Z, and never returns K even though K didn't 
-change.
+Regards
+Neil
 
-The "that file" mentioned by SuSv3 above would be _B_ here.  Not K.  K didn't 
-change.
+Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
 
-That said, I'm pretty sure it's the old libc behavior that's defective.  If a 
-new entry B' had been inserted instead, the directory traversal would have 
-seen L twice.  Iterating by position is just wrong...
 
-Rob
+ ifenslave.c |   10 ++++------
+ 1 files changed, 4 insertions(+), 6 deletions(-)
+
+
+diff --git a/Documentation/networking/ifenslave.c b/Documentation/networkin=
+g/ifenslave.c
+--- a/Documentation/networking/ifenslave.c
++++ b/Documentation/networking/ifenslave.c
+@@ -517,11 +517,10 @@ static int if_getconfig(char *ifname)
+ 	       ifname, ifr.ifr_flags);
+=20
+ 	strcpy(ifr.ifr_name, ifname);
+-	if (ioctl(skfd, SIOCGIFADDR, &ifr) < 0)
+-		return -1;
+-	printf("The result of SIOCGIFADDR is %2.2x.%2.2x.%2.2x.%2.2x.\n",
+-	       ifr.ifr_addr.sa_data[0], ifr.ifr_addr.sa_data[1],
+-	       ifr.ifr_addr.sa_data[2], ifr.ifr_addr.sa_data[3]);
++	if (ioctl(skfd, SIOCGIFADDR, &ifr) >=3D 0)
++		printf("The result of SIOCGIFADDR is %2.2x.%2.2x.%2.2x.%2.2x.\n",
++		       ifr.ifr_addr.sa_data[0], ifr.ifr_addr.sa_data[1],
++		       ifr.ifr_addr.sa_data[2], ifr.ifr_addr.sa_data[3]);
+=20
+ 	strcpy(ifr.ifr_name, ifname);
+ 	if (ioctl(skfd, SIOCGIFHWADDR, &ifr) < 0)
+@@ -1085,7 +1084,6 @@ static int set_if_addr(char *master_ifna
+ 				slave_ifname, ifra[i].req_name,
+ 				strerror(saved_errno));
+=20
+-			return res;
+ 		}
+=20
+ 		ipaddr =3D ifr.ifr_addr.sa_data;
+--=20
+/***************************************************
+ *Neil Horman
+ *Software Engineer
+ *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
+ ***************************************************/
+
+--LpQ9ahxlCli8rRTG
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFDa5JKM+bEoZKnT6ERAi5OAJwPoYfzHqpfjRagg/3e2XatEKSiCwCePRTn
+mY0uIE9mmJkQM8bp0YMBEYA=
+=9pUR
+-----END PGP SIGNATURE-----
+
+--LpQ9ahxlCli8rRTG--

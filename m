@@ -1,65 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161070AbVKDB5a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030583AbVKDCIg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161070AbVKDB5a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 20:57:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161103AbVKDB5a
+	id S1030583AbVKDCIg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 21:08:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030587AbVKDCIg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 20:57:30 -0500
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:24925 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1161070AbVKDB53 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 20:57:29 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=uTSTq8FmsOED8qOEnq2dMyrkguiwdssVZMynrsiq7MTPgKqylHf81QW8bKSB4Zfcmne69ikChT3k4fNC1xMyqFwDnCLk+Q5bYwGAVBMuHCwjsGgLR7iX0Yq8BicNc8DJGAmOiNlYedxWHC5Bzb75j41x8RwmE6k7U+04mH8nAqE=  ;
-Message-ID: <436AC07D.2070602@yahoo.com.au>
-Date: Fri, 04 Nov 2005 12:59:25 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mel Gorman <mel@csn.ul.ie>
-CC: Linus Torvalds <torvalds@osdl.org>, "Martin J. Bligh" <mbligh@mbligh.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Dave Hansen <haveblue@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, kravetz@us.ibm.com,
-       linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>,
-       Arjan van de Ven <arjanv@infradead.org>
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-References: <4366C559.5090504@yahoo.com.au> <1130856555.14475.77.camel@localhost><20051101150142.GA10636@elte.hu> <1130858580.14475.98.camel@localhost><20051102084946.GA3930@elte.hu> <436880B8.1050207@yahoo.com.au><1130923969.15627.11.camel@localhost> <43688B74.20002@yahoo.com.au><255360000.1130943722@[10.10.2.4]> <4369824E.2020407@yahoo.com.au> <306020000.1131032193@[10.10.2.4]> <1131032422.2839.8.camel@laptopd505.fenrus.org>  <Pine.LNX.4.64.0511030747450.27915@g5.osdl.org> <Pine.LNX.4.58.0511031613560.3571@skynet>  <Pine.LNX.4.64.0511030842050.27915@g5.osdl.org> <309420000.1131036740@[10.10.2.4]>  <Pine.LNX.4.64.0511030918110.27915@g5.osdl.org> <311050000.1131040276@[10.10.2.4]> <1131040786.2839.18.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0511031006550.27915@g5.osdl.org> <312300000.1131041824@[10.1! 0.2.4]> <436AB241.2030403@yahoo.com.au> <Pine.LNX.4.64.0511031704590.27915@g5.osdl.org> <436AB7CA.6060603@yahoo.com.au> <Pine.LNX.4.58.0511040134460.9172@skynet>
-In-Reply-To: <Pine.LNX.4.58.0511040134460.9172@skynet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Nov 2005 21:08:36 -0500
+Received: from pop-knobcone.atl.sa.earthlink.net ([207.69.195.64]:4339 "EHLO
+	pop-knobcone.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
+	id S1030583AbVKDCIg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 21:08:36 -0500
+From: John Mock <kd6pag@qsl.net>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14: advansys & zd1201 on PowerMac 8500/G3
+Message-Id: <E1EXr0G-00045u-98@penngrove.fdns.net>
+Date: Thu, 03 Nov 2005 18:08:28 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mel Gorman wrote:
-> On Fri, 4 Nov 2005, Nick Piggin wrote:
-> 
-> Todays massive machines are tomorrows desktop. Weak comment, I know, but
-> it's happened before.
-> 
+    PowerMac 8500 is an old fragile beast. Especially with a G3 processor
+    hooked on it. The venerable Apple Bandit PCI bridge can have some
+    "issues" every now and then with trivial things like ... cache coherency
+    (ugh !). It tends to hit things like USB pretty badly. I can't guarantee
+    for sure that's the cause of your problem, but it's possible...
+					       -- benh@kernel.crashing.org
 
-Oh I wouldn't bet against it. And if desktops of the future are using
-100s of GB then they probably would be happy to use 64K pages as well.
+The ZD1201 driver has been stable on 2.6.11.7 and i think also 2.6.13-rc6,
+but 2.6.14/ppc seems to have problems with that driver.  I suppose i could
+try building up an 2.6.14/i386 and test it there if that might help...  
 
-> 
->>Maybe the solution is to bloat the kernel sources enough to make
->>64KB pages worthwhile?
->>
-> 
+Attached are some USB kernel messages and extracts from `lsusb -v`.  Thank
+you for your comments and assistance.
 
-Sorry this wasn't meant to be a dig at your patches - I guess it turned
-out that way though :\
+				  -- JM
 
-But yes, if anybody is adding complexity or size to core code it
-obviously does need to be justified -- and by no means does this only
-apply to you.
-
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+-------------------------------------------------------------------------------
+	...
+usbcore: registered new driver usbfs
+usbcore: registered new driver hub
+usbcore: registered new driver usbmouse
+drivers/usb/input/usbmouse.c: v1.6:USB HID Boot Protocol mouse driver
+	...
+USB Universal Host Controller Interface driver v2.3
+PCI: Enabling device 0000:00:0f.0 (0014 -> 0015)
+PCI: Via IRQ fixup for 0000:00:0f.0, from 25 to 9
+uhci_hcd 0000:00:0f.0: UHCI Host Controller
+uhci_hcd 0000:00:0f.0: new USB bus registered, assigned bus number 1
+uhci_hcd 0000:00:0f.0: irq 25, io base 0x00000860
+hub 1-0:1.0: USB hub found
+hub 1-0:1.0: 2 ports detected
+PCI: Enabling device 0000:00:0f.1 (0014 -> 0015)
+PCI: Via IRQ fixup for 0000:00:0f.1, from 25 to 9
+uhci_hcd 0000:00:0f.1: UHCI Host Controller
+usb 1-1: new low speed USB device using uhci_hcd and address 2
+uhci_hcd 0000:00:0f.1: new USB bus registered, assigned bus number 2
+uhci_hcd 0000:00:0f.1: irq 25, io base 0x00000840
+input: Logitech N48 on usb-0000:00:0f.0-1
+hub 2-0:1.0: USB hub found
+hub 2-0:1.0: 2 ports detected
+usb 2-1: new full speed USB device using uhci_hcd and address 2
+usb 2-1: wlan0: ZD1201 USB Wireless interface
+usbcore: registered new driver zd1201
+PCI: Enabling device 0000:00:0f.2 (0014 -> 0016)
+PCI: Via IRQ fixup for 0000:00:0f.2, from 25 to 9
+ehci_hcd 0000:00:0f.2: EHCI Host Controller
+ehci_hcd 0000:00:0f.2: new USB bus registered, assigned bus number 3
+ehci_hcd 0000:00:0f.2: irq 25, io mem 0x80800000
+ehci_hcd 0000:00:0f.2: USB 2.0 initialized, EHCI 0.95, driver 10 Dec 2004
+usb 2-1: wlan0: rx urb failed: -84
+usb 2-1: USB disconnect, address 2
+usb 1-1: USB disconnect, address 2
+hub 3-0:1.0: USB hub found
+hub 3-0:1.0: 4 ports detected
+usb 1-1: new low speed USB device using uhci_hcd and address 3
+input: Logitech N48 on usb-0000:00:0f.0-1
+usb 2-1: new full speed USB device using uhci_hcd and address 3
+usb 2-1: wlan0: ZD1201 USB Wireless interface
+	...
+-------------------------------------------------------------------------------
+Bus 003 Device 001: ID 0000:0000  
+	...
+  iManufacturer           3 Linux 2.6.11.7 ehci_hcd
+  iProduct                2 VIA Technologies, Inc. USB 2.0
+	...
+Bus 002 Device 003: ID 0ace:1201  
+	...
+  iManufacturer           0 
+  iProduct                2 USB WLAN
+	...
+Bus 002 Device 001: ID 0000:0000  
+	...
+  iManufacturer           3 Linux 2.6.11.7 uhci_hcd
+  iProduct                2 VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (#2)
+	...
+Bus 001 Device 003: ID 046d:c001 Logitech, Inc. N48/M-BB48 [FirstMouse Plus]
+	...
+  idVendor           0x046d Logitech, Inc.
+  idProduct          0xc001 N48/M-BB48 [FirstMouse Plus]
+	...
+Bus 001 Device 001: ID 0000:0000  
+	...
+  iManufacturer           3 Linux 2.6.11.7 uhci_hcd
+  iProduct                2 VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller
+	...
+===============================================================================

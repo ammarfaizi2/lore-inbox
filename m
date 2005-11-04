@@ -1,176 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750889AbVKDUID@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbVKDUM5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750889AbVKDUID (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 15:08:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750897AbVKDUID
+	id S1750899AbVKDUM5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 15:12:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750900AbVKDUM5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 15:08:03 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:37550 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750889AbVKDUIB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 15:08:01 -0500
-Date: Fri, 4 Nov 2005 12:08:02 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, dipankar@in.ibm.com, suzannew@cs.pdx.edu
-Subject: Re: [PATCH] Fixes for RCU handling of task_struct
-Message-ID: <20051104200801.GA16092@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20051031020535.GA46@us.ibm.com> <20051031140459.GA5664@elte.hu> <20051031205119.5bd897f3.akpm@osdl.org> <20051103190916.GA13417@us.ibm.com> <436B9D5D.3EB28CD5@tv-sign.ru>
+	Fri, 4 Nov 2005 15:12:57 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:57254 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750897AbVKDUM5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 15:12:57 -0500
+Date: Fri, 4 Nov 2005 21:12:48 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andy Nelson <andy@thermo.lanl.gov>
+Cc: torvalds@osdl.org, akpm@osdl.org, arjan@infradead.org,
+       arjanv@infradead.org, haveblue@us.ibm.com, kravetz@us.ibm.com,
+       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, mbligh@mbligh.org, mel@csn.ul.ie,
+       nickpiggin@yahoo.com.au
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+Message-ID: <20051104201248.GA14201@elte.hu>
+References: <20051104170359.80947184684@thermo.lanl.gov>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <436B9D5D.3EB28CD5@tv-sign.ru>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20051104170359.80947184684@thermo.lanl.gov>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 04, 2005 at 08:41:49PM +0300, Oleg Nesterov wrote:
-> "Paul E. McKenney" wrote:
-> > 
-> > On Mon, Oct 31, 2005 at 08:51:19PM -0800, Andrew Morton wrote:
-> > > Ingo Molnar <mingo@elte.hu> wrote:
-> > > >
-> > > > @@ -1433,7 +1485,16 @@ send_group_sigqueue(int sig, struct sigq
-> > > >     int ret = 0;
-> > > >
-> > > >     BUG_ON(!(q->flags & SIGQUEUE_PREALLOC));
-> > > >  -  read_lock(&tasklist_lock);
-> > > >  +
-> > > >  +  while(!read_trylock(&tasklist_lock)) {
-> > > >  +          if (!p->sighand)
-> > > >  +                  return -1;
-> > > >  +          cpu_relax();
-> > > >  +  }
-> > >
-> > > This looks kind of ugly and quite unobvious.
-> > >
-> > > What's going on there?
-> > 
-> > This was discussed in the following thread:
-> > 
-> >         http://marc.theaimsgroup.com/?l=linux-kernel&m=112756875713008&w=2
-> > 
-> > Looks like its author asked for it to be withdrawn in favor of Roland's
-> > "[PATCH] Call exit_itimers from do_exit, not __exit_signal" patch:
-> > 
-> >         http://marc.theaimsgroup.com/?l=linux-kernel&m=113008567108608&w=2
-> > 
-> > My guess is that "Roland" is "Roland McGrath", but I cannot find the
-> > referenced patch.  Oleg, any enlightenment?
+
+* Andy Nelson <andy@thermo.lanl.gov> wrote:
+
+> The problem is a different configuration of particles, and about 2 
+> times bigger (7Million) than the one in comp.arch (3million I think). 
+> I would estimate that the data set in this test spans something like 
+> 2-2.5GB or so.
 > 
-> Yes, it was from Roland McGrath:
+> Here are the results:
 > 
-> 	http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=25f407f0b668f5e4ebd5d13e1fb4306ba6427ead
-> 
-> So I think you can remove ->sighand == NULL re-check and do s/read_trylock/read_lock/.
-> Posix timers are destroyed from do_exit()->exit_itimers(), after that nobody can send
-> SI_TIMER to this dying thread group (even if cpu-timer was attached to another process).
+> cpus    4k pages   16m pages
+> 1       4888.74s   2399.36s
+> 2       2447.68s   1202.71s
+> 4       1225.98s    617.23s
+> 6        790.05s    418.46s
+> 8        592.26s    310.03s
+> 12       398.46s    210.62s
+> 16       296.19s    161.96s
 
-This one is not my patch, but, in the spirit of getting things resolved,
-I will respond as best I can.
+interesting, and thanks for the numbers. Even if hugetlbs were only 
+showing a 'mere' 5% improvement, a 5% _user-space improvement_ is still 
+a considerable improvement that we should try to achieve, if possible 
+cheaply.
 
-I agree with the change from read_trylock() to read_lock(), given
-that Roland's change has been merged.  I also agree with removing the
-check against NULL ("if (!p->sighand)").
+the 'separate hugetlb zone' solution is cheap and simple, and i believe 
+it should cover your needs of mixed hugetlb and smallpages workloads.
 
-Andrew, if you would be willing to send me the current state of your
-kernel/signal.c, I would be happy to provide the appropriate patch
-to get this straightened out.  If there is somewhere I should be
-looking to figure this out myself, please let me know.
+it would work like this: unlike the current hugepages=<nr> boot 
+parameter, this zone would be useful for other (4K sized) allocations 
+too. If an app requests a hugepage then we have the chance to allocate 
+it from the hugetlb zone, in a guaranteed way [up to the point where the 
+whole zone consists of hugepages only].
 
-> send_sigqueue() is different,
-> 
-> > @@ -1385,16 +1407,47 @@ send_sigqueue(int sig, struct sigqueue *
-> >  {
-> >         unsigned long flags;
-> >         int ret = 0;
-> > +       struct sighand_struct *sh = p->sighand;
-> > 
-> >         BUG_ON(!(q->flags & SIGQUEUE_PREALLOC));
-> > -       read_lock(&tasklist_lock);
-> > +
-> > +       /*
-> > +        * The rcu based delayed sighand destroy makes it possible to
-> > +        * run this without tasklist lock held. The task struct itself
-> > +        * cannot go away as create_timer did get_task_struct().
-> > +        *
-> > +        * We return -1, when the task is marked exiting, so
-> > +        * posix_timer_event can redirect it to the group leader
-> > +        *
-> > +        */
-> > +       rcu_read_lock();
-> > 
-> >         if (unlikely(p->flags & PF_EXITING)) {
-> >                 ret = -1;
-> >                 goto out_err;
-> 
-> Is it really needed? You are doing this check again below.
+the architectural appeal in this solution is that no additional 
+"fragmentation prevention" has to be done on this zone, because we only 
+allow content into it that is "easy" to flush - this means that there is 
+no complexity drag on the generic kernel VM.
 
-This one looks to be an efficiency hack.  It avoids the lock overhead
-in the case that the task is exiting.  Since this case should be rare,
-I agree that it makes sense to remove it.
+can you think of any reason why the boot-time-configured hugetlb zone 
+would be inadequate for your needs?
 
-> > -       spin_lock_irqsave(&p->sighand->siglock, flags);
-> > +       spin_lock_irqsave(&sh->siglock, flags);
->
-> But 'sh' can be NULL, no? Yes, you already checked PF_EXITING, so this is
-> very unlikely, but I think it is still possible in theory. 'sh' was loaded
-> before reading p->flags, but rcu_read_lock() does not imply memory barrier.
-
-'sh' cannot be NULL, because the caller holds ->it_lock and has checked
-for timer deletion under that lock, and because the exiting process
-quiesces and deletes timers before freeing sighand.
-
-I do need to look at races with exec(), which could potentially cause
-us to be working with the wrong instance of sighand.  I will do this
-for -rt, and also for -mm as soon as I get access to it.
-
-> Paul, currently I have no time to read the patch carefully, so probably
-> this all is my misunderstanding.
-
-Oleg, I very much appreciate your identifying the patch!  The exec()
-issue might well be real, and deserves a look in any case.
-
-> > @@ -352,6 +359,7 @@ void __exit_signal(struct task_struct *t
-> >                 BUG();
-> >         if (!atomic_read(&sig->count))
-> >                 BUG();
-> > +       rcu_read_lock();
-> >         spin_lock(&sighand->siglock);
-> 
-> Why rcu_read_lock() here?
-
-In theory unneeded due to the fact that we are holding a reference
-count and only doing atomic operations on the sighand_struct.
-In practice, very cheap operation and easier documentation.  I don't
-want to add strange rules to Documentation/RCU about leaving out
-rcu_read_lock() and rcu_dereference() in the special case where
-all operations on the RCU-protected structure are atomic, especially
-since they are sometimes non-atomic in UP kernels.
-
-The documentation is long enough as it is!  ;-)
-
-> > +static inline int get_task_struct_rcu(struct task_struct *t)
-> > +{
-> > +       int oldusage;
-> > +
-> > +       do {
-> > +               oldusage = atomic_read(&t->usage);
-> > +               if (oldusage == 0) {
-> > +                       return 0;
-> > +               }
-> > +       } while (cmpxchg(&t->usage.counter,
-> > +                oldusage, oldusage + 1) != oldusage);
-> > +       return 1;
-> > +}
-> > 
-> 
-> I still don't understand the purpose of get_task_struct_rcu().
-
-And you are right -- I recently submitted a patch to remove the only
-use of it, but it does not appear to have made it into 2.6.14-rt6.
-I will check -rt6 and submit a consolidated patch against it.
-
-						Thanx, Paul
+	Ingo

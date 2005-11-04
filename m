@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbVKDS7Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbVKDTCb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750822AbVKDS7Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 13:59:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbVKDS7Z
+	id S1750831AbVKDTCb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 14:02:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbVKDTCb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 13:59:25 -0500
-Received: from dslb138.fsr.net ([12.7.7.138]:28907 "EHLO sandall.us")
-	by vger.kernel.org with ESMTP id S1750822AbVKDS7Y (ORCPT
+	Fri, 4 Nov 2005 14:02:31 -0500
+Received: from md2.mail.umd.edu ([128.8.31.175]:5742 "EHLO md2.mail.umd.edu")
+	by vger.kernel.org with ESMTP id S1750831AbVKDTCb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 13:59:24 -0500
-Date: Fri, 4 Nov 2005 11:09:07 -0800 (PST)
-From: Eric Sandall <eric@sandall.us>
-X-X-Sender: sandalle@cerberus
-To: Nigel Cunningham <ncunningham@cyclades.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Suspend2-devel@lists.suspend2.net
-Subject: Re: Problems with 2.6.13.4 and sws2 2.2-rc6
-In-Reply-To: <1131054277.5497.1.camel@localhost>
-Message-ID: <Pine.LNX.4.63.0511041108260.2180@cerberus>
-References: <Pine.LNX.4.63.0511021848420.5265@cerberus> <1131054277.5497.1.camel@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 4 Nov 2005 14:02:31 -0500
+Subject: Something broke suspend/resume between 2.6.11 and 2.6.12/13/14
+From: Steve Moskovchenko <stevenm@umd.edu>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Fri, 04 Nov 2005 14:02:58 -0500
+Message-Id: <1131130978.12842.0.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hello.
+I have a Dell 600m x86 laptop here and I am using suspend-to-ram
+("suspend"). With kernel 2.6.11, everything works fine for months at a
+time- the machine suspends, resumes, there is no problem.
 
-On Fri, 4 Nov 2005, Nigel Cunningham wrote:
-> Hi Eric.
-> On Thu, 2005-11-03 at 13:56, Eric Sandall wrote:
->> I cannot seem to hibernate this machine (Dell Inspiron 5100) after
->> 2.6.12. When I do try, I'm told to report what's in dmesg.log
->> (attached). I've also included the hibernate log (hibernate.log) and
->> the output of `lspci -vv` (lspci.log).
->>
->> Let me know if you need more information or want me to test any
->> patches.
->>
->> Thank you,
->
-> Please post to the Suspend2 lists (found via suspend2.net). If you
-> download rc7 or (preferably) rc8, this will be fixed.
->
-> Regards,
->
-> Nigel
+However, kernels 2.6.12, 2.6.13, and 2.6.14 have all exhibited the
+following problem: every few days the machine will not resume. I open
+the lid, it powers up, hard drive light flashes once or twice, and
+nothing else happens. The screen backlight will not even come back on.
 
-Updating to rc7 (I'm still using the 2.6.13 kernels for now) fixed it,
-thank you. :)
+This is not an issue with other software on the system. After 2.6.12
+refused to resume, I went back to 2.6.11 and everything worked fine
+again. When 2.6.13 came out, I built that and again, sometimes it will
+not resume. I went back to 2.6.11 again and everything worked fine again
+up until I switched to 2.6.14. It worked fine for two days, and now it
+too locked up during resume.
 
-- -sandalle
+I don't want to be stuck on kernel 2.6.11 til the end of time. There
+must have been some significant changes between 2.6.11 and 2.6.12 that
+introduced this... Does anyone have any ideas? Here is a link to
+my .config for 2.6.14 if anyone wants to look at it:
+http://wam.umd.edu/~stevenm/config2614
 
-- --
-Eric Sandall                     |  Source Mage GNU/Linux Developer
-eric@sandall.us                  |  http://www.sourcemage.org/
-http://eric.sandall.us/          |  SysAdmin @ Inst. Shock Physics @ WSU
-http://counter.li.org/  #196285  |  http://www.shock.wsu.edu/
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Thanks for the help
+-- Steve
 
-iD8DBQFDa7HVHXt9dKjv3WERAlyDAJ0bc4sQoT1UHEwCjt05ItTTf5fIqACffOBH
-MJ3eg1/1nEUx6cwYtDZrWNM=
-=prG6
------END PGP SIGNATURE-----
+

@@ -1,76 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751532AbVKDPju@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751515AbVKDPlb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751532AbVKDPju (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 10:39:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751515AbVKDPju
+	id S1751515AbVKDPlb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 10:41:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751537AbVKDPla
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 10:39:50 -0500
-Received: from dvhart.com ([64.146.134.43]:44978 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S1751532AbVKDPjc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 10:39:32 -0500
-Date: Fri, 04 Nov 2005 07:39:33 -0800
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Cc: Paul Jackson <pj@sgi.com>, andy@thermo.lanl.gov, akpm@osdl.org,
-       arjan@infradead.org, arjanv@infradead.org, haveblue@us.ibm.com,
-       kravetz@us.ibm.com, lhms-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, mel@csn.ul.ie,
-       nickpiggin@yahoo.com.au
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-Message-ID: <328940000.1131118773@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.64.0511040725090.27915@g5.osdl.org>
-References: <20051104010021.4180A184531@thermo.lanl.gov><Pine.LNX.4.64.0511032105110.27915@g5.osdl.org> <20051103221037.33ae0f53.pj@sgi.com><20051104063820.GA19505@elte.hu> <Pine.LNX.4.64.0511040725090.27915@g5.osdl.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Fri, 4 Nov 2005 10:41:30 -0500
+Received: from mail.capitalgenomix.com ([143.247.20.203]:62854 "EHLO
+	mail.capitalgenomix.com") by vger.kernel.org with ESMTP
+	id S1751515AbVKDPl3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 10:41:29 -0500
+Date: Fri, 4 Nov 2005 10:42:06 -0500
+From: sean@mail.capitalgenomix.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] kconfig and lxdialog, kernel 2.6.14
+Message-ID: <20051104154206.GB32656@cgx-mail.capitalgenomix.com>
+References: <4360FB44.3010900@capitalgenomix.com> <Pine.LNX.4.61.0510272320360.1386@scrub.home>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Disposition: inline; filename="mconf.patch"
+In-Reply-To: <Pine.LNX.4.61.0510272320360.1386@scrub.home>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> just to make sure i didnt get it wrong, wouldnt we get most of the 
->> benefits Andy is seeking by having a: boot-time option which sets aside 
->> a "hugetlb zone", with an additional sysctl to grow (or shrink) the pool 
->> - with the growing happening on a best-effort basis, without guarantees?
-> 
-> Boot-time option to set the hugetlb zone, yes.
-> 
-> Grow-or-shrink, probably not. Not in practice after bootup on any machine 
-> that is less than idle.
-> 
-> The zones have to be pretty big to make any sense. You don't just grow 
-> them or shrink them - they'd be on the order of tens of megabytes to 
-> gigabytes. In other words, sized big enough that you will _not_ be able to 
-> create them on demand, except perhaps right after boot.
-> 
-> Growing these things later simply isn't reasonable. I can pretty much 
-> guarantee that any kernel I maintain will never have dynamic kernel 
-> pointers: when some memory has been allocated with kmalloc() (or 
-> equivalent routines - pretty much _any_ kernel allocation), it stays put. 
-> Which means that if there is a _single_ kernel alloc in such a zone, it 
-> won't ever be then usable for hugetlb stuff.
-> 
-> And I don't want excessive complexity. We can have things like "turn off 
-> kernel allocations from this zone", and then wait a day or two, and hope 
-> that there aren't long-term allocs. It might even work occasionally. But 
-> the fact is, a number of kernel allocations _are_ long-term (superblocks, 
-> root dentries, "struct thread_struct" for long-running user daemons), and 
-> it's simply not going to work well in practice unless you have set aside 
-> the "no kernel alloc" zone pretty early on.
+On Thu, Oct 27, 2005 at 11:27:42PM +0200, Roman Zippel wrote:
+>
+> On Thu, 27 Oct 2005, Fao, Sean wrote:
+>
+> > This patch is a functionality modification that implements a proposed design
+> > change to lxdialog.  Specifically, this patch makes use of the proposed
+> > "Abort" functionality of lxdialog, which adds an "Abort" button in addition
+> > to the "Yes" and "No" buttons that are currently displayed when a user exits
+> > kconfig.  The Abort button allows a user to return to the root menu of
+> > kconfig rather than exiting.
+>
+> This reminds me I had a similiar patch lying around, could you use this
+> one as a basis.
 
-Exactly. But that's what all the anti-fragmentation stuff was about - trying
-to pack unfreeable stuff together. 
+I like your patch because it was the same idea and one less variable.  The
+only thing that worries me is that the return value from "changes NOT saved"
+is 0 rather than 1, which the original returned.  Is there any reason for
+this?
 
-I don't think anyone is proposing dynamic kernel pointers inside Linux,
-except in that we could possibly change the P-V mapping underneath from
-the hypervisor, so that the phys address would change, but you wouldn't
-see it. Trouble is, that's mostly done on a larger-than-page size
-granularity, so we need SOME larger chunk to switch out (preferably at
-least a large-paged size, so we can continue to use large TLB entries for
-the kernel mapping).
+Signed-off-by: Sean Fao <sean.fao@capitalgenomix.com>
 
-However, the statically sized option is hugely problematic too.
+---
 
-M.
+--- linux-2.6.14/scripts/kconfig/mconf.c	2005-10-27 19:02:08.000000000 -0500
++++ linux/scripts/kconfig/mconf.c	2005-11-03 10:49:43.000000000 -0500
+@@ -1064,34 +1064,37 @@ int main(int ac, char **av)
+ 	tcgetattr(1, &ios_org);
+ 	atexit(conf_cleanup);
+ 	init_wsize();
+-	conf(&rootmenu);
++	while (1) {
++		conf(&rootmenu);
+ 
+-	do {
+-		cprint_init();
+-		cprint("--yesno");
+-		cprint(_("Do you wish to save your new kernel configuration?"));
+-		cprint("5");
+-		cprint("60");
+-		stat = exec_conf();
+-	} while (stat < 0);
++		do {
++			cprint_init();
++			cprint("--yesnoabort");
++			cprint(_("Do you wish to save your new kernel configuration?"));
++			cprint("5");
++			cprint("60");
++			stat = exec_conf();
++		} while (stat < 0);
+ 
+-	if (stat == 0) {
+-		if (conf_write(NULL)) {
++		switch (stat) {
++		case 0:
++			if (conf_write(NULL)) {
++				fprintf(stderr, _("\n\n"
++					"Error during writing of the kernel configuration.\n"
++					"Your kernel configuration changes were NOT saved."
++					"\n\n"));
++				return 1;
++			}
++			printf(_("\n\n"
++				"*** End of Linux kernel configuration.\n"
++				"*** Execute 'make' to build the kernel or try 'make help'."
++				"\n\n"));
++			return 0;
++		case 1:
+ 			fprintf(stderr, _("\n\n"
+-				"Error during writing of the kernel configuration.\n"
+ 				"Your kernel configuration changes were NOT saved."
+ 				"\n\n"));
+-			return 1;
++			return 0;
+ 		}
+-		printf(_("\n\n"
+-			"*** End of Linux kernel configuration.\n"
+-			"*** Execute 'make' to build the kernel or try 'make help'."
+-			"\n\n"));
+-	} else {
+-		fprintf(stderr, _("\n\n"
+-			"Your kernel configuration changes were NOT saved."
+-			"\n\n"));
+ 	}
+-
+-	return 0;
+ }

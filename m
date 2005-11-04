@@ -1,240 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161062AbVKDFFS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161064AbVKDFLX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161062AbVKDFFS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 00:05:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161059AbVKDFFR
+	id S1161064AbVKDFLX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 00:11:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161066AbVKDFLX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 00:05:17 -0500
-Received: from mtiwmhc12.worldnet.att.net ([204.127.131.116]:26847 "EHLO
-	mtiwmhc12.worldnet.att.net") by vger.kernel.org with ESMTP
-	id S1161062AbVKDFFP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 00:05:15 -0500
-From: larry.finger@att.net (Larry.Finger@lwfinger.net)
-To: linux-kernel@vger.kernel.org (kernel)
-Date: Fri, 04 Nov 2005 05:05:14 +0000
-Message-Id: <110420050505.2631.436AEC09000A4D5000000A4721603762239D0A09020700D2979D9D0E04@att.net>
-X-Mailer: AT&T Message Center Version 1 (Oct 30 2005)
-X-Authenticated-Sender: bGFycnkuZmluZ2VyQGF0dC5uZXQ=
+	Fri, 4 Nov 2005 00:11:23 -0500
+Received: from smtp110.sbc.mail.re2.yahoo.com ([68.142.229.95]:54439 "HELO
+	smtp110.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1161064AbVKDFLX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 00:11:23 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Subject: Re: keyboard dies during failed suspend attempt
+Date: Fri, 4 Nov 2005 00:11:17 -0500
+User-Agent: KMail/1.8.3
+Cc: Vojtech Pavlik <vojtech@ucw.cz>, LKML <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@suse.cz>
+References: <4369D04C.70509@drzeus.cx>
+In-Reply-To: <4369D04C.70509@drzeus.cx>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="NextPart_Webmail_9m3u9jl4l_2631_1131080714_0"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511040011.18393.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 03 November 2005 03:54, Pierre Ossman wrote:
+> I discovered a problem with my laptop keyboard when the machine failed 
+> to suspend. Pavel Machek pointed me in your direction for guidance. :)
+> 
+> The original issue (swsusp failing) is in this thread:
+> 
+> http://marc.theaimsgroup.com/?t=113093802700002&r=1&w=2
+> 
+> The side issue is that the keyboard goes completely dead when the 
+> suspend fails like this. Not even hardware buttons that control the 
+> intensity of the TFT backlight work.
+> 
 
---NextPart_Webmail_9m3u9jl4l_2631_1131080714_0
-Content-Type: text/plain
-Content-Transfer-Encoding: 8bit
+Are these controlled by ACPI?
 
-The current kernel (2.6.14-git6) generates a debug message on an HP ze1115 notebook with a
-mobile AMD  Duron(tm) stepping 01 processor. The kernel was compiled with gcc 4.0.2. My config.gz is attached.
+> The problem doesn't happen every time, but it seems to be often enough 
+> to do some decent testing.
+> 
+> The problem seems to have appeared after 2.6.14 was released. Since the 
+>   problem is intermittent I can't be 100% sure of this, but it's fairly 
+> likely since none of the tests before 2.6.14 failed.
+>
 
-Kernel command line: root=/dev/hda6 vga=0x314 selinux=0 resume=/dev/hda3  splash=silent psmouse.proto=bare
+It feels like device_resume is not called somewhere when swsusp fails.
 
-Debug: sleeping function called from invalid context at include/linux/rwsem.h:43
-in_atomic():1, irqs_disabled():0
- [<c0103d9e>] dump_stack+0x1e/0x20
- [<c0117231>] __might_sleep+0xa1/0xc0
- [<c028ef95>] cpufreq_notify_transition+0x45/0x220
- [<ddae1448>] change_speed+0x78/0xf0 [powernow_k7]
- [<ddae190b>] powernow_target+0x4b/0x60 [powernow_k7]
- [<c02902af>] __cpufreq_driver_target+0x5f/0x70
- [<ddb194e1>] dbs_check_cpu+0x151/0x1c0 [cpufreq_ondemand]
- [<ddb19582>] do_dbs_timer+0x32/0x70 [cpufreq_ondemand]
- [<c012b7c6>] worker_thread+0x1c6/0x2b0
- [<c012ff5c>] kthread+0xac/0xb0
- [<c010100d>] kernel_thread_helper+0x5/0x18
+Could you try activating debug mode for i8042:
 
-Using the git bisect method, I determined that
-c32b6b8e524d2c337767d312814484d9289550cf is first bad commit
+	echo 1 > /sys/modules/i8042/parameters/debug
 
-Author: Ashok Raj <ashok.raj@intel.com>
-Date:   Sun Oct 30 14:59:54 2005 -0800
+...and then making it fail. Then we'll see if i8042 resume methods are
+called and whether they succeed.
 
-    [PATCH] create and destroy cpufreq sysfs entries based on cpu notifiers
-
-    cpufreq entries in sysfs should only be populated when CPU is online state.
-     When we either boot with maxcpus=x and then boot the other cpus by echoing
-    to sysfs online file, these entries should be created and destroyed when
-    CPU_DEAD is notified.  Same treatement as cache entries under sysfs.
-
-    We place the processor in the lowest frequency, so hw managed P-State
-    transitions can still work on the other threads to save power.
-
-    Primary goal was to just make these directories appear/disapper dynamically.
-
-    There is one in this patch i had to do, which i really dont like myself but
-    probably best if someone handling the cpufreq infrastructure could give
-    this code right treatment if this is not acceptable.  I guess its probably
-    good for the first cut.
-
-    - Converting lock_cpu_hotplug()/unlock_cpu_hotplug() to disable/enable preempt.
-      The locking was smack in the middle of the notification path, when the
-      hotplug is already holding the lock. I tried another solution to avoid this
-      so avoid taking locks if we know we are from notification path. The solution
-      was getting very ugly and i decided this was probably good for this iteration
-      until someone who understands cpufreq could do a better job than me.
-
-    (akpm: export cpucontrol to GPL modules: drivers/cpufreq/cpufreq_stats.c now
-    does lock_cpu_hotplug())
-
-    Signed-off-by: Ashok Raj <ashok.raj@intel.com>
-    Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-    Cc: Dave Jones <davej@codemonkey.org.uk>
-    Cc: Zwane Mwaikambo <zwane@holomorphy.com>
-    Cc: Greg KH <greg@kroah.com>
-    Signed-off-by: Andrew Morton <akpm@osdl.org>
-    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-
-:040000 040000 0892a56c73b43a6984224f16ac60e742d4d22588 e87c14eb9bb5a06b0cf4ff668f794bfa4dc2968d M      drivers
-:040000 040000 3cad3076f6bc2372704f09bed50e77f7a5f26192 b8a5721cc1a2730bc38c6c34dbd57493713db7bb M      kernel
-
-Larry
-
---NextPart_Webmail_9m3u9jl4l_2631_1131080714_0
-Content-Type: application/octet-stream; name="config.gz"
-Content-Transfer-Encoding: base64
-
-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
-
---NextPart_Webmail_9m3u9jl4l_2631_1131080714_0--
+-- 
+Dmitry

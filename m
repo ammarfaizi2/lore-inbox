@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932736AbVKDNB6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751025AbVKDNEo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932736AbVKDNB6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 08:01:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932738AbVKDNB6
+	id S1751025AbVKDNEo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 08:04:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751415AbVKDNEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 08:01:58 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:63626 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S932736AbVKDNB6 (ORCPT
+	Fri, 4 Nov 2005 08:04:44 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:37323 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1751025AbVKDNEo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 08:01:58 -0500
-Subject: Re: tty locking again :)
+	Fri, 4 Nov 2005 08:04:44 -0500
+Subject: Re: Parallel ATA with libata status with the patches I'm working on
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1131087820.4680.248.camel@gaston>
-References: <1131087820.4680.248.camel@gaston>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1131086585.4680.235.camel@gaston>
+References: <1131029686.18848.48.camel@localhost.localdomain>
+	 <1131086585.4680.235.camel@gaston>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Fri, 04 Nov 2005 13:32:04 +0000
-Message-Id: <1131111124.26925.21.camel@localhost.localdomain>
+Date: Fri, 04 Nov 2005 13:34:57 +0000
+Message-Id: <1131111297.26925.24.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-11-04 at 18:03 +1100, Benjamin Herrenschmidt wrote:
-> I noticed that there doesn't seem to be any kind of locking in
-> tty_(un)register_driver. It can very easily race with tty_open() doing a
-> get_tty_driver(). Shouldn't tty_(un)register_driver be changed to take
-> the tty_sem at least while manipulating the list ?
+On Gwe, 2005-11-04 at 17:43 +1100, Benjamin Herrenschmidt wrote:
+> > - HPA
+> > - IRQ mask
+> 
+> Why do we need the above at all ? It always looked to me like a gross
+> hack but then, I don't fully understand what the problem was on those
+> old x86 that needed it :)
 
-Its totally racy. Its on the todo list but I'm waiting for the buffering
-changes to get into the Linus kernel and tested before doing the next
-chunk of work on it (firstly fixing the rx/tx locking, then removing
-TTY_DONT_FLIP which is a precursor to sanity for polled serial devices
-and DMA)
+You can't do anything useful with some systems without disabling the HPA
+because it is used to mask most of the drive at boot to hide from old
+incompatible BIOS.
 
-> I noticed that while chasing a different bug (a driver bug actually),
-> but I don't see how we are protected here. And considering the race I
-> found in the driver, I tend to think we aren't protected at all
+IRQ mask is on my todo list and looks quite easy. A small number of
+controllers mishandle the case when the FIFO empties. Instead of
+stalling the drive they dribble random numbers. 
 
-It all needs considerable work. Fixing the receive/transmit locking is
-IMHO by far the most important however now the buffers are done.
+> > ATIIXP
+> > IT8172
+> > OPTI621
+
+Did initial drivers for those three yesterday
+
+> > SL82C105
+
+And that one last night/this morning although it (and the old one) both
+need serialize to fix bugs.
 
 Alan
 

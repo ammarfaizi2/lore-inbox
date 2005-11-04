@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750752AbVKDTVr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750844AbVKDT3H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750752AbVKDTVr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 14:21:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbVKDTVr
+	id S1750844AbVKDT3H (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 14:29:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750850AbVKDT3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 14:21:47 -0500
-Received: from Mail.MNSU.EDU ([134.29.1.12]:39052 "EHLO mail.mnsu.edu")
-	by vger.kernel.org with ESMTP id S1750752AbVKDTVq (ORCPT
+	Fri, 4 Nov 2005 14:29:07 -0500
+Received: from 10.ctyme.com ([69.50.231.10]:28848 "EHLO newton.ctyme.com")
+	by vger.kernel.org with ESMTP id S1750844AbVKDT3G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 14:21:46 -0500
-Message-ID: <436BB4AD.9020202@mnsu.edu>
-Date: Fri, 04 Nov 2005 13:21:17 -0600
-From: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+	Fri, 4 Nov 2005 14:29:06 -0500
+Message-ID: <436BB681.1000103@perkel.com>
+Date: Fri, 04 Nov 2005 11:29:05 -0800
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Marc Perkel <marc@perkel.com>
+To: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
 CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Gigabyte GA-K8N51GMF-9 Motherboard
-References: <436ACD9D.2070501@perkel.com>
-In-Reply-To: <436ACD9D.2070501@perkel.com>
+References: <436ACD9D.2070501@perkel.com> <436BB4AD.9020202@mnsu.edu>
+In-Reply-To: <436BB4AD.9020202@mnsu.edu>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spamfilter-host: newton.ctyme.com - http://www.junkemailfilter.com"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's not the same MB, but perhaps similar, I have a ga-k8ns. The 
-Ethernet port works fine.  However; things did seem a little funky until 
-I added ACPI support.  It seem that interrupts weren't being delivered 
-as they should have been.
 
-Symptom: sound would stutter REALLY bad, and the Ethernet module would 
-load but never work.
+
+Jeffrey Hundstad wrote:
+
+> It's not the same MB, but perhaps similar, I have a ga-k8ns. The 
+> Ethernet port works fine.  However; things did seem a little funky 
+> until I added ACPI support.  It seem that interrupts weren't being 
+> delivered as they should have been.
+>
+> Symptom: sound would stutter REALLY bad, and the Ethernet module would 
+> load but never work.
+>
+
+Thanks for your help. I figured out what the problem was. I was 
+installing FC4 and it uses 2.6.11 kernel and when I installed a later 
+kernel it works. Aparently the 2.6.12 kernel included the drivers that 
+work with this motherboard.
 
 -- 
-Jeffrey Hundstad
+Marc Perkel - marc@perkel.com
 
-Marc Perkel wrote:
-
-> ****
->
-> I just got a Gigabyte **GA-K8N51GMF-9 motherboard with nVidia chipset 
-> and Linux for some reason doesn't seem to be able to find the SATA 
-> drives or the ethernet port. Just wondering if I'm wasting my time 
-> with this board or if I'm missing something?
->
-> **
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Spam Filter: http://www.junkemailfilter.com
+    My Blog: http://marc.perkel.com
 

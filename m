@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750933AbVKDXLI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750973AbVKDXKz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750933AbVKDXLI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 18:11:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750975AbVKDXLI
+	id S1750973AbVKDXKz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 18:10:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750975AbVKDXKz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 18:11:08 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:32152
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1750933AbVKDXLF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 18:11:05 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: azarah@nosferatu.za.org
-Subject: Re: initramfs for /dev/console with udev?
-Date: Fri, 4 Nov 2005 17:10:36 -0600
-User-Agent: KMail/1.8
-Cc: Roland Dreier <rolandd@cisco.com>,
-       Robert Schwebel <r.schwebel@pengutronix.de>,
-       linux-kernel@vger.kernel.org
-References: <20051102222030.GP23316@pengutronix.de> <200511031529.59529.rob@landley.net> <1131140350.9669.7.camel@lycan.lan>
-In-Reply-To: <1131140350.9669.7.camel@lycan.lan>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Nov 2005 18:10:55 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:40205 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750933AbVKDXKy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 18:10:54 -0500
+Date: Fri, 4 Nov 2005 23:10:48 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org, bzolnier@gmail.com
+Subject: Re: Parallel ATA with libata status with the patches I'm working on
+Message-ID: <20051104231048.GD12026@flint.arm.linux.org.uk>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	linux-kernel@vger.kernel.org, bzolnier@gmail.com
+References: <1131029686.18848.48.camel@localhost.localdomain> <20051103144830.GF28038@flint.arm.linux.org.uk> <58cb370e0511030702hb06a5f3qc2dfe465ee1d784c@mail.gmail.com> <m3oe51zc2e.fsf@defiant.localdomain> <58cb370e0511031329h7532259y6d3624fbf2d93f88@mail.gmail.com> <1131058464.18848.94.camel@localhost.localdomain> <20051104013054.GF3469@ime.usp.br> <1131111667.26925.31.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511041710.36752.rob@landley.net>
+In-Reply-To: <1131111667.26925.31.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 04 November 2005 15:39, Martin Schlemmer wrote:
-> > Ok, I remember why I stopped playing with klibc now.  It's still deep in
-> > alpha-test stage, requires way more incestuous knowledge of the kernel
-> > headers than anything not bundled with the kernel itself has any excuse
-> > for, and I'm still not sure what advantage it claims to have over uClibc
-> > except for being BSD licensed.
->
-> Well, apparently the plan is to eventually bundle it with the kernel if
-> not mistaken.  Also, it have seen a stable release, and it works well
-> for what it was intended for, and still have a less footprint than
-> uClibc if space is really an issue.
+On Fri, Nov 04, 2005 at 01:41:06PM +0000, Alan Cox wrote:
+> While writing the new sl82c05 driver I noticed a real nasty lurking in
+> the old code. According to the errata docs you have to reset the DMA
+> engine every transfer to work around chip errata. It also says that this
+> resets any other ATA transfer in progress.
+> 
+> If both channels are in use there is no locking between the channels to
+> stop a reset on one channel as DMA begins making a mess of the other
+> channel. Looks like serialize should be set on the driver ?
 
-*shrug*.  It only does static linking and uClibc can static link too.  But 
-there are no plans to bundle uClibc with the kernel. :)
+Possibly, though benh needs to comment.  (I think benh has the only
+hardware which has the possibility of both channels - the NetWinder
+only has one channel with one disk.)
 
-> > If you have to make it work, I'd suggest extracting a fresh kernel
-> > tarball, do "make allyesconfig" (without ARCH=um), and use _those_
-> > headers.  Or just accept that it doesn't work and try uClibc. :)
->
-> It does work, just need to be fixed up for ARCH=um compiled kernel.  I
-> did a quick hack to do this, but HPA don't like it (and I do not blame
-> him).  Can be found here:
->
-> http://bugs.gentoo.org/attachment.cgi?id=67478
-
-And apparently one of the goals of the 2.6.14 release (or one of the dot 
-releases after it) is working with klibc, so I'll wander back to playing with 
-uClibc...
-
-Rob
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

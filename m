@@ -1,68 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750902AbVKDUTE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbVKDUWm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750902AbVKDUTE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 15:19:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750911AbVKDUTE
+	id S1750705AbVKDUWm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 15:22:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750759AbVKDUWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 15:19:04 -0500
-Received: from hellhawk.shadowen.org ([80.68.90.175]:20232 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S1750902AbVKDUTC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 15:19:02 -0500
-Message-ID: <436BC20B.9070704@shadowen.org>
-Date: Fri, 04 Nov 2005 20:18:19 +0000
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
+	Fri, 4 Nov 2005 15:22:42 -0500
+Received: from zproxy.gmail.com ([64.233.162.201]:24752 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750705AbVKDUWl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 15:22:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=bgzuJba+n2yopSSk0KBhzRaG4WbKRoeywKTOEGe1xhRiu9pFLMzQCaA4JX+0jy1OzKaxIGgfGKpaWTL5N+N8AJ55Z4lfhF0U9X5TEMRKarySEwXVkt95mSTacmtem4gO6phnjcwRhRZsI+gC1I/GaYAeeAWce4oS52sicO6bm5k=
+Message-ID: <569d37b00511041222g31ea546ft5adc7c38bdd89dbd@mail.gmail.com>
+Date: Fri, 4 Nov 2005 15:22:41 -0500
+From: Trevor Woerner <twoerner.k@gmail.com>
+To: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: [update] OOM issue with linux-2.6.14-rt6
+Cc: Carlos Antunes <cmantunes@gmail.com>
 MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [PATCH] powerpc: mem_init crash for sparsemem
-References: <200511041631.17237.arnd@arndb.de>
-In-Reply-To: <200511041631.17237.arnd@arndb.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann wrote:
-> I have a Cell blade with some broken memory in the middle of the
-> physical address space and this is correctly detected by the
-> firmware, but not relocated. When I enable CONFIG_SPARSEMEM,
-> the memsections for the nonexistant address space do not
-> get struct page entries allocated, as expected.
-> 
-> However, mem_init for the non-NUMA configuration tries to
-> access these pages without first looking if they are there.
-> I'm currently using the hack below to work around that, but
-> I have the feeling that there should be a cleaner solution
-> for this.
-> 
-> Please comment.
-> 
-> Signed-off-by: Arnd Bergmann <arndb@de.ibm.com>
-> 
-> --- linux-2.6.15-rc.orig/arch/powerpc/mm/mem.c
-> +++ linux-2.6.15-rc/arch/powerpc/mm/mem.c
-> @@ -348,6 +348,9 @@ void __init mem_init(void)
->  #endif
->  	for_each_pgdat(pgdat) {
->  		for (i = 0; i < pgdat->node_spanned_pages; i++) {
-> +			if (!section_has_mem_map(__pfn_to_section
-> +					(pgdat->node_start_pfn + i)))
-> +				continue;
->  			page = pgdat_page_nr(pgdat, i);
->  			if (PageReserved(page))
->  				reservedpages++;
+As I have mentioned earlier I was having problems with
+linux-2.6.14-rt6 preemption settings k3 and k4 running out of memory.
+While I don't have a fix I seem to have zeroed in on the problem.
 
-Would it not make sense to use pfn_valid(), as that is not sparsemem
-specific?  Not looked at the code in question specifically, but if you
-can use section_has_mem_map() it should be equivalent:
+Both my embedded target boards have CF cards which are mounted
+read-only. Since I am using busybox-1.01 and because busybox ships
+with mkfs.minix I simply used that to create a minix filesystem on
+/dev/ram0 which I mount on /tmp. My test programs create named FIFOs
+on /tmp which are integral to the tests I was performing.
 
-	if (!pfn_valid(pgdat->node_start_pfn + i))
-		continue;
+Normally I can't get either of the above kernels to run for more than
+15 minutes without an OOM, but switching from a minix fs to ext2
+linux-2.6.14-rt6 k4 has been running on one of my boards for over 2
+hours.
 
-Want to spin us a patch and I'll give it some general testing.
+This might not be the solution but it's looking hopeful. I wanted to
+mention this now, in case anyone else was curious about this issue.
+I'll let these kernels run over the weekend to see how they perform.
 
--apw
+I'm re-running my latency tests based on 2.6.14-rt6 and will update my
+report when I have those results.

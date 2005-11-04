@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750802AbVKDXxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751043AbVKDXvz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750802AbVKDXxF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 18:53:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750981AbVKDXxE
+	id S1751043AbVKDXvz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 18:51:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751045AbVKDXvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 18:53:04 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:41919 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750802AbVKDXxD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 18:53:03 -0500
-Date: Fri, 4 Nov 2005 23:52:57 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Christoph Hellwig <hch@infradead.org>, davej@redhat.com,
+	Fri, 4 Nov 2005 18:51:55 -0500
+Received: from verein.lst.de ([213.95.11.210]:55207 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S1751041AbVKDXvy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 18:51:54 -0500
+Date: Sat, 5 Nov 2005 00:51:48 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Christoph Hellwig <hch@lst.de>, akpm@osdl.org, schwidefsky@de.ibm.com,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] export ia64_max_cacheline_size
-Message-ID: <20051104235257.GA21674@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, davej@redhat.com,
-	linux-kernel@vger.kernel.org
-References: <20051104220737.GA16551@redhat.com> <20051104223441.GA16285@infradead.org> <20051104145534.17e913f2.akpm@osdl.org>
+Subject: Re: [PATCH 4/4] ->compat_ioctl for 390 tape_char
+Message-ID: <20051104235148.GA10604@lst.de>
+References: <20051104221816.GD9384@lst.de> <200511050010.47138.arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051104145534.17e913f2.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <200511050010.47138.arnd@arndb.de>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 04, 2005 at 02:55:34PM -0800, Andrew Morton wrote:
-> > Can we please move dma_get_cache_alignment() out of line instead?
-> 
-> It's a single statement!  It wants to be inlined.
-> 
-> > Always export sane APIs instead of random internals.
-> 
-> The exported API is dma_get_cache_alignment().  For internal implementation
-> reasons we need to export an ia64 symbol to modules to support it.  That
-> kinda sucks, but I don't think that we need to compromise kernel size and
-> performance because of it.
+On Sat, Nov 05, 2005 at 12:10:46AM +0100, Arnd Bergmann wrote:
+> Hmm, isn't ->compat_ioctl called before the translation lookup?
 
-It's an API used only in slow pathes.  It's much better to enforce modularity
-in that case.
+Yes.
+
+> If so,
+> this code would return -EINVAL from tape_34xx_ioctl and result in never
+> entering the conversion for MTIO* at all.
+
+we return -ENOIOCTLCMD if we didn't have a valid compat ioctl, and in
+that case the vfs code will try to find it in the core translation
+table.
+
+> BTW, I now have a set of 25 patches that moves all handlers from
+> fs/compat_ioctl.c over to the respective drivers and subsystems,
+> but I'm not sure how to best test that.
+> I intend to at least give it a test run on my Opteron for the whatever
+> ioctls I normally use, but the rest is just guesswork. Christoph,
+> can you review those patches?
+
+I'm not sure moving everything from fs/compat_ioctl.c is a good idea.
+Everything that is just in a single driver or subsystem that has
+common ioctl code - sure.  else it doesn't make a lot of sense.
+

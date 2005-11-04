@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161006AbVKDArw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030568AbVKDAsr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161006AbVKDArw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 19:47:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161007AbVKDArw
+	id S1030568AbVKDAsr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 19:48:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030569AbVKDAsr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 19:47:52 -0500
-Received: from h-67-100-217-179.hstqtx02.covad.net ([67.100.217.179]:34195
+	Thu, 3 Nov 2005 19:48:47 -0500
+Received: from h-67-100-217-179.hstqtx02.covad.net ([67.100.217.179]:35987
 	"EHLO mail.gnucash.org") by vger.kernel.org with ESMTP
-	id S1161006AbVKDArw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 19:47:52 -0500
-Date: Thu, 3 Nov 2005 18:47:50 -0600
+	id S1030568AbVKDAsq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 19:48:46 -0500
+Date: Thu, 3 Nov 2005 18:48:45 -0600
 From: Linas Vepstas <linas@linas.org>
 To: paulus@samba.org, linuxppc64-dev@ozlabs.org
 Cc: johnrose@austin.ibm.com, linux-pci@atrey.karlin.mff.cuni.cz,
        bluesmoke-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/42]: ppc64: misc minor cleanup
-Message-ID: <20051104004750.GA26782@mail.gnucash.org>
+Subject: [PATCH 3/42]: ppc64: PCI address cache minor fixes
+Message-ID: <20051104004845.GA26803@mail.gnucash.org>
 Reply-To: linas@austin.ibm.com
 References: <20051103235918.GA25616@mail.gnucash.org>
 Mime-Version: 1.0
@@ -25,219 +25,141 @@ User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-02-eeh-minor-cleanup.patch
+03-eeh-addr-cache-cleanup.patch
 
-This patch performs some minor cleanup of the eeh.c file, including:
--- trim some trailing whitespace
--- remove extraneous #includes
--- use the macro PCI_DN uniformly, instead of the void pointer chase.
--- typos in comments
--- improved debug printk's
+This is a minor patch to clean up a buglet related to the PCI address cache.
+(The buglet doesn't manifes itself unless there are also bugs elsewhere,
+which is why its minor.).  Also:
+
+-- Improved debug printing.
+-- Declare some private routines as static
+-- Adds reference counting to struct pci_dn->pcidev structure
 
 Signed-off-by: Linas Vepstas <linas@linas.org>
 
 Index: linux-2.6.14-git3/arch/ppc64/kernel/eeh.c
 ===================================================================
---- linux-2.6.14-git3.orig/arch/ppc64/kernel/eeh.c	2005-10-31 12:01:21.403477910 -0600
-+++ linux-2.6.14-git3/arch/ppc64/kernel/eeh.c	2005-10-31 12:06:16.222121166 -0600
-@@ -1,32 +1,31 @@
- /*
-  * eeh.c
-  * Copyright (C) 2001 Dave Engebretsen & Todd Inglett IBM Corporation
-- * 
-+ *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-  * the Free Software Foundation; either version 2 of the License, or
-  * (at your option) any later version.
-- * 
-+ *
-  * This program is distributed in the hope that it will be useful,
-  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  * GNU General Public License for more details.
-- * 
-+ *
-  * You should have received a copy of the GNU General Public License
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+--- linux-2.6.14-git3.orig/arch/ppc64/kernel/eeh.c	2005-10-31 12:07:15.072864803 -0600
++++ linux-2.6.14-git3/arch/ppc64/kernel/eeh.c	2005-10-31 12:10:23.985360685 -0600
+@@ -219,9 +219,9 @@
+ 	while (*p) {
+ 		parent = *p;
+ 		piar = rb_entry(parent, struct pci_io_addr_range, rb_node);
+-		if (alo < piar->addr_lo) {
++		if (ahi < piar->addr_lo) {
+ 			p = &parent->rb_left;
+-		} else if (ahi > piar->addr_hi) {
++		} else if (alo > piar->addr_hi) {
+ 			p = &parent->rb_right;
+ 		} else {
+ 			if (dev != piar->pcidev ||
+@@ -240,6 +240,11 @@
+ 	piar->pcidev = dev;
+ 	piar->flags = flags;
+ 
++#ifdef DEBUG
++	printk(KERN_DEBUG "PIAR: insert range=[%lx:%lx] dev=%s\n",
++	                  alo, ahi, pci_name (dev));
++#endif
++
+ 	rb_link_node(&piar->rb_node, parent, p);
+ 	rb_insert_color(&piar->rb_node, &pci_io_addr_cache_root.rb_root);
+ 
+@@ -301,7 +306,7 @@
+  * we maintain a cache of devices that can be quickly searched.
+  * This routine adds a device to that cache.
   */
- 
--#include <linux/bootmem.h>
- #include <linux/init.h>
- #include <linux/list.h>
--#include <linux/mm.h>
- #include <linux/notifier.h>
- #include <linux/pci.h>
- #include <linux/proc_fs.h>
- #include <linux/rbtree.h>
- #include <linux/seq_file.h>
- #include <linux/spinlock.h>
-+#include <asm/atomic.h>
- #include <asm/eeh.h>
- #include <asm/io.h>
- #include <asm/machdep.h>
-@@ -49,8 +48,8 @@
-  *  were "empty": all reads return 0xff's and all writes are silently
-  *  ignored.  EEH slot isolation events can be triggered by parity
-  *  errors on the address or data busses (e.g. during posted writes),
-- *  which in turn might be caused by dust, vibration, humidity,
-- *  radioactivity or plain-old failed hardware.
-+ *  which in turn might be caused by low voltage on the bus, dust,
-+ *  vibration, humidity, radioactivity or plain-old failed hardware.
-  *
-  *  Note, however, that one of the leading causes of EEH slot
-  *  freeze events are buggy device drivers, buggy device microcode,
-@@ -256,18 +255,17 @@
- 
- 	dn = pci_device_to_OF_node(dev);
- 	if (!dn) {
--		printk(KERN_WARNING "PCI: no pci dn found for dev=%s\n",
--			pci_name(dev));
-+		printk(KERN_WARNING "PCI: no pci dn found for dev=%s\n", pci_name(dev));
- 		return;
- 	}
- 
- 	/* Skip any devices for which EEH is not enabled. */
--	pdn = dn->data;
-+	pdn = PCI_DN(dn);
- 	if (!(pdn->eeh_mode & EEH_MODE_SUPPORTED) ||
- 	    pdn->eeh_mode & EEH_MODE_NOCHECK) {
- #ifdef DEBUG
--		printk(KERN_INFO "PCI: skip building address cache for=%s\n",
--		       pci_name(dev));
-+		printk(KERN_INFO "PCI: skip building address cache for=%s - %s\n",
-+		       pci_name(dev), pdn->node->full_name);
- #endif
- 		return;
- 	}
-@@ -410,16 +408,16 @@
-  * @dn: device node to read
-  * @rets: array to return results in
-  */
--static int read_slot_reset_state(struct device_node *dn, int rets[])
-+static int read_slot_reset_state(struct pci_dn *pdn, int rets[])
+-void pci_addr_cache_insert_device(struct pci_dev *dev)
++static void pci_addr_cache_insert_device(struct pci_dev *dev)
  {
- 	int token, outputs;
--	struct pci_dn *pdn = dn->data;
+ 	unsigned long flags;
  
- 	if (ibm_read_slot_reset_state2 != RTAS_UNKNOWN_SERVICE) {
- 		token = ibm_read_slot_reset_state2;
- 		outputs = 4;
- 	} else {
- 		token = ibm_read_slot_reset_state;
-+		rets[2] = 0; /* fake PE Unavailable info */
- 		outputs = 3;
- 	}
+@@ -344,7 +349,7 @@
+  * the tree multiple times (once per resource).
+  * But so what; device removal doesn't need to be that fast.
+  */
+-void pci_addr_cache_remove_device(struct pci_dev *dev)
++static void pci_addr_cache_remove_device(struct pci_dev *dev)
+ {
+ 	unsigned long flags;
  
-@@ -496,7 +494,7 @@
+@@ -366,6 +371,9 @@
+ {
+ 	struct pci_dev *dev = NULL;
+ 
++	if (!eeh_subsystem_enabled)
++		return;
++
+ 	spin_lock_init(&pci_io_addr_cache_root.piar_lock);
+ 
+ 	while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
+@@ -837,7 +845,7 @@
+ 	info.buid_lo = BUID_LO(phb->buid);
+ 	early_enable_eeh(dn, &info);
+ }
+-EXPORT_SYMBOL(eeh_add_device_early);
++EXPORT_SYMBOL_GPL(eeh_add_device_early);
  
  /**
-  * eeh_token_to_phys - convert EEH address token to phys address
-- * @token i/o token, should be address in the form 0xE....
-+ * @token i/o token, should be address in the form 0xA....
+  * eeh_add_device_late - perform EEH initialization for the indicated pci device
+@@ -848,6 +856,8 @@
   */
- static inline unsigned long eeh_token_to_phys(unsigned long token)
+ void eeh_add_device_late(struct pci_dev *dev)
  {
-@@ -522,7 +520,7 @@
-  * will query firmware for the EEH status.
-  *
-  * Returns 0 if there has not been an EEH error; otherwise returns
-- * a non-zero value and queues up a solt isolation event notification.
-+ * a non-zero value and queues up a slot isolation event notification.
-  *
-  * It is safe to call this routine in an interrupt context.
-  */
-@@ -542,7 +540,7 @@
++	struct device_node *dn;
++
+ 	if (!dev || !eeh_subsystem_enabled)
+ 		return;
  
- 	if (!dn)
- 		return 0;
--	pdn = dn->data;
-+	pdn = PCI_DN(dn);
+@@ -855,9 +865,13 @@
+ 	printk(KERN_DEBUG "EEH: adding device %s\n", pci_name(dev));
+ #endif
  
- 	/* Access to IO BARs might get this far and still not want checking. */
- 	if (!pdn->eeh_capable || !(pdn->eeh_mode & EEH_MODE_SUPPORTED) ||
-@@ -562,7 +560,7 @@
- 		atomic_inc(&eeh_fail_count);
- 		if (atomic_read(&eeh_fail_count) >= EEH_MAX_FAILS) {
- 			/* re-read the slot reset state */
--			if (read_slot_reset_state(dn, rets) != 0)
-+			if (read_slot_reset_state(pdn, rets) != 0)
- 				rets[0] = -1;	/* reset state unknown */
- 			eeh_panic(dev, rets[0]);
- 		}
-@@ -576,7 +574,7 @@
- 	 * function zero of a multi-function device.
- 	 * In any case they must share a common PHB.
- 	 */
--	ret = read_slot_reset_state(dn, rets);
-+	ret = read_slot_reset_state(pdn, rets);
- 	if (!(ret == 0 && rets[1] == 1 && (rets[0] == 2 || rets[0] == 4))) {
- 		__get_cpu_var(false_positives)++;
- 		return 0;
-@@ -635,7 +633,6 @@
-  * @token i/o token, should be address in the form 0xA....
-  * @val value, should be all 1's (XXX why do we need this arg??)
-  *
-- * Check for an eeh failure at the given token address.
-  * Check for an EEH failure at the given token address.  Call this
-  * routine if the result of a read was all 0xff's and you want to
-  * find out if this is due to an EEH slot freeze event.  This routine
-@@ -680,7 +677,7 @@
- 	u32 *device_id = (u32 *)get_property(dn, "device-id", NULL);
- 	u32 *regs;
- 	int enable;
--	struct pci_dn *pdn = dn->data;
-+	struct pci_dn *pdn = PCI_DN(dn);
- 
- 	pdn->eeh_mode = 0;
- 
-@@ -732,7 +729,7 @@
- 
- 			/* This device doesn't support EEH, but it may have an
- 			 * EEH parent, in which case we mark it as supported. */
--			if (dn->parent && dn->parent->data
-+			if (dn->parent && PCI_DN(dn->parent)
- 			    && (PCI_DN(dn->parent)->eeh_mode & EEH_MODE_SUPPORTED)) {
- 				/* Parent supports EEH. */
- 				pdn->eeh_mode |= EEH_MODE_SUPPORTED;
-@@ -745,7 +742,7 @@
- 		       dn->full_name);
- 	}
- 
--	return NULL; 
-+	return NULL;
++	pci_dev_get (dev);
++	dn = pci_device_to_OF_node(dev);
++	PCI_DN(dn)->pcidev = dev;
++
+ 	pci_addr_cache_insert_device (dev);
  }
+-EXPORT_SYMBOL(eeh_add_device_late);
++EXPORT_SYMBOL_GPL(eeh_add_device_late);
  
- /*
-@@ -793,13 +790,11 @@
- 	for (phb = of_find_node_by_name(NULL, "pci"); phb;
- 	     phb = of_find_node_by_name(phb, "pci")) {
- 		unsigned long buid;
--		struct pci_dn *pci;
- 
- 		buid = get_phb_buid(phb);
--		if (buid == 0 || phb->data == NULL)
-+		if (buid == 0 || PCI_DN(phb) == NULL)
- 			continue;
- 
--		pci = phb->data;
- 		info.buid_lo = BUID_LO(buid);
- 		info.buid_hi = BUID_HI(buid);
- 		traverse_pci_devices(phb, early_enable_eeh, &info);
-@@ -828,11 +823,13 @@
- 	struct pci_controller *phb;
- 	struct eeh_early_enable_info info;
- 
--	if (!dn || !dn->data)
-+	if (!dn || !PCI_DN(dn))
+ /**
+  * eeh_remove_device - undo EEH setup for the indicated pci device
+@@ -868,6 +882,7 @@
+  */
+ void eeh_remove_device(struct pci_dev *dev)
+ {
++	struct device_node *dn;
+ 	if (!dev || !eeh_subsystem_enabled)
  		return;
- 	phb = PCI_DN(dn)->phb;
- 	if (NULL == phb || 0 == phb->buid) {
--		printk(KERN_WARNING "EEH: Expected buid but found none\n");
-+		printk(KERN_WARNING "EEH: Expected buid but found none for %s\n",
-+		       dn->full_name);
-+		dump_stack();
- 		return;
- 	}
  
+@@ -876,8 +891,12 @@
+ 	printk(KERN_DEBUG "EEH: remove device %s\n", pci_name(dev));
+ #endif
+ 	pci_addr_cache_remove_device(dev);
++
++	dn = pci_device_to_OF_node(dev);
++	PCI_DN(dn)->pcidev = NULL;
++	pci_dev_put (dev);
+ }
+-EXPORT_SYMBOL(eeh_remove_device);
++EXPORT_SYMBOL_GPL(eeh_remove_device);
+ 
+ static int proc_eeh_show(struct seq_file *m, void *v)
+ {
+Index: linux-2.6.14-git3/include/asm-powerpc/ppc-pci.h
+===================================================================
+--- linux-2.6.14-git3.orig/include/asm-powerpc/ppc-pci.h	2005-10-31 12:01:21.404477769 -0600
++++ linux-2.6.14-git3/include/asm-powerpc/ppc-pci.h	2005-10-31 12:10:06.152862619 -0600
+@@ -39,10 +39,6 @@
+ void pci_devs_phb_init(void);
+ void pci_devs_phb_init_dynamic(struct pci_controller *phb);
+ 
+-/* PCI address cache management routines */
+-void pci_addr_cache_insert_device(struct pci_dev *dev);
+-void pci_addr_cache_remove_device(struct pci_dev *dev);
+-
+ /* From rtas_pci.h */
+ void init_pci_config_tokens (void);
+ unsigned long get_phb_buid (struct device_node *);

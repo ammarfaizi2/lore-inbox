@@ -1,66 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751411AbVKDHFk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751412AbVKDHGd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751411AbVKDHFk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 02:05:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751410AbVKDHFk
+	id S1751412AbVKDHGd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 02:06:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751410AbVKDHGd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 02:05:40 -0500
-Received: from smtp1.Stanford.EDU ([171.67.16.123]:7873 "EHLO
-	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S1751411AbVKDHFj
+	Fri, 4 Nov 2005 02:06:33 -0500
+Received: from zproxy.gmail.com ([64.233.162.196]:13065 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751412AbVKDHGc convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 02:05:39 -0500
-Subject: Re: 2.6.14-rt1
-From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: nando@ccrma.Stanford.EDU, Rui Nuno Capela <rncbc@rncbc.org>,
-       "K.R. Foley" <kr@cybsft.com>, Florian Schmidt <mista.tapas@gmx.net>,
-       john stultz <johnstul@us.ibm.com>, Mark Knecht <markknecht@gmail.com>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051102070205.GA1348@elte.hu>
-References: <20051017160536.GA2107@elte.hu> <20051020195432.GA21903@elte.hu>
-	 <20051030133316.GA11225@elte.hu>
-	 <1130876293.6178.6.camel@cmn3.stanford.edu> <20051102070205.GA1348@elte.hu>
-Content-Type: text/plain
-Date: Thu, 03 Nov 2005 23:04:38 -0800
-Message-Id: <1131087878.31198.8.camel@cmn3.stanford.edu>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Nov 2005 02:06:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=rzqzUQ6TUV0NQRFBE1cVeeQrQCGNWAIhnWr22uTo+qr5n5A2wVYI+wgUY+exmIs96gJQjMVOKgcHJPSyXs/7RkwayGexhrf3U9KXetD2znayvzvS0FIdoeFkxCqEYBe/isAFI5JCCyPwPLlanMACUQKClPgCpHSDt0rGTnwqq+o=
+Message-ID: <569d37b00511032306y27519a8am69f2385fdbd4b81f@mail.gmail.com>
+Date: Fri, 4 Nov 2005 02:06:31 -0500
+From: Trevor Woerner <twoerner.k@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: latency report
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-02 at 08:02 +0100, Ingo Molnar wrote:
-> * Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
-> 
-> > The same kernel built for fc3 fails to boot in my Sony laptop. I see 
-> > this:
-> > 
-> > Kernel panic - not syncing: Attempted to kill init!
-> 
-> why did it panic - no indication of that?
+I have been performing an investigation to determine the suitability
+of using GNU/Linux as a basis for embedded real-time (ish) work and
+have prepared a report of my findings. I have made the assumption that
+the application logic will be coded as a number of user-space
+applications which interact with the hardware. As such, interrupt
+latency alone is of little interest; instead I focused more on
+measuring the time it takes some data to travel into the target
+device, through a bunch of user-space processes (connected via named
+FIFOs), then back out the device.
 
-I said no but I did not look close enough. Sorry. 
+My report currently compares the stock kernel.org 2.6.14 with Ingo's
+2.6.14-rt2 patches on two target boards. All preemption settings have
+been evaluated. A full explanation of how these tests were conducted,
+the various components that were used, the test scenarios that were
+created, the results I measured, kernel configurations, and required
+patches are included in the report.
 
-I tried 2.6.14-rt4 on my laptop and there's no backtrace or anything
-like that before the panic, but there was a message from selinux (I
-don't have a copy and I'm not on that kernel - something like "no policy
-loaded but in enforcing mode"). So I turned selinux off and it booted...
+This project's index can be found here ("Linux Latency"):
+http://geek.vtnet.ca/embedded.html
 
-I'm also seeing selinux oddities in my amd smp system, rpm complaining
-about things when installing a package:
+All of the tools, scripts, and code I wrote to measure and generate
+this report can be found in the project tarball (~1.7MB bzip2):
+http://geek.vtnet.ca/embedded/LatencyTests/latencytests-3.2.1.tar.bz2
 
- line 1574 has invalid context system_u:object_r:spamd_exec_t
-/etc/selinux/targeted/contexts/files/file_contexts:  line 1575 has
-invalid context system_u:object_r:spamd_exec_t
-/etc/selinux/targeted/contexts/files/file_contexts:  line 1576 has
-invalid context system_u:object_r:spamd_exec_t
+The report is here in html:
+http://geek.vtnet.ca/embedded/LatencyTests/html/index.html
 
-I'll have to investigate a bit more tomorrow if I find the time. 
+Code documentation (in various formats) and a PDF of the report are
+also available.
 
-Booting into previous kernels with the same selinux setup shows no
-problems. This is recent, probably started with 2.6.14-rt1.
+Ingo Molnar has been incredibly helpful and provided an enormous
+amount of initial feedback and suggestions; thank you.
 
--- Fernando
-
-
+Please CC me on any replies.
+Thank you.

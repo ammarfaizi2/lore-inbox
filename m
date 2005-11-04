@@ -1,52 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751043AbVKDXvz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750981AbVKDXzE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751043AbVKDXvz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 18:51:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751045AbVKDXvz
+	id S1750981AbVKDXzE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 18:55:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbVKDXzE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 18:51:55 -0500
-Received: from verein.lst.de ([213.95.11.210]:55207 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S1751041AbVKDXvy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 18:51:54 -0500
-Date: Sat, 5 Nov 2005 00:51:48 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Christoph Hellwig <hch@lst.de>, akpm@osdl.org, schwidefsky@de.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4/4] ->compat_ioctl for 390 tape_char
-Message-ID: <20051104235148.GA10604@lst.de>
-References: <20051104221816.GD9384@lst.de> <200511050010.47138.arnd@arndb.de>
-Mime-Version: 1.0
+	Fri, 4 Nov 2005 18:55:04 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:7442 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750981AbVKDXzD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 18:55:03 -0500
+Date: Sat, 5 Nov 2005 00:55:00 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       aherrman@de.ibm.com
+Subject: Re: [PATCH resubmit] do_mount: reduce stack consumption
+Message-ID: <20051104235500.GE5368@stusta.de>
+References: <20051104105026.GA12476@osiris.boeblingen.de.ibm.com> <20051104084829.714c5dbb.akpm@osdl.org> <20051104212742.GC9222@osiris.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200511050010.47138.arnd@arndb.de>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+In-Reply-To: <20051104212742.GC9222@osiris.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 05, 2005 at 12:10:46AM +0100, Arnd Bergmann wrote:
-> Hmm, isn't ->compat_ioctl called before the translation lookup?
+On Fri, Nov 04, 2005 at 10:27:42PM +0100, Heiko Carstens wrote:
+> > > See original stack back trace below and Andreas' patch and analysis
+> > > here:
+> > > http://www.ussg.iu.edu/hypermail/linux/kernel/0410.3/1844.html
+> 
+> I probably should add that with "original" stack back trace a trace of
+> a 2.6.10 kernel was meant, if that wasn't clear, but the DM code is
+> still the same in 2.6.14.
+> 
+> > >     <4>Call Trace:
+> ...
+> > >     <4> [<0000000010831380>] __map_bio+0x70/0x160 [dm_mod]
+> > >     <4> [<000000001083173e>] __split_bio+0x1e6/0x538 [dm_mod]
+> > >     <4> [<0000000010831ba8>] dm_request+0x118/0x25c [dm_mod]
+> > >     <4> [<0000000000241074>] generic_make_request+0xf0/0x21c
+> > >     <4> [<0000000010831380>] __map_bio+0x70/0x160 [dm_mod]
+> > >     <4> [<000000001083173e>] __split_bio+0x1e6/0x538 [dm_mod]
+> > >     <4> [<0000000010831ba8>] dm_request+0x118/0x25c [dm_mod]
+> > >     <4> [<0000000000241074>] generic_make_request+0xf0/0x21c
+> > >     <4> [<0000000010831380>] __map_bio+0x70/0x160 [dm_mod]
+> > >     <4> [<000000001083173e>] __split_bio+0x1e6/0x538 [dm_mod]
+> > >     <4> [<0000000010831ba8>] dm_request+0x118/0x25c [dm_mod]
+> > >     <4> [<0000000000241074>] generic_make_request+0xf0/0x21c
+> ...
+> 
+> This part of the call trace is actually good for >1500 bytes of stack
+> usage and is what kills us and should be fixed.
+> I'm surprised that there are no other bug reports regarding DM and
+> stack overflow with 4k stacks.
+>...
 
-Yes.
+There were some reports of dm+xfs overflows with 4k stacks on i386.
 
-> If so,
-> this code would return -EINVAL from tape_34xx_ioctl and result in never
-> entering the conversion for MTIO* at all.
+The xfs side was sorted out, but I son't know the state of the dm part.
 
-we return -ENOIOCTLCMD if we didn't have a valid compat ioctl, and in
-that case the vfs code will try to find it in the core translation
-table.
+> Heiko
 
-> BTW, I now have a set of 25 patches that moves all handlers from
-> fs/compat_ioctl.c over to the respective drivers and subsystems,
-> but I'm not sure how to best test that.
-> I intend to at least give it a test run on my Opteron for the whatever
-> ioctls I normally use, but the rest is just guesswork. Christoph,
-> can you review those patches?
+cu
+Adrian
 
-I'm not sure moving everything from fs/compat_ioctl.c is a good idea.
-Everything that is just in a single driver or subsystem that has
-common ioctl code - sure.  else it doesn't make a lot of sense.
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

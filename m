@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbVKDOO2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751044AbVKDOoY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932092AbVKDOO2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 09:14:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932737AbVKDOO2
+	id S1751044AbVKDOoY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 09:44:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbVKDOoY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 09:14:28 -0500
-Received: from nproxy.gmail.com ([64.233.182.194]:60933 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932092AbVKDOO1 convert rfc822-to-8bit
+	Fri, 4 Nov 2005 09:44:24 -0500
+Received: from zproxy.gmail.com ([64.233.162.200]:38715 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751044AbVKDOoY convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 09:14:27 -0500
+	Fri, 4 Nov 2005 09:44:24 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=LTRKM2m3c0SV5wWRu4GS7NdVrl+lF8cr5YA0mE1z7AfWiAhofyfHIgo1vlev3TI2gZp3zlPA50Q6LMMxD4ff0PCdZFmmCeVD2lawl93z2ox//cFY92N0N8P1OV6HGnS6lKDRlq5L/1VB/IoVfyl70rKwonzacs6yui2cJ0bx6Ao=
-Message-ID: <58cb370e0511040614p789cd8cfxc9ec40b5ef456bee@mail.gmail.com>
-Date: Fri, 4 Nov 2005 15:14:26 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Kyuma Ohta <whatisthis@jcom.home.ne.jp>
-Subject: Re: [x86_64] Freeze using IDE as upper than ATA33
+        b=coyNIp1N5GDU+vQSEtqKlh9ncLoYZKA6iHUenFTJhgbxlc+020lX2ad8JZO230PP3fvTxfPq7KNwhferQO0IBciDUUfF3qkxzoQBAoIIonGZj/5TDh9EtPxhQdqd5LN7yeNjdX7yKRR/2+k9SYbId/pdHuhpsiYExfre0f7k128=
+Message-ID: <569d37b00511040644j2cf447cexcfba2bd2aaf76f43@mail.gmail.com>
+Date: Fri, 4 Nov 2005 09:44:21 -0500
+From: Trevor Woerner <twoerner.k@gmail.com>
+To: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: latency report
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051104.223654.432830398.whatisthis@jcom.home.ne.jp>
+In-Reply-To: <200511040850.16287.gene.heskett@verizon.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <20051104.223654.432830398.whatisthis@jcom.home.ne.jp>
+References: <569d37b00511032306y27519a8am69f2385fdbd4b81f@mail.gmail.com>
+	 <200511040850.16287.gene.heskett@verizon.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On 11/4/05, Kyuma Ohta <whatisthis@jcom.home.ne.jp> wrote:
-> Hi,
-> I'm using ASUS Mainboard for Athlon 64 3000+ with VIA K8T800Pro
-> Host Bridge and VIA VT8237 South Bride for IDE.
+On 11/4/05, Gene Heskett <gene.heskett@verizon.net> wrote:
+> >The report is here in html:
+> >http://geek.vtnet.ca/embedded/LatencyTests/html/index.html
 >
-> I'm running linux-kernel-2.6.14 , when re-constructureing RAID1
->  with two ATA100 Drives (IBM/Hitachi) a, kernel was locked with no
-> message.
->
-> I tried to be booting with  "ide0=ata66 ide1=ata66", but freezed yet.
+> And while the index displays properly, all links, when clicked on, lead
+> to local files which of course in html, do not exist on my machine.
 
-Are you using proper cables (80-wires)?
+I'm currently at work (i.e. miles and miles away from my home machine
+and outside my network) and I can read through the report just fine.
+Other people seem to be able to view the report fine (from both the
+comments I've received and the entries in my log files).
 
-> I tried  booting with "idebus=33", very stable,not freezed.
-
-This is the default setting, no need to force it.
-
-> Devices are:
-
-dmesg output please
-
-Bartlomiej
+Which links in particular are giving you problems?

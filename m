@@ -1,58 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161089AbVKDHo0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161095AbVKDHz3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161089AbVKDHo0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 02:44:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161092AbVKDHo0
+	id S1161095AbVKDHz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 02:55:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161097AbVKDHz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 02:44:26 -0500
-Received: from mf01.sitadelle.com ([212.94.174.68]:28829 "EHLO
-	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1161089AbVKDHoZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 02:44:25 -0500
-Message-ID: <436B1150.2010001@cosmosbay.com>
-Date: Fri, 04 Nov 2005 08:44:16 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
+	Fri, 4 Nov 2005 02:55:29 -0500
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:49274 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1161095AbVKDHz2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 02:55:28 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=dSUJaCyWikgpLKBDqwpw5eu3H/SsNnPy+Auw3qsCj5qiQsc+Yi1odush5/JY5OZ8D39dyJLECqGS6Yxsc0iDMwKeQEqkAk2B1TlcACt15iqC/xA4evAyRyF4ooSx0gG3qq4BB/JoUf+6mZH72qqIllIdZSfndMAdodxOOj6nQTI=  ;
+Message-ID: <436B146A.8020209@yahoo.com.au>
+Date: Fri, 04 Nov 2005 18:57:30 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Paul Jackson <pj@sgi.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, andy@thermo.lanl.gov,
-       mbligh@mbligh.org, akpm@osdl.org, arjan@infradead.org,
-       arjanv@infradead.org, haveblue@us.ibm.com, kravetz@us.ibm.com,
-       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, mel@csn.ul.ie, mingo@elte.hu,
-       nickpiggin@yahoo.com.au
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-References: <20051104010021.4180A184531@thermo.lanl.gov>	<Pine.LNX.4.64.0511032105110.27915@g5.osdl.org> <20051103221037.33ae0f53.pj@sgi.com>
-In-Reply-To: <20051103221037.33ae0f53.pj@sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: Dave Jones <davej@redhat.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       notting@redhat.com
+Subject: Re: [PATCH] core remove PageReserved
+References: <200510300502.j9U52LE0027873@hera.kernel.org> <20051104044217.GA25858@redhat.com>
+In-Reply-To: <20051104044217.GA25858@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson a écrit :
-> Linus wrote:
+Dave Jones wrote:
+> On Sat, Oct 29, 2005 at 10:02:22PM -0700, Linux Kernel wrote:
+>  > tree 835836cb527ec9bd525f93eb7e016f3dfb8c8ae2
+>  > parent f9c98d0287de42221c624482fd4f8d485c98ab22
+>  > author Nick Piggin <nickpiggin@yahoo.com.au> Sun, 30 Oct 2005 08:16:12 -0700
+>  > committer Linus Torvalds <torvalds@g5.osdl.org> Sun, 30 Oct 2005 11:40:39 -0700
+>  > 
+>  > [PATCH] core remove PageReserved
+>  > 
+>  > Remove PageReserved() calls from core code by tightening VM_RESERVED
+>  > handling in mm/ to cover PageReserved functionality.
+>  > 
+>  > PageReserved special casing is removed from get_page and put_page.
+>  > 
+>  > All setting and clearing of PageReserved is retained, and it is now flagged
+>  > in the page_alloc checks to help ensure we don't introduce any refcount
+>  > based freeing of Reserved pages.
+>  > 
+>  > MAP_PRIVATE, PROT_WRITE of VM_RESERVED regions is tentatively being
+>  > deprecated.  We never completely handled it correctly anyway, and is be
+>  > reintroduced in future if required (Hugh has a proof of concept).
 > 
->>Maybe you'd be willing on compromising by using a few kernel boot-time 
->>command line options for your not-very-common load.
+> We've got one user reporting that he's getting the following
+> message..
 > 
+> "program ddcprobe is using MAP_PRIVATE, PROT_WRITE mmap of VM_RESERVED memory"
+> since this cset.
 > 
-> If we were only a few options away from running Andy's varying load
-> mix with something close to ideal performance, we'd be in fat city,
-> and Andy would never have been driven to write that rant.
+> So what should happen here, does that app need changing? Or do we just
+> need to get Hugh's changes merged?
+> 
 
-I found hugetlb support in linux not very practical/usable on NUMA machines, 
-boot-time parameters or /proc/sys/vm/nr_hugepages.
+Thanks for reporting this.
 
-With this single integer parameter, you cannot allocate 1000 4MB pages on one 
-specific node, letting small pages on another node.
+Can the app use MAP_SHARED? Or PROT_READ and copy the mapped page to
+its own private one before modifying it?
 
-I'm not an astrophysician, nor a DB admin, I'm only trying to partition a dual 
-node machine between one (numa aware) memory intensive job and all others 
-(system, network, shells).
-At least I can reboot it if needed, but I feel Andy pain.
+It is likely to only be very specific userspace drivers and stuff
+that would ever do this... but if they become a real problem then
+Hugh's patch would be able to solve it. Though I'd like to try to
+avoid relying on that if possible.
 
-There is a /proc/buddyinfo file, maybe we need a /proc/sys/vm/node_hugepages 
-with a list of integers (one per node) ?
+Perhaps the nice thing to do would be to include Hugh's patch *and*
+display the warning message, and remove the functionality in a
+later release.
 
-Eric
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

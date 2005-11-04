@@ -1,52 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751419AbVKDNMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751420AbVKDNSa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751419AbVKDNMa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 08:12:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbVKDNMa
+	id S1751420AbVKDNSa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 08:18:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbVKDNSa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 08:12:30 -0500
-Received: from styx.suse.cz ([82.119.242.94]:37861 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1751419AbVKDNM3 (ORCPT
+	Fri, 4 Nov 2005 08:18:30 -0500
+Received: from mx2.suse.de ([195.135.220.15]:57483 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751420AbVKDNS3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 08:12:29 -0500
-Date: Fri, 4 Nov 2005 14:12:28 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       linux-joystick@atrey.karlin.mff.cuni.cz
-Subject: Re: [2.6 patch] drivers/input/: possible cleanups
-Message-ID: <20051104131228.GA5208@ucw.cz>
-References: <20051104123541.GC5587@stusta.de> <20051104124207.GA4937@ucw.cz> <20051104125742.GE5587@stusta.de>
+	Fri, 4 Nov 2005 08:18:29 -0500
+Date: Fri, 4 Nov 2005 14:18:58 +0100
+From: jblunck@suse.de
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: jblunck@suse.de, viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [RFC,PATCH] libfs dcache_readdir() and dcache_dir_lseek() bugfix
+Message-ID: <20051104131858.GA16622@hasse.suse.de>
+References: <20051104113851.GA4770@hasse.suse.de> <20051104115101.GH7992@ftp.linux.org.uk> <20051104122021.GA15061@hasse.suse.de> <E1EY16w-0004HC-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20051104125742.GE5587@stusta.de>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <E1EY16w-0004HC-00@dorka.pomaz.szeredi.hu>
+"From: jblunck@suse.de"
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 04, 2005 at 01:57:42PM +0100, Adrian Bunk wrote:
+On Fri, Nov 04, Miklos Szeredi wrote:
 
-> On Fri, Nov 04, 2005 at 01:42:07PM +0100, Vojtech Pavlik wrote:
-> > On Fri, Nov 04, 2005 at 01:35:41PM +0100, Adrian Bunk wrote:
-> > > This patch contains the following possible cleanups:
-> > > - make needlessly glbal code static
+> > > > 
+> > > > SuSV3 only says: "If a file is removed from or added to the
+> > > > directory after the most recent call to opendir() or
+> > > > rewinddir(), whether a subsequent call to readdir_r() returns an
+> > > > entry for that file is unspecified."
+> > >  
+> > > IOW, the applications in question are broken since they rely on
+> > > unspecified behaviour, not provided by old libc versions.
 > > 
-> > Agreed.
-> > 
-> > > - gameport/gameport: #if 0 the unused global function gameport_reconnect
-> > 
-> > That one should be an EXPORT_SYMBOL() API. If the export is missing,
-> > then that's the bug that needs to be fixed.
-> >...
+> > No. SuSV3 only says that the behavior of readdir() is unspecified
+> > w.r.t. an entry for the removed/added file. I think readdir() should
+> > still return the entries which are not removed/added. What do you
+> > think?
 > 
-> There isn't even a header providing a function prototype which is quite 
-> strange for a part of an API.
- 
-It's a planned API (a mirror of what the serio abstraction does), the
-drivers don't use it yet.
+> What 'rm' is this?  Mine (coreutils 5.2.1) doesn't do any seeking and
+> I don't think that glibc does either.
+> 
+
+As I said:
+"Old glibc implementations (e.g. glibc-2.2.5) are lseeking after every call to
+getdents() ..."
+
+Precisely this is a SLES8 on s390-64bit.
+s390vm02:/# rpm -qf /bin/rm
+fileutils-4.1.11-144
+s390vm02:/# rpm -q glibc
+glibc-2.2.5-234
+
+But you can also try my testcase.
+
+Regards,
+	Jan Blunck
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Jan Blunck                                               jblunck@suse.de
+SuSE LINUX AG - A Novell company
+Maxfeldstr. 5                                          +49-911-74053-608
+D-90409 Nürnberg                                      http://www.suse.de

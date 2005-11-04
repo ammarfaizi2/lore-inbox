@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161143AbVKDPXF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161147AbVKDPYF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161143AbVKDPXF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 10:23:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964937AbVKDPXF
+	id S1161147AbVKDPYF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 10:24:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964936AbVKDPYF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 10:23:05 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:29378 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S964936AbVKDPXD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 10:23:03 -0500
-Subject: Re: 3D video card recommendations
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Mark Knecht <markknecht@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <5bdc1c8b0511040710q4a4ce3eend6edc2b4027e33b0@mail.gmail.com>
-References: <1131112605.14381.34.camel@localhost.localdomain>
-	 <5bdc1c8b0511040710q4a4ce3eend6edc2b4027e33b0@mail.gmail.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Fri, 04 Nov 2005 10:22:59 -0500
-Message-Id: <1131117779.14381.38.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Fri, 4 Nov 2005 10:24:05 -0500
+Received: from dvhart.com ([64.146.134.43]:37810 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S964937AbVKDPYD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 10:24:03 -0500
+Date: Fri, 04 Nov 2005 07:24:04 -0800
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>
+Cc: pbadari@gmail.com, torvalds@osdl.org, jdike@addtoit.com, rob@landley.net,
+       nickpiggin@yahoo.com.au, gh@us.ibm.com, kamezawa.hiroyu@jp.fujitsu.com,
+       haveblue@us.ibm.com, mel@csn.ul.ie, kravetz@us.ibm.com,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       lhms-devel@lists.sourceforge.net
+Subject: Re: [patch] swapin rlimit
+Message-ID: <325850000.1131117844@[10.10.2.4]>
+In-Reply-To: <20051104080731.GB21321@elte.hu>
+References: <E1EXEfW-0005ON-00@w-gerrit.beaverton.ibm.com> <200511021747.45599.rob@landley.net> <43699573.4070301@yahoo.com.au> <200511030007.34285.rob@landley.net> <20051103163555.GA4174@ccure.user-mode-linux.org> <1131035000.24503.135.camel@localhost.localdomain> <20051103205202.4417acf4.akpm@osdl.org> <20051104072628.GA20108@elte.hu> <20051103233628.12ed1eee.akpm@osdl.org> <20051104080731.GB21321@elte.hu>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-11-04 at 07:10 -0800, Mark Knecht wrote:
-> On 11/4/05, Steven Rostedt <rostedt@goodmis.org> wrote:
-
-> > I'm looking at the ATI Radeons.
-> >
-> > Any recommendations? (links to info would also be nice ;-)
-> >
-> > Thanks,
-> >
-> > -- Steve
+> System instrumentation people are already complaining about how costly 
+> /proc parsing is. If you have to get some nontrivial stat from all 
+> threads in the system, and if Linux doesnt offer that counter or summary 
+> by default, it gets pretty expensive.
 > 
-> Not a recommendation. Just a point to be aware of. The ATI Radeons, to
-> get the best acceleration, seem to require that you use the ATI closed
-> source drivers. Currently I haven't found an ATI closed source driver
-> that supports 2.6.14. so I'm forced to use the Xorg radeon driver. I
-> have no idea if this is very good. I don't think so as my glxgear
-> numbers are pretty low. Much lower than the ATI driver running on
-> 2.6.13-X.
+> One solution i can think of would be to make a binary representation of 
+> /proc/<pid>/stats readonly-mmap-able. This would add a 4K page to every 
+> task tracked that way, and stats updates would have to update this page 
+> too - but it would make instrumentation of running apps really 
+> unintrusive and scalable.
 
-I'm sure ATI will come out with a proprietary driver for 2.6.14.  I just
-want some 3D accel for working with -rt.  If I want to play a game, I'll
-just back out to 2.6.13 and use the ATI binary driver.  But right now
-with NVidia, it is either -rt with no accel, or accel with no -rt.
-
-Thanks,
-
--- Steve
-
+That would be awesome - the current methods we have are mostly crap. There
+are some atomicity issues though. Plus when I suggested this 2 years ago,
+everyone told me to piss off, but I'm not bitter ;-) Seriously, we do
+need a fast communication mechanism.
+ 
+M.
 

@@ -1,40 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161111AbVKDBNf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030580AbVKDBRD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161111AbVKDBNf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Nov 2005 20:13:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161118AbVKDBNe
+	id S1030580AbVKDBRD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Nov 2005 20:17:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030573AbVKDBRC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Nov 2005 20:13:34 -0500
-Received: from nproxy.gmail.com ([64.233.182.207]:3534 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161126AbVKDBNd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Nov 2005 20:13:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gdz2kOBWU//3GHW39qsUAeJAKyOh5+hmCrpROOUuz8IAZ60QlDWYoUtb/ZYt8fn5tr0/1u11jBoOXN9Euc71ciT0wLZawGaCBRIqA0h6nM/CRGliXJhTNSqCFYl3QvLSSgrCOpmKC6M7AheeaeMjLmk1cMDNXMzGGnGijDuWLhE=
-Message-ID: <2cd57c900511031713j33e5c9f7y@mail.gmail.com>
-Date: Fri, 4 Nov 2005 09:13:31 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-To: Paul Albrecht <palbrecht@qwest.net>
-Subject: Re: updated cross-reference (2.6.14)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <001d01c5e08a$2445f3c0$c2970443@oemcomputer>
+	Thu, 3 Nov 2005 20:17:02 -0500
+Received: from dvhart.com ([64.146.134.43]:176 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S1030504AbVKDBRA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Nov 2005 20:17:00 -0500
+Date: Thu, 03 Nov 2005 17:16:55 -0800
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Andy Nelson <andy@thermo.lanl.gov>, torvalds@osdl.org
+Cc: akpm@osdl.org, arjan@infradead.org, arjanv@infradead.org,
+       haveblue@us.ibm.com, kravetz@us.ibm.com,
+       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, mel@csn.ul.ie, mingo@elte.hu,
+       nickpiggin@yahoo.com.au
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+Message-ID: <58210000.1131067015@flay>
+In-Reply-To: <20051104010021.4180A184531@thermo.lanl.gov>
+References: <20051104010021.4180A184531@thermo.lanl.gov>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <001d01c5e08a$2445f3c0$c2970443@oemcomputer>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 03/11/05, Paul Albrecht <palbrecht@qwest.net> wrote:
-> Don't know if anyone is interested, but I have generated a cross-reference for the 2.6.14 kernel and
-> linked it to my web site: www.pjalbrecht.com. Again, the distinctive feature of my cross-reference
-> is that it is generated using compiler output.
+> Linus writes:
+> 
+>> Just face it - people who want memory hotplug had better know that 
+>> beforehand (and let's be honest - in practice it's only going to work in 
+>> virtualized environments or in environments where you can insert the new 
+>> bank of memory and copy it over and remove the old one with hw support).
+>> 
+>> Same as hugetlb.
+>> 
+>> Nobody sane _cares_. Nobody sane is asking for these things. Only people 
+>> with special needs are asking for it, and they know their needs.
+> 
+> 
+> Hello, my name is Andy. I am insane. I am one of the CRAZY PEOPLE you wrote
+> about.
 
+To provide a slightly shorter version ... we had one customer running
+similarly large number crunching things in Fortran. Their app ran 25%
+faster with large pages (not a typo). Because they ran a variety of
+jobs in batch mode, they need large pages sometimes, and small pages
+at others - hence they need to dynamically resize the pool. 
 
-I have to do an s/wish8.3/wish8.4/. You'd use 'wish' I guess.
---
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+That's the sort of thing we were trying to fix with dynamically sized
+hugepage pools. It does make a huge difference to real-world customers.
+
+M.
+

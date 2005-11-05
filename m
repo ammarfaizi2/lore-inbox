@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbVKESQ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbVKESSr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932161AbVKESQ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 13:16:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932160AbVKESQz
+	id S932176AbVKESSr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 13:18:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbVKESSr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 13:16:55 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:38161 "EHLO
+	Sat, 5 Nov 2005 13:18:47 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32017 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932161AbVKESQx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 13:16:53 -0500
-Date: Sat, 5 Nov 2005 18:16:47 +0000
+	id S932176AbVKESSm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 13:18:42 -0500
+Date: Sat, 5 Nov 2005 18:18:36 +0000
 From: Russell King <rmk+lkml@arm.linux.org.uk>
 To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [DRIVER MODEL] Convert ARM Zaurus drivers
-Message-ID: <20051105181646.GJ14419@flint.arm.linux.org.uk>
+Subject: Re: [DRIVER MODEL] Convert network drivers
+Message-ID: <20051105181835.GP14419@flint.arm.linux.org.uk>
 Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
 References: <20051105181122.GD12228@flint.arm.linux.org.uk>
 Mime-Version: 1.0
@@ -28,373 +28,849 @@ Convert platform drivers to use struct platform_driver
 
 Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
 
-diff -u b/drivers/input/keyboard/corgikbd.c b/drivers/input/keyboard/corgikbd.c
---- b/drivers/input/keyboard/corgikbd.c
-+++ b/drivers/input/keyboard/corgikbd.c
-@@ -259,17 +259,17 @@
- }
- 
- #ifdef CONFIG_PM
--static int corgikbd_suspend(struct device *dev, pm_message_t state)
-+static int corgikbd_suspend(struct platform_device *dev, pm_message_t state)
- {
--	struct corgikbd *corgikbd = dev_get_drvdata(dev);
-+	struct corgikbd *corgikbd = platform_get_drvdata(dev);
- 	corgikbd->suspended = 1;
- 
- 	return 0;
- }
- 
--static int corgikbd_resume(struct device *dev)
-+static int corgikbd_resume(struct platform_device *dev)
- {
--	struct corgikbd *corgikbd = dev_get_drvdata(dev);
-+	struct corgikbd *corgikbd = platform_get_drvdata(dev);
- 
- 	/* Upon resume, ignore the suspend key for a short while */
- 	corgikbd->suspend_jiffies=jiffies;
-@@ -282,7 +282,7 @@
- #define corgikbd_resume		NULL
+diff -u b/drivers/net/depca.c b/drivers/net/depca.c
+--- b/drivers/net/depca.c
++++ b/drivers/net/depca.c
+@@ -398,13 +398,14 @@
+ };
  #endif
  
--static int __init corgikbd_probe(struct device *dev)
-+static int __init corgikbd_probe(struct platform_device *pdev)
- {
- 	struct corgikbd *corgikbd;
- 	struct input_dev *input_dev;
-@@ -296,7 +296,7 @@
- 		return -ENOMEM;
- 	}
+-static int depca_isa_probe (struct device *);
++static int depca_isa_probe (struct platform_device *);
  
--	dev_set_drvdata(dev, corgikbd);
-+	platform_set_drvdata(pdev, corgikbd);
- 
- 	corgikbd->input = input_dev;
- 	spin_lock_init(&corgikbd->lock);
-@@ -321,7 +321,7 @@
- 	input_dev->id.vendor = 0x0001;
- 	input_dev->id.product = 0x0001;
- 	input_dev->id.version = 0x0100;
--	input_dev->cdev.dev = dev;
-+	input_dev->cdev.dev = &pdev->dev;
- 	input_dev->private = corgikbd;
- 
- 	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP) | BIT(EV_PWR) | BIT(EV_SW);
-@@ -356,10 +356,10 @@
- 	return 0;
- }
- 
--static int corgikbd_remove(struct device *dev)
-+static int corgikbd_remove(struct platform_device *pdev)
- {
- 	int i;
--	struct corgikbd *corgikbd = dev_get_drvdata(dev);
-+	struct corgikbd *corgikbd = platform_get_drvdata(pdev);
- 
- 	for (i = 0; i < CORGI_KEY_SENSE_NUM; i++)
- 		free_irq(CORGI_IRQ_GPIO_KEY_SENSE(i), corgikbd);
-@@ -374,23 +374,24 @@
- 	return 0;
- }
- 
--static struct device_driver corgikbd_driver = {
--	.name		= "corgi-keyboard",
--	.bus		= &platform_bus_type,
-+static struct platform_driver corgikbd_driver = {
- 	.probe		= corgikbd_probe,
- 	.remove		= corgikbd_remove,
- 	.suspend	= corgikbd_suspend,
- 	.resume		= corgikbd_resume,
-+	.driver		= {
-+		.name	= "corgi-keyboard",
+-static struct device_driver depca_isa_driver = {
+-	.name   = depca_string,
+-	.bus    = &platform_bus_type,
++static struct platform_driver depca_isa_driver = {
+ 	.probe  = depca_isa_probe,
+ 	.remove = __devexit_p(depca_device_remove),
++	.driver	= {
++		.name   = depca_string,
 +	},
  };
- 
- static int __devinit corgikbd_init(void)
- {
--	return driver_register(&corgikbd_driver);
-+	return platform_driver_register(&corgikbd_driver);
+ 	
+ /*
+@@ -1525,7 +1526,7 @@
+ 	return adapter;
  }
  
- static void __exit corgikbd_exit(void)
+-static int __init depca_isa_probe (struct device *device)
++static int __init depca_isa_probe (struct platform_device *device)
  {
--	driver_unregister(&corgikbd_driver);
-+	platform_driver_unregister(&corgikbd_driver);
- }
+ 	struct net_device *dev;
+ 	struct depca_private *lp;
+@@ -1533,7 +1534,7 @@
+ 	enum depca_type adapter = unknown;
+ 	int status = 0;
  
- module_init(corgikbd_init);
-diff -u b/drivers/input/keyboard/spitzkbd.c b/drivers/input/keyboard/spitzkbd.c
---- b/drivers/input/keyboard/spitzkbd.c
-+++ b/drivers/input/keyboard/spitzkbd.c
-@@ -309,10 +309,10 @@
- }
+-	ioaddr = (u_long) device->platform_data;
++	ioaddr = (u_long) device->dev.platform_data;
  
- #ifdef CONFIG_PM
--static int spitzkbd_suspend(struct device *dev, pm_message_t state)
-+static int spitzkbd_suspend(struct platform_device *dev, pm_message_t state)
- {
- 	int i;
--	struct spitzkbd *spitzkbd = dev_get_drvdata(dev);
-+	struct spitzkbd *spitzkbd = platform_get_drvdata(dev);
- 	spitzkbd->suspended = 1;
- 
- 	/* Set Strobe lines as inputs - *except* strobe line 0 leave this
-@@ -323,10 +323,10 @@
+ 	if ((status = depca_common_init (ioaddr, &dev)))
+ 		goto out;
+@@ -1553,7 +1554,7 @@
+ 	lp->adapter = adapter;
+ 	lp->mem_start = mem_start;
+ 	
+-	if ((status = depca_hw_init(dev, device)))
++	if ((status = depca_hw_init(dev, &device->dev)))
+ 		goto out_free;
+ 	
  	return 0;
- }
- 
--static int spitzkbd_resume(struct device *dev)
-+static int spitzkbd_resume(struct platform_device *dev)
- {
- 	int i;
--	struct spitzkbd *spitzkbd = dev_get_drvdata(dev);
-+	struct spitzkbd *spitzkbd = platform_get_drvdata(dev);
- 
- 	for (i = 0; i < SPITZ_KEY_STROBE_NUM; i++)
- 		pxa_gpio_mode(spitz_strobes[i] | GPIO_OUT | GPIO_DFLT_HIGH);
-@@ -342,7 +342,7 @@
- #define spitzkbd_resume		NULL
+@@ -2082,7 +2083,7 @@ static int __init depca_module_init (voi
+ #ifdef CONFIG_EISA
+         err |= eisa_driver_register (&depca_eisa_driver);
  #endif
- 
--static int __init spitzkbd_probe(struct device *dev)
-+static int __init spitzkbd_probe(struct platform_device *dev)
- {
- 	struct spitzkbd *spitzkbd;
- 	struct input_dev *input_dev;
-@@ -358,7 +358,7 @@
- 		return -ENOMEM;
- 	}
- 
--	dev_set_drvdata(dev, spitzkbd);
-+	platform_set_drvdata(dev, spitzkbd);
- 	strcpy(spitzkbd->phys, "spitzkbd/input0");
- 
- 	spin_lock_init(&spitzkbd->lock);
-@@ -380,7 +380,7 @@
- 	input_dev->private = spitzkbd;
- 	input_dev->name = "Spitz Keyboard";
- 	input_dev->phys = spitzkbd->phys;
--	input_dev->cdev.dev = dev;
-+	input_dev->cdev.dev = &dev->dev;
- 
- 	input_dev->id.bustype = BUS_HOST;
- 	input_dev->id.vendor = 0x0001;
-@@ -437,10 +437,10 @@
- 	return 0;
- }
- 
--static int spitzkbd_remove(struct device *dev)
-+static int spitzkbd_remove(struct platform_device *dev)
- {
- 	int i;
--	struct spitzkbd *spitzkbd = dev_get_drvdata(dev);
-+	struct spitzkbd *spitzkbd = platform_get_drvdata(dev);
- 
- 	for (i = 0; i < SPITZ_KEY_SENSE_NUM; i++)
- 		free_irq(IRQ_GPIO(spitz_senses[i]), spitzkbd);
-@@ -460,23 +460,24 @@
- 	return 0;
- }
- 
--static struct device_driver spitzkbd_driver = {
--	.name		= "spitz-keyboard",
--	.bus		= &platform_bus_type,
-+static struct platform_driver spitzkbd_driver = {
- 	.probe		= spitzkbd_probe,
- 	.remove		= spitzkbd_remove,
- 	.suspend	= spitzkbd_suspend,
- 	.resume		= spitzkbd_resume,
-+	.driver		= {
-+		.name	= "spitz-keyboard",
-+	},
- };
- 
- static int __devinit spitzkbd_init(void)
- {
--	return driver_register(&spitzkbd_driver);
-+	return platform_driver_register(&spitzkbd_driver);
- }
- 
- static void __exit spitzkbd_exit(void)
- {
--	driver_unregister(&spitzkbd_driver);
-+	platform_driver_unregister(&spitzkbd_driver);
- }
- 
- module_init(spitzkbd_init);
-diff -u b/drivers/input/touchscreen/corgi_ts.c b/drivers/input/touchscreen/corgi_ts.c
---- b/drivers/input/touchscreen/corgi_ts.c
-+++ b/drivers/input/touchscreen/corgi_ts.c
-@@ -231,9 +231,9 @@
- }
- 
- #ifdef CONFIG_PM
--static int corgits_suspend(struct device *dev, pm_message_t state)
-+static int corgits_suspend(struct platform_device *dev, pm_message_t state)
- {
--	struct corgi_ts *corgi_ts = dev_get_drvdata(dev);
-+	struct corgi_ts *corgi_ts = platform_get_drvdata(dev);
- 
- 	if (corgi_ts->pendown) {
- 		del_timer_sync(&corgi_ts->timer);
-@@ -248,9 +248,9 @@
- 	return 0;
- }
- 
--static int corgits_resume(struct device *dev)
-+static int corgits_resume(struct platform_device *dev)
- {
--	struct corgi_ts *corgi_ts = dev_get_drvdata(dev);
-+	struct corgi_ts *corgi_ts = platform_get_drvdata(dev);
- 
- 	corgi_ssp_ads7846_putget((4u << ADSCTRL_ADR_SH) | ADSCTRL_STS);
- 	/* Enable Falling Edge */
-@@ -264,10 +264,9 @@
- #define corgits_resume		NULL
+-	err |= driver_register (&depca_isa_driver);
++	err |= platform_driver_register (&depca_isa_driver);
+ 	depca_platform_probe ();
+ 	
+         return err;
+@@ -2097,7 +2098,7 @@ static void __exit depca_module_exit (vo
+ #ifdef CONFIG_EISA
+         eisa_driver_unregister (&depca_eisa_driver);
  #endif
+-	driver_unregister (&depca_isa_driver);
++	platform_driver_unregister (&depca_isa_driver);
  
--static int __init corgits_probe(struct device *dev)
-+static int __init corgits_probe(struct platform_device *pdev)
+ 	for (i = 0; depca_io_ports[i].iobase; i++) {
+ 		if (depca_io_ports[i].device) {
+diff -u b/drivers/net/dm9000.c b/drivers/net/dm9000.c
+--- b/drivers/net/dm9000.c
++++ b/drivers/net/dm9000.c
+@@ -149,7 +149,7 @@
+ } board_info_t;
+ 
+ /* function declaration ------------------------------------- */
+-static int dm9000_probe(struct device *);
++static int dm9000_probe(struct platform_device *);
+ static int dm9000_open(struct net_device *);
+ static int dm9000_start_xmit(struct sk_buff *, struct net_device *);
+ static int dm9000_stop(struct net_device *);
+@@ -379,9 +379,8 @@
+  * Search DM9000 board, allocate space and register it
+  */
+ static int
+-dm9000_probe(struct device *dev)
++dm9000_probe(struct platform_device *pdev)
  {
- 	struct corgi_ts *corgi_ts;
 -	struct platform_device *pdev = to_platform_device(dev);
- 	struct input_dev *input_dev;
- 	int err = -ENOMEM;
+ 	struct dm9000_plat_data *pdata = pdev->dev.platform_data;
+ 	struct board_info *db;	/* Point a board information structure */
+ 	struct net_device *ndev;
+@@ -399,7 +398,7 @@
+ 	}
  
-@@ -276,9 +275,9 @@
-	if (!corgi_ts || !input_dev)
- 		goto fail;
+ 	SET_MODULE_OWNER(ndev);
+-	SET_NETDEV_DEV(ndev, dev);
++	SET_NETDEV_DEV(ndev, &pdev->dev);
  
--	dev_set_drvdata(dev, corgi_ts);
-+	platform_set_drvdata(pdev, corgi_ts);
+ 	PRINTK2("dm9000_probe()");
  
--	corgi_ts->machinfo = dev->platform_data;
-+	corgi_ts->machinfo = pdev->dev.platform_data;
- 	corgi_ts->irq_gpio = platform_get_irq(pdev, 0);
+@@ -570,7 +569,7 @@
+ 		printk("%s: Invalid ethernet MAC address.  Please "
+ 		       "set using ifconfig\n", ndev->name);
  
- 	if (corgi_ts->irq_gpio < 0) {
-@@ -298,7 +297,7 @@
- 	input_dev->id.vendor = 0x0001;
- 	input_dev->id.product = 0x0002;
- 	input_dev->id.version = 0x0100;
--	input_dev->cdev.dev = dev;
-+	input_dev->cdev.dev = &pdev->dev;
- 	input_dev->private = corgi_ts;
+-	dev_set_drvdata(dev, ndev);
++	platform_set_drvdata(pdev, ndev);
+ 	ret = register_netdev(ndev);
  
- 	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
-@@ -339,9 +338,9 @@
- 
+ 	if (ret == 0) {
+@@ -1141,9 +1140,9 @@
  }
  
--static int corgits_remove(struct device *dev)
-+static int corgits_remove(struct platform_device *pdev)
+ static int
+-dm9000_drv_suspend(struct device *dev, pm_message_t state)
++dm9000_drv_suspend(struct platform_device *dev, pm_message_t state)
  {
--	struct corgi_ts *corgi_ts = dev_get_drvdata(dev);
-+	struct corgi_ts *corgi_ts = platform_get_drvdata(pdev);
+-	struct net_device *ndev = dev_get_drvdata(dev);
++	struct net_device *ndev = platform_get_drvdata(dev);
  
- 	free_irq(corgi_ts->irq_gpio, NULL);
- 	del_timer_sync(&corgi_ts->timer);
-@@ -351,23 +350,24 @@
+ 	if (ndev) {
+ 		if (netif_running(ndev)) {
+@@ -1155,9 +1154,9 @@
+ }
+ 
+ static int
+-dm9000_drv_resume(struct device *dev)
++dm9000_drv_resume(struct platform_device *dev)
+ {
+-	struct net_device *ndev = dev_get_drvdata(dev);
++	struct net_device *ndev = platform_get_drvdata(dev);
+ 	board_info_t *db = (board_info_t *) ndev->priv;
+ 
+ 	if (ndev) {
+@@ -1173,12 +1172,11 @@
+ }
+ 
+ static int
+-dm9000_drv_remove(struct device *dev)
++dm9000_drv_remove(struct platform_device *pdev)
+ {
+-	struct platform_device *pdev = to_platform_device(dev);
+-	struct net_device *ndev = dev_get_drvdata(dev);
++	struct net_device *ndev = platform_get_drvdata(pdev);
+ 
+-	dev_set_drvdata(dev, NULL);
++	platform_set_drvdata(pdev, NULL);
+ 
+ 	unregister_netdev(ndev);
+ 	dm9000_release_board(pdev, (board_info_t *) ndev->priv);
+@@ -1189,13 +1187,14 @@
  	return 0;
  }
  
--static struct device_driver corgits_driver = {
--	.name		= "corgi-ts",
--	.bus		= &platform_bus_type,
-+static struct platform_driver corgits_driver = {
- 	.probe		= corgits_probe,
- 	.remove		= corgits_remove,
- 	.suspend	= corgits_suspend,
- 	.resume		= corgits_resume,
-+	.driver		= {
-+		.name	= "corgi-ts",
+-static struct device_driver dm9000_driver = {
+-	.name    = "dm9000",
+-	.bus     = &platform_bus_type,
++static struct platform_driver dm9000_driver = {
+ 	.probe   = dm9000_probe,
+ 	.remove  = dm9000_drv_remove,
+ 	.suspend = dm9000_drv_suspend,
+ 	.resume  = dm9000_drv_resume,
++	.driver	= {
++		.name	= "dm9000",
 +	},
  };
  
- static int __devinit corgits_init(void)
+ static int __init
+@@ -1203,13 +1202,13 @@
  {
--	return driver_register(&corgits_driver);
-+	return platform_driver_register(&corgits_driver);
+ 	printk(KERN_INFO "%s Ethernet Driver\n", CARDNAME);
+ 
+-	return driver_register(&dm9000_driver);	/* search board and register */
++	return platform_driver_register(&dm9000_driver);	/* search board and register */
  }
  
- static void __exit corgits_exit(void)
+ static void __exit
+ dm9000_cleanup(void)
  {
--	driver_unregister(&corgits_driver);
-+	platform_driver_unregister(&corgits_driver);
+-	driver_unregister(&dm9000_driver);
++	platform_driver_unregister(&dm9000_driver);
  }
  
- module_init(corgits_init);
-diff -u b/drivers/video/backlight/corgi_bl.c b/drivers/video/backlight/corgi_bl.c
---- b/drivers/video/backlight/corgi_bl.c
-+++ b/drivers/video/backlight/corgi_bl.c
-@@ -73,13 +73,13 @@
+ module_init(dm9000_init);
+diff -u b/drivers/net/gianfar.c b/drivers/net/gianfar.c
+--- b/drivers/net/gianfar.c
++++ b/drivers/net/gianfar.c
+@@ -127,8 +127,8 @@
+ static void adjust_link(struct net_device *dev);
+ static void init_registers(struct net_device *dev);
+ static int init_phy(struct net_device *dev);
+-static int gfar_probe(struct device *device);
+-static int gfar_remove(struct device *device);
++static int gfar_probe(struct platform_device *pdev);
++static int gfar_remove(struct platform_device *pdev);
+ static void free_skb_resources(struct gfar_private *priv);
+ static void gfar_set_multi(struct net_device *dev);
+ static void gfar_set_hash_for_addr(struct net_device *dev, u8 *addr);
+@@ -157,12 +157,11 @@
+ 
+ /* Set up the ethernet device structure, private data,
+  * and anything else we need before we start */
+-static int gfar_probe(struct device *device)
++static int gfar_probe(struct platform_device *pdev)
+ {
+ 	u32 tempval;
+ 	struct net_device *dev = NULL;
+ 	struct gfar_private *priv = NULL;
+-	struct platform_device *pdev = to_platform_device(device);
+ 	struct gianfar_platform_data *einfo;
+ 	struct resource *r;
+ 	int idx;
+@@ -209,7 +208,7 @@
+ 
+ 	spin_lock_init(&priv->lock);
+ 
+-	dev_set_drvdata(device, dev);
++	platform_set_drvdata(pdev, dev);
+ 
+ 	/* Stop the DMA engine now, in case it was running before */
+ 	/* (The firmware could have used it, and left it running). */
+@@ -246,7 +245,7 @@
+ 	dev->base_addr = (unsigned long) (priv->regs);
+ 
+ 	SET_MODULE_OWNER(dev);
+-	SET_NETDEV_DEV(dev, device);
++	SET_NETDEV_DEV(dev, &pdev->dev);
+ 
+ 	/* Fill in the dev structure */
+ 	dev->open = gfar_enet_open;
+@@ -378,12 +377,12 @@
+ 	return err;
  }
  
- #ifdef CONFIG_PM
--static int corgibl_suspend(struct device *dev, pm_message_t state)
-+static int corgibl_suspend(struct platform_device *dev, pm_message_t state)
+-static int gfar_remove(struct device *device)
++static int gfar_remove(struct platform_device *pdev)
  {
- 	corgibl_blank(FB_BLANK_POWERDOWN);
- 	return 0;
+-	struct net_device *dev = dev_get_drvdata(device);
++	struct net_device *dev = platform_get_drvdata(pdev);
+ 	struct gfar_private *priv = netdev_priv(dev);
+ 
+-	dev_set_drvdata(device, NULL);
++	platform_set_drvdata(pdev, NULL);
+ 
+ 	iounmap((void *) priv->regs);
+ 	free_netdev(dev);
+@@ -1862,11 +1861,12 @@ static irqreturn_t gfar_error(int irq, v
  }
  
--static int corgibl_resume(struct device *dev)
-+static int corgibl_resume(struct platform_device *dev)
- {
- 	corgibl_blank(FB_BLANK_UNBLANK);
- 	return 0;
-@@ -137,9 +137,9 @@
- 
- static struct backlight_device *corgi_backlight_device;
- 
--static int __init corgibl_probe(struct device *dev)
-+static int __init corgibl_probe(struct platform_device *pdev)
- {
--	struct corgibl_machinfo *machinfo = dev->platform_data;
-+	struct corgibl_machinfo *machinfo = pdev->dev.platform_data;
- 
- 	corgibl_data.max_brightness = machinfo->max_intensity;
- 	corgibl_mach_set_intensity = machinfo->set_bl_intensity;
-@@ -156,7 +156,7 @@
- 	return 0;
- }
- 
--static int corgibl_remove(struct device *dev)
-+static int corgibl_remove(struct platform_device *dev)
- {
- 	backlight_device_unregister(corgi_backlight_device);
- 
-@@ -166,23 +166,24 @@
- 	return 0;
- }
- 
--static struct device_driver corgibl_driver = {
--	.name		= "corgi-bl",
--	.bus		= &platform_bus_type,
-+static struct platform_driver corgibl_driver = {
- 	.probe		= corgibl_probe,
- 	.remove		= corgibl_remove,
- 	.suspend	= corgibl_suspend,
- 	.resume		= corgibl_resume,
-+	.driver		= {
-+		.name	= "corgi-bl",
+ /* Structure for a device driver */
+-static struct device_driver gfar_driver = {
+-	.name = "fsl-gianfar",
+-	.bus = &platform_bus_type,
++static struct platform_driver gfar_driver = {
+ 	.probe = gfar_probe,
+ 	.remove = gfar_remove,
++	.driver	= {
++		.name = "fsl-gianfar",
 +	},
  };
  
- static int __init corgibl_init(void)
+ static int __init gfar_init(void)
+@@ -1876,7 +1876,7 @@
+ 	if (err)
+ 		return err;
+ 
+-	err = driver_register(&gfar_driver);
++	err = platform_driver_register(&gfar_driver);
+ 
+ 	if (err)
+ 		gfar_mdio_exit();
+@@ -1886,7 +1886,7 @@
+ 
+ static void __exit gfar_exit(void)
  {
--	return driver_register(&corgibl_driver);
-+	return platform_driver_register(&corgibl_driver);
+-	driver_unregister(&gfar_driver);
++	platform_driver_unregister(&gfar_driver);
+ 	gfar_mdio_exit();
  }
  
- static void __exit corgibl_exit(void)
- {
-- 	driver_unregister(&corgibl_driver);
-+	platform_driver_unregister(&corgibl_driver);
+diff -u b/drivers/net/irda/smsc-ircc2.c b/drivers/net/irda/smsc-ircc2.c
+--- b/drivers/net/irda/smsc-ircc2.c
++++ b/drivers/net/irda/smsc-ircc2.c
+@@ -214,14 +214,15 @@
+ 
+ /* Power Management */
+ 
+-static int smsc_ircc_suspend(struct device *dev, pm_message_t state);
+-static int smsc_ircc_resume(struct device *dev);
++static int smsc_ircc_suspend(struct platform_device *dev, pm_message_t state);
++static int smsc_ircc_resume(struct platform_device *dev);
+ 
+-static struct device_driver smsc_ircc_driver = {
+-	.name		= SMSC_IRCC2_DRIVER_NAME,
+-	.bus		= &platform_bus_type,
++static struct platform_driver smsc_ircc_driver = {
+ 	.suspend	= smsc_ircc_suspend,
+ 	.resume		= smsc_ircc_resume,
++	.driver		= {
++		.name	= SMSC_IRCC2_DRIVER_NAME,
++	},
+ };
+ 
+ /* Transceivers for SMSC-ircc */
+@@ -346,7 +347,7 @@
+ 
+ 	IRDA_DEBUG(1, "%s\n", __FUNCTION__);
+ 
+-	ret = driver_register(&smsc_ircc_driver);
++	ret = platform_driver_register(&smsc_ircc_driver);
+ 	if (ret) {
+ 		IRDA_ERROR("%s, Can't register driver!\n", driver_name);
+ 		return ret;
+@@ -378,7 +379,7 @@
+ 	}
+ 
+ 	if (ret)
+-		driver_unregister(&smsc_ircc_driver);
++		platform_driver_unregister(&smsc_ircc_driver);
+ 
+ 	return ret;
+ }
+@@ -491,7 +492,7 @@
+ 		err = PTR_ERR(self->pldev);
+ 		goto err_out5;
+ 	}
+-	dev_set_drvdata(&self->pldev->dev, self);
++	platform_set_drvdata(self->pldev, self);
+ 
+ 	IRDA_MESSAGE("IrDA: Registered device %s\n", dev->name);
+ 	dev_count++;
+@@ -1685,9 +1686,9 @@
+ 	return 0;
  }
  
- module_init(corgibl_init);
-
+-static int smsc_ircc_suspend(struct device *dev, pm_message_t state)
++static int smsc_ircc_suspend(struct platform_device *dev, pm_message_t state)
+ {
+-	struct smsc_ircc_cb *self = dev_get_drvdata(dev);
++	struct smsc_ircc_cb *self = platform_get_drvdata(dev);
+ 
+ 	if (!self->io.suspended) {
+ 		IRDA_DEBUG(1, "%s, Suspending\n", driver_name);
+@@ -1706,9 +1707,9 @@
+ 	return 0;
+ }
+ 
+-static int smsc_ircc_resume(struct device *dev)
++static int smsc_ircc_resume(struct platform_device *dev)
+ {
+-	struct smsc_ircc_cb *self = dev_get_drvdata(dev);
++	struct smsc_ircc_cb *self = platform_get_drvdata(dev);
+ 
+ 	if (self->io.suspended) {
+ 		IRDA_DEBUG(1, "%s, Waking up\n", driver_name);
+@@ -1788,7 +1789,7 @@
+ 			smsc_ircc_close(dev_self[i]);
+ 	}
+ 
+-	driver_unregister(&smsc_ircc_driver);
++	platform_driver_unregister(&smsc_ircc_driver);
+ }
+ 
+ /*
+diff -u b/drivers/net/jazzsonic.c b/drivers/net/jazzsonic.c
+--- b/drivers/net/jazzsonic.c
++++ b/drivers/net/jazzsonic.c
+@@ -194,7 +194,7 @@
+  * Probe for a SONIC ethernet controller on a Mips Jazz board.
+  * Actually probing is superfluous but we're paranoid.
+  */
+-static int __init jazz_sonic_probe(struct device *device)
++static int __init jazz_sonic_probe(struct platform_device *pdev)
+ {
+ 	struct net_device *dev;
+ 	struct sonic_local *lp;
+@@ -212,8 +212,8 @@
+ 		return -ENOMEM;
+ 
+ 	lp = netdev_priv(dev);
+-	lp->device = device;
+-	SET_NETDEV_DEV(dev, device);
++	lp->device = &pdev->dev;
++	SET_NETDEV_DEV(dev, &pdev->dev);
+  	SET_MODULE_OWNER(dev);
+ 
+ 	netdev_boot_setup_check(dev);
+@@ -264,9 +264,9 @@
+ 
+ #include "sonic.c"
+ 
+-static int __devexit jazz_sonic_device_remove (struct device *device)
++static int __devexit jazz_sonic_device_remove (struct platform_device *pdev)
+ {
+-	struct net_device *dev = device->driver_data;
++	struct net_device *dev = platform_get_drvdata(pdev);
+ 	struct sonic_local* lp = netdev_priv(dev);
+ 
+ 	unregister_netdev (dev);
+@@ -278,18 +278,19 @@ static int __devexit jazz_sonic_device_r
+ 	return 0;
+ }
+ 
+-static struct device_driver jazz_sonic_driver = {
+-	.name	= jazz_sonic_string,
+-	.bus	= &platform_bus_type,
++static struct platform_driver jazz_sonic_driver = {
+ 	.probe	= jazz_sonic_probe,
+ 	.remove	= __devexit_p(jazz_sonic_device_remove),
++	.driver	= {
++		.name	= jazz_sonic_string,
++	},
+ };
+ 
+ static int __init jazz_sonic_init_module(void)
+ {
+ 	int err;
+ 
+-	if ((err = driver_register(&jazz_sonic_driver))) {
++	if ((err = platform_driver_register(&jazz_sonic_driver))) {
+ 		printk(KERN_ERR "Driver registration failed\n");
+ 		return err;
+ 	}
+@@ -313,7 +314,7 @@ static int __init jazz_sonic_init_module
+ 
+ static void __exit jazz_sonic_cleanup_module(void)
+ {
+-	driver_unregister(&jazz_sonic_driver);
++	platform_driver_unregister(&jazz_sonic_driver);
+ 
+ 	if (jazz_sonic_device) {
+ 		platform_device_unregister(jazz_sonic_device);
+diff -u b/drivers/net/macsonic.c b/drivers/net/macsonic.c
+--- b/drivers/net/macsonic.c
++++ b/drivers/net/macsonic.c
+@@ -525,7 +525,7 @@
+ 	return macsonic_init(dev);
+ }
+ 
+-static int __init mac_sonic_probe(struct device *device)
++static int __init mac_sonic_probe(struct platform_device *device)
+ {
+ 	struct net_device *dev;
+ 	struct sonic_local *lp;
+@@ -537,8 +537,8 @@
+ 		return -ENOMEM;
+ 
+ 	lp = netdev_priv(dev);
+-	lp->device = device;
+-	SET_NETDEV_DEV(dev, device);
++	lp->device = &device->dev;
++	SET_NETDEV_DEV(dev, &device->dev);
+  	SET_MODULE_OWNER(dev);
+ 
+ 	/* This will catch fatal stuff like -ENOMEM as well as success */
+@@ -579,9 +579,9 @@
+ 
+ #include "sonic.c"
+ 
+-static int __devexit mac_sonic_device_remove (struct device *device)
++static int __devexit mac_sonic_device_remove (struct platform_device *device)
+ {
+-	struct net_device *dev = device->driver_data;
++	struct net_device *dev = platform_get_drvdata(device);
+ 	struct sonic_local* lp = netdev_priv(dev);
+ 
+ 	unregister_netdev (dev);
+@@ -592,18 +592,19 @@ static int __devexit mac_sonic_device_re
+ 	return 0;
+ }
+ 
+-static struct device_driver mac_sonic_driver = {
+-	.name   = mac_sonic_string,
+-	.bus    = &platform_bus_type,
++static struct platform_driver mac_sonic_driver = {
+ 	.probe  = mac_sonic_probe,
+ 	.remove = __devexit_p(mac_sonic_device_remove),
++	.driver	= {
++		.name = mac_sonic_string,
++	},
+ };
+ 
+ static int __init mac_sonic_init_module(void)
+ {
+ 	int err;
+ 
+-	if ((err = driver_register(&mac_sonic_driver))) {
++	if ((err = platform_driver_register(&mac_sonic_driver))) {
+ 		printk(KERN_ERR "Driver registration failed\n");
+ 		return err;
+ 	}
+@@ -628,7 +629,7 @@ static int __init mac_sonic_init_module(
+ 
+ static void __exit mac_sonic_cleanup_module(void)
+ {
+-	driver_unregister(&mac_sonic_driver);
++	platform_driver_unregister(&mac_sonic_driver);
+ 
+ 	if (mac_sonic_device) {
+ 		platform_device_unregister(mac_sonic_device);
+diff -u b/drivers/net/mv643xx_eth.c b/drivers/net/mv643xx_eth.c
+--- b/drivers/net/mv643xx_eth.c
++++ b/drivers/net/mv643xx_eth.c
+@@ -1387,9 +1387,8 @@
+  * Input :	struct device *
+  * Output :	-ENOMEM if failed , 0 if success
+  */
+-static int mv643xx_eth_probe(struct device *ddev)
++static int mv643xx_eth_probe(struct platform_device *pdev)
+ {
+-	struct platform_device *pdev = to_platform_device(ddev);
+ 	struct mv643xx_eth_platform_data *pd;
+ 	int port_num = pdev->id;
+ 	struct mv643xx_private *mp;
+@@ -1402,7 +1401,7 @@
+ 	if (!dev)
+ 		return -ENOMEM;
+ 
+-	dev_set_drvdata(ddev, dev);
++	platform_set_drvdata(pdev, dev);
+ 
+ 	mp = netdev_priv(dev);
+ 
+@@ -1546,21 +1545,20 @@
+ 	return err;
+ }
+ 
+-static int mv643xx_eth_remove(struct device *ddev)
++static int mv643xx_eth_remove(struct platform_device *pdev)
+ {
+-	struct net_device *dev = dev_get_drvdata(ddev);
++	struct net_device *dev = platform_get_drvdata(pdev);
+ 
+ 	unregister_netdev(dev);
+ 	flush_scheduled_work();
+ 
+ 	free_netdev(dev);
+-	dev_set_drvdata(ddev, NULL);
++	platform_set_drvdata(pdev, NULL);
+ 	return 0;
+ }
+ 
+-static int mv643xx_eth_shared_probe(struct device *ddev)
++static int mv643xx_eth_shared_probe(struct platform_device *pdev)
+ {
+-	struct platform_device *pdev = to_platform_device(ddev);
+ 	struct resource *res;
+ 
+ 	printk(KERN_NOTICE "MV-643xx 10/100/1000 Ethernet Driver\n");
+@@ -1578,7 +1576,7 @@
+ 
+ }
+ 
+-static int mv643xx_eth_shared_remove(struct device *ddev)
++static int mv643xx_eth_shared_remove(struct platform_device *pdev)
+ {
+ 	iounmap(mv643xx_eth_shared_base);
+ 	mv643xx_eth_shared_base = NULL;
+@@ -1586,18 +1584,20 @@ static int mv643xx_eth_shared_remove(str
+ 	return 0;
+ }
+ 
+-static struct device_driver mv643xx_eth_driver = {
+-	.name = MV643XX_ETH_NAME,
+-	.bus = &platform_bus_type,
++static struct platform_driver mv643xx_eth_driver = {
+ 	.probe = mv643xx_eth_probe,
+ 	.remove = mv643xx_eth_remove,
++	.driver = {
++		.name = MV643XX_ETH_NAME,
++	},
+ };
+ 
+-static struct device_driver mv643xx_eth_shared_driver = {
+-	.name = MV643XX_ETH_SHARED_NAME,
+-	.bus = &platform_bus_type,
++static struct platform_driver mv643xx_eth_shared_driver = {
+ 	.probe = mv643xx_eth_shared_probe,
+ 	.remove = mv643xx_eth_shared_remove,
++	.driver = {
++		.name = MV643XX_ETH_SHARED_NAME,
++	},
+ };
+ 
+ /*
+@@ -1613,11 +1613,11 @@ static int __init mv643xx_init_module(vo
+ {
+ 	int rc;
+ 
+-	rc = driver_register(&mv643xx_eth_shared_driver);
++	rc = platform_driver_register(&mv643xx_eth_shared_driver);
+ 	if (!rc) {
+-		rc = driver_register(&mv643xx_eth_driver);
++		rc = platform_driver_register(&mv643xx_eth_driver);
+ 		if (rc)
+-			driver_unregister(&mv643xx_eth_shared_driver);
++			platform_driver_unregister(&mv643xx_eth_shared_driver);
+ 	}
+ 	return rc;
+ }
+@@ -1633,8 +1633,8 @@ static int __init mv643xx_init_module(vo
+  */
+ static void __exit mv643xx_cleanup_module(void)
+ {
+-	driver_unregister(&mv643xx_eth_driver);
+-	driver_unregister(&mv643xx_eth_shared_driver);
++	platform_driver_unregister(&mv643xx_eth_driver);
++	platform_driver_unregister(&mv643xx_eth_shared_driver);
+ }
+ 
+ module_init(mv643xx_init_module);
+diff -u b/drivers/net/smc91x.c b/drivers/net/smc91x.c
+--- b/drivers/net/smc91x.c
++++ b/drivers/net/smc91x.c
+@@ -2183,9 +2183,8 @@
+  *	0 --> there is a device
+  *	anything else, error
+  */
+-static int smc_drv_probe(struct device *dev)
++static int smc_drv_probe(struct platform_device *pdev)
+ {
+-	struct platform_device *pdev = to_platform_device(dev);
+ 	struct net_device *ndev;
+ 	struct resource *res;
+ 	unsigned int __iomem *addr;
+@@ -2212,7 +2211,7 @@
+ 		goto out_release_io;
+ 	}
+ 	SET_MODULE_OWNER(ndev);
+-	SET_NETDEV_DEV(ndev, dev);
++	SET_NETDEV_DEV(ndev, &pdev->dev);
+ 
+ 	ndev->dma = (unsigned char)-1;
+ 	ndev->irq = platform_get_irq(pdev, 0);
+@@ -2233,7 +2232,7 @@
+ 		goto out_release_attrib;
+ 	}
+ 
+-	dev_set_drvdata(dev, ndev);
++	platform_set_drvdata(pdev, ndev);
+ 	ret = smc_probe(ndev, addr);
+ 	if (ret != 0)
+ 		goto out_iounmap;
+@@ -2249,7 +2248,7 @@
+ 	return 0;
+ 
+  out_iounmap:
+-	dev_set_drvdata(dev, NULL);
++	platform_set_drvdata(pdev, NULL);
+ 	iounmap(addr);
+  out_release_attrib:
+ 	smc_release_attrib(pdev);
+@@ -2263,14 +2262,13 @@
+ 	return ret;
+ }
+ 
+-static int smc_drv_remove(struct device *dev)
++static int smc_drv_remove(struct platform_device *pdev)
+ {
+-	struct platform_device *pdev = to_platform_device(dev);
+-	struct net_device *ndev = dev_get_drvdata(dev);
++	struct net_device *ndev = platform_get_drvdata(pdev);
+ 	struct smc_local *lp = netdev_priv(ndev);
+ 	struct resource *res;
+ 
+-	dev_set_drvdata(dev, NULL);
++	platform_set_drvdata(pdev, NULL);
+ 
+ 	unregister_netdev(ndev);
+ 
+@@ -2295,9 +2293,9 @@
+ 	return 0;
+ }
+ 
+-static int smc_drv_suspend(struct device *dev, pm_message_t state)
++static int smc_drv_suspend(struct platform_device *dev, pm_message_t state)
+ {
+-	struct net_device *ndev = dev_get_drvdata(dev);
++	struct net_device *ndev = platform_get_drvdata(dev);
+ 
+ 	if (ndev) {
+ 		if (netif_running(ndev)) {
+@@ -2309,14 +2307,13 @@
+ 	return 0;
+ }
+ 
+-static int smc_drv_resume(struct device *dev)
++static int smc_drv_resume(struct platform_device *dev)
+ {
+-	struct platform_device *pdev = to_platform_device(dev);
+-	struct net_device *ndev = dev_get_drvdata(dev);
++	struct net_device *ndev = platform_get_drvdata(dev);
+ 
+ 	if (ndev) {
+ 		struct smc_local *lp = netdev_priv(ndev);
+-		smc_enable_device(pdev);
++		smc_enable_device(dev);
+ 		if (netif_running(ndev)) {
+ 			smc_reset(ndev);
+ 			smc_enable(ndev);
+@@ -2328,13 +2325,14 @@
+ 	return 0;
+ }
+ 
+-static struct device_driver smc_driver = {
+-	.name		= CARDNAME,
+-	.bus		= &platform_bus_type,
++static struct platform_driver smc_driver = {
+ 	.probe		= smc_drv_probe,
+ 	.remove		= smc_drv_remove,
+ 	.suspend	= smc_drv_suspend,
+ 	.resume		= smc_drv_resume,
++	.driver		= {
++		.name	= CARDNAME,
++	},
+ };
+ 
+ static int __init smc_init(void)
+@@ -2348,12 +2346,12 @@
+ #endif
+ #endif
+ 
+-	return driver_register(&smc_driver);
++	return platform_driver_register(&smc_driver);
+ }
+ 
+ static void __exit smc_cleanup(void)
+ {
+-	driver_unregister(&smc_driver);
++	platform_driver_unregister(&smc_driver);
+ }
+ 
+ module_init(smc_init);
+diff -u b/drivers/net/tokenring/proteon.c b/drivers/net/tokenring/proteon.c
+--- b/drivers/net/tokenring/proteon.c
++++ b/drivers/net/tokenring/proteon.c
+@@ -344,9 +344,10 @@ module_param_array(dma, int, NULL, 0);
+ 
+ static struct platform_device *proteon_dev[ISATR_MAX_ADAPTERS];
+ 
+-static struct device_driver proteon_driver = {
+-	.name		= "proteon",
+-	.bus		= &platform_bus_type,
++static struct platform_driver proteon_driver = {
++	.driver		= {
++		.name	= "proteon",
++	},
+ };
+ 
+ static int __init proteon_init(void)
+@@ -355,7 +356,7 @@ static int __init proteon_init(void)
+ 	struct platform_device *pdev;
+ 	int i, num = 0, err = 0;
+ 
+-	err = driver_register(&proteon_driver);
++	err = platform_driver_register(&proteon_driver);
+ 	if (err)
+ 		return err;
+ 
+@@ -372,7 +373,7 @@
+ 		err = setup_card(dev, &pdev->dev);
+ 		if (!err) {
+ 			proteon_dev[i] = pdev;
+-			dev_set_drvdata(&pdev->dev, dev);
++			platform_set_drvdata(pdev, dev);
+ 			++num;
+ 		} else {
+ 			platform_device_unregister(pdev);
+@@ -399,17 +400,17 @@
+ 		
+ 		if (!pdev)
+ 			continue;
+-		dev = dev_get_drvdata(&pdev->dev);
++		dev = platform_get_drvdata(pdev);
+ 		unregister_netdev(dev);
+ 		release_region(dev->base_addr, PROTEON_IO_EXTENT);
+ 		free_irq(dev->irq, dev);
+ 		free_dma(dev->dma);
+ 		tmsdev_term(dev);
+ 		free_netdev(dev);
+-		dev_set_drvdata(&pdev->dev, NULL);
++		platform_set_drvdata(pdev, NULL);
+ 		platform_device_unregister(pdev);
+ 	}
+-	driver_unregister(&proteon_driver);
++	platform_driver_unregister(&proteon_driver);
+ }
+ 
+ module_init(proteon_init);
+diff -u b/drivers/net/tokenring/skisa.c b/drivers/net/tokenring/skisa.c
+--- b/drivers/net/tokenring/skisa.c
++++ b/drivers/net/tokenring/skisa.c
+@@ -354,9 +354,10 @@ module_param_array(dma, int, NULL, 0);
+ 
+ static struct platform_device *sk_isa_dev[ISATR_MAX_ADAPTERS];
+ 
+-static struct device_driver sk_isa_driver = {
+-	.name		= "skisa",
+-	.bus		= &platform_bus_type,
++static struct platform_driver sk_isa_driver = {
++	.driver		= {
++		.name	= "skisa",
++	},
+ };
+ 
+ static int __init sk_isa_init(void)
+@@ -365,7 +366,7 @@ static int __init sk_isa_init(void)
+ 	struct platform_device *pdev;
+ 	int i, num = 0, err = 0;
+ 
+-	err = driver_register(&sk_isa_driver);
++	err = platform_driver_register(&sk_isa_driver);
+ 	if (err)
+ 		return err;
+ 
+@@ -382,7 +383,7 @@
+ 		err = setup_card(dev, &pdev->dev);
+ 		if (!err) {
+ 			sk_isa_dev[i] = pdev;
+-			dev_set_drvdata(&sk_isa_dev[i]->dev, dev);
++			platform_set_drvdata(sk_isa_dev[i], dev);
+ 			++num;
+ 		} else {
+ 			platform_device_unregister(pdev);
+@@ -409,17 +410,17 @@
+ 
+ 		if (!pdev)
+ 			continue;
+-		dev = dev_get_drvdata(&pdev->dev);
++		dev = platform_get_drvdata(pdev);
+ 		unregister_netdev(dev);
+ 		release_region(dev->base_addr, SK_ISA_IO_EXTENT);
+ 		free_irq(dev->irq, dev);
+ 		free_dma(dev->dma);
+ 		tmsdev_term(dev);
+ 		free_netdev(dev);
+-		dev_set_drvdata(&pdev->dev, NULL);
++		platform_set_drvdata(pdev, NULL);
+ 		platform_device_unregister(pdev);
+ 	}
+-	driver_unregister(&sk_isa_driver);
++	platform_driver_unregister(&sk_isa_driver);
+ }
+ 
+ module_init(sk_isa_init);
 
 -- 
 Russell King

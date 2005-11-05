@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbVKEHnK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbVKEHqD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751361AbVKEHnK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 02:43:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbVKEHnK
+	id S1751382AbVKEHqD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 02:46:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751442AbVKEHqD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 02:43:10 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:22221 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751361AbVKEHnJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 02:43:09 -0500
-Date: Fri, 4 Nov 2005 23:43:00 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Simon.Derr@bull.net, ak@suse.de, linux-kernel@vger.kernel.org,
-       clameter@sgi.com
-Subject: Re: [PATCH 5/5] cpuset: memory reclaim rate meter
-Message-Id: <20051104234300.7e531ac2.pj@sgi.com>
-In-Reply-To: <20051104231320.6c4525a8.akpm@osdl.org>
-References: <20051104053109.549.76824.sendpatchset@jackhammer.engr.sgi.com>
-	<20051104053153.549.83350.sendpatchset@jackhammer.engr.sgi.com>
-	<20051104231320.6c4525a8.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 5 Nov 2005 02:46:03 -0500
+Received: from mail.collax.com ([213.164.67.137]:15595 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S1751371AbVKEHqB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 02:46:01 -0500
+Message-ID: <436C34F8.3090903@trash.net>
+Date: Sat, 05 Nov 2005 05:28:40 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Thomas Graf <tgraf@suug.ch>
+CC: Brian Pomerantz <bapper@piratehaven.org>, netdev@vger.kernel.org,
+       davem@davemloft.net, kuznet@ms2.inr.ac.ru, pekkas@netcore.fi,
+       jmorris@namei.org, yoshfuji@linux-ipv6.org, kaber@coreworks.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [IPV4] Fix secondary IP addresses after promotion
+References: <20051104184633.GA16256@skull.piratehaven.org> <436BFE08.6030906@trash.net> <20051105010740.GR23537@postel.suug.ch> <436C090D.5020201@trash.net>
+In-Reply-To: <436C090D.5020201@trash.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I guess I'll give up and merge this thing.
+Patrick McHardy wrote:
+> Thomas Graf wrote:
+> 
+>> broadcast 10.0.0.0  proto kernel  scope link  src 10.0.0.2 local 
+>> 10.0.0.2  proto kernel  scope host  src 10.0.0.2 broadcast 10.0.0.255  
+>> proto kernel  scope link  src 10.0.0.2
+>> Local routes for 10.0.0.3 and 10.0.0.4 have disappeared _without_
+>> any notification.
+>>
+>> I think the correct way to fix this is to prevent the deletion of
+>> the local routes, not just readding them. _If_ the deletion of them
+>> is intended, which I doubt, then at least notifications must be
+>> sent out.
+> 
+> I agree, the routes should ideally not be deleted at all. The missing
+> notifications appear to be a different bug. Let me have another look ..
 
-Actually - definitely wait for the next version.
-
-Kill the version you have of this patch.
-
-I just realized that "memory_reclaim_rate" was a bogus
-name for this feature.  The users, batch managers, don't
-give a dang that its hooked into some direct reclaim
-point in the kernel.
-
-They just want a decent measure of memory pressure in
-a cpuset.
-
-So I am going to rename the flag, to "memory_pressure".
-
-Kill the current 'memory reclaim rate' patch.  I will
-resend in perhaps an hour, under this new name.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+The reason why all routes are deleted is because their prefered
+source addresses is the primary address. fn_flush_list should
+probably send the missing notifications for the deleted routes.
+Changing address promotion to not delete the other routes at all
+looks extremly complicated, I think just fixing it to behave
+correctly is good enough (which my patch didn't do entirely,
+I'll send a new one this weekend).

@@ -1,70 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751181AbVKEAMJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbVKEATa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751181AbVKEAMJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 19:12:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbVKEAMJ
+	id S1751249AbVKEATa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 19:19:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbVKEATa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 19:12:09 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:23261 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751181AbVKEAMI (ORCPT
+	Fri, 4 Nov 2005 19:19:30 -0500
+Received: from verein.lst.de ([213.95.11.210]:24232 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S1751247AbVKEAT3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 19:12:08 -0500
-Date: Fri, 4 Nov 2005 16:08:51 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org,
-       aherrman@de.ibm.com, dm-devel@redhat.com
-Subject: Re: [PATCH resubmit] do_mount: reduce stack consumption
-Message-Id: <20051104160851.3a7463ff.akpm@osdl.org>
-In-Reply-To: <20051104235500.GE5368@stusta.de>
-References: <20051104105026.GA12476@osiris.boeblingen.de.ibm.com>
-	<20051104084829.714c5dbb.akpm@osdl.org>
-	<20051104212742.GC9222@osiris.ibm.com>
-	<20051104235500.GE5368@stusta.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 4 Nov 2005 19:19:29 -0500
+Date: Sat, 5 Nov 2005 01:19:17 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: David Howells <dhowells@redhat.com>
+Cc: Christoph Hellwig <hch@lst.de>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH consolidate sys_ptrace
+Message-ID: <20051105001917.GA11100@lst.de>
+References: <20051101051221.GA26017@lst.de> <20051101050900.GA25793@lst.de> <10611.1130845074@warthog.cambridge.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <10611.1130845074@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> wrote:
->
-> On Fri, Nov 04, 2005 at 10:27:42PM +0100, Heiko Carstens wrote:
-> > > > See original stack back trace below and Andreas' patch and analysis
-> > > > here:
-> > > > http://www.ussg.iu.edu/hypermail/linux/kernel/0410.3/1844.html
-> > 
-> > I probably should add that with "original" stack back trace a trace of
-> > a 2.6.10 kernel was meant, if that wasn't clear, but the DM code is
-> > still the same in 2.6.14.
-> > 
-> > > >     <4>Call Trace:
-> > ...
-> > > >     <4> [<0000000010831380>] __map_bio+0x70/0x160 [dm_mod]
-> > > >     <4> [<000000001083173e>] __split_bio+0x1e6/0x538 [dm_mod]
-> > > >     <4> [<0000000010831ba8>] dm_request+0x118/0x25c [dm_mod]
-> > > >     <4> [<0000000000241074>] generic_make_request+0xf0/0x21c
-> > > >     <4> [<0000000010831380>] __map_bio+0x70/0x160 [dm_mod]
-> > > >     <4> [<000000001083173e>] __split_bio+0x1e6/0x538 [dm_mod]
-> > > >     <4> [<0000000010831ba8>] dm_request+0x118/0x25c [dm_mod]
-> > > >     <4> [<0000000000241074>] generic_make_request+0xf0/0x21c
-> > > >     <4> [<0000000010831380>] __map_bio+0x70/0x160 [dm_mod]
-> > > >     <4> [<000000001083173e>] __split_bio+0x1e6/0x538 [dm_mod]
-> > > >     <4> [<0000000010831ba8>] dm_request+0x118/0x25c [dm_mod]
-> > > >     <4> [<0000000000241074>] generic_make_request+0xf0/0x21c
-> > ...
-> > 
-> > This part of the call trace is actually good for >1500 bytes of stack
-> > usage and is what kills us and should be fixed.
-> > I'm surprised that there are no other bug reports regarding DM and
-> > stack overflow with 4k stacks.
-> >...
+On Tue, Nov 01, 2005 at 11:37:54AM +0000, David Howells wrote:
+> Christoph Hellwig <hch@lst.de> wrote:
 > 
-> There were some reports of dm+xfs overflows with 4k stacks on i386.
+> > > The sys_ptrace boilerplate code (everything outside the big switch
+> > > statement for the arch-specific requests) is shared by most
+> > > architectures.  This patch moves it to kernel/ptrace.c and leaves the
+> > > arch-specific code as arch_ptrace.
 > 
-> The xfs side was sorted out, but I son't know the state of the dm part.
+> Looks okay to me. I do have a concern about all the extra indirections we're
+> acquiring by this mad rush to centralise everything. It's going to slow things
+> down and consume more stack space. Is there any way we can:
 > 
+>  (1) Make a sys_ptrace() *jump* to arch_ptrace() instead of calling it, thus
+>      obviating the extra return step.
+> 
+>  (2) Drop the use of lock_kernel().
+> 
+> Otherwise, the patch looks valid:
 
-The state is Very Bad, IMO.  At the very least, DM should struggle to the
-utmost to reduce the stack utilisation around that recursion point.
+As BKL usage indicates this is a real slowpath.  No one cares about one
+function call or less here.
+

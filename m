@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbVKEEMo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbVKEEUU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751155AbVKEEMo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 23:12:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbVKEEMo
+	id S1751159AbVKEEUU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 23:20:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbVKEEUU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 23:12:44 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:15766 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751155AbVKEEMo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 23:12:44 -0500
-Date: Fri, 4 Nov 2005 20:09:13 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Cc: calin@ajvar.org, ajoshi@shell.unixbox.com, linux-kernel@vger.kernel.org,
-       linux-nvidia@lists.surfsouth.com, torvalds@osdl.org
-Subject: Re: [PATCH] nvidiafb: Geforce 7800 series support added
-Message-Id: <20051104200913.701e0f62.akpm@osdl.org>
-In-Reply-To: <436C2DCE.1030509@pol.net>
-References: <Pine.LNX.4.64.0511042031470.9781@rtlab.med.cornell.edu>
-	<436C2DCE.1030509@pol.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 4 Nov 2005 23:20:20 -0500
+Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:44045 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751159AbVKEEUS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 23:20:18 -0500
+Date: Sat, 5 Nov 2005 15:20:08 +1100
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kill 8139too kernel thread (sorta)
+Message-ID: <20051105042008.GA25823@gondor.apana.org.au>
+References: <20051031130255.GA26626@havoc.gtf.org> <E1EWgcG-0001dZ-00@gondolin.me.apana.org.au> <20051031211143.GA6409@gondor.apana.org.au> <436C2B47.3030505@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <436C2B47.3030505@pobox.com>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Antonino A. Daplas" <adaplas@gmail.com> wrote:
->
-> Calin A. Culianu wrote:
-> > 
-> > Hi, this patch replaces a patch I prevously submitted.  The previous
-> > patch was named:
-> > 
-> >  nvidiafb-geforce-7800-gtx-support-added.patch
-> > 
-> > Which was added to the -mm tree on Oct. 25.
-> > 
-> > Can you replace the above mentioned patch with this one, since it is
-> > more updated?
-> 
-> If Linus does not merge your patch, you can wait for 2.6.14-mm1 to
-> come out and diff against that.  And don't forget the signed-off line.
-> 
-> If nobody takes your patch, I'll pick it up.
-> 
+On Fri, Nov 04, 2005 at 10:47:19PM -0500, Jeff Garzik wrote:
+> Here's a better version, that uses cancel_rearming_...
 
-Is OK, I'm slowly working my way towards it.
+Yep it certainly solves the race condition.
 
-I'll take that as an ack ;)
+> +	if (rtnl_shlock_nowait() == 0) {
+>  		rtl8139_thread_iter (dev, tp, tp->mmio_addr);
+>  		rtnl_unlock ();
+>  	}
+>  
+> -	complete_and_exit (&tp->thr_exited, 0);
+> +	schedule_delayed_work(&tp->thread, next_tick);
+
+My only concern is the potential for starvation here should we fail
+to obtain the RTNL.  Since any local user can hold the RTNL by issuing
+rtnetlink requests, it is theoretically possible for the rtl8139 work
+to be delayed indefinitely.
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

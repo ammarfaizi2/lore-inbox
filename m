@@ -1,71 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750903AbVKERh1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750915AbVKERjl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750903AbVKERh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 12:37:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750906AbVKERh1
+	id S1750915AbVKERjl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 12:39:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbVKERjl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 12:37:27 -0500
-Received: from mf01.sitadelle.com ([212.94.174.68]:5202 "EHLO smtp.cegetel.net")
-	by vger.kernel.org with ESMTP id S1750893AbVKERh0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 12:37:26 -0500
-Message-ID: <436CEDCE.6010704@tremplin-utc.net>
-Date: Sat, 05 Nov 2005 18:37:18 +0100
-From: Eric Piel <Eric.Piel@tremplin-utc.net>
-User-Agent: Mozilla Thunderbird 1.0.7-3mdk (X11/20051015)
-X-Accept-Language: en, fr, ja, es
-MIME-Version: 1.0
-To: zippel@linux-m68k.org
-Cc: Olaf Hering <olh@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 66/82] remove linux/version.h from fs/hfs/
-References: <20050710193614.66.sNRbVO4020.2247.olh@nectarine.suse.de>
-In-Reply-To: <20050710193614.66.sNRbVO4020.2247.olh@nectarine.suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sat, 5 Nov 2005 12:39:41 -0500
+Received: from van-1-67.lab.dnainternet.fi ([62.78.96.67]:42690 "EHLO
+	mail.zmailer.org") by vger.kernel.org with ESMTP id S1750906AbVKERjk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 12:39:40 -0500
+Date: Sat, 5 Nov 2005 19:39:39 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: I2C regression in post 2.6.14 gits..  -- get_user_pages() is real bug..
+Message-ID: <20051105173939.GF3423@mea-ext.zmailer.org>
+References: <20051102223818.GE3423@mea-ext.zmailer.org> <Go3tHv2d.1131096574.7056520.khali@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Go3tHv2d.1131096574.7056520.khali@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-10.07.2005 21:36, Olaf Hering wrote/a écrit:
-> changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
-Hello,
+On Fri, Nov 04, 2005 at 10:29:34AM +0100, Jean Delvare wrote:
+> Hi Matti,
+> 
+> On 2005-11-04, Matti Aarnio wrote:
+> > Specifically,  BTTV driver fails to control internal
+> > I2C devices in Hauppauge WinTV card with Bt848 onboard.
+> 
+> Can you detail how you came up with this diagnosis?
+> 
+> > Baseline 2.6.14 works fine,  but 2.6.14-git2 fails.
+> 
+> Can you please try 2.6.14-git1 and 2.6.14-rc5-mm1? This should help us
+> norrow the faulty patch. Also, please confirm that 2.6.14-git7 still has
+> the problem.
+> 
+> > Any ideas ?  Possible fixes ?
+> 
+> Enable as many debugging as possible, in particular I2C Core debugging
+> (I2C_DEBUG_CORE=y) in a working kernel and a non-working kernel, and
+> send both logs for comparison.
+> 
+> Thanks a lot for testing, BTW.
 
-I've just changed LOCALVERSION on 2.6.14 and noticed that the patches 
-for hfs and hfsplus had still not made their way. As I couldn't find any 
-tree which contains them, I was wondering if they wouldn't have been 
-"lost in space" ?
 
-Eric
+Since then I have been tracking of what really fails in the bttv driver,
+and running:   strace -o tvtime.log tvtime
+Result is most revealing in failures.
 
-> 
-> Signed-off-by: Olaf Hering <olh@suse.de>
-> 
-> fs/hfs/hfs_fs.h |    1 -
-> fs/hfs/inode.c  |    1 -
-> 2 files changed, 2 deletions(-)
-> 
-> Index: linux-2.6.13-rc2-mm1/fs/hfs/hfs_fs.h
-> ===================================================================
-> --- linux-2.6.13-rc2-mm1.orig/fs/hfs/hfs_fs.h
-> +++ linux-2.6.13-rc2-mm1/fs/hfs/hfs_fs.h
-> @@ -9,7 +9,6 @@
-> #ifndef _LINUX_HFS_FS_H
-> #define _LINUX_HFS_FS_H
-> 
-> -#include <linux/version.h>
-> #include <linux/slab.h>
-> #include <linux/types.h>
-> #include <linux/buffer_head.h>
-> Index: linux-2.6.13-rc2-mm1/fs/hfs/inode.c
-> ===================================================================
-> --- linux-2.6.13-rc2-mm1.orig/fs/hfs/inode.c
-> +++ linux-2.6.13-rc2-mm1/fs/hfs/inode.c
-> @@ -12,7 +12,6 @@
-> */
-> 
-> #include <linux/pagemap.h>
-> -#include <linux/version.h>
-> #include <linux/mpage.h>
-> 
-> #include "hfs_fs.h"
+The fault is not in I2C, but appears in   video_buf  module failing
+calls of   get_user_pages()   with  -EFAULT.
 
+There has been lots of discussion about it back in August, but apparently
+only now in post 2.6.14 the changes made it into   mm/memory.c  which
+faulted this thing for BTTV. 
+
+
+Oh yes,  I do use Fedora Core development kernels, and don't usually
+(anymore) compile things myself, but now I had a weekend off...
+
+
+> --
+> Jean Delvare
+
+/Matti Aarnio

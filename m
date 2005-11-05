@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbVKESSB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbVKESSI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932172AbVKESSB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 13:18:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbVKESSA
+	id S932171AbVKESSI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 13:18:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbVKESSI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 13:18:00 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:31249 "EHLO
+	Sat, 5 Nov 2005 13:18:08 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:31505 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932176AbVKESRr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 13:17:47 -0500
-Date: Sat, 5 Nov 2005 18:17:41 +0000
+	id S932162AbVKESSD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 13:18:03 -0500
+Date: Sat, 5 Nov 2005 18:17:57 +0000
 From: Russell King <rmk+lkml@arm.linux.org.uk>
 To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [DRIVER MODEL] Convert serial drivers
-Message-ID: <20051105181741.GM14419@flint.arm.linux.org.uk>
+Subject: Re: [DRIVER MODEL] Convert i2c drivers
+Message-ID: <20051105181757.GN14419@flint.arm.linux.org.uk>
 Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
 References: <20051105181122.GD12228@flint.arm.linux.org.uk>
 Mime-Version: 1.0
@@ -28,567 +28,503 @@ Convert platform drivers to use struct platform_driver
 
 Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
 
-diff -u b/drivers/serial/8250.c b/drivers/serial/8250.c
---- b/drivers/serial/8250.c
-+++ b/drivers/serial/8250.c
-@@ -2311,9 +2311,9 @@
-  * list is terminated with a zero flags entry, which means we expect
-  * all entries to have at least UPF_BOOT_AUTOCONF set.
-  */
--static int __devinit serial8250_probe(struct device *dev)
-+static int __devinit serial8250_probe(struct platform_device *dev)
+diff -u b/drivers/hwmon/hdaps.c b/drivers/hwmon/hdaps.c
+--- b/drivers/hwmon/hdaps.c
++++ b/drivers/hwmon/hdaps.c
+@@ -284,7 +284,7 @@
+ 
+ /* Device model stuff */
+ 
+-static int hdaps_probe(struct device *dev)
++static int hdaps_probe(struct platform_device *dev)
  {
--	struct plat_serial8250_port *p = dev->platform_data;
-+	struct plat_serial8250_port *p = dev->dev.platform_data;
- 	struct uart_port port;
- 	int ret, i;
+ 	int ret;
  
-@@ -2329,12 +2329,12 @@
- 		port.flags	= p->flags;
- 		port.mapbase	= p->mapbase;
- 		port.hub6	= p->hub6;
--		port.dev	= dev;
-+		port.dev	= &dev->dev;
- 		if (share_irqs)
- 			port.flags |= UPF_SHARE_IRQ;
- 		ret = serial8250_register_port(&port);
- 		if (ret < 0) {
--			dev_err(dev, "unable to register port at index %d "
-+			dev_err(&dev->dev, "unable to register port at index %d "
- 				"(IO%lx MEM%lx IRQ%d): %d\n", i,
- 				p->iobase, p->mapbase, p->irq, ret);
- 		}
-@@ -2345,14 +2345,14 @@
- /*
-  * Remove serial ports registered against a platform device.
-  */
--static int __devexit serial8250_remove(struct device *dev)
-+static int __devexit serial8250_remove(struct platform_device *dev)
- {
- 	int i;
- 
- 	for (i = 0; i < UART_NR; i++) {
- 		struct uart_8250_port *up = &serial8250_ports[i];
- 
--		if (up->port.dev == dev)
-+		if (up->port.dev == &dev->dev)
- 			serial8250_unregister_port(i);
- 	}
- 	return 0;
-@@ -2358,28 +2358,28 @@
+@@ -296,17 +296,18 @@
  	return 0;
  }
  
--static int serial8250_suspend(struct device *dev, pm_message_t state)
-+static int serial8250_suspend(struct platform_device *dev, pm_message_t state)
+-static int hdaps_resume(struct device *dev)
++static int hdaps_resume(struct platform_device *dev)
  {
- 	int i;
- 
- 	for (i = 0; i < UART_NR; i++) {
- 		struct uart_8250_port *up = &serial8250_ports[i];
- 
--		if (up->port.type != PORT_UNKNOWN && up->port.dev == dev)
-+		if (up->port.type != PORT_UNKNOWN && up->port.dev == &dev->dev)
- 			uart_suspend_port(&serial8250_reg, &up->port);
- 	}
- 
- 	return 0;
+ 	return hdaps_device_init();
  }
  
--static int serial8250_resume(struct device *dev)
-+static int serial8250_resume(struct platform_device *dev)
- {
- 	int i;
- 
- 	for (i = 0; i < UART_NR; i++) {
- 		struct uart_8250_port *up = &serial8250_ports[i];
- 
--		if (up->port.type != PORT_UNKNOWN && up->port.dev == dev)
-+		if (up->port.type != PORT_UNKNOWN && up->port.dev == &dev->dev)
- 			uart_resume_port(&serial8250_reg, &up->port);
- 	}
- 
-@@ -2386,13 +2386,14 @@
- 	return 0;
- }
- 
--static struct device_driver serial8250_isa_driver = {
--	.name		= "serial8250",
--	.bus		= &platform_bus_type,
-+static struct platform_driver serial8250_isa_driver = {
- 	.probe		= serial8250_probe,
- 	.remove		= __devexit_p(serial8250_remove),
- 	.suspend	= serial8250_suspend,
- 	.resume		= serial8250_resume,
-+	.driver		= {
-+		.name	= "serial8250",
+-static struct device_driver hdaps_driver = {
+-	.name = "hdaps",
+-	.bus = &platform_bus_type,
+-	.owner = THIS_MODULE,
++static struct platform_driver hdaps_driver = {
+ 	.probe = hdaps_probe,
+-	.resume = hdaps_resume
++	.resume = hdaps_resume,
++	.driver	= {
++		.name = "hdaps",
++		.owner = THIS_MODULE,
 +	},
  };
  
- /*
-@@ -2538,7 +2539,7 @@
- 
- 	serial8250_register_ports(&serial8250_reg, &serial8250_isa_devs->dev);
- 
--	ret = driver_register(&serial8250_isa_driver);
-+	ret = platform_driver_register(&serial8250_isa_driver);
- 	if (ret == 0)
+ /* Input class stuff */
+@@ -550,7 +551,7 @@
  		goto out;
+ 	}
  
-@@ -2560,7 +2561,7 @@
- 	 */
- 	serial8250_isa_devs = NULL;
+-	ret = driver_register(&hdaps_driver);
++	ret = platform_driver_register(&hdaps_driver);
+ 	if (ret)
+ 		goto out_region;
  
--	driver_unregister(&serial8250_isa_driver);
-+	platform_driver_unregister(&serial8250_isa_driver);
- 	platform_device_unregister(isa_dev);
+@@ -583,7 +584,7 @@
+ out_device:
+ 	platform_device_unregister(pdev);
+ out_driver:
+-	driver_unregister(&hdaps_driver);
++	platform_driver_unregister(&hdaps_driver);
+ out_region:
+ 	release_region(HDAPS_LOW_PORT, HDAPS_NR_PORTS);
+ out:
+@@ -597,7 +598,7 @@
+ 	input_unregister_device(&hdaps_idev);
+ 	sysfs_remove_group(&pdev->dev.kobj, &hdaps_attribute_group);
+ 	platform_device_unregister(pdev);
+-	driver_unregister(&hdaps_driver);
++	platform_driver_unregister(&hdaps_driver);
+ 	release_region(HDAPS_LOW_PORT, HDAPS_NR_PORTS);
  
- 	uart_unregister_driver(&serial8250_reg);
-diff -u b/drivers/serial/mpc52xx_uart.c b/drivers/serial/mpc52xx_uart.c
---- b/drivers/serial/mpc52xx_uart.c
-+++ b/drivers/serial/mpc52xx_uart.c
-@@ -717,10 +717,9 @@
- /* ======================================================================== */
+ 	printk(KERN_INFO "hdaps: driver unloaded.\n");
+diff -u b/drivers/i2c/busses/i2c-iop3xx.c b/drivers/i2c/busses/i2c-iop3xx.c
+--- b/drivers/i2c/busses/i2c-iop3xx.c
++++ b/drivers/i2c/busses/i2c-iop3xx.c
+@@ -405,10 +405,9 @@
+ };
  
- static int __devinit
--mpc52xx_uart_probe(struct device *dev)
-+mpc52xx_uart_probe(struct platform_device *dev)
+ static int 
+-iop3xx_i2c_remove(struct device *device)
++iop3xx_i2c_remove(struct platform_device *pdev)
+ {
+-	struct platform_device *pdev = to_platform_device(device);
+-	struct i2c_adapter *padapter = dev_get_drvdata(&pdev->dev);
++	struct i2c_adapter *padapter = platform_get_drvdata(pdev);
+ 	struct i2c_algo_iop3xx_data *adapter_data = 
+ 		(struct i2c_algo_iop3xx_data *)padapter->algo_data;
+ 	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+@@ -426,15 +425,14 @@
+ 	kfree(adapter_data);
+ 	kfree(padapter);
+ 
+-	dev_set_drvdata(&pdev->dev, NULL);
++	platform_set_drvdata(pdev, NULL);
+ 
+ 	return 0;
+ }
+ 
+ static int 
+-iop3xx_i2c_probe(struct device *dev)
++iop3xx_i2c_probe(struct platform_device *pdev)
  {
 -	struct platform_device *pdev = to_platform_device(dev);
--	struct resource *res = pdev->resource;
-+	struct resource *res = dev->resource;
+ 	struct resource *res;
+ 	int ret;
+ 	struct i2c_adapter *new_adapter;
+@@ -499,7 +497,7 @@
+ 	iop3xx_i2c_set_slave_addr(adapter_data);
+ 	iop3xx_i2c_enable(adapter_data);
  
- 	struct uart_port *port = NULL;
- 	int i, idx, ret;
-@@ -761,17 +760,17 @@
- 	/* Add the port to the uart sub-system */
- 	ret = uart_add_one_port(&mpc52xx_uart_driver, port);
- 	if (!ret)
--		dev_set_drvdata(dev, (void*)port);
-+		platform_set_drvdata(dev, (void*)port);
+-	dev_set_drvdata(&pdev->dev, new_adapter);
++	platform_set_drvdata(pdev, new_adapter);
+ 	new_adapter->algo_data = adapter_data;
  
- 	return ret;
+ 	i2c_add_adapter(new_adapter);
+@@ -523,24 +521,25 @@ out:
  }
  
- static int
--mpc52xx_uart_remove(struct device *dev)
-+mpc52xx_uart_remove(struct platform_device *dev)
- {
--	struct uart_port *port = (struct uart_port *) dev_get_drvdata(dev);
-+	struct uart_port *port = (struct uart_port *) platform_get_drvdata(dev);
  
--	dev_set_drvdata(dev, NULL);
-+	platform_set_drvdata(dev, NULL);
- 
- 	if (port)
- 		uart_remove_one_port(&mpc52xx_uart_driver, port);
-@@ -781,9 +780,9 @@
- 
- #ifdef CONFIG_PM
- static int
--mpc52xx_uart_suspend(struct device *dev, pm_message_t state)
-+mpc52xx_uart_suspend(struct platform_device *dev, pm_message_t state)
- {
--	struct uart_port *port = (struct uart_port *) dev_get_drvdata(dev);
-+	struct uart_port *port = (struct uart_port *) platform_get_drvdata(dev);
- 
- 	if (sport)
- 		uart_suspend_port(&mpc52xx_uart_driver, port);
-@@ -792,9 +791,9 @@
- }
- 
- static int
--mpc52xx_uart_resume(struct device *dev)
-+mpc52xx_uart_resume(struct platform_device *dev)
- {
--	struct uart_port *port = (struct uart_port *) dev_get_drvdata(dev);
-+	struct uart_port *port = (struct uart_port *) platform_get_drvdata(dev);
- 
- 	if (port)
- 		uart_resume_port(&mpc52xx_uart_driver, port);
-@@ -803,15 +802,16 @@
- }
- #endif
- 
--static struct device_driver mpc52xx_uart_platform_driver = {
--	.name		= "mpc52xx-psc",
+-static struct device_driver iop3xx_i2c_driver = {
+-	.owner		= THIS_MODULE,
+-	.name		= "IOP3xx-I2C",
 -	.bus		= &platform_bus_type,
-+static struct platform_driver mpc52xx_uart_platform_driver = {
- 	.probe		= mpc52xx_uart_probe,
- 	.remove		= mpc52xx_uart_remove,
- #ifdef CONFIG_PM
- 	.suspend	= mpc52xx_uart_suspend,
- 	.resume		= mpc52xx_uart_resume,
- #endif
++static struct platform_driver iop3xx_i2c_driver = {
+ 	.probe		= iop3xx_i2c_probe,
+ 	.remove		= iop3xx_i2c_remove
 +	.driver		= {
-+		.name	= "mpc52xx-psc",
++		.owner	= THIS_MODULE,
++		.name	= "IOP3xx-I2C",
 +	},
  };
  
- 
-@@ -828,7 +828,7 @@
- 
- 	ret = uart_register_driver(&mpc52xx_uart_driver);
- 	if (ret == 0) {
--		ret = driver_register(&mpc52xx_uart_platform_driver);
-+		ret = platform_driver_register(&mpc52xx_uart_platform_driver);
- 		if (ret)
- 			uart_unregister_driver(&mpc52xx_uart_driver);
- 	}
-@@ -839,7 +839,7 @@
- static void __exit
- mpc52xx_uart_exit(void)
+ static int __init 
+ i2c_iop3xx_init (void)
  {
--	driver_unregister(&mpc52xx_uart_platform_driver);
-+	platform_driver_unregister(&mpc52xx_uart_platform_driver);
- 	uart_unregister_driver(&mpc52xx_uart_driver);
+-	return driver_register(&iop3xx_i2c_driver);
++	return platform_driver_register(&iop3xx_i2c_driver);
  }
  
-diff -u b/drivers/serial/mpsc.c b/drivers/serial/mpsc.c
---- b/drivers/serial/mpsc.c
-+++ b/drivers/serial/mpsc.c
-@@ -1551,15 +1551,14 @@
+ static void __exit 
+ i2c_iop3xx_exit (void)
+ {
+-	driver_unregister(&iop3xx_i2c_driver);
++	platform_driver_unregister(&iop3xx_i2c_driver);
+ 	return;
  }
  
- static int
--mpsc_shared_drv_probe(struct device *dev)
-+mpsc_shared_drv_probe(struct platform_device *dev)
+diff -u b/drivers/i2c/busses/i2c-ixp2000.c b/drivers/i2c/busses/i2c-ixp2000.c
+--- b/drivers/i2c/busses/i2c-ixp2000.c
++++ b/drivers/i2c/busses/i2c-ixp2000.c
+@@ -86,12 +86,11 @@
+ 	struct i2c_algo_bit_data algo_data;
+ };
+ 
+-static int ixp2000_i2c_remove(struct device *dev)
++static int ixp2000_i2c_remove(struct platform_device *plat_dev)
+ {
+-	struct platform_device *plat_dev = to_platform_device(dev);
+-	struct ixp2000_i2c_data *drv_data = dev_get_drvdata(&plat_dev->dev);
++	struct ixp2000_i2c_data *drv_data = platform_get_drvdata(plat_dev);
+ 
+-	dev_set_drvdata(&plat_dev->dev, NULL);
++	platform_set_drvdata(plat_dev, NULL);
+ 
+ 	i2c_bit_del_bus(&drv_data->adapter);
+ 
+@@ -100,10 +99,9 @@
+ 	return 0;
+ }
+ 
+-static int ixp2000_i2c_probe(struct device *dev)
++static int ixp2000_i2c_probe(struct platform_device *plat_dev)
+ {
+ 	int err;
+-	struct platform_device *plat_dev = to_platform_device(dev);
+ 	struct ixp2000_i2c_pins *gpio = plat_dev->dev.platform_data;
+ 	struct ixp2000_i2c_data *drv_data = 
+ 		kzalloc(sizeof(struct ixp2000_i2c_data), GFP_KERNEL);
+@@ -139,7 +137,7 @@
+ 		return err;
+ 	} 
+ 
+-	dev_set_drvdata(&plat_dev->dev, drv_data);
++	platform_set_drvdata(plat_dev, drv_data);
+ 
+ 	return 0;
+ }
+@@ -144,22 +142,23 @@ static int ixp2000_i2c_probe(struct devi
+ 	return 0;
+ }
+ 
+-static struct device_driver ixp2000_i2c_driver = {
+-	.owner		= THIS_MODULE,
+-	.name		= "IXP2000-I2C",
+-	.bus		= &platform_bus_type,
++static struct platform_driver ixp2000_i2c_driver = {
+ 	.probe		= ixp2000_i2c_probe,
+ 	.remove		= ixp2000_i2c_remove,
++	.driver		= {
++		.name	= "IXP2000-I2C",
++		.owner	= THIS_MODULE,
++	},
+ };
+ 
+ static int __init ixp2000_i2c_init(void)
+ {
+-	return driver_register(&ixp2000_i2c_driver);
++	return platform_driver_register(&ixp2000_i2c_driver);
+ }
+ 
+ static void __exit ixp2000_i2c_exit(void)
+ {
+-	driver_unregister(&ixp2000_i2c_driver);
++	platform_driver_unregister(&ixp2000_i2c_driver);
+ }
+ 
+ module_init(ixp2000_i2c_init);
+diff -u b/drivers/i2c/busses/i2c-ixp4xx.c b/drivers/i2c/busses/i2c-ixp4xx.c
+--- b/drivers/i2c/busses/i2c-ixp4xx.c
++++ b/drivers/i2c/busses/i2c-ixp4xx.c
+@@ -87,12 +87,11 @@
+ 	struct i2c_algo_bit_data algo_data;
+ };
+ 
+-static int ixp4xx_i2c_remove(struct device *dev)
++static int ixp4xx_i2c_remove(struct platform_device *plat_dev)
+ {
+-	struct platform_device *plat_dev = to_platform_device(dev);
+-	struct ixp4xx_i2c_data *drv_data = dev_get_drvdata(&plat_dev->dev);
++	struct ixp4xx_i2c_data *drv_data = platform_get_drvdata(plat_dev);
+ 
+-	dev_set_drvdata(&plat_dev->dev, NULL);
++	platform_set_drvdata(plat_dev, NULL);
+ 
+ 	i2c_bit_del_bus(&drv_data->adapter);
+ 
+@@ -101,10 +100,9 @@
+ 	return 0;
+ }
+ 
+-static int ixp4xx_i2c_probe(struct device *dev)
++static int ixp4xx_i2c_probe(struct platform_device *plat_dev)
+ {
+ 	int err;
+-	struct platform_device *plat_dev = to_platform_device(dev);
+ 	struct ixp4xx_i2c_pins *gpio = plat_dev->dev.platform_data;
+ 	struct ixp4xx_i2c_data *drv_data = 
+ 		kzalloc(sizeof(struct ixp4xx_i2c_data), GFP_KERNEL);
+@@ -148,7 +146,7 @@
+ 		return err;
+ 	}
+ 
+-	dev_set_drvdata(&plat_dev->dev, drv_data);
++	platform_set_drvdata(plat_dev, drv_data);
+ 
+ 	return 0;
+ }
+@@ -153,22 +151,23 @@ static int ixp4xx_i2c_probe(struct devic
+ 	return 0;
+ }
+ 
+-static struct device_driver ixp4xx_i2c_driver = {
+-	.owner		= THIS_MODULE,
+-	.name		= "IXP4XX-I2C",
+-	.bus		= &platform_bus_type,
++static struct platform_driver ixp4xx_i2c_driver = {
+ 	.probe		= ixp4xx_i2c_probe,
+ 	.remove		= ixp4xx_i2c_remove,
++	.driver		= {
++		.name	= "IXP4XX-I2C",
++		.owner	= THIS_MODULE,
++	},
+ };
+ 
+ static int __init ixp4xx_i2c_init(void)
+ {
+-	return driver_register(&ixp4xx_i2c_driver);
++	return platform_driver_register(&ixp4xx_i2c_driver);
+ }
+ 
+ static void __exit ixp4xx_i2c_exit(void)
+ {
+-	driver_unregister(&ixp4xx_i2c_driver);
++	platform_driver_unregister(&ixp4xx_i2c_driver);
+ }
+ 
+ module_init(ixp4xx_i2c_init);
+diff -u b/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+--- b/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -288,11 +288,10 @@
+ 	.retries = 1
+ };
+ 
+-static int fsl_i2c_probe(struct device *device)
++static int fsl_i2c_probe(struct platform_device *pdev)
+ {
+ 	int result = 0;
+ 	struct mpc_i2c *i2c;
+-	struct platform_device *pdev = to_platform_device(device);
+ 	struct fsl_i2c_platform_data *pdata;
+ 	struct resource *r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 
+@@ -323,7 +322,7 @@
+ 		}
+ 
+ 	mpc_i2c_setclock(i2c);
+-	dev_set_drvdata(device, i2c);
++	platform_set_drvdata(pdev, i2c);
+ 
+ 	i2c->adap = mpc_ops;
+ 	i2c_set_adapdata(&i2c->adap, i2c);
+@@ -345,12 +344,12 @@
+ 	return result;
+ };
+ 
+-static int fsl_i2c_remove(struct device *device)
++static int fsl_i2c_remove(struct platform_device *pdev)
+ {
+-	struct mpc_i2c *i2c = dev_get_drvdata(device);
++	struct mpc_i2c *i2c = platform_get_drvdata(pdev);
+ 
+ 	i2c_del_adapter(&i2c->adap);
+-	dev_set_drvdata(device, NULL);
++	platform_set_drvdata(pdev, NULL);
+ 
+ 	if (i2c->irq != 0)
+ 		free_irq(i2c->irq, i2c);
+@@ -361,22 +360,23 @@ static int fsl_i2c_remove(struct device 
+ };
+ 
+ /* Structure for a device driver */
+-static struct device_driver fsl_i2c_driver = {
+-	.owner = THIS_MODULE,
+-	.name = "fsl-i2c",
+-	.bus = &platform_bus_type,
++static struct platform_driver fsl_i2c_driver = {
+ 	.probe = fsl_i2c_probe,
+ 	.remove = fsl_i2c_remove,
++	.driver	= {
++		.owner = THIS_MODULE,
++		.name = "fsl-i2c",
++	},
+ };
+ 
+ static int __init fsl_i2c_init(void)
+ {
+-	return driver_register(&fsl_i2c_driver);
++	return platform_driver_register(&fsl_i2c_driver);
+ }
+ 
+ static void __exit fsl_i2c_exit(void)
+ {
+-	driver_unregister(&fsl_i2c_driver);
++	platform_driver_unregister(&fsl_i2c_driver);
+ }
+ 
+ module_init(fsl_i2c_init);
+diff -u b/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+--- b/drivers/i2c/busses/i2c-mv64xxx.c
++++ b/drivers/i2c/busses/i2c-mv64xxx.c
+@@ -492,11 +492,10 @@
+ }
+ 
+ static int __devinit
+-mv64xxx_i2c_probe(struct device *dev)
++mv64xxx_i2c_probe(struct platform_device *pd)
  {
 -	struct platform_device		*pd = to_platform_device(dev);
- 	struct mpsc_shared_pdata	*pdata;
- 	int				 rc = -ENODEV;
+ 	struct mv64xxx_i2c_data		*drv_data;
+-	struct mv64xxx_i2c_pdata	*pdata = dev->platform_data;
++	struct mv64xxx_i2c_pdata	*pdata = pd->dev.platform_data;
+ 	int	rc;
  
--	if (pd->id == 0) {
--		if (!(rc = mpsc_shared_map_regs(pd)))  {
--			pdata = (struct mpsc_shared_pdata *)dev->platform_data;
-+	if (dev->id == 0) {
-+		if (!(rc = mpsc_shared_map_regs(dev)))  {
-+			pdata = (struct mpsc_shared_pdata *)dev->dev.platform_data;
+ 	if ((pd->id != 0) || !pdata)
+@@ -526,7 +525,7 @@
+ 	drv_data->adapter.class = I2C_CLASS_HWMON;
+ 	drv_data->adapter.timeout = pdata->timeout;
+ 	drv_data->adapter.retries = pdata->retries;
+-	dev_set_drvdata(dev, drv_data);
++	platform_set_drvdata(pd, drv_data);
+ 	i2c_set_adapdata(&drv_data->adapter, drv_data);
  
- 			mpsc_shared_regs.MPSC_MRR_m = pdata->mrr_val;
- 			mpsc_shared_regs.MPSC_RCRR_m= pdata->rcrr_val;
-@@ -1577,12 +1576,11 @@
+ 	if (request_irq(drv_data->irq, mv64xxx_i2c_intr, 0,
+@@ -555,9 +554,9 @@
  }
  
- static int
--mpsc_shared_drv_remove(struct device *dev)
-+mpsc_shared_drv_remove(struct platform_device *dev)
+ static int __devexit
+-mv64xxx_i2c_remove(struct device *dev)
++mv64xxx_i2c_remove(struct platform_device *dev)
  {
--	struct platform_device	*pd = to_platform_device(dev);
- 	int	rc = -ENODEV;
+-	struct mv64xxx_i2c_data		*drv_data = dev_get_drvdata(dev);
++	struct mv64xxx_i2c_data		*drv_data = platform_get_drvdata(dev);
+ 	int	rc;
  
--	if (pd->id == 0) {
-+	if (dev->id == 0) {
- 		mpsc_shared_unmap_regs();
- 		mpsc_shared_regs.MPSC_MRR_m = 0;
- 		mpsc_shared_regs.MPSC_RCRR_m = 0;
-@@ -1595,11 +1593,12 @@ mpsc_shared_drv_remove(struct device *de
+ 	rc = i2c_del_adapter(&drv_data->adapter);
+@@ -568,24 +567,25 @@ mv64xxx_i2c_remove(struct device *dev)
  	return rc;
  }
  
--static struct device_driver mpsc_shared_driver = {
--	.name	= MPSC_SHARED_NAME,
+-static struct device_driver mv64xxx_i2c_driver = {
+-	.owner	= THIS_MODULE,
+-	.name	= MV64XXX_I2C_CTLR_NAME,
 -	.bus	= &platform_bus_type,
-+static struct platform_driver mpsc_shared_driver = {
- 	.probe	= mpsc_shared_drv_probe,
- 	.remove	= mpsc_shared_drv_remove,
++static struct platform_driver mv64xxx_i2c_driver = {
+ 	.probe	= mv64xxx_i2c_probe,
+ 	.remove	= mv64xxx_i2c_remove,
 +	.driver	= {
-+		.name = MPSC_SHARED_NAME,
-+	},
- };
- 
- /*
-@@ -1732,19 +1731,18 @@
- }
- 
- static int
--mpsc_drv_probe(struct device *dev)
-+mpsc_drv_probe(struct platform_device *dev)
- {
--	struct platform_device	*pd = to_platform_device(dev);
- 	struct mpsc_port_info	*pi;
- 	int			rc = -ENODEV;
- 
--	pr_debug("mpsc_drv_probe: Adding MPSC %d\n", pd->id);
-+	pr_debug("mpsc_drv_probe: Adding MPSC %d\n", dev->id);
- 
--	if (pd->id < MPSC_NUM_CTLRS) {
--		pi = &mpsc_ports[pd->id];
-+	if (dev->id < MPSC_NUM_CTLRS) {
-+		pi = &mpsc_ports[dev->id];
- 
--		if (!(rc = mpsc_drv_map_regs(pi, pd))) {
--			mpsc_drv_get_platform_data(pi, pd, pd->id);
-+		if (!(rc = mpsc_drv_map_regs(pi, dev))) {
-+			mpsc_drv_get_platform_data(pi, dev, dev->id);
- 
- 			if (!(rc = mpsc_make_ready(pi)))
- 				if (!(rc = uart_add_one_port(&mpsc_reg,
-@@ -1764,16 +1762,14 @@
- }
- 
- static int
--mpsc_drv_remove(struct device *dev)
-+mpsc_drv_remove(struct platform_device *dev)
- {
--	struct platform_device	*pd = to_platform_device(dev);
-+	pr_debug("mpsc_drv_exit: Removing MPSC %d\n", dev->id);
- 
--	pr_debug("mpsc_drv_exit: Removing MPSC %d\n", pd->id);
--
--	if (pd->id < MPSC_NUM_CTLRS) {
--		uart_remove_one_port(&mpsc_reg, &mpsc_ports[pd->id].port);
--		mpsc_release_port((struct uart_port *)&mpsc_ports[pd->id].port);
--		mpsc_drv_unmap_regs(&mpsc_ports[pd->id]);
-+	if (dev->id < MPSC_NUM_CTLRS) {
-+		uart_remove_one_port(&mpsc_reg, &mpsc_ports[dev->id].port);
-+		mpsc_release_port((struct uart_port *)&mpsc_ports[dev->id].port);
-+		mpsc_drv_unmap_regs(&mpsc_ports[dev->id]);
- 		return 0;
- 	}
- 	else
-@@ -1780,11 +1776,12 @@ mpsc_drv_remove(struct device *dev)
- 		return -ENODEV;
- }
- 
--static struct device_driver mpsc_driver = {
--	.name	= MPSC_CTLR_NAME,
--	.bus	= &platform_bus_type,
-+static struct platform_driver mpsc_driver = {
- 	.probe	= mpsc_drv_probe,
- 	.remove	= mpsc_drv_remove,
-+	.driver	= {
-+		.name = MPSC_CTLR_NAME,
++		.owner	= THIS_MODULE,
++		.name	= MV64XXX_I2C_CTLR_NAME,
 +	},
  };
  
  static int __init
-@@ -1798,9 +1795,9 @@ mpsc_drv_init(void)
- 	memset(&mpsc_shared_regs, 0, sizeof(mpsc_shared_regs));
- 
- 	if (!(rc = uart_register_driver(&mpsc_reg))) {
--		if (!(rc = driver_register(&mpsc_shared_driver))) {
--			if ((rc = driver_register(&mpsc_driver))) {
--				driver_unregister(&mpsc_shared_driver);
-+		if (!(rc = platform_driver_register(&mpsc_shared_driver))) {
-+			if ((rc = platform_driver_register(&mpsc_driver))) {
-+				platform_driver_unregister(&mpsc_shared_driver);
- 				uart_unregister_driver(&mpsc_reg);
- 			}
- 		}
-@@ -1815,8 +1812,8 @@ mpsc_drv_init(void)
- static void __exit
- mpsc_drv_exit(void)
+ mv64xxx_i2c_init(void)
  {
--	driver_unregister(&mpsc_driver);
--	driver_unregister(&mpsc_shared_driver);
-+	platform_driver_unregister(&mpsc_driver);
-+	platform_driver_unregister(&mpsc_shared_driver);
- 	uart_unregister_driver(&mpsc_reg);
- 	memset(mpsc_ports, 0, sizeof(mpsc_ports));
- 	memset(&mpsc_shared_regs, 0, sizeof(mpsc_shared_regs));
-diff -u b/drivers/serial/pxa.c b/drivers/serial/pxa.c
---- b/drivers/serial/pxa.c
-+++ b/drivers/serial/pxa.c
-@@ -805,9 +805,9 @@
- 	.cons		= PXA_CONSOLE,
+-	return driver_register(&mv64xxx_i2c_driver);
++	return platform_driver_register(&mv64xxx_i2c_driver);
+ }
+ 
+ static void __exit
+ mv64xxx_i2c_exit(void)
+ {
+-	driver_unregister(&mv64xxx_i2c_driver);
++	platform_driver_unregister(&mv64xxx_i2c_driver);
+ }
+ 
+ module_init(mv64xxx_i2c_init);
+diff -u b/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+--- b/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -936,10 +936,10 @@
+ 	},
  };
  
--static int serial_pxa_suspend(struct device *_dev, pm_message_t state)
-+static int serial_pxa_suspend(struct platform_device *dev, pm_message_t state)
+-static int i2c_pxa_probe(struct device *dev)
++static int i2c_pxa_probe(struct platform_device *dev)
  {
--        struct uart_pxa_port *sport = dev_get_drvdata(_dev);
-+        struct uart_pxa_port *sport = platform_get_drvdata(dev);
+ 	struct pxa_i2c *i2c = &i2c_pxa;
+-	struct i2c_pxa_platform_data *plat = dev->platform_data;
++	struct i2c_pxa_platform_data *plat = dev->dev.platform_data;
+ 	int ret;
  
-         if (sport)
-                 uart_suspend_port(&serial_pxa_reg, &sport->port);
-@@ -815,9 +815,9 @@
-         return 0;
+ #ifdef CONFIG_PXA27x
+@@ -968,7 +968,7 @@
+ 	i2c_pxa_reset(i2c);
+ 
+ 	i2c->adap.algo_data = i2c;
+-	i2c->adap.dev.parent = dev;
++	i2c->adap.dev.parent = &dev->dev;
+ 
+ 	ret = i2c_add_adapter(&i2c->adap);
+ 	if (ret < 0) {
+@@ -976,7 +976,7 @@
+ 		goto err_irq;
+ 	}
+ 
+-	dev_set_drvdata(dev, i2c);
++	platform_set_drvdata(dev, i2c);
+ 
+ #ifdef CONFIG_I2C_PXA_SLAVE
+ 	printk(KERN_INFO "I2C: %s: PXA I2C adapter, slave address %d\n",
+@@ -993,11 +993,11 @@
+ 	return ret;
  }
  
--static int serial_pxa_resume(struct device *_dev)
-+static int serial_pxa_resume(struct platform_device *dev)
+-static int i2c_pxa_remove(struct device *dev)
++static int i2c_pxa_remove(struct platform_device *dev)
  {
--        struct uart_pxa_port *sport = dev_get_drvdata(_dev);
-+        struct uart_pxa_port *sport = platform_get_drvdata(dev);
+-	struct pxa_i2c *i2c = dev_get_drvdata(dev);
++	struct pxa_i2c *i2c = platform_get_drvdata(dev);
  
-         if (sport)
-                 uart_resume_port(&serial_pxa_reg, &sport->port);
-@@ -825,21 +825,19 @@
-         return 0;
- }
- 
--static int serial_pxa_probe(struct device *_dev)
-+static int serial_pxa_probe(struct platform_device *dev)
- {
--	struct platform_device *dev = to_platform_device(_dev);
--
--	serial_pxa_ports[dev->id].port.dev = _dev;
-+	serial_pxa_ports[dev->id].port.dev = &dev->dev;
- 	uart_add_one_port(&serial_pxa_reg, &serial_pxa_ports[dev->id].port);
--	dev_set_drvdata(_dev, &serial_pxa_ports[dev->id]);
-+	platform_set_drvdata(dev, &serial_pxa_ports[dev->id]);
- 	return 0;
- }
- 
--static int serial_pxa_remove(struct device *_dev)
-+static int serial_pxa_remove(struct platform_device *dev)
- {
--	struct uart_pxa_port *sport = dev_get_drvdata(_dev);
-+	struct uart_pxa_port *sport = platform_get_drvdata(dev);
- 
--	dev_set_drvdata(_dev, NULL);
+-	dev_set_drvdata(dev, NULL);
 +	platform_set_drvdata(dev, NULL);
  
- 	if (sport)
- 		uart_remove_one_port(&serial_pxa_reg, &sport->port);
-@@ -847,14 +845,15 @@
+ 	i2c_del_adapter(&i2c->adap);
+ 	free_irq(IRQ_I2C, i2c);
+@@ -1006,21 +1006,22 @@ static int i2c_pxa_remove(struct device 
  	return 0;
  }
  
--static struct device_driver serial_pxa_driver = {
--        .name           = "pxa2xx-uart",
--        .bus            = &platform_bus_type,
-+static struct platform_driver serial_pxa_driver = {
-         .probe          = serial_pxa_probe,
-         .remove         = serial_pxa_remove,
- 
- 	.suspend	= serial_pxa_suspend,
- 	.resume		= serial_pxa_resume,
-+	.driver		= {
-+	        .name	= "pxa2xx-uart",
-+	},
- };
- 
- int __init serial_pxa_init(void)
-@@ -865,7 +864,7 @@
- 	if (ret != 0)
- 		return ret;
- 
--	ret = driver_register(&serial_pxa_driver);
-+	ret = platform_driver_register(&serial_pxa_driver);
- 	if (ret != 0)
- 		uart_unregister_driver(&serial_pxa_reg);
- 
-@@ -874,7 +873,7 @@
- 
- void __exit serial_pxa_exit(void)
- {
--        driver_unregister(&serial_pxa_driver);
-+	platform_driver_unregister(&serial_pxa_driver);
- 	uart_unregister_driver(&serial_pxa_reg);
- }
- 
-diff -u b/drivers/serial/vr41xx_siu.c b/drivers/serial/vr41xx_siu.c
---- b/drivers/serial/vr41xx_siu.c
-+++ b/drivers/serial/vr41xx_siu.c
-@@ -924,7 +924,7 @@
- 	.cons		= SERIAL_VR41XX_CONSOLE,
- };
- 
--static int siu_probe(struct device *dev)
-+static int siu_probe(struct platform_device *dev)
- {
- 	struct uart_port *port;
- 	int num, i, retval;
-@@ -941,7 +941,7 @@
- 	for (i = 0; i < num; i++) {
- 		port = &siu_uart_ports[i];
- 		port->ops = &siu_uart_ops;
--		port->dev = dev;
-+		port->dev = &dev->dev;
- 
- 		retval = uart_add_one_port(&siu_uart_driver, port);
- 		if (retval < 0) {
-@@ -958,14 +958,14 @@
- 	return 0;
- }
- 
--static int siu_remove(struct device *dev)
-+static int siu_remove(struct platform_device *dev)
- {
- 	struct uart_port *port;
- 	int i;
- 
- 	for (i = 0; i < siu_uart_driver.nr; i++) {
- 		port = &siu_uart_ports[i];
--		if (port->dev == dev) {
-+		if (port->dev == &dev->dev) {
- 			uart_remove_one_port(&siu_uart_driver, port);
- 			port->dev = NULL;
- 		}
-@@ -976,7 +976,7 @@
- 	return 0;
- }
- 
--static int siu_suspend(struct device *dev, pm_message_t state)
-+static int siu_suspend(struct platform_device *dev, pm_message_t state)
- {
- 	struct uart_port *port;
- 	int i;
-@@ -984,7 +984,7 @@
- 	for (i = 0; i < siu_uart_driver.nr; i++) {
- 		port = &siu_uart_ports[i];
- 		if ((port->type == PORT_VR41XX_SIU ||
--		     port->type == PORT_VR41XX_DSIU) && port->dev == dev)
-+		     port->type == PORT_VR41XX_DSIU) && port->dev == &dev->dev)
- 			uart_suspend_port(&siu_uart_driver, port);
- 
- 	}
-@@ -992,7 +992,7 @@
- 	return 0;
- }
- 
--static int siu_resume(struct device *dev)
-+static int siu_resume(struct platform_device *dev)
- {
- 	struct uart_port *port;
- 	int i;
-@@ -1000,7 +1000,7 @@
- 	for (i = 0; i < siu_uart_driver.nr; i++) {
- 		port = &siu_uart_ports[i];
- 		if ((port->type == PORT_VR41XX_SIU ||
--		     port->type == PORT_VR41XX_DSIU) && port->dev == dev)
-+		     port->type == PORT_VR41XX_DSIU) && port->dev == &dev->dev)
- 			uart_resume_port(&siu_uart_driver, port);
- 	}
- 
-@@ -1009,13 +1009,14 @@
- 
- static struct platform_device *siu_platform_device;
- 
--static struct device_driver siu_device_driver = {
--	.name		= "SIU",
+-static struct device_driver i2c_pxa_driver = {
+-	.name		= "pxa2xx-i2c",
 -	.bus		= &platform_bus_type,
-+static struct platform_driver siu_device_driver = {
- 	.probe		= siu_probe,
- 	.remove		= siu_remove,
- 	.suspend	= siu_suspend,
- 	.resume		= siu_resume,
++static struct platform_driver i2c_pxa_driver = {
+ 	.probe		= i2c_pxa_probe,
+ 	.remove		= i2c_pxa_remove,
 +	.driver		= {
-+		.name	= "SIU",
++		.name	= "pxa2xx-i2c",
 +	},
  };
  
- static int __devinit vr41xx_siu_init(void)
-@@ -1026,7 +1027,7 @@
- 	if (IS_ERR(siu_platform_device))
- 		return PTR_ERR(siu_platform_device);
- 
--	retval = driver_register(&siu_device_driver);
-+	retval = platform_driver_register(&siu_device_driver);
- 	if (retval < 0)
- 		platform_device_unregister(siu_platform_device);
- 
-@@ -1035,7 +1036,7 @@
- 
- static void __devexit vr41xx_siu_exit(void)
+ static int __init i2c_adap_pxa_init(void)
  {
--	driver_unregister(&siu_device_driver);
-+	platform_driver_unregister(&siu_device_driver);
- 
- 	platform_device_unregister(siu_platform_device);
+-	return driver_register(&i2c_pxa_driver);
++	return platform_driver_register(&i2c_pxa_driver);
  }
+ 
+ static void i2c_adap_pxa_exit(void)
+ {
+-	return driver_unregister(&i2c_pxa_driver);
++	return platform_driver_unregister(&i2c_pxa_driver);
+ }
+ 
+ module_init(i2c_adap_pxa_init);
 
 
 -- 

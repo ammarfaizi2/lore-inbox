@@ -1,126 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750879AbVKEC0I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbVKEC2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750879AbVKEC0I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 21:26:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbVKEC0I
+	id S1750776AbVKEC2x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 21:28:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbVKEC2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 21:26:08 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:27015 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750757AbVKEC0G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 21:26:06 -0500
-Date: Fri, 4 Nov 2005 18:25:37 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Richard Knutsson <ricknu-0@student.ltu.se>
-Cc: ashutosh.lkml@gmail.com, netdev@vger.kernel.org, davej@suse.de,
-       acme@conectiva.com.br, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: [PATCH]dgrs - Fixes Warnings when CONFIG_ISA and CONFIG_PCI are
- not enabled
-Message-Id: <20051104182537.741be3d9.akpm@osdl.org>
-In-Reply-To: <436927CA.3090105@student.ltu.se>
-References: <81083a450511012314q4ec69927gfa60cb19ba8f437a@mail.gmail.com>
-	<4368878D.4040406@student.ltu.se>
-	<c216304e0511020516o5cfcd0b9u96a3220bf2694928@mail.gmail.com>
-	<436927CA.3090105@student.ltu.se>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 4 Nov 2005 21:28:53 -0500
+Received: from streetfiresound.liquidweb.com ([64.91.233.29]:46036 "EHLO
+	host.streetfiresound.liquidweb.com") by vger.kernel.org with ESMTP
+	id S1750776AbVKEC2w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 21:28:52 -0500
+Subject: Re: [PATCH/RFC] simple SPI controller on PXA2xx SSP port, refresh
+From: Stephen Street <stephen@streetfiresound.com>
+Reply-To: stephen@streetfiresound.com
+To: David Brownell <david-b@pacbell.net>
+Cc: eemike@gmail.com, Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200511041654.47109.david-b@pacbell.net>
+References: <200511031615.22630.david-b@pacbell.net>
+	 <200511041216.20301.david-b@pacbell.net>
+	 <1131147483.426.78.camel@localhost.localdomain>
+	 <200511041654.47109.david-b@pacbell.net>
+Content-Type: text/plain
+Organization: StreetFire Sound Labs
+Date: Fri, 04 Nov 2005 18:28:48 -0800
+Message-Id: <1131157728.426.113.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.2 (2.0.2-16) 
 Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - host.streetfiresound.liquidweb.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - streetfiresound.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Knutsson <ricknu-0@student.ltu.se> wrote:
->
-> >
-> >
-> >>>This patch fixes compiler warnings when CONFIG_ISA and CONFIG_PCI are
-> >>>not enabled in the dgrc network driver.
-> >>>
-> >>>Signed-off-by: Ashutosh Naik <ashutosh.naik@gmail.com>
-> >>>
-> >>>--
-> >>>diff -Naurp linux-2.6.14/drivers/net/dgrs.c
-> >>>linux-2.6.14-git1/drivers/net/dgrs.c---
-> >>>linux-2.6.14/drivers/net/dgrs.c     2005-10-28 05:32:08.000000000
-> >>>+0530
-> >>>+++ linux-2.6.14-git1/drivers/net/dgrs.c        2005-11-01
-> >>>10:30:03.000000000 +0530
-> >>>@@ -1549,8 +1549,12 @@ MODULE_PARM_DESC(nicmode, "Digi RightSwi
-> >>>static int __init dgrs_init_module (void)  {
-> >>>       int     i;
-> >>>-       int eisacount = 0, pcicount = 0;
-> >>>-
-> >>>+#ifdef CONFIG_EISA
-> >>>+       int eisacount = 0;
-> >>>+#endif
-> >>>+#ifdef CONFIG_PCI
-> >>>+       int pcicount = 0;
-> >>>+#endif
-> >>>       /*
-> >>>        *      Command line variable overrides
-> >>>        *              debug=NNN
-> >>>-
-> >>>      
-> >>>
+On Fri, 2005-11-04 at 16:54 -0800, David Brownell wrote:
+> That's not what I thought we were talking about. Stepping back, what's
+> confusing is that there are three different kinds of per-device data,
+> and the names are used inconsistently:
 > 
-> >>Signed-off-by: Richard Knutsson <ricknu-0@student.ltu.se>
-> >>
-> >>---
-> >>
-> >>diff -uNr a/drivers/net/dgrs.c b/drivers/net/dgrs.c
-> >>--- a/drivers/net/dgrs.c        2005-08-29 01:41:01.000000000 +0200
-> >>+++ b/drivers/net/dgrs.c        2005-10-26 15:53:43.000000000 +0200
-> >>@@ -1549,7 +1549,7 @@
-> >> static int __init dgrs_init_module (void)
-> >> {
-> >>        int     i;
-> >>-       int eisacount = 0, pcicount = 0;
-> >>+       int     count;
-> >>
-> >>        /*
-> >>         *      Command line variable overrides
-> >>@@ -1591,14 +1591,14 @@
-> >>         *      Find and configure all the cards
-> >>         */
-> >> #ifdef CONFIG_EISA
-> >>-       eisacount = eisa_driver_register(&dgrs_eisa_driver);
-> >>-       if (eisacount < 0)
-> >>-               return eisacount;
-> >>+       count = eisa_driver_register(&dgrs_eisa_driver);
-> >>+       if (count < 0)
-> >>+               return count;
-> >> #endif
-> >> #ifdef CONFIG_PCI
-> >>-       pcicount = pci_register_driver(&dgrs_pci_driver);
-> >>-       if (pcicount)
-> >>-               return pcicount;
-> >>+       count = pci_register_driver(&dgrs_pci_driver);
-> >>+       if (count)
-> >>+               return count;
-> >> #endif
-> >>        return 0;
-> >> }
-> >>    
-> >>
-> >
-> >Well, both of them do the same stuff, but one of these patches needs
-> >to be committed.
-> >
-> >Cheers
-> >Ashutosh
-> >  
-> >
-> Can both CONFIG_PCI and CONFIG_EISA be undefined at the same time? If 
-> so
+>   spi_device.dev.platform_data ... from board_info.platform_data
+> 	This is for the driver of the spi_device ... board-specific
+> 	data that'd be the same for PXA or OMAP or PPC805 or whatever
+> 
+>   spi_device.platform_data ... from board_info.controller_data
+> 	This is static controller-specific information, which you were
+> 	using for things like chipselect functions and fifo tuning.
+> 	(I had proposed to name this as "controller_data" in the
+> 	spi_device too.)
 
-Not for this driver.   From drivers/net/dgrs.c:
+Yes.
 
-config DGRS
-	tristate "Digi Intl. RightSwitch SE-X support"
-	depends on NET_PCI && (PCI || EISA)
+>  
+>   spi_device.controller_data ... runtime state for the controller
+> 	This is dynamic controller-specific information, which you
+> 	were using for things like copies of register settings that
+> 	set up clock speed and SPI mode for the device.
+> 	(I had proposed to rename this as "controller_state".)
+> 
 
-> I think you patch is better.
+My understanding also.  Let's at least do the renames.
 
-Let's go with Ashutosh's patch then, thanks.
+> Now as for board_info.controller_data and its clone in spi_device,
+> how about if I just delete that ... so that it'd be provided in the
+> platform_device.dev.platform_data for the controller?  That'd also
+> let you substitute a typed pointer for a void* one, usually a sign
+> of goodness.
+> 
+
+This is where I am having the problem. I'm resisting removing the
+board_info.controller_data (or what ever we decide to call it) because
+the current code makes it easy to the have different master settings
+(fifo threshold, chip select control) for each spi_device attached to
+the master. If we move this to the platform_device.dev.platform_data
+this then the master will have to maintain a table indexed by the
+chip_select to track the per spi_device master configuration
+information.
+
+On the other hand if this is too confusing, then let make the API
+simpler and the implementation more complex.  Your call.
+
+Bigger code snippet from my board init.
+
+static struct cs8415a_platform_data cs8415a_platform_info = {
+	.enabled = 0,
+	.muted = 1,
+	.channel = 0,
+	.pll_lock_delay = 100,
+	.irq_flags = SA_SHIRQ,
+	.mask_interrupt = cs8415a_mask_interrupt,
+	.unmask_interrupt = cs8415a_unmask_interrupt,
+	.service_requested = cs8415a_service_requested,
+};
+
+static struct pxa2xx_spi_chip cs8415a_chip_info = {
+	.tx_threshold = 12,
+	.rx_threshold = 4,
+	.dma_burst_size = 8,
+	.timeout_microsecs = 64,
+	.cs_control = cs8415a_cs_control,
+};
+
+static struct pxa2xx_spi_chip cs8405a_chip_info = {
+	.tx_threshold = 12,
+	.rx_threshold = 4,
+	.dma_burst_size = 8,
+	.timeout_microsecs = 64,
+	.cs_control = cs8405a_cs_control,
+};
+
+static struct pxa2xx_spi_chip cs4341_chip_info = {
+	.tx_threshold = 8,
+	.rx_threshold = 8,
+	.timeout_microsecs = 1000,
+	.cs_control = cs4341_cs_control,
+};
+
+static struct spi_board_info streetracer_spi_board_info[] __initdata = {
+	{
+		.modalias = "cs8415a",
+		.max_speed_hz = 3686400,
+		.bus_num = 2,
+		.chip_select = 0,
+		.platform_data = &cs8415a_platform_info,
+		.controller_data = &cs8415a_chip_info,
+		.irq = STREETRACER_APCI_IRQ,
+	},
+	{
+		.modalias = "cs8405a",
+		.max_speed_hz = 3686400,
+		.bus_num = 2,
+		.chip_select = 1,
+		.controller_data = &cs8405a_chip_info,
+		.irq = STREETRACER_APCI_IRQ,
+	},
+	{
+		.modalias = "cs4341",
+		.max_speed_hz = 3686400,
+		.bus_num = 2,
+		.chip_select = 2,
+		.controller_data = &cs4341_chip_info,
+	},
+};
+
+Occupying some spare cycles is the idea that what we really need is the
+ability to sub-class spi_device and spi_master via structure embedding.
+This would be in the spirit of the 2.6 driver model and would map to the
+platform_device model better.  It would however, mean losing the
+spi_board_info structure.  Feel free to take a large hammer to me, if
+this is really off base.
+
+-Stephen
+
+
+
 

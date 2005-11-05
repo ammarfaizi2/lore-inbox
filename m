@@ -1,96 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbVKESs0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbVKESvk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932199AbVKESs0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 13:48:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbVKESs0
+	id S932193AbVKESvk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 13:51:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbVKESvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 13:48:26 -0500
-Received: from ojjektum.uhulinux.hu ([62.112.194.64]:50890 "EHLO
-	ojjektum.uhulinux.hu") by vger.kernel.org with ESMTP
-	id S932199AbVKESsZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 13:48:25 -0500
-Date: Sat, 5 Nov 2005 19:48:02 +0100
-From: Pozsar Balazs <pozsy@uhulinux.hu>
-To: Kay Sievers <kay.sievers@vrfy.org>, Rusty Russell <rusty@rustcorp.com.au>,
-       333052@bugs.debian.org
-Cc: Harald Dunkel <harald.dunkel@t-online.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14, udev: unknown symbols for ehci_hcd
-Message-ID: <20051105184802.GB25468@ojjektum.uhulinux.hu>
-References: <436CD1BC.8020102@t-online.de> <20051105173104.GA31048@vrfy.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 5 Nov 2005 13:51:40 -0500
+Received: from zproxy.gmail.com ([64.233.162.198]:37814 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932193AbVKESvj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 13:51:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Wi/6Ud1QdMLhIb8GAyQcgKd7U8yq1C/k1xZBhcFjI4daq0ejvYmhpDPt75pCGJGTIsJlhspZejjwxI4cGHiTB8hiuEhyrJym2YD9HFhfuoNLyR54jXlzu3ds6ySRJvmLRhjdPiUcDAbLlMWIdTFVSiG3w5fa6L3l8rcvxRxUMK0=
+Message-ID: <35fb2e590511051051o16e3e763x821f12555261c4cc@mail.gmail.com>
+Date: Sat, 5 Nov 2005 18:51:39 +0000
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: PATCH: fix-readonly-policy-use-and-floppy-ro-rw-status
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051105184408.GO7992@ftp.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051105173104.GA31048@vrfy.org>
-User-Agent: Mutt/1.5.7i
+References: <20051105182728.GB27767@apogee.jonmasters.org>
+	 <20051105103358.2e61687f.akpm@osdl.org>
+	 <20051105184028.GD27767@apogee.jonmasters.org>
+	 <20051105184408.GO7992@ftp.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 11/5/05, Al Viro <viro@ftp.linux.org.uk> wrote:
+> On Sat, Nov 05, 2005 at 06:40:28PM +0000, Jon Masters wrote:
+> > And as I said, the situation as it stands leads to potential data
+> > corruption but I agree with you - we need a VFS callback to handle
+> > readwrite/readonly change on remount I think. Comments?
 
-On Sat, Nov 05, 2005 at 06:31:04PM +0100, Kay Sievers wrote:
-> I've got these messages several times on the experimental SUSE too,
-> but can't reproduce it so far, even without Rusty's patch to modprobe
-> they have disappeared. See here for the details:
->   http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=333052
+> It's not that simple.  Filesystem side of ro/rw transitions is
+> messy as hell
 
+Agreed.
 
-Just to let you know, I've also met this problem (on another distro), 
-and did not know about this bugreport until now.
-So I've done another workaround: modprobe already parses /proc/modules 
-to check whether the modules needed are already loaded, and this file 
-also shows us the state of the modules, being "Loading", "Live" or 
-"Unloading".
+> "VFS callback" won't be enough.
 
-With my patch, modprobe waits until the needed modules come out of the 
-"Loading" or "Unloading" state.
+Although strangely enough other similar stuff in the remount path
+works just fine. I can already request that a filesystem gets
+remounted read-only - what's so wrong with forcing that behaviour when
+I ask for an impossible combination?
 
-
--- 
-pozsy
-
-
---- module-init-tools-3.2-pre4.orig/modprobe.c	2005-05-08 09:38:52.000000000 +0200
-+++ module-init-tools-3.2-pre4/modprobe.c	2005-10-24 13:19:39.000000000 +0200
-@@ -363,6 +363,7 @@
- 	FILE *proc_modules;
- 	char *line;
- 
-+start:
- 	/* Might not be mounted yet.  Don't fail. */
- 	proc_modules = fopen("/proc/modules", "r");
- 	if (!proc_modules)
-@@ -373,12 +374,31 @@
- 
- 		if (entry && strcmp(entry, modname) == 0) {
- 			/* If it exists, usecount is the third entry. */
--			if (usecount) {
--				entry = strtok(NULL, " \n");
--				if (entry
--				    && (entry = strtok(NULL, " \n")) != NULL)
-+			if (!(entry = strtok(NULL, " \n")))
-+				goto out;
-+
-+			if (!(entry = strtok(NULL, " \n"))) /* usecount */
-+				goto out;
-+			else
-+				if (usecount)
- 					*usecount = atoi(entry);
-+
-+			if (!(entry = strtok(NULL, " \n"))) /* "-" */
-+				goto out;
-+
-+			if (!(entry = strtok(NULL, " \n"))) /* status */
-+				goto out;
-+			else {
-+				if (!strcmp(entry, "Loading") || !strcmp(entry, "Unloading")) {
-+					usleep(100000);
-+					free(line);
-+					fclose(proc_modules);
-+					goto start;
-+				}
-+				goto out;
- 			}
-+
-+		out:
- 			free(line);
- 			fclose(proc_modules);
- 			return 1;
+Jon.

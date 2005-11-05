@@ -1,214 +1,383 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbVKEQkF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbVKEQin@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932115AbVKEQkF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 11:40:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbVKEQeI
+	id S932112AbVKEQin (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 11:38:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbVKEQeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 11:34:08 -0500
-Received: from moutng.kundenserver.de ([212.227.126.187]:24005 "EHLO
+	Sat, 5 Nov 2005 11:34:11 -0500
+Received: from moutng.kundenserver.de ([212.227.126.186]:33738 "EHLO
 	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932103AbVKEQde (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 11:33:34 -0500
-Message-Id: <20051105162716.551500000@b551138y.boeblingen.de.ibm.com>
+	id S932102AbVKEQdc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 11:33:32 -0500
+Message-Id: <20051105162715.367344000@b551138y.boeblingen.de.ibm.com>
 References: <20051105162650.620266000@b551138y.boeblingen.de.ibm.com>
-Date: Sat, 05 Nov 2005 17:27:05 +0100
+Date: Sat, 05 Nov 2005 17:27:02 +0100
 From: Arnd Bergmann <arnd@arndb.de>
 To: linux-kernel@vger.kernel.org
-Cc: Christoph Hellwig <hch@lst.de>, hpa@zytor.com, autofs@linux.kernel.org,
+Cc: Christoph Hellwig <hch@lst.de>, dgilbert@interlog.com,
+       James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 15/25] autofs: move ioctl32 to autofs{,4}/root.c
-Content-Disposition: inline; filename=autofs-ioctl.diff
+Subject: [PATCH 12/25] scsi: move SG_IO ioctl32 code to sg.c
+Content-Disposition: inline; filename=sg-ioctl.diff
 X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All autofs ioctl calls are simple to convert for 32 bit
-compatibility. This just moves the handler into the file
-system code.
+The sg driver already has a compat_ioctl function, so the
+conversion handler for SG_IO can easily be moved in there
+as well. It still uses compat_alloc_user_space, so it can
+probably be simplified by using merging the conversion
+handler with the native method.
 
-CC: hpa@zytor.com
-CC: autofs@linux.kernel.org
+CC: dgilbert@interlog.com
+CC: James.Bottomley@SteelEye.com
+CC: linux-scsi@vger.kernel.org
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-Index: linux-cg/fs/autofs/root.c
+Index: linux-2.6.14-rc/drivers/scsi/sg.c
 ===================================================================
---- linux-cg.orig/fs/autofs/root.c	2005-11-05 15:47:38.000000000 +0100
-+++ linux-cg/fs/autofs/root.c	2005-11-05 15:48:02.000000000 +0100
-@@ -10,6 +10,8 @@
-  *
-  * ------------------------------------------------------------------------- */
+--- linux-2.6.14-rc.orig/drivers/scsi/sg.c	2005-11-05 02:38:14.000000000 +0100
++++ linux-2.6.14-rc/drivers/scsi/sg.c	2005-11-05 02:41:38.000000000 +0100
+@@ -31,6 +31,7 @@
+ #include <linux/config.h>
+ #include <linux/module.h>
  
-+#include <linux/config.h>
 +#include <linux/compat.h>
- #include <linux/errno.h>
- #include <linux/stat.h>
- #include <linux/param.h>
-@@ -24,11 +26,15 @@
- static int autofs_root_rmdir(struct inode *,struct dentry *);
- static int autofs_root_mkdir(struct inode *,struct dentry *,int);
- static int autofs_root_ioctl(struct inode *, struct file *,unsigned int,unsigned long);
-+static long autofs_root_compat_ioctl(struct file *,unsigned int,unsigned long);
- 
- struct file_operations autofs_root_operations = {
- 	.read		= generic_read_dir,
- 	.readdir	= autofs_root_readdir,
- 	.ioctl		= autofs_root_ioctl,
-+#ifdef CONFIG_COMPAT
-+	.compat_ioctl	= autofs_root_compat_ioctl,
-+#endif
- };
- 
- struct inode_operations autofs_root_inode_operations = {
-@@ -562,3 +568,32 @@
- 		return -ENOSYS;
- 	}
+ #include <linux/fs.h>
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+@@ -1087,6 +1088,156 @@
  }
+ 
+ #ifdef CONFIG_COMPAT
 +
-+#ifdef CONFIG_COMPAT
-+/* AUTOFS */
-+#define AUTOFS_IOC_SETTIMEOUT32 _IOWR(0x93,0x64,unsigned int)
++typedef struct sg_io_hdr32 {
++	compat_int_t interface_id;	/* [i] 'S' for SCSI generic (required) */
++	compat_int_t dxfer_direction;	/* [i] data transfer direction  */
++	unsigned char cmd_len;		/* [i] SCSI command length ( <= 16 bytes) */
++	unsigned char mx_sb_len;		/* [i] max length to write to sbp */
++	unsigned short iovec_count;	/* [i] 0 implies no scatter gather */
++	compat_uint_t dxfer_len;		/* [i] byte count of data transfer */
++	compat_uint_t dxferp;		/* [i], [*io] points to data transfer memory
++					      or scatter gather list */
++	compat_uptr_t cmdp;		/* [i], [*i] points to command to perform */
++	compat_uptr_t sbp;		/* [i], [*o] points to sense_buffer memory */
++	compat_uint_t timeout;		/* [i] MAX_UINT->no timeout (unit: millisec) */
++	compat_uint_t flags;		/* [i] 0 -> default, see SG_FLAG... */
++	compat_int_t pack_id;		/* [i->o] unused internally (normally) */
++	compat_uptr_t usr_ptr;		/* [i->o] unused internally */
++	unsigned char status;		/* [o] scsi status */
++	unsigned char masked_status;	/* [o] shifted, masked scsi status */
++	unsigned char msg_status;		/* [o] messaging level data (optional) */
++	unsigned char sb_len_wr;		/* [o] byte count actually written to sbp */
++	unsigned short host_status;	/* [o] errors from host adapter */
++	unsigned short driver_status;	/* [o] errors from software driver */
++	compat_int_t resid;		/* [o] dxfer_len - actual_transferred */
++	compat_uint_t duration;		/* [o] time taken by cmd (unit: millisec) */
++	compat_uint_t info;		/* [o] auxiliary information */
++} sg_io_hdr32_t;  /* 64 bytes long (on sparc32) */
 +
-+static long autofs_root_compat_ioctl(struct file *file, unsigned int cmd,
-+				unsigned long arg)
++typedef struct sg_iovec32 {
++	compat_uint_t iov_base;
++	compat_uint_t iov_len;
++} sg_iovec32_t;
++
++static int sg_build_iovec(sg_io_hdr_t __user *sgio, void __user *dxferp, u16 iovec_count)
 +{
-+	int ret;
++	sg_iovec_t __user *iov = (sg_iovec_t __user *) (sgio + 1);
++	sg_iovec32_t __user *iov32 = dxferp;
++	int i;
 +
-+	switch (cmd) {
-+	case AUTOFS_IOC_SETTIMEOUT32:
-+		cmd = AUTOFS_IOC_SETTIMEOUT;
-+	case AUTOFS_IOC_CATATONIC:
-+	case AUTOFS_IOC_PROTOVER:
-+	case AUTOFS_IOC_EXPIRE:
-+		arg = (unsigned long) compat_ptr(arg);
-+	case AUTOFS_IOC_READY:
-+	case AUTOFS_IOC_FAIL:
-+		lock_kernel();
-+		ret = autofs_root_ioctl(file->f_dentry->d_inode, file, cmd, arg);
-+		unlock_kernel();
-+		break;
-+	default:
-+		ret = -ENOIOCTLCMD;
++	for (i = 0; i < iovec_count; i++) {
++		u32 base, len;
++
++		if (get_user(base, &iov32[i].iov_base) ||
++		    get_user(len, &iov32[i].iov_len) ||
++		    put_user(compat_ptr(base), &iov[i].iov_base) ||
++		    put_user(len, &iov[i].iov_len))
++			return -EFAULT;
 +	}
-+	return ret;
++
++	if (put_user(iov, &sgio->dxferp))
++		return -EFAULT;
++	return 0;
 +}
-+#endif
-Index: linux-cg/fs/autofs4/root.c
-===================================================================
---- linux-cg.orig/fs/autofs4/root.c	2005-11-05 15:47:38.000000000 +0100
-+++ linux-cg/fs/autofs4/root.c	2005-11-05 16:00:48.000000000 +0100
-@@ -12,6 +12,8 @@
-  *
-  * ------------------------------------------------------------------------- */
- 
-+#include <linux/config.h>
-+#include <linux/compat.h>
- #include <linux/errno.h>
- #include <linux/stat.h>
- #include <linux/param.h>
-@@ -24,6 +26,7 @@
- static int autofs4_dir_rmdir(struct inode *,struct dentry *);
- static int autofs4_dir_mkdir(struct inode *,struct dentry *,int);
- static int autofs4_root_ioctl(struct inode *, struct file *,unsigned int,unsigned long);
-+static long autofs4_root_compat_ioctl(struct file *,unsigned int,unsigned long);
- static int autofs4_dir_open(struct inode *inode, struct file *file);
- static int autofs4_dir_close(struct inode *inode, struct file *file);
- static int autofs4_dir_readdir(struct file * filp, void * dirent, filldir_t filldir);
-@@ -37,6 +40,9 @@
- 	.read		= generic_read_dir,
- 	.readdir	= autofs4_root_readdir,
- 	.ioctl		= autofs4_root_ioctl,
-+#ifdef CONFIG_COMPAT
-+	.compat_ioctl	= autofs4_root_compat_ioctl,
-+#endif
- };
- 
- struct file_operations autofs4_dir_operations = {
-@@ -817,3 +823,38 @@
- 		return -ENOSYS;
- 	}
- }
 +
-+#ifdef CONFIG_COMPAT
-+/* AUTOFS */
-+#define AUTOFS_IOC_SETTIMEOUT32 _IOWR(0x93,0x64,unsigned int)
-+
-+static long autofs4_root_compat_ioctl(struct file *file, unsigned int cmd,
-+				unsigned long arg)
++static int sg_ioctl_trans(struct file *file, unsigned int cmd, unsigned long arg)
 +{
-+	int ret;
++	sg_io_hdr_t __user *sgio;
++	sg_io_hdr32_t __user *sgio32;
++	u16 iovec_count;
++	u32 data;
++	void __user *dxferp;
++	int err;
 +
-+	switch (cmd) {
-+	case AUTOFS_IOC_SETTIMEOUT32:
-+		cmd = AUTOFS_IOC_SETTIMEOUT;
-+	case AUTOFS_IOC_CATATONIC:
-+	case AUTOFS_IOC_PROTOVER:
-+	case AUTOFS_IOC_EXPIRE:
-+	case AUTOFS_IOC_EXPIRE_MULTI:
-+	case AUTOFS_IOC_PROTOSUBVER:
-+	case AUTOFS_IOC_ASKREGHOST:
-+	case AUTOFS_IOC_TOGGLEREGHOST:
-+	case AUTOFS_IOC_ASKUMOUNT:
-+		arg = (unsigned long) compat_ptr(arg);
-+	case AUTOFS_IOC_READY:
-+	case AUTOFS_IOC_FAIL:
-+		lock_kernel();
-+		ret = autofs4_root_ioctl(file->f_dentry->d_inode,
-+					 file, cmd, arg);
-+		unlock_kernel();
-+		break;
-+	default:
-+		ret = -ENOIOCTLCMD;
++	sgio32 = compat_ptr(arg);
++	if (get_user(iovec_count, &sgio32->iovec_count))
++		return -EFAULT;
++
++	{
++		void __user *top = compat_alloc_user_space(0);
++		void __user *new = compat_alloc_user_space(sizeof(sg_io_hdr_t) +
++				       (iovec_count * sizeof(sg_iovec_t)));
++		if (new > top)
++			return -EINVAL;
++
++		sgio = new;
 +	}
-+	return ret;
++
++	/* Ok, now construct.  */
++	if (copy_in_user(&sgio->interface_id, &sgio32->interface_id,
++			 (2 * sizeof(int)) +
++			 (2 * sizeof(unsigned char)) +
++			 (1 * sizeof(unsigned short)) +
++			 (1 * sizeof(unsigned int))))
++		return -EFAULT;
++
++	if (get_user(data, &sgio32->dxferp))
++		return -EFAULT;
++	dxferp = compat_ptr(data);
++	if (iovec_count) {
++		if (sg_build_iovec(sgio, dxferp, iovec_count))
++			return -EFAULT;
++	} else {
++		if (put_user(dxferp, &sgio->dxferp))
++			return -EFAULT;
++	}
++
++	{
++		unsigned char __user *cmdp;
++		unsigned char __user *sbp;
++
++		if (get_user(data, &sgio32->cmdp))
++			return -EFAULT;
++		cmdp = compat_ptr(data);
++
++		if (get_user(data, &sgio32->sbp))
++			return -EFAULT;
++		sbp = compat_ptr(data);
++
++		if (put_user(cmdp, &sgio->cmdp) ||
++		    put_user(sbp, &sgio->sbp))
++			return -EFAULT;
++	}
++
++	if (copy_in_user(&sgio->timeout, &sgio32->timeout,
++			 3 * sizeof(int)))
++		return -EFAULT;
++
++	if (get_user(data, &sgio32->usr_ptr))
++		return -EFAULT;
++	if (put_user(compat_ptr(data), &sgio->usr_ptr))
++		return -EFAULT;
++
++	if (copy_in_user(&sgio->status, &sgio32->status,
++			 (4 * sizeof(unsigned char)) +
++			 (2 * sizeof(unsigned (short))) +
++			 (3 * sizeof(int))))
++		return -EFAULT;
++
++	lock_kernel();
++	err = sg_ioctl(file->f_dentry->d_inode, file,
++			cmd, (unsigned long) sgio);
++	unlock_kernel();
++
++	if (err >= 0) {
++		void __user *datap;
++
++		if (copy_in_user(&sgio32->pack_id, &sgio->pack_id,
++				 sizeof(int)) ||
++		    get_user(datap, &sgio->usr_ptr) ||
++		    put_user((u32)(unsigned long)datap,
++			     &sgio32->usr_ptr) ||
++		    copy_in_user(&sgio32->status, &sgio->status,
++				 (4 * sizeof(unsigned char)) +
++				 (2 * sizeof(unsigned short)) +
++				 (3 * sizeof(int))))
++			err = -EFAULT;
++	}
++
++	return err;
 +}
-+#endif
-Index: linux-cg/fs/compat_ioctl.c
++
+ static long sg_compat_ioctl(struct file *filp, unsigned int cmd_in, unsigned long arg)
+ {
+ 	Sg_device *sdp;
+@@ -1096,6 +1247,9 @@
+ 	if ((!(sfp = (Sg_fd *) filp->private_data)) || (!(sdp = sfp->parentdp)))
+ 		return -ENXIO;
+ 
++	if (cmd_in == SG_IO)
++		return sg_ioctl_trans(filp, cmd_in, arg);
++
+ 	sdev = sdp->device;
+ 	if (sdev->host->hostt->compat_ioctl) { 
+ 		int ret;
+Index: linux-2.6.14-rc/fs/compat_ioctl.c
 ===================================================================
---- linux-cg.orig/fs/compat_ioctl.c	2005-11-05 15:48:01.000000000 +0100
-+++ linux-cg/fs/compat_ioctl.c	2005-11-05 16:44:07.000000000 +0100
-@@ -337,11 +337,6 @@
- 	return -EINVAL;
+--- linux-2.6.14-rc.orig/fs/compat_ioctl.c	2005-11-05 02:41:37.000000000 +0100
++++ linux-2.6.14-rc/fs/compat_ioctl.c	2005-11-05 02:41:38.000000000 +0100
+@@ -157,152 +157,6 @@
+ 	return err;
  }
  
--static int ioc_settimeout(unsigned int fd, unsigned int cmd, unsigned long arg)
+-typedef struct sg_io_hdr32 {
+-	compat_int_t interface_id;	/* [i] 'S' for SCSI generic (required) */
+-	compat_int_t dxfer_direction;	/* [i] data transfer direction  */
+-	unsigned char cmd_len;		/* [i] SCSI command length ( <= 16 bytes) */
+-	unsigned char mx_sb_len;		/* [i] max length to write to sbp */
+-	unsigned short iovec_count;	/* [i] 0 implies no scatter gather */
+-	compat_uint_t dxfer_len;		/* [i] byte count of data transfer */
+-	compat_uint_t dxferp;		/* [i], [*io] points to data transfer memory
+-					      or scatter gather list */
+-	compat_uptr_t cmdp;		/* [i], [*i] points to command to perform */
+-	compat_uptr_t sbp;		/* [i], [*o] points to sense_buffer memory */
+-	compat_uint_t timeout;		/* [i] MAX_UINT->no timeout (unit: millisec) */
+-	compat_uint_t flags;		/* [i] 0 -> default, see SG_FLAG... */
+-	compat_int_t pack_id;		/* [i->o] unused internally (normally) */
+-	compat_uptr_t usr_ptr;		/* [i->o] unused internally */
+-	unsigned char status;		/* [o] scsi status */
+-	unsigned char masked_status;	/* [o] shifted, masked scsi status */
+-	unsigned char msg_status;		/* [o] messaging level data (optional) */
+-	unsigned char sb_len_wr;		/* [o] byte count actually written to sbp */
+-	unsigned short host_status;	/* [o] errors from host adapter */
+-	unsigned short driver_status;	/* [o] errors from software driver */
+-	compat_int_t resid;		/* [o] dxfer_len - actual_transferred */
+-	compat_uint_t duration;		/* [o] time taken by cmd (unit: millisec) */
+-	compat_uint_t info;		/* [o] auxiliary information */
+-} sg_io_hdr32_t;  /* 64 bytes long (on sparc32) */
+-
+-typedef struct sg_iovec32 {
+-	compat_uint_t iov_base;
+-	compat_uint_t iov_len;
+-} sg_iovec32_t;
+-
+-static int sg_build_iovec(sg_io_hdr_t __user *sgio, void __user *dxferp, u16 iovec_count)
 -{
--	return rw_long(fd, AUTOFS_IOC_SETTIMEOUT, arg);
+-	sg_iovec_t __user *iov = (sg_iovec_t __user *) (sgio + 1);
+-	sg_iovec32_t __user *iov32 = dxferp;
+-	int i;
+-
+-	for (i = 0; i < iovec_count; i++) {
+-		u32 base, len;
+-
+-		if (get_user(base, &iov32[i].iov_base) ||
+-		    get_user(len, &iov32[i].iov_len) ||
+-		    put_user(compat_ptr(base), &iov[i].iov_base) ||
+-		    put_user(len, &iov[i].iov_len))
+-			return -EFAULT;
+-	}
+-
+-	if (put_user(iov, &sgio->dxferp))
+-		return -EFAULT;
+-	return 0;
 -}
 -
- /* Bluetooth ioctls */
- #define HCIUARTSETPROTO	_IOW('U', 200, int)
- #define HCIUARTGETPROTO	_IOR('U', 201, int)
-@@ -918,8 +913,6 @@
+-static int sg_ioctl_trans(unsigned int fd, unsigned int cmd, unsigned long arg)
+-{
+-	sg_io_hdr_t __user *sgio;
+-	sg_io_hdr32_t __user *sgio32;
+-	u16 iovec_count;
+-	u32 data;
+-	void __user *dxferp;
+-	int err;
+-
+-	sgio32 = compat_ptr(arg);
+-	if (get_user(iovec_count, &sgio32->iovec_count))
+-		return -EFAULT;
+-
+-	{
+-		void __user *top = compat_alloc_user_space(0);
+-		void __user *new = compat_alloc_user_space(sizeof(sg_io_hdr_t) +
+-				       (iovec_count * sizeof(sg_iovec_t)));
+-		if (new > top)
+-			return -EINVAL;
+-
+-		sgio = new;
+-	}
+-
+-	/* Ok, now construct.  */
+-	if (copy_in_user(&sgio->interface_id, &sgio32->interface_id,
+-			 (2 * sizeof(int)) +
+-			 (2 * sizeof(unsigned char)) +
+-			 (1 * sizeof(unsigned short)) +
+-			 (1 * sizeof(unsigned int))))
+-		return -EFAULT;
+-
+-	if (get_user(data, &sgio32->dxferp))
+-		return -EFAULT;
+-	dxferp = compat_ptr(data);
+-	if (iovec_count) {
+-		if (sg_build_iovec(sgio, dxferp, iovec_count))
+-			return -EFAULT;
+-	} else {
+-		if (put_user(dxferp, &sgio->dxferp))
+-			return -EFAULT;
+-	}
+-
+-	{
+-		unsigned char __user *cmdp;
+-		unsigned char __user *sbp;
+-
+-		if (get_user(data, &sgio32->cmdp))
+-			return -EFAULT;
+-		cmdp = compat_ptr(data);
+-
+-		if (get_user(data, &sgio32->sbp))
+-			return -EFAULT;
+-		sbp = compat_ptr(data);
+-
+-		if (put_user(cmdp, &sgio->cmdp) ||
+-		    put_user(sbp, &sgio->sbp))
+-			return -EFAULT;
+-	}
+-
+-	if (copy_in_user(&sgio->timeout, &sgio32->timeout,
+-			 3 * sizeof(int)))
+-		return -EFAULT;
+-
+-	if (get_user(data, &sgio32->usr_ptr))
+-		return -EFAULT;
+-	if (put_user(compat_ptr(data), &sgio->usr_ptr))
+-		return -EFAULT;
+-
+-	if (copy_in_user(&sgio->status, &sgio32->status,
+-			 (4 * sizeof(unsigned char)) +
+-			 (2 * sizeof(unsigned (short))) +
+-			 (3 * sizeof(int))))
+-		return -EFAULT;
+-
+-	err = sys_ioctl(fd, cmd, (unsigned long) sgio);
+-
+-	if (err >= 0) {
+-		void __user *datap;
+-
+-		if (copy_in_user(&sgio32->pack_id, &sgio->pack_id,
+-				 sizeof(int)) ||
+-		    get_user(datap, &sgio->usr_ptr) ||
+-		    put_user((u32)(unsigned long)datap,
+-			     &sgio32->usr_ptr) ||
+-		    copy_in_user(&sgio32->status, &sgio->status,
+-				 (4 * sizeof(unsigned char)) +
+-				 (2 * sizeof(unsigned short)) +
+-				 (3 * sizeof(int))))
+-			err = -EFAULT;
+-	}
+-
+-	return err;
+-}
+-
+ 
+ struct mtget32 {
+ 	compat_long_t	mt_type;
+@@ -1143,7 +997,6 @@
+ #endif
+ 
+ #ifdef DECLARES
+-HANDLE_IOCTL(SG_IO,sg_ioctl_trans)
+ HANDLE_IOCTL(MTIOCGET32, mt_ioctl_trans)
  HANDLE_IOCTL(MTIOCPOS32, mt_ioctl_trans)
  HANDLE_IOCTL(CDROMREADAUDIO, cdrom_ioctl_trans)
- HANDLE_IOCTL(CDROM_SEND_PACKET, cdrom_ioctl_trans)
--#define AUTOFS_IOC_SETTIMEOUT32 _IOWR(0x93,0x64,unsigned int)
--HANDLE_IOCTL(AUTOFS_IOC_SETTIMEOUT32, ioc_settimeout)
- /* vfat */
- HANDLE_IOCTL(VFAT_IOCTL_READDIR_BOTH32, vfat_ioctl32)
- HANDLE_IOCTL(VFAT_IOCTL_READDIR_SHORT32, vfat_ioctl32)
-Index: linux-cg/include/linux/compat_ioctl.h
-===================================================================
---- linux-cg.orig/include/linux/compat_ioctl.h	2005-11-05 15:48:01.000000000 +0100
-+++ linux-cg/include/linux/compat_ioctl.h	2005-11-05 16:44:07.000000000 +0100
-@@ -360,17 +360,6 @@
- COMPATIBLE_IOCTL(SOUND_MIXER_GETLEVELS)
- COMPATIBLE_IOCTL(SOUND_MIXER_SETLEVELS)
- COMPATIBLE_IOCTL(OSS_GETVERSION)
--/* AUTOFS */
--ULONG_IOCTL(AUTOFS_IOC_READY)
--ULONG_IOCTL(AUTOFS_IOC_FAIL)
--COMPATIBLE_IOCTL(AUTOFS_IOC_CATATONIC)
--COMPATIBLE_IOCTL(AUTOFS_IOC_PROTOVER)
--COMPATIBLE_IOCTL(AUTOFS_IOC_EXPIRE)
--COMPATIBLE_IOCTL(AUTOFS_IOC_EXPIRE_MULTI)
--COMPATIBLE_IOCTL(AUTOFS_IOC_PROTOSUBVER)
--COMPATIBLE_IOCTL(AUTOFS_IOC_ASKREGHOST)
--COMPATIBLE_IOCTL(AUTOFS_IOC_TOGGLEREGHOST)
--COMPATIBLE_IOCTL(AUTOFS_IOC_ASKUMOUNT)
- /* DEVFS */
- COMPATIBLE_IOCTL(DEVFSDIOC_GET_PROTO_REV)
- COMPATIBLE_IOCTL(DEVFSDIOC_SET_EVENT_MASK)
 
 --
 

@@ -1,42 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbVKEOvg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbVKEOrg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932069AbVKEOvg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 09:51:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932071AbVKEOvg
+	id S1751182AbVKEOrg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 09:47:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750853AbVKEOrg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 09:51:36 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:7860 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932069AbVKEOvg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 09:51:36 -0500
-Date: Sat, 5 Nov 2005 14:51:34 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Ian Campbell <icampbell@arcom.com>, Wim Van Sebroeck <wim@iguana.be>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [WATCHDOG] sa1100_wdt.c sparse cleanups
-Message-ID: <20051105145134.GL7992@ftp.linux.org.uk>
-References: <1130921809.12578.179.camel@icampbell-debian> <20051105101026.GA28438@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 5 Nov 2005 09:47:36 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:37830 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S1751182AbVKEOrf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 09:47:35 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Subject: Re: New Linux Development Model
+Date: Sat, 5 Nov 2005 15:48:12 +0100
+User-Agent: KMail/1.8
+Cc: Edgar Hucek <hostmaster@ed-soft.at>, Jean Delvare <khali@linux-fr.org>,
+       LKML <linux-kernel@vger.kernel.org>
+References: <436C7E77.3080601@ed-soft.at> <436CB162.5070100@ed-soft.at> <9a8748490511050634g8d19652w8148a3db4e3e11b2@mail.gmail.com>
+In-Reply-To: <9a8748490511050634g8d19652w8148a3db4e3e11b2@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051105101026.GA28438@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200511051548.12562.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 05, 2005 at 10:10:27AM +0000, Russell King wrote:
-> It's probably better to use a union with these, eg:
-> 
-> 	union {
-> 		void __user *arg;
-> 		struct watchdog_info __user *info;
-> 		int __user *i;
-> 	} u;
-> 
-> 	u.arg = (void __user *)arg;
-> 
-> ...
-> 
-> 	ret = copy_to_user(u.info, &ident, sizeof(ident)) ? -EFAULT : 0;
+Am Samstag, 5. November 2005 15:34 schrieb Jesper Juhl:
+> There is a very simple solution to your problem. Use the kernels
+> provided by your distribution and not the kernel.org kernels.
 
-Just use void __user *.
+If enough people do so, testing will suffer.
+
+	Regards
+		Oliver

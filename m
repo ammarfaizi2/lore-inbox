@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbVKEShW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbVKESj4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932178AbVKEShW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 13:37:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbVKEShW
+	id S932191AbVKESj4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 13:39:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbVKESjz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 13:37:22 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:48575 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932178AbVKEShV (ORCPT
+	Sat, 5 Nov 2005 13:39:55 -0500
+Received: from minus.inr.ac.ru ([194.67.69.97]:18614 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id S932181AbVKESjz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 13:37:21 -0500
-Message-ID: <436CFBDC.8060509@pobox.com>
-Date: Sat, 05 Nov 2005 13:37:16 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [GIT PATCH] SCSI updates for 2.6.14
-References: <1131207491.3614.5.camel@mulgrave>	 <Pine.LNX.4.64.0511050942490.3316@g5.osdl.org>	 <1131214408.3614.11.camel@mulgrave>  <436CF8FC.5070906@pobox.com> <1131215595.3614.13.camel@mulgrave>
-In-Reply-To: <1131215595.3614.13.camel@mulgrave>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Sat, 5 Nov 2005 13:39:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=ms2.inr.ac.ru;
+  b=YXSCzxPOE/BziaTNYO4ZkjJ8P/mk3A8J+j7eDLfXw2y4HF6GeW2Y/gPHe4ynKfxen0DGeNFlxtDC5cHhL9Csjhsb+8WzAREDJDQF3mdvYz9xS9rwa8n8f1J+awMooJ4OLIeYBtUFFoq7PVj6SVbX45RttssN+DXQJ0e4nyqIvgc=;
+Date: Sat, 5 Nov 2005 21:39:10 +0300
+From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+To: Thomas Graf <tgraf@suug.ch>
+Cc: Patrick McHardy <kaber@trash.net>,
+       Brian Pomerantz <bapper@piratehaven.org>, netdev@vger.kernel.org,
+       davem@davemloft.net, pekkas@netcore.fi, jmorris@namei.org,
+       yoshfuji@linux-ipv6.org, kaber@coreworks.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [IPV4] Fix secondary IP addresses after promotion
+Message-ID: <20051105183910.GA17215@ms2.inr.ac.ru>
+References: <20051104184633.GA16256@skull.piratehaven.org> <436BFE08.6030906@trash.net> <20051105010740.GR23537@postel.suug.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051105010740.GR23537@postel.suug.ch>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-> On Sat, 2005-11-05 at 13:25 -0500, Jeff Garzik wrote:
-> 
->>Do you have standard permissions (chmod -R og+rX) on your repo, and, are 
->>you using rsync to push to kernel.org?
->>
->>I've attached my rsync-based push script.  git people seem to dislike 
->>rsync, but this tends to work every time, for all users.
-> 
-> 
-> No, I push to my scsi-misc-2.6 repository and then clone that on hera
-> for linus.  the scsi-misc-2.6 permissions are fine, it was the clone -l
-> on hera that caused the problems.
+Hello!
 
-Well, _something_ is clearly screwed up in your scsi-misc-2.6 repo on 
-master.kernel.org, as its the only repo that I cannot pull from (last 
-successful pull was Oct 31, before I left for Portland).
+> Local routes for 10.0.0.3 and 10.0.0.4 have disappeared _without_
+> any notification.
 
-	Jeff
+Flushes do not generate notifications. The reason is technical: they
+are usually massive, do overflow buffer, get lost and listeners have
+to do painful resynchronization. The justification: they are useless
+because these events are derived.
 
-
-
+Alexey

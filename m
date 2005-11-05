@@ -1,49 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbVKENqR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbVKENrq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751153AbVKENqR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 08:46:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbVKENqR
+	id S1750863AbVKENrq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 08:47:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbVKENrq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 08:46:17 -0500
-Received: from postel.suug.ch ([195.134.158.23]:38821 "EHLO postel.suug.ch")
-	by vger.kernel.org with ESMTP id S1750830AbVKENqQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 08:46:16 -0500
-Date: Sat, 5 Nov 2005 14:46:36 +0100
-From: Thomas Graf <tgraf@suug.ch>
-To: Patrick McHardy <kaber@trash.net>
-Cc: Brian Pomerantz <bapper@piratehaven.org>, netdev@vger.kernel.org,
-       davem@davemloft.net, kuznet@ms2.inr.ac.ru, pekkas@netcore.fi,
-       jmorris@namei.org, yoshfuji@linux-ipv6.org, kaber@coreworks.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [IPV4] Fix secondary IP addresses after promotion
-Message-ID: <20051105134636.GS23537@postel.suug.ch>
-References: <20051104184633.GA16256@skull.piratehaven.org> <436BFE08.6030906@trash.net> <20051105010740.GR23537@postel.suug.ch> <436C090D.5020201@trash.net> <436C34F8.3090903@trash.net>
+	Sat, 5 Nov 2005 08:47:46 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:13322
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S1750863AbVKENrp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 08:47:45 -0500
+Date: Sat, 5 Nov 2005 14:47:27 +0100
+From: Andrea Arcangeli <andrea@cpushare.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: disable tsc with seccomp
+Message-ID: <20051105134727.GF18861@opteron.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <436C34F8.3090903@trash.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Patrick McHardy <kaber@trash.net> 2005-11-05 05:28
-> The reason why all routes are deleted is because their prefered
-> source addresses is the primary address. fn_flush_list should
-> probably send the missing notifications for the deleted routes.
-> Changing address promotion to not delete the other routes at all
-> looks extremly complicated, I think just fixing it to behave
-> correctly is good enough (which my patch didn't do entirely,
-> I'll send a new one this weekend).
+Hello,
 
-Yes, fib_sync_down(), but even when I remove the code setting
-RTNH_F_DEAD I still see _some_ local routes disappearing which
-I cannot explain right now. I can only reproduce this with
-!CONFIG_IP_MULTIPLE_TABLES though.
+This changeset is backing out an useful feature I implemented some month
+ago:
 
-Assuming this is a separate bug, I'm not sure if this is the right
-way to fix it. I think it would be better to rewrite the preferred
-source address of all related local routes and only perform a
-remove-and-add on the secondary address being promoted.
+        http://kernel.org/hg/linux-2.6/?cs=2fd4e5f089df
 
-_If_ we let them die, we should announce it in fib_sync_down()
-rather then in the algorithm specific flush routines.
+Anything that can strengthen security is needed, the covert channels are
+theoretically possible and this is a fact, you don't need hyperthreading
+for that.
+
+I tried to convince you a few times privately but I failed, and now that
+you made mainline less secure, I have to raise the topic on l-k since
+all other attemps to convince you privately already failed.
+
+As I told you a few times, in real life any admin that doesn't notice a
+task running at 100% cpu load for months means there are more serious
+problems in that server, than the risk of covert channel. Because of
+that, covert channels remains mostly a theoretical problem in servers.
+
+But with the CPUShare usage of seccomp, running untrusted bycode for
+months at 100% cpu load is the norm, so we must disable all high
+precision timing information that we can disable.
+
+Infact we should disable MISC_ENABLE too at runtime (if possible).
+
+Furthermore i386 still has the tsc disable with seccomp, so the fact my
+patch is still applied to i386 and has been backed out only of x86-64 is
+a nosense. Either we back out both (and I strongly disagree with that),
+or we keep both applied (this is what I'm suggesting). Current status
+makes no sense to me.
+
+If the end result of this discussion will be that both patches are
+backed out, I'll rewrite them with a config option (turned off by
+default). So the CPUShare users that wants to be safer, can enable it
+when compiling the kernel (plus crossing fingers in the hope that
+distros would also enable it before compiling their kernels). A config
+option would make it acceptable even in the worst case I hope.
+
+I think it would have been nicer from your part to at least make it a
+config option instead of dropping it right away, especially after I
+explicitly asked you not to drop it.
+
+Thanks.

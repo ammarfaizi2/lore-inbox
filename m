@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbVKENsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbVKENy7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750869AbVKENsP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 08:48:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbVKENsP
+	id S932066AbVKENy7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 08:54:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbVKENy7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 08:48:15 -0500
-Received: from mail.metronet.co.uk ([213.162.97.75]:53669 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP
-	id S1750869AbVKENsO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 08:48:14 -0500
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Edgar Hucek <hostmaster@ed-soft.at>
-Subject: Re: New Linux Development Model
-Date: Sat, 5 Nov 2005 13:47:54 +0000
-User-Agent: KMail/1.8.92
-Cc: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>
-References: <436C7E77.3080601@ed-soft.at> <20051105122958.7a2cd8c6.khali@linux-fr.org> <436CB162.5070100@ed-soft.at>
-In-Reply-To: <436CB162.5070100@ed-soft.at>
+	Sat, 5 Nov 2005 08:54:59 -0500
+Received: from 62-15-156-40.inversas.jazztel.es ([62.15.156.40]:10318 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S1751162AbVKENy7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 08:54:59 -0500
+thread-index: AcXiEMhz4zTVT7kKRb6UYZt9ZOscFA==
+Thread-Topic: domicilie su empresa en otro lugar
+From: <linux-kernel@vger.kernel.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: domicilie su empresa en otro lugar
+Date: Sat, 5 Nov 2005 14:56:56 +0100
+Message-ID: <9e4101c5e210$c87322b0$8200a8c0@S00JJ40x4330941C3C7CD7>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511051347.54833.s0348365@sms.ed.ac.uk>
+X-Mailer: Microsoft CDO for Windows 2000
+Content-Class: urn:content-classes:message
+Importance: normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 05 November 2005 13:19, Edgar Hucek wrote:
-> Hi.
->
-> Sorry for not posting my Name.
->
-> Maybe you don't understand what i wanted to say or it's my bad english.
-> The ipw2200 driver was only an example. I had also problems with, vmware,
-> unionfs...
 
-Read the document linked to by Jean. It explains why a volatile API is 
-ultimately beneficial to the Linux development process.
+Domiciliaciones de empresas
 
-It's frustrating for vendors and maintainers to keep their code up to date 
-with the latest kernel, but if it's done incrementally after Linus releases 
-(or during the very lengthy RC process), it's usually very easy.
+?Problemas economicos!
 
-Also, you're gelling together many projects which have completely different 
-reasons for breaking across kernel revisions.
+Tiene algun cliente, conocido o amigo
+?Con problemas economicos?
+?Que no pueda dormir, acosado por no poder pagar a sus proveedores?
+?Que no puede trabajar, porque continuamete esta recibiendo avisos judiciales? 
+?Que esta amargado, por recibir citaciones sociales?
+?Que precise, un cambio de vida economica? 
+Pida informacin
 
-ipw2200 "works" in 2.6.14, it's just the maintainer has opted to use a "stable 
-version" which lacks experimental features while ieee80211 gets up to 
-scratch.
+http://www.bestsevendiamonds.com/domiciliaciones/
 
-OTOH, unionfs is poorly maintained and is a particularly sore example of how 
-the linux development model is detrimental to external module development.
+para poder dar de baja su direccin del listado, precisamos use el siguiente enlace
 
-There are people constantly working to make binary modules like VMWare, NVIDIA 
-and ATI work under the newest kernels. Just google it. Ultimately we can't 
-allow ourselves to be held down by slow-moving binary vendors. It's too 
-inefficient (not to mention of questionable ethics).
+http://www.bestsevendiamonds.com/domiciliaciones/bajas.asp
 
--- 
-Cheers,
-Alistair.
+Domicilie su negocio
+Nos encargamos de todo 
 
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+Prestacion de nuestros servicios.
+
+Domiciliacion de sociedades terminales ante notario o no 
+Recogida de actas notariales
+Recogida de embargos
+Recogida de citaciones
+Guardia y custodia de estos documentos y su entrega en nuestro domicilio o por internet
+Desvio de llamadas al n? telefonico que desee
+1H. Mensual de Sala de Juntas o mas segun disposicion de las mismas 
+
+Nos encargaremos de que su cliente con total discrecion, reciba todos sus avisos oficiales,
+sin que eso le suponga ningun tipo de molestia. 
+Avisandole con total discrecion de la llegada de sus avisos oficiales, Hacienda, Seguridad Social,
+Tribunales etc., donde el cliente nos indique.
+
+
+
+
+

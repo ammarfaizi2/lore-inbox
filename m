@@ -1,62 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751381AbVKECHW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750879AbVKEC0I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751381AbVKECHW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 21:07:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbVKECHW
+	id S1750879AbVKEC0I (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 21:26:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbVKEC0I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 21:07:22 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:20612 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1751381AbVKECHW (ORCPT
+	Fri, 4 Nov 2005 21:26:08 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:27015 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750757AbVKEC0G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 21:07:22 -0500
-Subject: Re: ide-cs broken / udev magic
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Greg KH <greg@kroah.com>
-Cc: Damir Perisa <damir.perisa@solnet.ch>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, Archlinux Developers <arch-dev@archlinux.org>
-In-Reply-To: <20051104232854.GA21173@kroah.com>
-References: <20051103220305.77620d8f.akpm@osdl.org>
-	 <20051104071932.GA6362@kroah.com>
-	 <200511050022.41472.damir.perisa@solnet.ch>
-	 <20051104232854.GA21173@kroah.com>
-Content-Type: text/plain
-Date: Sat, 05 Nov 2005 02:06:52 +0000
-Message-Id: <1131156412.8256.76.camel@localhost.localdomain>
+	Fri, 4 Nov 2005 21:26:06 -0500
+Date: Fri, 4 Nov 2005 18:25:37 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Richard Knutsson <ricknu-0@student.ltu.se>
+Cc: ashutosh.lkml@gmail.com, netdev@vger.kernel.org, davej@suse.de,
+       acme@conectiva.com.br, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org, stable@kernel.org
+Subject: Re: [PATCH]dgrs - Fixes Warnings when CONFIG_ISA and CONFIG_PCI are
+ not enabled
+Message-Id: <20051104182537.741be3d9.akpm@osdl.org>
+In-Reply-To: <436927CA.3090105@student.ltu.se>
+References: <81083a450511012314q4ec69927gfa60cb19ba8f437a@mail.gmail.com>
+	<4368878D.4040406@student.ltu.se>
+	<c216304e0511020516o5cfcd0b9u96a3220bf2694928@mail.gmail.com>
+	<436927CA.3090105@student.ltu.se>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-11-04 at 15:28 -0800, Greg KH wrote:
-> On Sat, Nov 05, 2005 at 12:22:36AM +0100, Damir Perisa wrote:
-> > as other distros use to ignore removable ide's. now i need to load the 
-> > ide-cs module by hand (bad thing, as module should be loaded 
-> > automagically with udev/hotplug) but on the other hand, no more 
-> > dmesg-spamming, no freezes and also the node is created successfully 
-> > after module is loaded. 
+Richard Knutsson <ricknu-0@student.ltu.se> wrote:
+>
+> >
+> >
+> >>>This patch fixes compiler warnings when CONFIG_ISA and CONFIG_PCI are
+> >>>not enabled in the dgrc network driver.
+> >>>
+> >>>Signed-off-by: Ashutosh Naik <ashutosh.naik@gmail.com>
+> >>>
+> >>>--
+> >>>diff -Naurp linux-2.6.14/drivers/net/dgrs.c
+> >>>linux-2.6.14-git1/drivers/net/dgrs.c---
+> >>>linux-2.6.14/drivers/net/dgrs.c     2005-10-28 05:32:08.000000000
+> >>>+0530
+> >>>+++ linux-2.6.14-git1/drivers/net/dgrs.c        2005-11-01
+> >>>10:30:03.000000000 +0530
+> >>>@@ -1549,8 +1549,12 @@ MODULE_PARM_DESC(nicmode, "Digi RightSwi
+> >>>static int __init dgrs_init_module (void)  {
+> >>>       int     i;
+> >>>-       int eisacount = 0, pcicount = 0;
+> >>>-
+> >>>+#ifdef CONFIG_EISA
+> >>>+       int eisacount = 0;
+> >>>+#endif
+> >>>+#ifdef CONFIG_PCI
+> >>>+       int pcicount = 0;
+> >>>+#endif
+> >>>       /*
+> >>>        *      Command line variable overrides
+> >>>        *              debug=NNN
+> >>>-
+> >>>      
+> >>>
 > 
-> This shouldn't have changed the "autoload" capability of the module at
-> all.  It should still being loaded with whatever means it was being
-> loaded before.  But that's a distro specific question, not a
-> linux-kernel issue.
-> 
-> > is there planed action to change ide-cs to work without making it being 
-> > ignored ... without this exception that needs to be specified in udev 
-> > rules? 
-> 
-> Yes, there are patches somewhere to fix this up, I'm trying to track
-> them down.
+> >>Signed-off-by: Richard Knutsson <ricknu-0@student.ltu.se>
+> >>
+> >>---
+> >>
+> >>diff -uNr a/drivers/net/dgrs.c b/drivers/net/dgrs.c
+> >>--- a/drivers/net/dgrs.c        2005-08-29 01:41:01.000000000 +0200
+> >>+++ b/drivers/net/dgrs.c        2005-10-26 15:53:43.000000000 +0200
+> >>@@ -1549,7 +1549,7 @@
+> >> static int __init dgrs_init_module (void)
+> >> {
+> >>        int     i;
+> >>-       int eisacount = 0, pcicount = 0;
+> >>+       int     count;
+> >>
+> >>        /*
+> >>         *      Command line variable overrides
+> >>@@ -1591,14 +1591,14 @@
+> >>         *      Find and configure all the cards
+> >>         */
+> >> #ifdef CONFIG_EISA
+> >>-       eisacount = eisa_driver_register(&dgrs_eisa_driver);
+> >>-       if (eisacount < 0)
+> >>-               return eisacount;
+> >>+       count = eisa_driver_register(&dgrs_eisa_driver);
+> >>+       if (count < 0)
+> >>+               return count;
+> >> #endif
+> >> #ifdef CONFIG_PCI
+> >>-       pcicount = pci_register_driver(&dgrs_pci_driver);
+> >>-       if (pcicount)
+> >>-               return pcicount;
+> >>+       count = pci_register_driver(&dgrs_pci_driver);
+> >>+       if (count)
+> >>+               return count;
+> >> #endif
+> >>        return 0;
+> >> }
+> >>    
+> >>
+> >
+> >Well, both of them do the same stuff, but one of these patches needs
+> >to be committed.
+> >
+> >Cheers
+> >Ashutosh
+> >  
+> >
+> Can both CONFIG_PCI and CONFIG_EISA be undefined at the same time? If 
+> so
 
-This is a bug in the ide layer as CF pcmcia devices are marked as
-removable but the devices (and the behaviour of ide-cs) does not fit the
-Linux definition of such devices.
+Not for this driver.   From drivers/net/dgrs.c:
 
-See this thread: http://lkml.org/lkml/2005/9/21/118
+config DGRS
+	tristate "Digi Intl. RightSwitch SE-X support"
+	depends on NET_PCI && (PCI || EISA)
 
-I'm hoping to work out a patch to change this in a manner acceptable to
-everyone but haven't found time yet. I've not forgotten though.
+> I think you patch is better.
 
-Richard
-
+Let's go with Ashutosh's patch then, thanks.
 

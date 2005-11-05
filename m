@@ -1,43 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbVKEQpH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbVKEREz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932151AbVKEQpH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 11:45:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbVKEQpG
+	id S1750727AbVKEREz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 12:04:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750761AbVKEREz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 11:45:06 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:29134 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S932151AbVKEQpD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 11:45:03 -0500
-Subject: Re: [PATCH 12/25] scsi: move SG_IO ioctl32 code to sg.c
-From: James Bottomley <James.Bottomley@SteelEye.com>
+	Sat, 5 Nov 2005 12:04:55 -0500
+Received: from outbound01.telus.net ([199.185.220.220]:52952 "EHLO
+	priv-edtnes57.telusplanet.net") by vger.kernel.org with ESMTP
+	id S1750727AbVKEREy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 12:04:54 -0500
+From: Andi Kleen <ak@suse.de>
 To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-       dgilbert@interlog.com, linux-scsi@vger.kernel.org
-In-Reply-To: <20051105162715.367344000@b551138y.boeblingen.de.ibm.com>
-References: <20051105162650.620266000@b551138y.boeblingen.de.ibm.com>
-	 <20051105162715.367344000@b551138y.boeblingen.de.ibm.com>
-Content-Type: text/plain
-Date: Sat, 05 Nov 2005 10:44:59 -0600
-Message-Id: <1131209099.3614.7.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Subject: Re: [PATCH 01/25] compat: Remove leftovers from register_ioctl32_conversion
+Date: Sat, 5 Nov 2005 18:04:48 +0100
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>
+References: <20051105162650.620266000@b551138y.boeblingen.de.ibm.com> <20051105162710.209305000@b551138y.boeblingen.de.ibm.com>
+In-Reply-To: <20051105162710.209305000@b551138y.boeblingen.de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511051804.48744.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-11-05 at 17:27 +0100, Arnd Bergmann wrote:
-> plain text document attachment (sg-ioctl.diff)
-> The sg driver already has a compat_ioctl function, so the
-> conversion handler for SG_IO can easily be moved in there
-> as well. It still uses compat_alloc_user_space, so it can
-> probably be simplified by using merging the conversion
-> handler with the native method.
+On Saturday 05 November 2005 17:26, Arnd Bergmann wrote:
+> We don't need the semaphore any more since we no longer
+> write to the ioctl32 hash table while the kernel is running.
 
-This is the wrong place, isn't it?  SG_IO is also in
-drivers/block/scsi_ioctl.c which isn't modular, so shouldn't this be in
-there?
+Yes good patch. In fact I had a similar patch in one of my trees
+for a long time, just didn't get around to submit it yet.
 
-James
-
-
+-Andi

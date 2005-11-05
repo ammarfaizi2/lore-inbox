@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750891AbVKERfz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750903AbVKERh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750891AbVKERfz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 12:35:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbVKERfz
+	id S1750903AbVKERh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 12:37:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750906AbVKERh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 12:35:55 -0500
-Received: from mx1.suse.de ([195.135.220.2]:65461 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750851AbVKERfy (ORCPT
+	Sat, 5 Nov 2005 12:37:27 -0500
+Received: from mf01.sitadelle.com ([212.94.174.68]:5202 "EHLO smtp.cegetel.net")
+	by vger.kernel.org with ESMTP id S1750893AbVKERh0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 12:35:54 -0500
-To: Evgeny Rodichev <er@sai.msu.su>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: x86_64 mce_log question
-References: <Pine.GSO.4.63.0511021822010.28234@ra.sai.msu.su>
-From: Andi Kleen <ak@suse.de>
-Date: 05 Nov 2005 18:35:53 +0100
-In-Reply-To: <Pine.GSO.4.63.0511021822010.28234@ra.sai.msu.su>
-Message-ID: <p73k6fn2e12.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Sat, 5 Nov 2005 12:37:26 -0500
+Message-ID: <436CEDCE.6010704@tremplin-utc.net>
+Date: Sat, 05 Nov 2005 18:37:18 +0100
+From: Eric Piel <Eric.Piel@tremplin-utc.net>
+User-Agent: Mozilla Thunderbird 1.0.7-3mdk (X11/20051015)
+X-Accept-Language: en, fr, ja, es
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: zippel@linux-m68k.org
+Cc: Olaf Hering <olh@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 66/82] remove linux/version.h from fs/hfs/
+References: <20050710193614.66.sNRbVO4020.2247.olh@nectarine.suse.de>
+In-Reply-To: <20050710193614.66.sNRbVO4020.2247.olh@nectarine.suse.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeny Rodichev <er@sai.msu.su> writes:
+10.07.2005 21:36, Olaf Hering wrote/a écrit:
+> changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
+Hello,
 
-> Hello,
+I've just changed LOCALVERSION on 2.6.14 and noticed that the patches 
+for hfs and hfsplus had still not made their way. As I couldn't find any 
+tree which contains them, I was wondering if they wouldn't have been 
+"lost in space" ?
+
+Eric
+
 > 
-> at Opteron-based x86_64 system sometimes I get message
+> Signed-off-by: Olaf Hering <olh@suse.de>
 > 
-> Machine check events logged
+> fs/hfs/hfs_fs.h |    1 -
+> fs/hfs/inode.c  |    1 -
+> 2 files changed, 2 deletions(-)
 > 
-> (non-fatal). How can I read the correspondent events?
+> Index: linux-2.6.13-rc2-mm1/fs/hfs/hfs_fs.h
+> ===================================================================
+> --- linux-2.6.13-rc2-mm1.orig/fs/hfs/hfs_fs.h
+> +++ linux-2.6.13-rc2-mm1/fs/hfs/hfs_fs.h
+> @@ -9,7 +9,6 @@
+> #ifndef _LINUX_HFS_FS_H
+> #define _LINUX_HFS_FS_H
+> 
+> -#include <linux/version.h>
+> #include <linux/slab.h>
+> #include <linux/types.h>
+> #include <linux/buffer_head.h>
+> Index: linux-2.6.13-rc2-mm1/fs/hfs/inode.c
+> ===================================================================
+> --- linux-2.6.13-rc2-mm1.orig/fs/hfs/inode.c
+> +++ linux-2.6.13-rc2-mm1/fs/hfs/inode.c
+> @@ -12,7 +12,6 @@
+> */
+> 
+> #include <linux/pagemap.h>
+> -#include <linux/version.h>
+> #include <linux/mpage.h>
+> 
+> #include "hfs_fs.h"
 
-Read the help
-
-config X86_MCE
-        bool "Machine check support" if EMBEDDED
-        default y
-        help
-           Include a machine check error handler to report hardware errors.
-           This version will require the mcelog utility to decode some
-           machine check error logs. See
-           ftp://ftp.x86-64.org/pub/linux/tools/mcelog
-
-
-> From the source
-> code (arch/x86_64/kernel/mce.c) it sounds like some misc device with
-> MISC_MCELOG_MINOR 227 is registered (with name "mcelog"?), but there is
-> no such device under /dev.
-
-Your distribution is broken then. In fact it is supposed to run
-mcelog regularly from a cronjob to log machine check events into
-a disk log. Complain to them.
-
--Andi

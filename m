@@ -1,242 +1,339 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbVKEQdy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbVKEQek@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932108AbVKEQdy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 11:33:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbVKEQd3
+	id S932118AbVKEQek (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 11:34:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbVKEQej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 11:33:29 -0500
-Received: from moutng.kundenserver.de ([212.227.126.171]:34501 "EHLO
+	Sat, 5 Nov 2005 11:34:39 -0500
+Received: from moutng.kundenserver.de ([212.227.126.171]:6601 "EHLO
 	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1751264AbVKEQd0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 11:33:26 -0500
-Message-Id: <20051105162711.030288000@b551138y.boeblingen.de.ibm.com>
+	id S932111AbVKEQeg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 11:34:36 -0500
+Message-Id: <20051105162718.794133000@b551138y.boeblingen.de.ibm.com>
 References: <20051105162650.620266000@b551138y.boeblingen.de.ibm.com>
-Date: Sat, 05 Nov 2005 17:26:53 +0100
+Date: Sat, 05 Nov 2005 17:27:10 +0100
 From: Arnd Bergmann <arnd@arndb.de>
 To: linux-kernel@vger.kernel.org
-Cc: Christoph Hellwig <hch@lst.de>, netdev@vger.kernel.org,
-       Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 03/25] net: improve ioctl32 dev_ioctl handling
-Content-Disposition: inline; filename=compat-dev-ioctl.diff
+Cc: Christoph Hellwig <hch@lst.de>, khali@linux-fr.org,
+       lm-sensors@lm-sensors.org, Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 20/25] i2c: move ioctl32 code to i2c-dev.c
+Content-Disposition: inline; filename=i2c-ioctl.diff
 X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch tries to be a bit smarter about net device ioctl
-emulation. In particular, the wireless extensions are treated
-as a group in order to make the switch list a little shorter.
+The conversion functions for i2c ioctl commands are
+all related to code in i2cdev_ioctl, so introduce
+move the conversion to a new i2cdev_compat_ioctl function
+in the same file.
 
-CC: netdev@vger.kernel.org
+These can probably be improved by not using
+compat_alloc_user_space.
+
+In order to support I2C_SREAD, it might be necessary to
+introduce a compat_algo_control method for i2c devices.
+
+CC: khali@linux-fr.org
+CC: lm-sensors@lm-sensors.org
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-Index: linux-cg/net/compat.c
+Index: linux-cg/drivers/i2c/i2c-dev.c
 ===================================================================
---- linux-cg.orig/net/compat.c	2005-11-05 03:17:30.000000000 +0100
-+++ linux-cg/net/compat.c	2005-11-05 03:24:16.000000000 +0100
-@@ -854,7 +854,7 @@
- 	if (__put_user(data64, &u_ifreq64->ifr_ifru.ifru_data))
- 		return -EFAULT;
+--- linux-cg.orig/drivers/i2c/i2c-dev.c	2005-11-05 14:02:26.000000000 +0100
++++ linux-cg/drivers/i2c/i2c-dev.c	2005-11-05 14:31:35.000000000 +0100
+@@ -26,6 +26,8 @@
  
--	return sock_ioctl(file, cmd, (unsigned long) u_ifreq64);
-+	return dev_ioctl(cmd, u_ifreq64);
+ /* The I2C_RDWR ioctl code is written by Kolja Waschk <waschk@telos.de> */
+ 
++#include <linux/config.h>
++#include <linux/compat.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/fs.h>
+@@ -358,6 +360,142 @@
+ 	return 0;
  }
  
- static int dev_ifsioc(struct file *file, unsigned int cmd, unsigned long arg)
-@@ -1302,13 +1302,14 @@
- 	return err;
- }
- 
-+#ifdef WIRELESS_EXT
- struct compat_iw_point {
- 	compat_caddr_t pointer;
- 	__u16 length;
- 	__u16 flags;
- };
- 
--static int do_wireless_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-+static int do_wireless_ioctl(unsigned int cmd, unsigned long arg)
- {
- 	struct iwreq __user *iwr;
- 	struct iwreq __user *iwr_u;
-@@ -1343,8 +1344,9 @@
- 	    __put_user(flags, &iwp->flags))
- 		return -EFAULT;
- 
--	return sock_ioctl(file, cmd, (unsigned long) iwr);
-+	return dev_ioctl(cmd, iwr);
- }
-+#endif /* WIRELESS_EXT */
- 
- /* Since old style bridge ioctl's endup using SIOCDEVPRIVATE
-  * for some operations; this forces use of the newer bridge-utils that
-@@ -1363,16 +1365,43 @@
- 
- long compat_sock_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- {
--	if (cmd >= SIOCDEVPRIVATE && cmd <= (SIOCDEVPRIVATE + 15))
--		return siocdevprivate_ioctl(file, cmd, arg);
-+	struct socket *sock;
-+	int ret = -ENOIOCTLCMD;
- 
--	switch (cmd) {
-+	sock = file->private_data;
-+	if (cmd >= SIOCDEVPRIVATE && cmd <= (SIOCDEVPRIVATE + 15))
-+		ret = siocdevprivate_ioctl(file, cmd, arg);
-+#ifdef WIRELESS_EXT
-+	else if (cmd >= SIOCIWFIRST && cmd <= SIOCIWLAST)
-+		ret = do_wireless_ioctl(cmd, arg);
-+#endif
-+	else switch (cmd) {
- #define HANDLE_IOCTL(type, handler) \
--	case type: return handler(file, cmd, arg);
-+	case type: ret = handler(file, cmd, arg); break;
- #define COMPATIBLE_IOCTL(type) \
--	case type: return sock_ioctl(file, cmd, arg);
-+	case type: ret = sock_ioctl(file, cmd, arg); break;
- #define INVAL_IOCTL(type) \
--	case type: return -EINVAL;
-+	case type: ret = -EINVAL; break;
-+/* these are handled in sock_ioctl */
-+COMPATIBLE_IOCTL(FIOSETOWN)
-+COMPATIBLE_IOCTL(SIOCSPGRP)
-+COMPATIBLE_IOCTL(FIOGETOWN)
-+COMPATIBLE_IOCTL(SIOCGPGRP)
-+HANDLE_IOCTL(SIOCSIFBR, old_bridge_ioctl)
-+HANDLE_IOCTL(SIOCGIFBR, old_bridge_ioctl)
-+COMPATIBLE_IOCTL(SIOCBRADDBR)
-+COMPATIBLE_IOCTL(SIOCBRDELBR)
-+COMPATIBLE_IOCTL(SIOCGIFVLAN)
-+COMPATIBLE_IOCTL(SIOCSIFVLAN)
-+COMPATIBLE_IOCTL(SIOCADDDLCI)
-+COMPATIBLE_IOCTL(SIOCDELDLCI)
-+	default:
-+		if (sock->ops->compat_ioctl)
-+			ret = sock->ops->compat_ioctl(sock, cmd, arg);
++#ifdef CONFIG_COMPAT
++struct i2c_msg32 {
++	u16 addr;
++	u16 flags;
++	u16 len;
++	compat_caddr_t buf;
++};
++
++struct i2c_rdwr_ioctl_data32 {
++	compat_caddr_t msgs; /* struct i2c_msg __user *msgs */
++	u32 nmsgs;
++};
++
++struct i2c_smbus_ioctl_data32 {
++	u8 read_write;
++	u8 command;
++	u32 size;
++	compat_caddr_t data; /* union i2c_smbus_data *data */
++};
++
++struct i2c_rdwr_aligned {
++	struct i2c_rdwr_ioctl_data cmd;
++	struct i2c_msg msgs[0];
++};
++
++static int do_i2c_w_long(struct inode *inode, struct file *file,
++			unsigned int cmd, unsigned long arg)
++{
++	mm_segment_t old_fs = get_fs();
++	int err;
++	unsigned long val;
++
++	set_fs (KERNEL_DS);
++	err = i2cdev_ioctl(inode, file, cmd, (unsigned long)&val);
++	set_fs (old_fs);
++	if (!err && put_user(val, (u32 __user *)compat_ptr(arg)))
++		return -EFAULT;
++	return err;
++}
++
++static int do_i2c_rdwr_ioctl(struct inode *inode, struct file *file,
++				unsigned int cmd, unsigned long arg)
++{
++	struct i2c_rdwr_ioctl_data32	__user *udata = compat_ptr(arg);
++	struct i2c_rdwr_aligned		__user *tdata;
++	struct i2c_msg			__user *tmsgs;
++	struct i2c_msg32		__user *umsgs;
++	compat_caddr_t			datap;
++	int				nmsgs, i;
++
++	if (get_user(nmsgs, &udata->nmsgs))
++		return -EFAULT;
++	if (nmsgs > I2C_RDRW_IOCTL_MAX_MSGS)
++		return -EINVAL;
++
++	if (get_user(datap, &udata->msgs))
++		return -EFAULT;
++	umsgs = compat_ptr(datap);
++
++	tdata = compat_alloc_user_space(sizeof(*tdata) +
++				      nmsgs * sizeof(struct i2c_msg));
++	tmsgs = &tdata->msgs[0];
++
++	if (put_user(nmsgs, &tdata->cmd.nmsgs) ||
++	    put_user(tmsgs, &tdata->cmd.msgs))
++		return -EFAULT;
++
++	for (i = 0; i < nmsgs; i++) {
++		if (copy_in_user(&tmsgs[i].addr, &umsgs[i].addr, 3*sizeof(u16)))
++			return -EFAULT;
++		if (get_user(datap, &umsgs[i].buf) ||
++		    put_user(compat_ptr(datap), &tmsgs[i].buf))
++			return -EFAULT;
 +	}
++	return i2cdev_ioctl(inode, file, cmd, (unsigned long)tdata);
++}
 +
-+	if (ret == -ENOIOCTLCMD)
-+		switch (cmd) {
- HANDLE_IOCTL(SIOCGIFNAME, dev_ifname32)
- HANDLE_IOCTL(SIOCGIFCONF, dev_ifconf)
- HANDLE_IOCTL(SIOCGIFFLAGS, dev_ifsioc)
-@@ -1393,10 +1422,6 @@
- HANDLE_IOCTL(SIOCGIFADDR, dev_ifsioc)
- HANDLE_IOCTL(SIOCSIFADDR, dev_ifsioc)
- 
--/* ioctls used by appletalk ddp.c */
--HANDLE_IOCTL(SIOCATALKDIFADDR, dev_ifsioc)
--HANDLE_IOCTL(SIOCDIFADDR, dev_ifsioc)
--
- HANDLE_IOCTL(SIOCSARP, dev_ifsioc)
- HANDLE_IOCTL(SIOCDARP, dev_ifsioc)
- 
-@@ -1456,79 +1481,6 @@
- HANDLE_IOCTL(PPPIOCSCOMPRESS32, ppp_ioctl_trans)
- HANDLE_IOCTL(PPPIOCSPASS32, ppp_sock_fprog_ioctl_trans)
- HANDLE_IOCTL(PPPIOCSACTIVE32, ppp_sock_fprog_ioctl_trans)
--/* wireless */
--HANDLE_IOCTL(SIOCGIWRANGE, do_wireless_ioctl)
--HANDLE_IOCTL(SIOCSIWSPY, do_wireless_ioctl)
--HANDLE_IOCTL(SIOCGIWSPY, do_wireless_ioctl)
--HANDLE_IOCTL(SIOCSIWTHRSPY, do_wireless_ioctl)
--HANDLE_IOCTL(SIOCGIWTHRSPY, do_wireless_ioctl)
--HANDLE_IOCTL(SIOCGIWAPLIST, do_wireless_ioctl)
--HANDLE_IOCTL(SIOCGIWSCAN, do_wireless_ioctl)
--HANDLE_IOCTL(SIOCSIWESSID, do_wireless_ioctl)
--HANDLE_IOCTL(SIOCGIWESSID, do_wireless_ioctl)
--HANDLE_IOCTL(SIOCSIWNICKN, do_wireless_ioctl)
--HANDLE_IOCTL(SIOCGIWNICKN, do_wireless_ioctl)
--HANDLE_IOCTL(SIOCSIWENCODE, do_wireless_ioctl)
--HANDLE_IOCTL(SIOCGIWENCODE, do_wireless_ioctl)
--HANDLE_IOCTL(SIOCSIFBR, old_bridge_ioctl)
--HANDLE_IOCTL(SIOCGIFBR, old_bridge_ioctl)
--
--COMPATIBLE_IOCTL(FIOSETOWN)
--COMPATIBLE_IOCTL(SIOCSPGRP)
--COMPATIBLE_IOCTL(FIOGETOWN)
--COMPATIBLE_IOCTL(SIOCGPGRP)
--COMPATIBLE_IOCTL(SIOCATMARK)
--COMPATIBLE_IOCTL(SIOCSIFLINK)
--COMPATIBLE_IOCTL(SIOCSIFENCAP)
--COMPATIBLE_IOCTL(SIOCGIFENCAP)
--COMPATIBLE_IOCTL(SIOCSIFNAME)
--//COMPATIBLE_IOCTL(SIOCSARP)
--COMPATIBLE_IOCTL(SIOCGARP)
--//COMPATIBLE_IOCTL(SIOCDARP)
--COMPATIBLE_IOCTL(SIOCSRARP)
--COMPATIBLE_IOCTL(SIOCGRARP)
--COMPATIBLE_IOCTL(SIOCDRARP)
--COMPATIBLE_IOCTL(SIOCADDDLCI)
--COMPATIBLE_IOCTL(SIOCDELDLCI)
--COMPATIBLE_IOCTL(SIOCGMIIPHY)
--COMPATIBLE_IOCTL(SIOCGMIIREG)
--COMPATIBLE_IOCTL(SIOCSMIIREG)
--COMPATIBLE_IOCTL(SIOCGIFVLAN)
--COMPATIBLE_IOCTL(SIOCSIFVLAN)
--COMPATIBLE_IOCTL(SIOCBRADDBR)
--COMPATIBLE_IOCTL(SIOCBRDELBR)
--/* wireless */
--COMPATIBLE_IOCTL(SIOCSIWCOMMIT)
--COMPATIBLE_IOCTL(SIOCGIWNAME)
--COMPATIBLE_IOCTL(SIOCSIWNWID)
--COMPATIBLE_IOCTL(SIOCGIWNWID)
--COMPATIBLE_IOCTL(SIOCSIWFREQ)
--COMPATIBLE_IOCTL(SIOCGIWFREQ)
--COMPATIBLE_IOCTL(SIOCSIWMODE)
--COMPATIBLE_IOCTL(SIOCGIWMODE)
--COMPATIBLE_IOCTL(SIOCSIWSENS)
--COMPATIBLE_IOCTL(SIOCGIWSENS)
--COMPATIBLE_IOCTL(SIOCSIWRANGE)
--COMPATIBLE_IOCTL(SIOCSIWPRIV)
--COMPATIBLE_IOCTL(SIOCGIWPRIV)
--COMPATIBLE_IOCTL(SIOCSIWSTATS)
--COMPATIBLE_IOCTL(SIOCGIWSTATS)
--COMPATIBLE_IOCTL(SIOCSIWAP)
--COMPATIBLE_IOCTL(SIOCGIWAP)
--COMPATIBLE_IOCTL(SIOCSIWSCAN)
--COMPATIBLE_IOCTL(SIOCSIWRATE)
--COMPATIBLE_IOCTL(SIOCGIWRATE)
--COMPATIBLE_IOCTL(SIOCSIWRTS)
--COMPATIBLE_IOCTL(SIOCGIWRTS)
--COMPATIBLE_IOCTL(SIOCSIWFRAG)
--COMPATIBLE_IOCTL(SIOCGIWFRAG)
--COMPATIBLE_IOCTL(SIOCSIWTXPOW)
--COMPATIBLE_IOCTL(SIOCGIWTXPOW)
--COMPATIBLE_IOCTL(SIOCSIWRETRY)
--COMPATIBLE_IOCTL(SIOCGIWRETRY)
--COMPATIBLE_IOCTL(SIOCSIWPOWER)
--COMPATIBLE_IOCTL(SIOCGIWPOWER)
--/* PPP stuff */
- COMPATIBLE_IOCTL(PPPIOCGFLAGS)
- COMPATIBLE_IOCTL(PPPIOCSFLAGS)
- COMPATIBLE_IOCTL(PPPIOCGASYNCMAP)
-@@ -1561,6 +1513,25 @@
- /* PPPOX */
- COMPATIBLE_IOCTL(PPPOEIOCSFWD)
- COMPATIBLE_IOCTL(PPPOEIOCDFWD)
++static int do_i2c_smbus_ioctl(struct inode *inode, struct file *file,
++				unsigned int cmd, unsigned long arg)
++{
++	struct i2c_smbus_ioctl_data	__user *tdata;
++	struct i2c_smbus_ioctl_data32	__user *udata;
++	compat_caddr_t			datap;
 +
-+/* ioctls used by appletalk ddp.c */
-+HANDLE_IOCTL(SIOCATALKDIFADDR, dev_ifsioc)
-+HANDLE_IOCTL(SIOCDIFADDR, dev_ifsioc)
++	tdata = compat_alloc_user_space(sizeof(*tdata));
++	if (tdata == NULL)
++		return -ENOMEM;
++	if (!access_ok(VERIFY_WRITE, tdata, sizeof(*tdata)))
++		return -EFAULT;
 +
-+COMPATIBLE_IOCTL(SIOCATMARK)
-+COMPATIBLE_IOCTL(SIOCSIFLINK)
-+COMPATIBLE_IOCTL(SIOCSIFENCAP)
-+COMPATIBLE_IOCTL(SIOCGIFENCAP)
-+COMPATIBLE_IOCTL(SIOCSIFNAME)
-+//COMPATIBLE_IOCTL(SIOCSARP)
-+COMPATIBLE_IOCTL(SIOCGARP)
-+//COMPATIBLE_IOCTL(SIOCDARP)
-+COMPATIBLE_IOCTL(SIOCSRARP)
-+COMPATIBLE_IOCTL(SIOCGRARP)
-+COMPATIBLE_IOCTL(SIOCDRARP)
-+COMPATIBLE_IOCTL(SIOCGMIIPHY)
-+COMPATIBLE_IOCTL(SIOCGMIIREG)
-+COMPATIBLE_IOCTL(SIOCSMIIREG)
- 	}
--	return -ENOIOCTLCMD;
++	udata = compat_ptr(arg);
++	if (!access_ok(VERIFY_READ, udata, sizeof(*udata)))
++		return -EFAULT;
++
++	if (__copy_in_user(&tdata->read_write, &udata->read_write, 2 * sizeof(u8)))
++		return -EFAULT;
++	if (__copy_in_user(&tdata->size, &udata->size, 2 * sizeof(u32)))
++		return -EFAULT;
++	if (__get_user(datap, &udata->data) ||
++	    __put_user(compat_ptr(datap), &tdata->data))
++		return -EFAULT;
++
++	return i2cdev_ioctl(inode, file, cmd, (unsigned long)tdata);
++}
++
++static long i2cdev_compat_ioctl(struct file *file, unsigned int cmd,
++				unsigned long arg)
++{
++	struct inode *inode = file->f_dentry->d_inode;
++	int ret = -ENOIOCTLCMD;
++
++	lock_kernel();
++	switch (cmd) {
++	case I2C_FUNCS:
++		ret = do_i2c_w_long(inode, file, cmd, arg);
++		break;
++	case I2C_RDWR:
++		ret = do_i2c_rdwr_ioctl(inode, file, cmd, arg);
++		break;
++	case I2C_SMBUS:
++		ret = do_i2c_smbus_ioctl(inode, file, cmd, arg);
++		break;
++	case I2C_SLAVE:
++	case I2C_SLAVE_FORCE:
++	case I2C_TENBIT:
++	case I2C_PEC:
++	case I2C_RETRIES:
++	case I2C_TIMEOUT:
++		arg = (unsigned long) compat_ptr(arg);
++		ret = i2cdev_ioctl(inode, file, cmd, arg);
++	}
++	unlock_kernel();
 +	return ret;
++}
++#endif
++
+ static int i2cdev_open(struct inode *inode, struct file *file)
+ {
+ 	unsigned int minor = iminor(inode);
+@@ -404,6 +542,9 @@
+ 	.read		= i2cdev_read,
+ 	.write		= i2cdev_write,
+ 	.ioctl		= i2cdev_ioctl,
++#ifdef CONFIG_COMPAT
++	.compat_ioctl	= i2cdev_compat_ioctl,
++#endif
+ 	.open		= i2cdev_open,
+ 	.release	= i2cdev_release,
+ };
+Index: linux-cg/fs/compat_ioctl.c
+===================================================================
+--- linux-cg.orig/fs/compat_ioctl.c	2005-11-05 14:28:04.000000000 +0100
++++ linux-cg/fs/compat_ioctl.c	2005-11-05 14:28:05.000000000 +0100
+@@ -427,97 +427,6 @@
+         return err;
  }
+ 
+-/*
+- * I2C layer ioctls
+- */
+-
+-struct i2c_msg32 {
+-	u16 addr;
+-	u16 flags;
+-	u16 len;
+-	compat_caddr_t buf;
+-};
+-
+-struct i2c_rdwr_ioctl_data32 {
+-	compat_caddr_t msgs; /* struct i2c_msg __user *msgs */
+-	u32 nmsgs;
+-};
+-
+-struct i2c_smbus_ioctl_data32 {
+-	u8 read_write;
+-	u8 command;
+-	u32 size;
+-	compat_caddr_t data; /* union i2c_smbus_data *data */
+-};
+-
+-struct i2c_rdwr_aligned {
+-	struct i2c_rdwr_ioctl_data cmd;
+-	struct i2c_msg msgs[0];
+-};
+-
+-static int do_i2c_rdwr_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
+-{
+-	struct i2c_rdwr_ioctl_data32	__user *udata = compat_ptr(arg);
+-	struct i2c_rdwr_aligned		__user *tdata;
+-	struct i2c_msg			__user *tmsgs;
+-	struct i2c_msg32		__user *umsgs;
+-	compat_caddr_t			datap;
+-	int				nmsgs, i;
+-
+-	if (get_user(nmsgs, &udata->nmsgs))
+-		return -EFAULT;
+-	if (nmsgs > I2C_RDRW_IOCTL_MAX_MSGS)
+-		return -EINVAL;
+-
+-	if (get_user(datap, &udata->msgs))
+-		return -EFAULT;
+-	umsgs = compat_ptr(datap);
+-
+-	tdata = compat_alloc_user_space(sizeof(*tdata) +
+-				      nmsgs * sizeof(struct i2c_msg));
+-	tmsgs = &tdata->msgs[0];
+-
+-	if (put_user(nmsgs, &tdata->cmd.nmsgs) ||
+-	    put_user(tmsgs, &tdata->cmd.msgs))
+-		return -EFAULT;
+-
+-	for (i = 0; i < nmsgs; i++) {
+-		if (copy_in_user(&tmsgs[i].addr, &umsgs[i].addr, 3*sizeof(u16)))
+-			return -EFAULT;
+-		if (get_user(datap, &umsgs[i].buf) ||
+-		    put_user(compat_ptr(datap), &tmsgs[i].buf))
+-			return -EFAULT;
+-	}
+-	return sys_ioctl(fd, cmd, (unsigned long)tdata);
+-}
+-
+-static int do_i2c_smbus_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
+-{
+-	struct i2c_smbus_ioctl_data	__user *tdata;
+-	struct i2c_smbus_ioctl_data32	__user *udata;
+-	compat_caddr_t			datap;
+-
+-	tdata = compat_alloc_user_space(sizeof(*tdata));
+-	if (tdata == NULL)
+-		return -ENOMEM;
+-	if (!access_ok(VERIFY_WRITE, tdata, sizeof(*tdata)))
+-		return -EFAULT;
+-
+-	udata = compat_ptr(arg);
+-	if (!access_ok(VERIFY_READ, udata, sizeof(*udata)))
+-		return -EFAULT;
+-
+-	if (__copy_in_user(&tdata->read_write, &udata->read_write, 2 * sizeof(u8)))
+-		return -EFAULT;
+-	if (__copy_in_user(&tdata->size, &udata->size, 2 * sizeof(u32)))
+-		return -EFAULT;
+-	if (__get_user(datap, &udata->data) ||
+-	    __put_user(compat_ptr(datap), &tdata->data))
+-		return -EFAULT;
+-
+-	return sys_ioctl(fd, cmd, (unsigned long)tdata);
+-}
+-
+ #undef CODE
+ #endif
+ 
+@@ -534,10 +443,6 @@
+ COMPATIBLE_IOCTL(TIOCGLTC)
+ COMPATIBLE_IOCTL(TIOCSLTC)
+ #endif
+-/* i2c */
+-HANDLE_IOCTL(I2C_FUNCS, w_long)
+-HANDLE_IOCTL(I2C_RDWR, do_i2c_rdwr_ioctl)
+-HANDLE_IOCTL(I2C_SMBUS, do_i2c_smbus_ioctl)
+ 
+ #undef DECLARES
+ #endif
+Index: linux-cg/include/linux/compat_ioctl.h
+===================================================================
+--- linux-cg.orig/include/linux/compat_ioctl.h	2005-11-05 14:28:04.000000000 +0100
++++ linux-cg/include/linux/compat_ioctl.h	2005-11-05 14:28:05.000000000 +0100
+@@ -466,13 +466,6 @@
+ COMPATIBLE_IOCTL(NBD_PRINT_DEBUG)
+ ULONG_IOCTL(NBD_SET_SIZE_BLOCKS)
+ COMPATIBLE_IOCTL(NBD_DISCONNECT)
+-/* i2c */
+-COMPATIBLE_IOCTL(I2C_SLAVE)
+-COMPATIBLE_IOCTL(I2C_SLAVE_FORCE)
+-COMPATIBLE_IOCTL(I2C_TENBIT)
+-COMPATIBLE_IOCTL(I2C_PEC)
+-COMPATIBLE_IOCTL(I2C_RETRIES)
+-COMPATIBLE_IOCTL(I2C_TIMEOUT)
+ /* hiddev */
+ COMPATIBLE_IOCTL(HIDIOCGVERSION)
+ COMPATIBLE_IOCTL(HIDIOCAPPLICATION)
 
 --
 

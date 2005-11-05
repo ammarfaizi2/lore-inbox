@@ -1,47 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751460AbVKECtt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751464AbVKEC4X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751460AbVKECtt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 21:49:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbVKECtt
+	id S1751464AbVKEC4X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 21:56:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751465AbVKEC4X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 21:49:49 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:38814
+	Fri, 4 Nov 2005 21:56:23 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:62179
 	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1751460AbVKECtt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 21:49:49 -0500
+	id S1751464AbVKEC4W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 21:56:22 -0500
 From: Rob Landley <rob@landley.net>
 Organization: Boundaries Unlimited
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-Date: Fri, 4 Nov 2005 20:48:57 -0600
+To: azarah@nosferatu.za.org
+Subject: Re: initramfs for /dev/console with udev?
+Date: Fri, 4 Nov 2005 20:56:00 -0600
 User-Agent: KMail/1.8
-Cc: Andy Nelson <andy@thermo.lanl.gov>, mingo@elte.hu, akpm@osdl.org,
-       arjan@infradead.org, arjanv@infradead.org, haveblue@us.ibm.com,
-       kravetz@us.ibm.com, lhms-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, mbligh@mbligh.org,
-       mel@csn.ul.ie, nickpiggin@yahoo.com.au
-References: <20051104210418.BC56F184739@thermo.lanl.gov> <Pine.LNX.4.64.0511041310130.28804@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0511041310130.28804@g5.osdl.org>
+Cc: Roland Dreier <rolandd@cisco.com>,
+       Robert Schwebel <r.schwebel@pengutronix.de>,
+       linux-kernel@vger.kernel.org
+References: <20051102222030.GP23316@pengutronix.de> <200511041710.36752.rob@landley.net> <1131150394.9669.11.camel@lycan.lan>
+In-Reply-To: <1131150394.9669.11.camel@lycan.lan>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200511042048.59310.rob@landley.net>
+Message-Id: <200511042056.00564.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 04 November 2005 15:22, Linus Torvalds wrote:
-> Now, if you want _most_ of memory to be available for hugepages, you
-> really will always require a special boot option, and a friendly machine
-> maintainer. Limiting things like inodes, process descriptors etc to a
-> smallish percentage of memory would not be acceptable in general.
+On Friday 04 November 2005 18:26, Martin Schlemmer wrote:
+> > *shrug*.  It only does static linking and uClibc can static link too. 
+> > But there are no plans to bundle uClibc with the kernel. :)
+>
+> It can link dynamic ...
 
-But it might make it a lot easier for User Mode Linux to give unused memory 
-back to the host system via madvise(DONT_NEED).
-
-(Assuming there's some way to beat the page cache into submission and actually 
-free up space.  If there was an option to tell the page cache to stay the 
-heck out of the hugepage zone, it would be just about perfect...)
+Cool.  As I said, been a while...
 
 Rob

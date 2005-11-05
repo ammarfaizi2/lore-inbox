@@ -1,67 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbVKENrq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbVKENsP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750863AbVKENrq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 08:47:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbVKENrq
+	id S1750869AbVKENsP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 08:48:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbVKENsP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 08:47:46 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:13322
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S1750863AbVKENrp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 08:47:45 -0500
-Date: Sat, 5 Nov 2005 14:47:27 +0100
-From: Andrea Arcangeli <andrea@cpushare.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: disable tsc with seccomp
-Message-ID: <20051105134727.GF18861@opteron.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 5 Nov 2005 08:48:15 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:53669 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP
+	id S1750869AbVKENsO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 08:48:14 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Edgar Hucek <hostmaster@ed-soft.at>
+Subject: Re: New Linux Development Model
+Date: Sat, 5 Nov 2005 13:47:54 +0000
+User-Agent: KMail/1.8.92
+Cc: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>
+References: <436C7E77.3080601@ed-soft.at> <20051105122958.7a2cd8c6.khali@linux-fr.org> <436CB162.5070100@ed-soft.at>
+In-Reply-To: <436CB162.5070100@ed-soft.at>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200511051347.54833.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Saturday 05 November 2005 13:19, Edgar Hucek wrote:
+> Hi.
+>
+> Sorry for not posting my Name.
+>
+> Maybe you don't understand what i wanted to say or it's my bad english.
+> The ipw2200 driver was only an example. I had also problems with, vmware,
+> unionfs...
 
-This changeset is backing out an useful feature I implemented some month
-ago:
+Read the document linked to by Jean. It explains why a volatile API is 
+ultimately beneficial to the Linux development process.
 
-        http://kernel.org/hg/linux-2.6/?cs=2fd4e5f089df
+It's frustrating for vendors and maintainers to keep their code up to date 
+with the latest kernel, but if it's done incrementally after Linus releases 
+(or during the very lengthy RC process), it's usually very easy.
 
-Anything that can strengthen security is needed, the covert channels are
-theoretically possible and this is a fact, you don't need hyperthreading
-for that.
+Also, you're gelling together many projects which have completely different 
+reasons for breaking across kernel revisions.
 
-I tried to convince you a few times privately but I failed, and now that
-you made mainline less secure, I have to raise the topic on l-k since
-all other attemps to convince you privately already failed.
+ipw2200 "works" in 2.6.14, it's just the maintainer has opted to use a "stable 
+version" which lacks experimental features while ieee80211 gets up to 
+scratch.
 
-As I told you a few times, in real life any admin that doesn't notice a
-task running at 100% cpu load for months means there are more serious
-problems in that server, than the risk of covert channel. Because of
-that, covert channels remains mostly a theoretical problem in servers.
+OTOH, unionfs is poorly maintained and is a particularly sore example of how 
+the linux development model is detrimental to external module development.
 
-But with the CPUShare usage of seccomp, running untrusted bycode for
-months at 100% cpu load is the norm, so we must disable all high
-precision timing information that we can disable.
+There are people constantly working to make binary modules like VMWare, NVIDIA 
+and ATI work under the newest kernels. Just google it. Ultimately we can't 
+allow ourselves to be held down by slow-moving binary vendors. It's too 
+inefficient (not to mention of questionable ethics).
 
-Infact we should disable MISC_ENABLE too at runtime (if possible).
+-- 
+Cheers,
+Alistair.
 
-Furthermore i386 still has the tsc disable with seccomp, so the fact my
-patch is still applied to i386 and has been backed out only of x86-64 is
-a nosense. Either we back out both (and I strongly disagree with that),
-or we keep both applied (this is what I'm suggesting). Current status
-makes no sense to me.
-
-If the end result of this discussion will be that both patches are
-backed out, I'll rewrite them with a config option (turned off by
-default). So the CPUShare users that wants to be safer, can enable it
-when compiling the kernel (plus crossing fingers in the hope that
-distros would also enable it before compiling their kernels). A config
-option would make it acceptable even in the worst case I hope.
-
-I think it would have been nicer from your part to at least make it a
-config option instead of dropping it right away, especially after I
-explicitly asked you not to drop it.
-
-Thanks.
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

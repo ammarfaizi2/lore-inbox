@@ -1,409 +1,217 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbVKEQev@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbVKEQgT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932126AbVKEQev (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 11:34:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932105AbVKEQet
+	id S932111AbVKEQgT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 11:36:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbVKEQep
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 11:34:49 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:11206 "EHLO
+	Sat, 5 Nov 2005 11:34:45 -0500
+Received: from moutng.kundenserver.de ([212.227.126.186]:46797 "EHLO
 	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932104AbVKEQeY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 11:34:24 -0500
-Message-Id: <20051105162712.645517000@b551138y.boeblingen.de.ibm.com>
+	id S932106AbVKEQed (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 11:34:33 -0500
+Message-Id: <20051105162720.973028000@b551138y.boeblingen.de.ibm.com>
 References: <20051105162650.620266000@b551138y.boeblingen.de.ibm.com>
-Date: Sat, 05 Nov 2005 17:26:55 +0100
+Date: Sat, 05 Nov 2005 17:27:15 +0100
 From: Arnd Bergmann <arnd@arndb.de>
 To: linux-kernel@vger.kernel.org
-Cc: Christoph Hellwig <hch@lst.de>, linux-ppp@vger.kernel.org,
-       netdev@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 05/25] net: move ppp specific ioctl32 handlers
-Content-Disposition: inline; filename=ppp-ioctl.diff
+Cc: Christoph Hellwig <hch@lst.de>, maxk@qualcomm.com, marcel@holtmann.org,
+       bluez-devel@lists.sourceforge.net, Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 25/25] bluetooth: integrate ioctl32 handling
+Content-Disposition: inline; filename=bluetooth-ioctl.diff
 X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This moves all ioctl32 code for ppp close to the
-native ioctl implementation.
+All bluetooth ioctl numbers are compatible for 32 bit,
+but some of them are not defined under include/linux,
+so we needed some hacks to make it work with compat_ioctl.
 
-CC: linux-ppp@vger.kernel.org
-CC: netdev@vger.kernel.org
+This patch moves the compat_ioctl code into the
+respective bluetooth device drivers for simplification.
+
+CC: maxk@qualcomm.com
+CC: marcel@holtmann.org
+CC: bluez-devel@lists.sf.net
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-Index: linux-2.6.14-rc/drivers/net/ppp_generic.c
+Index: linux-cg/drivers/bluetooth/hci_ldisc.c
 ===================================================================
---- linux-2.6.14-rc.orig/drivers/net/ppp_generic.c	2005-11-05 02:41:10.000000000 +0100
-+++ linux-2.6.14-rc/drivers/net/ppp_generic.c	2005-11-05 02:41:29.000000000 +0100
-@@ -46,6 +46,8 @@
- #include <linux/rwsem.h>
- #include <linux/stddef.h>
- #include <linux/device.h>
-+#include <linux/compat.h>
-+
- #include <net/slhc_vj.h>
- #include <asm/atomic.h>
- 
-@@ -837,12 +839,189 @@
+--- linux-cg.orig/drivers/bluetooth/hci_ldisc.c	2005-11-05 02:44:35.000000000 +0100
++++ linux-cg/drivers/bluetooth/hci_ldisc.c	2005-11-05 02:55:29.000000000 +0100
+@@ -507,6 +507,25 @@
  	return err;
  }
  
 +#ifdef CONFIG_COMPAT
-+/* FIXME: These could be better integrated into the driver */
-+
-+struct sock_fprog32 {
-+	unsigned short	len;
-+	compat_caddr_t	filter;
-+};
-+
-+#define PPPIOCSPASS32	_IOW('t', 71, struct sock_fprog32)
-+#define PPPIOCSACTIVE32	_IOW('t', 70, struct sock_fprog32)
-+
-+static int ppp_sock_fprog_ioctl_trans(struct file *file, unsigned int cmd, unsigned long arg)
-+{
-+	struct sock_fprog32 __user *u_fprog32 = compat_ptr(arg);
-+	struct sock_fprog __user *u_fprog64 = compat_alloc_user_space(sizeof(struct sock_fprog));
-+	void __user *fptr64;
-+	u32 fptr32;
-+	u16 flen;
-+
-+	if (get_user(flen, &u_fprog32->len) ||
-+	    get_user(fptr32, &u_fprog32->filter))
-+		return -EFAULT;
-+
-+	fptr64 = compat_ptr(fptr32);
-+
-+	if (put_user(flen, &u_fprog64->len) ||
-+	    put_user(fptr64, &u_fprog64->filter))
-+		return -EFAULT;
-+
-+	if (cmd == PPPIOCSPASS32)
-+		cmd = PPPIOCSPASS;
-+	else
-+		cmd = PPPIOCSACTIVE;
-+
-+	return ppp_ioctl(file->f_dentry->d_inode, file, cmd,
-+			 (unsigned long) u_fprog64);
-+}
-+
-+struct ppp_option_data32 {
-+	compat_caddr_t	ptr;
-+	u32		length;
-+	compat_int_t	transmit;
-+};
-+#define PPPIOCSCOMPRESS32	_IOW('t', 77, struct ppp_option_data32)
-+
-+struct ppp_idle32 {
-+	compat_time_t xmit_idle;
-+	compat_time_t recv_idle;
-+};
-+#define PPPIOCGIDLE32		_IOR('t', 63, struct ppp_idle32)
-+
-+static int ppp_gidle(struct file *file, unsigned int cmd, unsigned long arg)
-+{
-+	struct ppp_idle __user *idle;
-+	struct ppp_idle32 __user *idle32;
-+	__kernel_time_t xmit, recv;
-+	int err;
-+
-+	idle = compat_alloc_user_space(sizeof(*idle));
-+	idle32 = compat_ptr(arg);
-+
-+	err = ppp_ioctl(file->f_dentry->d_inode, file, PPPIOCGIDLE, (unsigned long) idle);
-+
-+	if (!err) {
-+		if (get_user(xmit, &idle->xmit_idle) ||
-+		    get_user(recv, &idle->recv_idle) ||
-+		    put_user(xmit, &idle32->xmit_idle) ||
-+		    put_user(recv, &idle32->recv_idle))
-+			err = -EFAULT;
-+	}
-+	return err;
-+}
-+
-+static int ppp_scompress(struct file *file, unsigned int cmd, unsigned long arg)
-+{
-+	struct ppp_option_data __user *odata;
-+	struct ppp_option_data32 __user *odata32;
-+	__u32 data;
-+	void __user *datap;
-+
-+	odata = compat_alloc_user_space(sizeof(*odata));
-+	odata32 = compat_ptr(arg);
-+
-+	if (get_user(data, &odata32->ptr))
-+		return -EFAULT;
-+
-+	datap = compat_ptr(data);
-+	if (put_user(datap, &odata->ptr))
-+		return -EFAULT;
-+
-+	if (copy_in_user(&odata->length, &odata32->length,
-+			 sizeof(__u32) + sizeof(int)))
-+		return -EFAULT;
-+
-+	return ppp_ioctl(file->f_dentry->d_inode, file, PPPIOCSCOMPRESS, (unsigned long) odata);
-+}
-+
-+static int ppp_ioctl_trans(struct file *file, unsigned int cmd, unsigned long arg)
-+{
-+	int err;
-+
-+	switch (cmd) {
-+	case PPPIOCGIDLE32:
-+		err = ppp_gidle(file, cmd, arg);
-+		break;
-+
-+	case PPPIOCSCOMPRESS32:
-+		err = ppp_scompress(file, cmd, arg);
-+		break;
-+
-+	default:
-+		do {
-+			static int count;
-+			if (++count <= 20)
-+				printk("ppp_ioctl: Unknown cmd(%08x) arg(%08x)\n",
-+				       (unsigned int)cmd, (unsigned int)arg);
-+		} while(0);
-+		err = -EINVAL;
-+		break;
-+	};
-+
-+	return err;
-+}
-+
-+static long ppp_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
++static long hci_uart_tty_compat_ioctl(struct tty_struct *tty,
++		struct file *file, unsigned int cmd, unsigned long arg)
 +{
 +	int ret;
-+	ret = -ENOIOCTLCMD;
-+
-+	lock_kernel();
 +	switch (cmd) {
-+	case PPPIOCGIDLE32:
-+	case PPPIOCSCOMPRESS32:
-+		ret = ppp_ioctl_trans(file, cmd, arg);
++	case HCIUARTSETPROTO:
++	case HCIUARTGETPROTO:
++		lock_kernel();
++		ret = hci_uart_tty_ioctl(tty, file, cmd, arg);
++		unlock_kernel();
 +		break;
-+
-+	case PPPIOCSPASS32:
-+	case PPPIOCSACTIVE32:
-+		ret = ppp_sock_fprog_ioctl_trans(file, cmd, arg);
-+		break;
-+
-+	case PPPIOCGFLAGS:
-+	case PPPIOCSFLAGS:
-+	case PPPIOCGASYNCMAP:
-+	case PPPIOCSASYNCMAP:
-+	case PPPIOCGUNIT:
-+	case PPPIOCGRASYNCMAP:
-+	case PPPIOCSRASYNCMAP:
-+	case PPPIOCGMRU:
-+	case PPPIOCSMRU:
-+	case PPPIOCSMAXCID:
-+	case PPPIOCGXASYNCMAP:
-+	case PPPIOCSXASYNCMAP:
-+	case PPPIOCXFERUNIT:
-+	case PPPIOCGNPMODE:
-+	case PPPIOCSNPMODE:
-+	case PPPIOCGDEBUG:
-+	case PPPIOCSDEBUG:
-+	case PPPIOCNEWUNIT:
-+	case PPPIOCATTACH:
-+	case PPPIOCDETACH:
-+	case PPPIOCSMRRU:
-+	case PPPIOCCONNECT:
-+	case PPPIOCDISCONN:
-+	case PPPIOCATTCHAN:
-+	case PPPIOCGCHAN:
-+		ret = ppp_ioctl(file->f_dentry->d_inode, file, cmd, arg);
-+		break;
++	default:
++		ret = -ENOIOCTLCMD;
 +	}
-+	unlock_kernel();
 +	return ret;
 +}
 +#endif
 +
- static struct file_operations ppp_device_fops = {
- 	.owner		= THIS_MODULE,
- 	.read		= ppp_read,
- 	.write		= ppp_write,
- 	.poll		= ppp_poll,
- 	.ioctl		= ppp_ioctl,
+ /*
+  * We don't provide read/write/poll interface for user space.
+  */
+@@ -545,6 +564,9 @@
+ 	hci_uart_ldisc.read		= hci_uart_tty_read;
+ 	hci_uart_ldisc.write		= hci_uart_tty_write;
+ 	hci_uart_ldisc.ioctl		= hci_uart_tty_ioctl;
 +#ifdef CONFIG_COMPAT
-+	.compat_ioctl	= ppp_compat_ioctl,
++	hci_uart_ldisc.compat_ioctl	= hci_uart_tty_compat_ioctl;
 +#endif
- 	.open		= ppp_open,
- 	.release	= ppp_release
- };
-Index: linux-2.6.14-rc/net/compat.c
+ 	hci_uart_ldisc.poll		= hci_uart_tty_poll;
+ 	hci_uart_ldisc.receive_room	= hci_uart_tty_room;
+ 	hci_uart_ldisc.receive_buf	= hci_uart_tty_receive;
+Index: linux-cg/fs/compat_ioctl.c
 ===================================================================
---- linux-2.6.14-rc.orig/net/compat.c	2005-11-05 02:41:28.000000000 +0100
-+++ linux-2.6.14-rc/net/compat.c	2005-11-05 02:41:29.000000000 +0100
-@@ -1016,126 +1016,6 @@
- 	return ret;
+--- linux-cg.orig/fs/compat_ioctl.c	2005-11-05 02:54:26.000000000 +0100
++++ linux-cg/fs/compat_ioctl.c	2005-11-05 02:54:31.000000000 +0100
+@@ -164,25 +164,6 @@
+ 	return -EINVAL;
  }
  
--struct sock_fprog32 {
--	unsigned short	len;
--	compat_caddr_t	filter;
--};
+-/* Bluetooth ioctls */
+-#define HCIUARTSETPROTO	_IOW('U', 200, int)
+-#define HCIUARTGETPROTO	_IOR('U', 201, int)
 -
--#define PPPIOCSPASS32	_IOW('t', 71, struct sock_fprog32)
--#define PPPIOCSACTIVE32	_IOW('t', 70, struct sock_fprog32)
+-#define BNEPCONNADD	_IOW('B', 200, int)
+-#define BNEPCONNDEL	_IOW('B', 201, int)
+-#define BNEPGETCONNLIST	_IOR('B', 210, int)
+-#define BNEPGETCONNINFO	_IOR('B', 211, int)
 -
--static int ppp_sock_fprog_ioctl_trans(struct file *file, unsigned int cmd, unsigned long arg)
--{
--	struct sock_fprog32 __user *u_fprog32 = compat_ptr(arg);
--	struct sock_fprog __user *u_fprog64 = compat_alloc_user_space(sizeof(struct sock_fprog));
--	void __user *fptr64;
--	u32 fptr32;
--	u16 flen;
+-#define CMTPCONNADD	_IOW('C', 200, int)
+-#define CMTPCONNDEL	_IOW('C', 201, int)
+-#define CMTPGETCONNLIST	_IOR('C', 210, int)
+-#define CMTPGETCONNINFO	_IOR('C', 211, int)
 -
--	if (get_user(flen, &u_fprog32->len) ||
--	    get_user(fptr32, &u_fprog32->filter))
--		return -EFAULT;
+-#define HIDPCONNADD	_IOW('H', 200, int)
+-#define HIDPCONNDEL	_IOW('H', 201, int)
+-#define HIDPGETCONNLIST	_IOR('H', 210, int)
+-#define HIDPGETCONNINFO	_IOR('H', 211, int)
 -
--	fptr64 = compat_ptr(fptr32);
--
--	if (put_user(flen, &u_fprog64->len) ||
--	    put_user(fptr64, &u_fprog64->filter))
--		return -EFAULT;
--
--	if (cmd == PPPIOCSPASS32)
--		cmd = PPPIOCSPASS;
--	else
--		cmd = PPPIOCSACTIVE;
--
--	return sock_ioctl(file, cmd, (unsigned long) u_fprog64);
--}
--
--struct ppp_option_data32 {
--	compat_caddr_t	ptr;
--	u32			length;
--	compat_int_t		transmit;
--};
--#define PPPIOCSCOMPRESS32	_IOW('t', 77, struct ppp_option_data32)
--
--struct ppp_idle32 {
--	compat_time_t xmit_idle;
--	compat_time_t recv_idle;
--};
--#define PPPIOCGIDLE32		_IOR('t', 63, struct ppp_idle32)
--
--static int ppp_gidle(struct file *file, unsigned int cmd, unsigned long arg)
--{
--	struct ppp_idle __user *idle;
--	struct ppp_idle32 __user *idle32;
--	__kernel_time_t xmit, recv;
--	int err;
--
--	idle = compat_alloc_user_space(sizeof(*idle));
--	idle32 = compat_ptr(arg);
--
--	err = sock_ioctl(file, PPPIOCGIDLE, (unsigned long) idle);
--
--	if (!err) {
--		if (get_user(xmit, &idle->xmit_idle) ||
--		    get_user(recv, &idle->recv_idle) ||
--		    put_user(xmit, &idle32->xmit_idle) ||
--		    put_user(recv, &idle32->recv_idle))
--			err = -EFAULT;
--	}
--	return err;
--}
--
--static int ppp_scompress(struct file *file, unsigned int cmd, unsigned long arg)
--{
--	struct ppp_option_data __user *odata;
--	struct ppp_option_data32 __user *odata32;
--	__u32 data;
--	void __user *datap;
--
--	odata = compat_alloc_user_space(sizeof(*odata));
--	odata32 = compat_ptr(arg);
--
--	if (get_user(data, &odata32->ptr))
--		return -EFAULT;
--
--	datap = compat_ptr(data);
--	if (put_user(datap, &odata->ptr))
--		return -EFAULT;
--
--	if (copy_in_user(&odata->length, &odata32->length,
--			 sizeof(__u32) + sizeof(int)))
--		return -EFAULT;
--
--	return sock_ioctl(file, PPPIOCSCOMPRESS, (unsigned long) odata);
--}
--
--static int ppp_ioctl_trans(struct file *file, unsigned int cmd, unsigned long arg)
--{
--	int err;
--
--	switch (cmd) {
--	case PPPIOCGIDLE32:
--		err = ppp_gidle(file, cmd, arg);
--		break;
--
--	case PPPIOCSCOMPRESS32:
--		err = ppp_scompress(file, cmd, arg);
--		break;
--
--	default:
--		do {
--			static int count;
--			if (++count <= 20)
--				printk("ppp_ioctl: Unknown cmd(%08x) arg(%08x)\n",
--				       (unsigned int)cmd, (unsigned int)arg);
--		} while(0);
--		err = -EINVAL;
--		break;
--	};
--
--	return err;
--}
--
- #ifdef WIRELESS_EXT
- struct compat_iw_point {
- 	compat_caddr_t pointer;
-@@ -1283,40 +1163,6 @@
- /* Note SIOCRTMSG is no longer, so this is safe and * the user would have seen just an -EINVAL anyways. */
- INVAL_IOCTL(SIOCRTMSG)
- HANDLE_IOCTL(SIOCGSTAMP, do_siocgstamp)
--/* ppp */
--HANDLE_IOCTL(PPPIOCGIDLE32, ppp_ioctl_trans)
--HANDLE_IOCTL(PPPIOCSCOMPRESS32, ppp_ioctl_trans)
--HANDLE_IOCTL(PPPIOCSPASS32, ppp_sock_fprog_ioctl_trans)
--HANDLE_IOCTL(PPPIOCSACTIVE32, ppp_sock_fprog_ioctl_trans)
--COMPATIBLE_IOCTL(PPPIOCGFLAGS)
--COMPATIBLE_IOCTL(PPPIOCSFLAGS)
--COMPATIBLE_IOCTL(PPPIOCGASYNCMAP)
--COMPATIBLE_IOCTL(PPPIOCSASYNCMAP)
--COMPATIBLE_IOCTL(PPPIOCGUNIT)
--COMPATIBLE_IOCTL(PPPIOCGRASYNCMAP)
--COMPATIBLE_IOCTL(PPPIOCSRASYNCMAP)
--COMPATIBLE_IOCTL(PPPIOCGMRU)
--COMPATIBLE_IOCTL(PPPIOCSMRU)
--COMPATIBLE_IOCTL(PPPIOCSMAXCID)
--COMPATIBLE_IOCTL(PPPIOCGXASYNCMAP)
--COMPATIBLE_IOCTL(PPPIOCSXASYNCMAP)
--COMPATIBLE_IOCTL(PPPIOCXFERUNIT)
--/* PPPIOCSCOMPRESS is translated */
--COMPATIBLE_IOCTL(PPPIOCGNPMODE)
--COMPATIBLE_IOCTL(PPPIOCSNPMODE)
--COMPATIBLE_IOCTL(PPPIOCGDEBUG)
--COMPATIBLE_IOCTL(PPPIOCSDEBUG)
--/* PPPIOCSPASS is translated */
--/* PPPIOCSACTIVE is translated */
--/* PPPIOCGIDLE is translated */
--COMPATIBLE_IOCTL(PPPIOCNEWUNIT)
--COMPATIBLE_IOCTL(PPPIOCATTACH)
--COMPATIBLE_IOCTL(PPPIOCDETACH)
--COMPATIBLE_IOCTL(PPPIOCSMRRU)
--COMPATIBLE_IOCTL(PPPIOCCONNECT)
--COMPATIBLE_IOCTL(PPPIOCDISCONN)
--COMPATIBLE_IOCTL(PPPIOCATTCHAN)
--COMPATIBLE_IOCTL(PPPIOCGCHAN)
- /* PPPOX */
- COMPATIBLE_IOCTL(PPPOEIOCSFWD)
- COMPATIBLE_IOCTL(PPPOEIOCDFWD)
+ #undef CODE
+ #endif
+ 
+Index: linux-cg/include/linux/compat_ioctl.h
+===================================================================
+--- linux-cg.orig/include/linux/compat_ioctl.h	2005-11-05 02:54:26.000000000 +0100
++++ linux-cg/include/linux/compat_ioctl.h	2005-11-05 02:54:31.000000000 +0100
+@@ -350,43 +350,7 @@
+ COMPATIBLE_IOCTL(RNDZAPENTCNT)
+ COMPATIBLE_IOCTL(RNDCLEARPOOL)
+ /* Bluetooth */
+-COMPATIBLE_IOCTL(HCIDEVUP)
+-COMPATIBLE_IOCTL(HCIDEVDOWN)
+-COMPATIBLE_IOCTL(HCIDEVRESET)
+-COMPATIBLE_IOCTL(HCIDEVRESTAT)
+-COMPATIBLE_IOCTL(HCIGETDEVLIST)
+-COMPATIBLE_IOCTL(HCIGETDEVINFO)
+-COMPATIBLE_IOCTL(HCIGETCONNLIST)
+-COMPATIBLE_IOCTL(HCIGETCONNINFO)
+-COMPATIBLE_IOCTL(HCISETRAW)
+-COMPATIBLE_IOCTL(HCISETSCAN)
+-COMPATIBLE_IOCTL(HCISETAUTH)
+-COMPATIBLE_IOCTL(HCISETENCRYPT)
+-COMPATIBLE_IOCTL(HCISETPTYPE)
+-COMPATIBLE_IOCTL(HCISETLINKPOL)
+-COMPATIBLE_IOCTL(HCISETLINKMODE)
+-COMPATIBLE_IOCTL(HCISETACLMTU)
+-COMPATIBLE_IOCTL(HCISETSCOMTU)
+-COMPATIBLE_IOCTL(HCIINQUIRY)
+-COMPATIBLE_IOCTL(HCIUARTSETPROTO)
+-COMPATIBLE_IOCTL(HCIUARTGETPROTO)
+-COMPATIBLE_IOCTL(RFCOMMCREATEDEV)
+-COMPATIBLE_IOCTL(RFCOMMRELEASEDEV)
+-COMPATIBLE_IOCTL(RFCOMMGETDEVLIST)
+-COMPATIBLE_IOCTL(RFCOMMGETDEVINFO)
+ COMPATIBLE_IOCTL(RFCOMMSTEALDLC)
+-COMPATIBLE_IOCTL(BNEPCONNADD)
+-COMPATIBLE_IOCTL(BNEPCONNDEL)
+-COMPATIBLE_IOCTL(BNEPGETCONNLIST)
+-COMPATIBLE_IOCTL(BNEPGETCONNINFO)
+-COMPATIBLE_IOCTL(CMTPCONNADD)
+-COMPATIBLE_IOCTL(CMTPCONNDEL)
+-COMPATIBLE_IOCTL(CMTPGETCONNLIST)
+-COMPATIBLE_IOCTL(CMTPGETCONNINFO)
+-COMPATIBLE_IOCTL(HIDPCONNADD)
+-COMPATIBLE_IOCTL(HIDPCONNDEL)
+-COMPATIBLE_IOCTL(HIDPGETCONNLIST)
+-COMPATIBLE_IOCTL(HIDPGETCONNINFO)
+ /* CAPI */
+ COMPATIBLE_IOCTL(CAPI_REGISTER)
+ COMPATIBLE_IOCTL(CAPI_GET_MANUFACTURER)
+Index: linux-cg/net/bluetooth/bnep/sock.c
+===================================================================
+--- linux-cg.orig/net/bluetooth/bnep/sock.c	2005-11-05 02:43:24.000000000 +0100
++++ linux-cg/net/bluetooth/bnep/sock.c	2005-11-05 02:54:31.000000000 +0100
+@@ -151,6 +151,7 @@
+ 	.owner      = THIS_MODULE,
+ 	.release    = bnep_sock_release,
+ 	.ioctl      = bnep_sock_ioctl,
++	.compat_ioctl = bnep_sock_ioctl,
+ 	.bind       = sock_no_bind,
+ 	.getname    = sock_no_getname,
+ 	.sendmsg    = sock_no_sendmsg,
+Index: linux-cg/net/bluetooth/cmtp/sock.c
+===================================================================
+--- linux-cg.orig/net/bluetooth/cmtp/sock.c	2005-11-05 02:43:24.000000000 +0100
++++ linux-cg/net/bluetooth/cmtp/sock.c	2005-11-05 02:54:31.000000000 +0100
+@@ -142,6 +142,7 @@
+ 	.owner		= THIS_MODULE,
+ 	.release	= cmtp_sock_release,
+ 	.ioctl		= cmtp_sock_ioctl,
++	.compat_ioctl	= cmtp_sock_ioctl,
+ 	.bind		= sock_no_bind,
+ 	.getname	= sock_no_getname,
+ 	.sendmsg	= sock_no_sendmsg,
+Index: linux-cg/net/bluetooth/hci_sock.c
+===================================================================
+--- linux-cg.orig/net/bluetooth/hci_sock.c	2005-11-05 02:45:00.000000000 +0100
++++ linux-cg/net/bluetooth/hci_sock.c	2005-11-05 02:54:31.000000000 +0100
+@@ -584,6 +584,7 @@
+ 	.sendmsg	= hci_sock_sendmsg,
+ 	.recvmsg	= hci_sock_recvmsg,
+ 	.ioctl		= hci_sock_ioctl,
++	.compat_ioctl	= hci_sock_ioctl,
+ 	.poll		= datagram_poll,
+ 	.listen		= sock_no_listen,
+ 	.shutdown	= sock_no_shutdown,
+Index: linux-cg/net/bluetooth/hidp/sock.c
+===================================================================
+--- linux-cg.orig/net/bluetooth/hidp/sock.c	2005-11-05 02:43:24.000000000 +0100
++++ linux-cg/net/bluetooth/hidp/sock.c	2005-11-05 02:54:31.000000000 +0100
+@@ -148,6 +148,7 @@
+ 	.owner		= THIS_MODULE,
+ 	.release	= hidp_sock_release,
+ 	.ioctl		= hidp_sock_ioctl,
++	.compat_ioctl	= hidp_sock_ioctl,
+ 	.bind		= sock_no_bind,
+ 	.getname	= sock_no_getname,
+ 	.sendmsg	= sock_no_sendmsg,
+Index: linux-cg/net/bluetooth/rfcomm/sock.c
+===================================================================
+--- linux-cg.orig/net/bluetooth/rfcomm/sock.c	2005-11-05 02:43:24.000000000 +0100
++++ linux-cg/net/bluetooth/rfcomm/sock.c	2005-11-05 02:54:31.000000000 +0100
+@@ -986,6 +986,7 @@
+ 	.setsockopt	= rfcomm_sock_setsockopt,
+ 	.getsockopt	= rfcomm_sock_getsockopt,
+ 	.ioctl		= rfcomm_sock_ioctl,
++	.compat_ioctl	= rfcomm_sock_ioctl,
+ 	.poll		= bt_sock_poll,
+ 	.socketpair	= sock_no_socketpair,
+ 	.mmap		= sock_no_mmap
 
 --
 

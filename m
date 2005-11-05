@@ -1,76 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751475AbVKELbj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751480AbVKELt6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751475AbVKELbj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 06:31:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751476AbVKELbj
+	id S1751480AbVKELt6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 06:49:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbVKELt6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 06:31:39 -0500
-Received: from xproxy.gmail.com ([66.249.82.197]:54164 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751475AbVKELbi convert rfc822-to-8bit
+	Sat, 5 Nov 2005 06:49:58 -0500
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:28392 "EHLO
+	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S1751476AbVKELt5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 06:31:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=aIBnv2EtgYH5c5nEcu2v6WjOsrh1VdQiqeDz1TH/uTl+x3TJLnRUMhVBuUgg/yZOfBIwjAkV4N0IkcrNSB9zwMPgVrW/3EFo1XNhtF7cYL4hySy1yn5XMZKcvVSMt3TkznXqJspF31u6/ePXUEh1OQt6zYkLsDZmD8vizCF4HOk=
-Message-ID: <1e62d1370511050331l7e71d15i7c3cdc0d153e31a6@mail.gmail.com>
-Date: Sat, 5 Nov 2005 16:31:37 +0500
-From: Fawad Lateef <fawadlateef@gmail.com>
-To: Yan Zheng <yanzheng@21cn.com>
-Subject: Re: Question about the usage of kernel_thread
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <436C6FF7.4060206@21cn.com>
+	Sat, 5 Nov 2005 06:49:57 -0500
+Message-ID: <436C9D73.5030506@student.ltu.se>
+Date: Sat, 05 Nov 2005 12:54:27 +0100
+From: Richard Knutsson <ricknu-0@student.ltu.se>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <436C6FF7.4060206@21cn.com>
+To: Andrew Morton <akpm@osdl.org>
+CC: ashutosh.lkml@gmail.com, netdev@vger.kernel.org, davej@suse.de,
+       acme@conectiva.com.br, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org, stable@kernel.org
+Subject: Re: [PATCH]dgrs - Fixes Warnings when CONFIG_ISA and CONFIG_PCI are
+ not enabled
+References: <81083a450511012314q4ec69927gfa60cb19ba8f437a@mail.gmail.com>	<4368878D.4040406@student.ltu.se>	<c216304e0511020516o5cfcd0b9u96a3220bf2694928@mail.gmail.com>	<436927CA.3090105@student.ltu.se>	<20051104182537.741be3d9.akpm@osdl.org>	<20051104183043.27a2229c.akpm@osdl.org>	<436C6F02.90904@student.ltu.se> <20051105004609.0f04481c.akpm@osdl.org>
+In-Reply-To: <20051105004609.0f04481c.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/5/05, Yan Zheng <yanzheng@21cn.com> wrote:
-> Hi.
->
-> In LKD2, Robert say:
-> Linux delegates several tasks to kernel threads, most notably the pdflush task and the ksoftirqd task. These threads are created on system boot by other kernel threads. Indeed, a kernel thread can be created only by another kernel thread.
->
->
-> But I found that kernel_thread(...) are used wildly like:
->
-> #include <linux/kernel.h>
-> #include <linux/module.h>
->
-> static int noop(void *dummy)
-> {
->         printk("current->mm = %p\n", current->mm);
->         return 0;
-> }
->
-> static int test_init(void)
-> {
->         kernel_thread(noop, NULL, CLONE_KERNEL | SIGCHLD);
->         return 0;
-> }
->
-> static void test_exit(void) {}
-> module_init(test_init);
-> module_exit(test_exit);
->
->
-> In this circumstances, The thread created by kernel_thread has "current->mm != NULL".
->
-> My question is:
-> The new thread is truely kernel thread ? The usage of kernel_thread(...) like this is correct?
->
+Andrew Morton wrote:
 
-AFAIK the thread created like above is a true kernel thread but in
-general practice what I saw and used that by creating thread from
-init_module, the thread first call daemonize which actually drops the
-mm related to thread and then through reparent_to_init it makes init
-as a parent of the thread/process newly created. So after daemonize
-call current->mm becomes NULL and when the scheduling is going to be
-done the previous_process->mm will be used as the current->mm and
-creating thread like above is correct.
+>Richard Knutsson <ricknu-0@student.ltu.se> wrote:
+>  
+>
+>>>	 */
+>>>      
+>>>
+>> > #ifdef CONFIG_EISA
+>> >-	eisacount = eisa_driver_register(&dgrs_eisa_driver);
+>> >-	if (eisacount < 0)
+>> >-		return eisacount;
+>> >-#endif
+>> >-#ifdef CONFIG_PCI
+>> >-	pcicount = pci_register_driver(&dgrs_pci_driver);
+>> >-	if (pcicount)
+>> >-		return pcicount;
+>> >+	cardcount = eisa_driver_register(&dgrs_eisa_driver);
+>> >+	if (cardcount < 0)
+>> >+		return cardcount;
+>> > #endif
+>> >+	cardcount = pci_register_driver(&dgrs_pci_driver);
+>> >+	if (cardcount)
+>> >+		return cardcount;
+>> > 	return 0;
+>> > }
+>> >  
+>> >
+>> I do not know what to think about this one:
+>> * reduce one #ifdef: good
+>> * check for something clearly stated not to: not so good
+>>    
+>>
+>
+>Well a nicer fix would be to provide a stub implementation of
+>eisa_driver_register() if !CONFIG_EISA, just like pci_register_driver(). 
+>Then all the ifdefs go away and the compiler removes all the code for us,
+>after checking that we typed it correctly.
+>  
+>
+Oh, sorry. Missed the stub implementation of the pci-driver. I "ack" 
+your patch.
 
---
-Fawad Lateef
+BTW, can anyone ack or is that up to the maintainers?
+BTW #2, why not remove #ifdef CONFIG_PCI on dgrs_cleanup_module() at the 
+same time? Or maybe that should be in a "remove config_pci"-patch...
+
+/Richard
+

@@ -1,48 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbVKERq5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbVKESL3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932158AbVKERq5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 12:46:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbVKERq5
+	id S1750890AbVKESL3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 13:11:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750916AbVKESL3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 12:46:57 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:42908 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932149AbVKERqz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 12:46:55 -0500
-Date: Sat, 5 Nov 2005 09:46:37 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Richard Knutsson <ricknu-0@student.ltu.se>
-Cc: ashutosh.lkml@gmail.com, netdev@vger.kernel.org, davej@suse.de,
-       acme@conectiva.com.br, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: [PATCH]dgrs - Fixes Warnings when CONFIG_ISA and CONFIG_PCI are
- not enabled
-Message-Id: <20051105094637.2facb16e.akpm@osdl.org>
-In-Reply-To: <436C9D73.5030506@student.ltu.se>
-References: <81083a450511012314q4ec69927gfa60cb19ba8f437a@mail.gmail.com>
-	<4368878D.4040406@student.ltu.se>
-	<c216304e0511020516o5cfcd0b9u96a3220bf2694928@mail.gmail.com>
-	<436927CA.3090105@student.ltu.se>
-	<20051104182537.741be3d9.akpm@osdl.org>
-	<20051104183043.27a2229c.akpm@osdl.org>
-	<436C6F02.90904@student.ltu.se>
-	<20051105004609.0f04481c.akpm@osdl.org>
-	<436C9D73.5030506@student.ltu.se>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 5 Nov 2005 13:11:29 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:28176 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750852AbVKESL2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 13:11:28 -0500
+Date: Sat, 5 Nov 2005 18:11:23 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: [DRIVER MODEL] Add platform_driver
+Message-ID: <20051105181122.GD12228@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Knutsson <ricknu-0@student.ltu.se> wrote:
->
->  BTW, can anyone ack or is that up to the maintainers?
+The following set of patches adds a platform_driver structure, which
+is much like the pci_driver structure:
 
-It's useful info - it shows that someone else took the time to revie the
-code.
+struct platform_driver {
+	int (*probe)(struct platform_device *);
+	int (*remove)(struct platform_device *);
+	void (*shutdown)(struct platform_device *);
+	int (*suspend)(struct platform_device *, pm_message_t state);
+	int (*resume)(struct platform_device *);
+	struct device_driver driver;
+};
 
->  BTW #2, why not remove #ifdef CONFIG_PCI on dgrs_cleanup_module() at the 
->  same time? Or maybe that should be in a "remove config_pci"-patch...
+The idea behind this is to stop using the struct device_driver
+suspend/resume fields, and eventually eliminate the other function
+pointers from within that structure.
 
-yup.  There are lots of opportunities for that, I bet.
+Why?
+
+Virtually every other user wraps the device_driver structure in
+their own structure, which contains function pointers specific
+to their implementation.  For instance, pci_driver contains:
+
+    int  (*probe)  (struct pci_dev *dev, const struct pci_device_id *id);
+    void (*remove) (struct pci_dev *dev);
+    int  (*suspend) (struct pci_dev *dev, pm_message_t state);
+    int  (*resume) (struct pci_dev *dev);
+    int  (*enable_wake) (struct pci_dev *dev, pci_power_t state, int enable);
+    void (*shutdown) (struct pci_dev *dev);
+
+and as can be seen, the arguments to these methods are typed
+according to the bus type.
+
+Hence, the methods in struct device_driver are just adding needless
+bloat to the kernel.  In addition, use of these device_driver methods
+invariably requires a container_of() manipulation of the struct_device
+structure, and doing that in every driver is also needless code bloat.
+
+Also, from the type safety aspect, it's better to have methods which
+are passed the correct type and if they aren't have a compiler
+warning or build failure.
+
+Hence, the following patches introduce struct platform_driver, and
+then convert the platform device drivers over to this new model.
+
+Due to the way the conversion is done, unconverted drivers will still
+continue to work as before... for the time being.
+
+Patches, which are built on top of my previous driver model patch set,
+follow.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

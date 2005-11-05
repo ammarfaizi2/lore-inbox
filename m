@@ -1,65 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbVKEXxA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbVKEXzA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932219AbVKEXxA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 18:53:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbVKEXxA
+	id S932221AbVKEXzA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 18:55:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbVKEXzA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 18:53:00 -0500
-Received: from wproxy.gmail.com ([64.233.184.206]:15468 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932219AbVKEXw7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 18:52:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:organization:user-agent:x-accept-language:mime-version:to:cc:subject:content-type:content-transfer-encoding;
-        b=laZNERqP6TddXK42e0S7704PDjWf9dqi+NqBGkgBAqyhmADqBaqKr2FOA/3FEzdESrpFWtQ9J0zCc7NwJBLliiLxzlTw8uBZ1nRlodw0gyfh3xA1cPE6LQsk8+cAvwPoTCXJJgPTm76ffX4sesLPa5MzDk43EDcwMezuay996Ro=
-Message-ID: <436D45D3.4060807@gmail.com>
-Date: Sun, 06 Nov 2005 10:52:51 +1100
-From: Grant Coady <gcoady@gmail.com>
-Organization: http://bugsplatter.mine.nu/
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Chun-Chung Chen <cjj@u.washington.edu>
-Subject: [PATCH] pci_ids cleanup: fix two additional IDs in bt87x
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sat, 5 Nov 2005 18:55:00 -0500
+Received: from fmr22.intel.com ([143.183.121.14]:17109 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932221AbVKEXy7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 18:54:59 -0500
+Date: Sat, 5 Nov 2005 15:54:07 -0800
+From: Ashok Raj <ashok.raj@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ashok Raj <ashok.raj@intel.com>, rjw@sisk.pl, linux-kernel@vger.kernel.org,
+       davej@codemonkey.org.uk, mingo@elte.hu, linux@brodo.de,
+       venkatesh.pallipadi@intel.com
+Subject: Re: 2.6.14-git3: scheduling while atomic from cpufreq on Athlon64
+Message-ID: <20051105155407.A31099@unix-os.sc.intel.com>
+References: <200510311606.36615.rjw@sisk.pl> <200510312045.32908.rjw@sisk.pl> <20051031124216.A18213@unix-os.sc.intel.com> <200511012007.19762.rjw@sisk.pl> <20051101111417.A31379@unix-os.sc.intel.com> <20051104143035.120fe158.akpm@osdl.org> <20051105151944.A30804@unix-os.sc.intel.com> <20051105153304.09a1a4dc.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20051105153304.09a1a4dc.akpm@osdl.org>; from akpm@osdl.org on Sat, Nov 05, 2005 at 03:33:04PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+On Sat, Nov 05, 2005 at 03:33:04PM -0800, Andrew Morton wrote:
+> Ashok Raj <ashok.raj@intel.com> wrote:
+> >
+> > Now we leave a trace in current->flags indicating current thread already 
+> >  is under cpucontrol lock held, so we dont attempt to do this another time.
+> > 
+> > ..
+> > +#define PF_HOTPLUG_CPU	0x01000000	/* Currently performing CPU hotplug */
+> >
+> 
+> It's still hacky - I mean, we could use this trick to avoid recursion onto
+> any lock in the kernel whenever we get ourselves into a mess.  We'd gain an
+> awful lot of PF_* flags.
+> 
+> So we should still view this as a temporary fix.
+> 
+> I don't think I've seen an analysis of the actual deadlock yet.  Are you
+> able to provide a stack trace of the offending callpath?
 
-I missed a couple PCI IDs in bt87x.c, so here they are.
+Hi Andrew,
 
+we call the exact same functions in cpufreq during startup and in
+response to cpu hotplug events, to create or destroy
+sysfs entries /sys/devices/system/cpu/cpuX/cpufreq/*. cpufreq_add_dev().
+
+problem is cpufreq_set_policy()  eventually ends up calling
+__cpufreq_driver_target() during the CPU_ONLINE, and CPU_DOWN_PREPARE
+that takes cpucontrol lock.
+
+Since when we already in the cpu notifier callbacks, cpucontrol is already 
+held by the cpu_up() or the cpu_down() that caused the double lock.
+
+i dont see a panic, but just when we try to do cpu_down, or cpu_up that
+thread would just lock out waiting to acquire the cpucontrol the second
+time.
+
+Hope this helps.
+-- 
 Cheers,
-Grant.
-
-From: Grant Coady <gcoady@gmail.com>
-
-pci_ids cleanup: fixup bt87x.c: two macro defined IDs missed in prior cleanup.
-
-Caught by Chun-Chung Chen <cjj@u.washington.edu>: "In the patch for bt87x.c,
-you seemed have missed the two occurrences of BT_DEVICE on line 897 and
-line 898."
-
-Signed-off-by: Grant Coady <gcoady@gmail.com>
-
----
- bt87x.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
---- linux-2.6.14b/sound/pci/bt87x.c~	2005-11-06 10:13:56.000000000 +1100
-+++ linux-2.6.14b/sound/pci/bt87x.c	2005-11-06 10:17:08.000000000 +1100
-@@ -897,8 +897,8 @@
- /* default entries for all Bt87x cards - it's not exported */
- /* driver_data is set to 0 to call detection */
- static struct pci_device_id snd_bt87x_default_ids[] = {
--	BT_DEVICE(878, PCI_ANY_ID, PCI_ANY_ID, 0),
--	BT_DEVICE(879, PCI_ANY_ID, PCI_ANY_ID, 0),
-+	BT_DEVICE(PCI_DEVICE_ID_BROOKTREE_878, PCI_ANY_ID, PCI_ANY_ID, 0),
-+	BT_DEVICE(PCI_DEVICE_ID_BROOKTREE_879, PCI_ANY_ID, PCI_ANY_ID, 0),
- 	{ }
- };
-
+Ashok Raj
+- Open Source Technology Center

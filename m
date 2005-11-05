@@ -1,89 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbVKETM0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbVKETSh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932205AbVKETM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 14:12:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbVKETM0
+	id S932301AbVKETSh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 14:18:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbVKETSh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 14:12:26 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:523 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932205AbVKETM0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 14:12:26 -0500
-Date: Sat, 5 Nov 2005 20:12:24 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Milton Miller <miltonm@bga.com>
-Cc: gerg@uclinux.org, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]: linux-2.6.14-uc0 (MMU-less support)
-Message-ID: <20051105191224.GB4493@stusta.de>
-References: <40564dc5fa508b27c752b692f93562f4@bga.com>
+	Sat, 5 Nov 2005 14:18:37 -0500
+Received: from moutng.kundenserver.de ([212.227.126.187]:8910 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932298AbVKETSg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 14:18:36 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Subject: Re: [PATCH 12/25] scsi: move SG_IO ioctl32 code to sg.c
+Date: Sat, 5 Nov 2005 20:19:58 +0100
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+       dgilbert@interlog.com, linux-scsi@vger.kernel.org
+References: <20051105162650.620266000@b551138y.boeblingen.de.ibm.com> <20051105162715.367344000@b551138y.boeblingen.de.ibm.com> <1131209099.3614.7.camel@mulgrave>
+In-Reply-To: <1131209099.3614.7.camel@mulgrave>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-In-Reply-To: <40564dc5fa508b27c752b692f93562f4@bga.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200511052020.00751.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 05, 2005 at 12:42:42PM -0600, Milton Miller wrote:
-> On Tue Nov 01 2005 - 23:01:02 EST, Greg Ungerer wrote:
->...
-> >@@ -1190,7 +1190,7 @@
-> >
-> > config NET_PCI
-> > 	bool "EISA, VLB, PCI and on board controllers"
-> >-	depends on NET_ETHERNET && (ISA || EISA || PCI)
-> >+	depends on NET_ETHERNET && (ISA || EISA || PCI || EMBEDDED)
-> > 	help
-> > 	  This is another class of network cards which attach directly to the
-> > 	  bus. If you have one of those, say Y and read the Ethernet-HOWTO,
-> >
+On Sünnavend 05 November 2005 17:44, James Bottomley wrote:
+> This is the wrong place, isn't it?  SG_IO is also in
+> drivers/block/scsi_ioctl.c which isn't modular, so shouldn't this be in
+> there?
 > 
-> Lots of people turn on EMBEDDED for lots of reasons, asking about
-> a lot more drivers seems burdensome.
-> 
-> Care to create a single intermediate Kconfig var for those?
-> Something like "Controllers attached directly to a cpu?"
 
-It seems the real problem is a misunderstanding regarding the semantics 
-of EMBEDDED.
+Yes, you're right. That patch broke compat SG_IO for the other scsi
+drivers. I'll do a new one.
 
-EMBEDDED is _not_ strictly connected to any usage of the kernel.
-
-All EMBEDDED does is to offer additional option for people needing a 
-small kernel in space-limited environments.
-
-CC_OPTIMIZE_FOR_SIZE is one example, but it also allows to e.g. deselect 
-futex support.
-
-(ISA || EISA || PCI || EMBEDDED) doesn't make any sense since this 
-dependency expresses the supported busses. If this was required for any 
-purpose, it should be reported to find a proper solution.
-
->...
-> > ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
-> >-CFLAGS		+= -Os
-> >+CFLAGS		+= -O
-> > else
-> > CFLAGS		+= -O2
-> > endif
-> 
-> Sees this undoes part of the benefit, perhaps you should add a
-> third option.
-
-Even further, I don't see any reason for using -O - the resulting code 
-is expected to be both bigger and slower than with -Os.
-
-Is this a workaround for a gcc bug on some platform?
-
-> milton
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+	Arnd <><

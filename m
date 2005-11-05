@@ -1,74 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbVKEIMD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbVKEIcK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751216AbVKEIMD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 03:12:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbVKEIMD
+	id S1751229AbVKEIcK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 03:32:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbVKEIcK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 03:12:03 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:15881 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1751216AbVKEIMC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 03:12:02 -0500
-Date: Sat, 5 Nov 2005 08:59:15 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Roberto Nibali <ratz@drugphish.ch>
-Cc: linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Grant Coady <gcoady@gmail.com>
-Subject: Re: Linux-2.4.31-hf8
-Message-ID: <20051105075915.GD11266@alpha.home.local>
-References: <20051104231815.GA26093@alpha.home.local> <436C5895.3040409@drugphish.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <436C5895.3040409@drugphish.ch>
-User-Agent: Mutt/1.5.10i
+	Sat, 5 Nov 2005 03:32:10 -0500
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:42464 "EHLO
+	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S1751229AbVKEIcI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 03:32:08 -0500
+Message-ID: <436C6F02.90904@student.ltu.se>
+Date: Sat, 05 Nov 2005 09:36:18 +0100
+From: Richard Knutsson <ricknu-0@student.ltu.se>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: ashutosh.lkml@gmail.com, netdev@vger.kernel.org, davej@suse.de,
+       acme@conectiva.com.br, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org, stable@kernel.org
+Subject: Re: [PATCH]dgrs - Fixes Warnings when CONFIG_ISA and CONFIG_PCI are
+ not enabled
+References: <81083a450511012314q4ec69927gfa60cb19ba8f437a@mail.gmail.com>	<4368878D.4040406@student.ltu.se>	<c216304e0511020516o5cfcd0b9u96a3220bf2694928@mail.gmail.com>	<436927CA.3090105@student.ltu.se>	<20051104182537.741be3d9.akpm@osdl.org> <20051104183043.27a2229c.akpm@osdl.org>
+In-Reply-To: <20051104183043.27a2229c.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Roberto, Hi Marcelo,
+Andrew Morton wrote:
 
-On Sat, Nov 05, 2005 at 08:00:37AM +0100, Roberto Nibali wrote:
-> Well, to be honest, Horms just found another IPVS "issue" :). It seems
-> we are getting into reviewing 2.4.x IPVS a bit more closely. The problem
-> is that if you have setups where the persistency timeout is below the
-> IPVS state machine related FIN_WAIT (not TCP state) timeout (currently
-> 2*60*HZ) persistent templates will not be invalidated and the timer gets
-> re-set if a we still have a valid connection entry hashed. I've first
-> noted this somewhat aberrant behaviour in 2.2.x kernels but never got
-> around looking at it too closely because in 2.2.x we had a timer mess.
+>In fact we can de-ifdef things a bit.
+>
+>diff -puN drivers/net/dgrs.c~dgrs-fixes-warnings-when-config_isa-and-config_pci-are-not-enabled drivers/net/dgrs.c
+>--- devel/drivers/net/dgrs.c~dgrs-fixes-warnings-when-config_isa-and-config_pci-are-not-enabled	2005-11-04 18:26:59.000000000 -0800
+>+++ devel-akpm/drivers/net/dgrs.c	2005-11-04 18:29:24.000000000 -0800
+>@@ -1549,7 +1549,7 @@ MODULE_PARM_DESC(nicmode, "Digi RightSwi
+> static int __init dgrs_init_module (void)
+> {
+> 	int	i;
+>-	int eisacount = 0, pcicount = 0;
+>+	int	cardcount = 0;
 > 
-> This issue however is absolutely minor since this buglet has been there
-> for ages already and we never received such a bug report. In fact, it
-> would be quite unusual to set a persistency timeout below fin_wait in a
-> LVS_DR setup for productive environments. And I didn't see it because I
-> set the FIN_WAIT to 10*HZ to relax sockets lingering. We can/will queue
-> it up, together with a small refcnt change for -hf9 and post 2.4.32.
+> 	/*
+> 	 *	Command line variable overrides
+>@@ -1591,15 +1591,13 @@ static int __init dgrs_init_module (void
+> 	 *	Find and configure all the cards
+> 	 */
+> #ifdef CONFIG_EISA
+>-	eisacount = eisa_driver_register(&dgrs_eisa_driver);
+>-	if (eisacount < 0)
+>-		return eisacount;
+>-#endif
+>-#ifdef CONFIG_PCI
+>-	pcicount = pci_register_driver(&dgrs_pci_driver);
+>-	if (pcicount)
+>-		return pcicount;
+>+	cardcount = eisa_driver_register(&dgrs_eisa_driver);
+>+	if (cardcount < 0)
+>+		return cardcount;
+> #endif
+>+	cardcount = pci_register_driver(&dgrs_pci_driver);
+>+	if (cardcount)
+>+		return cardcount;
+> 	return 0;
+> }
+>  
+>
+I do not know what to think about this one:
+* reduce one #ifdef: good
+* check for something clearly stated not to: not so good
 
-I have a feeling that we will have a lot of network related fixes post
-2.4.32 (IPVS, IPv6, mcast...). Marcelo, perhaps it would be a good idea
-to merge them in early 2.4.33-pre1 so that competent users have enough
-time to test them ? As Roberto explained it, some of the fixes need
-hours or days of testing, and some of them are used by only a bunch of
-people around the world.
+But as Ashutosh Naik said: Any one can be committed.
 
-> I take it you read netdev as well, since we will post those patches
-> there.
-
-OK, I will put my nose there.
-
-> I'm delighted to see your -hf kernels since lately I have been
-> told off by a couple of kernel maintainers regarding 2.4.x, which we use
-> in about 100 of our boxes all over the world, about 300 still run 2.2.x
->   and are slowly migrated to the now stable 2.4.x series. Doing business
-> in the finance sector really opts for stability, which is given by 2.4.x.
-
-Working half of my time in the same area, I've been starting to consider
-since 2.4.31 that 2.4 is becoming very stable and ready for production use
-in those sensible environments. Having small kernels updates which don't
-break PaX compatibility every two weeks is also a very good thing when
-seeking for enhanced security on servers ;-)
-
-Regards,
-Willy
+/Richard
 

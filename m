@@ -1,64 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbVKEJGW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbVKEJIt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751290AbVKEJGW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 04:06:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751303AbVKEJGV
+	id S1751305AbVKEJIt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 04:08:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbVKEJIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 04:06:21 -0500
-Received: from mail.avalus.com ([195.82.114.197]:52635 "EHLO shed.alex.org.uk")
-	by vger.kernel.org with ESMTP id S1751290AbVKEJGU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 04:06:20 -0500
-Date: Sat, 05 Nov 2005 09:06:08 +0000
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: adam radford <aradford@gmail.com>,
-       Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: 3ware 9550SX problems - mke2fs incredibly slow writing last
- third of inode tables
-Message-ID: <98C5049497A78ECC77D350B7@[192.168.100.25]>
-In-Reply-To: <b1bc6a000511021459h1a2f5089q3b37b56460b7799d@mail.gmail.com>
-References: <BEDEA151E8B1D6CEDD295442@192.168.100.25>
- <b1bc6a000511021459h1a2f5089q3b37b56460b7799d@mail.gmail.com>
-X-Mailer: Mulberry/4.0.4 (Win32)
+	Sat, 5 Nov 2005 04:08:48 -0500
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:13457 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751305AbVKEJIs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 04:08:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=qdRWyolgHGl17MFX3Xg8XfVIcIbr+6AskzDZF75BHALKPig4TV4LizqmVfM/DGG9e2aWAFF4rNJtzvUWqOs5lpAw2FB5iqlG6GCHhIQz3+eoTp3F2oKGaBXDcx26l1NADFD1TM9qaXS90RydKQFMWGFxfzGcbsDhWG0N+rktYIg=  ;
+Message-ID: <436C771D.8040703@yahoo.com.au>
+Date: Sat, 05 Nov 2005 20:10:53 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [patch 2/5] atomic: cmpxchg
+References: <436C655F.2080703@yahoo.com.au> <436C65B1.5020508@yahoo.com.au> <436C65E8.8080501@yahoo.com.au> <20051105090010.GA18926@flint.arm.linux.org.uk>
+In-Reply-To: <20051105090010.GA18926@flint.arm.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam,
+Russell King wrote:
+> On Sat, Nov 05, 2005 at 06:57:28PM +1100, Nick Piggin wrote:
+> 
+>>Index: linux-2.6/include/asm-arm/atomic.h
+>>===================================================================
+>>--- linux-2.6.orig/include/asm-arm/atomic.h
+>>+++ linux-2.6/include/asm-arm/atomic.h
+>>@@ -80,6 +80,23 @@ static inline int atomic_sub_return(int 
+>> 	return result;
+>> }
+>> 
+>>+static inline int atomic_cmpxchg(atomic_t *ptr, int old, int new)
+>>+{
+>>+	u32 oldval, res;
+>>+
+>>+	do {
+>>+		__asm__ __volatile__("@ atomic_cmpxchg\n"
+>>+		"ldrex	%1, [%2]\n"
+>>+		"teq	%1, %3\n"
+>>+		"strexeq %0, %4, [%2]\n"
+>>+		    : "=&r" (res), "=&r" (oldval)
+>>+		    : "r" (&ptr->counter), "r" (old), "r" (new)
+>>+		    : "cc");
+>>+	} while (res);
+>>+
+>>+	return oldval;
+>>+}
+>>+
+>> static inline void atomic_clear_mask(unsigned long mask, unsigned long *addr)
+>> {
+>> 	unsigned long tmp, tmp2;
+>>@@ -131,6 +148,21 @@ static inline int atomic_sub_return(int 
+>> 	return val;
+>> }
+>> 
+>>+static inline int atomic_cmpxchg(atomic_t *v, int old, int new)
+>>+{
+>>+	int ret;
+>>+	unsigned long flags;
+>>+
+>>+	local_irq_save(flags);
+>>+	ret = v->counter;
+>>+	if (likely(ret == old))
+>>+		v->counter = new;
+>>+	local_irq_restore(flags);
+>>+
+>>+	return ret;
+>>+}
+>>+
+>>+static inline void atomic_clear_mask(unsigned long mask, unsigned long *addr)
+>> static inline void atomic_clear_mask(unsigned long mask, unsigned long *addr)
+> 
+> 
+> This is obviously going to break ARM...
+> 
 
->> All seems to go well until I try and do mke2fs. This appears to work,
->> and tries to write the inode tables. However, at (about) 3400 inodes
->> (of 11176), it slows to a crawl, writing one table every 10 seconds.
->> strace shows it is still running, and no errors are being reported.
->> However, it seems very sick.
->
-> Do you have cache turned on or off?  If it's off, try turning it on.
+Ah dang sorry. Must be a cut-n-paste-o.
 
-On. I started again (deleted the units etc.) which I'd done before.
-I am not sure quite what I did different this time. Now I get 270Mb/s
-on dbench, 100Mb/s (approx) on a solid contiguous write (dd), which
-is well into the field of uninspiring but not as daft as 7Mb/s. I had
-rather expected that h/w RAID 5 would give me faster reads, and only
-slightly degraded writes, compared to a single disk of the same type
-plugged into the motherboard SATA.
+While you're here, does the assembly code for the SMP version look
+OK? You basically provided me with it but I don't think you saw its
+final form.
 
-However, dbench puts the (dual opteron 275) machine into 99% system
-state. Is that normal? Surely it should be in i/o wait.
+-- 
+SUSE Labs, Novell Inc.
 
-I /think/ what had happened is this: When I press F8 to exit the
-BIOS, it did not initialize the array (this is in accordance with the
-manual, it being deferred). Despite leaving the machine idle in the O/S
-for 2 days, it didn't start initializing the array. Running the mkfs
-started the initialization (would that make sense)? The second time
-I ran mkfs, I may have already (somehow) triggered it to start earlier.
-
-I shall try and work out some soak test I can run on it this w/e.
-
---
-Alex Bligh
+Send instant messages to your online friends http://au.messenger.yahoo.com 

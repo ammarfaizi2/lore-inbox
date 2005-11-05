@@ -1,54 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbVKEHqD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751451AbVKEHxF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751382AbVKEHqD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 02:46:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751442AbVKEHqD
+	id S1751451AbVKEHxF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 02:53:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbVKEHxF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 02:46:03 -0500
-Received: from mail.collax.com ([213.164.67.137]:15595 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1751371AbVKEHqB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 02:46:01 -0500
-Message-ID: <436C34F8.3090903@trash.net>
-Date: Sat, 05 Nov 2005 05:28:40 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Sat, 5 Nov 2005 02:53:05 -0500
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:14153 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S1751451AbVKEHxE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 02:53:04 -0500
+Date: Sat, 5 Nov 2005 08:53:03 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Andrew Morton <akpm@osdl.org>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/2] fix remaining missing includes
+In-Reply-To: <20051104232954.6145d309.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0511050841310.8826@gans.physik3.uni-rostock.de>
+References: <Pine.LNX.4.61.0511041746470.4856@gans.physik3.uni-rostock.de>
+ <20051104232954.6145d309.akpm@osdl.org>
 MIME-Version: 1.0
-To: Thomas Graf <tgraf@suug.ch>
-CC: Brian Pomerantz <bapper@piratehaven.org>, netdev@vger.kernel.org,
-       davem@davemloft.net, kuznet@ms2.inr.ac.ru, pekkas@netcore.fi,
-       jmorris@namei.org, yoshfuji@linux-ipv6.org, kaber@coreworks.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [IPV4] Fix secondary IP addresses after promotion
-References: <20051104184633.GA16256@skull.piratehaven.org> <436BFE08.6030906@trash.net> <20051105010740.GR23537@postel.suug.ch> <436C090D.5020201@trash.net>
-In-Reply-To: <436C090D.5020201@trash.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick McHardy wrote:
-> Thomas Graf wrote:
-> 
->> broadcast 10.0.0.0  proto kernel  scope link  src 10.0.0.2 local 
->> 10.0.0.2  proto kernel  scope host  src 10.0.0.2 broadcast 10.0.0.255  
->> proto kernel  scope link  src 10.0.0.2
->> Local routes for 10.0.0.3 and 10.0.0.4 have disappeared _without_
->> any notification.
->>
->> I think the correct way to fix this is to prevent the deletion of
->> the local routes, not just readding them. _If_ the deletion of them
->> is intended, which I doubt, then at least notifications must be
->> sent out.
-> 
-> I agree, the routes should ideally not be deleted at all. The missing
-> notifications appear to be a different bug. Let me have another look ..
+On Fri, 4 Nov 2005, Andrew Morton wrote:
 
-The reason why all routes are deleted is because their prefered
-source addresses is the primary address. fn_flush_list should
-probably send the missing notifications for the deleted routes.
-Changing address promotion to not delete the other routes at all
-looks extremly complicated, I think just fixing it to behave
-correctly is good enough (which my patch didn't do entirely,
-I'll send a new one this weekend).
+> Tim Schmielau <tim@physik3.uni-rostock.de> wrote:
+> >
+> >  /* Encode and de-code a swap entry */
+> >  @@ -464,6 +464,7 @@ static inline int ptep_test_and_clear_di
+> >   
+> >   extern spinlock_t pa_dbit_lock;
+> >   
+> >  +struct mm_struct;
+> 
+> Generally, it's better to put these forward struct declarations right at
+> the top of the header file (after the nested includes).
+> 
+> Because if someone comes along later and adds some code which uses
+> mm_struct at line 300, he's going to say a rude word and then add a second
+> forward declaration at line 299, and we end up with two of them.  Or he's
+> more awake and he just moves your declaration.  Either way, putting it at
+> the top of the file eliminates the problem.
+
+I was unsure how to handle this and decided to stick with the style of 
+each file for now as I wanted the patch to be minimally intrusive.
+I.e., if the file had forward declarations right in front of their use, I 
+did it that way. If it had them at the top (or didn't have any, but I 
+might have decided wrong on some of these), I put them there.
+
+BTW this mostly came up within architecure specific files and was similar 
+for each arch, so it seems to reflect their maintainers taste...
+
+> 
+> A followup patch sometime would be nice..
+> 
+
+Sure.
+But it will take some days as I feel quite exhausted from getting the 
+previous patch to work and want to reserve my spare time for any problems 
+these patches bring up.
+
+Thanks for your advice!
+
+Tim

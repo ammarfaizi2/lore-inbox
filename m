@@ -1,348 +1,480 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbVKEQim@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbVKEQjN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932107AbVKEQim (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 11:38:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbVKEQeN
+	id S1751282AbVKEQjN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 11:39:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbVKEQiq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 11:34:13 -0500
-Received: from moutng.kundenserver.de ([212.227.126.188]:44780 "EHLO
+	Sat, 5 Nov 2005 11:38:46 -0500
+Received: from moutng.kundenserver.de ([212.227.126.188]:47854 "EHLO
 	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932100AbVKEQda (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 11:33:30 -0500
-Message-Id: <20051105162718.128174000@b551138y.boeblingen.de.ibm.com>
+	id S1751282AbVKEQeK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 11:34:10 -0500
+Message-Id: <20051105162711.443083000@b551138y.boeblingen.de.ibm.com>
 References: <20051105162650.620266000@b551138y.boeblingen.de.ibm.com>
-Date: Sat, 05 Nov 2005 17:27:08 +0100
+Date: Sat, 05 Nov 2005 17:26:54 +0100
 From: Arnd Bergmann <arnd@arndb.de>
 To: linux-kernel@vger.kernel.org
-Cc: Christoph Hellwig <hch@lst.de>, axboe@suse.de,
+Cc: Christoph Hellwig <hch@lst.de>, chas@cmf.nrl.navy.mil,
+       netdev@vger.kernel.org, linux-atm-general@lists.sourceforge.net,
        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 18/25] raw: move ioctl32 code to raw.c
-Content-Disposition: inline; filename=raw-ioctl.diff
+Subject: [PATCH 04/25] net: move atm ioctl32 to net/atm/ioctl.c
+Content-Disposition: inline; filename=atm-ioctl.diff
 X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The two ioctl commands for the raw driver are not used
-anywhere outside of raw.c, so move the compat handler
-there as well.
+This moves all the ATM specific compat ioctls to net/atm.
+The code is still the same as before, but it would probably
+be a good idea to simplify this by getting rid of using
+compat_alloc_user_space.
 
-Since they were previously registered both as compatible
-and with a conversion handler, it is not clear if this
-ever worked before.
-
-Forwarding ioctl commands to the underlying block device
-needs adaptations here as well because of the earlier
-block device compat ioctl patch.
-
-CC: axboe@suse.de
+CC: chas@cmf.nrl.navy.mil
+CC: netdev@vger.kernel.org
+CC: linux-atm-general@lists.sourceforge.net
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-Index: linux-cg/drivers/char/raw.c
+Index: linux-2.6.14-rc/net/atm/common.h
 ===================================================================
---- linux-cg.orig/drivers/char/raw.c	2005-11-05 14:19:13.000000000 +0100
-+++ linux-cg/drivers/char/raw.c	2005-11-05 14:22:34.000000000 +0100
-@@ -8,6 +8,8 @@
-  * device are used to bind the other minor numbers to block devices.
-  */
- 
-+#include <linux/config.h>
-+#include <linux/compat.h>
- #include <linux/init.h>
- #include <linux/fs.h>
- #include <linux/devfs_fs_kernel.h>
-@@ -125,6 +127,16 @@
- 	return blkdev_ioctl(bdev->bd_inode, NULL, command, arg);
+--- linux-2.6.14-rc.orig/net/atm/common.h	2005-11-05 02:41:10.000000000 +0100
++++ linux-2.6.14-rc/net/atm/common.h	2005-11-05 02:41:28.000000000 +0100
+@@ -19,6 +19,7 @@
+ 		size_t total_len);
+ unsigned int vcc_poll(struct file *file, struct socket *sock, poll_table *wait);
+ int vcc_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg);
++int vcc_compat_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg);
+ int vcc_setsockopt(struct socket *sock, int level, int optname,
+ 		   char __user *optval, int optlen);
+ int vcc_getsockopt(struct socket *sock, int level, int optname,
+Index: linux-2.6.14-rc/net/atm/ioctl.c
+===================================================================
+--- linux-2.6.14-rc.orig/net/atm/ioctl.c	2005-11-05 02:41:10.000000000 +0100
++++ linux-2.6.14-rc/net/atm/ioctl.c	2005-11-05 02:41:28.000000000 +0100
+@@ -156,3 +156,170 @@
+ done:
+ 	return error;
  }
- 
++
 +#ifdef CONFIG_COMPAT
-+static long
-+raw_compat_ioctl(struct file *filp, unsigned int command, unsigned long arg)
++struct atmif_sioc32 {
++        compat_int_t	number;
++        compat_int_t	length;
++        compat_caddr_t	arg;
++};
++
++struct atm_iobuf32 {
++	compat_int_t	length;
++	compat_caddr_t	buffer;
++};
++
++#define ATM_GETLINKRATE32 _IOW('a', ATMIOC_ITF+1, struct atmif_sioc32)
++#define ATM_GETNAMES32    _IOW('a', ATMIOC_ITF+3, struct atm_iobuf32)
++#define ATM_GETTYPE32     _IOW('a', ATMIOC_ITF+4, struct atmif_sioc32)
++#define ATM_GETESI32	  _IOW('a', ATMIOC_ITF+5, struct atmif_sioc32)
++#define ATM_GETADDR32	  _IOW('a', ATMIOC_ITF+6, struct atmif_sioc32)
++#define ATM_RSTADDR32	  _IOW('a', ATMIOC_ITF+7, struct atmif_sioc32)
++#define ATM_ADDADDR32	  _IOW('a', ATMIOC_ITF+8, struct atmif_sioc32)
++#define ATM_DELADDR32	  _IOW('a', ATMIOC_ITF+9, struct atmif_sioc32)
++#define ATM_GETCIRANGE32  _IOW('a', ATMIOC_ITF+10, struct atmif_sioc32)
++#define ATM_SETCIRANGE32  _IOW('a', ATMIOC_ITF+11, struct atmif_sioc32)
++#define ATM_SETESI32      _IOW('a', ATMIOC_ITF+12, struct atmif_sioc32)
++#define ATM_SETESIF32     _IOW('a', ATMIOC_ITF+13, struct atmif_sioc32)
++#define ATM_GETSTAT32     _IOW('a', ATMIOC_SARCOM+0, struct atmif_sioc32)
++#define ATM_GETSTATZ32    _IOW('a', ATMIOC_SARCOM+1, struct atmif_sioc32)
++#define ATM_GETLOOP32	  _IOW('a', ATMIOC_SARCOM+2, struct atmif_sioc32)
++#define ATM_SETLOOP32	  _IOW('a', ATMIOC_SARCOM+3, struct atmif_sioc32)
++#define ATM_QUERYLOOP32	  _IOW('a', ATMIOC_SARCOM+4, struct atmif_sioc32)
++
++static struct {
++        unsigned int cmd32;
++        unsigned int cmd;
++} atm_ioctl_map[] = {
++	{ ATM_GETLINKRATE32, ATM_GETLINKRATE },
++	{ ATM_GETNAMES32,    ATM_GETNAMES },
++	{ ATM_GETTYPE32,     ATM_GETTYPE },
++	{ ATM_GETESI32,      ATM_GETESI },
++	{ ATM_GETADDR32,     ATM_GETADDR },
++	{ ATM_RSTADDR32,     ATM_RSTADDR },
++	{ ATM_ADDADDR32,     ATM_ADDADDR },
++	{ ATM_DELADDR32,     ATM_DELADDR },
++	{ ATM_GETCIRANGE32,  ATM_GETCIRANGE },
++	{ ATM_SETCIRANGE32,  ATM_SETCIRANGE },
++	{ ATM_SETESI32,      ATM_SETESI },
++	{ ATM_SETESIF32,     ATM_SETESIF },
++	{ ATM_GETSTAT32,     ATM_GETSTAT },
++	{ ATM_GETSTATZ32,    ATM_GETSTATZ },
++	{ ATM_GETLOOP32,     ATM_GETLOOP },
++	{ ATM_SETLOOP32,     ATM_SETLOOP },
++	{ ATM_QUERYLOOP32,   ATM_QUERYLOOP }
++};
++
++#define NR_ATM_IOCTL (sizeof(atm_ioctl_map)/sizeof(atm_ioctl_map[0]))
++
++
++static int do_atm_iobuf(struct socket *sock, unsigned int cmd, unsigned long arg)
 +{
-+	struct block_device *bdev = filp->private_data;
++	struct atm_iobuf   __user *iobuf;
++	struct atm_iobuf32 __user *iobuf32;
++	u32 data;
++	void __user *datap;
++	int len, err;
 +
-+	return compat_blkdev_ioctl(bdev->bd_inode, NULL, command, arg);
-+}
-+#endif
++	iobuf = compat_alloc_user_space(sizeof(*iobuf));
++	iobuf32 = compat_ptr(arg);
 +
- static void bind_device(struct raw_config_request *rq)
- {
- 	class_device_destroy(raw_class, MKDEV(RAW_MAJOR, rq->raw_minor));
-@@ -238,6 +250,79 @@
- 	return err;
- }
- 
-+#ifdef CONFIG_COMPAT
-+/* Raw devices */
-+struct raw32_config_request {
-+	compat_int_t raw_minor;
-+	__u64 block_major;
-+	__u64 block_minor;
-+} __attribute__ ((packed));
-+
-+static int get_raw32_request(struct raw_config_request *req,
-+			     struct raw32_config_request __user * user_req)
-+{
-+	int ret;
-+
-+	if (!access_ok
-+	    (VERIFY_READ, user_req, sizeof(struct raw32_config_request)))
++	if (get_user(len, &iobuf32->length) ||
++	    get_user(data, &iobuf32->buffer))
++		return -EFAULT;
++	datap = compat_ptr(data);
++	if (put_user(len, &iobuf->length) ||
++	    put_user(datap, &iobuf->buffer))
 +		return -EFAULT;
 +
-+	ret = __get_user(req->raw_minor, &user_req->raw_minor);
-+	ret |= __get_user(req->block_major, &user_req->block_major);
-+	ret |= __get_user(req->block_minor, &user_req->block_minor);
++	err = vcc_ioctl(sock, cmd, (unsigned long)iobuf);
 +
-+	return ret ? -EFAULT : 0;
++	if (!err) {
++		if (copy_in_user(&iobuf32->length, &iobuf->length,
++				 sizeof(int)))
++			err = -EFAULT;
++	}
++
++	return err;
 +}
 +
-+static int set_raw32_request(struct raw_config_request *req,
-+			     struct raw32_config_request __user * user_req)
++static int do_atmif_sioc(struct socket *sock, unsigned int cmd, unsigned long arg)
 +{
-+	int ret;
++	struct atmif_sioc   __user *sioc;
++	struct atmif_sioc32 __user *sioc32;
++	u32 data;
++	void __user *datap;
++	int err;
 +
-+	if (!access_ok
-+	    (VERIFY_WRITE, user_req, sizeof(struct raw32_config_request)))
++	sioc = compat_alloc_user_space(sizeof(*sioc));
++	sioc32 = compat_ptr(arg);
++
++	if (copy_in_user(&sioc->number, &sioc32->number, 2 * sizeof(int)) ||
++	    get_user(data, &sioc32->arg))
++		return -EFAULT;
++	datap = compat_ptr(data);
++	if (put_user(datap, &sioc->arg))
 +		return -EFAULT;
 +
-+	ret = __put_user(req->raw_minor, &user_req->raw_minor);
-+	ret |= __put_user(req->block_major, &user_req->block_major);
-+	ret |= __put_user(req->block_minor, &user_req->block_minor);
++	err = vcc_ioctl(sock, cmd, (unsigned long) sioc);
 +
-+	return ret ? -EFAULT : 0;
++	if (!err) {
++		if (copy_in_user(&sioc32->length, &sioc->length,
++				 sizeof(int)))
++			err = -EFAULT;
++	}
++	return err;
 +}
 +
-+static long raw_ctl_compat_ioctl(struct file *file, unsigned cmd,
-+						unsigned long arg)
++int vcc_compat_ioctl(struct socket *sock, unsigned int cmd32, unsigned long arg)
 +{
-+	int ret = -ENOIOCTLCMD;
++	int i;
++	unsigned int cmd = 0;
 +
-+	switch (cmd) {
-+	case RAW_SETBIND:
-+	case RAW_GETBIND:{
-+			struct raw_config_request req;
-+			struct raw32_config_request __user *user_req =
-+			    compat_ptr(arg);
-+			mm_segment_t oldfs = get_fs();
++	switch (cmd32) {
++	case SONET_GETSTAT:
++	case SONET_GETSTATZ:
++	case SONET_GETDIAG:
++	case SONET_SETDIAG:
++	case SONET_CLRDIAG:
++	case SONET_SETFRAMING:
++	case SONET_GETFRAMING:
++	case SONET_GETFRSENSE:
++		return do_atmif_sioc(sock, cmd32, arg);
++	}
 +
-+			if ((ret = get_raw32_request(&req, user_req)))
-+				return ret;
-+
-+			set_fs(KERNEL_DS);
-+			lock_kernel();
-+			ret = raw_ctl_ioctl(file->f_dentry->d_inode, file,
-+						cmd, (unsigned long) &req);
-+			unlock_kernel();
-+			set_fs(oldfs);
-+
-+			if ((!ret) && (cmd == RAW_GETBIND)) {
-+				ret = set_raw32_request(&req, user_req);
-+			}
++	for (i = 0; i < NR_ATM_IOCTL; i++) {
++		if (cmd32 == atm_ioctl_map[i].cmd32) {
++			cmd = atm_ioctl_map[i].cmd;
 +			break;
 +		}
 +	}
-+	return ret;
++	if (i == NR_ATM_IOCTL)
++		return -EINVAL;
++
++        switch (cmd) {
++	case ATM_GETNAMES:
++		return do_atm_iobuf(sock, cmd, arg);
++
++	case ATM_GETLINKRATE:
++	case ATM_GETTYPE:
++	case ATM_GETESI:
++	case ATM_GETADDR:
++	case ATM_RSTADDR:
++	case ATM_ADDADDR:
++	case ATM_DELADDR:
++	case ATM_GETCIRANGE:
++	case ATM_SETCIRANGE:
++	case ATM_SETESI:
++	case ATM_SETESIF:
++	case ATM_GETSTAT:
++	case ATM_GETSTATZ:
++	case ATM_GETLOOP:
++	case ATM_SETLOOP:
++	case ATM_QUERYLOOP:
++		return do_atmif_sioc(sock, cmd, arg);
++	}
++
++	return -EINVAL;
 +}
 +#endif
-+
- static ssize_t raw_file_write(struct file *file, const char __user *buf,
- 				   size_t count, loff_t *ppos)
- {
-@@ -269,6 +354,9 @@
- 	.open	=	raw_open,
- 	.release=	raw_release,
- 	.ioctl	=	raw_ioctl,
+Index: linux-2.6.14-rc/net/atm/pvc.c
+===================================================================
+--- linux-2.6.14-rc.orig/net/atm/pvc.c	2005-11-05 02:41:10.000000000 +0100
++++ linux-2.6.14-rc/net/atm/pvc.c	2005-11-05 02:41:28.000000000 +0100
+@@ -114,6 +114,9 @@
+ 	.getname =	pvc_getname,
+ 	.poll =		vcc_poll,
+ 	.ioctl =	vcc_ioctl,
 +#ifdef CONFIG_COMPAT
-+	.compat_ioctl =	raw_compat_ioctl,
++	.compat_ioctl =	vcc_compat_ioctl,
 +#endif
- 	.readv	= 	generic_file_readv,
- 	.writev	= 	generic_file_writev,
- 	.owner	=	THIS_MODULE,
-@@ -276,6 +364,9 @@
- 
- static struct file_operations raw_ctl_fops = {
- 	.ioctl	=	raw_ctl_ioctl,
+ 	.listen =	sock_no_listen,
+ 	.shutdown =	pvc_shutdown,
+ 	.setsockopt =	pvc_setsockopt,
+Index: linux-2.6.14-rc/net/atm/svc.c
+===================================================================
+--- linux-2.6.14-rc.orig/net/atm/svc.c	2005-11-05 02:41:10.000000000 +0100
++++ linux-2.6.14-rc/net/atm/svc.c	2005-11-05 02:41:28.000000000 +0100
+@@ -625,6 +625,9 @@
+ 	.getname =	svc_getname,
+ 	.poll =		vcc_poll,
+ 	.ioctl =	svc_ioctl,
 +#ifdef CONFIG_COMPAT
-+	.compat_ioctl = raw_ctl_compat_ioctl,
++	.compat_ioctl = vcc_compat_ioctl,
 +#endif
- 	.open	=	raw_open,
- 	.owner	=	THIS_MODULE,
- };
-Index: linux-cg/fs/compat_ioctl.c
+ 	.listen =	svc_listen,
+ 	.shutdown =	svc_shutdown,
+ 	.setsockopt =	svc_setsockopt,
+Index: linux-2.6.14-rc/net/compat.c
 ===================================================================
---- linux-cg.orig/fs/compat_ioctl.c	2005-11-05 14:22:34.000000000 +0100
-+++ linux-cg/fs/compat_ioctl.c	2005-11-05 15:46:57.000000000 +0100
-@@ -366,71 +366,6 @@
-         return sys_ioctl(fd,cmd,ptr);
- }
+--- linux-2.6.14-rc.orig/net/compat.c	2005-11-05 02:41:20.000000000 +0100
++++ linux-2.6.14-rc/net/compat.c	2005-11-05 02:41:28.000000000 +0100
+@@ -26,7 +26,6 @@
  
--struct raw32_config_request
--{
--        compat_int_t    raw_minor;
--        __u64   block_major;
--        __u64   block_minor;
--} __attribute__((packed));
--
--static int get_raw32_request(struct raw_config_request *req, struct raw32_config_request __user *user_req)
--{
--        int ret;
--
--        if (!access_ok(VERIFY_READ, user_req, sizeof(struct raw32_config_request)))
--                return -EFAULT;
--
--        ret = __get_user(req->raw_minor, &user_req->raw_minor);
--        ret |= __get_user(req->block_major, &user_req->block_major);
--        ret |= __get_user(req->block_minor, &user_req->block_minor);
--
--        return ret ? -EFAULT : 0;
--}
--
--static int set_raw32_request(struct raw_config_request *req, struct raw32_config_request __user *user_req)
--{
--	int ret;
--
--        if (!access_ok(VERIFY_WRITE, user_req, sizeof(struct raw32_config_request)))
--                return -EFAULT;
--
--        ret = __put_user(req->raw_minor, &user_req->raw_minor);
--        ret |= __put_user(req->block_major, &user_req->block_major);
--        ret |= __put_user(req->block_minor, &user_req->block_minor);
--
--        return ret ? -EFAULT : 0;
--}
--
--static int raw_ioctl(unsigned fd, unsigned cmd, unsigned long arg)
--{
--        int ret;
--
--        switch (cmd) {
--        case RAW_SETBIND:
--        case RAW_GETBIND: {
--                struct raw_config_request req;
--                struct raw32_config_request __user *user_req = compat_ptr(arg);
--                mm_segment_t oldfs = get_fs();
--
--                if ((ret = get_raw32_request(&req, user_req)))
--                        return ret;
--
--                set_fs(KERNEL_DS);
--                ret = sys_ioctl(fd,cmd,(unsigned long)&req);
--                set_fs(oldfs);
--
--                if ((!ret) && (cmd == RAW_GETBIND)) {
--                        ret = set_raw32_request(&req, user_req);
--                }
--                break;
--        }
--        default:
--                ret = sys_ioctl(fd, cmd, arg);
--                break;
--        }
--        return ret;
--}
--
- struct serial_struct32 {
-         compat_int_t    type;
-         compat_int_t    line;
-@@ -682,9 +617,6 @@
- HANDLE_IOCTL(CDROMREADAUDIO, cdrom_ioctl_trans)
- HANDLE_IOCTL(CDROM_SEND_PACKET, cdrom_ioctl_trans)
- HANDLE_IOCTL(REISERFS_IOC_UNPACK32, reiserfs_ioctl32)
--/* Raw devices */
--HANDLE_IOCTL(RAW_SETBIND, raw_ioctl)
--HANDLE_IOCTL(RAW_GETBIND, raw_ioctl)
- /* Serial */
- HANDLE_IOCTL(TIOCGSERIAL, serial_struct_ioctl)
- HANDLE_IOCTL(TIOCSSERIAL, serial_struct_ioctl)
-Index: linux-cg/include/linux/compat_ioctl.h
-===================================================================
---- linux-cg.orig/include/linux/compat_ioctl.h	2005-11-05 14:22:34.000000000 +0100
-+++ linux-cg/include/linux/compat_ioctl.h	2005-11-05 15:46:57.000000000 +0100
-@@ -365,9 +365,6 @@
- COMPATIBLE_IOCTL(DEVFSDIOC_SET_EVENT_MASK)
- COMPATIBLE_IOCTL(DEVFSDIOC_RELEASE_EVENT_QUEUE)
- COMPATIBLE_IOCTL(DEVFSDIOC_SET_DEBUG_MASK)
--/* Raw devices */
--COMPATIBLE_IOCTL(RAW_SETBIND)
--COMPATIBLE_IOCTL(RAW_GETBIND)
- /* Little a */
- COMPATIBLE_IOCTL(ATMSIGD_CTRL)
- COMPATIBLE_IOCTL(ATMARPD_CTRL)
-Index: linux-cg/include/linux/fs.h
-===================================================================
---- linux-cg.orig/include/linux/fs.h	2005-11-05 14:19:13.000000000 +0100
-+++ linux-cg/include/linux/fs.h	2005-11-05 14:22:34.000000000 +0100
-@@ -1321,7 +1321,8 @@
- extern struct file_operations def_fifo_fops;
- extern int ioctl_by_bdev(struct block_device *, unsigned, unsigned long);
- extern int blkdev_ioctl(struct inode *, struct file *, unsigned, unsigned long);
--extern long compat_blkdev_ioctl(struct file *, unsigned, unsigned long);
-+extern long compat_blkdev_ioctl(struct inode *,struct file *,
-+				unsigned, unsigned long);
- extern int blkdev_get(struct block_device *, mode_t, unsigned);
- extern int blkdev_put(struct block_device *);
- extern int bd_claim(struct block_device *, void *);
-Index: linux-cg/drivers/block/ioctl.c
-===================================================================
---- linux-cg.orig/drivers/block/ioctl.c	2005-11-05 14:22:34.000000000 +0100
-+++ linux-cg/drivers/block/ioctl.c	2005-11-05 15:46:12.000000000 +0100
-@@ -259,6 +259,7 @@
- 
- 	return blkdev_driver_ioctl(inode, file, disk, cmd, arg);
- }
-+EXPORT_SYMBOL_GPL(blkdev_ioctl);
- 
- #ifdef CONFIG_COMPAT
- static int w_long(struct inode *inode, struct file *file,
-@@ -695,11 +696,10 @@
- /* Most of the generic ioctls are handled in the normal fallback path.
-    This assumes the blkdev's low level compat_ioctl always returns
-    ENOIOCTLCMD for unknown ioctls. */
--long compat_blkdev_ioctl(struct file *file, unsigned cmd, unsigned long arg)
-+long compat_blkdev_ioctl(struct inode *inode, struct file *file, unsigned cmd, unsigned long arg)
- {
--	struct block_device *bdev = file->f_dentry->d_inode->i_bdev;
-+	struct block_device *bdev = inode->i_bdev;
- 	struct gendisk *disk = bdev->bd_disk;
--	struct inode *inode = file->f_mapping->host;
- 	int ret = -ENOIOCTLCMD;
- 
- 	switch (cmd) {
-@@ -808,6 +808,5 @@
- 
+ /* these are all for ioctl */
+ #include <linux/atalk.h>
+-#include <linux/atmdev.h>
+ #include <linux/ipv6_route.h>
+ #include <linux/ppp_defs.h>
+ #include <linux/route.h>
+@@ -1017,171 +1016,6 @@
  	return ret;
  }
-+EXPORT_SYMBOL_GPL(compat_blkdev_ioctl);
- #endif
--
--EXPORT_SYMBOL_GPL(blkdev_ioctl);
-Index: linux-cg/fs/block_dev.c
-===================================================================
---- linux-cg.orig/fs/block_dev.c	2005-11-05 14:22:31.000000000 +0100
-+++ linux-cg/fs/block_dev.c	2005-11-05 14:24:35.000000000 +0100
-@@ -782,6 +782,14 @@
- 	return blkdev_ioctl(file->f_mapping->host, file, cmd, arg);
- }
  
-+#ifdef CONFIG_COMPAT
-+static long block_compat_ioctl(struct file *file, unsigned int cmd,
-+				unsigned long arg)
-+{
-+	return compat_blkdev_ioctl(file->f_mapping->host, file, cmd, arg);
-+}
-+#endif
+-struct atmif_sioc32 {
+-        compat_int_t	number;
+-        compat_int_t	length;
+-        compat_caddr_t	arg;
+-};
+-
+-struct atm_iobuf32 {
+-	compat_int_t	length;
+-	compat_caddr_t	buffer;
+-};
+-
+-#define ATM_GETLINKRATE32 _IOW('a', ATMIOC_ITF+1, struct atmif_sioc32)
+-#define ATM_GETNAMES32    _IOW('a', ATMIOC_ITF+3, struct atm_iobuf32)
+-#define ATM_GETTYPE32     _IOW('a', ATMIOC_ITF+4, struct atmif_sioc32)
+-#define ATM_GETESI32	  _IOW('a', ATMIOC_ITF+5, struct atmif_sioc32)
+-#define ATM_GETADDR32	  _IOW('a', ATMIOC_ITF+6, struct atmif_sioc32)
+-#define ATM_RSTADDR32	  _IOW('a', ATMIOC_ITF+7, struct atmif_sioc32)
+-#define ATM_ADDADDR32	  _IOW('a', ATMIOC_ITF+8, struct atmif_sioc32)
+-#define ATM_DELADDR32	  _IOW('a', ATMIOC_ITF+9, struct atmif_sioc32)
+-#define ATM_GETCIRANGE32  _IOW('a', ATMIOC_ITF+10, struct atmif_sioc32)
+-#define ATM_SETCIRANGE32  _IOW('a', ATMIOC_ITF+11, struct atmif_sioc32)
+-#define ATM_SETESI32      _IOW('a', ATMIOC_ITF+12, struct atmif_sioc32)
+-#define ATM_SETESIF32     _IOW('a', ATMIOC_ITF+13, struct atmif_sioc32)
+-#define ATM_GETSTAT32     _IOW('a', ATMIOC_SARCOM+0, struct atmif_sioc32)
+-#define ATM_GETSTATZ32    _IOW('a', ATMIOC_SARCOM+1, struct atmif_sioc32)
+-#define ATM_GETLOOP32	  _IOW('a', ATMIOC_SARCOM+2, struct atmif_sioc32)
+-#define ATM_SETLOOP32	  _IOW('a', ATMIOC_SARCOM+3, struct atmif_sioc32)
+-#define ATM_QUERYLOOP32	  _IOW('a', ATMIOC_SARCOM+4, struct atmif_sioc32)
+-
+-static struct {
+-        unsigned int cmd32;
+-        unsigned int cmd;
+-} atm_ioctl_map[] = {
+-        { ATM_GETLINKRATE32, ATM_GETLINKRATE },
+-	{ ATM_GETNAMES32,    ATM_GETNAMES },
+-        { ATM_GETTYPE32,     ATM_GETTYPE },
+-        { ATM_GETESI32,      ATM_GETESI },
+-        { ATM_GETADDR32,     ATM_GETADDR },
+-        { ATM_RSTADDR32,     ATM_RSTADDR },
+-        { ATM_ADDADDR32,     ATM_ADDADDR },
+-        { ATM_DELADDR32,     ATM_DELADDR },
+-        { ATM_GETCIRANGE32,  ATM_GETCIRANGE },
+-	{ ATM_SETCIRANGE32,  ATM_SETCIRANGE },
+-	{ ATM_SETESI32,      ATM_SETESI },
+-	{ ATM_SETESIF32,     ATM_SETESIF },
+-	{ ATM_GETSTAT32,     ATM_GETSTAT },
+-	{ ATM_GETSTATZ32,    ATM_GETSTATZ },
+-	{ ATM_GETLOOP32,     ATM_GETLOOP },
+-	{ ATM_SETLOOP32,     ATM_SETLOOP },
+-	{ ATM_QUERYLOOP32,   ATM_QUERYLOOP }
+-};
+-
+-#define NR_ATM_IOCTL (sizeof(atm_ioctl_map)/sizeof(atm_ioctl_map[0]))
+-
+-
+-static int do_atm_iobuf(struct file *file, unsigned int cmd, unsigned long arg)
+-{
+-	struct atm_iobuf   __user *iobuf;
+-	struct atm_iobuf32 __user *iobuf32;
+-	u32 data;
+-	void __user *datap;
+-	int len, err;
+-
+-	iobuf = compat_alloc_user_space(sizeof(*iobuf));
+-	iobuf32 = compat_ptr(arg);
+-
+-	if (get_user(len, &iobuf32->length) ||
+-	    get_user(data, &iobuf32->buffer))
+-		return -EFAULT;
+-	datap = compat_ptr(data);
+-	if (put_user(len, &iobuf->length) ||
+-	    put_user(datap, &iobuf->buffer))
+-		return -EFAULT;
+-
+-	err = sock_ioctl(file, cmd, (unsigned long)iobuf);
+-
+-	if (!err) {
+-		if (copy_in_user(&iobuf32->length, &iobuf->length,
+-				 sizeof(int)))
+-			err = -EFAULT;
+-	}
+-
+-	return err;
+-}
+-
+-static int do_atmif_sioc(struct file *file, unsigned int cmd, unsigned long arg)
+-{
+-        struct atmif_sioc   __user *sioc;
+-	struct atmif_sioc32 __user *sioc32;
+-	u32 data;
+-	void __user *datap;
+-	int err;
+-
+-	sioc = compat_alloc_user_space(sizeof(*sioc));
+-	sioc32 = compat_ptr(arg);
+-
+-	if (copy_in_user(&sioc->number, &sioc32->number, 2 * sizeof(int)) ||
+-	    get_user(data, &sioc32->arg))
+-		return -EFAULT;
+-	datap = compat_ptr(data);
+-	if (put_user(datap, &sioc->arg))
+-		return -EFAULT;
+-
+-	err = sock_ioctl(file, cmd, (unsigned long) sioc);
+-
+-	if (!err) {
+-		if (copy_in_user(&sioc32->length, &sioc->length,
+-				 sizeof(int)))
+-			err = -EFAULT;
+-	}
+-	return err;
+-}
+-
+-static int do_atm_ioctl(struct file *file, unsigned int cmd32, unsigned long arg)
+-{
+-        int i;
+-        unsigned int cmd = 0;
+-
+-	switch (cmd32) {
+-	case SONET_GETSTAT:
+-	case SONET_GETSTATZ:
+-	case SONET_GETDIAG:
+-	case SONET_SETDIAG:
+-	case SONET_CLRDIAG:
+-	case SONET_SETFRAMING:
+-	case SONET_GETFRAMING:
+-	case SONET_GETFRSENSE:
+-		return do_atmif_sioc(file, cmd32, arg);
+-	}
+-
+-	for (i = 0; i < NR_ATM_IOCTL; i++) {
+-		if (cmd32 == atm_ioctl_map[i].cmd32) {
+-			cmd = atm_ioctl_map[i].cmd;
+-			break;
+-		}
+-	}
+-	if (i == NR_ATM_IOCTL)
+-	        return -EINVAL;
+-
+-        switch (cmd) {
+-	case ATM_GETNAMES:
+-		return do_atm_iobuf(file, cmd, arg);
+-
+-	case ATM_GETLINKRATE:
+-        case ATM_GETTYPE:
+-        case ATM_GETESI:
+-        case ATM_GETADDR:
+-        case ATM_RSTADDR:
+-        case ATM_ADDADDR:
+-        case ATM_DELADDR:
+-        case ATM_GETCIRANGE:
+-	case ATM_SETCIRANGE:
+-	case ATM_SETESI:
+-	case ATM_SETESIF:
+-	case ATM_GETSTAT:
+-	case ATM_GETSTATZ:
+-	case ATM_GETLOOP:
+-	case ATM_SETLOOP:
+-	case ATM_QUERYLOOP:
+-                return do_atmif_sioc(file, cmd, arg);
+-        }
+-
+-        return -EINVAL;
+-}
+-
+ struct sock_fprog32 {
+ 	unsigned short	len;
+ 	compat_caddr_t	filter;
+@@ -1380,7 +1214,8 @@
+ 	case type: ret = sock_ioctl(file, cmd, arg); break;
+ #define INVAL_IOCTL(type) \
+ 	case type: ret = -EINVAL; break;
+-/* these are handled in sock_ioctl */
 +
- struct address_space_operations def_blk_aops = {
- 	.readpage	= blkdev_readpage,
- 	.writepage	= blkdev_writepage,
-@@ -804,7 +812,7 @@
- 	.fsync		= block_fsync,
- 	.unlocked_ioctl	= block_ioctl,
- #ifdef CONFIG_COMPAT
--	.compat_ioctl	= compat_blkdev_ioctl,
-+	.compat_ioctl	= block_compat_ioctl,
- #endif
- 	.readv		= generic_file_readv,
- 	.writev		= generic_file_write_nolock,
++/* these are handled directly in sock_ioctl */
+ COMPATIBLE_IOCTL(FIOSETOWN)
+ COMPATIBLE_IOCTL(SIOCSPGRP)
+ COMPATIBLE_IOCTL(FIOGETOWN)
+@@ -1448,32 +1283,6 @@
+ /* Note SIOCRTMSG is no longer, so this is safe and * the user would have seen just an -EINVAL anyways. */
+ INVAL_IOCTL(SIOCRTMSG)
+ HANDLE_IOCTL(SIOCGSTAMP, do_siocgstamp)
+-/* atm */
+-HANDLE_IOCTL(ATM_GETLINKRATE32, do_atm_ioctl)
+-HANDLE_IOCTL(ATM_GETNAMES32, do_atm_ioctl)
+-HANDLE_IOCTL(ATM_GETTYPE32, do_atm_ioctl)
+-HANDLE_IOCTL(ATM_GETESI32, do_atm_ioctl)
+-HANDLE_IOCTL(ATM_GETADDR32, do_atm_ioctl)
+-HANDLE_IOCTL(ATM_RSTADDR32, do_atm_ioctl)
+-HANDLE_IOCTL(ATM_ADDADDR32, do_atm_ioctl)
+-HANDLE_IOCTL(ATM_DELADDR32, do_atm_ioctl)
+-HANDLE_IOCTL(ATM_GETCIRANGE32, do_atm_ioctl)
+-HANDLE_IOCTL(ATM_SETCIRANGE32, do_atm_ioctl)
+-HANDLE_IOCTL(ATM_SETESI32, do_atm_ioctl)
+-HANDLE_IOCTL(ATM_SETESIF32, do_atm_ioctl)
+-HANDLE_IOCTL(ATM_GETSTAT32, do_atm_ioctl)
+-HANDLE_IOCTL(ATM_GETSTATZ32, do_atm_ioctl)
+-HANDLE_IOCTL(ATM_GETLOOP32, do_atm_ioctl)
+-HANDLE_IOCTL(ATM_SETLOOP32, do_atm_ioctl)
+-HANDLE_IOCTL(ATM_QUERYLOOP32, do_atm_ioctl)
+-HANDLE_IOCTL(SONET_GETSTAT, do_atm_ioctl)
+-HANDLE_IOCTL(SONET_GETSTATZ, do_atm_ioctl)
+-HANDLE_IOCTL(SONET_GETDIAG, do_atm_ioctl)
+-HANDLE_IOCTL(SONET_SETDIAG, do_atm_ioctl)
+-HANDLE_IOCTL(SONET_CLRDIAG, do_atm_ioctl)
+-HANDLE_IOCTL(SONET_SETFRAMING, do_atm_ioctl)
+-HANDLE_IOCTL(SONET_GETFRAMING, do_atm_ioctl)
+-HANDLE_IOCTL(SONET_GETFRSENSE, do_atm_ioctl)
+ /* ppp */
+ HANDLE_IOCTL(PPPIOCGIDLE32, ppp_ioctl_trans)
+ HANDLE_IOCTL(PPPIOCSCOMPRESS32, ppp_ioctl_trans)
 
 --
 

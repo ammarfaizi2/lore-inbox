@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751292AbVKEHed@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbVKEHnK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751292AbVKEHed (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 02:34:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbVKEHed
+	id S1751361AbVKEHnK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 02:43:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbVKEHnK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 02:34:33 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:35018 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751292AbVKEHec (ORCPT
+	Sat, 5 Nov 2005 02:43:10 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:22221 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751361AbVKEHnJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 02:34:32 -0500
-Date: Fri, 4 Nov 2005 23:34:24 -0800
+	Sat, 5 Nov 2005 02:43:09 -0500
+Date: Fri, 4 Nov 2005 23:43:00 -0800
 From: Paul Jackson <pj@sgi.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Simon.Derr@bull.net, ak@suse.de, linux-kernel@vger.kernel.org,
        clameter@sgi.com
 Subject: Re: [PATCH 5/5] cpuset: memory reclaim rate meter
-Message-Id: <20051104233424.6521082a.pj@sgi.com>
+Message-Id: <20051104234300.7e531ac2.pj@sgi.com>
 In-Reply-To: <20051104231320.6c4525a8.akpm@osdl.org>
 References: <20051104053109.549.76824.sendpatchset@jackhammer.engr.sgi.com>
 	<20051104053153.549.83350.sendpatchset@jackhammer.engr.sgi.com>
@@ -28,19 +28,24 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Get down and give me fifty.
-
-No chance.  The best I could do in basic training was 15.
-Almost got drummed out of the Military on that account.
-
-I am far older and weaker now.
-
-
 > I guess I'll give up and merge this thing.
 
-If you'd like one that avoids doing any work on the 99.3% of the worlds
-systems that don't need this, hang on a little bit and I will send you
-the new improved version.
+Actually - definitely wait for the next version.
+
+Kill the version you have of this patch.
+
+I just realized that "memory_reclaim_rate" was a bogus
+name for this feature.  The users, batch managers, don't
+give a dang that its hooked into some direct reclaim
+point in the kernel.
+
+They just want a decent measure of memory pressure in
+a cpuset.
+
+So I am going to rename the flag, to "memory_pressure".
+
+Kill the current 'memory reclaim rate' patch.  I will
+resend in perhaps an hour, under this new name.
 
 -- 
                   I won't rest till it's the best ...

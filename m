@@ -1,70 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbVKENy7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbVKEOVp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932066AbVKENy7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 08:54:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbVKENy7
+	id S1751168AbVKEOVp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 09:21:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbVKEOVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 08:54:59 -0500
-Received: from 62-15-156-40.inversas.jazztel.es ([62.15.156.40]:10318 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1751162AbVKENy7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 08:54:59 -0500
-thread-index: AcXiEMhz4zTVT7kKRb6UYZt9ZOscFA==
-Thread-Topic: domicilie su empresa en otro lugar
-From: <linux-kernel@vger.kernel.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: domicilie su empresa en otro lugar
-Date: Sat, 5 Nov 2005 14:56:56 +0100
-Message-ID: <9e4101c5e210$c87322b0$8200a8c0@S00JJ40x4330941C3C7CD7>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Sat, 5 Nov 2005 09:21:45 -0500
+Received: from main.gmane.org ([80.91.229.2]:63391 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751168AbVKEOVo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 09:21:44 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Peter Daum <gator_ml@yahoo.de>
+Subject: scsi_eh_x/scsi_wq_x "zombie" processes in kernel 2.6.13+
+Date: Sat, 05 Nov 2005 13:17:39 +0100
+Message-ID: <dki7t4$utu$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft CDO for Windows 2000
-Content-Class: urn:content-classes:message
-Importance: normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: pd9537492.dip.t-dialin.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050314 Mnenhy/0.7.1
+X-Accept-Language: de, en, fr, es, pt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Starting around kernel version 2.6.13, the scsi_eh_x and scsi_wq_x
+processes that are created per scsi host will not terminate if the
+driver for the scsi interface is removed. I don't know whether there
+are any serious problems involved with this, but one thing that is
+definitely annoying, is that the process list fills very quickly when
+modules are loaded/unloaded on demand, because 2 new processes will
+be created every time the driver for a scsi adapter gets loaded.
 
-Domiciliaciones de empresas
+(I guess, this happens with all scsi host modules - in my case, the
+"culprit" is a qlogic fibre channel driver that gets loaded only when
+needed.)
 
-?Problemas economicos!
-
-Tiene algun cliente, conocido o amigo
-?Con problemas economicos?
-?Que no pueda dormir, acosado por no poder pagar a sus proveedores?
-?Que no puede trabajar, porque continuamete esta recibiendo avisos judiciales? 
-?Que esta amargado, por recibir citaciones sociales?
-?Que precise, un cambio de vida economica? 
-Pida informacin
-
-http://www.bestsevendiamonds.com/domiciliaciones/
-
-para poder dar de baja su direccin del listado, precisamos use el siguiente enlace
-
-http://www.bestsevendiamonds.com/domiciliaciones/bajas.asp
-
-Domicilie su negocio
-Nos encargamos de todo 
-
-Prestacion de nuestros servicios.
-
-Domiciliacion de sociedades terminales ante notario o no 
-Recogida de actas notariales
-Recogida de embargos
-Recogida de citaciones
-Guardia y custodia de estos documentos y su entrega en nuestro domicilio o por internet
-Desvio de llamadas al n? telefonico que desee
-1H. Mensual de Sala de Juntas o mas segun disposicion de las mismas 
-
-Nos encargaremos de que su cliente con total discrecion, reciba todos sus avisos oficiales,
-sin que eso le suponga ningun tipo de molestia. 
-Avisandole con total discrecion de la llegada de sus avisos oficiales, Hacienda, Seguridad Social,
-Tribunales etc., donde el cliente nos indique.
-
-
-
-
+Regards,
+              Peter Daum
 

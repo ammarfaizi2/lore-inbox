@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbVKESOz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbVKESPw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932139AbVKESOz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 13:14:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbVKESOz
+	id S932159AbVKESPw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 13:15:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbVKESPw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 13:14:55 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:36881 "EHLO
+	Sat, 5 Nov 2005 13:15:52 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37393 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932139AbVKESOx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 13:14:53 -0500
-Date: Sat, 5 Nov 2005 18:14:46 +0000
+	id S932160AbVKESPu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 13:15:50 -0500
+Date: Sat, 5 Nov 2005 18:15:40 +0000
 From: Russell King <rmk+lkml@arm.linux.org.uk>
 To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [DRIVER MODEL] Convert ARM s3c2410 drivers
-Message-ID: <20051105181446.GE14419@flint.arm.linux.org.uk>
+Subject: Re: [DRIVER MODEL] Convert ARM PXA drivers
+Message-ID: <20051105181539.GG14419@flint.arm.linux.org.uk>
 Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
 References: <20051105181122.GD12228@flint.arm.linux.org.uk>
 Mime-Version: 1.0
@@ -28,1054 +28,628 @@ Convert platform drivers to use struct platform_driver
 
 Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
 
-diff --git a/drivers/char/s3c2410-rtc.c b/drivers/char/s3c2410-rtc.c
---- a/drivers/char/s3c2410-rtc.c
-+++ b/drivers/char/s3c2410-rtc.c
-@@ -382,7 +382,7 @@ static struct rtc_ops s3c2410_rtcops = {
- 	.proc	        = s3c2410_rtc_proc,
- };
- 
--static void s3c2410_rtc_enable(struct device *dev, int en)
-+static void s3c2410_rtc_enable(struct platform_device *pdev, int en)
- {
- 	unsigned int tmp;
- 
-@@ -399,21 +399,21 @@ static void s3c2410_rtc_enable(struct de
- 		/* re-enable the device, and check it is ok */
- 
- 		if ((readb(S3C2410_RTCCON) & S3C2410_RTCCON_RTCEN) == 0){
--			dev_info(dev, "rtc disabled, re-enabling\n");
-+			dev_info(&pdev->dev, "rtc disabled, re-enabling\n");
- 
- 			tmp = readb(S3C2410_RTCCON);
- 			writeb(tmp | S3C2410_RTCCON_RTCEN , S3C2410_RTCCON);
- 		}
- 
- 		if ((readb(S3C2410_RTCCON) & S3C2410_RTCCON_CNTSEL)){
--			dev_info(dev, "removing S3C2410_RTCCON_CNTSEL\n");
-+			dev_info(&pdev->dev, "removing S3C2410_RTCCON_CNTSEL\n");
- 
- 			tmp = readb(S3C2410_RTCCON);
- 			writeb(tmp& ~S3C2410_RTCCON_CNTSEL , S3C2410_RTCCON);
- 		}
- 
- 		if ((readb(S3C2410_RTCCON) & S3C2410_RTCCON_CLKRST)){
--			dev_info(dev, "removing S3C2410_RTCCON_CLKRST\n");
-+			dev_info(&pdev->dev, "removing S3C2410_RTCCON_CLKRST\n");
- 
- 			tmp = readb(S3C2410_RTCCON);
- 			writeb(tmp & ~S3C2410_RTCCON_CLKRST, S3C2410_RTCCON);
-@@ -421,7 +421,7 @@ static void s3c2410_rtc_enable(struct de
- 	}
+diff -u b/drivers/mmc/pxamci.c b/drivers/mmc/pxamci.c
+--- b/drivers/mmc/pxamci.c
++++ b/drivers/mmc/pxamci.c
+@@ -428,9 +428,8 @@
+ 	return IRQ_HANDLED;
  }
  
--static int s3c2410_rtc_remove(struct device *dev)
-+static int s3c2410_rtc_remove(struct platform_device *dev)
- {
- 	unregister_rtc(&s3c2410_rtcops);
- 
-@@ -438,25 +438,24 @@ static int s3c2410_rtc_remove(struct dev
- 	return 0;
- }
- 
--static int s3c2410_rtc_probe(struct device *dev)
-+static int s3c2410_rtc_probe(struct platform_device *pdev)
+-static int pxamci_probe(struct device *dev)
++static int pxamci_probe(struct platform_device *pdev)
  {
 -	struct platform_device *pdev = to_platform_device(dev);
- 	struct resource *res;
- 	int ret;
+ 	struct mmc_host *mmc;
+ 	struct pxamci_host *host = NULL;
+ 	struct resource *r;
+@@ -445,7 +444,7 @@
+ 	if (!r)
+ 		return -EBUSY;
  
--	pr_debug("%s: probe=%p, device=%p\n", __FUNCTION__, pdev, dev);
-+	pr_debug("%s: probe=%p\n", __FUNCTION__, pdev);
- 
- 	/* find the IRQs */
- 
- 	s3c2410_rtc_tickno = platform_get_irq(pdev, 1);
- 	if (s3c2410_rtc_tickno <= 0) {
--		dev_err(dev, "no irq for rtc tick\n");
-+		dev_err(&pdev->dev, "no irq for rtc tick\n");
- 		return -ENOENT;
- 	}
- 
- 	s3c2410_rtc_alarmno = platform_get_irq(pdev, 0);
- 	if (s3c2410_rtc_alarmno <= 0) {
--		dev_err(dev, "no irq for alarm\n");
-+		dev_err(&pdev->dev, "no irq for alarm\n");
- 		return -ENOENT;
- 	}
- 
-@@ -467,7 +466,7 @@ static int s3c2410_rtc_probe(struct devi
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	if (res == NULL) {
--		dev_err(dev, "failed to get memory region resource\n");
-+		dev_err(&pdev->dev, "failed to get memory region resource\n");
- 		return -ENOENT;
- 	}
- 
-@@ -475,14 +474,14 @@ static int s3c2410_rtc_probe(struct devi
- 				     pdev->name);
- 
- 	if (s3c2410_rtc_mem == NULL) {
--		dev_err(dev, "failed to reserve memory region\n");
-+		dev_err(&pdev->dev, "failed to reserve memory region\n");
- 		ret = -ENOENT;
- 		goto exit_err;
- 	}
- 
- 	s3c2410_rtc_base = ioremap(res->start, res->end - res->start + 1);
- 	if (s3c2410_rtc_base == NULL) {
--		dev_err(dev, "failed ioremap()\n");
-+		dev_err(&pdev->dev, "failed ioremap()\n");
- 		ret = -EINVAL;
- 		goto exit_err;
- 	}
-@@ -494,7 +493,7 @@ static int s3c2410_rtc_probe(struct devi
- 
- 	/* check to see if everything is setup correctly */
- 
--	s3c2410_rtc_enable(dev, 1);
-+	s3c2410_rtc_enable(pdev, 1);
- 
-  	pr_debug("s3c2410_rtc: RTCCON=%02x\n", readb(S3C2410_RTCCON));
- 
-@@ -506,7 +505,7 @@ static int s3c2410_rtc_probe(struct devi
- 	return 0;
- 
-  exit_err:
--	dev_err(dev, "error %d during initialisation\n", ret);
-+	dev_err(&pdev->dev, "error %d during initialisation\n", ret);
- 
- 	return ret;
- }
-@@ -519,7 +518,7 @@ static struct timespec s3c2410_rtc_delta
- 
- static int ticnt_save;
- 
--static int s3c2410_rtc_suspend(struct device *dev, pm_message_t state)
-+static int s3c2410_rtc_suspend(struct platform_device *pdev, pm_message_t state)
- {
- 	struct rtc_time tm;
- 	struct timespec time;
-@@ -535,19 +534,19 @@
- 	s3c2410_rtc_gettime(&tm);
- 	rtc_tm_to_time(&tm, &time.tv_sec);
- 	save_time_delta(&s3c2410_rtc_delta, &time);
--	s3c2410_rtc_enable(dev, 0);
-+	s3c2410_rtc_enable(pdev, 0);
- 
- 	return 0;
- }
- 
--static int s3c2410_rtc_resume(struct device *dev)
-+static int s3c2410_rtc_resume(struct platform_device *pdev)
- {
- 	struct rtc_time tm;
- 	struct timespec time;
- 
- 	time.tv_nsec = 0;
- 
--	s3c2410_rtc_enable(dev, 1);
-+	s3c2410_rtc_enable(pdev, 1);
- 	s3c2410_rtc_gettime(&tm);
- 	rtc_tm_to_time(&tm, &time.tv_sec);
- 	restore_time_delta(&s3c2410_rtc_delta, &time);
-@@ -560,14 +559,15 @@ static int s3c2410_rtc_resume(struct dev
- #define s3c2410_rtc_resume  NULL
- #endif
- 
--static struct device_driver s3c2410_rtcdrv = {
--	.name		= "s3c2410-rtc",
--	.owner		= THIS_MODULE,
--	.bus		= &platform_bus_type,
-+static struct platform_driver s3c2410_rtcdrv = {
- 	.probe		= s3c2410_rtc_probe,
- 	.remove		= s3c2410_rtc_remove,
- 	.suspend	= s3c2410_rtc_suspend,
- 	.resume		= s3c2410_rtc_resume,
-+	.driver		= {
-+		.name	= "s3c2410-rtc",
-+		.owner	= THIS_MODULE,
-+	},
- };
- 
- static char __initdata banner[] = "S3C2410 RTC, (c) 2004 Simtec Electronics\n";
-@@ -575,12 +575,12 @@ static char __initdata banner[] = "S3C24
- static int __init s3c2410_rtc_init(void)
- {
- 	printk(banner);
--	return driver_register(&s3c2410_rtcdrv);
-+	return platform_driver_register(&s3c2410_rtcdrv);
- }
- 
- static void __exit s3c2410_rtc_exit(void)
- {
--	driver_unregister(&s3c2410_rtcdrv);
-+	platform_driver_unregister(&s3c2410_rtcdrv);
- }
- 
- module_init(s3c2410_rtc_init);
-diff --git a/drivers/char/watchdog/s3c2410_wdt.c b/drivers/char/watchdog/s3c2410_wdt.c
---- a/drivers/char/watchdog/s3c2410_wdt.c
-+++ b/drivers/char/watchdog/s3c2410_wdt.c
-@@ -347,15 +347,14 @@ static irqreturn_t s3c2410wdt_irq(int ir
- }
- /* device interface */
- 
--static int s3c2410wdt_probe(struct device *dev)
-+static int s3c2410wdt_probe(struct platform_device *pdev)
- {
--	struct platform_device *pdev = to_platform_device(dev);
- 	struct resource *res;
- 	int started = 0;
- 	int ret;
- 	int size;
- 
--	DBG("%s: probe=%p, device=%p\n", __FUNCTION__, pdev, dev);
-+	DBG("%s: probe=%p\n", __FUNCTION__, pdev);
- 
- 	/* get the memory region for the watchdog timer */
- 
-@@ -386,13 +385,13 @@ static int s3c2410wdt_probe(struct devic
- 		return -ENOENT;
- 	}
- 
--	ret = request_irq(res->start, s3c2410wdt_irq, 0, pdev->name, dev);
-+	ret = request_irq(res->start, s3c2410wdt_irq, 0, pdev->name, pdev);
- 	if (ret != 0) {
- 		printk(KERN_INFO PFX "failed to install irq (%d)\n", ret);
- 		return ret;
- 	}
- 
--	wdt_clock = clk_get(dev, "watchdog");
-+	wdt_clock = clk_get(&pdev->dev, "watchdog");
- 	if (wdt_clock == NULL) {
- 		printk(KERN_INFO PFX "failed to find watchdog clock source\n");
- 		return -ENOENT;
-@@ -430,7 +429,7 @@ static int s3c2410wdt_probe(struct devic
- 	return 0;
- }
- 
--static int s3c2410wdt_remove(struct device *dev)
-+static int s3c2410wdt_remove(struct platform_device *dev)
- {
- 	if (wdt_mem != NULL) {
- 		release_resource(wdt_mem);
-@@ -454,7 +453,7 @@ static int s3c2410wdt_remove(struct devi
- 	return 0;
- }
- 
--static void s3c2410wdt_shutdown(struct device *dev)
-+static void s3c2410wdt_shutdown(struct platform_device *dev)
- {
- 	s3c2410wdt_stop();	
- }
-@@ -464,7 +463,7 @@ static void s3c2410wdt_shutdown(struct d
- static unsigned long wtcon_save;
- static unsigned long wtdat_save;
- 
--static int s3c2410wdt_suspend(struct device *dev, pm_message_t state)
-+static int s3c2410wdt_suspend(struct platform_device *dev, pm_message_t state)
- {
- 	/* Save watchdog state, and turn it off. */
- 	wtcon_save = readl(wdt_base + S3C2410_WTCON);
-@@ -476,7 +475,7 @@ 
- 	return 0;
- }
- 
--static int s3c2410wdt_resume(struct device *dev)
-+static int s3c2410wdt_resume(struct platform_device *dev)
- {
- 	/* Restore watchdog state. */
- 
-@@ -496,15 +495,16 @@ static int s3c2410wdt_resume(struct devi
- #endif /* CONFIG_PM */
- 
- 
--static struct device_driver s3c2410wdt_driver = {
--	.owner		= THIS_MODULE,
--	.name		= "s3c2410-wdt",
--	.bus		= &platform_bus_type,
-+static struct platform_driver s3c2410wdt_driver = {
- 	.probe		= s3c2410wdt_probe,
- 	.remove		= s3c2410wdt_remove,
- 	.shutdown	= s3c2410wdt_shutdown,
- 	.suspend	= s3c2410wdt_suspend,
- 	.resume		= s3c2410wdt_resume,
-+	.driver		= {
-+		.owner	= THIS_MODULE,
-+		.name	= "s3c2410-wdt",
-+	},
- };
- 
- 
-@@ -513,12 +513,12 @@ static char banner[] __initdata = KERN_I
- static int __init watchdog_init(void)
- {
- 	printk(banner);
--	return driver_register(&s3c2410wdt_driver);
-+	return platform_driver_register(&s3c2410wdt_driver);
- }
- 
- static void __exit watchdog_exit(void)
- {
--	driver_unregister(&s3c2410wdt_driver);
-+	platform_driver_unregister(&s3c2410wdt_driver);
- }
- 
- module_init(watchdog_init);
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -760,24 +760,23 @@ static void s3c24xx_i2c_free(struct s3c2
-  * called by the bus driver when a suitable device is found
- */
- 
--static int s3c24xx_i2c_probe(struct device *dev)
-+static int s3c24xx_i2c_probe(struct platform_device *pdev)
- {
--	struct platform_device *pdev = to_platform_device(dev);
- 	struct s3c24xx_i2c *i2c = &s3c24xx_i2c;
- 	struct resource *res;
- 	int ret;
- 
- 	/* find the clock and enable it */
- 
--	i2c->dev = dev;
--	i2c->clk = clk_get(dev, "i2c");
-+	i2c->dev = &pdev->dev;
-+	i2c->clk = clk_get(&pdev->dev, "i2c");
- 	if (IS_ERR(i2c->clk)) {
--		dev_err(dev, "cannot get clock\n");
-+		dev_err(&pdev->dev, "cannot get clock\n");
- 		ret = -ENOENT;
+-	mmc = mmc_alloc_host(sizeof(struct pxamci_host), dev);
++	mmc = mmc_alloc_host(sizeof(struct pxamci_host), &pdev->dev);
+ 	if (!mmc) {
+ 		ret = -ENOMEM;
  		goto out;
- 	}
+@@ -474,7 +473,7 @@
+ 			 host->pdata->ocr_mask :
+ 			 MMC_VDD_32_33|MMC_VDD_33_34;
  
--	dev_dbg(dev, "clock source %p\n", i2c->clk);
-+	dev_dbg(&pdev->dev, "clock source %p\n", i2c->clk);
- 
- 	clk_use(i2c->clk);
- 	clk_enable(i2c->clk);
-@@ -786,7 +785,7 @@ static int s3c24xx_i2c_probe(struct devi
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	if (res == NULL) {
--		dev_err(dev, "cannot find IO resource\n");
-+		dev_err(&pdev->dev, "cannot find IO resource\n");
- 		ret = -ENOENT;
+-	host->sg_cpu = dma_alloc_coherent(dev, PAGE_SIZE, &host->sg_dma, GFP_KERNEL);
++	host->sg_cpu = dma_alloc_coherent(&pdev->dev, PAGE_SIZE, &host->sg_dma, GFP_KERNEL);
+ 	if (!host->sg_cpu) {
+ 		ret = -ENOMEM;
  		goto out;
- 	}
-@@ -795,7 +794,7 @@ static int s3c24xx_i2c_probe(struct devi
- 					 pdev->name);
- 
- 	if (i2c->ioarea == NULL) {
--		dev_err(dev, "cannot request IO\n");
-+		dev_err(&pdev->dev, "cannot request IO\n");
- 		ret = -ENXIO;
+@@ -511,10 +510,10 @@
+ 	if (ret)
  		goto out;
+ 
+-	dev_set_drvdata(dev, mmc);
++	platform_set_drvdata(pdev, mmc);
+ 
+ 	if (host->pdata && host->pdata->init)
+-		host->pdata->init(dev, pxamci_detect_irq, mmc);
++		host->pdata->init(&pdev->dev, pxamci_detect_irq, mmc);
+ 
+ 	mmc_add_host(mmc);
+ 
+@@ -527,7 +526,7 @@
+ 		if (host->base)
+ 			iounmap(host->base);
+ 		if (host->sg_cpu)
+-			dma_free_coherent(dev, PAGE_SIZE, host->sg_cpu, host->sg_dma);
++			dma_free_coherent(&pdev->dev, PAGE_SIZE, host->sg_cpu, host->sg_dma);
  	}
-@@ -803,17 +802,17 @@ static int s3c24xx_i2c_probe(struct devi
- 	i2c->regs = ioremap(res->start, (res->end-res->start)+1);
- 
- 	if (i2c->regs == NULL) {
--		dev_err(dev, "cannot map IO\n");
-+		dev_err(&pdev->dev, "cannot map IO\n");
- 		ret = -ENXIO;
- 		goto out;
- 	}
- 
--	dev_dbg(dev, "registers %p (%p, %p)\n", i2c->regs, i2c->ioarea, res);
-+	dev_dbg(&pdev->dev, "registers %p (%p, %p)\n", i2c->regs, i2c->ioarea, res);
- 
- 	/* setup info block for the i2c core */
- 
- 	i2c->adap.algo_data = i2c;
--	i2c->adap.dev.parent = dev;
-+	i2c->adap.dev.parent = &pdev->dev;
- 
- 	/* initialise the i2c controller */
- 
-@@ -827,7 +826,7 @@ static int s3c24xx_i2c_probe(struct devi
- 
- 	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
- 	if (res == NULL) {
--		dev_err(dev, "cannot find IRQ\n");
-+		dev_err(&pdev->dev, "cannot find IRQ\n");
- 		ret = -ENOENT;
- 		goto out;
- 	}
-@@ -836,23 +835,23 @@ static int s3c24xx_i2c_probe(struct devi
- 			  pdev->name, i2c);
- 
- 	if (ret != 0) {
--		dev_err(dev, "cannot claim IRQ\n");
-+		dev_err(&pdev->dev, "cannot claim IRQ\n");
- 		goto out;
- 	}
- 
- 	i2c->irq = res;
- 		
--	dev_dbg(dev, "irq resource %p (%ld)\n", res, res->start);
-+	dev_dbg(&pdev->dev, "irq resource %p (%ld)\n", res, res->start);
- 
- 	ret = i2c_add_adapter(&i2c->adap);
- 	if (ret < 0) {
--		dev_err(dev, "failed to add bus to i2c core\n");
-+		dev_err(&pdev->dev, "failed to add bus to i2c core\n");
- 		goto out;
- 	}
- 
--	dev_set_drvdata(dev, i2c);
-+	platform_set_drvdata(pdev, i2c);
- 
--	dev_info(dev, "%s: S3C I2C adapter\n", i2c->adap.dev.bus_id);
-+	dev_info(&pdev->dev, "%s: S3C I2C adapter\n", i2c->adap.dev.bus_id);
- 
-  out:
- 	if (ret < 0)
-@@ -866,22 +865,22 @@ static int s3c24xx_i2c_probe(struct devi
-  * called when device is removed from the bus
- */
- 
--static int s3c24xx_i2c_remove(struct device *dev)
-+static int s3c24xx_i2c_remove(struct platform_device *pdev)
- {
--	struct s3c24xx_i2c *i2c = dev_get_drvdata(dev);
-+	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
- 	
- 	if (i2c != NULL) {
- 		s3c24xx_i2c_free(i2c);
--		dev_set_drvdata(dev, NULL);
-+		platform_set_drvdata(pdev, NULL);
- 	}
- 
- 	return 0;
- }
- 
- #ifdef CONFIG_PM
--static int s3c24xx_i2c_resume(struct device *dev)
-+static int s3c24xx_i2c_resume(struct platform_device *dev)
- {
--	struct s3c24xx_i2c *i2c = dev_get_drvdata(dev);
-+	struct s3c24xx_i2c *i2c = platform_get_drvdata(dev);
- 
- 	if (i2c != NULL)
- 		s3c24xx_i2c_init(i2c);
-@@ -895,42 +894,44 @@ static int s3c24xx_i2c_resume(struct dev
- 
- /* device driver for platform bus bits */
- 
--static struct device_driver s3c2410_i2c_driver = {
--	.owner		= THIS_MODULE,
--	.name		= "s3c2410-i2c",
--	.bus		= &platform_bus_type,
-+static struct platform_driver s3c2410_i2c_driver = {
- 	.probe		= s3c24xx_i2c_probe,
- 	.remove		= s3c24xx_i2c_remove,
- 	.resume		= s3c24xx_i2c_resume,
-+	.driver		= {
-+		.owner	= THIS_MODULE,
-+		.name	= "s3c2410-i2c",
-+	},
- };
- 
--static struct device_driver s3c2440_i2c_driver = {
--	.owner		= THIS_MODULE,
--	.name		= "s3c2440-i2c",
--	.bus		= &platform_bus_type,
-+static struct platform_driver s3c2440_i2c_driver = {
- 	.probe		= s3c24xx_i2c_probe,
- 	.remove		= s3c24xx_i2c_remove,
- 	.resume		= s3c24xx_i2c_resume,
-+	.driver		= {
-+		.owner	= THIS_MODULE,
-+		.name	= "s3c2440-i2c",
-+	},
- };
- 
- static int __init i2c_adap_s3c_init(void)
- {
- 	int ret;
- 
--	ret = driver_register(&s3c2410_i2c_driver);
-+	ret = platform_driver_register(&s3c2410_i2c_driver);
- 	if (ret == 0) {
--		ret = driver_register(&s3c2440_i2c_driver);
-+		ret = platform_driver_register(&s3c2440_i2c_driver);
- 		if (ret)
--			driver_unregister(&s3c2410_i2c_driver);
-+			platform_driver_unregister(&s3c2410_i2c_driver);
- 	}
- 
+ 	if (mmc)
+ 		mmc_free_host(mmc);
+@@ -535,17 +534,17 @@
  	return ret;
  }
  
- static void __exit i2c_adap_s3c_exit(void)
+-static int pxamci_remove(struct device *dev)
++static int pxamci_remove(struct platform_device *pdev)
  {
--	driver_unregister(&s3c2410_i2c_driver);
--	driver_unregister(&s3c2440_i2c_driver);
-+	platform_driver_unregister(&s3c2410_i2c_driver);
-+	platform_driver_unregister(&s3c2440_i2c_driver);
- }
- 
- module_init(i2c_adap_s3c_init);
-diff --git a/drivers/mtd/nand/s3c2410.c b/drivers/mtd/nand/s3c2410.c
---- a/drivers/mtd/nand/s3c2410.c
-+++ b/drivers/mtd/nand/s3c2410.c
-@@ -124,14 +124,14 @@ static struct s3c2410_nand_info *s3c2410
- 	return s3c2410_nand_mtd_toours(mtd)->info;
- }
- 
--static struct s3c2410_nand_info *to_nand_info(struct device *dev)
-+static struct s3c2410_nand_info *to_nand_info(struct platform_device *dev)
- {
--	return dev_get_drvdata(dev);
-+	return platform_get_drvdata(dev);
- }
- 
--static struct s3c2410_platform_nand *to_nand_plat(struct device *dev)
-+static struct s3c2410_platform_nand *to_nand_plat(struct platform_device *dev)
- {
--	return dev->platform_data;
-+	return dev->dev.platform_data;
- }
- 
- /* timing calculations */
-@@ -164,9 +164,9 @@ static int s3c2410_nand_calc_rate(int wa
- /* controller setup */
- 
- static int s3c2410_nand_inithw(struct s3c2410_nand_info *info, 
--			       struct device *dev)
-+			       struct platform_device *pdev)
- {
--	struct s3c2410_platform_nand *plat = to_nand_plat(dev);
-+	struct s3c2410_platform_nand *plat = to_nand_plat(pdev);
- 	unsigned int tacls, twrph0, twrph1;
- 	unsigned long clkrate = clk_get_rate(info->clk);
- 	unsigned long cfg;
-@@ -427,11 +427,11 @@ static void s3c2410_nand_write_buf(struc
- 
- /* device management functions */
- 
--static int s3c2410_nand_remove(struct device *dev)
-+static int s3c2410_nand_remove(struct platform_device *pdev)
- {
--	struct s3c2410_nand_info *info = to_nand_info(dev);
-+	struct s3c2410_nand_info *info = to_nand_info(pdev);
+-	struct mmc_host *mmc = dev_get_drvdata(dev);
++	struct mmc_host *mmc = platform_get_drvdata(pdev);
  
 -	dev_set_drvdata(dev, NULL);
 +	platform_set_drvdata(pdev, NULL);
  
- 	if (info == NULL) 
- 		return 0;
-@@ -559,10 +559,9 @@ static void s3c2410_nand_init_chip(struc
-  * nand layer to look for devices
- */
+ 	if (mmc) {
+ 		struct pxamci_host *host = mmc_priv(mmc);
  
--static int s3c24xx_nand_probe(struct device *dev, int is_s3c2440)
-+static int s3c24xx_nand_probe(struct platform_device *pdev, int is_s3c2440)
- {
--	struct platform_device *pdev = to_platform_device(dev);
--	struct s3c2410_platform_nand *plat = to_nand_plat(dev);
-+	struct s3c2410_platform_nand *plat = to_nand_plat(pdev);
- 	struct s3c2410_nand_info *info;
- 	struct s3c2410_nand_mtd *nmtd;
- 	struct s3c2410_nand_set *sets;
-@@ -572,7 +571,7 @@ static int s3c24xx_nand_probe(struct dev
- 	int nr_sets;
- 	int setno;
+ 		if (host->pdata && host->pdata->exit)
+-			host->pdata->exit(dev, mmc);
++			host->pdata->exit(&pdev->dev, mmc);
  
--	pr_debug("s3c2410_nand_probe(%p)\n", dev);
-+	pr_debug("s3c2410_nand_probe(%p)\n", pdev);
+ 		mmc_remove_host(mmc);
  
- 	info = kmalloc(sizeof(*info), GFP_KERNEL);
- 	if (info == NULL) {
-@@ -582,14 +581,14 @@ static int s3c24xx_nand_probe(struct dev
- 	}
+@@ -560,7 +559,7 @@
+ 		free_irq(host->irq, host);
+ 		pxa_free_dma(host->dma);
+ 		iounmap(host->base);
+-		dma_free_coherent(dev, PAGE_SIZE, host->sg_cpu, host->sg_dma);
++		dma_free_coherent(&pdev->dev, PAGE_SIZE, host->sg_cpu, host->sg_dma);
  
- 	memzero(info, sizeof(*info));
--	dev_set_drvdata(dev, info);
-+	platform_set_drvdata(pdev, info);
+ 		release_resource(host->res);
  
- 	spin_lock_init(&info->controller.lock);
- 	init_waitqueue_head(&info->controller.wq);
- 
- 	/* get the clock source and enable it */
- 
--	info->clk = clk_get(dev, "nand");
-+	info->clk = clk_get(&pdev->dev, "nand");
- 	if (IS_ERR(info->clk)) {
- 		printk(KERN_ERR PFX "failed to get clock");
- 		err = -ENOENT;
-@@ -613,7 +612,7 @@ static int s3c24xx_nand_probe(struct dev
- 		goto exit_error;
- 	}
- 
--	info->device     = dev;
-+	info->device     = &pdev->dev;
- 	info->platform   = plat;
- 	info->regs       = ioremap(res->start, size);
- 	info->is_s3c2440 = is_s3c2440;
-@@ -628,7 +627,7 @@ static int s3c24xx_nand_probe(struct dev
- 
- 	/* initialise the hardware */
- 
--	err = s3c2410_nand_inithw(info, dev);
-+	err = s3c2410_nand_inithw(info, pdev);
- 	if (err != 0)
- 		goto exit_error;
- 
-@@ -674,7 +673,7 @@ static int s3c24xx_nand_probe(struct dev
- 	return 0;
- 
-  exit_error:
--	s3c2410_nand_remove(dev);
-+	s3c2410_nand_remove(pdev);
- 
- 	if (err == 0)
- 		err = -EINVAL;
-@@ -683,42 +682,44 @@ static int s3c24xx_nand_probe(struct dev
- 
- /* driver device registration */
- 
--static int s3c2410_nand_probe(struct device *dev)
-+static int s3c2410_nand_probe(struct platform_device *dev)
- {
- 	return s3c24xx_nand_probe(dev, 0);
+@@ -570,9 +569,9 @@
  }
  
--static int s3c2440_nand_probe(struct device *dev)
-+static int s3c2440_nand_probe(struct platform_device *dev)
+ #ifdef CONFIG_PM
+-static int pxamci_suspend(struct device *dev, pm_message_t state)
++static int pxamci_suspend(struct platform_device *dev, pm_message_t state)
  {
- 	return s3c24xx_nand_probe(dev, 1);
- }
+-	struct mmc_host *mmc = dev_get_drvdata(dev);
++	struct mmc_host *mmc = platform_get_drvdata(dev);
+ 	int ret = 0;
  
--static struct device_driver s3c2410_nand_driver = {
--	.name		= "s3c2410-nand",
--	.bus		= &platform_bus_type,
-+static struct platform_driver s3c2410_nand_driver = {
- 	.probe		= s3c2410_nand_probe,
- 	.remove		= s3c2410_nand_remove,
-+	.driver		= {
-+		.name	= "s3c2410-nand",
-+	},
- };
- 
--static struct device_driver s3c2440_nand_driver = {
--	.name		= "s3c2440-nand",
--	.bus		= &platform_bus_type,
-+static struct platform_driver s3c2440_nand_driver = {
- 	.probe		= s3c2440_nand_probe,
- 	.remove		= s3c2410_nand_remove,
-+	.driver		= {
-+		.name	= "s3c2440-nand",
-+	},
- };
- 
- static int __init s3c2410_nand_init(void)
- {
- 	printk("S3C24XX NAND Driver, (c) 2004 Simtec Electronics\n");
- 
--	driver_register(&s3c2440_nand_driver);
--	return driver_register(&s3c2410_nand_driver);
-+	platform_driver_register(&s3c2440_nand_driver);
-+	return platform_driver_register(&s3c2410_nand_driver);
- }
- 
- static void __exit s3c2410_nand_exit(void)
- {
--	driver_unregister(&s3c2440_nand_driver);
--	driver_unregister(&s3c2410_nand_driver);
-+	platform_driver_unregister(&s3c2440_nand_driver);
-+	platform_driver_unregister(&s3c2410_nand_driver);
- }
- 
- module_init(s3c2410_nand_init);
-diff -u b/drivers/serial/s3c2410.c b/drivers/serial/s3c2410.c
---- b/drivers/serial/s3c2410.c
-+++ b/drivers/serial/s3c2410.c
-@@ -1092,14 +1092,13 @@
- 
- static int probe_index = 0;
- 
--static int s3c24xx_serial_probe(struct device *_dev,
-+static int s3c24xx_serial_probe(struct platform_device *dev,
- 				struct s3c24xx_uart_info *info)
- {
- 	struct s3c24xx_uart_port *ourport;
--	struct platform_device *dev = to_platform_device(_dev);
- 	int ret;
- 
--	dbg("s3c24xx_serial_probe(%p, %p) %d\n", _dev, info, probe_index);
-+	dbg("s3c24xx_serial_probe(%p, %p) %d\n", dev, info, probe_index);
- 
- 	ourport = &s3c24xx_serial_ports[probe_index];
- 	probe_index++;
-@@ -1112,7 +1111,7 @@
- 
- 	dbg("%s: adding port\n", __FUNCTION__);
- 	uart_add_one_port(&s3c24xx_uart_drv, &ourport->port);
--	dev_set_drvdata(_dev, &ourport->port);
-+	platform_set_drvdata(dev, &ourport->port);
- 
- 	return 0;
- 
-@@ -1120,9 +1119,9 @@
+ 	if (mmc)
+@@ -581,9 +580,9 @@
  	return ret;
  }
  
--static int s3c24xx_serial_remove(struct device *_dev)
-+static int s3c24xx_serial_remove(struct platform_device *dev)
+-static int pxamci_resume(struct device *dev)
++static int pxamci_resume(struct platform_device *dev)
  {
--	struct uart_port *port = s3c24xx_dev_to_port(_dev);
-+	struct uart_port *port = s3c24xx_dev_to_port(&dev->dev);
+-	struct mmc_host *mmc = dev_get_drvdata(dev);
++	struct mmc_host *mmc = platform_get_drvdata(dev);
+ 	int ret = 0;
  
- 	if (port)
- 		uart_remove_one_port(&s3c24xx_uart_drv, port);
-@@ -1134,9 +1133,9 @@
+ 	if (mmc)
+@@ -596,23 +595,24 @@
+ #define pxamci_resume	NULL
+ #endif
  
- #ifdef CONFIG_PM
+-static struct device_driver pxamci_driver = {
+-	.name		= DRIVER_NAME,
+-	.bus		= &platform_bus_type,
++static struct platform_driver pxamci_driver = {
+ 	.probe		= pxamci_probe,
+ 	.remove		= pxamci_remove,
+ 	.suspend	= pxamci_suspend,
+ 	.resume		= pxamci_resume,
++	.driver		= {
++		.name	= DRIVER_NAME,
++	},
+ };
  
--static int s3c24xx_serial_suspend(struct device *dev, pm_message_t state)
-+static int s3c24xx_serial_suspend(struct platform_device *dev, pm_message_t state)
+ static int __init pxamci_init(void)
  {
--	struct uart_port *port = s3c24xx_dev_to_port(dev);
-+	struct uart_port *port = s3c24xx_dev_to_port(&dev->dev);
+-	return driver_register(&pxamci_driver);
++	return platform_driver_register(&pxamci_driver);
+ }
  
- 	if (port)
- 		uart_suspend_port(&s3c24xx_uart_drv, port);
-@@ -1144,9 +1143,9 @@
+ static void __exit pxamci_exit(void)
+ {
+-	driver_unregister(&pxamci_driver);
++	platform_driver_unregister(&pxamci_driver);
+ }
+ 
+ module_init(pxamci_init);
+diff -u b/drivers/usb/gadget/pxa2xx_udc.c b/drivers/usb/gadget/pxa2xx_udc.c
+--- b/drivers/usb/gadget/pxa2xx_udc.c
++++ b/drivers/usb/gadget/pxa2xx_udc.c
+@@ -2433,7 +2433,7 @@
+ /*
+  * 	probe - binds to the platform device
+  */
+-static int __init pxa2xx_udc_probe(struct device *_dev)
++static int __init pxa2xx_udc_probe(struct platform_device *pdev)
+ {
+ 	struct pxa2xx_udc *dev = &memory;
+ 	int retval, out_dma = 1;
+@@ -2496,19 +2496,19 @@
+ #endif
+ 
+ 	/* other non-static parts of init */
+-	dev->dev = _dev;
+-	dev->mach = _dev->platform_data;
++	dev->dev = &pdev->dev;
++	dev->mach = pdev->dev.platform_data;
+ 
+ 	init_timer(&dev->timer);
+ 	dev->timer.function = udc_watchdog;
+ 	dev->timer.data = (unsigned long) dev;
+ 
+ 	device_initialize(&dev->gadget.dev);
+-	dev->gadget.dev.parent = _dev;
+-	dev->gadget.dev.dma_mask = _dev->dma_mask;
++	dev->gadget.dev.parent = &pdev->dev;
++	dev->gadget.dev.dma_mask = pdev->dev.dma_mask;
+ 
+ 	the_controller = dev;
+-	dev_set_drvdata(_dev, dev);
++	platform_set_drvdata(pdev, dev);
+ 
+ 	udc_disable(dev);
+ 	udc_reinit(dev);
+@@ -2560,7 +2560,7 @@
  	return 0;
  }
  
--static int s3c24xx_serial_resume(struct device *dev)
-+static int s3c24xx_serial_resume(struct platform_device *dev)
+-static void pxa2xx_udc_shutdown(struct device *_dev)
++static void pxa2xx_udc_shutdown(struct platform_device *_dev)
  {
--	struct uart_port *port = s3c24xx_dev_to_port(dev);
-+	struct uart_port *port = s3c24xx_dev_to_port(&dev->dev);
- 	struct s3c24xx_uart_port *ourport = to_ourport(port);
- 
- 	if (port) {
-@@ -1165,11 +1164,11 @@
- #define s3c24xx_serial_resume  NULL
- #endif
- 
--static int s3c24xx_serial_init(struct device_driver *drv,
-+static int s3c24xx_serial_init(struct platform_driver *drv,
- 			       struct s3c24xx_uart_info *info)
- {
- 	dbg("s3c24xx_serial_init(%p,%p)\n", drv, info);
--	return driver_register(drv);
-+	return platform_driver_register(drv);
+ 	pullup_off();
+ }
+@@ -2565,9 +2565,9 @@
+ 	pullup_off();
  }
  
- 
-@@ -1228,19 +1227,20 @@
- 	.reset_port	= s3c2400_serial_resetport,
- };
- 
--static int s3c2400_serial_probe(struct device *dev)
-+static int s3c2400_serial_probe(struct platform_device *dev)
+-static int __exit pxa2xx_udc_remove(struct device *_dev)
++static int __exit pxa2xx_udc_remove(struct platform_device *pdev)
  {
- 	return s3c24xx_serial_probe(dev, &s3c2400_uart_inf);
+-	struct pxa2xx_udc *dev = dev_get_drvdata(_dev);
++	struct pxa2xx_udc *dev = platform_get_drvdata(pdev);
+ 
+ 	udc_disable(dev);
+ 	remove_proc_files();
+@@ -2581,7 +2581,7 @@
+ 		free_irq(LUBBOCK_USB_DISC_IRQ, dev);
+ 		free_irq(LUBBOCK_USB_IRQ, dev);
+ 	}
+-	dev_set_drvdata(_dev, NULL);
++	platform_set_drvdata(pdev, NULL);
+ 	the_controller = NULL;
+ 	return 0;
+ }
+@@ -2602,9 +2602,9 @@
+  * VBUS IRQs should probably be ignored so that the PXA device just acts
+  * "dead" to USB hosts until system resume.
+  */
+-static int pxa2xx_udc_suspend(struct device *dev, pm_message_t state)
++static int pxa2xx_udc_suspend(struct platform_device *dev, pm_message_t state)
+ {
+-	struct pxa2xx_udc	*udc = dev_get_drvdata(dev);
++	struct pxa2xx_udc	*udc = platform_get_drvdata(dev);
+ 
+ 	if (!udc->mach->udc_command)
+ 		WARN("USB host won't detect disconnect!\n");
+@@ -2613,9 +2613,9 @@
+ 	return 0;
  }
  
--static struct device_driver s3c2400_serial_drv = {
--	.name		= "s3c2400-uart",
+-static int pxa2xx_udc_resume(struct device *dev)
++static int pxa2xx_udc_resume(struct platform_device *dev)
+ {
+-	struct pxa2xx_udc	*udc = dev_get_drvdata(dev);
++	struct pxa2xx_udc	*udc = platform_get_drvdata(dev);
+ 
+ 	pullup(udc, 1);
+ 
+@@ -2629,27 +2629,28 @@
+ 
+ /*-------------------------------------------------------------------------*/
+ 
+-static struct device_driver udc_driver = {
+-	.name		= "pxa2xx-udc",
 -	.owner		= THIS_MODULE,
 -	.bus		= &platform_bus_type,
-+static struct platform_driver s3c2400_serial_drv = {
- 	.probe		= s3c2400_serial_probe,
- 	.remove		= s3c24xx_serial_remove,
- 	.suspend	= s3c24xx_serial_suspend,
- 	.resume		= s3c24xx_serial_resume,
++static struct platform_driver udc_driver = {
+ 	.probe		= pxa2xx_udc_probe,
+ 	.shutdown	= pxa2xx_udc_shutdown,
+ 	.remove		= __exit_p(pxa2xx_udc_remove),
+ 	.suspend	= pxa2xx_udc_suspend,
+ 	.resume		= pxa2xx_udc_resume,
 +	.driver		= {
-+		.name	= "s3c2400-uart",
 +		.owner	= THIS_MODULE,
++		.name	= "pxa2xx-udc",
 +	},
  };
  
- static inline int s3c2400_serial_init(void)
-@@ -1250,7 +1250,7 @@
- 
- static inline void s3c2400_serial_exit(void)
+ static int __init udc_init(void)
  {
--	driver_unregister(&s3c2400_serial_drv);
-+	platform_driver_unregister(&s3c2400_serial_drv);
+ 	printk(KERN_INFO "%s: version %s\n", driver_name, DRIVER_VERSION);
+-	return driver_register(&udc_driver);
++	return platform_driver_register(&udc_driver);
  }
+ module_init(udc_init);
  
- #define s3c2400_uart_inf_at &s3c2400_uart_inf
-@@ -1332,19 +1332,20 @@
- 
- /* device management */
- 
--static int s3c2410_serial_probe(struct device *dev)
-+static int s3c2410_serial_probe(struct platform_device *dev)
+ static void __exit udc_exit(void)
  {
- 	return s3c24xx_serial_probe(dev, &s3c2410_uart_inf);
+-	driver_unregister(&udc_driver);
++	platform_driver_unregister(&udc_driver);
  }
+ module_exit(udc_exit);
  
--static struct device_driver s3c2410_serial_drv = {
--	.name		= "s3c2410-uart",
--	.owner		= THIS_MODULE,
--	.bus		= &platform_bus_type,
-+static struct platform_driver s3c2410_serial_drv = {
- 	.probe		= s3c2410_serial_probe,
- 	.remove		= s3c24xx_serial_remove,
- 	.suspend	= s3c24xx_serial_suspend,
- 	.resume		= s3c24xx_serial_resume,
-+	.driver		= {
-+		.name	= "s3c2410-uart",
-+		.owner	= THIS_MODULE,
-+	},
- };
+diff -u b/drivers/usb/host/ohci-pxa27x.c b/drivers/usb/host/ohci-pxa27x.c
+--- b/drivers/usb/host/ohci-pxa27x.c
++++ b/drivers/usb/host/ohci-pxa27x.c
+@@ -290,9 +290,8 @@
  
- static inline int s3c2410_serial_init(void)
-@@ -1354,7 +1355,7 @@
+ /*-------------------------------------------------------------------------*/
  
- static inline void s3c2410_serial_exit(void)
- {
--	driver_unregister(&s3c2410_serial_drv);
-+	platform_driver_unregister(&s3c2410_serial_drv);
- }
- 
- #define s3c2410_uart_inf_at &s3c2410_uart_inf
-@@ -1493,20 +1494,21 @@
- 
- /* device management */
- 
--static int s3c2440_serial_probe(struct device *dev)
-+static int s3c2440_serial_probe(struct platform_device *dev)
- {
- 	dbg("s3c2440_serial_probe: dev=%p\n", dev);
- 	return s3c24xx_serial_probe(dev, &s3c2440_uart_inf);
- }
- 
--static struct device_driver s3c2440_serial_drv = {
--	.name		= "s3c2440-uart",
--	.owner		= THIS_MODULE,
--	.bus		= &platform_bus_type,
-+static struct platform_driver s3c2440_serial_drv = {
- 	.probe		= s3c2440_serial_probe,
- 	.remove		= s3c24xx_serial_remove,
- 	.suspend	= s3c24xx_serial_suspend,
- 	.resume		= s3c24xx_serial_resume,
-+	.driver		= {
-+		.name	= "s3c2440-uart",
-+		.owner	= THIS_MODULE,
-+	},
- };
- 
- 
-@@ -1517,7 +1519,7 @@
- 
- static inline void s3c2440_serial_exit(void)
- {
--	driver_unregister(&s3c2440_serial_drv);
-+	platform_driver_unregister(&s3c2440_serial_drv);
- }
- 
- #define s3c2440_uart_inf_at &s3c2440_uart_inf
-diff -u b/drivers/usb/host/ohci-s3c2410.c b/drivers/usb/host/ohci-s3c2410.c
---- b/drivers/usb/host/ohci-s3c2410.c
-+++ b/drivers/usb/host/ohci-s3c2410.c
-@@ -459,16 +459,14 @@
- 
- /* device driver */
- 
--static int ohci_hcd_s3c2410_drv_probe(struct device *dev)
-+static int ohci_hcd_s3c2410_drv_probe(struct platform_device *pdev)
+-static int ohci_hcd_pxa27x_drv_probe(struct device *dev)
++static int ohci_hcd_pxa27x_drv_probe(struct platform_device *pdev)
  {
 -	struct platform_device *pdev = to_platform_device(dev);
- 	return usb_hcd_s3c2410_probe(&ohci_s3c2410_hc_driver, pdev);
+ 	int ret;
+ 
+ 	pr_debug ("In ohci_hcd_pxa27x_drv_probe");
+@@ -304,41 +303,39 @@
+ 	return ret;
  }
  
--static int ohci_hcd_s3c2410_drv_remove(struct device *dev)
-+static int ohci_hcd_s3c2410_drv_remove(struct platform_device *pdev)
+-static int ohci_hcd_pxa27x_drv_remove(struct device *dev)
++static int ohci_hcd_pxa27x_drv_remove(struct platform_device *pdev)
  {
 -	struct platform_device *pdev = to_platform_device(dev);
 -	struct usb_hcd *hcd = dev_get_drvdata(dev);
 +	struct usb_hcd *hcd = platform_get_drvdata(pdev);
  
- 	usb_hcd_s3c2410_remove(hcd, pdev);
- 	return 0;
-@@ -474,24 +472,25 @@ static int ohci_hcd_s3c2410_drv_remove(s
+ 	usb_hcd_pxa27x_remove(hcd, pdev);
  	return 0;
  }
  
--static struct device_driver ohci_hcd_s3c2410_driver = {
--	.name		= "s3c2410-ohci",
--	.owner		= THIS_MODULE,
+-static int ohci_hcd_pxa27x_drv_suspend(struct device *dev, pm_message_t state)
++static int ohci_hcd_pxa27x_drv_suspend(struct platform_device *dev, pm_message_t state)
+ {
+-//	struct platform_device *pdev = to_platform_device(dev);
+-//	struct usb_hcd *hcd = dev_get_drvdata(dev);
++//	struct usb_hcd *hcd = platform_get_drvdata(dev);
+ 	printk("%s: not implemented yet\n", __FUNCTION__);
+ 
+ 	return 0;
+ }
+ 
+-static int ohci_hcd_pxa27x_drv_resume(struct device *dev)
++static int ohci_hcd_pxa27x_drv_resume(struct platform_device *dev)
+ {
+-//	struct platform_device *pdev = to_platform_device(dev);
+-//	struct usb_hcd *hcd = dev_get_drvdata(dev);
++//	struct usb_hcd *hcd = platform_get_drvdata(dev);
+ 	printk("%s: not implemented yet\n", __FUNCTION__);
+ 
+ 	return 0;
+ }
+ 
+ 
+-static struct device_driver ohci_hcd_pxa27x_driver = {
+-	.name		= "pxa27x-ohci",
 -	.bus		= &platform_bus_type,
-+static struct platform_driver ohci_hcd_s3c2410_driver = {
- 	.probe		= ohci_hcd_s3c2410_drv_probe,
- 	.remove		= ohci_hcd_s3c2410_drv_remove,
- 	/*.suspend	= ohci_hcd_s3c2410_drv_suspend, */
- 	/*.resume	= ohci_hcd_s3c2410_drv_resume, */
++static struct platform_driver ohci_hcd_pxa27x_driver = {
+ 	.probe		= ohci_hcd_pxa27x_drv_probe,
+ 	.remove		= ohci_hcd_pxa27x_drv_remove,
+ 	.suspend	= ohci_hcd_pxa27x_drv_suspend, 
+-	.resume		= ohci_hcd_pxa27x_drv_resume, 
++	.resume		= ohci_hcd_pxa27x_drv_resume,
 +	.driver		= {
-+		.owner	= THIS_MODULE,
-+		.name	= "s3c2410-ohci",
++		.name	= "pxa27x-ohci",
 +	},
  };
  
- static int __init ohci_hcd_s3c2410_init (void)
- {
--	return driver_register(&ohci_hcd_s3c2410_driver);
-+	return platform_driver_register(&ohci_hcd_s3c2410_driver);
+ static int __init ohci_hcd_pxa27x_init (void)
+@@ -347,12 +344,12 @@ static int __init ohci_hcd_pxa27x_init (
+ 	pr_debug ("block sizes: ed %d td %d\n",
+ 		sizeof (struct ed), sizeof (struct td));
+ 
+-	return driver_register(&ohci_hcd_pxa27x_driver);
++	return platform_driver_register(&ohci_hcd_pxa27x_driver);
  }
  
- static void __exit ohci_hcd_s3c2410_cleanup (void)
+ static void __exit ohci_hcd_pxa27x_cleanup (void)
  {
--	driver_unregister(&ohci_hcd_s3c2410_driver);
-+	platform_driver_unregister(&ohci_hcd_s3c2410_driver);
+-	driver_unregister(&ohci_hcd_pxa27x_driver);
++	platform_driver_unregister(&ohci_hcd_pxa27x_driver);
  }
  
- module_init (ohci_hcd_s3c2410_init);
-diff -u b/drivers/video/s3c2410fb.c b/drivers/video/s3c2410fb.c
---- b/drivers/video/s3c2410fb.c
-+++ b/drivers/video/s3c2410fb.c
-@@ -635,19 +635,18 @@ static irqreturn_t s3c2410fb_irq(int irq
- 
- static char driver_name[]="s3c2410fb";
- 
--int __init s3c2410fb_probe(struct device *dev)
-+int __init s3c2410fb_probe(struct platform_device *pdev)
- {
- 	struct s3c2410fb_info *info;
- 	struct fb_info	   *fbinfo;
--	struct platform_device *pdev = to_platform_device(dev);
- 	struct s3c2410fb_hw *mregs;
- 	int ret;
- 	int irq;
- 	int i;
- 
--	mach_info = dev->platform_data;
-+	mach_info = pdev->dev.platform_data;
- 	if (mach_info == NULL) {
--		dev_err(dev,"no platform data for lcd, cannot attach\n");
-+		dev_err(&pdev->dev,"no platform data for lcd, cannot attach\n");
- 		return -EINVAL;
- 	}
- 
-@@ -655,11 +654,11 @@ int __init s3c2410fb_probe(struct device
- 
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq < 0) {
--		dev_err(dev, "no irq for device\n");
-+		dev_err(&pdev->dev, "no irq for device\n");
- 		return -ENOENT;
- 	}
- 
--	fbinfo = framebuffer_alloc(sizeof(struct s3c2410fb_info), dev);
-+	fbinfo = framebuffer_alloc(sizeof(struct s3c2410fb_info), &pdev->dev);
- 	if (!fbinfo) {
- 		return -ENOMEM;
- 	}
-@@ -667,7 +666,7 @@
- 
- 	info = fbinfo->par;
- 	info->fb = fbinfo;
--	dev_set_drvdata(dev, fbinfo);
-+	platform_set_drvdata(pdev, fbinfo);
- 
- 	s3c2410fb_init_registers(info);
- 
-@@ -677,7 +676,7 @@
- 
- 	memcpy(&info->regs, &mach_info->regs, sizeof(info->regs));
- 
--	info->mach_info		    = dev->platform_data;
-+	info->mach_info		    = pdev->dev.platform_data;
- 
- 	fbinfo->fix.type	    = FB_TYPE_PACKED_PIXELS;
- 	fbinfo->fix.type_aux	    = 0;
-@@ -736,7 +735,7 @@ int __init s3c2410fb_probe(struct device
- 
- 	ret = request_irq(irq, s3c2410fb_irq, SA_INTERRUPT, pdev->name, info);
- 	if (ret) {
--		dev_err(dev, "cannot get irq %d - err %d\n", irq, ret);
-+		dev_err(&pdev->dev, "cannot get irq %d - err %d\n", irq, ret);
- 		ret = -EBUSY;
- 		goto release_mem;
- 	}
-@@ -774,7 +773,7 @@
- 	}
- 
- 	/* create device files */
--	device_create_file(dev, &dev_attr_debug);
-+	device_create_file(&pdev->dev, &dev_attr_debug);
- 
- 	printk(KERN_INFO "fb%d: %s frame buffer device\n",
- 		fbinfo->node, fbinfo->fix.id);
-@@ -817,10 +816,9 @@
- /*
-  *  Cleanup
+ module_init (ohci_hcd_pxa27x_init);
+diff -u b/drivers/video/pxafb.c b/drivers/video/pxafb.c
+--- b/drivers/video/pxafb.c
++++ b/drivers/video/pxafb.c
+@@ -981,17 +981,17 @@
+  * Power management hooks.  Note that we won't be called from IRQ context,
+  * unlike the blank functions above, so we may sleep.
   */
--static int s3c2410fb_remove(struct device *dev)
-+static int s3c2410fb_remove(struct platform_device *pdev)
+-static int pxafb_suspend(struct device *dev, pm_message_t state)
++static int pxafb_suspend(struct platform_device *dev, pm_message_t state)
  {
--	struct platform_device *pdev = to_platform_device(dev);
--	struct fb_info	   *fbinfo = dev_get_drvdata(dev);
-+	struct fb_info	   *fbinfo = platform_get_drvdata(pdev);
- 	struct s3c2410fb_info *info = fbinfo->par;
- 	int irq;
+-	struct pxafb_info *fbi = dev_get_drvdata(dev);
++	struct pxafb_info *fbi = platform_get_drvdata(dev);
  
-@@ -848,9 +846,9 @@
- 
- /* suspend and resume support for the lcd controller */
- 
--static int s3c2410fb_suspend(struct device *dev, pm_message_t state)
-+static int s3c2410fb_suspend(struct platform_device *dev, pm_message_t state)
- {
--	struct fb_info	   *fbinfo = dev_get_drvdata(dev);
-+	struct fb_info	   *fbinfo = platform_get_drvdata(dev);
- 	struct s3c2410fb_info *info = fbinfo->par;
- 
- 	s3c2410fb_stop_lcd();
-@@ -865,9 +863,9 @@
+ 	set_ctrlr_state(fbi, C_DISABLE_PM);
  	return 0;
  }
  
--static int s3c2410fb_resume(struct device *dev)
-+static int s3c2410fb_resume(struct platform_device *dev)
+-static int pxafb_resume(struct device *dev)
++static int pxafb_resume(struct platform_device *dev)
  {
--	struct fb_info	   *fbinfo = dev_get_drvdata(dev);
-+	struct fb_info	   *fbinfo = platform_get_drvdata(dev);
- 	struct s3c2410fb_info *info = fbinfo->par;
+-	struct pxafb_info *fbi = dev_get_drvdata(dev);
++	struct pxafb_info *fbi = platform_get_drvdata(dev);
  
- 	clk_enable(info->clk);
-@@ -883,23 +881,24 @@ static int s3c2410fb_resume(struct devic
- #define s3c2410fb_resume  NULL
+ 	set_ctrlr_state(fbi, C_ENABLE_PM);
+ 	return 0;
+@@ -1269,7 +1269,7 @@
+ }
  #endif
  
--static struct device_driver s3c2410fb_driver = {
--	.name		= "s3c2410-lcd",
+-int __init pxafb_probe(struct device *dev)
++int __init pxafb_probe(struct platform_device *dev)
+ {
+ 	struct pxafb_info *fbi;
+ 	struct pxafb_mach_info *inf;
+@@ -1277,14 +1277,14 @@
+ 
+ 	dev_dbg(dev, "pxafb_probe\n");
+ 
+-	inf = dev->platform_data;
++	inf = dev->dev.platform_data;
+ 	ret = -ENOMEM;
+ 	fbi = NULL;
+ 	if (!inf)
+ 		goto failed;
+ 
+ #ifdef CONFIG_FB_PXA_PARAMETERS
+-	ret = pxafb_parse_options(dev, g_options);
++	ret = pxafb_parse_options(&dev->dev, g_options);
+ 	if (ret < 0)
+ 		goto failed;
+ #endif
+@@ -1294,28 +1294,28 @@
+ 	 * a warning is given. */
+ 
+         if (inf->lccr0 & LCCR0_INVALID_CONFIG_MASK)
+-                dev_warn(dev, "machine LCCR0 setting contains illegal bits: %08x\n",
++                dev_warn(&dev->dev, "machine LCCR0 setting contains illegal bits: %08x\n",
+                         inf->lccr0 & LCCR0_INVALID_CONFIG_MASK);
+         if (inf->lccr3 & LCCR3_INVALID_CONFIG_MASK)
+-                dev_warn(dev, "machine LCCR3 setting contains illegal bits: %08x\n",
++                dev_warn(&dev->dev, "machine LCCR3 setting contains illegal bits: %08x\n",
+                         inf->lccr3 & LCCR3_INVALID_CONFIG_MASK);
+         if (inf->lccr0 & LCCR0_DPD &&
+ 	    ((inf->lccr0 & LCCR0_PAS) != LCCR0_Pas ||
+ 	     (inf->lccr0 & LCCR0_SDS) != LCCR0_Sngl ||
+ 	     (inf->lccr0 & LCCR0_CMS) != LCCR0_Mono))
+-                dev_warn(dev, "Double Pixel Data (DPD) mode is only valid in passive mono"
++                dev_warn(&dev->dev, "Double Pixel Data (DPD) mode is only valid in passive mono"
+ 			 " single panel mode\n");
+         if ((inf->lccr0 & LCCR0_PAS) == LCCR0_Act &&
+ 	    (inf->lccr0 & LCCR0_SDS) == LCCR0_Dual)
+-                dev_warn(dev, "Dual panel only valid in passive mode\n");
++                dev_warn(&dev->dev, "Dual panel only valid in passive mode\n");
+         if ((inf->lccr0 & LCCR0_PAS) == LCCR0_Pas &&
+              (inf->upper_margin || inf->lower_margin))
+-                dev_warn(dev, "Upper and lower margins must be 0 in passive mode\n");
++                dev_warn(&dev->dev, "Upper and lower margins must be 0 in passive mode\n");
+ #endif
+ 
+-	dev_dbg(dev, "got a %dx%dx%d LCD\n",inf->xres, inf->yres, inf->bpp);
++	dev_dbg(&dev->dev, "got a %dx%dx%d LCD\n",inf->xres, inf->yres, inf->bpp);
+ 	if (inf->xres == 0 || inf->yres == 0 || inf->bpp == 0) {
+-		dev_err(dev, "Invalid resolution or bit depth\n");
++		dev_err(&dev->dev, "Invalid resolution or bit depth\n");
+ 		ret = -EINVAL;
+ 		goto failed;
+ 	}
+@@ -1321,9 +1321,9 @@
+ 	}
+ 	pxafb_backlight_power = inf->pxafb_backlight_power;
+ 	pxafb_lcd_power = inf->pxafb_lcd_power;
+-	fbi = pxafb_init_fbinfo(dev);
++	fbi = pxafb_init_fbinfo(&dev->dev);
+ 	if (!fbi) {
+-		dev_err(dev, "Failed to initialize framebuffer device\n");
++		dev_err(&dev->dev, "Failed to initialize framebuffer device\n");
+ 		ret = -ENOMEM; // only reason for pxafb_init_fbinfo to fail is kmalloc
+ 		goto failed;
+ 	}
+@@ -1331,14 +1331,14 @@
+ 	/* Initialize video memory */
+ 	ret = pxafb_map_video_memory(fbi);
+ 	if (ret) {
+-		dev_err(dev, "Failed to allocate video RAM: %d\n", ret);
++		dev_err(&dev->dev, "Failed to allocate video RAM: %d\n", ret);
+ 		ret = -ENOMEM;
+ 		goto failed;
+ 	}
+ 
+ 	ret = request_irq(IRQ_LCD, pxafb_handle_irq, SA_INTERRUPT, "LCD", fbi);
+ 	if (ret) {
+-		dev_err(dev, "request_irq failed: %d\n", ret);
++		dev_err(&dev->dev, "request_irq failed: %d\n", ret);
+ 		ret = -EBUSY;
+ 		goto failed;
+ 	}
+@@ -1350,11 +1350,11 @@
+ 	pxafb_check_var(&fbi->fb.var, &fbi->fb);
+ 	pxafb_set_par(&fbi->fb);
+ 
+-	dev_set_drvdata(dev, fbi);
++	platform_set_drvdata(dev, fbi);
+ 
+ 	ret = register_framebuffer(&fbi->fb);
+ 	if (ret < 0) {
+-		dev_err(dev, "Failed to register framebuffer device: %d\n", ret);
++		dev_err(&dev->dev, "Failed to register framebuffer device: %d\n", ret);
+ 		goto failed;
+ 	}
+ 
+@@ -1377,19 +1377,20 @@
+ 	return 0;
+ 
+ failed:
+-	dev_set_drvdata(dev, NULL);
++	platform_set_drvdata(dev, NULL);
+ 	kfree(fbi);
+ 	return ret;
+ }
+ 
+-static struct device_driver pxafb_driver = {
+-	.name		= "pxa2xx-fb",
 -	.bus		= &platform_bus_type,
-+static struct platform_driver s3c2410fb_driver = {
- 	.probe		= s3c2410fb_probe,
-+	.remove		= s3c2410fb_remove,
- 	.suspend	= s3c2410fb_suspend,
- 	.resume		= s3c2410fb_resume,
--	.remove		= s3c2410fb_remove
++static struct platform_driver pxafb_driver = {
+ 	.probe		= pxafb_probe,
+ #ifdef CONFIG_PM
+ 	.suspend	= pxafb_suspend,
+ 	.resume		= pxafb_resume,
+ #endif
 +	.driver		= {
-+		.name	= "s3c2410-lcd",
++		.name	= "pxa2xx-fb",
 +	},
  };
  
- int __devinit s3c2410fb_init(void)
- {
--	return driver_register(&s3c2410fb_driver);
-+	return platform_driver_register(&s3c2410fb_driver);
+ #ifndef MODULE
+@@ -1416,7 +1417,7 @@
+ 		return -ENODEV;
+ 	pxafb_setup(option);
+ #endif
+-	return driver_register(&pxafb_driver);
++	return platform_driver_register(&pxafb_driver);
  }
  
- static void __exit s3c2410fb_cleanup(void)
- {
--	driver_unregister(&s3c2410fb_driver);
-+	platform_driver_unregister(&s3c2410fb_driver);
+ module_init(pxafb_init);
+diff -u b/sound/arm/pxa2xx-ac97.c b/sound/arm/pxa2xx-ac97.c
+--- b/sound/arm/pxa2xx-ac97.c
++++ b/sound/arm/pxa2xx-ac97.c
+@@ -275,9 +275,9 @@
+ 	return 0;
  }
  
+-static int pxa2xx_ac97_suspend(struct device *_dev, pm_message_t state)
++static int pxa2xx_ac97_suspend(struct platform_device *dev, pm_message_t state)
+ {
+-	snd_card_t *card = dev_get_drvdata(_dev);
++	snd_card_t *card = platform_get_drvdata(dev);
+ 	int ret = 0;
  
+ 	if (card)
+@@ -286,9 +286,9 @@
+ 	return ret;
+ }
+ 
+-static int pxa2xx_ac97_resume(struct device *_dev)
++static int pxa2xx_ac97_resume(struct platform_device *dev)
+ {
+-	snd_card_t *card = dev_get_drvdata(_dev);
++	snd_card_t *card = platform_get_drvdata(dev);
+ 	int ret = 0;
+ 
+ 	if (card)
+@@ -302,7 +302,7 @@
+ #define pxa2xx_ac97_resume	NULL
+ #endif
+ 
+-static int pxa2xx_ac97_probe(struct device *dev)
++static int pxa2xx_ac97_probe(struct platform_device *dev)
+ {
+ 	snd_card_t *card;
+ 	ac97_bus_t *ac97_bus;
+@@ -315,8 +315,8 @@
+ 	if (!card)
+ 		goto err;
+ 
+-	card->dev = dev;
+-	strncpy(card->driver, dev->driver->name, sizeof(card->driver));
++	card->dev = &dev->dev;
++	strncpy(card->driver, dev->dev.driver->name, sizeof(card->driver));
+ 
+ 	ret = pxa2xx_pcm_new(card, &pxa2xx_ac97_pcm_client, &pxa2xx_ac97_pcm);
+ 	if (ret)
+@@ -347,13 +347,13 @@
+ 	snprintf(card->shortname, sizeof(card->shortname),
+ 		 "%s", snd_ac97_get_short_name(pxa2xx_ac97_ac97));
+ 	snprintf(card->longname, sizeof(card->longname),
+-		 "%s (%s)", dev->driver->name, card->mixername);
++		 "%s (%s)", dev->dev.driver->name, card->mixername);
+ 
+ 	snd_card_set_pm_callback(card, pxa2xx_ac97_do_suspend,
+ 				 pxa2xx_ac97_do_resume, NULL);
+ 	ret = snd_card_register(card);
+ 	if (ret == 0) {
+-		dev_set_drvdata(dev, card);
++		platform_set_drvdata(dev, card);
+ 		return 0;
+ 	}
+ 
+@@ -368,13 +368,13 @@
+ 	return ret;
+ }
+ 
+-static int pxa2xx_ac97_remove(struct device *dev)
++static int pxa2xx_ac97_remove(struct platform_device *dev)
+ {
+-	snd_card_t *card = dev_get_drvdata(dev);
++	snd_card_t *card = platform_get_drvdata(dev);
+ 
+ 	if (card) {
+ 		snd_card_free(card);
+-		dev_set_drvdata(dev, NULL);
++		platform_set_drvdata(dev, NULL);
+ 		GCR |= GCR_ACLINK_OFF;
+ 		free_irq(IRQ_AC97, NULL);
+ 		pxa_set_cken(CKEN2_AC97, 0);
+@@ -383,23 +383,24 @@
+ 	return 0;
+ }
+ 
+-static struct device_driver pxa2xx_ac97_driver = {
+-	.name		= "pxa2xx-ac97",
+-	.bus		= &platform_bus_type,
++static struct platform_driver pxa2xx_ac97_driver = {
+ 	.probe		= pxa2xx_ac97_probe,
+ 	.remove		= pxa2xx_ac97_remove,
+ 	.suspend	= pxa2xx_ac97_suspend,
+ 	.resume		= pxa2xx_ac97_resume,
++	.driver		= {
++		.name	= "pxa2xx-ac97",
++	},
+ };
+ 
+ static int __init pxa2xx_ac97_init(void)
+ {
+-	return driver_register(&pxa2xx_ac97_driver);
++	return platform_driver_register(&pxa2xx_ac97_driver);
+ }
+ 
+ static void __exit pxa2xx_ac97_exit(void)
+ {
+-	driver_unregister(&pxa2xx_ac97_driver);
++	platform_driver_unregister(&pxa2xx_ac97_driver);
+ }
+ 
+ module_init(pxa2xx_ac97_init);
+
 
 -- 
 Russell King

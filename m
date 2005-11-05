@@ -1,44 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbVKESd0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbVKESeJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932186AbVKESd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 13:33:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbVKESd0
+	id S932184AbVKESeJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 13:34:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbVKESeI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 13:33:26 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:32993 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S932170AbVKESdZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 13:33:25 -0500
-Subject: Re: [GIT PATCH] SCSI updates for 2.6.14
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <436CF8FC.5070906@pobox.com>
-References: <1131207491.3614.5.camel@mulgrave>
-	 <Pine.LNX.4.64.0511050942490.3316@g5.osdl.org>
-	 <1131214408.3614.11.camel@mulgrave>  <436CF8FC.5070906@pobox.com>
-Content-Type: text/plain
-Date: Sat, 05 Nov 2005 12:33:14 -0600
-Message-Id: <1131215595.3614.13.camel@mulgrave>
+	Sat, 5 Nov 2005 13:34:08 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:7331 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932184AbVKESeH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 13:34:07 -0500
+Date: Sat, 5 Nov 2005 10:33:58 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jon Masters <jonathan@jonmasters.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: fix-readonly-policy-use-and-floppy-ro-rw-status
+Message-Id: <20051105103358.2e61687f.akpm@osdl.org>
+In-Reply-To: <20051105182728.GB27767@apogee.jonmasters.org>
+References: <20051105182728.GB27767@apogee.jonmasters.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-11-05 at 13:25 -0500, Jeff Garzik wrote:
-> Do you have standard permissions (chmod -R og+rX) on your repo, and, are 
-> you using rsync to push to kernel.org?
-> 
-> I've attached my rsync-based push script.  git people seem to dislike 
-> rsync, but this tends to work every time, for all users.
+Jon Masters <jonathan@jonmasters.org> wrote:
+>
+> [PATCH]: This modifies the gendisk and hd_struct structs to replace "policy"
+>  with "readonly" (as that's the only use for this field). It also introduces a
+>  new function disk_read_only, which behaves like the corresponding device
+>  functions do. I've also replaced direct usage of the old policy fields with
+>  calls to the appropriate function.
 
-No, I push to my scsi-misc-2.6 repository and then clone that on hera
-for linus.  the scsi-misc-2.6 permissions are fine, it was the clone -l
-on hera that caused the problems.
+These are separate things and should be done in separate patches, please.
 
-James
-
-
+Because, for exmaple, we may decide to revert the floppy change only. 
+Because, as I said off-list, being able to do `remount,rw' of a floppy after
+having flipped its switch is useful.

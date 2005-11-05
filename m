@@ -1,74 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750981AbVKDXzE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbVKDX6T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750981AbVKDXzE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 18:55:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbVKDXzE
+	id S1751045AbVKDX6T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 18:58:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751151AbVKDX6T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 18:55:04 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:7442 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750981AbVKDXzD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 18:55:03 -0500
-Date: Sat, 5 Nov 2005 00:55:00 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       aherrman@de.ibm.com
-Subject: Re: [PATCH resubmit] do_mount: reduce stack consumption
-Message-ID: <20051104235500.GE5368@stusta.de>
-References: <20051104105026.GA12476@osiris.boeblingen.de.ibm.com> <20051104084829.714c5dbb.akpm@osdl.org> <20051104212742.GC9222@osiris.ibm.com>
+	Fri, 4 Nov 2005 18:58:19 -0500
+Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:34468 "HELO
+	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751045AbVKDX6T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 18:58:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=ckmhLZHUOnhGZdwjm9KTEbyXLwTuMlheJ5X2XHt4fbJGlJLhTViWLMcDpIPj8s3a8fqDXY+EBTM3lXFgSG8UMzA2j7mjQtamCCAfpv05QjP1YtJ89z6v6YeEHQm06LkOMqB/0WFm+1j2mm7XMp8PBNXgLIFrUlbAM3ZjBcYsy6s=  ;
+Message-ID: <436BF606.3020805@yahoo.com.au>
+Date: Sat, 05 Nov 2005 11:00:06 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051104212742.GC9222@osiris.ibm.com>
-User-Agent: Mutt/1.5.11
+To: Rohit Seth <rohit.seth@intel.com>
+CC: akpm@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: Clean up of __alloc_pages
+References: <20051028183326.A28611@unix-os.sc.intel.com>	 <4362DF80.3060802@yahoo.com.au>	 <1130792107.4853.24.camel@akash.sc.intel.com>	 <4366C188.5090607@yahoo.com.au> <1131128108.27563.11.camel@akash.sc.intel.com>
+In-Reply-To: <1131128108.27563.11.camel@akash.sc.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 04, 2005 at 10:27:42PM +0100, Heiko Carstens wrote:
-> > > See original stack back trace below and Andreas' patch and analysis
-> > > here:
-> > > http://www.ussg.iu.edu/hypermail/linux/kernel/0410.3/1844.html
+Rohit Seth wrote:
+
 > 
-> I probably should add that with "original" stack back trace a trace of
-> a 2.6.10 kernel was meant, if that wasn't clear, but the DM code is
-> still the same in 2.6.14.
+> Nick, sorry for not responding earlier.  
 > 
-> > >     <4>Call Trace:
-> ...
-> > >     <4> [<0000000010831380>] __map_bio+0x70/0x160 [dm_mod]
-> > >     <4> [<000000001083173e>] __split_bio+0x1e6/0x538 [dm_mod]
-> > >     <4> [<0000000010831ba8>] dm_request+0x118/0x25c [dm_mod]
-> > >     <4> [<0000000000241074>] generic_make_request+0xf0/0x21c
-> > >     <4> [<0000000010831380>] __map_bio+0x70/0x160 [dm_mod]
-> > >     <4> [<000000001083173e>] __split_bio+0x1e6/0x538 [dm_mod]
-> > >     <4> [<0000000010831ba8>] dm_request+0x118/0x25c [dm_mod]
-> > >     <4> [<0000000000241074>] generic_make_request+0xf0/0x21c
-> > >     <4> [<0000000010831380>] __map_bio+0x70/0x160 [dm_mod]
-> > >     <4> [<000000001083173e>] __split_bio+0x1e6/0x538 [dm_mod]
-> > >     <4> [<0000000010831ba8>] dm_request+0x118/0x25c [dm_mod]
-> > >     <4> [<0000000000241074>] generic_make_request+0xf0/0x21c
-> ...
+
+That's OK.
+
+> I agree that it is slight change in behavior from original.  I doubt
+> though it will impact any one in any negative way (may be for some
+> higher order allocations if at all). On a little positive side, less
+> frequent calls to kswapd for some cases and clear up the code a little
+> bit.
 > 
-> This part of the call trace is actually good for >1500 bytes of stack
-> usage and is what kills us and should be fixed.
-> I'm surprised that there are no other bug reports regarding DM and
-> stack overflow with 4k stacks.
->...
 
-There were some reports of dm+xfs overflows with 4k stacks on i386.
+I really don't want a change of behaviour going in with this,
+especially not one which I would want to revert anyway. But
+don't get hung up with it - when you post your latest patch
+I will make a patch for the changes I would like to see for it
+and synch things up.
 
-The xfs side was sorted out, but I son't know the state of the dm part.
+> But I really don't want to get stuck here. The pcp traversal and
+> flushing is where I want to go next.  
+> 
 
-> Heiko
+Sure, hope it goes well!
 
-cu
-Adrian
+Nick
 
 -- 
+SUSE Labs, Novell Inc.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Send instant messages to your online friends http://au.messenger.yahoo.com 

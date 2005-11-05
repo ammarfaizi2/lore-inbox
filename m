@@ -1,61 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbVKENi7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbVKENoM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750717AbVKENi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 08:38:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbVKENi7
+	id S1750799AbVKENoM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 08:44:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbVKENoM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 08:38:59 -0500
-Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:11916 "EHLO
-	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1750717AbVKENi6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 08:38:58 -0500
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Sat, 5 Nov 2005 13:38:33 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Andrew Morton <akpm@osdl.org>
-cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] hfsplus: don't modify journaled volume
-In-Reply-To: <Pine.LNX.4.64.0511051009090.13104@hermes-1.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.64.0511051333550.13104@hermes-1.csi.cam.ac.uk>
-References: <Pine.LNX.4.61.0511031617090.12843@scrub.home>
- <20051104210213.1232a007.akpm@osdl.org> <Pine.LNX.4.64.0511051009090.13104@hermes-1.csi.cam.ac.uk>
+	Sat, 5 Nov 2005 08:44:12 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:2568 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750799AbVKENoL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 08:44:11 -0500
+Date: Sat, 5 Nov 2005 14:44:09 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Edgar Hucek <hostmaster@ed-soft.at>
+Cc: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: New Linux Development Model
+Message-ID: <20051105134409.GF5368@stusta.de>
+References: <436C7E77.3080601@ed-soft.at> <20051105122958.7a2cd8c6.khali@linux-fr.org> <436CB162.5070100@ed-soft.at>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <436CB162.5070100@ed-soft.at>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Nov 2005, Anton Altaparmakov wrote:
-> On Fri, 4 Nov 2005, Andrew Morton wrote:
-> > Roman Zippel <zippel@linux-m68k.org> wrote:
-> > >
-> > > +		} else if (vhdr->attributes & cpu_to_be32(HFSPLUS_VOL_JOURNALED)) {
-> > >  +			printk("HFS+-fs: Filesystem is marked journaled, leaving read-only.\n");
-> > >  +			sb->s_flags |= MS_RDONLY;
-> > >  +			*flags |= MS_RDONLY;
-> > 
-> > These sorts of printks should have an explicit facility level, no?
+On Sat, Nov 05, 2005 at 02:19:30PM +0100, Edgar Hucek wrote:
+
+> Hi.
+
+Hi Edgar,
+
+> Sorry for not posting my Name.
 > 
-> I would agree with that and further, is that not a bit draconian?  
-> HFSPlus is designed to work without the journal.  Just change the last 
-> mounted version to FSK! (0x46534b21) and everything will work as expected, 
-> i.e. fsck will run a check instead of ignoring the volume and osx will 
-> mount the volume and reinitialize the journal.  Remember older OSX 
-> versions did not support journalling so if you attached your external 
-> drive to one of those older osx boxes, you would also get non-journalled 
-> writes to a journalled volume.  It's all designed for it...
+> Maybe you don't understand what i wanted to say or it's my bad english.
+> The ipw2200 driver was only an example. I had also problems with, vmware,
+> unionfs...
+> What i mean ist, that kernel developers make incompatible changes to the 
+> header
+> files, change structures, interfaces and so on. Which makes the kernel 
+> releases
+> incompatible.
 
-And you do not need to be worried about journal reply because you 
-already do not allow read/write mounts when the volume has not been 
-unmounted cleanly, so there really is no reason not to allow mounting 
-a volume with a journal...
+you've already been given a pointer to the                               
+Documentation/stable_api_nonsense.txt document in the kernel sources 
+that explains these issues.
 
-Best regards,
+> There are several reasons why modules are not in the mainline kernel and 
+> will never
+> get there. So saying, bring modules to the kernel is wrong.
 
-	Anton
+It's not wrong.
+
+Every vendor of any kind of software will tell you A is supported and 
+B is not supported.
+
+It's a consensus among the Linux kernel developers that the Linux kernel 
+does not support a stable API for external modules.
+
+You don't have to like this decision, but stable_api_nonsense.txt 
+explains it.
+
+If you dislike this decision, there are several other operating systems 
+whose vendors do offer a stable API for external modules.
+
+> The right way would be to take care of defined interfaces, header files, 
+> and so on.
+> Otherwise you could only say the kernel 2.6.14 is only compatible to 
+> 2.6.14.X and
+> you there is no stable 2.6 mainline kernel.
+
+The 2.6 is a stable kernel series in the sense that it doesn't crash 
+very often.
+
+2.6.14 is not API-compatible with 2.6.15.
+
+But this has always been this way, the new development model only brings 
+more API changes than the previous development models.
+
+> I think it's also no task for the user, to search the net why external 
+> driver xyz not
+> works with a new kernel ( because of incompatibilties ). Basicly in new 
+> kernel there
+> could be a chance for the user a driver works better, because a bug was 
+> fixed in the
+> kernel.
+>...
+
+I do agree, this is not a task for the user.
+
+It's a task for the vendors of the external modules.
+
+> cu
+> 
+> ED.
+
+cu
+Adrian
+
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,51 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbVKERoS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbVKERqF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932110AbVKERoS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 12:44:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbVKERoR
+	id S932132AbVKERqF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 12:46:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbVKERqF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 12:44:17 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:32411 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750937AbVKERoR (ORCPT
+	Sat, 5 Nov 2005 12:46:05 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:26780 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932070AbVKERqC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 12:44:17 -0500
-Date: Sat, 5 Nov 2005 09:44:12 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [GIT PATCH] SCSI updates for 2.6.14
-In-Reply-To: <1131207491.3614.5.camel@mulgrave>
-Message-ID: <Pine.LNX.4.64.0511050942490.3316@g5.osdl.org>
-References: <1131207491.3614.5.camel@mulgrave>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 5 Nov 2005 12:46:02 -0500
+Date: Sat, 5 Nov 2005 09:45:38 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Richard Knutsson <ricknu-0@student.ltu.se>
+Cc: ricknu-0@student.ltu.se, ashutosh.lkml@gmail.com, netdev@vger.kernel.org,
+       davej@suse.de, acme@conectiva.com.br, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org, stable@kernel.org
+Subject: Re: [PATCH]dgrs - Fixes Warnings when CONFIG_ISA and CONFIG_PCI are
+ not enabled
+Message-Id: <20051105094538.7ffcd85f.akpm@osdl.org>
+In-Reply-To: <436CCFEC.50709@student.ltu.se>
+References: <81083a450511012314q4ec69927gfa60cb19ba8f437a@mail.gmail.com>
+	<4368878D.4040406@student.ltu.se>
+	<c216304e0511020516o5cfcd0b9u96a3220bf2694928@mail.gmail.com>
+	<436927CA.3090105@student.ltu.se>
+	<20051104182537.741be3d9.akpm@osdl.org>
+	<20051104183043.27a2229c.akpm@osdl.org>
+	<436C6F02.90904@student.ltu.se>
+	<20051105004609.0f04481c.akpm@osdl.org>
+	<436C9D73.5030506@student.ltu.se>
+	<436CCFEC.50709@student.ltu.se>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 5 Nov 2005, James Bottomley wrote:
+Richard Knutsson <ricknu-0@student.ltu.se> wrote:
+>
+> Richard Knutsson wrote:
 > 
-> This patch is available from:
+> > Andrew Morton wrote:
+> >
+> >> Richard Knutsson <ricknu-0@student.ltu.se> wrote:
+> >>  
+> >>
+> >>>>      */
+> >>>>     
+> >>>
+> >>> > #ifdef CONFIG_EISA
+> >>> >-    eisacount = eisa_driver_register(&dgrs_eisa_driver);
+> >>> >-    if (eisacount < 0)
+> >>> >-        return eisacount;
+> >>> >-#endif
+> >>> >-#ifdef CONFIG_PCI
+> >>> >-    pcicount = pci_register_driver(&dgrs_pci_driver);
+> >>> >-    if (pcicount)
+> >>> >-        return pcicount;
+> >>> >+    cardcount = eisa_driver_register(&dgrs_eisa_driver);
+> >>> >+    if (cardcount < 0)
+> >>> >+        return cardcount;
+> >>> > #endif
+> >>> >+    cardcount = pci_register_driver(&dgrs_pci_driver);
+> >>> >+    if (cardcount)
+> >>> >+        return cardcount;
+> >>> >     return 0;
+> >>> > }
+> >>> >  >
+> >>> I do not know what to think about this one:
+> >>> * reduce one #ifdef: good
+> >>> * check for something clearly stated not to: not so good
+> >>>   
+> >>
+> >>
+> >> Well a nicer fix would be to provide a stub implementation of
+> >> eisa_driver_register() if !CONFIG_EISA, just like 
+> >> pci_register_driver(). Then all the ifdefs go away and the compiler 
+> >> removes all the code for us,
+> >> after checking that we typed it correctly.
+> >>  
+> >>
+> > Oh, sorry. Missed the stub implementation of the pci-driver. I "ack" 
+> > your patch.
+> >
+> > BTW, can anyone ack or is that up to the maintainers?
+> > BTW #2, why not remove #ifdef CONFIG_PCI on dgrs_cleanup_module() at 
+> > the same time? Or maybe that should be in a "remove config_pci"-patch...
+> >
+> > /Richard
 > 
-> master.kernel.org:/pub/scm/linux/kernel/git/jejb/scsi-for-linus-2.6.git
+> Just realized; what happens if CONFIG_EISA && !CONFIG_PCI and 
+> eisa_driver_register() returns value > 0, then the if-statement for the 
+> pci-driver is going to return the value, instead of 0.
 
-No it's not.
-
-	master$ git-cat-file -t HEAD
-
-gives
-
-	error: unable to find 39b7f1e25a412b0ef31e516cfc2fa4f40235f263
-	fatal: git-cat-file HEAD: bad file
-
-and the reason seems to be:
-
-	master$ ll objects/39/
-
-	ls: objects/39/: Permission denied
-
-Hmmph.
-
-		Linus
+if !CONFIG_PCI, pci_register_driver() will return zero.

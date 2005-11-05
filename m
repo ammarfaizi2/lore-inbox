@@ -1,215 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbVKEXUp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbVKEXU0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751029AbVKEXUp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 18:20:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750865AbVKEXUp
+	id S1751145AbVKEXU0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 18:20:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751029AbVKEXU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 18:20:45 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:3717 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1750707AbVKEXUo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 18:20:44 -0500
-Date: Sat, 5 Nov 2005 15:19:44 -0800
-From: Ashok Raj <ashok.raj@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ashok Raj <ashok.raj@intel.com>, rjw@sisk.pl, linux-kernel@vger.kernel.org,
-       davej@codemonkey.org.uk, mingo@elte.hu, linux@brodo.de,
-       venkatesh.pallipadi@intel.com
-Subject: Re: 2.6.14-git3: scheduling while atomic from cpufreq on Athlon64
-Message-ID: <20051105151944.A30804@unix-os.sc.intel.com>
-References: <200510311606.36615.rjw@sisk.pl> <200510312045.32908.rjw@sisk.pl> <20051031124216.A18213@unix-os.sc.intel.com> <200511012007.19762.rjw@sisk.pl> <20051101111417.A31379@unix-os.sc.intel.com> <20051104143035.120fe158.akpm@osdl.org>
+	Sat, 5 Nov 2005 18:20:26 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:63407 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750707AbVKEXUZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 18:20:25 -0500
+Date: Sat, 5 Nov 2005 15:20:28 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, dipankar@in.ibm.com, suzannew@cs.pdx.edu
+Subject: Re: [PATCH] Fixes for RCU handling of task_struct
+Message-ID: <20051105232027.GA20178@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20051031020535.GA46@us.ibm.com> <20051031140459.GA5664@elte.hu> <20051031205119.5bd897f3.akpm@osdl.org> <20051103190916.GA13417@us.ibm.com> <436B9D5D.3EB28CD5@tv-sign.ru> <20051104200801.GA16092@us.ibm.com> <436CDEAC.A7D56A94@tv-sign.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20051104143035.120fe158.akpm@osdl.org>; from akpm@osdl.org on Fri, Nov 04, 2005 at 02:30:35PM -0800
+In-Reply-To: <436CDEAC.A7D56A94@tv-sign.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 04, 2005 at 02:30:35PM -0800, Andrew Morton wrote:
-> Ashok Raj <ashok.raj@intel.com> wrote:
+On Sat, Nov 05, 2005 at 07:32:44PM +0300, Oleg Nesterov wrote:
+> "Paul E. McKenney" wrote:
 > >
-> > 
-> > ...
+> > > > -       spin_lock_irqsave(&p->sighand->siglock, flags);
+> > > > +       spin_lock_irqsave(&sh->siglock, flags);
+> > >
+> > > But 'sh' can be NULL, no? Yes, you already checked PF_EXITING, so this is
+> > > very unlikely, but I think it is still possible in theory. 'sh' was loaded
+> > > before reading p->flags, but rcu_read_lock() does not imply memory barrier.
 > >
-> > seems ugly, but i dont find a better looking cure...
-> > 
+> > 'sh' cannot be NULL, because the caller holds ->it_lock and has checked
+> > for timer deletion under that lock, and because the exiting process
+> > quiesces and deletes timers before freeing sighand.
+>                ^^^^^^^^^^^^^^
 > 
-> Could you take another look, please?   It really is pretty gross.
+> Exiting process (thread group) - yes, but exiting thread - no. That is why
+> send_sigqueue() should check that the target thread is not exiting now. If
+> we do not take tasklist_lock we can't be sure that ->sighand != NULL. The
+> caller holds ->it_lock, yes, but this can't help.
 > 
+> Please don't be confused by the 'posix_cpu_timers_exit(tsk)' in __exit_signal()
+> which is called under sighand->siglock before clearing ->signal/->sighand. This
+> is completely different, it detaches (but not destroys) cpu-timers, these timers
+> can have another thread/process as a target for signal sending.
 
-So here it is again... thanks to Andrew suggesting to take the PF_ avenue.
+OK, thank you for catching this!
 
-Sure enough the old one was gross, and there was an even groosier patch
-that met infant mortality...
+So the idea is to error out of send_sigqueue() so that posix_timer_event()
+will instead call send_group_sigqueeue().  But that could suffer from
+the same race if the new leader thread also exits -- or if the exiting
+thread was the leader thread to begin with.
 
-since the last patch in -git8 broke some implementations, this is 
-relative to that earlier patch. 
+But once send_group_sigqueue() read-acquires tasklist_lock, threads
+and processes must stay put.  So it should be possible to follow the
+->group_leader chain at that point.  We know that there must still be a
+group leader because we hold it_lock (so that the entire process cannot
+have vanished prior to acquiring tasklist_lock), and the group leader
+cannot change because we are read-holding tasklist_lock.  Hence traversing
+all of the group_leader pointers has to get us somewhere safe to dump
+the signal.
 
-It would be nice to have this in base sooner so cpufreq's dont break.
+Except that the group leader could do an exec(), right?  If it does so,
+it must do so before tasklist_lock is read-acquired.  So the nightmare
+case is where all but one thread exits, and then that one thread does
+and exec().  If this case can really happen, we want to drop the signal
+on the floor, right?
 
-Thanks a ton.
+Attached is an incremental patch for everything except for the possible
+race with exec().
 
---------------
-When calling target drivers to set frequency, we take cpucontrol lock.
-When we modified the code to accomodate CPU hotplug, there was an 
-attempt to take a double lock of cpucontrol leading to a deadlock. 
-Since the current thread context is already holding the cpucontrol lock, 
-we dont need to make another attempt to acquire it. 
+Thoughts?
 
-Now we leave a trace in current->flags indicating current thread already 
-is under cpucontrol lock held, so we dont attempt to do this another time.
+						Thanx, Paul
 
-Thanks to Andrew Morton for the beating:-) 
+Signed-off-by: <paulmck@us.ibm.com>
 
-Signed-off-by: Ashok Raj <ashok.raj@intel.com>
------------------------------------------------------------------
- drivers/cpufreq/cpufreq.c |   24 ++++++++++--------------
- include/linux/cpu.h       |    1 +
- include/linux/sched.h     |    1 +
- kernel/cpu.c              |   33 +++++++++++++++++++++++++++++++++
- 4 files changed, 45 insertions(+), 14 deletions(-)
+---
 
-Index: linux-2.6.14-rc4-mm1/drivers/cpufreq/cpufreq.c
-===================================================================
---- linux-2.6.14-rc4-mm1.orig/drivers/cpufreq/cpufreq.c
-+++ linux-2.6.14-rc4-mm1/drivers/cpufreq/cpufreq.c
-@@ -38,7 +38,6 @@ static struct cpufreq_driver   	*cpufreq
- static struct cpufreq_policy	*cpufreq_cpu_data[NR_CPUS];
- static DEFINE_SPINLOCK(cpufreq_driver_lock);
+ signal.c |    8 +++++++-
+ 1 files changed, 7 insertions(+), 1 deletion(-)
+
+diff -urpNa -X dontdiff linux-2.6.14-mm0-fix/kernel/signal.c linux-2.6.14-mm0-fix-2/kernel/signal.c
+--- linux-2.6.14-mm0-fix/kernel/signal.c	2005-11-04 17:23:40.000000000 -0800
++++ linux-2.6.14-mm0-fix-2/kernel/signal.c	2005-11-05 15:05:38.000000000 -0800
+@@ -1408,6 +1408,11 @@ send_sigqueue(int sig, struct sigqueue *
  
--
- /* internal prototypes */
- static int __cpufreq_governor(struct cpufreq_policy *policy, unsigned int event);
- static void handle_update(void *data);
-@@ -1115,24 +1114,21 @@ int __cpufreq_driver_target(struct cpufr
- 	int retval = -EINVAL;
+ retry:
+ 	sh = rcu_dereference(p->sighand);
++	if (sh == NULL) {
++		/* We raced with pthread_exit()... */
++		ret = -1;
++		goto out_err;
++	}
  
- 	/*
--	 * Converted the lock_cpu_hotplug to preempt_disable()
--	 * and preempt enable. This is a bit kludgy and relies on
--	 * how cpu hotplug works. All we need is a gaurantee that cpu hotplug
--	 * wont make progress on any cpu. Once we do preempt_disable(), this
--	 * would ensure hotplug threads dont get on this cpu, thereby delaying
--	 * the cpu remove process.
--	 *
--	 * we removed the lock_cpu_hotplug since we need to call this function via
--	 * cpu hotplug callbacks, which result in locking the cpu hotplug
--	 * thread itself. Agree this is not very clean, cpufreq community
--	 * could improve this if required. - Ashok Raj <ashok.raj@intel.com>
-+	 * If we are already in context of hotplug thread, we dont need to
-+	 * acquire the hotplug lock. Otherwise acquire cpucontrol to prevent
-+	 * hotplug from removing this cpu that we are working on.
- 	 */
--	preempt_disable();
-+	if (!current_in_cpu_hotplug())
-+		lock_cpu_hotplug();
-+
- 	dprintk("target for CPU %u: %u kHz, relation %u\n", policy->cpu,
- 		target_freq, relation);
- 	if (cpu_online(policy->cpu) && cpufreq_driver->target)
- 		retval = cpufreq_driver->target(policy, target_freq, relation);
--	preempt_enable();
-+
-+	if (!current_in_cpu_hotplug())
-+		unlock_cpu_hotplug();
-+
- 	return retval;
- }
- EXPORT_SYMBOL_GPL(__cpufreq_driver_target);
-Index: linux-2.6.14-rc4-mm1/include/linux/cpu.h
-===================================================================
---- linux-2.6.14-rc4-mm1.orig/include/linux/cpu.h
-+++ linux-2.6.14-rc4-mm1/include/linux/cpu.h
-@@ -33,6 +33,7 @@ struct cpu {
+ 	spin_lock_irqsave(&sh->siglock, flags);
+ 	if (p->sighand != sh) {
+@@ -1474,7 +1479,8 @@ send_group_sigqueue(int sig, struct sigq
+ 	BUG_ON(!(q->flags & SIGQUEUE_PREALLOC));
  
- extern int register_cpu(struct cpu *, int, struct node *);
- extern struct sys_device *get_cpu_sysdev(int cpu);
-+extern int current_in_cpu_hotplug(void);
- #ifdef CONFIG_HOTPLUG_CPU
- extern void unregister_cpu(struct cpu *, struct node *);
- #endif
-Index: linux-2.6.14-rc4-mm1/include/linux/sched.h
-===================================================================
---- linux-2.6.14-rc4-mm1.orig/include/linux/sched.h
-+++ linux-2.6.14-rc4-mm1/include/linux/sched.h
-@@ -880,6 +880,7 @@ do { if (atomic_dec_and_test(&(tsk)->usa
- #define PF_SYNCWRITE	0x00200000	/* I am doing a sync write */
- #define PF_BORROWED_MM	0x00400000	/* I am a kthread doing use_mm */
- #define PF_RANDOMIZE	0x00800000	/* randomize virtual address space */
-+#define PF_HOTPLUG_CPU	0x01000000	/* Currently performing CPU hotplug */
+ 	read_lock(&tasklist_lock);
+-	/* Since it_lock is held, p->sighand cannot be NULL. */
++	while (p->group_leader != p)
++		p = p->group_leader;
+ 	spin_lock_irqsave(&p->sighand->siglock, flags);
+ 	handle_stop_signal(sig, p);
  
- /*
-  * Only the _current_ task can read/write to tsk->flags, but other
-Index: linux-2.6.14-rc4-mm1/kernel/cpu.c
-===================================================================
---- linux-2.6.14-rc4-mm1.orig/kernel/cpu.c
-+++ linux-2.6.14-rc4-mm1/kernel/cpu.c
-@@ -20,6 +20,24 @@ DECLARE_MUTEX(cpucontrol);
- 
- static struct notifier_block *cpu_chain;
- 
-+/*
-+ * Used to check by callers if they need to acquire the cpucontrol
-+ * or not to protect a cpu from being removed. Its sometimes required to
-+ * call these functions both for normal operations, and in response to
-+ * a cpu being added/removed. If the context of the call is in the same
-+ * thread context as a CPU hotplug thread, we dont need to take the lock
-+ * since its already protected
-+ * check drivers/cpufreq/cpufreq.c for its usage - Ashok Raj
-+ */
-+
-+int current_in_cpu_hotplug(void)
-+{
-+	return (current->flags & PF_HOTPLUG_CPU);
-+}
-+
-+EXPORT_SYMBOL_GPL(current_in_cpu_hotplug);
-+
-+
- /* Need to know about CPUs going up/down? */
- int register_cpu_notifier(struct notifier_block *nb)
- {
-@@ -93,6 +111,13 @@ int cpu_down(unsigned int cpu)
- 		goto out;
- 	}
- 
-+	/*
-+	 * Leave a trace in current->flags indicating we are already in
-+	 * process of performing CPU hotplug. Callers can check if cpucontrol
-+	 * is already acquired by current thread, and if so not cause
-+	 * a dead lock by not acquiring the lock
-+	 */
-+	current->flags |= PF_HOTPLUG_CPU;
- 	err = notifier_call_chain(&cpu_chain, CPU_DOWN_PREPARE,
- 						(void *)(long)cpu);
- 	if (err == NOTIFY_BAD) {
-@@ -145,6 +170,7 @@ out_thread:
- out_allowed:
- 	set_cpus_allowed(current, old_allowed);
- out:
-+	current->flags &= ~PF_HOTPLUG_CPU;
- 	unlock_cpu_hotplug();
- 	return err;
- }
-@@ -162,6 +188,12 @@ int __devinit cpu_up(unsigned int cpu)
- 		ret = -EINVAL;
- 		goto out;
- 	}
-+
-+	/*
-+	 * Leave a trace in current->flags indicating we are already in
-+	 * process of performing CPU hotplug.
-+	 */
-+	current->flags |= PF_HOTPLUG_CPU;
- 	ret = notifier_call_chain(&cpu_chain, CPU_UP_PREPARE, hcpu);
- 	if (ret == NOTIFY_BAD) {
- 		printk("%s: attempt to bring up CPU %u failed\n",
-@@ -184,6 +216,7 @@ out_notify:
- 	if (ret != 0)
- 		notifier_call_chain(&cpu_chain, CPU_UP_CANCELED, hcpu);
- out:
-+	current->flags &= ~PF_HOTPLUG_CPU;
- 	up(&cpucontrol);
- 	return ret;
- }

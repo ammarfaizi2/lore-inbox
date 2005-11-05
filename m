@@ -1,65 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbVKEHAu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751279AbVKEHJR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751271AbVKEHAu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 02:00:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbVKEHAu
+	id S1751279AbVKEHJR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 02:09:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbVKEHJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 02:00:50 -0500
-Received: from drugphish.ch ([69.55.226.176]:14002 "EHLO www.drugphish.ch")
-	by vger.kernel.org with ESMTP id S1751271AbVKEHAu (ORCPT
+	Sat, 5 Nov 2005 02:09:17 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:45742 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751279AbVKEHJQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 02:00:50 -0500
-Message-ID: <436C5895.3040409@drugphish.ch>
-Date: Sat, 05 Nov 2005 08:00:37 +0100
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Thunderbird 1.4.1 (X11/20051006)
-MIME-Version: 1.0
-To: Willy Tarreau <willy@w.ods.org>
-Cc: linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Grant Coady <gcoady@gmail.com>
-Subject: Re: Linux-2.4.31-hf8
-References: <20051104231815.GA26093@alpha.home.local>
-In-Reply-To: <20051104231815.GA26093@alpha.home.local>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Sat, 5 Nov 2005 02:09:16 -0500
+Date: Fri, 4 Nov 2005 23:08:27 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: Simon.Derr@bull.net, pj@sgi.com, ak@suse.de, linux-kernel@vger.kernel.org,
+       clameter@sgi.com
+Subject: Re: [PATCH 3/5] cpuset: change marker for relative numbering
+Message-Id: <20051104230827.16001781.akpm@osdl.org>
+In-Reply-To: <20051104053132.549.16062.sendpatchset@jackhammer.engr.sgi.com>
+References: <20051104053109.549.76824.sendpatchset@jackhammer.engr.sgi.com>
+	<20051104053132.549.16062.sendpatchset@jackhammer.engr.sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Willy,
+Paul Jackson <pj@sgi.com> wrote:
+>
+>  This patch provides a minimal mechanism to support the safe
+>  cpuset-relative management of CPU and Memory placement from
+>  user library code, in the face of possible external migration
+>  to different CPU's and Memory Nodes.
 
-> This is the eighth hotfix for 2.4.31. OK, I know there was one not long ago,
-> but a recent fix in IPVS which got merged into -hf7 left a refcnt problem in
-> ip_vs_conn_expire_now, which can cause mid-term/long-term stability problems.
-> I took this opportunity to merge a backport from 2.6 of another fix from Yan
-> Zheng affecting multicast source filters.
+I guess you mean external migration of a cpuset to different CPUs and
+memory nodes via FILE_CPULIST and FILE_MEMLIST?
 
-Well, to be honest, Horms just found another IPVS "issue" :). It seems
-we are getting into reviewing 2.4.x IPVS a bit more closely. The problem
-is that if you have setups where the persistency timeout is below the
-IPVS state machine related FIN_WAIT (not TCP state) timeout (currently
-2*60*HZ) persistent templates will not be invalidated and the timer gets
-re-set if a we still have a valid connection entry hashed. I've first
-noted this somewhat aberrant behaviour in 2.2.x kernels but never got
-around looking at it too closely because in 2.2.x we had a timer mess.
+>  The interface presented to user space for cpusets uses system wide
+>  numbering of CPUs and Memory Nodes.   It is the responsibility of
+>  user level code, presumably in a library, to present cpuset-relative
+>  numbering to applications when that would be more useful to them.
+> 
+>  However if a task is moved to a different cpuset, or if the 'cpus'
+>  or 'mems' of a cpuset are changed, then we need a way for such
+>  library code to detect that its cpuset-relative numbering has
+>  changed, when expressed using system wide numbering.
 
-This issue however is absolutely minor since this buglet has been there
-for ages already and we never received such a bug report. In fact, it
-would be quite unusual to set a persistency timeout below fin_wait in a
-LVS_DR setup for productive environments. And I didn't see it because I
-set the FIN_WAIT to 10*HZ to relax sockets lingering. We can/will queue
-it up, together with a small refcnt change for -hf9 and post 2.4.32.
+Why?  If someone calls into that library for a query, then that library can
+call into the kernel to query the current state, no?  Are you assuming that
+this library will wish to cache state which belongs to the kernel?
 
-I take it you read netdev as well, since we will post those patches
-there. I'm delighted to see your -hf kernels since lately I have been
-told off by a couple of kernel maintainers regarding 2.4.x, which we use
-in about 100 of our boxes all over the world, about 300 still run 2.2.x
-  and are slowly migrated to the now stable 2.4.x series. Doing business
-in the finance sector really opts for stability, which is given by 2.4.x.
+>  The kernel cannot safely allow user code to lock kernel resources.
 
-Have a nice weekend,
-Roberto Nibali, ratz
--- 
-echo
-'[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq' | dc
+Well yes - in the presence of other processes dinking with a cpuset's
+settings, such a library is always racy.  Unless it provides
+kernel-triggered callbacks when something changes.  Or unless it does
+locking.
+
+>  The kernel could deliver out-of-band notice of cpuset changes by
+>  such mechanisms as signals or usermodehelper callbacks, however
+>  this can't be delivered to library code linked in applications
+>  without intruding on the IPC mechanisms available to the app.
+
+connector?
+
+>  The kernel could require user level code to do all the work,
+>  tracking the cpuset state before and during changes, to verify no
+>  unexpected change occurred, but this becomes an onerous task.
+
+Not sure I understand this, but if you're saying that maintaining state in
+a single pace is good then yup.
+
+>  The "marker_pid" cpuset field provides a simple way to make this
+>  task less onerous on user library code.  The code writes its pid
+>  to a cpusets "marker_pid" at the start of a sequence of queries
+>  and updates, and check as it goes that the cpsuets marker_pid
+>  doesn't change.  The pread(2) system call does a seek and read in
+>  a single call.  If the marker_pid changes, the library code should
+>  retry the required sequence of operations.
+
+<looks for API documentation in cpusets.txt, gives up>
+
+Shouldn't all those files in cpusetfs be documented?
+
+So what is the <undocumented> programming interface which you are proposing
+here?
+
+a) process writes a non-zero number to file "marker_pid" in cpusetfs. 
+   Kernel remembers that the calling task "owns" the cpuset for updates.
+
+b) cpuset updates proceed.  If a different task does an update, marker_pid
+   gets cleared.
+
+c) process reads "marker_pid" and if that's still equal to getpid(), we
+   know that nobody raced with us.  If someone _did_ race with us, what? 
+   re-read everything?
+
+d) process writes zero to "marker_pid" to release the marker.
+
+
+Given that you're developing a library to do all this, why not do proper
+locking in userspace and require that all cpuset updates go via the
+library?
+
+Does this code work correctly if different threads stomp on each others'
+toes?  I think so.
+
+
+hm, cpuset_common_file_write() likes to return 0 for the number of bytes
+written.  This could cause some userspace tools to hang, repeating the
+write all the time, or to report a write error.  It should return nbytes on
+success.
+
+>  Anytime that a task modifies the "cpus" or "mems" of a cpuset,
+>  unless it's pid is in the cpusets marker_pid field, the kernel
+>  zeros this field.

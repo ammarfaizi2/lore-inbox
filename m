@@ -1,173 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbVKES2E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbVKESd0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932177AbVKES2E (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 13:28:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbVKES2E
+	id S932186AbVKESd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 13:33:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbVKESd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 13:28:04 -0500
-Received: from smtp.mailbox.co.uk ([195.82.125.32]:44681 "EHLO
-	smtp.mailbox.co.uk") by vger.kernel.org with ESMTP id S932177AbVKES2A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 13:28:00 -0500
-Date: Sat, 5 Nov 2005 18:27:28 +0000
-From: Jon Masters <jonathan@jonmasters.org>
-To: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: PATCH: fix-readonly-policy-use-and-floppy-ro-rw-status
-Message-ID: <20051105182728.GB27767@apogee.jonmasters.org>
+	Sat, 5 Nov 2005 13:33:26 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:32993 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S932170AbVKESdZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 13:33:25 -0500
+Subject: Re: [GIT PATCH] SCSI updates for 2.6.14
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <436CF8FC.5070906@pobox.com>
+References: <1131207491.3614.5.camel@mulgrave>
+	 <Pine.LNX.4.64.0511050942490.3316@g5.osdl.org>
+	 <1131214408.3614.11.camel@mulgrave>  <436CF8FC.5070906@pobox.com>
+Content-Type: text/plain
+Date: Sat, 05 Nov 2005 12:33:14 -0600
+Message-Id: <1131215595.3614.13.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH]: This modifies the gendisk and hd_struct structs to replace "policy"
-with "readonly" (as that's the only use for this field). It also introduces a
-new function disk_read_only, which behaves like the corresponding device
-functions do. I've also replaced direct usage of the old policy fields with
-calls to the appropriate function.
+On Sat, 2005-11-05 at 13:25 -0500, Jeff Garzik wrote:
+> Do you have standard permissions (chmod -R og+rX) on your repo, and, are 
+> you using rsync to push to kernel.org?
+> 
+> I've attached my rsync-based push script.  git people seem to dislike 
+> rsync, but this tends to work every time, for all users.
 
-Signed-off-by: Jon Masters <jcm@jonmasters.org>
+No, I push to my scsi-misc-2.6 repository and then clone that on hera
+for linus.  the scsi-misc-2.6 permissions are fine, it was the clone -l
+on hera that caused the problems.
 
-diff -urN linux-2.6.14/drivers/block/floppy.c linux-2.6.14_new/drivers/block/floppy.c
---- linux-2.6.14/drivers/block/floppy.c	2005-10-28 01:02:08.000000000 +0100
-+++ linux-2.6.14_new/drivers/block/floppy.c	2005-11-05 15:30:05.000000000 +0000
-@@ -3714,6 +3714,13 @@
- 		USETF(FD_VERIFY);
- 	}
- 
-+	/* set underlying gendisk readonly state to reflect real ro/rw status */
-+	if (UTESTF(FD_DISK_WRITABLE)) {
-+		set_device_ro(inode->i_bdev, 0);
-+	} else {
-+		set_device_ro(inode->i_bdev, 1);
-+	}
-+	
- 	if (UDRS->fd_ref == -1 || (UDRS->fd_ref && (filp->f_flags & O_EXCL)))
- 		goto out2;
- 
-diff -urN linux-2.6.14/drivers/block/genhd.c linux-2.6.14_new/drivers/block/genhd.c
---- linux-2.6.14/drivers/block/genhd.c	2005-10-28 01:02:08.000000000 +0100
-+++ linux-2.6.14_new/drivers/block/genhd.c	2005-11-05 16:17:18.000000000 +0000
-@@ -655,22 +655,22 @@
- 
- EXPORT_SYMBOL(put_disk);
- 
--void set_device_ro(struct block_device *bdev, int flag)
-+void set_device_ro(struct block_device *bdev, int state)
- {
- 	if (bdev->bd_contains != bdev)
--		bdev->bd_part->policy = flag;
-+		bdev->bd_part->readonly = state;
- 	else
--		bdev->bd_disk->policy = flag;
-+		bdev->bd_disk->readonly = state;
- }
- 
- EXPORT_SYMBOL(set_device_ro);
- 
--void set_disk_ro(struct gendisk *disk, int flag)
-+void set_disk_ro(struct gendisk *disk, int state)
- {
- 	int i;
--	disk->policy = flag;
-+	disk->readonly = state;
- 	for (i = 0; i < disk->minors - 1; i++)
--		if (disk->part[i]) disk->part[i]->policy = flag;
-+		if (disk->part[i]) disk->part[i]->readonly = state;
- }
- 
- EXPORT_SYMBOL(set_disk_ro);
-@@ -680,13 +680,23 @@
- 	if (!bdev)
- 		return 0;
- 	else if (bdev->bd_contains != bdev)
--		return bdev->bd_part->policy;
-+		return bdev->bd_part->readonly;
- 	else
--		return bdev->bd_disk->policy;
-+		return bdev->bd_disk->readonly;
- }
- 
- EXPORT_SYMBOL(bdev_read_only);
- 
-+int disk_read_only(struct gendisk *disk)
-+{
-+	if (!disk)
-+		return 0;
-+
-+	return (disk->readonly);
-+}
-+
-+EXPORT_SYMBOL(disk_read_only);
-+
- int invalidate_partition(struct gendisk *disk, int index)
- {
- 	int res = 0;
-diff -urN linux-2.6.14/drivers/ide/ide-cd.c linux-2.6.14_new/drivers/ide/ide-cd.c
---- linux-2.6.14/drivers/ide/ide-cd.c	2005-10-28 01:02:08.000000000 +0100
-+++ linux-2.6.14_new/drivers/ide/ide-cd.c	2005-11-05 17:27:58.000000000 +0000
-@@ -313,7 +313,7 @@
- #include <linux/cdrom.h>
- #include <linux/ide.h>
- #include <linux/completion.h>
--
-+ 
- #include <scsi/scsi.h>	/* For SCSI -> ATAPI command conversion */
- 
- #include <asm/irq.h>
-@@ -1873,7 +1873,8 @@
- 	/*
- 	 * disk has become write protected
- 	 */
--	if (g->policy) {
-+
-+	if (disk_read_only(g)) {
- 		cdrom_end_request(drive, 0);
- 		return ide_stopped;
- 	}
-diff -urN linux-2.6.14/drivers/md/dm-ioctl.c linux-2.6.14_new/drivers/md/dm-ioctl.c
---- linux-2.6.14/drivers/md/dm-ioctl.c	2005-10-28 01:02:08.000000000 +0100
-+++ linux-2.6.14_new/drivers/md/dm-ioctl.c	2005-11-05 17:27:37.000000000 +0000
-@@ -538,7 +538,7 @@
- 	} else
- 		param->open_count = -1;
- 
--	if (disk->policy)
-+	if (disk_read_only(disk))
- 		param->flags |= DM_READONLY_FLAG;
- 
- 	param->event_nr = dm_get_event_nr(md);
-diff -urN linux-2.6.14/include/linux/genhd.h linux-2.6.14_new/include/linux/genhd.h
---- linux-2.6.14/include/linux/genhd.h	2005-10-28 01:02:08.000000000 +0100
-+++ linux-2.6.14_new/include/linux/genhd.h	2005-11-05 16:19:48.000000000 +0000
-@@ -79,7 +79,7 @@
- 	sector_t nr_sects;
- 	struct kobject kobj;
- 	unsigned reads, read_sectors, writes, write_sectors;
--	int policy, partno;
-+	int readonly, partno;
- };
- 
- #define GENHD_FL_REMOVABLE			1
-@@ -116,7 +116,7 @@
- 	struct kobject kobj;
- 
- 	struct timer_rand_state *random;
--	int policy;
-+	int readonly;			/* needed for underlying media */
- 
- 	atomic_t sync_io;		/* RAID */
- 	unsigned long stamp, stamp_idle;
-@@ -230,8 +230,9 @@
- extern void unlink_gendisk(struct gendisk *gp);
- extern struct gendisk *get_gendisk(dev_t dev, int *part);
- 
--extern void set_device_ro(struct block_device *bdev, int flag);
--extern void set_disk_ro(struct gendisk *disk, int flag);
-+extern void set_device_ro(struct block_device *bdev, int state);
-+extern void set_disk_ro(struct gendisk *disk, int state);
-+extern int disk_read_only(struct gendisk *disk);
- 
- /* drivers/char/random.c */
- extern void add_disk_randomness(struct gendisk *disk);
+James
+
+

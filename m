@@ -1,44 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbVKERJR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbVKERUE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750767AbVKERJR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 12:09:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbVKERJR
+	id S1750807AbVKERUE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 12:20:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbVKERUE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 12:09:17 -0500
-Received: from ns2.suse.de ([195.135.220.15]:13021 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750767AbVKERJQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 12:09:16 -0500
-To: Paul Jackson <pj@sgi.com>
-Cc: akpm@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: Clean up of __alloc_pages
-References: <20051028183326.A28611@unix-os.sc.intel.com>
-	<20051029171630.04a69660.pj@sgi.com>
-From: Andi Kleen <ak@suse.de>
-Date: 05 Nov 2005 18:09:14 +0100
-In-Reply-To: <20051029171630.04a69660.pj@sgi.com>
-Message-ID: <p73oe4z2f9h.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Sat, 5 Nov 2005 12:20:04 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6666 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750807AbVKERUB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 12:20:01 -0500
+Date: Sat, 5 Nov 2005 17:19:55 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Greg KH <greg@kroah.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [DRIVER MODEL] Improved dynamically allocated platform_device interface
+Message-ID: <20051105171955.GA12228@flint.arm.linux.org.uk>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+References: <20051105105628.GE28438@flint.arm.linux.org.uk> <20051105154210.GA20598@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051105154210.GA20598@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> writes:
+On Sat, Nov 05, 2005 at 07:42:10AM -0800, Greg KH wrote:
+> On Sat, Nov 05, 2005 at 10:56:28AM +0000, Russell King wrote:
+> > Re-jig the simple platform device support to allow private data
+> > to be attached to a platform device, as well as allowing the
+> > parent device to be set.
+> > 
+> > Example usage:
+> > 
+> > 	pdev = platform_device_alloc("mydev", id);
+> > 	if (pdev) {
+> > 		err = platform_device_add_resources(pdev, &resources,
+> > 						    ARRAY_SIZE(resources));
+> > 		if (err == 0)
+> > 			err = platform_device_add_data(pdev, &platform_data,
+> > 						       sizeof(platform_data));
+> > 		if (err == 0)
+> > 			err = platform_device_add(pdev);
+> > 	} else {
+> > 		err = -ENOMEM;
+> > 	}
+> > 	if (err)
+> > 		platform_device_put(pdev);
+> > 
+> > Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+> 
+> Acked-by: Greg Kroah-Hartman <gregkh@suse.de>
+> 
+> These look great, want me to add them to my tree and get them to Linus
+> before 2.6.15?
 
+I'm also happy to add them to my tree.  Are you okay with that?
 
-Regarding cpumemset and alloc_pages. I recently rechecked
-the cpumemset hooks in there and I must say they turned out
-to be quite worse
-
-In hindsight it would have been better to use the "generate
-zonelists for all possible nodes" approach you originally had
-and which I rejected (sorry) 
-
-That would make the code much cleaner and faster.
-Maybe it's not too late to switch for that?
-
-If not then the fast path definitely needs to be tuned a bit.
-
--Andi
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

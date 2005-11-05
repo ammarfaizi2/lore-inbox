@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751454AbVKEK6Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751463AbVKEK7h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751454AbVKEK6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 05:58:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751455AbVKEK6Z
+	id S1751463AbVKEK7h (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 05:59:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbVKEK7h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 05:58:25 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59663 "EHLO
+	Sat, 5 Nov 2005 05:59:37 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:60175 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751454AbVKEK6Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 05:58:24 -0500
-Date: Sat, 5 Nov 2005 10:58:19 +0000
+	id S1751462AbVKEK7g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 05:59:36 -0500
+Date: Sat, 5 Nov 2005 10:59:31 +0000
 From: Russell King <rmk+lkml@arm.linux.org.uk>
 To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [DRIVER MODEL] Fix jazzsonic
-Message-ID: <20051105105819.GB30315@flint.arm.linux.org.uk>
+Subject: Re: [PATCH] [DRIVER MODEL] Fix arcfb
+Message-ID: <20051105105931.GD30315@flint.arm.linux.org.uk>
 Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
 References: <20051105105628.GE28438@flint.arm.linux.org.uk>
 Mime-Version: 1.0
@@ -34,61 +34,63 @@ Use generic platform device allocation/release code in modules.
 
 Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
 
-diff --git a/drivers/net/jazzsonic.c b/drivers/net/jazzsonic.c
---- a/drivers/net/jazzsonic.c
-+++ b/drivers/net/jazzsonic.c
-@@ -285,18 +285,8 @@ static struct device_driver jazz_sonic_d
- 	.remove	= __devexit_p(jazz_sonic_device_remove),
- };
+diff --git a/drivers/video/arcfb.c b/drivers/video/arcfb.c
+--- a/drivers/video/arcfb.c
++++ b/drivers/video/arcfb.c
+@@ -502,10 +502,6 @@ static ssize_t arcfb_write(struct file *
+ 	return err;
+ }
  
--static void jazz_sonic_platform_release (struct device *device)
+-static void arcfb_platform_release(struct device *device)
 -{
--	struct platform_device *pldev;
--
--	/* free device */
--	pldev = to_platform_device (device);
--	kfree (pldev);
 -}
 -
- static int __init jazz_sonic_init_module(void)
- {
--	struct platform_device *pldev;
- 	int err;
+ static struct fb_ops arcfb_ops = {
+ 	.owner		= THIS_MODULE,
+ 	.fb_open	= arcfb_open,
+@@ -624,13 +620,7 @@ static struct device_driver arcfb_driver
+ 	.remove = arcfb_remove,
+ };
  
- 	if ((err = driver_register(&jazz_sonic_driver))) {
-@@ -304,27 +294,19 @@ static int __init jazz_sonic_init_module
- 		return err;
- 	}
- 
--	jazz_sonic_device = NULL;
--
--	if (!(pldev = kmalloc (sizeof (*pldev), GFP_KERNEL))) {
-+	jazz_sonic_device = platform_device_alloc(jazz_sonic_string, 0);
-+	if (!jazz_sonnic_device)
- 		goto out_unregister;
+-static struct platform_device arcfb_device = {
+-	.name	= "arcfb",
+-	.id	= 0,
+-	.dev	= {
+-		.release = arcfb_platform_release,
 -	}
+-};
++static struct platform_device *arcfb_device;
  
--	memset(pldev, 0, sizeof (*pldev));
--	pldev->name		= jazz_sonic_string;
--	pldev->id		= 0;
--	pldev->dev.release	= jazz_sonic_platform_release;
--	jazz_sonic_device	= pldev;
--
--	if (platform_device_register (pldev)) {
--		kfree(pldev);
-+	if (platform_device_add(jazz_sonic_device)) {
-+		platform_device_put(jazz_sonic_device);
- 		jazz_sonic_device = NULL;
+ static int __init arcfb_init(void)
+ {
+@@ -641,9 +631,16 @@ static int __init arcfb_init(void)
+ 
+ 	ret = driver_register(&arcfb_driver);
+ 	if (!ret) {
+-		ret = platform_device_register(&arcfb_device);
+-		if (ret)
++		arcfb_device = platform_device_alloc("arcfb", 0);
++		if (arcfb_device) {
++			ret = platform_device_add(arcfb_device);
++		} else {
++			ret = -ENOMEM;
++		}
++		if (ret) {
++			platform_device_put(arcfb_device);
+ 			driver_unregister(&arcfb_driver);
++		}
  	}
+ 	return ret;
  
- 	return 0;
+@@ -651,7 +648,7 @@ static int __init arcfb_init(void)
  
- out_unregister:
--	platform_device_unregister(pldev);
-+	driver_unregister(&jazz_sonic_driver);
- 
- 	return -ENOMEM;
+ static void __exit arcfb_exit(void)
+ {
+-	platform_device_unregister(&arcfb_device);
++	platform_device_unregister(arcfb_device);
+ 	driver_unregister(&arcfb_driver);
  }
+ 
 
 
 -- 

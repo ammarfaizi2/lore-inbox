@@ -1,35 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbVKEE70@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbVKEFCY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751213AbVKEE70 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 23:59:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbVKEE70
+	id S1751260AbVKEFCY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 00:02:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751264AbVKEFCY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 23:59:26 -0500
-Received: from mail.kroah.org ([69.55.234.183]:22715 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751211AbVKEE7Z (ORCPT
+	Sat, 5 Nov 2005 00:02:24 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:7580 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751260AbVKEFCX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 23:59:25 -0500
-Date: Fri, 4 Nov 2005 20:30:56 -0800
-From: Greg KH <greg@kroah.com>
-To: Frank Overton <frank@discoverycenters.org>
+	Sat, 5 Nov 2005 00:02:23 -0500
+Date: Fri, 4 Nov 2005 21:02:13 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Roman Zippel <zippel@linux-m68k.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 series kernels panic on boot at PCI probe with 450nx
-Message-ID: <20051105043056.GA25501@kroah.com>
-References: <436BF7BB.9070900@discoverycenters.org>
+Subject: Re: [PATCH] hfsplus: don't modify journaled volume
+Message-Id: <20051104210213.1232a007.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0511031617090.12843@scrub.home>
+References: <Pine.LNX.4.61.0511031617090.12843@scrub.home>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <436BF7BB.9070900@discoverycenters.org>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 04, 2005 at 04:07:23PM -0800, Frank Overton wrote:
-> [1.] 2.6 series kernels panic on boot at PCI probe with 450nx (2.4.x 
-> kernels boot without hitch)  [2.] System: HP Netserver LH4s
+Roman Zippel <zippel@linux-m68k.org> wrote:
+>
+> +		} else if (vhdr->attributes & cpu_to_be32(HFSPLUS_VOL_JOURNALED)) {
+>  +			printk("HFS+-fs: Filesystem is marked journaled, leaving read-only.\n");
+>  +			sb->s_flags |= MS_RDONLY;
+>  +			*flags |= MS_RDONLY;
 
-Can you post the oops message that you see?
-
-thanks,
-
-greg k-h
+These sorts of printks should have an explicit facility level, no?

@@ -1,47 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751269AbVKEHAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbVKEHAu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751269AbVKEHAF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 02:00:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbVKEHAE
+	id S1751271AbVKEHAu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 02:00:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbVKEHAu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 02:00:04 -0500
-Received: from xproxy.gmail.com ([66.249.82.194]:9158 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751269AbVKEHAB (ORCPT
+	Sat, 5 Nov 2005 02:00:50 -0500
+Received: from drugphish.ch ([69.55.226.176]:14002 "EHLO www.drugphish.ch")
+	by vger.kernel.org with ESMTP id S1751271AbVKEHAu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 02:00:01 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=S/MOSZchs8CB+VAwVclQiCByd2pFl8pZg5V53LK0SznnE8tZ6q0Lbsqax2DoJbBhalaINL5LrdzntHG1RR3BKM/SIjTjNF+0XUgWwu7KPCS01J+siKlwZQpOZUoJzgMFIjLgLb5XqKCTefWFuRHtUT1SxOa7ZuX4RkbjPvg4pV8=
-Message-ID: <436C5868.3090809@gmail.com>
-Date: Sat, 05 Nov 2005 14:59:52 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
+	Sat, 5 Nov 2005 02:00:50 -0500
+Message-ID: <436C5895.3040409@drugphish.ch>
+Date: Sat, 05 Nov 2005 08:00:37 +0100
+From: Roberto Nibali <ratz@drugphish.ch>
+User-Agent: Thunderbird 1.4.1 (X11/20051006)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: calin@ajvar.org, ajoshi@shell.unixbox.com, linux-kernel@vger.kernel.org,
-       linux-nvidia@lists.surfsouth.com, torvalds@osdl.org
-Subject: Re: [PATCH] nvidiafb: Geforce 7800 series support added
-References: <Pine.LNX.4.64.0511042031470.9781@rtlab.med.cornell.edu>	<436C2DCE.1030509@pol.net> <20051104200913.701e0f62.akpm@osdl.org>
-In-Reply-To: <20051104200913.701e0f62.akpm@osdl.org>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Grant Coady <gcoady@gmail.com>
+Subject: Re: Linux-2.4.31-hf8
+References: <20051104231815.GA26093@alpha.home.local>
+In-Reply-To: <20051104231815.GA26093@alpha.home.local>
+X-Enigmail-Version: 0.93.0.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
->> If nobody takes your patch, I'll pick it up.
->>
-> 
-> Is OK, I'm slowly working my way towards it.
+Hello Willy,
 
-Thanks. BTW, when's 2.6.14-mm1 coming?
+> This is the eighth hotfix for 2.4.31. OK, I know there was one not long ago,
+> but a recent fix in IPVS which got merged into -hf7 left a refcnt problem in
+> ip_vs_conn_expire_now, which can cause mid-term/long-term stability problems.
+> I took this opportunity to merge a backport from 2.6 of another fix from Yan
+> Zheng affecting multicast source filters.
 
-> 
-> I'll take that as an ack ;)
-> 
+Well, to be honest, Horms just found another IPVS "issue" :). It seems
+we are getting into reviewing 2.4.x IPVS a bit more closely. The problem
+is that if you have setups where the persistency timeout is below the
+IPVS state machine related FIN_WAIT (not TCP state) timeout (currently
+2*60*HZ) persistent templates will not be invalidated and the timer gets
+re-set if a we still have a valid connection entry hashed. I've first
+noted this somewhat aberrant behaviour in 2.2.x kernels but never got
+around looking at it too closely because in 2.2.x we had a timer mess.
 
-Yes.
+This issue however is absolutely minor since this buglet has been there
+for ages already and we never received such a bug report. In fact, it
+would be quite unusual to set a persistency timeout below fin_wait in a
+LVS_DR setup for productive environments. And I didn't see it because I
+set the FIN_WAIT to 10*HZ to relax sockets lingering. We can/will queue
+it up, together with a small refcnt change for -hf9 and post 2.4.32.
 
-Tony
+I take it you read netdev as well, since we will post those patches
+there. I'm delighted to see your -hf kernels since lately I have been
+told off by a couple of kernel maintainers regarding 2.4.x, which we use
+in about 100 of our boxes all over the world, about 300 still run 2.2.x
+  and are slowly migrated to the now stable 2.4.x series. Doing business
+in the finance sector really opts for stability, which is given by 2.4.x.
+
+Have a nice weekend,
+Roberto Nibali, ratz
+-- 
+echo
+'[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq' | dc

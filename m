@@ -1,68 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751184AbVKEAMZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751181AbVKEAMJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751184AbVKEAMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 19:12:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbVKEAMY
+	id S1751181AbVKEAMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 19:12:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbVKEAMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 19:12:24 -0500
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:59003 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1751184AbVKEAMX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 19:12:23 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=kXFnHgvWBMGpNVkpgPklYY/1AJJxVjRyA5xbmwtsMAtdrJuWoR3L5jVULVKo/ShDbZNoU+QPoViATGPZ3FNxxDjnyVTm4OmXkWmpMAM+ZIRsJIEd9NEx6KImYTdTwnAY74jliGz2l288rizgx67vgR1VoFMZXh4E6nCgN++hOFI=  ;
-Message-ID: <436BF961.9070402@yahoo.com.au>
-Date: Sat, 05 Nov 2005 11:14:25 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: ntl@pobox.com, viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC] big reader semaphore take#2
-References: <20051028104437.GA17461@htj.dyndns.org> <436B79BA.6070300@gmail.com>
-In-Reply-To: <436B79BA.6070300@gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 4 Nov 2005 19:12:09 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:23261 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751181AbVKEAMI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 19:12:08 -0500
+Date: Fri, 4 Nov 2005 16:08:51 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org,
+       aherrman@de.ibm.com, dm-devel@redhat.com
+Subject: Re: [PATCH resubmit] do_mount: reduce stack consumption
+Message-Id: <20051104160851.3a7463ff.akpm@osdl.org>
+In-Reply-To: <20051104235500.GE5368@stusta.de>
+References: <20051104105026.GA12476@osiris.boeblingen.de.ibm.com>
+	<20051104084829.714c5dbb.akpm@osdl.org>
+	<20051104212742.GC9222@osiris.ibm.com>
+	<20051104235500.GE5368@stusta.de>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo wrote:
-> Tejun Heo wrote:
+Adrian Bunk <bunk@stusta.de> wrote:
+>
+> On Fri, Nov 04, 2005 at 10:27:42PM +0100, Heiko Carstens wrote:
+> > > > See original stack back trace below and Andreas' patch and analysis
+> > > > here:
+> > > > http://www.ussg.iu.edu/hypermail/linux/kernel/0410.3/1844.html
+> > 
+> > I probably should add that with "original" stack back trace a trace of
+> > a 2.6.10 kernel was meant, if that wasn't clear, but the DM code is
+> > still the same in 2.6.14.
+> > 
+> > > >     <4>Call Trace:
+> > ...
+> > > >     <4> [<0000000010831380>] __map_bio+0x70/0x160 [dm_mod]
+> > > >     <4> [<000000001083173e>] __split_bio+0x1e6/0x538 [dm_mod]
+> > > >     <4> [<0000000010831ba8>] dm_request+0x118/0x25c [dm_mod]
+> > > >     <4> [<0000000000241074>] generic_make_request+0xf0/0x21c
+> > > >     <4> [<0000000010831380>] __map_bio+0x70/0x160 [dm_mod]
+> > > >     <4> [<000000001083173e>] __split_bio+0x1e6/0x538 [dm_mod]
+> > > >     <4> [<0000000010831ba8>] dm_request+0x118/0x25c [dm_mod]
+> > > >     <4> [<0000000000241074>] generic_make_request+0xf0/0x21c
+> > > >     <4> [<0000000010831380>] __map_bio+0x70/0x160 [dm_mod]
+> > > >     <4> [<000000001083173e>] __split_bio+0x1e6/0x538 [dm_mod]
+> > > >     <4> [<0000000010831ba8>] dm_request+0x118/0x25c [dm_mod]
+> > > >     <4> [<0000000000241074>] generic_make_request+0xf0/0x21c
+> > ...
+> > 
+> > This part of the call trace is actually good for >1500 bytes of stack
+> > usage and is what kills us and should be fixed.
+> > I'm surprised that there are no other bug reports regarding DM and
+> > stack overflow with 4k stacks.
+> >...
 > 
->>  Hello guys,
->>
->> This is the second take of brsem (big reader semaphore).
->>
->> Nick, unfortunately, simple array of rwsem's does not work as lock
->> holders are not pinned down to cpus and may release locks on other
->> cpus.
->>
-
-[...]
-
+> There were some reports of dm+xfs overflows with 4k stacks on i386.
 > 
-> (Nick, what do you think about the new implementation?)
+> The xfs side was sorted out, but I son't know the state of the dm part.
 > 
 
-As I said, I think I'd prefer to see an implementation that returns
-a token from down_read to be used in up_read (ie. the slot # of the
-counter which has been downed).
-
-This obviously no longer makes it a drop in replacement for an rwsem.
-But could such a beast ever be considered so? Would that make your
-VFS patches really ugly?
-
-The upshot of that would be that you could build the whole thing
-from rwsem infrastructure and have basically zero other locking
-mechanisms or complexity that you don't want in a synchronisation
-primitive.
-
-Nick
-
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+The state is Very Bad, IMO.  At the very least, DM should struggle to the
+utmost to reduce the stack utilisation around that recursion point.

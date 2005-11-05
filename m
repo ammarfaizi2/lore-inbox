@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751465AbVKELAk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbVKELCc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751465AbVKELAk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 06:00:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751466AbVKELAj
+	id S1751320AbVKELCc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 06:02:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbVKELCc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 06:00:39 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:60943 "EHLO
+	Sat, 5 Nov 2005 06:02:32 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:55562 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751465AbVKELAi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 06:00:38 -0500
-Date: Sat, 5 Nov 2005 11:00:30 +0000
+	id S1751320AbVKELCb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 06:02:31 -0500
+Date: Sat, 5 Nov 2005 11:02:27 +0000
 From: Russell King <rmk+lkml@arm.linux.org.uk>
 To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [DRIVER MODEL] Fix sgivwfb
-Message-ID: <20051105110030.GF30315@flint.arm.linux.org.uk>
+Subject: Re: [RFC] [DRIVER MODEL] Make other buggy drivers warn
+Message-ID: <20051105110226.GG30315@flint.arm.linux.org.uk>
 Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
 References: <20051105105628.GE28438@flint.arm.linux.org.uk>
 Mime-Version: 1.0
@@ -24,72 +24,68 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Statically allocated devices in module data is a potential cause
-of oopsen.  The device may be in use by a userspace process, which
-will keep a reference to the device.  If the module is unloaded,
-the module data will be freed.  Subsequent use of the platform
-device will cause a kernel oops.
+Obviously just to provoke comment from these driver authors to point
+out the error of their ways, and _not_ for merging.
 
-Use generic platform device allocation/release code in modules.
-
-Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
-
-diff --git a/drivers/video/sgivwfb.c b/drivers/video/sgivwfb.c
---- a/drivers/video/sgivwfb.c
-+++ b/drivers/video/sgivwfb.c
-@@ -751,10 +751,6 @@ int __init sgivwfb_setup(char *options)
- /*
-  *  Initialisation
-  */
--static void sgivwfb_release(struct device *device)
--{
--}
--
- static int __init sgivwfb_probe(struct device *device)
- {
- 	struct platform_device *dev = to_platform_device(device);
-@@ -859,13 +855,7 @@ static struct device_driver sgivwfb_driv
- 	.remove	= sgivwfb_remove,
- };
- 
--static struct platform_device sgivwfb_device = {
--	.name	= "sgivwfb",
--	.id	= 0,
--	.dev	= {
--		.release = sgivwfb_release,
--	}
--};
-+static struct platform_device *sgivwfb_device;
- 
- int __init sgivwfb_init(void)
- {
-@@ -880,9 +870,15 @@ int __init sgivwfb_init(void)
+diff -u b/drivers/net/depca.c b/drivers/net/depca.c
+--- b/drivers/net/depca.c
++++ b/drivers/net/depca.c
+@@ -2083,6 +2083,7 @@ static int __init depca_module_init (voi
+         err |= eisa_driver_register (&depca_eisa_driver);
  #endif
- 	ret = driver_register(&sgivwfb_driver);
- 	if (!ret) {
--		ret = platform_device_register(&sgivwfb_device);
--		if (ret)
-+		sgivwfb_device = platform_device_alloc("sgivwfb", 0);
-+		if (sgivwfb_device) {
-+			ret = platform_device_add(sgivwfb_device);
-+		} else
-+			ret = -ENOMEM;
-+		if (ret) {
- 			driver_unregister(&sgivwfb_driver);
-+			platform_device_put(sgivwfb_device);
-+		}
+ 	err |= driver_register (&depca_isa_driver);
++#warning FIXME: what if one of the above registeration functions fails
+ 	depca_platform_probe ();
+ 	
+         return err;
+diff -u b/drivers/net/tokenring/proteon.c b/drivers/net/tokenring/proteon.c
+--- b/drivers/net/tokenring/proteon.c
++++ b/drivers/net/tokenring/proteon.c
+@@ -384,6 +384,7 @@ static int __init proteon_init(void)
+ 	/* Probe for cards. */
+ 	if (num == 0) {
+ 		printk(KERN_NOTICE "proteon.c: No cards found.\n");
++#warning FIXME: what about unregistering the platform driver?
+ 		return (-ENODEV);
  	}
- 	return ret;
- }
-@@ -894,7 +890,7 @@ MODULE_LICENSE("GPL");
+ 	return (0);
+diff -u b/drivers/net/tokenring/skisa.c b/drivers/net/tokenring/skisa.c
+--- b/drivers/net/tokenring/skisa.c
++++ b/drivers/net/tokenring/skisa.c
+@@ -394,6 +394,7 @@ static int __init sk_isa_init(void)
+ 	/* Probe for cards. */
+ 	if (num == 0) {
+ 		printk(KERN_NOTICE "skisa.c: No cards found.\n");
++#warning FIXME: what about unregistering the platform driver?
+ 		return (-ENODEV);
+ 	}
+ 	return (0);
+diff -u b/drivers/usb/gadget/dummy_hcd.c b/drivers/usb/gadget/dummy_hcd.c
+--- b/drivers/usb/gadget/dummy_hcd.c
++++ b/drivers/usb/gadget/dummy_hcd.c
+@@ -1981,9 +1981,11 @@
+  * statically allocated. */
+ static void
+ dummy_udc_release (struct device *dev) {}
++#warning FIXME: device release code in the module which unregisters the device is buggy
+
+ static void
+ dummy_hcd_release (struct device *dev) {}
++#warning FIXME: device release code in the module which unregisters the device is buggy
  
- static void __exit sgivwfb_exit(void)
+ static struct platform_device		the_udc_pdev = {
+ 	.name		= (char *) gadget_name,
+diff -u b/sound/core/init.c b/sound/core/init.c
+--- b/sound/core/init.c
++++ b/sound/core/init.c
+@@ -694,6 +694,7 @@
+ 
+ void snd_generic_device_release(struct device *dev)
  {
--	platform_device_unregister(&sgivwfb_device);
-+	platform_device_unregister(sgivwfb_device);
- 	driver_unregister(&sgivwfb_driver);
++#warning FIXME: release functions must not be empty
  }
  
+ static int snd_generic_device_register(snd_card_t *card)
 
 
 -- 

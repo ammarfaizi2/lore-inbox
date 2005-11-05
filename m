@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbVKESTH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbVKESU4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932162AbVKESTH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 13:19:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbVKESSt
+	id S932190AbVKESU4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 13:20:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbVKESUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 13:18:49 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:31761 "EHLO
+	Sat, 5 Nov 2005 13:20:55 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:33297 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932162AbVKESSU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 13:18:20 -0500
-Date: Sat, 5 Nov 2005 18:18:15 +0000
+	id S932179AbVKESUd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 13:20:33 -0500
+Date: Sat, 5 Nov 2005 18:20:25 +0000
 From: Russell King <rmk+lkml@arm.linux.org.uk>
 To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [DRIVER MODEL] Convert input drivers
-Message-ID: <20051105181815.GO14419@flint.arm.linux.org.uk>
+Subject: Re: [DRIVER MODEL] Convert drivers/misc/hdpuftrs
+Message-ID: <20051105182024.GU14419@flint.arm.linux.org.uk>
 Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
 References: <20051105181122.GD12228@flint.arm.linux.org.uk>
 Mime-Version: 1.0
@@ -28,140 +28,137 @@ Convert platform drivers to use struct platform_driver
 
 Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
 
-diff -u b/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
---- b/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -912,7 +912,7 @@
-  * Here we try to restore the original BIOS settings
-  */
+diff -u b/drivers/misc/hdpuftrs/hdpu_cpustate.c b/drivers/misc/hdpuftrs/hdpu_cpustate.c
+--- b/drivers/misc/hdpuftrs/hdpu_cpustate.c
++++ b/drivers/misc/hdpuftrs/hdpu_cpustate.c
+@@ -27,8 +27,8 @@
  
--static int i8042_suspend(struct device *dev, pm_message_t state)
-+static int i8042_suspend(struct platform_device *dev, pm_message_t state)
- {
- 	del_timer_sync(&i8042_timer);
- 	i8042_controller_reset();
-@@ -925,7 +925,7 @@
-  * Here we try to reset everything back to a state in which suspended
-  */
+ #define SKY_CPUSTATE_VERSION		"1.1"
  
--static int i8042_resume(struct device *dev)
-+static int i8042_resume(struct platform_device *dev)
- {
- 	int i;
+-static int hdpu_cpustate_probe(struct device *ddev);
+-static int hdpu_cpustate_remove(struct device *ddev);
++static int hdpu_cpustate_probe(struct platform_device *pdev);
++static int hdpu_cpustate_remove(struct platform_device *pdev);
  
-@@ -964,7 +964,7 @@
-  * because otherwise BIOSes will be confused.
-  */
+ struct cpustate_t cpustate;
  
--static void i8042_shutdown(struct device *dev)
-+static void i8042_shutdown(struct platform_device *dev)
- {
- 	i8042_controller_cleanup();
- }
-@@ -969,12 +969,13 @@
- 	i8042_controller_cleanup();
+@@ -159,11 +159,12 @@
+ 	return len;
  }
  
--static struct device_driver i8042_driver = {
--	.name		= "i8042",
--	.bus		= &platform_bus_type,
-+static struct platform_driver i8042_driver = {
- 	.suspend	= i8042_suspend,
- 	.resume		= i8042_resume,
- 	.shutdown	= i8042_shutdown,
-+	.driver		= {
-+		.name	= "i8042",
+-static struct device_driver hdpu_cpustate_driver = {
+-	.name = HDPU_CPUSTATE_NAME,
+-	.bus = &platform_bus_type,
++static struct platform_driver hdpu_cpustate_driver = {
+ 	.probe = hdpu_cpustate_probe,
+ 	.remove = hdpu_cpustate_remove,
++	.driver = {
++		.name = HDPU_CPUSTATE_NAME,
 +	},
  };
  
- static int __init i8042_create_kbd_port(void)
-@@ -1078,7 +1079,7 @@
- 		goto err_platform_exit;
- 	}
+ /*
+@@ -188,9 +189,8 @@
+ 	&cpustate_fops
+ };
  
--	err = driver_register(&i8042_driver);
-+	err = platform_driver_register(&i8042_driver);
- 	if (err)
- 		goto err_controller_cleanup;
- 
-@@ -1126,7 +1127,7 @@
-  err_unregister_device:
- 	platform_device_unregister(i8042_platform_device);
-  err_unregister_driver:
--	driver_unregister(&i8042_driver);
-+	platform_driver_unregister(&i8042_driver);
-  err_controller_cleanup:
- 	i8042_controller_cleanup();
-  err_platform_exit:
-@@ -1148,7 +1149,7 @@
- 	del_timer_sync(&i8042_timer);
- 
- 	platform_device_unregister(i8042_platform_device);
--	driver_unregister(&i8042_driver);
-+	platform_driver_unregister(&i8042_driver);
- 
- 	i8042_platform_exit();
- 
-diff -u b/drivers/input/serio/rpckbd.c b/drivers/input/serio/rpckbd.c
---- b/drivers/input/serio/rpckbd.c
-+++ b/drivers/input/serio/rpckbd.c
-@@ -107,7 +107,7 @@
-  * Allocate and initialize serio structure for subsequent registration
-  * with serio core.
-  */
--static int __devinit rpckbd_probe(struct device *dev)
-+static int __devinit rpckbd_probe(struct platform_device *dev)
+-static int hdpu_cpustate_probe(struct device *ddev)
++static int hdpu_cpustate_probe(struct platform_device *pdev)
  {
- 	struct serio *serio;
- 
-@@ -120,37 +120,38 @@
- 	serio->write		= rpckbd_write;
- 	serio->open		= rpckbd_open;
- 	serio->close		= rpckbd_close;
--	serio->dev.parent	= dev;
-+	serio->dev.parent	= &dev->dev;
- 	strlcpy(serio->name, "RiscPC PS/2 kbd port", sizeof(serio->name));
- 	strlcpy(serio->phys, "rpckbd/serio0", sizeof(serio->phys));
- 
--	dev_set_drvdata(dev, serio);
-+	platform_set_drvdata(dev, serio);
- 	serio_register_port(serio);
+-	struct platform_device *pdev = to_platform_device(ddev);
+ 	struct resource *res;
+ 	struct proc_dir_entry *proc_de;
+ 	int ret;
+@@ -218,7 +218,7 @@
  	return 0;
  }
  
--static int __devexit rpckbd_remove(struct device *dev)
-+static int __devexit rpckbd_remove(struct platform_device *dev)
+-static int hdpu_cpustate_remove(struct device *ddev)
++static int hdpu_cpustate_remove(struct platform_device *pdev)
  {
--	struct serio *serio = dev_get_drvdata(dev);
-+	struct serio *serio = platform_get_drvdata(dev);
- 	serio_unregister_port(serio);
- 	return 0;
+ 
+ 	cpustate.set_addr = NULL;
+@@ -233,13 +233,13 @@
+ static int __init cpustate_init(void)
+ {
+ 	int rc;
+-	rc = driver_register(&hdpu_cpustate_driver);
++	rc = platform_driver_register(&hdpu_cpustate_driver);
+ 	return rc;
  }
  
--static struct device_driver rpckbd_driver = {
--	.name		= "kart",
--	.bus		= &platform_bus_type,
-+static struct platform_driver rpckbd_driver = {
- 	.probe		= rpckbd_probe,
- 	.remove		= __devexit_p(rpckbd_remove),
-+	.driver		= {
-+		.name	= "kart",
+ static void __exit cpustate_exit(void)
+ {
+-	driver_unregister(&hdpu_cpustate_driver);
++	platform_driver_unregister(&hdpu_cpustate_driver);
+ }
+ 
+ module_init(cpustate_init);
+diff -u b/drivers/misc/hdpuftrs/hdpu_nexus.c b/drivers/misc/hdpuftrs/hdpu_nexus.c
+--- b/drivers/misc/hdpuftrs/hdpu_nexus.c
++++ b/drivers/misc/hdpuftrs/hdpu_nexus.c
+@@ -23,19 +23,20 @@
+ 
+ #include <linux/platform_device.h>
+ 
+-static int hdpu_nexus_probe(struct device *ddev);
+-static int hdpu_nexus_remove(struct device *ddev);
++static int hdpu_nexus_probe(struct platform_device *pdev);
++static int hdpu_nexus_remove(struct platform_device *pdev);
+ 
+ static struct proc_dir_entry *hdpu_slot_id;
+ static struct proc_dir_entry *hdpu_chassis_id;
+ static int slot_id = -1;
+ static int chassis_id = -1;
+ 
+-static struct device_driver hdpu_nexus_driver = {
+-	.name = HDPU_NEXUS_NAME,
+-	.bus = &platform_bus_type,
++static struct platform_driver hdpu_nexus_driver = {
+ 	.probe = hdpu_nexus_probe,
+ 	.remove = hdpu_nexus_remove,
++	.driver = {
++		.name = HDPU_NEXUS_NAME,
 +	},
  };
  
- static int __init rpckbd_init(void)
- {
--	return driver_register(&rpckbd_driver);
-+	return platform_driver_register(&rpckbd_driver);
+ int hdpu_slot_id_read(char *buffer, char **buffer_location, off_t offset,
+@@ -56,9 +57,8 @@
+ 	return sprintf(buffer, "%d\n", chassis_id);
  }
  
- static void __exit rpckbd_exit(void)
+-static int hdpu_nexus_probe(struct device *ddev)
++static int hdpu_nexus_probe(struct platform_device *pdev)
  {
--	driver_unregister(&rpckbd_driver);
-+	platform_driver_unregister(&rpckbd_driver);
+-	struct platform_device *pdev = to_platform_device(ddev);
+ 	struct resource *res;
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+@@ -81,7 +81,7 @@
+ 	return 0;
  }
  
- module_init(rpckbd_init);
+-static int hdpu_nexus_remove(struct device *ddev)
++static int hdpu_nexus_remove(struct platform_device *pdev)
+ {
+ 	slot_id = -1;
+ 	chassis_id = -1;
+@@ -95,13 +95,13 @@
+ static int __init nexus_init(void)
+ {
+ 	int rc;
+-	rc = driver_register(&hdpu_nexus_driver);
++	rc = platform_driver_register(&hdpu_nexus_driver);
+ 	return rc;
+ }
+ 
+ static void __exit nexus_exit(void)
+ {
+-	driver_unregister(&hdpu_nexus_driver);
++	platform_driver_unregister(&hdpu_nexus_driver);
+ }
+ 
+ module_init(nexus_init);
 
 
 -- 

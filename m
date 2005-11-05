@@ -1,67 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbVKEPKE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbVKEPTG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932073AbVKEPKE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 10:10:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932074AbVKEPKD
+	id S932077AbVKEPTG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 10:19:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932076AbVKEPTF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 10:10:03 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:60936 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932073AbVKEPKB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 10:10:01 -0500
-Date: Sat, 5 Nov 2005 16:09:59 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       linux-joystick@atrey.karlin.mff.cuni.cz
-Subject: Re: [2.6 patch] drivers/input/: possible cleanups
-Message-ID: <20051105150959.GG5368@stusta.de>
-References: <20051104123541.GC5587@stusta.de> <20051104124207.GA4937@ucw.cz> <20051104125742.GE5587@stusta.de> <20051104131228.GA5208@ucw.cz>
+	Sat, 5 Nov 2005 10:19:05 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:54757 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S932077AbVKEPTC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 10:19:02 -0500
+Message-ID: <436CDEAF.E236BC40@tv-sign.ru>
+Date: Sat, 05 Nov 2005 19:32:47 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051104131228.GA5208@ucw.cz>
-User-Agent: Mutt/1.5.11
+To: paulmck@us.ibm.com
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, dipankar@in.ibm.com,
+       mingo@elte.hu, suzannew@cs.pdx.edu
+Subject: Re: [PATCH] Additional/catchup RCU signal fixes for -mm
+References: <20051105013650.GA17461@us.ibm.com>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 04, 2005 at 02:12:28PM +0100, Vojtech Pavlik wrote:
-> On Fri, Nov 04, 2005 at 01:57:42PM +0100, Adrian Bunk wrote:
-> 
-> > On Fri, Nov 04, 2005 at 01:42:07PM +0100, Vojtech Pavlik wrote:
-> > > On Fri, Nov 04, 2005 at 01:35:41PM +0100, Adrian Bunk wrote:
-> > > > This patch contains the following possible cleanups:
-> > > > - make needlessly glbal code static
-> > > 
-> > > Agreed.
-> > > 
-> > > > - gameport/gameport: #if 0 the unused global function gameport_reconnect
-> > > 
-> > > That one should be an EXPORT_SYMBOL() API. If the export is missing,
-> > > then that's the bug that needs to be fixed.
-> > >...
-> > 
-> > There isn't even a header providing a function prototype which is quite 
-> > strange for a part of an API.
->  
-> It's a planned API (a mirror of what the serio abstraction does), the
-> drivers don't use it yet.
+"Paul E. McKenney" wrote:
+>
+> @@ -1386,7 +1387,7 @@ send_sigqueue(int sig, struct sigqueue *
+>  {
+>  	unsigned long flags;
+>  	int ret = 0;
+> -	struct sighand_struct *sh = p->sighand;
+> +	struct sighand_struct *sh;
+>
+>  	BUG_ON(!(q->flags & SIGQUEUE_PREALLOC));
+>
+> @@ -1405,7 +1406,15 @@ send_sigqueue(int sig, struct sigqueue *
+>  		goto out_err;
+>  	}
+>
+> +retry:
+> +	sh = rcu_dereference(p->sighand);
+> +
+>  	spin_lock_irqsave(&sh->siglock, flags);
+> +	if (p->sighand != sh) {
+> +		/* We raced with exec() in a multithreaded process... */
+> +		spin_unlock_irqrestore(&sh->siglock, flags);
+> +		goto retry;
 
-Can you either apply my patch to #if 0 it, or (if usage is planned very 
-soon) add a function prototype to a header file?
+p->sighand can't be changed, de_thread calls exit_itimers() before
+changing ->sighand. But I still think it can be NULL, and send_sigqueue()
+should return -1 in that case.
 
-In both cases, we get rid of a warning both by sparse and with the gcc 
--Wmissing-prototypes flag.
+> @@ -1464,15 +1473,8 @@ send_group_sigqueue(int sig, struct sigq
+>
+>  	BUG_ON(!(q->flags & SIGQUEUE_PREALLOC));
+>
+> -	while (!read_trylock(&tasklist_lock)) {
+> -		if (!p->sighand)
+> -			return -1;
+> -		cpu_relax();
+> -	}
+> -	if (unlikely(!p->sighand)) {
+> -		ret = -1;
+> -		goto out_err;
+> -	}
+> +	read_lock(&tasklist_lock);
+> +	/* Since it_lock is held, p->sighand cannot be NULL. */
+>  	spin_lock_irqsave(&p->sighand->siglock, flags);
 
-> Vojtech Pavlik
+Again, I think the comment is wrong.
 
-cu
-Adrian
+However, now I think we really have a race with exec, and this race was not
+introduced by your patches!
 
--- 
+If !thread_group_leader() does exec de_thread() calls release_task(->group_leader)
+before calling exit_itimers(). This means that send_group_sigqueue() which
+always has p == ->group_leader parameter can oops here.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Oleg.

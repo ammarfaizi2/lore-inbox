@@ -1,58 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbVKEGLu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbVKEG2W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751250AbVKEGLu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 01:11:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbVKEGLu
+	id S1751253AbVKEG2W (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 01:28:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbVKEG2W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 01:11:50 -0500
-Received: from mail.kroah.org ([69.55.234.183]:5331 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751250AbVKEGLu (ORCPT
+	Sat, 5 Nov 2005 01:28:22 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:39869 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751253AbVKEG2V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 01:11:50 -0500
-Date: Fri, 4 Nov 2005 22:11:14 -0800
-From: Greg KH <greg@kroah.com>
-To: linas@austin.ibm.com
-Cc: paulus@samba.org, linuxppc64-dev@ozlabs.org, johnrose@austin.ibm.com,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       bluesmoke-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 16/42]: PCI:  PCI Error reporting callbacks
-Message-ID: <20051105061114.GA27016@kroah.com>
-References: <20051103235918.GA25616@mail.gnucash.org> <20051104005035.GA26929@mail.gnucash.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051104005035.GA26929@mail.gnucash.org>
-User-Agent: Mutt/1.5.11
+	Sat, 5 Nov 2005 01:28:21 -0500
+Message-ID: <436C50FE.3030600@pobox.com>
+Date: Sat, 05 Nov 2005 01:28:14 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Trond.Myklebust@netapp.com, Linux Kernel <linux-kernel@vger.kernel.org>,
+       nfs@lists.sourceforge.net
+Subject: recent NFS problems?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 03, 2005 at 06:50:35PM -0600, Linas Vepstas wrote:
-> +/* ---------------------------------------------------------------- */
-> +/** PCI error recovery infrastructure.  If a PCI device driver provides
-> + *  a set fof callbacks in struct pci_error_handlers, then that device driver
-> + *  will be notified of PCI bus errors, and will be driven to recovery
-> + *  when an error occurs.
-> + */
-> +
-> +enum pcierr_result {
-> +	PCIERR_RESULT_NONE=0,        /* no result/none/not supported in device driver */
-> +	PCIERR_RESULT_CAN_RECOVER=1, /* Device driver can recover without slot reset */
-> +	PCIERR_RESULT_NEED_RESET,    /* Device driver wants slot to be reset. */
-> +	PCIERR_RESULT_DISCONNECT,    /* Device has completely failed, is unrecoverable */
-> +	PCIERR_RESULT_RECOVERED,     /* Device driver is fully recovered and operational */
-> +};
+This is a bit weird.  Running 2.6.14-g6037d6bb (libata-dev.git branch 
+'upstream') on both client and server.  Its latest Linux 
+(7015faa7df829876a0f931cd18aa6d7c24a1b581) plus one libata patch.  All 
+NFSv4 kernel options are enabled, on both client and server.
 
-No, do not create new types of error or return codes.  Use the standard
--EFOO values.  You can document what they should each return, and mean,
-but do not create new codes.
+On Host A, I mirror a local directory /garz/nsmail to an NFS directory 
+Host_B:/g/g/nsmail via rsync+ssh.  Host A also NFS mounts Host_B:/g 
+locally.  mount on Host A says
 
-Also, you create an enum, but yet do not use it in your function
-callback definition, which means you really didn't want to create it in
-the first place...
+	host_b:/g on /g type nfs (rw,tcp,intr,posix,addr=10.10.10.1)
 
-I'll add 15 and 16 to my tree for now, so they will show up in -mm, but
-I want to see updated versions before sending them off to Linus.
+Seeing some directory weirdness, where wildcard matches fail 
+(NFS-related dcache bugs?) but direct accesses succeed:
 
-thanks,
+[jgarzik@host_a~]$ ssh host_b "ls -d /g/g/nsmail/Trash.sbd/*11*"
+/g/g/nsmail/Trash.sbd/Sent.20051105
+/g/g/nsmail/Trash.sbd/Sent.20051105.msf
+/g/g/nsmail/Trash.sbd/Sent.20051105.sbd
+/g/g/nsmail/Trash.sbd/Trash.20051105
+/g/g/nsmail/Trash.sbd/Trash.20051105.msf
+/g/g/nsmail/Trash.sbd/Trash.20051105.sbd
 
-greg k-h
+[jgarzik@host_a ~]$ ls -d /g/g/nsmail/Trash.sbd/*11*
+ls: /g/g/nsmail/Trash.sbd/*11*: No such file or directory
+
+[jgarzik@host_a ~]$ ls -l /g/g/nsmail/Trash.sbd/Trash.20051105
+-rw-rw-r--  1 jgarzik jgarzik 67484129 Nov  5 00:02 
+/g/g/nsmail/Trash.sbd/Trash.20051105
+
+[jgarzik@host_a~]$ wc -l /g/g/nsmail/Trash.sbd/Trash.20051105
+1739088 /g/g/nsmail/Trash.sbd/Trash.20051105

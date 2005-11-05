@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbVKEE4S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751209AbVKEE6e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751205AbVKEE4S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 23:56:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbVKEE4S
+	id S1751209AbVKEE6e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 23:58:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751210AbVKEE6e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 23:56:18 -0500
-Received: from nproxy.gmail.com ([64.233.182.198]:51793 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751205AbVKEE4R convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 23:56:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iz/87G6M03pbHQqpaeRzfIPAHU1AnNppuiygCT4UpQ3xQaBVQv7W+b12fh+AiAoDIKSmg61YeEcamP3rvAvNmY62cgdP+3LIHbGyLlrcct6tMvQw7YD4asmZt6QNhSNkybC1asDARovt4hnoRAcevfJOzLtzLcTwOqk3PONw36o=
-Message-ID: <c216304e0511042056t79f07d0bi7b4c763838b2c401@mail.gmail.com>
-Date: Sat, 5 Nov 2005 10:26:16 +0530
-From: Ashutosh Naik <ashutosh.lkml@gmail.com>
-To: Andrew Vasquez <andrew.vasquez@qlogic.com>
-Subject: Re: [stable] Re: [PATCH] scsi - Fix Broken Qlogic ISP2x00 Device Driver
-Cc: Chris Wright <chrisw@osdl.org>, Ashutosh Naik <ashutosh.naik@gmail.com>,
-       support@qlogic.com, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, stable@kernel.org
-In-Reply-To: <20051102184705.GD5889@plapn>
+	Fri, 4 Nov 2005 23:58:34 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:16573 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751208AbVKEE6d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 23:58:33 -0500
+Message-ID: <436C3BF7.1080906@pobox.com>
+Date: Fri, 04 Nov 2005 23:58:31 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <81083a450511012313v25e292duf7b64da0ebf07835@mail.gmail.com>
-	 <20051102080711.GB626@plapn>
-	 <20051102082142.GW5856@shell0.pdx.osdl.net>
-	 <20051102184705.GD5889@plapn>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kill 8139too kernel thread (sorta)
+References: <20051031130255.GA26626@havoc.gtf.org> <E1EWgcG-0001dZ-00@gondolin.me.apana.org.au> <20051031211143.GA6409@gondor.apana.org.au> <436C2B47.3030505@pobox.com> <20051105042008.GA25823@gondor.apana.org.au>
+In-Reply-To: <20051105042008.GA25823@gondor.apana.org.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Herbert Xu wrote:
+> My only concern is the potential for starvation here should we fail
+> to obtain the RTNL.  Since any local user can hold the RTNL by issuing
+> rtnetlink requests, it is theoretically possible for the rtl8139 work
+> to be delayed indefinitely.
 
-On 11/3/05, Andrew Vasquez <andrew.vasquez@qlogic.com> wrote:
+Yes, but highly unlikely, for very few users, with the negative effects 
+negligible.
 
-> Sure.  But, the interface changes present in scsi-misc-2.6, notably:
->
-> http://kernel.org/git/?p=linux/kernel/git/jejb/scsi-misc-2.6.git;a=commit;h=19a7b4aebf9ad435c69a7e39930338499af4d152
->
-> obviate the need for the explicit '#include' -- there are no longer
-> any explicit calls to the fc_remote_port_*() functions within
-> qla_rscn.c.
+	Jeff
 
-Well, hopefully the above code should get merged soon ( in 2.6.15 
-hopefully), but until then, I think the current tree should be fixed
-with the patch, if the interface changes are not reflected in 2.6.15
 
-Regards
-Ashutosh

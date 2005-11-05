@@ -1,69 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750937AbVKEU6d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751003AbVKEVUT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750937AbVKEU6d (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 15:58:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbVKEU6d
+	id S1751003AbVKEVUT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 16:20:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbVKEVUT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 15:58:33 -0500
-Received: from smtp108.sbc.mail.mud.yahoo.com ([68.142.198.207]:61266 "HELO
-	smtp108.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750852AbVKEU6c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 15:58:32 -0500
-From: David Brownell <david-b@pacbell.net>
-To: stephen@streetfiresound.com
-Subject: Re: [PATCH/RFC] simple SPI controller on PXA2xx SSP port, refresh
-Date: Sat, 5 Nov 2005 12:58:30 -0800
-User-Agent: KMail/1.7.1
-Cc: eemike@gmail.com, Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <200511031615.22630.david-b@pacbell.net> <200511041654.47109.david-b@pacbell.net> <1131157728.426.113.camel@localhost.localdomain>
-In-Reply-To: <1131157728.426.113.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sat, 5 Nov 2005 16:20:19 -0500
+Received: from mailfe08.tele2.fr ([212.247.154.236]:37047 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S1750950AbVKEVUT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 16:20:19 -0500
+X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
+Date: Sat, 5 Nov 2005 22:19:50 +0100
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+Cc: mlang@debian.org
+Subject: [PATCH] Set the vga cursor even when hidden
+Message-ID: <20051105211949.GM7383@bouh.residence.ens-lyon.fr>
+Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+	linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org,
+	mlang@debian.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511051258.30539.david-b@pacbell.net>
+User-Agent: Mutt/1.5.9i-nntp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 04 November 2005 6:28 pm, Stephen Street wrote:
-> My understanding also.  Let's at least do the renames.
+Hi,
 
-Consider it done.
+Some visually impaired people use hardware devices which directly read
+the vga screen. When newt for instance asks to hide the cursor for
+better visual aspect, the kernel puts the vga cursor out of the screen,
+so that the cursor position can't be read by the hardware device. This
+is a great loss for such people.
 
-I'll leave "controller_data" in board_info and spi_device too.
-You're right ... plus, we need to let that be separate from the
-controller platform_data for hotplugging usage, spi_new_device()
-and such.
+Here is a patch which uses the same technique as CUR_NONE for hiding the
+cursor while still moving it.
 
+Mario, you should apply it to the speakup kernel for access floppies
+asap. I'll submit a 2.4 patch too.
 
-> Occupying some spare cycles is the idea that what we really need is the
-> ability to sub-class spi_device and spi_master via structure embedding.
-> This would be in the spirit of the 2.6 driver model and would map to the
-> platform_device model better.  
+Signed-off-by: samuel.thibault@ens-lyon.org
 
-Not really.  "Struture embedding" is used more by bus infrastruture than
-by driver infrastructure ... and even there, it's more often done by
-sharing storage.  And spi_master supports that usage:
+--- linux/drivers/video/console/vgacon.c.orig	2005-11-05 21:51:03.000000000 +0100
++++ linux/drivers/video/console/vgacon.c	2005-11-05 21:51:31.000000000 +0100
+@@ -448,7 +448,8 @@ static void vgacon_cursor(struct vc_data
+ 		vgacon_scrolldelta(c, 0);
+ 	switch (mode) {
+ 	case CM_ERASE:
+-		write_vga(14, (vga_vram_end - vga_vram_base - 1) / 2);
++		write_vga(14, (c->vc_pos - vga_vram_base) / 2);
++		vgacon_set_cursor_size(c->vc_x, 31, 30);
+ 		break;
+ 
+ 	case CM_MOVE:
 
-	/* at the top of probe(dev) */
-        struct spi_master       *master;
-        struct MYSOC_DATA       *data;
-
-        master = spi_alloc_master(dev, sizeof *data);
-        if (!master)
-                return -ENODEV;
-
-        data = class_get_devdata(&master->cdev);
-
-That's because spi_master is a class view of the underlying "dev",
-used to access the controller hardware.  (Likely a platform_device
-created as part of board setup.)
-
-A difference for normal spi_device nodes is that the drivers you'd
-presumably want to "subclass" spi_device isn't responsible for
-creating the device note.  It might however create a class device
-node, and that could end up looking much like that spi_master snippet.
-
-- Dave
-
+Regards,
+Samuel Thibault

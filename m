@@ -1,88 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbVKEPZf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbVKEP21@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932080AbVKEPZf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 10:25:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbVKEPZf
+	id S932078AbVKEP21 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 10:28:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbVKEP21
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 10:25:35 -0500
-Received: from gepetto.dc.ltu.se ([130.240.42.40]:47088 "EHLO
-	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S932076AbVKEPZe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 10:25:34 -0500
-Message-ID: <436CCFEC.50709@student.ltu.se>
-Date: Sat, 05 Nov 2005 16:29:48 +0100
-From: Richard Knutsson <ricknu-0@student.ltu.se>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Sat, 5 Nov 2005 10:28:27 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4873 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932078AbVKEP20 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 10:28:26 -0500
+Date: Sat, 5 Nov 2005 16:28:22 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, Edgar Hucek <hostmaster@ed-soft.at>,
+       Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: New Linux Development Model
+Message-ID: <20051105152821.GH5368@stusta.de>
+References: <436C7E77.3080601@ed-soft.at> <436CB162.5070100@ed-soft.at> <9a8748490511050634g8d19652w8148a3db4e3e11b2@mail.gmail.com> <200511051548.12562.oliver@neukum.org>
 MIME-Version: 1.0
-To: Richard Knutsson <ricknu-0@student.ltu.se>
-CC: Andrew Morton <akpm@osdl.org>, ashutosh.lkml@gmail.com,
-       netdev@vger.kernel.org, davej@suse.de, acme@conectiva.com.br,
-       linux-net@vger.kernel.org, linux-kernel@vger.kernel.org,
-       stable@kernel.org
-Subject: Re: [PATCH]dgrs - Fixes Warnings when CONFIG_ISA and CONFIG_PCI are
- not enabled
-References: <81083a450511012314q4ec69927gfa60cb19ba8f437a@mail.gmail.com>	<4368878D.4040406@student.ltu.se>	<c216304e0511020516o5cfcd0b9u96a3220bf2694928@mail.gmail.com>	<436927CA.3090105@student.ltu.se>	<20051104182537.741be3d9.akpm@osdl.org>	<20051104183043.27a2229c.akpm@osdl.org>	<436C6F02.90904@student.ltu.se> <20051105004609.0f04481c.akpm@osdl.org> <436C9D73.5030506@student.ltu.se>
-In-Reply-To: <436C9D73.5030506@student.ltu.se>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200511051548.12562.oliver@neukum.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Knutsson wrote:
+On Sat, Nov 05, 2005 at 03:48:12PM +0100, Oliver Neukum wrote:
+> Am Samstag, 5. November 2005 15:34 schrieb Jesper Juhl:
+> > There is a very simple solution to your problem. Use the kernels
+> > provided by your distribution and not the kernel.org kernels.
+> 
+> If enough people do so, testing will suffer.
 
-> Andrew Morton wrote:
->
->> Richard Knutsson <ricknu-0@student.ltu.se> wrote:
->>  
->>
->>>>      */
->>>>     
->>>
->>> > #ifdef CONFIG_EISA
->>> >-    eisacount = eisa_driver_register(&dgrs_eisa_driver);
->>> >-    if (eisacount < 0)
->>> >-        return eisacount;
->>> >-#endif
->>> >-#ifdef CONFIG_PCI
->>> >-    pcicount = pci_register_driver(&dgrs_pci_driver);
->>> >-    if (pcicount)
->>> >-        return pcicount;
->>> >+    cardcount = eisa_driver_register(&dgrs_eisa_driver);
->>> >+    if (cardcount < 0)
->>> >+        return cardcount;
->>> > #endif
->>> >+    cardcount = pci_register_driver(&dgrs_pci_driver);
->>> >+    if (cardcount)
->>> >+        return cardcount;
->>> >     return 0;
->>> > }
->>> >  >
->>> I do not know what to think about this one:
->>> * reduce one #ifdef: good
->>> * check for something clearly stated not to: not so good
->>>   
->>
->>
->> Well a nicer fix would be to provide a stub implementation of
->> eisa_driver_register() if !CONFIG_EISA, just like 
->> pci_register_driver(). Then all the ifdefs go away and the compiler 
->> removes all the code for us,
->> after checking that we typed it correctly.
->>  
->>
-> Oh, sorry. Missed the stub implementation of the pci-driver. I "ack" 
-> your patch.
->
-> BTW, can anyone ack or is that up to the maintainers?
-> BTW #2, why not remove #ifdef CONFIG_PCI on dgrs_cleanup_module() at 
-> the same time? Or maybe that should be in a "remove config_pci"-patch...
->
-> /Richard
+For a _user_, it is the best choice to use the kernel provided by the 
+distribution.
 
-Just realized; what happens if CONFIG_EISA && !CONFIG_PCI and 
-eisa_driver_register() returns value > 0, then the if-statement for the 
-pci-driver is going to return the value, instead of 0.
+There _are_ incompatible changes between 2.6 kernels, and if you e.g. 
+try to run kernel 2.6.14 on a Debian stable that ships only 2.6.8 you 
+can always run into problems here or there.
 
-/Richard
+And it seems we already have many big guinea pigs running the 
+development branch of Fedora.
+
+> 	Regards
+> 		Oliver
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750925AbVKERkO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbVKERoS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750925AbVKERkO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 12:40:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbVKERkO
+	id S932110AbVKERoS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 12:44:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbVKERoR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 12:40:14 -0500
-Received: from cantor.suse.de ([195.135.220.2]:23734 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750925AbVKERkM (ORCPT
+	Sat, 5 Nov 2005 12:44:17 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:32411 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750937AbVKERoR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 12:40:12 -0500
-To: Zachary Amsden <zach@vmware.com>
-Cc: linux-kernel@vger.kernel.org, macro@linux-mips.org
-Subject: Re: 2.6.14: CR4 not needed to be inspected on the 486 anymore?
-References: <Pine.LNX.4.55.0511031600010.24109@blysk.ds.pg.gda.pl>
-	<436A3C10.9050302@vmware.com>
-	<Pine.LNX.4.55.0511031639310.24109@blysk.ds.pg.gda.pl>
-	<436AA1FD.3010401@vmware.com>
-From: Andi Kleen <ak@suse.de>
-Date: 05 Nov 2005 18:40:10 +0100
-In-Reply-To: <436AA1FD.3010401@vmware.com>
-Message-ID: <p73fyqb2dtx.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Sat, 5 Nov 2005 12:44:17 -0500
+Date: Sat, 5 Nov 2005 09:44:12 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [GIT PATCH] SCSI updates for 2.6.14
+In-Reply-To: <1131207491.3614.5.camel@mulgrave>
+Message-ID: <Pine.LNX.4.64.0511050942490.3316@g5.osdl.org>
+References: <1131207491.3614.5.camel@mulgrave>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zachary Amsden <zach@vmware.com> writes:
- > 
-> He won't like me too much. I'll write up a proper patch for this, a la
-> mode de rdmsr_safe / wrmsr_safe. At least it's not a bug, just missing
-> information.
 
-I don't think it's a good idea. Relying on nested faults in oops
-is a bit unsafe because it could lead to recursive faults in the worst case. 
-Yes it does it already with __get_user, but that
-is only last resort. You would make it default on these systems.
 
-Better keep the if
+On Sat, 5 Nov 2005, James Bottomley wrote:
+> 
+> This patch is available from:
+> 
+> master.kernel.org:/pub/scm/linux/kernel/git/jejb/scsi-for-linus-2.6.git
 
--Andi
+No it's not.
+
+	master$ git-cat-file -t HEAD
+
+gives
+
+	error: unable to find 39b7f1e25a412b0ef31e516cfc2fa4f40235f263
+	fatal: git-cat-file HEAD: bad file
+
+and the reason seems to be:
+
+	master$ ll objects/39/
+
+	ls: objects/39/: Permission denied
+
+Hmmph.
+
+		Linus

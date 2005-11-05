@@ -1,52 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbVKEPTE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbVKEPZf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932074AbVKEPTE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 10:19:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932076AbVKEPTE
+	id S932080AbVKEPZf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 10:25:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbVKEPZf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 10:19:04 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:51173 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932074AbVKEPTC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 10:19:02 -0500
-Message-ID: <436CDEAC.A7D56A94@tv-sign.ru>
-Date: Sat, 05 Nov 2005 19:32:44 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Sat, 5 Nov 2005 10:25:35 -0500
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:47088 "EHLO
+	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S932076AbVKEPZe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 10:25:34 -0500
+Message-ID: <436CCFEC.50709@student.ltu.se>
+Date: Sat, 05 Nov 2005 16:29:48 +0100
+From: Richard Knutsson <ricknu-0@student.ltu.se>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: paulmck@us.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, dipankar@in.ibm.com, suzannew@cs.pdx.edu
-Subject: Re: [PATCH] Fixes for RCU handling of task_struct
-References: <20051031020535.GA46@us.ibm.com> <20051031140459.GA5664@elte.hu> <20051031205119.5bd897f3.akpm@osdl.org> <20051103190916.GA13417@us.ibm.com> <436B9D5D.3EB28CD5@tv-sign.ru> <20051104200801.GA16092@us.ibm.com>
-Content-Type: text/plain; charset=koi8-r
+To: Richard Knutsson <ricknu-0@student.ltu.se>
+CC: Andrew Morton <akpm@osdl.org>, ashutosh.lkml@gmail.com,
+       netdev@vger.kernel.org, davej@suse.de, acme@conectiva.com.br,
+       linux-net@vger.kernel.org, linux-kernel@vger.kernel.org,
+       stable@kernel.org
+Subject: Re: [PATCH]dgrs - Fixes Warnings when CONFIG_ISA and CONFIG_PCI are
+ not enabled
+References: <81083a450511012314q4ec69927gfa60cb19ba8f437a@mail.gmail.com>	<4368878D.4040406@student.ltu.se>	<c216304e0511020516o5cfcd0b9u96a3220bf2694928@mail.gmail.com>	<436927CA.3090105@student.ltu.se>	<20051104182537.741be3d9.akpm@osdl.org>	<20051104183043.27a2229c.akpm@osdl.org>	<436C6F02.90904@student.ltu.se> <20051105004609.0f04481c.akpm@osdl.org> <436C9D73.5030506@student.ltu.se>
+In-Reply-To: <436C9D73.5030506@student.ltu.se>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Paul E. McKenney" wrote:
+Richard Knutsson wrote:
+
+> Andrew Morton wrote:
 >
-> > > -       spin_lock_irqsave(&p->sighand->siglock, flags);
-> > > +       spin_lock_irqsave(&sh->siglock, flags);
-> >
-> > But 'sh' can be NULL, no? Yes, you already checked PF_EXITING, so this is
-> > very unlikely, but I think it is still possible in theory. 'sh' was loaded
-> > before reading p->flags, but rcu_read_lock() does not imply memory barrier.
+>> Richard Knutsson <ricknu-0@student.ltu.se> wrote:
+>>  
+>>
+>>>>      */
+>>>>     
+>>>
+>>> > #ifdef CONFIG_EISA
+>>> >-    eisacount = eisa_driver_register(&dgrs_eisa_driver);
+>>> >-    if (eisacount < 0)
+>>> >-        return eisacount;
+>>> >-#endif
+>>> >-#ifdef CONFIG_PCI
+>>> >-    pcicount = pci_register_driver(&dgrs_pci_driver);
+>>> >-    if (pcicount)
+>>> >-        return pcicount;
+>>> >+    cardcount = eisa_driver_register(&dgrs_eisa_driver);
+>>> >+    if (cardcount < 0)
+>>> >+        return cardcount;
+>>> > #endif
+>>> >+    cardcount = pci_register_driver(&dgrs_pci_driver);
+>>> >+    if (cardcount)
+>>> >+        return cardcount;
+>>> >     return 0;
+>>> > }
+>>> >  >
+>>> I do not know what to think about this one:
+>>> * reduce one #ifdef: good
+>>> * check for something clearly stated not to: not so good
+>>>   
+>>
+>>
+>> Well a nicer fix would be to provide a stub implementation of
+>> eisa_driver_register() if !CONFIG_EISA, just like 
+>> pci_register_driver(). Then all the ifdefs go away and the compiler 
+>> removes all the code for us,
+>> after checking that we typed it correctly.
+>>  
+>>
+> Oh, sorry. Missed the stub implementation of the pci-driver. I "ack" 
+> your patch.
 >
-> 'sh' cannot be NULL, because the caller holds ->it_lock and has checked
-> for timer deletion under that lock, and because the exiting process
-> quiesces and deletes timers before freeing sighand.
-               ^^^^^^^^^^^^^^
+> BTW, can anyone ack or is that up to the maintainers?
+> BTW #2, why not remove #ifdef CONFIG_PCI on dgrs_cleanup_module() at 
+> the same time? Or maybe that should be in a "remove config_pci"-patch...
+>
+> /Richard
 
-Exiting process (thread group) - yes, but exiting thread - no. That is why
-send_sigqueue() should check that the target thread is not exiting now. If
-we do not take tasklist_lock we can't be sure that ->sighand != NULL. The
-caller holds ->it_lock, yes, but this can't help.
+Just realized; what happens if CONFIG_EISA && !CONFIG_PCI and 
+eisa_driver_register() returns value > 0, then the if-statement for the 
+pci-driver is going to return the value, instead of 0.
 
-Please don't be confused by the 'posix_cpu_timers_exit(tsk)' in __exit_signal()
-which is called under sighand->siglock before clearing ->signal/->sighand. This
-is completely different, it detaches (but not destroys) cpu-timers, these timers
-can have another thread/process as a target for signal sending.
+/Richard
 
-Oleg.

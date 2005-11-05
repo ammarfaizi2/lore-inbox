@@ -1,58 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbVKEKKh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbVKEKNe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751339AbVKEKKh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 05:10:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbVKEKKh
+	id S1751335AbVKEKNe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 05:13:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbVKEKNe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 05:10:37 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53265 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751339AbVKEKKh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 05:10:37 -0500
-Date: Sat, 5 Nov 2005 10:10:27 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Ian Campbell <icampbell@arcom.com>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org
-Subject: Re: [WATCHDOG] sa1100_wdt.c sparse cleanups
-Message-ID: <20051105101026.GA28438@flint.arm.linux.org.uk>
-Mail-Followup-To: Ian Campbell <icampbell@arcom.com>,
-	Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org
-References: <1130921809.12578.179.camel@icampbell-debian>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1130921809.12578.179.camel@icampbell-debian>
-User-Agent: Mutt/1.4.1i
+	Sat, 5 Nov 2005 05:13:34 -0500
+Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:38813 "EHLO
+	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1751335AbVKEKNd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 05:13:33 -0500
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Sat, 5 Nov 2005 10:13:19 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Andrew Morton <akpm@osdl.org>
+cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] hfsplus: don't modify journaled volume
+In-Reply-To: <20051104210213.1232a007.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0511051009090.13104@hermes-1.csi.cam.ac.uk>
+References: <Pine.LNX.4.61.0511031617090.12843@scrub.home>
+ <20051104210213.1232a007.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 02, 2005 at 08:56:49AM +0000, Ian Campbell wrote:
-> @@ -96,20 +96,20 @@
->  
->  	switch (cmd) {
->  	case WDIOC_GETSUPPORT:
-> -		ret = copy_to_user((struct watchdog_info *)arg, &ident,
-> +		ret = copy_to_user((struct watchdog_info __user *)arg, &ident,
->  				   sizeof(ident)) ? -EFAULT : 0;
+On Fri, 4 Nov 2005, Andrew Morton wrote:
+> Roman Zippel <zippel@linux-m68k.org> wrote:
+> >
+> > +		} else if (vhdr->attributes & cpu_to_be32(HFSPLUS_VOL_JOURNALED)) {
+> >  +			printk("HFS+-fs: Filesystem is marked journaled, leaving read-only.\n");
+> >  +			sb->s_flags |= MS_RDONLY;
+> >  +			*flags |= MS_RDONLY;
+> 
+> These sorts of printks should have an explicit facility level, no?
 
-It's probably better to use a union with these, eg:
+I would agree with that and further, is that not a bit draconian?  
+HFSPlus is designed to work without the journal.  Just change the last 
+mounted version to FSK! (0x46534b21) and everything will work as expected, 
+i.e. fsck will run a check instead of ignoring the volume and osx will 
+mount the volume and reinitialize the journal.  Remember older OSX 
+versions did not support journalling so if you attached your external 
+drive to one of those older osx boxes, you would also get non-journalled 
+writes to a journalled volume.  It's all designed for it...
 
-	union {
-		void __user *arg;
-		struct watchdog_info __user *info;
-		int __user *i;
-	} u;
+Best regards,
 
-	u.arg = (void __user *)arg;
-
-...
-
-	ret = copy_to_user(u.info, &ident, sizeof(ident)) ? -EFAULT : 0;
-
-etc
-
-
+	Anton
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

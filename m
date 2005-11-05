@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbVKEG2W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbVKEGhZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751253AbVKEG2W (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 01:28:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbVKEG2W
+	id S1751265AbVKEGhZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 01:37:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751266AbVKEGhZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 01:28:22 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:39869 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751253AbVKEG2V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 01:28:21 -0500
-Message-ID: <436C50FE.3030600@pobox.com>
-Date: Sat, 05 Nov 2005 01:28:14 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Sat, 5 Nov 2005 01:37:25 -0500
+Received: from xproxy.gmail.com ([66.249.82.192]:10569 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751265AbVKEGhY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 01:37:24 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ieMhm/7Avl+wYoY41ugyxEDnJoP2+SlDJL+nn/t5ihU7HaFRC3bFJpOOqJFLQFhTt6s0YHPYDaMwhOasNX6uXgKiPGWPSmyTaNimfq41jFWNh5E2e3KJEK63W3lmOihllq92LEtH/Xe2oiBNYtO0fE2nJL/vGtdAXrPcYgAzNGU=
+Message-ID: <21d7e9970511042237p618d6306qb63272a4fa2263ea@mail.gmail.com>
+Date: Sat, 5 Nov 2005 17:37:24 +1100
+From: Dave Airlie <airlied@gmail.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] ppc64: 64K pages support
+Cc: Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@osdl.org>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+In-Reply-To: <1131151488.29195.46.camel@gaston>
 MIME-Version: 1.0
-To: Trond.Myklebust@netapp.com, Linux Kernel <linux-kernel@vger.kernel.org>,
-       nfs@lists.sourceforge.net
-Subject: recent NFS problems?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1130915220.20136.14.camel@gaston>
+	 <1130916198.20136.17.camel@gaston> <20051105003819.GA11505@lst.de>
+	 <1131151488.29195.46.camel@gaston>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a bit weird.  Running 2.6.14-g6037d6bb (libata-dev.git branch 
-'upstream') on both client and server.  Its latest Linux 
-(7015faa7df829876a0f931cd18aa6d7c24a1b581) plus one libata patch.  All 
-NFSv4 kernel options are enabled, on both client and server.
+> What was the problem with drivers ? On ppc64, it's all hidden in the
+> arch code. All the kernel sees is a 64k page size. I extended the PTE to
+> contain tracking informations for the 16 sub pages (HPTE bits & hash
+> slot index). Sub pages are faulted on demand and flushed all at once,
+> but it's all transparent to the generic code.
+>
 
-On Host A, I mirror a local directory /garz/nsmail to an NFS directory 
-Host_B:/g/g/nsmail via rsync+ssh.  Host A also NFS mounts Host_B:/g 
-locally.  mount on Host A says
+We did that with the VAX port about 5 years ago :-), granted for
+different reasons..
 
-	host_b:/g on /g type nfs (rw,tcp,intr,posix,addr=10.10.10.1)
+The VAX has 512 byte hw pages, we had to make a 4K pagesize for the
+kernel by grouping 8 hw pages together and hiding it all in the arch
+dir..
 
-Seeing some directory weirdness, where wildcard matches fail 
-(NFS-related dcache bugs?) but direct accesses succeed:
+granted I don't know if it broke any drivers, we didn't have any...
 
-[jgarzik@host_a~]$ ssh host_b "ls -d /g/g/nsmail/Trash.sbd/*11*"
-/g/g/nsmail/Trash.sbd/Sent.20051105
-/g/g/nsmail/Trash.sbd/Sent.20051105.msf
-/g/g/nsmail/Trash.sbd/Sent.20051105.sbd
-/g/g/nsmail/Trash.sbd/Trash.20051105
-/g/g/nsmail/Trash.sbd/Trash.20051105.msf
-/g/g/nsmail/Trash.sbd/Trash.20051105.sbd
-
-[jgarzik@host_a ~]$ ls -d /g/g/nsmail/Trash.sbd/*11*
-ls: /g/g/nsmail/Trash.sbd/*11*: No such file or directory
-
-[jgarzik@host_a ~]$ ls -l /g/g/nsmail/Trash.sbd/Trash.20051105
--rw-rw-r--  1 jgarzik jgarzik 67484129 Nov  5 00:02 
-/g/g/nsmail/Trash.sbd/Trash.20051105
-
-[jgarzik@host_a~]$ wc -l /g/g/nsmail/Trash.sbd/Trash.20051105
-1739088 /g/g/nsmail/Trash.sbd/Trash.20051105
+Dave.

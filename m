@@ -1,64 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbVKDX6T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751142AbVKEABA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751045AbVKDX6T (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 18:58:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751151AbVKDX6T
+	id S1751142AbVKEABA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 19:01:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbVKEABA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 18:58:19 -0500
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:34468 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1751045AbVKDX6T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 18:58:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=ckmhLZHUOnhGZdwjm9KTEbyXLwTuMlheJ5X2XHt4fbJGlJLhTViWLMcDpIPj8s3a8fqDXY+EBTM3lXFgSG8UMzA2j7mjQtamCCAfpv05QjP1YtJ89z6v6YeEHQm06LkOMqB/0WFm+1j2mm7XMp8PBNXgLIFrUlbAM3ZjBcYsy6s=  ;
-Message-ID: <436BF606.3020805@yahoo.com.au>
-Date: Sat, 05 Nov 2005 11:00:06 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rohit Seth <rohit.seth@intel.com>
-CC: akpm@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: Clean up of __alloc_pages
-References: <20051028183326.A28611@unix-os.sc.intel.com>	 <4362DF80.3060802@yahoo.com.au>	 <1130792107.4853.24.camel@akash.sc.intel.com>	 <4366C188.5090607@yahoo.com.au> <1131128108.27563.11.camel@akash.sc.intel.com>
-In-Reply-To: <1131128108.27563.11.camel@akash.sc.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Nov 2005 19:01:00 -0500
+Received: from fmr24.intel.com ([143.183.121.16]:3203 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1751142AbVKEABA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 19:01:00 -0500
+Date: Fri, 4 Nov 2005 16:00:01 -0800
+From: Ashok Raj <ashok.raj@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ashok Raj <ashok.raj@intel.com>, rjw@sisk.pl, linux-kernel@vger.kernel.org,
+       davej@codemonkey.org.uk, mingo@elte.hu, linux@brodo.de,
+       venkatesh.pallipadi@intel.com
+Subject: Re: 2.6.14-git3: scheduling while atomic from cpufreq on Athlon64
+Message-ID: <20051104160000.A16485@unix-os.sc.intel.com>
+References: <200510311606.36615.rjw@sisk.pl> <200510312045.32908.rjw@sisk.pl> <20051031124216.A18213@unix-os.sc.intel.com> <200511012007.19762.rjw@sisk.pl> <20051101111417.A31379@unix-os.sc.intel.com> <20051104143035.120fe158.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20051104143035.120fe158.akpm@osdl.org>; from akpm@osdl.org on Fri, Nov 04, 2005 at 02:30:35PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rohit Seth wrote:
+On Fri, Nov 04, 2005 at 02:30:35PM -0800, Andrew Morton wrote:
+> Ashok Raj <ashok.raj@intel.com> wrote:
+> >
+> > 
+> > ...
+> >
+> > seems ugly, but i dont find a better looking cure...
+> > 
+> 
+> Could you take another look, please?   It really is pretty gross.
+
+Agree, frankly i didnt like this either, but the calls there were so
+nested that i tried doing multiple ways and it appeared they need
+to be broken down so much to do this a little cleanly.
+
+i did put a real ugly comment earlier, but i must have removed it in the next 
+respin.
+
+I was hoping to do just make the dirs appear/disapper (so i get the 
+behaviour i need) and let people more familier with the code go fix it.
+
 
 > 
-> Nick, sorry for not responding earlier.  
+> And the second rule of pretty-gross code is to clearly comment it - draw
 > 
 
-That's OK.
+pretty-gross.... humbly saying that is :-) i will attempt to look at it 
+again.
 
-> I agree that it is slight change in behavior from original.  I doubt
-> though it will impact any one in any negative way (may be for some
-> higher order allocations if at all). On a little positive side, less
-> frequent calls to kswapd for some cases and clear up the code a little
-> bit.
-> 
+cpufreq folks... if you have better ideas brewing to make this work
+in a pretty-clean way.... many thanks!
 
-I really don't want a change of behaviour going in with this,
-especially not one which I would want to revert anyway. But
-don't get hung up with it - when you post your latest patch
-I will make a patch for the changes I would like to see for it
-and synch things up.
-
-> But I really don't want to get stuck here. The pcp traversal and
-> flushing is where I want to go next.  
-> 
-
-Sure, hope it goes well!
-
-Nick
-
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Cheers,
+ashok

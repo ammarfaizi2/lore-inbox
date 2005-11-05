@@ -1,641 +1,539 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbVKEH4K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbVKEH4r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751180AbVKEH4K (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 02:56:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbVKEH4J
+	id S1751202AbVKEH4r (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 02:56:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbVKEH4r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 02:56:09 -0500
-Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:30117 "HELO
+	Sat, 5 Nov 2005 02:56:47 -0500
+Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:63909 "HELO
 	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1751180AbVKEH4H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 02:56:07 -0500
+	id S1751202AbVKEH4q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 02:56:46 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com.au;
   h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:Subject:References:In-Reply-To:Content-Type;
-  b=QPcwaDN/XMNXXBaCvzGmmN0TMaUbx1pA2F+8RVH+3yE6NTh9Y4/JjHNk2YDXw03NKLaHA/f+bypdg9C9J7VOKtxi42p74m8wvY+YkjxSMsxHMUyuajSx7mFsDA+A0tYC+tPN1k9xmuSlSNI9V8Ekl00bBZYHVYhTk4w1Z9Z3q5o=  ;
-Message-ID: <436C6612.30601@yahoo.com.au>
-Date: Sat, 05 Nov 2005 18:58:10 +1100
+  b=6UhlGbOKW1+/2+T4nbLDe4OtV7Nff8/ksE98YEBipn1TSiBtAsfLJEa5TVYPcxYH1Nqwgdr3/JmIWMrTDAMIIeAC6Tll2cW5R26A273uY8hpemUQPYwDhjclXc6A4V+TDDbkM7/Wg2am7KbVxdH8Myn040fukgLs2dqyMMFYnOE=  ;
+Message-ID: <436C663B.1040409@yahoo.com.au>
+Date: Sat, 05 Nov 2005 18:58:51 +1100
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
        Linus Torvalds <torvalds@osdl.org>
-Subject: [patch 3/5] atomic: inc_not_zero
-References: <436C655F.2080703@yahoo.com.au> <436C65B1.5020508@yahoo.com.au> <436C65E8.8080501@yahoo.com.au>
-In-Reply-To: <436C65E8.8080501@yahoo.com.au>
+Subject: [patch 4/5] rcu file: use atomic
+References: <436C655F.2080703@yahoo.com.au> <436C65B1.5020508@yahoo.com.au> <436C65E8.8080501@yahoo.com.au> <436C6612.30601@yahoo.com.au>
+In-Reply-To: <436C6612.30601@yahoo.com.au>
 Content-Type: multipart/mixed;
- boundary="------------010601090602010603040506"
+ boundary="------------070305050607030906000509"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------010601090602010603040506
+--------------070305050607030906000509
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-3/5
+4/5
 
 -- 
 SUSE Labs, Novell Inc.
 
 
---------------010601090602010603040506
+--------------070305050607030906000509
 Content-Type: text/plain;
- name="atomic_inc_not_zero.patch"
+ name="rcu-file-use-atomic-primitives.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="atomic_inc_not_zero.patch"
+ filename="rcu-file-use-atomic-primitives.patch"
 
-Introduce an atomic_inc_not_zero operation. Make this a special case
-of atomic_add_unless because lockless pagecache actually wants
-atomic_inc_not_negativeone due to its offset refcount.
+Use atomic_inc_not_zero for rcu files instead of specal case rcuref.
 
 Signed-off-by: Nick Piggin <npiggin@suse.de>
 
-Index: linux-2.6/include/asm-alpha/atomic.h
+Index: linux-2.6/include/linux/rcuref.h
 ===================================================================
---- linux-2.6.orig/include/asm-alpha/atomic.h
-+++ linux-2.6/include/asm-alpha/atomic.h
-@@ -179,6 +179,16 @@ static __inline__ long atomic64_sub_retu
- 
- #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
- 
-+#define atomic_add_unless(v, a, u)				\
-+({								\
-+	int c, old;						\
-+	c = atomic_read(v);					\
-+	while (c != (u) && (old = atomic_cmpxchg((v), c, c + (a))) != c) \
-+		c = old;					\
-+	c != (u);						\
-+})
-+#define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
-+
- #define atomic_dec_return(v) atomic_sub_return(1,(v))
- #define atomic64_dec_return(v) atomic64_sub_return(1,(v))
- 
-Index: linux-2.6/include/asm-arm26/atomic.h
+--- linux-2.6.orig/include/linux/rcuref.h
++++ /dev/null
+@@ -1,220 +0,0 @@
+-/*
+- * rcuref.h
+- *
+- * Reference counting for elements of lists/arrays protected by
+- * RCU.
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+- *
+- * Copyright (C) IBM Corporation, 2005
+- *
+- * Author: Dipankar Sarma <dipankar@in.ibm.com>
+- *	   Ravikiran Thirumalai <kiran_th@gmail.com>
+- *
+- * See Documentation/RCU/rcuref.txt for detailed user guide.
+- *
+- */
+-
+-#ifndef _RCUREF_H_
+-#define _RCUREF_H_
+-
+-#ifdef __KERNEL__
+-
+-#include <linux/types.h>
+-#include <linux/interrupt.h>
+-#include <linux/spinlock.h>
+-#include <asm/atomic.h>
+-
+-/*
+- * These APIs work on traditional atomic_t counters used in the
+- * kernel for reference counting. Under special circumstances
+- * where a lock-free get() operation races with a put() operation
+- * these APIs can be used. See Documentation/RCU/rcuref.txt.
+- */
+-
+-#ifdef __HAVE_ARCH_CMPXCHG
+-
+-/**
+- * rcuref_inc - increment refcount for object.
+- * @rcuref: reference counter in the object in question.
+- *
+- * This should be used only for objects where we use RCU and
+- * use the rcuref_inc_lf() api to acquire a reference
+- * in a lock-free reader-side critical section.
+- */
+-static inline void rcuref_inc(atomic_t *rcuref)
+-{
+-	atomic_inc(rcuref);
+-}
+-
+-/**
+- * rcuref_dec - decrement refcount for object.
+- * @rcuref: reference counter in the object in question.
+- *
+- * This should be used only for objects where we use RCU and
+- * use the rcuref_inc_lf() api to acquire a reference
+- * in a lock-free reader-side critical section.
+- */
+-static inline void rcuref_dec(atomic_t *rcuref)
+-{
+-	atomic_dec(rcuref);
+-}
+-
+-/**
+- * rcuref_dec_and_test - decrement refcount for object and test
+- * @rcuref: reference counter in the object.
+- * @release: pointer to the function that will clean up the object
+- *	     when the last reference to the object is released.
+- *	     This pointer is required.
+- *
+- * Decrement the refcount, and if 0, return 1. Else return 0.
+- *
+- * This should be used only for objects where we use RCU and
+- * use the rcuref_inc_lf() api to acquire a reference
+- * in a lock-free reader-side critical section.
+- */
+-static inline int rcuref_dec_and_test(atomic_t *rcuref)
+-{
+-	return atomic_dec_and_test(rcuref);
+-}
+-
+-/*
+- * cmpxchg is needed on UP too, if deletions to the list/array can happen
+- * in interrupt context.
+- */
+-
+-/**
+- * rcuref_inc_lf - Take reference to an object in a read-side
+- * critical section protected by RCU.
+- * @rcuref: reference counter in the object in question.
+- *
+- * Try and increment the refcount by 1.  The increment might fail if
+- * the reference counter has been through a 1 to 0 transition and
+- * is no longer part of the lock-free list.
+- * Returns non-zero on successful increment and zero otherwise.
+- */
+-static inline int rcuref_inc_lf(atomic_t *rcuref)
+-{
+-	int c, old;
+-	c = atomic_read(rcuref);
+-	while (c && (old = cmpxchg(&rcuref->counter, c, c + 1)) != c)
+-		c = old;
+-	return c;
+-}
+-
+-#else				/* !__HAVE_ARCH_CMPXCHG */
+-
+-extern spinlock_t __rcuref_hash[];
+-
+-/*
+- * Use a hash table of locks to protect the reference count
+- * since cmpxchg is not available in this arch.
+- */
+-#ifdef	CONFIG_SMP
+-#define RCUREF_HASH_SIZE	4
+-#define RCUREF_HASH(k) \
+-	(&__rcuref_hash[(((unsigned long)k)>>8) & (RCUREF_HASH_SIZE-1)])
+-#else
+-#define	RCUREF_HASH_SIZE	1
+-#define RCUREF_HASH(k) 	&__rcuref_hash[0]
+-#endif				/* CONFIG_SMP */
+-
+-/**
+- * rcuref_inc - increment refcount for object.
+- * @rcuref: reference counter in the object in question.
+- *
+- * This should be used only for objects where we use RCU and
+- * use the rcuref_inc_lf() api to acquire a reference in a lock-free
+- * reader-side critical section.
+- */
+-static inline void rcuref_inc(atomic_t *rcuref)
+-{
+-	unsigned long flags;
+-	spin_lock_irqsave(RCUREF_HASH(rcuref), flags);
+-	rcuref->counter += 1;
+-	spin_unlock_irqrestore(RCUREF_HASH(rcuref), flags);
+-}
+-
+-/**
+- * rcuref_dec - decrement refcount for object.
+- * @rcuref: reference counter in the object in question.
+- *
+- * This should be used only for objects where we use RCU and
+- * use the rcuref_inc_lf() api to acquire a reference in a lock-free
+- * reader-side critical section.
+- */
+-static inline void rcuref_dec(atomic_t *rcuref)
+-{
+-	unsigned long flags;
+-	spin_lock_irqsave(RCUREF_HASH(rcuref), flags);
+-	rcuref->counter -= 1;
+-	spin_unlock_irqrestore(RCUREF_HASH(rcuref), flags);
+-}
+-
+-/**
+- * rcuref_dec_and_test - decrement refcount for object and test
+- * @rcuref: reference counter in the object.
+- * @release: pointer to the function that will clean up the object
+- *	     when the last reference to the object is released.
+- *	     This pointer is required.
+- *
+- * Decrement the refcount, and if 0, return 1. Else return 0.
+- *
+- * This should be used only for objects where we use RCU and
+- * use the rcuref_inc_lf() api to acquire a reference in a lock-free
+- * reader-side critical section.
+- */
+-static inline int rcuref_dec_and_test(atomic_t *rcuref)
+-{
+-	unsigned long flags;
+-	spin_lock_irqsave(RCUREF_HASH(rcuref), flags);
+-	rcuref->counter--;
+-	if (!rcuref->counter) {
+-		spin_unlock_irqrestore(RCUREF_HASH(rcuref), flags);
+-		return 1;
+-	} else {
+-		spin_unlock_irqrestore(RCUREF_HASH(rcuref), flags);
+-		return 0;
+-	}
+-}
+-
+-/**
+- * rcuref_inc_lf - Take reference to an object of a lock-free collection
+- * by traversing a lock-free list/array.
+- * @rcuref: reference counter in the object in question.
+- *
+- * Try and increment the refcount by 1.  The increment might fail if
+- * the reference counter has been through a 1 to 0 transition and
+- * object is no longer part of the lock-free list.
+- * Returns non-zero on successful increment and zero otherwise.
+- */
+-static inline int rcuref_inc_lf(atomic_t *rcuref)
+-{
+-	int ret;
+-	unsigned long flags;
+-	spin_lock_irqsave(RCUREF_HASH(rcuref), flags);
+-	if (rcuref->counter)
+-		ret = rcuref->counter++;
+-	else
+-		ret = 0;
+-	spin_unlock_irqrestore(RCUREF_HASH(rcuref), flags);
+-	return ret;
+-}
+-
+-
+-#endif /* !__HAVE_ARCH_CMPXCHG */
+-
+-#endif /* __KERNEL__ */
+-#endif /* _RCUREF_H_ */
+Index: linux-2.6/fs/aio.c
 ===================================================================
---- linux-2.6.orig/include/asm-arm26/atomic.h
-+++ linux-2.6/include/asm-arm26/atomic.h
-@@ -76,6 +76,21 @@ static inline int atomic_cmpxchg(atomic_
- 	return ret;
- }
+--- linux-2.6.orig/fs/aio.c
++++ linux-2.6/fs/aio.c
+@@ -29,7 +29,6 @@
+ #include <linux/highmem.h>
+ #include <linux/workqueue.h>
+ #include <linux/security.h>
+-#include <linux/rcuref.h>
  
-+static inline int atomic_add_unless(atomic_t *v, int a, int u)
-+{
-+	int ret;
-+	unsigned long flags;
-+
-+	local_irq_save(flags);
-+	ret = v->counter;
-+	if (ret != u)
-+		v->counter += a;
-+	local_irq_restore(flags);
-+
-+	return ret != u;
-+}
-+#define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
-+
- static inline void atomic_clear_mask(unsigned long mask, unsigned long *addr)
+ #include <asm/kmap_types.h>
+ #include <asm/uaccess.h>
+@@ -500,7 +499,7 @@ static int __aio_put_req(struct kioctx *
+ 	/* Must be done under the lock to serialise against cancellation.
+ 	 * Call this aio_fput as it duplicates fput via the fput_work.
+ 	 */
+-	if (unlikely(rcuref_dec_and_test(&req->ki_filp->f_count))) {
++	if (unlikely(atomic_dec_and_test(&req->ki_filp->f_count))) {
+ 		get_ioctx(ctx);
+ 		spin_lock(&fput_lock);
+ 		list_add(&req->ki_list, &fput_head);
+Index: linux-2.6/fs/file_table.c
+===================================================================
+--- linux-2.6.orig/fs/file_table.c
++++ linux-2.6/fs/file_table.c
+@@ -117,7 +117,7 @@ EXPORT_SYMBOL(get_empty_filp);
+ 
+ void fastcall fput(struct file *file)
  {
-         unsigned long flags;
-Index: linux-2.6/include/asm-frv/atomic.h
-===================================================================
---- linux-2.6.orig/include/asm-frv/atomic.h
-+++ linux-2.6/include/asm-frv/atomic.h
-@@ -416,4 +416,14 @@ extern uint32_t __cmpxchg_32(uint32_t *v
- 
- #define atomic_cmpxchg(v, old, new) ((int)cmpxchg(&((v)->counter), old, new))
- 
-+#define atomic_add_unless(v, a, u)				\
-+({								\
-+	int c, old;						\
-+	c = atomic_read(v);					\
-+	while (c != (u) && (old = atomic_cmpxchg((v), c, c + (a))) != c) \
-+		c = old;					\
-+	c != (u);						\
-+})
-+#define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
-+
- #endif /* _ASM_ATOMIC_H */
-Index: linux-2.6/include/asm-h8300/atomic.h
-===================================================================
---- linux-2.6.orig/include/asm-h8300/atomic.h
-+++ linux-2.6/include/asm-h8300/atomic.h
-@@ -94,6 +94,19 @@ static __inline__ int atomic_cmpxchg(ato
- 	return ret;
+-	if (rcuref_dec_and_test(&file->f_count))
++	if (atomic_dec_and_test(&file->f_count))
+ 		__fput(file);
  }
  
-+static __inline__ int atomic_add_unless(atomic_t *v, int a, int u)
-+{
-+	int ret;
-+	unsigned long flags;
-+	local_irq_save(flags);
-+	ret = v->counter;
-+	if (ret != u)
-+		v->counter += a;
-+	local_irq_restore(flags);
-+	return ret != u;
-+}
-+#define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
-+
- static __inline__ void atomic_clear_mask(unsigned long mask, unsigned long *v)
+@@ -166,7 +166,7 @@ struct file fastcall *fget(unsigned int 
+ 	rcu_read_lock();
+ 	file = fcheck_files(files, fd);
+ 	if (file) {
+-		if (!rcuref_inc_lf(&file->f_count)) {
++		if (!atomic_inc_not_zero(&file->f_count)) {
+ 			/* File object ref couldn't be taken */
+ 			rcu_read_unlock();
+ 			return NULL;
+@@ -198,7 +198,7 @@ struct file fastcall *fget_light(unsigne
+ 		rcu_read_lock();
+ 		file = fcheck_files(files, fd);
+ 		if (file) {
+-			if (rcuref_inc_lf(&file->f_count))
++			if (atomic_inc_not_zero(&file->f_count))
+ 				*fput_needed = 1;
+ 			else
+ 				/* Didn't get the reference, someone's freed */
+@@ -213,7 +213,7 @@ struct file fastcall *fget_light(unsigne
+ 
+ void put_filp(struct file *file)
  {
- 	__asm__ __volatile__("stc ccr,r1l\n\t"
-Index: linux-2.6/include/asm-i386/atomic.h
+-	if (rcuref_dec_and_test(&file->f_count)) {
++	if (atomic_dec_and_test(&file->f_count)) {
+ 		security_file_free(file);
+ 		file_kill(file);
+ 		file_free(file);
+Index: linux-2.6/include/linux/fs.h
 ===================================================================
---- linux-2.6.orig/include/asm-i386/atomic.h
-+++ linux-2.6/include/asm-i386/atomic.h
-@@ -217,6 +217,25 @@ static __inline__ int atomic_sub_return(
+--- linux-2.6.orig/include/linux/fs.h
++++ linux-2.6/include/linux/fs.h
+@@ -9,7 +9,6 @@
+ #include <linux/config.h>
+ #include <linux/limits.h>
+ #include <linux/ioctl.h>
+-#include <linux/rcuref.h>
  
- #define atomic_cmpxchg(v, old, new) ((int)cmpxchg(&((v)->counter), old, new))
+ /*
+  * It's silly to have NR_OPEN bigger than NR_FILE, but you can change
+@@ -610,7 +609,7 @@ extern spinlock_t files_lock;
+ #define file_list_lock() spin_lock(&files_lock);
+ #define file_list_unlock() spin_unlock(&files_lock);
  
-+/**
-+ * atomic_add_unless - add unless the number is a given value
-+ * @v: pointer of type atomic_t
-+ * @a: the amount to add to v...
-+ * @u: ...unless v is equal to u.
-+ *
-+ * Atomically adds @a to @v, so long as it was not @u.
-+ * Returns non-zero if @v was not @u, and zero otherwise.
-+ */
-+#define atomic_add_unless(v, a, u)				\
-+({								\
-+	int c, old;						\
-+	c = atomic_read(v);					\
-+	while (c != (u) && (old = atomic_cmpxchg((v), c, c + (a))) != c) \
-+		c = old;					\
-+	c != (u);						\
-+})
-+#define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
-+
- #define atomic_inc_return(v)  (atomic_add_return(1,v))
- #define atomic_dec_return(v)  (atomic_sub_return(1,v))
+-#define get_file(x)	rcuref_inc(&(x)->f_count)
++#define get_file(x)	atomic_inc(&(x)->f_count)
+ #define file_count(x)	atomic_read(&(x)->f_count)
  
-Index: linux-2.6/include/asm-ia64/atomic.h
+ #define	MAX_NON_LFS	((1UL<<31) - 1)
+Index: linux-2.6/Documentation/RCU/rcuref.txt
 ===================================================================
---- linux-2.6.orig/include/asm-ia64/atomic.h
-+++ linux-2.6/include/asm-ia64/atomic.h
-@@ -90,6 +90,16 @@ ia64_atomic64_sub (__s64 i, atomic64_t *
+--- linux-2.6.orig/Documentation/RCU/rcuref.txt
++++ linux-2.6/Documentation/RCU/rcuref.txt
+@@ -1,74 +1,67 @@
+-Refcounter framework for elements of lists/arrays protected by
+-RCU.
++Refcounter design for elements of lists/arrays protected by RCU.
  
- #define atomic_cmpxchg(v, old, new) ((int)cmpxchg(&((v)->counter), old, new))
+ Refcounting on elements of  lists which are protected by traditional
+ reader/writer spinlocks or semaphores are straight forward as in:
  
-+#define atomic_add_unless(v, a, u)				\
-+({								\
-+	int c, old;						\
-+	c = atomic_read(v);					\
-+	while (c != (u) && (old = atomic_cmpxchg((v), c, c + (a))) != c) \
-+		c = old;					\
-+	c != (u);						\
-+})
-+#define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
-+
- #define atomic_add_return(i,v)						\
- ({									\
- 	int __ia64_aar_i = (i);						\
-Index: linux-2.6/include/asm-m68k/atomic.h
-===================================================================
---- linux-2.6.orig/include/asm-m68k/atomic.h
-+++ linux-2.6/include/asm-m68k/atomic.h
-@@ -141,6 +141,16 @@ static inline void atomic_set_mask(unsig
- 
- #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
- 
-+#define atomic_add_unless(v, a, u)				\
-+({								\
-+	int c, old;						\
-+	c = atomic_read(v);					\
-+	while (c != (u) && (old = atomic_cmpxchg((v), c, c + (a))) != c) \
-+		c = old;					\
-+	c != (u);						\
-+})
-+#define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
-+
- /* Atomic operations are already serializing */
- #define smp_mb__before_atomic_dec()	barrier()
- #define smp_mb__after_atomic_dec()	barrier()
-Index: linux-2.6/include/asm-m68knommu/atomic.h
-===================================================================
---- linux-2.6.orig/include/asm-m68knommu/atomic.h
-+++ linux-2.6/include/asm-m68knommu/atomic.h
-@@ -130,6 +130,16 @@ static inline int atomic_sub_return(int 
- 
- #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
- 
-+#define atomic_add_unless(v, a, u)				\
-+({								\
-+	int c, old;						\
-+	c = atomic_read(v);					\
-+	while (c != (u) && (old = atomic_cmpxchg((v), c, c + (a))) != c) \
-+		c = old;					\
-+	c != (u);						\
-+})
-+#define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
-+
- #define atomic_dec_return(v) atomic_sub_return(1,(v))
- #define atomic_inc_return(v) atomic_add_return(1,(v))
- 
-Index: linux-2.6/include/asm-mips/atomic.h
-===================================================================
---- linux-2.6.orig/include/asm-mips/atomic.h
-+++ linux-2.6/include/asm-mips/atomic.h
-@@ -289,6 +289,25 @@ static __inline__ int atomic_sub_if_posi
- 
- #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
- 
-+/**
-+ * atomic_add_unless - add unless the number is a given value
-+ * @v: pointer of type atomic_t
-+ * @a: the amount to add to v...
-+ * @u: ...unless v is equal to u.
-+ *
-+ * Atomically adds @a to @v, so long as it was not @u.
-+ * Returns non-zero if @v was not @u, and zero otherwise.
-+ */
-+#define atomic_add_unless(v, a, u)				\
-+({								\
-+	int c, old;						\
-+	c = atomic_read(v);					\
-+	while (c != (u) && (old = atomic_cmpxchg((v), c, c + (a))) != c) \
-+		c = old;					\
-+	c != (u);						\
-+})
-+#define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
-+
- #define atomic_dec_return(v) atomic_sub_return(1,(v))
- #define atomic_inc_return(v) atomic_add_return(1,(v))
- 
-Index: linux-2.6/include/asm-parisc/atomic.h
-===================================================================
---- linux-2.6.orig/include/asm-parisc/atomic.h
-+++ linux-2.6/include/asm-parisc/atomic.h
-@@ -166,6 +166,25 @@ static __inline__ int atomic_read(const 
- /* exported interface */
- #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
- 
-+/**
-+ * atomic_add_unless - add unless the number is a given value
-+ * @v: pointer of type atomic_t
-+ * @a: the amount to add to v...
-+ * @u: ...unless v is equal to u.
-+ *
-+ * Atomically adds @a to @v, so long as it was not @u.
-+ * Returns non-zero if @v was not @u, and zero otherwise.
-+ */
-+#define atomic_add_unless(v, a, u)				\
-+({								\
-+	int c, old;						\
-+	c = atomic_read(v);					\
-+	while (c != (u) && (old = atomic_cmpxchg((v), c, c + (a))) != c) \
-+		c = old;					\
-+	c != (u);						\
-+})
-+#define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
-+
- #define atomic_add(i,v)	((void)(__atomic_add_return( ((int)i),(v))))
- #define atomic_sub(i,v)	((void)(__atomic_add_return(-((int)i),(v))))
- #define atomic_inc(v)	((void)(__atomic_add_return(   1,(v))))
-Index: linux-2.6/include/asm-s390/atomic.h
-===================================================================
---- linux-2.6.orig/include/asm-s390/atomic.h
-+++ linux-2.6/include/asm-s390/atomic.h
-@@ -200,6 +200,16 @@ atomic_compare_and_swap(int expected_old
- 
- #define atomic_cmpxchg(v, o, n) (atomic_compare_and_swap((o), (n), &((v)->counter)))
- 
-+#define atomic_add_unless(v, a, u)				\
-+({								\
-+	int c, old;						\
-+	c = atomic_read(v);					\
-+	while (c != (u) && (old = atomic_cmpxchg((v), c, c + (a))) != c) \
-+		c = old;					\
-+	c != (u);						\
-+})
-+#define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
-+
- #define smp_mb__before_atomic_dec()	smp_mb()
- #define smp_mb__after_atomic_dec()	smp_mb()
- #define smp_mb__before_atomic_inc()	smp_mb()
-Index: linux-2.6/include/asm-sh/atomic.h
-===================================================================
---- linux-2.6.orig/include/asm-sh/atomic.h
-+++ linux-2.6/include/asm-sh/atomic.h
-@@ -101,6 +101,21 @@ static __inline__ int atomic_cmpxchg(ato
- 	return ret;
+-1.					2.
+-add()					search_and_reference()
+-{					{
+-	alloc_object				read_lock(&list_lock);
+-	...					search_for_element
+-	atomic_set(&el->rc, 1);			atomic_inc(&el->rc);
+-	write_lock(&list_lock);			...
+-	add_element				read_unlock(&list_lock);
+-	...					...
+-	write_unlock(&list_lock);	}
++1.				2.
++add()				search_and_reference()
++{				{
++    alloc_object		    read_lock(&list_lock);
++    ...				    search_for_element
++    atomic_set(&el->rc, 1);	    atomic_inc(&el->rc);
++    write_lock(&list_lock);	     ...
++    add_element			    read_unlock(&list_lock);
++    ...				    ...
++    write_unlock(&list_lock);	}
  }
  
-+static __inline__ int atomic_add_unless(atomic_t *v, int a, int u)
-+{
-+	int ret;
-+	unsigned long flags;
+ 3.					4.
+ release_referenced()			delete()
+ {					{
+-	...				write_lock(&list_lock);
+-	atomic_dec(&el->rc, relfunc)	...
+-	...				delete_element
+-}					write_unlock(&list_lock);
+- 					...
+-					if (atomic_dec_and_test(&el->rc))
+-						kfree(el);
+-					...
++    ...					    write_lock(&list_lock);
++    atomic_dec(&el->rc, relfunc)	    ...
++    ...					    delete_element
++}					    write_unlock(&list_lock);
++ 					    ...
++					    if (atomic_dec_and_test(&el->rc))
++					        kfree(el);
++					    ...
+ 					}
+ 
+ If this list/array is made lock free using rcu as in changing the
+ write_lock in add() and delete() to spin_lock and changing read_lock
+-in search_and_reference to rcu_read_lock(), the rcuref_get in
++in search_and_reference to rcu_read_lock(), the atomic_get in
+ search_and_reference could potentially hold reference to an element which
+-has already been deleted from the list/array.  rcuref_lf_get_rcu takes
++has already been deleted from the list/array.  atomic_inc_not_zero takes
+ care of this scenario. search_and_reference should look as;
+ 
+ 1.					2.
+ add()					search_and_reference()
+ {					{
+- 	alloc_object				rcu_read_lock();
+-	...					search_for_element
+-	atomic_set(&el->rc, 1);			if (rcuref_inc_lf(&el->rc)) {
+-	write_lock(&list_lock);				rcu_read_unlock();
+-							return FAIL;
+-	add_element				}
+-	...					...
+-	write_unlock(&list_lock);		rcu_read_unlock();
++    alloc_object			    rcu_read_lock();
++    ...					    search_for_element
++    atomic_set(&el->rc, 1);		    if (atomic_inc_not_zero(&el->rc)) {
++    write_lock(&list_lock);		        rcu_read_unlock();
++					        return FAIL;
++    add_element				    }
++    ...					    ...
++    write_unlock(&list_lock);		    rcu_read_unlock();
+ }					}
+ 3.					4.
+ release_referenced()			delete()
+ {					{
+-	...				write_lock(&list_lock);
+-	rcuref_dec(&el->rc, relfunc)	...
+-	...				delete_element
+-}					write_unlock(&list_lock);
+- 					...
+-					if (rcuref_dec_and_test(&el->rc))
+-						call_rcu(&el->head, el_free);
+-					...
++    ...					    write_lock(&list_lock);
++    atomic_dec(&el->rc, relfunc)	    ...
++    ...					    delete_element
++}					    write_unlock(&list_lock);
++ 					    ...
++					    if (atomic_dec_and_test(&el->rc))
++					        call_rcu(&el->head, el_free);
++					    ...
+ 					}
+ 
+ Sometimes, reference to the element need to be obtained in the
+-update (write) stream.  In such cases, rcuref_inc_lf might be an overkill
+-since the spinlock serialising list updates are held. rcuref_inc
++update (write) stream.  In such cases, atomic_inc_not_zero might be an
++overkill since the spinlock serialising list updates are held. atomic_inc
+ is to be used in such cases.
+-For arches which do not have cmpxchg rcuref_inc_lf
+-api uses a hashed spinlock implementation and the same hashed spinlock
+-is acquired in all rcuref_xxx primitives to preserve atomicity.
+-Note: Use rcuref_inc api only if you need to use rcuref_inc_lf on the
+-refcounter atleast at one place.  Mixing rcuref_inc and atomic_xxx api
+-might lead to races. rcuref_inc_lf() must be used in lockfree
+-RCU critical sections only.
 +
-+	local_irq_save(flags);
-+	ret = v->counter;
-+	if (ret != u)
-+		v->counter += a;
-+	local_irq_restore(flags);
-+
-+	return ret != u;
-+}
-+#define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
-+
- static __inline__ void atomic_clear_mask(unsigned int mask, atomic_t *v)
- {
- 	unsigned long flags;
-Index: linux-2.6/include/asm-sh64/atomic.h
+Index: linux-2.6/kernel/rcupdate.c
 ===================================================================
---- linux-2.6.orig/include/asm-sh64/atomic.h
-+++ linux-2.6/include/asm-sh64/atomic.h
-@@ -113,6 +113,21 @@ static __inline__ int atomic_cmpxchg(ato
- 	return ret;
- }
+--- linux-2.6.orig/kernel/rcupdate.c
++++ linux-2.6/kernel/rcupdate.c
+@@ -45,7 +45,6 @@
+ #include <linux/percpu.h>
+ #include <linux/notifier.h>
+ #include <linux/rcupdate.h>
+-#include <linux/rcuref.h>
+ #include <linux/cpu.h>
  
-+static __inline__ int atomic_add_unless(atomic_t *v, int a, int u)
-+{
-+	int ret;
-+	unsigned long flags;
-+
-+	local_irq_save(flags);
-+	ret = v->counter;
-+	if (ret != u)
-+		v->counter += a;
-+	local_irq_restore(flags);
-+
-+	return ret != u;
-+}
-+#define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
-+
- static __inline__ void atomic_clear_mask(unsigned int mask, atomic_t *v)
- {
- 	unsigned long flags;
-Index: linux-2.6/include/asm-sparc/atomic.h
+ /* Definition for rcupdate control block. */
+@@ -73,19 +72,6 @@ DEFINE_PER_CPU(struct rcu_data, rcu_bh_d
+ static DEFINE_PER_CPU(struct tasklet_struct, rcu_tasklet) = {NULL};
+ static int maxbatch = 10000;
+ 
+-#ifndef __HAVE_ARCH_CMPXCHG
+-/*
+- * We use an array of spinlocks for the rcurefs -- similar to ones in sparc
+- * 32 bit atomic_t implementations, and a hash function similar to that
+- * for our refcounting needs.
+- * Can't help multiprocessors which donot have cmpxchg :(
+- */
+-
+-spinlock_t __rcuref_hash[RCUREF_HASH_SIZE] = {
+-	[0 ... (RCUREF_HASH_SIZE-1)] = SPIN_LOCK_UNLOCKED
+-};
+-#endif
+-
+ /**
+  * call_rcu - Queue an RCU callback for invocation after a grace period.
+  * @head: structure to be used for queueing the RCU updates.
+Index: linux-2.6/security/selinux/hooks.c
 ===================================================================
---- linux-2.6.orig/include/asm-sparc/atomic.h
-+++ linux-2.6/include/asm-sparc/atomic.h
-@@ -20,6 +20,7 @@ typedef struct { volatile int counter; }
- 
- extern int __atomic_add_return(int, atomic_t *);
- extern int atomic_cmpxchg(atomic_t *, int, int);
-+extern int atomic_add_unless(atomic_t *, int, int);
- extern void atomic_set(atomic_t *, int);
- 
- #define atomic_read(v)          ((v)->counter)
-@@ -49,6 +50,8 @@ extern void atomic_set(atomic_t *, int);
- #define atomic_dec_and_test(v) (atomic_dec_return(v) == 0)
- #define atomic_sub_and_test(i, v) (atomic_sub_return(i, v) == 0)
- 
-+#define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
-+
- /* This is the old 24-bit implementation.  It's still used internally
-  * by some sparc-specific code, notably the semaphore implementation.
-  */
-Index: linux-2.6/include/asm-sparc64/atomic.h
+--- linux-2.6.orig/security/selinux/hooks.c
++++ linux-2.6/security/selinux/hooks.c
+@@ -1662,7 +1662,7 @@ static inline void flush_unauthorized_fi
+ 						continue;
+ 					}
+ 					if (devnull) {
+-						rcuref_inc(&devnull->f_count);
++						atomic_inc(&devnull->f_count);
+ 					} else {
+ 						devnull = dentry_open(dget(selinux_null), mntget(selinuxfs_mount), O_RDWR);
+ 						if (!devnull) {
+Index: linux-2.6/kernel/rcutorture.c
 ===================================================================
---- linux-2.6.orig/include/asm-sparc64/atomic.h
-+++ linux-2.6/include/asm-sparc64/atomic.h
-@@ -72,6 +72,16 @@ extern int atomic64_sub_ret(int, atomic6
- 
- #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
- 
-+#define atomic_add_unless(v, a, u)				\
-+({								\
-+	int c, old;						\
-+	c = atomic_read(v);					\
-+	while (c != (u) && (old = atomic_cmpxchg((v), c, c + (a))) != c) \
-+		c = old;					\
-+	c != (u);						\
-+})
-+#define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
-+
- /* Atomic operations are already serializing */
- #ifdef CONFIG_SMP
- #define smp_mb__before_atomic_dec()	membar_storeload_loadload();
-Index: linux-2.6/include/asm-v850/atomic.h
-===================================================================
---- linux-2.6.orig/include/asm-v850/atomic.h
-+++ linux-2.6/include/asm-v850/atomic.h
-@@ -104,6 +104,22 @@ static __inline__ int atomic_cmpxchg(ato
- 	return ret;
- }
- 
-+static __inline__ int atomic_add_unless(atomic_t *v, int a, int u)
-+{
-+	int ret;
-+	unsigned long flags;
-+
-+	local_irq_save(flags);
-+	ret = v->counter;
-+	if (ret != u)
-+		v->counter += a;
-+	local_irq_restore(flags);
-+
-+	return ret != u;
-+}
-+
-+#define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
-+
- /* Atomic operations are already serializing on ARM */
- #define smp_mb__before_atomic_dec()	barrier()
- #define smp_mb__after_atomic_dec()	barrier()
-Index: linux-2.6/include/asm-x86_64/atomic.h
-===================================================================
---- linux-2.6.orig/include/asm-x86_64/atomic.h
-+++ linux-2.6/include/asm-x86_64/atomic.h
-@@ -362,6 +362,25 @@ static __inline__ int atomic_sub_return(
- 
- #define atomic_cmpxchg(v, old, new) ((int)cmpxchg(&((v)->counter), old, new))
- 
-+/**
-+ * atomic_add_unless - add unless the number is a given value
-+ * @v: pointer of type atomic_t
-+ * @a: the amount to add to v...
-+ * @u: ...unless v is equal to u.
-+ *
-+ * Atomically adds @a to @v, so long as it was not @u.
-+ * Returns non-zero if @v was not @u, and zero otherwise.
-+ */
-+#define atomic_add_unless(v, a, u)				\
-+({								\
-+	int c, old;						\
-+	c = atomic_read(v);					\
-+	while (c != (u) && (old = atomic_cmpxchg((v), c, c + (a))) != c) \
-+		c = old;					\
-+	c != (u);						\
-+})
-+#define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
-+
- #define atomic_inc_return(v)  (atomic_add_return(1,v))
- #define atomic_dec_return(v)  (atomic_sub_return(1,v))
- 
-Index: linux-2.6/include/asm-xtensa/atomic.h
-===================================================================
---- linux-2.6.orig/include/asm-xtensa/atomic.h
-+++ linux-2.6/include/asm-xtensa/atomic.h
-@@ -225,6 +225,25 @@ static inline int atomic_sub_return(int 
- 
- #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
- 
-+/**
-+ * atomic_add_unless - add unless the number is a given value
-+ * @v: pointer of type atomic_t
-+ * @a: the amount to add to v...
-+ * @u: ...unless v is equal to u.
-+ *
-+ * Atomically adds @a to @v, so long as it was not @u.
-+ * Returns non-zero if @v was not @u, and zero otherwise.
-+ */
-+#define atomic_add_unless(v, a, u)				\
-+({								\
-+	int c, old;						\
-+	c = atomic_read(v);					\
-+	while (c != (u) && (old = atomic_cmpxchg((v), c, c + (a))) != c) \
-+		c = old;					\
-+	c != (u);						\
-+})
-+#define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
-+
- static inline void atomic_clear_mask(unsigned int mask, atomic_t *v)
- {
-     unsigned int all_f = -1;
-Index: linux-2.6/include/asm-cris/atomic.h
-===================================================================
---- linux-2.6.orig/include/asm-cris/atomic.h
-+++ linux-2.6/include/asm-cris/atomic.h
-@@ -135,6 +135,19 @@ static __inline__ int atomic_cmpxchg(ato
- 	return ret;
- }
- 
-+static __inline__ int atomic_add_unless(atomic_t *v, int a, int u)
-+{
-+	int ret;
-+	unsigned long flags;
-+	cris_atomic_save(v, flags);
-+	ret = v->counter;
-+	if (ret != u)
-+		v->counter += a;
-+	cris_atomic_restore(v, flags);
-+	return ret != u;
-+}
-+#define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
-+
- static inline void atomic_clear_mask(unsigned long mask, unsigned long *addr)
- /* Atomic operations are already serializing */
- #define smp_mb__before_atomic_dec()    barrier()
-Index: linux-2.6/arch/sparc/lib/atomic32.c
-===================================================================
---- linux-2.6.orig/arch/sparc/lib/atomic32.c
-+++ linux-2.6/arch/sparc/lib/atomic32.c
-@@ -52,6 +52,20 @@ int atomic_cmpxchg(atomic_t *v, int old,
- 	return ret;
- }
- 
-+int atomic_add_unless(atomic_t *v, int a, int u)
-+{
-+	int ret;
-+	unsigned long flags;
-+	spin_lock_irqsave(ATOMIC_HASH(v), flags);
-+	ret = v->counter;
-+	if (ret != u)
-+		v->counter += a;
-+	spin_unlock_irqrestore(ATOMIC_HASH(v), flags);
-+	return ret != u;
-+}
-+
-+static inline void atomic_clear_mask(unsigned long mask, unsigned long *addr)
-+/* Atomic operations are already serializing */
- void atomic_set(atomic_t *v, int i)
- {
- 	unsigned long flags;
-Index: linux-2.6/Documentation/atomic_ops.txt
-===================================================================
---- linux-2.6.orig/Documentation/atomic_ops.txt
-+++ linux-2.6/Documentation/atomic_ops.txt
-@@ -115,7 +115,7 @@ boolean is return which indicates whethe
- is negative.  It requires explicit memory barrier semantics around the
- operation.
- 
--Finally:
-+Then:
- 
- 	int atomic_cmpxchg(atomic_t *v, int old, int new);
- 
-@@ -129,6 +129,18 @@ atomic_cmpxchg requires explicit memory 
- The semantics for atomic_cmpxchg are the same as those defined for 'cas'
- below.
- 
-+Finally:
-+
-+	int atomic_add_unless(atomic_t *v, int a, int u);
-+
-+If the atomic value v is not equal to u, this function adds a to v, and
-+returns non zero. If v is equal to u then it returns zero. This is done as
-+an atomic operation.
-+
-+atomic_add_unless requires explicit memory barriers around the operation.
-+
-+atomic_inc_not_zero, equivalent to atomic_add_unless(v, 1, 0)
-+
- 
- If a caller requires memory barrier semantics around an atomic_t
- operation which does not return a value, a set of interfaces are
-Index: linux-2.6/include/asm-arm/atomic.h
-===================================================================
---- linux-2.6.orig/include/asm-arm/atomic.h
-+++ linux-2.6/include/asm-arm/atomic.h
-@@ -174,6 +174,16 @@ static inline void atomic_clear_mask(uns
- 
- #endif /* __LINUX_ARM_ARCH__ */
- 
-+static inline int atomic_add_unless(atomic_t *v, int a, int u)
-+{
-+	int c, old;
-+	c = atomic_read(v);
-+	while (c != u && (old = atomic_cmpxchg((v), c, c + a)) != c)
-+		c = old;
-+	return c != u;
-+}
-+#define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
-+
- #define atomic_add(i, v)	(void) atomic_add_return(i, v)
- #define atomic_inc(v)		(void) atomic_add_return(1, v)
- #define atomic_sub(i, v)	(void) atomic_sub_return(i, v)
-Index: linux-2.6/include/asm-powerpc/atomic.h
-===================================================================
---- linux-2.6.orig/include/asm-powerpc/atomic.h
-+++ linux-2.6/include/asm-powerpc/atomic.h
-@@ -174,6 +174,31 @@ static __inline__ int atomic_dec_return(
- 
- #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
- 
-+/**
-+ * atomic_add_unless - add unless the number is a given value
-+ * @v: pointer of type atomic_t
-+ * @a: the amount to add to v...
-+ * @u: ...unless v is equal to u.
-+ *
-+ * Atomically adds @a to @v, so long as it was not @u.
-+ * Returns non-zero if @v was not @u, and zero otherwise.
-+ */
-+#define atomic_add_unless(v, a, u)							 \
-+({															 \
-+	   int c, old;											 \
-+	   c = atomic_read(v);									 \
-+	   for (;;) {											  \
-+			   if (unlikely(c == (u)))						 \
-+					   break;								  \
-+			   old = atomic_cmpxchg((v), c, c + (a));		  \
-+			   if (likely(old == c))						   \
-+					   break;								  \
-+			   c = old;										\
-+	   }													   \
-+	   c != (u);											   \
-+})
-+#define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
-+
- #define atomic_sub_and_test(a, v)	(atomic_sub_return((a), (v)) == 0)
- #define atomic_dec_and_test(v)		(atomic_dec_return((v)) == 0)
- 
+--- linux-2.6.orig/kernel/rcutorture.c
++++ linux-2.6/kernel/rcutorture.c
+@@ -39,7 +39,6 @@
+ #include <linux/moduleparam.h>
+ #include <linux/percpu.h>
+ #include <linux/notifier.h>
+-#include <linux/rcuref.h>
+ #include <linux/cpu.h>
+ #include <linux/random.h>
+ #include <linux/delay.h>
 
---------------010601090602010603040506--
+--------------070305050607030906000509--
 Send instant messages to your online friends http://au.messenger.yahoo.com 

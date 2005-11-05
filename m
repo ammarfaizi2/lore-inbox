@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbVKEXd1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbVKEXnE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751152AbVKEXd1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 18:33:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbVKEXd1
+	id S1750761AbVKEXnE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 18:43:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbVKEXnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 18:33:27 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:13260 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751152AbVKEXd1 (ORCPT
+	Sat, 5 Nov 2005 18:43:04 -0500
+Received: from fsmlabs.com ([168.103.115.128]:55992 "EHLO spamalot.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S1750761AbVKEXnD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 18:33:27 -0500
-Date: Sat, 5 Nov 2005 15:33:04 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ashok Raj <ashok.raj@intel.com>
-Cc: ashok.raj@intel.com, rjw@sisk.pl, linux-kernel@vger.kernel.org,
-       davej@codemonkey.org.uk, mingo@elte.hu, linux@brodo.de,
-       venkatesh.pallipadi@intel.com
-Subject: Re: 2.6.14-git3: scheduling while atomic from cpufreq on Athlon64
-Message-Id: <20051105153304.09a1a4dc.akpm@osdl.org>
-In-Reply-To: <20051105151944.A30804@unix-os.sc.intel.com>
-References: <200510311606.36615.rjw@sisk.pl>
-	<200510312045.32908.rjw@sisk.pl>
-	<20051031124216.A18213@unix-os.sc.intel.com>
-	<200511012007.19762.rjw@sisk.pl>
-	<20051101111417.A31379@unix-os.sc.intel.com>
-	<20051104143035.120fe158.akpm@osdl.org>
-	<20051105151944.A30804@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 5 Nov 2005 18:43:03 -0500
+X-ASG-Debug-ID: 1131234180-8858-13-0
+X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
+Date: Sat, 5 Nov 2005 15:48:39 -0800 (PST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>
+cc: listmonkey@neo.relay-host.net, linux-kernel@vger.kernel.org
+X-ASG-Orig-Subj: Re: SMP CPU affinity questions
+Subject: Re: SMP CPU affinity questions
+In-Reply-To: <4368EBBF.2000302@wolfmountaingroup.com>
+Message-ID: <Pine.LNX.4.61.0511051546310.1526@montezuma.fsmlabs.com>
+References: <20051102175022.13637.qmail@neo.relay-host.net>
+ <4368EBBF.2000302@wolfmountaingroup.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.5075
+	Rule breakdown below pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ashok Raj <ashok.raj@intel.com> wrote:
->
-> Now we leave a trace in current->flags indicating current thread already 
->  is under cpucontrol lock held, so we dont attempt to do this another time.
-> 
-> ..
-> +#define PF_HOTPLUG_CPU	0x01000000	/* Currently performing CPU hotplug */
->
+On Wed, 2 Nov 2005, Jeffrey V. Merkey wrote:
 
-It's still hacky - I mean, we could use this trick to avoid recursion onto
-any lock in the kernel whenever we get ourselves into a mess.  We'd gain an
-awful lot of PF_* flags.
+> IOApic's support binding of interrupt delivery in intel based platforms, but I
+> am unaware of tools which force this
+> setting by default on Linux, but someone else may be able to point you in that
+> direction.  Most folks code APIC ICC delivery to
+> AV_LOPRI (meaning lowest priority processor gets next interrupt).   This is
+> advantageous for cache coherency since the IRQ code
+> is probaby still in that processors cache.  You may have to modify the kernel.
+> Linux doesn't allow processors to be shutdown and
+> reactiviated real time, it just starts them and lets them run, so you don;t
+> have to worry about the case of migrating interrupts
+> off pinned APICs.  The APIC supports what you are asking for, but I am not
+> certain anyone implemented anything other
+> than AV_LOPRI settings by default in the IO APIC code.  I would suggest you
+> look over the IO APIC Code -- this is a lot
+> of work, BTW.
 
-So we should still view this as a temporary fix.
+Or you could just put something which writes to 
+/proc/irq/$IRQ/smp_affinity in your initscripts.
 
-I don't think I've seen an analysis of the actual deadlock yet.  Are you
-able to provide a stack trace of the offending callpath?
+Cheers,
+	Zwane
+

@@ -1,94 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbVKELCc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751355AbVKELTS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751320AbVKELCc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 06:02:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbVKELCc
+	id S1751355AbVKELTS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 06:19:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbVKELTS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 06:02:32 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:55562 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751320AbVKELCb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 06:02:31 -0500
-Date: Sat, 5 Nov 2005 11:02:27 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] [DRIVER MODEL] Make other buggy drivers warn
-Message-ID: <20051105110226.GG30315@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <20051105105628.GE28438@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 5 Nov 2005 06:19:18 -0500
+Received: from xproxy.gmail.com ([66.249.82.204]:31063 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751355AbVKELTR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 06:19:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=VPzTkgJPNqhT4V6odN/vSLQVKjXe+kuPbVBdVdVwH9457ZFEj2yw5APep3LnwRE61z6TA5N0LWk8qh2pd2XdFx/2tFDygqdA2ajZtZsj0E+B2cURWLxgpu3wknTsGkkZEDNXtZ4ILjfTPoHl544HTUDjU/mzdvDJO1BhaMEH8oo=
+Message-ID: <3c0797c60511050319s79772d84td8ceeaa3b243da30@mail.gmail.com>
+Date: Sat, 5 Nov 2005 22:19:17 +1100
+From: Patrick Barnes <patrick.barnes@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Killing a process with a kernel module
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051105105628.GE28438@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Obviously just to provoke comment from these driver authors to point
-out the error of their ways, and _not_ for merging.
+Hi there,
 
-diff -u b/drivers/net/depca.c b/drivers/net/depca.c
---- b/drivers/net/depca.c
-+++ b/drivers/net/depca.c
-@@ -2083,6 +2083,7 @@ static int __init depca_module_init (voi
-         err |= eisa_driver_register (&depca_eisa_driver);
- #endif
- 	err |= driver_register (&depca_isa_driver);
-+#warning FIXME: what if one of the above registeration functions fails
- 	depca_platform_probe ();
- 	
-         return err;
-diff -u b/drivers/net/tokenring/proteon.c b/drivers/net/tokenring/proteon.c
---- b/drivers/net/tokenring/proteon.c
-+++ b/drivers/net/tokenring/proteon.c
-@@ -384,6 +384,7 @@ static int __init proteon_init(void)
- 	/* Probe for cards. */
- 	if (num == 0) {
- 		printk(KERN_NOTICE "proteon.c: No cards found.\n");
-+#warning FIXME: what about unregistering the platform driver?
- 		return (-ENODEV);
- 	}
- 	return (0);
-diff -u b/drivers/net/tokenring/skisa.c b/drivers/net/tokenring/skisa.c
---- b/drivers/net/tokenring/skisa.c
-+++ b/drivers/net/tokenring/skisa.c
-@@ -394,6 +394,7 @@ static int __init sk_isa_init(void)
- 	/* Probe for cards. */
- 	if (num == 0) {
- 		printk(KERN_NOTICE "skisa.c: No cards found.\n");
-+#warning FIXME: what about unregistering the platform driver?
- 		return (-ENODEV);
- 	}
- 	return (0);
-diff -u b/drivers/usb/gadget/dummy_hcd.c b/drivers/usb/gadget/dummy_hcd.c
---- b/drivers/usb/gadget/dummy_hcd.c
-+++ b/drivers/usb/gadget/dummy_hcd.c
-@@ -1981,9 +1981,11 @@
-  * statically allocated. */
- static void
- dummy_udc_release (struct device *dev) {}
-+#warning FIXME: device release code in the module which unregisters the device is buggy
+RedHat recently released RHEL4 U2, and this update has some
+unfortunate consequences, mainly
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=170087
 
- static void
- dummy_hcd_release (struct device *dev) {}
-+#warning FIXME: device release code in the module which unregisters the device is buggy
- 
- static struct platform_device		the_udc_pdev = {
- 	.name		= (char *) gadget_name,
-diff -u b/sound/core/init.c b/sound/core/init.c
---- b/sound/core/init.c
-+++ b/sound/core/init.c
-@@ -694,6 +694,7 @@
- 
- void snd_generic_device_release(struct device *dev)
- {
-+#warning FIXME: release functions must not be empty
- }
- 
- static int snd_generic_device_register(snd_card_t *card)
+As stated in the bugzilla report above, useradd gets stuck in a R
+state and ignores all signals.
 
+I have a critical system which I can't take down for another week or
+so, but the extra load generated by the rogue useradd process is
+slowing things down a little too much.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+I was wondering if it was possible to safely terminate the process
+using a more direct method (perhaps by manipulating kernel data
+structures.)
+
+What I'd like to know is if it is actually possible before attempting
+to write the code to do it.
+
+I know this is a long shot, but it's probably worth trying. :)
+
+Thanks for your time. I look forward to any replies.
+
+Regards,
+Patrick

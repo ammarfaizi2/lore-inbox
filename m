@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbVKESRb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbVKESQ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932160AbVKESRb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 13:17:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932167AbVKESRb
+	id S932161AbVKESQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 13:16:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932160AbVKESQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 13:17:31 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30993 "EHLO
+	Sat, 5 Nov 2005 13:16:55 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:38161 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932171AbVKESR0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 13:17:26 -0500
-Date: Sat, 5 Nov 2005 18:17:20 +0000
+	id S932161AbVKESQx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 13:16:53 -0500
+Date: Sat, 5 Nov 2005 18:16:47 +0000
 From: Russell King <rmk+lkml@arm.linux.org.uk>
 To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [DRIVER MODEL] Convert MTD drivers
-Message-ID: <20051105181720.GL14419@flint.arm.linux.org.uk>
+Subject: Re: [DRIVER MODEL] Convert ARM Zaurus drivers
+Message-ID: <20051105181646.GJ14419@flint.arm.linux.org.uk>
 Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
 References: <20051105181122.GD12228@flint.arm.linux.org.uk>
 Mime-Version: 1.0
@@ -28,521 +28,373 @@ Convert platform drivers to use struct platform_driver
 
 Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
 
-diff -u b/drivers/mtd/maps/bast-flash.c b/drivers/mtd/maps/bast-flash.c
---- b/drivers/mtd/maps/bast-flash.c
-+++ b/drivers/mtd/maps/bast-flash.c
-@@ -63,11 +63,6 @@
- 
- static const char *probes[] = { "RedBoot", "cmdlinepart", NULL };
- 
--static struct bast_flash_info *to_bast_info(struct device *dev)
--{
--	return (struct bast_flash_info *)dev_get_drvdata(dev);
--}
--
- static void bast_flash_setrw(int to)
- {
- 	unsigned int val;
-@@ -87,11 +82,11 @@
- 	local_irq_restore(flags);
+diff -u b/drivers/input/keyboard/corgikbd.c b/drivers/input/keyboard/corgikbd.c
+--- b/drivers/input/keyboard/corgikbd.c
++++ b/drivers/input/keyboard/corgikbd.c
+@@ -259,17 +259,17 @@
  }
  
--static int bast_flash_remove(struct device *dev)
-+static int bast_flash_remove(struct platform_device *pdev)
+ #ifdef CONFIG_PM
+-static int corgikbd_suspend(struct device *dev, pm_message_t state)
++static int corgikbd_suspend(struct platform_device *dev, pm_message_t state)
  {
--	struct bast_flash_info *info = to_bast_info(dev);
-+	struct bast_flash_info *info = platform_get_drvdata(pdev);
+-	struct corgikbd *corgikbd = dev_get_drvdata(dev);
++	struct corgikbd *corgikbd = platform_get_drvdata(dev);
+ 	corgikbd->suspended = 1;
  
--	dev_set_drvdata(dev, NULL);
-+	platform_set_drvdata(pdev, NULL);
- 
- 	if (info == NULL) 
- 		return 0;
-@@ -117,9 +112,8 @@
  	return 0;
  }
  
--static int bast_flash_probe(struct device *dev)
-+static int bast_flash_probe(struct platform_device *pdev)
+-static int corgikbd_resume(struct device *dev)
++static int corgikbd_resume(struct platform_device *dev)
  {
--	struct platform_device *pdev = to_platform_device(dev);
- 	struct bast_flash_info *info;
- 	struct resource *res;
- 	int err = 0;
-@@ -132,13 +126,13 @@
- 	}
+-	struct corgikbd *corgikbd = dev_get_drvdata(dev);
++	struct corgikbd *corgikbd = platform_get_drvdata(dev);
  
- 	memzero(info, sizeof(*info));
--	dev_set_drvdata(dev, info);
-+	platform_set_drvdata(pdev, info);
- 
- 	res = pdev->resource;  /* assume that the flash has one resource */
- 
- 	info->map.phys = res->start;
- 	info->map.size = res->end - res->start + 1;
--	info->map.name = dev->bus_id;	
-+	info->map.name = pdev->dev.bus_id;	
- 	info->map.bankwidth = 2;
- 	
- 	if (info->map.size > AREA_MAXSIZE)
-@@ -200,26 +194,27 @@
- 	/* fall through to exit error */
- 
-  exit_error:
--	bast_flash_remove(dev);
-+	bast_flash_remove(pdev);
- 	return err;
- }
- 
--static struct device_driver bast_flash_driver = {
--	.name		= "bast-nor",
--	.bus		= &platform_bus_type,
-+static struct platform_driver bast_flash_driver = {
- 	.probe		= bast_flash_probe,
- 	.remove		= bast_flash_remove,
-+	.driver		= {
-+		.name	= "bast-nor",
-+	},
- };
- 
- static int __init bast_flash_init(void)
- {
- 	printk("BAST NOR-Flash Driver, (c) 2004 Simtec Electronics\n");
--	return driver_register(&bast_flash_driver);
-+	return platform_driver_register(&bast_flash_driver);
- }
- 
- static void __exit bast_flash_exit(void)
- {
--	driver_unregister(&bast_flash_driver);
-+	platform_driver_unregister(&bast_flash_driver);
- }
- 
- module_init(bast_flash_init);
-diff -u b/drivers/mtd/maps/integrator-flash.c b/drivers/mtd/maps/integrator-flash.c
---- b/drivers/mtd/maps/integrator-flash.c
-+++ b/drivers/mtd/maps/integrator-flash.c
-@@ -67,9 +67,8 @@
- 
- static const char *probes[] = { "cmdlinepart", "RedBoot", "afs", NULL };
- 
--static int armflash_probe(struct device *_dev)
-+static int armflash_probe(struct platform_device *dev)
- {
--	struct platform_device *dev = to_platform_device(_dev);
- 	struct flash_platform_data *plat = dev->dev.platform_data;
- 	struct resource *res = dev->resource;
- 	unsigned int size = res->end - res->start + 1;
-@@ -138,7 +137,7 @@
- 	}
- 
- 	if (err == 0)
--		dev_set_drvdata(&dev->dev, info);
-+		platform_set_drvdata(dev, info);
- 
- 	/*
- 	 * If we got an error, free all resources.
-@@ -164,12 +163,11 @@
- 	return err;
- }
- 
--static int armflash_remove(struct device *_dev)
-+static int armflash_remove(struct platform_device *dev)
- {
--	struct platform_device *dev = to_platform_device(_dev);
--	struct armflash_info *info = dev_get_drvdata(&dev->dev);
-+	struct armflash_info *info = platform_get_drvdata(dev);
- 
--	dev_set_drvdata(&dev->dev, NULL);
-+	platform_set_drvdata(dev, NULL);
- 
- 	if (info) {
- 		if (info->mtd) {
-@@ -192,21 +190,22 @@ static int armflash_remove(struct device
- 	return 0;
- }
- 
--static struct device_driver armflash_driver = {
--	.name		= "armflash",
--	.bus		= &platform_bus_type,
-+static struct platform_driver armflash_driver = {
- 	.probe		= armflash_probe,
- 	.remove		= armflash_remove,
-+	.driver		= {
-+		.name	= "armflash",
-+	},
- };
- 
- static int __init armflash_init(void)
- {
--	return driver_register(&armflash_driver);
-+	return platform_driver_register(&armflash_driver);
- }
- 
- static void __exit armflash_exit(void)
- {
--	driver_unregister(&armflash_driver);
-+	platform_driver_unregister(&armflash_driver);
- }
- 
- module_init(armflash_init);
-diff -u b/drivers/mtd/maps/ixp2000.c b/drivers/mtd/maps/ixp2000.c
---- b/drivers/mtd/maps/ixp2000.c
-+++ b/drivers/mtd/maps/ixp2000.c
-@@ -111,13 +111,12 @@
- }
- 
- 
--static int ixp2000_flash_remove(struct device *_dev)
-+static int ixp2000_flash_remove(struct platform_device *dev)
- {
--	struct platform_device *dev = to_platform_device(_dev);
- 	struct flash_platform_data *plat = dev->dev.platform_data;
--	struct ixp2000_flash_info *info = dev_get_drvdata(&dev->dev);
-+	struct ixp2000_flash_info *info = platform_get_drvdata(dev);
- 
--	dev_set_drvdata(&dev->dev, NULL);
-+	platform_set_drvdata(dev, NULL);
- 
- 	if(!info)
- 		return 0;
-@@ -144,10 +143,9 @@
- }
- 
- 
--static int ixp2000_flash_probe(struct device *_dev)
-+static int ixp2000_flash_probe(struct platform_device *dev)
- {
- 	static const char *probes[] = { "RedBoot", "cmdlinepart", NULL };
--	struct platform_device *dev = to_platform_device(_dev);
- 	struct ixp2000_flash_data *ixp_data = dev->dev.platform_data;
- 	struct flash_platform_data *plat; 
- 	struct ixp2000_flash_info *info;
-@@ -178,7 +176,7 @@
- 	}	
- 	memzero(info, sizeof(struct ixp2000_flash_info));
- 
--	dev_set_drvdata(&dev->dev, info);
-+	platform_set_drvdata(dev, info);
- 
- 	/*
- 	 * Tell the MTD layer we're not 1:1 mapped so that it does
-@@ -249,7 +247,7 @@
- 	return 0;
- 
- Error:
--	ixp2000_flash_remove(_dev);
-+	ixp2000_flash_remove(dev);
- 	return err;
- }
- 
-@@ -253,21 +251,22 @@ Error:
- 	return err;
- }
- 
--static struct device_driver ixp2000_flash_driver = {
--	.name		= "IXP2000-Flash",
--	.bus		= &platform_bus_type,
-+static struct platform_driver ixp2000_flash_driver = {
- 	.probe		= &ixp2000_flash_probe,
- 	.remove		= &ixp2000_flash_remove
-+	.driver		= {
-+		.name	= "IXP2000-Flash",
-+	},
- };
- 
- static int __init ixp2000_flash_init(void)
- {
--	return driver_register(&ixp2000_flash_driver);
-+	return platform_driver_register(&ixp2000_flash_driver);
- }
- 
- static void __exit ixp2000_flash_exit(void)
- {
--	driver_unregister(&ixp2000_flash_driver);
-+	platform_driver_unregister(&ixp2000_flash_driver);
- }
- 
- module_init(ixp2000_flash_init);
-diff -u b/drivers/mtd/maps/ixp4xx.c b/drivers/mtd/maps/ixp4xx.c
---- b/drivers/mtd/maps/ixp4xx.c
-+++ b/drivers/mtd/maps/ixp4xx.c
-@@ -99,14 +99,13 @@
- 
- static const char *probes[] = { "RedBoot", "cmdlinepart", NULL };
- 
--static int ixp4xx_flash_remove(struct device *_dev)
-+static int ixp4xx_flash_remove(struct platform_device *dev)
- {
--	struct platform_device *dev = to_platform_device(_dev);
- 	struct flash_platform_data *plat = dev->dev.platform_data;
--	struct ixp4xx_flash_info *info = dev_get_drvdata(&dev->dev);
-+	struct ixp4xx_flash_info *info = platform_get_drvdata(dev);
- 	map_word d;
- 
--	dev_set_drvdata(&dev->dev, NULL);
-+	platform_set_drvdata(dev, NULL);
- 
- 	if(!info)
- 		return 0;
-@@ -141,9 +140,8 @@
- 	return 0;
- }
- 
--static int ixp4xx_flash_probe(struct device *_dev)
-+static int ixp4xx_flash_probe(struct platform_device *dev)
- {
--	struct platform_device *dev = to_platform_device(_dev);
- 	struct flash_platform_data *plat = dev->dev.platform_data;
- 	struct ixp4xx_flash_info *info;
- 	int err = -1;
-@@ -164,7 +162,7 @@
- 	}	
- 	memzero(info, sizeof(struct ixp4xx_flash_info));
- 
--	dev_set_drvdata(&dev->dev, info);
-+	platform_set_drvdata(dev, info);
- 
- 	/* 
- 	 * Enable flash write 
-@@ -231,7 +229,7 @@
- 	return 0;
- 
- Error:
--	ixp4xx_flash_remove(_dev);
-+	ixp4xx_flash_remove(dev);
- 	return err;
- }
- 
-@@ -235,21 +233,22 @@ Error:
- 	return err;
- }
- 
--static struct device_driver ixp4xx_flash_driver = {
--	.name		= "IXP4XX-Flash",
--	.bus		= &platform_bus_type,
-+static struct platform_driver ixp4xx_flash_driver = {
- 	.probe		= ixp4xx_flash_probe,
- 	.remove		= ixp4xx_flash_remove,
-+	.driver		= {
-+		.name	= "IXP4XX-Flash",
-+	},
- };
- 
- static int __init ixp4xx_flash_init(void)
- {
--	return driver_register(&ixp4xx_flash_driver);
-+	return platform_driver_register(&ixp4xx_flash_driver);
- }
- 
- static void __exit ixp4xx_flash_exit(void)
- {
--	driver_unregister(&ixp4xx_flash_driver);
-+	platform_driver_unregister(&ixp4xx_flash_driver);
- }
- 
- 
-diff -u b/drivers/mtd/maps/omap_nor.c b/drivers/mtd/maps/omap_nor.c
---- b/drivers/mtd/maps/omap_nor.c
-+++ b/drivers/mtd/maps/omap_nor.c
-@@ -70,11 +70,10 @@
- 	}
- }
- 
--static int __devinit omapflash_probe(struct device *dev)
-+static int __devinit omapflash_probe(struct platform_device *pdev)
- {
- 	int err;
- 	struct omapflash_info *info;
--	struct platform_device *pdev = to_platform_device(dev);
- 	struct flash_platform_data *pdata = pdev->dev.platform_data;
- 	struct resource *res = pdev->resource;
- 	unsigned long size = res->end - res->start + 1;
-@@ -119,7 +118,7 @@
+ 	/* Upon resume, ignore the suspend key for a short while */
+ 	corgikbd->suspend_jiffies=jiffies;
+@@ -282,7 +282,7 @@
+ #define corgikbd_resume		NULL
  #endif
- 		add_mtd_device(info->mtd);
  
--	dev_set_drvdata(&pdev->dev, info);
-+	platform_set_drvdata(pdev, info);
+-static int __init corgikbd_probe(struct device *dev)
++static int __init corgikbd_probe(struct platform_device *pdev)
+ {
+ 	struct corgikbd *corgikbd;
+ 	struct input_dev *input_dev;
+@@ -296,7 +296,7 @@
+ 		return -ENOMEM;
+ 	}
  
+-	dev_set_drvdata(dev, corgikbd);
++	platform_set_drvdata(pdev, corgikbd);
+ 
+ 	corgikbd->input = input_dev;
+ 	spin_lock_init(&corgikbd->lock);
+@@ -321,7 +321,7 @@
+ 	input_dev->id.vendor = 0x0001;
+ 	input_dev->id.product = 0x0001;
+ 	input_dev->id.version = 0x0100;
+-	input_dev->cdev.dev = dev;
++	input_dev->cdev.dev = &pdev->dev;
+ 	input_dev->private = corgikbd;
+ 
+ 	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP) | BIT(EV_PWR) | BIT(EV_SW);
+@@ -356,10 +356,10 @@
  	return 0;
- 
-@@ -133,12 +132,11 @@
- 	return err;
  }
  
--static int __devexit omapflash_remove(struct device *dev)
-+static int __devexit omapflash_remove(struct platform_device *pdev)
+-static int corgikbd_remove(struct device *dev)
++static int corgikbd_remove(struct platform_device *pdev)
  {
--	struct platform_device *pdev = to_platform_device(dev);
--	struct omapflash_info *info = dev_get_drvdata(&pdev->dev);
-+	struct omapflash_info *info = platform_get_drvdata(pdev);
+ 	int i;
+-	struct corgikbd *corgikbd = dev_get_drvdata(dev);
++	struct corgikbd *corgikbd = platform_get_drvdata(pdev);
  
--	dev_set_drvdata(&pdev->dev, NULL);
-+	platform_set_drvdata(pdev, NULL);
- 
- 	if (info) {
- 		if (info->parts) {
-@@ -155,21 +153,22 @@ static int __devexit omapflash_remove(st
+ 	for (i = 0; i < CORGI_KEY_SENSE_NUM; i++)
+ 		free_irq(CORGI_IRQ_GPIO_KEY_SENSE(i), corgikbd);
+@@ -374,23 +374,24 @@
  	return 0;
  }
  
--static struct device_driver omapflash_driver = {
--	.name	= "omapflash",
--	.bus	= &platform_bus_type,
-+static struct platform_driver omapflash_driver = {
- 	.probe	= omapflash_probe,
- 	.remove	= __devexit_p(omapflash_remove),
-+	.driver = {
-+		.name	= "omapflash",
-+	},
- };
- 
- static int __init omapflash_init(void)
- {
--	return driver_register(&omapflash_driver);
-+	return platform_driver_register(&omapflash_driver);
- }
- 
- static void __exit omapflash_exit(void)
- {
--	driver_unregister(&omapflash_driver);
-+	platform_driver_unregister(&omapflash_driver);
- }
- 
- module_init(omapflash_init);
-diff -u b/drivers/mtd/maps/plat-ram.c b/drivers/mtd/maps/plat-ram.c
---- b/drivers/mtd/maps/plat-ram.c
-+++ b/drivers/mtd/maps/plat-ram.c
-@@ -56,9 +56,9 @@
-  * device private data to struct platram_info conversion
- */
- 
--static inline struct platram_info *to_platram_info(struct device *dev)
-+static inline struct platram_info *to_platram_info(struct platform_device *dev)
- {
--	return (struct platram_info *)dev_get_drvdata(dev);
-+	return (struct platram_info *)platform_get_drvdata(dev);
- }
- 
- /* platram_setrw
-@@ -83,13 +83,13 @@
-  * called to remove the device from the driver's control
- */
- 
--static int platram_remove(struct device *dev)
-+static int platram_remove(struct platform_device *pdev)
- {
--	struct platram_info *info = to_platram_info(dev);
-+	struct platram_info *info = to_platram_info(pdev);
- 
--	dev_set_drvdata(dev, NULL);
-+	platform_set_drvdata(pdev, NULL);
- 
--	dev_dbg(dev, "removing device\n");
-+	dev_dbg(&pdev->dev, "removing device\n");
- 
- 	if (info == NULL) 
- 		return 0;
-@@ -130,9 +130,8 @@
-  * driver is found.
- */
- 
--static int platram_probe(struct device *dev)
-+static int platram_probe(struct platform_device *pdev)
- {
--	struct platform_device *pd = to_platform_device(dev);
- 	struct platdata_mtd_ram	*pdata;
- 	struct platram_info *info;
- 	struct resource *res;
-@@ -140,13 +139,13 @@
- 
- 	dev_dbg(dev, "probe entered\n");
- 	
--	if (dev->platform_data == NULL) {
-+	if (pdev->dev.platform_data == NULL) {
- 		dev_err(dev, "no platform data supplied\n");
- 		err = -ENOENT;
- 		goto exit_error;
- 	}
- 
--	pdata = dev->platform_data;
-+	pdata = pdev->dev.platform_data;
- 
- 	info = kmalloc(sizeof(*info), GFP_KERNEL);
- 	if (info == NULL) {
-@@ -156,7 +155,7 @@
- 	}
- 
- 	memset(info, 0, sizeof(*info));
--	dev_set_drvdata(dev, info);
-+	platform_set_drvdata(pdev, info);
- 
- 	info->dev = dev;
- 	info->pdata = pdata;
-@@ -171,7 +170,7 @@
- 		goto exit_free;
- 	}
- 
--	dev_dbg(dev, "got platform resource %p (0x%lx)\n", res, res->start);
-+	dev_dbg(&pdev->dev, "got platform resource %p (0x%lx)\n", res, res->start);
- 
- 	/* setup map parameters */
- 
-@@ -182,7 +181,7 @@
- 
- 	/* register our usage of the memory area */
- 
--	info->area = request_mem_region(res->start, info->map.size, pd->name);
-+	info->area = request_mem_region(res->start, info->map.size, pdev->name);
- 	if (info->area == NULL) {
- 		dev_err(dev, "failed to request memory region\n");
- 		err = -EIO;
-@@ -241,11 +240,11 @@
- 		err = -ENOMEM;
- 	}
- 	
--	dev_info(dev, "registered mtd device\n");
-+	dev_info(&pdev->dev, "registered mtd device\n");
- 	return err;
- 
-  exit_free:
--	platram_remove(dev);
-+	platram_remove(pdev);
-  exit_error:
- 	return err;
- }
-@@ -252,11 +251,12 @@ static int platram_probe(struct device *
- 
- /* device driver info */
- 
--static struct device_driver platram_driver = {
--	.name		= "mtd-ram",
+-static struct device_driver corgikbd_driver = {
+-	.name		= "corgi-keyboard",
 -	.bus		= &platform_bus_type,
-+static struct platform_driver platram_driver = {
- 	.probe		= platram_probe,
- 	.remove		= platram_remove,
++static struct platform_driver corgikbd_driver = {
+ 	.probe		= corgikbd_probe,
+ 	.remove		= corgikbd_remove,
+ 	.suspend	= corgikbd_suspend,
+ 	.resume		= corgikbd_resume,
 +	.driver		= {
-+		.name	= "mtd-ram",
++		.name	= "corgi-keyboard",
 +	},
  };
  
- /* module init/exit */
-@@ -264,12 +264,12 @@ static struct device_driver platram_driv
- static int __init platram_init(void)
+ static int __devinit corgikbd_init(void)
  {
- 	printk("Generic platform RAM MTD, (c) 2004 Simtec Electronics\n");
--	return driver_register(&platram_driver);
-+	return platform_driver_register(&platram_driver);
+-	return driver_register(&corgikbd_driver);
++	return platform_driver_register(&corgikbd_driver);
  }
  
- static void __exit platram_exit(void)
+ static void __exit corgikbd_exit(void)
  {
--	driver_unregister(&platram_driver);
-+	platform_driver_unregister(&platram_driver);
+-	driver_unregister(&corgikbd_driver);
++	platform_driver_unregister(&corgikbd_driver);
  }
  
- module_init(platram_init);
+ module_init(corgikbd_init);
+diff -u b/drivers/input/keyboard/spitzkbd.c b/drivers/input/keyboard/spitzkbd.c
+--- b/drivers/input/keyboard/spitzkbd.c
++++ b/drivers/input/keyboard/spitzkbd.c
+@@ -309,10 +309,10 @@
+ }
+ 
+ #ifdef CONFIG_PM
+-static int spitzkbd_suspend(struct device *dev, pm_message_t state)
++static int spitzkbd_suspend(struct platform_device *dev, pm_message_t state)
+ {
+ 	int i;
+-	struct spitzkbd *spitzkbd = dev_get_drvdata(dev);
++	struct spitzkbd *spitzkbd = platform_get_drvdata(dev);
+ 	spitzkbd->suspended = 1;
+ 
+ 	/* Set Strobe lines as inputs - *except* strobe line 0 leave this
+@@ -323,10 +323,10 @@
+ 	return 0;
+ }
+ 
+-static int spitzkbd_resume(struct device *dev)
++static int spitzkbd_resume(struct platform_device *dev)
+ {
+ 	int i;
+-	struct spitzkbd *spitzkbd = dev_get_drvdata(dev);
++	struct spitzkbd *spitzkbd = platform_get_drvdata(dev);
+ 
+ 	for (i = 0; i < SPITZ_KEY_STROBE_NUM; i++)
+ 		pxa_gpio_mode(spitz_strobes[i] | GPIO_OUT | GPIO_DFLT_HIGH);
+@@ -342,7 +342,7 @@
+ #define spitzkbd_resume		NULL
+ #endif
+ 
+-static int __init spitzkbd_probe(struct device *dev)
++static int __init spitzkbd_probe(struct platform_device *dev)
+ {
+ 	struct spitzkbd *spitzkbd;
+ 	struct input_dev *input_dev;
+@@ -358,7 +358,7 @@
+ 		return -ENOMEM;
+ 	}
+ 
+-	dev_set_drvdata(dev, spitzkbd);
++	platform_set_drvdata(dev, spitzkbd);
+ 	strcpy(spitzkbd->phys, "spitzkbd/input0");
+ 
+ 	spin_lock_init(&spitzkbd->lock);
+@@ -380,7 +380,7 @@
+ 	input_dev->private = spitzkbd;
+ 	input_dev->name = "Spitz Keyboard";
+ 	input_dev->phys = spitzkbd->phys;
+-	input_dev->cdev.dev = dev;
++	input_dev->cdev.dev = &dev->dev;
+ 
+ 	input_dev->id.bustype = BUS_HOST;
+ 	input_dev->id.vendor = 0x0001;
+@@ -437,10 +437,10 @@
+ 	return 0;
+ }
+ 
+-static int spitzkbd_remove(struct device *dev)
++static int spitzkbd_remove(struct platform_device *dev)
+ {
+ 	int i;
+-	struct spitzkbd *spitzkbd = dev_get_drvdata(dev);
++	struct spitzkbd *spitzkbd = platform_get_drvdata(dev);
+ 
+ 	for (i = 0; i < SPITZ_KEY_SENSE_NUM; i++)
+ 		free_irq(IRQ_GPIO(spitz_senses[i]), spitzkbd);
+@@ -460,23 +460,24 @@
+ 	return 0;
+ }
+ 
+-static struct device_driver spitzkbd_driver = {
+-	.name		= "spitz-keyboard",
+-	.bus		= &platform_bus_type,
++static struct platform_driver spitzkbd_driver = {
+ 	.probe		= spitzkbd_probe,
+ 	.remove		= spitzkbd_remove,
+ 	.suspend	= spitzkbd_suspend,
+ 	.resume		= spitzkbd_resume,
++	.driver		= {
++		.name	= "spitz-keyboard",
++	},
+ };
+ 
+ static int __devinit spitzkbd_init(void)
+ {
+-	return driver_register(&spitzkbd_driver);
++	return platform_driver_register(&spitzkbd_driver);
+ }
+ 
+ static void __exit spitzkbd_exit(void)
+ {
+-	driver_unregister(&spitzkbd_driver);
++	platform_driver_unregister(&spitzkbd_driver);
+ }
+ 
+ module_init(spitzkbd_init);
+diff -u b/drivers/input/touchscreen/corgi_ts.c b/drivers/input/touchscreen/corgi_ts.c
+--- b/drivers/input/touchscreen/corgi_ts.c
++++ b/drivers/input/touchscreen/corgi_ts.c
+@@ -231,9 +231,9 @@
+ }
+ 
+ #ifdef CONFIG_PM
+-static int corgits_suspend(struct device *dev, pm_message_t state)
++static int corgits_suspend(struct platform_device *dev, pm_message_t state)
+ {
+-	struct corgi_ts *corgi_ts = dev_get_drvdata(dev);
++	struct corgi_ts *corgi_ts = platform_get_drvdata(dev);
+ 
+ 	if (corgi_ts->pendown) {
+ 		del_timer_sync(&corgi_ts->timer);
+@@ -248,9 +248,9 @@
+ 	return 0;
+ }
+ 
+-static int corgits_resume(struct device *dev)
++static int corgits_resume(struct platform_device *dev)
+ {
+-	struct corgi_ts *corgi_ts = dev_get_drvdata(dev);
++	struct corgi_ts *corgi_ts = platform_get_drvdata(dev);
+ 
+ 	corgi_ssp_ads7846_putget((4u << ADSCTRL_ADR_SH) | ADSCTRL_STS);
+ 	/* Enable Falling Edge */
+@@ -264,10 +264,9 @@
+ #define corgits_resume		NULL
+ #endif
+ 
+-static int __init corgits_probe(struct device *dev)
++static int __init corgits_probe(struct platform_device *pdev)
+ {
+ 	struct corgi_ts *corgi_ts;
+-	struct platform_device *pdev = to_platform_device(dev);
+ 	struct input_dev *input_dev;
+ 	int err = -ENOMEM;
+ 
+@@ -276,9 +275,9 @@
+	if (!corgi_ts || !input_dev)
+ 		goto fail;
+ 
+-	dev_set_drvdata(dev, corgi_ts);
++	platform_set_drvdata(pdev, corgi_ts);
+ 
+-	corgi_ts->machinfo = dev->platform_data;
++	corgi_ts->machinfo = pdev->dev.platform_data;
+ 	corgi_ts->irq_gpio = platform_get_irq(pdev, 0);
+ 
+ 	if (corgi_ts->irq_gpio < 0) {
+@@ -298,7 +297,7 @@
+ 	input_dev->id.vendor = 0x0001;
+ 	input_dev->id.product = 0x0002;
+ 	input_dev->id.version = 0x0100;
+-	input_dev->cdev.dev = dev;
++	input_dev->cdev.dev = &pdev->dev;
+ 	input_dev->private = corgi_ts;
+ 
+ 	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
+@@ -339,9 +338,9 @@
+ 
+ }
+ 
+-static int corgits_remove(struct device *dev)
++static int corgits_remove(struct platform_device *pdev)
+ {
+-	struct corgi_ts *corgi_ts = dev_get_drvdata(dev);
++	struct corgi_ts *corgi_ts = platform_get_drvdata(pdev);
+ 
+ 	free_irq(corgi_ts->irq_gpio, NULL);
+ 	del_timer_sync(&corgi_ts->timer);
+@@ -351,23 +350,24 @@
+ 	return 0;
+ }
+ 
+-static struct device_driver corgits_driver = {
+-	.name		= "corgi-ts",
+-	.bus		= &platform_bus_type,
++static struct platform_driver corgits_driver = {
+ 	.probe		= corgits_probe,
+ 	.remove		= corgits_remove,
+ 	.suspend	= corgits_suspend,
+ 	.resume		= corgits_resume,
++	.driver		= {
++		.name	= "corgi-ts",
++	},
+ };
+ 
+ static int __devinit corgits_init(void)
+ {
+-	return driver_register(&corgits_driver);
++	return platform_driver_register(&corgits_driver);
+ }
+ 
+ static void __exit corgits_exit(void)
+ {
+-	driver_unregister(&corgits_driver);
++	platform_driver_unregister(&corgits_driver);
+ }
+ 
+ module_init(corgits_init);
+diff -u b/drivers/video/backlight/corgi_bl.c b/drivers/video/backlight/corgi_bl.c
+--- b/drivers/video/backlight/corgi_bl.c
++++ b/drivers/video/backlight/corgi_bl.c
+@@ -73,13 +73,13 @@
+ }
+ 
+ #ifdef CONFIG_PM
+-static int corgibl_suspend(struct device *dev, pm_message_t state)
++static int corgibl_suspend(struct platform_device *dev, pm_message_t state)
+ {
+ 	corgibl_blank(FB_BLANK_POWERDOWN);
+ 	return 0;
+ }
+ 
+-static int corgibl_resume(struct device *dev)
++static int corgibl_resume(struct platform_device *dev)
+ {
+ 	corgibl_blank(FB_BLANK_UNBLANK);
+ 	return 0;
+@@ -137,9 +137,9 @@
+ 
+ static struct backlight_device *corgi_backlight_device;
+ 
+-static int __init corgibl_probe(struct device *dev)
++static int __init corgibl_probe(struct platform_device *pdev)
+ {
+-	struct corgibl_machinfo *machinfo = dev->platform_data;
++	struct corgibl_machinfo *machinfo = pdev->dev.platform_data;
+ 
+ 	corgibl_data.max_brightness = machinfo->max_intensity;
+ 	corgibl_mach_set_intensity = machinfo->set_bl_intensity;
+@@ -156,7 +156,7 @@
+ 	return 0;
+ }
+ 
+-static int corgibl_remove(struct device *dev)
++static int corgibl_remove(struct platform_device *dev)
+ {
+ 	backlight_device_unregister(corgi_backlight_device);
+ 
+@@ -166,23 +166,24 @@
+ 	return 0;
+ }
+ 
+-static struct device_driver corgibl_driver = {
+-	.name		= "corgi-bl",
+-	.bus		= &platform_bus_type,
++static struct platform_driver corgibl_driver = {
+ 	.probe		= corgibl_probe,
+ 	.remove		= corgibl_remove,
+ 	.suspend	= corgibl_suspend,
+ 	.resume		= corgibl_resume,
++	.driver		= {
++		.name	= "corgi-bl",
++	},
+ };
+ 
+ static int __init corgibl_init(void)
+ {
+-	return driver_register(&corgibl_driver);
++	return platform_driver_register(&corgibl_driver);
+ }
+ 
+ static void __exit corgibl_exit(void)
+ {
+- 	driver_unregister(&corgibl_driver);
++	platform_driver_unregister(&corgibl_driver);
+ }
+ 
+ module_init(corgibl_init);
+
 
 -- 
 Russell King

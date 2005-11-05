@@ -1,65 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932303AbVKETlM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932312AbVKETvV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932303AbVKETlM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 14:41:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbVKETlM
+	id S932312AbVKETvV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 14:51:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbVKETvV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 14:41:12 -0500
-Received: from mail.kroah.org ([69.55.234.183]:49298 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932303AbVKETlL (ORCPT
+	Sat, 5 Nov 2005 14:51:21 -0500
+Received: from havoc.gtf.org ([69.61.125.42]:15531 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S932309AbVKETvU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 14:41:11 -0500
-Date: Sat, 5 Nov 2005 11:40:44 -0800
-From: Greg KH <greg@kroah.com>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [DRIVER MODEL] Improved dynamically allocated platform_device interface
-Message-ID: <20051105194044.GA23882@kroah.com>
-References: <20051105105628.GE28438@flint.arm.linux.org.uk> <20051105154210.GA20598@kroah.com> <20051105171955.GA12228@flint.arm.linux.org.uk>
+	Sat, 5 Nov 2005 14:51:20 -0500
+Date: Sat, 5 Nov 2005 14:51:19 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [git patches] 2.6.x libata fix
+Message-ID: <20051105195119.GA1039@havoc.gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051105171955.GA12228@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 05, 2005 at 05:19:55PM +0000, Russell King wrote:
-> On Sat, Nov 05, 2005 at 07:42:10AM -0800, Greg KH wrote:
-> > On Sat, Nov 05, 2005 at 10:56:28AM +0000, Russell King wrote:
-> > > Re-jig the simple platform device support to allow private data
-> > > to be attached to a platform device, as well as allowing the
-> > > parent device to be set.
-> > > 
-> > > Example usage:
-> > > 
-> > > 	pdev = platform_device_alloc("mydev", id);
-> > > 	if (pdev) {
-> > > 		err = platform_device_add_resources(pdev, &resources,
-> > > 						    ARRAY_SIZE(resources));
-> > > 		if (err == 0)
-> > > 			err = platform_device_add_data(pdev, &platform_data,
-> > > 						       sizeof(platform_data));
-> > > 		if (err == 0)
-> > > 			err = platform_device_add(pdev);
-> > > 	} else {
-> > > 		err = -ENOMEM;
-> > > 	}
-> > > 	if (err)
-> > > 		platform_device_put(pdev);
-> > > 
-> > > Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
-> > 
-> > Acked-by: Greg Kroah-Hartman <gregkh@suse.de>
-> > 
-> > These look great, want me to add them to my tree and get them to Linus
-> > before 2.6.15?
-> 
-> I'm also happy to add them to my tree.  Are you okay with that?
 
-I am fine with that, you can add:
-	Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-if you want to to these patches.
+Please pull from 'upstream-linus' branch of
+master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
 
-thanks,
+to receive the following fix:
 
-greg k-h
+ drivers/scsi/libata-core.c |   10 ++++++++--
+ 1 files changed, 8 insertions(+), 2 deletions(-)
+
+Tejun Heo:
+      [libata] restore sg on DMA mapping failure
+
+diff --git a/drivers/scsi/libata-core.c b/drivers/scsi/libata-core.c
+index e1346cd..1c1a7ca 100644
+--- a/drivers/scsi/libata-core.c
++++ b/drivers/scsi/libata-core.c
+@@ -2622,8 +2622,11 @@ static int ata_sg_setup_one(struct ata_q
+ 
+ 	dma_address = dma_map_single(ap->host_set->dev, qc->buf_virt,
+ 				     sg->length, dir);
+-	if (dma_mapping_error(dma_address))
++	if (dma_mapping_error(dma_address)) {
++		/* restore sg */
++		sg->length += qc->pad_len;
+ 		return -1;
++	}
+ 
+ 	sg_dma_address(sg) = dma_address;
+ 	sg_dma_len(sg) = sg->length;
+@@ -2694,8 +2697,11 @@ static int ata_sg_setup(struct ata_queue
+ 
+ 	dir = qc->dma_dir;
+ 	n_elem = dma_map_sg(ap->host_set->dev, sg, qc->n_elem, dir);
+-	if (n_elem < 1)
++	if (n_elem < 1) {
++		/* restore last sg */
++		lsg->length += qc->pad_len;
+ 		return -1;
++	}
+ 
+ 	DPRINTK("%d sg elements mapped\n", n_elem);
+ 

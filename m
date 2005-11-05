@@ -1,76 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbVKECbL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbVKECgF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751239AbVKECbL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Nov 2005 21:31:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbVKECbL
+	id S1750819AbVKECgF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Nov 2005 21:36:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751063AbVKECgF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Nov 2005 21:31:11 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:18312 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750723AbVKECbJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Nov 2005 21:31:09 -0500
-Date: Fri, 4 Nov 2005 18:30:43 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: ricknu-0@student.ltu.se, ashutosh.lkml@gmail.com, netdev@vger.kernel.org,
-       davej@suse.de, acme@conectiva.com.br, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: [PATCH]dgrs - Fixes Warnings when CONFIG_ISA and CONFIG_PCI are
- not enabled
-Message-Id: <20051104183043.27a2229c.akpm@osdl.org>
-In-Reply-To: <20051104182537.741be3d9.akpm@osdl.org>
-References: <81083a450511012314q4ec69927gfa60cb19ba8f437a@mail.gmail.com>
-	<4368878D.4040406@student.ltu.se>
-	<c216304e0511020516o5cfcd0b9u96a3220bf2694928@mail.gmail.com>
-	<436927CA.3090105@student.ltu.se>
-	<20051104182537.741be3d9.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 4 Nov 2005 21:36:05 -0500
+Received: from smtp1.Stanford.EDU ([171.67.16.123]:24040 "EHLO
+	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S1750819AbVKECgE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Nov 2005 21:36:04 -0500
+Subject: Re: 2.6.14-rt1 (now rt6)
+From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: nando@ccrma.Stanford.EDU, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Mark Knecht <markknecht@gmail.com>, john stultz <johnstul@us.ibm.com>,
+       Florian Schmidt <mista.tapas@gmx.net>, "K.R. Foley" <kr@cybsft.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>
+In-Reply-To: <20051030133316.GA11225@elte.hu>
+References: <20051017160536.GA2107@elte.hu> <20051020195432.GA21903@elte.hu>
+	 <20051030133316.GA11225@elte.hu>
+Content-Type: text/plain
+Date: Fri, 04 Nov 2005 18:35:24 -0800
+Message-Id: <1131158124.4834.24.camel@cmn3.stanford.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
-> Let's go with Ashutosh's patch then, thanks.
+On Sun, 2005-10-30 at 14:33 +0100, Ingo Molnar wrote:
+> i have released the 2.6.14-rt1 tree, which can be downloaded from the 
+> usual place:
+> 
+>    http://redhat.com/~mingo/realtime-preempt/
+> 
+> this release is mainly about ktimer fixes: it updates to the latest 
+> ktimer tree from Thomas Gleixner (which includes John Stultz's latest 
+> GTOD tree), it fixes TSC synchronization problems on HT systems, and 
+> updates the ktimers debugging code.
+> 
+> These together could fix most of the timer warnings and annoyances 
+> reported for 2.6.14-rc5-rt kernels. In particular the new 
+> TSC-synchronization code could fix SMP systems: the upstream TSC 
+> synchronization method is fine for 1 usec resolution, but it was not 
+> good enough for 1 nsec resolution and likely caused the SMP bugs 
+> reported by Fernando Lopez-Lezcano and Rui Nuno Capela.
+> 
+> Please re-report any bugs that remain.
 
-(It was wordwrapped.  Please fix your email client)
+I've been running 2.6.14-rt6 fine in my smp system the whole day and
+suddenly, just a moment ago, I suddenly started getting key repeats and
+screensaver bliiiinks [not my typo]. No HIGH_RES_TIMERS, with
+PREEMPT_RT. No messages in the logs or dmesg. 
 
-In fact we can de-ifdef things a bit.
+Doing a loop with "sleep 10" bbracketed by calls to date gives me
+sporadic results:
 
-diff -puN drivers/net/dgrs.c~dgrs-fixes-warnings-when-config_isa-and-config_pci-are-not-enabled drivers/net/dgrs.c
---- devel/drivers/net/dgrs.c~dgrs-fixes-warnings-when-config_isa-and-config_pci-are-not-enabled	2005-11-04 18:26:59.000000000 -0800
-+++ devel-akpm/drivers/net/dgrs.c	2005-11-04 18:29:24.000000000 -0800
-@@ -1549,7 +1549,7 @@ MODULE_PARM_DESC(nicmode, "Digi RightSwi
- static int __init dgrs_init_module (void)
- {
- 	int	i;
--	int eisacount = 0, pcicount = 0;
-+	int	cardcount = 0;
- 
- 	/*
- 	 *	Command line variable overrides
-@@ -1591,15 +1591,13 @@ static int __init dgrs_init_module (void
- 	 *	Find and configure all the cards
- 	 */
- #ifdef CONFIG_EISA
--	eisacount = eisa_driver_register(&dgrs_eisa_driver);
--	if (eisacount < 0)
--		return eisacount;
--#endif
--#ifdef CONFIG_PCI
--	pcicount = pci_register_driver(&dgrs_pci_driver);
--	if (pcicount)
--		return pcicount;
-+	cardcount = eisa_driver_register(&dgrs_eisa_driver);
-+	if (cardcount < 0)
-+		return cardcount;
- #endif
-+	cardcount = pci_register_driver(&dgrs_pci_driver);
-+	if (cardcount)
-+		return cardcount;
- 	return 0;
- }
- 
-_
+--- Fri Nov  4 18:30:25 PST 2005
+10
+---
+--- Fri Nov  4 19:43:53 PST 2005
+10
+---
+--- Fri Nov  4 19:44:03 PST 2005
+3
+---
+--- Fri Nov  4 18:30:48 PST 2005
+10
+---
+--- Fri Nov  4 18:30:58 PST 2005
+0
+---
+--- Fri Nov  4 18:30:58 PST 2005
+2
+---
+--- Fri Nov  4 18:31:00 PST 2005
+10
+---
+--- Fri Nov  4 18:31:10 PST 2005
+10
+---
+
+-- Fernando
+
 

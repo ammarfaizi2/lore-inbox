@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbVKESvk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbVKESxD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932193AbVKESvk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 13:51:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbVKESvk
+	id S932198AbVKESxD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 13:53:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbVKESxD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 13:51:40 -0500
-Received: from zproxy.gmail.com ([64.233.162.198]:37814 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932193AbVKESvj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 13:51:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Wi/6Ud1QdMLhIb8GAyQcgKd7U8yq1C/k1xZBhcFjI4daq0ejvYmhpDPt75pCGJGTIsJlhspZejjwxI4cGHiTB8hiuEhyrJym2YD9HFhfuoNLyR54jXlzu3ds6ySRJvmLRhjdPiUcDAbLlMWIdTFVSiG3w5fa6L3l8rcvxRxUMK0=
-Message-ID: <35fb2e590511051051o16e3e763x821f12555261c4cc@mail.gmail.com>
-Date: Sat, 5 Nov 2005 18:51:39 +0000
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: PATCH: fix-readonly-policy-use-and-floppy-ro-rw-status
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051105184408.GO7992@ftp.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sat, 5 Nov 2005 13:53:03 -0500
+Received: from ns2.suse.de ([195.135.220.15]:34535 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932198AbVKESxB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 13:53:01 -0500
+Date: Sat, 5 Nov 2005 19:52:55 +0100
+From: Olaf Hering <olh@suse.de>
+To: Eric Piel <Eric.Piel@tremplin-utc.net>
+Cc: zippel@linux-m68k.org, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 66/82] remove linux/version.h from fs/hfs/
+Message-ID: <20051105185255.GA20293@suse.de>
+References: <20050710193614.66.sNRbVO4020.2247.olh@nectarine.suse.de> <436CEDCE.6010704@tremplin-utc.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-References: <20051105182728.GB27767@apogee.jonmasters.org>
-	 <20051105103358.2e61687f.akpm@osdl.org>
-	 <20051105184028.GD27767@apogee.jonmasters.org>
-	 <20051105184408.GO7992@ftp.linux.org.uk>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <436CEDCE.6010704@tremplin-utc.net>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/5/05, Al Viro <viro@ftp.linux.org.uk> wrote:
-> On Sat, Nov 05, 2005 at 06:40:28PM +0000, Jon Masters wrote:
-> > And as I said, the situation as it stands leads to potential data
-> > corruption but I agree with you - we need a VFS callback to handle
-> > readwrite/readonly change on remount I think. Comments?
+ On Sat, Nov 05, Eric Piel wrote:
 
-> It's not that simple.  Filesystem side of ro/rw transitions is
-> messy as hell
+> 10.07.2005 21:36, Olaf Hering wrote/a écrit:
+> >changing CONFIG_LOCALVERSION rebuilds too much, for no appearent reason.
+> Hello,
+> 
+> I've just changed LOCALVERSION on 2.6.14 and noticed that the patches 
+> for hfs and hfsplus had still not made their way. As I couldn't find any 
+> tree which contains them, I was wondering if they wouldn't have been 
+> "lost in space" ?
 
-Agreed.
+I noticed that as well today. There are many more places where version.h
+is still included...
 
-> "VFS callback" won't be enough.
+find * -name "*.[ch]" | xargs grep -El '<linux/version.h>' | wc -l
+213
 
-Although strangely enough other similar stuff in the remount path
-works just fine. I can already request that a filesystem gets
-remounted read-only - what's so wrong with forcing that behaviour when
-I ask for an impossible combination?
+I did send it for stuff like net/ieee80211/ieee80211_crypt_tkip.c 
 
-Jon.
+-- 
+short story of a lazy sysadmin:
+ alias appserv=wotan

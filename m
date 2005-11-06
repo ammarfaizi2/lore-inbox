@@ -1,63 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbVKFH5Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751235AbVKFIJj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751215AbVKFH5Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 02:57:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbVKFH5Z
+	id S1751235AbVKFIJj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 03:09:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbVKFIJi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 02:57:25 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:30671 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751215AbVKFH5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 02:57:25 -0500
-Subject: Re: SMP CPU affinity questions
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>
-Cc: listmonkey@neo.relay-host.net, linux-kernel@vger.kernel.org
-In-Reply-To: <4368EBBF.2000302@wolfmountaingroup.com>
-References: <20051102175022.13637.qmail@neo.relay-host.net>
-	 <4368EBBF.2000302@wolfmountaingroup.com>
-Content-Type: text/plain
-Date: Sun, 06 Nov 2005 08:56:43 +0100
-Message-Id: <1131263804.2826.1.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sun, 6 Nov 2005 03:09:38 -0500
+Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:14677 "HELO
+	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751235AbVKFIJi (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Sun, 6 Nov 2005 03:09:38 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:Subject:Content-Type:Content-Transfer-Encoding;
+  b=QemzeTe/6So4ys0nEdKaolY0/JVR6YQEG44JtzgNMU6uknQ2R6io+qJ201N8Uq7CGgetlDSvZAHgosOlz7PJvR/qIbACbKbGADbEz/ADXZL6PdzaBPSRmWvDOlsbVHMOao052x01RJrvUwb/LDg43c/g+G169TthmFLCUa5RsaQ=  ;
+Message-ID: <436DBAC3.7090902@yahoo.com.au>
+Date: Sun, 06 Nov 2005 19:11:47 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+Subject: [rfc][patch 0/14] mm: performance improvements
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-02 at 09:39 -0700, Jeffrey V. Merkey wrote:
-> listmonkey@neo.relay-host.net wrote:
-> 
-> >Hi-
-> >
-> >I am trying to use a quad Opteron motherboard with SMP Kernel 2.6.5 for a quasi-real-time task.
-> >I need to assign all processes to specific CPUs, including interrupt handlers.
-> >I have had success using sched_setaffinity() to set the CPU for processes I create, but I am unable,
-> >as root, to force system processes to move to another CPU.  Any ideas?
-> >
-> >I can find no documentation about how to force an interrupt handler to a specific CPU - is this
-> >possible without modifying the kernel?
-> >
-> >  
-> >
-> 
-> 
-> IOApic's support binding of interrupt delivery in intel based platforms, 
-> but I am unaware of tools which force this
-> setting by default on Linux, but someone else may be able to point you 
-> in that direction.  
+The following patchset is a set of performance optimisations
+for the mm subsystem. They mainly focus on the page allocator
+because that is a very hot path for kbuild, which is my target
+workload.
 
-http://people.redhat.com/arjanv/irqbalance
+Performance improvements are not finely documented yet, so they
+are not indented for merging yet. Also some rmap optimisations
+that Hugh probably won't have time to ACK for a while.
 
+However, a slightly older patchset was able to decrease kernel
+residency by about 5% for UP, and 7.5% for SMP on a dual Xeon
+doing kbuild.
 
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbVKFATX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbVKFAYG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932235AbVKFATX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 19:19:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbVKFATW
+	id S932237AbVKFAYG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 19:24:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbVKFAYG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 19:19:22 -0500
-Received: from gate.crashing.org ([63.228.1.57]:62686 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932235AbVKFATW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 19:19:22 -0500
-Subject: Re: [PATCH] Framebuffer mode required for PowerBook Titanium
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Michael Hanselmann <linux-kernel@hansmi.ch>
-Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
-In-Reply-To: <20051105234938.GA18608@hansmi.ch>
-References: <20051105234938.GA18608@hansmi.ch>
-Content-Type: text/plain
-Date: Sun, 06 Nov 2005 11:17:44 +1100
-Message-Id: <1131236265.5229.49.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Sat, 5 Nov 2005 19:24:06 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:63500 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932237AbVKFAYF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 19:24:05 -0500
+Date: Sun, 6 Nov 2005 01:24:03 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: spyro@f2s.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] arch/arm26/nwfpe/fpmodule.c: remove kernel 2.0 #ifdef
+Message-ID: <20051106002403.GB3668@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-11-06 at 00:49 +0100, Michael Hanselmann wrote:
-> This patch adds the framebuffer mode required for an Apple PowerBook G4
-> Titanium.
-> 
-> Signed-off-by: Michael Hanselmann <linux-kernel@hansmi.ch>
-> 
-> ---
-> --- linux-2.6.14/drivers/video/modedb.c.orig	2005-11-05 22:29:02.000000000 +0100
-> +++ linux-2.6.14/drivers/video/modedb.c	2005-11-05 22:31:15.000000000 +0100
-> @@ -251,6 +251,10 @@ static const struct fb_videomode modedb[
->  	NULL, 60, 1920, 1200, 5177, 128, 336, 1, 38, 208, 3,
->  	FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT,
->  	FB_VMODE_NONINTERLACED
-> +    }, {
-> +	/* 1152x768, 60 Hz, PowerBook G4 Titanium I and II */
-> +	"mac21", 60, 1152, 768, 15386, 158, 26, 29, 3, 136, 6,
-> +	FB_SYNC_HOR_HIGH_ACT|FB_SYNC_VERT_HIGH_ACT, FB_VMODE_NONINTERLACED
->      },
->  };
-
-Please, re-do it without the "mac21" name, just leave NULL there.
-
-Ben.
+This patch removes an #ifdef for kernel 2.0 .
 
 
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+This patch was already sent on:
+- 26 Feb 2004
+
+--- linux-2.6.3-mm4/arch/arm26/nwfpe/fpmodule.c.old	2004-02-26 23:40:02.000000000 +0100
++++ linux-2.6.3-mm4/arch/arm26/nwfpe/fpmodule.c	2004-02-26 23:41:14.000000000 +0100
+@@ -46,10 +46,9 @@
+ 
+ #ifdef MODULE
+ void fp_send_sig(unsigned long sig, PTASK p, int priv);
+-#if LINUX_VERSION_CODE > 0x20115
++
+ MODULE_AUTHOR("Scott Bambrough <scottb@rebel.com>");
+ MODULE_DESCRIPTION("NWFPE floating point emulator");
+-#endif
+ 
+ #else
+ #define fp_send_sig	send_sig

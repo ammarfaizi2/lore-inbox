@@ -1,67 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbVKFKws@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbVKFKr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932345AbVKFKws (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 05:52:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbVKFKws
+	id S932340AbVKFKr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 05:47:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbVKFKr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 05:52:48 -0500
-Received: from zproxy.gmail.com ([64.233.162.199]:1571 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932345AbVKFKwr convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 05:52:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=HSRVwDJd2nbFZ8SieYSngupsMCUGO/SWOBSBl1wpr22MiFYsl7v9AQROmBF7hbYmtyD9yLBndzTS/Fjci1QI7AICyF5c5OblcUo/0o/wqklC1KpkYPCsOF5DvmdyPcuAkUE4waRBVrv8sHSZ4+a9GoTfW2OSjjEXcODYyaZwWjk=
-Message-ID: <5a2cf1f60511060252t55e1a058o528700ea69826965@mail.gmail.com>
-Date: Sun, 6 Nov 2005 11:52:47 +0100
-From: jerome lacoste <jerome.lacoste@gmail.com>
-To: Edgar Hucek <hostmaster@ed-soft.at>
-Subject: Re: New Linux Development Model
-Cc: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <436CB162.5070100@ed-soft.at>
+	Sun, 6 Nov 2005 05:47:59 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:54944 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S932340AbVKFKr6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Nov 2005 05:47:58 -0500
+Message-ID: <436DF0A6.342717A6@tv-sign.ru>
+Date: Sun, 06 Nov 2005 15:01:42 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <436C7E77.3080601@ed-soft.at>
-	 <20051105122958.7a2cd8c6.khali@linux-fr.org>
-	 <436CB162.5070100@ed-soft.at>
+To: paulmck@us.ibm.com
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, dipankar@in.ibm.com, suzannew@cs.pdx.edu
+Subject: Re: [PATCH] Fixes for RCU handling of task_struct
+References: <20051031020535.GA46@us.ibm.com> <20051031140459.GA5664@elte.hu> <20051031205119.5bd897f3.akpm@osdl.org> <20051103190916.GA13417@us.ibm.com> <436B9D5D.3EB28CD5@tv-sign.ru> <20051104200801.GA16092@us.ibm.com> <436CDEAC.A7D56A94@tv-sign.ru> <20051105232027.GA20178@us.ibm.com>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/5/05, Edgar Hucek <hostmaster@ed-soft.at> wrote:
-> Hi.
->
-> Sorry for not posting my Name.
->
-> Maybe you don't understand what i wanted to say or it's my bad english.
-> The ipw2200 driver was only an example. I had also problems with, vmware,
-> unionfs...
-> What i mean ist, that kernel developers make incompatible changes to the
-> header
-> files, change structures, interfaces and so on. Which makes the kernel
-> releases
-> incompatible.
+"Paul E. McKenney" wrote:
+> 
+> So the idea is to error out of send_sigqueue() so that posix_timer_event()
+> will instead call send_group_sigqueeue().  But that could suffer from
+> the same race if the new leader thread also exits -- or if the exiting
+> thread was the leader thread to begin with.
 
-I will ask you just one question: as a user, why did you want to
-upgrade your kernel?
+The case when leader exits is ok. If it is the only (last) thread - it will
+call exit_itimers(). If not - it (or sys_wait4 from parent) will not call
+release_task(), but will stay TASK_ZOMBIE with valid ->signal/sighand until
+the last thread in same thread group exits (and call exit_itimers).
 
-On a server you want stability. So you don't upgrade. On a desktop,
-there are probably a bunch of out of kernel modules that will need
-upgrading with each new kernel modules. Just on the laptop I am using
-right now, I will have to upgrade the vmware bridge, nvidia driver,
-madwifi wireless driver, etc. And that's normal. The new development
-model didn't change that.
+> But once send_group_sigqueue() read-acquires tasklist_lock, threads
+> and processes must stay put.  So it should be possible to follow the
+> ->group_leader chain at that point.
 
-I avoid touching my kernel on boxes I do real work with. I do build a
-new kernel for test purposes and to give feedback if there's an issue.
-But most of the time I skip 2-3 versions before finding a very
-compelling reason to upgrade. And I stick with my distribution kernel
-as much as I can.
+Not quite so, I think. See below.
 
-As for kernel/drivers developers, it's another story.
+> Except that the group leader could do an exec(), right?  If it does so,
+> it must do so before tasklist_lock is read-acquired.  So the nightmare
+> case is where all but one thread exits, and then that one thread does
+> and exec().
 
-If it ain't broken, don't fix it.
+... and that thread is not group leader. Actually, it does not matter
+if other threads exited or not, execing thread will kill other threads.
 
-Jerome
+> If this case can really happen, we want to drop the signal
+> on the floor, right?
+
+I think yes.
+
+> diff -urpNa -X dontdiff linux-2.6.14-mm0-fix/kernel/signal.c linux-2.6.14-mm0-fix-2/kernel/signal.c
+> --- linux-2.6.14-mm0-fix/kernel/signal.c        2005-11-04 17:23:40.000000000 -0800
+> +++ linux-2.6.14-mm0-fix-2/kernel/signal.c      2005-11-05 15:05:38.000000000 -0800
+> @@ -1408,6 +1408,11 @@ send_sigqueue(int sig, struct sigqueue *
+> 
+>  retry:
+>         sh = rcu_dereference(p->sighand);
+> +       if (sh == NULL) {
+> +               /* We raced with pthread_exit()... */
+> +               ret = -1;
+> +               goto out_err;
+> +       }
+
+I lost the plot. Because I can't apply this and previous patches (rejects)
+and can't imagine how send_sigqueue() looks now. I think this is ok, but
+we also need to re-check ->signal != NULL after lock(->sighand) or check
+PF_EXITING (iirc ve do have such check).
+
+> @@ -1474,7 +1479,8 @@ send_group_sigqueue(int sig, struct sigq
+>         BUG_ON(!(q->flags & SIGQUEUE_PREALLOC));
+> 
+>         read_lock(&tasklist_lock);
+> -       /* Since it_lock is held, p->sighand cannot be NULL. */
+> +       while (p->group_leader != p)
+> +               p = p->group_leader;
+
+No, this is definitely not right. de_thread() does not change leader->group_leader
+when non-leader execs, so p->group_leader == p always.
+
+Oleg.

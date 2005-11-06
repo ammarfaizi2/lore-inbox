@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbVKFS5l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbVKFTCu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932181AbVKFS5l (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 13:57:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbVKFS5k
+	id S932192AbVKFTCu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 14:02:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932202AbVKFTCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 13:57:40 -0500
-Received: from coyote.holtmann.net ([217.160.111.169]:64656 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S932181AbVKFS5k
+	Sun, 6 Nov 2005 14:02:50 -0500
+Received: from zproxy.gmail.com ([64.233.162.196]:47606 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932192AbVKFTCt convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 13:57:40 -0500
-Subject: Re: Problem with the default IOSCHED
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051102115542.GN26049@suse.de>
-References: <1130891282.5048.50.camel@blade>
-	 <20051102115542.GN26049@suse.de>
-Content-Type: text/plain
-Date: Sun, 06 Nov 2005 19:57:38 +0100
-Message-Id: <1131303458.5824.1.camel@blade>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.1 
-Content-Transfer-Encoding: 7bit
+	Sun, 6 Nov 2005 14:02:49 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ukX0x2VyXLnt2HHwwIXPc0KeZmXA78T6rtveOo1kDBL4KxPi6QJm6f56Ad5pndqwmdkHrNoaRreGKTzPyPSfjZGIVqmFlSMFCvyP18oVhRETM01cuNkUO9VRvTubmy517IxbGLlhXNoFt48v/+bQ10YrTQk92gndBcywOVs0fB0=
+Message-ID: <35fb2e590511061102h7865053dk874ad00f55e9d421@mail.gmail.com>
+Date: Sun, 6 Nov 2005 19:02:47 +0000
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: Daniel Drake <dsd@gentoo.org>
+Subject: Re: [ANNOUNCE] Ubuntu kernel tree
+Cc: Ben Collins <bcollins@ubuntu.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <436E17CA.3060803@gentoo.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051106013752.GA13368@swissdisk.com>
+	 <436E17CA.3060803@gentoo.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jens,
+On 11/6/05, Daniel Drake <dsd@gentoo.org> wrote:
 
-> > by accident I selected the anticipatory IO scheduler as default in my
-> > kernel config, but only the CFQ was built in. The anticipatory and
-> > deadline were only available as modules. This caused an oops at boot.
-> > After selecting CFQ as default schedule and a recompile and reboot
-> > everything was fine again.
-> 
-> Hmm yes, that looks like a bug introduced with the io scheduler
-> selection reorg. There's really no support in place for requesting this
-> module out of initrd, I'd rather just make your selection illegal. Does
-> this work for you?
+> (are there any kernel wikis?)
 
-the patch looks good and please get this out to Linus, because I just
-made the same mistake on another machine.
+There's a really cool one over at http://www.kernelnewbies.org/ and
+perhaps there could be one on kernel.org if the powers that be thought
+that we a good idea (Wikimedia perhaps?).
 
-Regards
-
-Marcel
-
-
+Jon.

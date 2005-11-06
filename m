@@ -1,95 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbVKFNnb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbVKFN7U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750835AbVKFNnb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 08:43:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbVKFNnb
+	id S1750861AbVKFN7U (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 08:59:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750868AbVKFN7U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 08:43:31 -0500
-Received: from zproxy.gmail.com ([64.233.162.203]:4272 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750835AbVKFNnb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 08:43:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iiS+bhtIjYtI1PiVZ/ceKcq4sFQ8Bcb/hobymEMsxCXqYe+TEaah8MKuc5duKY0Vn71AiQjzlxq37KAKrDQWOQ0GTz4j/ap8BEa1NQZMRX50iocEMITLVnGURT7EfCz5BwfEVsZwZCEAXYzeV09owHQTjN0iFkYE4vk5S/2AHlk=
-Message-ID: <5a2cf1f60511060543m5edc8ba8i920a3005b95a556d@mail.gmail.com>
-Date: Sun, 6 Nov 2005 14:43:30 +0100
-From: jerome lacoste <jerome.lacoste@gmail.com>
-To: Edgar Hucek <hostmaster@ed-soft.at>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: New Linux Development Model
-In-Reply-To: <436DEEFC.4020301@ed-soft.at>
+	Sun, 6 Nov 2005 08:59:20 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:16913 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750856AbVKFN7T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Nov 2005 08:59:19 -0500
+Date: Sun, 6 Nov 2005 14:59:17 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+       axboe@suse.de
+Subject: Re: [PATCH 18/25] raw: move ioctl32 code to raw.c
+Message-ID: <20051106135917.GC3847@stusta.de>
+References: <20051105162650.620266000@b551138y.boeblingen.de.ibm.com> <20051105162718.128174000@b551138y.boeblingen.de.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <436C7E77.3080601@ed-soft.at>
-	 <20051105122958.7a2cd8c6.khali@linux-fr.org>
-	 <436CB162.5070100@ed-soft.at>
-	 <5a2cf1f60511060252t55e1a058o528700ea69826965@mail.gmail.com>
-	 <436DEEFC.4020301@ed-soft.at>
+In-Reply-To: <20051105162718.128174000@b551138y.boeblingen.de.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/6/05, Edgar Hucek <hostmaster@ed-soft.at> wrote:
-> jerome lacoste wrote:
-[...]
-> >I will ask you just one question: as a user, why did you want to
-> >upgrade your kernel?
-> >
-> >
-> Depends on the user and what he wants to do. There are several
-> reasons why a user wanna upgrade to new kernel. Maybe new supported
-> hardware and so on. It's frustrating for the user, have on the one side the
-> new hardware supported but on the other side, mybe broken support for
-> the existing hardware.
+On Sat, Nov 05, 2005 at 05:27:08PM +0100, Arnd Bergmann wrote:
 
-New kernel feature and new supported hardware would be the only reason
-for me to upgrade. Personally that doesn't come that often. My
-hardware configurations don't change that much. I make sure it's well
-supported, not just recently. When one buys a non supported hardware,
-one should know the path chosen won't be the easiest.
+> The two ioctl commands for the raw driver are not used
+> anywhere outside of raw.c, so move the compat handler
+> there as well.
+>...
 
-> >On a server you want stability. So you don't upgrade.
-> >
-> Sure, but what about securrity updates. When a new kernel release
-> comes out the updates are stopped for older releases.
+Please leave this alone, the raw driver will be removed in 2.6.16.
 
-For vanilla kernels, yes.
+cu
+Adrian
 
-> And why should dirstribution makers always backport new security fixes ?
+-- 
 
-Because they want to ensure maximum stability. That's what users are
-(sometimes) paying for.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-And second 90% of the security issues will not affect the majority of
-the home users (because they are restricted to a particular area of
-the kernel not affecting the user, or because they already require
-access on the machine to be exploitable). You will have much more
-risks using a box with an unpatched php or apache than with an
-unpached kernel, or without a proper firewall configuration.
-
-> >On a desktop, there are probably a bunch of out of kernel modules that will need
-> >upgrading with each new kernel modules. Just on the laptop I am using
-> >right now, I will have to upgrade the vmware bridge, nvidia driver,
-> >madwifi wireless driver, etc. And that's normal. The new development
-> >model didn't change that.
-> >
-> >
->  From my point of view, it makes a difference if i have to recompile
-> a module or realy upgrade it.
-
-That only happens for out ot tree modules, which shouldn't be really
-out of tree in the first place. That's the issue. If they are out of
-tree, it's for a reason. Either they cannot be in tree, or they are
-not stable enough.
-
-There you see the issue.
-
-> [...]
-> cu
->
-> ED.
-
-Jerome

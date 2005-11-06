@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbVKFXdE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbVKFXe5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751277AbVKFXdE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 18:33:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbVKFXdE
+	id S1751281AbVKFXe5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 18:34:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbVKFXe5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 18:33:04 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:52697 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1751277AbVKFXdC (ORCPT
+	Sun, 6 Nov 2005 18:34:57 -0500
+Received: from ozlabs.org ([203.10.76.45]:20166 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751281AbVKFXe5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 18:33:02 -0500
-Subject: Re: Fwd: [RFC] IRQ type flags
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20051106224225.GC6274@flint.arm.linux.org.uk>
-References: <20051106084012.GB25134@flint.arm.linux.org.uk>
-	 <1131316897.1212.61.camel@localhost.localdomain>
-	 <20051106221643.GB6274@flint.arm.linux.org.uk>
-	 <1131317998.1212.63.camel@localhost.localdomain>
-	 <20051106224225.GC6274@flint.arm.linux.org.uk>
-Content-Type: text/plain
+	Sun, 6 Nov 2005 18:34:57 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Mon, 07 Nov 2005 00:03:22 +0000
-Message-Id: <1131321802.1212.75.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Message-ID: <17262.37107.857718.184055@cargo.ozlabs.ibm.com>
+Date: Mon, 7 Nov 2005 10:25:39 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Greg KH <greg@kroah.com>
+Cc: linas@austin.ibm.com, linuxppc64-dev@ozlabs.org, johnrose@austin.ibm.com,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       bluesmoke-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 16/42]: PCI:  PCI Error reporting callbacks
+In-Reply-To: <20051105061114.GA27016@kroah.com>
+References: <20051103235918.GA25616@mail.gnucash.org>
+	<20051104005035.GA26929@mail.gnucash.org>
+	<20051105061114.GA27016@kroah.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2005-11-06 at 22:42 +0000, Russell King wrote:
-> We could do as you suggest, but my concern would be adding extra
-> complexity to drivers, causing them to do something like:
-> 
-> 	ret = request_irq(..., SA_TRIGGER_HIGH, ...);
-> 	if (ret == -E<whatever>)
-> 		ret = request_irq(..., SA_TRIGGER_RISING, ...);
-> 
-> The alternative is:
-> 
-> 	ret = request_irq(..., SA_TRIGGER_HIGH | SA_TRIGGER_RISING, ...);
+Greg KH writes:
 
-I was thinking that specifying neither would imply 'don't care' or
-'system default'. That would mean existing drivers just worked and
-driver authors who didnt care need take no specific action.
+> > +enum pcierr_result {
+> > +	PCIERR_RESULT_NONE=0,        /* no result/none/not supported in device driver */
+> > +	PCIERR_RESULT_CAN_RECOVER=1, /* Device driver can recover without slot reset */
+> > +	PCIERR_RESULT_NEED_RESET,    /* Device driver wants slot to be reset. */
+> > +	PCIERR_RESULT_DISCONNECT,    /* Device has completely failed, is unrecoverable */
+> > +	PCIERR_RESULT_RECOVERED,     /* Device driver is fully recovered and operational */
+> > +};
+> 
+> No, do not create new types of error or return codes.  Use the standard
+> -EFOO values.  You can document what they should each return, and mean,
+> but do not create new codes.
 
+Actually, these are not error or return codes, but rather requested
+actions (maybe somewhat misnamed).  We can map them on to -EFOO values
+but it will be rather strained (-ECONNRESET for "please reset the
+slot", anyone? :).
 
+> Also, you create an enum, but yet do not use it in your function
+> callback definition, which means you really didn't want to create it in
+> the first place...
+
+Yes, they could be #defines.
+
+Paul.

@@ -1,70 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbVKFGCf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750769AbVKFGRj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750759AbVKFGCf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 01:02:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbVKFGCf
+	id S1750769AbVKFGRj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 01:17:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbVKFGRj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 01:02:35 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:39129 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S1750759AbVKFGCe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 01:02:34 -0500
-Message-ID: <436D9BDE.3060404@t-online.de>
-Date: Sun, 06 Nov 2005 06:59:58 +0100
-From: Harald Dunkel <harald.dunkel@t-online.de>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14, udev: unknown symbols for ehci_hcd
-References: <436CD1BC.8020102@t-online.de> <20051105162503.GC20686@kroah.com>
-In-Reply-To: <20051105162503.GC20686@kroah.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig968569F8BCDC99BF45DAADC7"
-X-ID: bdsY32ZBwevX7l+4K-sinbNMI9mxHJgxbAmrbsMy9BaC106cy1DyEQ
-X-TOI-MSGID: 5cebaaaf-a5e6-4112-b825-079204e0d6af
+	Sun, 6 Nov 2005 01:17:39 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:62360 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1750769AbVKFGRi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Nov 2005 01:17:38 -0500
+Date: Sat, 5 Nov 2005 22:17:28 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: ak@suse.de, akpm@osdl.org, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Does shmem_getpage==>shmem_alloc_page==>alloc_page_vma hold
+ mmap_sem?
+Message-Id: <20051105221728.3fa25f69.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.61.0511060547120.14675@goblin.wat.veritas.com>
+References: <20051105212133.714da0d2.pj@sgi.com>
+	<Pine.LNX.4.61.0511060547120.14675@goblin.wat.veritas.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig968569F8BCDC99BF45DAADC7
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Hugh wrote:
+> It's safe but horrid.
 
-Greg KH wrote:
-> On Sat, Nov 05, 2005 at 04:37:32PM +0100, Harald Dunkel wrote:
-> 
->>Hi folks,
->>
->>I can't say since when this problem is in, but currently
->>I get error messages about unknown symbols at boot time
->>(after mounting the root disk, as it seems):
-> 
-> 
-> Are you using Debian?
-> 
-Of course :=)
+Ok - thanks for the explanation.
 
+Now I don't feel so bad about some of my cpuset locking hacks.
 
-Regards
+(Yes, Andrew, I'm still looking at my latest hack, 
+the down_write_trylock() call in cpuset.c refresh_mems.)
 
-Harri
-
---------------enig968569F8BCDC99BF45DAADC7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFDbZvkUTlbRTxpHjcRApuhAKCQfJrtCAi98gOxuq/c1ovJz/RbYACdG+pr
-CTxzI1biFIPad7Hc8+Tmpko=
-=CD9R
------END PGP SIGNATURE-----
-
---------------enig968569F8BCDC99BF45DAADC7--
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

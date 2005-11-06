@@ -1,82 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbVKFIte@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbVKFIuq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932336AbVKFIte (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 03:49:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbVKFIte
+	id S932341AbVKFIuq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 03:50:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbVKFIuq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 03:49:34 -0500
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:22929 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932336AbVKFIte (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Sun, 6 Nov 2005 03:49:34 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=rSAXy06E1f6rvvlOxUxpCUtZBx+J9/xHET8Dx2kbHUBhZdxQzD6epn60jylQrwsFt5m9zsdD72Wi9B1qOn/wuT9sPKZMDhfz7JfNLzmzVfAs+Wpio+lbeqf0UkqmACvj4VvyTChSTt3rWM5Pw1SXtE0+e/OEdstFvzrPjr+1T4A=  ;
-Message-ID: <436DC41F.5040701@yahoo.com.au>
-Date: Sun, 06 Nov 2005 19:51:43 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: Re: [patch 2/14] mm: pte prefetch
-References: <436DBAC3.7090902@yahoo.com.au> <436DBCBC.5000906@yahoo.com.au>	 <436DBCE2.4050502@yahoo.com.au> <1131266102.2826.3.camel@laptopd505.fenrus.org>
-In-Reply-To: <1131266102.2826.3.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 6 Nov 2005 03:50:46 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:23049 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932338AbVKFIup (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Nov 2005 03:50:45 -0500
+Date: Sun, 6 Nov 2005 08:50:34 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Failure: ARM clps7500
+Message-ID: <20051106085034.GD25134@flint.arm.linux.org.uk>
+Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+References: <20051103095840.GA28038@flint.arm.linux.org.uk> <1131055419.14985.7.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1131055419.14985.7.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Sun, 2005-11-06 at 19:20 +1100, Nick Piggin wrote:
+On Thu, Nov 03, 2005 at 05:03:39PM -0500, Trond Myklebust wrote:
+> On Thu, 2005-11-03 at 09:58 +0000, Russell King wrote:
+> > This default configuration (arch/arm/configs/clps7500_defconfig) fails
+> > to build:
+> > 
+> >   LD      .tmp_vmlinux1
+> > net/built-in.o: In function `xs_bindresvport':
+> > stats.c:(.text+0x54654): undefined reference to `xprt_min_resvport'
+> > stats.c:(.text+0x54658): undefined reference to `xprt_max_resvport'
+> > net/built-in.o: In function `xs_setup_tcp':
+> > stats.c:(.text+0x54bcc): undefined reference to `xprt_tcp_slot_table_entries'
+> > stats.c:(.text+0x54bd0): undefined reference to `xprt_max_resvport'
+> > net/built-in.o: In function `xs_setup_udp':
+> > stats.c:(.text+0x54d34): undefined reference to `xprt_udp_slot_table_entries'
+> > stats.c:(.text+0x54d38): undefined reference to `xprt_max_resvport'
+> > make: *** [.tmp_vmlinux1] Error 1
+> > 
+> > Maybe related to CONFIG_SYSCTL=n ?
 > 
->>2/14
->>
->>plain text document attachment (mm-pte-prefetch.patch)
->>Prefetch ptes a line ahead. Worth 25% on ia64 when doing big forks.
->>
->>Index: linux-2.6/include/asm-generic/pgtable.h
->>===================================================================
->>--- linux-2.6.orig/include/asm-generic/pgtable.h
->>+++ linux-2.6/include/asm-generic/pgtable.h
->>@@ -196,6 +196,33 @@ static inline void ptep_set_wrprotect(st
->> })
->> #endif
->> 
->>+#ifndef __HAVE_ARCH_PTE_PREFETCH
->>+#define PTES_PER_LINE (L1_CACHE_BYTES / sizeof(pte_t))
->>+#define PTE_LINE_MASK (~(PTES_PER_LINE - 1))
->>+#define ADDR_PER_LINE (PTES_PER_LINE << PAGE_SHIFT)
->>+#define ADDR_LINE_MASK (~(ADDR_PER_LINE - 1))
->>+
->>+#define pte_prefetch(pte, addr, end)					\
->>+({									\
->>+	unsigned long __nextline = ((addr) + ADDR_PER_LINE) & ADDR_LINE_MASK; \
->>+	if (__nextline < (end))						\
->>+		prefetch(pte + PTES_PER_LINE);				\
->>+})
->>+
+> The following patch should fix it:
 > 
-> 
-> are you sure this is right? at least on pc's having a branch predictor
-> miss is very expensive and might well be more expensive than the gain
-> you get from a prefetch
-> 
+> http://client.linux-nfs.org/Linux-2.6.x/2.6.14/linux-2.6.14-96-fix_rpc_nosysctl.dif
 
-Yeah, not 100% sure about this one, which is why it has been sitting
-around for so long.
-
-It gives about 25% on contrived fork workload on an ia64 system, which
-is probably about its best case workload+architecture. I haven't found
-any notable regressions but it definitely isn't going to be any faster
-when the page tables are in cache.
-
-So long as I haven't found a real-world workload that is improved with
-the patch, I won't be trynig to get it merged.
+Thanks, I assume this got merged since clps7500 has started building
+again.
 
 -- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

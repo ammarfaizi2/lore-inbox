@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbVKFC07@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbVKFCpo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932088AbVKFC07 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 21:26:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbVKFC07
+	id S932146AbVKFCpo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 21:45:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932207AbVKFCpo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 21:26:59 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:24983
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S932088AbVKFC07 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 21:26:59 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Zan Lynx <zlynx@acm.org>
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-Date: Sat, 5 Nov 2005 20:25:47 -0600
-User-Agent: KMail/1.8
-Cc: Andi Kleen <ak@suse.de>, Gregory Maxwell <gmaxwell@gmail.com>,
-       Andy Nelson <andy@thermo.lanl.gov>, mingo@elte.hu, akpm@osdl.org,
-       arjan@infradead.org, arjanv@infradead.org, haveblue@us.ibm.com,
-       kravetz@us.ibm.com, lhms-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, mbligh@mbligh.org,
-       mel@csn.ul.ie, nickpiggin@yahoo.com.au, torvalds@osdl.org
-References: <20051104201248.GA14201@elte.hu> <200511042343.27832.ak@suse.de> <436D5CCD.3050901@acm.org>
-In-Reply-To: <436D5CCD.3050901@acm.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 5 Nov 2005 21:45:44 -0500
+Received: from www.swissdisk.com ([216.144.233.50]:25813 "EHLO
+	swissweb.swissdisk.com") by vger.kernel.org with ESMTP
+	id S932146AbVKFCpo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 21:45:44 -0500
+Date: Sat, 5 Nov 2005 17:37:52 -0800
+From: Ben Collins <bcollins@ubuntu.com>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] Ubuntu kernel tree
+Message-ID: <20051106013752.GA13368@swissdisk.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511052025.48976.rob@landley.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 05 November 2005 19:30, Zan Lynx wrote:
-> > None of this is very attractive.
->
-> You could allow the 'hugetlb zone' to shrink, allowing more kernel
-> allocations.  User pages at the boundary would be moved to make room.
+Some people may have noticed the new git tree located at:
 
-Please make that optional if you do.  In my potential use case, an OOM kill 
-lets the administrator know they've got things configure wrong so they can 
-can fix it and try again.  Containing and viciously reaping things like 
-dentries is the behavior I want out of it.
+rsync.kernel.org:/pub/scm/linux/kernel/git/bcollins/ubuntu-2.6.git
 
-Also, if you do shrink the hugetlb zone it might be possible to 
-opportunistically expand it back to its original size.  There's no guarantee 
-that a given kernel allocation will ever go away, but if it _does_ go away 
-then the hugetlb zone should be able to expand to the next blocking 
-allocation or the maximum size, whichever comes first.  (Given that my 
-understanding of the layout may not match reality at all; don't ask me how 
-the discontiguous memory stuff would work in here...)
+This tree will directly reflect the Ubuntu Linux Kernel that is available
+in our distribution (along with build system). First use of this kernel
+tree is slated for Dapper Drake (Ubuntu 6.04), and will stay synced with
+the just released 2.6.14(.y).
 
-Rob
+There are several reasons for making this repo available on kernel.org.
+Primary reasons include a more open development model, better visibility
+with the kernel developer community, and to make the kernel available to
+other distro's who may want to base their kernel off of ours.
+
+Primary goals include:
+
+* A kernel geared toward a real world Linux distribution, supporting
+  drivers and subsystems that end users need. You will find a lot of
+  external drivers in our tree, that for whatever reason, are not included
+  in the upstream kernel. We hope that including these drivers will give
+  users a one-stop kernel (no downloading and compiling external modules),
+  and also provide much needed testing for modules hoping to be included
+  into the mainstream kernel.
+
+* Real world configurations. We will provide default kernel configs for a
+  variety of architectures and system "flavors".
+
+* Any feature and/or driver included will attempt to be configurable. That
+  is, if you don't select to compile it, it will not cause any significant
+  changes from the stock kernel we are using at that point.
+
+* Open development model. We want to be as close to the kernel community
+  as possible. Integrating ideas, getting feedback, and causing as little
+  havoc as possible :)
+
+
+-- 
+Ubuntu     - http://www.ubuntu.com/
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+SwissDisk  - http://www.swissdisk.com/

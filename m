@@ -1,55 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932354AbVKFK7g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbVKFLAU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932354AbVKFK7g (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 05:59:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbVKFK7g
+	id S932356AbVKFLAU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 06:00:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbVKFLAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 05:59:36 -0500
-Received: from zproxy.gmail.com ([64.233.162.196]:20769 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932354AbVKFK7g convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 05:59:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=qMHt4y+VrY2NRmGXh3Gt8NmoxpdaV0HW4Iw1k5/2T1L6USUeFF7EJDoyTxv6UgrJ2blG46C35yoKgEwXxM+3v8FNEwEaR32YGJCn83KnkvclcFLNzz37N4sVE2DICbdVJ7rggb1xJ/qNf8oosgJovxsEQwAQRwSdtXGGv3iDclI=
-Message-ID: <35fb2e590511060259j69b792baofee9b9d842c53c07@mail.gmail.com>
-Date: Sun, 6 Nov 2005 10:59:34 +0000
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: PATCH: fix-readonly-policy-use-and-floppy-ro-rw-status
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051105184122.GA30451@havoc.gtf.org>
-MIME-Version: 1.0
+	Sun, 6 Nov 2005 06:00:20 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:26818 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S932356AbVKFLAT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Nov 2005 06:00:19 -0500
+Date: Sun, 6 Nov 2005 02:59:47 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: andy@thermo.lanl.gov, mingo@elte.hu, akpm@osdl.org, arjan@infradead.org,
+       arjanv@infradead.org, haveblue@us.ibm.com, kravetz@us.ibm.com,
+       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, mbligh@mbligh.org, mel@csn.ul.ie,
+       nickpiggin@yahoo.com.au
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+Message-Id: <20051106025947.2c84d5dd.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0511041310130.28804@g5.osdl.org>
+References: <20051104210418.BC56F184739@thermo.lanl.gov>
+	<Pine.LNX.4.64.0511041310130.28804@g5.osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051105182728.GB27767@apogee.jonmasters.org>
-	 <20051105184122.GA30451@havoc.gtf.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/5/05, Jeff Garzik <jgarzik@pobox.com> wrote:
+How would this hugetlb zone be placed - on which nodes in a NUMA
+system?
 
-> Please fix your patch format per http://linux.yyz.us/patch-format.html
+My understanding is that you are thinking to specify it as a proportion
+or amount of total memory, with no particular placement.
 
-Done.
+I'd rather see it as a subset of the nodes on a system being marked
+for use, as much as practical, for easily reclaimed memory (page
+cache and user).
 
-> - Using "[PATCH] " not "PATCH: " in subject line.
+My HPC customers normally try to isolate the 'classic Unix load' on
+a few nodes that they call the bootcpuset, and keep the other nodes
+as unused as practical, except when allocated for dedicated use by a
+particular job.  These other nodes need to run with a maximum amount of
+easily reclaimed memory, while the bootcpuset nodes have no such need.
 
-That was already the case. I repeated the word PATCH in the body too however.
+They don't just want easily reclaimable memory in order to get
+hugetlb pages.  They also want it so that the memory available for
+use as ordinary sized pages by one job will not be unduly reduced by
+the hard to reclaim pages left over from some previous job.
 
-> - Don't repeat "[PATCH]" in text body, this must be manually edited out.
+This would be easy to do with cpusets, adding a second per-cpuset
+nodemask that specified where not easily reclaimed kernel allocations
+should come from.  The typical HPC user would set that second mask to
+their bootcpuset.  The few kmalloc calls in the kernel (page cache and
+user space) deemed to be easily reclaimable would have a __GFP_EASYRCLM
+flag added, and the cpuset hook in the __alloc_pages code path would
+put requests -not- marked __GFP_EASYRCLM on this second set of nodes.
 
-Ok. Fair enough.
+No changes to hugetlbs or to the kernel code that runs at boot,
+prior to starting init, would be required at all.  The bootcpuset
+stuff is setup by a pre-init program (specified using the kernels
+"init=..." boot option.)  This makes all the configuration of this
+entirely a user space problem.
 
-> - This is English, not dashish.  Remove the dashes from the
->   one-line description found in the subject line.  These must be
->   hand-edited out, too.
+Cpuset nodes, not zone sizes, are the proper way to manage this,
+in my view.
 
-I read that as Danish the first time :-) But then realised this was
-because I'd based it off something I'd sent to Andrew last week. Fair
-comment.
+If you ask what this means for small (1 or 2 node) systems, then
+I would first ask you what we are trying to do on those systems.
+I suspect that that would involve other classes of users, with
+different needs, than what Andy or I can speak to.
 
-Jon.
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

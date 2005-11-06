@@ -1,56 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbVKFXe5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbVKFXfy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751281AbVKFXe5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 18:34:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbVKFXe5
+	id S932362AbVKFXfy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 18:35:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbVKFXfy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 18:34:57 -0500
-Received: from ozlabs.org ([203.10.76.45]:20166 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751281AbVKFXe5 (ORCPT
+	Sun, 6 Nov 2005 18:35:54 -0500
+Received: from gate.crashing.org ([63.228.1.57]:743 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932362AbVKFXfx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 18:34:57 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 6 Nov 2005 18:35:53 -0500
+Subject: Re: Fwd: [RFC] IRQ type flags
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20051106224225.GC6274@flint.arm.linux.org.uk>
+References: <20051106084012.GB25134@flint.arm.linux.org.uk>
+	 <1131316897.1212.61.camel@localhost.localdomain>
+	 <20051106221643.GB6274@flint.arm.linux.org.uk>
+	 <1131317998.1212.63.camel@localhost.localdomain>
+	 <20051106224225.GC6274@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Mon, 07 Nov 2005 10:33:00 +1100
+Message-Id: <1131319980.5229.119.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-Message-ID: <17262.37107.857718.184055@cargo.ozlabs.ibm.com>
-Date: Mon, 7 Nov 2005 10:25:39 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Greg KH <greg@kroah.com>
-Cc: linas@austin.ibm.com, linuxppc64-dev@ozlabs.org, johnrose@austin.ibm.com,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       bluesmoke-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 16/42]: PCI:  PCI Error reporting callbacks
-In-Reply-To: <20051105061114.GA27016@kroah.com>
-References: <20051103235918.GA25616@mail.gnucash.org>
-	<20051104005035.GA26929@mail.gnucash.org>
-	<20051105061114.GA27016@kroah.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH writes:
 
-> > +enum pcierr_result {
-> > +	PCIERR_RESULT_NONE=0,        /* no result/none/not supported in device driver */
-> > +	PCIERR_RESULT_CAN_RECOVER=1, /* Device driver can recover without slot reset */
-> > +	PCIERR_RESULT_NEED_RESET,    /* Device driver wants slot to be reset. */
-> > +	PCIERR_RESULT_DISCONNECT,    /* Device has completely failed, is unrecoverable */
-> > +	PCIERR_RESULT_RECOVERED,     /* Device driver is fully recovered and operational */
-> > +};
+> Good question - I'm not sure currently.  In the places where set_irq_type
+> is used on ARM, we're mainly interested in setting the input according
+> to rising/falling edge or high/low levels rather than switching between
+> edge and level mode.
 > 
-> No, do not create new types of error or return codes.  Use the standard
-> -EFOO values.  You can document what they should each return, and mean,
-> but do not create new codes.
+> We could do as you suggest, but my concern would be adding extra
+> complexity to drivers, causing them to do something like:
+> 
+> 	ret = request_irq(..., SA_TRIGGER_HIGH, ...);
+> 	if (ret == -E<whatever>)
+> 		ret = request_irq(..., SA_TRIGGER_RISING, ...);
+> 
+> The alternative is:
+> 
+> 	ret = request_irq(..., SA_TRIGGER_HIGH | SA_TRIGGER_RISING, ...);
+> 
+> at which point the driver is telling the IRQ layer what it can support,
+> and allowing the IRQ layer to select the most appropriate type given
+> the driver and hardware constraints.
 
-Actually, these are not error or return codes, but rather requested
-actions (maybe somewhat misnamed).  We can map them on to -EFOO values
-but it will be rather strained (-ECONNRESET for "please reset the
-slot", anyone? :).
+We have similar things on ppc but dealt differently. The type of
+interrupt sense supported depends on the PIC (and you can have more than
+one PIC around). On Open Firmware based machines at least, the
+device-tree tells us the sense setting to use on all devices in the
+system, we program our PIC based on that information.
 
-> Also, you create an enum, but yet do not use it in your function
-> callback definition, which means you really didn't want to create it in
-> the first place...
+Your proposal though is interesting as it would allow individual to
+override that setting (it may be broken, firmware occasionally are), and
+would probably be useful for embedded PPCs as well.
 
-Yes, they could be #defines.
+However, I would suggest defining the absence of explicit trigger (0) as
+a constant rather than 0 (SA_TRIGGER_DEFAULT), just for consistency.That
+means using whatever the platform considers as a good default for this
+interrupt. In addition, I would still add a get_irq_trigger() function
+for a driver to enquire the kind of sense that was set by default by the
+platfrom for a given irq line.
 
-Paul.
+Ben.
+

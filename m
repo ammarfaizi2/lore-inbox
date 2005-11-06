@@ -1,44 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbVKFW3l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbVKFWjd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932270AbVKFW3l (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 17:29:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbVKFW3l
+	id S1751257AbVKFWjd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 17:39:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbVKFWjd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 17:29:41 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:16534 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S932270AbVKFW3l (ORCPT
+	Sun, 6 Nov 2005 17:39:33 -0500
+Received: from ozlabs.org ([203.10.76.45]:20675 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751257AbVKFWjc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 17:29:41 -0500
-Subject: Re: Fwd: [RFC] IRQ type flags
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20051106221643.GB6274@flint.arm.linux.org.uk>
-References: <20051106084012.GB25134@flint.arm.linux.org.uk>
-	 <1131316897.1212.61.camel@localhost.localdomain>
-	 <20051106221643.GB6274@flint.arm.linux.org.uk>
-Content-Type: text/plain
+	Sun, 6 Nov 2005 17:39:32 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Sun, 06 Nov 2005 22:59:58 +0000
-Message-Id: <1131317998.1212.63.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Message-ID: <17262.34331.226287.178898@cargo.ozlabs.ibm.com>
+Date: Mon, 7 Nov 2005 09:39:23 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Hugh Dickins <hugh@veritas.com>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mm: poison struct page for ptlock
+In-Reply-To: <20051106112838.0d524f65.akpm@osdl.org>
+References: <Pine.LNX.4.61.0511031924210.31509@goblin.wat.veritas.com>
+	<20051106112838.0d524f65.akpm@osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2005-11-06 at 22:16 +0000, Russell King wrote:
-> > This is actually true of some x86 hardware in the EISA space where there
-> > is a control register for level v edge that we sort of half deal with.
-> 
-> Thanks Alan.  Can I assume you're happy with the patch, even if x86
-> currently ignores the flags?
+Andrew Morton writes:
 
-I'm certainly happy with it. Both the APIC and EISA IRQ control
-registers could even be made to honour it if anyone ever needed to.
+> I don't know what the access address was (ia32 nicely tells you), but if
+> it's `DAR' then we have LIST_POISON1.
 
-Should platforms that don't support the flags be patched to error
-requests they don't support however ?
+Yes, DAR is the access address.
 
-Alan
-
+Paul.

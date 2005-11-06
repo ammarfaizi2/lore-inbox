@@ -1,47 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbVKFWte@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751270AbVKFWuN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751268AbVKFWte (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 17:49:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751233AbVKFWte
+	id S1751270AbVKFWuN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 17:50:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751233AbVKFWuN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 17:49:34 -0500
-Received: from moutng.kundenserver.de ([212.227.126.186]:43980 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1751268AbVKFWtd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 17:49:33 -0500
-From: Hans-Peter Jansen <hpj@urpla.net>
-To: Jean-Christian de Rivaz <jc@eclis.ch>
-Subject: Re: NTP broken with 2.6.14
-Date: Sun, 6 Nov 2005 23:49:18 +0100
-User-Agent: KMail/1.8
-Cc: john stultz <johnstul@us.ibm.com>, Len Brown <len.brown@intel.com>,
-       macro@linux-mips.org, linux-kernel@vger.kernel.org, dean@arctic.org,
-       zippel@linux-m68k.org
-References: <4369464B.6040707@eclis.ch> <1131064846.27168.619.camel@cog.beaverton.ibm.com> <436ACC89.2050900@eclis.ch>
-In-Reply-To: <436ACC89.2050900@eclis.ch>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 6 Nov 2005 17:50:13 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:47580 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751270AbVKFWuL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Nov 2005 17:50:11 -0500
+Date: Sun, 6 Nov 2005 14:49:54 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Simon.Derr@bull.net, ak@suse.de, linux-kernel@vger.kernel.org,
+       clameter@sgi.com
+Subject: Re: [PATCH 3/5] cpuset: change marker for relative numbering
+Message-Id: <20051106144954.368713ad.pj@sgi.com>
+In-Reply-To: <20051106125738.7e140f1c.akpm@osdl.org>
+References: <20051104053109.549.76824.sendpatchset@jackhammer.engr.sgi.com>
+	<20051104053132.549.16062.sendpatchset@jackhammer.engr.sgi.com>
+	<20051104230827.16001781.akpm@osdl.org>
+	<20051106020410.2c0c26e1.pj@sgi.com>
+	<20051106125738.7e140f1c.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511062349.19257.hpj@urpla.net>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:d54c4b206b25008fd47cf8f4774f5606
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 4. November 2005 03:50 schrieb Jean-Christian de Rivaz:
->
-> After trying several time, I am unable to upgrade the BIOS of this
-> machine. The flash utility hang all the system at the very beginning
-> of the real access to programm the flash! This is maybe because I use
-> a freedos image over pxelinux. I will try with a floppy and a MSDOS
-> if I found such olds stuffs somehere.
+Andrew wrote:
+> If someone modifies a library-managed cpuset via the backdoor then the
+> library (and its caller) are out of sync with reality _anyway_.
 
-Could very well be the netboot stuff. I typically flash BIOS/firmware 
-via DOS network boot images, which provides at least two different ways 
-of disk emulation: a: and c:, but some flash tools just freeze the 
-system on load/image load in both ways. Most prominently is the Promise 
-TX2/100 firmware update, but also a couple of motherboards BIOS' 
-flashers behave that way (cannot remember which ones, though). 
+Yes, for system-wide operations.  No - for cpuset-relative operations.
 
-Pete
+For task migration (Christoph Lameter's patches) to work, I need to
+provide a safe way for jobs to manage placement within their assigned
+cpuset.  This means providing wrappers to sched_setaffinity, mbind and
+set_mempolicy that take cpuset-relative cpu/mem numbers, and provide a
+robust, cpuset-relative API to applications, that hides any migrations
+from the application.
+
+A year ago, Simon Derr pushed hard to get cpuset-relative numbering
+support into the kernel, anticipating these sorts of problems.  I and
+others pushed back, saying that this was the work of libraries, and
+that the kernel-user API needed to use one simple, system-wide numbering.
+
+Enforcing a system-wide synchronization of library code, using just
+user code, is expensive, difficult and scales poorly on large systems.
+
+A trivial, code-wise, hook in the kernel will enable each independent
+library routine to efficiently detect any parallel changes and redo
+their operation sequence.  It enables providing applications with a
+cpuset-relative API for internal job memory and cpu placement that is
+efficient and robustly safe in the face of migrations.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

@@ -1,66 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbVKFXrM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbVKFXuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932374AbVKFXrM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 18:47:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbVKFXrL
+	id S932366AbVKFXuE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 18:50:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932369AbVKFXuD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 18:47:11 -0500
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:13319 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S932375AbVKFXrK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 18:47:10 -0500
-To: Mark Knecht <markknecht@gmail.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 3D video card recommendations
-References: <1131112605.14381.34.camel@localhost.localdomain>
-	<5bdc1c8b0511040710q4a4ce3eend6edc2b4027e33b0@mail.gmail.com>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: because editing your files should be a traumatic experience.
-Date: Sun, 06 Nov 2005 23:46:39 +0000
-In-Reply-To: <5bdc1c8b0511040710q4a4ce3eend6edc2b4027e33b0@mail.gmail.com> (Mark
- Knecht's message of "4 Nov 2005 15:11:13 -0000")
-Message-ID: <87ek5t9w68.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Sun, 6 Nov 2005 18:50:03 -0500
+Received: from gold.veritas.com ([143.127.12.110]:63277 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S932366AbVKFXuB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Nov 2005 18:50:01 -0500
+Date: Sun, 6 Nov 2005 23:48:40 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mm: poison struct page for ptlock
+In-Reply-To: <20051106151326.63cf16bd.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0511062348240.29944@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0511031924210.31509@goblin.wat.veritas.com>
+ <20051106112838.0d524f65.akpm@osdl.org> <Pine.LNX.4.61.0511062245240.29625@goblin.wat.veritas.com>
+ <20051106151326.63cf16bd.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 06 Nov 2005 23:50:01.0003 (UTC) FILETIME=[CD294FB0:01C5E32C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4 Nov 2005, Mark Knecht announced authoritatively:
-> On 11/4/05, Steven Rostedt <rostedt@goodmis.org> wrote:
->> I'm currently putting together (ordering parts for) another machine. It
->> will be a AMD64 X2. Now I'm looking into a video card for this.  Up till
->> now, I've always used NVidia.  But I also want to test 3D acceleration
->> under Ingo's -rt patch.  So now I need something that does not have a
->> priority module.
->>
->> I'm not much of a gamer, although I do play every so often. So I don't
->> need the highest quality card, but I also want something that is still
->> pretty good. For example, I currently have a NVidia GeForce 6800 GT
->> card.  So I'm hoping to get something equivalent.
->>
->> I'm looking at the ATI Radeons.
->>
->> Any recommendations? (links to info would also be nice ;-)
+On Sun, 6 Nov 2005, Andrew Morton wrote:
+> Hugh Dickins <hugh@veritas.com> wrote:
+> > 
+> > I'd checked that none of the architectures were using those page fields
+> > of a page table page, but never considered that slab was using them: my
+> > patch probably breaks all those which use slab for their page tables.
 > 
-> Not a recommendation. Just a point to be aware of. The ATI Radeons, to
-> get the best acceleration, seem to require that you use the ATI closed
-> source drivers. Currently I haven't found an ATI closed source driver
-> that supports 2.6.14. so I'm forced to use the Xorg radeon driver. I
-> have no idea if this is very good. I don't think so as my glxgear
-> numbers are pretty low. Much lower than the ATI driver running on
-> 2.6.13-X.
+> Ah, of course, yes.  pagetable pages which come from slab have a live
+> page.lru even while the memory is in use by the caller.
 
-Surely it depends on the Radeon. I get perfectly respectable numbers on
-my Radeon 9250 (purchased because Dave Airlie said it was well-supported
-by X.org :) ). It's not exactly Doom-playing quality, but it's good
-enough for everything I'm doing with it, and it only cost thirty quid:
-for that price you can afford to try it and see :)
+arm26 seems to be the only arch which uses slab for pts other than ppc64.
 
-(Later Radeons' 3D aren't fully supported yet in free drivers, as far as
-I know.)
+But (without fully working it out) I think sparc (32) may also use page
+parts: never mind slab using page->lru, I'm utterly broken using fields
+of one struct page for two or more page tables, union or overlay or not.
 
--- 
-`Heinlein is quite competent at putting together sentences, but usually
-he also puts together a plot to go with them.' --- Russ Allbery
+So as well as reverting my poisonous patch, we'll need the patch at the
+bottom, at least for now.  We could almost keep my poisonous patch (but
+I expect you're well on your way reverting it), except for how it uses
+the unsplit config to test the split - we could suppress its poisoning
+and verification when ARM26 || SPARC32 || PPC64.  If reverting turns
+out to be tiresome, then that would be another direction to try.
+
+> > Drat.  I'm trying to think of the best way to retrieve the situation.
+> 
+> I suspect a slab-based fix/workaround would be unpleasant.  Simpler to not
+> use slab for pagetable pages.
+> 
+> I doubt if there's much benefit to pagetable-pages-in-slab, really.  It
+> _used_ to make sense because slab has the per-cpu LIFO magazines.  But now
+> the page allocator has them too, it's probably better to rely upon that
+> magazine to provide cache-warm pages.
+
+I think they use slab, not for speed, but because they only need a
+fraction of PAGE_SIZE for the page table - easy to imagine that in
+the case of Ben's 64kB ppc64 pages, and he did mention that he was
+trying to get away from the idea that a page table was a page.
+
+> > The priority must be for you to get 2.6.14-mm1 out: is the easiest for
+> > now simply to revert my patch (and the _private one(s) you added on top)?
+> 
+> yup, when I can get the steaming pile to compile.
+
+Suppress split ptlock on arches which may use one page for multiple page
+tables.  Reconsider what better to do (particularly on ppc64) later on.
+
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+
+--- 2.6.14-git/mm/Kconfig	2005-11-05 16:03:24.000000000 +0000
++++ linux/mm/Kconfig	2005-11-06 23:32:23.000000000 +0000
+@@ -126,9 +126,11 @@ comment "Memory hotplug is currently inc
+ # Default to 4 for wider testing, though 8 might be more appropriate.
+ # ARM's adjust_pte (unused if VIPT) depends on mm-wide page_table_lock.
+ # PA-RISC's debug spinlock_t is too large for the 32-bit struct page.
++# ARM26 and SPARC32 and PPC64 may use one page for multiple page tables.
+ #
+ config SPLIT_PTLOCK_CPUS
+ 	int
+ 	default "4096" if ARM && !CPU_CACHE_VIPT
+ 	default "4096" if PARISC && DEBUG_SPINLOCK && !64BIT
++	default "4096" if ARM26 || SPARC32 || PPC64
+ 	default "4"

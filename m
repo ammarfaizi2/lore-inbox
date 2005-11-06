@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbVKFAQg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbVKFATX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932233AbVKFAQg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 19:16:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbVKFAQg
+	id S932235AbVKFATX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 19:19:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbVKFATW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 19:16:36 -0500
-Received: from xproxy.gmail.com ([66.249.82.193]:48175 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932233AbVKFAQg (ORCPT
+	Sat, 5 Nov 2005 19:19:22 -0500
+Received: from gate.crashing.org ([63.228.1.57]:62686 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932235AbVKFATW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 19:16:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=dw8QXm9qYM3sHNKDinPv6WJprCgl+qmw8Ks8nuJ4srVilyPLY0W6JxfJ7Xm8oC9re1x95S4wGHi/fkCV4huW8nLEN0t24jTsMAUJzEzrQwjjZvfnDI34GEFordkTl5HsTavLW7+vPycVEd4RMS5nJuN/2gzK8UNrMLM1PEsbTm8=
-Message-ID: <436D4B5A.2040303@pol.net>
-Date: Sun, 06 Nov 2005 08:16:26 +0800
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: [PATCH 11/25] framebuffer: move ioctl32 code to fbmem.c
-References: <20051105162650.620266000@b551138y.boeblingen.de.ibm.com> <20051105162714.961205000@b551138y.boeblingen.de.ibm.com>
-In-Reply-To: <20051105162714.961205000@b551138y.boeblingen.de.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Sat, 5 Nov 2005 19:19:22 -0500
+Subject: Re: [PATCH] Framebuffer mode required for PowerBook Titanium
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Michael Hanselmann <linux-kernel@hansmi.ch>
+Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
+In-Reply-To: <20051105234938.GA18608@hansmi.ch>
+References: <20051105234938.GA18608@hansmi.ch>
+Content-Type: text/plain
+Date: Sun, 06 Nov 2005 11:17:44 +1100
+Message-Id: <1131236265.5229.49.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-From: "Antonino A. Daplas" <adaplas@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann wrote:
-> The frame buffer layer already had some code dealing with
-> compat ioctls, this patch moves over the remaining code
-> from fs/compat_ioctl.c
+On Sun, 2005-11-06 at 00:49 +0100, Michael Hanselmann wrote:
+> This patch adds the framebuffer mode required for an Apple PowerBook G4
+> Titanium.
+> 
+> Signed-off-by: Michael Hanselmann <linux-kernel@hansmi.ch>
+> 
+> ---
+> --- linux-2.6.14/drivers/video/modedb.c.orig	2005-11-05 22:29:02.000000000 +0100
+> +++ linux-2.6.14/drivers/video/modedb.c	2005-11-05 22:31:15.000000000 +0100
+> @@ -251,6 +251,10 @@ static const struct fb_videomode modedb[
+>  	NULL, 60, 1920, 1200, 5177, 128, 336, 1, 38, 208, 3,
+>  	FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT,
+>  	FB_VMODE_NONINTERLACED
+> +    }, {
+> +	/* 1152x768, 60 Hz, PowerBook G4 Titanium I and II */
+> +	"mac21", 60, 1152, 768, 15386, 158, 26, 29, 3, 136, 6,
+> +	FB_SYNC_HOR_HIGH_ACT|FB_SYNC_VERT_HIGH_ACT, FB_VMODE_NONINTERLACED
+>      },
+>  };
 
-This is fine with me.
+Please, re-do it without the "mac21" name, just leave NULL there.
 
-Tony
+Ben.
+
+

@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbVKFN7U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750838AbVKFNzU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750861AbVKFN7U (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 08:59:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750868AbVKFN7U
+	id S1750838AbVKFNzU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 08:55:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbVKFNzU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 08:59:20 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:16913 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750856AbVKFN7T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 08:59:19 -0500
-Date: Sun, 6 Nov 2005 14:59:17 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-       axboe@suse.de
-Subject: Re: [PATCH 18/25] raw: move ioctl32 code to raw.c
-Message-ID: <20051106135917.GC3847@stusta.de>
-References: <20051105162650.620266000@b551138y.boeblingen.de.ibm.com> <20051105162718.128174000@b551138y.boeblingen.de.ibm.com>
+	Sun, 6 Nov 2005 08:55:20 -0500
+Received: from THUNK.ORG ([69.25.196.29]:56220 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1750838AbVKFNzU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Nov 2005 08:55:20 -0500
+Date: Sun, 6 Nov 2005 08:55:14 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: udev on 2.6.14 fails to create /dev/input/event2 on T40 Thinkpad
+Message-ID: <20051106135514.GA8020@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Jiri Slaby <jirislaby@gmail.com>, linux-kernel@vger.kernel.org,
+	Kay Sievers <kay.sievers@vrfy.org>
+References: <E1EYdMs-0001hI-3F@think.thunk.org> <436DD635.9030103@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051105162718.128174000@b551138y.boeblingen.de.ibm.com>
+In-Reply-To: <436DD635.9030103@gmail.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 05, 2005 at 05:27:08PM +0100, Arnd Bergmann wrote:
+On Sun, Nov 06, 2005 at 11:08:53AM +0100, Jiri Slaby wrote:
+> 
+> >When I upgraded to 2.6.14 from 2.6.14-rc5, my X server failed to stop.  
+> >Investigation revealed it was because my CorePointer was the Synaptics
+> >driver, and the device corresponding to the Synaptics touchpad
+> >(/dev/input/event2 on my laptop) was not being created.  Once I manually
+> >created the device with the proper major/minor device numbers, X started
+> >correctly.
+> >
+> >A comparison of "udevinfo -e" on 2.6.14-rc5 and 2.5.14 reveals the
+> >following differences.  Was this change deliberate?  And can it be
+> >reverted?
+> 
+> You should also write which version of udev do you use.
 
-> The two ioctl commands for the raw driver are not used
-> anywhere outside of raw.c, so move the compat handler
-> there as well.
->...
+Oh, of course.  Version 0.071-1, from Debian unstable.
 
-Please leave this alone, the raw driver will be removed in 2.6.16.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+						- Ted

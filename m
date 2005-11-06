@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbVKFU4V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750883AbVKFU6Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750853AbVKFU4V (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 15:56:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbVKFU4V
+	id S1750883AbVKFU6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 15:58:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751233AbVKFU6Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 15:56:21 -0500
-Received: from zproxy.gmail.com ([64.233.162.199]:62526 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750853AbVKFU4V convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 15:56:21 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JgS3I53nbOGm7TqsOKyhqKSvl5m181QlkhAsUNC9876rmisnwpaxtMLP5Qj1ANOBzby3E7WFRRei2q+21UNqItTrFkzR8M+m/UGKeqHdYd3+0p7z4tm7zO9Apt5ln+K5B/Rvvs/XpOSfexFnX4SgsQnv0JikaYzXf0/Ak5m5uSE=
-Message-ID: <8413367b0511061256u565de887jf5819ff9b3b4030c@mail.gmail.com>
-Date: Sun, 6 Nov 2005 21:56:20 +0100
-From: <grfgguvf@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Whys and hows of initrds
-In-Reply-To: <436E4FDF.7000503@mnsu.edu>
-MIME-Version: 1.0
+	Sun, 6 Nov 2005 15:58:25 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:33433 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750883AbVKFU6Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Nov 2005 15:58:24 -0500
+Date: Sun, 6 Nov 2005 12:57:38 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: Simon.Derr@bull.net, ak@suse.de, linux-kernel@vger.kernel.org,
+       clameter@sgi.com
+Subject: Re: [PATCH 3/5] cpuset: change marker for relative numbering
+Message-Id: <20051106125738.7e140f1c.akpm@osdl.org>
+In-Reply-To: <20051106020410.2c0c26e1.pj@sgi.com>
+References: <20051104053109.549.76824.sendpatchset@jackhammer.engr.sgi.com>
+	<20051104053132.549.16062.sendpatchset@jackhammer.engr.sgi.com>
+	<20051104230827.16001781.akpm@osdl.org>
+	<20051106020410.2c0c26e1.pj@sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <8413367b0511060924s550024b8w1113564cd6bb9340@mail.gmail.com>
-	 <436E4FDF.7000503@mnsu.edu>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/6/05, Jeffrey Hundstad wrote:
-> boot process to continue.  It MAY also mount a network file system and
-> boot from that.
+Paul Jackson <pj@sgi.com> wrote:
+>
+> > Given that you're developing a library to do all this, why not do proper
+>  > locking in userspace and require that all cpuset updates go via the
+>  > library?
+> 
+>  The superficial reason why not is that I can't prevent someone from
+>  doing "echo pid > /dev/cpuset/tasks", moving a task to another cpuset
+>  even as that task in the middle of dorking with its cpusets.  Not all
+>  cpuset operations will involve using my blessed library.
 
-But the kernel can do that without an initrd as well.
-
-> >* What are the differences between an initrd and an initramdisk (if
-> >any)? And an initramfs?
-> >
-> There is a nice read post not that long ago comparing some of them, you
-> may want to scan lat months archives.  It was a documentation patch...
-
-I will look around. Thanks!
-
-> Other OSes just load everything; which isn't very efficient.
-
-FreeBSD (for example) has a bootloader that can load arbitrary modules
-in addition to the kernel.
-Is there anything preventing that to be done with Linux? Or is it just
-not powerful enough?
+If someone modifies a library-managed cpuset via the backdoor then the
+library (and its caller) are out of sync with reality _anyway_.  Why does
+an encounter with this very small race window worsen things?

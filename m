@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750941AbVKFULS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbVKFU01@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750941AbVKFULS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 15:11:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbVKFULR
+	id S1751204AbVKFU01 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 15:26:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbVKFU01
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 15:11:17 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:48008 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1750941AbVKFULR (ORCPT
+	Sun, 6 Nov 2005 15:26:27 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:9094 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751204AbVKFU01 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 15:11:17 -0500
-Subject: Re: Parallel ATA with libata status with the patches I'm working on
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1131141030.29195.18.camel@gaston>
-References: <1131029686.18848.48.camel@localhost.localdomain>
-	 <1131086585.4680.235.camel@gaston>
-	 <1131111297.26925.24.camel@localhost.localdomain>
-	 <1131141030.29195.18.camel@gaston>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sun, 06 Nov 2005 20:41:31 +0000
-Message-Id: <1131309691.1212.32.camel@localhost.localdomain>
+	Sun, 6 Nov 2005 15:26:27 -0500
+Date: Sun, 6 Nov 2005 21:26:09 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Ben Collins <bcollins@ubuntu.com>
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: [ANNOUNCE] Ubuntu kernel tree
+Message-ID: <20051106202609.GA12481@elf.ucw.cz>
+References: <20051106013752.GA13368@swissdisk.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051106013752.GA13368@swissdisk.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2005-11-05 at 08:50 +1100, Benjamin Herrenschmidt wrote:
-> OK, but my question why, what is the reason why we need IRQ mask ? Some
-> old non-PCI controllers can't grok un-related ISA IO cycles during a
-> FIFO read/write ? I suppose those would be broken on SMP too (though I
-> suspect then that those don't exist as SMP machines then :)
+Hi!
 
-There are PCI controllers that are hosed too. They incorrectly handle
-the situation where the PCI fifo empties/fills and the controller should
-indicate to the drive to stall the transfer. The chipsets I know that
-are afflicted with this are all uniprocessor mainboard devices.
+> Some people may have noticed the new git tree located at:
+> 
+> rsync.kernel.org:/pub/scm/linux/kernel/git/bcollins/ubuntu-2.6.git
+> 
+> This tree will directly reflect the Ubuntu Linux Kernel that is available
+> in our distribution (along with build system). First use of this kernel
+> tree is slated for Dapper Drake (Ubuntu 6.04), and will stay synced with
+> the just released 2.6.14(.y).
+> 
+> There are several reasons for making this repo available on kernel.org.
+> Primary reasons include a more open development model, better visibility
+> with the kernel developer community, and to make the kernel available to
+> other distro's who may want to base their kernel off of ours.
 
-Alan
+Heh, I'm interested. We were thinking about using git for internal
+suse kernel trees, but we thought it would not work, as we need more
+something like quilt. Do you really use git internally, or do you just
+export to it? If git is usable for distro develompent... that would be
+good news. 
 
+								Pavel
+-- 
+Thanks, Sharp!

@@ -1,99 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751154AbVKFSR6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbVKFSTm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751154AbVKFSR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 13:17:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbVKFSR6
+	id S1751156AbVKFSTm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 13:19:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbVKFSTm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 13:17:58 -0500
-Received: from ns.firmix.at ([62.141.48.66]:35008 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S1750965AbVKFSR6 (ORCPT
+	Sun, 6 Nov 2005 13:19:42 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:47526 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1750965AbVKFSTl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 13:17:58 -0500
-Subject: Re: New Linux Development Model
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Edgar Hucek <hostmaster@ed-soft.at>
-Cc: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <436CB162.5070100@ed-soft.at>
-References: <436C7E77.3080601@ed-soft.at>
-	 <20051105122958.7a2cd8c6.khali@linux-fr.org>  <436CB162.5070100@ed-soft.at>
-Content-Type: text/plain
-Organization: http://www.firmix.at/
-Date: Sun, 06 Nov 2005 19:17:43 +0100
-Message-Id: <1131301063.7587.17.camel@gimli.at.home>
+	Sun, 6 Nov 2005 13:19:41 -0500
+Date: Sun, 6 Nov 2005 10:18:32 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: mingo@elte.hu, andy@thermo.lanl.gov, mbligh@mbligh.org, akpm@osdl.org,
+       arjan@infradead.org, arjanv@infradead.org, haveblue@us.ibm.com,
+       kravetz@us.ibm.com, lhms-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, mel@csn.ul.ie,
+       nickpiggin@yahoo.com.au
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+Message-Id: <20051106101832.510b0245.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0511060746170.3316@g5.osdl.org>
+References: <20051104010021.4180A184531@thermo.lanl.gov>
+	<Pine.LNX.4.64.0511032105110.27915@g5.osdl.org>
+	<20051103221037.33ae0f53.pj@sgi.com>
+	<20051104063820.GA19505@elte.hu>
+	<Pine.LNX.4.64.0511040725090.27915@g5.osdl.org>
+	<20051104155317.GA7281@elte.hu>
+	<20051105233408.3037a6fe.pj@sgi.com>
+	<Pine.LNX.4.64.0511060746170.3316@g5.osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-11-05 at 14:19 +0100, Edgar Hucek wrote:
-[...]
-> Maybe you don't understand what i wanted to say or it's my bad english.
-> The ipw2200 driver was only an example. I had also problems with, vmware,
-> unionfs...
-> What i mean ist, that kernel developers make incompatible changes to the 
-> header
+Linus wrote:
+> The thing is, if 99.8% of memory is cleanable, the 0.2% is still enough to 
+> make pretty much _every_ hugepage in the system pinned down.
 
-ACK. The reason is the improve the kernel and drivers.
+Agreed.
 
-> files, change structures, interfaces and so on. Which makes the kernel 
-> releases incompatible.
+I realized after writing this that I wasn't clear on something.
 
-ACK. It needs (a lot of) work to keep backwards compatibility and who
-wants can do it (probably).
-At what to do at the point where you actually have to break it?
+I wasn't focused the subject of this thread, adding hugetlb pages after
+the system has been up a while.
 
-> There are several reasons why modules are not in the mainline kernel and 
-> will never
-> get there. So saying, bring modules to the kernel is wrong.
+I was focusing on a related subject - freeing up most of the ordinary
+size pages on the dedicated application nodes between jobs on a large
+system using
+ * a bootcpuset (for the classic Unix load) and
+ * dedicated nodes (for the HPC apps).
 
-The last conclusion doesn't hold. Especially not in this general form.
-You have to list the "various reaons" and then we can discuss each of
-them.
+I am looking to provide the combination of:
+ 1) specifying some hugetlb pages at system boot, plus
+ 2) the ability to clean off most of the ordinary sized pages
+    from the application nodes between jobs.
 
-> The right way would be to take care of defined interfaces, header files, 
-> and so on.
+Perhaps Andy or some of my HPC customers wish I was also looking
+to provide:
+ 3) the ability to add lots of hugetlb pages on the application
+    nodes after the system has run a while.
+But if they are, then they have some more educatin' to do on me.
 
-The only defined interface of the kernel can be found in POSIX, SUSv3
-and similar documents.
+For now, I am sympathetic to your concerns with code and locking
+complexity.  Freeing up great globs of hugetlb sized contiguous chunks
+of memory after a system has run a while would be hard.
 
-> Otherwise you could only say the kernel 2.6.14 is only compatible to 
-> 2.6.14.X and
-> you there is no stable 2.6 mainline kernel.
+We have to be careful which hard problems we decide to take on.
 
-Compatible in what way? Source? Object? User-space binary interface?
+We can't take on too many, and we have to pick ones that will provide
+a major long term advantage to Linux, over the forseeable changes in
+system hardware and architecture.
 
-> I think it's also no task for the user, to search the net why external 
+Even if most of the processors that Andy has tested against would
+benefit from dynamically added hugetlb pages, if we can anticipate
+that this will not be a substained opportunity for Linux (and looking
+at current x86 chips doesn't require much anticipating) then that
+might not be the place to invest our precious core complexity dollars.
 
-Then don't do it.
-
-> driver xyz not
-> works with a new kernel ( because of incompatibilties ). Basicly in new 
-> kernel there
-
-Who is interested in the new driver/kernel/..?
-The user. So guess who's job is to do it (or find someone to do it -
-paid or unpaid).
-
-> could be a chance for the user a driver works better, because a bug was 
-> fixed in the kernel.
-> Hopefully this time it's more clear why i blame the development process 
-> and i'm a so frustrated linux user.
-
-Who do you mean with "user"? 
-A typical "user" just installs $DISTRIBUTION (be it a free or commercial
-one) and that's it. *If* the bug is severe enough (and the relevant
-maintainers does it) there will be a new rpm/deb/... with the newest
-kernel release or a backport.
-If not, you can do it on your own anyways.
-But then you are half a programmer and more like a sys-admin and no
-longer a "user". Voila.
-
-	Bernd
 -- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
-
-
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

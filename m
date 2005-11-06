@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751208AbVKFUey@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbVKFUg5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751208AbVKFUey (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 15:34:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbVKFUey
+	id S1751221AbVKFUg5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 15:36:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbVKFUg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 15:34:54 -0500
-Received: from mail.kroah.org ([69.55.234.183]:20947 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751208AbVKFUex (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 15:34:53 -0500
-Date: Sun, 6 Nov 2005 12:34:21 -0800
-From: Greg KH <greg@kroah.com>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: udev on 2.6.14 fails to create /dev/input/event2 on T40 Thinkpad
-Message-ID: <20051106203421.GB2527@kroah.com>
-References: <E1EYdMs-0001hI-3F@think.thunk.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1EYdMs-0001hI-3F@think.thunk.org>
-User-Agent: Mutt/1.5.11
+	Sun, 6 Nov 2005 15:36:57 -0500
+Received: from sccrmhc12.comcast.net ([63.240.77.82]:17571 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1751221AbVKFUg5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Nov 2005 15:36:57 -0500
+In-Reply-To: <Pine.LNX.4.64.0511061332250.3646@localhost.localdomain>
+References: <Pine.LNX.4.64.0511061332250.3646@localhost.localdomain>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <948C3295-8F5A-44A2-BD51-E970FE9D603E@comcast.net>
+Cc: panto@intracom.gr, akpm@osdl.org, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Parag Warudkar <kernel-stuff@comcast.net>
+Subject: Re: [PATCH] FEC_8xx dependency on CONFIG_PPC
+Date: Sun, 6 Nov 2005 15:36:52 -0500
+To: Parag Warudkar <kernel-stuff@comcast.net>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 06, 2005 at 12:47:02AM -0500, Theodore Ts'o wrote:
-> +P: /class/input/input3/event3
 
-No, this shows a post-2.6.14 kernel, not 2.6.14 as what is located on
-kernel.org, right?  I'm guessing 2.6.14-git1?  Or is this a distro based
-kernel?
+On Nov 6, 2005, at 1:41 PM, Parag Warudkar wrote:
 
-If so, you need to upgrade udev, as the Documentation says to :)
+> Just noticed that make allmodconfig breaks on i386 due to the  
+> FEC_8xx driver.
+>
+> I don't know much about FEC_8xx but I have a feeling that's because  
+> it is intended only for PPC boxes.
+>
+> A simple change to drivers/net/fec_8xx/Kconfig to make it dependent  
+> on PPC in addition to NET_ETHERNET allows make allmodconfig to build.
+>
+> Please suggest if the attached patch is Ok.
+>
+> Parag
+> <patch-fec_8xx-Kconfig>
 
-If not, and this is 2.6.14, something is very wrong...
+Dunno how Pine put that wrong sender email in, sending from normal  
+place this time to correct it - sorry about that.
 
-thanks,
-
-greg k-h
+Parag

@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbVKFUg5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbVKFUhL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751221AbVKFUg5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 15:36:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbVKFUg5
+	id S1751224AbVKFUhL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 15:37:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbVKFUhL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 15:36:57 -0500
-Received: from sccrmhc12.comcast.net ([63.240.77.82]:17571 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1751221AbVKFUg5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 15:36:57 -0500
-In-Reply-To: <Pine.LNX.4.64.0511061332250.3646@localhost.localdomain>
-References: <Pine.LNX.4.64.0511061332250.3646@localhost.localdomain>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <948C3295-8F5A-44A2-BD51-E970FE9D603E@comcast.net>
-Cc: panto@intracom.gr, akpm@osdl.org, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Parag Warudkar <kernel-stuff@comcast.net>
-Subject: Re: [PATCH] FEC_8xx dependency on CONFIG_PPC
-Date: Sun, 6 Nov 2005 15:36:52 -0500
-To: Parag Warudkar <kernel-stuff@comcast.net>
-X-Mailer: Apple Mail (2.746.2)
+	Sun, 6 Nov 2005 15:37:11 -0500
+Received: from mail.kroah.org ([69.55.234.183]:64211 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751224AbVKFUhJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Nov 2005 15:37:09 -0500
+Date: Sun, 6 Nov 2005 12:36:36 -0800
+From: Greg KH <greg@kroah.com>
+To: Ben Collins <bcollins@ubuntu.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Ubuntu kernel tree
+Message-ID: <20051106203636.GC2527@kroah.com>
+References: <20051106013752.GA13368@swissdisk.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051106013752.GA13368@swissdisk.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Nov 05, 2005 at 05:37:52PM -0800, Ben Collins wrote:
+> * A kernel geared toward a real world Linux distribution, supporting
+>   drivers and subsystems that end users need. You will find a lot of
+>   external drivers in our tree, that for whatever reason, are not included
+>   in the upstream kernel. We hope that including these drivers will give
+>   users a one-stop kernel (no downloading and compiling external modules),
+>   and also provide much needed testing for modules hoping to be included
+>   into the mainstream kernel.
 
-On Nov 6, 2005, at 1:41 PM, Parag Warudkar wrote:
+Does this include the various closed source drivers that you include in
+your distro releases?
 
-> Just noticed that make allmodconfig breaks on i386 due to the  
-> FEC_8xx driver.
->
-> I don't know much about FEC_8xx but I have a feeling that's because  
-> it is intended only for PPC boxes.
->
-> A simple change to drivers/net/fec_8xx/Kconfig to make it dependent  
-> on PPC in addition to NET_ETHERNET allows make allmodconfig to build.
->
-> Please suggest if the attached patch is Ok.
->
-> Parag
-> <patch-fec_8xx-Kconfig>
+thanks,
 
-Dunno how Pine put that wrong sender email in, sending from normal  
-place this time to correct it - sorry about that.
-
-Parag
+greg k-h

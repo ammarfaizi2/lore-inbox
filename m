@@ -1,102 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbVKFIWB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932322AbVKFIXD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932311AbVKFIWB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 03:22:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbVKFIWB
+	id S932322AbVKFIXD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 03:23:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbVKFIXC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 03:22:01 -0500
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:45666 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932320AbVKFIWA (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Sun, 6 Nov 2005 03:22:00 -0500
+	Sun, 6 Nov 2005 03:23:02 -0500
+Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:52075 "HELO
+	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932322AbVKFIXA (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Sun, 6 Nov 2005 03:23:00 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:CC:Subject:References:In-Reply-To:Content-Type;
-  b=foGXZF8uJjBFPjgLNjgdmLBjJKUFOUXCwnJqBc9SU9ShP3HP8ElN++xjBIuC9x1oZLLZJ8i3hwi6BFfSBD+M3OWtyrvIq1BHQGP7CB7GLC6MJtP4NV/C6FddJ4mVDS8SZO06sbPKYSVhCD6lPG0EARVxYW+9qafmo/4cyaDuYq8=  ;
-Message-ID: <436DBDA9.2040908@yahoo.com.au>
-Date: Sun, 06 Nov 2005 19:24:09 +1100
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:Subject:References:In-Reply-To:Content-Type;
+  b=r4KddLK9Cixp3eJ8Fx/S3S+fINZvGjkrbGZtk+0AhYXknuA9ADKtlQ35my4B8/kgNfQPcHRgESaPPGQhRZR1yrsLbwYRTbGAxsaCAQNV4I5XPqddJRu/gj5hqk5zL9QUtApqaaHadn0yxUeQ6bGUyHdv48gPAsG7C6iAEoabl9I=  ;
+Message-ID: <436DBDE5.2010405@yahoo.com.au>
+Date: Sun, 06 Nov 2005 19:25:09 +1100
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
 X-Accept-Language: en
 MIME-Version: 1.0
-CC: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: [patch 6/14] mm: microopt conditions
-References: <436DBAC3.7090902@yahoo.com.au> <436DBCBC.5000906@yahoo.com.au> <436DBCE2.4050502@yahoo.com.au> <436DBD11.8010600@yahoo.com.au> <436DBD31.8060801@yahoo.com.au> <436DBD82.2070500@yahoo.com.au>
-In-Reply-To: <436DBD82.2070500@yahoo.com.au>
+To: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+Subject: [patch 8/14] mm: remove pcp_low
+References: <436DBAC3.7090902@yahoo.com.au> <436DBCBC.5000906@yahoo.com.au> <436DBCE2.4050502@yahoo.com.au> <436DBD11.8010600@yahoo.com.au> <436DBD31.8060801@yahoo.com.au> <436DBD82.2070500@yahoo.com.au> <436DBDA9.2040908@yahoo.com.au> <436DBDC8.5090308@yahoo.com.au>
+In-Reply-To: <436DBDC8.5090308@yahoo.com.au>
 Content-Type: multipart/mixed;
- boundary="------------050502040203000405020605"
-To: unlisted-recipients:; (no To-header on input)
+ boundary="------------090507030109080602060102"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------050502040203000405020605
+--------------090507030109080602060102
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-6/14
+8/14
 
 -- 
 SUSE Labs, Novell Inc.
 
 
---------------050502040203000405020605
+--------------090507030109080602060102
 Content-Type: text/plain;
- name="mm-microopt-conditions.patch"
+ name="mm-remove-pcp-low.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="mm-microopt-conditions.patch"
+ filename="mm-remove-pcp-low.patch"
 
-Micro optimise some conditionals where we don't need lazy evaluation.
+pcp->low is useless.
 
+Index: linux-2.6/include/linux/mmzone.h
+===================================================================
+--- linux-2.6.orig/include/linux/mmzone.h
++++ linux-2.6/include/linux/mmzone.h
+@@ -46,7 +46,6 @@ struct zone_padding {
+ 
+ struct per_cpu_pages {
+ 	int count;		/* number of pages in the list */
+-	int low;		/* low watermark, refill needed */
+ 	int high;		/* high watermark, emptying needed */
+ 	int batch;		/* chunk size for buddy add/remove */
+ 	struct list_head list;	/* the list of pages */
 Index: linux-2.6/mm/page_alloc.c
 ===================================================================
 --- linux-2.6.orig/mm/page_alloc.c
 +++ linux-2.6/mm/page_alloc.c
-@@ -339,9 +339,9 @@ static inline void __free_pages_bulk (st
+@@ -712,7 +712,7 @@ buffered_rmqueue(struct zone *zone, int 
  
- static inline void free_pages_check(const char *function, struct page *page)
- {
--	if (	page_mapcount(page) ||
--		page->mapping != NULL ||
--		page_count(page) != 0 ||
-+	if (unlikely(page_mapcount(page) |
-+		(page->mapping != NULL)  |
-+		(page_count(page) != 0)  |
- 		(page->flags & (
- 			1 << PG_lru	|
- 			1 << PG_private |
-@@ -351,7 +351,7 @@ static inline void free_pages_check(cons
- 			1 << PG_slab	|
- 			1 << PG_swapcache |
- 			1 << PG_writeback |
--			1 << PG_reserved )))
-+			1 << PG_reserved ))))
- 		bad_page(function, page);
- 	if (PageDirty(page))
- 		__ClearPageDirty(page);
-@@ -452,9 +452,9 @@ expand(struct zone *zone, struct page *p
-  */
- static void prep_new_page(struct page *page, int order)
- {
--	if (	page_mapcount(page) ||
--		page->mapping != NULL ||
--		page_count(page) != 0 ||
-+	if (unlikely(page_mapcount(page) |
-+		(page->mapping != NULL)  |
-+		(page_count(page) != 0)  |
- 		(page->flags & (
- 			1 << PG_lru	|
- 			1 << PG_private	|
-@@ -465,7 +465,7 @@ static void prep_new_page(struct page *p
- 			1 << PG_slab    |
- 			1 << PG_swapcache |
- 			1 << PG_writeback |
--			1 << PG_reserved )))
-+			1 << PG_reserved ))))
- 		bad_page(__FUNCTION__, page);
+ 		pcp = &zone_pcp(zone, get_cpu())->pcp[cold];
+ 		local_irq_save(flags);
+-		if (pcp->count <= pcp->low)
++		if (!pcp->count)
+ 			pcp->count += rmqueue_bulk(zone, 0,
+ 						pcp->batch, &pcp->list);
+ 		if (likely(pcp->count)) {
+@@ -1324,10 +1324,9 @@ void show_free_areas(void)
+ 			pageset = zone_pcp(zone, cpu);
  
- 	page->flags &= ~(1 << PG_uptodate | 1 << PG_error |
+ 			for (temperature = 0; temperature < 2; temperature++)
+-				printk("cpu %d %s: low %d, high %d, batch %d used:%d\n",
++				printk("cpu %d %s: high %d, batch %d used:%d\n",
+ 					cpu,
+ 					temperature ? "cold" : "hot",
+-					pageset->pcp[temperature].low,
+ 					pageset->pcp[temperature].high,
+ 					pageset->pcp[temperature].batch,
+ 					pageset->pcp[temperature].count);
+@@ -1765,14 +1764,12 @@ inline void setup_pageset(struct per_cpu
+ 
+ 	pcp = &p->pcp[0];		/* hot */
+ 	pcp->count = 0;
+-	pcp->low = 0;
+-	pcp->high = 6 * batch;
++	pcp->high = 4 * batch;
+ 	pcp->batch = max(1UL, 1 * batch);
+ 	INIT_LIST_HEAD(&pcp->list);
+ 
+ 	pcp = &p->pcp[1];		/* cold*/
+ 	pcp->count = 0;
+-	pcp->low = 0;
+ 	pcp->high = 2 * batch;
+ 	pcp->batch = max(1UL, batch/2);
+ 	INIT_LIST_HEAD(&pcp->list);
+@@ -2169,12 +2166,10 @@ static int zoneinfo_show(struct seq_file
+ 				seq_printf(m,
+ 					   "\n    cpu: %i pcp: %i"
+ 					   "\n              count: %i"
+-					   "\n              low:   %i"
+ 					   "\n              high:  %i"
+ 					   "\n              batch: %i",
+ 					   i, j,
+ 					   pageset->pcp[j].count,
+-					   pageset->pcp[j].low,
+ 					   pageset->pcp[j].high,
+ 					   pageset->pcp[j].batch);
+ 			}
 
---------------050502040203000405020605--
+--------------090507030109080602060102--
 Send instant messages to your online friends http://au.messenger.yahoo.com 

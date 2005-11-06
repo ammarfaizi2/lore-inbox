@@ -1,90 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbVKFXuE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932368AbVKFX7A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932366AbVKFXuE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 18:50:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932369AbVKFXuD
+	id S932368AbVKFX7A (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 18:59:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbVKFX7A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 18:50:03 -0500
-Received: from gold.veritas.com ([143.127.12.110]:63277 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S932366AbVKFXuB (ORCPT
+	Sun, 6 Nov 2005 18:59:00 -0500
+Received: from ns2.suse.de ([195.135.220.15]:47341 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932368AbVKFX67 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 18:50:01 -0500
-Date: Sun, 6 Nov 2005 23:48:40 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mm: poison struct page for ptlock
-In-Reply-To: <20051106151326.63cf16bd.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0511062348240.29944@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0511031924210.31509@goblin.wat.veritas.com>
- <20051106112838.0d524f65.akpm@osdl.org> <Pine.LNX.4.61.0511062245240.29625@goblin.wat.veritas.com>
- <20051106151326.63cf16bd.akpm@osdl.org>
+	Sun, 6 Nov 2005 18:58:59 -0500
+From: Neil Brown <neilb@suse.de>
+To: <grfgguvf@gmail.com>
+Date: Mon, 7 Nov 2005 10:58:53 +1100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 06 Nov 2005 23:50:01.0003 (UTC) FILETIME=[CD294FB0:01C5E32C]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17262.39101.399027.796056@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Whys and hows of initrds
+In-Reply-To: message from grfgguvf@gmail.com on Sunday November 6
+References: <8413367b0511060924s550024b8w1113564cd6bb9340@mail.gmail.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Nov 2005, Andrew Morton wrote:
-> Hugh Dickins <hugh@veritas.com> wrote:
-> > 
-> > I'd checked that none of the architectures were using those page fields
-> > of a page table page, but never considered that slab was using them: my
-> > patch probably breaks all those which use slab for their page tables.
+On Sunday November 6, grfgguvf@gmail.com wrote:
+> Hi,
+> I don't know if the LKML is a technical kernel development list or a
+> newbie support list (or both?) so maybe I'm posting to the wrong
+> place.
 > 
-> Ah, of course, yes.  pagetable pages which come from slab have a live
-> page.lru even while the memory is in use by the caller.
+> Questions:
+> * Why is an initrd needed?
 
-arm26 seems to be the only arch which uses slab for pts other than ppc64.
+Because it is the best way to do the things that it does.  See next
+question.
 
-But (without fully working it out) I think sparc (32) may also use page
-parts: never mind slab using page->lru, I'm utterly broken using fields
-of one struct page for two or more page tables, union or overlay or not.
+> * What does it do?
 
-So as well as reverting my poisonous patch, we'll need the patch at the
-bottom, at least for now.  We could almost keep my poisonous patch (but
-I expect you're well on your way reverting it), except for how it uses
-the unsplit config to test the split - we could suppress its poisoning
-and verification when ARM26 || SPARC32 || PPC64.  If reverting turns
-out to be tiresome, then that would be another direction to try.
+It allows various system configuration to be written as user-space code
+rather than kernel-space code.  This is a *good thing* as user-space
+is more forgiving, and somethings fits there more naturally.
+This includes:
+  module loading
+  device discovery
+  device configuration (e.g. raid arrays etc).
+  network configuration
+  root-device mounting
 
-> > Drat.  I'm trying to think of the best way to retrieve the situation.
-> 
-> I suspect a slab-based fix/workaround would be unpleasant.  Simpler to not
-> use slab for pagetable pages.
-> 
-> I doubt if there's much benefit to pagetable-pages-in-slab, really.  It
-> _used_ to make sense because slab has the per-cpu LIFO magazines.  But now
-> the page allocator has them too, it's probably better to rely upon that
-> magazine to provide cache-warm pages.
+With an initrd, all this can be done with just memory and a processor.
+Things - arbitrary things - can be done before any IO devices have
+been initialised.
 
-I think they use slab, not for speed, but because they only need a
-fraction of PAGE_SIZE for the page table - easy to imagine that in
-the case of Ben's 64kB ppc64 pages, and he did mention that he was
-trying to get away from the idea that a page table was a page.
+I heard a talk at LCA about the development of the Power5 architecture
+and first getting Linux running on it.  They used debug hardware load a
+kernel and an initrd image into memory, and then said 'go'.  They could
+get it doing things like exercising memory and such before it even
+bothered to detect and configure the PCI buss.  This isn't the sort of
+thing that initrd was originally intended for (I think), but it shows
+that it does give a great deal of flexibility.
 
-> > The priority must be for you to get 2.6.14-mm1 out: is the easiest for
-> > now simply to revert my patch (and the _private one(s) you added on top)?
-> 
-> yup, when I can get the steaming pile to compile.
 
-Suppress split ptlock on arches which may use one page for multiple page
-tables.  Reconsider what better to do (particularly on ppc64) later on.
+> * What are the differences between an initrd and an initramdisk (if
+> any)? And an initramfs?
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
+I think initrd and initramdisk are different names for the same thing.
+initramfs is different in detail but similar in purpose.
 
---- 2.6.14-git/mm/Kconfig	2005-11-05 16:03:24.000000000 +0000
-+++ linux/mm/Kconfig	2005-11-06 23:32:23.000000000 +0000
-@@ -126,9 +126,11 @@ comment "Memory hotplug is currently inc
- # Default to 4 for wider testing, though 8 might be more appropriate.
- # ARM's adjust_pte (unused if VIPT) depends on mm-wide page_table_lock.
- # PA-RISC's debug spinlock_t is too large for the 32-bit struct page.
-+# ARM26 and SPARC32 and PPC64 may use one page for multiple page tables.
- #
- config SPLIT_PTLOCK_CPUS
- 	int
- 	default "4096" if ARM && !CPU_CACHE_VIPT
- 	default "4096" if PARISC && DEBUG_SPINLOCK && !64BIT
-+	default "4096" if ARM26 || SPARC32 || PPC64
- 	default "4"
+An initrd is an image of a filesystem - often cramfs or similar.  It
+is loaded into a ramdisk and then the ramdisk is mounted as a
+filesystem.
+
+An initramfs works differently.  The image is a compressed CPIO
+archive.  The kernel creates a 'tmpfs' - which is an internal
+filesystem with no backing store - and explodes the archive into the
+filesystem.
+
+This has the advantage that the filesystem can grow in size - there
+are no arbitrary limits like there have to be when you create an
+initrd image.
+
+
+> * Why cannot the task of initrds be done more easily?
+
+How hard is it?  Distributions provide scripts that build them for you
+with little or no effort.
+
+Some of the tasks that an initrd can be done directly by the kernel,
+but this is sub-optimal.  
+It leads to code duplication as many of the tasks need to be do-able
+from userspace anyway, so there is already userspace code to do it -
+why bother duplicating such code in the kernel.
+
+Also, where device discovery/configuration has to be done in the
+kernel, there is a desire to keep the kernel-code minimal which tends
+to reduce functionality.  It is best to do the job properly with
+user-space code.
+
+To be fair - I do agree that it could be easier than it is.  I think
+that it probably just needs someone to take it on as a project, and
+find out what all the disparate needs are, and put together some
+infrastructure that makes it "just work" for everyone.
+
+> * Why don't other operating systems need an equivalent? Or do they?
+
+You would need to ask the other operating systems people that.
+
+NeilBrown

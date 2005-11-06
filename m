@@ -1,51 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932276AbVKFBk0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbVKFBjw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932276AbVKFBk0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 20:40:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbVKFBk0
+	id S932274AbVKFBjw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 20:39:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbVKFBjw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 20:40:26 -0500
-Received: from xproxy.gmail.com ([66.249.82.206]:44736 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932276AbVKFBkY (ORCPT
+	Sat, 5 Nov 2005 20:39:52 -0500
+Received: from xproxy.gmail.com ([66.249.82.204]:16828 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932274AbVKFBjw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 20:40:24 -0500
+	Sat, 5 Nov 2005 20:39:52 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=YqA8soLt1ZeTALkPTeRVpkn2C+fzHLsHH0sDaRFkAk+GjuMhwdEinJKtIOmhUnrILyBIJin1g/cTpbplapd+5TKwuYUo537yobZ+cx/iWGE2svMVBkO3Buhq/M0Ff8arast9mQnSRo+VfCF6SOVp9VxT5dFrVlbEKpSOXtpL448=
-Message-ID: <436D5EFD.9000800@gmail.com>
-Date: Sun, 06 Nov 2005 09:40:13 +0800
+        b=oHzvENhXxDJE6mo+H7T6xhphnY0yMwZKuK/pOHlN3uXB+V0Kxr0YzhWo9LiI71nwsdOql9v/CtjfTdxhayg5GNWUn9hQMA4Qak9PfsRpyzC7vAud9sVQUyC25+Xu/Fpz23Pp59xS9Jz+1MR0c6eBtKhG8Q47X0oCGHmELeX1jNQ=
+Message-ID: <436D5EDC.6090107@gmail.com>
+Date: Sun, 06 Nov 2005 09:39:40 +0800
 From: "Antonino A. Daplas" <adaplas@gmail.com>
 User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, mlang@debian.org
-Subject: Re: [PATCH] Set the vga cursor even when hidden
-References: <20051105211949.GM7383@bouh.residence.ens-lyon.fr> <436D5047.4080006@gmail.com> <Pine.LNX.4.64.0511051642580.3316@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0511051642580.3316@g5.osdl.org>
+To: Michael Hanselmann <linux-kernel@hansmi.ch>
+CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: [PATCH] Framebuffer mode required for PowerBook Titanium
+References: <20051105234938.GA18608@hansmi.ch> <1131236265.5229.49.camel@gaston> <20051106004934.GB19508@hansmi.ch>
+In-Reply-To: <20051106004934.GB19508@hansmi.ch>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Sun, 6 Nov 2005, Antonino A. Daplas wrote:
->> Note that this method will produce a split block cursor with EGA, which is
->> still supported by vgacon, but possibly not used anymore.  Why not use
->> this method (scanline_end < scanline_start) for VGA, and the default method
->> (moving the cursor out of the screen) for the rest?
-> 
-> I do believe that we can ignore EGA controllers these days.
-> 
-> Or at least accept the fact that anybody who owns an EGA system isn't 
-> actually likely to care about what his screen looks like.
-> 
-> The EGA support was pretty much a joke even when Linux started ;)
-> 
+Michael Hanselmann wrote:
+> This patch adds the framebuffer mode required for an Apple PowerBook G4
+> Titanium.
 
-Okay, it was a half-hearted comment in the first place :-)
+Feel free to add my
 
-Tony
+Acked-by: Antonino Daplas <adaplas@pol.net>

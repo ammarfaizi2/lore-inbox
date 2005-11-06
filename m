@@ -1,64 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbVKFO03@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750923AbVKFOur@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750870AbVKFO03 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 09:26:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbVKFO03
+	id S1750923AbVKFOur (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 09:50:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750927AbVKFOur
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 09:26:29 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:5604 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S1750805AbVKFO02 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 09:26:28 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: erezz@techunix.technion.ac.il
-Subject: Re: CPU utilization and hyperthreading
-Date: Sun, 6 Nov 2005 16:26:13 +0200
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <1131286439.436e0fa79e228@webmail.technion.ac.il>
-In-Reply-To: <1131286439.436e0fa79e228@webmail.technion.ac.il>
+	Sun, 6 Nov 2005 09:50:47 -0500
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:1200 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S1750914AbVKFOuq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Nov 2005 09:50:46 -0500
+Message-ID: <436E181D.6010507@t-online.de>
+Date: Sun, 06 Nov 2005 15:50:05 +0100
+From: Harald Dunkel <harald.dunkel@t-online.de>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="windows-1255"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511061626.13578.vda@ilport.com.ua>
+To: Harald Dunkel <harald.dunkel@t-online.de>, 333052@bugs.debian.org
+CC: Pozsar Balazs <pozsy@uhulinux.hu>, Kay Sievers <kay.sievers@vrfy.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: Bug#333052: 2.6.14, udev: unknown symbols for ehci_hcd
+References: <436CD1BC.8020102@t-online.de> <20051105173104.GA31048@vrfy.org> <20051105184802.GB25468@ojjektum.uhulinux.hu> <436DA120.9040004@t-online.de>
+In-Reply-To: <436DA120.9040004@t-online.de>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigD725E6A9BDA190D84892FB01"
+X-ID: XNNdzYZXwe0-QEfd4-D9q3KNyDZbaFbPXh4M2axgvnaa1vL4AF4McO
+X-TOI-MSGID: cf8a542f-4280-4dc9-af8a-dde1d9020e09
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 06 November 2005 16:13, erezz@techunix.technion.ac.il wrote:
-> Hi,
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigD725E6A9BDA190D84892FB01
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+Harald Dunkel wrote:
 > 
-> I'm using a 2.6.4-52 (Suse 9.1 pro distribution) kernel on a 3.2 dual
-> XEON machine (with hyperthreading).
+> For testing I have added it to Debian's
+> module-init-tools 3.2-pre9. Works for me.
 > 
-> I'm trying to analyze the performance of a kernel module that contains
-> 4 kernel threads (3 of them are more active). Also, some of the work is
-> done in a tasklet. The CPU load (as shown in vmstat) doesn't reach more
-> than 50%.  When trying to artificially stress the system with some
-> useless loops, the CPU load reaches 65% (but I cannot reach 100%). Also, the
-> interrupts count in vmstat is around 20000 (1000 when idle).
->  
-> My questions are:
-> 1. Why can't I reach 100%? 
 
-You can.
+No, it doesn't. After the 3rd reboot the
+problem was back.
 
-# while true; do true; done &
-# while true; do true; done &
-# while true; do true; done &
-# while true; do true; done &
 
-> 2. I guess that since I have 4 virtual CPUs (as shown in /proc/cpuinfo), not all
-> of them are stressed. Is there a way to see the CPU utilization for each CPU
-> (vmstat doesn't allow that)? 
+Regards
 
-top
+Harri
 
-> 3. When I load a module with a kernel thread that runs an infinite loop, I get
-> 25% CPU utilization (50% if I run 2 threads). Is it because I'm using 100% of a
-> single CPU (out of 4)?
-> 4. How is the time spent in interrupt context estimated? Is it possible to view
-> it somehow?
---
-vda
+--------------enigD725E6A9BDA190D84892FB01
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFDbhgmUTlbRTxpHjcRAnJ4AJ9th+WX7Gd/3z+kwixvK8dM0pgKGACfSZdD
+1tecYJSB10ht+DC8hjefnWQ=
+=Yzid
+-----END PGP SIGNATURE-----
+
+--------------enigD725E6A9BDA190D84892FB01--

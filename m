@@ -1,78 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932339AbVKFIpZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbVKFIte@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932339AbVKFIpZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 03:45:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbVKFIpZ
+	id S932336AbVKFIte (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 03:49:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbVKFIte
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 03:45:25 -0500
-Received: from smtpout.mac.com ([17.250.248.88]:21495 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932339AbVKFIpZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 03:45:25 -0500
-In-Reply-To: <Pine.LNX.4.64.0511040725090.27915@g5.osdl.org>
-References: <20051104010021.4180A184531@thermo.lanl.gov> <Pine.LNX.4.64.0511032105110.27915@g5.osdl.org> <20051103221037.33ae0f53.pj@sgi.com> <20051104063820.GA19505@elte.hu> <Pine.LNX.4.64.0511040725090.27915@g5.osdl.org>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <796B585C-CB1C-4EBA-9EF4-C11996BC9C8B@mac.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Paul Jackson <pj@sgi.com>,
-       andy@thermo.lanl.gov, mbligh@mbligh.org, akpm@osdl.org,
-       arjan@infradead.org, arjanv@infradead.org, haveblue@us.ibm.com,
-       kravetz@us.ibm.com, lhms-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, mel@csn.ul.ie,
-       nickpiggin@yahoo.com.au
+	Sun, 6 Nov 2005 03:49:34 -0500
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:22929 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932336AbVKFIte (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Sun, 6 Nov 2005 03:49:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=rSAXy06E1f6rvvlOxUxpCUtZBx+J9/xHET8Dx2kbHUBhZdxQzD6epn60jylQrwsFt5m9zsdD72Wi9B1qOn/wuT9sPKZMDhfz7JfNLzmzVfAs+Wpio+lbeqf0UkqmACvj4VvyTChSTt3rWM5Pw1SXtE0+e/OEdstFvzrPjr+1T4A=  ;
+Message-ID: <436DC41F.5040701@yahoo.com.au>
+Date: Sun, 06 Nov 2005 19:51:43 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+Subject: Re: [patch 2/14] mm: pte prefetch
+References: <436DBAC3.7090902@yahoo.com.au> <436DBCBC.5000906@yahoo.com.au>	 <436DBCE2.4050502@yahoo.com.au> <1131266102.2826.3.camel@laptopd505.fenrus.org>
+In-Reply-To: <1131266102.2826.3.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-Date: Sun, 6 Nov 2005 03:44:48 -0500
-To: Linus Torvalds <torvalds@osdl.org>
-X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 4, 2005, at 10:31:48, Linus Torvalds wrote:
-> I can pretty much guarantee that any kernel I maintain will never  
-> have dynamic kernel pointers: when some memory has been allocated  
-> with kmalloc() (or equivalent routines - pretty much _any_ kernel  
-> allocation), it stays put.
+Arjan van de Ven wrote:
+> On Sun, 2005-11-06 at 19:20 +1100, Nick Piggin wrote:
+> 
+>>2/14
+>>
+>>plain text document attachment (mm-pte-prefetch.patch)
+>>Prefetch ptes a line ahead. Worth 25% on ia64 when doing big forks.
+>>
+>>Index: linux-2.6/include/asm-generic/pgtable.h
+>>===================================================================
+>>--- linux-2.6.orig/include/asm-generic/pgtable.h
+>>+++ linux-2.6/include/asm-generic/pgtable.h
+>>@@ -196,6 +196,33 @@ static inline void ptep_set_wrprotect(st
+>> })
+>> #endif
+>> 
+>>+#ifndef __HAVE_ARCH_PTE_PREFETCH
+>>+#define PTES_PER_LINE (L1_CACHE_BYTES / sizeof(pte_t))
+>>+#define PTE_LINE_MASK (~(PTES_PER_LINE - 1))
+>>+#define ADDR_PER_LINE (PTES_PER_LINE << PAGE_SHIFT)
+>>+#define ADDR_LINE_MASK (~(ADDR_PER_LINE - 1))
+>>+
+>>+#define pte_prefetch(pte, addr, end)					\
+>>+({									\
+>>+	unsigned long __nextline = ((addr) + ADDR_PER_LINE) & ADDR_LINE_MASK; \
+>>+	if (__nextline < (end))						\
+>>+		prefetch(pte + PTES_PER_LINE);				\
+>>+})
+>>+
+> 
+> 
+> are you sure this is right? at least on pc's having a branch predictor
+> miss is very expensive and might well be more expensive than the gain
+> you get from a prefetch
+> 
 
-Hmm, this brings up something that I haven't seen discussed on this  
-list (maybe a long time ago, but perhaps it should be brought up  
-again?).  What are the pros/cons to having a non-physically-linear  
-kernel virtual memory space?  Would it be theoretically possible to  
-allow some kind of dynamic kernel page swapping, such that the _same_  
-kernel-virtual pointer goes to a different physical memory page?   
-That would definitely satisfy the memory hotplug people, but I don't  
-know what the tradeoffs would be for normal boxen.
+Yeah, not 100% sure about this one, which is why it has been sitting
+around for so long.
 
-It seems like the trick would be to make sure that page accesses  
-_during_ the swap are correctly handled.  If the page-swapper  
-included code in the kernel fault handler to notice that a page was  
-in the process of being swapped out/in by another CPU, it could just  
-wait for swap-in to finish and then resume from the new page.  This  
-would get messy with DMA and non-cpu memory accessors and such, which  
-are what I assume the reasons for not implementing this in the past  
-have been.
+It gives about 25% on contrived fork workload on an ia64 system, which
+is probably about its best case workload+architecture. I haven't found
+any notable regressions but it definitely isn't going to be any faster
+when the page tables are in cache.
 
- From what I can see, the really dumb-obvious-slow method would be to  
-call the first and last parts of software-suspend.  As memory hotplug  
-is a relatively rare event, this would probably work well enough  
-given the requirements:
-     1)  Run software suspend pre-memory-dump code
-     2)  Move pages off the to-be-removed node, remapping the kernel  
-space to the new locations.
-     3)  Mark the node so that new pages don't end up on it
-     4)  Run software suspend post-memory-reload code
+So long as I haven't found a real-world workload that is improved with
+the patch, I won't be trynig to get it merged.
 
-<random-guessing>
-Perhaps the non-contiguous memory support would be of some help here?
-</random-guessing>
+-- 
+SUSE Labs, Novell Inc.
 
-Cheers,
-Kyle Moffett
-
---
-Simple things should be simple and complex things should be possible
-   -- Alan Kay
-
-
-
+Send instant messages to your online friends http://au.messenger.yahoo.com 

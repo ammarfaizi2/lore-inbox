@@ -1,82 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbVKFRB4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbVKFRGI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932149AbVKFRB4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 12:01:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbVKFRB4
+	id S932155AbVKFRGI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 12:06:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbVKFRGI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 12:01:56 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:38111 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932149AbVKFRBz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 12:01:55 -0500
-Date: Sun, 6 Nov 2005 09:00:42 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-cc: Ingo Molnar <mingo@elte.hu>, Paul Jackson <pj@sgi.com>,
-       andy@thermo.lanl.gov, mbligh@mbligh.org, akpm@osdl.org,
-       arjan@infradead.org, arjanv@infradead.org, haveblue@us.ibm.com,
-       kravetz@us.ibm.com, lhms-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, mel@csn.ul.ie,
-       nickpiggin@yahoo.com.au
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-In-Reply-To: <Pine.LNX.4.64.0511060756010.3316@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0511060848010.3316@g5.osdl.org>
-References: <20051104010021.4180A184531@thermo.lanl.gov>
- <Pine.LNX.4.64.0511032105110.27915@g5.osdl.org> <20051103221037.33ae0f53.pj@sgi.com>
- <20051104063820.GA19505@elte.hu> <Pine.LNX.4.64.0511040725090.27915@g5.osdl.org>
- <796B585C-CB1C-4EBA-9EF4-C11996BC9C8B@mac.com> <Pine.LNX.4.64.0511060756010.3316@g5.osdl.org>
+	Sun, 6 Nov 2005 12:06:08 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:10973 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S932169AbVKFRGF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Nov 2005 12:06:05 -0500
+Message-ID: <436E37E8.3070807@t-online.de>
+Date: Sun, 06 Nov 2005 18:05:44 +0100
+From: Harald Dunkel <harald.dunkel@t-online.de>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Pozsar Balazs <pozsy@uhulinux.hu>
+CC: 333052@bugs.debian.org, Kay Sievers <kay.sievers@vrfy.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: Bug#333052: 2.6.14, udev: unknown symbols for ehci_hcd
+References: <436CD1BC.8020102@t-online.de> <20051105173104.GA31048@vrfy.org> <20051105184802.GB25468@ojjektum.uhulinux.hu> <436DA120.9040004@t-online.de> <436E181D.6010507@t-online.de> <20051106152924.GB16987@ojjektum.uhulinux.hu>
+In-Reply-To: <20051106152924.GB16987@ojjektum.uhulinux.hu>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigAFEA4EF0EA532F22C33CAFDC"
+X-ID: G-d40ZZeweQhdl6nqhXUVolAKrUvF2oXOkj-jqOU2E-mXZrxm5M8QE
+X-TOI-MSGID: b49c37c2-da3f-4acd-b295-ee59e79ede10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigAFEA4EF0EA532F22C33CAFDC
+Content-Type: multipart/mixed;
+ boundary="------------050900040809070701040700"
 
+This is a multi-part message in MIME format.
+--------------050900040809070701040700
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-On Sun, 6 Nov 2005, Linus Torvalds wrote:
+Pozsar Balazs wrote:
 > 
-> And no standard hardware allows you to do that in hw, so we'd end up doing 
-> a software page table walk for it (or, more likely, we'd have to make 
-> "struct page" bigger).
+> Well, that's really wierd, It Should Work(tm) :)
+> Did you apply both patches (Rusty's + mine), or only the latter?
 > 
-> You could do it today, although at a pretty high cost. And you'd have to 
-> forget about supporting any hardware that really wants contiguous memory 
-> for DMA (sound cards etc). It just isn't worth it.
 
-Btw, in case it wasn't clear: the cost of these kinds of things in the 
-kernel is usually not so much the actual "lookup" (whether with hw assist 
-or with another field in the "struct page").
+I hadn't seen Rusty's patch on Debian's bts, until you mentioned
+it. I have applied both patches now, and rebooted twice: By now
+it worked. But that's what I thought before.
 
-The biggest cost of almost everything in the kernel these days is the 
-extra code-footprint of yet another abstraction, and the locking cost. 
+> Could you send me debug output please? The first time I met the problem, 
+> I used a modprobe wrapper which dumped /proc/modules and modprobe 
+> stdout/stderr to a temp file.
+> 
+If the problem comes back then I will do.
 
-For example, the real cost of the highmem mapping seems to be almost _all_ 
-in the locking. It also makes some code-paths more complex, so it's yet 
-another I$ fill for the kernel.
+> I would like to also mention, that my patch leaves a very little time 
+> window open, but that's only a problem if module unloading is also 
+> happening: after parsing /proc/modules, but before actually loading the 
+> module, it is possible that an rmmod unloads (starts to unload) a 
+> dependant module. But this does not affect booting.
+> 
+> 
 
-So a remappable kernel tends to be different from a remappable user 
-application. A user application _only_ ever sees the actual cost of the 
-TLB walk (which hardware can do quite efficiently and is very amenable 
-indeed to a lot of optimization like OoO and speculative prefetching), but 
-on the kernel level, the remapping itself is the cheapest part.
+Are there several modprobe's running in parallel? Or does modprobe
+return SUCCESS while the kernel is still busy "making the module
+usable somehow"?
 
-(Yes, user apps can see some of the costs indirectly: they can see the 
-synchronization costs if they do lots of mmap/munmap's, especially if they 
-are threaded. But they really have to work at it to see it, and I doubt 
-the TLB synchronization issues tend to be even on the radar for any user 
-space performance analysis).
 
-You could probably do a remappable kernel (modulo the problems with 
-specific devices that want bigger physically contiguous areas than one 
-page) reasonably cheaply on UP. It gets more complex on SMP and with full 
-device access.
+Regards
 
-In fact, I suspect you can ask any Xen developer what their performance 
-problems and worries are. I suspect they much prefer UP clients over SMP 
-ones, and _much_ prefer paravirtualization over running unmodified 
-kernels.
+Harri
 
-So remappable kernels are certainly doable, they just have more 
-fundamental problems than remappable user space _ever_ has. Both from a 
-performance and from a complexity angle.
+--------------050900040809070701040700
+Content-Type: application/x-tar;
+ name="modprobe.patch.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="modprobe.patch.gz"
 
-			Linus
+H4sICLEubkMAA21vZHByb2JlLnBhdGNoAJVUbW/TMBD+nP6KWyRY0sZt025sdBSGeJ1U9gk+
+ICFFIXE6a6ld2Q5jvPx37uykrHtjWGlSn893z3NvjDFYqbKpORNSWGaVqg2bDidsrfneUGmx
+HOH5WquvfFgEk/F4n9FzCOOns+nhbH8yHHcLBmM87w0Gg3tM3rCWjtlkD9LpLEWDT29YOz4G
+Nn0yTZ7AgD4HcHzcg+DtyeIN9NFOkXlX5gilxVmuoV8LyXHXGxibaztD+agPH8TyzIJUFr5y
+RNdIy0u45HYI8FrJXQtVLuoh9EeoftUszKFSay6jcETiUSsOEwh1GJNTUUG0c/VK7DEfTJN0
+gqAP9pJp6lCjstPm0upLePwYjNXFau33CcVM5isew3wO4xh+kjpBP6lAWODfhbEmgcbwguCD
+MGDPOP6ELsGZcPBZ4J10emSIZIH3OienVp1Hp58WCyQBXyTRcBobbH4LuBBkdM/FGHbmQIK4
+N2gN7Nyr7/WCpbIKVGOPeoOHXgSMxIY78rxuhxjWhnv5VgBcHIOgv7k9h9wq4d3F/wkhZOFt
+3v/HBJalbcw9HDBjGxY72zUSLlReCrkMY/j1C64ffpJ1dxx3RoLG1Jyvo9Q1VXzUSivNeUSd
+8ldS1MrwaKuSuzOH0bVTK/l9HTt4IYlxP3P7qz7gTg90orlttIT0yLXOYbqXTLD/3de1ji9G
+XEhYrLNvXK/ypSiSdo/GUGSEkgkUq5JcZmptyTqCwklAbbRQxTk2f6U0hwsOtVLnCQgJRY4R
+F3bXAE0rkdfiB0Zw6PNTlZjJGm9mlah5hI7Yc/rnGpViQTlCpWe+Y5E911rpKHylmrp084am
+B+w+MrszeGSwChLS8my2zDky/ja+pYp99LsQO0LIVi5JTKEmUn52lQpenn7++P7k9B0goLzW
+PC8vidw515L7uebLSSwlBiCjHPS6Dve5yITMvHok+QUhghczD7GdTIlvdZpPKbH1FVoJbWxm
+BQakF2z4f3A2kfEtaFwQgi4IdzjzQ+k29gzZM3z/IzfsWm7Yg3LDHpybO9BdTVkjCV5bhEGh
+VqtcEuhKyDJrt9F2hFsplW63/gDRsBheowcAAA==
+--------------050900040809070701040700--
+
+--------------enigAFEA4EF0EA532F22C33CAFDC
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFDbjfuUTlbRTxpHjcRAqBVAJ9E5DM8q/nh2ALJvTZtQefGYk7W+QCeMAYG
+GVBCeBsqx+dfONtdV3HatRA=
+=I9cB
+-----END PGP SIGNATURE-----
+
+--------------enigAFEA4EF0EA532F22C33CAFDC--

@@ -1,62 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbVKFApL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbVKFApa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932249AbVKFApL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 19:45:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbVKFApL
+	id S932250AbVKFApa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 19:45:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbVKFAp3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 19:45:11 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:5645 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932249AbVKFApK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 19:45:10 -0500
-Date: Sun, 6 Nov 2005 01:45:08 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: gregkh@suse.de
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: [2.6 patch] drivers/pci/: small cleanups
-Message-ID: <20051106004508.GC3668@stusta.de>
+	Sat, 5 Nov 2005 19:45:29 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:15064 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932250AbVKFApS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 19:45:18 -0500
+Date: Sat, 5 Nov 2005 16:45:11 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+cc: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, mlang@debian.org
+Subject: Re: [PATCH] Set the vga cursor even when hidden
+In-Reply-To: <436D5047.4080006@gmail.com>
+Message-ID: <Pine.LNX.4.64.0511051642580.3316@g5.osdl.org>
+References: <20051105211949.GM7383@bouh.residence.ens-lyon.fr>
+ <436D5047.4080006@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following cleanups:
-- access.c should #include "pci.h" for getting the prototypes of it's
-  global functions
-- hotplug/shpchp_pci.c: make the needlessly global function
-  program_fw_provided_values() static
 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+On Sun, 6 Nov 2005, Antonino A. Daplas wrote:
+> 
+> Note that this method will produce a split block cursor with EGA, which is
+> still supported by vgacon, but possibly not used anymore.  Why not use
+> this method (scanline_end < scanline_start) for VGA, and the default method
+> (moving the cursor out of the screen) for the rest?
 
----
+I do believe that we can ignore EGA controllers these days.
 
- drivers/pci/access.c             |    2 ++
- drivers/pci/hotplug/shpchp_pci.c |    2 +-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+Or at least accept the fact that anybody who owns an EGA system isn't 
+actually likely to care about what his screen looks like.
 
---- linux-2.6.14-rc5-mm1-full/drivers/pci/access.c.old	2005-11-06 00:26:26.000000000 +0100
-+++ linux-2.6.14-rc5-mm1-full/drivers/pci/access.c	2005-11-06 00:26:54.000000000 +0100
-@@ -2,6 +2,8 @@
- #include <linux/module.h>
- #include <linux/ioport.h>
- 
-+#include "pci.h"
-+
- /*
-  * This interrupt-safe spinlock protects all accesses to PCI
-  * configuration space.
---- linux-2.6.14-rc5-mm1-full/drivers/pci/hotplug/shpchp_pci.c.old	2005-11-06 00:28:10.000000000 +0100
-+++ linux-2.6.14-rc5-mm1-full/drivers/pci/hotplug/shpchp_pci.c	2005-11-06 00:28:17.000000000 +0100
-@@ -34,7 +34,7 @@
- #include "../pci.h"
- #include "shpchp.h"
- 
--void program_fw_provided_values(struct pci_dev *dev)
-+static void program_fw_provided_values(struct pci_dev *dev)
- {
- 	u16 pci_cmd, pci_bctl;
- 	struct pci_dev *cdev;
+The EGA support was pretty much a joke even when Linux started ;)
 
+		Linus

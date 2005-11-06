@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbVKFAjB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbVKFAo5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932244AbVKFAjB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 19:39:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbVKFAjB
+	id S932248AbVKFAo5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 19:44:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbVKFAo5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 19:39:01 -0500
-Received: from xproxy.gmail.com ([66.249.82.193]:17882 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932244AbVKFAjA (ORCPT
+	Sat, 5 Nov 2005 19:44:57 -0500
+Received: from mailfe07.tele2.fr ([212.247.154.204]:53945 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S932248AbVKFAo5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 19:39:00 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=SWScmlCB6JDFmlyLr3/eAULq/GHLoppO6SWRBaK9dO1H/W64LEvhWvCS3yk6+yt1DFQs+IO3pgNJ6UEBBUxjNQ/6yskwEeJV1YE73BrriToXOagSrLLGPAXNrwu0OJPCuL6g9PMn9MAew7G4TEv/K5mptd+IgF0NGDDqhAIpAL4=
-Message-ID: <436D509C.8050306@gmail.com>
-Date: Sun, 06 Nov 2005 08:38:52 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Michael Hanselmann <linux-kernel@hansmi.ch>
-CC: benh@kernel.crashing.org, linux-kernel@vger.kernel.org,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: [PATCH] Framebuffer mode required for PowerBook Titanium
-References: <20051105234938.GA18608@hansmi.ch> <436D4A36.70606@gmail.com> <20051106003019.GA19508@hansmi.ch>
-In-Reply-To: <20051106003019.GA19508@hansmi.ch>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sat, 5 Nov 2005 19:44:57 -0500
+X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
+Date: Sun, 6 Nov 2005 01:44:51 +0100
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org,
+       mlang@debian.org
+Subject: Re: [PATCH] Set the vga cursor even when hidden
+Message-ID: <20051106004451.GF8183@bouh.residence.ens-lyon.fr>
+Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+	"Antonino A. Daplas" <adaplas@gmail.com>,
+	linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org,
+	mlang@debian.org
+References: <20051105211949.GM7383@bouh.residence.ens-lyon.fr> <436D5047.4080006@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <436D5047.4080006@gmail.com>
+User-Agent: Mutt/1.5.9i-nntp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Hanselmann wrote:
->> Does booting with video=xxxfb:1152x768M@60 work?  If it does, I would prefer
->> that we avoid adding more entries to the global mode database.
-> 
-> It boots but the picture is stretched over the display. That's what I
-> first tried, too, but only adding the mode definition fixed it.
+Hi,
 
-Okay.
+Antonino A. Daplas, le Sun 06 Nov 2005 08:37:27 +0800, a écrit :
+> Why not use this method (scanline_end < scanline_start) for VGA, and
+> the default method (moving the cursor out of the screen) for the rest?
 
-Tony
+Well, visually impaired people might want to use other cards as well.
+
+> Or why not just set bit 5 of the cursor start register (port 0x0a) to disable
+> the cursor, and clear to enable? I believe this will also work for the
+> other types.
+
+If this works, it would be fine.
+
+Regards,
+Samuel

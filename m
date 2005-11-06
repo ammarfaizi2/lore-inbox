@@ -1,71 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbVKFQzb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbVKFRDT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932134AbVKFQzb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 11:55:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbVKFQzb
+	id S932152AbVKFRDT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 12:03:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbVKFRDT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 11:55:31 -0500
-Received: from web34201.mail.mud.yahoo.com ([66.163.178.116]:29573 "HELO
-	web34201.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932134AbVKFQza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 11:55:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=1keHCjJgLsOcXageUYpsXHQOlKQL4nGzIp1EwovzNZCMp94GySC2wT/NXN5CuZ9rpSal1C+Hc9CVPDkFLMSQbwoHDLvW4X6uy+EYaTvbJ8Py3c+BcuGDNduYYlSh+uM59XBNk8GKU2R/5RoUllKPGnvzk0Y3d33d2g12LTaCCrM=  ;
-Message-ID: <20051106165529.99786.qmail@web34201.mail.mud.yahoo.com>
-Date: Sun, 6 Nov 2005 08:55:29 -0800 (PST)
-From: John Carlson <carlsj@yahoo.com>
-Subject: Re: New Linux Development Model
-To: Jim Nance <jlnance@sdf.lonestar.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051106152240.GA1952@SDF.LONESTAR.ORG>
+	Sun, 6 Nov 2005 12:03:19 -0500
+Received: from compunauta.com ([69.36.170.169]:27629 "EHLO compunauta.com")
+	by vger.kernel.org with ESMTP id S932152AbVKFRDS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Nov 2005 12:03:18 -0500
+From: Gustavo Guillermo =?iso-8859-15?q?P=E9rez?= 
+	<gustavo@compunauta.com>
+Organization: www.compunauta.com
+To: Harald Dunkel <harald.dunkel@t-online.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14, udev: unknown symbols for ehci_hcd
+Date: Sun, 6 Nov 2005 11:03:14 -0600
+User-Agent: KMail/1.8.2
+References: <436CD1BC.8020102@t-online.de> <20051105162503.GC20686@kroah.com> <436D9BDE.3060404@t-online.de>
+In-Reply-To: <436D9BDE.3060404@t-online.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200511061103.14850.gustavo@compunauta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+El Sábado, 5 de Noviembre de 2005 23:59, escribió:
+> Greg KH wrote:
+> > On Sat, Nov 05, 2005 at 04:37:32PM +0100, Harald Dunkel wrote:
+> >>Hi folks,
+> >>
+> >>I can't say since when this problem is in, but currently
+> >>I get error messages about unknown symbols at boot time
+> >>(after mounting the root disk, as it seems):
+> >
+> > Are you using Debian?
+>
+> Of course :=)
 
+I was having that problem using busybox insmod, changing to latest kernel 
+tools was fixed for me, I don't know why, but in my case was a ramdisk to 
+load sata drivers before mounting the root disk. Anyway module-init-tools is 
+not too bigger even building them with glibc instead uClibc as static 
+binaries.
 
---- Jim Nance <jlnance@sdf.lonestar.org> wrote:
-
-> On Sat, Nov 05, 2005 at 10:42:15AM +0100, hostmaster
-> wrote:
-> 
-> > It can't be an option for 3'rd party developers
-> and users to
-> > check if external drivers still works with new
-> kenrel releases.
-> 
-> Who should check?  It can't be the kernel developers
-> since they
-> don't know who the 3'rd party developers are.
-> 
-> - Jim
-> 
-> -- 
-> jlnance@sdf.lonestar.org
-> SDF Public Access UNIX System -
-> http://sdf.lonestar.org
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-Nor do they always have the required hardware to test
-the fixes.
-
-jack
-
-John Carlson
-<carlsj@yahoo.com>
-
-
-		
-__________________________________ 
-Yahoo! FareChase: Search multiple travel sites in one click.
-http://farechase.yahoo.com
+:)
+-- 
+Gustavo Guillermo Pérez
+Compunauta uLinux
+www.compunauta.com

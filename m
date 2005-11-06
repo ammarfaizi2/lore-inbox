@@ -1,50 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbVKFMoU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbVKFMo7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750744AbVKFMoU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 07:44:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbVKFMoU
+	id S1750791AbVKFMo7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 07:44:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbVKFMo7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 07:44:20 -0500
-Received: from xproxy.gmail.com ([66.249.82.193]:60653 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750744AbVKFMoT (ORCPT
+	Sun, 6 Nov 2005 07:44:59 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:45027 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1750755AbVKFMo6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 07:44:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=uUL/WVqbBAaBdg2G4VNG47GNC7k+SdJ6UY2Yx3AMeu++bLL0oFNGZrYb50M1vpEMM3k5PJx0HoJVcRxHTU006XjZBUwIP3W8Crhn3+Qfw1JPj4fVEF1VTFMVsflc+U8yBr2KeLAIlSyO2CPmTNLFwXJsFbF15yCkSMWbztEPVJ4=
-Message-ID: <436DFA93.8070002@gmail.com>
-Date: Sun, 06 Nov 2005 20:44:03 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
+	Sun, 6 Nov 2005 07:44:58 -0500
+Date: Sun, 6 Nov 2005 13:44:32 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       davej@redhat.com, thang@redhat.com, linux-kernel@vger.kernel.org,
+       Russell King <rmk+kernel@arm.linux.org.uk>
+Subject: Re: [PATCH] kbuild updates
+In-Reply-To: <20051106101844.GA11921@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.61.0511061341290.12843@scrub.home>
+References: <20051106101844.GA11921@mars.ravnborg.org>
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/video/: possible cleanups
-References: <20051106005026.GE3668@stusta.de> <436D9AF3.8040008@pol.net> <20051106111743.GA3847@stusta.de>
-In-Reply-To: <20051106111743.GA3847@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> On Sun, Nov 06, 2005 at 01:56:03PM +0800, Antonino A. Daplas wrote:
->> Adrian Bunk wrote:
->>>
->>> --- linux-2.6.14-rc5-mm1-full/drivers/video/console/softcursor.c.old	2005-11-06 00:31:15.000000000 +0100
->>> +++ linux-2.6.14-rc5-mm1-full/drivers/video/console/softcursor.c	2005-11-06 00:31:30.000000000 +0100
->>> @@ -17,6 +17,8 @@
->>>  #include <asm/uaccess.h>
->>>  #include <asm/io.h>
->>>  
->>> +#include "fbcon.h"
->> I don't think softcursor needs anything in fbcon.h. The rest looks okay.
+Hi,
+
+On Sun, 6 Nov 2005, Sam Ravnborg wrote:
+
+> kconfig: fix xconfig on fedora 2 & 3 (x86_64)
 > 
-> fbcon.h contains the function prototype for soft_cursor().
+> From: Than Ngo <than@redhat.com>
+> qt as installed on fedora core (2 and 3) does not work with vanilla
+> kernel. The linker fails to locate the qt lib:
+> 
+> Actual Results:  # make xconfig
+>   HOSTLD  scripts/kconfig/qconf
+>   /usr/bin/ld: cannot find -lqt
+>   collect2: ld returned 1 exit status
+> 
+> Than Ngo has provided following fix for the bug.
+> 
+> Cc: Than Ngo <than@redhat.com>
+> Acked-by: Dave Jones <davej@redhat.com>
+> Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+> 
+> ---
+> commit ab919c06144cfb11c05b5b5cd291daa96ac2e423
+> tree 8747dc3122c0c2ebefaf004a2d71e2cb7bd97615
+> parent 2dd34b488a99135ad2a529e33087ddd6a09e992a
+> author Sam Ravnborg <sam@mars.ravnborg.org> Sun, 06 Nov 2005 11:05:21 +0100
+> committer Sam Ravnborg <sam@mars.ravnborg.org> Sun, 06 Nov 2005 11:05:21 +0100
+> 
+>  scripts/kconfig/Makefile |   15 ++++++++++-----
+>  1 files changed, 10 insertions(+), 5 deletions(-)
+> 
+> diff --git a/scripts/kconfig/Makefile b/scripts/kconfig/Makefile
+> index 0dd9691..455aeab 100644
+> --- a/scripts/kconfig/Makefile
+> +++ b/scripts/kconfig/Makefile
+> @@ -129,7 +129,7 @@ endif
+>  HOSTCFLAGS_lex.zconf.o	:= -I$(src)
+>  HOSTCFLAGS_zconf.tab.o	:= -I$(src)
+>  
+> -HOSTLOADLIBES_qconf	= -L$(QTLIBPATH) -Wl,-rpath,$(QTLIBPATH) -l$(QTLIB) -ldl
+> +HOSTLOADLIBES_qconf	= -L$(QTLIBPATH) -Wl,-rpath,$(QTLIBPATH) -l$(LIBS_QT) -ldl
+>  HOSTCXXFLAGS_qconf.o	= -I$(QTDIR)/include -D LKC_DIRECT_LINK
+>  
+>  HOSTLOADLIBES_gconf	= `pkg-config gtk+-2.0 gmodule-2.0 libglade-2.0 --libs`
+> @@ -163,11 +163,16 @@ $(obj)/.tmp_qtcheck:
+>  	  false; \
+>  	fi; \
+>  	LIBPATH=$$DIR/lib; LIB=qt; \
+> -	$(HOSTCXX) -print-multi-os-directory > /dev/null 2>&1 && \
+> -	  LIBPATH=$$DIR/lib/$$($(HOSTCXX) -print-multi-os-directory); \
+> -	if [ -f $$LIBPATH/libqt-mt.so ]; then LIB=qt-mt; fi; \
+> +	if [ -f $$QTLIB/libqt-mt.so ] ; then \
+> +		LIB=qt-mt; \
+> +		LIBPATH=$$QTLIB; \
+> +	else \
+> +		$(HOSTCXX) -print-multi-os-directory > /dev/null 2>&1 && \
+> +		LIBPATH=$$DIR/lib/$$($(HOSTCXX) -print-multi-os-directory); \
+> +		if [ -f $$LIBPATH/libqt-mt.so ]; then LIB=qt-mt; fi; \
+> +	fi; \
+>  	echo "QTDIR=$$DIR" > $@; echo "QTLIBPATH=$$LIBPATH" >> $@; \
+> -	echo "QTLIB=$$LIB" >> $@; \
+> +	echo "LIBS_QT=$$LIB" >> $@; \
+>  	if [ ! -x $$DIR/bin/moc -a -x /usr/bin/moc ]; then \
+>  	  echo "*"; \
+>  	  echo "* Unable to find $$DIR/bin/moc, using /usr/bin/moc instead."; \
 
-Ahh, you're right.  I forgot that I moved it to the console directory.
+What exactly is the problem? How does Fedora use QTLIB?
 
-Tony
-
+bye, Roman

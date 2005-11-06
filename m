@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbVKFIuq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbVKFI5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932341AbVKFIuq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 03:50:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbVKFIuq
+	id S932342AbVKFI5M (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 03:57:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbVKFI5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 03:50:46 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:23049 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932338AbVKFIup (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 03:50:45 -0500
-Date: Sun, 6 Nov 2005 08:50:34 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Failure: ARM clps7500
-Message-ID: <20051106085034.GD25134@flint.arm.linux.org.uk>
-Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <20051103095840.GA28038@flint.arm.linux.org.uk> <1131055419.14985.7.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 6 Nov 2005 03:57:12 -0500
+Received: from nproxy.gmail.com ([64.233.182.202]:36574 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932342AbVKFI5L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Nov 2005 03:57:11 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:reply-to:organization:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
+        b=H5OJ2eNq5hVbxbl8BU22XpfwxgIMS3La6hpvHLHF3lI0wdTbMLifQZUsyNo4MZwDj6VUfPDjSAB/YI+Es+Y/5d4zAq/48VeJXDlMvSYuZLElxjcliGgl2XDTKBo8ZGJ7qKdf7r45de471naI7ZW67anMMVZHnuwoIQtM5+OGsL4=
+Reply-To: pantelis@embeddedalley.com
+Organization: EASI
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [PATCH] Au1x00 8250 uart support (Updated - take #4).
+Date: Sun, 6 Nov 2005 11:02:21 +0200
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org, cw@f00f.org,
+       Pete Popov <ppopov@embeddedalley.com>,
+       Matt Porter <mporter@embeddedalley.com>, ralf@linux-mips.org
+References: <200509192340.10450.pantelis@embeddedalley.com> <200509222211.22674.pantelis@embeddedalley.com> <20051106084424.GC25134@flint.arm.linux.org.uk>
+In-Reply-To: <20051106084424.GC25134@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1131055419.14985.7.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200511061102.22033.pantelis@embeddedalley.com>
+From: Pantelis Antoniou <pantelis.antoniou@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 03, 2005 at 05:03:39PM -0500, Trond Myklebust wrote:
-> On Thu, 2005-11-03 at 09:58 +0000, Russell King wrote:
-> > This default configuration (arch/arm/configs/clps7500_defconfig) fails
-> > to build:
+On Sunday 06 November 2005 10:44, Russell King wrote:
+> On Thu, Sep 22, 2005 at 10:11:21PM +0300, Pantelis Antoniou wrote:
+> > Once more, with the MEM32 chunks out.
 > > 
-> >   LD      .tmp_vmlinux1
-> > net/built-in.o: In function `xs_bindresvport':
-> > stats.c:(.text+0x54654): undefined reference to `xprt_min_resvport'
-> > stats.c:(.text+0x54658): undefined reference to `xprt_max_resvport'
-> > net/built-in.o: In function `xs_setup_tcp':
-> > stats.c:(.text+0x54bcc): undefined reference to `xprt_tcp_slot_table_entries'
-> > stats.c:(.text+0x54bd0): undefined reference to `xprt_max_resvport'
-> > net/built-in.o: In function `xs_setup_udp':
-> > stats.c:(.text+0x54d34): undefined reference to `xprt_udp_slot_table_entries'
-> > stats.c:(.text+0x54d38): undefined reference to `xprt_max_resvport'
-> > make: *** [.tmp_vmlinux1] Error 1
+> > Regards
 > > 
-> > Maybe related to CONFIG_SYSCTL=n ?
+> > Pantelis
 > 
-> The following patch should fix it:
+> Do you have a description and sign-off for this patch?
 > 
-> http://client.linux-nfs.org/Linux-2.6.x/2.6.14/linux-2.6.14-96-fix_rpc_nosysctl.dif
+> 
 
-Thanks, I assume this got merged since clps7500 has started building
-again.
+---
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Support Au1x00 8250 UARTs using the generic 8250 driver.
+The offsets of the registers are in a different place, and
+some parts cannot handle a full set of modem control signals.
+
+---
+
+Signed-off-by: Pantelis Antoniou <pantelis@embeddedalley.ocm>
+
+----

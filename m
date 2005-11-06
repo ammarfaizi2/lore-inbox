@@ -1,52 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbVKFA2q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbVKFAaW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932239AbVKFA2q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Nov 2005 19:28:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbVKFA2q
+	id S932231AbVKFAaW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Nov 2005 19:30:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbVKFAaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 19:28:46 -0500
-Received: from mail.metronet.co.uk ([213.162.97.75]:44774 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S932239AbVKFA2q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 19:28:46 -0500
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Mark Lord <lkml@rtr.ca>
-Subject: Re: New Linux Development Model
-Date: Sun, 6 Nov 2005 00:28:29 +0000
-User-Agent: KMail/1.8.92
-Cc: Edgar Hucek <hostmaster@ed-soft.at>, Jean Delvare <khali@linux-fr.org>,
-       LKML <linux-kernel@vger.kernel.org>
-References: <436C7E77.3080601@ed-soft.at> <200511051347.54833.s0348365@sms.ed.ac.uk> <436D30F6.2050207@rtr.ca>
-In-Reply-To: <436D30F6.2050207@rtr.ca>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 5 Nov 2005 19:30:22 -0500
+Received: from hansmi.home.forkbomb.ch ([213.144.146.165]:5405 "EHLO
+	hansmi.home.forkbomb.ch") by vger.kernel.org with ESMTP
+	id S932231AbVKFAaV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 19:30:21 -0500
+Date: Sun, 6 Nov 2005 01:30:19 +0100
+From: Michael Hanselmann <linux-kernel@hansmi.ch>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org,
+       linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: [PATCH] Framebuffer mode required for PowerBook Titanium
+Message-ID: <20051106003019.GA19508@hansmi.ch>
+References: <20051105234938.GA18608@hansmi.ch> <436D4A36.70606@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511060028.30018.s0348365@sms.ed.ac.uk>
+In-Reply-To: <436D4A36.70606@gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 05 November 2005 22:23, Mark Lord wrote:
-> Alistair John Strachan wrote:
-> > ipw2200 "works" in 2.6.14, it's just the maintainer has opted to use a
-> > "stable version" which lacks experimental features while ieee80211 gets
-> > up to scratch.
->
-> I haven't been able to get it working.  Nor does the external one seem
-> to work with 2.6.14 -- still stuck on 2.6.13 here, which impacts my ability
-> to help with testing of dev kernels.
+> Does booting with video=xxxfb:1152x768M@60 work?  If it does, I would prefer
+> that we avoid adding more entries to the global mode database.
 
-Well, the in-kernel 1.0.0 works fine here on 2.6.14 (no WPA of course). The 
-only caveat is that you need to downgrade your firmware if you've been using 
-1.0.7 (or 1.0.8) prior, which I had and was initially confusing.
+It boots but the picture is stretched over the display. That's what I
+first tried, too, but only adding the mode definition fixed it.
 
-Otherwise, I suggest you file a bug report.
-
--- 
-Cheers,
-Alistair.
-
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+Greets,
+Michael

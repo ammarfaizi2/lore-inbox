@@ -1,46 +1,35 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932218AbVKEXvj (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sat, 5 Nov 2005 18:51:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbVKEXvj
+	id S932266AbVKFDrz (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 5 Nov 2005 22:47:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbVKFDrz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Nov 2005 18:51:39 -0500
-Received: from [209.97.201.16] ([209.97.201.16]:51930 "EHLO
-	server1.ginster-web.com") by vger.kernel.org with ESMTP
-	id S932218AbVKEXvi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Nov 2005 18:51:38 -0500
-Message-ID: <20051103155805.4B3583BFA7F85B7F@gmail.com>
-X-IMBH: Yes
-From: doublingyourmoney@gmail.com
-To: linux-kernel@vger.kernel.org
-Subject: Receive a FREE HYIP Script!
-Date: 03 Nov 2005 15:58:05 -0600
+	Sat, 5 Nov 2005 22:47:55 -0500
+Received: from dsl-106-241.che.centurytel.net ([69.179.106.241]:26382 "HELO
+	dsl-106-241.che.centurytel.net") by vger.kernel.org with SMTP
+	id S932266AbVKFDry (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Nov 2005 22:47:54 -0500
+Reply-To: "Jim Metz" <dvigneaumhhm@anselm.edu>
+From: "Jim" <dvigneaumhhm@anselm.edu>
+Message-ID: <4715353075.385242169456@anselm.edu>
+Date: Sat, 5 Nov 2005 22:49:52 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: From Jim
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - server1.ginster-web.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - gmail.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932218AbVKEXvj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932266AbVKFDrz@vger.kernel.org>
 
 
-http://www.xyzdoubler.com/?tydog22
+Cute 18yo Sologirl Bare Bree Posing In Sexy Bikini
 
-XYZ Doubler-Brand New Cash Doubler!
-FOR LIMITED TIME ONLY RECEIVE A FREE E-GOLD HYIP SCRIPT WITH PURCHASE OF 
-$10 OR MORE!!
 
-Need more e-gold/stormpay?
+Exactness and neatness in moderation is a virtue, but carried to extremes narrows the mind.
 
-Get In Early While Its HOT!
-Join this brand new cash doubler and double your money in 1 day!
-A great way to earn some extra cash on the side!
-Simple but brilliant way of doubling your investment!
+http://kibydesica.com/main/
+The greatest braggarts are usually the biggest cowards.There is nothing a man of good sense dreads in a wife so much as her having more sense than himself.
+A short absence is the safest.When a true genius appears in this world, you may know him by this sign, that the dunces are all in confederacy against him.
+True courage is not the brutal force of vulgar heroes. Rather the firm resolve of virtue and reason.The illegal we do immediately. The unconstitutional takes a little longer.
 
-http://www.xyzdoubler.com/?tydog22
+

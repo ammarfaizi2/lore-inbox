@@ -1,58 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbVKFPzs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbVKFP4Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932102AbVKFPzs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 10:55:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932109AbVKFPzs
+	id S932119AbVKFP4Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 10:56:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932109AbVKFP4Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 10:55:48 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:15333 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932102AbVKFPzr (ORCPT
+	Sun, 6 Nov 2005 10:56:16 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:28629 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932119AbVKFP4P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 10:55:47 -0500
-Date: Sun, 6 Nov 2005 16:55:27 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: rpurdie@rpsys.net, lenz@cs.wisc.edu, linux-kernel@vger.kernel.org,
-       rmk@arm.linux.org.uk
-Subject: Re: [patch] collie: enable frontlight
-Message-ID: <20051106155524.GC28618@elf.ucw.cz>
-References: <20051101232122.GA27107@elf.ucw.cz> <20051104151751.32c1abe7.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051104151751.32c1abe7.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Sun, 6 Nov 2005 10:56:15 -0500
+Date: Sun, 6 Nov 2005 07:55:39 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Paul Jackson <pj@sgi.com>
+cc: Ingo Molnar <mingo@elte.hu>, andy@thermo.lanl.gov, mbligh@mbligh.org,
+       akpm@osdl.org, arjan@infradead.org, arjanv@infradead.org,
+       haveblue@us.ibm.com, kravetz@us.ibm.com,
+       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, mel@csn.ul.ie, nickpiggin@yahoo.com.au
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+In-Reply-To: <20051105233408.3037a6fe.pj@sgi.com>
+Message-ID: <Pine.LNX.4.64.0511060746170.3316@g5.osdl.org>
+References: <20051104010021.4180A184531@thermo.lanl.gov>
+ <Pine.LNX.4.64.0511032105110.27915@g5.osdl.org> <20051103221037.33ae0f53.pj@sgi.com>
+ <20051104063820.GA19505@elte.hu> <Pine.LNX.4.64.0511040725090.27915@g5.osdl.org>
+ <20051104155317.GA7281@elte.hu> <20051105233408.3037a6fe.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> Pavel Machek <pavel@ucw.cz> wrote:
-> >
-> > +static spinlock_t fl_lock = SPIN_LOCK_UNLOCKED;
-> > +
-> > +#define LCM_ALC_EN	0x8000
-> > +
-> > +void frontlight_set(struct locomo *lchip, int duty, int vr, int bpwf)
-> > +{
-> > +	unsigned long flags;
-> > +
-> > +	spin_lock_irqsave(&fl_lock, flags);
-> > +	locomo_writel(bpwf, lchip->base + LOCOMO_FRONTLIGHT + LOCOMO_ALS);
-> > +	udelay(100);
-> > +	locomo_writel(duty, lchip->base + LOCOMO_FRONTLIGHT + LOCOMO_ALD);
-> > +	locomo_writel(bpwf | LCM_ALC_EN, lchip->base + LOCOMO_FRONTLIGHT + LOCOMO_ALS);
-> > +	spin_unlock_irqrestore(&fl_lock, flags);
-> > +}
+
+On Sat, 5 Nov 2005, Paul Jackson wrote:
 > 
-> ick, a 100 microsecond glitch, quite unnecessary.  Why not use a semaphore
-> here, if any locking is actually needed?  (It's called from device probe -
-> there's higher-level serialisation, no?)
+> It seems to me this is making it harder than it should be.  You're
+> trying to create a zone that is 100% cleanable, whereas the HPC folks
+> only desire 99.8% cleanable.
 
-Oops, I see; I invented my own lock when I should have used
-lchip->lock. Fixed locally, I'll push it up eventually.
+Well, 99.8% is pretty borderline.
 
-							Pavel
--- 
-Thanks, Sharp!
+> Unlike the hot(un)plug folks, the HPC folks don't mind a few pages of
+> Linus's unmoveable kmalloc memory in their way.  They rather expect
+> that some modest percentage of each node will have some 'kernel stuff'
+> on it that refuses to move.
+
+The thing is, if 99.8% of memory is cleanable, the 0.2% is still enough to 
+make pretty much _every_ hugepage in the system pinned down.
+
+Besides, right now, it's not 99.8% anyway. Not even close. It's more like 
+60%, and then horribly horribly ugly hacks that try to do something about 
+the remaining 40% and usually fail (the hacks might get it closer to 99%, 
+but they are fragile, expensive, and ugly as hell).
+
+It used to be that HIGHMEM pages were always cleanable on x86, but even 
+that isn't true any more, since now at least pipe buffers can be there 
+too.
+
+I agree that HPC people are usually a bit less up-tight about things than 
+database people tend to be, and many of them won't care at all, but if you 
+want hugetlb, you'll need big areas.
+
+Side note: the exact size of hugetlb is obviously architecture-specific, 
+and the size matters a lot. On x86, for example, hugetlb pages are either 
+2MB or 4MB in size (and apparently 2GB may be coming). I assume that's 
+where you got the 99.8% from (4kB out of 2M).
+
+Other platforms have more flexibility, but sometimes want bigger areas 
+still. 
+
+		Linus

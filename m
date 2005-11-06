@@ -1,29 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbVKFP4Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbVKFQMj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932119AbVKFP4Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 10:56:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932109AbVKFP4Q
+	id S932109AbVKFQMj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 11:12:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932124AbVKFQMj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 10:56:16 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:28629 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932119AbVKFP4P (ORCPT
+	Sun, 6 Nov 2005 11:12:39 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:62679 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932109AbVKFQMi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 10:56:15 -0500
-Date: Sun, 6 Nov 2005 07:55:39 -0800 (PST)
+	Sun, 6 Nov 2005 11:12:38 -0500
+Date: Sun, 6 Nov 2005 08:12:13 -0800 (PST)
 From: Linus Torvalds <torvalds@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-cc: Ingo Molnar <mingo@elte.hu>, andy@thermo.lanl.gov, mbligh@mbligh.org,
-       akpm@osdl.org, arjan@infradead.org, arjanv@infradead.org,
-       haveblue@us.ibm.com, kravetz@us.ibm.com,
-       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, mel@csn.ul.ie, nickpiggin@yahoo.com.au
+To: Kyle Moffett <mrmacman_g4@mac.com>
+cc: Ingo Molnar <mingo@elte.hu>, Paul Jackson <pj@sgi.com>,
+       andy@thermo.lanl.gov, mbligh@mbligh.org, akpm@osdl.org,
+       arjan@infradead.org, arjanv@infradead.org, haveblue@us.ibm.com,
+       kravetz@us.ibm.com, lhms-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, mel@csn.ul.ie,
+       nickpiggin@yahoo.com.au
 Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-In-Reply-To: <20051105233408.3037a6fe.pj@sgi.com>
-Message-ID: <Pine.LNX.4.64.0511060746170.3316@g5.osdl.org>
+In-Reply-To: <796B585C-CB1C-4EBA-9EF4-C11996BC9C8B@mac.com>
+Message-ID: <Pine.LNX.4.64.0511060756010.3316@g5.osdl.org>
 References: <20051104010021.4180A184531@thermo.lanl.gov>
  <Pine.LNX.4.64.0511032105110.27915@g5.osdl.org> <20051103221037.33ae0f53.pj@sgi.com>
  <20051104063820.GA19505@elte.hu> <Pine.LNX.4.64.0511040725090.27915@g5.osdl.org>
- <20051104155317.GA7281@elte.hu> <20051105233408.3037a6fe.pj@sgi.com>
+ <796B585C-CB1C-4EBA-9EF4-C11996BC9C8B@mac.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -31,41 +32,49 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sat, 5 Nov 2005, Paul Jackson wrote:
+On Sun, 6 Nov 2005, Kyle Moffett wrote:
 > 
-> It seems to me this is making it harder than it should be.  You're
-> trying to create a zone that is 100% cleanable, whereas the HPC folks
-> only desire 99.8% cleanable.
+> Hmm, this brings up something that I haven't seen discussed on this list
+> (maybe a long time ago, but perhaps it should be brought up again?).  What are
+> the pros/cons to having a non-physically-linear kernel virtual memory space?
 
-Well, 99.8% is pretty borderline.
+Well, we _do_ actually have that, and we use it quite a bit. Both 
+vmalloc() and HIGHMEM work that way.
 
-> Unlike the hot(un)plug folks, the HPC folks don't mind a few pages of
-> Linus's unmoveable kmalloc memory in their way.  They rather expect
-> that some modest percentage of each node will have some 'kernel stuff'
-> on it that refuses to move.
+The biggest problem with vmalloc() is that the virtual space is often as 
+constrained as the physical one (ie on old x86-32, the virtual address 
+space is the bigger problem - you may have 36 bits of physical memory, but 
+the kernel has only 30 bits of virtual). But it's quite commonly used for 
+stuff that wants big linear areas.
 
-The thing is, if 99.8% of memory is cleanable, the 0.2% is still enough to 
-make pretty much _every_ hugepage in the system pinned down.
+The HIGHMEM approach works fine, but the overhead of essentially doing a 
+software TLB is quite high, and if we never ever have to do it again on 
+any architecture, I suspect everybody will be pretty happy.
 
-Besides, right now, it's not 99.8% anyway. Not even close. It's more like 
-60%, and then horribly horribly ugly hacks that try to do something about 
-the remaining 40% and usually fail (the hacks might get it closer to 99%, 
-but they are fragile, expensive, and ugly as hell).
+> Would it be theoretically possible to allow some kind of dynamic kernel page
+> swapping, such that the _same_ kernel-virtual pointer goes to a different
+> physical memory page?  That would definitely satisfy the memory hotplug
+> people, but I don't know what the tradeoffs would be for normal boxen.
 
-It used to be that HIGHMEM pages were always cleanable on x86, but even 
-that isn't true any more, since now at least pipe buffers can be there 
-too.
+Any virtualization will try to do that, but they _all_ prefer huge pages 
+if they care at all about performance.
 
-I agree that HPC people are usually a bit less up-tight about things than 
-database people tend to be, and many of them won't care at all, but if you 
-want hugetlb, you'll need big areas.
+If you thought the database people wanted big pages, the kernel is worse. 
+Unlike databases or HPC, the kernel actually wants to use the physical 
+page address quite often, notably for IO (but also for just mapping them 
+into some other virtual address - the users).
 
-Side note: the exact size of hugetlb is obviously architecture-specific, 
-and the size matters a lot. On x86, for example, hugetlb pages are either 
-2MB or 4MB in size (and apparently 2GB may be coming). I assume that's 
-where you got the 99.8% from (4kB out of 2M).
+And no standard hardware allows you to do that in hw, so we'd end up doing 
+a software page table walk for it (or, more likely, we'd have to make 
+"struct page" bigger).
 
-Other platforms have more flexibility, but sometimes want bigger areas 
-still. 
+You could do it today, although at a pretty high cost. And you'd have to 
+forget about supporting any hardware that really wants contiguous memory 
+for DMA (sound cards etc). It just isn't worth it.
 
-		Linus
+Real memory hotplug needs hardware support anyway (if only buffering the 
+memory at least electrically). At which point you're much better off 
+supporting some remapping in the buffering too, I'm convinced. There's no 
+_need_ to do these things in software.
+
+			Linus

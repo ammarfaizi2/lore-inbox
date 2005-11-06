@@ -1,35 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbVKFISm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbVKFISc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932310AbVKFISm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 03:18:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbVKFISl
+	id S932297AbVKFISc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 03:18:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932299AbVKFISc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 03:18:41 -0500
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:29617 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932299AbVKFISk (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Sun, 6 Nov 2005 03:18:40 -0500
+	Sun, 6 Nov 2005 03:18:32 -0500
+Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:35987 "HELO
+	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932297AbVKFISb (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Sun, 6 Nov 2005 03:18:31 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com.au;
   h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:Subject:References:In-Reply-To:Content-Type;
-  b=FXmaUxndmwPdJJi1jLa5ybYG0U+0YYQSVXLaDAaWUOnjcKnTfudMf+psbyEE8J8gnmFcDBhNxlppDkDF84AKXZmrUXXw+VIfKtMWFZ6Y27ipL7RCEYw4BxtiKa10IFXjoiQ9STDD4mn0YenzsTOuF5UZt6LtIqNyU6el0QbHQhk=  ;
-Message-ID: <436DBCE2.4050502@yahoo.com.au>
-Date: Sun, 06 Nov 2005 19:20:50 +1100
+  b=YktwW0m5SLMdESoWKxtn/UfJmfKTlD3woW8k7n/g+RLxlbW+MBOsTul7j91hnJEe3fG4RCB5LT9ebvFVtzXTYUknKKGlBi1vA33xh5cP5BMJ0HS2y7QusDArTXZs97iBwVZcwiCrhnAzsGq1v87McKvWseLK6AU7hUzDrLFhTS8=  ;
+Message-ID: <436DBCD9.1030509@yahoo.com.au>
+Date: Sun, 06 Nov 2005 19:20:41 +1100
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: [patch 2/14] mm: pte prefetch
+Subject: [patch 2/14] mm: 
 References: <436DBAC3.7090902@yahoo.com.au> <436DBCBC.5000906@yahoo.com.au>
 In-Reply-To: <436DBCBC.5000906@yahoo.com.au>
 Content-Type: multipart/mixed;
- boundary="------------050107070405010703040702"
+ boundary="------------070605020004040909010308"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------050107070405010703040702
+--------------070605020004040909010308
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
@@ -39,7 +39,7 @@ Content-Transfer-Encoding: 7bit
 SUSE Labs, Novell Inc.
 
 
---------------050107070405010703040702
+--------------070605020004040909010308
 Content-Type: text/plain;
  name="mm-pte-prefetch.patch"
 Content-Transfer-Encoding: 7bit
@@ -128,5 +128,5 @@ Index: linux-2.6/mm/memory.c
  	add_mm_rss(mm, file_rss, anon_rss);
  	pte_unmap_unlock(pte - 1, ptl);
 
---------------050107070405010703040702--
+--------------070605020004040909010308--
 Send instant messages to your online friends http://au.messenger.yahoo.com 

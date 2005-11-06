@@ -1,100 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbVKFLzG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbVKFMGb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbVKFLzG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 06:55:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbVKFLzG
+	id S1750774AbVKFMGb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 07:06:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbVKFMGb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 06:55:06 -0500
-Received: from 83-64-96-243.bad-voeslau.xdsl-line.inode.at ([83.64.96.243]:19413
-	"EHLO mognix.dark-green.com") by vger.kernel.org with ESMTP
-	id S1750738AbVKFLzF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 06:55:05 -0500
-Message-ID: <436DEF22.4010903@ed-soft.at>
-Date: Sun, 06 Nov 2005 12:55:14 +0100
-From: Edgar Hucek <hostmaster@ed-soft.at>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
+	Sun, 6 Nov 2005 07:06:31 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:6673 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S1750774AbVKFMGa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Nov 2005 07:06:30 -0500
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 17/25] vfat: move ioctl32 code to fs/fat/dir.c
+References: <20051105162650.620266000@b551138y.boeblingen.de.ibm.com>
+	<20051105162717.628382000@b551138y.boeblingen.de.ibm.com>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sun, 06 Nov 2005 21:05:57 +0900
+In-Reply-To: <20051105162717.628382000@b551138y.boeblingen.de.ibm.com> (Arnd Bergmann's message of "Sat, 05 Nov 2005 17:27:07 +0100")
+Message-ID: <87pspernfe.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-To: jerome lacoste <jerome.lacoste@gmail.com>
-Cc: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: New Linux Development Model
-References: <436C7E77.3080601@ed-soft.at>	 <20051105122958.7a2cd8c6.khali@linux-fr.org>	 <436CB162.5070100@ed-soft.at> <5a2cf1f60511060252t55e1a058o528700ea69826965@mail.gmail.com>
-In-Reply-To: <5a2cf1f60511060252t55e1a058o528700ea69826965@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jerome lacoste wrote:
+Arnd Bergmann <arnd@arndb.de> writes:
 
-> On 11/5/05, Edgar Hucek <hostmaster@ed-soft.at> wrote:
->  
->
->> Hi.
->>
->> Sorry for not posting my Name.
->>
->> Maybe you don't understand what i wanted to say or it's my bad english.
->> The ipw2200 driver was only an example. I had also problems with, 
->> vmware,
->> unionfs...
->> What i mean ist, that kernel developers make incompatible changes to the
->> header
->> files, change structures, interfaces and so on. Which makes the kernel
->> releases
->> incompatible.
->>   
->
->
-> I will ask you just one question: as a user, why did you want to
-> upgrade your kernel?
->  
->
-Depends on the user and what he wants to do. There are several
-reasons why a user wanna upgrade to new kernel. Maybe new supported
-hardware and so on. It's frustrating for the user, have on the one side the
-new hardware supported but on the other side, mybe broken support for
-the existing hardware.
+> +#ifdef CONFIG_COMPAT
+> +/* vfat */
+> +#define	VFAT_IOCTL_READDIR_BOTH32	_IOR('r', 1, struct compat_dirent[2])
+> +#define	VFAT_IOCTL_READDIR_SHORT32	_IOR('r', 2, struct compat_dirent[2])
+          ^^^^^^
 
-> On a server you want stability. So you don't upgrade.
+Please use a SPACE after #define, and kill a useless "/* vfat */".
 
-Sure, but what about securrity updates. When a new kernel release
-comes out the updates are stopped for older releases. And why should
-dirstribution makers always backport new security fixes ?
+> +static long
+> +put_dirent32(struct dirent *d, struct compat_dirent __user * d32)
+> +{
+> +	if (!access_ok(VERIFY_WRITE, d32, sizeof(struct compat_dirent)))
+> +		return -EFAULT;
+> +
+> +	__put_user(d->d_ino, &d32->d_ino);
+> +	__put_user(d->d_off, &d32->d_off);
+> +	__put_user(d->d_reclen, &d32->d_reclen);
+> +	if (__copy_to_user(d32->d_name, d->d_name, d->d_reclen))
+> +		return -EFAULT;
 
-> On a desktop, there are probably a bunch of out of kernel modules that 
-> will need
-> upgrading with each new kernel modules. Just on the laptop I am using
-> right now, I will have to upgrade the vmware bridge, nvidia driver,
-> madwifi wireless driver, etc. And that's normal. The new development
-> model didn't change that.
->  
->
- From my point of view, it makes a difference if i have to recompile
-a module or realy upgrade it.
+Why don't we need to check the return value of __put_user()?
 
-> I avoid touching my kernel on boxes I do real work with. I do build a
-> new kernel for test purposes and to give feedback if there's an issue.
-> But most of the time I skip 2-3 versions before finding a very
-> compelling reason to upgrade. And I stick with my distribution kernel
-> as much as I can.
->
->  
->
-So you wanna say a new "stable" kernel isn't a realy a stable one
-and i can't relay that it behaves like the older one ? If it's so, then
-something is completely wrong in kernel development.
+> +	set_fs(KERNEL_DS);
+> +	ret = fat_dir_ioctl(file->f_dentry->d_inode, file, cmd, (unsigned long) &d);
+> +	set_fs(oldfs);
+> +	if (ret >= 0) {
+> +		ret |= put_dirent32(&d[0], p);
+> +		ret |= put_dirent32(&d[1], p + 1);
 
-> As for kernel/drivers developers, it's another story.
->
-> If it ain't broken, don't fix it.
->
-> Jerome
->
->  
->
+If "ret" is not 0, we can't use "|=" here?
 
-cu
-
-ED.
-
+This patch seems to have bugs, although original one too.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

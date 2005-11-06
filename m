@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750872AbVKFOst@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbVKFOw6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750872AbVKFOst (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 09:48:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750874AbVKFOst
+	id S1750832AbVKFOw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 09:52:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750914AbVKFOw5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 09:48:49 -0500
-Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:63762 "EHLO
-	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1750867AbVKFOss (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 09:48:48 -0500
-Message-ID: <436E17CA.3060803@gentoo.org>
-Date: Sun, 06 Nov 2005 14:48:42 +0000
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051104)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ben Collins <bcollins@ubuntu.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Ubuntu kernel tree
-References: <20051106013752.GA13368@swissdisk.com>
-In-Reply-To: <20051106013752.GA13368@swissdisk.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 6 Nov 2005 09:52:57 -0500
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:22764 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S1750832AbVKFOw5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Nov 2005 09:52:57 -0500
+Date: Sun, 6 Nov 2005 15:52:52 +0100
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: vbetool, mm kernels and mmap
+Message-ID: <20051106145252.GB881@gamma.logic.tuwien.ac.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Collins wrote:
-> Some people may have noticed the new git tree located at:
-> 
-> rsync.kernel.org:/pub/scm/linux/kernel/git/bcollins/ubuntu-2.6.git
-> 
-> This tree will directly reflect the Ubuntu Linux Kernel that is available
-> in our distribution (along with build system). First use of this kernel
-> tree is slated for Dapper Drake (Ubuntu 6.04), and will stay synced with
-> the just released 2.6.14(.y).
-> 
-> There are several reasons for making this repo available on kernel.org.
-> Primary reasons include a more open development model, better visibility
-> with the kernel developer community, and to make the kernel available to
-> other distro's who may want to base their kernel off of ours.
+Hi all!
 
-Nice.
+Playing around with suspend 2 ram I have to use vbetool.
+Using kernel 2.6.14-rc4-mm1 (and probably earlier) I get:
 
-Do other distros publish their trees anywhere? It would be handy to collect 
-links and publish them in an article on distrodev.org or some place like that. 
-(are there any kernel wikis?)
+program vbetool is using MAP_PRIVATE, PROT_WRITE mmap of VM_RESERVED
+memory, which is deprecated. Please report this to linux-kernel@vger.kernel.org
 
-I try to 'open' Gentoo's kernel patchset at http://dev.gentoo.org/~dsd/genpatches
+Well, here I report. It is the debian package version 0.3 of vbetool.
 
-Daniel
+
+Best wishes
+
+Norbert
+
+-------------------------------------------------------------------------------
+Dr. Norbert Preining <preining AT logic DOT at>             Università di Siena
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+LYBSTER (n., vb.)
+The artificial chuckle in the voice-over at the end of a supposedly
+funny television commercial.
+			--- Douglas Adams, The Meaning of Liff

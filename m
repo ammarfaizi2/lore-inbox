@@ -1,47 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbVKFUlN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbVKFUp0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751217AbVKFUlN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 15:41:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbVKFUlN
+	id S1751219AbVKFUp0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 15:45:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbVKFUp0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 15:41:13 -0500
-Received: from mail.kroah.org ([69.55.234.183]:21973 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751217AbVKFUlN (ORCPT
+	Sun, 6 Nov 2005 15:45:26 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:45768 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751219AbVKFUpZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 15:41:13 -0500
-Date: Sun, 6 Nov 2005 12:39:38 -0800
-From: Greg KH <greg@kroah.com>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [DRIVER MODEL] Add platform_driver
-Message-ID: <20051106203938.GD2527@kroah.com>
-References: <20051105181122.GD12228@flint.arm.linux.org.uk> <20051105181217.GA14419@flint.arm.linux.org.uk>
+	Sun, 6 Nov 2005 15:45:25 -0500
+Date: Sun, 6 Nov 2005 21:45:06 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>,
+       dkrivoschokov@dev.rtsoft.ru
+Subject: Re: pxa27x_udc -- support for usb gadget for pxa27x?
+Message-ID: <20051106204506.GH29901@elf.ucw.cz>
+References: <20051103221402.GA28206@elf.ucw.cz> <1131057308.8523.92.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051105181217.GA14419@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <1131057308.8523.92.camel@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 05, 2005 at 06:12:17PM +0000, Russell King wrote:
-> Introduce struct platform_driver.  This allows the platform device
-> driver methods to be passed a platform_device structure instead of
-> instead of a plain device structure, and therefore requiring casting
-> in every platform driver.
+Hi!
+
+> > Is there recent version somewhere? I found one version
+> > (pxa27x-0218.patch), but it is *really* old.
 > 
-> We introduce this in such a way that any existing platform drivers
-> registered directly via driver_register continue to work as before,
-> thereby allowing a gradual conversion to the new platform_driver
-> methods.
-> 
-> Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+> Pull it out of handhelds.org kernel26 cvs tree and let me and the usb
+> developers have the patch please :)
 
-Acked-by: Greg Kroah-Hartman <gregkh@suse.de>
+I got it to compile it for me, but I'd probably need something like
 
-Thanks a lot for doing this work, I really appreciate it and think it is
-the proper way to move forward (the whole, remove the pointers from the
-struct driver thing.)
+/*
+ * USB Device Controller
+ */
+static void corgi_udc_command(int cmd)
+{
+        switch(cmd)     {
+        case PXA2XX_UDC_CMD_CONNECT:
+                GPSR(CORGI_GPIO_USB_PULLUP) =
+GPIO_bit(CORGI_GPIO_USB_PULLUP);
+                break;
+        case PXA2XX_UDC_CMD_DISCONNECT:
+                GPCR(CORGI_GPIO_USB_PULLUP) =
+GPIO_bit(CORGI_GPIO_USB_PULLUP);
+                break;
+        }
+}
 
-thanks,
+static struct pxa2xx_udc_mach_info udc_info __initdata = {
+        /* no connect GPIO; corgi can't tell connection status */
+        .udc_command            = corgi_udc_command,
+};
 
-greg k-h
+...for the spitz. Do you think I can just copy this one? ...eh, no,
+will not fly, there's no SPITZ_GPIO_USB_PULLUP.
+
+								Pavel
+-- 
+Thanks, Sharp!

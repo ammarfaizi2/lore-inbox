@@ -1,56 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbVKFRGv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751065AbVKFRVh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932170AbVKFRGv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 12:06:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbVKFRGv
+	id S1751065AbVKFRVh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 12:21:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbVKFRVh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 12:06:51 -0500
-Received: from van-1-67.lab.dnainternet.fi ([62.78.96.67]:53720 "EHLO
-	mail.zmailer.org") by vger.kernel.org with ESMTP id S932137AbVKFRGu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 12:06:50 -0500
-Date: Sun, 6 Nov 2005 19:06:49 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>, Muli Ben-Yehuda <mulix@mulix.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Ravikiran G Thirumalai <kiran@scalex86.org>,
-       "Shai Fultheim (Shai@ScaleMP.com)" <shai@scalemp.com>, niv@us.ibm.com,
-       Jon Mason <jdmason@us.ibm.com>, Jimi Xenidis <jimix@watson.ibm.com>,
-       Muli Ben-Yehuda <MULI@il.ibm.com>
-Subject: Re: [PATCH] x86-64: dma_ops for DMA mapping - K3
-Message-ID: <20051106170649.GI3423@mea-ext.zmailer.org>
-References: <20051106131112.GE24739@granada.merseine.nu> <20051106145947.GH3423@mea-ext.zmailer.org> <200511061745.54266.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 6 Nov 2005 12:21:37 -0500
+Received: from attila.bofh.it ([213.92.8.2]:21202 "EHLO attila.bofh.it")
+	by vger.kernel.org with ESMTP id S1751065AbVKFRVh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Nov 2005 12:21:37 -0500
+Date: Sun, 6 Nov 2005 18:21:28 +0100
+To: Harald Dunkel <harald.dunkel@t-online.de>, 333052@bugs.debian.org
+Cc: Pozsar Balazs <pozsy@uhulinux.hu>, Kay Sievers <kay.sievers@vrfy.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: Bug#333052: 2.6.14, udev: unknown symbols for ehci_hcd
+Message-ID: <20051106172128.GA8721@wonderland.linux.it>
+References: <436CD1BC.8020102@t-online.de> <20051105173104.GA31048@vrfy.org> <20051105184802.GB25468@ojjektum.uhulinux.hu> <436DA120.9040004@t-online.de> <436E181D.6010507@t-online.de> <20051106152924.GB16987@ojjektum.uhulinux.hu> <436E37E8.3070807@t-online.de>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
 Content-Disposition: inline
-In-Reply-To: <200511061745.54266.ak@suse.de>
+In-Reply-To: <436E37E8.3070807@t-online.de>
+User-Agent: Mutt/1.5.11
+From: md@Linux.IT (Marco d'Itri)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 06, 2005 at 05:45:53PM +0100, Andi Kleen wrote:
-> On Sunday 06 November 2005 15:59, Matti Aarnio wrote:
-> > On Sun, Nov 06, 2005 at 03:11:12PM +0200, Muli Ben-Yehuda wrote:
-> > > Hi Andi,
-> > >
-> > > Here's the latest version of the dma_ops patch, updated to address
-> > > your comments. The patch is against Linus's tree as of a few minutes
-> > > ago and applies cleanly to 2.6.14-git9. Tested on AMD64 with gart,
-> > > swiotlb, nommu and iommu=off. There are still a few cleanups left, but
-> > > I'd appreciate it if this could see wider testing at this
-> > > stage. Please apply...
-> >
-> >   Works mostly.
-> > There is some problem which I am not sure of is it related
-> > to this at all or not.  
-> 
-> You can easily find out: Does it happen without the patch?
-> If yes please post the full boot log.
 
-git7 blows up like git2, git9 plain was not tested at all.
-I am applying the debug patch and compiling right now for a test.
+--T4sUOijqQbZv57TR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Thanks,
-> -Andi
+On Nov 06, Harald Dunkel <harald.dunkel@t-online.de> wrote:
 
-/Matti Aarnio
+> I hadn't seen Rusty's patch on Debian's bts, until you mentioned
+> it. I have applied both patches now, and rebooted twice: By now
+> it worked. But that's what I thought before.
+It cannot be relevant, because when the bug is triggered / is still
+read-only.
+
+> Are there several modprobe's running in parallel? Or does modprobe
+Yes.
+
+--=20
+ciao,
+Marco
+
+--T4sUOijqQbZv57TR
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDbjuYFGfw2OHuP7ERAiEcAJ9GpF9Fr3ylZvPzkZXgt695dDoqYQCfa8ix
+CqGrKFXmRSQ33LiVcQ+QIhA=
+=+Noo
+-----END PGP SIGNATURE-----
+
+--T4sUOijqQbZv57TR--

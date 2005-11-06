@@ -1,66 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbVKFPmi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbVKFPpz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932091AbVKFPmi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 10:42:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbVKFPmi
+	id S932096AbVKFPpz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 10:45:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbVKFPpz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 10:42:38 -0500
-Received: from asclepius3.uwa.edu.au ([130.95.128.60]:19666 "EHLO
-	asclepius.uwa.edu.au") by vger.kernel.org with ESMTP
-	id S932091AbVKFPmh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 10:42:37 -0500
-X-UWA-Client-IP: 130.95.13.9 (UWA)
-Date: Sun, 6 Nov 2005 23:42:25 +0800
-From: Bernard Blackham <bernard@blackham.com.au>
-To: serue@us.ibm.com
-Cc: Ed Tomlinson <tomlins@cam.org>, lokum spand <lokumsspand@hotmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: A possible idea for Linux: Save running programs to disk
-Message-ID: <20051106154225.GA26745@ucc.gu.uwa.edu.au>
-References: <BAY105-F35A25DA28443029610815DA48E0@phx.gbl> <20051002045315.GA20946@ucc.gu.uwa.edu.au> <200510020857.27065.tomlins@cam.org> <20051002141637.GC5211@blackham.com.au> <20051010011304.GA28223@sergelap.austin.ibm.com>
+	Sun, 6 Nov 2005 10:45:55 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:7650 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932096AbVKFPpy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Nov 2005 10:45:54 -0500
+Date: Sun, 6 Nov 2005 16:45:07 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: rpurdie@rpsys.net, lenz@cs.wisc.edu, linux-kernel@vger.kernel.org,
+       rmk@arm.linux.org.uk
+Subject: Re: [patch] collie: enable frontlight
+Message-ID: <20051106154507.GB28618@elf.ucw.cz>
+References: <20051101232122.GA27107@elf.ucw.cz> <20051104151751.32c1abe7.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051010011304.GA28223@sergelap.austin.ibm.com>
-Organization: Dagobah Systems
-User-Agent: Mutt/1.5.10i
-X-SpamTest-Info: Profile: Formal (278/051031)
-X-SpamTest-Info: Profile: Detect Hard [UCS 290904]
-X-SpamTest-Info: Profile: SysLog
-X-SpamTest-Info: Profile: Marking Spam - Subject (UCS) [02-08-04]
-X-SpamTest-Status: Not detected
-X-SpamTest-Version: SMTP-Filter Version 2.0.0 [0125], KAS/Release
+In-Reply-To: <20051104151751.32c1abe7.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Apologies for the delay.
+Hi!
 
-On Sun, Oct 09, 2005 at 08:13:04PM -0500, serue@us.ibm.com wrote:
-> Quoting Bernard Blackham (bernard@blackham.com.au):
-> >    Some way to request a given PID when cloning/forking (or on the
-> >    fly even) would make life easier.
+> > +static spinlock_t fl_lock = SPIN_LOCK_UNLOCKED;
+> > +
+> > +#define LCM_ALC_EN	0x8000
+> > +
+> > +void frontlight_set(struct locomo *lchip, int duty, int vr, int bpwf)
+> > +{
+> > +	unsigned long flags;
+> > +
+> > +	spin_lock_irqsave(&fl_lock, flags);
+> > +	locomo_writel(bpwf, lchip->base + LOCOMO_FRONTLIGHT + LOCOMO_ALS);
+> > +	udelay(100);
+> > +	locomo_writel(duty, lchip->base + LOCOMO_FRONTLIGHT + LOCOMO_ALD);
+> > +	locomo_writel(bpwf | LCM_ALC_EN, lchip->base + LOCOMO_FRONTLIGHT + LOCOMO_ALS);
+> > +	spin_unlock_irqrestore(&fl_lock, flags);
+> > +}
 > 
-> Have you considered any ways of implementing this?  Perhaps the simplest
-> way would actually be to allow a process set to be started in some kind
-> of job/jail/container/vserver, where any userspace query of or by pid
-> uses the virtual pid - which might collide with a virtual pid in some
-> other container - but of course the kernel continues to track by real
-> pids.  So pid 3728 may be vpid 2287 in job 3.  A process inside job 3
-> just asks to kill -9 2287, whereas a process not in a job must ask to
-> kill pid 3728, and a process in job 2 can't touch tasks in job 3.  Is
-> there another way this could work?
+> ick, a 100 microsecond glitch, quite unnecessary.  Why not use a semaphore
+> here, if any locking is actually needed?  (It's called from device probe -
+> there's higher-level serialisation, no?)
 
-I did try this once by having a 'supervisor' process ptrace every
-resumed process and translate PIDs inside system calls, but this got
-very messy very fast - particularly for terminal ioctls.
-Additionally, it means parents can't get notification of when their
-children die, and it makes the whole show just that much slower.
-
-Getting them back their original PIDs seems like less effort (so
-long as they're available).  I'm probably shouldn't admit to what
-I'm currently doing - editing last_pid through /dev/kmem, to force
-the next pid fork() returns. (Unbelievably racy, but works as a
-temporary measure).
-
-Bernard.
-
+Suspend (locomo_suspend) touches frontlight registers, too, and it
+does it under spinlock => converting to semaphore would not too
+simple. As it is only one glitch during probe, it should not hurt that
+much...
+								Pavel
+-- 
+Thanks, Sharp!

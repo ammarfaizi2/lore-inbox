@@ -1,64 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbVKFW70@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751274AbVKFW72@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750801AbVKFW70 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 17:59:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbVKFW70
+	id S1751274AbVKFW72 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 17:59:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbVKFW72
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 17:59:26 -0500
-Received: from silver.veritas.com ([143.127.12.111]:16958 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1750801AbVKFW7Z
+	Sun, 6 Nov 2005 17:59:28 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:37060 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751274AbVKFW71
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 17:59:25 -0500
-Date: Sun, 6 Nov 2005 22:58:00 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mm: poison struct page for ptlock
-In-Reply-To: <20051106112838.0d524f65.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0511062245240.29625@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0511031924210.31509@goblin.wat.veritas.com>
- <20051106112838.0d524f65.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 06 Nov 2005 22:59:20.0940 (UTC) FILETIME=[B92482C0:01C5E325]
+	Sun, 6 Nov 2005 17:59:27 -0500
+Date: Sun, 6 Nov 2005 14:59:26 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, dipankar@in.ibm.com, suzannew@cs.pdx.edu
+Subject: Re: [PATCH] Fixes for RCU handling of task_struct
+Message-ID: <20051106225926.GC22876@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20051031020535.GA46@us.ibm.com> <20051031140459.GA5664@elte.hu> <20051031205119.5bd897f3.akpm@osdl.org> <20051103190916.GA13417@us.ibm.com> <436B9D5D.3EB28CD5@tv-sign.ru> <20051104200801.GA16092@us.ibm.com> <436CDEAC.A7D56A94@tv-sign.ru> <20051105232027.GA20178@us.ibm.com> <436DF0A6.342717A6@tv-sign.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <436DF0A6.342717A6@tv-sign.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Nov 2005, Andrew Morton wrote:
+On Sun, Nov 06, 2005 at 03:01:42PM +0300, Oleg Nesterov wrote:
+> "Paul E. McKenney" wrote:
+> > 
+> > So the idea is to error out of send_sigqueue() so that posix_timer_event()
+> > will instead call send_group_sigqueeue().  But that could suffer from
+> > the same race if the new leader thread also exits -- or if the exiting
+> > thread was the leader thread to begin with.
 > 
-> This patch makes the ppc64 crash.  See
-> http://www.zip.com.au/~akpm/linux/patches/stuff/dsc02976.jpg
+> The case when leader exits is ok. If it is the only (last) thread - it will
+> call exit_itimers(). If not - it (or sys_wait4 from parent) will not call
+> release_task(), but will stay TASK_ZOMBIE with valid ->signal/sighand until
+> the last thread in same thread group exits (and call exit_itimers).
 > 
-> I don't know what the access address was (ia32 nicely tells you), but if
-> it's `DAR' then we have LIST_POISON1.  Which would indicate that the slab
-> page which backs the mm_struct itself is getting freed-up-pte-page
-> treatment, which is deeply screwed up.
+> > But once send_group_sigqueue() read-acquires tasklist_lock, threads
+> > and processes must stay put.  So it should be possible to follow the
+> > ->group_leader chain at that point.
 > 
-> I'll try it on x86_64 and ia64, see if it's specific to ppc64.
+> Not quite so, I think. See below.
+> 
+> > Except that the group leader could do an exec(), right?  If it does so,
+> > it must do so before tasklist_lock is read-acquired.  So the nightmare
+> > case is where all but one thread exits, and then that one thread does
+> > and exec().
+> 
+> ... and that thread is not group leader. Actually, it does not matter
+> if other threads exited or not, execing thread will kill other threads.
+> 
+> > If this case can really happen, we want to drop the signal
+> > on the floor, right?
+> 
+> I think yes.
+> 
+> > diff -urpNa -X dontdiff linux-2.6.14-mm0-fix/kernel/signal.c linux-2.6.14-mm0-fix-2/kernel/signal.c
+> > --- linux-2.6.14-mm0-fix/kernel/signal.c        2005-11-04 17:23:40.000000000 -0800
+> > +++ linux-2.6.14-mm0-fix-2/kernel/signal.c      2005-11-05 15:05:38.000000000 -0800
+> > @@ -1408,6 +1408,11 @@ send_sigqueue(int sig, struct sigqueue *
+> > 
+> >  retry:
+> >         sh = rcu_dereference(p->sighand);
+> > +       if (sh == NULL) {
+> > +               /* We raced with pthread_exit()... */
+> > +               ret = -1;
+> > +               goto out_err;
+> > +       }
+> 
+> I lost the plot. Because I can't apply this and previous patches (rejects)
+> and can't imagine how send_sigqueue() looks now. I think this is ok, but
+> we also need to re-check ->signal != NULL after lock(->sighand) or check
+> PF_EXITING (iirc ve do have such check).
 
-I think it'll turn out to be (my patch, yes, but) the way mm/slab.c does
+I lost the plot as well.  There were apparently a very large number of
+changes awaiting 2.6.14 coming out.  ;-)
 
-#define	SET_PAGE_CACHE(pg,x)  ((pg)->lru.next = (struct list_head *)(x))
-#define	GET_PAGE_CACHE(pg)    ((kmem_cache_t *)(pg)->lru.next)
-#define	SET_PAGE_SLAB(pg,x)   ((pg)->lru.prev = (struct list_head *)(x))
-#define	GET_PAGE_SLAB(pg)     ((struct slab *)(pg)->lru.prev)
+I also believe we have such a check.
 
-and needs those fields preserved while that page is in the slab.
-Though I've not tried to work out why it crashes on an mm_struct.
+> > @@ -1474,7 +1479,8 @@ send_group_sigqueue(int sig, struct sigq
+> >         BUG_ON(!(q->flags & SIGQUEUE_PREALLOC));
+> > 
+> >         read_lock(&tasklist_lock);
+> > -       /* Since it_lock is held, p->sighand cannot be NULL. */
+> > +       while (p->group_leader != p)
+> > +               p = p->group_leader;
+> 
+> No, this is definitely not right. de_thread() does not change leader->group_leader
+> when non-leader execs, so p->group_leader == p always.
 
-I'd checked that none of the architectures were using those page fields
-of a page table page, but never considered that slab was using them: my
-patch probably breaks all those which use slab for their page tables.
+This was intended for the case where the group leader does pthread_exit,
+which would cause some other thread to assume group leadership.  Or am
+I missing something from that code path?  (Quite likely that I am...)
 
-Drat.  I'm trying to think of the best way to retrieve the situation.
-The priority must be for you to get 2.6.14-mm1 out: is the easiest for
-now simply to revert my patch (and the _private one(s) you added on top)?
-
-Well, at least that patch has told us something we needed to know:
-sorry for wasting _your_ time with it.  I'll try to dream up some other
-way (or config restriction) to avoid enlarging struct page for ptlock.
-
-Or am I jumping to conclusions and on the wrong track?
-
-Hugh
+						Thanx, Paul

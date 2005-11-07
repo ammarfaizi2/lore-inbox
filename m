@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964948AbVKGVOD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964943AbVKGVNf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964948AbVKGVOD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 16:14:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964989AbVKGVOA
+	id S964943AbVKGVNf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 16:13:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964947AbVKGVNf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 16:14:00 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:46217 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S964948AbVKGVNx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 16:13:53 -0500
-Subject: RE: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-From: Rohit Seth <rohit.seth@intel.com>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Andy Nelson <andy@thermo.lanl.gov>, agl@us.ibm.com, ak@suse.de,
-       akpm@osdl.org, arjan@infradead.org, arjanv@infradead.org,
-       gmaxwell@gmail.com, haveblue@us.ibm.com, kravetz@us.ibm.com,
-       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, mel@csn.ul.ie, mingo@elte.hu,
-       nickpiggin@yahoo.com.au, torvalds@osdl.org
-In-Reply-To: <93700000.1131397118@flay>
-References: <20051107205532.CF888185988@thermo.lanl.gov>
-	 <93700000.1131397118@flay>
+	Mon, 7 Nov 2005 16:13:35 -0500
+Received: from gate.crashing.org ([63.228.1.57]:20361 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S964943AbVKGVNe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 16:13:34 -0500
+Subject: Re: [PATCH 1/4] Memory Add Fixes for ppc64
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Mike Kravetz <kravetz@us.ibm.com>
+Cc: Andy Whitcroft <apw@shadowen.org>, Paul Mackerras <paulus@samba.org>,
+       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       lhms-devel@lists.sourceforge.net
+In-Reply-To: <20051107204743.GC5821@w-mikek2.ibm.com>
+References: <20051104231552.GA25545@w-mikek2.ibm.com>
+	 <20051104231800.GB25545@w-mikek2.ibm.com>
+	 <1131149070.29195.41.camel@gaston> <20051107204743.GC5821@w-mikek2.ibm.com>
 Content-Type: text/plain
-Organization: Intel 
-Date: Mon, 07 Nov 2005 13:20:15 -0800
-Message-Id: <1131398415.18176.50.camel@akash.sc.intel.com>
+Date: Tue, 08 Nov 2005 08:12:56 +1100
+Message-Id: <1131397976.4652.52.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Nov 2005 21:13:09.0276 (UTC) FILETIME=[0DBF7DC0:01C5E3E0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-11-07 at 12:58 -0800, Martin J. Bligh wrote:
-> >> Isn't it true that most of the times we'll need to be worrying about
-> >> run-time allocation of memory (using malloc or such) as compared to
-> >> static.
-> > 
-> > Perhaps for C. Not neccessarily true for Fortran. I don't know
-> > anything about how memory allocations proceed there, but there
-> > are no `malloc' calls (at least with that spelling) in the language 
-> > itself, and I don't know what it does for either static or dynamic 
-> > allocations under the hood. It could be malloc like or whatever
-> > else. In the language itself, there are language features for
-> > allocating and deallocating memory and I've seen code that 
-> > uses them, but haven't played with it myself, since my codes 
-> > need pretty much all the various pieces memory all the time, 
-> > and so are simply statically defined.
+
+> Just curious if we still want to boost MAX_ORDER like this with 64k
+> pages?  Doesn't that make the MAX_ORDER block size 256MB in this case?
+> Also, not quite sure what happens if memory size (a 16 MB multiple)
+> does not align with a MAX_ORDER block size (a 256MB multiple in this
+> case).  My 'guess' is that the page allocator would not use it as it
+> would not fit within the buddy system.
 > 
-> Doesn't fortran shove everything in BSS to make some truly monsterous
-> segment?
->  
+> cc'ing SPARSEMEM author Andy Whitcroft.
 
-hmmm....that would be strange.  So, if an app is using TB of data, then
-a TB space on disk ...then read in at the load time (or may be some
-optimization in the RTLD knows that this is BSS and does not need to get
-loaded but then a TB of disk space is a waster).
+Yes, the MAX_ORDER should be different indeed. But can Kconfig do that ?
+That is have the default value be different based on a Kconfig option ?
+I don't see that ... We may have to do things differently here...
 
--rohit
+Ben.
+
 

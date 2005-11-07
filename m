@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965198AbVKGUUx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965174AbVKGUVQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965198AbVKGUUx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 15:20:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965174AbVKGUUx
+	id S965174AbVKGUVQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 15:21:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965233AbVKGUVQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 15:20:53 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:55058 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965198AbVKGUUx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 15:20:53 -0500
-Date: Mon, 7 Nov 2005 21:20:52 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: David Teigland <teigland@redhat.com>
-Cc: linux-cluster@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] drivers/dlm/: possible cleanups
-Message-ID: <20051107202051.GQ3847@stusta.de>
-References: <20051104120640.GB5587@stusta.de> <20051107200431.GC20531@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051107200431.GC20531@redhat.com>
-User-Agent: Mutt/1.5.11
+	Mon, 7 Nov 2005 15:21:16 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:53729 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S965174AbVKGUVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 15:21:14 -0500
+Subject: Re: [Alsa-devel] Re: +
+	v4l-720-alsa-support-for-saa7134-that-should-work-fix.patch added to -mm
+	tree
+From: Lee Revell <rlrevell@joe-job.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Takashi Iwai <tiwai@suse.de>, mchehab@brturbo.com.br,
+       alsa-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       nshmyrev@yandex.ru, v4l@cerqueira.org
+In-Reply-To: <20051107114843.0a476d90.akpm@osdl.org>
+References: <200511060743.jA67hpZa018948@shell0.pdx.osdl.net>
+	 <20051106001249.48d3ade0.akpm@osdl.org> <1131301995.13599.5.camel@mindpipe>
+	 <1131344803.10094.8.camel@localhost> <1131377615.8383.9.camel@mindpipe>
+	 <s5h4q6opi5t.wl%tiwai@suse.de>  <20051107114843.0a476d90.akpm@osdl.org>
+Content-Type: text/plain
+Date: Mon, 07 Nov 2005 15:19:29 -0500
+Message-Id: <1131394769.8383.94.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 07, 2005 at 02:04:31PM -0600, David Teigland wrote:
-> On Fri, Nov 04, 2005 at 01:06:40PM +0100, Adrian Bunk wrote:
-> > This patch contains the following possible cleanups:
-> > - every file should #include the headers containing the prototypes for
-> >   it's global functions
+On Mon, 2005-11-07 at 11:48 -0800, Andrew Morton wrote:
+> Despite all that, I am inclined to merge this patch into 2.6.15.
+> Because it's in the middle of a 192-patch series and we do need to get
+> the v4l tree synced up.
 > 
-> Including unnecessary headers doesn't sound right.
->...
 
-They aren't unnecessary.
+I think starting the DMA in the prepare callbacks is a major problem.
+It should be easy to fix though.
 
-If you #include them, gcc can tell when the prototypes in the header and 
-the C file are accidentially different.
-
-Without the #include's, this would result in a nasty runtime error.
-
-> Thanks,
-> Dave
-
-cu
-Adrian
-
-BTW: Please ignore the resending of this patch that overlapped with
-     your answer.
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Lee
 

@@ -1,68 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964961AbVKGVdx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965099AbVKGVed@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964961AbVKGVdx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 16:33:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965099AbVKGVdx
+	id S965099AbVKGVed (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 16:34:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965131AbVKGVec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 16:33:53 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:60902 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964961AbVKGVdv (ORCPT
+	Mon, 7 Nov 2005 16:34:32 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:29655 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965099AbVKGVea (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 16:33:51 -0500
-Subject: RE: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-From: Adam Litke <agl@us.ibm.com>
-To: Rohit Seth <rohit.seth@intel.com>
-Cc: "Martin J. Bligh" <mbligh@mbligh.org>, Andy Nelson <andy@thermo.lanl.gov>,
-       ak@suse.de, akpm@osdl.org, arjan@infradead.org, arjanv@infradead.org,
-       gmaxwell@gmail.com, haveblue@us.ibm.com, kravetz@us.ibm.com,
-       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, mel@csn.ul.ie, mingo@elte.hu,
-       nickpiggin@yahoo.com.au, torvalds@osdl.org
-In-Reply-To: <1131398415.18176.50.camel@akash.sc.intel.com>
-References: <20051107205532.CF888185988@thermo.lanl.gov>
-	 <93700000.1131397118@flay>  <1131398415.18176.50.camel@akash.sc.intel.com>
-Content-Type: text/plain
-Organization: IBM
-Date: Mon, 07 Nov 2005 15:33:03 -0600
-Message-Id: <1131399183.25133.99.camel@localhost.localdomain>
+	Mon, 7 Nov 2005 16:34:30 -0500
+Date: Mon, 7 Nov 2005 15:34:28 -0600
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, bluesmoke-devel@lists.sourceforge.net,
+       Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [PATCH 4/7]: Revised [PATCH 29/42]: ethernet: add PCI error recovery to e100 dev driver
+Message-ID: <20051107213428.GK19593@austin.ibm.com>
+References: <20051103235918.GA25616@mail.gnucash.org> <20051104005035.GA26929@mail.gnucash.org> <20051105061114.GA27016@kroah.com> <17262.37107.857718.184055@cargo.ozlabs.ibm.com> <20051107175541.GB19593@austin.ibm.com> <20051107182727.GD18861@kroah.com> <20051107195727.GF19593@austin.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051107195727.GF19593@austin.ibm.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: linas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-11-07 at 13:20 -0800, Rohit Seth wrote:
-> On Mon, 2005-11-07 at 12:58 -0800, Martin J. Bligh wrote:
-> > >> Isn't it true that most of the times we'll need to be worrying about
-> > >> run-time allocation of memory (using malloc or such) as compared to
-> > >> static.
-> > > 
-> > > Perhaps for C. Not neccessarily true for Fortran. I don't know
-> > > anything about how memory allocations proceed there, but there
-> > > are no `malloc' calls (at least with that spelling) in the language 
-> > > itself, and I don't know what it does for either static or dynamic 
-> > > allocations under the hood. It could be malloc like or whatever
-> > > else. In the language itself, there are language features for
-> > > allocating and deallocating memory and I've seen code that 
-> > > uses them, but haven't played with it myself, since my codes 
-> > > need pretty much all the various pieces memory all the time, 
-> > > and so are simply statically defined.
-> > 
-> > Doesn't fortran shove everything in BSS to make some truly monsterous
-> > segment?
-> >  
-> 
-> hmmm....that would be strange.  So, if an app is using TB of data, then
-> a TB space on disk ...then read in at the load time (or may be some
-> optimization in the RTLD knows that this is BSS and does not need to get
-> loaded but then a TB of disk space is a waster).
+On Mon, Nov 07, 2005 at 01:57:27PM -0600, linas was heard to remark:
+> On Mon, Nov 07, 2005 at 10:27:27AM -0800, Greg KH was heard to remark:
+> > 3) realy strong typing that sparse can detect.
 
-Nope, the bss is defined as the difference in file size (on disk) and
-the memory size (as specified in the ELF program header for the data
-segment).  So the kernel loads the pre-initialized data from disk and
-extends the mapping to include room for the bss. 
+Various PCI bus errors can be signaled by newer PCI controllers.  This
+patch adds the PCI error recovery callbacks to the intel ethernet e100
+device driver. The patch has been tested, and appears to work well.
 
--- 
-Adam Litke - (agl at us.ibm.com)
-IBM Linux Technology Center
+Please apply.
 
+Signed-off-by: Linas Vepstas <linas@linas.org>
+
+--
+Index: linux-2.6.14-mm1/drivers/net/e100.c
+===================================================================
+--- linux-2.6.14-mm1.orig/drivers/net/e100.c	2005-11-07 13:55:26.363148057 -0600
++++ linux-2.6.14-mm1/drivers/net/e100.c	2005-11-07 15:02:11.120920287 -0600
+@@ -2465,6 +2465,75 @@
+ }
+ 
+ 
++/* ------------------ PCI Error Recovery infrastructure  -------------- */
++/** e100_io_error_detected() is called when PCI error is detected */
++static pers_result_t e100_io_error_detected(struct pci_dev *pdev, pci_channel_state_t state)
++{
++	struct net_device *netdev = pci_get_drvdata(pdev);
++
++	/* Same as calling e100_down(netdev_priv(netdev)), but generic */
++	netdev->stop(netdev);
++
++	/* Is a detach needed ?? */
++	// netif_device_detach(netdev);
++
++	/* Request a slot reset. */
++	return PERS_RESULT_NEED_RESET;
++}
++
++/** e100_io_slot_reset is called after the pci bus has been reset.
++ *  Restart the card from scratch. */
++static pers_result_t e100_io_slot_reset(struct pci_dev *pdev)
++{
++	struct net_device *netdev = pci_get_drvdata(pdev);
++	struct nic *nic = netdev_priv(netdev);
++
++	if(pci_enable_device(pdev)) {
++		printk(KERN_ERR "e100: Cannot re-enable PCI device after reset.\n");
++		return PERS_RESULT_DISCONNECT;
++	}
++	pci_set_master(pdev);
++
++	/* Only one device per card can do a reset */
++	if (0 != PCI_FUNC (pdev->devfn))
++		return PERS_RESULT_RECOVERED;
++
++	e100_hw_reset(nic);
++	e100_phy_init(nic);
++
++	if(e100_hw_init(nic)) {
++		DPRINTK(HW, ERR, "e100_hw_init failed\n");
++		return PERS_RESULT_DISCONNECT;
++	}
++
++	return PERS_RESULT_RECOVERED;
++}
++
++/** e100_io_resume is called when the error recovery driver
++ *  tells us that its OK to resume normal operation.
++ */
++static void e100_io_resume(struct pci_dev *pdev)
++{
++	struct net_device *netdev = pci_get_drvdata(pdev);
++	struct nic *nic = netdev_priv(netdev);
++
++	/* ack any pending wake events, disable PME */
++	pci_enable_wake(pdev, 0, 0);
++
++	netif_device_attach(netdev);
++	if(netif_running(netdev)) {
++		e100_open (netdev);
++		mod_timer(&nic->watchdog, jiffies);
++	}
++}
++
++static struct pci_error_handlers e100_err_handler = {
++	.error_detected = e100_io_error_detected,
++	.slot_reset = e100_io_slot_reset,
++	.resume = e100_io_resume,
++};
++
++
+ static struct pci_driver e100_driver = {
+ 	.name =         DRV_NAME,
+ 	.id_table =     e100_id_table,
+@@ -2475,6 +2544,7 @@
+ 	.resume =       e100_resume,
+ #endif
+ 	.shutdown =	e100_shutdown,
++	.err_handler = &e100_err_handler,
+ };
+ 
+ static int __init e100_init_module(void)

@@ -1,51 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964819AbVKGN7v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964820AbVKGN7y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964819AbVKGN7v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 08:59:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964820AbVKGN7v
+	id S964820AbVKGN7y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 08:59:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964821AbVKGN7y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 08:59:51 -0500
-Received: from smtp5.wanadoo.fr ([193.252.22.26]:53048 "EHLO smtp5.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S964819AbVKGN7u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 08:59:50 -0500
-X-ME-UUID: 20051107135949637.9B9301C00216@mwinf0512.wanadoo.fr
-Subject: Re: 3D video card recommendations
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Steven Rostedt <rostedt@goodmis.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1131373462.11265.12.camel@localhost.localdomain>
-References: <1131112605.14381.34.camel@localhost.localdomain>
-	 <1131349343.2858.11.camel@laptopd505.fenrus.org>
-	 <1131367371.14381.91.camel@localhost.localdomain>
-	 <1131373462.11265.12.camel@localhost.localdomain>
-Content-Type: text/plain
-Message-Id: <1131371981.3340.146.camel@capoeira>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Mon, 07 Nov 2005 14:59:42 +0100
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Nov 2005 08:59:54 -0500
+Received: from [202.125.80.34] ([202.125.80.34]:60478 "EHLO mail.esn.co.in")
+	by vger.kernel.org with ESMTP id S964820AbVKGN7x convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 08:59:53 -0500
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Subject: Comments on 2.6.10 schedule_timeout please
+Date: Mon, 7 Nov 2005 19:27:38 +0530
+Message-ID: <3AEC1E10243A314391FE9C01CD65429B13B2CE@mail.esn.co.in>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Which version of 2.6.11 is most stable
+Thread-Index: AcXjkZhOrF7iOkE1S/Sc9lZvQ6nMswACUzwgAAFt9JA=
+From: "Mukund JB." <mukundjb@esntechnologies.co.in>
+To: "Mukund JB." <mukundjb@esntechnologies.co.in>,
+       "Adrian Bunk" <bunk@stusta.de>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-11-07 at 15:24, Alan Cox wrote:
-> On Llu, 2005-11-07 at 07:42 -0500, Steven Rostedt wrote:
-> > Are there good 3D cards that don't depend on a proprietary module, that
-> > can run on a AMD64 board?  That was pretty much my questing to begin
-> > with :)
+
+Dear Kernel Developers,
+
+I have noticed the schedule_timeout behaving somewhat different as penned from the Linux 2.6 Oreelly books.
+I have developed a SD card Driver for 2.6.10 kernel & it works fine.
+I needed a hardware reg to update that take a time of 300ms. I have issued a call like..
+
+set_current_state(TASK_INTERRUPTIBLE);
+schedule_timeout (300*HZ/1000);
+
+I guess schedule_timeout should calls the scheduler after ensuring that the current process is awakened at timeout
+expiration.
+But, when I finally use it I get a sufficient delay which looks like a looped delay not allowing the keyboard to print messages on the screen.
+
+I verified it ...
+
+1) with debug messages immediately before & after the schedule_timeout call.
+2) Commenting the schedule_timeout call.
+
+Can someone comment on the schedule_timeout please?
+
+Regards,
+Mukund Jampala
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Mukund JB.
+Sent: Monday, November 07, 2005 6:39 PM
+To: Adrian Bunk
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: Which version of 2.6.11 is most stable
+
+
+
+Dear Adrian,
+
+Thanks for the information.
+Also Can you please give inputs regarding.....
+
+I have an existing Linux 2.6.11 BSP for an AMD GX processor.
+What would it take me to port the complete BSP to 2.6.12 kernel?
+Can I prefer to work on 2.6.11 kernel which makes me get the system up in no time without any changes made?
+I guess 2.6.11 kernel will work with just a recompilation over 2.6.11.12 kernel.
+
+An inquisitive question about Linux kernels versioning ...
+How do 2.6.(x).1 and 2.6.(x).12 kernels vary?
+
+Regards,
+Mukund Jampala
+
+
+-----Original Message-----
+From: Adrian Bunk [mailto:bunk@stusta.de]
+Sent: Monday, November 07, 2005 5:22 PM
+To: Mukund JB.
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Which version of 2.6.11 is most stable
+
+
+On Mon, Nov 07, 2005 at 03:38:13PM +0530, Mukund JB. wrote:
 > 
-> Some of the radeons - R3xx is pretty close to usable R2xx works well.
-> Support for running 32bit hardware accelerated apps on 64bit kernel
-> recently went in.
+> Dear All,
+> 
+> I am in the phase of development of a Linux BSP for 2.6.11 kernel.
+> Which version of 2.6.11 kernel can be called best stable? In general where do i get this king of info?
+> I serched in the www.lwn.net but i failed to get the required info.
 
-I'm using a Radeon 9600 (R350) with debian packages (32bits userspace,
-64bits kernel) since a few weeks, and it works very well, apart from a
-few visual glitches here and there (the only GL apps I use are some free
-games, blender and some screensavers). The only thing I had to recompile
-was the drm moduleset.
+The latest, IOW 2.6.11.12 .
 
-	xav
+But note that the 2.6.11 branch is no longer maintained since kernel 
+2.6.12 was released 5 months ago, and therefore lacks e.g. current 
+security fixes.
 
+> Regards,
+> Mukund Jampala
 
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

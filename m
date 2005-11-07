@@ -1,31 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965190AbVKGTtT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932338AbVKGTwk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965190AbVKGTtT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 14:49:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965197AbVKGTtT
+	id S932338AbVKGTwk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 14:52:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbVKGTwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 14:49:19 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:52708 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965190AbVKGTtT (ORCPT
+	Mon, 7 Nov 2005 14:52:40 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:39398 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932338AbVKGTwj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 14:49:19 -0500
-Date: Mon, 7 Nov 2005 11:48:43 -0800
+	Mon, 7 Nov 2005 14:52:39 -0500
+Date: Mon, 7 Nov 2005 11:52:10 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: rlrevell@joe-job.com, mchehab@brturbo.com.br,
-       alsa-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       nshmyrev@yandex.ru, v4l@cerqueira.org
-Subject: Re: [Alsa-devel] Re: +
- v4l-720-alsa-support-for-saa7134-that-should-work-fix.patch added to -mm
- tree
-Message-Id: <20051107114843.0a476d90.akpm@osdl.org>
-In-Reply-To: <s5h4q6opi5t.wl%tiwai@suse.de>
-References: <200511060743.jA67hpZa018948@shell0.pdx.osdl.net>
-	<20051106001249.48d3ade0.akpm@osdl.org>
-	<1131301995.13599.5.camel@mindpipe>
-	<1131344803.10094.8.camel@localhost>
-	<1131377615.8383.9.camel@mindpipe>
-	<s5h4q6opi5t.wl%tiwai@suse.de>
+To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+Cc: linux-kernel@vger.kernel.org, Steven French <sfrench@us.ibm.com>,
+       matthieu castet <castet.matthieu@free.fr>, Greg KH <greg@kroah.com>,
+       Vojtech Pavlik <vojtech@suse.cz>,
+       Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: 2.6.14-mm1
+Message-Id: <20051107115210.33e4f0bf.akpm@osdl.org>
+In-Reply-To: <436F7DAA.8070803@ums.usu.ru>
+References: <20051106182447.5f571a46.akpm@osdl.org>
+	<436F7DAA.8070803@ums.usu.ru>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -33,35 +28,68 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Takashi Iwai <tiwai@suse.de> wrote:
+"Alexander E. Patrakov" <patrakov@ums.usu.ru> wrote:
 >
-> > OK, a brief review:
->  > 
->  >  - Why couldn't you use ALSA's DMA API?
+> Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14/2.6.14-mm1/
 > 
->  This is OK, IMO.  Basically, it's up to the driver.
+> This has the following issues:
 > 
+> 1)   CC [M]  fs/cifs/cifsfs.o
+> fs/cifs/cifsfs.c:409: warning: `cifs_umount_begin' defined but not used
+
+I think that wants the `#if 0' treatment.
+
+
+> 2) The PS/2 keyboard death on ppp traffic is still not fixed. 
+> Reproducible even on slow GPRS if there's something else (e.g. glxgears) 
+> that eats some CPU time. When keyboard is dead, events/0 consomes 100% 
+> of CPU. Nothing in dmesg. If you outline some suspicious pieces of code, 
+> I will insert printks there in order to debug this.
+
+input guys cc'ed.
+
+> 3) There are some differences with dmesg of the vanilla 2.6.14. Could 
+> you please explain this (- = 2.6.14, + = 2.6.14-mm1)?
 > 
->  >  - The DMA must be stopped and started in the trigger callback, not the
->  > prepare callback.
->  > 
->  >  - If this device lacks a volume control alsa-lib can emulate it in
->  > software, just create a proper /usr/share/alsa/cards/your_card.conf
->  > file.
->  > 
->  >  - By ALSA convention the acceptable formats, sample rates, etc should
->  > be directly defined in the snd_pcm_hardware_t structure.
->  > 
->  >  - dev->oss needs to go.
+> -pnp: PnP ACPI: found 11 devices
+> +pnp: PnP ACPI: found 12 devices
 > 
->  Agreed about the rest.
+> The command line parameters "noapic pci=noacpi" are present, and that's 
+> a VIA motherboard, if that's relevant.
 
-Thanks, guys.
+Don't know.  Matthieu cc'ed.  Did any new devices appear in dmesg? 
+/proc/devices?
 
-Despite all that, I am inclined to merge this patch into 2.6.15.  Because
-it's in the middle of a 192-patch series and we do need to get the v4l tree
-synced up.
+> 4) I also decided to test new input hotplug. Below is the udevmonitor 
+> trace of uevents when I rmmod and modprobe again the psmouse driver. 
+> <NULL>s don't look right there. Is the rest OK?
+> 
+> UEVENT[1131378684] remove@/class/input/input1/mouse0
+> ACTION=remove
+> DEVPATH=/class/input/input1/mouse0
+> SUBSYSTEM=input
+> SEQNUM=903
+> PHYSDEVPATH=/devices/platform/i8042/serio0
+> PHYSDEVBUS=serio
+> PHYSDEVDRIVER=psmouse
+> MAJOR=13
+> MINOR=32
+> 
+> UEVENT[1131378684] remove@/class/input/input1
+> ACTION=remove
+> DEVPATH=/class/input/input1
+> SUBSYSTEM=input
+> SEQNUM=904
+> PHYSDEVPATH=/devices/platform/i8042/serio0
+> PHYSDEVBUS=serio
+> PHYSDEVDRIVER=psmouse
+> PRODUCT=11/2/4/0
+> NAME="GenPS/2 Genius <NULL>"
+> PHYS="isa0060/serio1/input0"
+> UNIQ="<NULL>"
+> EV=7
+> KEY=1f0000 0 0 0 0 0 0 0 0
+> REL=103
 
-Mauro&co, if we do that, do you think the above points can be addressed
-inside the next four weeks or so?
-
+Hopefully Greg can tell us?

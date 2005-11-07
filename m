@@ -1,74 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbVKGEoj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbVKGEtq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932263AbVKGEoj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 23:44:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbVKGEoj
+	id S932390AbVKGEtq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 23:49:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbVKGEtq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 23:44:39 -0500
-Received: from dslb138.fsr.net ([12.7.7.138]:23473 "EHLO sandall.us")
-	by vger.kernel.org with ESMTP id S1751186AbVKGEoj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 23:44:39 -0500
-Date: Sun, 6 Nov 2005 20:54:30 -0800 (PST)
-From: Eric Sandall <eric@sandall.us>
-X-X-Sender: sandalle@cerberus
-To: Willy Tarreau <willy@w.ods.org>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Tony Luck <tony.luck@gmail.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: New (now current development process)
-In-Reply-To: <20051031064109.GO22601@alpha.home.local>
-Message-ID: <Pine.LNX.4.63.0511062052590.24477@cerberus>
-References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com>
- <12c511ca0510291157u5557b6b1x85a47311f0e16436@mail.gmail.com>
- <20051029195115.GD14039@flint.arm.linux.org.uk> <Pine.LNX.4.64.0510291314100.3348@g5.osdl.org>
- <20051031064109.GO22601@alpha.home.local>
+	Sun, 6 Nov 2005 23:49:46 -0500
+Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:42632 "HELO
+	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751186AbVKGEtp (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Sun, 6 Nov 2005 23:49:45 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=binhhWiSvsuDvDncD0Q03aMgda3/2+nzl3OKAIoA+AmNOHPBBtMMfBERgpFJVu9k7Q0D0J+r/Bz9Qlhz9AAKj0B8i5zlppgQ4FGhMPk2YnoZJzkM5LNrccIVhXIApdRZmWJmpDjZs9w2Oq4cG5kYHHC7qz5IsaW9Rh6VgavUokA=  ;
+Message-ID: <436EDD67.4000207@yahoo.com.au>
+Date: Mon, 07 Nov 2005 15:51:51 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Paul Jackson <pj@sgi.com>
+CC: hch@infradead.org, Linux-Kernel@vger.kernel.org
+Subject: Re: [rfc][patch 0/14] mm: performance improvements
+References: <436DBAC3.7090902@yahoo.com.au>	<20051107013900.GA9170@infradead.org>	<436EB326.3070006@yahoo.com.au> <20051106195750.5cf71820.pj@sgi.com>
+In-Reply-To: <20051106195750.5cf71820.pj@sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Paul Jackson wrote:
+>>Maybe time to switch mailers... I'll see what I can do.
+> 
+> 
+> I recommend using a dedicated tool (patchbomb script) to send patches,
+> not ones email client.  It lets you prepare everything ahead of time in
+> your favorite editor, and obtains optimum results.
+> 
+> See the script I use, at:
+> 
+>   http://www.speakeasy.org/~pj99/sgi/sendpatchset
+> 
 
-On Mon, 31 Oct 2005, Willy Tarreau wrote:
-> On Sat, Oct 29, 2005 at 01:28:23PM -0700, Linus Torvalds wrote:
->
->> So I'm planning on continuing with it unchanged for now. Two-week merge
->> window until -rc1, and then another -rc kernel roughly every week until
->> release. With the goal being 6 weeks, and 8 weeks being ok.
->>
->> I don't think anybody has been really unhappy with this approach? Hmm?
->
-> I believe it was a good experience. However, I still find it sad that
-> there are changes between the latest -rc and the final version. This
-> time, it seems it did not cause trouble, but in the past, it happened
-> several times, because any valid fix can have side effects.
->
-> I think that if you could announce what you intend to release with a
-> message like "I will make this -final tomorrow", there would be some
-> time to test builds in various configs, and check that no obvious bug
-> has been introduced.
+Probably the best idea. I hadn't worried about those until now,
+although I have several fairly large patchsets floating around.
 
-A -final should never be changed from the last -rc. That defeats the
-purpose of having -rc releases (rc == 'release candidate' ;)). If you
-do make changes to the last -rc, then you need to release another -rc
-with those changes. If all's good, then you can release that /last/
-- -rc with /no/ changes as the One and True Release.
+Thanks,
+Nick
 
-- -sandalle
+-- 
+SUSE Labs, Novell Inc.
 
-- --
-Eric Sandall                     |  Source Mage GNU/Linux Developer
-eric@sandall.us                  |  http://www.sourcemage.org/
-http://eric.sandall.us/          |  SysAdmin @ Inst. Shock Physics @ WSU
-http://counter.li.org/  #196285  |  http://www.shock.wsu.edu/
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFDbt4KHXt9dKjv3WERAiIXAKClGeeapTkGJ7gFWymHISb99JGw7QCgrPag
-lArvgGMUprksA28CX+9I2Bc=
-=8xAI
------END PGP SIGNATURE-----
+Send instant messages to your online friends http://au.messenger.yahoo.com 

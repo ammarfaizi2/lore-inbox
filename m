@@ -1,60 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965130AbVKGUMe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965253AbVKGUOo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965130AbVKGUMe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 15:12:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965172AbVKGUMe
+	id S965253AbVKGUOo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 15:14:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965283AbVKGUOo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 15:12:34 -0500
-Received: from mail.kroah.org ([69.55.234.183]:11953 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965130AbVKGUMd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 15:12:33 -0500
-Date: Mon, 7 Nov 2005 12:12:01 -0800
-From: Greg KH <greg@kroah.com>
-To: Ashutosh Naik <ashutosh_naik@adaptec.com>
-Cc: pablo@eurodev.net, tgraf@suug.ch, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: [stable] [PATCH] lib - Fix broken function declaration in linux/textsearch.h
-Message-ID: <20051107201200.GA23160@kroah.com>
-References: <1131363741.30115.35.camel@localhost.localdomain>
+	Mon, 7 Nov 2005 15:14:44 -0500
+Received: from perninha.conectiva.com.br ([200.140.247.100]:34195 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S965272AbVKGUOn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 15:14:43 -0500
+Date: Mon, 7 Nov 2005 18:14:12 -0200
+From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
+To: akpm@osdl.org
+Cc: linux.nics@intel.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: [PATCH] Fix sparse warning in e100 driver.
+Message-Id: <20051107181412.084467d6.lcapitulino@mandriva.com.br>
+Organization: Mandriva
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-conectiva-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1131363741.30115.35.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 07, 2005 at 05:12:21PM +0530, Ashutosh Naik wrote:
-> This PATCH addresses the issue of the init function pointer in
-> lib/ts_bm.c, lib/ts_fsm.c and lib/ts_kmp.c using a mismatching
-> definition in linux/textsearch.h
-> 
-> 
-> Signed-off-by: Ashutosh Naik <ashutosh.naik@adaptec.com>
+Hi,
 
-Is this upstream?
+The patch below fixes the following sparse warnings:
 
-> --
-> diff -Naurp linux-2.6.14-git10/include/linux/textsearch.h
-> linux-2.6.14-git10-mod/include/linux/textsearch.h
-> --- linux-2.6.14-git10/include/linux/textsearch.h       2005-10-28
-> 05:32:08.000000000 +0530
-> +++ linux-2.6.14-git10-mod/include/linux/textsearch.h   2005-11-07
-> 16:39:05.000000000 +0530
-> @@ -40,7 +40,7 @@ struct ts_state
->  struct ts_ops
->  {
->         const char              *name;
-> -       struct ts_config *      (*init)(const void *, unsigned int,
-> int);
-> +       struct ts_config *      (*init)(const void *, unsigned int,
-> gfp_t);
+drivers/net/e100.c:1481:13: warning: Using plain integer as NULL pointer
+drivers/net/e100.c:1481:13: warning: Using plain integer as NULL pointer
+drivers/net/e100.c:1767:27: warning: Using plain integer as NULL pointer
+drivers/net/e100.c:1847:27: warning: Using plain integer as NULL pointer
 
-Ugh, your patch is line-wrapped, and the tabs are messed up.
+Signed-off-by: Luiz Capitulino <lcapitulino@mandriva.com.br>
 
-Care to retry?
+ drivers/net/e100.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-thanks,
+diff --git a/drivers/net/e100.c b/drivers/net/e100.c
+--- a/drivers/net/e100.c
++++ b/drivers/net/e100.c
+@@ -1478,7 +1478,7 @@ static inline int e100_rx_alloc_skb(stru
+ 
+ 	if(pci_dma_mapping_error(rx->dma_addr)) {
+ 		dev_kfree_skb_any(rx->skb);
+-		rx->skb = 0;
++		rx->skb = NULL;
+ 		rx->dma_addr = 0;
+ 		return -ENOMEM;
+ 	}
+@@ -1764,7 +1764,7 @@ static int e100_up(struct nic *nic)
+ 	if((err = e100_hw_init(nic)))
+ 		goto err_clean_cbs;
+ 	e100_set_multicast_list(nic->netdev);
+-	e100_start_receiver(nic, 0);
++	e100_start_receiver(nic, NULL);
+ 	mod_timer(&nic->watchdog, jiffies);
+ 	if((err = request_irq(nic->pdev->irq, e100_intr, SA_SHIRQ,
+ 		nic->netdev->name, nic->netdev)))
+@@ -1844,7 +1844,7 @@ static int e100_loopback_test(struct nic
+ 		mdio_write(nic->netdev, nic->mii.phy_id, MII_BMCR,
+ 			BMCR_LOOPBACK);
+ 
+-	e100_start_receiver(nic, 0);
++	e100_start_receiver(nic, NULL);
+ 
+ 	if(!(skb = dev_alloc_skb(ETH_DATA_LEN))) {
+ 		err = -ENOMEM;
 
-greg k-h
+
+-- 
+Luiz Fernando N. Capitulino

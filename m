@@ -1,108 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964893AbVKGSnG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964918AbVKGSru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964893AbVKGSnG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 13:43:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964898AbVKGSnG
+	id S964918AbVKGSru (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 13:47:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964916AbVKGSru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 13:43:06 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:5299 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S964893AbVKGSnE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 13:43:04 -0500
-Date: Mon, 7 Nov 2005 10:41:50 -0800
-From: Rajesh Shah <rajesh.shah@intel.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, greg@kroah.com, kristen.c.accardi@intel.com,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: 2.6.14-mm1: drivers/pci/hotplug/: namespace clashes
-Message-ID: <20051107104150.A4388@unix-os.sc.intel.com>
-Reply-To: Rajesh Shah <rajesh.shah@intel.com>
-References: <20051106182447.5f571a46.akpm@osdl.org> <20051107173732.GG3847@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20051107173732.GG3847@stusta.de>; from bunk@stusta.de on Mon, Nov 07, 2005 at 06:37:32PM +0100
+	Mon, 7 Nov 2005 13:47:50 -0500
+Received: from smtp4-g19.free.fr ([212.27.42.30]:6563 "EHLO smtp4-g19.free.fr")
+	by vger.kernel.org with ESMTP id S964913AbVKGSrt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 13:47:49 -0500
+Message-ID: <436FA15F.6050701@free.fr>
+Date: Mon, 07 Nov 2005 19:47:59 +0100
+From: matthieu castet <castet.matthieu@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: fr-fr, en, en-us
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: linux-usb-devel@lists.sourceforge.net, usbatm@lists.infradead.org,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]  Eagle and ADI 930 usb adsl modem driver
+References: <4363F9B5.6010907@free.fr> <20051101224510.GB28193@kroah.com> <43691E7E.5090902@free.fr> <20051107174621.GD17004@kroah.com>
+In-Reply-To: <20051107174621.GD17004@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 07, 2005 at 06:37:32PM +0100, Adrian Bunk wrote:
-> <--  snip  -->
+Hi Greg,
+
+Greg KH wrote:
+
+>>Thanks, but does userspace will retry if it fails the first time ?
+>>The device needs the firmware quickly and after 3-5 seconds without it, 
+>>it goes berserk.
 > 
-> ...
->   LD      drivers/pci/hotplug/built-in.o
-> drivers/pci/hotplug/shpchp.o: In function `get_hp_hw_control_from_firmware':
-> : multiple definition of `get_hp_hw_control_from_firmware'
-> drivers/pci/hotplug/pciehp.o:: first defined here
-> ld: Warning: size of symbol `get_hp_hw_control_from_firmware' changed from 472 in drivers/pci/hotplug/pciehp.o to 25 in drivers/pci/hotplug/shpchp.o
-> drivers/pci/hotplug/shpchp.o: In function `get_hp_params_from_firmware':
-> : multiple definition of `get_hp_params_from_firmware'
-> drivers/pci/hotplug/pciehp.o:: first defined here
-> make[3]: *** [drivers/pci/hotplug/built-in.o] Error 1
 > 
-This patch should fix this:
+> That sounds like a pretty broken device :)
+If it was only that (don't work in bulk mode with down rate > 3Mbps ; 
+empty iso urb report errors, ...)...
 
-Signed-off-by: Rajesh Shah <rajesh.shah@intel.com>
 
- drivers/pci/hotplug/pciehp.h           |    4 ++--
- drivers/pci/hotplug/pciehprm_acpi.c    |    4 ++--
- drivers/pci/hotplug/pciehprm_nonacpi.c |    4 ++--
- 3 files changed, 6 insertions(+), 6 deletions(-)
 
-Index: linux-2.6.14-mm1/drivers/pci/hotplug/pciehp.h
-===================================================================
---- linux-2.6.14-mm1.orig/drivers/pci/hotplug/pciehp.h
-+++ linux-2.6.14-mm1/drivers/pci/hotplug/pciehp.h
-@@ -191,8 +191,8 @@ extern u8	pciehp_handle_power_fault	(u8 
- /* pci functions */
- extern int	pciehp_configure_device		(struct slot *p_slot);
- extern int	pciehp_unconfigure_device	(struct slot *p_slot);
--extern int	get_hp_hw_control_from_firmware(struct pci_dev *dev);
--extern void	get_hp_params_from_firmware(struct pci_dev *dev,
-+extern int	pciehp_get_hp_hw_control_from_firmware(struct pci_dev *dev);
-+extern void	pciehp_get_hp_params_from_firmware(struct pci_dev *dev,
- 	       	struct hotplug_params *hpp);
- 
- 
-Index: linux-2.6.14-mm1/drivers/pci/hotplug/pciehprm_acpi.c
-===================================================================
---- linux-2.6.14-mm1.orig/drivers/pci/hotplug/pciehprm_acpi.c
-+++ linux-2.6.14-mm1/drivers/pci/hotplug/pciehprm_acpi.c
-@@ -169,7 +169,7 @@ static int is_root_bridge(acpi_handle ha
- 	return 0;
- }
- 
--int get_hp_hw_control_from_firmware(struct pci_dev *dev)
-+int pciehp_get_hp_hw_control_from_firmware(struct pci_dev *dev)
- {
- 	acpi_status status;
- 	acpi_handle chandle, handle = DEVICE_ACPI_HANDLE(&(dev->dev));
-@@ -228,7 +228,7 @@ int get_hp_hw_control_from_firmware(stru
- 	return -1;
- }
- 
--void get_hp_params_from_firmware(struct pci_dev *dev,
-+void pciehp_get_hp_params_from_firmware(struct pci_dev *dev,
- 		struct hotplug_params *hpp)
- {
- 	acpi_status status = AE_NOT_FOUND;
-Index: linux-2.6.14-mm1/drivers/pci/hotplug/pciehprm_nonacpi.c
-===================================================================
---- linux-2.6.14-mm1.orig/drivers/pci/hotplug/pciehprm_nonacpi.c
-+++ linux-2.6.14-mm1/drivers/pci/hotplug/pciehprm_nonacpi.c
-@@ -36,13 +36,13 @@
- 
- #include "pciehp.h"
- 
--void get_hp_params_from_firmware(struct pci_dev *dev,
-+void pciehp_get_hp_params_from_firmware(struct pci_dev *dev,
- 		struct hotplug_params *hpp)
- {
- 	return;
- }
- 
--int get_hp_hw_control_from_firmware(struct pci_dev *dev)
-+int pciehp_get_hp_hw_control_from_firmware(struct pci_dev *dev)
- {
- 	return 0;
- }
+> This isn't BSD :)
+> 
+ > It's ok, as long as it is local, and it is what you want to do.  I don't
+ > have a strong feeling toward it.
+
+I finally merge them like other usbatm driver did.
+
+
+The corrected version is ready, I will wait some time in order others 
+developers could do final checking.
+I will send it this evening or tomorrow.
+
+
+Thanks
+
+Matthieu

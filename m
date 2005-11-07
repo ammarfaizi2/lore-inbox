@@ -1,65 +1,35 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932449AbVKGL2g (ORCPT <rfc822;ralf@linux-mips.org>);
-	Mon, 7 Nov 2005 06:28:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbVKGL2e
+	id S1751354AbVKGMEY (ORCPT <rfc822;ralf@linux-mips.org>);
+	Mon, 7 Nov 2005 07:04:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbVKGMEY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 06:28:34 -0500
-Received: from omc1-s34.bay6.hotmail.com ([65.54.248.236]:39178 "EHLO
-	omc1-s34.bay6.hotmail.com") by vger.kernel.org with ESMTP
-	id S1751328AbVKGL2b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 06:28:31 -0500
-Message-ID: <BAY5-F5FB48C216171263D10DFE9B650@phx.gbl>
-X-Originating-IP: [192.116.123.114]
-X-Originating-Email: [aliusman_89@msn.com]
-Reply-To: aliusman4@yahoo.com
-From: "Ali Usman" <aliusman_89@msn.com>
-Subject: ASSISTANCE 
-Date: Mon, 07 Nov 2005 11:28:30 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 07 Nov 2005 11:28:30.0671 (UTC) FILETIME=[614525F0:01C5E38E]
-To: unlisted-recipients:; (no To-header on input)
+	Mon, 7 Nov 2005 07:04:24 -0500
+Received: from 64.221.72.30.ptr.us.xo.net ([64.221.72.30]:41735 "HELO
+	64.221.72.30.ptr.us.xo.net") by vger.kernel.org with SMTP
+	id S1751354AbVKGMEX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 07:04:23 -0500
+Reply-To: "Rosario Weber" <psimonoase@goerg.com>
+From: "Rosario" <psimonoase@goerg.com>
+Message-ID: <5035382576.000940016486@goerg.com>
+Date: Mon, 7 Nov 2005 07:07:06 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: Ultimate TV
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932449AbVKGL2g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751354AbVKGMEY@vger.kernel.org>
 
-ARTS & CRAFT COMPANY PLC.
-DL0311 VAUXHALL CROSS LONDON
-UNITED KINGDOM.
-E-MAIL:aliusman4@yahoo.com
 
-Attn:Sir/Ma,
+Good day.
+Dark Haired Cute Teen Gets Ass Licked On Bed
 
-With due respect to you, I am sorry for any inconveniences or embarrassement 
-this my letter of assistance may cause you. I am writing following an 
-impressive information we got about you through a consultancy firm under 
-UK/USA/CA. CHAMBER OF COMMERCE AND INDUSTRY. Thus we assured your capability 
-and reliability to champion a business of great magnitude.
+I've been married so long, I am on my third bottle of Tabasco sauce.Ecstasy is not really part of the scene we can do on celluloid.Genius is the gold in the mine talent is the miner who works and brings it out.
+Man, as long as he lives, is immortal. One minute before his death he shall be immortal. But one minute later, God wins.
 
-I am Mr.Ali Usman, the managing director of the above mentioned company. 
-Base on the assurance given on your behalf, my company has appoint you as 
-our debt collector from our overseas creditors. The creditors always send us 
-CHEQUES for our payment, but foreign cheque take LONGER time to clear and 
-sometimes some of them got lost on transit, which impact a great lost to 
-this Company. It is on this effect, we the management outstand a dept 
-collect or overseas. You haven been selected on these contract, the 
-management has agreed that any debt YOU collected on our behalf, 5% is 
-allowed for you as your share while the remaining will be remitted to us 
-through wire transfer on our coparate  account.
-
-To commence on this transaction, you are to send the following in your 
-reply:
-1. Name you want the cheque to be raised.
-2. Direct telephone and fax numbers
-3. Mailing address
-4. Your company name if any.
-5. Sex/ Age and Occupation.
-If you are interested, please reply through my secure email address:
-aliusman4@yahoo.com
-
-Awaiting your positive reply.
-
-Yours sincerely,
-Mr. Ali Usman.
+http://vikegejupeqyfi.com/main/
+Is marijuana addictive? Yes, in the sense that most of the really pleasant things in life are worth endlessly repeating.He who begins and does not finish loves their pains.
+I have always said and felt that true enjoyment can not be described.For pleasures past I do not grieve, nor perils gathering near My greatest grief is that I leave nothing that claims a tear.Man, the living creature, the creating individual, is always more important than any established style or system.
 
 

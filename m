@@ -1,87 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965137AbVKGTX2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965053AbVKGTWv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965137AbVKGTX2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 14:23:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965146AbVKGTX2
+	id S965053AbVKGTWv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 14:22:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965124AbVKGTWv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 14:23:28 -0500
-Received: from xproxy.gmail.com ([66.249.82.199]:11189 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965137AbVKGTX0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 14:23:26 -0500
+	Mon, 7 Nov 2005 14:22:51 -0500
+Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:47778 "HELO
+	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S965053AbVKGTWv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 14:22:51 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=fjPh3CUcmJfMgshjSrrnQW5ZSsrYsXWfRg+mLQc2LSKyvwNMfjuhFj0Ki2BXWIPw7xypaG+JDc4kGhXwHxz3dgPeteiIXdnv0kxlyc2NE9xxu5ktRN+mupfBP/tdXimOBdpEHCVZOu2NonD3kAzVUWXBcPzllfnvvCBi0Sek6+Q=
-Message-ID: <5bdc1c8b0511071123h4a1d0da7rcae0548c2c55afb3@mail.gmail.com>
-Date: Mon, 7 Nov 2005 11:23:26 -0800
-From: Mark Knecht <markknecht@gmail.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: 3D video card recommendations
-Cc: Steven Rostedt <rostedt@goodmis.org>, Gerhard Mack <gmack@innerfire.net>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Xavier Bestel <xavier.bestel@free.fr>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Hugo Mills <hugo-lkml@carfax.org.uk>, Nix <nix@esperi.org.uk>,
-       Anshuman Gholap <anshu.pg@gmail.com>, Diego Calleja <diegocg@gmail.com>,
-       Toon van der Pas <toon@hout.vanvergehaald.nl>, arjan@infradead.org
-In-Reply-To: <1131390332.8383.83.camel@mindpipe>
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=poaYUEz0HZyLcWscTUqF2eVpYcV+wndT9jdkWTwxiWbAI+x3PGtWxZDpYZtf+5JWxe6AQkG3vSD7dtzvJt9OKudWFuywJbB2FbfXZGbG8N1aiVuQ4CC94ppURbQGsfUHBdFMWd3Lwwwbp53b6kuB67BYDvwuNOgs9mifnZJWVWA=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+Subject: Re: [uml-devel] [PATCH 8/10] UML - Maintain own LDT entries
+Date: Mon, 7 Nov 2005 20:28:22 +0100
+User-Agent: KMail/1.8.3
+Cc: user-mode-linux-devel@lists.sourceforge.net, Jeff Dike <jdike@addtoit.com>,
+       linux-kernel@vger.kernel.org, Allan Graves <allan.graves@oracle.com>
+References: <200510310439.j9V4dfbw000872@ccure.user-mode-linux.org> <200511022051.24335.blaisorblade@yahoo.it> <436F469B.3080607@fujitsu-siemens.com>
+In-Reply-To: <436F469B.3080607@fujitsu-siemens.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <1131112605.14381.34.camel@localhost.localdomain>
-	 <1131349343.2858.11.camel@laptopd505.fenrus.org>
-	 <1131367371.14381.91.camel@localhost.localdomain>
-	 <20051107152009.GA20807@shuttle.vanvergehaald.nl>
-	 <20051107180045.ec86a7f2.diegocg@gmail.com>
-	 <1131384624.14381.106.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0511071243350.9444@innerfire.net>
-	 <1131386032.14381.110.camel@localhost.localdomain>
-	 <5bdc1c8b0511071001s2d990e72s812c195d5614a894@mail.gmail.com>
-	 <1131390332.8383.83.camel@mindpipe>
+Message-Id: <200511072028.23111.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/7/05, Lee Revell <rlrevell@joe-job.com> wrote:
-> On Mon, 2005-11-07 at 10:01 -0800, Mark Knecht wrote:
-> >    I'm using the radeon driver from the Xorg-X11 package. The only
-> > problem I've run into which remains unsolved is that when I run either
-> > Quicken or IE6 under Crossover Office 5.0 all of the icons in those
-> > windows programs show up in black and white, not color, so they are
-> > somewhat unreadable. Other than that no real problems.
-> >
->
-> Um, didn't you say you were still getting audio underruns correlated
-> with display activity?  I still think it's a bug in the Xorg radeon
-> driver.
->
-> Lee
+On Monday 07 November 2005 13:20, Bodo Stroesser wrote:
+> Blaisorblade wrote:
+> > On Monday 31 October 2005 05:39, Jeff Dike wrote:
+> >>From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
 
-Hi Lee,
-   It very well could be a video issue causing my xruns. That's been
-the biggest, but not olny,  factor, but I don't know any more. I've
-gone down so many paths that haven't yielded results.
+> > Or at least so I think (I must still give a proper look afterwards, and
+> > I'll post patches). Actually it seems that this is done on purpose, but I
+> > don't agree too much on this. I will see.
 
-   I've tried the NoAccel and RenderAccel experiments you suggested.
-You also mentioned not loading DRI which I guess isn't possible anyway
-with a PCI-Express card. Anyway, I don't have it loaded.
+>  From the beginning my new code for SKAS included the checks/buffering you
+> later inserted for TT and SKAS. So this patch is a second version adapted
+> to your changes. It shifts your improvements into TT path only (where I
+> didn't do any changes in my old patch), while it uses my own stuff for
+> SKAS. Thus the patch doesn't really revert your improvements, but restricts
+> it to TT. As in SKAS0 UML now holds its own LDT data, there is no need for
+> buffering in this case. So I think it makes sense to have separate code for
+> SKAS.
+Yep, ok - I'm undecided about the new code for SKAS3, but it may make sense 
+(i.e. no opinion).
 
-   While I do get xruns, they are happening lately only a couple of
-times a day, and usually very late in the day after the machine has
-been running for 12+ hours. If I pull Jack back to 256/2 then I don't
-think I get them at all so I'm living with it for now and hoping for a
-solution one of these days. Low latency really only matters to me when
-recording which is <5% of the time.
+Instead, I have another question: is there a proper reason for using the 
+processor format for storing the info and translating it back to (struct 
+user_desc)? I am planning to avoid this double translation because I don't 
+like it. Any opinion?
+-- 
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
 
-   I'm most interested in a kernel developer finding the time to fix
-the IRQoff latency testing on 64-bit machines so I can look at that.
+	
 
-   In case the question comes to mind for others, this HDSP 9652 sound
-card runs for months at a time at 64/2 in my older Via 32-bit machine.
-The problem only surfaced when I moved it to my new AMD64 machine.
-
-   Anyway, that's status. It's a frustration, not a killer issue.
-
-Cheers,
-Mark
+	
+		
+___________________________________ 
+Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
+http://mail.yahoo.it

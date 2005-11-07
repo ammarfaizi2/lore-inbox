@@ -1,69 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965053AbVKGTWv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965158AbVKGT1b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965053AbVKGTWv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 14:22:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965124AbVKGTWv
+	id S965158AbVKGT1b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 14:27:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965184AbVKGT1b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 14:22:51 -0500
-Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:47778 "HELO
-	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S965053AbVKGTWv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 14:22:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=poaYUEz0HZyLcWscTUqF2eVpYcV+wndT9jdkWTwxiWbAI+x3PGtWxZDpYZtf+5JWxe6AQkG3vSD7dtzvJt9OKudWFuywJbB2FbfXZGbG8N1aiVuQ4CC94ppURbQGsfUHBdFMWd3Lwwwbp53b6kuB67BYDvwuNOgs9mifnZJWVWA=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-Subject: Re: [uml-devel] [PATCH 8/10] UML - Maintain own LDT entries
-Date: Mon, 7 Nov 2005 20:28:22 +0100
-User-Agent: KMail/1.8.3
-Cc: user-mode-linux-devel@lists.sourceforge.net, Jeff Dike <jdike@addtoit.com>,
-       linux-kernel@vger.kernel.org, Allan Graves <allan.graves@oracle.com>
-References: <200510310439.j9V4dfbw000872@ccure.user-mode-linux.org> <200511022051.24335.blaisorblade@yahoo.it> <436F469B.3080607@fujitsu-siemens.com>
-In-Reply-To: <436F469B.3080607@fujitsu-siemens.com>
+	Mon, 7 Nov 2005 14:27:31 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:9107 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S965158AbVKGT1a
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 14:27:30 -0500
+Date: Mon, 7 Nov 2005 14:27:29 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Andrew Morton <akpm@osdl.org>
+cc: Reuben Farrelly <reuben-lkml@reub.net>, <neilb@suse.de>,
+       <linux-kernel@vger.kernel.org>, <n@suse.de>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       <linux-scsi@vger.kernel.org>
+Subject: Re: 2.6.14-mm1
+In-Reply-To: <20051107105257.333248c0.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44L0.0511071421540.5078-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511072028.23111.blaisorblade@yahoo.it>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 07 November 2005 13:20, Bodo Stroesser wrote:
-> Blaisorblade wrote:
-> > On Monday 31 October 2005 05:39, Jeff Dike wrote:
-> >>From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+On Mon, 7 Nov 2005, Andrew Morton wrote:
 
-> > Or at least so I think (I must still give a proper look afterwards, and
-> > I'll post patches). Actually it seems that this is done on purpose, but I
-> > don't agree too much on this. I will see.
+> Reuben Farrelly <reuben-lkml@reub.net> wrote:
+> >
+> >  Debug: sleeping function called from invalid context at include/asm/semaphore.h:99
+> >  in_atomic():1, irqs_disabled():1
+> >    [<c0103c46>] dump_stack+0x17/0x19
+> >    [<c011a173>] __might_sleep+0x9c/0xae
+> >    [<c028f82b>] scsi_disk_get_from_dev+0x15/0x48
+> >    [<c029006e>] sd_prepare_flush+0x17/0x5a
+> >    [<c027f8ff>] scsi_prepare_flush_fn+0x30/0x33
+> >    [<c0259da0>] blk_start_pre_flush+0xd5/0x13f
+> >    [<c025936b>] elv_next_request+0x113/0x170
+> >    [<c027fd45>] scsi_request_fn+0x4b/0x2fd
+> >    [<c025b393>] blk_run_queue+0x2b/0x3c
+> >    [<c027f0b3>] scsi_run_queue+0xa4/0xb6
+> >    [<c027f11f>] scsi_next_command+0x16/0x19
+> >    [<c027f1db>] scsi_end_request+0x93/0xc5
+> >    [<c027f494>] scsi_io_completion+0x141/0x46b
+> >    [<c02901e9>] sd_rw_intr+0x117/0x22b
+> >    [<c027ae5f>] scsi_finish_command+0x7f/0x93
+> >    [<c027ad43>] scsi_softirq+0xa8/0x11a
+> >    [<c0121eb8>] __do_softirq+0x88/0x141
+> >    [<c0104fd9>] do_softirq+0x77/0x81
+> >    =======================
+> >    [<c012205a>] irq_exit+0x48/0x4a
+> >    [<c0104e84>] do_IRQ+0x74/0xa7
+> >    [<c010374e>] common_interrupt+0x1a/0x20
+> >    [<f8918c04>] acpi_processor_idle+0x11f/0x2c7 [processor]
+> >    [<c0100d71>] cpu_idle+0x49/0xa0
+> >    [<c01002d7>] rest_init+0x37/0x39
+> >    [<c03fd8c5>] start_kernel+0x166/0x179
+> >    [<c0100210>] 0xc0100210
+> 
+> ah-hah, that's a different trace.
+> 
+> sd_issue_flush() has been altered to run scsi_disk_get_from_dev(), which
+> takes a semaphore.  It does this from within spinlock and, as we see here,
+> from within softirq.
+> 
+> Methinks the people who developed and tested that patch forgot to enable
+> CONFIG_PREEMPT, CONFIG_DEBUG_KERNEL, CONFIG_DEBUG_SLAB,
+> CONFIG_DEBUG_SPINLOCK and CONFIG_DEBUG_SPINLOCK_SLEEP.
 
->  From the beginning my new code for SKAS included the checks/buffering you
-> later inserted for TT and SKAS. So this patch is a second version adapted
-> to your changes. It shifts your improvements into TT path only (where I
-> didn't do any changes in my old patch), while it uses my own stuff for
-> SKAS. Thus the patch doesn't really revert your improvements, but restricts
-> it to TT. As in SKAS0 UML now holds its own LDT data, there is no need for
-> buffering in this case. So I think it makes sense to have separate code for
-> SKAS.
-Yep, ok - I'm undecided about the new code for SKAS3, but it may make sense 
-(i.e. no opinion).
+No, believe it or not, all those items are enabled in my .config.  What I
+didn't do was test the patch with anything that would force a call to
+sd_prepare_flush.  In fact, I'm not sure how to do such a thing.
 
-Instead, I have another question: is there a proper reason for using the 
-processor format for storing the info and translating it back to (struct 
-user_desc)? I am planning to avoid this double translation because I don't 
-like it. Any opinion?
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
+I don't know how this should be fixed.  James will have to come up with 
+something.
 
-	
+Alan Stern
 
-	
-		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it

@@ -1,75 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965113AbVKGUrS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965330AbVKGUry@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965113AbVKGUrS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 15:47:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965325AbVKGUrS
+	id S965330AbVKGUry (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 15:47:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965333AbVKGUry
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 15:47:18 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:43656 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965113AbVKGUrR (ORCPT
+	Mon, 7 Nov 2005 15:47:54 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:9106 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965330AbVKGUrw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 15:47:17 -0500
-Date: Mon, 7 Nov 2005 12:46:47 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: patrakov@ums.usu.ru, linux-kernel@vger.kernel.org, sfrench@us.ibm.com,
-       castet.matthieu@free.fr, greg@kroah.com, vojtech@suse.cz,
-       dtor_core@ameritech.net
-Subject: Re: 2.6.14-mm1
-Message-Id: <20051107124647.212a670d.akpm@osdl.org>
-In-Reply-To: <200511072021.jA7KL4kA030734@turing-police.cc.vt.edu>
-References: <20051106182447.5f571a46.akpm@osdl.org>
-	<436F7DAA.8070803@ums.usu.ru>
-	<20051107115210.33e4f0bf.akpm@osdl.org>
-	<200511072021.jA7KL4kA030734@turing-police.cc.vt.edu>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 7 Nov 2005 15:47:52 -0500
+Date: Mon, 7 Nov 2005 12:47:43 -0800
+From: Mike Kravetz <kravetz@us.ibm.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Andy Whitcroft <apw@shadowen.org>, Paul Mackerras <paulus@samba.org>,
+       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       lhms-devel@lists.sourceforge.net
+Subject: Re: [PATCH 1/4] Memory Add Fixes for ppc64
+Message-ID: <20051107204743.GC5821@w-mikek2.ibm.com>
+References: <20051104231552.GA25545@w-mikek2.ibm.com> <20051104231800.GB25545@w-mikek2.ibm.com> <1131149070.29195.41.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1131149070.29195.41.camel@gaston>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
->
-> On Mon, 07 Nov 2005 11:52:10 PST, Andrew Morton said:
-> 
-> > > 2) The PS/2 keyboard death on ppp traffic is still not fixed. 
-> > > Reproducible even on slow GPRS if there's something else (e.g. glxgears) 
-> > > that eats some CPU time. When keyboard is dead, events/0 consomes 100% 
-> > > of CPU. Nothing in dmesg. If you outline some suspicious pieces of code, 
-> > > I will insert printks there in order to debug this.
-> > 
-> > input guys cc'ed.
-> 
-> Getting myself on the cc: list, as I've seen this one on 2.6.14-rc5-mm1 (haven't
-> nailed it on 14-mm1 *yet*, but only been up for 12 hours).  Also, some
-> additional info:
-> 
-> The keyboard is dead, but other stuff still works - I've been able to issue
-> commands by laborious cut-n-paste into an xterm window.  X is still up and
-> responding, as are all the clients, so it's *not* a hard loop in events/0.
-> 
-> Also, I've had gkrellm running when it hits, and it will show incoming data
-> rates on the modem of 3.5Mbytes/sec (as opposed to the 5K/sec you'd expect from
-> a 56k modem).  A few times, I've had it go into auto-ambush on an iptables rule,
-> with the same rule tripping several tens of thousands of times in a row,
-> which makes me think it's got to do with a short packet (such as an inbound
-> SYN packet) going into replicator mode and just being handed up from the
-> device driver over and over, thousands of times....
-> 
-> alt-sysrq still works - I can sysrq-T to get traces, -S to sync, -B to reboot
-> and so on, and the output gets through klogd and syslogd and into /var/adm/messages.
+On Sat, Nov 05, 2005 at 11:04:30AM +1100, Benjamin Herrenschmidt wrote:
+> This patch will have to be slightly reworked on top of the 64k pages
+> one. It should be trivial though.
 
-That sounds like softirq starvation.
+Ran into an issue with the interaction of SPARSEMEM and 64k pages.
+SPARSEMEM defines the pp64 section size to be 16MB which corresponds
+to the smallest LMB size.  There is a check in the SPARSEMEM code
+to ensure that MAX_ORDER (actually MAX_ORDER-1) block size is not
+greater than section size.  Within the Kconfig file, there is this:
 
-Or maybe the input layer uses keventd services and keventd is stuck.
+# We optimistically allocate largepages from the VM, so make the limit
+# large enough (16MB). This badly named config option is actually
+# max order + 1
+config FORCE_MAX_ZONEORDER
+        int
+        depends on PPC64
+        default "13"
 
-> I'm able to often trigger the bug by opening a new tab in Firefox, as that (a)
-> involves small SYN+ACK packets coming back and (b) a Firefox bug causes it to
-> chew CPU when displaying a page in a tab....
-> 
-> I'm willing to test-drive any debugging/patches needed, as this is probably the
-> single biggest stability hit I have in -mm at the moment.
-> 
+Just curious if we still want to boost MAX_ORDER like this with 64k
+pages?  Doesn't that make the MAX_ORDER block size 256MB in this case?
+Also, not quite sure what happens if memory size (a 16 MB multiple)
+does not align with a MAX_ORDER block size (a 256MB multiple in this
+case).  My 'guess' is that the page allocator would not use it as it
+would not fit within the buddy system.
 
-I'd try hitting sysrq-p ten times, then take a look at the logs.
+cc'ing SPARSEMEM author Andy Whitcroft.
+-- 
+Mike

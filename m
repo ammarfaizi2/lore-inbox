@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030183AbVKGXIP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965060AbVKGXKM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030183AbVKGXIP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 18:08:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965591AbVKGXIO
+	id S965060AbVKGXKM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 18:10:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965590AbVKGXKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 18:08:14 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:40635 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965589AbVKGXIN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 18:08:13 -0500
-Date: Mon, 7 Nov 2005 15:08:07 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: zach@vmware.com, rmk@arm.linux.org.uk, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, davej@redhat.com, than@redhat.com
-Subject: Re: [PATCH 1/1] My tools break here
-Message-Id: <20051107150807.5f85ec13.akpm@osdl.org>
-In-Reply-To: <20051107225024.GB10492@mars.ravnborg.org>
-References: <200511072156.jA7LuQKv009711@zach-dev.vmware.com>
-	<20051107225024.GB10492@mars.ravnborg.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 7 Nov 2005 18:10:11 -0500
+Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:41581 "HELO
+	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S965060AbVKGXKK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 18:10:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=wwSqIIiHJVkNJhPxA8fPDfvtQmR96wdup7OxvDh884P6hIBhaNgH+ZWboY0x+Y0MNFgfy+JPoynLhEXVOyZB2beu6p0Xzllf4YmU0rebQCOSz7q30u+V46LtANE6xkroTfumpJMNOFuLV7+fGQgaHn+F1Rg8D+EDqjuXe3BIIOY=  ;
+Message-ID: <436FDF41.9090106@yahoo.com.au>
+Date: Tue, 08 Nov 2005 10:12:01 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       Nikita Danilov <nikita@clusterfs.com>
+Subject: Re: [PATCH 3/3] vm: writeout watermarks
+References: <4366FA9A.20402@yahoo.com.au> <4366FAF5.8020908@yahoo.com.au> <4366FB24.5010507@yahoo.com.au> <4366FB4B.9000103@yahoo.com.au> <20051107153337.GB17246@logos.cnet>
+In-Reply-To: <20051107153337.GB17246@logos.cnet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg <sam@ravnborg.org> wrote:
->
-> On Mon, Nov 07, 2005 at 01:56:26PM -0800, Zachary Amsden wrote:
-> > I have to revert the recent addition of -imacros to the Makefile to get my
-> > tool chain to build.  Without the change, below, I get:
-> > 
-> > Note that this looks entirely like a toolchain bug.
-> Then fix your toolchain instead of reverting the -imacros patch.
+Marcelo Tosatti wrote:
+> Nikita has a customer using large percentage of RAM for 
+> a kernel module, which results in get_dirty_limits() misbehaviour
+> since
+> 
+>         unsigned long available_memory = total_pages;
+> 
+> It should work on the amount of cacheable pages instead.
+> 
+> He's got a patch but I dont remember the URL. Nikita?
+> 
 
-Well.   We work around toolchain bugs regularly.
+Indeed. This patch has a couple of little problems anyway, and
+probably does not logicaly belong as part of this series.
 
-> The change has been in -git for a full day and in latest -mm too.
-> And so far this is the only report that it breaks - I no one else
-> complains it will stay.
+I'll work on previous 2 more important patches first.
 
-Let's wait and see how many more people are affected.
+My patch should probably go on top of more fundamental work
+like Nikita's patch.
+
+Thanks,
+Nick
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

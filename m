@@ -1,79 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964846AbVKGPk2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964821AbVKGPoy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964846AbVKGPk2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 10:40:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964847AbVKGPk2
+	id S964821AbVKGPoy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 10:44:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964847AbVKGPoy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 10:40:28 -0500
-Received: from EXCHG2003.microtech-ks.com ([65.16.27.37]:6843 "EHLO
-	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
-	id S964846AbVKGPk1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 10:40:27 -0500
-From: "Roger Heflin" <rheflin@atipa.com>
-To: "'Steven Timm'" <timm@fnal.gov>, <linux-kernel@vger.kernel.org>
-Subject: RE: rpc-srv/tcp: nfsd: sent only -107 bytes (fwd)
-Date: Mon, 7 Nov 2005 09:47:18 -0600
+	Mon, 7 Nov 2005 10:44:54 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:8708 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S964821AbVKGPox
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 10:44:53 -0500
+Message-ID: <436F7673.5040309@vmware.com>
+Date: Mon, 07 Nov 2005 07:44:51 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Thread-Index: AcXf6EMJk8Lyz2ecRAiB8ozcVm4QegDyB06Q
-In-Reply-To: <Pine.LNX.4.62.0511021405430.20925@snowball.fnal.gov>
-Message-ID: <EXCHG2003o4lB4BwOZx000005bd@EXCHG2003.microtech-ks.com>
-X-OriginalArrivalTime: 07 Nov 2005 15:35:26.0838 (UTC) FILETIME=[E064D160:01C5E3B0]
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14: CR4 not needed to be inspected on the 486 anymore?
+References: <Pine.LNX.4.55.0511031600010.24109@blysk.ds.pg.gda.pl> <436A3C10.9050302@vmware.com> <Pine.LNX.4.55.0511031639310.24109@blysk.ds.pg.gda.pl> <436AA1FD.3010401@vmware.com> <p73fyqb2dtx.fsf@verdi.suse.de> <Pine.LNX.4.55.0511070931560.28165@blysk.ds.pg.gda.pl>
+In-Reply-To: <Pine.LNX.4.55.0511070931560.28165@blysk.ds.pg.gda.pl>
+Content-Type: multipart/mixed;
+ boundary="------------070409040600000208020207"
+X-OriginalArrivalTime: 07 Nov 2005 15:44:52.0626 (UTC) FILETIME=[31A13720:01C5E3B2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
+This is a multi-part message in MIME format.
+--------------070409040600000208020207
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Steven Timm
-> Sent: Wednesday, November 02, 2005 2:06 PM
-> To: linux-kernel@vger.kernel.org
-> Subject: rpc-srv/tcp: nfsd: sent only -107 bytes (fwd)
-> 
-> 
-> 
-> I am seeing repeated errors of rpc-srv/tcp: nfsd: sent only 
-> -107 bytes in the /var/log/messages of my machine.  Full 
-> configuration info is below.  Only suggestion I have seen 
-> thus far increase the number of nfsd that are running.  we 
-> have done this, raising from 8 to 64, the problem persists.  
-> Are there any other suggestions that could help this problem?
-> 
-> Thanks
-> 
+Maciej W. Rozycki wrote:
 
-I have only seen this problem with large numbers of NFS clients, given
-your address I suspect that would be the issue.
+>On Sat, 5 Nov 2005, Andi Kleen wrote:
+>
+>  
+>
+>>I don't think it's a good idea. Relying on nested faults in oops
+>>is a bit unsafe because it could lead to recursive faults in the worst case. 
+>>    
+>>
+>
+> Good point.
+>
+>  
+>
+>>Better keep the if
+>>    
+>>
+>
+> Except the condition is wrong.  Presence of CR4 could be tested elsewhere
+>though, with the result being the condition here.
+>
+>  Maciej
+>
+>  
+>
 
-What kernel are you running?  I saw this issue on the 2.4 series, the
-large 2.6 things we have built avoided using TCP given that we had
-seen this issue.
+While this is at least no worse in the nested fault case than earlier 
+kernels, I really wish I had one of those weird 486s so I could test the 
+faulting mechanism.  It seems the trap handling code has gotten quite 
+complicated now, with notifiers adding nice functionality, but making 
+the ordering of potential fault paths difficult to reason about (in 
+particular when considering functionality like kexec, kprobes, NMIs and 
+friends).
 
-There is a calculation someplace in nfs that determines how many of these
-things exist, is is some base + so many per nfs thread.  If you 
-search for message you have there are some posts on the NFS lists
-about it that I made last year.
+Zach
 
-On the client side each separate mount against a server counts as
-one, so if each client is mounting /opt and /home and /data and
-you have 100 machines you need at least 300.
+--------------070409040600000208020207
+Content-Type: text/plain;
+ name="cr4-is-valid-on-some-486s"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="cr4-is-valid-on-some-486s"
 
-The solution that I came to was to use UDP mounts, as this limit
-is not there.   In the situation I had we would have had to change
-the number of nfsd to 256 and even that was going to be close, 
-and the 256 caused some other failures.  To not have the issue you
-will need to use UDP mounts everywere if you have enough tcp mounts
-to cause the error it will affect the udp mounts in a similar bad way.
+So some 486 processors do have CR4 register.  Allow them to present it in
+register dumps by using the old fault technique rather than testing processor
+family.
 
-We also could have changed the thread to resource count, but we had
-some other process starvation issue with TCP that seemed to not be
-duplicatable with UDP.
+Thanks to Maciej for noticing this.
 
-                     Roger
-                     Atipa Technologies
+Signed-off-by: Zachary Amsden <zach@vmware.com>
+Index: linux-2.6.14-zach-work/arch/i386/kernel/process.c
+===================================================================
+--- linux-2.6.14-zach-work.orig/arch/i386/kernel/process.c	2005-11-05 01:19:21.000000000 -0800
++++ linux-2.6.14-zach-work/arch/i386/kernel/process.c	2005-11-05 03:02:21.000000000 -0800
+@@ -314,9 +314,7 @@ void show_regs(struct pt_regs * regs)
+ 	cr0 = read_cr0();
+ 	cr2 = read_cr2();
+ 	cr3 = read_cr3();
+-	if (current_cpu_data.x86 > 4) {
+-		cr4 = read_cr4();
+-	}
++	cr4 = read_cr4_safe();
+ 	printk("CR0: %08lx CR2: %08lx CR3: %08lx CR4: %08lx\n", cr0, cr2, cr3, cr4);
+ 	show_trace(NULL, &regs->esp);
+ }
+Index: linux-2.6.14-zach-work/include/asm-i386/system.h
+===================================================================
+--- linux-2.6.14-zach-work.orig/include/asm-i386/system.h	2005-11-05 01:11:32.000000000 -0800
++++ linux-2.6.14-zach-work/include/asm-i386/system.h	2005-11-05 03:06:57.000000000 -0800
+@@ -97,6 +97,19 @@ extern struct task_struct * FASTCALL(__s
+ 		:"=r" (__dummy)); \
+ 	__dummy; \
+ })
++
++#define read_cr4_safe() ({			      \
++	unsigned int __dummy;			      \
++	/* This could fault if %cr4 does not exist */ \
++	__asm__("1: movl %%cr4, %0		\n"   \
++		"2:				\n"   \
++		".section __ex_table,\"a\"	\n"   \
++		".long 1b,2b			\n"   \
++		".previous			\n"   \
++		: "=r" (__dummy): "0" (0));	      \
++	__dummy;				      \
++})
++
+ #define write_cr4(x) \
+ 	__asm__ __volatile__("movl %0,%%cr4": :"r" (x));
+ #define stts() write_cr0(8 | read_cr0())
 
+--------------070409040600000208020207--

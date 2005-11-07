@@ -1,45 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964944AbVKGTCl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964980AbVKGTEh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964944AbVKGTCl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 14:02:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964950AbVKGTCl
+	id S964980AbVKGTEh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 14:04:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964991AbVKGTEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 14:02:41 -0500
-Received: from smtp3.nextra.sk ([195.168.1.142]:48652 "EHLO mailhub3.nextra.sk")
-	by vger.kernel.org with ESMTP id S964944AbVKGTCk (ORCPT
+	Mon, 7 Nov 2005 14:04:37 -0500
+Received: from xenotime.net ([66.160.160.81]:56736 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S964990AbVKGTEg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 14:02:40 -0500
-Message-ID: <436FA4CB.6020406@rainbow-software.org>
-Date: Mon, 07 Nov 2005 20:02:35 +0100
-From: Ondrej Zary <linux@rainbow-software.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
+	Mon, 7 Nov 2005 14:04:36 -0500
+Date: Mon, 7 Nov 2005 11:04:29 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: linas <linas@austin.ibm.com>
+cc: Greg KH <greg@kroah.com>, Paul Mackerras <paulus@samba.org>,
+       linuxppc64-dev@ozlabs.org, johnrose@austin.ibm.com,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       bluesmoke-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: typedefs and structs [was Re: [PATCH 16/42]: PCI:  PCI Error
+ reporting callbacks]
+In-Reply-To: <20051107185621.GD19593@austin.ibm.com>
+Message-ID: <Pine.LNX.4.58.0511071059320.8922@shark.he.net>
+References: <20051103235918.GA25616@mail.gnucash.org> <20051104005035.GA26929@mail.gnucash.org>
+ <20051105061114.GA27016@kroah.com> <17262.37107.857718.184055@cargo.ozlabs.ibm.com>
+ <20051107175541.GB19593@austin.ibm.com> <20051107182727.GD18861@kroah.com>
+ <20051107185621.GD19593@austin.ibm.com>
 MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-CC: Zachary Amsden <zach@vmware.com>,
-       "Maciej W. Rozycki" <macro@linux-mips.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14: CR4 not needed to be inspected on the 486 anymore?
-References: <Pine.LNX.4.55.0511031600010.24109@blysk.ds.pg.gda.pl> <436A3C10.9050302@vmware.com> <Pine.LNX.4.55.0511031639310.24109@blysk.ds.pg.gda.pl> <436AA1FD.3010401@vmware.com> <p73fyqb2dtx.fsf@verdi.suse.de> <Pine.LNX.4.55.0511070931560.28165@blysk.ds.pg.gda.pl> <436F7673.5040309@vmware.com> <Pine.LNX.4.55.0511071632110.28165@blysk.ds.pg.gda.pl> <436F8601.4070201@vmware.com> <Pine.LNX.4.61.0511071157590.27658@chaos.analogic.com> <436F8FAE.90805@vmware.com> <Pine.LNX.4.61.0511071313330.27911@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0511071313330.27911@chaos.analogic.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
->>No, you won't.  #UD and #GP will not (I hesitate to say never, but other
->>than a processor bug, I believe that is correct) reset the processor.
->>And CR4 is not "undocumented", even on 486.
->>
-> 
-> 
-> Yes it is. The i486 Programmer's reference manual documents only
-> to CR3.
+On Mon, 7 Nov 2005, linas wrote:
 
-The manual might be older than the newer 486 CPUs.
-And don't forget that not every 486 is Intel. There are at least Cyrix, 
-AMD and UMC with interesting Am5x86-P75 and Cx5x86 too.
+> On Mon, Nov 07, 2005 at 10:27:27AM -0800, Greg KH was heard to remark:
+> >
+> > 3) realy strong typing that sparse can detect.
+>
+> Am compiling now.
+>
+> > enums don't really work, as you can get away with using an integer and
+> > the compiler will never complain.  Please use a typedef (yeah, I said
+> > typedef) in the way that sparse will catch any bad users of the code.
+>
+> How about typedef'ing  structs?
+
+No no no.  (I feel sure that you will get plenty of responses.)
+
+> I'm not to clear on what "sparse" can do; however, in the good old days,
+> gcc allowed you to commit great sins when passing "struct blah *" to
+> subroutines, whereas it stoped you cold if you tried the same trick
+> with a typedef'ed "blah_t *".  This got me into the habit of turning
+> all structs into typedefs in my personal projects.  Can we expect
+> something similar for the kernel, and in particular, should we start
+> typedefing structs now?
+
+No no no.
+
+> (Documentation/CodingStyle doesn't mention typedef at all).
+
+We can submit patches for that.
+
+Basically (generally) we never want a struct to be typedef-ed.
+(There may be a couple of exceptions to this.)
+
+We do allow a very few basic types to be typedef-ed, as long as
+the basic type (e.g., pid_t) is also a C language basic type or
+the typedef is useful for strong type checking.
 
 -- 
-Ondrej Zary
+~Randy

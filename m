@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbVKGE6N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbVKGFAy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751287AbVKGE6N (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 23:58:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbVKGE6N
+	id S932446AbVKGFAy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 00:00:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbVKGFAy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 23:58:13 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:18882 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751287AbVKGE6M (ORCPT
+	Mon, 7 Nov 2005 00:00:54 -0500
+Received: from tetsuo.zabbo.net ([207.173.201.20]:50331 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S1751293AbVKGFAx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 23:58:12 -0500
-Date: Sun, 6 Nov 2005 20:58:09 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, oleg@tv-sign.ru, dipankar@in.ibm.com,
-       suzannew@cs.pdx.edu
-Subject: Re: [PATCH] Fixes for RCU handling of task_struct
-Message-ID: <20051107045809.GA24195@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20051031020535.GA46@us.ibm.com> <20051031140459.GA5664@elte.hu> <20051106134945.0e10cb60.akpm@osdl.org> <436EA9F9.4020809@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <436EA9F9.4020809@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
+	Mon, 7 Nov 2005 00:00:53 -0500
+Message-ID: <436EDF82.8070402@oracle.com>
+Date: Sun, 06 Nov 2005 21:00:50 -0800
+From: Zach Brown <zach.brown@oracle.com>
+User-Agent: Thunderbird 1.4.1 (X11/20051006)
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@lst.de>
+Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org,
+       Benjamin LaHaise <bcrl@kvack.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [Patch] vectored aio: IO_CMD_P{READ,WRITE}V and fops->aio_{read,write}v
+References: <20051102233020.27835.89951.sendpatchset@volauvent.pdx.zabbo.net> <20051105002406.GA11235@lst.de> <436C04FE.6000708@oracle.com> <20051107045300.GA17265@lst.de>
+In-Reply-To: <20051107045300.GA17265@lst.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 07, 2005 at 12:12:25PM +1100, Nick Piggin wrote:
-> Andrew Morton wrote:
-> 
-> >>+static inline int get_task_struct_rcu(struct task_struct *t)
-> >>+{
-> >>+	int oldusage;
-> >>+
-> >>+	do {
-> >>+		oldusage = atomic_read(&t->usage);
-> >>+		if (oldusage == 0) {
-> >>+			return 0;
-> >>+		}
-> >>+	} while (cmpxchg(&t->usage.counter,
-> >>+		 oldusage, oldusage + 1) != oldusage);
-> >>+	return 1;
-> >>+}
-> >
-> >
-> >arm (at least) does not implement cmpxchg.
-> >
-> 
-> Yes, and using atomic_t.counter in generic code is ugly, albeit
-> compatible with all current implementations.
-> 
-> >I think Nick is working on patches which implement cmpxchg on all
-> >architectures?
-> 
-> Yes, it is basically ready to go.
+Christoph Hellwig wrote:
+> On Fri, Nov 04, 2005 at 05:03:58PM -0800, Zach Brown wrote:
 
-Would it simplify the rcuref.h code?  Or lib/dec_and_lock.c?
+>> If we're going down this path, and find ourselves touching every vectored
+>> implementation in the world, I wonder if we shouldn't consider that iovec
+>> container.  The desire is to avoid the duplicated iovec walking that happens at
+>> the various layers by storing the result of a single walk.  An ext3 O_DIRECT
+>> write walks the iovec no fewer than 7 times:
 
-						Thanx, Paul
+> As we discussed a while ago adding some kinds of fs_iovec or kern_iovec
+> structure that records useful addition information could help this.
+> Would you mind prototyping it?
+
+Yeah, I have a patch that I've been kicking around.  It's working out
+pretty well, though there are some kinks to work around.  Nothing fatal
+so far.  I realized when I finally sat down to it that we can just or
+together the ptr/len bits and cache them in the structure to help lower
+layers with the alignment checks they're currently doing.
+
+> The nice part about the consolidation work I'm doing now is that we'd
+> need to touch much fewer places for this than before.
+
+Cool.
+
+I'll try and send something out the next few days.
+
+- z

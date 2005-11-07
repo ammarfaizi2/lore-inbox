@@ -1,78 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbVKGCzo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbVKGC7p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932410AbVKGCzo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 21:55:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbVKGCzo
+	id S932413AbVKGC7p (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 21:59:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbVKGC7p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 21:55:44 -0500
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:37257 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932410AbVKGCzn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 21:55:43 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=TBxfi278+NzQMzOqDvw+SuFdJlYV6yq5Ug4rEHxTNr5OjpzUCQH+CYs19xGTCtoE25IES56ZPjaNa5iAZ75R7hem55Up7T+zfxIgSdLrRGqy31k+Fjqxd6UlXhLuGIWUvcFBl6knh1vro0kXlFjU8qP2iwH95XUV8PwyxYORsqw=  ;
-Message-ID: <436EC2AF.4020202@yahoo.com.au>
-Date: Mon, 07 Nov 2005 13:57:51 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Paul Jackson <pj@sgi.com>
-CC: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: Clean up of __alloc_pages
-References: <20051028183326.A28611@unix-os.sc.intel.com>	<p73oe4z2f9h.fsf@verdi.suse.de>	<20051105201841.2591bacc.pj@sgi.com>	<200511061835.53575.ak@suse.de> <20051106124944.0b2ccca1.pj@sgi.com>
-In-Reply-To: <20051106124944.0b2ccca1.pj@sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 6 Nov 2005 21:59:45 -0500
+Received: from atlrel7.hp.com ([156.153.255.213]:42126 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S932413AbVKGC7o (ORCPT
+	<rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Sun, 6 Nov 2005 21:59:44 -0500
+Date: Sun, 6 Nov 2005 22:00:05 -0500
+From: Bob Picco <bob.picco@hp.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Bob Picco <bob.picco@hp.com>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+Subject: Re: [patch 7/14] mm: remove bad_range
+Message-ID: <20051107030005.GM28839@localhost.localdomain>
+References: <436DBAC3.7090902@yahoo.com.au> <436DBCBC.5000906@yahoo.com.au> <436DBCE2.4050502@yahoo.com.au> <436DBD11.8010600@yahoo.com.au> <436DBD31.8060801@yahoo.com.au> <436DBD82.2070500@yahoo.com.au> <436DBDA9.2040908@yahoo.com.au> <436DBDC8.5090308@yahoo.com.au> <20051106173732.GI28839@localhost.localdomain> <436EA6B2.3070807@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <436EA6B2.3070807@yahoo.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson wrote:
-> Andi wrote:
+Nick Piggin wrote:	[Sun Nov 06 2005, 07:58:26PM EST]
+> Bob Picco wrote:
+> >Nick Piggin wrote:	[Sun Nov 06 2005, 03:24:40AM EST]
+> >
+> >>7/14
+> >>
+> >>-- 
+> >>SUSE Labs, Novell Inc.
+> >>
+> >
+> >
+> >>bad_range is supposed to be a temporary check. It would be a pity to throw
+> >>it out. Make it depend on CONFIG_DEBUG_VM instead.
+> >>
+> >>Index: linux-2.6/mm/page_alloc.c
+> >>===================================================================
+> >>--- linux-2.6.orig/mm/page_alloc.c
+> >>+++ linux-2.6/mm/page_alloc.c
+> >>@@ -78,6 +78,7 @@ int min_free_kbytes = 1024;
+> >>unsigned long __initdata nr_kernel_pages;
+> >>unsigned long __initdata nr_all_pages;
+> >>
+> >>+#ifdef CONFIG_DEBUG_VM
+> >>static int page_outside_zone_boundaries(struct zone *zone, struct page 
+> >>*page)
+> >>{
+> >>	int ret = 0;
+> >>@@ -119,6 +120,13 @@ static int bad_range(struct zone *zone, 
+> >>	return 0;
+> >>}
+> >>
+> >>+#else
+> >>+static inline int bad_range(struct zone *zone, struct page *page)
+> >>+{
+> >>+	return 0;
+> >>+}
+> >>+#endif
+> >>+
+> >>static void bad_page(const char *function, struct page *page)
+> >>{
+> >>	printk(KERN_EMERG "Bad page state at %s (in process '%s', page 
+> >>	%p)\n",
+> >>Index: linux-2.6/lib/Kconfig.debug
+> >>===================================================================
+> >>--- linux-2.6.orig/lib/Kconfig.debug
+> >>+++ linux-2.6/lib/Kconfig.debug
+> >>@@ -172,7 +172,8 @@ config DEBUG_VM
+> >>	bool "Debug VM"
+> >>	depends on DEBUG_KERNEL
+> >>	help
+> >>-	  Enable this to debug the virtual-memory system.
+> >>+	  Enable this to turn on extended checks in the virtual-memory system
+> >>+          that may impact performance.
+> >>
+> >>	  If unsure, say N.
+> >>
+> >
+> >Nick,
+> >
+> >I don't think you can do it this way. On ia64 VIRTUAL_MEM_MAP depends on 
+> >CONFIG_HOLES_IN_ZONE and the check within bad_range for pfn_valid. Holes in
+> >memory (MMIO and etc.) won't have a page structure.
+> >
 > 
->>>The current code in the kernel does the following:
->>>  1) The cpuset_update_current_mems_allowed() calls in the
->>>     various alloc_page*() paths in mm/mempolicy.c:
->>>	* take the task_lock spinlock on the current task
->>
->>That needs to go imho.
+> Hmm, right - in __free_pages_bulk.
 > 
-> 
-> The comment for refresh_mems(), where this is happening, explains
-> why this lock is needed:
-> 
->  * The task_lock() is required to dereference current->cpuset safely.
->  * Without it, we could pick up the pointer value of current->cpuset
->  * in one instruction, and then attach_task could give us a different
->  * cpuset, and then the cpuset we had could be removed and freed,
->  * and then on our next instruction, we could dereference a no longer
->  * valid cpuset pointer to get its mems_generation field.
-> 
-> Hmmm ... on second thought ... damn ... you're right.
-> 
-> I can just flat out remove that task_lock - without penalty.
-> 
-> It's *OK* if I dereference a no longer valid cpuset pointer to get
-> its (used to be) mems_generation field.  Either that field will have
-> already changed, or it won't.
-> 
+> Could we make a different call here, or is the full array of bad_range
+> checks required?
+Not the full array. Just the pfn_valid call. Seems CONFIG_HOLES_IN_ZONE is
+already in page_alloc.c, perhaps just in __free_pages_bulk as a replacement
+for the bad_range call which isn't within a  BUG_ON check. It's somewhat of a 
+wart but already there. Otherwise we might want arch_holes_in_zone inline 
+which is only required by ia64 and noop for other arches.
 
-I don't think so because if the cpuset can be freed, then its page
-might be unmapped from the kernel address space if use-after-free
-debugging is turned on. And this is a use after free :)
+The only place I didn't look closely is the BUG_ON in expand. I'll do that
+tomorrow.
+> 
+> Thanks,
+> Nick
+> 
+> -- 
+your welcome,
 
-Also, it may be reused for something else far into the future without
-having its value changed - is this OK?
-
-Anyway, I think the first problem is a showstopper. I'd look into
-Hugh's SLAB_DESTROY_BY_RCU for this, which sounds like a good fit
-if you need to go down this path (although I only had a quick skim
-over the cpusets code).
-
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+bob

@@ -1,62 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965590AbVKGXUH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965599AbVKGX1y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965590AbVKGXUH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 18:20:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965594AbVKGXUH
+	id S965599AbVKGX1y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 18:27:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965600AbVKGX1y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 18:20:07 -0500
-Received: from attila.bofh.it ([213.92.8.2]:40143 "EHLO attila.bofh.it")
-	by vger.kernel.org with ESMTP id S965590AbVKGXUF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 18:20:05 -0500
-Date: Tue, 8 Nov 2005 00:19:57 +0100
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Greg KH <greg@kroah.com>, Pozsar Balazs <pozsy@uhulinux.hu>,
-       linux-kernel@vger.kernel.org, Kay Sievers <kay.sievers@vrfy.org>,
-       333052@bugs.debian.org
-Subject: Re: 2.6.14, udev: unknown symbols for ehci_hcd
-Message-ID: <20051107231957.GA13521@wonderland.linux.it>
-References: <436CD1BC.8020102@t-online.de> <20051105162503.GC20686@kroah.com> <436D9BDE.3060404@t-online.de> <20051106215158.GB3603@kroah.com> <20051107113329.GA7632@wonderland.linux.it> <20051107173157.GA16465@kroah.com> <20051107190738.GC22737@ojjektum.uhulinux.hu> <20051107191214.GA20364@kroah.com> <1131405438.21610.17.camel@localhost.localdomain>
+	Mon, 7 Nov 2005 18:27:54 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:54030 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S965599AbVKGX1x
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 18:27:53 -0500
+Message-ID: <436FE2F7.7040804@vmware.com>
+Date: Mon, 07 Nov 2005 15:27:51 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mYCpIKhGyMATD0i+"
-Content-Disposition: inline
-In-Reply-To: <1131405438.21610.17.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
-From: md@Linux.IT (Marco d'Itri)
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Russell King <rmk@arm.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       davej@redhat.com, than@redhat.com
+Subject: [UPDATED,PATCH 1/1] My tools break here
+References: <200511072156.jA7LuQKv009711@zach-dev.vmware.com> <20051107225024.GB10492@mars.ravnborg.org>
+In-Reply-To: <20051107225024.GB10492@mars.ravnborg.org>
+Content-Type: multipart/mixed;
+ boundary="------------050004040502010707010107"
+X-OriginalArrivalTime: 07 Nov 2005 23:27:52.0221 (UTC) FILETIME=[DF8F04D0:01C5E3F2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------050004040502010707010107
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---mYCpIKhGyMATD0i+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sam Ravnborg wrote:
 
-On Nov 08, Rusty Russell <rusty@rustcorp.com.au> wrote:
+>On Mon, Nov 07, 2005 at 01:56:26PM -0800, Zachary Amsden wrote:
+>  
+>
+>>I have to revert the recent addition of -imacros to the Makefile to get my
+>>tool chain to build.  Without the change, below, I get:
+>>
+>>Note that this looks entirely like a toolchain bug.
+>>    
+>>
+>Then fix your toolchain instead of reverting the -imacros patch.
+>
+>The change has been in -git for a full day and in latest -mm too.
+>And so far this is the only report that it breaks - I no one else
+>complains it will stay.
+>  
+>
 
-> The current simple fix for that (thanks Pozsar!) is to poll while a
-> module we rely on is still loading as indicated in /proc/modules.  This
-> fix will be needed to cover existing kernels, even if we were to get
-> fancy in new kernels.
-I have *not* been able to verify this, but at least two people still
-reported problems after using this patch.
+My tool chain is an unmodified RedHat 9 default install with all updates 
+applied.
 
---=20
-ciao,
-Marco
+Can we at least consider using -include instead of -imacros? I don't 
+think breaking the compile on this tool chain is a good idea, even if it 
+is old.
 
---mYCpIKhGyMATD0i+
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
 
-iD8DBQFDb+EdFGfw2OHuP7ERAuHBAKCc56u2WPFTCV745647Q4BrqJJlHwCfaadV
-hH+XjeGzfjrM1UFkM7WjJBk=
-=Mlm+
------END PGP SIGNATURE-----
+--------------050004040502010707010107
+Content-Type: text/plain;
+ name="my-tools-break-here"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="my-tools-break-here"
 
---mYCpIKhGyMATD0i+--
+I have to revert the recent addition of -imacros to the Makefile to get my
+tool chain to build.  Without the change, below, I get:
+
+Note that this looks entirely like a toolchain bug.  Here is the offending command:
+
+[pid 12163] execve("/usr/lib/gcc-lib/i386-redhat-linux/3.2.2/tradcpp0", ["/usr/lib/gcc-lib/i386-redhat-linux/3.2.2/tradcpp0", "-lang-asm", "-nostdinc", "-Iinclude", "-Iinclude/asm-i386/mach-default", "-D__GNUC__=3", "-D__GNUC_MINOR__=2", "-D__GNUC_PATCHLEVEL__=2", "-D__GXX_ABI_VERSION=102", "-D__ELF__", "-Dunix", "-D__gnu_linux__", "-Dlinux", "-D__ELF__", "-D__unix__", "-D__gnu_linux__", "-D__linux__", "-D__unix", "-D__linux", "-Asystem=posix", "-D__NO_INLINE__", "-D__STDC_HOSTED__=1", "-Acpu=i386", "-Amachine=i386", "-Di386", "-D__i386", "-D__i386__", "-D__tune_i386__", "-D__KERNEL__", "-D__ASSEMBLY__", "-isystem", "/usr/lib/gcc-lib/i386-redhat-linux/3.2.2/include", "-imacros", "include/linux/autoconf.h", "-MD", "arch/i386/kernel/.entry.o.d", "arch/i386/kernel/entry.S", "-o", "/tmp/ccOlsFJR.s"]
+
+Which should execute properly, I think.  But it does not:
+
+zach-dev:linux-2.6.14-zach-work $ make
+  CHK     include/linux/version.h
+  CHK     include/linux/compile.h
+  CHK     usr/initramfs_list
+  AS      arch/i386/kernel/entry.o
+/usr/lib/gcc-lib/i386-redhat-linux/3.2.2/tradcpp0: output filename specified twice
+make[1]: *** [arch/i386/kernel/entry.o] Error 1
+make: *** [arch/i386/kernel] Error 2
+
+gcc (GCC) 3.2.2 20030222 (Red Hat Linux 3.2.2-5)
+
+Deprecating the -imacros fixes the build for me.  It does not appear to be a
+simple argument overflow problem in trapcpp0, since deprecating all the defines
+reproduces the problem as well.  Also, switching -imacros to -include fixes the
+problem.
+
+Signed-off-by: Zachary Amsden <zach@vmware.com>
+Index: linux-2.6.14-zach-work/Makefile
+===================================================================
+--- linux-2.6.14-zach-work.orig/Makefile	2005-11-07 15:24:35.000000000 -0800
++++ linux-2.6.14-zach-work/Makefile	2005-11-07 15:25:33.000000000 -0800
+@@ -347,7 +347,7 @@ AFLAGS_KERNEL	=
+ # Needed to be compatible with the O= option
+ LINUXINCLUDE    := -Iinclude \
+                    $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include) \
+-		   -imacros include/linux/autoconf.h
++		   -include include/linux/autoconf.h
+ 
+ CPPFLAGS        := -D__KERNEL__ $(LINUXINCLUDE)
+ 
+
+--------------050004040502010707010107--

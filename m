@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932416AbVKGDPs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932427AbVKGDRS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932416AbVKGDPs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 22:15:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932417AbVKGDPs
+	id S932427AbVKGDRS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 22:17:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbVKGDRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 22:15:48 -0500
-Received: from smtp1.brturbo.com.br ([200.199.201.163]:41910 "EHLO
-	smtp1.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S932416AbVKGDPs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 22:15:48 -0500
-Subject: [PATCH 00/20] V4L patchsets - fixes several things
-From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Linux and Kernel Video <video4linux-list@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, Michael Krufky - V4L <mkrufky@m1k.net>,
-       Johannes Stezenbach <js@linuxtv.org>
-Content-Type: text/plain
-Date: Mon, 07 Nov 2005 01:15:15 -0200
-Message-Id: <1131333315.25215.7.camel@localhost>
+	Sun, 6 Nov 2005 22:17:17 -0500
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:31677 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932430AbVKGDRG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Nov 2005 22:17:06 -0500
+From: mchehab@brturbo.com.br
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, video4linux-list@redhat.com,
+       Michael Krufky <mkrufky@m1k.net>
+Subject: [Patch 04/20] V4L(902) Saa6588 c should build saa6588 ko rather
+	than rds ko
+Date: Mon, 07 Nov 2005 00:58:06 -0200
+Message-Id: <1131333341.25215.18.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.1-2mdk 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- This patchset fixes several things on V4L tree. It also includes a
-feature removal schedule for V4L1 API.
-cx88-dvb needs some patches from DVB stuff to work.
+From: Michael Krufky <mkrufky@m1k.net>
 
- Documentation/feature-removal-schedule.txt    |   15
- Documentation/video4linux/CARDLIST.saa7134    |    5
- drivers/media/video/Makefile                  |    3
- drivers/media/video/cs53l32a.c                |   10
- drivers/media/video/cx88/cx88-dvb.c           |   10
- drivers/media/video/cx88/cx88-tvaudio.c       |    8
- drivers/media/video/em28xx/em28xx-cards.c     |   15
- drivers/media/video/em28xx/em28xx-core.c      |   26 -
- drivers/media/video/em28xx/em28xx-video.c     |  152 ++++----
- drivers/media/video/em28xx/em28xx.h           |    4
- drivers/media/video/msp3400.c                 |  452
-+++++++++++++++---------
- drivers/media/video/saa6588.c                 |    2
- drivers/media/video/saa7134/Makefile          |    3
- drivers/media/video/saa7134/saa7134-alsa.c    |  110 +++++
- drivers/media/video/saa7134/saa7134-cards.c   |   86 +++-
- drivers/media/video/saa7134/saa7134-core.c    |   33 +
- drivers/media/video/saa7134/saa7134-dvb.c     |  208 ++++++++++-
- drivers/media/video/saa7134/saa7134-input.c   |   51 ++
- drivers/media/video/saa7134/saa7134-tvaudio.c |    3
- drivers/media/video/saa7134/saa7134.h         |   17
- drivers/media/video/tda8290.c                 |   21 -
- drivers/media/video/wm8775.c                  |   12
- include/linux/videodev2.h                     |    5
- include/media/tuner.h                         |    2
- 24 files changed, 926 insertions(+), 327 deletions(-)
+- Saa6588.c should build saa6588.ko, rather than rds.ko
 
+Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+
+-----------------
+
+ drivers/media/video/Makefile |    3 +--
+ 1 files changed, 1 insertion(+), 2 deletions(-)
+
+--- hg.orig/drivers/media/video/Makefile
++++ hg/drivers/media/video/Makefile
+@@ -5,7 +5,6 @@
+ bttv-objs	:=	bttv-driver.o bttv-cards.o bttv-if.o \
+ 			bttv-risc.o bttv-vbi.o bttv-i2c.o bttv-gpio.o
+ zoran-objs      :=	zr36120.o zr36120_i2c.o zr36120_mem.o
+-rds-objs        :=	saa6588.o
+ zr36067-objs	:=	zoran_procfs.o zoran_device.o \
+ 			zoran_driver.o zoran_card.o
+ tuner-objs	:=	tuner-core.o tuner-simple.o mt20xx.o tda8290.o tea5767.o
+@@ -16,7 +15,7 @@ obj-$(CONFIG_VIDEO_BT848) += bttv.o msp3
+ obj-$(CONFIG_SOUND_TVMIXER) += tvmixer.o
+ 
+ obj-$(CONFIG_VIDEO_ZR36120) += zoran.o
+-obj-$(CONFIG_VIDEO_SAA6588) += rds.o
++obj-$(CONFIG_VIDEO_SAA6588) += saa6588.o
+ obj-$(CONFIG_VIDEO_SAA5246A) += saa5246a.o
+ obj-$(CONFIG_VIDEO_SAA5249) += saa5249.o
+ obj-$(CONFIG_VIDEO_CQCAM) += c-qcam.o
+
+
+	
+
+	
+		
+_______________________________________________________ 
+Yahoo! Acesso Grátis: Internet rápida e grátis. 
+Instale o discador agora!
+http://br.acesso.yahoo.com/
 

@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbVKGIgr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932458AbVKGIwG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932453AbVKGIgr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 03:36:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbVKGIgr
+	id S932458AbVKGIwG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 03:52:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932460AbVKGIwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 03:36:47 -0500
-Received: from [85.8.13.51] ([85.8.13.51]:52631 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S932453AbVKGIgq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 03:36:46 -0500
-Message-ID: <436F1214.6000307@drzeus.cx>
-Date: Mon, 07 Nov 2005 09:36:36 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mail/News 1.4.1 (X11/20051008)
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-CC: cpufreq@lists.linux.org.uk, davej@codemonkey.org.uk
-Subject: sleeping function called from cpufreq
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Nov 2005 03:52:06 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:41224 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932458AbVKGIwF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 03:52:05 -0500
+Date: Mon, 7 Nov 2005 08:51:56 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Fwd: [RFC] IRQ type flags
+Message-ID: <20051107085156.GA18358@flint.arm.linux.org.uk>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>
+References: <20051106084012.GB25134@flint.arm.linux.org.uk> <1131316897.1212.61.camel@localhost.localdomain> <20051106221643.GB6274@flint.arm.linux.org.uk> <1131317998.1212.63.camel@localhost.localdomain> <20051106224225.GC6274@flint.arm.linux.org.uk> <1131321802.1212.75.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1131321802.1212.75.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As of lately I've been getting tonnes of these:
+On Mon, Nov 07, 2005 at 12:03:22AM +0000, Alan Cox wrote:
+> On Sul, 2005-11-06 at 22:42 +0000, Russell King wrote:
+> > We could do as you suggest, but my concern would be adding extra
+> > complexity to drivers, causing them to do something like:
+> > 
+> > 	ret = request_irq(..., SA_TRIGGER_HIGH, ...);
+> > 	if (ret == -E<whatever>)
+> > 		ret = request_irq(..., SA_TRIGGER_RISING, ...);
+> > 
+> > The alternative is:
+> > 
+> > 	ret = request_irq(..., SA_TRIGGER_HIGH | SA_TRIGGER_RISING, ...);
+> 
+> I was thinking that specifying neither would imply 'don't care' or
+> 'system default'. That would mean existing drivers just worked and
+> driver authors who didnt care need take no specific action.
 
-[  610.185635] Debug: sleeping function called from invalid context at 
-include/linux/rwsem.h:43
-[  610.185647] in_atomic():1, irqs_disabled():0
-[  610.185653]  [<c01041be>] dump_stack+0x1e/0x20
-[  610.185667]  [<c0119b62>] __might_sleep+0xa2/0xc0
-[  610.185678]  [<c029de86>] cpufreq_notify_transition+0x46/0x220
-[  610.185690]  [<e09d08fc>] centrino_target+0xfc/0x130 [speedstep_centrino]
-[  610.185708]  [<c029f17f>] __cpufreq_driver_target+0x5f/0x70
-[  610.185718]  [<c02a029d>] cpufreq_set+0x7d/0xa0
-[  610.185728]  [<c02a0339>] store_speed+0x49/0x50
-[  610.185737]  [<c029e6c6>] store+0x46/0x60
-[  610.185745]  [<c01a5f27>] flush_write_buffer+0x37/0x40
-[  610.185754]  [<c01a5f98>] sysfs_write_file+0x68/0x90
-[  610.185763]  [<c01639b8>] vfs_write+0xa8/0x190
-[  610.185773]  [<c0163b57>] sys_write+0x47/0x70
-[  610.185781]  [<c01032bb>] sysenter_past_esp+0x54/0x75
+Yes, this is exactly what the ARM implementation already does.  I'll
+add a comment to that effect.
 
-Ideas on solving it?
+As per benh's suggestion, I don't see the point of adding a definition
+- not unless we're going to fix up all drivers which call request_irq().
+That would be a very big task.
 
-Rgds
-Pierre
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

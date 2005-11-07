@@ -1,66 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965220AbVKGV45@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964919AbVKGWBu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965220AbVKGV45 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 16:56:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965223AbVKGV44
+	id S964919AbVKGWBu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 17:01:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965078AbVKGWBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 16:56:56 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:65443 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965230AbVKGV4y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 16:56:54 -0500
-Date: Mon, 7 Nov 2005 13:54:35 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Greg KH <greg@kroah.com>
-cc: linas <linas@austin.ibm.com>, linux-sparse@vger.kernel.org,
-       Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
-       johnrose@austin.ibm.com, linux-pci@atrey.karlin.mff.cuni.cz,
-       bluesmoke-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/7]: PCI revised (2) [PATCH 16/42]: PCI:  PCI Error
- reporting callbacks
-In-Reply-To: <20051107213729.GA24700@kroah.com>
-Message-ID: <Pine.LNX.4.64.0511071349160.3247@g5.osdl.org>
-References: <20051103235918.GA25616@mail.gnucash.org> <20051104005035.GA26929@mail.gnucash.org>
- <20051105061114.GA27016@kroah.com> <17262.37107.857718.184055@cargo.ozlabs.ibm.com>
- <20051107175541.GB19593@austin.ibm.com> <20051107182727.GD18861@kroah.com>
- <20051107195727.GF19593@austin.ibm.com> <20051107200352.GB22524@kroah.com>
- <20051107212128.GH19593@austin.ibm.com> <20051107213729.GA24700@kroah.com>
+	Mon, 7 Nov 2005 17:01:49 -0500
+Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:9354 "EHLO
+	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S964919AbVKGWBt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 17:01:49 -0500
+Message-ID: <436FCECA.2060901@bigpond.net.au>
+Date: Tue, 08 Nov 2005 09:01:46 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Jake Moilanen <moilanen@austin.ibm.com>
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.1.3 for 2.6.13 and 2.6.14-rc4
+References: <434F01EA.6060709@bigpond.net.au>
+In-Reply-To: <434F01EA.6060709@bigpond.net.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Mon, 7 Nov 2005 22:01:46 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 7 Nov 2005, Greg KH wrote:
+Peter Williams wrote:
+> This version contains a new scheduler, spa_svr, which is a minor 
+> extension of spa_no_frills intended for use on servers.  It makes no 
+> attempt to improve interactive responsiveness but includes a simplified 
+> version of the throughput bonus mechanism found in Zaphod.  This 
+> mechanism attempts to minimize the time tasks spend on run queues 
+> waiting for CPU access when the system is moderately loaded by giving 
+> tasks temporary priority bonuses based on the relationship between the 
+> recent average time spent on run queues and on a cpu per cycle. 
+> (Although it's effectiveness tends to disappear when the system is fully 
+> loaded, it is still useful as considerable delay can be seen on systems 
+> with quite low average loads due to lack of serendipity.)
 > 
-> >  enum pci_channel_state {
-> > -	pci_channel_io_normal = 0,	/* I/O channel is in normal state */
-> > -	pci_channel_io_frozen = 1,	/* I/O to channel is blocked */
-> > -	pci_channel_io_perm_failure,	/* PCI card is dead */
-> > +	pci_channel_io_normal = (__force pci_channel_state_t) 0,	/* I/O channel is in normal state */
-> > +	pci_channel_io_frozen = (__force pci_channel_state_t) 1,	/* I/O to channel is blocked */
-> > +	pci_channel_io_perm_failure = (__force pci_channel_state_t) 2,	/* PCI card is dead */
-> >  };
+> A patch for 2.6.14-rc4 is available at:
 > 
-> You don't have to use an enum anymore, just use a #define.
+> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.3-for-2.6.14-rc4.patch?download> 
+> 
+> 
+> and a patch to upgrade the 6.1.2 version for 2.6.13 to 6.1.3 is
+> available at:
+> 
+> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.2-to-6.1.3-for-2.6.13.patch?download> 
+> 
+> 
+> Very Brief Documentation:
+> 
+> You can select a default scheduler at kernel build time.  If you wish to
+> boot with a scheduler other than the default it can be selected at boot
+> time by adding:
+> 
+> cpusched=<scheduler>
+> 
+> to the boot command line where <scheduler> is one of: ingosched,
+> nicksched, staircase, spa_no_frills, spa_ws, spa_svr or zaphod.  If you 
+> don't change the default when you build the kernel the default scheduler 
+> will be ingosched (which is the normal scheduler).
+> 
+> The scheduler in force on a running system can be determined by the
+> contents of:
+> 
+> /proc/scheduler
+> 
+> Control parameters for the scheduler can be read/set via files in:
+> 
+> /sys/cpusched/<scheduler>/
+> 
+> Peter
 
-The enum works fine, though, and has less namespace pollution than a 
-#define, so sometimes an enum can be preferred.
+A patch for the 2.6.14-mm1 kernel is now available at:
 
-HOWEVER. For sanity, if possible please avoid using the value "0". It's 
-magic for __bitwise, in that a zero is always acceptable as a bitwise 
-thing (which makes sense if you think of bitwise as being about bits: the 
-zero representation is totally independent of any bit ordering).
+<http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.3-for-2.6.14-mm1.patch?download>
 
-So it's better to start counting from 1 if possible.
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-> Sparse developers, I see code in the kernel that that does both 
-> (__force foo_t) and (foo_t __force).  Which one is correct?
-
-sparse doesn't care. Whatever scans better for humans. Attributes like 
-"force" parse the same way things like "const" and "volatile" parses, and 
-while most people _tend_ to write "const int", it's not incorrect to write 
-"int const". Same with "__attribute__((force))", aka __force.
-
-			Linus
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

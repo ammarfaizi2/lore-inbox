@@ -1,55 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbVKGQgS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbVKGQhF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964860AbVKGQgS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 11:36:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbVKGQgS
+	id S964872AbVKGQhF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 11:37:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbVKGQhE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 11:36:18 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:26765 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964860AbVKGQgR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 11:36:17 -0500
-Message-ID: <436F824A.9080500@us.ibm.com>
-Date: Mon, 07 Nov 2005 08:35:22 -0800
-From: Ian Romanick <idr@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc3 (X11/20050720)
-X-Accept-Language: en-us, en
+	Mon, 7 Nov 2005 11:37:04 -0500
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:50443 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S964869AbVKGQhD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 11:37:03 -0500
+Date: Mon, 7 Nov 2005 16:37:09 +0000 (GMT)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14: CR4 not needed to be inspected on the 486 anymore?
+In-Reply-To: <436F7673.5040309@vmware.com>
+Message-ID: <Pine.LNX.4.55.0511071632110.28165@blysk.ds.pg.gda.pl>
+References: <Pine.LNX.4.55.0511031600010.24109@blysk.ds.pg.gda.pl>
+ <436A3C10.9050302@vmware.com> <Pine.LNX.4.55.0511031639310.24109@blysk.ds.pg.gda.pl>
+ <436AA1FD.3010401@vmware.com> <p73fyqb2dtx.fsf@verdi.suse.de>
+ <Pine.LNX.4.55.0511070931560.28165@blysk.ds.pg.gda.pl> <436F7673.5040309@vmware.com>
 MIME-Version: 1.0
-To: Jerome Glisse <j.glisse@gmail.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 3D video card recommendations
-References: <1131112605.14381.34.camel@localhost.localdomain>	 <1131349343.2858.11.camel@laptopd505.fenrus.org>	 <1131367371.14381.91.camel@localhost.localdomain>	 <20051107125513.GD3726@localhost.localdomain>	 <pan.2005.11.07.14.50.56.126577@sci.fi> <4240b9160511070750t25fab9e2u3c8e2c1414b55ebf@mail.gmail.com>
-In-Reply-To: <4240b9160511070750t25fab9e2u3c8e2c1414b55ebf@mail.gmail.com>
-X-Enigmail-Version: 0.92.0.0
-OpenPGP: id=AC84030F
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, 7 Nov 2005, Zachary Amsden wrote:
 
-Jerome Glisse wrote:
-> On 11/7/05, Ville Syrjälä <syrjala@sci.fi> wrote:
->>On Mon, 07 Nov 2005 12:55:13 +0000, Hugo Mills wrote:
->>
->>>   http://www.xgitech.com/
->>>
->>>   Not the fastest pieces of hardware out there by some way, but they
->>>_do_ have open-source drivers.
->>
->>That's not entirely true. The DRI driver is closed source.
-> 
-> DRI closed source ? You mean the fglrx driver from ati ?
+> While this is at least no worse in the nested fault case than earlier 
+> kernels, I really wish I had one of those weird 486s so I could test the 
+> faulting mechanism.  It seems the trap handling code has gotten quite 
 
-No.  He means the 3D driver for the Xgi cards.  However, Xgi is
-apparently working with some folks in the community to remedy this.  I
-haven't heard any updates in a *long* time, so it's possible that things
-may have stalled.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+ What's so weird about 486s?  Besides, for testing it doesn't have to be
+one -- you will get away with a 386, too.  I have neither anymore, but
+there are people around still using them.
 
-iD8DBQFDb4JJX1gOwKyEAw8RAs82AJsGOC+O0An18TmxXV7XbjJ+EreTdQCfZf8e
-aNljl61xsZ5RGlFu8uSgC68=
-=YkIR
------END PGP SIGNATURE-----
+  Maciej

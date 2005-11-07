@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965048AbVKGRXf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965303AbVKGRYd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965048AbVKGRXf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 12:23:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964933AbVKGRXa
+	id S965303AbVKGRYd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 12:24:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965086AbVKGRYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 12:23:30 -0500
-Received: from william.ironicdesign.com ([216.180.99.12]:14811 "EHLO
-	william.ironicdesign.com") by vger.kernel.org with ESMTP
-	id S965303AbVKGRX1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 12:23:27 -0500
-From: Michael Alan Dorman <mdorman@tendentious.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Ubuntu kernel tree
-References: <20051106013752.GA13368@swissdisk.com>
-	<436E17CA.3060803@gentoo.org>
-	<1131316729.1212.58.camel@localhost.localdomain>
-	<436F81D1.7000100@gentoo.org>
-	<1131383311.11265.22.camel@localhost.localdomain>
-	<1131383144.2477.9.camel@capoeira>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Mon, 07 Nov 2005 12:23:34 -0500
-In-Reply-To: <1131383144.2477.9.camel@capoeira> (Xavier Bestel's message of
-	"Mon, 07 Nov 2005 18:05:44 +0100")
-Message-ID: <87hdaoxtgp.fsf@hero.mallet-assembly.org>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/22.0.50 (gnu/linux)
+	Mon, 7 Nov 2005 12:24:32 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:10625 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S965051AbVKGRXi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 12:23:38 -0500
+Date: Mon, 7 Nov 2005 18:23:24 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Christoph Hellwig <hch@infradead.org>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-mm1
+In-Reply-To: <20051107170253.GA17785@infradead.org>
+Message-ID: <Pine.LNX.4.61.0511071812220.1387@scrub.home>
+References: <20051106182447.5f571a46.akpm@osdl.org> <20051107033009.GB12192@infradead.org>
+ <Pine.LNX.4.61.0511071315530.1387@scrub.home> <20051107170253.GA17785@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Xavier Bestel <xavier.bestel@free.fr> writes:
-> On Mon, 2005-11-07 at 18:08, Alan Cox wrote:
->> On Llu, 2005-11-07 at 16:33 +0000, Daniel Drake wrote:
->> > Source RPM's will just contain a Linux kernel tree with your patches already 
->> > applied, right?
->> 
->> Of course not. Its an rpm file. RPM files contain a set of broken out
->> patches and base tar ball plus controlling rules for application. It's
->> rather more advanced than .deb sources.
->
-> That's a troll, Alan. .deb contain exactely the same things.
+Hi,
 
-Some packages use dpatch and related tools like this, and give you a
-pristine upstream tarball and broken-out patches, but it is not
-supported at the level that RPMs do---which is to say, in the core
-tool.
+On Mon, 7 Nov 2005, Christoph Hellwig wrote:
 
-Seriously, I pulled apart a whole lot of RPMs when I was doing the
-first real (libc6) port of Debian to the Alpha in '96, and it was a
-lot easier than dealing with the generally mashed-together patches in
-a debian package's .diff.gz.
+> > It's not a problem on my part, Al is constantly vetoing these patches.
+> > I'm not taking this blame. :-(
+> 
+> You've threatened all kinds of nasty things in case Al's perfectly reasonable
+> patchkit goes in.
 
-Mike
+I objected to it because it were two days before the release, giving me 
+zero chance to deal with it reasonably.
+
+>  That's certainly what I would call blocking.
+
+You were commenting on the patches in -mm and I certainly never blocked 
+these. I'm actually trying to push these patches since two weeks with zero 
+effect.
+
+>  Your patch
+> split has clear disadvantages over the original ones, but I don't really
+> care which one we get as long as we get this bullshit sorted out.
+
+Christoph, please stop your bullshit. :-(
+The first 5 patches are pretty much Al's version, the rest is the 
+remaining cleanup by me. I get _no_ help at all with these patches, with 
+the effect that my m68k work has gotten to a complete halt and m68k will 
+fall behind even further.
+
+bye, Roman

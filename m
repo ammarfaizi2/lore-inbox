@@ -1,62 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbVKGLl4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964801AbVKGLme@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964785AbVKGLl4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 06:41:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964803AbVKGLl4
+	id S964801AbVKGLme (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 06:42:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbVKGLme
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 06:41:56 -0500
-Received: from orb.pobox.com ([207.8.226.5]:33965 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S964785AbVKGLlz (ORCPT
+	Mon, 7 Nov 2005 06:42:34 -0500
+Received: from magic.adaptec.com ([216.52.22.17]:12175 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S964801AbVKGLmd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 06:41:55 -0500
-Date: Mon, 7 Nov 2005 05:41:44 -0600
-From: Nathan Lynch <ntl@pobox.com>
-To: Ashok Raj <ashok.raj@intel.com>
-Cc: akpm@osdl.org, linux@brodo.de, davej@redhat.com, zwane@arm.linux.org.uk,
-       linux-kernel@vger.kernel.org,
-       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-Subject: Re: [patch 4/4] create and destroy cpufreq sysfs entries based on cpu notifiers.
-Message-ID: <20051107114144.GH7806@otto>
-References: <20051021203818.753754000@araj-sfield> <20051021204327.843400000@araj-sfield>
+	Mon, 7 Nov 2005 06:42:33 -0500
+Subject: [PATCH] lib - Fix broken function declaration in linux/textsearch.h
+From: Ashutosh Naik <ashutosh_naik@adaptec.com>
+To: pablo@eurodev.net, tgraf@suug.ch
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, stable@kernel.org
+Content-Type: text/plain
+Message-Id: <1131363741.30115.35.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051021204327.843400000@araj-sfield>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 07 Nov 2005 17:12:21 +0530
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Nov 2005 11:42:23.0369 (UTC) FILETIME=[5198C790:01C5E390]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ashok,
-
-Ashok Raj wrote:
-> cpufreq entries in sysfs should only be populated when CPU is online state.
-> When we either boot with maxcpus=x and then boot the other cpus by 
-> echoing to sysfs online file, these entries should be created and destroyed
-> when CPU_DEAD is notified. Same treatement as cache entries under sysfs.
-> 
-> We place the processor in the lowest frequency, so hw managed P-State 
-> transitions can still work on the other threads to save power.
-> 
-> Primary goal was to just make these directories appear/disapper dynamically.
-
-I see this patch series has already been merged, but in light of the
-issues that it has caused[1], and the hack that Andrew is carrying to
-deal with them[2], could we revisit the original justification for
-these changes?
-
-Why is it important that cpufreq-related files in sysfs be added and
-removed as cpus go online and offline?  I see that the information
-that these entries provide can be derived only when the cpu is online,
-is that the primary justification?
-
-Would it be undesirable for the cpufreq drivers to create their
-entries under all cpu sysdevs at init time, regardless of whether the
-cpus are online?  The "show" methods for entries attached to offline
-cpus could be made to return "Unavailable" or some equivalent.
-
-I'm not terribly familiar with x86 or cpufreq, so forgive me if I'm
-missing something obvious.
+This PATCH addresses the issue of the init function pointer in
+lib/ts_bm.c, lib/ts_fsm.c and lib/ts_kmp.c using a mismatching
+definition in linux/textsearch.h
 
 
-[1] http://lkml.org/lkml/2005/10/31/144
-[2] ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14/2.6.14-mm1/broken-out/cpu-hotplug-fix-locking-in-cpufreq-drivers.patch
+Signed-off-by: Ashutosh Naik <ashutosh.naik@adaptec.com>
+
+--
+diff -Naurp linux-2.6.14-git10/include/linux/textsearch.h
+linux-2.6.14-git10-mod/include/linux/textsearch.h
+--- linux-2.6.14-git10/include/linux/textsearch.h       2005-10-28
+05:32:08.000000000 +0530
++++ linux-2.6.14-git10-mod/include/linux/textsearch.h   2005-11-07
+16:39:05.000000000 +0530
+@@ -40,7 +40,7 @@ struct ts_state
+ struct ts_ops
+ {
+        const char              *name;
+-       struct ts_config *      (*init)(const void *, unsigned int,
+int);
++       struct ts_config *      (*init)(const void *, unsigned int,
+gfp_t);
+        unsigned int            (*find)(struct ts_config *,
+                                        struct ts_state *);
+        void                    (*destroy)(struct ts_config *);
+
+

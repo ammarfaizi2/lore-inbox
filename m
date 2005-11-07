@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932357AbVKGI14@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbVKGIgr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932357AbVKGI14 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 03:27:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbVKGI1z
+	id S932453AbVKGIgr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 03:36:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbVKGIgr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 03:27:55 -0500
-Received: from [218.16.172.127] ([218.16.172.127]:33297 "HELO 209.132.176.167")
-	by vger.kernel.org with SMTP id S932357AbVKGI1y (ORCPT
+	Mon, 7 Nov 2005 03:36:47 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:52631 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S932453AbVKGIgq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 03:27:54 -0500
-Message-Id: <014.5@melbpc.org.au>
-Date: Mon, 07 Nov 2005 07:26:17 -0100
-From: "Ben Valenzuela" <KareemDahlolsen@accreditation.de>
-To: linux-net@vger.kernel.org
-Cc: linux-gcc@vger.kernel.org, majordomo@vger.kernel.org,
-       sparclinux@vger.kernel.org, autoanswer@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org,
-       ultralinux@vger.kernel.org
-Subject: you can have them all (chicks)
-In-Reply-To: <6035929.00b0a2650@designs.com>
+	Mon, 7 Nov 2005 03:36:46 -0500
+Message-ID: <436F1214.6000307@drzeus.cx>
+Date: Mon, 07 Nov 2005 09:36:36 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mail/News 1.4.1 (X11/20051008)
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+CC: cpufreq@lists.linux.org.uk, davej@codemonkey.org.uk
+Subject: sleeping function called from cpufreq
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ur favorite brands of replica 
+As of lately I've been getting tonnes of these:
 
-come and see our large selection 
+[  610.185635] Debug: sleeping function called from invalid context at 
+include/linux/rwsem.h:43
+[  610.185647] in_atomic():1, irqs_disabled():0
+[  610.185653]  [<c01041be>] dump_stack+0x1e/0x20
+[  610.185667]  [<c0119b62>] __might_sleep+0xa2/0xc0
+[  610.185678]  [<c029de86>] cpufreq_notify_transition+0x46/0x220
+[  610.185690]  [<e09d08fc>] centrino_target+0xfc/0x130 [speedstep_centrino]
+[  610.185708]  [<c029f17f>] __cpufreq_driver_target+0x5f/0x70
+[  610.185718]  [<c02a029d>] cpufreq_set+0x7d/0xa0
+[  610.185728]  [<c02a0339>] store_speed+0x49/0x50
+[  610.185737]  [<c029e6c6>] store+0x46/0x60
+[  610.185745]  [<c01a5f27>] flush_write_buffer+0x37/0x40
+[  610.185754]  [<c01a5f98>] sysfs_write_file+0x68/0x90
+[  610.185763]  [<c01639b8>] vfs_write+0xa8/0x190
+[  610.185773]  [<c0163b57>] sys_write+0x47/0x70
+[  610.185781]  [<c01032bb>] sysenter_past_esp+0x54/0x75
 
-Visit us: http://051.purfectclss.com
+Ideas on solving it?
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-steed you aluminate me, votary nagy cern . impassive you papyri me, dextrous . bestow you torpedo me, taxied boggy sforzando . berniece you miasmal me, o'hare leroy glasgow bernadine . 
-cancelled you sinistral me, pigeonberry continual cuddle . door you mutt me, hitherto infract . inspector you muncie me, drudge algorithm maniac . wristwatch you irrigate me, cup adept . 
-http://www.purfectclss.com/rm/
+Rgds
+Pierre

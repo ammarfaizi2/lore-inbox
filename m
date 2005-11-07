@@ -1,54 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964788AbVKGGEp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbVKGGBQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964788AbVKGGEp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 01:04:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964789AbVKGGEp
+	id S964786AbVKGGBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 01:01:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbVKGGBQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 01:04:45 -0500
-Received: from [210.76.114.22] ([210.76.114.22]:36519 "EHLO ccoss.com.cn")
-	by vger.kernel.org with ESMTP id S964788AbVKGGEo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 01:04:44 -0500
-Message-ID: <436EEEA4.1020703@ccoss.com.cn>
-Date: Mon, 07 Nov 2005 14:05:24 +0800
-From: liyu <liyu@ccoss.com.cn>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: zh-cn,zh
+	Mon, 7 Nov 2005 01:01:16 -0500
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:32160 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S964786AbVKGGBP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 01:01:15 -0500
+Message-ID: <436EED92.9080003@t-online.de>
+Date: Mon, 07 Nov 2005 07:00:50 +0100
+From: Harald Dunkel <harald.dunkel@t-online.de>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [question] I doublt on timer interrput.
-Content-Type: text/plain; charset=gb18030; format=flowed
-Content-Transfer-Encoding: 7bit
+To: "Marco d'Itri" <md@Linux.IT>
+CC: 333052@bugs.debian.org, Pozsar Balazs <pozsy@uhulinux.hu>,
+       Kay Sievers <kay.sievers@vrfy.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: Bug#333052: 2.6.14, udev: unknown symbols for ehci_hcd
+References: <436CD1BC.8020102@t-online.de> <20051105173104.GA31048@vrfy.org> <20051105184802.GB25468@ojjektum.uhulinux.hu> <436DA120.9040004@t-online.de> <436E181D.6010507@t-online.de> <20051106152924.GB16987@ojjektum.uhulinux.hu> <436E37E8.3070807@t-online.de> <20051106172128.GA8721@wonderland.linux.it>
+In-Reply-To: <20051106172128.GA8721@wonderland.linux.it>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigF1F7641E97792797838F7F4D"
+X-ID: ZSvY+-ZcQeEQQhv4Gakj+xlh9-iFnt5OhEwKMOa41t43OvW10i53Zv
+X-TOI-MSGID: d45f99f5-4bfa-4947-873c-43be4ee1f893
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, all:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigF1F7641E97792797838F7F4D
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-    I have one question about timer interrupt (i386 architecture).
+Marco d'Itri wrote:
+> 
+>>Are there several modprobe's running in parallel? Or does modprobe
+> 
+> Yes.
+> 
+Is this supposed to be synchronized in user space, or in the
+kernel?
 
-    As we known, the timer emit HZ times interrputs per second,
-and in i386. The interrupt handler will call scheduler_tick()
-each time (on i386 at least, both enable or disable APIC).
+Regards
 
-    On my Celeron machine(IOW, only one CPU, not SMP/SMT), I defined
-a global int variable 'tick_count' in kernel/sched.c, and add one line
-of code like follow in scheduler_tick():
+Harri
 
-    ++tick_count;
+--------------enigF1F7641E97792797838F7F4D
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-    but I found it is not same with content of the /proc/interrupts,
-and the differennt between them is not little.
-   
-    I can not understand why that is.
-   
-    Any useful idea.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
+iD8DBQFDbu2YUTlbRTxpHjcRApjJAKCD776lSH/Mal8sS2IyYcDpfkB9awCgi01H
+r4zA+W+cuvgctDMfqi6lXvE=
+=m00t
+-----END PGP SIGNATURE-----
 
-
--liyu / NOW~
-
-
-
-
-   
-
+--------------enigF1F7641E97792797838F7F4D--

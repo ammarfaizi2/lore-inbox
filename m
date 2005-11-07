@@ -1,73 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965082AbVKGUfi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964949AbVKGUfV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965082AbVKGUfi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 15:35:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965041AbVKGUfi
+	id S964949AbVKGUfV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 15:35:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965082AbVKGUfV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 15:35:38 -0500
-Received: from hera.kernel.org ([140.211.167.34]:16030 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S965082AbVKGUfh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 15:35:37 -0500
-Date: Mon, 7 Nov 2005 13:33:37 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Nikita Danilov <nikita@clusterfs.com>
-Subject: Re: [PATCH 3/3] vm: writeout watermarks
-Message-ID: <20051107153337.GB17246@logos.cnet>
-References: <4366FA9A.20402@yahoo.com.au> <4366FAF5.8020908@yahoo.com.au> <4366FB24.5010507@yahoo.com.au> <4366FB4B.9000103@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 7 Nov 2005 15:35:21 -0500
+Received: from nproxy.gmail.com ([64.233.182.199]:27340 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964949AbVKGUfU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 15:35:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=B942E4pCzlf2PspcPOz+FBfe92R1qsfvbR0Jkm2pSVhzngwtcSfH57OudNXhMoaVyYMtLKewK1gUdgxs5EjbjZOzbcxHMNRUlivjCSK0dae/L6zqA5lV5AgZMohGiwaoee94C4FKE98EfPS6JbjhdQ1vVWwMubD4MqHUunrOzg4=
+Message-ID: <df33fe7c0511071235u3d59d13ci@mail.gmail.com>
+Date: Mon, 7 Nov 2005 21:35:18 +0100
+From: Takis <panagiotis.issaris@gmail.com>
+Reply-To: takis@issaris.org
+To: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Subject: Re: [PATCH] ipw2200: Missing kmalloc check
+Cc: ipw2100-admin@linux.intel.com, linux-kernel@vger.kernel.org
+In-Reply-To: <200511071932.22060@bilbo.math.uni-mannheim.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <4366FB4B.9000103@yahoo.com.au>
-User-Agent: Mutt/1.5.5.1i
+References: <1125886450.4017.14.camel@nyx>
+	 <200511071932.22060@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+- Use kzalloc for IPW2200
+- Fix config dependency for IPW2200
 
-Nikita has a customer using large percentage of RAM for 
-a kernel module, which results in get_dirty_limits() misbehaviour
-since
+Signed-off-by: Panagiotis Issaris <takis@issaris.org>
 
-        unsigned long available_memory = total_pages;
+---
 
-It should work on the amount of cacheable pages instead.
+ drivers/net/wireless/Kconfig   |    2 +-
+ drivers/net/wireless/ipw2200.c |    3 +--
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
-He's got a patch but I dont remember the URL. Nikita?
+applies-to: b3efbcb770e1202b65aee2fe70ea5a407a60e6a5
+7e0cb9f1c4a239d06a0013997fc987c77fa46516
+diff --git a/drivers/net/wireless/Kconfig b/drivers/net/wireless/Kconfig
+index 7187958..3cf1ae2 100644
+--- a/drivers/net/wireless/Kconfig
++++ b/drivers/net/wireless/Kconfig
+@@ -192,7 +192,7 @@ config IPW_DEBUG
 
-On Tue, Nov 01, 2005 at 04:21:15PM +1100, Nick Piggin wrote:
-> 3/3
-> 
-> -- 
-> SUSE Labs, Novell Inc.
-> 
+ config IPW2200
+        tristate "Intel PRO/Wireless 2200BG and 2915ABG Network Connection"
+-       depends on IEEE80211 && PCI
++       depends on NET_RADIO && IEEE80211 && PCI
+        select FW_LOADER
+        ---help---
+           A driver for the Intel PRO/Wireless 2200BG and 2915ABG Network
+diff --git a/drivers/net/wireless/ipw2200.c b/drivers/net/wireless/ipw2200.c
+index 3db0c32..6da11b5 100644
+--- a/drivers/net/wireless/ipw2200.c
++++ b/drivers/net/wireless/ipw2200.c
+@@ -4029,12 +4029,11 @@ static struct ipw_rx_queue *ipw_rx_queue
+        struct ipw_rx_queue *rxq;
+        int i;
 
-> Slightly change the writeout watermark calculations so we keep background
-> and synchronous writeout watermarks in the same ratios after adjusting them.
-> This ensures we should always attempt to start background writeout before
-> synchronous writeout.
-> 
-> Signed-off-by: Nick Piggin <npiggin@suse.de>
-> 
-> 
-> Index: linux-2.6/mm/page-writeback.c
-> ===================================================================
-> --- linux-2.6.orig/mm/page-writeback.c	2005-11-01 13:41:39.000000000 +1100
-> +++ linux-2.6/mm/page-writeback.c	2005-11-01 14:29:27.000000000 +1100
-> @@ -165,9 +165,11 @@ get_dirty_limits(struct writeback_state 
->  	if (dirty_ratio < 5)
->  		dirty_ratio = 5;
->  
-> -	background_ratio = dirty_background_ratio;
-> -	if (background_ratio >= dirty_ratio)
-> -		background_ratio = dirty_ratio / 2;
-> +	/*
-> +	 * Keep the ratio between dirty_ratio and background_ratio roughly
-> +	 * what the sysctls are after dirty_ratio has been scaled (above).
-> +	 */
-> +	background_ratio = dirty_background_ratio * dirty_ratio/vm_dirty_ratio;
->  
->  	background = (background_ratio * available_memory) / 100;
->  	dirty = (dirty_ratio * available_memory) / 100;
-
+-       rxq = (struct ipw_rx_queue *)kmalloc(sizeof(*rxq), GFP_KERNEL);
++       rxq = kzalloc(sizeof(*rxq), GFP_KERNEL);
+        if (unlikely(!rxq)) {
+                IPW_ERROR("memory allocation failed\n");
+                return NULL;
+        }
+-       memset(rxq, 0, sizeof(*rxq));
+        spin_lock_init(&rxq->lock);
+        INIT_LIST_HEAD(&rxq->rx_free);
+        INIT_LIST_HEAD(&rxq->rx_used);
+---
+0.99.9.GIT

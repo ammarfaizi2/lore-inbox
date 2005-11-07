@@ -1,80 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964884AbVKGRoz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964888AbVKGRpW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964884AbVKGRoz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 12:44:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964873AbVKGRoy
+	id S964888AbVKGRpW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 12:45:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964917AbVKGRpV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 12:44:54 -0500
-Received: from mtl.rackplans.net ([65.39.167.249]:40654 "HELO innerfire.net")
-	by vger.kernel.org with SMTP id S964884AbVKGRox (ORCPT
+	Mon, 7 Nov 2005 12:45:21 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:13236 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S964888AbVKGRpT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 12:44:53 -0500
-Date: Mon, 7 Nov 2005 12:44:54 -0500 (EST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Steven Rostedt <rostedt@goodmis.org>
-cc: LKML <linux-kernel@vger.kernel.org>, Xavier Bestel <xavier.bestel@free.fr>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Hugo Mills <hugo-lkml@carfax.org.uk>, Nix <nix@esperi.org.uk>,
-       Anshuman Gholap <anshu.pg@gmail.com>,
-       Mark Knecht <markknecht@gmail.com>, Diego Calleja <diegocg@gmail.com>,
-       Toon van der Pas <toon@hout.vanvergehaald.nl>, arjan@infradead.org
-Subject: Re: 3D video card recommendations
-In-Reply-To: <1131384624.14381.106.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0511071243350.9444@innerfire.net>
-References: <1131112605.14381.34.camel@localhost.localdomain> 
- <1131349343.2858.11.camel@laptopd505.fenrus.org> 
- <1131367371.14381.91.camel@localhost.localdomain> 
- <20051107152009.GA20807@shuttle.vanvergehaald.nl>  <20051107180045.ec86a7f2.diegocg@gmail.com>
- <1131384624.14381.106.camel@localhost.localdomain>
+	Mon, 7 Nov 2005 12:45:19 -0500
+Date: Mon, 7 Nov 2005 09:41:06 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Magnus Damm <magnus.damm@gmail.com>
+cc: torvalds@osdl.org, akpm@osdl.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Mike Kravetz <kravetz@us.ibm.com>,
+       Ray Bryant <raybry@mpdtxmail.amd.com>,
+       Lee Schermerhorn <lee.schermerhorn@hp.com>,
+       linux-kernel@vger.kernel.org, Paul Jackson <pj@sgi.com>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Subject: Re: [PATCH 1/5] Swap Migration V5: LRU operations
+In-Reply-To: <aec7e5c30511062335n96c229bve39f614bb8fc7e73@mail.gmail.com>
+Message-ID: <Pine.LNX.4.62.0511070940220.19630@schroedinger.engr.sgi.com>
+References: <20051101031239.12488.76816.sendpatchset@schroedinger.engr.sgi.com>
+  <20051101031244.12488.38211.sendpatchset@schroedinger.engr.sgi.com>
+ <aec7e5c30511062335n96c229bve39f614bb8fc7e73@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Nov 2005, Steven Rostedt wrote:
+On Mon, 7 Nov 2005, Magnus Damm wrote:
 
-> Date: Mon, 07 Nov 2005 12:30:24 -0500
-> From: Steven Rostedt <rostedt@goodmis.org>
-> To: LKML <linux-kernel@vger.kernel.org>
-> Cc: Gerhard Mack <gmack@innerfire.net>, Xavier Bestel <xavier.bestel@free.fr>,
->     Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugo Mills <hugo-lkml@carfax.org.uk>,
->     Nix <nix@esperi.org.uk>, Anshuman Gholap <anshu.pg@gmail.com>,
->     Mark Knecht <markknecht@gmail.com>, Diego Calleja <diegocg@gmail.com>,
->     Toon van der Pas <toon@hout.vanvergehaald.nl>, arjan@infradead.org
-> Subject: Re: 3D video card recommendations
-> 
-> Hi,
-> 
-> I'd like to thank all those that responded. Unfortunately, I was not
-> very patient and already bought something before most of you responded.
-> That's my fault.
-> 
-> So, this is what I'm getting:
-> 
-> ATI (Connect3D) Radeon X800 GTO 256MB GDDR3/PCI-E/VIVO/DVI (Retail Box)
-> For $179 at Monarch computer.
-> 
-> Gerhard Mack recommended avoiding the PCI-E since there is no support
-> yet for DRI.  Right now I don't care about that (thinking it will be
-> supported in the future) and all that I read was to go with the PCI-E
-> instead of the AGP. I could be wrong.
-> 
-> I'll keep the list posted of problems/solutions that I come across with
-> this card.
-> 
-> Thanks,
-> 
-> -- Steve
+> It looks like the V4 to V5 upgrade added -ENOENT as return value to
+> __isolate_lru_page(), but did not change the code in
+> isolate_lru_pages().
 
-Way ahead of you .. I have such a list since I own the PCI-E X300 ;)
+Yuck. You are right.
+ 
+> The fix for this is simple, but maybe something else needs to be
+> changed too or I'm misunderstanding what is happening here.
 
-Your better off than I am since I bought mine two months ago.
+No the fix should simply be replacing the -1 by -ENOENT.
 
-	Gerhard
-
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.

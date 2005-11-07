@@ -1,56 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965330AbVKGUry@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964932AbVKGUsj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965330AbVKGUry (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 15:47:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965333AbVKGUry
+	id S964932AbVKGUsj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 15:48:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965055AbVKGUsj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 15:47:54 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:9106 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965330AbVKGUrw (ORCPT
+	Mon, 7 Nov 2005 15:48:39 -0500
+Received: from mail.kroah.org ([69.55.234.183]:26813 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964932AbVKGUsi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 15:47:52 -0500
-Date: Mon, 7 Nov 2005 12:47:43 -0800
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andy Whitcroft <apw@shadowen.org>, Paul Mackerras <paulus@samba.org>,
-       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net
-Subject: Re: [PATCH 1/4] Memory Add Fixes for ppc64
-Message-ID: <20051107204743.GC5821@w-mikek2.ibm.com>
-References: <20051104231552.GA25545@w-mikek2.ibm.com> <20051104231800.GB25545@w-mikek2.ibm.com> <1131149070.29195.41.camel@gaston>
+	Mon, 7 Nov 2005 15:48:38 -0500
+Date: Mon, 7 Nov 2005 12:46:53 -0800
+From: Greg KH <greg@kroah.com>
+To: linas <linas@austin.ibm.com>
+Cc: Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
+       johnrose@austin.ibm.com, linux-pci@atrey.karlin.mff.cuni.cz,
+       bluesmoke-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: typedefs and structs [was Re: [PATCH 16/42]: PCI:  PCI Error reporting callbacks]
+Message-ID: <20051107204653.GA23705@kroah.com>
+References: <20051104005035.GA26929@mail.gnucash.org> <20051105061114.GA27016@kroah.com> <17262.37107.857718.184055@cargo.ozlabs.ibm.com> <20051107175541.GB19593@austin.ibm.com> <20051107182727.GD18861@kroah.com> <20051107185621.GD19593@austin.ibm.com> <20051107190245.GA19707@kroah.com> <20051107193600.GE19593@austin.ibm.com> <20051107200257.GA22524@kroah.com> <20051107204136.GG19593@austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1131149070.29195.41.camel@gaston>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20051107204136.GG19593@austin.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 05, 2005 at 11:04:30AM +1100, Benjamin Herrenschmidt wrote:
-> This patch will have to be slightly reworked on top of the 64k pages
-> one. It should be trivial though.
+On Mon, Nov 07, 2005 at 02:41:36PM -0600, linas wrote:
+> On Mon, Nov 07, 2005 at 12:02:57PM -0800, Greg KH was heard to remark:
+> > On Mon, Nov 07, 2005 at 01:36:00PM -0600, linas wrote:
+> > > On Mon, Nov 07, 2005 at 11:02:45AM -0800, Greg KH was heard to remark:
+> > > > 
+> > > > No, never typedef a struct.  That's just wrong.  
+> > > 
+> > > Its a defacto convention for most C-language apps, see, for 
+> > > example Xlib, gtk and gnome.
+> > 
+> > The kernel is not those projects.
+> 
+> !!
 
-Ran into an issue with the interaction of SPARSEMEM and 64k pages.
-SPARSEMEM defines the pp64 section size to be 16MB which corresponds
-to the smallest LMB size.  There is a check in the SPARSEMEM code
-to ensure that MAX_ORDER (actually MAX_ORDER-1) block size is not
-greater than section size.  Within the Kconfig file, there is this:
+Yeah, anyone who thinks that Xlib is the paradigm for coding style...
 
-# We optimistically allocate largepages from the VM, so make the limit
-# large enough (16MB). This badly named config option is actually
-# max order + 1
-config FORCE_MAX_ZONEORDER
-        int
-        depends on PPC64
-        default "13"
+> > > Also, "grep typedef include/linux/*" shows that many kernel device
+> > > drivers use this convention.
+> > 
+> > They are wrong and should be fixed.
+> 
+> What, precisely, is wrong?
+> 
+> > See my old OLS paper on all about the problems of using typedefs in
+> > kernel code.
+> 
+> Is this on the web somewhere? Google is having trouble finding it.
 
-Just curious if we still want to boost MAX_ORDER like this with 64k
-pages?  Doesn't that make the MAX_ORDER block size 256MB in this case?
-Also, not quite sure what happens if memory size (a 16 MB multiple)
-does not align with a MAX_ORDER block size (a 256MB multiple in this
-case).  My 'guess' is that the page allocator would not use it as it
-would not fit within the buddy system.
+http://www.kroah.com/linux/talks/ols_2002_kernel_codingstyle_paper/codingstyle.ps
+and the presentation is at:
+http://www.kroah.com/linux/talks/ols_2002_kernel_codingstyle_talk/html/
 
-cc'ing SPARSEMEM author Andy Whitcroft.
--- 
-Mike
+> > > > gcc should warn you
+> > > > just the same if you pass the wrong struct pointer 
+> > > 
+> > > There were many cases where it did not warn (I don't remember 
+> > > the case of subr calls). I beleive this had to do with ANSI-C spec
+> > > issues dating to the 1990's; traditional C is weakly typed.
+> > > 
+> > > Its not just gcc; anyoe who coded for a while eventually discovered
+> > > that tyedefs where strongly typed, but "struct blah *" were not.
+> > 
+> > Sorry, but you are using a broken compiler if it doesn't complain about
+> > this.
+> 
+> Uhh, gcc? 
+
+Try it in the kernel today.  You will get a warning if you pass in a
+pointer to a different structure type than it was defined as.
+
+> I was simply stating a fact about gcc and about standard ANSI-C 
+> type-checking that is "well known" to anyone who's been around the 
+> block. I was not trying to start an argument.
+
+Then let's end it here...
+
+thanks,
+
+greg k-h

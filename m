@@ -1,60 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbVKGS2M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbVKGS2K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964903AbVKGS2M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 13:28:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964907AbVKGS2M
+	id S964899AbVKGS2K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 13:28:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbVKGS2K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 13:28:12 -0500
-Received: from mail.kroah.org ([69.55.234.183]:39049 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964903AbVKGS2M (ORCPT
+	Mon, 7 Nov 2005 13:28:10 -0500
+Received: from mail.kroah.org ([69.55.234.183]:38281 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964899AbVKGS2J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 13:28:12 -0500
-Date: Mon, 7 Nov 2005 10:24:34 -0800
+	Mon, 7 Nov 2005 13:28:09 -0500
+Date: Mon, 7 Nov 2005 10:27:27 -0800
 From: Greg KH <greg@kroah.com>
-To: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
-Subject: Re: udev on 2.6.14 fails to create /dev/input/event2 on T40 Thinkpad
-Message-ID: <20051107182434.GC18861@kroah.com>
-References: <E1EYdMs-0001hI-3F@think.thunk.org> <20051106203421.GB2527@kroah.com> <20051107053648.GA7521@thunk.org> <20051107155243.GA14658@kroah.com> <20051107181706.GB8374@thunk.org>
+To: linas <linas@austin.ibm.com>
+Cc: Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
+       johnrose@austin.ibm.com, linux-pci@atrey.karlin.mff.cuni.cz,
+       bluesmoke-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 16/42]: PCI:  PCI Error reporting callbacks
+Message-ID: <20051107182727.GD18861@kroah.com>
+References: <20051103235918.GA25616@mail.gnucash.org> <20051104005035.GA26929@mail.gnucash.org> <20051105061114.GA27016@kroah.com> <17262.37107.857718.184055@cargo.ozlabs.ibm.com> <20051107175541.GB19593@austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051107181706.GB8374@thunk.org>
+In-Reply-To: <20051107175541.GB19593@austin.ibm.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 07, 2005 at 01:17:06PM -0500, Theodore Ts'o wrote:
-> On Mon, Nov 07, 2005 at 07:52:43AM -0800, Greg KH wrote:
-> > > Yes, sorry, I got confused about which tree I had booting; this was
-> > > indeed a post-2.6.14 kernel (pulled using hg).
+On Mon, Nov 07, 2005 at 11:55:41AM -0600, linas wrote:
+> On Mon, Nov 07, 2005 at 10:25:39AM +1100, Paul Mackerras was heard to remark:
+> > Greg KH writes:
 > > 
-> > Ah good, scared me for a bit there :)
+> > > > +enum pcierr_result {
+> > > > +	PCIERR_RESULT_NONE=0,        /* no result/none/not supported in device driver */
+> > > > +	PCIERR_RESULT_CAN_RECOVER=1, /* Device driver can recover without slot reset */
+> > > > +	PCIERR_RESULT_NEED_RESET,    /* Device driver wants slot to be reset. */
+> > > > +	PCIERR_RESULT_DISCONNECT,    /* Device has completely failed, is unrecoverable */
+> > > > +	PCIERR_RESULT_RECOVERED,     /* Device driver is fully recovered and operational */
+> > > > +};
+> > > 
+> > > No, do not create new types of error or return codes.  Use the standard
+> > > -EFOO values.  You can document what they should each return, and mean,
+> > > but do not create new codes.
 > > 
-> > > Documentation/changes at the tip as of tonight still says use "udev
-> > > version 071", which is what I have installed.
-> > 
-> > Which should handle this just fine.  I suggest you file a bug against
-> > the debian package if this is not the case.
+> > Actually, these are not error or return codes, but rather requested
+> > actions 
 > 
-> Ok, I'll gather more information but I was indeed using udev 0.71
+> Yes. 
 
-Minor nit, udev does not use "." in its version numbers :)
+Ok, then make them be stronger, and not return an int, as everyone will
+get that wrong.
 
-> from Debian with a post 2.6.14 kernel, and it wasn't working for me.
+> In one incarnation, they were #defines.  The enum was supposed to be 
+> the return value of the error notification callbacks.  
+> 
+> I can prepare a new patch: would you prefer:
+> 
+> 1) lose typing: #defines and int return value?
+> 
+> 2) strong typing: enum and enum return value?
 
-I see that 073 is in unstable, which fixed a lot of problems with 071,
-072 and 073 due to Debian configuration issues.  I suggest you try that.
+3) realy strong typing that sparse can detect.
 
-> I can try again with stock udev from kernel.org,
+enums don't really work, as you can get away with using an integer and
+the compiler will never complain.  Please use a typedef (yeah, I said
+typedef) in the way that sparse will catch any bad users of the code.
 
-No, stick with the debian packages, due to the wierd packaging and init
-issues that Debian has.
+> I often prefer strong typing.
+> 
+> And do you want a patch now, or later?
 
-I wouldn't recommend using the kernel.org udev packages for anyone on
-their own these days, they are what the distros use to package from, and
-they know best, due to the different ways the init process works in
-different distros.
+Depends on when you want to see this make it into mainline :)
 
-Good luck,
+thanks,
 
 greg k-h

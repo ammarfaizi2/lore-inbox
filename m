@@ -1,64 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965062AbVKGV43@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965220AbVKGV45@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965062AbVKGV43 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 16:56:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965220AbVKGV43
+	id S965220AbVKGV45 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 16:56:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965223AbVKGV44
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 16:56:29 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:54277 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S965062AbVKGV42
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 16:56:28 -0500
-Date: Mon, 7 Nov 2005 13:56:26 -0800
-Message-Id: <200511072156.jA7LuQKv009711@zach-dev.vmware.com>
-Subject: [PATCH 1/1] My tools break here
-From: Zachary Amsden <zach@vmware.com>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Sam Ravnborg <sam@ravnborg.org>, davej@redhat.com, thang@redhat.com,
-       Zachary Amsden <zach@vmware.com>
-X-OriginalArrivalTime: 07 Nov 2005 21:56:27.0476 (UTC) FILETIME=[1A655940:01C5E3E6]
+	Mon, 7 Nov 2005 16:56:56 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:65443 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965230AbVKGV4y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 16:56:54 -0500
+Date: Mon, 7 Nov 2005 13:54:35 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Greg KH <greg@kroah.com>
+cc: linas <linas@austin.ibm.com>, linux-sparse@vger.kernel.org,
+       Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
+       johnrose@austin.ibm.com, linux-pci@atrey.karlin.mff.cuni.cz,
+       bluesmoke-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/7]: PCI revised (2) [PATCH 16/42]: PCI:  PCI Error
+ reporting callbacks
+In-Reply-To: <20051107213729.GA24700@kroah.com>
+Message-ID: <Pine.LNX.4.64.0511071349160.3247@g5.osdl.org>
+References: <20051103235918.GA25616@mail.gnucash.org> <20051104005035.GA26929@mail.gnucash.org>
+ <20051105061114.GA27016@kroah.com> <17262.37107.857718.184055@cargo.ozlabs.ibm.com>
+ <20051107175541.GB19593@austin.ibm.com> <20051107182727.GD18861@kroah.com>
+ <20051107195727.GF19593@austin.ibm.com> <20051107200352.GB22524@kroah.com>
+ <20051107212128.GH19593@austin.ibm.com> <20051107213729.GA24700@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have to revert the recent addition of -imacros to the Makefile to get my
-tool chain to build.  Without the change, below, I get:
 
-Note that this looks entirely like a toolchain bug.  Here is the offending command:
 
-[pid 12163] execve("/usr/lib/gcc-lib/i386-redhat-linux/3.2.2/tradcpp0", ["/usr/lib/gcc-lib/i386-redhat-linux/3.2.2/tradcpp0", "-lang-asm", "-nostdinc", "-Iinclude", "-Iinclude/asm-i386/mach-default", "-D__GNUC__=3", "-D__GNUC_MINOR__=2", "-D__GNUC_PATCHLEVEL__=2", "-D__GXX_ABI_VERSION=102", "-D__ELF__", "-Dunix", "-D__gnu_linux__", "-Dlinux", "-D__ELF__", "-D__unix__", "-D__gnu_linux__", "-D__linux__", "-D__unix", "-D__linux", "-Asystem=posix", "-D__NO_INLINE__", "-D__STDC_HOSTED__=1", "-Acpu=i386", "-Amachine=i386", "-Di386", "-D__i386", "-D__i386__", "-D__tune_i386__", "-D__KERNEL__", "-D__ASSEMBLY__", "-isystem", "/usr/lib/gcc-lib/i386-redhat-linux/3.2.2/include", "-imacros", "include/linux/autoconf.h", "-MD", "arch/i386/kernel/.entry.o.d", "arch/i386/kernel/entry.S", "-o", "/tmp/ccOlsFJR.s"]
+On Mon, 7 Nov 2005, Greg KH wrote:
+> 
+> >  enum pci_channel_state {
+> > -	pci_channel_io_normal = 0,	/* I/O channel is in normal state */
+> > -	pci_channel_io_frozen = 1,	/* I/O to channel is blocked */
+> > -	pci_channel_io_perm_failure,	/* PCI card is dead */
+> > +	pci_channel_io_normal = (__force pci_channel_state_t) 0,	/* I/O channel is in normal state */
+> > +	pci_channel_io_frozen = (__force pci_channel_state_t) 1,	/* I/O to channel is blocked */
+> > +	pci_channel_io_perm_failure = (__force pci_channel_state_t) 2,	/* PCI card is dead */
+> >  };
+> 
+> You don't have to use an enum anymore, just use a #define.
 
-Which should execute properly, I think.  But it does not:
+The enum works fine, though, and has less namespace pollution than a 
+#define, so sometimes an enum can be preferred.
 
-zach-dev:linux-2.6.14-zach-work $ make
-  CHK     include/linux/version.h
-  CHK     include/linux/compile.h
-  CHK     usr/initramfs_list
-  AS      arch/i386/kernel/entry.o
-/usr/lib/gcc-lib/i386-redhat-linux/3.2.2/tradcpp0: output filename specified twice
-make[1]: *** [arch/i386/kernel/entry.o] Error 1
-make: *** [arch/i386/kernel] Error 2
+HOWEVER. For sanity, if possible please avoid using the value "0". It's 
+magic for __bitwise, in that a zero is always acceptable as a bitwise 
+thing (which makes sense if you think of bitwise as being about bits: the 
+zero representation is totally independent of any bit ordering).
 
-gcc (GCC) 3.2.2 20030222 (Red Hat Linux 3.2.2-5)
+So it's better to start counting from 1 if possible.
 
-Deprecating the -imacros fixes the build for me.  It does not appear to be a
-simple argument overflow problem in trapcpp0, since deprecating all the defines
-reproduces the problem as well.  Also, switching -imacros to -include fixes the
-problem.
+> Sparse developers, I see code in the kernel that that does both 
+> (__force foo_t) and (foo_t __force).  Which one is correct?
 
-Signed-off-by: Zachary Amsden <zach@vmware.com>
+sparse doesn't care. Whatever scans better for humans. Attributes like 
+"force" parse the same way things like "const" and "volatile" parses, and 
+while most people _tend_ to write "const int", it's not incorrect to write 
+"int const". Same with "__attribute__((force))", aka __force.
 
-Index: linux-2.6.14-zach-work/Makefile
-===================================================================
---- linux-2.6.14-zach-work.orig/Makefile	2005-11-07 09:41:09.000000000 -0800
-+++ linux-2.6.14-zach-work/Makefile	2005-11-07 13:34:14.000000000 -0800
-@@ -346,8 +346,7 @@ AFLAGS_KERNEL	=
- # Use LINUXINCLUDE when you must reference the include/ directory.
- # Needed to be compatible with the O= option
- LINUXINCLUDE    := -Iinclude \
--                   $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include) \
--		   -imacros include/linux/autoconf.h
-+                   $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include)
- 
- CPPFLAGS        := -D__KERNEL__ $(LINUXINCLUDE)
- 
+			Linus

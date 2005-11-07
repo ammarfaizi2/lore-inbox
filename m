@@ -1,63 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965352AbVKGRf2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965167AbVKGRgM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965352AbVKGRf2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 12:35:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965351AbVKGRf0
+	id S965167AbVKGRgM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 12:36:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964994AbVKGRgL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 12:35:26 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:22227 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S965305AbVKGRfX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 12:35:23 -0500
-Subject: Re: 3D video card recommendations
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Toon van der Pas <toon@hout.vanvergehaald.nl>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1131377496.2858.21.camel@laptopd505.fenrus.org>
-References: <1131112605.14381.34.camel@localhost.localdomain>
-	 <1131349343.2858.11.camel@laptopd505.fenrus.org>
-	 <1131367371.14381.91.camel@localhost.localdomain>
-	 <20051107152009.GA20807@shuttle.vanvergehaald.nl>
-	 <1131377496.2858.21.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Mon, 07 Nov 2005 12:35:06 -0500
-Message-Id: <1131384906.14381.108.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Mon, 7 Nov 2005 12:36:11 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:38674 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S965098AbVKGRgH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 12:36:07 -0500
+Message-ID: <436F8FAE.90805@vmware.com>
+Date: Mon, 07 Nov 2005 09:32:30 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: "Maciej W. Rozycki" <macro@linux-mips.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14: CR4 not needed to be inspected on the 486 anymore?
+References: <Pine.LNX.4.55.0511031600010.24109@blysk.ds.pg.gda.pl> <436A3C10.9050302@vmware.com> <Pine.LNX.4.55.0511031639310.24109@blysk.ds.pg.gda.pl> <436AA1FD.3010401@vmware.com> <p73fyqb2dtx.fsf@verdi.suse.de> <Pine.LNX.4.55.0511070931560.28165@blysk.ds.pg.gda.pl> <436F7673.5040309@vmware.com> <Pine.LNX.4.55.0511071632110.28165@blysk.ds.pg.gda.pl> <436F8601.4070201@vmware.com> <Pine.LNX.4.61.0511071157590.27658@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0511071157590.27658@chaos.analogic.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Nov 2005 17:32:31.0655 (UTC) FILETIME=[3B82D370:01C5E3C1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-11-07 at 16:31 +0100, Arjan van de Ven wrote:
-> On Mon, 2005-11-07 at 16:20 +0100, Toon van der Pas wrote:
-> > On Mon, Nov 07, 2005 at 07:42:51AM -0500, Steven Rostedt wrote:
-> > > On Mon, 2005-11-07 at 08:42 +0100, Arjan van de Ven wrote:
-> > > 
-> > > > 5) The vendor goes out of business and thus stops updating the driver
-> > > 
-> > > MS folks would have the same problem.
-> > 
-> > ...which proves the point Arjan is making.
-> > 
-> > For one, I have an ISDN-adapter which doesn't work with any version of
-> > MS-Windows from this millennium (no drivers available), while it's still
-> > working great on current Linux kernels.
-> 
-> 
-> well despite your post; the Windows people are a lot better at keeping
-> old drivers working (win 9x to a NT based kernel was obviously a huge
-> change though). In linux you can use an old driver maybe for 6 months if
-> you're lucky.. in windows 6 years is no exception. So the problem is a
-> lot bigger in linux for the owner of such a card than it is in windows.
-> 
+linux-os (Dick Johnson) wrote:
 
-Only if the Linux driver is closed source.  Otherwise, the driver should
-be upgraded with the kernel.  Most all open source hardware drivers are
-already included in the kernel, and maintained as long as there's
-someone that has the device that can maintain it.
+>On Mon, 7 Nov 2005, Zachary Amsden wrote:
+>
+>  
+>
+>>Maciej W. Rozycki wrote:
+>>
+>>    
+>>
+>>>On Mon, 7 Nov 2005, Zachary Amsden wrote:
+>>>
+>>>
+>>>
+>>>      
+>>>
+>>>>While this is at least no worse in the nested fault case than earlier
+>>>>kernels, I really wish I had one of those weird 486s so I could test the
+>>>>faulting mechanism.  It seems the trap handling code has gotten quite
+>>>>
+>>>>
+>>>>        
+>>>>
+>>>What's so weird about 486s?  Besides, for testing it doesn't have to be
+>>>one -- you will get away with a 386, too.  I have neither anymore, but
+>>>there are people around still using them.
+>>>
+>>>
+>>>      
+>>>
+>>Because I hold in my hand "i486 Microprocessor Programmer's Reference
+>>Manual, c 1990", and it has no mention whatsoever of CR4, and all
+>>documentation I had until Friday had either no mention of CR4, or
+>>something to the effect of "new on Pentium, the CR4 register ..."  So
+>>I've had to re-adjust my definition of 486, which was weird.
+>>
+>>Zach
+>>-
+>>    
+>>
+>
+>Yes, and undocumented opcodes might not fault. They might do nothing
+>or something strange. It's not a good idea to use an undocumented
+>opcode in kernel space. The read-from-CR4 in kernel space, hoping
+>that an immoral-opcode trap will save you is not good practice.
+>
+>You might reset the processor.
+>  
+>
 
--- Steve
+No, you won't.  #UD and #GP will not (I hesitate to say never, but other 
+than a processor bug, I believe that is correct) reset the processor.  
+And CR4 is not "undocumented", even on 486.
 
+What is immoral about opcode trapping?
 
+Zach

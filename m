@@ -1,90 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964804AbVKGJrO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932471AbVKGJyi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964804AbVKGJrO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 04:47:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbVKGJrO
+	id S932471AbVKGJyi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 04:54:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbVKGJyi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 04:47:14 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:5316 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S964804AbVKGJrN (ORCPT
+	Mon, 7 Nov 2005 04:54:38 -0500
+Received: from tornado.reub.net ([202.89.145.182]:30115 "EHLO tornado.reub.net")
+	by vger.kernel.org with ESMTP id S932471AbVKGJyh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 04:47:13 -0500
-Date: Mon, 7 Nov 2005 01:46:59 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: ak@suse.de, akpm@osdl.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: Clean up of __alloc_pages
-Message-Id: <20051107014659.14c2631b.pj@sgi.com>
-In-Reply-To: <436EEF43.2050403@yahoo.com.au>
-References: <20051028183326.A28611@unix-os.sc.intel.com>
-	<20051106124944.0b2ccca1.pj@sgi.com>
-	<436EC2AF.4020202@yahoo.com.au>
-	<200511070442.58876.ak@suse.de>
-	<20051106203717.58c3eed0.pj@sgi.com>
-	<436EEF43.2050403@yahoo.com.au>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 7 Nov 2005 04:54:37 -0500
+Message-ID: <436F2452.9020207@reub.net>
+Date: Mon, 07 Nov 2005 22:54:26 +1300
+From: Reuben Farrelly <reuben-lkml@reub.net>
+User-Agent: Thunderbird 1.6a1 (Windows/20051106)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au
+Subject: Re: 2.6.14-mm1
+References: <20051106182447.5f571a46.akpm@osdl.org>
+In-Reply-To: <20051106182447.5f571a46.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick wrote:
-> Yeah, take a look at rmap.c as well, and some of the comments in
-> changelogs if you need a better feel for it.
+Hi again,
 
-Ok - thanks.
-
-
-> So your cpusets may be reused, but only as new cpusets. This should
-> be no problem at all for you.
-
-Correct - should be no problem.
-
-
-> > And is the pair of operators:
-> >   task_lock(current), task_unlock(current)
-> > really that much worse than the pair of operators
-> >   ...
-> >   preempt_disable, preempt_enable
-
-That part still surprises me a little.  Is there enough difference in
-the performance between:
-
-  1) task_lock, which is a spinlock on current->alloc_lock and
-  2) rcu_read_lock, which is .preempt_count++; barrier()
-
-to justify a separate slab cache for cpusets and a little more code?
-
-For all I know (not much) the task_lock might actually be cheaper ;).
-
-
-> You may also have to be careful about memory ordering when setting
-> a pointer which may be concurrently dereferenced by another CPU so
-> that stale data doesn't get picked up.
+On 7/11/2005 3:24 p.m., Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14/2.6.14-mm1/
 > 
-> The set side needs an rcu_assign_pointer, and the dereference side
-> needs rcu_dereference. Unless you either don't care about races,
+> - Added the 1394 development tree to the -mm lineup, as git-ieee1394.patch
+> 
+> - Re-added rmk's driver-model tree git-drvmodel.patch
+> 
+> - Added davem's sparc64 tree, as git-sparc64.patch
+> 
+> - v4l updates
+> 
+> - dvb updates
 
-I don't think I care ...  I'm just sampling task->cpuset->mems_generation,
-looking for it to change.  Sooner or later, after it changes, I will get
-an accurate read of it, realized it changed, and immediately down a
-cpuset semaphore and reread all values of interest.
+Just rebooted into 2.6.14-mm1 and now every few seconds I get this spewed up 
+on the console:
 
-The semaphore down means doing an atomic_dec_return(), which imposes
-a memory barrier, right?
+Nov  7 22:49:47 tornado kernel: Debug: sleeping function called from invalid 
+context at include/asm/semaphore.h:99
+Nov  7 22:49:47 tornado kernel: in_atomic():0, irqs_disabled():1
+Nov  7 22:49:47 tornado kernel:  [<c0103a50>] dump_stack+0x17/0x19
+Nov  7 22:49:47 tornado kernel:  [<c011971b>] __might_sleep+0x9d/0xad
+Nov  7 22:49:47 tornado kernel:  [<c028aa4b>] scsi_disk_get_from_dev+0x15/0x48
+Nov  7 22:49:47 tornado kernel:  [<c028b28e>] sd_prepare_flush+0x17/0x5a
+Nov  7 22:49:47 tornado kernel:  [<c027abff>] scsi_prepare_flush_fn+0x30/0x33
+Nov  7 22:49:47 tornado kernel:  [<c0255332>] blk_start_pre_flush+0xd5/0x13f
+Nov  7 22:49:47 tornado kernel:  [<c025490b>] elv_next_request+0x112/0x16f
+Nov  7 22:49:47 tornado kernel:  [<c027b045>] scsi_request_fn+0x4b/0x2fd
+Nov  7 22:49:47 tornado kernel:  [<c0254748>] __elv_add_request+0x109/0x176
+Nov  7 22:49:47 tornado kernel:  [<c0257ab4>] __make_request+0x1d0/0x474
+Nov  7 22:49:47 tornado kernel:  [<c0257e96>] generic_make_request+0xb3/0x128
+Nov  7 22:49:47 tornado kernel:  [<c0257f54>] submit_bio+0x49/0xce
+Nov  7 22:49:47 tornado kernel:  [<c02967c5>] md_super_write+0x87/0xa3
+Nov  7 22:49:47 tornado kernel:  [<c0298484>] md_update_sb+0xc3/0x1a8
+Nov  7 22:49:47 tornado kernel:  [<c029cbd2>] md_check_recovery+0x17b/0x425
+Nov  7 22:49:47 tornado kernel:  [<c0294d73>] raid1d+0x1f/0x3b8
+Nov  7 22:49:47 tornado kernel:  [<c029b397>] md_thread+0x3b/0xee
+Nov  7 22:49:47 tornado kernel:  [<c012ee57>] kthread+0x99/0x9d
+Nov  7 22:49:47 tornado kernel:  [<c01010bd>] kernel_thread_helper+0x5/0xb
 
+The box has raid-1 and I'm guessing that that may be the culprit here... ?
 
-> My RCU suggestion was mainly an idea to get around your immediate
-> problem with a lockless fastpath, rather than advocating it over
-> any of the alternatives.
-
-Understood.  Thanks for your comments on the alternatives - they
-seem reasonable.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Reuben

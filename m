@@ -1,41 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbVKGHFR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964805AbVKGHFd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964797AbVKGHFR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 02:05:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbVKGHFQ
+	id S964805AbVKGHFd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 02:05:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbVKGHFS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 7 Nov 2005 02:05:18 -0500
+Received: from xproxy.gmail.com ([66.249.82.206]:19641 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964802AbVKGHFQ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 7 Nov 2005 02:05:16 -0500
-Received: from [85.8.13.51] ([85.8.13.51]:49815 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S964797AbVKGHFP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 02:05:15 -0500
-From: Pierre Ossman <drzeus@drzeus.cx>
-Subject: [PATCH] [MMC] Add MODULE_AUTHOR to wbsd
-Date: Mon, 07 Nov 2005 08:05:07 +0100
-Cc: Pierre Ossman <drzeus-list@drzeus.cx>
-To: rmk+lkml@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <20051107070507.6655.60008.stgit@poseidon.drzeus.cx>
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=oHFy9I/AhL3ePLLNiER0m3wE/V/y2KDqLE1iQOmaXHGQWaY0/C0QUzUu2p7WDNHwZtv591UKQDzyCZIMx6dLumGOAQftniipU12gJ9Rb5dtUP6Br4fPLjlHNj2P7YJe2lHzQRxtcGhOXF5/77L1v2oGu9v5pxF+QORx1cKbPkb4=
+Message-ID: <a44ae5cd0511062305i410dcf0fy8a97a36b74150507@mail.gmail.com>
+Date: Mon, 7 Nov 2005 02:05:16 -0500
+From: Miles Lane <miles.lane@gmail.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: 2.6.14-mm1 -- unknown symbol alsa_card_saa7134_create
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-'cause I'm in it for the chicks. ;)
-
-Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
----
-
- drivers/mmc/wbsd.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/mmc/wbsd.c b/drivers/mmc/wbsd.c
---- a/drivers/mmc/wbsd.c
-+++ b/drivers/mmc/wbsd.c
-@@ -2198,6 +2198,7 @@ module_param(irq, uint, 0444);
- module_param(dma, int, 0444);
- 
- MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Pierre Ossman <drzeus@drzeus.cx>");
- MODULE_DESCRIPTION("Winbond W83L51xD SD/MMC card interface driver");
- MODULE_VERSION(DRIVER_VERSION);
- 
-
+WARNING: /lib/modules/2.6.14-mm1/kernel/drivers/media/video/saa7134/saa7134.ko
+needs unknown symbol alsa_card_saa7134_create
+WARNING: /lib/modules/2.6.14-mm1/kernel/drivers/media/video/saa7134/saa7134.ko
+needs unknown symbol alsa_card_saa7134_exit
+WARNING: /lib/modules/2.6.14-mm1/kernel/drivers/media/video/saa7134/saa7134.ko
+needs unknown symbol saa7134_irq_alsa_done

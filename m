@@ -1,109 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbVKGMVX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932428AbVKGMUT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932337AbVKGMVX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 07:21:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932474AbVKGMVW
+	id S932428AbVKGMUT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 07:20:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932337AbVKGMUS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 07:21:22 -0500
-Received: from gw02.mail.saunalahti.fi ([195.197.172.116]:24248 "EHLO
-	gw02.mail.saunalahti.fi") by vger.kernel.org with ESMTP
-	id S932337AbVKGMVV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 07:21:21 -0500
-From: Ville =?ISO-8859-1?Q?=20Syrj=E4l=E4?= <syrjala@sci.fi>
-To: linux-kernel@vger.kernel.org
-Cc: linux-fbdev-devel@lists.sourceforge.net
-Subject: [PATCH] Fix console blanking
-Content-Type: text
-Message-Id: <20051107122117.24DB32EB@kuori.saunalahti.fi>
-Date: Mon,  7 Nov 2005 14:21:17 +0200 (EET)
+	Mon, 7 Nov 2005 07:20:18 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:53421 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932428AbVKGMUR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 07:20:17 -0500
+Date: Mon, 7 Nov 2005 13:20:09 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Paul Jackson <pj@sgi.com>, andy@thermo.lanl.gov, mbligh@mbligh.org,
+       Andrew Morton <akpm@osdl.org>, arjan@infradead.org,
+       arjanv@infradead.org, kravetz@us.ibm.com,
+       lhms <lhms-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, mel@csn.ul.ie,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+Message-ID: <20051107122009.GD3609@elte.hu>
+References: <20051104010021.4180A184531@thermo.lanl.gov> <Pine.LNX.4.64.0511032105110.27915@g5.osdl.org> <20051103221037.33ae0f53.pj@sgi.com> <20051104063820.GA19505@elte.hu> <Pine.LNX.4.64.0511040725090.27915@g5.osdl.org> <796B585C-CB1C-4EBA-9EF4-C11996BC9C8B@mac.com> <Pine.LNX.4.64.0511060756010.3316@g5.osdl.org> <Pine.LNX.4.64.0511060848010.3316@g5.osdl.org> <20051107080042.GA29961@elte.hu> <1131361258.5976.53.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1131361258.5976.53.camel@localhost>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Current console blanking code is broken. It will first do a normal 
-blank, then start the VESA blank timer if vesa_off_interval != 0, and 
-then proceed to do the VESA blanking directly. After the timer expires 
-it will do the VESA blanking a second time. Also the vesa_powerdown() 
-function doesn't allow all VESA modes to be used.
 
-With this patch the behaviour is:
-1. Blank: vesa_off_interval != 0 -> Do normal blank
-          vesa_off_interval == 0 -> Do VESA blank
-2. Start the VESA blank timer if vesa_off_interval != 0 and
-   vesa_power_mode != 0.
+* Dave Hansen <haveblue@us.ibm.com> wrote:
 
-It also gets rid of the limiting vesa_powerdown() function.
+> On Mon, 2005-11-07 at 09:00 +0100, Ingo Molnar wrote:
+> > * Linus Torvalds <torvalds@osdl.org> wrote:
+> > > So remappable kernels are certainly doable, they just have more 
+> > > fundamental problems than remappable user space _ever_ has. Both from 
+> > > a performance and from a complexity angle.
+> > 
+> > furthermore, it doesnt bring us any closer to removable RAM. The problem 
+> > is still unsolvable (due to the 'how to do you find live pointers to fix 
+> > up' issue), even if the full kernel VM is 'mapped' at 4K granularity.
+> 
+> I'm not sure I understand.  If you're remapping, why do you have to 
+> find live and fix up live pointers?  Are you talking about things that 
+> require fixed _physical_ addresses?
 
-Signed-off-by: Ville Syrjälä <syrjala@sci.fi>
----
+RAM removal, not RAM replacement. I explained all the variants in an 
+earlier email in this thread. "extending RAM" is relatively easy.  
+"replacing RAM" while doable, is probably undesirable. "removing RAM" 
+impossible.
 
- vt.c |   33 +++------------------------------
- 1 file changed, 3 insertions(+), 30 deletions(-)
-
-diff -uprN linux-2.6.14-0/drivers/char/vt.c linux-2.6.14-1/drivers/char/vt.c
---- linux-2.6.14-0/drivers/char/vt.c	2005-11-05 19:10:14.000000000 +0200
-+++ linux-2.6.14-1/drivers/char/vt.c	2005-11-07 13:24:01.000000000 +0200
-@@ -2758,29 +2758,6 @@ static void set_vesa_blanking(char __use
-     vesa_blank_mode = (mode < 4) ? mode : 0;
- }
- 
--/*
-- * This is called by a timer handler
-- */
--static void vesa_powerdown(void)
--{
--    struct vc_data *c = vc_cons[fg_console].d;
--    /*
--     *  Power down if currently suspended (1 or 2),
--     *  suspend if currently blanked (0),
--     *  else do nothing (i.e. already powered down (3)).
--     *  Called only if powerdown features are allowed.
--     */
--    switch (vesa_blank_mode) {
--    case VESA_NO_BLANKING:
--	    c->vc_sw->con_blank(c, VESA_VSYNC_SUSPEND+1, 0);
--	    break;
--    case VESA_VSYNC_SUSPEND:
--    case VESA_HSYNC_SUSPEND:
--	    c->vc_sw->con_blank(c, VESA_POWERDOWN+1, 0);
--	    break;
--    }
--}
--
- void do_blank_screen(int entering_gfx)
- {
- 	struct vc_data *vc = vc_cons[fg_console].d;
-@@ -2791,8 +2768,7 @@ void do_blank_screen(int entering_gfx)
- 	if (console_blanked) {
- 		if (blank_state == blank_vesa_wait) {
- 			blank_state = blank_off;
--			vesa_powerdown();
--
-+			vc->vc_sw->con_blank(vc, vesa_blank_mode + 1, 0);
- 		}
- 		return;
- 	}
-@@ -2822,7 +2798,7 @@ void do_blank_screen(int entering_gfx)
- 
- 	save_screen(vc);
- 	/* In case we need to reset origin, blanking hook returns 1 */
--	i = vc->vc_sw->con_blank(vc, 1, 0);
-+	i = vc->vc_sw->con_blank(vc, vesa_off_interval ? 1 : (vesa_blank_mode + 1), 0);
- 	console_blanked = fg_console + 1;
- 	if (i)
- 		set_origin(vc);
-@@ -2830,13 +2806,10 @@ void do_blank_screen(int entering_gfx)
- 	if (console_blank_hook && console_blank_hook(1))
- 		return;
- 
--	if (vesa_off_interval) {
-+	if (vesa_off_interval && vesa_blank_mode) {
- 		blank_state = blank_vesa_wait;
- 		mod_timer(&console_timer, jiffies + vesa_off_interval);
- 	}
--
--    	if (vesa_blank_mode)
--		vc->vc_sw->con_blank(vc, vesa_blank_mode + 1, 0);
- }
- EXPORT_SYMBOL(do_blank_screen);
- 
-
+	Ingo

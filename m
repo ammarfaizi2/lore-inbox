@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbVKGFUa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbVKGFhG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964774AbVKGFUa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 00:20:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751299AbVKGFUa
+	id S964776AbVKGFhG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 00:37:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964777AbVKGFhF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 00:20:30 -0500
-Received: from nproxy.gmail.com ([64.233.182.199]:5961 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751298AbVKGFUa convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 00:20:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=I0oYMKmS5K+DXmxPWKsfVCR9czMtchtbRYx9ZkQfgSbpl/3ur7ETnvJ3mEAnaJGMmNowJnwUmX49aNQZRJmPnIxw2VuyAVEmzaodEu25zOI0ouQrJjqrFsUoRNMWdS+68+cYMgWwflPk+Rha5lYsxYPHCWZabas9c2dMaSX0Z7Y=
-Message-ID: <2cd57c900511062120o4f6a59bfy@mail.gmail.com>
-Date: Mon, 7 Nov 2005 13:20:28 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: + readahead-commentary.patch added to -mm tree
-Cc: akpm@osdl.org
-In-Reply-To: <200511030145.jA31j8eB021068@shell0.pdx.osdl.net>
+	Mon, 7 Nov 2005 00:37:05 -0500
+Received: from THUNK.ORG ([69.25.196.29]:53414 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S964776AbVKGFhE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 00:37:04 -0500
+Date: Mon, 7 Nov 2005 00:36:49 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: udev on 2.6.14 fails to create /dev/input/event2 on T40 Thinkpad
+Message-ID: <20051107053648.GA7521@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>, Greg KH <greg@kroah.com>,
+	linux-kernel@vger.kernel.org
+References: <E1EYdMs-0001hI-3F@think.thunk.org> <20051106203421.GB2527@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200511030145.jA31j8eB021068@shell0.pdx.osdl.net>
+In-Reply-To: <20051106203421.GB2527@kroah.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2005/11/3, akpm@osdl.org <akpm@osdl.org>:
->
-> The patch titled
->
->      readahead commentary
->
-> has been added to the -mm tree.  Its filename is
->
->      readahead-commentary.patch
->
->
-> From: Andrew Morton <akpm@osdl.org>
->
-> Add a few comments surrounding thr generic readahead API.
->
+On Sun, Nov 06, 2005 at 12:34:21PM -0800, Greg KH wrote:
+> On Sun, Nov 06, 2005 at 12:47:02AM -0500, Theodore Ts'o wrote:
+> > +P: /class/input/input3/event3
+> 
+> No, this shows a post-2.6.14 kernel, not 2.6.14 as what is located on
+> kernel.org, right?  I'm guessing 2.6.14-git1?  Or is this a distro based
+> kernel?
+> 
+> If so, you need to upgrade udev, as the Documentation says to :)
+> 
+> If not, and this is 2.6.14, something is very wrong...
 
-typo. s/thr/the/
+Yes, sorry, I got confused about which tree I had booting; this was
+indeed a post-2.6.14 kernel (pulled using hg).
 
-> Also convert some ulongs into pgoff_t: the identifier for PAGE_CACHE_SIZE
-> offsets into pagecache.
+Documentation/changes at the tip as of tonight still says use "udev
+version 071", which is what I have installed.  I note that the latest
+version on kernel.org is udev 072 --- is that what is going to be
+required for 2.6.15?  If so, better warn folks at distro's like Debian
+unstable.  If not, what do I need to change so I can easily test post
+2.6.14 kernels --- and where was it documented that I needed a newer
+version of udev?
 
---
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+						- Ted
+

@@ -1,45 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbVKGOl4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbVKGOoh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750720AbVKGOl4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 09:41:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750718AbVKGOl4
+	id S1750726AbVKGOoh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 09:44:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbVKGOoh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 09:41:56 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:7070 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1750726AbVKGOlz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 09:41:55 -0500
-Date: Mon, 7 Nov 2005 06:41:41 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: ak@suse.de, akpm@osdl.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: Clean up of __alloc_pages
-Message-Id: <20051107064141.7be80c49.pj@sgi.com>
-In-Reply-To: <436F29BF.3010804@yahoo.com.au>
-References: <20051028183326.A28611@unix-os.sc.intel.com>
-	<20051106124944.0b2ccca1.pj@sgi.com>
-	<436EC2AF.4020202@yahoo.com.au>
-	<200511070442.58876.ak@suse.de>
-	<20051106203717.58c3eed0.pj@sgi.com>
-	<436EEF43.2050403@yahoo.com.au>
-	<20051107014659.14c2631b.pj@sgi.com>
-	<436F29BF.3010804@yahoo.com.au>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Mon, 7 Nov 2005 09:44:37 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:48213
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1750726AbVKGOog (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 09:44:36 -0500
+Message-Id: <436F7695.76F0.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Mon, 07 Nov 2005 15:45:25 +0100
+From: "Jan Beulich" <JBeulich@novell.com>
+To: "Andreas Kleen" <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
+Subject: [PATCH] x86_64: fix page fault from show_trace()
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="=__PartB99B9895.1__="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok ... so a spinlock (task_lock) costs one barrier and one atomic more
-than an rcu_read_lock (on a preempt kernel where both spinlock and
-rcu_read_lock cost a preempt), or something like that.
+This is a MIME message. If you are reading this text, you may want to 
+consider changing to a mail reader or gateway that understands how to 
+properly handle MIME multipart messages.
 
-Thanks, Nick.
+--=__PartB99B9895.1__=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+The introduction of call_softirq switching to the interrupt stack
+several releases earlier resulted in a problem with the code in
+show_trace, which assumes that it can pick the previous stack pointer
+from the end of the interrupt stack.
+
+From: Jan Beulich <jbeulich@novell.com>
+
+(actual patch attached)
+
+--=__PartB99B9895.1__=
+Content-Type: application/octet-stream; name="linux-2.6.14-x86_64-call-softirq.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="linux-2.6.14-x86_64-call-softirq.patch"
+
+VGhlIGludHJvZHVjdGlvbiBvZiBjYWxsX3NvZnRpcnEgc3dpdGNoaW5nIHRvIHRoZSBpbnRlcnJ1
+cHQgc3RhY2sKc2V2ZXJhbCByZWxlYXNlcyBlYXJsaWVyIHJlc3VsdGVkIGluIGEgcHJvYmxlbSB3
+aXRoIHRoZSBjb2RlIGluCnNob3dfdHJhY2UsIHdoaWNoIGFzc3VtZXMgdGhhdCBpdCBjYW4gcGlj
+ayB0aGUgcHJldmlvdXMgc3RhY2sgcG9pbnRlcgpmcm9tIHRoZSBlbmQgb2YgdGhlIGludGVycnVw
+dCBzdGFjay4KCkZyb206IEphbiBCZXVsaWNoIDxqYmV1bGljaEBub3ZlbGwuY29tPgoKLS0tIDIu
+Ni4xNC9hcmNoL3g4Nl82NC9rZXJuZWwvZW50cnkuUwkyMDA1LTEwLTI4IDAyOjAyOjA4LjAwMDAw
+MDAwMCArMDIwMAorKysgMi42LjE0LW5sa2QvYXJjaC94ODZfNjQva2VybmVsL2VudHJ5LlMJMjAw
+NS0xMS0wNyAxNDo1NjowMi4wMDAwMDAwMDAgKzAxMDAKQEAgLTEwMjQsMTcgKzEwMjQsMTUgQEAg
+RU5UUlkobWFjaGluZV9jaGVjaykKIEVOVFJZKGNhbGxfc29mdGlycSkKIAlDRklfU1RBUlRQUk9D
+CiAJbW92cSAlZ3M6cGRhX2lycXN0YWNrcHRyLCVyYXgKLQlwdXNocSAlcjE1Ci0JQ0ZJX0FESlVT
+VF9DRkFfT0ZGU0VUIDgKLQltb3ZxICVyc3AsJXIxNQotCUNGSV9ERUZfQ0ZBX1JFR0lTVEVSCXIx
+NQorCW1vdnEgJXJzcCwlcmR4CisJQ0ZJX0RFRl9DRkFfUkVHSVNURVIJcmR4CiAJaW5jbCAlZ3M6
+cGRhX2lycWNvdW50CiAJY21vdmUgJXJheCwlcnNwCisJcHVzaHEgJXJkeAorCS8qdG9kbyBDRklf
+REVGX0NGQV9FWFBSRVNTSU9OIC4uLiovCiAJY2FsbCBfX2RvX3NvZnRpcnEKLQltb3ZxICVyMTUs
+JXJzcAorCXBvcHEgJXJzcAogCUNGSV9ERUZfQ0ZBX1JFR0lTVEVSCXJzcAogCWRlY2wgJWdzOnBk
+YV9pcnFjb3VudAotCXBvcHEgJXIxNQotCUNGSV9BREpVU1RfQ0ZBX09GRlNFVCAtOAogCXJldAog
+CUNGSV9FTkRQUk9DCg==
+
+--=__PartB99B9895.1__=--

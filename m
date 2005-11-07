@@ -1,139 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030193AbVKGXCU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbVKGXC1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030193AbVKGXCU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 18:02:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030190AbVKGXCU
+	id S1030190AbVKGXC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 18:02:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030183AbVKGXC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 18:02:20 -0500
-Received: from smtp2-g19.free.fr ([212.27.42.28]:3230 "EHLO smtp2-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1030183AbVKGXCT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 18:02:19 -0500
-Message-ID: <436FDD06.607@free.fr>
-Date: Tue, 08 Nov 2005 00:02:30 +0100
-From: matthieu castet <castet.matthieu@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: fr-fr, en, en-us
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-usb-devel@lists.sourceforge.net,
-       usbatm@lists.infradead.org,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]  Eagle and ADI 930 usb adsl modem driver
-References: <4363F9B5.6010907@free.fr> <20051101224510.GB28193@kroah.com> <43691E7E.5090902@free.fr> <20051107174621.GD17004@kroah.com> <436FD4C1.8020402@free.fr>
-In-Reply-To: <436FD4C1.8020402@free.fr>
-Content-Type: multipart/mixed;
- boundary="------------020307020400060600010400"
+	Mon, 7 Nov 2005 18:02:27 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:48955 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S1030190AbVKGXC0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 18:02:26 -0500
+Date: Tue, 8 Nov 2005 00:02:43 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       davej@redhat.com, thang@redhat.com, linux-kernel@vger.kernel.org,
+       Russell King <rmk+kernel@arm.linux.org.uk>
+Subject: Re: [PATCH] kbuild updates
+Message-ID: <20051107230243.GC10492@mars.ravnborg.org>
+References: <20051106101844.GA11921@mars.ravnborg.org> <Pine.LNX.4.61.0511061341290.12843@scrub.home> <20051106132111.GA9042@mars.ravnborg.org> <Pine.LNX.4.61.0511071102380.12843@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0511071102380.12843@scrub.home>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020307020400060600010400
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-matthieu castet wrote:
+On Mon, Nov 07, 2005 at 11:13:16AM +0100, Roman Zippel wrote:
 > Hi,
 > 
-> here the corrected version of ueagle-atm.
+> On Sun, 6 Nov 2005, Sam Ravnborg wrote:
 > 
-> The comments of Adrew Morton and Greg KH have been applied.
-> We also fix a bug in the check_dsp routine (reported on our mailling 
-> list) and kill some unsued code.
+> > On Sun, Nov 06, 2005 at 01:44:32PM +0100, Roman Zippel wrote:
+> > > 
+> > > What exactly is the problem? How does Fedora use QTLIB?
+> > 
+> > See:
+> >  https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=137926
 > 
+> I'm not really happy with this patch. I don't really like relying on 
+> QTLIB, it's a really ugly hack.
+
+I've forwarded your mail to Than Ngo (email was wrong in my origianl
+mail). As the original patch author I like him to comment/test.
+
+	Sam
+	
+> If the nonextisting ../lib64 dir is the problem, I'd more prefer a patch 
+> like this:
 > 
-> Signed-off-by: Matthieu CASTET <castet.matthieu@free.fr>
-> 
-Could you add this fix ?
+> Index: linux-2.6/scripts/kconfig/Makefile
+> ===================================================================
+> --- linux-2.6.orig/scripts/kconfig/Makefile	2005-11-06 00:27:29.000000000 +0100
+> +++ linux-2.6/scripts/kconfig/Makefile	2005-11-07 11:08:58.000000000 +0100
+> @@ -162,9 +164,10 @@ $(obj)/.tmp_qtcheck:
+>  	  echo "*"; \
+>  	  false; \
+>  	fi; \
+> -	LIBPATH=$$DIR/lib; LIB=qt; \
+> +	LIBPATH=$$DIR/lib; LIB=qt; osdir=""; \
+>  	$(HOSTCXX) -print-multi-os-directory > /dev/null 2>&1 && \
+> -	  LIBPATH=$$DIR/lib/$$($(HOSTCXX) -print-multi-os-directory); \
+> +	  osdir=$$($(HOSTCXX) -print-multi-os-directory); \
+Common practice is to use $(shell $(HOSTCXX) -print-multi-os-directory)
+It's more obvious what you achive.
 
-More care on loading firmware, take into account fw->size can't be zero.
-
-thanks
-
-Matthieu
-
-
-Signed-off-by: Matthieu CASTET <castet.matthieu@free.fr>
-
---------------020307020400060600010400
-Content-Type: text/x-patch;
- name="ueagle-atm-hotfix.patch"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline;
- filename="ueagle-atm-hotfix.patch"
-
---- linux-2.6.14/drivers/usb/atm/ueagle-atm.c	(révision 175)
-+++ linux-2.6.14b/drivers/usb/atm/ueagle-atm.c	(copie de travail)
-@@ -426,14 +426,14 @@
- 
- 	pfw = fw_entry->data;
- 	size = fw_entry->size;
-+	if (size < 4)
-+		goto err_fw_corrupted;
- 
- 	crc = FW_GET_LONG(pfw);
- 	pfw += 4;
- 	size -= 4;
--	if (crc32_be(0, pfw, size) != crc) {
--		uea_err(usb, "firmware is corrupted\n");
--		goto err;
--	}
-+	if (crc32_be(0, pfw, size) != crc)
-+		goto err_fw_corrupted;
- 
- 	/*
- 	 * Start to upload formware : send reset
-@@ -446,9 +446,14 @@
- 		goto err;
- 	}
- 
--	while (size > 0) {
-+	while (size > 3) {
- 		u8 len = FW_GET_BYTE(pfw);
- 		u16 add = FW_GET_WORD(pfw + 1);
-+
-+		size -= len + 3;
-+		if (size < 0)
-+			goto err_fw_corrupted;
-+
- 		ret = uea_send_modem_cmd(usb, add, len, pfw + 3);
- 		if (ret < 0) {
- 			uea_err(usb, "uploading firmware data failed "
-@@ -456,9 +461,11 @@
- 			goto err;
- 		}
- 		pfw += len + 3;
--		size -= len + 3;
- 	}
- 
-+	if (size != 0)
-+		goto err_fw_corrupted;
-+
- 	/*
- 	 * Tell the modem we finish : de-assert reset
- 	 */
-@@ -469,6 +476,11 @@
- 	else
- 		uea_info(usb, "firmware uploaded\n");
- 
-+	uea_leaves(usb);
-+	return;
-+
-+err_fw_corrupted:
-+	uea_err(usb, "firmware is corrupted\n");
- err:
- 	uea_leaves(usb);
- }
-@@ -522,10 +534,6 @@
- 	u32 pageoffset;
- 	unsigned int i, j, p, pp;
- 
--	/* enough space for pagecount? */
--	if (len < 1)
--		return 1;
--
- 	pagecount = FW_GET_BYTE(dsp);
- 	p = 1;
- 
-
---------------020307020400060600010400--
+	Sam

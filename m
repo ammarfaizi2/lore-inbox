@@ -1,82 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbVKGNLG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbVKGNc7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932472AbVKGNLG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 08:11:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbVKGNLG
+	id S964814AbVKGNc7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 08:32:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbVKGNc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 08:11:06 -0500
-Received: from [202.125.80.34] ([202.125.80.34]:9530 "EHLO mail.esn.co.in")
-	by vger.kernel.org with ESMTP id S932472AbVKGNLF convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 08:11:05 -0500
-Content-class: urn:content-classes:message
+	Mon, 7 Nov 2005 08:32:59 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:48473 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S932482AbVKGNc6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 08:32:58 -0500
+Message-ID: <436F5994.2070703@sw.ru>
+Date: Mon, 07 Nov 2005 16:41:40 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Subject: RE: Which version of 2.6.11 is most stable
-Date: Mon, 7 Nov 2005 18:38:51 +0530
-Message-ID: <3AEC1E10243A314391FE9C01CD65429B13B2BF@mail.esn.co.in>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Which version of 2.6.11 is most stable
-Thread-Index: AcXjkZhOrF7iOkE1S/Sc9lZvQ6nMswACUzwg
-From: "Mukund JB." <mukundjb@esntechnologies.co.in>
-To: "Adrian Bunk" <bunk@stusta.de>
-Cc: <linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       ext3-users@redhat.com, sct@redhat.com, den@sw.ru
+Subject: [PATCH] ext3: journal handling on error path in ext3_journalled_writepage()
+Content-Type: multipart/mixed;
+ boundary="------------050002030007030400050905"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------050002030007030400050905
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Dear Adrian,
+Forwarded original patch from Denis Lunev:
 
-Thanks for the information.
-Also Can you please give inputs regarding.....
+This patch fixes lost referrence on ext3 current handle in
+ext3_journalled_writepage()
 
-I have an existing Linux 2.6.11 BSP for an AMD GX processor.
-What would it take me to port the complete BSP to 2.6.12 kernel?
-Can I prefer to work on 2.6.11 kernel which makes me get the system up in no time without any changes made?
-I guess 2.6.11 kernel will work with just a recompilation over 2.6.11.12 kernel.
+Signed-Off-By: Denis Lunev <den@sw.ru>
 
-An inquisitive question about Linux kernels versioning ...
-How do 2.6.(x).1 and 2.6.(x).12 kernels vary?
+P.S. against 2.6.14
 
-Regards,
-Mukund Jampala
+--------------050002030007030400050905
+Content-Type: text/plain;
+ name="diff-ms-ext3handle-20051031"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff-ms-ext3handle-20051031"
+
+--- ./fs/ext3/inode.c.msext3	2005-10-23 23:36:27.000000000 +0400
++++ ./fs/ext3/inode.c	2005-10-31 17:03:34.000000000 +0300
+@@ -1375,8 +1375,11 @@ static int ext3_journalled_writepage(str
+ 		ClearPageChecked(page);
+ 		ret = block_prepare_write(page, 0, PAGE_CACHE_SIZE,
+ 					ext3_get_block);
+-		if (ret != 0)
+-			goto out_unlock;
++		if (ret != 0) {
++			ext3_journal_stop(handle);
++			unlock_page(page);
++			return ret;
++		}
+ 		ret = walk_page_buffers(handle, page_buffers(page), 0,
+ 			PAGE_CACHE_SIZE, NULL, do_journal_get_write_access);
+ 
+@@ -1402,7 +1405,6 @@ out:
+ 
+ no_write:
+ 	redirty_page_for_writepage(wbc, page);
+-out_unlock:
+ 	unlock_page(page);
+ 	goto out;
+ }
 
 
------Original Message-----
-From: Adrian Bunk [mailto:bunk@stusta.de]
-Sent: Monday, November 07, 2005 5:22 PM
-To: Mukund JB.
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Which version of 2.6.11 is most stable
 
-
-On Mon, Nov 07, 2005 at 03:38:13PM +0530, Mukund JB. wrote:
-> 
-> Dear All,
-> 
-> I am in the phase of development of a Linux BSP for 2.6.11 kernel.
-> Which version of 2.6.11 kernel can be called best stable? In general where do i get this king of info?
-> I serched in the www.lwn.net but i failed to get the required info.
-
-The latest, IOW 2.6.11.12 .
-
-But note that the 2.6.11 branch is no longer maintained since kernel 
-2.6.12 was released 5 months ago, and therefore lacks e.g. current 
-security fixes.
-
-> Regards,
-> Mukund Jampala
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--------------050002030007030400050905--
 

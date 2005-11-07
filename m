@@ -1,80 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965084AbVKGW6I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965232AbVKGW4o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965084AbVKGW6I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 17:58:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965009AbVKGW6I
+	id S965232AbVKGW4o (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 17:56:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965587AbVKGW4M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 17:58:08 -0500
-Received: from van-1-67.lab.dnainternet.fi ([62.78.96.67]:22460 "EHLO
-	mail.zmailer.org") by vger.kernel.org with ESMTP id S965084AbVKGW6G
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 17:58:06 -0500
-Date: Tue, 8 Nov 2005 00:57:55 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: linux-kernel@vger.kernel.org
-Subject: NVidia nForce4 + AMD Athlon64 X2 --> no access to north-bridge PCI resources
-Message-ID: <20051107225755.GE5706@mea-ext.zmailer.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Mon, 7 Nov 2005 17:56:12 -0500
+Received: from admingilde.org ([213.95.32.146]:46473 "EHLO mail.admingilde.org")
+	by vger.kernel.org with ESMTP id S965345AbVKGW4I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 17:56:08 -0500
+Message-Id: <20051107225605.308645000@admingilde.org>
+References: <20051107225408.911193000@admingilde.org>
+Date: Mon, 07 Nov 2005 23:54:11 +0100
+From: Martin Waitz <tali@admingilde.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch 2/4] DocBook: include printk documentation
+Content-Disposition: inline; filename=docbook-document-printk.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+DocBook: include printk documentation
 
-The _very_short_ view of  lspci  output on a problem machine:
+Add printk documentation to kernel-api.
 
-00:00.0 Memory controller: nVidia Corporation CK804 Memory Controller (rev a3)
-00:01.0 ISA bridge: nVidia Corporation CK804 ISA Bridge (rev a3)
-00:01.1 SMBus: nVidia Corporation CK804 SMBus (rev a2)
-00:02.0 USB Controller: nVidia Corporation CK804 USB Controller (rev a2)
-00:02.1 USB Controller: nVidia Corporation CK804 USB Controller (rev a3)
-00:04.0 Multimedia audio controller: nVidia Corporation CK804 AC'97 Audio Controller (rev a2)
-00:06.0 IDE interface: nVidia Corporation CK804 IDE (rev f2)
-00:09.0 PCI bridge: nVidia Corporation CK804 PCI Bridge (rev a2)
-00:0a.0 Bridge: nVidia Corporation CK804 Ethernet Controller (rev a3)
-00:0b.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
-00:0c.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
-00:0d.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
-00:0e.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
-01:00.0 VGA compatible controller: nVidia Corporation NV43 [GeForce 6600] (rev a2)
-05:06.0 FireWire (IEEE 1394): Texas Instruments TSB12LV23 IEEE-1394 Controller
-05:07.0 Multimedia video controller: Brooktree Corporation Bt848 Video Capture (rev 12)
-05:0a.0 RAID bus controller: Silicon Image, Inc. SiI 3114 [SATALink/SATARaid] Serial ATA Controller (rev 02)
-05:0c.0 Ethernet controller: Marvell Technology Group Ltd. 88E8001 Gigabit Ethernet Controller (rev 13)
+Signed-off-by: Martin Waitz <tali@admingilde.org>
 
-This problem machine is  ASUS A8N-SLI Premium 
-AMD CPU family/model/stepping: 15/35/2
+---
+ Documentation/DocBook/kernel-api.tmpl |    4 +---
+ kernel/printk.c                       |   16 ++++++++++++++--
+ 2 files changed, 15 insertions(+), 5 deletions(-)
 
-The question is:
+Index: linux-docbook/kernel/printk.c
+===================================================================
+--- linux-docbook.orig/kernel/printk.c	2005-05-22 22:15:21.000000000 +0200
++++ linux-docbook/kernel/printk.c	2005-05-31 09:58:56.000000000 +0200
+@@ -488,7 +488,10 @@ static int __init printk_time_setup(char
+ 
+ __setup("time", printk_time_setup);
+ 
+-/*
++/**
++ * printk - print a kernel message
++ * @fmt: format string
++ *
+  * This is printk.  It can be called from any context.  We want it to work.
+  * 
+  * We try to grab the console_sem.  If we succeed, it's easy - we log the output and
+@@ -500,6 +503,9 @@ __setup("time", printk_time_setup);
+  * One effect of this deferred printing is that code which calls printk() and
+  * then changes console_loglevel may break. This is because console_loglevel
+  * is inspected when the actual printing occurs.
++ *
++ * See also:
++ * printf(3)
+  */
+ 
+ asmlinkage int printk(const char *fmt, ...)
+@@ -636,6 +642,9 @@ static void call_console_drivers(unsigne
+ 
+ /**
+  * add_preferred_console - add a device to the list of preferred consoles.
++ * @name: device name
++ * @idx: device index
++ * @options: options for this console
+  *
+  * The last preferred console added will be used for kernel messages
+  * and stdin/out/err for init.  Normally this is used by console_setup
+@@ -745,7 +754,8 @@ void release_console_sem(void)
+ }
+ EXPORT_SYMBOL(release_console_sem);
+ 
+-/** console_conditional_schedule - yield the CPU if required
++/**
++ * console_conditional_schedule - yield the CPU if required
+  *
+  * If the console code is currently allowed to sleep, and
+  * if this CPU should yield the CPU to another task, do
+@@ -949,6 +959,8 @@ EXPORT_SYMBOL(unregister_console);
+ 
+ /**
+  * tty_write_message - write a message to a certain tty, not just the console.
++ * @tty: the destination tty_struct
++ * @msg: the message to write
+  *
+  * This is used for messages that need to be redirected to a specific tty.
+  * We don't put it into the syslog queue right now maybe in the future if
+Index: linux-docbook/Documentation/DocBook/kernel-api.tmpl
+===================================================================
+--- linux-docbook.orig/Documentation/DocBook/kernel-api.tmpl	2005-05-31 09:58:55.000000000 +0200
++++ linux-docbook/Documentation/DocBook/kernel-api.tmpl	2005-05-31 09:58:56.000000000 +0200
+@@ -68,9 +68,7 @@ X!Iinclude/linux/kobject.h
+ 
+      <sect1><title>Kernel utility functions</title>
+ !Iinclude/linux/kernel.h
+-<!-- This needs to clean up to make kernel-doc happy
+-X!Ekernel/printk.c
+- -->
++!Ekernel/printk.c
+ !Ekernel/panic.c
+ !Ekernel/sys.c
+ !Ekernel/rcupdate.c
 
-  Where are "host bridge" subsystem things in this new
-  ASUS board with NVidia nForce4 ?
-
-
-
-comparing to another machine:
-
-00:00.0 Host bridge: VIA Technologies, Inc. VT8385 [K8T800 AGP] Host Bridge (rev 01)
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8237 PCI bridge [K8T800/K8T890 South]
-00:0a.0 Ethernet controller: Marvell Technology Group Ltd. 88E8001 Gigabit Ethernet Controller (rev 13)
-00:0e.0 VGA compatible controller: S3 Inc. ViRGE/DX or /GX (rev 01)
-00:0f.0 RAID bus controller: VIA Technologies, Inc. VIA VT6420 SATA RAID Controller (rev 80)
-00:0f.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
-00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
-00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
-00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
-00:10.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
-00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86)
-00:11.0 ISA bridge: VIA Technologies, Inc. VT8237 ISA bridge [KT600/K8T800/K8T890 South]
-00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233/A/8235/8237 AC97 Audio Controller (rev 60)
-00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport Technology Configuration
-00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
-00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
-00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
-
-don't remember what this one is..  just one in server pool.
-(possibly ASUS A7V600 per PCI subsystem IDs.)
-AMD CPU family/model/stepping: 15/12/0
-
-
-/Matti Aarnio
+--
+Martin Waitz

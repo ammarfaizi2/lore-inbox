@@ -1,38 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932450AbVKGLfK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbVKGLjv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932450AbVKGLfK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 06:35:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbVKGLfJ
+	id S1751330AbVKGLjv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 06:39:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbVKGLjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 06:35:09 -0500
-Received: from attila.bofh.it ([213.92.8.2]:65489 "EHLO attila.bofh.it")
-	by vger.kernel.org with ESMTP id S932450AbVKGLfI (ORCPT
+	Mon, 7 Nov 2005 06:39:51 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:47297 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1751330AbVKGLju (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 06:35:08 -0500
-Date: Mon, 7 Nov 2005 12:33:29 +0100
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14, udev: unknown symbols for ehci_hcd
-Message-ID: <20051107113329.GA7632@wonderland.linux.it>
-References: <436CD1BC.8020102@t-online.de> <20051105162503.GC20686@kroah.com> <436D9BDE.3060404@t-online.de> <20051106215158.GB3603@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051106215158.GB3603@kroah.com>
-User-Agent: Mutt/1.5.11
-From: md@Linux.IT (Marco d'Itri)
+	Mon, 7 Nov 2005 06:39:50 -0500
+Subject: Re: [patch] cleanup spitz battery charging code
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Pavel Machek <pavel@suse.cz>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051106213054.GI29901@elf.ucw.cz>
+References: <20051106213054.GI29901@elf.ucw.cz>
+Content-Type: text/plain
+Date: Mon, 07 Nov 2005 11:39:44 +0000
+Message-Id: <1131363585.8375.57.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 06, Greg KH <greg@kroah.com> wrote:
+On Sun, 2005-11-06 at 22:30 +0100, Pavel Machek wrote:
+> This cleans up sharpsl charging code a bit, without really changing
+> anything. It will probably break compilation on corgi, but few "()"s
+> should fix that, and those macros are *really* evil.
+>
+> Please apply... rmk said he prefers sharp patches to go through you. I
+> hope it is okay with you.
+> 
+> Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-> This seems to be a Debian issue for some odd reason, I suggest filing a
-> bug against the udev package (or just tagging onto the existing bug for
-> this problem, I've seen it in there already...)
-The reason this is usually seen only on Debian systems is that I am the
-first one who shipped an udev package which runs many parallel modprobe
-commands, but this is a genuine kernel/modprobe bug.
+Thanks for this, its fine with me. I've been making changes like this to
+bring the driver up to standard for a long time and after a while you
+begin to loose site of what else needs doing.
 
--- 
-ciao,
-Marco
+The patch is queued in Russell's patch system. This can be applied once
+its fate has been determined.
+
+Richard
+

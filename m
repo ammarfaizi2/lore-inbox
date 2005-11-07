@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965076AbVKGVUK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965129AbVKGVTi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965076AbVKGVUK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 16:20:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965091AbVKGVTq
+	id S965129AbVKGVTi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 16:19:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965116AbVKGVTh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 16:19:46 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:12548 "HELO
+	Mon, 7 Nov 2005 16:19:37 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:16644 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965076AbVKGVTA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 16:19:00 -0500
-Date: Mon, 7 Nov 2005 22:18:59 +0100
+	id S965099AbVKGVTL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 16:19:11 -0500
+Date: Mon, 7 Nov 2005 22:19:10 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: chrisw@osdl.org, linux-security-module@wirex.com,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] security/: possible cleanups
-Message-ID: <20051107211859.GB3847@stusta.de>
+Cc: petero2@telia.com, linux-kernel@vger.kernel.org, packet-writing@suse.com,
+       ace@staticwave.ca
+Subject: [2.6 patch] drivers/block/pktcdvd.c: remove write-only variable in pkt_iosched_process_queue()
+Message-ID: <20051107211910.GF3847@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,68 +23,40 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- make needlessly global code static
-- #if 0 the following unused global function:
-  - keys/key.c: key_duplicate
+Found this on Coverty's linux bug database (http://linuxbugsdb.coverity.com).
 
+The function pkt_iosched_process_queue makes a call to bdev_get_queue and stores the result but never uses it, so
+it looks like it can be safely removed. 
+
+this patch was already ACK'ed by Peter Osterlund.
+
+
+
+From: Gabriel A. Devenyi <ace@staticwave.ca>
+
+Signed-off-by: Gabriel A. Devenyi <ace@staticwave.ca>
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
 This patch was already sent on:
-- 31 Oct 2005
+- 2 Nov 2005
 
- security/keys/internal.h |    1 -
- security/keys/key.c      |    4 +++-
- security/keys/keyring.c  |    2 +-
- 3 files changed, 4 insertions(+), 3 deletions(-)
-
---- linux-2.6.12-rc4-mm1-full/security/keys/internal.h.old	2005-05-15 17:11:19.000000000 +0200
-+++ linux-2.6.12-rc4-mm1-full/security/keys/internal.h	2005-05-15 17:11:23.000000000 +0200
-@@ -25,7 +25,6 @@
- #define kdebug(FMT, a...)	do {} while(0)
- #endif
- 
--extern struct key_type key_type_dead;
- extern struct key_type key_type_user;
- 
- /*****************************************************************************/
---- linux-2.6.12-rc4-mm1-full/security/keys/key.c.old	2005-05-15 17:09:56.000000000 +0200
-+++ linux-2.6.12-rc4-mm1-full/security/keys/key.c	2005-05-15 17:11:11.000000000 +0200
-@@ -35,7 +35,7 @@
- DECLARE_RWSEM(key_construction_sem);
- 
- /* any key who's type gets unegistered will be re-typed to this */
--struct key_type key_type_dead = {
-+static struct key_type key_type_dead = {
- 	.name		= "dead",
- };
- 
-@@ -860,6 +860,7 @@
-  * duplicate a key, potentially with a revised description
-  * - must be supported by the keytype (keyrings for instance can be duplicated)
+--- a/drivers/block/pktcdvd.c
++++ b/drivers/block/pktcdvd.c
+@@ -501,14 +501,11 @@ static void pkt_queue_bio(struct pktcdvd
   */
-+#if 0
- struct key *key_duplicate(struct key *source, const char *desc)
+ static void pkt_iosched_process_queue(struct pktcdvd_device *pd)
  {
- 	struct key *key;
-@@ -904,6 +905,7 @@
- 	goto out;
+-	request_queue_t *q;
  
- } /* end key_duplicate() */
-+#endif  /*  0  */
+ 	if (atomic_read(&pd->iosched.attention) == 0)
+ 		return;
+ 	atomic_set(&pd->iosched.attention, 0);
  
- /*****************************************************************************/
- /*
---- linux-2.6.12-rc4-mm1-full/security/keys/keyring.c.old	2005-05-15 17:12:43.000000000 +0200
-+++ linux-2.6.12-rc4-mm1-full/security/keys/keyring.c	2005-05-15 17:12:53.000000000 +0200
-@@ -69,7 +69,7 @@
-  * semaphore to serialise link/link calls to prevent two link calls in parallel
-  * introducing a cycle
-  */
--DECLARE_RWSEM(keyring_serialise_link_sem);
-+static DECLARE_RWSEM(keyring_serialise_link_sem);
- 
- /*****************************************************************************/
- /*
+-	q = bdev_get_queue(pd->bdev);
+-
+ 	for (;;) {
+ 		struct bio *bio;
+ 		int reads_queued, writes_queued;
+

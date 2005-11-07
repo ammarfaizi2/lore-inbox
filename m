@@ -1,49 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbVKGL44@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbVKGMAb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751343AbVKGL44 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 06:56:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbVKGL44
+	id S1751347AbVKGMAb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 07:00:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbVKGMAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 06:56:56 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:64748 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751343AbVKGL4z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 06:56:55 -0500
-Date: Mon, 7 Nov 2005 12:56:50 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] hfsplus: don't modify journaled volume
-In-Reply-To: <Pine.LNX.4.64.0511052155270.5813@hermes-1.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.61.0511071253510.12843@scrub.home>
-References: <Pine.LNX.4.61.0511031617090.12843@scrub.home>
- <20051104210213.1232a007.akpm@osdl.org> <Pine.LNX.4.64.0511051009090.13104@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.64.0511051333550.13104@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.61.0511052246480.12843@scrub.home>
- <Pine.LNX.4.64.0511052155270.5813@hermes-1.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 7 Nov 2005 07:00:31 -0500
+Received: from tirith.ics.muni.cz ([147.251.4.36]:21649 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1751347AbVKGMAb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 07:00:31 -0500
+From: "Jiri Slaby" <xslaby@fi.muni.cz>
+Date: Mon,  7 Nov 2005 13:00:13 +0100
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, dwmw2@infradead.org, linux-audit@redhat.com
+Subject: Re: 2.6.14-mm1
+In-reply-to: <20051106182447.5f571a46.akpm@osdl.org>
+Message-Id: <20051107120012.48D7C22AF77@anxur.fi.muni.cz>
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: xslaby@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrew Morton wrote:
+>Changes since 2.6.14-rc5-mm1:
+>
+[...]
+> git-audit.patch
+There are many errors produced by this patch. I don't have any security model
+enabled and in audit_ipc_context security_ipc_getsecurity returns -EOPNOTSUPP,
+that causes audit_panic("error in audit_ipc_context");
 
-On Sat, 5 Nov 2005, Anton Altaparmakov wrote:
+>char *audit_ipc_context(struct kern_ipc_perm *ipcp)
+>{
+>	struct audit_context *context = current->audit_context;
+>	char *ctx = NULL;
+>	int len = 0;
+>
+>	if (likely(!context))
+>		return NULL;
+>
+>	len = security_ipc_getsecurity(ipcp, NULL, 0);
+This fails here with -EOPNOTSUPP, and it goes to the error_path label. 
 
-> > Sorry, but I had too many reports about problems with journaled volumes, 
-> > so I prefer the safe solution, until we can at least replay the journal.
-> 
-> Yes but that would be because you leave an active journal and do changes 
-> behind its back without telling the OSX HFSPlus driver that you have done 
-> changes behind its back...  My suggestion was to tell the driver that you 
-> have done changes behind its back so it will be happy.
+>	if (len < 0)
+>		goto error_path;
+>
+>	ctx = kmalloc(len, GFP_ATOMIC);
+>	if (!ctx)
+>		goto error_path;
+>
+>	len = security_ipc_getsecurity(ipcp, ctx, len);
+>	if (len < 0)
+>		goto error_path;
+>
+>	return ctx;
+>
+>error_path:
+>	if (ctx)
+>		kfree(ctx);
+>	audit_panic("error in audit_ipc_context");
+>	return NULL;
+>}
+There should be something like if (len == -EOPNOTSUPP) goto ret, where ret
+should be right before return NULL. Or am I missing something? David, it's from
+your tree, do you have any comments, ideas?
 
-This may work, but I can't find this officially documented anywhere, this 
-is what the spec says: "Implementations accessing a journaled volume with 
-transactions must either refuse to access the volume, or replay the 
-journal to be sure the volume is consistent."
-So from my side this check stays, until we can at least replay the 
-journal.
-
-bye, Roman
+regards,
+--
+Jiri Slaby         www.fi.muni.cz/~xslaby
+\_.-^-._   jirislaby@gmail.com   _.-^-._/
+B67499670407CE62ACC8 22A032CC55C339D47A7E

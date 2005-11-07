@@ -1,53 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932457AbVKGNHV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbVKGNLG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932457AbVKGNHV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 08:07:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbVKGNHV
+	id S932472AbVKGNLG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 08:11:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbVKGNLG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 08:07:21 -0500
-Received: from mail2.sasken.com ([203.200.200.72]:61873 "EHLO mail2.sasken.com")
-	by vger.kernel.org with ESMTP id S932457AbVKGNHU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 08:07:20 -0500
-Date: Mon, 7 Nov 2005 18:37:04 +0530 (IST)
-From: Subbu <subbu@sasken.com>
-To: <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>
-cc: <subbu2k_av@yahoo.com>
-Subject: query regarding automatic ppp (Redhat 9.0)
-In-Reply-To: <Pine.GSO.4.30.0510191330120.20601-100000@sunm21.sasken.com>
-Message-ID: <Pine.GSO.4.30.0511071830030.23395-100000@sunm21.sasken.com>
+	Mon, 7 Nov 2005 08:11:06 -0500
+Received: from [202.125.80.34] ([202.125.80.34]:9530 "EHLO mail.esn.co.in")
+	by vger.kernel.org with ESMTP id S932472AbVKGNLF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 08:11:05 -0500
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN;
-	charset=US-ASCII
-X-imss-version: 2.032
-X-imss-result: Passed
-X-imss-scores: Clean:85.10375 C:2 M:3 S:5 R:5
-X-imss-settings: Baseline:3 C:3 M:3 S:3 R:3 (0.5000 0.5000)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Subject: RE: Which version of 2.6.11 is most stable
+Date: Mon, 7 Nov 2005 18:38:51 +0530
+Message-ID: <3AEC1E10243A314391FE9C01CD65429B13B2BF@mail.esn.co.in>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Which version of 2.6.11 is most stable
+Thread-Index: AcXjkZhOrF7iOkE1S/Sc9lZvQ6nMswACUzwg
+From: "Mukund JB." <mukundjb@esntechnologies.co.in>
+To: "Adrian Bunk" <bunk@stusta.de>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi,
+Dear Adrian,
 
- ifcfg-ppp0 will be created in /etc/sysconfig/network-scripts when u
-create new modem connection with system settings->network->add (redhat
-9.0) and vice-versa
+Thanks for the information.
+Also Can you please give inputs regarding.....
 
- without going to Network->add how can i create the new ppp connection
-and ifcfg-ppp0
+I have an existing Linux 2.6.11 BSP for an AMD GX processor.
+What would it take me to port the complete BSP to 2.6.12 kernel?
+Can I prefer to work on 2.6.11 kernel which makes me get the system up in no time without any changes made?
+I guess 2.6.11 kernel will work with just a recompilation over 2.6.11.12 kernel.
 
- i want to have a automatic ppp setup..?
+An inquisitive question about Linux kernels versioning ...
+How do 2.6.(x).1 and 2.6.(x).12 kernels vary?
 
-Please help me in this regards
-
-Regards
-Subbu
-
-
+Regards,
+Mukund Jampala
 
 
+-----Original Message-----
+From: Adrian Bunk [mailto:bunk@stusta.de]
+Sent: Monday, November 07, 2005 5:22 PM
+To: Mukund JB.
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Which version of 2.6.11 is most stable
 
-"SASKEN RATED THE BEST COMPANY TO WORK FOR IN INDIA - SURVEY 2005 conducted by the BUSINESS TODAY - Mercer - TNS India"
 
-                           SASKEN BUSINESS DISCLAIMER
-This message may contain confidential, proprietary or legally Privileged information. In case you are not the original intended Recipient of the message, you must not, directly or indirectly, use, Disclose, distribute, print, or copy any part of this message and you are requested to delete it and inform the sender. Any views expressed in this message are those of the individual sender unless otherwise stated. Nothing contained in this message shall be construed as an offer or acceptance of any offer by Sasken Communication Technologies Limited ("Sasken") unless sent with that express intent and with due authority of Sasken. Sasken has taken enough precautions to prevent the spread of viruses. However the company accepts no liability for any damage caused by any virus transmitted by this email
+On Mon, Nov 07, 2005 at 03:38:13PM +0530, Mukund JB. wrote:
+> 
+> Dear All,
+> 
+> I am in the phase of development of a Linux BSP for 2.6.11 kernel.
+> Which version of 2.6.11 kernel can be called best stable? In general where do i get this king of info?
+> I serched in the www.lwn.net but i failed to get the required info.
+
+The latest, IOW 2.6.11.12 .
+
+But note that the 2.6.11 branch is no longer maintained since kernel 
+2.6.12 was released 5 months ago, and therefore lacks e.g. current 
+security fixes.
+
+> Regards,
+> Mukund Jampala
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

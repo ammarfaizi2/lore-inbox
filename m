@@ -1,81 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965041AbVKGUgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965293AbVKGUjd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965041AbVKGUgN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 15:36:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965288AbVKGUgM
+	id S965293AbVKGUjd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 15:39:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965357AbVKGUjd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 15:36:12 -0500
-Received: from smtp3.brturbo.com.br ([200.199.201.164]:8589 "EHLO
-	smtp3.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S965102AbVKGUgK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 15:36:10 -0500
-Subject: Re: [Alsa-devel] Re: +
-	v4l-720-alsa-support-for-saa7134-that-should-work-fix.patch added to -mm
-	tree
-From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Takashi Iwai <tiwai@suse.de>, rlrevell@joe-job.com,
-       alsa-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       nshmyrev@yandex.ru, v4l@cerqueira.org
-In-Reply-To: <20051107114843.0a476d90.akpm@osdl.org>
-References: <200511060743.jA67hpZa018948@shell0.pdx.osdl.net>
-	 <20051106001249.48d3ade0.akpm@osdl.org> <1131301995.13599.5.camel@mindpipe>
-	 <1131344803.10094.8.camel@localhost> <1131377615.8383.9.camel@mindpipe>
-	 <s5h4q6opi5t.wl%tiwai@suse.de>  <20051107114843.0a476d90.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Mon, 07 Nov 2005 18:36:01 -0200
-Message-Id: <1131395761.6632.125.camel@localhost>
+	Mon, 7 Nov 2005 15:39:33 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:43398 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965293AbVKGUjd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 15:39:33 -0500
+Date: Mon, 7 Nov 2005 12:39:19 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Paul Mackerras <paulus@samba.org>
+Subject: Re: Panic on boot PPC64 / e1000 for 2.6.14-git10 & 2.6.14-mm1
+Message-Id: <20051107123919.3c226b80.akpm@osdl.org>
+In-Reply-To: <90760000.1131394594@flay>
+References: <90760000.1131394594@flay>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1-2mdk 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+"Martin J. Bligh" <mbligh@mbligh.org> wrote:
+>
+> Power 4 LPAR panics on boot. -git9 was fine.
+> 
+> Intel(R) PRO/1000 Network Driver - version 6.1.16-k2
+> Copyright (c) 1999-2005 Intel Corporation.
+> Oops: Kernel access of bad area, sig: 11 [#1]
+> SMP NR_CPUS=32 NUMA PSERIES LPAR 
+> Modules linked in:
+> NIP: C00000000002F4A4 LR: C00000000002F7C8 CTR: C00000000030FA08
+> REGS: c00000003ffcb0d0 TRAP: 0300   Not tainted  (2.6.14-git10-autokern1)
+> MSR: 8000000000001032 <ME,IR,DR>  CR: 48004088  XER: 20000000
+> DAR: C00000078002EEC8, DSISR: 0000000040010000
+> TASK = c00000077ffd07c0[1] 'swapper' THREAD: c00000003ffc8000 CPU: 1
+> GPR00: C00000000002F7C8 C00000003FFCB350 C0000000006518C0 00000000000001BC 
+> GPR04: 000000003FE48080 0000000000000300 C000000003DF4000 0000000000000300 
+> GPR08: C0000000006578A8 C00000077FFEF080 C000000000657928 000000000003FE48 
+> GPR12: C000000000650000 C000000000557800 0000000000000000 0000000000000000 
+> GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000 
+> GPR20: 0000000000230000 0000000003A10000 0000000000000060 0000000000000001 
+> GPR24: 0000000000000400 C00000003FFB5000 C000000003DF2830 C000000003DF2000 
+> GPR28: 0000000ADC7D4C2D 00000000000001BC 00007FC901000FB9 00007FC9010003B9 
+> NIP [C00000000002F4A4] .hash_page_do_lazy_icache+0x3c/0x108
+> LR [C00000000002F7C8] .__hash_page_4K+0x98/0xac
+> Call Trace:
+> [C00000003FFCB350] [C00000003FFCB540] 0xc00000003ffcb540 (unreliable)
+> [C00000003FFCB3E0] [C00000000002F7C8] .__hash_page_4K+0x98/0xac
+> [C00000003FFCB4E0] [C00000000002F444] .hash_page+0x158/0x17c
+> [C00000003FFCB560] [C000000000004734] .do_hash_page+0x34/0x40
+> --- Exception: 301 at .e1000_init_eeprom_params+0x40/0x314
+>     LR = .e1000_probe+0x550/0x9f0
+> [C00000003FFCB850] [C00000000028E078] .pci_bus_read_config_word+0x94/0xe0 (unreliable)
+> [C00000003FFCB900] [C0000000004FC9A4] .e1000_probe+0x550/0x9f0
+> [C00000003FFCB9D0] [C000000000291494] .pci_device_probe+0x11c/0x16c
+> [C00000003FFCBA70] [C0000000002DEE50] .driver_probe_device+0x80/0x160
+> [C00000003FFCBB00] [C0000000002DEFD8] .__driver_attach+0xa8/0xc4
+> [C00000003FFCBB90] [C0000000002DE50C] .bus_for_each_dev+0x7c/0xd0
+> [C00000003FFCBC40] [C0000000002DEC08] .driver_attach+0x28/0x40
+> [C00000003FFCBCC0] [C0000000002DDCAC] .bus_add_driver+0xd4/0x1ec
+> [C00000003FFCBD70] [C0000000002DF0D4] .driver_register+0x54/0x70
+> [C00000003FFCBE00] [C000000000291054] .pci_register_driver+0x80/0xc4
+> [C00000003FFCBE80] [C0000000004FC43C] .e1000_init_module+0x40/0x58
+> [C00000003FFCBF00] [C000000000009584] .init+0x1e8/0x44c
+> [C00000003FFCBF90] [C00000000000A358] .kernel_thread+0x4c/0x68
+> Instruction dump:
+> fb81ffe0 fba1ffe8 fbe1fff8 e902aef0 7c7d1b78 fbc1fff0 788ba302 f8010010 
+> f821ff71 60000000 60000000 e92a0000 <7c0958ae> 78001f24 7d28002a 38000038 
+>  <0>Kernel panic - not syncing: Attempted to kill init!
 
-Em Seg, 2005-11-07 às 11:48 -0800, Andrew Morton escreveu:
-> Takashi Iwai <tiwai@suse.de> wrote:
-> >
-> > > OK, a brief review:
-> >  > 
-> >  >  - Why couldn't you use ALSA's DMA API?
-> > 
-> >  This is OK, IMO.  Basically, it's up to the driver.
-> > 
-> > 
-> >  >  - The DMA must be stopped and started in the trigger callback, not the
-> >  > prepare callback.
-> >  > 
-> >  >  - If this device lacks a volume control alsa-lib can emulate it in
-> >  > software, just create a proper /usr/share/alsa/cards/your_card.conf
-> >  > file.
-> >  > 
-> >  >  - By ALSA convention the acceptable formats, sample rates, etc should
-> >  > be directly defined in the snd_pcm_hardware_t structure.
-> >  > 
-> >  >  - dev->oss needs to go.
-> > 
-> >  Agreed about the rest.
-> 
-> Thanks, guys.
-> 
-> Despite all that, I am inclined to merge this patch into 2.6.15.  Because
-> it's in the middle of a 192-patch series and we do need to get the v4l tree
-> synced up.
-> 
-> Mauro, if we do that, do you think the above points can be addressed
-> inside the next four weeks or so?
-	We are, in fact already working on these. We are about to send you a
-newer patch addressing most of the points that Takashi and Lee showed.
-	You may apply the patches. If they noticed some weird stuff at the
-newer patchset, we will have enough time for fix it.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-Cheers, 
-Mauro.
+I'm going to need help understanding that trace.  Was the crash in
+e1000_init_eeprom_params() or in hash_page_do_lazy_icache()?  The former, I
+think?
 
+git-netdev-all.patch touches e1000, but I don't see any substantial changes
+in there.

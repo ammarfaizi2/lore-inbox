@@ -1,127 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbVKGGFz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbVKGGHv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964790AbVKGGFz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 01:05:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbVKGGFz
+	id S964787AbVKGGHv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 01:07:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbVKGGHu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 01:05:55 -0500
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:64932 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S964790AbVKGGFy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 01:05:54 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=Riyly9dkOyss3VoTHP816+8brRFt/WZa9lbwUpLiFyILaHuJIuMcXTECpRT0VbYEZMvUpMrm7R8KL+8o/2dsBh9vgSPS5v2Z7SLVFxan+GGgCAkSUY+NsZT4wWfiPyqFOl09Z03tD1JwsS80MgEz1eM9ypBO3djmfHSo5BlZF1E=  ;
-Message-ID: <436EEF43.2050403@yahoo.com.au>
-Date: Mon, 07 Nov 2005 17:08:03 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Paul Jackson <pj@sgi.com>
-CC: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: Clean up of __alloc_pages
-References: <20051028183326.A28611@unix-os.sc.intel.com>	<20051106124944.0b2ccca1.pj@sgi.com>	<436EC2AF.4020202@yahoo.com.au>	<200511070442.58876.ak@suse.de> <20051106203717.58c3eed0.pj@sgi.com>
-In-Reply-To: <20051106203717.58c3eed0.pj@sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 7 Nov 2005 01:07:50 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:14825 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964787AbVKGGHu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 01:07:50 -0500
+Date: Sun, 6 Nov 2005 22:07:12 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Reuben Farrelly <reuben-lkml@reub.net>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: 2.6.14-mm1
+Message-Id: <20051106220712.1189608b.akpm@osdl.org>
+In-Reply-To: <436ED3C7.8090006@reub.net>
+References: <20051106182447.5f571a46.akpm@osdl.org>
+	<436ED3C7.8090006@reub.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson wrote:
-> Nick wrote:
+Reuben Farrelly <reuben-lkml@reub.net> wrote:
+>
+> Hi,
 > 
->>Anyway, I think the first problem is a showstopper. I'd look into
->>Hugh's SLAB_DESTROY_BY_RCU for this ...
+> On 7/11/2005 3:24 p.m., Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14/2.6.14-mm1/
+> > 
+> > - Added the 1394 development tree to the -mm lineup, as git-ieee1394.patch
+> > 
+> > - Re-added rmk's driver-model tree git-drvmodel.patch
+> > 
+> > - Added davem's sparc64 tree, as git-sparc64.patch
+> > 
+> > - v4l updates
+> > 
+> > - dvb updates
 > 
+> Ok a couple of things so far:
 > 
-> Andi wrote:
+> Firstly:
 > 
->>RCU could be used to avoid that. Just only free it in a RCU callback.
+> CC [M]  drivers/edac/edac_mc.o
+> drivers/edac/edac_mc.c: In function 'edac_mc_scrub_block':
+> drivers/edac/edac_mc.c:647: error: syntax error before 'asm'
+> drivers/edac/edac_mc.c:647: error: void value not ignored as it ought to be
+> drivers/edac/edac_mc.c:653: warning: passing argument 1 of 'page_zone' makes 
+> pointer from integer without a cast
+> drivers/edac/edac_mc.c:653: error: syntax error before 'do'
+> drivers/edac/edac_mc.c:653: error: '__dummy' undeclared (first use in this function)
+> drivers/edac/edac_mc.c:653: error: (Each undeclared identifier is reported only once
+> drivers/edac/edac_mc.c:653: error: for each function it appears in.)
+> drivers/edac/edac_mc.c: At top level:
+> drivers/edac/edac_mc.c:653: error: syntax error before 'while'
+> make[2]: *** [drivers/edac/edac_mc.o] Error 1
+> make[1]: *** [drivers/edac] Error 2
+> make: *** [drivers] Error 2
+
+OK, I'll fix that up.
+
+> And secondly:
 > 
+> WARNING: /lib/modules/2.6.14-mm1/kernel/drivers/block/ub.ko needs unknown symbol 
+> storage_usb_ids
+> WARNING: /lib/modules/2.6.14-mm1/kernel/drivers/block/ub.ko needs unknown symbol 
+> usb_usual_clear_present
+> WARNING: /lib/modules/2.6.14-mm1/kernel/drivers/block/ub.ko needs unknown symbol 
+> usb_usual_check_type
+> WARNING: /lib/modules/2.6.14-mm1/kernel/drivers/block/ub.ko needs unknown symbol 
+> usb_usual_set_present
+> WARNING: /lib/modules/2.6.14-mm1/kernel/drivers/usb/storage/usb-storage.ko needs 
+> unknown symbol storage_usb_ids
+> WARNING: /lib/modules/2.6.14-mm1/kernel/drivers/usb/storage/usb-storage.ko needs 
+> unknown symbol usb_usual_clear_present
+> WARNING: /lib/modules/2.6.14-mm1/kernel/drivers/usb/storage/usb-storage.ko needs 
+> unknown symbol usb_usual_check_type
+> WARNING: /lib/modules/2.6.14-mm1/kernel/drivers/usb/storage/usb-storage.ko needs 
+> unknown symbol usb_usual_set_present
 > 
+> It seems that libusual.ko is not being actually built as a module, despite being 
+> set to 'm' in .config.
 > 
-> ... looking at mm/slab.h and rcupdate.h for the first time ... 
+> Config is up at http://www.reub.net/kernel/
 > 
-
-Yeah, take a look at rmap.c as well, and some of the comments in
-changelogs if you need a better feel for it.
-
-Basically SLAB_DESTROY_BY_RCU will allow the entries to be freed
-back to the slab for reuse, but will not allow the slab caches to
-be freed back to the page allocator inside rcu readside.
-
-So your cpusets may be reused, but only as new cpusets. This should
-be no problem at all for you.
-
-> Would this mean that I had to put the cpuset structures on their own
-> slab cache, marked SLAB_DESTROY_BY_RCU?
-> 
-> And is the pair of operators:
->   task_lock(current), task_unlock(current)
-> really that much worse than the pair of operatots
->   rcu_read_lock, rcu_read_unlock
-> which apparently reduce to:
->   preempt_disable, preempt_enable
-> 
-
-You may also have to be careful about memory ordering when setting
-a pointer which may be concurrently dereferenced by another CPU so
-that stale data doesn't get picked up.
-
-The set side needs an rcu_assign_pointer, and the dereference side
-needs rcu_dereference. Unless you either don't care about races, or
-already have the correct barriers in place. But it is better to be
-safe.
-
-> Would this work something like the following?  Say task A, on processor
-> AP, is trying to dereference its cpuset pointer, while task B, on
-> processor BP, is trying hard to destroy that cpuset. Then if task A
-> wraps its reference in <rcu_read_lock, rcu_read_unlock>, this will keep
-> the RCU freeing of that memory from completing, until interrupts on AP
-> are re-enabled.
-> 
-
-Sounds like it should work.
-
-> For that matter, if I just put cpuset structs in their own slab
-> cache, would that be sufficient.
-> 
-
-No, because the slab caches can get freed back into the general
-page allocator at any time.
-
->   Nick - Does use-after-free debugging even catch use of objects
-> 	 returned to their slab cache?
-> 
-
-Yes (slab debugging catches write-after-free at least, I believe),
-however there are exceptions made for RCU freed slab caches. That
-is: it is acceptable to access a freed RCU slab object, especially
-if you only read it (writes need to be more careful, but they're
-possible in some situations).
-
-> What about the other suggestions, Andi:
->  1) subset zonelists (which you asked to reconsider)
->  2) a kernel flag "cpusets_have_been_used" flag to short circuit
->     cpuset logic on systems not using cpusets.
+> Box is an i386/P4/Intel925 running recent Fedora Rawhide.
 > 
 
-Not too sure at present. I think #1 might be a good idea though
-it would be a bigger change. #2 again might be a good hack for
-the time being, although it would be nice to try to get the same
-performance from the normal cpuset fastpath.
+Yup, gregkh-usb-usb-libusual.patch would appear to be the culprit here
 
-My RCU suggestion was mainly an idea to get around your immediate
-problem with a lockless fastpath, rather than advocating it over
-any of the alternatives.
-
-Thanks,
-Nick
-
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 

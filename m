@@ -1,52 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932460AbVKGIyp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932461AbVKGI5h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932460AbVKGIyp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 03:54:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbVKGIyp
+	id S932461AbVKGI5h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 03:57:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbVKGI5h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 03:54:45 -0500
-Received: from xproxy.gmail.com ([66.249.82.207]:28203 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932460AbVKGIyo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 03:54:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PkDCpHFw4BYluU8CeB4SFXf8De8AeOwF40cbnR4NW5cHu9pR49GHPDBrKXNDqv5PdIYjjWixZSt64T0suAbcliNTl++haOlRFnjJAWtpuv+qB8pKff3JQAKCN74NHMtwb5F5WyuhpFGD0WZqdzIyf3KQpeRejPk5eyUC6rcePVo=
-Message-ID: <1e62d1370511070054i113cd387y187a14a526d19eb7@mail.gmail.com>
-Date: Mon, 7 Nov 2005 13:54:43 +0500
-From: Fawad Lateef <fawadlateef@gmail.com>
-To: ext3crypt <ext3crypt@comcast.net>
-Subject: Re: Am I thinking correctly?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <PFEILFFLMPNHAOBNBGPJGEHDCHAA.ext3crypt@comcast.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <PFEILFFLMPNHAOBNBGPJGEHDCHAA.ext3crypt@comcast.net>
+	Mon, 7 Nov 2005 03:57:37 -0500
+Received: from mtaout3.012.net.il ([84.95.2.7]:62592 "EHLO mtaout3.012.net.il")
+	by vger.kernel.org with ESMTP id S932462AbVKGI5g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 03:57:36 -0500
+Date: Mon, 07 Nov 2005 10:57:17 +0200
+From: Muli Ben-Yehuda <mulix@mulix.org>
+Subject: Re: [PATCH] x86-64: dma_ops for DMA mapping - K3
+In-reply-to: <200511061818.45878.ak@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Ravikiran G Thirumalai <kiran@scalex86.org>,
+       "Shai Fultheim (Shai@ScaleMP.com)" <shai@scalemp.com>, niv@us.ibm.com,
+       Jon Mason <jdmason@us.ibm.com>, Jimi Xenidis <jimix@watson.ibm.com>,
+       Muli Ben-Yehuda <MULI@il.ibm.com>
+Message-id: <20051107085717.GA32330@granada.merseine.nu>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+References: <20051106131112.GE24739@granada.merseine.nu>
+ <200511061745.54266.ak@suse.de> <20051106170649.GI3423@mea-ext.zmailer.org>
+ <200511061818.45878.ak@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/7/05, ext3crypt <ext3crypt@comcast.net> wrote:
-> I'm working on a masters project for PSU.  It requires that I modify the
-> ext3 and fs code in the kernel proper.
->
-> The idea is to encrypt data just prior to it being written to disk.  I've
-> created a new version of __block_write_full_page (which is called from
-> writepage) to allocate a new (GFP_NOFS) page, setup the buffer_head list and
-> copy the data to the new page (and encrypt it too).  When I do this, the
-> data is not written to disk from the new buffer_head that I submit using
-> submit_bh().  I've treked through this code and I'm convinced I'm down the
-> right path.  Am I?  Any assistance would be appreciated.
->
+On Sun, Nov 06, 2005 at 06:18:44PM +0100, Andi Kleen wrote:
+> On Sunday 06 November 2005 18:06, Matti Aarnio wrote:
+> 
+> >
+> > git7 blows up like git2, git9 plain was not tested at all.
+> > I am applying the debug patch and compiling right now for a test.
+> 
+> Please just test plain git9 and post full boot log if it fails.
 
-Which kernel version you are using ?
-Using kernel Encryption API ?
-How you got to know that your data is not written to disk ? Getting
-any error message ? or some-thing else ?
-And a url or attachment of code will help others to get to your problem !
+On git2 and git7 (and probably also git9) we die on Matti's machine
+because we fall back to gart with no_iommu set when we find we don't
+have an IOMMU in init_k8gatt(). That causes to a panic when we try to
+DMA above 4GB due to the USB controller being only 32-bit-DMA
+capable.
 
+I think that the right thing to do at that point is fall back to
+swiotlb[0]. Now, We could theoretically switch to swiotlb in
+pci_iommu_init() when init_k8_gatt() fails, but at that point it's too
+late to call swiotlb_init() (it causes a crash in the bootmem
+allocator in my tests). That leaves the following options:
 
---
-Fawad Lateef
+- realize earlier, when we can still call the standard swiotlb_init()
+that we are going to need it (is this possible?)
+
+- switch to having our own swiotlb_init() which relies on either
+GPF_DMA32 or allocating the swiotlb scratch space statically in
+vmlinux (thanks Arjan), and use it when init_k8_gatt() fails.
+
+- call swiotb_init() unconditionally in mem_init(), and free it later
+if we don't need it.
+
+Thoughts?
+
+As a side note, none of this is related to my dma_ops patch - we die
+on Matti's machine the same way with and without it and we can fix it
+roughly the same way with and without it. I do think the dma_ops patch
+makes the potential fixes cleaner, though.
+
+[0] Matti machine dies at the moment even with swiotlb=soft. I think
+that's a seperate, orthogonal bug.
+
+Cheers,
+Muli
+-- 
+Muli Ben-Yehuda
+http://www.mulix.org | http://mulix.livejournal.com/
+

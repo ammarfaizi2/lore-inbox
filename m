@@ -1,57 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbVKGVCn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964896AbVKGVDs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932288AbVKGVCn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 16:02:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbVKGVCn
+	id S964896AbVKGVDs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 16:03:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964909AbVKGVDr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 16:02:43 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:39564 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932288AbVKGVCm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 16:02:42 -0500
-Date: Mon, 7 Nov 2005 15:02:39 -0600
-From: David Teigland <teigland@redhat.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 1/4] dlm: configfs lock
-Message-ID: <20051107210239.GA4287@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 7 Nov 2005 16:03:47 -0500
+Received: from mirage.confident-solutions.de ([80.190.233.175]:15531 "EHLO
+	mirage.confident-solutions.de") by vger.kernel.org with ESMTP
+	id S932373AbVKGVDQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 16:03:16 -0500
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] SMBus for Toshiba M40, kernel 2.6.14
+From: webmaster@toshsoft.de
+X-Priority: 3
+Importance: Normal
+X-MSMail-Priority: Normal
+X-MimeOLE: Produced by Confixx WebMail
+X-Mailer: Confixx WebMail (like SquirrelMail)
+Cc: alan@lxorguk.ukuu.org.uk
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary=DC51DE27935F320A96E00D3AB30AD89C
+Message-Id: <20051107210315.524F013F68D@mirage.confident-solutions.de>
+Date: Mon,  7 Nov 2005 22:03:15 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Need to hold the subsys semaphore while accessing the children list.
+This is a multi-part message in MIME format  --  Dies ist eine mehrteilige Nachricht im MIME-Format
+--DC51DE27935F320A96E00D3AB30AD89C
+Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 
-Signed-off-by: David Teigland <teigland@redhat.com>
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-----
+This Patch patches quirks.c to be able to show hidden SMBus devices
+for Notebooks with the ICH6 Chipset. Only Notebook i could integrate
+and test so far is the Toshiba M40/M45 It applies to
+vanilla-sources-2.6.14
+Could you please send me a Mail if it was helpful and will be
+integrated?
 
-diff -ur a/drivers/dlm/config.c b/drivers/dlm/config.c
---- a/drivers/dlm/config.c	2005-08-22 14:48:26.450499104 +0800
-+++ b/drivers/dlm/config.c	2005-08-22 14:49:36.767809248 +0800
-@@ -627,12 +627,14 @@
- static struct comm *get_comm(int nodeid, struct sockaddr_storage *addr)
- {
- 	struct config_item *i;
--	struct comm *cm;
-+	struct comm *cm = NULL;
- 	int found = 0;
- 
- 	if (!comm_list)
- 		return NULL;
- 
-+	down(&clusters_root.subsys.su_sem);
-+
- 	list_for_each_entry(i, &comm_list->cg_children, ci_entry) {
- 		cm = to_comm(i);
- 
-@@ -649,6 +651,7 @@
- 			break;
- 		}
- 	}
-+	up(&clusters_root.subsys.su_sem);
- 
- 	if (found)
- 		config_item_get(i);
+Thanks and have Fun
+
+Oliver
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFDb8BpTvJ2Ft8Rz5cRAg4hAKCUzZ3iPjTk6zkuPWkzwUTmYrw1vgCgl8Dx
+PhuCVvhN/X5MI0gdN2XJyFA=
+=ieav
+-----END PGP SIGNATURE-----
+
+README:
+
+
+--DC51DE27935F320A96E00D3AB30AD89C
+Content-Type: application/octet-stream; name="toshiba_m40.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="toshiba_m40.patch"
+
+LS0tIC91c3Ivc3JjL2xpbnV4LTIuNi4xNC9kcml2ZXJzL3BjaS9xdWlya3MuYwkyMDA1LTEwLTMw
+IDE5OjQ3OjExLjAwMDAwMDAwMCArMDEwMAorKysgL3Vzci9zcmMvbGludXgvZHJpdmVycy9wY2kv
+cXVpcmtzLmMJMjAwNS0xMS0wNyAxNzozOTozOC4wMDAwMDAwMDAgKzAxMDAKQEAgLTk0NSw2ICs5
+NDUsMTEgQEAKIAkJCWNhc2UgMHgwMDAxOiAvKiBUb3NoaWJhIFRlY3JhIE0yICovCiAJCQkJYXN1
+c19oaWRlc19zbWJ1cyA9IDE7CiAJCQl9CisJCWlmIChkZXYtPmRldmljZSA9PSBQQ0lfREVWSUNF
+X0lEX0lOVEVMXzgyOTE1R01fSEIpCisJCQlzd2l0Y2goZGV2LT5zdWJzeXN0ZW1fZGV2aWNlKSB7
+CisJCQljYXNlIDB4RkYxMDogLyogVG9zaGliYSBTYXRlbGxpdGUgTTQwICovCisJCQkJYXN1c19o
+aWRlc19zbWJ1cyA9IDE7CisJCQl9CiAgICAgICAgfSBlbHNlIGlmICh1bmxpa2VseShkZXYtPnN1
+YnN5c3RlbV92ZW5kb3IgPT0gUENJX1ZFTkRPUl9JRF9TQU1TVU5HKSkgewogICAgICAgICAgICAg
+ICAgaWYgKGRldi0+ZGV2aWNlID09ICBQQ0lfREVWSUNFX0lEX0lOVEVMXzgyODU1UE1fSEIpCiAg
+ICAgICAgICAgICAgICAgICAgICAgIHN3aXRjaChkZXYtPnN1YnN5c3RlbV9kZXZpY2UpIHsKQEAg
+LTk2Niw2ICs5NzEsNyBAQAogREVDTEFSRV9QQ0lfRklYVVBfSEVBREVSKFBDSV9WRU5ET1JfSURf
+SU5URUwsCVBDSV9ERVZJQ0VfSURfSU5URUxfNzIwNV8wLAlhc3VzX2hpZGVzX3NtYnVzX2hvc3Ri
+cmlkZ2UgKTsKIERFQ0xBUkVfUENJX0ZJWFVQX0hFQURFUihQQ0lfVkVORE9SX0lEX0lOVEVMLAlQ
+Q0lfREVWSUNFX0lEX0lOVEVMXzgyODU1UE1fSEIsCWFzdXNfaGlkZXNfc21idXNfaG9zdGJyaWRn
+ZSApOwogREVDTEFSRV9QQ0lfRklYVVBfSEVBREVSKFBDSV9WRU5ET1JfSURfSU5URUwsCVBDSV9E
+RVZJQ0VfSURfSU5URUxfODI4NTVHTV9IQiwJYXN1c19oaWRlc19zbWJ1c19ob3N0YnJpZGdlICk7
+CitERUNMQVJFX1BDSV9GSVhVUF9IRUFERVIoUENJX1ZFTkRPUl9JRF9JTlRFTCwJUENJX0RFVklD
+RV9JRF9JTlRFTF84MjkxNUdNX0hCLAlhc3VzX2hpZGVzX3NtYnVzX2hvc3RicmlkZ2UgKTsKIAog
+c3RhdGljIHZvaWQgX19pbml0IGFzdXNfaGlkZXNfc21idXNfbHBjKHN0cnVjdCBwY2lfZGV2ICpk
+ZXYpCiB7CkBAIC05ODQsMTIgKzk5MCwzMyBAQAogCQkJcHJpbnRrKEtFUk5fSU5GTyAiUENJOiBF
+bmFibGVkIGk4MDEgU01CdXMgZGV2aWNlXG4iKTsKIAl9CiB9CisKK3N0YXRpYyB2b2lkIF9faW5p
+dCBhc3VzX2hpZGVzX3NtYnVzX2ljaDYoc3RydWN0IHBjaV9kZXYgKmRldikKK3sKKwl1MzIgdmFs
+LCByY2JhOworCXZvaWQgX19pb21lbSAqYmFzZTsKKwkKKwlpZiAobGlrZWx5KCFhc3VzX2hpZGVz
+X3NtYnVzKSkKKwkJcmV0dXJuOworCisJcGNpX3JlYWRfY29uZmlnX2R3b3JkKGRldiwgMHhGMCwg
+JnJjYmEpOworCWJhc2UgPSBpb3JlbWFwX25vY2FjaGUocmNiYSAmIDB4RkZGRkMwMDAsIDB4NDAw
+MCk7CisJaWYgKGJhc2UgPT0gTlVMTCkKKwkJcmV0dXJuOworCXZhbCA9IHJlYWRsKGJhc2UgKyAw
+eDM0MTgpOworCXdyaXRlbCh2YWwgJiAweEZGRkZGRkY3LCBiYXNlICsgMHgzNDE4KTsKKwlpb3Vu
+bWFwKGJhc2UpOworCXByaW50ayhLRVJOX0lORk8gIlBDSTogRW5hYmxlZCBJQ0g2IFNNQnVzIGRl
+dmljZVxuIik7Cit9CisKIERFQ0xBUkVfUENJX0ZJWFVQX0hFQURFUihQQ0lfVkVORE9SX0lEX0lO
+VEVMLAlQQ0lfREVWSUNFX0lEX0lOVEVMXzgyODAxREJfMCwJYXN1c19oaWRlc19zbWJ1c19scGMg
+KTsKIERFQ0xBUkVfUENJX0ZJWFVQX0hFQURFUihQQ0lfVkVORE9SX0lEX0lOVEVMLAlQQ0lfREVW
+SUNFX0lEX0lOVEVMXzgyODAxQkFfMCwJYXN1c19oaWRlc19zbWJ1c19scGMgKTsKIERFQ0xBUkVf
+UENJX0ZJWFVQX0hFQURFUihQQ0lfVkVORE9SX0lEX0lOVEVMLAlQQ0lfREVWSUNFX0lEX0lOVEVM
+XzgyODAxQ0FfMTIsCWFzdXNfaGlkZXNfc21idXNfbHBjICk7CiBERUNMQVJFX1BDSV9GSVhVUF9I
+RUFERVIoUENJX1ZFTkRPUl9JRF9JTlRFTCwJUENJX0RFVklDRV9JRF9JTlRFTF84MjgwMURCXzEy
+LAlhc3VzX2hpZGVzX3NtYnVzX2xwYyApOwogREVDTEFSRV9QQ0lfRklYVVBfSEVBREVSKFBDSV9W
+RU5ET1JfSURfSU5URUwsCVBDSV9ERVZJQ0VfSURfSU5URUxfODI4MDFFQl8wLAlhc3VzX2hpZGVz
+X3NtYnVzX2xwYyApOwogCitERUNMQVJFX1BDSV9GSVhVUF9IRUFERVIoUENJX1ZFTkRPUl9JRF9J
+TlRFTCwJUENJX0RFVklDRV9JRF9JTlRFTF9JQ0g2XzEsCWFzdXNfaGlkZXNfc21idXNfaWNoNiAp
+OworCiAvKgogICogU2lTIDk2eCBzb3V0aCBicmlkZ2U6IEJJT1MgdHlwaWNhbGx5IGhpZGVzIFNN
+QnVzIGRldmljZS4uLgogICovCg==
+
+--DC51DE27935F320A96E00D3AB30AD89C--
+
+

@@ -1,44 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbVKGHxS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751297AbVKGH7K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932454AbVKGHxS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 02:53:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbVKGHxS
+	id S1751297AbVKGH7K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 02:59:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbVKGH7J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 02:53:18 -0500
-Received: from ozlabs.org ([203.10.76.45]:18661 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932454AbVKGHxS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 02:53:18 -0500
-Date: Mon, 7 Nov 2005 18:51:28 +1100
-From: Anton Blanchard <anton@samba.org>
-To: akpm@osdl.org
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: [PATCH] quieten softlockup at boot
-Message-ID: <20051107075128.GM12353@krispykreme>
+	Mon, 7 Nov 2005 02:59:09 -0500
+Received: from mailserv.intranet.GR ([146.124.14.106]:32995 "EHLO
+	mailserv.intranet.gr") by vger.kernel.org with ESMTP
+	id S1751297AbVKGH7I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 02:59:08 -0500
+Message-ID: <436F07F5.1030206@intracom.gr>
+Date: Mon, 07 Nov 2005 09:53:25 +0200
+From: Pantelis Antoniou <panto@intracom.gr>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051101)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+To: "John W. Linville" <linville@tuxdriver.com>
+CC: linuxppc-embedded@ozlabs.org, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.6.14] fec_8xx: make CONFIG_FEC_8XX depend on CONFIG_8xx
+References: <20051106025701.GA9698@tuxdriver.com>
+In-Reply-To: <20051106025701.GA9698@tuxdriver.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+John W. Linville wrote:
+> Make CONFIG_FEC_8XX depend on CONFIG_8xx.  This keeps allmodconfig from
+> breaking on non-8xx (PPC) platforms.
+> 
+> Signed-off-by: John W. Linville <linville@tuxdriver.com>
+> ---
+> 
+>  drivers/net/fec_8xx/Kconfig |    2 +-
+>  1 files changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/net/fec_8xx/Kconfig b/drivers/net/fec_8xx/Kconfig
+> index 4560026..a84c232 100644
+> --- a/drivers/net/fec_8xx/Kconfig
+> +++ b/drivers/net/fec_8xx/Kconfig
+> @@ -1,6 +1,6 @@
+>  config FEC_8XX
+>  	tristate "Motorola 8xx FEC driver"
+> -	depends on NET_ETHERNET
+> +	depends on NET_ETHERNET && 8xx
+>  	select MII
+>  
+>  config FEC_8XX_GENERIC_PHY
 
-On a large SMP box we get a lot of softlockup thread XX started lines.
-Any objections if we remove them?
+Yes, this is the correct approach. Please disregard the other
+patches floating about.
 
-Signed-off-by: Anton Blanchard <anton@samba.org>
----
+Regards
 
-Index: build/kernel/softlockup.c
-===================================================================
---- build.orig/kernel/softlockup.c	2005-09-15 17:33:50.000000000 +1000
-+++ build/kernel/softlockup.c	2005-10-06 21:52:14.000000000 +1000
-@@ -75,8 +75,6 @@
- 	struct sched_param param = { .sched_priority = 99 };
- 	int this_cpu = (long) __bind_cpu;
- 
--	printk("softlockup thread %d started up.\n", this_cpu);
--
- 	sched_setscheduler(current, SCHED_FIFO, &param);
- 	current->flags |= PF_NOFREEZE;
- 
+Pantelis
+

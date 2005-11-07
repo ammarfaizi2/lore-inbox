@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbVKGVDG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbVKGVDI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932360AbVKGVDG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 16:03:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964898AbVKGVCo
+	id S964898AbVKGVDI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 16:03:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbVKGVDH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 16:02:44 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:46732 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932360AbVKGVCm (ORCPT
+	Mon, 7 Nov 2005 16:03:07 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:50316 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932349AbVKGVCs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 16:02:42 -0500
-Date: Mon, 7 Nov 2005 15:02:49 -0600
+	Mon, 7 Nov 2005 16:02:48 -0500
+Date: Mon, 7 Nov 2005 15:02:54 -0600
 From: David Teigland <teigland@redhat.com>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 3/4] dlm: cleanup unused functions
-Message-ID: <20051107210249.GC4287@redhat.com>
+Subject: [PATCH 4/4] dlm: include own headers
+Message-ID: <20051107210254.GD4287@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,178 +22,99 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove some unused functions and make others static.
+Every file should #include the headers containing the prototypes for it's
+global functions.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 Signed-off-by: David Teigland <teigland@redhat.com>
 
 ----
 
-diff -urN a/drivers/dlm/device.c b/drivers/dlm/device.c
---- a/drivers/dlm/device.c	2005-11-07 14:35:14.622152250 -0600
-+++ b/drivers/dlm/device.c	2005-11-07 14:35:23.202841071 -0600
-@@ -39,7 +39,6 @@
- #include <linux/dlm_device.h>
+diff -urN a/drivers/dlm/ast.c b/drivers/dlm/ast.c
+--- a/drivers/dlm/ast.c	2005-11-07 14:09:35.000000000 -0600
++++ b/drivers/dlm/ast.c	2005-11-07 14:43:59.687919147 -0600
+@@ -13,6 +13,7 @@
  
- #include "lvb_table.h"
--#include "device.h"
+ #include "dlm_internal.h"
+ #include "lock.h"
++#include "ast.h"
  
- static struct file_operations _dlm_fops;
- static const char *name_prefix="dlm";
-@@ -1032,26 +1031,6 @@
- 		return status;
- }
+ #define WAKE_ASTS  0
  
--/* Called when the cluster is shutdown uncleanly, all lockspaces
--   have been summarily removed */
--void dlm_device_free_devices()
--{
--	struct user_ls *tmp;
--	struct user_ls *lsinfo;
--
--	down(&user_ls_lock);
--	list_for_each_entry_safe(lsinfo, tmp, &user_ls_list, ls_list) {
--		misc_deregister(&lsinfo->ls_miscinfo);
--
--		/* Tidy up, but don't delete the lsinfo struct until
--		   all the users have closed their devices */
--		list_del(&lsinfo->ls_list);
--		set_bit(LS_FLAG_DELETED, &lsinfo->ls_flags);
--		lsinfo->ls_lockspace = NULL;
--	}
--	up(&user_ls_lock);
--}
--
- static struct file_operations _dlm_fops = {
-       .open    = dlm_open,
-       .release = dlm_close,
-@@ -1071,7 +1050,7 @@
+diff -urN a/drivers/dlm/dir.c b/drivers/dlm/dir.c
+--- a/drivers/dlm/dir.c	2005-11-07 14:09:35.000000000 -0600
++++ b/drivers/dlm/dir.c	2005-11-07 14:43:59.688918994 -0600
+@@ -21,6 +21,7 @@
+ #include "recover.h"
+ #include "util.h"
+ #include "lock.h"
++#include "dir.h"
+ 
+ 
+ static void put_free_de(struct dlm_ls *ls, struct dlm_direntry *de)
+diff -urN a/drivers/dlm/memory.c b/drivers/dlm/memory.c
+--- a/drivers/dlm/memory.c	2005-11-07 14:09:35.000000000 -0600
++++ b/drivers/dlm/memory.c	2005-11-07 14:43:59.688918994 -0600
+@@ -13,6 +13,7 @@
+ 
+ #include "dlm_internal.h"
+ #include "config.h"
++#include "memory.h"
+ 
+ static kmem_cache_t *lkb_cache;
+ 
+diff -urN a/drivers/dlm/midcomms.c b/drivers/dlm/midcomms.c
+--- a/drivers/dlm/midcomms.c	2005-11-07 14:09:35.000000000 -0600
++++ b/drivers/dlm/midcomms.c	2005-11-07 14:43:59.689918841 -0600
+@@ -29,6 +29,7 @@
+ #include "config.h"
+ #include "rcom.h"
+ #include "lock.h"
++#include "midcomms.h"
+ 
+ 
+ static void copy_from_cb(void *dst, const void *base, unsigned offset,
+diff -urN a/drivers/dlm/recover.c b/drivers/dlm/recover.c
+--- a/drivers/dlm/recover.c	2005-11-07 14:09:35.000000000 -0600
++++ b/drivers/dlm/recover.c	2005-11-07 14:43:59.689918841 -0600
+@@ -21,6 +21,7 @@
+ #include "lock.h"
+ #include "lowcomms.h"
+ #include "member.h"
++#include "recover.h"
+ 
+ 
  /*
-  * Create control device
-  */
--int __init dlm_device_init(void)
-+static int __init dlm_device_init(void)
+diff -urN a/drivers/dlm/recoverd.c b/drivers/dlm/recoverd.c
+--- a/drivers/dlm/recoverd.c	2005-11-07 14:09:35.000000000 -0600
++++ b/drivers/dlm/recoverd.c	2005-11-07 14:43:59.690918689 -0600
+@@ -20,6 +20,7 @@
+ #include "lowcomms.h"
+ #include "lock.h"
+ #include "requestqueue.h"
++#include "recoverd.h"
+ 
+ 
+ /* If the start for which we're re-enabling locking (seq) has been superseded
+diff -urN a/drivers/dlm/requestqueue.c b/drivers/dlm/requestqueue.c
+--- a/drivers/dlm/requestqueue.c	2005-11-07 14:09:35.000000000 -0600
++++ b/drivers/dlm/requestqueue.c	2005-11-07 14:43:59.691918536 -0600
+@@ -15,6 +15,7 @@
+ #include "lock.h"
+ #include "dir.h"
+ #include "config.h"
++#include "requestqueue.h"
+ 
+ struct rq_entry {
+ 	struct list_head list;
+diff -urN a/drivers/dlm/util.c b/drivers/dlm/util.c
+--- a/drivers/dlm/util.c	2005-11-07 14:09:35.000000000 -0600
++++ b/drivers/dlm/util.c	2005-11-07 14:43:59.691918536 -0600
+@@ -12,6 +12,7 @@
+ 
+ #include "dlm_internal.h"
+ #include "rcom.h"
++#include "util.h"
+ 
+ static void header_out(struct dlm_header *hd)
  {
- 	int r;
- 
-@@ -1092,7 +1071,7 @@
- 	return 0;
- }
- 
--void __exit dlm_device_exit(void)
-+static void __exit dlm_device_exit(void)
- {
- 	misc_deregister(&ctl_device);
- }
-diff -urN a/drivers/dlm/device.h b/drivers/dlm/device.h
---- a/drivers/dlm/device.h	2005-11-07 14:35:14.623152097 -0600
-+++ b/drivers/dlm/device.h	1969-12-31 17:00:00.000000000 -0700
-@@ -1,21 +0,0 @@
--/******************************************************************************
--*******************************************************************************
--**
--**  Copyright (C) Sistina Software, Inc.  1997-2003  All rights reserved.
--**  Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
--**
--**  This copyrighted material is made available to anyone wishing to use,
--**  modify, copy, or redistribute it subject to the terms and conditions
--**  of the GNU General Public License v.2.
--**
--*******************************************************************************
--******************************************************************************/
--
--#ifndef __DEVICE_DOT_H__
--#define __DEVICE_DOT_H__
--
--extern void dlm_device_free_devices(void);
--extern int dlm_device_init(void);
--extern void dlm_device_exit(void);
--#endif				/* __DEVICE_DOT_H__ */
--
-diff -urN a/drivers/dlm/lock.c b/drivers/dlm/lock.c
---- a/drivers/dlm/lock.c	2005-11-07 14:35:14.625151792 -0600
-+++ b/drivers/dlm/lock.c	2005-11-07 14:35:23.206840460 -0600
-@@ -152,7 +152,7 @@
-         {0, 0, 0, 0, 0, 0, 0, 0}        /* PD */
- };
- 
--void dlm_print_lkb(struct dlm_lkb *lkb)
-+static void dlm_print_lkb(struct dlm_lkb *lkb)
- {
- 	printk(KERN_ERR "lkb: nodeid %d id %x remid %x exflags %x flags %x\n"
- 	       "     status %d rqmode %d grmode %d wait_type %d ast_type %d\n",
-@@ -751,11 +751,6 @@
- 	return error;
- }
- 
--int dlm_remove_from_waiters(struct dlm_lkb *lkb)
--{
--	return remove_from_waiters(lkb);
--}
--
- static void dir_remove(struct dlm_rsb *r)
- {
- 	int to_nodeid;
-diff -urN a/drivers/dlm/lock.h b/drivers/dlm/lock.h
---- a/drivers/dlm/lock.h	2005-11-07 14:35:14.626151639 -0600
-+++ b/drivers/dlm/lock.h	2005-11-07 14:35:23.206840460 -0600
-@@ -13,7 +13,6 @@
- #ifndef __LOCK_DOT_H__
- #define __LOCK_DOT_H__
- 
--void dlm_print_lkb(struct dlm_lkb *lkb);
- void dlm_print_rsb(struct dlm_rsb *r);
- int dlm_receive_message(struct dlm_header *hd, int nodeid, int recovery);
- int dlm_modes_compat(int mode1, int mode2);
-@@ -22,7 +21,6 @@
- void dlm_put_rsb(struct dlm_rsb *r);
- void dlm_hold_rsb(struct dlm_rsb *r);
- int dlm_put_lkb(struct dlm_lkb *lkb);
--int dlm_remove_from_waiters(struct dlm_lkb *lkb);
- void dlm_scan_rsbs(struct dlm_ls *ls);
- 
- int dlm_purge_locks(struct dlm_ls *ls);
-diff -urN a/drivers/dlm/lockspace.c b/drivers/dlm/lockspace.c
---- a/drivers/dlm/lockspace.c	2005-11-07 14:35:14.626151639 -0600
-+++ b/drivers/dlm/lockspace.c	2005-11-07 14:36:46.047181974 -0600
-@@ -222,7 +222,7 @@
- 	kthread_stop(scand_task);
- }
- 
--static struct dlm_ls *find_lockspace_name(char *name, int namelen)
-+static struct dlm_ls *dlm_find_lockspace_name(char *name, int namelen)
- {
- 	struct dlm_ls *ls;
- 
-@@ -239,11 +239,6 @@
- 	return ls;
- }
- 
--struct dlm_ls *dlm_find_lockspace_name(char *name, int namelen)
--{
--	return find_lockspace_name(name, namelen);
--}
--
- struct dlm_ls *dlm_find_lockspace_global(uint32_t id)
- {
- 	struct dlm_ls *ls;
-@@ -349,7 +344,7 @@
- 	if (!try_module_get(THIS_MODULE))
- 		return -EINVAL;
- 
--	ls = find_lockspace_name(name, namelen);
-+	ls = dlm_find_lockspace_name(name, namelen);
- 	if (ls) {
- 		*lockspace = ls;
- 		module_put(THIS_MODULE);
-diff -urN a/drivers/dlm/lockspace.h b/drivers/dlm/lockspace.h
---- a/drivers/dlm/lockspace.h	2005-11-07 14:35:14.627151486 -0600
-+++ b/drivers/dlm/lockspace.h	2005-11-07 14:35:23.208840154 -0600
-@@ -18,7 +18,6 @@
- void dlm_lockspace_exit(void);
- struct dlm_ls *dlm_find_lockspace_global(uint32_t id);
- struct dlm_ls *dlm_find_lockspace_local(void *id);
--struct dlm_ls *dlm_find_lockspace_name(char *name, int namelen);
- void dlm_put_lockspace(struct dlm_ls *ls);
- 
- #endif				/* __LOCKSPACE_DOT_H__ */

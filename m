@@ -1,139 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932474AbVKGMm0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932476AbVKGMnQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932474AbVKGMm0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 07:42:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbVKGMm0
+	id S932476AbVKGMnQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 07:43:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbVKGMnQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 07:42:26 -0500
-Received: from host-84-9-201-132.bulldogdsl.com ([84.9.201.132]:17289 "EHLO
-	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S932474AbVKGMmZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 07:42:25 -0500
-Date: Mon, 7 Nov 2005 12:42:20 +0000
-From: Ben Dooks <ben@fluff.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Fwd: [RFC] IRQ type flags
-Message-ID: <20051107124220.GA16281@home.fluff.org>
-References: <20051106084012.GB25134@flint.arm.linux.org.uk>
+	Mon, 7 Nov 2005 07:43:16 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:12183 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932476AbVKGMnP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 07:43:15 -0500
+Subject: Re: 3D video card recommendations
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1131349343.2858.11.camel@laptopd505.fenrus.org>
+References: <1131112605.14381.34.camel@localhost.localdomain>
+	 <1131349343.2858.11.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Mon, 07 Nov 2005 07:42:51 -0500
+Message-Id: <1131367371.14381.91.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051106084012.GB25134@flint.arm.linux.org.uk>
-X-Disclaimer: I speak for me, myself, and the other one of me.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 06, 2005 at 08:40:12AM +0000, Russell King wrote:
-> I haven't had any feedback on this patch.  akpm - can you add it to -mm
-> please?  Here's the sign-off for it, thanks.
-> 
-> Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
-> 
-> ----- Forwarded message from Russell King <rmk+lkml@arm.linux.org.uk> -----
-> Date:	Fri, 28 Oct 2005 22:57:47 +0100
-> From:	Russell King <rmk+lkml@arm.linux.org.uk>
-> To:	Linux Kernel List <linux-kernel@vger.kernel.org>
-> Subject: [RFC] IRQ type flags
-> 
-> Hi,
-> 
-> Some ARM platforms have the ability to program the interrupt controller
-> to detect various interrupt edges and/or levels.  For some platforms,
-> this is critical to setup correctly, particularly those which the
-> setting is dependent on the device.
-> 
-> Currently, ARM drivers do (eg) the following:
-> 
-> 	err = request_irq(irq, ...);
-> 
-> 	set_irq_type(irq, IRQT_RISING);
-> 
-> However, if the interrupt has previously been programmed to be level
-> sensitive (for whatever reason) then this will cause an interrupt
-> storm.
+On Mon, 2005-11-07 at 08:42 +0100, Arjan van de Ven wrote:
 
-surely, thats the other way around, going from edge to level.
+> people who buy a 3D card for linux that depends on a closed source
+> module take a few risks, and they should be aware of them (I suspect
+> they are) so let me make some of them explicit:
+
+Are there good 3D cards that don't depend on a proprietary module, that
+can run on a AMD64 board?  That was pretty much my questing to begin
+with :)
  
-> Hence, if we combine set_irq_type() with request_irq(), we can then
-> safely set the type prior to unmasking the interrupt.  The unfortunate
-> problem is that in order to support this, these flags need to be
-> visible outside of the ARM architecture - drivers such as smc91x
-> need these flags and they're cross-architecture.
-
-I agree that the type of IRQ should be considered when registering
-the IRQ. On the s3c2410, most boards do set the level/edge correctly
-before startup (bootloader) but occasionally, the bootloader cannot
-deal with all the cases.
- 
-> Finally, the SA_TRIGGER_* flag passed to request_irq() should reflect
-> the property that the device would like.  The IRQ controller code
-> should do its best to select the most appropriate supported mode.
 > 
-> Comments?
+> By buying a piece of hardware that requires a closed module you take the
+> risk that one of the following can happen at any time
+
+Yep, I know all these, since I've been a NVidia user for some time.  But
+NVidia was good enough for my needs since the only times I needed 3D was
+when I wasn't playing with experimental kernels.
+
 > 
-> diff --git a/arch/arm/kernel/irq.c b/arch/arm/kernel/irq.c
-> --- a/arch/arm/kernel/irq.c
-> +++ b/arch/arm/kernel/irq.c
-> @@ -681,10 +681,16 @@ int setup_irq(unsigned int irq, struct i
->  	 */
->  	desc = irq_desc + irq;
->  	spin_lock_irqsave(&irq_controller_lock, flags);
-> +#define SA_TRIGGER	(SA_TRIGGER_HIGH|SA_TRIGGER_LOW|\
-> +			 SA_TRIGGER_RISING|SA_TRIGGER_FALLING)
->  	p = &desc->action;
->  	if ((old = *p) != NULL) {
-> -		/* Can't share interrupts unless both agree to */
-> -		if (!(old->flags & new->flags & SA_SHIRQ)) {
-> +		/*
-> +		 * Can't share interrupts unless both agree to and are
-> +		 * the same type.
-> +		 */
-> +		if (!(old->flags & new->flags & SA_SHIRQ) ||
-> +		    (~old->flags & new->flags) & SA_TRIGGER) {
->  			spin_unlock_irqrestore(&irq_controller_lock, flags);
->  			return -EBUSY;
->  		}
-> @@ -704,6 +710,12 @@ int setup_irq(unsigned int irq, struct i
->  		desc->running = 0;
->  		desc->pending = 0;
->  		desc->disable_depth = 1;
-> +
-> +		if (new->flags & SA_TRIGGER) {
-> +			unsigned int type = new->flags & SA_TRIGGER;
-> +			desc->chip->set_type(irq, type);
-> +		}
-> +
->  		if (!desc->noautoenable) {
->  			desc->disable_depth = 0;
->  			desc->chip->unmask(irq);
-> diff --git a/include/linux/signal.h b/include/linux/signal.h
-> --- a/include/linux/signal.h
-> +++ b/include/linux/signal.h
-> @@ -18,6 +18,14 @@
->  #define SA_PROBE		SA_ONESHOT
->  #define SA_SAMPLE_RANDOM	SA_RESTART
->  #define SA_SHIRQ		0x04000000
-> +/*
-> + * As above, these correspond to the __IRQT defines in asm-arm/irq.h
-> + * to select the interrupt line behaviour.
-> + */
-> +#define SA_TRIGGER_HIGH		0x00000008
-> +#define SA_TRIGGER_LOW		0x00000004
-> +#define SA_TRIGGER_RISING	0x00000002
-> +#define SA_TRIGGER_FALLING	0x00000001
+> 1) The vendor in the future stops considering linux important and you're
+> stuck with old kernels; for example as a side-effect of getting a good
+> deal to supply graphics chips to a certain game console maker
 
-How about making these compatible with the
-triggers compatible with the flags from
-include/linux/ioport.h definitions for the
-IRQ resource (IORESOURCE_IRQ_*). 
+I was able to get some hacks out for NVidia on some new kernels before
+they were official released.  But they were not great, just worked.
 
-This would make it easier to pass the resource's
-flags field to the register irq code, and get
-the right IRQ type for the app?
+> 2) The vendor in the future stops considering the hardware you bought
+> important enough to spend time on; after all they got their cash and the
+> product cycles for consumer hardware are often in the 3 to 6 month
+> timeframe. Result: you're stuck with old kernels.
 
--- 
-Ben (ben@fluff.org, http://www.fluff.org/)
+So far NVidia is good at having one driver to do most of their boards.
+It would take a major design change of a model to stop this, and by
+then, I would probably have a new video card anyway.
 
-  'a smiley only costs 4 bytes'
+> 3) The vendor gets sued and convicted for GPL violations and stops doing
+> linux as a result. (not saying it will happen, but it sure is a risk you
+> are taking)
+
+Could happen, but I doubt it.  This might happen if one of the above do
+first :)
+
+> 4) The linux kernel developers change the kernel in a way that the
+> module in question no longer is possible and the vendor stops updating
+> the driver
+
+I've also hacked my kernel to get NVidia working. (Changing
+EXPORT_SYMBOL_GPL back to EXPORT_SYMBOL)  It's ok as long as I'm using
+this just for myself.  Which currently I am.
+
+> 5) The vendor goes out of business and thus stops updating the driver
+
+MS folks would have the same problem.
+
+> 6) The vendor doesn't release an x86-64 binary (or other architecture)
+> and your next PC can't use the module anymore
+
+Hmm, x86-64 _is_ what I'll be using this on :-/
+
+> 7) The vendor starts charging money for the driver or updates thereof.
+
+Good way to lose customers.
+
+> 
+> Open source is not just something for developers, but also for users. It
+> means that you or anyone else can keep the open driver going even when
+> the manufacturer stops doing so. By using a closed driver you get all
+> the disadvantages of the open source model (yes there are some just that
+> normally the benefits outweigh them by far) without getting the gains.
+> Be very sure you want to do this before spending your hard earned money
+> on hardware that doesn't work without closed drivers.
+> 
+
+I totally agree with you on this, that's why my question was about a
+good "Open Source" 3D card in the first place.  I want to try out 3D on
+Ingo's RT patch set and NVidia (because of the above that you mentioned)
+doesn't cut it anymore.  I've heard that the Radeon open source drive
+isn't too bad so I went with them. I don't need the best 3D, but I do
+need something.
+
+So you are right.  I've been a loyal NVidia customer for several years
+now, but since there is no alternative of a reliable 3D driver for them,
+I had to leave them to do what I needed. Now they risk me never going
+back if I find out that I like ATI better.
+
+-- Steve
+
+

@@ -1,73 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965064AbVKGVXP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965089AbVKGVYp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965064AbVKGVXP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 16:23:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965096AbVKGVXO
+	id S965089AbVKGVYp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 16:24:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965093AbVKGVYp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 16:23:14 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:20740 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965064AbVKGVXL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 16:23:11 -0500
-Date: Mon, 7 Nov 2005 22:23:08 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] GIT trivial tree
-Message-ID: <20051107212308.GG3847@stusta.de>
-References: <20051107165126.GE3847@stusta.de> <Pine.LNX.4.64.0511070856590.3193@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0511070856590.3193@g5.osdl.org>
-User-Agent: Mutt/1.5.11
+	Mon, 7 Nov 2005 16:24:45 -0500
+Received: from fmr21.intel.com ([143.183.121.13]:49806 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S965089AbVKGVYn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 16:24:43 -0500
+Subject: RE: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+From: Rohit Seth <rohit.seth@intel.com>
+To: Adam Litke <agl@us.ibm.com>
+Cc: Andy Nelson <andy@thermo.lanl.gov>, ak@suse.de, nickpiggin@yahoo.com.au,
+       akpm@osdl.org, arjan@infradead.org, arjanv@infradead.org,
+       gmaxwell@gmail.com, haveblue@us.ibm.com, kravetz@us.ibm.com,
+       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, mbligh@mbligh.org, mel@csn.ul.ie, mingo@elte.hu,
+       torvalds@osdl.org
+In-Reply-To: <1131397867.25133.92.camel@localhost.localdomain>
+References: <20051107003452.3A0B41855A0@thermo.lanl.gov>
+	 <1131389934.25133.69.camel@localhost.localdomain>
+	 <1131396662.18176.41.camel@akash.sc.intel.com>
+	 <1131397867.25133.92.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: Intel 
+Date: Mon, 07 Nov 2005 13:31:11 -0800
+Message-Id: <1131399071.18176.59.camel@akash.sc.intel.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Nov 2005 21:24:05.0705 (UTC) FILETIME=[95029B90:01C5E3E1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 07, 2005 at 09:02:29AM -0800, Linus Torvalds wrote:
+On Mon, 2005-11-07 at 15:11 -0600, Adam Litke wrote:
+> On Mon, 2005-11-07 at 12:51 -0800, Rohit Seth wrote:
+>  
+> > Isn't it true that most of the times we'll need to be worrying about
+> > run-time allocation of memory (using malloc or such) as compared to
+> > static.
 > 
+> It really depends on the workload.  I've run HPC apps with 10+GB data
+> segments.  I've also worked with applications that would benefit from a
+> hugetlb-enabled morecore (glibc malloc/sbrk).  I'd like to see one
+> standard hugetlb preload library that handles every different "memory
+> object" we care about (static and dynamic).  That's what I'm working on
+> now.
 > 
-> On Mon, 7 Nov 2005, Adrian Bunk wrote:
-> > 
-> >   http://www.kernel.org/pub/scm/linux/kernel/git/bunk/trivial.git
+
+As said below, we will need this functionality even for code pages.  I
+would rather have the changes absorbed in run-time loader rather than
+having a preload library. Makes it easy to manage.
+
+malloc/sbrks are the interesting part that does pose some challenges (as
+in some archs different address space is reserved hugetlb).  Moreover,
+it will also be critical that existing semantics of normal pages is
+maintained even when the application ends up using hugepages.
+ 
+> > We'll need a similar flag for even code pages to start using hugetlb
+> > pages. In this case to keep the kernel changes to minimum, RTLD will
+> > need to modified.
 > 
-> Please don't try to make me update over http. Either point to master 
-> (which is not accessible by all), or point to git://git.kernel.org/. Or do 
-> both..
+> Yes, I foresee the functionality currently in my preload lib to exist in
+> RTLD at some point way down the road.
 > 
-> And if you do the latter (or, in fact, rsync or http for others), please 
-> make sure that you delay your "please pull" sufficiently that the contents 
-> have actually mirrored out, because otherwise, if the mail comes in while 
-> I'm in merging mode (like right now), and I try to pull, I may not have 
-> anything to pull at all just because it hasn't mirrored out yet.
 
-OK, I'll try to get this right the next time.
+It will be much sooner...
 
-> A side comment (this was true with BK too): I prefer not to see 
-> unnecessary two-way merges, since that just makes the history much 
-> messier. So
-> 
-> > Adrian Bunk:
-> >   Merge with http://www.kernel.org/.../torvalds/linux-2.6.git
-> 
-> is _probably_ unnecessary, since by definition the "trivial" tree should 
-> basically never have anything that could cause clashes (so if I just pull 
-> on it, it should merge fine even without you doing the merge the other 
-> way).
->...
-
-Petr (who had already given me a "git for dummies" course yesterday) has 
-explained to me why this happened, and it shouldn't happen again.
-
-> 		Linus
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+-rohit
 

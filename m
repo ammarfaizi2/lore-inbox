@@ -1,78 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964949AbVKGUfV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965041AbVKGUgN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964949AbVKGUfV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 15:35:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965082AbVKGUfV
+	id S965041AbVKGUgN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 15:36:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965288AbVKGUgM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 15:35:21 -0500
-Received: from nproxy.gmail.com ([64.233.182.199]:27340 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964949AbVKGUfU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 15:35:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=B942E4pCzlf2PspcPOz+FBfe92R1qsfvbR0Jkm2pSVhzngwtcSfH57OudNXhMoaVyYMtLKewK1gUdgxs5EjbjZOzbcxHMNRUlivjCSK0dae/L6zqA5lV5AgZMohGiwaoee94C4FKE98EfPS6JbjhdQ1vVWwMubD4MqHUunrOzg4=
-Message-ID: <df33fe7c0511071235u3d59d13ci@mail.gmail.com>
-Date: Mon, 7 Nov 2005 21:35:18 +0100
-From: Takis <panagiotis.issaris@gmail.com>
-Reply-To: takis@issaris.org
-To: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Subject: Re: [PATCH] ipw2200: Missing kmalloc check
-Cc: ipw2100-admin@linux.intel.com, linux-kernel@vger.kernel.org
-In-Reply-To: <200511071932.22060@bilbo.math.uni-mannheim.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1125886450.4017.14.camel@nyx>
-	 <200511071932.22060@bilbo.math.uni-mannheim.de>
+	Mon, 7 Nov 2005 15:36:12 -0500
+Received: from smtp3.brturbo.com.br ([200.199.201.164]:8589 "EHLO
+	smtp3.brturbo.com.br") by vger.kernel.org with ESMTP
+	id S965102AbVKGUgK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 15:36:10 -0500
+Subject: Re: [Alsa-devel] Re: +
+	v4l-720-alsa-support-for-saa7134-that-should-work-fix.patch added to -mm
+	tree
+From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Takashi Iwai <tiwai@suse.de>, rlrevell@joe-job.com,
+       alsa-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       nshmyrev@yandex.ru, v4l@cerqueira.org
+In-Reply-To: <20051107114843.0a476d90.akpm@osdl.org>
+References: <200511060743.jA67hpZa018948@shell0.pdx.osdl.net>
+	 <20051106001249.48d3ade0.akpm@osdl.org> <1131301995.13599.5.camel@mindpipe>
+	 <1131344803.10094.8.camel@localhost> <1131377615.8383.9.camel@mindpipe>
+	 <s5h4q6opi5t.wl%tiwai@suse.de>  <20051107114843.0a476d90.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Mon, 07 Nov 2005 18:36:01 -0200
+Message-Id: <1131395761.6632.125.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1-2mdk 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- Use kzalloc for IPW2200
-- Fix config dependency for IPW2200
+Andrew,
 
-Signed-off-by: Panagiotis Issaris <takis@issaris.org>
+Em Seg, 2005-11-07 às 11:48 -0800, Andrew Morton escreveu:
+> Takashi Iwai <tiwai@suse.de> wrote:
+> >
+> > > OK, a brief review:
+> >  > 
+> >  >  - Why couldn't you use ALSA's DMA API?
+> > 
+> >  This is OK, IMO.  Basically, it's up to the driver.
+> > 
+> > 
+> >  >  - The DMA must be stopped and started in the trigger callback, not the
+> >  > prepare callback.
+> >  > 
+> >  >  - If this device lacks a volume control alsa-lib can emulate it in
+> >  > software, just create a proper /usr/share/alsa/cards/your_card.conf
+> >  > file.
+> >  > 
+> >  >  - By ALSA convention the acceptable formats, sample rates, etc should
+> >  > be directly defined in the snd_pcm_hardware_t structure.
+> >  > 
+> >  >  - dev->oss needs to go.
+> > 
+> >  Agreed about the rest.
+> 
+> Thanks, guys.
+> 
+> Despite all that, I am inclined to merge this patch into 2.6.15.  Because
+> it's in the middle of a 192-patch series and we do need to get the v4l tree
+> synced up.
+> 
+> Mauro, if we do that, do you think the above points can be addressed
+> inside the next four weeks or so?
+	We are, in fact already working on these. We are about to send you a
+newer patch addressing most of the points that Takashi and Lee showed.
+	You may apply the patches. If they noticed some weird stuff at the
+newer patchset, we will have enough time for fix it.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+Cheers, 
+Mauro.
 
----
-
- drivers/net/wireless/Kconfig   |    2 +-
- drivers/net/wireless/ipw2200.c |    3 +--
- 2 files changed, 2 insertions(+), 3 deletions(-)
-
-applies-to: b3efbcb770e1202b65aee2fe70ea5a407a60e6a5
-7e0cb9f1c4a239d06a0013997fc987c77fa46516
-diff --git a/drivers/net/wireless/Kconfig b/drivers/net/wireless/Kconfig
-index 7187958..3cf1ae2 100644
---- a/drivers/net/wireless/Kconfig
-+++ b/drivers/net/wireless/Kconfig
-@@ -192,7 +192,7 @@ config IPW_DEBUG
-
- config IPW2200
-        tristate "Intel PRO/Wireless 2200BG and 2915ABG Network Connection"
--       depends on IEEE80211 && PCI
-+       depends on NET_RADIO && IEEE80211 && PCI
-        select FW_LOADER
-        ---help---
-           A driver for the Intel PRO/Wireless 2200BG and 2915ABG Network
-diff --git a/drivers/net/wireless/ipw2200.c b/drivers/net/wireless/ipw2200.c
-index 3db0c32..6da11b5 100644
---- a/drivers/net/wireless/ipw2200.c
-+++ b/drivers/net/wireless/ipw2200.c
-@@ -4029,12 +4029,11 @@ static struct ipw_rx_queue *ipw_rx_queue
-        struct ipw_rx_queue *rxq;
-        int i;
-
--       rxq = (struct ipw_rx_queue *)kmalloc(sizeof(*rxq), GFP_KERNEL);
-+       rxq = kzalloc(sizeof(*rxq), GFP_KERNEL);
-        if (unlikely(!rxq)) {
-                IPW_ERROR("memory allocation failed\n");
-                return NULL;
-        }
--       memset(rxq, 0, sizeof(*rxq));
-        spin_lock_init(&rxq->lock);
-        INIT_LIST_HEAD(&rxq->rx_free);
-        INIT_LIST_HEAD(&rxq->rx_used);
----
-0.99.9.GIT

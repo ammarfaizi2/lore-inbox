@@ -1,76 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932363AbVKGDiB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbVKGDky@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932363AbVKGDiB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 22:38:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbVKGDiB
+	id S932289AbVKGDky (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 22:40:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbVKGDky
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 22:38:01 -0500
-Received: from verein.lst.de ([213.95.11.210]:28638 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S932363AbVKGDiA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 22:38:00 -0500
-Date: Mon, 7 Nov 2005 04:37:54 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-       hirofumi@mail.parknet.co.jp
-Subject: Re: [PATCH 17/25] vfat: move ioctl32 code to fs/fat/dir.c
-Message-ID: <20051107033754.GB15864@lst.de>
-References: <20051105162650.620266000@b551138y.boeblingen.de.ibm.com> <20051105162717.628382000@b551138y.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051105162717.628382000@b551138y.boeblingen.de.ibm.com>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+	Sun, 6 Nov 2005 22:40:54 -0500
+Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:41643 "HELO
+	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932289AbVKGDkx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Nov 2005 22:40:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=1ZkDPJD84wyO4TlSlA9MK0OUYcK9PgUxJpi+wWaMA8mWay8jEAJz0wVDoIcRE3AejOgP+/7YtHRwI/NMgXfmSYwzjInwNAcpVNL8AYQgNYQS7t26NEuVBpp7uIH+CfxKRoz33QE1FTWvInGB5BO9O3Q1bRZ4DmBBdZs2jNGvwps=  ;
+Message-ID: <436ECD47.4050808@yahoo.com.au>
+Date: Mon, 07 Nov 2005 14:43:03 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/14] mm: opt rmqueue
+References: <436DBAC3.7090902@yahoo.com.au> <p73br0x3ceq.fsf@verdi.suse.de> <436EA88C.3050104@yahoo.com.au> <200511070423.45306.ak@suse.de>
+In-Reply-To: <200511070423.45306.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +#ifdef CONFIG_COMPAT
-> +/* vfat */
-> +#define	VFAT_IOCTL_READDIR_BOTH32	_IOR('r', 1, struct compat_dirent[2])
-> +#define	VFAT_IOCTL_READDIR_SHORT32	_IOR('r', 2, struct compat_dirent[2])
+Andi Kleen wrote:
+> On Monday 07 November 2005 02:06, Nick Piggin wrote:
+> 
+> 
+>>Yes, all this turning on and off of interrupts does have a
+>>significant cost here.
+> 
+> 
+> How did you find out? 
+> 
 
-these should be moved close to the original VFAT ioctl defintions. And
-there's no need to put them under ifdef.
+Measuring the actual performance improvement on kbuild.
+Not to mention that profiles for things like mod_page_state
+go dramatically down, but you can't use that alone to be sure
+of an improvement.
 
-> +static long
-> +put_dirent32(struct dirent *d, struct compat_dirent __user * d32)
-> +{
-> +	if (!access_ok(VERIFY_WRITE, d32, sizeof(struct compat_dirent)))
-> +		return -EFAULT;
-> +
-> +	__put_user(d->d_ino, &d32->d_ino);
-> +	__put_user(d->d_off, &d32->d_off);
-> +	__put_user(d->d_reclen, &d32->d_reclen);
+> 
+>>With the full patchset applied, most of the hot path statistics
+>>get put under areas that already require interrupts to be off,
+>>however there are still a few I didn't get around to doing.
+>>zone_statistics on CONFIG_NUMA, for example.
+> 
+> 
+> These should just be local_t 
+> 
 
-missing error checks.
+Yep.
 
-> +static long fat_dir_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-> +{
-> +	struct compat_dirent __user *p = compat_ptr(arg);
-> +	int ret;
-> +	mm_segment_t oldfs = get_fs();
-> +	struct dirent d[2];
+> 
+>>I wonder if local_t is still good on architectures like ppc64
+>>where it still requires an ll/sc sequence?
+> 
+> 
+> The current default fallback local_t doesn't require that. It uses
+> different fields indexed by !!in_interrupt()
+> 
 
-please use proper compat_alloc_user_space here.
+Right I didn't see that. ppc(32), then.
 
-> +	switch (cmd) {
-> +	case VFAT_IOCTL_READDIR_BOTH32:
-> +		cmd = VFAT_IOCTL_READDIR_BOTH;
-> +		break;
-> +	case VFAT_IOCTL_READDIR_SHORT32:
-> +		cmd = VFAT_IOCTL_READDIR_SHORT;
-> +		break;
-> +	default:
-> +		return -ENOIOCTLCMD;
-> +	}
-> +
-> +	set_fs(KERNEL_DS);
-> +	ret = fat_dir_ioctl(file->f_dentry->d_inode, file, cmd, (unsigned long) &d);
-> +	set_fs(oldfs);
+I think maybe for struct page_state there is not so much point
+in using local_t because the hot page allocator paths can easily
+be covered under the interrupt critical sections.
 
-In fact there's even a much better way to implement this, let the
-ioctls call __fat_readdir directly with a filldir callback that directly
-works in compat_dirent structures.
+The other fields aren't very hot, and using local_t would bloat
+this up by many cachelines on 64-bit architectures like ppc64,
+and would make them probably noticably more expensive on 32s
+like ppc.
 
+Actually, the NUMA fields in the pcp lists can probably also
+just be put under the interrupt-off section that the page
+allocator uses. At least it should be much easier to do when
+Seth's __alloc_pages cleanup goes in. I'll keep it in mind.
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,76 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbVKGS2K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbVKGScI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964899AbVKGS2K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 13:28:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbVKGS2K
+	id S932267AbVKGScI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 13:32:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbVKGScI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 13:28:10 -0500
-Received: from mail.kroah.org ([69.55.234.183]:38281 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964899AbVKGS2J (ORCPT
+	Mon, 7 Nov 2005 13:32:08 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:5835 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932267AbVKGScG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 13:28:09 -0500
-Date: Mon, 7 Nov 2005 10:27:27 -0800
-From: Greg KH <greg@kroah.com>
-To: linas <linas@austin.ibm.com>
-Cc: Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
-       johnrose@austin.ibm.com, linux-pci@atrey.karlin.mff.cuni.cz,
-       bluesmoke-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 16/42]: PCI:  PCI Error reporting callbacks
-Message-ID: <20051107182727.GD18861@kroah.com>
-References: <20051103235918.GA25616@mail.gnucash.org> <20051104005035.GA26929@mail.gnucash.org> <20051105061114.GA27016@kroah.com> <17262.37107.857718.184055@cargo.ozlabs.ibm.com> <20051107175541.GB19593@austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051107175541.GB19593@austin.ibm.com>
-User-Agent: Mutt/1.5.11
+	Mon, 7 Nov 2005 13:32:06 -0500
+Date: Mon, 7 Nov 2005 10:31:53 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: dtor_core@ameritech.net
+cc: Vojtech Pavlik <vojtech@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 0/7] Another input update
+In-Reply-To: <d120d5000511070928l734fa938y2fbeb61be427f81a@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0511071030510.3193@g5.osdl.org>
+References: <20051103042121.394220000.dtor_core@ameritech.net>
+ <d120d5000511070928l734fa938y2fbeb61be427f81a@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 07, 2005 at 11:55:41AM -0600, linas wrote:
-> On Mon, Nov 07, 2005 at 10:25:39AM +1100, Paul Mackerras was heard to remark:
-> > Greg KH writes:
-> > 
-> > > > +enum pcierr_result {
-> > > > +	PCIERR_RESULT_NONE=0,        /* no result/none/not supported in device driver */
-> > > > +	PCIERR_RESULT_CAN_RECOVER=1, /* Device driver can recover without slot reset */
-> > > > +	PCIERR_RESULT_NEED_RESET,    /* Device driver wants slot to be reset. */
-> > > > +	PCIERR_RESULT_DISCONNECT,    /* Device has completely failed, is unrecoverable */
-> > > > +	PCIERR_RESULT_RECOVERED,     /* Device driver is fully recovered and operational */
-> > > > +};
-> > > 
-> > > No, do not create new types of error or return codes.  Use the standard
-> > > -EFOO values.  You can document what they should each return, and mean,
-> > > but do not create new codes.
-> > 
-> > Actually, these are not error or return codes, but rather requested
-> > actions 
-> 
-> Yes. 
 
-Ok, then make them be stronger, and not return an int, as everyone will
-get that wrong.
 
-> In one incarnation, they were #defines.  The enum was supposed to be 
-> the return value of the error notification callbacks.  
-> 
-> I can prepare a new patch: would you prefer:
-> 
-> 1) lose typing: #defines and int return value?
-> 
-> 2) strong typing: enum and enum return value?
+On Mon, 7 Nov 2005, Dmitry Torokhov wrote:
 
-3) realy strong typing that sparse can detect.
+> On 11/2/05, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+> >
+> >        www.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
 
-enums don't really work, as you can get away with using an integer and
-the compiler will never complain.  Please use a typedef (yeah, I said
-typedef) in the way that sparse will catch any bad users of the code.
+That's not a valid git url, and please in the future do include a diffstat 
+too so that I know what files are supposed to change..
 
-> I often prefer strong typing.
-> 
-> And do you want a patch now, or later?
+> *ping*
 
-Depends on when you want to see this make it into mainline :)
+Pulled.
 
-thanks,
-
-greg k-h
+		Linus

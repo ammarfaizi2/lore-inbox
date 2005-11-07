@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965042AbVKGRcP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965426AbVKGReg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965042AbVKGRcP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 12:32:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965395AbVKGRcO
+	id S965426AbVKGReg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 12:34:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965318AbVKGR3T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 12:32:14 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:11536 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965056AbVKGRcH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 12:32:07 -0500
-Date: Mon, 7 Nov 2005 18:32:01 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Daniel Drake <dsd@gentoo.org>,
-       Ben Collins <bcollins@ubuntu.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Ubuntu kernel tree
-Message-ID: <20051107173201.GF3847@stusta.de>
-References: <20051106013752.GA13368@swissdisk.com> <436E17CA.3060803@gentoo.org> <1131316729.1212.58.camel@localhost.localdomain> <436F81D1.7000100@gentoo.org> <1131383311.11265.22.camel@localhost.localdomain> <1131383144.2477.9.camel@capoeira>
+	Mon, 7 Nov 2005 12:29:19 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:64179 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965248AbVKGR3L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 12:29:11 -0500
+Date: Mon, 7 Nov 2005 09:28:35 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Christopher Friesen <cfriesen@nortel.com>
+cc: Krzysztof Halasa <khc@pm.waw.pl>, Eric Sandall <eric@sandall.us>,
+       Willy Tarreau <willy@w.ods.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Tony Luck <tony.luck@gmail.com>,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: New (now current development process)
+In-Reply-To: <Pine.LNX.4.64.0511070915350.3193@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0511070922370.3193@g5.osdl.org>
+References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com>
+ <12c511ca0510291157u5557b6b1x85a47311f0e16436@mail.gmail.com>
+ <20051029195115.GD14039@flint.arm.linux.org.uk> <Pine.LNX.4.64.0510291314100.3348@g5.osdl.org>
+ <20051031064109.GO22601@alpha.home.local> <Pine.LNX.4.63.0511062052590.24477@cerberus>
+ <m3k6fkxwqe.fsf@defiant.localdomain> <436F8ABE.9020605@nortel.com>
+ <Pine.LNX.4.64.0511070915350.3193@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1131383144.2477.9.camel@capoeira>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 07, 2005 at 06:05:44PM +0100, Xavier Bestel wrote:
-> On Mon, 2005-11-07 at 18:08, Alan Cox wrote:
-> > On Llu, 2005-11-07 at 16:33 +0000, Daniel Drake wrote:
-> > > Source RPM's will just contain a Linux kernel tree with your patches already 
-> > > applied, right?
-> > 
-> > Of course not. Its an rpm file. RPM files contain a set of broken out
-> > patches and base tar ball plus controlling rules for application. It's
-> > rather more advanced than .deb sources.
+
+
+On Mon, 7 Nov 2005, Linus Torvalds wrote:
 > 
-> That's a troll, Alan. .deb contain exactely the same things.
+> So repeat after me: "Most people never test -rc kernels". 
 
-No, he's right.
+Btw, the ones that _do_ test -rc kernels usually don't test all of them. 
+The current model is set up in a way where there is _one_ special -rc 
+kernel that we should try to get people to test: the first one.
 
-The changes a package maintainer does in a .deb are shipped in one big 
-diff containing all the differences between the pristine upstream 
-sources and the tree used for building the package.
+That hopefully encourages people to try an -rc kernel who might otherwise 
+decide that there's too many -rc kernels to bother with. If they know that 
+all of the real development happened before -rc1, they also are thus aware 
+that it doesn't really matter which -rc kernel they test, so just testing 
+_one_ is very good indeed.
 
-There are now ways how to arrange the patches in a way that they are 
-visible as separate patches inside the unpackaged source tree used for 
-building the package [1], but if all you are interested in is to get the 
-patches applied against the upstream sources RPM is still superior
-(even on my Debian system mc can extract the patches as if the RPM was a 
-tar file).
+The first -rc kernel is also special in another way: it's the one we 
+"wait" for. It's the one that happens after two weeks, and has a deadline. 
+The others happen more frequently, and are really objectively less 
+important than the first one.
 
-> 	Xav
+(In contrast, some other projects try to make the _last_ -rc be the 
+important one. That's totally the wrong way around, because if there are 
+more people testing the last one, the testing happens at _exactly_ the 
+wrong point in time from a "let's fix the problems" standpoint)
 
-cu
-Adrian
+So the call to people who can be bothered to test at all: if you 
+only test one -rc kernel, please test the first one. That way we get a 
+heads-up on problems earlier.
 
-[1] that are used by a subset of the packages shipped by Debian
+(And if you like testing -rc kernels, please test all of them. Or even the 
+nightly snapshots. Or track the git tree several times a day. The more, 
+the merrier, but if you only want to boot one kernel a month, make it be 
+the -rc1 kernel).
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+			Linus

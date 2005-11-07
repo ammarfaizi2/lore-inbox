@@ -1,39 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbVKGQQZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbVKGQR2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964857AbVKGQQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 11:16:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbVKGQQZ
+	id S964859AbVKGQR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 11:17:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964860AbVKGQR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 11:16:25 -0500
-Received: from systemlinux.org ([83.151.29.59]:25509 "EHLO m18s25.vlinux.de")
-	by vger.kernel.org with ESMTP id S964857AbVKGQQZ (ORCPT
+	Mon, 7 Nov 2005 11:17:27 -0500
+Received: from mtl.rackplans.net ([65.39.167.249]:19902 "HELO innerfire.net")
+	by vger.kernel.org with SMTP id S964859AbVKGQR1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 11:16:25 -0500
-Date: Mon, 7 Nov 2005 17:16:05 +0100
-From: Andre Noll <maan@systemlinux.org>
-To: Neil Brown <neilb@suse.de>
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [NFS] Re: BUG: soft lockup detected on CPU#0! (linux-2.6.14)
-Message-ID: <20051107161605.GH26862@skl-net.de>
-References: <20051106193142.GD26862@skl-net.de> <17262.31781.497775.640424@cse.unsw.edu.au> <20051106225138.GF26862@skl-net.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051106225138.GF26862@skl-net.de>
-User-Agent: Mutt/1.5.9i
+	Mon, 7 Nov 2005 11:17:27 -0500
+Date: Mon, 7 Nov 2005 11:17:20 -0500 (EST)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Steven Rostedt <rostedt@goodmis.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 3D video card recommendations
+In-Reply-To: <1131373462.11265.12.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0511071115360.2132@innerfire.net>
+References: <1131112605.14381.34.camel@localhost.localdomain> 
+ <1131349343.2858.11.camel@laptopd505.fenrus.org> 
+ <1131367371.14381.91.camel@localhost.localdomain>
+ <1131373462.11265.12.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23:51, Andre Noll wrote:
-> > The following patch might fix it.  Please let me know the result.
+On Mon, 7 Nov 2005, Alan Cox wrote:
+
+> On Llu, 2005-11-07 at 07:42 -0500, Steven Rostedt wrote:
+> > Are there good 3D cards that don't depend on a proprietary module, that
+> > can run on a AMD64 board?  That was pretty much my questing to begin
+> > with :)
 > 
-> Patch applied and rebooted. The box currently compiles glibc and
-> firefox in parallel. No problems so far.
+> Some of the radeons - R3xx is pretty close to usable R2xx works well.
+> Support for running 32bit hardware accelerated apps on 64bit kernel
+> recently went in.
+> 
 
-Just want to confirm that your patch indeed fixed the problem. I
-can't reproduce the bug message any more.
+I would also suggest avoiding PCI-E cards for the time being as 
+there is no DRI support for them. (although if I'm not mistaken that will 
+improve in 2.6.15).
 
-Thanks again
-Andre
--- 
-Jesus not only saves, he also frequently makes backups
+	Gerhard
+
+
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.

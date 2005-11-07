@@ -1,99 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbVKGQva@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbVKGQ6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932273AbVKGQva (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 11:51:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbVKGQva
+	id S932256AbVKGQ6w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 11:58:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbVKGQ6v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 11:51:30 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:30735 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932246AbVKGQv2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 11:51:28 -0500
-Date: Mon, 7 Nov 2005 17:51:26 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: [2.6 patch] GIT trivial tree
-Message-ID: <20051107165126.GE3847@stusta.de>
+	Mon, 7 Nov 2005 11:58:51 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:48806 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S932256AbVKGQ6v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 11:58:51 -0500
+Message-ID: <436F991B.97AFC4C5@tv-sign.ru>
+Date: Mon, 07 Nov 2005 21:12:43 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: paulmck@us.ibm.com, Roland McGrath <roland@redhat.com>,
+       George Anzinger <george@mvista.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, dipankar@in.ibm.com, mingo@elte.hu,
+       suzannew@cs.pdx.edu, Chris Wright <chrisw@osdl.org>
+Subject: [PATCH] fix de_thread() vs send_group_sigqueue() race
+References: <20051105013650.GA17461@us.ibm.com> <436CDEAF.E236BC40@tv-sign.ru> <20051106010004.GB20178@us.ibm.com> <436E1401.920A83EE@tv-sign.ru>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please do an update from:
+When non-leader thread does exec, de_thread calls release_task(leader) before
+calling exit_itimers(). If local timer interrupt happens in between, it can
+oops in send_group_sigqueue() while taking ->sighand->siglock == NULL.
 
-  http://www.kernel.org/pub/scm/linux/kernel/git/bunk/trivial.git
+However, we can't change send_group_sigqueue() to check p->signal != NULL,
+because sys_timer_create() does get_task_struct() only in SIGEV_THREAD_ID
+case. So it is possible that this task_struct was already freed and we can't
+trust p->signal.
 
-I've taken over the trivial patch monkey from Rusty, and I'll send the 
-really trivial patches like spelling corrections through this tree.
+This patch changes de_thread() so that leader released after exit_itimers()
+call.
 
-Is this tree OK or are there any problems with it?
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-Full patches currently in the tree below.
-
-
-Adrian Bunk:
-  I am the new monkey.
-  Merge with http://www.kernel.org/.../torvalds/linux-2.6.git
-
-Michal Wronski:
-  Update Michal Wronski contact info
-
-
- CREDITS      |    6 ++----
- MAINTAINERS  |    6 +++---
- ipc/mqueue.c |    2 +-
- 3 files changed, 6 insertions(+), 8 deletions(-)
-
-diff --git a/CREDITS b/CREDITS
-index 5b1edf3..7fb4c73 100644
---- a/CREDITS
-+++ b/CREDITS
-@@ -3642,11 +3642,9 @@ S: Beaverton, OR 97005
- S: USA
+--- 2.6.14/fs/exec.c~	2005-09-21 21:08:33.000000000 +0400
++++ 2.6.14/fs/exec.c	2005-11-07 23:54:42.000000000 +0300
+@@ -593,6 +593,7 @@ static inline int de_thread(struct task_
+ 	struct signal_struct *sig = tsk->signal;
+ 	struct sighand_struct *newsighand, *oldsighand = tsk->sighand;
+ 	spinlock_t *lock = &oldsighand->siglock;
++	struct task_struct *leader = NULL;
+ 	int count;
  
- N: Michal Wronski
--E: wrona@mat.uni.torun.pl
--W: http://www.mat.uni.torun.pl/~wrona
-+E: Michal.Wronski@motorola.com
- D: POSIX message queues fs (with K. Benedyczak)
--S: ul. Teczowa 23/12
--S: 80-680 Gdansk-Sobieszewo
-+S: Krakow
- S: Poland
+ 	/*
+@@ -668,7 +669,7 @@ static inline int de_thread(struct task_
+ 	 * and to assume its PID:
+ 	 */
+ 	if (!thread_group_leader(current)) {
+-		struct task_struct *leader = current->group_leader, *parent;
++		struct task_struct *parent;
+ 		struct dentry *proc_dentry1, *proc_dentry2;
+ 		unsigned long exit_state, ptrace;
  
- N: Frank Xia
-diff --git a/MAINTAINERS b/MAINTAINERS
-index d57c491..08dd21f 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -2455,10 +2455,10 @@ L:	linux-kernel@vger.kernel.org
- S:	Maintained
+@@ -677,6 +678,7 @@ static inline int de_thread(struct task_
+ 		 * It should already be zombie at this point, most
+ 		 * of the time.
+ 		 */
++		leader = current->group_leader;
+ 		while (leader->exit_state != EXIT_ZOMBIE)
+ 			yield();
  
- TRIVIAL PATCHES
--P:      Rusty Russell
--M:      trivial@rustcorp.com.au
-+P:      Adrian Bunk
-+M:      trivial@kernel.org
- L:      linux-kernel@vger.kernel.org
--W:      http://www.kernel.org/pub/linux/kernel/people/rusty/trivial/
-+W:      http://www.kernel.org/pub/linux/kernel/people/bunk/trivial/
- S:      Maintained
+@@ -736,7 +738,6 @@ static inline int de_thread(struct task_
+ 		proc_pid_flush(proc_dentry2);
  
- TMS380 TOKEN-RING NETWORK DRIVER
-diff --git a/ipc/mqueue.c b/ipc/mqueue.c
-index a0f18c9..c8943b5 100644
---- a/ipc/mqueue.c
-+++ b/ipc/mqueue.c
-@@ -2,7 +2,7 @@
-  * POSIX message queues filesystem for Linux.
-  *
-  * Copyright (C) 2003,2004  Krzysztof Benedyczak    (golbi@mat.uni.torun.pl)
-- *                          Michal Wronski          (wrona@mat.uni.torun.pl)
-+ *                          Michal Wronski          (Michal.Wronski@motorola.com)
-  *
-  * Spinlocks:               Mohamed Abbas           (abbas.mohamed@intel.com)
-  * Lockless receive & send, fd based notify:
-
+ 		BUG_ON(exit_state != EXIT_ZOMBIE);
+-		release_task(leader);
+         }
+ 
+ 	/*
+@@ -746,8 +747,11 @@ static inline int de_thread(struct task_
+ 	sig->flags = 0;
+ 
+ no_thread_group:
+-	BUG_ON(atomic_read(&sig->count) != 1);
+ 	exit_itimers(sig);
++	if (leader)
++		release_task(leader);
++
++	BUG_ON(atomic_read(&sig->count) != 1);
+ 
+ 	if (atomic_read(&oldsighand->count) == 1) {
+ 		/*

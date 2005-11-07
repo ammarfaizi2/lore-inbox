@@ -1,45 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbVKGQNG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964840AbVKGQM7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964841AbVKGQNG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 11:13:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964842AbVKGQNF
+	id S964840AbVKGQM7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 11:12:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964841AbVKGQM7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 11:13:05 -0500
-Received: from khc.piap.pl ([195.187.100.11]:5124 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S964841AbVKGQNE (ORCPT
+	Mon, 7 Nov 2005 11:12:59 -0500
+Received: from mummy.ncsc.mil ([144.51.88.129]:30128 "EHLO jazzhorn.ncsc.mil")
+	by vger.kernel.org with ESMTP id S964840AbVKGQM7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 11:13:04 -0500
-To: Eric Sandall <eric@sandall.us>
-Cc: Willy Tarreau <willy@w.ods.org>, Linus Torvalds <torvalds@osdl.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Tony Luck <tony.luck@gmail.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: New (now current development process)
-References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com>
-	<12c511ca0510291157u5557b6b1x85a47311f0e16436@mail.gmail.com>
-	<20051029195115.GD14039@flint.arm.linux.org.uk>
-	<Pine.LNX.4.64.0510291314100.3348@g5.osdl.org>
-	<20051031064109.GO22601@alpha.home.local>
-	<Pine.LNX.4.63.0511062052590.24477@cerberus>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Mon, 07 Nov 2005 17:12:57 +0100
-In-Reply-To: <Pine.LNX.4.63.0511062052590.24477@cerberus> (Eric Sandall's
- message of "Sun, 6 Nov 2005 20:54:30 -0800 (PST)")
-Message-ID: <m3k6fkxwqe.fsf@defiant.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Mon, 7 Nov 2005 11:12:59 -0500
+Subject: [patch 1/1] selinux:  MLS compatibility
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: lkml <linux-kernel@vger.kernel.org>, James Morris <jmorris@namei.org>,
+       Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Mon, 07 Nov 2005 11:08:55 -0500
+Message-Id: <1131379735.20591.67.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Sandall <eric@sandall.us> writes:
+This patch enables files created on a MLS-enabled SELinux system to be
+accessible on a non-MLS SELinux system, by skipping the MLS component of
+the security context in the non-MLS case.  Please apply, for 2.6.15 if
+possible.
 
-> A -final should never be changed from the last -rc. That defeats the
-> purpose of having -rc releases (rc == 'release candidate' ;)).
+Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+Signed-off-by:  James Morris <jmorris@namei.org>
 
-This logic is flawed. RCs are for performing tests. If you don't want
-further tests (for example, tests on previous RC completed and you're
-quite sure new changes introduce no new bugs) you don't need further
-RCs.
+---
+
+ security/selinux/ss/mls.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletion(-)
+
+Index: linux-2.6/security/selinux/ss/mls.c
+===================================================================
+RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/ss/mls.c,v
+retrieving revision 1.26
+diff -u -p -r1.26 mls.c
+--- linux-2.6/security/selinux/ss/mls.c	29 Aug 2005 14:13:22 -0000	1.26
++++ linux-2.6/security/selinux/ss/mls.c	4 Nov 2005 19:26:47 -0000
+@@ -262,8 +262,11 @@ int mls_context_to_sid(char oldc,
+ 	struct cat_datum *catdatum, *rngdatum;
+ 	int l, rc = -EINVAL;
+ 
+-	if (!selinux_mls_enabled)
++	if (!selinux_mls_enabled) {
++		if (def_sid != SECSID_NULL && oldc)
++			*scontext += strlen(*scontext);
+ 		return 0;
++	}
+ 
+ 	/*
+ 	 * No MLS component to the security context, try and map to
+
 -- 
-Krzysztof Halasa
+Stephen Smalley
+National Security Agency
+

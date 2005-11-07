@@ -1,128 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964901AbVKGW4o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965592AbVKGW4m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964901AbVKGW4o (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 17:56:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965345AbVKGW4N
+	id S965592AbVKGW4m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 17:56:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965588AbVKGW4P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 17:56:13 -0500
-Received: from admingilde.org ([213.95.32.146]:45961 "EHLO mail.admingilde.org")
-	by vger.kernel.org with ESMTP id S964901AbVKGW4I (ORCPT
+	Mon, 7 Nov 2005 17:56:15 -0500
+Received: from admingilde.org ([213.95.32.146]:47497 "EHLO mail.admingilde.org")
+	by vger.kernel.org with ESMTP id S965232AbVKGW4I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 7 Nov 2005 17:56:08 -0500
-Message-Id: <20051107225604.841433000@admingilde.org>
+Message-Id: <20051107225606.073925000@admingilde.org>
 References: <20051107225408.911193000@admingilde.org>
-Date: Mon, 07 Nov 2005 23:54:10 +0100
+Date: Mon, 07 Nov 2005 23:54:13 +0100
 From: Martin Waitz <tali@admingilde.org>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch 1/4] DocBook: allow to mark structure members private
-Content-Disposition: inline; filename=docbook-private-struct-members.patch
+Subject: [patch 4/4] DocBook: revert xmlto use for .ps and .pdf documentation
+Content-Disposition: inline; filename=docbook-dont-depend-on-xmlto.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DocBook: allow to mark structure members private
+DocBook: revert xmlto use for .ps and .pdf documentation
 
-Many structures contain both an internal part and one which is part of the
-API to other modules.  With this patch it is possible to only include
-these public members in the kernel documentation.
+As xmlto doesn't work for print documentation, we need docbook-utils again for
+these targets.
+This patch allows the user to choose the method he wants to use.
+(I'm still hoping that someone will fix passivetex ;-)
 
 Signed-off-by: Martin Waitz <tali@admingilde.org>
 
 ---
- include/linux/usb.h |    6 +++---
- scripts/kernel-doc  |   13 +++++++++++--
- 2 files changed, 14 insertions(+), 5 deletions(-)
+ Documentation/DocBook/Makefile |   48 ++++++++++++++++++++++++++++-------------
+ 1 files changed, 33 insertions(+), 15 deletions(-)
 
-Index: linux-docbook/scripts/kernel-doc
+Index: linux-docbook/Documentation/DocBook/Makefile
 ===================================================================
---- linux-docbook.orig/scripts/kernel-doc	2005-11-04 22:55:27.236188385 +0100
-+++ linux-docbook/scripts/kernel-doc	2005-11-04 23:13:29.348626536 +0100
-@@ -117,6 +117,8 @@ use strict;
- # struct my_struct {
- #     int a;
- #     int b;
-+# /* private: */
-+#     int c;
- # };
- #
- # All descriptions can be multiline, except the short function description.
-@@ -1304,6 +1306,12 @@ sub dump_struct($$) {
- 	# ignore embedded structs or unions
- 	$members =~ s/{.*?}//g;
+--- linux-docbook.orig/Documentation/DocBook/Makefile	2005-10-28 00:01:54.000000000 +0200
++++ linux-docbook/Documentation/DocBook/Makefile	2005-11-04 22:18:00.092944116 +0100
+@@ -20,6 +20,12 @@ DOCBOOKS := wanbook.xml z8530book.xml mc
+ #                        +--> DIR=file  (htmldocs)
+ #                        +--> man/      (mandocs)
  
-+	# ignore members marked private:
-+	$members =~ s/\/\*.*?private:.*?public:.*?\*\///gos;
-+	$members =~ s/\/\*.*?private:.*//gos;
-+	# strip comments:
-+	$members =~ s/\/\*.*?\*\///gos;
 +
- 	create_parameterlist($members, ';', $file);
++# for PDF and PS output you can choose between xmlto and docbook-utils tools
++PDF_METHOD	= $(prefer-db2x)
++PS_METHOD	= $(prefer-db2x)
++
++
+ ###
+ # The targets that may be used.
+ .PHONY:	xmldocs sgmldocs psdocs pdfdocs htmldocs mandocs installmandocs
+@@ -93,27 +99,39 @@ C-procfs-example = procfs_example.xml
+ C-procfs-example2 = $(addprefix $(obj)/,$(C-procfs-example))
+ $(obj)/procfs-guide.xml: $(C-procfs-example2)
  
- 	output_declaration($declaration_name,
-@@ -1329,6 +1337,7 @@ sub dump_enum($$) {
-     my $x = shift;
-     my $file = shift;
+-###
+-# Rules to generate postscript, PDF and HTML
+-# db2html creates a directory. Generate a html file used for timestamp
++notfoundtemplate = echo "*** You have to install docbook-utils or xmlto ***"; \
++		   exit 1
++db2xtemplate = db2TYPE -o $(dir $@) $<
++xmltotemplate = xmlto TYPE $(XMLTOFLAGS) -o $(dir $@) $<
++
++# determine which methods are available
++ifeq ($(shell which db2ps >/dev/null 2>&1 && echo found),found)
++	use-db2x = db2x
++	prefer-db2x = db2x
++else
++	use-db2x = notfound
++	prefer-db2x = $(use-xmlto)
++endif
++ifeq ($(shell which xmlto >/dev/null 2>&1 && echo found),found)
++	use-xmlto = xmlto
++	prefer-xmlto = xmlto
++else
++	use-xmlto = notfound
++	prefer-xmlto = $(use-db2x)
++endif
  
-+    $x =~ s@/\*.*?\*/@@gos;	# strip comments.
-     if ($x =~ /enum\s+(\w+)\s*{(.*)}/) {
-         $declaration_name = $1;
-         my $members = $2;
-@@ -1365,6 +1374,7 @@ sub dump_typedef($$) {
-     my $x = shift;
-     my $file = shift;
+-quiet_cmd_db2ps = XMLTO    $@
+-      cmd_db2ps = xmlto ps $(XMLTOFLAGS) -o $(dir $@) $<
++# the commands, generated from the chosen template
++quiet_cmd_db2ps = PS      $@
++      cmd_db2ps = $(subst TYPE,ps, $($(PS_METHOD)template))
+ %.ps : %.xml
+-	@(which xmlto > /dev/null 2>&1) || \
+-	 (echo "*** You need to install xmlto ***"; \
+-	  exit 1)
+ 	$(call cmd,db2ps)
  
-+    $x =~ s@/\*.*?\*/@@gos;	# strip comments.
-     while (($x =~ /\(*.\)\s*;$/) || ($x =~ /\[*.\]\s*;$/)) {
-         $x =~ s/\(*.\)\s*;$/;/;
- 	$x =~ s/\[*.\]\s*;$/;/;
-@@ -1420,7 +1430,7 @@ sub create_parameterlist($$$) {
- 	    $type = $arg;
- 	    $type =~ s/([^\(]+\(\*)$param/$1/;
- 	    push_parameter($param, $type, $file);
--	} else {
-+	} elsif ($arg) {
- 	    $arg =~ s/\s*:\s*/:/g;
- 	    $arg =~ s/\s*\[/\[/g;
+-quiet_cmd_db2pdf = XMLTO   $@
+-      cmd_db2pdf = xmlto pdf $(XMLTOFLAGS) -o $(dir $@) $<
++quiet_cmd_db2pdf = PDF      $@
++      cmd_db2pdf = $(subst TYPE,pdf, $($(PDF_METHOD)template))
+ %.pdf : %.xml
+-	@(which xmlto > /dev/null 2>&1) || \
+-	 (echo "*** You need to install xmlto ***"; \
+-	  exit 1)
+ 	$(call cmd,db2pdf)
  
-@@ -1628,7 +1638,6 @@ sub process_state3_type($$) { 
-     my $x = shift;
-     my $file = shift;
+-quiet_cmd_db2html = XMLTO  $@
++quiet_cmd_db2html = HTML   $@
+       cmd_db2html = xmlto xhtml $(XMLTOFLAGS) -o $(patsubst %.html,%,$@) $< && \
+ 		echo '<a HREF="$(patsubst %.html,%,$(notdir $@))/index.html"> \
+          Goto $(patsubst %.html,%,$(notdir $@))</a><p>' > $@
+@@ -127,7 +145,7 @@ quiet_cmd_db2html = XMLTO  $@
+ 	@if [ ! -z "$(PNG-$(basename $(notdir $@)))" ]; then \
+             cp $(PNG-$(basename $(notdir $@))) $(patsubst %.html,%,$@); fi
  
--    $x =~ s@/\*.*?\*/@@gos;	# strip comments.
-     $x =~ s@[\r\n]+@ @gos; # strip newlines/cr's.
-     $x =~ s@^\s+@@gos; # strip leading spaces
-     $x =~ s@\s+$@@gos; # strip trailing spaces
-Index: linux-docbook/include/linux/usb.h
-===================================================================
---- linux-docbook.orig/include/linux/usb.h	2005-11-04 22:57:57.356783495 +0100
-+++ linux-docbook/include/linux/usb.h	2005-11-04 23:14:05.326614355 +0100
-@@ -819,7 +819,7 @@ typedef void (*usb_complete_t)(struct ur
-  */
- struct urb
- {
--	/* private, usb core and host controller only fields in the urb */
-+	/* private: usb core and host controller only fields in the urb */
- 	struct kref kref;		/* reference count of the URB */
- 	spinlock_t lock;		/* lock for the URB */
- 	void *hcpriv;			/* private data for host controller */
-@@ -827,7 +827,7 @@ struct urb
- 	atomic_t use_count;		/* concurrent submissions counter */
- 	u8 reject;			/* submissions will fail */
- 
--	/* public, documented fields in the urb that can be used by drivers */
-+	/* public: documented fields in the urb that can be used by drivers */
- 	struct list_head urb_list;	/* list head for use by the urb's
- 					 * current owner */
- 	struct usb_device *dev; 	/* (in) pointer to associated device */
-@@ -1045,7 +1045,7 @@ struct usb_sg_request {
- 	size_t			bytes;
- 
- 	/* 
--	 * members below are private to usbcore,
-+	 * members below are private: to usbcore,
- 	 * and are not provided for driver access!
- 	 */
- 	spinlock_t		lock;
+-quiet_cmd_db2man = XMLTO   $@
++quiet_cmd_db2man = MAN     $@
+       cmd_db2man = if grep -q refentry $<; then xmlto man $(XMLTOFLAGS) -o $(obj)/man $< ; gzip -f $(obj)/man/*.9; fi
+ %.9 : %.xml
+ 	@(which xmlto > /dev/null 2>&1) || \
 
 --
 Martin Waitz

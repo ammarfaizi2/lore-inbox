@@ -1,43 +1,195 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965093AbVKGV1g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964934AbVKGV1I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965093AbVKGV1g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 16:27:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965143AbVKGV1g
+	id S964934AbVKGV1I (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 16:27:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965096AbVKGV1H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 16:27:36 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:17621 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965093AbVKGV1f (ORCPT
+	Mon, 7 Nov 2005 16:27:07 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:2018 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S964934AbVKGV1F convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 16:27:35 -0500
-Subject: Re: [2.6 patch] mm/: small cleanups
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051107211836.GX3847@stusta.de>
-References: <20051030010508.GU4180@stusta.de>
-	 <1130683352.12551.15.camel@localhost>  <20051107211836.GX3847@stusta.de>
-Content-Type: text/plain
-Date: Mon, 07 Nov 2005 22:27:27 +0100
-Message-Id: <1131398847.7967.17.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Nov 2005 16:27:05 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [ACPI] ACPI and PRREMPT bug
+Date: Mon, 7 Nov 2005 13:26:49 -0800
+Message-ID: <971FCB6690CD0E4898387DBF7552B90E0356B71D@orsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [ACPI] ACPI and PRREMPT bug
+thread-index: AcXjg0GaU/Dpay1hTuqB9AuCdXtwLgAWG4sAAAAQxrAAAVyUgA==
+From: "Moore, Robert" <robert.moore@intel.com>
+To: "Moore, Robert" <robert.moore@intel.com>, <tzachar@cs.bgu.ac.il>,
+       <linux-kernel@vger.kernel.org>, <acpi-devel@lists.sourceforge.net>
+X-OriginalArrivalTime: 07 Nov 2005 21:26:50.0628 (UTC) FILETIME=[F74FDC40:01C5E3E1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-11-07 at 22:18 +0100, Adrian Bunk wrote:
-> On Sun, Oct 30, 2005 at 03:42:32PM +0100, Dave Hansen wrote:
-> > On Sun, 2005-10-30 at 02:05 +0100, Adrian Bunk wrote:
-> > > This patch contains the following cleanups:
-> > > - make some needlessly global functions static
-> > > - vmscan.c: #if 0 the unused global function sys_set_zone_reclaim
-> > 
-> > If it's truly unused, why not simply kill it completely?
+Here's a quick patch that should stop the METHOD_LIMIT errors. It's just
+a quick hack, not the correct solution.
+
+Index: source/components/interpreter/parser/psparse.c
+===================================================================
+RCS file:
+/home/cmplr/cvs/acpica/Acpi/source/components/interpreter/parser/psparse
+.c,v
+retrieving revision 1.158
+diff -u -r1.158 psparse.c
+--- source/components/interpreter/parser/psparse.c	2 Sep 2005
+20:17:39 -0000	1.158
++++ source/components/interpreter/parser/psparse.c	7 Nov 2005
+21:15:44 -0000
+@@ -647,7 +647,10 @@
+             {
+                 /* Decrement the thread count on the method parse tree
+*/
+ 
+-                WalkState->MethodDesc->Method.ThreadCount--;
++                if (WalkState->MethodDesc->Method.ThreadCount)
++                {
++                    WalkState->MethodDesc->Method.ThreadCount--;
++                }
+             }
+ 
+             AcpiDsTerminateControlMethod (WalkState);
+
+
+Linux version would look like this:
+
+
+				/* Decrement the thread count on the
+method parse tree */
+
+				if
+(walk_state->method_desc->method.thread_count) {
+	
+walk_state->method_desc->method.thread_count--;
+				}
+
+
+> -----Original Message-----
+> From: Moore, Robert
+> Sent: Monday, November 07, 2005 12:44 PM
+> To: Moore, Robert; 'tzachar@cs.bgu.ac.il';
+'linux-kernel@vger.kernel.org';
+> 'acpi-devel@lists.sourceforge.net'
+> Subject: RE: [ACPI] ACPI and PRREMPT bug
 > 
-> Updated patch below.
-
-Looks better now.  The net removal of 27 lines makes it much easier to
-sell as a cleanup. :)
-
--- Dave
-
+> You might try setting this flag (in acglobal.h) to TRUE:
+> 
+> /*
+>  * Automatically serialize ALL control methods? Default is FALSE,
+meaning
+>  * to use the Serialized/NotSerialized method flags on a per method
+basis.
+>  * Only change this if the ASL code is poorly written and cannot
+handle
+>  * reentrancy even though methods are marked "NotSerialized".
+>  */
+> ACPI_EXTERN UINT8       ACPI_INIT_GLOBAL
+(AcpiGbl_AllMethodsSerialized,
+> FALSE);
+> 
+> 
+> 
+> > -----Original Message-----
+> > From: Moore, Robert
+> > Sent: Monday, November 07, 2005 12:42 PM
+> > To: 'tzachar@cs.bgu.ac.il'; linux-kernel@vger.kernel.org; acpi-
+> > devel@lists.sourceforge.net
+> > Subject: RE: [ACPI] ACPI and PRREMPT bug
+> >
+> > I'm aware of this issue and it is under investigation.
+> > Bob
+> >
+> >
+> > > -----Original Message-----
+> > > From: acpi-devel-admin@lists.sourceforge.net [mailto:acpi-devel-
+> > > admin@lists.sourceforge.net] On Behalf Of Nir Tzachar
+> > > Sent: Monday, November 07, 2005 1:36 AM
+> > > To: linux-kernel@vger.kernel.org; acpi-devel@lists.sourceforge.net
+> > > Subject: [ACPI] ACPI and PRREMPT bug
+> > >
+> > > hello.
+> > >
+> > > I'm encountering a problem with acpi on kernels where preempt is
+> > > enabled.
+> > > The problem is 100% reproducible on all kernels starting from
+2.6.12.1
+> > > to 2.6.14
+> > > ( i didn't try 2.6.11 and below ).
+> > >
+> > > the problem is manifested via the battery proc interface. to
+produce
+> it,
+> > > run in two terminals simultaneously:
+> > > while true; do cat /proc/acpi/battery/BAT0/info; done
+> > >
+> > > if i turn on kernel preemption (either voluntary or not), i get
+the
+> > > following error messages in dmesg:
+> > > Nov  7 08:31:00 lapnir ACPI-0292: *** Error: Looking up [SERN] in
+> > > namespace, AE_ALREADY_EXISTS
+> > > Nov  7 08:31:00 lapnir ACPI-0508: *** Error: Method execution
+failed
+> > > [\_SB_.PCI0.LPC_.EC__.GBIF] (Node c18f5d60), AE_ALREADY_EXISTS
+> > > Nov  7 08:31:02 lapnir ACPI-0213: *** Error: Method reached
+maximum
+> > > reentrancy limit (255)
+> > > Nov  7 08:31:02 lapnir ACPI-0508: *** Error: Method execution
+failed
+> > > [\_SB_.PCI0.LPC_.EC__.BAT0._BIF] (Node c18f5c20),
+AE_AML_METHOD_LIMIT
+> > >
+> > > and with acpi debugging info turned on:
+> > > Nov  7 08:46:08 lapnir dswload-0292: *** Error: Looking up [SERN]
+in
+> > > namespace, AE_ALREADY_EXISTS
+> > > Nov  7 08:46:08 lapnir psloop-0287 [4399] ps_parse_loop         :
+> During
+> > > name lookup/catalog, AE_ALREADY_EXISTS
+> > > Nov  7 08:46:08 lapnir psparse-0508: *** Error: Method execution
+> failed
+> > > [\_SB_.PCI0.LPC_.EC__.GBIF] (Node c18f94e8), AE_ALREADY_EXISTS
+> > > Nov  7 08:46:08 lapnir osl-0856 [4403] os_wait_semaphore     :
+Failed
+> to
+> > > acquire semaphore[c18de5e0|1|0], AE_TIME
+> > > Nov  7 08:46:08 lapnir dsmethod-0213: *** Error: Method reached
+> maximum
+> > > reentrancy limit (255)
+> > > Nov  7 08:46:08 lapnir psparse-0508: *** Error: Method execution
+> failed
+> > > [\_SB_.PCI0.LPC_.EC__.BAT0._BIF] (Node c18f9268),
+AE_AML_METHOD_LIMIT
+> > > Nov  7 08:46:08 lapnir acpi_battery-0144 [4449] battery_get_info
+> :
+> > > Error evaluating _BIF
+> > > Nov  7 08:46:08 lapnir dsmethod-0213: *** Error: Method reached
+> maximum
+> > > reentrancy limit (255)
+> > > Nov  7 08:46:08 lapnir psparse-0508: *** Error: Method execution
+> failed
+> > > [\_SB_.PCI0.LPC_.EC__.BAT0._BIF] (Node c18f9268),
+AE_AML_METHOD_LIMIT
+> > >
+> > >
+> > > this is repeated until a reboot. loading and unloading the battery
+> > > module does not help.
+> > >
+> > > My computer is a thinkpad t43p, and i didn't try to reproduce it
+on
+> > > another laptop
+> > > (have no access to another model..).
+> > > If you need more info, let me know.
+> > >
+> > > p.s. please cc me, im not in the list.
+> > >
+> > > --
+> > > =========================================================
+> > > Nir Tzachar.

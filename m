@@ -1,108 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964855AbVKGQHi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbVKGQNG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964855AbVKGQHi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 11:07:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964856AbVKGQHi
+	id S964841AbVKGQNG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 11:13:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964842AbVKGQNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 11:07:38 -0500
-Received: from [202.125.80.34] ([202.125.80.34]:21320 "EHLO mail.esn.co.in")
-	by vger.kernel.org with ESMTP id S964855AbVKGQHh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 11:07:37 -0500
-Content-class: urn:content-classes:message
+	Mon, 7 Nov 2005 11:13:05 -0500
+Received: from khc.piap.pl ([195.187.100.11]:5124 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S964841AbVKGQNE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 11:13:04 -0500
+To: Eric Sandall <eric@sandall.us>
+Cc: Willy Tarreau <willy@w.ods.org>, Linus Torvalds <torvalds@osdl.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Tony Luck <tony.luck@gmail.com>,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: New (now current development process)
+References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com>
+	<12c511ca0510291157u5557b6b1x85a47311f0e16436@mail.gmail.com>
+	<20051029195115.GD14039@flint.arm.linux.org.uk>
+	<Pine.LNX.4.64.0510291314100.3348@g5.osdl.org>
+	<20051031064109.GO22601@alpha.home.local>
+	<Pine.LNX.4.63.0511062052590.24477@cerberus>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Mon, 07 Nov 2005 17:12:57 +0100
+In-Reply-To: <Pine.LNX.4.63.0511062052590.24477@cerberus> (Eric Sandall's
+ message of "Sun, 6 Nov 2005 20:54:30 -0800 (PST)")
+Message-ID: <m3k6fkxwqe.fsf@defiant.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Subject: RE: Comments on 2.6.10 schedule_timeout please
-Date: Mon, 7 Nov 2005 21:34:05 +0530
-Message-ID: <3AEC1E10243A314391FE9C01CD65429B13B2E6@mail.esn.co.in>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Comments on 2.6.10 schedule_timeout please
-Thread-Index: AcXjqwXuOu1/k9oGTAq1yBZwAeSqWgAB8Y5A
-From: "Mukund JB." <mukundjb@esntechnologies.co.in>
-To: "Nish Aravamudan" <nish.aravamudan@gmail.com>
-Cc: "Adrian Bunk" <bunk@stusta.de>, <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Eric Sandall <eric@sandall.us> writes:
 
-Dear Nish,
-Sorry that I cannot share the entire code as I have to face some licensing issues.
-Please find the required code snapshots below. 
-please ask if I have missed something ...
+> A -final should never be changed from the last -rc. That defeats the
+> purpose of having -rc releases (rc == 'release candidate' ;)).
 
-Please see the source code explained briefly below:-
-
-/* my_msleep() sleep milli(msec) seconds */
-void my_msleep(int msec)
-{
-	current->state = TASK_INTERRUPTIBLE;
-	schedule_timeout((msec * HZ)/1000);
-}
-{
-MMCSD_RESPONSE2
-{
-	..............
-	.............
-	/* gather the hardware interrupt reg status that is updated in the ISR context*/
-	..............
-	............
-}
-
-StandbyMMCSD(PCMMCSD pSD)
-{
-	do
-	{
-		tifm_msleep(300);
-	}while(!MMCSD_RESPONSE2(pSD, 31, 31, false));
-}
-
-Code Description:
-This is a part SD card Driver for 2.6.10 kernel & it works fine.
-This part of the code is called in the ISR context from the bottomhalf when the SD Card is inserted to initialize the SD slot & card.
-
-How did I diagnose the delay:
-
-1) After inserting the card, I tried pressing the character '1' expecting the shedule_tiemout works by giving the keyboard  process its time to execute and print 1's onto the screen. Instead, I found the a BIG delay of 20 characters. i.e. 20  characters printed at once after the SD card initialization is done.
-2) With debug messages immediately before & after the schedule_timeout call.
-3) Commenting the schedule_timeout call.
- 
-Regards,
-Mukund Jampala
-
-
-
------Original Message-----
-From: Nish Aravamudan [mailto:nish.aravamudan@gmail.com]
-Sent: Monday, November 07, 2005 8:24 PM
-To: Mukund JB.
-Cc: Adrian Bunk; linux-kernel@vger.kernel.org
-Subject: Re: Comments on 2.6.10 schedule_timeout please
-
-
-On 11/7/05, Mukund JB. <mukundjb@esntechnologies.co.in> wrote:
->
-> Dear Kernel Developers,
->
-> I have noticed the schedule_timeout behaving somewhat different as penned
-> from the Linux 2.6 Oreelly books.
-> I have developed a SD card Driver for 2.6.10 kernel & it works fine.
-> I needed a hardware reg to update that take a time of 300ms. I have issued a
-> call like..
->
-> set_current_state(TASK_INTERRUPTIBLE);
-> schedule_timeout (300*HZ/1000);
-
-Full code or function snippet, please.
-
-> But, when I finally use it I get a sufficient delay which looks like a looped delay
-> not allowing the keyboard to print messages on the screen.
-
-This would be easier to diagnose if you shared all of the code you are
-using *and* verified this occurred with a current kernel (2.6.10 is
-old.).
-
-Thanks,
-Nish
+This logic is flawed. RCs are for performing tests. If you don't want
+further tests (for example, tests on previous RC completed and you're
+quite sure new changes introduce no new bugs) you don't need further
+RCs.
+-- 
+Krzysztof Halasa

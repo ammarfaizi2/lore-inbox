@@ -1,173 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965031AbVKGVS7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965091AbVKGVUL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965031AbVKGVS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 16:18:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965089AbVKGVS5
+	id S965091AbVKGVUL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 16:20:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965109AbVKGVTm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 16:18:57 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:6916 "HELO
+	Mon, 7 Nov 2005 16:19:42 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:14340 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964960AbVKGVSh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 16:18:37 -0500
-Date: Mon, 7 Nov 2005 22:18:36 +0100
+	id S965091AbVKGVTH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 16:19:07 -0500
+Date: Mon, 7 Nov 2005 22:19:06 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [2.6 patch] mm/: small cleanups
-Message-ID: <20051107211836.GX3847@stusta.de>
-References: <20051030010508.GU4180@stusta.de> <1130683352.12551.15.camel@localhost>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, adaplas@pol.net,
+       linux-fbdev-devel@lists.sourceforge.net
+Subject: [RFC: 2.6 patch] i386: EXPORT_SYMBOL(screen_info) even #ifndef CONFIG_VT
+Message-ID: <20051107211906.GD3847@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1130683352.12551.15.camel@localhost>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 30, 2005 at 03:42:32PM +0100, Dave Hansen wrote:
-> On Sun, 2005-10-30 at 02:05 +0100, Adrian Bunk wrote:
-> > This patch contains the following cleanups:
-> > - make some needlessly global functions static
-> > - vmscan.c: #if 0 the unused global function sys_set_zone_reclaim
-> 
-> If it's truly unused, why not simply kill it completely?
+The folllowing modules require screen_info but don't depend
+on CONFIG_VT:
+- vga16fb.ko
+- intelfb.ko
 
-Updated patch below.
-
-> -- Dave
-
-cu
-Adrian
-
-
-<--  snip  -->
-
-
-This patch contains the following cleanups:
-- make some needlessly global functions static
-- vmscan.c: remove the unused global function sys_set_zone_reclaim
+This patch was already ACK'ed by Antonino A. Daplas.
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- mm/page_alloc.c |   12 +++++++-----
- mm/vmalloc.c    |   13 +++++++------
- mm/vmscan.c     |   30 ------------------------------
- 3 files changed, 14 insertions(+), 41 deletions(-)
+This patch was already sent on:
+- 1 Nov 2005
 
---- linux-2.6.14-rc5-mm1-full/mm/page_alloc.c.old	2005-10-30 02:35:18.000000000 +0200
-+++ linux-2.6.14-rc5-mm1-full/mm/page_alloc.c	2005-10-30 02:36:49.000000000 +0200
-@@ -393,7 +393,7 @@
- 	return ret;
- }
- 
--void __free_pages_ok(struct page *page, unsigned int order)
-+static void __free_pages_ok(struct page *page, unsigned int order)
- {
- 	LIST_HEAD(list);
- 	int i;
-@@ -1228,7 +1228,8 @@
- DEFINE_PER_CPU(long, nr_pagecache_local) = 0;
+--- linux-2.6.14-rc5-mm1-modular-2.95/arch/i386/kernel/setup.c.old	2005-11-01 16:10:52.000000000 +0100
++++ linux-2.6.14-rc5-mm1-modular-2.95/arch/i386/kernel/setup.c	2005-11-01 16:11:25.000000000 +0100
+@@ -129,9 +129,7 @@
+ EXPORT_SYMBOL(drive_info);
  #endif
- 
--void __get_page_state(struct page_state *ret, int nr, cpumask_t *cpumask)
-+static void __get_page_state(struct page_state *ret, int nr,
-+			     cpumask_t *cpumask)
- {
- 	int cpu = 0;
- 
-@@ -1786,8 +1787,8 @@
- 	}
- }
- 
--void zone_init_free_lists(struct pglist_data *pgdat, struct zone *zone,
--				unsigned long size)
-+static void zone_init_free_lists(struct pglist_data *pgdat, struct zone *zone,
-+				 unsigned long size)
- {
- 	int order;
- 	for (order = 0; order < MAX_ORDER ; order++) {
-@@ -1847,7 +1848,8 @@
- 	return batch;
- }
- 
--inline void setup_pageset(struct per_cpu_pageset *p, unsigned long batch)
-+static inline void setup_pageset(struct per_cpu_pageset *p,
-+				 unsigned long batch)
- {
- 	struct per_cpu_pages *pcp;
- 
---- linux-2.6.14-rc5-mm1-full/mm/vmalloc.c.old	2005-10-30 02:38:49.000000000 +0200
-+++ linux-2.6.14-rc5-mm1-full/mm/vmalloc.c	2005-10-30 02:39:42.000000000 +0200
-@@ -157,8 +157,10 @@
- 	return err;
- }
- 
--struct vm_struct *__get_vm_area_node(unsigned long size, unsigned long flags,
--				unsigned long start, unsigned long end, int node)
-+static struct vm_struct *__get_vm_area_node(unsigned long size,
-+					    unsigned long flags,
-+					    unsigned long start,
-+					    unsigned long end, int node)
- {
- 	struct vm_struct **p, *tmp, *area;
- 	unsigned long align = 1;
-@@ -296,7 +298,7 @@
- 	return v;
- }
- 
--void __vunmap(void *addr, int deallocate_pages)
-+static void __vunmap(void *addr, int deallocate_pages)
- {
- 	struct vm_struct *area;
- 
-@@ -402,8 +404,8 @@
- }
- EXPORT_SYMBOL(vmap);
- 
--void *__vmalloc_area_node(struct vm_struct *area, gfp_t gfp_mask,
--				pgprot_t prot, int node)
-+static void *__vmalloc_area_node(struct vm_struct *area, gfp_t gfp_mask,
-+				 pgprot_t prot, int node)
- {
- 	struct page **pages;
- 	unsigned int nr_pages, array_size, i;
+ struct screen_info screen_info;
+-#ifdef CONFIG_VT
+ EXPORT_SYMBOL(screen_info);
+-#endif
+ struct apm_info apm_info;
+ EXPORT_SYMBOL(apm_info);
+ struct sys_desc_table_struct {
 
---- linux-2.6.14-mm1-full/mm/vmscan.c.old	2005-11-07 21:11:19.000000000 +0100
-+++ linux-2.6.14-mm1-full/mm/vmscan.c	2005-11-07 21:11:43.000000000 +0100
-@@ -1605,33 +1605,3 @@
- 	return total_reclaimed;
- }
- 
--asmlinkage long sys_set_zone_reclaim(unsigned int node, unsigned int zone,
--				     unsigned int state)
--{
--	struct zone *z;
--	int i;
--
--	if (!capable(CAP_SYS_ADMIN))
--		return -EACCES;
--
--	if (node >= MAX_NUMNODES || !node_online(node))
--		return -EINVAL;
--
--	/* This will break if we ever add more zones */
--	if (!(zone & (1<<ZONE_DMA|1<<ZONE_NORMAL|1<<ZONE_HIGHMEM)))
--		return -EINVAL;
--
--	for (i = 0; i < MAX_NR_ZONES; i++) {
--		if (!(zone & 1<<i))
--			continue;
--
--		z = &NODE_DATA(node)->node_zones[i];
--
--		if (state)
--			z->reclaim_pages = 1;
--		else
--			z->reclaim_pages = 0;
--	}
--
--	return 0;
--}

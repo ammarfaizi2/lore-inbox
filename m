@@ -1,70 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965426AbVKGReg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965352AbVKGRf2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965426AbVKGReg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 12:34:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965318AbVKGR3T
+	id S965352AbVKGRf2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 12:35:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965351AbVKGRf0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 12:29:19 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:64179 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965248AbVKGR3L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 12:29:11 -0500
-Date: Mon, 7 Nov 2005 09:28:35 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Christopher Friesen <cfriesen@nortel.com>
-cc: Krzysztof Halasa <khc@pm.waw.pl>, Eric Sandall <eric@sandall.us>,
-       Willy Tarreau <willy@w.ods.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Tony Luck <tony.luck@gmail.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: New (now current development process)
-In-Reply-To: <Pine.LNX.4.64.0511070915350.3193@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0511070922370.3193@g5.osdl.org>
-References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com>
- <12c511ca0510291157u5557b6b1x85a47311f0e16436@mail.gmail.com>
- <20051029195115.GD14039@flint.arm.linux.org.uk> <Pine.LNX.4.64.0510291314100.3348@g5.osdl.org>
- <20051031064109.GO22601@alpha.home.local> <Pine.LNX.4.63.0511062052590.24477@cerberus>
- <m3k6fkxwqe.fsf@defiant.localdomain> <436F8ABE.9020605@nortel.com>
- <Pine.LNX.4.64.0511070915350.3193@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 7 Nov 2005 12:35:26 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:22227 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S965305AbVKGRfX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 12:35:23 -0500
+Subject: Re: 3D video card recommendations
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Toon van der Pas <toon@hout.vanvergehaald.nl>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1131377496.2858.21.camel@laptopd505.fenrus.org>
+References: <1131112605.14381.34.camel@localhost.localdomain>
+	 <1131349343.2858.11.camel@laptopd505.fenrus.org>
+	 <1131367371.14381.91.camel@localhost.localdomain>
+	 <20051107152009.GA20807@shuttle.vanvergehaald.nl>
+	 <1131377496.2858.21.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Mon, 07 Nov 2005 12:35:06 -0500
+Message-Id: <1131384906.14381.108.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 7 Nov 2005, Linus Torvalds wrote:
+On Mon, 2005-11-07 at 16:31 +0100, Arjan van de Ven wrote:
+> On Mon, 2005-11-07 at 16:20 +0100, Toon van der Pas wrote:
+> > On Mon, Nov 07, 2005 at 07:42:51AM -0500, Steven Rostedt wrote:
+> > > On Mon, 2005-11-07 at 08:42 +0100, Arjan van de Ven wrote:
+> > > 
+> > > > 5) The vendor goes out of business and thus stops updating the driver
+> > > 
+> > > MS folks would have the same problem.
+> > 
+> > ...which proves the point Arjan is making.
+> > 
+> > For one, I have an ISDN-adapter which doesn't work with any version of
+> > MS-Windows from this millennium (no drivers available), while it's still
+> > working great on current Linux kernels.
 > 
-> So repeat after me: "Most people never test -rc kernels". 
+> 
+> well despite your post; the Windows people are a lot better at keeping
+> old drivers working (win 9x to a NT based kernel was obviously a huge
+> change though). In linux you can use an old driver maybe for 6 months if
+> you're lucky.. in windows 6 years is no exception. So the problem is a
+> lot bigger in linux for the owner of such a card than it is in windows.
+> 
 
-Btw, the ones that _do_ test -rc kernels usually don't test all of them. 
-The current model is set up in a way where there is _one_ special -rc 
-kernel that we should try to get people to test: the first one.
+Only if the Linux driver is closed source.  Otherwise, the driver should
+be upgraded with the kernel.  Most all open source hardware drivers are
+already included in the kernel, and maintained as long as there's
+someone that has the device that can maintain it.
 
-That hopefully encourages people to try an -rc kernel who might otherwise 
-decide that there's too many -rc kernels to bother with. If they know that 
-all of the real development happened before -rc1, they also are thus aware 
-that it doesn't really matter which -rc kernel they test, so just testing 
-_one_ is very good indeed.
+-- Steve
 
-The first -rc kernel is also special in another way: it's the one we 
-"wait" for. It's the one that happens after two weeks, and has a deadline. 
-The others happen more frequently, and are really objectively less 
-important than the first one.
 
-(In contrast, some other projects try to make the _last_ -rc be the 
-important one. That's totally the wrong way around, because if there are 
-more people testing the last one, the testing happens at _exactly_ the 
-wrong point in time from a "let's fix the problems" standpoint)
-
-So the call to people who can be bothered to test at all: if you 
-only test one -rc kernel, please test the first one. That way we get a 
-heads-up on problems earlier.
-
-(And if you like testing -rc kernels, please test all of them. Or even the 
-nightly snapshots. Or track the git tree several times a day. The more, 
-the merrier, but if you only want to boot one kernel a month, make it be 
-the -rc1 kernel).
-
-			Linus

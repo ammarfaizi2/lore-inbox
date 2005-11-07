@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964881AbVKGSZm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964891AbVKGSZ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964881AbVKGSZm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 13:25:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964880AbVKGSZl
+	id S964891AbVKGSZ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 13:25:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964880AbVKGSZ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 13:25:41 -0500
-Received: from khc.piap.pl ([195.187.100.11]:11268 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S964881AbVKGSZk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 13:25:40 -0500
-To: "Christopher Friesen" <cfriesen@nortel.com>
-Cc: Eric Sandall <eric@sandall.us>, Willy Tarreau <willy@w.ods.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Tony Luck <tony.luck@gmail.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: New (now current development process)
-References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com>
-	<12c511ca0510291157u5557b6b1x85a47311f0e16436@mail.gmail.com>
-	<20051029195115.GD14039@flint.arm.linux.org.uk>
-	<Pine.LNX.4.64.0510291314100.3348@g5.osdl.org>
-	<20051031064109.GO22601@alpha.home.local>
-	<Pine.LNX.4.63.0511062052590.24477@cerberus>
-	<m3k6fkxwqe.fsf@defiant.localdomain> <436F8ABE.9020605@nortel.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Mon, 07 Nov 2005 19:25:35 +0100
-In-Reply-To: <436F8ABE.9020605@nortel.com> (Christopher Friesen's message of
- "Mon, 07 Nov 2005 11:11:26 -0600")
-Message-ID: <m3ll00wc0w.fsf@defiant.localdomain>
+	Mon, 7 Nov 2005 13:25:59 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:27620 "EHLO
+	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
+	id S964891AbVKGSZ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 13:25:58 -0500
+Message-ID: <436F9C1C.4090003@nortel.com>
+Date: Mon, 07 Nov 2005 12:25:32 -0600
+From: "Christopher Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+CC: linux-kernel@vger.kernel.org
+Subject: Re: scheduler parameter inheritance on clone() -- correction
+References: <436F8A06.7090409@nortel.com>
+In-Reply-To: <436F8A06.7090409@nortel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Nov 2005 18:25:33.0676 (UTC) FILETIME=[A424B2C0:01C5E3C8]
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Christopher Friesen" <cfriesen@nortel.com> writes:
+Friesen, Christopher [CAR:VC21:EXCH] wrote:
+> 
+> The pthreads standard specifies that the default behaviour is that new 
+> threads should be created with the SCHED_OTHER policy and a priority of 0.
 
-> How do you ever know that new change introduced no new bugs?
+Sorry, I've since found out that this was actually an issue with the man 
+pages (same problem on two different distros).  The man pages were still 
+from LinuxThreads, but the NPTL behaviour was different.
 
-Changing comments doesn't change generated code or your tools are
-screwed. Trivial changes - you can be reasonably sure, too. Note
-it's different from not having bugs at all.
+Apparently the spec doesn't actually specify the default behaviour, it's 
+implementation dependent.
 
->  Maybe
-> there was a latent race condition that is activated by timing
-> differences caused by the new code.
+My mistake.
 
-Then the bug already existed, you aren't adding any.
-
-> The safe bet is to simply rename the final -rc with no further changes.
-
-Safe? You can't be really safe here. Bad luck and version string
-change (compile time or -rc* removal) will trigger disaster.
--- 
-Krzysztof Halasa
+Chris

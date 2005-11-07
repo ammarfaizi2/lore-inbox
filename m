@@ -1,86 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965167AbVKGRgM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964883AbVKGRhe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965167AbVKGRgM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 12:36:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964994AbVKGRgL
+	id S964883AbVKGRhe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 12:37:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964891AbVKGRhe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 12:36:11 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:38674 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S965098AbVKGRgH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 12:36:07 -0500
-Message-ID: <436F8FAE.90805@vmware.com>
-Date: Mon, 07 Nov 2005 09:32:30 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Mon, 7 Nov 2005 12:37:34 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:17936 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S964883AbVKGRhd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 12:37:33 -0500
+Date: Mon, 7 Nov 2005 18:37:32 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, greg@kroah.com, kristen.c.accardi@intel.com
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: 2.6.14-mm1: drivers/pci/hotplug/: namespace clashes
+Message-ID: <20051107173732.GG3847@stusta.de>
+References: <20051106182447.5f571a46.akpm@osdl.org>
 MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: "Maciej W. Rozycki" <macro@linux-mips.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14: CR4 not needed to be inspected on the 486 anymore?
-References: <Pine.LNX.4.55.0511031600010.24109@blysk.ds.pg.gda.pl> <436A3C10.9050302@vmware.com> <Pine.LNX.4.55.0511031639310.24109@blysk.ds.pg.gda.pl> <436AA1FD.3010401@vmware.com> <p73fyqb2dtx.fsf@verdi.suse.de> <Pine.LNX.4.55.0511070931560.28165@blysk.ds.pg.gda.pl> <436F7673.5040309@vmware.com> <Pine.LNX.4.55.0511071632110.28165@blysk.ds.pg.gda.pl> <436F8601.4070201@vmware.com> <Pine.LNX.4.61.0511071157590.27658@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0511071157590.27658@chaos.analogic.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Nov 2005 17:32:31.0655 (UTC) FILETIME=[3B82D370:01C5E3C1]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051106182447.5f571a46.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
+<--  snip  -->
 
->On Mon, 7 Nov 2005, Zachary Amsden wrote:
->
->  
->
->>Maciej W. Rozycki wrote:
->>
->>    
->>
->>>On Mon, 7 Nov 2005, Zachary Amsden wrote:
->>>
->>>
->>>
->>>      
->>>
->>>>While this is at least no worse in the nested fault case than earlier
->>>>kernels, I really wish I had one of those weird 486s so I could test the
->>>>faulting mechanism.  It seems the trap handling code has gotten quite
->>>>
->>>>
->>>>        
->>>>
->>>What's so weird about 486s?  Besides, for testing it doesn't have to be
->>>one -- you will get away with a 386, too.  I have neither anymore, but
->>>there are people around still using them.
->>>
->>>
->>>      
->>>
->>Because I hold in my hand "i486 Microprocessor Programmer's Reference
->>Manual, c 1990", and it has no mention whatsoever of CR4, and all
->>documentation I had until Friday had either no mention of CR4, or
->>something to the effect of "new on Pentium, the CR4 register ..."  So
->>I've had to re-adjust my definition of 486, which was weird.
->>
->>Zach
->>-
->>    
->>
->
->Yes, and undocumented opcodes might not fault. They might do nothing
->or something strange. It's not a good idea to use an undocumented
->opcode in kernel space. The read-from-CR4 in kernel space, hoping
->that an immoral-opcode trap will save you is not good practice.
->
->You might reset the processor.
->  
->
+...
+  LD      drivers/pci/hotplug/built-in.o
+drivers/pci/hotplug/shpchp.o: In function `get_hp_hw_control_from_firmware':
+: multiple definition of `get_hp_hw_control_from_firmware'
+drivers/pci/hotplug/pciehp.o:: first defined here
+ld: Warning: size of symbol `get_hp_hw_control_from_firmware' changed from 472 in drivers/pci/hotplug/pciehp.o to 25 in drivers/pci/hotplug/shpchp.o
+drivers/pci/hotplug/shpchp.o: In function `get_hp_params_from_firmware':
+: multiple definition of `get_hp_params_from_firmware'
+drivers/pci/hotplug/pciehp.o:: first defined here
+make[3]: *** [drivers/pci/hotplug/built-in.o] Error 1
 
-No, you won't.  #UD and #GP will not (I hesitate to say never, but other 
-than a processor bug, I believe that is correct) reset the processor.  
-And CR4 is not "undocumented", even on 486.
+<--  snip  -->
 
-What is immoral about opcode trapping?
+cu
+Adrian
 
-Zach
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

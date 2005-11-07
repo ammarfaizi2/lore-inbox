@@ -1,71 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965602AbVKGXiU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965605AbVKGXkf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965602AbVKGXiU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 18:38:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965604AbVKGXiU
+	id S965605AbVKGXkf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 18:40:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965606AbVKGXkf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 18:38:20 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:64655 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965602AbVKGXiT (ORCPT
+	Mon, 7 Nov 2005 18:40:35 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:32452 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965605AbVKGXke (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 18:38:19 -0500
-Message-ID: <436FE561.7080703@austin.ibm.com>
-Date: Mon, 07 Nov 2005 17:38:09 -0600
-From: Joel Schopp <jschopp@austin.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Steven Rostedt <rostedt@goodmis.org>
-CC: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       mel@csn.ul.ie, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>, kravetz@us.ibm.com,
-       arjanv@infradead.org, arjan@infradead.org,
-       Andrew Morton <akpm@osdl.org>, mbligh@mbligh.org, andy@thermo.lanl.gov,
-       Paul Jackson <pj@sgi.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Linus Torvalds <torvalds@osdl.org>, Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
-References: <20051104010021.4180A184531@thermo.lanl.gov>	 <Pine.LNX.4.64.0511032105110.27915@g5.osdl.org>	 <20051103221037.33ae0f53.pj@sgi.com> <20051104063820.GA19505@elte.hu>	 <Pine.LNX.4.64.0511040725090.27915@g5.osdl.org>	 <796B585C-CB1C-4EBA-9EF4-C11996BC9C8B@mac.com>	 <Pine.LNX.4.64.0511060756010.3316@g5.osdl.org>	 <Pine.LNX.4.64.0511060848010.3316@g5.osdl.org>	 <20051107080042.GA29961@elte.hu> <1131361258.5976.53.camel@localhost>	 <20051107122009.GD3609@elte.hu> <1131392070.14381.133.camel@localhost.localdomain>
-In-Reply-To: <1131392070.14381.133.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 7 Nov 2005 18:40:34 -0500
+Date: Mon, 7 Nov 2005 15:37:06 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Neil Brown <neilb@suse.de>
+Cc: dm-devel@redhat.com, heiko.carstens@de.ibm.com,
+       linux-kernel@vger.kernel.org, aherrman@de.ibm.com, bunk@stusta.de,
+       cplk@itee.uq.edu.au
+Subject: Re: [dm-devel] Re: [PATCH resubmit] do_mount: reduce stack
+ consumption
+Message-Id: <20051107153706.2f3c8b67.akpm@osdl.org>
+In-Reply-To: <17262.40176.342746.634262@cse.unsw.edu.au>
+References: <20051104105026.GA12476@osiris.boeblingen.de.ibm.com>
+	<20051104084829.714c5dbb.akpm@osdl.org>
+	<20051104212742.GC9222@osiris.ibm.com>
+	<20051104235500.GE5368@stusta.de>
+	<20051104160851.3a7463ff.akpm@osdl.org>
+	<Pine.GSO.4.60.0511051108070.2449@mango.itee.uq.edu.au>
+	<20051104173721.597bd223.akpm@osdl.org>
+	<17260.17661.523593.420313@cse.unsw.edu.au>
+	<17262.40176.342746.634262@cse.unsw.edu.au>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>RAM removal, not RAM replacement. I explained all the variants in an 
->>earlier email in this thread. "extending RAM" is relatively easy.  
->>"replacing RAM" while doable, is probably undesirable. "removing RAM" 
->>impossible.
+Neil Brown <neilb@suse.de> wrote:
+>
+> ...
+> Reduce stack usage with stacked block devices
 > 
-<snip>
-> BTW, I'm not suggesting any of this is a good idea, I just like to
-> understand why something _cant_ be done.
-> 
+> ...
+> diff ./include/linux/sched.h~current~ ./include/linux/sched.h
+> --- ./include/linux/sched.h~current~	2005-11-07 10:01:36.000000000 +1100
+> +++ ./include/linux/sched.h	2005-11-07 10:02:23.000000000 +1100
+> @@ -829,6 +829,9 @@ struct task_struct {
+>  /* journalling filesystem info */
+>  	void *journal_info;
+>  
+> +/* stacked block device info */
+> +	struct bio *bio_list, **bio_tail;
+> +
+>  /* VM state */
+>  	struct reclaim_state *reclaim_state;
+>  
 
-I'm also of the opinion that if we make the kernel remap that we can "remove 
-RAM".  Now, we've had enough people weigh in on this being a bad idea I'm not 
-going to try it.  After all it is fairly complex, quite a bit more so than Mel's 
-reasonable patches.  But I think it is possible.  The steps would look like this:
+More state in the task_strut is a bit sad, but not nearly as sad as deep
+recursion in our deepest codepath..
 
-Method A:
-1. Find some unused RAM (or free some up)
-2. Reserve that RAM
-3. Copy the active data from the soon to be removed RAM to the reserved RAM
-4. Remap the addresses
-5. Remove the RAM
+Possibly one could do:
 
-This of course requires step 3 & 4 take place under something like 
-stop_machine_run() to keep the data from changing.
+struct make_request_state {
+	struct bio *bio_list;
+	struct bio **bio_tail;
+};
 
-Alternately you could do it like this:
-
-Method B:
-1. Find some unused RAM (or free some up)
-2. Reserve that RAM
-3. Unmap the addresses on the soon to be removed RAM
-4. Copy the active data from the soon to be removed RAM to the reserved RAM
-5. Remap the addresses
-6. Remove the RAM
-
-Which would save you the stop_machine_run(), but which adds the complication of 
-dealing with faults on pinned memory during the migration.
+and stick a `struct make_request_state *' into the task_struct and actually
+allocate the thing on the stack.  That's not much nicer though.

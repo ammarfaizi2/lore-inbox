@@ -1,57 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932480AbVKGMwp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbVKGMz3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932480AbVKGMwp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 07:52:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932481AbVKGMwp
+	id S932481AbVKGMz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 07:55:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbVKGMz2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 07:52:45 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:3905
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S932480AbVKGMwp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 07:52:45 -0500
-Message-Id: <436F5C5A.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Mon, 07 Nov 2005 13:53:30 +0100
-From: "Jan Beulich" <JBeulich@novell.com>
-To: "Gerd Knorr" <kraxel@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] make vesafb build without CONFIG_MTRR
+	Mon, 7 Nov 2005 07:55:28 -0500
+Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:24473 "EHLO
+	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S932481AbVKGMz2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 07:55:28 -0500
+Date: Mon, 7 Nov 2005 12:55:13 +0000
+From: Hugo Mills <hugo-lkml@carfax.org.uk>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 3D video card recommendations
+Message-ID: <20051107125513.GD3726@localhost.localdomain>
+Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Arjan van de Ven <arjan@infradead.org>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <1131112605.14381.34.camel@localhost.localdomain> <1131349343.2858.11.camel@laptopd505.fenrus.org> <1131367371.14381.91.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=__Part5072715A.1__="
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bajzpZikUji1w+G9"
+Content-Disposition: inline
+In-Reply-To: <1131367371.14381.91.camel@localhost.localdomain>
+X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
+X-GPG-Key: 1C335860
+X-Parrot: It is no more. It has joined the choir invisible.
+X-IRC-Nicks: darksatanic darkersatanic darkling
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME message. If you are reading this text, you may want to 
-consider changing to a mail reader or gateway that understands how to 
-properly handle MIME multipart messages.
 
---=__Part5072715A.1__=
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+--bajzpZikUji1w+G9
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-vesafb did not build without CONFIG_MTRR.
+On Mon, Nov 07, 2005 at 07:42:51AM -0500, Steven Rostedt wrote:
+> On Mon, 2005-11-07 at 08:42 +0100, Arjan van de Ven wrote:
+> 
+> > people who buy a 3D card for linux that depends on a closed source
+> > module take a few risks, and they should be aware of them (I suspect
+> > they are) so let me make some of them explicit:
+> 
+> Are there good 3D cards that don't depend on a proprietary module, that
+> can run on a AMD64 board?  That was pretty much my questing to begin
+> with :)
 
-From: Jan Beulich <jbeulich@novell.com>
+   http://www.xgitech.com/
 
-(actual patch attached)
+   Not the fastest pieces of hardware out there by some way, but they
+_do_ have open-source drivers. Don't know if they work with AMD64,
+though.
 
---=__Part5072715A.1__=
-Content-Type: application/octet-stream; name="linux-2.6.14-vesafb-no-mtrr.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="linux-2.6.14-vesafb-no-mtrr.patch"
+   There's also the OpenGraphics development work. See the summary at
+http://kerneltrap.org/node/5743
 
-dmVzYWZiIGRpZCBub3QgYnVpbGQgd2l0aG91dCBDT05GSUdfTVRSUi4KCkZyb206IEphbiBCZXVs
-aWNoIDxqYmV1bGljaEBub3ZlbGwuY29tPgoKLS0tIC9ob21lL2piZXVsaWNoL3RtcC9saW51eC0y
-LjYuMTQvZHJpdmVycy92aWRlby92ZXNhZmIuYwkyMDA1LTEwLTI4IDAyOjAyOjA4LjAwMDAwMDAw
-MCArMDIwMAorKysgMi42LjE0L2RyaXZlcnMvdmlkZW8vdmVzYWZiLmMJMjAwNS0xMS0wNCAxMjox
-OToxNS4wMDAwMDAwMDAgKzAxMDAKQEAgLTQxOSw2ICs0MTksNyBAQCBzdGF0aWMgaW50IF9faW5p
-dCB2ZXNhZmJfcHJvYmUoc3RydWN0IGRlCiAJICogcmVnaW9uIGFscmVhZHkgKEZJWE1FKSAqLwog
-CXJlcXVlc3RfcmVnaW9uKDB4M2MwLCAzMiwgInZlc2FmYiIpOwogCisjaWZkZWYgQ09ORklHX01U
-UlIKIAlpZiAobXRycikgewogCQl1bnNpZ25lZCBpbnQgdGVtcF9zaXplID0gc2l6ZV90b3RhbDsK
-IAkJdW5zaWduZWQgaW50IHR5cGUgPSAwOwpAQCAtNDU2LDYgKzQ1Nyw3IEBAIHN0YXRpYyBpbnQg
-X19pbml0IHZlc2FmYl9wcm9iZShzdHJ1Y3QgZGUKIAkJCX0gd2hpbGUgKHRlbXBfc2l6ZSA+PSBQ
-QUdFX1NJWkUgJiYgcmMgPT0gLUVJTlZBTCk7CiAJCX0KIAl9CisjZW5kaWYKIAkKIAlpbmZvLT5m
-Ym9wcyA9ICZ2ZXNhZmJfb3BzOwogCWluZm8tPnZhciA9IHZlc2FmYl9kZWZpbmVkOwo=
+   Hugo.
 
---=__Part5072715A.1__=--
+-- 
+=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
+  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
+    --- Anyone using a computer to generate random numbers is, of ---    
+                       course,  in a state of sin.                       
+
+--bajzpZikUji1w+G9
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDb06xssJ7whwzWGARAndkAKCTv9yV/2YGYHNATj0W8YIpNRaYGQCeK+3j
+Rcs+ZHzBv8DfjkxK10x0FYo=
+=Yy0A
+-----END PGP SIGNATURE-----
+
+--bajzpZikUji1w+G9--

@@ -1,60 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965184AbVKGTgI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964958AbVKGToS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965184AbVKGTgI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 14:36:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965188AbVKGTgI
+	id S964958AbVKGToS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 14:44:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965029AbVKGToS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 14:36:08 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:61138 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S965184AbVKGTgF
+	Mon, 7 Nov 2005 14:44:18 -0500
+Received: from zproxy.gmail.com ([64.233.162.192]:45663 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964958AbVKGToR convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 14:36:05 -0500
-Date: Mon, 7 Nov 2005 13:36:00 -0600
-To: Greg KH <greg@kroah.com>
-Cc: Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
-       johnrose@austin.ibm.com, linux-pci@atrey.karlin.mff.cuni.cz,
-       bluesmoke-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: typedefs and structs [was Re: [PATCH 16/42]: PCI:  PCI Error reporting callbacks]
-Message-ID: <20051107193600.GE19593@austin.ibm.com>
-References: <20051103235918.GA25616@mail.gnucash.org> <20051104005035.GA26929@mail.gnucash.org> <20051105061114.GA27016@kroah.com> <17262.37107.857718.184055@cargo.ozlabs.ibm.com> <20051107175541.GB19593@austin.ibm.com> <20051107182727.GD18861@kroah.com> <20051107185621.GD19593@austin.ibm.com> <20051107190245.GA19707@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 7 Nov 2005 14:44:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nkiBJZMn79pUPGtq5OXNIgV4iNZBJzYC4tLHrY7Zhf3ijI7rZ/qARVegsOcorWxGVHdpkTQ0ByiLFTrpGIpjXbOPTptgXcuSJmYULqB3hgWmSEqSn4GXDBkJlqrxF8aP4a48J3dMa0ikcnf1rBJYohF8KAI+iqRBHs3b2STfp90=
+Message-ID: <29495f1d0511071144t1c917ae1v93cf72da11ad45c7@mail.gmail.com>
+Date: Mon, 7 Nov 2005 11:44:17 -0800
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: Ram Gupta <ram.gupta5@gmail.com>
+Subject: Re: negative timeout can be set up by setsockopt system call
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <436FAB32.20807@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051107190245.GA19707@kroah.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: linas <linas@austin.ibm.com>
+References: <436FAB32.20807@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 07, 2005 at 11:02:45AM -0800, Greg KH was heard to remark:
-> 
-> > I'm not to clear on what "sparse" can do; however, in the good old days,
-> > gcc allowed you to commit great sins when passing "struct blah *" to 
-> > subroutines, whereas it stoped you cold if you tried the same trick 
-> > with a typedef'ed "blah_t *".  This got me into the habit of turning
-> > all structs into typedefs in my personal projects.  Can we expect
-> > something similar for the kernel, and in particular, should we start
-> > typedefing structs now?
-> 
-> No, never typedef a struct.  That's just wrong.  
+On 11/7/05, Ram Gupta <ram.gupta5@gmail.com> wrote:
+>
+> On 11/7/05, Ram Gupta <ram.gupta5@gmail.com> wrote:
+>  > On 11/4/05, Nish Aravamudan <nish.aravamudan@gmail.com>
+>  >  >
+>  >  > In Ram's specific case, I think, the call path is sys_setsockopt() ->
+>  >  > sock_setsockopt() -> sock_set_timeout, which has a definition of:
+>  >  >
+>  >  > static int sock_set_timeout(long *timeo_p, char __user *optval, int
+>  > optlen)
+>  >
+>  >  >> Exactly right.
+>
+> Ok.
+>
+>  >  > Ram, what is the expected behavior of negative values in the timeval?
+>  >  > And what are you seeing happen right now?
+>  >  >
+>  >  > As of 2.6.14, looks like we convert any non-zero values into jiffies
+>  >  > and store them in sk->sk_{rcv,snd}timeo...
+>  >  >
+>  >  I don't see any problem from the kernel side but the application
+>  > times out immediately causing certain failures as the schedule_timeout
+>  > returns immediately in case of negative values. Shouldn't there be a
+>  > check for negative values and return error to the application so that
+>  > it can handle it.
+>
+> I mean more along the lines of what does a man-page say the kernel
+> should be doing if you request a negative timeout? More explicitly,
+> what made you think negative timeouts should have a specific effect?
+>
+>  > The man page is silent about the timeout behaviour in case of its
+> > being negative.  I believe that negative timeout is a mistake on behalf
+> > of an application and hence should be treated as such (i.e should be
+> > notified accordingly)
 
-Its a defacto convention for most C-language apps, see, for 
-example Xlib, gtk and gnome.  Also, "grep typedef include/linux/*"
-shows that many kernel device drivers use this convention.
+Well, the problem is that there is no defined behavior for specifying
+a negative timeout (unlike poll(), for instance). So I'm not sure what
+the best approach is (beyond complaining to the application developers
+that their app is busted).
 
-> gcc should warn you
-> just the same if you pass the wrong struct pointer 
+> When you say schedule_timeout() returns immediately, I assume your
+> logs are filling up with "schedule_timeout: wrong timeout ..." ? (You
+> may need to bump your loglevel). If not, then schedule_timeout() isn't
+> getting a negative value.
+>
+>  >> Yes  I am getting the "schedule_timeout: wrong timeout ..."
+> messages so I am sure the timeout has negative value.
 
-There were many cases where it did not warn (I don't remember 
-the case of subr calls). I beleive this had to do with ANSI-C spec
-issues dating to the 1990's; traditional C is weakly typed.
+Ok, maybe bring this up with the networking folks, as they may have a
+better idea of what to do.
 
-Its not just gcc; anyoe who coded for a while eventually discovered
-that tyedefs where strongly typed, but "struct blah *" were not.
-
-> (and all of your code
-> builds without warnings, right?)
-
-:-/  Yes, of course.
-
---linas
+Thanks,
+Nish

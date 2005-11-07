@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965164AbVKGVrL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965117AbVKGVso@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965164AbVKGVrL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 16:47:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965124AbVKGVrL
+	id S965117AbVKGVso (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 16:48:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965185AbVKGVso
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 16:47:11 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:65255 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S965004AbVKGVrJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 16:47:09 -0500
-In-Reply-To: <7e77d27c0511070646o7b8686aes@mail.gmail.com>
-To: Yan Zheng <yzcorp@gmail.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-MIME-Version: 1.0
-Subject: Re: [PATCH][MCAST]Clear MAF_GSQUERY flag when process MLDv1 general query
- messages.
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OF7136C7EC.A2BD07E5-ON882570B2.00768CF6-882570B2.0077AB0D@us.ibm.com>
-From: David Stevens <dlstevens@us.ibm.com>
-Date: Mon, 7 Nov 2005 13:47:23 -0800
-X-MIMETrack: Serialize by Router on D03NM121/03/M/IBM(Release 6.53HF654 | July 22, 2005) at
- 11/07/2005 14:47:24,
-	Serialize complete at 11/07/2005 14:47:24
-Content-Type: text/plain; charset="US-ASCII"
+	Mon, 7 Nov 2005 16:48:44 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:37267 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965121AbVKGVsm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 16:48:42 -0500
+Subject: Re: [RFC 2/2] Hugetlb COW
+From: Adam Litke <agl@us.ibm.com>
+To: linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org, David Gibson <david@gibson.dropbear.id.au>,
+       hugh@veritas.com, rohit.seth@intel.com,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>, akpm@osdl.org
+In-Reply-To: <1131399533.25133.104.camel@localhost.localdomain>
+References: <1131397841.25133.90.camel@localhost.localdomain>
+	 <1131399533.25133.104.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: IBM
+Date: Mon, 07 Nov 2005 15:47:55 -0600
+Message-Id: <1131400076.25133.110.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yan Zheng <yzcorp@gmail.com> wrote on 11/07/2005 06:46:20 AM:
+On Mon, 2005-11-07 at 15:38 -0600, Adam Litke wrote:
+> [RFC] COW for hugepages
+> (Patch originally from David Gibson <dwg@au1.ibm.com>)
+> 
+> This patch implements copy-on-write for hugepages, hence allowing
+> MAP_PRIVATE mappings of hugetlbfs.
+> 
+> This is chiefly useful for cases where we want to use hugepages
+> "automatically" - that is to map hugepages without the knowledge of
+> the code in the final application (either via kernel hooks, or with
+> LD_PRELOAD).  We can use various heuristics to determine when
+> hugepages might be a good idea, but changing the semantics of
+> anonymous memory from MAP_PRIVATE to MAP_SHARED without the app's
+> knowledge is clearly wrong.
 
-> If the first query message receive after expiration is MLDv2 general
-> query and MAF_GSQUERY flag is set. The report message only contains
-> sources marked by last MLDv2 Multicast Address and Source Specific
-> Queries . Although this circumstance happens  rare, I think it's
-> better have it fixed
+I forgot to mention in the original post that this patch is currently
+broken on ppc64 due to a problem with update_mmu_cache().  The proper
+fix is understood but backed up behind the powerpc merge activity.  
 
-        Do you have a test case that demonstrates this? It appears to
-me that an MLDv2 general query doesn't execute that code (short circuited
-above) and an MLDv1 general query (what that code is handling) will
-have a timer expiring before switching back to MLDv2 mode (so it'll send
-a v1 report, without any sources). Unless I'm missing something, I can't
-see any way for the scenario you've described to happen.
-        That said, I also can't see anything it would hurt, so I don't 
-object,
-but it looks unnecessary to me.
-
-                                                        +-DLS
+-- 
+Adam Litke - (agl at us.ibm.com)
+IBM Linux Technology Center
 

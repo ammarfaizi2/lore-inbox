@@ -1,108 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964815AbVKGKVu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbVKGKXT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964815AbVKGKVu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 05:21:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964818AbVKGKVu
+	id S964812AbVKGKXT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 05:23:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964818AbVKGKXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 05:21:50 -0500
-Received: from [194.205.110.133] ([194.205.110.133]:52919 "HELO
-	mail9.messagelabs.com") by vger.kernel.org with SMTP
-	id S964815AbVKGKVt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 05:21:49 -0500
-X-VirusChecked: Checked
-X-Env-Sender: icampbell@arcom.com
-X-Msg-Ref: server-30.tower-9.messagelabs.com!1131358900!22060061!1
-X-StarScan-Version: 5.5.9.1; banners=arcom.com,-,-
-X-Originating-IP: [194.200.159.164]
-Subject: Re: [WATCHDOG] sa1100_wdt.c sparse cleanups
-From: Ian Campbell <icampbell@arcom.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051105101026.GA28438@flint.arm.linux.org.uk>
-References: <1130921809.12578.179.camel@icampbell-debian>
-	 <20051105101026.GA28438@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Organization: Arcom Control Systems
-Date: Mon, 07 Nov 2005 10:21:24 +0000
-Message-Id: <1131358884.14696.57.camel@icampbell-debian>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Nov 2005 05:23:18 -0500
+Received: from moutng.kundenserver.de ([212.227.126.171]:6354 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S964812AbVKGKXS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 05:23:18 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 10/25] fs: move ext2 ioctl32 handlers into file systems
+Date: Mon, 7 Nov 2005 11:24:47 +0100
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       ext3-users@redhat.com, linux-xfs@oss.sgi.com, xfs-masters@oss.sgi.com,
+       nathans@sgi.com, reiserfs-dev@namesys.com, zippel@linux-m68k.org,
+       sfrench@samba.org, samba-technical@lists.samba.org
+References: <20051105162650.620266000@b551138y.boeblingen.de.ibm.com> <20051105162714.555612000@b551138y.boeblingen.de.ibm.com> <20051106043942.GA31343@lst.de>
+In-Reply-To: <20051106043942.GA31343@lst.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200511071124.49467.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-11-05 at 10:10 +0000, Russell King wrote:
+On Sünndag 06 November 2005 05:39, Christoph Hellwig wrote:
+> NACK, this is completely idiotic.  Duplicating handlers is the very
+> last thing we want.  I actually have patches to move handling some
+> of those ioctls into generic code, but that's a different story.
 
-> It's probably better to use a union with these, eg:
+Ok, I'll drop this patch then, except for the ext3 parts that fix
+an actual problem of missing conversion handlers.
 
-The common idiom in the watchdog drivers seems to be to use separate
-variables. I'll leave it up to Wim if he wants to change that.
+What is your opinion on the xfs bit. The current code is somewhat
+broken, since XFS_IOC_{GET,SET}{VERSION,XFLAGS} are not really
+compatible. Should those three lines simply be removed?
 
-The following makes drivers/char/watchdog/sa1100_wdt.c sparse clean.
+	Arnd <><
 
-Signed-off-by: Ian Campbell <icampbell@arcom.com>
-
-Index: 2.6/drivers/char/watchdog/sa1100_wdt.c
-===================================================================
---- 2.6.orig/drivers/char/watchdog/sa1100_wdt.c	2005-11-03 11:02:05.000000000 +0000
-+++ 2.6/drivers/char/watchdog/sa1100_wdt.c	2005-11-07 09:51:47.000000000 +0000
-@@ -74,7 +74,7 @@
- 	return 0;
- }
+--- linux-cg.orig/fs/xfs/linux-2.6/xfs_ioctl32.c        2005-11-05 02:44:55.000000000 +0100
++++ linux-cg/fs/xfs/linux-2.6/xfs_ioctl32.c     2005-11-05 02:45:35.000000000 +0100
+@@ -34,6 +34,11 @@
+ #define  _NATIVE_IOC(cmd, type) \
+          _IOC(_IOC_DIR(cmd), _IOC_TYPE(cmd), _IOC_NR(cmd), sizeof(type))
  
--static ssize_t sa1100dog_write(struct file *file, const char *data, size_t len, loff_t *ppos)
-+static ssize_t sa1100dog_write(struct file *file, const char __user *data, size_t len, loff_t *ppos)
- {
- 	if (len)
- 		/* Refresh OSMR3 timer. */
-@@ -93,23 +93,24 @@
- {
- 	int ret = -ENOIOCTLCMD;
- 	int time;
-+	void __user *argp = (void __user *)arg;
-+	int __user *p = argp;
++/* broken ext2 ioctl numbers */
++#define XFS_IOC_GETVERSION32 _IOR('v', 1, int)
++#define XFS_IOC_GETXFLAGS32 _IOR('f', 1, int)
++#define XFS_IOC_SETXFLAGS32 _IOW('f', 2, int)
++
+ #if defined(CONFIG_IA64) || defined(CONFIG_X86_64)
+ #define BROKEN_X86_ALIGNMENT
+ /* on ia32 l_start is on a 32-bit boundary */
+@@ -115,12 +120,16 @@
+        vnode_t         *vp = LINVFS_GET_VP(inode);
  
- 	switch (cmd) {
- 	case WDIOC_GETSUPPORT:
--		ret = copy_to_user((struct watchdog_info *)arg, &ident,
--				   sizeof(ident)) ? -EFAULT : 0;
-+		ret = copy_to_user(argp, &ident, sizeof(ident)) ? -EFAULT : 0;
- 		break;
- 
- 	case WDIOC_GETSTATUS:
--		ret = put_user(0, (int *)arg);
-+		ret = put_user(0, p);
- 		break;
- 
- 	case WDIOC_GETBOOTSTATUS:
--		ret = put_user(boot_status, (int *)arg);
-+		ret = put_user(boot_status, p);
- 		break;
- 
- 	case WDIOC_SETTIMEOUT:
--		ret = get_user(time, (int *)arg);
-+		ret = get_user(time, p);
- 		if (ret)
- 			break;
- 
-@@ -123,7 +124,7 @@
- 		/*fall through*/
- 
- 	case WDIOC_GETTIMEOUT:
--		ret = put_user(pre_margin / OSCR_FREQ, (int *)arg);
-+		ret = put_user(pre_margin / OSCR_FREQ, p);
- 		break;
- 
- 	case WDIOC_KEEPALIVE:
-
--- 
-Ian Campbell, Senior Design Engineer
-                                        Web: http://www.arcom.com
-Arcom, Clifton Road, 			Direct: +44 (0)1223 403 465
-Cambridge CB1 7EA, United Kingdom	Phone:  +44 (0)1223 411 200
-
-
-_____________________________________________________________________
-The message in this transmission is sent in confidence for the attention of the addressee only and should not be disclosed to any other party. Unauthorised recipients are requested to preserve this confidentiality. Please advise the sender if the addressee is not resident at the receiving end.  Email to and from Arcom is automatically monitored for operational and lawful business reasons.
-
-This message has been virus scanned by MessageLabs.
+        switch (cmd) {
++       /* these take an int as their argument, not a long */
++       case XFS_IOC_GETVERSION32:
++       case XFS_IOC_GETXFLAGS32:
++       case XFS_IOC_SETXFLAGS32:
++               cmd = _NATIVE_IOC(cmd, long);
++               break;
++
+        case XFS_IOC_DIOINFO:
+        case XFS_IOC_FSGEOMETRY_V1:
+        case XFS_IOC_FSGEOMETRY:
+-       case XFS_IOC_GETVERSION:
+-       case XFS_IOC_GETXFLAGS:
+-       case XFS_IOC_SETXFLAGS:
+        case XFS_IOC_FSGETXATTR:
+        case XFS_IOC_FSSETXATTR:
+        case XFS_IOC_FSGETXATTRA:

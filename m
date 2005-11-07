@@ -1,64 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964978AbVKGUBL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965335AbVKGUEB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964978AbVKGUBL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 15:01:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965098AbVKGUBL
+	id S965335AbVKGUEB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 15:04:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965330AbVKGUEB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 15:01:11 -0500
-Received: from verein.lst.de ([213.95.11.210]:49284 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S964978AbVKGUBK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 15:01:10 -0500
-Date: Mon, 7 Nov 2005 20:59:43 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: linas <linas@austin.ibm.com>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       bluesmoke-devel@lists.sourceforge.net,
-       Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 1/7]: PCI revised [PATCH 16/42]: PCI: PCI Error reporting callbacks
-Message-ID: <20051107195943.GA32566@lst.de>
-References: <20051103235918.GA25616@mail.gnucash.org> <20051104005035.GA26929@mail.gnucash.org> <20051105061114.GA27016@kroah.com> <17262.37107.857718.184055@cargo.ozlabs.ibm.com> <20051107175541.GB19593@austin.ibm.com> <20051107182727.GD18861@kroah.com> <20051107195727.GF19593@austin.ibm.com>
-Mime-Version: 1.0
+	Mon, 7 Nov 2005 15:04:01 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:30994 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S965325AbVKGUD7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 15:03:59 -0500
+Date: Mon, 7 Nov 2005 21:03:57 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: p_gortmaker@yahoo.com, linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk,
+       lethal@linux-sh.org, rc@rc0.org.uk,
+       linuxsh-shmedia-dev@lists.sourceforge.net
+Subject: [2.6 patch] move rtc_interrupt() prototype to rtc.h
+Message-ID: <20051107200357.GN3847@stusta.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051107195727.GF19593@austin.ibm.com>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 07, 2005 at 01:57:27PM -0600, linas wrote:
-> On Mon, Nov 07, 2005 at 10:27:27AM -0800, Greg KH was heard to remark:
-> > 3) realy strong typing that sparse can detect.
-> 
-> 
-> PCI Error Recovery: header file patch
-> 
-> Change enums and subroutine signatures to be strongly typed, per recent
-> discussion with GregKH. Also, change the acronym to the more unique, 
-> less generic "PERS" "PCI Error Recovery System".
-> 
-> Greg, Please apply.
-> 
-> Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
-> 
-> --
-> Index: linux-2.6.14-mm1/include/linux/pci.h
-> ===================================================================
-> --- linux-2.6.14-mm1.orig/include/linux/pci.h	2005-11-07 13:55:28.528843983 -0600
-> +++ linux-2.6.14-mm1/include/linux/pci.h	2005-11-07 13:55:35.745830682 -0600
-> @@ -82,11 +82,11 @@
->   *  the pci device.  If some PCI bus between here and the pci device
->   *  has crashed or locked up, this info is reflected here.
->   */
-> -enum pci_channel_state {
-> +typedef enum {
->  	pci_channel_io_normal = 0,	/* I/O channel is in normal state */
->  	pci_channel_io_frozen = 1,	/* I/O to channel is blocked */
->  	pci_channel_io_perm_failure,	/* PCI card is dead */
-> -};
-> +} pci_channel_state_t;
+This patch moves the rtc_interrupt() prototype to rtc.h and removes the 
+prototypes from C files.
 
-this is not strongly typed, just a completely useless typedef.
+It also renames static rtc_interrupt() functions in 
+arch/arm/mach-integrator/time.c and arch/sh64/kernel/time.c to avoid 
+compile problems.
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Signed-off-by: Paul Gortmaker <p_gortmaker@yahoo.com>
+
+---
+
+This patch was already sent on:
+- 3 Nov 2005
+
+ arch/arm/mach-integrator/time.c |    5 +++--
+ arch/i386/kernel/time_hpet.c    |    2 --
+ arch/sh64/kernel/time.c         |    7 ++++---
+ arch/x86_64/kernel/time.c       |    2 --
+ include/linux/rtc.h             |    3 +++
+ 5 files changed, 10 insertions(+), 9 deletions(-)
+
+--- linux-2.6.14-rc5-mm1-full/include/linux/rtc.h.old	2005-11-03 16:44:09.000000000 +0100
++++ linux-2.6.14-rc5-mm1-full/include/linux/rtc.h	2005-11-03 16:52:58.000000000 +0100
+@@ -11,6 +11,8 @@
+ #ifndef _LINUX_RTC_H_
+ #define _LINUX_RTC_H_
+ 
++#include <linux/interrupt.h>
++
+ /*
+  * The struct used to pass data via the following ioctl. Similar to the
+  * struct tm in <time.h>, but it needs to be here so that the kernel 
+@@ -102,6 +104,7 @@
+ int rtc_unregister(rtc_task_t *task);
+ int rtc_control(rtc_task_t *t, unsigned int cmd, unsigned long arg);
+ void rtc_get_rtc_time(struct rtc_time *rtc_tm);
++irqreturn_t rtc_interrupt(int irq, void *dev_id, struct pt_regs *regs);
+ 
+ #endif /* __KERNEL__ */
+ 
+--- linux-2.6.14-rc5-mm1-full/arch/i386/kernel/time_hpet.c.old	2005-11-03 16:48:34.000000000 +0100
++++ linux-2.6.14-rc5-mm1-full/arch/i386/kernel/time_hpet.c	2005-11-03 16:48:41.000000000 +0100
+@@ -259,8 +259,6 @@
+ #include <linux/mc146818rtc.h>
+ #include <linux/rtc.h>
+ 
+-extern irqreturn_t rtc_interrupt(int irq, void *dev_id, struct pt_regs *regs);
+-
+ #define DEFAULT_RTC_INT_FREQ 	64
+ #define RTC_NUM_INTS 		1
+ 
+--- linux-2.6.14-rc5-mm1-full/arch/x86_64/kernel/time.c.old	2005-11-03 16:49:00.000000000 +0100
++++ linux-2.6.14-rc5-mm1-full/arch/x86_64/kernel/time.c	2005-11-03 16:49:05.000000000 +0100
+@@ -1083,8 +1083,6 @@
+  */
+ #include <linux/rtc.h>
+ 
+-extern irqreturn_t rtc_interrupt(int irq, void *dev_id, struct pt_regs *regs);
+-
+ #define DEFAULT_RTC_INT_FREQ 	64
+ #define RTC_NUM_INTS 		1
+ 
+--- linux-2.6.14-rc5-mm1-full/arch/arm/mach-integrator/time.c.old	2005-11-03 16:49:42.000000000 +0100
++++ linux-2.6.14-rc5-mm1-full/arch/arm/mach-integrator/time.c	2005-11-03 16:50:07.000000000 +0100
+@@ -96,7 +96,8 @@
+ 	.set_alarm	= rtc_set_alarm,
+ };
+ 
+-static irqreturn_t rtc_interrupt(int irq, void *dev_id, struct pt_regs *regs)
++static irqreturn_t arm_rtc_interrupt(int irq, void *dev_id,
++				     struct pt_regs *regs)
+ {
+ 	writel(0, rtc_base + RTC_EOI);
+ 	return IRQ_HANDLED;
+@@ -124,7 +125,7 @@
+ 
+ 	xtime.tv_sec = __raw_readl(rtc_base + RTC_DR);
+ 
+-	ret = request_irq(dev->irq[0], rtc_interrupt, SA_INTERRUPT,
++	ret = request_irq(dev->irq[0], arm_rtc_interrupt, SA_INTERRUPT,
+ 			  "rtc-pl030", dev);
+ 	if (ret)
+ 		goto map_out;
+--- linux-2.6.14-rc5-mm1-full/arch/sh64/kernel/time.c.old	2005-11-03 16:50:23.000000000 +0100
++++ linux-2.6.14-rc5-mm1-full/arch/sh64/kernel/time.c	2005-11-03 16:50:54.000000000 +0100
+@@ -416,7 +416,7 @@
+ 	/*
+ 	** Regardless the toolchain, force the compiler to use the
+ 	** arbitrary register r3 as a clock tick counter.
+-	** NOTE: r3 must be in accordance with rtc_interrupt()
++	** NOTE: r3 must be in accordance with sh64_rtc_interrupt()
+ 	*/
+ 	register unsigned long long  __rtc_irq_flag __asm__ ("r3");
+ 
+@@ -481,7 +481,8 @@
+ #endif
+ }
+ 
+-static irqreturn_t rtc_interrupt(int irq, void *dev_id, struct pt_regs *regs)
++static irqreturn_t sh64_rtc_interrupt(int irq, void *dev_id,
++				      struct pt_regs *regs)
+ {
+ 	ctrl_outb(0, RCR1);	/* Disable Carry Interrupts */
+ 	regs->regs[3] = 1;	/* Using r3 */
+@@ -490,7 +491,7 @@
+ }
+ 
+ static struct irqaction irq0  = { timer_interrupt, SA_INTERRUPT, CPU_MASK_NONE, "timer", NULL, NULL};
+-static struct irqaction irq1  = { rtc_interrupt, SA_INTERRUPT, CPU_MASK_NONE, "rtc", NULL, NULL};
++static struct irqaction irq1  = { sh64_rtc_interrupt, SA_INTERRUPT, CPU_MASK_NONE, "rtc", NULL, NULL};
+ 
+ void __init time_init(void)
+ {
 

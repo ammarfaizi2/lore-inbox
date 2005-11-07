@@ -1,72 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964906AbVKGRAy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964908AbVKGRBL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964906AbVKGRAy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 12:00:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964908AbVKGRAy
+	id S964908AbVKGRBL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 12:01:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbVKGRBL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 12:00:54 -0500
-Received: from zproxy.gmail.com ([64.233.162.202]:31799 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964906AbVKGRAx convert rfc822-to-8bit
+	Mon, 7 Nov 2005 12:01:11 -0500
+Received: from spirit.analogic.com ([204.178.40.4]:15366 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP id S964908AbVKGRBJ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 12:00:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=Iiy8BtrbIq+UtDYvGVWMKvuN5VJETRslB/8M9EYaohVWWOs/LiQN/e+sh7eVloXBFHQvSEeqd1ADhJFDl+S4Y+0yJLBn+uTpXfyfigwXYMS+LX1n1R51d0mGx+jgzbdC/3u8kONswuzoIa9dW8L3tiHmiOqMGBfCXFffSTzChY0=
-Date: Mon, 7 Nov 2005 18:00:45 +0100
-From: Diego Calleja <diegocg@gmail.com>
-To: Toon van der Pas <toon@hout.vanvergehaald.nl>
-Cc: rostedt@goodmis.org, arjan@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: 3D video card recommendations
-Message-Id: <20051107180045.ec86a7f2.diegocg@gmail.com>
-In-Reply-To: <20051107152009.GA20807@shuttle.vanvergehaald.nl>
-References: <1131112605.14381.34.camel@localhost.localdomain>
-	<1131349343.2858.11.camel@laptopd505.fenrus.org>
-	<1131367371.14381.91.camel@localhost.localdomain>
-	<20051107152009.GA20807@shuttle.vanvergehaald.nl>
-X-Mailer: Sylpheed version 2.1.1 (GTK+ 2.8.3; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Mon, 7 Nov 2005 12:01:09 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <436F8601.4070201@vmware.com>
+References: <Pine.LNX.4.55.0511031600010.24109@blysk.ds.pg.gda.pl> <436A3C10.9050302@vmware.com> <Pine.LNX.4.55.0511031639310.24109@blysk.ds.pg.gda.pl> <436AA1FD.3010401@vmware.com> <p73fyqb2dtx.fsf@verdi.suse.de> <Pine.LNX.4.55.0511070931560.28165@blysk.ds.pg.gda.pl> <436F7673.5040309@vmware.com> <Pine.LNX.4.55.0511071632110.28165@blysk.ds.pg.gda.pl> <436F8601.4070201@vmware.com>
+X-OriginalArrivalTime: 07 Nov 2005 17:00:56.0253 (UTC) FILETIME=[D1C36ED0:01C5E3BC]
+Content-class: urn:content-classes:message
+Subject: Re: 2.6.14: CR4 not needed to be inspected on the 486 anymore?
+Date: Mon, 7 Nov 2005 12:00:56 -0500
+Message-ID: <Pine.LNX.4.61.0511071157590.27658@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.14: CR4 not needed to be inspected on the 486 anymore?
+Thread-Index: AcXjvNHNW++jCMSMTSSusDdtHelROw==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Zachary Amsden" <zach@vmware.com>
+Cc: "Maciej W. Rozycki" <macro@linux-mips.org>, "Andi Kleen" <ak@suse.de>,
+       <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Mon, 7 Nov 2005 16:20:09 +0100,
-Toon van der Pas <toon@hout.vanvergehaald.nl> escribió:
 
-> > MS folks would have the same problem.
-> 
-> ...which proves the point Arjan is making.
-> 
-> For one, I have an ISDN-adapter which doesn't work with any version of
-> MS-Windows from this millennium (no drivers available), while it's still
-> working great on current Linux kernels.
+On Mon, 7 Nov 2005, Zachary Amsden wrote:
 
-agreed, I have the same problems with a creative (a well know vendor)
-webcam. Stopped working on SP2.
+> Maciej W. Rozycki wrote:
+>
+>> On Mon, 7 Nov 2005, Zachary Amsden wrote:
+>>
+>>
+>>
+>>> While this is at least no worse in the nested fault case than earlier
+>>> kernels, I really wish I had one of those weird 486s so I could test the
+>>> faulting mechanism.  It seems the trap handling code has gotten quite
+>>>
+>>>
+>>
+>> What's so weird about 486s?  Besides, for testing it doesn't have to be
+>> one -- you will get away with a 386, too.  I have neither anymore, but
+>> there are people around still using them.
+>>
+>>
+>
+> Because I hold in my hand "i486 Microprocessor Programmer's Reference
+> Manual, c 1990", and it has no mention whatsoever of CR4, and all
+> documentation I had until Friday had either no mention of CR4, or
+> something to the effect of "new on Pentium, the CR4 register ..."  So
+> I've had to re-adjust my definition of 486, which was weird.
+>
+> Zach
+> -
 
-The problem in windows (and linux closed-sourced drivers) is _much_ bigger
-than it seems. Soon all CPUs will be 64-bit capable and dual core, and that
-brings two problems: 64-bit-compatible drivers and SMP-safe drivers. I used
-to have a cheap winmodem which would deadlock my smp machine. There're lots
-of crappy windows drivers which haven't been even tested in a smp machine
-it seems. If you buy a dual-core machine and your vendor has gone out of
-bussines or the "support period" is expired you migh need to buy new
-hardware :(
+Yes, and undocumented opcodes might not fault. They might do nothing
+or something strange. It's not a good idea to use an undocumented
+opcode in kernel space. The read-from-CR4 in kernel space, hoping
+that an immoral-opcode trap will save you is not good practice.
 
+You might reset the processor.
 
-The 64-bit driver issue is bigger: Even HP has already a (somewhat long)
-list of printers which HP is definitively _never_ going to support in 64 bit
-platforms (and that's HP, you can imagine what small vendors are doing).
-It seems that most of desktop hardware makers are supporting the 64 bit
-windows platform just for new devices - unless you had 64 bit in mind when
-you created it (which is not possible, because nobody knew what was going to
-happen in the 64 bit desktop land until intel supported x86-64) supporting
-64 bit may be very well impossible, since they need to port the drivers
-of all the thousands of devices they've made through years, and the windows
-platform doesn't make it easier (pointers are obviously 64-bit long in the
-windows 64 bit platform but longs are still 32 bit for compatibility and
-driver programmers don't find it helpful I've heard)
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13.4 on an i686 machine (5589.55 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+.
 
-I wish there was opensource drivers for windows. Maybe the fact that some
-companies are opening them in linux will make that easier in the future :/
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

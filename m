@@ -1,63 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbVKGOmW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbVKGOl4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbVKGOmW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 09:42:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbVKGOmW
+	id S1750720AbVKGOl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 09:41:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750718AbVKGOl4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 09:42:22 -0500
-Received: from zproxy.gmail.com ([64.233.162.195]:11106 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750718AbVKGOmV (ORCPT
+	Mon, 7 Nov 2005 09:41:56 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:7070 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1750726AbVKGOlz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 09:42:21 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
-        b=EP3peI/kfPQUBrrfLAcosrlc6CDe4N1YVhRtl0WnGoGEMnNik0fJE6FeRXVuDQnOF8n9Y/qh1bInrrEt82SbPDEdyjVrWQ6VeS/peDgDMzadFvccFQDJTuzMiyJ3/5u4fQIeD6Ed4GbhnDqqn5iOjrUOxRhpTrk5UuKjqjKiXi4=
-Message-ID: <436F67BF.2020708@gmail.com>
-Date: Mon, 07 Nov 2005 14:42:07 +0000
-From: Ram Gupta <ram.gupta5@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: negative timeout can be set up by setsockopt system call
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 7 Nov 2005 09:41:55 -0500
+Date: Mon, 7 Nov 2005 06:41:41 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: ak@suse.de, akpm@osdl.org, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: Clean up of __alloc_pages
+Message-Id: <20051107064141.7be80c49.pj@sgi.com>
+In-Reply-To: <436F29BF.3010804@yahoo.com.au>
+References: <20051028183326.A28611@unix-os.sc.intel.com>
+	<20051106124944.0b2ccca1.pj@sgi.com>
+	<436EC2AF.4020202@yahoo.com.au>
+	<200511070442.58876.ak@suse.de>
+	<20051106203717.58c3eed0.pj@sgi.com>
+	<436EEF43.2050403@yahoo.com.au>
+	<20051107014659.14c2631b.pj@sgi.com>
+	<436F29BF.3010804@yahoo.com.au>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/4/05, Nish Aravamudan <nish.aravamudan@gmail.com>
- >
- > In Ram's specific case, I think, the call path is sys_setsockopt() ->
- > sock_setsockopt() -> sock_set_timeout, which has a definition of:
- >
- > static int sock_set_timeout(long *timeo_p, char __user *optval, int 
-optlen)
+Ok ... so a spinlock (task_lock) costs one barrier and one atomic more
+than an rcu_read_lock (on a preempt kernel where both spinlock and
+rcu_read_lock cost a preempt), or something like that.
 
- >> Exactly right.
+Thanks, Nick.
 
- > Ram, what is the expected behavior of negative values in the timeval?
- > And what are you seeing happen right now?
- >
- > As of 2.6.14, looks like we convert any non-zero values into jiffies
- > and store them in sk->sk_{rcv,snd}timeo...
- >
- >>  I don't see any problem from the kernel side but the application
-times out immediately causing certain failures as the schedule_timeout
-returns immediately in case of negative values. Shouldn't there be a
-check for negative values and return error to the application so that
-it can handle it.
-
-- Show quoted text -
-
- > This could be, and I think is what Ram was asking about -- I've asked
- > for some clarification.
- >
- > Thanks,
- > Nish
- >
-
-regards
-Ram Gupta
-
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

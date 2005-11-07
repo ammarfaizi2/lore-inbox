@@ -1,195 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964934AbVKGV1I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965107AbVKGV2c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964934AbVKGV1I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 16:27:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965096AbVKGV1H
+	id S965107AbVKGV2c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 16:28:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965110AbVKGV2c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 16:27:07 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:2018 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S964934AbVKGV1F convert rfc822-to-8bit (ORCPT
+	Mon, 7 Nov 2005 16:28:32 -0500
+Received: from pop.gmx.net ([213.165.64.20]:48574 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S965107AbVKGV2b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 16:27:05 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 7 Nov 2005 16:28:31 -0500
+X-Authenticated: #20450766
+Date: Mon, 7 Nov 2005 22:28:36 +0100 (CET)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel panic zd1211-driver-r38 2.6.14-rc5, SMP (fwd)
+Message-ID: <Pine.LNX.4.60.0511072224110.4791@poirot.grange>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [ACPI] ACPI and PRREMPT bug
-Date: Mon, 7 Nov 2005 13:26:49 -0800
-Message-ID: <971FCB6690CD0E4898387DBF7552B90E0356B71D@orsmsx403.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [ACPI] ACPI and PRREMPT bug
-thread-index: AcXjg0GaU/Dpay1hTuqB9AuCdXtwLgAWG4sAAAAQxrAAAVyUgA==
-From: "Moore, Robert" <robert.moore@intel.com>
-To: "Moore, Robert" <robert.moore@intel.com>, <tzachar@cs.bgu.ac.il>,
-       <linux-kernel@vger.kernel.org>, <acpi-devel@lists.sourceforge.net>
-X-OriginalArrivalTime: 07 Nov 2005 21:26:50.0628 (UTC) FILETIME=[F74FDC40:01C5E3E1]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a quick patch that should stop the METHOD_LIMIT errors. It's just
-a quick hack, not the correct solution.
+Hi all
 
-Index: source/components/interpreter/parser/psparse.c
-===================================================================
-RCS file:
-/home/cmplr/cvs/acpica/Acpi/source/components/interpreter/parser/psparse
-.c,v
-retrieving revision 1.158
-diff -u -r1.158 psparse.c
---- source/components/interpreter/parser/psparse.c	2 Sep 2005
-20:17:39 -0000	1.158
-+++ source/components/interpreter/parser/psparse.c	7 Nov 2005
-21:15:44 -0000
-@@ -647,7 +647,10 @@
-             {
-                 /* Decrement the thread count on the method parse tree
-*/
+Got a kernel panic in subject. The message below was sent to the zd1211 
+ml, but I just wanted to ask here too - how a network usb driver could 
+cause such a race? Looks like a missing spin_lock*(&base->t_base.lock); 
+somewhere, but I couldn't easily find a place in the driver, where this 
+could happen. Maybe some lockless ("__<function>") version called instead 
+of the locking one?...
+
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski
+
+---------- Forwarded message ----------
+Date: Mon, 7 Nov 2005 21:43:46 +0100 (CET)
+From: Guennadi Liakhovetski <lyakh@poirot.grange>
+To: Zd1211-devs@lists.sourceforge.net
+Subject: Kernel panic zd1211-driver-r38 2.6.14-rc5, SMP
+
+Hi all
+
+Got the Kernel Panic (Oops below) while testing with a WL-410U (1211 
+chipset) on a SMP. I just have done "ifconfig wlan0 up", was able to press 
+a couple of keys, and then kernel paniced.
+
+The actual Oops is in
+
+__list_del
+detach_timer
+__run_timers
+run_timer_softirq
+
+where timer->entry->next == NULL, if I decoded it right. Any ideas?
+
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski
+
+usb 1-5.1: reset high speed USB device using ehci_hcd and address 3
+
+ _____     ____    _    ____
+|__  /   _|  _ \  / \  / ___|
+  / / | | | | | |/ _ \ \___ \
+ / /| |_| | |_| / ___ \ ___) |
+/____\__, |____/_/   \_\____/
+     |___/
+zd1211 - version 2.0.0.0
+Release Ver = 4330
+EEPORM Ver = 4330
+PA type: 0
+AllowedChannel = 000107ff
+Region:48
+usbcore: registered new driver zd1211
+******* Schedule task fail *********
+Unable to handle kernel NULL pointer dereference at virtual address 00000004
+ printing eip:
+c0129af1
+*pde = 00000000
+Oops: 0002 [#1]
+PREEMPT SMP 
+Modules linked in: zd1211 ehci_hcd usbcore eepro100 mii
+CPU:    1
+EIP:    0060:[<c0129af1>]    Not tainted VLI
+EFLAGS: 00010086   (2.6.14-rc5) 
+EIP is at run_timer_softirq+0xd1/0x1f0
+eax: 00000000   ebx: c5bc3800   ecx: c5970e48   edx: c11cfee8
+esi: c110d020   edi: c110cf60   ebp: c11cff00   esp: c11cfecc
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 0, threadinfo=c11ce000 task=c11a9550)
+Stack: 00000000 00011537 c11a9550 1075d800 c11cfee8 c11ce000 c90e6900 c5970e48 
+       c11f9dd0 00000082 00000001 c03dd308 c04320c0 c11cff20 c0125745 c03dd308 
+       00000001 0000000a 00000046 00000001 c11cff5c c11cff2c c0125798 c042f98c 
+Call Trace:
+ [<c0103f3f>] show_stack+0x7f/0xa0
+ [<c01040f2>] show_registers+0x162/0x1d0
+ [<c0104310>] die+0x100/0x180
+ [<c032b77e>] do_page_fault+0x2de/0x60f
+ [<c0103beb>] error_code+0x4f/0x54
+ [<c0125745>] __do_softirq+0xd5/0xf0
+ [<c0125798>] do_softirq+0x38/0x40
+ [<c0125885>] irq_exit+0x45/0x50
+ [<c01151ec>] smp_apic_timer_interrupt+0x6c/0x100
+ [<c0103b44>] apic_timer_interrupt+0x1c/0x24
+ [<c0100eab>] cpu_idle+0x7b/0x80
+ [<c011413c>] start_secondary+0x12c/0x1c0
+ [<00000000>] _stext+0x3feffd68/0x8
+ [<c11cffb4>] 0xc11cffb4
+Code: 00 00 00 b8 00 e0 ff ff 21 e0 89 45 e0 8d b6 00 00 00 00 8d bc 27 00 00 00 00 8b 51 10 89 55 e4 8b 59 14 89 4f 08 8b 51 04 8b 01 <89> 50 04 89 02 89 f8 c7 01 00 00 00 00 c7 41 04 00 02 20 00 e8 
+ <0>Kernel panic - not syncing: Fatal exception in interrupt
  
--                WalkState->MethodDesc->Method.ThreadCount--;
-+                if (WalkState->MethodDesc->Method.ThreadCount)
-+                {
-+                    WalkState->MethodDesc->Method.ThreadCount--;
-+                }
-             }
- 
-             AcpiDsTerminateControlMethod (WalkState);
-
-
-Linux version would look like this:
-
-
-				/* Decrement the thread count on the
-method parse tree */
-
-				if
-(walk_state->method_desc->method.thread_count) {
-	
-walk_state->method_desc->method.thread_count--;
-				}
-
-
-> -----Original Message-----
-> From: Moore, Robert
-> Sent: Monday, November 07, 2005 12:44 PM
-> To: Moore, Robert; 'tzachar@cs.bgu.ac.il';
-'linux-kernel@vger.kernel.org';
-> 'acpi-devel@lists.sourceforge.net'
-> Subject: RE: [ACPI] ACPI and PRREMPT bug
-> 
-> You might try setting this flag (in acglobal.h) to TRUE:
-> 
-> /*
->  * Automatically serialize ALL control methods? Default is FALSE,
-meaning
->  * to use the Serialized/NotSerialized method flags on a per method
-basis.
->  * Only change this if the ASL code is poorly written and cannot
-handle
->  * reentrancy even though methods are marked "NotSerialized".
->  */
-> ACPI_EXTERN UINT8       ACPI_INIT_GLOBAL
-(AcpiGbl_AllMethodsSerialized,
-> FALSE);
-> 
-> 
-> 
-> > -----Original Message-----
-> > From: Moore, Robert
-> > Sent: Monday, November 07, 2005 12:42 PM
-> > To: 'tzachar@cs.bgu.ac.il'; linux-kernel@vger.kernel.org; acpi-
-> > devel@lists.sourceforge.net
-> > Subject: RE: [ACPI] ACPI and PRREMPT bug
-> >
-> > I'm aware of this issue and it is under investigation.
-> > Bob
-> >
-> >
-> > > -----Original Message-----
-> > > From: acpi-devel-admin@lists.sourceforge.net [mailto:acpi-devel-
-> > > admin@lists.sourceforge.net] On Behalf Of Nir Tzachar
-> > > Sent: Monday, November 07, 2005 1:36 AM
-> > > To: linux-kernel@vger.kernel.org; acpi-devel@lists.sourceforge.net
-> > > Subject: [ACPI] ACPI and PRREMPT bug
-> > >
-> > > hello.
-> > >
-> > > I'm encountering a problem with acpi on kernels where preempt is
-> > > enabled.
-> > > The problem is 100% reproducible on all kernels starting from
-2.6.12.1
-> > > to 2.6.14
-> > > ( i didn't try 2.6.11 and below ).
-> > >
-> > > the problem is manifested via the battery proc interface. to
-produce
-> it,
-> > > run in two terminals simultaneously:
-> > > while true; do cat /proc/acpi/battery/BAT0/info; done
-> > >
-> > > if i turn on kernel preemption (either voluntary or not), i get
-the
-> > > following error messages in dmesg:
-> > > Nov  7 08:31:00 lapnir ACPI-0292: *** Error: Looking up [SERN] in
-> > > namespace, AE_ALREADY_EXISTS
-> > > Nov  7 08:31:00 lapnir ACPI-0508: *** Error: Method execution
-failed
-> > > [\_SB_.PCI0.LPC_.EC__.GBIF] (Node c18f5d60), AE_ALREADY_EXISTS
-> > > Nov  7 08:31:02 lapnir ACPI-0213: *** Error: Method reached
-maximum
-> > > reentrancy limit (255)
-> > > Nov  7 08:31:02 lapnir ACPI-0508: *** Error: Method execution
-failed
-> > > [\_SB_.PCI0.LPC_.EC__.BAT0._BIF] (Node c18f5c20),
-AE_AML_METHOD_LIMIT
-> > >
-> > > and with acpi debugging info turned on:
-> > > Nov  7 08:46:08 lapnir dswload-0292: *** Error: Looking up [SERN]
-in
-> > > namespace, AE_ALREADY_EXISTS
-> > > Nov  7 08:46:08 lapnir psloop-0287 [4399] ps_parse_loop         :
-> During
-> > > name lookup/catalog, AE_ALREADY_EXISTS
-> > > Nov  7 08:46:08 lapnir psparse-0508: *** Error: Method execution
-> failed
-> > > [\_SB_.PCI0.LPC_.EC__.GBIF] (Node c18f94e8), AE_ALREADY_EXISTS
-> > > Nov  7 08:46:08 lapnir osl-0856 [4403] os_wait_semaphore     :
-Failed
-> to
-> > > acquire semaphore[c18de5e0|1|0], AE_TIME
-> > > Nov  7 08:46:08 lapnir dsmethod-0213: *** Error: Method reached
-> maximum
-> > > reentrancy limit (255)
-> > > Nov  7 08:46:08 lapnir psparse-0508: *** Error: Method execution
-> failed
-> > > [\_SB_.PCI0.LPC_.EC__.BAT0._BIF] (Node c18f9268),
-AE_AML_METHOD_LIMIT
-> > > Nov  7 08:46:08 lapnir acpi_battery-0144 [4449] battery_get_info
-> :
-> > > Error evaluating _BIF
-> > > Nov  7 08:46:08 lapnir dsmethod-0213: *** Error: Method reached
-> maximum
-> > > reentrancy limit (255)
-> > > Nov  7 08:46:08 lapnir psparse-0508: *** Error: Method execution
-> failed
-> > > [\_SB_.PCI0.LPC_.EC__.BAT0._BIF] (Node c18f9268),
-AE_AML_METHOD_LIMIT
-> > >
-> > >
-> > > this is repeated until a reboot. loading and unloading the battery
-> > > module does not help.
-> > >
-> > > My computer is a thinkpad t43p, and i didn't try to reproduce it
-on
-> > > another laptop
-> > > (have no access to another model..).
-> > > If you need more info, let me know.
-> > >
-> > > p.s. please cc me, im not in the list.
-> > >
-> > > --
-> > > =========================================================
-> > > Nir Tzachar.

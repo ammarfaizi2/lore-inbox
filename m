@@ -1,41 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964853AbVKGPr2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964830AbVKGPum@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964853AbVKGPr2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 10:47:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964830AbVKGPr2
+	id S964830AbVKGPum (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 10:50:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964847AbVKGPum
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 10:47:28 -0500
-Received: from 193.37.26.69.virtela.com ([69.26.37.193]:49792 "EHLO
-	teapot.corp.reactrix.com") by vger.kernel.org with ESMTP
-	id S964850AbVKGPr1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 10:47:27 -0500
-Date: Mon, 7 Nov 2005 07:47:18 -0800
-From: Nick Hengeveld <nickh@reactrix.com>
-To: Junio C Hamano <junkio@cox.net>
-Cc: git@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: GIT 0.99.9e
-Message-ID: <20051107154718.GJ3001@reactrix.com>
-References: <7v64r5t3m0.fsf@assigned-by-dhcp.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 7 Nov 2005 10:50:42 -0500
+Received: from nproxy.gmail.com ([64.233.182.201]:28393 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964830AbVKGPul convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 10:50:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JCaFYCQH1rDvtJKgdWNSon0UExmhdBMh8pg8JSpC53+Oc2HM9qxaPpk3xxNMS7W3AGVnMIBx0Gr6Ds5XA5PYyLd8u+VIEe1jkZHMMSe01KsFvYByIWBFDnyw71AD0ZhsED35ZzgB6FmeFJDHqrfHNFSJvusLPodhpaj9BMKvDtY=
+Message-ID: <4240b9160511070750t25fab9e2u3c8e2c1414b55ebf@mail.gmail.com>
+Date: Mon, 7 Nov 2005 16:50:39 +0100
+From: Jerome Glisse <j.glisse@gmail.com>
+To: =?ISO-8859-1?Q?Ville_Syrj=E4l=E4?= <syrjala@sci.fi>
+Subject: Re: 3D video card recommendations
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <pan.2005.11.07.14.50.56.126577@sci.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <7v64r5t3m0.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Mutt/1.4.1i
+References: <1131112605.14381.34.camel@localhost.localdomain>
+	 <1131349343.2858.11.camel@laptopd505.fenrus.org>
+	 <1131367371.14381.91.camel@localhost.localdomain>
+	 <20051107125513.GD3726@localhost.localdomain>
+	 <pan.2005.11.07.14.50.56.126577@sci.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 06, 2005 at 09:43:19PM -0800, Junio C Hamano wrote:
+On 11/7/05, Ville Syrjälä <syrjala@sci.fi> wrote:
+> On Mon, 07 Nov 2005 12:55:13 +0000, Hugo Mills wrote:
+>
+> > On Mon, Nov 07, 2005 at 07:42:51AM -0500, Steven Rostedt wrote:
+> >> On Mon, 2005-11-07 at 08:42 +0100, Arjan van de Ven wrote:
+> >>
+> >> > people who buy a 3D card for linux that depends on a closed source
+> >> > module take a few risks, and they should be aware of them (I suspect
+> >> > they are) so let me make some of them explicit:
+> >>
+> >> Are there good 3D cards that don't depend on a proprietary module, that
+> >> can run on a AMD64 board?  That was pretty much my questing to begin
+> >> with :)
+> >
+> >    http://www.xgitech.com/
+> >
+> >    Not the fastest pieces of hardware out there by some way, but they
+> > _do_ have open-source drivers.
+>
+> That's not entirely true. The DRI driver is closed source.
+>
 
->  - http-push seems to still have a bug or two but that is to be
->    expected for any new code, and I am reasonably sure it can be
->    ironed out; preferably before 1.0 but it is not a
->    showstopper.
+DRI closed source ? You mean the fglrx driver from ati ?
 
-It seems like a minor point, but is this the appropriate name or should
-it be dav-push?  Not that there's anything else in the works AFAIK but
-it's certainly possible that something else could run over HTTP later
-on.
+Anyway my advice would be to look at dri project an
+see the supported card list. http://dri.freedesktop.org
+if you want a card with open source 3d driver.
 
--- 
-For a successful technology, reality must take precedence over public
-relations, for nature cannot be fooled.
+ATI & Intel graphics chipset seems to have the best
+open source support i am aware of. For ATI the r300/r400
+(radeon 9500-9800/ X300-X800) support is still
+experimental (IIRC there are PCI-E issues).
+
+best,
+Jerome Glisse

@@ -1,101 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbVKGEB2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750812AbVKGEDT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932389AbVKGEB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 23:01:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbVKGEB1
+	id S1750812AbVKGEDT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 23:03:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbVKGEDT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 23:01:27 -0500
-Received: from verein.lst.de ([213.95.11.210]:48862 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S932389AbVKGEB1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 23:01:27 -0500
-Date: Mon, 7 Nov 2005 05:01:19 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Christoph Hellwig <hch@lst.de>, akpm@osdl.org, schwidefsky@de.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4/4] ->compat_ioctl for 390 tape_char
-Message-ID: <20051107040118.GA16331@lst.de>
-References: <20051104221816.GD9384@lst.de> <200511050010.47138.arnd@arndb.de> <20051104235148.GA10604@lst.de> <200511050217.02547.arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200511050217.02547.arnd@arndb.de>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+	Sun, 6 Nov 2005 23:03:19 -0500
+Received: from pilet.ens-lyon.fr ([140.77.167.16]:14555 "EHLO
+	pilet.ens-lyon.fr") by vger.kernel.org with ESMTP id S1750812AbVKGEDS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Nov 2005 23:03:18 -0500
+Message-ID: <436ED24A.7090006@ens-lyon.org>
+Date: Sun, 06 Nov 2005 23:04:26 -0500
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-mm1
+References: <20051106182447.5f571a46.akpm@osdl.org>
+In-Reply-To: <20051106182447.5f571a46.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------010100060909030004010309"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 05, 2005 at 02:16:56AM +0100, Arnd Bergmann wrote:
-> On S?nnavend 05 November 2005 00:51, Christoph Hellwig wrote:
-> > we return -ENOIOCTLCMD if we didn't have a valid compat ioctl, and in
-> > that case the vfs code will try to find it in the core translation
-> > table.
-> 
-> No, the function you wrote returns -ENOIOCTLCMD only if
-> device->discipline->ioctl_fn is NULL, otherwise it returns the
-> code it gets from that function, which is -EINVAL.
+This is a multi-part message in MIME format.
+--------------010100060909030004010309
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-indeed.  updated patch below that handles that case.  I couldn't find
-a problem like that in the other patches.
+Andrew Morton wrote:
+
+>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14/2.6.14-mm1/
+>  
+>
+Hi Andrew,
+
+drivers/cpufreq/cpufreq.c uses current_in_cpu_hotplug.
+But, kernel/cpu.c is not built on UP boxes.
+This generates the following error:
+
+  LD      .tmp_vmlinux1
+drivers/built-in.o: In function `__cpufreq_driver_target':
+: undefined reference to `current_in_cpu_hotplug'
+
+The attached patch should fix it.
+
+Signed-off-by: Brice Goglin <Brice.Goglin@ens-lyon.org>
+
+Regards,
+Brice
 
 
-Index: linux-2.6/drivers/s390/char/tape_char.c
-===================================================================
---- linux-2.6.orig/drivers/s390/char/tape_char.c	2005-11-06 20:06:55.000000000 +0100
-+++ linux-2.6/drivers/s390/char/tape_char.c	2005-11-06 20:19:11.000000000 +0100
-@@ -37,6 +37,8 @@
- static int tapechar_release(struct inode *,struct file *);
- static int tapechar_ioctl(struct inode *, struct file *, unsigned int,
- 			  unsigned long);
-+static long tapechar_compat_ioctl(struct file *, unsigned int,
-+			  unsigned long);
+--------------010100060909030004010309
+Content-Type: text/x-patch;
+ name="fix-missing-current_in_cpu_hotplug-on-up.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fix-missing-current_in_cpu_hotplug-on-up.patch"
+
+--- linux-mm/include/linux/cpu.h.old	2005-11-06 22:08:39.000000000 -0500
++++ linux-mm/include/linux/cpu.h	2005-11-06 22:41:17.000000000 -0500
+@@ -33,7 +33,6 @@
  
- static struct file_operations tape_fops =
+ extern int register_cpu(struct cpu *, int, struct node *);
+ extern struct sys_device *get_cpu_sysdev(int cpu);
+-extern int current_in_cpu_hotplug(void);
+ #ifdef CONFIG_HOTPLUG_CPU
+ extern void unregister_cpu(struct cpu *, struct node *);
+ #endif
+@@ -43,6 +42,7 @@
+ /* Need to know about CPUs going up/down? */
+ extern int register_cpu_notifier(struct notifier_block *nb);
+ extern void unregister_cpu_notifier(struct notifier_block *nb);
++extern int current_in_cpu_hotplug(void);
+ 
+ int cpu_up(unsigned int cpu);
+ 
+@@ -55,6 +55,10 @@
+ static inline void unregister_cpu_notifier(struct notifier_block *nb)
  {
-@@ -44,6 +46,7 @@
- 	.read = tapechar_read,
- 	.write = tapechar_write,
- 	.ioctl = tapechar_ioctl,
-+	.compat_ioctl = tapechar_compat_ioctl,
- 	.open = tapechar_open,
- 	.release = tapechar_release,
- };
-@@ -463,6 +466,23 @@
- 	return device->discipline->ioctl_fn(device, no, data);
  }
- 
-+static long
-+tapechar_compat_ioctl(struct file *filp, unsigned int no, unsigned long data)
++static inline int current_in_cpu_hotplug(void)
 +{
-+	struct tape_device *device = filp->private_data;
-+	int rval = -ENOIOCTLCMD;
-+
-+	if (device->discipline->ioctl_fn) {
-+		lock_kernel();
-+		rval = device->discipline->ioctl_fn(device, no, data);
-+		unlock_kernel();
-+		if (rval == -EINVAL)
-+			rval = -ENOIOCTLCMD;
-+	}
-+
-+	return rval;
++	return 0;
 +}
-+
- /*
-  * Initialize character device frontend.
-  */
-Index: linux-2.6/arch/s390/kernel/compat_ioctl.c
-===================================================================
---- linux-2.6.orig/arch/s390/kernel/compat_ioctl.c	2005-11-06 20:17:52.000000000 +0100
-+++ linux-2.6/arch/s390/kernel/compat_ioctl.c	2005-11-06 20:17:58.000000000 +0100
-@@ -42,9 +42,6 @@
- #include <linux/compat_ioctl.h>
- #define DECLARES
- #include "../../../fs/compat_ioctl.c"
--
--/* s390 only ioctls */
--COMPATIBLE_IOCTL(TAPE390_DISPLAY)
- };
  
- int ioctl_table_size = ARRAY_SIZE(ioctl_start);
+ #endif /* CONFIG_SMP */
+ extern struct sysdev_class cpu_sysdev_class;
+
+--------------010100060909030004010309--

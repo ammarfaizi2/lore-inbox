@@ -1,82 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965226AbVKGUaT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965082AbVKGUfi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965226AbVKGUaT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 15:30:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965300AbVKGUaS
+	id S965082AbVKGUfi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 15:35:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965041AbVKGUfi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 15:30:18 -0500
-Received: from xproxy.gmail.com ([66.249.82.194]:11534 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965226AbVKGUaR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 15:30:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tpfscELy7kUnacNlSZU2yyHo6GVopSRx0QLXPbS7th+IB8aQQ96sVxbD25lIzCvQOKaDKrW5ly+Dc407mjFKLzw7yLyZtP1q69AiiBmGHRpzUj0swuGM7ANnv7i6BH39Ns5/uNn+TvD60JseyakO0mMko+SXMmOAHDEKvpL6IbQ=
-Message-ID: <d120d5000511071230j20296d61w86254c62e2e95134@mail.gmail.com>
-Date: Mon, 7 Nov 2005 15:30:15 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Greg KH <greg@kroah.com>
-Subject: Re: 2.6.14-mm1
-Cc: Andrew Morton <akpm@osdl.org>,
-       "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
-       linux-kernel@vger.kernel.org, Steven French <sfrench@us.ibm.com>,
-       matthieu castet <castet.matthieu@free.fr>,
-       Vojtech Pavlik <vojtech@suse.cz>
-In-Reply-To: <20051107200734.GD22524@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 7 Nov 2005 15:35:38 -0500
+Received: from hera.kernel.org ([140.211.167.34]:16030 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S965082AbVKGUfh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 15:35:37 -0500
+Date: Mon, 7 Nov 2005 13:33:37 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Nikita Danilov <nikita@clusterfs.com>
+Subject: Re: [PATCH 3/3] vm: writeout watermarks
+Message-ID: <20051107153337.GB17246@logos.cnet>
+References: <4366FA9A.20402@yahoo.com.au> <4366FAF5.8020908@yahoo.com.au> <4366FB24.5010507@yahoo.com.au> <4366FB4B.9000103@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20051106182447.5f571a46.akpm@osdl.org>
-	 <436F7DAA.8070803@ums.usu.ru> <20051107115210.33e4f0bf.akpm@osdl.org>
-	 <20051107200734.GD22524@kroah.com>
+In-Reply-To: <4366FB4B.9000103@yahoo.com.au>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/7/05, Greg KH <greg@kroah.com> wrote:
-> On Mon, Nov 07, 2005 at 11:52:10AM -0800, Andrew Morton wrote:
-> > > 4) I also decided to test new input hotplug. Below is the udevmonitor
-> > > trace of uevents when I rmmod and modprobe again the psmouse driver.
-> > > <NULL>s don't look right there. Is the rest OK?
-> > >
-> > > UEVENT[1131378684] remove@/class/input/input1/mouse0
-> > > ACTION=remove
-> > > DEVPATH=/class/input/input1/mouse0
-> > > SUBSYSTEM=input
-> > > SEQNUM=903
-> > > PHYSDEVPATH=/devices/platform/i8042/serio0
-> > > PHYSDEVBUS=serio
-> > > PHYSDEVDRIVER=psmouse
-> > > MAJOR=13
-> > > MINOR=32
-> > >
-> > > UEVENT[1131378684] remove@/class/input/input1
-> > > ACTION=remove
-> > > DEVPATH=/class/input/input1
-> > > SUBSYSTEM=input
-> > > SEQNUM=904
-> > > PHYSDEVPATH=/devices/platform/i8042/serio0
-> > > PHYSDEVBUS=serio
-> > > PHYSDEVDRIVER=psmouse
-> > > PRODUCT=11/2/4/0
-> > > NAME="GenPS/2 Genius <NULL>"
-> > > PHYS="isa0060/serio1/input0"
-> > > UNIQ="<NULL>"
-> > > EV=7
-> > > KEY=1f0000 0 0 0 0 0 0 0 0
-> > > REL=103
-> >
-> > Hopefully Greg can tell us?
->
-> Those nulls are coming from the device's strings from what I have seen.
-> I don't think this should be a problem, but Dmitry and Vojtech would
-> know for sure.
->
 
-input_hotplug() tests dev->phys but emits dev->uniq. I could swear I
-fixed this typo at once already. Will prepare a patch tonight.
+Nikita has a customer using large percentage of RAM for 
+a kernel module, which results in get_dirty_limits() misbehaviour
+since
 
---
-Dmitry
+        unsigned long available_memory = total_pages;
+
+It should work on the amount of cacheable pages instead.
+
+He's got a patch but I dont remember the URL. Nikita?
+
+On Tue, Nov 01, 2005 at 04:21:15PM +1100, Nick Piggin wrote:
+> 3/3
+> 
+> -- 
+> SUSE Labs, Novell Inc.
+> 
+
+> Slightly change the writeout watermark calculations so we keep background
+> and synchronous writeout watermarks in the same ratios after adjusting them.
+> This ensures we should always attempt to start background writeout before
+> synchronous writeout.
+> 
+> Signed-off-by: Nick Piggin <npiggin@suse.de>
+> 
+> 
+> Index: linux-2.6/mm/page-writeback.c
+> ===================================================================
+> --- linux-2.6.orig/mm/page-writeback.c	2005-11-01 13:41:39.000000000 +1100
+> +++ linux-2.6/mm/page-writeback.c	2005-11-01 14:29:27.000000000 +1100
+> @@ -165,9 +165,11 @@ get_dirty_limits(struct writeback_state 
+>  	if (dirty_ratio < 5)
+>  		dirty_ratio = 5;
+>  
+> -	background_ratio = dirty_background_ratio;
+> -	if (background_ratio >= dirty_ratio)
+> -		background_ratio = dirty_ratio / 2;
+> +	/*
+> +	 * Keep the ratio between dirty_ratio and background_ratio roughly
+> +	 * what the sysctls are after dirty_ratio has been scaled (above).
+> +	 */
+> +	background_ratio = dirty_background_ratio * dirty_ratio/vm_dirty_ratio;
+>  
+>  	background = (background_ratio * available_memory) / 100;
+>  	dirty = (dirty_ratio * available_memory) / 100;
+

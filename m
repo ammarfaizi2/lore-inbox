@@ -1,47 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964943AbVKGVNf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964947AbVKGVNh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964943AbVKGVNf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 16:13:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964947AbVKGVNf
+	id S964947AbVKGVNh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 16:13:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964948AbVKGVNh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 16:13:35 -0500
-Received: from gate.crashing.org ([63.228.1.57]:20361 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S964943AbVKGVNe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 16:13:34 -0500
-Subject: Re: [PATCH 1/4] Memory Add Fixes for ppc64
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Mike Kravetz <kravetz@us.ibm.com>
-Cc: Andy Whitcroft <apw@shadowen.org>, Paul Mackerras <paulus@samba.org>,
-       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net
-In-Reply-To: <20051107204743.GC5821@w-mikek2.ibm.com>
-References: <20051104231552.GA25545@w-mikek2.ibm.com>
-	 <20051104231800.GB25545@w-mikek2.ibm.com>
-	 <1131149070.29195.41.camel@gaston> <20051107204743.GC5821@w-mikek2.ibm.com>
-Content-Type: text/plain
-Date: Tue, 08 Nov 2005 08:12:56 +1100
-Message-Id: <1131397976.4652.52.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Mon, 7 Nov 2005 16:13:37 -0500
+Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:11996 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S964947AbVKGVNg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 16:13:36 -0500
+From: Nikita Danilov <nikita@clusterfs.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17263.50063.982995.482530@gargle.gargle.HOWL>
+Date: Tue, 8 Nov 2005 00:13:51 +0300
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 3/3] vm: writeout watermarks
+In-Reply-To: <20051107153337.GB17246@logos.cnet>
+References: <4366FA9A.20402@yahoo.com.au>
+	<4366FAF5.8020908@yahoo.com.au>
+	<4366FB24.5010507@yahoo.com.au>
+	<4366FB4B.9000103@yahoo.com.au>
+	<20051107153337.GB17246@logos.cnet>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Marcelo Tosatti writes:
+ > 
+ > Nikita has a customer using large percentage of RAM for 
+ > a kernel module, which results in get_dirty_limits() misbehaviour
+ > since
+ > 
+ >         unsigned long available_memory = total_pages;
+ > 
+ > It should work on the amount of cacheable pages instead.
+ > 
+ > He's got a patch but I dont remember the URL. Nikita?
 
-> Just curious if we still want to boost MAX_ORDER like this with 64k
-> pages?  Doesn't that make the MAX_ORDER block size 256MB in this case?
-> Also, not quite sure what happens if memory size (a 16 MB multiple)
-> does not align with a MAX_ORDER block size (a 256MB multiple in this
-> case).  My 'guess' is that the page allocator would not use it as it
-> would not fit within the buddy system.
-> 
-> cc'ing SPARSEMEM author Andy Whitcroft.
+http://linuxhacker.ru/~nikita/patches/2.6.14-rc5/09-throttle-against-free-memory.patch
 
-Yes, the MAX_ORDER should be different indeed. But can Kconfig do that ?
-That is have the default value be different based on a Kconfig option ?
-I don't see that ... We may have to do things differently here...
+It changes balance_dirty_pages() to calculate threshold not from total
+amount of physical pages, but from the maximal amount of pages that can
+be consumed by the file system cache. This amount is approximated by
+total size of LRU list plus free memory (across all zones).
 
-Ben.
+This has a downside of starting write-out earlier, so patch should
+probably be accompanied by some tuning of default thresholds.
 
+Nikita.
 
+ > 
+ > On Tue, Nov 01, 2005 at 04:21:15PM +1100, Nick Piggin wrote:
+ > > 3/3
+ > > 
+ > > -- 
+ > > SUSE Labs, Novell Inc.
+ > > 
+ > 
+ > > Slightly change the writeout watermark calculations so we keep background
+ > > and synchronous writeout watermarks in the same ratios after adjusting them.
+ > > This ensures we should always attempt to start background writeout before
+ > > synchronous writeout.
+ > > 
+ > > Signed-off-by: Nick Piggin <npiggin@suse.de>
+ > > 
+ > > 
+ > > Index: linux-2.6/mm/page-writeback.c
+ > > ===================================================================
+ > > --- linux-2.6.orig/mm/page-writeback.c	2005-11-01 13:41:39.000000000 +1100
+ > > +++ linux-2.6/mm/page-writeback.c	2005-11-01 14:29:27.000000000 +1100
+ > > @@ -165,9 +165,11 @@ get_dirty_limits(struct writeback_state 
+ > >  	if (dirty_ratio < 5)
+ > >  		dirty_ratio = 5;
+ > >  
+ > > -	background_ratio = dirty_background_ratio;
+ > > -	if (background_ratio >= dirty_ratio)
+ > > -		background_ratio = dirty_ratio / 2;
+ > > +	/*
+ > > +	 * Keep the ratio between dirty_ratio and background_ratio roughly
+ > > +	 * what the sysctls are after dirty_ratio has been scaled (above).
+ > > +	 */
+ > > +	background_ratio = dirty_background_ratio * dirty_ratio/vm_dirty_ratio;
+ > >  
+ > >  	background = (background_ratio * available_memory) / 100;
+ > >  	dirty = (dirty_ratio * available_memory) / 100;

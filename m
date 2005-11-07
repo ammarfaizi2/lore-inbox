@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964854AbVKGRMG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbVKGROF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964854AbVKGRMG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 12:12:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964873AbVKGRMF
+	id S964871AbVKGROF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 12:14:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964873AbVKGROE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 12:12:05 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:16306 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S964854AbVKGRMD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 12:12:03 -0500
-Message-ID: <436F8ABE.9020605@nortel.com>
-Date: Mon, 07 Nov 2005 11:11:26 -0600
-From: "Christopher Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
+	Mon, 7 Nov 2005 12:14:04 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:27048 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S964871AbVKGROD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 12:14:03 -0500
+Message-ID: <436F9CB1.9F6BCC20@tv-sign.ru>
+Date: Mon, 07 Nov 2005 21:28:01 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Krzysztof Halasa <khc@pm.waw.pl>
-CC: Eric Sandall <eric@sandall.us>, Willy Tarreau <willy@w.ods.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Tony Luck <tony.luck@gmail.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: New (now current development process)
-References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com>	<12c511ca0510291157u5557b6b1x85a47311f0e16436@mail.gmail.com>	<20051029195115.GD14039@flint.arm.linux.org.uk>	<Pine.LNX.4.64.0510291314100.3348@g5.osdl.org>	<20051031064109.GO22601@alpha.home.local>	<Pine.LNX.4.63.0511062052590.24477@cerberus> <m3k6fkxwqe.fsf@defiant.localdomain>
-In-Reply-To: <m3k6fkxwqe.fsf@defiant.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: paulmck@us.ibm.com, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       dipankar@in.ibm.com, suzannew@cs.pdx.edu
+Subject: Re: [PATCH] Fixes for RCU handling of task_struct
+References: <20051031020535.GA46@us.ibm.com> <20051031140459.GA5664@elte.hu> <20051031205119.5bd897f3.akpm@osdl.org> <20051103190916.GA13417@us.ibm.com> <436B9D5D.3EB28CD5@tv-sign.ru> <20051104200801.GA16092@us.ibm.com> <436CDEAC.A7D56A94@tv-sign.ru> <20051105232027.GA20178@us.ibm.com> <436DF0A6.342717A6@tv-sign.ru> <20051106225926.GC22876@us.ibm.com> <436F5402.137182CF@tv-sign.ru>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Nov 2005 17:11:28.0579 (UTC) FILETIME=[4AA8B930:01C5E3BE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof Halasa wrote:
-> Eric Sandall <eric@sandall.us> writes:
-
->>A -final should never be changed from the last -rc. That defeats the
->>purpose of having -rc releases (rc == 'release candidate' ;)).
+Oleg Nesterov wrote:
 > 
+> When group leader exits it goes into TASK_ZOMBIE state (if it is not the
+> only one thread in the same group).
+
+Just to clarify, single-thread process can go to TASK_ZOMBIE state too,
+of course. But group leader can't be released (by itself or via sys_wait4)
+while there are other threads in the same group.
+
+> So, I think send_group_sigqueue() should do:
 > 
-> This logic is flawed. RCs are for performing tests. If you don't want
-> further tests (for example, tests on previous RC completed and you're
-> quite sure new changes introduce no new bugs) you don't need further
-> RCs.
+>         read_lock(tasklist_lock);
+> 
+>         if (!tsk->signal) {
+>                 // Can happen only if de_thread did release_task(tsk)
+>                 // while switching to new leader.
+>                 // We can't figure out the new leader, but it does not
+>                 // matter - we should drop the signal anyway.
+>                 unlock(tasklist);
+>                 return;
 
-How do you ever know that new change introduced no new bugs?  Maybe 
-there was a latent race condition that is activated by timing 
-differences caused by the new code.  Maybe it shifts the spacing of the 
-code just enough to get hit by a pre-existing trampler.  Unless you test 
-it, you *can't* know.
+No, I was wrong. This is not enough. This 'tsk' can be already freed!
+sys_timer_create() bumps tsk->usage only when the signal is sent via
+send_sigqueue(), it does not do get_task_struct(leader) when the signal
+is not thread specific, but goes to the thread group.
 
-The safe bet is to simply rename the final -rc with no further changes.
-
-Chris
+Oleg.

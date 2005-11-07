@@ -1,74 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751346AbVKGLxo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbVKGL44@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751346AbVKGLxo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 06:53:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbVKGLxo
+	id S1751343AbVKGL44 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 06:56:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbVKGL44
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 06:53:44 -0500
-Received: from xproxy.gmail.com ([66.249.82.194]:34533 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751346AbVKGLxn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 06:53:43 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pdR6vOjsYqIe07z6eVTPrkDk3vyXXiomC0b5tD1hwaoc+nTyVsd9anUFmMKjVS7nXym+L6gNLPHnP2pRnf5A56yHZ0O9IvKSl2unl0uAUu+FTrT6PTFUF6JmjQCNMLRoCVtz4b9rU7Q/OB6BsZbZMnRzirrsgGhsRwY8nvj4pC0=
-Message-ID: <1e62d1370511070353o1d1d4931ncf0ff8a5f5658069@mail.gmail.com>
-Date: Mon, 7 Nov 2005 16:53:42 +0500
-From: Fawad Lateef <fawadlateef@gmail.com>
-To: liyu <liyu@ccoss.com.cn>
-Subject: Re: [question] I doublt on timer interrput.
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <436EEEA4.1020703@ccoss.com.cn>
+	Mon, 7 Nov 2005 06:56:56 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:64748 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751343AbVKGL4z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 06:56:55 -0500
+Date: Mon, 7 Nov 2005 12:56:50 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] hfsplus: don't modify journaled volume
+In-Reply-To: <Pine.LNX.4.64.0511052155270.5813@hermes-1.csi.cam.ac.uk>
+Message-ID: <Pine.LNX.4.61.0511071253510.12843@scrub.home>
+References: <Pine.LNX.4.61.0511031617090.12843@scrub.home>
+ <20051104210213.1232a007.akpm@osdl.org> <Pine.LNX.4.64.0511051009090.13104@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.64.0511051333550.13104@hermes-1.csi.cam.ac.uk>
+ <Pine.LNX.4.61.0511052246480.12843@scrub.home>
+ <Pine.LNX.4.64.0511052155270.5813@hermes-1.csi.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <436EEEA4.1020703@ccoss.com.cn>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/7/05, liyu <liyu@ccoss.com.cn> wrote:
->
->     I have one question about timer interrupt (i386 architecture).
->
->     As we known, the timer emit HZ times interrputs per second,
-> and in i386. The interrupt handler will call scheduler_tick()
-> each time (on i386 at least, both enable or disable APIC).
->
->     On my Celeron machine(IOW, only one CPU, not SMP/SMT), I defined
-> a global int variable 'tick_count' in kernel/sched.c, and add one line
-> of code like follow in scheduler_tick():
->
->     ++tick_count;
->
->     but I found it is not same with content of the /proc/interrupts,
-> and the differennt between them is not little.
->
->     I can not understand why that is.
->
->     Any useful idea.
->
->
+Hi,
 
-What I found in the kernel code is that scheduler_tick is called from
-two locations in the kernel (2.6.14-mm1) code (i386).
+On Sat, 5 Nov 2005, Anton Altaparmakov wrote:
 
-1) from kernel/timer.c in update_process_times which is called from
-arch/i386/kernel/apic.c and its calling depends on the CONFIG_SMP
-defined or not (see
-http://sosdg.org/~coywolf/lxr/source/arch/i386/kernel/apic.c#L1160)
-and as you don't have CONFIG_SMP enabled so its won't be called from
-here.
+> > Sorry, but I had too many reports about problems with journaled volumes, 
+> > so I prefer the safe solution, until we can at least replay the journal.
+> 
+> Yes but that would be because you leave an active journal and do changes 
+> behind its back without telling the OSX HFSPlus driver that you have done 
+> changes behind its back...  My suggestion was to tell the driver that you 
+> have done changes behind its back so it will be happy.
 
-2) from sched_fork function in kernel/sched.c
-(http://sosdg.org/~coywolf/lxr/source/kernel/sched.c#L1414) and I
-think its called when newly forked process setup is going to be
-performed, and I think as from here scheduler_tick is called in your
-case, so you are getting different value for your variable tick_count
+This may work, but I can't find this officially documented anywhere, this 
+is what the spec says: "Implementations accessing a journaled volume with 
+transactions must either refuse to access the volume, or replay the 
+journal to be sure the volume is consistent."
+So from my side this check stays, until we can at least replay the 
+journal.
 
-scheduler_tick might be called from somewhere else which I am missing
-so please CMIIW !
-
---
-Fawad Lateef
+bye, Roman

@@ -1,53 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932482AbVKGNhw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932486AbVKGNyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932482AbVKGNhw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 08:37:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbVKGNhw
+	id S932486AbVKGNyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 08:54:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932487AbVKGNyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 08:37:52 -0500
-Received: from zproxy.gmail.com ([64.233.162.204]:28782 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932482AbVKGNhw convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 08:37:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ds4atkwF5Ie6wNC5yNSdajUhzZ1fuyBSm/PECO5PoD6rhC+Huz+N95PBvacQurGs3nqDk5Qwg30Pf4EeKWgWcbNGGlTSBNaTUPlLvwMIfGnWF8xAth5pVa7Z0ZN56J48twlXqvcv18PryJFyNljEGqXVNFKJeAPx51c/5Xs/3o8=
-Message-ID: <4d8e3fd30511070537g36f3d35fu2791e95736b8326a@mail.gmail.com>
-Date: Mon, 7 Nov 2005 14:37:51 +0100
-From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-To: "Mukund JB." <mukundjb@esntechnologies.co.in>
-Subject: Re: Which version of 2.6.11 is most stable
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <3AEC1E10243A314391FE9C01CD65429B13B2BF@mail.esn.co.in>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <3AEC1E10243A314391FE9C01CD65429B13B2BF@mail.esn.co.in>
+	Mon, 7 Nov 2005 08:54:16 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:33425 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S932486AbVKGNyQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 08:54:16 -0500
+Subject: Re: 3D video card recommendations
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1131367371.14381.91.camel@localhost.localdomain>
+References: <1131112605.14381.34.camel@localhost.localdomain>
+	 <1131349343.2858.11.camel@laptopd505.fenrus.org>
+	 <1131367371.14381.91.camel@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 07 Nov 2005 14:24:21 +0000
+Message-Id: <1131373462.11265.12.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/7/05, Mukund JB. <mukundjb@esntechnologies.co.in> wrote:
->
-> Dear Adrian,
->
-> Thanks for the information.
-> Also Can you please give inputs regarding.....
->
-> I have an existing Linux 2.6.11 BSP for an AMD GX processor.
-> What would it take me to port the complete BSP to 2.6.12 kernel?
-> Can I prefer to work on 2.6.11 kernel which makes me get the system up in no time without any changes made?
-> I guess 2.6.11 kernel will work with just a recompilation over 2.6.11.12 kernel.
->
-> An inquisitive question about Linux kernels versioning ...
-> How do 2.6.(x).1 and 2.6.(x).12 kernels vary?
+On Llu, 2005-11-07 at 07:42 -0500, Steven Rostedt wrote:
+> Are there good 3D cards that don't depend on a proprietary module, that
+> can run on a AMD64 board?  That was pretty much my questing to begin
+> with :)
 
-I think this link could be usefull for you:
-http://www.technologynews.altervista.org/index.php?mod=read&id=1130758467
+Some of the radeons - R3xx is pretty close to usable R2xx works well.
+Support for running 32bit hardware accelerated apps on 64bit kernel
+recently went in.
 
-Sorry for the poor formatting, I'm looking for a better hosting for
-the document.
-
---
-Paolo

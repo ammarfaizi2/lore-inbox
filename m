@@ -1,56 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965303AbVKGRYd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965157AbVKGR0z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965303AbVKGRYd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 12:24:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965086AbVKGRYc
+	id S965157AbVKGR0z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 12:26:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965098AbVKGR0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 12:24:32 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:10625 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S965051AbVKGRXi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 12:23:38 -0500
-Date: Mon, 7 Nov 2005 18:23:24 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Christoph Hellwig <hch@infradead.org>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-mm1
-In-Reply-To: <20051107170253.GA17785@infradead.org>
-Message-ID: <Pine.LNX.4.61.0511071812220.1387@scrub.home>
-References: <20051106182447.5f571a46.akpm@osdl.org> <20051107033009.GB12192@infradead.org>
- <Pine.LNX.4.61.0511071315530.1387@scrub.home> <20051107170253.GA17785@infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 7 Nov 2005 12:26:52 -0500
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:50127 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S965307AbVKGRYu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 12:24:50 -0500
+From: ext3crypt@comcast.net
+To: fawadlateef@gmail.com
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: Am I thinking correctly?
+Date: Mon, 07 Nov 2005 17:24:48 +0000
+Message-Id: <110720051724.6127.436F8DDF0006D246000017EF22007348309B9F979D0CCC9B980A@comcast.net>
+X-Mailer: AT&T Message Center Version 1 (Dec 17 2004)
+X-Authenticated-Sender: ZXh0M2NyeXB0QGNvbWNhc3QubmV0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Sorry for the previous failed responses .. I never use this webmail interface, and it was set to send mail using HTML.
 
-On Mon, 7 Nov 2005, Christoph Hellwig wrote:
+------  Here is the reply . . .
 
-> > It's not a problem on my part, Al is constantly vetoing these patches.
-> > I'm not taking this blame. :-(
+
+Kernel Version:  2.6.13
+ 
+The API will be used, but I am using a simple xor to test with.
+ 
+The data is getting written to disk, but NOT the buffer I'm sending to submit_bh().  It is writing the buffers from the page I copied???
+ 
+No messages.  I just do the following:
+ 
+mount the filesystem
+cd to it's root
+cp foo foo2
+sync
+(at this point everything looks fine)
+ 
+cd ..
+umount the filesystem
+mount the filesystem
+cd to it's root
+cat foo2 (which is now the wrong data)
+ 
+I'll attach the code tonight when I have access to it.
+ 
+ 
+ 
+-------------- Original message -------------- 
+
+> On 11/7/05, ext3crypt wrote: 
+> > I'm working on a masters project for PSU. It requires that I modify the 
+> > ext3 and fs code in the kernel proper. 
+> > 
+> > The idea is to encrypt data just prior to it being written to disk. I've 
+> > created a new version of __block_write_full_page (which is called from 
+> > writepage) to allocate a new (GFP_NOFS) page, setup the buffer_head list and 
+> > copy the data to the new page (and encrypt it too). When I do this, the 
+> > data is not written to disk from the new buffer_head that I submit using 
+> > submit_bh(). I've treked through this code and I'm convinced I'm down the 
+> > right path. Am I? Any assistance would be appreciated. 
+> > 
 > 
-> You've threatened all kinds of nasty things in case Al's perfectly reasonable
-> patchkit goes in.
-
-I objected to it because it were two days before the release, giving me 
-zero chance to deal with it reasonably.
-
->  That's certainly what I would call blocking.
-
-You were commenting on the patches in -mm and I certainly never blocked 
-these. I'm actually trying to push these patches since two weeks with zero 
-effect.
-
->  Your patch
-> split has clear disadvantages over the original ones, but I don't really
-> care which one we get as long as we get this bullshit sorted out.
-
-Christoph, please stop your bullshit. :-(
-The first 5 patches are pretty much Al's version, the rest is the 
-remaining cleanup by me. I get _no_ help at all with these patches, with 
-the effect that my m68k work has gotten to a complete halt and m68k will 
-fall behind even further.
-
-bye, Roman
+> Which kernel version you are using ? 
+> Using kernel Encryption API ? 
+> How you got to know that your data is not written to disk ? Getting 
+> any error message ? or some-thing else ? 
+> And a url or attachment of code will help others to get to your problem ! 
+> 
+> 
+> -- 
+> Fawad Lateef 
+> - 
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in 
+> the body of a message to majordomo@vger.kernel.org 
+> More majordomo info at http://vger.kernel.org/majordomo-info.html 
+> Please read the FAQ at http://www.tux.org/lkml/ 

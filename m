@@ -1,69 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964823AbVKGPUz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbVKGPbs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964823AbVKGPUz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 10:20:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964829AbVKGPUz
+	id S964843AbVKGPbs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 10:31:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964844AbVKGPbs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 10:20:55 -0500
-Received: from smtp3.pp.htv.fi ([213.243.153.36]:10705 "EHLO smtp3.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S964823AbVKGPUy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 10:20:54 -0500
-Date: Mon, 7 Nov 2005 17:20:53 +0200
-From: Paul Mundt <lethal@linux-sh.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Shut up per_cpu_ptr() on UP
-Message-ID: <20051107152053.GB29899@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
-	linux-kernel@vger.kernel.org
+	Mon, 7 Nov 2005 10:31:48 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:42447 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964843AbVKGPbr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 10:31:47 -0500
+Subject: Re: 3D video card recommendations
+From: Arjan van de Ven <arjan@infradead.org>
+To: Toon van der Pas <toon@hout.vanvergehaald.nl>
+Cc: Steven Rostedt <rostedt@goodmis.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051107152009.GA20807@shuttle.vanvergehaald.nl>
+References: <1131112605.14381.34.camel@localhost.localdomain>
+	 <1131349343.2858.11.camel@laptopd505.fenrus.org>
+	 <1131367371.14381.91.camel@localhost.localdomain>
+	 <20051107152009.GA20807@shuttle.vanvergehaald.nl>
+Content-Type: text/plain
+Date: Mon, 07 Nov 2005 16:31:36 +0100
+Message-Id: <1131377496.2858.21.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LpQ9ahxlCli8rRTG"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2005-11-07 at 16:20 +0100, Toon van der Pas wrote:
+> On Mon, Nov 07, 2005 at 07:42:51AM -0500, Steven Rostedt wrote:
+> > On Mon, 2005-11-07 at 08:42 +0100, Arjan van de Ven wrote:
+> > 
+> > > 5) The vendor goes out of business and thus stops updating the driver
+> > 
+> > MS folks would have the same problem.
+> 
+> ...which proves the point Arjan is making.
+> 
+> For one, I have an ISDN-adapter which doesn't work with any version of
+> MS-Windows from this millennium (no drivers available), while it's still
+> working great on current Linux kernels.
 
---LpQ9ahxlCli8rRTG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Currently per_cpu_ptr() doesn't really do anything with 'cpu' in the UP
-case. This is problematic in the cases where this is the only place the
-variable is referenced:
+well despite your post; the Windows people are a lot better at keeping
+old drivers working (win 9x to a NT based kernel was obviously a huge
+change though). In linux you can use an old driver maybe for 6 months if
+you're lucky.. in windows 6 years is no exception. So the problem is a
+lot bigger in linux for the owner of such a card than it is in windows.
 
-  CC      kernel/workqueue.o
-  kernel/workqueue.c: In function `current_is_keventd':
-  kernel/workqueue.c:460: warning: unused variable `cpu'
 
-How about something like this?
-
-diff --git a/include/linux/percpu.h b/include/linux/percpu.h
-index 5451eb1..fb8d2d2 100644
---- a/include/linux/percpu.h
-+++ b/include/linux/percpu.h
-@@ -38,7 +38,7 @@ extern void free_percpu(const void *);
-=20
- #else /* CONFIG_SMP */
-=20
--#define per_cpu_ptr(ptr, cpu) (ptr)
-+#define per_cpu_ptr(ptr, cpu) ({ (void)(cpu); (ptr); })
-=20
- static inline void *__alloc_percpu(size_t size, size_t align)
- {
-
---LpQ9ahxlCli8rRTG
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFDb3DV1K+teJFxZ9wRAqYyAJ96aQ4mknpXjjumGNE6tR3wAAArZgCggpsS
-gVb6mY84Qptj4jAQuLn90KI=
-=xnw5
------END PGP SIGNATURE-----
-
---LpQ9ahxlCli8rRTG--

@@ -1,84 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964958AbVKGToS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965029AbVKGTrY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964958AbVKGToS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 14:44:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965029AbVKGToS
+	id S965029AbVKGTrY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 14:47:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965190AbVKGTrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 14:44:18 -0500
-Received: from zproxy.gmail.com ([64.233.162.192]:45663 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964958AbVKGToR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 14:44:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=nkiBJZMn79pUPGtq5OXNIgV4iNZBJzYC4tLHrY7Zhf3ijI7rZ/qARVegsOcorWxGVHdpkTQ0ByiLFTrpGIpjXbOPTptgXcuSJmYULqB3hgWmSEqSn4GXDBkJlqrxF8aP4a48J3dMa0ikcnf1rBJYohF8KAI+iqRBHs3b2STfp90=
-Message-ID: <29495f1d0511071144t1c917ae1v93cf72da11ad45c7@mail.gmail.com>
-Date: Mon, 7 Nov 2005 11:44:17 -0800
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Ram Gupta <ram.gupta5@gmail.com>
-Subject: Re: negative timeout can be set up by setsockopt system call
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <436FAB32.20807@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <436FAB32.20807@gmail.com>
+	Mon, 7 Nov 2005 14:47:24 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:33970 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S965029AbVKGTrY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 14:47:24 -0500
+Subject: Re: 3D video card recommendations
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Mark Knecht <markknecht@gmail.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, Gerhard Mack <gmack@innerfire.net>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Xavier Bestel <xavier.bestel@free.fr>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Hugo Mills <hugo-lkml@carfax.org.uk>, Nix <nix@esperi.org.uk>,
+       Anshuman Gholap <anshu.pg@gmail.com>, Diego Calleja <diegocg@gmail.com>,
+       Toon van der Pas <toon@hout.vanvergehaald.nl>, arjan@infradead.org
+In-Reply-To: <5bdc1c8b0511071123h4a1d0da7rcae0548c2c55afb3@mail.gmail.com>
+References: <1131112605.14381.34.camel@localhost.localdomain>
+	 <1131349343.2858.11.camel@laptopd505.fenrus.org>
+	 <1131367371.14381.91.camel@localhost.localdomain>
+	 <20051107152009.GA20807@shuttle.vanvergehaald.nl>
+	 <20051107180045.ec86a7f2.diegocg@gmail.com>
+	 <1131384624.14381.106.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0511071243350.9444@innerfire.net>
+	 <1131386032.14381.110.camel@localhost.localdomain>
+	 <5bdc1c8b0511071001s2d990e72s812c195d5614a894@mail.gmail.com>
+	 <1131390332.8383.83.camel@mindpipe>
+	 <5bdc1c8b0511071123h4a1d0da7rcae0548c2c55afb3@mail.gmail.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Mon, 07 Nov 2005 14:47:03 -0500
+Message-Id: <1131392823.14381.135.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/7/05, Ram Gupta <ram.gupta5@gmail.com> wrote:
->
-> On 11/7/05, Ram Gupta <ram.gupta5@gmail.com> wrote:
->  > On 11/4/05, Nish Aravamudan <nish.aravamudan@gmail.com>
->  >  >
->  >  > In Ram's specific case, I think, the call path is sys_setsockopt() ->
->  >  > sock_setsockopt() -> sock_set_timeout, which has a definition of:
->  >  >
->  >  > static int sock_set_timeout(long *timeo_p, char __user *optval, int
->  > optlen)
->  >
->  >  >> Exactly right.
->
-> Ok.
->
->  >  > Ram, what is the expected behavior of negative values in the timeval?
->  >  > And what are you seeing happen right now?
->  >  >
->  >  > As of 2.6.14, looks like we convert any non-zero values into jiffies
->  >  > and store them in sk->sk_{rcv,snd}timeo...
->  >  >
->  >  I don't see any problem from the kernel side but the application
->  > times out immediately causing certain failures as the schedule_timeout
->  > returns immediately in case of negative values. Shouldn't there be a
->  > check for negative values and return error to the application so that
->  > it can handle it.
->
-> I mean more along the lines of what does a man-page say the kernel
-> should be doing if you request a negative timeout? More explicitly,
-> what made you think negative timeouts should have a specific effect?
->
->  > The man page is silent about the timeout behaviour in case of its
-> > being negative.  I believe that negative timeout is a mistake on behalf
-> > of an application and hence should be treated as such (i.e should be
-> > notified accordingly)
+On Mon, 2005-11-07 at 11:23 -0800, Mark Knecht wrote:
 
-Well, the problem is that there is no defined behavior for specifying
-a negative timeout (unlike poll(), for instance). So I'm not sure what
-the best approach is (beyond complaining to the application developers
-that their app is busted).
+> 
+>    I'm most interested in a kernel developer finding the time to fix
+> the IRQoff latency testing on 64-bit machines so I can look at that.
 
-> When you say schedule_timeout() returns immediately, I assume your
-> logs are filling up with "schedule_timeout: wrong timeout ..." ? (You
-> may need to bump your loglevel). If not, then schedule_timeout() isn't
-> getting a negative value.
->
->  >> Yes  I am getting the "schedule_timeout: wrong timeout ..."
-> messages so I am sure the timeout has negative value.
+Well, when I get all my pieces and then the box up and running, I might
+just be that developer ;-)
 
-Ok, maybe bring this up with the networking folks, as they may have a
-better idea of what to do.
 
-Thanks,
-Nish
+-- Steve
+
+

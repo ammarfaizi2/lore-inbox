@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965593AbVKGXUJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965590AbVKGXUH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965593AbVKGXUJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 18:20:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965594AbVKGXUI
+	id S965590AbVKGXUH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 18:20:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965594AbVKGXUH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 18:20:08 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:55253 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S965593AbVKGXUG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 18:20:06 -0500
-Date: Mon, 7 Nov 2005 17:19:55 -0600
-To: Greg KH <greg@kroah.com>
-Cc: linux-sparse@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
-       linuxppc64-dev@ozlabs.org, johnrose@austin.ibm.com,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       bluesmoke-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/7]: PCI revised (3) [PATCH 16/42]: PCI:  PCI Error reporting callbacks
-Message-ID: <20051107231955.GR19593@austin.ibm.com>
-References: <20051105061114.GA27016@kroah.com> <17262.37107.857718.184055@cargo.ozlabs.ibm.com> <20051107175541.GB19593@austin.ibm.com> <20051107182727.GD18861@kroah.com> <20051107195727.GF19593@austin.ibm.com> <20051107200352.GB22524@kroah.com> <20051107212128.GH19593@austin.ibm.com> <20051107213729.GA24700@kroah.com> <20051107224338.GQ19593@austin.ibm.com> <20051107225308.GB27787@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 7 Nov 2005 18:20:07 -0500
+Received: from attila.bofh.it ([213.92.8.2]:40143 "EHLO attila.bofh.it")
+	by vger.kernel.org with ESMTP id S965590AbVKGXUF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 18:20:05 -0500
+Date: Tue, 8 Nov 2005 00:19:57 +0100
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Greg KH <greg@kroah.com>, Pozsar Balazs <pozsy@uhulinux.hu>,
+       linux-kernel@vger.kernel.org, Kay Sievers <kay.sievers@vrfy.org>,
+       333052@bugs.debian.org
+Subject: Re: 2.6.14, udev: unknown symbols for ehci_hcd
+Message-ID: <20051107231957.GA13521@wonderland.linux.it>
+References: <436CD1BC.8020102@t-online.de> <20051105162503.GC20686@kroah.com> <436D9BDE.3060404@t-online.de> <20051106215158.GB3603@kroah.com> <20051107113329.GA7632@wonderland.linux.it> <20051107173157.GA16465@kroah.com> <20051107190738.GC22737@ojjektum.uhulinux.hu> <20051107191214.GA20364@kroah.com> <1131405438.21610.17.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="mYCpIKhGyMATD0i+"
 Content-Disposition: inline
-In-Reply-To: <20051107225308.GB27787@kroah.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: linas <linas@austin.ibm.com>
+In-Reply-To: <1131405438.21610.17.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
+From: md@Linux.IT (Marco d'Itri)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 07, 2005 at 02:53:08PM -0800, Greg KH was heard to remark:
-> > I'm feeling like a blinkin' spammer, splatting out all these emails.
-> 
-> Care to just resend the whole series over again?  No "patch on top of
-> patch" stuff is needed here.
 
-So that I can avoid that spammin' feelin' ... 
+--mYCpIKhGyMATD0i+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I'll send patches against -git10, then, so as to start with a clean
-slate; unless you wanted something aginst -mm1?
+On Nov 08, Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-"The whole series": do you want all 42 patches? Or just the seven
-discussed today?
+> The current simple fix for that (thanks Pozsar!) is to poll while a
+> module we rely on is still loading as indicated in /proc/modules.  This
+> fix will be needed to cover existing kernels, even if we were to get
+> fancy in new kernels.
+I have *not* been able to verify this, but at least two people still
+reported problems after using this patch.
 
------
+--=20
+ciao,
+Marco
 
-In the series-of-42, the staging of some of the patches in the 
-middle require simultaneous update to both the drivers/pci/hotplug
-and the arch/powerpc/xxx; otherwise, build breaks result. I am
-not sure how to handle that: the obvious solution is to split these
-up... but that will probably result in a bigger series, and was
-not a step I wanted to take unless someone asked...
+--mYCpIKhGyMATD0i+
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
---linas
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
+iD8DBQFDb+EdFGfw2OHuP7ERAuHBAKCc56u2WPFTCV745647Q4BrqJJlHwCfaadV
+hH+XjeGzfjrM1UFkM7WjJBk=
+=Mlm+
+-----END PGP SIGNATURE-----
+
+--mYCpIKhGyMATD0i+--

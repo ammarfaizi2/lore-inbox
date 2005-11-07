@@ -1,45 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbVKGLjv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbVKGLl4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751330AbVKGLjv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 06:39:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbVKGLjv
+	id S964785AbVKGLl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 06:41:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964803AbVKGLl4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 06:39:51 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:47297 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1751330AbVKGLju (ORCPT
+	Mon, 7 Nov 2005 06:41:56 -0500
+Received: from orb.pobox.com ([207.8.226.5]:33965 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S964785AbVKGLlz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 06:39:50 -0500
-Subject: Re: [patch] cleanup spitz battery charging code
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Pavel Machek <pavel@suse.cz>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051106213054.GI29901@elf.ucw.cz>
-References: <20051106213054.GI29901@elf.ucw.cz>
-Content-Type: text/plain
-Date: Mon, 07 Nov 2005 11:39:44 +0000
-Message-Id: <1131363585.8375.57.camel@localhost.localdomain>
+	Mon, 7 Nov 2005 06:41:55 -0500
+Date: Mon, 7 Nov 2005 05:41:44 -0600
+From: Nathan Lynch <ntl@pobox.com>
+To: Ashok Raj <ashok.raj@intel.com>
+Cc: akpm@osdl.org, linux@brodo.de, davej@redhat.com, zwane@arm.linux.org.uk,
+       linux-kernel@vger.kernel.org,
+       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+Subject: Re: [patch 4/4] create and destroy cpufreq sysfs entries based on cpu notifiers.
+Message-ID: <20051107114144.GH7806@otto>
+References: <20051021203818.753754000@araj-sfield> <20051021204327.843400000@araj-sfield>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051021204327.843400000@araj-sfield>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-11-06 at 22:30 +0100, Pavel Machek wrote:
-> This cleans up sharpsl charging code a bit, without really changing
-> anything. It will probably break compilation on corgi, but few "()"s
-> should fix that, and those macros are *really* evil.
->
-> Please apply... rmk said he prefers sharp patches to go through you. I
-> hope it is okay with you.
+Hi Ashok,
+
+Ashok Raj wrote:
+> cpufreq entries in sysfs should only be populated when CPU is online state.
+> When we either boot with maxcpus=x and then boot the other cpus by 
+> echoing to sysfs online file, these entries should be created and destroyed
+> when CPU_DEAD is notified. Same treatement as cache entries under sysfs.
 > 
-> Signed-off-by: Pavel Machek <pavel@suse.cz>
+> We place the processor in the lowest frequency, so hw managed P-State 
+> transitions can still work on the other threads to save power.
+> 
+> Primary goal was to just make these directories appear/disapper dynamically.
 
-Thanks for this, its fine with me. I've been making changes like this to
-bring the driver up to standard for a long time and after a while you
-begin to loose site of what else needs doing.
+I see this patch series has already been merged, but in light of the
+issues that it has caused[1], and the hack that Andrew is carrying to
+deal with them[2], could we revisit the original justification for
+these changes?
 
-The patch is queued in Russell's patch system. This can be applied once
-its fate has been determined.
+Why is it important that cpufreq-related files in sysfs be added and
+removed as cpus go online and offline?  I see that the information
+that these entries provide can be derived only when the cpu is online,
+is that the primary justification?
 
-Richard
+Would it be undesirable for the cpufreq drivers to create their
+entries under all cpu sysdevs at init time, regardless of whether the
+cpus are online?  The "show" methods for entries attached to offline
+cpus could be made to return "Unavailable" or some equivalent.
 
+I'm not terribly familiar with x86 or cpufreq, so forgive me if I'm
+missing something obvious.
+
+
+[1] http://lkml.org/lkml/2005/10/31/144
+[2] ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14/2.6.14-mm1/broken-out/cpu-hotplug-fix-locking-in-cpufreq-drivers.patch

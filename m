@@ -1,108 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964896AbVKGVDs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964913AbVKGVE0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964896AbVKGVDs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 16:03:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964909AbVKGVDr
+	id S964913AbVKGVE0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 16:04:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964909AbVKGVE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 16:03:47 -0500
-Received: from mirage.confident-solutions.de ([80.190.233.175]:15531 "EHLO
-	mirage.confident-solutions.de") by vger.kernel.org with ESMTP
-	id S932373AbVKGVDQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 16:03:16 -0500
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] SMBus for Toshiba M40, kernel 2.6.14
-From: webmaster@toshsoft.de
-X-Priority: 3
-Importance: Normal
-X-MSMail-Priority: Normal
-X-MimeOLE: Produced by Confixx WebMail
-X-Mailer: Confixx WebMail (like SquirrelMail)
-Cc: alan@lxorguk.ukuu.org.uk
+	Mon, 7 Nov 2005 16:04:26 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:27667 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S964924AbVKGVEZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 16:04:25 -0500
+Date: Mon, 7 Nov 2005 22:04:23 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>, ak@suse.de,
+       Arnd Bergmann <arnd@arndb.de>
+Subject: [2.6 patch] compat: Remove leftovers from register_ioctl32_conversion
+Message-ID: <20051107210423.GT3847@stusta.de>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary=DC51DE27935F320A96E00D3AB30AD89C
-Message-Id: <20051107210315.524F013F68D@mirage.confident-solutions.de>
-Date: Mon,  7 Nov 2005 22:03:15 +0100 (CET)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format  --  Dies ist eine mehrteilige Nachricht im MIME-Format
---DC51DE27935F320A96E00D3AB30AD89C
-Content-Type: text/plain
-Content-Transfer-Encoding: 8bit
+We don't need the semaphore any more since we no longer
+write to the ioctl32 hash table while the kernel is running.
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-This Patch patches quirks.c to be able to show hidden SMBus devices
-for Notebooks with the ICH6 Chipset. Only Notebook i could integrate
-and test so far is the Toshiba M40/M45 It applies to
-vanilla-sources-2.6.14
-Could you please send me a Mail if it was helpful and will be
-integrated?
-
-Thanks and have Fun
-
-Oliver
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFDb8BpTvJ2Ft8Rz5cRAg4hAKCUzZ3iPjTk6zkuPWkzwUTmYrw1vgCgl8Dx
-PhuCVvhN/X5MI0gdN2XJyFA=
-=ieav
------END PGP SIGNATURE-----
-
-README:
+This patch was already ACK'ed by Andi Kleen.
 
 
---DC51DE27935F320A96E00D3AB30AD89C
-Content-Type: application/octet-stream; name="toshiba_m40.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="toshiba_m40.patch"
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-LS0tIC91c3Ivc3JjL2xpbnV4LTIuNi4xNC9kcml2ZXJzL3BjaS9xdWlya3MuYwkyMDA1LTEwLTMw
-IDE5OjQ3OjExLjAwMDAwMDAwMCArMDEwMAorKysgL3Vzci9zcmMvbGludXgvZHJpdmVycy9wY2kv
-cXVpcmtzLmMJMjAwNS0xMS0wNyAxNzozOTozOC4wMDAwMDAwMDAgKzAxMDAKQEAgLTk0NSw2ICs5
-NDUsMTEgQEAKIAkJCWNhc2UgMHgwMDAxOiAvKiBUb3NoaWJhIFRlY3JhIE0yICovCiAJCQkJYXN1
-c19oaWRlc19zbWJ1cyA9IDE7CiAJCQl9CisJCWlmIChkZXYtPmRldmljZSA9PSBQQ0lfREVWSUNF
-X0lEX0lOVEVMXzgyOTE1R01fSEIpCisJCQlzd2l0Y2goZGV2LT5zdWJzeXN0ZW1fZGV2aWNlKSB7
-CisJCQljYXNlIDB4RkYxMDogLyogVG9zaGliYSBTYXRlbGxpdGUgTTQwICovCisJCQkJYXN1c19o
-aWRlc19zbWJ1cyA9IDE7CisJCQl9CiAgICAgICAgfSBlbHNlIGlmICh1bmxpa2VseShkZXYtPnN1
-YnN5c3RlbV92ZW5kb3IgPT0gUENJX1ZFTkRPUl9JRF9TQU1TVU5HKSkgewogICAgICAgICAgICAg
-ICAgaWYgKGRldi0+ZGV2aWNlID09ICBQQ0lfREVWSUNFX0lEX0lOVEVMXzgyODU1UE1fSEIpCiAg
-ICAgICAgICAgICAgICAgICAgICAgIHN3aXRjaChkZXYtPnN1YnN5c3RlbV9kZXZpY2UpIHsKQEAg
-LTk2Niw2ICs5NzEsNyBAQAogREVDTEFSRV9QQ0lfRklYVVBfSEVBREVSKFBDSV9WRU5ET1JfSURf
-SU5URUwsCVBDSV9ERVZJQ0VfSURfSU5URUxfNzIwNV8wLAlhc3VzX2hpZGVzX3NtYnVzX2hvc3Ri
-cmlkZ2UgKTsKIERFQ0xBUkVfUENJX0ZJWFVQX0hFQURFUihQQ0lfVkVORE9SX0lEX0lOVEVMLAlQ
-Q0lfREVWSUNFX0lEX0lOVEVMXzgyODU1UE1fSEIsCWFzdXNfaGlkZXNfc21idXNfaG9zdGJyaWRn
-ZSApOwogREVDTEFSRV9QQ0lfRklYVVBfSEVBREVSKFBDSV9WRU5ET1JfSURfSU5URUwsCVBDSV9E
-RVZJQ0VfSURfSU5URUxfODI4NTVHTV9IQiwJYXN1c19oaWRlc19zbWJ1c19ob3N0YnJpZGdlICk7
-CitERUNMQVJFX1BDSV9GSVhVUF9IRUFERVIoUENJX1ZFTkRPUl9JRF9JTlRFTCwJUENJX0RFVklD
-RV9JRF9JTlRFTF84MjkxNUdNX0hCLAlhc3VzX2hpZGVzX3NtYnVzX2hvc3RicmlkZ2UgKTsKIAog
-c3RhdGljIHZvaWQgX19pbml0IGFzdXNfaGlkZXNfc21idXNfbHBjKHN0cnVjdCBwY2lfZGV2ICpk
-ZXYpCiB7CkBAIC05ODQsMTIgKzk5MCwzMyBAQAogCQkJcHJpbnRrKEtFUk5fSU5GTyAiUENJOiBF
-bmFibGVkIGk4MDEgU01CdXMgZGV2aWNlXG4iKTsKIAl9CiB9CisKK3N0YXRpYyB2b2lkIF9faW5p
-dCBhc3VzX2hpZGVzX3NtYnVzX2ljaDYoc3RydWN0IHBjaV9kZXYgKmRldikKK3sKKwl1MzIgdmFs
-LCByY2JhOworCXZvaWQgX19pb21lbSAqYmFzZTsKKwkKKwlpZiAobGlrZWx5KCFhc3VzX2hpZGVz
-X3NtYnVzKSkKKwkJcmV0dXJuOworCisJcGNpX3JlYWRfY29uZmlnX2R3b3JkKGRldiwgMHhGMCwg
-JnJjYmEpOworCWJhc2UgPSBpb3JlbWFwX25vY2FjaGUocmNiYSAmIDB4RkZGRkMwMDAsIDB4NDAw
-MCk7CisJaWYgKGJhc2UgPT0gTlVMTCkKKwkJcmV0dXJuOworCXZhbCA9IHJlYWRsKGJhc2UgKyAw
-eDM0MTgpOworCXdyaXRlbCh2YWwgJiAweEZGRkZGRkY3LCBiYXNlICsgMHgzNDE4KTsKKwlpb3Vu
-bWFwKGJhc2UpOworCXByaW50ayhLRVJOX0lORk8gIlBDSTogRW5hYmxlZCBJQ0g2IFNNQnVzIGRl
-dmljZVxuIik7Cit9CisKIERFQ0xBUkVfUENJX0ZJWFVQX0hFQURFUihQQ0lfVkVORE9SX0lEX0lO
-VEVMLAlQQ0lfREVWSUNFX0lEX0lOVEVMXzgyODAxREJfMCwJYXN1c19oaWRlc19zbWJ1c19scGMg
-KTsKIERFQ0xBUkVfUENJX0ZJWFVQX0hFQURFUihQQ0lfVkVORE9SX0lEX0lOVEVMLAlQQ0lfREVW
-SUNFX0lEX0lOVEVMXzgyODAxQkFfMCwJYXN1c19oaWRlc19zbWJ1c19scGMgKTsKIERFQ0xBUkVf
-UENJX0ZJWFVQX0hFQURFUihQQ0lfVkVORE9SX0lEX0lOVEVMLAlQQ0lfREVWSUNFX0lEX0lOVEVM
-XzgyODAxQ0FfMTIsCWFzdXNfaGlkZXNfc21idXNfbHBjICk7CiBERUNMQVJFX1BDSV9GSVhVUF9I
-RUFERVIoUENJX1ZFTkRPUl9JRF9JTlRFTCwJUENJX0RFVklDRV9JRF9JTlRFTF84MjgwMURCXzEy
-LAlhc3VzX2hpZGVzX3NtYnVzX2xwYyApOwogREVDTEFSRV9QQ0lfRklYVVBfSEVBREVSKFBDSV9W
-RU5ET1JfSURfSU5URUwsCVBDSV9ERVZJQ0VfSURfSU5URUxfODI4MDFFQl8wLAlhc3VzX2hpZGVz
-X3NtYnVzX2xwYyApOwogCitERUNMQVJFX1BDSV9GSVhVUF9IRUFERVIoUENJX1ZFTkRPUl9JRF9J
-TlRFTCwJUENJX0RFVklDRV9JRF9JTlRFTF9JQ0g2XzEsCWFzdXNfaGlkZXNfc21idXNfaWNoNiAp
-OworCiAvKgogICogU2lTIDk2eCBzb3V0aCBicmlkZ2U6IEJJT1MgdHlwaWNhbGx5IGhpZGVzIFNN
-QnVzIGRldmljZS4uLgogICovCg==
+---
 
---DC51DE27935F320A96E00D3AB30AD89C--
+This patch was sent by Arnd Bergmann on:
+- 05 Nov 2005
+
+ fs/compat.c             |    7 -------
+ include/linux/ioctl32.h |    4 ----
+ 2 files changed, 11 deletions(-)
+
+--- linux-2.6.14-rc.orig/fs/compat.c	2005-11-05 02:41:10.000000000 +0100
++++ linux-2.6.14-rc/fs/compat.c	2005-11-05 02:41:14.000000000 +0100
+@@ -268,7 +268,6 @@
+ 
+ #define IOCTL_HASHSIZE 256
+ static struct ioctl_trans *ioctl32_hash_table[IOCTL_HASHSIZE];
+-static DECLARE_RWSEM(ioctl32_sem);
+ 
+ extern struct ioctl_trans ioctl_start[];
+ extern int ioctl_table_size;
+@@ -390,14 +389,10 @@
+ 		break;
+ 	}
+ 
+-	/* When register_ioctl32_conversion is finally gone remove
+-	   this lock! -AK */
+-	down_read(&ioctl32_sem);
+ 	for (t = ioctl32_hash_table[ioctl32_hash(cmd)]; t; t = t->next) {
+ 		if (t->cmd == cmd)
+ 			goto found_handler;
+ 	}
+-	up_read(&ioctl32_sem);
+ 
+ 	if (S_ISSOCK(filp->f_dentry->d_inode->i_mode) &&
+ 	    cmd >= SIOCDEVPRIVATE && cmd <= (SIOCDEVPRIVATE + 15)) {
+@@ -417,11 +412,9 @@
+ 		lock_kernel();
+ 		error = t->handler(fd, cmd, arg, filp);
+ 		unlock_kernel();
+-		up_read(&ioctl32_sem);
+ 		goto out_fput;
+ 	}
+ 
+-	up_read(&ioctl32_sem);
+  do_ioctl:
+ 	error = vfs_ioctl(filp, fd, cmd, arg);
+  out_fput:
+Index: linux-2.6.14-rc/include/linux/ioctl32.h
+===================================================================
+--- linux-2.6.14-rc.orig/include/linux/ioctl32.h	2005-11-05 02:41:10.000000000 +0100
++++ linux-2.6.14-rc/include/linux/ioctl32.h	2005-11-05 02:41:14.000000000 +0100
+@@ -1,8 +1,6 @@
+ #ifndef IOCTL32_H
+ #define IOCTL32_H 1
+ 
+-#include <linux/compiler.h>	/* for __deprecated */
+-
+ struct file;
+ 
+ typedef int (*ioctl_trans_handler_t)(unsigned int, unsigned int,
 
 

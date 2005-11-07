@@ -1,87 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964868AbVKGRmq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964884AbVKGRoz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964868AbVKGRmq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 12:42:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964873AbVKGRmq
+	id S964884AbVKGRoz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 12:44:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964873AbVKGRoy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 12:42:46 -0500
-Received: from mail.parknet.co.jp ([210.171.160.6]:52489 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S964868AbVKGRmo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 12:42:44 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 6/6] export/change sync_page_range/_nolock()
-References: <87hdaotlci.fsf@devron.myhome.or.jp>
-	<87d5lctl5y.fsf@devron.myhome.or.jp>
-	<878xw0tl3r.fsf_-_@devron.myhome.or.jp>
-	<874q6otl0q.fsf_-_@devron.myhome.or.jp>
-	<87zmogs6cs.fsf_-_@devron.myhome.or.jp>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Tue, 08 Nov 2005 02:42:36 +0900
-In-Reply-To: <87zmogs6cs.fsf_-_@devron.myhome.or.jp> (OGAWA Hirofumi's message of "Tue, 08 Nov 2005 02:41:39 +0900")
-Message-ID: <87vez4s6b7.fsf_-_@devron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+	Mon, 7 Nov 2005 12:44:54 -0500
+Received: from mtl.rackplans.net ([65.39.167.249]:40654 "HELO innerfire.net")
+	by vger.kernel.org with SMTP id S964884AbVKGRox (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 12:44:53 -0500
+Date: Mon, 7 Nov 2005 12:44:54 -0500 (EST)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Steven Rostedt <rostedt@goodmis.org>
+cc: LKML <linux-kernel@vger.kernel.org>, Xavier Bestel <xavier.bestel@free.fr>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Hugo Mills <hugo-lkml@carfax.org.uk>, Nix <nix@esperi.org.uk>,
+       Anshuman Gholap <anshu.pg@gmail.com>,
+       Mark Knecht <markknecht@gmail.com>, Diego Calleja <diegocg@gmail.com>,
+       Toon van der Pas <toon@hout.vanvergehaald.nl>, arjan@infradead.org
+Subject: Re: 3D video card recommendations
+In-Reply-To: <1131384624.14381.106.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0511071243350.9444@innerfire.net>
+References: <1131112605.14381.34.camel@localhost.localdomain> 
+ <1131349343.2858.11.camel@laptopd505.fenrus.org> 
+ <1131367371.14381.91.camel@localhost.localdomain> 
+ <20051107152009.GA20807@shuttle.vanvergehaald.nl>  <20051107180045.ec86a7f2.diegocg@gmail.com>
+ <1131384624.14381.106.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This exports/changes the sync_page_range/_nolock(). The fatfs needs
-sync_page_range/_nolock() for expanding truncate, and changes "size_t
-count" to "loff_t count".
+On Mon, 7 Nov 2005, Steven Rostedt wrote:
 
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
----
+> Date: Mon, 07 Nov 2005 12:30:24 -0500
+> From: Steven Rostedt <rostedt@goodmis.org>
+> To: LKML <linux-kernel@vger.kernel.org>
+> Cc: Gerhard Mack <gmack@innerfire.net>, Xavier Bestel <xavier.bestel@free.fr>,
+>     Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugo Mills <hugo-lkml@carfax.org.uk>,
+>     Nix <nix@esperi.org.uk>, Anshuman Gholap <anshu.pg@gmail.com>,
+>     Mark Knecht <markknecht@gmail.com>, Diego Calleja <diegocg@gmail.com>,
+>     Toon van der Pas <toon@hout.vanvergehaald.nl>, arjan@infradead.org
+> Subject: Re: 3D video card recommendations
+> 
+> Hi,
+> 
+> I'd like to thank all those that responded. Unfortunately, I was not
+> very patient and already bought something before most of you responded.
+> That's my fault.
+> 
+> So, this is what I'm getting:
+> 
+> ATI (Connect3D) Radeon X800 GTO 256MB GDDR3/PCI-E/VIVO/DVI (Retail Box)
+> For $179 at Monarch computer.
+> 
+> Gerhard Mack recommended avoiding the PCI-E since there is no support
+> yet for DRI.  Right now I don't care about that (thinking it will be
+> supported in the future) and all that I read was to go with the PCI-E
+> instead of the AGP. I could be wrong.
+> 
+> I'll keep the list posted of problems/solutions that I come across with
+> this card.
+> 
+> Thanks,
+> 
+> -- Steve
 
- include/linux/writeback.h |    4 +++-
- mm/filemap.c              |    8 ++++----
- 2 files changed, 7 insertions(+), 5 deletions(-)
+Way ahead of you .. I have such a list since I own the PCI-E X300 ;)
 
-diff -puN include/linux/writeback.h~export-sync_page_range_nolock include/linux/writeback.h
---- linux-2.6.14/include/linux/writeback.h~export-sync_page_range_nolock	2005-11-07 03:59:03.000000000 +0900
-+++ linux-2.6.14-hirofumi/include/linux/writeback.h	2005-11-07 03:59:03.000000000 +0900
-@@ -108,7 +108,9 @@ void balance_dirty_pages_ratelimited(str
- int pdflush_operation(void (*fn)(unsigned long), unsigned long arg0);
- int do_writepages(struct address_space *mapping, struct writeback_control *wbc);
- int sync_page_range(struct inode *inode, struct address_space *mapping,
--			loff_t pos, size_t count);
-+			loff_t pos, loff_t count);
-+int sync_page_range_nolock(struct inode *inode, struct address_space *mapping,
-+			   loff_t pos, loff_t count);
- 
- /* pdflush.c */
- extern int nr_pdflush_threads;	/* Global so it can be exported to sysctl
-diff -puN mm/filemap.c~export-sync_page_range_nolock mm/filemap.c
---- linux-2.6.14/mm/filemap.c~export-sync_page_range_nolock	2005-11-07 03:59:03.000000000 +0900
-+++ linux-2.6.14-hirofumi/mm/filemap.c	2005-11-07 03:59:03.000000000 +0900
-@@ -280,7 +280,7 @@ static int wait_on_page_writeback_range(
-  * it is otherwise livelockable.
-  */
- int sync_page_range(struct inode *inode, struct address_space *mapping,
--			loff_t pos, size_t count)
-+			loff_t pos, loff_t count)
- {
- 	pgoff_t start = pos >> PAGE_CACHE_SHIFT;
- 	pgoff_t end = (pos + count - 1) >> PAGE_CACHE_SHIFT;
-@@ -305,9 +305,8 @@ EXPORT_SYMBOL(sync_page_range);
-  * as it forces O_SYNC writers to different parts of the same file
-  * to be serialised right until io completion.
-  */
--static int sync_page_range_nolock(struct inode *inode,
--				  struct address_space *mapping,
--				  loff_t pos, size_t count)
-+int sync_page_range_nolock(struct inode *inode, struct address_space *mapping,
-+			   loff_t pos, loff_t count)
- {
- 	pgoff_t start = pos >> PAGE_CACHE_SHIFT;
- 	pgoff_t end = (pos + count - 1) >> PAGE_CACHE_SHIFT;
-@@ -322,6 +321,7 @@ static int sync_page_range_nolock(struct
- 		ret = wait_on_page_writeback_range(mapping, start, end);
- 	return ret;
- }
-+EXPORT_SYMBOL(sync_page_range_nolock);
- 
- /**
-  * filemap_fdatawait - walk the list of under-writeback pages of the given
-_
+Your better off than I am since I bought mine two months ago.
+
+	Gerhard
+
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.

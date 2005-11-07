@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965002AbVKGRvo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965015AbVKGRvu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965002AbVKGRvo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 12:51:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965015AbVKGRvo
+	id S965015AbVKGRvu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 12:51:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbVKGRvu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 12:51:44 -0500
-Received: from mail.parknet.co.jp ([210.171.160.6]:63753 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S965002AbVKGRvn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 12:51:43 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 7/6] fat: Support a truncate() for expanding size
-References: <87hdaotlci.fsf@devron.myhome.or.jp>
-	<87d5lctl5y.fsf@devron.myhome.or.jp>
-	<878xw0tl3r.fsf_-_@devron.myhome.or.jp>
-	<874q6otl0q.fsf_-_@devron.myhome.or.jp>
-	<87zmogs6cs.fsf_-_@devron.myhome.or.jp>
-	<87vez4s6b7.fsf_-_@devron.myhome.or.jp>
-	<87r79ss658.fsf_-_@devron.myhome.or.jp>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Tue, 08 Nov 2005 02:51:35 +0900
-In-Reply-To: <87r79ss658.fsf_-_@devron.myhome.or.jp> (OGAWA Hirofumi's message of "Tue, 08 Nov 2005 02:46:11 +0900")
-Message-ID: <87mzkgs5w8.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
+	Mon, 7 Nov 2005 12:51:50 -0500
+Received: from main.gmane.org ([80.91.229.2]:53741 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S965015AbVKGRvt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 12:51:49 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Dick <dm@chello.nl>
+Subject: SIGALRM ignored
+Date: Mon, 7 Nov 2005 17:36:29 +0000 (UTC)
+Message-ID: <loom.20051107T183059-826@post.gmane.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 62.163.56.10 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051012 Firefox/1.0.7)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for broken index.
+Hi all,
 
-[PATCH 1/7] fat: move fat_clusters_flush() to write_super()
-[PATCH 2/7] fat: use sb_find_get_block() instead of sb_getblk()
-[PATCH 3/7] fat: add the read/writepages()
-[PATCH 4/7] fat: s/EXPORT_SYMBOL/EXPORT_SYMBOL_GPL/
-[PATCH 5/7] fat: support ->direct_IO()
-[PATCH 6/7] export/change sync_page_range/_nolock()
-[PATCH 7/7] fat: Support a truncate() for expanding size
+I've got a problem with SUSE LINUX Enterprise Server 9 (i586) patchlevel 2,
+Linux 2.6.5-7.191-smp.
 
-The above is right index. If I need to resend, please tell me.
+When I do the following (from bash):
 
-Note for reviewers, [6/7] patch is not a part of fatfs.
+trap 'echo bla' 14 ; /bin/kill -14 $$
 
-Thanks.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+nothing happens, utilities like iostat and netperf (and likely other utilities)
+won't work due to this problem.
+
+I've checked the glibc installation (rpm -V) and it's unchanged, bash and all
+it's dependencies are also fine.
+
+The kernel is unchanged from the SuSE LINUX Enterprise Server.
+
+Could someone please help?
+
+Thanks in advance,
+Dick
+

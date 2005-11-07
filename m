@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbVKGRFx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbVKGRFp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932285AbVKGRFx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 12:05:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbVKGRFw
+	id S932282AbVKGRFp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 12:05:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbVKGRFp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 12:05:52 -0500
-Received: from smtp11.wanadoo.fr ([193.252.22.31]:52853 "EHLO
-	smtp11.wanadoo.fr") by vger.kernel.org with ESMTP id S932285AbVKGRFw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 12:05:52 -0500
-X-ME-UUID: 20051107170550947.E75FE1C000A7@mwinf1108.wanadoo.fr
-Subject: Re: [ANNOUNCE] Ubuntu kernel tree
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Daniel Drake <dsd@gentoo.org>, Ben Collins <bcollins@ubuntu.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1131383311.11265.22.camel@localhost.localdomain>
-References: <20051106013752.GA13368@swissdisk.com>
-	 <436E17CA.3060803@gentoo.org>
-	 <1131316729.1212.58.camel@localhost.localdomain>
-	 <436F81D1.7000100@gentoo.org>
-	 <1131383311.11265.22.camel@localhost.localdomain>
-Content-Type: text/plain
-Message-Id: <1131383144.2477.9.camel@capoeira>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Mon, 07 Nov 2005 18:05:44 +0100
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Nov 2005 12:05:45 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:53674 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932282AbVKGRFo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 12:05:44 -0500
+Date: Mon, 7 Nov 2005 09:02:29 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] GIT trivial tree
+In-Reply-To: <20051107165126.GE3847@stusta.de>
+Message-ID: <Pine.LNX.4.64.0511070856590.3193@g5.osdl.org>
+References: <20051107165126.GE3847@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-11-07 at 18:08, Alan Cox wrote:
-> On Llu, 2005-11-07 at 16:33 +0000, Daniel Drake wrote:
-> > Source RPM's will just contain a Linux kernel tree with your patches already 
-> > applied, right?
+
+
+On Mon, 7 Nov 2005, Adrian Bunk wrote:
 > 
-> Of course not. Its an rpm file. RPM files contain a set of broken out
-> patches and base tar ball plus controlling rules for application. It's
-> rather more advanced than .deb sources.
+>   http://www.kernel.org/pub/scm/linux/kernel/git/bunk/trivial.git
 
-That's a troll, Alan. .deb contain exactely the same things.
+Please don't try to make me update over http. Either point to master 
+(which is not accessible by all), or point to git://git.kernel.org/. Or do 
+both..
 
-	Xav
+And if you do the latter (or, in fact, rsync or http for others), please 
+make sure that you delay your "please pull" sufficiently that the contents 
+have actually mirrored out, because otherwise, if the mail comes in while 
+I'm in merging mode (like right now), and I try to pull, I may not have 
+anything to pull at all just because it hasn't mirrored out yet.
 
+A side comment (this was true with BK too): I prefer not to see 
+unnecessary two-way merges, since that just makes the history much 
+messier. So
 
+> Adrian Bunk:
+>   Merge with http://www.kernel.org/.../torvalds/linux-2.6.git
+
+is _probably_ unnecessary, since by definition the "trivial" tree should 
+basically never have anything that could cause clashes (so if I just pull 
+on it, it should merge fine even without you doing the merge the other 
+way).
+
+Anyway, I pulled, but now we have two merges instead of one, which is kind 
+of pointless and unnecessary history complexity.
+
+		Linus

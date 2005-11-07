@@ -1,77 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964920AbVKGSc2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964893AbVKGSnG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964920AbVKGSc2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 13:32:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964991AbVKGSc2
+	id S964893AbVKGSnG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 13:43:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964898AbVKGSnG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 13:32:28 -0500
-Received: from mail.sf-mail.de ([62.27.20.61]:22921 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S964987AbVKGSc0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 13:32:26 -0500
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Panagiotis Issaris <panagiotis.issaris@gmail.com>
-Subject: Re: [PATCH] ipw2200: Missing kmalloc check
-Date: Mon, 7 Nov 2005 19:32:15 +0100
-User-Agent: KMail/1.8.3
-Cc: ipw2100-admin@linux.intel.com, linux-kernel@vger.kernel.org
-References: <1125886450.4017.14.camel@nyx>
-In-Reply-To: <1125886450.4017.14.camel@nyx>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1612688.UlMJJWICWi";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200511071932.22060@bilbo.math.uni-mannheim.de>
+	Mon, 7 Nov 2005 13:43:06 -0500
+Received: from fmr21.intel.com ([143.183.121.13]:5299 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S964893AbVKGSnE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 13:43:04 -0500
+Date: Mon, 7 Nov 2005 10:41:50 -0800
+From: Rajesh Shah <rajesh.shah@intel.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, greg@kroah.com, kristen.c.accardi@intel.com,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: 2.6.14-mm1: drivers/pci/hotplug/: namespace clashes
+Message-ID: <20051107104150.A4388@unix-os.sc.intel.com>
+Reply-To: Rajesh Shah <rajesh.shah@intel.com>
+References: <20051106182447.5f571a46.akpm@osdl.org> <20051107173732.GG3847@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20051107173732.GG3847@stusta.de>; from bunk@stusta.de on Mon, Nov 07, 2005 at 06:37:32PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1612688.UlMJJWICWi
-Content-Type: text/plain;
-  charset="iso-8859-6"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Mon, Nov 07, 2005 at 06:37:32PM +0100, Adrian Bunk wrote:
+> <--  snip  -->
+> 
+> ...
+>   LD      drivers/pci/hotplug/built-in.o
+> drivers/pci/hotplug/shpchp.o: In function `get_hp_hw_control_from_firmware':
+> : multiple definition of `get_hp_hw_control_from_firmware'
+> drivers/pci/hotplug/pciehp.o:: first defined here
+> ld: Warning: size of symbol `get_hp_hw_control_from_firmware' changed from 472 in drivers/pci/hotplug/pciehp.o to 25 in drivers/pci/hotplug/shpchp.o
+> drivers/pci/hotplug/shpchp.o: In function `get_hp_params_from_firmware':
+> : multiple definition of `get_hp_params_from_firmware'
+> drivers/pci/hotplug/pciehp.o:: first defined here
+> make[3]: *** [drivers/pci/hotplug/built-in.o] Error 1
+> 
+This patch should fix this:
 
-Panagiotis Issaris wrote:
->The ipw2200 driver code in current GIT contains a kmalloc() followed by
->a memset() without handling a possible memory allocation failure.
->
->Signed-off-by: Panagiotis Issaris <panagiotis.issaris@gmail.com>
->---
->
-> drivers/net/wireless/ipw2200.c |    4 ++++
-> 1 files changed, 4 insertions(+), 0 deletions(-)
->
->8e288419b49346fee512739acac446c951727d04
->diff --git a/drivers/net/wireless/ipw2200.c
->b/drivers/net/wireless/ipw2200.c
->--- a/drivers/net/wireless/ipw2200.c
->+++ b/drivers/net/wireless/ipw2200.c
->@@ -3976,6 +3976,10 @@ static struct ipw_rx_queue *ipw_rx_queue
-> 	int i;
->
-> 	rxq =3D (struct ipw_rx_queue *)kmalloc(sizeof(*rxq), GFP_KERNEL);
->+	if (unlikely(!rxq)) {
->+		IPW_ERROR("memory allocation failed\n");
->+		return NULL;
->+	}
-> 	memset(rxq, 0, sizeof(*rxq));
+Signed-off-by: Rajesh Shah <rajesh.shah@intel.com>
 
-Please remove the cast and use kzalloc() instead of kmalloc() and=20
-memset(,0,).
+ drivers/pci/hotplug/pciehp.h           |    4 ++--
+ drivers/pci/hotplug/pciehprm_acpi.c    |    4 ++--
+ drivers/pci/hotplug/pciehprm_nonacpi.c |    4 ++--
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
-Eike
-
---nextPart1612688.UlMJJWICWi
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBDb522XKSJPmm5/E4RAgDyAJ4k+BZrlPDqZ6z1wDEpqWhuJZbC3QCeMoVX
-A77ztYpkTKe6FBd4g7hsHEg=
-=Tu48
------END PGP SIGNATURE-----
-
---nextPart1612688.UlMJJWICWi--
+Index: linux-2.6.14-mm1/drivers/pci/hotplug/pciehp.h
+===================================================================
+--- linux-2.6.14-mm1.orig/drivers/pci/hotplug/pciehp.h
++++ linux-2.6.14-mm1/drivers/pci/hotplug/pciehp.h
+@@ -191,8 +191,8 @@ extern u8	pciehp_handle_power_fault	(u8 
+ /* pci functions */
+ extern int	pciehp_configure_device		(struct slot *p_slot);
+ extern int	pciehp_unconfigure_device	(struct slot *p_slot);
+-extern int	get_hp_hw_control_from_firmware(struct pci_dev *dev);
+-extern void	get_hp_params_from_firmware(struct pci_dev *dev,
++extern int	pciehp_get_hp_hw_control_from_firmware(struct pci_dev *dev);
++extern void	pciehp_get_hp_params_from_firmware(struct pci_dev *dev,
+ 	       	struct hotplug_params *hpp);
+ 
+ 
+Index: linux-2.6.14-mm1/drivers/pci/hotplug/pciehprm_acpi.c
+===================================================================
+--- linux-2.6.14-mm1.orig/drivers/pci/hotplug/pciehprm_acpi.c
++++ linux-2.6.14-mm1/drivers/pci/hotplug/pciehprm_acpi.c
+@@ -169,7 +169,7 @@ static int is_root_bridge(acpi_handle ha
+ 	return 0;
+ }
+ 
+-int get_hp_hw_control_from_firmware(struct pci_dev *dev)
++int pciehp_get_hp_hw_control_from_firmware(struct pci_dev *dev)
+ {
+ 	acpi_status status;
+ 	acpi_handle chandle, handle = DEVICE_ACPI_HANDLE(&(dev->dev));
+@@ -228,7 +228,7 @@ int get_hp_hw_control_from_firmware(stru
+ 	return -1;
+ }
+ 
+-void get_hp_params_from_firmware(struct pci_dev *dev,
++void pciehp_get_hp_params_from_firmware(struct pci_dev *dev,
+ 		struct hotplug_params *hpp)
+ {
+ 	acpi_status status = AE_NOT_FOUND;
+Index: linux-2.6.14-mm1/drivers/pci/hotplug/pciehprm_nonacpi.c
+===================================================================
+--- linux-2.6.14-mm1.orig/drivers/pci/hotplug/pciehprm_nonacpi.c
++++ linux-2.6.14-mm1/drivers/pci/hotplug/pciehprm_nonacpi.c
+@@ -36,13 +36,13 @@
+ 
+ #include "pciehp.h"
+ 
+-void get_hp_params_from_firmware(struct pci_dev *dev,
++void pciehp_get_hp_params_from_firmware(struct pci_dev *dev,
+ 		struct hotplug_params *hpp)
+ {
+ 	return;
+ }
+ 
+-int get_hp_hw_control_from_firmware(struct pci_dev *dev)
++int pciehp_get_hp_hw_control_from_firmware(struct pci_dev *dev)
+ {
+ 	return 0;
+ }

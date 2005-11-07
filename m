@@ -1,76 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964936AbVKGSxW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964928AbVKGS43@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964936AbVKGSxW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 13:53:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964935AbVKGSxV
+	id S964928AbVKGS43 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 13:56:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964941AbVKGS43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 13:53:21 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:59858 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964925AbVKGSxU (ORCPT
+	Mon, 7 Nov 2005 13:56:29 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:41387 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964928AbVKGS42 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 13:53:20 -0500
-Date: Mon, 7 Nov 2005 10:52:57 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Reuben Farrelly <reuben-lkml@reub.net>
-Cc: neilb@suse.de, linux-kernel@vger.kernel.org, n@suse.de,
-       Alan Stern <stern@rowland.harvard.edu>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       linux-scsi@vger.kernel.org
-Subject: Re: 2.6.14-mm1
-Message-Id: <20051107105257.333248c0.akpm@osdl.org>
-In-Reply-To: <436F3020.1040209@reub.net>
-References: <20051106182447.5f571a46.akpm@osdl.org>
-	<436F2452.9020207@reub.net>
-	<20051107020905.69c0b6dc.akpm@osdl.org>
-	<17263.11214.992300.34384@cse.unsw.edu.au>
-	<20051107023723.5cf63393.akpm@osdl.org>
-	<436F3020.1040209@reub.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 7 Nov 2005 13:56:28 -0500
+Date: Mon, 7 Nov 2005 12:56:21 -0600
+To: Greg KH <greg@kroah.com>
+Cc: Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
+       johnrose@austin.ibm.com, linux-pci@atrey.karlin.mff.cuni.cz,
+       bluesmoke-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: typedefs and structs [was Re: [PATCH 16/42]: PCI:  PCI Error reporting callbacks]
+Message-ID: <20051107185621.GD19593@austin.ibm.com>
+References: <20051103235918.GA25616@mail.gnucash.org> <20051104005035.GA26929@mail.gnucash.org> <20051105061114.GA27016@kroah.com> <17262.37107.857718.184055@cargo.ozlabs.ibm.com> <20051107175541.GB19593@austin.ibm.com> <20051107182727.GD18861@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051107182727.GD18861@kroah.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: linas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reuben Farrelly <reuben-lkml@reub.net> wrote:
->
->  Debug: sleeping function called from invalid context at include/asm/semaphore.h:99
->  in_atomic():1, irqs_disabled():1
->    [<c0103c46>] dump_stack+0x17/0x19
->    [<c011a173>] __might_sleep+0x9c/0xae
->    [<c028f82b>] scsi_disk_get_from_dev+0x15/0x48
->    [<c029006e>] sd_prepare_flush+0x17/0x5a
->    [<c027f8ff>] scsi_prepare_flush_fn+0x30/0x33
->    [<c0259da0>] blk_start_pre_flush+0xd5/0x13f
->    [<c025936b>] elv_next_request+0x113/0x170
->    [<c027fd45>] scsi_request_fn+0x4b/0x2fd
->    [<c025b393>] blk_run_queue+0x2b/0x3c
->    [<c027f0b3>] scsi_run_queue+0xa4/0xb6
->    [<c027f11f>] scsi_next_command+0x16/0x19
->    [<c027f1db>] scsi_end_request+0x93/0xc5
->    [<c027f494>] scsi_io_completion+0x141/0x46b
->    [<c02901e9>] sd_rw_intr+0x117/0x22b
->    [<c027ae5f>] scsi_finish_command+0x7f/0x93
->    [<c027ad43>] scsi_softirq+0xa8/0x11a
->    [<c0121eb8>] __do_softirq+0x88/0x141
->    [<c0104fd9>] do_softirq+0x77/0x81
->    =======================
->    [<c012205a>] irq_exit+0x48/0x4a
->    [<c0104e84>] do_IRQ+0x74/0xa7
->    [<c010374e>] common_interrupt+0x1a/0x20
->    [<f8918c04>] acpi_processor_idle+0x11f/0x2c7 [processor]
->    [<c0100d71>] cpu_idle+0x49/0xa0
->    [<c01002d7>] rest_init+0x37/0x39
->    [<c03fd8c5>] start_kernel+0x166/0x179
->    [<c0100210>] 0xc0100210
+On Mon, Nov 07, 2005 at 10:27:27AM -0800, Greg KH was heard to remark:
+> 
+> 3) realy strong typing that sparse can detect.
 
-ah-hah, that's a different trace.
+Am compiling now.
 
-sd_issue_flush() has been altered to run scsi_disk_get_from_dev(), which
-takes a semaphore.  It does this from within spinlock and, as we see here,
-from within softirq.
+> enums don't really work, as you can get away with using an integer and
+> the compiler will never complain.  Please use a typedef (yeah, I said
+> typedef) in the way that sparse will catch any bad users of the code.
 
-Methinks the people who developed and tested that patch forgot to enable
-CONFIG_PREEMPT, CONFIG_DEBUG_KERNEL, CONFIG_DEBUG_SLAB,
-CONFIG_DEBUG_SPINLOCK and CONFIG_DEBUG_SPINLOCK_SLEEP.
+How about typedef'ing  structs?
+
+I'm not to clear on what "sparse" can do; however, in the good old days,
+gcc allowed you to commit great sins when passing "struct blah *" to 
+subroutines, whereas it stoped you cold if you tried the same trick 
+with a typedef'ed "blah_t *".  This got me into the habit of turning
+all structs into typedefs in my personal projects.  Can we expect
+something similar for the kernel, and in particular, should we start
+typedefing structs now?
+
+(Documentation/CodingStyle doesn't mention typedef at all).
+
+--linas
 

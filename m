@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965170AbVKGXgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965565AbVKGXgO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965170AbVKGXgN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 18:36:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965602AbVKGXgN
+	id S965565AbVKGXgO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 18:36:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965603AbVKGXgO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 18:36:13 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:40926 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965170AbVKGXgM (ORCPT
+	Mon, 7 Nov 2005 18:36:14 -0500
+Received: from holomorphy.com ([66.93.40.71]:18650 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S965565AbVKGXgN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 18:36:12 -0500
-Date: Mon, 7 Nov 2005 15:34:58 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: akpm@osdl.org, greg@kroah.com, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, mdharm-usb@one-eyed-alien.net,
-       zaitcev@redhat.com
-Subject: Re: 2.6.14-mm1: Why is USB_LIBUSUAL user-visible?
-Message-Id: <20051107153458.034c6445.zaitcev@redhat.com>
-In-Reply-To: <20051107211028.GU3847@stusta.de>
-References: <20051106182447.5f571a46.akpm@osdl.org>
-	<20051107211028.GU3847@stusta.de>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Mon, 7 Nov 2005 18:36:13 -0500
+Date: Mon, 7 Nov 2005 15:35:38 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Adam Litke <agl@us.ibm.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       David Gibson <david@gibson.dropbear.id.au>, hugh@veritas.com,
+       rohit.seth@intel.com, "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       akpm@osdl.org
+Subject: Re: [RFC 2/2] Hugetlb COW
+Message-ID: <20051107233538.GH29402@holomorphy.com>
+References: <1131397841.25133.90.camel@localhost.localdomain> <1131399533.25133.104.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1131399533.25133.104.camel@localhost.localdomain>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Nov 2005 22:10:28 +0100, Adrian Bunk <bunk@stusta.de> wrote:
-> On Sun, Nov 06, 2005 at 06:24:47PM -0800, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.14-rc5-mm1:
-> >...
-> > +gregkh-usb-usb-libusual.patch
-> > 
-> >  USB tree updates
-> >...
-> 
-> IMHO, CONFIG_USB_LIBUSUAL shouldn't be a user-visible variable but 
-> should be automatically enabled when it makes sense.
+On Mon, Nov 07, 2005 at 03:38:53PM -0600, Adam Litke wrote:
+> [RFC] COW for hugepages
+> (Patch originally from David Gibson <dwg@au1.ibm.com>)
+> This patch implements copy-on-write for hugepages, hence allowing
+> MAP_PRIVATE mappings of hugetlbfs.
+> This is chiefly useful for cases where we want to use hugepages
+> "automatically" - that is to map hugepages without the knowledge of
+> the code in the final application (either via kernel hooks, or with
+> LD_PRELOAD).  We can use various heuristics to determine when
+> hugepages might be a good idea, but changing the semantics of
+> anonymous memory from MAP_PRIVATE to MAP_SHARED without the app's
+> knowledge is clearly wrong.
 
-Sounds good, but too radical. Also, does not fix the issue at
-hand, which is simply that I was confused in the triary logic
-somewhere.
+I'll go check for architectures where page protections may be encoded
+differently depending on the size of the translation, or whose code is
+otherwise unprepared to cope with protection bits.
 
--- Pete
+If you've done such checking already, I'd be much obliged to hear of it
+(in fact, I'd much prefer you to have done so).
+
+
+-- wli

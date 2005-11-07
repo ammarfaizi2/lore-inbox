@@ -1,81 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964908AbVKGRBL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964875AbVKGRC4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964908AbVKGRBL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 12:01:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbVKGRBL
+	id S964875AbVKGRC4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 12:02:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbVKGRC4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 12:01:11 -0500
-Received: from spirit.analogic.com ([204.178.40.4]:15366 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S964908AbVKGRBJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 12:01:09 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <436F8601.4070201@vmware.com>
-References: <Pine.LNX.4.55.0511031600010.24109@blysk.ds.pg.gda.pl> <436A3C10.9050302@vmware.com> <Pine.LNX.4.55.0511031639310.24109@blysk.ds.pg.gda.pl> <436AA1FD.3010401@vmware.com> <p73fyqb2dtx.fsf@verdi.suse.de> <Pine.LNX.4.55.0511070931560.28165@blysk.ds.pg.gda.pl> <436F7673.5040309@vmware.com> <Pine.LNX.4.55.0511071632110.28165@blysk.ds.pg.gda.pl> <436F8601.4070201@vmware.com>
-X-OriginalArrivalTime: 07 Nov 2005 17:00:56.0253 (UTC) FILETIME=[D1C36ED0:01C5E3BC]
-Content-class: urn:content-classes:message
-Subject: Re: 2.6.14: CR4 not needed to be inspected on the 486 anymore?
-Date: Mon, 7 Nov 2005 12:00:56 -0500
-Message-ID: <Pine.LNX.4.61.0511071157590.27658@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.14: CR4 not needed to be inspected on the 486 anymore?
-Thread-Index: AcXjvNHNW++jCMSMTSSusDdtHelROw==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Zachary Amsden" <zach@vmware.com>
-Cc: "Maciej W. Rozycki" <macro@linux-mips.org>, "Andi Kleen" <ak@suse.de>,
-       <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Mon, 7 Nov 2005 12:02:56 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:39137 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964875AbVKGRCz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 12:02:55 -0500
+Date: Mon, 7 Nov 2005 17:02:53 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-mm1
+Message-ID: <20051107170253.GA17785@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20051106182447.5f571a46.akpm@osdl.org> <20051107033009.GB12192@infradead.org> <Pine.LNX.4.61.0511071315530.1387@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0511071315530.1387@scrub.home>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 07, 2005 at 01:18:26PM +0100, Roman Zippel wrote:
+> Hi,
+> 
+> On Mon, 7 Nov 2005, Christoph Hellwig wrote:
+> 
+> > gosh.  Can we please get one of the patches to allow m68k in mainline
+> > merged?  roman has been blocking these since 2.6.13 at least.  Alternatively
+> > just kill m68k from mainline due to lack of active maintainer.
+> 
+> It's not a problem on my part, Al is constantly vetoing these patches.
+> I'm not taking this blame. :-(
 
-On Mon, 7 Nov 2005, Zachary Amsden wrote:
+You've threatened all kinds of nasty things in case Al's perfectly reasonable
+patchkit goes in.  That's certainly what I would call blocking.  Your patch
+split has clear disadvantages over the original ones, but I don't really
+care which one we get as long as we get this bullshit sorted out.
 
-> Maciej W. Rozycki wrote:
->
->> On Mon, 7 Nov 2005, Zachary Amsden wrote:
->>
->>
->>
->>> While this is at least no worse in the nested fault case than earlier
->>> kernels, I really wish I had one of those weird 486s so I could test the
->>> faulting mechanism.  It seems the trap handling code has gotten quite
->>>
->>>
->>
->> What's so weird about 486s?  Besides, for testing it doesn't have to be
->> one -- you will get away with a 386, too.  I have neither anymore, but
->> there are people around still using them.
->>
->>
->
-> Because I hold in my hand "i486 Microprocessor Programmer's Reference
-> Manual, c 1990", and it has no mention whatsoever of CR4, and all
-> documentation I had until Friday had either no mention of CR4, or
-> something to the effect of "new on Pentium, the CR4 register ..."  So
-> I've had to re-adjust my definition of 486, which was weird.
->
-> Zach
-> -
-
-Yes, and undocumented opcodes might not fault. They might do nothing
-or something strange. It's not a good idea to use an undocumented
-opcode in kernel space. The read-from-CR4 in kernel space, hoping
-that an immoral-opcode trap will save you is not good practice.
-
-You might reset the processor.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.55 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

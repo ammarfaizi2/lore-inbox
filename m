@@ -1,89 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932433AbVKGEKu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbVKGEh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932433AbVKGEKu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 23:10:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbVKGEKu
+	id S932405AbVKGEh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 23:37:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbVKGEh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 23:10:50 -0500
-Received: from tornado.reub.net ([202.89.145.182]:8410 "EHLO tornado.reub.net")
-	by vger.kernel.org with ESMTP id S932393AbVKGEKt (ORCPT
+	Sun, 6 Nov 2005 23:37:28 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:38026 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932405AbVKGEh2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 23:10:49 -0500
-Message-ID: <436ED3C7.8090006@reub.net>
-Date: Mon, 07 Nov 2005 17:10:47 +1300
-From: Reuben Farrelly <reuben-lkml@reub.net>
-User-Agent: Thunderbird 1.6a1 (Windows/20051106)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-mm1
-References: <20051106182447.5f571a46.akpm@osdl.org>
-In-Reply-To: <20051106182447.5f571a46.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 6 Nov 2005 23:37:28 -0500
+Date: Sun, 6 Nov 2005 20:37:17 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andi Kleen <ak@suse.de>
+Cc: nickpiggin@yahoo.com.au, akpm@osdl.org, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: Clean up of __alloc_pages
+Message-Id: <20051106203717.58c3eed0.pj@sgi.com>
+In-Reply-To: <200511070442.58876.ak@suse.de>
+References: <20051028183326.A28611@unix-os.sc.intel.com>
+	<20051106124944.0b2ccca1.pj@sgi.com>
+	<436EC2AF.4020202@yahoo.com.au>
+	<200511070442.58876.ak@suse.de>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Nick wrote:
+> Anyway, I think the first problem is a showstopper. I'd look into
+> Hugh's SLAB_DESTROY_BY_RCU for this ...
 
-On 7/11/2005 3:24 p.m., Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.14/2.6.14-mm1/
-> 
-> - Added the 1394 development tree to the -mm lineup, as git-ieee1394.patch
-> 
-> - Re-added rmk's driver-model tree git-drvmodel.patch
-> 
-> - Added davem's sparc64 tree, as git-sparc64.patch
-> 
-> - v4l updates
-> 
-> - dvb updates
+Andi wrote:
+> RCU could be used to avoid that. Just only free it in a RCU callback.
 
-Ok a couple of things so far:
 
-Firstly:
+... looking at mm/slab.h and rcupdate.h for the first time ... 
 
-CC [M]  drivers/edac/edac_mc.o
-drivers/edac/edac_mc.c: In function 'edac_mc_scrub_block':
-drivers/edac/edac_mc.c:647: error: syntax error before 'asm'
-drivers/edac/edac_mc.c:647: error: void value not ignored as it ought to be
-drivers/edac/edac_mc.c:653: warning: passing argument 1 of 'page_zone' makes 
-pointer from integer without a cast
-drivers/edac/edac_mc.c:653: error: syntax error before 'do'
-drivers/edac/edac_mc.c:653: error: '__dummy' undeclared (first use in this function)
-drivers/edac/edac_mc.c:653: error: (Each undeclared identifier is reported only once
-drivers/edac/edac_mc.c:653: error: for each function it appears in.)
-drivers/edac/edac_mc.c: At top level:
-drivers/edac/edac_mc.c:653: error: syntax error before 'while'
-make[2]: *** [drivers/edac/edac_mc.o] Error 1
-make[1]: *** [drivers/edac] Error 2
-make: *** [drivers] Error 2
+Would this mean that I had to put the cpuset structures on their own
+slab cache, marked SLAB_DESTROY_BY_RCU?
 
-And secondly:
+And is the pair of operators:
+  task_lock(current), task_unlock(current)
+really that much worse than the pair of operatots
+  rcu_read_lock, rcu_read_unlock
+which apparently reduce to:
+  preempt_disable, preempt_enable
 
-WARNING: /lib/modules/2.6.14-mm1/kernel/drivers/block/ub.ko needs unknown symbol 
-storage_usb_ids
-WARNING: /lib/modules/2.6.14-mm1/kernel/drivers/block/ub.ko needs unknown symbol 
-usb_usual_clear_present
-WARNING: /lib/modules/2.6.14-mm1/kernel/drivers/block/ub.ko needs unknown symbol 
-usb_usual_check_type
-WARNING: /lib/modules/2.6.14-mm1/kernel/drivers/block/ub.ko needs unknown symbol 
-usb_usual_set_present
-WARNING: /lib/modules/2.6.14-mm1/kernel/drivers/usb/storage/usb-storage.ko needs 
-unknown symbol storage_usb_ids
-WARNING: /lib/modules/2.6.14-mm1/kernel/drivers/usb/storage/usb-storage.ko needs 
-unknown symbol usb_usual_clear_present
-WARNING: /lib/modules/2.6.14-mm1/kernel/drivers/usb/storage/usb-storage.ko needs 
-unknown symbol usb_usual_check_type
-WARNING: /lib/modules/2.6.14-mm1/kernel/drivers/usb/storage/usb-storage.ko needs 
-unknown symbol usb_usual_set_present
+Would this work something like the following?  Say task A, on processor
+AP, is trying to dereference its cpuset pointer, while task B, on
+processor BP, is trying hard to destroy that cpuset. Then if task A
+wraps its reference in <rcu_read_lock, rcu_read_unlock>, this will keep
+the RCU freeing of that memory from completing, until interrupts on AP
+are re-enabled.
 
-It seems that libusual.ko is not being actually built as a module, despite being 
-set to 'm' in .config.
+For that matter, if I just put cpuset structs in their own slab
+cache, would that be sufficient.
 
-Config is up at http://www.reub.net/kernel/
+  Nick - Does use-after-free debugging even catch use of objects
+	 returned to their slab cache?
 
-Box is an i386/P4/Intel925 running recent Fedora Rawhide.
+What about the other suggestions, Andi:
+ 1) subset zonelists (which you asked to reconsider)
+ 2) a kernel flag "cpusets_have_been_used" flag to short circuit
+    cpuset logic on systems not using cpusets.
 
-Reuben
 
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

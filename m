@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751297AbVKGH7K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbVKGIBL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751297AbVKGH7K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 02:59:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbVKGH7J
+	id S1751303AbVKGIBL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 03:01:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbVKGIBL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 02:59:09 -0500
-Received: from mailserv.intranet.GR ([146.124.14.106]:32995 "EHLO
-	mailserv.intranet.gr") by vger.kernel.org with ESMTP
-	id S1751297AbVKGH7I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 02:59:08 -0500
-Message-ID: <436F07F5.1030206@intracom.gr>
-Date: Mon, 07 Nov 2005 09:53:25 +0200
-From: Pantelis Antoniou <panto@intracom.gr>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051101)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "John W. Linville" <linville@tuxdriver.com>
-CC: linuxppc-embedded@ozlabs.org, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 2.6.14] fec_8xx: make CONFIG_FEC_8XX depend on CONFIG_8xx
-References: <20051106025701.GA9698@tuxdriver.com>
-In-Reply-To: <20051106025701.GA9698@tuxdriver.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Nov 2005 03:01:11 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:53411 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751303AbVKGIBK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 03:01:10 -0500
+Date: Mon, 7 Nov 2005 09:00:42 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Paul Jackson <pj@sgi.com>,
+       andy@thermo.lanl.gov, mbligh@mbligh.org, akpm@osdl.org,
+       arjan@infradead.org, arjanv@infradead.org, haveblue@us.ibm.com,
+       kravetz@us.ibm.com, lhms-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, mel@csn.ul.ie,
+       nickpiggin@yahoo.com.au
+Subject: Re: [Lhms-devel] [PATCH 0/7] Fragmentation Avoidance V19
+Message-ID: <20051107080042.GA29961@elte.hu>
+References: <20051104010021.4180A184531@thermo.lanl.gov> <Pine.LNX.4.64.0511032105110.27915@g5.osdl.org> <20051103221037.33ae0f53.pj@sgi.com> <20051104063820.GA19505@elte.hu> <Pine.LNX.4.64.0511040725090.27915@g5.osdl.org> <796B585C-CB1C-4EBA-9EF4-C11996BC9C8B@mac.com> <Pine.LNX.4.64.0511060756010.3316@g5.osdl.org> <Pine.LNX.4.64.0511060848010.3316@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0511060848010.3316@g5.osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John W. Linville wrote:
-> Make CONFIG_FEC_8XX depend on CONFIG_8xx.  This keeps allmodconfig from
-> breaking on non-8xx (PPC) platforms.
+
+* Linus Torvalds <torvalds@osdl.org> wrote:
+
+> > You could do it today, although at a pretty high cost. And you'd have to 
+> > forget about supporting any hardware that really wants contiguous memory 
+> > for DMA (sound cards etc). It just isn't worth it.
 > 
-> Signed-off-by: John W. Linville <linville@tuxdriver.com>
-> ---
-> 
->  drivers/net/fec_8xx/Kconfig |    2 +-
->  1 files changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/net/fec_8xx/Kconfig b/drivers/net/fec_8xx/Kconfig
-> index 4560026..a84c232 100644
-> --- a/drivers/net/fec_8xx/Kconfig
-> +++ b/drivers/net/fec_8xx/Kconfig
-> @@ -1,6 +1,6 @@
->  config FEC_8XX
->  	tristate "Motorola 8xx FEC driver"
-> -	depends on NET_ETHERNET
-> +	depends on NET_ETHERNET && 8xx
->  	select MII
->  
->  config FEC_8XX_GENERIC_PHY
+> Btw, in case it wasn't clear: the cost of these kinds of things in the 
+> kernel is usually not so much the actual "lookup" (whether with hw 
+> assist or with another field in the "struct page").
+[...]
 
-Yes, this is the correct approach. Please disregard the other
-patches floating about.
+> So remappable kernels are certainly doable, they just have more 
+> fundamental problems than remappable user space _ever_ has. Both from 
+> a performance and from a complexity angle.
 
-Regards
+furthermore, it doesnt bring us any closer to removable RAM. The problem 
+is still unsolvable (due to the 'how to do you find live pointers to fix 
+up' issue), even if the full kernel VM is 'mapped' at 4K granularity.
 
-Pantelis
-
+	Ingo

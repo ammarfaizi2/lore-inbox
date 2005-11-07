@@ -1,64 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932434AbVKGDR7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932441AbVKGDSn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932434AbVKGDR7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 22:17:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbVKGDRY
+	id S932441AbVKGDSn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 22:18:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbVKGDSI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 22:17:24 -0500
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:13972 "HELO
+	Sun, 6 Nov 2005 22:18:08 -0500
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:16276 "HELO
 	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932434AbVKGDRT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 22:17:19 -0500
+	id S932430AbVKGDRZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Nov 2005 22:17:25 -0500
 From: mchehab@brturbo.com.br
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, video4linux-list@redhat.com,
-       Kirk Lapray <kirk.lapray@gmail.com>
-Subject: [Patch 03/20] V4L(901) Added function for nxt200x to change pll
-	input
-Date: Mon, 07 Nov 2005 00:58:06 -0200
-Message-Id: <1131333341.25215.20.camel@localhost>
+       Hans Verkuil <hverkuil@xs4all.nl>
+Subject: [Patch 14/20] V4L(915) Fixes compilation problems due removal of
+	media id h and i2c algo bit
+Date: Mon, 07 Nov 2005 00:58:10 -0200
+Message-Id: <1131333341.25215.21.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.1-2mdk 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Kirk Lapray <kirk.lapray@gmail.com>
+From: Hans Verkuil <hverkuil@xs4all.nl>
 
-- Added function for nxt200x to change pll input
+- Fixes compilation problems due removal of media/id.h and I2C_ALGO_BIT
 
-Signed-off-by: Kirk Lapray <kirk.lapray@gmail.com>
-Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
 
 -----------------
 
- drivers/media/video/cx88/cx88-dvb.c |   10 ++++++++++
- 1 files changed, 10 insertions(+)
+ Documentation/video4linux/CARDLIST.saa7134 |    2 +-
+ drivers/media/video/cs53l32a.c             |   10 ++++++++--
+ drivers/media/video/wm8775.c               |   12 ++++--------
+ 3 files changed, 13 insertions(+), 11 deletions(-)
 
---- hg.orig/drivers/media/video/cx88/cx88-dvb.c
-+++ hg/drivers/media/video/cx88/cx88-dvb.c
-@@ -296,10 +296,20 @@ static int nxt200x_set_ts_param(struct d
+--- hg.orig/Documentation/video4linux/CARDLIST.saa7134
++++ hg/Documentation/video4linux/CARDLIST.saa7134
+@@ -77,6 +77,6 @@
+  76 -> SKNet MonsterTV Mobile                   [1131:4ee9]
+  77 -> Pinnacle PCTV 110i (saa7133)             [11bd:002e]
+  78 -> ASUSTeK P7131 Dual                       [1043:4862]
+- 79 -> PCTV Cardbus TV/Radio (ITO25 Rev:2B)
++ 79 -> Sedna/MuchTV PC TV Cardbus TV/Radio (ITO25 Rev:2B)
+  80 -> ASUS Digimatrix TV                       [1043:0210]
+  81 -> Philips Tiger reference design           [1131:2018]
+--- hg.orig/drivers/media/video/cs53l32a.c
++++ hg/drivers/media/video/cs53l32a.c
+@@ -25,9 +25,9 @@
+ #include <linux/ioctl.h>
+ #include <asm/uaccess.h>
+ #include <linux/i2c.h>
++#include <linux/i2c-id.h>
+ #include <linux/videodev.h>
+ #include <media/audiochip.h>
+-#include <media/id.h>
+ 
+ MODULE_DESCRIPTION("i2c device driver for cs53l32a Audio ADC");
+ MODULE_AUTHOR("Martin Vaughan");
+@@ -190,7 +190,13 @@ static int cs53l32a_attach(struct i2c_ad
+ 
+ static int cs53l32a_probe(struct i2c_adapter *adapter)
+ {
+-	return i2c_probe(adapter, &addr_data, cs53l32a_attach);
++#ifdef I2C_CLASS_TV_ANALOG
++	if (adapter->class & I2C_CLASS_TV_ANALOG)
++#else
++	if (adapter->id == I2C_HW_B_BT848)
++#endif
++		return i2c_probe(adapter, &addr_data, cs53l32a_attach);
++	return 0;
+ }
+ 
+ static int cs53l32a_detach(struct i2c_client *client)
+--- hg.orig/drivers/media/video/wm8775.c
++++ hg/drivers/media/video/wm8775.c
+@@ -26,9 +26,9 @@
+ #include <linux/ioctl.h>
+ #include <asm/uaccess.h>
+ #include <linux/i2c.h>
++#include <linux/i2c-id.h>
+ #include <linux/videodev.h>
+ #include <media/audiochip.h>
+-#include <media/id.h>
+ 
+ MODULE_DESCRIPTION("wm8775 driver");
+ MODULE_AUTHOR("Ulf Eklund");
+@@ -204,14 +204,10 @@ static int wm8775_probe(struct i2c_adapt
+ {
+ #ifdef I2C_CLASS_TV_ANALOG
+ 	if (adapter->class & I2C_CLASS_TV_ANALOG)
+-		return i2c_probe(adapter, &addr_data, wm8775_attach);
+ #else
+-	switch (adapter->id) {
+-	case I2C_HW_B_BT848:
+-		return i2c_probe(adapter, &addr_data, tda9887_attach);
+-	}
+-#endif /* I2C_CLASS_TV_ANALOG */
+-
++	if (adapter->id == I2C_HW_B_BT848)
++#endif
++		return i2c_probe(adapter, &addr_data, wm8775_attach);
  	return 0;
  }
  
-+static int nxt200x_set_pll_input(u8* buf, int input)
-+{
-+	if (input)
-+		buf[3] |= 0x08;
-+	else
-+		buf[3] &= ~0x08;
-+	return 0;
-+}
-+
- static struct nxt200x_config ati_hdtvwonder = {
- 	.demod_address    = 0x0a,
- 	.pll_address      = 0x61,
- 	.pll_desc         = &dvb_pll_tuv1236d,
-+	.set_pll_input    = nxt200x_set_pll_input,
- 	.set_ts_params    = nxt200x_set_ts_param,
- };
- #endif
 
 
 	

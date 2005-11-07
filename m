@@ -1,198 +1,313 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964970AbVKGVjG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965159AbVKGVj7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964970AbVKGVjG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 16:39:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965164AbVKGVjF
+	id S965159AbVKGVj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 16:39:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965204AbVKGVj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 16:39:05 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:12260 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964970AbVKGVjD (ORCPT
+	Mon, 7 Nov 2005 16:39:59 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:29089 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965159AbVKGVj5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 16:39:03 -0500
-Subject: [RFC 1/2] Hugetlb fault fixes and reorg
-From: Adam Litke <agl@us.ibm.com>
-To: linux-mm@kvack.org
-Cc: linux-kernel@vger.kernel.org, David Gibson <david@gibson.dropbear.id.au>,
-       hugh@veritas.com, rohit.seth@intel.com,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>, akpm@osdl.org
-In-Reply-To: <1131397841.25133.90.camel@localhost.localdomain>
-References: <1131397841.25133.90.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: IBM
-Date: Mon, 07 Nov 2005 15:38:16 -0600
-Message-Id: <1131399496.25133.103.camel@localhost.localdomain>
+	Mon, 7 Nov 2005 16:39:57 -0500
+Date: Mon, 7 Nov 2005 15:39:54 -0600
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, bluesmoke-devel@lists.sourceforge.net,
+       Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [PATCH 7/7]: Revised [PATCH 32/42]: RFC: Add compile-time config options
+Message-ID: <20051107213954.GN19593@austin.ibm.com>
+References: <20051103235918.GA25616@mail.gnucash.org> <20051104005035.GA26929@mail.gnucash.org> <20051105061114.GA27016@kroah.com> <17262.37107.857718.184055@cargo.ozlabs.ibm.com> <20051107175541.GB19593@austin.ibm.com> <20051107182727.GD18861@kroah.com> <20051107195727.GF19593@austin.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051107195727.GF19593@austin.ibm.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: linas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[RFC] Cleanup / small fixes to hugetlb fault handling
-(Patch originally from David Gibson <david@gibson.dropbear.id.au>)
-Initial Post: Tue. 25 Oct 2005
+On Mon, Nov 07, 2005 at 01:57:27PM -0600, linas was heard to remark:
+> On Mon, Nov 07, 2005 at 10:27:27AM -0800, Greg KH was heard to remark:
+> > 3) realy strong typing that sparse can detect.
 
-On Thu, 2005-10-27 at 16:37 +1000, 'David Gibson' wrote:
-> This patch makes some slight tweaks / cleanups to the fault handling
-> path for huge pages in -mm.  My main motivation is to make it simpler
-> to fit COW in, but along the way it addresses a few minor problems
-> with the existing code:
-> 
-> - The check against i_size was duplicated: once in
->   find_lock_huge_page() and again in hugetlb_fault() after taking the
->   page_table_lock.  We only really need the locked one, so remove the
->   other.
-> 
-> - find_lock_huge_page() isn't a great name, since it does extra things
->   not analagous to find_lock_page().  Rename it
->   find_or_alloc_huge_page() which is closer to the mark.
-> 
-> Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
-Acked-by: Adam Litke <agl@us.ibm.com>
+This OPTIONAL/RFC patch adds ifdef's around the PCI error recovery code in the 
+various device drivers. This patch is "optional" in that its a little bit 
+messy, but it does solve a little problem.
 
----
- hugetlb.c |   77 +++++++++++++++++++++++++++++++++++++-------------------------
- 1 files changed, 46 insertions(+), 31 deletions(-)
-diff -upN reference/mm/hugetlb.c current/mm/hugetlb.c
---- reference/mm/hugetlb.c
-+++ current/mm/hugetlb.c
-@@ -339,30 +339,24 @@ void unmap_hugepage_range(struct vm_area
- 	flush_tlb_range(vma, start, end);
+-- The good news: this gives some users (e.g. embeddd systems) the option 
+	of not compiling in this code, thus making thier device drivers a tiny 
+	bit smaller.
+
+-- The bad news: This also clutters up the drivers with extraneous markup 
+   and the config process with yet another config.
+
+Please apply if you agree with the need for this patch :)
+
+Signed-off-by: Linas Vepstas <linas@linas.org>
+
+Index: linux-2.6.14-mm1/drivers/scsi/ipr.c
+===================================================================
+--- linux-2.6.14-mm1.orig/drivers/scsi/ipr.c	2005-11-07 15:02:00.639392946 -0600
++++ linux-2.6.14-mm1/drivers/scsi/ipr.c	2005-11-07 15:02:20.029668601 -0600
+@@ -5329,6 +5329,8 @@
  }
  
--static struct page *find_lock_huge_page(struct address_space *mapping,
--			unsigned long idx)
-+static struct page *find_or_alloc_huge_page(struct address_space *mapping,
-+					    unsigned long idx)
+ /* --------------- PCI Error Recovery infrastructure ----------- */
++#ifdef CONFIG_PCI_ERR_RECOVERY
++
+ /** If the PCI slot is frozen, hold off all i/o
+  *  activity; then, as soon as the slot is available again,
+  *  initiate an adapter reset.
+@@ -5414,6 +5416,7 @@
+ 	return PERS_RESULT_NEED_RESET;
+ }
+ 
++#endif /* CONFIG_PCI_ERR_RECOVERY */
+ /* ------------- end of PCI Error Recovery suport ----------- */
+ 
+ /**
+@@ -6153,10 +6156,12 @@
+ };
+ MODULE_DEVICE_TABLE(pci, ipr_pci_table);
+ 
++#ifdef CONFIG_PCI_ERR_RECOVERY
+ static struct pci_error_handlers ipr_err_handler = {
+ 	.error_detected = ipr_eeh_error_detected,
+ 	.slot_reset = ipr_eeh_slot_reset,
+ };
++#endif /* CONFIG_PCI_ERR_RECOVERY */
+ 
+ static struct pci_driver ipr_driver = {
+ 	.name = IPR_NAME,
+@@ -6164,7 +6169,9 @@
+ 	.probe = ipr_probe,
+ 	.remove = ipr_remove,
+ 	.shutdown = ipr_shutdown,
++#ifdef CONFIG_PCI_ERR_RECOVERY
+ 	.err_handler = &ipr_err_handler,
++#endif /* CONFIG_PCI_ERR_RECOVERY */
+ };
+ 
+ /**
+Index: linux-2.6.14-mm1/drivers/pci/Kconfig
+===================================================================
+--- linux-2.6.14-mm1.orig/drivers/pci/Kconfig	2005-11-07 13:55:23.869498177 -0600
++++ linux-2.6.14-mm1/drivers/pci/Kconfig	2005-11-07 15:02:20.030668460 -0600
+@@ -13,6 +13,21 @@
+ 
+ 	   If you don't know what to do here, say N.
+ 
++config PCI_ERR_RECOVERY
++	bool "PCI Error Recovery support"
++	depends on PCI
++	depends on PPC_PSERIES
++	default y
++	help
++	   PCI Error Recovery is a mechanism by which crashed/hung 
++		PCI adapters are automatically detected and rebooted without
++		otherwise disturbing the operation of the system.  Support
++		for this recovery requires special PCI bridge chips (some
++		PCI-E chips may have this support) as well as support in 
++		the device drivers (not all device drivers can handle this).
++
++	   When in doubt, say Y.
++
+ config PCI_LEGACY_PROC
+ 	bool "Legacy /proc/pci interface"
+ 	depends on PCI
+Index: linux-2.6.14-mm1/drivers/scsi/sym53c8xx_2/sym_glue.c
+===================================================================
+--- linux-2.6.14-mm1.orig/drivers/scsi/sym53c8xx_2/sym_glue.c	2005-11-07 15:02:08.152337375 -0600
++++ linux-2.6.14-mm1/drivers/scsi/sym53c8xx_2/sym_glue.c	2005-11-07 15:02:20.034667898 -0600
+@@ -763,6 +763,7 @@
+  */
+ static void sym_eh_timeout(u_long p) { __sym_eh_done((struct scsi_cmnd *)p, 1); }
+ 
++#ifdef CONFIG_PCI_ERR_RECOVERY
+ static void sym_eeh_timeout(u_long p)
  {
- 	struct page *page;
- 	int err;
--	struct inode *inode = mapping->host;
--	unsigned long size;
+ 	struct sym_eh_wait *ep = (struct sym_eh_wait *) p;
+@@ -781,6 +782,7 @@
  
- retry:
- 	page = find_lock_page(mapping, idx);
- 	if (page)
--		goto out;
--
--	/* Check to make sure the mapping hasn't been truncated */
--	size = i_size_read(inode) >> HPAGE_SHIFT;
--	if (idx >= size)
--		goto out;
-+		return page;
+ 	complete(&ep->done);
+ }
++#endif /* CONFIG_PCI_ERR_RECOVERY */
  
- 	if (hugetlb_get_quota(mapping))
--		goto out;
-+		return NULL;
-+
- 	page = alloc_huge_page();
- 	if (!page) {
- 		hugetlb_put_quota(mapping);
--		goto out;
-+		return NULL;
+ /*
+  *  Generic method for our eh processing.
+@@ -823,6 +825,7 @@
+ 	/* Try to proceed the operation we have been asked for */
+ 	sts = -1;
+ 
++#ifdef CONFIG_PCI_ERR_RECOVERY
+ 	/* We may be in an error condition because the PCI bus
+ 	 * went down. In this case, we need to wait until the
+ 	 * PCI bus is reset, the card is reset, and only then
+@@ -850,6 +853,7 @@
+ 		}
+ 		np->s.io_reset_wait = NULL;
  	}
++#endif /* CONFIG_PCI_ERR_RECOVERY */
  
- 	err = add_to_page_cache(page, mapping, idx, GFP_KERNEL);
-@@ -373,50 +367,49 @@ retry:
- 			goto retry;
- 		page = NULL;
- 	}
--out:
-+
- 	return page;
+ 	switch(op) {
+ 	case SYM_EH_ABORT:
+@@ -1971,6 +1975,7 @@
  }
  
--int hugetlb_fault(struct mm_struct *mm, struct vm_area_struct *vma,
--			unsigned long address, int write_access)
-+int hugetlb_no_page(struct mm_struct *mm, struct vm_area_struct *vma,
-+		    unsigned long address, pte_t *ptep)
+ /* ------------- PCI Error Recovery infrastructure -------------- */
++#ifdef CONFIG_PCI_ERR_RECOVERY
+ /** sym2_io_error_detected() is called when PCI error is detected */
+ static pers_result_t sym2_io_error_detected (struct pci_dev *pdev, pci_channel_state_t state)
  {
--	int ret = VM_FAULT_SIGBUS;
-+	int ret;
- 	unsigned long idx;
- 	unsigned long size;
--	pte_t *pte;
- 	struct page *page;
- 	struct address_space *mapping;
- 
--	pte = huge_pte_alloc(mm, address);
--	if (!pte)
--		goto out;
--
- 	mapping = vma->vm_file->f_mapping;
- 	idx = ((address - vma->vm_start) >> HPAGE_SHIFT)
- 		+ (vma->vm_pgoff >> (HPAGE_SHIFT - PAGE_SHIFT));
- 
--	/*
--	 * Use page lock to guard against racing truncation
--	 * before we get page_table_lock.
--	 */
--	page = find_lock_huge_page(mapping, idx);
-+	/* This returns a locked page, which keeps us safe in the
-+	 * event of a race with truncate() */
-+	page = find_or_alloc_huge_page(mapping, idx);
- 	if (!page)
--		goto out;
-+		return VM_FAULT_SIGBUS;
- 
- 	spin_lock(&mm->page_table_lock);
-+
-+	ret = VM_FAULT_SIGBUS;
-+
- 	size = i_size_read(mapping->host) >> HPAGE_SHIFT;
- 	if (idx >= size)
- 		goto backout;
- 
- 	ret = VM_FAULT_MINOR;
--	if (!pte_none(*pte))
-+
-+	if (!pte_none(*ptep))
-+		/* oops, someone instantiated this PTE before us */
- 		goto backout;
- 
- 	add_mm_counter(mm, file_rss, HPAGE_SIZE / PAGE_SIZE);
--	set_huge_pte_at(mm, address, pte, make_huge_pte(vma, page));
-+	set_huge_pte_at(mm, address, ptep, make_huge_pte(vma, page));
-+
- 	spin_unlock(&mm->page_table_lock);
- 	unlock_page(page);
--out:
-+
- 	return ret;
- 
- backout:
-@@ -424,7 +417,29 @@ backout:
- 	hugetlb_put_quota(mapping);
- 	unlock_page(page);
- 	put_page(page);
--	goto out;
-+
-+	return ret;
-+}
-+
-+int hugetlb_fault(struct mm_struct *mm, struct vm_area_struct *vma,
-+		  unsigned long address, int write_access)
-+{
-+	pte_t *ptep;
-+	pte_t entry;
-+
-+	ptep = huge_pte_alloc(mm, address);
-+	if (! ptep)
-+		return VM_FAULT_OOM;
-+
-+	entry = *ptep;
-+
-+	if (pte_none(entry))
-+		return hugetlb_no_page(mm, vma, address, ptep);
-+
-+	/* we could get here if another thread instantiated the pte
-+	 * before the test above */
-+
-+	return VM_FAULT_MINOR;
+@@ -2021,6 +2026,7 @@
+ 	np->s.io_state = pci_channel_io_normal;
+ 	sym_eeh_done (np->s.io_reset_wait);
  }
++#endif /* CONFIG_PCI_ERR_RECOVERY */
  
- int follow_hugetlb_page(struct mm_struct *mm, struct vm_area_struct *vma,
-
--- 
-Adam Litke - (agl at us.ibm.com)
-IBM Linux Technology Center
-
+ /*
+  * Driver host template.
+@@ -2275,18 +2281,22 @@
+ 
+ MODULE_DEVICE_TABLE(pci, sym2_id_table);
+ 
++#ifdef CONFIG_PCI_ERR_RECOVERY
+ static struct pci_error_handlers sym2_err_handler = {
+ 	.error_detected = sym2_io_error_detected,
+ 	.slot_reset = sym2_io_slot_reset,
+ 	.resume = sym2_io_resume,
+ };
++#endif /* CONFIG_PCI_ERR_RECOVERY */
+ 
+ static struct pci_driver sym2_driver = {
+ 	.name		= NAME53C8XX,
+ 	.id_table	= sym2_id_table,
+ 	.probe		= sym2_probe,
+ 	.remove		= __devexit_p(sym2_remove),
++#ifdef CONFIG_PCI_ERR_RECOVERY
+ 	.err_handler = &sym2_err_handler,
++#endif /* CONFIG_PCI_ERR_RECOVERY */
+ };
+ 
+ static int __init sym2_init(void)
+Index: linux-2.6.14-mm1/drivers/net/e100.c
+===================================================================
+--- linux-2.6.14-mm1.orig/drivers/net/e100.c	2005-11-07 15:02:11.120920287 -0600
++++ linux-2.6.14-mm1/drivers/net/e100.c	2005-11-07 15:02:20.038667336 -0600
+@@ -2466,6 +2466,7 @@
+ 
+ 
+ /* ------------------ PCI Error Recovery infrastructure  -------------- */
++#ifdef CONFIG_PCI_ERR_RECOVERY
+ /** e100_io_error_detected() is called when PCI error is detected */
+ static pers_result_t e100_io_error_detected(struct pci_dev *pdev, pci_channel_state_t state)
+ {
+@@ -2532,6 +2533,7 @@
+ 	.slot_reset = e100_io_slot_reset,
+ 	.resume = e100_io_resume,
+ };
++#endif /* CONFIG_PCI_ERR_RECOVERY */
+ 
+ 
+ static struct pci_driver e100_driver = {
+@@ -2544,7 +2546,9 @@
+ 	.resume =       e100_resume,
+ #endif
+ 	.shutdown =	e100_shutdown,
++#ifdef CONFIG_PCI_ERR_RECOVERY
+ 	.err_handler = &e100_err_handler,
++#endif /* CONFIG_PCI_ERR_RECOVERY */
+ };
+ 
+ static int __init e100_init_module(void)
+Index: linux-2.6.14-mm1/drivers/net/e1000/e1000_main.c
+===================================================================
+--- linux-2.6.14-mm1.orig/drivers/net/e1000/e1000_main.c	2005-11-07 15:02:12.811682734 -0600
++++ linux-2.6.14-mm1/drivers/net/e1000/e1000_main.c	2005-11-07 15:02:20.071662701 -0600
+@@ -206,6 +206,7 @@
+ void e1000_rx_schedule(void *data);
+ #endif
+ 
++#ifdef CONFIG_PCI_ERR_RECOVERY
+ static pers_result_t e1000_io_error_detected(struct pci_dev *pdev, pci_channel_state_t state);
+ static pers_result_t e1000_io_slot_reset(struct pci_dev *pdev);
+ static void e1000_io_resume(struct pci_dev *pdev);
+@@ -215,6 +216,7 @@
+ 	.slot_reset = e1000_io_slot_reset,
+ 	.resume = e1000_io_resume,
+ };
++#endif /* CONFIG_PCI_ERR_RECOVERY */
+ 
+ /* Exported from other modules */
+ 
+@@ -230,7 +232,9 @@
+ 	.suspend  = e1000_suspend,
+ 	.resume   = e1000_resume,
+ #endif
++#ifdef CONFIG_PCI_ERR_RECOVERY
+ 	.err_handler = &e1000_err_handler,
++#endif /* CONFIG_PCI_ERR_RECOVERY */
+ };
+ 
+ MODULE_AUTHOR("Intel Corporation, <linux.nics@intel.com>");
+@@ -4375,6 +4379,7 @@
+ #endif
+ 
+ /* --------------- PCI Error Recovery infrastructure ------------ */
++#ifdef CONFIG_PCI_ERR_RECOVERY
+ /** e1000_io_error_detected() is called when PCI error is detected */
+ static pers_result_t e1000_io_error_detected(struct pci_dev *pdev, pci_channel_state_t state)
+ {
+@@ -4457,5 +4462,6 @@
+ 	if(netif_running(netdev))
+ 		mod_timer(&adapter->watchdog_timer, jiffies);
+ }
++#endif /* CONFIG_PCI_ERR_RECOVERY */
+ 
+ /* e1000_main.c */
+Index: linux-2.6.14-mm1/drivers/net/ixgb/ixgb_main.c
+===================================================================
+--- linux-2.6.14-mm1.orig/drivers/net/ixgb/ixgb_main.c	2005-11-07 15:02:14.779406268 -0600
++++ linux-2.6.14-mm1/drivers/net/ixgb/ixgb_main.c	2005-11-07 15:02:20.075662139 -0600
+@@ -132,6 +132,7 @@
+ static void ixgb_netpoll(struct net_device *dev);
+ #endif
+ 
++#ifdef CONFIG_PCI_ERR_RECOVERY
+ static pers_result_t ixgb_io_error_detected (struct pci_dev *pdev, pci_channel_state_t state);
+ static pers_result_t ixgb_io_slot_reset (struct pci_dev *pdev);
+ static void ixgb_io_resume (struct pci_dev *pdev);
+@@ -141,6 +142,7 @@
+ 	.slot_reset = ixgb_io_slot_reset,
+ 	.resume = ixgb_io_resume,
+ };
++#endif /* CONFIG_PCI_ERR_RECOVERY */
+ 
+ /* Exported from other modules */
+ 
+@@ -151,8 +153,9 @@
+ 	.id_table = ixgb_pci_tbl,
+ 	.probe    = ixgb_probe,
+ 	.remove   = __devexit_p(ixgb_remove),
++#ifdef CONFIG_PCI_ERR_RECOVERY
+ 	.err_handler = &ixgb_err_handler,
+-
++#endif /* CONFIG_PCI_ERR_RECOVERY */
+ };
+ 
+ MODULE_AUTHOR("Intel Corporation, <linux.nics@intel.com>");
+@@ -2146,6 +2149,7 @@
+ #endif
+ 
+ /* -------------- PCI Error Recovery infrastructure ---------------- */
++#ifdef CONFIG_PCI_ERR_RECOVERY
+ /** ixgb_io_error_detected() is called when PCI error is detected */
+ static pers_result_t ixgb_io_error_detected (struct pci_dev *pdev, pci_channel_state_t state)
+ {
+@@ -2210,5 +2214,6 @@
+ 	memset(&adapter->stats, 0, sizeof(struct ixgb_hw_stats));
+ 	ixgb_update_stats(adapter);
+ }
++#endif /* CONFIG_PCI_ERR_RECOVERY */
+ 
+ /* ixgb_main.c */

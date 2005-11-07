@@ -1,53 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964851AbVKGPeW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbVKGPgu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964851AbVKGPeW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 10:34:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964852AbVKGPeV
+	id S964845AbVKGPgu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 10:36:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964847AbVKGPgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 10:34:21 -0500
-Received: from main.gmane.org ([80.91.229.2]:28127 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S964851AbVKGPeV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 10:34:21 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?Ville_Syrj=E4l=E4?= <syrjala@sci.fi>
-Subject: Re: 3D video card recommendations
-Date: Mon, 07 Nov 2005 16:51:02 +0200
-Message-ID: <pan.2005.11.07.14.50.56.126577@sci.fi>
-References: <1131112605.14381.34.camel@localhost.localdomain> <1131349343.2858.11.camel@laptopd505.fenrus.org> <1131367371.14381.91.camel@localhost.localdomain> <20051107125513.GD3726@localhost.localdomain>
-Mime-Version: 1.0
+	Mon, 7 Nov 2005 10:36:50 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:10698 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S964845AbVKGPgt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 10:36:49 -0500
+Subject: Re: + v4l-720-alsa-support-for-saa7134-that-should-work-fix.patch
+	added to -mm tree
+From: Lee Revell <rlrevell@joe-job.com>
+To: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+Cc: alsa-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, nshmyrev@yandex.ru, v4l@cerqueira.org
+In-Reply-To: <1131344803.10094.8.camel@localhost>
+References: <200511060743.jA67hpZa018948@shell0.pdx.osdl.net>
+	 <20051106001249.48d3ade0.akpm@osdl.org> <1131301995.13599.5.camel@mindpipe>
+	 <1131344803.10094.8.camel@localhost>
 Content-Type: text/plain; charset=ISO-8859-1
+Date: Mon, 07 Nov 2005 10:33:35 -0500
+Message-Id: <1131377615.8383.9.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cs181093116.pp.htv.fi
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 07 Nov 2005 12:55:13 +0000, Hugo Mills wrote:
-
-> On Mon, Nov 07, 2005 at 07:42:51AM -0500, Steven Rostedt wrote:
->> On Mon, 2005-11-07 at 08:42 +0100, Arjan van de Ven wrote:
->> 
->> > people who buy a 3D card for linux that depends on a closed source
->> > module take a few risks, and they should be aware of them (I suspect
->> > they are) so let me make some of them explicit:
->> 
->> Are there good 3D cards that don't depend on a proprietary module, that
->> can run on a AMD64 board?  That was pretty much my questing to begin
->> with :)
+On Mon, 2005-11-07 at 04:26 -0200, Mauro Carvalho Chehab wrote:
+> Lee,
 > 
->    http://www.xgitech.com/
+> Em Dom, 2005-11-06 às 13:33 -0500, Lee Revell escreveu:
+> > On Sun, 2005-11-06 at 00:12 -0800, Andrew Morton wrote:
+> > > Well that didn't work.  The problem is that
+> > > drivers/media/video/saa7134/saa7134-alsa.c doesn't appear to be wired
+> > > up into the build system - it simply doesn't get compiled.
+> > > 
+> > > Please send a fix against next -mm? 
+> > 
+> > Also please send all ALSA related patches to
+> > alsa-devel@lists.sourceforge.net for review.
 > 
->    Not the fastest pieces of hardware out there by some way, but they
-> _do_ have open-source drivers.
+> 	I'm sending you enclosed saa7134-alsa patch. To make easier to
+> understand, I've merged all stuff. This is highly dependent of the other
+> saa7134 parts, since PCI stuff are common to both video and audio
+> funcion on this device.
+> 	This is meant to replace saa7134-oss (after more tests) that,
+> currently, is part of saa7134 module.
 
-That's not entirely true. The DRI driver is closed source.
+OK, a brief review:
 
--- 
-Ville Syrjälä
-syrjala@sci.fi
-http://www.sci.fi/~syrjala/
+ - Why couldn't you use ALSA's DMA API?
 
+ - The DMA must be stopped and started in the trigger callback, not the
+prepare callback.
+
+ - If this device lacks a volume control alsa-lib can emulate it in
+software, just create a proper /usr/share/alsa/cards/your_card.conf
+file.
+
+ - By ALSA convention the acceptable formats, sample rates, etc should
+be directly defined in the snd_pcm_hardware_t structure.
+
+ - dev->oss needs to go.
+
+Lee
 

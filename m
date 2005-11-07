@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965015AbVKGRvu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964829AbVKGRyW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965015AbVKGRvu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 12:51:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbVKGRvu
+	id S964829AbVKGRyW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 12:54:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbVKGRyV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 12:51:50 -0500
-Received: from main.gmane.org ([80.91.229.2]:53741 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S965015AbVKGRvt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 12:51:49 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Dick <dm@chello.nl>
-Subject: SIGALRM ignored
-Date: Mon, 7 Nov 2005 17:36:29 +0000 (UTC)
-Message-ID: <loom.20051107T183059-826@post.gmane.org>
+	Mon, 7 Nov 2005 12:54:21 -0500
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:63399 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S964829AbVKGRyU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 12:54:20 -0500
+Subject: Re: 3D video card recommendations
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Gerhard Mack <gmack@innerfire.net>
+Cc: LKML <linux-kernel@vger.kernel.org>, Xavier Bestel <xavier.bestel@free.fr>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Hugo Mills <hugo-lkml@carfax.org.uk>, Nix <nix@esperi.org.uk>,
+       Anshuman Gholap <anshu.pg@gmail.com>,
+       Mark Knecht <markknecht@gmail.com>, Diego Calleja <diegocg@gmail.com>,
+       Toon van der Pas <toon@hout.vanvergehaald.nl>, arjan@infradead.org
+In-Reply-To: <Pine.LNX.4.64.0511071243350.9444@innerfire.net>
+References: <1131112605.14381.34.camel@localhost.localdomain>
+	 <1131349343.2858.11.camel@laptopd505.fenrus.org>
+	 <1131367371.14381.91.camel@localhost.localdomain>
+	 <20051107152009.GA20807@shuttle.vanvergehaald.nl>
+	 <20051107180045.ec86a7f2.diegocg@gmail.com>
+	 <1131384624.14381.106.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0511071243350.9444@innerfire.net>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Mon, 07 Nov 2005 12:53:52 -0500
+Message-Id: <1131386032.14381.110.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 62.163.56.10 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051012 Firefox/1.0.7)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Mon, 2005-11-07 at 12:44 -0500, Gerhard Mack wrote:
 
-I've got a problem with SUSE LINUX Enterprise Server 9 (i586) patchlevel 2,
-Linux 2.6.5-7.191-smp.
+> 
+> Way ahead of you .. I have such a list since I own the PCI-E X300 ;)
+> 
+> Your better off than I am since I bought mine two months ago.
+> 
+> 	Gerhard
 
-When I do the following (from bash):
+Are you running this on a x86_64 machine?
 
-trap 'echo bla' 14 ; /bin/kill -14 $$
+-- Steve
 
-nothing happens, utilities like iostat and netperf (and likely other utilities)
-won't work due to this problem.
-
-I've checked the glibc installation (rpm -V) and it's unchanged, bash and all
-it's dependencies are also fine.
-
-The kernel is unchanged from the SuSE LINUX Enterprise Server.
-
-Could someone please help?
-
-Thanks in advance,
-Dick
 

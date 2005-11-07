@@ -1,102 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965306AbVKGSRP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbVKGSUU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965306AbVKGSRP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 13:17:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965359AbVKGSRP
+	id S932277AbVKGSUU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 13:20:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbVKGSUU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 13:17:15 -0500
-Received: from spirit.analogic.com ([204.178.40.4]:58641 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S965306AbVKGSRN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 13:17:13 -0500
+	Mon, 7 Nov 2005 13:20:20 -0500
+Received: from twin.uoregon.edu ([128.223.214.27]:41405 "EHLO twin.uoregon.edu")
+	by vger.kernel.org with ESMTP id S932277AbVKGSUT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 13:20:19 -0500
+Date: Mon, 7 Nov 2005 10:19:42 -0800 (PST)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: joelja@twin.uoregon.edu
+To: Steven Rostedt <rostedt@goodmis.org>
+cc: Arjan van de Ven <arjan@infradead.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 3D video card recommendations
+In-Reply-To: <1131367371.14381.91.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0511071018050.31025@twin.uoregon.edu>
+References: <1131112605.14381.34.camel@localhost.localdomain> 
+ <1131349343.2858.11.camel@laptopd505.fenrus.org> <1131367371.14381.91.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <436F8FAE.90805@vmware.com>
-References: <Pine.LNX.4.55.0511031600010.24109@blysk.ds.pg.gda.pl> <436A3C10.9050302@vmware.com> <Pine.LNX.4.55.0511031639310.24109@blysk.ds.pg.gda.pl> <436AA1FD.3010401@vmware.com> <p73fyqb2dtx.fsf@verdi.suse.de> <Pine.LNX.4.55.0511070931560.28165@blysk.ds.pg.gda.pl> <436F7673.5040309@vmware.com> <Pine.LNX.4.55.0511071632110.28165@blysk.ds.pg.gda.pl> <436F8601.4070201@vmware.com> <Pine.LNX.4.61.0511071157590.27658@chaos.analogic.com> <436F8FAE.90805@vmware.com>
-X-OriginalArrivalTime: 07 Nov 2005 18:17:10.0220 (UTC) FILETIME=[780F68C0:01C5E3C7]
-Content-class: urn:content-classes:message
-Subject: Re: 2.6.14: CR4 not needed to be inspected on the 486 anymore?
-Date: Mon, 7 Nov 2005 13:17:04 -0500
-Message-ID: <Pine.LNX.4.61.0511071313330.27911@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.14: CR4 not needed to be inspected on the 486 anymore?
-Thread-Index: AcXjx3gZ6uAZVfqYS2CocmPfOvHgLg==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Zachary Amsden" <zach@vmware.com>
-Cc: "Maciej W. Rozycki" <macro@linux-mips.org>, "Andi Kleen" <ak@suse.de>,
-       <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 7 Nov 2005, Steven Rostedt wrote:
 
-On Mon, 7 Nov 2005, Zachary Amsden wrote:
-
-> linux-os (Dick Johnson) wrote:
+> On Mon, 2005-11-07 at 08:42 +0100, Arjan van de Ven wrote:
 >
->> On Mon, 7 Nov 2005, Zachary Amsden wrote:
+>> people who buy a 3D card for linux that depends on a closed source
+>> module take a few risks, and they should be aware of them (I suspect
+>> they are) so let me make some of them explicit:
+>
+> Are there good 3D cards that don't depend on a proprietary module, that
+> can run on a AMD64 board?  That was pretty much my questing to begin
+> with :)
+
+radeon 9200/9250 is decent though not exceptional (quality is fine, 
+opengl performance is about 2 years behind state of the art). and uses the 
+opensource x.org radeon opengl module.
+
 >>
+>> By buying a piece of hardware that requires a closed module you take the
+>> risk that one of the following can happen at any time
+>
+> Yep, I know all these, since I've been a NVidia user for some time.  But
+> NVidia was good enough for my needs since the only times I needed 3D was
+> when I wasn't playing with experimental kernels.
+>
 >>
+>> 1) The vendor in the future stops considering linux important and you're
+>> stuck with old kernels; for example as a side-effect of getting a good
+>> deal to supply graphics chips to a certain game console maker
+>
+> I was able to get some hacks out for NVidia on some new kernels before
+> they were official released.  But they were not great, just worked.
+>
+>> 2) The vendor in the future stops considering the hardware you bought
+>> important enough to spend time on; after all they got their cash and the
+>> product cycles for consumer hardware are often in the 3 to 6 month
+>> timeframe. Result: you're stuck with old kernels.
+>
+> So far NVidia is good at having one driver to do most of their boards.
+> It would take a major design change of a model to stop this, and by
+> then, I would probably have a new video card anyway.
+>
+>> 3) The vendor gets sued and convicted for GPL violations and stops doing
+>> linux as a result. (not saying it will happen, but it sure is a risk you
+>> are taking)
+>
+> Could happen, but I doubt it.  This might happen if one of the above do
+> first :)
+>
+>> 4) The linux kernel developers change the kernel in a way that the
+>> module in question no longer is possible and the vendor stops updating
+>> the driver
+>
+> I've also hacked my kernel to get NVidia working. (Changing
+> EXPORT_SYMBOL_GPL back to EXPORT_SYMBOL)  It's ok as long as I'm using
+> this just for myself.  Which currently I am.
+>
+>> 5) The vendor goes out of business and thus stops updating the driver
+>
+> MS folks would have the same problem.
+>
+>> 6) The vendor doesn't release an x86-64 binary (or other architecture)
+>> and your next PC can't use the module anymore
+>
+> Hmm, x86-64 _is_ what I'll be using this on :-/
+>
+>> 7) The vendor starts charging money for the driver or updates thereof.
+>
+> Good way to lose customers.
+>
 >>
->>> Maciej W. Rozycki wrote:
->>>
->>>> On Mon, 7 Nov 2005, Zachary Amsden wrote:
->>>>
->>>>
->>>>> While this is at least no worse in the nested fault case than earlier
->>>>> kernels, I really wish I had one of those weird 486s so I could test the
->>>>> faulting mechanism.  It seems the trap handling code has gotten quite
->>>>>
->>>> What's so weird about 486s?  Besides, for testing it doesn't have to be
->>>> one -- you will get away with a 386, too.  I have neither anymore, but
->>>> there are people around still using them.
->>>>
->>>>
->>> Because I hold in my hand "i486 Microprocessor Programmer's Reference
->>> Manual, c 1990", and it has no mention whatsoever of CR4, and all
->>> documentation I had until Friday had either no mention of CR4, or
->>> something to the effect of "new on Pentium, the CR4 register ..."  So
->>> I've had to re-adjust my definition of 486, which was weird.
->>>
->>> Zach
->>> -
->> Yes, and undocumented opcodes might not fault. They might do nothing
->> or something strange. It's not a good idea to use an undocumented
->> opcode in kernel space. The read-from-CR4 in kernel space, hoping
->> that an immoral-opcode trap will save you is not good practice.
->>
->> You might reset the processor.
->>
+>> Open source is not just something for developers, but also for users. It
+>> means that you or anyone else can keep the open driver going even when
+>> the manufacturer stops doing so. By using a closed driver you get all
+>> the disadvantages of the open source model (yes there are some just that
+>> normally the benefits outweigh them by far) without getting the gains.
+>> Be very sure you want to do this before spending your hard earned money
+>> on hardware that doesn't work without closed drivers.
 >>
 >
-> No, you won't.  #UD and #GP will not (I hesitate to say never, but other
-> than a processor bug, I believe that is correct) reset the processor.
-> And CR4 is not "undocumented", even on 486.
+> I totally agree with you on this, that's why my question was about a
+> good "Open Source" 3D card in the first place.  I want to try out 3D on
+> Ingo's RT patch set and NVidia (because of the above that you mentioned)
+> doesn't cut it anymore.  I've heard that the Radeon open source drive
+> isn't too bad so I went with them. I don't need the best 3D, but I do
+> need something.
+>
+> So you are right.  I've been a loyal NVidia customer for several years
+> now, but since there is no alternative of a reliable 3D driver for them,
+> I had to leave them to do what I needed. Now they risk me never going
+> back if I find out that I like ATI better.
+>
+> -- Steve
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 >
 
-Yes it is. The i486 Programmer's reference manual documents only
-to CR3.
+-- 
+--------------------------------------------------------------------------
+Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu
+GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
 
-> What is immoral about opcode trapping?
->
-> Zach
->
-
-Unfortunately Intel and others call bad opcodes "illegal opcodes".
-They are not, because as powerful as they are, Intel doesn't make
-law. Instead, they are "invalid opcodes" (or just immoral) as I
-stated as a play on words.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.55 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

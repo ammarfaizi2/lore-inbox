@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965601AbVKGXbg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965170AbVKGXgN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965601AbVKGXbg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 18:31:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965602AbVKGXbg
+	id S965170AbVKGXgN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 18:36:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965602AbVKGXgN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 18:31:36 -0500
-Received: from holomorphy.com ([66.93.40.71]:24290 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S965601AbVKGXbf (ORCPT
+	Mon, 7 Nov 2005 18:36:13 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:40926 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965170AbVKGXgM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 18:31:35 -0500
-Date: Mon, 7 Nov 2005 15:30:53 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Adam Litke <agl@us.ibm.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       David Gibson <david@gibson.dropbear.id.au>, hugh@veritas.com,
-       rohit.seth@intel.com, "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       akpm@osdl.org
-Subject: Re: [RFC 1/2] Hugetlb fault fixes and reorg
-Message-ID: <20051107233053.GG29402@holomorphy.com>
-References: <1131397841.25133.90.camel@localhost.localdomain> <1131399496.25133.103.camel@localhost.localdomain>
+	Mon, 7 Nov 2005 18:36:12 -0500
+Date: Mon, 7 Nov 2005 15:34:58 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: akpm@osdl.org, greg@kroah.com, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net, mdharm-usb@one-eyed-alien.net,
+       zaitcev@redhat.com
+Subject: Re: 2.6.14-mm1: Why is USB_LIBUSUAL user-visible?
+Message-Id: <20051107153458.034c6445.zaitcev@redhat.com>
+In-Reply-To: <20051107211028.GU3847@stusta.de>
+References: <20051106182447.5f571a46.akpm@osdl.org>
+	<20051107211028.GU3847@stusta.de>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1131399496.25133.103.camel@localhost.localdomain>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 07, 2005 at 03:38:16PM -0600, Adam Litke wrote:
-> (Patch originally from David Gibson <david@gibson.dropbear.id.au>)
-> Initial Post: Tue. 25 Oct 2005
-> -static struct page *find_lock_huge_page(struct address_space *mapping,
-> -			unsigned long idx)
-> +static struct page *find_or_alloc_huge_page(struct address_space *mapping,
-> +					    unsigned long idx)
->  {
->  	struct page *page;
->  	int err;
-> -	struct inode *inode = mapping->host;
-> -	unsigned long size;
+On Mon, 7 Nov 2005 22:10:28 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+> On Sun, Nov 06, 2005 at 06:24:47PM -0800, Andrew Morton wrote:
+> >...
+> > Changes since 2.6.14-rc5-mm1:
+> >...
+> > +gregkh-usb-usb-libusual.patch
+> > 
+> >  USB tree updates
+> >...
+> 
+> IMHO, CONFIG_USB_LIBUSUAL shouldn't be a user-visible variable but 
+> should be automatically enabled when it makes sense.
 
-This patch is a combination of function renaming, variable
-initialization/assignment and return path/etc. oddities, plus some
-functional changes (did I catch them all?) which apparently took a bit
-of effort to get to after sifting through the rest of that.
+Sounds good, but too radical. Also, does not fix the issue at
+hand, which is simply that I was confused in the triary logic
+somewhere.
 
-Dump the parallel cleanups or split them into pure cleanup and pure
-functional patches. I don't mind the cleanups, I mind the mixing.
-
-
--- wli
+-- Pete

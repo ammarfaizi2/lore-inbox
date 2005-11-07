@@ -1,78 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbVKGRKb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbVKGRLO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932332AbVKGRKb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 12:10:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932330AbVKGRKb
+	id S932296AbVKGRLO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 12:11:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbVKGRLN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 12:10:31 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:41372 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932316AbVKGRK3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 12:10:29 -0500
-Date: Mon, 7 Nov 2005 17:47:15 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>, patrizio.bassi@gmail.com
-Cc: shaohua.li@intel.com
-Subject: Re: 2.6.14-git4 suspend fails: kernel NULL pointer dereference
-Message-ID: <20051107164715.GA1534@elf.ucw.cz>
-References: <20051006072749.GA2393@spitz.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051006072749.GA2393@spitz.ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Mon, 7 Nov 2005 12:11:13 -0500
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:16137 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S932296AbVKGRLM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 12:11:12 -0500
+Date: Mon, 7 Nov 2005 17:11:18 +0000 (GMT)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14: CR4 not needed to be inspected on the 486 anymore?
+In-Reply-To: <436F8601.4070201@vmware.com>
+Message-ID: <Pine.LNX.4.55.0511071655390.28165@blysk.ds.pg.gda.pl>
+References: <Pine.LNX.4.55.0511031600010.24109@blysk.ds.pg.gda.pl>
+ <436A3C10.9050302@vmware.com> <Pine.LNX.4.55.0511031639310.24109@blysk.ds.pg.gda.pl>
+ <436AA1FD.3010401@vmware.com> <p73fyqb2dtx.fsf@verdi.suse.de>
+ <Pine.LNX.4.55.0511070931560.28165@blysk.ds.pg.gda.pl> <436F7673.5040309@vmware.com>
+ <Pine.LNX.4.55.0511071632110.28165@blysk.ds.pg.gda.pl> <436F8601.4070201@vmware.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, 7 Nov 2005, Zachary Amsden wrote:
 
-> echo shutdown > /sys/power/disk
-> echo disk > /sys/power/state
-> 
-> Unable to handle kernel NULL pointer dereference at virtual address 00000004
->  printing eip:
-> EIP:    0060:[<c0132a5e>]    Not tainted VLI
-> EFLAGS: 00010286   (2.6.14-git4)
-> EIP is at enter_state+0xe/0x90
+> Because I hold in my hand "i486 Microprocessor Programmer's Reference 
+> Manual, c 1990", and it has no mention whatsoever of CR4, and all 
 
-It works for me, with pretty recent tree. But I see a potential
-problem there, you are not using ACPI, right?
+ Ah, that's too old.  Severely.  By definition it can only cover the
+original i486, perhaps even only before the i486SX has been released (and
+the original renamed to the i486DX).
 
-I think it is caused by this commit:
+> documentation I had until Friday had either no mention of CR4, or 
 
-commit eb9289eb20df6b54214c45ac7c6bf5179a149026
-tree dac51cecdd94e0c7273c990259ddd800057311b9
-parent 0245b3e787dc3267a915e1f56419e7e9c197e148
-author Shaohua Li <shaohua.li@intel.com> Sun, 30 Oct 2005 15:00:01
--0800
-committer Linus Torvalds <torvalds@g5.osdl.org> Sun, 30 Oct 2005
-17:37:15 -0800
+ You've had to have the right bits of documentation -- Intel has been
+quite precise about presence or absence of these bits in given members of
+the i486 family, but you've had to check specifically each datasheet and
+yes, there was a separate one for each member up till the grand merge in
+1995 or so, when model specifics became chapters of the combined spec
+("Intel486 Processor Family Developer's Manual" or something like that).  
+I still own the pile of printed books, including the latter, but not
+easily accessible anymore.
 
-    [PATCH] introduce .valid callback for pm_ops
+> something to the effect of "new on Pentium, the CR4 register ..."  So 
+> I've had to re-adjust my definition of 486, which was weird.
 
-    Add pm_ops.valid callback, so only the available pm states show in
-    /sys/power/state.  And this also makes an earlier states error
-report at
-    enter_state before we do actual suspend/resume.
+ Note that the workstation version of the i486 continued to evolve up to
+around 1995, IIRC, and unsurprisingly got some updates "from upstream".
+;-)
 
-Try this patch.
-
-							Pavel
-
-diff --git a/kernel/power/main.c b/kernel/power/main.c
---- a/kernel/power/main.c
-+++ b/kernel/power/main.c
-@@ -167,7 +167,7 @@ static int enter_state(suspend_state_t s
- {
- 	int error;
- 
--	if (pm_ops->valid && !pm_ops->valid(state))
-+	if (pm_ops && pm_ops->valid && !pm_ops->valid(state))
- 		return -ENODEV;
- 	if (down_trylock(&pm_sem))
- 		return -EBUSY;
-
-
--- 
-Thanks, Sharp!
+  Maciej

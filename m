@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbVKGGjM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbVKGG6F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964800AbVKGGjM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 01:39:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964801AbVKGGjM
+	id S964817AbVKGG6F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 01:58:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964819AbVKGG6F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 01:39:12 -0500
-Received: from smtp4.brturbo.com.br ([200.199.201.180]:55512 "EHLO
-	smtp4.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S964800AbVKGGjK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 01:39:10 -0500
-Subject: Re: + v4l-720-alsa-support-for-saa7134-that-should-work-fix.patch
-	added to -mm tree
-From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, nshmyrev@yandex.ru, v4l@cerqueira.org
-In-Reply-To: <20051106001249.48d3ade0.akpm@osdl.org>
-References: <200511060743.jA67hpZa018948@shell0.pdx.osdl.net>
-	 <20051106001249.48d3ade0.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Mon, 07 Nov 2005 04:39:08 -0200
-Message-Id: <1131345548.10094.13.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1-2mdk 
-Content-Transfer-Encoding: 8bit
+	Mon, 7 Nov 2005 01:58:05 -0500
+Received: from xproxy.gmail.com ([66.249.82.204]:27027 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964817AbVKGG6E convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 01:58:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=f/suk0BTGy7/pGp/WkFaDvs5EBXkmEHJ2M7STLJv4E2tqtcKrOGKgthISZhxyL19Ow8lp/JrkQI6WqMFIUCu4TdyPoV33LgEqUPMOkM/JN9qB4M5884DOs3ykPNzbPfMVBLb5mF12iEzEJTWJmIp70TVGtcZwuFV1RU/p2RQmdI=
+Message-ID: <489ecd0c0511062258k4183d206odefd3baa46bb9a04@mail.gmail.com>
+Date: Mon, 7 Nov 2005 14:58:03 +0800
+From: Luke Yang <luke.adi@gmail.com>
+To: Greg KH <greg@kroah.com>
+Subject: Re: ADI Blackfin patch for kernel 2.6.14
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051104230644.GA20625@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <489ecd0c0511010128x41d39643x37893ad48a8ef42a@mail.gmail.com>
+	 <20051101165136.GU8009@stusta.de>
+	 <489ecd0c0511012306w434d75fbs90e1969d82a07922@mail.gmail.com>
+	 <489ecd0c0511032059n394abbb2s9865c22de9b2c448@mail.gmail.com>
+	 <20051104230644.GA20625@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Dom, 2005-11-06 às 00:12 -0800, Andrew Morton escreveu:
-> akpm@osdl.org wrote:
+  But this patch only includes the arch files for Blackfin. Do I have
+to break it into smaller chunks? It is hard to break it...
 
-> Well that didn't work.  The problem is that
-> drivers/media/video/saa7134/saa7134-alsa.c doesn't appear to be wired up
-> into the build system - it simply doesn't get compiled.
-	In fact, it was meant to be part of saa7134 module. We've changed it on the newer patchsets I've sent to you today. It shoud compile well now.
-
-> Please send a fix against next -mm?
-
-	Only after sending I noticed you've released -mm1 (I'm suffering a long
-delay on my current ISP - maybe some greylist policy). I'll apply the
-patches I sent you today against -mm and, if something wents wrong, I'll
-send you some correcting patches.
-	
-Cheers, 
-Mauro.
-
+On 11/5/05, Greg KH <greg@kroah.com> wrote:
+> On Fri, Nov 04, 2005 at 12:59:14PM +0800, Luke Yang wrote:
+> > Hi,
+> >
+> >   Does this patch has the chance to be merged? Is anyone reivewing or
+> > merging it? Anything I can help? Just want to make sure... Thanks a
+> > lot!
+>
+> Your patch is 43 thousand lines long.  Please break it up into the
+> different logical chunks, and document them, and add a signed-off-by:
+> line, and send them to the proper places/people, as it is documented in
+> the file, Documentation/SubmittingPatches.
+>
+> thanks,
+>
+> greg k-h
+>

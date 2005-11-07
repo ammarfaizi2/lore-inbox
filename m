@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbVKGVCl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbVKGVDG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932370AbVKGVCl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 16:02:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbVKGVCk
+	id S932360AbVKGVDG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 16:03:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964898AbVKGVCo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 16:02:40 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:43660 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932288AbVKGVCk (ORCPT
+	Mon, 7 Nov 2005 16:02:44 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:46732 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932360AbVKGVCm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 16:02:40 -0500
-Date: Mon, 7 Nov 2005 15:02:45 -0600
+	Mon, 7 Nov 2005 16:02:42 -0500
+Date: Mon, 7 Nov 2005 15:02:49 -0600
 From: David Teigland <teigland@redhat.com>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2/4] dlm: force unlock
-Message-ID: <20051107210245.GB4287@redhat.com>
+Subject: [PATCH 3/4] dlm: cleanup unused functions
+Message-ID: <20051107210249.GC4287@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,113 +22,178 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add DLM_LKF_FORCEUNLOCK so device.c doesn't have to muck about with locks
-that are in progress.
+Remove some unused functions and make others static.
 
-Signed-off-by: Patrick Caulfield <pcaulfie@redhat.com>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 Signed-off-by: David Teigland <teigland@redhat.com>
 
 ----
 
-diff -urpN a/drivers/dlm/device.c b/drivers/dlm/device.c
---- a/drivers/dlm/device.c	2005-10-07 10:17:23.229548773 -0500
-+++ b/drivers/dlm/device.c	2005-10-07 10:22:16.462037029 -0500
-@@ -546,37 +546,19 @@ static int dlm_close(struct inode *inode
+diff -urN a/drivers/dlm/device.c b/drivers/dlm/device.c
+--- a/drivers/dlm/device.c	2005-11-07 14:35:14.622152250 -0600
++++ b/drivers/dlm/device.c	2005-11-07 14:35:23.202841071 -0600
+@@ -39,7 +39,6 @@
+ #include <linux/dlm_device.h>
  
- 		clear_bit(LI_FLAG_COMPLETE, &li.li_flags);
+ #include "lvb_table.h"
+-#include "device.h"
  
--		/* If it's not granted then cancel the request.
--		 * If the lock was WAITING then it will be dropped,
--		 *    if it was converting then it will be reverted to GRANTED,
--		 *    then we will unlock it.
--		 */
+ static struct file_operations _dlm_fops;
+ static const char *name_prefix="dlm";
+@@ -1032,26 +1031,6 @@
+ 		return status;
+ }
+ 
+-/* Called when the cluster is shutdown uncleanly, all lockspaces
+-   have been summarily removed */
+-void dlm_device_free_devices()
+-{
+-	struct user_ls *tmp;
+-	struct user_ls *lsinfo;
 -
--		if (old_li->li_grmode != old_li->li_rqmode)
--			flags = DLM_LKF_CANCEL;
+-	down(&user_ls_lock);
+-	list_for_each_entry_safe(lsinfo, tmp, &user_ls_list, ls_list) {
+-		misc_deregister(&lsinfo->ls_miscinfo);
 -
-+		flags = DLM_LKF_FORCEUNLOCK;
- 		if (old_li->li_grmode >= DLM_LOCK_PW)
- 			flags |= DLM_LKF_IVVALBLK;
- 
- 		status = dlm_unlock(f->fi_ls->ls_lockspace,
- 				    old_li->li_lksb.sb_lkid, flags,
- 				    &li.li_lksb, &li);
-+
- 		/* Must wait for it to complete as the next lock could be its
- 		 * parent */
- 		if (status == 0)
- 			wait_for_ast(&li);
- 
--		/* If it was waiting for a conversion, it will
--		   now be granted so we can unlock it properly */
--		if (flags & DLM_LKF_CANCEL) {
--			flags &= ~DLM_LKF_CANCEL;
--			clear_bit(LI_FLAG_COMPLETE, &li.li_flags);
--			status = dlm_unlock(f->fi_ls->ls_lockspace,
--					    old_li->li_lksb.sb_lkid, flags,
--					    &li.li_lksb, &li);
--			if (status == 0)
--				wait_for_ast(&li);
--		}
- 		/* Unlock suceeded, free the lock_info struct. */
- 		if (status == 0)
- 			release_lockinfo(old_li);
-diff -urpN a/drivers/dlm/lock.c b/drivers/dlm/lock.c
---- a/drivers/dlm/lock.c	2005-10-07 10:17:23.236547685 -0500
-+++ b/drivers/dlm/lock.c	2005-10-07 10:23:07.230170782 -0500
-@@ -1603,7 +1603,8 @@ static int set_lock_args(int mode, struc
- 
- static int set_unlock_args(uint32_t flags, void *astarg, struct dlm_args *args)
+-		/* Tidy up, but don't delete the lsinfo struct until
+-		   all the users have closed their devices */
+-		list_del(&lsinfo->ls_list);
+-		set_bit(LS_FLAG_DELETED, &lsinfo->ls_flags);
+-		lsinfo->ls_lockspace = NULL;
+-	}
+-	up(&user_ls_lock);
+-}
+-
+ static struct file_operations _dlm_fops = {
+       .open    = dlm_open,
+       .release = dlm_close,
+@@ -1071,7 +1050,7 @@
+ /*
+  * Create control device
+  */
+-int __init dlm_device_init(void)
++static int __init dlm_device_init(void)
  {
--	if (flags & ~(DLM_LKF_CANCEL | DLM_LKF_VALBLK | DLM_LKF_IVVALBLK))
-+	if (flags & ~(DLM_LKF_CANCEL | DLM_LKF_VALBLK | DLM_LKF_IVVALBLK |
-+ 		      DLM_LKF_FORCEUNLOCK))
+ 	int r;
+ 
+@@ -1092,7 +1071,7 @@
+ 	return 0;
+ }
+ 
+-void __exit dlm_device_exit(void)
++static void __exit dlm_device_exit(void)
+ {
+ 	misc_deregister(&ctl_device);
+ }
+diff -urN a/drivers/dlm/device.h b/drivers/dlm/device.h
+--- a/drivers/dlm/device.h	2005-11-07 14:35:14.623152097 -0600
++++ b/drivers/dlm/device.h	1969-12-31 17:00:00.000000000 -0700
+@@ -1,21 +0,0 @@
+-/******************************************************************************
+-*******************************************************************************
+-**
+-**  Copyright (C) Sistina Software, Inc.  1997-2003  All rights reserved.
+-**  Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
+-**
+-**  This copyrighted material is made available to anyone wishing to use,
+-**  modify, copy, or redistribute it subject to the terms and conditions
+-**  of the GNU General Public License v.2.
+-**
+-*******************************************************************************
+-******************************************************************************/
+-
+-#ifndef __DEVICE_DOT_H__
+-#define __DEVICE_DOT_H__
+-
+-extern void dlm_device_free_devices(void);
+-extern int dlm_device_init(void);
+-extern void dlm_device_exit(void);
+-#endif				/* __DEVICE_DOT_H__ */
+-
+diff -urN a/drivers/dlm/lock.c b/drivers/dlm/lock.c
+--- a/drivers/dlm/lock.c	2005-11-07 14:35:14.625151792 -0600
++++ b/drivers/dlm/lock.c	2005-11-07 14:35:23.206840460 -0600
+@@ -152,7 +152,7 @@
+         {0, 0, 0, 0, 0, 0, 0, 0}        /* PD */
+ };
+ 
+-void dlm_print_lkb(struct dlm_lkb *lkb)
++static void dlm_print_lkb(struct dlm_lkb *lkb)
+ {
+ 	printk(KERN_ERR "lkb: nodeid %d id %x remid %x exflags %x flags %x\n"
+ 	       "     status %d rqmode %d grmode %d wait_type %d ast_type %d\n",
+@@ -751,11 +751,6 @@
+ 	return error;
+ }
+ 
+-int dlm_remove_from_waiters(struct dlm_lkb *lkb)
+-{
+-	return remove_from_waiters(lkb);
+-}
+-
+ static void dir_remove(struct dlm_rsb *r)
+ {
+ 	int to_nodeid;
+diff -urN a/drivers/dlm/lock.h b/drivers/dlm/lock.h
+--- a/drivers/dlm/lock.h	2005-11-07 14:35:14.626151639 -0600
++++ b/drivers/dlm/lock.h	2005-11-07 14:35:23.206840460 -0600
+@@ -13,7 +13,6 @@
+ #ifndef __LOCK_DOT_H__
+ #define __LOCK_DOT_H__
+ 
+-void dlm_print_lkb(struct dlm_lkb *lkb);
+ void dlm_print_rsb(struct dlm_rsb *r);
+ int dlm_receive_message(struct dlm_header *hd, int nodeid, int recovery);
+ int dlm_modes_compat(int mode1, int mode2);
+@@ -22,7 +21,6 @@
+ void dlm_put_rsb(struct dlm_rsb *r);
+ void dlm_hold_rsb(struct dlm_rsb *r);
+ int dlm_put_lkb(struct dlm_lkb *lkb);
+-int dlm_remove_from_waiters(struct dlm_lkb *lkb);
+ void dlm_scan_rsbs(struct dlm_ls *ls);
+ 
+ int dlm_purge_locks(struct dlm_ls *ls);
+diff -urN a/drivers/dlm/lockspace.c b/drivers/dlm/lockspace.c
+--- a/drivers/dlm/lockspace.c	2005-11-07 14:35:14.626151639 -0600
++++ b/drivers/dlm/lockspace.c	2005-11-07 14:36:46.047181974 -0600
+@@ -222,7 +222,7 @@
+ 	kthread_stop(scand_task);
+ }
+ 
+-static struct dlm_ls *find_lockspace_name(char *name, int namelen)
++static struct dlm_ls *dlm_find_lockspace_name(char *name, int namelen)
+ {
+ 	struct dlm_ls *ls;
+ 
+@@ -239,11 +239,6 @@
+ 	return ls;
+ }
+ 
+-struct dlm_ls *dlm_find_lockspace_name(char *name, int namelen)
+-{
+-	return find_lockspace_name(name, namelen);
+-}
+-
+ struct dlm_ls *dlm_find_lockspace_global(uint32_t id)
+ {
+ 	struct dlm_ls *ls;
+@@ -349,7 +344,7 @@
+ 	if (!try_module_get(THIS_MODULE))
  		return -EINVAL;
  
- 	args->flags = flags;
-@@ -1673,6 +1674,9 @@ static int validate_unlock_args(struct d
- 	if (lkb->lkb_flags & DLM_IFL_MSTCPY)
- 		goto out;
+-	ls = find_lockspace_name(name, namelen);
++	ls = dlm_find_lockspace_name(name, namelen);
+ 	if (ls) {
+ 		*lockspace = ls;
+ 		module_put(THIS_MODULE);
+diff -urN a/drivers/dlm/lockspace.h b/drivers/dlm/lockspace.h
+--- a/drivers/dlm/lockspace.h	2005-11-07 14:35:14.627151486 -0600
++++ b/drivers/dlm/lockspace.h	2005-11-07 14:35:23.208840154 -0600
+@@ -18,7 +18,6 @@
+ void dlm_lockspace_exit(void);
+ struct dlm_ls *dlm_find_lockspace_global(uint32_t id);
+ struct dlm_ls *dlm_find_lockspace_local(void *id);
+-struct dlm_ls *dlm_find_lockspace_name(char *name, int namelen);
+ void dlm_put_lockspace(struct dlm_ls *ls);
  
-+	if (args->flags & DLM_LKF_FORCEUNLOCK)
-+		goto out_ok;
-+
- 	if (args->flags & DLM_LKF_CANCEL &&
- 	    lkb->lkb_status == DLM_LKSTS_GRANTED)
- 		goto out;
-@@ -1685,9 +1689,11 @@ static int validate_unlock_args(struct d
- 	if (lkb->lkb_wait_type)
- 		goto out;
- 
-+ out_ok:
- 	lkb->lkb_exflags = args->flags;
- 	lkb->lkb_sbflags = 0;
- 	lkb->lkb_astparam = args->astparam;
-+
- 	rv = 0;
-  out:
- 	return rv;
-diff -urpN a/include/linux/dlm.h b/include/linux/dlm.h
---- a/include/linux/dlm.h	2005-10-07 10:17:24.000000000 -0500
-+++ b/include/linux/dlm.h	2005-10-07 10:22:43.818797855 -0500
-@@ -123,6 +123,12 @@
-  * DLM_LKF_ALTCW
-  *
-  * The same as ALTPR, but the alternate mode is CW.
-+ *
-+ * DLM_LKF_FORCEUNLOCK
-+ *
-+ * Unlock the lock even if it is converting or waiting or has sublocks.
-+ * Only really for use by the userland device.c code.
-+ *
-  */
- 
- #define DLM_LKF_NOQUEUE		0x00000001
-@@ -142,6 +148,7 @@
- #define DLM_LKF_ORPHAN		0x00004000
- #define DLM_LKF_ALTPR		0x00008000
- #define DLM_LKF_ALTCW		0x00010000
-+#define DLM_LKF_FORCEUNLOCK	0x00020000
- 
- /*
-  * Some return codes that are not in errno.h
+ #endif				/* __LOCKSPACE_DOT_H__ */

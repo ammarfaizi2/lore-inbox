@@ -1,66 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964779AbVKGMUw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbVKGM0H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964779AbVKGMUw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 07:20:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932474AbVKGMUw
+	id S932463AbVKGM0H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 07:26:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932474AbVKGM0H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 07:20:52 -0500
-Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:27697 "EHLO
-	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S932337AbVKGMUv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 07:20:51 -0500
-X-SBRSScore: None
-X-IronPort-AV: i="3.97,299,1125871200"; 
-   d="scan'208"; a="19219991:sNHT25219496"
-Message-ID: <436F469B.3080607@fujitsu-siemens.com>
-Date: Mon, 07 Nov 2005 13:20:43 +0100
-From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Blaisorblade <blaisorblade@yahoo.it>
-CC: user-mode-linux-devel@lists.sourceforge.net, Jeff Dike <jdike@addtoit.com>,
-       linux-kernel@vger.kernel.org, Allan Graves <allan.graves@oracle.com>
-Subject: Re: [uml-devel] [PATCH 8/10] UML - Maintain own LDT entries
-References: <200510310439.j9V4dfbw000872@ccure.user-mode-linux.org> <200511022051.24335.blaisorblade@yahoo.it>
-In-Reply-To: <200511022051.24335.blaisorblade@yahoo.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 7 Nov 2005 07:26:07 -0500
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:61018 "EHLO
+	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S932463AbVKGM0F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 07:26:05 -0500
+From: Ian Campbell <ijc@hellion.org.uk>
+To: Miles Bader <miles@gnu.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <buobr0wbrme.fsf@dhapc248.dev.necel.com>
+References: <buobr0wbrme.fsf@dhapc248.dev.necel.com>
+Content-Type: text/plain
+Date: Mon, 07 Nov 2005 12:25:52 +0000
+Message-Id: <1131366352.14696.60.camel@icampbell-debian>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 192.168.3.3
+X-SA-Exim-Mail-From: ijc@hellion.org.uk
+Subject: Re: irq 0?
+X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
+X-SA-Exim-Scanned: Yes (on hopkins.hellion.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Blaisorblade wrote:
-> On Monday 31 October 2005 05:39, Jeff Dike wrote:
+On Mon, 2005-11-07 at 20:54 +0900, Miles Bader wrote:
+> I notice that arch/v850/kernel/irq.c has been updated with a
+> "show_interrupts" function; in this function it contains the following
+> bit of code:
 > 
->>From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
->>
->>Patch imlements full LDT handling in SKAS:
->> * UML holds it's own LDT table, used to deliver data on
->>   modify_ldt(READ)
->> * UML disables the default_ldt, inherited from the host (SKAS3)
->>   or resets LDT entries, set by host's clib and inherited in
->>   SKAS0
->> * A new global variable skas_needs_stub is inserted, that
->>   can be used to decide, whether stub-pages must be supported
->>   or not.
->> * Uses the syscall-stub to replace missing PTRACE_LDT (therefore,
->>   write_ldt_entry needs to be modified)
 > 
-> Two complaints against this patch (to be fixed afterwards, so I'm not CC'ing 
-> akpm):
+> 	if (i == 0) {
+> 		seq_puts(p, "           ");
+> 		for (i=0; i < 1 /*smp_num_cpus*/; i++)
+> 			seq_printf(p, "CPU%d       ", i);
+> 		seq_putc(p, '\n');
+> 	}
 > 
-> *) It reverts my cleanup and consolidation of ldt.c wrt. SKAS vs TT.
+> 	if (i < NR_IRQS) {
+>                 ... show interrupt i ...
+> 	} else if (i == NR_IRQS)
+> 		seq_printf(p, "ERR: %10lu\n", irq_err_count);
 > 
-> Or at least so I think (I must still give a proper look afterwards, and I'll 
-> post patches). Actually it seems that this is done on purpose, but I don't 
-> agree too much on this. I will see.
+> where "i" is iterated (by procfs) from 0...NR_IRQS.
+> 
+> On the v850, irq 0 is a real interrupt, so this doesn't really work
+> properly -- it doesn't display an entry for irq 0.
 
- From the beginning my new code for SKAS included the checks/buffering you later
-inserted for TT and SKAS. So this patch is a second version adapted to your changes.
-It shifts your improvements into TT path only (where I didn't do any changes in
-my old patch), while it uses my own stuff for SKAS. Thus the patch doesn't really
-revert your improvements, but restricts it to TT. As in SKAS0 UML now holds its own
-LDT data, there is no need for buffering in this case. So I think it makes sense to
-have separate code for SKAS.
+What makes you say that? The i==0 code seems to fall through and
+therefore should print IRQ0 just fine.
 
-	Bodo
+Ian.
+
+-- 
+Ian Campbell
+Current Noise: Vader - The Final Massacre
+
+Ignore previous fortune.
+

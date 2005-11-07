@@ -1,42 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbVKGM5r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932483AbVKGM6A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964803AbVKGM5r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 07:57:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbVKGM5r
+	id S932483AbVKGM6A (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 07:58:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbVKGM6A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 07:57:47 -0500
-Received: from mgate03.necel.com ([203.180.232.83]:9095 "EHLO
-	mgate03.necel.com") by vger.kernel.org with ESMTP id S932483AbVKGM5q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 07:57:46 -0500
-To: Ian Campbell <ijc@hellion.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: irq 0?
-References: <buobr0wbrme.fsf@dhapc248.dev.necel.com>
-	<1131366352.14696.60.camel@icampbell-debian>
-From: Miles Bader <miles.bader@necel.com>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-Date: Mon, 07 Nov 2005 21:57:01 +0900
-In-Reply-To: <1131366352.14696.60.camel@icampbell-debian> (Ian Campbell's message of "Mon, 07 Nov 2005 12:25:52 +0000")
-Message-Id: <buomzkgaa5e.fsf@dhapc248.dev.necel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 7 Nov 2005 07:58:00 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:58433
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S932483AbVKGM56 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 07:57:58 -0500
+Message-Id: <436F5D96.76F0.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Mon, 07 Nov 2005 13:58:46 +0100
+From: "Jan Beulich" <JBeulich@novell.com>
+To: <sam@ravnborg.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] slightly enhance cross builds
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="=__Part9DBFBC96.1__="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Campbell <ijc@hellion.org.uk> writes:
->> On the v850, irq 0 is a real interrupt, so this doesn't really work
->> properly -- it doesn't display an entry for irq 0.
->
-> What makes you say that? The i==0 code seems to fall through and
-> therefore should print IRQ0 just fine.
+This is a MIME message. If you are reading this text, you may want to 
+consider changing to a mail reader or gateway that understands how to 
+properly handle MIME multipart messages.
 
-Gee you're right... silly me. :-/
+--=__Part9DBFBC96.1__=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Thanks,
+This adds functionality to default CROSS_COMPILE to a sensible value
+when cross-building (so one doesn't always have to specify this on the
+make command line), as well as storing ARCH and SUBARCH in the
+Makefile
+generated when building outside of the source directory (so that
+subsequent make invocations don't have to always repeat these).
 
--miles
--- 
-Run away!  Run away!
+From: Jan Beulich <jbeulich@novell.com>
+
+(actual patch attached)
+
+--=__Part9DBFBC96.1__=
+Content-Type: application/octet-stream; name="linux-2.6.14-arch.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="linux-2.6.14-arch.patch"
+
+VGhpcyBhZGRzIGZ1bmN0aW9uYWxpdHkgdG8gZGVmYXVsdCBDUk9TU19DT01QSUxFIHRvIGEgc2Vu
+c2libGUgdmFsdWUKd2hlbiBjcm9zcy1idWlsZGluZyAoc28gb25lIGRvZXNuJ3QgYWx3YXlzIGhh
+dmUgdG8gc3BlY2lmeSB0aGlzIG9uIHRoZQptYWtlIGNvbW1hbmQgbGluZSksIGFzIHdlbGwgYXMg
+c3RvcmluZyBBUkNIIGFuZCBTVUJBUkNIIGluIHRoZSBNYWtlZmlsZQpnZW5lcmF0ZWQgd2hlbiBi
+dWlsZGluZyBvdXRzaWRlIG9mIHRoZSBzb3VyY2UgZGlyZWN0b3J5IChzbyB0aGF0CnN1YnNlcXVl
+bnQgbWFrZSBpbnZvY2F0aW9ucyBkb24ndCBoYXZlIHRvIGFsd2F5cyByZXBlYXQgdGhlc2UpLgoK
+RnJvbTogSmFuIEJldWxpY2ggPGpiZXVsaWNoQG5vdmVsbC5jb20+CgotLS0gL2hvbWUvamJldWxp
+Y2gvdG1wL2xpbnV4LTIuNi4xNC9NYWtlZmlsZQkyMDA1LTEwLTI4IDAyOjAyOjA4LjAwMDAwMDAw
+MCArMDIwMAorKysgMi42LjE0L01ha2VmaWxlCTIwMDUtMTEtMDQgMTU6MDU6MjMuMDAwMDAwMDAw
+ICswMTAwCkBAIC0xNjAsMTUgKzE2MCwxOSBAQCBMT0NBTFZFUlNJT04gPSAkKHN1YnN0ICQoc3Bh
+Y2UpLCwgXAogCiBLRVJORUxSRUxFQVNFPSQoVkVSU0lPTikuJChQQVRDSExFVkVMKS4kKFNVQkxF
+VkVMKSQoRVhUUkFWRVJTSU9OKSQoTE9DQUxWRVJTSU9OKQogCitIT1NUQVJDSCA6PSAkKHNoZWxs
+IHVuYW1lIC1tIHwgc2VkIC1lIHMvaS44Ni9pMzg2LyAtZSBzL3N1bjR1L3NwYXJjNjQvIFwKKwkJ
+CQkgICAtZSBzL2FybS4qL2FybS8gLWUgcy9zYTExMC9hcm0vIFwKKwkJCQkgICAtZSBzL3MzOTB4
+L3MzOTAvIC1lIHMvcGFyaXNjNjQvcGFyaXNjLyApCisKICMgU1VCQVJDSCB0ZWxscyB0aGUgdXNl
+cm1vZGUgYnVpbGQgd2hhdCB0aGUgdW5kZXJseWluZyBhcmNoIGlzLiAgVGhhdCBpcyBzZXQKICMg
+Zmlyc3QsIGFuZCBpZiBhIHVzZXJtb2RlIGJ1aWxkIGlzIGhhcHBlbmluZywgdGhlICJBUkNIPXVt
+IiBvbiB0aGUgY29tbWFuZAogIyBsaW5lIG92ZXJyaWRlcyB0aGUgc2V0dGluZyBvZiBBUkNIIGJl
+bG93LiAgSWYgYSBuYXRpdmUgYnVpbGQgaXMgaGFwcGVuaW5nLAogIyB0aGVuIEFSQ0ggaXMgYXNz
+aWduZWQsIGdldHRpbmcgd2hhdGV2ZXIgdmFsdWUgaXQgZ2V0cyBub3JtYWxseSwgYW5kIAogIyBT
+VUJBUkNIIGlzIHN1YnNlcXVlbnRseSBpZ25vcmVkLgogCi1TVUJBUkNIIDo9ICQoc2hlbGwgdW5h
+bWUgLW0gfCBzZWQgLWUgcy9pLjg2L2kzODYvIC1lIHMvc3VuNHUvc3BhcmM2NC8gXAotCQkJCSAg
+LWUgcy9hcm0uKi9hcm0vIC1lIHMvc2ExMTAvYXJtLyBcCi0JCQkJICAtZSBzL3MzOTB4L3MzOTAv
+IC1lIHMvcGFyaXNjNjQvcGFyaXNjLyApCitpZmVxICgkKFNVQkFSQ0gpLCkKK1NVQkFSQ0ggICAg
+ICAgICA6PSAkKGlmICQoZmlsdGVyLW91dCB1bSB4ZW4sJChBUkNIKSksJChBUkNIKSwkKEhPU1RB
+UkNIKSkKK2VuZGlmCiAKICMgQ3Jvc3MgY29tcGlsaW5nIGFuZCBzZWxlY3RpbmcgZGlmZmVyZW50
+IHNldCBvZiBnY2MvYmluLXV0aWxzCiAjIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpAQCAtMTkwLDcgKzE5
+OCw3IEBAIFNVQkFSQ0ggOj0gJChzaGVsbCB1bmFtZSAtbSB8IHNlZCAtZSBzL2kKICMgTm90ZTog
+U29tZSBhcmNoaXRlY3R1cmVzIGFzc2lnbiBDUk9TU19DT01QSUxFIGluIHRoZWlyIGFyY2gvKi9N
+YWtlZmlsZQogCiBBUkNICQk/PSAkKFNVQkFSQ0gpCi1DUk9TU19DT01QSUxFCT89CitDUk9TU19D
+T01QSUxFCT89ICQoaWYgJChmaWx0ZXItb3V0ICQoQVJDSCkgJChTVUJBUkNIKSwkKEhPU1RBUkNI
+KSksJChTVUJBUkNIKS1saW51eC0pCiAKICMgQXJjaGl0ZWN0dXJlIGFzIHByZXNlbnQgaW4gY29t
+cGlsZS5oCiBVVFNfTUFDSElORSA6PSAkKEFSQ0gpCkBAIC0zODYsMTYgKzM5NSwxOSBAQCBzY3Jp
+cHRzX2Jhc2ljOgogc2NyaXB0cy9iYXNpYy8lOiBzY3JpcHRzX2Jhc2ljIDsKIAogLlBIT05ZOiBv
+dXRwdXRtYWtlZmlsZQotIyBvdXRwdXRtYWtlZmlsZSBnZW5lcmF0ZSBhIE1ha2VmaWxlIHRvIGJl
+IHBsYWNlZCBpbiBvdXRwdXQgZGlyZWN0b3J5LCBpZgotIyB1c2luZyBhIHNlcGVyYXRlIG91dHB1
+dCBkaXJlY3RvcnkuIFRoaXMgYWxsb3dzIGNvbnZpbmllbnQgdXNlCi0jIG9mIG1ha2UgaW4gb3V0
+cHV0IGRpcmVjdG9yeQorIyBvdXRwdXRtYWtlZmlsZSBnZW5lcmF0ZXMgYSBNYWtlZmlsZSBpbiB0
+aGUgb3V0cHV0IGRpcmVjdG9yeSwgaWYKKyMgdXNpbmcgYSBzZXBhcmF0ZSBvdXRwdXQgZGlyZWN0
+b3J5LiBUaGlzIGFsbG93cyBjb252ZW5pZW50IHVzZQorIyBvZiBtYWtlIGluIHRoZSBvdXRwdXQg
+ZGlyZWN0b3J5Lgogb3V0cHV0bWFrZWZpbGU6Ci0JJChRKWlmIHRlc3QgISAkKHNyY3RyZWUpIC1l
+ZiAkKG9ianRyZWUpOyB0aGVuIFwKLQkkKENPTkZJR19TSEVMTCkgJChzcmN0cmVlKS9zY3JpcHRz
+L21rbWFrZWZpbGUgICAgICAgICAgICAgIFwKLQkgICAgJChzcmN0cmVlKSAkKG9ianRyZWUpICQo
+VkVSU0lPTikgJChQQVRDSExFVkVMKSAgICAgICAgIFwKLQkgICAgPiAkKG9ianRyZWUpL01ha2Vm
+aWxlOyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwKLQkgICAgZWNobyAnICBHRU4g
+ICAgJChvYmp0cmVlKS9NYWtlZmlsZSc7ICAgICAgICAgICAgICAgICAgIFwKK2lmbmVxICgkKEtC
+VUlMRF9TUkMpLCkKKwkkKFEpaWYgWyAhIC1yICQob2JqdHJlZSkvTWFrZWZpbGUgLW8gLU8gJChv
+Ymp0cmVlKS9NYWtlZmlsZSBdOyB0aGVuIFwKKwkgICAgZWNobyAnICBHRU4gICAgICQob2JqdHJl
+ZSkvTWFrZWZpbGUnOyAgICAgICAgICAgICAgICAgICAgICAgICAgIFwKKwkgICAgJChDT05GSUdf
+U0hFTEwpICQoc3JjdHJlZSkvc2NyaXB0cy9ta21ha2VmaWxlICAgICAgICAgICAgICAgICAgIFwK
+KwkJJChzcmN0cmVlKSAkKG9ianRyZWUpICQoVkVSU0lPTikgJChQQVRDSExFVkVMKSAgICAgICAg
+ICAgICAgXAorCQkkKEFSQ0gpICQoU1VCQVJDSCkgJChIT1NUQVJDSCkgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICBcCisJCT4gJChvYmp0cmVlKS9NYWtlZmlsZTsgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgIFwKIAlmaQorZW5kaWYKIAogIyBUbyBtYWtlIHN1cmUgd2Ug
+ZG8gbm90IGluY2x1ZGUgLmNvbmZpZyBmb3IgYW55IG9mIHRoZSAqY29uZmlnIHRhcmdldHMKICMg
+Y2F0Y2ggdGhlbSBlYXJseSwgYW5kIGhhbmQgdGhlbSBvdmVyIHRvIHNjcmlwdHMva2NvbmZpZy9N
+YWtlZmlsZQotLS0gL2hvbWUvamJldWxpY2gvdG1wL2xpbnV4LTIuNi4xNC9zY3JpcHRzL21rbWFr
+ZWZpbGUJMjAwNS0xMC0yOCAwMjowMjowOC4wMDAwMDAwMDAgKzAyMDAKKysrIDIuNi4xNC9zY3Jp
+cHRzL21rbWFrZWZpbGUJMjAwNS0xMS0wNCAxNToyNDozNS4wMDAwMDAwMDAgKzAxMDAKQEAgLTgs
+NiArOCw5IEBACiAjICQyIC0gT3V0cHV0IGRpcmVjdG9yeQogIyAkMyAtIHZlcnNpb24KICMgJDQg
+LSBwYXRjaGxldmVsCisjICQ1IC0gYXJjaGl0ZWN0dXJlCisjICQ2IC0gc3ViLWFyY2hpdGVjdHVy
+ZQorIyAkNyAtIGhvc3QgYXJjaGl0ZWN0dXJlCiAKIAogY2F0IDw8IEVPRgpAQCAtMjAsMTIgKzIz
+LDE1IEBAIEtFUk5FTFNSQyAgICA6PSAkMQogS0VSTkVMT1VUUFVUIDo9ICQyCiAKIE1BS0VGTEFH
+UyArPSAtLW5vLXByaW50LWRpcmVjdG9yeQorTUFLRUFSR1MgIDo9ICQoZWNobyAtbiAiLUMgXCQo
+S0VSTkVMU1JDKSBPPVwkKEtFUk5FTE9VVFBVVCkiOyBcCisJdGVzdCAiJDUiID0gIiQ3IiB8fCBl
+Y2hvIC1uICIgQVJDSD0kNSI7IFwKKwl0ZXN0ICIkNiIgPSAiJDUiIC1vICIkNiIgPSAiJDciIHx8
+IGVjaG8gLW4gIiBTVUJBUkNIPSQ2IikKIAogYWxsOgotCVwkKE1BS0UpIC1DIFwkKEtFUk5FTFNS
+QykgTz1cJChLRVJORUxPVVRQVVQpCisJXCQoTUFLRSkgXCQoTUFLRUFSR1MpCiAKICU6OgotCVwk
+KE1BS0UpIC1DIFwkKEtFUk5FTFNSQykgTz1cJChLRVJORUxPVVRQVVQpIFwkQAorCVwkKE1BS0Up
+IFwkKE1BS0VBUkdTKSBcJEAKIAogRU9GCiAK
+
+--=__Part9DBFBC96.1__=--

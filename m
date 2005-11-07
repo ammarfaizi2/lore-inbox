@@ -1,76 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964873AbVKGT2a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964967AbVKGTaK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964873AbVKGT2a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 14:28:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965177AbVKGT2a
+	id S964967AbVKGTaK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 14:30:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965177AbVKGTaK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 14:28:30 -0500
-Received: from mail.kroah.org ([69.55.234.183]:47774 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964873AbVKGT23 (ORCPT
+	Mon, 7 Nov 2005 14:30:10 -0500
+Received: from zproxy.gmail.com ([64.233.162.198]:41523 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964967AbVKGTaI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 14:28:29 -0500
-Date: Mon, 7 Nov 2005 11:27:38 -0800
-From: Greg KH <greg@kroah.com>
-To: Pozsar Balazs <pozsy@uhulinux.hu>
-Cc: rusty@rustcorp.com.au, "Marco d'Itri" <md@Linux.IT>,
-       linux-kernel@vger.kernel.org, Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: 2.6.14, udev: unknown symbols for ehci_hcd
-Message-ID: <20051107192737.GA20679@kroah.com>
-References: <436CD1BC.8020102@t-online.de> <20051105162503.GC20686@kroah.com> <436D9BDE.3060404@t-online.de> <20051106215158.GB3603@kroah.com> <20051107113329.GA7632@wonderland.linux.it> <20051107173157.GA16465@kroah.com> <20051107190738.GC22737@ojjektum.uhulinux.hu> <20051107191214.GA20364@kroah.com> <20051107192014.GD22737@ojjektum.uhulinux.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051107192014.GD22737@ojjektum.uhulinux.hu>
-User-Agent: Mutt/1.5.11
+	Mon, 7 Nov 2005 14:30:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
+        b=pRjIvE8Ap8dUZw+ulsJVC1cC6L4Wb2ORLdHFx1UXghilsramFPBGEZ9venkdClIwHhBaTsqIXyvqeysms9szW3/L3gaBnlcPA4Ncc/X5N66iitdZ+pJkrEq6npr8qWVx2XS1+v1IDiXtl1IxR1kYBcAQWcgOHFGBADCjIF/QBqY=
+Message-ID: <436FAB32.20807@gmail.com>
+Date: Mon, 07 Nov 2005 19:29:54 +0000
+From: Ram Gupta <ram.gupta5@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: RE: negative timeout can be set up by setsockopt system call
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 07, 2005 at 08:20:15PM +0100, Pozsar Balazs wrote:
-> On Mon, Nov 07, 2005 at 11:12:14AM -0800, Greg KH wrote:
-> > On Mon, Nov 07, 2005 at 08:07:38PM +0100, Pozsar Balazs wrote:
-> > > On Mon, Nov 07, 2005 at 09:31:57AM -0800, Greg KH wrote:
-> > > > On Mon, Nov 07, 2005 at 12:33:29PM +0100, Marco d'Itri wrote:
-> > > > > On Nov 06, Greg KH <greg@kroah.com> wrote:
-> > > > > 
-> > > > > > This seems to be a Debian issue for some odd reason, I suggest filing a
-> > > > > > bug against the udev package (or just tagging onto the existing bug for
-> > > > > > this problem, I've seen it in there already...)
-> > > > > The reason this is usually seen only on Debian systems is that I am the
-> > > > > first one who shipped an udev package which runs many parallel modprobe
-> > > > > commands, but this is a genuine kernel/modprobe bug.
-> > > > 
-> > > > I'm pretty sure OpenSuSE 10.0 does the same thing, and I don't think
-> > > > anyone has reported the same kind of bugs there.  Makes me wonder what
-> > > > is really happening here...
-> > > 
-> > > If module A depends on module B, and "modprobe A" and "modprobe B" are 
-> > > run parallel
-> > 
-> > Why would they be run in parallel?  modprobe doesn't do this, why would
-> > you?
-> 
-> On my machine it happened while loading pcmcia modules. It was two 
-> modprobes running in parallel (invoked by udev), not 1 modprobe loading 
-> modules in parallel.
 
-Ah, ok, that explains how it is happening, thanks.
+On 11/7/05, Ram Gupta <ram.gupta5@gmail.com> wrote:
+ > On 11/4/05, Nish Aravamudan <nish.aravamudan@gmail.com>
+ >  >
+ >  > In Ram's specific case, I think, the call path is sys_setsockopt() ->
+ >  > sock_setsockopt() -> sock_set_timeout, which has a definition of:
+ >  >
+ >  > static int sock_set_timeout(long *timeo_p, char __user *optval, int
+ > optlen)
+ >
+ >  >> Exactly right.
 
-> > > , there is time window when module B is already listed in 
-> > > /proc/modules, but not completely loaded/initialized, it is in the state 
-> > > "Loading". At this point "modprobe A" checks /proc/modules if module B 
-> > > is already loaded, but it does not take into account that it is in the 
-> > > state "Loading" and not yet "Live". So it tries to load module A, but it 
-> > > fails, because there are missing symbols because module A did not 
-> > > register them yet.
-> > 
-> > Sounds like a locking issue within the module core.  I thought we could
-> > only load one at a time, otherwise we have other races within the
-> > kernel.
-> 
-> That's what I thought too, but this is not the case it seems.
+Ok.
 
-Um, why not?  Rusty?
+ >  > Ram, what is the expected behavior of negative values in the timeval?
+ >  > And what are you seeing happen right now?
+ >  >
+ >  > As of 2.6.14, looks like we convert any non-zero values into jiffies
+ >  > and store them in sk->sk_{rcv,snd}timeo...
+ >  >
+ >  I don't see any problem from the kernel side but the application
+ > times out immediately causing certain failures as the schedule_timeout
+ > returns immediately in case of negative values. Shouldn't there be a
+ > check for negative values and return error to the application so that
+ > it can handle it.
 
-thanks,
+I mean more along the lines of what does a man-page say the kernel
+should be doing if you request a negative timeout? More explicitly,
+what made you think negative timeouts should have a specific effect?
 
-greg k-h
+ >> The man page is silent about the timeout behaviour in case of its 
+being negative.  I believe that negative timeout is a mistake on behalf 
+of an application and hence should be treated as such (i.e should be 
+notified accordingly)
+
+When you say schedule_timeout() returns immediately, I assume your
+logs are filling up with "schedule_timeout: wrong timeout ..." ? (You
+may need to bump your loglevel). If not, then schedule_timeout() isn't
+getting a negative value.
+
+ >> Yes  I am getting the "schedule_timeout: wrong timeout ..." 
+messages so I am sure the timeout has negative value.
+
+
+Thanks,
+Nish
+
+regards
+Ram Gupta

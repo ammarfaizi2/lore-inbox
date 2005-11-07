@@ -1,96 +1,172 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964781AbVKGFnW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbVKGFsh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964781AbVKGFnW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 00:43:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbVKGFnW
+	id S964782AbVKGFsh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 00:48:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbVKGFsh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 00:43:22 -0500
-Received: from fed1rmmtao08.cox.net ([68.230.241.31]:22483 "EHLO
-	fed1rmmtao08.cox.net") by vger.kernel.org with ESMTP
-	id S964778AbVKGFnV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 00:43:21 -0500
-From: Junio C Hamano <junkio@cox.net>
-To: git@vger.kernel.org
-Subject: GIT 0.99.9e
-cc: linux-kernel@vger.kernel.org
-Date: Sun, 06 Nov 2005 21:43:19 -0800
-Message-ID: <7v64r5t3m0.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Mon, 7 Nov 2005 00:48:37 -0500
+Received: from pacific.moreton.com.au ([203.143.235.130]:49167 "EHLO
+	cyberguard.com.au") by vger.kernel.org with ESMTP id S964782AbVKGFsg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 00:48:36 -0500
+Message-ID: <436EEADC.3010908@snapgear.com>
+Date: Mon, 07 Nov 2005 15:49:16 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Milton Miller <miltonm@bga.com>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]: linux-2.6.14-uc0 (MMU-less support)
+References: <40564dc5fa508b27c752b692f93562f4@bga.com>
+In-Reply-To: <40564dc5fa508b27c752b692f93562f4@bga.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-GIT 0.99.9e maintenance release is found at the usual places:
+Hi Milton,
 
-RPM, tarballs, and deb:
+Milton Miller wrote:
+> On Tue Nov 01 2005 - 23:01:02 EST, Greg Ungerer wrote:
+>>  An update of the uClinux (MMU-less) fixups against 2.6.14.
+>>
+>>  Some new platform support, for the 5207/5208 ColdFire parts.
+>>  A few bug fixes and some other minor cleanups.
+>>
+>> http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.14- 
+>> uc0.patch.gz
+> 
+> 
+> Hi Greg.
+> 
+> I'm not a user but thought I would give it a once over to see what you  
+> were carrying.
+> 
+> 
+>>  /*
+>> + *    The Freescale 5208EVB board has 32MB of RAM.
+>> + */
+>> +#if defined(CONFIG_M5208EVB)
+>> +#define    RAM_START    0x40020000
+>> +#define    RAM_LENGTH    0x01e00000
+>> +#endif
+>> +
+>> +/*
+> 
+> 
+> That doesn't quite add up to 32MB.  Should that be 0x1FE0000 or
+> is the last 0x1E0000 (1920k) supposed to be reserved too?  Again,
+> I am not a user.
 
-	http://www.kernel.org/pub/software/scm/git/
-
-With git, fetch maint branch from
-
-	git://git.kernel.org/pub/scm/git/git.git/
-
-It contains everything from the master branch.  Since we seem to
-be shelving the separate git binary directory idea indefinitely,
-what we have here is pretty much what will be in 1.0, from the
-source code POV.
-
- - http-push seems to still have a bug or two but that is to be
-   expected for any new code, and I am reasonably sure it can be
-   ironed out; preferably before 1.0 but it is not a
-   showstopper.
-
- - I've done the initial round of package splitting for Debian
-   side myself, but it probably needs proofreading and fixing by
-   experienced Debian person.  Similar RPM package splitting
-   that parallels the above is needed.  Although it is not an
-   absolute requirement for my sources to have perfect binary
-   packaging support (I am just an upstream for binary
-   packagers), it is certainly desirable to have RPM specs and
-   debian/ files in a presentable shape for 1.0.
-
- - I still need to go over the tutorial and core-ish
-   documentation once for consistency checks.
-
-
-Changes since 0.99.9d are:
-
-    Johannes Schindelin:
-      Allow GIT_DIR to be an absolute path
-      http-fetch: do not use curl_message after releasing it
-
-    Jon Loeliger:
-      Refactor merge strategies into separate includable file.
-
-    Junio C Hamano:
-      test: t4102-apply-rename fails with strict umask (Peter Baumann).
-      git-format-patch: silly typo fix.
-      Documentation: pull/clone ref mapping clarification (Josef Weidendorfer).
-      git-fetch: fail if specified refspec does not match remote.
-      Simplify CFLAGS/DEFINES in Makefile
-      Package split: Debian.
-      Install asciidoc sources as well.
-      Further Debian split fixes.
-      Debian: test build.
-      Merge in http-push first stage.
-      Document expat dependency when using http-push.
-      ls-files: --others should not say unmerged paths are unknown.
-      git-status: do not mark unmerged paths as committable.
-      Set up remotes/origin to track all remote branches.
-
-    Nick Hengeveld:
-      Add support for pushing to a remote repository using HTTP/DAV
-      Verify remote packs, speed up pending request queue
-      Support remote references with slashes in their names
-      Improve lock handling
-      Refresh the remote lock if it is about to expire
-
-    Paul Collins:
-      http-push.c: include with angle bracket, not dq.
-
-    Randal L. Schwartz:
-      Use fink/darwinport paths for OSX
+Yeah, your right, that should be 0x1fe0000. Looks like a yank bug.
 
 
+>> diff -Naur linux-2.6.14/drivers/net/Kconfig  
+>> linux-2.6.14-uc0/drivers/net/Kconfig
+>> --- linux-2.6.14/drivers/net/Kconfig    2005-10-31 15:39:46.000000000  
+>> +1000
+>> +++ linux-2.6.14-uc0/drivers/net/Kconfig    2005-10-31 
+>> 15:41:58.000000000  +1000
+>> @@ -730,7 +730,7 @@
+>>
+>>  config NET_VENDOR_SMC
+>>      bool "Western Digital/SMC cards"
+>> -    depends on NET_ETHERNET && (ISA || MCA || EISA || MAC)
+>> +    depends on NET_ETHERNET && (ISA || MCA || EISA || MAC || EMBEDDED)
+>>      help
+>>        If you have a network (Ethernet) card belonging to this class, 
+>> say  Y
+>>        and read the Ethernet-HOWTO, available from
+>> @@ -820,7 +820,7 @@
+>>
+>>  config SMC9194
+>>      tristate "SMC 9194 support"
+>> -    depends on NET_VENDOR_SMC && (ISA || MAC && BROKEN)
+>> +    depends on NET_VENDOR_SMC && (ISA || MAC && BROKEN || EMBEDDED)
+>>      select CRC32
+>>      ---help---
+>>        This is support for the SMC9xxx based Ethernet cards. Choose this
+>> @@ -1059,7 +1059,7 @@
+>>
+>>  config NE2000
+>>      tristate "NE2000/NE1000 support"
+>> -    depends on NET_ISA || (Q40 && m) || M32R
+>> +    depends on NET_ISA || (Q40 && m) || M32R || EMBEDDED
+>>      select CRC32
+>>      ---help---
+>>        If you have a network (Ethernet) card of this type, say Y and read
+>> @@ -1190,7 +1190,7 @@
+>>
+>>  config NET_PCI
+>>      bool "EISA, VLB, PCI and on board controllers"
+>> -    depends on NET_ETHERNET && (ISA || EISA || PCI)
+>> +    depends on NET_ETHERNET && (ISA || EISA || PCI || EMBEDDED)
+>>      help
+>>        This is another class of network cards which attach directly to 
+>> the
+>>        bus. If you have one of those, say Y and read the Ethernet-HOWTO,
+>>
+> 
+> Lots of people turn on EMBEDDED for lots of reasons, asking about
+> a lot more drivers seems burdensome.
+> 
+> Care to create a single intermediate Kconfig var for those?
+> Something like "Controllers attached directly to a cpu?"
 
+Yes indeed, this is a mis-use of CONFIG_EMBEDDED.
+
+I would be happy to see another config option for another
+more generic bus type. There is a whole bunch of peripherals
+that are attached to directly (or at least to some other
+fixed) bus type - not just network adapters.
+
+I can see that some will argue that these are ISA bus
+peripherals, therefore CONFIG_ISA should be enabled.
+Maybe. But in this type of deeply embedded hardware it is
+not hooked up to an ISA bus in the normal sense. Typically
+there is some dedicated logic to massage the signals just
+enough for the periperal device to work.
+
+
+>> +config CS89x0_SWAPPED
+>> +    bool "Hardware swapped CS89x0"
+>> +    depends on CS89x0 && !NET_PCI && !ISA
+>> +    ---help---
+>> +      Say Y if your CS89x0 data bus is swapped.
+>> +      This option is for single board computers using a CS89x0 chip. 
+>> If  you
+>> +      are using a regular Ethernet card, say N.
+>> +
+>>
+> 
+> This would then depend on your directly attached config and you
+> could have both it and pci configured.
+> 
+>>  ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
+>> -CFLAGS        += -Os
+>> +CFLAGS        += -O
+>>  else
+>>  CFLAGS        += -O2
+>>  endif
+> 
+> 
+> Sees this undoes part of the benefit, perhaps you should add a
+> third option.
+
+This is a bug workaround for some versions of gcc (arm targeted) that
+produced huge stack consumption on some codes. I recall some crypto
+functions where the problem. I could dig around and find out more
+about the extac versions, etc, if interrested...
+
+This one crept in here, and doesn't belong here at all.
+
+Thanks
+Greg
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
+SnapGear -- a CyberGuard Company            PHONE:       +61 7 3435 2888
+825 Stanley St,                             FAX:         +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com

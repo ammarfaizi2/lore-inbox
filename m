@@ -1,57 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965106AbVKGViB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964959AbVKGVhg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965106AbVKGViB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 16:38:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965252AbVKGViB
+	id S964959AbVKGVhg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 16:37:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965151AbVKGVhg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 16:38:01 -0500
-Received: from mail.kroah.org ([69.55.234.183]:26063 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965245AbVKGVh7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 16:37:59 -0500
-Date: Mon, 7 Nov 2005 13:37:29 -0800
-From: Greg KH <greg@kroah.com>
-To: linas <linas@austin.ibm.com>, linux-sparse@vger.kernel.org
-Cc: Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
-       johnrose@austin.ibm.com, linux-pci@atrey.karlin.mff.cuni.cz,
-       bluesmoke-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/7]: PCI revised (2) [PATCH 16/42]: PCI:  PCI Error reporting callbacks
-Message-ID: <20051107213729.GA24700@kroah.com>
-References: <20051103235918.GA25616@mail.gnucash.org> <20051104005035.GA26929@mail.gnucash.org> <20051105061114.GA27016@kroah.com> <17262.37107.857718.184055@cargo.ozlabs.ibm.com> <20051107175541.GB19593@austin.ibm.com> <20051107182727.GD18861@kroah.com> <20051107195727.GF19593@austin.ibm.com> <20051107200352.GB22524@kroah.com> <20051107212128.GH19593@austin.ibm.com>
+	Mon, 7 Nov 2005 16:37:36 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:64226 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S964959AbVKGVhf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 16:37:35 -0500
+Date: Mon, 7 Nov 2005 15:37:27 -0600
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, bluesmoke-devel@lists.sourceforge.net,
+       Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [PATCH 6/7]: Revised [PATCH 31/42]: ethernet: add PCI error recovery to ixgb dev driver
+Message-ID: <20051107213727.GM19593@austin.ibm.com>
+References: <20051103235918.GA25616@mail.gnucash.org> <20051104005035.GA26929@mail.gnucash.org> <20051105061114.GA27016@kroah.com> <17262.37107.857718.184055@cargo.ozlabs.ibm.com> <20051107175541.GB19593@austin.ibm.com> <20051107182727.GD18861@kroah.com> <20051107195727.GF19593@austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051107212128.GH19593@austin.ibm.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20051107195727.GF19593@austin.ibm.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: linas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 07, 2005 at 03:21:28PM -0600, linas wrote:
-> +typedef int __bitwise pci_channel_state_t;
+On Mon, Nov 07, 2005 at 01:57:27PM -0600, linas was heard to remark:
+> On Mon, Nov 07, 2005 at 10:27:27AM -0800, Greg KH was heard to remark:
+> > 3) realy strong typing that sparse can detect.
 
-Closer but...
+Replace-Subject: PCI Error Recovery: ixgb network device driver
 
->  enum pci_channel_state {
-> -	pci_channel_io_normal = 0,	/* I/O channel is in normal state */
-> -	pci_channel_io_frozen = 1,	/* I/O to channel is blocked */
-> -	pci_channel_io_perm_failure,	/* PCI card is dead */
-> +	pci_channel_io_normal = (__force pci_channel_state_t) 0,	/* I/O channel is in normal state */
-> +	pci_channel_io_frozen = (__force pci_channel_state_t) 1,	/* I/O to channel is blocked */
-> +	pci_channel_io_perm_failure = (__force pci_channel_state_t) 2,	/* PCI card is dead */
->  };
+Various PCI bus errors can be signaled by newer PCI controllers.  This
+patch adds the PCI error recovery callbacks to the intel ten-gigabit
+ethernet ixgb device driver. The patch has been tested, and appears
+to work well.
 
-You don't have to use an enum anymore, just use a #define.
+Signed-off-by: Linas Vepstas <linas@linas.org>
 
-Sparse developers, I see code in the kernel that that does both 
-(__force foo_t) and (foo_t __force).  Which one is correct?
-
-
-> +typedef int __bitwise pers_result_t;
-
-Ugh, I don't like that name, but I can't think of anything better right
-now.  You should at least keep "pci" at the beginning to make it make
-more sense to people looking at it for the first time.
-
-thanks,
-
-greg k-h
+--
+Index: linux-2.6.14-mm1/drivers/net/ixgb/ixgb_main.c
+===================================================================
+--- linux-2.6.14-mm1.orig/drivers/net/ixgb/ixgb_main.c	2005-11-07 13:55:25.431278896 -0600
++++ linux-2.6.14-mm1/drivers/net/ixgb/ixgb_main.c	2005-11-07 15:02:14.779406268 -0600
+@@ -132,6 +132,16 @@
+ static void ixgb_netpoll(struct net_device *dev);
+ #endif
+ 
++static pers_result_t ixgb_io_error_detected (struct pci_dev *pdev, pci_channel_state_t state);
++static pers_result_t ixgb_io_slot_reset (struct pci_dev *pdev);
++static void ixgb_io_resume (struct pci_dev *pdev);
++
++static struct pci_error_handlers ixgb_err_handler = {
++	.error_detected = ixgb_io_error_detected,
++	.slot_reset = ixgb_io_slot_reset,
++	.resume = ixgb_io_resume,
++};
++
+ /* Exported from other modules */
+ 
+ extern void ixgb_check_options(struct ixgb_adapter *adapter);
+@@ -141,6 +151,8 @@
+ 	.id_table = ixgb_pci_tbl,
+ 	.probe    = ixgb_probe,
+ 	.remove   = __devexit_p(ixgb_remove),
++	.err_handler = &ixgb_err_handler,
++
+ };
+ 
+ MODULE_AUTHOR("Intel Corporation, <linux.nics@intel.com>");
+@@ -1654,8 +1666,16 @@
+ 	unsigned int i;
+ #endif
+ 
++#ifdef XXX_CONFIG_IXGB_EEH_RECOVERY
++	if(unlikely(icr==EEH_IO_ERROR_VALUE(4))) {
++		if (eeh_slot_is_isolated (adapter->pdev))
++		// disable_irq_nosync (adapter->pdev->irq);
++		return IRQ_NONE;      /* Not our interrupt */
++	}
++#else
+ 	if(unlikely(!icr))
+ 		return IRQ_NONE;  /* Not our interrupt */
++#endif /* CONFIG_IXGB_EEH_RECOVERY */
+ 
+ 	if(unlikely(icr & (IXGB_INT_RXSEQ | IXGB_INT_LSC))) {
+ 		mod_timer(&adapter->watchdog_timer, jiffies);
+@@ -2125,4 +2145,70 @@
+ }
+ #endif
+ 
++/* -------------- PCI Error Recovery infrastructure ---------------- */
++/** ixgb_io_error_detected() is called when PCI error is detected */
++static pers_result_t ixgb_io_error_detected (struct pci_dev *pdev, pci_channel_state_t state)
++{
++	struct net_device *netdev = pci_get_drvdata(pdev);
++	struct ixgb_adapter *adapter = netdev->priv;
++
++	if(netif_running(netdev))
++		ixgb_down(adapter, TRUE);
++
++	/* Request a slot reset. */
++	return PERS_RESULT_NEED_RESET;
++}
++
++/** ixgb_io_slot_reset is called after the pci bus has been reset.
++ *  Restart the card from scratch.
++ *  Implementation resembles the first-half of the
++ *  ixgb_resume routine.
++ */
++static pers_result_t ixgb_io_slot_reset (struct pci_dev *pdev)
++{
++	struct net_device *netdev = pci_get_drvdata(pdev);
++	struct ixgb_adapter *adapter = netdev->priv;
++
++	if(pci_enable_device(pdev)) {
++		printk(KERN_ERR "ixgb: Cannot re-enable PCI device after reset.\n");
++		return PERS_RESULT_DISCONNECT;
++	}
++	pci_set_master(pdev);
++
++	/* Perform card reset only on one instance of the card */
++	if (0 != PCI_FUNC (pdev->devfn))
++		return PERS_RESULT_RECOVERED;
++
++	ixgb_reset(adapter);
++
++	return PERS_RESULT_RECOVERED;
++}
++
++/** ixgb_io_resume is called when the error recovery driver
++ *  tells us that its OK to resume normal operation.
++ *  Implementation resembles the second-half of the
++ *  ixgb_resume routine.
++ */
++static void ixgb_io_resume (struct pci_dev *pdev)
++{
++	struct net_device *netdev = pci_get_drvdata(pdev);
++	struct ixgb_adapter *adapter = netdev->priv;
++
++	if(netif_running(netdev)) {
++		if(ixgb_up(adapter)) {
++			printk ("ixgb: can't bring device back up after reset\n");
++			return;
++		}
++	}
++
++	netif_device_attach(netdev);
++	if(netif_running(netdev))
++		mod_timer(&adapter->watchdog_timer, jiffies);
++
++	/* Reading all-ff's from the adapter will completely hose
++	 * the counts and statistics. So just clear them out */
++	memset(&adapter->stats, 0, sizeof(struct ixgb_hw_stats));
++	ixgb_update_stats(adapter);
++}
++
+ /* ixgb_main.c */

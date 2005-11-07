@@ -1,87 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965051AbVKGRzu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965059AbVKGR4U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965051AbVKGRzu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 12:55:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965056AbVKGRzu
+	id S965059AbVKGR4U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 12:56:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965056AbVKGR4U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 12:55:50 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:38833 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965051AbVKGRzt (ORCPT
+	Mon, 7 Nov 2005 12:56:20 -0500
+Received: from mtl.rackplans.net ([65.39.167.249]:21445 "HELO innerfire.net")
+	by vger.kernel.org with SMTP id S965059AbVKGR4S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 12:55:49 -0500
-Date: Mon, 7 Nov 2005 11:55:41 -0600
-To: Paul Mackerras <paulus@samba.org>
-Cc: Greg KH <greg@kroah.com>, linuxppc64-dev@ozlabs.org,
-       johnrose@austin.ibm.com, linux-pci@atrey.karlin.mff.cuni.cz,
-       bluesmoke-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 16/42]: PCI:  PCI Error reporting callbacks
-Message-ID: <20051107175541.GB19593@austin.ibm.com>
-References: <20051103235918.GA25616@mail.gnucash.org> <20051104005035.GA26929@mail.gnucash.org> <20051105061114.GA27016@kroah.com> <17262.37107.857718.184055@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17262.37107.857718.184055@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: linas <linas@austin.ibm.com>
+	Mon, 7 Nov 2005 12:56:18 -0500
+Date: Mon, 7 Nov 2005 12:56:18 -0500 (EST)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Steven Rostedt <rostedt@goodmis.org>
+cc: LKML <linux-kernel@vger.kernel.org>, Xavier Bestel <xavier.bestel@free.fr>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Hugo Mills <hugo-lkml@carfax.org.uk>, Nix <nix@esperi.org.uk>,
+       Anshuman Gholap <anshu.pg@gmail.com>,
+       Mark Knecht <markknecht@gmail.com>, Diego Calleja <diegocg@gmail.com>,
+       Toon van der Pas <toon@hout.vanvergehaald.nl>, arjan@infradead.org
+Subject: Re: 3D video card recommendations
+In-Reply-To: <1131386032.14381.110.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0511071255460.1980@innerfire.net>
+References: <1131112605.14381.34.camel@localhost.localdomain> 
+ <1131349343.2858.11.camel@laptopd505.fenrus.org> 
+ <1131367371.14381.91.camel@localhost.localdomain> 
+ <20051107152009.GA20807@shuttle.vanvergehaald.nl>  <20051107180045.ec86a7f2.diegocg@gmail.com>
+  <1131384624.14381.106.camel@localhost.localdomain> 
+ <Pine.LNX.4.64.0511071243350.9444@innerfire.net> <1131386032.14381.110.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 07, 2005 at 10:25:39AM +1100, Paul Mackerras was heard to remark:
-> Greg KH writes:
+On Mon, 7 Nov 2005, Steven Rostedt wrote:
+> On Mon, 2005-11-07 at 12:44 -0500, Gerhard Mack wrote:
 > 
-> > > +enum pcierr_result {
-> > > +	PCIERR_RESULT_NONE=0,        /* no result/none/not supported in device driver */
-> > > +	PCIERR_RESULT_CAN_RECOVER=1, /* Device driver can recover without slot reset */
-> > > +	PCIERR_RESULT_NEED_RESET,    /* Device driver wants slot to be reset. */
-> > > +	PCIERR_RESULT_DISCONNECT,    /* Device has completely failed, is unrecoverable */
-> > > +	PCIERR_RESULT_RECOVERED,     /* Device driver is fully recovered and operational */
-> > > +};
 > > 
-> > No, do not create new types of error or return codes.  Use the standard
-> > -EFOO values.  You can document what they should each return, and mean,
-> > but do not create new codes.
+> > Way ahead of you .. I have such a list since I own the PCI-E X300 ;)
+> > 
+> > Your better off than I am since I bought mine two months ago.
+> > 
+> > 	Gerhard
 > 
-> Actually, these are not error or return codes, but rather requested
-> actions 
+> Are you running this on a x86_64 machine?
 
-Yes. 
+Yes.. it works I just don't get direct rendering.
 
-> (maybe somewhat misnamed).  
+	Gerhard
 
-As to naming, my mind went blank on coming up with a good name,
-and the results was a poor name.
+--
+Gerhard Mack
 
-I now note that "EDAC" ("Error Detection ad Correction") is now taken.
+gmack@innerfire.net
 
-How about "PECS" ("PCI Error Correction System") ? 
-
-I guess "PCI Error Detection And Recovery System" (PEDERAST) might
-have an inappropriate set of connotations.
-
-> We can map them on to -EFOO values
-> but it will be rather strained (-ECONNRESET for "please reset the
-> slot", anyone? :).
-
-Yes, that would only lead to confusion.
-
-> > Also, you create an enum, but yet do not use it in your function
-> > callback definition, which means you really didn't want to create it in
-> > the first place...
-> 
-> Yes, they could be #defines.
-
-In one incarnation, they were #defines.  The enum was supposed to be 
-the return value of the error notification callbacks.  
-
-I can prepare a new patch: would you prefer:
-
-1) lose typing: #defines and int return value?
-
-2) strong typing: enum and enum return value?
-
-I often prefer strong typing.
-
-And do you want a patch now, or later?
-
---linas
-
+<>< As a computer I find your faith in technology amusing.

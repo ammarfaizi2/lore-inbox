@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964984AbVKGVos@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965164AbVKGVrL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964984AbVKGVos (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 16:44:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965164AbVKGVos
+	id S965164AbVKGVrL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 16:47:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965124AbVKGVrL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 16:44:48 -0500
-Received: from www.eclis.ch ([144.85.15.72]:958 "EHLO mail.eclis.ch")
-	by vger.kernel.org with ESMTP id S964984AbVKGVoq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 16:44:46 -0500
-Message-ID: <436FCACC.7060104@eclis.ch>
-Date: Mon, 07 Nov 2005 22:44:44 +0100
-From: Jean-Christian de Rivaz <jc@eclis.ch>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: fr, en
+	Mon, 7 Nov 2005 16:47:11 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:65255 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S965004AbVKGVrJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 16:47:09 -0500
+In-Reply-To: <7e77d27c0511070646o7b8686aes@mail.gmail.com>
+To: Yan Zheng <yzcorp@gmail.com>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
 MIME-Version: 1.0
-To: Hans-Peter Jansen <hpj@urpla.net>
-Cc: john stultz <johnstul@us.ibm.com>, Len Brown <len.brown@intel.com>,
-       macro@linux-mips.org, linux-kernel@vger.kernel.org, dean@arctic.org,
-       zippel@linux-m68k.org
-Subject: Re: NTP broken with 2.6.14
-References: <4369464B.6040707@eclis.ch> <1131064846.27168.619.camel@cog.beaverton.ibm.com> <436ACC89.2050900@eclis.ch> <200511062349.19257.hpj@urpla.net>
-In-Reply-To: <200511062349.19257.hpj@urpla.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH][MCAST]Clear MAF_GSQUERY flag when process MLDv1 general query
+ messages.
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OF7136C7EC.A2BD07E5-ON882570B2.00768CF6-882570B2.0077AB0D@us.ibm.com>
+From: David Stevens <dlstevens@us.ibm.com>
+Date: Mon, 7 Nov 2005 13:47:23 -0800
+X-MIMETrack: Serialize by Router on D03NM121/03/M/IBM(Release 6.53HF654 | July 22, 2005) at
+ 11/07/2005 14:47:24,
+	Serialize complete at 11/07/2005 14:47:24
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans-Peter Jansen a écrit :
-> Am Freitag, 4. November 2005 03:50 schrieb Jean-Christian de Rivaz:
-> 
->>After trying several time, I am unable to upgrade the BIOS of this
->>machine. The flash utility hang all the system at the very beginning
->>of the real access to programm the flash! This is maybe because I use
->>a freedos image over pxelinux. I will try with a floppy and a MSDOS
->>if I found such olds stuffs somehere.
-> 
-> 
-> Could very well be the netboot stuff. I typically flash BIOS/firmware 
-> via DOS network boot images, which provides at least two different ways 
-> of disk emulation: a: and c:, but some flash tools just freeze the 
-> system on load/image load in both ways. Most prominently is the Promise 
-> TX2/100 firmware update, but also a couple of motherboards BIOS' 
-> flashers behave that way (cannot remember which ones, though). 
+Yan Zheng <yzcorp@gmail.com> wrote on 11/07/2005 06:46:20 AM:
 
-As you can see in my two latest post, I finnaly found that this was not 
-the good BIOS for the motherborad. When I understand my mistake, I take 
-the good BIOS version and I was able to flash it with FreeDOS over PXE 
-network boot. So the netboot stuff was not the problem in my case.
+> If the first query message receive after expiration is MLDv2 general
+> query and MAF_GSQUERY flag is set. The report message only contains
+> sources marked by last MLDv2 Multicast Address and Source Specific
+> Queries . Although this circumstance happens  rare, I think it's
+> better have it fixed
 
-The funny part is that with my motherboard, if you try to flash the 
-wrong BIOS version you don't get any clear message agains this 
-opearation. But this ended randomly into one of the following posibility:
-1) system simply hang.
-2) "division by zero error".
-3) "failed opcode "<put some hexadecimal bytes here>.
-4) immediate reboot.
+        Do you have a test case that demonstrates this? It appears to
+me that an MLDv2 general query doesn't execute that code (short circuited
+above) and an MLDv1 general query (what that code is handling) will
+have a timer expiring before switching back to MLDv2 mode (so it'll send
+a v1 report, without any sources). Unless I'm missing something, I can't
+see any way for the scenario you've described to happen.
+        That said, I also can't see anything it would hurt, so I don't 
+object,
+but it looks unnecessary to me.
 
-I think that the BIOS update is an area where the mainboard makers have 
-a hug possibility to improve there product...
+                                                        +-DLS
 
--- 
-Jean-Christian de Rivaz

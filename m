@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbVKGRLO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964854AbVKGRMG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932296AbVKGRLO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 12:11:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbVKGRLN
+	id S964854AbVKGRMG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 12:12:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964873AbVKGRMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 12:11:13 -0500
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:16137 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S932296AbVKGRLM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 12:11:12 -0500
-Date: Mon, 7 Nov 2005 17:11:18 +0000 (GMT)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14: CR4 not needed to be inspected on the 486 anymore?
-In-Reply-To: <436F8601.4070201@vmware.com>
-Message-ID: <Pine.LNX.4.55.0511071655390.28165@blysk.ds.pg.gda.pl>
-References: <Pine.LNX.4.55.0511031600010.24109@blysk.ds.pg.gda.pl>
- <436A3C10.9050302@vmware.com> <Pine.LNX.4.55.0511031639310.24109@blysk.ds.pg.gda.pl>
- <436AA1FD.3010401@vmware.com> <p73fyqb2dtx.fsf@verdi.suse.de>
- <Pine.LNX.4.55.0511070931560.28165@blysk.ds.pg.gda.pl> <436F7673.5040309@vmware.com>
- <Pine.LNX.4.55.0511071632110.28165@blysk.ds.pg.gda.pl> <436F8601.4070201@vmware.com>
+	Mon, 7 Nov 2005 12:12:05 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:16306 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S964854AbVKGRMD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 12:12:03 -0500
+Message-ID: <436F8ABE.9020605@nortel.com>
+Date: Mon, 07 Nov 2005 11:11:26 -0600
+From: "Christopher Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Krzysztof Halasa <khc@pm.waw.pl>
+CC: Eric Sandall <eric@sandall.us>, Willy Tarreau <willy@w.ods.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Tony Luck <tony.luck@gmail.com>,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: New (now current development process)
+References: <4d8e3fd30510291026x611aa715pc1a153e706e70bc2@mail.gmail.com>	<12c511ca0510291157u5557b6b1x85a47311f0e16436@mail.gmail.com>	<20051029195115.GD14039@flint.arm.linux.org.uk>	<Pine.LNX.4.64.0510291314100.3348@g5.osdl.org>	<20051031064109.GO22601@alpha.home.local>	<Pine.LNX.4.63.0511062052590.24477@cerberus> <m3k6fkxwqe.fsf@defiant.localdomain>
+In-Reply-To: <m3k6fkxwqe.fsf@defiant.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Nov 2005 17:11:28.0579 (UTC) FILETIME=[4AA8B930:01C5E3BE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Nov 2005, Zachary Amsden wrote:
+Krzysztof Halasa wrote:
+> Eric Sandall <eric@sandall.us> writes:
 
-> Because I hold in my hand "i486 Microprocessor Programmer's Reference 
-> Manual, c 1990", and it has no mention whatsoever of CR4, and all 
+>>A -final should never be changed from the last -rc. That defeats the
+>>purpose of having -rc releases (rc == 'release candidate' ;)).
+> 
+> 
+> This logic is flawed. RCs are for performing tests. If you don't want
+> further tests (for example, tests on previous RC completed and you're
+> quite sure new changes introduce no new bugs) you don't need further
+> RCs.
 
- Ah, that's too old.  Severely.  By definition it can only cover the
-original i486, perhaps even only before the i486SX has been released (and
-the original renamed to the i486DX).
+How do you ever know that new change introduced no new bugs?  Maybe 
+there was a latent race condition that is activated by timing 
+differences caused by the new code.  Maybe it shifts the spacing of the 
+code just enough to get hit by a pre-existing trampler.  Unless you test 
+it, you *can't* know.
 
-> documentation I had until Friday had either no mention of CR4, or 
+The safe bet is to simply rename the final -rc with no further changes.
 
- You've had to have the right bits of documentation -- Intel has been
-quite precise about presence or absence of these bits in given members of
-the i486 family, but you've had to check specifically each datasheet and
-yes, there was a separate one for each member up till the grand merge in
-1995 or so, when model specifics became chapters of the combined spec
-("Intel486 Processor Family Developer's Manual" or something like that).  
-I still own the pile of printed books, including the latter, but not
-easily accessible anymore.
-
-> something to the effect of "new on Pentium, the CR4 register ..."  So 
-> I've had to re-adjust my definition of 486, which was weird.
-
- Note that the workstation version of the i486 continued to evolve up to
-around 1995, IIRC, and unsurprisingly got some updates "from upstream".
-;-)
-
-  Maciej
+Chris

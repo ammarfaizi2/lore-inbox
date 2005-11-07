@@ -1,114 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbVKGQDu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964855AbVKGQHi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964832AbVKGQDu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 11:03:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964855AbVKGQDt
+	id S964855AbVKGQHi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 11:07:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964856AbVKGQHi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 11:03:49 -0500
-Received: from wombat.indigo.net.au ([202.0.185.19]:61444 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S964832AbVKGQDt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 11:03:49 -0500
-Date: Tue, 8 Nov 2005 00:02:50 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-To: Arnd Bergmann <arnd@arndb.de>
-cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-       hpa@zytor.com, autofs@linux.kernel.org
-Subject: Re: [PATCH 15/25] autofs: move ioctl32 to autofs{,4}/root.c
-In-Reply-To: <200511071136.19087.arnd@arndb.de>
-Message-ID: <Pine.LNX.4.63.0511072355560.2069@donald.themaw.net>
-References: <20051105162650.620266000@b551138y.boeblingen.de.ibm.com>
- <20051105162716.551500000@b551138y.boeblingen.de.ibm.com>
- <Pine.LNX.4.63.0511061407160.2621@donald.themaw.net> <200511071136.19087.arnd@arndb.de>
+	Mon, 7 Nov 2005 11:07:38 -0500
+Received: from [202.125.80.34] ([202.125.80.34]:21320 "EHLO mail.esn.co.in")
+	by vger.kernel.org with ESMTP id S964855AbVKGQHh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 11:07:37 -0500
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1629620785-821618815-1131379370=:2069"
-X-themaw-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=-1.896,
-	required 5, autolearn=not spam, BAYES_00 -2.60,
-	DATE_IN_PAST_12_24 0.70)
-X-themaw-MailScanner-From: raven@themaw.net
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Subject: RE: Comments on 2.6.10 schedule_timeout please
+Date: Mon, 7 Nov 2005 21:34:05 +0530
+Message-ID: <3AEC1E10243A314391FE9C01CD65429B13B2E6@mail.esn.co.in>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Comments on 2.6.10 schedule_timeout please
+Thread-Index: AcXjqwXuOu1/k9oGTAq1yBZwAeSqWgAB8Y5A
+From: "Mukund JB." <mukundjb@esntechnologies.co.in>
+To: "Nish Aravamudan" <nish.aravamudan@gmail.com>
+Cc: "Adrian Bunk" <bunk@stusta.de>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
 
---1629620785-821618815-1131379370=:2069
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Dear Nish,
+Sorry that I cannot share the entire code as I have to face some licensing issues.
+Please find the required code snapshots below. 
+please ask if I have missed something ...
 
-On Mon, 7 Nov 2005, Arnd Bergmann wrote:
+Please see the source code explained briefly below:-
 
-> On S=FCnndag 06 November 2005 07:22, Ian Kent wrote:
-> > On Sat, 5 Nov 2005, Arnd Bergmann wrote:
-> >
-> > I'm not sure if I like conditional compilation in the code proper but I=
-'ll=20
-> > leave it to you to make the final decision since your running with the=
-=20
-> > change. Is there a reason the definitions can't simply be left in place=
-?
->=20
-> I think the compat_ptr() macro is not defined on architectures that don't
-> have 32 bit compat code, but we could change that.
-> =20
-> > Its been a while since I trawled through the compat ioctl code (please=
-=20
-> > point me to the right place) but with this change I think that the=20
-> > AUTOFS_IOC_SETTIMEOUT32 is redundant. Consider a conditional define for=
-=20
-> > AUTOFS_IOC_SETTIMEOUT in include/linux/auto_fs.h instead. Both autofs a=
-nd=20
-> > autofs4 use that definition.
->=20
-> The point here is that the two are different on 64 bit platforms, since
-> sizeof (int) !=3D sizeof (long). You also can't do
->=20
-> switch (cmd) {
-> case AUTOFS_IOC_SETTIMEOUT32:
-> case AUTOFS_IOC_SETTIMEOUT:
-> =09return do_stuff();
-> }
->=20
-> because then gcc would complain about duplicate case targets on 32 bit
-> targets.
+/* my_msleep() sleep milli(msec) seconds */
+void my_msleep(int msec)
+{
+	current->state = TASK_INTERRUPTIBLE;
+	schedule_timeout((msec * HZ)/1000);
+}
+{
+MMCSD_RESPONSE2
+{
+	..............
+	.............
+	/* gather the hardware interrupt reg status that is updated in the ISR context*/
+	..............
+	............
+}
 
-I was thinking that if the module was compiled for 64bit then the 64bit=20
-definition would prevail and visa versa.
+StandbyMMCSD(PCMMCSD pSD)
+{
+	do
+	{
+		tifm_msleep(300);
+	}while(!MMCSD_RESPONSE2(pSD, 31, 31, false));
+}
 
-eg. In the include file.
+Code Description:
+This is a part SD card Driver for 2.6.10 kernel & it works fine.
+This part of the code is called in the ISR context from the bottomhalf when the SD Card is inserted to initialize the SD slot & card.
 
-#ifdef COMPAT_IOCTL
-#define AUTOFS_IOC_SETTIMEOUT(..., unsigned int)
-#else
-#define AUTOFS_IOC_SETTIMEOUT(...,unsigned long)
-#endif
+How did I diagnose the delay:
 
-I think I'm going to have to investigate further following the=20
-implementation.
+1) After inserting the card, I tried pressing the character '1' expecting the shedule_tiemout works by giving the keyboard  process its time to execute and print 1's onto the screen. Instead, I found the a BIG delay of 20 characters. i.e. 20  characters printed at once after the SD card initialization is done.
+2) With debug messages immediately before & after the schedule_timeout call.
+3) Commenting the schedule_timeout call.
+ 
+Regards,
+Mukund Jampala
 
-> =20
-> > The lock_kernel()/unlock_kernel() in the autofs4 patch is ineffective a=
-s=20
-> > the BKL is not used for syncronisation anywhere else in autofs4. If=20
-> > removing it causes problems I need to know about'em so I can fix'em=20
-> > (hopefully).
->=20
-> I used the BKL here in order to maintain the current semantics, because
-> ioctl is always called with BKL held, and compat_ioctl is called without
-> it.
 
-Of course a sensible approach.
 
->=20
-> If you are sure you don't need the BKL, then you should also replace
-> ".ioctl =3D ..." with ".unlocked_ioctl =3D ...".
+-----Original Message-----
+From: Nish Aravamudan [mailto:nish.aravamudan@gmail.com]
+Sent: Monday, November 07, 2005 8:24 PM
+To: Mukund JB.
+Cc: Adrian Bunk; linux-kernel@vger.kernel.org
+Subject: Re: Comments on 2.6.10 schedule_timeout please
 
-Yep. I'll check and amend it later.
-After all it will be part of the module then.
 
-Thanks
-Ian
+On 11/7/05, Mukund JB. <mukundjb@esntechnologies.co.in> wrote:
+>
+> Dear Kernel Developers,
+>
+> I have noticed the schedule_timeout behaving somewhat different as penned
+> from the Linux 2.6 Oreelly books.
+> I have developed a SD card Driver for 2.6.10 kernel & it works fine.
+> I needed a hardware reg to update that take a time of 300ms. I have issued a
+> call like..
+>
+> set_current_state(TASK_INTERRUPTIBLE);
+> schedule_timeout (300*HZ/1000);
 
---1629620785-821618815-1131379370=:2069--
+Full code or function snippet, please.
+
+> But, when I finally use it I get a sufficient delay which looks like a looped delay
+> not allowing the keyboard to print messages on the screen.
+
+This would be easier to diagnose if you shared all of the code you are
+using *and* verified this occurred with a current kernel (2.6.10 is
+old.).
+
+Thanks,
+Nish

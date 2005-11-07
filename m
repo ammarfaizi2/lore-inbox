@@ -1,69 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbVKGPgu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964846AbVKGPk2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964845AbVKGPgu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 10:36:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964847AbVKGPgu
+	id S964846AbVKGPk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 10:40:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964847AbVKGPk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 10:36:50 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:10698 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S964845AbVKGPgt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 10:36:49 -0500
-Subject: Re: + v4l-720-alsa-support-for-saa7134-that-should-work-fix.patch
-	added to -mm tree
-From: Lee Revell <rlrevell@joe-job.com>
-To: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-Cc: alsa-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, nshmyrev@yandex.ru, v4l@cerqueira.org
-In-Reply-To: <1131344803.10094.8.camel@localhost>
-References: <200511060743.jA67hpZa018948@shell0.pdx.osdl.net>
-	 <20051106001249.48d3ade0.akpm@osdl.org> <1131301995.13599.5.camel@mindpipe>
-	 <1131344803.10094.8.camel@localhost>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Mon, 07 Nov 2005 10:33:35 -0500
-Message-Id: <1131377615.8383.9.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 8bit
+	Mon, 7 Nov 2005 10:40:28 -0500
+Received: from EXCHG2003.microtech-ks.com ([65.16.27.37]:6843 "EHLO
+	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
+	id S964846AbVKGPk1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 10:40:27 -0500
+From: "Roger Heflin" <rheflin@atipa.com>
+To: "'Steven Timm'" <timm@fnal.gov>, <linux-kernel@vger.kernel.org>
+Subject: RE: rpc-srv/tcp: nfsd: sent only -107 bytes (fwd)
+Date: Mon, 7 Nov 2005 09:47:18 -0600
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Thread-Index: AcXf6EMJk8Lyz2ecRAiB8ozcVm4QegDyB06Q
+In-Reply-To: <Pine.LNX.4.62.0511021405430.20925@snowball.fnal.gov>
+Message-ID: <EXCHG2003o4lB4BwOZx000005bd@EXCHG2003.microtech-ks.com>
+X-OriginalArrivalTime: 07 Nov 2005 15:35:26.0838 (UTC) FILETIME=[E064D160:01C5E3B0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-11-07 at 04:26 -0200, Mauro Carvalho Chehab wrote:
-> Lee,
+ 
+
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org 
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Steven Timm
+> Sent: Wednesday, November 02, 2005 2:06 PM
+> To: linux-kernel@vger.kernel.org
+> Subject: rpc-srv/tcp: nfsd: sent only -107 bytes (fwd)
 > 
-> Em Dom, 2005-11-06 às 13:33 -0500, Lee Revell escreveu:
-> > On Sun, 2005-11-06 at 00:12 -0800, Andrew Morton wrote:
-> > > Well that didn't work.  The problem is that
-> > > drivers/media/video/saa7134/saa7134-alsa.c doesn't appear to be wired
-> > > up into the build system - it simply doesn't get compiled.
-> > > 
-> > > Please send a fix against next -mm? 
-> > 
-> > Also please send all ALSA related patches to
-> > alsa-devel@lists.sourceforge.net for review.
 > 
-> 	I'm sending you enclosed saa7134-alsa patch. To make easier to
-> understand, I've merged all stuff. This is highly dependent of the other
-> saa7134 parts, since PCI stuff are common to both video and audio
-> funcion on this device.
-> 	This is meant to replace saa7134-oss (after more tests) that,
-> currently, is part of saa7134 module.
+> 
+> I am seeing repeated errors of rpc-srv/tcp: nfsd: sent only 
+> -107 bytes in the /var/log/messages of my machine.  Full 
+> configuration info is below.  Only suggestion I have seen 
+> thus far increase the number of nfsd that are running.  we 
+> have done this, raising from 8 to 64, the problem persists.  
+> Are there any other suggestions that could help this problem?
+> 
+> Thanks
+> 
 
-OK, a brief review:
+I have only seen this problem with large numbers of NFS clients, given
+your address I suspect that would be the issue.
 
- - Why couldn't you use ALSA's DMA API?
+What kernel are you running?  I saw this issue on the 2.4 series, the
+large 2.6 things we have built avoided using TCP given that we had
+seen this issue.
 
- - The DMA must be stopped and started in the trigger callback, not the
-prepare callback.
+There is a calculation someplace in nfs that determines how many of these
+things exist, is is some base + so many per nfs thread.  If you 
+search for message you have there are some posts on the NFS lists
+about it that I made last year.
 
- - If this device lacks a volume control alsa-lib can emulate it in
-software, just create a proper /usr/share/alsa/cards/your_card.conf
-file.
+On the client side each separate mount against a server counts as
+one, so if each client is mounting /opt and /home and /data and
+you have 100 machines you need at least 300.
 
- - By ALSA convention the acceptable formats, sample rates, etc should
-be directly defined in the snd_pcm_hardware_t structure.
+The solution that I came to was to use UDP mounts, as this limit
+is not there.   In the situation I had we would have had to change
+the number of nfsd to 256 and even that was going to be close, 
+and the 256 caused some other failures.  To not have the issue you
+will need to use UDP mounts everywere if you have enough tcp mounts
+to cause the error it will affect the udp mounts in a similar bad way.
 
- - dev->oss needs to go.
+We also could have changed the thread to resource count, but we had
+some other process starvation issue with TCP that seemed to not be
+duplicatable with UDP.
 
-Lee
+                     Roger
+                     Atipa Technologies
 

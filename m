@@ -1,108 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbVKGDSA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932430AbVKGDT5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932425AbVKGDSA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 22:18:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbVKGDR6
+	id S932430AbVKGDT5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 22:19:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbVKGDT4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 22:17:58 -0500
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:43603 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932434AbVKGDRy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 22:17:54 -0500
-From: mchehab@brturbo.com.br
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, video4linux-list@redhat.com,
-       Ricardo Cerqueira <v4l@cerqueira.org>
-Subject: [Patch 12/20] V4L(914) Use less generic name for saa7134 card 79
-Date: Mon, 07 Nov 2005 00:58:09 -0200
-Message-Id: <1131333341.25215.25.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1-2mdk 
+	Sun, 6 Nov 2005 22:19:56 -0500
+Received: from mxsf38.cluster1.charter.net ([209.225.28.165]:26330 "EHLO
+	mxsf38.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S932431AbVKGDTw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Nov 2005 22:19:52 -0500
+X-IronPort-AV: i="3.97,298,1125892800"; 
+   d="scan'208"; a="1759683353:sNHT22747488"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17262.51158.263211.148554@smtp.charter.net>
+Date: Sun, 6 Nov 2005 22:19:50 -0500
+From: "John Stoffel" <john@stoffel.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: John Stoffel <john@stoffel.org>, linux-kernel@vger.kernel.org
+Subject: Re: Best CPU chipset for Linux? (was: [Lhms-devel] [PATCH 0/7]
+ Fragmentation Avoidance V19)
+In-Reply-To: <Pine.LNX.4.64.0511061750360.3316@g5.osdl.org>
+References: <20051104010021.4180A184531@thermo.lanl.gov>
+	<Pine.LNX.4.64.0511032105110.27915@g5.osdl.org>
+	<20051103221037.33ae0f53.pj@sgi.com>
+	<20051104063820.GA19505@elte.hu>
+	<Pine.LNX.4.64.0511040725090.27915@g5.osdl.org>
+	<796B585C-CB1C-4EBA-9EF4-C11996BC9C8B@mac.com>
+	<Pine.LNX.4.64.0511060756010.3316@g5.osdl.org>
+	<Pine.LNX.4.64.0511060848010.3316@g5.osdl.org>
+	<17262.44501.595440.472947@smtp.charter.net>
+	<Pine.LNX.4.64.0511061750360.3316@g5.osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ricardo Cerqueira <v4l@cerqueira.org>
 
-- Use less-generic name for saa7134 card #79
+Linus> On Sun, 6 Nov 2005, John Stoffel wrote:
+>> 
+>> Has any vendor come close to the ideal CPU architecture for an OS?  I
+>> would assume that you'd want:
 
-Signed-off-by: Ricardo Cerqueira <v4l@cerqueira.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+Linus> Well, in the end, the #1 requirement ends up being "wide
+Linus> availability of development boxes".
 
------------------
-
- drivers/media/video/saa7134/saa7134-cards.c |    8 ++++----
- drivers/media/video/saa7134/saa7134-input.c |    6 +++---
- drivers/media/video/saa7134/saa7134.h       |    2 +-
- 3 files changed, 8 insertions(+), 8 deletions(-)
-
---- hg.orig/drivers/media/video/saa7134/saa7134-cards.c
-+++ hg/drivers/media/video/saa7134/saa7134-cards.c
-@@ -2452,11 +2452,11 @@ struct saa7134_board saa7134_boards[] = 
- 			.gpio = 0x0200000,
- 		},
- 	},
--	[SAA7134_BOARD_PCTV_CARDBUS] = {
-+	[SAA7134_BOARD_SEDNA_PC_TV_CARDBUS] = {
- 		/* Paul Tom Zalac <pzalac@gmail.com> */
- 		/* Pavel Mihaylov <bin@bash.info> */
--		.name           = "PCTV Cardbus TV/Radio (ITO25 Rev:2B)",
--				/* Sedna Cardbus TV Tuner */
-+		.name           = "Sedna/MuchTV PC TV Cardbus TV/Radio (ITO25 Rev:2B)",
-+				/* Sedna/MuchTV (OEM) Cardbus TV Tuner */
- 		.audio_clock    = 0x00187de7,
- 		.tuner_type     = TUNER_PHILIPS_TDA8290,
- 		.radio_type     = UNSET,
-@@ -3067,7 +3067,7 @@ int saa7134_board_init1(struct saa7134_d
- 	case SAA7134_BOARD_AVACSSMARTTV:
- 	case SAA7134_BOARD_GOTVIEW_7135:
- 	case SAA7134_BOARD_KWORLD_TERMINATOR:
--	case SAA7134_BOARD_PCTV_CARDBUS:
-+	case SAA7134_BOARD_SEDNA_PC_TV_CARDBUS:
- 		dev->has_remote = SAA7134_REMOTE_GPIO;
- 		break;
- 	case SAA7134_BOARD_MD5044:
---- hg.orig/drivers/media/video/saa7134/saa7134.h
-+++ hg/drivers/media/video/saa7134/saa7134.h
-@@ -205,7 +205,7 @@ struct saa7134_format {
- #define SAA7134_BOARD_MONSTERTV_MOBILE 76
- #define SAA7134_BOARD_PINNACLE_PCTV_110i 77
- #define SAA7134_BOARD_ASUSTeK_P7131_DUAL 78
--#define SAA7134_BOARD_PCTV_CARDBUS     79
-+#define SAA7134_BOARD_SEDNA_PC_TV_CARDBUS     79
- #define SAA7134_BOARD_ASUSTEK_DIGIMATRIX_TV 80
- #define SAA7134_BOARD_PHILIPS_TIGER  81
- 
---- hg.orig/drivers/media/video/saa7134/saa7134-input.c
-+++ hg/drivers/media/video/saa7134/saa7134-input.c
-@@ -546,7 +546,7 @@ static IR_KEYTAB_TYPE ir_codes_pinnacle[
- /* Mapping for the 28 key remote control as seen at
-    http://www.sednacomputer.com/photo/cardbus-tv.jpg
-    Pavel Mihaylov <bin@bash.info> */
--static IR_KEYTAB_TYPE pctv_cardbus_codes[IR_KEYTAB_SIZE] = {
-+static IR_KEYTAB_TYPE pctv_sedna_codes[IR_KEYTAB_SIZE] = {
- 	[    0 ] = KEY_KP0,
- 	[    1 ] = KEY_KP1,
- 	[    2 ] = KEY_KP2,
-@@ -781,8 +781,8 @@ int saa7134_input_init1(struct saa7134_d
- 		mask_keyup   = 0x004000;
- 		polling      = 50; // ms
- 		break;
--	case SAA7134_BOARD_PCTV_CARDBUS:
--		ir_codes     = pctv_cardbus_codes;
-+	case SAA7134_BOARD_SEDNA_PC_TV_CARDBUS:
-+		ir_codes     = pctv_sedna_codes;
- 		mask_keycode = 0x001f00;
- 		mask_keyup   = 0x004000;
- 		polling      = 50; // ms
+Heh!  Take my thoughts and turn them on my head.  Bravo!  
 
 
-	
+Linus> We do want a "big enough" virtual address space, that's pretty
+Linus> much required. It doesn't necessarily have to be the full 64
+Linus> bits, and it's fine if the IO space is just a part of that.
 
-	
-		
-_______________________________________________________ 
-Yahoo! Acesso Grátis: Internet rápida e grátis. 
-Instale o discador agora!
-http://br.acesso.yahoo.com/
+So 40 bits is fine for now, but 64 would be great just because it
+solves the problem for a long long time?  
 
+Linus> As to ISA and registers - nobody much cares. The compiler takes
+Linus> care of it, and I'd personally _much_ rather see a common ISA
+Linus> than a "clean" one.  The x86 architecture may be odd, but it
+Linus> works well.
+
+But aren't there areas where the ISA would expose useful parts of the
+underlying microarchitecture that could be more efficiently used in
+OSes?  
+
+Linus>  - fast large first-level caches help a lot. And I'd rather
+Linus>  take a bigger L1 that has a two- or even three-cycle latency
+Linus>  than a small one. That's assuming the uarch is out-of-order,
+Linus>  of course.
+
+Linus>  - good fast L2, and I'll take low-latency memory access over
+Linus>  an L3 any day.
+
+Linus>  - low-latency serialization (locking and memory barriers). In
+Linus>  fact, pretty much low-latency everything (branch mispredict
+Linus>  latency etc).
+
+Linus>  - cheap and powerful.
+
+Linus> but the fact is, we'll work with pretty much any crap we're
+Linus> given. If it's bad, it won't make it in the marketplace.
+
+The corollary of course is that if it's excellent but the marketplace
+doesn't like it for some reason, we'll still let it go.  I keep
+wishing for the Alpha to come back sometimes...  Oh well.
+
+Thanks for your thoughts Linus.
+
+John

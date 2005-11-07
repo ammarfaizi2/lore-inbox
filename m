@@ -1,322 +1,526 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932325AbVKGUnP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbVKGUnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932325AbVKGUnP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 15:43:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932330AbVKGUnP
+	id S932330AbVKGUnY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 15:43:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbVKGUnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 15:43:15 -0500
-Received: from web36911.mail.mud.yahoo.com ([209.191.85.79]:43888 "HELO
-	web36911.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932325AbVKGUnM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 15:43:12 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=K6WwxdYaeFOzePSrR6WPKlFmRpD0fR2K9dJpYxCMO0n5D+HiRNjX9TfZWofqNjpWvgyeI528EV5LA9hvDR8t0Cm9JsMt/lGsjSrxRTtGLjYLWhElyGRypQT9+1JoTS/PZWRLXIvjdvA//kmi4I8ErJLC5+kDi4NknBpCcSDFtN0=  ;
-Message-ID: <20051107204312.7851.qmail@web36911.mail.mud.yahoo.com>
-Date: Mon, 7 Nov 2005 20:43:11 +0000 (GMT)
-From: Mark Underwood <basicmark@yahoo.com>
-Subject: Re: [PATCH/RFC] simple SPI controller on PXA2xx SSP port, refresh
-To: Mark Underwood <basicmark@yahoo.com>, stephen@streetfiresound.com,
-       Mike Lee <eemike@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051104203623.42911.qmail@web36901.mail.mud.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 7 Nov 2005 15:43:24 -0500
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:14220 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S932330AbVKGUnV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 15:43:21 -0500
+X-ORBL: [69.149.117.103]
+Date: Mon, 7 Nov 2005 14:39:33 -0600
+From: Michael Halcrow <lkml@halcrow.us>
+To: linux-kernel@vger.kernel.org
+Cc: Phillip Hellewell <phillip@hellewell.homeip.net>,
+       linux-fsdevel@vger.kernel.org, mhalcrow@us.ibm.com, mcthomps@us.ibm.com,
+       yoder1@us.ibm.com
+Subject: Re: [PATCH: eCryptfs] Encrypt on writepage()
+Message-ID: <20051107203933.GA23873@halcrow.us>
+Reply-To: Michael Halcrow <lkml@halcrow.us>
+References: <20051103033220.GD2772@sshock.rn.byu.edu> <20051103035530.GJ3005@sshock.rn.byu.edu> <20051103053258.GA32733@halcrow.us>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051103053258.GA32733@halcrow.us>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Mark Underwood <basicmark@yahoo.com> wrote:
+On Wed, Nov 02, 2005 at 11:32:58PM -0600, Michael Halcrow wrote:
+> On Wed, Nov 02, 2005 at 08:55:30PM -0700, Phillip Hellewell wrote:
+> > +static int ecryptfs_writepage(struct page *page, struct writeback_control *wbc)
+> > +{
+> > ...
+> > +	ecryptfs_printk(1, KERN_NOTICE, "Copying page\n");
+> > +	memcpy(lower_kaddr, kaddr, crypt_stats->extent_size);
+> 
+> This part will, of course, need to be replaced with the same crypto
+> operations being done in ecryptfs_commit_write() in order to encrypt
+> the data on its way out via ecryptfs_writepage().
 
-> 
-> --- Stephen Street <stephen@streetfiresound.com> wrote:
-> 
-> > On Thu, 2005-11-03 at 17:37 +0800, Mike Lee wrote: 
-> > > Actually, i am now available to use your loopback driver on my SPI
-> > > controller driver. But only limited to PIO mode, and i get stuck on
-> > > DMA mode because of trigger problem of SPI module, I am now trying
-> > > very hard to solve that.
-> > 
-> > I had problems get the DMA buffers aligned correctly.
-> > 
-> > > 
-> > > In my driver, there is a little bug that i could not rmmod the driver.
-> > > it will stop at unregistering device. Below is a debug msg dump. it
-> > > seem to stop at down_write(&device_subsys.rwsem) in device_del
-> > > ------------------------------------------------------------
-> > > /mnt/tmpfs/tmp # insmod imx_spi.ko
-> > > bus platform: add driver imx-spi
-> > > CLASS: registering class device: ID = 'spi1'
-> > > imx-spi imx-spi.0: registered master spi1
-> > >  spi1.1-loopback: setup finish
-> > > DEV: registering device: ID = 'spi1.1-loopback'
-> > > bus spi: add device spi1.1-loopback
-> > > imx-spi imx-spi.0: registered child spi1.1-loopback
-> > > bound device 'imx-spi.0' to driver 'imx-spi'
-> > > CLASS: registering class device: ID = 'spi2'
-> > > imx-spi imx-spi.1: registered master spi2
-> > > bound device 'imx-spi.1' to driver 'imx-spi'
-> > > /mnt/tmpfs/tmp # rmmod imx_spi.ko
-> > > bus platform: remove driver imx-spi
-> > > DEV: Unregistering device. ID = 'spi1.1-loopback'
-> > > 
-> > > ------------------------------------------------------------
-> > > 
-> > I'm not sure what the problem is.  What kernel version are you using?
-> > Changes are continuing in the driver model which can affect module
-> > unloading.
-> 
-> I'm working on this problem. The first issue is that the spi_unregister_master calls
-> device_for_each_child which takes the devices lock and then in the __unregister routine goes on
-> to
-> unregister a device which also tries to take the devices lock and hey presto your stuck :(. This
-> problem was easy to solve, but I now seem to be stuck in device_unregister where it gets and
-> then
-> puts the reference to the device. It looks like someone is still holding the spi_master but I
-> haven't had time to find out where (or if problem is in my adapter driver ;).
-> 
-> An update on your work would be great David, I have some comments to go with your last patch but
-> wanted to finish my adapter driver and spi_device driver first.
-> 
-> Mark
+This patch encrypts on the writepage() execution path. It also removes
+the initialization vector read/rotate/write code into its own
+function, which simplifies commit_write().
 
-OK, here is a patch to Davids spi.c which will hopefully fix the unregistering of spi_masters
-problem and also adds an extra method required by platforms that want to register one or more
-devices after arch init time.
+I also took the opportunity to remove an unused macro from the
+header.
 
---- spi-orig.c 2005-11-07 20:13:03.000000000 +0000
-+++ spi.c 2005-11-07 20:12:35.000000000 +0000
-@@ -315,6 +315,35 @@ static struct class spi_master_class = {
-        .release        = spi_master_release,
- };
- 
-+/* As spi devices that are registered after arch init time have to
-+ * supply the spi_master pointer of the master that they sit on
-+ * they need to use this function to get that pointer from the bus
-+ * number
-+ */
-+struct spi_master* bus_num_to_master(u16 bus_num)
-+{
-+ struct spi_master *adap = NULL;
-+ struct spi_master *tmp = NULL;
-+ struct class_device *cdev;
-+
-+ down(&board_lock);
-+ list_for_each_entry(cdev, &spi_master_class.children, node) {
-+  tmp = container_of(cdev, struct spi_master, cdev);
-+  printk("cdev = %p\n", cdev);
-+  printk("tmp = %p\n", tmp);
-+  printk("tmp->bus_num = %d, bus_num %d\n", tmp->bus_num, bus_num);
-+  printk("tmp->num_chipselect = %d\n",tmp->num_chipselect);
-+  if (tmp->bus_num == bus_num)
-+  {
-+   adap = tmp;
-+   break;
-+  }
-+ }
-+ up(&board_lock);
-+ return adap;
-+}
-+EXPORT_SYMBOL(bus_num_to_master);
-+
+This applies on top of the 12 original patches sent out, plus the
+de-debug patch in the message with the subject ``Re: [PATCH: eCryptfs]
+Remove debug wrappers''.
+
+Signed-off-by: Michael Halcrow <mhalcrow@us.ibm.com>
+Signed-off-by: Phillip Hellewell <phillip@hellewell.homeip.net>
+Signed-off-by: Michael Thompson <mcthomps@us.ibm.com>
+Signed-off-by: Kent Yoder <yoder1@us.ibm.com>
+
+ ecryptfs_kernel.h |    3 
+ mmap.c            |  344 +++++++++++++++++++++++++++++++-----------------------
+ 2 files changed, 202 insertions(+), 145 deletions(-)
+Index: linux-2.6.14-rc5-ecryptfs/fs/ecryptfs/mmap.c
+===================================================================
+--- linux-2.6.14-rc5-ecryptfs.orig/fs/ecryptfs/mmap.c	2005-11-03 16:12:46.000000000 -0600
++++ linux-2.6.14-rc5-ecryptfs/fs/ecryptfs/mmap.c	2005-11-07 13:44:54.000000000 -0600
+@@ -30,6 +30,8 @@
+ #include <linux/pagemap.h>
+ #include <linux/writeback.h>
+ #include <linux/page-flags.h>
++#include <linux/mount.h>
++#include <linux/file.h>
+ #include <linux/crypto.h>
+ #include <asm/scatterlist.h>
+ #include "ecryptfs_kernel.h"
+@@ -318,90 +320,224 @@
+ }
  
  /**
-  * spi_alloc_master - allocate SPI master controller
-@@ -418,8 +447,13 @@ static int __unregister(struct device *d
-  */
- void spi_unregister_master(struct spi_master *master)
- {
-- class_device_unregister(&master->cdev);
-- (void) device_for_each_child(master->cdev.dev, NULL, __unregister);
-+ struct device *dev = master->cdev.dev;
-+ struct device *child, *next_ptr;
+- * @param page	Page that is locked before this call is made
++ * @param lower_file Can be NULL
++ * @return Zero on success
++ */
++static int 
++ecryptfs_read_rotate_write_iv(char *iv, struct inode *inode,
++			      int lower_iv_idx, struct file *lower_file, 
++			      struct page *page)
++{
++	int rc = 0;
++	pgoff_t records_page_index;
++	struct ecryptfs_crypt_stats *crypt_stats;
++	struct page *records_page;
++	char *records_virt;
++	int lower_file_needs_fput = 0;
++	struct address_space_operations *lower_a_ops;
++	struct inode *lower_inode;
 +
-+ list_for_each_entry_safe(child, next_ptr, &dev->children, node) {
-+  __unregister(child, NULL);
-+ }
-+ class_device_unregister(&master->cdev);   
++	crypt_stats = &(INODE_TO_PRIVATE(inode)->crypt_stats);
++	lower_inode = INODE_TO_LOWER(inode);
++ 	lower_a_ops = lower_inode->i_mapping->a_ops;
++	records_page_index = LAST_RECORDS_PAGE_IDX(crypt_stats, page->index);
++	ecryptfs_printk(1, KERN_NOTICE, "records_page_index = [%lu]\n",
++			records_page_index);
++	records_page = grab_cache_page(lower_inode->i_mapping,
++				       records_page_index);
++	if (!records_page) {
++                        ecryptfs_printk(0, KERN_ERR, "records_page == NULL "
++                                        "after grab_cache_page at index [%lu]"
++                                        "\n", records_page_index);
++                        rc = -EIO;
++                        goto out;
++	}
++	/* TODO: Assume encrypted only for version 0.1 */
++	ecryptfs_printk(1, KERN_NOTICE, "lower_iv_idx = [%d]\n", lower_iv_idx);
++	records_virt = kmap(records_page);
++	if (!records_virt) {
++		rc = -ENOMEM;
++		ecryptfs_printk(1, KERN_NOTICE, "Error in kmap\n");
++		goto out_unlock_and_release;
++	}
++	if (!lower_file) {
++		struct dentry *lower_dentry;
++		struct vfsmount *lower_mnt;
++
++		if (!lower_inode->i_dentry.next) {
++			rc = -EINVAL;
++			ecryptfs_printk(1, KERN_NOTICE, "No dentry for "
++					"lower_inode\n");
++			goto out_unmap;
++		}
++		lower_dentry = list_entry(lower_inode->i_dentry.next, 
++					  struct dentry, d_alias);
++		mntget(SUPERBLOCK_TO_PRIVATE(inode->i_sb)->lower_mnt);
++		lower_mnt = SUPERBLOCK_TO_PRIVATE(inode->i_sb)->lower_mnt;
++		lower_file = dentry_open(lower_dentry, lower_mnt, FMODE_READ);
++		if (IS_ERR(lower_file)) {
++			rc = PTR_ERR(lower_file);
++			ecryptfs_printk(0, KERN_ERR,
++					"Error opening dentry; rc = [%i]\n",
++					rc);
++			mntput(SUPERBLOCK_TO_PRIVATE(inode->i_sb)->lower_mnt);
++			goto out_unmap;
++		}
++		lower_file_needs_fput = 1;
++	}
++	rc = lower_a_ops->prepare_write(lower_file, records_page, lower_iv_idx,
++					(lower_iv_idx + crypt_stats->iv_bytes));
++	if (rc) {
++		ecryptfs_printk(0, KERN_ERR, "Error in lower prepare_write() "
++				"call: rc = [%d]\n", rc);
++		goto out_unmap;
++	}
++	down(&crypt_stats->iv_sem);
++	ecryptfs_rotate_iv(crypt_stats->iv);
++	memcpy(iv, crypt_stats->iv, crypt_stats->iv_bytes);
++	up(&crypt_stats->iv_sem);
++	memcpy(records_virt + lower_iv_idx, crypt_stats->iv,
++	       crypt_stats->iv_bytes);
++	rc = lower_a_ops->commit_write(lower_file, records_page, lower_iv_idx, 
++				       (lower_iv_idx + crypt_stats->iv_bytes));
++	if (rc) {
++		ecryptfs_printk(0, KERN_ERR, "Error in lower commit_write() "
++				"call: rc = [%d]\n", rc);
++		goto out_unmap;
++	}
++	lower_inode->i_mtime = lower_inode->i_ctime = CURRENT_TIME;
++	ecryptfs_printk(1, KERN_NOTICE, "Unlocking page with index = "
++			"[%lu]\n", records_page->index);
++out_unmap:
++	kunmap(records_page);
++out_unlock_and_release:
++	unlock_page(records_page);
++	page_cache_release(records_page);
++	ecryptfs_printk(1, KERN_NOTICE, "After committing IV write, "
++			"lower_inode->i_blocks = [%lu]\n",
++			lower_inode->i_blocks);	
++out:
++	if (lower_file_needs_fput)
++		fput(lower_file);
++	return rc;
++}
++
++/**
++ * @return Zero on success; negative on error
++ */
++static int encrypt_page(struct ecryptfs_crypt_stats *crypt_stats,
++			struct page *page, struct page *lower_page, char *iv)
++{
++	int rc = 0;
++	ecryptfs_printk(1, KERN_NOTICE, "Calling do_encrypt_page()\n");
++	ecryptfs_printk(1, KERN_NOTICE, "Encrypting page with iv:\n");
++	if (unlikely(ecryptfs_verbosity > 0)) {
++		ecryptfs_dump_hex(iv, crypt_stats->iv_bytes);
++	}
++	ecryptfs_printk(1, KERN_NOTICE, "First 8 bytes before "
++			"encryption:\n");
++	if (ecryptfs_verbosity > 0) {
++		ecryptfs_dump_hex((char *)page_address(page), 8);
++	}
++	rc = do_encrypt_page_offset(crypt_stats, lower_page, 0,
++				    page, 0, crypt_stats->extent_size, iv);
++	ecryptfs_printk(1, KERN_NOTICE, "Encrypted [%d] bytes\n", rc);
++	ecryptfs_printk(1, KERN_NOTICE, "First 8 bytes after " "encryption:\n");
++	if (ecryptfs_verbosity > 0) {
++		ecryptfs_dump_hex((char *)page_address(lower_page), 8);
++	}
++	if (rc > 0)
++		rc = 0;
++	return rc;
++}
++
++/**
++ * @param page Page that is locked before this call is made
+  */
+ static int ecryptfs_writepage(struct page *page, struct writeback_control *wbc)
+ {
+-	int err = -EIO;
++	int rc = -EIO;
++	int err = 0;
+ 	unsigned long lower_index;
+ 	struct inode *inode;
+ 	struct inode *lower_inode;
+ 	struct page *lower_page;
+ 	char *kaddr, *lower_kaddr;
+ 	struct ecryptfs_crypt_stats *crypt_stats;
++
+ 	ecryptfs_printk(1, KERN_NOTICE, "Enter; page->index = [%ld]; "
+ 			"page->mapping->host = [%p]\n", page->index,
+ 			page->mapping->host);
+-
+-	/* Sanity checkers */
+-	if (1) {
+-		struct address_space *mapping = page->mapping;
+-		loff_t offset = (loff_t) page->index << PAGE_CACHE_SHIFT;
+-		if (wbc->sync_mode != WB_SYNC_NONE) {
+-			ecryptfs_printk(1, KERN_NOTICE,
+-					"wbc->sync_mode != WB_SYNC_NONE\n");
+-		} else {
+-			ecryptfs_printk(1, KERN_NOTICE,
+-					"wbc->sync_mode == WB_SYNC_NONE\n");
+-		}
+-		/* racing with truncate? */
+-		if (offset > mapping->host->i_size) {
+-			ecryptfs_printk(1, KERN_NOTICE, "Racing truncate\n");
+-		}
+-		BUG_ON(PageWriteback(page));
+-	}
+-
+-	/* End sanity */
+-
+ 	inode = page->mapping->host;
+ 	crypt_stats = &(INODE_TO_PRIVATE(inode)->crypt_stats);
+ 	lower_inode = INODE_TO_LOWER(inode);
+-	/* The 2nd argument here should be the index of the lower file, which
+-	 * should be the calculated result of our index interpolation */
+ 	lower_index = PG_IDX_TO_LWR_PG_IDX(crypt_stats, page->index);
+ 	ecryptfs_printk(1, KERN_NOTICE, "Grab lower_idx = [%ld]\n",
+ 			lower_index);
+ 	lower_page = grab_cache_page(lower_inode->i_mapping, lower_index);
+ 	if (!lower_page) {
+-		err = -ENOMEM;
++		rc = -ENOMEM;
+ 		goto out;
+ 	}
+-	if (PageWriteback(lower_page)) {
+-		ecryptfs_printk(1, KERN_NOTICE,
+-				"lower_page is under writeback\n");
+-	} else {
+-		ecryptfs_printk(1, KERN_NOTICE,
+-				"lower_page is avail for writeback\n");
+-	}
+-	if (!PageLocked(page)) {
+-		ecryptfs_printk(1, KERN_NOTICE, "Page not locked\n");
+-	} else {
+-		ecryptfs_printk(1, KERN_NOTICE, "Page is already locked\n");
+-	}
+ 	kaddr = (char *)kmap(page);
++	if (!kaddr) {
++		rc = -ENOMEM;
++		goto out;
++	}
+ 	lower_kaddr = (char *)kmap(lower_page);
+-	ecryptfs_printk(1, KERN_NOTICE, "Copying page\n");
+-	memcpy(lower_kaddr, kaddr, crypt_stats->extent_size);
++	if (!lower_kaddr) {
++		rc = -ENOMEM;
++		goto out;
++	}
++	if (crypt_stats->encrypted) {
++		char iv[ECRYPTFS_MAX_IV_BYTES];
++		int record_byte_offset;
++		/* TODO: HMAC: Include HMAC bytes in the record size */
++		record_byte_offset = (RECORD_IDX(crypt_stats, page->index)
++				      * crypt_stats->iv_bytes);
++		rc = ecryptfs_read_rotate_write_iv(iv, inode,
++						   record_byte_offset, NULL,
++						   page);
++		if (rc) {
++			ecryptfs_printk(0, KERN_ERR, "Error rotating "
++					"IV; write failure. Assuming "
++					"IV page corruption; writing "
++					"0's to associated data extent"
++					".\n");
++			memset(lower_kaddr, 0, crypt_stats->extent_size);
++			err = -EIO;
++			goto do_lower_write;
++		}
++		ecryptfs_printk(1, KERN_NOTICE, "Encrypting page with iv:\n");
++		if (unlikely(ecryptfs_verbosity > 0))
++			ecryptfs_dump_hex(iv, crypt_stats->iv_bytes);
++		err = encrypt_page(crypt_stats, page, lower_page, iv);
++		if (err)
++			ecryptfs_printk(0, KERN_WARNING, "Error encrypting "
++					"page (upper index [%llu])\n", 
++					page->index);
++	} else
++		memcpy(lower_kaddr, kaddr, crypt_stats->extent_size);
++do_lower_write:
+ 	kunmap(page);
+ 	kunmap(lower_page);
+-	if (PageWriteback(lower_page)) {
+-		ecryptfs_printk(1, KERN_NOTICE,
+-				"lower_page is under writeback\n");
+-	} else {
+-		ecryptfs_printk(1, KERN_NOTICE,
+-				"lower_page is avail for writeback\n");
++	rc = lower_inode->i_mapping->a_ops->writepage(lower_page, wbc);
++	if (rc) {
++		ecryptfs_printk(0, KERN_ERR, "Error calling lower writepage(); "
++				"rc = [%d]\n", rc);
+ 	}
+-	err = lower_inode->i_mapping->a_ops->writepage(lower_page, wbc);
+ 	lower_inode->i_mtime = lower_inode->i_ctime = CURRENT_TIME;
+ 	page_cache_release(lower_page);
+-	if (err)
++	if (rc)
+ 		ClearPageUptodate(page);
+ 	else
+ 		SetPageUptodate(page);
+ 	unlock_page(page);
+ out:
+-	ecryptfs_printk(1, KERN_NOTICE, "Exit; err = [%d]\n", err);
+-	return err;
++	if (err)
++		rc = err;
++	ecryptfs_printk(1, KERN_NOTICE, "Exit; rc = [%d]\n", rc);
++	return rc;
  }
- EXPORT_SYMBOL_GPL(spi_unregister_master);
-
-Unfortunately I'm still having a problem unregistering my driver, but I think this is due to the
-driver not the SPI subsystem. If someone could test that this patch fixes the unregister problem
-and let me know that would be great.
-
-Mark
-
-> 
-> > 
-> > > 
-> > > Some question on SPI subsystem:
-> > > I really get confused on the structure on the whole system. e.g. the
-> > > platform_data and controller_data in board_info.  What are thier
-> > > purposes?
-> > 
-> > A little confusing I agree.  Keep in mind that in a typical SPI setup
-> > there is one SPI master (i.MX) connected to one or more SPI slaves
-> > (external chips).  You will have a device_driver for the master and a
-> > device_driver for each SPI slave. So...
-> > 
-> > The platform_data contains configuration information for the SPI slave
-> > device_driver and the controller data contain configuration information
-> > for the SPI master device_driver which is specific to an individual SPI
-> > Slave.  This allows the SPI master to configure itself differently on
-> > the fly, for each chip connected to it.
-> > 
-> > Here is code snippet from my board init
-> > 
-> > static struct resource pxa_spi_resources[] = {
-> >  [0] = {
-> >   .start = __PREG(SSCR0_P(2)),
-> >   .end = __PREG(SSCR0_P(2)) + 0x2c,
-> >   .flags = IORESOURCE_MEM,
-> >  },
-> >  [1] = {
-> >   .start = IRQ_NSSP,
-> >   .end = IRQ_NSSP,
-> >   .flags = IORESOURCE_IRQ,
-> >  },
-> > };
-> > 
-> > static struct pxa2xx_spi_master pxa_nssp_master_info = {
-> >  .ssp_type = PXA25x_NSSP,
-> >  .clock_enable = CKEN9_NSSP,
-> >  .num_chipselect = 4,
-> >  .enable_dma = 1,
-> > };
-> > 
-> > static struct platform_device pxa_spi_ssp = {
-> >  .name = "pxa2xx-spi-ssp",
-> >  .id = 2,
-> >  .resource = pxa_spi_resources,
-> >  .num_resources = ARRAY_SIZE(pxa_spi_resources),
-> >  .dev = {
-> >   .platform_data = &pxa_nssp_master_info,
-> >  },
-> > };
-> > 
-> > static struct cs8415a_platform_data cs8415a_platform_info = {
-> >  .enabled = 0,
-> >  .muted = 1,
-> >  .channel = 0,
-> >  .pll_lock_delay = 100,
-> >  .irq_flags = SA_SHIRQ,
-> >  .mask_interrupt = cs8415a_mask_interrupt,
-> >  .unmask_interrupt = cs8415a_unmask_interrupt,
-> >  .service_requested = cs8415a_service_requested,
-> > };
-> > 
-> > static struct pxa2xx_spi_chip cs8415a_chip_info = {
-> >  .tx_threshold = 8,
-> >  .rx_threshold = 8,
-> >  .dma_burst_size = 8,
-> >  .timeout_microsecs = 64,
-> >  .cs_control = cs8415a_cs_control,
-> > };
-> > 
-> > static struct pxa2xx_spi_chip cs8405a_chip_info = {
-> >  .tx_threshold = 12,
-> >  .rx_threshold = 4,
-> >  .dma_burst_size = 8,
-> >  .timeout_microsecs = 64,
-> > };
-> > 
-> > static struct pxa2xx_spi_chip cs4341_chip_info = {
-> >  .tx_threshold = 12,
-> >  .rx_threshold = 4,
-> >  .timeout_microsecs = 128,
-> > };
-> > 
-> > static struct pxa2xx_spi_chip loopback_chip_info = {
-> >  .tx_threshold = 12,
-> >  .rx_threshold = 4,
-> >  .dma_burst_size = 8,
-> >  .timeout_microsecs = 64,
-> >  .enable_loopback = 1,
-> > };
-> > 
-> > static struct spi_board_info streetracer_spi_board_info[] __initdata = {
-> >  {
-> >   .modalias = "cs8415a",
-> >   .max_speed_hz = 3686400,
-> >   .bus_num = 2,
-> >   .chip_select = 0,
-> >   .platform_data = &cs8415a_platform_info,
-> >   .controller_data = &cs8415a_chip_info,
-> >   .irq = STREETRACER_APCI_IRQ,
-> >  },
-> >  {
-> >   .modalias = "cs8405a",
-> >   .max_speed_hz = 3686400,
-> >   .bus_num = 2,
-> >   .chip_select = 1,
-> >   .controller_data = &cs8405a_chip_info,
-> >   .irq = STREETRACER_APCI_IRQ,
-> >  },
-> >  {
-> >   .modalias = "cs4341",
-> >   .max_speed_hz = 3686400,
-> >   .bus_num = 2,
-> >   .chip_select = 2,
-> >   .controller_data = &cs4341_chip_info,
-> >  },
-> >  {
-> >   .modalias = "loopback",
-> >   .max_speed_hz = 3686400,
-> >   .bus_num = 2,
-> >   .chip_select = 3,
-> >   .controller_data = &loopback_chip_info,
-> >  },
-> > };
-> > 
-> > > Also i found that spi_register_board_info is declared as __init, that
-> > > mean i can not register board info as a module, is it because there is
-> > > no 'real' probe on SPI bus? (this comsume me time to reflash my board
-> > > to debug)
-> > 
-> > Correct no real probe, but.... see 
-> > 
-> > extern struct spi_device *spi_new_device(struct spi_master *, struct spi_board_info *);
-> > 
-> > in spi.h for creating new spi_device on the fly or in a module.
-> > 
-> > 
-> > > I know that SDIO could have a SPI mode. Could SPI subsystem be used to
-> > > control SDIO device?
-> > 
-> > No clue, sorry.
-> > 
-> > > Sorry for my annoying questions.
-> > 
-> > No problem! Happy to help out.  What external chip are you talking to?
-> > 
-> > -Stephen
-> > 
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> 
-> 
-> 
->   
-> ___________________________________________________________ 
-> Does your mail provider give you FREE antivirus protection? 
-> Get Yahoo! Mail http://uk.mail.yahoo.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
-
-		
-___________________________________________________________ 
-Does your mail provider give you FREE antivirus protection? 
-Get Yahoo! Mail http://uk.mail.yahoo.com
+ 
+ /**
+@@ -574,7 +710,6 @@
+ 	int record_byte_offset;
+ 	int iv_byte_offset;
+ 	int i;
+-	int record_size;
+ 	pgoff_t records_page_index;
+ 	pgoff_t lower_page_index;
+ 
+@@ -590,7 +725,6 @@
+ 		rc = ecryptfs_do_readpage(file, page, page->index);
+ 		goto out;
+ 	}
+-	record_size = crypt_stats->iv_bytes;
+ 	/* The file is encrypted, hmac verified, or both. */
+ 	ecryptfs_printk(1, KERN_NOTICE,
+ 			"crypt_stats->iv_bytes = [%d]\n",
+@@ -617,8 +751,9 @@
+ 		ClearPageUptodate(page);
+ 		goto out;
+ 	}
+-
+-	record_byte_offset = RECORD_IDX(crypt_stats, page->index) * record_size;
++	/* TODO: HMAC: Include HMAC bytes in the record size */
++	record_byte_offset = (RECORD_IDX(crypt_stats, page->index) 
++			      * crypt_stats->iv_bytes);
+ 	iv_byte_offset = -1;
+ 	if (crypt_stats->encrypted) {
+ 		iv_byte_offset = record_byte_offset;
+@@ -721,37 +856,6 @@
+ }
+ 
+ /**
+- * @return Zero on success; negative on error
+- */
+-static int encrypt_page(struct ecryptfs_crypt_stats *crypt_stats,
+-			struct page *page, struct page *lower_page, char *iv)
+-{
+-	int rc = 0;
+-	ecryptfs_printk(1, KERN_NOTICE, "Calling do_encrypt_page()\n");
+-	if (iv) {
+-		ecryptfs_printk(1, KERN_NOTICE, "Encrypting page with iv:\n");
+-		if (ecryptfs_verbosity > 0) {
+-			ecryptfs_dump_hex(iv, crypt_stats->iv_bytes);
+-		}
+-	}
+-	ecryptfs_printk(1, KERN_NOTICE, "First 8 bytes before "
+-			"encryption:\n");
+-	if (ecryptfs_verbosity > 0) {
+-		ecryptfs_dump_hex((char *)page_address(page), 8);
+-	}
+-	rc = do_encrypt_page_offset(crypt_stats, lower_page, 0,
+-				    page, 0, crypt_stats->extent_size, iv);
+-	ecryptfs_printk(1, KERN_NOTICE, "Encrypted [%d] bytes\n", rc);
+-	ecryptfs_printk(1, KERN_NOTICE, "First 8 bytes after " "encryption:\n");
+-	if (ecryptfs_verbosity > 0) {
+-		ecryptfs_dump_hex((char *)page_address(lower_page), 8);
+-	}
+-	if (rc > 0)
+-		rc = 0;
+-	return rc;
+-}
+-
+-/**
+  * This is where we encrypt the data and pass the encrypted data to
+  * the lower filesystem.  In OpenPGP-compatible mode, we operate on
+  * entire underlying packets.
+@@ -774,9 +878,9 @@
+ 	unsigned bytes = to - from;
+ 	struct ecryptfs_crypt_stats *crypt_stats;
+ 	pgoff_t lower_page_index;
+-	struct page *records_page;
+ 	struct address_space_operations *lower_a_ops;
+ 	struct dentry *ecryptfs_dentry;
++
+ 	ecryptfs_printk(1, KERN_NOTICE,
+ 			"Enter; page->index = [%lu]; from = [%d]; to = [%d]\n",
+ 			page->index, from, to);
+@@ -875,73 +979,29 @@
+ 		       (char *)page_address(page), crypt_stats->extent_size);
+ 	} else {
+ 		/* The file is either encrypted or HMAC'd */
+-		pgoff_t records_page_index;
+-		int record_byte_offset = -1;
+-		int iv_byte_offset = -1;
+-		char *records_virt;
+ 		char iv[ECRYPTFS_MAX_IV_BYTES];
+-		int record_size;
++		int record_byte_offset;
+ 		ecryptfs_printk(1, KERN_NOTICE,
+ 				"crypt_stats->iv_bytes = [%d]\n",
+ 				crypt_stats->iv_bytes);
+-		ecryptfs_printk(1, KERN_NOTICE,
+-				"crypt_stats->records_per_page = [%d]\n",
+-				crypt_stats->records_per_page);
+-		record_size = crypt_stats->iv_bytes;
+-		records_page_index =
+-			LAST_RECORDS_PAGE_IDX(crypt_stats, page->index);
+-		ecryptfs_printk(1, KERN_NOTICE, "records_page_index = [%lu]\n",
+-				records_page_index);
+-		records_page = grab_cache_page(lower_inode->i_mapping,
+-					       records_page_index);
+-		if (!records_page) {
+-			ecryptfs_printk(0, KERN_ERR, "records_page == NULL "
+-					"after grab_cache_page at index [%lu]"
+-					"\n", records_page_index);
+-			rc = -EIO;
++		/* TODO: HMAC: Include HMAC bytes in the record size */	
++		record_byte_offset = (RECORD_IDX(crypt_stats, page->index) 
++				      * crypt_stats->iv_bytes);
++		rc = ecryptfs_read_rotate_write_iv(iv, inode, 
++						   record_byte_offset, 
++						   lower_file, page);
++		if (rc) {
++			ecryptfs_printk(0, KERN_ERR, "Error rotating IV\n");
+ 			goto out_unlock_lower;
+ 		}
+-		iv_byte_offset = -1;
+-		record_byte_offset =
+-		    RECORD_IDX(crypt_stats, page->index) * record_size;
+-		if (crypt_stats->encrypted) {
+-			iv_byte_offset = record_byte_offset;
+-		}
+-		ecryptfs_printk(1, KERN_NOTICE, "iv_byte_offset = [%d]\n",
+-				iv_byte_offset);
+-		records_virt = kmap(records_page);
+-		rc = lower_a_ops->prepare_write(lower_file, records_page,
+-						iv_byte_offset,
+-						iv_byte_offset
+-						+ crypt_stats->iv_bytes);
+-		down(&crypt_stats->iv_sem);
+-		ecryptfs_rotate_iv(crypt_stats->iv);
+-		memcpy(iv, crypt_stats->iv, crypt_stats->iv_bytes);
+-		up(&crypt_stats->iv_sem);
+-		memcpy(records_virt + iv_byte_offset, crypt_stats->iv,
+-		       crypt_stats->iv_bytes);
+-		rc = lower_a_ops->commit_write(lower_file, records_page,
+-					       iv_byte_offset,
+-					       iv_byte_offset +
+-					       crypt_stats->iv_bytes);
+-		kunmap(records_page);
+-		lower_inode->i_mtime = lower_inode->i_ctime = CURRENT_TIME;
+-		mark_inode_dirty_sync(inode);
+-		ecryptfs_printk(1, KERN_NOTICE, "Unlocking page with index = "
+-				"[%lu]\n", records_page->index);
+-		unlock_page(records_page);
+-		page_cache_release(records_page);
+-		ecryptfs_printk(1, KERN_NOTICE, "After committing IV write, "
+-				"lower_inode->i_blocks = [%lu]\n",
+-				lower_inode->i_blocks);
+ 		ecryptfs_printk(1, KERN_NOTICE, "Encrypting page with iv:\n");
+-		if (ecryptfs_verbosity > 0) {
++		if (unlikely(ecryptfs_verbosity > 0))
+ 			ecryptfs_dump_hex(iv, crypt_stats->iv_bytes);
+-		}
+ 		rc = encrypt_page(crypt_stats, page, lower_page, iv);
+ 		if (rc) {
+ 			ecryptfs_printk(0, KERN_WARNING, "Error encrypting "
+-					"page\n");
++					"page (upper index [%llu])\n", 
++					page->index);
+ 			goto out;
+ 		}
+ 	}
+Index: linux-2.6.14-rc5-ecryptfs/fs/ecryptfs/ecryptfs_kernel.h
+===================================================================
+--- linux-2.6.14-rc5-ecryptfs.orig/fs/ecryptfs/ecryptfs_kernel.h	2005-11-03 15:36:39.000000000 -0600
++++ linux-2.6.14-rc5-ecryptfs/fs/ecryptfs/ecryptfs_kernel.h	2005-11-07 13:37:31.000000000 -0600
+@@ -173,9 +173,6 @@
+         ((idx / crypt_stats->records_per_page) + idx \
+          + crypt_stats->num_header_pages + 1)
+ #define RECORD_IDX(crypt_stats, idx) (idx % crypt_stats->records_per_page)
+-#define RECORD_OFFSET(crypt_stats, idx) \
+-        (RECORD_IDX(crypt_stats, idx) * (crypt_stats->iv_bytes \
+-                                         + crypt_stats->hmac_bytes))
+ #define LAST_RECORDS_PAGE_IDX(crypt_stats, idx) \
+         (PG_IDX_TO_LWR_PG_IDX(crypt_stats, idx) \
+          - RECORD_IDX(crypt_stats,idx) - 1)

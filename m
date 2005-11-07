@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964875AbVKGRC4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbVKGRFx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964875AbVKGRC4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 12:02:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbVKGRC4
+	id S932285AbVKGRFx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 12:05:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbVKGRFw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 12:02:56 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:39137 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964875AbVKGRCz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 12:02:55 -0500
-Date: Mon, 7 Nov 2005 17:02:53 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+	Mon, 7 Nov 2005 12:05:52 -0500
+Received: from smtp11.wanadoo.fr ([193.252.22.31]:52853 "EHLO
+	smtp11.wanadoo.fr") by vger.kernel.org with ESMTP id S932285AbVKGRFw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 12:05:52 -0500
+X-ME-UUID: 20051107170550947.E75FE1C000A7@mwinf1108.wanadoo.fr
+Subject: Re: [ANNOUNCE] Ubuntu kernel tree
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Daniel Drake <dsd@gentoo.org>, Ben Collins <bcollins@ubuntu.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14-mm1
-Message-ID: <20051107170253.GA17785@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20051106182447.5f571a46.akpm@osdl.org> <20051107033009.GB12192@infradead.org> <Pine.LNX.4.61.0511071315530.1387@scrub.home>
+In-Reply-To: <1131383311.11265.22.camel@localhost.localdomain>
+References: <20051106013752.GA13368@swissdisk.com>
+	 <436E17CA.3060803@gentoo.org>
+	 <1131316729.1212.58.camel@localhost.localdomain>
+	 <436F81D1.7000100@gentoo.org>
+	 <1131383311.11265.22.camel@localhost.localdomain>
+Content-Type: text/plain
+Message-Id: <1131383144.2477.9.camel@capoeira>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0511071315530.1387@scrub.home>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Mon, 07 Nov 2005 18:05:44 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 07, 2005 at 01:18:26PM +0100, Roman Zippel wrote:
-> Hi,
+On Mon, 2005-11-07 at 18:08, Alan Cox wrote:
+> On Llu, 2005-11-07 at 16:33 +0000, Daniel Drake wrote:
+> > Source RPM's will just contain a Linux kernel tree with your patches already 
+> > applied, right?
 > 
-> On Mon, 7 Nov 2005, Christoph Hellwig wrote:
-> 
-> > gosh.  Can we please get one of the patches to allow m68k in mainline
-> > merged?  roman has been blocking these since 2.6.13 at least.  Alternatively
-> > just kill m68k from mainline due to lack of active maintainer.
-> 
-> It's not a problem on my part, Al is constantly vetoing these patches.
-> I'm not taking this blame. :-(
+> Of course not. Its an rpm file. RPM files contain a set of broken out
+> patches and base tar ball plus controlling rules for application. It's
+> rather more advanced than .deb sources.
 
-You've threatened all kinds of nasty things in case Al's perfectly reasonable
-patchkit goes in.  That's certainly what I would call blocking.  Your patch
-split has clear disadvantages over the original ones, but I don't really
-care which one we get as long as we get this bullshit sorted out.
+That's a troll, Alan. .deb contain exactely the same things.
+
+	Xav
+
 

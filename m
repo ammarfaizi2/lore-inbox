@@ -1,71 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964980AbVKGTEh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965083AbVKGTHe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964980AbVKGTEh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 14:04:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964991AbVKGTEh
+	id S965083AbVKGTHe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 14:07:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965271AbVKGTHd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 14:04:37 -0500
-Received: from xenotime.net ([66.160.160.81]:56736 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S964990AbVKGTEg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 14:04:36 -0500
-Date: Mon, 7 Nov 2005 11:04:29 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: linas <linas@austin.ibm.com>
-cc: Greg KH <greg@kroah.com>, Paul Mackerras <paulus@samba.org>,
-       linuxppc64-dev@ozlabs.org, johnrose@austin.ibm.com,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       bluesmoke-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: typedefs and structs [was Re: [PATCH 16/42]: PCI:  PCI Error
- reporting callbacks]
-In-Reply-To: <20051107185621.GD19593@austin.ibm.com>
-Message-ID: <Pine.LNX.4.58.0511071059320.8922@shark.he.net>
-References: <20051103235918.GA25616@mail.gnucash.org> <20051104005035.GA26929@mail.gnucash.org>
- <20051105061114.GA27016@kroah.com> <17262.37107.857718.184055@cargo.ozlabs.ibm.com>
- <20051107175541.GB19593@austin.ibm.com> <20051107182727.GD18861@kroah.com>
- <20051107185621.GD19593@austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 7 Nov 2005 14:07:33 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:63443 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965267AbVKGTHb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 14:07:31 -0500
+Subject: Re: 2.6 series kernels panic on boot at PCI probe with 450nx
+From: Arjan van de Ven <arjan@infradead.org>
+To: Greg KH <greg@kroah.com>
+Cc: Frank Overton <frank@discoverycenters.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051107182206.GB18861@kroah.com>
+References: <436BF7BB.9070900@discoverycenters.org>
+	 <20051105043056.GA25501@kroah.com>
+	 <1131384430.26641.31.camel@coco.overtonshome.net>
+	 <20051107182206.GB18861@kroah.com>
+Content-Type: text/plain
+Date: Mon, 07 Nov 2005 20:07:20 +0100
+Message-Id: <1131390441.2858.26.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Nov 2005, linas wrote:
 
-> On Mon, Nov 07, 2005 at 10:27:27AM -0800, Greg KH was heard to remark:
-> >
-> > 3) realy strong typing that sparse can detect.
->
-> Am compiling now.
->
-> > enums don't really work, as you can get away with using an integer and
-> > the compiler will never complain.  Please use a typedef (yeah, I said
-> > typedef) in the way that sparse will catch any bad users of the code.
->
-> How about typedef'ing  structs?
 
-No no no.  (I feel sure that you will get plenty of responses.)
+> Ugh, I really wish I knew which ddevice acpi was trying to add here.  It
+> looks like it is addding 2 pci busses with the same address, which would
+> be very odd.
 
-> I'm not to clear on what "sparse" can do; however, in the good old days,
-> gcc allowed you to commit great sins when passing "struct blah *" to
-> subroutines, whereas it stoped you cold if you tried the same trick
-> with a typedef'ed "blah_t *".  This got me into the habit of turning
-> all structs into typedefs in my personal projects.  Can we expect
-> something similar for the kernel, and in particular, should we start
-> typedefing structs now?
+known bios bug in early 450nx bioses...
+bios upgrade usually fixes that.
 
-No no no.
-
-> (Documentation/CodingStyle doesn't mention typedef at all).
-
-We can submit patches for that.
-
-Basically (generally) we never want a struct to be typedef-ed.
-(There may be a couple of exceptions to this.)
-
-We do allow a very few basic types to be typedef-ed, as long as
-the basic type (e.g., pid_t) is also a C language basic type or
-the typedef is useful for strong type checking.
-
--- 
-~Randy

@@ -1,42 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964775AbVKGPUO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964823AbVKGPUz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964775AbVKGPUO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 10:20:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbVKGPUN
+	id S964823AbVKGPUz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 10:20:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964829AbVKGPUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 10:20:13 -0500
-Received: from bbned23-32-100.dsl.hccnet.nl ([80.100.32.23]:33033 "EHLO
-	mail.vanvergehaald.nl") by vger.kernel.org with ESMTP
-	id S964775AbVKGPUM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 10:20:12 -0500
-Date: Mon, 7 Nov 2005 16:20:09 +0100
-From: Toon van der Pas <toon@hout.vanvergehaald.nl>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 3D video card recommendations
-Message-ID: <20051107152009.GA20807@shuttle.vanvergehaald.nl>
-References: <1131112605.14381.34.camel@localhost.localdomain> <1131349343.2858.11.camel@laptopd505.fenrus.org> <1131367371.14381.91.camel@localhost.localdomain>
+	Mon, 7 Nov 2005 10:20:55 -0500
+Received: from smtp3.pp.htv.fi ([213.243.153.36]:10705 "EHLO smtp3.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S964823AbVKGPUy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 10:20:54 -0500
+Date: Mon, 7 Nov 2005 17:20:53 +0200
+From: Paul Mundt <lethal@linux-sh.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Shut up per_cpu_ptr() on UP
+Message-ID: <20051107152053.GB29899@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="LpQ9ahxlCli8rRTG"
 Content-Disposition: inline
-In-Reply-To: <1131367371.14381.91.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.8i
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 07, 2005 at 07:42:51AM -0500, Steven Rostedt wrote:
-> On Mon, 2005-11-07 at 08:42 +0100, Arjan van de Ven wrote:
-> 
-> > 5) The vendor goes out of business and thus stops updating the driver
-> 
-> MS folks would have the same problem.
 
-...which proves the point Arjan is making.
+--LpQ9ahxlCli8rRTG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-For one, I have an ISDN-adapter which doesn't work with any version of
-MS-Windows from this millennium (no drivers available), while it's still
-working great on current Linux kernels.
+Currently per_cpu_ptr() doesn't really do anything with 'cpu' in the UP
+case. This is problematic in the cases where this is the only place the
+variable is referenced:
 
-Regards,
-Toon.
+  CC      kernel/workqueue.o
+  kernel/workqueue.c: In function `current_is_keventd':
+  kernel/workqueue.c:460: warning: unused variable `cpu'
+
+How about something like this?
+
+diff --git a/include/linux/percpu.h b/include/linux/percpu.h
+index 5451eb1..fb8d2d2 100644
+--- a/include/linux/percpu.h
++++ b/include/linux/percpu.h
+@@ -38,7 +38,7 @@ extern void free_percpu(const void *);
+=20
+ #else /* CONFIG_SMP */
+=20
+-#define per_cpu_ptr(ptr, cpu) (ptr)
++#define per_cpu_ptr(ptr, cpu) ({ (void)(cpu); (ptr); })
+=20
+ static inline void *__alloc_percpu(size_t size, size_t align)
+ {
+
+--LpQ9ahxlCli8rRTG
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDb3DV1K+teJFxZ9wRAqYyAJ96aQ4mknpXjjumGNE6tR3wAAArZgCggpsS
+gVb6mY84Qptj4jAQuLn90KI=
+=xnw5
+-----END PGP SIGNATURE-----
+
+--LpQ9ahxlCli8rRTG--

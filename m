@@ -1,53 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbVKGFhG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964781AbVKGFnW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964776AbVKGFhG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 00:37:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964777AbVKGFhF
+	id S964781AbVKGFnW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 00:43:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbVKGFnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 00:37:05 -0500
-Received: from THUNK.ORG ([69.25.196.29]:53414 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S964776AbVKGFhE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 00:37:04 -0500
-Date: Mon, 7 Nov 2005 00:36:49 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: udev on 2.6.14 fails to create /dev/input/event2 on T40 Thinkpad
-Message-ID: <20051107053648.GA7521@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>, Greg KH <greg@kroah.com>,
-	linux-kernel@vger.kernel.org
-References: <E1EYdMs-0001hI-3F@think.thunk.org> <20051106203421.GB2527@kroah.com>
+	Mon, 7 Nov 2005 00:43:22 -0500
+Received: from fed1rmmtao08.cox.net ([68.230.241.31]:22483 "EHLO
+	fed1rmmtao08.cox.net") by vger.kernel.org with ESMTP
+	id S964778AbVKGFnV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 00:43:21 -0500
+From: Junio C Hamano <junkio@cox.net>
+To: git@vger.kernel.org
+Subject: GIT 0.99.9e
+cc: linux-kernel@vger.kernel.org
+Date: Sun, 06 Nov 2005 21:43:19 -0800
+Message-ID: <7v64r5t3m0.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051106203421.GB2527@kroah.com>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 06, 2005 at 12:34:21PM -0800, Greg KH wrote:
-> On Sun, Nov 06, 2005 at 12:47:02AM -0500, Theodore Ts'o wrote:
-> > +P: /class/input/input3/event3
-> 
-> No, this shows a post-2.6.14 kernel, not 2.6.14 as what is located on
-> kernel.org, right?  I'm guessing 2.6.14-git1?  Or is this a distro based
-> kernel?
-> 
-> If so, you need to upgrade udev, as the Documentation says to :)
-> 
-> If not, and this is 2.6.14, something is very wrong...
+GIT 0.99.9e maintenance release is found at the usual places:
 
-Yes, sorry, I got confused about which tree I had booting; this was
-indeed a post-2.6.14 kernel (pulled using hg).
+RPM, tarballs, and deb:
 
-Documentation/changes at the tip as of tonight still says use "udev
-version 071", which is what I have installed.  I note that the latest
-version on kernel.org is udev 072 --- is that what is going to be
-required for 2.6.15?  If so, better warn folks at distro's like Debian
-unstable.  If not, what do I need to change so I can easily test post
-2.6.14 kernels --- and where was it documented that I needed a newer
-version of udev?
+	http://www.kernel.org/pub/software/scm/git/
 
-						- Ted
+With git, fetch maint branch from
+
+	git://git.kernel.org/pub/scm/git/git.git/
+
+It contains everything from the master branch.  Since we seem to
+be shelving the separate git binary directory idea indefinitely,
+what we have here is pretty much what will be in 1.0, from the
+source code POV.
+
+ - http-push seems to still have a bug or two but that is to be
+   expected for any new code, and I am reasonably sure it can be
+   ironed out; preferably before 1.0 but it is not a
+   showstopper.
+
+ - I've done the initial round of package splitting for Debian
+   side myself, but it probably needs proofreading and fixing by
+   experienced Debian person.  Similar RPM package splitting
+   that parallels the above is needed.  Although it is not an
+   absolute requirement for my sources to have perfect binary
+   packaging support (I am just an upstream for binary
+   packagers), it is certainly desirable to have RPM specs and
+   debian/ files in a presentable shape for 1.0.
+
+ - I still need to go over the tutorial and core-ish
+   documentation once for consistency checks.
+
+
+Changes since 0.99.9d are:
+
+    Johannes Schindelin:
+      Allow GIT_DIR to be an absolute path
+      http-fetch: do not use curl_message after releasing it
+
+    Jon Loeliger:
+      Refactor merge strategies into separate includable file.
+
+    Junio C Hamano:
+      test: t4102-apply-rename fails with strict umask (Peter Baumann).
+      git-format-patch: silly typo fix.
+      Documentation: pull/clone ref mapping clarification (Josef Weidendorfer).
+      git-fetch: fail if specified refspec does not match remote.
+      Simplify CFLAGS/DEFINES in Makefile
+      Package split: Debian.
+      Install asciidoc sources as well.
+      Further Debian split fixes.
+      Debian: test build.
+      Merge in http-push first stage.
+      Document expat dependency when using http-push.
+      ls-files: --others should not say unmerged paths are unknown.
+      git-status: do not mark unmerged paths as committable.
+      Set up remotes/origin to track all remote branches.
+
+    Nick Hengeveld:
+      Add support for pushing to a remote repository using HTTP/DAV
+      Verify remote packs, speed up pending request queue
+      Support remote references with slashes in their names
+      Improve lock handling
+      Refresh the remote lock if it is about to expire
+
+    Paul Collins:
+      http-push.c: include with angle bracket, not dq.
+
+    Randal L. Schwartz:
+      Use fink/darwinport paths for OSX
+
+
 

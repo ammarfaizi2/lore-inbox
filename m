@@ -1,188 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbVKGDRS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbVKGDTR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932435AbVKGDRS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Nov 2005 22:17:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbVKGDQv
+	id S932436AbVKGDTR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Nov 2005 22:19:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbVKGDSq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Nov 2005 22:16:51 -0500
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:59218 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932427AbVKGDQg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Nov 2005 22:16:36 -0500
+	Sun, 6 Nov 2005 22:18:46 -0500
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:26242 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932436AbVKGDSG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Nov 2005 22:18:06 -0500
 From: mchehab@brturbo.com.br
 To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, video4linux-list@redhat.com, Pavel Mihaylov <bin@bash.info>
-Subject: [Patch 06/20] V4L(906) Remote and more info for pctv cardbus
-	whitespace cleanup
-Date: Mon, 07 Nov 2005 00:58:07 -0200
-Message-Id: <1131333341.25215.14.camel@localhost>
+Cc: akpm@osdl.org, video4linux-list@redhat.com,
+       Ricardo Cerqueira <v4l@cerqueira.org>
+Subject: [Patch 11/20] V4L(913) Saa713x cards with i2c remotes now autoload
+	ir kbd i2c
+Date: Mon, 07 Nov 2005 00:58:09 -0200
+Message-Id: <1131333341.25215.26.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.1-2mdk 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Pavel Mihaylov <bin@bash.info>
+From: Ricardo Cerqueira <v4l@cerqueira.org>
 
-- Remote and more info for PCTV Cardbus. Whitespace cleanup.
+- SAA713x cards with i2c remotes now autoload ir-kbd-i2c
+(disable_ir works, as it does for GPIO remotes)
 
-Signed-off-by: Pavel Mihaylov <bin@bash.info>
-Signed-off-by: Nickolay V. Shmyrev <nshmyrev@yandex.ru>
+Signed-off-by: Ricardo Cerqueira <v4l@cerqueira.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
 
 -----------------
 
- Documentation/video4linux/CARDLIST.saa7134  |    1 
- drivers/media/video/saa7134/saa7134-cards.c |   23 ++++++++++++---
- drivers/media/video/saa7134/saa7134-dvb.c   |    8 ++---
- drivers/media/video/saa7134/saa7134-input.c |   42 ++++++++++++++++++++++++++++
- 4 files changed, 66 insertions(+), 8 deletions(-)
+ drivers/media/video/saa7134/saa7134-cards.c |    9 +++++++--
+ drivers/media/video/saa7134/saa7134-core.c  |    4 +++-
+ drivers/media/video/saa7134/saa7134-input.c |    3 ++-
+ drivers/media/video/saa7134/saa7134.h       |    6 ++++++
+ 4 files changed, 18 insertions(+), 4 deletions(-)
 
---- hg.orig/Documentation/video4linux/CARDLIST.saa7134
-+++ hg/Documentation/video4linux/CARDLIST.saa7134
-@@ -79,3 +79,4 @@
-  78 -> ASUSTeK P7131 Dual                       [1043:4862]
-  79 -> PCTV Cardbus TV/Radio (ITO25 Rev:2B)
-  80 -> ASUS Digimatrix TV                       [1043:0210]
-+ 81 -> Philips Tiger reference design           [1131:2018]
 --- hg.orig/drivers/media/video/saa7134/saa7134-cards.c
 +++ hg/drivers/media/video/saa7134/saa7134-cards.c
-@@ -2453,18 +2453,33 @@ struct saa7134_board saa7134_boards[] = 
- 	},
- 	[SAA7134_BOARD_PCTV_CARDBUS] = {
- 		/* Paul Tom Zalac <pzalac@gmail.com> */
--		/* tda8275a tuner doesnt work yet */
-+		/* Pavel Mihaylov <bin@bash.info> */
- 		.name           = "PCTV Cardbus TV/Radio (ITO25 Rev:2B)",
-+				/* Sedna Cardbus TV Tuner */
- 		.audio_clock    = 0x00187de7,
--		.tuner_type     = TUNER_ABSENT,
-+		.tuner_type     = TUNER_PHILIPS_TDA8290,
- 		.radio_type     = UNSET,
- 		.tuner_addr     = ADDR_UNSET,
- 		.radio_addr     = ADDR_UNSET,
-+		.gpiomask       = 0xe880c0,
- 		.inputs         = {{
-+			.name = name_tv,
-+			.vmux = 3,
-+			.amux = TV,
-+			.tv   = 1,
-+		},{
- 			.name = name_comp1,
- 			.vmux = 1,
--			.amux = LINE2,
-+			.amux = LINE1,
-+		},{
-+			.name = name_svideo,
-+			.vmux = 6,
-+			.amux = LINE1,
- 		}},
-+		.radio = {
-+			.name = name_radio,
-+			.amux = LINE2,
-+		},
- 	},
- 	[SAA7134_BOARD_ASUSTEK_DIGIMATRIX_TV] = {
- 		/* "Cyril Lacoux (Yack)" <clacoux@ifeelgood.org> */
-@@ -2942,7 +2957,7 @@ struct pci_device_id saa7134_pci_tbl[] =
- 		.subvendor    = 0x1043,
- 		.subdevice    = 0x4862,
- 		.driver_data  = SAA7134_BOARD_ASUSTeK_P7131_DUAL,
-- 	},{
-+	},{
- 		.vendor       = PCI_VENDOR_ID_PHILIPS,
- 		.device       = PCI_DEVICE_ID_PHILIPS_SAA7133,
- 		.subvendor    = PCI_VENDOR_ID_PHILIPS,
---- hg.orig/drivers/media/video/saa7134/saa7134-dvb.c
-+++ hg/drivers/media/video/saa7134/saa7134-dvb.c
-@@ -667,7 +667,7 @@ static struct tda827xa_data tda827xa_dvb
- 	{ .lomax = 911000000, .svco = 3, .spd = 0, .scr = 2, .sbs = 4, .gc3 = 0},
- 	{ .lomax =         0, .svco = 0, .spd = 0, .scr = 0, .sbs = 0, .gc3 = 0}};
+@@ -3038,7 +3038,7 @@ int saa7134_board_init1(struct saa7134_d
+ 	switch (dev->board) {
+ 	case SAA7134_BOARD_FLYVIDEO2000:
+ 	case SAA7134_BOARD_FLYVIDEO3000:
+-		dev->has_remote = 1;
++		dev->has_remote = SAA7134_REMOTE_GPIO;
+ 		board_flyvideo(dev);
+ 		break;
+ 	case SAA7134_BOARD_FLYTVPLATINUM_MINI2:
+@@ -3068,7 +3068,7 @@ int saa7134_board_init1(struct saa7134_d
+ 	case SAA7134_BOARD_GOTVIEW_7135:
+ 	case SAA7134_BOARD_KWORLD_TERMINATOR:
+ 	case SAA7134_BOARD_PCTV_CARDBUS:
+-		dev->has_remote = 1;
++		dev->has_remote = SAA7134_REMOTE_GPIO;
+ 		break;
+ 	case SAA7134_BOARD_MD5044:
+ 		printk("%s: seems there are two different versions of the MD5044\n"
+@@ -3108,6 +3108,11 @@ int saa7134_board_init1(struct saa7134_d
  
--			
-+
- static int philips_tda827xa_pll_set(u8 addr, struct dvb_frontend *fe, struct dvb_frontend_parameters *params)
- {
- 	struct saa7134_dev *dev = fe->dvb->priv;
-@@ -677,7 +677,7 @@ static int philips_tda827xa_pll_set(u8 a
- 	struct i2c_msg msg = {.addr = addr,.flags = 0,.buf = tuner_buf};
- 	int i, tuner_freq, if_freq;
- 	u32 N;
--	
-+
- 	switch (params->u.ofdm.bandwidth) {
- 	case BANDWIDTH_6_MHZ:
- 		if_freq = 4000000;
-@@ -749,9 +749,9 @@ static void philips_tda827xa_pll_sleep(u
- 	struct saa7134_dev *dev = fe->dvb->priv;
- 	static u8 tda827xa_sleep[] = { 0x30, 0x90};
- 	struct i2c_msg tuner_msg = {.addr = addr,.flags = 0,.buf = tda827xa_sleep,
--	                            .len = sizeof(tda827xa_sleep) };
-+		                    .len = sizeof(tda827xa_sleep) };
- 	i2c_transfer(&dev->i2c_adap, &tuner_msg, 1);
--	
-+
+ 		saa_writeb (SAA7134_PRODUCTION_TEST_MODE, 0x00);
+ 		break;
++	/* i2c remotes */
++	case SAA7134_BOARD_PINNACLE_PCTV_110i:
++	case SAA7134_BOARD_UPMOST_PURPLE_TV:
++		dev->has_remote = SAA7134_REMOTE_I2C;
++		break;
+ 	}
+ 	return 0;
  }
+--- hg.orig/drivers/media/video/saa7134/saa7134-core.c
++++ hg/drivers/media/video/saa7134/saa7134-core.c
+@@ -712,10 +712,12 @@ static int saa7134_hwinit2(struct saa713
+ 		SAA7134_IRQ2_INTE_PE      |
+ 		SAA7134_IRQ2_INTE_AR;
  
- /* ------------------------------------------------------------------ */
+-	if (dev->has_remote)
++	if (dev->has_remote == SAA7134_REMOTE_GPIO)
+ 		irq2_mask |= (SAA7134_IRQ2_INTE_GPIO18  |
+ 			      SAA7134_IRQ2_INTE_GPIO18A |
+ 			      SAA7134_IRQ2_INTE_GPIO16  );
++	else if (dev->has_remote == SAA7134_REMOTE_I2C)
++		request_module("ir-kbd-i2c");
+ 
+ 	saa_writel(SAA7134_IRQ1, 0);
+ 	saa_writel(SAA7134_IRQ2, irq2_mask);
+--- hg.orig/drivers/media/video/saa7134/saa7134.h
++++ hg/drivers/media/video/saa7134/saa7134.h
+@@ -213,6 +213,12 @@ struct saa7134_format {
+ #define SAA7134_INPUT_MAX 8
+ 
+ /* ----------------------------------------------------------- */
++/* Since we support 2 remote types, lets tell them apart       */
++
++#define SAA7134_REMOTE_GPIO  1
++#define SAA7134_REMOTE_I2C   2
++
++/* ----------------------------------------------------------- */
+ /* Video Output Port Register Initialization Options           */
+ 
+ #define SET_T_CODE_POLARITY_NON_INVERTED	(1 << 0)
 --- hg.orig/drivers/media/video/saa7134/saa7134-input.c
 +++ hg/drivers/media/video/saa7134/saa7134-input.c
-@@ -543,6 +543,42 @@ static IR_KEYTAB_TYPE ir_codes_pinnacle[
- 	[ 0x0a ] = KEY_BACKSPACE,
- };
+@@ -716,7 +716,7 @@ int saa7134_input_init1(struct saa7134_d
+ 	int polling      = 0;
+ 	int ir_type      = IR_TYPE_OTHER;
  
-+/* Mapping for the 28 key remote control as seen at
-+   http://www.sednacomputer.com/photo/cardbus-tv.jpg
-+   Pavel Mihaylov <bin@bash.info> */
-+static IR_KEYTAB_TYPE pctv_cardbus_codes[IR_KEYTAB_SIZE] = {
-+	[    0 ] = KEY_KP0,
-+	[    1 ] = KEY_KP1,
-+	[    2 ] = KEY_KP2,
-+	[    3 ] = KEY_KP3,
-+	[    4 ] = KEY_KP4,
-+	[    5 ] = KEY_KP5,
-+	[    6 ] = KEY_KP6,
-+	[    7 ] = KEY_KP7,
-+	[    8 ] = KEY_KP8,
-+	[    9 ] = KEY_KP9,
-+
-+	[ 0x0a ] = KEY_AGAIN,          /* Recall */
-+	[ 0x0b ] = KEY_CHANNELUP,
-+	[ 0x0c ] = KEY_VOLUMEUP,
-+	[ 0x0d ] = KEY_MODE,           /* Stereo */
-+	[ 0x0e ] = KEY_STOP,
-+	[ 0x0f ] = KEY_PREVIOUSSONG,
-+	[ 0x10 ] = KEY_ZOOM,
-+	[ 0x11 ] = KEY_TUNER,          /* Source */
-+	[ 0x12 ] = KEY_POWER,
-+	[ 0x13 ] = KEY_MUTE,
-+	[ 0x15 ] = KEY_CHANNELDOWN,
-+	[ 0x18 ] = KEY_VOLUMEDOWN,
-+	[ 0x19 ] = KEY_SHUFFLE,        /* Snapshot */
-+	[ 0x1a ] = KEY_NEXTSONG,
-+	[ 0x1b ] = KEY_TEXT,           /* Time Shift */
-+	[ 0x1c ] = KEY_RADIO,          /* FM Radio */
-+	[ 0x1d ] = KEY_RECORD,
-+	[ 0x1e ] = KEY_PAUSE,
-+};
-+
-+
- /* -------------------- GPIO generic keycode builder -------------------- */
- 
- static int build_key(struct saa7134_dev *dev)
-@@ -745,6 +781,12 @@ int saa7134_input_init1(struct saa7134_d
- 		mask_keyup   = 0x004000;
- 		polling      = 50; // ms
- 		break;
-+	case SAA7134_BOARD_PCTV_CARDBUS:
-+		ir_codes     = pctv_cardbus_codes;
-+		mask_keycode = 0x001f00;
-+		mask_keyup   = 0x004000;
-+		polling      = 50; // ms
-+		break;
- 	case SAA7134_BOARD_GOTVIEW_7135:
- 		ir_codes     = gotview7135_codes;
- 		mask_keycode = 0x0003EC;
+-	if (!dev->has_remote)
++	if (dev->has_remote != SAA7134_REMOTE_GPIO)
+ 		return -ENODEV;
+ 	if (disable_ir)
+ 		return -ENODEV;
+@@ -877,6 +877,7 @@ void saa7134_input_fini(struct saa7134_d
+ void saa7134_set_i2c_ir(struct saa7134_dev *dev, struct IR_i2c *ir)
+ {
+ 	if (disable_ir) {
++		dprintk("Found supported i2c remote, but IR has been disabled\n");
+ 		ir->get_key=NULL;
+ 		return;
+ 	}
 
 
 	

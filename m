@@ -1,40 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbVKGQdX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbVKGQeo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964835AbVKGQdX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 11:33:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964860AbVKGQdX
+	id S964865AbVKGQeo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 11:34:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964867AbVKGQeo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 11:33:23 -0500
-Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:53875 "EHLO
-	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S964835AbVKGQdW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 11:33:22 -0500
-Message-ID: <436F81D1.7000100@gentoo.org>
-Date: Mon, 07 Nov 2005 16:33:21 +0000
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051104)
-X-Accept-Language: en-us, en
+	Mon, 7 Nov 2005 11:34:44 -0500
+Received: from host27-37.discord.birch.net ([65.16.27.37]:26568 "EHLO
+	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
+	id S964865AbVKGQen (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 11:34:43 -0500
+From: "Roger Heflin" <rheflin@atipa.com>
+To: "'Steven Timm'" <timm@fnal.gov>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: rpc-srv/tcp: nfsd: sent only -107 bytes (fwd)
+Date: Mon, 7 Nov 2005 10:41:35 -0600
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Ben Collins <bcollins@ubuntu.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Ubuntu kernel tree
-References: <20051106013752.GA13368@swissdisk.com>	 <436E17CA.3060803@gentoo.org> <1131316729.1212.58.camel@localhost.localdomain>
-In-Reply-To: <1131316729.1212.58.camel@localhost.localdomain>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Thread-Index: AcXjs5biNjhbUlf3T4y18AtpFjMxTAAAt7mQ
+In-Reply-To: <Pine.LNX.4.62.0511070943420.6791@snowball.fnal.gov>
+Message-ID: <EXCHG2003J6sJ9amqkh000005bf@EXCHG2003.microtech-ks.com>
+X-OriginalArrivalTime: 07 Nov 2005 16:29:43.0254 (UTC) FILETIME=[755E7760:01C5E3B8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> The FC kernel trees rpms and source rpms are distributed from the fedora
-> site. 'Production' kernels go to the updates directory, others which are
-> intended for testing go to the update testing directory and may or may
-> not work wonderfully.
+ 
 
-Source RPM's will just contain a Linux kernel tree with your patches already 
-applied, right?
+> > What kernel are you running?  I saw this issue on the 2.4 
+> series, the 
+> > large 2.6 things we have built avoided using TCP given that we had 
+> > seen this issue.
+> 
+> Currently running 2.4.21-32.0.1 as put out by RedHat with XFS 
+> file system patches.  will upgrade to 2.4.21-37 later this week.
 
-Is there an easier way to see what redhat/fedora have patched in, short of 
-finding the closest vanilla tree and using "diff"?
+I had the problem with a RHEL3 kernel, given what the base issue is,
+I don't believe any later updates will change things much as it is not
+a bug so much as a basic design problem.
 
-Daniel
+If you have a few more nodes/mounts/activity then things get uglier.   It
+does
+expire "unused" ones when new ones are needed, but the code seems to
+thrash quite badly when too many need to be used.  A few more nodes
+and the server will go into  timeout mode where it won't respond to
+requests (tcp or udp) for long periods of time
+(minutes), and then will finally recover.  It is pretty ugly.
+
+The code is in net/sunrpc/svcsock.c and looks something like this:
+(sv_nrthreads+3)*10   Given that you need 700 you would need at least
+70 threads, but things still get funny below that.   You could try changing
+the *10 to be a larger number, and I don't know that the later versions
+of RH still use *10 they may use something smaller.  You could also change
+the number of threads up a bit more, but at some point the number of
+threads seems to cause resource issues also.  256 on the machines we were
+testing was causing some other modules loads to fail, that did not fail
+with nfsd set smalller.   I have not tried change the *10 to something
+larger, it may or may not work.
+
+>From what I can tell, basically the reuse code does not work the
+best (or maybe at all) with large groups of machines being heavily
+active.
+
+> >
+> Are you suggesting in such a scenario we would need 300 nfsd?
+
+Not 300.   The situation I had was more machines, and more mounts
+per machine.
+
+You can watch the current count with netstat and counting the number of
+nfs connections, when things hit the limit you will start getting
+the message, and things will start getting messy.  Things get worse
+if you have open executables on the machines across nfs as these have
+a higher utilization of the resource, and cause more thrashing.
+
+I could duplicate the error by doing a "fornodes ls -l ..." with it listing
+the top level of each nfs mount.
+
+> 
+> > The solution that I came to was to use UDP mounts, as this limit
+> > is not there.   In the situation I had we would have had to change
+> > the number of nfsd to 256 and even that was going to be 
+> close, and the 
+> > 256 caused some other failures.  To not have the issue you 
+> will need 
+> > to use UDP mounts everywere if you have enough tcp mounts 
+> to cause the 
+> > error it will affect the udp mounts in a similar bad way.
+> >
+> > We also could have changed the thread to resource count, but we had 
+> > some other process starvation issue with TCP that seemed to not be 
+> > duplicatable with UDP.
+> 
+> We had changed from UDP to TCP due to our network's 
+> propensity to drop UDP packets.  The same mount options we 
+> are using now against a Linux server were working fine when 
+> our NFS server was a much-less-powerful SGI IRIX server.  No 
+> doubt, as you say, that switching back to UDP would make this 
+> rpc-srv/tcp message go away.
+> 
+> Steve Timm
+
+
+The SGI implements nfs differently.  Were you using tcp against
+the SGI?
+
+No way to fix the network to stop the dropping udp packets?
+
+ 
+                   Roger
+

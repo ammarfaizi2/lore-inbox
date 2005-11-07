@@ -1,85 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965322AbVKGUEo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965338AbVKGUEM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965322AbVKGUEo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 15:04:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbVKGUEN
+	id S965338AbVKGUEM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 15:04:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965324AbVKGUEK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 15:04:13 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:32530 "HELO
+	Mon, 7 Nov 2005 15:04:10 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:28946 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965326AbVKGUEB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 15:04:01 -0500
-Date: Mon, 7 Nov 2005 21:04:00 +0100
+	id S965323AbVKGUDu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 15:03:50 -0500
+Date: Mon, 7 Nov 2005 21:03:49 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/message/fusion/mptbase.c: make code static
-Message-ID: <20051107200400.GO3847@stusta.de>
+To: Rajesh Shah <rajesh.shah@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, greg@kroah.com, kristen.c.accardi@intel.com,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: 2.6.14-mm1: drivers/pci/hotplug/: namespace clashes
+Message-ID: <20051107200349.GK3847@stusta.de>
+References: <20051106182447.5f571a46.akpm@osdl.org> <20051107173732.GG3847@stusta.de> <20051107104150.A4388@unix-os.sc.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20051107104150.A4388@unix-os.sc.intel.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes the following previously global and EXPORT_SYMBOL'ed 
-code static:
-- struct mpt_proc_root_dir
-- int mpt_stm_index
+On Mon, Nov 07, 2005 at 10:41:50AM -0800, Rajesh Shah wrote:
+> On Mon, Nov 07, 2005 at 06:37:32PM +0100, Adrian Bunk wrote:
+> > <--  snip  -->
+> > 
+> > ...
+> >   LD      drivers/pci/hotplug/built-in.o
+> > drivers/pci/hotplug/shpchp.o: In function `get_hp_hw_control_from_firmware':
+> > : multiple definition of `get_hp_hw_control_from_firmware'
+> > drivers/pci/hotplug/pciehp.o:: first defined here
+> > ld: Warning: size of symbol `get_hp_hw_control_from_firmware' changed from 472 in drivers/pci/hotplug/pciehp.o to 25 in drivers/pci/hotplug/shpchp.o
+> > drivers/pci/hotplug/shpchp.o: In function `get_hp_params_from_firmware':
+> > : multiple definition of `get_hp_params_from_firmware'
+> > drivers/pci/hotplug/pciehp.o:: first defined here
+> > make[3]: *** [drivers/pci/hotplug/built-in.o] Error 1
+> > 
+> This patch should fix this:
+>...
+
+
+Nearly, the following is additionally required:
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
----
-
-This patch was already sent on:
-- 3 Nov 2005
-
- drivers/message/fusion/mptbase.c |    6 ++----
- drivers/message/fusion/mptbase.h |    2 --
- 2 files changed, 2 insertions(+), 6 deletions(-)
-
---- linux-2.6.14-rc5-mm1-full/drivers/message/fusion/mptbase.h.old	2005-11-03 18:19:05.000000000 +0100
-+++ linux-2.6.14-rc5-mm1-full/drivers/message/fusion/mptbase.h	2005-11-03 18:19:56.000000000 +0100
-@@ -995,10 +995,8 @@
-  *  Public data decl's...
-  */
- extern struct list_head	  ioc_list;
--extern struct proc_dir_entry	*mpt_proc_root_dir;
- 
- extern int		  mpt_lan_index;	/* needed by mptlan.c */
--extern int		  mpt_stm_index;	/* needed by mptstm.c */
- 
- /*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
- #endif		/* } __KERNEL__ */
---- linux-2.6.14-rc5-mm1-full/drivers/message/fusion/mptbase.c.old	2005-11-03 18:19:19.000000000 +0100
-+++ linux-2.6.14-rc5-mm1-full/drivers/message/fusion/mptbase.c	2005-11-03 18:20:07.000000000 +0100
-@@ -92,9 +92,9 @@
-  *  Public data...
-  */
- int mpt_lan_index = -1;
--int mpt_stm_index = -1;
-+static int mpt_stm_index = -1;
- 
--struct proc_dir_entry *mpt_proc_root_dir;
-+static struct proc_dir_entry *mpt_proc_root_dir;
- 
- #define WHOINIT_UNKNOWN		0xAA
- 
-@@ -6274,7 +6274,6 @@
- EXPORT_SYMBOL(mpt_suspend);
- #endif
- EXPORT_SYMBOL(ioc_list);
--EXPORT_SYMBOL(mpt_proc_root_dir);
- EXPORT_SYMBOL(mpt_register);
- EXPORT_SYMBOL(mpt_deregister);
- EXPORT_SYMBOL(mpt_event_register);
-@@ -6292,7 +6291,6 @@
- EXPORT_SYMBOL(mpt_GetIocState);
- EXPORT_SYMBOL(mpt_print_ioc_summary);
- EXPORT_SYMBOL(mpt_lan_index);
--EXPORT_SYMBOL(mpt_stm_index);
- EXPORT_SYMBOL(mpt_HardResetHandler);
- EXPORT_SYMBOL(mpt_config);
- EXPORT_SYMBOL(mpt_toolbox);
+--- linux-2.6.14-mm1-full/drivers/pci/hotplug/pciehp_hpc.c.old	2005-11-07 20:06:01.000000000 +0100
++++ linux-2.6.14-mm1-full/drivers/pci/hotplug/pciehp_hpc.c	2005-11-07 20:06:47.000000000 +0100
+@@ -1418,7 +1418,7 @@
+ 		dbg("Bypassing BIOS check for pciehp use on %s\n",
+ 				pci_name(ctrl->pci_dev));
+ 	} else {
+-		rc = get_hp_hw_control_from_firmware(ctrl->pci_dev);
++		rc = pciehp_get_hp_hw_control_from_firmware(ctrl->pci_dev);
+ 		if (rc)
+ 			goto abort_free_ctlr;
+ 	}
 

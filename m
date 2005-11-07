@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbVKGG6F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbVKGHBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964817AbVKGG6F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 01:58:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964819AbVKGG6F
+	id S964789AbVKGHBE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 02:01:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbVKGHBE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 01:58:05 -0500
-Received: from xproxy.gmail.com ([66.249.82.204]:27027 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964817AbVKGG6E convert rfc822-to-8bit
+	Mon, 7 Nov 2005 02:01:04 -0500
+Received: from xproxy.gmail.com ([66.249.82.196]:49059 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964789AbVKGHBC convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 01:58:04 -0500
+	Mon, 7 Nov 2005 02:01:02 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=f/suk0BTGy7/pGp/WkFaDvs5EBXkmEHJ2M7STLJv4E2tqtcKrOGKgthISZhxyL19Ow8lp/JrkQI6WqMFIUCu4TdyPoV33LgEqUPMOkM/JN9qB4M5884DOs3ykPNzbPfMVBLb5mF12iEzEJTWJmIp70TVGtcZwuFV1RU/p2RQmdI=
-Message-ID: <489ecd0c0511062258k4183d206odefd3baa46bb9a04@mail.gmail.com>
-Date: Mon, 7 Nov 2005 14:58:03 +0800
-From: Luke Yang <luke.adi@gmail.com>
-To: Greg KH <greg@kroah.com>
-Subject: Re: ADI Blackfin patch for kernel 2.6.14
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051104230644.GA20625@kroah.com>
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=HPYxpIxCFluf1suZNGOaMYzlqmJtt+XnMfunG/3eew9EkaOt/cDjhCaj6F2sY4GDBQwrSDQd5rovPTkdPK5ijjjMZZGYz2vJOKqfjOTWth2BKHiDz8xYlZzUwyX2JhX8+ME5kBWdQMcoCGiBz97Lo7GxcX2LWkectkWq6OlWBgA=
+Message-ID: <a44ae5cd0511062301h7ce185bfk10ac2d92cd20e433@mail.gmail.com>
+Date: Mon, 7 Nov 2005 02:01:01 -0500
+From: Miles Lane <miles.lane@gmail.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.14-mm1 -- undefined reference to `edac_mc_handle_ce'
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <489ecd0c0511010128x41d39643x37893ad48a8ef42a@mail.gmail.com>
-	 <20051101165136.GU8009@stusta.de>
-	 <489ecd0c0511012306w434d75fbs90e1969d82a07922@mail.gmail.com>
-	 <489ecd0c0511032059n394abbb2s9865c22de9b2c448@mail.gmail.com>
-	 <20051104230644.GA20625@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  But this patch only includes the arch files for Blackfin. Do I have
-to break it into smaller chunks? It is hard to break it...
+I tried building:
 
-On 11/5/05, Greg KH <greg@kroah.com> wrote:
-> On Fri, Nov 04, 2005 at 12:59:14PM +0800, Luke Yang wrote:
-> > Hi,
-> >
-> >   Does this patch has the chance to be merged? Is anyone reivewing or
-> > merging it? Anything I can help? Just want to make sure... Thanks a
-> > lot!
->
-> Your patch is 43 thousand lines long.  Please break it up into the
-> different logical chunks, and document them, and add a signed-off-by:
-> line, and send them to the proper places/people, as it is documented in
-> the file, Documentation/SubmittingPatches.
->
-> thanks,
->
-> greg k-h
->
+CONFIG_EDAC=y
+# CONFIG_EDAC_MM_EDAC is not set
+CCONFIG_EDAC_AMD76X=y
+CONFIG_EDAC_POLL=y
+
+drivers/built-in.o: In function `amd76x_process_error_info':
+: undefined reference to `edac_mc_handle_ce'
+drivers/built-in.o: In function `amd76x_process_error_info':
+: undefined reference to `edac_mc_handle_ue'
+drivers/built-in.o: In function `amd76x_probe1':
+: undefined reference to `edac_mc_alloc'
+drivers/built-in.o: In function `amd76x_probe1':
+: undefined reference to `edac_mc_add_mc'
+drivers/built-in.o: In function `amd76x_remove_one':
+: undefined reference to `edac_mc_find_mci_by_pdev'
+drivers/built-in.o: In function `amd76x_remove_one':
+: undefined reference to `edac_mc_del_mc'
+make: *** [.tmp_vmlinux1] Error 1

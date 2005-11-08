@@ -1,57 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965087AbVKHM4e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965073AbVKHM4G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965087AbVKHM4e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 07:56:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965074AbVKHM4d
+	id S965073AbVKHM4G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 07:56:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965074AbVKHM4G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 07:56:33 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:51848 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S965087AbVKHM4c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 07:56:32 -0500
-Date: Tue, 8 Nov 2005 13:56:23 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: tglx@linutronix.de, Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: CLOCK_REALTIME_RES and nanosecond resolution
-In-Reply-To: <1131443137.4652.101.camel@gaston>
-Message-ID: <Pine.LNX.4.61.0511081332080.1387@scrub.home>
-References: <1131418511.4652.88.camel@gaston>  <1131442459.18108.75.camel@tglx.tec.linutronix.de>
- <1131443137.4652.101.camel@gaston>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 8 Nov 2005 07:56:06 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:32307
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S965073AbVKHM4E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 07:56:04 -0500
+Message-Id: <4370AEAA.76F0.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Tue, 08 Nov 2005 13:56:58 +0100
+From: "Jan Beulich" <JBeulich@novell.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] i386: move SIMD initialization
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="=__Part71534F8A.0__="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a MIME message. If you are reading this text, you may want to 
+consider changing to a mail reader or gateway that understands how to 
+properly handle MIME multipart messages.
 
-On Tue, 8 Nov 2005, Benjamin Herrenschmidt wrote:
+--=__Part71534F8A.0__=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> > This is the resolution which you can expect for timers (nanosleep and
-> > interval timers) as the timers depend on the jiffy tick.
-> > 
-> > The resolution of the readout functions is not affected by this.
-> 
-> Ok, thanks, POSIX spec wasn't very clear about that 
+Move some code unrelated to any dealing with hardware bugs from i386's
+bugs.h to a more logical place.
 
-Actually the spec is a bit more clear than that:
+From: Jan Beulich <jbeulich@novell.com>
 
-"This volume of IEEE Std 1003.1-2001 defines functions that allow an 
-application to determine the implementation-supported resolution for the 
-clocks and requires an implementation to document the resolution supported 
-for timers and nanosleep() if they differ from the supported clock 
-resolution."
+(actual patch attached)
 
-Historically the clock and timer resolution was equal and e.g. 
-clock_gettime() returned a msec value. To get usec resolution one had to 
-enable the MICRO_TIME, but this didn't change the clock_getres() value, as 
-at that time higher clock_gettime() resolution was interpolated from a 
-second time source and the actual clock tick remained unchanged. 
-Subsequent UNIX generations have preserved this behaviour.
 
-Thomas' expectation is not generally true, non-UNIX implementations return 
-different values here and his expectation is not required by POSIX, it's 
-more a traditional UNIX behaviour.
+--=__Part71534F8A.0__=
+Content-Type: application/octet-stream; name="linux-2.6.14-i386-fxsr.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="linux-2.6.14-i386-fxsr.patch"
 
-bye, Roman
+TW92ZSBzb21lIGNvZGUgdW5yZWxhdGVkIHRvIGFueSBkZWFsaW5nIHdpdGggaGFyZHdhcmUgYnVn
+cyBmcm9tIGkzODYncwpidWdzLmggdG8gYSBtb3JlIGxvZ2ljYWwgcGxhY2UuCgpGcm9tOiBKYW4g
+QmV1bGljaCA8amJldWxpY2hAbm92ZWxsLmNvbT4KCi0tLSAyLjYuMTQvYXJjaC9pMzg2L2tlcm5l
+bC90cmFwcy5jCTIwMDUtMTAtMjggMDI6MDI6MDguMDAwMDAwMDAwICswMjAwCisrKyAyLjYuMTQt
+aTM4Ni1meHNyL2FyY2gvaTM4Ni9rZXJuZWwvdHJhcHMuYwkyMDA1LTExLTA0IDE3OjAwOjQ3LjAw
+MDAwMDAwMCArMDEwMApAQCAtMTEwMSw2ICsxMTAxLDI0IEBAIHZvaWQgX19pbml0IHRyYXBfaW5p
+dCh2b2lkKQogI2VuZGlmCiAJc2V0X3RyYXBfZ2F0ZSgxOSwmc2ltZF9jb3Byb2Nlc3Nvcl9lcnJv
+cik7CiAKKwlpZiAoY3B1X2hhc19meHNyKSB7CisJCS8qCisJCSAqIFZlcmlmeSB0aGF0IHRoZSBG
+WFNBVkUvRlhSU1RPUiBkYXRhIHdpbGwgYmUgMTYtYnl0ZSBhbGlnbmVkLgorCQkgKi8KKwkJc3Ry
+dWN0IGZ4c3JBbGlnbkFzc2VydCB7CisJCQlpbnQgXzohKG9mZnNldG9mKHN0cnVjdCB0YXNrX3N0
+cnVjdCwgdGhyZWFkLmkzODcuZnhzYXZlKSAmIDE1KTsKKwkJfTsKKworCQlwcmludGsoS0VSTl9J
+TkZPICJFbmFibGluZyBmYXN0IEZQVSBzYXZlIGFuZCByZXN0b3JlLi4uICIpOworCQlzZXRfaW5f
+Y3I0KFg4Nl9DUjRfT1NGWFNSKTsKKwkJcHJpbnRrKCJkb25lLlxuIik7CisJfQorCWlmIChjcHVf
+aGFzX3htbSkgeworCQlwcmludGsoS0VSTl9JTkZPICJFbmFibGluZyB1bm1hc2tlZCBTSU1EIEZQ
+VSBleGNlcHRpb24gc3VwcG9ydC4uLiAiKTsKKwkJc2V0X2luX2NyNChYODZfQ1I0X09TWE1NRVhD
+UFQpOworCQlwcmludGsoImRvbmUuXG4iKTsKKwl9CisKIAlzZXRfc3lzdGVtX2dhdGUoU1lTQ0FM
+TF9WRUNUT1IsJnN5c3RlbV9jYWxsKTsKIAogCS8qCi0tLSAyLjYuMTQvaW5jbHVkZS9hc20taTM4
+Ni9idWdzLmgJMjAwNS0xMC0yOCAwMjowMjowOC4wMDAwMDAwMDAgKzAyMDAKKysrIDIuNi4xNC1p
+Mzg2LWZ4c3IvaW5jbHVkZS9hc20taTM4Ni9idWdzLmgJMjAwNS0xMS0wNCAxNjoxOTozNC4wMDAw
+MDAwMDAgKzAxMDAKQEAgLTgsOSArOCw2IEBACiAgKiAgICAgICAgPHJyZWlsb3ZhQGVjZWNzLnVj
+LmVkdT4KICAqCS0gQ2hhbm5pbmcgQ29ybiAodGVzdHMgJiBmaXhlcyksCiAgKgktIEFuZHJldyBE
+LiBCYWxzYSAoY29kZSBjbGVhbnVwKS4KLSAqCi0gKiAgUGVudGl1bSBJSUkgRlhTUiwgU1NFIHN1
+cHBvcnQKLSAqCUdhcmV0aCBIdWdoZXMgPGdhcmV0aEB2YWxpbnV4LmNvbT4sIE1heSAyMDAwCiAg
+Ki8KIAogLyoKQEAgLTc2LDI1ICs3Myw3IEBAIHN0YXRpYyB2b2lkIF9faW5pdCBjaGVja19mcHUo
+dm9pZCkKIAkJcmV0dXJuOwogCX0KIAotLyogRW5hYmxlIEZYU1IgYW5kIGNvbXBhbnkgX2JlZm9y
+ZV8gdGVzdGluZyBmb3IgRlAgcHJvYmxlbXMuICovCi0JLyoKLQkgKiBWZXJpZnkgdGhhdCB0aGUg
+RlhTQVZFL0ZYUlNUT1IgZGF0YSB3aWxsIGJlIDE2LWJ5dGUgYWxpZ25lZC4KLQkgKi8KLQlpZiAo
+b2Zmc2V0b2Yoc3RydWN0IHRhc2tfc3RydWN0LCB0aHJlYWQuaTM4Ny5meHNhdmUpICYgMTUpIHsK
+LQkJZXh0ZXJuIHZvaWQgX19idWdneV9meHNyX2FsaWdubWVudCh2b2lkKTsKLQkJX19idWdneV9m
+eHNyX2FsaWdubWVudCgpOwotCX0KLQlpZiAoY3B1X2hhc19meHNyKSB7Ci0JCXByaW50ayhLRVJO
+X0lORk8gIkVuYWJsaW5nIGZhc3QgRlBVIHNhdmUgYW5kIHJlc3RvcmUuLi4gIik7Ci0JCXNldF9p
+bl9jcjQoWDg2X0NSNF9PU0ZYU1IpOwotCQlwcmludGsoImRvbmUuXG4iKTsKLQl9Ci0JaWYgKGNw
+dV9oYXNfeG1tKSB7Ci0JCXByaW50ayhLRVJOX0lORk8gIkVuYWJsaW5nIHVubWFza2VkIFNJTUQg
+RlBVIGV4Y2VwdGlvbiBzdXBwb3J0Li4uICIpOwotCQlzZXRfaW5fY3I0KFg4Nl9DUjRfT1NYTU1F
+WENQVCk7Ci0JCXByaW50aygiZG9uZS5cbiIpOwotCX0KLQorLyogdHJhcF9pbml0KCkgZW5hYmxl
+ZCBGWFNSIGFuZCBjb21wYW55IF9iZWZvcmVfIHRlc3RpbmcgZm9yIEZQIHByb2JsZW1zIGhlcmUu
+ICovCiAJLyogVGVzdCBmb3IgdGhlIGRpdmwgYnVnLi4gKi8KIAlfX2FzbV9fKCJmbmluaXRcblx0
+IgogCQkiZmxkbCAlMVxuXHQiCg==
+
+--=__Part71534F8A.0__=--

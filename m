@@ -1,66 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030233AbVKHCJw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030234AbVKHCMU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030233AbVKHCJw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 21:09:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030219AbVKHCJv
+	id S1030234AbVKHCMU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 21:12:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030239AbVKHCMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 21:09:51 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:1429 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1030233AbVKHCJs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 21:09:48 -0500
-Subject: Re: [PATCH]: Cleanup of __alloc_pages
-From: Rohit Seth <rohit.seth@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20051107175358.62c484a3.akpm@osdl.org>
-References: <20051107174349.A8018@unix-os.sc.intel.com>
-	 <20051107175358.62c484a3.akpm@osdl.org>
-Content-Type: text/plain
-Organization: Intel 
-Date: Mon, 07 Nov 2005 18:16:30 -0800
-Message-Id: <1131416195.20471.31.camel@akash.sc.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Mon, 7 Nov 2005 21:12:20 -0500
+Received: from dvhart.com ([64.146.134.43]:31682 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S1030234AbVKHCMS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 21:12:18 -0500
+Date: Mon, 07 Nov 2005 18:12:15 -0800
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: David Lang <david.lang@digitalinsight.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Anton Blanchard <anton@samba.org>, Brian Twichell <tbrian@us.ibm.com>,
+       linux-kernel@vger.kernel.org, slpratt@us.ibm.com
+Subject: Re: Database regression due to scheduler changes ?
+Message-ID: <112050000.1131415935@flay>
+In-Reply-To: <Pine.LNX.4.62.0511071752550.9339@qynat.qvtvafvgr.pbz>
+References: <436FD291.2060301@us.ibm.com> <Pine.LNX.4.62.0511071431030.9339@qynat.qvtvafvgr.pbz> <436FDDE2.4000708@us.ibm.com> <436FF6A6.1040708@yahoo.com.au> <20051108011547.GP12353@krispykreme> <105220000.1131413677@flay> <43700371.6040507@yahoo.com.au> <Pine.LNX.4.62.0511071752550.9339@qynat.qvtvafvgr.pbz>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Nov 2005 02:09:29.0274 (UTC) FILETIME=[7373E1A0:01C5E409]
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-11-07 at 17:53 -0800, Andrew Morton wrote:
-> "Rohit, Seth" <rohit.seth@intel.com> wrote:
-> >
-> > [PATCH]: Clean up of __alloc_pages. Couple of difference from original behavior:
-> > 	1- remove the initial reclaim logic
-> > 	2- GFP_HIGH pages are allowed to go little below watermark sooner.
-> > 	3- Search for free pages unconditionally after direct reclaim.
+
+
+--On Monday, November 07, 2005 18:04:23 -0800 David Lang <david.lang@digitalinsight.com> wrote:
+
+> On Tue, 8 Nov 2005, Nick Piggin wrote:
 > 
-> Would it be possible to break these into three separate patches?  The
-> cleanup part should be #1.
+>> Martin J. Bligh wrote:
+>> 
+>>>> Im also considering adding balance on fork for ppc64, it seems like a
+>>>> lot of people like to run stream like benchmarks and Im getting tired of
+>>>> telling them to lock their threads down to cpus.
+>>> 
+>>> 
+>>> Please don't screw up everything else just for stream. It's a silly 
+>>> frigging benchmark. There's very little real-world stuff that really
+>>> needs balance on fork, as opposed to balance on clone, and it'll slow
+>>> down everything else.
+>>> 
+>> 
+>> Long lived and memory intensive cloned or forked tasks will often
+>> [but far from always :(] want to be put on another memory controller
+>> from their siblings.
+>> 
+>> On workloads where there are lots of short lived ones (some bloated
+>> java programs), the load balancer should normally detect this and
+>> cut the balance-on-fork/clone.
 > 
+> although if the primary workload is short-lived tasks and you don't do balance-on-fork/clone won't you have trouble ever balancing things? 
+(anything that you do move over will probably exit quickly and put you 
+right back where you started)
 
-Doing the above three things as part of this clean up patch makes the
-code look extra clean... Is there any specific issue coming out of 2 & 3
-above.
+If you fork without execing a lot, with no hints, and they all exit
+quickly, then yes. But I don't think that's a common workload ;-)
 
-> > +		if (!skip_cpuset_chk && (!cpuset_zone_allowed(z, gfp_mask)))
+> at the risk of a slowdown from an extra test it almost sounds like what is needed is to get feedback from the last scheduled balance attempt and use that to decide per-fork what to do.
 > 
-> It'd be nice to not have the `skip_cpuset_chk' flag there.  a) it gives
-> Linus conniptions and b) it's a little extra overhead for !CONFIG_CPUSETS
-> kernels.
+> for example say the scheduled balance attempt leaves a per-cpu value that has it's high bit tested every fork/clone (and then rotated left 1 bit) and if it's a 1 do a balance for this new process.
 > 
+> with a reasonable sized item (I would guess the default int size would probably be the most efficiant to process, but even 8 bits may be enough) the scheduled balance attempt can leave quite an extensive range of behavior, from 'always balance' to 'never balance' to 'balance every 5th and 8th fork', etc.
 
-I think it will be easier to do this change as a follow on patch as that
-will change the header file, function definition and such.  Can we defer
-this to separate follow on patch.
+That might work, yes. But I'd prefer to see a real workload that
+suffers before worrying about it too much. You have something in mind?
 
-> > -	zone_statistics(zonelist, z);
-> > +	zone_statistics(zonelist, page_zone(page));
+>> Of course there are going to be cases where this fails. I haven't
+>> seen significant slowdowns in tests, although I'm sure there would
+>> be some at least small regressions. Have you seen any? Do you have
+>> any tests in mind that might show a problem?
 > 
-> Evaluating page_zone() is not completely trivial.  Can we avoid the above?
+> even though people will point out that it's a brin-dead workload (that should be converted to a state machine) I would expect that most fork-per-connection servers would show problems if the work per connection is small
 
-Okay.  Last time Nick also mentioned this but agreed to keep it here.  I
-will uplevel so that I don't go through the page_zone.
+I suspect most of those are either inetd (exec's) or multiple servers
+that service requests by now. maybe not. Threads might be quicker if
+it's heavy anyway ;-)
 
--rohit
-
+M.

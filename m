@@ -1,92 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965055AbVKHBSe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965063AbVKHBS4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965055AbVKHBSe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 20:18:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965070AbVKHBSe
+	id S965063AbVKHBS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 20:18:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965066AbVKHBS4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 20:18:34 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:40165 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965063AbVKHBSd (ORCPT
+	Mon, 7 Nov 2005 20:18:56 -0500
+Received: from ns.suse.de ([195.135.220.2]:60099 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S965063AbVKHBSy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 20:18:33 -0500
-Date: Mon, 7 Nov 2005 17:15:07 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Neil Brown <neilb@suse.de>
-Cc: nickpiggin@yahoo.com.au, dm-devel@redhat.com, heiko.carstens@de.ibm.com,
-       linux-kernel@vger.kernel.org, aherrman@de.ibm.com, bunk@stusta.de,
-       cplk@itee.uq.edu.au
-Subject: Re: [dm-devel] Re: [PATCH resubmit] do_mount: reduce stack
- consumption
-Message-Id: <20051107171507.0b0dc83a.akpm@osdl.org>
-In-Reply-To: <17263.63845.556511.171582@cse.unsw.edu.au>
-References: <20051104105026.GA12476@osiris.boeblingen.de.ibm.com>
-	<20051104084829.714c5dbb.akpm@osdl.org>
-	<20051104212742.GC9222@osiris.ibm.com>
-	<20051104235500.GE5368@stusta.de>
-	<20051104160851.3a7463ff.akpm@osdl.org>
-	<Pine.GSO.4.60.0511051108070.2449@mango.itee.uq.edu.au>
-	<20051104173721.597bd223.akpm@osdl.org>
-	<17260.17661.523593.420313@cse.unsw.edu.au>
-	<17262.40176.342746.634262@cse.unsw.edu.au>
-	<20051107153706.2f3c8b67.akpm@osdl.org>
-	<436FF20D.8030200@yahoo.com.au>
-	<17263.63845.556511.171582@cse.unsw.edu.au>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 7 Nov 2005 20:18:54 -0500
+From: Neil Brown <neilb@suse.de>
+To: Steven Rostedt <rostedt@goodmis.org>
+Date: Tue, 8 Nov 2005 12:18:42 +1100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17263.64754.79733.651186@cse.unsw.edu.au>
+Cc: linas <linas@austin.ibm.com>, linux-kernel@vger.kernel.org,
+       bluesmoke-devel@lists.sourceforge.net,
+       linux-pci@atrey.karlin.mff.cuni.cz, johnrose@austin.ibm.com,
+       linuxppc64-dev@ozlabs.org, Paul Mackerras <paulus@samba.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: typedefs and structs [was Re: [PATCH 16/42]: PCI:  PCI Error
+	reporting callbacks]
+In-Reply-To: message from Steven Rostedt on Monday November 7
+References: <20051103235918.GA25616@mail.gnucash.org>
+	<20051104005035.GA26929@mail.gnucash.org>
+	<20051105061114.GA27016@kroah.com>
+	<17262.37107.857718.184055@cargo.ozlabs.ibm.com>
+	<20051107175541.GB19593@austin.ibm.com>
+	<20051107182727.GD18861@kroah.com>
+	<20051107185621.GD19593@austin.ibm.com>
+	<20051107190245.GA19707@kroah.com>
+	<20051107193600.GE19593@austin.ibm.com>
+	<20051107200257.GA22524@kroah.com>
+	<20051107204136.GG19593@austin.ibm.com>
+	<1131412273.14381.142.camel@localhost.localdomain>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown <neilb@suse.de> wrote:
->
-> On Tuesday November 8, nickpiggin@yahoo.com.au wrote:
-> > Andrew Morton wrote:
-> > > 
-> > > More state in the task_strut is a bit sad, but not nearly as sad as deep
-> > > recursion in our deepest codepath..
-> > > 
-> > > Possibly one could do:
-> > > 
-> > > struct make_request_state {
-> > > 	struct bio *bio_list;
-> > > 	struct bio **bio_tail;
-> > > };
-> > > 
-> > > and stick a `struct make_request_state *' into the task_struct and actually
-> > > allocate the thing on the stack.  That's not much nicer though.
-> > 
-> > Possibly it could go into struct io_context?
-> > 
+On Monday November 7, rostedt@goodmis.org wrote:
 > 
-> My quick reading of the code says that we could have to 
-> allocate the struct right there in generic_make_request, and I don't
-> think we can be certain that such an allocation will succeed.
-
-With this sort of lifecycle it's more appropriat to allocate the struct on
-the stack and to put a pointer to it into task_struct.
-
-> Code that uses io_context can limp along if it doesn't exist.  
-> The new generic_make_request needs this bio_list to be present 
-> or it cannot do it's job.
+> This was for the simple reason, too many developers were passing
+> structures by value instead of by reference, just because they were
+> using a type that they didn't realize was a structure. And to make
+> things worse, these structures started to get bigger.
 > 
-> Just how tight are we for space in task_struct?
 
-I don't recall anyone getting outraged about it.
+Another reason  for not using typedefs is that if you do, and you want
+to refer to the structure in some other include file, you have to
+#include the include file that devices the structure.
+If you don't use typedefs, you can just say:
 
->  It seems to have a
-> fair amount of cruft in it.
+   struct foo;
 
-yup.
+and the compiler will happily wait for the complete definition later
+(providing it doesn't need the size in the meanwhile). 
+So avoiding typedef means that you can sometimes avoid excess
+#includes, which means faster compiling.
 
-> Is it getting close to one-page or something?
-
-1280 bytes on my x86
-
-> Can we just split the less interesting stuff up into a separate
-> structure, allocate a separate page for that are fork time, and leave 
-> just a pointer in the task_struct?
-
-Something like that, if it becomes a problem.
-
-Probably there are various deporking opportunities in there.
+NeilBrown

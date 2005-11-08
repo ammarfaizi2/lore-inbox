@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030338AbVKHTRo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965128AbVKHTVJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030338AbVKHTRo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 14:17:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030344AbVKHTRo
+	id S965128AbVKHTVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 14:21:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965255AbVKHTVI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 14:17:44 -0500
-Received: from waste.org ([216.27.176.166]:49605 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1030338AbVKHTRn (ORCPT
+	Tue, 8 Nov 2005 14:21:08 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:41683 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965128AbVKHTVH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 14:17:43 -0500
-Date: Tue, 8 Nov 2005 11:17:35 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Greg KH <greg@kroah.com>
-Cc: Neil Brown <neilb@suse.de>, Daniele Orlandi <daniele@orlandi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: An idea on devfs vs. udev
-Message-ID: <20051108191735.GS9760@waste.org>
-References: <200510301907.11860.daniele@orlandi.com> <17253.14484.653996.225212@cse.unsw.edu.au> <20051030222309.GA9423@kroah.com> <20051108184132.GC8126@waste.org> <20051108185101.GA16011@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051108185101.GA16011@kroah.com>
-User-Agent: Mutt/1.5.9i
+	Tue, 8 Nov 2005 14:21:07 -0500
+Message-ID: <4370FA9F.6010800@us.ibm.com>
+Date: Tue, 08 Nov 2005 11:21:03 -0800
+From: Matthew Dobson <colpatch@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Lameter <clameter@engr.sgi.com>
+CC: Roland Dreier <rolandd@cisco.com>, kernel-janitors@lists.osdl.org,
+       Pekka J Enberg <penberg@cs.Helsinki.FI>, linux-kernel@vger.kernel.org,
+       manfred@colorfullife.com
+Subject: Re: [PATCH 4/8] Cleanup kmem_cache_create()
+References: <436FF51D.8080509@us.ibm.com> <436FF70D.6040604@us.ibm.com> <52mzkfrily.fsf@cisco.com> <Pine.LNX.4.62.0511081049520.30907@schroedinger.engr.sgi.com> <4370F6BB.1070409@us.ibm.com> <Pine.LNX.4.62.0511081108340.31060@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0511081108340.31060@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 08, 2005 at 10:51:01AM -0800, Greg KH wrote:
-> On Tue, Nov 08, 2005 at 10:41:32AM -0800, Matt Mackall wrote:
-> > On Sun, Oct 30, 2005 at 02:23:09PM -0800, Greg KH wrote:
-> > > On Mon, Oct 31, 2005 at 08:18:12AM +1100, Neil Brown wrote:
-> > > > But then to make matters worse, there is this "sample.sh" file.  UGH!
-> > > > It's a bit of shell code exported by the kernel.
-> > > >    #!/bin/sh
-> > > >    mknod /dev/hda  b 3 0
-> > > 
-> > > That's just a "joke" patch that is only in the -mm tree, as it gets
-> > > pulled in from my tree.  It's not in mainline, and will never go there.
-> > 
-> > Perhaps you can drop this horror now that Halloween has passed.
+Christoph Lameter wrote:
+> On Tue, 8 Nov 2005, Matthew Dobson wrote:
 > 
-> Heh.  But why?  Is it causing problems for anyone?
+> 
+>>>A large object in terms of this patch is a object greater than 4096 bytes 
+>>>not an object greater than PAGE_SIZE. I think the absolute size is 
+>>>desired.
+>>
+>>Would you be OK with at least NAMING the constant?  I won't name it
+>>PAGE_SIZE (of course), but LARGE_OBJECT_SIZE or something?
+> 
+> 
+> Ask Manfred about this. I think he coded it that way and he usually has 
+> good reasons for it.
+> 
+> Thanks for the cleanup work!
 
-Someone else might take your joke seriously. Or worse yet, imitate it.
-See C++.
+Manfred, any reason not to name this constant in slab.c?  If there's a good
+reason not to, I'm perfectly happy to leave it alone. :)
 
--- 
-Mathematics is the supreme nostalgia of our time.
+-Matt

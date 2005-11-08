@@ -1,92 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030370AbVKHVxc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030368AbVKHV5Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030370AbVKHVxc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 16:53:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030372AbVKHVxc
+	id S1030368AbVKHV5Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 16:57:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030372AbVKHV5Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 16:53:32 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:22020 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1030370AbVKHVxb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 16:53:31 -0500
-Message-ID: <43711E15.4090502@vmware.com>
-Date: Tue, 08 Nov 2005 13:52:21 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Martin Bligh <mbligh@mbligh.org>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 4/21] i386 Broken bios common
-References: <200511080422.jA84MQxK009859@zach-dev.vmware.com> <Pine.LNX.4.64.0511080703530.3247@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0511080703530.3247@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Nov 2005 21:52:22.0078 (UTC) FILETIME=[B28A55E0:01C5E4AE]
+	Tue, 8 Nov 2005 16:57:16 -0500
+Received: from mail.kroah.org ([69.55.234.183]:2280 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030368AbVKHV5P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 16:57:15 -0500
+Date: Tue, 8 Nov 2005 13:56:41 -0800
+From: Greg KH <greg@kroah.com>
+To: "Marco d'Itri" <md@Linux.IT>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
+Subject: Re: udev on 2.6.14 fails to create /dev/input/event2 on T40 Thinkpad
+Message-ID: <20051108215641.GA19289@kroah.com>
+References: <E1EYdMs-0001hI-3F@think.thunk.org> <20051106203421.GB2527@kroah.com> <20051107053648.GA7521@thunk.org> <20051107155243.GA14658@kroah.com> <20051107181706.GB8374@thunk.org> <20051107182434.GC18861@kroah.com> <20051108033019.GA6129@thunk.org> <20051108044348.GB5516@kroah.com> <20051108131451.GD6129@thunk.org> <20051108215209.GA24796@wonderland.linux.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051108215209.GA24796@wonderland.linux.it>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Tue, Nov 08, 2005 at 10:52:09PM +0100, Marco d'Itri wrote:
+> On Nov 08, Theodore Ts'o <tytso@mit.edu> wrote:
+> 
+> > .. and the Synaptics driver wants to talk to /dev/input/event2, and
+> > _not_ /dev/input/event3.  But the Debian scripts seem to think that
+> > the only thing of value to expose is the /dev/input/event3, the very
+> > top of the stack.  /dev/input/event1, and /dev/input/event2 are both
+> > not showing up on my system once a I boot a post-2.6.14 kernel.
+> Yes, sure. The current Debian package uses udevsynthesize, which knows
+> nothing about what happened post-2.6.14 in sysfs.
 
->On Mon, 7 Nov 2005, Zachary Amsden wrote:
->  
->
->>Both the APM BIOS and PnP BIOS code use a segment hack to simulate real
->>mode selector 0x40 (which points to the BIOS data area at 0x00400 in
->>real mode).  Several broken BIOSen use selector 0x40 as if they were
->>running in real mode, which we make work by faking up selector 0x40 in
->>the GDT to point to physical memory starting at 0x400.  We limit the
->>access to the remainder of this physical page using a byte granular
->>limit.  Rather than have this tricky code in multiple places, it makes
->>sense to define it in one place, and the GDT makes a very convenient
->>place for it.  Use GDT entry 4 as the BAD_BIOS_CACHE segment.
->>    
->>
->
->I'd much rather use entry 8 instead, which should just automatically mean 
->that selector 0x40 _always_ points to virtual address 0x400. No switching 
->etc..
->
->Isn't this what Wine already has to work around, or something?
->  
->
+Ugh, you don't use 'udevstart'?  Oh well...
 
-I have answers now to the questions:
+Ted, this is a distro issue, not a kernel one.  Marco, you are going to
+get a lot of error reports about this once 2.6.15-rc1 is out...
 
-Wine has to support allocating thread pointers for NT processes in 
-ntdll, so it needs a way to allocate descriptors.  It doesn't seem to 
-care if they are LDT or GDT descriptors.
+Good luck,
 
->Ingo, can we move the TLS selectors upwards, or does user space perhaps 
->know about the current TLS layout? Wine in particular may well know ;(
->  
->
-
-It does not know.  And DOSemu appears to only use LDT.  GDT is used to 
-allocate a global thread area for Wine, but it has a fallback mechanism 
-that appears to have been built from the start to deal with varying 
-thread selectors rather than a fixed notion (as GDT TLS segments are not 
-available on 2.4).  Rather convenient.
-
-Now the million dollar question is : who uses three TLS segments?  Wine 
-appears to use glibc, private, and I have no idea what other software 
-makes use of this.  If only two thread selectors were needed, then this 
-does the trick.  Or we could rebase the selectors down to 0x20-0x30.
-
- *  ------- start of TLS (Thread-Local Storage) segments:
- *
- *   6 - TLS segment #1                 [ glibc's TLS segment ]
- *   7 - TLS segment #2                 [ Wine's %fs Win32 segment ]
- *   8 - BIOS real mode segment
-
-
-Zach
+greg k-h

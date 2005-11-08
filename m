@@ -1,86 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965616AbVKHAZw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbVKHA1p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965616AbVKHAZw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 19:25:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965629AbVKHAZw
+	id S1030205AbVKHA1p (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 19:27:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030206AbVKHA1o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 19:25:52 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:37016 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S965616AbVKHAZv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 19:25:51 -0500
-Date: Mon, 7 Nov 2005 16:25:48 -0800
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: Paul Mackerras <paulus@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net
-Subject: [PATCH 1/4] revised Memory Add Fixes for ppc64
-Message-ID: <20051108002548.GF5821@w-mikek2.ibm.com>
-References: <20051104231552.GA25545@w-mikek2.ibm.com> <20051104231800.GB25545@w-mikek2.ibm.com> <1131149070.29195.41.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1131149070.29195.41.camel@gaston>
-User-Agent: Mutt/1.4.1i
+	Mon, 7 Nov 2005 19:27:44 -0500
+Received: from sabe.cs.wisc.edu ([128.105.6.20]:42909 "EHLO sabe.cs.wisc.edu")
+	by vger.kernel.org with ESMTP id S1030205AbVKHA1o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 19:27:44 -0500
+Message-ID: <52781.192.168.0.12.1131409634.squirrel@192.168.0.2>
+In-Reply-To: <20051107233000.GC2034@elf.ucw.cz>
+References: <20051101234459.GA443@elf.ucw.cz>
+    <20051102024755.GA14148@home.fluff.org>
+    <20051102095139.GB30220@elf.ucw.cz>
+    <43093.192.168.0.12.1130985101.squirrel@192.168.0.2>
+    <20051107233000.GC2034@elf.ucw.cz>
+Date: Mon, 7 Nov 2005 18:27:14 -0600 (CST)
+Subject: Re: best way to handle LEDs
+From: "John Lenz" <lenz@cs.wisc.edu>
+To: "Pavel Machek" <pavel@suse.cz>
+Cc: "Ben Dooks" <ben@fluff.org.uk>, vojtech@suse.cz, rpurdie@rpsys.net,
+       "kernel list" <linux-kernel@vger.kernel.org>,
+       "Russell King" <rmk@arm.linux.org.uk>
+User-Agent: SquirrelMail/1.4.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 05, 2005 at 11:04:30AM +1100, Benjamin Herrenschmidt wrote:
-> This patch will have to be slightly reworked on top of the 64k pages
-> one. It should be trivial though.
+On Mon, November 7, 2005 5:30 pm, Pavel Machek said:
+> Hi!
+>
+>> >> > I think even slow blinking was used somewhere. I have some code
+>> from
+>> >> > John Lenz (attached); it uses sysfs interface, exports led collor,
+>> and
+>> >> > allows setting different frequencies.
+>> >> >
+>> >> > Is that acceptable, or should some other interface be used?
+>> >>
+>> >> there is already an LED interface for linux-arm, which is
+>> >> used by a number of the extant machines in the sa11x0 and
+>> >> pxa range.
+>> >
+>> > Where is that interface? I think that making collie use it is obvious
+>> > first step...
+>>
+>> I originally wrote the collie led code to use that interface, and you
+>> might look at some of the old versions of the patch on my web site.  The
+>> actual code is in arch/arm/kernel/time.c, but this code calls out to an
+>> individual machine function through say arch/arm/mach-sa1100/leds.c...
+>> The problem for collie was that the device model for locomo did not
+>> allow
+>> an easy way to do it... as you can see, in my patch it implements a
+>> driver
+>> for those leds and the driver model takes care of it.
+>>
+>> I just looked, and
+>> http://www.cs.wisc.edu/~lenz/zaurus/files/patch-2.6.7-jl2.diff.gz
+>> contins
+>> the implementation of the arm led interface for collie.... not sure if
+>> it
+>> will still work anymore, but...
+>
+> It does, after kconfig fixups. Do you think we could get that merged?
+> Some led driver is better than none at all.
 
-Here is a new version of the patch on top of 64k page support (actually
-2.6.14-git10).  One filename also changed due to more merge changes.
+I wonder, because we are exporting an API to userspace.  I don't think the
+openembedded people want to use this API, and will hold off doing anything
+with the leds till we get something else straigtend out.  If we have this
+API now, we will have issues breaking it later (or we will have to do some
+wierd locking scheme to allow both interfaces control, and crap like
+that).
 
-Add the create_section_mapping() routine to create hptes for memory
-sections dynamically added after system boot.
+Secondly, leds aren't that importent unless they are supported by the
+userspace programs (to do things like blink when email shows up).  And
+before the userspace starts using leds, I think they might want to clear
+up the interface API issue first.
 
-Signed-off-by: Mike Kravetz <kravetz@us.ibm.com>
+John
 
-diff -Naupr linux-2.6.14-git10/arch/powerpc/mm/hash_utils_64.c linux-2.6.14-git10.work/arch/powerpc/mm/hash_utils_64.c
---- linux-2.6.14-git10/arch/powerpc/mm/hash_utils_64.c	2005-11-08 00:04:15.784924264 +0000
-+++ linux-2.6.14-git10.work/arch/powerpc/mm/hash_utils_64.c	2005-11-08 00:06:46.992964608 +0000
-@@ -385,6 +385,15 @@ static unsigned long __init htab_get_tab
- 	return pteg_count << 7;
- }
- 
-+#ifdef CONFIG_MEMORY_HOTPLUG
-+void create_section_mapping(unsigned long start, unsigned long end)
-+{
-+		BUG_ON(htab_bolt_mapping(start, end, start,
-+			_PAGE_ACCESSED | _PAGE_DIRTY | _PAGE_COHERENT | PP_RWXX,
-+			mmu_linear_psize));
-+}
-+#endif /* CONFIG_MEMORY_HOTPLUG */
-+
- void __init htab_initialize(void)
- {
- 	unsigned long table, htab_size_bytes;
-diff -Naupr linux-2.6.14-git10/arch/powerpc/mm/mem.c linux-2.6.14-git10.work/arch/powerpc/mm/mem.c
---- linux-2.6.14-git10/arch/powerpc/mm/mem.c	2005-11-08 00:04:15.798922136 +0000
-+++ linux-2.6.14-git10.work/arch/powerpc/mm/mem.c	2005-11-08 00:06:46.993964456 +0000
-@@ -127,6 +127,9 @@ int __devinit add_memory(u64 start, u64 
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
- 
-+	start += KERNELBASE;
-+	create_section_mapping(start, start + size);
-+
- 	/* this should work for most non-highmem platforms */
- 	zone = pgdata->node_zones;
- 
-diff -Naupr linux-2.6.14-git10/include/asm-powerpc/sparsemem.h linux-2.6.14-git10.work/include/asm-powerpc/sparsemem.h
---- linux-2.6.14-git10/include/asm-powerpc/sparsemem.h	2005-11-08 00:04:28.486988472 +0000
-+++ linux-2.6.14-git10.work/include/asm-powerpc/sparsemem.h	2005-11-08 00:07:39.138891344 +0000
-@@ -11,6 +11,10 @@
- #define MAX_PHYSADDR_BITS       38
- #define MAX_PHYSMEM_BITS        36
- 
-+#ifdef CONFIG_MEMORY_HOTPLUG
-+extern void create_section_mapping(unsigned long start, unsigned long end);
-+#endif /* CONFIG_MEMORY_HOTPLUG */
-+
- #endif /* CONFIG_SPARSEMEM */
- 
- #endif /* _ASM_POWERPC_SPARSEMEM_H */

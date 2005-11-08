@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965073AbVKHM4G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965125AbVKHM5G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965073AbVKHM4G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 07:56:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965074AbVKHM4G
+	id S965125AbVKHM5G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 07:57:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965142AbVKHM5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 07:56:06 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:32307
+	Tue, 8 Nov 2005 07:57:06 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:43315
 	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S965073AbVKHM4E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 07:56:04 -0500
-Message-Id: <4370AEAA.76F0.0078.0@novell.com>
+	id S965108AbVKHM5A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 07:57:00 -0500
+Message-Id: <4370AEE1.76F0.0078.0@novell.com>
 X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Tue, 08 Nov 2005 13:56:58 +0100
+Date: Tue, 08 Nov 2005 13:57:53 +0100
 From: "Jan Beulich" <JBeulich@novell.com>
 To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] i386: move SIMD initialization
+Subject: [PATCH] i386: export genapic again
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=__Part71534F8A.0__="
+Content-Type: multipart/mixed; boundary="=__Part3A1804C1.0__="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -24,61 +24,44 @@ This is a MIME message. If you are reading this text, you may want to
 consider changing to a mail reader or gateway that understands how to 
 properly handle MIME multipart messages.
 
---=__Part71534F8A.0__=
+--=__Part3A1804C1.0__=
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-Move some code unrelated to any dealing with hardware bugs from i386's
-bugs.h to a more logical place.
+A change not too long ago made i386's genapic symbol no longer be
+exported, and thus certain low-level functions no longer be usable.
+Since close-to-the-hardware code may still be modular, this
+rectifies the situation.
 
 From: Jan Beulich <jbeulich@novell.com>
 
 (actual patch attached)
 
 
---=__Part71534F8A.0__=
-Content-Type: application/octet-stream; name="linux-2.6.14-i386-fxsr.patch"
+--=__Part3A1804C1.0__=
+Content-Type: application/octet-stream; name="linux-2.6.14-i386-genapic.patch"
 Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="linux-2.6.14-i386-fxsr.patch"
+Content-Disposition: attachment; filename="linux-2.6.14-i386-genapic.patch"
 
-TW92ZSBzb21lIGNvZGUgdW5yZWxhdGVkIHRvIGFueSBkZWFsaW5nIHdpdGggaGFyZHdhcmUgYnVn
-cyBmcm9tIGkzODYncwpidWdzLmggdG8gYSBtb3JlIGxvZ2ljYWwgcGxhY2UuCgpGcm9tOiBKYW4g
-QmV1bGljaCA8amJldWxpY2hAbm92ZWxsLmNvbT4KCi0tLSAyLjYuMTQvYXJjaC9pMzg2L2tlcm5l
-bC90cmFwcy5jCTIwMDUtMTAtMjggMDI6MDI6MDguMDAwMDAwMDAwICswMjAwCisrKyAyLjYuMTQt
-aTM4Ni1meHNyL2FyY2gvaTM4Ni9rZXJuZWwvdHJhcHMuYwkyMDA1LTExLTA0IDE3OjAwOjQ3LjAw
-MDAwMDAwMCArMDEwMApAQCAtMTEwMSw2ICsxMTAxLDI0IEBAIHZvaWQgX19pbml0IHRyYXBfaW5p
-dCh2b2lkKQogI2VuZGlmCiAJc2V0X3RyYXBfZ2F0ZSgxOSwmc2ltZF9jb3Byb2Nlc3Nvcl9lcnJv
-cik7CiAKKwlpZiAoY3B1X2hhc19meHNyKSB7CisJCS8qCisJCSAqIFZlcmlmeSB0aGF0IHRoZSBG
-WFNBVkUvRlhSU1RPUiBkYXRhIHdpbGwgYmUgMTYtYnl0ZSBhbGlnbmVkLgorCQkgKi8KKwkJc3Ry
-dWN0IGZ4c3JBbGlnbkFzc2VydCB7CisJCQlpbnQgXzohKG9mZnNldG9mKHN0cnVjdCB0YXNrX3N0
-cnVjdCwgdGhyZWFkLmkzODcuZnhzYXZlKSAmIDE1KTsKKwkJfTsKKworCQlwcmludGsoS0VSTl9J
-TkZPICJFbmFibGluZyBmYXN0IEZQVSBzYXZlIGFuZCByZXN0b3JlLi4uICIpOworCQlzZXRfaW5f
-Y3I0KFg4Nl9DUjRfT1NGWFNSKTsKKwkJcHJpbnRrKCJkb25lLlxuIik7CisJfQorCWlmIChjcHVf
-aGFzX3htbSkgeworCQlwcmludGsoS0VSTl9JTkZPICJFbmFibGluZyB1bm1hc2tlZCBTSU1EIEZQ
-VSBleGNlcHRpb24gc3VwcG9ydC4uLiAiKTsKKwkJc2V0X2luX2NyNChYODZfQ1I0X09TWE1NRVhD
-UFQpOworCQlwcmludGsoImRvbmUuXG4iKTsKKwl9CisKIAlzZXRfc3lzdGVtX2dhdGUoU1lTQ0FM
-TF9WRUNUT1IsJnN5c3RlbV9jYWxsKTsKIAogCS8qCi0tLSAyLjYuMTQvaW5jbHVkZS9hc20taTM4
-Ni9idWdzLmgJMjAwNS0xMC0yOCAwMjowMjowOC4wMDAwMDAwMDAgKzAyMDAKKysrIDIuNi4xNC1p
-Mzg2LWZ4c3IvaW5jbHVkZS9hc20taTM4Ni9idWdzLmgJMjAwNS0xMS0wNCAxNjoxOTozNC4wMDAw
-MDAwMDAgKzAxMDAKQEAgLTgsOSArOCw2IEBACiAgKiAgICAgICAgPHJyZWlsb3ZhQGVjZWNzLnVj
-LmVkdT4KICAqCS0gQ2hhbm5pbmcgQ29ybiAodGVzdHMgJiBmaXhlcyksCiAgKgktIEFuZHJldyBE
-LiBCYWxzYSAoY29kZSBjbGVhbnVwKS4KLSAqCi0gKiAgUGVudGl1bSBJSUkgRlhTUiwgU1NFIHN1
-cHBvcnQKLSAqCUdhcmV0aCBIdWdoZXMgPGdhcmV0aEB2YWxpbnV4LmNvbT4sIE1heSAyMDAwCiAg
-Ki8KIAogLyoKQEAgLTc2LDI1ICs3Myw3IEBAIHN0YXRpYyB2b2lkIF9faW5pdCBjaGVja19mcHUo
-dm9pZCkKIAkJcmV0dXJuOwogCX0KIAotLyogRW5hYmxlIEZYU1IgYW5kIGNvbXBhbnkgX2JlZm9y
-ZV8gdGVzdGluZyBmb3IgRlAgcHJvYmxlbXMuICovCi0JLyoKLQkgKiBWZXJpZnkgdGhhdCB0aGUg
-RlhTQVZFL0ZYUlNUT1IgZGF0YSB3aWxsIGJlIDE2LWJ5dGUgYWxpZ25lZC4KLQkgKi8KLQlpZiAo
-b2Zmc2V0b2Yoc3RydWN0IHRhc2tfc3RydWN0LCB0aHJlYWQuaTM4Ny5meHNhdmUpICYgMTUpIHsK
-LQkJZXh0ZXJuIHZvaWQgX19idWdneV9meHNyX2FsaWdubWVudCh2b2lkKTsKLQkJX19idWdneV9m
-eHNyX2FsaWdubWVudCgpOwotCX0KLQlpZiAoY3B1X2hhc19meHNyKSB7Ci0JCXByaW50ayhLRVJO
-X0lORk8gIkVuYWJsaW5nIGZhc3QgRlBVIHNhdmUgYW5kIHJlc3RvcmUuLi4gIik7Ci0JCXNldF9p
-bl9jcjQoWDg2X0NSNF9PU0ZYU1IpOwotCQlwcmludGsoImRvbmUuXG4iKTsKLQl9Ci0JaWYgKGNw
-dV9oYXNfeG1tKSB7Ci0JCXByaW50ayhLRVJOX0lORk8gIkVuYWJsaW5nIHVubWFza2VkIFNJTUQg
-RlBVIGV4Y2VwdGlvbiBzdXBwb3J0Li4uICIpOwotCQlzZXRfaW5fY3I0KFg4Nl9DUjRfT1NYTU1F
-WENQVCk7Ci0JCXByaW50aygiZG9uZS5cbiIpOwotCX0KLQorLyogdHJhcF9pbml0KCkgZW5hYmxl
-ZCBGWFNSIGFuZCBjb21wYW55IF9iZWZvcmVfIHRlc3RpbmcgZm9yIEZQIHByb2JsZW1zIGhlcmUu
-ICovCiAJLyogVGVzdCBmb3IgdGhlIGRpdmwgYnVnLi4gKi8KIAlfX2FzbV9fKCJmbmluaXRcblx0
-IgogCQkiZmxkbCAlMVxuXHQiCg==
+QSBjaGFuZ2Ugbm90IHRvbyBsb25nIGFnbyBtYWRlIGkzODYncyBnZW5hcGljIHN5bWJvbCBubyBs
+b25nZXIgYmUKZXhwb3J0ZWQsIGFuZCB0aHVzIGNlcnRhaW4gbG93LWxldmVsIGZ1bmN0aW9ucyBu
+byBsb25nZXIgYmUgdXNhYmxlLgpTaW5jZSBjbG9zZS10by10aGUtaGFyZHdhcmUgY29kZSBtYXkg
+c3RpbGwgYmUgbW9kdWxhciwgdGhpcwpyZWN0aWZpZXMgdGhlIHNpdHVhdGlvbi4KCkZyb206IEph
+biBCZXVsaWNoIDxqYmV1bGljaEBub3ZlbGwuY29tPgoKLS0tIDIuNi4xNC9hcmNoL2kzODYvbWFj
+aC1nZW5lcmljL3Byb2JlLmMJMjAwNS0xMC0yOCAwMjowMjowOC4wMDAwMDAwMDAgKzAyMDAKKysr
+IDIuNi4xNC1pMzg2LWdlbmFwaWMvYXJjaC9pMzg2L21hY2gtZ2VuZXJpYy9wcm9iZS5jCTIwMDUt
+MTEtMDQgMTY6MTk6MzMuMDAwMDAwMDAwICswMTAwCkBAIC0zLDYgKzMsNyBAQAogICogCiAgKiBH
+ZW5lcmljIHg4NiBBUElDIGRyaXZlciBwcm9iZSBsYXllci4KICAqLyAgCisjZGVmaW5lIEFQSUNf
+REVGSU5JVElPTiAxCiAjaW5jbHVkZSA8bGludXgvY29uZmlnLmg+CiAjaW5jbHVkZSA8bGludXgv
+dGhyZWFkcy5oPgogI2luY2x1ZGUgPGxpbnV4L2NwdW1hc2suaD4KQEAgLTEwLDYgKzExLDcgQEAK
+ICNpbmNsdWRlIDxsaW51eC9rZXJuZWwuaD4KICNpbmNsdWRlIDxsaW51eC9jdHlwZS5oPgogI2lu
+Y2x1ZGUgPGxpbnV4L2luaXQuaD4KKyNpbmNsdWRlIDxsaW51eC9tb2R1bGUuaD4KICNpbmNsdWRl
+IDxhc20vZml4bWFwLmg+CiAjaW5jbHVkZSA8YXNtL21wc3BlYy5oPgogI2luY2x1ZGUgPGFzbS9h
+cGljZGVmLmg+CkBAIC0yMSw2ICsyMyw3IEBAIGV4dGVybiBzdHJ1Y3QgZ2VuYXBpYyBhcGljX2Vz
+NzAwMDsKIGV4dGVybiBzdHJ1Y3QgZ2VuYXBpYyBhcGljX2RlZmF1bHQ7CiAKIHN0cnVjdCBnZW5h
+cGljICpnZW5hcGljID0gJmFwaWNfZGVmYXVsdDsKK0VYUE9SVF9TWU1CT0woZ2VuYXBpYyk7CiAK
+IHN0cnVjdCBnZW5hcGljICphcGljX3Byb2JlW10gX19pbml0ZGF0YSA9IHsgCiAJJmFwaWNfc3Vt
+bWl0LAo=
 
---=__Part71534F8A.0__=--
+--=__Part3A1804C1.0__=--

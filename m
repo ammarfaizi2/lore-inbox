@@ -1,37 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965078AbVKHDCN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030278AbVKHDDH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965078AbVKHDCN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 22:02:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965080AbVKHDCN
+	id S1030278AbVKHDDH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 22:03:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030276AbVKHDDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 22:02:13 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:12959 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965078AbVKHDCM (ORCPT
+	Mon, 7 Nov 2005 22:03:06 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:42714 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030269AbVKHDDD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 22:02:12 -0500
-Date: Mon, 7 Nov 2005 19:02:07 -0800
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net
-Subject: Re: [PATCH 1/4] revised Memory Add Fixes for ppc64
-Message-ID: <20051108030207.GA6845@w-mikek2.ibm.com>
-References: <20051104231552.GA25545@w-mikek2.ibm.com> <20051104231800.GB25545@w-mikek2.ibm.com> <1131149070.29195.41.camel@gaston> <20051108002548.GF5821@w-mikek2.ibm.com> <17264.2129.341199.334838@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
+	Mon, 7 Nov 2005 22:03:03 -0500
+From: Neil Brown <neilb@suse.de>
+To: Al Viro <viro@ftp.linux.org.uk>
+Date: Tue, 8 Nov 2005 14:02:51 +1100
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17264.2129.341199.334838@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17264.5467.78557.38472@cse.unsw.edu.au>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, linuxram@us.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 4/18] make /proc/mounts pollable
+In-Reply-To: message from Al Viro on Tuesday November 8
+References: <E1EZInj-0001Ej-9n@ZenIV.linux.org.uk>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 08, 2005 at 01:07:13PM +1100, Paul Mackerras wrote:
-> So, should I send this on to Linus along with the original 2/4 and 3/4
-> you posted and the revised 4/4?
 
-Yes, those should provide basic memory add support for ppc64.
+Ahh, now this is interesting.
+I tried to make /proc/mdstat pollable some time ago and go howled down
+as it was said to be the Wrong Thing(TM). (It was not, I hasten to
+add, Al who howled me down).
 
-Thanks,
--- 
-Mike
+I look forward to seeing the progress of this patch.
+
+I wonder if there is any chance of attributes in sysfs being pollable
+too??
+
+NeilBrown

@@ -1,80 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030206AbVKHUDr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030212AbVKHUFo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030206AbVKHUDr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 15:03:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030212AbVKHUDr
+	id S1030212AbVKHUFo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 15:05:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030217AbVKHUFo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 15:03:47 -0500
-Received: from spirit.analogic.com ([204.178.40.4]:38413 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP
-	id S1030206AbVKHUDq convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 15:03:46 -0500
+	Tue, 8 Nov 2005 15:05:44 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:15364 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030212AbVKHUFn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 15:05:43 -0500
+Date: Tue, 8 Nov 2005 21:05:43 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/usb/core/message.c: make usb_get_string() static
+Message-ID: <20051108200543.GF3847@stusta.de>
+References: <20051108181239.GB3847@stusta.de> <20051108184638.GA15939@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <b6c5339f0511081139y7ab57ea9y498d9cf4aae9692b@mail.gmail.com>
-References: <Pine.LNX.4.61.0511081040580.3894@chaos.analogic.com> <3587A59B-14FA-4E0F-A598-577E944FCF36@comcast.net> <20051108172244.GR7992@ftp.linux.org.uk> <23F8E4C6-3141-4ECB-B3FF-E9BE6D261EE1@comcast.net> <Pine.LNX.4.61.0511081308360.4837@chaos.analogic.com> <C65925DE-0F6F-401E-8D47-2EE3F8D5191C@comcast.net> <Pine.LNX.4.61.0511081316390.4913@chaos.analogic.com> <b6c5339f0511081139y7ab57ea9y498d9cf4aae9692b@mail.gmail.com>
-X-OriginalArrivalTime: 08 Nov 2005 20:03:45.0715 (UTC) FILETIME=[867C4030:01C5E49F]
-Content-class: urn:content-classes:message
-Subject: Re: Compatible fstat()
-Date: Tue, 8 Nov 2005 15:03:45 -0500
-Message-ID: <Pine.LNX.4.61.0511081454040.5271@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Compatible fstat()
-Thread-Index: AcXkn4aD1M8sdKOjTPOKjgZF2pBZ8g==
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Bob Copeland" <email@bobcopeland.com>
-Cc: "Parag Warudkar" <kernel-stuff@comcast.net>,
-       "Al Viro" <viro@ftp.linux.org.uk>,
-       "Linux kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051108184638.GA15939@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+After the removal of usb-midi.c, there's no longer any external user of 
+usb_get_string().
 
-On Tue, 8 Nov 2005, Bob Copeland wrote:
 
->>> Yeah I corrected that before trying but still didn't work on Debian
->>> (2.6.8 kernel)...
->>> Running root, open successful but size is always zero - Strange..
->>>
->>> Parag
->>
->> Also found that the returned value was -1 and errno was EOVERFLOW.
->> So, that doesn't work either!
->
-> Isn't this just because the device size is > 2**32?  What if you use fseeko(3)
-> and #define _FILE_OFFSET_BITS 64?
->
-> Okay, still not portable and there is probably a better way that doesn't rely
-> on such nonsense.  For example, since you have a minimum size in mind,
-> just seek that much and see if it works - you don't really need to know the
-> whole disk size for that.  Or figure out the best way on all of your platforms
-> and abstract it.
->
-> -Bob
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Well if I could __count__ on EOVERFLOW meaning there was plenty of
-room, it would be okay. Also, if I could count on walking-up-the
-ladder of some SEEK_SET code that would be good also.
+---
 
-Anyway. I'm still checking. It sure would have been helpful
-if fstat returned the number of blocks and the block-size for
-the device (as it implied by the existance of those members).
-Unfortunately the only POSIX requirement is for the st_*time,
-st_mode, st_ini, st_dev, and st_*id fields to contain meaningful
-values, damn.
+ drivers/usb/core/message.c |    5 ++---
+ include/linux/usb.h        |    2 --
+ 2 files changed, 2 insertions(+), 5 deletions(-)
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.55 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
+--- linux-2.6.14-mm1-full/include/linux/usb.h.old	2005-11-08 18:42:15.000000000 +0100
++++ linux-2.6.14-mm1-full/include/linux/usb.h	2005-11-08 18:42:23.000000000 +0100
+@@ -1004,8 +1004,6 @@
+ 	unsigned char descindex, void *buf, int size);
+ extern int usb_get_status(struct usb_device *dev,
+ 	int type, int target, void *data);
+-extern int usb_get_string(struct usb_device *dev,
+-	unsigned short langid, unsigned char index, void *buf, int size);
+ extern int usb_string(struct usb_device *dev, int index,
+ 	char *buf, size_t size);
+ 
+--- linux-2.6.14-mm1-full/drivers/usb/core/message.c.old	2005-11-08 18:42:32.000000000 +0100
++++ linux-2.6.14-mm1-full/drivers/usb/core/message.c	2005-11-08 18:42:58.000000000 +0100
+@@ -637,8 +637,8 @@
+  * Returns the number of bytes received on success, or else the status code
+  * returned by the underlying usb_control_msg() call.
+  */
+-int usb_get_string(struct usb_device *dev, unsigned short langid,
+-		unsigned char index, void *buf, int size)
++static int usb_get_string(struct usb_device *dev, unsigned short langid,
++			  unsigned char index, void *buf, int size)
+ {
+ 	int i;
+ 	int result;
+@@ -1488,7 +1488,6 @@
+ // synchronous control message convenience routines
+ EXPORT_SYMBOL(usb_get_descriptor);
+ EXPORT_SYMBOL(usb_get_status);
+-EXPORT_SYMBOL(usb_get_string);
+ EXPORT_SYMBOL(usb_string);
+ 
+ // synchronous calls that also maintain usbcore state
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

@@ -1,170 +1,229 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965168AbVKHCDn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030238AbVKHCDm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965168AbVKHCDn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 21:03:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965256AbVKHCBy
+	id S1030238AbVKHCDm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 21:03:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030236AbVKHCBz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 21:01:54 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:25293 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965186AbVKHCBg
+	Mon, 7 Nov 2005 21:01:55 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:30157 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965257AbVKHCBg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 7 Nov 2005 21:01:36 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 15/18] introduce slave mounts
+Subject: [PATCH 7/18] umount_tree() locking change
 Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
        linuxram@us.ibm.com
-Message-Id: <E1EZInj-0001F5-BH@ZenIV.linux.org.uk>
+Message-Id: <E1EZInj-0001Ep-8v@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
 Date: Tue, 08 Nov 2005 02:01:31 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Ram Pai <linuxram@us.ibm.com>
-Date: 1131402048 -0500
+Date: 1131401824 -0500
 
-A slave mount always has a master mount from which it receives
-mount/umount events. Unlike shared mount the event propagation
-does not flow from the slave mount to the master.
+umount is done under the protection of the namespace semaphore. This can lead
+to intresting deadlocks when the last reference to a mount is released, if
+filesystem code is in sufficiently nasty state.
+
+This patch collects all the to-be-released-mounts and releases them after
+releasing the namespace semaphore.  That both reduces the time we are
+holding namespace semaphore and gets the things more robust.
+
+Idea proposed by Al Viro.
 
 Signed-off-by: Ram Pai (linuxram@us.ibm.com)
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- fs/namespace.c        |    4 +++-
- fs/pnode.c            |   54 ++++++++++++++++++++++++++++++++++++++++++++++---
- fs/pnode.h            |    2 ++
- include/linux/fs.h    |    1 +
- include/linux/mount.h |    3 +++
- 5 files changed, 60 insertions(+), 4 deletions(-)
+ fs/namespace.c |   84 ++++++++++++++++++++++++++++++++++----------------------
+ 1 files changed, 51 insertions(+), 33 deletions(-)
 
-f98429253bbedb8511dd1c0af294d95a4c5cbc5d
+dd3f73bd6018c2260f0315b959b8167b36ac4b1a
 diff --git a/fs/namespace.c b/fs/namespace.c
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
-@@ -67,6 +67,8 @@ struct vfsmount *alloc_vfsmnt(const char
- 		INIT_LIST_HEAD(&mnt->mnt_list);
- 		INIT_LIST_HEAD(&mnt->mnt_expire);
- 		INIT_LIST_HEAD(&mnt->mnt_share);
-+		INIT_LIST_HEAD(&mnt->mnt_slave_list);
-+		INIT_LIST_HEAD(&mnt->mnt_slave);
- 		if (name) {
- 			int size = strlen(name) + 1;
- 			char *newname = kmalloc(size, GFP_KERNEL);
-@@ -1243,7 +1245,7 @@ long do_mount(char *dev_name, char *dir_
- 				    data_page);
- 	else if (flags & MS_BIND)
- 		retval = do_loopback(&nd, dev_name, flags & MS_REC);
--	else if (flags & (MS_SHARED | MS_PRIVATE))
-+	else if (flags & (MS_SHARED | MS_PRIVATE | MS_SLAVE))
- 		retval = do_change_type(&nd, flags);
- 	else if (flags & MS_MOVE)
- 		retval = do_move_mount(&nd, dev_name);
-diff --git a/fs/pnode.c b/fs/pnode.c
---- a/fs/pnode.c
-+++ b/fs/pnode.c
-@@ -17,13 +17,61 @@ static inline struct vfsmount *next_peer
- 	return list_entry(p->mnt_share.next, struct vfsmount, mnt_share);
- }
+@@ -394,32 +394,45 @@ int may_umount(struct vfsmount *mnt)
  
-+static int do_make_slave(struct vfsmount *mnt)
+ EXPORT_SYMBOL(may_umount);
+ 
+-static void umount_tree(struct vfsmount *mnt)
++static void release_mounts(struct list_head *head)
 +{
-+	struct vfsmount *peer_mnt = mnt, *master = mnt->mnt_master;
-+	struct vfsmount *slave_mnt;
-+
-+	/*
-+	 * slave 'mnt' to a peer mount that has the
-+	 * same root dentry. If none is available than
-+	 * slave it to anything that is available.
-+	 */
-+	while ((peer_mnt = next_peer(peer_mnt)) != mnt &&
-+	       peer_mnt->mnt_root != mnt->mnt_root) ;
-+
-+	if (peer_mnt == mnt) {
-+		peer_mnt = next_peer(mnt);
-+		if (peer_mnt == mnt)
-+			peer_mnt = NULL;
-+	}
-+	list_del_init(&mnt->mnt_share);
-+
-+	if (peer_mnt)
-+		master = peer_mnt;
-+
-+	if (master) {
-+		list_for_each_entry(slave_mnt, &mnt->mnt_slave_list, mnt_slave)
-+			slave_mnt->mnt_master = master;
-+		list_del(&mnt->mnt_slave);
-+		list_add(&mnt->mnt_slave, &master->mnt_slave_list);
-+		list_splice(&mnt->mnt_slave_list, master->mnt_slave_list.prev);
-+		INIT_LIST_HEAD(&mnt->mnt_slave_list);
-+	} else {
-+		struct list_head *p = &mnt->mnt_slave_list;
-+		while (!list_empty(p)) {
-+                        slave_mnt = list_entry(p->next,
-+					struct vfsmount, mnt_slave);
-+			list_del_init(&slave_mnt->mnt_slave);
-+			slave_mnt->mnt_master = NULL;
++	struct vfsmount *mnt;
++	while(!list_empty(head)) {
++		mnt = list_entry(head->next, struct vfsmount, mnt_hash);
++		list_del_init(&mnt->mnt_hash);
++		if (mnt->mnt_parent != mnt) {
++			struct dentry *dentry;
++			struct vfsmount *m;
++			spin_lock(&vfsmount_lock);
++			dentry = mnt->mnt_mountpoint;
++			m = mnt->mnt_parent;
++			mnt->mnt_mountpoint = mnt->mnt_root;
++			mnt->mnt_parent = mnt;
++			spin_unlock(&vfsmount_lock);
++			dput(dentry);
++			mntput(m);
 +		}
++		mntput(mnt);
 +	}
-+	mnt->mnt_master = master;
-+	CLEAR_MNT_SHARED(mnt);
-+	INIT_LIST_HEAD(&mnt->mnt_slave_list);
-+	return 0;
 +}
 +
- void change_mnt_propagation(struct vfsmount *mnt, int type)
++static void umount_tree(struct vfsmount *mnt, struct list_head *kill)
  {
- 	if (type == MS_SHARED) {
- 		set_mnt_shared(mnt);
--	} else {
--		list_del_init(&mnt->mnt_share);
--		mnt->mnt_flags &= ~MNT_PNODE_MASK;
-+		return;
-+	}
-+	do_make_slave(mnt);
-+	if (type != MS_SLAVE) {
-+		list_del_init(&mnt->mnt_slave);
-+		mnt->mnt_master = NULL;
+ 	struct vfsmount *p;
+-	LIST_HEAD(kill);
+ 
+ 	for (p = mnt; p; p = next_mnt(p, mnt)) {
+-		list_del(&p->mnt_list);
+-		list_add(&p->mnt_list, &kill);
+-		__touch_namespace(p->mnt_namespace);
+-		p->mnt_namespace = NULL;
++		list_del(&p->mnt_hash);
++		list_add(&p->mnt_hash, kill);
+ 	}
+ 
+-	while (!list_empty(&kill)) {
+-		mnt = list_entry(kill.next, struct vfsmount, mnt_list);
+-		list_del_init(&mnt->mnt_list);
+-		list_del_init(&mnt->mnt_expire);
+-		if (mnt->mnt_parent == mnt) {
+-			spin_unlock(&vfsmount_lock);
+-		} else {
+-			struct nameidata old_nd;
+-			detach_mnt(mnt, &old_nd);
+-			spin_unlock(&vfsmount_lock);
+-			path_release(&old_nd);
+-		}
+-		mntput(mnt);
+-		spin_lock(&vfsmount_lock);
++	list_for_each_entry(p, kill, mnt_hash) {
++		list_del_init(&p->mnt_expire);
++		list_del_init(&p->mnt_list);
++		__touch_namespace(p->mnt_namespace);
++		p->mnt_namespace = NULL;
++		list_del_init(&p->mnt_child);
++		if (p->mnt_parent != p)
++			mnt->mnt_mountpoint->d_mounted--;
  	}
  }
  
-diff --git a/fs/pnode.h b/fs/pnode.h
---- a/fs/pnode.h
-+++ b/fs/pnode.h
-@@ -12,10 +12,12 @@
- #include <linux/mount.h>
+@@ -427,6 +440,7 @@ static int do_umount(struct vfsmount *mn
+ {
+ 	struct super_block *sb = mnt->mnt_sb;
+ 	int retval;
++	LIST_HEAD(umount_list);
  
- #define IS_MNT_SHARED(mnt) (mnt->mnt_flags & MNT_SHARED)
-+#define IS_MNT_SLAVE(mnt) (mnt->mnt_master)
- #define IS_MNT_NEW(mnt)  (!mnt->mnt_namespace)
- #define CLEAR_MNT_SHARED(mnt) (mnt->mnt_flags &= ~MNT_SHARED)
+ 	retval = security_sb_umount(mnt, flags);
+ 	if (retval)
+@@ -497,13 +511,14 @@ static int do_umount(struct vfsmount *mn
+ 	retval = -EBUSY;
+ 	if (atomic_read(&mnt->mnt_count) == 2 || flags & MNT_DETACH) {
+ 		if (!list_empty(&mnt->mnt_list))
+-			umount_tree(mnt);
++			umount_tree(mnt, &umount_list);
+ 		retval = 0;
+ 	}
+ 	spin_unlock(&vfsmount_lock);
+ 	if (retval)
+ 		security_sb_umount_busy(mnt);
+ 	up_write(&current->namespace->sem);
++	release_mounts(&umount_list);
+ 	return retval;
+ }
  
- #define CL_EXPIRE    		0x01
-+#define CL_SLAVE     		0x02
- #define CL_COPY_ALL 		0x04
- #define CL_MAKE_SHARED 		0x08
- #define CL_PROPAGATION 		0x10
-diff --git a/include/linux/fs.h b/include/linux/fs.h
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -105,6 +105,7 @@ extern int dir_notify_enable;
- #define MS_REC		16384
- #define MS_VERBOSE	32768
- #define MS_PRIVATE	(1<<18)	/* change to private */
-+#define MS_SLAVE	(1<<19)	/* change to slave */
- #define MS_SHARED	(1<<20)	/* change to shared */
- #define MS_POSIXACL	(1<<16)	/* VFS does not apply the umask */
- #define MS_ACTIVE	(1<<30)
-diff --git a/include/linux/mount.h b/include/linux/mount.h
---- a/include/linux/mount.h
-+++ b/include/linux/mount.h
-@@ -38,6 +38,9 @@ struct vfsmount {
- 	struct list_head mnt_list;
- 	struct list_head mnt_expire;	/* link in fs-specific expiry list */
- 	struct list_head mnt_share;	/* circular list of shared mounts */
-+	struct list_head mnt_slave_list;/* list of slave mounts */
-+	struct list_head mnt_slave;	/* slave list entry */
-+	struct vfsmount *mnt_master;	/* slave is on master->mnt_slave_list */
- 	struct namespace *mnt_namespace; /* containing namespace */
- 	int mnt_pinned;
- };
+@@ -616,9 +631,11 @@ static struct vfsmount *copy_tree(struct
+ 	return res;
+ Enomem:
+ 	if (res) {
++		LIST_HEAD(umount_list);
+ 		spin_lock(&vfsmount_lock);
+-		umount_tree(res);
++		umount_tree(res, &umount_list);
+ 		spin_unlock(&vfsmount_lock);
++		release_mounts(&umount_list);
+ 	}
+ 	return NULL;
+ }
+@@ -698,9 +715,11 @@ static int do_loopback(struct nameidata 
+ 
+ 	err = graft_tree(mnt, nd);
+ 	if (err) {
++		LIST_HEAD(umount_list);
+ 		spin_lock(&vfsmount_lock);
+-		umount_tree(mnt);
++		umount_tree(mnt, &umount_list);
+ 		spin_unlock(&vfsmount_lock);
++		release_mounts(&umount_list);
+ 	}
+ 
+ out:
+@@ -875,7 +894,8 @@ unlock:
+ 
+ EXPORT_SYMBOL_GPL(do_add_mount);
+ 
+-static void expire_mount(struct vfsmount *mnt, struct list_head *mounts)
++static void expire_mount(struct vfsmount *mnt, struct list_head *mounts,
++				struct list_head *umounts)
+ {
+ 	spin_lock(&vfsmount_lock);
+ 
+@@ -893,16 +913,12 @@ static void expire_mount(struct vfsmount
+ 	 * contributed by the vfsmount parent and the mntget above
+ 	 */
+ 	if (atomic_read(&mnt->mnt_count) == 2) {
+-		struct nameidata old_nd;
+-
+ 		/* delete from the namespace */
+ 		touch_namespace(mnt->mnt_namespace);
+ 		list_del_init(&mnt->mnt_list);
+ 		mnt->mnt_namespace = NULL;
+-		detach_mnt(mnt, &old_nd);
++		umount_tree(mnt, umounts);
+ 		spin_unlock(&vfsmount_lock);
+-		path_release(&old_nd);
+-		mntput(mnt);
+ 	} else {
+ 		/*
+ 		 * Someone brought it back to life whilst we didn't have any
+@@ -951,6 +967,7 @@ void mark_mounts_for_expiry(struct list_
+ 	 * - dispose of the corpse
+ 	 */
+ 	while (!list_empty(&graveyard)) {
++		LIST_HEAD(umounts);
+ 		mnt = list_entry(graveyard.next, struct vfsmount, mnt_expire);
+ 		list_del_init(&mnt->mnt_expire);
+ 
+@@ -963,12 +980,11 @@ void mark_mounts_for_expiry(struct list_
+ 
+ 		spin_unlock(&vfsmount_lock);
+ 		down_write(&namespace->sem);
+-		expire_mount(mnt, mounts);
++		expire_mount(mnt, mounts, &umounts);
+ 		up_write(&namespace->sem);
+-
++		release_mounts(&umounts);
+ 		mntput(mnt);
+ 		put_namespace(namespace);
+-
+ 		spin_lock(&vfsmount_lock);
+ 	}
+ 
+@@ -1508,12 +1524,14 @@ void __init mnt_init(unsigned long mempa
+ void __put_namespace(struct namespace *namespace)
+ {
+ 	struct vfsmount *root = namespace->root;
++	LIST_HEAD(umount_list);
+ 	namespace->root = NULL;
+ 	spin_unlock(&vfsmount_lock);
+ 	down_write(&namespace->sem);
+ 	spin_lock(&vfsmount_lock);
+-	umount_tree(root);
++	umount_tree(root, &umount_list);
+ 	spin_unlock(&vfsmount_lock);
+ 	up_write(&namespace->sem);
++	release_mounts(&umount_list);
+ 	kfree(namespace);
+ }

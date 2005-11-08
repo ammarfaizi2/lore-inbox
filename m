@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964907AbVKHQ7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965133AbVKHRCo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964907AbVKHQ7E (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 11:59:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965149AbVKHQ7E
+	id S965133AbVKHRCo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 12:02:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030258AbVKHRCo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 11:59:04 -0500
-Received: from xenotime.net ([66.160.160.81]:55712 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S964907AbVKHQ7D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 11:59:03 -0500
-Date: Tue, 8 Nov 2005 08:59:02 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
+	Tue, 8 Nov 2005 12:02:44 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:18705 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S965133AbVKHRCn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 12:02:43 -0500
+Date: Tue, 8 Nov 2005 18:02:43 +0100
+From: Adrian Bunk <bunk@stusta.de>
 To: Jan Beulich <JBeulich@novell.com>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386: make trap information available to die handlers
-In-Reply-To: <4370E5C4.76F0.0078.0@novell.com>
-Message-ID: <Pine.LNX.4.58.0511080853360.15288@shark.he.net>
-References: <4370AEE1.76F0.0078.0@novell.com> <4370E5C4.76F0.0078.0@novell.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386: stand-alone CONFIG_PAE
+Message-ID: <20051108170243.GA3847@stusta.de>
+References: <4370AEE1.76F0.0078.0@novell.com> <4370E69F.76F0.0078.0@novell.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4370E69F.76F0.0078.0@novell.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Nov 2005, Jan Beulich wrote:
+On Tue, Nov 08, 2005 at 05:55:43PM +0100, Jan Beulich wrote:
+>...
+> Also appropriately qualify both options depending on configured
+> minimum processor type.
 
-> Pass the trap number causing the call to die() to the die notification
-> handler chain.
->
+With the current semantics of the cpu options this is wrong:
+M386 is a synonym for "kernel runs on all cpus".
+
 > From: Jan Beulich <jbeulich@novell.com>
->
+> 
 > (actual patch attached)
 
-I understand that some people need to use attachment for
-patches.  In some locations I have that problem myself.
+cu
+Adrian
 
-However, the From: in the body above isn't needed.
-Or if it's needed, it should be part of the patch.
-
-And the patch (attachment) also contains From:, but it's missing
-a Signed-off-by: line.
-
-Please read/study Documentation/SubmittingPatches, esp. the
-section on "12) The canonical patch format".
-
-
-Anyone:  what are acceptable method(s) for using
-attachments for patches?
-
-Would no email body be OK?  (I.e., everything in the attachment?)
-Everything being "the canonical patch format."
-
-Thanks,
 -- 
-~Randy
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

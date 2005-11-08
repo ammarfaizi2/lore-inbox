@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbVKHPzn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030226AbVKHQFG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932377AbVKHPzn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 10:55:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965101AbVKHPzn
+	id S1030226AbVKHQFG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 11:05:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbVKHQFG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 10:55:43 -0500
-Received: from 238-193.adsl.pool.ew.hu ([193.226.238.193]:16914 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S932308AbVKHPzm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 10:55:42 -0500
-To: linuxram@us.ibm.com
-CC: miklos@szeredi.hu, viro@ftp.linux.org.uk, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <1131464926.5400.234.camel@localhost> (message from Ram Pai on
-	Tue, 08 Nov 2005 07:48:46 -0800)
-Subject: Re: [PATCH 12/18] shared mount handling: bind and rbind
-References: <E1EZInj-0001Ez-AV@ZenIV.linux.org.uk>
-	 <E1EZUC9-0007oJ-00@dorka.pomaz.szeredi.hu> <1131464926.5400.234.camel@localhost>
-Message-Id: <E1EZVoO-000807-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 08 Nov 2005 16:55:04 +0100
+	Tue, 8 Nov 2005 11:05:06 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:12816 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030226AbVKHQFF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 11:05:05 -0500
+Date: Tue, 8 Nov 2005 17:05:04 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: starvik@axis.com
+Cc: dev-etrax@axis.com, linux-kernel@vger.kernel.org,
+       Alexey Dobriyan <adobriyan@gmail.com>
+Subject: [2.6 patch] cris: kgdb: remove double_this()
+Message-ID: <20051108160504.GV3847@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> No. As explained in the same earlier threads; without this change the
-> behavior of shared-subtrees leads to inconsistency and confusion in some
-> scenarios.
-> 
-> Under the premise that no application should depend on this behavior
-> (most-recent-mount-visible v/s top-most-mount-visible),
+From: Alexey Dobriyan <adobriyan@gmail.com>
 
-The strongest argument against was that
+Doesn't make much sense and unused.
 
-  mount foo .; umount .
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-would no longer be a no-op.
+---
 
-> Al Viro permitted this change. And this is certainly the right
-> behavior.
+ arch/cris/arch-v10/kernel/kgdb.c |    6 ------
+ 1 file changed, 6 deletions(-)
 
-Which is a contradiction in term, since you are saying that
-applications _do_ depend on it.
+--- ./arch/cris/arch-v10/kernel/kgdb.c
++++ ./arch/cris/arch-v10/kernel/kgdb.c
+@@ -569,12 +569,6 @@ gdb_cris_strtol (const char *s, char **e
+ 	return x;
+ }
+ 
+-int
+-double_this(int x)
+-{
+-        return 2 * x;
+-}
+-
+ /********************************* Register image ****************************/
+ /* Copy the content of a register image into another. The size n is
+    the size of the register image. Due to struct assignment generation of
 
-Miklos
+

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030416AbVKHXyN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030418AbVKHX4A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030416AbVKHXyN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 18:54:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030417AbVKHXyN
+	id S1030418AbVKHX4A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 18:56:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030421AbVKHX4A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 18:54:13 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:24252 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030416AbVKHXyM (ORCPT
+	Tue, 8 Nov 2005 18:56:00 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:51869 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030418AbVKHX4A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 18:54:12 -0500
-Date: Tue, 8 Nov 2005 17:53:57 -0600
+	Tue, 8 Nov 2005 18:56:00 -0500
+Date: Tue, 8 Nov 2005 17:55:48 -0600
 To: Greg KH <greg@kroah.com>
 Cc: Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
        linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/7] PCI Error Recovery: header file patch
-Message-ID: <20051108235357.GD19593@austin.ibm.com>
+Subject: [PATCH 2/7] PCI Error Recovery:  IPR SCSI device driver
+Message-ID: <20051108235548.GE19593@austin.ibm.com>
 References: <20051108234911.GC19593@austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -27,115 +27,129 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 Please apply.
---------
+------
 
-PCI Error Recovery: header file patch
+Various PCI bus errors can be signaled by newer PCI controllers.  This
+patch adds the PCI error recovery callbacks to the IPR SCSI device driver.
+The patch has been tested, and appears to work well.
 
-Various PCI bus errors can be signaled by newer PCI controllers. Recovering 
-from those errors requires an infrastructure to notify affected device drivers 
-of the error, and a way of walking through a reset sequence.  This patch adds 
-a set of callbacks to be used by error recovery routines to notify device 
-drivers of the various stages of recovery.
-
-Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
+Signed-off-by: Linas Vepstas <linas@linas.org>
+Signed-off-by: Brian King <brking@us.ibm.com>
 
 --
-Index: linux-2.6.14-git10/include/linux/pci.h
+Index: linux-2.6.14-git10/drivers/scsi/ipr.c
 ===================================================================
---- linux-2.6.14-git10.orig/include/linux/pci.h	2005-11-07 17:24:23.048968436 -0600
-+++ linux-2.6.14-git10/include/linux/pci.h	2005-11-07 17:42:46.026024245 -0600
-@@ -78,6 +78,23 @@
- #define PCI_UNKNOWN	((pci_power_t __force) 5)
- #define PCI_POWER_ERROR	((pci_power_t __force) -1)
+--- linux-2.6.14-git10.orig/drivers/scsi/ipr.c	2005-11-07 17:24:13.000000000 -0600
++++ linux-2.6.14-git10/drivers/scsi/ipr.c	2005-11-07 17:44:35.415656790 -0600
+@@ -5328,6 +5328,92 @@
+ 				shutdown_type);
+ }
  
-+/** The pci_channel state describes connectivity between the CPU and
-+ *  the pci device.  If some PCI bus between here and the pci device
-+ *  has crashed or locked up, this info is reflected here.
++/* --------------- PCI Error Recovery infrastructure ----------- */
++/** If the PCI slot is frozen, hold off all i/o
++ *  activity; then, as soon as the slot is available again,
++ *  initiate an adapter reset.
 + */
-+typedef int __bitwise pci_channel_state_t;
-+
-+enum pci_channel_state {
-+	/* I/O channel is in normal state */
-+	pci_channel_io_normal = (__force pci_channel_state_t) 1,
-+	
-+	/* I/O to channel is blocked */
-+	pci_channel_io_frozen = (__force pci_channel_state_t) 2,
-+
-+	/* PCI card is dead */
-+	pci_channel_io_perm_failure = (__force pci_channel_state_t) 3,
-+};
-+
- /*
-  * The pci_dev structure is used to describe PCI devices.
-  */
-@@ -110,6 +127,7 @@
- 					   this is D0-D3, D0 being fully functional,
- 					   and D3 being off. */
- 
-+	pci_channel_state_t error_state;  /* current connectivity state */
- 	struct	device	dev;		/* Generic device interface */
- 
- 	/* device is compatible with these IDs */
-@@ -232,6 +250,54 @@
- 	unsigned int use_driver_data:1; /* pci_driver->driver_data is used */
- };
- 
-+/* ---------------------------------------------------------------- */
-+/** PCI Error Recovery System (PCI-ERS).  If a PCI device driver provides
-+ *  a set fof callbacks in struct pci_error_handlers, then that device driver
-+ *  will be notified of PCI bus errors, and will be driven to recovery
-+ *  when an error occurs.
-+ */
-+
-+typedef int __bitwise pci_ers_result_t;
-+
-+enum pci_ers_result {
-+	/* no result/none/not supported in device driver */
-+	PCI_ERS_RESULT_NONE = (__force pci_ers_result_t) 1,
-+
-+	/* Device driver can recover without slot reset */
-+	PCI_ERS_RESULT_CAN_RECOVER = (__force pci_ers_result_t) 2,
-+
-+	/* Device driver wants slot to be reset. */
-+	PCI_ERS_RESULT_NEED_RESET = (__force pci_ers_result_t) 3,
-+
-+	/* Device has completely failed, is unrecoverable */
-+	PCI_ERS_RESULT_DISCONNECT = (__force pci_ers_result_t) 4,
-+
-+	/* Device driver is fully recovered and operational */
-+	PCI_ERS_RESULT_RECOVERED = (__force pci_ers_result_t) 5,
-+};
-+
-+/* PCI bus error event callbacks */
-+struct pci_error_handlers
++static int ipr_reset_freeze(struct ipr_cmnd *ipr_cmd)
 +{
-+	/* PCI bus error detected on this device */
-+	pci_ers_result_t (*error_detected)(struct pci_dev *dev,
-+	                      enum pci_channel_state error);
++	/* Disallow new interrupts, avoid loop */
++	ipr_cmd->ioa_cfg->allow_interrupts = 0;
++	list_add_tail(&ipr_cmd->queue, &ipr_cmd->ioa_cfg->pending_q);
++	ipr_cmd->done = ipr_reset_ioa_job;
++	return IPR_RC_JOB_RETURN;
++}
 +
-+	/* MMIO has been re-enabled, but not DMA */
-+	pci_ers_result_t (*mmio_enabled)(struct pci_dev *dev);
++/** ipr_eeh_frozen -- called when slot has experience PCI bus error.
++ *  This routine is called to tell us that the PCI bus is down.
++ *  Can't do anything here, except put the device driver into a
++ *  holding pattern, waiting for the PCI bus to come back.
++ */
++static void ipr_eeh_frozen (struct pci_dev *pdev)
++{
++	unsigned long flags = 0;
++	struct ipr_ioa_cfg *ioa_cfg = pci_get_drvdata(pdev);
 +
-+	/* PCI Express link has been reset */
-+	pci_ers_result_t (*link_reset)(struct pci_dev *dev);
++	spin_lock_irqsave(ioa_cfg->host->host_lock, flags);
++	_ipr_initiate_ioa_reset(ioa_cfg, ipr_reset_freeze, IPR_SHUTDOWN_NONE);
++	spin_unlock_irqrestore(ioa_cfg->host->host_lock, flags);
++}
 +
-+	/* PCI slot has been reset */
-+	pci_ers_result_t (*slot_reset)(struct pci_dev *dev);
++/** ipr_eeh_slot_reset - called when pci slot has been reset.
++ *
++ * This routine is called by the pci error recovery recovery
++ * code after the PCI slot has been reset, just before we
++ * should resume normal operations.
++ */
++static pci_ers_result_t ipr_eeh_slot_reset(struct pci_dev *pdev)
++{
++	unsigned long flags = 0;
++	struct ipr_ioa_cfg *ioa_cfg = pci_get_drvdata(pdev);
 +
-+	/* Device driver may resume normal operations */
-+	void (*resume)(struct pci_dev *dev);
++	spin_lock_irqsave(ioa_cfg->host->host_lock, flags);
++	_ipr_initiate_ioa_reset(ioa_cfg, ipr_reset_restore_cfg_space,
++	                                 IPR_SHUTDOWN_NONE);
++	spin_unlock_irqrestore(ioa_cfg->host->host_lock, flags);
++
++	return PCI_ERS_RESULT_RECOVERED;
++}
++
++/** This routine is called when the PCI bus has permanently
++ *  failed.  This routine should purge all pending I/O and
++ *  shut down the device driver (close and unload).
++ */
++static void ipr_eeh_perm_failure(struct pci_dev *pdev)
++{
++	unsigned long flags = 0;
++	struct ipr_ioa_cfg *ioa_cfg = pci_get_drvdata(pdev);
++
++	spin_lock_irqsave(ioa_cfg->host->host_lock, flags);
++	if (ioa_cfg->sdt_state == WAIT_FOR_DUMP)
++		ioa_cfg->sdt_state = ABORT_DUMP;
++	ioa_cfg->reset_retries = IPR_NUM_RESET_RELOAD_RETRIES;
++	ioa_cfg->in_ioa_bringdown = 1;
++	ipr_initiate_ioa_reset(ioa_cfg, IPR_SHUTDOWN_NONE);
++	spin_unlock_irqrestore(ioa_cfg->host->host_lock, flags);
++}
++
++static pci_ers_result_t ipr_eeh_error_detected(struct pci_dev *pdev,
++                                pci_channel_state_t state)
++{
++	switch (state) {
++		case pci_channel_io_frozen:
++			ipr_eeh_frozen (pdev);
++			return PCI_ERS_RESULT_NEED_RESET;
++
++		case pci_channel_io_perm_failure:
++			ipr_eeh_perm_failure (pdev);
++			return PCI_ERS_RESULT_DISCONNECT;
++			break;
++		default:
++			break;
++	}
++	return PCI_ERS_RESULT_NEED_RESET;
++}
++
++/* ------------- end of PCI Error Recovery suport ----------- */
++
+ /**
+  * ipr_probe_ioa_part2 - Initializes IOAs found in ipr_probe_ioa(..)
+  * @ioa_cfg:	ioa cfg struct
+@@ -6065,12 +6151,18 @@
+ };
+ MODULE_DEVICE_TABLE(pci, ipr_pci_table);
+ 
++static struct pci_error_handlers ipr_err_handler = {
++	.error_detected = ipr_eeh_error_detected,
++	.slot_reset = ipr_eeh_slot_reset,
 +};
 +
-+/* ---------------------------------------------------------------- */
-+
- struct module;
- struct pci_driver {
- 	struct list_head node;
-@@ -245,6 +311,7 @@
- 	int  (*enable_wake) (struct pci_dev *dev, pci_power_t state, int enable);   /* Enable wake event */
- 	void (*shutdown) (struct pci_dev *dev);
- 
-+	struct pci_error_handlers *err_handler;
- 	struct device_driver	driver;
- 	struct pci_dynids dynids;
+ static struct pci_driver ipr_driver = {
+ 	.name = IPR_NAME,
+ 	.id_table = ipr_pci_table,
+ 	.probe = ipr_probe,
+ 	.remove = ipr_remove,
+ 	.shutdown = ipr_shutdown,
++	.err_handler = &ipr_err_handler,
  };
+ 
+ /**

@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030376AbVKHWIr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030377AbVKHWI5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030376AbVKHWIr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 17:08:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030377AbVKHWIr
+	id S1030377AbVKHWI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 17:08:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030378AbVKHWI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 17:08:47 -0500
-Received: from zproxy.gmail.com ([64.233.162.192]:19110 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030376AbVKHWIq (ORCPT
+	Tue, 8 Nov 2005 17:08:56 -0500
+Received: from mail.gmx.de ([213.165.64.20]:38277 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1030377AbVKHWI4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 17:08:46 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:reply-to:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=fxssO2b+ozf66Bv4R/dl89Ax9W/1HsLp9yrMyaO3CpouIO2hirCEqBmC87aIeQHC+xmrzJMDDlUZSWmxOqp1ep3jK99Itmxz0FuZ3c/UlRhDl95WP6GHa2lImJqo5fD9Pvp/xHf+OnANA6i6wUrCQaLWS4yXRmT66F04SJebetI=
-Subject: Re: Creating new System.map with modules symbol info
-From: Chris Largret <largret@gmail.com>
-Reply-To: largret@gmail.com
-To: Adayadil Thomas <adayadil.thomas@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <fb7befa20511081345l497846abla28f978fc4e45442@mail.gmail.com>
-References: <fb7befa20511081304sec70208l5d1a464e5af78f58@mail.gmail.com>
-	 <1131484787.5520.3.camel@shogun.daga.dyndns.org>
-	 <fb7befa20511081345l497846abla28f978fc4e45442@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 08 Nov 2005 14:08:29 -0800
-Message-Id: <1131487709.5732.6.camel@shogun.daga.dyndns.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 Dropline GNOME 
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Nov 2005 17:08:56 -0500
+X-Authenticated: #428038
+Date: Tue, 8 Nov 2005 23:08:53 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 3D video card recommendations
+Message-ID: <20051108220853.GA26615@merlin.emma.line.org>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
+References: <1131112605.14381.34.camel@localhost.localdomain> <1131349343.2858.11.camel@laptopd505.fenrus.org> <1131367371.14381.91.camel@localhost.localdomain> <20051107152009.GA20807@shuttle.vanvergehaald.nl> <1131377496.2858.21.camel@laptopd505.fenrus.org> <1131384906.14381.108.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1131384906.14381.108.camel@localhost.localdomain>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-08 at 16:45 -0500, Adayadil Thomas wrote:
-> Thanks for the reply.
+On Mon, 07 Nov 2005, Steven Rostedt wrote:
+
+> On Mon, 2005-11-07 at 16:31 +0100, Arjan van de Ven wrote:
+
+> > well despite your post; the Windows people are a lot better at keeping
+> > old drivers working (win 9x to a NT based kernel was obviously a huge
+> > change though). In linux you can use an old driver maybe for 6 months if
+> > you're lucky.. in windows 6 years is no exception. So the problem is a
+> > lot bigger in linux for the owner of such a card than it is in windows.
 > 
-> Usage of mksysmap is --
-> mksysmap vmlinux System.map
-> 
-> How do I specify the module which is not included in the kernel ?
-> Is that possible ?
+> Only if the Linux driver is closed source.  Otherwise, the driver should
+> be upgraded with the kernel.  Most all open source hardware drivers are
+> already included in the kernel, and maintained as long as there's
+> someone that has the device that can maintain it.
 
-you could do:
+I'd rather not count the drivers that have dropped out of open source
+operating systems due to bit rot. If there is no maintainer, the
+hardware will become useless sooner or later. With Linux's rapidly
+changing "moving target" 2.6.X I'd call it sooner rather than later.
 
-nm -n /path/to/module.ko | grep -v '\( [aUw] \)\|\(__crc_\)\|\( \
-$[adt]\)'>/path/to/module.map
+OSS drivers are good iff there is a maintainer - IOW: to the user, the
+maintainer makes the difference, not the driver being open source.
 
-This is essentially what mksysmap does, except with the ability to
-define 'nm' locations. This isn't really a file that could be used in
-place of the System.map file though. At least not if I understand the
-purpose of it.
-
-The System.map file is used to keep track of symbols in the kernel. I
-believe the module symbols can be traced with the aid of some of the
-debug kernel configuration options.
-
---
-Chris Largret <http://daga.dyndns.org>
-
+-- 
+Matthias Andree

@@ -1,74 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964976AbVKHA63@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964979AbVKHBAL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964976AbVKHA63 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 19:58:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964954AbVKHA62
+	id S964979AbVKHBAL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 20:00:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964991AbVKHBAK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 19:58:28 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:51884 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S964977AbVKHA61
+	Mon, 7 Nov 2005 20:00:10 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:50819 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S964981AbVKHBAI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 19:58:27 -0500
-Message-ID: <436FF82E.1050004@us.ibm.com>
-Date: Mon, 07 Nov 2005 16:58:22 -0800
+	Mon, 7 Nov 2005 20:00:08 -0500
+Message-ID: <436FF894.8090204@us.ibm.com>
+Date: Mon, 07 Nov 2005 17:00:04 -0800
 From: Matthew Dobson <colpatch@us.ibm.com>
 User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: kernel-janitors@lists.osdl.org
 CC: Pekka J Enberg <penberg@cs.Helsinki.FI>, linux-kernel@vger.kernel.org
-Subject: [PATCH 7/8] Cleanup set_slab_attr()
+Subject: [PATCH 8/8] Inline 3 functions
 References: <436FF51D.8080509@us.ibm.com>
 In-Reply-To: <436FF51D.8080509@us.ibm.com>
 Content-Type: multipart/mixed;
- boundary="------------030909090309050809020606"
+ boundary="------------070103010906070506080000"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------030909090309050809020606
+--------------070103010906070506080000
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
-Cleanup a loop in set_slab_attr().
+I found three functions in slab.c that have only 1 caller (kmem_getpages,
+alloc_slabmgmt, and set_slab_attr), so let's inline them.
 
 mcd@arrakis:~/linux/source/linux-2.6.14+slab_cleanup/patches $ diffstat
-set_slab_attr.patch
- slab.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+inline_functions.patch
+ slab.c |    9 +++++----
+ 1 files changed, 5 insertions(+), 4 deletions(-)
 
 -Matt
 
---------------030909090309050809020606
+--------------070103010906070506080000
 Content-Type: text/x-patch;
- name="set_slab_attr.patch"
+ name="inline_functions.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="set_slab_attr.patch"
+ filename="inline_functions.patch"
 
-Change the
-	do { ... } while (--i);
-loop in set_slab_attr to a
-	while (i--) { ... }
-loop like the rest of the functions that do similar loops in mm/slab.c.
+Inline 3 functions that have only one caller.
 
 Index: linux-2.6.14+slab_cleanup/mm/slab.c
 ===================================================================
---- linux-2.6.14+slab_cleanup.orig/mm/slab.c	2005-11-07 16:00:09.005539608 -0800
-+++ linux-2.6.14+slab_cleanup/mm/slab.c	2005-11-07 16:07:59.169063888 -0800
-@@ -2141,11 +2141,11 @@ static void set_slab_attr(kmem_cache_t *
+--- linux-2.6.14+slab_cleanup.orig/mm/slab.c	2005-11-07 16:07:59.169063888 -0800
++++ linux-2.6.14+slab_cleanup/mm/slab.c	2005-11-07 16:10:24.981896968 -0800
+@@ -1183,7 +1183,7 @@ __initcall(cpucache_init);
+  * did not request dmaable memory, we might get it, but that
+  * would be relatively rare and ignorable.
+  */
+-static void *kmem_getpages(kmem_cache_t *cachep, gfp_t flags, int nid)
++static inline void *kmem_getpages(kmem_cache_t *cachep, gfp_t flags, int nid)
+ {
+ 	struct page *page;
+ 	void *addr;
+@@ -2048,8 +2048,8 @@ int kmem_cache_destroy(kmem_cache_t *cac
+ EXPORT_SYMBOL(kmem_cache_destroy);
  
- 	i = 1 << cachep->gfporder;
- 	page = virt_to_page(objp);
--	do {
-+	while (i--) {
- 		SET_PAGE_CACHE(page, cachep);
- 		SET_PAGE_SLAB(page, slabp);
- 		page++;
--	} while (--i);
-+	}
+ /* Get the memory for a slab management obj. */
+-static struct slab *alloc_slabmgmt(kmem_cache_t *cachep, void *objp,
+-				   int colour_off, gfp_t local_flags)
++static inline struct slab *alloc_slabmgmt(kmem_cache_t *cachep, void *objp,
++					  int colour_off, gfp_t local_flags)
+ {
+ 	struct slab *slabp;
+ 	
+@@ -2134,7 +2134,8 @@ static void kmem_flagcheck(kmem_cache_t 
+ 	}
  }
  
- /*
+-static void set_slab_attr(kmem_cache_t *cachep, struct slab *slabp, void *objp)
++static inline void set_slab_attr(kmem_cache_t *cachep, struct slab *slabp,
++				 void *objp)
+ {
+ 	int i;
+ 	struct page *page;
 
---------------030909090309050809020606--
+--------------070103010906070506080000--

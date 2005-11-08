@@ -1,452 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965244AbVKHFa7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbVKHFof@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965244AbVKHFa7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 00:30:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965240AbVKHFa7
+	id S1751027AbVKHFof (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 00:44:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751046AbVKHFof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 00:30:59 -0500
-Received: from verein.lst.de ([213.95.11.210]:19343 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S965244AbVKHFa6 (ORCPT
+	Tue, 8 Nov 2005 00:44:35 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:19666 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750946AbVKHFoe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 00:30:58 -0500
-Date: Tue, 8 Nov 2005 06:30:49 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] use ptrace_get_task_struct in various places
-Message-ID: <20051108053049.GA9422@lst.de>
+	Tue, 8 Nov 2005 00:44:34 -0500
+Date: Mon, 7 Nov 2005 21:44:20 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: rohit.seth@intel.com, akpm@osdl.org, torvalds@osdl.org, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: Cleanup of __alloc_pages
+Message-Id: <20051107214420.6d0f6ec4.pj@sgi.com>
+In-Reply-To: <43701FC6.5050104@yahoo.com.au>
+References: <20051107174349.A8018@unix-os.sc.intel.com>
+	<20051107175358.62c484a3.akpm@osdl.org>
+	<1131416195.20471.31.camel@akash.sc.intel.com>
+	<43701FC6.5050104@yahoo.com.au>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The ptrace_get_task_struct() helper that I added as part of the ptrace
-consolidation is usefull in variety of places that currently opencode
-it.  Switch them to the common helper.
+Nick wrote:
+> The compiler will constant fold this out if it is halfway smart.
+
+How could that happen - when get_page_from_freelist() is called twice,
+once with skip_cpuset_chk == 0 and once with skip_cpuset_chk == 1?
 
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+> +#define ALLOC_WATERMARKS	0x01 /* check watermarks */
+> +#define ALLOC_HARDER		0x02 /* try to alloc harder */
+> +#define ALLOC_HIGH		0x04 /* __GFP_HIGH set */
+> +#define ALLOC_CPUSET		0x08 /* check for correct cpuset */
 
-Index: linux-2.6/arch/alpha/kernel/ptrace.c
-===================================================================
---- linux-2.6.orig/arch/alpha/kernel/ptrace.c	2005-10-31 17:50:44.000000000 +0100
-+++ linux-2.6/arch/alpha/kernel/ptrace.c	2005-11-06 21:33:58.000000000 +0100
-@@ -265,28 +265,7 @@
- 	lock_kernel();
- 	DBG(DBG_MEM, ("request=%ld pid=%ld addr=0x%lx data=0x%lx\n",
- 		      request, pid, addr, data));
--	ret = -EPERM;
--	if (request == PTRACE_TRACEME) {
--		/* are we already being traced? */
--		if (current->ptrace & PT_PTRACED)
--			goto out_notsk;
--		ret = security_ptrace(current->parent, current);
--		if (ret)
--			goto out_notsk;
--		/* set the ptrace bit in the process ptrace flags. */
--		current->ptrace |= PT_PTRACED;
--		ret = 0;
--		goto out_notsk;
--	}
--	if (pid == 1)		/* you may not mess with init */
--		goto out_notsk;
--
--	ret = -ESRCH;
--	read_lock(&tasklist_lock);
--	child = find_task_by_pid(pid);
--	if (child)
--		get_task_struct(child);
--	read_unlock(&tasklist_lock);
-+	ret = ptrace_get_task_struct(request, pid, &child);
- 	if (!child)
- 		goto out_notsk;
- 
-Index: linux-2.6/arch/ia64/ia32/sys_ia32.c
-===================================================================
---- linux-2.6.orig/arch/ia64/ia32/sys_ia32.c	2005-10-31 13:15:48.000000000 +0100
-+++ linux-2.6/arch/ia64/ia32/sys_ia32.c	2005-11-06 21:33:58.000000000 +0100
-@@ -1760,22 +1760,9 @@
- 	long i, ret;
- 
- 	lock_kernel();
--	if (request == PTRACE_TRACEME) {
--		ret = sys_ptrace(request, pid, addr, data);
--		goto out;
--	}
--
--	ret = -ESRCH;
--	read_lock(&tasklist_lock);
--	child = find_task_by_pid(pid);
--	if (child)
--		get_task_struct(child);
--	read_unlock(&tasklist_lock);
-+	ret = ptrace_get_task_struct(request, pid, &child);
- 	if (!child)
- 		goto out;
--	ret = -EPERM;
--	if (pid == 1)		/* no messing around with init! */
--		goto out_tsk;
- 
- 	if (request == PTRACE_ATTACH) {
- 		ret = sys_ptrace(request, pid, addr, data);
-Index: linux-2.6/arch/m32r/kernel/ptrace.c
-===================================================================
---- linux-2.6.orig/arch/m32r/kernel/ptrace.c	2005-10-31 17:50:44.000000000 +0100
-+++ linux-2.6/arch/m32r/kernel/ptrace.c	2005-11-06 21:33:58.000000000 +0100
-@@ -762,29 +762,10 @@
- 	int ret;
- 
- 	lock_kernel();
--	ret = -EPERM;
--	if (request == PTRACE_TRACEME) {
--		/* are we already being traced? */
--		if (current->ptrace & PT_PTRACED)
--			goto out;
--		/* set the ptrace bit in the process flags. */
--		current->ptrace |= PT_PTRACED;
--		ret = 0;
--		goto out;
--	}
--	ret = -ESRCH;
--	read_lock(&tasklist_lock);
--	child = find_task_by_pid(pid);
--	if (child)
--		get_task_struct(child);
--	read_unlock(&tasklist_lock);
-+	ret = ptrace_get_task_struct(request, pid, &child);
- 	if (!child)
- 		goto out;
- 
--	ret = -EPERM;
--	if (pid == 1)		/* you may not mess with init */
--		goto out;
--
- 	if (request == PTRACE_ATTACH) {
- 		ret = ptrace_attach(child);
- 		if (ret == 0)
-Index: linux-2.6/arch/mips/kernel/ptrace32.c
-===================================================================
---- linux-2.6.orig/arch/mips/kernel/ptrace32.c	2005-10-31 12:23:12.000000000 +0100
-+++ linux-2.6/arch/mips/kernel/ptrace32.c	2005-11-06 21:33:58.000000000 +0100
-@@ -57,31 +57,10 @@
- 	       (unsigned long) data);
- #endif
- 	lock_kernel();
--	ret = -EPERM;
--	if (request == PTRACE_TRACEME) {
--		/* are we already being traced? */
--		if (current->ptrace & PT_PTRACED)
--			goto out;
--		if ((ret = security_ptrace(current->parent, current)))
--			goto out;
--		/* set the ptrace bit in the process flags. */
--		current->ptrace |= PT_PTRACED;
--		ret = 0;
--		goto out;
--	}
--	ret = -ESRCH;
--	read_lock(&tasklist_lock);
--	child = find_task_by_pid(pid);
--	if (child)
--		get_task_struct(child);
--	read_unlock(&tasklist_lock);
-+	ret = ptrace_get_task_struct(request, pid, &child);
- 	if (!child)
- 		goto out;
- 
--	ret = -EPERM;
--	if (pid == 1)		/* you may not mess with init */
--		goto out_tsk;
--
- 	if (request == PTRACE_ATTACH) {
- 		ret = ptrace_attach(child);
- 		goto out_tsk;
-Index: linux-2.6/arch/s390/kernel/ptrace.c
-===================================================================
---- linux-2.6.orig/arch/s390/kernel/ptrace.c	2005-10-31 17:50:44.000000000 +0100
-+++ linux-2.6/arch/s390/kernel/ptrace.c	2005-11-06 21:33:58.000000000 +0100
-@@ -712,36 +712,11 @@
- 	int ret;
- 
- 	lock_kernel();
--
--	if (request == PTRACE_TRACEME) {
--		/* are we already being traced? */
--		ret = -EPERM;
--		if (current->ptrace & PT_PTRACED)
--			goto out;
--		ret = security_ptrace(current->parent, current);
--		if (ret)
--			goto out;
--		/* set the ptrace bit in the process flags. */
--		current->ptrace |= PT_PTRACED;
--		goto out;
-+	ret = ptrace_get_task_struct(request, pid, &child);
-+	if (child) {
-+		ret = do_ptrace(child, request, addr, data);
-+		put_task_struct(child);
- 	}
--
--	ret = -EPERM;
--	if (pid == 1)		/* you may not mess with init */
--		goto out;
--
--	ret = -ESRCH;
--	read_lock(&tasklist_lock);
--	child = find_task_by_pid(pid);
--	if (child)
--		get_task_struct(child);
--	read_unlock(&tasklist_lock);
--	if (!child)
--		goto out;
--
--	ret = do_ptrace(child, request, addr, data);
--
--	put_task_struct(child);
- out:
- 	unlock_kernel();
- 	return ret;
-Index: linux-2.6/arch/sparc/kernel/ptrace.c
-===================================================================
---- linux-2.6.orig/arch/sparc/kernel/ptrace.c	2005-10-31 17:50:44.000000000 +0100
-+++ linux-2.6/arch/sparc/kernel/ptrace.c	2005-11-06 21:33:58.000000000 +0100
-@@ -286,40 +286,13 @@
- 			       s, (int) request, (int) pid, addr, data, addr2);
- 	}
- #endif
--	if (request == PTRACE_TRACEME) {
--		int my_ret;
--
--		/* are we already being traced? */
--		if (current->ptrace & PT_PTRACED) {
--			pt_error_return(regs, EPERM);
--			goto out;
--		}
--		my_ret = security_ptrace(current->parent, current);
--		if (my_ret) {
--			pt_error_return(regs, -my_ret);
--			goto out;
--		}
--
--		/* set the ptrace bit in the process flags. */
--		current->ptrace |= PT_PTRACED;
--		pt_succ_return(regs, 0);
--		goto out;
--	}
--#ifndef ALLOW_INIT_TRACING
--	if (pid == 1) {
--		/* Can't dork with init. */
--		pt_error_return(regs, EPERM);
--		goto out;
--	}
--#endif
--	read_lock(&tasklist_lock);
--	child = find_task_by_pid(pid);
--	if (child)
--		get_task_struct(child);
--	read_unlock(&tasklist_lock);
- 
-+	ret = ptrace_get_task_struct(request, pid, &child);
- 	if (!child) {
--		pt_error_return(regs, ESRCH);
-+		if (ret)
-+			pt_error_return(regs, -ret);
-+		else
-+			pt_succ_return(regs, 0);
- 		goto out;
- 	}
- 
-Index: linux-2.6/arch/sparc64/kernel/ptrace.c
-===================================================================
---- linux-2.6.orig/arch/sparc64/kernel/ptrace.c	2005-10-31 17:50:44.000000000 +0100
-+++ linux-2.6/arch/sparc64/kernel/ptrace.c	2005-11-06 21:33:58.000000000 +0100
-@@ -197,40 +197,12 @@
- 			       s, request, pid, addr, data, addr2);
- 	}
- #endif
--	if (request == PTRACE_TRACEME) {
--		int ret;
--
--		/* are we already being traced? */
--		if (current->ptrace & PT_PTRACED) {
--			pt_error_return(regs, EPERM);
--			goto out;
--		}
--		ret = security_ptrace(current->parent, current);
--		if (ret) {
--			pt_error_return(regs, -ret);
--			goto out;
--		}
--
--		/* set the ptrace bit in the process flags. */
--		current->ptrace |= PT_PTRACED;
--		pt_succ_return(regs, 0);
--		goto out;
--	}
--#ifndef ALLOW_INIT_TRACING
--	if (pid == 1) {
--		/* Can't dork with init. */
--		pt_error_return(regs, EPERM);
--		goto out;
--	}
--#endif
--	read_lock(&tasklist_lock);
--	child = find_task_by_pid(pid);
--	if (child)
--		get_task_struct(child);
--	read_unlock(&tasklist_lock);
--
-+	ret = ptrace_get_task_struct(request, pid, &child);
- 	if (!child) {
--		pt_error_return(regs, ESRCH);
-+		if (ret)
-+			pt_error_return(regs, -ret);
-+		else
-+			pt_succ_return(regs, 0);
- 		goto out;
- 	}
- 
-Index: linux-2.6/arch/x86_64/ia32/ptrace32.c
-===================================================================
---- linux-2.6.orig/arch/x86_64/ia32/ptrace32.c	2005-10-31 12:23:19.000000000 +0100
-+++ linux-2.6/arch/x86_64/ia32/ptrace32.c	2005-11-06 21:33:58.000000000 +0100
-@@ -196,36 +196,6 @@
- 
- #undef R32
- 
--static struct task_struct *find_target(int request, int pid, int *err)
--{ 
--	struct task_struct *child;
--
--	*err = -EPERM; 
--	if (pid == 1)
--		return NULL; 
--
--	*err = -ESRCH;
--	read_lock(&tasklist_lock);
--	child = find_task_by_pid(pid);
--	if (child)
--		get_task_struct(child);
--	read_unlock(&tasklist_lock);
--	if (child) { 
--		*err = -EPERM;
--		if (child->pid == 1) 
--			goto out;
--		*err = ptrace_check_attach(child, request == PTRACE_KILL); 
--		if (*err < 0) 
--			goto out;
--		return child; 
--	} 
-- out:
--	if (child)
--	put_task_struct(child);
--	return NULL; 
--	
--} 
--
- asmlinkage long sys32_ptrace(long request, u32 pid, u32 addr, u32 data)
- {
- 	struct task_struct *child;
-@@ -254,10 +224,14 @@
- 		break;
- 	} 
- 
--	child = find_target(request, pid, &ret);
-+	ret = ptrace_get_task_struct(request, pid, &child);
- 	if (!child)
- 		return ret;
- 
-+	ret = ptrace_check_attach(child, request == PTRACE_KILL);
-+	if (ret < 0)
-+		goto out;
-+
- 	childregs = (struct pt_regs *)(child->thread.rsp0 - sizeof(struct pt_regs)); 
- 
- 	switch (request) {
-@@ -373,6 +347,7 @@
- 		break;
- 	}
- 
-+ out:
- 	put_task_struct(child);
- 	return ret;
- }
-Index: linux-2.6/kernel/ptrace.c
-===================================================================
---- linux-2.6.orig/kernel/ptrace.c	2005-11-06 21:33:53.000000000 +0100
-+++ linux-2.6/kernel/ptrace.c	2005-11-06 21:33:58.000000000 +0100
-@@ -407,9 +407,7 @@
- 	return ret;
- }
- 
--#ifndef __ARCH_SYS_PTRACE
--static int ptrace_get_task_struct(long request, long pid,
--		struct task_struct **childp)
-+int ptrace_get_task_struct(long request, long pid, struct task_struct **childp)
- {
- 	struct task_struct *child;
- 	int ret;
-@@ -455,6 +453,7 @@
- 	return 0;
- }
- 
-+#ifndef __ARCH_SYS_PTRACE
- asmlinkage long sys_ptrace(long request, long pid, long addr, long data)
- {
- 	struct task_struct *child;
-Index: linux-2.6/include/linux/ptrace.h
-===================================================================
---- linux-2.6.orig/include/linux/ptrace.h	2005-11-06 21:33:53.000000000 +0100
-+++ linux-2.6/include/linux/ptrace.h	2005-11-06 21:33:58.000000000 +0100
-@@ -80,6 +80,7 @@
- 
- 
- extern long arch_ptrace(struct task_struct *child, long request, long addr, long data);
-+extern int ptrace_get_task_struct(long request, long pid, struct task_struct **childp);
- extern int ptrace_readdata(struct task_struct *tsk, unsigned long src, char __user *dst, int len);
- extern int ptrace_writedata(struct task_struct *tsk, char __user *src, unsigned long dst, int len);
- extern int ptrace_attach(struct task_struct *tsk);
-Index: linux-2.6/arch/powerpc/kernel/ptrace32.c
-===================================================================
---- linux-2.6.orig/arch/powerpc/kernel/ptrace32.c	2005-10-31 13:15:48.000000000 +0100
-+++ linux-2.6/arch/powerpc/kernel/ptrace32.c	2005-11-06 21:35:45.000000000 +0100
-@@ -44,34 +44,13 @@
- 		       unsigned long data)
- {
- 	struct task_struct *child;
--	int ret = -EPERM;
-+	int ret;
- 
- 	lock_kernel();
--	if (request == PTRACE_TRACEME) {
--		/* are we already being traced? */
--		if (current->ptrace & PT_PTRACED)
--			goto out;
--		ret = security_ptrace(current->parent, current);
--		if (ret)
--			goto out;
--		/* set the ptrace bit in the process flags. */
--		current->ptrace |= PT_PTRACED;
--		ret = 0;
--		goto out;
--	}
--	ret = -ESRCH;
--	read_lock(&tasklist_lock);
--	child = find_task_by_pid(pid);
--	if (child)
--		get_task_struct(child);
--	read_unlock(&tasklist_lock);
-+	ret = ptrace_get_task_struct(request, pid, &child);
- 	if (!child)
- 		goto out;
- 
--	ret = -EPERM;
--	if (pid == 1)		/* you may not mess with init */
--		goto out_tsk;
--
- 	if (request == PTRACE_ATTACH) {
- 		ret = ptrace_attach(child);
- 		goto out_tsk;
+Names - bless you.
+
+If these names were in a header, then calls to zone_watermark_ok()
+from mm/vmscan.c could use them too?
+
+
+> +	 * reclaim. Now things get more complex, so st up alloc_flags according
+
+Typo: s/st/set/
+
+
+At first glance, I think you've expressed the cpuset flags correctly.
+Well, correctly maintained their current meaning.  Read on, and you
+will see that I think that is not right.
+
+I'm just reading the raw patch, so likely I missed something here.
+But it seems to me that zone_watermark_ok() is called from __alloc_pages()
+only if the ALLOC_WATERMARKS flag is set, and it seems that the two
+alloc_flags values ALLOC_HARDER and ALLOC_HIGH are only of use if
+zone_watermark() is called.  So what use is it setting ALLOC_HARDER
+or ALLOC_HIGH if ALLOC_WATERMARKS is not set?  If the get_page_from_freelist()
+check:
+	if (alloc_flags & ALLOC_WATERMARKS)
+was instead:
+	if (alloc_flags & ALLOC_WATERMARKS|ALLOC_HARDER|ALLOC_HIGH)
+then this would make more sense to me.  Or changing ALLOC_WATERMARKS
+to ALLOC_EASY, and make it behave similarly to the HARDER & HIGH flags.
+Or maybe if the initialization of alloc_flags:
+> +	alloc_flags = 0;
+was instead:
+  +	alloc_flags = ALLOC_WATERMARKS;
+
+As a possible future change, I wonder if there is a way to avoid having
+the ALLOC_CPUSET flag separate, and instead collapse the logic (even if
+it means modifying the conditions a little when cpusets are honored) to
+make the cpuset_zone_allowed() check based on some combination of these
+other WATERMARKS/HARDER/HIGH values.  For example, it might make sense
+to check cpuset_zone_allowed() under the same conditions that it made
+sense to call zone_watermark_ok() from get_page_from_freelist(), or
+perhaps to check cpusets unless we are HIGH or not checking
+watermarks.  To the best of my knowledge, subtle variations between
+when we check some level of watermarks and when we check cpusets are
+not worth it - not worth the extra conditional jump in the machine
+code, and not worth the extra bit of logic and flags in the source code.
+
+The cpuset check in the 'ignoring mins' code shortly after this for the
+PF_MEMALLOC or TIF_MEMDIE cases seems bogus.  This is the case where we
+should be most willing to use memory, regardless of where we find it.
+That cpuset check should be removed.
+
+My current inclination - check cpusets in the WATERMARKS or HARDER
+or (HIGH && wait) cases, but ignore cpusets in the (HIGH && !wait) or
+'ignoring mins' cases.  Can "HIGH && wait" even happen ??  Are
+allocations either GFP_ATOMIC (aka GFP_HIGH) or (exclusive or)
+GFP_WAIT, never both?  Perhaps GFP_HIGH should be permanently
+deleted (another cleanup) in favor of the more popular and expressive
+GFP_ATOMIC, and __GFP_WAIT retired, in favor of !GFP_ATOMIC.
+
+However, I appreciate your preference to separate cleanup from semantic
+change.  Perhaps this means leaving the ALLOC_CPUSET flag in your
+cleanup patch, then one of us following on top of that with a patch to
+simplify and fix the cpuset invocation semantics and a second cleanup
+patch to remove ALLOC_CPUSET as a separate flag.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

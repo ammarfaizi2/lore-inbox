@@ -1,71 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965074AbVKHM6B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965105AbVKHM5F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965074AbVKHM6B (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 07:58:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965136AbVKHM6A
+	id S965105AbVKHM5F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 07:57:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965115AbVKHM5B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 07:58:00 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:57907
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S965074AbVKHM57 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 07:57:59 -0500
-Message-Id: <4370AF1E.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Tue, 08 Nov 2005 13:58:54 +0100
-From: "Jan Beulich" <JBeulich@novell.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] provide stricmp
+	Tue, 8 Nov 2005 07:57:01 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:9652 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965105AbVKHM5A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 07:57:00 -0500
+Date: Tue, 8 Nov 2005 13:57:09 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Martin Bligh <mbligh@mbligh.org>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH 4/21] i386 Broken bios common
+Message-ID: <20051108125709.GA4218@elte.hu>
+References: <200511080422.jA84MQxK009859@zach-dev.vmware.com> <20051108071935.GB28201@elte.hu> <43709E86.8010203@vmware.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=__PartE4C6DA1E.0__="
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43709E86.8010203@vmware.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME message. If you are reading this text, you may want to 
-consider changing to a mail reader or gateway that understands how to 
-properly handle MIME multipart messages.
 
---=__PartE4C6DA1E.0__=
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+* Zachary Amsden <zach@vmware.com> wrote:
 
-While strnicmp existed in the set of string support routines, stricmp
-didn't, which this patch adjusts.
+> >>-	gdt[0x40 / 8] = bad_bios_desc;
+> >>+	gdt[0x40 / 8] = gdt[GDT_ENTRY_BAD_BIOS_CACHE];
+> >
+> >i like the cleanup, but wouldnt it be simpler to dedicate GDT entry #8 
+> >to the 0x40 descriptor, and hence be compatible with such broken BIOSes 
+> >by default? Right now entry #8 is taken up by TLS segment #2, but we 
+> >could change GDT_ENTRY_TLS_MIN from 6 to 9 and push the TLS segments to 
+> >entries 9,10,11. [ Could there be any buggy SMM code that relies on 
+> >having something at 0x40? ]
+> 
+> I worry that there could be buggy userspace code that relies on having 
+> selector 0x40 - notably Wine.  So although I would like to make 0x40 
+> the default, can't be guaranteed.
 
-From: Jan Beulich <jbeulich@novell.com>
+why use up a GDT entry then for GDT_ENTRY_BAD_BIOS_CACHE? Just put it 
+into a global variable, into the readmostly section.
 
-(actual patch attached)
-
-
---=__PartE4C6DA1E.0__=
-Content-Type: application/octet-stream; name="linux-2.6.14-stricmp.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="linux-2.6.14-stricmp.patch"
-
-V2hpbGUgc3RybmljbXAgZXhpc3RlZCBpbiB0aGUgc2V0IG9mIHN0cmluZyBzdXBwb3J0IHJvdXRp
-bmVzLCBzdHJpY21wCmRpZG4ndCwgd2hpY2ggdGhpcyBwYXRjaCBhZGp1c3RzLgoKRnJvbTogSmFu
-IEJldWxpY2ggPGpiZXVsaWNoQG5vdmVsbC5jb20+CgotLS0gMi42LjE0L2luY2x1ZGUvbGludXgv
-c3RyaW5nLmgJMjAwNS0xMC0yOCAwMjowMjowOC4wMDAwMDAwMDAgKzAyMDAKKysrIDIuNi4xNC1z
-dHJpY21wL2luY2x1ZGUvbGludXgvc3RyaW5nLmgJMjAwNS0xMS0wNCAxNjoxOTozNC4wMDAwMDAw
-MDAgKzAxMDAKQEAgLTQ3LDYgKzQ3LDkgQEAgZXh0ZXJuIGludCBzdHJjbXAoY29uc3QgY2hhciAq
-LGNvbnN0IGNoYQogI2lmbmRlZiBfX0hBVkVfQVJDSF9TVFJOQ01QCiBleHRlcm4gaW50IHN0cm5j
-bXAoY29uc3QgY2hhciAqLGNvbnN0IGNoYXIgKixfX2tlcm5lbF9zaXplX3QpOwogI2VuZGlmCisj
-aWZuZGVmIF9fSEFWRV9BUkNIX1NUUklDTVAKK2V4dGVybiBpbnQgc3RyaWNtcChjb25zdCBjaGFy
-ICosIGNvbnN0IGNoYXIgKik7CisjZW5kaWYKICNpZm5kZWYgX19IQVZFX0FSQ0hfU1RSTklDTVAK
-IGV4dGVybiBpbnQgc3RybmljbXAoY29uc3QgY2hhciAqLCBjb25zdCBjaGFyICosIF9fa2VybmVs
-X3NpemVfdCk7CiAjZW5kaWYKLS0tIDIuNi4xNC9saWIvc3RyaW5nLmMJMjAwNS0xMC0yOCAwMjow
-MjowOC4wMDAwMDAwMDAgKzAyMDAKKysrIDIuNi4xNC1zdHJpY21wL2xpYi9zdHJpbmcuYwkyMDA1
-LTExLTA0IDE2OjE5OjM1LjAwMDAwMDAwMCArMDEwMApAQCAtMjQsNiArMjQsMzEgQEAKICNpbmNs
-dWRlIDxsaW51eC9jdHlwZS5oPgogI2luY2x1ZGUgPGxpbnV4L21vZHVsZS5oPgogCisjaWZuZGVm
-IF9fSEFWRV9BUkNIX1NUUklDTVAKKy8qKgorICogc3RyaWNtcCAtIENvbXBhcmUgdHdvIHN0cmlu
-Z3MgY2FzZS1pbnNlbnNpdGl2ZWx5CisgKiBAczE6IE9uZSBzdHJpbmcKKyAqIEBzMjogQW5vdGhl
-ciBzdHJpbmcKKyAqLworaW50IHN0cmljbXAoY29uc3QgY2hhciAqczEsIGNvbnN0IGNoYXIgKnMy
-KQoreworCXVuc2lnbmVkIGNoYXIgYzEsIGMyOworCisJZm9yICg7OykgeworCQljMSA9ICpzMSsr
-OworCQljMiA9ICpzMisrOworCQlpZiAoIWMxIHx8ICFjMikKKwkJCWJyZWFrOworCQlpZiAoYzEg
-PT0gYzIpCisJCQljb250aW51ZTsKKwkJaWYgKChjMSA9IHRvbG93ZXIoYzEpKSAhPSAoYzIgPSB0
-b2xvd2VyKGMyKSkpCisJCQlicmVhazsKKwl9CisJcmV0dXJuIChpbnQpYzEgLSAoaW50KWMyOwor
-fQorI2VuZGlmCitFWFBPUlRfU1lNQk9MKHN0cmljbXApOworCiAjaWZuZGVmIF9fSEFWRV9BUkNI
-X1NUUk5JQ01QCiAvKioKICAqIHN0cm5pY21wIC0gQ2FzZSBpbnNlbnNpdGl2ZSwgbGVuZ3RoLWxp
-bWl0ZWQgc3RyaW5nIGNvbXBhcmlzb24K
-
---=__PartE4C6DA1E.0__=--
+	Ingo

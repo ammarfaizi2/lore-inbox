@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964998AbVKHKtl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbVKHK7q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964998AbVKHKtl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 05:49:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbVKHKtl
+	id S1751286AbVKHK7q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 05:59:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbVKHK7q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 05:49:41 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:56030 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1751273AbVKHKtl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 05:49:41 -0500
-Date: Tue, 8 Nov 2005 10:49:27 +0000 (GMT)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
-       torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] drm fixup pci gart settings.
-Message-ID: <Pine.LNX.4.58.0511081048250.4500@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 8 Nov 2005 05:59:46 -0500
+Received: from mail.fh-wedel.de ([213.39.232.198]:10919 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1751286AbVKHK7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 05:59:45 -0500
+Date: Tue, 8 Nov 2005 11:59:24 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
+       dwmw2@infradead.org, Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 06/25] mtd: move ioctl32 code to mtdchar.c
+Message-ID: <20051108105923.GA31446@wohnheim.fh-wedel.de>
+References: <20051105162650.620266000@b551138y.boeblingen.de.ibm.com> <20051105162712.921102000@b551138y.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20051105162712.921102000@b551138y.boeblingen.de.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 5 November 2005 17:26:56 +0100, Arnd Bergmann wrote:
+> 
+> The MTD ioctls are all specific to mtdchar.c, so the
+> compat code for them should be there as well.
+> 
+> Also, some of the ioctl commands used in that driver
+> were previously not marked as compatible.
+> 
+> The conversion handlers could be further simplified
+> by not using compat_alloc_user_space any more.
+> 
+> CC: dwmw2@infradead.org
+> CC: linux-mtd@lists.infradead.org
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-Fix the PCIGART increment and add a cpu_to_le32 for ppc (untested)
+Acked-by: Jörn Engel <joern@wh.fh-wedel.de>
 
-Paulus was unsure if we need to cpu_to_le32 but the old code was definitely
-wrong, so make it consistent and let the PPC guys figure it out later.
+Moving crap over to mtdchar.c is a good thing.  Complete removal of
+mtdchar.c might be even better, but at least the crap is relatively
+self-contained now.
 
-Signed-off-by: Dave Airlie <airlied@linux.ie>
+Jörn
 
-diff --git a/drivers/char/drm/ati_pcigart.c b/drivers/char/drm/ati_pcigart.c
---- a/drivers/char/drm/ati_pcigart.c
-+++ b/drivers/char/drm/ati_pcigart.c
-@@ -203,10 +203,10 @@ int drm_ati_pcigart_init(drm_device_t *
-
- 		for (j = 0; j < (PAGE_SIZE / ATI_PCIGART_PAGE_SIZE); j++) {
- 			if (gart_info->is_pcie)
--				*pci_gart = (cpu_to_le32(page_base) >> 8) | 0xc;
-+				*pci_gart = cpu_to_le32((page_base >> 8) | 0xc);
- 			else
- 				*pci_gart = cpu_to_le32(page_base);
--			*pci_gart++;
-+			pci_gart++;
- 			page_base += ATI_PCIGART_PAGE_SIZE;
- 		}
- 	}
+-- 
+When in doubt, punt.  When somebody actually complains, go back and fix it...
+The 90% solution is a good thing.
+-- Rob Landley

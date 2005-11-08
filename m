@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964894AbVKHOwg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964905AbVKHOwp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964894AbVKHOwg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 09:52:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964905AbVKHOwg
+	id S964905AbVKHOwp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 09:52:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbVKHOwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 09:52:36 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:24760 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S964894AbVKHOwf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 09:52:35 -0500
-Message-ID: <4370BB85.9060303@zytor.com>
-Date: Tue, 08 Nov 2005 06:51:50 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+	Tue, 8 Nov 2005 09:52:45 -0500
+Received: from hellhawk.shadowen.org ([80.68.90.175]:25363 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S964905AbVKHOwo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 09:52:44 -0500
+Message-ID: <4370BB8B.9060705@shadowen.org>
+Date: Tue, 08 Nov 2005 14:51:55 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Zachary Amsden <zach@vmware.com>, Andrew Morton <akpm@osdl.org>,
-       Chris Wright <chrisw@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Martin Bligh <mbligh@mbligh.org>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH 14/21] i386 Apm is on cpu zero only
-References: <200511080433.jA84Xwm7009921@zach-dev.vmware.com> <20051108073315.GE28201@elte.hu>
-In-Reply-To: <20051108073315.GE28201@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Mike Kravetz <kravetz@us.ibm.com>
+CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net
+Subject: Re: [PATCH 1/4] Memory Add Fixes for ppc64
+References: <20051104231552.GA25545@w-mikek2.ibm.com> <20051104231800.GB25545@w-mikek2.ibm.com> <1131149070.29195.41.camel@gaston> <20051107204743.GC5821@w-mikek2.ibm.com>
+In-Reply-To: <20051107204743.GC5821@w-mikek2.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Zachary Amsden <zach@vmware.com> wrote:
-> 
-> 
->>APM BIOS code has a protective wrapper that runs it only on CPU zero.  
->>Thus, no need to set APM BIOS segments in the GDT for other CPUs.
-> 
-> hm, do we want (need) to have that CPU#0 assumption forever?
-> 
+Mike Kravetz wrote:
 
-APM BIOS should only ever run on the BSP, and I believe in Linux the BSP 
-is always 0.  Since APM is obsolete, there is no future to consider.
+> Just curious if we still want to boost MAX_ORDER like this with 64k
+> pages?  Doesn't that make the MAX_ORDER block size 256MB in this case?
+> Also, not quite sure what happens if memory size (a 16 MB multiple)
+> does not align with a MAX_ORDER block size (a 256MB multiple in this
+> case).  My 'guess' is that the page allocator would not use it as it
+> would not fit within the buddy system.
 
-	-hpa
+The buddy system and the SPARSEMEM mem_map are separate really.  The key
+limitation is the a MAX_ORDER chunk must fit within the SPARSEMEM block
+size it cannot span two blocks.  This is because the algorithm by which
+the buddy system finds buddies for a returning allocation assumes that
+mem_map is contigious upto the maximum buddy size (MAX_ORDER); it
+assumes it can use relative addressing to locate them.
+
+The buddy system doesn't really care about the alignment of any of its
+blocks.  The allocator is built empty and all existant pages are freed
+back to it.  If there is a chunk of memory which can never coalesce back
+to MAX_ORDER it will simply sit lower in the tree 'waiting' for these
+non-existant buddies and will never merge.  It will still be usable.
+
+-apw

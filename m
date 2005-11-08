@@ -1,83 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbVKHETB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbVKHEQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750809AbVKHETB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 23:19:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbVKHETB
+	id S1750798AbVKHEQs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 23:16:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750804AbVKHEQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 23:19:01 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:6162 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1750809AbVKHETA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 23:19:00 -0500
-Date: Mon, 7 Nov 2005 20:18:59 -0800
-Message-Id: <200511080418.jA84Ix8G009840@zach-dev.vmware.com>
-Subject: [PATCH 1/21] i386 Pnp segments in segment h
-From: Zachary Amsden <zach@vmware.com>
-To: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Martin Bligh <mbligh@mbligh.org>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>, Zachary Amsden <zach@vmware.com>,
-       Zachary Amsden <zach@vmware.com>
-X-OriginalArrivalTime: 08 Nov 2005 04:18:59.0309 (UTC) FILETIME=[8AC121D0:01C5E41B]
+	Mon, 7 Nov 2005 23:16:48 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:56282 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750798AbVKHEQs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 23:16:48 -0500
+Subject: Re: CLOCK_REALTIME_RES and nanosecond resolution
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1131418511.4652.88.camel@gaston>
+References: <1131418511.4652.88.camel@gaston>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Mon, 07 Nov 2005 23:16:42 -0500
+Message-Id: <1131423402.14381.166.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Move PnP BIOS segment definitions into segment.h; the segments are reserved
-here, so they might as well be defined here as well.
+On Tue, 2005-11-08 at 13:55 +1100, Benjamin Herrenschmidt wrote:
+> Hi !
+> 
+> I noticed that we set
+> 
+> #define CLOCK_REALTIME_RES TICK_NSEC  /* In nano seconds. */
+> 
+> Unconditionally in kernel/posix-timer.c
+> 
+> Doesn't that mean that we'll advertise to userland (via clock_getres) a
+> resolution that is basically HZ ? We do get at lenght to get more
+> precise (up to ns) resolution in practice on many architectures but we
+> don't expose that to userland at all. Is this normal ?
 
-Note I didn't do this for APM BIOS, as Macintosh and other systems use those
-values to emulate APM in some scary way I don't want to understand.
+Yes.
 
-Signed-off-by: Zachary Amsden <zach@vmware.com>
-Index: linux-2.6.14-zach-work/include/asm-i386/segment.h
-===================================================================
---- linux-2.6.14-zach-work.orig/include/asm-i386/segment.h	2005-11-04 12:13:31.000000000 -0800
-+++ linux-2.6.14-zach-work/include/asm-i386/segment.h	2005-11-05 00:28:13.000000000 -0800
-@@ -91,6 +91,20 @@
- #define GDT_ENTRY_BOOT_DS		(GDT_ENTRY_BOOT_CS + 1)
- #define __BOOT_DS	(GDT_ENTRY_BOOT_DS * 8)
- 
-+/* The PnP BIOS entries in the GDT */
-+#define GDT_ENTRY_PNPBIOS_CS32		(GDT_ENTRY_PNPBIOS_BASE + 0)
-+#define GDT_ENTRY_PNPBIOS_CS16		(GDT_ENTRY_PNPBIOS_BASE + 1)
-+#define GDT_ENTRY_PNPBIOS_DS		(GDT_ENTRY_PNPBIOS_BASE + 2)
-+#define GDT_ENTRY_PNPBIOS_TS1		(GDT_ENTRY_PNPBIOS_BASE + 3)
-+#define GDT_ENTRY_PNPBIOS_TS2		(GDT_ENTRY_PNPBIOS_BASE + 4)
-+
-+/* The PnP BIOS selectors */
-+#define PNP_CS32   (GDT_ENTRY_PNPBIOS_CS32 * 8)	/* segment for calling fn */
-+#define PNP_CS16   (GDT_ENTRY_PNPBIOS_CS16 * 8)	/* code segment for BIOS */
-+#define PNP_DS     (GDT_ENTRY_PNPBIOS_DS * 8)	/* data segment for BIOS */
-+#define PNP_TS1    (GDT_ENTRY_PNPBIOS_TS1 * 8)	/* transfer data segment */
-+#define PNP_TS2    (GDT_ENTRY_PNPBIOS_TS2 * 8)	/* another data segment */
-+
- /*
-  * The interrupt descriptor table has room for 256 idt's,
-  * the global descriptor table is dependent on the number
-Index: linux-2.6.14-zach-work/drivers/pnp/pnpbios/bioscalls.c
-===================================================================
---- linux-2.6.14-zach-work.orig/drivers/pnp/pnpbios/bioscalls.c	2005-11-04 12:13:31.000000000 -0800
-+++ linux-2.6.14-zach-work/drivers/pnp/pnpbios/bioscalls.c	2005-11-05 00:28:13.000000000 -0800
-@@ -31,15 +31,6 @@ static struct {
- } pnp_bios_callpoint;
- 
- 
--/* The PnP BIOS entries in the GDT */
--#define PNP_GDT    (GDT_ENTRY_PNPBIOS_BASE * 8)
--
--#define PNP_CS32   (PNP_GDT+0x00)	/* segment for calling fn */
--#define PNP_CS16   (PNP_GDT+0x08)	/* code segment for BIOS */
--#define PNP_DS     (PNP_GDT+0x10)	/* data segment for BIOS */
--#define PNP_TS1    (PNP_GDT+0x18)	/* transfer data segment */
--#define PNP_TS2    (PNP_GDT+0x20)	/* another data segment */
--
- /*
-  * These are some opcodes for a "static asmlinkage"
-  * As this code is *not* executed inside the linux kernel segment, but in a
+Until ktimers/high-res or another variant gets incorporated into the
+kernel, the only resolution you will get for user applications is HZ.
+So even though we may have timers that are much faster than HZ (which
+there are a lot of them), the kernel only will work with timers on a
+jiffy basis.
+
+On a 2.6.13  I get a response of 0.004000250 seconds from clock_getres
+with a HZ of 250.
+
+On 2.6.14-rc5-kthrt7 (Thomas Gleixner's ktimers+high-res) I get from
+clock_getres: 0.000001000 seconds. And this seems to be accurate.
+
+-- Steve
+
+

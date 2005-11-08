@@ -1,72 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964974AbVKHJ3U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965114AbVKHJaZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964974AbVKHJ3U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 04:29:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbVKHJ3U
+	id S965114AbVKHJaZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 04:30:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965101AbVKHJaY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 04:29:20 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:14208 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964974AbVKHJ3T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 04:29:19 -0500
-Date: Tue, 8 Nov 2005 10:28:48 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: John Lenz <lenz@cs.wisc.edu>
-Cc: Ben Dooks <ben@fluff.org.uk>, vojtech@suse.cz, rpurdie@rpsys.net,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: Re: best way to handle LEDs
-Message-ID: <20051108092848.GH15730@elf.ucw.cz>
-References: <20051101234459.GA443@elf.ucw.cz> <20051102024755.GA14148@home.fluff.org> <20051102095139.GB30220@elf.ucw.cz> <43093.192.168.0.12.1130985101.squirrel@192.168.0.2> <20051107233000.GC2034@elf.ucw.cz> <52781.192.168.0.12.1131409634.squirrel@192.168.0.2>
+	Tue, 8 Nov 2005 04:30:24 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:60823
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S965114AbVKHJaW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 04:30:22 -0500
+Subject: Re: CLOCK_REALTIME_RES and nanosecond resolution
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1131418511.4652.88.camel@gaston>
+References: <1131418511.4652.88.camel@gaston>
+Content-Type: text/plain
+Organization: linutronix
+Date: Tue, 08 Nov 2005 10:34:18 +0100
+Message-Id: <1131442459.18108.75.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <52781.192.168.0.12.1131409634.squirrel@192.168.0.2>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >> I just looked, and
-> >> http://www.cs.wisc.edu/~lenz/zaurus/files/patch-2.6.7-jl2.diff.gz
-> >> contins
-> >> the implementation of the arm led interface for collie.... not sure if
-> >> it
-> >> will still work anymore, but...
-> >
-> > It does, after kconfig fixups. Do you think we could get that merged?
-> > Some led driver is better than none at all.
+On Tue, 2005-11-08 at 13:55 +1100, Benjamin Herrenschmidt wrote:
+> Hi !
 > 
-> I wonder, because we are exporting an API to userspace.  I don't think the
-> openembedded people want to use this API, and will hold off doing anything
-> with the leds till we get something else straigtend out.  If we have this
-> API now, we will have issues breaking it later (or we will have to do some
-> wierd locking scheme to allow both interfaces control, and crap like
-> that).
+> I noticed that we set
+> 
+> #define CLOCK_REALTIME_RES TICK_NSEC  /* In nano seconds. */
+> 
+> Unconditionally in kernel/posix-timer.c
+> 
+> Doesn't that mean that we'll advertise to userland (via clock_getres) a
+> resolution that is basically HZ ? We do get at lenght to get more
+> precise (up to ns) resolution in practice on many architectures but we
+> don't expose that to userland at all. Is this normal ?
 
-* they are 9 users of "old" interface already, one more does not seem
-like a big deal.
+This is the resolution which you can expect for timers (nanosleep and
+interval timers) as the timers depend on the jiffy tick.
 
-* arm maintainer does not want anything more complex than "old"
-interface. And I can see his point. It is not clear if "new" interface
-will get into mainline.
+The resolution of the readout functions is not affected by this.
 
-* there are very little users of collie, currently. Changing LED API
-on myself does not seem like a big deal. [I'm trying hard to get _two
-more_ users :-)]
+http://www.tglx.de/ktimers.html#writeup
 
-* if openembedded people do not like current interface, they should a)
-convince rmk API needs to change and b) convert all the drivers.
+should give you more information about that.
 
-> Secondly, leds aren't that importent unless they are supported by the
-> userspace programs (to do things like blink when email shows up).  And
-> before the userspace starts using leds, I think they might want to clear
-> up the interface API issue first.
+	tglx
 
-I'd say charger LED is somehow important, and I liked CPU usage LED a lot.
 
-								Pavel
--- 
-Thanks, Sharp!

@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965101AbVKHUxe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030276AbVKHU5h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965101AbVKHUxe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 15:53:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030268AbVKHUxe
+	id S1030276AbVKHU5h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 15:57:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030345AbVKHU5h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 15:53:34 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:54409 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965101AbVKHUxe (ORCPT
+	Tue, 8 Nov 2005 15:57:37 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:60375 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030276AbVKHU5g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 15:53:34 -0500
-Date: Tue, 8 Nov 2005 21:53:48 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: john cooper <john.cooper@timesys.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: MIPS PREEMPT_RT update..
-Message-ID: <20051108205348.GA15964@elte.hu>
-References: <436B85E1.1050103@timesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <436B85E1.1050103@timesys.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 8 Nov 2005 15:57:36 -0500
+Date: Tue, 8 Nov 2005 12:55:55 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Chris Wright <chrisw@osdl.org>
+cc: Oleg Nesterov <oleg@tv-sign.ru>, paulmck@us.ibm.com,
+       Roland McGrath <roland@redhat.com>, George Anzinger <george@mvista.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, dipankar@in.ibm.com,
+       mingo@elte.hu, suzannew@cs.pdx.edu
+Subject: Re: [PATCH] fix de_thread() vs send_group_sigqueue() race
+In-Reply-To: <20051108203621.GS5856@shell0.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.64.0511081255210.3247@g5.osdl.org>
+References: <20051105013650.GA17461@us.ibm.com> <436CDEAF.E236BC40@tv-sign.ru>
+ <20051106010004.GB20178@us.ibm.com> <436E1401.920A83EE@tv-sign.ru>
+ <436F991B.97AFC4C5@tv-sign.ru> <20051108203621.GS5856@shell0.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* john cooper <john.cooper@timesys.com> wrote:
 
-> Ingo,
->     Attached is a patch relative to 2.6.14-rc5-rt5
-> which brings arch/mips up to date for PREEMPT_RT.
-> This was derived from a similar patch I had for
-> 2.6.13 but I'd assumed it was rather dated to apply
-> to current work.  As it turned out both versions
-> were quite close.
+On Tue, 8 Nov 2005, Chris Wright wrote:
 
-thanks - merged your patches, they will be in the next
--rt release.
+> * Oleg Nesterov (oleg@tv-sign.ru) wrote:
+> > When non-leader thread does exec, de_thread calls release_task(leader) before
+> > calling exit_itimers(). If local timer interrupt happens in between, it can
+> > oops in send_group_sigqueue() while taking ->sighand->siglock == NULL.
+> > 
+> > However, we can't change send_group_sigqueue() to check p->signal != NULL,
+> > because sys_timer_create() does get_task_struct() only in SIGEV_THREAD_ID
+> > case. So it is possible that this task_struct was already freed and we can't
+> > trust p->signal.
+> > 
+> > This patch changes de_thread() so that leader released after exit_itimers()
+> > call.
+> 
+> Nice catch.  As soon as Linus picks it up we'll put it in -stable as
+> well.
 
-	Ingo
+Gaah. For some reason I was pretty much the only one not cc'd on the 
+original patch ;)
+
+Found it on linux-kernel.
+
+		Linus

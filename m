@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965296AbVKHTbb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965304AbVKHTjz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965296AbVKHTbb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 14:31:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965294AbVKHTba
+	id S965304AbVKHTjz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 14:39:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965305AbVKHTjz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 14:31:30 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:16862 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965285AbVKHTba convert rfc822-to-8bit
+	Tue, 8 Nov 2005 14:39:55 -0500
+Received: from xproxy.gmail.com ([66.249.82.195]:54203 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965304AbVKHTjy convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 14:31:30 -0500
-Subject: Re: Highpoint IDE types
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ville =?ISO-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-In-Reply-To: <pan.2005.11.08.19.02.09.190896@sci.fi>
-References: <1131471483.25192.76.camel@localhost.localdomain>
-	 <pan.2005.11.08.19.02.09.190896@sci.fi>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Date: Tue, 08 Nov 2005 20:02:20 +0000
-Message-Id: <1131480140.25192.98.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 8 Nov 2005 14:39:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=obFGKf7YsdYybgx70UCqr8kcOyyWeS+MuexdUUvMONlt/E84EsNI1+rCizikpzl/g8Oi+UcNgEoe4+55cdK5AObk27lGzOC6YmQclFx+L0UhPqdxRu3W1djqFHw4GIaMjA/Y1n8P4G9OvEkWK0UQzgsjPXJRx58Ch7yxOplTxec=
+Message-ID: <b6c5339f0511081139y7ab57ea9y498d9cf4aae9692b@mail.gmail.com>
+Date: Tue, 8 Nov 2005 14:39:51 -0500
+From: Bob Copeland <email@bobcopeland.com>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Subject: Re: Compatible fstat()
+Cc: Parag Warudkar <kernel-stuff@comcast.net>, Al Viro <viro@ftp.linux.org.uk>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0511081316390.4913@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.61.0511081040580.3894@chaos.analogic.com>
+	 <3587A59B-14FA-4E0F-A598-577E944FCF36@comcast.net>
+	 <20051108172244.GR7992@ftp.linux.org.uk>
+	 <23F8E4C6-3141-4ECB-B3FF-E9BE6D261EE1@comcast.net>
+	 <Pine.LNX.4.61.0511081308360.4837@chaos.analogic.com>
+	 <C65925DE-0F6F-401E-8D47-2EE3F8D5191C@comcast.net>
+	 <Pine.LNX.4.61.0511081316390.4913@chaos.analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-11-08 at 21:02 +0200, Ville Syrjälä wrote:
-> >  *      HPT372                  4 (HPT366)      5     
-> >  *      HPT372N                 4 (HPT366)      6     
-> >  *      HPT372                  5 (HPT372)      0
->           ^^^^^^
-> 
-> This one is called HPT372A by Highpoint's BIOS/Win drivers.
-> 
-> Also I'm not sure if it's relevant but PCI ID 5 chips use a different
-> BIOS image than PCI ID 4 chips.
+> > Yeah I corrected that before trying but still didn't work on Debian
+> > (2.6.8 kernel)...
+> > Running root, open successful but size is always zero - Strange..
+> >
+> > Parag
+>
+> Also found that the returned value was -1 and errno was EOVERFLOW.
+> So, that doesn't work either!
 
-I suspect it is relevant because the "372A" appears to have a different
-base clock to the HPT372.
+Isn't this just because the device size is > 2**32?  What if you use fseeko(3)
+and #define _FILE_OFFSET_BITS 64?
 
-Added to the list.
+Okay, still not portable and there is probably a better way that doesn't rely
+on such nonsense.  For example, since you have a minimum size in mind,
+just seek that much and see if it works - you don't really need to know the
+whole disk size for that.  Or figure out the best way on all of your platforms
+and abstract it.
 
+-Bob

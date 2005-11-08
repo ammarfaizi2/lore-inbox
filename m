@@ -1,77 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030295AbVKHSrq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965264AbVKHSrX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030295AbVKHSrq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 13:47:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030298AbVKHSrq
+	id S965264AbVKHSrX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 13:47:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965267AbVKHSrX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 13:47:46 -0500
-Received: from nproxy.gmail.com ([64.233.182.203]:57281 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030295AbVKHSr0 (ORCPT
+	Tue, 8 Nov 2005 13:47:23 -0500
+Received: from mail.kroah.org ([69.55.234.183]:30622 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S965264AbVKHSrX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 13:47:26 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=Kv1OeIGnAlU/LN7YsEX8n2IwjE4osAJSr7NrAmHh3Cq3WSu98iqwQVZ42gXRZFAcYW3C+G5/msdqXiXjRnqjk7SBvyI78Y530YRZAOa+qtHw7HKc+qTvg35f3sX+32yBoaXWsGvw5TQCDyu8zTzBAPwpsVaCTcddNL93WEyn0t0=
-Date: Tue, 8 Nov 2005 22:00:48 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/4] DocBook: allow to mark structure members private
-Message-ID: <20051108190048.GA12240@mipter.zuzino.mipt.ru>
-References: <20051108183511.GA12043@mipter.zuzino.mipt.ru> <Pine.LNX.4.58.0511081025420.15288@shark.he.net>
+	Tue, 8 Nov 2005 13:47:23 -0500
+Date: Tue, 8 Nov 2005 10:34:23 -0800
+From: Greg KH <greg@kroah.com>
+To: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
+Subject: Re: udev on 2.6.14 fails to create /dev/input/event2 on T40 Thinkpad
+Message-ID: <20051108183423.GA15799@kroah.com>
+References: <E1EYdMs-0001hI-3F@think.thunk.org> <20051106203421.GB2527@kroah.com> <20051107053648.GA7521@thunk.org> <20051107155243.GA14658@kroah.com> <20051107181706.GB8374@thunk.org> <20051107182434.GC18861@kroah.com> <20051108033019.GA6129@thunk.org> <20051108044348.GB5516@kroah.com> <20051108131451.GD6129@thunk.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0511081025420.15288@shark.he.net>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <20051108131451.GD6129@thunk.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 08, 2005 at 10:27:01AM -0800, Randy.Dunlap wrote:
-> On Tue, 8 Nov 2005, Alexey Dobriyan wrote:
-> >  # /**
-> >  #  * struct my_struct - short description
-> >  #  * @a: first member
-> >  #  * @b: second member
-> > +#  * @c: nested struct
-> > +#  * @c.p: first member of nested struct
-> > +#  * @c.q: second member of nested struct
-> >  #  *
-> >  #  * Longer description
-> >  #  */
-> >  # struct my_struct {
-> >  #     int a;
-> >  #     int b;
-> > +#     struct her_struct {
-> > +#         char **p;
-> > +#         short q;
-> > +#     } c;
-> >  # };
-> >
-> > But properly nested displaying is in pretty much nil state since .. uh
-> > crap.. summer.
->
-> Is this something that used to work?  If so, when?
+On Tue, Nov 08, 2005 at 08:14:51AM -0500, Theodore Ts'o wrote:
+> On Mon, Nov 07, 2005 at 08:43:49PM -0800, Greg KH wrote:
+> > 
+> > The input subsystem moved to handle nested class devices, so udev had to
+> > change to handle this properly.  I bet however Debian does the initial
+> > population of the /dev tree is messed up somehow, as that is what it
+> > looks like is happening (event3 I bet is from a USB device that is added
+> > after init starts?)
+> > 
+> 
+> Nope, it looks like there's some sort of layering/nesting going on:
+> 
+> % cat /sys/class/input/event1/device/description
+> i8042 Kbd Port
+> 
+> % cat /sys/class/input/event2/device/description
+> i8042 Aux Port
+> 
+> % cat /sys/class/input/event3/device/description
+> Synaptics pass-through
+> 
+> .. and the Synaptics driver wants to talk to /dev/input/event2, and
+> _not_ /dev/input/event3.  But the Debian scripts seem to think that
+> the only thing of value to expose is the /dev/input/event3, the very
+> top of the stack.  /dev/input/event1, and /dev/input/event2 are both
+> not showing up on my system once a I boot a post-2.6.14 kernel.
 
-IIRC, I've done it to the state where it would print:
+Is there a "dev" file in /sys/class/input/event1/ and
+/sys/class/input/event2/ ?  That should be all the udev cares about.
 
-	int a;
-	int b;
-	char **c.p;
-	short c.q;
+thanks,
 
-but that's not C.
-
-P. S.: Is htmldocs broken for someone else?
-
-  XMLTO  Documentation/DocBook/wanbook.html
-XPath error : Undefined variable
-compilation error: file file:///usr/share/sgml/docbook/xsl-stylesheets-1.66.1/xhtml/docbook.xsl
-line 114 element copy-of
-xsl:copy-of : could not compile select expression '$title'
-XPath error : Undefined variable
-$html.stylesheet != ''
-                 ^
-		...
-
+greg k-h

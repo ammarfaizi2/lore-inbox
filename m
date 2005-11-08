@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965231AbVKHVib@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965017AbVKHVpO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965231AbVKHVib (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 16:38:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965237AbVKHVib
+	id S965017AbVKHVpO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 16:45:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbVKHVpO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 16:38:31 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:11479 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S965231AbVKHVia
+	Tue, 8 Nov 2005 16:45:14 -0500
+Received: from xproxy.gmail.com ([66.249.82.203]:39733 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965017AbVKHVpM convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 16:38:30 -0500
-Subject: Re: athlon x2 + 2.6.14 + SMP = fast clock
-From: john stultz <johnstul@us.ibm.com>
-To: Christopher Mulcahy <cmulcahy@avesi.com>
+	Tue, 8 Nov 2005 16:45:12 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jq03UZ+jV0YISSMUyY80Jw8w7w+2QO+UxWkyyVLj0hY/97QLqelEl4k2kcn5t0M5E/dCphwbV+AN5Pn6wVVobbjy/j2MuEvjJ8g+UnDlB5B8RXHtsnzIkvEsQVQ/07W3FbbFl2cN4aNWcenkovoBvL7sxZiub+5S2DmdpqXWFbM=
+Message-ID: <fb7befa20511081345l497846abla28f978fc4e45442@mail.gmail.com>
+Date: Tue, 8 Nov 2005 16:45:12 -0500
+From: Adayadil Thomas <adayadil.thomas@gmail.com>
+To: Chris Largret <largret@gmail.com>
+Subject: Re: Creating new System.map with modules symbol info
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1131482417.21752.50.camel@jones>
-References: <1131482417.21752.50.camel@jones>
-Content-Type: text/plain
-Date: Tue, 08 Nov 2005 13:38:23 -0800
-Message-Id: <1131485903.27168.662.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <1131484787.5520.3.camel@shogun.daga.dyndns.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <fb7befa20511081304sec70208l5d1a464e5af78f58@mail.gmail.com>
+	 <1131484787.5520.3.camel@shogun.daga.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-08 at 15:40 -0500, Christopher Mulcahy wrote:
-> I am running 2.6.14 SMP on an dual-core athlon x2 3800.
-> The system clock runs at roughly twice normal speed.
+Thanks for the reply.
 
-Is this a new regression or did the problem occur with 2.6.13 or older
-kernels?
+Usage of mksysmap is --
+mksysmap vmlinux System.map
 
-Would you mind opening a kernel bug and attaching your dmesg and config?
+How do I specify the module which is not included in the kernel ?
+Is that possible ?
 
-http://bugzilla.kernel.org
+Thanks
 
-
-Also try booting w/ "idle=poll" to see if that doesn't clear up the
-issue.
-
-thanks
--john
-
-
-
+On 11/8/05, Chris Largret <largret@gmail.com> wrote:
+> On Tue, 2005-11-08 at 16:04 -0500, Adayadil Thomas wrote:
+> > Greetings.
+> >
+> > The System map that was created when compiling kernel does'nt have the symbols
+> > of modules that are loaded later. How can I create a new System.map
+> > with the symbols of
+> > modules also.
+>
+> >From the linux kernel source directory, take a look at scripts/mksysmap.
+>
+> --
+> Chris Largret <http://daga.dyndns.org>
+>
+>

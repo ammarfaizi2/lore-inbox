@@ -1,92 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030227AbVKHCJV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030233AbVKHCJw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030227AbVKHCJV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 21:09:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030219AbVKHCI7
+	id S1030233AbVKHCJw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 21:09:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030219AbVKHCJv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 21:08:59 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:26061 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965213AbVKHCBg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 21:01:36 -0500
-To: torvalds@osdl.org
-Subject: [PATCH 2/18] cleanups and bug fix in do_loopback()
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       linuxram@us.ibm.com
-Message-Id: <E1EZInj-0001Ef-9Z@ZenIV.linux.org.uk>
-From: Al Viro <viro@ftp.linux.org.uk>
-Date: Tue, 08 Nov 2005 02:01:31 +0000
+	Mon, 7 Nov 2005 21:09:51 -0500
+Received: from fmr21.intel.com ([143.183.121.13]:1429 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1030233AbVKHCJs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 21:09:48 -0500
+Subject: Re: [PATCH]: Cleanup of __alloc_pages
+From: Rohit Seth <rohit.seth@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20051107175358.62c484a3.akpm@osdl.org>
+References: <20051107174349.A8018@unix-os.sc.intel.com>
+	 <20051107175358.62c484a3.akpm@osdl.org>
+Content-Type: text/plain
+Organization: Intel 
+Date: Mon, 07 Nov 2005 18:16:30 -0800
+Message-Id: <1131416195.20471.31.camel@akash.sc.intel.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Nov 2005 02:09:29.0274 (UTC) FILETIME=[7373E1A0:01C5E409]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
-Date: 1131401704 -0500
+On Mon, 2005-11-07 at 17:53 -0800, Andrew Morton wrote:
+> "Rohit, Seth" <rohit.seth@intel.com> wrote:
+> >
+> > [PATCH]: Clean up of __alloc_pages. Couple of difference from original behavior:
+> > 	1- remove the initial reclaim logic
+> > 	2- GFP_HIGH pages are allowed to go little below watermark sooner.
+> > 	3- Search for free pages unconditionally after direct reclaim.
+> 
+> Would it be possible to break these into three separate patches?  The
+> cleanup part should be #1.
+> 
 
-- check_mnt() on the source of binding should've been unconditional from
-the very beginning.  My fault - as far I could've trace it, that's an
-old thinko made back in 2001.  Kudos to Miklos for spotting it...
-Fixed.
-- code cleaned up.
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Doing the above three things as part of this clean up patch makes the
+code look extra clean... Is there any specific issue coming out of 2 & 3
+above.
 
----
+> > +		if (!skip_cpuset_chk && (!cpuset_zone_allowed(z, gfp_mask)))
+> 
+> It'd be nice to not have the `skip_cpuset_chk' flag there.  a) it gives
+> Linus conniptions and b) it's a little extra overhead for !CONFIG_CPUSETS
+> kernels.
+> 
 
- fs/namespace.c |   41 ++++++++++++++++++++++-------------------
- 1 files changed, 22 insertions(+), 19 deletions(-)
+I think it will be easier to do this change as a follow on patch as that
+will change the header file, function definition and such.  Can we defer
+this to separate follow on patch.
 
-aceb5c8912a85abd7a1a0f704bc742936cdad880
-diff --git a/fs/namespace.c b/fs/namespace.c
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -661,29 +661,32 @@ static int do_loopback(struct nameidata 
- 
- 	down_write(&current->namespace->sem);
- 	err = -EINVAL;
--	if (check_mnt(nd->mnt) && (!recurse || check_mnt(old_nd.mnt))) {
--		err = -ENOMEM;
--		if (recurse)
--			mnt = copy_tree(old_nd.mnt, old_nd.dentry);
--		else
--			mnt = clone_mnt(old_nd.mnt, old_nd.dentry);
--	}
-+	if (!check_mnt(nd->mnt) || !check_mnt(old_nd.mnt))
-+		goto out;
-+
-+	err = -ENOMEM;
-+	if (recurse)
-+		mnt = copy_tree(old_nd.mnt, old_nd.dentry);
-+	else
-+		mnt = clone_mnt(old_nd.mnt, old_nd.dentry);
-+
-+	if (!mnt)
-+		goto out;
-+
-+	/* stop bind mounts from expiring */
-+	spin_lock(&vfsmount_lock);
-+	list_del_init(&mnt->mnt_expire);
-+	spin_unlock(&vfsmount_lock);
- 
--	if (mnt) {
--		/* stop bind mounts from expiring */
-+	err = graft_tree(mnt, nd);
-+	if (err) {
- 		spin_lock(&vfsmount_lock);
--		list_del_init(&mnt->mnt_expire);
-+		umount_tree(mnt);
- 		spin_unlock(&vfsmount_lock);
-+	} else
-+		mntput(mnt);
- 
--		err = graft_tree(mnt, nd);
--		if (err) {
--			spin_lock(&vfsmount_lock);
--			umount_tree(mnt);
--			spin_unlock(&vfsmount_lock);
--		} else
--			mntput(mnt);
--	}
--
-+out:
- 	up_write(&current->namespace->sem);
- 	path_release(&old_nd);
- 	return err;
+> > -	zone_statistics(zonelist, z);
+> > +	zone_statistics(zonelist, page_zone(page));
+> 
+> Evaluating page_zone() is not completely trivial.  Can we avoid the above?
+
+Okay.  Last time Nick also mentioned this but agreed to keep it here.  I
+will uplevel so that I don't go through the page_zone.
+
+-rohit
+

@@ -1,91 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965004AbVKHCnn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965679AbVKHCoq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965004AbVKHCnn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 21:43:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965122AbVKHCnn
+	id S965679AbVKHCoq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 21:44:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965684AbVKHCoq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 21:43:43 -0500
-Received: from quark.didntduck.org ([69.55.226.66]:64187 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP id S965004AbVKHCnm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 21:43:42 -0500
-Message-ID: <43701166.1010705@didntduck.org>
-Date: Mon, 07 Nov 2005 21:45:58 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mail/News 1.5 (X11/20051105)
-MIME-Version: 1.0
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: NVidia nForce4 + AMD Athlon64 X2 --> no access to north-bridge
- PCI resources
-References: <20051107225755.GE5706@mea-ext.zmailer.org>
-In-Reply-To: <20051107225755.GE5706@mea-ext.zmailer.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 7 Nov 2005 21:44:46 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:7108 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S965679AbVKHCop (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 21:44:45 -0500
+Subject: Re: 2.6.14-mm1 libata pata_via
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Chris Boot <bootc@bootc.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <6397E994-0BC3-445F-BF2B-CD3D0ADB0E02@bootc.net>
+References: <6397E994-0BC3-445F-BF2B-CD3D0ADB0E02@bootc.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Tue, 08 Nov 2005 03:15:26 +0000
+Message-Id: <1131419726.19575.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matti Aarnio wrote:
-> The _very_short_ view of  lspci  output on a problem machine:
+On Llu, 2005-11-07 at 17:32 +0000, Chris Boot wrote:
+> Hi all,
 > 
-> 00:00.0 Memory controller: nVidia Corporation CK804 Memory Controller (rev a3)
-> 00:01.0 ISA bridge: nVidia Corporation CK804 ISA Bridge (rev a3)
-> 00:01.1 SMBus: nVidia Corporation CK804 SMBus (rev a2)
-> 00:02.0 USB Controller: nVidia Corporation CK804 USB Controller (rev a2)
-> 00:02.1 USB Controller: nVidia Corporation CK804 USB Controller (rev a3)
-> 00:04.0 Multimedia audio controller: nVidia Corporation CK804 AC'97 Audio Controller (rev a2)
-> 00:06.0 IDE interface: nVidia Corporation CK804 IDE (rev f2)
-> 00:09.0 PCI bridge: nVidia Corporation CK804 PCI Bridge (rev a2)
-> 00:0a.0 Bridge: nVidia Corporation CK804 Ethernet Controller (rev a3)
-> 00:0b.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
-> 00:0c.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
-> 00:0d.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
-> 00:0e.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
-> 01:00.0 VGA compatible controller: nVidia Corporation NV43 [GeForce 6600] (rev a2)
-> 05:06.0 FireWire (IEEE 1394): Texas Instruments TSB12LV23 IEEE-1394 Controller
-> 05:07.0 Multimedia video controller: Brooktree Corporation Bt848 Video Capture (rev 12)
-> 05:0a.0 RAID bus controller: Silicon Image, Inc. SiI 3114 [SATALink/SATARaid] Serial ATA Controller (rev 02)
-> 05:0c.0 Ethernet controller: Marvell Technology Group Ltd. 88E8001 Gigabit Ethernet Controller (rev 13)
-> 
-> This problem machine is  ASUS A8N-SLI Premium 
-> AMD CPU family/model/stepping: 15/35/2
-> 
-> The question is:
-> 
->   Where are "host bridge" subsystem things in this new
->   ASUS board with NVidia nForce4 ?
-> 
+> Since I've only got a DVD drive on good ol' PATA, I thought I'd try  
+> Alan's latest VIA PATA driver for libata, to see where I got. Well,  
+> the machine simply doesn't boot, preferring to get stuck after  
+> detecting the drive. I've tried with and without  
+> libata.atapi_enabled=1 and get the same result in both cases. Here's  
+> my log with some SysRq output that might be useful:
 
-I see a similar scenario on a Gigabyte GA-K8NF-9 board:
+Thanks for giving it a try. Can you also give me an lspci -v for
+reference
 
-00:00.0 Memory controller: nVidia Corporation CK804 Memory Controller 
-(rev a2)
-00:01.0 ISA bridge: nVidia Corporation CK804 ISA Bridge (rev a2)
-00:01.1 SMBus: nVidia Corporation CK804 SMBus (rev a2)
-00:02.0 USB Controller: nVidia Corporation CK804 USB Controller (rev a2)
-00:02.1 USB Controller: nVidia Corporation CK804 USB Controller (rev a2)
-00:04.0 Multimedia audio controller: nVidia Corporation CK804 AC'97 
-Audio Controller (rev a2)
-00:06.0 IDE interface: nVidia Corporation CK804 IDE (rev a2)
-00:07.0 IDE interface: nVidia Corporation CK804 Serial ATA Controller 
-(rev a2)
-00:08.0 IDE interface: nVidia Corporation CK804 Serial ATA Controller 
-(rev a2)
-00:09.0 PCI bridge: nVidia Corporation CK804 PCI Bridge (rev a2)
-00:0a.0 Bridge: nVidia Corporation CK804 Ethernet Controller (rev a2)
-00:0b.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a2)
-00:0c.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a2)
-00:0d.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a2)
-00:0e.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a2)
-01:08.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 07)
-01:08.1 Input device controller: Creative Labs SB Live! MIDI/Game Port 
-(rev 07)
-01:0a.0 FireWire (IEEE 1394): Texas Instruments TSB82AA2 IEEE-1394b Link 
-Layer Controller (rev 01)
-05:00.0 VGA compatible controller: nVidia Corporation NV43 [GeForce 6600 
-GT] (rev a2)
+> [4294672.373000] ACPI: PCI Interrupt 0000:00:0f.1[A] -> Link [ALKA] - 
+>  > GSI 20 (level, low) -> IRQ 177
+> [4294672.411000] PCI: Via IRQ fixup for 0000:00:0f.1, from 255 to 1
 
-Maybe it's a BIOS thing, like how some hide the SMBus interface?
+Thats suspicious in itself. I take it the VIA drivers/ide driver works
+fine and reports IRQ 1 however ?
 
---
-					Brian Gerst
+> [4294672.446000] ata5: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma  
+> 0xD000 irq 14
+

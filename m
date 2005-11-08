@@ -1,60 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964923AbVKHR5S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965212AbVKHR6N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964923AbVKHR5S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 12:57:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964996AbVKHR5S
+	id S965212AbVKHR6N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 12:58:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965223AbVKHR6N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 12:57:18 -0500
-Received: from netzweb.gamper-media.ch ([157.161.128.137]:52488 "EHLO
-	ns1.netzweb.ch") by vger.kernel.org with ESMTP id S964923AbVKHR5S
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 12:57:18 -0500
-From: "Miro Dietiker, MD Systems" <info@md-systems.ch>
-To: <linux-kernel@vger.kernel.org>
-Cc: "'Denis Vlasenko'" <vda@ilport.com.ua>
-Subject: AW: Compiling kernel for amd 8131 chipset
-Date: Tue, 8 Nov 2005 18:56:53 +0100
-Organization: MD Systems
-Message-ID: <02a601c5e48d$d02d0460$4001a8c0@MDSYSPORT>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Tue, 8 Nov 2005 12:58:13 -0500
+Received: from rwcrmhc14.comcast.net ([204.127.198.54]:9446 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S965235AbVKHR6L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 12:58:11 -0500
+In-Reply-To: <20051108172244.GR7992@ftp.linux.org.uk>
+References: <Pine.LNX.4.61.0511081040580.3894@chaos.analogic.com> <3587A59B-14FA-4E0F-A598-577E944FCF36@comcast.net> <20051108172244.GR7992@ftp.linux.org.uk>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <23F8E4C6-3141-4ECB-B3FF-E9BE6D261EE1@comcast.net>
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-In-Reply-To: <200511081804.10761.vda@ilport.com.ua>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Importance: Normal
-X-yoursite-MailScanner-Information: Please contact the ISP for more information
-X-yoursite-MailScanner: Found to be clean
+From: Parag Warudkar <kernel-stuff@comcast.net>
+Subject: Re: Compatible fstat()
+Date: Tue, 8 Nov 2005 12:58:08 -0500
+To: Al Viro <viro@ftp.linux.org.uk>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I couldn't find any thread about this topic.
->> Surprisingly if I start "knoppix 3.91 with 2.8.11" the chipset is
-being
->> detected (lspci)
 
-><joke>
->Apparently support for the 8131 was added sometime before 2.8.11 kernel
->release.
-></joke>
+On Nov 8, 2005, at 12:22 PM, Al Viro wrote:
+>
+> 	fd = open(bdev, O_RDONLY);
+> 	lseek(fd, SEEK_END, 0);
+> 	size = lseek(fd, SEEK_SET, 0);
+> 	close(fd);
+>
+> i.e. same as for regular files.  Won't be portable, though...
 
-*rofl* sure 2.6.11 @ knoppix's ;)
+For some reason this didn't work for bdev == "/dev/hda" - Size is  
+returned as 0..
 
->> Do you have any idea for doing that?
-
->Take knoppix's .config and compile latest 2.6 using it (with "make
->oldconfig" step as usual).
-
-So i did, using the same kernel 2.6.11 as knoppix 3.91
-this time without applying the patch from amd for 8131 and also without
-the patch of bc5704
-
-Wow! System works! *excited*
-
-Now I'm trying to compile 2.6.14 and enjoy my brand net servers :-)
-
-Thanx! - Miro
-
+Parag

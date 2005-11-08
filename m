@@ -1,41 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030294AbVKHSmB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030296AbVKHSpK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030294AbVKHSmB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 13:42:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030295AbVKHSmB
+	id S1030296AbVKHSpK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 13:45:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030297AbVKHSpK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 13:42:01 -0500
-Received: from waste.org ([216.27.176.166]:2200 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1030294AbVKHSmB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 13:42:01 -0500
-Date: Tue, 8 Nov 2005 10:41:32 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Greg KH <greg@kroah.com>
-Cc: Neil Brown <neilb@suse.de>, Daniele Orlandi <daniele@orlandi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: An idea on devfs vs. udev
-Message-ID: <20051108184132.GC8126@waste.org>
-References: <200510301907.11860.daniele@orlandi.com> <17253.14484.653996.225212@cse.unsw.edu.au> <20051030222309.GA9423@kroah.com>
+	Tue, 8 Nov 2005 13:45:10 -0500
+Received: from serv01.siteground.net ([70.85.91.68]:58316 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S1030296AbVKHSpJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 13:45:09 -0500
+Date: Tue, 8 Nov 2005 10:45:05 -0800
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Yasunori Goto <y-goto@jp.fujitsu.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Cleanup bootmem allocator and fix alloc_bootmem_low
+Message-ID: <20051108184505.GB3733@localhost.localdomain>
+References: <20051108073224.GA3753@localhost.localdomain> <20051108224621.7062.Y-GOTO@jp.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051030222309.GA9423@kroah.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20051108224621.7062.Y-GOTO@jp.fujitsu.com>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 30, 2005 at 02:23:09PM -0800, Greg KH wrote:
-> On Mon, Oct 31, 2005 at 08:18:12AM +1100, Neil Brown wrote:
-> > But then to make matters worse, there is this "sample.sh" file.  UGH!
-> > It's a bit of shell code exported by the kernel.
-> >    #!/bin/sh
-> >    mknod /dev/hda  b 3 0
+Hello Yasunori-san,
+
+On Tue, Nov 08, 2005 at 11:24:12PM +0900, Yasunori Goto wrote:
 > 
-> That's just a "joke" patch that is only in the -mm tree, as it gets
-> pulled in from my tree.  It's not in mainline, and will never go there.
+> I guess your patch is for 2.6.14-git11, right?
 
-Perhaps you can drop this horror now that Halloween has passed.
+Yes, it was on top of the latest git as of the patch creation.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+> I tried it on my ia64 Tiger4 with NUMA emulation.
+> This emulation had worked well so far.
+> 
+> But, 2.6.14-git11 doen't boot even if your patch is not used.
+> (Probably, it is caused by changing efi_map walker.)
+> 
+> And I can't use our big true NUMA machine now.
+> It is used by other person. So, I have to reserve it to use again.
+> 
+> If I can test it, I'll notify about it ASAP.
+
+'Appreciate the feedback.  Do let me know how it goes.
+
+Thanks,
+Kiran

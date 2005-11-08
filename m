@@ -1,69 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030336AbVKHWxx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030263AbVKHWzc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030336AbVKHWxx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 17:53:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965305AbVKHWxx
+	id S1030263AbVKHWzc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 17:55:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965285AbVKHWzc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 17:53:53 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6160 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S965285AbVKHWxw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 17:53:52 -0500
-Date: Tue, 8 Nov 2005 22:53:46 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Anil kumar <anils_r@yahoo.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: bus_to_virt equivalent
-Message-ID: <20051108225346.GF13357@flint.arm.linux.org.uk>
-Mail-Followup-To: Anil kumar <anils_r@yahoo.com>,
-	Matthew Wilcox <matthew@wil.cx>, linux-kernel@vger.kernel.org,
-	linux-scsi@vger.kernel.org
-References: <20051108013722.GK23749@parisc-linux.org> <20051108224700.68513.qmail@web32406.mail.mud.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051108224700.68513.qmail@web32406.mail.mud.yahoo.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 8 Nov 2005 17:55:32 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:45251 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S965211AbVKHWzc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 17:55:32 -0500
+Message-ID: <43712D43.5080404@tmr.com>
+Date: Tue, 08 Nov 2005 17:57:07 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Parag Warudkar <kernel-stuff@comcast.net>
+CC: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Al Viro <viro@ftp.linux.org.uk>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Compatible fstat()
+References: <Pine.LNX.4.61.0511081040580.3894@chaos.analogic.com> <3587A59B-14FA-4E0F-A598-577E944FCF36@comcast.net> <20051108172244.GR7992@ftp.linux.org.uk> <23F8E4C6-3141-4ECB-B3FF-E9BE6D261EE1@comcast.net> <Pine.LNX.4.61.0511081308360.4837@chaos.analogic.com> <C65925DE-0F6F-401E-8D47-2EE3F8D5191C@comcast.net> <Pine.LNX.4.61.0511081316390.4913@chaos.analogic.com> <b6c5339f0511081139y7ab57ea9y498d9cf4aae9692b@mail.gmail.com> <FC49A7EB-A267-4C94-8739-2321C4DC1A1B@comcast.net>
+In-Reply-To: <FC49A7EB-A267-4C94-8739-2321C4DC1A1B@comcast.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 08, 2005 at 02:47:00PM -0800, Anil kumar wrote:
-> Hi Matthew,
+Parag Warudkar wrote:
 > 
-> Thanks for the reply.
-> I can store the returned dma_addr from
-> pci_map_sg/single or pci_map_page in a driver
-> structure.
+> On Nov 8, 2005, at 2:39 PM, Bob Copeland wrote:
 > 
-> struct page *page =
-> virt_to_page(Cmnd->request_buffer);
->                 unsigned long offset = ((unsigned
-> long)Cmnd->request_buffer &
->                                         ~PAGE_MASK);
->                 dma_addr_t busaddr =
-> pci_map_page(hostdata->pci_dev,
->                                                  
-> page, offset,
->                                                  
-> Cmnd->request_bufflen,
->                                                  
-> scsi_to_pci_dma_dir(Cmnd->sc_data_direction));
+>> Isn't this just because the device size is > 2**32?  What if you  use 
+>> fseeko(3)
+>> and #define _FILE_OFFSET_BITS 64?
+>>
 > 
-> But how do I convert this returned "busaddr" into a
-> virtual addr?
+> Yep. I got it to return the correct hard disk size (17Gb) using  lseek64 
+> and
+> #define _LARGEFILE64_SOURCE
+> #define _FILE_OFFSET_BITS 64
+> 
+> Here is what I did
+> -------------------------------------------------
+> #define _LARGEFILE64_SOURCE
+> #define _FILE_OFFSET_BITS 64
+> #include <stdio.h>
+> #include <unistd.h>
+> #include <fcntl.h>
+> 
+> int main()
+> {
+>         int f;
+>         off64_t off=0;
+Why is this initialized?
+>         f = open("/dev/hda", O_RDONLY );
+>         if(f <= 0){
+>                 perror("open");
+>                 exit(0);
+>         }
+>         off = lseek64(f, 0, SEEK_SET);
+Why do this? it always returns zero.
+>         off = lseek64(f, 0, SEEK_END);
+>         perror("llseek");
+>         printf ("Size %lld\n", off);
+>         close(f);
+>         return 0;
+> }
+> 
+RETURN VALUE
+   Upon successful completion, lseek returns the resulting offset
+   location as measured in bytes from the beginning of the  file.
+   Otherwise,  a  value  of  (off_t)-1 is returned and errno is
+   set to indicate the error.
 
-You don't - that's architecture implementation detail which drivers
-have _zero_ business knowing about.
-
-As far as you're concerned, the virtual address is Cmnd->request_buffer.
-
-Anyway, you're using the wrong interface - pci_map_single() takes
-a virtual address.  No need to play around getting the offset and
-struct page for pci_map_page() when pci_map_single() implements
-what you require.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

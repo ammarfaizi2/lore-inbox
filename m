@@ -1,74 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965633AbVKHAa3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965606AbVKHAd0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965633AbVKHAa3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 19:30:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965634AbVKHAa3
+	id S965606AbVKHAd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 19:33:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965636AbVKHAd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 19:30:29 -0500
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:34424 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S965633AbVKHAa3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 19:30:29 -0500
+	Mon, 7 Nov 2005 19:33:26 -0500
+Received: from zproxy.gmail.com ([64.233.162.207]:45293 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965606AbVKHAdZ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 19:33:25 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=pIgjG54+F61+98sWtMXy6MIWAjuyJD/9OdEVsixMME8bwaRywyhNjEQDQK++ZBzdTGxBuXPIiDFTTDAdod93BNT8LEXiL6mNbv6YefkfguSdg/7DiQybMTQk6SXy3Zy70tfX4JWyb7fqlBE8PxspGAbKdD8IILj7aBAhCdHU+X4=  ;
-Message-ID: <436FF20D.8030200@yahoo.com.au>
-Date: Tue, 08 Nov 2005 11:32:13 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=s7ZsHEFjgFe2fJ4/1CCetBbiekQZ7TDSLp/hmKwdRxrnvP7K0I8KVCjv2c2X+a5jX0S1mIhYB62goVUm/aDTSVjWC6yIloLOl87DZH0w4GnMfrXnuelWYOXpFRQwA+l4WXdI4MLx/MCejkZWGP6CXT0WOztOCbQ1AlGUBznDrnE=
+Message-ID: <7e77d27c0511071633k4a44b573o@mail.gmail.com>
+Date: Tue, 8 Nov 2005 08:33:24 +0800
+From: Yan Zheng <yzcorp@gmail.com>
+Subject: Re: [PATCH][MCAST]Clear MAF_GSQUERY flag when process MLDv1 general query messages.
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+In-Reply-To: <OF7136C7EC.A2BD07E5-ON882570B2.00768CF6-882570B2.0077AB0D@us.ibm.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Neil Brown <neilb@suse.de>, dm-devel@redhat.com, heiko.carstens@de.ibm.com,
-       linux-kernel@vger.kernel.org, aherrman@de.ibm.com, bunk@stusta.de,
-       cplk@itee.uq.edu.au
-Subject: Re: [dm-devel] Re: [PATCH resubmit] do_mount: reduce stack consumption
-References: <20051104105026.GA12476@osiris.boeblingen.de.ibm.com>	<20051104084829.714c5dbb.akpm@osdl.org>	<20051104212742.GC9222@osiris.ibm.com>	<20051104235500.GE5368@stusta.de>	<20051104160851.3a7463ff.akpm@osdl.org>	<Pine.GSO.4.60.0511051108070.2449@mango.itee.uq.edu.au>	<20051104173721.597bd223.akpm@osdl.org>	<17260.17661.523593.420313@cse.unsw.edu.au>	<17262.40176.342746.634262@cse.unsw.edu.au> <20051107153706.2f3c8b67.akpm@osdl.org>
-In-Reply-To: <20051107153706.2f3c8b67.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <7e77d27c0511070646o7b8686aes@mail.gmail.com>
+	 <OF7136C7EC.A2BD07E5-ON882570B2.00768CF6-882570B2.0077AB0D@us.ibm.com>
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Neil Brown <neilb@suse.de> wrote:
-> 
->>...
->>Reduce stack usage with stacked block devices
->>
->>...
->>diff ./include/linux/sched.h~current~ ./include/linux/sched.h
->>--- ./include/linux/sched.h~current~	2005-11-07 10:01:36.000000000 +1100
->>+++ ./include/linux/sched.h	2005-11-07 10:02:23.000000000 +1100
->>@@ -829,6 +829,9 @@ struct task_struct {
->> /* journalling filesystem info */
->> 	void *journal_info;
->> 
->>+/* stacked block device info */
->>+	struct bio *bio_list, **bio_tail;
->>+
->> /* VM state */
->> 	struct reclaim_state *reclaim_state;
->> 
-> 
-> 
-> More state in the task_strut is a bit sad, but not nearly as sad as deep
-> recursion in our deepest codepath..
-> 
-> Possibly one could do:
-> 
-> struct make_request_state {
-> 	struct bio *bio_list;
-> 	struct bio **bio_tail;
-> };
-> 
-> and stick a `struct make_request_state *' into the task_struct and actually
-> allocate the thing on the stack.  That's not much nicer though.
+>         Do you have a test case that demonstrates this? It appears to
+> me that an MLDv2 general query doesn't execute that code (short circuited
+> above) and an MLDv1 general query (what that code is handling) will
+> have a timer expiring before switching back to MLDv2 mode (so it'll send
+> a v1 report, without any sources). Unless I'm missing something, I can't
+> see any way for the scenario you've described to happen.
+>         That said, I also can't see anything it would hurt, so I don't
+> object,
+> but it looks unnecessary to me.
+>
+>                                                         +-DLS
+>
+>
 
-Possibly it could go into struct io_context?
+>MLDv2 general query doesn't execute that code
+Yes, MLDv2 general query also leave that bit unchanged. In MLDv1
+compatibility mode, igmp6_timer_handler(...) uses igmp6_send(...) to
+send report, it leaves that bit unchanged too. So when switching back
+to MLDv2 mode, MAF_GSQUERY flag set long time ago may have effect on
+the report .
 
--- 
-SUSE Labs, Novell Inc.
+>That said, I also can't see anything it would hurt
+I agree with you. it hurts nothing but a report.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+By the way. May I ask a question.
+Do you agree my change on is_in(...)?  That is check include/exclude
+count when type is MLD2_MODE_IS_INCLUDE or MLD2_MODE_IS_EXCLUDE.
+(especially for MLD2_MODE_IS_EXCLUDE)
+
+Regards

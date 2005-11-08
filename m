@@ -1,91 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030328AbVKHWRF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030333AbVKHWVi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030328AbVKHWRF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 17:17:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030331AbVKHWRF
+	id S1030333AbVKHWVi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 17:21:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965227AbVKHWVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 17:17:05 -0500
-Received: from ore.jhcloos.com ([64.240.156.239]:24070 "EHLO ore.jhcloos.com")
-	by vger.kernel.org with ESMTP id S1030328AbVKHWRD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 17:17:03 -0500
-From: James Cloos <cloos@jhcloos.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-pcmcia@lists.infradead.org
-Subject: pcmcia card takes down system
-Copyright: Copyright 2005 James Cloos
-X-Hashcash: 1:23:051108:linux-kernel@vger.kernel.org::tsrOVn6oq+AMp1WA:0000000000000000000000000000000009GSn
-X-Hashcash: 1:23:051108:linux-pcmcia@lists.infradead.org::QQX2QKxiYNH79kVQ:00000000000000000000000000001aba/
-Date: Tue, 08 Nov 2005 16:25:50 -0500
-Message-ID: <m3slu625nl.fsf@lugabout.cloos.reno.nv.us>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/23.0.0 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 8 Nov 2005 17:21:38 -0500
+Received: from mail.fh-wedel.de ([213.39.232.198]:29407 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S965149AbVKHWVh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 17:21:37 -0500
+Date: Tue, 8 Nov 2005 23:21:27 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: "Eric W. Biederman" <ebiederman@lnxi.com>, linux-mtd@lists.infradead.org,
+       dwmw2@infradead.org, linux-kernel@vger.kernel.org,
+       Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 06/25] mtd: move ioctl32 code to mtdchar.c
+Message-ID: <20051108222127.GA16542@wohnheim.fh-wedel.de>
+References: <20051105162650.620266000@b551138y.boeblingen.de.ibm.com> <20051105162712.921102000@b551138y.boeblingen.de.ibm.com> <20051108105923.GA31446@wohnheim.fh-wedel.de> <m3zmofovsc.fsf@maxwell.lnxi.com> <20051108183339.GB31446@wohnheim.fh-wedel.de> <1131476269.18108.195.camel@tglx.tec.linutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1131476269.18108.195.camel@tglx.tec.linutronix.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I decided to give my old orinco gold card a test under the new pcmcia
-framework.  Box is an inspiron 8100 currently running 2.6.14-g9f75e1ef
-from Linus' git tree, w/ no other mods.
+On Tue, 8 November 2005 19:57:49 +0100, Thomas Gleixner wrote:
+> 
+> The code _is_ ugly and ioctls are out of fashion, but your "remove it"
+> request is just silly as long as you dont provide a reasonable
+> alternative access to those bits.
 
-As some may remember, the i8100 has a poor design, routing all of usb,
-1394, pccard and mini-pci interupts to irq10.  Other than the stuff on
-the north and south bridges, only the audio and video cards get their
-own interupts....  (That said the old pcmcia drivers were able to use
-spare interupts for pcmcia cards; the new drivers seem to use irq10
-for pcmcia just liek thye do for cardbus.)
+You may have noticed the missing patch and figured that it was not a
+formal request for removal.  Still, I'll be happy when it's gone and
+am also happy that mtdchar mess is not spread over yet another file
+anymore.  Thanks, Arnd.
 
-When I inserted the card the box froze.  So I removed it.
+Jörn
 
-That gave me this:
-
-,----
-| [5060571.782000] irq 10: nobody cared (try booting with the "irqpoll" option)
-| [5060571.782000]  [<c0103447>] dump_stack+0x17/0x20
-| [5060571.782000]  [<c013cdc7>] __report_bad_irq+0x27/0x90
-| [5060571.782000]  [<c013ced2>] note_interrupt+0x82/0xe0
-| [5060571.782000]  [<c013c911>] __do_IRQ+0xa1/0xb0
-| [5060571.782000]  [<c0104547>] do_IRQ+0x37/0x70
-| [5060571.782000]  [<c01030b6>] common_interrupt+0x1a/0x20
-| [5060571.782000]  [<c0120b0b>] do_softirq+0x2b/0x30
-| [5060571.782000]  [<c0120bc5>] irq_exit+0x35/0x40
-| [5060571.782000]  [<c010454c>] do_IRQ+0x3c/0x70
-| [5060571.782000]  [<c01030b6>] common_interrupt+0x1a/0x20
-| [5060571.782000]  [<c0101113>] cpu_idle+0x63/0x70
-| [5060571.782000]  [<c010023e>] _stext+0x1e/0x20
-| [5060571.782000]  [<c05ce831>] start_kernel+0x171/0x1b0
-| [5060571.782000]  [<c0100199>] 0xc0100199
-| [5060571.782000] handlers:
-| [5060571.782000] [<c0371670>] (ohci_irq_handler+0x0/0x760)
-| [5060571.782000] [<c0383360>] (yenta_interrupt+0x0/0xf0)
-| [5060571.782000] [<c0383360>] (yenta_interrupt+0x0/0xf0)
-| [5060571.782000] [<c0250bf0>] (usb_hcd_irq+0x0/0x60)
-| [5060571.782000] [<c032b320>] (e100_intr+0x0/0x130)
-| [5060571.782000] Disabling IRQ #10
-`----
-
-Note the last line.  
-
-That took out eth0, usb and 1394.  And I had a sbp2 drive mounted,
-plus active ipv4 sockets.
-
-I couldn't come up with anything better than rebooting to regain
-the irq and the devices behind it.  (And this mail should go out
-as soon as it is back up. :)
-
-First of all, is there a way to re-enable the irq?
-
-Second, should the kernel disable a shared irq just because one of the
-drivers that is supposed to handle some of those interupts fails?
-
-It seems like it shouldn't, given the problems that causes for other
-devices on that irq.  At least when there isn't a continuous storm
-of ignored interupts.
-
--JimC
 -- 
-James H. Cloos, Jr. <cloos@jhcloos.com>
-
-
-
-
+Mac is for working, 
+Linux is for Networking, 
+Windows is for Solitaire! 
+-- stolen from dc

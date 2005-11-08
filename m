@@ -1,179 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbVKHPAN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964912AbVKHPB1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964876AbVKHPAN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 10:00:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbVKHPAN
+	id S964912AbVKHPB1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 10:01:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964991AbVKHPB1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 10:00:13 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:34205 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S964876AbVKHPAL
+	Tue, 8 Nov 2005 10:01:27 -0500
+Received: from zproxy.gmail.com ([64.233.162.199]:64607 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964973AbVKHPBZ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 10:00:11 -0500
-Date: Tue, 8 Nov 2005 08:00:08 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: kernel-janitors@lists.osdl.org, Pekka J Enberg <penberg@cs.Helsinki.FI>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [KJ] [PATCH 4/8] Cleanup kmem_cache_create()
-Message-ID: <20051108150008.GL23749@parisc-linux.org>
-References: <436FF51D.8080509@us.ibm.com> <436FF70D.6040604@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 8 Nov 2005 10:01:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Fgsd9CoJqhGV3N8e7qI1Xwcw7jl0MLMlvsnYrK6qTnz7RG5XlgUSe2ETR+fvSUb2LvLAWKpoDadYY5Vb2QZZEkGq1x6o0ZB6ELs9lzD0gLc+gPXAA5fd5suSrQURJURU5rKAwIdtFAezl82WovthSk3D4INHQ8otpZIxUD0ftx0=
+Message-ID: <38bdcd1f0511080701p16e13ca4lebef1ed383dfbf0b@mail.gmail.com>
+Date: Wed, 9 Nov 2005 00:01:24 +0900
+From: Masanari Iida <standby24x7@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: oops with USB Storage on 2.6.14
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       linux-scsi@vger.kernel.org
+In-Reply-To: <20051107204055.58a80072.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <436FF70D.6040604@us.ibm.com>
-User-Agent: Mutt/1.5.9i
+References: <38bdcd1f0510290511t65bb16cfkfd1e84fb301424f9@mail.gmail.com>
+	 <20051107204055.58a80072.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 07, 2005 at 04:53:33PM -0800, Matthew Dobson wrote:
-> @@ -1652,9 +1649,9 @@ kmem_cache_t *kmem_cache_create(const ch
->  		 * gfp() funcs are more friendly towards high-order requests,
->  		 * this should be changed.
->  		 */
-> -		do {
-> -			unsigned int break_flag = 0;
-> -cal_wastage:
-> +		unsigned int break_flag = 0;
-> +
-> +		for ( ; ; cachep->gfporder++) {
->  			cache_estimate(cachep->gfporder, size, align, flags,
->  						&left_over, &cachep->num);
->  			if (break_flag)
-> @@ -1662,13 +1659,13 @@ cal_wastage:
->  			if (cachep->gfporder >= MAX_GFP_ORDER)
->  				break;
->  			if (!cachep->num)
-> -				goto next;
-> -			if (flags & CFLGS_OFF_SLAB &&
-> -					cachep->num > offslab_limit) {
-> +				continue;
-> +			if ((flags & CFLGS_OFF_SLAB) &&
-> +			    (cachep->num > offslab_limit)) {
->  				/* This num of objs will cause problems. */
-> -				cachep->gfporder--;
-> +				cachep->gfporder -= 2;
->  				break_flag++;
-> -				goto cal_wastage;
-> +				continue;
->  			}
->  
->  			/*
-> @@ -1680,33 +1677,29 @@ cal_wastage:
->  
->  			if ((left_over*8) <= (PAGE_SIZE<<cachep->gfporder))
->  				break;	/* Acceptable internal fragmentation. */
-> -next:
-> -			cachep->gfporder++;
-> -		} while (1);
-> +		}
->  	}
+On 11/8/05, Andrew Morton <akpm@osdl.org> wrote:
+> Masanari Iida <standby24x7@gmail.com> wrote:
+> >
+> > Hello,
+> > I updated my system's kernel from 2.6.13.2 to 2.6.14,
+> > then it oops when I connect my Digital Camera via USB connection
+> > as USB storage device.
+> > I went back to 2.6.14-rc1, still the same panic happen.
+> > 2.6.13.2 and before, the kernel has been worked as expected.
+> >
+> > CPU Intel P4(2.4Ghz)
+> > USB Device   Pentax Optio S40.
+> >
+> > Unable to handle kernel paging request at virtual address dc9d1f4c
+> >  printing eip:
+> > c02b44cc
+> > *pde = 00073067
+> > *pte = 1c9d1000
+> > Oops: 0000 [#1]
+> > SMP DEBUG_PAGEALLOC
+> > Modules linked in: autofs e100 ipt_LOG ipt_state ip_conntrack
+> > ipt_recent iptable
+> > _filter ip_tables video rtc
+> > CPU:    1
+> > EIP:    0060:[<c02b44cc>]    Not tainted VLI
+> > EFLAGS: 00010286   (2.6.14)
+> > EIP is at scsi_run_queue+0xc/0xd0
+> > eax: 00000001   ebx: dc9d1e3c   ecx: d6b67910   edx: dc9d1e3c
+> > esi: d5048eb0   edi: dc9d1e3c   ebp: c1507e98   esp: c1507e84
+> > ds: 007b   es: 007b   ss: 0068
+> > Process ksoftirqd/1 (pid: 6, threadinfo=c1506000 task=dfe2dad0)
+> > Stack: 00000292 de3a7bf8 dc9d1e3c d5048eb0 dc9d1e3c c1507ea8 c02b4612 dc9d1e3c
+> >        da51bf60 c1507ecc c02b473f d5048eb0 00000000 00000024 00000286 00000001
+> >        d5048eb0 00000000 c1507f10 c02b4b2e d5048eb0 00000000 00000024 00000001
+> >
+> > Call Trace:
+> >  [<c0103abf>] show_stack+0x7f/0xa0
+> >  [<c0103c72>] show_registers+0x162/0x1d0
+> >  [<c0103e90>] die+0x100/0x1a0
+> >  [<c039d7ae>] do_page_fault+0x31e/0x640
+> >  [<c0103763>] error_code+0x4f/0x54
+> >  [<c02b4612>] scsi_next_command+0x22/0x30
+> >  [<c02b473f>] scsi_end_request+0xcf/0xf0
+> >  [<c02b4b2e>] scsi_io_completion+0x26e/0x470
+> >  [<c02b4fc7>] scsi_generic_done+0x37/0x50
+> >  [<c02af9e5>] scsi_finish_command+0x85/0xa0
+> >  [<c02af89c>] scsi_softirq+0xcc/0x140
+> >  [<c0122085>] __do_softirq+0xd5/0xf0
+> >  [<c01220d8>] do_softirq+0x38/0x40
+> >  [<c0122685>] ksoftirqd+0x95/0xe0
+> >  [<c0131cfa>] kthread+0xba/0xc0
+> >  [<c0100ecd>] kernel_thread_helper+0x5/0x18
+> > Code: f0 8b 42 44 e8 16 7f 0e 00 89 45 ec 89 1c 24 e8 6b b7 ff ff eb aa 89 f6 8d
+> >  bc 27 00 00 00 00 55 89 e5 57 56 53 83 ec 08 8b 55 08 <8b> 82 10 01 00 00 8b 38
+> >  f6 80 85 01 00 00 80 0f 85 9e 00 00 00
+> >   <0>Kernel panic - not syncing: Fatal exception in interrupt
+> >
+>
+> Has there been any progress on this?
+>
+> If not, can you please test the latest snapshot from
+> ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots and if it still fails, raise a bug at bugzilla.kernel.org?
+>
+> Thanks.
+>
 
-I also don't like your changes to this.  Might I suggest:
+Hello again, Andrew,
 
-Index: mm/slab.c
-===================================================================
-RCS file: /var/cvs/linux-2.6/mm/slab.c,v
-retrieving revision 1.31
-diff -u -p -r1.31 slab.c
---- mm/slab.c	14 Feb 2005 02:55:36 -0000	1.31
-+++ mm/slab.c	8 Nov 2005 14:58:35 -0000
-@@ -1150,6 +1150,53 @@ static void slab_destroy (kmem_cache_t *
- 	}
- }
- 
-+/*
-+ * Calculate size (in pages) of slabs, and the num of objs per slab.  This
-+ * could be made much more intelligent.  For now, try to avoid using high
-+ * page-orders for slabs.  When the gfp() funcs are more friendly towards
-+ * high-order requests, this should be changed.
-+ */
-+static size_t find_best_slab_order(kmem_cache_t *cachep, size_t size,
-+					 size_t align, unsigned long flags)
-+{
-+	size_t left_over = 0;
-+
-+	for ( ; ; cachep->gfporder++) {
-+		unsigned int num;
-+		size_t remainder;
-+
-+		if (cachep->gfporder > MAX_GFP_ORDER) {
-+			cachep->num = 0;
-+			break;
-+		}
-+
-+		cache_estimate(cachep->gfporder, size, align, flags,
-+						&remainder, &num);
-+		if (!num)
-+			continue;
-+
-+		if (flags & CFLGS_OFF_SLAB && num > offslab_limit) {
-+			/* This num of objs will cause problems. */
-+			break;
-+		}
-+
-+		cachep->num = num;
-+		left_over = remainder;
-+
-+		/*
-+		 * Large num of objs is good, but v. large slabs are
-+		 * currently bad for the gfp()s.
-+		 */
-+		if (cachep->gfporder >= slab_break_gfp_order)
-+			break;
-+
-+		if ((left_over*8) <= (PAGE_SIZE<<cachep->gfporder))
-+			break;	/* Acceptable internal fragmentation. */
-+	}
-+
-+	return left_over;
-+}
-+
- /**
-  * kmem_cache_create - Create a cache.
-  * @name: A string which is used in /proc/slabinfo to identify this cache.
-@@ -1330,44 +1377,7 @@ kmem_cache_create (const char *name, siz
- 		cache_estimate(cachep->gfporder, size, align, flags,
- 					&left_over, &cachep->num);
- 	} else {
--		/*
--		 * Calculate size (in pages) of slabs, and the num of objs per
--		 * slab.  This could be made much more intelligent.  For now,
--		 * try to avoid using high page-orders for slabs.  When the
--		 * gfp() funcs are more friendly towards high-order requests,
--		 * this should be changed.
--		 */
--		do {
--			unsigned int break_flag = 0;
--cal_wastage:
--			cache_estimate(cachep->gfporder, size, align, flags,
--						&left_over, &cachep->num);
--			if (break_flag)
--				break;
--			if (cachep->gfporder >= MAX_GFP_ORDER)
--				break;
--			if (!cachep->num)
--				goto next;
--			if (flags & CFLGS_OFF_SLAB &&
--					cachep->num > offslab_limit) {
--				/* This num of objs will cause problems. */
--				cachep->gfporder--;
--				break_flag++;
--				goto cal_wastage;
--			}
--
--			/*
--			 * Large num of objs is good, but v. large slabs are
--			 * currently bad for the gfp()s.
--			 */
--			if (cachep->gfporder >= slab_break_gfp_order)
--				break;
--
--			if ((left_over*8) <= (PAGE_SIZE<<cachep->gfporder))
--				break;	/* Acceptable internal fragmentation. */
--next:
--			cachep->gfporder++;
--		} while (1);
-+		left_over = find_best_slab_order(cachep, size, align, flags);
- 	}
- 
- 	if (!cachep->num) {
+I have tested on 2.6.14-git10 with CONFIG_DEBUG_PAGEALLOC=y.
+The original oops with USB Storage (Camera)  is fixed now.
+Thank you.
+
+Masanari

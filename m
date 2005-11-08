@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965267AbVKHTNT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030338AbVKHTRo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965267AbVKHTNT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 14:13:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965275AbVKHTNT
+	id S1030338AbVKHTRo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 14:17:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030344AbVKHTRo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 14:13:19 -0500
-Received: from nproxy.gmail.com ([64.233.182.207]:36986 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965267AbVKHTNS (ORCPT
+	Tue, 8 Nov 2005 14:17:44 -0500
+Received: from waste.org ([216.27.176.166]:49605 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1030338AbVKHTRn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 14:13:18 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=WAcJY9X6tXQcMjaoIEFz7Rah5/k0401AIg/7zLwRtzd5uLtyGfSwNtiX3zWZ2czKJxzaEBEtKx9Eqhcx/+q0Woga0Vsmyz+q6l/saUwILceOk71Rcp74D4xYKzSRZ3+Jv+P312AqtvoPHBmJaB1J4spwrMpstP9rvd33syF64cg=
-Date: Tue, 8 Nov 2005 22:26:42 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/4] DocBook: allow to mark structure members private
-Message-ID: <20051108192642.GA14202@mipter.zuzino.mipt.ru>
-References: <20051108183511.GA12043@mipter.zuzino.mipt.ru> <Pine.LNX.4.58.0511081025420.15288@shark.he.net> <20051108190048.GA12240@mipter.zuzino.mipt.ru> <Pine.LNX.4.58.0511081048000.15288@shark.he.net>
+	Tue, 8 Nov 2005 14:17:43 -0500
+Date: Tue, 8 Nov 2005 11:17:35 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Greg KH <greg@kroah.com>
+Cc: Neil Brown <neilb@suse.de>, Daniele Orlandi <daniele@orlandi.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: An idea on devfs vs. udev
+Message-ID: <20051108191735.GS9760@waste.org>
+References: <200510301907.11860.daniele@orlandi.com> <17253.14484.653996.225212@cse.unsw.edu.au> <20051030222309.GA9423@kroah.com> <20051108184132.GC8126@waste.org> <20051108185101.GA16011@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0511081048000.15288@shark.he.net>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <20051108185101.GA16011@kroah.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 08, 2005 at 10:48:56AM -0800, Randy.Dunlap wrote:
-> On Tue, 8 Nov 2005, Alexey Dobriyan wrote:
-> > P. S.: Is htmldocs broken for someone else?
-> >
-> >   XMLTO  Documentation/DocBook/wanbook.html
-> > XPath error : Undefined variable
-> > compilation error: file file:///usr/share/sgml/docbook/xsl-stylesheets-1.66.1/xhtml/docbook.xsl
-> > line 114 element copy-of
-> > xsl:copy-of : could not compile select expression '$title'
-> > XPath error : Undefined variable
-> > $html.stylesheet != ''
-> >                  ^
-> > 		...
+On Tue, Nov 08, 2005 at 10:51:01AM -0800, Greg KH wrote:
+> On Tue, Nov 08, 2005 at 10:41:32AM -0800, Matt Mackall wrote:
+> > On Sun, Oct 30, 2005 at 02:23:09PM -0800, Greg KH wrote:
+> > > On Mon, Oct 31, 2005 at 08:18:12AM +1100, Neil Brown wrote:
+> > > > But then to make matters worse, there is this "sample.sh" file.  UGH!
+> > > > It's a bit of shell code exported by the kernel.
+> > > >    #!/bin/sh
+> > > >    mknod /dev/hda  b 3 0
+> > > 
+> > > That's just a "joke" patch that is only in the -mm tree, as it gets
+> > > pulled in from my tree.  It's not in mainline, and will never go there.
+> > 
+> > Perhaps you can drop this horror now that Halloween has passed.
 > 
-> Is that after applying Martin's docbook patches yesterday?
-> (I haven't tested that yet.)
+> Heh.  But why?  Is it causing problems for anyone?
 
-Unless they're in a very recent -linus. Probably this is a sign to test
-those patches. :-)
+Someone else might take your joke seriously. Or worse yet, imitate it.
+See C++.
 
+-- 
+Mathematics is the supreme nostalgia of our time.

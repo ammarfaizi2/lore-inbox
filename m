@@ -1,81 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965181AbVKHNg5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965186AbVKHNja@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965181AbVKHNg5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 08:36:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965186AbVKHNg5
+	id S965186AbVKHNja (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 08:39:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965188AbVKHNja
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 08:36:57 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:38928 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S965181AbVKHNg4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 08:36:56 -0500
-Message-ID: <4370A9F5.4060103@vmware.com>
-Date: Tue, 08 Nov 2005 05:36:53 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Tue, 8 Nov 2005 08:39:30 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:14973 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S965186AbVKHNj3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 08:39:29 -0500
+Message-ID: <4370ACB2.3000103@sw.ru>
+Date: Tue, 08 Nov 2005 16:48:34 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: virtualization@lists.osdl.org, Andrew Morton <akpm@osdl.org>,
-       Chris Wright <chrisw@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Martin Bligh <mbligh@mbligh.org>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 19/21] i386 Kprobes semaphore fix
-References: <200511080439.jA84diI6009951@zach-dev.vmware.com> <200511081412.05285.ak@suse.de>
-In-Reply-To: <200511081412.05285.ak@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Nov 2005 13:36:55.0139 (UTC) FILETIME=[7BE76B30:01C5E469]
+To: Andrew Morton <akpm@osdl.org>, xemul@sw.ru, linux-kernel@vger.kernel.org,
+       st@sw.ru
+Subject: [PATCH]: buddy allocator: ext3 failed to alloc with __GFP_NOFAIL
+Content-Type: multipart/mixed;
+ boundary="------------030305080309050603030307"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
+This is a multi-part message in MIME format.
+--------------030305080309050603030307
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
->On Tuesday 08 November 2005 05:39, Zachary Amsden wrote:
->  
->
->>IA-32 linear address translation is loads of fun.
->>    
->>
->
->Thanks for doing that audit work. Can you please double check x86-64 code is
->ok? 
->
->Actually giving all that complexity maybe it would be better to just
->stop handling the case and remove all that. I'm not sure what kprobes needs it 
->for - it doesn't even handle user space yet and even if it ever does it is 
->unlikely that handling 16bit code makes much sense. And the prefetch 
->workaround does it, but 16bit DOS code is unlikely to contain prefetches 
->anyways. And for ptrace - well, who cares? I suppose dosemu has an own
->debugger anyways and it could be handled in user space (i suppose
->they still have that code from 2.4 anyways)
->  
->
+Hello Andrew,
 
-I got the idea from the x86-64 code; prompted by you, I looked at it, 
-and it appears correct, but I would like to give it a full audit as well 
-(especially regarding 32-bit compatibility segments).
+we had the following ext3 problems once during stress testing (on 2.6.8):
+-----------------------------------------------------------------
+journal_get_undo_access: No memory for committed data
+ext3_free_blocks: aborting transaction: Out of memory in 
+__ext3_journal_get_undo_access<2>EXT3-fs error (device hda7) in 
+ext3_free_blocks: Out of memory
+Aborting journal on device hda7.
+EXT3-fs error (device hda7) in ext3_ordered_commit_write: IO failure
+ext3_abort called.
+EXT3-fs abort (device hda7): ext3_journal_start: Detected aborted journal
+Remounting filesystem read-only
+ext3_free_blocks: aborting transaction: Journal has aborted in 
+__ext3_journal_get_undo_access<2>EXT3-fs error (device hda7) in 
+ext3_free_blocks: Journal has aborted
+ext3_reserve_inode_write: aborting transaction: Journal has aborted in 
+__ext3_journal_get_write_access<2>EXT3-fs error (device hda7) in 
+ext3_reserve_inode_write: Journal has aborted
+EXT3-fs error (device hda7) in ext3_truncate: Out of memory
+ext3_reserve_inode_write: aborting transaction: Journal has aborted in 
+__ext3_journal_get_write_access<2>EXT3-fs error (device hda7) in 
+ext3_reserve_inode_write: Journal has aborted
+EXT3-fs error (device hda7) in ext3_orphan_del: Journal has aborted
+ext3_reserve_inode_write: aborting transaction: Journal has aborted in 
+__ext3_journal_get_write_access<2>EXT3-fs error (device hda7) in 
+ext3_reserve_inode_write: Journal has aborted
+EXT3-fs error (device hda7) in ext3_delete_inode: Out of memory
+__journal_remove_journal_head: freeing b_committed_data
+..................
+------------------------------------------------------------------
 
-About the three cases here:
+As it is seen from the messages journal_get_undo_access() failed to 
+allocate some memory with jbd_kmalloc(), which in turn called kmalloc() 
+with __GFP_NOFAIL flag.
 
-The prefetch workaround should be harmless, again because of limit 
-checking, the kernel is safe even in the raceful cases.
+How could it happen?
+The only possible reason for this we suppose is a piece of code in 
+__alloc_pages():
 
-One can imagine clever uses for ptrace to do, say user space 
-virtualization (since I'm on the topic), or other neat things.  So there 
-is nothing really wrong about having the fully correct EIP conversion 
-(and here we shouldn't need to worry about races causing some issues 
-with strict correctness, since there can be one external control thread).
+if ((p->flags & (PF_MEMALLOC | PF_MEMDIE)) && !in_interrupt()) {
+         /* go through the zonelist yet again, ignoring mins */
+         for (i = 0; zones[i] != NULL; i++) {
+                 struct zone *z = zones[i];
 
-But were kprobes even inteneded for userspace?  There are races here 
-that are difficult to close without some heavy machinery, and I would 
-rather not put the machinery in place if simplifying the code is the 
-right answer.
+                 page = buffered_rmqueue(z, order, gfp_mask);
+                 if (page) {
+                         zone_statistics(zonelist, z);
+                         goto got_pg;
+                 }
+         }
+         goto nopage;				<<<< HERE!!! FAIL...
+}
 
-Zach
+
+So kswapd (which has PF_MEMALLOC flag) can fail to allocate memory even 
+when it allocates it with __GFP_NOFAIL flag.
+
+Signed-Off-By: Pavel Emelianov <xemul@sw.ru>
+Signed-Off-By: Denis Lunev <den@sw.ru>
+Signed-Off-By: Kirill Korotaev <dev@sw.ru>
+
+The attached patch should fix the problem (against 2.6.14).
+
+Kirill
+
+--------------030305080309050603030307
+Content-Type: text/plain;
+ name="diff-alloc-nofail"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff-alloc-nofail"
+
+--- ./mm/page_alloc.c.mmreb	2005-10-28 04:02:08.000000000 +0400
++++ ./mm/page_alloc.c	2005-11-08 16:32:36.000000000 +0300
+@@ -867,6 +867,7 @@ zone_reclaim_retry:
+ 
+ 	/* This allocation should allow future memory freeing. */
+ 
++rebalance:
+ 	if (((p->flags & PF_MEMALLOC) || unlikely(test_thread_flag(TIF_MEMDIE)))
+ 			&& !in_interrupt()) {
+ 		if (!(gfp_mask & __GFP_NOMEMALLOC)) {
+@@ -879,14 +880,13 @@ zone_reclaim_retry:
+ 					goto got_pg;
+ 			}
+ 		}
+-		goto nopage;
++		goto empty;
+ 	}
+ 
+ 	/* Atomic allocations - we can't balance anything */
+ 	if (!wait)
+ 		goto nopage;
+ 
+-rebalance:
+ 	cond_resched();
+ 
+ 	/* We now go into synchronous reclaim */
+@@ -946,6 +946,7 @@ rebalance:
+ 	 * In this implementation, __GFP_REPEAT means __GFP_NOFAIL for order
+ 	 * <= 3, but that may not be true in other implementations.
+ 	 */
++empty:
+ 	do_retry = 0;
+ 	if (!(gfp_mask & __GFP_NORETRY)) {
+ 		if ((order <= 3) || (gfp_mask & __GFP_REPEAT))
+
+--------------030305080309050603030307--
+

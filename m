@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965337AbVKHHKq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965385AbVKHHTd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965337AbVKHHKq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 02:10:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965375AbVKHHKq
+	id S965385AbVKHHTd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 02:19:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965384AbVKHHTd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 02:10:46 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:4036 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965337AbVKHHKp (ORCPT
+	Tue, 8 Nov 2005 02:19:33 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:49350 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965385AbVKHHTd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 02:10:45 -0500
-Date: Mon, 7 Nov 2005 23:10:30 -0800
-From: Chris Wright <chrisw@osdl.org>
+	Tue, 8 Nov 2005 02:19:33 -0500
+Date: Tue, 8 Nov 2005 08:19:35 +0100
+From: Ingo Molnar <mingo@elte.hu>
 To: Zachary Amsden <zach@vmware.com>
 Cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
        Linus Torvalds <torvalds@osdl.org>,
@@ -21,28 +21,39 @@ Cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
        Martin Bligh <mbligh@mbligh.org>,
        Pratap Subrahmanyam <pratap@vmware.com>,
        Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 0/21] Descriptor table fixes / cleanup for i386
-Message-ID: <20051108071030.GX7991@shell0.pdx.osdl.net>
-References: <200511080417.jA84HiH2009833@zach-dev.vmware.com>
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH 4/21] i386 Broken bios common
+Message-ID: <20051108071935.GB28201@elte.hu>
+References: <200511080422.jA84MQxK009859@zach-dev.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200511080417.jA84HiH2009833@zach-dev.vmware.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <200511080422.jA84MQxK009859@zach-dev.vmware.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Zachary Amsden (zach@vmware.com) wrote:
-> The core piece of these patches is getting the GDT page aligned;
-> I wil rework or deprecate any other pieces of this that are not
-> wanted / unnecessary / (hopefully not) buggy.
 
-Rats, I knew this was brewing.  I was about 80% of the way through
-rebasing the last set to current git, but there's much redundancy and
-clashing.  This set looks a bit nicer than the last one, so I'll rather
-go through this one carefully.  Not until after some sleep though.
+* Zachary Amsden <zach@vmware.com> wrote:
 
-thanks,
--chris
+>  	gdt = get_cpu_gdt_table(cpu);
+>  	save_desc_40 = gdt[0x40 / 8];
+> -	gdt[0x40 / 8] = bad_bios_desc;
+> +	gdt[0x40 / 8] = gdt[GDT_ENTRY_BAD_BIOS_CACHE];
+>  
+
+i like the cleanup, but wouldnt it be simpler to dedicate GDT entry #8 
+to the 0x40 descriptor, and hence be compatible with such broken BIOSes 
+by default? Right now entry #8 is taken up by TLS segment #2, but we 
+could change GDT_ENTRY_TLS_MIN from 6 to 9 and push the TLS segments to 
+entries 9,10,11. [ Could there be any buggy SMM code that relies on 
+having something at 0x40? ]
+
+	Ingo

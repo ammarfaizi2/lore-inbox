@@ -1,53 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965142AbVKHNIO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964954AbVKHNMg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965142AbVKHNIO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 08:08:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965147AbVKHNIO
+	id S964954AbVKHNMg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 08:12:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965147AbVKHNMg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 08:08:14 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:9369 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965142AbVKHNIN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 08:08:13 -0500
-Subject: Re: [PATCH] i386: export genapic again
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jan Beulich <JBeulich@novell.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4370AEE1.76F0.0078.0@novell.com>
-References: <4370AEE1.76F0.0078.0@novell.com>
-Content-Type: text/plain
-Date: Tue, 08 Nov 2005 14:08:09 +0100
-Message-Id: <1131455290.2789.15.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 8 Nov 2005 08:12:36 -0500
+Received: from mx2.suse.de ([195.135.220.15]:58792 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964954AbVKHNMf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 08:12:35 -0500
+From: Andi Kleen <ak@suse.de>
+To: virtualization@lists.osdl.org
+Subject: Re: [PATCH 19/21] i386 Kprobes semaphore fix
+Date: Tue, 8 Nov 2005 14:12:04 +0100
+User-Agent: KMail/1.8
+Cc: Zachary Amsden <zach@vmware.com>, Andrew Morton <akpm@osdl.org>,
+       Chris Wright <chrisw@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Martin Bligh <mbligh@mbligh.org>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>
+References: <200511080439.jA84diI6009951@zach-dev.vmware.com>
+In-Reply-To: <200511080439.jA84diI6009951@zach-dev.vmware.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200511081412.05285.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-08 at 13:57 +0100, Jan Beulich wrote:
-> A change not too long ago made i386's genapic symbol no longer be
-> exported, and thus certain low-level functions no longer be usable.
-> Since close-to-the-hardware code may still be modular, this
-> rectifies the situation.
-> 
-> From: Jan Beulich <jbeulich@novell.com>
-> 
-> (actual patch attached)
-> 
+On Tuesday 08 November 2005 05:39, Zachary Amsden wrote:
+> IA-32 linear address translation is loads of fun.
 
-+#define APIC_DEFINITION 1
+Thanks for doing that audit work. Can you please double check x86-64 code is
+ok? 
 
-what is that for?
+Actually giving all that complexity maybe it would be better to just
+stop handling the case and remove all that. I'm not sure what kprobes needs it 
+for - it doesn't even handle user space yet and even if it ever does it is 
+unlikely that handling 16bit code makes much sense. And the prefetch 
+workaround does it, but 16bit DOS code is unlikely to contain prefetches 
+anyways. And for ptrace - well, who cares? I suppose dosemu has an own
+debugger anyways and it could be handled in user space (i suppose
+they still have that code from 2.4 anyways)
+
+> While cleaning up the LDT code, I noticed that kprobes code was very bogus
+> with respect to segment handling.  Many, many bugs are fixed here.  I chose
+> to combine the three separate functions that try to do linear address
+> conversion into one, nice and working functions.  All of the versions had
+> bugs.
+>
+> 1) Taking an int3 from v8086 mode could cause the kprobes code to read a
+>    non-existent LDT.
+>
+> 2) The CS value was not truncated to 16 bit, which could cause an access
+>    beyond the bounds of the LDT.
+
+That's a (small) security hole, isn't it?
 
 
+-Andi

@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932500AbVKHIq1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964929AbVKHIuc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932500AbVKHIq1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 03:46:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932498AbVKHIq0
+	id S964929AbVKHIuc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 03:50:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932498AbVKHIuc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 03:46:26 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:4762 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932496AbVKHIqZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 03:46:25 -0500
-Subject: Re: [PATCH 2/18] cleanups and bug fix in do_loopback()
-From: Ram Pai <linuxram@us.ibm.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: Al Viro <viro@ftp.linux.org.uk>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <E1EZNRz-0007EM-00@dorka.pomaz.szeredi.hu>
-References: <E1EZInj-0001Ef-9Z@ZenIV.linux.org.uk>
-	 <E1EZNRz-0007EM-00@dorka.pomaz.szeredi.hu>
-Content-Type: text/plain
-Organization: IBM 
-Message-Id: <1131439567.5400.221.camel@localhost>
+	Tue, 8 Nov 2005 03:50:32 -0500
+Received: from van-1-67.lab.dnainternet.fi ([62.78.96.67]:34011 "EHLO
+	mail.zmailer.org") by vger.kernel.org with ESMTP id S932494AbVKHIuc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 03:50:32 -0500
+Date: Tue, 8 Nov 2005 10:50:31 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Mark Knecht <markknecht@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NVidia nForce4 + AMD Athlon64 X2 --> no access to north-bridge PCI resources
+Message-ID: <20051108085031.GG5706@mea-ext.zmailer.org>
+References: <20051107225755.GE5706@mea-ext.zmailer.org> <5bdc1c8b0511071620o2032c85crd45a4777aae4b971@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 08 Nov 2005 00:46:07 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5bdc1c8b0511071620o2032c85crd45a4777aae4b971@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-11-07 at 22:59, Miklos Szeredi wrote:
-> > - check_mnt() on the source of binding should've been unconditional from
-> > the very beginning.  My fault - as far I could've trace it, that's an
-> > old thinko made back in 2001.  Kudos to Miklos for spotting it...
-> > Fixed.
-> > - code cleaned up.
+On Mon, Nov 07, 2005 at 04:20:09PM -0800, Mark Knecht wrote:
+> On 11/7/05, Matti Aarnio <matti.aarnio@zmailer.org> wrote:
+> >
+> > This problem machine is  ASUS A8N-SLI Premium
+> > AMD CPU family/model/stepping: 15/35/2
+> >
+> > The question is:
+> >
+> >   Where are "host bridge" subsystem things in this new
+> >   ASUS board with NVidia nForce4 ?
 > 
-> Can you please explain what purpose does this serve?
-> 
-> AFAICS check_mnt() was there to ensure that operations are done under
-> the proper namespace semaphore.
+> Interesting. Here's another NForce4 from Asus - A8N-E. It does not
+> show the problem you observe:
 
-> Next in the series the namespace semaphore is made global, which
-> basically means, that most of the check_mnt() invocations become
-> useless.
-> The ones which as a side effect prevent grafting to a detached mount
-> can be changed to check for (mnt->mnt_namespace == NULL) instead of
-> check against current->namespace.
-> 
-> I see no other reason for wanting to prevent binds from detached
-> mounts or other namespaces.  It has been discussed that it would be a
-> good _controlled_ way to send/receive mounts from other namespace
-> without adding any complexity.
-
-AFAICT, the ability to bind across namespaces defeats the private-ness
-property of per-process-namespaces. 
-
-RP
+What processor do you have ?
+If anybody with any A8N-SLI variant would see the "host bridge" resources,
+then things would be most interesting..
 
 
+> lightning ~ # lspci
+> 0000:00:00.0 Memory controller: nVidia Corporation CK804 Memory Controller (rev a3)
+....
+> 0000:00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport Technology Configuration
+> 0000:00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
+> 0000:00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
+> 0000:00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
+> 0000:01:00.0 VGA compatible controller: ATI Technologies Inc RV370 5B60 [Radeon X300 (PCIE)]
+.... 
+> - Mark
+
+  /Matti Aarnio

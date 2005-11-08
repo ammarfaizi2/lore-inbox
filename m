@@ -1,89 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965127AbVKHHu1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965145AbVKHHvv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965127AbVKHHu1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 02:50:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965133AbVKHHu1
+	id S965145AbVKHHvv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 02:51:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965389AbVKHHvv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 02:50:27 -0500
-Received: from nproxy.gmail.com ([64.233.182.199]:8171 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965127AbVKHHuZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 02:50:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=CbzMuciSpBTqnpJGToCkz9gzCKdJxecyMrKY18UJN/mFchSIvclanSyeySSQaf7YON82PQ9Y5xBRWXAG85oVAZRZYUmXi5fpMO1Tz4io7Hg7TCfRJ+CREmLig4zBrCAOCsunD7nolRsiKMd0F8bTyBAHffOxElb4290FWkpJ7JA=
-Message-ID: <437058BC.7090300@gmail.com>
-Date: Tue, 08 Nov 2005 08:50:20 +0100
-From: Patrizio Bassi <patrizio.bassi@gmail.com>
-Reply-To: patrizio.bassi@gmail.com
-Organization: patrizio.bassi@gmail.com
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051027)
-X-Accept-Language: it, it-it, en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: kernel list <linux-kernel@vger.kernel.org>, shaohua.li@intel.com
-Subject: Re: 2.6.14-git4 suspend fails: kernel NULL pointer dereference
-References: <20051006072749.GA2393@spitz.ucw.cz> <20051107164715.GA1534@elf.ucw.cz> <436F9720.8070008@gmail.com> <20051107180710.GD1710@elf.ucw.cz>
-In-Reply-To: <20051107180710.GD1710@elf.ucw.cz>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 8 Nov 2005 02:51:51 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:19913 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S965145AbVKHHvu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 02:51:50 -0500
+Date: Tue, 8 Nov 2005 09:51:48 +0200 (EET)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Matthew Dobson <colpatch@us.ibm.com>
+cc: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/8] Cleanup kmem_cache_create()
+In-Reply-To: <436FF70D.6040604@us.ibm.com>
+Message-ID: <Pine.LNX.4.58.0511080951230.10193@sbz-30.cs.Helsinki.FI>
+References: <436FF51D.8080509@us.ibm.com> <436FF70D.6040604@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek ha scritto:
+On Mon, 7 Nov 2005, Matthew Dobson wrote:
+> @@ -1652,9 +1649,9 @@ kmem_cache_t *kmem_cache_create(const ch
+>  		 * gfp() funcs are more friendly towards high-order requests,
+>  		 * this should be changed.
+>  		 */
+> -		do {
+> -			unsigned int break_flag = 0;
+> -cal_wastage:
+> +		unsigned int break_flag = 0;
+> +
+> +		for ( ; ; cachep->gfporder++) {
+>  			cache_estimate(cachep->gfporder, size, align, flags,
+>  						&left_over, &cachep->num);
+>  			if (break_flag)
+> @@ -1662,13 +1659,13 @@ cal_wastage:
+>  			if (cachep->gfporder >= MAX_GFP_ORDER)
+>  				break;
+>  			if (!cachep->num)
+> -				goto next;
+> -			if (flags & CFLGS_OFF_SLAB &&
+> -					cachep->num > offslab_limit) {
+> +				continue;
+> +			if ((flags & CFLGS_OFF_SLAB) &&
+> +			    (cachep->num > offslab_limit)) {
+>  				/* This num of objs will cause problems. */
+> -				cachep->gfporder--;
+> +				cachep->gfporder -= 2;
 
->Hi!
->
->  
->
->>>diff --git a/kernel/power/main.c b/kernel/power/main.c
->>>--- a/kernel/power/main.c
->>>+++ b/kernel/power/main.c
->>>@@ -167,7 +167,7 @@ static int enter_state(suspend_state_t s
->>>{
->>>	int error;
->>>
->>>-	if (pm_ops->valid && !pm_ops->valid(state))
->>>+	if (pm_ops && pm_ops->valid && !pm_ops->valid(state))
->>>		return -ENODEV;
->>>	if (down_trylock(&pm_sem))
->>>		return -EBUSY;
->>>
->>>
->>> 
->>>
->>>      
->>>
->>i'm using ACPI.
->>i'?ll try the patch and report asap.
->>    
->>
->
->ok, not sure what is going on, then. Fill enter_state() with printks()
->so that we know where it fails... then kill klogd before attempting
->suspend.
->								Pavel
->  
->
-that **seems** to be fixed, even if i run ACPI.
+This is not an improvement IMHO. The use of for construct is non-intuitive
+and neither is the above. A suggested cleanup is to keep the loop as is but
+extract it to a function of its own.
 
-now i have
-
-Stopping tasks:
-===============================================================|
-Freeing memory... done (42120 pages freed)
-usbfs 2-2:1.0: no suspend?
-Could not suspend device 2-2: error -16
-Some devices failed to suspend
-Restarting tasks... done
-
-this was fixed by a patch Len Brown gave me privatly.
-it's due to a pci-usb card.
-it seems has not been applied yet.
-can you notify him? he knows :)
-
-good job.
-
-Patrizio
+				Pekka

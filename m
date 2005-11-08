@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030261AbVKHE3Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030280AbVKHEad@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030261AbVKHE3Y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 23:29:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030276AbVKHE3Y
+	id S1030280AbVKHEad (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 23:30:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030276AbVKHEad
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 23:29:24 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:64530 "EHLO
+	Mon, 7 Nov 2005 23:30:33 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:4371 "EHLO
 	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1030261AbVKHE3X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 23:29:23 -0500
-Date: Mon, 7 Nov 2005 20:29:21 -0800
-Message-Id: <200511080429.jA84TLhD009896@zach-dev.vmware.com>
-Subject: [PATCH 10/21] i386 Use protected segment for 16bit stack
+	id S1030281AbVKHEac (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 23:30:32 -0500
+Date: Mon, 7 Nov 2005 20:30:30 -0800
+Message-Id: <200511080430.jA84UU5f009903@zach-dev.vmware.com>
+Subject: [PATCH 11/21] i386 Stop deleting nt
 From: Zachary Amsden <zach@vmware.com>
 To: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
        Linus Torvalds <torvalds@osdl.org>,
@@ -25,29 +25,27 @@ To: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
        "Eric W. Biederman" <ebiederm@xmission.com>,
        Ingo Molnar <mingo@elte.hu>, Zachary Amsden <zach@vmware.com>,
        Zachary Amsden <zach@vmware.com>
-X-OriginalArrivalTime: 08 Nov 2005 04:29:21.0790 (UTC) FILETIME=[FDC831E0:01C5E41C]
+X-OriginalArrivalTime: 08 Nov 2005 04:30:30.0914 (UTC) FILETIME=[26FBAE20:01C5E41D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use prepare_protected_segment macro to set up the 16-bit stack.
-
-Whee!! This code is almost readable now.
+Stop deleting NT bit from EFLAGS.  See arch/i386/kernel/head.S line 223,
+which does something even better.
 
 Signed-off-by: Zachary Amsden <zach@vmware.com>
 Index: linux-2.6.14-zach-work/arch/i386/kernel/cpu/common.c
 ===================================================================
---- linux-2.6.14-zach-work.orig/arch/i386/kernel/cpu/common.c	2005-11-04 16:54:45.000000000 -0800
+--- linux-2.6.14-zach-work.orig/arch/i386/kernel/cpu/common.c	2005-11-04 17:45:05.000000000 -0800
 +++ linux-2.6.14-zach-work/arch/i386/kernel/cpu/common.c	2005-11-05 00:28:08.000000000 -0800
-@@ -607,10 +607,8 @@ void __devinit cpu_init(void)
- 	set_base(gdt[GDT_ENTRY_BAD_BIOS_CACHE], __va(BAD_BIOS_AREA));
+@@ -617,11 +617,6 @@ void __devinit cpu_init(void)
+ 	load_idt(&idt_descr);
  
- 	/* Set up GDT entry for 16bit stack */
-- 	*(__u64 *)(&gdt[GDT_ENTRY_ESPFIX_SS]) |=
--		((((__u64)stk16_off) << 16) & 0x000000ffffff0000ULL) |
--		((((__u64)stk16_off) << 32) & 0xff00000000000000ULL) |
--		(CPU_16BIT_STACK_SIZE - 1);
-+	prepare_protected_segment(cpu, GDT_ENTRY_ESPFIX_SS, (void *) stk16_off,
-+				  CPU_16BIT_STACK_SIZE);
- 
- 	cpu_gdt_descr[cpu].size = GDT_SIZE - 1;
-  	cpu_gdt_descr[cpu].address = (unsigned long)gdt;
+ 	/*
+-	 * Delete NT
+-	 */
+-	__asm__("pushfl ; andl $0xffffbfff,(%esp) ; popfl");
+-
+-	/*
+ 	 * Set up and load the per-CPU TSS and LDT
+ 	 */
+ 	atomic_inc(&init_mm.mm_count);

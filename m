@@ -1,39 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030200AbVKHHfH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965070AbVKHHgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030200AbVKHHfH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 02:35:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965098AbVKHHfH
+	id S965070AbVKHHgX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 02:36:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965098AbVKHHgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 02:35:07 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:63944 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S965070AbVKHHfF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 02:35:05 -0500
-Date: Tue, 8 Nov 2005 09:34:48 +0200 (EET)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Roland Dreier <rolandd@cisco.com>
-cc: Matthew Dobson <colpatch@us.ibm.com>, kernel-janitors@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4/8] Cleanup kmem_cache_create()
-In-Reply-To: <52mzkfrily.fsf@cisco.com>
-Message-ID: <Pine.LNX.4.58.0511080932460.9530@sbz-30.cs.Helsinki.FI>
-References: <436FF51D.8080509@us.ibm.com> <436FF70D.6040604@us.ibm.com>
- <52mzkfrily.fsf@cisco.com>
+	Tue, 8 Nov 2005 02:36:22 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:28867 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965070AbVKHHgV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 02:36:21 -0500
+Date: Tue, 8 Nov 2005 08:36:35 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Martin Bligh <mbligh@mbligh.org>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH 16/21] i386 Eliminate duplicate segment macros
+Message-ID: <20051108073635.GF28201@elte.hu>
+References: <200511080436.jA84aGvD009933@zach-dev.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200511080436.jA84aGvD009933@zach-dev.vmware.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Nov 2005, Roland Dreier wrote:
 
->     > * Replace a constant (4096) with what it represents (PAGE_SIZE)
-> 
-> This seems dangerous.  I don't pretend to understand the slab code,
-> but the current code works on architectures with PAGE_SIZE != 4096.
-> Are you sure this change is correct?
+* Zachary Amsden <zach@vmware.com> wrote:
 
-Looks ok to me except that it should be a separate patch (it is not a 
-trivial cleanup because it changes how the code works).
+> +#define get_desc_32bit(desc)	(((desc)->b >> 22) & 1)
+> +#define get_desc_contents(desc)	(((desc)->b >> 10) & 3)
+> +#define get_desc_writable(desc)	(((desc)->b >>  9) & 1)
+> +#define get_desc_gran(desc)	(((desc)->b >> 23) & 1)
+> +#define get_desc_present(desc)	(((desc)->b >> 15) & 1)
+> +#define get_desc_usable(desc)	(((desc)->b >> 20) & 1)
 
-			Pekka
+naming nit: shouldnt they be 'desc_32bit()/desc_writable()/...'? No need 
+for the get_ i think.
+
+	Ingo

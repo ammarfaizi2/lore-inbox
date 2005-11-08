@@ -1,73 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965274AbVKHGax@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965263AbVKHGa3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965274AbVKHGax (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 01:30:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965271AbVKHGab
+	id S965263AbVKHGa3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 01:30:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965279AbVKHGa3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 01:30:31 -0500
+	Tue, 8 Nov 2005 01:30:29 -0500
 Received: from ams-iport-1.cisco.com ([144.254.224.140]:22383 "EHLO
 	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S965274AbVKHGa2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S965263AbVKHGa2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 8 Nov 2005 01:30:28 -0500
-Subject: [git patch review 5/6] [IPoIB] no need to set skb->dev right before
-	freeing skb
+Subject: [git patch review 1/6] [IB] mthca: report page size capability
 From: Roland Dreier <rolandd@cisco.com>
 Date: Tue, 08 Nov 2005 06:30:19 +0000
 To: linux-kernel@vger.kernel.org, openib-general@openib.org
 X-Mailer: IB-patch-reviewer
 Content-Transfer-Encoding: 8bit
-Message-ID: <1131431419061-26662c4d4f27ac0a@cisco.com>
-In-Reply-To: <1131431419060-bf0b43a20ac24b6a@cisco.com>
-X-OriginalArrivalTime: 08 Nov 2005 06:30:20.0303 (UTC) FILETIME=[E43161F0:01C5E42D]
+Message-ID: <1131431419060-378986988cf168d2@cisco.com>
+X-OriginalArrivalTime: 08 Nov 2005 06:30:20.0209 (UTC) FILETIME=[E4230A10:01C5E42D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For cut-and-paste reasons, the IPoIB driver was setting skb->dev right
-before calling dev_kfree_skb_any().  Get rid of this.
+Report the device's real page size capability in mthca_query_device().
 
+Signed-off-by: Jack Morgenstein <jackm@mellanox.co.il>
 Signed-off-by: Roland Dreier <rolandd@cisco.com>
 
 ---
 
- drivers/infiniband/ulp/ipoib/ipoib_multicast.c |   17 ++++-------------
- 1 files changed, 4 insertions(+), 13 deletions(-)
+ drivers/infiniband/hw/mthca/mthca_dev.h      |    1 +
+ drivers/infiniband/hw/mthca/mthca_main.c     |    1 +
+ drivers/infiniband/hw/mthca/mthca_provider.c |    1 +
+ 3 files changed, 3 insertions(+), 0 deletions(-)
 
-applies-to: 8b16a6a547ff0459044c3698ff9ac1d33c84eaf4
-6277da1d7c70d2fcaeeb74c3b20fc1645da0f1fe
-diff --git a/drivers/infiniband/ulp/ipoib/ipoib_multicast.c b/drivers/infiniband/ulp/ipoib/ipoib_multicast.c
-index 8709693..c33ed87 100644
---- a/drivers/infiniband/ulp/ipoib/ipoib_multicast.c
-+++ b/drivers/infiniband/ulp/ipoib/ipoib_multicast.c
-@@ -120,12 +120,8 @@ static void ipoib_mcast_free(struct ipoi
- 	if (mcast->ah)
- 		ipoib_put_ah(mcast->ah);
+applies-to: c403b29783de27e290b5d12f12054d03f96ce8b2
+0f69ce1e4474e5d5e266457e8a1f4166cf71f6c7
+diff --git a/drivers/infiniband/hw/mthca/mthca_dev.h b/drivers/infiniband/hw/mthca/mthca_dev.h
+index e7e5d3b..808037f 100644
+--- a/drivers/infiniband/hw/mthca/mthca_dev.h
++++ b/drivers/infiniband/hw/mthca/mthca_dev.h
+@@ -154,6 +154,7 @@ struct mthca_limits {
+ 	int      reserved_mcgs;
+ 	int      num_pds;
+ 	int      reserved_pds;
++	u32      page_size_cap;
+ 	u32      flags;
+ 	u8       port_width_cap;
+ };
+diff --git a/drivers/infiniband/hw/mthca/mthca_main.c b/drivers/infiniband/hw/mthca/mthca_main.c
+index 45c6328..16594d1 100644
+--- a/drivers/infiniband/hw/mthca/mthca_main.c
++++ b/drivers/infiniband/hw/mthca/mthca_main.c
+@@ -181,6 +181,7 @@ static int __devinit mthca_dev_lim(struc
+ 	mdev->limits.reserved_uars      = dev_lim->reserved_uars;
+ 	mdev->limits.reserved_pds       = dev_lim->reserved_pds;
+ 	mdev->limits.port_width_cap     = dev_lim->max_port_width;
++	mdev->limits.page_size_cap      = ~(u32) (dev_lim->min_page_sz - 1);
+ 	mdev->limits.flags              = dev_lim->flags;
  
--	while (!skb_queue_empty(&mcast->pkt_queue)) {
--		struct sk_buff *skb = skb_dequeue(&mcast->pkt_queue);
--
--		skb->dev = dev;
--		dev_kfree_skb_any(skb);
--	}
-+	while (!skb_queue_empty(&mcast->pkt_queue))
-+		dev_kfree_skb_any(skb_dequeue(&mcast->pkt_queue));
+ 	/* IB_DEVICE_RESIZE_MAX_WR not supported by driver.
+diff --git a/drivers/infiniband/hw/mthca/mthca_provider.c b/drivers/infiniband/hw/mthca/mthca_provider.c
+index 6b01666..e78259b 100644
+--- a/drivers/infiniband/hw/mthca/mthca_provider.c
++++ b/drivers/infiniband/hw/mthca/mthca_provider.c
+@@ -90,6 +90,7 @@ static int mthca_query_device(struct ib_
+ 	memcpy(&props->node_guid,      out_mad->data + 12, 8);
  
- 	kfree(mcast);
- }
-@@ -317,13 +313,8 @@ ipoib_mcast_sendonly_join_complete(int s
- 					IPOIB_GID_ARG(mcast->mcmember.mgid), status);
- 
- 		/* Flush out any queued packets */
--		while (!skb_queue_empty(&mcast->pkt_queue)) {
--			struct sk_buff *skb = skb_dequeue(&mcast->pkt_queue);
--
--			skb->dev = dev;
--
--			dev_kfree_skb_any(skb);
--		}
-+		while (!skb_queue_empty(&mcast->pkt_queue))
-+			dev_kfree_skb_any(skb_dequeue(&mcast->pkt_queue));
- 
- 		/* Clear the busy flag so we try again */
- 		clear_bit(IPOIB_MCAST_FLAG_BUSY, &mcast->flags);
+ 	props->max_mr_size         = ~0ull;
++	props->page_size_cap       = mdev->limits.page_size_cap;
+ 	props->max_qp              = mdev->limits.num_qps - mdev->limits.reserved_qps;
+ 	props->max_qp_wr           = mdev->limits.max_wqes;
+ 	props->max_sge             = mdev->limits.max_sg;
 ---
 0.99.9e

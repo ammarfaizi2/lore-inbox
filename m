@@ -1,41 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965212AbVKHR6N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbVKHR6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965212AbVKHR6N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 12:58:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965223AbVKHR6N
+	id S1030192AbVKHR6j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 12:58:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030269AbVKHR6j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 12:58:13 -0500
-Received: from rwcrmhc14.comcast.net ([204.127.198.54]:9446 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S965235AbVKHR6L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 12:58:11 -0500
-In-Reply-To: <20051108172244.GR7992@ftp.linux.org.uk>
-References: <Pine.LNX.4.61.0511081040580.3894@chaos.analogic.com> <3587A59B-14FA-4E0F-A598-577E944FCF36@comcast.net> <20051108172244.GR7992@ftp.linux.org.uk>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <23F8E4C6-3141-4ECB-B3FF-E9BE6D261EE1@comcast.net>
-Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-From: Parag Warudkar <kernel-stuff@comcast.net>
-Subject: Re: Compatible fstat()
-Date: Tue, 8 Nov 2005 12:58:08 -0500
-To: Al Viro <viro@ftp.linux.org.uk>
-X-Mailer: Apple Mail (2.746.2)
+	Tue, 8 Nov 2005 12:58:39 -0500
+Received: from waste.org ([216.27.176.166]:8373 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1030192AbVKHR6i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 12:58:38 -0500
+Date: Tue, 8 Nov 2005 09:58:00 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: jonathan@jonmasters.org, Rob Landley <rob@landley.net>,
+       linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: What's wrong with tmpfs?
+Message-ID: <20051108175800.GB8126@waste.org>
+References: <200510300624.38794.rob@landley.net> <35fb2e590510300453q520a9ce7ua1d74d7790b3a6b8@mail.gmail.com> <20051030151506.GA3354@ccure.user-mode-linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051030151506.GA3354@ccure.user-mode-linux.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Oct 30, 2005 at 10:15:06AM -0500, Jeff Dike wrote:
+> On Sun, Oct 30, 2005 at 12:53:00PM +0000, Jon Masters wrote:
+> > On 10/30/05, Rob Landley <rob@landley.net> wrote:
+> > 
+> > > If somebody needs a reproduction sequence, I'm happy to oblige.  In theory
+> > > "mount -t tmpfs /mnt /mnt" should do it, but if it was _that_ simple it
+> > > wouldn't have shipped...
+> > 
+> > I don't see this behaviour on a regular desktop box running 2.6.14.
+> > Guess it's UML specific.
+> 
+> Sorry, but wrong.
+> 
+> IIRC, this triggers when you don't have CONFIG_TMPFS enabled.  If you don't,
+> you still get it, but you get a version that's only usable in-kernel.
 
-On Nov 8, 2005, at 12:22 PM, Al Viro wrote:
->
-> 	fd = open(bdev, O_RDONLY);
-> 	lseek(fd, SEEK_END, 0);
-> 	size = lseek(fd, SEEK_SET, 0);
-> 	close(fd);
->
-> i.e. same as for regular files.  Won't be portable, though...
+That sounds like a regression. Turning off CONFIG_TMPFS replaces tmpfs
+with an aliased ramfs. It should be perfectly usable everywhere that
+tmpfs is, with the exception that it's not swap-backed and doesn't
+have an size limiting.
 
-For some reason this didn't work for bdev == "/dev/hda" - Size is  
-returned as 0..
-
-Parag
+-- 
+Mathematics is the supreme nostalgia of our time.

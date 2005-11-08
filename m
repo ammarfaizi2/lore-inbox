@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030371AbVKHVdT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965231AbVKHVib@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030371AbVKHVdT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 16:33:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030370AbVKHVdS
+	id S965231AbVKHVib (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 16:38:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965237AbVKHVib
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 16:33:18 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:5307 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030365AbVKHVdR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 16:33:17 -0500
-Date: Tue, 8 Nov 2005 13:33:06 -0800
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: "goggin, edward" <egoggin@emc.com>,
-       "'Rolf Eike Beer'" <eike-kernel@sf-tec.de>,
-       "'Andrew Morton'" <akpm@osdl.org>,
-       Masanari Iida <standby24x7@gmail.com>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, linux-scsi@vger.kernel.org
-Subject: Re: oops with USB Storage on 2.6.14
-Message-ID: <20051108213306.GA25219@us.ibm.com>
-References: <C2EEB4E538D3DC48BF57F391F422779321ADC0@srmanning.eng.emc.com> <1131484123.3270.36.camel@mulgrave>
+	Tue, 8 Nov 2005 16:38:31 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:11479 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S965231AbVKHVia
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 16:38:30 -0500
+Subject: Re: athlon x2 + 2.6.14 + SMP = fast clock
+From: john stultz <johnstul@us.ibm.com>
+To: Christopher Mulcahy <cmulcahy@avesi.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1131482417.21752.50.camel@jones>
+References: <1131482417.21752.50.camel@jones>
+Content-Type: text/plain
+Date: Tue, 08 Nov 2005 13:38:23 -0800
+Message-Id: <1131485903.27168.662.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1131484123.3270.36.camel@mulgrave>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 08, 2005 at 04:08:43PM -0500, James Bottomley wrote:
-> On Tue, 2005-11-08 at 15:02 -0500, goggin, edward wrote:
-> > Thanks!  Here's a better one.
-> 
-> It's line wrapped, but I fixed that up.
+On Tue, 2005-11-08 at 15:40 -0500, Christopher Mulcahy wrote:
+> I am running 2.6.14 SMP on an dual-core athlon x2 3800.
+> The system clock runs at roughly twice normal speed.
 
-What code path triggered this?
+Is this a new regression or did the problem occur with 2.6.13 or older
+kernels?
 
-I mean we get a ref to the sdev in the upper level driver opens, scan, and
-sd flush. So where are we not getting a ref? 
+Would you mind opening a kernel bug and attaching your dmesg and config?
 
-Shouldn't the get be done at a higher level?
+http://bugzilla.kernel.org
 
--- Patrick Mansfield
+
+Also try booting w/ "idle=poll" to see if that doesn't clear up the
+issue.
+
+thanks
+-john
+
+
+

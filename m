@@ -1,257 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030420AbVKHX52@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030354AbVKHX55@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030420AbVKHX52 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 18:57:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030421AbVKHX52
+	id S1030354AbVKHX55 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 18:57:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030426AbVKHX55
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 18:57:28 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:31371 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030420AbVKHX51 (ORCPT
+	Tue, 8 Nov 2005 18:57:57 -0500
+Received: from smtpout.mac.com ([17.250.248.47]:47341 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1030421AbVKHX54 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 18:57:27 -0500
-Date: Tue, 8 Nov 2005 17:57:16 -0600
-To: Greg KH <greg@kroah.com>
-Cc: Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: [PATCH 3/7] PCI Error Recovery: Symbios SCSI device driver
-Message-ID: <20051108235716.GF19593@austin.ibm.com>
-References: <20051108234911.GC19593@austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051108234911.GC19593@austin.ibm.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: linas <linas@austin.ibm.com>
+	Tue, 8 Nov 2005 18:57:56 -0500
+In-Reply-To: <20051108232327.GA19593@austin.ibm.com>
+References: <20051105061114.GA27016@kroah.com> <17262.37107.857718.184055@cargo.ozlabs.ibm.com> <20051107175541.GB19593@austin.ibm.com> <20051107182727.GD18861@kroah.com> <20051107185621.GD19593@austin.ibm.com> <20051107190245.GA19707@kroah.com> <20051107193600.GE19593@austin.ibm.com> <20051107200257.GA22524@kroah.com> <20051107204136.GG19593@austin.ibm.com> <1131412273.14381.142.camel@localhost.localdomain> <20051108232327.GA19593@austin.ibm.com>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <B68D1F72-F433-4E94-B755-98808482809D@mac.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
+       bluesmoke-devel@lists.sourceforge.net,
+       linux-pci@atrey.karlin.mff.cuni.cz, johnrose@austin.ibm.com,
+       linuxppc64-dev@ozlabs.org
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: typedefs and structs
+Date: Tue, 8 Nov 2005 18:57:11 -0500
+To: linas <linas@austin.ibm.com>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please apply.
+On Nov 8, 2005, at 18:23:27, linas wrote:
+> Off-topic: There's actually a neat little trick in C++ that can  
+> help avoid accidentally passing null pointers.  One can declare  
+> function declarations as:
+>
+>   int func (sturct blah &v) {
+>     v.a ++;
+>     return v.b;
+>   }
+>
+> The ampersand says "pass argument by reference (so as to get arg  
+> passing efficiency) but force coder to write code as if they were  
+> passing by value" As a result, it gets difficult to pass null  
+> pointers (for reasons similar to the difficulty of passing null  
+> pointers in Java (and yes, I loathe Java, sorry to subject you to  
+> that))  Anyway, that's a C++ trick  only; I wish it was in C so I  
+> could experiment more and find out if I like it or hate it.
 
----
+That technique tends to cause more problems than it solves.  If I  
+write the following code:
 
-Various PCI bus errors can be signaled by newer PCI controllers.  This
-patch adds the PCI error recovery callbacks to the Symbios SCSI device driver.
-The patch has been tested, and appears to work well.
+struct foo the_leftmost_foo = get_leftmost_foo();
+do_some_stuff(the_leftmost_foo);
 
-Signed-off-by: Linas Vepstas <linas@linas.org>
+How do I know what it is going to do?  Will it modify  
+the_leftmost_foo, or is it a pass-by-value as it appears?  This is  
+just as bad as defining a macro some_macro(foo,bar) that does (foo =  
+bar), it's _really_ hard to tell what it does, especially when you  
+aren't all that familiar with the code.  A much better solution is this:
+
+void do_some_stuff(struct foo *the_foo) __attribute__((__nonnull__(1)));
+
+do_some_stuff(&the_leftmost_foo);
+
+That ensures that the first argument cannot be explicitly passed as  
+null, while still being quite obvious to the programmer what it's doing.
+
+Cheers,
+Kyle Moffett
 
 --
-Index: linux-2.6.14-git10/drivers/scsi/sym53c8xx_2/sym_glue.c
-===================================================================
---- linux-2.6.14-git10.orig/drivers/scsi/sym53c8xx_2/sym_glue.c	2005-10-27 19:02:08.000000000 -0500
-+++ linux-2.6.14-git10/drivers/scsi/sym53c8xx_2/sym_glue.c	2005-11-07 17:44:37.766326553 -0600
-@@ -686,6 +686,10 @@
- 
- 	if (DEBUG_FLAGS & DEBUG_TINY) printf_debug ("[");
- 
-+	/* Avoid spinloop trying to handle interrupts on frozen device */
-+	if (np->s.io_state != pci_channel_io_normal)
-+		return IRQ_HANDLED;
-+
- 	spin_lock_irqsave(np->s.host->host_lock, flags);
- 	sym_interrupt(np);
- 	spin_unlock_irqrestore(np->s.host->host_lock, flags);
-@@ -759,6 +763,25 @@
-  */
- static void sym_eh_timeout(u_long p) { __sym_eh_done((struct scsi_cmnd *)p, 1); }
- 
-+static void sym_eeh_timeout(u_long p)
-+{
-+	struct sym_eh_wait *ep = (struct sym_eh_wait *) p;
-+	if (!ep)
-+		return;
-+	complete(&ep->done);
-+}
-+
-+static void sym_eeh_done(struct sym_eh_wait *ep)
-+{
-+	if (!ep)
-+		return;
-+	ep->timed_out = 0;
-+	if (!del_timer(&ep->timer))
-+		return;
-+
-+	complete(&ep->done);
-+}
-+
- /*
-  *  Generic method for our eh processing.
-  *  The 'op' argument tells what we have to do.
-@@ -799,6 +822,35 @@
- 
- 	/* Try to proceed the operation we have been asked for */
- 	sts = -1;
-+
-+	/* We may be in an error condition because the PCI bus
-+	 * went down. In this case, we need to wait until the
-+	 * PCI bus is reset, the card is reset, and only then
-+	 * proceed with the scsi error recovery.  We'll wait
-+	 * for 15 seconds for this to happen.
-+	 */
-+#define WAIT_FOR_PCI_RECOVERY	15
-+	if (np->s.io_state != pci_channel_io_normal) {
-+		struct sym_eh_wait eeh, *eep = &eeh;
-+		np->s.io_reset_wait = eep;
-+		init_completion(&eep->done);
-+		init_timer(&eep->timer);
-+		eep->to_do = SYM_EH_DO_WAIT;
-+		eep->timer.expires = jiffies + (WAIT_FOR_PCI_RECOVERY*HZ);
-+		eep->timer.function = sym_eeh_timeout;
-+		eep->timer.data = (u_long)eep;
-+		eep->timed_out = 1;	/* Be pessimistic for once :) */
-+		add_timer(&eep->timer);
-+		spin_unlock_irq(np->s.host->host_lock);
-+		wait_for_completion(&eep->done);
-+		spin_lock_irq(np->s.host->host_lock);
-+		if (eep->timed_out) {
-+			printk (KERN_ERR "%s: Timed out waiting for PCI reset\n",
-+			       sym_name(np));
-+		}
-+		np->s.io_reset_wait = NULL;
-+	}
-+
- 	switch(op) {
- 	case SYM_EH_ABORT:
- 		sts = sym_abort_scsiio(np, cmd, 1);
-@@ -1584,6 +1636,8 @@
- 	np->maxoffs	= dev->chip.offset_max;
- 	np->maxburst	= dev->chip.burst_max;
- 	np->myaddr	= dev->host_id;
-+	np->s.io_state = pci_channel_io_normal;
-+	np->s.io_reset_wait = NULL;
- 
- 	/*
- 	 *  Edit its name.
-@@ -1916,6 +1970,58 @@
- 	return 1;
- }
- 
-+/* ------------- PCI Error Recovery infrastructure -------------- */
-+/** sym2_io_error_detected() is called when PCI error is detected */
-+static pci_ers_result_t sym2_io_error_detected (struct pci_dev *pdev, pci_channel_state_t state)
-+{
-+	struct sym_hcb *np = pci_get_drvdata(pdev);
-+
-+	np->s.io_state = state;
-+	// XXX If slot is permanently frozen, then what?
-+	// Should we scsi_remove_host() maybe ??
-+
-+	/* Request a slot slot reset. */
-+	return PCI_ERS_RESULT_NEED_RESET;
-+}
-+
-+/** sym2_io_slot_reset is called when the pci bus has been reset.
-+ *  Restart the card from scratch. */
-+static pci_ers_result_t sym2_io_slot_reset (struct pci_dev *pdev)
-+{
-+	struct sym_hcb *np = pci_get_drvdata(pdev);
-+
-+	printk (KERN_INFO "%s: recovering from a PCI slot reset\n",
-+	    sym_name(np));
-+
-+	if (pci_enable_device(pdev))
-+		printk (KERN_ERR "%s: device setup failed most egregiously\n",
-+			    sym_name(np));
-+
-+	pci_set_master(pdev);
-+	enable_irq (pdev->irq);
-+
-+	/* Perform host reset only on one instance of the card */
-+	if (0 == PCI_FUNC (pdev->devfn))
-+		sym_reset_scsi_bus(np, 0);
-+
-+	return PCI_ERS_RESULT_RECOVERED;
-+}
-+
-+/** sym2_io_resume is called when the error recovery driver
-+ *  tells us that its OK to resume normal operation.
-+ */
-+static void sym2_io_resume (struct pci_dev *pdev)
-+{
-+	struct sym_hcb *np = pci_get_drvdata(pdev);
-+
-+	/* Perform device startup only once for this card. */
-+	if (0 == PCI_FUNC (pdev->devfn))
-+		sym_start_up (np, 1);
-+
-+	np->s.io_state = pci_channel_io_normal;
-+	sym_eeh_done (np->s.io_reset_wait);
-+}
-+
- /*
-  * Driver host template.
-  */
-@@ -2169,11 +2275,18 @@
- 
- MODULE_DEVICE_TABLE(pci, sym2_id_table);
- 
-+static struct pci_error_handlers sym2_err_handler = {
-+	.error_detected = sym2_io_error_detected,
-+	.slot_reset = sym2_io_slot_reset,
-+	.resume = sym2_io_resume,
-+};
-+
- static struct pci_driver sym2_driver = {
- 	.name		= NAME53C8XX,
- 	.id_table	= sym2_id_table,
- 	.probe		= sym2_probe,
- 	.remove		= __devexit_p(sym2_remove),
-+	.err_handler = &sym2_err_handler,
- };
- 
- static int __init sym2_init(void)
-Index: linux-2.6.14-git10/drivers/scsi/sym53c8xx_2/sym_glue.h
-===================================================================
---- linux-2.6.14-git10.orig/drivers/scsi/sym53c8xx_2/sym_glue.h	2005-10-27 19:02:08.000000000 -0500
-+++ linux-2.6.14-git10/drivers/scsi/sym53c8xx_2/sym_glue.h	2005-11-07 17:44:37.768326272 -0600
-@@ -181,6 +181,10 @@
- 	char		chip_name[8];
- 	struct pci_dev	*device;
- 
-+	/* pci bus i/o state; waiter for clearing of i/o state */
-+	pci_channel_state_t io_state;
-+	struct sym_eh_wait *io_reset_wait;
-+
- 	struct Scsi_Host *host;
- 
- 	void __iomem *	ioaddr;		/* MMIO kernel io address	*/
-Index: linux-2.6.14-git10/drivers/scsi/sym53c8xx_2/sym_hipd.c
-===================================================================
---- linux-2.6.14-git10.orig/drivers/scsi/sym53c8xx_2/sym_hipd.c	2005-11-07 17:24:14.000000000 -0600
-+++ linux-2.6.14-git10/drivers/scsi/sym53c8xx_2/sym_hipd.c	2005-11-07 17:44:37.813319951 -0600
-@@ -2809,6 +2809,7 @@
- 	u_char	istat, istatc;
- 	u_char	dstat;
- 	u_short	sist;
-+	u_int    icnt;
- 
- 	/*
- 	 *  interrupt on the fly ?
-@@ -2850,6 +2851,7 @@
- 	sist	= 0;
- 	dstat	= 0;
- 	istatc	= istat;
-+	icnt = 0;
- 	do {
- 		if (istatc & SIP)
- 			sist  |= INW(np, nc_sist);
-@@ -2857,6 +2859,19 @@
- 			dstat |= INB(np, nc_dstat);
- 		istatc = INB(np, nc_istat);
- 		istat |= istatc;
-+		
-+		/* Prevent deadlock waiting on a condition that may never clear. */
-+		/* XXX this is a temporary kludge; the correct to detect
-+		 * a PCI bus error would be to use the io_check interfaces
-+		 * proposed by Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-+		 * Problem with polling like that is the state flag might not
-+		 * be set.
-+		 */
-+		icnt ++;
-+		if (100 < icnt) {
-+			if (np->s.device->error_state != pci_channel_io_normal)
-+				return;
-+		}
- 	} while (istatc & (SIP|DIP));
- 
- 	if (DEBUG_FLAGS & DEBUG_TINY)
+They _will_ find opposing experts to say it isn't, if you push hard  
+enough the wrong way.  Idiots with a PhD aren't hard to buy.
+   -- Rob Landley
+
+
+

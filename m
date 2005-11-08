@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030325AbVKHWbR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030337AbVKHWdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030325AbVKHWbR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 17:31:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965265AbVKHWbR
+	id S1030337AbVKHWdo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 17:33:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030336AbVKHWdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 17:31:17 -0500
-Received: from hoppetossa.avesi.com ([208.239.169.21]:58072 "HELO
-	hoppetossa.avesi.com") by vger.kernel.org with SMTP id S965249AbVKHWbR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 17:31:17 -0500
-Subject: Re: athlon x2 + 2.6.14 + SMP = fast clock
-From: Christopher Mulcahy <cmulcahy@avesi.com>
-To: john stultz <johnstul@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1131485903.27168.662.camel@cog.beaverton.ibm.com>
-References: <1131482417.21752.50.camel@jones>
-	 <1131485903.27168.662.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Tue, 08 Nov 2005 20:02:42 -0500
-Message-Id: <1131498162.21752.102.camel@jones>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Nov 2005 17:33:44 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:16040 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1030271AbVKHWdn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 17:33:43 -0500
+Message-ID: <43712830.90805@tmr.com>
+Date: Tue, 08 Nov 2005 17:35:28 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: Highpoint IDE types
+References: <1131471483.25192.76.camel@localhost.localdomain>	 <pan.2005.11.08.19.02.09.190896@sci.fi> <1131480140.25192.98.camel@localhost.localdomain>
+In-Reply-To: <1131480140.25192.98.camel@localhost.localdomain>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-08 at 13:38 -0800, john stultz wrote:
-> On Tue, 2005-11-08 at 15:40 -0500, Christopher Mulcahy wrote:
-> > I am running 2.6.14 SMP on an dual-core athlon x2 3800.
-> > The system clock runs at roughly twice normal speed.
+Alan Cox wrote:
+> On Maw, 2005-11-08 at 21:02 +0200, Ville Syrjälä wrote:
 > 
-> Is this a new regression or did the problem occur with 2.6.13 or older
-> kernels?
-This is a new-machine.
-The only other kernel it has seen is the distro-install-kernel ( 2.6.12
-uni-processor (ubuntu-5.10) )  ( this kernel does not have a problem,
-but it is not SMP )
+>>> *      HPT372                  4 (HPT366)      5     
+>>> *      HPT372N                 4 (HPT366)      6     
+>>> *      HPT372                  5 (HPT372)      0
+>>
+>>          ^^^^^^
+>>
+>>This one is called HPT372A by Highpoint's BIOS/Win drivers.
+>>
+>>Also I'm not sure if it's relevant but PCI ID 5 chips use a different
+>>BIOS image than PCI ID 4 chips.
+> 
+> 
+> I suspect it is relevant because the "372A" appears to have a different
+> base clock to the HPT372.
+> 
+> Added to the list.
+> 
+May we assume that this information was gathered in the interest of 
+something beyond pedantic curiousity? Will this simplify the driver 
+code, improve performance or reliability, etc?
 
-I will try to find time to build 2.4.13 and 2.4.12 SMP kernels with the
-~same config to see if they have the same problem. ( I presume I could
-then attach these findings to the original bugzilla report? )
-
-> 
-> Would you mind opening a kernel bug and attaching your dmesg and config?
-> 
-> http://bugzilla.kernel.org
-> 
-will do.
-
-> 
-> Also try booting w/ "idle=poll" to see if that doesn't clear up the
-> issue.
-> 
-Tried that without results.
-
-> thanks
-> -john
-> 
-> 
-> 
-> 
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

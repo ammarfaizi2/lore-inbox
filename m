@@ -1,39 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965067AbVKHOMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965192AbVKHONm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965067AbVKHOMF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 09:12:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965192AbVKHOME
+	id S965192AbVKHONm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 09:13:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965203AbVKHONm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 09:12:04 -0500
-Received: from 238-193.adsl.pool.ew.hu ([193.226.238.193]:59666 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S965067AbVKHOMD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 09:12:03 -0500
-To: viro@ftp.linux.org.uk
-CC: torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, linuxram@us.ibm.com
-In-reply-to: <E1EZInj-0001Ez-AV@ZenIV.linux.org.uk> (message from Al Viro on
-	Tue, 08 Nov 2005 02:01:31 +0000)
-Subject: Re: [PATCH 12/18] shared mount handling: bind and rbind
-References: <E1EZInj-0001Ez-AV@ZenIV.linux.org.uk>
-Message-Id: <E1EZUC9-0007oJ-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 08 Nov 2005 15:11:29 +0100
+	Tue, 8 Nov 2005 09:13:42 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:57870 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S965202AbVKHONl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 09:13:41 -0500
+Date: Tue, 8 Nov 2005 15:13:40 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: libata PATA patches
+Message-ID: <20051108141340.GT3847@stusta.de>
+References: <1131460386.25192.45.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1131460386.25192.45.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  static void attach_mnt(struct vfsmount *mnt, struct nameidata *nd)
->  {
-> -	mnt->mnt_parent = mntget(nd->mnt);
-> -	mnt->mnt_mountpoint = dget(nd->dentry);
-> -	list_add(&mnt->mnt_hash, mount_hashtable + hash(nd->mnt, nd->dentry));
-> +	mnt_set_mountpoint(nd->mnt, nd->dentry, mnt);
-> +	list_add_tail(&mnt->mnt_hash, mount_hashtable +
-> +			hash(nd->mnt, nd->dentry));
+On Tue, Nov 08, 2005 at 02:33:06PM +0000, Alan Cox wrote:
 
-Ram,
+> I've put a new patch versus 2.6.14-mm1 on 
+> http://zeniv.linux.org.uk/~alan/IDE
 
-IIRC the list_add -> list_add_tail change has been voted down.  Or do
-you have new reasons why it's needed?
+I'm wondering about the -m32 additions at the top of your patch.
 
-Miklos
+Shouldn't the following at the top of arch/i386/Makefile already do the 
+same?
+
+HAS_BIARCH      := $(call cc-option-yn, -m32)
+ifeq ($(HAS_BIARCH),y)
+AS              := $(AS) --32
+LD              := $(LD) -m elf_i386
+CC              := $(CC) -m32
+endif
+
+
+
+> Alan
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

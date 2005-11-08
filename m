@@ -1,175 +1,169 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030248AbVKHCCP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030249AbVKHCDF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030248AbVKHCCP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 21:02:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030242AbVKHCB6
+	id S1030249AbVKHCDF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 21:03:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030238AbVKHCB4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 21:01:58 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:24781 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965183AbVKHCBg
+	Mon, 7 Nov 2005 21:01:56 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:28109 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965246AbVKHCBg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 7 Nov 2005 21:01:36 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 8/18] mount expiry fixes
+Subject: [PATCH 13/18] shared mounts handling: move
 Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
        linuxram@us.ibm.com
-Message-Id: <E1EZInj-0001Er-9H@ZenIV.linux.org.uk>
+Message-Id: <E1EZInj-0001F1-Aj@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
 Date: Tue, 08 Nov 2005 02:01:31 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Ram Pai <linuxram@us.ibm.com>
-Date: 1131401842 -0500
+Date: 1131402003 -0500
 
-1) cleans up the ugliness in may_umount_tree()
-
-2) fixes a bug in do_loopback(). after cloning a tree, do_loopback() unlinks
-only the topmost mount of the cloned tree, leaving behind the children mounts
-on their corresponding expiry list.
+Handling of mount --move in presense of shared mounts (see
+Documentation/sharedsubtree.txt in the end of patch series
+for detailed description).
 
 Signed-off-by: Ram Pai (linuxram@us.ibm.com)
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- fs/namespace.c |   64 +++++++++++++++++++-------------------------------------
- 1 files changed, 22 insertions(+), 42 deletions(-)
+ fs/namespace.c |   63 +++++++++++++++++++++++++++++++++++++++++---------------
+ 1 files changed, 46 insertions(+), 17 deletions(-)
 
-dff96a6036a64c1cc16161d622db76239d4172b5
+f530c48214f7fd8ff91d6d8c245373438be97ce2
 diff --git a/fs/namespace.c b/fs/namespace.c
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
-@@ -27,6 +27,8 @@
+@@ -660,7 +660,10 @@ Enomem:
  
- extern int __init init_rootfs(void);
- 
-+#define CL_EXPIRE 	0x01
-+
- #ifdef CONFIG_SYSFS
- extern int __init sysfs_init(void);
- #else
-@@ -165,7 +167,8 @@ static struct vfsmount *next_mnt(struct 
- 	return list_entry(next, struct vfsmount, mnt_child);
- }
- 
--static struct vfsmount *clone_mnt(struct vfsmount *old, struct dentry *root)
-+static struct vfsmount *clone_mnt(struct vfsmount *old, struct dentry *root,
-+					int flag)
- {
- 	struct super_block *sb = old->mnt_sb;
- 	struct vfsmount *mnt = alloc_vfsmnt(old->mnt_devname);
-@@ -181,10 +184,12 @@ static struct vfsmount *clone_mnt(struct
- 
- 		/* stick the duplicate mount on the same expiry list
- 		 * as the original if that was on one */
--		spin_lock(&vfsmount_lock);
--		if (!list_empty(&old->mnt_expire))
--			list_add(&mnt->mnt_expire, &old->mnt_expire);
--		spin_unlock(&vfsmount_lock);
-+		if (flag & CL_EXPIRE) {
-+			spin_lock(&vfsmount_lock);
-+			if (!list_empty(&old->mnt_expire))
-+				list_add(&mnt->mnt_expire, &old->mnt_expire);
-+			spin_unlock(&vfsmount_lock);
-+		}
- 	}
- 	return mnt;
- }
-@@ -331,36 +336,14 @@ struct seq_operations mounts_op = {
+ /*
+  *  @source_mnt : mount tree to be attached
+- *  @nd        : place the mount tree @source_mnt is attached
++ *  @nd         : place the mount tree @source_mnt is attached
++ *  @parent_nd  : if non-null, detach the source_mnt from its parent and
++ *  		   store the parent mount and mountpoint dentry.
++ *  		   (done when source_mnt is moved)
+  *
+  *  NOTE: in the table below explains the semantics when a source mount
+  *  of a given type is attached to a destination mount of a given type.
+@@ -685,6 +688,21 @@ Enomem:
+  * (+)   the cloned mount is created under the destination mount and is marked
+  *       as shared. The cloned mount is added to the peer group of the source
+  *       mount.
++ * 	---------------------------------------------
++ * 	|         	MOVE MOUNT OPERATION        |
++ * 	|********************************************
++ * 	| source-->| shared        |       private  |
++ * 	| dest     |               |                |
++ * 	|   |      |               |                |
++ * 	|   v      |               |                |
++ * 	|********************************************
++ * 	|  shared  | shared (+)    |     shared (+) |
++ * 	|          |               |                |
++ * 	|non-shared| shared (+*)   |      private   |
++ * 	*********************************************
++ * (+)  the mount is moved to the destination. And is then propagated to all
++ * 	the mounts in the propagation tree of the destination mount.
++ * (+*)  the mount is moved to the destination.
+  *
+  * if the source mount is a tree, the operations explained above is
+  * applied to each mount in the tree.
+@@ -692,7 +710,7 @@ Enomem:
+  * in allocations.
   */
- int may_umount_tree(struct vfsmount *mnt)
+ static int attach_recursive_mnt(struct vfsmount *source_mnt,
+-				struct nameidata *nd)
++			struct nameidata *nd, struct nameidata *parent_nd)
  {
--	struct list_head *next;
--	struct vfsmount *this_parent = mnt;
--	int actual_refs;
--	int minimum_refs;
-+	int actual_refs = 0;
-+	int minimum_refs = 0;
-+	struct vfsmount *p;
+ 	LIST_HEAD(tree_list);
+ 	struct vfsmount *dest_mnt = nd->mnt;
+@@ -708,8 +726,14 @@ static int attach_recursive_mnt(struct v
+ 	}
  
  	spin_lock(&vfsmount_lock);
--	actual_refs = atomic_read(&mnt->mnt_count);
--	minimum_refs = 2;
--repeat:
--	next = this_parent->mnt_mounts.next;
--resume:
--	while (next != &this_parent->mnt_mounts) {
--		struct vfsmount *p =
--		    list_entry(next, struct vfsmount, mnt_child);
--
--		next = next->next;
--
-+	for (p = mnt; p; p = next_mnt(p, mnt)) {
- 		actual_refs += atomic_read(&p->mnt_count);
- 		minimum_refs += 2;
--
--		if (!list_empty(&p->mnt_mounts)) {
--			this_parent = p;
--			goto repeat;
--		}
--	}
--
--	if (this_parent != mnt) {
--		next = this_parent->mnt_child.next;
--		this_parent = this_parent->mnt_parent;
--		goto resume;
- 	}
- 	spin_unlock(&vfsmount_lock);
+-	mnt_set_mountpoint(dest_mnt, dest_dentry, source_mnt);
+-	commit_tree(source_mnt);
++	if (parent_nd) {
++		detach_mnt(source_mnt, parent_nd);
++		attach_mnt(source_mnt, nd);
++		touch_namespace(current->namespace);
++	} else {
++		mnt_set_mountpoint(dest_mnt, dest_dentry, source_mnt);
++		commit_tree(source_mnt);
++	}
  
-@@ -596,12 +579,13 @@ static int lives_below_in_same_fs(struct
- 	}
- }
+ 	list_for_each_entry_safe(child, p, &tree_list, mnt_hash) {
+ 		list_del_init(&child->mnt_hash);
+@@ -740,7 +764,7 @@ static int graft_tree(struct vfsmount *m
  
--static struct vfsmount *copy_tree(struct vfsmount *mnt, struct dentry *dentry)
-+static struct vfsmount *copy_tree(struct vfsmount *mnt, struct dentry *dentry,
-+					int flag)
- {
- 	struct vfsmount *res, *p, *q, *r, *s;
- 	struct nameidata nd;
+ 	err = -ENOENT;
+ 	if (IS_ROOT(nd->dentry) || !d_unhashed(nd->dentry))
+-		err = attach_recursive_mnt(mnt, nd);
++		err = attach_recursive_mnt(mnt, nd, NULL);
+ out_unlock:
+ 	up(&nd->dentry->d_inode->i_sem);
+ 	if (!err)
+@@ -869,35 +893,36 @@ static int do_move_mount(struct nameidat
+ 	if (IS_DEADDIR(nd->dentry->d_inode))
+ 		goto out1;
  
--	res = q = clone_mnt(mnt, dentry);
-+	res = q = clone_mnt(mnt, dentry, flag);
- 	if (!q)
- 		goto Enomem;
- 	q->mnt_mountpoint = mnt->mnt_mountpoint;
-@@ -619,7 +603,7 @@ static struct vfsmount *copy_tree(struct
- 			p = s;
- 			nd.mnt = q;
- 			nd.dentry = p->mnt_mountpoint;
--			q = clone_mnt(p, p->mnt_root);
-+			q = clone_mnt(p, p->mnt_root, flag);
- 			if (!q)
- 				goto Enomem;
- 			spin_lock(&vfsmount_lock);
-@@ -701,18 +685,13 @@ static int do_loopback(struct nameidata 
- 
- 	err = -ENOMEM;
- 	if (recurse)
--		mnt = copy_tree(old_nd.mnt, old_nd.dentry);
-+		mnt = copy_tree(old_nd.mnt, old_nd.dentry, 0);
- 	else
--		mnt = clone_mnt(old_nd.mnt, old_nd.dentry);
-+		mnt = clone_mnt(old_nd.mnt, old_nd.dentry, 0);
- 
- 	if (!mnt)
- 		goto out;
- 
--	/* stop bind mounts from expiring */
 -	spin_lock(&vfsmount_lock);
--	list_del_init(&mnt->mnt_expire);
--	spin_unlock(&vfsmount_lock);
--
- 	err = graft_tree(mnt, nd);
- 	if (err) {
- 		LIST_HEAD(umount_list);
-@@ -1155,7 +1134,8 @@ int copy_namespace(int flags, struct tas
+ 	if (!IS_ROOT(nd->dentry) && d_unhashed(nd->dentry))
+-		goto out2;
++		goto out1;
  
- 	down_write(&tsk->namespace->sem);
- 	/* First pass: copy the tree topology */
--	new_ns->root = copy_tree(namespace->root, namespace->root->mnt_root);
-+	new_ns->root = copy_tree(namespace->root, namespace->root->mnt_root,
-+					CL_EXPIRE);
- 	if (!new_ns->root) {
- 		up_write(&tsk->namespace->sem);
- 		kfree(new_ns);
+ 	err = -EINVAL;
+ 	if (old_nd.dentry != old_nd.mnt->mnt_root)
+-		goto out2;
++		goto out1;
+ 
+ 	if (old_nd.mnt == old_nd.mnt->mnt_parent)
+-		goto out2;
++		goto out1;
+ 
+ 	if (S_ISDIR(nd->dentry->d_inode->i_mode) !=
+ 	      S_ISDIR(old_nd.dentry->d_inode->i_mode))
+-		goto out2;
+-
++		goto out1;
++	/*
++	 * Don't move a mount residing in a shared parent.
++	 */
++	if (old_nd.mnt->mnt_parent && IS_MNT_SHARED(old_nd.mnt->mnt_parent))
++		goto out1;
+ 	err = -ELOOP;
+ 	for (p = nd->mnt; p->mnt_parent != p; p = p->mnt_parent)
+ 		if (p == old_nd.mnt)
+-			goto out2;
+-	err = 0;
++			goto out1;
+ 
+-	detach_mnt(old_nd.mnt, &parent_nd);
+-	attach_mnt(old_nd.mnt, nd);
+-	touch_namespace(current->namespace);
++	if ((err = attach_recursive_mnt(old_nd.mnt, nd, &parent_nd)))
++		goto out1;
+ 
++	spin_lock(&vfsmount_lock);
+ 	/* if the mount is moved, it should no longer be expire
+ 	 * automatically */
+ 	list_del_init(&old_nd.mnt->mnt_expire);
+-out2:
+ 	spin_unlock(&vfsmount_lock);
+ out1:
+ 	up(&nd->dentry->d_inode->i_sem);
+@@ -1467,6 +1492,10 @@ asmlinkage long sys_pivot_root(const cha
+ 	down_write(&namespace_sem);
+ 	down(&old_nd.dentry->d_inode->i_sem);
+ 	error = -EINVAL;
++	if (IS_MNT_SHARED(old_nd.mnt) ||
++		IS_MNT_SHARED(new_nd.mnt->mnt_parent) ||
++		IS_MNT_SHARED(user_nd.mnt->mnt_parent))
++		goto out2;
+ 	if (!check_mnt(user_nd.mnt))
+ 		goto out2;
+ 	error = -ENOENT;

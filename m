@@ -1,145 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965088AbVKHBcm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965103AbVKHBel@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965088AbVKHBcm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 20:32:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965095AbVKHBcm
+	id S965103AbVKHBel (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 20:34:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965126AbVKHBel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 20:32:42 -0500
-Received: from [210.76.114.22] ([210.76.114.22]:50869 "EHLO ccoss.com.cn")
-	by vger.kernel.org with ESMTP id S965088AbVKHBcl (ORCPT
+	Mon, 7 Nov 2005 20:34:41 -0500
+Received: from dvhart.com ([64.146.134.43]:16578 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S965103AbVKHBel (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 20:32:41 -0500
-Message-ID: <4370006E.1050806@ccoss.com.cn>
-Date: Tue, 08 Nov 2005 09:33:34 +0800
-From: liyu <liyu@ccoss.com.cn>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: zh-cn,zh
+	Mon, 7 Nov 2005 20:34:41 -0500
+Date: Mon, 07 Nov 2005 17:34:37 -0800
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Anton Blanchard <anton@samba.org>, Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Brian Twichell <tbrian@us.ibm.com>,
+       David Lang <david.lang@digitalinsight.com>,
+       linux-kernel@vger.kernel.org, slpratt@us.ibm.com
+Subject: Re: Database regression due to scheduler changes ?
+Message-ID: <105220000.1131413677@flay>
+In-Reply-To: <20051108011547.GP12353@krispykreme>
+References: <436FD291.2060301@us.ibm.com> <Pine.LNX.4.62.0511071431030.9339@qynat.qvtvafvgr.pbz> <436FDDE2.4000708@us.ibm.com> <436FF6A6.1040708@yahoo.com.au> <20051108011547.GP12353@krispykreme>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-To: Fawad Lateef <fawadlateef@gmail.com>, rml@novell.com
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [question] I doublt on timer interrput.
-References: <436EEEA4.1020703@ccoss.com.cn> <1e62d1370511070353o1d1d4931ncf0ff8a5f5658069@mail.gmail.com>
-In-Reply-To: <1e62d1370511070353o1d1d4931ncf0ff8a5f5658069@mail.gmail.com>
-Content-Type: text/plain; charset=gb18030; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fawad Lateef Wrote:
+>> I would also take a look at removing SD_WAKE_IDLE from the flags.
+>> This flag should make balancing more aggressive, but it can have
+>> problems when applied to a NUMA domain due to too much task
+>> movement.
+> 
+> I was wondering how ppc64 ended up with different parameters in the NODE
+> definitions (added SD_BALANCE_NEWIDLE and SD_WAKE_IDLE)	and it looks
+> like it was Andrew :)
+> 
+> http://lkml.org/lkml/2004/11/2/205
+> 
+> It looks like balancing was not agressive enough on his workload too.
+> Im a bit uneasy with only ppc64 having the two flags though.
+> 
+> Im also considering adding balance on fork for ppc64, it seems like a
+> lot of people like to run stream like benchmarks and Im getting tired of
+> telling them to lock their threads down to cpus.
 
->On 11/7/05, liyu <liyu@ccoss.com.cn> wrote:
->  
->
->>    I have one question about timer interrupt (i386 architecture).
->>
->>    As we known, the timer emit HZ times interrputs per second,
->>and in i386. The interrupt handler will call scheduler_tick()
->>each time (on i386 at least, both enable or disable APIC).
->>
->>    On my Celeron machine(IOW, only one CPU, not SMP/SMT), I defined
->>a global int variable 'tick_count' in kernel/sched.c, and add one line
->>of code like follow in scheduler_tick():
->>
->>    ++tick_count;
->>
->>    but I found it is not same with content of the /proc/interrupts,
->>and the differennt between them is not little.
->>
->>    I can not understand why that is.
->>
->>    Any useful idea.
->>
->>
->>    
->>
->
->What I found in the kernel code is that scheduler_tick is called from
->two locations in the kernel (2.6.14-mm1) code (i386).
->
->1) from kernel/timer.c in update_process_times which is called from
->arch/i386/kernel/apic.c and its calling depends on the CONFIG_SMP
->defined or not (see
->http://sosdg.org/~coywolf/lxr/source/arch/i386/kernel/apic.c#L1160)
->and as you don't have CONFIG_SMP enabled so its won't be called from
->here.
->
->2) from sched_fork function in kernel/sched.c
->(http://sosdg.org/~coywolf/lxr/source/kernel/sched.c#L1414) and I
->think its called when newly forked process setup is going to be
->performed, and I think as from here scheduler_tick is called in your
->case, so you are getting different value for your variable tick_count
->
->scheduler_tick might be called from somewhere else which I am missing
->so please CMIIW !
->
->--
->Fawad Lateef
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
->
-Please see this URL:
+Please don't screw up everything else just for stream. It's a silly 
+frigging benchmark. There's very little real-world stuff that really
+needs balance on fork, as opposed to balance on clone, and it'll slow
+down everything else.
 
-http://lxr.linux.no/source/include/asm-i386/mach-default/do_timer.h#L20
+M.
 
-static inline void do_timer_interrupt_hook(struct pt_regs *regs)
-{
-        do_timer(regs);
-#ifndef CONFIG_SMP
-        update_process_times(user_mode(regs));
-#endif
-/*
- * In the SMP case we use the local APIC timer interrupt to do the
- * profiling, except when we simulate SMP mode on a uniprocessor
- * system, in that case we have to call the local interrupt handler.
- */
-#ifndef CONFIG_X86_LOCAL_APIC
-        profile_tick(CPU_PROFILING, regs);
-#else
-        if (!using_apic_timer)
-                smp_local_timer_interrupt(regs);
-#endif
-}
-
-
-That is the code in 2.6.12, but 2.6.13.3 also same with it at least.
-So we call scheduler_tick() HZ times per second, both enable
-SMP or disable it.
-
-Nod, I agree with your words, the scheduler_tick() do not same with
-timer interrupt handler on call times. but I guess it should be more
-than jiffies, beacause of other functions also can call it (for example,
-as Lateef said, sched_fork().)
-
-I think that
-
-scheduler_tick() might be called from somewhere
-
-is not exact.
-
-We may note, it do not be EXPORT_SYMBOL_*()ed , so it only can be called 
-from kernel core,
-not kernel modules. Such a few places we can find it use LXR or grep.
-
-I use setup one sysctl integer variable to watch the value of 'count_tick',
-Do this way have any problem? I found some value skips, but I think it is
-normal case.
-
-
-However, I will make a experiemnt that write one hook like do_timer(), 
-as Love said
-
-PS: if our scheduler_tick() is not called every timer interrput, the 
-compute of task timeslice
-also is not exact ?!
-
-Thanks a lot.
-
-
--liyu
 

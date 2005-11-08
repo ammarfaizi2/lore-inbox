@@ -1,70 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965180AbVKHUBr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030191AbVKHUDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965180AbVKHUBr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 15:01:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965101AbVKHUBr
+	id S1030191AbVKHUDM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 15:03:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030201AbVKHUDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 15:01:47 -0500
-Received: from pat.uio.no ([129.240.130.16]:53892 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S965180AbVKHUBq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 15:01:46 -0500
-Subject: re: mmap over nfs leads to excessive system load
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Kenny Simpson <theonetruekenny@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051108192515.17247.qmail@web34105.mail.mud.yahoo.com>
-References: <20051108192515.17247.qmail@web34105.mail.mud.yahoo.com>
+	Tue, 8 Nov 2005 15:03:12 -0500
+Received: from mailhub.lss.emc.com ([168.159.2.31]:20419 "EHLO
+	mailhub.lss.emc.com") by vger.kernel.org with ESMTP
+	id S1030191AbVKHUDK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 15:03:10 -0500
+Message-ID: <C2EEB4E538D3DC48BF57F391F422779321ADC0@srmanning.eng.emc.com>
+From: "goggin, edward" <egoggin@emc.com>
+To: "'Rolf Eike Beer'" <eike-kernel@sf-tec.de>
+Cc: "'Andrew Morton'" <akpm@osdl.org>, Masanari Iida <standby24x7@gmail.com>,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       linux-scsi@vger.kernel.org
+Subject: RE: oops with USB Storage on 2.6.14
+Date: Tue, 8 Nov 2005 15:02:23 -0500 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain
-Date: Tue, 08 Nov 2005 12:01:47 -0800
-Message-Id: <1131480107.32482.48.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.333, required 12,
-	autolearn=disabled, AWL 1.67, UIO_MAIL_IS_INTERNAL -5.00)
+X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.1.0.0, Antispam-Data: 2005.11.8.21
+X-PerlMx-Spam: Gauge=, SPAM=1%, Reasons='EMC_FROM_00+ -3, __CT 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __IMS_MSGID 0, __IMS_MUA 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-08 at 11:25 -0800, Kenny Simpson wrote:
-> Just another data point....
-> If I open the file with O_DIRECT.. not much changes:
+Thanks!  Here's a better one.
 
-Hmm... Are you mounting using the -osync or -onoac options? Doing
-synchronous writes will tend to slow down flushing considerably, and the
-VM appears to be very fragile w.r.t. slow filesystems.
+--- ../base/linux-2.6.14-rc4/drivers/scsi/scsi_lib.c	2005-10-10
+20:19:19.000000000 -0500
++++ drivers/scsi/scsi_lib.c	2005-11-07 04:46:23.000000000 -0600
+@@ -592,10 +592,17 @@ static void scsi_requeue_command(struct 
+ 
+ void scsi_next_command(struct scsi_cmnd *cmd)
+ {
+-	struct request_queue *q = cmd->device->request_queue;
++	struct scsi_device *sdev = cmd->device;
++	struct request_queue *q = sdev->request_queue;
++
++	/* need to hold a reference on the device before we let go of the
+cmd */
++	get_device(&sdev->sdev_gendev);
+ 
+ 	scsi_put_command(cmd);
+ 	scsi_run_queue(q);
++
++	/* ok to remove device now */
++	put_device(&sdev->sdev_gendev);
+ }
+ 
+ void scsi_run_host_queues(struct Scsi_Host *shost)
 
-Cheers,
-  Trond
 
 
-> samples  %        image name               app name                 symbol name
-> 12585321 18.9373  vmlinux-2.6.14           vmlinux-2.6.14           find_get_pages_tag
-> 8608887  12.9539  vmlinux-2.6.14           vmlinux-2.6.14           mpage_writepages
-> 6870600  10.3383  vmlinux-2.6.14           vmlinux-2.6.14           unlock_page
-> 6605417   9.9393  vmlinux-2.6.14           vmlinux-2.6.14           clear_page_dirty_for_io
-> 6259207   9.4183  vmlinux-2.6.14           vmlinux-2.6.14           release_pages
-> 3249493   4.8896  vmlinux-2.6.14           vmlinux-2.6.14           __lookup_tag
-> 3248871   4.8886  vmlinux-2.6.14           vmlinux-2.6.14           pci_conf1_write
-> 2677914   4.0295  vmlinux-2.6.14           vmlinux-2.6.14           page_waitqueue
-> 982811    1.4789  vmlinux-2.6.14           vmlinux-2.6.14           _read_lock_irqsave
-> 917165    1.3801  vmlinux-2.6.14           vmlinux-2.6.14           _read_unlock_irq
-> 758960    1.1420  vmlinux-2.6.14           vmlinux-2.6.14           __wake_up_bit
-> 706607    1.0632  vmlinux-2.6.14           vmlinux-2.6.14           _spin_lock_irqsave
-> 
-> 
-> -Kenny
-> 
-> 
-> 
-> 	
-> 		
-> __________________________________ 
-> Yahoo! Mail - PC Magazine Editors' Choice 2005 
-> http://mail.yahoo.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+ 
 
+> -----Original Message-----
+> From: linux-scsi-owner@vger.kernel.org 
+> [mailto:linux-scsi-owner@vger.kernel.org] On Behalf Of Rolf Eike Beer
+> Sent: Tuesday, November 08, 2005 11:38 AM
+> To: goggin, edward
+> Cc: 'Andrew Morton'; Masanari Iida; 
+> linux-kernel@vger.kernel.org; 
+> linux-usb-devel@lists.sourceforge.net; linux-scsi@vger.kernel.org
+> Subject: Re: oops with USB Storage on 2.6.14
+> 
+> Am Dienstag, 8. November 2005 17:24 schrieb goggin, edward:
+> >I've run into a bug like this several times using 2.6.14-rc4 while
+> >testing dm-multipath's reaction to uevents generated by forcing
+> >fiber channel transport failures -- which leads to the scsi device
+> >being detached and the queuedata pointer in the device's queue being
+> >reset in scsi_device_dev_release.  The fix I've used is below and
+> >it seems to work well for me.  I was going to place this patch on
+> >dm-devel today or tomorrow anyway.
+> >
+> >drivers/scsi/scsi_lib.c:scsi_next_command()
+> >Call scsi_device_get and scsi_device_put around the calls to
+> >scsi_put_command
+> >and scsi_run_queue so that the scsi host structure will not 
+> be de-allocated
+> >between scsi_put_command and scsi_run_queue.
+> >
+> >*** ../base/linux-2.6.14-rc4/drivers/scsi/scsi_lib.c	Mon Oct 
+> 10 20:19:19
+> >2005
+> >--- drivers/scsi/scsi_lib.c	Thu Nov  3 13:30:03 2005
+> >***************
+> >*** 592,601 ****
+> 
+> Your patch is linewrapped. Also please use unified diff 
+> format, good choice 
+> for diff options is "-Naurp".
+> 
+> Eike
+> 

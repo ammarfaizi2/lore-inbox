@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964983AbVKHGGn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964942AbVKHGMe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964983AbVKHGGn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 01:06:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964942AbVKHGGn
+	id S964942AbVKHGMe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 01:12:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965217AbVKHGMe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 01:06:43 -0500
-Received: from mgate03.necel.com ([203.180.232.83]:25990 "EHLO
-	mgate03.necel.com") by vger.kernel.org with ESMTP id S964907AbVKHGGm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 01:06:42 -0500
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Matt Mackall <mpm@selenic.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 13/20] inflate: (arch) kill silly zlib typedefs
-References: <14.196662837@selenic.com>
-	<Pine.LNX.4.62.0510312204400.26471@numbat.sonytel.be>
-	<20051031211422.GC4367@waste.org>
-	<20051101065327.GP22601@alpha.home.local>
-	<Pine.LNX.4.62.0511010850190.2739@numbat.sonytel.be>
-	<20051101085740.GR22601@alpha.home.local>
-From: Miles Bader <miles.bader@necel.com>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-Date: Tue, 08 Nov 2005 15:05:57 +0900
-In-Reply-To: <20051101085740.GR22601@alpha.home.local> (Willy Tarreau's message of "Tue, 1 Nov 2005 09:57:40 +0100")
-Message-Id: <buowtjjsmgq.fsf@dhapc248.dev.necel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 8 Nov 2005 01:12:34 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:16826 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964942AbVKHGMe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 01:12:34 -0500
+Date: Mon, 7 Nov 2005 22:11:49 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: linux-kernel@vger.kernel.org, William Lee Irwin III <wli@holomorphy.com>,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH] use ptrace_get_task_struct in various places
+Message-Id: <20051107221149.08aa0820.akpm@osdl.org>
+In-Reply-To: <20051108053049.GA9422@lst.de>
+References: <20051108053049.GA9422@lst.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau <willy@w.ods.org> writes:
-> I don't know if x86_64 is LP64 or LLP64 on Linux, but at least my alpha
-> and sparc64 are LP64, so is another PPC64 I use for code validation.
-> LPC64 is the recommended model for easier 32 to 64 portability (where
-> ints are 32 ; long, longlong, ptrs are 64).
+Christoph Hellwig <hch@lst.de> wrote:
+>
+> The ptrace_get_task_struct() helper that I added as part of the ptrace
+> consolidation is usefull in variety of places that currently opencode
+> it.  Switch them to the common helper.
 
-Are there _any_ (widespread) platforms except Windows that use LLP64?
+If we're going to export ptrace_get_task_struct() to the world it would be
+nice to document it too - things like returning zero and a NULL *childp is
+a little obscure.
 
-LP64 seems to be by far the most common in the unix world.
+The change breaks ALLOW_INIT_TRACING in sparc32 and sparc64.  I don't know
+if that matters.  If (presumably) not, there are cleanups left over.
 
--miles
--- 
-"1971 pickup truck; will trade for guns"
+In arch/ia64/ia32/sys_ia32.c this patch will cause PTRACE_TRACEME requests
+to be handled by ptrace_request() rather than by sys_ptrace(), which is a
+not-obviously-correct change.
+
+Was the omission of arch/ia64/kernel/ptrace.c:sys_ptrace() deliberate?
+

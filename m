@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965367AbVKHCgJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965122AbVKHCoU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965367AbVKHCgJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 21:36:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965675AbVKHCgI
+	id S965122AbVKHCoU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 21:44:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965679AbVKHCoU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 21:36:08 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:62083 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S965367AbVKHCgG (ORCPT
+	Mon, 7 Nov 2005 21:44:20 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:18571 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965122AbVKHCoT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 21:36:06 -0500
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
-From: Keith Owens <kaos@sgi.com>
-To: Dick <dm@chello.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: SIGALRM ignored 
-In-reply-to: Your message of "Mon, 07 Nov 2005 17:36:29 -0000."
-             <loom.20051107T183059-826@post.gmane.org> 
+	Mon, 7 Nov 2005 21:44:19 -0500
+Date: Mon, 7 Nov 2005 18:44:06 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Rohit Seth <rohit.seth@intel.com>
+Cc: torvalds@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: Cleanup of __alloc_pages
+Message-Id: <20051107184406.3179757c.akpm@osdl.org>
+In-Reply-To: <1131416195.20471.31.camel@akash.sc.intel.com>
+References: <20051107174349.A8018@unix-os.sc.intel.com>
+	<20051107175358.62c484a3.akpm@osdl.org>
+	<1131416195.20471.31.camel@akash.sc.intel.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 08 Nov 2005 13:35:56 +1100
-Message-ID: <7841.1131417356@kao2.melbourne.sgi.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Nov 2005 17:36:29 +0000 (UTC), 
-Dick <dm@chello.nl> wrote:
->I've got a problem with SUSE LINUX Enterprise Server 9 (i586) patchlevel 2,
->Linux 2.6.5-7.191-smp.
+Rohit Seth <rohit.seth@intel.com> wrote:
 >
->When I do the following (from bash):
->
->trap 'echo bla' 14 ; /bin/kill -14 $$
->
->nothing happens, utilities like iostat and netperf (and likely other utilities)
->won't work due to this problem.
+> On Mon, 2005-11-07 at 17:53 -0800, Andrew Morton wrote:
+> > "Rohit, Seth" <rohit.seth@intel.com> wrote:
+> > >
+> > > [PATCH]: Clean up of __alloc_pages. Couple of difference from original behavior:
+> > > 	1- remove the initial reclaim logic
+> > > 	2- GFP_HIGH pages are allowed to go little below watermark sooner.
+> > > 	3- Search for free pages unconditionally after direct reclaim.
+> > 
+> > Would it be possible to break these into three separate patches?  The
+> > cleanup part should be #1.
+> > 
+> 
+> Doing the above three things as part of this clean up patch makes the
+> code look extra clean...
 
-Works for me on SLES9 SP2 ia64.
+With separate patches the changes can be better understood, and they can be
+selectively dropped, and people looking for regressions with `git bisect'
+will be able to pinpoint the source more accurately.
 
-Linux chook 2.6.5-7.191-sn2 #1 SMP Tue Jun 28 14:58:56 UTC 2005 ia64 ia64 ia64 GNU/Linux
-bash-2.05b-305.9
+> Is there any specific issue coming out of 2 & 3
+> above.
 
-# trap 'echo bla' 14 ; /bin/kill -14 $$
-bla
+I haven't looked yet - all the changes are mixed together ;)
 

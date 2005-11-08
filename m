@@ -1,63 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030187AbVKHPQm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030202AbVKHPUE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030187AbVKHPQm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 10:16:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030201AbVKHPQm
+	id S1030202AbVKHPUE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 10:20:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030216AbVKHPUE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 10:16:42 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:42175 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1030187AbVKHPQm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 10:16:42 -0500
-Message-ID: <4370C141.6010508@zytor.com>
-Date: Tue, 08 Nov 2005 07:16:17 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Tue, 8 Nov 2005 10:20:04 -0500
+Received: from nproxy.gmail.com ([64.233.182.204]:41081 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030202AbVKHPUB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 10:20:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=ORlzFVr9BG6jkp6Ddl4S2vGiY1kmYip7P64wCOSRGd7yyUbukzYFbG8ccsAT3XPTYq44GSAD16g0NAPjGrjuma3knS8vBbOG/vfvevAzSlYIO70YOnZeyzpwuo6HGas081U42fa7fCxC4oG6ZSXTSolRzijgSE61Ss3DHa5OjJE=
+Message-ID: <4370C21C.6040402@gmail.com>
+Date: Tue, 08 Nov 2005 16:19:56 +0100
+From: Patrizio <patrizio.bassi@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051027)
+X-Accept-Language: it, it-it, en-us, en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Zachary Amsden <zach@vmware.com>, Andrew Morton <akpm@osdl.org>,
-       Chris Wright <chrisw@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Martin Bligh <mbligh@mbligh.org>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 4/21] i386 Broken bios common
-References: <200511080422.jA84MQxK009859@zach-dev.vmware.com> <Pine.LNX.4.64.0511080703530.3247@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0511080703530.3247@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Pavel Machek <pavel@ucw.cz>
+CC: Shaohua Li <shaohua.li@intel.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.14-git4 suspend fails: kernel NULL pointer dereference
+References: <20051006072749.GA2393@spitz.ucw.cz> <20051107164715.GA1534@elf.ucw.cz> <1131411772.3003.1.camel@linux-hp.sh.intel.com> <20051108091254.GE15730@elf.ucw.cz>
+In-Reply-To: <20051108091254.GE15730@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Mon, 7 Nov 2005, Zachary Amsden wrote:
-> 
->>Both the APM BIOS and PnP BIOS code use a segment hack to simulate real
->>mode selector 0x40 (which points to the BIOS data area at 0x00400 in
->>real mode).  Several broken BIOSen use selector 0x40 as if they were
->>running in real mode, which we make work by faking up selector 0x40 in
->>the GDT to point to physical memory starting at 0x400.  We limit the
->>access to the remainder of this physical page using a byte granular
->>limit.  Rather than have this tricky code in multiple places, it makes
->>sense to define it in one place, and the GDT makes a very convenient
->>place for it.  Use GDT entry 4 as the BAD_BIOS_CACHE segment.
-> 
-> I'd much rather use entry 8 instead, which should just automatically mean 
-> that selector 0x40 _always_ points to virtual address 0x400. No switching 
-> etc..
-> 
-> Isn't this what Wine already has to work around, or something?
-> 
-> Ingo, can we move the TLS selectors upwards, or does user space perhaps 
-> know about the current TLS layout? Wine in particular may well know ;(
-> 
+Pavel Machek ha scritto:
 
-I thought the point was that Wine needs to point GDT entry 8 into userspace.
+>Hi!
+>
+>  
+>
+>>>>echo shutdown > /sys/power/disk
+>>>>echo disk > /sys/power/state
+>>>>
+>>>>Unable to handle kernel NULL pointer dereference at virtual address 00000004
+>>>> printing eip:
+>>>>EIP:    0060:[<c0132a5e>]    Not tainted VLI
+>>>>EFLAGS: 00010286   (2.6.14-git4)
+>>>>EIP is at enter_state+0xe/0x90
+>>>>        
+>>>>
+>>>It works for me, with pretty recent tree. But I see a potential
+>>>problem there, you are not using ACPI, right?
+>>>      
+>>>
+>
+>  
+>
+>>It's my bad. Thanks for fixing this, Pavel. Maybe patrizio didn't enable
+>>ACPI sleep.
+>>    
+>>
+>
+>Will you take care of pushing that patch to mainline?
+>								Pavel
+>  
+>
+i'm so sorry, had a hd problem, i've only got the compiled vmlinux
 
-	-hpa
+:(((
+
+infact i seached to apply to vanilla kernel.
+
+however Len Brown told me he would have applied such patch for 2.6.15
+
+please contact him
+
+Patrizio

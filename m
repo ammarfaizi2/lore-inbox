@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965606AbVKHAd0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964909AbVKHAft@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965606AbVKHAd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 19:33:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965636AbVKHAd0
+	id S964909AbVKHAft (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 19:35:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965104AbVKHAft
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 19:33:26 -0500
-Received: from zproxy.gmail.com ([64.233.162.207]:45293 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965606AbVKHAdZ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 19:33:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=s7ZsHEFjgFe2fJ4/1CCetBbiekQZ7TDSLp/hmKwdRxrnvP7K0I8KVCjv2c2X+a5jX0S1mIhYB62goVUm/aDTSVjWC6yIloLOl87DZH0w4GnMfrXnuelWYOXpFRQwA+l4WXdI4MLx/MCejkZWGP6CXT0WOztOCbQ1AlGUBznDrnE=
-Message-ID: <7e77d27c0511071633k4a44b573o@mail.gmail.com>
-Date: Tue, 8 Nov 2005 08:33:24 +0800
-From: Yan Zheng <yzcorp@gmail.com>
-Subject: Re: [PATCH][MCAST]Clear MAF_GSQUERY flag when process MLDv1 general query messages.
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-In-Reply-To: <OF7136C7EC.A2BD07E5-ON882570B2.00768CF6-882570B2.0077AB0D@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <7e77d27c0511070646o7b8686aes@mail.gmail.com>
-	 <OF7136C7EC.A2BD07E5-ON882570B2.00768CF6-882570B2.0077AB0D@us.ibm.com>
-To: unlisted-recipients:; (no To-header on input)
+	Mon, 7 Nov 2005 19:35:49 -0500
+Received: from gate.crashing.org ([63.228.1.57]:30605 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S964909AbVKHAft (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 19:35:49 -0500
+Subject: Re: [PATCH 1/4] Memory Add Fixes for ppc64
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Mike Kravetz <kravetz@us.ibm.com>
+Cc: Andy Whitcroft <apw@shadowen.org>, Paul Mackerras <paulus@samba.org>,
+       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       lhms-devel@lists.sourceforge.net
+In-Reply-To: <20051107214859.GD5821@w-mikek2.ibm.com>
+References: <20051104231552.GA25545@w-mikek2.ibm.com>
+	 <20051104231800.GB25545@w-mikek2.ibm.com>
+	 <1131149070.29195.41.camel@gaston> <20051107204743.GC5821@w-mikek2.ibm.com>
+	 <1131397976.4652.52.camel@gaston>  <20051107214859.GD5821@w-mikek2.ibm.com>
+Content-Type: text/plain
+Date: Tue, 08 Nov 2005 11:35:00 +1100
+Message-Id: <1131410101.4652.75.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->         Do you have a test case that demonstrates this? It appears to
-> me that an MLDv2 general query doesn't execute that code (short circuited
-> above) and an MLDv1 general query (what that code is handling) will
-> have a timer expiring before switching back to MLDv2 mode (so it'll send
-> a v1 report, without any sources). Unless I'm missing something, I can't
-> see any way for the scenario you've described to happen.
->         That said, I also can't see anything it would hurt, so I don't
-> object,
-> but it looks unnecessary to me.
->
->                                                         +-DLS
->
->
+On Mon, 2005-11-07 at 13:48 -0800, Mike Kravetz wrote:
+> On Tue, Nov 08, 2005 at 08:12:56AM +1100, Benjamin Herrenschmidt wrote:
+> > Yes, the MAX_ORDER should be different indeed. But can Kconfig do that ?
+> > That is have the default value be different based on a Kconfig option ?
+> > I don't see that ... We may have to do things differently here...
+> 
+> This seems to be done in other parts of the Kconfig file.  Using those
+> as an example, this should keep the MAX_ORDER block size at 16MB.
 
->MLDv2 general query doesn't execute that code
-Yes, MLDv2 general query also leave that bit unchanged. In MLDv1
-compatibility mode, igmp6_timer_handler(...) uses igmp6_send(...) to
-send report, it leaves that bit unchanged too. So when switching back
-to MLDv2 mode, MAF_GSQUERY flag set long time ago may have effect on
-the report .
+Ok, I verified it does the right thing with Kconfig, thanks.
 
->That said, I also can't see anything it would hurt
-I agree with you. it hurts nothing but a report.
+Paul, can you add to the merge tree too ?
 
-By the way. May I ask a question.
-Do you agree my change on is_in(...)?  That is check include/exclude
-count when type is MLD2_MODE_IS_INCLUDE or MLD2_MODE_IS_EXCLUDE.
-(especially for MLD2_MODE_IS_EXCLUDE)
+Ben.
 
-Regards
+

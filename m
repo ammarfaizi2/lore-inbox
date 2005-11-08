@@ -1,96 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965118AbVKHQxW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965134AbVKHQx0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965118AbVKHQxW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 11:53:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965134AbVKHQxW
+	id S965134AbVKHQx0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 11:53:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965136AbVKHQx0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 11:53:22 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:57184
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S965118AbVKHQxV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 11:53:21 -0500
-Message-Id: <4370E647.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Tue, 08 Nov 2005 17:54:15 +0100
-From: "Jan Beulich" <JBeulich@novell.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] i386: NMI <-> debugging handler adjustments
-References: <4370AEE1.76F0.0078.0@novell.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=__PartA4869A27.0__="
+	Tue, 8 Nov 2005 11:53:26 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:63504 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S965134AbVKHQxZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 11:53:25 -0500
+Date: Tue, 8 Nov 2005 17:53:24 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, dm-devel@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/md/kcopyd.c: #if 0 kcopyd_cancel()
+Message-ID: <20051108165324.GY3847@stusta.de>
+References: <20051108134419.GR3847@stusta.de> <20051108154828.GX26394@agk.surrey.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051108154828.GX26394@agk.surrey.redhat.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME message. If you are reading this text, you may want to 
-consider changing to a mail reader or gateway that understands how to 
-properly handle MIME multipart messages.
+On Tue, Nov 08, 2005 at 03:48:28PM +0000, Alasdair G Kergon wrote:
+> On Tue, Nov 08, 2005 at 02:44:19PM +0100, Adrian Bunk wrote:
+> > A function that is
+> > - not used
+> > - empty
+> > - without a prototype in any header file
+> > should be removed.
+>  
+> I'd rather you submitted a patch to complete the function and invoke it
+> in the appropriate place:-)  But please don't remove comments indicating 
+> missing functionality: commenting it out till it's written would be better.
 
---=__PartA4869A27.0__=
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Updated patch below.
 
-Also account for an INT3 breakpoint potentially placed (from a kernel
-debugger) on sysenter_entry, which requires the NMI handler to add one
-more check. Further, don't discard debug or breakpoint traps/faults
-happening on this one instruction and their handler getting
-interrupted by an NMI before being able to fix the stack.
+> Alasdair
 
-From: Jan Beulich <jbeulich@novell.com>
-
-(actual patch attached)
+cu
+Adrian
 
 
---=__PartA4869A27.0__=
-Content-Type: application/octet-stream; name="linux-2.6.14-i386-nmi-int3.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="linux-2.6.14-i386-nmi-int3.patch"
+<--  snip  -->
 
-QWxzbyBhY2NvdW50IGZvciBhbiBJTlQzIGJyZWFrcG9pbnQgcG90ZW50aWFsbHkgcGxhY2VkIChm
-cm9tIGEga2VybmVsCmRlYnVnZ2VyKSBvbiBzeXNlbnRlcl9lbnRyeSwgd2hpY2ggcmVxdWlyZXMg
-dGhlIE5NSSBoYW5kbGVyIHRvIGFkZCBvbmUKbW9yZSBjaGVjay4gRnVydGhlciwgZG9uJ3QgZGlz
-Y2FyZCBkZWJ1ZyBvciBicmVha3BvaW50IHRyYXBzL2ZhdWx0cwpoYXBwZW5pbmcgb24gdGhpcyBv
-bmUgaW5zdHJ1Y3Rpb24gYW5kIHRoZWlyIGhhbmRsZXIgZ2V0dGluZwppbnRlcnJ1cHRlZCBieSBh
-biBOTUkgYmVmb3JlIGJlaW5nIGFibGUgdG8gZml4IHRoZSBzdGFjay4KCkZyb206IEphbiBCZXVs
-aWNoIDxqYmV1bGljaEBub3ZlbGwuY29tPgoKLS0tIDIuNi4xNC9hcmNoL2kzODYva2VybmVsL2Vu
-dHJ5LlMJMjAwNS0xMC0yOCAwMjowMjowOC4wMDAwMDAwMDAgKzAyMDAKKysrIDIuNi4xNC1pMzg2
-LW5taS1pbnQzL2FyY2gvaTM4Ni9rZXJuZWwvZW50cnkuUwkyMDA1LTExLTA4IDE3OjA2OjU5LjAw
-MDAwMDAwMCArMDEwMApAQCAtMTc4LDYgKzE3OCw3IEBAIG5lZWRfcmVzY2hlZDoKIAkjIHN5c2Vu
-dGVyIGNhbGwgaGFuZGxlciBzdHViCiBFTlRSWShzeXNlbnRlcl9lbnRyeSkKIAltb3ZsIFRTU19z
-eXNlbnRlcl9lc3AwKCVlc3ApLCVlc3AKKy5nbG9ibCBzeXNlbnRlcl9wYXN0X2VzcAogc3lzZW50
-ZXJfcGFzdF9lc3A6CiAJc3RpCiAJcHVzaGwgJChfX1VTRVJfRFMpCkBAIC01MjAsMTIgKzUyMSwx
-MiBAQCBkZWJ1Z19zdGFja19jb3JyZWN0OgogCWptcCByZXRfZnJvbV9leGNlcHRpb24KIAkucHJl
-dmlvdXMgLnRleHQKIC8qCi0gKiBOTUkgaXMgZG91Ymx5IG5hc3R5LiBJdCBjYW4gaGFwcGVuIF93
-aGlsZV8gd2UncmUgaGFuZGxpbmcKLSAqIGEgZGVidWcgZmF1bHQsIGFuZCB0aGUgZGVidWcgZmF1
-bHQgaGFzbid0IHlldCBiZWVuIGFibGUgdG8KLSAqIGNsZWFyIHVwIHRoZSBzdGFjay4gU28gd2Ug
-Zmlyc3QgY2hlY2sgd2hldGhlciB3ZSBnb3QgIGFuCisgKiBOTUkgaXMgZG91Ymx5IG5hc3R5LiBJ
-dCBjYW4gaGFwcGVuIF93aGlsZV8gd2UncmUgaGFuZGxpbmcgYSBkZWJ1ZworICogZmF1bHQgb3Ig
-YnJlYWtwb2ludCB0cmFwLCBhbmQgdGhlIGZhdWx0L3RyYXAgaGFzbid0IHlldCBiZWVuIGFibGUK
-KyAqIHRvIGNsZWFyIHVwIHRoZSBzdGFjay4gU28gd2UgZmlyc3QgY2hlY2sgd2hldGhlciB3ZSBn
-b3QgYW4KICAqIE5NSSBvbiB0aGUgc3lzZW50ZXIgZW50cnkgcGF0aCwgYnV0IGFmdGVyIHRoYXQg
-d2UgbmVlZCB0bwotICogY2hlY2sgd2hldGhlciB3ZSBnb3QgYW4gTk1JIG9uIHRoZSBkZWJ1ZyBw
-YXRoIHdoZXJlIHRoZSBkZWJ1ZwotICogZmF1bHQgaGFwcGVuZWQgb24gdGhlIHN5c2VudGVyIHBh
-dGguCisgKiBjaGVjayB3aGV0aGVyIHdlIGdvdCBhbiBOTUkgb24gdGhlIGRlYnVnL2JyZWFrcG9p
-bnQgcGF0aCB3aGVyZSB0aGUKKyAqIGZhdWx0L3RyYXAgaGFwcGVuZWQgb24gdGhlIHN5c2VudGVy
-IHBhdGguCiAgKi8KIEVOVFJZKG5taSkKIAlwdXNobCAlZWF4CkBAIC01NDYsNiArNTQ3LDggQEAg
-RU5UUlkobm1pKQogCWphZSBubWlfc3RhY2tfY29ycmVjdAogCWNtcGwgJHN5c2VudGVyX2VudHJ5
-LDEyKCVlc3ApCiAJamUgbm1pX2RlYnVnX3N0YWNrX2NoZWNrCisJY21wbCAkc3lzZW50ZXJfZW50
-cnkrMSwxMiglZXNwKQorCWplIC5Mbm1pX2ludDNfc3RhY2tfY2hlY2sKIG5taV9zdGFja19jb3Jy
-ZWN0OgogCXB1c2hsICVlYXgKIAlTQVZFX0FMTApAQCAtNTY2LDYgKzU2OSwyMSBAQCBubWlfZGVi
-dWdfc3RhY2tfY2hlY2s6CiAJamxlIG5taV9kZWJ1Z19zdGFja19maXh1cAogbm1pX2RlYnVnX3N0
-YWNrX2ZpeHVwOgogCUZJWF9TVEFDSygyNCxubWlfc3RhY2tfY29ycmVjdCwgMSkKKwlwdXNoZmwK
-KwlwdXNobCAkX19LRVJORUxfQ1MKKwlwdXNobCAkZGVidWdfc3RhY2tfY29ycmVjdAorCWptcCBu
-bWlfc3RhY2tfY29ycmVjdAorLkxubWlfaW50M19zdGFja19jaGVjazoKKwljbXB3ICRfX0tFUk5F
-TF9DUywxNiglZXNwKQorCWpuZSBubWlfc3RhY2tfY29ycmVjdAorCWNtcGwgJGludDMsICglZXNw
-KQorCWpiIG5taV9zdGFja19jb3JyZWN0CisJY21wbCAkLkxpbnQzX2VzcF9maXhfaW5zbiwgKCVl
-c3ApCisJamEgbm1pX3N0YWNrX2NvcnJlY3QKKwlGSVhfU1RBQ0soMjQsbm1pX3N0YWNrX2NvcnJl
-Y3QsIDEpCisJcHVzaGZsCisJcHVzaGwgJF9fS0VSTkVMX0NTCisJcHVzaGwgJC5MaW50M19zdGFj
-a19jb3JyZWN0CiAJam1wIG5taV9zdGFja19jb3JyZWN0CiAKIG5taV8xNmJpdF9zdGFjazoKQEAg
-LTU5Miw2ICs2MTAsMTAgQEAgbm1pXzE2Yml0X3N0YWNrOgogLnByZXZpb3VzCiAKIEtQUk9CRV9F
-TlRSWShpbnQzKQorCWNtcGwgJHN5c2VudGVyX2VudHJ5KzEsICglZXNwKQorCWpuZSAuTGludDNf
-c3RhY2tfY29ycmVjdAorCUZJWF9TVEFDSygxMiwgLkxpbnQzX3N0YWNrX2NvcnJlY3QsIC5MaW50
-M19lc3BfZml4X2luc24pCisuTGludDNfc3RhY2tfY29ycmVjdDoKIAlwdXNobCAkLTEJCQkjIG1h
-cmsgdGhpcyBhcyBhbiBpbnQKIAlTQVZFX0FMTAogCXhvcmwgJWVkeCwlZWR4CQkjIHplcm8gZXJy
-b3IgY29kZQo=
 
---=__PartA4869A27.0__=--
+This patch #if 0's the not yet implemented global function 
+kcopyd_cancel().
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+ drivers/md/kcopyd.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- linux-2.6.14-mm1-full/drivers/md/kcopyd.c.old	2005-11-08 17:41:31.000000000 +0100
++++ linux-2.6.14-mm1-full/drivers/md/kcopyd.c	2005-11-08 17:41:59.000000000 +0100
+@@ -562,11 +562,13 @@
+  * Cancels a kcopyd job, eg. someone might be deactivating a
+  * mirror.
+  */
++#if 0
+ int kcopyd_cancel(struct kcopyd_job *job, int block)
+ {
+ 	/* FIXME: finish */
+ 	return -1;
+ }
++#endif  /*  0  */
+ 
+ /*-----------------------------------------------------------------
+  * Unit setup
+@@ -685,4 +687,3 @@
+ EXPORT_SYMBOL(kcopyd_client_create);
+ EXPORT_SYMBOL(kcopyd_client_destroy);
+ EXPORT_SYMBOL(kcopyd_copy);
+-EXPORT_SYMBOL(kcopyd_cancel);
+

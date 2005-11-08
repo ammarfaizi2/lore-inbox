@@ -1,40 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbVKHCIB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030224AbVKHCBk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030229AbVKHCIB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 21:08:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030244AbVKHCH6
+	id S1030224AbVKHCBk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 21:01:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030220AbVKHCBi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 21:07:58 -0500
-Received: from ozlabs.org ([203.10.76.45]:40841 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1030229AbVKHCHY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 21:07:24 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17264.2129.341199.334838@cargo.ozlabs.ibm.com>
-Date: Tue, 8 Nov 2005 13:07:13 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Mike Kravetz <kravetz@us.ibm.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net
-Subject: Re: [PATCH 1/4] revised Memory Add Fixes for ppc64
-In-Reply-To: <20051108002548.GF5821@w-mikek2.ibm.com>
-References: <20051104231552.GA25545@w-mikek2.ibm.com>
-	<20051104231800.GB25545@w-mikek2.ibm.com>
-	<1131149070.29195.41.camel@gaston>
-	<20051108002548.GF5821@w-mikek2.ibm.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+	Mon, 7 Nov 2005 21:01:38 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:24269 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965182AbVKHCBg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 21:01:36 -0500
+To: torvalds@osdl.org
+Subject: [PATCH 3/18] allow callers of seq_open do allocation themselves
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       linuxram@us.ibm.com
+Message-Id: <E1EZInj-0001Eh-9T@ZenIV.linux.org.uk>
+From: Al Viro <viro@ftp.linux.org.uk>
+Date: Tue, 08 Nov 2005 02:01:31 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Kravetz writes:
+From: Al Viro <viro@zeniv.linux.org.uk>
+Date: 1131401734 -0500
 
-> Here is a new version of the patch on top of 64k page support (actually
-> 2.6.14-git10).  One filename also changed due to more merge changes.
+Allows caller of seq_open() to kmalloc() seq_file + whatever else they want
+and set ->private_data to it.  seq_open() will then abstain from doing
+allocation itself.
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
-So, should I send this on to Linus along with the original 2/4 and 3/4
-you posted and the revised 4/4?
+---
 
-Paul.
+ fs/seq_file.c |   12 ++++++++----
+ 1 files changed, 8 insertions(+), 4 deletions(-)
+
+57865a0565080cc56de9aa5369ea1fc2b6477398
+diff --git a/fs/seq_file.c b/fs/seq_file.c
+--- a/fs/seq_file.c
++++ b/fs/seq_file.c
+@@ -28,13 +28,17 @@
+  */
+ int seq_open(struct file *file, struct seq_operations *op)
+ {
+-	struct seq_file *p = kmalloc(sizeof(*p), GFP_KERNEL);
+-	if (!p)
+-		return -ENOMEM;
++	struct seq_file *p = file->private_data;
++
++	if (!p) {
++		p = kmalloc(sizeof(*p), GFP_KERNEL);
++		if (!p)
++			return -ENOMEM;
++		file->private_data = p;
++	}
+ 	memset(p, 0, sizeof(*p));
+ 	sema_init(&p->sem, 1);
+ 	p->op = op;
+-	file->private_data = p;
+ 
+ 	/*
+ 	 * Wrappers around seq_open(e.g. swaps_open) need to be

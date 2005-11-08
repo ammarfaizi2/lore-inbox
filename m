@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965120AbVKHBh0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965100AbVKHBhM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965120AbVKHBh0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 20:37:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965126AbVKHBh0
+	id S965100AbVKHBhM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 20:37:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965126AbVKHBhL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 20:37:26 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:56255 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S965120AbVKHBhZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 20:37:25 -0500
-Date: Mon, 7 Nov 2005 18:37:22 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Anil kumar <anils_r@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: bus_to_virt equivalent
-Message-ID: <20051108013722.GK23749@parisc-linux.org>
-References: <20051107235247.67981.qmail@web32402.mail.mud.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051107235247.67981.qmail@web32402.mail.mud.yahoo.com>
-User-Agent: Mutt/1.5.9i
+	Mon, 7 Nov 2005 20:37:11 -0500
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:13665 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S965100AbVKHBhK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 20:37:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=XD7rbOVjYkljVyTgUysd80Si8yAFkc6w8EJinMizl7LLsvYkPj/msJrG8/Jqyb9MDcdMF2hrUrCHVAeYz1XA4r1Kgw5DNLNh+faZM8cKzV8By2rCnT6ccnDB+I8Kf2CpnuY2OTYSSKLj1RyTQ5PUe4I8knLU1rjV3caWg2CteKk=  ;
+Message-ID: <4370015A.8010402@yahoo.com.au>
+Date: Tue, 08 Nov 2005 12:37:30 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Neil Brown <neilb@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, dm-devel@redhat.com,
+       heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org,
+       aherrman@de.ibm.com, bunk@stusta.de, cplk@itee.uq.edu.au
+Subject: Re: [dm-devel] Re: [PATCH resubmit] do_mount: reduce stack consumption
+References: <20051104105026.GA12476@osiris.boeblingen.de.ibm.com>	<20051104084829.714c5dbb.akpm@osdl.org>	<20051104212742.GC9222@osiris.ibm.com>	<20051104235500.GE5368@stusta.de>	<20051104160851.3a7463ff.akpm@osdl.org>	<Pine.GSO.4.60.0511051108070.2449@mango.itee.uq.edu.au>	<20051104173721.597bd223.akpm@osdl.org>	<17260.17661.523593.420313@cse.unsw.edu.au>	<17262.40176.342746.634262@cse.unsw.edu.au>	<20051107153706.2f3c8b67.akpm@osdl.org>	<436FF20D.8030200@yahoo.com.au> <17263.63845.556511.171582@cse.unsw.edu.au>
+In-Reply-To: <17263.63845.556511.171582@cse.unsw.edu.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 07, 2005 at 03:52:47PM -0800, Anil kumar wrote:
-> Hi,
+Neil Brown wrote:
+> On Tuesday November 8, nickpiggin@yahoo.com.au wrote:
+
+>>Possibly it could go into struct io_context?
+>>
 > 
-> I am trying to port bus_to_virt and virt_to_bus to the
-> DMA-mapping scheme.
-> I found a way to move virt_to_bus() as follows:
-> page = virt_to_page(cmd->request_buffer);
-> offset = (unsigned long)address & ~PAGE_MASK;
-> dma_addr_t addr = pci_map_page(dev, page, offset,
-> size,direction);
 > 
-> But now I want to get virtual address for dma_addr_t.
+> My quick reading of the code says that we could have to 
+> allocate the struct right there in generic_make_request, and I don't
+> think we can be certain that such an allocation will succeed.
+> 
+> Code that uses io_context can limp along if it doesn't exist.  
+> The new generic_make_request needs this bio_list to be present 
+> or it cannot do it's job.
+> 
 
-Did you *read* DMA-mapping.txt?
+You can ask for the io context without having a request. However,
+there is nothing like a mempool for them so code really should be
+able to limp along without them.
 
-  Drivers converted fully to this interface should not use virt_to_bus
-  any longer, nor should they use bus_to_virt. Some drivers have to
-  be changed a little bit, because
-  *there is no longer an equivalent to bus_to_virt in the dynamic
-  DMA mapping scheme*
-  - you have to always store the DMA addresses returned by the
-  pci_alloc_consistent, pci_pool_alloc, and pci_map_single calls
-  (pci_map_sg stores them in the scatterlist itself if the platform
-  supports dynamic DMA mapping in hardware) in your driver structures
-  and/or in the card registers.
+I guess it would be silly to require such an allocation to succeed
+here, because the block layer is pretty free of OOM deadlocks.
 
-The reason for this is that there may be many physical addresses which
-correspond to the same bus address.  For example (this is on an HP rx8620)
-the bus address c001b000 maps to 00000f000001b000 for device 00:03.0,
-00000f010001b000 for device 40:03.0, 00000f020001b000 for device 80:03.0
-and 00000f030001b000 for device c0:03.0.
+-- 
+SUSE Labs, Novell Inc.
 
-Now, maybe we should add a function:
-
-unsigned long device_bus_addr_to_phys(struct device *dev, dma_addr_t handle);
-
-but we don't have one yet.  So you have to follow the rules above.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,64 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965325AbVKHAEj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965617AbVKHAFD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965325AbVKHAEj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 19:04:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965341AbVKHAEj
+	id S965617AbVKHAFD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 19:05:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965619AbVKHAFD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 19:04:39 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:50705 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S965325AbVKHAEi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 19:04:38 -0500
-Date: Mon, 7 Nov 2005 16:04:34 -0800
-Message-Id: <200511080004.jA804Y0Y020472@zach-dev.vmware.com>
-Subject: [PATCH 1/1] Elevator init fixes
-From: Zachary Amsden <zach@vmware.com>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jens Axboe <axboe@suse.de>, Tejun Heo <htejun@hotmail.com>,
-       Zachary Amsden <zach@vmware.com>
-X-OriginalArrivalTime: 08 Nov 2005 00:04:37.0450 (UTC) FILETIME=[01FA42A0:01C5E3F8]
+	Mon, 7 Nov 2005 19:05:03 -0500
+Received: from fmr14.intel.com ([192.55.52.68]:29363 "EHLO
+	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
+	id S965618AbVKHAFA convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 19:05:00 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: kernel performance update - 2.6.14
+Date: Mon, 7 Nov 2005 16:04:36 -0800
+Message-ID: <2BD5725B505DC54E8CDCF251DC8A2E7E08E17F74@fmsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: kernel performance update - 2.6.14
+Thread-Index: AcXj8YDu7cYek7RbTImk5XO2ZeiJvgABUgKw
+From: "Chen, Tim C" <tim.c.chen@intel.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 08 Nov 2005 00:04:37.0345 (UTC) FILETIME=[01EA3D10:01C5E3F8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got a panic in the elevator code, backtrace :
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000060
-..
-EIP is at elevator_put+0x0/0x30 (null elevator_type passed)
-..
-elevator_init+0x38
-blk_init_queu_node+0xc9
-floppy_init+0xdb
-do_initcalls+0x23
-init+0x10a
-init+0x0
+> Felix Oxley wrote on Friday, October 28, 2005 5:29 PM
+>> Something went horribly wrong with this test between 2.6.13 and
+>> 2.6.13-git2 (it has never recovered):
+>> 
+>> System: 4P Itanium
+>> Test:Result Group 1
+>> Metric: VolcanoMark
+>> Result:      -3%         -10%
+>> Kernel: 2.6.13 vs 2.6.13-git2
+>> 
+>> Does anybody know the cause of this?
+> 
+> Search the archive, it was discussed here:
+> http://marc.theaimsgroup.com/?l=linux-ia64&m=112683124124723&w=2
+> 
+> 
+> It is not because of changes in 2.6.13-git2. It would've shown on
+> 2.6.13-rc1 when default hz rate was switched to 250.  I happened to
+> audit the system at that time and made the hz switch (from 1000 to
+> 250 and the problem showed up.  
+> 
+> More discussion here:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=112854723926854&w=2
+> 
+> 
+> - Ken
 
-Clearly if the kmalloc here fails, e->elevator_type is not yet set; this
-appears to be the correct fix, but I think I probably hit the second case
-due to a race condition.  Someone more familiar with the elevator code
-should look at this more closely until I can determine if I can reproduce.
+For 4P Itanium, it turns out that Volanaomark is operating 
+suboptimally with system idle at 55% for the region of operations 
+where regression occurs for Hz changes. Volanomark server broadcasts 
+short message (each only ~40 bytes) from each client to the other 
+clients in the chatroom (20 clients/chatroom in test).  However each 
+message consumes a sk_buff taking up 1 page (16K on Itanium) of 
+memory as the message is sent immediately without coalescing with 
+other messages.   We hit our default write buffer size limit 
+tcp_wmem_max (128K) quickly with 8 outstanding packets. The server 
+stalls waiting for acknowledgement.  Due to TCP's delayed 
+acknowledgement, the server do not get ack immediately to continue.  
+By either increasing the TCP write buffer size or patching the kernel 
+to send TCP ACK without delay, we can reduce the system idle to 0% 
+and Volanomark performance do not show regression in this case when 
+Hz rate changes.
 
-Signed-off-by: Zachary Amsden <zach@vmware.com>
-
-Index: linux-2.6.14-zach-work/drivers/block/elevator.c
-===================================================================
---- linux-2.6.14-zach-work.orig/drivers/block/elevator.c	2005-11-07 09:41:11.000000000 -0800
-+++ linux-2.6.14-zach-work/drivers/block/elevator.c	2005-11-07 15:57:10.000000000 -0800
-@@ -190,14 +190,14 @@ int elevator_init(request_queue_t *q, ch
- 
- 	eq = kmalloc(sizeof(struct elevator_queue), GFP_KERNEL);
- 	if (!eq) {
--		elevator_put(e->elevator_type);
-+		elevator_put(e);
- 		return -ENOMEM;
- 	}
- 
- 	ret = elevator_attach(q, e, eq);
- 	if (ret) {
- 		kfree(eq);
--		elevator_put(e->elevator_type);
-+		elevator_put(e);
- 	}
- 
- 	return ret;
+- Tim

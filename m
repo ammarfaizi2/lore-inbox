@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030288AbVKHEeA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030289AbVKHEfK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030288AbVKHEeA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 23:34:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030289AbVKHEeA
+	id S1030289AbVKHEfK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 23:35:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030293AbVKHEfK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 23:34:00 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:28179 "EHLO
+	Mon, 7 Nov 2005 23:35:10 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:32787 "EHLO
 	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1030288AbVKHEd7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 23:33:59 -0500
-Date: Mon, 7 Nov 2005 20:33:58 -0800
-Message-Id: <200511080433.jA84Xwm7009921@zach-dev.vmware.com>
-Subject: [PATCH 14/21] i386 Apm is on cpu zero only
+	id S1030289AbVKHEfJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 23:35:09 -0500
+Date: Mon, 7 Nov 2005 20:35:07 -0800
+Message-Id: <200511080435.jA84Z7ZZ009927@zach-dev.vmware.com>
+Subject: [PATCH 15/21] i386 Deprecate useless bug
 From: Zachary Amsden <zach@vmware.com>
 To: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
        Linus Torvalds <torvalds@osdl.org>,
@@ -25,54 +25,35 @@ To: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
        "Eric W. Biederman" <ebiederm@xmission.com>,
        Ingo Molnar <mingo@elte.hu>, Zachary Amsden <zach@vmware.com>,
        Zachary Amsden <zach@vmware.com>
-X-OriginalArrivalTime: 08 Nov 2005 04:33:58.0360 (UTC) FILETIME=[A2A16D80:01C5E41D]
+X-OriginalArrivalTime: 08 Nov 2005 04:35:07.0498 (UTC) FILETIME=[CBD70CA0:01C5E41D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-APM BIOS code has a protective wrapper that runs it only on CPU zero.  Thus,
-no need to set APM BIOS segments in the GDT for other CPUs.
+Remove the "temporary debugging check" which has managed to live for quite
+some time, and is clearly unneeded.  The mm can never be live at this point,
+so clearly checking the LDT in the mm->context is redundant as well.
 
 Signed-off-by: Zachary Amsden <zach@vmware.com>
-Index: linux-2.6.14-zach-work/arch/i386/kernel/apm.c
+Index: linux-2.6.14-zach-work/arch/i386/kernel/process.c
 ===================================================================
---- linux-2.6.14-zach-work.orig/arch/i386/kernel/apm.c	2005-11-07 10:17:45.000000000 -0800
-+++ linux-2.6.14-zach-work/arch/i386/kernel/apm.c	2005-11-07 13:36:05.000000000 -0800
-@@ -2170,8 +2170,8 @@ static struct dmi_system_id __initdata a
- static int __init apm_init(void)
+--- linux-2.6.14-zach-work.orig/arch/i386/kernel/process.c	2005-10-27 17:02:08.000000000 -0700
++++ linux-2.6.14-zach-work/arch/i386/kernel/process.c	2005-11-05 00:28:06.000000000 -0800
+@@ -417,17 +417,7 @@ void flush_thread(void)
+ 
+ void release_thread(struct task_struct *dead_task)
  {
- 	struct proc_dir_entry *apm_proc;
-+	struct desc_struct *gdt;
- 	int ret;
--	int i;
- 
- 	dmi_check_system(apm_dmi_table);
- 
-@@ -2253,18 +2253,17 @@ static int __init apm_init(void)
- 	 * not restrict themselves to their claimed limit.  When this happens,
- 	 * they will cause a segmentation violation in the kernel at boot time.
- 	 * Most BIOS's, however, will respect a 64k limit, so we use that.
-+	 * 
-+	 * Note we only set APM segments on CPU zero, since we pin the APM
-+	 * code to that CPU.
- 	 */
--	for (i = 0; i < NR_CPUS; i++) {
--		struct desc_struct *gdt = get_cpu_gdt_table(i);
-- 		if (!gdt)
-- 			continue;
--		set_base(&gdt[APM_CS >> 3],
--			 __va((unsigned long)apm_info.bios.cseg << 4));
--		set_base(&gdt[APM_CS_16 >> 3],
--			 __va((unsigned long)apm_info.bios.cseg_16 << 4));
--		set_base(&gdt[APM_DS >> 3],
--			 __va((unsigned long)apm_info.bios.dseg << 4));
+-	if (dead_task->mm) {
+-		// temporary debugging check
+-		if (dead_task->mm->context.size) {
+-			printk("WARNING: dead process %8s still has LDT? <%p/%d>\n",
+-					dead_task->comm,
+-					dead_task->mm->context.ldt,
+-					dead_task->mm->context.size);
+-			BUG();
+-		}
 -	}
-+	gdt = get_cpu_gdt_table(0);
-+	set_base(&gdt[APM_CS >> 3],
-+		 __va((unsigned long)apm_info.bios.cseg << 4));
-+	set_base(&gdt[APM_CS_16 >> 3],
-+		 __va((unsigned long)apm_info.bios.cseg_16 << 4));
-+	set_base(&gdt[APM_DS >> 3],
-+		 __va((unsigned long)apm_info.bios.dseg << 4));
+-
++	BUG_ON(dead_task->mm);
+ 	release_vm86_irqs(dead_task);
+ }
  
- 	apm_proc = create_proc_info_entry("apm", 0, NULL, apm_get_info);
- 	if (apm_proc)

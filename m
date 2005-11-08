@@ -1,128 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965221AbVKHOW1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965219AbVKHOVk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965221AbVKHOW1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 09:22:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965222AbVKHOW0
+	id S965219AbVKHOVk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 09:21:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965221AbVKHOVj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 09:22:26 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:27206
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S965221AbVKHOWZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 09:22:25 -0500
-Message-Id: <4370C2E5.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Tue, 08 Nov 2005 15:23:18 +0100
-From: "Jan Beulich" <JBeulich@novell.com>
-To: "Andreas Kleen" <ak@suse.de>
-Cc: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
-Subject: [PATCH] x86-64: make trap information available to die
-	notification handlers
-References: <4370AFF0.76F0.0078.0@novell.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=__Part290B17C6.1__="
+	Tue, 8 Nov 2005 09:21:39 -0500
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:32982 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S965219AbVKHOVi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 09:21:38 -0500
+Date: Tue, 8 Nov 2005 15:21:40 +0100
+From: Sander <sander@humilis.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: sander@humilis.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-mm1 libata pata_via
+Message-ID: <20051108142140.GA2790@favonius>
+Reply-To: sander@humilis.net
+References: <6397E994-0BC3-445F-BF2B-CD3D0ADB0E02@bootc.net> <20051108121318.GB23549@favonius> <1131455213.25192.26.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1131455213.25192.26.camel@localhost.localdomain>
+X-Uptime: 15:02:54 up  1:02, 10 users,  load average: 3.88, 1.95, 1.19
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME message. If you are reading this text, you may want to 
-consider changing to a mail reader or gateway that understands how to 
-properly handle MIME multipart messages.
+Alan Cox wrote (ao):
+> On Maw, 2005-11-08 at 13:13 +0100, Sander wrote:
+> > The two pata disks are master and slave. I might try them on separate
+> > channels later (especially if you want me to :-)
+> 
+> Would be interesting. It shouldn't change the behaviour but more info
+> is good.
 
---=__Part290B17C6.1__=
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I'll do.
 
-This adjusts things so that handlers of the die() notifier will have
-sufficient information about the trap currently being handled. It also
-adjusts the notify_die() prototype to (again) match that of i386.
+> > [42949377.130000]  sdf:<3>ata5: command error, drv_stat 0x51 host_stat 0x64
+> > [42949377.210000] ata5: translated ATA stat/err 0x51/84 to SCSI SK/ASC/ASCQ 0xb/47/00
+> > [42949377.210000] ata5: status=0x51 { DriveReady SeekComplete Error }
+> 
+> Thats the important bit. It looks as if I got the timing clock loading
+> wrong for this chip. (My EPIA works nicely but all the info I need is in
+> your report).
 
-From: Jan Beulich <jbeulich@novell.com>
+Good to know.
 
-(actual patch attached)
+I see your new patch against 2.6.14-mm1 has updates for pata_via.c. It
+does not address this issue I presume?
 
-
---=__Part290B17C6.1__=
-Content-Type: application/octet-stream; name="linux-2.6.14-x86_64-die-trap-info.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="linux-2.6.14-x86_64-die-trap-info.patch"
-
-VGhpcyBhZGp1c3RzIHRoaW5ncyBzbyB0aGF0IGhhbmRsZXJzIG9mIHRoZSBkaWUoKSBub3RpZmll
-ciB3aWxsIGhhdmUKc3VmZmljaWVudCBpbmZvcm1hdGlvbiBhYm91dCB0aGUgdHJhcCBjdXJyZW50
-bHkgYmVpbmcgaGFuZGxlZC4gSXQgYWxzbwphZGp1c3RzIHRoZSBub3RpZnlfZGllKCkgcHJvdG90
-eXBlIHRvIChhZ2FpbikgbWF0Y2ggdGhhdCBvZiBpMzg2LgoKRnJvbTogSmFuIEJldWxpY2ggPGpi
-ZXVsaWNoQG5vdmVsbC5jb20+CgotLS0gMi42LjE0L2FyY2gveDg2XzY0L2tlcm5lbC90cmFwcy5j
-CTIwMDUtMTAtMjggMDI6MDI6MDguMDAwMDAwMDAwICswMjAwCisrKyAyLjYuMTQteDg2XzY0LWRp
-ZS10cmFwLWluZm8vYXJjaC94ODZfNjQva2VybmVsL3RyYXBzLmMJMjAwNS0xMS0wNyAwOTozMzo1
-My4wMDAwMDAwMDAgKzAxMDAKQEAgLTM4Miw3ICszODIsNyBAQCB2b2lkIF9fZGllKGNvbnN0IGNo
-YXIgKiBzdHIsIHN0cnVjdCBwdF9yCiAJcHJpbnRrKCJERUJVR19QQUdFQUxMT0MiKTsKICNlbmRp
-ZgogCXByaW50aygiXG4iKTsKLQlub3RpZnlfZGllKERJRV9PT1BTLCAoY2hhciAqKXN0ciwgcmVn
-cywgZXJyLCAyNTUsIFNJR1NFR1YpOworCW5vdGlmeV9kaWUoRElFX09PUFMsIHN0ciwgcmVncywg
-ZXJyLCBjdXJyZW50LT50aHJlYWQudHJhcF9ubywgU0lHU0VHVik7CiAJc2hvd19yZWdpc3RlcnMo
-cmVncyk7CiAJLyogRXhlY3V0aXZlIHN1bW1hcnkgaW4gY2FzZSB0aGUgb29wcyBzY3JvbGxlZCBh
-d2F5ICovCiAJcHJpbnRrKEtFUk5fQUxFUlQgIlJJUCAiKTsKQEAgLTQyNiw2ICs0MjYsOCBAQCBz
-dGF0aWMgdm9pZCBfX2twcm9iZXMgZG9fdHJhcChpbnQgdHJhcG5yCiAJCQkgICAgICBzdHJ1Y3Qg
-cHRfcmVncyAqIHJlZ3MsIGxvbmcgZXJyb3JfY29kZSwKIAkJCSAgICAgIHNpZ2luZm9fdCAqaW5m
-bykKIHsKKwlzdHJ1Y3QgdGFza19zdHJ1Y3QgKnRzayA9IGN1cnJlbnQ7CisKIAljb25kaXRpb25h
-bF9zdGkocmVncyk7CiAKICNpZmRlZiBDT05GSUdfQ0hFQ0tJTkcKQEAgLTQ0MSwxNyArNDQzLDE2
-IEBAIHN0YXRpYyB2b2lkIF9fa3Byb2JlcyBkb190cmFwKGludCB0cmFwbnIKICAgICAgICB9CiAj
-ZW5kaWYKIAotCWlmICh1c2VyX21vZGUocmVncykpIHsKLQkJc3RydWN0IHRhc2tfc3RydWN0ICp0
-c2sgPSBjdXJyZW50OworCXRzay0+dGhyZWFkLmVycm9yX2NvZGUgPSBlcnJvcl9jb2RlOworCXRz
-ay0+dGhyZWFkLnRyYXBfbm8gPSB0cmFwbnI7CiAKKwlpZiAodXNlcl9tb2RlKHJlZ3MpKSB7CiAJ
-CWlmIChleGNlcHRpb25fdHJhY2UgJiYgdW5oYW5kbGVkX3NpZ25hbCh0c2ssIHNpZ25yKSkKIAkJ
-CXByaW50ayhLRVJOX0lORk8KIAkJCSAgICAgICAiJXNbJWRdIHRyYXAgJXMgcmlwOiVseCByc3A6
-JWx4IGVycm9yOiVseFxuIiwKIAkJCSAgICAgICB0c2stPmNvbW0sIHRzay0+cGlkLCBzdHIsCiAJ
-CQkgICAgICAgcmVncy0+cmlwLHJlZ3MtPnJzcCxlcnJvcl9jb2RlKTsgCiAKLQkJdHNrLT50aHJl
-YWQuZXJyb3JfY29kZSA9IGVycm9yX2NvZGU7Ci0JCXRzay0+dGhyZWFkLnRyYXBfbm8gPSB0cmFw
-bnI7CiAJCWlmIChpbmZvKQogCQkJZm9yY2Vfc2lnX2luZm8oc2lnbnIsIGluZm8sIHRzayk7CiAJ
-CWVsc2UKQEAgLTUxMSw2ICs1MTIsOCBAQCBET19FUlJPUiggOCwgU0lHU0VHViwgImRvdWJsZSBm
-YXVsdCIsIGRvCiBhc21saW5rYWdlIHZvaWQgX19rcHJvYmVzIGRvX2dlbmVyYWxfcHJvdGVjdGlv
-bihzdHJ1Y3QgcHRfcmVncyAqIHJlZ3MsCiAJCQkJCQlsb25nIGVycm9yX2NvZGUpCiB7CisJc3Ry
-dWN0IHRhc2tfc3RydWN0ICp0c2sgPSBjdXJyZW50OworCiAJY29uZGl0aW9uYWxfc3RpKHJlZ3Mp
-OwogCiAjaWZkZWYgQ09ORklHX0NIRUNLSU5HCkBAIC01MjcsMTcgKzUzMCwxNiBAQCBhc21saW5r
-YWdlIHZvaWQgX19rcHJvYmVzIGRvX2dlbmVyYWxfcHJvCiAgICAgICAgfQogI2VuZGlmCiAKLQlp
-ZiAodXNlcl9tb2RlKHJlZ3MpKSB7Ci0JCXN0cnVjdCB0YXNrX3N0cnVjdCAqdHNrID0gY3VycmVu
-dDsKKwl0c2stPnRocmVhZC5lcnJvcl9jb2RlID0gZXJyb3JfY29kZTsKKwl0c2stPnRocmVhZC50
-cmFwX25vID0gMTM7CiAKKwlpZiAodXNlcl9tb2RlKHJlZ3MpKSB7CiAJCWlmIChleGNlcHRpb25f
-dHJhY2UgJiYgdW5oYW5kbGVkX3NpZ25hbCh0c2ssIFNJR1NFR1YpKQogCQkJcHJpbnRrKEtFUk5f
-SU5GTwogCQkgICAgICAgIiVzWyVkXSBnZW5lcmFsIHByb3RlY3Rpb24gcmlwOiVseCByc3A6JWx4
-IGVycm9yOiVseFxuIiwKIAkJCSAgICAgICB0c2stPmNvbW0sIHRzay0+cGlkLAogCQkJICAgICAg
-IHJlZ3MtPnJpcCxyZWdzLT5yc3AsZXJyb3JfY29kZSk7IAogCi0JCXRzay0+dGhyZWFkLmVycm9y
-X2NvZGUgPSBlcnJvcl9jb2RlOwotCQl0c2stPnRocmVhZC50cmFwX25vID0gMTM7CiAJCWZvcmNl
-X3NpZyhTSUdTRUdWLCB0c2spOwogCQlyZXR1cm47CiAJfSAKQEAgLTc0OCw2ICs3NTAsNyBAQCBz
-dGF0aWMgaW50IGtlcm5lbF9tYXRoX2Vycm9yKHN0cnVjdCBwdF9yCiAJfQogCW5vdGlmeV9kaWUo
-RElFX0dQRiwgc3RyLCByZWdzLCAwLCAxNiwgU0lHRlBFKTsKIAkvKiBJbGxlZ2FsIGZsb2F0aW5n
-IHBvaW50IG9wZXJhdGlvbiBpbiB0aGUga2VybmVsICovCisJY3VycmVudC0+dGhyZWFkLnRyYXBf
-bm8gPSAxNjsKIAlkaWUoc3RyLCByZWdzLCAwKTsKIAlyZXR1cm4gMDsKIH0KLS0tIDIuNi4xNC9h
-cmNoL3g4Nl82NC9tbS9mYXVsdC5jCTIwMDUtMTAtMjggMDI6MDI6MDguMDAwMDAwMDAwICswMjAw
-CisrKyAyLjYuMTQteDg2XzY0LWRpZS10cmFwLWluZm8vYXJjaC94ODZfNjQvbW0vZmF1bHQuYwky
-MDA1LTExLTA3IDE0OjI3OjQyLjAwMDAwMDAwMCArMDEwMApAQCAtMjIyLDEwICsyMjIsMTUgQEAg
-c3RhdGljIG5vaW5saW5lIHZvaWQgcGd0YWJsZV9iYWQodW5zaWduZQogCQkJCSB1bnNpZ25lZCBs
-b25nIGVycm9yX2NvZGUpCiB7CiAJdW5zaWduZWQgbG9uZyBmbGFncyA9IG9vcHNfYmVnaW4oKTsK
-KwlzdHJ1Y3QgdGFza19zdHJ1Y3QgKnRzazsKIAogCXByaW50ayhLRVJOX0FMRVJUICIlczogQ29y
-cnVwdGVkIHBhZ2UgdGFibGUgYXQgYWRkcmVzcyAlbHhcbiIsCiAJICAgICAgIGN1cnJlbnQtPmNv
-bW0sIGFkZHJlc3MpOwogCWR1bXBfcGFnZXRhYmxlKGFkZHJlc3MpOworCXRzayA9IGN1cnJlbnQ7
-CisJdHNrLT50aHJlYWQuY3IyID0gYWRkcmVzczsKKwl0c2stPnRocmVhZC50cmFwX25vID0gMTQ7
-CisJdHNrLT50aHJlYWQuZXJyb3JfY29kZSA9IGVycm9yX2NvZGU7CiAJX19kaWUoIkJhZCBwYWdl
-dGFibGUiLCByZWdzLCBlcnJvcl9jb2RlKTsKIAlvb3BzX2VuZChmbGFncyk7CiAJZG9fZXhpdChT
-SUdLSUxMKTsKQEAgLTUzMyw2ICs1MzgsOSBAQCBub19jb250ZXh0OgogCXByaW50a19hZGRyZXNz
-KHJlZ3MtPnJpcCk7CiAJcHJpbnRrKCJcbiIpOwogCWR1bXBfcGFnZXRhYmxlKGFkZHJlc3MpOwor
-CXRzay0+dGhyZWFkLmNyMiA9IGFkZHJlc3M7CisJdHNrLT50aHJlYWQudHJhcF9ubyA9IDE0Owor
-CXRzay0+dGhyZWFkLmVycm9yX2NvZGUgPSBlcnJvcl9jb2RlOwogCV9fZGllKCJPb3BzIiwgcmVn
-cywgZXJyb3JfY29kZSk7CiAJLyogRXhlY3V0aXZlIHN1bW1hcnkgaW4gY2FzZSB0aGUgYm9keSBv
-ZiB0aGUgb29wcyBzY3JvbGxlZCBhd2F5ICovCiAJcHJpbnRrKEtFUk5fRU1FUkcgIkNSMjogJTAx
-Nmx4XG4iLCBhZGRyZXNzKTsKLS0tIDIuNi4xNC9pbmNsdWRlL2FzbS14ODZfNjQva2RlYnVnLmgJ
-MjAwNS0xMC0yOCAwMjowMjowOC4wMDAwMDAwMDAgKzAyMDAKKysrIDIuNi4xNC14ODZfNjQtZGll
-LXRyYXAtaW5mby9pbmNsdWRlL2FzbS14ODZfNjQva2RlYnVnLmgJMjAwNS0xMS0wNyAxMDozMTo1
-Mi4wMDAwMDAwMDAgKzAxMDAKQEAgLTM1LDkgKzM1LDE2IEBAIGVudW0gZGllX3ZhbCB7IAogCURJ
-RV9QQUdFX0ZBVUxULAogfTsgCiAJCi1zdGF0aWMgaW5saW5lIGludCBub3RpZnlfZGllKGVudW0g
-ZGllX3ZhbCB2YWwsY2hhciAqc3RyLHN0cnVjdCBwdF9yZWdzICpyZWdzLGxvbmcgZXJyLGludCB0
-cmFwLCBpbnQgc2lnKQoteyAKLQlzdHJ1Y3QgZGllX2FyZ3MgYXJncyA9IHsgLnJlZ3M9cmVncywg
-LnN0cj1zdHIsIC5lcnI9ZXJyLCAudHJhcG5yPXRyYXAsLnNpZ25yPXNpZyB9OyAKK3N0YXRpYyBp
-bmxpbmUgaW50IG5vdGlmeV9kaWUoZW51bSBkaWVfdmFsIHZhbCwgY29uc3QgY2hhciAqc3RyLAor
-CQkJc3RydWN0IHB0X3JlZ3MgKnJlZ3MsIGxvbmcgZXJyLCBpbnQgdHJhcCwgaW50IHNpZykKK3sK
-KwlzdHJ1Y3QgZGllX2FyZ3MgYXJncyA9IHsKKwkJLnJlZ3MgPSByZWdzLAorCQkuc3RyID0gc3Ry
-LAorCQkuZXJyID0gZXJyLAorCQkudHJhcG5yID0gdHJhcCwKKwkJLnNpZ25yID0gc2lnCisJfTsK
-IAlyZXR1cm4gbm90aWZpZXJfY2FsbF9jaGFpbigmZGllX2NoYWluLCB2YWwsICZhcmdzKTsgCiB9
-IAogCg==
-
---=__Part290B17C6.1__=--
+-- 
+Humilis IT Services and Solutions
+http://www.humilis.net

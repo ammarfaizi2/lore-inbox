@@ -1,66 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbVKHIO3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbVKHISE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751203AbVKHIO3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 03:14:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbVKHIO3
+	id S932068AbVKHISE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 03:18:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbVKHISE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 03:14:29 -0500
-Received: from indigo.cs.bgu.ac.il ([132.72.42.23]:24808 "EHLO
-	indigo.cs.bgu.ac.il") by vger.kernel.org with ESMTP
-	id S1751203AbVKHIO2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 03:14:28 -0500
-Subject: Re: [ACPI] ACPI and PRREMPT bug
-From: Nir Tzachar <tzachar@cs.bgu.ac.il>
-Reply-To: tzachar@cs.bgu.ac.il
-To: Chris Wright <chrisw@osdl.org>
-Cc: "Moore, Robert" <robert.moore@intel.com>, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-In-Reply-To: <20051107231524.GW7991@shell0.pdx.osdl.net>
-References: <971FCB6690CD0E4898387DBF7552B90E0356B628@orsmsx403.amr.corp.int el.com>
-	 <20051107231524.GW7991@shell0.pdx.osdl.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YrnbwH0Id88eYmHVP81+"
-Organization: bgu
-Date: Tue, 08 Nov 2005 10:17:22 +0200
-Message-Id: <1131437843.8476.2.camel@nexus.cs.bgu.ac.il>
+	Tue, 8 Nov 2005 03:18:04 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:54977 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932068AbVKHISB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 03:18:01 -0500
+Date: Tue, 8 Nov 2005 13:47:58 +0530
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: noboru.obata.ar@hitachi.com
+Cc: fastboot@osdl.org, linux-kernel@vger.kernel.org,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [Fastboot] [KDUMP] pending interrupts problem
+Message-ID: <20051108081758.GA2231@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <m13bmnc7jr.fsf@ebiederm.dsl.xmission.com> <20051101.181319.92587627.noboru.obata.ar@hitachi.com> <m1d5lk8uue.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-X-Spam-Flag: NO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1d5lk8uue.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Nov 01, 2005 at 04:34:49AM -0700, Eric W. Biederman wrote:
+> OBATA Noboru <noboru.obata.ar@hitachi.com> writes:
+> 
 
---=-YrnbwH0Id88eYmHVP81+
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+[..]
+> > I think we need more test cases, especially the cases that focus
+> > on "status" of hardware, to make kdump more reliable.  Kdump
+> > should recover from all possible status of supported hardware.
+> 
+> Given that part of all possible status is broken hardware,
+> that isn't necessarily possible. Still attempting to recover
+> from all possible status is a sound plan.
+> 
+> > Is anyone working on developing such test cases for kdump?
+> 
+> Not to my knowledge.  The big push until just lately has simply
+> been to get the core working.  Vivek Goyal would be the most
+> likely suspect. But feel free to work on pathological scenarios.
+> 
 
->   Booting with
-> acpi_serialize (which sets that flag to true) does seem to fix the
-> problem. =20
+Currently I am trying to focus on fixing the already reported issues and
+have not looked into special scenarios where kdump might fail. But your
+effort in this direction is very much appreciated. We need to dig up such
+corner cases to make kdump more reliable and robust.
 
-this partially solves the problem. im still getting this:
-
-Nov  8 10:08:15 lapnir osl-0965 [3164] os_wait_semaphore     : Failed to
-acquire semaphore[c193c820|1|0], AE_TIME
-Nov  8 10:08:17 lapnir osl-0965 [4647] os_wait_semaphore     : Failed to
-acquire semaphore[c193c820|1|0], AE_TIME
-
---=20
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D
-Nir Tzachar.
-
---=-YrnbwH0Id88eYmHVP81+
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDcF8SIHR+zI+Dam4RAo27AJ9goDwh1vn9t/l/dvoACJi5A/r7/gCgrzQ5
-2WPhTcZwmyiwOebwHsIxuBM=
-=iyVs
------END PGP SIGNATURE-----
-
---=-YrnbwH0Id88eYmHVP81+--
-
+Thanks
+Vivek

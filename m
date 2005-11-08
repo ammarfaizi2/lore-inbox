@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030333AbVKHWVi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965149AbVKHWWz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030333AbVKHWVi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 17:21:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965227AbVKHWVi
+	id S965149AbVKHWWz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 17:22:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965227AbVKHWWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 17:21:38 -0500
-Received: from mail.fh-wedel.de ([213.39.232.198]:29407 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S965149AbVKHWVh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 17:21:37 -0500
-Date: Tue, 8 Nov 2005 23:21:27 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: "Eric W. Biederman" <ebiederman@lnxi.com>, linux-mtd@lists.infradead.org,
-       dwmw2@infradead.org, linux-kernel@vger.kernel.org,
-       Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 06/25] mtd: move ioctl32 code to mtdchar.c
-Message-ID: <20051108222127.GA16542@wohnheim.fh-wedel.de>
-References: <20051105162650.620266000@b551138y.boeblingen.de.ibm.com> <20051105162712.921102000@b551138y.boeblingen.de.ibm.com> <20051108105923.GA31446@wohnheim.fh-wedel.de> <m3zmofovsc.fsf@maxwell.lnxi.com> <20051108183339.GB31446@wohnheim.fh-wedel.de> <1131476269.18108.195.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1131476269.18108.195.camel@tglx.tec.linutronix.de>
-User-Agent: Mutt/1.5.9i
+	Tue, 8 Nov 2005 17:22:55 -0500
+Received: from mtao02.charter.net ([209.225.8.187]:29664 "EHLO
+	mtao02.charter.net") by vger.kernel.org with ESMTP id S965149AbVKHWWy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 17:22:54 -0500
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAQAAA+k=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17265.9265.460229.523397@smtp.charter.net>
+Date: Tue, 8 Nov 2005 17:18:25 -0500
+From: "John Stoffel" <john@stoffel.org>
+To: Matthias Andree <matthias.andree@gmx.de>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 3D video card recommendations
+In-Reply-To: <20051108220853.GA26615@merlin.emma.line.org>
+References: <1131112605.14381.34.camel@localhost.localdomain>
+	<1131349343.2858.11.camel@laptopd505.fenrus.org>
+	<1131367371.14381.91.camel@localhost.localdomain>
+	<20051107152009.GA20807@shuttle.vanvergehaald.nl>
+	<1131377496.2858.21.camel@laptopd505.fenrus.org>
+	<1131384906.14381.108.camel@localhost.localdomain>
+	<20051108220853.GA26615@merlin.emma.line.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 November 2005 19:57:49 +0100, Thomas Gleixner wrote:
-> 
-> The code _is_ ugly and ioctls are out of fashion, but your "remove it"
-> request is just silly as long as you dont provide a reasonable
-> alternative access to those bits.
+>>>>> "Matthias" == Matthias Andree <matthias.andree@gmx.de> writes:
 
-You may have noticed the missing patch and figured that it was not a
-formal request for removal.  Still, I'll be happy when it's gone and
-am also happy that mtdchar mess is not spread over yet another file
-anymore.  Thanks, Arnd.
+Matthias> I'd rather not count the drivers that have dropped out of
+Matthias> open source operating systems due to bit rot. If there is no
+Matthias> maintainer, the hardware will become useless sooner or
+Matthias> later. With Linux's rapidly changing "moving target" 2.6.X
+Matthias> I'd call it sooner rather than later.
 
-Jörn
+Matthias> OSS drivers are good iff there is a maintainer - IOW: to the
+Matthias> user, the maintainer makes the difference, not the driver
+Matthias> being open source.
 
--- 
-Mac is for working, 
-Linux is for Networking, 
-Windows is for Solitaire! 
--- stolen from dc
+No, a publically available spec for the hardware is what makes the
+difference.  Those drivers which are reverse engineered, or which have
+only partially open specs are the ones which bit-rot the fastest.  
+
+For example, I've got a webcam which I've never been able to make work
+properly due to the PWC driver and the lack of documentation from
+Philips on the chipset.  Even with heroic efforts by others, it's just
+hard to do.  
+
+But if we have docs, we could support this camera until the end of
+time, as long as people were interested in supporting it.  
+
+John

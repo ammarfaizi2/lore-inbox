@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030367AbVKHVWu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030364AbVKHV13@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030367AbVKHVWu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 16:22:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030368AbVKHVWt
+	id S1030364AbVKHV13 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 16:27:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030369AbVKHV13
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 16:22:49 -0500
-Received: from xenotime.net ([66.160.160.81]:54690 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1030367AbVKHVWt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 16:22:49 -0500
-Date: Tue, 8 Nov 2005 13:22:45 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
+	Tue, 8 Nov 2005 16:27:29 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:58218 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S1030364AbVKHV13
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 16:27:29 -0500
+Date: Tue, 8 Nov 2005 22:28:00 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
 To: Jan Beulich <JBeulich@novell.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386: export genapic again
-In-Reply-To: <4370AEE1.76F0.0078.0@novell.com>
-Message-ID: <Pine.LNX.4.58.0511081321390.15288@shark.he.net>
-References: <4370AEE1.76F0.0078.0@novell.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org, Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: [PATCH] slightly enhance cross builds
+Message-ID: <20051108212800.GB8256@mars.ravnborg.org>
+References: <436F5D96.76F0.0078.0@novell.com> <20051107230426.GD10492@mars.ravnborg.org> <437066EC.76F0.0078.0@novell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <437066EC.76F0.0078.0@novell.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Nov 2005, Jan Beulich wrote:
+On Tue, Nov 08, 2005 at 08:50:52AM +0100, Jan Beulich wrote:
+> 
+> Though I admit that I never build inside the source tree, I can't see
+> what you apparently do. Where/how would the behavior differ? If you just
+> mean the fact that in-source-tree builds will need to continue to
+> specify ARCH/SUBARCH on the make command line, then of course yes, this
+> is going to be different. But building in the source tree is a bad idea
+> in general in my opinion, and hence I would view this as the price you
+> pay.
+That's anyway how most users builds kernel.
 
-> A change not too long ago made i386's genapic symbol no longer be
-> exported, and thus certain low-level functions no longer be usable.
-> Since close-to-the-hardware code may still be modular, this
-> rectifies the situation.
->
-> From: Jan Beulich <jbeulich@novell.com>
->
-> (actual patch attached)
+> Of course this information could be stored in a hidden file in the
+> output tree (rather than in mkmakefile itself) if that's more
+> desirable...
+Plan has been to add this during *config step to .config.
+But I have been sidetracked the few times I looked at it.
 
-Having no attachments would be preferable, but if you must use
-attachments, having them marked as plain text instead of
-"octet-stream" would be a great improvement.
+Having it as part of *config process is good because
+- this is when you configure the kernel
+- .config is a natural file to keep configuration within
+- and then we have same functionality with and without O=...
 
-Thanks.
--- 
-~Randy
+	Sam

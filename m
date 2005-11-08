@@ -1,78 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964897AbVKHPZi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030216AbVKHPiQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964897AbVKHPZi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 10:25:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965094AbVKHPZi
+	id S1030216AbVKHPiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 10:38:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965123AbVKHPiQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 10:25:38 -0500
-Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:2389 "EHLO
-	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S964897AbVKHPZh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 10:25:37 -0500
-X-SBRSScore: None
-X-IronPort-AV: i="3.97,304,1125871200"; 
-   d="scan'208"; a="19308458:sNHT23862332"
-Message-ID: <4370C36E.2040205@fujitsu-siemens.com>
-Date: Tue, 08 Nov 2005 16:25:34 +0100
-From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
+	Tue, 8 Nov 2005 10:38:16 -0500
+Received: from fsmlabs.com ([168.103.115.128]:23269 "EHLO spamalot.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S965121AbVKHPiQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 10:38:16 -0500
+X-ASG-Debug-ID: 1131464291-31962-79-0
+X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
+Date: Tue, 8 Nov 2005 07:44:09 -0800 (PST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Geoff <capsthorne@yahoo.co.uk>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+X-ASG-Orig-Subj: Re: 2.6.14 shutdown crash on smp (Badness in send_IPI_mask_bitmask)
+Subject: Re: 2.6.14 shutdown crash on smp (Badness in send_IPI_mask_bitmask)
+In-Reply-To: <20051101093118.503be897.capsthorne@yahoo.co.uk>
+Message-ID: <Pine.LNX.4.61.0511080742170.11268@montezuma.fsmlabs.com>
+References: <20051101093118.503be897.capsthorne@yahoo.co.uk>
 MIME-Version: 1.0
-To: Blaisorblade <blaisorblade@yahoo.it>
-CC: user-mode-linux-devel@lists.sourceforge.net, Jeff Dike <jdike@addtoit.com>,
-       linux-kernel@vger.kernel.org, Allan Graves <allan.graves@oracle.com>
-Subject: Re: [uml-devel] [PATCH 8/10] UML - Maintain own LDT entries
-References: <200510310439.j9V4dfbw000872@ccure.user-mode-linux.org> <200511022051.24335.blaisorblade@yahoo.it> <436F469B.3080607@fujitsu-siemens.com> <200511072028.23111.blaisorblade@yahoo.it>
-In-Reply-To: <200511072028.23111.blaisorblade@yahoo.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.5139
+	Rule breakdown below pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Blaisorblade wrote:
-> On Monday 07 November 2005 13:20, Bodo Stroesser wrote:
-> 
->>Blaisorblade wrote:
->>
->>>On Monday 31 October 2005 05:39, Jeff Dike wrote:
->>>
->>>>From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-> 
-> 
->>>Or at least so I think (I must still give a proper look afterwards, and
->>>I'll post patches). Actually it seems that this is done on purpose, but I
->>>don't agree too much on this. I will see.
-> 
-> 
->> From the beginning my new code for SKAS included the checks/buffering you
->>later inserted for TT and SKAS. So this patch is a second version adapted
->>to your changes. It shifts your improvements into TT path only (where I
->>didn't do any changes in my old patch), while it uses my own stuff for
->>SKAS. Thus the patch doesn't really revert your improvements, but restricts
->>it to TT. As in SKAS0 UML now holds its own LDT data, there is no need for
->>buffering in this case. So I think it makes sense to have separate code for
->>SKAS.
-> 
-> Yep, ok - I'm undecided about the new code for SKAS3, but it may make sense 
-> (i.e. no opinion).
-> 
-> Instead, I have another question: is there a proper reason for using the 
-> processor format for storing the info and translating it back to (struct 
-> user_desc)? I am planning to avoid this double translation because I don't 
-> like it. Any opinion?
+On Tue, 1 Nov 2005, Geoff wrote:
 
-In my opinion there is no reason to change the current implementation for SAKS3/0.
-Note: if someone reads LDT via [sys_]modify_ldt(), he will receive the requested
-data in "processor format", that is LDT-descriptors. He will receive a list of
-descriptors starting at the first descriptor of the LDT, thus no entry number is
-needed in the enties.
-The only case that uses user_desc is when writing one desriptor via modify_ldt().
-modify_ldt(WRITE) exactly writes one LDT-descriptor, so user_desc must contain
-the number of the entry to write. Thus user_desc is bigger than LDT descriptor.
-It also uses an other data layout resulting in double the size of LDT-descriptor.
-So I think it doesn't make sense to store user_desc. We save memory storing the
-resulting LDT-descriptors, which then are copied transparently on modify_ldt(READ).
-Conversion between user_desc and LDT-entry is done on modify_ldt(WRITE) in SKAS0
-only. No other conversions are done in UML.
+> Andrew Morton followed up, but I am not sure what the
+> outcome was.
+> 
+> I will happily supply any further information do tests.
+> 
+> I am not subscribed to the list .. please cc me with any
+> replies.
 
-	Bodo
+Could you sign up and add yourself to the Cc list for the following 
+bugzilla entry? I'll be making a few test requests.
+
+http://bugzilla.kernel.org/show_bug.cgi?id=5203
+
+Thanks,
+	Zwane

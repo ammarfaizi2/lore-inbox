@@ -1,72 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965331AbVKHG5F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965333AbVKHHAF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965331AbVKHG5F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 01:57:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965333AbVKHG5F
+	id S965333AbVKHHAF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 02:00:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965315AbVKHHAF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 01:57:05 -0500
-Received: from [85.8.13.51] ([85.8.13.51]:7832 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S965331AbVKHG5E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 01:57:04 -0500
-Message-ID: <43704C3D.30602@drzeus.cx>
-Date: Tue, 08 Nov 2005 07:57:01 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mail/News 1.5 (X11/20051105)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [MMC] wbsd pnp suspend
-References: <20051108064100.18059.79712.stgit@poseidon.drzeus.cx> <20051107225019.7cd01a77.akpm@osdl.org>
-In-Reply-To: <20051107225019.7cd01a77.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Nov 2005 02:00:05 -0500
+Received: from 238-193.adsl.pool.ew.hu ([193.226.238.193]:59149 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S964954AbVKHHAE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 02:00:04 -0500
+To: viro@ftp.linux.org.uk
+CC: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, linuxram@us.ibm.com
+In-reply-to: <E1EZInj-0001Ef-9Z@ZenIV.linux.org.uk> (message from Al Viro on
+	Tue, 08 Nov 2005 02:01:31 +0000)
+Subject: Re: [PATCH 2/18] cleanups and bug fix in do_loopback()
+References: <E1EZInj-0001Ef-9Z@ZenIV.linux.org.uk>
+Message-Id: <E1EZNRz-0007EM-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 08 Nov 2005 07:59:23 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Pierre Ossman <drzeus@drzeus.cx> wrote:
->> Allow the wbsd driver to use the new suspend/resume functions added to
->> the PnP layer.
->>
-> 
-> Doesn't Russell handle mmc stuff?
-> 
+> - check_mnt() on the source of binding should've been unconditional from
+> the very beginning.  My fault - as far I could've trace it, that's an
+> old thinko made back in 2001.  Kudos to Miklos for spotting it...
+> Fixed.
+> - code cleaned up.
 
-Yup. But this needs the PnP suspend stuff in your patch set.
+Can you please explain what purpose does this serve?
 
->> -static int wbsd_suspend(struct device *dev, pm_message_t state)
->> +static int wbsd_suspend(struct wbsd_host *host, pm_message_t state)
->> +{
->> +	BUG_ON(host == NULL);
->> +
->> +	return mmc_suspend_host(host->mmc, state);
->> +}
-> 
-> There's not much point in this BUG_ON.  If host==0 then we'll get a
-> perfectly good oops in the next statement - it's just as informative.
-> 
+AFAICS check_mnt() was there to ensure that operations are done under
+the proper namespace semaphore.
 
-I suppose. I just have a tendency to scatter assertions all over the 
-place. :)
+Next in the series the namespace semaphore is made global, which
+basically means, that most of the check_mnt() invocations become
+useless.
 
->> +	if (host->config != 0)
->> +	{
->> +		if (!wbsd_chip_validate(host))
->> +		{
-> 
-> Like:
-> 
-> 	if (host->config != 0) {
-> 		if (!wbsd_chip_validate(host)) {
-> 
-> please.
-> 
+The ones which as a side effect prevent grafting to a detached mount
+can be changed to check for (mnt->mnt_namespace == NULL) instead of
+check against current->namespace.
 
-We had this discussion the last patch for this driver. It's horribly 
-wrong when it comes to coding style so keeping patches in the same style 
-as the rest of the driver is the lesser evil (IMHO).
+I see no other reason for wanting to prevent binds from detached
+mounts or other namespaces.  It has been discussed that it would be a
+good _controlled_ way to send/receive mounts from other namespace
+without adding any complexity.  In fact it would only be removal of
+complexity now.
 
-Rgds
-Pierre
-
+Miklos

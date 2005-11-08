@@ -1,245 +1,372 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030223AbVKHCH6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030230AbVKHCHS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030223AbVKHCH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 21:07:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030220AbVKHCBl
+	id S1030230AbVKHCHS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 21:07:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030229AbVKHCBm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 21:01:41 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:23757 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965175AbVKHCBg
+	Mon, 7 Nov 2005 21:01:42 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:29645 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965256AbVKHCBh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 21:01:36 -0500
+	Mon, 7 Nov 2005 21:01:37 -0500
 To: torvalds@osdl.org
-Subject: [PATCH 4/18] make /proc/mounts pollable
+Subject: [PATCH 5/18] lindent fs/namespace.c
 Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
        linuxram@us.ibm.com
-Message-Id: <E1EZInj-0001Ej-9n@ZenIV.linux.org.uk>
+Message-Id: <E1EZInj-0001El-A3@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
 Date: Tue, 08 Nov 2005 02:01:31 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
-Date: 1131401749 -0500
+From: Ram Pai <linuxram@us.ibm.com>
+Date: 1131401769 -0500
 
+Signed-off-by: Ram Pai (linuxram@us.ibm.com)
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- fs/namespace.c            |   30 +++++++++++++++++++++-
- fs/proc/base.c            |   62 ++++++++++++++++++++++++++++++++++-----------
- include/linux/namespace.h |    2 +
- 3 files changed, 78 insertions(+), 16 deletions(-)
+ fs/namespace.c |   97 ++++++++++++++++++++++++++++----------------------------
+ 1 files changed, 48 insertions(+), 49 deletions(-)
 
-c98fca13440a0bbf547987f418e36e2e486e842c
+38500791664754db810ce1bc0e6a2cb9622700ac
 diff --git a/fs/namespace.c b/fs/namespace.c
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
-@@ -37,7 +37,9 @@ static inline int sysfs_init(void)
- #endif
- 
- /* spinlock for vfsmount related operations, inplace of dcache_lock */
-- __cacheline_aligned_in_smp DEFINE_SPINLOCK(vfsmount_lock);
-+__cacheline_aligned_in_smp DEFINE_SPINLOCK(vfsmount_lock);
-+
-+static int event;
+@@ -43,29 +43,29 @@ static int event;
  
  static struct list_head *mount_hashtable;
  static int hash_mask __read_mostly, hash_bits __read_mostly;
-@@ -111,6 +113,22 @@ static inline int check_mnt(struct vfsmo
- 	return mnt->mnt_namespace == current->namespace;
+-static kmem_cache_t *mnt_cache; 
++static kmem_cache_t *mnt_cache;
+ 
+ static inline unsigned long hash(struct vfsmount *mnt, struct dentry *dentry)
+ {
+-	unsigned long tmp = ((unsigned long) mnt / L1_CACHE_BYTES);
+-	tmp += ((unsigned long) dentry / L1_CACHE_BYTES);
++	unsigned long tmp = ((unsigned long)mnt / L1_CACHE_BYTES);
++	tmp += ((unsigned long)dentry / L1_CACHE_BYTES);
+ 	tmp = tmp + (tmp >> hash_bits);
+ 	return tmp & hash_mask;
  }
  
-+static void touch_namespace(struct namespace *ns)
-+{
-+	if (ns) {
-+		ns->event = ++event;
-+		wake_up_interruptible(&ns->poll);
-+	}
-+}
-+
-+static void __touch_namespace(struct namespace *ns)
-+{
-+	if (ns && ns->event != event) {
-+		ns->event = event;
-+		wake_up_interruptible(&ns->poll);
-+	}
-+}
-+
- static void detach_mnt(struct vfsmount *mnt, struct nameidata *old_nd)
+ struct vfsmount *alloc_vfsmnt(const char *name)
  {
- 	old_nd->dentry = mnt->mnt_mountpoint;
-@@ -384,6 +402,7 @@ static void umount_tree(struct vfsmount 
- 	for (p = mnt; p; p = next_mnt(p, mnt)) {
- 		list_del(&p->mnt_list);
- 		list_add(&p->mnt_list, &kill);
-+		__touch_namespace(p->mnt_namespace);
- 		p->mnt_namespace = NULL;
- 	}
+-	struct vfsmount *mnt = kmem_cache_alloc(mnt_cache, GFP_KERNEL); 
++	struct vfsmount *mnt = kmem_cache_alloc(mnt_cache, GFP_KERNEL);
+ 	if (mnt) {
+ 		memset(mnt, 0, sizeof(struct vfsmount));
+-		atomic_set(&mnt->mnt_count,1);
++		atomic_set(&mnt->mnt_count, 1);
+ 		INIT_LIST_HEAD(&mnt->mnt_hash);
+ 		INIT_LIST_HEAD(&mnt->mnt_child);
+ 		INIT_LIST_HEAD(&mnt->mnt_mounts);
+ 		INIT_LIST_HEAD(&mnt->mnt_list);
+ 		INIT_LIST_HEAD(&mnt->mnt_expire);
+ 		if (name) {
+-			int size = strlen(name)+1;
++			int size = strlen(name) + 1;
+ 			char *newname = kmalloc(size, GFP_KERNEL);
+ 			if (newname) {
+ 				memcpy(newname, name, size);
+@@ -88,8 +88,8 @@ void free_vfsmnt(struct vfsmount *mnt)
+  */
+ struct vfsmount *lookup_mnt(struct vfsmount *mnt, struct dentry *dentry)
+ {
+-	struct list_head * head = mount_hashtable + hash(mnt, dentry);
+-	struct list_head * tmp = head;
++	struct list_head *head = mount_hashtable + hash(mnt, dentry);
++	struct list_head *tmp = head;
+ 	struct vfsmount *p, *found = NULL;
  
-@@ -473,6 +492,7 @@ static int do_umount(struct vfsmount *mn
- 
- 	down_write(&current->namespace->sem);
  	spin_lock(&vfsmount_lock);
-+	event++;
+@@ -144,7 +144,7 @@ static void attach_mnt(struct vfsmount *
+ {
+ 	mnt->mnt_parent = mntget(nd->mnt);
+ 	mnt->mnt_mountpoint = dget(nd->dentry);
+-	list_add(&mnt->mnt_hash, mount_hashtable+hash(nd->mnt, nd->dentry));
++	list_add(&mnt->mnt_hash, mount_hashtable + hash(nd->mnt, nd->dentry));
+ 	list_add_tail(&mnt->mnt_child, &nd->mnt->mnt_mounts);
+ 	nd->dentry->d_mounted++;
+ }
+@@ -165,8 +165,7 @@ static struct vfsmount *next_mnt(struct 
+ 	return list_entry(next, struct vfsmount, mnt_child);
+ }
  
- 	retval = -EBUSY;
- 	if (atomic_read(&mnt->mnt_count) == 2 || flags & MNT_DETACH) {
-@@ -634,6 +654,7 @@ static int graft_tree(struct vfsmount *m
- 		list_splice(&head, current->namespace->list.prev);
- 		mntget(mnt);
- 		err = 0;
-+		touch_namespace(current->namespace);
- 	}
- 	spin_unlock(&vfsmount_lock);
- out_unlock:
-@@ -771,6 +792,7 @@ static int do_move_mount(struct nameidat
+-static struct vfsmount *
+-clone_mnt(struct vfsmount *old, struct dentry *root)
++static struct vfsmount *clone_mnt(struct vfsmount *old, struct dentry *root)
+ {
+ 	struct super_block *sb = old->mnt_sb;
+ 	struct vfsmount *mnt = alloc_vfsmnt(old->mnt_devname);
+@@ -258,7 +257,7 @@ static void *m_next(struct seq_file *m, 
+ 	struct namespace *n = m->private;
+ 	struct list_head *p = ((struct vfsmount *)v)->mnt_list.next;
+ 	(*pos)++;
+-	return p==&n->list ? NULL : list_entry(p, struct vfsmount, mnt_list);
++	return p == &n->list ? NULL : list_entry(p, struct vfsmount, mnt_list);
+ }
  
- 	detach_mnt(old_nd.mnt, &parent_nd);
- 	attach_mnt(old_nd.mnt, nd);
-+	touch_namespace(current->namespace);
+ static void m_stop(struct seq_file *m, void *v)
+@@ -344,7 +343,8 @@ repeat:
+ 	next = this_parent->mnt_mounts.next;
+ resume:
+ 	while (next != &this_parent->mnt_mounts) {
+-		struct vfsmount *p = list_entry(next, struct vfsmount, mnt_child);
++		struct vfsmount *p =
++		    list_entry(next, struct vfsmount, mnt_child);
  
- 	/* if the mount is moved, it should no longer be expire
- 	 * automatically */
-@@ -877,6 +899,7 @@ static void expire_mount(struct vfsmount
- 		struct nameidata old_nd;
+ 		next = next->next;
  
- 		/* delete from the namespace */
-+		touch_namespace(mnt->mnt_namespace);
- 		list_del_init(&mnt->mnt_list);
- 		mnt->mnt_namespace = NULL;
- 		detach_mnt(mnt, &old_nd);
-@@ -1114,6 +1137,8 @@ int copy_namespace(int flags, struct tas
- 	atomic_set(&new_ns->count, 1);
- 	init_rwsem(&new_ns->sem);
- 	INIT_LIST_HEAD(&new_ns->list);
-+	init_waitqueue_head(&new_ns->poll);
-+	new_ns->event = 0;
+@@ -425,7 +425,7 @@ static void umount_tree(struct vfsmount 
  
- 	down_write(&tsk->namespace->sem);
- 	/* First pass: copy the tree topology */
-@@ -1377,6 +1402,7 @@ asmlinkage long sys_pivot_root(const cha
- 	detach_mnt(user_nd.mnt, &root_parent);
- 	attach_mnt(user_nd.mnt, &old_nd);     /* mount old root on put_old */
- 	attach_mnt(new_nd.mnt, &root_parent); /* mount new_root on / */
-+	touch_namespace(current->namespace);
- 	spin_unlock(&vfsmount_lock);
- 	chroot_fs_refs(&user_nd, &new_nd);
- 	security_sb_post_pivotroot(&user_nd, &new_nd);
-@@ -1413,6 +1439,8 @@ static void __init init_mount_tree(void)
- 	atomic_set(&namespace->count, 1);
- 	INIT_LIST_HEAD(&namespace->list);
- 	init_rwsem(&namespace->sem);
-+	init_waitqueue_head(&namespace->poll);
-+	namespace->event = 0;
- 	list_add(&mnt->mnt_list, &namespace->list);
- 	namespace->root = mnt;
- 	mnt->mnt_namespace = namespace;
-diff --git a/fs/proc/base.c b/fs/proc/base.c
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -70,6 +70,7 @@
- #include <linux/seccomp.h>
- #include <linux/cpuset.h>
- #include <linux/audit.h>
-+#include <linux/poll.h>
- #include "internal.h"
+ static int do_umount(struct vfsmount *mnt, int flags)
+ {
+-	struct super_block * sb = mnt->mnt_sb;
++	struct super_block *sb = mnt->mnt_sb;
+ 	int retval;
+ 
+ 	retval = security_sb_umount(mnt, flags);
+@@ -461,7 +461,7 @@ static int do_umount(struct vfsmount *mn
+ 	 */
+ 
+ 	lock_kernel();
+-	if( (flags&MNT_FORCE) && sb->s_op->umount_begin)
++	if ((flags & MNT_FORCE) && sb->s_op->umount_begin)
+ 		sb->s_op->umount_begin(sb);
+ 	unlock_kernel();
+ 
+@@ -543,12 +543,11 @@ out:
+ #ifdef __ARCH_WANT_SYS_OLDUMOUNT
  
  /*
-@@ -660,26 +661,38 @@ static struct file_operations proc_smaps
- #endif
- 
- extern struct seq_operations mounts_op;
-+struct proc_mounts {
-+	struct seq_file m;
-+	int event;
-+};
-+
- static int mounts_open(struct inode *inode, struct file *file)
+- *	The 2.0 compatible umount. No flags. 
++ *	The 2.0 compatible umount. No flags.
+  */
+- 
+ asmlinkage long sys_oldumount(char __user * name)
  {
- 	struct task_struct *task = proc_task(inode);
--	int ret = seq_open(file, &mounts_op);
-+	struct namespace *namespace;
-+	struct proc_mounts *p;
-+	int ret = -EINVAL;
+-	return sys_umount(name,0);
++	return sys_umount(name, 0);
+ }
  
--	if (!ret) {
--		struct seq_file *m = file->private_data;
--		struct namespace *namespace;
--		task_lock(task);
--		namespace = task->namespace;
--		if (namespace)
--			get_namespace(namespace);
--		task_unlock(task);
--
--		if (namespace)
--			m->private = namespace;
--		else {
--			seq_release(inode, file);
--			ret = -EINVAL;
-+	task_lock(task);
-+	namespace = task->namespace;
-+	if (namespace)
-+		get_namespace(namespace);
-+	task_unlock(task);
-+
-+	if (namespace) {
-+		ret = -ENOMEM;
-+		p = kmalloc(sizeof(struct proc_mounts), GFP_KERNEL);
-+		if (p) {
-+			file->private_data = &p->m;
-+			ret = seq_open(file, &mounts_op);
-+			if (!ret) {
-+				p->m.private = namespace;
-+				p->event = namespace->event;
-+				return 0;
-+			}
-+			kfree(p);
+ #endif
+@@ -571,8 +570,7 @@ static int mount_is_safe(struct nameidat
+ #endif
+ }
+ 
+-static int
+-lives_below_in_same_fs(struct dentry *d, struct dentry *dentry)
++static int lives_below_in_same_fs(struct dentry *d, struct dentry *dentry)
+ {
+ 	while (1) {
+ 		if (d == dentry)
+@@ -616,7 +614,7 @@ static struct vfsmount *copy_tree(struct
  		}
-+		put_namespace(namespace);
  	}
- 	return ret;
+ 	return res;
+- Enomem:
++Enomem:
+ 	if (res) {
+ 		spin_lock(&vfsmount_lock);
+ 		umount_tree(res);
+@@ -718,12 +716,11 @@ out:
+  * If you've mounted a non-root directory somewhere and want to do remount
+  * on it - tough luck.
+  */
+-
+ static int do_remount(struct nameidata *nd, int flags, int mnt_flags,
+ 		      void *data)
+ {
+ 	int err;
+-	struct super_block * sb = nd->mnt->mnt_sb;
++	struct super_block *sb = nd->mnt->mnt_sb;
+ 
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EPERM;
+@@ -737,7 +734,7 @@ static int do_remount(struct nameidata *
+ 	down_write(&sb->s_umount);
+ 	err = do_remount_sb(sb, flags, data, 0);
+ 	if (!err)
+-		nd->mnt->mnt_flags=mnt_flags;
++		nd->mnt->mnt_flags = mnt_flags;
+ 	up_write(&sb->s_umount);
+ 	if (!err)
+ 		security_sb_post_remount(nd->mnt, flags, data);
+@@ -758,7 +755,7 @@ static int do_move_mount(struct nameidat
+ 		return err;
+ 
+ 	down_write(&current->namespace->sem);
+-	while(d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry))
++	while (d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry))
+ 		;
+ 	err = -EINVAL;
+ 	if (!check_mnt(nd->mnt) || !check_mnt(old_nd.mnt))
+@@ -785,7 +782,7 @@ static int do_move_mount(struct nameidat
+ 		goto out2;
+ 
+ 	err = -ELOOP;
+-	for (p = nd->mnt; p->mnt_parent!=p; p = p->mnt_parent)
++	for (p = nd->mnt; p->mnt_parent != p; p = p->mnt_parent)
+ 		if (p == old_nd.mnt)
+ 			goto out2;
+ 	err = 0;
+@@ -843,7 +840,7 @@ int do_add_mount(struct vfsmount *newmnt
+ 
+ 	down_write(&current->namespace->sem);
+ 	/* Something was mounted here while we slept */
+-	while(d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry))
++	while (d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry))
+ 		;
+ 	err = -EINVAL;
+ 	if (!check_mnt(nd->mnt))
+@@ -986,8 +983,8 @@ EXPORT_SYMBOL_GPL(mark_mounts_for_expiry
+  * Note that this function differs from copy_from_user() in that it will oops
+  * on bad values of `to', rather than returning a short copy.
+  */
+-static long
+-exact_copy_from_user(void *to, const void __user *from, unsigned long n)
++static long exact_copy_from_user(void *to, const void __user * from,
++				 unsigned long n)
+ {
+ 	char *t = to;
+ 	const char __user *f = from;
+@@ -1008,12 +1005,12 @@ exact_copy_from_user(void *to, const voi
+ 	return n;
  }
-@@ -692,11 +705,30 @@ static int mounts_release(struct inode *
- 	return seq_release(inode, file);
- }
  
-+static unsigned mounts_poll(struct file *file, poll_table *wait)
-+{
-+	struct proc_mounts *p = file->private_data;
-+	struct namespace *ns = p->m.private;
-+	unsigned res = 0;
+-int copy_mount_options(const void __user *data, unsigned long *where)
++int copy_mount_options(const void __user * data, unsigned long *where)
+ {
+ 	int i;
+ 	unsigned long page;
+ 	unsigned long size;
+-	
 +
-+	poll_wait(file, &ns->poll, wait);
-+
-+	spin_lock(&vfsmount_lock);
-+	if (p->event != ns->event) {
-+		p->event = ns->event;
-+		res = POLLERR;
-+	}
-+	spin_unlock(&vfsmount_lock);
-+
-+	return res;
-+}
-+
- static struct file_operations proc_mounts_operations = {
- 	.open		= mounts_open,
- 	.read		= seq_read,
- 	.llseek		= seq_lseek,
- 	.release	= mounts_release,
-+	.poll		= mounts_poll,
- };
+ 	*where = 0;
+ 	if (!data)
+ 		return 0;
+@@ -1032,7 +1029,7 @@ int copy_mount_options(const void __user
  
- #define PROC_BLOCK_SIZE	(3*1024)		/* 4K page size but our output routines use some slack for overruns */
-diff --git a/include/linux/namespace.h b/include/linux/namespace.h
---- a/include/linux/namespace.h
-+++ b/include/linux/namespace.h
-@@ -10,6 +10,8 @@ struct namespace {
- 	struct vfsmount *	root;
- 	struct list_head	list;
- 	struct rw_semaphore	sem;
-+	wait_queue_head_t poll;
-+	int event;
- };
+ 	i = size - exact_copy_from_user((void *)page, data, size);
+ 	if (!i) {
+-		free_page(page); 
++		free_page(page);
+ 		return -EFAULT;
+ 	}
+ 	if (i != PAGE_SIZE)
+@@ -1055,7 +1052,7 @@ int copy_mount_options(const void __user
+  * Therefore, if this magic number is present, it carries no information
+  * and must be discarded.
+  */
+-long do_mount(char * dev_name, char * dir_name, char *type_page,
++long do_mount(char *dev_name, char *dir_name, char *type_page,
+ 		  unsigned long flags, void *data_page)
+ {
+ 	struct nameidata nd;
+@@ -1083,7 +1080,7 @@ long do_mount(char * dev_name, char * di
+ 		mnt_flags |= MNT_NODEV;
+ 	if (flags & MS_NOEXEC)
+ 		mnt_flags |= MNT_NOEXEC;
+-	flags &= ~(MS_NOSUID|MS_NOEXEC|MS_NODEV|MS_ACTIVE);
++	flags &= ~(MS_NOSUID | MS_NOEXEC | MS_NODEV | MS_ACTIVE);
  
- extern int copy_namespace(int, struct task_struct *);
+ 	/* ... and get the mountpoint */
+ 	retval = path_lookup(dir_name, LOOKUP_FOLLOW, &nd);
+@@ -1207,7 +1204,7 @@ asmlinkage long sys_mount(char __user * 
+ 	unsigned long dev_page;
+ 	char *dir_page;
+ 
+-	retval = copy_mount_options (type, &type_page);
++	retval = copy_mount_options(type, &type_page);
+ 	if (retval < 0)
+ 		return retval;
+ 
+@@ -1216,17 +1213,17 @@ asmlinkage long sys_mount(char __user * 
+ 	if (IS_ERR(dir_page))
+ 		goto out1;
+ 
+-	retval = copy_mount_options (dev_name, &dev_page);
++	retval = copy_mount_options(dev_name, &dev_page);
+ 	if (retval < 0)
+ 		goto out2;
+ 
+-	retval = copy_mount_options (data, &data_page);
++	retval = copy_mount_options(data, &data_page);
+ 	if (retval < 0)
+ 		goto out3;
+ 
+ 	lock_kernel();
+-	retval = do_mount((char*)dev_page, dir_page, (char*)type_page,
+-			  flags, (void*)data_page);
++	retval = do_mount((char *)dev_page, dir_page, (char *)type_page,
++			  flags, (void *)data_page);
+ 	unlock_kernel();
+ 	free_page(data_page);
+ 
+@@ -1295,9 +1292,11 @@ static void chroot_fs_refs(struct nameid
+ 		if (fs) {
+ 			atomic_inc(&fs->count);
+ 			task_unlock(p);
+-			if (fs->root==old_nd->dentry&&fs->rootmnt==old_nd->mnt)
++			if (fs->root == old_nd->dentry
++			    && fs->rootmnt == old_nd->mnt)
+ 				set_fs_root(fs, new_nd->mnt, new_nd->dentry);
+-			if (fs->pwd==old_nd->dentry&&fs->pwdmnt==old_nd->mnt)
++			if (fs->pwd == old_nd->dentry
++			    && fs->pwdmnt == old_nd->mnt)
+ 				set_fs_pwd(fs, new_nd->mnt, new_nd->dentry);
+ 			put_fs_struct(fs);
+ 		} else
+@@ -1327,8 +1326,8 @@ static void chroot_fs_refs(struct nameid
+  *    though, so you may need to say mount --bind /nfs/my_root /nfs/my_root
+  *    first.
+  */
+-
+-asmlinkage long sys_pivot_root(const char __user *new_root, const char __user *put_old)
++asmlinkage long sys_pivot_root(const char __user * new_root,
++			       const char __user * put_old)
+ {
+ 	struct vfsmount *tmp;
+ 	struct nameidata new_nd, old_nd, parent_nd, root_parent, user_nd;
+@@ -1339,14 +1338,15 @@ asmlinkage long sys_pivot_root(const cha
+ 
+ 	lock_kernel();
+ 
+-	error = __user_walk(new_root, LOOKUP_FOLLOW|LOOKUP_DIRECTORY, &new_nd);
++	error = __user_walk(new_root, LOOKUP_FOLLOW | LOOKUP_DIRECTORY,
++			    &new_nd);
+ 	if (error)
+ 		goto out0;
+ 	error = -EINVAL;
+ 	if (!check_mnt(new_nd.mnt))
+ 		goto out1;
+ 
+-	error = __user_walk(put_old, LOOKUP_FOLLOW|LOOKUP_DIRECTORY, &old_nd);
++	error = __user_walk(put_old, LOOKUP_FOLLOW | LOOKUP_DIRECTORY, &old_nd);
+ 	if (error)
+ 		goto out1;
+ 
+@@ -1464,10 +1464,9 @@ void __init mnt_init(unsigned long mempa
+ 	int i;
+ 
+ 	mnt_cache = kmem_cache_create("mnt_cache", sizeof(struct vfsmount),
+-			0, SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
++			0, SLAB_HWCACHE_ALIGN | SLAB_PANIC, NULL, NULL);
+ 
+-	mount_hashtable = (struct list_head *)
+-		__get_free_page(GFP_ATOMIC);
++	mount_hashtable = (struct list_head *)__get_free_page(GFP_ATOMIC);
+ 
+ 	if (!mount_hashtable)
+ 		panic("Failed to allocate mount hash table\n");
+@@ -1489,7 +1488,7 @@ void __init mnt_init(unsigned long mempa
+ 	 * from the number of bits we can fit.
+ 	 */
+ 	nr_hash = 1UL << hash_bits;
+-	hash_mask = nr_hash-1;
++	hash_mask = nr_hash - 1;
+ 
+ 	printk("Mount-cache hash table entries: %d\n", nr_hash);
+ 

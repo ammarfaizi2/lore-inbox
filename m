@@ -1,131 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965036AbVKHCxf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965179AbVKHCxi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965036AbVKHCxf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 21:53:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965179AbVKHCxf
+	id S965179AbVKHCxi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 21:53:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965196AbVKHCxi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 21:53:35 -0500
-Received: from xproxy.gmail.com ([66.249.82.199]:35747 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965036AbVKHCxf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 21:53:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QJHrRgWAq+jlXyLDlFOSK3dWoHPmQ08svdcKAYypxRqMukN/2HSVtqOp3CYt4WHXCV0BHMesA8mP6JC7be0EqDFrzfoUBKrqT99nMNH3RrtDDjkgZofvtf3XGybNES3GCIG9Juf94a5FPVlW+lwQliXU8OK+whq2WRlSmrpT9Ug=
-Message-ID: <1e62d1370511071853o5d65f0dcm7548b7563615ed35@mail.gmail.com>
-Date: Tue, 8 Nov 2005 07:53:34 +0500
-From: Fawad Lateef <fawadlateef@gmail.com>
-To: liyu <liyu@ccoss.com.cn>
-Subject: Re: [question] I doublt on timer interrput.
-Cc: rml@novell.com, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <4370006E.1050806@ccoss.com.cn>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 7 Nov 2005 21:53:38 -0500
+Received: from ozlabs.org ([203.10.76.45]:8335 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S965179AbVKHCxh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 21:53:37 -0500
+Date: Tue, 8 Nov 2005 13:53:25 +1100
+From: David Gibson <david@gibson.dropbear.id.au>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Adam Litke <agl@us.ibm.com>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, hugh@veritas.com, rohit.seth@intel.com,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>, akpm@osdl.org
+Subject: Re: [RFC 2/2] Hugetlb COW
+Message-ID: <20051108025325.GC10769@localhost.localdomain>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Adam Litke <agl@us.ibm.com>, linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org, hugh@veritas.com,
+	rohit.seth@intel.com, "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+	akpm@osdl.org
+References: <1131397841.25133.90.camel@localhost.localdomain> <1131399533.25133.104.camel@localhost.localdomain> <20051107233538.GH29402@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <436EEEA4.1020703@ccoss.com.cn>
-	 <1e62d1370511070353o1d1d4931ncf0ff8a5f5658069@mail.gmail.com>
-	 <4370006E.1050806@ccoss.com.cn>
+In-Reply-To: <20051107233538.GH29402@holomorphy.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/8/05, liyu <liyu@ccoss.com.cn> wrote:
-> Fawad Lateef Wrote:
->
-> >
-> >What I found in the kernel code is that scheduler_tick is called from
-> >two locations in the kernel (2.6.14-mm1) code (i386).
-> >
-> >1) from kernel/timer.c in update_process_times which is called from
-> >arch/i386/kernel/apic.c and its calling depends on the CONFIG_SMP
-> >defined or not (see
-> >http://sosdg.org/~coywolf/lxr/source/arch/i386/kernel/apic.c#L1160)
-> >and as you don't have CONFIG_SMP enabled so its won't be called from
-> >here.
-> >
-> >2) from sched_fork function in kernel/sched.c
-> >(http://sosdg.org/~coywolf/lxr/source/kernel/sched.c#L1414) and I
-> >think its called when newly forked process setup is going to be
-> >performed, and I think as from here scheduler_tick is called in your
-> >case, so you are getting different value for your variable tick_count
-> >
-> >scheduler_tick might be called from somewhere else which I am missing
-> >so please CMIIW !
-> >
-> Please see this URL:
->
-> http://lxr.linux.no/source/include/asm-i386/mach-default/do_timer.h#L20
->
-> static inline void do_timer_interrupt_hook(struct pt_regs *regs)
-> {
->         do_timer(regs);
-> #ifndef CONFIG_SMP
->         update_process_times(user_mode(regs));
-> #endif
-> /*
->  * In the SMP case we use the local APIC timer interrupt to do the
->  * profiling, except when we simulate SMP mode on a uniprocessor
->  * system, in that case we have to call the local interrupt handler.
->  */
-> #ifndef CONFIG_X86_LOCAL_APIC
->         profile_tick(CPU_PROFILING, regs);
-> #else
->         if (!using_apic_timer)
->                 smp_local_timer_interrupt(regs);
-> #endif
-> }
->
->
-> That is the code in 2.6.12, but 2.6.13.3 also same with it at least.
-> So we call scheduler_tick() HZ times per second, both enable
-> SMP or disable it.
->
+On Mon, Nov 07, 2005 at 03:35:38PM -0800, William Lee Irwin wrote:
+> On Mon, Nov 07, 2005 at 03:38:53PM -0600, Adam Litke wrote:
+> > [RFC] COW for hugepages
+> > (Patch originally from David Gibson <dwg@au1.ibm.com>)
+> > This patch implements copy-on-write for hugepages, hence allowing
+> > MAP_PRIVATE mappings of hugetlbfs.
+> > This is chiefly useful for cases where we want to use hugepages
+> > "automatically" - that is to map hugepages without the knowledge of
+> > the code in the final application (either via kernel hooks, or with
+> > LD_PRELOAD).  We can use various heuristics to determine when
+> > hugepages might be a good idea, but changing the semantics of
+> > anonymous memory from MAP_PRIVATE to MAP_SHARED without the app's
+> > knowledge is clearly wrong.
+> 
+> I'll go check for architectures where page protections may be encoded
+> differently depending on the size of the translation, or whose code is
+> otherwise unprepared to cope with protection bits.
+> 
+> If you've done such checking already, I'd be much obliged to hear of it
+> (in fact, I'd much prefer you to have done so).
 
-Yes, this is the thing which I missed
+I can't see how the COW catch could be any more broken in this regard
+than we are already:  make_huge_pte() in mm/hugetlb.c already assumes
+that pte_mkwrite() and pte_wrprotect() will work properly on hugepage
+PTEs.  COW doesn't use anything more.
 
-
-> Nod, I agree with your words, the scheduler_tick() do not same with
-> timer interrupt handler on call times. but I guess it should be more
-> than jiffies, beacause of other functions also can call it (for example,
-> as Lateef said, sched_fork().)
->
-> I think that
->
-> scheduler_tick() might be called from somewhere
->
-> is not exact.
->
-> We may note, it do not be EXPORT_SYMBOL_*()ed , so it only can be called
-> from kernel core,
-> not kernel modules. Such a few places we can find it use LXR or grep.
->
-
-By saying __might_be_called_from_somewhere__ I meant that I am missing
-some-other place __with-in_the_kernel_code__ from where it is called,
-which you pointed to me (about do_timer.h)   :)
-
-> I use setup one sysctl integer variable to watch the value of 'count_tick',
-> Do this way have any problem? I found some value skips, but I think it is
-> normal case.
->
-
-If you are declaring count_tick as a global variable (without static)
-in sched.c then you can just use it in your test module by specifying
-extern for your variable
-
->
-> However, I will make a experiemnt that write one hook like do_timer(),
-> as Love said
->
-> PS: if our scheduler_tick() is not called every timer interrput, the
-> compute of task timeslice
-> also is not exact ?!
->
-
-Yes, I am now sure that it will be called for every timer interrupt ! :)
-
-Thanks,
-
---
-Fawad Lateef
+-- 
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson

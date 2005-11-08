@@ -1,24 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965012AbVKHRHn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030262AbVKHRJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965012AbVKHRHn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 12:07:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965149AbVKHRHm
+	id S1030262AbVKHRJg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 12:09:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965171AbVKHRJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 12:07:42 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:16739
+	Tue, 8 Nov 2005 12:09:36 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:35939
 	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S965012AbVKHRHm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 12:07:42 -0500
-Message-Id: <4370E9A2.76F0.0078.0@novell.com>
+	id S1030262AbVKHRJf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 12:09:35 -0500
+Message-Id: <4370EA15.76F0.0078.0@novell.com>
 X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Tue, 08 Nov 2005 18:08:34 +0100
+Date: Tue, 08 Nov 2005 18:10:29 +0100
 From: "Jan Beulich" <JBeulich@novell.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i386: make trap information available to die
-	handlers
-References: <4370AEE1.76F0.0078.0@novell.com>  <4370E5C4.76F0.0078.0@novell.com> <Pine.LNX.4.58.0511080853360.15288@shark.he.net>
-In-Reply-To: <Pine.LNX.4.58.0511080853360.15288@shark.he.net>
+To: "Adrian Bunk" <bunk@stusta.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] i386: stand-alone CONFIG_PAE
+References: <4370AEE1.76F0.0078.0@novell.com>  <4370E69F.76F0.0078.0@novell.com> <20051108170243.GA3847@stusta.de>
+In-Reply-To: <20051108170243.GA3847@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -26,13 +25,17 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->And the patch (attachment) also contains From:, but it's missing
->a Signed-off-by: line.
+>>> Adrian Bunk <bunk@stusta.de> 08.11.05 18:02:43 >>>
+>On Tue, Nov 08, 2005 at 05:55:43PM +0100, Jan Beulich wrote:
+>>...
+>> Also appropriately qualify both options depending on configured
+>> minimum processor type.
+>
+>With the current semantics of the cpu options this is wrong:
+>M386 is a synonym for "kernel runs on all cpus".
 
-I looked at many ChangeLog entries (which supposedly get created from
-the abstract), and by far not all of them have the author listed both as
-From: and Singed-Off-By:, which made me think that either of the two
-should be sufficient (and I really can't see why the author information
-needs to appear twice).
+No. Such a kernel in fact doesn't run on all CPUs. It's not like it can
+take advantage of PAE if it's there, it'll die if there is no PAE.
+That's why those that clearly can't have PAE have been excluded.
 
 Jan

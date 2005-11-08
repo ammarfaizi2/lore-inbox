@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030264AbVKHE2O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030261AbVKHE3Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030264AbVKHE2O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 23:28:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030261AbVKHE2O
+	id S1030261AbVKHE3Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 23:29:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030276AbVKHE3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 23:28:14 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:59666 "EHLO
+	Mon, 7 Nov 2005 23:29:24 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:64530 "EHLO
 	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1030264AbVKHE2N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 23:28:13 -0500
-Date: Mon, 7 Nov 2005 20:28:12 -0800
-Message-Id: <200511080428.jA84SCwt009890@zach-dev.vmware.com>
-Subject: [PATCH 9/21] i386 Deprecate obsolete ldt accessors
+	id S1030261AbVKHE3X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 23:29:23 -0500
+Date: Mon, 7 Nov 2005 20:29:21 -0800
+Message-Id: <200511080429.jA84TLhD009896@zach-dev.vmware.com>
+Subject: [PATCH 10/21] i386 Use protected segment for 16bit stack
 From: Zachary Amsden <zach@vmware.com>
 To: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
        Linus Torvalds <torvalds@osdl.org>,
@@ -25,38 +25,29 @@ To: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
        "Eric W. Biederman" <ebiederm@xmission.com>,
        Ingo Molnar <mingo@elte.hu>, Zachary Amsden <zach@vmware.com>,
        Zachary Amsden <zach@vmware.com>
-X-OriginalArrivalTime: 08 Nov 2005 04:28:12.0587 (UTC) FILETIME=[D488A7B0:01C5E41C]
+X-OriginalArrivalTime: 08 Nov 2005 04:29:21.0790 (UTC) FILETIME=[FDC831E0:01C5E41C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Old accessors to fetch LDT descriptors are unused and outdated and in
-the wrong header file.
+Use prepare_protected_segment macro to set up the 16-bit stack.
+
+Whee!! This code is almost readable now.
 
 Signed-off-by: Zachary Amsden <zach@vmware.com>
-Index: linux-2.6.14-zach-work/include/asm-i386/system.h
+Index: linux-2.6.14-zach-work/arch/i386/kernel/cpu/common.c
 ===================================================================
---- linux-2.6.14-zach-work.orig/include/asm-i386/system.h	2005-11-04 17:45:04.000000000 -0800
-+++ linux-2.6.14-zach-work/include/asm-i386/system.h	2005-11-05 00:28:08.000000000 -0800
-@@ -56,22 +56,6 @@ __asm__ __volatile__ ("movw %%dx,%1\n\t"
- #define set_base(ldt,base) _set_base( ((char *)&(ldt)) , (base) )
- #define set_limit(ldt,limit) _set_limit( ((char *)&(ldt)) , (limit) )
+--- linux-2.6.14-zach-work.orig/arch/i386/kernel/cpu/common.c	2005-11-04 16:54:45.000000000 -0800
++++ linux-2.6.14-zach-work/arch/i386/kernel/cpu/common.c	2005-11-05 00:28:08.000000000 -0800
+@@ -607,10 +607,8 @@ void __devinit cpu_init(void)
+ 	set_base(gdt[GDT_ENTRY_BAD_BIOS_CACHE], __va(BAD_BIOS_AREA));
  
--static inline unsigned long _get_base(char * addr)
--{
--	unsigned long __base;
--	__asm__("movb %3,%%dh\n\t"
--		"movb %2,%%dl\n\t"
--		"shll $16,%%edx\n\t"
--		"movw %1,%%dx"
--		:"=&d" (__base)
--		:"m" (*((addr)+2)),
--		 "m" (*((addr)+4)),
--		 "m" (*((addr)+7)));
--	return __base;
--}
--
--#define get_base(ldt) _get_base( ((char *)&(ldt)) )
--
- /*
-  * Load a segment. Fall back on loading the zero
-  * segment if something goes wrong..
+ 	/* Set up GDT entry for 16bit stack */
+- 	*(__u64 *)(&gdt[GDT_ENTRY_ESPFIX_SS]) |=
+-		((((__u64)stk16_off) << 16) & 0x000000ffffff0000ULL) |
+-		((((__u64)stk16_off) << 32) & 0xff00000000000000ULL) |
+-		(CPU_16BIT_STACK_SIZE - 1);
++	prepare_protected_segment(cpu, GDT_ENTRY_ESPFIX_SS, (void *) stk16_off,
++				  CPU_16BIT_STACK_SIZE);
+ 
+ 	cpu_gdt_descr[cpu].size = GDT_SIZE - 1;
+  	cpu_gdt_descr[cpu].address = (unsigned long)gdt;

@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030222AbVKHPtw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbVKHPzn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030222AbVKHPtw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 10:49:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965121AbVKHPtw
+	id S932377AbVKHPzn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 10:55:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965101AbVKHPzn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 10:49:52 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:63651 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965101AbVKHPtv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 10:49:51 -0500
-Date: Tue, 8 Nov 2005 15:48:28 +0000
-From: Alasdair G Kergon <agk@redhat.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, dm-devel@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [dm-devel] [2.6 patch] drivers/md/kcopyd.c: remove kcopyd_cancel()
-Message-ID: <20051108154828.GX26394@agk.surrey.redhat.com>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	Andrew Morton <akpm@osdl.org>, dm-devel@redhat.com,
-	linux-kernel@vger.kernel.org
-References: <20051108134419.GR3847@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051108134419.GR3847@stusta.de>
-User-Agent: Mutt/1.4.1i
+	Tue, 8 Nov 2005 10:55:43 -0500
+Received: from 238-193.adsl.pool.ew.hu ([193.226.238.193]:16914 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S932308AbVKHPzm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 10:55:42 -0500
+To: linuxram@us.ibm.com
+CC: miklos@szeredi.hu, viro@ftp.linux.org.uk, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-reply-to: <1131464926.5400.234.camel@localhost> (message from Ram Pai on
+	Tue, 08 Nov 2005 07:48:46 -0800)
+Subject: Re: [PATCH 12/18] shared mount handling: bind and rbind
+References: <E1EZInj-0001Ez-AV@ZenIV.linux.org.uk>
+	 <E1EZUC9-0007oJ-00@dorka.pomaz.szeredi.hu> <1131464926.5400.234.camel@localhost>
+Message-Id: <E1EZVoO-000807-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 08 Nov 2005 16:55:04 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 08, 2005 at 02:44:19PM +0100, Adrian Bunk wrote:
-> A function that is
-> - not used
-> - empty
-> - without a prototype in any header file
-> should be removed.
- 
-I'd rather you submitted a patch to complete the function and invoke it
-in the appropriate place:-)  But please don't remove comments indicating 
-missing functionality: commenting it out till it's written would be better.
+> No. As explained in the same earlier threads; without this change the
+> behavior of shared-subtrees leads to inconsistency and confusion in some
+> scenarios.
+> 
+> Under the premise that no application should depend on this behavior
+> (most-recent-mount-visible v/s top-most-mount-visible),
 
-Alasdair
--- 
-agk@redhat.com
+The strongest argument against was that
 
-> -/*
-> - * Cancels a kcopyd job, eg. someone might be deactivating a
-> - * mirror.
-> - */
-> -int kcopyd_cancel(struct kcopyd_job *job, int block)
-> -{
-> -	/* FIXME: finish */
-> -	return -1;
-> -}
+  mount foo .; umount .
 
+would no longer be a no-op.
+
+> Al Viro permitted this change. And this is certainly the right
+> behavior.
+
+Which is a contradiction in term, since you are saying that
+applications _do_ depend on it.
+
+Miklos

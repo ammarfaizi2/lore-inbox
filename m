@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965035AbVKHJq0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbVKHKZw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965035AbVKHJq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 04:46:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965080AbVKHJq0
+	id S932400AbVKHKZw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 05:25:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbVKHKZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 04:46:26 -0500
-Received: from gate.crashing.org ([63.228.1.57]:13459 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S965035AbVKHJqZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 04:46:25 -0500
-Subject: Re: CLOCK_REALTIME_RES and nanosecond resolution
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: tglx@linutronix.de
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1131442459.18108.75.camel@tglx.tec.linutronix.de>
-References: <1131418511.4652.88.camel@gaston>
-	 <1131442459.18108.75.camel@tglx.tec.linutronix.de>
-Content-Type: text/plain
-Date: Tue, 08 Nov 2005 20:45:37 +1100
-Message-Id: <1131443137.4652.101.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Nov 2005 05:25:52 -0500
+Received: from [202.125.80.34] ([202.125.80.34]:5150 "EHLO mail.esn.co.in")
+	by vger.kernel.org with ESMTP id S932400AbVKHKZv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 05:25:51 -0500
+Content-class: urn:content-classes:message
+Subject: Elaboration on module compilation process ?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: Tue, 8 Nov 2005 15:52:08 +0530
+Message-ID: <3AEC1E10243A314391FE9C01CD65429B13B3A5@mail.esn.co.in>
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Which version of 2.6.11 is most stable
+Thread-Index: AcXjkZhOrF7iOkE1S/Sc9lZvQ6nMswACUzwgAAFt9JAAKuqNcA==
+From: "Mukund JB." <mukundjb@esntechnologies.co.in>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> This is the resolution which you can expect for timers (nanosleep and
-> interval timers) as the timers depend on the jiffy tick.
-> 
-> The resolution of the readout functions is not affected by this.
+Dear All,
 
-Ok, thanks, POSIX spec wasn't very clear about that 
+I have an issue with compiling a simple kernel module over the 2.4.20-8 kernel on my X86 machine(RH Rel 9).
+I guess I touched some of the header files in the kernel source dir i.e. /usr/src/linux-2.4.20-8. 
+So I am getting the Compile time error.
 
-Ben.
+Where as it works fine on the other machine next to me running the same RH 9.
+So, I tried to simply fix this by replacing the entire Linux kernel source directory on my system with the one nxt to me.
+
+YES, I could get the module compiled smoothly now. But I am not able to load the module into the running kernel.
+I end up getting the "kernel-module version mismatch" error.
+
+
+I guess if I modify the kernel version in a particular file in the kernel sources I would be able to fix it.
+Can some help me suggesting where does the module compilation process pick the kernel version from the source directories?
+
+Thanks & regards,
+Mukund Jampala
 
 

@@ -1,52 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965163AbVKHBqf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964834AbVKHByL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965163AbVKHBqf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 20:46:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965173AbVKHBqf
+	id S964834AbVKHByL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 20:54:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965110AbVKHByL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 20:46:35 -0500
-Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:29886 "HELO
-	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S965163AbVKHBqe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 20:46:34 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=IRv2NSAhUkEFn3M7xpEbI13DeSnfSRmTqayowg73J85O7OJScaG1ifdVptBS/SaQ6Hh08tr1qMj44dDwsH4qmbpnnirJFUzOE6il/h24fz+AMENj6LU3uL0xY7VigavomxzPR3XZ2tSKlo+NB/4xT6sMeWH2ktmvGO8ykpyRA9g=  ;
-Message-ID: <437003DC.4080500@yahoo.com.au>
-Date: Tue, 08 Nov 2005 12:48:12 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-CC: Anton Blanchard <anton@samba.org>, Brian Twichell <tbrian@us.ibm.com>,
-       David Lang <david.lang@digitalinsight.com>,
-       linux-kernel@vger.kernel.org, slpratt@us.ibm.com
-Subject: Re: Database regression due to scheduler changes ?
-References: <436FD291.2060301@us.ibm.com> <Pine.LNX.4.62.0511071431030.9339@qynat.qvtvafvgr.pbz> <436FDDE2.4000708@us.ibm.com> <436FF6A6.1040708@yahoo.com.au> <20051108011547.GP12353@krispykreme> <105220000.1131413677@flay> <43700371.6040507@yahoo.com.au>
-In-Reply-To: <43700371.6040507@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 7 Nov 2005 20:54:11 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:16878 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964834AbVKHByK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 20:54:10 -0500
+Date: Mon, 7 Nov 2005 17:53:58 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Rohit, Seth" <rohit.seth@intel.com>
+Cc: torvalds@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: Cleanup of __alloc_pages
+Message-Id: <20051107175358.62c484a3.akpm@osdl.org>
+In-Reply-To: <20051107174349.A8018@unix-os.sc.intel.com>
+References: <20051107174349.A8018@unix-os.sc.intel.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
+"Rohit, Seth" <rohit.seth@intel.com> wrote:
+>
+> [PATCH]: Clean up of __alloc_pages. Couple of difference from original behavior:
+> 	1- remove the initial reclaim logic
+> 	2- GFP_HIGH pages are allowed to go little below watermark sooner.
+> 	3- Search for free pages unconditionally after direct reclaim.
 
-[...]
+Would it be possible to break these into three separate patches?  The
+cleanup part should be #1.
 
-> be some at least small regressions. Have you seen any? Do you have
-> any tests in mind that might show a problem?
-> 
+> +/* get_page_from_freeliest loops through all the possible zones
+> + * to find out if it can allocate a page.  can_try_harder can have following
+> + * values:
+> + * -1 => No need to check for the watermarks.
+> + *  0 => Don't go too low down in deeps below the low watermark (GFP_HIGH)
+> + *  1 => Go far below the low watermark.  See zone_watermark_ok (RT TASK)
+> + *
+> + * cpuset check is not performed when the skip_cpuset_chk flag is set.
+> + */
+> +
+> +static struct page *
+> +get_page_from_freelist(gfp_t gfp_mask, unsigned int order, struct zone **zones, 
+> +			int can_try_harder, int skip_cpuset_chk)
+> +{
+> +	struct zone *z;
+> +	struct page *page = NULL;
+> +	int classzone_idx = zone_idx(zones[0]);
+> +	int i;
+> +
+> +	/*
+> +	 * Go through the zonelist once, looking for a zone with enough free.
+> +	 * See also cpuset_zone_allowed() comment in kernel/cpuset.c.
+> +	 */
+> +	for (i = 0; (z = zones[i]) != NULL; i++) {
+> +		if (!skip_cpuset_chk && (!cpuset_zone_allowed(z, gfp_mask)))
 
-To clarify, I'm not suggesting you should go one way or the other
-for POWER4/5, but if you did have regressions I would be interested
-at least so I can try helping platforms that do use balance on clone.
+It'd be nice to not have the `skip_cpuset_chk' flag there.  a) it gives
+Linus conniptions and b) it's a little extra overhead for !CONFIG_CPUSETS
+kernels.
 
-Thanks,
-Nick
+> -	zone_statistics(zonelist, z);
+> +	zone_statistics(zonelist, page_zone(page));
 
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Evaluating page_zone() is not completely trivial.  Can we avoid the above?

@@ -1,105 +1,214 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964912AbVKHPB1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964963AbVKHPBU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964912AbVKHPB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 10:01:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964991AbVKHPB1
+	id S964963AbVKHPBU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 10:01:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964973AbVKHPBU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 10:01:27 -0500
-Received: from zproxy.gmail.com ([64.233.162.199]:64607 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964973AbVKHPBZ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 10:01:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Fgsd9CoJqhGV3N8e7qI1Xwcw7jl0MLMlvsnYrK6qTnz7RG5XlgUSe2ETR+fvSUb2LvLAWKpoDadYY5Vb2QZZEkGq1x6o0ZB6ELs9lzD0gLc+gPXAA5fd5suSrQURJURU5rKAwIdtFAezl82WovthSk3D4INHQ8otpZIxUD0ftx0=
-Message-ID: <38bdcd1f0511080701p16e13ca4lebef1ed383dfbf0b@mail.gmail.com>
-Date: Wed, 9 Nov 2005 00:01:24 +0900
-From: Masanari Iida <standby24x7@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: oops with USB Storage on 2.6.14
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       linux-scsi@vger.kernel.org
-In-Reply-To: <20051107204055.58a80072.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 8 Nov 2005 10:01:20 -0500
+Received: from fmr24.intel.com ([143.183.121.16]:24252 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S964963AbVKHPBT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 10:01:19 -0500
+Date: Tue, 8 Nov 2005 07:00:38 -0800
+From: Ashok Raj <ashok.raj@intel.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, gregkh@suse.de, ak@muc.de
+Subject: Changing MSI to use physical delivery mode always.
+Message-ID: <20051108070038.A15318@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <38bdcd1f0510290511t65bb16cfkfd1e84fb301424f9@mail.gmail.com>
-	 <20051107204055.58a80072.akpm@osdl.org>
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/8/05, Andrew Morton <akpm@osdl.org> wrote:
-> Masanari Iida <standby24x7@gmail.com> wrote:
-> >
-> > Hello,
-> > I updated my system's kernel from 2.6.13.2 to 2.6.14,
-> > then it oops when I connect my Digital Camera via USB connection
-> > as USB storage device.
-> > I went back to 2.6.14-rc1, still the same panic happen.
-> > 2.6.13.2 and before, the kernel has been worked as expected.
-> >
-> > CPU Intel P4(2.4Ghz)
-> > USB Device   Pentax Optio S40.
-> >
-> > Unable to handle kernel paging request at virtual address dc9d1f4c
-> >  printing eip:
-> > c02b44cc
-> > *pde = 00073067
-> > *pte = 1c9d1000
-> > Oops: 0000 [#1]
-> > SMP DEBUG_PAGEALLOC
-> > Modules linked in: autofs e100 ipt_LOG ipt_state ip_conntrack
-> > ipt_recent iptable
-> > _filter ip_tables video rtc
-> > CPU:    1
-> > EIP:    0060:[<c02b44cc>]    Not tainted VLI
-> > EFLAGS: 00010286   (2.6.14)
-> > EIP is at scsi_run_queue+0xc/0xd0
-> > eax: 00000001   ebx: dc9d1e3c   ecx: d6b67910   edx: dc9d1e3c
-> > esi: d5048eb0   edi: dc9d1e3c   ebp: c1507e98   esp: c1507e84
-> > ds: 007b   es: 007b   ss: 0068
-> > Process ksoftirqd/1 (pid: 6, threadinfo=c1506000 task=dfe2dad0)
-> > Stack: 00000292 de3a7bf8 dc9d1e3c d5048eb0 dc9d1e3c c1507ea8 c02b4612 dc9d1e3c
-> >        da51bf60 c1507ecc c02b473f d5048eb0 00000000 00000024 00000286 00000001
-> >        d5048eb0 00000000 c1507f10 c02b4b2e d5048eb0 00000000 00000024 00000001
-> >
-> > Call Trace:
-> >  [<c0103abf>] show_stack+0x7f/0xa0
-> >  [<c0103c72>] show_registers+0x162/0x1d0
-> >  [<c0103e90>] die+0x100/0x1a0
-> >  [<c039d7ae>] do_page_fault+0x31e/0x640
-> >  [<c0103763>] error_code+0x4f/0x54
-> >  [<c02b4612>] scsi_next_command+0x22/0x30
-> >  [<c02b473f>] scsi_end_request+0xcf/0xf0
-> >  [<c02b4b2e>] scsi_io_completion+0x26e/0x470
-> >  [<c02b4fc7>] scsi_generic_done+0x37/0x50
-> >  [<c02af9e5>] scsi_finish_command+0x85/0xa0
-> >  [<c02af89c>] scsi_softirq+0xcc/0x140
-> >  [<c0122085>] __do_softirq+0xd5/0xf0
-> >  [<c01220d8>] do_softirq+0x38/0x40
-> >  [<c0122685>] ksoftirqd+0x95/0xe0
-> >  [<c0131cfa>] kthread+0xba/0xc0
-> >  [<c0100ecd>] kernel_thread_helper+0x5/0x18
-> > Code: f0 8b 42 44 e8 16 7f 0e 00 89 45 ec 89 1c 24 e8 6b b7 ff ff eb aa 89 f6 8d
-> >  bc 27 00 00 00 00 55 89 e5 57 56 53 83 ec 08 8b 55 08 <8b> 82 10 01 00 00 8b 38
-> >  f6 80 85 01 00 00 80 0f 85 9e 00 00 00
-> >   <0>Kernel panic - not syncing: Fatal exception in interrupt
-> >
->
-> Has there been any progress on this?
->
-> If not, can you please test the latest snapshot from
-> ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots and if it still fails, raise a bug at bugzilla.kernel.org?
->
-> Thanks.
->
+Hi,
 
-Hello again, Andrew,
+MSI was hard coded to use logical delivery mode for i386/x86_64 and 
+physical mode for ia64.
 
-I have tested on 2.6.14-git10 with CONFIG_DEBUG_PAGEALLOC=y.
-The original oops with USB Storage (Camera)  is fixed now.
-Thank you.
+With recent x86_64 we moved to physical flat mode that broke MSI.
 
-Masanari
+Made MSI to work with physical mode, this will be consistent on all
+archs. 
+
+-- 
+Cheers,
+Ashok Raj
+- Open Source Technology Center
+
+
+MSI hardcoded delivery mode to use logical delivery mode. Recently 
+x86_64 moved to use physical mode addressing to support physflat mode.
+With this mode enabled noticed that my eth with MSI werent working. 
+
+msi_address_init()  was hardcoded to use logical mode for i386 and x86_64.
+So when we switch to use physical mode, things stopped working.
+
+Since anyway we dont use lowest priority delivery with MSI, its always
+directed to just a single CPU. Its safe  and simpler to use 
+physical mode always, even when we use logical delivery mode for IPI's 
+or other ioapic RTE's.
+
+
+Signed-off-by: Ashok Raj <ashok.raj@intel.com>
+-----------------------------------------------------------
+ drivers/pci/msi.c        |   19 +++++++++++--------
+ include/asm-i386/msi.h   |    9 +--------
+ include/asm-i386/smp.h   |    6 ++++++
+ include/asm-ia64/msi.h   |    3 ---
+ include/asm-x86_64/msi.h |    4 +---
+ include/asm-x86_64/smp.h |    6 ++++++
+ 6 files changed, 25 insertions(+), 22 deletions(-)
+
+Index: linux-2.6.14-mm1/drivers/pci/msi.c
+===================================================================
+--- linux-2.6.14-mm1.orig/drivers/pci/msi.c
++++ linux-2.6.14-mm1/drivers/pci/msi.c
+@@ -23,6 +23,8 @@
+ #include "pci.h"
+ #include "msi.h"
+ 
++#define TARGET_CPU		first_cpu(cpu_online_map)
++
+ static DEFINE_SPINLOCK(msi_lock);
+ static struct msi_desc* msi_desc[NR_IRQS] = { [0 ... NR_IRQS-1] = NULL };
+ static kmem_cache_t* msi_cachep;
+@@ -92,6 +94,7 @@ static void set_msi_affinity(unsigned in
+ 	struct msi_desc *entry;
+ 	struct msg_address address;
+ 	unsigned int irq = vector;
++	unsigned int dest_cpu = first_cpu(cpu_mask);
+ 
+ 	entry = (struct msi_desc *)msi_desc[vector];
+ 	if (!entry || !entry->dev)
+@@ -108,9 +111,9 @@ static void set_msi_affinity(unsigned in
+ 		pci_read_config_dword(entry->dev, msi_lower_address_reg(pos),
+ 			&address.lo_address.value);
+ 		address.lo_address.value &= MSI_ADDRESS_DEST_ID_MASK;
+-		address.lo_address.value |= (cpu_mask_to_apicid(cpu_mask) <<
+-			MSI_TARGET_CPU_SHIFT);
+-		entry->msi_attrib.current_cpu = cpu_mask_to_apicid(cpu_mask);
++		address.lo_address.value |= (cpu_physical_id(dest_cpu) <<
++									MSI_TARGET_CPU_SHIFT);
++		entry->msi_attrib.current_cpu = cpu_physical_id(dest_cpu);
+ 		pci_write_config_dword(entry->dev, msi_lower_address_reg(pos),
+ 			address.lo_address.value);
+ 		set_native_irq_info(irq, cpu_mask);
+@@ -123,9 +126,8 @@ static void set_msi_affinity(unsigned in
+ 
+ 		address.lo_address.value = readl(entry->mask_base + offset);
+ 		address.lo_address.value &= MSI_ADDRESS_DEST_ID_MASK;
+-		address.lo_address.value |= (cpu_mask_to_apicid(cpu_mask) <<
+-			MSI_TARGET_CPU_SHIFT);
+-		entry->msi_attrib.current_cpu = cpu_mask_to_apicid(cpu_mask);
++		address.lo_address.value |= (dest_cpu << MSI_TARGET_CPU_SHIFT);
++		entry->msi_attrib.current_cpu = cpu_physical_id(dest_cpu);
+ 		writel(address.lo_address.value, entry->mask_base + offset);
+ 		set_native_irq_info(irq, cpu_mask);
+ 		break;
+@@ -259,14 +261,15 @@ static void msi_data_init(struct msg_dat
+ static void msi_address_init(struct msg_address *msi_address)
+ {
+ 	unsigned int	dest_id;
++	unsigned long	dest_phys_id = cpu_physical_id(TARGET_CPU);
+ 
+ 	memset(msi_address, 0, sizeof(struct msg_address));
+ 	msi_address->hi_address = (u32)0;
+ 	dest_id = (MSI_ADDRESS_HEADER << MSI_ADDRESS_HEADER_SHIFT);
+-	msi_address->lo_address.u.dest_mode = MSI_DEST_MODE;
++	msi_address->lo_address.u.dest_mode = MSI_PHYSICAL_MODE;
+ 	msi_address->lo_address.u.redirection_hint = MSI_REDIRECTION_HINT_MODE;
+ 	msi_address->lo_address.u.dest_id = dest_id;
+-	msi_address->lo_address.value |= (MSI_TARGET_CPU << MSI_TARGET_CPU_SHIFT);
++	msi_address->lo_address.value |= (dest_phys_id << MSI_TARGET_CPU_SHIFT);
+ }
+ 
+ static int msi_free_vector(struct pci_dev* dev, int vector, int reassign);
+Index: linux-2.6.14-mm1/include/asm-i386/msi.h
+===================================================================
+--- linux-2.6.14-mm1.orig/include/asm-i386/msi.h
++++ linux-2.6.14-mm1/include/asm-i386/msi.h
+@@ -10,13 +10,6 @@
+ #include <mach_apic.h>
+ 
+ #define LAST_DEVICE_VECTOR		232
+-#define MSI_DEST_MODE			MSI_LOGICAL_MODE
+-#define MSI_TARGET_CPU_SHIFT		12
+-
+-#ifdef CONFIG_SMP
+-#define MSI_TARGET_CPU		logical_smp_processor_id()
+-#else
+-#define MSI_TARGET_CPU	cpu_to_logical_apicid(first_cpu(cpu_online_map))
+-#endif
++#define MSI_TARGET_CPU_SHIFT	12
+ 
+ #endif /* ASM_MSI_H */
+Index: linux-2.6.14-mm1/include/asm-i386/smp.h
+===================================================================
+--- linux-2.6.14-mm1.orig/include/asm-i386/smp.h
++++ linux-2.6.14-mm1/include/asm-i386/smp.h
+@@ -45,6 +45,8 @@ extern void unlock_ipi_call_lock(void);
+ #define MAX_APICID 256
+ extern u8 x86_cpu_to_apicid[];
+ 
++#define cpu_physical_id(cpu)	x86_cpu_to_apicid[cpu]
++
+ #ifdef CONFIG_HOTPLUG_CPU
+ extern void cpu_exit_clear(void);
+ extern void cpu_uninit(void);
+@@ -92,6 +94,10 @@ extern int __cpu_disable(void);
+ extern void __cpu_die(unsigned int cpu);
+ #endif /* !__ASSEMBLY__ */
+ 
++#else /* CONFIG_SMP */
++
++#define cpu_physical_id(cpu)		boot_cpu_physical_apicid
++
+ #define NO_PROC_ID		0xFF		/* No processor magic marker */
+ 
+ #endif
+Index: linux-2.6.14-mm1/include/asm-ia64/msi.h
+===================================================================
+--- linux-2.6.14-mm1.orig/include/asm-ia64/msi.h
++++ linux-2.6.14-mm1/include/asm-ia64/msi.h
+@@ -12,9 +12,6 @@
+ static inline void set_intr_gate (int nr, void *func) {}
+ #define IO_APIC_VECTOR(irq)	(irq)
+ #define ack_APIC_irq		ia64_eoi
+-#define cpu_mask_to_apicid(mask) cpu_physical_id(first_cpu(mask))
+-#define MSI_DEST_MODE		MSI_PHYSICAL_MODE
+-#define MSI_TARGET_CPU	((ia64_getreg(_IA64_REG_CR_LID) >> 16) & 0xffff)
+ #define MSI_TARGET_CPU_SHIFT	4
+ 
+ #endif /* ASM_MSI_H */
+Index: linux-2.6.14-mm1/include/asm-x86_64/msi.h
+===================================================================
+--- linux-2.6.14-mm1.orig/include/asm-x86_64/msi.h
++++ linux-2.6.14-mm1/include/asm-x86_64/msi.h
+@@ -11,8 +11,6 @@
+ #include <asm/smp.h>
+ 
+ #define LAST_DEVICE_VECTOR		232
+-#define MSI_DEST_MODE			MSI_LOGICAL_MODE
+-#define MSI_TARGET_CPU_SHIFT		12
+-#define MSI_TARGET_CPU			logical_smp_processor_id()
++#define MSI_TARGET_CPU_SHIFT	12
+ 
+ #endif /* ASM_MSI_H */
+Index: linux-2.6.14-mm1/include/asm-x86_64/smp.h
+===================================================================
+--- linux-2.6.14-mm1.orig/include/asm-x86_64/smp.h
++++ linux-2.6.14-mm1/include/asm-x86_64/smp.h
+@@ -135,5 +135,11 @@ static __inline int logical_smp_processo
+ }
+ #endif
+ 
++#ifdef CONFIG_SMP
++#define cpu_physical_id(cpu)		x86_cpu_to_apicid[cpu]
++#else
++#define cpu_physical_id(cpu)		boot_cpu_id
++#endif
++
+ #endif
+ 

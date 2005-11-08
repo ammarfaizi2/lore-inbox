@@ -1,49 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030375AbVKHWF3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030320AbVKHWIL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030375AbVKHWF3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 17:05:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030376AbVKHWF3
+	id S1030320AbVKHWIL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 17:08:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030323AbVKHWIL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 17:05:29 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:3800 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030375AbVKHWF2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 17:05:28 -0500
-Subject: Re: Creating new System.map with modules symbol info
-From: Arjan van de Ven <arjan@infradead.org>
-To: Adayadil Thomas <adayadil.thomas@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <fb7befa20511081304sec70208l5d1a464e5af78f58@mail.gmail.com>
-References: <fb7befa20511081304sec70208l5d1a464e5af78f58@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 08 Nov 2005 23:05:18 +0100
-Message-Id: <1131487518.2789.26.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 8 Nov 2005 17:08:11 -0500
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:47274
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S1030320AbVKHWIK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 17:08:10 -0500
+From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+To: linux-kernel@vger.kernel.org
+Subject: USB Key Kingston DataTraveler
+Date: Tue, 8 Nov 2005 17:08:12 -0500
+Message-Id: <20051108220525.M81553@linuxwireless.org>
+X-Mailer: Open WebMail 2.40 20040816
+X-OriginatingIP: 16.126.157.6 (abonilla@linuxwireless.org)
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-08 at 16:04 -0500, Adayadil Thomas wrote:
-> Greetings.
-> 
-> The System map that was created when compiling kernel does'nt have the symbols
-> of modules that are loaded later. How can I create a new System.map
-> with the symbols of
-> modules also.
+Hi,
 
-maybe a silly question.. but why does it matter? Eg what tool uses this
-info?
+I have an IBM T42 with 2.6.14-git and this specific USB Key has never worked
+for me. Any idea?
 
+USB Key Kingston DataTraveler
+
+
+hub 4-0:1.0: state 5 ports 6 chg 0000 evt 0010
+ehci_hcd 0000:00:1d.7: GetStatus port 4 status 001803 POWER sig=j CSC CONNECT
+hub 4-0:1.0: port 4, status 0501, change 0001, 480 Mb/s
+hub 4-0:1.0: debounce: port 4: total 100ms stable 100ms status 0x501
+ehci_hcd 0000:00:1d.7: port 4 high speed
+ehci_hcd 0000:00:1d.7: GetStatus port 4 status 001005 POWER sig=se0 PE CONNECT
+usb 4-4: new high speed USB device using ehci_hcd and address 5
+ehci_hcd 0000:00:1d.7: port 4 high speed
+ehci_hcd 0000:00:1d.7: GetStatus port 4 status 001005 POWER sig=se0 PE CONNECT
+usb 4-4: default language 0x0409
+usb 4-4: new device strings: Mfr=1, Product=2, SerialNumber=3
+usb 4-4: Product: DataTraveler 2.0
+usb 4-4: Manufacturer: Kingston
+usb 4-4: SerialNumber: 2840E64152121B80
+usb 4-4: hotplug
+usb 4-4: adding 4-4:1.0 (config #1, interface 0)
+usb 4-4:1.0: hotplug
+usb-storage 4-4:1.0: usb_probe_interface
+usb-storage 4-4:1.0: usb_probe_interface - got id
+scsi2 : SCSI emulation for USB Mass Storage devices
+usb-storage: device found at 5
+usb-storage: waiting for device to settle before scanning
+  Vendor: Kingston  Model: DataTraveler 2.0  Rev: 4.10
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+SCSI device sdb: 251904 512-byte hdwr sectors (129 MB)
+sdb: Write Protect is off
+sdb: Mode Sense: 0b 00 00 08
+sdb: assuming drive cache: write through
+SCSI device sdb: 251904 512-byte hdwr sectors (129 MB)
+sdb: Write Protect is off
+sdb: Mode Sense: 0b 00 00 08
+sdb: assuming drive cache: write through
+ sdb: [CUMANA/ADFS] sdb1<5>sd 2:0:0:0: Attached scsi removable disk sdb
+sd 2:0:0:0: Attached scsi generic sg1 type 0
+usb-storage: device scan complete
+printk: 4 messages suppressed.
+Buffer I/O error on device sdb1, logical block 508378384
+Buffer I/O error on device sdb1, logical block 508378384
+Buffer I/O error on device sdb1, logical block 508378412
+Buffer I/O error on device sdb1, logical block 508378412
+Buffer I/O error on device sdb1, logical block 508378412
+Buffer I/O error on device sdb1, logical block 508378412
+Buffer I/O error on device sdb1, logical block 508378412
+
+--
+Open WebMail Project (http://openwebmail.org)
 

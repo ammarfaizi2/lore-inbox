@@ -1,53 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030256AbVKHUSs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964892AbVKHUUD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030256AbVKHUSs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 15:18:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030265AbVKHUSs
+	id S964892AbVKHUUD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 15:20:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbVKHUUD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 15:18:48 -0500
-Received: from web34112.mail.mud.yahoo.com ([66.163.178.110]:61581 "HELO
-	web34112.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030256AbVKHUSs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 15:18:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=Tj7m8GDB5GK/rPtHCMvZtmGzoHj9FZfhRaIaB2RTzeGoBw618AKWbhr80icQ7YLuuHmsYAhzJow4jLD6Q1b4zpuVcMLL7nrhHf3jS2QPeKHVPCF6tibeXH1wH95KxOMokav3n/pbAoEQTJOqfAfus7obJaRb0aa2jdm9exdAaew=  ;
-Message-ID: <20051108201847.89115.qmail@web34112.mail.mud.yahoo.com>
-Date: Tue, 8 Nov 2005 12:18:47 -0800 (PST)
-From: Kenny Simpson <theonetruekenny@yahoo.com>
-Subject: re: mmap over nfs leads to excessive system load
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1131480107.32482.48.camel@lade.trondhjem.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 8 Nov 2005 15:20:03 -0500
+Received: from hoppetossa.avesi.com ([208.239.169.21]:11730 "HELO
+	hoppetossa.avesi.com") by vger.kernel.org with SMTP id S964892AbVKHUUA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 15:20:00 -0500
+Subject: athlon x2 + 2.6.14 + SMP = fast clock
+From: Christopher Mulcahy <cmulcahy@avesi.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Tue, 08 Nov 2005 15:40:17 -0500
+Message-Id: <1131482417.21752.50.camel@jones>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I knew I forgoet something important in the info:
-  type nfs (rw,tcp,rsize=32768,wsize=32768,hard,intr,vers=3,tcp,rsize=32768,wsize=32768,hard,intr
 
--Kenny
+I am running 2.6.14 SMP on an dual-core athlon x2 3800.
+The system clock runs at roughly twice normal speed.
+
+'cat /proc/interrupts' returns:
+           CPU0       CPU1       
+  0:   30834589   31107050    IO-APIC-edge  timer
+  1:        267      72633    IO-APIC-edge  i8042
+  8:          0          0    IO-APIC-edge  rtc
+ 12:       8662    2216469    IO-APIC-edge  i8042
+ 15:      43599   10919362    IO-APIC-edge  ide1
+ 17:       1577     423629   IO-APIC-level  libata
+ 18:      61263   47314795   IO-APIC-level  ehci_hcd:usb1,
+ohci_hcd:usb2, ohci_hcd:usb3
+ 19:       2026     485190   IO-APIC-level  eth0
+ 20:         54      14118   IO-APIC-level  ATI IXP
+ 21:          0          2   IO-APIC-level  acpi, ohci1394
+NMI:       2611       3571 
+LOC:   30969789   30969781 
+ERR:        146
+MIS:          0
 
 
---- Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+On my other SMP systems ( admittedly 4-way 2.4.30 ) timer interrupts are
+processed only by CPU0.
 
-> On Tue, 2005-11-08 at 11:25 -0800, Kenny Simpson wrote:
-> > Just another data point....
-> > If I open the file with O_DIRECT.. not much changes:
-> 
-> Hmm... Are you mounting using the -osync or -onoac options? Doing
-> synchronous writes will tend to slow down flushing considerably, and the
-> VM appears to be very fragile w.r.t. slow filesystems.
-> 
-> Cheers,
->   Trond
+Perhaps unrelated, my kernel log is filled with these messages:
+Nov 8 00:44:19 jones kernel: [301738.837187] APIC error on CPU0: 40(40)
+Nov 8 00:44:19 jones kernel: [301738.849596] APIC error on CPU1: 40(40)
+Nov 8 02:35:25 jones kernel: [305067.785826] APIC error on CPU0: 40(40)
+Nov 8 02:35:25 jones kernel: [305067.808330] APIC error on CPU1: 40(40)
+Nov 8 03:34:47 jones kernel: [306846.571532] APIC error on CPU0: 40(40)
+Nov 8 03:34:47 jones kernel: [306846.598922] APIC error on CPU1: 40(40)
+Nov 8 03:50:47 jones kernel: [307325.974012] APIC error on CPU0: 40(40)
+Nov 8 03:50:47 jones kernel: [307326.002707] APIC error on CPU1: 40(40)
+Nov 8 03:50:47 jones kernel: [307325.983997] APIC error on CPU0: 40(40)
+Nov 8 03:50:47 jones kernel: [307326.012689] APIC error on CPU1: 40(40)
+
+Not sure if this is relevant:
+http://leaf.dragonflybsd.org/mailarchive/commits/2005-11/msg00038.html
 
 
+If you want dmesg, .config or other, contact me off list, I am not
+subscribed.
 
-		
-__________________________________ 
-Start your day with Yahoo! - Make it your home page! 
-http://www.yahoo.com/r/hs
+Chris
+
+

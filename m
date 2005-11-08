@@ -1,60 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965000AbVKHRHM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965012AbVKHRHn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965000AbVKHRHM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 12:07:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965012AbVKHRHM
+	id S965012AbVKHRHn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 12:07:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965149AbVKHRHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 12:07:12 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:62899 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965000AbVKHRHK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 12:07:10 -0500
-Subject: Highpoint IDE types
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 08 Nov 2005 17:38:02 +0000
-Message-Id: <1131471483.25192.76.camel@localhost.localdomain>
+	Tue, 8 Nov 2005 12:07:42 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:16739
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S965012AbVKHRHm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 12:07:42 -0500
+Message-Id: <4370E9A2.76F0.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Tue, 08 Nov 2005 18:08:34 +0100
+From: "Jan Beulich" <JBeulich@novell.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] i386: make trap information available to die
+	handlers
+References: <4370AEE1.76F0.0078.0@novell.com>  <4370E5C4.76F0.0078.0@novell.com> <Pine.LNX.4.58.0511080853360.15288@shark.he.net>
+In-Reply-To: <Pine.LNX.4.58.0511080853360.15288@shark.he.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok thanks to Sergei I can now post what I think is the complete table of
-HPT chip versions:
+>And the patch (attachment) also contains From:, but it's missing
+>a Signed-off-by: line.
 
-        Chip                    PCI ID          Rev
- *      HPT366                  4 (HPT366)      0
- *      HPT366                  4 (HPT366)      1    
- *      HPT368                  4 (HPT366)      2      
- *      HPT370                  4 (HPT366)      3      
- *      HPT370A                 4 (HPT366)      4      
- *      HPT372                  4 (HPT366)      5     
- *      HPT372N                 4 (HPT366)      6     
- *      HPT372                  5 (HPT372)      0       
- *      HPT372N                 5 (HPT372)      > 0     
- *      HPT302                  6 (HPT302)      *       
- *      HPT302N                 6 (HPT302)      > 1    
- *      HPT371                  7 (HPT371)      *      
- *      HPT371N                 7 (HPT371)      > 1     
- *      HPT374                  8 (HPT374)      *     
- *      HPT372N                 9 (HPT372N)     *     
+I looked at many ChangeLog entries (which supposedly get created from
+the abstract), and by far not all of them have the author listed both as
+From: and Singed-Off-By:, which made me think that either of the two
+should be sufficient (and I really can't see why the author information
+needs to appear twice).
 
-
-The base clocks for the devices are as follows (note this means most of
-the drivers/ide/pci detection code for frequency is wrong). Also for PLL
-mode the 3x2N PLL stabilization code is subtly different.
-
-371N/372N/302N		77
-302/371/372A		66
-372			55
-370/374			48
-
-The DPLLs are
-	48, 50, 66, 75Mhz
-
-75 is only available on the later chips and used with PATA/SATA bridge
-chips for UDMA7.
-
-
+Jan

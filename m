@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030305AbVKHSvh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030312AbVKHSxS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030305AbVKHSvh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 13:51:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030312AbVKHSvh
+	id S1030312AbVKHSxS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 13:53:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030314AbVKHSxS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 13:51:37 -0500
-Received: from mail.kroah.org ([69.55.234.183]:64671 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1030305AbVKHSvg (ORCPT
+	Tue, 8 Nov 2005 13:53:18 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:4274 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1030312AbVKHSxR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 13:51:36 -0500
-Date: Tue, 8 Nov 2005 10:51:01 -0800
-From: Greg KH <greg@kroah.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Neil Brown <neilb@suse.de>, Daniele Orlandi <daniele@orlandi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: An idea on devfs vs. udev
-Message-ID: <20051108185101.GA16011@kroah.com>
-References: <200510301907.11860.daniele@orlandi.com> <17253.14484.653996.225212@cse.unsw.edu.au> <20051030222309.GA9423@kroah.com> <20051108184132.GC8126@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051108184132.GC8126@waste.org>
-User-Agent: Mutt/1.5.11
+	Tue, 8 Nov 2005 13:53:17 -0500
+Date: Tue, 8 Nov 2005 10:52:53 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Roland Dreier <rolandd@cisco.com>
+cc: Matthew Dobson <colpatch@us.ibm.com>, kernel-janitors@lists.osdl.org,
+       Pekka J Enberg <penberg@cs.Helsinki.FI>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/8] Cleanup kmem_cache_create()
+In-Reply-To: <52mzkfrily.fsf@cisco.com>
+Message-ID: <Pine.LNX.4.62.0511081049520.30907@schroedinger.engr.sgi.com>
+References: <436FF51D.8080509@us.ibm.com> <436FF70D.6040604@us.ibm.com>
+ <52mzkfrily.fsf@cisco.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 08, 2005 at 10:41:32AM -0800, Matt Mackall wrote:
-> On Sun, Oct 30, 2005 at 02:23:09PM -0800, Greg KH wrote:
-> > On Mon, Oct 31, 2005 at 08:18:12AM +1100, Neil Brown wrote:
-> > > But then to make matters worse, there is this "sample.sh" file.  UGH!
-> > > It's a bit of shell code exported by the kernel.
-> > >    #!/bin/sh
-> > >    mknod /dev/hda  b 3 0
-> > 
-> > That's just a "joke" patch that is only in the -mm tree, as it gets
-> > pulled in from my tree.  It's not in mainline, and will never go there.
+On Mon, 7 Nov 2005, Roland Dreier wrote:
+
+>     > * Replace a constant (4096) with what it represents (PAGE_SIZE)
 > 
-> Perhaps you can drop this horror now that Halloween has passed.
+> This seems dangerous.  I don't pretend to understand the slab code,
+> but the current code works on architectures with PAGE_SIZE != 4096.
+> Are you sure this change is correct?
 
-Heh.  But why?  Is it causing problems for anyone?
+Leave the constant. The 4096 is only used for debugging and is a boundary 
+at which redzoning and last user accounting is given up.
 
-thanks,
+A large object in terms of this patch is a object greater than 4096 bytes 
+not an object greater than PAGE_SIZE. I think the absolute size is 
+desired.
 
-greg k-h
+Would you CC manfred on all your patches?
+
+
+

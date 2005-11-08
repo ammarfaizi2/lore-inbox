@@ -1,52 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbVKHNnj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964937AbVKHNoV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932378AbVKHNnj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 08:43:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbVKHNnj
+	id S964937AbVKHNoV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 08:44:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965000AbVKHNoV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 08:43:39 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:42966 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932378AbVKHNni
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 08:43:38 -0500
-Subject: PATCH: Add enablebits support to the triflex driver
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 08 Nov 2005 14:14:28 +0000
-Message-Id: <1131459268.25192.38.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 8 Nov 2005 08:44:21 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:31758 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S964937AbVKHNoU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 08:44:20 -0500
+Date: Tue, 8 Nov 2005 14:44:19 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/md/kcopyd.c: remove kcopyd_cancel()
+Message-ID: <20051108134419.GR3847@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+A function that is
+- not used
+- empty
+- without a prototype in any header file
+should be removed.
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.14-mm1/drivers/scsi/pata_triflex.c linux-2.6.14-mm1/drivers/scsi/pata_triflex.c
---- linux.vanilla-2.6.14-mm1/drivers/scsi/pata_triflex.c	2005-11-07 13:06:24.000000000 +0000
-+++ linux-2.6.14-mm1/drivers/scsi/pata_triflex.c	2005-11-07 14:45:02.000000000 +0000
-@@ -44,10 +44,21 @@
- #include <linux/libata.h>
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+This patch was already sent on:
+- 5 Nov 2005
+
+ drivers/md/kcopyd.c |   11 -----------
+ 1 file changed, 11 deletions(-)
+
+--- linux-2.6.14-rc5-mm1-full/drivers/md/kcopyd.c.old	2005-11-05 16:36:11.000000000 +0100
++++ linux-2.6.14-rc5-mm1-full/drivers/md/kcopyd.c	2005-11-05 17:04:45.000000000 +0100
+@@ -558,16 +558,6 @@
+ 	return 0;
+ }
  
- #define DRV_NAME "pata_triflex"
--#define DRV_VERSION "0.2"
-+#define DRV_VERSION "0.2.1"
- 
- static void triflex_phy_reset(struct ata_port *ap)
- {
-+	struct pci_dev *pdev = to_pci_dev(ap->host_set->dev);
-+	static struct pci_bits triflex_enable_bits[] = {
-+		{ 0x80, 0x01, 0x01 },
-+		{ 0x80, 0x02, 0x02 }
-+	};
-+
-+	if (!pci_test_config_bits(pdev, &triflex_enable_bits[ap->hard_port_no])) {
-+		ata_port_disable(ap);
-+		printk(KERN_INFO "ata%u: port disabled. ignoring.\n", ap->id);
-+		return;
-+	}
- 	ap->cbl = ATA_CBL_PATA40;
- 	ata_port_probe(ap);
- 	ata_bus_reset(ap);
+-/*
+- * Cancels a kcopyd job, eg. someone might be deactivating a
+- * mirror.
+- */
+-int kcopyd_cancel(struct kcopyd_job *job, int block)
+-{
+-	/* FIXME: finish */
+-	return -1;
+-}
+-
+ /*-----------------------------------------------------------------
+  * Unit setup
+  *---------------------------------------------------------------*/
+@@ -685,4 +675,3 @@
+ EXPORT_SYMBOL(kcopyd_client_create);
+ EXPORT_SYMBOL(kcopyd_client_destroy);
+ EXPORT_SYMBOL(kcopyd_copy);
+-EXPORT_SYMBOL(kcopyd_cancel);
 

@@ -1,192 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965044AbVKHDEy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965282AbVKHDH2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965044AbVKHDEy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 22:04:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965223AbVKHDEy
+	id S965282AbVKHDH2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 22:07:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965311AbVKHDH1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 22:04:54 -0500
-Received: from [210.76.114.22] ([210.76.114.22]:23223 "EHLO ccoss.com.cn")
-	by vger.kernel.org with ESMTP id S965044AbVKHDEw (ORCPT
+	Mon, 7 Nov 2005 22:07:27 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:11208 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S965282AbVKHDH1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 22:04:52 -0500
-Message-ID: <4370160C.9040206@ccoss.com.cn>
-Date: Tue, 08 Nov 2005 11:05:48 +0800
-From: liyu <liyu@ccoss.com.cn>
-Reply-To: liyu@ccoss.com.cn
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: zh-cn,zh
-MIME-Version: 1.0
-To: Fawad Lateef <fawadlateef@gmail.com>
-CC: rml@novell.com, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [question] I doublt on timer interrput.
-References: <436EEEA4.1020703@ccoss.com.cn>	 <1e62d1370511070353o1d1d4931ncf0ff8a5f5658069@mail.gmail.com>	 <4370006E.1050806@ccoss.com.cn> <1e62d1370511071853o5d65f0dcm7548b7563615ed35@mail.gmail.com>
-In-Reply-To: <1e62d1370511071853o5d65f0dcm7548b7563615ed35@mail.gmail.com>
-Content-Type: text/plain; charset=gb18030; format=flowed
+	Mon, 7 Nov 2005 22:07:27 -0500
+Date: Mon, 7 Nov 2005 19:07:15 -0800
+From: Paul Jackson <pj@sgi.com>
+To: "Rohit, Seth" <rohit.seth@intel.com>
+Cc: akpm@osdl.org, torvalds@osdl.org, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: Cleanup of __alloc_pages
+Message-Id: <20051107190715.4d7b0f71.pj@sgi.com>
+In-Reply-To: <20051107174349.A8018@unix-os.sc.intel.com>
+References: <20051107174349.A8018@unix-os.sc.intel.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Seth wrote:
+> +/* get_page_from_freeliest loops through all the possible zones
+> + * to find out if it can allocate a page.  can_try_harder can have following
+> + * values:
+> + * -1 => No need to check for the watermarks.
+> + *  0 => Don't go too low down in deeps below the low watermark (GFP_HIGH)
+> + *  1 => Go far below the low watermark.  See zone_watermark_ok (RT TASK)
 
-I get it !
+Argh.
 
-I am sorry to spend your time so much, all trouble are came from one my 
-low-level fault.
+These magic numbers, where in terms of how hard to try, 0 is less than
+1 is less than -1, but where the order -does- matter for parsing such
+tests as "if ((can_try_harder >= 0)" and where one has to read the
+entire code to guess that, continue to give me conniptions.
 
-I put "++count_tick" in scheduler_tick(), but that function() can return 
-before it!
-
-This is one sample result:
-
-> [root@CCOSS_629884359 root]# cat /proc/sys/kernel/count_tick 
-> /proc/interrupts
-> 157491
->            CPU0
->   0:     157390    IO-APIC-edge  timer
->   1:         10    IO-APIC-edge  i8042
->   8:          1    IO-APIC-edge  rtc
->   9:          0   IO-APIC-level  acpi
->  12:        111    IO-APIC-edge  i8042
->  14:      57616    IO-APIC-edge  ide0
->  15:          2    IO-APIC-edge  ide1
->  16:          0   IO-APIC-level  uhci_hcd:usb1
->  17:          0   IO-APIC-level  uhci_hcd:usb2
->  18:        893   IO-APIC-level  eth0
-> NMI:          0
-> LOC:     157326
-> ERR:          0
+I thought Nick had an alternative proposal, involving just boolean
+flags.  Why didn't you ever consider that?
 
 
-We can see:
+> + * cpuset check is not performed when the skip_cpuset_chk flag is set.
+> + */
+> +
+> +static struct page *
+> +get_page_from_freelist(gfp_t gfp_mask, unsigned int order, struct zone **zones, 
+> +			int can_try_harder, int skip_cpuset_chk)
 
-157491 > 157390 !
+Well - thanks for thinking of me ;).  Though, as I suggested in my
+reply last time, including a pseudo patch, I thought that the existing
+flags such as can_try_harder had enough information to determine when
+to do the cpuset check, without yet another flag for that.  Having now
+two magic 1's and 0's at the end of the calling argument lists is even
+less readable.
 
-Yeah, I got it.
 
-Thanks a lot again.
+Seth wrote in a later message, responding to Andrew:
+> I think it will be easier to do this change as a follow on patch as that
+> will change the header file, function definition and such.  Can we defer
+> this to separate follow on patch.
 
--liyu
+I have no clue what patch you have in mind here.  Guess I'd have to see it.
 
-Fawad Lateef wrote:
-
->On 11/8/05, liyu <liyu@ccoss.com.cn> wrote:
->  
->
->>Fawad Lateef Wrote:
->>
->>    
->>
->>>What I found in the kernel code is that scheduler_tick is called from
->>>two locations in the kernel (2.6.14-mm1) code (i386).
->>>
->>>1) from kernel/timer.c in update_process_times which is called from
->>>arch/i386/kernel/apic.c and its calling depends on the CONFIG_SMP
->>>defined or not (see
->>>http://sosdg.org/~coywolf/lxr/source/arch/i386/kernel/apic.c#L1160)
->>>and as you don't have CONFIG_SMP enabled so its won't be called from
->>>here.
->>>
->>>2) from sched_fork function in kernel/sched.c
->>>(http://sosdg.org/~coywolf/lxr/source/kernel/sched.c#L1414) and I
->>>think its called when newly forked process setup is going to be
->>>performed, and I think as from here scheduler_tick is called in your
->>>case, so you are getting different value for your variable tick_count
->>>
->>>scheduler_tick might be called from somewhere else which I am missing
->>>so please CMIIW !
->>>
->>>      
->>>
->>Please see this URL:
->>
->>http://lxr.linux.no/source/include/asm-i386/mach-default/do_timer.h#L20
->>
->>static inline void do_timer_interrupt_hook(struct pt_regs *regs)
->>{
->>        do_timer(regs);
->>#ifndef CONFIG_SMP
->>        update_process_times(user_mode(regs));
->>#endif
->>/*
->> * In the SMP case we use the local APIC timer interrupt to do the
->> * profiling, except when we simulate SMP mode on a uniprocessor
->> * system, in that case we have to call the local interrupt handler.
->> */
->>#ifndef CONFIG_X86_LOCAL_APIC
->>        profile_tick(CPU_PROFILING, regs);
->>#else
->>        if (!using_apic_timer)
->>                smp_local_timer_interrupt(regs);
->>#endif
->>}
->>
->>
->>That is the code in 2.6.12, but 2.6.13.3 also same with it at least.
->>So we call scheduler_tick() HZ times per second, both enable
->>SMP or disable it.
->>
->>    
->>
->
->Yes, this is the thing which I missed
->
->
->  
->
->>Nod, I agree with your words, the scheduler_tick() do not same with
->>timer interrupt handler on call times. but I guess it should be more
->>than jiffies, beacause of other functions also can call it (for example,
->>as Lateef said, sched_fork().)
->>
->>I think that
->>
->>scheduler_tick() might be called from somewhere
->>
->>is not exact.
->>
->>We may note, it do not be EXPORT_SYMBOL_*()ed , so it only can be called
->>from kernel core,
->>not kernel modules. Such a few places we can find it use LXR or grep.
->>
->>    
->>
->
->By saying __might_be_called_from_somewhere__ I meant that I am missing
->some-other place __with-in_the_kernel_code__ from where it is called,
->which you pointed to me (about do_timer.h)   :)
->
->  
->
->>I use setup one sysctl integer variable to watch the value of 'count_tick',
->>Do this way have any problem? I found some value skips, but I think it is
->>normal case.
->>
->>    
->>
->
->If you are declaring count_tick as a global variable (without static)
->in sched.c then you can just use it in your test module by specifying
->extern for your variable
->
->  
->
->>However, I will make a experiemnt that write one hook like do_timer(),
->>as Love said
->>
->>PS: if our scheduler_tick() is not called every timer interrput, the
->>compute of task timeslice
->>also is not exact ?!
->>
->>    
->>
->
->Yes, I am now sure that it will be called for every timer interrupt ! :)
->
->Thanks,
->
->--
->Fawad Lateef
->
->
->  
->
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

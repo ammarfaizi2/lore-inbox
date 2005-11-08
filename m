@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965049AbVKHMxp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965061AbVKHMxq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965049AbVKHMxp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 07:53:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965065AbVKHMxp
+	id S965061AbVKHMxq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 07:53:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965065AbVKHMxq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 8 Nov 2005 07:53:46 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:61453 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S965061AbVKHMxp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 8 Nov 2005 07:53:45 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:7475
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S965049AbVKHMxp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 07:53:45 -0500
-Message-Id: <4370AE20.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Tue, 08 Nov 2005 13:54:40 +0100
-From: "Jan Beulich" <JBeulich@novell.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] minor ELF addition
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=__PartFBD9C500.0__="
+Message-ID: <43709FD7.1030905@vmware.com>
+Date: Tue, 08 Nov 2005 04:53:43 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Martin Bligh <mbligh@mbligh.org>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH 14/21] i386 Apm is on cpu zero only
+References: <200511080433.jA84Xwm7009921@zach-dev.vmware.com> <20051108073315.GE28201@elte.hu>
+In-Reply-To: <20051108073315.GE28201@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Nov 2005 12:53:44.0727 (UTC) FILETIME=[73E5EA70:01C5E463]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME message. If you are reading this text, you may want to 
-consider changing to a mail reader or gateway that understands how to 
-properly handle MIME multipart messages.
+Ingo Molnar wrote:
 
---=__PartFBD9C500.0__=
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+>* Zachary Amsden <zach@vmware.com> wrote:
+>
+>  
+>
+>>APM BIOS code has a protective wrapper that runs it only on CPU zero.  
+>>Thus, no need to set APM BIOS segments in the GDT for other CPUs.
+>>    
+>>
+>
+>hm, do we want (need) to have that CPU#0 assumption forever?
+>  
+>
 
-A trivial addition to the ELF definitions.
+Can't hurt, and APM is largely obsolete because of ACPI, so I'm only 
+concerned with trimming and keeping adequate protection of the kernel 
+from APM code while maintaining correctness.  I don't have a nice set of 
+old machines with enough wacky APM BIOSen to validate that unpinning the 
+CPU is ok.
 
-From: Jan Beulich <jbeulich@novell.com>
-
-(actual patch attached)
-
---=__PartFBD9C500.0__=
-Content-Type: application/octet-stream; name="linux-2.6.14-elf.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="linux-2.6.14-elf.patch"
-
-QSB0cml2aWFsIGFkZGl0aW9uIHRvIHRoZSBFTEYgZGVmaW5pdGlvbnMuCgpGcm9tOiBKYW4gQmV1
-bGljaCA8amJldWxpY2hAbm92ZWxsLmNvbT4KCi0tLSAyLjYuMTQvaW5jbHVkZS9saW51eC9lbGYu
-aAkyMDA1LTEwLTI4IDAyOjAyOjA4LjAwMDAwMDAwMCArMDIwMAorKysgMi42LjE0LWVsZi9pbmNs
-dWRlL2xpbnV4L2VsZi5oCTIwMDUtMTEtMDQgMTY6MTk6MzQuMDAwMDAwMDAwICswMTAwCkBAIC0x
-NTEsNiArMTUxLDggQEAgdHlwZWRlZiBfX3M2NAlFbGY2NF9TeHdvcmQ7CiAjZGVmaW5lIFNUVF9G
-VU5DICAgIDIKICNkZWZpbmUgU1RUX1NFQ1RJT04gMwogI2RlZmluZSBTVFRfRklMRSAgICA0Cisj
-ZGVmaW5lIFNUVF9DT01NT04gIDUKKyNkZWZpbmUgU1RUX1RMUyAgICAgNgogCiAjZGVmaW5lIEVM
-Rl9TVF9CSU5EKHgpCQkoKHgpID4+IDQpCiAjZGVmaW5lIEVMRl9TVF9UWVBFKHgpCQkoKCh1bnNp
-Z25lZCBpbnQpIHgpICYgMHhmKQo=
-
---=__PartFBD9C500.0__=--
+Zach

@@ -1,76 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965115AbVKHNBa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965142AbVKHNIO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965115AbVKHNBa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 08:01:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965136AbVKHNBa
+	id S965142AbVKHNIO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 08:08:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965147AbVKHNIO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 08:01:30 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:35380
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S965115AbVKHNB3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 08:01:29 -0500
-Message-Id: <4370AFF0.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Tue, 08 Nov 2005 14:02:24 +0100
-From: "Jan Beulich" <JBeulich@novell.com>
-To: "Andreas Kleen" <ak@suse.de>
-Cc: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
-Subject: [PATCH] x86-64: separate unwind info generation from
-	CONFIG_DEBUG_INFO
+	Tue, 8 Nov 2005 08:08:14 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:9369 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965142AbVKHNIN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 08:08:13 -0500
+Subject: Re: [PATCH] i386: export genapic again
+From: Arjan van de Ven <arjan@infradead.org>
+To: Jan Beulich <JBeulich@novell.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4370AEE1.76F0.0078.0@novell.com>
+References: <4370AEE1.76F0.0078.0@novell.com>
+Content-Type: text/plain
+Date: Tue, 08 Nov 2005 14:08:09 +0100
+Message-Id: <1131455290.2789.15.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=__Part0A2834F0.1__="
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	2.8 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME message. If you are reading this text, you may want to 
-consider changing to a mail reader or gateway that understands how to 
-properly handle MIME multipart messages.
+On Tue, 2005-11-08 at 13:57 +0100, Jan Beulich wrote:
+> A change not too long ago made i386's genapic symbol no longer be
+> exported, and thus certain low-level functions no longer be usable.
+> Since close-to-the-hardware code may still be modular, this
+> rectifies the situation.
+> 
+> From: Jan Beulich <jbeulich@novell.com>
+> 
+> (actual patch attached)
+> 
 
---=__Part0A2834F0.1__=
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
++#define APIC_DEFINITION 1
 
-As a follow-up to the introduction of CONFIG_UNWIND_INFO, this
-separates the generation of frame unwind information for x86-64 from
-that of full debug information.
-
-From: Jan Beulich <jbeulich@novell.com>
-
-(actual patch attached)
+what is that for?
 
 
---=__Part0A2834F0.1__=
-Content-Type: application/octet-stream; name="linux-2.6.14-unwind-info-x86_64.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="linux-2.6.14-unwind-info-x86_64.patch"
-
-QXMgYSBmb2xsb3ctdXAgdG8gdGhlIGludHJvZHVjdGlvbiBvZiBDT05GSUdfVU5XSU5EX0lORk8s
-IHRoaXMKc2VwYXJhdGVzIHRoZSBnZW5lcmF0aW9uIG9mIGZyYW1lIHVud2luZCBpbmZvcm1hdGlv
-biBmb3IgeDg2LTY0IGZyb20KdGhhdCBvZiBmdWxsIGRlYnVnIGluZm9ybWF0aW9uLgoKRnJvbTog
-SmFuIEJldWxpY2ggPGpiZXVsaWNoQG5vdmVsbC5jb20+CgotLS0gMi42LjE0L2FyY2gveDg2XzY0
-L01ha2VmaWxlCTIwMDUtMTAtMjggMDI6MDI6MDguMDAwMDAwMDAwICswMjAwCisrKyAyLjYuMTQt
-dW53aW5kLWluZm8teDg2XzY0L2FyY2gveDg2XzY0L01ha2VmaWxlCTIwMDUtMTEtMDQgMTY6MTk6
-MzMuMDAwMDAwMDAwICswMTAwCkBAIC0zOCw4ICszOCwxMCBAQCBDRkxBR1MgKz0gLXBpcGUKICMg
-YWN0dWFsbHkgaXQgbWFrZXMgdGhlIGtlcm5lbCBzbWFsbGVyIHRvby4KIENGTEFHUyArPSAtZm5v
-LXJlb3JkZXItYmxvY2tzCQogQ0ZMQUdTICs9IC1Xbm8tc2lnbi1jb21wYXJlCi1pZm5lcSAoJChD
-T05GSUdfREVCVUdfSU5GTykseSkKK2lmbmVxICgkKENPTkZJR19VTldJTkRfSU5GTykseSkKIENG
-TEFHUyArPSAtZm5vLWFzeW5jaHJvbm91cy11bndpbmQtdGFibGVzCitlbmRpZgoraWZuZXEgKCQo
-Q09ORklHX0RFQlVHX0lORk8pLHkpCiAjIC1md2ViIHNocmlua3MgdGhlIGtlcm5lbCBhIGJpdCwg
-YnV0IHRoZSBkaWZmZXJlbmNlIGlzIHZlcnkgc21hbGwKICMgaXQgYWxzbyBtZXNzZXMgdXAgZGVi
-dWdnaW5nLCBzbyBkb24ndCB1c2UgaXQgZm9yIG5vdy4KICNDRkxBR1MgKz0gJChjYWxsIGNjLW9w
-dGlvbiwtZndlYikKLS0tIDIuNi4xNC9hcmNoL3g4Nl82NC9rZXJuZWwvdm1saW51eC5sZHMuUwky
-MDA1LTEwLTI4IDAyOjAyOjA4LjAwMDAwMDAwMCArMDIwMAorKysgMi42LjE0LXVud2luZC1pbmZv
-LXg4Nl82NC9hcmNoL3g4Nl82NC9rZXJuZWwvdm1saW51eC5sZHMuUwkyMDA1LTExLTA0IDE2OjE5
-OjMzLjAwMDAwMDAwMCArMDEwMApAQCAtMTg5LDcgKzE4OSw3IEBAIFNFQ1RJT05TCiAgIC8qIFNl
-Y3Rpb25zIHRvIGJlIGRpc2NhcmRlZCAqLwogICAvRElTQ0FSRC8gOiB7CiAJKiguZXhpdGNhbGwu
-ZXhpdCkKLSNpZm5kZWYgQ09ORklHX0RFQlVHX0lORk8KKyNpZm5kZWYgQ09ORklHX1VOV0lORF9J
-TkZPCiAJKiguZWhfZnJhbWUpCiAjZW5kaWYKIAl9Ci0tLSAyLjYuMTQvaW5jbHVkZS9hc20teDg2
-XzY0L2R3YXJmMi5oCTIwMDUtMTAtMjggMDI6MDI6MDguMDAwMDAwMDAwICswMjAwCisrKyAyLjYu
-MTQtdW53aW5kLWluZm8teDg2XzY0L2luY2x1ZGUvYXNtLXg4Nl82NC9kd2FyZjIuaAkyMDA1LTEx
-LTA0IDE2OjE5OjM0LjAwMDAwMDAwMCArMDEwMApAQCAtMTQsNyArMTQsNyBAQAogICAgYXdheSBm
-b3Igb2xkZXIgdmVyc2lvbi4gCiAgKi8KIAotI2lmZGVmIENPTkZJR19ERUJVR19JTkZPCisjaWZk
-ZWYgQ09ORklHX1VOV0lORF9JTkZPCiAKICNkZWZpbmUgQ0ZJX1NUQVJUUFJPQyAuY2ZpX3N0YXJ0
-cHJvYwogI2RlZmluZSBDRklfRU5EUFJPQyAuY2ZpX2VuZHByb2MK
-
---=__Part0A2834F0.1__=--

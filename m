@@ -1,111 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030251AbVKHCVO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965200AbVKHCbW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030251AbVKHCVO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 21:21:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030252AbVKHCVN
+	id S965200AbVKHCbW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 21:31:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965213AbVKHCbW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 21:21:13 -0500
-Received: from nproxy.gmail.com ([64.233.182.199]:62688 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030251AbVKHCVM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 21:21:12 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ShDfmtdhlz0aDOTS5OEx6dpX+RL9yIYaMAJRtzmwrqiDnmkNtuv+uv+bQB5JAwJsZLJbTJ803RFNH1TT+CQPfJ8LFiXmqNb793rtRqBBA8EGxJsS8OFWlY+4biVxBS7qc8c3QVSsl+Nzmd353465DKU9jkUiz5g2oh8njKjtGO4=
-Message-ID: <2cd57c900511071821l4603ea65l@mail.gmail.com>
-Date: Tue, 8 Nov 2005 10:21:11 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: + cpu-hotplug-fix-locking-in-cpufreq-drivers-fix.patch added to -mm tree
-Cc: Brice.Goglin@ens-lyon.org, ashok.raj@intel.com,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200511070553.jA75ro8N019892@shell0.pdx.osdl.net>
+	Mon, 7 Nov 2005 21:31:22 -0500
+Received: from winds.org ([68.75.195.9]:23451 "EHLO winds.org")
+	by vger.kernel.org with ESMTP id S965200AbVKHCbW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 21:31:22 -0500
+Date: Mon, 7 Nov 2005 21:31:10 -0500 (EST)
+From: Byron Stanoszek <gandalf@winds.org>
+To: David Lang <david.lang@digitalinsight.com>
+cc: Brian Twichell <tbrian@us.ibm.com>, linux-kernel@vger.kernel.org,
+       mbligh@mbligh.org, slpratt@us.ibm.com, anton@samba.org
+Subject: Re: Database regression due to scheduler changes ?
+In-Reply-To: <Pine.LNX.4.62.0511071431030.9339@qynat.qvtvafvgr.pbz>
+Message-ID: <Pine.LNX.4.63.0511072117430.21870@winds.org>
+References: <436FD291.2060301@us.ibm.com> <Pine.LNX.4.62.0511071431030.9339@qynat.qvtvafvgr.pbz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200511070553.jA75ro8N019892@shell0.pdx.osdl.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2005/11/7, akpm@osdl.org <akpm@osdl.org>:
->
-> The patch titled
->
->      cpu-hotplug-fix-locking-in-cpufreq-drivers fix
->
-> has been added to the -mm tree.  Its filename is
->
->      cpu-hotplug-fix-locking-in-cpufreq-drivers-fix.patch
->
->
-> From: Brice Goglin <Brice.Goglin@ens-lyon.org>
->
-> drivers/cpufreq/cpufreq.c uses current_in_cpu_hotplug.
-> But, kernel/cpu.c is not built on UP boxes.
-> This generates the following error:
->
->   LD      .tmp_vmlinux1
-> drivers/built-in.o: In function `__cpufreq_driver_target':
-> : undefined reference to `current_in_cpu_hotplug'
->
-> Signed-off-by: Brice Goglin <Brice.Goglin@ens-lyon.org>
-> Cc: Ashok Raj <ashok.raj@intel.com>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
-> ---
->
->  include/linux/cpu.h |    6 +++++-
->  1 files changed, 5 insertions(+), 1 deletion(-)
->
-> diff -puN include/linux/cpu.h~cpu-hotplug-fix-locking-in-cpufreq-drivers-fix include/linux/cpu.h
-> --- devel/include/linux/cpu.h~cpu-hotplug-fix-locking-in-cpufreq-drivers-fix    2005-11-06 21:53:34.000000000 -0800
-> +++ devel-akpm/include/linux/cpu.h      2005-11-06 21:53:34.000000000 -0800
-> @@ -33,7 +33,6 @@ struct cpu {
->
->  extern int register_cpu(struct cpu *, int, struct node *);
->  extern struct sys_device *get_cpu_sysdev(int cpu);
-> -extern int current_in_cpu_hotplug(void);
->  #ifdef CONFIG_HOTPLUG_CPU
->  extern void unregister_cpu(struct cpu *, struct node *);
->  #endif
-> @@ -43,6 +42,7 @@ struct notifier_block;
->  /* Need to know about CPUs going up/down? */
->  extern int register_cpu_notifier(struct notifier_block *nb);
->  extern void unregister_cpu_notifier(struct notifier_block *nb);
-> +extern int current_in_cpu_hotplug(void);
+On Mon, 7 Nov 2005, David Lang wrote:
 
-Probably it would be better to always put things like this in header
-as static inline. I was doing that, but yours patch came first.
+> Brian,
+>  If I am understanding the data you posted, it looks like you are useing 
+> sched_yield extensivly in your database. This is known to have significant 
+> problems on SMP machines, and even bigger ones on NUMA machines, in part 
+> becouse the process doing the sched_yield may get rescheduled immediatly and 
+> not allow other processes to run (to free up whatever resource it's waiting 
+> for). This causes the processor to look busy to the scheduler and therefor 
+> the scheduler doesn't migrate other processes to the CPU that's spinning on 
+> sched_yield. On NUMA machines this is even more noticable as processes now 
+> have to migrate through an additional layer of the scheduler.
 
-int current_in_cpu_hotplug(void)
-{
-	return (current->flags & PF_HOTPLUG_CPU);
-}
+I have an application designed on Linux where the only processes running are
+'init' and those integral to the application. Each communicates using mutual
+exclusion & semaphores across a shared file/memory backing.
 
->
->  int cpu_up(unsigned int cpu);
->
-> @@ -55,6 +55,10 @@ static inline int register_cpu_notifier(
->  static inline void unregister_cpu_notifier(struct notifier_block *nb)
->  {
->  }
-> +static inline int current_in_cpu_hotplug(void)
-> +{
-> +       return 0;
-> +}
->
->  #endif /* CONFIG_SMP */
->  extern struct sysdev_class cpu_sysdev_class;
-> _
->
-> Patches currently in -mm which might be from Brice.Goglin@ens-lyon.org are
->
-> cpu-hotplug-fix-locking-in-cpufreq-drivers-fix.patch
-> ppp_mppe-add-ppp-mppe-encryption-module.patch
-> dlm-debug-fs.patch
-> nmi-lockup-and-altsysrq-p-dumping-calltraces-on-_all_-cpus.patch
->
+The application was designed to be as close intrinsically as to what Linux
+does--manage processes. There's only 1 thread per process, and each process has
+a different executable for its own task.
+
+One day I plan to extend this application across multiple CPUs using either SMP
+or NUMA. Therefore a lot of the mutual exclusion routines I've coded in use
+sched_yield().
+
+What should I do instead to alleviate the problem of causing the processor to
+look busy? In this case I _want_ other processes to be migrated over to the
+CPU in order to free up the critical section faster.
+
+A simple test using a 2-cpu SMP system resulted in sched_yield() being a lot
+faster than using futexes, but I don't know for the NUMA case.
+
+Best regards,
+  -Byron
+
 --
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+Byron Stanoszek                         Ph: (330) 644-3059
+Systems Programmer                      Fax: (330) 644-8110
+Commercial Timesharing Inc.             Email: byron@comtime.com

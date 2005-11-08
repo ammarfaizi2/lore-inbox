@@ -1,66 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965251AbVKHGWo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965243AbVKHG3h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965251AbVKHGWo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 01:22:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965260AbVKHGWo
+	id S965243AbVKHG3h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 01:29:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965260AbVKHG3h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 01:22:44 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:52184 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S965251AbVKHGWn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 01:22:43 -0500
-Date: Mon, 7 Nov 2005 22:22:24 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: rohit.seth@intel.com, akpm@osdl.org, torvalds@osdl.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: Cleanup of __alloc_pages
-Message-Id: <20051107222224.3b4f2a84.pj@sgi.com>
-In-Reply-To: <43703EFB.1010103@yahoo.com.au>
-References: <20051107174349.A8018@unix-os.sc.intel.com>
-	<20051107175358.62c484a3.akpm@osdl.org>
-	<1131416195.20471.31.camel@akash.sc.intel.com>
-	<43701FC6.5050104@yahoo.com.au>
-	<20051107214420.6d0f6ec4.pj@sgi.com>
-	<43703EFB.1010103@yahoo.com.au>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Tue, 8 Nov 2005 01:29:37 -0500
+Received: from web33308.mail.mud.yahoo.com ([68.142.206.123]:29361 "HELO
+	web33308.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S965243AbVKHG3g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 01:29:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=bavy+T/1aocVLDtcZV+v0pcyczLU7lh0OtW9r0AkVWdQOAmslFDcXpyvCGy95rCG+QKmq5dSclNvJRgAQ8KQvL3/UF77VNQ5bnN7thUejnJ/6WyzQmIgdNyDYjfdEGVexi+4bsETIT5lnIBzuPxANqNKdjNH09y/A12tbk1diQ4=  ;
+Message-ID: <20051108062936.14482.qmail@web33308.mail.mud.yahoo.com>
+Date: Mon, 7 Nov 2005 22:29:35 -0800 (PST)
+From: li nux <lnxluv@yahoo.com>
+Subject: Automatic download of kernel rpms
+To: linux <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick wrote:
-> Because it is on the other side of an &&, which evaulates to a
-> constant zero when !CONFIG_CPUSETS.
+Hi,
 
-Ah so.
+Is there any image server from where I can download
+the latest kernel rpms as and when available.
+Also, how can I achieve the automatic download.
 
-> Having __GFP_HIGH as its own flag gives some more flexibility. I
-> don't think it has a downside?
+-lnx
 
-With respect to GFP_ATOMIC, __GFP_HIGH has no flexibility, as they are
-#defined to be the same thing.
 
-With respect to __GFP_WAIT, if we only ever use it exactly when
-we don't use __GFP_HIGH aka GFP_ATOMIC, then there is a definite
-downside.  My old brain doesn't fold constants nearly as reliably or
-rapidly as a compiler.  Every apparent degree of freedom that is unused
-wastes a few of my remaining precious neurons understanding it.
-It directly leads to such bugs as the one I noted in my last reply,
-when I realized that checking cpusets in the 'ignoring mins' case
-was bogus.
-
-__GFP_HIGH has a second cost - it is easily confused with __GFP_HIGHMEM.
-
-> That would be good. I'll send off a fresh patch with the
-> ALLOC_WATERMARKS fixed after Rohit gets around to looking over
-> it.
-
-Good.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+	
+		
+__________________________________ 
+Yahoo! Mail - PC Magazine Editors' Choice 2005 
+http://mail.yahoo.com

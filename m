@@ -1,71 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965378AbVKHEih@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965379AbVKHElO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965378AbVKHEih (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 23:38:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965380AbVKHEih
+	id S965379AbVKHElO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 23:41:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965380AbVKHElN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 23:38:37 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:13572 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S965378AbVKHEig
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 23:38:36 -0500
-Date: Mon, 7 Nov 2005 20:38:34 -0800
-Message-Id: <200511080438.jA84cY0X009945@zach-dev.vmware.com>
-Subject: [PATCH 18/21] i386 Ldt cleanups 2
-From: Zachary Amsden <zach@vmware.com>
-To: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Martin Bligh <mbligh@mbligh.org>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>, Zachary Amsden <zach@vmware.com>,
-       Zachary Amsden <zach@vmware.com>
-X-OriginalArrivalTime: 08 Nov 2005 04:38:35.0457 (UTC) FILETIME=[47CB1310:01C5E41E]
+	Mon, 7 Nov 2005 23:41:13 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:11686 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965379AbVKHElM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 23:41:12 -0500
+Date: Mon, 7 Nov 2005 20:40:55 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Masanari Iida <standby24x7@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       linux-scsi@vger.kernel.org
+Subject: Re: oops with USB Storage on 2.6.14
+Message-Id: <20051107204055.58a80072.akpm@osdl.org>
+In-Reply-To: <38bdcd1f0510290511t65bb16cfkfd1e84fb301424f9@mail.gmail.com>
+References: <38bdcd1f0510290511t65bb16cfkfd1e84fb301424f9@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add an acessor function to get a pointer to an LDT descriptor.  Add one for
-the GDT too, while we are here, and a function to tell the difference.
+Masanari Iida <standby24x7@gmail.com> wrote:
+>
+> Hello,
+> I updated my system's kernel from 2.6.13.2 to 2.6.14,
+> then it oops when I connect my Digital Camera via USB connection
+> as USB storage device.
+> I went back to 2.6.14-rc1, still the same panic happen.
+> 2.6.13.2 and before, the kernel has been worked as expected.
+> 
+> CPU Intel P4(2.4Ghz)
+> USB Device   Pentax Optio S40.
+> 
+> Unable to handle kernel paging request at virtual address dc9d1f4c
+>  printing eip:
+> c02b44cc
+> *pde = 00073067
+> *pte = 1c9d1000
+> Oops: 0000 [#1]
+> SMP DEBUG_PAGEALLOC
+> Modules linked in: autofs e100 ipt_LOG ipt_state ip_conntrack
+> ipt_recent iptable
+> _filter ip_tables video rtc
+> CPU:    1
+> EIP:    0060:[<c02b44cc>]    Not tainted VLI
+> EFLAGS: 00010286   (2.6.14)
+> EIP is at scsi_run_queue+0xc/0xd0
+> eax: 00000001   ebx: dc9d1e3c   ecx: d6b67910   edx: dc9d1e3c
+> esi: d5048eb0   edi: dc9d1e3c   ebp: c1507e98   esp: c1507e84
+> ds: 007b   es: 007b   ss: 0068
+> Process ksoftirqd/1 (pid: 6, threadinfo=c1506000 task=dfe2dad0)
+> Stack: 00000292 de3a7bf8 dc9d1e3c d5048eb0 dc9d1e3c c1507ea8 c02b4612 dc9d1e3c
+>        da51bf60 c1507ecc c02b473f d5048eb0 00000000 00000024 00000286 00000001
+>        d5048eb0 00000000 c1507f10 c02b4b2e d5048eb0 00000000 00000024 00000001
+> 
+> Call Trace:
+>  [<c0103abf>] show_stack+0x7f/0xa0
+>  [<c0103c72>] show_registers+0x162/0x1d0
+>  [<c0103e90>] die+0x100/0x1a0
+>  [<c039d7ae>] do_page_fault+0x31e/0x640
+>  [<c0103763>] error_code+0x4f/0x54
+>  [<c02b4612>] scsi_next_command+0x22/0x30
+>  [<c02b473f>] scsi_end_request+0xcf/0xf0
+>  [<c02b4b2e>] scsi_io_completion+0x26e/0x470
+>  [<c02b4fc7>] scsi_generic_done+0x37/0x50
+>  [<c02af9e5>] scsi_finish_command+0x85/0xa0
+>  [<c02af89c>] scsi_softirq+0xcc/0x140
+>  [<c0122085>] __do_softirq+0xd5/0xf0
+>  [<c01220d8>] do_softirq+0x38/0x40
+>  [<c0122685>] ksoftirqd+0x95/0xe0
+>  [<c0131cfa>] kthread+0xba/0xc0
+>  [<c0100ecd>] kernel_thread_helper+0x5/0x18
+> Code: f0 8b 42 44 e8 16 7f 0e 00 89 45 ec 89 1c 24 e8 6b b7 ff ff eb aa 89 f6 8d
+>  bc 27 00 00 00 00 55 89 e5 57 56 53 83 ec 08 8b 55 08 <8b> 82 10 01 00 00 8b 38
+>  f6 80 85 01 00 00 80 0f 85 9e 00 00 00
+>   <0>Kernel panic - not syncing: Fatal exception in interrupt
+> 
 
-Turns out on some GCC versions, converting to char * and back gives better
-code output than gdt[seg >> 3].  Lets keep that trick in the header file
-so the C-code can be clean.
+Has there been any progress on this?
 
-Not used yet, but soon.
+If not, can you please test the latest snapshot from
+ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots and if it still fails, raise a bug at bugzilla.kernel.org?
 
-Signed-off-by: Zachary Amsden <zach@vmware.com>
-Index: linux-2.6.14-zach-work/include/asm-i386/desc.h
-===================================================================
---- linux-2.6.14-zach-work.orig/include/asm-i386/desc.h	2005-11-04 18:10:53.000000000 -0800
-+++ linux-2.6.14-zach-work/include/asm-i386/desc.h	2005-11-05 00:28:03.000000000 -0800
-@@ -30,7 +30,24 @@ static inline struct desc_struct *get_cp
- {
- 	return ((struct desc_struct *)cpu_gdt_descr[cpu].address);
- }
--  
-+
-+static inline int segment_from_ldt(unsigned int segment)
-+{
-+	return segment & LDT_SEGMENT;
-+}
-+
-+static inline struct desc_struct *get_gdt_desc(int cpu, unsigned int segment)
-+{
-+	char *gdt = (char *)get_cpu_gdt_table(cpu);
-+	return (struct desc_struct *)&gdt[segment & ~7];
-+}
-+
-+static inline struct desc_struct *get_ldt_desc(mm_context_t *ctx, unsigned int segment)
-+{
-+	char *ldt = (char *)ctx->ldt;
-+	return (struct desc_struct *)&ldt[segment & ~7];
-+}
-+
- #define load_TR_desc() __asm__ __volatile__("ltr %w0"::"q" (GDT_ENTRY_TSS*8))
- #define load_LDT_desc() __asm__ __volatile__("lldt %w0"::"q" (GDT_ENTRY_LDT*8))
- 
+Thanks.

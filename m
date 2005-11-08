@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965037AbVKHVrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030300AbVKHVwV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965037AbVKHVrP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 16:47:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965146AbVKHVrP
+	id S1030300AbVKHVwV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 16:52:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030313AbVKHVwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 16:47:15 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:6879 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S965037AbVKHVrO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 16:47:14 -0500
-Subject: Re: oops with USB Storage on 2.6.14
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Patrick Mansfield <patmans@us.ibm.com>
-Cc: "goggin, edward" <egoggin@emc.com>,
-       "'Rolf Eike Beer'" <eike-kernel@sf-tec.de>,
-       "'Andrew Morton'" <akpm@osdl.org>,
-       Masanari Iida <standby24x7@gmail.com>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, linux-scsi@vger.kernel.org
-In-Reply-To: <20051108213306.GA25219@us.ibm.com>
-References: <C2EEB4E538D3DC48BF57F391F422779321ADC0@srmanning.eng.emc.com>
-	 <1131484123.3270.36.camel@mulgrave>  <20051108213306.GA25219@us.ibm.com>
-Content-Type: text/plain
-Date: Tue, 08 Nov 2005 16:45:54 -0500
-Message-Id: <1131486354.3270.42.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Nov 2005 16:52:21 -0500
+Received: from attila.bofh.it ([213.92.8.2]:6340 "EHLO attila.bofh.it")
+	by vger.kernel.org with ESMTP id S1030300AbVKHVwU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 16:52:20 -0500
+Date: Tue, 8 Nov 2005 22:52:09 +0100
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: udev on 2.6.14 fails to create /dev/input/event2 on T40 Thinkpad
+Message-ID: <20051108215209.GA24796@wonderland.linux.it>
+References: <E1EYdMs-0001hI-3F@think.thunk.org> <20051106203421.GB2527@kroah.com> <20051107053648.GA7521@thunk.org> <20051107155243.GA14658@kroah.com> <20051107181706.GB8374@thunk.org> <20051107182434.GC18861@kroah.com> <20051108033019.GA6129@thunk.org> <20051108044348.GB5516@kroah.com> <20051108131451.GD6129@thunk.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051108131451.GD6129@thunk.org>
+User-Agent: Mutt/1.5.11
+From: md@Linux.IT (Marco d'Itri)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-08 at 13:33 -0800, Patrick Mansfield wrote:
-> I mean we get a ref to the sdev in the upper level driver opens, scan, and
-> sd flush. So where are we not getting a ref? 
-> 
-> Shouldn't the get be done at a higher level?
+On Nov 08, Theodore Ts'o <tytso@mit.edu> wrote:
 
-Actually, no, because of the way we run the queues for the next command.
+> .. and the Synaptics driver wants to talk to /dev/input/event2, and
+> _not_ /dev/input/event3.  But the Debian scripts seem to think that
+> the only thing of value to expose is the /dev/input/event3, the very
+> top of the stack.  /dev/input/event1, and /dev/input/event2 are both
+> not showing up on my system once a I boot a post-2.6.14 kernel.
+Yes, sure. The current Debian package uses udevsynthesize, which knows
+nothing about what happened post-2.6.14 in sysfs.
 
-If this is a sd_sync_cache() or something for the last possible command
-on the device, the process may have a reference to the device, but as
-soon as we call end_that_request_last(), they may be racing to release
-it.  The bug is triggered when we get into scsi_next_command() with us
-holding the only remaining reference to the device.
+> Great....  I'll file a bug report to Debian, and hopefully they can
+> get this mess straightened out before 2.6.15 (and hopefully before
+> 2.6.14-rc1) ships.
+Not unless you will send me a tested patch for the init script, since I
+do not run rc kernels myself.
+(Or at least you will help me with some testing.)
 
-James
-
-
+-- 
+ciao,
+Marco

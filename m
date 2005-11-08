@@ -1,43 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965193AbVKHDSv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965311AbVKHDUJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965193AbVKHDSv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 22:18:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965219AbVKHDSv
+	id S965311AbVKHDUJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 22:20:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965219AbVKHDUJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 22:18:51 -0500
-Received: from xenotime.net ([66.160.160.81]:47745 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S965160AbVKHDSu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 22:18:50 -0500
-Date: Mon, 7 Nov 2005 19:03:40 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, linuxram@us.ibm.com
-Subject: [OT] Re: [PATCH 3/18] allow callers of seq_open do allocation
- themselves
-Message-Id: <20051107190340.129bc8c3.rdunlap@xenotime.net>
-In-Reply-To: <E1EZInj-0001Eh-9T@ZenIV.linux.org.uk>
-References: <E1EZInj-0001Eh-9T@ZenIV.linux.org.uk>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Nov 2005 22:20:09 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:41233 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S965204AbVKHDUH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 22:20:07 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 7/6] fat: Support a truncate() for expanding size
+References: <87hdaotlci.fsf@devron.myhome.or.jp>
+	<87d5lctl5y.fsf@devron.myhome.or.jp>
+	<878xw0tl3r.fsf_-_@devron.myhome.or.jp>
+	<874q6otl0q.fsf_-_@devron.myhome.or.jp>
+	<87zmogs6cs.fsf_-_@devron.myhome.or.jp>
+	<87vez4s6b7.fsf_-_@devron.myhome.or.jp>
+	<87r79ss658.fsf_-_@devron.myhome.or.jp>
+	<20051107170626.4d08e8d6.akpm@osdl.org>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Tue, 08 Nov 2005 12:19:56 +0900
+In-Reply-To: <20051107170626.4d08e8d6.akpm@osdl.org> (Andrew Morton's message of "Mon, 7 Nov 2005 17:06:26 -0800")
+Message-ID: <87ek5rx1ur.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 08 Nov 2005 02:01:31 +0000 Al Viro wrote:
+Andrew Morton <akpm@osdl.org> writes:
 
-> From: Al Viro <viro@zeniv.linux.org.uk>
-> Date: 1131401734 -0500
+> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
+>>
+>> +static int fat_cont_expand(struct inode *inode, loff_t size)
+>
+> Is it not possible to extend generic_cont_expand() so that fatfs can use it?
 
-What format is that date in, please?
+The generic_cont_expand() is too generic.
 
-> Allows caller of seq_open() to kmalloc() seq_file + whatever else they want
-> and set ->private_data to it.  seq_open() will then abstain from doing
-> allocation itself.
-> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+If "size" is block boundary, generic_cont_expand() expands the
+->i_size to "size + 1", after it, the caller of it will truncate to
+"size" by vmtruncate().
 
----
-~Randy
+This sequence is not need if ->prepare_write() is cont_prepare_write().
+The cont_prepare_write() will just fill the blocks with zero until
+"size" if blocks is not allocated yet.
+
+FAT is using cont_parepare_write(), so for avoiding the above extra
+work, is using own version.
+
+Probably, this version is generic only for cont_parepare_write().
+
+Thanks.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

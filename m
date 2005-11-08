@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965061AbVKHMxq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965068AbVKHMy4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965061AbVKHMxq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 07:53:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965065AbVKHMxq
+	id S965068AbVKHMy4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 07:54:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965087AbVKHMy4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 07:53:46 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:61453 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S965061AbVKHMxp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 07:53:45 -0500
-Message-ID: <43709FD7.1030905@vmware.com>
-Date: Tue, 08 Nov 2005 04:53:43 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Martin Bligh <mbligh@mbligh.org>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH 14/21] i386 Apm is on cpu zero only
-References: <200511080433.jA84Xwm7009921@zach-dev.vmware.com> <20051108073315.GE28201@elte.hu>
-In-Reply-To: <20051108073315.GE28201@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Nov 2005 12:53:44.0727 (UTC) FILETIME=[73E5EA70:01C5E463]
+	Tue, 8 Nov 2005 07:54:56 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:18483
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S965068AbVKHMyz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 07:54:55 -0500
+Message-Id: <4370AE63.76F0.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Tue, 08 Nov 2005 13:55:47 +0100
+From: "Jan Beulich" <JBeulich@novell.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] i386: don't blindly enable interrupts in die()
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="=__PartB89A8643.0__="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
+This is a MIME message. If you are reading this text, you may want to 
+consider changing to a mail reader or gateway that understands how to 
+properly handle MIME multipart messages.
 
->* Zachary Amsden <zach@vmware.com> wrote:
->
->  
->
->>APM BIOS code has a protective wrapper that runs it only on CPU zero.  
->>Thus, no need to set APM BIOS segments in the GDT for other CPUs.
->>    
->>
->
->hm, do we want (need) to have that CPU#0 assumption forever?
->  
->
+--=__PartB89A8643.0__=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Can't hurt, and APM is largely obsolete because of ACPI, so I'm only 
-concerned with trimming and keeping adequate protection of the kernel 
-from APM code while maintaining correctness.  I don't have a nice set of 
-old machines with enough wacky APM BIOSen to validate that unpinning the 
-CPU is ok.
+Rather than blindly re-enabling interrupts in die(), save their state
+upon entry and then restore that state.
 
-Zach
+From: Jan Beulich <jbeulich@novell.com>
+
+(actual patch attached)
+
+
+--=__PartB89A8643.0__=
+Content-Type: application/octet-stream; name="linux-2.6.14-i386-die-irq.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="linux-2.6.14-i386-die-irq.patch"
+
+UmF0aGVyIHRoYW4gYmxpbmRseSByZS1lbmFibGluZyBpbnRlcnJ1cHRzIGluIGRpZSgpLCBzYXZl
+IHRoZWlyIHN0YXRlCnVwb24gZW50cnkgYW5kIHRoZW4gcmVzdG9yZSB0aGF0IHN0YXRlLgoKRnJv
+bTogSmFuIEJldWxpY2ggPGpiZXVsaWNoQG5vdmVsbC5jb20+CgotLS0gMi42LjE0L2FyY2gvaTM4
+Ni9rZXJuZWwvdHJhcHMuYwkyMDA1LTEwLTI4IDAyOjAyOjA4LjAwMDAwMDAwMCArMDIwMAorKysg
+Mi42LjE0LWkzODYtZGllLWlycS9hcmNoL2kzODYva2VybmVsL3RyYXBzLmMJMjAwNS0xMS0wNCAx
+NzowMDo0Ny4wMDAwMDAwMDAgKzAxMDAKQEAgLTMwNiwxNCArMzA2LDE3IEBAIHZvaWQgZGllKGNv
+bnN0IGNoYXIgKiBzdHIsIHN0cnVjdCBwdF9yZWcKIAkJLmxvY2tfb3duZXJfZGVwdGggPQkwCiAJ
+fTsKIAlzdGF0aWMgaW50IGRpZV9jb3VudGVyOworCXVuc2lnbmVkIGxvbmcgZmxhZ3M7CiAKIAlp
+ZiAoZGllLmxvY2tfb3duZXIgIT0gcmF3X3NtcF9wcm9jZXNzb3JfaWQoKSkgewogCQljb25zb2xl
+X3ZlcmJvc2UoKTsKLQkJc3Bpbl9sb2NrX2lycSgmZGllLmxvY2spOworCQlzcGluX2xvY2tfaXJx
+c2F2ZSgmZGllLmxvY2ssIGZsYWdzKTsKIAkJZGllLmxvY2tfb3duZXIgPSBzbXBfcHJvY2Vzc29y
+X2lkKCk7CiAJCWRpZS5sb2NrX293bmVyX2RlcHRoID0gMDsKIAkJYnVzdF9zcGlubG9ja3MoMSk7
+CiAJfQorCWVsc2UKKwkJbG9jYWxfc2F2ZV9mbGFncyhmbGFncyk7CiAKIAlpZiAoKytkaWUubG9j
+a19vd25lcl9kZXB0aCA8IDMpIHsKIAkJaW50IG5sID0gMDsKQEAgLTM0MCw3ICszNDMsNyBAQCB2
+b2lkIGRpZShjb25zdCBjaGFyICogc3RyLCBzdHJ1Y3QgcHRfcmVnCiAKIAlidXN0X3NwaW5sb2Nr
+cygwKTsKIAlkaWUubG9ja19vd25lciA9IC0xOwotCXNwaW5fdW5sb2NrX2lycSgmZGllLmxvY2sp
+OworCXNwaW5fdW5sb2NrX2lycXJlc3RvcmUoJmRpZS5sb2NrLCBmbGFncyk7CiAKIAlpZiAoa2V4
+ZWNfc2hvdWxkX2NyYXNoKGN1cnJlbnQpKQogCQljcmFzaF9rZXhlYyhyZWdzKTsK
+
+--=__PartB89A8643.0__=--

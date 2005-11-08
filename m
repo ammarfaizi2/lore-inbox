@@ -1,112 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964997AbVKHDz7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965259AbVKHD65@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964997AbVKHDz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Nov 2005 22:55:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965259AbVKHDz7
+	id S965259AbVKHD65 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Nov 2005 22:58:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965285AbVKHD64
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Nov 2005 22:55:59 -0500
-Received: from xenotime.net ([66.160.160.81]:7572 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S964997AbVKHDz7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Nov 2005 22:55:59 -0500
-Date: Mon, 7 Nov 2005 19:40:44 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Martin Waitz <tali@admingilde.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/4] DocBook: allow to mark structure members private
-Message-Id: <20051107194044.1841277b.rdunlap@xenotime.net>
-In-Reply-To: <20051107225604.841433000@admingilde.org>
-References: <20051107225408.911193000@admingilde.org>
-	<20051107225604.841433000@admingilde.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 7 Nov 2005 22:58:56 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:9458 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S965259AbVKHD64 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Nov 2005 22:58:56 -0500
+Subject: Re: Update on Timer Frequencies
+From: Steven Rostedt <rostedt@goodmis.org>
+To: AndyLiebman@aol.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <206.db80c15.30a174f6@aol.com>
+References: <206.db80c15.30a174f6@aol.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Mon, 07 Nov 2005 22:58:49 -0500
+Message-Id: <1131422329.14381.157.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 07 Nov 2005 23:54:10 +0100 Martin Waitz wrote:
-
-> DocBook: allow to mark structure members private
+On Mon, 2005-11-07 at 22:26 -0500, AndyLiebman@aol.com wrote:
+> >Your system looks pretty much interrupt driven, and I would assume  that
+> >all these are of same importance.  So I would actually  recommend the
+> >vanilla kernel, with HZ=100 and preemption turned  off.
 > 
-> Many structures contain both an internal part and one which is part of the
-> API to other modules.  With this patch it is possible to only include
-> these public members in the kernel documentation.
+> Hi Steve, 
 > 
-> Signed-off-by: Martin Waitz <tali@admingilde.org>
-
-
-Ahoy.  Excellent.  Compare my personal todo list item:
-
-35.for kernel-doc: make some fields :private: so that a description is not
-    expected for them.
-
-
-Just to be clear about the usage, the kernel-doc script switches from
-public to private upon seeing a /*-style comment with the strings
-"private:" or "public:" in it.  Right?
-
-Yes, a lot of those USB header fields did need some help.
-That's why my todo item was there.
-
-
-> ---
->  include/linux/usb.h |    6 +++---
->  scripts/kernel-doc  |   13 +++++++++++--
->  2 files changed, 14 insertions(+), 5 deletions(-)
-> 
-> Index: linux-docbook/scripts/kernel-doc
-> ===================================================================
-> --- linux-docbook.orig/scripts/kernel-doc	2005-11-04 22:55:27.236188385 +0100
-> +++ linux-docbook/scripts/kernel-doc	2005-11-04 23:13:29.348626536 +0100
-> @@ -1304,6 +1306,12 @@ sub dump_struct($$) {
->  	# ignore embedded structs or unions
->  	$members =~ s/{.*?}//g;
+> I thought I would update you (and those on the  list who care) about my real 
+> world experience comparing the 2.6.14 kernel  compiled with the timer 
+> frequency set to 100 versus 1000. 
 >  
-> +	# ignore members marked private:
-> +	$members =~ s/\/\*.*?private:.*?public:.*?\*\///gos;
-> +	$members =~ s/\/\*.*?private:.*//gos;
-> +	# strip comments:
-> +	$members =~ s/\/\*.*?\*\///gos;
-> +
->  	create_parameterlist($members, ';', $file);
+> If you recall, I'm running a video server that is taking in and sending out  
+> a large number of streams of video and audio clips that range in data rates 
+> from  3.8 to 28 MB/sec. 
 >  
->  	output_declaration($declaration_name,
-> Index: linux-docbook/include/linux/usb.h
-> ===================================================================
-> --- linux-docbook.orig/include/linux/usb.h	2005-11-04 22:57:57.356783495 +0100
-> +++ linux-docbook/include/linux/usb.h	2005-11-04 23:14:05.326614355 +0100
-> @@ -819,7 +819,7 @@ typedef void (*usb_complete_t)(struct ur
->   */
->  struct urb
->  {
-> -	/* private, usb core and host controller only fields in the urb */
-> +	/* private: usb core and host controller only fields in the urb */
->  	struct kref kref;		/* reference count of the URB */
->  	spinlock_t lock;		/* lock for the URB */
->  	void *hcpriv;			/* private data for host controller */
-> @@ -827,7 +827,7 @@ struct urb
->  	atomic_t use_count;		/* concurrent submissions counter */
->  	u8 reject;			/* submissions will fail */
+> We have a benchmark test that we developed that simulates multiple  
+> non-linear video editing workstations playing back sequences of video each from  their 
+> own timeline. We developed this test mostly to tune our storage subsystem,  so 
+> it's not a perfect test to evaluate timer frequencies (because it doesn't  
+> involve any network traffic). 
+
+So the server would just be handling data for other machines on a
+network?  There may be clashes between the scripts and the services.
+Could you run scripts on another machine that communicates to the server
+and do your benchmarks that way?
+
 >  
-> -	/* public, documented fields in the urb that can be used by drivers */
-> +	/* public: documented fields in the urb that can be used by drivers */
->  	struct list_head urb_list;	/* list head for use by the urb's
->  					 * current owner */
->  	struct usb_device *dev; 	/* (in) pointer to associated device */
-> @@ -1045,7 +1045,7 @@ struct usb_sg_request {
->  	size_t			bytes;
->  
->  	/* 
-> -	 * members below are private to usbcore,
-> +	 * members below are private: to usbcore,
->  	 * and are not provided for driver access!
->  	 */
->  	spinlock_t		lock;
-> 
-> --
+> Each test is really a sequence of scripts that a) run dd on a  trio of one 
+> video and two audio files and b) move on to the next script  until all scripts 
+> have been executed, each time reading data from the RAIDS and  writing the data 
+> to /dev/null until 21 clips worth of data have been read. We do  this in 
+> parallel 5, 6, 10, 15 times to simulate that same number of workstations  calling 
+> for data simultaneously. 
+
+I wonder what the over head is of these.  Could you post numbers running
+these scripts under the time command?  So something like "time dd
+if=audio_whatever of=/dev/null"
 
 
----
-~Randy
+>  
+> The test is an approximate simulation of video  editing workstations playing 
+> back unique sequences of 21 clips that each  range in length from 3 to 5 
+> seconds and that run at a rate of 18 MB/sec video  (which is roughly 8-bit 
+> uncompressed standard definition). 
+>  
+> The test puts extreme stress on our RAID subsystem -- forcing drives to  seek 
+> all over the place to play back these random clips (think of each sequence  
+> as a little 90 second story with 21 separate shots). 
+>  
+> After conducting many tests over the weekend, we concluded that the tests  
+> consistently took 6 percent longer to complete when running under a kernel  
+> compiled with the 100 hz timer versus an identical kernel compiled with a 1000  hz 
+> timer. 
+>  
+> Again, I realize this isn't a perfect simulation of what our server does in  
+> real life; we weren't moving data over a network -- thus there were no  NIC 
+> card interrupts involved, no samba or netatalk work taking place, and  instead 
+> all of our scripts and dd commands are running on the server. 
+
+I still wouldn't trust those tests.  Try something like netcat (nc) from
+another machine and see how it compares.  Although that would still be a
+crude test.
+
+>  
+> Still, the results are interesting. That plus the fact that our "user  
+> management applications" open and run excruciatingly slowly when the timer  
+> frequency is 100 versus 1000 (3 x longer to open the application) is making us  stick 
+> with a timer frequency of 1000 for now. 
+
+Are there other services running when you open these applications?  If
+not, then this would not make sense.  But if other services where not
+active when these applications are being opened, I'd be surprised at
+these numbers.
+
+The time slice algorithm in the scheduler is pretty complex. Not the
+implementation, but the assigning of time slices and the dynamic nature
+of them.  I wonder if a lower HZ would cause more schedules?  I'll have
+to test this out tomorrow and see what I get in scheduling frequencies
+between the two.
+
+>  
+> Thanks again for your help. I'm sorry if I offended anyone on this list by  
+> writing from an AOL address. 
+
+I'm sure they'll get over it ;-)
+
+-- Steve
+
+

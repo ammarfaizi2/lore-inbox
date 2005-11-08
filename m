@@ -1,22 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964833AbVKHLWw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965007AbVKHLgo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964833AbVKHLWw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 06:22:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbVKHLWw
+	id S965007AbVKHLgo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 06:36:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965075AbVKHLgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 06:22:52 -0500
-Received: from mx1.suse.de ([195.135.220.2]:12692 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932246AbVKHLWv (ORCPT
+	Tue, 8 Nov 2005 06:36:44 -0500
+Received: from cantor.suse.de ([195.135.220.2]:9110 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S965007AbVKHLgn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 06:22:51 -0500
-Date: Tue, 08 Nov 2005 12:22:50 +0100
-Message-ID: <s5hek5ro039.wl%tiwai@suse.de>
+	Tue, 8 Nov 2005 06:36:43 -0500
+Date: Tue, 08 Nov 2005 12:36:41 +0100
+Message-ID: <s5hd5lbnzg6.wl%tiwai@suse.de>
 From: Takashi Iwai <tiwai@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: perex@suse.cz, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] sound/drivers/vx/vx_hwdep.c should #include <linux/vmalloc.h>
-In-Reply-To: <20051107200341.GI3847@stusta.de>
-References: <20051107200341.GI3847@stusta.de>
+To: mchehab@brturbo.com.br
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, video4linux-list@redhat.com,
+       Ricardo Cerqueira <v4l@cerqueira.org>, rlrevell@joe-job.com,
+       alsa-devel@lists.sourceforge.net, nshmyrev@yandex.ru
+Subject: Re: [Patch 1/1] V4L (926) Saa7134 alsa can only be autoloaded after	saa7134 is active
+In-Reply-To: <1131397121.6632.127.camel@localhost>
+References: <1131397121.6632.127.camel@localhost>
 User-Agent: Wanderlust/2.12.0 (Your Wildest Dreams) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.7 (=?ISO-8859-4?Q?Sanj=F2?=) APEL/10.6 MULE XEmacs/21.5 (beta18)
  (chestnut) (+CVS-20041021) (i386-suse-linux)
@@ -25,15 +27,109 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At Mon, 7 Nov 2005 21:03:41 +0100,
-Adrian Bunk wrote:
+At Mon, 07 Nov 2005 18:48:18 -0200,
+mchehab@brturbo.com.br wrote:
 > 
-> This is required for always getting the vmalloc()/vfree() prototypes.
+> From: Ricardo Cerqueira <v4l@cerqueira.org>
 > 
+> - Saa7134-alsa can only be autoloaded after saa7134 is active
+> - Applied pertinent changes proposed by the ALSA team
+> - dsp_nr replaced by ALSA's index[]
 > 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> Signed-off-by: Ricardo Cerqueira <v4l@cerqueira.org>
+> Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
 
-Thanks, now applied to ALSA tree.
+Thanks for the quick rewrite!
+
+
+> --- hg.old.orig/drivers/media/video/saa7134/saa7134-alsa.c
+> +++ hg.old/drivers/media/video/saa7134/saa7134-alsa.c
+> @@ -186,30 +171,31 @@ void saa7134_irq_alsa_done(struct saa713
+>  		goto done;
+>  	}
+>  
+> -	if (dev->oss.read_count >= dev->oss.blksize * (dev->oss.blocks-2)) {
+> -		dprintk("irq: overrun [full=%d/%d] - Blocks in %d\n",dev->oss.read_count,
+> -			dev->oss.bufsize, dev->oss.blocks);
+> +	if (dev->dmasound.read_count >= dev->dmasound.blksize * (dev->dmasound.blocks-2)) {
+> +		dprintk("irq: overrun [full=%d/%d] - Blocks in %d\n",dev->dmasound.read_count,
+> +			dev->dmasound.bufsize, dev->dmasound.blocks);
+> +		snd_pcm_stop(dev->dmasound.substream,SNDRV_PCM_STATE_XRUN);
+>  		saa7134_dma_stop(dev);
+>  		goto done;
+>  	}
+
+You need spin_unlock(&dev->slock) before calling snd_pcm_stop() since
+this lock is used in trigger callback, too.  Note that "goto done" may
+require the lock again.  Also, the succeeding saa7134_dma_stop() is
+superfluous.
+
+
+> @@ -374,13 +376,13 @@ static int snd_card_saa7134_capture_prep
+>  		goto fail2;
+>  
+>  	/* prepare buffer */
+> -	if (0 != (err = videobuf_dma_pci_map(dev->pci,&dev->oss.dma)))
+> +	if (0 != (err = videobuf_dma_pci_map(dev->pci,&dev->dmasound.dma)))
+>  		return err;
+> -	if (0 != (err = saa7134_pgtable_alloc(dev->pci,&dev->oss.pt)))
+> +	if (0 != (err = saa7134_pgtable_alloc(dev->pci,&dev->dmasound.pt)))
+>  		goto fail1;
+> -	if (0 != (err = saa7134_pgtable_build(dev->pci,&dev->oss.pt,
+> -					      dev->oss.dma.sglist,
+> -					      dev->oss.dma.sglen,
+> +	if (0 != (err = saa7134_pgtable_build(dev->pci,&dev->dmasound.pt,
+> +					      dev->dmasound.dma.sglist,
+> +					      dev->dmasound.dma.sglen,
+>  					      0)))
+>  		goto fail2;
+
+
+The buffer allocation would be better to be done in hw_params
+callback because prepare callback can be frequently called (although 
+it works in prepare callback, too).
+Or, at least, you shoud cache the value in the same stream.
+
+
+> @@ -818,7 +811,7 @@ static int snd_saa7134_capsrc_put(snd_kc
+>  		 chip->capture_source[addr][1] != right;
+>  	chip->capture_source[addr][0] = left;
+>  	chip->capture_source[addr][1] = right;
+> -	dev->oss.input=addr;
+> +	dev->dmasound.input=addr;
+>  	spin_unlock_irqrestore(&chip->mixer_lock, flags);
+
+You can use spin_unlock_irq() safely here.
+
+
+> @@ -973,18 +963,17 @@ int alsa_card_saa7134_create (struct saa
+>  	chip->irq = saadev->pci->irq;
+>  	chip->iobase = pci_resource_start(saadev->pci, 0);
+>  
+> -	err = request_irq(chip->pci->irq, saa7134_alsa_irq,
+> +	err = request_irq(saadev->pci->irq, saa7134_alsa_irq,
+>  				SA_SHIRQ | SA_INTERRUPT, saadev->name, saadev);
+
+Hmm, still I don't see any call of free_irq() in the driver?
+
+
+> @@ -1010,7 +997,7 @@ int alsa_card_saa7134_create (struct saa
+>  
+>  __nodev:
+>  	snd_card_free(card);
+> -	kfree(card);
+> +	kfree(chip);
+
+It's not safe to call kfree(chip) here, too.  This can be already
+released, once after snd_device_new() is succeeded.
+In your case, it's easier to use the following style:
+
+	err = snd_card_new(index[dev], id[dev], THIS_MODULE,
+				sizeof(snd_card_saa7134_t));
+	chip = card->private_data;
+	card->private_free = snd_saa7134_free;
+
+so that no extra kfree() is needed.
 
 
 Takashi

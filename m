@@ -1,117 +1,205 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030360AbVKIKRY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030424AbVKIKRl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030360AbVKIKRY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 05:17:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030424AbVKIKRY
+	id S1030424AbVKIKRl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 05:17:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030455AbVKIKRl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 05:17:24 -0500
-Received: from smtp06.auna.com ([62.81.186.16]:48014 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id S1030360AbVKIKRY (ORCPT
+	Wed, 9 Nov 2005 05:17:41 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:27091 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1030425AbVKIKRk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 05:17:24 -0500
-Date: Wed, 9 Nov 2005 11:16:40 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: linas <linas@austin.ibm.com>, Douglas McNaught <doug@mcnaught.org>,
-       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
-       bluesmoke-devel@lists.sourceforge.net,
-       linux-pci@atrey.karlin.mff.cuni.cz, linuxppc64-dev@ozlabs.org
-Subject: Re: typedefs and structs
-Message-ID: <20051109111640.757f399a@werewolf.auna.net>
-In-Reply-To: <19255C96-8B64-4615-A3A7-9E5A850DE398@mac.com>
-References: <20051107185621.GD19593@austin.ibm.com>
-	<20051107190245.GA19707@kroah.com>
-	<20051107193600.GE19593@austin.ibm.com>
-	<20051107200257.GA22524@kroah.com>
-	<20051107204136.GG19593@austin.ibm.com>
-	<1131412273.14381.142.camel@localhost.localdomain>
-	<20051108232327.GA19593@austin.ibm.com>
-	<B68D1F72-F433-4E94-B755-98808482809D@mac.com>
-	<20051109003048.GK19593@austin.ibm.com>
-	<m27jbihd1b.fsf@Douglas-McNaughts-Powerbook.local>
-	<20051109004808.GM19593@austin.ibm.com>
-	<19255C96-8B64-4615-A3A7-9E5A850DE398@mac.com>
-X-Mailer: Sylpheed-Claws 1.9.100cvs4 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Wed, 9 Nov 2005 05:17:40 -0500
+Subject: [patch] Re: 2.6.14-rc5-mm1 - ide-cs broken!
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Greg KH <greg@kroah.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       damir.perisa@solnet.ch, akpm@osdl.org,
+       Kay Sievers <kay.sievers@vrfy.org>
+In-Reply-To: <20051104163755.GB13420@kroah.com>
+References: <20051103220305.77620d8f.akpm@osdl.org>
+	 <20051104071932.GA6362@kroah.com>
+	 <1131117293.26925.46.camel@localhost.localdomain>
+	 <20051104163755.GB13420@kroah.com>
+Content-Type: text/plain
+Date: Wed, 09 Nov 2005 10:17:08 +0000
+Message-Id: <1131531428.8506.24.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="Sig_F0EEq=pjaNcfuobBdG2iUNj";
- protocol="application/pgp-signature"; micalg=PGP-SHA1
-X-Auth-Info: Auth:LOGIN IP:[83.138.218.199] Login:jamagallon@able.es Fecha:Wed, 9 Nov 2005 11:17:22 +0100
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Sig_F0EEq=pjaNcfuobBdG2iUNj
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+On Fri, 2005-11-04 at 08:37 -0800, Greg KH wrote:
+> On Fri, Nov 04, 2005 at 03:14:53PM +0000, Alan Cox wrote:
+> > On Iau, 2005-11-03 at 23:19 -0800, Greg KH wrote:
+> > > Hint, gentoo, debian, and suse don't have this problem, so you might
+> > > want to look at their rules files for how to work around this.  Look for
+> > > this line:
+> > > 
+> > > # skip accessing removable ide devices, cause the ide drivers are horrible broken
+> > 
+> > 
+> > I was under the impression people had eventually decided the media
+> > change patch someone was proposed was ok after investigating one or two
+> > cases I knew of that turned out to be borked hardware ?
+> 
+> I was not aware of that, I'd be glad to see that patch go into the tree
+> to help others who have run into this over the years.
+> 
+> Hm, have a pointer to the latest proposed patch for this anywhere?
 
-On Tue, 8 Nov 2005 20:51:25 -0500, Kyle Moffett <mrmacman_g4@mac.com> wrote:
+This was discussed in the thread: http://lkml.org/lkml/2005/9/21/118
 
->=20
-> Pass by value in C:
-> do_some_stuff(arg1, arg2);
->=20
-> Pass by reference in C:
-> do_some_stuff(&arg1, &arg2);
->=20
-> This is very obvious what it does.  The compiler does type-checks to =20
-> make sure you don't get it wrong.  There are tools to check stack =20
-> usage of functions too.  This is inherently obvious what the code =20
-> does without looking at a completely different file where the =20
-> function is defined.
->=20
->=20
-> Pass by value in C++:
-> do_some_stuff(arg1, arg2);
->=20
-> Pass by reference in C++:
-> do_some_stuff(arg1, arg2);
->=20
-> This is C++ being clever and hiding stuff from the programmer, which =20
-> is Not Good(TM) for a kernel.  C++ may be an excellent language for =20
-> userspace programmers (I say "may" here because some disagree, =20
-> including myself), however, many of the features are extremely =20
-> problematic for a kernel.
->=20
+Alan Cox:
+> On Iau, 2005-09-22 at 15:21 +0100, Richard Purdie wrote:
+> > 1. Are ide-cs devices removable or not. See above.
+>
+> Having done testing on the cards I have based on RMK's suggestion I
+> agree they are not removable except for specific cases (IDE PCMCIA cable
+> adapter plugged into a Syquest). That case is already handled in the
+> core code.
 
-Why is it not good for kernel ?
-You want to pass an struct to a function in the best way you can.
-Reference just pases a pointer instead of copying, but you don't
-realize.
-If you want the funcion to be able to modify the struct, code it as
+Alan: Can you confirm the patch below continues to handle the case
+you're talking about?
 
-void do_some_stuff(T& arg1,T&  arg2)
+> The fact cache flushing is all odd now is I guess bug 4. on the list but
+> easy to fix while fixing 1
 
-If you DO NOT want the funcion to be able to modify the struct, code it as
+I don't know the ide code well enough to understand what needs fixing
+here. Can you elaborate further?
 
-void do_some_stuff(const T& arg1,const T& arg2)
-This is far better than in C,. because you get the benefits from
-reference pass without the problems of accidental modification of
-pointer contents. And get rid of arrows -> ;).
+I'll resend this patch as it still applies and we seem to be in general
+agreement about what needs doing. There was also the issue of media
+change serial number checking but that really needs tackling separately.
 
-If the function modifies the struct it should be obvious from its name,
-not depending if you put an & in the call or not.
-And you stop worrying about argument pass methods.
-The person who programs the function decides and can even change it without
-you user even noticing.
-And gcc does nice optimizations when you mix const& and inlining...
 
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like se=
-x:
-werewolf!able!es                         \         It's better when it's fr=
-ee
-Mandriva Linux release 2006.1 (Cooker) for i586
-Linux 2.6.14-jam1 (gcc 4.0.2 (4.0.2-1mdk for Mandriva Linux release 2006.1))
+This patch stops CompactFlash devices being marked as removable. They
+are not removable (as defined by Linux) as the media and device are 
+inseparable. When a card is removed, the whole device is removed from 
+the system and never sits in a media-less state.
 
---Sig_F0EEq=pjaNcfuobBdG2iUNj
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
+This stops some nasty udev device creation/destruction loops.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+Further, once this change is made, there is no need for ide to
+differentiate between flash and other devices so the is_flash variable
+can be removed from ide_drive_t.
 
-iD8DBQFDccyIRlIHNEGnKMMRAs3YAKCSARLhqSt8KQySF9P2TH3yGQTp1wCfUpvO
-CgHQkA5DJ5ytROe2v9LV3Sk=
-=3XuL
------END PGP SIGNATURE-----
+Signed-off-by: Richard Purdie <rpurdie@rpsys.net> 
 
---Sig_F0EEq=pjaNcfuobBdG2iUNj--
+
+Index: linux-2.6.13/drivers/ide/ide-probe.c
+===================================================================
+--- linux-2.6.13.orig/drivers/ide/ide-probe.c	2005-08-29 00:41:01.000000000 +0100
++++ linux-2.6.13/drivers/ide/ide-probe.c	2005-09-21 20:57:34.000000000 +0100
+@@ -125,45 +125,6 @@
+ }
+ 
+ /**
+- *	drive_is_flashcard	-	check for compact flash
+- *	@drive: drive to check
+- *
+- *	CompactFlash cards and their brethern pretend to be removable
+- *	hard disks, except:
+- * 		(1) they never have a slave unit, and
+- *		(2) they don't have doorlock mechanisms.
+- *	This test catches them, and is invoked elsewhere when setting
+- *	appropriate config bits.
+- *
+- *	FIXME: This treatment is probably applicable for *all* PCMCIA (PC CARD)
+- *	devices, so in linux 2.3.x we should change this to just treat all
+- *	PCMCIA  drives this way, and get rid of the model-name tests below
+- *	(too big of an interface change for 2.4.x).
+- *	At that time, we might also consider parameterizing the timeouts and
+- *	retries, since these are MUCH faster than mechanical drives. -M.Lord
+- */
+- 
+-static inline int drive_is_flashcard (ide_drive_t *drive)
+-{
+-	struct hd_driveid *id = drive->id;
+-
+-	if (drive->removable) {
+-		if (id->config == 0x848a) return 1;	/* CompactFlash */
+-		if (!strncmp(id->model, "KODAK ATA_FLASH", 15)	/* Kodak */
+-		 || !strncmp(id->model, "Hitachi CV", 10)	/* Hitachi */
+-		 || !strncmp(id->model, "SunDisk SDCFB", 13)	/* old SanDisk */
+-		 || !strncmp(id->model, "SanDisk SDCFB", 13)	/* SanDisk */
+-		 || !strncmp(id->model, "HAGIWARA HPC", 12)	/* Hagiwara */
+-		 || !strncmp(id->model, "LEXAR ATA_FLASH", 15)	/* Lexar */
+-		 || !strncmp(id->model, "ATA_FLASH", 9))	/* Simple Tech */
+-		{
+-			return 1;	/* yes, it is a flash memory card */
+-		}
+-	}
+-	return 0;	/* no, it is not a flash memory card */
+-}
+-
+-/**
+  *	do_identify	-	identify a drive
+  *	@drive: drive to identify 
+  *	@cmd: command used
+@@ -278,13 +239,17 @@
+ 	/*
+ 	 * Not an ATAPI device: looks like a "regular" hard disk
+ 	 */
+-	if (id->config & (1<<7))
+-		drive->removable = 1;
+ 
+-	if (drive_is_flashcard(drive))
+-		drive->is_flash = 1;
++	/* 
++	 * 0x848a = CompactFlash device 
++	 * These are *not* removable in Linux definition of the term
++	 */
++
++	if ((id->config != 0x848a) && (id->config & (1<<7)))
++		drive->removable = 1;
++	
+ 	drive->media = ide_disk;
+-	printk("%s DISK drive\n", (drive->is_flash) ? "CFA" : "ATA" );
++	printk("%s DISK drive\n", (id->config == 0x848a) ? "CFA" : "ATA" );
+ 	QUIRK_LIST(drive);
+ 	return;
+ 
+Index: linux-2.6.13/drivers/ide/ide.c
+===================================================================
+--- linux-2.6.13.orig/drivers/ide/ide.c	2005-09-19 10:53:59.000000000 +0100
++++ linux-2.6.13/drivers/ide/ide.c	2005-09-21 20:52:53.000000000 +0100
+@@ -242,7 +242,6 @@
+ 		drive->name[2]			= 'a' + (index * MAX_DRIVES) + unit;
+ 		drive->max_failures		= IDE_DEFAULT_MAX_FAILURES;
+ 		drive->using_dma		= 0;
+-		drive->is_flash			= 0;
+ 		drive->vdma			= 0;
+ 		INIT_LIST_HEAD(&drive->list);
+ 		sema_init(&drive->gendev_rel_sem, 0);
+Index: linux-2.6.13/drivers/ide/ide-disk.c
+===================================================================
+--- linux-2.6.13.orig/drivers/ide/ide-disk.c	2005-09-19 10:53:59.000000000 +0100
++++ linux-2.6.13/drivers/ide/ide-disk.c	2005-09-21 20:51:31.000000000 +0100
+@@ -895,11 +895,7 @@
+ 	if (drive->id_read == 0)
+ 		return;
+ 
+-	/*
+-	 * CompactFlash cards and their brethern look just like hard drives
+-	 * to us, but they are removable and don't have a doorlock mechanism.
+-	 */
+-	if (drive->removable && !(drive->is_flash)) {
++	if (drive->removable) {
+ 		/*
+ 		 * Removable disks (eg. SYQUEST); ignore 'WD' drives 
+ 		 */
+Index: linux-2.6.13/include/linux/ide.h
+===================================================================
+--- linux-2.6.13.orig/include/linux/ide.h	2005-08-29 00:41:01.000000000 +0100
++++ linux-2.6.13/include/linux/ide.h	2005-09-21 20:56:29.000000000 +0100
+@@ -697,7 +697,6 @@
+ 	unsigned noprobe 	: 1;	/* from:  hdx=noprobe */
+ 	unsigned removable	: 1;	/* 1 if need to do check_media_change */
+ 	unsigned attach		: 1;	/* needed for removable devices */
+-	unsigned is_flash	: 1;	/* 1 if probed as flash */
+ 	unsigned forced_geom	: 1;	/* 1 if hdx=c,h,s was given at boot */
+ 	unsigned no_unmask	: 1;	/* disallow setting unmask bit */
+ 	unsigned no_io_32bit	: 1;	/* disallow enabling 32bit I/O */
+
+

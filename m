@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbVKIXAV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750938AbVKIXBF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750818AbVKIXAV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 18:00:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbVKIXAV
+	id S1750938AbVKIXBF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 18:01:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751072AbVKIXBF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 18:00:21 -0500
-Received: from zproxy.gmail.com ([64.233.162.196]:55797 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750818AbVKIXAT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 18:00:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NQNdps2KNYFAZCdPbXCg9pJptwBs3PeHS+Gecgive6d6Ywe53SasjAA3CLUS+9d+BUtL2+yyYOQ0jGSf5l3rQpp10olXMxMYuQ5yyFfH6GFtpRVfTH8wp0S+X5pV1MAq3MdNUkcCyt8xOWlipSixZDICWazVKfQrtX05yLQJFkM=
-Message-ID: <9a8748490511091500h4363308fm42312354e3fde8ab@mail.gmail.com>
-Date: Thu, 10 Nov 2005 00:00:17 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>
-Subject: Re: Kernel Panic 2.6.14-git
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43727E72.4040103@linuxwireless.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <43727E72.4040103@linuxwireless.org>
+	Wed, 9 Nov 2005 18:01:05 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:25472 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751054AbVKIXBB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 18:01:01 -0500
+Subject: Re: [Patch 1/1] V4L (926) Saa7134 alsa can only be
+	autoloaded	after	saa7134 is active
+From: Lee Revell <rlrevell@joe-job.com>
+To: R C <v4l@cerqueira.org>
+Cc: Takashi Iwai <tiwai@suse.de>, mchehab@brturbo.com.br,
+       linux-kernel@vger.kernel.org, akpm@osdl.org,
+       video4linux-list@redhat.com, alsa-devel@lists.sourceforge.net,
+       nshmyrev@yandex.ru
+In-Reply-To: <1131484155.4851.10.camel@frolic>
+References: <1131397121.6632.127.camel@localhost>
+	 <s5hd5lbnzg6.wl%tiwai@suse.de> <1131451671.2863.4.camel@frolic>
+	 <s5h4q6nnunn.wl%tiwai@suse.de>  <1131484155.4851.10.camel@frolic>
+Content-Type: text/plain
+Date: Wed, 09 Nov 2005 17:59:03 -0500
+Message-Id: <1131577144.8383.126.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/9/05, Alejandro Bonilla Beeche <abonilla@linuxwireless.org> wrote:
-> Hi,
->
->     I have an IBM T42 and as always I test several kernel images to test
-> the git tree.
->
-> Last one I did 2005-11-05 17:17 kernel-image-2.6.14_T42.v1.8_i386.deb
-> works perfectly, but the new one with same config 2005-11-09 11:47
-> kernel-image-2.6.14_T42.v1.9_i386.deb gives me a kernel panic on boot.
->
+On Tue, 2005-11-08 at 21:09 +0000, R C wrote:
+> On Tue, 2005-11-08 at 14:20 +0100, Takashi Iwai wrote:
+> 
+> > But saa7134_dma_stop() should be already called in trigger callback,
+> > which is called via snd_pcm_stop().
+> 
+> You're right. I wasn't aware pcm_stop() caused a trigger.
+> You may want to check the current version at
+> http://linuxtv.org/cgi-bin/viewcvs.cgi/v4l-kernel/linux/drivers/media/video/saa7134/saa7134-alsa.c?rev=1.21&root=v4l&view=auto
 
-Where's the panic message?
+Did you not read Takashi-san's ALSA driver guide?  If not I'm impressed
+you made it work at all...
+
+http://www.alsa-project.org/~iwai/writing-an-alsa-driver/
 
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Lee
+

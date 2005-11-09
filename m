@@ -1,37 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030454AbVKIARv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030462AbVKIAV7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030454AbVKIARv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 19:17:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030451AbVKIARu
+	id S1030462AbVKIAV7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 19:21:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030463AbVKIAV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 19:17:50 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:57814 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1030450AbVKIARt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 19:17:49 -0500
-Date: Tue, 8 Nov 2005 16:17:33 -0800
-From: Paul Jackson <pj@sgi.com>
-To: "Rohit, Seth" <rohit.seth@intel.com>
-Cc: akpm@osdl.org, torvalds@osdl.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: Cleanup of __alloc_pages
-Message-Id: <20051108161733.0814c12b.pj@sgi.com>
-In-Reply-To: <20051107174349.A8018@unix-os.sc.intel.com>
-References: <20051107174349.A8018@unix-os.sc.intel.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.0.0beta5 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 8 Nov 2005 19:21:56 -0500
+Received: from mail10.syd.optusnet.com.au ([211.29.132.191]:43756 "EHLO
+	mail10.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1030459AbVKIAVz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 19:21:55 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Calin Szonyi <caszonyi@rdslink.ro>
+Subject: Re: New Linux Development Model
+Date: Wed, 9 Nov 2005 11:23:51 +1100
+User-Agent: KMail/1.8.3
+Cc: jerome lacoste <jerome.lacoste@gmail.com>,
+       Edgar Hucek <hostmaster@ed-soft.at>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <436C7E77.3080601@ed-soft.at> <5a2cf1f60511060543m5edc8ba8i920a3005b95a556d@mail.gmail.com> <Pine.LNX.4.62.0511090202030.2383@grinch.ro>
+In-Reply-To: <Pine.LNX.4.62.0511090202030.2383@grinch.ro>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511091123.52092.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you're going to remove the early reclaim logic, then
-lets also nuke the related apparatus: should_reclaim_zone()
-and __GFP_NORECLAIM (which is used in a couple of pagemap.h
-macros as well)?
+On Wed, 9 Nov 2005 11:11 am, caszonyi@rdslink.ro wrote:
+> There are other reasons for using a new kernel. One of them is
+> interactivity. In the days of 2.4 one could achieve decent interactivity
+> for the desktop using preempt and low latency patches. For 2.6
+> interactivity was a real issue (possibly because of the new development
+> model).
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Eh? Where are the bug reports for this? I've only seen better interactivity 
+and responsiveness with 2.6. 
+
+The only time I've seen bad behaviour repeatedly on forums and elsewhere has 
+been due to misconfigured IDE drivers not using DMA and X servers still 
+reniced to -10.
+
+Cheers,
+Con

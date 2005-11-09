@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbVKIL56@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbVKIMAX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751393AbVKIL56 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 06:57:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbVKIL55
+	id S1751387AbVKIMAX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 07:00:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbVKIMAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 06:57:57 -0500
-Received: from zproxy.gmail.com ([64.233.162.196]:51315 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751393AbVKIL54 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 06:57:56 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=aUHAKVrjs+oGeKNBsoXPMUr/ky4WNkacyzGBzK0gHQcfyh1eKdzwITv1Vr5u3wSoEmauHaLEBLMrGsY/HDX56D5m6F+TkSndyZUzlES6ZUW0Kx0DMr+Oh4wGpwhJwEMB7Y1Tjng5bOzOkcr+HVXjq70Q3re336zQk3jD/F19mGo=
-Message-ID: <1a56ea390511090357m5ff9ababsaff340c757b8ab42@mail.gmail.com>
-Date: Wed, 9 Nov 2005 11:57:56 +0000
-From: DaMouse <damouse@gmail.com>
-To: rick@vanrein.org, linux-kernel@vger.kernel.org
-Subject: Re: BadRAM for 2.6.14
-In-Reply-To: <20051109095343.GA17048@roonstrasse.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051109095343.GA17048@roonstrasse.net>
+	Wed, 9 Nov 2005 07:00:22 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:58345 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751387AbVKIMAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 07:00:19 -0500
+Subject: Re: video4linux user land API concern
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Hubert Tonneau <hubert.tonneau@fullpliant.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <05G2L0Z12@briare1.heliogroup.fr>
+References: <05G2L0Z12@briare1.heliogroup.fr>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 09 Nov 2005 12:31:14 +0000
+Message-Id: <1131539474.6540.10.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/9/05, Max Kellermann <max@duempel.org> wrote:
-> Hi Rick,
->
-> I have ported your BadRAM patch to the new kernel 2.6.14.  There were
-> a few tiny formal corrections due to patch conflicts; besides that, I
-> did not change anything.
->
-> To linux-kernel: is there a reason why this patch was never added to
-> Linus' tree?  It helped me save money more than once.
->
-> Max
->
->
->
+On Mer, 2005-11-09 at 10:26 +0000, Hubert Tonneau wrote:
+> Any Video4Linux driver should support both native hardware color encoding
+> (for maximum performances) and rgb (for maximum flexibility).
+> 
+> Requiering user land tools to be prepared to match the webcam native color
+> encoding is poor kernel API design for several reasons:
 
-Hey,
+The kernel API was designed on the basis that someone would one day have
+the sense to write a nice user space library of formats. 
 
-Didn't happen to make a x86_64 one did you? Really good job, I love
-this patch so much and I think I'll look into a 64bit variant when I'm
-bored in french or something.
+> . if new color models appear in new cameras, the current design will require
+>   to map them anyway to some existing encodings not to break existing softwares,
+>   so the end result will be even more confusing because the driver supporting a
+>   non rgb encoding will not necessary mean that selecting the encoding is better
+>   from the performances point of view
 
--DaMouse
+Many of the encodings done by hardware are extremely complicated and
+tricky to unpack in kernel space. If a camera captures jpeg for example
+you don't want in kernel jpeg decoders, let alone mpeg decoders etc
+

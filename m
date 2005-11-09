@@ -1,28 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030777AbVKIVEB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161231AbVKIVGB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030777AbVKIVEB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 16:04:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030779AbVKIVEB
+	id S1161231AbVKIVGB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 16:06:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1160998AbVKIVGB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 16:04:01 -0500
-Received: from 238-193.adsl.pool.ew.hu ([193.226.238.193]:60684 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1030777AbVKIVEA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 16:04:00 -0500
-To: drepper@redhat.com
-CC: linux-kernel@vger.kernel.org, torvalds@osdl.org
-In-reply-to: <43724AB3.40309@redhat.com> (message from Ulrich Drepper on Wed,
-	09 Nov 2005 11:14:59 -0800)
-Subject: Re: openat()
-References: <43724AB3.40309@redhat.com>
-Message-Id: <E1EZx6Q-0002zw-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 09 Nov 2005 22:03:30 +0100
+	Wed, 9 Nov 2005 16:06:01 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:24811
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1030778AbVKIVGA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 16:06:00 -0500
+Date: Wed, 09 Nov 2005 13:05:58 -0800 (PST)
+Message-Id: <20051109.130558.34471475.davem@davemloft.net>
+To: peterc@gelato.unsw.edu.au
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix fallout from CONFIG_IPV6_PRIVACY
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <17265.16378.77270.7493@berry.gelato.unsw.EDU.AU>
+References: <17265.16378.77270.7493@berry.gelato.unsw.EDU.AU>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Can we please get the openat() syscall implemented?
+From: Peter Chubb <peterc@gelato.unsw.edu.au>
+Date: Wed, 9 Nov 2005 11:16:58 +1100
 
-What's wrong with using '/proc/self/fd/N' to implement it?
+> Trying to build today's 2.6.14+git snapshot gives undefined references
+> to use_tempaddr
+> 
+> Looks like an ifdef got left out.
+> 
+> Signed-off-by: Peter Chubb <peterc@gelato.unsw.edu.au>
 
-Miklos
+Applied, thanks Peter.

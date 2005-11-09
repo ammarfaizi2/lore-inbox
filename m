@@ -1,63 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751371AbVKILXP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030497AbVKIL3o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751371AbVKILXP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 06:23:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751373AbVKILXP
+	id S1030497AbVKIL3o (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 06:29:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbVKIL3o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 06:23:15 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:59337 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751371AbVKILXO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 06:23:14 -0500
-Date: Wed, 9 Nov 2005 12:22:47 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Mark Knecht <markknecht@gmail.com>, john stultz <johnstul@us.ibm.com>,
-       Florian Schmidt <mista.tapas@gmx.net>, "K.R. Foley" <kr@cybsft.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: 2.6.14-rt1 (now rt6)
-Message-ID: <20051109112247.GA31536@elte.hu>
-References: <20051017160536.GA2107@elte.hu> <20051020195432.GA21903@elte.hu> <20051030133316.GA11225@elte.hu> <1131158124.4834.24.camel@cmn3.stanford.edu>
+	Wed, 9 Nov 2005 06:29:44 -0500
+Received: from mxfep01.bredband.com ([195.54.107.70]:53386 "EHLO
+	mxfep01.bredband.com") by vger.kernel.org with ESMTP
+	id S1751377AbVKIL3o (ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 06:29:44 -0500
+Subject: Re: New Linux Development Model
+From: Ian Kumlien <pomac@vapor.com>
+Reply-To: pomac@vapor.com
+To: marado@isp.novis.pt
+Cc: Linux-kernel@vger.kernel.org, fawadlateef@gmail.com, s0348365@sms.ed.ac.uk,
+       hostmaster@ed-soft.at, jerome.lacoste@gmail.com, carlsj@yahoo.com
+In-Reply-To: <1131534496.8930.15.camel@noori.ip.pt>
+References: <1131500868.2413.63.camel@localhost>
+	 <1131534496.8930.15.camel@noori.ip.pt>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-c/N6z2ItvgLmbtqVLEm4"
+Date: Wed, 09 Nov 2005 12:30:32 +0100
+Message-Id: <1131535832.2413.75.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1131158124.4834.24.camel@cmn3.stanford.edu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.4.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
+--=-c/N6z2ItvgLmbtqVLEm4
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> I've been running 2.6.14-rt6 fine in my smp system the whole day and 
-> suddenly, just a moment ago, I suddenly started getting key repeats 
-> and screensaver bliiiinks [not my typo]. No HIGH_RES_TIMERS, with 
-> PREEMPT_RT. No messages in the logs or dmesg.
-> 
-> Doing a loop with "sleep 10" bbracketed by calls to date gives me 
-> sporadic results:
-> 
-> --- Fri Nov  4 18:30:25 PST 2005
-> 10
-> ---
-> --- Fri Nov  4 19:43:53 PST 2005
-> 10
-> ---
-> --- Fri Nov  4 19:44:03 PST 2005
-> 3
+On Wed, 2005-11-09 at 11:08 +0000, Marcos Marado wrote:
+> On Wed, 2005-11-09 at 02:47 +0100, Ian Kumlien wrote:
+>=20
+> > Anyways, I was also miffed that the kernel folks merged a 'ancient'
+> > version of ipw2200 and ieee802.11, if they had merged something more
+> > current everything would have worked out of the box and all the cleanup=
+s
+> > would have been easier to cope with. Ie, the intel ppl could release
+> > straight patches to the in kernel version. I dunno if they have changed
+> > the way their driver works now.
+> >=20
+> > Atm, the 'ancient' ieee802.11 is what breaks the ipw2200 build. So,
+> > basically all testing of cutting edge kernels gets very tedious due to
+> > the ieee802.11 package removing the offending .h file and making
+> > reversing -gitX and applying -gitY a real PITA.
+>=20
+> Those are no "ancient" versions, they are the "stable" versions of
+> ieee80211, ipw2100 and ipw2200. ipw* folks think, and I have to agree,
+> that for the stable kernel (Linux tree) it makes sense to add the stable
+> versions of their projects.
 
-hm ... could you try the -rt9 kernel, does it still produce these short 
-timeouts? If yes, then could you strace the 'sleep 10' processes and 
-send me the strace output of such a short sleep? (does it still return 
--516, aka -ERESTART_RESTARTBLOCK?)
+Yes, that would make sense if everyone interested changed the 'unstable'
+version instead, since they change the version merged it only creates
+problems. And if you DO check out the ipw2200 site you see that there
+has been no stable release for about a year and that there has been a
+large amount of bugfixes.
 
-	Ingo
+Also, the 'stable' version didn't use a separated ieee802.11 stack.
+
+So to summarize:
+Merging the latest version of both and then, if someone has problems,
+tell them to downgrade would be simpler. This also means that the
+ipw2200 team could release patches against the kernel as well as
+standalone modules.
+
+The 'stable' version that got merged is more or less useless to people
+who are smart about their wlans. And on a side note, even the firmware
+has improved since then.
+
+--=20
+Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
+
+--=-c/N6z2ItvgLmbtqVLEm4
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1-ecc0.1.6 (GNU/Linux)
+
+iD8DBQBDcd3Y7F3Euyc51N8RAiecAJ0amg849+i00iqitnhnUyyetaOsxwCdEbnM
+6cMPU7HyPi2Y5bTfMqLzBdM=
+=C4bm
+-----END PGP SIGNATURE-----
+
+--=-c/N6z2ItvgLmbtqVLEm4--
+

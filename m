@@ -1,104 +1,197 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751438AbVKIQAN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751445AbVKIQJN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751438AbVKIQAN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 11:00:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbVKIQAN
+	id S1751445AbVKIQJN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 11:09:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbVKIQJN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 11:00:13 -0500
-Received: from mxfep02.bredband.com ([195.54.107.73]:62945 "EHLO
-	mxfep02.bredband.com") by vger.kernel.org with ESMTP
-	id S1751438AbVKIQAL (ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 11:00:11 -0500
-X-IronPort-AV: i="3.97,308,1125871200"; 
-   d="asc'?scan'208"; a="8865796:sNHT49722507"
-Subject: Re: New Linux Development Model
-From: Ian Kumlien <pomac@vapor.com>
-Reply-To: pomac@vapor.com
-To: marado@isp.novis.pt
-Cc: Linux-kernel@vger.kernel.org, fawadlateef@gmail.com, s0348365@sms.ed.ac.uk,
-       hostmaster@ed-soft.at, jerome.lacoste@gmail.com, carlsj@yahoo.com
-In-Reply-To: <1131539876.8930.44.camel@noori.ip.pt>
-References: <1131500868.2413.63.camel@localhost>
-	 <1131534496.8930.15.camel@noori.ip.pt> <1131535832.2413.75.camel@localhost>
-	 <1131539876.8930.44.camel@noori.ip.pt>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-MGSKNiWil68dJncubbE5"
-Date: Wed, 09 Nov 2005 17:01:04 +0100
-Message-Id: <1131552065.2413.90.camel@localhost>
+	Wed, 9 Nov 2005 11:09:13 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:21317
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1751445AbVKIQJM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 11:09:12 -0500
+Message-Id: <43722D73.76F0.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Wed, 09 Nov 2005 17:10:11 +0100
+From: "Jan Beulich" <JBeulich@novell.com>
+To: "Andreas Kleen" <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
+Subject: [PATCH] x86-64: adjust ia32entry.S
+References: <4370AFF0.76F0.0078.0@novell.com> <4370C36D.76F0.0078.0@novell.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+Content-Type: multipart/mixed; boundary="=__Part35170973.1__="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a MIME message. If you are reading this text, you may want to 
+consider changing to a mail reader or gateway that understands how to 
+properly handle MIME multipart messages.
 
---=-MGSKNiWil68dJncubbE5
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+--=__Part35170973.1__=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Repost, forgot the CC etc lines. (Yeah i know, reply to all etc)
+IA32 compatibility entry points needlessly played with extended
+registers. Additionally, frame unwind information was still incorrect
+for ia32_ptregs_common (sorry, my fault).
 
-On Wed, 2005-11-09 at 12:37 +0000, Marcos Marado wrote:
-> On Wed, 2005-11-09 at 12:30 +0100, Ian Kumlien wrote:
-> > So to summarize:
-> > Merging the latest version of both and then, if someone has problems,
-> > tell them to downgrade would be simpler. This also means that the
-> > ipw2200 team could release patches against the kernel as well as
-> > standalone modules.
-> >=20
-> > The 'stable' version that got merged is more or less useless to people
-> > who are smart about their wlans. And on a side note, even the firmware
-> > has improved since then.
->=20
-> I totally disagree. See: for those who don't crawl on lkml, don't
-> compile kernels or modules or stuff like that, they had two choices: be
-> without ipw2100 or ipw2200 or learn how to put the drivers in their
-> kernels. Now, with the stock kernel you have ipw* support, even if
-> limited for some uses. Most people will be happy with this version, but
-> yes, there's still work to be done. When there's a new version
-> considered stable it will get merged into the kernel. Until then, if you
-> want to ride the unstable horse, you'll have to patch it yourself into
-> the kernel.
+From: Jan Beulich <jbeulich@novell.com>
 
-Since it has to be out of tree the way it is now, you don't patch or
-upgrade, you simply have to make it compile. And if you are happy with
-wlan driver that hardly does wep then you have some issues as well.
+(actual patch attached)
 
-> If you want to simplify the process of building the unstable versios of
-> ipw* or if you think that the newer versions of ipw* should be
-> considered the new stable, or if you at some point disagree with ipw*
-> development model you should complain in ipw2100 mailing list at
-> http://lists.sourceforge.net/lists/listinfo/ipw2100-devel .
-> Kernel-related, the decision of supporting the latest stable is good and
-> justifiable.
 
-Thats why we have "experimental" drivers in the kernel?=20
+--=__Part35170973.1__=
+Content-Type: application/octet-stream; name="linux-2.6.14-x86_64-ia32entry.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="linux-2.6.14-x86_64-ia32entry.patch"
 
-like, f.ex.:
-Packet Engines Yellowfin Gigabit-NIC support (EXPERIMENTAL)
-New SysKonnect GigaEthernet support (EXPERIMENTAL)
+SUEzMiBjb21wYXRpYmlsaXR5IGVudHJ5IHBvaW50cyBuZWVkbGVzc2x5IHBsYXllZCB3aXRoIGV4
+dGVuZGVkCnJlZ2lzdGVycy4gQWRkaXRpb25hbGx5LCBmcmFtZSB1bndpbmQgaW5mb3JtYXRpb24g
+d2FzIHN0aWxsIGluY29ycmVjdApmb3IgaWEzMl9wdHJlZ3NfY29tbW9uIChzb3JyeSwgbXkgZmF1
+bHQpLgoKRnJvbTogSmFuIEJldWxpY2ggPGpiZXVsaWNoQG5vdmVsbC5jb20+CgotLS0gMi42LjE0
+L2FyY2gveDg2XzY0L2lhMzIvaWEzMmVudHJ5LlMJMjAwNS0xMC0yOCAwMjowMjowOC4wMDAwMDAw
+MDAgKzAyMDAKKysrIDIuNi4xNC14ODZfNjQtaWEzMmVudHJ5L2FyY2gveDg2XzY0L2lhMzIvaWEz
+MmVudHJ5LlMJMjAwNS0xMS0wOSAxNDowMjoxMi4wMDAwMDAwMDAgKzAxMDAKQEAgLTI2LDEzICsy
+NiwyOSBAQAogCW1vdmwJJWVkeCwlZWR4CS8qIHplcm8gZXh0ZW5zaW9uICovCiAJLmVuZG0gCiAK
+LQkvKiBjbG9iYmVycyAlZWF4ICovCQotCS5tYWNybyAgQ0xFQVJfUlJFR1MKLQl4b3JsIAklZWF4
+LCVlYXgKLQltb3ZxCSVyYXgsUjExKCVyc3ApCi0JbW92cQklcmF4LFIxMCglcnNwKQotCW1vdnEJ
+JXJheCxSOSglcnNwKQotCW1vdnEJJXJheCxSOCglcnNwKQorCS8qIGNsb2JiZXJzIHNwZWNpZmll
+ZCByZWdpc3RlciAob3IgJWVheCkgKi8KKwkubWFjcm8gIENMRUFSX1JSRUdTIHI9YXgKKwl4b3Js
+IAklZVxyLCVlXHIKKwltb3ZxCSVyXHIsUjE1KCVyc3ApCisJbW92cQklclxyLFIxNCglcnNwKQor
+CW1vdnEJJXJccixSMTMoJXJzcCkKKwltb3ZxCSVyXHIsUjEyKCVyc3ApCisJbW92cQklclxyLFIx
+MSglcnNwKQorCW1vdnEJJXJccixSMTAoJXJzcCkKKwltb3ZxCSVyXHIsUjkoJXJzcCkKKwltb3Zx
+CSVyXHIsUjgoJXJzcCkKKwkuZW5kbQorCisJLm1hY3JvIENGSV9TVEFSVFBST0MzMiBzaW1wbGUK
+KwlDRklfU1RBUlRQUk9DCVxzaW1wbGUKKwlDRklfVU5ERUZJTkVECXI4CisJQ0ZJX1VOREVGSU5F
+RAlyOQorCUNGSV9VTkRFRklORUQJcjEwCisJQ0ZJX1VOREVGSU5FRAlyMTEKKwlDRklfVU5ERUZJ
+TkVECXIxMgorCUNGSV9VTkRFRklORUQJcjEzCisJQ0ZJX1VOREVGSU5FRAlyMTQKKwlDRklfVU5E
+RUZJTkVECXIxNQogCS5lbmRtCiAKIC8qCkBAIC01NSw3ICs3MSw3IEBACiAgKiB3aXRoIHRoZSBp
+bnQgMHg4MCBwYXRoLgogICovIAkKIEVOVFJZKGlhMzJfc3lzZW50ZXJfdGFyZ2V0KQotCUNGSV9T
+VEFSVFBST0MJc2ltcGxlCisJQ0ZJX1NUQVJUUFJPQzMyCXNpbXBsZQogCUNGSV9ERUZfQ0ZBCXJz
+cCwwCiAJQ0ZJX1JFR0lTVEVSCXJzcCxyYnAKIAlzd2FwZ3MKQEAgLTEwNyw3ICsxMjMsNyBAQCBz
+eXNlbnRlcl9kb19jYWxsOgkKIAlqbnoJaW50X3JldF9mcm9tX3N5c19jYWxsCiAJLyogY2xlYXIg
+SUYsIHRoYXQgcG9wZnEgZG9lc24ndCBlbmFibGUgaW50ZXJydXB0cyBlYXJseSAqLwogCWFuZGwg
+ICR+MHgyMDAsRUZMQUdTLVIxMSglcnNwKSAKLQlSRVNUT1JFX0FSR1MgMSwyNCwxLDEsMSwxCisJ
+UkVTVE9SRV9BUkdTIDEsMjQsMSwxLDEKIAlwb3BmcQogCUNGSV9BREpVU1RfQ0ZBX09GRlNFVCAt
+OAogCS8qQ0ZJX1JFU1RPUkUgcmZsYWdzKi8KQEAgLTEyMywxNCArMTM5LDEzIEBAIHN5c2VudGVy
+X2RvX2NhbGw6CQogCiBzeXNlbnRlcl90cmFjZXN5czoKIAlDRklfUkVTVE9SRV9TVEFURQotCVNB
+VkVfUkVTVAorCVNBVkVfUkVTVCAxCiAJQ0xFQVJfUlJFR1MKIAltb3ZxCSQtRU5PU1lTLFJBWCgl
+cnNwKQkvKiByZWFsbHkgbmVlZGVkPyAqLwogCW1vdnEJJXJzcCwlcmRpICAgICAgICAvKiAmcHRf
+cmVncyAtPiBhcmcxICovCiAJY2FsbAlzeXNjYWxsX3RyYWNlX2VudGVyCi0JTE9BRF9BUkdTIEFS
+R09GRlNFVCAgLyogcmVsb2FkIGFyZ3MgZnJvbSBzdGFjayBpbiBjYXNlIHB0cmFjZSBjaGFuZ2Vk
+IGl0ICovCi0JUkVTVE9SRV9SRVNUCi0JbW92bAklZWJwLCAlZWJwCisJTE9BRF9BUkdTIEFSR09G
+RlNFVCwwLDEgIC8qIHJlbG9hZCBhcmdzIGZyb20gc3RhY2sgaW4gY2FzZSBwdHJhY2UgY2hhbmdl
+ZCBpdCAqLworCVJFU1RPUkVfUkVTVCAxCiAJLyogbm8gbmVlZCB0byBkbyBhbiBhY2Nlc3Nfb2sg
+Y2hlY2sgaGVyZSBiZWNhdXNlIHJicCBoYXMgYmVlbgogCSAgIDMyYml0IHplcm8gZXh0ZW5kZWQg
+Ki8gCiAxOgltb3ZsCSglcmJwKSwlcjlkCkBAIC0xNjEsNyArMTc2LDcgQEAgc3lzZW50ZXJfdHJh
+Y2VzeXM6CiAgKiB3aXRoIHRoZSBpbnQgMHg4MCBwYXRoLgkKICAqLyAJCiBFTlRSWShpYTMyX2Nz
+dGFyX3RhcmdldCkKLQlDRklfU1RBUlRQUk9DCXNpbXBsZQorCUNGSV9TVEFSVFBST0MzMglzaW1w
+bGUKIAlDRklfREVGX0NGQQlyc3AsMAogCUNGSV9SRUdJU1RFUglyaXAscmN4CiAJLypDRklfUkVH
+SVNURVIJcmZsYWdzLHIxMSovCkBAIC0yMDQsNyArMjE5LDcgQEAgY3N0YXJfZG9fY2FsbDoJCiAJ
+Y2xpCiAJdGVzdGwgJF9USUZfQUxMV09SS19NQVNLLHRocmVhZGluZm9fZmxhZ3MoJXIxMCkKIAlq
+bnogIGludF9yZXRfZnJvbV9zeXNfY2FsbAotCVJFU1RPUkVfQVJHUyAxLC1BUkdfU0tJUCwxLDEs
+MQorCVJFU1RPUkVfQVJHUyAxLC1BUkdfU0tJUCwxLDEKIAltb3ZsIFJJUC1BUkdPRkZTRVQoJXJz
+cCksJWVjeAogCUNGSV9SRUdJU1RFUiByaXAscmN4CiAJbW92bCBFRkxBR1MtQVJHT0ZGU0VUKCVy
+c3ApLCVyMTFkCQpAQCAtMjE2LDE0ICsyMzEsMTQgQEAgY3N0YXJfZG9fY2FsbDoJCiAJCiBjc3Rh
+cl90cmFjZXN5czoJCiAJQ0ZJX1JFU1RPUkVfU1RBVEUKLQlTQVZFX1JFU1QKKwlTQVZFX1JFU1Qg
+MQogCUNMRUFSX1JSRUdTCiAJbW92cSAkLUVOT1NZUyxSQVgoJXJzcCkJLyogcmVhbGx5IG5lZWRl
+ZD8gKi8KIAltb3ZxICVyc3AsJXJkaSAgICAgICAgLyogJnB0X3JlZ3MgLT4gYXJnMSAqLwogCWNh
+bGwgc3lzY2FsbF90cmFjZV9lbnRlcgotCUxPQURfQVJHUyBBUkdPRkZTRVQgIC8qIHJlbG9hZCBh
+cmdzIGZyb20gc3RhY2sgaW4gY2FzZSBwdHJhY2UgY2hhbmdlZCBpdCAqLwotCVJFU1RPUkVfUkVT
+VAotCW1vdmwgUlNQLUFSR09GRlNFVCglcnNwKSwgJXI4ZAorCUxPQURfQVJHUyBBUkdPRkZTRVQs
+MCwxICAvKiByZWxvYWQgYXJncyBmcm9tIHN0YWNrIGluIGNhc2UgcHRyYWNlIGNoYW5nZWQgaXQg
+Ki8KKwltb3ZsIFJTUCglcnNwKSwgJXI4ZAorCVJFU1RPUkVfUkVTVCAxCiAJLyogbm8gbmVlZCB0
+byBkbyBhbiBhY2Nlc3Nfb2sgY2hlY2sgaGVyZSBiZWNhdXNlIHI4IGhhcyBiZWVuCiAJICAgMzJi
+aXQgemVybyBleHRlbmRlZCAqLyAKIDE6CW1vdmwJKCVyOCksJXI5ZApAQCAtMjU5LDcgKzI3NCw3
+IEBAIGlhMzJfYmFkYXJnOgogICovIAkJCQkKIAogRU5UUlkoaWEzMl9zeXNjYWxsKQotCUNGSV9T
+VEFSVFBST0MJc2ltcGxlCisJQ0ZJX1NUQVJUUFJPQzMyCXNpbXBsZQogCUNGSV9ERUZfQ0ZBCXJz
+cCxTUys4LVJJUAogCS8qQ0ZJX1JFTF9PRkZTRVQJc3MsU1MtUklQKi8KIAlDRklfUkVMX09GRlNF
+VAlyc3AsUlNQLVJJUApAQCAtMjg4LDEyICszMDMsMTMgQEAgaWEzMl9zeXNyZXQ6CiAJam1wIGlu
+dF9yZXRfZnJvbV9zeXNfY2FsbCAKIAogaWEzMl90cmFjZXN5czoJCQkgCi0JU0FWRV9SRVNUCisJ
+U0FWRV9SRVNUIDEKKwlDTEVBUl9SUkVHUwogCW1vdnEgJC1FTk9TWVMsUkFYKCVyc3ApCS8qIHJl
+YWxseSBuZWVkZWQ/ICovCiAJbW92cSAlcnNwLCVyZGkgICAgICAgIC8qICZwdF9yZWdzIC0+IGFy
+ZzEgKi8KIAljYWxsIHN5c2NhbGxfdHJhY2VfZW50ZXIKLQlMT0FEX0FSR1MgQVJHT0ZGU0VUICAv
+KiByZWxvYWQgYXJncyBmcm9tIHN0YWNrIGluIGNhc2UgcHRyYWNlIGNoYW5nZWQgaXQgKi8KLQlS
+RVNUT1JFX1JFU1QKKwlMT0FEX0FSR1MgQVJHT0ZGU0VULDAsMSAgLyogcmVsb2FkIGFyZ3MgZnJv
+bSBzdGFjayBpbiBjYXNlIHB0cmFjZSBjaGFuZ2VkIGl0ICovCisJUkVTVE9SRV9SRVNUIDEKIAlq
+bXAgaWEzMl9kb19zeXNjYWxsCiAKIGlhMzJfYmFkc3lzOgpAQCAtMzE4LDcgKzMzNCw3IEBAIHF1
+aWV0X25pX3N5c2NhbGw6CiAJam1wICBpYTMyX3B0cmVnc19jb21tb24JCiAJLmVuZG0KIAotCUNG
+SV9TVEFSVFBST0MKKwlDRklfU1RBUlRQUk9DMzIKIAogCVBUUkVHU0NBTEwgc3R1YjMyX3J0X3Np
+Z3JldHVybiwgc3lzMzJfcnRfc2lncmV0dXJuLCAlcmRpCiAJUFRSRUdTQ0FMTCBzdHViMzJfc2ln
+cmV0dXJuLCBzeXMzMl9zaWdyZXR1cm4sICVyZGkKQEAgLTMzMywxMSArMzQ5LDIzIEBAIHF1aWV0
+X25pX3N5c2NhbGw6CiAKIEVOVFJZKGlhMzJfcHRyZWdzX2NvbW1vbikKIAlwb3BxICVyMTEKLQlD
+RklfQURKVVNUX0NGQV9PRkZTRVQgLTgKLQlDRklfUkVHSVNURVIgcmlwLCByMTEKLQlTQVZFX1JF
+U1QKKwlDRklfRU5EUFJPQworCUNGSV9TVEFSVFBST0MzMglzaW1wbGUKKwlDRklfREVGX0NGQQly
+c3AsU1MrOC1BUkdPRkZTRVQKKwlDRklfUkVMX09GRlNFVAlyYXgsUkFYLUFSR09GRlNFVAorCUNG
+SV9SRUxfT0ZGU0VUCXJjeCxSQ1gtQVJHT0ZGU0VUCisJQ0ZJX1JFTF9PRkZTRVQJcmR4LFJEWC1B
+UkdPRkZTRVQKKwlDRklfUkVMX09GRlNFVAlyc2ksUlNJLUFSR09GRlNFVAorCUNGSV9SRUxfT0ZG
+U0VUCXJkaSxSREktQVJHT0ZGU0VUCisJQ0ZJX1JFTF9PRkZTRVQJcmlwLFJJUC1BUkdPRkZTRVQK
+Ky8qCUNGSV9SRUxfT0ZGU0VUCWNzLENTLUFSR09GRlNFVCovCisvKglDRklfUkVMX09GRlNFVAly
+ZmxhZ3MsRUZMQUdTLUFSR09GRlNFVCovCisJQ0ZJX1JFTF9PRkZTRVQJcnNwLFJTUC1BUkdPRkZT
+RVQKKy8qCUNGSV9SRUxfT0ZGU0VUCXNzLFNTLUFSR09GRlNFVCovCisJU0FWRV9SRVNUIDEKKwlD
+TEVBUl9SUkVHUyBieAogCWNhbGwgKiVyYXgKLQlSRVNUT1JFX1JFU1QKKwlSRVNUT1JFX1JFU1Qg
+MQogCWptcCAgaWEzMl9zeXNyZXQJLyogbWlzYmFsYW5jZXMgdGhlIHJldHVybiBjYWNoZSAqLwog
+CUNGSV9FTkRQUk9DCiAKLS0tIDIuNi4xNC9pbmNsdWRlL2FzbS14ODZfNjQvY2FsbGluZy5oCTIw
+MDUtMTAtMjggMDI6MDI6MDguMDAwMDAwMDAwICswMjAwCisrKyAyLjYuMTQteDg2XzY0LWlhMzJl
+bnRyeS9pbmNsdWRlL2FzbS14ODZfNjQvY2FsbGluZy5oCTIwMDUtMTEtMDkgMTM6MzM6MjYuMDAw
+MDAwMDAwICswMTAwCkBAIC0zMSw3ICszMSw3IEBACiAjZGVmaW5lIEFSR09GRlNFVCBSMTEKICNk
+ZWZpbmUgU1dGUkFNRSBPUklHX1JBWAogCi0JLm1hY3JvIFNBVkVfQVJHUyBhZGRza2lwPTAsbm9y
+Y3g9MCxub3I4OTEwMTE9MAorCS5tYWNybyBTQVZFX0FSR1MgYWRkc2tpcD0wLG5vcmN4PTAsY29t
+cGF0PTAKIAlzdWJxICAkOSo4K1xhZGRza2lwLCVyc3AKIAlDRklfQURKVVNUX0NGQV9PRkZTRVQJ
+OSo4K1xhZGRza2lwCiAJbW92cSAgJXJkaSw4KjgoJXJzcCkgCkBAIC00Nyw3ICs0Nyw3IEBACiAJ
+LmVuZGlmCiAJbW92cSAgJXJheCw0KjgoJXJzcCkgCiAJQ0ZJX1JFTF9PRkZTRVQJcmF4LDQqOAot
+CS5pZiBcbm9yODkxMDExCisJLmlmIFxjb21wYXQKIAkuZWxzZQogCW1vdnEgICVyOCwzKjgoJXJz
+cCkgCiAJQ0ZJX1JFTF9PRkZTRVQJcjgsMyo4CkBAIC02MSwxNCArNjEsMTEgQEAKIAkuZW5kbQog
+CiAjZGVmaW5lIEFSR19TS0lQIDkqOAotCS5tYWNybyBSRVNUT1JFX0FSR1Mgc2tpcHJheD0wLGFk
+ZHNraXA9MCxza2lwcmN4PTAsc2tpcHIxMT0wLHNraXByODkxMD0wLHNraXByZHg9MAotCS5pZiBc
+c2tpcHIxMQorCS5tYWNybyBSRVNUT1JFX0FSR1Mgc2tpcHJheD0wLGFkZHNraXA9MCxza2lwcmN4
+PTAsY29tcGF0PTAsc2tpcHJkeD0wCisJLmlmIFxjb21wYXQKIAkuZWxzZQogCW1vdnEgKCVyc3Ap
+LCVyMTEKIAlDRklfUkVTVE9SRSByMTEKLQkuZW5kaWYKLQkuaWYgXHNraXByODkxMAotCS5lbHNl
+CiAJbW92cSAxKjgoJXJzcCksJXIxMAogCUNGSV9SRVNUT1JFIHIxMAogCW1vdnEgMio4KCVyc3Ap
+LCVyOQpAQCAtNzgsMjIgKzc1LDQyIEBACiAJLmVuZGlmCiAJLmlmIFxza2lwcmF4CiAJLmVsc2UK
+KwkuaWYgXGNvbXBhdAorCW1vdmwgNCo4KCVyc3ApLCVlYXgKKwkuZWxzZQogCW1vdnEgNCo4KCVy
+c3ApLCVyYXgKKwkuZW5kaWYKIAlDRklfUkVTVE9SRSByYXgKIAkuZW5kaWYKIAkuaWYgXHNraXBy
+Y3gKIAkuZWxzZQorCS5pZiBcY29tcGF0CisJbW92bCA1KjgoJXJzcCksJWVjeAorCS5lbHNlCiAJ
+bW92cSA1KjgoJXJzcCksJXJjeAorCS5lbmRpZgogCUNGSV9SRVNUT1JFIHJjeAogCS5lbmRpZgog
+CS5pZiBcc2tpcHJkeAogCS5lbHNlCisJLmlmIFxjb21wYXQKKwltb3ZsIDYqOCglcnNwKSwlZWR4
+CisJLmVsc2UKIAltb3ZxIDYqOCglcnNwKSwlcmR4CisJLmVuZGlmCiAJQ0ZJX1JFU1RPUkUgcmR4
+CiAJLmVuZGlmCisJLmlmIFxjb21wYXQKKwltb3ZsIDcqOCglcnNwKSwlZXNpCisJLmVsc2UKIAlt
+b3ZxIDcqOCglcnNwKSwlcnNpCisJLmVuZGlmCiAJQ0ZJX1JFU1RPUkUgcnNpCisJLmlmIFxjb21w
+YXQKKwltb3ZsIDgqOCglcnNwKSwlZWRpCisJLmVsc2UKIAltb3ZxIDgqOCglcnNwKSwlcmRpCisJ
+LmVuZGlmCiAJQ0ZJX1JFU1RPUkUgcmRpCiAJLmlmIEFSR19TS0lQK1xhZGRza2lwID4gMAogCWFk
+ZHEgJEFSR19TS0lQK1xhZGRza2lwLCVyc3AKQEAgLTEwMSwyNiArMTE4LDQyIEBACiAJLmVuZGlm
+CiAJLmVuZG0JCiAKLQkubWFjcm8gTE9BRF9BUkdTIG9mZnNldAorCS5tYWNybyBMT0FEX0FSR1Mg
+b2Zmc2V0LHNraXByY3g9MCxjb21wYXQ9MAorCS5pZiBcY29tcGF0CisJLmlmIFxza2lwcmN4CisJ
+LmVsc2UKKwltb3ZsIFxvZmZzZXQrNDAoJXJzcCksJWVjeAorCS5lbmRpZgorCW1vdmwgXG9mZnNl
+dCs0OCglcnNwKSwlZWR4CisJbW92bCBcb2Zmc2V0KzU2KCVyc3ApLCVlc2kKKwltb3ZsIFxvZmZz
+ZXQrNjQoJXJzcCksJWVkaQorCW1vdmwgXG9mZnNldCs3MiglcnNwKSwlZWF4CisJLmVsc2UKIAlt
+b3ZxIFxvZmZzZXQoJXJzcCksJXIxMQogCW1vdnEgXG9mZnNldCs4KCVyc3ApLCVyMTAKIAltb3Zx
+IFxvZmZzZXQrMTYoJXJzcCksJXI5CiAJbW92cSBcb2Zmc2V0KzI0KCVyc3ApLCVyOAorCS5pZiBc
+c2tpcHJjeAorCS5lbHNlCiAJbW92cSBcb2Zmc2V0KzQwKCVyc3ApLCVyY3gKKwkuZW5kaWYKIAlt
+b3ZxIFxvZmZzZXQrNDgoJXJzcCksJXJkeAogCW1vdnEgXG9mZnNldCs1NiglcnNwKSwlcnNpCiAJ
+bW92cSBcb2Zmc2V0KzY0KCVyc3ApLCVyZGkKIAltb3ZxIFxvZmZzZXQrNzIoJXJzcCksJXJheAor
+CS5lbmRpZgogCS5lbmRtCiAJCQkKICNkZWZpbmUgUkVTVF9TS0lQIDYqOAkJCQotCS5tYWNybyBT
+QVZFX1JFU1QKKwkubWFjcm8gU0FWRV9SRVNUIGNvbXBhdD0wCiAJc3VicSAkUkVTVF9TS0lQLCVy
+c3AKIAlDRklfQURKVVNUX0NGQV9PRkZTRVQJUkVTVF9TS0lQCiAJbW92cSAlcmJ4LDUqOCglcnNw
+KSAKIAlDRklfUkVMX09GRlNFVAlyYngsNSo4CiAJbW92cSAlcmJwLDQqOCglcnNwKSAKIAlDRklf
+UkVMX09GRlNFVAlyYnAsNCo4CisJLmlmIFxjb21wYXQKKwkuZWxzZQogCW1vdnEgJXIxMiwzKjgo
+JXJzcCkgCiAJQ0ZJX1JFTF9PRkZTRVQJcjEyLDMqOAogCW1vdnEgJXIxMywyKjgoJXJzcCkgCkBA
+IC0xMjksOSArMTYyLDE2IEBACiAJQ0ZJX1JFTF9PRkZTRVQJcjE0LDEqOAogCW1vdnEgJXIxNSwo
+JXJzcCkgCiAJQ0ZJX1JFTF9PRkZTRVQJcjE1LDAqOAorCS5lbmRpZgogCS5lbmRtCQkKIAotCS5t
+YWNybyBSRVNUT1JFX1JFU1QKKwkubWFjcm8gUkVTVE9SRV9SRVNUIGNvbXBhdD0wCisJLmlmIFxj
+b21wYXQKKwltb3ZsIDQqOCglcnNwKSwlZWJwCisJQ0ZJX1JFU1RPUkUgcmJwCisJbW92bCA1Kjgo
+JXJzcCksJWVieAorCUNGSV9SRVNUT1JFIHJieAorCS5lbHNlCiAJbW92cSAoJXJzcCksJXIxNQog
+CUNGSV9SRVNUT1JFIHIxNQogCW1vdnEgMSo4KCVyc3ApLCVyMTQKQEAgLTE0NCw2ICsxODQsNyBA
+QAogCUNGSV9SRVNUT1JFIHJicAogCW1vdnEgNSo4KCVyc3ApLCVyYngKIAlDRklfUkVTVE9SRSBy
+YngKKwkuZW5kaWYKIAlhZGRxICRSRVNUX1NLSVAsJXJzcAogCUNGSV9BREpVU1RfQ0ZBX09GRlNF
+VAktKFJFU1RfU0tJUCkKIAkuZW5kbQotLS0gMi42LjE0L2luY2x1ZGUvYXNtLXg4Nl82NC9kd2Fy
+ZjIuaAkyMDA1LTEwLTI4IDAyOjAyOjA4LjAwMDAwMDAwMCArMDIwMAorKysgMi42LjE0LXg4Nl82
+NC1pYTMyZW50cnkvaW5jbHVkZS9hc20teDg2XzY0L2R3YXJmMi5oCTIwMDUtMTEtMDkgMTI6NDk6
+NTEuMDAwMDAwMDAwICswMTAwCkBAIC0yOCw2ICsyOCw3IEBACiAjZGVmaW5lIENGSV9SRVNUT1JF
+IC5jZmlfcmVzdG9yZQogI2RlZmluZSBDRklfUkVNRU1CRVJfU1RBVEUgLmNmaV9yZW1lbWJlcl9z
+dGF0ZQogI2RlZmluZSBDRklfUkVTVE9SRV9TVEFURSAuY2ZpX3Jlc3RvcmVfc3RhdGUKKyNkZWZp
+bmUgQ0ZJX1VOREVGSU5FRCAuY2ZpX3VuZGVmaW5lZAogCiAjZWxzZQogCkBAIC00NCw2ICs0NSw3
+IEBACiAjZGVmaW5lIENGSV9SRVNUT1JFCSMKICNkZWZpbmUgQ0ZJX1JFTUVNQkVSX1NUQVRFCSMK
+ICNkZWZpbmUgQ0ZJX1JFU1RPUkVfU1RBVEUJIworI2RlZmluZSBDRklfVU5ERUZJTkVECSMKIAog
+I2VuZGlmCiAK
 
-Or the protocols? (STCP, DCCP, etc)
-
-IF a unstable version of a driver is better for the user isn't it better
-to merge it as experimental instead of merging a old version that wreaks
-havock on users of newer kernels (and they will STILL run the unstable
-version on older kernels anyways).
-
-Note: I use skge myself, so pointing out that they are experimental is
-in no way negative, i actually prefer it to the stable driver.
-
---=20
-Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
-
---=-MGSKNiWil68dJncubbE5
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1-ecc0.1.6 (GNU/Linux)
-
-iD8DBQBDch1A7F3Euyc51N8RAmiyAJ96VooaYB/izO0u+XTa1OVp9mtcrACfSbm1
-MyNcWTp41Rq5eW2yWkJY8HI=
-=y4ZX
------END PGP SIGNATURE-----
-
---=-MGSKNiWil68dJncubbE5--
+--=__Part35170973.1__=--

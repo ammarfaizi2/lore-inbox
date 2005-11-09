@@ -1,205 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030424AbVKIKRl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030455AbVKIK2H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030424AbVKIKRl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 05:17:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030455AbVKIKRl
+	id S1030455AbVKIK2H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 05:28:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030466AbVKIK2H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 05:17:41 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:27091 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1030425AbVKIKRk (ORCPT
+	Wed, 9 Nov 2005 05:28:07 -0500
+Received: from soohrt.org ([85.131.246.150]:53683 "EHLO quickstop.soohrt.org")
+	by vger.kernel.org with ESMTP id S1030458AbVKIK2G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 05:17:40 -0500
-Subject: [patch] Re: 2.6.14-rc5-mm1 - ide-cs broken!
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Greg KH <greg@kroah.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       damir.perisa@solnet.ch, akpm@osdl.org,
-       Kay Sievers <kay.sievers@vrfy.org>
-In-Reply-To: <20051104163755.GB13420@kroah.com>
-References: <20051103220305.77620d8f.akpm@osdl.org>
-	 <20051104071932.GA6362@kroah.com>
-	 <1131117293.26925.46.camel@localhost.localdomain>
-	 <20051104163755.GB13420@kroah.com>
-Content-Type: text/plain
-Date: Wed, 09 Nov 2005 10:17:08 +0000
-Message-Id: <1131531428.8506.24.camel@localhost.localdomain>
+	Wed, 9 Nov 2005 05:28:06 -0500
+Date: Wed, 9 Nov 2005 11:27:59 +0100
+From: Karsten Desler <kdesler@soohrt.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Highpoint IDE types
+Message-ID: <20051109102759.GA19222@soohrt.org>
+References: <1131471483.25192.76.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <1131471483.25192.76.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-11-04 at 08:37 -0800, Greg KH wrote:
-> On Fri, Nov 04, 2005 at 03:14:53PM +0000, Alan Cox wrote:
-> > On Iau, 2005-11-03 at 23:19 -0800, Greg KH wrote:
-> > > Hint, gentoo, debian, and suse don't have this problem, so you might
-> > > want to look at their rules files for how to work around this.  Look for
-> > > this line:
-> > > 
-> > > # skip accessing removable ide devices, cause the ide drivers are horrible broken
-> > 
-> > 
-> > I was under the impression people had eventually decided the media
-> > change patch someone was proposed was ok after investigating one or two
-> > cases I knew of that turned out to be borked hardware ?
+* Alan Cox wrote:
+> Ok thanks to Sergei I can now post what I think is the complete table of
+> HPT chip versions:
 > 
-> I was not aware of that, I'd be glad to see that patch go into the tree
-> to help others who have run into this over the years.
-> 
-> Hm, have a pointer to the latest proposed patch for this anywhere?
-
-This was discussed in the thread: http://lkml.org/lkml/2005/9/21/118
-
-Alan Cox:
-> On Iau, 2005-09-22 at 15:21 +0100, Richard Purdie wrote:
-> > 1. Are ide-cs devices removable or not. See above.
+>         Chip                    PCI ID          Rev
+>  *      HPT374                  8 (HPT374)      *     
 >
-> Having done testing on the cards I have based on RMK's suggestion I
-> agree they are not removable except for specific cases (IDE PCMCIA cable
-> adapter plugged into a Syquest). That case is already handled in the
-> core code.
+> The base clocks for the devices are as follows (note this means most of
+> the drivers/ide/pci detection code for frequency is wrong). Also for PLL
+> mode the 3x2N PLL stabilization code is subtly different.
+> 
+> 371N/372N/302N		77
+> 302/371/372A		66
+> 372			55
+> 370/374			48
+> 
+> The DPLLs are
+> 	48, 50, 66, 75Mhz
+> 
+> 75 is only available on the later chips and used with PATA/SATA bridge
+> chips for UDMA7.
 
-Alan: Can you confirm the patch below continues to handle the case
-you're talking about?
+I've got the following HPT374 controllers on my mainboard and the
+default freq value never worked for me (OOPS during boot).
 
-> The fact cache flushing is all odd now is I guess bug 4. on the list but
-> easy to fix while fixing 1
+0000:00:0e.0 0104: 1103:0008 (rev 07)
+        Subsystem: 1103:0001
+        Flags: bus master, 66MHz, medium devsel, latency 120, IRQ 10
+        I/O ports at b000 [size=8]
+        I/O ports at b400 [size=4]
+        I/O ports at b800 [size=8]
+        I/O ports at bc00 [size=4]
+        I/O ports at c000 [size=256]
+        Expansion ROM at 30020000 [disabled] [size=128K]
+        Capabilities: [60] Power Management version 2
 
-I don't know the ide code well enough to understand what needs fixing
-here. Can you elaborate further?
+0000:00:0e.1 0104: 1103:0008 (rev 07)
+        Subsystem: 1103:0001
+        Flags: bus master, 66MHz, medium devsel, latency 120, IRQ 10
+        I/O ports at c400 [size=8]
+        I/O ports at c800 [size=4]
+        I/O ports at cc00 [size=8]
+        I/O ports at d000 [size=4]
+        I/O ports at d400 [size=256]
+        Capabilities: [60] Power Management version 2
 
-I'll resend this patch as it still applies and we seem to be in general
-agreement about what needs doing. There was also the issue of media
-change serial number checking but that really needs tackling separately.
-
-
-This patch stops CompactFlash devices being marked as removable. They
-are not removable (as defined by Linux) as the media and device are 
-inseparable. When a card is removed, the whole device is removed from 
-the system and never sits in a media-less state.
-
-This stops some nasty udev device creation/destruction loops.
-
-Further, once this change is made, there is no need for ide to
-differentiate between flash and other devices so the is_flash variable
-can be removed from ide_drive_t.
-
-Signed-off-by: Richard Purdie <rpurdie@rpsys.net> 
-
-
-Index: linux-2.6.13/drivers/ide/ide-probe.c
-===================================================================
---- linux-2.6.13.orig/drivers/ide/ide-probe.c	2005-08-29 00:41:01.000000000 +0100
-+++ linux-2.6.13/drivers/ide/ide-probe.c	2005-09-21 20:57:34.000000000 +0100
-@@ -125,45 +125,6 @@
- }
- 
- /**
-- *	drive_is_flashcard	-	check for compact flash
-- *	@drive: drive to check
-- *
-- *	CompactFlash cards and their brethern pretend to be removable
-- *	hard disks, except:
-- * 		(1) they never have a slave unit, and
-- *		(2) they don't have doorlock mechanisms.
-- *	This test catches them, and is invoked elsewhere when setting
-- *	appropriate config bits.
-- *
-- *	FIXME: This treatment is probably applicable for *all* PCMCIA (PC CARD)
-- *	devices, so in linux 2.3.x we should change this to just treat all
-- *	PCMCIA  drives this way, and get rid of the model-name tests below
-- *	(too big of an interface change for 2.4.x).
-- *	At that time, we might also consider parameterizing the timeouts and
-- *	retries, since these are MUCH faster than mechanical drives. -M.Lord
-- */
-- 
--static inline int drive_is_flashcard (ide_drive_t *drive)
--{
--	struct hd_driveid *id = drive->id;
--
--	if (drive->removable) {
--		if (id->config == 0x848a) return 1;	/* CompactFlash */
--		if (!strncmp(id->model, "KODAK ATA_FLASH", 15)	/* Kodak */
--		 || !strncmp(id->model, "Hitachi CV", 10)	/* Hitachi */
--		 || !strncmp(id->model, "SunDisk SDCFB", 13)	/* old SanDisk */
--		 || !strncmp(id->model, "SanDisk SDCFB", 13)	/* SanDisk */
--		 || !strncmp(id->model, "HAGIWARA HPC", 12)	/* Hagiwara */
--		 || !strncmp(id->model, "LEXAR ATA_FLASH", 15)	/* Lexar */
--		 || !strncmp(id->model, "ATA_FLASH", 9))	/* Simple Tech */
--		{
--			return 1;	/* yes, it is a flash memory card */
--		}
--	}
--	return 0;	/* no, it is not a flash memory card */
--}
--
--/**
-  *	do_identify	-	identify a drive
-  *	@drive: drive to identify 
-  *	@cmd: command used
-@@ -278,13 +239,17 @@
- 	/*
- 	 * Not an ATAPI device: looks like a "regular" hard disk
- 	 */
--	if (id->config & (1<<7))
--		drive->removable = 1;
- 
--	if (drive_is_flashcard(drive))
--		drive->is_flash = 1;
-+	/* 
-+	 * 0x848a = CompactFlash device 
-+	 * These are *not* removable in Linux definition of the term
-+	 */
-+
-+	if ((id->config != 0x848a) && (id->config & (1<<7)))
-+		drive->removable = 1;
-+	
- 	drive->media = ide_disk;
--	printk("%s DISK drive\n", (drive->is_flash) ? "CFA" : "ATA" );
-+	printk("%s DISK drive\n", (id->config == 0x848a) ? "CFA" : "ATA" );
- 	QUIRK_LIST(drive);
- 	return;
- 
-Index: linux-2.6.13/drivers/ide/ide.c
-===================================================================
---- linux-2.6.13.orig/drivers/ide/ide.c	2005-09-19 10:53:59.000000000 +0100
-+++ linux-2.6.13/drivers/ide/ide.c	2005-09-21 20:52:53.000000000 +0100
-@@ -242,7 +242,6 @@
- 		drive->name[2]			= 'a' + (index * MAX_DRIVES) + unit;
- 		drive->max_failures		= IDE_DEFAULT_MAX_FAILURES;
- 		drive->using_dma		= 0;
--		drive->is_flash			= 0;
- 		drive->vdma			= 0;
- 		INIT_LIST_HEAD(&drive->list);
- 		sema_init(&drive->gendev_rel_sem, 0);
-Index: linux-2.6.13/drivers/ide/ide-disk.c
-===================================================================
---- linux-2.6.13.orig/drivers/ide/ide-disk.c	2005-09-19 10:53:59.000000000 +0100
-+++ linux-2.6.13/drivers/ide/ide-disk.c	2005-09-21 20:51:31.000000000 +0100
-@@ -895,11 +895,7 @@
- 	if (drive->id_read == 0)
- 		return;
- 
--	/*
--	 * CompactFlash cards and their brethern look just like hard drives
--	 * to us, but they are removable and don't have a doorlock mechanism.
--	 */
--	if (drive->removable && !(drive->is_flash)) {
-+	if (drive->removable) {
- 		/*
- 		 * Removable disks (eg. SYQUEST); ignore 'WD' drives 
- 		 */
-Index: linux-2.6.13/include/linux/ide.h
-===================================================================
---- linux-2.6.13.orig/include/linux/ide.h	2005-08-29 00:41:01.000000000 +0100
-+++ linux-2.6.13/include/linux/ide.h	2005-09-21 20:56:29.000000000 +0100
-@@ -697,7 +697,6 @@
- 	unsigned noprobe 	: 1;	/* from:  hdx=noprobe */
- 	unsigned removable	: 1;	/* 1 if need to do check_media_change */
- 	unsigned attach		: 1;	/* needed for removable devices */
--	unsigned is_flash	: 1;	/* 1 if probed as flash */
- 	unsigned forced_geom	: 1;	/* 1 if hdx=c,h,s was given at boot */
- 	unsigned no_unmask	: 1;	/* disallow setting unmask bit */
- 	unsigned no_io_32bit	: 1;	/* disallow enabling 32bit I/O */
+[   34.230429] HPT374: IDE controller at PCI slot 0000:00:0e.0
+[   34.230461] PCI: Enabling device 0000:00:0e.0 (0005 -> 0007)
+[   34.230491] PCI: Found IRQ 10 for device 0000:00:0e.0
+[   34.230525] PCI: Sharing IRQ 10 with 0000:00:0e.1
+[   34.230555] HPT374: chipset revision 7
+[   34.230584] HPT374: 100% native mode on irq 10
+[   34.230613] HPT37X: using 33MHz PCI clock
+[   34.230723]     ide2: BM-DMA at 0xc000-0xc007, BIOS settings: hde:DMA, hdf:DMA
+[   34.230779] HPT37X: using 33MHz PCI clock
+[   34.230887]     ide3: BM-DMA at 0xc008-0xc00f, BIOS settings: hdg:pio, hdh:pio
+[   34.230949] PCI: Found IRQ 10 for device 0000:00:0e.1
+[   34.230980] PCI: Sharing IRQ 10 with 0000:00:0e.0
+[   34.231023] HPT37X: using 33MHz PCI clock
+[   34.231131]     ide4: BM-DMA at 0xd400-0xd407, BIOS settings: hdi:DMA, hdj:DMA
+[   34.231188] HPT37X: using 33MHz PCI clock
+[   34.231296]     ide5: BM-DMA at 0xd408-0xd40f, BIOS settings: hdk:DMA, hdl:DMA
 
 
+I have to use this patch. I'm not sure if it does the right thing,
+but at least it works without OOPS and without data corruption.
+
+--- linux/drivers/ide/pci/hpt366.c~     2005-07-24 01:51:31.000000000 +0200
++++ linux/drivers/ide/pci/hpt366.c      2005-07-26 14:22:42.000000000 +0200
+@@ -1188,7 +1188,7 @@
+        }
+        else
+        {
+-               if(freq < 0x9C)
++               if(freq < 0xA4)
+                        pll = F_LOW_PCI_33;
+                else if(freq < 0xb0)
+                        pll = F_LOW_PCI_40;
+
+Here's a history of freq values:
+/var/log/kern.log.1.gz:Oct 18 05:04:12 pikelot kernel: freq: 9c
+/var/log/kern.log.1.gz:Oct 18 05:04:12 pikelot kernel: freq: 97
+/var/log/kern.log.1.gz:Oct 18 09:59:54 pikelot kernel: freq: 9f
+/var/log/kern.log.1.gz:Oct 18 09:59:54 pikelot kernel: freq: 9e
+/var/log/kern.log.1.gz:Oct 20 10:29:40 pikelot kernel: freq: 92
+/var/log/kern.log.1.gz:Oct 20 10:29:40 pikelot kernel: freq: 9e
+/var/log/kern.log.3.gz:Oct  6 10:27:52 pikelot kernel: freq: 99
+/var/log/kern.log.3.gz:Oct  6 10:27:52 pikelot kernel: freq: a1
+/var/log/kern.log.3.gz:Oct  8 15:17:59 pikelot kernel: freq: 9c
+/var/log/kern.log.3.gz:Oct  8 15:17:59 pikelot kernel: freq: a2
+/var/log/kern.log.3.gz:Oct  8 16:08:26 pikelot kernel: freq: 9b
+/var/log/kern.log.3.gz:Oct  8 16:08:26 pikelot kernel: freq: 9e
+/var/log/kern.log.3.gz:Oct  9 06:02:15 pikelot kernel: freq: 9d
+/var/log/kern.log.3.gz:Oct  9 06:02:15 pikelot kernel: freq: 98
+
+The machine is not and never has been overclocked.
+
+Best Regards,
+ Karsten Desler

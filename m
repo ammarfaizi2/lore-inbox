@@ -1,258 +1,312 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbVKIORj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbVKIORj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750899AbVKIORj (ORCPT <rfc822;willy@w.ods.org>);
+	id S1750831AbVKIORj (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 9 Nov 2005 09:17:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750875AbVKIORe
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbVKIORc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 09:17:34 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:15232 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1750831AbVKIOOy (ORCPT
+	Wed, 9 Nov 2005 09:17:32 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:16512 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S1750875AbVKIOOy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 9 Nov 2005 09:14:54 -0500
-Message-Id: <20051109141538.140634000@localhost.localdomain>
+Message-Id: <20051109141532.592128000@localhost.localdomain>
 References: <20051109134938.757187000@localhost.localdomain>
-Date: Wed, 09 Nov 2005 21:49:51 +0800
+Date: Wed, 09 Nov 2005 21:49:50 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 13/16] readahead: page aging accounting
-Content-Disposition: inline; filename=readahead-account-aging.patch
+Cc: Andrew Morton <akpm@osdl.org>, J?rn Engel <joern@wohnheim.fh-wedel.de>,
+       Ingo Oeser <ioe-lkml@rameria.de>
+Subject: [PATCH 12/16] readahead: events accounting
+Content-Disposition: inline; filename=readahead-account-events.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The accuracy of stateful thrashing-threshold estimation depends largely on the
-measurement of cold page aging speed.
+A debugfs file named `readahead' is created according to advices from
+J?rn Engel, Andrew Morton and Ingo Oeser. It yields to much better
+readability than the preious /proc/vmstat interface :)
 
-A file named `pageaging' is created in debugfs to monitor the trace of two
-measurement variables: per-zone `nr_page_aging' and per-cpu `smooth_aging'.
-Their values and the jiffies are recorded each time one of them has a delta
-of 1, 1/2, 1/4, 1/16, 1/256, 1/4096 (nr_inactive + nr_free).
+It reveals various read-ahead activities/events, and is vital to the testing.
+Compile with 'Kernel hacking  --->  Debug Filesystem' to enable it.
 
-Sample series of collected data shows that smooth_aging is more stable in
-small sampling granularity:
+This is a trimmed down output on my PC:
+# cat /debugfs/readahead
+[table requests]      total    newfile      state    context      none
+cache_miss              403         56         12         69       263
+read_random             260         37          5         17       201
+io_congestion             0          0          0          0         0
+io_cache_hit             85          0         24         46         0
+io_block               9796       5613        822        143      3203
+readahead              5956       5418        383        139         0
+lookahead               961        650        212         98         0
+lookahead_hit           449        181        164         58        41
+lookahead_ignore          0          0          0          0         0
+readahead_eof          4981       4768        171         28         0
+readahead_shrink          0          0          0          0         0
+readahead_thrash          0          0          0          0         0
+readahead_mutilt          0          0          0          0         0
+readahead_rescue         45          0          0          0        45
 
-  time         dt         page_aging8       smooth_aging8
-872765         26     520056       33     653782      163
-872791         12     520089      132     653945       51
-872803          4     520221      132     653996       66
-872807         17     520353      165     654062      107
-872824         22     520518       99     654169       74
-872846        372     520617       99     654243       78
-873218        294     520716       99     654321       73
-873512        196     520815       99     654394      130
-873708         15     520914      231     654524       28
-873723         15     521145      198     654552        9
-873738        881     521343       99     654561      182
-874619        700     521442        0     654743      198
-875319        384     521442       66     654941      110
-875703       2119     521508       99     655051     1632
-877822       3960     521607        0     656683      980
-881782        904     521607        0     657663      216
+[table pages]         total    newfile      state    context      none
+cache_miss             5590         72       2506        181      2826
+read_random             265         37          5         17       206
+io_congestion             0          0          0          0         0
+io_cache_hit           2440          0       1054       1366         0
+io_block             165848      11117     147794       3668      3203
+readahead             43080      11360      28949       2621         0
+readahead_hit         38251      10716      25669       1818         9
+lookahead             24013       1718      21641        647         0
+lookahead_hit         20161        770      18679        712         0
+lookahead_ignore          0          0          0          0         0
+readahead_eof         15961       7924       7440        461         0
+readahead_shrink          0          0          0          0         0
+readahead_thrash          0          0          0          0         0
+readahead_mutilt          0          0          0          0         0
+readahead_rescue        240          0          0          0       240
 
-  time         dt         page_aging1       smooth_aging1
--90822      12418       5775    12999      33302    10767
--78404      17510      18774    10303      44069    10345
--60894      24757      29077     9871      54414    14615
--36137      19194      38948    10404      69029    13726
--16943      19636      49352    10440      82755    12865
-  2693      16299      59792    12453      95620    10734
- 18992      19851      72245    10073     106354    15960
- 38843      16099      82318    10767     122314    14059
- 54942      16094      93085    10041     136373    12117
- 71036      19888     103126    12595     148490    16155
- 90924      18452     115721     9782     164645    11705
-109376      22395     125503    10214     176350    13679
-131771      19310     135717    10759     190029    11843
-151081      20793     146476    10699     201872    12595
-171874      22308     157175    10321     214467    13157
-194182      17954     167496    10773     227624    14803
-212136      19946     178269    10554     242427    13391
-232082      21051     188823    11179     255818    11783
+[table summary]       total    newfile      state    context      none
+random_rate              4%         0%         1%        10%       99%
+ra_hit_rate             88%        94%        88%        69%      900%
+la_hit_rate             46%        27%        76%        58%     4100%
+avg_ra_size               7          2         75         19         0
+avg_la_size              25          3        102          7         0
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- mm/readahead.c |  148 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
- 1 files changed, 147 insertions(+), 1 deletion(-)
+ mm/readahead.c |  193 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 191 insertions(+), 2 deletions(-)
 
 --- linux-2.6.14-mm1.orig/mm/readahead.c
 +++ linux-2.6.14-mm1/mm/readahead.c
-@@ -230,11 +230,144 @@ static int ra_account_show(struct seq_fi
- 	return 0;
- }
+@@ -89,6 +89,179 @@ enum ra_event {
+ #endif
  
-+/*
-+ * Measure the aging progress of cold pages over time.
-+ */
-+#define AGING_INFO_SIZE	(1 << 8)
-+#define AGING_INFO_MASK	(AGING_INFO_SIZE - 1)
-+static int aging_info_shift[] = {0, 1, 2, 4, 8, 12};
-+#define AGING_INFO_SHIFTS	(sizeof(aging_info_shift)/\
-+				 sizeof(aging_info_shift[0]))
-+static int aging_info_index[AGING_INFO_SHIFTS];
-+static unsigned long aging_info[AGING_INFO_SIZE][AGING_INFO_SHIFTS*3];
-+static spinlock_t aging_info_lock = SPIN_LOCK_UNLOCKED;
+ #ifdef DEBUG_READAHEAD
++#include <linux/jiffies.h>
++#include <linux/debugfs.h>
++#include <linux/seq_file.h>
++#include <linux/init.h>
 +
-+static unsigned long nr_free_inactive(void);
-+static unsigned long nr_smooth_aging(void);
++static char *ra_class_name[] = {
++	"total",
++	"newfile",
++	"state",
++	"context",
++	"contexta",
++	"backward",
++	"onthrash",
++	"onraseek",
++	"none",
++};
 +
-+/*
-+ * The accumulated count of pages pushed into inactive_list(s).
-+ */
-+static unsigned long nr_page_aging(void)
++static char *ra_event_name[] = {
++	"cache_miss",
++	"read_random",
++	"io_congestion",
++	"io_cache_hit",
++	"io_block",
++	"readahead",
++	"readahead_hit",
++	"lookahead",
++	"lookahead_hit",
++	"lookahead_ignore",
++	"readahead_eof",
++	"readahead_shrink",
++	"readahead_thrash",
++	"readahead_mutilt",
++	"readahead_rescue",
++};
++
++static unsigned long ra_event_count[RA_CLASS_END+1][RA_EVENT_END][2];
++
++static inline void ra_account(struct file_ra_state *ra,
++				enum ra_event e, int pages)
 +{
-+	unsigned int i;
-+	unsigned long sum = 0;
-+	struct zone *zones = NODE_DATA(numa_node_id())->node_zones;
++	enum ra_class c;
 +
-+	for (i = 0; i < MAX_NR_ZONES; i++)
-+		sum += zones[i].nr_page_aging;
-+
-+	return sum;
-+}
-+
-+static void collect_aging_info(void)
-+{
-+	int i;
-+	unsigned long mem;
-+	unsigned long page_aging;
-+	unsigned long smooth_aging;
-+
-+	mem = nr_free_inactive();
-+	page_aging = nr_page_aging();
-+	smooth_aging = nr_smooth_aging();
-+
-+	spin_lock_irq(&aging_info_lock);
-+
-+	for (i = AGING_INFO_SHIFTS - 1; i >= 0; i--) {
-+		if (smooth_aging - aging_info[aging_info_index[i]][i*3+2] +
-+		      page_aging - aging_info[aging_info_index[i]][i*3+1] >
-+					2 * (mem >> aging_info_shift[i])) {
-+			aging_info_index[i]++;
-+			aging_info_index[i] &= AGING_INFO_MASK;
-+			aging_info[aging_info_index[i]][i*3] = jiffies;
-+			aging_info[aging_info_index[i]][i*3+1] = page_aging;
-+			aging_info[aging_info_index[i]][i*3+2] = smooth_aging;
-+		} else
-+			break;
++	c = (ra ? ra->flags & RA_CLASS_MASK : RA_CLASS_END);
++	if (e == RA_EVENT_READAHEAD_HIT && pages < 0) {
++		c = (ra->flags >> RA_CLASS_SHIFT) & RA_CLASS_MASK;
++		pages = -pages;
 +	}
++	if (!c)
++		c = RA_CLASS_END;
++	BUG_ON(c > RA_CLASS_END);
 +
-+	spin_unlock_irq(&aging_info_lock);
++	ra_event_count[c][e][0] += 1;
++	ra_event_count[c][e][1] += pages;
 +}
 +
-+static void *aginginfo_start(struct seq_file *s, loff_t *pos)
++static int ra_account_show(struct seq_file *s, void *_)
 +{
-+	int n = *pos;
 +	int i;
++	int c;
++	int e;
++	static char event_fmt[] = "%-16s";
++	static char class_fmt[] = "%11s";
++	static char item_fmt[] = "%11lu";
++	static char percent_format[] = "%10lu%%";
++	static char *table_name[] = {
++		"[table requests]",
++		"[table pages]",
++		"[table summary]"};
 +
-+	spin_lock_irq(&aging_info_lock);
++	for (i = 0; i <= 1; i++) {
++		for (e = 0; e < RA_EVENT_END; e++) {
++			ra_event_count[0][e][i] = 0;
++			for (c = 1; c <= RA_CLASS_END; c++)
++				ra_event_count[0][e][i] +=
++							ra_event_count[c][e][i];
++		}
 +
-+	if (!n) {
-+		for (i = 0; i < AGING_INFO_SHIFTS; i++) {
-+			seq_printf(s, "%12s %10s %18s%d %18s%d\t", "time","dt",
-+                                        "page_aging", aging_info_shift[i],
-+                                        "smooth_aging", aging_info_shift[i]);
++		seq_printf(s, event_fmt, table_name[i]);
++		for (c = 0; c <= RA_CLASS_END; c++)
++			seq_printf(s, class_fmt, ra_class_name[c]);
++		seq_puts(s, "\n");
++
++		for (e = 0; e < RA_EVENT_END; e++) {
++			if (e == RA_EVENT_READAHEAD_HIT && i == 0)
++				continue;
++
++			seq_printf(s, event_fmt, ra_event_name[e]);
++			for (c = 0; c <= RA_CLASS_END; c++)
++				seq_printf(s, item_fmt,
++						ra_event_count[c][e][i]);
++			seq_puts(s, "\n");
 +		}
 +		seq_puts(s, "\n");
 +	}
 +
-+	if (++n < AGING_INFO_SIZE)
-+		return (void *)n;
-+	else
-+		return NULL;
-+}
++	seq_printf(s, event_fmt, table_name[2]);
++	for (c = 0; c <= RA_CLASS_END; c++)
++		seq_printf(s, class_fmt, ra_class_name[c]);
++	seq_puts(s, "\n");
 +
-+static void *aginginfo_next(struct seq_file *s, void *p, loff_t *pos)
-+{
-+	int n = (int)p;
++	seq_printf(s, event_fmt, "random_rate");
++	for (c = 0; c <= RA_CLASS_END; c++)
++		seq_printf(s, percent_format,
++			(ra_event_count[c][RA_EVENT_READRANDOM][0] * 100) /
++			(ra_event_count[c][RA_EVENT_READRANDOM][0] +
++			 ra_event_count[c][RA_EVENT_READAHEAD][0] + 1));
++	seq_puts(s, "\n");
 +
-+	++*pos;
-+	return (void *)(++n < AGING_INFO_SIZE ? n : 0);
-+}
++	seq_printf(s, event_fmt, "ra_hit_rate");
++	for (c = 0; c <= RA_CLASS_END; c++)
++		seq_printf(s, percent_format,
++			(ra_event_count[c][RA_EVENT_READAHEAD_HIT][1] * 100) /
++			(ra_event_count[c][RA_EVENT_READAHEAD][1] + 1));
++	seq_puts(s, "\n");
 +
-+static void aginginfo_stop(struct seq_file *s, void *p)
-+{
-+	spin_unlock_irq(&aging_info_lock);
-+}
++	seq_printf(s, event_fmt, "la_hit_rate");
++	for (c = 0; c <= RA_CLASS_END; c++)
++		seq_printf(s, percent_format,
++			(ra_event_count[c][RA_EVENT_LOOKAHEAD_HIT][0] * 100) /
++			(ra_event_count[c][RA_EVENT_LOOKAHEAD][0] + 1));
++	seq_puts(s, "\n");
 +
-+static int aginginfo_show(struct seq_file *s, void *p)
-+{
-+	int n = (int)p;
-+	int i;
-+	int index0;
-+	int index1;
-+	long time;
-+	unsigned long nr1;
-+	unsigned long nr2;
++	seq_printf(s, event_fmt, "avg_ra_size");
++	for (c = 0; c <= RA_CLASS_END; c++)
++		seq_printf(s, item_fmt,
++			(ra_event_count[c][RA_EVENT_READAHEAD][1] +
++			 ra_event_count[c][RA_EVENT_READAHEAD][0] / 2) /
++			(ra_event_count[c][RA_EVENT_READAHEAD][0] + 1));
++	seq_puts(s, "\n");
 +
-+	for (i = 0; i < AGING_INFO_SHIFTS; i++) {
-+		index0 = aging_info_index[i] + n;
-+		index1 = aging_info_index[i] + n + 1;
-+		index0 &= AGING_INFO_MASK;
-+		index1 &= AGING_INFO_MASK;
-+		time = aging_info[index0][i*3];
-+		nr1 = aging_info[index1][i*3+1] - aging_info[index0][i*3+1];
-+		nr2 = aging_info[index1][i*3+2] - aging_info[index0][i*3+2];
-+		seq_printf(s, "%12ld %10lu %10lu %8lu %10lu %8lu\t",
-+				time,  aging_info[index1][i*3] - time,
-+				aging_info[index0][i*3+1], nr1,
-+				aging_info[index0][i*3+2], nr2);
-+	}
++	seq_printf(s, event_fmt, "avg_la_size");
++	for (c = 0; c <= RA_CLASS_END; c++)
++		seq_printf(s, item_fmt,
++			(ra_event_count[c][RA_EVENT_LOOKAHEAD][1] +
++			 ra_event_count[c][RA_EVENT_LOOKAHEAD][0] / 2) /
++			(ra_event_count[c][RA_EVENT_LOOKAHEAD][0] + 1));
 +	seq_puts(s, "\n");
 +
 +	return 0;
 +}
 +
- static struct dentry *readahead_dentry;
-+static struct dentry *pageaging_dentry;
++static struct dentry *readahead_dentry;
 +
-+struct seq_operations aginginfo_ops = {
-+	.start	= aginginfo_start,
-+	.next	= aginginfo_next,
-+	.stop	= aginginfo_stop,
-+	.show	= aginginfo_show,
-+};
- 
- static int ra_debug_open(struct inode *inode, struct file *file)
- {
--	return single_open(file, ra_account_show, NULL);
++static int ra_debug_open(struct inode *inode, struct file *file)
++{
++	return single_open(file, ra_account_show, NULL);
++}
++
++static ssize_t ra_debug_write(struct file *file, const char __user *buf,
++				size_t size, loff_t *offset)
++{
 +	if (file->f_dentry == readahead_dentry)
-+		return single_open(file, ra_account_show, NULL);
-+	else
-+		return seq_open(file, &aginginfo_ops);
- }
- 
- static ssize_t ra_debug_write(struct file *file, const char __user *buf,
-@@ -254,10 +387,20 @@ static struct file_operations ra_debug_f
- 	.release	= single_release,
- };
- 
-+static struct file_operations aginginfo_fops = {
++		memset(ra_event_count, 0, sizeof(ra_event_count));
++	return 1;
++}
++
++static struct file_operations ra_debug_fops = {
++	.owner		= THIS_MODULE,
 +	.open		= ra_debug_open,
++	.write		= ra_debug_write,
 +	.read		= seq_read,
 +	.llseek		= seq_lseek,
-+	.release	= seq_release,
++	.release	= single_release,
 +};
 +
++static int __init readahead_init(void)
++{
++	readahead_dentry = debugfs_create_file("readahead",
++					0644, NULL, NULL, &ra_debug_fops);
++	return 0;
++}
 +
- static int __init readahead_init(void)
- {
- 	readahead_dentry = debugfs_create_file("readahead",
- 					0644, NULL, NULL, &ra_debug_fops);
-+	pageaging_dentry = debugfs_create_file("pageaging",
-+					0644, NULL, NULL, &aginginfo_fops);
- 	return 0;
- }
++module_init(readahead_init)
  
-@@ -1265,6 +1408,9 @@ static inline unsigned long compute_thra
- 	else
- 		*remain = 0;
+ #define dprintk(args...) \
+ 	if (readahead_ratio & 1) printk(KERN_DEBUG args)
+@@ -97,6 +270,10 @@ enum ra_event {
  
-+#ifdef DEBUG_READAHEAD
-+	collect_aging_info();
-+#endif
- 	ddprintk("compute_thrashing_threshold: "
- 			"ra=%lu=%lu*%lu/%lu, remain %lu for %lu\n",
- 			ra_size, stream_shift, global_size, global_shift,
+ #else /* !DEBUG_READAHEAD */
+ 
++static inline void ra_account(struct file_ra_state *ra,
++				enum ra_event e, int pages)
++{
++}
+ #define dprintk(args...)     do {} while(0)
+ #define ddprintk(args...)    do {} while(0)
+ 
+@@ -992,6 +1169,8 @@ static int ra_dispatch(struct file_ra_st
+ 		ra_account(ra, RA_EVENT_READAHEAD_EOF, actual);
+ 	if (la_size)
+ 		ra_account(ra, RA_EVENT_LOOKAHEAD, la_size);
++	if (ra_size > actual)
++		ra_account(ra, RA_EVENT_IO_CACHE_HIT, ra_size - actual);
+ 	ra_account(ra, RA_EVENT_READAHEAD, actual);
+ 
+ 	dprintk("readahead-%s(ino=%lu, index=%lu, ra=%lu+%lu-%lu) = %d\n",
+@@ -1632,8 +1811,11 @@ page_cache_readahead_adaptive(struct add
+ 	if (page) {
+ 		if(!TestClearPageReadahead(page))
+ 			return 0;
+-		if (bdi_read_congested(mapping->backing_dev_info))
++		if (bdi_read_congested(mapping->backing_dev_info)) {
++			ra_account(ra, RA_EVENT_IO_CONGESTION,
++							end_index - index);
+ 			return 0;
++		}
+ 	}
+ 
+ 	if (page)
+@@ -1723,8 +1905,15 @@ void fastcall ra_access(struct file_ra_s
+ 			   (1 << PG_referenced)))
+ 		return;
+ 
+-	if (!ra_has_index(ra, page->index))
++	if (ra_has_index(ra, page->index)) {
++		if (PageLocked(page))
++			ra_account(ra, RA_EVENT_IO_BLOCK,
++					ra->readahead_index - page->index);
++	} else {
++		if (PageLocked(page))
++			ra_account(0, RA_EVENT_IO_BLOCK, 1);
+ 		return;
++	}
+ 
+ 	ra->cache_hit++;
+ 
 
 --

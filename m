@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750936AbVKIRGW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbVKIRIb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750936AbVKIRGW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 12:06:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbVKIRGW
+	id S1751416AbVKIRIb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 12:08:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751453AbVKIRIb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 12:06:22 -0500
-Received: from xenotime.net ([66.160.160.81]:57816 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750936AbVKIRGV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 12:06:21 -0500
-Date: Wed, 9 Nov 2005 09:06:16 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Jan Beulich <JBeulich@novell.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/39] NLKD - Novell Linux Kernel Debugger
-In-Reply-To: <43722AFC.4040709@pobox.com>
-Message-ID: <Pine.LNX.4.58.0511090904320.4001@shark.he.net>
-References: <43720DAE.76F0.0078.0@novell.com> <43722AFC.4040709@pobox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 9 Nov 2005 12:08:31 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:51535
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1751417AbVKIRI3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 12:08:29 -0500
+Message-Id: <43723B57.76F0.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Wed, 09 Nov 2005 18:09:27 +0100
+From: "Jan Beulich" <JBeulich@novell.com>
+To: "Greg KH" <greg@kroah.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 3/39] NLKD - early/late CPU up/down notification
+References: <43720DAE.76F0.0078.0@novell.com>  <43720E2E.76F0.0078.0@novell.com>  <43720E72.76F0.0078.0@novell.com>  <43720EAF.76F0.0078.0@novell.com> <20051109164544.GB32068@kroah.com>
+In-Reply-To: <20051109164544.GB32068@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Nov 2005, Jeff Garzik wrote:
-
-> Jan Beulich wrote:
-> > The following patch set represents the Novell Linux Kernel Debugger,
-> > stripped off of its original low-level exception handling framework.
+>>> Greg KH <greg@kroah.com> 09.11.05 17:45:44 >>>
+>On Wed, Nov 09, 2005 at 02:58:55PM +0100, Jan Beulich wrote:
+>> A mechanism to allow debuggers to learn about starting/dying CPUs
+as
+>> early/late as possible. Arch-dependent changes for i386 and x86_64
+>> will follow.
+>> 
+>> Signed-Off-By: Jan Beulich <jbeulich@novell.com>
+>> 
+>> (actual patch attached)
 >
->
-> Honestly, just seeing all these code changes makes me think we really
-> don't need it in the kernel.  How many "early" and "alternative" gadgets
-> do we really need just for this thing?
+>Ick, but it's in base64 mode, so I can't quote it to say that your
 
-On the surface I have to agree.  However, if Jan wants feedback
-on the patches, that's a reasonable request IMO.
-(but they need to be readable via email so that someone
-can comment on them)
+That I already was made aware of. Sorry, this worked a few months ago,
+but they managed to break this again.
 
-At a quick blush, I would guess it has as much chance as
-kdb does (or did) for merging.
+>#ifdef in the .h file is not needed.  Please fix your email client to
+>send patches properly.
 
--- 
-~Randy
+It's not needed, sure, but by having it there I just wanted to make
+clear that this is something that never can be called from a module
+(after all, why should one find out at modpost time (and maybe even miss
+the message since there are so many past eventual symbol resolution
+warnings) when one can already at compile time.
+
+Jan

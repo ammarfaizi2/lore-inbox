@@ -1,88 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbVKILB2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030516AbVKILHm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751333AbVKILB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 06:01:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbVKILB2
+	id S1030516AbVKILHm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 06:07:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030508AbVKILHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 06:01:28 -0500
-Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:62434 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S1751333AbVKILB1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 06:01:27 -0500
-From: Nikita Danilov <nikita@clusterfs.com>
+	Wed, 9 Nov 2005 06:07:42 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:7859 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1030516AbVKILHk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 06:07:40 -0500
+Message-ID: <4371DAA1.4040300@sw.ru>
+Date: Wed, 09 Nov 2005 14:16:49 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17265.55057.438316.467289@gargle.gargle.HOWL>
-Date: Wed, 9 Nov 2005 14:01:37 +0300
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Mike Kravetz <kravetz@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Dave Hansen <haveblue@us.ibm.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
-       torvalds@osdl.org, Hirokazu Takahashi <taka@valinux.co.jp>,
-       Magnus Damm <magnus.damm@gmail.com>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       Paul Jackson <pj@sgi.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>, Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH 6/8] Direct Migration V2: Avoid writeback / page_migrate() method
-Newsgroups: gmane.linux.kernel,gmane.linux.kernel.mm
-In-Reply-To: <20051108210417.31330.72381.sendpatchset@schroedinger.engr.sgi.com>
-References: <20051108210246.31330.61756.sendpatchset@schroedinger.engr.sgi.com>
-	<20051108210417.31330.72381.sendpatchset@schroedinger.engr.sgi.com>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] stop_machine() vs. synchronous IPI send deadlock
+Content-Type: multipart/mixed;
+ boundary="------------010907080405040503000702"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter writes:
- > Migrate a page with buffers without requiring writeback
- > 
- > This introduces a new address space operation migrate_page() that
- > may be used by a filesystem to implement its own version of page migration.
- > 
- > A version is provided that migrates buffers attached to pages. Some
- > filesystems (ext2, ext3, xfs) are modified to utilize this feature.
- > 
- > The swapper address space operation are modified so that a regular
- > migrate_pages() will occur for anonymous pages without writeback
- > (migrate_pages forces every anonymous page to have a swap entry).
- > 
- > V1->V2:
- > - Fix CONFIG_MIGRATION handling
- > 
- > Signed-off-by: Mike Kravetz <kravetz@us.ibm.com>
- > Signed-off-by: Christoph Lameter <clameter@sgi.com>
- > 
- > Index: linux-2.6.14-mm1/include/linux/fs.h
- > ===================================================================
- > --- linux-2.6.14-mm1.orig/include/linux/fs.h	2005-11-07 11:48:46.000000000 -0800
- > +++ linux-2.6.14-mm1/include/linux/fs.h	2005-11-08 10:18:51.000000000 -0800
- > @@ -332,6 +332,8 @@ struct address_space_operations {
- >  			loff_t offset, unsigned long nr_segs);
- >  	struct page* (*get_xip_page)(struct address_space *, sector_t,
- >  			int);
- > +	/* migrate the contents of a page to the specified target */
- > +	int (*migrate_page) (struct page *, struct page *);
- >  };
- >  
- >  struct backing_dev_info;
- > @@ -1679,6 +1681,12 @@ extern void simple_release_fs(struct vfs
- >  
- >  extern ssize_t simple_read_from_buffer(void __user *, size_t, loff_t *, const void *, size_t);
- >  
- > +#ifdef CONFIG_MIGRATION
- > +extern int buffer_migrate_page(struct page *, struct page *);
- > +#else
- > +#define buffer_migrate_page(a,b) NULL
- > +#endif
+This is a multi-part message in MIME format.
+--------------010907080405040503000702
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Depending on the CONFIG_MIGRATION, the type of buffer_migrate_page(a,b)
-expansion is either int or void *, which doesn't look right.
+Hello Andrew,
 
-Moreover below you have initializations
+This patch fixes deadlock of stop_machine() vs. synchronous IPI send.
+The problem is that stop_machine() disables interrupts before disabling 
+preemption on other CPUs. So if another CPU is preempted and then calls 
+something like flush_tlb_all() it will deadlock with CPU doing 
+stop_machine() and which can't process IPI due to disabled IRQs.
 
-        .migrate_page		= buffer_migrate_page,
+I changed stop_machine() to do the same things exactly as it does on 
+other CPUs, i.e. it should disable preemption first on _all_ CPUs 
+including itself and only after that disable IRQs.
 
-that wouldn't compile when CONFIG_MIGRATION is not defined (as macro
-requires two arguments).
+Signed-Off-By: Kirill Korotaev <dev@sw.ru>
 
-Nikita.
+Kirill
+
+--------------010907080405040503000702
+Content-Type: text/plain;
+ name="diff-stopmachine"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff-stopmachine"
+
+--- ./kernel/stop_machine.c.stpmach	2005-11-01 12:06:03.000000000 +0300
++++ ./kernel/stop_machine.c	2005-11-09 13:58:03.000000000 +0300
+@@ -114,13 +114,12 @@ static int stop_machine(void)
+ 		return ret;
+ 	}
+ 
+-	/* Don't schedule us away at this point, please. */
+-	local_irq_disable();
+-
+ 	/* Now they are all started, make them hold the CPUs, ready. */
++	preempt_disable();
+ 	stopmachine_set_state(STOPMACHINE_PREPARE);
+ 
+ 	/* Make them disable irqs. */
++	local_irq_disable();
+ 	stopmachine_set_state(STOPMACHINE_DISABLE_IRQ);
+ 
+ 	return 0;
+
+--------------010907080405040503000702--
+

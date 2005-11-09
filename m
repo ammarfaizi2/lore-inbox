@@ -1,38 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751587AbVKIXfW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751595AbVKIXho@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751587AbVKIXfW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 18:35:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751590AbVKIXfW
+	id S1751595AbVKIXho (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 18:37:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751596AbVKIXho
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 18:35:22 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:47112 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751588AbVKIXfT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 18:35:19 -0500
-Date: Wed, 9 Nov 2005 23:35:09 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [MMC] Use __devexit_p in wbsd
-Message-ID: <20051109233509.GC25101@flint.arm.linux.org.uk>
-Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
-	linux-kernel@vger.kernel.org
-References: <20051107070458.6640.83631.stgit@poseidon.drzeus.cx> <20051108231809.GG13357@flint.arm.linux.org.uk> <437134AE.5060303@drzeus.cx>
+	Wed, 9 Nov 2005 18:37:44 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:2184 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751594AbVKIXhn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 18:37:43 -0500
+Subject: [PATCH 1/4] Hugetlb: Remove duplicate i_size check
+From: Adam Litke <agl@us.ibm.com>
+To: akpm@osdl.org
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       David Gibson <david@gibson.dropbear.id.au>, wli@holomorphy.com,
+       hugh@veritas.com, rohit.seth@intel.com, kenneth.w.chen@intel.com,
+       "ADAM G. LITKE [imap]" <agl@us.ibm.com>
+In-Reply-To: <1131578925.28383.9.camel@localhost.localdomain>
+References: <1131578925.28383.9.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: IBM
+Date: Wed, 09 Nov 2005 17:36:49 -0600
+Message-Id: <1131579410.28383.19.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <437134AE.5060303@drzeus.cx>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 09, 2005 at 12:28:46AM +0100, Pierre Ossman wrote:
-> Sorry about that. Improper patch ordering on my part. Here's one where 
-> it's applied before the suspend stuff.
+Hugetlb: Remove duplicate i_size check
 
-Applied, thanks.
+On Wed, 2005-10-26 at 12:00 +1000, David Gibson wrote:
+> - The check against i_size was duplicated: once in
+>   find_lock_huge_page() and again in hugetlb_fault() after taking the
+>   page_table_lock.  We only really need the locked one, so remove the
+>   other.
+
+Original post by David Gibson <david@gibson.dropbear.id.au>
+
+Version 2: Wed 9 Nov 2005
+	Split this cleanup out into a standalone patch
+
+Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+Signed-off-by: Adam Litke <agl@us.ibm.com>
+---
+ hugetlb.c |    7 -------
+ 1 files changed, 7 deletions(-)
+diff -upN reference/mm/hugetlb.c current/mm/hugetlb.c
+--- reference/mm/hugetlb.c
++++ current/mm/hugetlb.c
+@@ -344,19 +344,12 @@ static struct page *find_lock_huge_page(
+ {
+ 	struct page *page;
+ 	int err;
+-	struct inode *inode = mapping->host;
+-	unsigned long size;
+ 
+ retry:
+ 	page = find_lock_page(mapping, idx);
+ 	if (page)
+ 		goto out;
+ 
+-	/* Check to make sure the mapping hasn't been truncated */
+-	size = i_size_read(inode) >> HPAGE_SHIFT;
+-	if (idx >= size)
+-		goto out;
+-
+ 	if (hugetlb_get_quota(mapping))
+ 		goto out;
+ 	page = alloc_huge_page();
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Adam Litke - (agl at us.ibm.com)
+IBM Linux Technology Center
+

@@ -1,36 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751061AbVKIWZ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750971AbVKIWaz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751061AbVKIWZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 17:25:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751536AbVKIWZZ
+	id S1750971AbVKIWaz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 17:30:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751028AbVKIWaz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 17:25:25 -0500
-Received: from nproxy.gmail.com ([64.233.182.193]:5934 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751032AbVKIWZY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 17:25:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Fhjh/ECXh6Vq0oie1cE5HVxhvo6frIzPtAA6SMoQny9HR9RB1urw+JW6emoR2svOroB1pGfVzbGn66Eq9+8EGPi8e8bX5NRO2/o165YGorasB3AzkyYaZrhLG7onp7veg79krqe/MvJLBQ9Qp3AikPf90cJ0CbpOBpbW2HvCOgc=
-Message-ID: <58cb370e0511091425w6e0b197cv8cf8cde32d1d49a5@mail.gmail.com>
-Date: Wed, 9 Nov 2005 23:25:23 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Jordan Crouse <jordan.crouse@amd.com>
-Subject: Re: [6/6] AMD Geode GX/LX Support (Refreshed)
-Cc: linux-kernel@vger.kernel.org, info-linux@ldcmail.amd.com,
-       linux-ide@vger.kernel.org
-In-Reply-To: <20051028155504.GG19854@cosmic.amd.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <LYRIS-4270-74122-2005.10.28-09.38.17--jordan.crouse#amd.com@whitestar.amd.com>
-	 <20051028155504.GG19854@cosmic.amd.com>
+	Wed, 9 Nov 2005 17:30:55 -0500
+Received: from baythorne.infradead.org ([81.187.2.161]:30700 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S1750971AbVKIWay (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 17:30:54 -0500
+Subject: Re: merge status
+From: David Woodhouse <dwmw2@infradead.org>
+To: Steven French <sfrench@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
+       Ben Collins <bcollins@debian.org>, Dave Jones <davej@codemonkey.org.uk>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       Jeff Garzik <jgarzik@pobox.com>, "Brown, Len" <len.brown@intel.com>,
+       linux-kernel@vger.kernel.org, Roland Dreier <rolandd@cisco.com>,
+       Jody McIntyre <scjody@modernduck.com>,
+       Dave Kleikamp <shaggy@austin.ibm.com>,
+       "Luck, Tony" <tony.luck@intel.com>, Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <OF4A6DAD74.A56B078E-ON872570B4.007A77CE-862570B4.007AC8BB@us.ibm.com>
+References: <OF4A6DAD74.A56B078E-ON872570B4.007A77CE-862570B4.007AC8BB@us.ibm.com>
+Content-Type: text/plain
+Date: Wed, 09 Nov 2005 22:23:50 +0000
+Message-Id: <1131575030.27347.170.camel@baythorne.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-applied with 2 changes:
+On Wed, 2005-11-09 at 16:20 -0600, Steven French wrote:
+> At the moment cifs does not have any infrastructure dependencies (unless
+> you count minor changes to the cifs section of fs/Kconfig and a problem
+> noticed trying to cancel d_notify requests), but I am trying to get a new
+> upcall  in cifs (for callout to a helper utility to assist in kerberos
+> authentication) coded in time - although it will be marked experimental.
 
-* spaces converted to tabs
-* unrelated PCI IDs removed
+Using the key management infrastructure? That has upcalls to obtain keys
+already.
+
+-- 
+dwmw2
+
+

@@ -1,83 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbVKIXF0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751532AbVKIXJM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751079AbVKIXF0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 18:05:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbVKIXFZ
+	id S1751532AbVKIXJM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 18:09:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751541AbVKIXJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 18:05:25 -0500
-Received: from mail01.solnet.ch ([212.101.4.135]:59147 "EHLO mail01.solnet.ch")
-	by vger.kernel.org with ESMTP id S1751079AbVKIXFZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 18:05:25 -0500
-From: Damir Perisa <damir.perisa@solnet.ch>
-To: Bill Davidsen <davidsen@tmr.com>
-Subject: Re: [patch] Re: 2.6.14-rc5-mm1 - ide-cs broken!
-Date: Thu, 10 Nov 2005 00:02:20 +0100
-User-Agent: KMail/1.8.3
-Cc: Richard Purdie <rpurdie@rpsys.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org,
-       Kay Sievers <kay.sievers@vrfy.org>
-References: <20051103220305.77620d8f.akpm@osdl.org> <1131572234.8506.130.camel@localhost.localdomain> <43727E4A.3050106@tmr.com>
-In-Reply-To: <43727E4A.3050106@tmr.com>
-X-Face: +)fhYFmn|<pyRIlgch_);krg#jn!^z'?xy(Ur#Z6rZi)KD+_-V<Y@i>0pOVfJ4<=?iso-8859-1?q?Q1/=26/=26z=0A=093cxqRa=3B7O=5C4g=5C=7C=5DF-!H0!ew9kx1LqK/?=
- =?iso-8859-1?q?iPOv8eXi=26I7=60Pez0V0VNMAxnqRL8-30qqKK=3DxGM=0A=09pExQc=5B?=
- =?iso-8859-1?q?2=7Cl6v=23?=<iwBvEO9+h|_YS[48z%/kuD2*aT*S/$0323VCL3V9?@}jq<
- =?iso-8859-1?q?Ns6V=3A0m=27Qia=0A=09?="[#oJg[RVe}Sy/lP95E@pa[vdKzqLqn&M`exb91"`,<k`3;Vt97cLjhub0.v+]m`%|>@Z(
- =?iso-8859-1?q?=0A=09EeC/zU7=25?=@"L6mi#..8Q^M
-Alanine: true
-Glycine: true
+	Wed, 9 Nov 2005 18:09:12 -0500
+Received: from zproxy.gmail.com ([64.233.162.200]:167 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751532AbVKIXJK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 18:09:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nJnUX/PHCG8+7kjixPopnwIrl+9msMSxMdoEVUnzt/lUJ58zTACcykweBcRc9VIihukI8swg/qdMmqf38Qd1eFM8hcGyeaq7VI+pqH7rGFzaL972AKnExwpUnD7YLwfCuoQGsgkbAqygBU9uJgfp20SDNL3zDXi89s4McPOOEJ4=
+Message-ID: <9a8748490511091509t226fcffcw70dd40e67a6d36ac@mail.gmail.com>
+Date: Thu, 10 Nov 2005 00:09:10 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: merge status
+Cc: James Bottomley <James.Bottomley@steeleye.com>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, len.brown@intel.com, jgarzik@pobox.com,
+       tony.luck@intel.com, bcollins@debian.org, scjody@modernduck.com,
+       dwmw2@infradead.org, rolandd@cisco.com, davej@codemonkey.org.uk,
+       axboe@suse.de, shaggy@austin.ibm.com, sfrench@us.ibm.com
+In-Reply-To: <20051109150141.0bcbf9e3.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2316943.cGIRmRP9SV";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200511100002.21577.damir.perisa@solnet.ch>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051109133558.513facef.akpm@osdl.org>
+	 <1131573041.8541.4.camel@mulgrave>
+	 <Pine.LNX.4.64.0511091358560.4627@g5.osdl.org>
+	 <1131575124.8541.9.camel@mulgrave>
+	 <20051109150141.0bcbf9e3.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2316943.cGIRmRP9SV
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On 11/10/05, Andrew Morton <akpm@osdl.org> wrote:
+> James Bottomley <James.Bottomley@SteelEye.com> wrote:
+> >
+> > it's my contributors who drop me in it
+> > by leaving their patch sets until you declare a kernel, dumping the
+> > integration testing on me in whatever time window is left.
+>
+> Yes, I think I'm noticing an uptick in patches as soon as a kernel is
+> released.
+>
+> It's a bit irritating, and is unexpected (here, at least).  I guess people
+> like to hold onto their work for as long as possible so when they release
+> it, it's in the best possible shape.
+>
+> I guess all we can do is to encourage people to merge up when it's working,
+> not when it's time to merge it into mainline.
+>
+> One could just say "if I don't have it by the time 2.6.n is released, it
+> goes into 2.6.n+2", but that's probably getting outside the realm of
+> practicality.
 
-Le Wednesday 09 November 2005 23:55, Bill Davidsen a =E9crit=A0:
- | Thank you Rickard and Damir for reassuring me that this change is
- | highly unlikely to impact any of the connection methods I use.=20
+I personally find that a nice flow is to just continuously push
+patches to you to merge into -mm, then once the merge window opens you
+usually push the stuff onto Linus and it'll make the next kernel.
+Anything I submit after the merge window opens will just stay in -mm
+and wait for the next merge window (or next+1 depending on the patch).
 
-you're welcome
+But then my stuff is usually quite simple, so I guess that doesn't
+work for everyone, but for me at least it seems to work well.
 
-comparing our two emails, you can see that Rickard is much better used to=20
-this matter than myself, as his email is more condense but has the same=20
-information as mine. (see also my signature in this email)
 
- | Since PCMCIA on desktops and non-udev systems are uncommon, I felt the
- | question was better mentioned before the patch went in. Occasionally=20
- | my confiurations do result in a "nobody would do that" reaction.
-=20
-well placed questions never hurt (some answers may, but that's another=20
-story :P )... and often other people find that they also wanted to know=20
-the answer but didn't dare to ask.=20
-
-greetings,
-Damir
-
-=2D-=20
-If it takes a lot of words to say what you have in mind,
-give it more thought.
-
-	-- Dennis Roch
-
---nextPart2316943.cGIRmRP9SV
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBDcn/9PABWKV6NProRApHuAJ4o54hjcrop8r/p9rug6qkx8iKKnACdGk2b
-dTzRWW8T2v/WHGMEsS81/2I=
-=00i1
------END PGP SIGNATURE-----
-
---nextPart2316943.cGIRmRP9SV--
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

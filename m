@@ -1,70 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbVKIOCX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbVKIODP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750770AbVKIOCX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 09:02:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbVKIOCX
+	id S1750775AbVKIODP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 09:03:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbVKIODP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 09:02:23 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:4143
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1750770AbVKIOCW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 09:02:22 -0500
-Message-Id: <43720FBA.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Wed, 09 Nov 2005 15:03:22 +0100
-From: "Jan Beulich" <JBeulich@novell.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH 8/39] NLKD - rmmod notification
-References: <43720DAE.76F0.0078.0@novell.com> <43720E2E.76F0.0078.0@novell.com> <43720E72.76F0.0078.0@novell.com> <43720EAF.76F0.0078.0@novell.com> <43720F5E.76F0.0078.0@novell.com> <43720F95.76F0.0078.0@novell.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=__PartE2C0DEBA.0__="
+	Wed, 9 Nov 2005 09:03:15 -0500
+Received: from smtp.rdslink.ro ([193.231.236.97]:33258 "EHLO smtp.rdslink.ro")
+	by vger.kernel.org with ESMTP id S1750735AbVKIODO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 09:03:14 -0500
+X-Mail-Scanner: Scanned by qSheff 1.0 (http://www.enderunix.org/qsheff/)
+Date: Wed, 9 Nov 2005 16:03:06 +0200 (EET)
+From: caszonyi@rdslink.ro
+X-X-Sender: sony@grinch.ro
+Reply-To: Calin Szonyi <caszonyi@rdslink.ro>
+To: jerome lacoste <jerome.lacoste@gmail.com>
+cc: Edgar Hucek <hostmaster@ed-soft.at>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: New Linux Development Model
+In-Reply-To: <5a2cf1f60511090430y63db5473we40f077070ecb43a@mail.gmail.com>
+Message-ID: <Pine.LNX.4.62.0511091547080.15950@grinch.ro>
+References: <436C7E77.3080601@ed-soft.at>  <20051105122958.7a2cd8c6.khali@linux-fr.org>
+  <436CB162.5070100@ed-soft.at>  <5a2cf1f60511060252t55e1a058o528700ea69826965@mail.gmail.com>
+  <436DEEFC.4020301@ed-soft.at>  <5a2cf1f60511060543m5edc8ba8i920a3005b95a556d@mail.gmail.com>
+  <Pine.LNX.4.62.0511090202030.2383@grinch.ro>
+ <5a2cf1f60511090430y63db5473we40f077070ecb43a@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME message. If you are reading this text, you may want to 
-consider changing to a mail reader or gateway that understands how to 
-properly handle MIME multipart messages.
+On Wed, 9 Nov 2005, jerome lacoste wrote:
 
---=__PartE2C0DEBA.0__=
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> On 11/9/05, caszonyi@rdslink.ro <caszonyi@rdslink.ro> wrote:
+> [...]
+>>
+>> There are other reasons for using a new kernel. One of them is
+>> interactivity. In the days of 2.4 one could achieve decent interactivity
+>> for the desktop using preempt and low latency patches. For 2.6
+>> interactivity was a real issue (possibly because of the new development
+>> model).
+>
+> I don't get it. You say that with 2.4 + patches you had good
+> interactivity and with 2.6 you don't? Why did you switch then?
+>
 
-Debugging and maintenance support code occasionally needs to know not
-only of module insertions, but also module removals.
+Because i like to test new kernels. On 2.4 I run the vanila kernel and a 
+test kernel. When something went wrong on a test kernel was always a 
+stable kernel to use.
+2.6 looks a lot like 2.5. New features are added very quickly without much 
+testing. Of course there is Andrew's -mm tree but this one sometimes 
+is too broken.
+For me linux looks now like it has one unstable tree (2.6) which is 
+something like -ac was in days of 2.4 and  -mm was in the days of 2.4 
+-2.5 and -mm which looks like it became very unstable.
+This is what i saw ok lkml (maybe my view is distorted).
+I'll stop ranting and try both of them because i have some bugs to report.
 
-Signed-Off-By: Jan Beulich <jbeulich@novell.com>
+>>>> And why should dirstribution makers always backport new security fixes ?
+>>>
+>>> Because they want to ensure maximum stability. That's what users are
+>>> (sometimes) paying for.
+>>>
+>>
+>> Maximum stability of what ? If the distribution kernels are based on
+>> vanila kernel (i.e. are based on unstable kernel) how stable will they be
+>> ?
+>
+> Maximum stability of the kernel they deliver. When you fix a
+> vulnerability, you fix a vulnerability. You don't just happen to add a
+> new bunch of features, and a new bunch of bugs. Otherwise you are
+> going to piss off your users a lot.
+>
 
-(actual patch attached)
+That's what's happening on 2.6. Every 2.6.x release is different.
+The 2.6.x.y kernels sometimes are almost no different from 2.6.x
 
 
---=__PartE2C0DEBA.0__=
-Content-Type: application/octet-stream; name="linux-2.6.14-nlkd-notify-rmmod.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="linux-2.6.14-nlkd-notify-rmmod.patch"
+--
 
-RGVidWdnaW5nIGFuZCBtYWludGVuYW5jZSBzdXBwb3J0IGNvZGUgb2NjYXNpb25hbGx5IG5lZWRz
-IHRvIGtub3cgbm90Cm9ubHkgb2YgbW9kdWxlIGluc2VydGlvbnMsIGJ1dCBhbHNvIG1vZHVsZSBy
-ZW1vdmFscy4KClNpZ25lZC1PZmYtQnk6IEphbiBCZXVsaWNoIDxqYmV1bGljaEBub3ZlbGwuY29t
-PgoKSW5kZXg6IDIuNi4xNC1ubGtkL2tlcm5lbC9tb2R1bGUuYwo9PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSAyLjYu
-MTQtbmxrZC5vcmlnL2tlcm5lbC9tb2R1bGUuYwkyMDA1LTExLTA0IDE2OjE5OjM0LjAwMDAwMDAw
-MCArMDEwMAorKysgMi42LjE0LW5sa2Qva2VybmVsL21vZHVsZS5jCTIwMDUtMTEtMDQgMTY6MTk6
-MzQuMDAwMDAwMDAwICswMTAwCkBAIC0xMTY5LDYgKzExNjksMTAgQEAgc3RhdGljIHZvaWQgY2xl
-YW51cF9rYWxsc3ltcyhzdHJ1Y3QgbW9kdQogLyogRnJlZSBhIG1vZHVsZSwgcmVtb3ZlIGZyb20g
-bGlzdHMsIGV0YyAobXVzdCBob2xkIG1vZHVsZSBtdXRleCkuICovCiBzdGF0aWMgdm9pZCBmcmVl
-X21vZHVsZShzdHJ1Y3QgbW9kdWxlICptb2QpCiB7CisJZG93bigmbm90aWZ5X211dGV4KTsKKwlu
-b3RpZmllcl9jYWxsX2NoYWluKCZtb2R1bGVfbm90aWZ5X2xpc3QsIE1PRFVMRV9TVEFURV9HT0lO
-RywgbW9kKTsKKwl1cCgmbm90aWZ5X211dGV4KTsKKwogCS8qIERlbGV0ZSBmcm9tIHZhcmlvdXMg
-bGlzdHMgKi8KIAlzdG9wX21hY2hpbmVfcnVuKF9fdW5saW5rX21vZHVsZSwgbW9kLCBOUl9DUFVT
-KTsKIAlyZW1vdmVfc2VjdF9hdHRycyhtb2QpOwpAQCAtMTk5OSw5ICsyMDAzLDEzIEBAIHN5c19p
-bml0X21vZHVsZSh2b2lkIF9fdXNlciAqdW1vZCwKICAgICAgICAgICAgICAgICAgICBidWdneSBy
-ZWZjb3VudGVycy4gKi8KIAkJbW9kLT5zdGF0ZSA9IE1PRFVMRV9TVEFURV9HT0lORzsKIAkJc3lu
-Y2hyb25pemVfc2NoZWQoKTsKLQkJaWYgKG1vZC0+dW5zYWZlKQorCQlpZiAobW9kLT51bnNhZmUp
-IHsKIAkJCXByaW50ayhLRVJOX0VSUiAiJXM6IG1vZHVsZSBpcyBub3cgc3R1Y2shXG4iLAogCQkJ
-ICAgICAgIG1vZC0+bmFtZSk7CisJCQlkb3duKCZub3RpZnlfbXV0ZXgpOworCQkJbm90aWZpZXJf
-Y2FsbF9jaGFpbigmbW9kdWxlX25vdGlmeV9saXN0LCBNT0RVTEVfU1RBVEVfR09JTkcsIG1vZCk7
-CisJCQl1cCgmbm90aWZ5X211dGV4KTsKKwkJfQogCQllbHNlIHsKIAkJCW1vZHVsZV9wdXQobW9k
-KTsKIAkJCWRvd24oJm1vZHVsZV9tdXRleCk7Cg==
 
---=__PartE2C0DEBA.0__=--

@@ -1,141 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030217AbVKICNq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030380AbVKICPA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030217AbVKICNq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 21:13:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965227AbVKICNq
+	id S1030380AbVKICPA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 21:15:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965227AbVKICPA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 21:13:46 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:7139 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965156AbVKICNq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 21:13:46 -0500
-Message-ID: <43715B69.5040609@us.ibm.com>
-Date: Tue, 08 Nov 2005 20:14:01 -0600
-From: Andrew Theurer <habanero@us.ibm.com>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
+	Tue, 8 Nov 2005 21:15:00 -0500
+Received: from smtp103.sbc.mail.re2.yahoo.com ([68.142.229.102]:36001 "HELO
+	smtp103.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S965156AbVKICO7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 21:14:59 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Douglas McNaught <doug@mcnaught.org>
+Subject: Re: typedefs and structs
+Date: Tue, 8 Nov 2005 21:14:51 -0500
+User-Agent: KMail/1.8.3
+Cc: linas <linas@austin.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
+       bluesmoke-devel@lists.sourceforge.net,
+       linux-pci@atrey.karlin.mff.cuni.cz, linuxppc64-dev@ozlabs.org
+References: <20051107185621.GD19593@austin.ibm.com> <20051109004808.GM19593@austin.ibm.com> <m21x1qhbzn.fsf@Douglas-McNaughts-Powerbook.local>
+In-Reply-To: <m21x1qhbzn.fsf@Douglas-McNaughts-Powerbook.local>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Andrew Theurer <habanero@us.ibm.com>, nickpiggin@yahoo.com.au,
-       anton@samba.org, tbrian@us.ibm.com
-Subject: Re: Database regression due to scheduler changes ?
-References: <43715361.3070802@us.ibm.com>
-In-Reply-To: <43715361.3070802@us.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200511082114.52159.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick wrote:
-
->> I would also take a look at removing SD_WAKE_IDLE from the flags.
->> This flag should make balancing more aggressive, but it can have
->> problems when applied to a NUMA domain due to too much task
->> movement.
+On Tuesday 08 November 2005 19:59, Douglas McNaught wrote:
+> linas <linas@austin.ibm.com> writes:
+> 
+> > On Tue, Nov 08, 2005 at 07:37:20PM -0500, Douglas McNaught was heard to remark:
+> >> 
+> >> Yeah, but if you're trying to read that code, you have to go look up
+> >> the declaration to figure out whether it might affect 'foo' or not.
+> >> And if you get it wrong, you get silent data corruption.
+> >
+> > No, that is not what "pass by reference" means. You are thinking of
+> > "const", maybe, or "pass by value"; this is neither.  The arg is not 
+> > declared const, the subroutine can (and usually will) modify the contents 
+> > of the structure, and so the caller will be holding a modified structure
+> > when the callee returns (just like it would if a pointer was passed).
+> 
+> Right.  My point is only that it's not clear from looking at the call
+> site whether a struct passed by reference will be modified by the
+> callee (some people pass by reference just for "efficiency").  And if
+> the called function modifies the data without the caller's knowledge,
+> it leads to obscure bugs.  Whereas if you pass a pointer, it's
+> immediately clear that the called function can modify the pointed-to
+> object.
 >
-> Anton wrote:
-> I was wondering how ppc64 ended up with different parameters in the NODE
-> definitions (added SD_BALANCE_NEWIDLE and SD_WAKE_IDLE)    and it looks
-> like it was Andrew :)
->
-> http://lkml.org/lkml/2004/11/2/205
 
-FWIW I changed all arch's, but most (except ppc) got changed back.  At 
-the time we had data showing the more aggressive wake idle and newidle 
-was good for things like OLTP.
+A structure is almost never passed by value, no matter whether it is C
+or C++. So both languages require you either use descriptive naming or
+look up declaration/implementation:
 
-Brian, do you have cpu util numbers and runqueue lengths for both tests?
+C:
+	struct str {
+		char buf[1024];
+		int count;
+	};
+	struct str s;
 
->
-> It looks like balancing was not agressive enough on his workload too.
-> Im a bit uneasy with only ppc64 having the two flags though.
+	do_something_with_s(&s);
+	do_something_else_with_s(&s);
 
-Brian wrote:
+Which one modufies s?
 
-> We suspect the regression was introduced in the scheduler changes
-> that went into 2.6.13-rc1.  However, the regression was hidden
-> from us by a bug in include/asm-ppc64/topology.h that made ppc64
-> look non-NUMA from 2.6.13-rc1 through 2.6.13-rc4.  That bug was
-> fixed in 2.6.13-rc5.  Unfortunately the workload does not run to
-> completion on 2.6.12 or 2.6.13-rc1.
-
-Brian, I am not sure if you were thinking of a particular set of sched 
-changes, but I suspect it might be one or more in the list below (my 
-guess is the first and last).  Would it be possible to back out these 
-change-sets from 2.6.13-rc5 and see if there is any difference?  FWIW, 
-even if they do help, I am not suggesting, yet, that they should be 
-reverted.  I am hoping there is some compromise that can work better in 
-all situations.
-
--Andrew
-
-commit cafb20c1f9976a70d633bb1e1c8c24eab00e4e80
-Author: Nick Piggin <nickpiggin@yahoo.com.au>
-Date:   Sat Jun 25 14:57:17 2005 -0700
-
-    [PATCH] sched: no aggressive idle balancing
-    
-    Remove the very aggressive idle stuff that has recently gone into 2.6 - it is
-    going against the direction we are trying to go.  Hopefully we can regain
-    performance through other methods.
-    
-    Signed-off-by: Nick Piggin <nickpiggin@yahoo.com.au>
-    Signed-off-by: Andrew Morton <akpm@osdl.org>
-    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-
-commit a3f21bce1fefdf92a4d1705e888d390b10f3ac6f
-Author: Nick Piggin <nickpiggin@yahoo.com.au>
-Date:   Sat Jun 25 14:57:15 2005 -0700
-
-    [PATCH] sched: tweak affine wakeups
-    
-    Do less affine wakeups.  We're trying to reduce dbt2-pgsql idle time
-    regressions here...  make sure we don't don't move tasks the wrong way in an
-    imbalance condition.  Also, remove the cache coldness requirement from the
-    calculation - this seems to induce sharp cutoff points where behaviour will
-    suddenly change on some workloads if the load creeps slightly over or under
-    some point.  It is good for periodic balancing because in that case have
-    otherwise have no other context to determine what task to move.
-    
-    But also make a minor tweak to "wake balancing" - the imbalance tolerance is
-    now set at half the domain's imbalance, so we get the opportunity to do wake
-    balancing before the more random periodic rebalancing gets preformed.
-    
-    Signed-off-by: Nick Piggin <nickpiggin@yahoo.com.au>
-    Signed-off-by: Andrew Morton <akpm@osdl.org>
-    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-
-commit 7897986bad8f6cd50d6149345aca7f6480f49464
-Author: Nick Piggin <nickpiggin@yahoo.com.au>
-Date:   Sat Jun 25 14:57:13 2005 -0700
-
-    [PATCH] sched: balance timers
-    
-    Do CPU load averaging over a number of different intervals.  Allow each
-    interval to be chosen by sending a parameter to source_load and target_load.
-    0 is instantaneous, idx > 0 returns a decaying average with the most recent
-    sample weighted at 2^(idx-1).  To a maximum of 3 (could be easily increased).
-    
-    So generally a higher number will result in more conservative balancing.
-    
-    Signed-off-by: Nick Piggin <nickpiggin@yahoo.com.au>
-    Signed-off-by: Andrew Morton <akpm@osdl.org>
-    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-
-commit 99b61ccf0bf0e9a85823d39a5db6a1519caeb13d
-Author: Nick Piggin <nickpiggin@yahoo.com.au>
-Date:   Sat Jun 25 14:57:12 2005 -0700
-
-    [PATCH] sched: less aggressive idle balancing
-    
-    Remove the special casing for idle CPU balancing.  Things like this are
-    hurting for example on SMT, where are single sibling being idle doesn't really
-    warrant a really aggressive pull over the NUMA domain, for example.
-    
-    Signed-off-by: Nick Piggin <nickpiggin@yahoo.com.au>
-    Signed-off-by: Andrew Morton <akpm@osdl.org>
-    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-
-
-
-
+-- 
+Dmitry

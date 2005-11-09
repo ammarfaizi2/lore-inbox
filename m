@@ -1,106 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbVKIIgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbVKIIhH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750877AbVKIIgh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 03:36:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbVKIIgg
+	id S1751294AbVKIIhH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 03:37:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751315AbVKIIhH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 03:36:36 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:64968
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1750877AbVKIIgg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 03:36:36 -0500
-Message-Id: <4371C360.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Wed, 09 Nov 2005 09:37:36 +0100
-From: "Jan Beulich" <JBeulich@novell.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH 1/2] i386: double fault adjustment - introduce
-	THREAD_ORDER
-References: <4370AEE1.76F0.0078.0@novell.com> <4370E5FB.76F0.0078.0@novell.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=__PartAF8D9040.0__="
+	Wed, 9 Nov 2005 03:37:07 -0500
+Received: from gateway.argo.co.il ([194.90.79.130]:6667 "EHLO
+	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S1751294AbVKIIhF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 03:37:05 -0500
+Message-ID: <4371B52E.4030004@argo.co.il>
+Date: Wed, 09 Nov 2005 10:37:02 +0200
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Oliver Neukum <neukum@fachschaft.cup.uni-muenchen.de>
+CC: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+Subject: Re: userspace block driver?
+References: <4371A4ED.9020800@pobox.com> <Pine.LNX.4.58.0511090852440.22793@fachschaft.cup.uni-muenchen.de>
+In-Reply-To: <Pine.LNX.4.58.0511090852440.22793@fachschaft.cup.uni-muenchen.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Nov 2005 08:37:03.0863 (UTC) FILETIME=[C2AE5070:01C5E508]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME message. If you are reading this text, you may want to 
-consider changing to a mail reader or gateway that understands how to 
-properly handle MIME multipart messages.
+Oliver Neukum wrote:
 
---=__PartAF8D9040.0__=
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+>On Wed, 9 Nov 2005, Jeff Garzik wrote:
+>
+>  
+>
+>>Has anybody put any thought towards how a userspace block driver would work?
+>>
+>>Consider a block device implemented via an SSL network connection.  I don't
+>>want to put SSL in the kernel, which means the only other alternative is to
+>>pass data to/from a userspace daemon.
+>>    
+>>
+>
+>I am afraid this is impossible without some heavy infrastructure work.
+>You will almost inevitably deadlock. Yes, you can mlock() your driver, but 
+>that still will not tell the kernel that GFP_KERNEL must be replaced with 
+>GFP_NOIO if it is triggered by syscalls you are doing.
+>
+>  
+>
+A simple patch can help here (in addition to mlockall()):
 
-This introduces THREAD_ORDER (to accompany THREAD_SIZE, which now
-becomes a derivate of the former) in order to easily pass this to page
-allocation routines. Code consuming this (fixing the double fault
-handler to use per-CPU stacks) will soon follow.
+  http://www.ussg.iu.edu/hypermail/linux/kernel/0407.3/0297.html
 
-Signed-Off-By: Jan Beulich <jbeulich@novell.com>
-
-(actual patch attached)
-
-
---=__PartAF8D9040.0__=
-Content-Type: application/octet-stream; name="linux-2.6.14-i386-THREAD_ORDER.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="linux-2.6.14-i386-THREAD_ORDER.patch"
-
-VGhpcyBpbnRyb2R1Y2VzIFRIUkVBRF9PUkRFUiAodG8gYWNjb21wYW55IFRIUkVBRF9TSVpFLCB3
-aGljaCBub3cKYmVjb21lcyBhIGRlcml2YXRlIG9mIHRoZSBmb3JtZXIpIGluIG9yZGVyIHRvIGVh
-c2lseSBwYXNzIHRoaXMgdG8gcGFnZQphbGxvY2F0aW9uIHJvdXRpbmVzLiBDb2RlIGNvbnN1bWlu
-ZyB0aGlzIChmaXhpbmcgdGhlIGRvdWJsZSBmYXVsdApoYW5kbGVyIHRvIHVzZSBwZXItQ1BVIHN0
-YWNrcykgd2lsbCBzb29uIGZvbGxvdy4KClNpZ25lZC1PZmYtQnk6IEphbiBCZXVsaWNoIDxqYmV1
-bGljaEBub3ZlbGwuY29tPgoKLS0tIDIuNi4xNC9hcmNoL2kzODYva2VybmVsL2FzbS1vZmZzZXRz
-LmMJMjAwNS0xMC0yOCAwMjowMjowOC4wMDAwMDAwMDAgKzAyMDAKKysrIDIuNi4xNC1pMzg2LVRI
-UkVBRF9PUkRFUi9hcmNoL2kzODYva2VybmVsL2FzbS1vZmZzZXRzLmMJMjAwNS0xMS0wNCAxNjox
-OTozMi4wMDAwMDAwMDAgKzAxMDAKQEAgLTY4LDUgKzY4LDYgQEAgdm9pZCBmb28odm9pZCkKIAkJ
-IHNpemVvZihzdHJ1Y3QgdHNzX3N0cnVjdCkpOwogCiAJREVGSU5FKFBBR0VfU0laRV9hc20sIFBB
-R0VfU0laRSk7CisJREVGSU5FKFRIUkVBRF9TSVpFX2FzbSwgVEhSRUFEX1NJWkUpOwogCURFRklO
-RShWU1lTQ0FMTF9CQVNFLCBfX2ZpeF90b192aXJ0KEZJWF9WU1lTQ0FMTCkpOwogfQotLS0gMi42
-LjE0L2FyY2gvaTM4Ni9rZXJuZWwvZW50cnkuUwkyMDA1LTEwLTI4IDAyOjAyOjA4LjAwMDAwMDAw
-MCArMDIwMAorKysgMi42LjE0LWkzODYtVEhSRUFEX09SREVSL2FyY2gvaTM4Ni9rZXJuZWwvZW50
-cnkuUwkyMDA1LTExLTA0IDE2OjQ1OjEzLjAwMDAwMDAwMCArMDEwMApAQCAtNTQwLDggKzU0MCw4
-IEBAIEVOVFJZKG5taSkKIAkvKiBEbyBub3QgYWNjZXNzIG1lbW9yeSBhYm92ZSB0aGUgZW5kIG9m
-IG91ciBzdGFjayBwYWdlLAogCSAqIGl0IG1pZ2h0IG5vdCBleGlzdC4KIAkgKi8KLQlhbmRsICQo
-VEhSRUFEX1NJWkUtMSksJWVheAotCWNtcGwgJChUSFJFQURfU0laRS0yMCksJWVheAorCWFuZGwg
-JChUSFJFQURfU0laRV9hc20tMSksJWVheAorCWNtcGwgJChUSFJFQURfU0laRV9hc20tMjApLCVl
-YXgKIAlwb3BsICVlYXgKIAlqYWUgbm1pX3N0YWNrX2NvcnJlY3QKIAljbXBsICRzeXNlbnRlcl9l
-bnRyeSwxMiglZXNwKQotLS0gMi42LjE0L2FyY2gvaTM4Ni9rZXJuZWwvaGVhZC5TCTIwMDUtMTAt
-MjggMDI6MDI6MDguMDAwMDAwMDAwICswMjAwCisrKyAyLjYuMTQtaTM4Ni1USFJFQURfT1JERVIv
-YXJjaC9pMzg2L2tlcm5lbC9oZWFkLlMJMjAwNS0xMS0wNCAxNjo0NzowMi4wMDAwMDAwMDAgKzAx
-MDAKQEAgLTQyOSw3ICs0MjksNyBAQCBFTlRSWShlbXB0eV96ZXJvX3BhZ2UpCiAuZGF0YQogCiBF
-TlRSWShzdGFja19zdGFydCkKLQkubG9uZyBpbml0X3RocmVhZF91bmlvbitUSFJFQURfU0laRQor
-CS5sb25nIGluaXRfdGhyZWFkX3VuaW9uK1RIUkVBRF9TSVpFX2FzbQogCS5sb25nIF9fQk9PVF9E
-UwogCiByZWFkeToJLmJ5dGUgMAotLS0gMi42LjE0L2FyY2gvaTM4Ni9rZXJuZWwvdm1saW51eC5s
-ZHMuUwkyMDA1LTEwLTI4IDAyOjAyOjA4LjAwMDAwMDAwMCArMDIwMAorKysgMi42LjE0LWkzODYt
-VEhSRUFEX09SREVSL2FyY2gvaTM4Ni9rZXJuZWwvdm1saW51eC5sZHMuUwkyMDA1LTExLTA4IDE0
-OjQ1OjUzLjAwMDAwMDAwMCArMDEwMApAQCAtNCw4ICs0LDkgQEAKIAogI2RlZmluZSBMT0FEX09G
-RlNFVCBfX1BBR0VfT0ZGU0VUCiAKKyNpbmNsdWRlIDxsaW51eC9jb25maWcuaD4KICNpbmNsdWRl
-IDxhc20tZ2VuZXJpYy92bWxpbnV4Lmxkcy5oPgotI2luY2x1ZGUgPGFzbS90aHJlYWRfaW5mby5o
-PgorI2luY2x1ZGUgPGFzbS9hc20tb2Zmc2V0cy5oPgogI2luY2x1ZGUgPGFzbS9wYWdlLmg+CiAK
-IE9VVFBVVF9GT1JNQVQoImVsZjMyLWkzODYiLCAiZWxmMzItaTM4NiIsICJlbGYzMi1pMzg2IikK
-QEAgLTYzLDcgKzY0LDcgQEAgU0VDVElPTlMKICAgLmRhdGEucmVhZF9tb3N0bHkgOiBBVChBRERS
-KC5kYXRhLnJlYWRfbW9zdGx5KSAtIExPQURfT0ZGU0VUKSB7ICooLmRhdGEucmVhZF9tb3N0bHkp
-IH0KICAgX2VkYXRhID0gLjsJCQkvKiBFbmQgb2YgZGF0YSBzZWN0aW9uICovCiAKLSAgLiA9IEFM
-SUdOKFRIUkVBRF9TSVpFKTsJLyogaW5pdF90YXNrICovCisgIC4gPSBBTElHTihUSFJFQURfU0la
-RV9hc20pOwkvKiBpbml0X3Rhc2sgKi8KICAgLmRhdGEuaW5pdF90YXNrIDogQVQoQUREUiguZGF0
-YS5pbml0X3Rhc2spIC0gTE9BRF9PRkZTRVQpIHsKIAkqKC5kYXRhLmluaXRfdGFzaykKICAgfQot
-LS0gMi42LjE0L2luY2x1ZGUvYXNtLWkzODYvdGhyZWFkX2luZm8uaAkyMDA1LTEwLTI4IDAyOjAy
-OjA4LjAwMDAwMDAwMCArMDIwMAorKysgMi42LjE0LWkzODYtVEhSRUFEX09SREVSL2luY2x1ZGUv
-YXNtLWkzODYvdGhyZWFkX2luZm8uaAkyMDA1LTExLTA0IDE2OjE5OjM0LjAwMDAwMDAwMCArMDEw
-MApAQCAtNTQsMTAgKzU0LDExIEBAIHN0cnVjdCB0aHJlYWRfaW5mbyB7CiAKICNkZWZpbmUgUFJF
-RU1QVF9BQ1RJVkUJCTB4MTAwMDAwMDAKICNpZmRlZiBDT05GSUdfNEtTVEFDS1MKLSNkZWZpbmUg
-VEhSRUFEX1NJWkUgICAgICAgICAgICAoNDA5NikKKyNkZWZpbmUgVEhSRUFEX09SREVSIDAKICNl
-bHNlCi0jZGVmaW5lIFRIUkVBRF9TSVpFCQkoODE5MikKKyNkZWZpbmUgVEhSRUFEX09SREVSIDEK
-ICNlbmRpZgorI2RlZmluZSBUSFJFQURfU0laRSAoUEFHRV9TSVpFIDw8IFRIUkVBRF9PUkRFUikK
-IAogI2RlZmluZSBTVEFDS19XQVJOICAgICAgICAgICAgIChUSFJFQURfU0laRS84KQogLyoKQEAg
-LTExOCwxMiArMTE5LDEyIEBAIHJlZ2lzdGVyIHVuc2lnbmVkIGxvbmcgY3VycmVudF9zdGFja19w
-b2kKIAogLyogaG93IHRvIGdldCB0aGUgdGhyZWFkIGluZm9ybWF0aW9uIHN0cnVjdCBmcm9tIEFT
-TSAqLwogI2RlZmluZSBHRVRfVEhSRUFEX0lORk8ocmVnKSBcCi0JbW92bCAkLVRIUkVBRF9TSVpF
-LCByZWc7IFwKKwltb3ZsICQtVEhSRUFEX1NJWkVfYXNtLCByZWc7IFwKIAlhbmRsICVlc3AsIHJl
-ZwogCiAvKiB1c2UgdGhpcyBvbmUgaWYgcmVnIGFscmVhZHkgY29udGFpbnMgJWVzcCAqLwogI2Rl
-ZmluZSBHRVRfVEhSRUFEX0lORk9fV0lUSF9FU1AocmVnKSBcCi0JYW5kbCAkLVRIUkVBRF9TSVpF
-LCByZWcKKwlhbmRsICQtVEhSRUFEX1NJWkVfYXNtLCByZWcKIAogI2VuZGlmCiAK
-
---=__PartAF8D9040.0__=--
+you might want to increase the free memory target as well.

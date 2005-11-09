@@ -1,69 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbVKIPsg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbVKIPs3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750780AbVKIPsg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 10:48:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbVKIPsg
+	id S1750721AbVKIPs3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 10:48:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbVKIPs2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 10:48:36 -0500
-Received: from nproxy.gmail.com ([64.233.182.193]:17717 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751356AbVKIPsf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 10:48:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=lORfb7vXfdxgBibzc9tp93DY9cgE2CFsQDsWGY2PLeky8I0AY3aMvmhxC1aRU57RzhE93QdQgUHnCGI2/3ipCVY+3GG9kZvAMww/GNwp/dBbWp1mWoYk4fpjRafKMZTOoeSzZWMeGAfh6xVJl7y1phdrxH2gfur/mKgBqoqPFV8=
-Message-ID: <43721A4E.5020707@gmail.com>
-Date: Wed, 09 Nov 2005 16:48:30 +0100
-From: Patrizio Bassi <patrizio.bassi@gmail.com>
-Reply-To: patrizio.bassi@gmail.com
-Organization: patrizio.bassi@gmail.com
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051027)
-X-Accept-Language: it, it-it, en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Shaohua Li <shaohua.li@intel.com>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.14-git4 suspend fails: kernel NULL pointer dereference
-References: <20051006072749.GA2393@spitz.ucw.cz> <20051107164715.GA1534@elf.ucw.cz> <1131411772.3003.1.camel@linux-hp.sh.intel.com> <20051108091254.GE15730@elf.ucw.cz> <4370C21C.6040402@gmail.com> <20051108214840.GA32016@elf.ucw.cz>
-In-Reply-To: <20051108214840.GA32016@elf.ucw.cz>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Nov 2005 10:48:28 -0500
+Received: from mxfep01.bredband.com ([195.54.107.70]:34194 "EHLO
+	mxfep01.bredband.com") by vger.kernel.org with ESMTP
+	id S1750721AbVKIPs2 (ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 10:48:28 -0500
+Subject: Re: New Linux Development Model
+From: Ian Kumlien <pomac@vapor.com>
+Reply-To: pomac@vapor.com
+To: "Wed, 9 Nov 2005 13:03:07 +0100" <grundig@teleline.es>
+Cc: marado@isp.novis.pt, Linux-kernel@vger.kernel.org, fawadlateef@gmail.com,
+       s0348365@sms.ed.ac.uk, hostmaster@ed-soft.at, jerome.lacoste@gmail.com,
+       carlsj@yahoo.com
+In-Reply-To: <20051109130307.bd1b2cce.grundig@teleline.es>
+References: <1131500868.2413.63.camel@localhost>
+	 <1131534496.8930.15.camel@noori.ip.pt> <1131535832.2413.75.camel@localhost>
+	 <20051109130307.bd1b2cce.grundig@teleline.es>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5VfcSKuV94irBd7cCNdk"
+Date: Wed, 09 Nov 2005 16:49:17 +0100
+Message-Id: <1131551357.2413.80.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek ha scritto:
 
->Hi!
->
->  
->
->>>>It's my bad. Thanks for fixing this, Pavel. Maybe patrizio didn't enable
->>>>ACPI sleep.
->>>>   
->>>>
->>>>        
->>>>
->>>Will you take care of pushing that patch to mainline?
->>>      
->>>
->
->  
->
->>i'm so sorry, had a hd problem, i've only got the compiled vmlinux
->>
->>:(((
->>    
->>
->
->That's okay, I was talking to Shaohua. It has already been taken
->care of.
->								Pavel
->  
->
-ok,
+--=-5VfcSKuV94irBd7cCNdk
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-please notice me when it gets merged in a git release, so i can test.
+On Wed, 2005-11-09 at 13:03 +0100, Wed, 9 Nov 2005 13:03:07 +0100 wrote:
+> El Wed, 09 Nov 2005 12:30:32 +0100,
+> Ian Kumlien <pomac@vapor.com> escribi=F3:
+>=20
+> > The 'stable' version that got merged is more or less useless to people
+> > who are smart about their wlans. And on a side note, even the firmware
+> > has improved since then.
+>=20
+> People who is smart about their wlans is smart enought to update their
+> kernels to use the new and possibily more unstable version. What's the
+> problem? People maintaining the main tree may have a different (and
+> valid) view on this issue.=20
 
-Patrizio
+Since it out of tree, it's not a issue of 'updating' a kernel, it's more
+of a issue of making it compile with a kernel.
+(which if you read the original post was one of the problems mentioned.)
+
+And, yes, they might have a valid view, but the kernel also has
+"experimental" features, why not merge a driver that can be used, mark
+it as experimental until it's merged with a stable rel. The issue of
+getting the first rel in to the kernel is that all of the sudden more
+developers starts hacking away on it and the original developers have to
+keep it all in sync (as i mentioned before).
+
+> People is allowed to have different opinions than you, deal with it.
+
+And that applies to me to, now deal with it.
+
+--=20
+Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
+
+--=-5VfcSKuV94irBd7cCNdk
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1-ecc0.1.6 (GNU/Linux)
+
+iD8DBQBDchp97F3Euyc51N8RAviZAJkB2tSH5bylo3tmwAvOD1s78wTi6QCgiEWm
+bWZIZ0msEuaeMCXll/7ZqPY=
+=fpJ6
+-----END PGP SIGNATURE-----
+
+--=-5VfcSKuV94irBd7cCNdk--
+

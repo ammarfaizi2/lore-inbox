@@ -1,74 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161219AbVKIUPU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbVKIURI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161219AbVKIUPU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 15:15:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161221AbVKIUPU
+	id S1750716AbVKIURI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 15:17:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751529AbVKIURH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 15:15:20 -0500
-Received: from gambit.vianw.pt ([195.22.31.34]:26778 "EHLO gambit.vianw.pt")
-	by vger.kernel.org with ESMTP id S1161219AbVKIUPS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 15:15:18 -0500
-Message-ID: <437258CD.8060206@esoterica.pt>
-Date: Wed, 09 Nov 2005 20:15:09 +0000
-From: Paulo da Silva <psdasilva@esoterica.pt>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
+	Wed, 9 Nov 2005 15:17:07 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:29444 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750716AbVKIURG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 15:17:06 -0500
+Date: Wed, 9 Nov 2005 21:17:04 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Dominik Brodowski <linux@brodo.de>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] remove drivers/pcmcia/pcmcia_ioctl.c
+Message-ID: <20051109201704.GC4047@stusta.de>
+References: <20051107200351.GL3847@stusta.de> <20051107213722.GA11233@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Accessing file mapped data inside the kernel
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051107213722.GA11233@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Mon, Nov 07, 2005 at 09:37:22PM +0000, Russell King wrote:
+> On Mon, Nov 07, 2005 at 09:03:51PM +0100, Adrian Bunk wrote:
+> > This patch contains the scheduled removal of 
+> > drivers/pcmcia/pcmcia_ioctl.c plus the fallout of additional cleanups 
+> > after this removal.
+> 
+> Please don't prempt maitainers removing code which they've listed in
+> feature-removal.txt.  By doing so, you may discourage maintainers from
+> listing stuff in there.
+> 
+> Instead, it may be worth sending a short reminder instead?
 
-I posted about this a few days ago but got no responses
-so far! I think this should be a trivial question for those
-involved in the kernel internals. May be I didn't develop
-the problem enough to be understood.
+I sent reminders to all three peoples with scheduled removals for this 
+month last week. Dominik was the only one who didn't answer.
 
-So, here is the question reformulated.
+Sending a patch, no matter how good or bad it is, is often a good way 
+for getting an answer from a maintainer.  ;-)
 
-A given file system must supply a procedure for mmap.
+> Russell King
 
-int <fsname>_file_mmap(struct file * file, struct vm_area_struct * vma)
-{
-   int addr;
-   addr=generic_file_mmap(file,vma);
-   <Code to access addr pointed bytes or vma->vm_start>
-   return addr;
-}
+cu
+Adrian
 
-I could verify that "addr" is what is returned to the user as
-a pointer to a string of bytes that maps a file when a user
-program calls mmap or mmap2.
+-- 
 
-In the user program, I can access those bytes (read/write)
-as, for ex., a char pointer.
-
-I don't know how to access those bytes inside the kernel
-at the point <Code to access addr pointed bytes or vma->vm_start>
-
-First trys led the program that invoked mmap to block.
-I thought that there's something to do with a previous
-    down_write(&current->mm->mmap_sem);
-If I execute
-    up_write(&current->mm->mmap_sem);
-before accessing the data the block situation does not
-occur anymore. I would like to hear something about
-this.
-
-Anyway, I tryed to use "copy_from_user" but I got
-garbage, not the file contents! Using "strncpy" crashes
-the kernel (UML)!
-
-Can someone please write a fragment of code to safely
-access those bytes, copying them to and from a
-kernel char pointed area so that they are read/written
-to the file?
-
-Thank you very much.
-Paulo
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

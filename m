@@ -1,45 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751405AbVKIV3E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751444AbVKIV3I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751405AbVKIV3E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 16:29:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbVKIV3E
+	id S1751444AbVKIV3I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 16:29:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751452AbVKIV3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 16:29:04 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:4496 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751405AbVKIV3D (ORCPT
+	Wed, 9 Nov 2005 16:29:08 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:20142 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1751444AbVKIV3H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 16:29:03 -0500
-Message-ID: <437269BA.7030105@redhat.com>
-Date: Wed, 09 Nov 2005 13:27:22 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mail/News 1.5 (X11/20051105)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: torvalds@osdl.org
-Subject: Re: openat()
-References: <43724AB3.40309@redhat.com> <E1EZx6Q-0002zw-00@dorka.pomaz.szeredi.hu>
-In-Reply-To: <E1EZx6Q-0002zw-00@dorka.pomaz.szeredi.hu>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 9 Nov 2005 16:29:07 -0500
+Date: Wed, 9 Nov 2005 16:26:52 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Zach Brown <zach.brown@oracle.com>
+Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 1/3] aio: remove kioctx from mm_struct
+Message-ID: <20051109212652.GK14452@kvack.org>
+References: <20051109211758.25027.78199.sendpatchset@volauvent.pdx.zabbo.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051109211758.25027.78199.sendpatchset@volauvent.pdx.zabbo.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi wrote:
-> What's wrong with using '/proc/self/fd/N' to implement it?
+On Wed, Nov 09, 2005 at 01:15:06PM -0800, Zach Brown wrote:
+> 
+> aio: remove kioctx from mm_struct
 
-I thought the intention was to have file descriptors referring to files, 
-not directories, to represent the directories they are in.  In those 
-cases simply using /proc/PID/fd/N/some/more/dirs wouldn't work and 
-neither does /proc/PID/fd/N/../some/more/dirs.
-
-Looking at the Sol man page again it seems they don't allow this case 
-but this has to be guessed from the error codes, not the description. 
-In this case the /rpco approach should be OK.
-
-But there are always people questioning the use of /proc.  We already 
-have quite a few such cases and adding more is no issue for me, but not 
-relying on /proc would appease some people.
-
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+ACK.

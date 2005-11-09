@@ -1,82 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbVKIODP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbVKIODX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750775AbVKIODP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 09:03:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbVKIODP
+	id S1750735AbVKIODX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 09:03:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbVKIODW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 09:03:15 -0500
-Received: from smtp.rdslink.ro ([193.231.236.97]:33258 "EHLO smtp.rdslink.ro")
-	by vger.kernel.org with ESMTP id S1750735AbVKIODO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 09:03:14 -0500
-X-Mail-Scanner: Scanned by qSheff 1.0 (http://www.enderunix.org/qsheff/)
-Date: Wed, 9 Nov 2005 16:03:06 +0200 (EET)
-From: caszonyi@rdslink.ro
-X-X-Sender: sony@grinch.ro
-Reply-To: Calin Szonyi <caszonyi@rdslink.ro>
-To: jerome lacoste <jerome.lacoste@gmail.com>
-cc: Edgar Hucek <hostmaster@ed-soft.at>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: New Linux Development Model
-In-Reply-To: <5a2cf1f60511090430y63db5473we40f077070ecb43a@mail.gmail.com>
-Message-ID: <Pine.LNX.4.62.0511091547080.15950@grinch.ro>
-References: <436C7E77.3080601@ed-soft.at>  <20051105122958.7a2cd8c6.khali@linux-fr.org>
-  <436CB162.5070100@ed-soft.at>  <5a2cf1f60511060252t55e1a058o528700ea69826965@mail.gmail.com>
-  <436DEEFC.4020301@ed-soft.at>  <5a2cf1f60511060543m5edc8ba8i920a3005b95a556d@mail.gmail.com>
-  <Pine.LNX.4.62.0511090202030.2383@grinch.ro>
- <5a2cf1f60511090430y63db5473we40f077070ecb43a@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 9 Nov 2005 09:03:22 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:16175
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1750735AbVKIODW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 09:03:22 -0500
+Message-Id: <43720FF6.76F0.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Wed, 09 Nov 2005 15:04:22 +0100
+From: "Jan Beulich" <JBeulich@novell.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH 9/39] NLKD - hotkey notification
+References: <43720DAE.76F0.0078.0@novell.com> <43720E2E.76F0.0078.0@novell.com> <43720E72.76F0.0078.0@novell.com> <43720EAF.76F0.0078.0@novell.com> <43720F5E.76F0.0078.0@novell.com> <43720F95.76F0.0078.0@novell.com> <43720FBA.76F0.0078.0@novell.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="=__PartAE8C92F6.0__="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Nov 2005, jerome lacoste wrote:
+This is a MIME message. If you are reading this text, you may want to 
+consider changing to a mail reader or gateway that understands how to 
+properly handle MIME multipart messages.
 
-> On 11/9/05, caszonyi@rdslink.ro <caszonyi@rdslink.ro> wrote:
-> [...]
->>
->> There are other reasons for using a new kernel. One of them is
->> interactivity. In the days of 2.4 one could achieve decent interactivity
->> for the desktop using preempt and low latency patches. For 2.6
->> interactivity was a real issue (possibly because of the new development
->> model).
->
-> I don't get it. You say that with 2.4 + patches you had good
-> interactivity and with 2.6 you don't? Why did you switch then?
->
+--=__PartAE8C92F6.0__=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Because i like to test new kernels. On 2.4 I run the vanila kernel and a 
-test kernel. When something went wrong on a test kernel was always a 
-stable kernel to use.
-2.6 looks a lot like 2.5. New features are added very quickly without much 
-testing. Of course there is Andrew's -mm tree but this one sometimes 
-is too broken.
-For me linux looks now like it has one unstable tree (2.6) which is 
-something like -ac was in days of 2.4 and  -mm was in the days of 2.4 
--2.5 and -mm which looks like it became very unstable.
-This is what i saw ok lkml (maybe my view is distorted).
-I'll stop ranting and try both of them because i have some bugs to report.
+A mechanism to allow debuggers to trigger on a certain hotkey
+(combination). Derived (generalized) from similar KDB work.
 
->>>> And why should dirstribution makers always backport new security fixes ?
->>>
->>> Because they want to ensure maximum stability. That's what users are
->>> (sometimes) paying for.
->>>
->>
->> Maximum stability of what ? If the distribution kernels are based on
->> vanila kernel (i.e. are based on unstable kernel) how stable will they be
->> ?
->
-> Maximum stability of the kernel they deliver. When you fix a
-> vulnerability, you fix a vulnerability. You don't just happen to add a
-> new bunch of features, and a new bunch of bugs. Otherwise you are
-> going to piss off your users a lot.
->
+Signed-Off-By: Jan Beulich <jbeulich@novell.com>
 
-That's what's happening on 2.6. Every 2.6.x release is different.
-The 2.6.x.y kernels sometimes are almost no different from 2.6.x
+(actual patch attached)
 
 
---
+--=__PartAE8C92F6.0__=
+Content-Type: application/octet-stream; name="linux-2.6.14-nlkd-notify-keyboard.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="linux-2.6.14-nlkd-notify-keyboard.patch"
 
+QSBtZWNoYW5pc20gdG8gYWxsb3cgZGVidWdnZXJzIHRvIHRyaWdnZXIgb24gYSBjZXJ0YWluIGhv
+dGtleQooY29tYmluYXRpb24pLiBEZXJpdmVkIChnZW5lcmFsaXplZCkgZnJvbSBzaW1pbGFyIEtE
+QiB3b3JrLgoKU2lnbmVkLU9mZi1CeTogSmFuIEJldWxpY2ggPGpiZXVsaWNoQG5vdmVsbC5jb20+
+CgpJbmRleDogMi42LjE0LW5sa2QvZHJpdmVycy9jaGFyL2tleWJvYXJkLmMKPT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQot
+LS0gMi42LjE0LW5sa2Qub3JpZy9kcml2ZXJzL2NoYXIva2V5Ym9hcmQuYwkyMDA1LTExLTA5IDEw
+OjQwOjE3LjAwMDAwMDAwMCArMDEwMAorKysgMi42LjE0LW5sa2QvZHJpdmVycy9jaGFyL2tleWJv
+YXJkLmMJMjAwNS0xMS0wNyAwOTozOTowNS4wMDAwMDAwMDAgKzAxMDAKQEAgLTM5LDYgKzM5LDcg
+QEAKICNpbmNsdWRlIDxsaW51eC92dF9rZXJuLmg+CiAjaW5jbHVkZSA8bGludXgvc3lzcnEuaD4K
+ICNpbmNsdWRlIDxsaW51eC9pbnB1dC5oPgorI2luY2x1ZGUgPGxpbnV4L2tkZWJ1Zy5oPgogCiBz
+dGF0aWMgdm9pZCBrYmRfZGlzY29ubmVjdChzdHJ1Y3QgaW5wdXRfaGFuZGxlICpoYW5kbGUpOwog
+ZXh0ZXJuIHZvaWQgY3RybF9hbHRfZGVsKHZvaWQpOwpAQCAtMTUzLDYgKzE1NCw5IEBAIHN0YXRp
+YyBpbnQgc3lzcnFfZG93bjsKICNlbmRpZgogc3RhdGljIGludCBzeXNycV9hbHQ7CiAKK3N0cnVj
+dCBub3RpZmllcl9ibG9jayAqa2RlYnVnX2NoYWluID0gTlVMTDsKK0VYUE9SVF9TWU1CT0woa2Rl
+YnVnX2NoYWluKTsKKwogLyoKICAqIFRyYW5zbGF0aW9uIG9mIHNjYW5jb2RlcyB0byBrZXljb2Rl
+cy4gV2Ugc2V0IHRoZW0gb24gb25seSB0aGUgZmlyc3QgYXR0YWNoZWQKICAqIGtleWJvYXJkIC0g
+Zm9yIHBlci1rZXlib2FyZCBzZXR0aW5nLCAvZGV2L2lucHV0L2V2ZW50IGlzIG1vcmUgdXNlZnVs
+LgpAQCAtMTA1Miw2ICsxMDU2LDExIEBAIHN0YXRpYyB2b2lkIGtiZF9rZXljb2RlKHVuc2lnbmVk
+IGludCBrZXkKIAogCXJlcCA9IChkb3duID09IDIpOwogCisJaWYgKG5vdGlmeV9rZGVidWcoS0RF
+QlVHX0tFWUJPQVJELAorCSAgICAgICAgICAgICAgICAgIGtleWNvZGUgfCAoKGxvbmcpIWRvd24g
+PDwgKEJJVFNfUEVSX0xPTkcgLSAxKSksCisJICAgICAgICAgICAgICAgICAgcmVncykgPT0gTk9U
+SUZZX1NUT1ApCisJCXJldHVybjsKKwogI2lmZGVmIENPTkZJR19NQUNfRU1VTU9VU0VCVE4KIAlp
+ZiAobWFjX2hpZF9tb3VzZV9lbXVsYXRlX2J1dHRvbnMoMSwga2V5Y29kZSwgZG93bikpCiAJCXJl
+dHVybjsKSW5kZXg6IDIuNi4xNC1ubGtkL2luY2x1ZGUvbGludXgva2RlYnVnLmgKPT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PQotLS0gL2Rldi9udWxsCTE5NzAtMDEtMDEgMDA6MDA6MDAuMDAwMDAwMDAwICswMDAwCisrKyAy
+LjYuMTQtbmxrZC9pbmNsdWRlL2xpbnV4L2tkZWJ1Zy5oCTIwMDUtMTEtMDkgMTA6MjU6MTYuMDAw
+MDAwMDAwICswMTAwCkBAIC0wLDAgKzEsMjcgQEAKKyNpZm5kZWYgX0tERUJVR19ICisjZGVmaW5l
+IF9LREVCVUdfSAorCisvKgorICogVGhpcyBub3RpZmllciBpcyB0byByZXBsYWNlIGhhcmRjb2Rl
+ZCBlbnRyaWVzIGluIGUuZy4gdGhlIGtleWJvYXJkCisgKiBkcml2ZXIgdXNlZCBieSBrZXJuZWwg
+ZGVidWdnZXJzLgorICovCisjaW5jbHVkZSA8bGludXgvbm90aWZpZXIuaD4KKworc3RydWN0IHB0
+X3JlZ3M7CisKK3N0cnVjdCBrZGVidWdfYXJncyB7CisJc3RydWN0IHB0X3JlZ3MgKnJlZ3M7CisJ
+bG9uZyBkYXRhOworfTsKKworZXh0ZXJuIHN0cnVjdCBub3RpZmllcl9ibG9jayAqa2RlYnVnX2No
+YWluOworCisjZGVmaW5lIEtERUJVR19LRVlCT0FSRCAxCisKK3N0YXRpYyBpbmxpbmUgaW50IG5v
+dGlmeV9rZGVidWcodW5zaWduZWQgbG9uZyBldmVudCwgbG9uZyBkYXRhLCBzdHJ1Y3QgcHRfcmVn
+cyAqcmVncykKK3sKKwlzdHJ1Y3Qga2RlYnVnX2FyZ3MgYXJncyA9IHsgLnJlZ3M9cmVncywgLmRh
+dGEgPSBkYXRhIH07CisJcmV0dXJuIG5vdGlmaWVyX2NhbGxfY2hhaW4oJmtkZWJ1Z19jaGFpbiwg
+ZXZlbnQsICZhcmdzKTsKK30KKworI2VuZGlmCg==
 
+--=__PartAE8C92F6.0__=--

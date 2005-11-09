@@ -1,57 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161254AbVKIWC2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161260AbVKIWCS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161254AbVKIWC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 17:02:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161265AbVKIWC2
+	id S1161260AbVKIWCS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 17:02:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161254AbVKIWCS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 17:02:28 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:25298 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161254AbVKIWC1 (ORCPT
+	Wed, 9 Nov 2005 17:02:18 -0500
+Received: from ns.firmix.at ([62.141.48.66]:2755 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S1161265AbVKIWCR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 17:02:27 -0500
-Date: Wed, 9 Nov 2005 14:01:54 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Brown, Len" <len.brown@intel.com>, Jeff Garzik <jgarzik@pobox.com>,
-       "Luck, Tony" <tony.luck@intel.com>, Ben Collins <bcollins@debian.org>,
-       Jody McIntyre <scjody@modernduck.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Roland Dreier <rolandd@cisco.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Jens Axboe <axboe@suse.de>, Dave Kleikamp <shaggy@austin.ibm.com>,
-       Steven French <sfrench@us.ibm.com>
-Subject: Re: merge status
-In-Reply-To: <1131573041.8541.4.camel@mulgrave>
-Message-ID: <Pine.LNX.4.64.0511091358560.4627@g5.osdl.org>
-References: <20051109133558.513facef.akpm@osdl.org> <1131573041.8541.4.camel@mulgrave>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 9 Nov 2005 17:02:17 -0500
+Subject: Re: typedefs and structs
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Andreas Schwab <schwab@suse.de>
+Cc: thockin@hockin.org, linas <linas@austin.ibm.com>,
+       Vadim Lobanov <vlobanov@speakeasy.net>,
+       "J.A. Magallon" <jamagallon@able.es>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       Douglas McNaught <doug@mcnaught.org>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
+       bluesmoke-devel@lists.sourceforge.net, linuxppc64-dev@ozlabs.org
+In-Reply-To: <jelkzxqyie.fsf@sykes.suse.de>
+References: <B68D1F72-F433-4E94-B755-98808482809D@mac.com>
+	 <20051109003048.GK19593@austin.ibm.com>
+	 <m27jbihd1b.fsf@Douglas-McNaughts-Powerbook.local>
+	 <20051109004808.GM19593@austin.ibm.com>
+	 <19255C96-8B64-4615-A3A7-9E5A850DE398@mac.com>
+	 <20051109111640.757f399a@werewolf.auna.net>
+	 <Pine.LNX.4.58.0511090816300.4260@shell2.speakeasy.net>
+	 <20051109192028.GP19593@austin.ibm.com> <20051109193625.GA31889@hockin.org>
+	 <20051109193828.GR19593@austin.ibm.com> <20051109203954.GA3539@hockin.org>
+	 <jelkzxqyie.fsf@sykes.suse.de>
+Content-Type: text/plain
+Organization: http://www.firmix.at/
+Date: Wed, 09 Nov 2005 23:00:50 +0100
+Message-Id: <1131573650.3258.2.camel@gimli.at.home>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 9 Nov 2005, James Bottomley wrote:
->
-> On Wed, 2005-11-09 at 13:35 -0800, Andrew Morton wrote:
-> > -rw-r--r--    1 akpm     akpm       339882 Nov  9 11:19 git-scsi-misc.patch
+On Wed, 2005-11-09 at 22:53 +0100, Andreas Schwab wrote:
+> thockin@hockin.org writes:
 > 
-> This one is all 2.6.15 material.  I think I now (as of one minute ago)
-> have it updated to the last of the 2.6.15 (barring bug fix) patches.
-> I'd like to regression test it for a day or two, so I plan to request
-> the final merger on Friday.
+> > Sigh, That's funny - I've written C++ code which has references as members
+> > of objects.  You absolutely *can* store a reference.
+> 
+> You can _initialize_, but not _modify_ (reseat) it.
+                                          reset?
+As in:
+----  snip  ----
+struct x {
+	struct y * const p;
+};
+----  snip  ----
 
-I'm hoping there aren't any infrastructure upheavals that break drivers 
-again, because if there are, I think we're going to have to make a 
-separate rule for things like that: they have to be merged early in the 
-sequence or not at all.
+We assume that no one casts the "const" away.
 
-And in _general_ I find it very wrong to consciously leave the merge until 
-the last day of the merge window.
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 
-If that keeps happening, I think I'll just make sure that I don't always 
-merge on the last day or two. Just to make sure that submaintainers don't 
-"game" the system the wrong way. Maybe my "two weeks" are sometimes just 
-ten days long, who knows..
 
-			Linus
+

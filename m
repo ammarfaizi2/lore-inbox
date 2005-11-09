@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbVKIRIb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751414AbVKIRIQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751416AbVKIRIb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 12:08:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751453AbVKIRIb
+	id S1751414AbVKIRIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 12:08:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbVKIRIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 12:08:31 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:51535
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1751417AbVKIRI3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 12:08:29 -0500
-Message-Id: <43723B57.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Wed, 09 Nov 2005 18:09:27 +0100
-From: "Jan Beulich" <JBeulich@novell.com>
-To: "Greg KH" <greg@kroah.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 3/39] NLKD - early/late CPU up/down notification
-References: <43720DAE.76F0.0078.0@novell.com>  <43720E2E.76F0.0078.0@novell.com>  <43720E72.76F0.0078.0@novell.com>  <43720EAF.76F0.0078.0@novell.com> <20051109164544.GB32068@kroah.com>
-In-Reply-To: <20051109164544.GB32068@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Wed, 9 Nov 2005 12:08:16 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:2952 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751414AbVKIRIP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 12:08:15 -0500
+Date: Wed, 9 Nov 2005 09:07:36 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Nikita Danilov <nikita@clusterfs.com>
+cc: Mike Kravetz <kravetz@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
+       torvalds@osdl.org, Hirokazu Takahashi <taka@valinux.co.jp>,
+       Magnus Damm <magnus.damm@gmail.com>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       Paul Jackson <pj@sgi.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>, Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH 6/8] Direct Migration V2: Avoid writeback / page_migrate()
+ method
+In-Reply-To: <17265.55057.438316.467289@gargle.gargle.HOWL>
+Message-ID: <Pine.LNX.4.62.0511090907260.3607@schroedinger.engr.sgi.com>
+References: <20051108210246.31330.61756.sendpatchset@schroedinger.engr.sgi.com>
+ <20051108210417.31330.72381.sendpatchset@schroedinger.engr.sgi.com>
+ <17265.55057.438316.467289@gargle.gargle.HOWL>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Greg KH <greg@kroah.com> 09.11.05 17:45:44 >>>
->On Wed, Nov 09, 2005 at 02:58:55PM +0100, Jan Beulich wrote:
->> A mechanism to allow debuggers to learn about starting/dying CPUs
-as
->> early/late as possible. Arch-dependent changes for i386 and x86_64
->> will follow.
->> 
->> Signed-Off-By: Jan Beulich <jbeulich@novell.com>
->> 
->> (actual patch attached)
->
->Ick, but it's in base64 mode, so I can't quote it to say that your
+On Wed, 9 Nov 2005, Nikita Danilov wrote:
 
-That I already was made aware of. Sorry, this worked a few months ago,
-but they managed to break this again.
+>  > +#ifdef CONFIG_MIGRATION
+>  > +extern int buffer_migrate_page(struct page *, struct page *);
+>  > +#else
+>  > +#define buffer_migrate_page(a,b) NULL
+>  > +#endif
+> 
+> Depending on the CONFIG_MIGRATION, the type of buffer_migrate_page(a,b)
+> expansion is either int or void *, which doesn't look right.
 
->#ifdef in the .h file is not needed.  Please fix your email client to
->send patches properly.
+But its right. You need to think about buffer_migrate_page as a pointer to 
+a function.
 
-It's not needed, sure, but by having it there I just wanted to make
-clear that this is something that never can be called from a module
-(after all, why should one find out at modpost time (and maybe even miss
-the message since there are so many past eventual symbol resolution
-warnings) when one can already at compile time.
+> Moreover below you have initializations
+> 
+>         .migrate_page		= buffer_migrate_page,
+> 
+> that wouldn't compile when CONFIG_MIGRATION is not defined (as macro
+> requires two arguments).
 
-Jan
+NULL is a void * pointer which should work.
+

@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751401AbVKIOgJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751368AbVKIOf7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751401AbVKIOgJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 09:36:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbVKIOgJ
+	id S1751368AbVKIOf7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 09:35:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbVKIOf7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 09:36:09 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:8757
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1751404AbVKIOgH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 09:36:07 -0500
-Message-Id: <4372179E.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Wed, 09 Nov 2005 15:37:02 +0100
-From: "Jan Beulich" <JBeulich@novell.com>
-To: "Al Viro" <viro@ftp.linux.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 15/39] NLKD - early pseudo-fs
-References: <43720E72.76F0.0078.0@novell.com>  <43720EAF.76F0.0078.0@novell.com>  <43720F5E.76F0.0078.0@novell.com>  <43720F95.76F0.0078.0@novell.com>  <43720FBA.76F0.0078.0@novell.com>  <43720FF6.76F0.0078.0@novell.com>  <43721024.76F0.0078.0@novell.com>  <4372105B.76F0.0078.0@novell.com>  <43721119.76F0.0078.0@novell.com>  <43721142.76F0.0078.0@novell.com> <20051109142926.GU7992@ftp.linux.org.uk>
-In-Reply-To: <20051109142926.GU7992@ftp.linux.org.uk>
+	Wed, 9 Nov 2005 09:35:59 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:8664 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751368AbVKIOf6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 09:35:58 -0500
+Date: Wed, 9 Nov 2005 15:35:38 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, dipankar@hill9.org,
+       wli@holomorphy.com
+Subject: Re: [PATCH] tasklist-RCU fix in attach_pid()
+Message-ID: <20051109143538.GA12399@elte.hu>
+References: <20051109032233.GA3060@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20051109032233.GA3060@us.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Al Viro <viro@ftp.linux.org.uk> 09.11.05 15:29:26 >>>
->On Wed, Nov 09, 2005 at 03:09:54PM +0100, Jan Beulich wrote:
->> While for limited amounts of configuration information the kernel
->> command line may be suitable, it isn't when it comes to significant
->> amounts of configurable entities that need to be set before the
-full
->> kernel infrastructure is available. This patch adds functionality
-to
->> pass one or more configuration files through the initrd, but
-without
->> requiring knowledge of the actual structure (including compression)
-of
->> it; the file(s) is/are attached to the end of the already built
->> initrd (which obviously depends on external scripts not provided
->> here).
->
->What the hell for?  We _already_ have a way to get any set of files
-in
->a filesystem as soon as we have VFS caches set up (and until then you
->can't open anything anyway).
 
-That's the whole point - a debugger wants this *before* VFS is set up
-(and thus obviously without going through VFS in the first place). One
-may argue that the naming is odd, but that's nothing I really care
-about.
+* Paul E. McKenney <paulmck@us.ibm.com> wrote:
 
->NAK.
+> Hello!
+> 
+> Bug in attach_pid() can result in RCU readers in find_pid() getting
+> confused if they race with process creation.
+> 
+> Signed-off-by: <paulmck@us.ibm.com>
 
-Then suggest an alternative solution.
+yeah ...
 
-Jan
+Acked-by: Ingo Molnar <mingo@elte.hu>
+
+	Ingo

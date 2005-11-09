@@ -1,131 +1,275 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030783AbVKIVu4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030499AbVKIVun@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030783AbVKIVu4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 16:50:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030784AbVKIVuz
+	id S1030499AbVKIVun (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 16:50:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030781AbVKIVum
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 16:50:55 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:26258 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030783AbVKIVux
+	Wed, 9 Nov 2005 16:50:42 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:56805 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030499AbVKIVum
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 16:50:53 -0500
+	Wed, 9 Nov 2005 16:50:42 -0500
 From: Tom Zanussi <zanussi@us.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17266.28445.60709.667841@tut.ibm.com>
-Date: Wed, 9 Nov 2005 15:50:21 -0600
+Message-ID: <17266.28430.472991.124439@tut.ibm.com>
+Date: Wed, 9 Nov 2005 15:50:06 -0600
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, karim@opersys.com
-Subject: [PATCH 2/4] relayfs: Documentation for non-relay file support
+Subject: [PATCH 1/4] relayfs: add support for non-relay files
 X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Documentation update for non-relay file support.
+Hi,
+
+Currently, the relayfs API only supports the creation of directories
+(relayfs_create_dir()) and relay files (relay_open()).  This patch
+adds support for non-relay files (relayfs_create_file()).
+    
+This is so relayfs applications can create 'control files' in relayfs
+itself rather than in /proc or via a netlink channel, as is currently
+done in the relay-app examples.  There were several comments that the
+use of netlink in the example code was non-intuitive and in fact the
+whole relay-app business was needlessly confusing.  Based on that
+feedback, the example code has been completely converted over to
+relayfs control files as supported by this patch, and have also been
+made completely self-contained.  The converted examples can be found
+here:
+    
+http://prdownloads.sourceforge.net/relayfs/relay-apps-0.9.tar.gz?download
 
 Signed-off-by: Tom Zanussi <zanussi@us.ibm.com>
 
 ---
 
-diff --git a/Documentation/filesystems/relayfs.txt b/Documentation/filesystems/relayfs.txt
---- a/Documentation/filesystems/relayfs.txt
-+++ b/Documentation/filesystems/relayfs.txt
-@@ -44,30 +44,40 @@ relayfs can operate in a mode where it w
- collected by userspace, and not wait for it to consume it.
- 
- relayfs itself does not provide for communication of such data between
--userspace and kernel, allowing the kernel side to remain simple and not
--impose a single interface on userspace. It does provide a separate
--helper though, described below.
-+userspace and kernel, allowing the kernel side to remain simple and
-+not impose a single interface on userspace. It does provide a set of
-+examples and a separate helper though, described below.
-+
-+klog and relay-apps example code
-+================================
-+
-+relayfs itself is ready to use, but to make things easier, a couple
-+simple utility functions and a set of examples are provided.
-+
-+The relay-apps example tarball, available on the relayfs sourceforge
-+site, contains a set of self-contained examples, each consisting of a
-+pair of .c files containing boilerplate code for each of the user and
-+kernel sides of a relayfs application; combined these two sets of
-+boilerplate code provide glue to easily stream data to disk, without
-+having to bother with mundane housekeeping chores.
-+
-+The 'klog debugging functions' patch (klog.patch in the relay-apps
-+tarball) provides a couple of high-level logging functions to the
-+kernel which allow writing formatted text or raw data to a channel,
-+regardless of whether a channel to write into exists or not, or
-+whether relayfs is compiled into the kernel or is configured as a
-+module.  These functions allow you to put unconditional 'trace'
-+statements anywhere in the kernel or kernel modules; only when there
-+is a 'klog handler' registered will data actually be logged (see the
-+klog and kleak examples for details).
-+
-+It is of course possible to use relayfs from scratch i.e. without
-+using any of the relay-apps example code or klog, but you'll have to
-+implement communication between userspace and kernel, allowing both to
-+convey the state of buffers (full, empty, amount of padding).
- 
--klog, relay-app & librelay
--==========================
--
--relayfs itself is ready to use, but to make things easier, two
--additional systems are provided.  klog is a simple wrapper to make
--writing formatted text or raw data to a channel simpler, regardless of
--whether a channel to write into exists or not, or whether relayfs is
--compiled into the kernel or is configured as a module.  relay-app is
--the kernel counterpart of userspace librelay.c, combined these two
--files provide glue to easily stream data to disk, without having to
--bother with housekeeping.  klog and relay-app can be used together,
--with klog providing high-level logging functions to the kernel and
--relay-app taking care of kernel-user control and disk-logging chores.
--
--It is possible to use relayfs without relay-app & librelay, but you'll
--have to implement communication between userspace and kernel, allowing
--both to convey the state of buffers (full, empty, amount of padding).
--
--klog, relay-app and librelay can be found in the relay-apps tarball on
--http://relayfs.sourceforge.net
-+klog and the relay-apps examples can be found in the relay-apps
-+tarball on http://relayfs.sourceforge.net
- 
- The relayfs user space API
- ==========================
-@@ -125,6 +135,8 @@ Here's a summary of the API relayfs prov
-     relay_reset(chan)
-     relayfs_create_dir(name, parent)
-     relayfs_remove_dir(dentry)
-+    relayfs_create_file(name, parent, mode, fops, data)
-+    relayfs_remove_file(dentry)
- 
-   channel management typically called on instigation of userspace:
- 
-@@ -320,6 +332,21 @@ forces a sub-buffer switch on all the ch
- to finalize and process the last sub-buffers before the channel is
- closed.
- 
-+Creating non-relay files
-+------------------------
-+
-+relay_open() automatically creates files in the relayfs filesystem to
-+represent the per-cpu kernel buffers; it's often useful for
-+applications to be able to create their own files in the relayfs
-+filesystem as well e.g. 'control' files used to communicate control
-+information between the kernel and user sides of a relayfs
-+application.  For this purpose the relayfs_create_file() and
-+relayfs_remove_file() API functions exist.  For relayfs_create_file(),
-+the caller passes in a set of user-defined file operations to be used
-+for the file and an optional void * to a user-specified data item,
-+which will be accessible via inode->u.generic_ip (see the relay-apps
-+tarball for examples).
-+
- Misc
- ----
- 
+ fs/relayfs/inode.c         |   86 ++++++++++++++++++++++++++++++++++++---------
+ fs/relayfs/relay.c         |    2 -
+ fs/relayfs/relay.h         |    8 ++--
+ include/linux/relayfs_fs.h |    6 +++
+ 4 files changed, 81 insertions(+), 21 deletions(-)
 
+diff --git a/fs/relayfs/inode.c b/fs/relayfs/inode.c
+--- a/fs/relayfs/inode.c
++++ b/fs/relayfs/inode.c
+@@ -33,14 +33,15 @@ static struct backing_dev_info		relayfs_
+ 	.capabilities	= BDI_CAP_NO_ACCT_DIRTY | BDI_CAP_NO_WRITEBACK,
+ };
+ 
+-static struct inode *relayfs_get_inode(struct super_block *sb, int mode,
+-				       struct rchan *chan)
++static struct inode *relayfs_get_inode(struct super_block *sb,
++				       int mode,
++				       struct rchan *chan,
++				       struct file_operations *fops)
+ {
+ 	struct rchan_buf *buf = NULL;
+ 	struct inode *inode;
+ 
+-	if (S_ISREG(mode)) {
+-		BUG_ON(!chan);
++	if (S_ISREG(mode) && chan) {
+ 		buf = relay_create_buf(chan);
+ 		if (!buf)
+ 			return NULL;
+@@ -48,7 +49,8 @@ static struct inode *relayfs_get_inode(s
+ 
+ 	inode = new_inode(sb);
+ 	if (!inode) {
+-		relay_destroy_buf(buf);
++		if (chan)
++			relay_destroy_buf(buf);
+ 		return NULL;
+ 	}
+ 
+@@ -61,7 +63,7 @@ static struct inode *relayfs_get_inode(s
+ 	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+ 	switch (mode & S_IFMT) {
+ 	case S_IFREG:
+-		inode->i_fop = &relayfs_file_operations;
++		inode->i_fop = fops;
+ 		RELAYFS_I(inode)->buf = buf;
+ 		break;
+ 	case S_IFDIR:
+@@ -92,7 +94,8 @@ static struct inode *relayfs_get_inode(s
+ static struct dentry *relayfs_create_entry(const char *name,
+ 					   struct dentry *parent,
+ 					   int mode,
+-					   struct rchan *chan)
++					   struct rchan *chan,
++					   struct file_operations *fops)
+ {
+ 	struct dentry *d;
+ 	struct inode *inode;
+@@ -127,7 +130,7 @@ static struct dentry *relayfs_create_ent
+ 		goto release_mount;
+ 	}
+ 
+-	inode = relayfs_get_inode(parent->d_inode->i_sb, mode, chan);
++	inode = relayfs_get_inode(parent->d_inode->i_sb, mode, chan, fops);
+ 	if (!inode) {
+ 		d = NULL;
+ 		goto release_mount;
+@@ -151,24 +154,62 @@ exit:
+ }
+ 
+ /**
+- *	relayfs_create_file - create a file in the relay filesystem
++ *	relayfs_create_file - create a file in relay filesystem
+  *	@name: the name of the file to create
+  *	@parent: parent directory
+  *	@mode: mode, if not specied the default perms are used
+- *	@chan: channel associated with the file
++ *	@fops: file operations to use for the file
++ *	@data: user-associated data for this file
+  *
+  *	Returns file dentry if successful, NULL otherwise.
+  *
+- *	The file will be created user r on behalf of current user.
++ *	The file will be created user r on behalf of current user if
++ *	mode is not specified.
++ *
+  */
+-struct dentry *relayfs_create_file(const char *name, struct dentry *parent,
+-				   int mode, struct rchan *chan)
++struct dentry *relayfs_create_file(const char *name,
++				   struct dentry *parent,
++				   int mode,
++				   struct file_operations *fops,
++				   void *data)
+ {
++	struct dentry *d;
++	BUG_ON(!fops);
++
+ 	if (!mode)
+ 		mode = S_IRUSR;
+ 	mode = (mode & S_IALLUGO) | S_IFREG;
+ 
+-	return relayfs_create_entry(name, parent, mode, chan);
++	d = relayfs_create_entry(name, parent, mode, NULL, fops);
++	if (d)
++		d->d_inode->u.generic_ip = data;
++	
++	return d;
++}
++
++/**
++ *	relayfs_create_relay_file - create a relay file in the relay filesystem
++ *	@name: the name of the file to create
++ *	@parent: parent directory
++ *	@mode: mode, if not specied the default perms are used
++ *	@chan: channel associated with the file
++ *
++ *	Returns file dentry if successful, NULL otherwise.
++ *
++ *	The file will be created user r on behalf of current user if
++ *	mode is not specified.
++ */
++struct dentry *relayfs_create_relay_file(const char *name,
++					 struct dentry *parent,
++					 int mode,
++					 struct rchan *chan)
++{
++	if (!mode)
++		mode = S_IRUSR;
++	mode = (mode & S_IALLUGO) | S_IFREG;
++	
++	return relayfs_create_entry(name, parent, mode, chan,
++				    &relayfs_file_operations);
+ }
+ 
+ /**
+@@ -183,7 +224,7 @@ struct dentry *relayfs_create_file(const
+ struct dentry *relayfs_create_dir(const char *name, struct dentry *parent)
+ {
+ 	int mode = S_IFDIR | S_IRWXU | S_IRUGO | S_IXUGO;
+-	return relayfs_create_entry(name, parent, mode, NULL);
++	return relayfs_create_entry(name, parent, mode, NULL, NULL);
+ }
+ 
+ /**
+@@ -225,6 +266,17 @@ int relayfs_remove(struct dentry *dentry
+ }
+ 
+ /**
++ *	relayfs_remove_file - remove a file from relay filesystem
++ *	@dentry: directory dentry
++ *
++ *	Returns 0 if successful, negative otherwise.
++ */
++int relayfs_remove_file(struct dentry *dentry)
++{
++	return relayfs_remove(dentry);
++}
++
++/**
+  *	relayfs_remove_dir - remove a directory in the relay filesystem
+  *	@dentry: directory dentry
+  *
+@@ -544,7 +596,7 @@ static int relayfs_fill_super(struct sup
+ 	sb->s_blocksize_bits = PAGE_CACHE_SHIFT;
+ 	sb->s_magic = RELAYFS_MAGIC;
+ 	sb->s_op = &relayfs_ops;
+-	inode = relayfs_get_inode(sb, mode, NULL);
++	inode = relayfs_get_inode(sb, mode, NULL, NULL);
+ 
+ 	if (!inode)
+ 		return -ENOMEM;
+@@ -602,6 +654,8 @@ module_exit(exit_relayfs_fs)
+ EXPORT_SYMBOL_GPL(relayfs_file_operations);
+ EXPORT_SYMBOL_GPL(relayfs_create_dir);
+ EXPORT_SYMBOL_GPL(relayfs_remove_dir);
++EXPORT_SYMBOL_GPL(relayfs_create_file);
++EXPORT_SYMBOL_GPL(relayfs_remove_file);
+ 
+ MODULE_AUTHOR("Tom Zanussi <zanussi@us.ibm.com> and Karim Yaghmour <karim@opersys.com>");
+ MODULE_DESCRIPTION("Relay Filesystem");
+diff --git a/fs/relayfs/relay.c b/fs/relayfs/relay.c
+--- a/fs/relayfs/relay.c
++++ b/fs/relayfs/relay.c
+@@ -172,7 +172,7 @@ static struct rchan_buf *relay_open_buf(
+ 	struct dentry *dentry;
+ 
+ 	/* Create file in fs */
+-	dentry = relayfs_create_file(filename, parent, S_IRUSR, chan);
++	dentry = relayfs_create_relay_file(filename, parent, S_IRUSR, chan);
+ 	if (!dentry)
+ 		return NULL;
+ 
+diff --git a/fs/relayfs/relay.h b/fs/relayfs/relay.h
+--- a/fs/relayfs/relay.h
++++ b/fs/relayfs/relay.h
+@@ -1,10 +1,10 @@
+ #ifndef _RELAY_H
+ #define _RELAY_H
+ 
+-struct dentry *relayfs_create_file(const char *name,
+-				   struct dentry *parent,
+-				   int mode,
+-				   struct rchan *chan);
++struct dentry *relayfs_create_relay_file(const char *name,
++					 struct dentry *parent,
++					 int mode,
++					 struct rchan *chan);
+ extern int relayfs_remove(struct dentry *dentry);
+ extern int relay_buf_empty(struct rchan_buf *buf);
+ extern void relay_destroy_channel(struct kref *kref);
+diff --git a/include/linux/relayfs_fs.h b/include/linux/relayfs_fs.h
+--- a/include/linux/relayfs_fs.h
++++ b/include/linux/relayfs_fs.h
+@@ -147,6 +147,12 @@ extern size_t relay_switch_subbuf(struct
+ extern struct dentry *relayfs_create_dir(const char *name,
+ 					 struct dentry *parent);
+ extern int relayfs_remove_dir(struct dentry *dentry);
++extern struct dentry *relayfs_create_file(const char *name,
++					  struct dentry *parent,
++					  int mode,
++					  struct file_operations *fops,
++					  void *data);
++extern int relayfs_remove_file(struct dentry *dentry);
+ 
+ /**
+  *	relay_write - write data into the channel
 
 

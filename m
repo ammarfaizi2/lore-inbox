@@ -1,173 +1,269 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750979AbVKIOTf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbVKIOOw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750979AbVKIOTf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 09:19:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750878AbVKIOTM
+	id S1750847AbVKIOOw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 09:14:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbVKIOOg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 09:19:12 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:1586
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1750844AbVKIOSo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 09:18:44 -0500
-Message-Id: <4372138D.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Wed, 09 Nov 2005 15:19:41 +0100
-From: "Jan Beulich" <JBeulich@novell.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH 23/39] NLKD/x86 - core
-References: <43720DAE.76F0.0078.0@novell.com> <43720E2E.76F0.0078.0@novell.com> <43720E72.76F0.0078.0@novell.com> <43720EAF.76F0.0078.0@novell.com> <43720F5E.76F0.0078.0@novell.com> <43720F95.76F0.0078.0@novell.com> <43720FBA.76F0.0078.0@novell.com> <43720FF6.76F0.0078.0@novell.com> <43721024.76F0.0078.0@novell.com> <4372105B.76F0.0078.0@novell.com> <43721119.76F0.0078.0@novell.com> <43721142.76F0.0078.0@novell.com> <43721184.76F0.0078.0@novell.com> <4372135F.76F0.0078.0@novell.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=__Part31130D6D.0__="
+	Wed, 9 Nov 2005 09:14:36 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:2285 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S1750827AbVKIOOU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 09:14:20 -0500
+Message-Id: <20051109141505.231474000@localhost.localdomain>
+References: <20051109134938.757187000@localhost.localdomain>
+Date: Wed, 09 Nov 2005 21:49:45 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, Wu Fengguang <wfg@mail.ustc.edu.cn>
+Subject: [PATCH 07/16] readahead: tunable parameters
+Content-Disposition: inline; filename=readahead-parameter.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME message. If you are reading this text, you may want to 
-consider changing to a mail reader or gateway that understands how to 
-properly handle MIME multipart messages.
+- new entry in /proc/sys/vm/readahead_ratio with default value of 50;
+- new entry in /proc/sys/vm/readahead_hit_rate with default value of 2;
+- new entry in /proc/sys/vm/readahead_live_chunk with default value of 2M;
+- limit mmap read-around size to 256kb;
+- dynamic minimal/initial read-ahead size.
 
---=__Part31130D6D.0__=
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
+---
 
-The core x86 (32- and 64-bit) NLKD additions.
+ Documentation/sysctl/vm.txt |   51 ++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/mm.h          |    5 +++-
+ include/linux/sysctl.h      |    3 ++
+ kernel/sysctl.c             |   34 +++++++++++++++++++++++++++++
+ mm/filemap.c                |    7 ++++++
+ mm/readahead.c              |   41 ++++++++++++++++++++++++++++++++++-
+ 6 files changed, 139 insertions(+), 2 deletions(-)
 
-Signed-Off-By: Jan Beulich <jbeulich@novell.com>
+--- linux-2.6.14-mm1.orig/Documentation/sysctl/vm.txt
++++ linux-2.6.14-mm1/Documentation/sysctl/vm.txt
+@@ -27,6 +27,9 @@ Currently, these files are in /proc/sys/
+ - laptop_mode
+ - block_dump
+ - swap_prefetch
++- readahead_ratio
++- readahead_hit_rate
++- readahead_live_chunk
+ 
+ ==============================================================
+ 
+@@ -114,3 +117,51 @@ except when laptop_mode is enabled and t
+ Setting it to 0 disables prefetching entirely.
+ 
+ The default value is dependant on ramsize.
++
++==============================================================
++
++readahead_ratio
++
++This limits read-ahead size to percent of the thrashing-threshold.
++The thrashing-threshold is dynamicly estimated according to the
++_history_ read speed and system load, and used to limit the
++_future_ read-ahead request size.
++
++Set it to a low value if you have not enough memory to counteract
++the I/O load fluctuations. But if there's plenty of memory, set it
++to a larger value might help increase read speed. Also note that a
++value >= 80 activates mandatory thrashing protection(see
++readahead_live_chunk).
++
++The default value is 50.
++
++==============================================================
++
++readahead_hit_rate
++
++This is the max allowed value of (read-ahead-pages : accessed-pages).
++If the previous read-ahead request has bad hit rate, kernel will be
++very conservative to issue the next read-ahead.
++
++A large value helps speedup some sparse access patterns, at the cost
++of more memory consumption. It is recommended to keep the value below
++(max-readahead-pages / 8).
++
++The default value is 2.
++
++==============================================================
++
++readahead_live_chunk
++
++In a file server, there are typically one or more sequential
++readers working on a file. The kernel can detect most live
++chunks(a sequence of pages to be accessed by an active reader),
++and save them for their imminent readers. This is called
++mandatory thrashing protection, and is only in effect when
++(readahead_ratio >= 80).
++
++This parameter controls the max allowed chunk size, i.e. the max
++number of pages pinned for an active reader.
++
++The default value is 2MB size of pages. That is 512 on most archs.
++Increase it if you have enough memory.
+--- linux-2.6.14-mm1.orig/include/linux/mm.h
++++ linux-2.6.14-mm1/include/linux/mm.h
+@@ -968,11 +968,14 @@ extern int filemap_populate(struct vm_ar
+ int write_one_page(struct page *page, int wait);
+ 
+ /* readahead.c */
+-#define VM_MAX_READAHEAD	128	/* kbytes */
++#define VM_MAX_READAHEAD	1024	/* kbytes */
+ #define VM_MIN_READAHEAD	16	/* kbytes (includes current page) */
+ #define VM_MAX_CACHE_HIT    	256	/* max pages in a row in cache before
+ 					 * turning readahead off */
+ 
++/* turn on read-ahead thrashing protection if (readahead_ratio >= ##) */
++#define VM_READAHEAD_PROTECT_RATIO	80
++
+ int do_page_cache_readahead(struct address_space *mapping, struct file *filp,
+ 			pgoff_t offset, unsigned long nr_to_read);
+ int force_page_cache_readahead(struct address_space *mapping, struct file *filp,
+--- linux-2.6.14-mm1.orig/include/linux/sysctl.h
++++ linux-2.6.14-mm1/include/linux/sysctl.h
+@@ -182,6 +182,9 @@ enum
+ 	VM_LEGACY_VA_LAYOUT=27, /* legacy/compatibility virtual address space layout */
+ 	VM_SWAP_TOKEN_TIMEOUT=28, /* default time for token time out */
+ 	VM_SWAP_PREFETCH=29,	/* int: amount to swap prefetch */
++	VM_READAHEAD_RATIO=30, /* percent of read-ahead size to thrashing-threshold */
++	VM_READAHEAD_HIT_RATE=31, /* one accessed page legitimizes so many read-ahead pages */
++	VM_READAHEAD_LIVE_CHUNK=32, /* pin no more than that many pages for a live reader */
+ };
+ 
+ 
+--- linux-2.6.14-mm1.orig/kernel/sysctl.c
++++ linux-2.6.14-mm1/kernel/sysctl.c
+@@ -67,6 +67,9 @@ extern int min_free_kbytes;
+ extern int printk_ratelimit_jiffies;
+ extern int printk_ratelimit_burst;
+ extern int pid_max_min, pid_max_max;
++extern int readahead_ratio;
++extern int readahead_hit_rate;
++extern int readahead_live_chunk;
+ 
+ #if defined(CONFIG_X86_LOCAL_APIC) && defined(CONFIG_X86)
+ int unknown_nmi_panic;
+@@ -670,6 +673,7 @@ static ctl_table kern_table[] = {
+ /* Constants for minimum and maximum testing in vm_table.
+    We use these as one-element integer vectors. */
+ static int zero;
++static int one = 1;
+ static int one_hundred = 100;
+ 
+ 
+@@ -869,6 +873,36 @@ static ctl_table vm_table[] = {
+ 	},
+ #endif
+ #endif
++	{
++		.ctl_name	= VM_READAHEAD_RATIO,
++		.procname	= "readahead_ratio",
++		.data		= &readahead_ratio,
++		.maxlen		= sizeof(readahead_ratio),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec,
++		.strategy	= &sysctl_intvec,
++		.extra1		= &zero,
++	},
++	{
++		.ctl_name	= VM_READAHEAD_HIT_RATE,
++		.procname	= "readahead_hit_rate",
++		.data		= &readahead_hit_rate,
++		.maxlen		= sizeof(readahead_hit_rate),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec,
++		.strategy	= &sysctl_intvec,
++		.extra1		= &one,
++	},
++	{
++		.ctl_name	= VM_READAHEAD_LIVE_CHUNK,
++		.procname	= "readahead_live_chunk",
++		.data		= &readahead_live_chunk,
++		.maxlen		= sizeof(readahead_live_chunk),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec,
++		.strategy	= &sysctl_intvec,
++		.extra1		= &zero,
++	},
+ 	{ .ctl_name = 0 }
+ };
+ 
+--- linux-2.6.14-mm1.orig/mm/filemap.c
++++ linux-2.6.14-mm1/mm/filemap.c
+@@ -1312,6 +1312,13 @@ retry_find:
+ 		if (ra_pages) {
+ 			pgoff_t start = 0;
+ 
++			/*
++			 * Max read-around should be much smaller than
++			 * max read-ahead.
++			 * How about adding a tunable parameter for this?
++			 */
++			if (ra_pages > 64)
++				ra_pages = 64;
+ 			if (pgoff > ra_pages / 2)
+ 				start = pgoff - ra_pages / 2;
+ 			do_page_cache_readahead(mapping, file, start, ra_pages);
+--- linux-2.6.14-mm1.orig/mm/readahead.c
++++ linux-2.6.14-mm1/mm/readahead.c
+@@ -15,11 +15,29 @@
+ #include <linux/backing-dev.h>
+ #include <linux/pagevec.h>
+ 
+-/* The default max/min read-ahead pages. */
++/* The default number of max/min read-ahead pages. */
+ #define KB(size)	(((size)*1024 + PAGE_CACHE_SIZE-1) / PAGE_CACHE_SIZE)
+ #define MAX_RA_PAGES	KB(VM_MAX_READAHEAD)
+ #define MIN_RA_PAGES	KB(VM_MIN_READAHEAD)
+ 
++/* In laptop mode, poll delayed look-ahead on every ## pages read. */
++#define LAPTOP_POLL_INTERVAL 16
++
++/* Set look-ahead size to 1/# of the thrashing-threshold. */
++#define LOOKAHEAD_RATIO 8
++
++/* Set read-ahead size to ##% of the thrashing-threshold. */
++int readahead_ratio = 50;
++EXPORT_SYMBOL(readahead_ratio);
++
++/* Readahead as long as cache hit ratio keeps above 1/##. */
++int readahead_hit_rate = 2;
++EXPORT_SYMBOL(readahead_hit_rate);
++
++/* Scan backward ## pages to find a live reader. */
++int readahead_live_chunk = 2 * MAX_RA_PAGES;
++EXPORT_SYMBOL(readahead_live_chunk);
++
+ /* Detailed classification of read-ahead behaviors. */
+ #define RA_CLASS_SHIFT 3
+ #define RA_CLASS_MASK  ((1 << RA_CLASS_SHIFT) - 1)
+@@ -771,6 +789,27 @@ out:
+ }
+ 
+ /*
++ * ra_size is mainly determined by:
++ * 1. sequential-start: min(MIN_RA_PAGES + (pages>>14), KB(128))
++ * 2. sequential-max:	min(ra->ra_pages, 0xFFFF)
++ * 3. sequential:	(thrashing-threshold) * readahead_ratio / 100
++ *
++ * Table of concrete numbers for 4KB page size:
++ *  (inactive + free) (in MB):    4   8   16   32   64  128  256  512 1024
++ *    initial ra_size (in KB):   16  16   16   16   20   24   32   48   64
++ */
++static inline void get_readahead_bounds(struct file_ra_state *ra,
++					unsigned long *ra_min,
++					unsigned long *ra_max)
++{
++	unsigned long pages;
++
++	pages = nr_free_inactive();
++	*ra_max = min(min(pages/2, 0xFFFFUL), ra->ra_pages);
++	*ra_min = min(min(MIN_RA_PAGES + (pages>>14), KB(128)), *ra_max/2);
++}
++
++/*
+  * This is the entry point of the adaptive read-ahead logic.
+  *
+  * It is only called on two conditions:
 
-(actual patch attached)
-
-
---=__Part31130D6D.0__=
-Content-Type: application/octet-stream; name="nlkd-x86.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="nlkd-x86.patch"
-
-VGhlIGNvcmUgeDg2ICgzMi0gYW5kIDY0LWJpdCkgTkxLRCBhZGRpdGlvbnMuCgpTaWduZWQtT2Zm
-LUJ5OiBKYW4gQmV1bGljaCA8amJldWxpY2hAbm92ZWxsLmNvbT4KCkluZGV4OiAyLjYuMTQtbmxr
-ZC9kZWJ1Zy9ubGtkL2FzbS14ODYuaAo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSAvZGV2L251bGwJMTk3MC0wMS0w
-MSAwMDowMDowMC4wMDAwMDAwMDAgKzAwMDAKKysrIDIuNi4xNC1ubGtkL2RlYnVnL25sa2QvYXNt
-LXg4Ni5oCTIwMDUtMTEtMDMgMTI6MTQ6MzIuMDAwMDAwMDAwICswMTAwCkBAIC0wLDAgKzEsMjkw
-IEBACisvKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioKKyAqCisgKiAgIEZpbGUgTmFtZTogICAgICBhc20t
-eDg2LmgKKyAqICAgQ3JlYXRlZCBieTogICAgIEphbiBCZXVsaWNoCisgKiAgICV2ZXJzaW9uOiAg
-ICAgICAyICUKKyAqICAgJWRlcml2ZWRfYnk6ICAgIGpiZXVsaWNoICUKKyAqICAgJWRhdGVfbW9k
-aWZpZWQ6IFRodSBOb3YgMDMgMDQ6MTQ6MTkgMjAwNSAlCisgKgorICoqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqLworLyoqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqCisgKiAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICoKKyAqIENv
-cHlyaWdodCAoYykgMjAwMi0yMDA1IE5vdmVsbCwgSW5jLiBBbGwgUmlnaHRzIFJlc2VydmVkLiAg
-ICAgICAgICAgICAgICAgKgorICogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAqCisgKiBUaGlzIHByb2dyYW0g
-aXMgZnJlZSBzb2Z0d2FyZTsgeW91IGNhbiByZWRpc3RyaWJ1dGUgaXQgYW5kL29yICAgICAgICAg
-ICAgICoKKyAqIG1vZGlmeSBpdCB1bmRlciB0aGUgdGVybXMgb2YgdmVyc2lvbiAyIG9mIHRoZSBH
-TlUgR2VuZXJhbCBQdWJsaWMgTGljZW5zZSAgKgorICogYXMgcHVibGlzaGVkIGJ5IHRoZSBGcmVl
-IFNvZnR3YXJlIEZvdW5kYXRpb24uICAgICAgICAgICAgICAgICAgICAgICAgICAgICAqCisgKiAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICoKKyAqIFRoaXMgcHJvZ3JhbSBpcyBkaXN0cmlidXRlZCBpbiB0aGUg
-aG9wZSB0aGF0IGl0IHdpbGwgYmUgdXNlZnVsLCAgICAgICAgICAgKgorICogYnV0IFdJVEhPVVQg
-QU5ZIFdBUlJBTlRZOyB3aXRob3V0IGV2ZW4gdGhlIGltcGxpZWQgd2FycmFudHkgb2YgICAgICAg
-ICAgICAqCisgKiBNRVJDSEFOVEFCSUxJVFkgb3IgRklUTkVTUyBGT1IgQSBQQVJUSUNVTEFSIFBV
-UlBPU0UuIFNlZSB0aGUgICAgICAgICAgICAgICoKKyAqIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNl
-bnNlIGZvciBtb3JlIGRldGFpbHMuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKgorICog
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAqCisgKiBZb3Ugc2hvdWxkIGhhdmUgcmVjZWl2ZWQgYSBjb3B5IG9m
-IHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5zZSAgICAgICAgICoKKyAqIGFsb25nIHdpdGgg
-dGhpcyBwcm9ncmFtOyBpZiBub3QsIGNvbnRhY3QgTm92ZWxsLCBJbmMuICAgICAgICAgICAgICAg
-ICAgICAgKgorICogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAqCisgKiBUbyBjb250YWN0IE5vdmVsbCBhYm91
-dCB0aGlzIGZpbGUgYnkgcGh5c2ljYWwgb3IgZWxlY3Ryb25pYyBtYWlsLCAgICAgICAgICoKKyAq
-IHlvdSBtYXkgZmluZCBjdXJyZW50IGNvbnRhY3QgaW5mb3JtYXRpb24gYXQgd3d3Lm5vdmVsbC5j
-b20uICAgICAgICAgICAgICAgKgorICogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAqCisgKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKiovCisvKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioKKyAqCisgKglGaWxlIERlc2NyaXB0aW9u
-OgorICoKKyAqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKi8KKworLmludGVsX3N5bnRheCBub3ByZWZpeAor
-LmFsdG1hY3JvCisKKy5lcXVpdiBUUlVFLCAxCisuZXF1aXYgRkFMU0UsIDAKKworLmVxdWl2IGJ5
-dGUsIDEKKy5lcXVpdiB3b3JkLCAyCisuZXF1aXYgZHdvcmQsIDQKKy5lcXVpdiBmd29yZCwgNgor
-LmVxdWl2IHF3b3JkLCA4CisuZXF1aXYgdGJ5dGUsIDEwCisuZXF1aXYgb3dvcmQsIDE2CisuZXF1
-aXYgeG1td29yZCwgMTYKKworLm1hY3JvIC5leHRwcm9jIG5hbWUKKyAuZ2xvYmFsIG5hbWUKKyAu
-dHlwZSBuYW1lLCBAZnVuY3Rpb24KKy5lbmRtCisKKy5tYWNybyAubG9jcHJvYyBuYW1lCisgLnR5
-cGUgbmFtZSwgQGZ1bmN0aW9uCisgLmFsaWduIFBST0NFRFVSRV9BTElHTiwgMHhDQworbmFtZToK
-KyNpZmRlZiBDT05GSUdfVU5XSU5EX0lORk8KKyAuY2ZpX3N0YXJ0cHJvYworIC5lcXUgLmVoLmZy
-YW1lcmVnLCBlaC5TUAorIC5lcXUgLmVoLmZyYW1lcHRyLCBTUAorI2VuZGlmCisuZW5kbQorCisu
-bWFjcm8gLnB1YnByb2MgbmFtZQorIC5sb2Nwcm9jIG5hbWUKKyAuZ2xvYmFsIG5hbWUKKy5lbmRt
-CisKKy5tYWNybyAuaGlkcHJvYyBuYW1lCisgLnB1YnByb2MgbmFtZQorIC5oaWRkZW4gbmFtZQor
-LmVuZG0KKworLm1hY3JvIC5lbmRwIG5hbWUKKyAuc2l6ZSBuYW1lLCAuLW5hbWUKKyNpZmRlZiBD
-T05GSUdfVU5XSU5EX0lORk8KKyAuY2ZpX2VuZHByb2MKKyAuZXF1IC5laC5mcmFtZXJlZywgLTEK
-KyAuZXF1IC5laC5mcmFtZXB0ciwgLTEKKyNlbmRpZgorLmVuZG0KKworLm1hY3JvIC5sb2NlbnRy
-eSBuYW1lLCB0eXBlPUBub3R5cGUKKyAudHlwZSBuYW1lLCB0eXBlCituYW1lOgorLmVuZG0KKwor
-Lm1hY3JvIC5wdWJlbnRyeSBuYW1lLCB0eXBlCisgLmxvY2VudHJ5IG5hbWUsIHR5cGUKKyAuZ2xv
-YmFsIG5hbWUKKy5lbmRtCisKKy5tYWNybyAuaGlkZW50cnkgbmFtZSwgdHlwZQorIC5wdWJlbnRy
-eSBuYW1lLCB0eXBlCisgLmhpZGRlbiBuYW1lCisuZW5kbQorCisubWFjcm8gLnJvZGF0YQorIC5z
-ZWN0aW9uIC5yb2RhdGEsICJhIiwgQHByb2diaXRzCisuZW5kbQorCisvLyBmcmFtZSB1bndpbmQg
-aW5mbyBnZW5lcmF0aW9uIHN1cHBvcnQKKworLm1hY3JvIEVIcHVzaCBpdGVtOnJlcSwgc3BpbGw9
-VFJVRQorCXB1c2gJaXRlbQorI2lmZGVmIENPTkZJR19VTldJTkRfSU5GTworIC5pZiAuZWguZnJh
-bWVyZWcgPT0gZWguU1AKKyAgLmNmaV9hZGp1c3RfY2ZhX29mZnNldCAuZWguc3Rrd29yZAorIC5l
-bmRpZgorIC5pZiBzcGlsbAorICAuaWZkZWYgZWguJml0ZW0KKyAgIC5pZiAuZWgucHJlc2VydmVk
-ICYmICgxIDw8IGVoLiZpdGVtKQorICAgIC5jZmlfcmVsX29mZnNldCBpdGVtLCAwCisgICAuZW5k
-aWYKKyAgLmVuZGlmCisgLmVuZGlmCisjZW5kaWYKKy5lbmRtCisKKy5tYWNybyBFSHB1c2hDIGl0
-ZW06cmVxCisgLmlmIDEgfCBpdGVtIC8vIGp1c3QgdG8gbWFrZSBzdXJlIHRoaXMgaXMgYSBjb25z
-dGFudAorCXB1c2gJaXRlbQorIC5lbmRpZgorI2lmZGVmIENPTkZJR19VTldJTkRfSU5GTworIC5p
-ZiAuZWguZnJhbWVyZWcgPT0gZWguU1AKKyAgLmNmaV9hZGp1c3RfY2ZhX29mZnNldCAuZWguc3Rr
-d29yZAorIC5lbmRpZgorI2VuZGlmCisuZW5kbQorCisubWFjcm8gRUhwdXNoTyBpdGVtOnJlcQor
-CXB1c2gJb2Zmc2V0IGl0ZW0KKyNpZmRlZiBDT05GSUdfVU5XSU5EX0lORk8KKyAuaWYgLmVoLmZy
-YW1lcmVnID09IGVoLlNQCisgIC5jZmlfYWRqdXN0X2NmYV9vZmZzZXQgLmVoLnN0a3dvcmQKKyAu
-ZW5kaWYKKyNlbmRpZgorLmVuZG0KKworLm1hY3JvIEVIcHVzaFYgaXRlbTpyZXEKKwlwdXNoCVtp
-dGVtXQorI2lmZGVmIENPTkZJR19VTldJTkRfSU5GTworIC5pZiAuZWguZnJhbWVyZWcgPT0gZWgu
-U1AKKyAgLmNmaV9hZGp1c3RfY2ZhX29mZnNldCAuZWguc3Rrd29yZAorIC5lbmRpZgorI2VuZGlm
-CisuZW5kbQorCisubWFjcm8gRUhwb3AgaXRlbTpyZXEsIGZpbGw9VFJVRQorCXBvcAlpdGVtCisj
-aWZkZWYgQ09ORklHX1VOV0lORF9JTkZPCisgLmlmIGZpbGwKKyAgLmlmZGVmIGVoLiZpdGVtCisg
-ICAuaWYgLmVoLnByZXNlcnZlZCAmJiAoMSA8PCBlaC4maXRlbSkKKyAgICAuY2ZpX3Jlc3RvcmUg
-aXRlbQorICAgLmVuZGlmCisgIC5lbmRpZgorIC5lbmRpZgorIC5pZiAuZWguZnJhbWVyZWcgPT0g
-ZWguU1AKKyAgLmNmaV9hZGp1c3RfY2ZhX29mZnNldCAtLmVoLnN0a3dvcmQKKyAuZW5kaWYKKyNl
-bmRpZgorLmVuZG0KKworLm1hY3JvIEVIcG9wViBpdGVtOnJlcQorCXBvcAlbaXRlbV0KKyNpZmRl
-ZiBDT05GSUdfVU5XSU5EX0lORk8KKyAuaWYgLmVoLmZyYW1lcmVnID09IGVoLlNQCisgIC5jZmlf
-YWRqdXN0X2NmYV9vZmZzZXQgLS5laC5zdGt3b3JkCisgLmVuZGlmCisjZW5kaWYKKy5lbmRtCisK
-Ky5tYWNybyBFSHNldGZyIGRzdCwgc3JjLCBvZmZzPTAKKyAuaWYgZWguJmRzdCA8PiBlaC4mc3Jj
-CisgIC5pZiBvZmZzID09IDAKKwltb3YJZHN0LCBzcmMKKyNpZmRlZiBDT05GSUdfVU5XSU5EX0lO
-Rk8KKyAgIC5jZmlfZGVmX2NmYV9yZWdpc3RlciBkc3QKKyNlbmRpZgorICAuZWxzZQorCWxlYQlk
-c3QsIFtzcmMgKyAob2ZmcykgKiAuZWguc3Rrd29yZF0KKyNpZmRlZiBDT05GSUdfVU5XSU5EX0lO
-Rk8KKyAgIC5jZmlfYWRqdXN0X2NmYV9vZmZzZXQgLShvZmZzKSAqIC5laC5zdGt3b3JkCisgICAu
-Y2ZpX2RlZl9jZmFfcmVnaXN0ZXIgZHN0CisjZW5kaWYKKyAgLmVuZGlmCisgLmVsc2UKKwlhZGQJ
-ZHN0LCAob2ZmcykgKiAuZWguc3Rrd29yZAorI2lmZGVmIENPTkZJR19VTldJTkRfSU5GTworICAu
-Y2ZpX2FkanVzdF9jZmFfb2Zmc2V0IC0ob2ZmcykgKiAuZWguc3Rrd29yZAorI2VuZGlmCisgLmVu
-ZGlmCisjaWZkZWYgQ09ORklHX1VOV0lORF9JTkZPCisgLmVxdSAuZWguZnJhbWVyZWcsIGVoLiZk
-c3QKKyAuZXF1IC5laC5mcmFtZXB0ciwgZHN0CisjZW5kaWYKKy5lbmRtCisKKy5tYWNybyBFSGVu
-dGVyIGZyc3osIGxldmVsCisJZW50ZXIJZnJzeiwgbGV2ZWwKKyNpZmRlZiBDT05GSUdfVU5XSU5E
-X0lORk8KKyAuaWYgLmVoLmZyYW1lcmVnIDw+IGVoLlNQCisgIC5lcnJvciAiJ2VudGVyJyB3aXRo
-b3V0IFNQLWJhc2VkIGZyYW1lIGlzIG5vdCBzdXBwb3J0ZWQuIgorIC5lbmRpZgorIC5jZmlfYWRq
-dXN0X2NmYV9vZmZzZXQgLmVoLnN0a3dvcmQKKyAuY2ZpX3JlbF9vZmZzZXQgQlAsIDAKKyAuY2Zp
-X2RlZl9jZmFfcmVnaXN0ZXIgQlAKKyAuZXF1IC5laC5mcmFtZXJlZywgZWguQlAKKyAuZXF1IC5l
-aC5mcmFtZXB0ciwgQlAKKyNlbmRpZgorLmVuZG0KKworLm1hY3JvIEVIbGVhdmUKKwlsZWF2ZQor
-I2lmZGVmIENPTkZJR19VTldJTkRfSU5GTworIC5pZiAuZWguZnJhbWVyZWcgPD4gZWguQlAKKyAg
-LmVycm9yICInbGVhdmUnIHdpdGhvdXQgQlAtYmFzZWQgZnJhbWUgaXMgbm90IHN1cHBvcnRlZC4i
-CisgLmVuZGlmCisgLmNmaV9kZWZfY2ZhX3JlZ2lzdGVyIFNQCisgLmNmaV9yZXN0b3JlIEJQCisg
-LmNmaV9hZGp1c3RfY2ZhX29mZnNldCAtLmVoLnN0a3dvcmQKKyAuZXF1IC5laC5mcmFtZXJlZywg
-ZWguU1AKKyAuZXF1IC5laC5mcmFtZXB0ciwgU1AKKyNlbmRpZgorLmVuZG0KKworLm1hY3JvIEVI
-c3BpbGwgb2ZmczpyZXEsIHJlZzpyZXEKKwltb3YJWy5laC5mcmFtZXB0cisob2ZmcykqLmVoLnN0
-a3dvcmRdLCByZWcKKyNpZmRlZiBDT05GSUdfVU5XSU5EX0lORk8KKyAuaWYgLmVoLmZyYW1lcmVn
-ID09IGVoLlNQICYmJiYmIChvZmZzKSA8IDAKKyAgLndhcm5pbmcgIlNwaWxsIG9mZnNldCBpbnRv
-IFNQLXJlbGF0aXZlIGZyYW1lIHNob3VsZCBiZSBwb3NpdGl2ZS4iCisgLmVuZGlmCisgLmNmaV9v
-ZmZzZXQgcmVnLCAob2ZmcykqLmVoLnN0a3dvcmQKKyNlbmRpZgorLmVuZG0KKworLm1hY3JvIEVI
-ZmlsbCByZWc6cmVxLCBvZmZzOnJlcQorCW1vdglyZWcsIFsuZWguZnJhbWVwdHIrKG9mZnMpKi5l
-aC5zdGt3b3JkXQorI2lmZGVmIENPTkZJR19VTldJTkRfSU5GTworIC5pZiAuZWguZnJhbWVyZWcg
-PT0gZWguU1AgJiYmJiYgKG9mZnMpIDwgMAorICAud2FybmluZyAiRmlsbCBvZmZzZXQgaW50byBT
-UC1yZWxhdGl2ZSBmcmFtZSBzaG91bGQgYmUgcG9zaXRpdmUuIgorIC5lbmRpZgorIC5jZmlfcmVz
-dG9yZSByZWcKKyNlbmRpZgorLmVuZG0KKworLm1hY3JvIEVIcHVzaGYgc3BpbGw9VFJVRQorCXB1
-c2hmCisjaWZkZWYgQ09ORklHX1VOV0lORF9JTkZPCisgLmlmIC5laC5mcmFtZXJlZyA9PSBlaC5T
-UAorICAuY2ZpX2FkanVzdF9jZmFfb2Zmc2V0IC5laC5zdGt3b3JkCisgLmVuZGlmCisgLmlmIHNw
-aWxsCisgIC5jZmlfcmVsX29mZnNldCBGTEFHUywgMAorIC5lbmRpZgorI2VuZGlmCisuZW5kbQor
-CisubWFjcm8gRUhwb3BmIGZpbGw9VFJVRQorCXBvcGYKKyNpZmRlZiBDT05GSUdfVU5XSU5EX0lO
-Rk8KKyAuaWYgZmlsbAorICAuY2ZpX3Jlc3RvcmUgRkxBR1MKKyAuZW5kaWYKKyAuaWYgLmVoLmZy
-YW1lcmVnID09IGVoLlNQCisgIC5jZmlfYWRqdXN0X2NmYV9vZmZzZXQgLS5laC5zdGt3b3JkCisg
-LmVuZGlmCisjZW5kaWYKKy5lbmRtCisKKy5tYWNybyBFSHB1c2hTdGF0ZQorI2lmZGVmIENPTkZJ
-R19VTldJTkRfSU5GTworIC5jZmlfcmVtZW1iZXJfc3RhdGUKKyNlbmRpZgorLmVuZG0KKworLm1h
-Y3JvIEVIcG9wU3RhdGUKKyNpZmRlZiBDT05GSUdfVU5XSU5EX0lORk8KKyAuY2ZpX3Jlc3RvcmVf
-c3RhdGUKKyNlbmRpZgorLmVuZG0KKworI2lmZGVmIENPTkZJR19VTldJTkRfSU5GTworLmVxdSAu
-ZWguZnJhbWVyZWcsIC0xCisuZXF1IC5laC5mcmFtZXB0ciwgLTEKKyNlbmRpZgo=
-
---=__Part31130D6D.0__=--
+--

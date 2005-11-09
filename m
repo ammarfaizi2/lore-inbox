@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161227AbVKIUeE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161229AbVKIUf6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161227AbVKIUeE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 15:34:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161229AbVKIUeD
+	id S1161229AbVKIUf6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 15:35:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161228AbVKIUf6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 15:34:03 -0500
-Received: from gate.crashing.org ([63.228.1.57]:6061 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1161227AbVKIUeB (ORCPT
+	Wed, 9 Nov 2005 15:35:58 -0500
+Received: from mail.networkengines.com ([12.163.137.254]:3023 "EHLO
+	mail-imc.networkengines.com") by vger.kernel.org with ESMTP
+	id S1161229AbVKIUf5 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 15:34:01 -0500
-Subject: Re: [PATCH] ppc64: 64K pages support
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Mike Kravetz <kravetz@us.ibm.com>
-Cc: Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@osdl.org>,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051109201720.GB5443@w-mikek2.ibm.com>
-References: <1130915220.20136.14.camel@gaston>
-	 <1130916198.20136.17.camel@gaston> <20051109172125.GA12861@lst.de>
-	 <20051109201720.GB5443@w-mikek2.ibm.com>
-Content-Type: text/plain
-Date: Thu, 10 Nov 2005 07:32:15 +1100
-Message-Id: <1131568336.24637.91.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Nov 2005 15:35:57 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Reading BIOS information from a kernel driver
+Date: Wed, 9 Nov 2005 15:35:30 -0500
+Message-ID: <4A3725E53DCF3E4B9D5C63880C3F980055B493@mail2.networkengines.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Reading BIOS information from a kernel driver
+Thread-Index: AcXlbSAEKh1rVl22TdedRvA8Rx7DiQ==
+From: "Steven Schveighoffer" <StevenS@NetworkEngines.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 09 Nov 2005 20:35:45.0666 (UTC) FILETIME=[29474620:01C5E56D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-09 at 12:17 -0800, Mike Kravetz wrote:
-> On Wed, Nov 09, 2005 at 06:21:25PM +0100, Christoph Hellwig wrote:
-> > Booting current mainline with 64K pagesize enabled gives me a purple (!)
-> > screen early during boot.
-> 
-> I seem to also be having problems with this patch.  My OpenPOWER 720
-> stopped booting with 2.6.14-git10(and later).  Just using defconfig.
-> 64k page size NOT enabled.  If I back out the 64k page size patch,
-> 2.6.14-git10 boots.  I'm trying to get more info but it is painful.
-> It dies before xmon is initialized.
+I am trying to read a string that the BIOS has placed into memory.
 
-There  have been a couple of fixes, try the very latest git. Also, try
-enabling early debug in arch/ppc64/kernel/setup.c
+The BIOS placed the string into memory at real-mode address F000:FA00
+(i.e. physical address FFA00h).
 
-> I could have sworn that I booted 2.6.14-git7 with the 64k page size
-> patch applied.  But, I can't do that now either.
-> 
-> Some co-workers have successfully booted other POWER systems with these
-> kernels.  So, it must be specific to my hardware/LPAR configuration.
+1. Is there a linear address which always contains this address
+location?  i.e. if there is a spot where I can do:
 
-Ok, i'll do more tests here too.
+char * mystring = (char *)0xMagicAddress;
 
-Ben.
+2. If not, how do I map a linear address to this physical address so I
+can read it?
 
+I'm pretty sure that the string can be read, but I would prefer to know
+exactly where the string is located before looking.  For example, the
+following command finds the string:
 
+dd if=/proc/kcore bs=1024 count=3000 | grep mystring
+
+-Steve

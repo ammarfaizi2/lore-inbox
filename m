@@ -1,63 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751425AbVKIPtb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751356AbVKIPtw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751425AbVKIPtb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 10:49:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbVKIPtb
+	id S1751356AbVKIPtw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 10:49:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbVKIPtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 10:49:31 -0500
-Received: from mail.fh-wedel.de ([213.39.232.198]:37047 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1751425AbVKIPta (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 10:49:30 -0500
-Date: Wed, 9 Nov 2005 16:48:59 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: "Eric W. Biederman" <ebiederman@lnxi.com>
-Cc: linux-mtd@lists.infradead.org, dwmw2@infradead.org,
-       linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-       Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 06/25] mtd: move ioctl32 code to mtdchar.c
-Message-ID: <20051109154859.GA1447@wohnheim.fh-wedel.de>
-References: <20051105162650.620266000@b551138y.boeblingen.de.ibm.com> <20051105162712.921102000@b551138y.boeblingen.de.ibm.com> <20051108105923.GA31446@wohnheim.fh-wedel.de> <m3zmofovsc.fsf@maxwell.lnxi.com> <20051108183339.GB31446@wohnheim.fh-wedel.de> <m3slu5al3n.fsf@maxwell.lnxi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Wed, 9 Nov 2005 10:49:51 -0500
+Received: from nproxy.gmail.com ([64.233.182.198]:55154 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751356AbVKIPtu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 10:49:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=pSDMKqI1ZFr/m9wLX5BqVUY+5qcX5LW06UYIV/Qe62NwJUlv4HhDWvUxau9iJI+D73yqDk4qms3GTl0Gj1K07kycwtoxmAFjuskmUjxjKemSmlItxMwh4a0L7bczP4Fe+TNqJ69sMriKD0U7bc67l/ZqjPwJAAv5iGuQaWtKegM=
+Message-ID: <7d40d7190511090749j3de0e473x@mail.gmail.com>
+Date: Wed, 9 Nov 2005 16:49:49 +0100
+From: Aritz Bastida <aritzbastida@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Stopping Kernel Threads at module unload time
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <m3slu5al3n.fsf@maxwell.lnxi.com>
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 November 2005 08:37:16 -0700, Eric W. Biederman wrote:
-> Jörn Engel <joern@wohnheim.fh-wedel.de> writes:
-> 
-> > Can you name a few examples, where mtdchar.c makes sense?  I've found
-> > it to be quite useless.
-> 
-> I have found just the opposite.  It happens to be the only interface
-> to mtd devices I use.   In general when you have flash devices small
-> enough that you can't use a filesystem without waisting a lot of space
-> (keeping 1 free erase block out of 4 or 8 is a problem).  Or when you are
-> doing low-level mucking mtdchar is invaluable.
+Hello
 
-Josh already convinced me with the Bad Block argument.  The hardware
-already used an OOB scheme to define them.  Regular unix files without
-some sort of OOB data access don't map well to NAND.
+I've got some questions about kernel threads.I am writing a module
+which spawns some kernel threads, which would be removed when the
+module unloads. For that purpose i call kthread_stop() at module
+unload time. When issuing rmmod on the module, it deadlocks at that
+point (in the call to kthread_stop), and never returns.
 
-> As for the interface to mtdchar.  I agree that the readonly character
-> device is silly, and does weird things to the mtd device minor numbers.
-> I agree that ioctls are not the prettiest interface around, however
-> the raw functionality the ioctls export is needed, and interesting.  Some
-> of the functionality would be hard to export even in sysfs the cool ascii
-> replacement for ioctl.
-> 
-> Long term it does look like a sysfs interface to the mtd functionality
-> could suffice.
+In the thread main function the code was something like this (it's of
+course simplified).
 
-It could.  Some time ago I starting coding something up, but got
-quickly distracted.  Might be easier to start from scratch again.
+thread_main()
+{
+     while( ! kthread_should_stop())
+     {
+           .............
+           wait_event_interruptible(stop_wq, kthread_should_stop() );
+     }
 
-Jörn
+     return 0;
+}
 
--- 
-Happiness isn't having what you want, it's wanting what you have.
--- unknown
+So if kthread_stop() first sets the thread "closing flag", and then
+calls wake_up_process(), the thread should wake up, see he should
+stop, and
+end the loop. That doesnt actually never happen.
+
+I have also tried what it is done in kernel/sched.c to finish:
+
+	/* wait for kthread_stop */
+	set_current_state(TASK_INTERRUPTIBLE);
+	while (!kthread_should_stop()) {	
+		schedule();
+		set_current_state(TASK_INTERRUPTIBLE);
+	}
+	__set_current_state(TASK_RUNNING);
+                return 0;
+
+I have ensured it actually arrives to that point by using printks, but
+when the thread goes to sleep, it does never wake up again, so the
+call to kthread_stop() lasts forever.
+
+I dont know why this happens. Is the module cleanup code in the
+context of a user process just like system calls? Can that code sleep?
+If it can't sleep then the answer would be quite easy: kthread_stop()
+wakes up the processes and then waits for the threads to finish (on
+call wait_for_completion), but doesnt actually let them execute,
+because it cannot sleep, so it deadlocks.
+
+So I would be grateful if anyone can help me in this matter.
+Regards
+
+Aritz

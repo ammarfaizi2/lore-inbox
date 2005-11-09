@@ -1,49 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161295AbVKIWHu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161281AbVKIWHp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161295AbVKIWHu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 17:07:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161288AbVKIWHt
+	id S1161281AbVKIWHp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 17:07:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161286AbVKIWHp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 17:07:49 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:23009 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161286AbVKIWHs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 17:07:48 -0500
-Subject: Re: [PATCH] ppc64: 64K pages support
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Mike Kravetz <kravetz@us.ibm.com>, Christoph Hellwig <hch@lst.de>,
-       Andrew Morton <akpm@osdl.org>,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1131573693.24637.109.camel@gaston>
-References: <1130915220.20136.14.camel@gaston>
-	 <1130916198.20136.17.camel@gaston> <20051109172125.GA12861@lst.de>
-	 <20051109201720.GB5443@w-mikek2.ibm.com> <1131568336.24637.91.camel@gaston>
-	 <1131573556.25354.1.camel@localhost.localdomain>
-	 <1131573693.24637.109.camel@gaston>
-Content-Type: text/plain
-Date: Wed, 09 Nov 2005 14:07:31 -0800
-Message-Id: <1131574051.25354.3.camel@localhost.localdomain>
+	Wed, 9 Nov 2005 17:07:45 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:48554 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161281AbVKIWHo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 17:07:44 -0500
+Date: Wed, 09 Nov 2005 17:07:32 -0500 (EST)
+Message-Id: <20051109.170732.41627574.k-ueda@ct.jp.nec.com>
+To: agk@redhat.com, dm-devel@redhat.com
+Cc: linux-kernel@vger.kernel.org, j-nomura@ce.jp.nec.com, k-ueda@ct.jp.nec.com
+Subject: [PATCH] dm: memory leak in failed table_load()
+From: Kiyoshi Ueda <k-ueda@ct.jp.nec.com>
+X-Mailer: Mew version 2.3 on Emacs 20.7 / Mule 4.1
+ =?iso-2022-jp?B?KBskQjAqGyhCKQ==?=
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-11-10 at 09:01 +1100, Benjamin Herrenschmidt wrote:
-> > I didn't have any luck on 2.6.14-git12 either.
-> > I tried 64k page support on my P570. 
-> > 
-> > Here are the console messages:
-> 
-> What distro do you use in userland ? Some older glibc versions have a
-> bug that cause issues with 64k pages, though it generally happens with
-> login blowing up, not init ...
+Hi Alasdair,
 
-SLES9 (could be SLES9 SP1).
+This patch fixes following two problems which occur when "dmsetup load foo"
+is executed before the map of the "foo" is created.
+
+  o memory leak.
+  o unable to unload the dm_mod module.
+
+Please consider to apply.
+
+How to reproduce the problem:
+  # echo "0 10 linear 8:16 0" | dmsetup load foo
+  (Need to change "8:16" appropriately.)
+
+Patch for 2.6.14:
+Signed-off-by: Kiyoshi Ueda <k-ueda@ct.jp.nec.com>
+Signed-off-by: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>
+
+diff -up 2.6.14/drivers/md/dm-ioctl.c fix/drivers/md/dm-ioctl.c
+--- 2.6.14/drivers/md/dm-ioctl.c	2005-10-27 20:02:08.000000000 -0400
++++ fix/drivers/md/dm-ioctl.c	2005-11-09 15:29:59.000000000 -0500
+@@ -974,6 +974,7 @@ static int table_load(struct dm_ioctl *p
+ 	if (!hc) {
+ 		DMWARN("device doesn't appear to be in the dev hash table.");
+ 		up_write(&_hash_lock);
++		dm_table_put(t);
+ 		return -ENXIO;
+ 	}
 
 Thanks,
-Badari
-
+Kiyoshi Ueda

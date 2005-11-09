@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750938AbVKIXBF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751538AbVKIXB7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750938AbVKIXBF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 18:01:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751072AbVKIXBF
+	id S1751538AbVKIXB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 18:01:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751519AbVKIXB7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 18:01:05 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:25472 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751054AbVKIXBB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 18:01:01 -0500
-Subject: Re: [Patch 1/1] V4L (926) Saa7134 alsa can only be
-	autoloaded	after	saa7134 is active
-From: Lee Revell <rlrevell@joe-job.com>
-To: R C <v4l@cerqueira.org>
-Cc: Takashi Iwai <tiwai@suse.de>, mchehab@brturbo.com.br,
-       linux-kernel@vger.kernel.org, akpm@osdl.org,
-       video4linux-list@redhat.com, alsa-devel@lists.sourceforge.net,
-       nshmyrev@yandex.ru
-In-Reply-To: <1131484155.4851.10.camel@frolic>
-References: <1131397121.6632.127.camel@localhost>
-	 <s5hd5lbnzg6.wl%tiwai@suse.de> <1131451671.2863.4.camel@frolic>
-	 <s5h4q6nnunn.wl%tiwai@suse.de>  <1131484155.4851.10.camel@frolic>
-Content-Type: text/plain
-Date: Wed, 09 Nov 2005 17:59:03 -0500
-Message-Id: <1131577144.8383.126.camel@mindpipe>
+	Wed, 9 Nov 2005 18:01:59 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:7652 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751072AbVKIXBz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 18:01:55 -0500
+Date: Wed, 9 Nov 2005 15:01:41 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, len.brown@intel.com,
+       jgarzik@pobox.com, tony.luck@intel.com, bcollins@debian.org,
+       scjody@modernduck.com, dwmw2@infradead.org, rolandd@cisco.com,
+       davej@codemonkey.org.uk, axboe@suse.de, shaggy@austin.ibm.com,
+       sfrench@us.ibm.com
+Subject: Re: merge status
+Message-Id: <20051109150141.0bcbf9e3.akpm@osdl.org>
+In-Reply-To: <1131575124.8541.9.camel@mulgrave>
+References: <20051109133558.513facef.akpm@osdl.org>
+	<1131573041.8541.4.camel@mulgrave>
+	<Pine.LNX.4.64.0511091358560.4627@g5.osdl.org>
+	<1131575124.8541.9.camel@mulgrave>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-08 at 21:09 +0000, R C wrote:
-> On Tue, 2005-11-08 at 14:20 +0100, Takashi Iwai wrote:
-> 
-> > But saa7134_dma_stop() should be already called in trigger callback,
-> > which is called via snd_pcm_stop().
-> 
-> You're right. I wasn't aware pcm_stop() caused a trigger.
-> You may want to check the current version at
-> http://linuxtv.org/cgi-bin/viewcvs.cgi/v4l-kernel/linux/drivers/media/video/saa7134/saa7134-alsa.c?rev=1.21&root=v4l&view=auto
+James Bottomley <James.Bottomley@SteelEye.com> wrote:
+>
+> it's my contributors who drop me in it
+> by leaving their patch sets until you declare a kernel, dumping the
+> integration testing on me in whatever time window is left.
 
-Did you not read Takashi-san's ALSA driver guide?  If not I'm impressed
-you made it work at all...
+Yes, I think I'm noticing an uptick in patches as soon as a kernel is
+released.
 
-http://www.alsa-project.org/~iwai/writing-an-alsa-driver/
+It's a bit irritating, and is unexpected (here, at least).  I guess people
+like to hold onto their work for as long as possible so when they release
+it, it's in the best possible shape.
 
+I guess all we can do is to encourage people to merge up when it's working,
+not when it's time to merge it into mainline.
 
-Lee
-
+One could just say "if I don't have it by the time 2.6.n is released, it
+goes into 2.6.n+2", but that's probably getting outside the realm of
+practicality.

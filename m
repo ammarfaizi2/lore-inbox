@@ -1,71 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030240AbVKIEAj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030475AbVKIEQb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030240AbVKIEAj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 23:00:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030455AbVKIEAj
+	id S1030475AbVKIEQb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 23:16:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030484AbVKIEQb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 23:00:39 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:27608 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1030240AbVKIEAi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 23:00:38 -0500
-Message-ID: <43717426.3050002@jp.fujitsu.com>
-Date: Wed, 09 Nov 2005 12:59:34 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
+	Tue, 8 Nov 2005 23:16:31 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:63167 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1030475AbVKIEQa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 23:16:30 -0500
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, Greg KH <greg@kroah.com>
+Subject: [PATCH] fix for Toshiba ohci1394 quirk
+Date: Tue, 8 Nov 2005 20:13:02 -0800
+User-Agent: KMail/1.8.92
 MIME-Version: 1.0
-To: Christoph Lameter <clameter@engr.sgi.com>
-CC: akpm@osdl.org, Mike Kravetz <kravetz@us.ibm.com>,
-       linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
-       torvalds@osdl.org, Hirokazu Takahashi <taka@valinux.co.jp>,
-       Andi Kleen <ak@suse.de>, Magnus Damm <magnus.damm@gmail.com>,
-       Paul Jackson <pj@sgi.com>, Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [PATCH 5/8] Direct Migration V2: upgrade MPOL_MF_MOVE and sys_migrate_pages()
-References: <20051108210246.31330.61756.sendpatchset@schroedinger.engr.sgi.com> <20051108210402.31330.19167.sendpatchset@schroedinger.engr.sgi.com> <43715266.5080900@jp.fujitsu.com> <Pine.LNX.4.62.0511081922260.582@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0511081922260.582@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_OdXcDt1pYlf2Pfy"
+Message-Id: <200511082013.02627.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> On Wed, 9 Nov 2005, KAMEZAWA Hiroyuki wrote:
-> 
-> 
->>Christoph Lameter wrote:
->>
->>>+	err = migrate_pages(pagelist, &newlist, &moved, &failed);
->>>+
->>>+	putback_lru_pages(&moved);	/* Call release pages instead ?? */
->>>+
->>>+	if (err >= 0 && list_empty(&newlist) && !list_empty(pagelist))
->>>+		goto redo;
->>
->>
->>Here, list_empty(&newlist) is needed ?
->>For checking permanent failure case, list_empty(&failed) looks better.
-> 
-> 
-> We only allocate 256 pages which are on the newlist. If the newlist is 
-> empty but there are still pages that could be migrated 
-> (!list_empty(pagelist)) then we need to allocate more pages and call 
-> migrate_pages() again.
-> 
-> 
-Ah, Okay.
+--Boundary-00=_OdXcDt1pYlf2Pfy
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-confirmation:
-1. Because mm->sem is held, there is no page-is-truncated/freed case.
-2. Because pages in pagelist are removed from zone's lru, kswapd and others will not
-    find and unmap them. There is no page-is-swapedout-by-others case.
+After much testing and agony, I've discovered that my previous ohci1394 
+quirk for Toshiba laptops is not 100% reliable.  It apparently fails to 
+do the interrupt line change either correctly or in time, since in 
+about 2 out of 5 boots, the kernel's irqdebug code will *still* disable 
+irq 11 when the ohci1394 driver is loaded (at pci_enable_device time I 
+think).
 
-So if all target pages are successfuly remvoed from pagelist, newlist must be empty.
-Right ?
+This patch switches things around a little in the workaround.  First, it 
+removes the mdelay.  I didn't see a need for it and my testing has 
+shown that it's not necessary for the quirk to work.
 
+Secondly, instead of trying to change the interrupt line to what ACPI 
+tells us it should be, this patch makes the quirk use the value in the 
+PCI_INTERRUPT_LINE register.  On this laptop at least, that seems to be 
+the right thing to do, though additional testing on other laptops 
+and/or with actual firewire devices would be appreciated.
 
--- Kame
+Thanks,
+Jesse
 
+Signed-off-by: Jesse Barnes <jbarnes@virtuousgeek.org>
 
+--Boundary-00=_OdXcDt1pYlf2Pfy
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="toshiba-ohci1394-fixup-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="toshiba-ohci1394-fixup-fix.patch"
+
+diff --git a/arch/i386/pci/fixup.c b/arch/i386/pci/fixup.c
+index 3984226..eeb1b1f 100644
+--- a/arch/i386/pci/fixup.c
++++ b/arch/i386/pci/fixup.c
+@@ -433,9 +433,8 @@ static void __devinit pci_post_fixup_tos
+ 		return; /* only applies to certain Toshibas (so far) */
+ 
+ 	/* Restore config space on Toshiba laptops */
+-	mdelay(10);
+ 	pci_write_config_word(dev, PCI_CACHE_LINE_SIZE, toshiba_line_size);
+-	pci_write_config_word(dev, PCI_INTERRUPT_LINE, dev->irq);
++	pci_read_config_byte(dev, PCI_INTERRUPT_LINE, (u8 *)&dev->irq);
+ 	pci_write_config_dword(dev, PCI_BASE_ADDRESS_0,
+ 			       pci_resource_start(dev, 0));
+ 	pci_write_config_dword(dev, PCI_BASE_ADDRESS_1,
+diff --git a/drivers/ieee1394/ohci1394.c b/drivers/ieee1394/ohci1394.c
+
+--Boundary-00=_OdXcDt1pYlf2Pfy--

@@ -1,51 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbVKIHiZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbVKIHhN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751095AbVKIHiZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 02:38:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbVKIHiZ
+	id S1751199AbVKIHhN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 02:37:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbVKIHhM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 02:38:25 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:44130 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751095AbVKIHiZ (ORCPT
+	Wed, 9 Nov 2005 02:37:12 -0500
+Received: from mx2.suse.de ([195.135.220.15]:24757 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751258AbVKIHhJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 02:38:25 -0500
-Date: Wed, 9 Nov 2005 08:39:25 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Zachary Amsden <zach@vmware.com>
-Cc: akpm@osdl.org, htejun@hotmail.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: + elevator-init-fixes.patch added to -mm tree
-Message-ID: <20051109073923.GM3699@suse.de>
-References: <200511080351.jA83psjw016612@shell0.pdx.osdl.net> <4370F09C.1050306@vmware.com>
-Mime-Version: 1.0
+	Wed, 9 Nov 2005 02:37:09 -0500
+From: Neil Brown <neilb@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Date: Wed, 9 Nov 2005 18:37:02 +1100
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4370F09C.1050306@vmware.com>
+Content-Transfer-Encoding: 7bit
+Message-ID: <17265.42782.188870.907784@cse.unsw.edu.au>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+Subject: Re: userspace block driver?
+In-Reply-To: message from Jeff Garzik on Wednesday November 9
+References: <4371A4ED.9020800@pobox.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 08 2005, Zachary Amsden wrote:
-> akpm@osdl.org wrote:
+On Wednesday November 9, jgarzik@pobox.com wrote:
 > 
-> >The patch titled
-> >
-> >    Elevator init fixes
-> >
-> >has been added to the -mm tree.  Its filename is
-> >
-> >    elevator-init-fixes.patch
-> > 
-> >
-> 
-> In addition to the first patch, which is probably goodness, I found the 
-> cause of my panic - applying this patch fixes it and now I am booting.
+> Has anybody put any thought towards how a userspace block driver
+> would work?
 
-I'm guessing you hit the same problem as Marcelo, not configuring the
-chosen io scheduler as builtin?
+Isn't this was enbd does? 
+  http://www.it.uc3m.es/~ptb/nbd/
 
-But both patches look fine, I've applied them to the 'for-linus' branch
-for 2.6.15. Thanks!
-
--- 
-Jens Axboe
-
+NeilBrown

@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030414AbVKIDW2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030415AbVKIDXc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030414AbVKIDW2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 22:22:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030415AbVKIDW2
+	id S1030415AbVKIDXc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 22:23:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030423AbVKIDXc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 22:22:28 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:30912 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030414AbVKIDW2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 22:22:28 -0500
-Date: Tue, 8 Nov 2005 19:22:34 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: akpm@osdl.org, mingo@elte.hu
-Cc: linux-kernel@vger.kernel.org, dipankar@hill9.org, wli@holomorphy.com
-Subject: [PATCH] tasklist-RCU fix in attach_pid()
-Message-ID: <20051109032233.GA3060@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-Mime-Version: 1.0
+	Tue, 8 Nov 2005 22:23:32 -0500
+Received: from thunk.org ([69.25.196.29]:37345 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1030415AbVKIDXb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 22:23:31 -0500
+Date: Tue, 8 Nov 2005 22:23:24 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+Cc: Al Viro <viro@ftp.linux.org.uk>,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Compatible fstat()
+Message-ID: <20051109032324.GA21282@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Parag Warudkar <kernel-stuff@comcast.net>,
+	Al Viro <viro@ftp.linux.org.uk>,
+	"linux-os (Dick Johnson)" <linux-os@analogic.com>,
+	Linux kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.61.0511081040580.3894@chaos.analogic.com> <3587A59B-14FA-4E0F-A598-577E944FCF36@comcast.net> <20051108172244.GR7992@ftp.linux.org.uk> <20051108184957.GF6129@thunk.org> <AD464EBF-4A7C-4079-923D-C060D379C69B@comcast.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <AD464EBF-4A7C-4079-923D-C060D379C69B@comcast.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Tue, Nov 08, 2005 at 02:12:24PM -0500, Parag Warudkar wrote:
+> 
+> On Nov 8, 2005, at 1:49 PM, Theodore Ts'o wrote:
+> 
+> >e2fsprogs falls back to using a
+> >binary search using SEEK_SET to find the device size.
+> 
+> Binary search of what? 
 
-Bug in attach_pid() can result in RCU readers in find_pid() getting
-confused if they race with process creation.
+Of the device size; it doubles the guessed size of the disk until
+lseek+read returns an error, and then uses binary search to figure out
+the size of the disk.  I did this because it works on pretty much any
+OS.
 
-Signed-off-by: <paulmck@us.ibm.com>
+>  I tried to read the relevant code in getsize.c  
+> but apart from suspecting that the binary search thing might be  
+> specific to ext2fs I didn't quite understand what's going on in the  
+> code.  (Will it work irrespective of the file system presence on the  
+> device?)
 
----
+Yes, it works irrespective of what's on the disk.  In fact, if the
+Linux-specific ioctl's are not available, it's what will be used by
+mke2fs to figure out the size of the device.
 
-(applies to both 2.6.14-mm1 and -rt)
-
- pid.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -uprNa -X dontdiff linux-2.6.14-mm1/kernel/pid.c linux-2.6.14-mm1-fix-1/kernel/pid.c
---- linux-2.6.14-mm1/kernel/pid.c	2005-11-08 08:18:55.000000000 -0800
-+++ linux-2.6.14-mm1-fix-1/kernel/pid.c	2005-11-08 19:02:35.000000000 -0800
-@@ -150,6 +150,7 @@ int fastcall attach_pid(task_t *task, en
- 
- 	task_pid = &task->pids[type];
- 	pid = find_pid(type, nr);
-+	task_pid->nr = nr;
- 	if (pid == NULL) {
- 		INIT_LIST_HEAD(&task_pid->pid_list);
- 		hlist_add_head_rcu(&task_pid->pid_chain,
-@@ -158,7 +159,6 @@ int fastcall attach_pid(task_t *task, en
- 		INIT_HLIST_NODE(&task_pid->pid_chain);
- 		list_add_tail_rcu(&task_pid->pid_list, &pid->pid_list);
- 	}
--	task_pid->nr = nr;
- 
- 	return 0;
- }
+					- Ted

@@ -1,42 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751044AbVKIQdr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750955AbVKIQkH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751044AbVKIQdr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 11:33:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbVKIQdq
+	id S1750955AbVKIQkH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 11:40:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751004AbVKIQkH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 11:33:46 -0500
-Received: from 238-193.adsl.pool.ew.hu ([193.226.238.193]:34066 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S1751044AbVKIQdq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 11:33:46 -0500
-To: viro@ftp.linux.org.uk
-CC: torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, linuxram@us.ibm.com
-In-reply-to: <20051109155634.GY7992@ftp.linux.org.uk> (message from Al Viro on
-	Wed, 9 Nov 2005 15:56:34 +0000)
-Subject: Re: [PATCH 12/18] shared mount handling: bind and rbind
-References: <E1EZInj-0001Ez-AV@ZenIV.linux.org.uk> <E1EZnbA-000190-00@dorka.pomaz.szeredi.hu> <20051109143107.GV7992@ftp.linux.org.uk> <E1EZrmJ-0001dI-00@dorka.pomaz.szeredi.hu> <20051109155634.GY7992@ftp.linux.org.uk>
-Message-Id: <E1EZssv-0001lI-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 09 Nov 2005 17:33:17 +0100
+	Wed, 9 Nov 2005 11:40:07 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:27670 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1750955AbVKIQkF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 11:40:05 -0500
+Message-ID: <437226B2.10901@tmr.com>
+Date: Wed, 09 Nov 2005 11:41:22 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Richard Purdie <rpurdie@rpsys.net>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       damir.perisa@solnet.ch, akpm@osdl.org,
+       Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: [patch] Re: 2.6.14-rc5-mm1 - ide-cs broken!
+References: <20051103220305.77620d8f.akpm@osdl.org>	 <20051104071932.GA6362@kroah.com>	 <1131117293.26925.46.camel@localhost.localdomain>	 <20051104163755.GB13420@kroah.com> <1131531428.8506.24.camel@localhost.localdomain>
+In-Reply-To: <1131531428.8506.24.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Before it gets freed it may end up being copied.  Example: vfsmounts
-> A and B are peers, C is a slave of that peer group.  It happens to be
-> on slave list of B.  B has root deeper than A, which, in turn is deeper
-> than that of C (e.g. A and B had been created by binding subtrees of
-> C, which had been made slave afterwards).  We bind on something in A,
-> outside of the subtree mapped by B.
+Richard Purdie wrote:
+> On Fri, 2005-11-04 at 08:37 -0800, Greg KH wrote:
 > 
-> Alternatively, have A -> (B, D) -> C, with C on slave list of B.  Mountpoint
-> is within subtrees for A, C and D, but not B.  And no, we can't say "skip B,
-> just make a slave of tree on A and slap it on C" - correct result is to
-> have T_A -> T_D -> T_C (i.e. tree on C gets propagation from tree on D).
-> Which kills the variants with not creating that copy and making subsequent
-> ones directly from the original tree.
+>>On Fri, Nov 04, 2005 at 03:14:53PM +0000, Alan Cox wrote:
+>>
+>>>On Iau, 2005-11-03 at 23:19 -0800, Greg KH wrote:
+>>>
+>>>>Hint, gentoo, debian, and suse don't have this problem, so you might
+>>>>want to look at their rules files for how to work around this.  Look for
+>>>>this line:
+>>>>
+>>>># skip accessing removable ide devices, cause the ide drivers are horrible broken
+>>>
+>>>
+>>>I was under the impression people had eventually decided the media
+>>>change patch someone was proposed was ok after investigating one or two
+>>>cases I knew of that turned out to be borked hardware ?
+>>
+>>I was not aware of that, I'd be glad to see that patch go into the tree
+>>to help others who have run into this over the years.
+>>
+>>Hm, have a pointer to the latest proposed patch for this anywhere?
+> 
+> 
+> This was discussed in the thread: http://lkml.org/lkml/2005/9/21/118
+> 
+> Alan Cox:
+> 
+>>On Iau, 2005-09-22 at 15:21 +0100, Richard Purdie wrote:
+>>
+>>>1. Are ide-cs devices removable or not. See above.
+>>
+>>Having done testing on the cards I have based on RMK's suggestion I
+>>agree they are not removable except for specific cases (IDE PCMCIA cable
+>>adapter plugged into a Syquest). That case is already handled in the
+>>core code.
+> 
+> 
+> Alan: Can you confirm the patch below continues to handle the case
+> you're talking about?
+> 
+> 
+>>The fact cache flushing is all odd now is I guess bug 4. on the list but
+>>easy to fix while fixing 1
+> 
+> 
+> I don't know the ide code well enough to understand what needs fixing
+> here. Can you elaborate further?
+> 
+> I'll resend this patch as it still applies and we seem to be in general
+> agreement about what needs doing. There was also the issue of media
+> change serial number checking but that really needs tackling separately.
+> 
+> 
+> This patch stops CompactFlash devices being marked as removable. They
+> are not removable (as defined by Linux) as the media and device are 
+> inseparable. When a card is removed, the whole device is removed from 
+> the system and never sits in a media-less state.
 
-OK, I see it now.  What confused me is that from patch 12 it's not yet
-obvious, that the copied mount will be used for futher propagation.
+Having used CF devices for some years (since RH 8.0) I'm not sure what 
+problem you're addressing here. Could you describe what problem you're 
+having, and also note what current functionality this will change?
 
-Miklos
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

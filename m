@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751410AbVKIPVO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751406AbVKIPVH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751410AbVKIPVO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 10:21:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbVKIPVN
+	id S1751406AbVKIPVH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 10:21:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751407AbVKIPVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 10:21:13 -0500
-Received: from rtsoft2.corbina.net ([85.21.88.2]:27784 "HELO
-	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S1751407AbVKIPVL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 10:21:11 -0500
-Message-ID: <43721456.4070205@ru.mvista.com>
-Date: Wed, 09 Nov 2005 18:23:02 +0300
-From: Sergei Shtylylov <sshtylyov@ru.mvista.com>
-Organization: MostaVista Software Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
-X-Accept-Language: ru, en-us, en-gb
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: libata PATA patches
-References: <1131460386.25192.45.camel@localhost.localdomain> <4371FA47.1070806@ru.mvista.com>
-In-Reply-To: <4371FA47.1070806@ru.mvista.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Nov 2005 10:21:06 -0500
+Received: from www.swissdisk.com ([216.144.233.50]:40932 "EHLO
+	swissweb.swissdisk.com") by vger.kernel.org with ESMTP
+	id S1751406AbVKIPVF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 10:21:05 -0500
+Date: Wed, 9 Nov 2005 06:09:52 -0800
+From: Ben Collins <ben.collins@ubuntu.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Xavier Bestel <xavier.bestel@free.fr>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Daniel Drake <dsd@gentoo.org>, Ben Collins <bcollins@ubuntu.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Ubuntu kernel tree
+Message-ID: <20051109140952.GA30611@swissdisk.com>
+References: <20051106013752.GA13368@swissdisk.com> <436E17CA.3060803@gentoo.org> <1131316729.1212.58.camel@localhost.localdomain> <436F81D1.7000100@gentoo.org> <1131383311.11265.22.camel@localhost.localdomain> <1131383144.2477.9.camel@capoeira> <20051107173201.GF3847@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051107173201.GF3847@stusta.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, I wrote:
-
-> Alan Cox wrote:
+On Mon, Nov 07, 2005 at 06:32:01PM +0100, Adrian Bunk wrote:
+> On Mon, Nov 07, 2005 at 06:05:44PM +0100, Xavier Bestel wrote:
+> > On Mon, 2005-11-07 at 18:08, Alan Cox wrote:
+> > > On Llu, 2005-11-07 at 16:33 +0000, Daniel Drake wrote:
+> > > > Source RPM's will just contain a Linux kernel tree with your patches already 
+> > > > applied, right?
+> > > 
+> > > Of course not. Its an rpm file. RPM files contain a set of broken out
+> > > patches and base tar ball plus controlling rules for application. It's
+> > > rather more advanced than .deb sources.
+> > 
+> > That's a troll, Alan. .deb contain exactely the same things.
 > 
->> I've put a new patch versus 2.6.14-mm1 on 
->> http://zeniv.linux.org.uk/~alan/IDE
-> 
-> 
->    I found somewhat strange that you check for 0xABCDExxx signature in 
-> 32-bit PCI config. reg. 0x78 while HighPoint's own drivers read BM reg. 
-> 0x90 (i.e. PCI config. 0x70) for that. PCI reg. 0x7A is DPLL precision 
-> adjust reg. and 0x7B is the input clock select and IRQ reg., so it'd be 
-> quite strange if the BIOS used them for any kind of signature...
+> No, he's right.
 
-    Pardon me for being too hasty. :-)
-    I was talking about drivers/scsi/pata_hpt37x.c
+That's only right in the simplest form. However, the debian kernel and a
+huge portion of other complex packages contain a debian/patches/ directory
+that gets applied at build time. Each patch is broken out seperately, with
+description embedded in the patch.
 
-WBR, Sergei
+-- 
+   Ben Collins <ben.collins@ubuntu.com>
+   Developer
+   Ubuntu Linux

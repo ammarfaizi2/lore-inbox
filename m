@@ -1,55 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030491AbVKIKhF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030433AbVKIKwR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030491AbVKIKhF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 05:37:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030489AbVKIKhF
+	id S1030433AbVKIKwR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 05:52:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030489AbVKIKwR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 05:37:05 -0500
-Received: from poup.poupinou.org ([195.101.94.96]:19750 "EHLO
-	poup.poupinou.org") by vger.kernel.org with ESMTP id S1030491AbVKIKhD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 05:37:03 -0500
-Date: Wed, 9 Nov 2005 11:37:01 +0100
+	Wed, 9 Nov 2005 05:52:17 -0500
+Received: from adsl-71-133-204-141.dsl.pltn13.pacbell.net ([71.133.204.141]:58848
+	"EHLO mail.teloric.net") by vger.kernel.org with ESMTP
+	id S1030433AbVKIKwR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 05:52:17 -0500
+Message-ID: <4371D4E0.50901@krellan.com>
+Date: Wed, 09 Nov 2005 02:52:16 -0800
+From: JoSH Lehan <krellan@krellan.com>
+Organization: Dementites And Dementoids
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: Bruno Ducrot <ducrot@poupinou.org>
-Subject: [AMD64] Possible bug in fs/read_write.c::rw_verify_area
-Message-ID: <20051109103701.GA8491@poupinou.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-From: Bruno Ducrot <poup@poupinou.org>
+Subject: psmouse: Patch to reset when lost synchronization throwing bytes
+ away
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Hello!
 
-fs/read_write.c::rw_verify_area check if the count for a read/write is
-valid.  Unfortunately, this check assume that a size_t is an int, which
-is wrong at least on AMD64 architecture.
+I have made a quick patch for psmouse, that solves a problem I have had
+with certain KVM switches.
 
-This fix is not correct also in general: it is wrong to assume
-that size_t is a long int.  A correct fix would be to introduce
-a new constant (say SSIZE_MAX) for each supported architecture
-and to use that contstant instead.  I'm not an expert on this and
-it is why I don't do it (sorry).  But at least the following patch
-is ok for more achitecture, I believe.
+Windows XP is surprisingly decent at resetting the mouse when an error
+or desynchronization occurs.  This seems like an acceptable recovery
+strategy, as the only drawback will be loss of mouse responsiveness for
+0.5 seconds or so.
 
-Signed-off-by: Bruno Ducrot <ducrot@poupinou.org>
+In Linux, however, the psmouse driver will clear the buffer but not do
+a reset.  This doesn't solve the problem, as the block boundaries have
+already been lost and any mouse input will be seen as garbage data.
+The result is the infamous "teleporting mouse" bug, where the mouse
+pointer jumps around the screen and phantom button presses start
+happening.  In this age of GUI context menus for right-clicks, Bad
+Things can start to happen very easily, resulting in *much* user
+frustration....
 
---- linux-2.6.14/fs/read_write.c	2005/11/09 10:19:04	1.1
-+++ linux-2.6.14/fs/read_write.c	2005/11/09 10:19:40
-@@ -188,7 +188,7 @@ int rw_verify_area(int read_write, struc
- 	struct inode *inode;
- 	loff_t pos;
- 
--	if (unlikely(count > INT_MAX))
-+	if (unlikely(count > LONG_MAX))
- 		goto Einval;
- 	pos = *ppos;
- 	if (unlikely((pos < 0) || (loff_t) (pos + count) < 0))
--- 
-Bruno Ducrot
+The workaround now is to switch to a text-only VC, become root, rmmod
+psmouse, and modprobe psmouse again.  This patch makes this behaviour
+happen automatically, by asking the mouse to reset itself when the
+driver detects a loss of synchronization.
 
---  Which is worse:  ignorance or apathy?
---  Don't know.  Don't care.
+
+diff -urN OLD-linux-source-2.6.12/drivers/input/mouse/psmouse-base.c NEW-linux-source-2.6.12/drivers/input/mouse/psmouse-base.c
+--- OLD-linux-source-2.6.12/drivers/input/mouse/psmouse-base.c	2005-06-17 12:48:29.000000000 -0700
++++ NEW-linux-source-2.6.12/drivers/input/mouse/psmouse-base.c	2005-11-08 03:36:46.000000000 -0800
+@@ -175,9 +175,14 @@
+
+  	if (psmouse->state == PSMOUSE_ACTIVATED &&
+  	    psmouse->pktcnt && time_after(jiffies, psmouse->last + HZ/2)) {
+-		printk(KERN_WARNING "psmouse.c: %s at %s lost synchronization, throwing %d bytes away.\n",
++		printk(KERN_WARNING "psmouse.c: %s at %s lost synchronization, throwing %d bytes away and resetting.\n",
+  		       psmouse->name, psmouse->phys, psmouse->pktcnt);
+  		psmouse->pktcnt = 0;
++
++		/* linux@krellan.com: Now resetting the mouse when this happens, in order to avoid continuing with garbaged input */
++		psmouse->state = PSMOUSE_IGNORE;
++		serio_reconnect(psmouse->ps2dev.serio);
++		goto out;
+  	}
+
+  	psmouse->last = jiffies;
+
+
+Opinions/comments on this?
+
+Thanks!
+Josh
+

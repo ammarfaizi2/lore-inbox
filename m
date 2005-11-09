@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751377AbVKILaj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbVKILiK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751377AbVKILaj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 06:30:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbVKILaj
+	id S1751364AbVKILiK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 06:38:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbVKILiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 06:30:39 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:62435 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751377AbVKILai (ORCPT
+	Wed, 9 Nov 2005 06:38:10 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:38277 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1751364AbVKILiJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 06:30:38 -0500
-Date: Wed, 9 Nov 2005 12:30:53 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: john cooper <john.cooper@timesys.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: MIPS PREEMPT_RT update..
-Message-ID: <20051109113053.GA1012@elte.hu>
-References: <436B85E1.1050103@timesys.com>
+	Wed, 9 Nov 2005 06:38:09 -0500
+Subject: Re: [patch] Re: 2.6.14-rc5-mm1 - ide-cs broken!
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       damir.perisa@solnet.ch, akpm@osdl.org,
+       Kay Sievers <kay.sievers@vrfy.org>
+In-Reply-To: <1131531428.8506.24.camel@localhost.localdomain>
+References: <20051103220305.77620d8f.akpm@osdl.org>
+	 <20051104071932.GA6362@kroah.com>
+	 <1131117293.26925.46.camel@localhost.localdomain>
+	 <20051104163755.GB13420@kroah.com>
+	 <1131531428.8506.24.camel@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 09 Nov 2005 12:08:34 +0000
+Message-Id: <1131538115.6540.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <436B85E1.1050103@timesys.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mer, 2005-11-09 at 10:17 +0000, Richard Purdie wrote:
+> > Having done testing on the cards I have based on RMK's suggestion I
+> > agree they are not removable except for specific cases (IDE PCMCIA cable
+> > adapter plugged into a Syquest). That case is already handled in the
+> > core code.
+> 
+> Alan: Can you confirm the patch below continues to handle the case
+> you're talking about?
 
-* john cooper <john.cooper@timesys.com> wrote:
+It does. The Syquest is picked up later on in the driver itself.
 
-> As a qualification, I am still chasing a few problems which I suspect 
-> are related to the Malta patch for 2.6.14 rather than the mips-rt 
-> patch.  One appears to be a TLB handler problem in 2.6.14.  The other 
-> appears to be potentially excessive context switching, although I 
-> haven't had the opportunity yet to fully investigate this issue.  I 
-> will follow up should resolution of these feed back into generic 
-> mips-rt support.
+Alan
 
-FYI, i have released your big MIPS merge as part of 2.6.14-rt9. [please 
-double-check i did not mis-merge any component]
-
-wrt. your TLB problems: it might be related that TLB handling got 
-simplified (and sped up) with the introduction of a generic, preemptible 
-method to handle TLB-gathers. There's no tlb-simple.h anymore.
-
-excessive context-switching might happen in some cases when we ping-pong 
-short-held locks, and i'm certainly interested in a reproducer or 
-analysis (or patch! :-).
-
-	Ingo

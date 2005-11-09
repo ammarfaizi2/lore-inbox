@@ -1,67 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750990AbVKIU4U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030774AbVKIVBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750990AbVKIU4U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 15:56:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbVKIU4U
+	id S1030774AbVKIVBE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 16:01:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030777AbVKIVBE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 15:56:20 -0500
-Received: from pop.gmx.net ([213.165.64.20]:32730 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750990AbVKIU4T (ORCPT
+	Wed, 9 Nov 2005 16:01:04 -0500
+Received: from fsmlabs.com ([168.103.115.128]:19853 "EHLO spamalot.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S1030774AbVKIVBD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 15:56:19 -0500
-X-Authenticated: #20450766
-Date: Wed, 9 Nov 2005 21:56:32 +0100 (CET)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
-Subject: Re: userspace block driver?
-In-Reply-To: <4371A4ED.9020800@pobox.com>
-Message-ID: <Pine.LNX.4.60.0511092130230.9330@poirot.grange>
-References: <4371A4ED.9020800@pobox.com>
+	Wed, 9 Nov 2005 16:01:03 -0500
+X-ASG-Debug-ID: 1131570057-5072-0-0
+X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
+Date: Wed, 9 Nov 2005 13:06:52 -0800 (PST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Greg KH <gregkh@suse.de>
+cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       "Theodore Ts'o" <tytso@mit.edu>, Justin Forbes <jmforbes@linuxtx.org>,
+       Randy Dunlap <rdunlap@xenotime.net>, torvalds@osdl.org,
+       Chuck Wolber <chuckw@quantumlinux.com>, alan@lxorguk.ukuu.org.uk
+X-ASG-Orig-Subj: Re: [stable] [patch 00/11] - stable review
+Subject: Re: [stable] [patch 00/11] - stable review
+In-Reply-To: <20051109201016.GA7133@kroah.com>
+Message-ID: <Pine.LNX.4.61.0511091305350.1526@montezuma.fsmlabs.com>
+References: <20051109183614.GA3670@kroah.com> <20051109201016.GA7133@kroah.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.5168
+	Rule breakdown below pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Nov 2005, Jeff Garzik wrote:
+On Wed, 9 Nov 2005, Greg KH wrote:
 
+> On Wed, Nov 09, 2005 at 10:36:14AM -0800, Greg KH wrote:
+> > Responses should be made by Saturday, November 12, 18:00:00 UTC Anything
+> > received after that time, might be too late.
 > 
-> Has anybody put any thought towards how a userspace block driver would work?
-> 
-> Consider a block device implemented via an SSL network connection.  I don't
-> want to put SSL in the kernel, which means the only other alternative is to
-> pass data to/from a userspace daemon.
-> 
-> Anybody have any favorite methods?  [similar to] mmap'd packet socket? ramfs?
+> In talking it over with others, this seems like a bit long.  How about
+> Friday, November 11, 06:00:00 UTC instead?  Any objections?
 
-Heh, thanks, Jeff, for bringing this subject up again, hasn't been that 
-long ago
+That only gives basically part of today and tomorrow, some people might 
+have trouble getting round to checking within that time. I personally 
+sometimes get upto 2 days behind on lkml even when i'm online.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=113140332009208&w=2
-
-, which was indeed asked with nbd in mind. To remind you and others in
-
-http://marc.theaimsgroup.com/?t=111524157800004&r=1&w=2
-http://marc.theaimsgroup.com/?t=111706463800001&r=1&w=2
-
-I played a bit with extending nbd to map block devices to the client 
-system more transparently, which means, as James Bottomley explained, 
-basically supporting REQ_BLOCK_PC requests. He also suggested not to use 
-ioctls on both sides, which is where I stopped. I can understand how to 
-avoid implementing ioctl in the nbd driver and intercepting REQ_BLOCK_PC 
-requests instead, but on the server side? Assume you get the request 
-object on the client, send it to the server, and then? Even if there 
-existed a generic interface to block devices, allowing to inject requests 
-directly from user space into block queue, wouldn't the same problems with 
-endianness, 32/64 bit stay? The advantage, perhaps, would be that the 
-request structure is standard, so, the conversion would be universal?
-
-So, my problem is - how to send a generic request to a device (disk / 
-cdrom / loop / sg / st / ...) from the user space? Hence my recent 
-question...
-
-Thanks
-Guennadi
----
-Guennadi Liakhovetski

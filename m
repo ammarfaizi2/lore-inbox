@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbVKIOdi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751401AbVKIOgJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751360AbVKIOdi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 09:33:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751368AbVKIOdi
+	id S1751401AbVKIOgJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 09:36:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbVKIOgJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 09:33:38 -0500
-Received: from allen.werkleitz.de ([80.190.251.108]:20192 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S1751360AbVKIOdh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 09:33:37 -0500
-References: <20051109135925.GF12751@localhost.localdomain>
-In-Reply-To: <20051109135925.GF12751@localhost.localdomain>
-From: hunold@linuxtv.org
-To: Hugo Mills <hugo-lkml@carfax.org.uk>
-Cc: linux-kernel@vger.kernel.org,
-       "linux-dvb@linuxtv.org" <linux-dvb@linuxtv.org>
-Subject: Re: [linux-dvb-maintainer] Multiple USB DVB devices cause hard
-  lockups
-Date: Wed, 09 Nov 2005 15:33:27 +0100
+	Wed, 9 Nov 2005 09:36:09 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:8757
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1751404AbVKIOgH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 09:36:07 -0500
+Message-Id: <4372179E.76F0.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Wed, 09 Nov 2005 15:37:02 +0100
+From: "Jan Beulich" <JBeulich@novell.com>
+To: "Al Viro" <viro@ftp.linux.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 15/39] NLKD - early pseudo-fs
+References: <43720E72.76F0.0078.0@novell.com>  <43720EAF.76F0.0078.0@novell.com>  <43720F5E.76F0.0078.0@novell.com>  <43720F95.76F0.0078.0@novell.com>  <43720FBA.76F0.0078.0@novell.com>  <43720FF6.76F0.0078.0@novell.com>  <43721024.76F0.0078.0@novell.com>  <4372105B.76F0.0078.0@novell.com>  <43721119.76F0.0078.0@novell.com>  <43721142.76F0.0078.0@novell.com> <20051109142926.GU7992@ftp.linux.org.uk>
+In-Reply-To: <20051109142926.GU7992@ftp.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <E1EZr0x-0005dY-7o@allen.werkleitz.de>
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Scanned: No (on allen.werkleitz.de); SAEximRunCond expanded to false
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Hugo, 
+>>> Al Viro <viro@ftp.linux.org.uk> 09.11.05 15:29:26 >>>
+>On Wed, Nov 09, 2005 at 03:09:54PM +0100, Jan Beulich wrote:
+>> While for limited amounts of configuration information the kernel
+>> command line may be suitable, it isn't when it comes to significant
+>> amounts of configurable entities that need to be set before the
+full
+>> kernel infrastructure is available. This patch adds functionality
+to
+>> pass one or more configuration files through the initrd, but
+without
+>> requiring knowledge of the actual structure (including compression)
+of
+>> it; the file(s) is/are attached to the end of the already built
+>> initrd (which obviously depends on external scripts not provided
+>> here).
+>
+>What the hell for?  We _already_ have a way to get any set of files
+in
+>a filesystem as soon as we have VFS caches set up (and until then you
+>can't open anything anyway).
 
-Hugo Mills writes:
->    I'm trying to get a pair of Twinhan Alpha II DVB-USB devices
-> working on the same machine. With a single device plugged in, I can
-> quite easily receive and stream data. 
-> 
->    With both devices connected to the machine, both are recognised.
-> However, use of either device causes some form of stack backtrace (I
-> can't see the top of it to verify what kind) from the kernel, and a
-> hard lock-up. Magic SysRQ is non-functional after the lock-up. Failure
-> cases that I've seen are:
+That's the whole point - a debugger wants this *before* VFS is set up
+(and thus obviously without going through VFS in the first place). One
+may argue that the naming is odd, but that's nothing I really care
+about.
 
-Thank you for your report. I forwarded the mail to the linux-dvb mailing 
-list. Hopefully somebody is able to help you. 
+>NAK.
 
-Please consider subscribing to the linux-dvb mailing list:
-http://www.linuxtv.org/cgi-bin/mailman/listinfo 
+Then suggest an alternative solution.
 
->    Hugo.
-
-CU
-Michael. 
-
+Jan

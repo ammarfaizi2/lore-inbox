@@ -1,466 +1,278 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbVKIOOw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbVKIOQu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750823AbVKIOOw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 09:14:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbVKIOOd
+	id S1750898AbVKIOQu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 09:16:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750866AbVKIOPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 09:14:33 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:23789 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1750823AbVKIOO1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 09:14:27 -0500
-Message-Id: <20051109141510.844000000@localhost.localdomain>
-References: <20051109134938.757187000@localhost.localdomain>
-Date: Wed, 09 Nov 2005 21:49:46 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 08/16] readahead: state based method
-Content-Disposition: inline; filename=readahead-method-stateful.patch
+	Wed, 9 Nov 2005 09:15:22 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:26161
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1750888AbVKIOPP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 09:15:15 -0500
+Message-Id: <437212BC.76F0.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Wed, 09 Nov 2005 15:16:12 +0100
+From: "Jan Beulich" <JBeulich@novell.com>
+To: "Andreas Kleen" <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
+Subject: [PATCH 21/39] NLKD/x86-64 - core adjustments
+References: <43720DAE.76F0.0078.0@novell.com> <43720E2E.76F0.0078.0@novell.com> <43720E72.76F0.0078.0@novell.com> <43720EAF.76F0.0078.0@novell.com> <43720F5E.76F0.0078.0@novell.com> <43720F95.76F0.0078.0@novell.com> <43720FBA.76F0.0078.0@novell.com> <43720FF6.76F0.0078.0@novell.com> <43721024.76F0.0078.0@novell.com> <4372105B.76F0.0078.0@novell.com> <437210D1.76F0.0078.0@novell.com> <4372120B.76F0.0078.0@novell.com> <43721239.76F0.0078.0@novell.com> <4372127F.76F0.0078.0@novell.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="=__PartE1C3DDBC.1__="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the fast code path.
+This is a MIME message. If you are reading this text, you may want to 
+consider changing to a mail reader or gateway that understands how to 
+properly handle MIME multipart messages.
 
-Major steps:
-        - estimate a thrashing safe ra_size;
-        - assemble the next read-ahead request in file_ra_state;
-        - submit it.
+--=__PartE1C3DDBC.1__=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
----
+The core x86-64 NLKD adjustments to pre-existing code.
 
- include/linux/fs.h |    8 +
- mm/readahead.c     |  340 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- mm/swap.c          |    3 
- mm/vmscan.c        |    5 
- 4 files changed, 355 insertions(+), 1 deletion(-)
+From: Jan Beulich <jbeulich@novell.com>
 
---- linux-2.6.14-mm1.orig/include/linux/fs.h
-+++ linux-2.6.14-mm1/include/linux/fs.h
-@@ -569,13 +569,19 @@ struct file_ra_state {
- 	unsigned long start;		/* Current window */
- 	unsigned long size;
- 	unsigned long flags;		/* ra flags RA_FLAG_xxx*/
--	unsigned long cache_hit;	/* cache hit count*/
-+	uint64_t      cache_hit;	/* cache hit count*/
- 	unsigned long prev_page;	/* Cache last read() position */
- 	unsigned long ahead_start;	/* Ahead window */
- 	unsigned long ahead_size;
- 	unsigned long ra_pages;		/* Maximum readahead window */
- 	unsigned long mmap_hit;		/* Cache hit stat for mmap accesses */
- 	unsigned long mmap_miss;	/* Cache miss stat for mmap accesses */
-+
-+	unsigned long age;
-+	pgoff_t la_index;
-+	pgoff_t ra_index;
-+	pgoff_t lookahead_index;
-+	pgoff_t readahead_index;
- };
- #define RA_FLAG_MISS 0x01	/* a cache miss occured against this file */
- #define RA_FLAG_INCACHE 0x02	/* file is already in cache */
---- linux-2.6.14-mm1.orig/mm/vmscan.c
-+++ linux-2.6.14-mm1/mm/vmscan.c
-@@ -406,6 +406,8 @@ cannot_free:
- 	return 0;
- }
- 
-+DECLARE_PER_CPU(unsigned long, smooth_aging);
-+
- /*
-  * shrink_list adds the number of reclaimed pages to sc->nr_reclaimed
-  */
-@@ -453,6 +455,8 @@ static int shrink_list(struct list_head 
- 		/* In active use or really unfreeable?  Activate it. */
- 		if (referenced && page_mapping_inuse(page))
- 			goto activate_locked;
-+		if (!referenced)
-+			__get_cpu_var(smooth_aging)++;
- 
- #ifdef CONFIG_SWAP
- 		/*
-@@ -991,6 +995,7 @@ refill_inactive_zone(struct zone *zone, 
- 				list_add(&page->lru, &l_active);
- 				continue;
- 			}
-+			__get_cpu_var(smooth_aging)++;
- 		}
- 		list_add(&page->lru, &l_inactive);
- 	}
---- linux-2.6.14-mm1.orig/mm/swap.c
-+++ linux-2.6.14-mm1/mm/swap.c
-@@ -112,6 +112,8 @@ void fastcall activate_page(struct page 
- 	spin_unlock_irq(&zone->lru_lock);
- }
- 
-+DECLARE_PER_CPU(unsigned long, smooth_aging);
-+
- /*
-  * Mark a page as having seen activity.
-  *
-@@ -126,6 +128,7 @@ void fastcall mark_page_accessed(struct 
- 		ClearPageReferenced(page);
- 	} else if (!PageReferenced(page)) {
- 		SetPageReferenced(page);
-+		__get_cpu_var(smooth_aging)++;
- 	}
- }
- 
---- linux-2.6.14-mm1.orig/mm/readahead.c
-+++ linux-2.6.14-mm1/mm/readahead.c
-@@ -38,6 +38,12 @@ EXPORT_SYMBOL(readahead_hit_rate);
- int readahead_live_chunk = 2 * MAX_RA_PAGES;
- EXPORT_SYMBOL(readahead_live_chunk);
- 
-+/* Analog to zone->nr_page_aging.
-+ * But mainly increased on fresh page references, so is much more smoother.
-+ */
-+DEFINE_PER_CPU(unsigned long, smooth_aging);
-+EXPORT_PER_CPU_SYMBOL(smooth_aging);
-+
- /* Detailed classification of read-ahead behaviors. */
- #define RA_CLASS_SHIFT 3
- #define RA_CLASS_MASK  ((1 << RA_CLASS_SHIFT) - 1)
-@@ -789,6 +795,340 @@ out:
- }
- 
- /*
-+ * State based calculation of read-ahead request.
-+ *
-+ * This figure shows the meaning of file_ra_state members:
-+ *
-+ *             chunk A                            chunk B
-+ *  +---------------------------+-------------------------------------------+
-+ *  |             #             |                   #                       |
-+ *  +---------------------------+-------------------------------------------+
-+ *                ^             ^                   ^                       ^
-+ *              la_index      ra_index     lookahead_index         readahead_index
-+ */
-+
-+/*
-+ * The global effective length of the inactive_list(s).
-+ */
-+static unsigned long nr_free_inactive(void)
-+{
-+	unsigned int i;
-+	unsigned long sum = 0;
-+	struct zone *zones = NODE_DATA(numa_node_id())->node_zones;
-+
-+	for (i = 0; i < MAX_NR_ZONES; i++)
-+		sum += zones[i].nr_inactive +
-+			zones[i].free_pages - zones[i].pages_low;
-+
-+	return sum;
-+}
-+
-+/*
-+ * A much smoother analog to nr_page_aging.
-+ */
-+static unsigned long nr_smooth_aging(void)
-+{
-+	unsigned long cpu;
-+	unsigned long sum = 0;
-+	cpumask_t mask = node_to_cpumask(numa_node_id());
-+
-+	for_each_cpu_mask(cpu, mask)
-+		sum += per_cpu(smooth_aging, cpu);
-+
-+	return sum;
-+}
-+
-+/*
-+ * Set class of read-ahead
-+ */
-+static inline void set_ra_class(struct file_ra_state *ra,
-+				enum ra_class ra_class)
-+{
-+	unsigned long FLAGS_MASK;
-+	unsigned long flags;
-+	unsigned long old_ra_class;
-+
-+	FLAGS_MASK = ~(RA_CLASS_MASK | (RA_CLASS_MASK << RA_CLASS_SHIFT));
-+	flags = ra->flags & FLAGS_MASK;
-+
-+	old_ra_class = (ra->flags & RA_CLASS_MASK) << RA_CLASS_SHIFT;
-+
-+	ra->flags = flags | old_ra_class | ra_class;
-+}
-+
-+/*
-+ * The 64bit cache_hit stores three accumulated value and one counter value.
-+ * MSB                                                                   LSB
-+ * 3333333333333333 : 2222222222222222 : 1111111111111111 : 0000000000000000
-+ */
-+static inline int ra_cache_hit(struct file_ra_state *ra, int nr)
-+{
-+	return (ra->cache_hit >> (nr * 16)) & 0xFFFF;
-+}
-+
-+/*
-+ * Something like:
-+ * ra_cache_hit(ra, 1) += ra_cache_hit(ra, 0);
-+ * ra_cache_hit(ra, 0) = 0;
-+ */
-+static inline void ra_addup_cache_hit(struct file_ra_state *ra)
-+{
-+	int n;
-+
-+	n = ra_cache_hit(ra, 0);
-+	ra->cache_hit -= n;
-+	n <<= 16;
-+	ra->cache_hit += n;
-+}
-+
-+/*
-+ * The read-ahead is deemed success if cache-hit-rate > 50%.
-+ */
-+static inline int ra_cache_hit_ok(struct file_ra_state *ra)
-+{
-+	return ra_cache_hit(ra, 0) * readahead_hit_rate >=
-+					(ra->lookahead_index - ra->la_index);
-+}
-+
-+/*
-+ * Check if @index falls in the ra request.
-+ */
-+static inline int ra_has_index(struct file_ra_state *ra, pgoff_t index)
-+{
-+	if (index < ra->la_index || index >= ra->readahead_index)
-+		return 0;
-+
-+	if (index >= ra->ra_index)
-+		return 1;
-+	else
-+		return -1;
-+}
-+
-+/*
-+ * Prepare file_ra_state for a new read-ahead sequence.
-+ */
-+static inline void ra_state_init(struct file_ra_state *ra,
-+				pgoff_t la_index, pgoff_t ra_index)
-+{
-+	ra_addup_cache_hit(ra);
-+	ra->cache_hit <<= 16;
-+	ra->lookahead_index = la_index;
-+	ra->readahead_index = ra_index;
-+}
-+
-+/*
-+ * Take down a new read-ahead request in file_ra_state.
-+ */
-+static inline void ra_state_update(struct file_ra_state *ra,
-+				unsigned long ra_size, unsigned long la_size)
-+{
-+#ifdef DEBUG_READAHEAD
-+	unsigned long old_ra = ra->readahead_index - ra->ra_index;
-+	if (ra_size < old_ra && ra_cache_hit(ra, 0))
-+		ra_account(ra, RA_EVENT_READAHEAD_SHRINK, old_ra - ra_size);
-+#endif
-+	ra_addup_cache_hit(ra);
-+	ra->ra_index = ra->readahead_index;
-+	ra->la_index = ra->lookahead_index;
-+	ra->readahead_index += ra_size;
-+	ra->lookahead_index = ra->readahead_index - la_size;
-+	ra->age = nr_smooth_aging();
-+}
-+
-+/*
-+ * Adjust the read-ahead request in file_ra_state.
-+ */
-+static inline void ra_state_adjust(struct file_ra_state *ra,
-+				unsigned long ra_size, unsigned long la_size)
-+{
-+	ra->readahead_index = ra->ra_index + ra_size;
-+	ra->lookahead_index = ra->readahead_index - la_size;
-+}
-+
-+/*
-+ * Submit IO for the read-ahead request in file_ra_state.
-+ */
-+static int ra_dispatch(struct file_ra_state *ra,
-+			struct address_space *mapping, struct file *filp)
-+{
-+	pgoff_t eof_index;
-+	unsigned long ra_size;
-+	unsigned long la_size;
-+	int actual;
-+	enum ra_class ra_class;
-+
-+	ra_class = (ra->flags & RA_CLASS_MASK);
-+	BUG_ON(ra_class == 0 || ra_class > RA_CLASS_END);
-+
-+	eof_index = ((i_size_read(mapping->host) - 1) >> PAGE_CACHE_SHIFT) + 1;
-+	ra_size = ra->readahead_index - ra->ra_index;
-+	la_size = ra->readahead_index - ra->lookahead_index;
-+
-+	/* Snap to EOF. */
-+	if (unlikely(ra->ra_index >= eof_index))
-+		return 0;
-+	if (ra->readahead_index + ra_size / 2 > eof_index) {
-+		if (ra_class == RA_CLASS_CONTEXT_ACCELERATED &&
-+				eof_index > ra->lookahead_index + 1)
-+			la_size = eof_index - ra->lookahead_index;
-+		else
-+			la_size = 0;
-+		ra_size = eof_index - ra->ra_index;
-+		ra_state_adjust(ra, ra_size, la_size);
-+	}
-+
-+	actual = __do_page_cache_readahead(mapping, filp,
-+					ra->ra_index, ra_size, la_size);
-+
-+#ifdef READAHEAD_STREAMING
-+	if (actual < ra_size) {
-+		struct page *page = find_page(mapping, ra->ra_index + actual);
-+		if (page)
-+			rescue_pages(page, ra_size);
-+	}
-+#endif
-+
-+	if (ra->readahead_index == eof_index)
-+		ra_account(ra, RA_EVENT_READAHEAD_EOF, actual);
-+	if (la_size)
-+		ra_account(ra, RA_EVENT_LOOKAHEAD, la_size);
-+	ra_account(ra, RA_EVENT_READAHEAD, actual);
-+
-+	dprintk("readahead-%s(ino=%lu, index=%lu, ra=%lu+%lu-%lu) = %d\n",
-+			ra_class_name[ra_class],
-+			mapping->host->i_ino, ra->la_index,
-+			ra->ra_index, ra_size, la_size, actual);
-+
-+	return actual;
-+}
-+
-+/*
-+ * Determine the request parameters from primitive values.
-+ *
-+ * It applies the following rules:
-+ *   - Substract ra_size by the old look-ahead to get real safe read-ahead;
-+ *   - Set new la_size according to the (still large) ra_size;
-+ *   - Apply upper limits;
-+ *   - Make sure stream_shift is not too small.
-+ *     (So that the next global_shift will not be too small.)
-+ *
-+ * Input:
-+ * ra_size stores the estimated thrashing-threshold.
-+ * la_size stores the look-ahead size of previous request.
-+ */
-+static inline int adjust_rala(unsigned long ra_max,
-+				unsigned long *ra_size, unsigned long *la_size)
-+{
-+	unsigned long stream_shift = *la_size;
-+
-+	if (*ra_size > *la_size)
-+		*ra_size -= *la_size;
-+	else
-+		return 0;
-+
-+	*la_size = *ra_size / LOOKAHEAD_RATIO;
-+
-+	if (*ra_size > ra_max)
-+		*ra_size = ra_max;
-+	if (*la_size > *ra_size)
-+		*la_size = *ra_size;
-+
-+	stream_shift += (*ra_size - *la_size);
-+	if (stream_shift < *ra_size / 4)
-+		*la_size -= (*ra_size / 4 - stream_shift);
-+
-+	return 1;
-+}
-+
-+/*
-+ * The function estimates two values:
-+ * 1. thrashing-threshold for the current stream
-+ *    It is returned to make the next read-ahead request.
-+ * 2. the remained space for the current chunk
-+ *    It will be checked to ensure that the current chunk is safe.
-+ *
-+ * The computation will be pretty accurate under heavy load, and will change
-+ * vastly with light load(small global_shift), so the grow speed of ra_size
-+ * must be limited, and a moderate large stream_shift must be insured.
-+ *
-+ * This figure illustrates the formula:
-+ * While the stream reads stream_shift pages inside the chunks,
-+ * the chunks are shifted global_shift pages inside inactive_list.
-+ *
-+ *      chunk A                    chunk B
-+ *                          |<=============== global_shift ================|
-+ *  +-------------+         +-------------------+                          |
-+ *  |       #     |         |           #       |            inactive_list |
-+ *  +-------------+         +-------------------+                     head |
-+ *          |---->|         |---------->|
-+ *             |                  |
-+ *             +-- stream_shift --+
-+ */
-+static inline unsigned long compute_thrashing_threshold(
-+						struct file_ra_state *ra,
-+						unsigned long *remain)
-+{
-+	unsigned long global_size;
-+	unsigned long global_shift;
-+	unsigned long stream_shift;
-+	unsigned long ra_size;
-+
-+	global_size = nr_free_inactive();
-+	global_shift = nr_smooth_aging() - ra->age;
-+	stream_shift = ra_cache_hit(ra, 0);
-+
-+	ra_size = stream_shift *
-+			global_size * readahead_ratio / (100 * global_shift);
-+
-+	if (global_size > global_shift)
-+		*remain = stream_shift *
-+				(global_size - global_shift) / global_shift;
-+	else
-+		*remain = 0;
-+
-+	ddprintk("compute_thrashing_threshold: "
-+			"ra=%lu=%lu*%lu/%lu, remain %lu for %lu\n",
-+			ra_size, stream_shift, global_size, global_shift,
-+			*remain, ra->readahead_index - ra->lookahead_index);
-+
-+	return ra_size;
-+}
-+
-+/*
-+ * Main function for file_ra_state based read-ahead.
-+ */
-+static inline unsigned long
-+state_based_readahead(struct address_space *mapping, struct file *filp,
-+			struct file_ra_state *ra, struct page *page,
-+			unsigned long ra_max)
-+{
-+	unsigned long ra_old;
-+	unsigned long ra_size;
-+	unsigned long la_size;
-+	unsigned long remain_space;
-+
-+	la_size = ra->readahead_index - ra->lookahead_index;
-+	ra_old = ra->readahead_index - ra->ra_index;
-+	ra_size = compute_thrashing_threshold(ra, &remain_space);
-+
-+	if (readahead_ratio < VM_READAHEAD_PROTECT_RATIO &&
-+			remain_space <= la_size && la_size > 1) {
-+		rescue_pages(page, la_size);
-+		return 0;
-+	}
-+
-+	if (!adjust_rala(min(ra_max, 2 * ra_old + (ra_max - ra_old) / 16),
-+				&ra_size, &la_size))
-+		return 0;
-+
-+	set_ra_class(ra, RA_CLASS_STATE);
-+	ra_state_update(ra, ra_size, la_size);
-+
-+	return ra_dispatch(ra, mapping, filp);
-+}
-+
-+
-+/*
-  * ra_size is mainly determined by:
-  * 1. sequential-start: min(MIN_RA_PAGES + (pages>>14), KB(128))
-  * 2. sequential-max:	min(ra->ra_pages, 0xFFFF)
+(actual patch attached)
 
---
+
+--=__PartE1C3DDBC.1__=
+Content-Type: application/octet-stream; name="linux-2.6.14-nlkd-x86_64.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="linux-2.6.14-nlkd-x86_64.patch"
+
+VGhlIGNvcmUgeDg2LTY0IE5MS0QgYWRqdXN0bWVudHMgdG8gcHJlLWV4aXN0aW5nIGNvZGUuCgpG
+cm9tOiBKYW4gQmV1bGljaCA8amJldWxpY2hAbm92ZWxsLmNvbT4KCkluZGV4OiAyLjYuMTQtbmxr
+ZC9hcmNoL3g4Nl82NC9pYTMyL3B0cmFjZTMyLmMKPT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQotLS0gMi42LjE0LW5sa2Qu
+b3JpZy9hcmNoL3g4Nl82NC9pYTMyL3B0cmFjZTMyLmMJMjAwNS0xMS0wOSAxMToxMjo1MC4wMDAw
+MDAwMDAgKzAxMDAKKysrIDIuNi4xNC1ubGtkL2FyY2gveDg2XzY0L2lhMzIvcHRyYWNlMzIuYwky
+MDA1LTExLTA0IDE2OjE5OjMzLjAwMDAwMDAwMCArMDEwMApAQCAtODgsMjIgKzg4LDMyIEBAIHN0
+YXRpYyBpbnQgcHV0cmVnMzIoc3RydWN0IHRhc2tfc3RydWN0ICoKIAkJcmV0dXJuIC1FSU87CiAK
+IAljYXNlIG9mZnNldG9mKHN0cnVjdCB1c2VyMzIsIHVfZGVidWdyZWdbMF0pOgorCQlpZiAoZW5h
+YmxlX2RlYnVncmVnKGNoaWxkLCAwLCB2YWwpIDwgMCkKKwkJCXJldHVybiAtRUJVU1k7CiAJCWNo
+aWxkLT50aHJlYWQuZGVidWdyZWcwID0gdmFsOwogCQlicmVhazsKIAogCWNhc2Ugb2Zmc2V0b2Yo
+c3RydWN0IHVzZXIzMiwgdV9kZWJ1Z3JlZ1sxXSk6CisJCWlmIChlbmFibGVfZGVidWdyZWcoY2hp
+bGQsIDEsIHZhbCkgPCAwKQorCQkJcmV0dXJuIC1FQlVTWTsKIAkJY2hpbGQtPnRocmVhZC5kZWJ1
+Z3JlZzEgPSB2YWw7CiAJCWJyZWFrOwogCiAJY2FzZSBvZmZzZXRvZihzdHJ1Y3QgdXNlcjMyLCB1
+X2RlYnVncmVnWzJdKToKKwkJaWYgKGVuYWJsZV9kZWJ1Z3JlZyhjaGlsZCwgMiwgdmFsKSA8IDAp
+CisJCQlyZXR1cm4gLUVCVVNZOwogCQljaGlsZC0+dGhyZWFkLmRlYnVncmVnMiA9IHZhbDsKIAkJ
+YnJlYWs7CiAKIAljYXNlIG9mZnNldG9mKHN0cnVjdCB1c2VyMzIsIHVfZGVidWdyZWdbM10pOgor
+CQlpZiAoZW5hYmxlX2RlYnVncmVnKGNoaWxkLCAzLCB2YWwpIDwgMCkKKwkJCXJldHVybiAtRUJV
+U1k7CiAJCWNoaWxkLT50aHJlYWQuZGVidWdyZWczID0gdmFsOwogCQlicmVhazsKIAogCWNhc2Ug
+b2Zmc2V0b2Yoc3RydWN0IHVzZXIzMiwgdV9kZWJ1Z3JlZ1s2XSk6CisJCWlmIChlbmFibGVfZGVi
+dWdyZWcoY2hpbGQsIDYsIHZhbCkgPCAwKQorCQkJcmV0dXJuIC1FQlVTWTsKIAkJY2hpbGQtPnRo
+cmVhZC5kZWJ1Z3JlZzYgPSB2YWw7CiAJCWJyZWFrOyAKIApAQCAtMTEyLDggKzEyMiwxMCBAQCBz
+dGF0aWMgaW50IHB1dHJlZzMyKHN0cnVjdCB0YXNrX3N0cnVjdCAqCiAJCS8qIFNlZSBhcmNoL2kz
+ODYva2VybmVsL3B0cmFjZS5jIGZvciBhbiBleHBsYW5hdGlvbiBvZgogCQkgKiB0aGlzIGF3a3dh
+cmQgY2hlY2suKi8KIAkJZm9yKGk9MDsgaTw0OyBpKyspCi0JCQlpZiAoKDB4NTQ1NCA+PiAoKHZh
+bCA+PiAoMTYgKyA0KmkpKSAmIDB4ZikpICYgMSkKKwkJCWlmICgoMHg1NTU0ID4+ICgodmFsID4+
+ICgxNiArIDQqaSkpICYgMHhmKSkgJiAxKQogCQkJICAgICAgIHJldHVybiAtRUlPOworCQlpZiAo
+ZW5hYmxlX2RlYnVncmVnKGNoaWxkLCA3LCB2YWwpIDwgMCkKKwkJCXJldHVybiAtRUJVU1k7CiAJ
+CWNoaWxkLT50aHJlYWQuZGVidWdyZWc3ID0gdmFsOyAKIAkJYnJlYWs7IAogCQkgICAgCkluZGV4
+OiAyLjYuMTQtbmxrZC9hcmNoL3g4Nl82NC9rZXJuZWwvcHJvY2Vzcy5jCj09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0t
+IDIuNi4xNC1ubGtkLm9yaWcvYXJjaC94ODZfNjQva2VybmVsL3Byb2Nlc3MuYwkyMDA1LTExLTA0
+IDE2OjE5OjMzLjAwMDAwMDAwMCArMDEwMAorKysgMi42LjE0LW5sa2QvYXJjaC94ODZfNjQva2Vy
+bmVsL3Byb2Nlc3MuYwkyMDA1LTExLTA0IDE2OjE5OjMzLjAwMDAwMDAwMCArMDEwMApAQCAtNTAs
+NiArNTAsNyBAQAogI2luY2x1ZGUgPGFzbS9kZXNjLmg+CiAjaW5jbHVkZSA8YXNtL3Byb3RvLmg+
+CiAjaW5jbHVkZSA8YXNtL2lhMzIuaD4KKyNpbmNsdWRlIDxhc20vZGVidWdyZWcuaD4KIAogYXNt
+bGlua2FnZSBleHRlcm4gdm9pZCByZXRfZnJvbV9mb3JrKHZvaWQpOwogCkBAIC0zNDYsNiArMzQ3
+LDEwIEBAIHZvaWQgZXhpdF90aHJlYWQodm9pZCkKIAkJdC0+aW9fYml0bWFwX21heCA9IDA7CiAJ
+CXB1dF9jcHUoKTsKIAl9CisJaWYgKG1lLT50aHJlYWQuZGVidWdyZWc3KSB7CisJCWVuYWJsZV9k
+ZWJ1Z3JlZyhtZSwgNywgMCk7CisJCW1lLT50aHJlYWQuZGVidWdyZWc3ID0gMDsKKwl9CiB9CiAK
+IHZvaWQgZmx1c2hfdGhyZWFkKHZvaWQpCkBAIC0zNjMsNiArMzY4LDggQEAgdm9pZCBmbHVzaF90
+aHJlYWQodm9pZCkKIAlpZiAodC0+ZmxhZ3MgJiBfVElGX0FCSV9QRU5ESU5HKQogCQl0LT5mbGFn
+cyBePSAoX1RJRl9BQklfUEVORElORyB8IF9USUZfSUEzMik7CiAKKwlpZiAodHNrLT50aHJlYWQu
+ZGVidWdyZWc3KQorCQllbmFibGVfZGVidWdyZWcodHNrLCA3LCAwKTsKIAl0c2stPnRocmVhZC5k
+ZWJ1Z3JlZzAgPSAwOwogCXRzay0+dGhyZWFkLmRlYnVncmVnMSA9IDA7CiAJdHNrLT50aHJlYWQu
+ZGVidWdyZWcyID0gMDsKQEAgLTQ3Nyw2ICs0ODQsMTMgQEAgaW50IGNvcHlfdGhyZWFkKGludCBu
+ciwgdW5zaWduZWQgbG9uZyBjbAogCQlpZiAoZXJyKSAKIAkJCWdvdG8gb3V0OwogCX0KKworCWlm
+IChtZS0+dGhyZWFkLmRlYnVncmVnNykgeworCQlwLT50aHJlYWQuZGVidWdyZWc3ID0gMDsKKwkJ
+ZW5hYmxlX2RlYnVncmVnKHAsIDcsIG1lLT50aHJlYWQuZGVidWdyZWc3KTsKKwkJcC0+dGhyZWFk
+LmRlYnVncmVnNyA9IG1lLT50aHJlYWQuZGVidWdyZWc3OworCX0KKwogCWVyciA9IDA7CiBvdXQ6
+CiAJaWYgKGVyciAmJiBwLT50aHJlYWQuaW9fYml0bWFwX3B0cikgewpAQCAtNDg5LDcgKzUwMyw3
+IEBAIG91dDoKIC8qCiAgKiBUaGlzIHNwZWNpYWwgbWFjcm8gY2FuIGJlIHVzZWQgdG8gbG9hZCBh
+IGRlYnVnZ2luZyByZWdpc3RlcgogICovCi0jZGVmaW5lIGxvYWRkZWJ1Zyh0aHJlYWQscikgc2V0
+X2RlYnVnKHRocmVhZC0+ZGVidWdyZWcgIyMgciwgcikKKyNkZWZpbmUgbG9hZGRlYnVnKHRocmVh
+ZCxyKSBzZXRfZGVidWdyZWcodGhyZWFkLT5kZWJ1Z3JlZyAjIyByLCByKQogCiAvKgogICoJc3dp
+dGNoX3RvKHgseSkgc2hvdWxkIHN3aXRjaCB0YXNrcyBmcm9tIHggdG8geS4KSW5kZXg6IDIuNi4x
+NC1ubGtkL2FyY2gveDg2XzY0L2tlcm5lbC9wdHJhY2UuYwo9PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSAyLjYuMTQt
+bmxrZC5vcmlnL2FyY2gveDg2XzY0L2tlcm5lbC9wdHJhY2UuYwkyMDA1LTExLTA5IDExOjEyOjUw
+LjAwMDAwMDAwMCArMDEwMAorKysgMi42LjE0LW5sa2QvYXJjaC94ODZfNjQva2VybmVsL3B0cmFj
+ZS5jCTIwMDUtMTEtMDQgMTY6MTk6MzMuMDAwMDAwMDAwICswMTAwCkBAIC00MzMsNDIgKzQzMyw2
+NiBAQCBhc21saW5rYWdlIGxvbmcgc3lzX3B0cmFjZShsb25nIHJlcXVlc3QsCiAJCS8qIERpc2Fs
+bG93cyB0byBzZXQgYSBicmVha3BvaW50IGludG8gdGhlIHZzeXNjYWxsICovCiAJCWNhc2Ugb2Zm
+c2V0b2Yoc3RydWN0IHVzZXIsIHVfZGVidWdyZWdbMF0pOgogCQkJaWYgKGRhdGEgPj0gVEFTS19T
+SVpFX09GKGNoaWxkKSAtIGRzaXplKSBicmVhazsKKwkJCWlmIChlbmFibGVfZGVidWdyZWcoY2hp
+bGQsIDAsIGRhdGEpIDwgMCkgeworCQkJCXJldCA9IC1FQlVTWTsKKwkJCQlicmVhazsKKwkJCX0K
+IAkJCWNoaWxkLT50aHJlYWQuZGVidWdyZWcwID0gZGF0YTsKIAkJCXJldCA9IDA7CiAJCQlicmVh
+azsKIAkJY2FzZSBvZmZzZXRvZihzdHJ1Y3QgdXNlciwgdV9kZWJ1Z3JlZ1sxXSk6CiAJCQlpZiAo
+ZGF0YSA+PSBUQVNLX1NJWkVfT0YoY2hpbGQpIC0gZHNpemUpIGJyZWFrOworCQkJaWYgKGVuYWJs
+ZV9kZWJ1Z3JlZyhjaGlsZCwgMSwgZGF0YSkgPCAwKSB7CisJCQkJcmV0ID0gLUVCVVNZOworCQkJ
+CWJyZWFrOworCQkJfQogCQkJY2hpbGQtPnRocmVhZC5kZWJ1Z3JlZzEgPSBkYXRhOwogCQkJcmV0
+ID0gMDsKIAkJCWJyZWFrOwogCQljYXNlIG9mZnNldG9mKHN0cnVjdCB1c2VyLCB1X2RlYnVncmVn
+WzJdKToKIAkJCWlmIChkYXRhID49IFRBU0tfU0laRV9PRihjaGlsZCkgLSBkc2l6ZSkgYnJlYWs7
+CisJCQlpZiAoZW5hYmxlX2RlYnVncmVnKGNoaWxkLCAyLCBkYXRhKSA8IDApIHsKKwkJCQlyZXQg
+PSAtRUJVU1k7CisJCQkJYnJlYWs7CisJCQl9CiAJCQljaGlsZC0+dGhyZWFkLmRlYnVncmVnMiA9
+IGRhdGE7CiAJCQlyZXQgPSAwOwogCQkJYnJlYWs7CiAJCWNhc2Ugb2Zmc2V0b2Yoc3RydWN0IHVz
+ZXIsIHVfZGVidWdyZWdbM10pOgogCQkJaWYgKGRhdGEgPj0gVEFTS19TSVpFX09GKGNoaWxkKSAt
+IGRzaXplKSBicmVhazsKKwkJCWlmIChlbmFibGVfZGVidWdyZWcoY2hpbGQsIDMsIGRhdGEpIDwg
+MCkgeworCQkJCXJldCA9IC1FQlVTWTsKKwkJCQlicmVhazsKKwkJCX0KIAkJCWNoaWxkLT50aHJl
+YWQuZGVidWdyZWczID0gZGF0YTsKIAkJCXJldCA9IDA7CiAJCQlicmVhazsKIAkJY2FzZSBvZmZz
+ZXRvZihzdHJ1Y3QgdXNlciwgdV9kZWJ1Z3JlZ1s2XSk6Ci0JCQkJICBpZiAoZGF0YSA+PiAzMikK
+KwkJCWlmIChkYXRhID4+IDMyKQogCQkJCWJyZWFrOyAKKwkJCWlmIChlbmFibGVfZGVidWdyZWco
+Y2hpbGQsIDYsIGRhdGEpIDwgMCkgeworCQkJCXJldCA9IC1FQlVTWTsKKwkJCQlicmVhazsKKwkJ
+CX0KIAkJCWNoaWxkLT50aHJlYWQuZGVidWdyZWc2ID0gZGF0YTsKIAkJCXJldCA9IDA7CiAJCQli
+cmVhazsKIAkJY2FzZSBvZmZzZXRvZihzdHJ1Y3QgdXNlciwgdV9kZWJ1Z3JlZ1s3XSk6CiAJCQkv
+KiBTZWUgYXJjaC9pMzg2L2tlcm5lbC9wdHJhY2UuYyBmb3IgYW4gZXhwbGFuYXRpb24gb2YKIAkJ
+CSAqIHRoaXMgYXdrd2FyZCBjaGVjay4qLwotCQkJCSAgZGF0YSAmPSB+RFJfQ09OVFJPTF9SRVNF
+UlZFRDsKLQkJCQkgIGZvcihpPTA7IGk8NDsgaSsrKQotCQkJCQkgIGlmICgoMHg1NDU0ID4+ICgo
+ZGF0YSA+PiAoMTYgKyA0KmkpKSAmIDB4ZikpICYgMSkKKwkJCWRhdGEgJj0gfkRSX0NPTlRST0xf
+UkVTRVJWRUQ7CisJCQlmb3IoaT0wOyBpPDQ7IGkrKykKKwkJCQlpZiAoKDB4NTU1NCA+PiAoKGRh
+dGEgPj4gKDE2ICsgNCppKSkgJiAweGYpKSAmIDEpCiAJCQkJCWJyZWFrOwogCQkJaWYgKGkgPT0g
+NCkgeworCQkJCWlmIChlbmFibGVfZGVidWdyZWcoY2hpbGQsIDcsIGRhdGEpIDwgMCkgeworCQkJ
+CQlyZXQgPSAtRUJVU1k7CisJCQkJCWJyZWFrOworCQkJCX0KIAkJCQljaGlsZC0+dGhyZWFkLmRl
+YnVncmVnNyA9IGRhdGE7Ci0JCQkgIHJldCA9IDA7Ci0JCSAgfQotCQkgIGJyZWFrOworCQkJCXJl
+dCA9IDA7CisJCQl9CisJCQlicmVhazsKIAkJfQogCQlicmVhazsKIAl9CkluZGV4OiAyLjYuMTQt
+bmxrZC9hcmNoL3g4Nl82NC9rZXJuZWwvc2V0dXA2NC5jCj09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIDIuNi4xNC1u
+bGtkLm9yaWcvYXJjaC94ODZfNjQva2VybmVsL3NldHVwNjQuYwkyMDA1LTExLTA0IDE2OjE5OjMz
+LjAwMDAwMDAwMCArMDEwMAorKysgMi42LjE0LW5sa2QvYXJjaC94ODZfNjQva2VybmVsL3NldHVw
+NjQuYwkyMDA1LTExLTA0IDE2OjE5OjMzLjAwMDAwMDAwMCArMDEwMApAQCAtMjUsNiArMjUsNyBA
+QAogI2luY2x1ZGUgPGFzbS9wZXJjcHUuaD4KICNpbmNsdWRlIDxhc20vcHJvdG8uaD4KICNpbmNs
+dWRlIDxhc20vc2VjdGlvbnMuaD4KKyNpbmNsdWRlIDxhc20vZGVidWdyZWcuaD4KIAogY2hhciB4
+ODZfYm9vdF9wYXJhbXNbQk9PVF9QQVJBTV9TSVpFXSBfX2luaXRkYXRhID0gezAsfTsKIApAQCAt
+Mjg5LDEyICsyOTAsMTIgQEAgdm9pZCBfX2NwdWluaXQgY3B1X2luaXQgKHZvaWQpCiAJICogQ2xl
+YXIgYWxsIDYgZGVidWcgcmVnaXN0ZXJzOgogCSAqLwogCi0Jc2V0X2RlYnVnKDBVTCwgMCk7Ci0J
+c2V0X2RlYnVnKDBVTCwgMSk7Ci0Jc2V0X2RlYnVnKDBVTCwgMik7Ci0Jc2V0X2RlYnVnKDBVTCwg
+Myk7Ci0Jc2V0X2RlYnVnKDBVTCwgNik7Ci0Jc2V0X2RlYnVnKDBVTCwgNyk7CisJc2V0X2RlYnVn
+cmVnKDBVTCwgMCk7CisJc2V0X2RlYnVncmVnKDBVTCwgMSk7CisJc2V0X2RlYnVncmVnKDBVTCwg
+Mik7CisJc2V0X2RlYnVncmVnKDBVTCwgMyk7CisJc2V0X2RlYnVncmVnKDBVTCwgNik7CisJc2V0
+X2RlYnVncmVnKDBVTCwgNyk7CiAKIAlmcHVfaW5pdCgpOyAKIH0KSW5kZXg6IDIuNi4xNC1ubGtk
+L2FyY2gveDg2XzY0L2tlcm5lbC9zaWduYWwuYwo9PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSAyLjYuMTQtbmxrZC5v
+cmlnL2FyY2gveDg2XzY0L2tlcm5lbC9zaWduYWwuYwkyMDA1LTExLTA5IDExOjEyOjUwLjAwMDAw
+MDAwMCArMDEwMAorKysgMi42LjE0LW5sa2QvYXJjaC94ODZfNjQva2VybmVsL3NpZ25hbC5jCTIw
+MDUtMTEtMDQgMTY6MTk6MzMuMDAwMDAwMDAwICswMTAwCkBAIC0yOSw2ICsyOSw3IEBACiAjaW5j
+bHVkZSA8YXNtL2kzODcuaD4KICNpbmNsdWRlIDxhc20vcHJvdG8uaD4KICNpbmNsdWRlIDxhc20v
+aWEzMl91bmlzdGQuaD4KKyNpbmNsdWRlIDxhc20vZGVidWdyZWcuaD4KIAogLyogI2RlZmluZSBE
+RUJVR19TSUcgMSAqLwogCkBAIC00MzksOCArNDQwLDggQEAgaW50IGRvX3NpZ25hbChzdHJ1Y3Qg
+cHRfcmVncyAqcmVncywgc2lncwogCQkgKiBoYXZlIGJlZW4gY2xlYXJlZCBpZiB0aGUgd2F0Y2hw
+b2ludCB0cmlnZ2VyZWQKIAkJICogaW5zaWRlIHRoZSBrZXJuZWwuCiAJCSAqLwotCQlpZiAoY3Vy
+cmVudC0+dGhyZWFkLmRlYnVncmVnNykKLQkJCXNldF9kZWJ1Z3JlZyhjdXJyZW50LT50aHJlYWQu
+ZGVidWdyZWc3LCA3KTsKKwkJaWYgKHVubGlrZWx5KGN1cnJlbnQtPnRocmVhZC5kZWJ1Z3JlZzcp
+KQorCQkJcmVzdG9yZV9kZWJ1Z3JlZygpOwogCiAJCS8qIFdoZWUhICBBY3R1YWxseSBkZWxpdmVy
+IHRoZSBzaWduYWwuICAqLwogCQlyZXR1cm4gaGFuZGxlX3NpZ25hbChzaWduciwgJmluZm8sICZr
+YSwgb2xkc2V0LCByZWdzKTsKSW5kZXg6IDIuNi4xNC1ubGtkL2FyY2gveDg2XzY0L2tlcm5lbC9z
+dXNwZW5kLmMKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PQotLS0gMi42LjE0LW5sa2Qub3JpZy9hcmNoL3g4Nl82NC9rZXJu
+ZWwvc3VzcGVuZC5jCTIwMDUtMTEtMDkgMTE6MTI6NTAuMDAwMDAwMDAwICswMTAwCisrKyAyLjYu
+MTQtbmxrZC9hcmNoL3g4Nl82NC9rZXJuZWwvc3VzcGVuZC5jCTIwMDUtMTEtMDQgMTc6NTI6NTgu
+MDAwMDAwMDAwICswMTAwCkBAIC0xMyw2ICsxMyw3IEBACiAjaW5jbHVkZSA8YXNtL3Byb3RvLmg+
+CiAjaW5jbHVkZSA8YXNtL3BhZ2UuaD4KICNpbmNsdWRlIDxhc20vcGd0YWJsZS5oPgorI2luY2x1
+ZGUgPGFzbS9kZWJ1Z3JlZy5oPgogCiBzdHJ1Y3Qgc2F2ZWRfY29udGV4dCBzYXZlZF9jb250ZXh0
+OwogCkluZGV4OiAyLjYuMTQtbmxrZC9hcmNoL3g4Nl82NC9rZXJuZWwvdHJhcHMuYwo9PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09Ci0tLSAyLjYuMTQtbmxrZC5vcmlnL2FyY2gveDg2XzY0L2tlcm5lbC90cmFwcy5jCTIwMDUt
+MTEtMDkgMTE6MTk6MzYuMDAwMDAwMDAwICswMTAwCisrKyAyLjYuMTQtbmxrZC9hcmNoL3g4Nl82
+NC9rZXJuZWwvdHJhcHMuYwkyMDA1LTExLTA3IDA5OjMzOjUzLjAwMDAwMDAwMCArMDEwMApAQCAt
+Nzg0LDcgKzc4NCw3IEBAIGFzbWxpbmthZ2Ugdm9pZCBfX2twcm9iZXMgZG9fZGVidWcoc3RydWMK
+IAlpbmZvLnNpX2FkZHIgPSAodm9pZCBfX3VzZXIgKilyZWdzLT5yaXA7CiAJZm9yY2Vfc2lnX2lu
+Zm8oU0lHVFJBUCwgJmluZm8sIHRzayk7CQogY2xlYXJfZHI3OgotCXNldF9kZWJ1Z3JlZygwVUws
+IDcpOworCWRpc2FibGVfZGVidWdyZWcocmVncywgNyk7CiAJcmV0dXJuOwogCiBjbGVhcl9URl9y
+ZWVuYWJsZToKSW5kZXg6IDIuNi4xNC1ubGtkL2FyY2gveDg2XzY0L2tlcm5lbC92bWxpbnV4Lmxk
+cy5TCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT0KLS0tIDIuNi4xNC1ubGtkLm9yaWcvYXJjaC94ODZfNjQva2VybmVsL3Zt
+bGludXgubGRzLlMJMjAwNS0xMS0wNCAxNjoxOTozMy4wMDAwMDAwMDAgKzAxMDAKKysrIDIuNi4x
+NC1ubGtkL2FyY2gveDg2XzY0L2tlcm5lbC92bWxpbnV4Lmxkcy5TCTIwMDUtMTEtMDQgMTY6MTk6
+MzMuMDAwMDAwMDAwICswMTAwCkBAIC0xNDQsNiArMTQ0LDEyIEBAIFNFQ1RJT05TCiAgIF9fc2V0
+dXBfc3RhcnQgPSAuOwogICAuaW5pdC5zZXR1cCA6IEFUKEFERFIoLmluaXQuc2V0dXApIC0gTE9B
+RF9PRkZTRVQpIHsgKiguaW5pdC5zZXR1cCkgfQogICBfX3NldHVwX2VuZCA9IC47CisjaWZkZWYg
+Q09ORklHX05MS0QKKyAgLiA9IEFMSUdOKDgpOworICBfX3N0YXJ0X25sa2RfZXh0ID0gLjsKKyAg
+Lm5sa2QuZXh0IDogQVQoQUREUigubmxrZC5leHQpIC0gTE9BRF9PRkZTRVQpIHsgKigubmxrZC5l
+eHQpIH0KKyAgX19zdG9wX25sa2RfZXh0ID0gLjsKKyNlbmRpZgogICBfX2luaXRjYWxsX3N0YXJ0
+ID0gLjsKICAgLmluaXRjYWxsLmluaXQgOiBBVChBRERSKC5pbml0Y2FsbC5pbml0KSAtIExPQURf
+T0ZGU0VUKSB7CiAJKiguaW5pdGNhbGwxLmluaXQpIApJbmRleDogMi42LjE0LW5sa2QvaW5jbHVk
+ZS9hc20teDg2XzY0L2RlYnVncmVnLmgKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQotLS0gMi42LjE0LW5sa2Qub3JpZy9p
+bmNsdWRlL2FzbS14ODZfNjQvZGVidWdyZWcuaAkyMDA1LTExLTA5IDExOjEyOjUwLjAwMDAwMDAw
+MCArMDEwMAorKysgMi42LjE0LW5sa2QvaW5jbHVkZS9hc20teDg2XzY0L2RlYnVncmVnLmgJMjAw
+NS0xMS0wNCAxNjoxOTozNC4wMDAwMDAwMDAgKzAxMDAKQEAgLTYyLDQgKzYyLDU0IEBACiAjZGVm
+aW5lIERSX0xPQ0FMX1NMT1dET1dOICgweDEwMCkgICAvKiBMb2NhbCBzbG93IHRoZSBwaXBlbGlu
+ZSAqLwogI2RlZmluZSBEUl9HTE9CQUxfU0xPV0RPV04gKDB4MjAwKSAgLyogR2xvYmFsIHNsb3cg
+dGhlIHBpcGVsaW5lICovCiAKKyNpZmRlZiBDT05GSUdfTkxLRAorCisjIGluY2x1ZGUgPGxpbnV4
+L25pbnQuaD4KKworc3RydWN0IHB0X3JlZ3M7CitzdHJ1Y3QgdGFza19zdHJ1Y3Q7CisKKyMgaWZk
+ZWYgQ09ORklHX0NERQorIyAgZGVmaW5lIE1BWUJFX0lORElSKHgpIHgKKyMgIGRlZmluZSBzZXRf
+ZGVidWdyZWcodmFsLCByZWcpICgodm9pZCkodmFsKSwgKHZvaWQpKHJlZykpCisjIGVsc2UKKyMg
+IGRlZmluZSBNQVlCRV9JTkRJUih4KSAoKngpCitleHRlcm4gdm9pZCAoKnNldF9kZWJ1Z3JlZyko
+dWludHB0cl90IHZhbHVlLCBudWludF90IHJlZ251bSk7CisjIGVuZGlmCisKK2V4dGVybiBpbnQg
+TUFZQkVfSU5ESVIoZW5hYmxlX2RlYnVncmVnKShzdHJ1Y3QgdGFza19zdHJ1Y3QgKiwgbnVpbnRf
+dCByZWdudW0sIHVpbnRwdHJfdCB2YWx1ZSk7CitleHRlcm4gaW50IE1BWUJFX0lORElSKGRpc2Fi
+bGVfZGVidWdyZWcpKHN0cnVjdCBwdF9yZWdzICosIG51aW50X3QgcmVnbnVtKTsKK2V4dGVybiBp
+bnQgTUFZQkVfSU5ESVIocmVzdG9yZV9kZWJ1Z3JlZykodm9pZCk7CisKKyMgdW5kZWYgTUFZQkVf
+SU5ESVIKKworI2Vsc2UKKworIyBkZWZpbmUgc2V0X2RlYnVncmVnKHZhbHVlLCByZWdpc3RlcikJ
+CQkJXAorCQlfX2FzbV9fKCJtb3ZxICUwLCUlZGIiICNyZWdpc3RlcgkJXAorCQkJOiAvKiBubyBv
+dXRwdXQgKi8JCQlcCisJCQk6InIiICh2YWx1ZSkpCisjIGRlZmluZSBlbmFibGVfZGVidWdyZWco
+dGFzaywgcmVnbnVtLCB2YWx1ZSkgKHsJCVwKKwkJKHZvaWQpKHRhc2spOwkJCQkJXAorCQkodm9p
+ZCkocmVnbnVtKTsJCQkJCVwKKwkJKHZvaWQpKHZhbHVlKTsJCQkJCVwKKwkJMDsJCQkJCQlcCisJ
+fSkKKyMgZGVmaW5lIGRpc2FibGVfZGVidWdyZWcocmVncywgcmVnbnVtKSAoewkJCVwKKwkJKHZv
+aWQpKHJlZ3MpOwkJCQkJXAorCQkodm9pZCkocmVnbnVtKTsJCQkJCVwKKwkJc2V0X2RlYnVncmVn
+KDBVTCwgNyk7CQkJCVwKKwkJMDsJCQkJCQlcCisJfSkKKyMgZGVmaW5lIHJlc3RvcmVfZGVidWdy
+ZWcoKSAoewkJCQkJXAorCQlzZXRfZGVidWdyZWcoY3VycmVudC0+dGhyZWFkLmRlYnVncmVnNywg
+Nyk7CVwKKwkJMDsJCQkJCQlcCisJfSkKKworI2VuZGlmIC8qIENPTkZJR19OTEtEICovCisKKyNk
+ZWZpbmUgZ2V0X2RlYnVncmVnKHZhciwgcmVnaXN0ZXIpCQkJCVwKKwkJX19hc21fXygibW92cSAl
+JWRiIiAjcmVnaXN0ZXIgIiwgJTAiCQlcCisJCQk6Ij1yIiAodmFyKSkKKwogI2VuZGlmCkluZGV4
+OiAyLjYuMTQtbmxrZC9pbmNsdWRlL2FzbS14ODZfNjQvcHJvY2Vzc29yLmgKPT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQot
+LS0gMi42LjE0LW5sa2Qub3JpZy9pbmNsdWRlL2FzbS14ODZfNjQvcHJvY2Vzc29yLmgJMjAwNS0x
+MS0wNyAxMDozNjowNi4wMDAwMDAwMDAgKzAxMDAKKysrIDIuNi4xNC1ubGtkL2luY2x1ZGUvYXNt
+LXg4Nl82NC9wcm9jZXNzb3IuaAkyMDA1LTExLTA3IDEwOjM2OjA2LjAwMDAwMDAwMCArMDEwMApA
+QCAtMjcxLDkgKzI3MSwyMiBAQCBzdHJ1Y3QgdGhyZWFkX3N0cnVjdCB7CiAjZGVmaW5lIERFQlVH
+X1NUQUNLIDQgCiAjZGVmaW5lIE1DRV9TVEFDSyA1CiAjZGVmaW5lIE5fRVhDRVBUSU9OX1NUQUNL
+UyA1ICAvKiBodyBsaW1pdDogNyAqLworCisjaWZuZGVmIENPTkZJR19OTEtECiAjZGVmaW5lIEVY
+Q0VQVElPTl9TVEFDS19PUkRFUiAwIAorI2Vsc2UKKyNkZWZpbmUgRVhDRVBUSU9OX1NUQUNLX09S
+REVSIDEKKyNlbmRpZgogI2RlZmluZSBFWENFUFRJT05fU1RLU1ogKFBBR0VfU0laRSA8PCBFWENF
+UFRJT05fU1RBQ0tfT1JERVIpCisKKyNpZm5kZWYgQ09ORklHX05MS0QKICNkZWZpbmUgREVCVUdf
+U1RBQ0tfT1JERVIgRVhDRVBUSU9OX1NUQUNLX09SREVSCisjZWxzZQorLyogZGVidWcgYW5kIGJy
+ZWFrcG9pbnQgZXhjZXB0aW9ucyBtYXkgbmVzdCA0IGxldmVscyBkZWVwIChtaW5pbXVtCisgICBy
+ZXF1aXJlbWVudCBpcyAzIGxldmVscyBpZiBoYW5kbGluZyBleGNlcHRpb25zIGZyb20gdGhlIGRl
+YnVnZ2VyCisgICBzaG91bGQgYmUgcG9zc2libGUsIGVsc2UgMiBsZXZlbHMpICovCisjZGVmaW5l
+IERFQlVHX1NUQUNLX09SREVSIChFWENFUFRJT05fU1RBQ0tfT1JERVIgKyAyKQorI2VuZGlmCiAj
+ZGVmaW5lIERFQlVHX1NUS1NaIChQQUdFX1NJWkUgPDwgREVCVUdfU1RBQ0tfT1JERVIpCiAKICNk
+ZWZpbmUgc3RhcnRfdGhyZWFkKHJlZ3MsbmV3X3JpcCxuZXdfcnNwKSBkbyB7IFwKQEAgLTI4OCwx
+NCArMzAxLDYgQEAgc3RydWN0IHRocmVhZF9zdHJ1Y3QgewogCXNldF9mcyhVU0VSX0RTKTsJCQkJ
+CQkJIFwKIH0gd2hpbGUoMCkgCiAKLSNkZWZpbmUgZ2V0X2RlYnVncmVnKHZhciwgcmVnaXN0ZXIp
+CQkJCVwKLQkJX19hc21fXygibW92cSAlJWRiIiAjcmVnaXN0ZXIgIiwgJTAiCQlcCi0JCQk6Ij1y
+IiAodmFyKSkKLSNkZWZpbmUgc2V0X2RlYnVncmVnKHZhbHVlLCByZWdpc3RlcikJCQlcCi0JCV9f
+YXNtX18oIm1vdnEgJTAsJSVkYiIgI3JlZ2lzdGVyCQlcCi0JCQk6IC8qIG5vIG91dHB1dCAqLwkJ
+CVwKLQkJCToiciIgKHZhbHVlKSkKLQogc3RydWN0IHRhc2tfc3RydWN0Owogc3RydWN0IG1tX3N0
+cnVjdDsKIApJbmRleDogMi42LjE0LW5sa2QvaW5jbHVkZS9hc20teDg2XzY0L3N1c3BlbmQuaAo9
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09Ci0tLSAyLjYuMTQtbmxrZC5vcmlnL2luY2x1ZGUvYXNtLXg4Nl82NC9zdXNwZW5k
+LmgJMjAwNS0xMS0wOSAxMToxMjo1MC4wMDAwMDAwMDAgKzAxMDAKKysrIDIuNi4xNC1ubGtkL2lu
+Y2x1ZGUvYXNtLXg4Nl82NC9zdXNwZW5kLmgJMjAwNS0xMS0wNCAxNjoxOTozNC4wMDAwMDAwMDAg
+KzAxMDAKQEAgLTM5LDkgKzM5LDcgQEAgZXh0ZXJuIHVuc2lnbmVkIGxvbmcgc2F2ZWRfY29udGV4
+dF9yMTIsIAogZXh0ZXJuIHVuc2lnbmVkIGxvbmcgc2F2ZWRfY29udGV4dF9lZmxhZ3M7CiAKICNk
+ZWZpbmUgbG9hZGRlYnVnKHRocmVhZCxyZWdpc3RlcikgXAotICAgICAgICAgICAgICAgX19hc21f
+XygibW92cSAlMCwlJWRiIiAjcmVnaXN0ZXIgIFwKLSAgICAgICAgICAgICAgICAgICAgICAgOiAv
+KiBubyBvdXRwdXQgKi8gXAotICAgICAgICAgICAgICAgICAgICAgICA6InIiICgodGhyZWFkKS0+
+ZGVidWdyZWcjI3JlZ2lzdGVyKSkKKwlzZXRfZGVidWdyZWcoKHRocmVhZCktPmRlYnVncmVnIyNy
+ZWdpc3RlciwgcmVnaXN0ZXIpCiAKIGV4dGVybiB2b2lkIGZpeF9wcm9jZXNzb3JfY29udGV4dCh2
+b2lkKTsKIApJbmRleDogMi42LjE0LW5sa2QvaW5jbHVkZS9hc20teDg2XzY0L3N5c3RlbS5oCj09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT0KLS0tIDIuNi4xNC1ubGtkLm9yaWcvaW5jbHVkZS9hc20teDg2XzY0L3N5c3RlbS5o
+CTIwMDUtMTEtMDkgMTE6MTI6NTAuMDAwMDAwMDAwICswMTAwCisrKyAyLjYuMTQtbmxrZC9pbmNs
+dWRlL2FzbS14ODZfNjQvc3lzdGVtLmgJMjAwNS0xMS0wNCAxNjoxOTozNC4wMDAwMDAwMDAgKzAx
+MDAKQEAgLTcwLDEyICs3MCw2IEBAIGV4dGVybiB2b2lkIGxvYWRfZ3NfaW5kZXgodW5zaWduZWQp
+OyAKIAkJIi5wcmV2aW91cyIJCQlcCiAJCTogOiJyIiAodmFsdWUpLCAiciIgKDApKQogCi0jZGVm
+aW5lIHNldF9kZWJ1Zyh2YWx1ZSxyZWdpc3RlcikgXAotICAgICAgICAgICAgICAgIF9fYXNtX18o
+Im1vdnEgJTAsJSVkYiIgI3JlZ2lzdGVyICBcCi0JCTogLyogbm8gb3V0cHV0ICovIFwKLQkJOiJy
+IiAoKHVuc2lnbmVkIGxvbmcpIHZhbHVlKSkKLQotCiAjaWZkZWYgX19LRVJORUxfXwogc3RydWN0
+IGFsdF9pbnN0ciB7IAogCV9fdTggKmluc3RyOyAJCS8qIG9yaWdpbmFsIGluc3RydWN0aW9uICov
+Cg==
+
+--=__PartE1C3DDBC.1__=--

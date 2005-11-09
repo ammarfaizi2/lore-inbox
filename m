@@ -1,85 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030578AbVKIRcz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbVKIRsu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030578AbVKIRcz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 12:32:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030579AbVKIRcy
+	id S1750729AbVKIRsu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 12:48:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbVKIRsu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 12:32:54 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:44308 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1030578AbVKIRcx (ORCPT
+	Wed, 9 Nov 2005 12:48:50 -0500
+Received: from [67.137.28.189] ([67.137.28.189]:47744 "EHLO vger.utah-nac.org")
+	by vger.kernel.org with ESMTP id S1750729AbVKIRst (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 12:32:53 -0500
-Message-ID: <437234EB.6090004@sw.ru>
-Date: Wed, 09 Nov 2005 20:42:03 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Wed, 9 Nov 2005 12:48:49 -0500
+Message-ID: <4372230B.3080002@wolfmountaingroup.com>
+Date: Wed, 09 Nov 2005 09:25:47 -0700
+From: "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Andrey Savochkin" <saw@sawoct.com>
-CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] stop_machine() vs. synchronous IPI send deadlock
-References: <4371DAA1.4040300@sw.ru>
-In-Reply-To: <4371DAA1.4040300@sw.ru>
-Content-Type: multipart/mixed;
- boundary="------------020508070702040808040807"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Jan Beulich <JBeulich@novell.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/39] NLKD - Novell Linux Kernel Debugger
+References: <43720DAE.76F0.0078.0@novell.com>  <43722AFC.4040709@pobox.com> <1131558785.6540.34.camel@localhost.localdomain>
+In-Reply-To: <1131558785.6540.34.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020508070702040808040807
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Alan Cox wrote:
 
-Sorry, hunk with corresponding preempt_enable was lost, sending patch again.
+>On Mer, 2005-11-09 at 11:59 -0500, Jeff Garzik wrote:
+>  
+>
+>>Honestly, just seeing all these code changes makes me think we really 
+>>don't need it in the kernel.  How many "early" and "alternative" gadgets 
+>>do we really need just for this thing?
+>>    
+>>
+>
+>I think it is clearly the case that the design is wrong. The existance
+>of kgdb shows how putting the complex logic remotely on another system
+>is not only a lot cleaner and simpler but can also provide more
+>functionality and higher reliability.
+>
+>The presence of user mode linux and Xen also provide solutions to the
+>usual concern about needing two systems, as will future hardware
+>features.
+>  
+>
 
-This patch fixes deadlock of stop_machine() vs. synchronous IPI send.
-The problem is that stop_machine() disables interrupts before disabling 
-preemption on other CPUs. So if another CPU is preempted and then calls 
-something like flush_tlb_all() it will deadlock with CPU doing 
-stop_machine() and which can't process IPI due to disabled IRQs.
+Not necessarily true with regard to having the functionality in the 
+kernel, but for Linux, probably better for maintenance based on the social
+issues.  I have MDB fully integrated in the kernel and I don't have all 
+these problems.  It's just an update to the kdb hooks, patch, build and go.
+Novell should probably just fork the kernel and start their own distro 
+and dump the mainstream Linux.  They have the people and infrastructure
+to support drivers and do just as good a job as LKML with the old 
+NetWare group.  Novell was presented with MDB two years ago and opted
+to build their own rather than go with ours.  I have been disappointed 
+with the quality of what they have produced to date.
 
-I changed stop_machine() to do the same things exactly as it does on 
-other CPUs, i.e. it should disable preemption first on _all_ CPUs 
-including itself and only after that disable IRQs.
+They should fork form Linux and understand that the Linux folks and 
+their culture is totaly alien to Novell's culture.   They will never make
+progress with the Linux folks and continued interactions will waste both 
+groups time.  They have the talent and resources to preempt Linux
+and do their own thing.  They need to just go and do it.
 
-Signed-Off-By: Kirill Korotaev <dev@sw.ru>
+J
 
-Kirill
 
---------------020508070702040808040807
-Content-Type: text/plain;
- name="diff-ms-stopmachine-ipi-deadlock-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff-ms-stopmachine-ipi-deadlock-2"
-
---- ./kernel/stop_machine.c.stpmach	2005-11-01 12:06:03.000000000 +0300
-+++ ./kernel/stop_machine.c	2005-11-09 20:38:23.000000000 +0300
-@@ -114,13 +114,12 @@ static int stop_machine(void)
- 		return ret;
- 	}
- 
--	/* Don't schedule us away at this point, please. */
--	local_irq_disable();
--
- 	/* Now they are all started, make them hold the CPUs, ready. */
-+	preempt_disable();
- 	stopmachine_set_state(STOPMACHINE_PREPARE);
- 
- 	/* Make them disable irqs. */
-+	local_irq_disable();
- 	stopmachine_set_state(STOPMACHINE_DISABLE_IRQ);
- 
- 	return 0;
-@@ -130,6 +129,7 @@ static void restart_machine(void)
- {
- 	stopmachine_set_state(STOPMACHINE_EXIT);
- 	local_irq_enable();
-+	preempt_enable_no_resched();
- }
- 
- struct stop_machine_data
-
---------------020508070702040808040807--
+>Alan
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
 

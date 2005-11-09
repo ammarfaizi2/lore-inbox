@@ -1,77 +1,271 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030656AbVKISXK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbVKISbZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030656AbVKISXK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 13:23:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030654AbVKISXK
+	id S1750739AbVKISbZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 13:31:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbVKISbZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 13:23:10 -0500
-Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:21676 "EHLO
-	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S1030656AbVKISXJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 13:23:09 -0500
-Date: Wed, 9 Nov 2005 19:23:00 +0100
-From: Daniel Nilsson <daniel.n.nilsson@home.se>
+	Wed, 9 Nov 2005 13:31:25 -0500
+Received: from hera.kernel.org ([140.211.167.34]:53911 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1750739AbVKISbY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 13:31:24 -0500
+Date: Wed, 9 Nov 2005 11:32:16 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 To: linux-kernel@vger.kernel.org
-Cc: Markus.Lidel@shadowconnect.com
-Subject: Performance degradation when using partitions
-Message-ID: <20051109182300.GA27452@oden.homeip.net>
+Cc: Willy TARREAU <willy@w.ods.org>
+Subject: Linux 2.4.32-rc3
+Message-ID: <20051109133216.GA9183@logos.cnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While setting up a software RAID-5 array I started looking into the
-performance aspect of using partioned drives versus the whole disks
-for a RAID-5 array. I have an Adaptec 2400a controller which through
-the I2O kernel driver gives me access to 4x 250GB disks (JBOD mode).
+Hi,
 
-If I create the raid array on the disks directly, /dev/i2o/hd[abcd] I
-can tell from /proc/mdstat that the RAID-5 array is rebuilding at a
-rate of about 25MB/sec. If I instead first create one large primary
-partition on the drives and then create the raid array on those
-partitions /dev/i2o/hd[abcd]1 the array is rebuilding at roughly half
-the speed (14MB/sec).
+Two small issues showed up, 
 
-Not trusting this is a good performance measurement I went ahead and
-created a 10GB filesystem (ext3) on top of the resulting 700GB RAID-5
-array just to find that the speed of the resulting array was affected
-quite a bit by using partioned drives versus whole disks. Here are the
-results, note that the RAID-5 array was still rebuilding while
-performing these benchmarks.
+- IPVS refcont leak 
+- unpriviledged virtual terminal ioctls should be allowed 
+to read function keys
 
-       ------Sequential Output------ --Sequential Input- --Random-
-                 --Block-- -Rewrite- ---FS---  --Block-- --Seeks--
-                 K/sec %CP K/sec %CP           K/sec %CP  /sec %CP
- Whole disks:    44242  16 21290   7  Ext3     56547  12 290.9   0
+So here goes -rc3.
 
- Partitioned:    28383  10 15496   5  Ext3     55089  12 288.9   0
+Attaching the full changelog since this is probably the last -rc
+release.
 
 
-Next step was then to compare performance on just accesses to a single
-drive with a filesystem (ReiserFS or ext3) where the file system either
-occupied the whole disk or resided in a partition that covered the
-whole disk. Here are the results:
+Summary of changes from v2.4.32-rc2 to v2.4.32-rc3
+============================================
 
-       ------Sequential Output------ --Sequential Input- --Random-
-                 --Block-- -Rewrite- ---FS---  --Block-- --Seeks--
-                 K/sec %CP K/sec %CP           K/sec %CP  /sec %CP
- Whole disk:     61652  20 15886   4  Reiser   25011   3 250.0   0
-                 67212  23 16978   4  Ext3     26842   2 234.5   0
-                 68275  24 16198   4  Ext3     28969   3 227.0   0
+Marcelo Tosatti:
+      only disallow _setting_ of function key string
+      Change VERSION to 2.4.32-rc3
 
- Partitioned:    57096  19 16218   4  Reiser   23718   3 252.4   0
-                 60934  21 15565   3  Ext3     26900   2 228.7   0
-                 60866  21 16219   4  Ext3     26272   2 234.2   0
+Roberto Nibali:
+      fix missing refcnt put with expire_nodest_conn
 
-While the results above aren't showing the same kind of drastic
-difference as with the raid array it still seems clear that the
-partitioned drive is slower on average. I'm on 2.6.14 with a Pentium 4
-3GHz CPU with SMP and Hyperthreading active. Has anyone else seem
-similar results?
 
-Please CC me and Markus on any replies.
+Summary of changes from v2.4.32-rc1 to v2.4.32-rc2
+============================================
 
-Thanks
-Daniel Nilsson
+Aleksey Gorelov:
+      asus vt8235 router buggy bios workaround
+
+Alexey Kuznetsov:
+      [TCP]: Don't over-clamp window in tcp_clamp_window()
+
+Andrew Morton:
+      loadkeys requires root priviledges
+
+Dan Aloni:
+      fix memory leak in sd_mod.o
+
+Denis Lukianov:
+      [MCAST]: Fix MCAST_EXCLUDE line dupes
+
+Herbert Xu:
+      Clear stale pred_flags when snd_wnd change
+
+Horms:
+      [IPVS]: Add netdev and me as maintainer contacts
+      Fix infinite loop in udp_v6_get_port()
+
+Julian Anastasov:
+      [IPVS]: ip_vs_ftp breaks connections using persistence
+      [IPVS]: really invalidate persistent templates
+
+Marcelo Tosatti:
+      Change VERSION to 2.4.32-rc2
+
+Marcus Sundberg:
+      [NETFILTER]: this patch fixes a compilation issue with gcc 3.4.3.
+
+Nick Piggin:
+      possible memory ordering bug in page reclaim
+
+Pete Zaitcev:
+      usb: regression in usb-ohci
+
+Ralf Baechle:
+      AX.25: signed char bug
+
+Willy Tarreau:
+      Fix jiffies overflow in delay.h
+
+
+Summary of changes from v2.4.32-pre3 to v2.4.32-rc1
+============================================
+
+Andrey J. Melnikoff:
+  Remove isofs useless unsigned " < 0" comparison
+
+Assar:
+  nfs client: handle long symlinks properly
+
+Chuck Ebbert:
+  i386: fix incorrect FP signal delivery
+
+Dave Johnson:
+  [IPV4]: Fix negative timer loop with lots of ipv4 peers.
+
+Gustavo Zacarias:
+  [SPARC64]: Use vmalloc() in do_netfilter_replace()
+
+Hasso Tepper:
+  [IPV6]: Route events reported with wrong netlink PID and seq number
+
+Horms:
+  CAN-2005-0204: AMD64, allows local users to write to privileged IO ports via OUTS instruction
+  isofs driver ignore parameters
+
+Jean Delvare:
+  update lm_sensors mailing list address
+
+Kirill Korotaev:
+  Lost sockfd_put() in routing_ioctl()
+  lost fput in 32bit ioctl on x86-64
+
+Kiyoshi Ueda:
+  IA64: page_not_present fault in region 5 is normal
+
+M.Baris Demiray:
+  Update PPPoE's configuration documentation
+
+Marcelo Tosatti:
+  NFS: dprintk on -ENAMETOOLONG error handling
+  Update VERSION to 2.4.32-rc1
+  Andrea Arcangeli: avoid size_buffers_type overflow
+  Merge master.kernel.org:/.../davem/net-2.4
+  Revert unnecessary arch/ppc64/boot/zlib.c
+  Revert unnecessary zlib_inflate/inftress.c fix
+
+mikem:
+  cciss 2.4.60
+
+Patrick McHardy:
+  [NETFILTER]: Handle NAT module load race
+
+Summary of changes from v2.4.32-pre2 to v2.4.32-pre3
+============================================
+
+Aaron Grothe:
+  Fix XTEA implementation
+
+Alan Stern:
+  Revert USB UHCI changes
+
+Aleksey Gorelov:
+  Fix incorrect Asus k7m irq router detection
+
+bdupree@techfinesse.com:
+  Fix Alpha AXP Cabriolet build
+
+deep-blue@t-online.de:
+  fix RedBlackTree rb_next/rb_prev functions
+
+Harald Welte:
+  Remove bogus declaration of ipt_mutex
+
+Horms:
+  ppc32: stop misusing ntps time_offset value
+
+Jeff Garzik:
+  libata: update to 2.6.x latest
+
+John W. Linville:
+  i810_audio: use MMIO on systems that support it
+  i810_audio: offset LVI from CIV to avoid stalled start
+
+Ju, Seokmann:
+  megaraid2 v2.10.10.1
+
+Lars Marowsky-Bree:
+  fix oops when starting md multipath 2.4 kernel
+
+Linus Torvalds:
+  PATCH: Fix outstanding gzip/zlib security issues
+
+Marcelo Tosatti:
+  Change VERSION to v2.4.32-pre3
+  Change VERSION to v2.4.32-pre2
+  Merge rsync://rsync.kernel.org/.../davem/net-2.4
+
+Patrick McHardy:
+  [NETFILTER]: Use correct byteorder in ICMP NAT
+  [NETFILTER]: Fix potential memory corruption in NAT code (aka memory NAT)
+  [NETFILTER]: Fix ip6t_LOG sit tunnel logging
+  [NETFILTER]: Restore netfilter assumption in IPv6 multicast
+  [NETFILTER]: Fix deadlock with ip_queue/ip6_queue
+  [NETFILTER]: Ignore PSH on SYN/ACK in ipt_unclean
+
+Willy TARREAU:
+  fix potential NULL dereferences in several serial driver methods (Julien Tinnes)
+
+Summary of changes from v2.4.32-pre1 to v2.4.32-pre2
+============================================
+
+Alan Stern:
+  file_storage and UHCI bugfixes
+
+David S. Miller:
+  [NETLINK]: Fix two socket hashing bugs.
+
+Jakub Bogusz:
+  [SPARC64]: fix sys32_utimes(somefile, NULL)
+
+Larry Woodman:
+  workaround inode cache (prune_icache/__refile_inode) SMP races
+
+Marcelo Tosatti:
+  Change VERSION to 2.4.32-pre2
+  Merge with rsync://rsync.kernel.org/.../davem/net-2.4.git
+  Revert [NETLINK]: Fix two socket hashing bugs.
+
+Neil Horman:
+  [IPVS]: Close race conditions on ip_vs_conn_tab list modification
+
+Pete Zaitcev:
+  usb: printer double up()
+
+Tim Yamin:
+  Merge with rsync://rsync.kernel.org/.../davem/sparc-2.4.git/
+  The gzip description is as good as the ChangeLog says it is -: "Set n to
+
+
+Summary of changes from v2.4.31 to v2.4.32-pre1
+============================================
+
+Andi Kleen <ak@suse.de>:
+  x86-64: Enable Nvidia timer override workaround for SMP kernels too
+  x86-64: Fix build with !CONFIG_SWIOTLB
+  x86_64: Disable exception stack for stack faults
+  Fix canonical checking for segment registers in ptrace
+  Check for canonical addresses in ptrace
+  Fix buffer overflow in x86-64/ia64 32bit execve
+
+David S. Miller <davem@davemloft.net>:
+  [NETLINK]: Fix two socket hashing bugs.
+  [SPARC64]: Fix cmsg length checks in Solaris emulation layer.
+  [SPARC64]: Fix conflicting __bzero_noasi() prototypes.
+
+H. J. Lu <hjl@lucon.org>:
+  newer i386/x86_64 assemblers prohibit instructions for moving between a seg register and a 32bit location
+
+Marcel Holtmann <marcel@holtmann.org>:
+  Fix" introduced in 2.4.27pre2 for bluetooth hci_usb race causes kernel hang
+
+Marcelo <marcelo@xeon.cnet>:
+  Change VERSION to 2.4.32-pre1
+
+NeilBrown <neilb@cse.unsw.edu.au>:
+  Claim i_alloc_sem while changing file size in nfsd
+  Don't drop setuid on directories when ownership changed by NFSd
+
+Pete Zaitcev <zaitcev@redhat.com>:
+  USB 2.4.31: ftdi_sio fixes
+
+Ralf Baechle <ralf@linux-mips.org>:
+  update netdev address
+

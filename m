@@ -1,82 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030335AbVKIBrI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030496AbVKIBv4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030335AbVKIBrI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 20:47:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965156AbVKIBrI
+	id S1030496AbVKIBv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 20:51:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030378AbVKIBvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 20:47:08 -0500
-Received: from mxfep02.bredband.com ([195.54.107.73]:57785 "EHLO
-	mxfep02.bredband.com") by vger.kernel.org with ESMTP
-	id S964987AbVKIBrH (ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 20:47:07 -0500
-X-IronPort-AV: i="3.97,306,1125871200"; 
-   d="asc'?scan'208"; a="8692195:sNHT30052674"
-Subject: Re: New Linux Development Model
-From: Ian Kumlien <pomac@vapor.com>
-Reply-To: pomac@vapor.com
-To: Linux-kernel@vger.kernel.org
-Cc: fawadlateef@gmail.com, s0348365@sms.ed.ac.uk, hostmaster@ed-soft.at,
-       jerome.lacoste@gmail.com, carlsj@yahoo.com
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6cDcL6wgwCPqCeB8ehsQ"
-Date: Wed, 09 Nov 2005 02:47:48 +0100
-Message-Id: <1131500868.2413.63.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Tue, 8 Nov 2005 20:51:55 -0500
+Received: from smtpout.mac.com ([17.250.248.45]:51699 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1030379AbVKIBvy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 20:51:54 -0500
+In-Reply-To: <20051109004808.GM19593@austin.ibm.com>
+References: <20051107185621.GD19593@austin.ibm.com> <20051107190245.GA19707@kroah.com> <20051107193600.GE19593@austin.ibm.com> <20051107200257.GA22524@kroah.com> <20051107204136.GG19593@austin.ibm.com> <1131412273.14381.142.camel@localhost.localdomain> <20051108232327.GA19593@austin.ibm.com> <B68D1F72-F433-4E94-B755-98808482809D@mac.com> <20051109003048.GK19593@austin.ibm.com> <m27jbihd1b.fsf@Douglas-McNaughts-Powerbook.local> <20051109004808.GM19593@austin.ibm.com>
+Mime-Version: 1.0 (Apple Message framework v734)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <19255C96-8B64-4615-A3A7-9E5A850DE398@mac.com>
+Cc: Douglas McNaught <doug@mcnaught.org>, Steven Rostedt <rostedt@goodmis.org>,
+       linux-kernel@vger.kernel.org, bluesmoke-devel@lists.sourceforge.net,
+       linux-pci@atrey.karlin.mff.cuni.cz, linuxppc64-dev@ozlabs.org
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: typedefs and structs
+Date: Tue, 8 Nov 2005 20:51:25 -0500
+To: linas <linas@austin.ibm.com>
+X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Nov 8, 2005, at 19:48:08, linas wrote:
+> On Tue, Nov 08, 2005 at 07:37:20PM -0500, Douglas McNaught was  
+> heard to remark:
+>> Yeah, but if you're trying to read that code, you have to go look  
+>> up the declaration to figure out whether it might affect 'foo' or  
+>> not. And if you get it wrong, you get silent data corruption.
+>
+> No, that is not what "pass by reference" means. You are thinking of  
+> "const", maybe, or "pass by value"; this is neither.  The arg is  
+> not declared const, the subroutine can (and usually will) modify  
+> the contents of the structure, and so the caller will be holding a  
+> modified structure when the callee returns (just like it would if a  
+> pointer was passed).
 
---=-6cDcL6wgwCPqCeB8ehsQ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Pass by value in C:
+do_some_stuff(arg1, arg2);
 
-Hi, posting from the outside so, no nice quotes and stuff.
+Pass by reference in C:
+do_some_stuff(&arg1, &arg2);
 
-Anyways, I was also miffed that the kernel folks merged a 'ancient'
-version of ipw2200 and ieee802.11, if they had merged something more
-current everything would have worked out of the box and all the cleanups
-would have been easier to cope with. Ie, the intel ppl could release
-straight patches to the in kernel version. I dunno if they have changed
-the way their driver works now.
+This is very obvious what it does.  The compiler does type-checks to  
+make sure you don't get it wrong.  There are tools to check stack  
+usage of functions too.  This is inherently obvious what the code  
+does without looking at a completely different file where the  
+function is defined.
 
-Atm, the 'ancient' ieee802.11 is what breaks the ipw2200 build. So,
-basically all testing of cutting edge kernels gets very tedious due to
-the ieee802.11 package removing the offending .h file and making
-reversing -gitX and applying -gitY a real PITA.
 
-Also, I dunno if it says what version of the firmware it should have...
+Pass by value in C++:
+do_some_stuff(arg1, arg2);
 
-Anyways, current state of ipw2200 is sad, and ieee802.11 is more
-developed out of tree. So imho at least ieee802.11 should be merged more
-closely and then generalized if needed (i think i saw some patches like
-that) and preferably ipw2200 should be merged as well.
+Pass by reference in C++:
+do_some_stuff(arg1, arg2);
 
-This b0rkage has actually kept me from using wlan AND testing kernel.org
-kernels.
+This is C++ being clever and hiding stuff from the programmer, which  
+is Not Good(TM) for a kernel.  C++ may be an excellent language for  
+userspace programmers (I say "may" here because some disagree,  
+including myself), however, many of the features are extremely  
+problematic for a kernel.
 
-PS. Above, wrt merging, i assume that the API isn't quite 'stable' and
-that changing any drivers using them should be simple and
-straightforward.
 
-stable as in, used all over and require major rewrites to change =3D)
-DS.
+Cheers,
+Kyle Moffett
 
-PPS. Why merge a outdated version of a driver/protocol/thingy at all?
-DS.
+--
+Debugging is twice as hard as writing the code in the first place.   
+Therefore, if you write the code as cleverly as possible, you are, by  
+definition, not smart enough to debug it.
+   -- Brian Kernighan
 
---=20
-Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
 
---=-6cDcL6wgwCPqCeB8ehsQ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1-ecc0.1.6 (GNU/Linux)
-
-iD8DBQBDcVVE7F3Euyc51N8RAt7zAKCMaQ+KUXG6VLXbWE/a3kKwNYLumQCfQjEs
-Ljqc1Svbn1ktHkSxXWjwoSk=
-=QNwZ
------END PGP SIGNATURE-----
-
---=-6cDcL6wgwCPqCeB8ehsQ--

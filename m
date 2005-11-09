@@ -1,69 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161032AbVKIWsv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161034AbVKIWtG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161032AbVKIWsv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 17:48:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161034AbVKIWsu
+	id S1161034AbVKIWtG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 17:49:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161037AbVKIWtG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 17:48:50 -0500
-Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:39313 "EHLO
-	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1161019AbVKIWse (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 17:48:34 -0500
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Wed, 9 Nov 2005 22:48:29 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, hch@lst.de
-Subject: [PATCH] Remove read-only check from inode_update_time().
-Message-ID: <Pine.LNX.4.64.0511092243001.7946@hermes-1.csi.cam.ac.uk>
+	Wed, 9 Nov 2005 17:49:06 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:42465 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161034AbVKIWsy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 17:48:54 -0500
+Date: Wed, 9 Nov 2005 14:48:10 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jody McIntyre <scjody@modernduck.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       "Brown, Len" <len.brown@intel.com>, Jeff Garzik <jgarzik@pobox.com>,
+       "Luck, Tony" <tony.luck@intel.com>, Ben Collins <bcollins@debian.org>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Roland Dreier <rolandd@cisco.com>, Dave Jones <davej@codemonkey.org.uk>,
+       Jens Axboe <axboe@suse.de>, Dave Kleikamp <shaggy@austin.ibm.com>,
+       Steven French <sfrench@us.ibm.com>
+Subject: Re: merge status
+In-Reply-To: <20051109222356.GF14318@conscoop.ottawa.on.ca>
+Message-ID: <Pine.LNX.4.64.0511091443310.4627@g5.osdl.org>
+References: <20051109133558.513facef.akpm@osdl.org> <20051109221201.GE14318@conscoop.ottawa.on.ca>
+ <Pine.LNX.4.64.0511091417540.4627@g5.osdl.org> <20051109222356.GF14318@conscoop.ottawa.on.ca>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
 
-The read-only check in inode_update_time() (or file_update_time() as it is 
-now in -mm) is unnecessary as the VFS better have done all the read-only 
-checks and aborted much earlier in the file write code paths where 
-inode/file_update_time() is only called from.
 
-(In case you were not following the ntfs discussion, Christoph Hellwig 
-agreed that check is unnecessary and can be removed.)
+On Wed, 9 Nov 2005, Jody McIntyre wrote:
+>
+> On Wed, Nov 09, 2005 at 02:18:32PM -0800, Linus Torvalds wrote:
+> 
+> > If you have a 71kB patch, it definitely counts as new stuff and not just 
+> > trivial bugfixes.
+> 
+> Fair enough.
+> 
+> Can I still send a 2k spinlock fix in ~2 weeks?  That's the only thing I
+> really want to get in to 2.6.15.
 
-Patch against latest Linus git tree is below, please apply.  If you prefer 
-a patch on top of Christoph's file_update_time() check please let me 
-know...
+Sure, there's nothing wrong with keeping "ongoing development" around, and 
+then just asking me to pull the unrelated fixes. 
 
-Best regards,
+Either using separate patches to synchronize the bugfixes, or just using 
+separate git branches for development and merging up to me. As usual, Jeff 
+ends up the poster-boy for git branches (these days there are certainly 
+others that do it too, but Jeff has done it more and for longer than 
+most).
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+For example, going to Jeff's networking tree:
 
----
+	http://www.kernel.org/git/?p=linux/kernel/git/jgarzik/netdev-2.6.git;a=summary
 
-The read-only check in inode_update_time() (or file_update_time() as it is
-now in -mm) is unnecessary as the VFS better have done all the read-only
-checks and aborted much earlier in the file write code paths where
-inode/file_update_time() is only called from.
+you can see
 
-Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
+	15 hours ago 	ALL 		shortlog | log
+	15 hours ago 	e100-sbit 	shortlog | log
+	16 hours ago 	upstream-linus 	shortlog | log
+	16 hours ago 	upstream 	shortlog | log
+	20 hours ago 	master 		shortlog | log
+	4 days ago 	sky2 		shortlog | log
+	4 days ago 	sis900-wol 	shortlog | log
+	4 days ago 	8139-thread 	shortlog | log
 
---- inode.c	2005-11-09 19:23:35.000000000 +0000
-+++ inode.c.new	2005-11-09 22:45:21.000000000 +0000
-@@ -1219,8 +1219,6 @@ void inode_update_time(struct inode *ino
- 
- 	if (IS_NOCMTIME(inode))
- 		return;
--	if (IS_RDONLY(inode))
--		return;
- 
- 	now = current_fs_time(inode->i_sb);
- 	if (!timespec_equal(&inode->i_mtime, &now))
+where "upstream-linus" is the part I merged today, while he has possibly 
+other development work in the other branches.
 
+			Linus

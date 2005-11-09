@@ -1,119 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbVKIF2s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932352AbVKIF1w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932391AbVKIF2s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 00:28:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbVKIF2s
+	id S932352AbVKIF1w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 00:27:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbVKIF1w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 00:28:48 -0500
-Received: from xenotime.net ([66.160.160.81]:18316 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932391AbVKIF2r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 00:28:47 -0500
-Date: Tue, 8 Nov 2005 21:12:56 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: adobriyan@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5/6] kernel-doc: nested structs and unions support
-Message-Id: <20051108211256.27adaaeb.rdunlap@xenotime.net>
-In-Reply-To: <20051108213130.GC8256@mars.ravnborg.org>
-References: <20051108193810.GB14202@mipter.zuzino.mipt.ru>
-	<20051108213130.GC8256@mars.ravnborg.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 9 Nov 2005 00:27:52 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:9128
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932352AbVKIF1w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 00:27:52 -0500
+Date: Tue, 08 Nov 2005 21:27:50 -0800 (PST)
+Message-Id: <20051108.212750.41206070.davem@davemloft.net>
+To: akpm@osdl.org
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, stable@kernel.org,
+       torvalds@osdl.org, herbert@gondor.apana.org.au
+Subject: Re: Linux 2.6.14.1
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20051108211354.546e0163.akpm@osdl.org>
+References: <20051109010729.GA22439@kroah.com>
+	<20051108211354.546e0163.akpm@osdl.org>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Nov 2005 22:31:30 +0100 Sam Ravnborg wrote:
+From: Andrew Morton <akpm@osdl.org>
+Date: Tue, 8 Nov 2005 21:13:54 -0800
 
-> On Tue, Nov 08, 2005 at 10:38:10PM +0300, Alexey Dobriyan wrote:
-> > Sam, do you like the syntax? I hope properly indented rendering will
-> > appear soon.
-> Looks good. But I like someone with more kernel-doc experince to
-> comment.
-> Randy?
-
-The kernel-doc syntax looks good to me.  I'm not so sure about
-the presentation part, but I guess that Alexey is stil working
-on that part.
-
-I think that I'm agreeing with what Martin Waitz said, that the
-implementation is good, but not so sure about the usefulness of it.
-
-Alexey, do you see lots of nested structs (and/or unions) in
-kernel APIs?  I haven't gone searching for them.  Have you?
-OTOH, it's not costly, so if it works, it's fine.
-
-~Randy
-
-
-> 	Sam
+> Greg KH <gregkh@suse.de> wrote:
+> >
+> > We (the -stable team) are announcing the release of the 2.6.14.1 kernel.
 > 
-> > ------------------------------------
-> > [PATCH 5/6] kernel-doc: nested structs and unions support
-> > 
-> > Now something like this
-> > 
-> > 	struct a {
-> > 		struct b_s {
-> > 			union {
-> > 				int c;
-> > 				int g;
-> > 			} u;
-> > 		} b;
-> > 		struct d_s {
-> > 			int e;
-> > 		} d;
-> > 	};
-> > 
-> > is possible to document with the following kernel-doc comment:
-> > 
-> > 	/**
-> > 	 * struct a - ...
-> > 	 *
-> > 	 * @b: ...
-> > 	 * @b.u: ...
-> > 	 * @b.u.c: ...
-> > 	 * @b.u.g: ...
-> > 	 * @d: ...
-> > 	 * @d.e: ...
-> > 	 */
-> > 
-> > Not-Yet-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-> > ---
-> > 
-> >  scripts/kernel-doc |   33 ++++++++++++++++++++++++++++-----
-> >  1 file changed, 28 insertions(+), 5 deletions(-)
-> > 
-> > --- linux-kernel-doc-004/scripts/kernel-doc	2005-05-09 02:34:59.000000000 +0000
-> > +++ linux-kernel-doc-005/scripts/kernel-doc	2005-05-09 03:46:43.000000000 +0000
-> > @@ -104,19 +104,26 @@ use strict;
-> >  # Beside functions you can also write documentation for structs, unions, 
-> >  # enums and typedefs. Instead of the function name you must write the name 
-> >  # of the declaration;  the struct/union/enum/typedef must always precede 
-> > -# the name. Nesting of declarations is not supported. 
-> > +# the name.
-> >  # Use the argument mechanism to document members or constants.
-> >  # e.g.
-> >  # /**
-> >  #  * struct my_struct - short description
-> >  #  * @a: first member
-> >  #  * @b: second member
-> > +#  * @c: nested struct
-> > +#  * @c.p: first member of nested struct
-> > +#  * @c.q: second member of nested struct
-> >  #  * 
-> >  #  * Longer description
-> >  #  */
-> >  # struct my_struct {
-> >  #     int a;
-> >  #     int b;
-> > +#     struct her_struct {
-> > +#         char **p;
-> > +#         short q;
-> > +#     } c;
-> >  # };
-> >  #
-> >  # All descriptions can be multiline, except the short function description.
+> We need the fix for the net-drops-zero-length-udp-messages bug which broke
+> bind and traceroute.
+
+Yes, and I was pretty sure I saw Herbert submit this to
+stable@kernel.org even.
+
+In any event, yes please put that in.

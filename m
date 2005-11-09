@@ -1,90 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030435AbVKIWMm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030436AbVKIWNY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030435AbVKIWMm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 17:12:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030436AbVKIWMm
+	id S1030436AbVKIWNY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 17:13:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030438AbVKIWNY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 17:12:42 -0500
-Received: from mail28.sea5.speakeasy.net ([69.17.117.30]:47528 "EHLO
-	mail28.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1030435AbVKIWMk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 17:12:40 -0500
-Date: Wed, 9 Nov 2005 14:12:38 -0800 (PST)
-From: Vadim Lobanov <vlobanov@speakeasy.net>
-To: "linux-os \\(Dick Johnson\\)" <linux-os@analogic.com>
-cc: linas <linas@austin.ibm.com>, "J.A. Magallon" <jamagallon@able.es>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       Douglas McNaught <doug@mcnaught.org>,
-       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
-       bluesmoke-devel@lists.sourceforge.net,
-       linux-pci@atrey.karlin.mff.cuni.cz, linuxppc64-dev@ozlabs.org
-Subject: Re: typedefs and structs
-In-Reply-To: <Pine.LNX.4.61.0511091459440.12760@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.58.0511091347570.31338@shell3.speakeasy.net>
-References: <20051107204136.GG19593@austin.ibm.com>
- <1131412273.14381.142.camel@localhost.localdomain> <20051108232327.GA19593@austin.ibm.com>
- <B68D1F72-F433-4E94-B755-98808482809D@mac.com> <20051109003048.GK19593@austin.ibm.com>
- <m27jbihd1b.fsf@Douglas-McNaughts-Powerbook.local> <20051109004808.GM19593@austin.ibm.com>
- <19255C96-8B64-4615-A3A7-9E5A850DE398@mac.com> <20051109111640.757f399a@werewolf.auna.net>
- <Pine.LNX.4.58.0511090816300.4260@shell2.speakeasy.net>
- <20051109192028.GP19593@austin.ibm.com> <Pine.LNX.4.61.0511091459440.12760@chaos.analogic.com>
+	Wed, 9 Nov 2005 17:13:24 -0500
+Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:37523 "EHLO
+	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1030436AbVKIWNW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 17:13:22 -0500
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Wed, 9 Nov 2005 22:13:11 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       "Brown, Len" <len.brown@intel.com>, Jeff Garzik <jgarzik@pobox.com>,
+       "Luck, Tony" <tony.luck@intel.com>, Ben Collins <bcollins@debian.org>,
+       Jody McIntyre <scjody@modernduck.com>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Roland Dreier <rolandd@cisco.com>, Dave Jones <davej@codemonkey.org.uk>,
+       Jens Axboe <axboe@suse.de>, Dave Kleikamp <shaggy@austin.ibm.com>,
+       Steven French <sfrench@us.ibm.com>
+Subject: Re: merge status
+In-Reply-To: <20051109133558.513facef.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0511092203320.19282@hermes-1.csi.cam.ac.uk>
+References: <20051109133558.513facef.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Nov 2005, linux-os \(Dick Johnson\) wrote:
+On Wed, 9 Nov 2005, Andrew Morton wrote:
 
->
-> On Wed, 9 Nov 2005, linas wrote:
->
-> > On Wed, Nov 09, 2005 at 08:22:15AM -0800, Vadim Lobanov was heard to remark:
-> >> On Wed, 9 Nov 2005, J.A. Magallon wrote:
-> >>
-> >>> void do_some_stuff(T& arg1,T&  arg2)
-> >>
-> >> A diligent C programmer would write this as follows:
-> >> 	void do_some_stuff (struct T * a, struct T * b);
-> >> So I don't see C++ winning at all here.
-> >
-> > I guess the real point that I'd wanted to make, and seems
-> > to have gotten lost, was that by avoiding using pointers,
-> > you end up designing code in a very different way, and you
-> > can find out that often/usually, you don't need structs
-> > filled with a zoo of pointers.
-> >
->
-> But you can't avoid pointers unless you make your entire
-> program have global scope. That may be great for performance,
-> but a killer if for have any bugs.
+> 
+> We're at day 12 of the two-week window, time for a quick peek at
+> outstanding patches in the subsystem trees.
+> 
+> -rw-r--r--    1 akpm     akpm       339882 Nov  9 11:19 git-scsi-misc.patch
+> -rw-r--r--    1 akpm     akpm       188863 Nov  9 11:29 git-acpi.patch
+> -rw-r--r--    1 akpm     akpm       151205 Nov  9 11:19 git-libata-all.patch
+> -rw-r--r--    1 akpm     akpm        78245 Nov  9 11:19 git-ia64.patch
+> -rw-r--r--    1 akpm     akpm        71651 Nov  9 11:19 git-ieee1394.patch
+> -rw-r--r--    1 akpm     akpm        71552 Nov  9 11:19 git-audit.patch
+> -rw-r--r--    1 akpm     akpm        47649 Nov  9 11:19 git-cryptodev.patch
+> -rw-r--r--    1 akpm     akpm        21829 Nov  9 11:19 git-blktrace.patch
+> -rw-r--r--    1 akpm     akpm        20989 Nov  9 11:19 git-infiniband.patch
+> -rw-r--r--    1 akpm     akpm         6687 Nov  9 11:19 git-agpgart.patch
+> -rw-r--r--    1 akpm     akpm         6569 Nov  9 11:19 git-cifs.patch
 
-Just to extract some useful technical knowledge from the current ongoing
-"flamewar"...
-I'm not entirely sure if the above statement regarding performance is
-correct. Some enlightenment would be appreciated.
+> -rw-r--r--    1 akpm     akpm         2435 Nov  9 11:19 git-ntfs.patch
 
-Suppose you have the following code:
-	int myvar;
-	void foo (void) {
-		printf("%d\n", myvar);
-		bar();
-		printf("%d\n", myvar);
-	}
-If bar is declared in _another_ file as
-	void bar (void);
-then I believe the compiler has to reread the global 'myvar' from memory
-for the second printf().
+Odd.  "git format-patch -n `cat 
+/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/HEAD`" returns nothing so 
+I can only assume that it is empty, too.  No idea why the size is 2.4k...  
+Certainly I do not remember committing anything since I last pushed to 
+Linus...
 
-However, if the code is as follows:
-	void foo (void) {
-		int myvar = 0;
-		printf("%d\n", myvar);
-		bar(&myvar);
-		printf("%d\n", myvar);
-	}
-If bar is declared in _another_ file as
-	void bar (const int * var);
-then I think the compiler can validly cache the value of 'myvar' for the
-second printf without re-reading it. Correct/incorrect?
+> -rw-r--r--    1 akpm     akpm         1193 Nov  9 11:19 git-jfs.patch
+> 
+> The below are empty:
+> 
+> -rw-r--r--    1 akpm     akpm          131 Nov  9 11:19 git-block.patch
+> -rw-r--r--    1 akpm     akpm          124 Oct 23 11:38 git-watchdog.patch
+> -rw-r--r--    1 akpm     akpm          123 Nov  9 11:19 git-drm-via.patch
+> -rw-r--r--    1 akpm     akpm          122 Nov  9 11:19 git-scsi-rc-fixes.patch
+> -rw-r--r--    1 akpm     akpm          122 Nov  9 11:19 git-drm.patch
+> -rw-r--r--    1 akpm     akpm          118 Nov  9 11:19 git-alsa.patch
+> -rw-r--r--    1 akpm     akpm          115 Nov  9 11:19 git-sparc64.patch
+> -rw-r--r--    1 akpm     akpm          113 Nov  9 11:19 git-cpufreq.patch
+> -rw-r--r--    1 akpm     akpm          112 Nov  9 11:19 git-mtd.patch
+> -rw-r--r--    1 akpm     akpm          110 Nov  9 11:19 git-kbuild.patch
+> -rw-r--r--    1 akpm     akpm          110 Nov  9 11:19 git-input.patch
+> -rw-r--r--    1 akpm     akpm          102 Nov  9 11:19 git-nfs.patch
+> -rw-r--r--    1 akpm     akpm          102 Nov  9 11:19 git-drvmodel.patch
+> -rw-r--r--    1 akpm     akpm          101 Nov  9 11:19 git-arm-smp.patch
+> -rw-r--r--    1 akpm     akpm          100 Nov  9 11:19 git-serial.patch
+> -rw-r--r--    1 akpm     akpm           97 Nov  9 11:19 git-ucb.patch
+> -rw-r--r--    1 akpm     akpm           97 Nov  9 11:19 git-mmc.patch
+> -rw-r--r--    1 akpm     akpm           97 Nov  9 11:19 git-arm.patch
+> -rw-r--r--    1 akpm     akpm           87 Nov  9 11:19 git-xfs.patch
+> 
+> Most of this will be 2.6.16 material.  If not, promptness is urged.
 
--Vadim Lobanov
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

@@ -1,121 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751601AbVKIXjk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751604AbVKIXkG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751601AbVKIXjk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 18:39:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751602AbVKIXjk
+	id S1751604AbVKIXkG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 18:40:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751606AbVKIXkG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 18:39:40 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:55947 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751600AbVKIXjj (ORCPT
+	Wed, 9 Nov 2005 18:40:06 -0500
+Received: from mail27.sea5.speakeasy.net ([69.17.117.29]:56297 "EHLO
+	mail27.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1751604AbVKIXkD convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 18:39:39 -0500
-Subject: [PATCH 3/4] Hugetlb: Reorganize hugetlb_fault to prepare for COW
-From: Adam Litke <agl@us.ibm.com>
-To: akpm@osdl.org
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       David Gibson <david@gibson.dropbear.id.au>, wli@holomorphy.com,
-       hugh@veritas.com, rohit.seth@intel.com, kenneth.w.chen@intel.com,
-       "ADAM G. LITKE [imap]" <agl@us.ibm.com>
-In-Reply-To: <1131578925.28383.9.camel@localhost.localdomain>
-References: <1131578925.28383.9.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: IBM
-Date: Wed, 09 Nov 2005 17:38:47 -0600
-Message-Id: <1131579527.28383.22.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Nov 2005 18:40:03 -0500
+Date: Wed, 9 Nov 2005 15:40:02 -0800 (PST)
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: Andreas Schwab <schwab@suse.de>
+cc: "linux-os \\\\(Dick Johnson\\\\)" <linux-os@analogic.com>,
+       linas <linas@austin.ibm.com>, "J.A. Magallon" <jamagallon@able.es>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       Douglas McNaught <doug@mcnaught.org>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
+Subject: Re: typedefs and structs
+In-Reply-To: <je3bm5qu2b.fsf@sykes.suse.de>
+Message-ID: <Pine.LNX.4.58.0511091537370.23877@shell4.speakeasy.net>
+References: <20051107204136.GG19593@austin.ibm.com>
+ <1131412273.14381.142.camel@localhost.localdomain> <20051108232327.GA19593@austin.ibm.com>
+ <B68D1F72-F433-4E94-B755-98808482809D@mac.com> <20051109003048.GK19593@austin.ibm.com>
+ <m27jbihd1b.fsf@Douglas-McNaughts-Powerbook.local> <20051109004808.GM19593@austin.ibm.com>
+ <19255C96-8B64-4615-A3A7-9E5A850DE398@mac.com> <20051109111640.757f399a@werewolf.auna.net>
+ <Pine.LNX.4.58.0511090816300.4260@shell2.speakeasy.net>
+ <20051109192028.GP19593@austin.ibm.com> <Pine.LNX.4.61.0511091459440.12760@chaos.analogic.com>
+ <Pine.LNX.4.58.0511091347570.31338@shell3.speakeasy.net> <je3bm5qu2b.fsf@sykes.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugetlb: Reorganize hugetlb_fault to prepare for COW
+On Thu, 10 Nov 2005, Andreas Schwab wrote:
 
-This patch splits the "no_page()" type activity into its own function,
-hugetlb_no_page().  hugetlb_fault() becomes the entry point for hugetlb faults
-and delegates to the appropriate handler depending on the type of fault.  Right
-now we still have only hugetlb_no_page() but a later patch introduces a COW
-fault.
+> Vadim Lobanov <vlobanov@speakeasy.net> writes:
+>
+> > However, if the code is as follows:
+> > 	void foo (void) {
+> > 		int myvar = 0;
+> > 		printf("%d\n", myvar);
+> > 		bar(&myvar);
+> > 		printf("%d\n", myvar);
+> > 	}
+> > If bar is declared in _another_ file as
+> > 	void bar (const int * var);
+> > then I think the compiler can validly cache the value of 'myvar' for the
+> > second printf without re-reading it. Correct/incorrect?
+>
+> Incorrect. bar() may cast away const.  In C const does not mean readonly.
 
-Original post by David Gibson <david@gibson.dropbear.id.au>
+In that case, I stand corrected.
 
-Version 2: Wed 9 Nov 2005
-	Broken out into a separate patch
+Is there any real reason to apply const to pointer targets, aside from
+giving yourself a warning in the case you try to write the pointer
+target directly? Seems to be a missed opportunity for optimizations
+where the coder designates that it's okay to do so.
 
-Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
-Signed-off-by: Adam Litke <agl@us.ibm.com>
----
- hugetlb.c |   34 +++++++++++++++++++++++++---------
- 1 files changed, 25 insertions(+), 9 deletions(-)
-diff -upN reference/mm/hugetlb.c current/mm/hugetlb.c
---- reference/mm/hugetlb.c
-+++ current/mm/hugetlb.c
-@@ -370,20 +370,15 @@ out:
- 	return page;
- }
- 
--int hugetlb_fault(struct mm_struct *mm, struct vm_area_struct *vma,
--			unsigned long address, int write_access)
-+int hugetlb_no_page(struct mm_struct *mm, struct vm_area_struct *vma,
-+			unsigned long address, pte_t *ptep)
- {
- 	int ret = VM_FAULT_SIGBUS;
- 	unsigned long idx;
- 	unsigned long size;
--	pte_t *pte;
- 	struct page *page;
- 	struct address_space *mapping;
- 
--	pte = huge_pte_alloc(mm, address);
--	if (!pte)
--		goto out;
--
- 	mapping = vma->vm_file->f_mapping;
- 	idx = ((address - vma->vm_start) >> HPAGE_SHIFT)
- 		+ (vma->vm_pgoff >> (HPAGE_SHIFT - PAGE_SHIFT));
-@@ -402,11 +397,11 @@ int hugetlb_fault(struct mm_struct *mm, 
- 		goto backout;
- 
- 	ret = VM_FAULT_MINOR;
--	if (!pte_none(*pte))
-+	if (!pte_none(*ptep))
- 		goto backout;
- 
- 	add_mm_counter(mm, file_rss, HPAGE_SIZE / PAGE_SIZE);
--	set_huge_pte_at(mm, address, pte, make_huge_pte(vma, page));
-+	set_huge_pte_at(mm, address, ptep, make_huge_pte(vma, page));
- 	spin_unlock(&mm->page_table_lock);
- 	unlock_page(page);
- out:
-@@ -420,6 +415,27 @@ backout:
- 	goto out;
- }
- 
-+int hugetlb_fault(struct mm_struct *mm, struct vm_area_struct *vma,
-+			unsigned long address, int write_access)
-+{
-+	pte_t *ptep;
-+	pte_t entry;
-+
-+	ptep = huge_pte_alloc(mm, address);
-+	if (!ptep)
-+		return VM_FAULT_OOM;
-+
-+	entry = *ptep;
-+	if (pte_none(entry))
-+		return hugetlb_no_page(mm, vma, address, ptep);
-+
-+	/*
-+	 * We could get here if another thread instantiated the pte
-+	 * before the test above.
-+	 */
-+	return VM_FAULT_MINOR;
-+}
-+
- int follow_hugetlb_page(struct mm_struct *mm, struct vm_area_struct *vma,
- 			struct page **pages, struct vm_area_struct **vmas,
- 			unsigned long *position, int *length, int i)
+> Andreas.
+>
+> --
+> Andreas Schwab, SuSE Labs, schwab@suse.de
+> SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+> PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+> "And now for something completely different."
+>
 
--- 
-Adam Litke - (agl at us.ibm.com)
-IBM Linux Technology Center
-
+-Vadim Lobanov

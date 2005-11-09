@@ -1,78 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030496AbVKIBv4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964987AbVKIBvg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030496AbVKIBv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 20:51:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030378AbVKIBvz
+	id S964987AbVKIBvg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 20:51:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965156AbVKIBvg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 20:51:55 -0500
-Received: from smtpout.mac.com ([17.250.248.45]:51699 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1030379AbVKIBvy (ORCPT
+	Tue, 8 Nov 2005 20:51:36 -0500
+Received: from gate.crashing.org ([63.228.1.57]:42909 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S964987AbVKIBvg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 20:51:54 -0500
-In-Reply-To: <20051109004808.GM19593@austin.ibm.com>
-References: <20051107185621.GD19593@austin.ibm.com> <20051107190245.GA19707@kroah.com> <20051107193600.GE19593@austin.ibm.com> <20051107200257.GA22524@kroah.com> <20051107204136.GG19593@austin.ibm.com> <1131412273.14381.142.camel@localhost.localdomain> <20051108232327.GA19593@austin.ibm.com> <B68D1F72-F433-4E94-B755-98808482809D@mac.com> <20051109003048.GK19593@austin.ibm.com> <m27jbihd1b.fsf@Douglas-McNaughts-Powerbook.local> <20051109004808.GM19593@austin.ibm.com>
-Mime-Version: 1.0 (Apple Message framework v734)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <19255C96-8B64-4615-A3A7-9E5A850DE398@mac.com>
-Cc: Douglas McNaught <doug@mcnaught.org>, Steven Rostedt <rostedt@goodmis.org>,
-       linux-kernel@vger.kernel.org, bluesmoke-devel@lists.sourceforge.net,
-       linux-pci@atrey.karlin.mff.cuni.cz, linuxppc64-dev@ozlabs.org
+	Tue, 8 Nov 2005 20:51:36 -0500
+Subject: Re: Posssible bug in kernel/irq/handle.c
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Paul Mackerras <paulus@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0511081651320.3247@g5.osdl.org>
+References: <1131496739.24637.12.camel@gaston>
+	 <Pine.LNX.4.64.0511081651320.3247@g5.osdl.org>
+Content-Type: text/plain
+Date: Wed, 09 Nov 2005 12:50:21 +1100
+Message-Id: <1131501021.24637.18.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: typedefs and structs
-Date: Tue, 8 Nov 2005 20:51:25 -0500
-To: linas <linas@austin.ibm.com>
-X-Mailer: Apple Mail (2.734)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 8, 2005, at 19:48:08, linas wrote:
-> On Tue, Nov 08, 2005 at 07:37:20PM -0500, Douglas McNaught was  
-> heard to remark:
->> Yeah, but if you're trying to read that code, you have to go look  
->> up the declaration to figure out whether it might affect 'foo' or  
->> not. And if you get it wrong, you get silent data corruption.
->
-> No, that is not what "pass by reference" means. You are thinking of  
-> "const", maybe, or "pass by value"; this is neither.  The arg is  
-> not declared const, the subroutine can (and usually will) modify  
-> the contents of the structure, and so the caller will be holding a  
-> modified structure when the callee returns (just like it would if a  
-> pointer was passed).
+On Tue, 2005-11-08 at 17:04 -0800, Linus Torvalds wrote:
 
-Pass by value in C:
-do_some_stuff(arg1, arg2);
+> >  1) The interrupt will be stuck IN_PROGRESS. I don't see how IN_PROGRESS
+> > can ever be cleared afterward
+> 
+> If desc->action is NULL, the flags are supposed to be cleared when we get 
+> an action. See kernel/irq/manage.c: setup_irq(), and in particular the 
+> case where we had no handler before (ie the "!shared" case).
 
-Pass by reference in C:
-do_some_stuff(&arg1, &arg2);
+Yes, but in the meantime, the CPU will be stuck taking the same irq for
+ever without ever going through note_interrupt().
 
-This is very obvious what it does.  The compiler does type-checks to  
-make sure you don't get it wrong.  There are tools to check stack  
-usage of functions too.  This is inherently obvious what the code  
-does without looking at a completely different file where the  
-function is defined.
+> >  2) We won't go through the code in note_interrupt() that protects us
+> > against a stuck interrupt, so if the interrupt is indeed stuck, we'll
+> > just lockup the processor taking the same IRQ for ever (and not being
+> > able to handle it, even if an action magically gets registered, due to
+> > 1)
+> 
+> If the irq is stuck, you have serious problems with your interrupt 
+> controller. By definition, the irq should be disabled since there are no 
+> handlers for that interrupt.
 
+Hrm... yah, it should... still, I find that a bit fragile.
 
-Pass by value in C++:
-do_some_stuff(arg1, arg2);
+> So I think the code is correct. It has certainly worked for years on x86 
+> (and it got serious debugging, since we had some rather nasty and subtle 
+> issues with edge-triggered APIC interrupts that just get lost if they are 
+> disabled at the controller).
 
-Pass by reference in C++:
-do_some_stuff(arg1, arg2);
+Well, we have a "funny" case with some pSeries... the firmware may
+enable interrupts behind our back, and expects us to call a firmware
+"try to handle that interrupt" kind of call when we get one we don't
+handle. That is, either all the handlers returned IRQ_NONE or there is
+no action. I'm not sure how to do that with the current code without
+having our own __do_IRQ() which I'd rather avoid...
 
-This is C++ being clever and hiding stuff from the programmer, which  
-is Not Good(TM) for a kernel.  C++ may be an excellent language for  
-userspace programmers (I say "may" here because some disagree,  
-including myself), however, many of the features are extremely  
-problematic for a kernel.
-
-
-Cheers,
-Kyle Moffett
-
---
-Debugging is twice as hard as writing the code in the first place.   
-Therefore, if you write the code as cleverly as possible, you are, by  
-definition, not smart enough to debug it.
-   -- Brian Kernighan
+Ben.
 
 

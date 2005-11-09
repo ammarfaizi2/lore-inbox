@@ -1,106 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbVKIN7a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbVKIOAK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750768AbVKIN7a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 08:59:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbVKIN7a
+	id S1750771AbVKIOAK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 09:00:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750773AbVKIOAK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 08:59:30 -0500
-Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:50344 "EHLO
-	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S1750768AbVKIN73
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 08:59:29 -0500
-Date: Wed, 9 Nov 2005 13:59:25 +0000
-From: Hugo Mills <hugo-lkml@carfax.org.uk>
-To: linux-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
-Subject: Multiple USB DVB devices cause hard lockups
-Message-ID: <20051109135925.GF12751@localhost.localdomain>
-Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
-	linux-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
+	Wed, 9 Nov 2005 09:00:10 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:41006
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1750771AbVKIOAI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 09:00:08 -0500
+Message-Id: <43720F32.76F0.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Wed, 09 Nov 2005 15:01:06 +0100
+From: "Jan Beulich" <JBeulich@novell.com>
+To: "Andreas Kleen" <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
+Subject: [PATCH 5/39] NLKD/x86-64 - early/late CPU up/down notification
+References: <43720DAE.76F0.0078.0@novell.com> <43720E2E.76F0.0078.0@novell.com> <43720E72.76F0.0078.0@novell.com> <43720EAF.76F0.0078.0@novell.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="K/NRh952CO+2tg14"
-Content-Disposition: inline
-X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
-X-GPG-Key: 1C335860
-X-Parrot: It is no more. It has joined the choir invisible.
-X-IRC-Nicks: darksatanic darkersatanic darkling
-User-Agent: Mutt/1.5.9i
+Content-Type: multipart/mixed; boundary="=__Part6A485632.1__="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a MIME message. If you are reading this text, you may want to 
+consider changing to a mail reader or gateway that understands how to 
+properly handle MIME multipart messages.
 
---K/NRh952CO+2tg14
-Content-Type: text/plain; charset=us-ascii
+--=__Part6A485632.1__=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-   I'm trying to get a pair of Twinhan Alpha II DVB-USB devices
-working on the same machine. With a single device plugged in, I can
-quite easily receive and stream data.
+x86_64-specific part of the new mechanism to allow debuggers to learn
+about starting/dying CPUs as early/late as possible.
 
-   With both devices connected to the machine, both are recognised.
-However, use of either device causes some form of stack backtrace (I
-can't see the top of it to verify what kind) from the kernel, and a
-hard lock-up. Magic SysRQ is non-functional after the lock-up. Failure
-cases that I've seen are:
+From: Jan Beulich <jbeulich@novell.com>
 
- - Streaming from device 0 is OK for a few seconds, and then the
-   system locks hard.
+(actual patch attached)
 
- - Streaming from device 0 is OK. Streaming from device 1 before
-   device 0 crashes locks the device 1 process in D state, and then
-   locks the system hard a few seconds later.
 
-   I've observed this behaviour on both 2.6.12.2 and 2.6.14. No logs
-were left from the crashes, and only incomplete information on screen,
-so I presume that I'll need to get a serial console set up to capture
-output. A log of the devices being identified on boot-up is attached
-below, for what it's worth (probably not much).
+--=__Part6A485632.1__=
+Content-Type: application/octet-stream; name="linux-2.6.14-nlkd-notify-cpu-x86_64.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="linux-2.6.14-nlkd-notify-cpu-x86_64.patch"
 
-   Hugo.
+eDg2XzY0LXNwZWNpZmljIHBhcnQgb2YgdGhlIG5ldyBtZWNoYW5pc20gdG8gYWxsb3cgZGVidWdn
+ZXJzIHRvIGxlYXJuCmFib3V0IHN0YXJ0aW5nL2R5aW5nIENQVXMgYXMgZWFybHkvbGF0ZSBhcyBw
+b3NzaWJsZS4KCkZyb206IEphbiBCZXVsaWNoIDxqYmV1bGljaEBub3ZlbGwuY29tPgoKSW5kZXg6
+IDIuNi4xNC1ubGtkL2FyY2gveDg2XzY0L2tlcm5lbC9wcm9jZXNzLmMKPT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQotLS0g
+Mi42LjE0LW5sa2Qub3JpZy9hcmNoL3g4Nl82NC9rZXJuZWwvcHJvY2Vzcy5jCTIwMDUtMTEtMDkg
+MTA6NDA6MTcuMDAwMDAwMDAwICswMTAwCisrKyAyLjYuMTQtbmxrZC9hcmNoL3g4Nl82NC9rZXJu
+ZWwvcHJvY2Vzcy5jCTIwMDUtMTEtMDQgMTY6MTk6MzMuMDAwMDAwMDAwICswMTAwCkBAIC0xNjQs
+NiArMTY0LDcgQEAgREVDTEFSRV9QRVJfQ1BVKGludCwgY3B1X3N0YXRlKTsKIHN0YXRpYyBpbmxp
+bmUgdm9pZCBwbGF5X2RlYWQodm9pZCkKIHsKIAlpZGxlX3Rhc2tfZXhpdCgpOworCWNwdV9ub3Rp
+ZnkoQ1BVX0RZSU5HKTsKIAl3YmludmQoKTsKIAltYigpOwogCS8qIEFjayBpdCAqLwpJbmRleDog
+Mi42LjE0LW5sa2QvYXJjaC94ODZfNjQva2VybmVsL3NtcGJvb3QuYwo9PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSAy
+LjYuMTQtbmxrZC5vcmlnL2FyY2gveDg2XzY0L2tlcm5lbC9zbXBib290LmMJMjAwNS0xMS0wOSAx
+MDo0MDoxNy4wMDAwMDAwMDAgKzAxMDAKKysrIDIuNi4xNC1ubGtkL2FyY2gveDg2XzY0L2tlcm5l
+bC9zbXBib290LmMJMjAwNS0xMS0wNCAxNjoxOTozMy4wMDAwMDAwMDAgKzAxMDAKQEAgLTQwLDcg
+KzQwLDcgQEAKIAogI2luY2x1ZGUgPGxpbnV4L2NvbmZpZy5oPgogI2luY2x1ZGUgPGxpbnV4L2lu
+aXQuaD4KLQorI2luY2x1ZGUgPGxpbnV4L2NwdS5oPgogI2luY2x1ZGUgPGxpbnV4L21tLmg+CiAj
+aW5jbHVkZSA8bGludXgva2VybmVsX3N0YXQuaD4KICNpbmNsdWRlIDxsaW51eC9zbXBfbG9jay5o
+PgpAQCAtNDc5LDYgKzQ3OSw4IEBAIHZvaWQgX19jcHVpbml0IHN0YXJ0X3NlY29uZGFyeSh2b2lk
+KQogCS8qIG90aGVyd2lzZSBnY2Mgd2lsbCBtb3ZlIHVwIHRoZSBzbXBfcHJvY2Vzc29yX2lkIGJl
+Zm9yZSB0aGUgY3B1X2luaXQgKi8KIAliYXJyaWVyKCk7CiAKKwljcHVfbm90aWZ5KENQVV9BTElW
+RSk7CisKIAlEcHJpbnRrKCJjcHUgJWQ6IHNldHRpbmcgdXAgYXBpYyBjbG9ja1xuIiwgc21wX3By
+b2Nlc3Nvcl9pZCgpKTsgCQogCXNldHVwX3NlY29uZGFyeV9BUElDX2Nsb2NrKCk7CiAK
 
-Nov  9 11:49:48 src@vlad kernel: ehci_hcd 0000:00:0c.2: EHCI Host Controller
-Nov  9 11:49:48 src@vlad kernel: ehci_hcd 0000:00:0c.2: new USB bus registered, assigned bus number 1
-Nov  9 11:49:48 src@vlad kernel: ehci_hcd 0000:00:0c.2: irq 12, io mem 0xd4000000
-Nov  9 11:49:48 src@vlad kernel: ehci_hcd 0000:00:0c.2: park 0
-Nov  9 11:49:48 src@vlad kernel: ehci_hcd 0000:00:0c.2: USB 2.0 initialized, EHCI 1.00, driver 10 Dec 2004
-Nov  9 11:49:48 src@vlad kernel: hub 1-0:1.0: USB hub found
-Nov  9 11:49:48 src@vlad kernel: hub 1-0:1.0: 5 ports detected
-Nov  9 11:49:48 src@vlad kernel: usb 1-2: new high speed USB device using ehci_hcd and address 2
-Nov  9 11:49:48 src@vlad kernel: usb 1-3: new high speed USB device using ehci_hcd and address 3
-Nov  9 11:49:48 src@vlad kernel: dvb-usb: found a 'Twinhan USB2.0 DVB-T receiver (TwinhanDTV Alpha/MagicBox II)' in warm state.
-Nov  9 11:49:48 src@vlad kernel: dvb-usb: will pass the complete MPEG2 transport stream to the software demuxer.
-Nov  9 11:49:48 src@vlad kernel: DVB: registering new adapter (Twinhan USB2.0 DVB-T receiver (TwinhanDTV Alpha/MagicBox II)).
-Nov  9 11:49:48 src@vlad kernel: dvb-usb: MAC address: 08:ff:ff:ff:ff:ff
-Nov  9 11:49:48 src@vlad kernel: DVB: registering frontend 0 (Twinhan VP7045/46 USB DVB-T)...
-Nov  9 11:49:48 src@vlad kernel: dvb-usb: schedule remote query interval to 400 msecs.
-Nov  9 11:49:48 src@vlad kernel: dvb-usb: Twinhan USB2.0 DVB-T receiver (TwinhanDTV Alpha/MagicBox II) successfully initialized and connected.
-Nov  9 11:49:48 src@vlad kernel: dvb-usb: found a 'Twinhan USB2.0 DVB-T receiver (TwinhanDTV Alpha/MagicBox II)' in warm state.
-Nov  9 11:49:48 src@vlad kernel: dvb-usb: will pass the complete MPEG2 transport stream to the software demuxer.
-Nov  9 11:49:48 src@vlad kernel: DVB: registering new adapter (Twinhan USB2.0 DVB-T receiver (TwinhanDTV Alpha/MagicBox II)).
-Nov  9 11:49:48 src@vlad kernel: dvb-usb: MAC address: 08:ff:ff:ff:ff:ff
-Nov  9 11:49:48 src@vlad kernel: DVB: registering frontend 1 (Twinhan VP7045/46 USB DVB-T)...
-Nov  9 11:49:48 src@vlad kernel: dvb-usb: schedule remote query interval to 400 msecs.
-Nov  9 11:49:48 src@vlad kernel: dvb-usb: Twinhan USB2.0 DVB-T receiver (TwinhanDTV Alpha/MagicBox II) successfully initialized and connected.
-Nov  9 11:49:48 src@vlad kernel: usbcore: registered new driver dvb_usb_vp7045
-Nov  9 11:49:48 src@vlad kernel: ohci_hcd: 2005 April 22 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
-
--- 
-=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
-  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
-     --- "Your problem is that you have a negative personality." ---     
-                             "No,  I don't!"                             
-
---K/NRh952CO+2tg14
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFDcgC9ssJ7whwzWGARAq/KAJ9OzODIZd3oexvXHluJIcxEjBJadACfSDWd
-JhtsY6Ycn38PiJcZzDAUqfU=
-=lGeV
------END PGP SIGNATURE-----
-
---K/NRh952CO+2tg14--
+--=__Part6A485632.1__=--

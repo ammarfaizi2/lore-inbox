@@ -1,43 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbVKIJdf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751358AbVKIJsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751345AbVKIJdf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 04:33:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbVKIJdf
+	id S1751358AbVKIJsL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 04:48:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbVKIJsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 04:33:35 -0500
-Received: from web60212.mail.yahoo.com ([209.73.178.115]:53665 "HELO
-	web60212.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1751345AbVKIJdf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 04:33:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=AY7bldpnglVRBgtatjKvw45MXmDCm0ZM4taKK/w21U/y6wbG6MaNiafJGofR0aqXCoYTr69KvZrmOv5zfYwM94WhWK9Rn8K5uvkyKpsaC1P2ZzleiSX3I/Ar4kAtWekrANO37pMCKY6D02MfO1T29v91WHICoUCL1/r+IyiJW+0=  ;
-Message-ID: <20051109093331.90419.qmail@web60212.mail.yahoo.com>
-Date: Wed, 9 Nov 2005 01:33:31 -0800 (PST)
-From: anil dahiya <ak_ait@yahoo.com>
-Subject: how it can be checked that eth0 is not bridged using iotcl 
-To: kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
+	Wed, 9 Nov 2005 04:48:11 -0500
+Received: from 68-171-36-34.vnnyca.adelphia.net ([68.171.36.34]:49927 "HELO
+	68-171-36-34.vnnyca.adelphia.net") by vger.kernel.org with SMTP
+	id S1751358AbVKIJsK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 04:48:10 -0500
+Reply-To: "Flossie Lozano" <bruceajni@pasadenainstitute.com>
+From: "Flossie" <bruceajni@pasadenainstitute.com>
+Message-ID: <3006520873.802253154998@pasadenainstitute.com>
+Date: Wed, 9 Nov 2005 04:50:35 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: Stuff plow
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI 
-I want to check that interface eth0 is a part of any
-bridge or not using ioctl 
 
-Tell me which ioctls i shld use 
+Cute Lesbian Babe Nude Shows Tight Ass HardcoreCute Babes On Boat Showing Boobs Outdoor
 
-Thanks in advance..
-Regards,
-Anil
+http://hysavoxo.com/main/
+If the Sun and Moon should ever doubt, they'd immediately go out.Love is the triumph of imagination over intelligence.
+Belief is a moral act for which the believer is to be held responsible.
+They said playing basketball would kill me. Well, not playing basketball was killing me.Our emotions are only ''incidents in the effort to keep day and night together.
+Change can either challenge or threaten us. Your beliefs pave your way to success or block you.To love someone deeply gives you strength. Being loved by someone deeply gives you courage.It is hard to begin to move when you don't know where you are moving, how to move, or if you are going to get there.
 
-
-
-	
-		
-__________________________________ 
-Yahoo! Mail - PC Magazine Editors' Choice 2005 
-http://mail.yahoo.com

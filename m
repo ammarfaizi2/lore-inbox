@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965284AbVKIIKj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965285AbVKIIOQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965284AbVKIIKj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 03:10:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965285AbVKIIKj
+	id S965285AbVKIIOQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 03:14:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965297AbVKIIOQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 03:10:39 -0500
-Received: from vms042pub.verizon.net ([206.46.252.42]:49656 "EHLO
-	vms042pub.verizon.net") by vger.kernel.org with ESMTP
-	id S965284AbVKIIKi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 03:10:38 -0500
-Date: Wed, 09 Nov 2005 03:10:37 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: amanda did run 1 time after install
-To: Amanda Users List <amanda-users@amanda.org>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <200511090310.37443.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-User-Agent: KMail/1.7
+	Wed, 9 Nov 2005 03:14:16 -0500
+Received: from fachschaft.cup.uni-muenchen.de ([141.84.250.61]:10633 "EHLO
+	fachschaft.cup.uni-muenchen.de") by vger.kernel.org with ESMTP
+	id S965285AbVKIIOQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 03:14:16 -0500
+Date: Wed, 9 Nov 2005 08:55:16 +0100 (CET)
+From: Oliver Neukum <neukum@fachschaft.cup.uni-muenchen.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+Subject: Re: userspace block driver?
+In-Reply-To: <4371A4ED.9020800@pobox.com>
+Message-ID: <Pine.LNX.4.58.0511090852440.22793@fachschaft.cup.uni-muenchen.de>
+References: <4371A4ED.9020800@pobox.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
 
-I just had to reboot, it seems that was the only way to fix amanda,
-which did not backup this machine tonight due to a lack of comm between
-the client and the server.
 
-When I came in and found a very short report on the printer indicating
-that only the firewall box had been dumped, the first thing I did was to
-su amanda, and amcheck Daily, which reported that amandad was busy on
-coyote (this box).
+On Wed, 9 Nov 2005, Jeff Garzik wrote:
 
-A ps -ea|grep amanda reported that 2 instances of amandad were there,
-with one of them defunct.
+> 
+> Has anybody put any thought towards how a userspace block driver would work?
+> 
+> Consider a block device implemented via an SSL network connection.  I don't
+> want to put SSL in the kernel, which means the only other alternative is to
+> pass data to/from a userspace daemon.
 
-So I killall amandad.  amcheck's client test says coyote isn't
-responding, and when I check for amandad's theres two more of them, one
-defunct.
+I am afraid this is impossible without some heavy infrastructure work.
+You will almost inevitably deadlock. Yes, you can mlock() your driver, but 
+that still will not tell the kernel that GFP_KERNEL must be replaced with 
+GFP_NOIO if it is triggered by syscalls you are doing.
 
-So I backup a version to 2.4.5p1-20051024, same story
-Then I re-installed the last 2.4.5, same story.
-
-Reinstall the newest one again and reboot to the same, 2.6.14 kernel. 
-amcheck is now happy.
-
-Does anyone have an idea what happened to my cherrios?
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Free OpenDocument reader/writer/converter download:
-http://www.openoffice.org
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+	Regards
+		Oliver
 

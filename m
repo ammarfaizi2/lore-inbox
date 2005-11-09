@@ -1,113 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750980AbVKIX25@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbVKIX3u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750980AbVKIX25 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 18:28:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750987AbVKIX25
+	id S1750987AbVKIX3u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 18:29:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751009AbVKIX3u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 18:28:57 -0500
-Received: from smtp013.mail.yahoo.com ([216.136.173.57]:17006 "HELO
-	smtp013.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1750978AbVKIX25 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 18:28:57 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=DgIl6xNgFWW/NzpqfBFlQqbUUgQfAusKDH2Cu8IQlUP9lNMinr5zORuaCCyaKDtZZKbHHwqLjGMphMwtMKydT9tV1YfJSQF5fWm2aLw7bkoJJfzxallUkLHJ8MJb7cew9SqhaolR0zqzhKvKBNpdlKiBwILO6B4yvCvRgKCLFdM=  ;
-Message-ID: <437286BD.4000107@yahoo.com.au>
-Date: Thu, 10 Nov 2005 10:31:09 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Wu Fengguang <wfg@mail.ustc.edu.cn>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 04/16] radix-tree: look-aside cache
-References: <20051109134938.757187000@localhost.localdomain> <20051109141448.974675000@localhost.localdomain>
-In-Reply-To: <20051109141448.974675000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Nov 2005 18:29:50 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:43729 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750987AbVKIX3r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 18:29:47 -0500
+Date: Wed, 9 Nov 2005 17:29:44 -0600
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Vadim Lobanov <vlobanov@speakeasy.net>,
+       "J.A. Magallon" <jamagallon@able.es>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       Douglas McNaught <doug@mcnaught.org>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
+       bluesmoke-devel@lists.sourceforge.net,
+       linux-pci@atrey.karlin.mff.cuni.cz, linuxppc64-dev@ozlabs.org
+Subject: Re: typedefs and structs
+Message-ID: <20051109232944.GV19593@austin.ibm.com>
+References: <20051108232327.GA19593@austin.ibm.com> <B68D1F72-F433-4E94-B755-98808482809D@mac.com> <20051109003048.GK19593@austin.ibm.com> <m27jbihd1b.fsf@Douglas-McNaughts-Powerbook.local> <20051109004808.GM19593@austin.ibm.com> <19255C96-8B64-4615-A3A7-9E5A850DE398@mac.com> <20051109111640.757f399a@werewolf.auna.net> <Pine.LNX.4.58.0511090816300.4260@shell2.speakeasy.net> <20051109192028.GP19593@austin.ibm.com> <Pine.LNX.4.61.0511091459440.12760@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0511091459440.12760@chaos.analogic.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: linas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wu Fengguang wrote:
-> This introduces a set of lookup functions to radix tree for the read-ahead
-> logic.  Other access patterns with high locality may also benefit from them.
+On Wed, Nov 09, 2005 at 03:26:10PM -0500, linux-os (Dick Johnson) was heard to remark:
 > 
-
-Hi Wu,
-
-Does this cache add much performance compared with simple repeated
-lookups? If the access patterns are highly local, the top of the
-radix tree should be in cache.
-
-I worry that it is a fair bit of extra complexity for something
-slow like the IO path - however I haven't looked at how you use the
-cache.
-
-> Most of them are best inlined, so some macros/structs in .c are moved into .h.
+> On Wed, 9 Nov 2005, linas wrote:
 > 
+> > On Wed, Nov 09, 2005 at 08:22:15AM -0800, Vadim Lobanov was heard to remark:
+> >> On Wed, 9 Nov 2005, J.A. Magallon wrote:
+> >>
+> >>> void do_some_stuff(T& arg1,T&  arg2)
+> >>
+> >> A diligent C programmer would write this as follows:
+> >> 	void do_some_stuff (struct T * a, struct T * b);
+> >> So I don't see C++ winning at all here.
+> >
+> > I guess the real point that I'd wanted to make, and seems
+> > to have gotten lost, was that by avoiding using pointers,
+> > you end up designing code in a very different way, and you
+> > can find out that often/usually, you don't need structs
+> > filled with a zoo of pointers.
+> 
+> But you can't avoid pointers unless you make your entire
+> program have global scope. 
 
-I would not inline them. You'd find that the extra icache misses
-that costs outweighs the improvements for larger functions.
+I didn't say you can avoid all pointers. I did say that 
+for many projects, one can often avoid many pointers.  
+And I certainly did not say that one needs global scope 
+to do so. In fact, I said the opposite. 
 
-> +
-> +struct radix_tree_node {
-> +	unsigned int	count;
-> +	void		*slots[RADIX_TREE_MAP_SIZE];
-> +	unsigned long	tags[RADIX_TREE_TAGS][RADIX_TREE_TAG_LONGS];
-> +};
-> +
+> Also, without pointers, you are severely limited on the kinds
+> of libraries you can share. 
 
-Would be much nicer if this weren't declared in the header file, so
-people don't start trying to use the nodes where they shouldn't.
-This ought to be possible after uninlining a couple of things.
+I think you don't understand what a reference is. 
+A reference is just like a pointer, except that the 
+signature is different.  It has nothing to do with the
+ability to create or use libraries, or to create/use 
+modular code.  
 
->  struct radix_tree_root {
->  	unsigned int		height;
->  	gfp_t			gfp_mask;
->  	struct radix_tree_node	*rnode;
->  };
->  
-> +/*
-> + * Support access patterns with strong locality.
-> + */
+I was trying to say that by focusing on the concept
+of a "reference" as opposed to the concept of a 
+"pointer", you can write code that is *more* modular, 
+not less.
 
-Do you think you could provide a simple 'use case' for an overview
-of how you use the cache and what calls to make?
+> > Minimizing pointers is good: less ref counting is needed,
+> > fewer mallocs are needed, fewer locks are needed
+> > (because of local/private scope!!), and null pointer
+> > deref errors are less likely.
+> 
+> No. Minimizing pointers should not be an objective. 
 
-> +struct radix_tree_cache {
-> +	unsigned long first_index;
-> +	struct radix_tree_node *tree_node;
-> +};
-> +
+Why not?
 
-> +static inline void radix_tree_cache_init(struct radix_tree_cache *cache)
-> +{
-> +	cache->first_index = 0x77;
-> +	cache->tree_node = NULL;
-> +}
-> +
-> +static inline int radix_tree_cache_size(struct radix_tree_cache *cache)
-> +{
-> +	return RADIX_TREE_MAP_SIZE;
-> +}
-> +
-> +static inline int radix_tree_cache_count(struct radix_tree_cache *cache)
-> +{
-> +	if (cache->first_index != 0x77)
-> +		return cache->tree_node->count;
-> +	else
-> +		return 0;
-> +}
-> +
+I've fixed hundreds of kernel bugs (which you don't 
+see on this list because my fixes mostly go to the 
+distros or other users) and nine out of ten of these 
+are null-pointer derefs. 
 
-What's 0x77 for? And what happens if your cache gets big enough that
-the first index is 0x77?
+Maybe I'm naive for thinking that "fewer pointers == 
+fewer pointer bugs" but, hey its worth a shot.
 
-Thanks,
-Nick
+> Properly
+> using the components of your tool-set should be. 
 
--- 
-SUSE Labs, Novell Inc.
+What tool set are you refering to?  I am assuming 
+that the code is 100% malleable: that one has
+complete authority to redesign the way the system 
+works, from the ground up.  If you do not have this 
+freedom, but are forced to use someone-else's tool set,
+then yes, you are SOL.  Furthermore, I would agree 
+that mixing two different styles of coding in one 
+project can lead to some nasty, ugly code.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+> > By using refs instead of pointers, it helps you focus
+> > on the issue of "do I really need to store this pointer
+> > somewhere? Will I really need it later, or can I be done
+> > with it now?".
+> 
+> Huh? References (at the opcode level) are pointers. There
+> is no difference whatsoever. 
+
+Yes, that is right.  I'm not talking about opcodes.
+That's not what the conversation is about.
+
+What I am trying to say is that many people design 
+code in such a way that they need to store lots of 
+pointers in an assortment of structs.
+
+I wanted to emphasize that there are other ways of
+designing code, which has smaller needs for pointers
+(and that this can be done without loosing modularity,
+testability, debugability, and it can be done without 
+resorting to global variables.)
+
+--linas
+
+
+
+

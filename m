@@ -1,103 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751511AbVKISkN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751528AbVKISk7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751511AbVKISkN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 13:40:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751497AbVKISiA
+	id S1751528AbVKISk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 13:40:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751518AbVKISkS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 13:38:00 -0500
-Received: from mail.kroah.org ([69.55.234.183]:11933 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751492AbVKISh4 (ORCPT
+	Wed, 9 Nov 2005 13:40:18 -0500
+Received: from mail.kroah.org ([69.55.234.183]:24477 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751500AbVKISiC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 13:37:56 -0500
-Date: Wed, 9 Nov 2005 10:37:09 -0800
+	Wed, 9 Nov 2005 13:38:02 -0500
+Date: Wed, 9 Nov 2005 10:36:40 -0800
 From: Greg KH <gregkh@suse.de>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, oleg@tv-sign.ru,
-       roland@redhat.com, paulmck@us.ibm.com, george@mvista.com,
-       dipankar@in.ibm.com, mingo@elte.hu, suzannew@cs.pdx.edu
-Subject: [patch 09/11] fix de_thread() vs send_group_sigqueue() race
-Message-ID: <20051109183709.GJ3670@kroah.com>
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, axboe@suse.de
+Subject: [patch 03/11] Oops on suspend after on-the-fly switch to anticipatory i/o scheduler - PowerBook5, 4
+Message-ID: <20051109183640.GD3670@kroah.com>
 References: <20051109182205.294803000@press.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="fix-de_thread-vs-send_group_sendqueue-race.patch"
+Content-Disposition: inline; filename="cfq-io-sched-fix.patch"
 In-Reply-To: <20051109183614.GA3670@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Oleg Nesterov <oleg@tv-sign.ru>
+From: Jens Axboe <axboe@suse.de>
 
-When non-leader thread does exec, de_thread calls release_task(leader) before
-calling exit_itimers(). If local timer interrupt happens in between, it can
-oops in send_group_sigqueue() while taking ->sighand->siglock == NULL.
+Paul Collins wrote:
+>I boot with elevator=cfq (wanted to try the ionice stuff, never got
+>around to it).  Having decided to go back to the anticipatory
+>scheduler, I did the following:
+>
+># echo anticipatory > /sys/block/hda/queue/scheduler
+># echo anticipatory > /sys/block/hdc/queue/scheduler
+>
+>A while later I did 'sudo snooze', which produced the Oops below.
+>
+>Booting with elevator=as and then changing to cfq, sleep works fine.
+>But if I resume and change back to anticipatory I get a similar Oops
+>on the next 'sudo snooze'.
+>
+>
+>  Oops: kernel access of bad area, sig: 11 [#1]
+>  NIP: C01E1948 LR: C01D6A60 SP: EFBC5C20 REGS: efbc5b70 TRAP: 0300    
+>Not tainted
+>  MSR: 00001032 EE: 0 PR: 0 FP: 0 ME: 1 IR/DR: 11
+>  DAR: 00000020, DSISR: 40000000
+>  TASK = efb012c0[1213] 'pmud' THREAD: efbc4000
+>  Last syscall: 54   GPR00: 00080000 EFBC5C20 EFB012C0 EFE9E044 
+>EFBC5CE8 00000002 00000000 C03B0000   GPR08: C046E5D8 00000000 
+>C03B47C8 E6A58360 22042422 1001E4DC 10010000 10000000   GPR16: 
+>10000000 10000000 10000000 7FE4EB40 10000000 10000000 10010000 
+>C0400000   GPR24: C0380000 00000002 00000002 C046E0C0 00000000 
+>00000002 00000000 EFBC5CE8   NIP [c01e1948] as_insert_request+0xa8/0x6b0
+>  LR [c01d6a60] __elv_add_request+0xa0/0x100
+>  Call trace:
+>   [c01d6a60] __elv_add_request+0xa0/0x100
+>   [c01ffb84] ide_do_drive_cmd+0xb4/0x190
+>   [c01fc1c0] generic_ide_suspend+0x80/0xa0
+>   [c01d4574] suspend_device+0x104/0x160
+>   [c01d47c0] device_suspend+0x120/0x330
+>   [c03f3b50] pmac_suspend_devices+0x50/0x1b0
+>   [c03f4294] pmu_ioctl+0x344/0x9b0
+>   [c0082aa4] do_ioctl+0x84/0x90
+>   [c0082b3c] vfs_ioctl+0x8c/0x460
+>   [c0082f50] sys_ioctl+0x40/0x80
+>   [c0004850] ret_from_syscall+0x0/0x4c
 
-However, we can't change send_group_sigqueue() to check p->signal != NULL,
-because sys_timer_create() does get_task_struct() only in SIGEV_THREAD_ID
-case. So it is possible that this task_struct was already freed and we can't
-trust p->signal.
+Don't clear ->elevator_data on exit, if we are switching queues we are
+overwriting the data of the new io scheduler.
 
-This patch changes de_thread() so that leader released after exit_itimers()
-call.
-
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+Signed-off-by: Jens Axboe <axboe@suse.de>
 Signed-off-by: Chris Wright <chrisw@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- fs/exec.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/block/cfq-iosched.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- linux-2.6.14.1.orig/fs/exec.c
-+++ linux-2.6.14.1/fs/exec.c
-@@ -593,6 +593,7 @@ static inline int de_thread(struct task_
- 	struct signal_struct *sig = tsk->signal;
- 	struct sighand_struct *newsighand, *oldsighand = tsk->sighand;
- 	spinlock_t *lock = &oldsighand->siglock;
-+	struct task_struct *leader = NULL;
- 	int count;
+--- linux-2.6.14.1.orig/drivers/block/cfq-iosched.c
++++ linux-2.6.14.1/drivers/block/cfq-iosched.c
+@@ -2260,10 +2260,8 @@ static void cfq_put_cfqd(struct cfq_data
+ 	if (!atomic_dec_and_test(&cfqd->ref))
+ 		return;
  
- 	/*
-@@ -668,7 +669,7 @@ static inline int de_thread(struct task_
- 	 * and to assume its PID:
- 	 */
- 	if (!thread_group_leader(current)) {
--		struct task_struct *leader = current->group_leader, *parent;
-+		struct task_struct *parent;
- 		struct dentry *proc_dentry1, *proc_dentry2;
- 		unsigned long exit_state, ptrace;
+-	blk_put_queue(q);
+-
+ 	cfq_shutdown_timer_wq(cfqd);
+-	q->elevator->elevator_data = NULL;
++	blk_put_queue(q);
  
-@@ -677,6 +678,7 @@ static inline int de_thread(struct task_
- 		 * It should already be zombie at this point, most
- 		 * of the time.
- 		 */
-+		leader = current->group_leader;
- 		while (leader->exit_state != EXIT_ZOMBIE)
- 			yield();
- 
-@@ -736,7 +738,6 @@ static inline int de_thread(struct task_
- 		proc_pid_flush(proc_dentry2);
- 
- 		BUG_ON(exit_state != EXIT_ZOMBIE);
--		release_task(leader);
-         }
- 
- 	/*
-@@ -746,8 +747,11 @@ static inline int de_thread(struct task_
- 	sig->flags = 0;
- 
- no_thread_group:
--	BUG_ON(atomic_read(&sig->count) != 1);
- 	exit_itimers(sig);
-+	if (leader)
-+		release_task(leader);
-+
-+	BUG_ON(atomic_read(&sig->count) != 1);
- 
- 	if (atomic_read(&oldsighand->count) == 1) {
- 		/*
+ 	mempool_destroy(cfqd->crq_pool);
+ 	kfree(cfqd->crq_hash);
 
 --

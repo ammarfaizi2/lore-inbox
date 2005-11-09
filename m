@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751613AbVKIXq6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751653AbVKIXxQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751613AbVKIXq6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 18:46:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751626AbVKIXq6
+	id S1751653AbVKIXxQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 18:53:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751654AbVKIXxQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 18:46:58 -0500
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:16768
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S1751612AbVKIXq6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 18:46:58 -0500
-Message-ID: <43728A6D.5080908@linuxwireless.org>
-Date: Wed, 09 Nov 2005 17:46:53 -0600
-From: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Wed, 9 Nov 2005 18:53:16 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:16647 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751652AbVKIXxP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 18:53:15 -0500
+Date: Thu, 10 Nov 2005 00:53:14 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.32-rc3
+Message-ID: <20051109235314.GF4047@stusta.de>
+References: <20051109133216.GA9183@logos.cnet> <20051109185223.GA4047@stusta.de> <20051109141530.GA9332@logos.cnet> <20051109231123.GA18858@alpha.home.local>
 MIME-Version: 1.0
-To: Jesper Juhl <jesper.juhl@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Panic 2.6.14-git
-References: <43727E72.4040103@linuxwireless.org> <9a8748490511091500h4363308fm42312354e3fde8ab@mail.gmail.com>
-In-Reply-To: <9a8748490511091500h4363308fm42312354e3fde8ab@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051109231123.GA18858@alpha.home.local>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
+On Thu, Nov 10, 2005 at 12:11:23AM +0100, Willy Tarreau wrote:
+> Hi Adrian, hi Marcelo,
+> 
+> On Wed, Nov 09, 2005 at 12:15:31PM -0200, Marcelo Tosatti wrote:
+> (...)
+> > > If there will be one more -rc, could you include my airo_cs fix?
+> > 
+> > Hi Adrian,
+> > 
+> > I think it can wait for the next -pre... Hope there wont be another -rc.
+> 
+> So do I. Moreover, -pre should start with several network-related fixes,
+> so your fix might find a comfortable place there :-)
+> 
+> I will release another -hf with recent fixes. I noticed I missed three of
+> them from 2.4.32-rc2 (I thought I was up to date but they showed up just
+> before the announcement). They are the memleak in sd_mod, the TCP snd_wnd
+> fix and the fix for the infinite loop in udp_v6_get_port(). So I can also
+> merge your fix early if you want (I already queued it for later inclusion).
+> I generally try to avoid including fixes that are not much transversal,
+> but I read in your patch that the bug you fixed could cause side effects
+> to any parts in the kernel, so if you feel it's appropriate for -hf, I'll
+> trust you :-)
 
->On 11/9/05, Alejandro Bonilla Beeche <abonilla@linuxwireless.org> wrote:
->  
->
->>Hi,
->>
->>    I have an IBM T42 and as always I test several kernel images to test
->>the git tree.
->>
->>Last one I did 2005-11-05 17:17 kernel-image-2.6.14_T42.v1.8_i386.deb
->>works perfectly, but the new one with same config 2005-11-09 11:47
->>kernel-image-2.6.14_T42.v1.9_i386.deb gives me a kernel panic on boot.
->>
->>    
->>
->
->Where's the panic message?
->
->  
->
-Jesper,
+I'd say the big advantage of my patch is that although it's hard to see 
+the bug it fixes, it's easy to see that it can't break anything.
 
-    Can you elaborate on how can I do such thing if this is at boot? I 
-think you guys need to figure out a way to make these Panics to go into 
-some log file.
+> Cheers,
+> Willy
 
-I will try to write down some of it as it is at boot.
+cu
+Adrian
 
-.Alejandro
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

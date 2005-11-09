@@ -1,62 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030699AbVKITif@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030696AbVKITih@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030699AbVKITif (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 14:38:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030700AbVKITif
+	id S1030696AbVKITih (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 14:38:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030700AbVKITig
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 14:38:35 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:3050 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030699AbVKITie (ORCPT
+	Wed, 9 Nov 2005 14:38:36 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:43104 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1030696AbVKITig (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 14:38:34 -0500
-Date: Wed, 9 Nov 2005 13:38:28 -0600
-To: thockin@hockin.org
-Cc: Vadim Lobanov <vlobanov@speakeasy.net>,
-       "J.A. Magallon" <jamagallon@able.es>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       Douglas McNaught <doug@mcnaught.org>,
-       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
-       bluesmoke-devel@lists.sourceforge.net,
-       linux-pci@atrey.karlin.mff.cuni.cz, linuxppc64-dev@ozlabs.org
-Subject: Re: typedefs and structs
-Message-ID: <20051109193828.GR19593@austin.ibm.com>
-References: <20051108232327.GA19593@austin.ibm.com> <B68D1F72-F433-4E94-B755-98808482809D@mac.com> <20051109003048.GK19593@austin.ibm.com> <m27jbihd1b.fsf@Douglas-McNaughts-Powerbook.local> <20051109004808.GM19593@austin.ibm.com> <19255C96-8B64-4615-A3A7-9E5A850DE398@mac.com> <20051109111640.757f399a@werewolf.auna.net> <Pine.LNX.4.58.0511090816300.4260@shell2.speakeasy.net> <20051109192028.GP19593@austin.ibm.com> <20051109193625.GA31889@hockin.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051109193625.GA31889@hockin.org>
-User-Agent: Mutt/1.5.6+20040907i
-From: linas <linas@austin.ibm.com>
+	Wed, 9 Nov 2005 14:38:36 -0500
+Message-ID: <43725227.5040605@sw.ru>
+Date: Wed, 09 Nov 2005 22:46:47 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
+To: "Andrey Savochkin" <saw@sawoct.com>
+CC: Andrew Morton <akpm@osdl.org>, xemul@sw.ru, linux-kernel@vger.kernel.org,
+       den@sw.ru
+Subject: Re: [PATCH]: buddy allocator: ext3 failed to alloc with __GFP_NOFAIL
+References: <4370ACB2.3000103@sw.ru>
+In-Reply-To: <4370ACB2.3000103@sw.ru>
+Content-Type: multipart/mixed;
+ boundary="------------050508040206080106060909"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 09, 2005 at 11:36:25AM -0800, thockin@hockin.org was heard to remark:
-> On Wed, Nov 09, 2005 at 01:20:28PM -0600, linas wrote:
-> > I guess the real point that I'd wanted to make, and seems
-> > to have gotten lost, was that by avoiding using pointers, 
-> > you end up designing code in a very different way, and you
-> > can find out that often/usually, you don't need structs
-> > filled with a zoo of pointers.
-> 
-> Umm, references are implemented as pointers.  Instead of a "zoo of
-> pointers" you have a "zoo of references".  No functional difference.
+This is a multi-part message in MIME format.
+--------------050508040206080106060909
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Sigh.
+Hello,
 
-I think you are confusing references and pointers. By definition
-you cannot "store a reference"; however, you can "dereference"
-an object and store a pointer to it.
+as Andrey Savochkin pointed to me, the previous patch is incorrect since 
+makes allocations with PF_MEMALLOC to be always success for order <= 3 
+which is not what we usually want.
+I remade the patch to be more explicit about the issue - now it retries 
+allocation _only_ if __GFP_NOFAIL is set.
 
-The C programming language conflates these two different ideas;
-that is why they seem to be "the same thing" to you.
+------------- original comment below ------------------
 
-> > Minimizing pointers is good: less ref counting is needed,
-> > fewer mallocs are needed, fewer locks are needed 
-> > (because of local/private scope!!), and null pointer 
-> > deref errors are less likely. 
-> 
-> Not true at all!  
+we had the following ext3 problems once during stress testing (on 2.6.8):
+-----------------------------------------------------------------
+journal_get_undo_access: No memory for committed data
+ext3_free_blocks: aborting transaction: Out of memory in 
+__ext3_journal_get_undo_access<2>EXT3-fs error (device hda7) in 
+ext3_free_blocks: Out of memory
+Aborting journal on device hda7.
+EXT3-fs error (device hda7) in ext3_ordered_commit_write: IO failure
+ext3_abort called.
+EXT3-fs abort (device hda7): ext3_journal_start: Detected aborted journal
+Remounting filesystem read-only
+ext3_free_blocks: aborting transaction: Journal has aborted in 
+__ext3_journal_get_undo_access<2>EXT3-fs error (device hda7) in 
+ext3_free_blocks: Journal has aborted
+ext3_reserve_inode_write: aborting transaction: Journal has aborted in 
+__ext3_journal_get_write_access<2>EXT3-fs error (device hda7) in 
+ext3_reserve_inode_write: Journal has aborted
+EXT3-fs error (device hda7) in ext3_truncate: Out of memory
+ext3_reserve_inode_write: aborting transaction: Journal has aborted in 
+__ext3_journal_get_write_access<2>EXT3-fs error (device hda7) in 
+ext3_reserve_inode_write: Journal has aborted
+EXT3-fs error (device hda7) in ext3_orphan_del: Journal has aborted
+ext3_reserve_inode_write: aborting transaction: Journal has aborted in 
+__ext3_journal_get_write_access<2>EXT3-fs error (device hda7) in 
+ext3_reserve_inode_write: Journal has aborted
+EXT3-fs error (device hda7) in ext3_delete_inode: Out of memory
+__journal_remove_journal_head: freeing b_committed_data
+..................
+------------------------------------------------------------------
 
-Which part isn't true? 
+As it is seen from the messages journal_get_undo_access() failed to 
+allocate some memory with jbd_kmalloc(), which in turn called kmalloc() 
+with __GFP_NOFAIL flag.
 
---linas
+How could it happen?
+The only possible reason for this we suppose is a piece of code in 
+__alloc_pages():
+
+if ((p->flags & (PF_MEMALLOC | PF_MEMDIE)) && !in_interrupt()) {
+         /* go through the zonelist yet again, ignoring mins */
+         for (i = 0; zones[i] != NULL; i++) {
+                 struct zone *z = zones[i];
+
+                 page = buffered_rmqueue(z, order, gfp_mask);
+                 if (page) {
+                         zone_statistics(zonelist, z);
+                         goto got_pg;
+                 }
+         }
+         goto nopage;                <<<< HERE!!! FAIL...
+}
+
+
+So kswapd (which has PF_MEMALLOC flag) can fail to allocate memory even 
+when it allocates it with __GFP_NOFAIL flag.
+
+Signed-Off-By: Pavel Emelianov <xemul@sw.ru>
+Signed-Off-By: Denis Lunev <den@sw.ru>
+Signed-Off-By: Kirill Korotaev <dev@sw.ru>
+
+The attached patch should fix the problem (against 2.6.14).
+
+Kirill
+
+--------------050508040206080106060909
+Content-Type: text/plain;
+ name="diff-alloc-nofail"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff-alloc-nofail"
+
+--- ./mm/page_alloc.c.alpg	2005-11-09 21:42:50.000000000 +0300
++++ ./mm/page_alloc.c	2005-11-09 21:44:22.000000000 +0300
+@@ -870,6 +870,7 @@ zone_reclaim_retry:
+ 	if (((p->flags & PF_MEMALLOC) || unlikely(test_thread_flag(TIF_MEMDIE)))
+ 			&& !in_interrupt()) {
+ 		if (!(gfp_mask & __GFP_NOMEMALLOC)) {
++nofail_alloc:
+ 			/* go through the zonelist yet again, ignoring mins */
+ 			for (i = 0; (z = zones[i]) != NULL; i++) {
+ 				if (!cpuset_zone_allowed(z, gfp_mask))
+@@ -878,6 +879,10 @@ zone_reclaim_retry:
+ 				if (page)
+ 					goto got_pg;
+ 			}
++			if (gfp_mask & __GFP_NOFAIL) {
++				blk_congestion_wait(WRITE, HZ/50);
++				goto nofail_alloc;
++			}
+ 		}
+ 		goto nopage;
+ 	}
+
+--------------050508040206080106060909--
+

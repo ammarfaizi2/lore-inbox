@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030286AbVKITKE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030311AbVKITQx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030286AbVKITKE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 14:10:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030291AbVKITKE
+	id S1030311AbVKITQx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 14:16:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030339AbVKITQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 14:10:04 -0500
-Received: from gw02.applegatebroadband.net ([207.55.227.2]:63474 "EHLO
-	data.mvista.com") by vger.kernel.org with ESMTP id S1030286AbVKITKB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 14:10:01 -0500
-Message-ID: <43724991.10607@mvista.com>
-Date: Wed, 09 Nov 2005 11:10:09 -0800
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
-X-Accept-Language: en-us, en
+	Wed, 9 Nov 2005 14:16:53 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:59043 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030311AbVKITQw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 14:16:52 -0500
+Message-ID: <43724AB3.40309@redhat.com>
+Date: Wed, 09 Nov 2005 11:14:59 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mail/News 1.5 (X11/20051105)
 MIME-Version: 1.0
-To: Jan Beulich <JBeulich@novell.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 12/39] NLKD/i386 - time adjustment
-References: <43720DAE.76F0.0078.0@novell.com> <43720E2E.76F0.0078.0@novell.com> <43720E72.76F0.0078.0@novell.com> <43720EAF.76F0.0078.0@novell.com> <43720F5E.76F0.0078.0@novell.com> <43720F95.76F0.0078.0@novell.com> <43720FBA.76F0.0078.0@novell.com> <43720FF6.76F0.0078.0@novell.com> <43721024.76F0.0078.0@novell.com> <4372105B.76F0.0078.0@novell.com> <43721081.76F0.0078.0@novell.com>
-In-Reply-To: <43721081.76F0.0078.0@novell.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: openat()
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Beulich wrote:
-> Since i386 time handling is not overflow-safe, these are the
-> adjustments needed for allowing debuggers to update time after
-> having halted the system for perhaps extended periods of time.
-> 
-> Signed-Off-By: Jan Beulich <jbeulich@novell.com>
-> 
-> (actual patch attached)
+Can we please get the openat() syscall implemented?  I know Linus 
+already declared this is a good idea and I can only stress that it is 
+really essential for some things.  It is today impossible to write 
+correct code which uses long pathnames since all these operations would 
+require the use of chdir() which affect the whole POSIX process and not 
+just one thread.  In addition we have the reduction of race conditions.
 
-The patch includes code that seems to imply that gcc can not do mpy of (long long) variables.  It 
-does just fine with these.  It also adds (long long) types just fine.  The only problem it has is 
-with div, for which we have do_div().
+I remember having seen an implementation at some time.  Can somebody dig 
+it up?  If there is nothing available I'll try to get some code submitted.
 
-I really do not see the relavence of the run time library patches given the above.  The adjust code 
-does not seem to use them.  Also, gcc (with the lib code) does all of this stuff.  The only need for 
-it would, possibly, be to debug the library code and even then, I suspect you really want to do that 
-in user land and then bring the result into the kernel.
-
-Am I missing something?
-> 
+I'm ignoring the discussions about alternative streams for files here, 
+so don't bother arguing with the.
 
 -- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

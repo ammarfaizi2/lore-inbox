@@ -1,44 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbVKISvo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751531AbVKISvi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932344AbVKISvo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 13:51:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbVKISvn
+	id S1751531AbVKISvi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 13:51:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751532AbVKISvh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 13:51:43 -0500
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:23764 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932344AbVKISvm
+	Wed, 9 Nov 2005 13:51:37 -0500
+Received: from gw02.applegatebroadband.net ([207.55.227.2]:25074 "EHLO
+	data.mvista.com") by vger.kernel.org with ESMTP id S1751529AbVKISvh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 13:51:42 -0500
-Message-ID: <437245A6.6030601@tmr.com>
-Date: Wed, 09 Nov 2005 13:53:26 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+	Wed, 9 Nov 2005 13:51:37 -0500
+Message-ID: <4372453C.5090508@mvista.com>
+Date: Wed, 09 Nov 2005 10:51:40 -0800
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org,
-       Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: Linux 2.6.14.1
-References: <20051109010729.GA22439@kroah.com> <20051108211354.546e0163.akpm@osdl.org>
-In-Reply-To: <20051108211354.546e0163.akpm@osdl.org>
+To: Jan Beulich <JBeulich@novell.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 11/39] NLKD - time adjustment
+References: <43720DAE.76F0.0078.0@novell.com> <43720E2E.76F0.0078.0@novell.com> <43720E72.76F0.0078.0@novell.com> <43720EAF.76F0.0078.0@novell.com> <43720F5E.76F0.0078.0@novell.com> <43720F95.76F0.0078.0@novell.com> <43720FBA.76F0.0078.0@novell.com> <43720FF6.76F0.0078.0@novell.com> <43721024.76F0.0078.0@novell.com> <4372105B.76F0.0078.0@novell.com>
+In-Reply-To: <4372105B.76F0.0078.0@novell.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Greg KH <gregkh@suse.de> wrote:
+Jan Beulich wrote:
+> Generic part of an interface to allow debuggers to update time after
+> having halted the system for perhaps extended periods of time. This
+> generally requires arch-dependent changes, too, unless the arch-
+> dependent time handling is already overflow-safe.
 > 
->>We (the -stable team) are announcing the release of the 2.6.14.1 kernel.
+> Signed-Off-By: Jan Beulich <jbeulich@novell.com>
 > 
-> 
-> We need the fix for the net-drops-zero-length-udp-messages bug which broke
-> bind and traceroute.
+> (actual patch attached)
 
-Yes, particularly since there's a security issue, people might not have 
-found the patch to get their bind working and be holding off upgrade 
-because of that.
+Perhaps you could teach your mailer how to attach the atachments so that they appear inline to the 
+reader.  The problem appears to be that it does not recognize the file type.  This is what it says:
+
+Content-Type: application/octet-stream; name="linux-2.6.14-nlkd-time.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="linux-2.6.14-nlkd-time.patch"
+
+where as a correct attachment might look something like:
+
+Content-Type: text/x-diff;
+   charset="us-ascii";
+   name="patch_x86_64-kernel-i8259"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="patch_x86_64-kernel-i8259"
+
+This would allow us to comment on the patch with said comments appearing in the body of the patch.
+
+> 
+
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

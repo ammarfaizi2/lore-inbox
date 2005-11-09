@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030476AbVKIAsR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030478AbVKIAxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030476AbVKIAsR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 19:48:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbVKIAsR
+	id S1030478AbVKIAxX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 19:53:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbVKIAxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 19:48:17 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:56531 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932391AbVKIAsQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 19:48:16 -0500
-Date: Tue, 8 Nov 2005 18:48:08 -0600
-To: Douglas McNaught <doug@mcnaught.org>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Steven Rostedt <rostedt@goodmis.org>,
-       linux-kernel@vger.kernel.org, bluesmoke-devel@lists.sourceforge.net,
-       linux-pci@atrey.karlin.mff.cuni.cz, linuxppc64-dev@ozlabs.org
-Subject: Re: typedefs and structs
-Message-ID: <20051109004808.GM19593@austin.ibm.com>
-References: <20051107185621.GD19593@austin.ibm.com> <20051107190245.GA19707@kroah.com> <20051107193600.GE19593@austin.ibm.com> <20051107200257.GA22524@kroah.com> <20051107204136.GG19593@austin.ibm.com> <1131412273.14381.142.camel@localhost.localdomain> <20051108232327.GA19593@austin.ibm.com> <B68D1F72-F433-4E94-B755-98808482809D@mac.com> <20051109003048.GK19593@austin.ibm.com> <m27jbihd1b.fsf@Douglas-McNaughts-Powerbook.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m27jbihd1b.fsf@Douglas-McNaughts-Powerbook.local>
-User-Agent: Mutt/1.5.6+20040907i
-From: linas <linas@austin.ibm.com>
+	Tue, 8 Nov 2005 19:53:23 -0500
+Received: from outmx015.isp.belgacom.be ([195.238.2.87]:33511 "EHLO
+	outmx015.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S932391AbVKIAxW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 19:53:22 -0500
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] kernel: Replace kmalloc/memset with kzalloc.
+Message-Id: <20051109005237.48F8520A1A@localhost.localdomain>
+Date: Wed,  9 Nov 2005 01:52:37 +0100 (CET)
+From: takis@issaris.org (Panagiotis Issaris)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 08, 2005 at 07:37:20PM -0500, Douglas McNaught was heard to remark:
-> 
-> Yeah, but if you're trying to read that code, you have to go look up
-> the declaration to figure out whether it might affect 'foo' or not.
-> And if you get it wrong, you get silent data corruption.
 
-No, that is not what "pass by reference" means. You are thinking of
-"const", maybe, or "pass by value"; this is neither.  The arg is not 
-declared const, the subroutine can (and usually will) modify the contents 
-of the structure, and so the caller will be holding a modified structure
-when the callee returns (just like it would if a pointer was passed).
+Replace kmalloc/memset by kzalloc.
 
---linas
+Signed-off-by: Panagiotis Issaris <takis@issaris.org>
 
+---
 
+ kernel/kexec.c |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
+
+applies-to: 7085a0d56a035f94f292df54c7fe19d822904cec
+bc3653f82726b556fbb5c7958f82c5b1e99c2860
+diff --git a/kernel/kexec.c b/kernel/kexec.c
+index 2c95848..94df70f 100644
+--- a/kernel/kexec.c
++++ b/kernel/kexec.c
+@@ -104,11 +104,10 @@ static int do_kimage_alloc(struct kimage
+ 
+ 	/* Allocate a controlling structure */
+ 	result = -ENOMEM;
+-	image = kmalloc(sizeof(*image), GFP_KERNEL);
++	image = kzalloc(sizeof(*image), GFP_KERNEL);
+ 	if (!image)
+ 		goto out;
+ 
+-	memset(image, 0, sizeof(*image));
+ 	image->head = 0;
+ 	image->entry = &image->head;
+ 	image->last_entry = &image->head;
+---
+0.99.9.GIT

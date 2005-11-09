@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030443AbVKIAPY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030449AbVKIAQI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030443AbVKIAPY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 19:15:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030435AbVKIAPY
+	id S1030449AbVKIAQI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 19:16:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030450AbVKIAQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 19:15:24 -0500
-Received: from atlrel8.hp.com ([156.153.255.206]:43230 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S1030443AbVKIAPW (ORCPT
+	Tue, 8 Nov 2005 19:16:07 -0500
+Received: from smtp.rdslink.ro ([193.231.236.97]:45283 "EHLO smtp.rdslink.ro")
+	by vger.kernel.org with ESMTP id S1030449AbVKIAQF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 19:15:22 -0500
-Subject: Re: [PATCH] backup timer for UARTs that lose interrupts
-From: Alex Williamson <alex.williamson@hp.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051108232316.GH13357@flint.arm.linux.org.uk>
-References: <1131481677.8541.24.camel@tdi>
-	 <20051108232316.GH13357@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Organization: LOSL
-Date: Tue, 08 Nov 2005 17:16:32 -0700
-Message-Id: <1131495392.9657.9.camel@tdi>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Nov 2005 19:16:05 -0500
+X-Mail-Scanner: Scanned by qSheff 1.0 (http://www.enderunix.org/qsheff/)
+Date: Wed, 9 Nov 2005 02:16:03 +0200 (EET)
+From: caszonyi@rdslink.ro
+X-X-Sender: sony@grinch.ro
+Reply-To: Calin Szonyi <caszonyi@rdslink.ro>
+To: Bernd Petrovitsch <bernd@firmix.at>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: New Linux Development Model
+In-Reply-To: <1131301063.7587.17.camel@gimli.at.home>
+Message-ID: <Pine.LNX.4.62.0511090212540.2383@grinch.ro>
+References: <436C7E77.3080601@ed-soft.at>  <20051105122958.7a2cd8c6.khali@linux-fr.org>
+  <436CB162.5070100@ed-soft.at> <1131301063.7587.17.camel@gimli.at.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-08 at 23:23 +0000, Russell King wrote:
-> On Tue, Nov 08, 2005 at 01:27:57PM -0700, Alex Williamson wrote:
-> > Hi Russell,
-> > 
-> >    The patch below works around a minor bug found in the UART of the
-> > remote management card used in many HP ia64 and parisc servers (aka the
-> > Diva UARTs).
-> 
-> Would setting UART_BUG_TXEN help ?
-> 
-> UART_BUG_TXEN is set for ports which need a kick up their backsides
-> to get their transmit interrupt status asserted, so that when new
-> chars are placed in the ring buffer we start transmitting them.
-> 
-> Your problem sounds very similar to this.
+On Sun, 6 Nov 2005, Bernd Petrovitsch wrote:
 
-  I was hoping that would be the solution too.  I just tried enabling
-UART_BUG_TXEN to double check my previous results.  Somehow it makes the
-problem much, much worse.  Instead of being the nuisance it usually is,
-it seems like the UART gets way behind on transmitting bits.  So it
-would probably prevent the unattended reboot stall since we kick it
-every time we want to transmit, but it renders the UART completely
-unusable as a console.  I can't even get it caught up enough to login
-via the serial console w/ UART_BUG_TXEN enabled on the port.  Thanks,
+>
+> Who do you mean with "user"?
+> A typical "user" just installs $DISTRIBUTION (be it a free or commercial
+> one) and that's it. *If* the bug is severe enough (and the relevant
+> maintainers does it) there will be a new rpm/deb/... with the newest
+> kernel release or a backport.
+> If not, you can do it on your own anyways.
+> But then you are half a programmer and more like a sys-admin and no
+> longer a "user". Voila.
+>
 
-	Alex
+So a user which is not typical user should not use a Linux distribution ?
 
--- 
-Alex Williamson                             HP Linux & Open Source Lab
+
+--
 

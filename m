@@ -1,97 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030474AbVKIAkM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030473AbVKIAnA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030474AbVKIAkM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 19:40:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030473AbVKIAkM
+	id S1030473AbVKIAnA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 19:43:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbVKIAnA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 19:40:12 -0500
-Received: from gate.crashing.org ([63.228.1.57]:63644 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1030474AbVKIAkK (ORCPT
+	Tue, 8 Nov 2005 19:43:00 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:41416 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932391AbVKIAnA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 19:40:10 -0500
-Subject: Posssible bug in kernel/irq/handle.c
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Cc: Paul Mackerras <paulus@samba.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Wed, 09 Nov 2005 11:38:59 +1100
-Message-Id: <1131496739.24637.12.camel@gaston>
+	Tue, 8 Nov 2005 19:43:00 -0500
+Date: Tue, 8 Nov 2005 18:42:47 -0600
+To: Zan Lynx <zlynx@acm.org>
+Cc: David Gibson <dwg@au1.ibm.com>, Steven Rostedt <rostedt@goodmis.org>,
+       linuxppc64-dev@ozlabs.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, bluesmoke-devel@lists.sourceforge.net
+Subject: Re: typedefs and structs
+Message-ID: <20051109004247.GL19593@austin.ibm.com>
+References: <20051107182727.GD18861@kroah.com> <20051107185621.GD19593@austin.ibm.com> <20051107190245.GA19707@kroah.com> <20051107193600.GE19593@austin.ibm.com> <20051107200257.GA22524@kroah.com> <20051107204136.GG19593@austin.ibm.com> <1131412273.14381.142.camel@localhost.localdomain> <20051108232327.GA19593@austin.ibm.com> <20051108235759.GA28271@localhost.localdomain> <1131495228.12797.67.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1131495228.12797.67.camel@localhost>
+User-Agent: Mutt/1.5.6+20040907i
+From: linas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo, Linus !
+On Tue, Nov 08, 2005 at 05:13:48PM -0700, Zan Lynx was heard to remark:
+> On Wed, 2005-11-09 at 10:57 +1100, David Gibson wrote:
+> > 
+> > I hate it: it obscures the fact that it's a pass-by-reference at the
+> > callsite, which is useful information.  Although this is, admittedly,
+> > the least confusing use of C++ reference types.
+> 
+> I agree with you about that one.  It's yet another thing for C
+> programmers to have to learn to watch for C++ doing behind your back.
 
-We were going through __do_IRQ (trying to figure out if we can use it
-instead of keeping our own in ppc64) while we found that bit that seems
-bogus to me:
+I think you're rushing to judgement on something you've never tried. 
+It fundamentally changes coding style; you'd have to try it on some 
+mid-size project for at least a few months or longer to get into the
+mindset.  To make it all work, you also have to do other things, like 
+avoid mallocs and allocing on stack, which forces major changes of 
+style (because of the lifetime of things on stack). If you don't change 
+style to go with it, then you'll just end up in debug hell, in which
+case you'd be right: it would be a (very) bad idea.
 
-	/*
-	 * If the IRQ is disabled for whatever reason, we cannot
-	 * use the action we have.
-	 */
-	action = NULL;
-	if (likely(!(status & (IRQ_DISABLED | IRQ_INPROGRESS)))) {
-		action = desc->action;
-		status &= ~IRQ_PENDING; /* we commit to handling */
-		status |= IRQ_INPROGRESS; /* we are handling it */
-	}
-	desc->status = status;
+(Disclaimer: I've moved away from C++ because of all the other
+opportunities for misuse that it offers and encourages.)
 
-	/*
-	 * If there is no IRQ handler or it was disabled, exit early.
-	 * Since we set PENDING, if another processor is handling
-	 * a different instance of this same irq, the other processor
-	 * will take care of it.
-	 */
-	if (unlikely(!action))
-		goto out;
-
-Now, look at what's going on if there is no action, that is desc->action
-is NULL. In that case, the code will go out, leaving the IRQ marked
-IN_PROGRESS, call the end() handler and go out without ever calling
-note_interrupt().
-
-That means that
-
- 1) The interrupt will be stuck IN_PROGRESS. I don't see how IN_PROGRESS
-can ever be cleared afterward
-
- 2) We won't go through the code in note_interrupt() that protects us
-against a stuck interrupt, so if the interrupt is indeed stuck, we'll
-just lockup the processor taking the same IRQ for ever (and not being
-able to handle it, even if an action magically gets registered, due to
-1)
-
-I think we need to differentiate the case DISABLED | IN_PROGRESS from
-the case no action.
-
-Something like (just typing in the mailer) :
-
-	if (unlikely(status & (IRQ_DISABLED | IRQ_INPROGRESS))) {
-		desc->status = status;
-		goto out;
-	}
-	action = desc->action;
-	status &= ~IRQ_PENDING; /* we commit to handling */
-	status |= IRQ_INPROGRESS; /* we are handling it */
-	desc->status = status;
-
-Then, test for action != NULL in the for (;;) loop before calling
-handle_IRQ_event() and set action_ret to IRQ_NONE by default. (I think
-we should get to the for loop and not avoid it, in case the PENDING bit
-happens to be set by another CPU in the meantime).
-
-Did I miss something ? If you think that's ok, I'll produce a patch.
-
-In addition, I'd like an arch hook in note_interrupt() in order to pass
-unhandled interrupts to the firmware but that's a different matter (still
-let me know if you have any objection)
-
-Cheers,
-Ben.
+--linas
 
 

@@ -1,67 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030270AbVKIDT6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030414AbVKIDW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030270AbVKIDT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 22:19:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030399AbVKIDT6
+	id S1030414AbVKIDW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 22:22:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030415AbVKIDW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 22:19:58 -0500
-Received: from nproxy.gmail.com ([64.233.182.204]:15812 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030270AbVKIDT5 convert rfc822-to-8bit
+	Tue, 8 Nov 2005 22:22:28 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:30912 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030414AbVKIDW2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 22:19:57 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JVeKj+Hchj9b3gTUL0EkzBFh7hb1LTyi7ntGOq4JT1/Y/y9/LaTOw9T//F2HsgezzdfnPpKu6j6JzD9OK7SyWQSqhDWk4NBJzuZflzfrEih2tkttL0S1N3acTSlkAFi6DB2WUcONODRKzFa7rOsjGVinkJ7OqORKYJjLONSfcoo=
-Message-ID: <2cd57c900511081919m2e704741j@mail.gmail.com>
-Date: Wed, 9 Nov 2005 11:19:56 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [stable] Re: Linux 2.6.14.1
-Cc: Greg KH <gregkh@suse.de>, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       stable@kernel.org
-In-Reply-To: <20051109021840.GB23537@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 8 Nov 2005 22:22:28 -0500
+Date: Tue, 8 Nov 2005 19:22:34 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: akpm@osdl.org, mingo@elte.hu
+Cc: linux-kernel@vger.kernel.org, dipankar@hill9.org, wli@holomorphy.com
+Subject: [PATCH] tasklist-RCU fix in attach_pid()
+Message-ID: <20051109032233.GA3060@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20051109010729.GA22439@kroah.com>
-	 <2cd57c900511081805s3d385110r@mail.gmail.com>
-	 <20051109021840.GB23537@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2005/11/9, Greg KH <greg@kroah.com>:
-> On Wed, Nov 09, 2005 at 10:05:43AM +0800, Coywolf Qi Hunt wrote:
-> > 2005/11/9, Greg KH <gregkh@suse.de>:
-> > > We (the -stable team) are announcing the release of the 2.6.14.1 kernel.
-> > >
-> > > The diffstat and short summary of the fixes are below.
-> > >
-> > > I'll also be replying to this message with a copy of the patch between
-> > > 2.6.14 and 2.6.14.1, as it is small enough to do so.
-> > >
-> > > The updated 2.6.14.y git tree can be found at:
-> > >         rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/linux-2.6.14.y.git
-> > > and can be browsed at the normal kernel.org git web browser:
-> > >         www.kernel.org/git/
-> >
-> >
-> > I'd appreciate it that if you would not overwrite the 2.6.14 record on
-> > the kernel.org page, but add a new record for 2.6.14.y instead. It
-> > would benefit others too. FYI: http://lkml.org/lkml/2005/10/9/18
->
-> Sorry, but I am not in charge of that at all.  Please contact the
-> kernel.org web masters if you want to discuss this.  And as 2.6.14 now
-> has a documented security issue, I wouldn't recommend it being displayed
-> on the kernel.org page anyway.
->
-> Tools like ketchup can handle updating to the proper kernel version just
-> fine if you want to use it, instead of having to rely on web pages :)
+Hello!
 
-I tried a little. Nice tool! I have my own script with some of
-ketchup's function partially for easy my lxr site maintaining. I'll
-adapt my script to use it probably. Thanks.
---
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+Bug in attach_pid() can result in RCU readers in find_pid() getting
+confused if they race with process creation.
+
+Signed-off-by: <paulmck@us.ibm.com>
+
+---
+
+(applies to both 2.6.14-mm1 and -rt)
+
+ pid.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -uprNa -X dontdiff linux-2.6.14-mm1/kernel/pid.c linux-2.6.14-mm1-fix-1/kernel/pid.c
+--- linux-2.6.14-mm1/kernel/pid.c	2005-11-08 08:18:55.000000000 -0800
++++ linux-2.6.14-mm1-fix-1/kernel/pid.c	2005-11-08 19:02:35.000000000 -0800
+@@ -150,6 +150,7 @@ int fastcall attach_pid(task_t *task, en
+ 
+ 	task_pid = &task->pids[type];
+ 	pid = find_pid(type, nr);
++	task_pid->nr = nr;
+ 	if (pid == NULL) {
+ 		INIT_LIST_HEAD(&task_pid->pid_list);
+ 		hlist_add_head_rcu(&task_pid->pid_chain,
+@@ -158,7 +159,6 @@ int fastcall attach_pid(task_t *task, en
+ 		INIT_HLIST_NODE(&task_pid->pid_chain);
+ 		list_add_tail_rcu(&task_pid->pid_list, &pid->pid_list);
+ 	}
+-	task_pid->nr = nr;
+ 
+ 	return 0;
+ }

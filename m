@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030393AbVKICSM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030502AbVKICTR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030393AbVKICSM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 21:18:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965227AbVKICSM
+	id S1030502AbVKICTR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 21:19:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030503AbVKICTR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 21:18:12 -0500
-Received: from gate.crashing.org ([63.228.1.57]:61597 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S965156AbVKICSK (ORCPT
+	Tue, 8 Nov 2005 21:19:17 -0500
+Received: from mail.kroah.org ([69.55.234.183]:64230 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030502AbVKICTQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 21:18:10 -0500
-Subject: Re: Posssible bug in kernel/irq/handle.c
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Paul Mackerras <paulus@samba.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0511081802160.3247@g5.osdl.org>
-References: <1131496739.24637.12.camel@gaston>
-	 <Pine.LNX.4.64.0511081651320.3247@g5.osdl.org>
-	 <1131501021.24637.18.camel@gaston>
-	 <Pine.LNX.4.64.0511081802160.3247@g5.osdl.org>
-Content-Type: text/plain
-Date: Wed, 09 Nov 2005 13:16:54 +1100
-Message-Id: <1131502615.24637.30.camel@gaston>
+	Tue, 8 Nov 2005 21:19:16 -0500
+Date: Tue, 8 Nov 2005 18:18:40 -0800
+From: Greg KH <greg@kroah.com>
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+Cc: Greg KH <gregkh@suse.de>, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       stable@kernel.org
+Subject: Re: [stable] Re: Linux 2.6.14.1
+Message-ID: <20051109021840.GB23537@kroah.com>
+References: <20051109010729.GA22439@kroah.com> <2cd57c900511081805s3d385110r@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2cd57c900511081805s3d385110r@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 09, 2005 at 10:05:43AM +0800, Coywolf Qi Hunt wrote:
+> 2005/11/9, Greg KH <gregkh@suse.de>:
+> > We (the -stable team) are announcing the release of the 2.6.14.1 kernel.
+> >
+> > The diffstat and short summary of the fixes are below.
+> >
+> > I'll also be replying to this message with a copy of the patch between
+> > 2.6.14 and 2.6.14.1, as it is small enough to do so.
+> >
+> > The updated 2.6.14.y git tree can be found at:
+> >         rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/linux-2.6.14.y.git
+> > and can be browsed at the normal kernel.org git web browser:
+> >         www.kernel.org/git/
+> 
+> 
+> I'd appreciate it that if you would not overwrite the 2.6.14 record on
+> the kernel.org page, but add a new record for 2.6.14.y instead. It
+> would benefit others too. FYI: http://lkml.org/lkml/2005/10/9/18
 
-> Be vewy vewy caweful when changing that code, though. If you end up with a 
-> patch, please try to give it some nice stress-testing (both on ppc and 
-> x86), and then post it for comments, ok? Maybe the arch mailing list and 
-> Ingo (who else has touched that logic?)
+Sorry, but I am not in charge of that at all.  Please contact the
+kernel.org web masters if you want to discuss this.  And as 2.6.14 now
+has a documented security issue, I wouldn't recommend it being displayed
+on the kernel.org page anyway.
 
-Ok, I'll try to avoid touching that code. In a perfect world, we should
-have proper handlers for those firmware interrupts anyway, it's just
-that the "spec" says we should call the firmware for any interrupt we
-don't handle...
+Tools like ketchup can handle updating to the proper kernel version just
+fine if you want to use it, instead of having to rely on web pages :)
 
-I suppose it should be enough for us to test for desc->action before
-calling __do_IRQ() and eventually do the firmware trick then, since I
-doubt that if it matters at all, it will happen on shared interrupts...
+thanks,
 
-Ben.
-
-
+greg k-h

@@ -1,83 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030440AbVKIAOV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030443AbVKIAPY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030440AbVKIAOV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 19:14:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030442AbVKIAOV
+	id S1030443AbVKIAPY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 19:15:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030435AbVKIAPY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 19:14:21 -0500
-Received: from zlynx.org ([199.45.143.209]:43020 "EHLO 199.45.143.209")
-	by vger.kernel.org with ESMTP id S1030440AbVKIAOU (ORCPT
+	Tue, 8 Nov 2005 19:15:24 -0500
+Received: from atlrel8.hp.com ([156.153.255.206]:43230 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S1030443AbVKIAPW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 19:14:20 -0500
-Subject: Re: typedefs and structs
-From: Zan Lynx <zlynx@acm.org>
-To: David Gibson <dwg@au1.ibm.com>
-Cc: linas <linas@austin.ibm.com>, Steven Rostedt <rostedt@goodmis.org>,
-       linuxppc64-dev@ozlabs.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, bluesmoke-devel@lists.sourceforge.net
-In-Reply-To: <20051108235759.GA28271@localhost.localdomain>
-References: <17262.37107.857718.184055@cargo.ozlabs.ibm.com>
-	 <20051107175541.GB19593@austin.ibm.com> <20051107182727.GD18861@kroah.com>
-	 <20051107185621.GD19593@austin.ibm.com> <20051107190245.GA19707@kroah.com>
-	 <20051107193600.GE19593@austin.ibm.com> <20051107200257.GA22524@kroah.com>
-	 <20051107204136.GG19593@austin.ibm.com>
-	 <1131412273.14381.142.camel@localhost.localdomain>
-	 <20051108232327.GA19593@austin.ibm.com>
-	 <20051108235759.GA28271@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-DoEz994RyBYnVPghOvkN"
-Date: Tue, 08 Nov 2005 17:13:48 -0700
-Message-Id: <1131495228.12797.67.camel@localhost>
+	Tue, 8 Nov 2005 19:15:22 -0500
+Subject: Re: [PATCH] backup timer for UARTs that lose interrupts
+From: Alex Williamson <alex.williamson@hp.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051108232316.GH13357@flint.arm.linux.org.uk>
+References: <1131481677.8541.24.camel@tdi>
+	 <20051108232316.GH13357@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Organization: LOSL
+Date: Tue, 08 Nov 2005 17:16:32 -0700
+Message-Id: <1131495392.9657.9.camel@tdi>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-11-08 at 23:23 +0000, Russell King wrote:
+> On Tue, Nov 08, 2005 at 01:27:57PM -0700, Alex Williamson wrote:
+> > Hi Russell,
+> > 
+> >    The patch below works around a minor bug found in the UART of the
+> > remote management card used in many HP ia64 and parisc servers (aka the
+> > Diva UARTs).
+> 
+> Would setting UART_BUG_TXEN help ?
+> 
+> UART_BUG_TXEN is set for ports which need a kick up their backsides
+> to get their transmit interrupt status asserted, so that when new
+> chars are placed in the ring buffer we start transmitting them.
+> 
+> Your problem sounds very similar to this.
 
---=-DoEz994RyBYnVPghOvkN
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+  I was hoping that would be the solution too.  I just tried enabling
+UART_BUG_TXEN to double check my previous results.  Somehow it makes the
+problem much, much worse.  Instead of being the nuisance it usually is,
+it seems like the UART gets way behind on transmitting bits.  So it
+would probably prevent the unattended reboot stall since we kick it
+every time we want to transmit, but it renders the UART completely
+unusable as a console.  I can't even get it caught up enough to login
+via the serial console w/ UART_BUG_TXEN enabled on the port.  Thanks,
 
-On Wed, 2005-11-09 at 10:57 +1100, David Gibson wrote:
-> On Tue, Nov 08, 2005 at 05:23:27PM -0600, Linas Vepstas wrote:
-[snip]
-> > The ampersand says "pass argument by reference (so as to get arg passin=
-g
-> > efficiency) but force coder to write code as if they were passing by va=
-lue"
-> > As a result, it gets difficult to pass null pointers (for reasons
-> > similar to the difficulty of passing null pointers in Java (and yes,
-> > I loathe Java, sorry to subject you to that))  Anyway, that's a C++ tri=
-ck=20
-> > only; I wish it was in C so I could experiment more and find out if I=20
-> > like it or hate it.
->=20
-> I hate it: it obscures the fact that it's a pass-by-reference at the
-> callsite, which is useful information.  Although this is, admittedly,
-> the least confusing use of C++ reference types.
+	Alex
 
-I agree with you about that one.  It's yet another thing for C
-programmers to have to learn to watch for C++ doing behind your back.
-
-However, it isn't any worse than having an ordinary C pointer to some
-struct.  If the pointer was passed to the current function from above,
-and you're passing it to another function below, you really don't know
-what's going to happen to the structure unless you go look.  Just like
-the C++ reference, the C pointer doesn't get an address-of operator to
-remind you.
---=20
-Zan Lynx <zlynx@acm.org>
-
---=-DoEz994RyBYnVPghOvkN
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBDcT86G8fHaOLTWwgRAiYnAJ425SV4gyJ/gnrRrP/mLqYh4o2ApgCdF7Hs
-rtRLUoY2K7LsxYXoArfvqdo=
-=VLcK
------END PGP SIGNATURE-----
-
---=-DoEz994RyBYnVPghOvkN--
+-- 
+Alex Williamson                             HP Linux & Open Source Lab
 

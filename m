@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751538AbVKIXB7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751544AbVKIXEP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751538AbVKIXB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 18:01:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751519AbVKIXB7
+	id S1751544AbVKIXEP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 18:04:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751553AbVKIXEP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 18:01:59 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:7652 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751072AbVKIXBz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 18:01:55 -0500
-Date: Wed, 9 Nov 2005 15:01:41 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, len.brown@intel.com,
-       jgarzik@pobox.com, tony.luck@intel.com, bcollins@debian.org,
-       scjody@modernduck.com, dwmw2@infradead.org, rolandd@cisco.com,
-       davej@codemonkey.org.uk, axboe@suse.de, shaggy@austin.ibm.com,
-       sfrench@us.ibm.com
-Subject: Re: merge status
-Message-Id: <20051109150141.0bcbf9e3.akpm@osdl.org>
-In-Reply-To: <1131575124.8541.9.camel@mulgrave>
-References: <20051109133558.513facef.akpm@osdl.org>
-	<1131573041.8541.4.camel@mulgrave>
-	<Pine.LNX.4.64.0511091358560.4627@g5.osdl.org>
-	<1131575124.8541.9.camel@mulgrave>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Wed, 9 Nov 2005 18:04:15 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:15747 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751544AbVKIXEO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 18:04:14 -0500
+Subject: Re: [PATCH] Remove read-only check from inode_update_time().
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, hch@lst.de
+In-Reply-To: <Pine.LNX.4.64.0511092243001.7946@hermes-1.csi.cam.ac.uk>
+References: <Pine.LNX.4.64.0511092243001.7946@hermes-1.csi.cam.ac.uk>
+Content-Type: text/plain
+Date: Wed, 09 Nov 2005 17:04:11 -0600
+Message-Id: <1131577451.21652.10.camel@kleikamp.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley <James.Bottomley@SteelEye.com> wrote:
->
-> it's my contributors who drop me in it
-> by leaving their patch sets until you declare a kernel, dumping the
-> integration testing on me in whatever time window is left.
+On Wed, 2005-11-09 at 22:48 +0000, Anton Altaparmakov wrote:
+> Hi Andrew,
+> 
+> The read-only check in inode_update_time() (or file_update_time() as it is 
+> now in -mm) is unnecessary as the VFS better have done all the read-only 
+> checks and aborted much earlier in the file write code paths where 
+> inode/file_update_time() is only called from.
 
-Yes, I think I'm noticing an uptick in patches as soon as a kernel is
-released.
+I notice inode_update_time is called from pipe_writev.  I don't know how
+likely it would be in practice, but wouldn't it be possible to write to
+a pipe on a read-only partition?  In that case the read-only check still
+makes sense.
 
-It's a bit irritating, and is unexpected (here, at least).  I guess people
-like to hold onto their work for as long as possible so when they release
-it, it's in the best possible shape.
+> (In case you were not following the ntfs discussion, Christoph Hellwig 
+> agreed that check is unnecessary and can be removed.)
+> 
+> Patch against latest Linus git tree is below, please apply.  If you prefer 
+> a patch on top of Christoph's file_update_time() check please let me 
+> know...
+> 
+> Best regards,
+> 
+> 	Anton
+-- 
+David Kleikamp
+IBM Linux Technology Center
 
-I guess all we can do is to encourage people to merge up when it's working,
-not when it's time to merge it into mainline.
-
-One could just say "if I don't have it by the time 2.6.n is released, it
-goes into 2.6.n+2", but that's probably getting outside the realm of
-practicality.

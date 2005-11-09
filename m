@@ -1,69 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751423AbVKIPhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751328AbVKIPnl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751423AbVKIPhY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 10:37:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751425AbVKIPhY
+	id S1751328AbVKIPnl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 10:43:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbVKIPnl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 10:37:24 -0500
-Received: from 66.239.25.20.ptr.us.xo.net ([66.239.25.20]:32687 "EHLO
-	zoot.lnxi.com") by vger.kernel.org with ESMTP id S1751423AbVKIPhX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 10:37:23 -0500
-To: =?iso-8859-1?q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-Cc: linux-mtd@lists.infradead.org, dwmw2@infradead.org,
-       linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-       Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 06/25] mtd: move ioctl32 code to mtdchar.c
-References: <20051105162650.620266000@b551138y.boeblingen.de.ibm.com>
-	<20051105162712.921102000@b551138y.boeblingen.de.ibm.com>
-	<20051108105923.GA31446@wohnheim.fh-wedel.de>
-	<m3zmofovsc.fsf@maxwell.lnxi.com>
-	<20051108183339.GB31446@wohnheim.fh-wedel.de>
-From: ebiederman@lnxi.com (Eric W. Biederman)
-Date: Wed, 09 Nov 2005 08:37:16 -0700
-In-Reply-To: <20051108183339.GB31446@wohnheim.fh-wedel.de> (
- =?iso-8859-1?q?J=F6rn_Engel's_message_of?= "Tue, 8 Nov 2005 19:33:39
- +0100")
-Message-ID: <m3slu5al3n.fsf@maxwell.lnxi.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 9 Nov 2005 10:43:41 -0500
+Received: from onyx.ip.pt ([195.23.92.252]:63882 "EHLO mail.isp.novis.pt")
+	by vger.kernel.org with ESMTP id S1751328AbVKIPnk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 10:43:40 -0500
+Subject: Re: New Linux Development Model
+From: Marcos Marado <marado@isp.novis.pt>
+Reply-To: marado@isp.novis.pt
+To: Calin Szonyi <caszonyi@rdslink.ro>
+Cc: jerome lacoste <jerome.lacoste@gmail.com>,
+       Edgar Hucek <hostmaster@ed-soft.at>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.62.0511091547080.15950@grinch.ro>
+References: <436C7E77.3080601@ed-soft.at>
+	 <20051105122958.7a2cd8c6.khali@linux-fr.org> <436CB162.5070100@ed-soft.at>
+	 <5a2cf1f60511060252t55e1a058o528700ea69826965@mail.gmail.com>
+	 <436DEEFC.4020301@ed-soft.at>
+	 <5a2cf1f60511060543m5edc8ba8i920a3005b95a556d@mail.gmail.com>
+	 <Pine.LNX.4.62.0511090202030.2383@grinch.ro>
+	 <5a2cf1f60511090430y63db5473we40f077070ecb43a@mail.gmail.com>
+	 <Pine.LNX.4.62.0511091547080.15950@grinch.ro>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ANSTIyqBw5h9mUp8dt18"
+Organization: Novis ISP
+Date: Wed, 09 Nov 2005 15:45:04 +0000
+Message-Id: <1131551104.8930.48.camel@noori.ip.pt>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel <joern@wohnheim.fh-wedel.de> writes:
 
-> mtdchar.c is one of the worst drivers inside the kernel.  The concept
-> of having a simple char device driver for flash may have its charm,
-> but the actual implementation is horrible.  And things like the
-> read-only devices are even unfixable.
+--=-ANSTIyqBw5h9mUp8dt18
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-This is a confusing statement, you complain that the implementation is horrible
-and then go on to complain about the interface to the character device.
+On Wed, 2005-11-09 at 16:03 +0200, caszonyi@rdslink.ro wrote:
+> On Wed, 9 Nov 2005, jerome lacoste wrote:
+> Because i like to test new kernels. On 2.4 I run the vanila kernel and a=20
+> test kernel. When something went wrong on a test kernel was always a=20
+> stable kernel to use.
+> 2.6 looks a lot like 2.5. New features are added very quickly without muc=
+h=20
+> testing. Of course there is Andrew's -mm tree but this one sometimes=20
+> is too broken.
+> For me linux looks now like it has one unstable tree (2.6) which is=20
+> something like -ac was in days of 2.4 and  -mm was in the days of 2.4=20
+> -2.5 and -mm which looks like it became very unstable.
+> This is what i saw ok lkml (maybe my view is distorted).
+> I'll stop ranting and try both of them because i have some bugs to report=
+.
 
-The implementation appears small and concise.   There are a couple of
-FIXMEs but they are all about wishing the interface to the flash chips
-mapped better to a user space interface.  I routinely fix things in
-the kernel whose implementations are much worse than mtdchar. 
+Man, -mm are unstable kernels, 2.6.x[.y] are the stable ones.
 
-> Can you name a few examples, where mtdchar.c makes sense?  I've found
-> it to be quite useless.
+> The 2.6.x.y kernels sometimes are almost no different from 2.6.x
 
-I have found just the opposite.  It happens to be the only interface
-to mtd devices I use.   In general when you have flash devices small
-enough that you can't use a filesystem without waisting a lot of space
-(keeping 1 free erase block out of 4 or 8 is a problem).  Or when you are
-doing low-level mucking mtdchar is invaluable.
+That's true, and good. the .y is the -stable tree, that is supposed to
+add only stability and security fixes.
 
-As for the interface to mtdchar.  I agree that the readonly character
-device is silly, and does weird things to the mtd device minor numbers.
-I agree that ioctls are not the prettiest interface around, however
-the raw functionality the ioctls export is needed, and interesting.  Some
-of the functionality would be hard to export even in sysfs the cool ascii
-replacement for ioctl.
+--=20
+Marcos Marado <marado@isp.novis.pt>
+Novis ISP
 
-Long term it does look like a sysfs interface to the mtd functionality
-could suffice.
+--=-ANSTIyqBw5h9mUp8dt18
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Eric
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDchmArpje80Vhea8RAv3WAKChW1VFvm1WrS3yzLznOueYJ4oQLgCgpfny
+O529dqS18K8TWLAD4fQp8OU=
+=XOII
+-----END PGP SIGNATURE-----
+
+--=-ANSTIyqBw5h9mUp8dt18--
+

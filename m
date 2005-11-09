@@ -1,53 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbVKIONt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbVKIONy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750825AbVKIONt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 09:13:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbVKIONt
+	id S1750828AbVKIONy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 09:13:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbVKIONy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 09:13:49 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:47595 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1750825AbVKIONs (ORCPT
+	Wed, 9 Nov 2005 09:13:54 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:55531 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S1750823AbVKIONx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 09:13:48 -0500
-Message-Id: <20051109134938.757187000@localhost.localdomain>
-Date: Wed, 09 Nov 2005 21:49:38 +0800
+	Wed, 9 Nov 2005 09:13:53 -0500
+Message-Id: <20051109141432.393114000@localhost.localdomain>
+References: <20051109134938.757187000@localhost.localdomain>
+Date: Wed, 09 Nov 2005 21:49:39 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 00/16] Adaptive read-ahead V7
+Cc: Andrew Morton <akpm@osdl.org>, Wu Fengguang <wfg@mail.ustc.edu.cn>
+Subject: [PATCH 01/16] mm: delayed page activation
+Content-Disposition: inline; filename=mm-delayed-activation.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the 7th version of adaptive read-ahead patch.
+When a page is referenced the second time in inactive_list, mark it with
+PG_activate instead of moving it into active_list immediately. The actual
+moving work is delayed to vmscan time.
 
-There are various code cleanups and polish ups:
-- new tunable parameters: readahead_hit_rate/readahead_live_chunk
-- support sparse sequential accesses
-- delay look-ahead in laptop mode
-- disable look-ahead for loopback file
-- make mandatory thrashing protection more simple and robust
-- attempt to improve responsiveness on large I/O request size
+This implies two essential changes:
+- keeps the adjecency of pages in lru;
+- lifts the page reference counter max from 1 to 3.
 
-Support for sparse reads is disabled by default. One must increase
-/proc/sys/vm/readahead_hit_rate to explicitly enable it. Please
-refer to Documentation/sysctl/vm.txt for details.
+And leads to the following improvements:
+- read-ahead for a leading reader will not be disturbed by a following reader;
+- enables the thrashing protection logic to save pages for following readers;
+- keeping relavant pages together helps improve I/O efficiency;
+- and also helps decrease vm fragmantation;
+- increased refcnt space might help page replacement algorithms.
 
-Currently the linux kernel does not support inter-file read-ahead.
-Tero Grundstr?m takes an intresting approach that achieves it: pack
-a dir of small files into a loopback file with reiserfs filesystem, and
-turn on sparse read support. But be prepared to waste some memory by
-this way :(
+Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
+---
 
-For crazy laptop users who prefer aggressive read-ahead, here is the way:
+ include/linux/page-flags.h |   31 +++++++++++++++++++++++++++++++
+ mm/page_alloc.c            |    1 +
+ mm/swap.c                  |    9 ++++-----
+ mm/vmscan.c                |    6 ++++++
+ 4 files changed, 42 insertions(+), 5 deletions(-)
 
-# echo 10000 > /proc/sys/vm/readahead_ratio
-# blockdev --setra 524280 /dev/hda      # this is the max possible value
+--- linux-2.6.14-mm1.orig/include/linux/page-flags.h
++++ linux-2.6.14-mm1/include/linux/page-flags.h
+@@ -76,6 +76,7 @@
+ #define PG_reclaim		17	/* To be reclaimed asap */
+ #define PG_nosave_free		18	/* Free, should not be written */
+ #define PG_uncached		19	/* Page has been mapped as uncached */
++#define PG_activate		20	/* delayed activate */
+ 
+ /*
+  * Global page accounting.  One instance per CPU.  Only unsigned longs are
+@@ -308,6 +309,12 @@ extern void __mod_page_state(unsigned lo
+ #define SetPageUncached(page)	set_bit(PG_uncached, &(page)->flags)
+ #define ClearPageUncached(page)	clear_bit(PG_uncached, &(page)->flags)
+ 
++#define PageActivate(page)	test_bit(PG_activate, &(page)->flags)
++#define SetPageActivate(page)	set_bit(PG_activate, &(page)->flags)
++#define ClearPageActivate(page)	clear_bit(PG_activate, &(page)->flags)
++#define TestClearPageActivate(page) test_and_clear_bit(PG_activate, &(page)->flags)
++#define TestSetPageActivate(page) test_and_set_bit(PG_activate, &(page)->flags)
++
+ struct page;	/* forward declaration */
+ 
+ int test_clear_page_dirty(struct page *page);
+@@ -333,4 +340,28 @@ static inline void set_page_writeback(st
+ #define ClearPageFsMisc(page)		clear_bit(PG_fs_misc, &(page)->flags)
+ #define TestClearPageFsMisc(page)	test_and_clear_bit(PG_fs_misc, &(page)->flags)
+ 
++#if PG_activate < PG_referenced
++#error unexpected page flags order
++#endif
++
++#define PAGE_REFCNT_0		0
++#define PAGE_REFCNT_1		(1 << PG_referenced)
++#define PAGE_REFCNT_2		(1 << PG_activate)
++#define PAGE_REFCNT_3		((1 << PG_activate) | (1 << PG_referenced))
++#define PAGE_REFCNT_MASK	PAGE_REFCNT_3
++
++/*
++ * STATUS   REFERENCE COUNT
++ *  __                   0
++ *  _R       PAGE_REFCNT_1
++ *  A_       PAGE_REFCNT_2
++ *  AR       PAGE_REFCNT_3
++ *
++ *  A/R: Active / Referenced
++ */
++static inline unsigned long page_refcnt(struct page *page)
++{
++	return page->flags & PAGE_REFCNT_MASK;
++}
++
+ #endif	/* PAGE_FLAGS_H */
+--- linux-2.6.14-mm1.orig/mm/page_alloc.c
++++ linux-2.6.14-mm1/mm/page_alloc.c
+@@ -488,6 +488,7 @@ static void prep_new_page(struct page *p
+ 
+ 	page->flags &= ~(1 << PG_uptodate | 1 << PG_error |
+ 			1 << PG_referenced | 1 << PG_arch_1 |
++			1 << PG_activate |
+ 			1 << PG_checked | 1 << PG_mappedtodisk);
+ 	set_page_private(page, 0);
+ 	set_page_refs(page, order);
+--- linux-2.6.14-mm1.orig/mm/swap.c
++++ linux-2.6.14-mm1/mm/swap.c
+@@ -29,7 +29,6 @@
+ #include <linux/percpu.h>
+ #include <linux/cpu.h>
+ #include <linux/notifier.h>
+-#include <linux/init.h>
+ 
+ /* How many pages do we try to swap or page in/out together? */
+ int page_cluster;
+@@ -117,13 +116,13 @@ void fastcall activate_page(struct page 
+  * Mark a page as having seen activity.
+  *
+  * inactive,unreferenced	->	inactive,referenced
+- * inactive,referenced		->	active,unreferenced
+- * active,unreferenced		->	active,referenced
++ * inactive,referenced		->	activate,unreferenced
++ * activate,unreferenced	->	activate,referenced
+  */
+ void fastcall mark_page_accessed(struct page *page)
+ {
+-	if (!PageActive(page) && PageReferenced(page) && PageLRU(page)) {
+-		activate_page(page);
++	if (!PageActivate(page) && PageReferenced(page) && PageLRU(page)) {
++		SetPageActivate(page);
+ 		ClearPageReferenced(page);
+ 	} else if (!PageReferenced(page)) {
+ 		SetPageReferenced(page);
+--- linux-2.6.14-mm1.orig/mm/vmscan.c
++++ linux-2.6.14-mm1/mm/vmscan.c
+@@ -443,6 +443,12 @@ static int shrink_list(struct list_head 
+ 		if (PageWriteback(page))
+ 			goto keep_locked;
+ 
++		if (PageActivate(page)) {
++			ClearPageActivate(page);
++			ClearPageReferenced(page);
++			goto activate_locked;
++		}
++
+ 		referenced = page_referenced(page, 1, sc->priority <= 0);
+ 		/* In active use or really unfreeable?  Activate it. */
+ 		if (referenced && page_mapping_inuse(page))
 
-Notes:
-- It is still an untested feature.
-- It is safer to use blockdev+fadvise to increase ra-max for a single file,
-  which needs patching your movie player.
-- Be sure to restore them to sane values in normal operations!
-
-Regards,
-Wu
+--

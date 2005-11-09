@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161143AbVKITvT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161213AbVKIUI5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161143AbVKITvT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 14:51:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161141AbVKITvT
+	id S1161213AbVKIUI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 15:08:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161216AbVKIUI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 14:51:19 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:22439 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1161143AbVKITvS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 14:51:18 -0500
-Date: Wed, 9 Nov 2005 11:50:34 -0800
-From: Ashok Raj <ashok.raj@intel.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Ashok Raj <ashok.raj@intel.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, gregkh@suse.de
-Subject: Re: Changing MSI to use physical delivery mode always.
-Message-ID: <20051109115033.A1461@unix-os.sc.intel.com>
-References: <20051108070038.A15318@unix-os.sc.intel.com> <20051109135650.GA78272@muc.de>
+	Wed, 9 Nov 2005 15:08:57 -0500
+Received: from onyx.ip.pt ([195.23.92.252]:33935 "EHLO mail.isp.novis.pt")
+	by vger.kernel.org with ESMTP id S1161213AbVKIUI5 (ORCPT
+	<rfc822;Linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 15:08:57 -0500
+Subject: Re: New Linux Development Model
+From: Marcos Marado <marado@isp.novis.pt>
+Reply-To: marado@isp.novis.pt
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Linux-kernel@vger.kernel.org, fawadlateef@gmail.com, s0348365@sms.ed.ac.uk,
+       hostmaster@ed-soft.at, jerome.lacoste@gmail.com, carlsj@yahoo.com
+In-Reply-To: <4372487C.7070800@tmr.com>
+References: <1131500868.2413.63.camel@localhost>
+	 <1131534496.8930.15.camel@noori.ip.pt>  <4372487C.7070800@tmr.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-SKphHnLY8xL6RFCFj1X1"
+Organization: Novis ISP
+Date: Wed, 09 Nov 2005 20:10:20 +0000
+Message-Id: <1131567020.8930.74.camel@noori.ip.pt>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20051109135650.GA78272@muc.de>; from ak@muc.de on Wed, Nov 09, 2005 at 02:56:50PM +0100
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 09, 2005 at 02:56:50PM +0100, Andi Kleen wrote:
-> On Tue, Nov 08, 2005 at 07:00:38AM -0800, Ashok Raj wrote:
-> > Hi,
-> > 
-> > MSI was hard coded to use logical delivery mode for i386/x86_64 and 
-> > physical mode for ia64.
-> > 
-> > With recent x86_64 we moved to physical flat mode that broke MSI.
-> > 
-> > Made MSI to work with physical mode, this will be consistent on all
-> > archs. 
-> 
-> Nasty bug. Thanks for tracking that down.
-> 
-> It is outright scary though that such deeply architecture specific
-> code is in drivers/pci. It should be in arch. I think that was
-> because I missed it. Would you be willing to move the APIC specific parts 
-> to arch/i386/pci ? 
 
-I remember when it got started it was in each arch, but there was so much
-code duplication, and it ended with the header file pulling in 
-some from asm/msi.h for arch pieces.
+--=-SKphHnLY8xL6RFCFj1X1
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-but moving to arch will help choose the same delivery mode consistently
-and we could use physical or logical whatever ends up being used for 
-IOAPIC rte's as well.
+On Wed, 2005-11-09 at 14:05 -0500, Bill Davidsen wrote:
 
-I will send a cleanup once things settle down.
+> With the current firmware and driver a "scan" shows 14 connectible=20
+> points outside an apartment building (only one secured in any way ;-)=20
+> whic is just what Windows shows. With the stock kernel zero are found.=20
+> That's not stable that's moribund.
+
+Sorry to disagree, but I use the stock kernel version of ipw2100 almost
+daily, with no problems.
+
+--=20
+Marcos Marado <marado@isp.novis.pt>
+Novis ISP
+
+--=-SKphHnLY8xL6RFCFj1X1
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDclesrpje80Vhea8RAjFhAKDW0SiBjWkrL90/Dkpp4Co7P3L8bwCeN2Ml
+lR6LLdY/AqAlF+fUOUkyXCI=
+=rpoi
+-----END PGP SIGNATURE-----
+
+--=-SKphHnLY8xL6RFCFj1X1--
+

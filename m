@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbVKIMAX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbVKIMDY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751387AbVKIMAX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 07:00:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbVKIMAW
+	id S1751399AbVKIMDY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 07:03:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbVKIMDY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 07:00:22 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:58345 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751387AbVKIMAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 07:00:19 -0500
-Subject: Re: video4linux user land API concern
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Hubert Tonneau <hubert.tonneau@fullpliant.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <05G2L0Z12@briare1.heliogroup.fr>
-References: <05G2L0Z12@briare1.heliogroup.fr>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 09 Nov 2005 12:31:14 +0000
-Message-Id: <1131539474.6540.10.camel@localhost.localdomain>
+	Wed, 9 Nov 2005 07:03:24 -0500
+Received: from smtp.terra.es ([213.4.129.129]:13010 "EHLO tsmtp3.ldap.isp")
+	by vger.kernel.org with ESMTP id S1751399AbVKIMDY convert rfc822-to-8bit
+	(ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 07:03:24 -0500
+Date: Wed, 9 Nov 2005 13:03:07 +0100
+From: "Wed, 9 Nov 2005 13:03:07 +0100" <grundig@teleline.es>
+To: pomac@vapor.com
+Cc: marado@isp.novis.pt, Linux-kernel@vger.kernel.org, fawadlateef@gmail.com,
+       s0348365@sms.ed.ac.uk, hostmaster@ed-soft.at, jerome.lacoste@gmail.com,
+       carlsj@yahoo.com
+Subject: Re: New Linux Development Model
+Message-Id: <20051109130307.bd1b2cce.grundig@teleline.es>
+In-Reply-To: <1131535832.2413.75.camel@localhost>
+References: <1131500868.2413.63.camel@localhost>
+	<1131534496.8930.15.camel@noori.ip.pt>
+	<1131535832.2413.75.camel@localhost>
+X-Mailer: Sylpheed version 2.1.1 (GTK+ 2.8.3; i486-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-11-09 at 10:26 +0000, Hubert Tonneau wrote:
-> Any Video4Linux driver should support both native hardware color encoding
-> (for maximum performances) and rgb (for maximum flexibility).
-> 
-> Requiering user land tools to be prepared to match the webcam native color
-> encoding is poor kernel API design for several reasons:
+El Wed, 09 Nov 2005 12:30:32 +0100,
+Ian Kumlien <pomac@vapor.com> escribió:
 
-The kernel API was designed on the basis that someone would one day have
-the sense to write a nice user space library of formats. 
+> The 'stable' version that got merged is more or less useless to people
+> who are smart about their wlans. And on a side note, even the firmware
+> has improved since then.
 
-> . if new color models appear in new cameras, the current design will require
->   to map them anyway to some existing encodings not to break existing softwares,
->   so the end result will be even more confusing because the driver supporting a
->   non rgb encoding will not necessary mean that selecting the encoding is better
->   from the performances point of view
 
-Many of the encodings done by hardware are extremely complicated and
-tricky to unpack in kernel space. If a camera captures jpeg for example
-you don't want in kernel jpeg decoders, let alone mpeg decoders etc
-
+People who is smart about their wlans is smart enought to update their
+kernels to use the new and possibily more unstable version. What's the
+problem? People maintaining the main tree may have a different (and
+valid) view on this issue. People is allowed to have different
+opinions than you, deal with it.

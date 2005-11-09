@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751617AbVKIXoN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751613AbVKIXq6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751617AbVKIXoN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 18:44:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751618AbVKIXoN
+	id S1751613AbVKIXq6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 18:46:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751626AbVKIXq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 18:44:13 -0500
-Received: from fairlite.demon.co.uk ([80.176.228.186]:39613 "EHLO
-	windows.demon.co.uk") by vger.kernel.org with ESMTP
-	id S1751616AbVKIXoM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 18:44:12 -0500
-Subject: Re: [PATCH] AGP performance fixes
-From: Alan Hourihane <alanh@fairlite.demon.co.uk>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>
-In-Reply-To: <1131578955.24637.116.camel@gaston>
-References: <200511092002.jA9K25J8025643@hera.kernel.org>
-	 <1131578955.24637.116.camel@gaston>
-Content-Type: text/plain
+	Wed, 9 Nov 2005 18:46:58 -0500
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:16768
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S1751612AbVKIXq6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 18:46:58 -0500
+Message-ID: <43728A6D.5080908@linuxwireless.org>
+Date: Wed, 09 Nov 2005 17:46:53 -0600
+From: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jesper Juhl <jesper.juhl@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Panic 2.6.14-git
+References: <43727E72.4040103@linuxwireless.org> <9a8748490511091500h4363308fm42312354e3fde8ab@mail.gmail.com>
+In-Reply-To: <9a8748490511091500h4363308fm42312354e3fde8ab@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Wed, 09 Nov 2005 23:44:08 +0000
-Message-Id: <1131579848.5973.113.camel@jetpack.demon.co.uk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-11-10 at 10:29 +1100, Benjamin Herrenschmidt wrote:
-> On Wed, 2005-11-09 at 12:02 -0800, Linux Kernel Mailing List wrote:
-> > tree 048db8e12c2b31ec2b88c3154da4c6a77b80028c
-> > parent 329f7dba5f7dc3bc9a30ad00cf373d2e83115aa1
-> > author Alan Hourihane <alanh@fairlite.demon.co.uk> Mon, 07 Nov 2005 15:35:34 -0800
-> > committer Dave Jones <davej@redhat.com> Wed, 09 Nov 2005 05:43:54 -0800
-> > 
-> > [PATCH] AGP performance fixes
-> > 
-> > AGP allocation/deallocation is suffering major performance issues due to
-> > the nature of global_flush_tlb() being called on every change_page_attr()
-> > call.
-> 
->  .../...
-> 
-> *** Warning: ".global_flush_tlb" [drivers/char/agp/agpgart.ko] undefined!
-> 
-> Am I supposed to define something new for uninorth-agp ? Is this yet another
-> x86-only (or worse, some x86 chipsets only concept going global ?
+Jesper Juhl wrote:
 
-change global_flush_tlb() to flush_agp_mappings() and you should be
-fine.
+>On 11/9/05, Alejandro Bonilla Beeche <abonilla@linuxwireless.org> wrote:
+>  
+>
+>>Hi,
+>>
+>>    I have an IBM T42 and as always I test several kernel images to test
+>>the git tree.
+>>
+>>Last one I did 2005-11-05 17:17 kernel-image-2.6.14_T42.v1.8_i386.deb
+>>works perfectly, but the new one with same config 2005-11-09 11:47
+>>kernel-image-2.6.14_T42.v1.9_i386.deb gives me a kernel panic on boot.
+>>
+>>    
+>>
+>
+>Where's the panic message?
+>
+>  
+>
+Jesper,
 
-Linus has a fix for this.
+    Can you elaborate on how can I do such thing if this is at boot? I 
+think you guys need to figure out a way to make these Panics to go into 
+some log file.
 
-Alan.
+I will try to write down some of it as it is at boot.
+
+.Alejandro

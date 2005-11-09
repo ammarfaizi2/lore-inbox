@@ -1,58 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbVKIQ6V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbVKIQ7q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932138AbVKIQ6V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 11:58:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbVKIQ6V
+	id S932153AbVKIQ7q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 11:59:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbVKIQ7q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 11:58:21 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:16877 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932138AbVKIQ6U (ORCPT
+	Wed, 9 Nov 2005 11:59:46 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:65507 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932153AbVKIQ7p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 11:58:20 -0500
-Date: Wed, 9 Nov 2005 17:58:04 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org,
-       Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Martin Bligh <mbligh@mbligh.org>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, prasanna@in.ibm.com,
-       ananth@in.ibm.com, anil.s.keshavamurthy@intel.com, davem@davemloft.net
-Subject: Re: [PATCH 19/21] i386 Kprobes semaphore fix
-Message-ID: <20051109165804.GA15481@elte.hu>
-References: <200511080439.jA84diI6009951@zach-dev.vmware.com> <200511081412.05285.ak@suse.de> <4370A9F5.4060103@vmware.com> <200511091438.11848.ak@suse.de> <437227FD.6040905@vmware.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <437227FD.6040905@vmware.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 9 Nov 2005 11:59:45 -0500
+Message-ID: <43722AFC.4040709@pobox.com>
+Date: Wed, 09 Nov 2005 11:59:40 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jan Beulich <JBeulich@novell.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/39] NLKD - Novell Linux Kernel Debugger
+References: <43720DAE.76F0.0078.0@novell.com>
+In-Reply-To: <43720DAE.76F0.0078.0@novell.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jan Beulich wrote:
+> The following patch set represents the Novell Linux Kernel Debugger,
+> stripped off of its original low-level exception handling framework.
 
-* Zachary Amsden <zach@vmware.com> wrote:
 
-> >I believe user space kprobes are being worked on by some IBM India folks 
-> >yes.
-> 
-> I'm convinced this is pointless.  What does it buy you over a ptrace 
-> based debugger?  Why would you want extra code running in the kernel 
-> that can be done perfectly well in userspace?
+Honestly, just seeing all these code changes makes me think we really 
+don't need it in the kernel.  How many "early" and "alternative" gadgets 
+do we really need just for this thing?
 
-kprobes are not just for 'debuggers', they are also used for tracing and 
-other dynamic instrumentation in projects like systemtap. Ptrace is way 
-too slow and limited for things like that.
+	Jeff
 
-	Ingo
+

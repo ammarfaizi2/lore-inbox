@@ -1,99 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751528AbVKISk7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751493AbVKISoj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751528AbVKISk7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 13:40:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751518AbVKISkS
+	id S1751493AbVKISoj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 13:44:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751495AbVKISoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 13:40:18 -0500
-Received: from mail.kroah.org ([69.55.234.183]:24477 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751500AbVKISiC (ORCPT
+	Wed, 9 Nov 2005 13:44:38 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:53122 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751493AbVKISoh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 13:38:02 -0500
-Date: Wed, 9 Nov 2005 10:36:40 -0800
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, axboe@suse.de
-Subject: [patch 03/11] Oops on suspend after on-the-fly switch to anticipatory i/o scheduler - PowerBook5, 4
-Message-ID: <20051109183640.GD3670@kroah.com>
-References: <20051109182205.294803000@press.kroah.org>
+	Wed, 9 Nov 2005 13:44:37 -0500
+Subject: Re: [PATCH 12/18] shared mount handling: bind and rbind
+From: Ram Pai <linuxram@us.ibm.com>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: Al Viro <viro@ftp.linux.org.uk>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <E1EZVoO-000807-00@dorka.pomaz.szeredi.hu>
+References: <E1EZInj-0001Ez-AV@ZenIV.linux.org.uk>
+	 <E1EZUC9-0007oJ-00@dorka.pomaz.szeredi.hu>
+	 <1131464926.5400.234.camel@localhost>
+	 <E1EZVoO-000807-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain
+Organization: IBM 
+Message-Id: <1131561849.5400.384.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="cfq-io-sched-fix.patch"
-In-Reply-To: <20051109183614.GA3670@kroah.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 09 Nov 2005 10:44:09 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jens Axboe <axboe@suse.de>
+On Tue, 2005-11-08 at 07:55, Miklos Szeredi wrote:
+> > No. As explained in the same earlier threads; without this change the
+> > behavior of shared-subtrees leads to inconsistency and confusion in some
+> > scenarios.
+> > 
+> > Under the premise that no application should depend on this behavior
+> > (most-recent-mount-visible v/s top-most-mount-visible),
+> 
+> The strongest argument against was that
+> 
+>   mount foo .; umount .
+> 
+> would no longer be a no-op.
 
-Paul Collins wrote:
->I boot with elevator=cfq (wanted to try the ionice stuff, never got
->around to it).  Having decided to go back to the anticipatory
->scheduler, I did the following:
->
-># echo anticipatory > /sys/block/hda/queue/scheduler
-># echo anticipatory > /sys/block/hdc/queue/scheduler
->
->A while later I did 'sudo snooze', which produced the Oops below.
->
->Booting with elevator=as and then changing to cfq, sleep works fine.
->But if I resume and change back to anticipatory I get a similar Oops
->on the next 'sudo snooze'.
->
->
->  Oops: kernel access of bad area, sig: 11 [#1]
->  NIP: C01E1948 LR: C01D6A60 SP: EFBC5C20 REGS: efbc5b70 TRAP: 0300    
->Not tainted
->  MSR: 00001032 EE: 0 PR: 0 FP: 0 ME: 1 IR/DR: 11
->  DAR: 00000020, DSISR: 40000000
->  TASK = efb012c0[1213] 'pmud' THREAD: efbc4000
->  Last syscall: 54   GPR00: 00080000 EFBC5C20 EFB012C0 EFE9E044 
->EFBC5CE8 00000002 00000000 C03B0000   GPR08: C046E5D8 00000000 
->C03B47C8 E6A58360 22042422 1001E4DC 10010000 10000000   GPR16: 
->10000000 10000000 10000000 7FE4EB40 10000000 10000000 10010000 
->C0400000   GPR24: C0380000 00000002 00000002 C046E0C0 00000000 
->00000002 00000000 EFBC5CE8   NIP [c01e1948] as_insert_request+0xa8/0x6b0
->  LR [c01d6a60] __elv_add_request+0xa0/0x100
->  Call trace:
->   [c01d6a60] __elv_add_request+0xa0/0x100
->   [c01ffb84] ide_do_drive_cmd+0xb4/0x190
->   [c01fc1c0] generic_ide_suspend+0x80/0xa0
->   [c01d4574] suspend_device+0x104/0x160
->   [c01d47c0] device_suspend+0x120/0x330
->   [c03f3b50] pmac_suspend_devices+0x50/0x1b0
->   [c03f4294] pmu_ioctl+0x344/0x9b0
->   [c0082aa4] do_ioctl+0x84/0x90
->   [c0082b3c] vfs_ioctl+0x8c/0x460
->   [c0082f50] sys_ioctl+0x40/0x80
->   [c0004850] ret_from_syscall+0x0/0x4c
+It is a no-op even now.  Try it.
 
-Don't clear ->elevator_data on exit, if we are switching queues we are
-overwriting the data of the new io scheduler.
+What you meant was something like this is no-op now?
 
-Signed-off-by: Jens Axboe <axboe@suse.de>
-Signed-off-by: Chris Wright <chrisw@osdl.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
- drivers/block/cfq-iosched.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
-
---- linux-2.6.14.1.orig/drivers/block/cfq-iosched.c
-+++ linux-2.6.14.1/drivers/block/cfq-iosched.c
-@@ -2260,10 +2260,8 @@ static void cfq_put_cfqd(struct cfq_data
- 	if (!atomic_dec_and_test(&cfqd->ref))
- 		return;
+P1: cd /tmp1
+P2: mount --bind /var /tmp1
+P1: mount --bind /bin .
+P1: umount .
  
--	blk_put_queue(q);
--
- 	cfq_shutdown_timer_wq(cfqd);
--	q->elevator->elevator_data = NULL;
-+	blk_put_queue(q);
- 
- 	mempool_destroy(cfqd->crq_pool);
- 	kfree(cfqd->crq_hash);
+Yes this will not be a noop with my changes. However this behavior is
+not documented to be a no-op anywhere. right? And 'umount .' really
+doen't make sense. What does it mean? umount  the current mount? or
+umount of the mount that is mounted on this dentry?
 
---
+My changes just changes one behavior and that is:
+If multiple mounts are mounted on the same <mount,dentry> combination
+the later mounts are obscured by the preceeding mounts. Earlier it was
+opposite behavior.
+
+My biggest complaint about the earlier behavior was that the later
+mounts obscured not only the earlier mounts on the <mount,dentry> tuple,
+but also obscured all the mounts that got stacked on top of the
+earlier <mount,dentry>.  It seemed totally unnatural, and confusing
+with shared-subtree.  
+
+
+> > Al Viro permitted this change. And this is certainly the right
+> > behavior.
+> 
+> Which is a contradiction in term, since you are saying that
+> applications _do_ depend on it.
+
+no. I said application _should_not_ depend on it, because it is a
+undefined semantics.
+
+Sorry I was out yesterday and could reply earlier.
+RP
+
+> 
+> Miklos
+

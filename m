@@ -1,107 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbVKIONI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbVKIONt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750822AbVKIONI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 09:13:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbVKIONH
+	id S1750825AbVKIONt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 09:13:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbVKIONt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 09:13:07 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:5425
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1750822AbVKIONF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 09:13:05 -0500
-Message-Id: <43721239.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Wed, 09 Nov 2005 15:14:01 +0100
-From: "Jan Beulich" <JBeulich@novell.com>
-To: "Andreas Kleen" <ak@suse.de>
-Cc: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
-Subject: [PATCH 19/39] NLKD/x86-64 - stack-pointer-invalid markers
-References: <43720DAE.76F0.0078.0@novell.com> <43720E2E.76F0.0078.0@novell.com> <43720E72.76F0.0078.0@novell.com> <43720EAF.76F0.0078.0@novell.com> <43720F5E.76F0.0078.0@novell.com> <43720F95.76F0.0078.0@novell.com> <43720FBA.76F0.0078.0@novell.com> <43720FF6.76F0.0078.0@novell.com> <43721024.76F0.0078.0@novell.com> <4372105B.76F0.0078.0@novell.com> <437210D1.76F0.0078.0@novell.com> <4372120B.76F0.0078.0@novell.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=__Part64465839.1__="
+	Wed, 9 Nov 2005 09:13:49 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:47595 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S1750825AbVKIONs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 09:13:48 -0500
+Message-Id: <20051109134938.757187000@localhost.localdomain>
+Date: Wed, 09 Nov 2005 21:49:38 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 00/16] Adaptive read-ahead V7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME message. If you are reading this text, you may want to 
-consider changing to a mail reader or gateway that understands how to 
-properly handle MIME multipart messages.
+This is the 7th version of adaptive read-ahead patch.
 
---=__Part64465839.1__=
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+There are various code cleanups and polish ups:
+- new tunable parameters: readahead_hit_rate/readahead_live_chunk
+- support sparse sequential accesses
+- delay look-ahead in laptop mode
+- disable look-ahead for loopback file
+- make mandatory thrashing protection more simple and robust
+- attempt to improve responsiveness on large I/O request size
 
-This adds static information about the code regions where the stack
-pointer cannot be relied upon. Kernel debuggers may then use this
-information to determine which stack to switch to when having a need
-to switch off of namely the NMI stack.
+Support for sparse reads is disabled by default. One must increase
+/proc/sys/vm/readahead_hit_rate to explicitly enable it. Please
+refer to Documentation/sysctl/vm.txt for details.
 
-From: Jan Beulich <jbeulich@novell.com>
+Currently the linux kernel does not support inter-file read-ahead.
+Tero Grundstr?m takes an intresting approach that achieves it: pack
+a dir of small files into a loopback file with reiserfs filesystem, and
+turn on sparse read support. But be prepared to waste some memory by
+this way :(
 
-(actual patch attached)
+For crazy laptop users who prefer aggressive read-ahead, here is the way:
 
+# echo 10000 > /proc/sys/vm/readahead_ratio
+# blockdev --setra 524280 /dev/hda      # this is the max possible value
 
---=__Part64465839.1__=
-Content-Type: application/octet-stream; name="linux-2.6.14-nlkd-x86_64-stack-invalid.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="linux-2.6.14-nlkd-x86_64-stack-invalid.patch"
+Notes:
+- It is still an untested feature.
+- It is safer to use blockdev+fadvise to increase ra-max for a single file,
+  which needs patching your movie player.
+- Be sure to restore them to sane values in normal operations!
 
-VGhpcyBhZGRzIHN0YXRpYyBpbmZvcm1hdGlvbiBhYm91dCB0aGUgY29kZSByZWdpb25zIHdoZXJl
-IHRoZSBzdGFjawpwb2ludGVyIGNhbm5vdCBiZSByZWxpZWQgdXBvbi4gS2VybmVsIGRlYnVnZ2Vy
-cyBtYXkgdGhlbiB1c2UgdGhpcwppbmZvcm1hdGlvbiB0byBkZXRlcm1pbmUgd2hpY2ggc3RhY2sg
-dG8gc3dpdGNoIHRvIHdoZW4gaGF2aW5nIGEgbmVlZAp0byBzd2l0Y2ggb2ZmIG9mIG5hbWVseSB0
-aGUgTk1JIHN0YWNrLgoKRnJvbTogSmFuIEJldWxpY2ggPGpiZXVsaWNoQG5vdmVsbC5jb20+CgpJ
-bmRleDogMi42LjE0LW5sa2QvYXJjaC94ODZfNjQvaWEzMi9pYTMyZW50cnkuUwo9PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-Ci0tLSAyLjYuMTQtbmxrZC5vcmlnL2FyY2gveDg2XzY0L2lhMzIvaWEzMmVudHJ5LlMJMjAwNS0x
-MS0wOSAxMToxMjo1OC4wMDAwMDAwMDAgKzAxMDAKKysrIDIuNi4xNC1ubGtkL2FyY2gveDg2XzY0
-L2lhMzIvaWEzMmVudHJ5LlMJMjAwNS0xMS0wNCAxNzoxODoxMC4wMDAwMDAwMDAgKzAxMDAKQEAg
-LTYwLDYgKzYwLDcgQEAgRU5UUlkoaWEzMl9zeXNlbnRlcl90YXJnZXQpCiAJQ0ZJX1JFR0lTVEVS
-CXJzcCxyYnAKIAlzd2FwZ3MKIAltb3ZxCSVnczpwZGFfa2VybmVsc3RhY2ssICVyc3AKKzA6CVNU
-QUNLX0lOVkFMSUQgaWEzMl9zeXNlbnRlcl90YXJnZXQsIDBiCiAJYWRkcQkkKFBEQV9TVEFDS09G
-RlNFVCksJXJzcAkKIAlzdGkJCiAgCW1vdmwJJWVicCwlZWJwCQkvKiB6ZXJvIGV4dGVuc2lvbiAq
-LwpAQCAtMTY5LDYgKzE3MCw3IEBAIEVOVFJZKGlhMzJfY3N0YXJfdGFyZ2V0KQogCW1vdmwJJWVz
-cCwlcjhkCiAJQ0ZJX1JFR0lTVEVSCXJzcCxyOAogCW1vdnEJJWdzOnBkYV9rZXJuZWxzdGFjaywl
-cnNwCiswOglTVEFDS19JTlZBTElEIGlhMzJfY3N0YXJfdGFyZ2V0LCAwYgogCXN0aQogCVNBVkVf
-QVJHUyA4LDEsMQogCW1vdmwgCSVlYXgsJWVheAkvKiB6ZXJvIGV4dGVuc2lvbiAqLwpAQCAtMjEx
-LDggKzIxMywxMCBAQCBjc3Rhcl9kb19jYWxsOgkKIAkvKkNGSV9SRUdJU1RFUiByZmxhZ3MscjEx
-Ki8KIAltb3ZsIFJTUC1BUkdPRkZTRVQoJXJzcCksJWVzcAogCUNGSV9SRVNUT1JFIHJzcAorMDoJ
-U1RBQ0tfSU5WQUxJRCAwYiwgMWYKIAlzd2FwZ3MKIAlzeXNyZXRsCisxOgogCQogY3N0YXJfdHJh
-Y2VzeXM6CQogCUNGSV9SRVNUT1JFX1NUQVRFCkluZGV4OiAyLjYuMTQtbmxrZC9hcmNoL3g4Nl82
-NC9rZXJuZWwvZW50cnkuUwo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSAyLjYuMTQtbmxrZC5vcmlnL2FyY2gveDg2
-XzY0L2tlcm5lbC9lbnRyeS5TCTIwMDUtMTEtMDkgMTA6NDU6MjYuMDAwMDAwMDAwICswMTAwCisr
-KyAyLjYuMTQtbmxrZC9hcmNoL3g4Nl82NC9rZXJuZWwvZW50cnkuUwkyMDA1LTExLTA3IDE0OjU2
-OjAyLjAwMDAwMDAwMCArMDEwMApAQCAtMTkwLDYgKzE5MCw3IEBAIEVOVFJZKHN5c3RlbV9jYWxs
-KQogCXN3YXBncwogCW1vdnEJJXJzcCwlZ3M6cGRhX29sZHJzcCAKIAltb3ZxCSVnczpwZGFfa2Vy
-bmVsc3RhY2ssJXJzcAorMDoJU1RBQ0tfSU5WQUxJRCBzeXN0ZW1fY2FsbCwgMGIKIAlzdGkJCQkJ
-CQogCVNBVkVfQVJHUyA4LDEKIAltb3ZxICAlcmF4LE9SSUdfUkFYLUFSR09GRlNFVCglcnNwKSAK
-QEAgLTIyNCw4ICsyMjUsMTAgQEAgc3lzcmV0X2NoZWNrOgkJCiAJUkVTVE9SRV9BUkdTIDAsLUFS
-R19TS0lQLDEKIAkvKkNGSV9SRUdJU1RFUglyZmxhZ3MscjExKi8KIAltb3ZxCSVnczpwZGFfb2xk
-cnNwLCVyc3AKKzA6CVNUQUNLX0lOVkFMSUQgMGIsIDFmCiAJc3dhcGdzCiAJc3lzcmV0cQorMToK
-IAogCS8qIEhhbmRsZSByZXNjaGVkdWxlcyAqLwogCS8qIGVkeDoJd29yaywgZWRpOiB3b3JrbWFz
-ayAqLwkKSW5kZXg6IDIuNi4xNC1ubGtkL2FyY2gveDg2XzY0L2tlcm5lbC92bWxpbnV4Lmxkcy5T
-Cj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT0KLS0tIDIuNi4xNC1ubGtkLm9yaWcvYXJjaC94ODZfNjQva2VybmVsL3ZtbGlu
-dXgubGRzLlMJMjAwNS0xMS0wOSAxMToxMjo1OC4wMDAwMDAwMDAgKzAxMDAKKysrIDIuNi4xNC1u
-bGtkL2FyY2gveDg2XzY0L2tlcm5lbC92bWxpbnV4Lmxkcy5TCTIwMDUtMTEtMDQgMTY6MTk6MzMu
-MDAwMDAwMDAwICswMTAwCkBAIC0zMCw2ICszMCwxMyBAQCBTRUNUSU9OUwogCiAgIF9ldGV4dCA9
-IC47CQkJLyogRW5kIG9mIHRleHQgc2VjdGlvbiAqLwogCisjaWZkZWYgQ09ORklHX05MS0QKKyAg
-LiA9IEFMSUdOKDgpOwkJCS8qIFJTUCBpbnZhbGlkIHRhYmxlICovCisgIF9fc3RhcnRfX19zdGFj
-a19pbnZhbGlkID0gLjsKKyAgX19zdGFja19pbnZhbGlkIDogQVQoQUREUihfX3N0YWNrX2ludmFs
-aWQpIC0gTE9BRF9PRkZTRVQpIHsgKihfX3N0YWNrX2ludmFsaWQpIH0KKyAgX19zdG9wX19fc3Rh
-Y2tfaW52YWxpZCA9IC47CisjZW5kaWYKKwogICAuID0gQUxJR04oMTYpOwkJLyogRXhjZXB0aW9u
-IHRhYmxlICovCiAgIF9fc3RhcnRfX19leF90YWJsZSA9IC47CiAgIF9fZXhfdGFibGUgOiBBVChB
-RERSKF9fZXhfdGFibGUpIC0gTE9BRF9PRkZTRVQpIHsgKihfX2V4X3RhYmxlKSB9CkluZGV4OiAy
-LjYuMTQtbmxrZC9pbmNsdWRlL2FzbS14ODZfNjQvY2FsbGluZy5oCj09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIDIu
-Ni4xNC1ubGtkLm9yaWcvaW5jbHVkZS9hc20teDg2XzY0L2NhbGxpbmcuaAkyMDA1LTExLTA5IDEx
-OjEyOjU4LjAwMDAwMDAwMCArMDEwMAorKysgMi42LjE0LW5sa2QvaW5jbHVkZS9hc20teDg2XzY0
-L2NhbGxpbmcuaAkyMDA1LTExLTA3IDEwOjI1OjM4LjAwMDAwMDAwMCArMDEwMApAQCAtMTU4LDYg
-KzE1OCwxNyBAQAogCVJFU1RPUkVfQVJHUyAwLFxhZGRza2lwCiAJLmVuZG0KIAorI2lmbmRlZiBN
-T0RVTEUKKwkubWFjcm8gU1RBQ0tfSU5WQUxJRCBmcm9tLCB0bworIyBpZmRlZiBDT05GSUdfTkxL
-RAorCS5zZWN0aW9uIF9fc3RhY2tfaW52YWxpZCwgImEiLCBAcHJvZ2JpdHMKKwkuYWxpZ24gOAor
-CS5xdWFkIFxmcm9tLCBcdG8KKwkucHJldmlvdXMKKyMgZW5kaWYKKyAJLmVuZG0KKyNlbmRpZgor
-CiAJLm1hY3JvIGljZWJwCiAJLmJ5dGUgMHhmMQogCS5lbmRtCg==
-
---=__Part64465839.1__=--
+Regards,
+Wu

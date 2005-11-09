@@ -1,67 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964987AbVKIBvg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030379AbVKICHh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964987AbVKIBvg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 20:51:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965156AbVKIBvg
+	id S1030379AbVKICHh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 21:07:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965227AbVKICHh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 20:51:36 -0500
-Received: from gate.crashing.org ([63.228.1.57]:42909 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S964987AbVKIBvg (ORCPT
+	Tue, 8 Nov 2005 21:07:37 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:38100 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965156AbVKICHg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 20:51:36 -0500
-Subject: Re: Posssible bug in kernel/irq/handle.c
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Paul Mackerras <paulus@samba.org>,
+	Tue, 8 Nov 2005 21:07:36 -0500
+Date: Tue, 8 Nov 2005 18:07:22 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Ingo Molnar <mingo@elte.hu>, Paul Mackerras <paulus@samba.org>,
        Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0511081651320.3247@g5.osdl.org>
-References: <1131496739.24637.12.camel@gaston>
-	 <Pine.LNX.4.64.0511081651320.3247@g5.osdl.org>
-Content-Type: text/plain
-Date: Wed, 09 Nov 2005 12:50:21 +1100
-Message-Id: <1131501021.24637.18.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Subject: Re: Posssible bug in kernel/irq/handle.c
+In-Reply-To: <1131501021.24637.18.camel@gaston>
+Message-ID: <Pine.LNX.4.64.0511081802160.3247@g5.osdl.org>
+References: <1131496739.24637.12.camel@gaston>  <Pine.LNX.4.64.0511081651320.3247@g5.osdl.org>
+ <1131501021.24637.18.camel@gaston>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-08 at 17:04 -0800, Linus Torvalds wrote:
 
-> >  1) The interrupt will be stuck IN_PROGRESS. I don't see how IN_PROGRESS
-> > can ever be cleared afterward
+
+On Wed, 9 Nov 2005, Benjamin Herrenschmidt wrote:
 > 
-> If desc->action is NULL, the flags are supposed to be cleared when we get 
-> an action. See kernel/irq/manage.c: setup_irq(), and in particular the 
-> case where we had no handler before (ie the "!shared" case).
-
-Yes, but in the meantime, the CPU will be stuck taking the same irq for
-ever without ever going through note_interrupt().
-
-> >  2) We won't go through the code in note_interrupt() that protects us
-> > against a stuck interrupt, so if the interrupt is indeed stuck, we'll
-> > just lockup the processor taking the same IRQ for ever (and not being
-> > able to handle it, even if an action magically gets registered, due to
-> > 1)
+> Hrm... yah, it should... still, I find that a bit fragile.
 > 
-> If the irq is stuck, you have serious problems with your interrupt 
-> controller. By definition, the irq should be disabled since there are no 
-> handlers for that interrupt.
+> > So I think the code is correct. It has certainly worked for years on x86 
+> > (and it got serious debugging, since we had some rather nasty and subtle 
+> > issues with edge-triggered APIC interrupts that just get lost if they are 
+> > disabled at the controller).
+> 
+> Well, we have a "funny" case with some pSeries... the firmware may
+> enable interrupts behind our back, and expects us to call a firmware
+> "try to handle that interrupt" kind of call when we get one we don't
+> handle. That is, either all the handlers returned IRQ_NONE or there is
+> no action. I'm not sure how to do that with the current code without
+> having our own __do_IRQ() which I'd rather avoid...
 
-Hrm... yah, it should... still, I find that a bit fragile.
+Well, I don't think it would be _wrong_ to change the IRQ_INPROGRESS 
+handling to work so that it's usabel for PPC.
 
-> So I think the code is correct. It has certainly worked for years on x86 
-> (and it got serious debugging, since we had some rather nasty and subtle 
-> issues with edge-triggered APIC interrupts that just get lost if they are 
-> disabled at the controller).
+Some of it may actually be purely historical: I have this dim memory that 
+we may have used IRQ_INPROGRESS for the irq autodetection originally (it 
+now uses the IRQ_WAITING flag for that).
 
-Well, we have a "funny" case with some pSeries... the firmware may
-enable interrupts behind our back, and expects us to call a firmware
-"try to handle that interrupt" kind of call when we get one we don't
-handle. That is, either all the handlers returned IRQ_NONE or there is
-no action. I'm not sure how to do that with the current code without
-having our own __do_IRQ() which I'd rather avoid...
+So I was really only arguing for it not being actively buggy the way it is 
+now - which is not to say that we can't change it to be friendlier to 
+whatever your needs are.
 
-Ben.
+Be vewy vewy caweful when changing that code, though. If you end up with a 
+patch, please try to give it some nice stress-testing (both on ppc and 
+x86), and then post it for comments, ok? Maybe the arch mailing list and 
+Ingo (who else has touched that logic?)
 
-
+		Linus

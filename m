@@ -1,74 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161034AbVKIWtG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161037AbVKIWxe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161034AbVKIWtG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 17:49:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161037AbVKIWtG
+	id S1161037AbVKIWxe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 17:53:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161044AbVKIWxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 17:49:06 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:42465 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161034AbVKIWsy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 17:48:54 -0500
-Date: Wed, 9 Nov 2005 14:48:10 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jody McIntyre <scjody@modernduck.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       "Brown, Len" <len.brown@intel.com>, Jeff Garzik <jgarzik@pobox.com>,
-       "Luck, Tony" <tony.luck@intel.com>, Ben Collins <bcollins@debian.org>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Roland Dreier <rolandd@cisco.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Jens Axboe <axboe@suse.de>, Dave Kleikamp <shaggy@austin.ibm.com>,
-       Steven French <sfrench@us.ibm.com>
-Subject: Re: merge status
-In-Reply-To: <20051109222356.GF14318@conscoop.ottawa.on.ca>
-Message-ID: <Pine.LNX.4.64.0511091443310.4627@g5.osdl.org>
-References: <20051109133558.513facef.akpm@osdl.org> <20051109221201.GE14318@conscoop.ottawa.on.ca>
- <Pine.LNX.4.64.0511091417540.4627@g5.osdl.org> <20051109222356.GF14318@conscoop.ottawa.on.ca>
+	Wed, 9 Nov 2005 17:53:34 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:50506 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1161037AbVKIWxe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 17:53:34 -0500
+Message-ID: <43727E4A.3050106@tmr.com>
+Date: Wed, 09 Nov 2005 17:55:06 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Richard Purdie <rpurdie@rpsys.net>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       damir.perisa@solnet.ch, akpm@osdl.org,
+       Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: [patch] Re: 2.6.14-rc5-mm1 - ide-cs broken!
+References: <20051103220305.77620d8f.akpm@osdl.org>	 <20051104071932.GA6362@kroah.com>	 <1131117293.26925.46.camel@localhost.localdomain>	 <20051104163755.GB13420@kroah.com>	 <1131531428.8506.24.camel@localhost.localdomain>  <437226B2.10901@tmr.com>	 <1131557221.8506.76.camel@localhost.localdomain> <43726269.7020600@tmr.com> <1131572234.8506.130.camel@localhost.localdomain>
+In-Reply-To: <1131572234.8506.130.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thank you Rickard and Damir for reassuring me that this change is highly 
+unlikely to impact any of the connection methods I use. Since PCMCIA on 
+desktops and non-udev systems are uncommon, I felt the question was 
+better mentioned before the patch went in. Occasionally my confiurations 
+do result in a "nobody would do that" reaction.
 
-
-On Wed, 9 Nov 2005, Jody McIntyre wrote:
->
-> On Wed, Nov 09, 2005 at 02:18:32PM -0800, Linus Torvalds wrote:
-> 
-> > If you have a 71kB patch, it definitely counts as new stuff and not just 
-> > trivial bugfixes.
-> 
-> Fair enough.
-> 
-> Can I still send a 2k spinlock fix in ~2 weeks?  That's the only thing I
-> really want to get in to 2.6.15.
-
-Sure, there's nothing wrong with keeping "ongoing development" around, and 
-then just asking me to pull the unrelated fixes. 
-
-Either using separate patches to synchronize the bugfixes, or just using 
-separate git branches for development and merging up to me. As usual, Jeff 
-ends up the poster-boy for git branches (these days there are certainly 
-others that do it too, but Jeff has done it more and for longer than 
-most).
-
-For example, going to Jeff's networking tree:
-
-	http://www.kernel.org/git/?p=linux/kernel/git/jgarzik/netdev-2.6.git;a=summary
-
-you can see
-
-	15 hours ago 	ALL 		shortlog | log
-	15 hours ago 	e100-sbit 	shortlog | log
-	16 hours ago 	upstream-linus 	shortlog | log
-	16 hours ago 	upstream 	shortlog | log
-	20 hours ago 	master 		shortlog | log
-	4 days ago 	sky2 		shortlog | log
-	4 days ago 	sis900-wol 	shortlog | log
-	4 days ago 	8139-thread 	shortlog | log
-
-where "upstream-linus" is the part I merged today, while he has possibly 
-other development work in the other branches.
-
-			Linus
+I hope it solves your problems as well.
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

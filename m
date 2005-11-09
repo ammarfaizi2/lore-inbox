@@ -1,56 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161281AbVKIWHp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030435AbVKIWMm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161281AbVKIWHp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 17:07:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161286AbVKIWHp
+	id S1030435AbVKIWMm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 17:12:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030436AbVKIWMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 17:07:45 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:48554 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161281AbVKIWHo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 17:07:44 -0500
-Date: Wed, 09 Nov 2005 17:07:32 -0500 (EST)
-Message-Id: <20051109.170732.41627574.k-ueda@ct.jp.nec.com>
-To: agk@redhat.com, dm-devel@redhat.com
-Cc: linux-kernel@vger.kernel.org, j-nomura@ce.jp.nec.com, k-ueda@ct.jp.nec.com
-Subject: [PATCH] dm: memory leak in failed table_load()
-From: Kiyoshi Ueda <k-ueda@ct.jp.nec.com>
-X-Mailer: Mew version 2.3 on Emacs 20.7 / Mule 4.1
- =?iso-2022-jp?B?KBskQjAqGyhCKQ==?=
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Nov 2005 17:12:42 -0500
+Received: from mail28.sea5.speakeasy.net ([69.17.117.30]:47528 "EHLO
+	mail28.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1030435AbVKIWMk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 17:12:40 -0500
+Date: Wed, 9 Nov 2005 14:12:38 -0800 (PST)
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: "linux-os \\(Dick Johnson\\)" <linux-os@analogic.com>
+cc: linas <linas@austin.ibm.com>, "J.A. Magallon" <jamagallon@able.es>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       Douglas McNaught <doug@mcnaught.org>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
+       bluesmoke-devel@lists.sourceforge.net,
+       linux-pci@atrey.karlin.mff.cuni.cz, linuxppc64-dev@ozlabs.org
+Subject: Re: typedefs and structs
+In-Reply-To: <Pine.LNX.4.61.0511091459440.12760@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.58.0511091347570.31338@shell3.speakeasy.net>
+References: <20051107204136.GG19593@austin.ibm.com>
+ <1131412273.14381.142.camel@localhost.localdomain> <20051108232327.GA19593@austin.ibm.com>
+ <B68D1F72-F433-4E94-B755-98808482809D@mac.com> <20051109003048.GK19593@austin.ibm.com>
+ <m27jbihd1b.fsf@Douglas-McNaughts-Powerbook.local> <20051109004808.GM19593@austin.ibm.com>
+ <19255C96-8B64-4615-A3A7-9E5A850DE398@mac.com> <20051109111640.757f399a@werewolf.auna.net>
+ <Pine.LNX.4.58.0511090816300.4260@shell2.speakeasy.net>
+ <20051109192028.GP19593@austin.ibm.com> <Pine.LNX.4.61.0511091459440.12760@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alasdair,
+On Wed, 9 Nov 2005, linux-os \(Dick Johnson\) wrote:
 
-This patch fixes following two problems which occur when "dmsetup load foo"
-is executed before the map of the "foo" is created.
+>
+> On Wed, 9 Nov 2005, linas wrote:
+>
+> > On Wed, Nov 09, 2005 at 08:22:15AM -0800, Vadim Lobanov was heard to remark:
+> >> On Wed, 9 Nov 2005, J.A. Magallon wrote:
+> >>
+> >>> void do_some_stuff(T& arg1,T&  arg2)
+> >>
+> >> A diligent C programmer would write this as follows:
+> >> 	void do_some_stuff (struct T * a, struct T * b);
+> >> So I don't see C++ winning at all here.
+> >
+> > I guess the real point that I'd wanted to make, and seems
+> > to have gotten lost, was that by avoiding using pointers,
+> > you end up designing code in a very different way, and you
+> > can find out that often/usually, you don't need structs
+> > filled with a zoo of pointers.
+> >
+>
+> But you can't avoid pointers unless you make your entire
+> program have global scope. That may be great for performance,
+> but a killer if for have any bugs.
 
-  o memory leak.
-  o unable to unload the dm_mod module.
+Just to extract some useful technical knowledge from the current ongoing
+"flamewar"...
+I'm not entirely sure if the above statement regarding performance is
+correct. Some enlightenment would be appreciated.
 
-Please consider to apply.
+Suppose you have the following code:
+	int myvar;
+	void foo (void) {
+		printf("%d\n", myvar);
+		bar();
+		printf("%d\n", myvar);
+	}
+If bar is declared in _another_ file as
+	void bar (void);
+then I believe the compiler has to reread the global 'myvar' from memory
+for the second printf().
 
-How to reproduce the problem:
-  # echo "0 10 linear 8:16 0" | dmsetup load foo
-  (Need to change "8:16" appropriately.)
+However, if the code is as follows:
+	void foo (void) {
+		int myvar = 0;
+		printf("%d\n", myvar);
+		bar(&myvar);
+		printf("%d\n", myvar);
+	}
+If bar is declared in _another_ file as
+	void bar (const int * var);
+then I think the compiler can validly cache the value of 'myvar' for the
+second printf without re-reading it. Correct/incorrect?
 
-Patch for 2.6.14:
-Signed-off-by: Kiyoshi Ueda <k-ueda@ct.jp.nec.com>
-Signed-off-by: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>
-
-diff -up 2.6.14/drivers/md/dm-ioctl.c fix/drivers/md/dm-ioctl.c
---- 2.6.14/drivers/md/dm-ioctl.c	2005-10-27 20:02:08.000000000 -0400
-+++ fix/drivers/md/dm-ioctl.c	2005-11-09 15:29:59.000000000 -0500
-@@ -974,6 +974,7 @@ static int table_load(struct dm_ioctl *p
- 	if (!hc) {
- 		DMWARN("device doesn't appear to be in the dev hash table.");
- 		up_write(&_hash_lock);
-+		dm_table_put(t);
- 		return -ENXIO;
- 	}
-
-Thanks,
-Kiyoshi Ueda
+-Vadim Lobanov

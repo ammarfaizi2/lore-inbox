@@ -1,51 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030362AbVKIT0Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030381AbVKIT0P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030362AbVKIT0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 14:26:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030365AbVKIT0Y
+	id S1030381AbVKIT0P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 14:26:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030365AbVKIT0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 14:26:24 -0500
-Received: from teetot.devrandom.net ([66.35.250.243]:61841 "EHLO
-	teetot.devrandom.net") by vger.kernel.org with ESMTP
-	id S1030362AbVKIT0X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 14:26:23 -0500
-Date: Wed, 9 Nov 2005 11:36:25 -0800
-From: thockin@hockin.org
-To: linas <linas@austin.ibm.com>
-Cc: Vadim Lobanov <vlobanov@speakeasy.net>,
-       "J.A. Magallon" <jamagallon@able.es>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       Douglas McNaught <doug@mcnaught.org>,
-       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
-       bluesmoke-devel@lists.sourceforge.net,
-       linux-pci@atrey.karlin.mff.cuni.cz, linuxppc64-dev@ozlabs.org
-Subject: Re: typedefs and structs
-Message-ID: <20051109193625.GA31889@hockin.org>
-References: <1131412273.14381.142.camel@localhost.localdomain> <20051108232327.GA19593@austin.ibm.com> <B68D1F72-F433-4E94-B755-98808482809D@mac.com> <20051109003048.GK19593@austin.ibm.com> <m27jbihd1b.fsf@Douglas-McNaughts-Powerbook.local> <20051109004808.GM19593@austin.ibm.com> <19255C96-8B64-4615-A3A7-9E5A850DE398@mac.com> <20051109111640.757f399a@werewolf.auna.net> <Pine.LNX.4.58.0511090816300.4260@shell2.speakeasy.net> <20051109192028.GP19593@austin.ibm.com>
+	Wed, 9 Nov 2005 14:26:14 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:61111 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030361AbVKIT0O
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 14:26:14 -0500
+Date: Wed, 9 Nov 2005 19:26:07 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ram Pai <linuxram@us.ibm.com>, Miklos Szeredi <miklos@szeredi.hu>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 12/18] shared mount handling: bind and rbind
+Message-ID: <20051109192607.GA7992@ftp.linux.org.uk>
+References: <E1EZInj-0001Ez-AV@ZenIV.linux.org.uk> <E1EZUC9-0007oJ-00@dorka.pomaz.szeredi.hu> <1131464926.5400.234.camel@localhost> <E1EZVoO-000807-00@dorka.pomaz.szeredi.hu> <1131561849.5400.384.camel@localhost> <Pine.LNX.4.64.0511091054290.3247@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051109192028.GP19593@austin.ibm.com>
+In-Reply-To: <Pine.LNX.4.64.0511091054290.3247@g5.osdl.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 09, 2005 at 01:20:28PM -0600, linas wrote:
-> I guess the real point that I'd wanted to make, and seems
-> to have gotten lost, was that by avoiding using pointers, 
-> you end up designing code in a very different way, and you
-> can find out that often/usually, you don't need structs
-> filled with a zoo of pointers.
+On Wed, Nov 09, 2005 at 10:59:47AM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Wed, 9 Nov 2005, Ram Pai wrote:
+> >
+> > And 'umount .' really doen't make sense. What does it mean? umount the 
+> > current mount? or umount of the mount that is mounted on this dentry?
+> 
+> "umount <directory>" _absolutely_ makes sense, whether "directory" is "." 
+> or something else. People do it all the time.
 
-Umm, references are implemented as pointers.  Instead of a "zoo of
-pointers" you have a "zoo of references".  No functional difference.
+With current (and all previous, actually) tree umount . is usually -EBUSY.
 
-> Minimizing pointers is good: less ref counting is needed,
-> fewer mallocs are needed, fewer locks are needed 
-> (because of local/private scope!!), and null pointer 
-> deref errors are less likely. 
+The case Mikulas is talking about is much uglier - it's "mount on top
+of current directory, then umount .".  _That_ (i.e. when . is overmounted)
+happens to work.  And semantics is really, really not well-defined.
 
-Not true at all!  If you're storing references you absolutley still need
-reference counting.  Allocation non-trivial things on the stack is Bad
-Idea in kernel land.
+Situation with overmounts is nasty - it's *not* just a chain, unfortunately.
+I certainly intended it to be such.  However, we can get a *tree* of
+overmounts due to side-effects I've missed back then.
 
+We really need it sanitized (and that's what I'm doing right now), but
+yes, it *will* cause user-visible changes.  Incidentally, one of those
+will be that umount . will work...
+
+The trouble begins since we allow to attach vfsmounts to the *middle* of
+overmount chain.  I.e.
+
+mount foo /tmp
+cd /tmp
+mount bar .
+mount baz .
+
+will end up with *two* vfsmounts having root of foo as mountpoint and having
+the same mnt_parent.  Which one is seen depends on phase of moon - the only
+answer is "whichever is first in mnt_hash chain".  Which is certainly not a
+sane answer.  We need explicit rules dealing with effect of overmounts;
+anything that seriously relies on details of current behaviour in that sort
+of corner cases is very definitely broken.
+
+And "we allow" above should be read as "Al had not thought about that mess
+back in 2001" ;-/  Current behaviour in that sort setups is an accident -
+as soon as it gets to such forked chains of overmounts sanity exits stage
+left.  To be fixed...

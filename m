@@ -1,84 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030390AbVKIT24@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030699AbVKITif@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030390AbVKIT24 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 14:28:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030388AbVKIT24
+	id S1030699AbVKITif (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 14:38:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030700AbVKITif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 14:28:56 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:8106 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030386AbVKIT2z (ORCPT
+	Wed, 9 Nov 2005 14:38:35 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:3050 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030699AbVKITie (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 14:28:55 -0500
-Subject: Re: [PATCH 12/18] shared mount handling: bind and rbind
-From: Ram Pai <linuxram@us.ibm.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, Al Viro <viro@ftp.linux.org.uk>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0511091054290.3247@g5.osdl.org>
-References: <E1EZInj-0001Ez-AV@ZenIV.linux.org.uk>
-	 <E1EZUC9-0007oJ-00@dorka.pomaz.szeredi.hu>
-	 <1131464926.5400.234.camel@localhost>
-	 <E1EZVoO-000807-00@dorka.pomaz.szeredi.hu>
-	 <1131561849.5400.384.camel@localhost>
-	 <Pine.LNX.4.64.0511091054290.3247@g5.osdl.org>
-Content-Type: text/plain
-Organization: IBM 
-Message-Id: <1131564500.5400.407.camel@localhost>
+	Wed, 9 Nov 2005 14:38:34 -0500
+Date: Wed, 9 Nov 2005 13:38:28 -0600
+To: thockin@hockin.org
+Cc: Vadim Lobanov <vlobanov@speakeasy.net>,
+       "J.A. Magallon" <jamagallon@able.es>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       Douglas McNaught <doug@mcnaught.org>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
+       bluesmoke-devel@lists.sourceforge.net,
+       linux-pci@atrey.karlin.mff.cuni.cz, linuxppc64-dev@ozlabs.org
+Subject: Re: typedefs and structs
+Message-ID: <20051109193828.GR19593@austin.ibm.com>
+References: <20051108232327.GA19593@austin.ibm.com> <B68D1F72-F433-4E94-B755-98808482809D@mac.com> <20051109003048.GK19593@austin.ibm.com> <m27jbihd1b.fsf@Douglas-McNaughts-Powerbook.local> <20051109004808.GM19593@austin.ibm.com> <19255C96-8B64-4615-A3A7-9E5A850DE398@mac.com> <20051109111640.757f399a@werewolf.auna.net> <Pine.LNX.4.58.0511090816300.4260@shell2.speakeasy.net> <20051109192028.GP19593@austin.ibm.com> <20051109193625.GA31889@hockin.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 09 Nov 2005 11:28:20 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051109193625.GA31889@hockin.org>
+User-Agent: Mutt/1.5.6+20040907i
+From: linas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-09 at 10:59, Linus Torvalds wrote:
-> On Wed, 9 Nov 2005, Ram Pai wrote:
-> >
-> > And 'umount .' really doen't make sense. What does it mean? umount the 
-> > current mount? or umount of the mount that is mounted on this dentry?
+On Wed, Nov 09, 2005 at 11:36:25AM -0800, thockin@hockin.org was heard to remark:
+> On Wed, Nov 09, 2005 at 01:20:28PM -0600, linas wrote:
+> > I guess the real point that I'd wanted to make, and seems
+> > to have gotten lost, was that by avoiding using pointers, 
+> > you end up designing code in a very different way, and you
+> > can find out that often/usually, you don't need structs
+> > filled with a zoo of pointers.
 > 
-> "umount <directory>" _absolutely_ makes sense, whether "directory" is "." 
-> or something else. People do it all the time.
+> Umm, references are implemented as pointers.  Instead of a "zoo of
+> pointers" you have a "zoo of references".  No functional difference.
 
-ok. so you say 'umount <dir>' means umount something mounted on top of
-dir.  In that case, when I say 'umount /tmp' it has to unmount something
-that is mounted on top of /tmp, but there cannot be anything mounted on
-top of /tmp. In the first place I cannot reach this mount since it is
-obscured by the mount on top. right?
+Sigh.
 
-eg:  m1 is the root mount
-     m2 is the mount on top of tmp on the root mount
-     m3 is the mount on top of tmp(root dentry) of m2
+I think you are confusing references and pointers. By definition
+you cannot "store a reference"; however, you can "dereference"
+an object and store a pointer to it.
 
-'umount /tmp' 
-will mean umount something that is mounted on top of root dentry of m3.
+The C programming language conflates these two different ideas;
+that is why they seem to be "the same thing" to you.
 
-
-
+> > Minimizing pointers is good: less ref counting is needed,
+> > fewer mallocs are needed, fewer locks are needed 
+> > (because of local/private scope!!), and null pointer 
+> > deref errors are less likely. 
 > 
-> Now, if it doesn't unmount the last thing mounted on top of ".", then 
-> that's a misfeature. It might be a misfeature in the mount program (it 
-> might scan /etc/mounts top-to-bottom rather than the other way), but the 
-> kernel should also support it.
-> 
-> > no. I said application _should_not_ depend on it, because it is a
-> > undefined semantics.
-> 
-> It's definitely neither unusual nor undefined. I do all my umounts by 
-> directory (in fact, doing it by anything else really _is_ badly defined, 
-> since a block device can be mounted in many places), and the only sane 
-> semantics would be to peel off the last mount on that directory.
-> 
-> Now, that doesn't necessarily mean that "list_add_tail()" is wrong. But 
-> if we add new mounts to the end, then umount remove them from the end too, 
-> no?
+> Not true at all!  
 
-Yes it does. it removes the mounts that receive propagation from the
-tail.  Anything that has been asked to be unmounted explicitly will be
-removed irrespective of where it is on the list, and always it is at the
-head because lookup_mnt() always returns the one at the head.
+Which part isn't true? 
 
-RP
-> 
-> 		Linus
-
+--linas

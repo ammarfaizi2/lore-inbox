@@ -1,466 +1,258 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750895AbVKIOPW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbVKIORj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750895AbVKIOPW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 09:15:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750850AbVKIOOz
+	id S1750899AbVKIORj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 09:17:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750875AbVKIORe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 09:14:55 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:4334 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1750866AbVKIOOn (ORCPT
+	Wed, 9 Nov 2005 09:17:34 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:15232 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S1750831AbVKIOOy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 09:14:43 -0500
-Message-Id: <20051109141527.180858000@localhost.localdomain>
+	Wed, 9 Nov 2005 09:14:54 -0500
+Message-Id: <20051109141538.140634000@localhost.localdomain>
 References: <20051109134938.757187000@localhost.localdomain>
-Date: Wed, 09 Nov 2005 21:49:49 +0800
+Date: Wed, 09 Nov 2005 21:49:51 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 11/16] readahead: mandatory thrashing protection
-Content-Disposition: inline; filename=readahead-thrashing-protection.patch
+Subject: [PATCH 13/16] readahead: page aging accounting
+Content-Disposition: inline; filename=readahead-account-aging.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It tries to identify and protect live pages (sequential pages that are going
-to be accessed in the near future) on vmscan time. Almost all live pages can
-be sorted out and saved.
+The accuracy of stateful thrashing-threshold estimation depends largely on the
+measurement of cold page aging speed.
 
-The cost: dead pages that won't be read will be kept in inactive_list for
-another round. Hopefully there won't be much.
+A file named `pageaging' is created in debugfs to monitor the trace of two
+measurement variables: per-zone `nr_page_aging' and per-cpu `smooth_aging'.
+Their values and the jiffies are recorded each time one of them has a delta
+of 1, 1/2, 1/4, 1/16, 1/256, 1/4096 (nr_inactive + nr_free).
 
-This feature is greatly demanded by file servers, though should be useless
-for desktop. It saves the case when one fast reader flushes the cache and
-strips the read-ahead size of slow readers, or the case where caching is just
-a wasting of memory. Then you can raise readahead_ratio to 200 or more to
-enforce a larger read-ahead size and strip the useless cached data out of lru.
+Sample series of collected data shows that smooth_aging is more stable in
+small sampling granularity:
 
-Its use is currently limited, for the context based method is not ready for
-the case. This problem will be solved when the timing info of evicted pages
-are available. It can also be extended to further benefit large memory
-systems.  I'll leave them as future work.
+  time         dt         page_aging8       smooth_aging8
+872765         26     520056       33     653782      163
+872791         12     520089      132     653945       51
+872803          4     520221      132     653996       66
+872807         17     520353      165     654062      107
+872824         22     520518       99     654169       74
+872846        372     520617       99     654243       78
+873218        294     520716       99     654321       73
+873512        196     520815       99     654394      130
+873708         15     520914      231     654524       28
+873723         15     521145      198     654552        9
+873738        881     521343       99     654561      182
+874619        700     521442        0     654743      198
+875319        384     521442       66     654941      110
+875703       2119     521508       99     655051     1632
+877822       3960     521607        0     656683      980
+881782        904     521607        0     657663      216
+
+  time         dt         page_aging1       smooth_aging1
+-90822      12418       5775    12999      33302    10767
+-78404      17510      18774    10303      44069    10345
+-60894      24757      29077     9871      54414    14615
+-36137      19194      38948    10404      69029    13726
+-16943      19636      49352    10440      82755    12865
+  2693      16299      59792    12453      95620    10734
+ 18992      19851      72245    10073     106354    15960
+ 38843      16099      82318    10767     122314    14059
+ 54942      16094      93085    10041     136373    12117
+ 71036      19888     103126    12595     148490    16155
+ 90924      18452     115721     9782     164645    11705
+109376      22395     125503    10214     176350    13679
+131771      19310     135717    10759     190029    11843
+151081      20793     146476    10699     201872    12595
+171874      22308     157175    10321     214467    13157
+194182      17954     167496    10773     227624    14803
+212136      19946     178269    10554     242427    13391
+232082      21051     188823    11179     255818    11783
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- include/linux/mm.h         |    2 
- include/linux/page-flags.h |    2 
- mm/page_alloc.c            |    2 
- mm/readahead.c             |  319 ++++++++++++++++++++++++++++++++++++++++++++-
- mm/vmscan.c                |   10 +
- 5 files changed, 334 insertions(+), 1 deletion(-)
+ mm/readahead.c |  148 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 147 insertions(+), 1 deletion(-)
 
---- linux-2.6.14-mm1.orig/include/linux/page-flags.h
-+++ linux-2.6.14-mm1/include/linux/page-flags.h
-@@ -107,6 +107,8 @@ struct page_state {
- 	unsigned long pgfree;		/* page freeings */
- 	unsigned long pgactivate;	/* pages moved inactive->active */
- 	unsigned long pgdeactivate;	/* pages moved active->inactive */
-+	unsigned long pgkeephot;	/* pages sent back to active */
-+	unsigned long pgkeepcold;	/* pages sent back to inactive */
- 
- 	unsigned long pgfault;		/* faults (major+minor) */
- 	unsigned long pgmajfault;	/* faults (major only) */
---- linux-2.6.14-mm1.orig/include/linux/mm.h
-+++ linux-2.6.14-mm1/include/linux/mm.h
-@@ -995,6 +995,8 @@ page_cache_readahead_adaptive(struct add
- 			pgoff_t first_index,
- 			pgoff_t index, pgoff_t last_index);
- void fastcall ra_access(struct file_ra_state *ra, struct page *page);
-+int rescue_ra_pages(struct list_head *page_list, struct list_head *save_list);
-+
- 
- /* Do stack extension */
- extern int expand_stack(struct vm_area_struct *vma, unsigned long address);
---- linux-2.6.14-mm1.orig/mm/page_alloc.c
-+++ linux-2.6.14-mm1/mm/page_alloc.c
-@@ -2391,6 +2391,8 @@ static char *vmstat_text[] = {
- 	"pgfree",
- 	"pgactivate",
- 	"pgdeactivate",
-+	"pgkeephot",
-+	"pgkeepcold",
- 
- 	"pgfault",
- 	"pgmajfault",
---- linux-2.6.14-mm1.orig/mm/vmscan.c
-+++ linux-2.6.14-mm1/mm/vmscan.c
-@@ -406,6 +406,8 @@ cannot_free:
+--- linux-2.6.14-mm1.orig/mm/readahead.c
++++ linux-2.6.14-mm1/mm/readahead.c
+@@ -230,11 +230,144 @@ static int ra_account_show(struct seq_fi
  	return 0;
  }
  
-+extern int readahead_ratio;
-+extern int readahead_live_chunk;
- DECLARE_PER_CPU(unsigned long, smooth_aging);
- 
- /*
-@@ -416,10 +418,15 @@ static int shrink_list(struct list_head 
- 	LIST_HEAD(ret_pages);
- 	struct pagevec freed_pvec;
- 	int pgactivate = 0;
-+	int pgkeep = 0;
- 	int reclaimed = 0;
- 
- 	cond_resched();
- 
-+	if (readahead_ratio >= VM_READAHEAD_PROTECT_RATIO &&
-+							readahead_live_chunk)
-+		pgkeep += rescue_ra_pages(page_list, &ret_pages);
-+
- 	pagevec_init(&freed_pvec, 1);
- 	while (!list_empty(page_list)) {
- 		struct address_space *mapping;
-@@ -572,11 +579,13 @@ keep_locked:
- keep:
- 		list_add(&page->lru, &ret_pages);
- 		BUG_ON(PageLRU(page));
-+		pgkeep++;
- 	}
- 	list_splice(&ret_pages, page_list);
- 	if (pagevec_count(&freed_pvec))
- 		__pagevec_release_nonlru(&freed_pvec);
- 	mod_page_state(pgactivate, pgactivate);
-+	mod_page_state(pgkeepcold, pgkeep - pgactivate);
- 	sc->nr_reclaimed += reclaimed;
- 	return reclaimed;
- }
-@@ -1054,6 +1063,7 @@ refill_inactive_zone(struct zone *zone, 
- 
- 	mod_page_state_zone(zone, pgrefill, pgscanned);
- 	mod_page_state(pgdeactivate, pgdeactivate);
-+	mod_page_state(pgkeephot, pgmoved);
- }
- 
- /*
---- linux-2.6.14-mm1.orig/mm/readahead.c
-+++ linux-2.6.14-mm1/mm/readahead.c
-@@ -365,7 +365,7 @@ __do_page_cache_readahead(struct address
- 	read_lock_irq(&mapping->tree_lock);
- 	for (page_idx = 0; page_idx < nr_to_read; page_idx++) {
- 		pgoff_t page_offset = offset + page_idx;
--		
-+
- 		if (page_offset > end_index)
- 			break;
- 
-@@ -1734,3 +1734,320 @@ void fastcall ra_access(struct file_ra_s
- 		ra_account(ra, RA_EVENT_READAHEAD_HIT, -1);
- }
- 
 +/*
-+ * Detect and protect live read-ahead pages.
-+ *
-+ * This function provides safty guarantee for file servers with big
-+ * readahead_ratio(>=VM_READAHEAD_PROTECT_RATIO) set.  The goal is to save all
-+ * and only the sequential pages that are to be accessed in the near future.
-+ *
-+ * This function is called when pages in @page_list are to be freed,
-+ * it protects live read-ahead pages by moving them into @save_list.
-+ *
-+ * The general idea is to classify pages of a file into groups of sequential
-+ * accessed pages. Dead sequential pages are left over, live sequential pages
-+ * are saved.
-+ *
-+ * Live read-ahead pages are defined as sequential pages that have reading in
-+ * progress. They are detected by reference count pattern of:
-+ *
-+ *                        live head       live pages
-+ *  ra pages group -->   ------------___________________
-+ *                                   [  pages to save  ] (*)
-+ *
-+ * (*) for now, an extra page from the live head may also be saved.
-+ *
-+ * In pratical, the group of pages are fragmented into chunks. To tell whether
-+ * pages inside a chunk are alive, we must check:
-+ * 1) Are there any live heads inside the chunk?
-+ * 2) Are there any live heads in the group before the chunk?
-+ * 3) Sepcial case: live head just sits on the boundary of current chunk?
-+ *
-+ * The detailed rules employed must ensure:
-+ * - no page is pinned in inactive_list.
-+ * - no excessive pages are saved.
-+ *
-+ * A picture of common cases:
-+ *             back search            chunk             case
-+ *           -----___________|[____________________]    Normal
-+ *           ----------------|----[________________]    Normal
-+ *                           |----[________________]    Normal
-+ *           ----------------|----------------------    Normal
-+ *                           |----------------------    Normal
-+ *           ________________|______________________    ra miss
-+ *                           |______________________    ra miss
-+ *           ________________|_______--------[_____]    two readers
-+ *           ----____________|[______--------______]    two readers
-+ *                           |_______--------[_____]    two readers
-+ *                           |----[____------______]    two readers
-+ *           ----------------|----[____------______]    two readers
-+ *           _______---------|---------------[_____]    two readers
-+ *           ----___---------|[--------------______]    two readers
-+ *           ________________|---------------[_____]    two readers
-+ *           ----____________|[--------------______]    two readers
-+ *           ====------------|[---_________________]    two readers
-+ *                           |====[----------______]    two readers
-+ *                           |###======[-----------]    three readers
++ * Measure the aging progress of cold pages over time.
 + */
-+static int save_chunk(struct page *head, struct page *live_head,
-+			struct page *tail, struct list_head *save_list)
++#define AGING_INFO_SIZE	(1 << 8)
++#define AGING_INFO_MASK	(AGING_INFO_SIZE - 1)
++static int aging_info_shift[] = {0, 1, 2, 4, 8, 12};
++#define AGING_INFO_SHIFTS	(sizeof(aging_info_shift)/\
++				 sizeof(aging_info_shift[0]))
++static int aging_info_index[AGING_INFO_SHIFTS];
++static unsigned long aging_info[AGING_INFO_SIZE][AGING_INFO_SHIFTS*3];
++static spinlock_t aging_info_lock = SPIN_LOCK_UNLOCKED;
++
++static unsigned long nr_free_inactive(void);
++static unsigned long nr_smooth_aging(void);
++
++/*
++ * The accumulated count of pages pushed into inactive_list(s).
++ */
++static unsigned long nr_page_aging(void)
 +{
-+	struct page *page;
-+	struct address_space *mapping;
-+	struct radix_tree_cache cache;
++	unsigned int i;
++	unsigned long sum = 0;
++	struct zone *zones = NODE_DATA(numa_node_id())->node_zones;
++
++	for (i = 0; i < MAX_NR_ZONES; i++)
++		sum += zones[i].nr_page_aging;
++
++	return sum;
++}
++
++static void collect_aging_info(void)
++{
 +	int i;
-+	pgoff_t index;
-+	pgoff_t head_index;
-+	unsigned long refcnt;
++	unsigned long mem;
++	unsigned long page_aging;
++	unsigned long smooth_aging;
 +
-+#ifdef DEBUG_READAHEAD
-+	static char static_buf[PAGE_SIZE];
-+	static char *zone_names[] = {"DMA", "DMA32", "Normal", "HighMem"};
-+	char *pat = static_buf;
-+	int pidx = 0;
-+#define	log_symbol(symbol)					\
-+	do { 							\
-+		if ((readahead_ratio & 3) == 3 &&		\
-+				pidx < PAGE_SIZE - 1)	\
-+			pat[pidx++] = symbol; 			\
-+	} while (0)
++	mem = nr_free_inactive();
++	page_aging = nr_page_aging();
++	smooth_aging = nr_smooth_aging();
 +
-+	if ((readahead_ratio & 3) == 3) {
-+		pat = (char *)get_zeroed_page(GFP_KERNEL);
-+		if (!pat)
-+			pat = static_buf;
-+	}
-+#else
-+#define log_symbol(symbol) do {} while (0)
-+#endif
-+#define	log_page(page)	log_symbol(page_refcnt_symbol(page))
++	spin_lock_irq(&aging_info_lock);
 +
-+	head_index = head->index;
-+	mapping = head->mapping;
-+	radix_tree_cache_init(&cache);
-+
-+	BUG_ON(!mapping); /* QUESTION: in what case mapping will be NULL ? */
-+	read_lock_irq(&mapping->tree_lock);
-+
-+	/*
-+	 * Common case test.
-+	 * Does the far end indicates a leading live head?
-+	 */
-+	index = radix_tree_lookup_head(&mapping->page_tree,
-+					head_index, readahead_live_chunk);
-+	if (index >= head_index)
-+		goto skip_scan_locked;
-+
-+	page = __find_page(mapping, index);
-+	BUG_ON(!page);
-+	log_symbol('|');
-+	log_page(page);
-+	refcnt = cold_page_refcnt(page);
-+	if (head_index - index < readahead_live_chunk &&
-+			refcnt > page_refcnt(head)) {
-+		live_head = head;
-+		goto skip_scan_locked;
-+	}
-+
-+	/*
-+	 * The slow path.
-+	 * Scan page by page to see if the whole chunk should be saved.
-+	 */
-+	if (next_page(head) != tail)
-+		head_index = next_page(head)->index;
-+	else
-+		head_index++;
-+	for (i = 0, index++; index <= head_index; index++) {
-+		page = radix_tree_cache_lookup(&mapping->page_tree, &cache,
-+									index);
-+		if (index == head->index)
-+			log_symbol('|');
-+		log_page(page);
-+
-+		if (!page) {
-+			WARN_ON(index < head->index);
++	for (i = AGING_INFO_SHIFTS - 1; i >= 0; i--) {
++		if (smooth_aging - aging_info[aging_info_index[i]][i*3+2] +
++		      page_aging - aging_info[aging_info_index[i]][i*3+1] >
++					2 * (mem >> aging_info_shift[i])) {
++			aging_info_index[i]++;
++			aging_info_index[i] &= AGING_INFO_MASK;
++			aging_info[aging_info_index[i]][i*3] = jiffies;
++			aging_info[aging_info_index[i]][i*3+1] = page_aging;
++			aging_info[aging_info_index[i]][i*3+2] = smooth_aging;
++		} else
 +			break;
-+		}
-+
-+		if (refcnt == page_refcnt(page))
-+			i++;
-+		else if (refcnt < page_refcnt(page))
-+			i = 0;
-+		else if (i < 1)
-+			i = INT_MIN;
-+		else {
-+			live_head = head;
-+			break;
-+		}
-+
-+		refcnt = page_refcnt(page);
 +	}
 +
-+skip_scan_locked:
-+#ifdef DEBUG_READAHEAD
-+	if (index < head->index)
-+		log_symbol('*');
-+	index = prev_page(tail)->index;
-+
-+	log_symbol('|');
-+	for (page = head; page != tail; page = next_page(page)) {
-+		BUG_ON(PageAnon(page));
-+		BUG_ON(PageSwapCache(page));
-+		/* BUG_ON(page_mapped(page)); */
-+
-+		if (page == live_head)
-+			log_symbol('[');
-+		log_page(page);
-+	}
-+	if (live_head)
-+		log_symbol(']');
-+#endif
-+
-+	/*
-+	 * Special case work around.
-+	 *
-+	 * Save one extra page if it is a live head of the following chunk.
-+	 * Just to be safe.  It protects the rare situation when the reader
-+	 * is just crossing the chunk boundary, and the following chunk is not
-+	 * far away from tail of inactive_list.
-+	 *
-+	 * The special case is awkwardly delt with for now. They will be all set
-+	 * when the timing information of recently evicted pages are available.
-+	 * Dead pages can also be purged earlier with the timing info.
-+	 */
-+	if (live_head != head) {
-+		struct page *last_page = prev_page(tail);
-+		page = radix_tree_cache_lookup(&mapping->page_tree, &cache,
-+						last_page->index + 1);
-+		log_symbol('|');
-+		log_page(page);
-+		if (page && !live_head) {
-+			refcnt = page_refcnt(last_page);
-+			if (page_refcnt(page) >= refcnt)
-+				page = radix_tree_cache_lookup(
-+						&mapping->page_tree, &cache,
-+						last_page->index + 2);
-+			log_page(page);
-+			if (page && page_refcnt(page) < refcnt) {
-+				live_head = last_page;
-+				log_symbol('I');
-+			}
-+		} else if (!page && live_head) {
-+			live_head = next_page(live_head);
-+				log_symbol('D');
-+		}
-+	}
-+	log_symbol('\0');
-+
-+	read_unlock_irq(&mapping->tree_lock);
-+
-+	/*
-+	 * Now save the alive pages.
-+	 */
-+	i = 0;
-+	if (live_head) {
-+		for (; live_head != tail;) { /* never dereference tail! */
-+			page = next_page(live_head);
-+			if (!PageActivate(live_head)) {
-+				list_move(&live_head->lru, save_list);
-+				i++;
-+				if (!page_refcnt(live_head))
-+					__get_cpu_var(smooth_aging)++;
-+			}
-+			live_head = page;
-+		}
-+
-+		if (i)
-+			ra_account(0, RA_EVENT_READAHEAD_RESCUE, i);
-+	}
-+
-+#ifdef DEBUG_READAHEAD
-+	if ((readahead_ratio & 3) == 3) {
-+		ddprintk("save_chunk(ino=%lu, idx=%lu-%lu, %s@%s:%s)"
-+				" = %d\n",
-+				mapping->host->i_ino,
-+				head->index, index,
-+				mapping_mapped(mapping) ? "mmap" : "file",
-+				zone_names[page_zonenum(head)], pat, i);
-+		if (pat != static_buf)
-+			free_page((unsigned long)pat);
-+	}
-+#endif
-+
-+	return i;
++	spin_unlock_irq(&aging_info_lock);
 +}
 +
-+int rescue_ra_pages(struct list_head *page_list, struct list_head *save_list)
++static void *aginginfo_start(struct seq_file *s, loff_t *pos)
 +{
-+	struct address_space *mapping;
-+	struct page *chunk_head;
-+	struct page *live_head;
-+	struct page *page;
-+	unsigned long refcnt;
-+	unsigned long min_refcnt;
-+	int n;
-+	int ret = 0;
++	int n = *pos;
++	int i;
 +
-+	page = list_to_page(page_list);
++	spin_lock_irq(&aging_info_lock);
 +
-+next_chunk:
-+	chunk_head = page;
-+	live_head = NULL;
-+	mapping = page->mapping;
-+	n = 0;
-+	min_refcnt = LONG_MAX;
++	if (!n) {
++		for (i = 0; i < AGING_INFO_SHIFTS; i++) {
++			seq_printf(s, "%12s %10s %18s%d %18s%d\t", "time","dt",
++                                        "page_aging", aging_info_shift[i],
++                                        "smooth_aging", aging_info_shift[i]);
++		}
++		seq_puts(s, "\n");
++	}
 +
-+next_head_page:
-+	refcnt = page_refcnt(page);
-+	if (min_refcnt > refcnt)
-+		min_refcnt = refcnt;
-+	page = next_page(page);
-+
-+	if (mapping != page->mapping || &page->lru == page_list)
-+		goto save_chunk;
-+
-+	/* At least 2 pages followed by a fall in refcnt makes a live head:
-+	 *               --_
-+	 *                ^ live_head
-+	 */
-+	if (refcnt == page_refcnt(page))
-+		n++;
-+	else if (refcnt < page_refcnt(page))
-+		n = 0;
-+	else if (n < 1)
-+		n = INT_MIN;
++	if (++n < AGING_INFO_SIZE)
++		return (void *)n;
 +	else
-+		goto got_live_head;
-+
-+	goto next_head_page;
-+
-+got_live_head:
-+	n = 0;
-+	live_head = prev_page(page);
-+
-+next_page:
-+	if (refcnt < page_refcnt(page)) /* limit the number of rises */
-+		n++;
-+	refcnt = page_refcnt(page);
-+	if (min_refcnt > refcnt)
-+		min_refcnt = refcnt;
-+	page = next_page(page);
-+
-+	if (mapping != page->mapping || &page->lru == page_list)
-+		goto save_chunk;
-+
-+	goto next_page;
-+
-+save_chunk:
-+	if (mapping && !PageAnon(chunk_head) &&
-+			!PageSwapCache(chunk_head) &&
-+			/* !page_mapped(chunk_head) && */
-+			min_refcnt < PAGE_REFCNT_2 &&
-+			n <= 3)
-+		ret += save_chunk(chunk_head, live_head, page, save_list);
-+
-+	if (&page->lru != page_list)
-+		goto next_chunk;
-+
-+	return ret;
++		return NULL;
 +}
++
++static void *aginginfo_next(struct seq_file *s, void *p, loff_t *pos)
++{
++	int n = (int)p;
++
++	++*pos;
++	return (void *)(++n < AGING_INFO_SIZE ? n : 0);
++}
++
++static void aginginfo_stop(struct seq_file *s, void *p)
++{
++	spin_unlock_irq(&aging_info_lock);
++}
++
++static int aginginfo_show(struct seq_file *s, void *p)
++{
++	int n = (int)p;
++	int i;
++	int index0;
++	int index1;
++	long time;
++	unsigned long nr1;
++	unsigned long nr2;
++
++	for (i = 0; i < AGING_INFO_SHIFTS; i++) {
++		index0 = aging_info_index[i] + n;
++		index1 = aging_info_index[i] + n + 1;
++		index0 &= AGING_INFO_MASK;
++		index1 &= AGING_INFO_MASK;
++		time = aging_info[index0][i*3];
++		nr1 = aging_info[index1][i*3+1] - aging_info[index0][i*3+1];
++		nr2 = aging_info[index1][i*3+2] - aging_info[index0][i*3+2];
++		seq_printf(s, "%12ld %10lu %10lu %8lu %10lu %8lu\t",
++				time,  aging_info[index1][i*3] - time,
++				aging_info[index0][i*3+1], nr1,
++				aging_info[index0][i*3+2], nr2);
++	}
++	seq_puts(s, "\n");
++
++	return 0;
++}
++
+ static struct dentry *readahead_dentry;
++static struct dentry *pageaging_dentry;
++
++struct seq_operations aginginfo_ops = {
++	.start	= aginginfo_start,
++	.next	= aginginfo_next,
++	.stop	= aginginfo_stop,
++	.show	= aginginfo_show,
++};
+ 
+ static int ra_debug_open(struct inode *inode, struct file *file)
+ {
+-	return single_open(file, ra_account_show, NULL);
++	if (file->f_dentry == readahead_dentry)
++		return single_open(file, ra_account_show, NULL);
++	else
++		return seq_open(file, &aginginfo_ops);
+ }
+ 
+ static ssize_t ra_debug_write(struct file *file, const char __user *buf,
+@@ -254,10 +387,20 @@ static struct file_operations ra_debug_f
+ 	.release	= single_release,
+ };
+ 
++static struct file_operations aginginfo_fops = {
++	.open		= ra_debug_open,
++	.read		= seq_read,
++	.llseek		= seq_lseek,
++	.release	= seq_release,
++};
++
++
+ static int __init readahead_init(void)
+ {
+ 	readahead_dentry = debugfs_create_file("readahead",
+ 					0644, NULL, NULL, &ra_debug_fops);
++	pageaging_dentry = debugfs_create_file("pageaging",
++					0644, NULL, NULL, &aginginfo_fops);
+ 	return 0;
+ }
+ 
+@@ -1265,6 +1408,9 @@ static inline unsigned long compute_thra
+ 	else
+ 		*remain = 0;
+ 
++#ifdef DEBUG_READAHEAD
++	collect_aging_info();
++#endif
+ 	ddprintk("compute_thrashing_threshold: "
+ 			"ra=%lu=%lu*%lu/%lu, remain %lu for %lu\n",
+ 			ra_size, stream_shift, global_size, global_shift,
 
 --

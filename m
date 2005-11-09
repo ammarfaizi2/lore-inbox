@@ -1,103 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbVKIMgg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbVKIMmi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750711AbVKIMgg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 07:36:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750712AbVKIMgg
+	id S1750712AbVKIMmi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 07:42:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbVKIMmi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 07:36:36 -0500
-Received: from onyx.ip.pt ([195.23.92.252]:34951 "EHLO mail.isp.novis.pt")
-	by vger.kernel.org with ESMTP id S1750711AbVKIMgf (ORCPT
-	<rfc822;Linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 07:36:35 -0500
-Subject: Re: New Linux Development Model
-From: Marcos Marado <marado@isp.novis.pt>
-Reply-To: marado@isp.novis.pt
-To: pomac@vapor.com
-Cc: Linux-kernel@vger.kernel.org, fawadlateef@gmail.com, s0348365@sms.ed.ac.uk,
-       hostmaster@ed-soft.at, jerome.lacoste@gmail.com, carlsj@yahoo.com
-In-Reply-To: <1131535832.2413.75.camel@localhost>
-References: <1131500868.2413.63.camel@localhost>
-	 <1131534496.8930.15.camel@noori.ip.pt> <1131535832.2413.75.camel@localhost>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-1lmG6v8tnTZyGnzH9510"
-Organization: Novis ISP
-Date: Wed, 09 Nov 2005 12:37:56 +0000
-Message-Id: <1131539876.8930.44.camel@noori.ip.pt>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 9 Nov 2005 07:42:38 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:43975 "EHLO
+	linuxbipbip.grupopie.com") by vger.kernel.org with ESMTP
+	id S1750712AbVKIMmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 07:42:38 -0500
+Message-ID: <4371EEBA.2080706@grupopie.com>
+Date: Wed, 09 Nov 2005 12:42:34 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Jens Axboe <axboe@suse.de>, Neil Brown <neilb@suse.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Miklos Szeredi <miklos@szeredi.hu>
+Subject: Re: userspace block driver?
+References: <4371A4ED.9020800@pobox.com> <17265.42782.188870.907784@cse.unsw.edu.au> <4371A944.6070302@pobox.com> <20051109075455.GN3699@suse.de> <4371ACE6.7010503@pobox.com>
+In-Reply-To: <4371ACE6.7010503@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Garzik wrote:
+> Jens Axboe wrote:
+>> On Wed, Nov 09 2005, Jeff Garzik wrote:
+>>> Neil Brown wrote:
+>>>> On Wednesday November 9, jgarzik@pobox.com wrote:
+>>>>
+>>>>> Has anybody put any thought towards how a userspace block driver
+>>>>> would work?
+>>>>
+>>>> Isn't this was enbd does? http://www.it.uc3m.es/~ptb/nbd/
+>>>
+>>> Is there something there relevant for modern kernels?  I would sure 
+>>> hope I could come up with something more lightweight than that.
+>>
+>> I was going to say drbd, but then you did say more lightweight :-)
+>[...]
+> 
+> loop is a closer model to a generic userspace block device than nbd, I 
+> think.
 
---=-1lmG6v8tnTZyGnzH9510
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+That got me thinking... theoretically we should be able to do a FUSE 
+server that served a single file that could be used by a loopback 
+device, couldn't we?
 
-On Wed, 2005-11-09 at 12:30 +0100, Ian Kumlien wrote:
-> On Wed, 2005-11-09 at 11:08 +0000, Marcos Marado wrote:
-> > On Wed, 2005-11-09 at 02:47 +0100, Ian Kumlien wrote:
-> > > Atm, the 'ancient' ieee802.11 is what breaks the ipw2200 build. So,
-> > > basically all testing of cutting edge kernels gets very tedious due t=
-o
-> > > the ieee802.11 package removing the offending .h file and making
-> > > reversing -gitX and applying -gitY a real PITA.
-> >=20
-> > Those are no "ancient" versions, they are the "stable" versions of
-> > ieee80211, ipw2100 and ipw2200. ipw* folks think, and I have to agree,
-> > that for the stable kernel (Linux tree) it makes sense to add the stabl=
-e
-> > versions of their projects.
->=20
-> Yes, that would make sense if everyone interested changed the 'unstable'
-> version instead, since they change the version merged it only creates
-> problems. And if you DO check out the ipw2200 site you see that there
-> has been no stable release for about a year and that there has been a
-> large amount of bugfixes.
->=20
-> Also, the 'stable' version didn't use a separated ieee802.11 stack.
->=20
-> So to summarize:
-> Merging the latest version of both and then, if someone has problems,
-> tell them to downgrade would be simpler. This also means that the
-> ipw2200 team could release patches against the kernel as well as
-> standalone modules.
->=20
-> The 'stable' version that got merged is more or less useless to people
-> who are smart about their wlans. And on a side note, even the firmware
-> has improved since then.
+IIRC, Miklos Szeredi tried hard to avoid the deadlock scenarios that nbd 
+suffers from in FUSE, but I don't know if it would stand being called by 
+the loopback device.
 
-I totally disagree. See: for those who don't crawl on lkml, don't
-compile kernels or modules or stuff like that, they had two choices: be
-without ipw2100 or ipw2200 or learn how to put the drivers in their
-kernels. Now, with the stock kernel you have ipw* support, even if
-limited for some uses. Most people will be happy with this version, but
-yes, there's still work to be done. When there's a new version
-considered stable it will get merged into the kernel. Until then, if you
-want to ride the unstable horse, you'll have to patch it yourself into
-the kernel.
+If it works, it should be extremely simple to do the server. Just check 
+the FUSE hello world server example:
 
-If you want to simplify the process of building the unstable versios of
-ipw* or if you think that the newer versions of ipw* should be
-considered the new stable, or if you at some point disagree with ipw*
-development model you should complain in ipw2100 mailing list at
-http://lists.sourceforge.net/lists/listinfo/ipw2100-devel .
-Kernel-related, the decision of supporting the latest stable is good and
-justifiable.
+http://fuse.sourceforge.net/helloworld.html
 
---=20
-Marcos Marado <marado@isp.novis.pt>
-Novis ISP
+I've CC'ed Miklos Szeredi to see if he can shed some light on the 
+loopback <-> FUSE combination...
 
---=-1lmG6v8tnTZyGnzH9510
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+-- 
+Paulo Marques - www.grupopie.com
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDce2krpje80Vhea8RAtoDAKDro5oRA8FXLQr+ohfci3zhjK/wmwCgoCuK
-Ju+EqKR6fbbQltivWz+NOYk=
-=GtHD
------END PGP SIGNATURE-----
-
---=-1lmG6v8tnTZyGnzH9510--
-
+The rule is perfect: in all matters of opinion our
+adversaries are insane.
+Mark Twain

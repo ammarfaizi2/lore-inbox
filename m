@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751042AbVKIOdS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbVKIOdi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751042AbVKIOdS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 09:33:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbVKIOdR
+	id S1751360AbVKIOdi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 09:33:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751368AbVKIOdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 09:33:17 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:43184 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750962AbVKIOdQ
+	Wed, 9 Nov 2005 09:33:38 -0500
+Received: from allen.werkleitz.de ([80.190.251.108]:20192 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S1751360AbVKIOdh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 09:33:16 -0500
-Date: Wed, 9 Nov 2005 14:33:15 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, linuxram@us.ibm.com
-Subject: Re: [PATCH 13/18] shared mounts handling: move
-Message-ID: <20051109143315.GW7992@ftp.linux.org.uk>
-References: <E1EZInj-0001F1-Aj@ZenIV.linux.org.uk> <E1EZnuQ-0001Bg-00@dorka.pomaz.szeredi.hu>
+	Wed, 9 Nov 2005 09:33:37 -0500
+References: <20051109135925.GF12751@localhost.localdomain>
+In-Reply-To: <20051109135925.GF12751@localhost.localdomain>
+From: hunold@linuxtv.org
+To: Hugo Mills <hugo-lkml@carfax.org.uk>
+Cc: linux-kernel@vger.kernel.org,
+       "linux-dvb@linuxtv.org" <linux-dvb@linuxtv.org>
+Subject: Re: [linux-dvb-maintainer] Multiple USB DVB devices cause hard
+  lockups
+Date: Wed, 09 Nov 2005 15:33:27 +0100
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1EZnuQ-0001Bg-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1EZr0x-0005dY-7o@allen.werkleitz.de>
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Scanned: No (on allen.werkleitz.de); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 09, 2005 at 12:14:30PM +0100, Miklos Szeredi wrote:
-> > From: Ram Pai <linuxram@us.ibm.com>
-> > Date: 1131402003 -0500
-> > 
-> > Handling of mount --move in presense of shared mounts (see
-> > Documentation/sharedsubtree.txt in the end of patch series
-> > for detailed description).
-> 
-> This patch seems to be totally wrong.  It copies the mounts instead of
-> moving them in the propagated cases.
-> 
-> Am I missing something?
+Hello Hugo, 
 
-Yes, you are.  We move a single subtree (which has no peers at all)
-to mountpoint that gives propagation.  The subtree itself gets moved
-to specified mountpoint; for the rest of points in propagation tree
-of that mountpoint we have no choice but to create copies.
+Hugo Mills writes:
+>    I'm trying to get a pair of Twinhan Alpha II DVB-USB devices
+> working on the same machine. With a single device plugged in, I can
+> quite easily receive and stream data. 
+> 
+>    With both devices connected to the machine, both are recognised.
+> However, use of either device causes some form of stack backtrace (I
+> can't see the top of it to verify what kind) from the kernel, and a
+> hard lock-up. Magic SysRQ is non-functional after the lock-up. Failure
+> cases that I've seen are:
+
+Thank you for your report. I forwarded the mail to the linux-dvb mailing 
+list. Hopefully somebody is able to help you. 
+
+Please consider subscribing to the linux-dvb mailing list:
+http://www.linuxtv.org/cgi-bin/mailman/listinfo 
+
+>    Hugo.
+
+CU
+Michael. 
+

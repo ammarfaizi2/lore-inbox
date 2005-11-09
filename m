@@ -1,80 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751356AbVKIPtw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751427AbVKIP4j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751356AbVKIPtw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 10:49:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbVKIPtv
+	id S1751427AbVKIP4j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 10:56:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbVKIP4j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 10:49:51 -0500
-Received: from nproxy.gmail.com ([64.233.182.198]:55154 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751356AbVKIPtu convert rfc822-to-8bit
+	Wed, 9 Nov 2005 10:56:39 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:15296 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751362AbVKIP4i
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 10:49:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=pSDMKqI1ZFr/m9wLX5BqVUY+5qcX5LW06UYIV/Qe62NwJUlv4HhDWvUxau9iJI+D73yqDk4qms3GTl0Gj1K07kycwtoxmAFjuskmUjxjKemSmlItxMwh4a0L7bczP4Fe+TNqJ69sMriKD0U7bc67l/ZqjPwJAAv5iGuQaWtKegM=
-Message-ID: <7d40d7190511090749j3de0e473x@mail.gmail.com>
-Date: Wed, 9 Nov 2005 16:49:49 +0100
-From: Aritz Bastida <aritzbastida@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Stopping Kernel Threads at module unload time
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 9 Nov 2005 10:56:38 -0500
+Date: Wed, 9 Nov 2005 15:56:34 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, linuxram@us.ibm.com
+Subject: Re: [PATCH 12/18] shared mount handling: bind and rbind
+Message-ID: <20051109155634.GY7992@ftp.linux.org.uk>
+References: <E1EZInj-0001Ez-AV@ZenIV.linux.org.uk> <E1EZnbA-000190-00@dorka.pomaz.szeredi.hu> <20051109143107.GV7992@ftp.linux.org.uk> <E1EZrmJ-0001dI-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <E1EZrmJ-0001dI-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On Wed, Nov 09, 2005 at 04:22:23PM +0100, Miklos Szeredi wrote:
+> > On Wed, Nov 09, 2005 at 11:54:36AM +0100, Miklos Szeredi wrote:
+> > > Shouldn't this check go before copy_tree()?  Not much point in copying
+> > > the tree if we are sure it won't be used.
+> > 
+> > Incorrect.  Propagation nodes further down the tree can very well be
+> > mountable.
+> 
+> Can you please give an example.  I'm feeling thick.
+> 
+> What I see in the code is that the the mount tree is copied, then put
+> on the tmp_list, and at the end the newly copied tree is freed with
+> umount_tree().
 
-I've got some questions about kernel threads.I am writing a module
-which spawns some kernel threads, which would be removed when the
-module unloads. For that purpose i call kthread_stop() at module
-unload time. When issuing rmmod on the module, it deadlocks at that
-point (in the call to kthread_stop), and never returns.
+Before it gets freed it may end up being copied.  Example: vfsmounts
+A and B are peers, C is a slave of that peer group.  It happens to be
+on slave list of B.  B has root deeper than A, which, in turn is deeper
+than that of C (e.g. A and B had been created by binding subtrees of
+C, which had been made slave afterwards).  We bind on something in A,
+outside of the subtree mapped by B.
 
-In the thread main function the code was something like this (it's of
-course simplified).
-
-thread_main()
-{
-     while( ! kthread_should_stop())
-     {
-           .............
-           wait_event_interruptible(stop_wq, kthread_should_stop() );
-     }
-
-     return 0;
-}
-
-So if kthread_stop() first sets the thread "closing flag", and then
-calls wake_up_process(), the thread should wake up, see he should
-stop, and
-end the loop. That doesnt actually never happen.
-
-I have also tried what it is done in kernel/sched.c to finish:
-
-	/* wait for kthread_stop */
-	set_current_state(TASK_INTERRUPTIBLE);
-	while (!kthread_should_stop()) {	
-		schedule();
-		set_current_state(TASK_INTERRUPTIBLE);
-	}
-	__set_current_state(TASK_RUNNING);
-                return 0;
-
-I have ensured it actually arrives to that point by using printks, but
-when the thread goes to sleep, it does never wake up again, so the
-call to kthread_stop() lasts forever.
-
-I dont know why this happens. Is the module cleanup code in the
-context of a user process just like system calls? Can that code sleep?
-If it can't sleep then the answer would be quite easy: kthread_stop()
-wakes up the processes and then waits for the threads to finish (on
-call wait_for_completion), but doesnt actually let them execute,
-because it cannot sleep, so it deadlocks.
-
-So I would be grateful if anyone can help me in this matter.
-Regards
-
-Aritz
+Alternatively, have A -> (B, D) -> C, with C on slave list of B.  Mountpoint
+is within subtrees for A, C and D, but not B.  And no, we can't say "skip B,
+just make a slave of tree on A and slap it on C" - correct result is to
+have T_A -> T_D -> T_C (i.e. tree on C gets propagation from tree on D).
+Which kills the variants with not creating that copy and making subsequent
+ones directly from the original tree.

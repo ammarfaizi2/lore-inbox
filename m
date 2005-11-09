@@ -1,50 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbVKIQ4j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbVKIQ6M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932130AbVKIQ4j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 11:56:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbVKIQ4j
+	id S932136AbVKIQ6M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 11:58:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbVKIQ6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 11:56:39 -0500
-Received: from nproxy.gmail.com ([64.233.182.195]:62674 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932130AbVKIQ4i convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 11:56:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QkIDLiegPYFA7vcv0dO1haqT/szBDZherbinBfKAp0hYin7g37vygHOk8tj0l8/QnQBgTLMam9dT4toSOs5oOZZxA3aun1zG0b+TJELz2GyJr0he3+l1Ks/24phSHdQdtnFthVZEjIA45CTL/Cq392cVdoInM7VQ81Zo1Z9FGYY=
-Message-ID: <7d40d7190511090856x24fd68f5g@mail.gmail.com>
-Date: Wed, 9 Nov 2005 17:56:37 +0100
-From: Aritz Bastida <aritzbastida@gmail.com>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Subject: Re: Stopping Kernel Threads at module unload time
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0511091110190.10303@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 9 Nov 2005 11:58:12 -0500
+Received: from mail.kroah.org ([69.55.234.183]:17376 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932136AbVKIQ6K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 11:58:10 -0500
+Date: Wed, 9 Nov 2005 08:57:43 -0800
+From: Greg KH <greg@kroah.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Jan Beulich <JBeulich@novell.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/39] NLKD - an alternative kallsyms approach
+Message-ID: <20051109165743.GE32068@kroah.com>
+References: <43720DAE.76F0.0078.0@novell.com> <43720E2E.76F0.0078.0@novell.com> <Pine.LNX.4.58.0511090847590.4001@shark.he.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <7d40d7190511090749j3de0e473x@mail.gmail.com>
-	 <Pine.LNX.4.61.0511091110190.10303@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.58.0511090847590.4001@shark.he.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, Nov 09, 2005 at 08:50:15AM -0800, Randy.Dunlap wrote:
+> BTW, are you posting these just for comments or did you want
+> someone to apply/merge them?  If so, who?  You should send them
+> to that someone (unless you have some other arrangements) --
+> at least that's the normal procedure.
 
-> This is how the kernel thread is stopped.
->
->      if(info->pid)
->      {
->          (void)kill_proc(info->pid, SIGTERM, 1);
->          wait_for_completion(&info->quit);
->      }
->
+And the documented one too, see Documentation/SubmittingPatches, section
+5.
 
-I actually would prefer to do it with the new kernel thread API.
-So, to create the thread:   kthread_create
-bind it to a cpu:                  kthread_bind
-stop it:                                kthread_stop
+Why does no one ever read the documentation...
 
-Now, if I call kthread_stop() in module unload time, does that code
-run in user process context just like system calls do? That is
-important, because if it cannot sleep, it would deadlock.
+greg k-h

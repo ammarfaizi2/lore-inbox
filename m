@@ -1,46 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030386AbVKIWD2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161265AbVKIWEP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030386AbVKIWD2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 17:03:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161281AbVKIWDZ
+	id S1161265AbVKIWEP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 17:04:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161277AbVKIWEO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 17:03:25 -0500
-Received: from gate.crashing.org ([63.228.1.57]:49070 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1030789AbVKIWDU (ORCPT
+	Wed, 9 Nov 2005 17:04:14 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:3539 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161281AbVKIWEM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 17:03:20 -0500
-Subject: Re: [PATCH] ppc64: 64K pages support
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Mike Kravetz <kravetz@us.ibm.com>, Christoph Hellwig <hch@lst.de>,
-       Andrew Morton <akpm@osdl.org>,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1131573556.25354.1.camel@localhost.localdomain>
-References: <1130915220.20136.14.camel@gaston>
-	 <1130916198.20136.17.camel@gaston> <20051109172125.GA12861@lst.de>
-	 <20051109201720.GB5443@w-mikek2.ibm.com> <1131568336.24637.91.camel@gaston>
-	 <1131573556.25354.1.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 10 Nov 2005 09:01:32 +1100
-Message-Id: <1131573693.24637.109.camel@gaston>
+	Wed, 9 Nov 2005 17:04:12 -0500
+Date: Wed, 9 Nov 2005 14:03:36 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Tom Zanussi <zanussi@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, karim@opersys.com
+Subject: Re: [PATCH 4/4] relayfs: Documentation for exported relay fileops
+Message-Id: <20051109140336.2d584067.akpm@osdl.org>
+In-Reply-To: <17266.28537.722390.913812@tut.ibm.com>
+References: <17266.28537.722390.913812@tut.ibm.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tom Zanussi <zanussi@us.ibm.com> wrote:
+>
+> +By default of course, relay_open() creates relay files in the relayfs
+>  +filesystem.  Because relay_file_operations is exported, however, it's
+>  +also possible to create and use relay files in other pseudo-filesytems
+>  +such as debugfs.
 
-> I didn't have any luck on 2.6.14-git12 either.
-> I tried 64k page support on my P570. 
-> 
-> Here are the console messages:
+Why would anyone wish to place relayfs files within other filesystems?
 
-What distro do you use in userland ? Some older glibc versions have a
-bug that cause issues with 64k pages, though it generally happens with
-login blowing up, not init ...
-
-Ben.
-
-
+If users wish relayfs files to appear in other places, is it not sufficient
+to do this with mount tricks?

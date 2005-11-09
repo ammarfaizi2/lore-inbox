@@ -1,69 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030284AbVKITEH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030292AbVKITIm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030284AbVKITEH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 14:04:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030286AbVKITEG
+	id S1030292AbVKITIm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 14:08:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030291AbVKITIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 14:04:06 -0500
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:26596 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1030284AbVKITEF (ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 14:04:05 -0500
-Message-ID: <4372487C.7070800@tmr.com>
-Date: Wed, 09 Nov 2005 14:05:32 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: marado@isp.novis.pt
-CC: Linux-kernel@vger.kernel.org, fawadlateef@gmail.com, s0348365@sms.ed.ac.uk,
-       hostmaster@ed-soft.at, jerome.lacoste@gmail.com, carlsj@yahoo.com
-Subject: Re: New Linux Development Model
-References: <1131500868.2413.63.camel@localhost> <1131534496.8930.15.camel@noori.ip.pt>
-In-Reply-To: <1131534496.8930.15.camel@noori.ip.pt>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 9 Nov 2005 14:08:41 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:1686 "EHLO e36.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030292AbVKITIl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 14:08:41 -0500
+Subject: Re: [PATCH 2/18] cleanups and bug fix in do_loopback()
+From: Ram Pai <linuxram@us.ibm.com>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: Al Viro <viro@ftp.linux.org.uk>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <E1EZPm4-0007R7-00@dorka.pomaz.szeredi.hu>
+References: <E1EZInj-0001Ef-9Z@ZenIV.linux.org.uk>
+	 <E1EZNRz-0007EM-00@dorka.pomaz.szeredi.hu>
+	 <1131439567.5400.221.camel@localhost>
+	 <E1EZPm4-0007R7-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain
+Organization: IBM 
+Message-Id: <1131563299.5400.392.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 09 Nov 2005 11:08:19 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcos Marado wrote:
-> On Wed, 2005-11-09 at 02:47 +0100, Ian Kumlien wrote:
+On Tue, 2005-11-08 at 01:28, Miklos Szeredi wrote:
+> > > I see no other reason for wanting to prevent binds from detached
+> > > mounts or other namespaces.  It has been discussed that it would be a
+> > > good _controlled_ way to send/receive mounts from other namespace
+> > > without adding any complexity.
+> > 
+> > AFAICT, the ability to bind across namespaces defeats the private-ness
+> > property of per-process-namespaces. 
 > 
-> 
->>Anyways, I was also miffed that the kernel folks merged a 'ancient'
->>version of ipw2200 and ieee802.11, if they had merged something more
->>current everything would have worked out of the box and all the cleanups
->>would have been easier to cope with. Ie, the intel ppl could release
->>straight patches to the in kernel version. I dunno if they have changed
->>the way their driver works now.
->>
->>Atm, the 'ancient' ieee802.11 is what breaks the ipw2200 build. So,
->>basically all testing of cutting edge kernels gets very tedious due to
->>the ieee802.11 package removing the offending .h file and making
->>reversing -gitX and applying -gitY a real PITA.
-> 
-> 
-> Those are no "ancient" versions, they are the "stable" versions of
-> ieee80211, ipw2100 and ipw2200. ipw* folks think, and I have to agree,
-> that for the stable kernel (Linux tree) it makes sense to add the stable
-> versions of their projects.
+> No.  The privateness is guaranteed by proc_check_root(), which is
+> similar, but not the same as check_mnt(), and wich restrict _access_
+> to other namespaces.
+> check_mnt() restricts operations on other namespaces if you _already_
+> have access to said namespace.  For example via a file descriptor sent
+> between two processes in different namespaces.
 
-To what end? The current drivers compile and load, but they don't 
-function for wireless communication! What's the point of having code 
-which is essentially a no-op, why have it if it doesn't provide any 
-functionality?
-
-With the current firmware and driver a "scan" shows 14 connectible 
-points outside an apartment building (only one secured in any way ;-) 
-whic is just what Windows shows. With the stock kernel zero are found. 
-That's not stable that's moribund.
+ Yes there is some contradiction of some sorts on this. private-ness
+means that the namespace must _not_ be accesible to processes
+in other namespace. But 'file descriptor sent between two processes in
+different namespaces' seems to break that guarantee.  
 
 > 
-> For more about their versioning, make sure you read
-> http://ipw2100.sourceforge.net/#downloads .
-> 
+> Also with ptrace() you can still access other process's namespace, so
+> proc_check_root() is also too strict (or ptrace() too lax).
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+same here.
+
+RP
+
+> 
+> Miklos
+

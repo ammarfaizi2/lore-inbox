@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751240AbVKIPA6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751410AbVKIPVO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751240AbVKIPA6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 10:00:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbVKIPA6
+	id S1751410AbVKIPVO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 10:21:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbVKIPVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 10:00:58 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:47563 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751240AbVKIPA6
+	Wed, 9 Nov 2005 10:21:13 -0500
+Received: from rtsoft2.corbina.net ([85.21.88.2]:27784 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S1751407AbVKIPVL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 10:00:58 -0500
-Date: Wed, 9 Nov 2005 15:00:57 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Jan Beulich <JBeulich@novell.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 15/39] NLKD - early pseudo-fs
-Message-ID: <20051109150057.GX7992@ftp.linux.org.uk>
-References: <43720F5E.76F0.0078.0@novell.com> <43720F95.76F0.0078.0@novell.com> <43720FBA.76F0.0078.0@novell.com> <43720FF6.76F0.0078.0@novell.com> <43721024.76F0.0078.0@novell.com> <4372105B.76F0.0078.0@novell.com> <43721119.76F0.0078.0@novell.com> <43721142.76F0.0078.0@novell.com> <20051109142926.GU7992@ftp.linux.org.uk> <4372179E.76F0.0078.0@novell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4372179E.76F0.0078.0@novell.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 9 Nov 2005 10:21:11 -0500
+Message-ID: <43721456.4070205@ru.mvista.com>
+Date: Wed, 09 Nov 2005 18:23:02 +0300
+From: Sergei Shtylylov <sshtylyov@ru.mvista.com>
+Organization: MostaVista Software Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
+X-Accept-Language: ru, en-us, en-gb
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: libata PATA patches
+References: <1131460386.25192.45.camel@localhost.localdomain> <4371FA47.1070806@ru.mvista.com>
+In-Reply-To: <4371FA47.1070806@ru.mvista.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 09, 2005 at 03:37:02PM +0100, Jan Beulich wrote:
-> >What the hell for?  We _already_ have a way to get any set of files
-> in
-> >a filesystem as soon as we have VFS caches set up (and until then you
-> >can't open anything anyway).
-> 
-> That's the whole point - a debugger wants this *before* VFS is set up
-> (and thus obviously without going through VFS in the first place). One
-> may argue that the naming is odd, but that's nothing I really care
-> about.
-> 
-> >NAK.
-> 
-> Then suggest an alternative solution.
+Hello, I wrote:
 
-"Reduce the parts of your config needed that early on to something
-saner in size"
+> Alan Cox wrote:
+> 
+>> I've put a new patch versus 2.6.14-mm1 on 
+>> http://zeniv.linux.org.uk/~alan/IDE
+> 
+> 
+>    I found somewhat strange that you check for 0xABCDExxx signature in 
+> 32-bit PCI config. reg. 0x78 while HighPoint's own drivers read BM reg. 
+> 0x90 (i.e. PCI config. 0x70) for that. PCI reg. 0x7A is DPLL precision 
+> adjust reg. and 0x7B is the input clock select and IRQ reg., so it'd be 
+> quite strange if the BIOS used them for any kind of signature...
+
+    Pardon me for being too hasty. :-)
+    I was talking about drivers/scsi/pata_hpt37x.c
+
+WBR, Sergei

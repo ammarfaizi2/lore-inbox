@@ -1,33 +1,34 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030406AbVKIDJD (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 8 Nov 2005 22:09:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030413AbVKIDJD
+	id S1030471AbVKIKgn (ORCPT <rfc822;ralf@linux-mips.org>);
+	Wed, 9 Nov 2005 05:36:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030479AbVKIKgn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 22:09:03 -0500
-Received: from c-67-168-182-81.hsd1.wa.comcast.net ([67.168.182.81]:33033 "HELO
-	c-67-168-182-81.hsd1.wa.comcast.net") by vger.kernel.org with SMTP
-	id S1030406AbVKIDJC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 22:09:02 -0500
-Reply-To: "Camille Mcgowan" <fordenbezp@percepticon.com>
-From: "Camille" <fordenbezp@percepticon.com>
-Message-ID: <8947217406.20051108221125@nesvf>
-Date: Tue, 8 Nov 2005 22:11:25 -0500
-To: <linux-kernel@vger.kernel.org>
-Subject: Partnership
+	Wed, 9 Nov 2005 05:36:43 -0500
+Received: from zeus2.kernel.org ([204.152.191.36]:6296 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S1030471AbVKIKgm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 05:36:42 -0500
+From: GlobalDesign <sarantos@cox.net>
+To: Linux <linux-kernel@vger.kernel.org>
+Subject: DO NOT WASTE YOUR TIME, READ!
+Date: Wed, 09 Nov 2005 05:44:38 -0500
+Message-ID: <001101c5e51a$1c0ed1bd$08d505b2@cox.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1030406AbVKIDJD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1030471AbVKIKgn@vger.kernel.org>
 
-
-Cute Babe At Home Shows Lingerie & BoobsCute Babe Toy Fucking Pussy With Dildo
-
-The Christianity which is shared is the Christianity which is convincing.
-Any artist should be grateful for a nanve grace which puts him beyond the need to reason elaborately.
-http://uvagewyluv.net/main/
-A frenzied passion for art is a canker that devours everything else.Integrity is not a 90 percent thing, not a 95 percent thing either you have it or you don't.
-A highbrow is the kind of person who looks at a sausage and thinks of Picasso.Our own epoch is determining, day by day, its own style. Our eyes, unhappily, are unable yet to discern it.
+Dear Sirs! New offer from the developing company! We offer you cooperation in new sphere of services. 
+Our company develops  fast, and we need new employees in sphere of services . 
+If you want to work without wasting  time and forces, we are ready to  offer work 
+of managers in sphere of processing the orders.
+Basic requirements: age of 21-55 years, computer knowledge, access to Internet.
+Please, send  your questions or offers to the following address: GlobalDesignArt@aol.com
 
 

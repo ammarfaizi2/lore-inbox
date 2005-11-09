@@ -1,72 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbVKIMmi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbVKIMxL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750712AbVKIMmi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 07:42:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbVKIMmi
+	id S1750715AbVKIMxL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 07:53:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbVKIMxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 07:42:38 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:43975 "EHLO
-	linuxbipbip.grupopie.com") by vger.kernel.org with ESMTP
-	id S1750712AbVKIMmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 07:42:38 -0500
-Message-ID: <4371EEBA.2080706@grupopie.com>
-Date: Wed, 09 Nov 2005 12:42:34 +0000
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+	Wed, 9 Nov 2005 07:53:11 -0500
+Received: from baldrick.bootc.net ([83.142.228.48]:37535 "EHLO
+	baldrick.bootc.net") by vger.kernel.org with ESMTP id S1750715AbVKIMxK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 07:53:10 -0500
+Message-ID: <4371F134.4080004@bootc.net>
+Date: Wed, 09 Nov 2005 12:53:08 +0000
+From: Chris Boot <bootc@bootc.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051014)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Jens Axboe <axboe@suse.de>, Neil Brown <neilb@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Miklos Szeredi <miklos@szeredi.hu>
-Subject: Re: userspace block driver?
-References: <4371A4ED.9020800@pobox.com> <17265.42782.188870.907784@cse.unsw.edu.au> <4371A944.6070302@pobox.com> <20051109075455.GN3699@suse.de> <4371ACE6.7010503@pobox.com>
-In-Reply-To: <4371ACE6.7010503@pobox.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.14-mm1 libata pata_via
+References: <6397E994-0BC3-445F-BF2B-CD3D0ADB0E02@bootc.net> <1131419726.19575.5.camel@localhost.localdomain> <53BB7006-124E-4AE0-8A0B-AED3167D0E63@bootc.net>
+In-Reply-To: <53BB7006-124E-4AE0-8A0B-AED3167D0E63@bootc.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Jens Axboe wrote:
->> On Wed, Nov 09 2005, Jeff Garzik wrote:
->>> Neil Brown wrote:
->>>> On Wednesday November 9, jgarzik@pobox.com wrote:
->>>>
->>>>> Has anybody put any thought towards how a userspace block driver
->>>>> would work?
->>>>
->>>> Isn't this was enbd does? http://www.it.uc3m.es/~ptb/nbd/
->>>
->>> Is there something there relevant for modern kernels?  I would sure 
->>> hope I could come up with something more lightweight than that.
->>
->> I was going to say drbd, but then you did say more lightweight :-)
->[...]
+Chris Boot wrote:
 > 
-> loop is a closer model to a generic userspace block device than nbd, I 
-> think.
+> On 8 Nov 2005, at 3:15, Alan Cox wrote:
+> 
+>> On Llu, 2005-11-07 at 17:32 +0000, Chris Boot wrote:
+>>
+>>> Hi all,
+>>>
+>>> Since I've only got a DVD drive on good ol' PATA, I thought I'd try
+>>> Alan's latest VIA PATA driver for libata, to see where I got. Well,
+>>> the machine simply doesn't boot, preferring to get stuck after
+>>> detecting the drive. I've tried with and without
+>>> libata.atapi_enabled=1 and get the same result in both cases. Here's
+>>> my log with some SysRq output that might be useful:
+>>
+>>
+>> Thanks for giving it a try. Can you also give me an lspci -v for
+>> reference
+> 
+> 
+[snip]
 
-That got me thinking... theoretically we should be able to do a FUSE 
-server that served a single file that could be used by a loopback 
-device, couldn't we?
+I got a little further with your -ide1 patch: it boots! However, it 
+doesn't detect the drive at all:
 
-IIRC, Miklos Szeredi tried hard to avoid the deadlock scenarios that nbd 
-suffers from in FUSE, but I don't know if it would stand being called by 
-the loopback device.
+[4294671.912000] ACPI: PCI Interrupt 0000:00:0f.1[A] -> Link [ALKA] -> 
+GSI 20 (level, low) -> IRQ 177
+[4294671.949000] PCI: Via IRQ fixup for 0000:00:0f.1, from 255 to 1
+[4294671.982000] ata5: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 
+0xD000 irq 14
+[4294672.017000] ata5: port disabled. ignoring.
+[4294672.048000] scsi4 : pata_via
+[4294672.078000] ata6: PATA max UDMA/100 cmd 0x170 ctl 0x376 bmdma 
+0xD008 irq 15
+[4294672.113000] ata6: port disabled. ignoring.
+[4294672.145000] scsi5 : pata_via
 
-If it works, it should be extremely simple to do the server. Just check 
-the FUSE hello world server example:
+I suppose it might be a bit much asking that an ATAPI drive work on a 
+PATA bus with lilbata, but hey... ;-)
 
-http://fuse.sourceforge.net/helloworld.html
+Do you think I should try the generic driver?
 
-I've CC'ed Miklos Szeredi to see if he can shed some light on the 
-loopback <-> FUSE combination...
+Cheers,
+Chris
 
 -- 
-Paulo Marques - www.grupopie.com
+Chris Boot
+bootc@bootc.net
+http://www.bootc.net/
 
-The rule is perfect: in all matters of opinion our
-adversaries are insane.
-Mark Twain

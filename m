@@ -1,147 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030579AbVKIRdJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030578AbVKIRcz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030579AbVKIRdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 12:33:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030581AbVKIRdI
+	id S1030578AbVKIRcz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 12:32:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030579AbVKIRcy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 12:33:08 -0500
-Received: from xproxy.gmail.com ([66.249.82.194]:3145 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030579AbVKIRdG (ORCPT
+	Wed, 9 Nov 2005 12:32:54 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:44308 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1030578AbVKIRcx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 12:33:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=BCa/mE8UW3avCo0sPogZuVws90d00ZxoPJseKtNRnjBoTR4MKm9IUK+WTLxCPSEK/86YKip58/EBQE5pkREar89RxrvnuLGX6b2Ps9C27+uHeXq34ru8tB3VpcV0RUsPLda2eTIlzF6pB3B5DoNOS9w9Z/zF5Qvi+8FKUSmLcTA=
-Date: Thu, 10 Nov 2005 02:32:57 +0900
-From: Tejun Heo <htejun@gmail.com>
-To: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: [PATCH] blk: implement elv_drain_elevator
-Message-ID: <20051109173257.GD24115@htj.dyndns.org>
+	Wed, 9 Nov 2005 12:32:53 -0500
+Message-ID: <437234EB.6090004@sw.ru>
+Date: Wed, 09 Nov 2005 20:42:03 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+To: "Andrey Savochkin" <saw@sawoct.com>
+CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] stop_machine() vs. synchronous IPI send deadlock
+References: <4371DAA1.4040300@sw.ru>
+In-Reply-To: <4371DAA1.4040300@sw.ru>
+Content-Type: multipart/mixed;
+ boundary="------------020508070702040808040807"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds request_queue->nr_sorted which keeps the number of
-requests in the iosched and implement elv_drain_elevator which
-performs forced dispatching.  elv_drain_elevator checks whether
-iosched actually dispatches all requests it has and prints error
-message if it doesn't.  As buggy forced dispatching can result in
-wrong barrier operations, I think this extra check is worthwhile.
+This is a multi-part message in MIME format.
+--------------020508070702040808040807
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Tejun Heo <htejun@gmail.com>
+Sorry, hunk with corresponding preempt_enable was lost, sending patch again.
 
----
+This patch fixes deadlock of stop_machine() vs. synchronous IPI send.
+The problem is that stop_machine() disables interrupts before disabling 
+preemption on other CPUs. So if another CPU is preempted and then calls 
+something like flush_tlb_all() it will deadlock with CPU doing 
+stop_machine() and which can't process IPI due to disabled IRQs.
 
-Jens, this patch isn't strictly necessary if forced dispatching on all
-ioscheds is implemented correctly.  However, added overhead is
-insignificant and as detecting forced dispatching errors without this
-mechanism is very difficult and may result in fs inconsistency in rare
-cases, I think it's worthwhile.
+I changed stop_machine() to do the same things exactly as it does on 
+other CPUs, i.e. it should disable preemption first on _all_ CPUs 
+including itself and only after that disable IRQs.
 
-With this and all three previous patches applied, I've been running
-stress test which involves concurrent random accesses, localized
-accesses for merges and periodic elevator switch for more than 36hrs
-without any failure.
+Signed-Off-By: Kirill Korotaev <dev@sw.ru>
 
-Thanks.
+Kirill
 
-diff --git a/block/elevator.c b/block/elevator.c
---- a/block/elevator.c
-+++ b/block/elevator.c
-@@ -225,6 +225,7 @@ void elv_dispatch_sort(request_queue_t *
- 
- 	if (q->last_merge == rq)
- 		q->last_merge = NULL;
-+	q->nr_sorted--;
- 
- 	boundary = q->end_sector;
- 
-@@ -283,6 +284,7 @@ void elv_merge_requests(request_queue_t 
- 
- 	if (e->ops->elevator_merge_req_fn)
- 		e->ops->elevator_merge_req_fn(q, rq, next);
-+	q->nr_sorted--;
- 
- 	q->last_merge = rq;
- }
-@@ -314,6 +316,20 @@ void elv_requeue_request(request_queue_t
- 	__elv_add_request(q, rq, ELEVATOR_INSERT_FRONT, 0);
- }
- 
-+static void elv_drain_elevator(request_queue_t *q)
-+{
-+	static int printed;
-+	while (q->elevator->ops->elevator_dispatch_fn(q, 1))
-+		;
-+	if (q->nr_sorted == 0)
-+		return;
-+	if (printed++ < 10) {
-+		printk(KERN_ERR "%s: forced dispatching is broken "
-+		       "(nr_sorted=%u), please report this\n",
-+		       q->elevator->elevator_type->elevator_name, q->nr_sorted);
-+	}
-+}
-+
- void __elv_add_request(request_queue_t *q, struct request *rq, int where,
- 		       int plug)
- {
-@@ -348,9 +364,7 @@ void __elv_add_request(request_queue_t *
- 
- 	case ELEVATOR_INSERT_BACK:
- 		rq->flags |= REQ_SOFTBARRIER;
--
--		while (q->elevator->ops->elevator_dispatch_fn(q, 1))
--			;
-+		elv_drain_elevator(q);
- 		list_add_tail(&rq->queuelist, &q->queue_head);
- 		/*
- 		 * We kick the queue here for the following reasons.
-@@ -369,6 +383,7 @@ void __elv_add_request(request_queue_t *
- 	case ELEVATOR_INSERT_SORT:
- 		BUG_ON(!blk_fs_request(rq));
- 		rq->flags |= REQ_SORTED;
-+		q->nr_sorted++;
- 		if (q->last_merge == NULL && rq_mergeable(rq))
- 			q->last_merge = rq;
- 		/*
-@@ -691,8 +706,7 @@ static void elevator_switch(request_queu
- 
- 	set_bit(QUEUE_FLAG_ELVSWITCH, &q->queue_flags);
- 
--	while (q->elevator->ops->elevator_dispatch_fn(q, 1))
--		;
-+	elv_drain_elevator(q);
- 
- 	while (q->rq.elvpriv) {
- 		blk_remove_plug(q);
-@@ -700,6 +714,7 @@ static void elevator_switch(request_queu
- 		spin_unlock_irq(q->queue_lock);
- 		msleep(10);
- 		spin_lock_irq(q->queue_lock);
-+		elv_drain_elevator(q);
+--------------020508070702040808040807
+Content-Type: text/plain;
+ name="diff-ms-stopmachine-ipi-deadlock-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff-ms-stopmachine-ipi-deadlock-2"
+
+--- ./kernel/stop_machine.c.stpmach	2005-11-01 12:06:03.000000000 +0300
++++ ./kernel/stop_machine.c	2005-11-09 20:38:23.000000000 +0300
+@@ -114,13 +114,12 @@ static int stop_machine(void)
+ 		return ret;
  	}
  
- 	spin_unlock_irq(q->queue_lock);
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -406,6 +406,7 @@ struct request_queue
+-	/* Don't schedule us away at this point, please. */
+-	local_irq_disable();
+-
+ 	/* Now they are all started, make them hold the CPUs, ready. */
++	preempt_disable();
+ 	stopmachine_set_state(STOPMACHINE_PREPARE);
  
- 	atomic_t		refcnt;
+ 	/* Make them disable irqs. */
++	local_irq_disable();
+ 	stopmachine_set_state(STOPMACHINE_DISABLE_IRQ);
  
-+	unsigned int		nr_sorted;
- 	unsigned int		in_flight;
- 
- 	/*
-@@ -631,6 +632,7 @@ static inline void elv_dispatch_add_tail
+ 	return 0;
+@@ -130,6 +129,7 @@ static void restart_machine(void)
  {
- 	if (q->last_merge == rq)
- 		q->last_merge = NULL;
-+	q->nr_sorted--;
+ 	stopmachine_set_state(STOPMACHINE_EXIT);
+ 	local_irq_enable();
++	preempt_enable_no_resched();
+ }
  
- 	q->end_sector = rq_end_sector(rq);
- 	q->boundary_rq = rq;
+ struct stop_machine_data
+
+--------------020508070702040808040807--
+

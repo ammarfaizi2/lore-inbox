@@ -1,89 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030497AbVKIL3o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751377AbVKILaj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030497AbVKIL3o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 06:29:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbVKIL3o
+	id S1751377AbVKILaj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 06:30:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbVKILaj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 06:29:44 -0500
-Received: from mxfep01.bredband.com ([195.54.107.70]:53386 "EHLO
-	mxfep01.bredband.com") by vger.kernel.org with ESMTP
-	id S1751377AbVKIL3o (ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 06:29:44 -0500
-Subject: Re: New Linux Development Model
-From: Ian Kumlien <pomac@vapor.com>
-Reply-To: pomac@vapor.com
-To: marado@isp.novis.pt
-Cc: Linux-kernel@vger.kernel.org, fawadlateef@gmail.com, s0348365@sms.ed.ac.uk,
-       hostmaster@ed-soft.at, jerome.lacoste@gmail.com, carlsj@yahoo.com
-In-Reply-To: <1131534496.8930.15.camel@noori.ip.pt>
-References: <1131500868.2413.63.camel@localhost>
-	 <1131534496.8930.15.camel@noori.ip.pt>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-c/N6z2ItvgLmbtqVLEm4"
-Date: Wed, 09 Nov 2005 12:30:32 +0100
-Message-Id: <1131535832.2413.75.camel@localhost>
+	Wed, 9 Nov 2005 06:30:39 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:62435 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751377AbVKILai (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 06:30:38 -0500
+Date: Wed, 9 Nov 2005 12:30:53 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: john cooper <john.cooper@timesys.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: MIPS PREEMPT_RT update..
+Message-ID: <20051109113053.GA1012@elte.hu>
+References: <436B85E1.1050103@timesys.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <436B85E1.1050103@timesys.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-c/N6z2ItvgLmbtqVLEm4
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+* john cooper <john.cooper@timesys.com> wrote:
 
-On Wed, 2005-11-09 at 11:08 +0000, Marcos Marado wrote:
-> On Wed, 2005-11-09 at 02:47 +0100, Ian Kumlien wrote:
->=20
-> > Anyways, I was also miffed that the kernel folks merged a 'ancient'
-> > version of ipw2200 and ieee802.11, if they had merged something more
-> > current everything would have worked out of the box and all the cleanup=
-s
-> > would have been easier to cope with. Ie, the intel ppl could release
-> > straight patches to the in kernel version. I dunno if they have changed
-> > the way their driver works now.
-> >=20
-> > Atm, the 'ancient' ieee802.11 is what breaks the ipw2200 build. So,
-> > basically all testing of cutting edge kernels gets very tedious due to
-> > the ieee802.11 package removing the offending .h file and making
-> > reversing -gitX and applying -gitY a real PITA.
->=20
-> Those are no "ancient" versions, they are the "stable" versions of
-> ieee80211, ipw2100 and ipw2200. ipw* folks think, and I have to agree,
-> that for the stable kernel (Linux tree) it makes sense to add the stable
-> versions of their projects.
+> As a qualification, I am still chasing a few problems which I suspect 
+> are related to the Malta patch for 2.6.14 rather than the mips-rt 
+> patch.  One appears to be a TLB handler problem in 2.6.14.  The other 
+> appears to be potentially excessive context switching, although I 
+> haven't had the opportunity yet to fully investigate this issue.  I 
+> will follow up should resolution of these feed back into generic 
+> mips-rt support.
 
-Yes, that would make sense if everyone interested changed the 'unstable'
-version instead, since they change the version merged it only creates
-problems. And if you DO check out the ipw2200 site you see that there
-has been no stable release for about a year and that there has been a
-large amount of bugfixes.
+FYI, i have released your big MIPS merge as part of 2.6.14-rt9. [please 
+double-check i did not mis-merge any component]
 
-Also, the 'stable' version didn't use a separated ieee802.11 stack.
+wrt. your TLB problems: it might be related that TLB handling got 
+simplified (and sped up) with the introduction of a generic, preemptible 
+method to handle TLB-gathers. There's no tlb-simple.h anymore.
 
-So to summarize:
-Merging the latest version of both and then, if someone has problems,
-tell them to downgrade would be simpler. This also means that the
-ipw2200 team could release patches against the kernel as well as
-standalone modules.
+excessive context-switching might happen in some cases when we ping-pong 
+short-held locks, and i'm certainly interested in a reproducer or 
+analysis (or patch! :-).
 
-The 'stable' version that got merged is more or less useless to people
-who are smart about their wlans. And on a side note, even the firmware
-has improved since then.
-
---=20
-Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
-
---=-c/N6z2ItvgLmbtqVLEm4
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1-ecc0.1.6 (GNU/Linux)
-
-iD8DBQBDcd3Y7F3Euyc51N8RAiecAJ0amg849+i00iqitnhnUyyetaOsxwCdEbnM
-6cMPU7HyPi2Y5bTfMqLzBdM=
-=C4bm
------END PGP SIGNATURE-----
-
---=-c/N6z2ItvgLmbtqVLEm4--
-
+	Ingo

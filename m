@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161239AbVKIVlF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161237AbVKIVmE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161239AbVKIVlF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 16:41:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161237AbVKIVlF
+	id S1161237AbVKIVmE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 16:42:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161241AbVKIVmD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 16:41:05 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:16606 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161238AbVKIVlD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 16:41:03 -0500
-To: torvalds@osdl.org
-Subject: [git pull] jfs update
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <20051109214054.C523D82D17@kleikamp.dyn.webahead.ibm.com>
-Date: Wed,  9 Nov 2005 15:40:54 -0600 (CST)
-From: shaggy@austin.ibm.com (Dave Kleikamp)
+	Wed, 9 Nov 2005 16:42:03 -0500
+Received: from twinlark.arctic.org ([207.7.145.18]:53146 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP
+	id S1161237AbVKIVmB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 16:42:01 -0500
+Date: Wed, 9 Nov 2005 13:42:00 -0800 (PST)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Ulrich Drepper <drepper@redhat.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: openat()
+In-Reply-To: <43724AB3.40309@redhat.com>
+Message-ID: <Pine.LNX.4.63.0511091338200.728@twinlark.arctic.org>
+References: <43724AB3.40309@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, one more.
+On Wed, 9 Nov 2005, Ulrich Drepper wrote:
 
-Please pull from
+> Can we please get the openat() syscall implemented?  I know Linus already
+> declared this is a good idea and I can only stress that it is really essential
+> for some things.  It is today impossible to write correct code which uses long
+> pathnames since all these operations would require the use of chdir() which
+> affect the whole POSIX process and not just one thread.  In addition we have
+> the reduction of race conditions.
 
-git://git.kernel.org/pub/scm/linux/kernel/git/shaggy/jfs-2.6.git for-linus
+oh sweet i've always wanted this for perf improvements in multithreaded 
+programs which have to deal with lots of lookups deep in a directory tree 
+(especially over NFS).
 
-This will update the following files:
+would this include other related syscalls such as link, unlink, rename, 
+chown, chmod... so that the the virtualization of the "current working 
+directory" concept is more complete?
 
- fs/jfs/namei.c |    3 +++
- 1 file changed, 3 insertions(+)
-
-through these ChangeSets:
-
-commit 988a6490a793b73ff23aa3baf87b337152178e4d
-tree c12631ad5e0914d52434ea7443bb053103411cd7
-parent f2c84c0e84bfa637a7161eac10157cf3b05b4a73
-author Dave Kleikamp <shaggy@austin.ibm.com> Mon, 31 Oct 2005 16:53:04 -0600
-committer Dave Kleikamp <shaggy@austin.ibm.com> Mon, 31 Oct 2005 16:53:04 -0600
-
-    JFS: set i_ctime & i_mtime on target directory when creating links
-    
-    jfs has never been setting i_ctime or i_mtime when creating either hard
-    or symbolic links.  I'm surprised nobody had noticed until now.
-    
-    Thanks to Chris Spiegel for reporting the problem.
-    
-    Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
-
+-dean

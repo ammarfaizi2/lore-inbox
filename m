@@ -1,75 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030460AbVKIWoJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030453AbVKIWpv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030460AbVKIWoJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 17:44:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030459AbVKIWoI
+	id S1030453AbVKIWpv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 17:45:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030459AbVKIWpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 17:44:08 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:2783 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030453AbVKIWoH (ORCPT
+	Wed, 9 Nov 2005 17:45:51 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:31199 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030453AbVKIWpu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 17:44:07 -0500
-Date: Wed, 9 Nov 2005 14:43:08 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Brown, Len" <len.brown@intel.com>, Jeff Garzik <jgarzik@pobox.com>,
-       "Luck, Tony" <tony.luck@intel.com>, Ben Collins <bcollins@debian.org>,
-       Jody McIntyre <scjody@modernduck.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Roland Dreier <rolandd@cisco.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Jens Axboe <axboe@suse.de>, Dave Kleikamp <shaggy@austin.ibm.com>,
-       Steven French <sfrench@us.ibm.com>
+	Wed, 9 Nov 2005 17:45:50 -0500
+Date: Wed, 9 Nov 2005 14:45:18 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jody McIntyre <scjody@modernduck.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       James.Bottomley@steeleye.com, len.brown@intel.com, jgarzik@pobox.com,
+       tony.luck@intel.com, bcollins@debian.org, dwmw2@infradead.org,
+       rolandd@cisco.com, davej@codemonkey.org.uk, axboe@suse.de,
+       shaggy@austin.ibm.com, sfrench@us.ibm.com
 Subject: Re: merge status
-In-Reply-To: <1131575124.8541.9.camel@mulgrave>
-Message-ID: <Pine.LNX.4.64.0511091437100.4627@g5.osdl.org>
-References: <20051109133558.513facef.akpm@osdl.org>  <1131573041.8541.4.camel@mulgrave>
-  <Pine.LNX.4.64.0511091358560.4627@g5.osdl.org> <1131575124.8541.9.camel@mulgrave>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20051109144518.3144e7d8.akpm@osdl.org>
+In-Reply-To: <20051109222356.GF14318@conscoop.ottawa.on.ca>
+References: <20051109133558.513facef.akpm@osdl.org>
+	<20051109221201.GE14318@conscoop.ottawa.on.ca>
+	<Pine.LNX.4.64.0511091417540.4627@g5.osdl.org>
+	<20051109222356.GF14318@conscoop.ottawa.on.ca>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jody McIntyre <scjody@modernduck.com> wrote:
+>
+> Can I still send a 2k spinlock fix in ~2 weeks?
 
+Bugfixes are of course always welcome - that's the entire reason for having
+the stabilisation period.
 
-On Wed, 9 Nov 2005, James Bottomley wrote:
-> 
-> > If that keeps happening, I think I'll just make sure that I don't always 
-> > merge on the last day or two. Just to make sure that submaintainers don't 
-> > "game" the system the wrong way. Maybe my "two weeks" are sometimes just 
-> > ten days long, who knows..
-> 
-> That's a nice theory, except that it's my contributors who drop me in it
-> by leaving their patch sets until you declare a kernel, dumping the
-> integration testing on me in whatever time window is left.
+>  That's the only thing I
+> really want to get in to 2.6.15.
 
-My point is that if that keeps on happening, then you miss the window, and 
-are hopefully ready EARLY next time around, four weeks later, when the 
-next window opens.
+I think it's fair to make exemptions for subsystems which have been
+neglected, or are flakey, or which are newly-merged, or which have a new
+batch of maintainers who are struggling to get things back into shape and
+back into sync with offstream trees.  Because a) those subsystems are
+usually already pretty buggy and b) the team needs extra help to get stuff
+back into shape asap.
 
-And if your submaintainers keep screwing _you_, then you tell them to stop 
-it, and stop accepting their patches in that window, so that it's _their_ 
-code that gets delayed, not yours.
+I'd view 1394 as only partly-emerged from that state ;)
 
-The development SHOULD NOT happen during the merge window. The development 
-should have happened in the tree you wait to merge /while waiting/ for the 
-window to open.
-
-If you're doing the development during the merge window, not only do you 
-get in late in the window, you also do a hurried job and thus almost 
-certainly have a worse process.
-
-The whole point of having timely merge windows is that we _can_ just say 
-"sorry, you missed the bus, wait for the next one".
-
-And trust me, I _will_ say that. People always complain that I'm being too 
-soft. Not so this time. If people miss the merge window or start abusing 
-it with hurried last-minute things that just cause problems for -rc1, I'll 
-just refuse to merge, and laugh in their faces derisively when they whine 
-plaintively at me, and tell them there's going to be a new opening soon 
-enough.
-
-If two weeks of merge window is too short, maybe the four weeks _between_ 
-the windows is long enough to sort things out.
-
-		Linus
+As long as you understand the overall philosophy of what we're trying to
+do, you should be able to make your own decisions about what's suitable,
+and when.

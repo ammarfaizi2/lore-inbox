@@ -1,80 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbVKIPs3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751425AbVKIPtb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750721AbVKIPs3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 10:48:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbVKIPs2
+	id S1751425AbVKIPtb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 10:49:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbVKIPtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 10:48:28 -0500
-Received: from mxfep01.bredband.com ([195.54.107.70]:34194 "EHLO
-	mxfep01.bredband.com") by vger.kernel.org with ESMTP
-	id S1750721AbVKIPs2 (ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 10:48:28 -0500
-Subject: Re: New Linux Development Model
-From: Ian Kumlien <pomac@vapor.com>
-Reply-To: pomac@vapor.com
-To: "Wed, 9 Nov 2005 13:03:07 +0100" <grundig@teleline.es>
-Cc: marado@isp.novis.pt, Linux-kernel@vger.kernel.org, fawadlateef@gmail.com,
-       s0348365@sms.ed.ac.uk, hostmaster@ed-soft.at, jerome.lacoste@gmail.com,
-       carlsj@yahoo.com
-In-Reply-To: <20051109130307.bd1b2cce.grundig@teleline.es>
-References: <1131500868.2413.63.camel@localhost>
-	 <1131534496.8930.15.camel@noori.ip.pt> <1131535832.2413.75.camel@localhost>
-	 <20051109130307.bd1b2cce.grundig@teleline.es>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5VfcSKuV94irBd7cCNdk"
-Date: Wed, 09 Nov 2005 16:49:17 +0100
-Message-Id: <1131551357.2413.80.camel@localhost>
+	Wed, 9 Nov 2005 10:49:31 -0500
+Received: from mail.fh-wedel.de ([213.39.232.198]:37047 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1751425AbVKIPta (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 10:49:30 -0500
+Date: Wed, 9 Nov 2005 16:48:59 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: "Eric W. Biederman" <ebiederman@lnxi.com>
+Cc: linux-mtd@lists.infradead.org, dwmw2@infradead.org,
+       linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+       Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 06/25] mtd: move ioctl32 code to mtdchar.c
+Message-ID: <20051109154859.GA1447@wohnheim.fh-wedel.de>
+References: <20051105162650.620266000@b551138y.boeblingen.de.ibm.com> <20051105162712.921102000@b551138y.boeblingen.de.ibm.com> <20051108105923.GA31446@wohnheim.fh-wedel.de> <m3zmofovsc.fsf@maxwell.lnxi.com> <20051108183339.GB31446@wohnheim.fh-wedel.de> <m3slu5al3n.fsf@maxwell.lnxi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <m3slu5al3n.fsf@maxwell.lnxi.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 9 November 2005 08:37:16 -0700, Eric W. Biederman wrote:
+> Jörn Engel <joern@wohnheim.fh-wedel.de> writes:
+> 
+> > Can you name a few examples, where mtdchar.c makes sense?  I've found
+> > it to be quite useless.
+> 
+> I have found just the opposite.  It happens to be the only interface
+> to mtd devices I use.   In general when you have flash devices small
+> enough that you can't use a filesystem without waisting a lot of space
+> (keeping 1 free erase block out of 4 or 8 is a problem).  Or when you are
+> doing low-level mucking mtdchar is invaluable.
 
---=-5VfcSKuV94irBd7cCNdk
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Josh already convinced me with the Bad Block argument.  The hardware
+already used an OOB scheme to define them.  Regular unix files without
+some sort of OOB data access don't map well to NAND.
 
-On Wed, 2005-11-09 at 13:03 +0100, Wed, 9 Nov 2005 13:03:07 +0100 wrote:
-> El Wed, 09 Nov 2005 12:30:32 +0100,
-> Ian Kumlien <pomac@vapor.com> escribi=F3:
->=20
-> > The 'stable' version that got merged is more or less useless to people
-> > who are smart about their wlans. And on a side note, even the firmware
-> > has improved since then.
->=20
-> People who is smart about their wlans is smart enought to update their
-> kernels to use the new and possibily more unstable version. What's the
-> problem? People maintaining the main tree may have a different (and
-> valid) view on this issue.=20
+> As for the interface to mtdchar.  I agree that the readonly character
+> device is silly, and does weird things to the mtd device minor numbers.
+> I agree that ioctls are not the prettiest interface around, however
+> the raw functionality the ioctls export is needed, and interesting.  Some
+> of the functionality would be hard to export even in sysfs the cool ascii
+> replacement for ioctl.
+> 
+> Long term it does look like a sysfs interface to the mtd functionality
+> could suffice.
 
-Since it out of tree, it's not a issue of 'updating' a kernel, it's more
-of a issue of making it compile with a kernel.
-(which if you read the original post was one of the problems mentioned.)
+It could.  Some time ago I starting coding something up, but got
+quickly distracted.  Might be easier to start from scratch again.
 
-And, yes, they might have a valid view, but the kernel also has
-"experimental" features, why not merge a driver that can be used, mark
-it as experimental until it's merged with a stable rel. The issue of
-getting the first rel in to the kernel is that all of the sudden more
-developers starts hacking away on it and the original developers have to
-keep it all in sync (as i mentioned before).
+Jörn
 
-> People is allowed to have different opinions than you, deal with it.
-
-And that applies to me to, now deal with it.
-
---=20
-Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
-
---=-5VfcSKuV94irBd7cCNdk
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1-ecc0.1.6 (GNU/Linux)
-
-iD8DBQBDchp97F3Euyc51N8RAviZAJkB2tSH5bylo3tmwAvOD1s78wTi6QCgiEWm
-bWZIZ0msEuaeMCXll/7ZqPY=
-=fpJ6
------END PGP SIGNATURE-----
-
---=-5VfcSKuV94irBd7cCNdk--
-
+-- 
+Happiness isn't having what you want, it's wanting what you have.
+-- unknown

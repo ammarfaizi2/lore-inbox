@@ -1,61 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030488AbVKIBE5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030490AbVKIBEl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030488AbVKIBE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 20:04:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030493AbVKIBE5
+	id S1030490AbVKIBEl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 20:04:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030493AbVKIBEl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 20:04:57 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:31419 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030488AbVKIBEz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 20:04:55 -0500
-Date: Tue, 8 Nov 2005 17:04:46 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Ingo Molnar <mingo@elte.hu>, Paul Mackerras <paulus@samba.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Posssible bug in kernel/irq/handle.c
-In-Reply-To: <1131496739.24637.12.camel@gaston>
-Message-ID: <Pine.LNX.4.64.0511081651320.3247@g5.osdl.org>
-References: <1131496739.24637.12.camel@gaston>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 8 Nov 2005 20:04:41 -0500
+Received: from outmx019.isp.belgacom.be ([195.238.2.200]:9198 "EHLO
+	outmx019.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S1030490AbVKIBEl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 20:04:41 -0500
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] fs/relayfs: Replace kcalloc(1, with kzalloc.
+Cc: zanussi@us.ibm.com, karim@opersys.com
+Message-Id: <20051109010353.D066920A1A@localhost.localdomain>
+Date: Wed,  9 Nov 2005 02:03:53 +0100 (CET)
+From: takis@issaris.org (Panagiotis Issaris)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, 
 
+This patch replaces two occurrences of kcalloc(1, with kzallocs.
 
-On Wed, 9 Nov 2005, Benjamin Herrenschmidt wrote:
-> 
-> Now, look at what's going on if there is no action, that is desc->action
-> is NULL. In that case, the code will go out, leaving the IRQ marked
-> IN_PROGRESS, call the end() handler and go out without ever calling
-> note_interrupt().
+Signed-off-by: Panagiotis Issaris <takis@issaris.org>
 
-Not a bug afaik.
+---
 
-> That means that
-> 
->  1) The interrupt will be stuck IN_PROGRESS. I don't see how IN_PROGRESS
-> can ever be cleared afterward
+ fs/relayfs/buffers.c |    2 +-
+ fs/relayfs/relay.c   |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-If desc->action is NULL, the flags are supposed to be cleared when we get 
-an action. See kernel/irq/manage.c: setup_irq(), and in particular the 
-case where we had no handler before (ie the "!shared" case).
-
->  2) We won't go through the code in note_interrupt() that protects us
-> against a stuck interrupt, so if the interrupt is indeed stuck, we'll
-> just lockup the processor taking the same IRQ for ever (and not being
-> able to handle it, even if an action magically gets registered, due to
-> 1)
-
-If the irq is stuck, you have serious problems with your interrupt 
-controller. By definition, the irq should be disabled since there are no 
-handlers for that interrupt.
-
-So I think the code is correct. It has certainly worked for years on x86 
-(and it got serious debugging, since we had some rather nasty and subtle 
-issues with edge-triggered APIC interrupts that just get lost if they are 
-disabled at the controller).
-
-			Linus
+applies-to: 7d508394035f9dd2079f486bc2d0beb4cb25b491
+5dac836e6db3c123fde60e00ec1b1040850289b2
+diff --git a/fs/relayfs/buffers.c b/fs/relayfs/buffers.c
+index 84e21ff..ce65964 100644
+--- a/fs/relayfs/buffers.c
++++ b/fs/relayfs/buffers.c
+@@ -133,7 +133,7 @@ depopulate:
+  */
+ struct rchan_buf *relay_create_buf(struct rchan *chan)
+ {
+-	struct rchan_buf *buf = kcalloc(1, sizeof(struct rchan_buf), GFP_KERNEL);
++	struct rchan_buf *buf = kzalloc(sizeof(struct rchan_buf), GFP_KERNEL);
+ 	if (!buf)
+ 		return NULL;
+ 
+diff --git a/fs/relayfs/relay.c b/fs/relayfs/relay.c
+index 16446a1..d599295 100644
+--- a/fs/relayfs/relay.c
++++ b/fs/relayfs/relay.c
+@@ -248,7 +248,7 @@ struct rchan *relay_open(const char *bas
+ 	if (!(subbuf_size && n_subbufs))
+ 		return NULL;
+ 
+-	chan = kcalloc(1, sizeof(struct rchan), GFP_KERNEL);
++	chan = kzalloc(sizeof(struct rchan), GFP_KERNEL);
+ 	if (!chan)
+ 		return NULL;
+ 
+---
+0.99.9.GIT

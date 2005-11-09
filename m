@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030442AbVKIWN5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030457AbVKIWPN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030442AbVKIWN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 17:13:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030439AbVKIWN4
+	id S1030457AbVKIWPN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 17:15:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030459AbVKIWPM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 17:13:56 -0500
-Received: from [205.233.219.253] ([205.233.219.253]:18359 "EHLO
-	conifer.conscoop.ottawa.on.ca") by vger.kernel.org with ESMTP
-	id S1030438AbVKIWNz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 17:13:55 -0500
-Date: Wed, 9 Nov 2005 17:12:01 -0500
-From: Jody McIntyre <scjody@modernduck.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       "Brown, Len" <len.brown@intel.com>, Jeff Garzik <jgarzik@pobox.com>,
-       "Luck, Tony" <tony.luck@intel.com>, Ben Collins <bcollins@debian.org>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Roland Dreier <rolandd@cisco.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Jens Axboe <axboe@suse.de>, Dave Kleikamp <shaggy@austin.ibm.com>,
-       Steven French <sfrench@us.ibm.com>
-Subject: Re: merge status
-Message-ID: <20051109221201.GE14318@conscoop.ottawa.on.ca>
-References: <20051109133558.513facef.akpm@osdl.org>
-Mime-Version: 1.0
+	Wed, 9 Nov 2005 17:15:12 -0500
+Received: from ozlabs.org ([203.10.76.45]:33493 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1030446AbVKIWPK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 17:15:10 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051109133558.513facef.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17266.29935.352768.742780@cargo.ozlabs.ibm.com>
+Date: Thu, 10 Nov 2005 09:15:11 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ppc64: 64K pages support
+In-Reply-To: <20051109172125.GA12861@lst.de>
+References: <1130915220.20136.14.camel@gaston>
+	<1130916198.20136.17.camel@gaston>
+	<20051109172125.GA12861@lst.de>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 09, 2005 at 01:35:58PM -0800, Andrew Morton wrote:
-> 
-> We're at day 12 of the two-week window, time for a quick peek at
-> outstanding patches in the subsystem trees.
-> 
-> -rw-r--r--    1 akpm     akpm        71651 Nov  9 11:19 git-ieee1394.patch
+Christoph Hellwig writes:
 
-I thought the two-week window was only for new stuff, not
-bugfixes/cleanup.  Did I misread something?  If so, oh well, these
-changes will have to wait for 2.6.16.  I don't feel comfortable sending
-up something that's only been in -mm for 2 days.
+> Booting current mainline with 64K pagesize enabled gives me a purple (!)
+> screen early during boot.
 
-Cheers,
-Jody
+Cool!
+
+Is this on a G5, or what sort of machine?  What .config are you using?
+
+Paul.

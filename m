@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030473AbVKIAnA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030476AbVKIAsR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030473AbVKIAnA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 19:43:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbVKIAnA
+	id S1030476AbVKIAsR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 19:48:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbVKIAsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 19:43:00 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:41416 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932391AbVKIAnA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 19:43:00 -0500
-Date: Tue, 8 Nov 2005 18:42:47 -0600
-To: Zan Lynx <zlynx@acm.org>
-Cc: David Gibson <dwg@au1.ibm.com>, Steven Rostedt <rostedt@goodmis.org>,
-       linuxppc64-dev@ozlabs.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, bluesmoke-devel@lists.sourceforge.net
+	Tue, 8 Nov 2005 19:48:17 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:56531 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932391AbVKIAsQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 19:48:16 -0500
+Date: Tue, 8 Nov 2005 18:48:08 -0600
+To: Douglas McNaught <doug@mcnaught.org>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Steven Rostedt <rostedt@goodmis.org>,
+       linux-kernel@vger.kernel.org, bluesmoke-devel@lists.sourceforge.net,
+       linux-pci@atrey.karlin.mff.cuni.cz, linuxppc64-dev@ozlabs.org
 Subject: Re: typedefs and structs
-Message-ID: <20051109004247.GL19593@austin.ibm.com>
-References: <20051107182727.GD18861@kroah.com> <20051107185621.GD19593@austin.ibm.com> <20051107190245.GA19707@kroah.com> <20051107193600.GE19593@austin.ibm.com> <20051107200257.GA22524@kroah.com> <20051107204136.GG19593@austin.ibm.com> <1131412273.14381.142.camel@localhost.localdomain> <20051108232327.GA19593@austin.ibm.com> <20051108235759.GA28271@localhost.localdomain> <1131495228.12797.67.camel@localhost>
+Message-ID: <20051109004808.GM19593@austin.ibm.com>
+References: <20051107185621.GD19593@austin.ibm.com> <20051107190245.GA19707@kroah.com> <20051107193600.GE19593@austin.ibm.com> <20051107200257.GA22524@kroah.com> <20051107204136.GG19593@austin.ibm.com> <1131412273.14381.142.camel@localhost.localdomain> <20051108232327.GA19593@austin.ibm.com> <B68D1F72-F433-4E94-B755-98808482809D@mac.com> <20051109003048.GK19593@austin.ibm.com> <m27jbihd1b.fsf@Douglas-McNaughts-Powerbook.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1131495228.12797.67.camel@localhost>
+In-Reply-To: <m27jbihd1b.fsf@Douglas-McNaughts-Powerbook.local>
 User-Agent: Mutt/1.5.6+20040907i
 From: linas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 08, 2005 at 05:13:48PM -0700, Zan Lynx was heard to remark:
-> On Wed, 2005-11-09 at 10:57 +1100, David Gibson wrote:
-> > 
-> > I hate it: it obscures the fact that it's a pass-by-reference at the
-> > callsite, which is useful information.  Although this is, admittedly,
-> > the least confusing use of C++ reference types.
+On Tue, Nov 08, 2005 at 07:37:20PM -0500, Douglas McNaught was heard to remark:
 > 
-> I agree with you about that one.  It's yet another thing for C
-> programmers to have to learn to watch for C++ doing behind your back.
+> Yeah, but if you're trying to read that code, you have to go look up
+> the declaration to figure out whether it might affect 'foo' or not.
+> And if you get it wrong, you get silent data corruption.
 
-I think you're rushing to judgement on something you've never tried. 
-It fundamentally changes coding style; you'd have to try it on some 
-mid-size project for at least a few months or longer to get into the
-mindset.  To make it all work, you also have to do other things, like 
-avoid mallocs and allocing on stack, which forces major changes of 
-style (because of the lifetime of things on stack). If you don't change 
-style to go with it, then you'll just end up in debug hell, in which
-case you'd be right: it would be a (very) bad idea.
-
-(Disclaimer: I've moved away from C++ because of all the other
-opportunities for misuse that it offers and encourages.)
+No, that is not what "pass by reference" means. You are thinking of
+"const", maybe, or "pass by value"; this is neither.  The arg is not 
+declared const, the subroutine can (and usually will) modify the contents 
+of the structure, and so the caller will be holding a modified structure
+when the callee returns (just like it would if a pointer was passed).
 
 --linas
 

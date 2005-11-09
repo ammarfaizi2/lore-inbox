@@ -1,79 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030441AbVKIAO1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030440AbVKIAOV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030441AbVKIAO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 19:14:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030444AbVKIAO1
+	id S1030440AbVKIAOV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 19:14:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030442AbVKIAOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 19:14:27 -0500
-Received: from sccrmhc14.comcast.net ([63.240.77.84]:33994 "EHLO
-	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S1030441AbVKIAO0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 19:14:26 -0500
-In-Reply-To: <43712D43.5080404@tmr.com>
-References: <Pine.LNX.4.61.0511081040580.3894@chaos.analogic.com> <3587A59B-14FA-4E0F-A598-577E944FCF36@comcast.net> <20051108172244.GR7992@ftp.linux.org.uk> <23F8E4C6-3141-4ECB-B3FF-E9BE6D261EE1@comcast.net> <Pine.LNX.4.61.0511081308360.4837@chaos.analogic.com> <C65925DE-0F6F-401E-8D47-2EE3F8D5191C@comcast.net> <Pine.LNX.4.61.0511081316390.4913@chaos.analogic.com> <b6c5339f0511081139y7ab57ea9y498d9cf4aae9692b@mail.gmail.com> <FC49A7EB-A267-4C94-8739-2321C4DC1A1B@comcast.net> <43712D43.5080404@tmr.com>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <93241CB9-F1EE-4D38-9194-C10B471FD02C@comcast.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-From: Parag Warudkar <kernel-stuff@comcast.net>
-Subject: Re: Compatible fstat()
-Date: Tue, 8 Nov 2005 19:14:19 -0500
-To: Bill Davidsen <davidsen@tmr.com>
-X-Mailer: Apple Mail (2.746.2)
+	Tue, 8 Nov 2005 19:14:21 -0500
+Received: from zlynx.org ([199.45.143.209]:43020 "EHLO 199.45.143.209")
+	by vger.kernel.org with ESMTP id S1030440AbVKIAOU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 19:14:20 -0500
+Subject: Re: typedefs and structs
+From: Zan Lynx <zlynx@acm.org>
+To: David Gibson <dwg@au1.ibm.com>
+Cc: linas <linas@austin.ibm.com>, Steven Rostedt <rostedt@goodmis.org>,
+       linuxppc64-dev@ozlabs.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, bluesmoke-devel@lists.sourceforge.net
+In-Reply-To: <20051108235759.GA28271@localhost.localdomain>
+References: <17262.37107.857718.184055@cargo.ozlabs.ibm.com>
+	 <20051107175541.GB19593@austin.ibm.com> <20051107182727.GD18861@kroah.com>
+	 <20051107185621.GD19593@austin.ibm.com> <20051107190245.GA19707@kroah.com>
+	 <20051107193600.GE19593@austin.ibm.com> <20051107200257.GA22524@kroah.com>
+	 <20051107204136.GG19593@austin.ibm.com>
+	 <1131412273.14381.142.camel@localhost.localdomain>
+	 <20051108232327.GA19593@austin.ibm.com>
+	 <20051108235759.GA28271@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-DoEz994RyBYnVPghOvkN"
+Date: Tue, 08 Nov 2005 17:13:48 -0700
+Message-Id: <1131495228.12797.67.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Nov 8, 2005, at 5:57 PM, Bill Davidsen wrote:
+--=-DoEz994RyBYnVPghOvkN
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> Parag Warudkar wrote:
->> On Nov 8, 2005, at 2:39 PM, Bob Copeland wrote:
->>> Isn't this just because the device size is > 2**32?  What if you   
->>> use fseeko(3)
->>> and #define _FILE_OFFSET_BITS 64?
->>>
->> Yep. I got it to return the correct hard disk size (17Gb) using   
->> lseek64 and
->> #define _LARGEFILE64_SOURCE
->> #define _FILE_OFFSET_BITS 64
->> Here is what I did
->> -------------------------------------------------
->> #define _LARGEFILE64_SOURCE
->> #define _FILE_OFFSET_BITS 64
->> #include <stdio.h>
->> #include <unistd.h>
->> #include <fcntl.h>
->> int main()
->> {
->>         int f;
->>         off64_t off=0;
-> Why is this initialized?
->>         f = open("/dev/hda", O_RDONLY );
->>         if(f <= 0){
->>                 perror("open");
->>                 exit(0);
->>         }
->>         off = lseek64(f, 0, SEEK_SET);
-> Why do this? it always returns zero.
->>         off = lseek64(f, 0, SEEK_END);
->>         perror("llseek");
->>         printf ("Size %lld\n", off);
->>         close(f);
->>         return 0;
->> }
-> RETURN VALUE
->   Upon successful completion, lseek returns the resulting offset
->   location as measured in bytes from the beginning of the  file.
->   Otherwise,  a  value  of  (off_t)-1 is returned and errno is
->   set to indicate the error.
->
+On Wed, 2005-11-09 at 10:57 +1100, David Gibson wrote:
+> On Tue, Nov 08, 2005 at 05:23:27PM -0600, Linas Vepstas wrote:
+[snip]
+> > The ampersand says "pass argument by reference (so as to get arg passin=
+g
+> > efficiency) but force coder to write code as if they were passing by va=
+lue"
+> > As a result, it gets difficult to pass null pointers (for reasons
+> > similar to the difficulty of passing null pointers in Java (and yes,
+> > I loathe Java, sorry to subject you to that))  Anyway, that's a C++ tri=
+ck=20
+> > only; I wish it was in C so I could experiment more and find out if I=20
+> > like it or hate it.
+>=20
+> I hate it: it obscures the fact that it's a pass-by-reference at the
+> callsite, which is useful information.  Although this is, admittedly,
+> the least confusing use of C++ reference types.
 
-You took it a little too seriously! It was from the scribble-and- 
-shuffle-till-it-works department ;) Sole purpose was to figure out a  
-way to print the disk size from the device - some how that is!
+I agree with you about that one.  It's yet another thing for C
+programmers to have to learn to watch for C++ doing behind your back.
 
-But thanks for pointing out anyway - it doesn't hurt to be correct no  
-matter what the purpose is.
+However, it isn't any worse than having an ordinary C pointer to some
+struct.  If the pointer was passed to the current function from above,
+and you're passing it to another function below, you really don't know
+what's going to happen to the structure unless you go look.  Just like
+the C++ reference, the C pointer doesn't get an address-of operator to
+remind you.
+--=20
+Zan Lynx <zlynx@acm.org>
 
-Parag
+--=-DoEz994RyBYnVPghOvkN
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBDcT86G8fHaOLTWwgRAiYnAJ425SV4gyJ/gnrRrP/mLqYh4o2ApgCdF7Hs
+rtRLUoY2K7LsxYXoArfvqdo=
+=VLcK
+-----END PGP SIGNATURE-----
+
+--=-DoEz994RyBYnVPghOvkN--
+

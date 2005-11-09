@@ -1,134 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751375AbVKIVP0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbVKIVPr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751375AbVKIVP0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 16:15:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbVKIVP0
+	id S1751408AbVKIVPr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 16:15:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751428AbVKIVPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 16:15:26 -0500
-Received: from tetsuo.zabbo.net ([207.173.201.20]:17026 "EHLO tetsuo.zabbo.net")
-	by vger.kernel.org with ESMTP id S1751375AbVKIVPZ (ORCPT
+	Wed, 9 Nov 2005 16:15:46 -0500
+Received: from tetsuo.zabbo.net ([207.173.201.20]:18562 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S1751408AbVKIVPe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 16:15:25 -0500
+	Wed, 9 Nov 2005 16:15:34 -0500
 From: Zach Brown <zach.brown@oracle.com>
 To: linux-aio@kvack.org, linux-kernel@vger.kernel.org
 Cc: Benjamin LaHaise <bcrl@kvack.org>, Andrew Morton <akpm@osdl.org>
-Message-Id: <20051109211758.25027.78199.sendpatchset@volauvent.pdx.zabbo.net>
-Subject: [PATCH 1/3] aio: remove kioctx from mm_struct
-Date: Wed,  9 Nov 2005 13:15:06 -0800 (PST)
+Message-Id: <20051109211808.25027.75305.sendpatchset@volauvent.pdx.zabbo.net>
+In-Reply-To: <20051109211758.25027.78199.sendpatchset@volauvent.pdx.zabbo.net>
+References: <20051109211758.25027.78199.sendpatchset@volauvent.pdx.zabbo.net>
+Subject: [PATCH 3/3] aio: make ctx ref debugging depend on DEBUG
+Date: Wed,  9 Nov 2005 13:15:16 -0800 (PST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+aio: make ctx ref debugging depend on DEBUG
 
-aio: remove kioctx from mm_struct
-
-Sync iocbs have a life cycle that don't need a kioctx.  Their retrying, if any,
-is done in the context of their owner who has allocated them on the stack.  The
-sole user of a sync iocb's ctx reference was aio_complete() checking for an
-elevated iocb ref count that could never happen.  No path which grabs an iocb
-ref has access to sync iocbs.  If we were to implement sync iocb cancelation it
-would be done by the owner of the iocb using its on-stack reference.  Removing
-this chunk from aio_complete allows us to remove the entire kioctx instance
-from mm_struct, reducing its size by a third.  On a i386 testing box the slab
-size went from 768 to 504 bytes and from 5 to 8 per page.
+Formalize ctx refcount debugging by putting it in legible inline functions and
+making it conditional on DEBUG.  In doing so a bug is also fixed where the
+decref debugging was testing the ref count after dropping its reference,
+opening a race with another thread that might free.
 
   Signed-off-by: Zach Brown <zach.brown@oracle.com>
 ---
 
- fs/aio.c                  |   27 +++++++++------------------
- include/linux/aio.h       |    2 +-
- include/linux/init_task.h |    1 -
- include/linux/sched.h     |    1 -
- kernel/fork.c             |    1 -
- 5 files changed, 10 insertions(+), 22 deletions(-)
+ fs/aio.c            |   65 +++++++++++++++++++++++++++++-----------------------
+ include/linux/aio.h |    4 ---
+ 2 files changed, 37 insertions(+), 32 deletions(-)
 
 Index: 2.6.14-mm1-aio-cleanups/fs/aio.c
 ===================================================================
---- 2.6.14-mm1-aio-cleanups.orig/fs/aio.c	2005-11-09 11:37:49.117278690 -0800
-+++ 2.6.14-mm1-aio-cleanups/fs/aio.c	2005-11-09 11:48:22.848483645 -0800
-@@ -937,28 +937,19 @@
- 	unsigned long	tail;
- 	int		ret;
+--- 2.6.14-mm1-aio-cleanups.orig/fs/aio.c	2005-11-09 11:48:27.394115109 -0800
++++ 2.6.14-mm1-aio-cleanups/fs/aio.c	2005-11-09 11:52:30.663874807 -0800
+@@ -37,8 +37,10 @@
  
--	/* Special case handling for sync iocbs: events go directly
--	 * into the iocb for fast handling.  Note that this will not 
--	 * work if we allow sync kiocbs to be cancelled. in which
--	 * case the usage count checks will have to move under ctx_lock
--	 * for all cases.
-+	/* 
-+	 * Special case handling for sync iocbs: 
-+	 *  - events go directly into the iocb for fast handling
-+	 *  - the sync task with the iocb in its stack holds the single iocb
-+	 *    ref, no other paths have a way to get another ref
-+	 *  - the sync task helpfully left a reference to itself in the iocb
- 	 */
- 	if (is_sync_kiocb(iocb)) {
--		int ret;
--
-+		BUG_ON(iocb->ki_users != 1);
- 		iocb->ki_user_data = res;
--		if (iocb->ki_users == 1) {
--			iocb->ki_users = 0;
--			ret = 1;
--		} else {
--			spin_lock_irq(&ctx->ctx_lock);
--			iocb->ki_users--;
--			ret = (0 == iocb->ki_users);
--			spin_unlock_irq(&ctx->ctx_lock);
--		}
--		/* sync iocbs put the task here for us */
-+		iocb->ki_users = 0;
- 		wake_up_process(iocb->ki_obj.tsk);
--		return ret;
-+		return 1;
- 	}
+ #if DEBUG > 1
+ #define dprintk		printk
++#define AIO_DEBUG_BUG_ON BUG_ON
+ #else
+ #define dprintk(x...)	do { ; } while (0)
++#define AIO_DEBUG_BUG_ON(x...) do { ; } while (0)
+ #endif
  
- 	info = &ctx->ring_info;
-Index: 2.6.14-mm1-aio-cleanups/include/linux/aio.h
-===================================================================
---- 2.6.14-mm1-aio-cleanups.orig/include/linux/aio.h	2005-11-09 11:37:49.100283807 -0800
-+++ 2.6.14-mm1-aio-cleanups/include/linux/aio.h	2005-11-09 11:48:22.848483645 -0800
-@@ -124,7 +124,7 @@
- 		(x)->ki_users = 1;			\
- 		(x)->ki_key = KIOCB_SYNC_KEY;		\
- 		(x)->ki_filp = (filp);			\
--		(x)->ki_ctx = &tsk->active_mm->default_kioctx;	\
-+		(x)->ki_ctx = NULL;			\
- 		(x)->ki_cancel = NULL;			\
- 		(x)->ki_dtor = NULL;			\
- 		(x)->ki_obj.tsk = tsk;			\
-Index: 2.6.14-mm1-aio-cleanups/include/linux/init_task.h
-===================================================================
---- 2.6.14-mm1-aio-cleanups.orig/include/linux/init_task.h	2005-11-09 11:37:49.100283807 -0800
-+++ 2.6.14-mm1-aio-cleanups/include/linux/init_task.h	2005-11-09 11:48:22.848483645 -0800
-@@ -51,7 +51,6 @@
- 	.page_table_lock =  SPIN_LOCK_UNLOCKED, 		\
- 	.mmlist		= LIST_HEAD_INIT(name.mmlist),		\
- 	.cpu_vm_mask	= CPU_MASK_ALL,				\
--	.default_kioctx = INIT_KIOCTX(name.default_kioctx, name),	\
+ /*------ sysctl variables----*/
+@@ -171,6 +173,40 @@
+ 	return 0;
  }
  
- #define INIT_SIGNALS(sig) {	\
-Index: 2.6.14-mm1-aio-cleanups/include/linux/sched.h
-===================================================================
---- 2.6.14-mm1-aio-cleanups.orig/include/linux/sched.h	2005-11-09 11:37:49.094285613 -0800
-+++ 2.6.14-mm1-aio-cleanups/include/linux/sched.h	2005-11-09 11:48:22.849483344 -0800
-@@ -360,7 +360,6 @@
- 	/* aio bits */
- 	rwlock_t		ioctx_list_lock;
- 	struct kioctx		*ioctx_list;
--	struct kioctx		default_kioctx;
- };
++static inline void get_ioctx(struct kioctx *ctx)
++{
++	AIO_DEBUG_BUG_ON(atomic_read(&ctx->users) <= 0);
++	atomic_inc(&ctx->users);
++}
++
++static void __put_ioctx(struct kioctx *ctx)
++{
++	unsigned nr_events = ctx->max_reqs;
++
++	BUG_ON(ctx->reqs_active);
++
++	cancel_delayed_work(&ctx->wq);
++	flush_workqueue(aio_wq);
++	aio_free_ring(ctx);
++	mmdrop(ctx->mm);
++	ctx->mm = NULL;
++	pr_debug("__put_ioctx: freeing %p\n", ctx);
++	kmem_cache_free(kioctx_cachep, ctx);
++
++	if (nr_events) {
++		spin_lock(&aio_nr_lock);
++		BUG_ON(aio_nr - nr_events > aio_nr);
++		aio_nr -= nr_events;
++		spin_unlock(&aio_nr_lock);
++	}
++}
++
++static inline void put_ioctx(struct kioctx *ctx)
++{
++	AIO_DEBUG_BUG_ON(atomic_read(&ctx->users) == 0);
++	if (atomic_dec_and_test(&ctx->users))
++		__put_ioctx(ctx);
++}
  
- struct sighand_struct {
-Index: 2.6.14-mm1-aio-cleanups/kernel/fork.c
-===================================================================
---- 2.6.14-mm1-aio-cleanups.orig/kernel/fork.c	2005-11-09 11:37:49.108281399 -0800
-+++ 2.6.14-mm1-aio-cleanups/kernel/fork.c	2005-11-09 11:48:22.850483043 -0800
-@@ -324,7 +324,6 @@
- 	spin_lock_init(&mm->page_table_lock);
- 	rwlock_init(&mm->ioctx_list_lock);
- 	mm->ioctx_list = NULL;
--	mm->default_kioctx = (struct kioctx)INIT_KIOCTX(mm->default_kioctx, *mm);
- 	mm->free_area_cache = TASK_UNMAPPED_BASE;
- 	mm->cached_hole_size = ~0UL;
+ /* aio_ring_event: returns a pointer to the event at the given index from
+  * kmap_atomic(, km).  Release the pointer with put_aio_ring_event();
+@@ -255,7 +291,7 @@
+ 	return ctx;
  
+ out_cleanup:
+-	__put_ioctx(ctx);
++	put_ioctx(ctx);
+ 	return ERR_PTR(-EAGAIN);
+ 
+ out_freectx:
+@@ -360,33 +396,6 @@
+ 	}
+ }
+ 
+-/* __put_ioctx
+- *	Called when the last user of an aio context has gone away,
+- *	and the struct needs to be freed.
+- */
+-void fastcall __put_ioctx(struct kioctx *ctx)
+-{
+-	unsigned nr_events = ctx->max_reqs;
+-
+-	if (unlikely(ctx->reqs_active))
+-		BUG();
+-
+-	cancel_delayed_work(&ctx->wq);
+-	flush_workqueue(aio_wq);
+-	aio_free_ring(ctx);
+-	mmdrop(ctx->mm);
+-	ctx->mm = NULL;
+-	pr_debug("__put_ioctx: freeing %p\n", ctx);
+-	kmem_cache_free(kioctx_cachep, ctx);
+-
+-	if (nr_events) {
+-		spin_lock(&aio_nr_lock);
+-		BUG_ON(aio_nr - nr_events > aio_nr);
+-		aio_nr -= nr_events;
+-		spin_unlock(&aio_nr_lock);
+-	}
+-}
+-
+ /* aio_get_req
+  *	Allocate a slot for an aio request.  Increments the users count
+  * of the kioctx so that the kioctx stays around until all requests are
+Index: 2.6.14-mm1-aio-cleanups/include/linux/aio.h
+===================================================================
+--- 2.6.14-mm1-aio-cleanups.orig/include/linux/aio.h	2005-11-09 11:48:22.848483645 -0800
++++ 2.6.14-mm1-aio-cleanups/include/linux/aio.h	2005-11-09 11:48:31.907756204 -0800
+@@ -198,7 +198,6 @@
+ extern int FASTCALL(aio_put_req(struct kiocb *iocb));
+ extern void FASTCALL(kick_iocb(struct kiocb *iocb));
+ extern int FASTCALL(aio_complete(struct kiocb *iocb, long res, long res2));
+-extern void FASTCALL(__put_ioctx(struct kioctx *ctx));
+ struct mm_struct;
+ extern void FASTCALL(exit_aio(struct mm_struct *mm));
+ extern struct kioctx *lookup_ioctx(unsigned long ctx_id);
+@@ -210,9 +209,6 @@
+ int FASTCALL(io_submit_one(struct kioctx *ctx, struct iocb __user *user_iocb,
+ 				  struct iocb *iocb));
+ 
+-#define get_ioctx(kioctx)	do { if (unlikely(atomic_read(&(kioctx)->users) <= 0)) BUG(); atomic_inc(&(kioctx)->users); } while (0)
+-#define put_ioctx(kioctx)	do { if (unlikely(atomic_dec_and_test(&(kioctx)->users))) __put_ioctx(kioctx); else if (unlikely(atomic_read(&(kioctx)->users) < 0)) BUG(); } while (0)
+-
+ #define in_aio() !is_sync_wait(current->io_wait)
+ /* may be used for debugging */
+ #define warn_if_async()							\

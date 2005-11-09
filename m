@@ -1,41 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932629AbVKIRZj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030561AbVKIRYt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932629AbVKIRZj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 12:25:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030576AbVKIRZi
+	id S1030561AbVKIRYt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 12:24:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965329AbVKIRYs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 12:25:38 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:24257 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030570AbVKIRZe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 12:25:34 -0500
-Subject: Re: [PATCH 0/39] NLKD - Novell Linux Kernel Debugger
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jan Beulich <JBeulich@novell.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <43723C6D.76F0.0078.0@novell.com>
-References: <43720DAE.76F0.0078.0@novell.com>  <43722AFC.4040709@pobox.com>
-	 <Pine.LNX.4.58.0511090904320.4001@shark.he.net>
-	 <43723C6D.76F0.0078.0@novell.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 09 Nov 2005 17:56:31 +0000
-Message-Id: <1131558991.6540.39.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 9 Nov 2005 12:24:48 -0500
+Received: from nproxy.gmail.com ([64.233.182.199]:33764 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030558AbVKIRYp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 12:24:45 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=c0hlND2YFM7hadED3AUSkDkLssEIRUNGtFkZTcAg4DklkwuXCLlwVIeU6cxKvf6hGv/nhEPH9HkcLEUIChzMUi97BAAaPgIDEsHYqSYDMV28MOvM+QEtjOwi1Snj4IQVV0paZIwo2b0jHPVm3Zm1hjnKdppnXEbdWqx9xoHA2oc=
+Message-ID: <7d40d7190511090924k6ef493dbn@mail.gmail.com>
+Date: Wed, 9 Nov 2005 18:24:44 +0100
+From: Aritz Bastida <aritzbastida@gmail.com>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Subject: Re: Stopping Kernel Threads at module unload time
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0511091158350.10894@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <7d40d7190511090749j3de0e473x@mail.gmail.com>
+	 <Pine.LNX.4.61.0511091110190.10303@chaos.analogic.com>
+	 <7d40d7190511090856x24fd68f5g@mail.gmail.com>
+	 <Pine.LNX.4.61.0511091158350.10894@chaos.analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-11-09 at 18:14 +0100, Jan Beulich wrote:
-> Sorry, I hear this quite often, but I also have to play by some company
-> rules, one of which is to use a certain mail system (or otherwise be
-> left alone in case of problems).
+>
+> > Now, if I call kthread_stop() in module unload time, does that code
+> > run in user process context just like system calls do? That is
+> > important, because if it cannot sleep, it would deadlock.
+> >
+>
+> Not relevent. You have apparently made up your mind that you
+> need to do it "your" way. Fine.
 
-Which is more important. Your employers email system or the ability of
-people to quote and work easily with patches ? Please send patches in a
-sensible format, even if you use a different mail tool for all your
-other email. 
+No, no, that is not MY way. That is the 2.6 way.
+ (see http://lwn.net/Articles/64444/).
 
-Other Novell contributors many of them large and important contributors
-from SuSE don't appear to be having this problem
+With the old API (kernel_thread) there was no way (at least, direct
+way) to bind a thread to a cpu, which i actually need. And this is not
+MY own approach , it is used throught the kernel:
+
+* migration thread at sched.c:
+           http://lxr.linux.no/source/kernel/sched.c#L4196
+
+* ksoftirqd thread at softirq.c:
+           http://lxr.linux.no/source/kernel/softirq.c#L350
+
+* worker thread used in workqueues:
+           http://lxr.linux.no/source/kernel/workqueue.c#L182
+
+...and so on
+
+All these threads are standard and well debugged, and all use the API
+which I was talking about. Of course, as they are included in the
+official kernel sources, none of them is stopped at module unload
+time.
+
+Thus, all I want to know is why kthread_stop() cant be called at
+module unload time, if the cleanup code can sleep and if there is a
+workaround for that.
+
+I hope my questions are clearer now.
+Thanks for your help
+
+Aritz

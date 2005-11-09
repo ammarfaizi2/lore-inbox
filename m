@@ -1,64 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030472AbVKIAin@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030474AbVKIAkM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030472AbVKIAin (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Nov 2005 19:38:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030473AbVKIAin
+	id S1030474AbVKIAkM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Nov 2005 19:40:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030473AbVKIAkM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Nov 2005 19:38:43 -0500
-Received: from sp-260-1.net4.netcentrix.net ([4.21.254.118]:46598 "EHLO
-	asmodeus.mcnaught.org") by vger.kernel.org with ESMTP
-	id S1030472AbVKIAin (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Nov 2005 19:38:43 -0500
-To: linas <linas@austin.ibm.com>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Steven Rostedt <rostedt@goodmis.org>,
-       linux-kernel@vger.kernel.org, bluesmoke-devel@lists.sourceforge.net,
-       linux-pci@atrey.karlin.mff.cuni.cz, linuxppc64-dev@ozlabs.org
-Subject: Re: typedefs and structs
-References: <20051107175541.GB19593@austin.ibm.com>
-	<20051107182727.GD18861@kroah.com>
-	<20051107185621.GD19593@austin.ibm.com>
-	<20051107190245.GA19707@kroah.com>
-	<20051107193600.GE19593@austin.ibm.com>
-	<20051107200257.GA22524@kroah.com>
-	<20051107204136.GG19593@austin.ibm.com>
-	<1131412273.14381.142.camel@localhost.localdomain>
-	<20051108232327.GA19593@austin.ibm.com>
-	<B68D1F72-F433-4E94-B755-98808482809D@mac.com>
-	<20051109003048.GK19593@austin.ibm.com>
-From: Douglas McNaught <doug@mcnaught.org>
-Date: Tue, 08 Nov 2005 19:37:20 -0500
-In-Reply-To: <20051109003048.GK19593@austin.ibm.com> (linas@austin.ibm.com's message of "Tue, 8 Nov 2005 18:30:48 -0600")
-Message-ID: <m27jbihd1b.fsf@Douglas-McNaughts-Powerbook.local>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (darwin)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 8 Nov 2005 19:40:12 -0500
+Received: from gate.crashing.org ([63.228.1.57]:63644 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1030474AbVKIAkK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Nov 2005 19:40:10 -0500
+Subject: Posssible bug in kernel/irq/handle.c
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>
+Cc: Paul Mackerras <paulus@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Wed, 09 Nov 2005 11:38:59 +1100
+Message-Id: <1131496739.24637.12.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linas <linas@austin.ibm.com> writes:
+Hi Ingo, Linus !
 
-> On Tue, Nov 08, 2005 at 06:57:11PM -0500, Kyle Moffett was heard to remark:
+We were going through __do_IRQ (trying to figure out if we can use it
+instead of keeping our own in ppc64) while we found that bit that seems
+bogus to me:
 
->> That technique tends to cause more problems than it solves.  If I  
->> write the following code:
->> 
->> struct foo the_leftmost_foo = get_leftmost_foo();
->> do_some_stuff(the_leftmost_foo);
->> 
->> How do I know what it is going to do?  
->
-> It depends on how do_some_stuff() was declared. If its declared as
->
->    do_some_stuff (struct foo &x)
->
-> then it will be a pass by reference.
+	/*
+	 * If the IRQ is disabled for whatever reason, we cannot
+	 * use the action we have.
+	 */
+	action = NULL;
+	if (likely(!(status & (IRQ_DISABLED | IRQ_INPROGRESS)))) {
+		action = desc->action;
+		status &= ~IRQ_PENDING; /* we commit to handling */
+		status |= IRQ_INPROGRESS; /* we are handling it */
+	}
+	desc->status = status;
 
-Yeah, but if you're trying to read that code, you have to go look up
-the declaration to figure out whether it might affect 'foo' or not.
-And if you get it wrong, you get silent data corruption.
+	/*
+	 * If there is no IRQ handler or it was disabled, exit early.
+	 * Since we set PENDING, if another processor is handling
+	 * a different instance of this same irq, the other processor
+	 * will take care of it.
+	 */
+	if (unlikely(!action))
+		goto out;
 
-I'd rather pass a pointer explicitly and crash with a segfault if
-someone passes NULL--at least then it's pellucidly clear what went
-wrong.
+Now, look at what's going on if there is no action, that is desc->action
+is NULL. In that case, the code will go out, leaving the IRQ marked
+IN_PROGRESS, call the end() handler and go out without ever calling
+note_interrupt().
 
--Doug
+That means that
+
+ 1) The interrupt will be stuck IN_PROGRESS. I don't see how IN_PROGRESS
+can ever be cleared afterward
+
+ 2) We won't go through the code in note_interrupt() that protects us
+against a stuck interrupt, so if the interrupt is indeed stuck, we'll
+just lockup the processor taking the same IRQ for ever (and not being
+able to handle it, even if an action magically gets registered, due to
+1)
+
+I think we need to differentiate the case DISABLED | IN_PROGRESS from
+the case no action.
+
+Something like (just typing in the mailer) :
+
+	if (unlikely(status & (IRQ_DISABLED | IRQ_INPROGRESS))) {
+		desc->status = status;
+		goto out;
+	}
+	action = desc->action;
+	status &= ~IRQ_PENDING; /* we commit to handling */
+	status |= IRQ_INPROGRESS; /* we are handling it */
+	desc->status = status;
+
+Then, test for action != NULL in the for (;;) loop before calling
+handle_IRQ_event() and set action_ret to IRQ_NONE by default. (I think
+we should get to the for loop and not avoid it, in case the PENDING bit
+happens to be set by another CPU in the meantime).
+
+Did I miss something ? If you think that's ok, I'll produce a patch.
+
+In addition, I'd like an arch hook in note_interrupt() in order to pass
+unhandled interrupts to the firmware but that's a different matter (still
+let me know if you have any objection)
+
+Cheers,
+Ben.
+
+

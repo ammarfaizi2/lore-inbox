@@ -1,81 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbVKIRsu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932645AbVKIRtF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750729AbVKIRsu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 12:48:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbVKIRsu
+	id S932645AbVKIRtF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 12:49:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932630AbVKIRtF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 12:48:50 -0500
-Received: from [67.137.28.189] ([67.137.28.189]:47744 "EHLO vger.utah-nac.org")
-	by vger.kernel.org with ESMTP id S1750729AbVKIRst (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 12:48:49 -0500
-Message-ID: <4372230B.3080002@wolfmountaingroup.com>
-Date: Wed, 09 Nov 2005 09:25:47 -0700
-From: "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Jan Beulich <JBeulich@novell.com>,
+	Wed, 9 Nov 2005 12:49:05 -0500
+Received: from nproxy.gmail.com ([64.233.182.198]:38727 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932526AbVKIRtC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 12:49:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=sGbIdZlqk4SUXKwCmQFjnzV3Fi2gd43T7SIJH2qSnaxgkrJpNbM/IoUu/vOBEK1AmDSFBIw/8rjmH2Dl04DzCOBDkiIsF+8s1JCinzN3T2JLtMtsTxTvp673ZmRDjZ+Gu4rQixK/hCN/imJXZwgr8AVgSsPmevTDo9w1X9POuKE=
+Message-ID: <7d40d7190511090949xc550b68k@mail.gmail.com>
+Date: Wed, 9 Nov 2005 18:49:01 +0100
+From: Aritz Bastida <aritzbastida@gmail.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: Stopping Kernel Threads at module unload time
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/39] NLKD - Novell Linux Kernel Debugger
-References: <43720DAE.76F0.0078.0@novell.com>  <43722AFC.4040709@pobox.com> <1131558785.6540.34.camel@localhost.localdomain>
-In-Reply-To: <1131558785.6540.34.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <200511091827.49144.arnd@arndb.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <7d40d7190511090749j3de0e473x@mail.gmail.com>
+	 <Pine.LNX.4.61.0511091110190.10303@chaos.analogic.com>
+	 <7d40d7190511090856x24fd68f5g@mail.gmail.com>
+	 <200511091827.49144.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-
->On Mer, 2005-11-09 at 11:59 -0500, Jeff Garzik wrote:
->  
+2005/11/9, Arnd Bergmann <arnd@arndb.de>:
+> On Middeweken 09 November 2005 17:56, Aritz Bastida wrote:
+> > Now, if I call kthread_stop() in module unload time, does that code
+> > run in user process context just like system calls do? That is
+> > important, because if it cannot sleep, it would deadlock.
 >
->>Honestly, just seeing all these code changes makes me think we really 
->>don't need it in the kernel.  How many "early" and "alternative" gadgets 
->>do we really need just for this thing?
->>    
->>
+> Yes, it runs in the context of the delete_module system call.
+> I think it's more likely that you're not returning from your
+> thread loop.
 >
->I think it is clearly the case that the design is wrong. The existance
->of kgdb shows how putting the complex logic remotely on another system
->is not only a lot cleaner and simpler but can also provide more
->functionality and higher reliability.
+> Please post a URL for your module source code so we can see
+> what goes wrong there.
 >
->The presence of user mode linux and Xen also provide solutions to the
->usual concern about needing two systems, as will future hardware
->features.
->  
->
+>         Arnd <><
 
-Not necessarily true with regard to having the functionality in the 
-kernel, but for Linux, probably better for maintenance based on the social
-issues.  I have MDB fully integrated in the kernel and I don't have all 
-these problems.  It's just an update to the kdb hooks, patch, build and go.
-Novell should probably just fork the kernel and start their own distro 
-and dump the mainstream Linux.  They have the people and infrastructure
-to support drivers and do just as good a job as LKML with the old 
-NetWare group.  Novell was presented with MDB two years ago and opted
-to build their own rather than go with ours.  I have been disappointed 
-with the quality of what they have produced to date.
+Than you very much Arnd!
+You solved my problem. hehe
 
-They should fork form Linux and understand that the Linux folks and 
-their culture is totaly alien to Novell's culture.   They will never make
-progress with the Linux folks and continued interactions will waste both 
-groups time.  They have the talent and resources to preempt Linux
-and do their own thing.  They need to just go and do it.
+I began to write a test module for showing you this and have just
+realized about the problem. As I create as many threads as CPUs, I
+have to delete them all when finishing.
 
-J
+I killed them like this:
 
+        /* We don't need the distraction of CPUs appearing and vanishing. */
+        lock_cpu_hotplug();
+        for_each_online_cpu(cpu) {
+                p = per_cpu(ksensord_info, cpu);
+                kthread_stop(p);
+        }
+        unlock_cpu_hotplug();
 
->Alan
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+I locked the cpu hotplug lock to protect the for_each_online_cpu()
+code in case a cpu appears/vanishes, so I am actually calling
+kthread_stop() in an atomic context, so it wakes up the process, but
+dont let it run!
 
+This is quite a subtle error, but of course it's my complete fault :P
+May be a BUG_ON(in_atomic()) within kthread_stop() would let this kind of
+errors be acknowledged more easily.
+
+Thank you for your help
+Regards
+
+Aritz Bastida

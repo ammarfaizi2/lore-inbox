@@ -1,32 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030522AbVKIRV5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932629AbVKIRZj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030522AbVKIRV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 12:21:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030530AbVKIRVz
+	id S932629AbVKIRZj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 12:25:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030576AbVKIRZi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 12:21:55 -0500
-Received: from verein.lst.de ([213.95.11.210]:7866 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S1030522AbVKIRVx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 12:21:53 -0500
-Date: Wed, 9 Nov 2005 18:21:25 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>, linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ppc64: 64K pages support
-Message-ID: <20051109172125.GA12861@lst.de>
-References: <1130915220.20136.14.camel@gaston> <1130916198.20136.17.camel@gaston>
+	Wed, 9 Nov 2005 12:25:38 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:24257 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030570AbVKIRZe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 12:25:34 -0500
+Subject: Re: [PATCH 0/39] NLKD - Novell Linux Kernel Debugger
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jan Beulich <JBeulich@novell.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <43723C6D.76F0.0078.0@novell.com>
+References: <43720DAE.76F0.0078.0@novell.com>  <43722AFC.4040709@pobox.com>
+	 <Pine.LNX.4.58.0511090904320.4001@shark.he.net>
+	 <43723C6D.76F0.0078.0@novell.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 09 Nov 2005 17:56:31 +0000
+Message-Id: <1131558991.6540.39.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1130916198.20136.17.camel@gaston>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Booting current mainline with 64K pagesize enabled gives me a purple (!)
-screen early during boot.
+On Mer, 2005-11-09 at 18:14 +0100, Jan Beulich wrote:
+> Sorry, I hear this quite often, but I also have to play by some company
+> rules, one of which is to use a certain mail system (or otherwise be
+> left alone in case of problems).
 
+Which is more important. Your employers email system or the ability of
+people to quote and work easily with patches ? Please send patches in a
+sensible format, even if you use a different mail tool for all your
+other email. 
+
+Other Novell contributors many of them large and important contributors
+from SuSE don't appear to be having this problem

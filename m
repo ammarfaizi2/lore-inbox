@@ -1,40 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751524AbVKISqv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965025AbVKISw0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751524AbVKISqv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 13:46:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751525AbVKISqv
+	id S965025AbVKISw0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 13:52:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964955AbVKISw0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 13:46:51 -0500
-Received: from smtp-out.google.com ([216.239.45.12]:48655 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1751523AbVKISqu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 13:46:50 -0500
-Date: Wed, 9 Nov 2005 10:46:23 -0800
-From: Arun Sharma <arun.sharma@google.com>
-To: akpm@osdl.org
-Cc: rohit.seth@intel.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] Expose SHM_HUGETLB in shmctl(id, IPC_STAT, ...)
-Message-ID: <20051109184623.GA21636@sharma-home.net>
-Mime-Version: 1.0
+	Wed, 9 Nov 2005 13:52:26 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:59666 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S965025AbVKISwY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 13:52:24 -0500
+Date: Wed, 9 Nov 2005 19:52:23 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, Willy TARREAU <willy@w.ods.org>
+Subject: Re: Linux 2.4.32-rc3
+Message-ID: <20051109185223.GA4047@stusta.de>
+References: <20051109133216.GA9183@logos.cnet>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20051109133216.GA9183@logos.cnet>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allow shmctl to find out if a shmid corresponds to a HUGETLB segment
+On Wed, Nov 09, 2005 at 11:32:16AM -0200, Marcelo Tosatti wrote:
 
-Signed-off-by: Arun Sharma <arun.sharma@google.com>
-Acked-by: Rohit Seth <rohit.seth@intel.com>
+> Hi,
 
---- a/ipc/shm.c	Tue Nov  8 20:58:38 2005
-+++ b/ipc/shm.c	Wed Nov  9 10:26:37 2005
-@@ -197,7 +197,7 @@
- 		return -ENOMEM;
- 
- 	shp->shm_perm.key = key;
--	shp->shm_flags = (shmflg & S_IRWXUGO);
-+	shp->shm_flags = (shmflg & (S_IRWXUGO | SHM_HUGETLB));
- 	shp->mlock_user = NULL;
- 
- 	shp->shm_perm.security = NULL;
+Hi Marcelo,
+
+> Two small issues showed up, 
+> 
+> - IPVS refcont leak 
+> - unpriviledged virtual terminal ioctls should be allowed 
+> to read function keys
+> 
+> So here goes -rc3.
+> 
+> Attaching the full changelog since this is probably the last -rc
+> release.
+>...
+
+If there will be one more -rc, could you include my airo_cs fix?
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

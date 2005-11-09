@@ -1,67 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751653AbVKIXxQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751659AbVKIXz2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751653AbVKIXxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 18:53:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751654AbVKIXxQ
+	id S1751659AbVKIXz2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 18:55:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751660AbVKIXz2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 18:53:16 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:16647 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751652AbVKIXxP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 18:53:15 -0500
-Date: Thu, 10 Nov 2005 00:53:14 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.32-rc3
-Message-ID: <20051109235314.GF4047@stusta.de>
-References: <20051109133216.GA9183@logos.cnet> <20051109185223.GA4047@stusta.de> <20051109141530.GA9332@logos.cnet> <20051109231123.GA18858@alpha.home.local>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051109231123.GA18858@alpha.home.local>
-User-Agent: Mutt/1.5.11
+	Wed, 9 Nov 2005 18:55:28 -0500
+Received: from gate.crashing.org ([63.228.1.57]:62896 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751658AbVKIXz1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 18:55:27 -0500
+Subject: Re: [PATCH] AGP performance fixes
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Alan Hourihane <alanh@fairlite.demon.co.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@redhat.com>
+In-Reply-To: <1131579848.5973.113.camel@jetpack.demon.co.uk>
+References: <200511092002.jA9K25J8025643@hera.kernel.org>
+	 <1131578955.24637.116.camel@gaston>
+	 <1131579848.5973.113.camel@jetpack.demon.co.uk>
+Content-Type: text/plain
+Date: Thu, 10 Nov 2005 10:53:42 +1100
+Message-Id: <1131580422.24637.119.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 10, 2005 at 12:11:23AM +0100, Willy Tarreau wrote:
-> Hi Adrian, hi Marcelo,
+
+> > Am I supposed to define something new for uninorth-agp ? Is this yet another
+> > x86-only (or worse, some x86 chipsets only concept going global ?
 > 
-> On Wed, Nov 09, 2005 at 12:15:31PM -0200, Marcelo Tosatti wrote:
-> (...)
-> > > If there will be one more -rc, could you include my airo_cs fix?
-> > 
-> > Hi Adrian,
-> > 
-> > I think it can wait for the next -pre... Hope there wont be another -rc.
+> change global_flush_tlb() to flush_agp_mappings() and you should be
+> fine.
 > 
-> So do I. Moreover, -pre should start with several network-related fixes,
-> so your fix might find a comfortable place there :-)
-> 
-> I will release another -hf with recent fixes. I noticed I missed three of
-> them from 2.4.32-rc2 (I thought I was up to date but they showed up just
-> before the announcement). They are the memleak in sd_mod, the TCP snd_wnd
-> fix and the fix for the infinite loop in udp_v6_get_port(). So I can also
-> merge your fix early if you want (I already queued it for later inclusion).
-> I generally try to avoid including fixes that are not much transversal,
-> but I read in your patch that the bug you fixed could cause side effects
-> to any parts in the kernel, so if you feel it's appropriate for -hf, I'll
-> trust you :-)
+> Linus has a fix for this.
 
-I'd say the big advantage of my patch is that although it's hard to see 
-the bug it fixes, it's easy to see that it can't break anything.
+Yup, it just showed up in git, thanks.
 
-> Cheers,
-> Willy
+Ben.
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

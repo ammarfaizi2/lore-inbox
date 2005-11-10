@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750973AbVKJO5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751022AbVKJO7P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750973AbVKJO5E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 09:57:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750985AbVKJO5E
+	id S1751022AbVKJO7P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 09:59:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751010AbVKJO7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 09:57:04 -0500
-Received: from rtr.ca ([64.26.128.89]:31390 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1750973AbVKJO5D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 09:57:03 -0500
-Message-ID: <43735FC8.2090101@rtr.ca>
-Date: Thu, 10 Nov 2005 09:57:12 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050923 Debian/1.7.12-0ubuntu05.04
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: Greg KH <greg@kroah.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org, damir.perisa@solnet.ch, akpm@osdl.org,
-       Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: [patch] Re: 2.6.14-rc5-mm1 - ide-cs broken!
-References: <20051103220305.77620d8f.akpm@osdl.org>	 <20051104071932.GA6362@kroah.com>	 <1131117293.26925.46.camel@localhost.localdomain>	 <20051104163755.GB13420@kroah.com> <1131531428.8506.24.camel@localhost.localdomain>
-In-Reply-To: <1131531428.8506.24.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 10 Nov 2005 09:59:15 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:62758
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1750985AbVKJO7O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 09:59:14 -0500
+Message-Id: <43736E8D.76F0.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Thu, 10 Nov 2005 16:00:13 +0100
+From: "Jan Beulich" <JBeulich@novell.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
+Subject: Re: [PATCH 18/39] NLKD/x86-64 - INT1/INT3 handling changes
+References: <43720DAE.76F0.0078.0@novell.com>  <200511101421.48950.ak@suse.de>  <43736220.76F0.0078.0@novell.com> <200511101525.06063.ak@suse.de>
+In-Reply-To: <200511101525.06063.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Purdie wrote:
+>> >Looks reasonable except for the CONFIG_NLKD hunk, which doesn't
+>> >seem to be related. I think I'll apply it without that.
+>>
+>> As the comment in that hunk says - this is not the correct test, but
+the
+>> correct test cannot be used. Omitting the hunk altogether will leave
+orphan
+>> references to the pda field (even though these won't cause build
+problems)
+>> in setup64.c and traps.c.
 >
-> - *	FIXME: This treatment is probably applicable for *all* PCMCIA (PC CARD)
-> - *	devices, so in linux 2.3.x we should change this to just treat all
-> - *	PCMCIA  drives this way, and get rid of the model-name tests below
-> - *	(too big of an interface change for 2.4.x).
-> - *	At that time, we might also consider parameterizing the timeouts and
-> - *	retries, since these are MUCH faster than mechanical drives. -M.Lord
-> - */
+>!NLKD code relying on CONFIG_NLKD code? That sounds wrong. I won't
+apply
+>it then. Please clean up first.
 
-I believe the latter half of those comments (timeouts) should
-be left in the IDE layer (somewhere), as a note to current/future
-maintainers about something that does need fixing eventually.
+Since the exception stack size doesn't get set to other than 4k, this
+isn't by itself wrong (the NLKD patch later conditionally sets this to
+more than 4k). The problem, as said in the patch, is that pda.h cannot
+include processor.h, and I see no solution for that (other than breaking
+up processor.h).
 
-Something like this:
-
-/*
-  * FIXME:  Someday we ought to parameterize IDE timeouts to use
-  * much smaller values when dealing with flash memory cards.
-  * For example, these devices never require more than a second
-  * (much less, actually) for "spin-up", compared with a limit
-  * of 31 seconds for mechanical ATA drives.  This would speed up
-  * error recovery for these popular devices, especially in embedded work
-  */
-
-Cheers
--M.Lord
+Jan

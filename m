@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750903AbVKJOCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750923AbVKJODy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750903AbVKJOCt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 09:02:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750916AbVKJOBt
+	id S1750923AbVKJODy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 09:03:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbVKJODx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 09:01:49 -0500
-Received: from mx2.suse.de ([195.135.220.15]:28610 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750898AbVKJOBX (ORCPT
+	Thu, 10 Nov 2005 09:03:53 -0500
+Received: from odyssey.analogic.com ([204.178.40.5]:8711 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1750908AbVKJODk convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 09:01:23 -0500
-From: Andi Kleen <ak@suse.de>
-To: "Jan Beulich" <JBeulich@novell.com>
-Subject: Re: [PATCH 25/39] NLKD/x86-64 - core
-Date: Thu, 10 Nov 2005 14:30:47 +0100
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
-References: <43720DAE.76F0.0078.0@novell.com> <4372138D.76F0.0078.0@novell.com> <437213E0.76F0.0078.0@novell.com>
-In-Reply-To: <437213E0.76F0.0078.0@novell.com>
+	Thu, 10 Nov 2005 09:03:40 -0500
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511101430.47757.ak@suse.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <437347B5.6080201@gmail.com>
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+References: <437347B5.6080201@gmail.com>
+X-OriginalArrivalTime: 10 Nov 2005 14:03:38.0211 (UTC) FILETIME=[8C3C4B30:01C5E5FF]
+Content-class: urn:content-classes:message
+Subject: Re: MOD_INC_USE_COUNT
+Date: Thu, 10 Nov 2005 09:03:37 -0500
+Message-ID: <Pine.LNX.4.61.0511100859400.18912@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: MOD_INC_USE_COUNT
+Thread-Index: AcXl/4xi7YvNXy43SBCc289fAOD3yw==
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Tony" <tony.uestc@gmail.com>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 November 2005 15:21, Jan Beulich wrote:
-> The core x86-64 NLKD additions.
 
-I probably won't merge that unless the full NLKD somehow manages to get 
-into mainline. Shouldn't be that hard to maintain out of tree or even
-build the debugger in a fully separate directory.
+On Thu, 10 Nov 2005, Tony wrote:
 
-My general suggestion would be to move away from using your own
-defines for all the architecture state (MSRs etc) but instead use
-the ones from the Linux headers instead which should be largely
-equivalent (if there are some missing we can probably add them) 
-And getting of that Intel style assembly would be good too.
+> Hello All,
+> Usually, when a net_device->open is called, it will MOD_INC_USE_COUNT on
+> success. It is removed since 2.5.x, then should I increase the use
+> count? how? thx.
 
-I would move the asm-offset bits into a separate file, perhaps run from
-the NLKD Makefile, that should reduce later merging pain.
+Gone! Don't use INC or DEC_USE_COUNT anymore. The kernel takes
+care of that for you. Also, the count shown in `lsmod` no longer
+means anything you can use programmaticly.
 
--Andi
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13.4 on an i686 machine (5589.55 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+.
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

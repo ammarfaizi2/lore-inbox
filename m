@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbVKJFpA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751135AbVKJGWm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751082AbVKJFpA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 00:45:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751113AbVKJFpA
+	id S1751135AbVKJGWm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 01:22:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbVKJGWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 00:45:00 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:36541 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751082AbVKJFpA (ORCPT
+	Thu, 10 Nov 2005 01:22:42 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:984 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751135AbVKJGWm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 00:45:00 -0500
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
-From: Keith Owens <kaos@sgi.com>
-To: "Jan Beulich" <JBeulich@novell.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 14/39] NLKD - kernel trace buffer access 
-In-reply-to: Your message of "Wed, 09 Nov 2005 15:09:13 BST."
-             <43721119.76F0.0078.0@novell.com> 
+	Thu, 10 Nov 2005 01:22:42 -0500
+Date: Wed, 9 Nov 2005 22:22:23 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Arun Sharma <arun.sharma@google.com>
+Cc: rohit.seth@intel.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Expose SHM_HUGETLB in shmctl(id, IPC_STAT, ...)
+Message-Id: <20051109222223.538309e4.akpm@osdl.org>
+In-Reply-To: <20051109184623.GA21636@sharma-home.net>
+References: <20051109184623.GA21636@sharma-home.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 10 Nov 2005 16:44:52 +1100
-Message-ID: <7640.1131601492@kao2.melbourne.sgi.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 09 Nov 2005 15:09:13 +0100, 
-"Jan Beulich" <JBeulich@novell.com> wrote:
->Debug extension implementation for NLKD to access the kernel trace
->buffer.
+Arun Sharma <arun.sharma@google.com> wrote:
+>
+> Allow shmctl to find out if a shmid corresponds to a HUGETLB segment
+> 
+>  Signed-off-by: Arun Sharma <arun.sharma@google.com>
+>  Acked-by: Rohit Seth <rohit.seth@intel.com>
+> 
+>  --- a/ipc/shm.c	Tue Nov  8 20:58:38 2005
+>  +++ b/ipc/shm.c	Wed Nov  9 10:26:37 2005
+>  @@ -197,7 +197,7 @@
+>   		return -ENOMEM;
+>   
+>   	shp->shm_perm.key = key;
+>  -	shp->shm_flags = (shmflg & S_IRWXUGO);
+>  +	shp->shm_flags = (shmflg & (S_IRWXUGO | SHM_HUGETLB));
+>   	shp->mlock_user = NULL;
+>   
+>   	shp->shm_perm.security = NULL;
 
- printk.c |  187 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 187 insertions(+)
+I dunno.  The manpage says:
 
-This is complete overkill in printk.c.  The only change required to
-printk is to add a routine which gets the parameters that define the
-buffer, see below from KDB.  The rest of the code in your patch belongs
-in the debugger, not in printk.
+       The highlighted fields in the member shm_perm can be set:
 
-#ifdef	CONFIG_KDB
-/* kdb dmesg command needs access to the syslog buffer.  do_syslog() uses locks
- * so it cannot be used during debugging.  Just tell kdb where the start and
- * end of the physical and logical logs are.  This is equivalent to do_syslog(3).
- */
-void kdb_syslog_data(char *syslog_data[4])
-{
-	syslog_data[0] = log_buf;
-	syslog_data[1] = log_buf + log_buf_len;
-	syslog_data[2] = log_buf + log_end - (logged_chars < log_buf_len ? logged_chars : log_buf_len);
-	syslog_data[3] = log_buf + log_end;
-}
-#endif	/* CONFIG_KDB */
+           struct ipc_perm {
+       ...
+               ushort mode;  /* lower 9 bits of access modes */
+       ...
+           };
 
+So if an application used to do:
+
+	if (perm.mode == 0666)
+
+it will now break, because we've gone and set bit 9 on hugetlb segments.

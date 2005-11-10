@@ -1,38 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbVKJHyJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbVKJIBc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751260AbVKJHyJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 02:54:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbVKJHyJ
+	id S1751363AbVKJIBc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 03:01:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbVKJIBc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 02:54:09 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:6450 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751260AbVKJHyI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 02:54:08 -0500
-Date: Thu, 10 Nov 2005 08:55:09 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Tejun Heo <htejun@gmail.com>
-Cc: linux-kernel@vger.kernel.org, bernd@firmix.at
-Subject: Re: [PATCH] blk: fix string handling in elv_iosched_store
-Message-ID: <20051110075508.GT3699@suse.de>
-References: <20051109171134.GA24115@htj.dyndns.org> <20051109180246.GA27759@htj.dyndns.org>
+	Thu, 10 Nov 2005 03:01:32 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:4272
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1751363AbVKJIBb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 03:01:31 -0500
+Message-Id: <43730CA7.76F0.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Thu, 10 Nov 2005 09:02:31 +0100
+From: "Jan Beulich" <JBeulich@novell.com>
+To: "Keith Owens" <kaos@sgi.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 14/39] NLKD - kernel trace buffer access
+References: Your message of "Wed, 09 Nov 2005 15:09:13 BST."            <43721119.76F0.0078.0@novell.com>   <7640.1131601492@kao2.melbourne.sgi.com>
+In-Reply-To: <7640.1131601492@kao2.melbourne.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051109180246.GA27759@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 10 2005, Tejun Heo wrote:
-> elv_iosched_store doesn't terminate string passed from userspace if
-> it's too long.  Also, if the written length is zero (probably not
-> possible), it accesses elevator_name[-1].  This patch fixes both bugs.
-> 
-> Signed-off-by: Tejun Heo <htejun@gmail.com>
-> Cc: Bernd Petrovitsch <bernd@firmix.at>
+>>> Keith Owens <kaos@sgi.com> 10.11.05 06:44:52 >>>
+>On Wed, 09 Nov 2005 15:09:13 +0100, 
+>"Jan Beulich" <JBeulich@novell.com> wrote:
+>>Debug extension implementation for NLKD to access the kernel trace
+>>buffer.
+>
+> printk.c |  187
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+> 1 files changed, 187 insertions(+)
+>
+>This is complete overkill in printk.c.  The only change required to
+>printk is to add a routine which gets the parameters that define the
+>buffer, see below from KDB.  The rest of the code in your patch
+belongs
+>in the debugger, not in printk.
 
-Thanks applied.
+This depends on the perspective...
 
--- 
-Jens Axboe
+>#ifdef	CONFIG_KDB
+>/* kdb dmesg command needs access to the syslog buffer.  do_syslog()
+uses locks
+> * so it cannot be used during debugging.  Just tell kdb where the
+start and
+> * end of the physical and logical logs are.  This is equivalent to
+do_syslog(3).
+> */
+>void kdb_syslog_data(char *syslog_data[4])
+>{
+>	syslog_data[0] = log_buf;
+>	syslog_data[1] = log_buf + log_buf_len;
+>	syslog_data[2] = log_buf + log_end - (logged_chars < log_buf_len
+? logged_chars : log_buf_len);
+>	syslog_data[3] = log_buf + log_end;
+>}
+>#endif	/* CONFIG_KDB */
 
+The publishing of this function allows uncontrolled access to the
+otherwise (and sure purposefully) static symbols; you could as well
+globalize the symbols directly. In order for KDB to be a module, this
+symbol would even need to be exported. By keeping the debugger access
+code in the same file, nothing gets changed visibility-wise for the
+outside world.
+
+Further, the design of the debugger extensions of NLKD calls for the
+extension code to live in the place their data gets controlled at.
+Consider an extension living in a module - how could the debugger access
+that information?
+
+Jan

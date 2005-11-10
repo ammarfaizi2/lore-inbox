@@ -1,380 +1,612 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbVKJQpJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbVKJQmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751165AbVKJQpJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 11:45:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbVKJQpJ
+	id S1751156AbVKJQmz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 11:42:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbVKJQmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 11:45:09 -0500
-Received: from fed1rmmtao08.cox.net ([68.230.241.31]:56802 "EHLO
-	fed1rmmtao08.cox.net") by vger.kernel.org with ESMTP
-	id S1751165AbVKJQpE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 11:45:04 -0500
+	Thu, 10 Nov 2005 11:42:55 -0500
+Received: from fed1rmmtao12.cox.net ([68.230.241.27]:30640 "EHLO
+	fed1rmmtao12.cox.net") by vger.kernel.org with ESMTP
+	id S1751152AbVKJQmx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 11:42:53 -0500
 From: Tom Rini <trini@kernel.crashing.org>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Tom Rini <trini@kernel.crashing.org>, lkml <linux-kernel@vger.kernel.org>
-Message-Id: <20051110164449.20950.41960.sendpatchset@localhost.localdomain>
+Message-Id: <20051110164245.20950.33549.sendpatchset@localhost.localdomain>
 In-Reply-To: <20051110163906.20950.45704.sendpatchset@localhost.localdomain>
 References: <20051110163906.20950.45704.sendpatchset@localhost.localdomain>
-Subject: [PATCH,RFC 2.6.14 13/15] KGDB: CFI annotations for better unwinding
-Date: Thu, 10 Nov 2005 11:44:11 -0500
+Subject: [PATCH,RFC 2.6.14 08/15] KGDB: x86_64-specific changes
+Date: Thu, 10 Nov 2005 11:41:49 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are some parts of the kernel where you simply cannot unwind past.  This
-does not, however, stop GDB from trying, and getting stuck in an infinite loop
-(it will get garbage back, try and unwind that, repeat).  The way to fix this
-is to manually insert some DWARF2 information into the kernel so that GDB will
-cleanly (or almost cleanly, it will get the same frame twice, and stop) stop.
-George wrote much of the IMHO hard part here (i386 & the macros) and I
-expanded this to all of the other arches.  This adds a small amount to the
-DEBUG_INFO=y kernel size, but that's not unexpected.
+This adds support for the x86_64 architecture.  In addition to what was noted
+in the core-lite patch about stuff outside of new files, we add -g0 to
+compiling of syscalls.o as otherwise we run into problems when debugging
+modules, and like i386 annotate switch_to().
 
- Makefile                     |    6 
- arch/arm/kernel/entry-armv.S |    2 
- arch/i386/kernel/entry.S     |  111 +++++-
- arch/i386/kernel/head.S      |    5 
- arch/i386/kernel/process.c   |   20 +
- arch/i386/kernel/smpboot.c   |    3 
- arch/x86_64/kernel/entry.S   |    2 
- include/asm-arm/kgdb.h       |    7 
- include/asm-generic/kgdb.h   |   34 +
- include/asm-i386/kgdb.h      |   59 +--
- include/asm-mips/kgdb.h      |    4 
- include/asm-ppc/kgdb.h       |    1 
- include/asm-sh/kgdb.h        |    1 
- include/asm-x86_64/kgdb.h    |    4 
- include/linux/dwarf2-lang.h  |  300 ++++++++++++++++
- include/linux/dwarf2.h       |  775 +++++++++++++++++++++++++++++++++++++++++++
- scripts/dwarfh.awk           |   19 +
- 17 files changed, 1322 insertions(+), 31 deletions(-)
+ arch/x86_64/Kconfig.debug     |    3 
+ arch/x86_64/kernel/Makefile   |    1 
+ arch/x86_64/kernel/kgdb-jmp.S |   65 +++++
+ arch/x86_64/kernel/kgdb.c     |  460 ++++++++++++++++++++++++++++++++++++++++++
+ include/asm-x86_64/kgdb.h     |   50 ++++
+ include/asm-x86_64/system.h   |    6 
+ include/linux/kgdb.h          |    4 
+ kernel/kgdb.c                 |   14 +
+ lib/Kconfig.debug             |    2 
+ 9 files changed, 599 insertions(+), 6 deletions(-)
 
-Index: linux-2.6.14/arch/arm/kernel/entry-armv.S
+Index: linux-2.6.14/arch/x86_64/Kconfig.debug
 ===================================================================
---- linux-2.6.14.orig/arch/arm/kernel/entry-armv.S
-+++ linux-2.6.14/arch/arm/kernel/entry-armv.S
-@@ -15,6 +15,7 @@
-  */
- #include <linux/config.h>
+--- linux-2.6.14.orig/arch/x86_64/Kconfig.debug
++++ linux-2.6.14/arch/x86_64/Kconfig.debug
+@@ -51,7 +51,4 @@ config IOMMU_LEAK
+          Add a simple leak tracer to the IOMMU code. This is useful when you
+ 	 are debugging a buggy device driver that leaks IOMMU mappings.
  
-+#include <asm/kgdb.h>
- #include <asm/glue.h>
- #include <asm/vfpmacros.h>
- #include <asm/hardware.h>		/* should be moved into entry-macro.S */
-@@ -215,6 +216,7 @@ svc_preempt:
- 	beq	preempt_return			@ go again
- 	b	1b
- #endif
-+	CFI_END_FRAME(__irq_svc)
- 
- 	.align	5
- __und_svc:
-Index: linux-2.6.14/arch/i386/kernel/entry.S
-===================================================================
---- linux-2.6.14.orig/arch/i386/kernel/entry.S
-+++ linux-2.6.14/arch/i386/kernel/entry.S
-@@ -123,7 +123,7 @@ VM_MASK		= 0x00020000
- .previous
- 
- 
--ENTRY(ret_from_fork)
-+KPROBE_ENTRY(ret_from_fork)
- 	pushl %eax
- 	call schedule_tail
- 	GET_THREAD_INFO(%ebp)
-@@ -470,7 +470,7 @@ ENTRY(simd_coprocessor_error)
- 	pushl $do_simd_coprocessor_error
- 	jmp error_code
- 
--ENTRY(device_not_available)
-+KPROBE_ENTRY(device_not_available)
- 	pushl $-1			# mark this as an int
- 	SAVE_ALL
- 	movl %cr0, %eax
-@@ -653,7 +653,7 @@ ENTRY(machine_check)
- 	jmp error_code
- #endif
- 
--ENTRY(spurious_interrupt_bug)
-+KPROBE_ENTRY(spurious_interrupt_bug)
- 	pushl $0
- 	pushl $do_spurious_interrupt_bug
- 	jmp error_code
-@@ -661,3 +661,108 @@ ENTRY(spurious_interrupt_bug)
- #include "syscall_table.S"
- 
- syscall_table_size=(.-sys_call_table)
-+
-+#	Here we do call frames.  We cheat a bit as we only really need
-+#	correct frames at locations we can actually look at from a
-+#	debugger.  Since the break instruction trap actually goes thru
-+#	some of this code, we don't really need info on those areas, but
-+#	only after the fact.  I.e. if we can not step or break in a
-+#	location or end up with a return address pointing at the
-+#	location, we don't need a correct call frame for it.
-+
-+#ifdef CONFIG_KGDB
-+
-+#include <linux/dwarf2-lang.h>
-+/*
-+ * The register numbers as known by gdb
-+ */
-+
-+#define _EAX 0
-+#define _ECX 1
-+#define _EDX 2
-+#define _EBX 3
-+#define _ESP 4
-+#define _EBP 5
-+#define _ESI 6
-+#define _EDI 7
-+#define _PC  8
-+#define _EIP 8
-+#define _PS  9
-+#define _EFLAGS  9
-+#define _CS 10
-+#define _SS 11
-+#define _DS 12
-+#define _ES 13
-+#define _FS 14
-+#define _GS 15
-+	/*
-+	 * This code uses macros defined in linux/dwarf2-lang.h
-+	 * They attempt to follow the dwarf2 naming conventions... sort of..
-+	 */
-+ENTRY(end_of_stack_stop_unwind_function)
-+	.long 	end_of_stack_stop_unwind_function+1
-+
-+	.text
-+
-+	CFI_preamble(c1,_PC,1,1)
-+	CFA_define_reference(_ESP,OLDESP)	/* Stack pointer */
-+	CFA_expression(_EIP)
-+	   CFA_exp_OP_dup			/* copy old esp */
-+ 	   CFA_exp_OP_consts(CS-OLDESP)		/* offset to CS address */
-+ 	   CFA_exp_OP_plus			/* should be CS address */
-+	   CFA_exp_OP_deref			/* get the CS */
-+	   CFA_exp_OP_const4s(VM_MASK|3)	/* prepare to mask it */
-+	   CFA_exp_OP_and			/* mask it, zero means kernel */
-+	   CFA_exp_OP_bra(eip_user_rtn)		/* branch if user */
-+	   CFA_exp_OP_const4s(EIP-OLDESP)	/* offset to return address */
-+	   CFA_exp_OP_plus			/* add that in */
-+	   CFA_exp_OP_skip(eip_end)		/* done if kernel, skip out */
-+eip_user_rtn:
-+	   CFA_exp_OP_addr(end_of_stack_stop_unwind_function)/*dummy function */
-+eip_end:
-+	   CFA_expression_end
-+	CFA_define_offset(_EBX,EBX-OLDESP)
-+	CFA_define_offset(_ECX,ECX-OLDESP)
-+	CFA_define_offset(_EDX,EDX-OLDESP)
-+	CFA_define_offset(_ESI,ESI-OLDESP)
-+	CFA_define_offset(_EDI,EDI-OLDESP)
-+	CFA_define_offset(_EBP,EBP-OLDESP)
-+	CFA_define_offset(_EAX,EAX-OLDESP)
-+	CFA_define_offset(_EFLAGS,EFLAGS-OLDESP)
-+	CFI_postamble()
-+
-+/*
-+ * This provides an uwind for our dummy end of unwind function.
-+ * Current convention is to provied an undefined return address.
-+ */
-+	CFI_preamble(c2,_PC,1,1)
-+	CFA_define_reference(_ESP,0)	/* Stack pointer */
-+	CFA_undefine_reg(_EIP)
-+	CFI_postamble()
-+
-+	FDE_preamble(c2,end_of_stack_stop_unwind_function,	\
-+	                end_of_stack_stop_unwind_function+5)
-+	FDE_postamble()
-+	/*
-+         * This is VERY sloppy.  At this point all we want to do is get
-+         * the frame right for back tracing.  It will not be good if
-+         * you try to single step.  We use already defined labels.
-+         * We want to cover all call outs.
-+         * We could also recode this as just one FDE, but this works and
-+         * I want to get it out.
-+	 */
-+	FDE_preamble(c1,ret_from_fork,ret_from_exception)
-+	CFA_define_cfa_offset(4)		/* one extra word on stack */
-+	FDE_postamble()
-+
-+	FDE_preamble(c1,ret_from_exception,device_not_available_emulate)
-+	FDE_postamble()
-+
-+		FDE_preamble(c1,device_not_available_emulate,debug)
-+	CFA_define_cfa_offset(4)		/* one extra word on stack */
-+	FDE_postamble()
-+
-+	FDE_preamble(c1, debug,spurious_interrupt_bug)
-+	FDE_postamble()
-+
-+#endif
-Index: linux-2.6.14/arch/i386/kernel/head.S
-===================================================================
---- linux-2.6.14.orig/arch/i386/kernel/head.S
-+++ linux-2.6.14/arch/i386/kernel/head.S
-@@ -11,6 +11,7 @@
- #include <linux/config.h>
- #include <linux/threads.h>
- #include <linux/linkage.h>
-+#include <asm/kgdb.h>
- #include <asm/segment.h>
- #include <asm/page.h>
- #include <asm/pgtable.h>
-@@ -332,7 +333,9 @@ is386:	movl $2,%ecx		# set MP
- L6:
- 	jmp L6			# main should never return here, but
- 				# just in case, we know what happens.
+-#config X86_REMOTE_DEBUG
+-#       bool "kgdb debugging stub"
 -
-+	/* This dwarf code tells gdb that this is the end of the unwind */
-+	/* This uses the CFA set up for pc=1 located in entry.S */
-+	CFI_END_FRAME(is386)
- /*
-  * We depend on ET to be correct. This checks for 287/387.
-  */
-Index: linux-2.6.14/arch/i386/kernel/process.c
-===================================================================
---- linux-2.6.14.orig/arch/i386/kernel/process.c
-+++ linux-2.6.14/arch/i386/kernel/process.c
-@@ -335,7 +335,27 @@ __asm__(".section .text\n"
- 	"call *%ebx\n\t"
- 	"pushl %eax\n\t"
- 	"call do_exit\n"
-+	"kernel_thread_helper_end:\n\t"
- 	".previous");
-+#ifdef CONFIG_KGDB
-+#include <linux/dwarf2-lang.h>
-+
-+	/* This dwarf code tells gdb that this is the end of the unwind */
-+	/* This uses the CFA set up for pc=1 located in entry.S */
-+#define _ESP 4
-+#define _PC  8
-+#define _EIP 8
-+__asm__(
-+	QUOTE_THIS(
-+		CFI_preamble(dwarf_4,_PC,1,1)
-+		CFA_define_reference(_ESP,0)	/* Stack pointer */
-+		CFA_undefine_reg(_EIP)
-+		CFI_postamble()
-+
-+		FDE_preamble(dwarf_4,kernel_thread_helper,kernel_thread_helper_end)
-+		FDE_postamble()
-+		));
-+#endif
- 
- /*
-  * Create a kernel thread
-Index: linux-2.6.14/arch/i386/kernel/smpboot.c
-===================================================================
---- linux-2.6.14.orig/arch/i386/kernel/smpboot.c
-+++ linux-2.6.14/arch/i386/kernel/smpboot.c
-@@ -538,6 +538,9 @@ void __devinit initialize_secondary(void
- 
- 	asm volatile(
- 		"movl %0,%%esp\n\t"
-+#ifdef CONFIG_KGDB
-+		"pushl end_of_stack_stop_unwind_function\n\t"
-+#endif
- 		"jmp *%1"
- 		:
- 		:"r" (current->thread.esp),"r" (current->thread.eip));
-Index: linux-2.6.14/arch/x86_64/kernel/entry.S
-===================================================================
---- linux-2.6.14.orig/arch/x86_64/kernel/entry.S
-+++ linux-2.6.14/arch/x86_64/kernel/entry.S
-@@ -41,6 +41,7 @@
- #include <asm/unistd.h>
- #include <asm/thread_info.h>
- #include <asm/hw_irq.h>
-+#include <asm/kgdb.h>
- 
- 	.code64
- 
-@@ -840,6 +841,7 @@ ENTRY(kernel_thread)
- 	UNFAKE_STACK_FRAME
- 	ret
- 	CFI_ENDPROC
-+	CFI_END_FRAME(kernel_thread)
- 
- 	
- child_rip:
-Index: linux-2.6.14/include/asm-arm/kgdb.h
-===================================================================
---- linux-2.6.14.orig/include/asm-arm/kgdb.h
-+++ linux-2.6.14/include/asm-arm/kgdb.h
-@@ -14,6 +14,7 @@
- 
- #include <linux/config.h>
- #include <asm/ptrace.h>
-+#include <asm-generic/kgdb.h>
- 
- 
- /*
-@@ -48,6 +49,7 @@
- 
- extern void kgdb_handle_bus_error(void);
- extern int kgdb_fault_expected;
-+#endif /* !__ASSEMBLY__ */
- 
- /*
-  * From Amit S. Kale:
-@@ -83,5 +85,8 @@ extern int kgdb_fault_expected;
- #define	_PC		15
- #define	_CPSR		(GDB_MAX_REGS - 1)
- 
--#endif /* !__ASSEMBLY__ */
-+/* So that we can denote the end of a frame for tracing, in the simple
-+ * case. */
-+#define CFI_END_FRAME(func)	__CFI_END_FRAME(_PC,_SP,func)
-+
- #endif /* __ASM_KGDB_H__ */
-Index: linux-2.6.14/include/asm-generic/kgdb.h
+ endmenu
+Index: linux-2.6.14/arch/x86_64/kernel/kgdb.c
 ===================================================================
 --- /dev/null
-+++ linux-2.6.14/include/asm-generic/kgdb.h
-@@ -0,0 +1,34 @@
++++ linux-2.6.14/arch/x86_64/kernel/kgdb.c
+@@ -0,0 +1,460 @@
 +/*
-+ * include/asm-generic/kgdb.h
 + *
-+ * This provides the assembly level information so that KGDB can provide
-+ * a GDB that has been patched with enough information to know to stop
-+ * trying to unwind the function.
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation; either version 2, or (at your option) any
++ * later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
++ *
++ */
++
++/*
++ * Copyright (C) 2004 Amit S. Kale <amitkale@linsyssoft.com>
++ * Copyright (C) 2000-2001 VERITAS Software Corporation.
++ * Copyright (C) 2002 Andi Kleen, SuSE Labs
++ * Copyright (C) 2004 LinSysSoft Technologies Pvt. Ltd.
++ */
++/****************************************************************************
++ *  Contributor:     Lake Stevens Instrument Division$
++ *  Written by:      Glenn Engel $
++ *  Updated by:	     Amit Kale<akale@veritas.com>
++ *  Modified for 386 by Jim Kingdon, Cygnus Support.
++ *  Origianl kgdb, compatibility with 2.1.xx kernel by
++ *  David Grothe <dave@gcom.com>
++ *  Integrated into 2.2.5 kernel by Tigran Aivazian <tigran@sco.com>
++ *  X86_64 changes from Andi Kleen's patch merged by Jim Houston
++ */
++
++#include <linux/string.h>
++#include <linux/kernel.h>
++#include <linux/sched.h>
++#include <linux/smp.h>
++#include <linux/spinlock.h>
++#include <linux/delay.h>
++#include <asm/system.h>
++#include <asm/ptrace.h>		/* for linux pt_regs struct */
++#include <linux/kgdb.h>
++#include <linux/init.h>
++#include <asm/apicdef.h>
++#include <asm/mach_apic.h>
++#include <asm/kdebug.h>
++#include <asm/debugreg.h>
++
++/* Put the error code here just in case the user cares.  */
++int gdb_x86_64errcode;
++/* Likewise, the vector number here (since GDB only gets the signal
++   number through the usual means, and that's not very specific).  */
++int gdb_x86_64vector = -1;
++
++extern atomic_t cpu_doing_single_step;
++
++void regs_to_gdb_regs(unsigned long *gdb_regs, struct pt_regs *regs)
++{
++	gdb_regs[_RAX] = regs->rax;
++	gdb_regs[_RBX] = regs->rbx;
++	gdb_regs[_RCX] = regs->rcx;
++	gdb_regs[_RDX] = regs->rdx;
++	gdb_regs[_RSI] = regs->rsi;
++	gdb_regs[_RDI] = regs->rdi;
++	gdb_regs[_RBP] = regs->rbp;
++	gdb_regs[_PS] = regs->eflags;
++	gdb_regs[_PC] = regs->rip;
++	gdb_regs[_R8] = regs->r8;
++	gdb_regs[_R9] = regs->r9;
++	gdb_regs[_R10] = regs->r10;
++	gdb_regs[_R11] = regs->r11;
++	gdb_regs[_R12] = regs->r12;
++	gdb_regs[_R13] = regs->r13;
++	gdb_regs[_R14] = regs->r14;
++	gdb_regs[_R15] = regs->r15;
++	gdb_regs[_RSP] = regs->rsp;
++}
++
++extern void thread_return(void);
++void sleeping_thread_to_gdb_regs(unsigned long *gdb_regs, struct task_struct *p)
++{
++	gdb_regs[_RAX] = 0;
++	gdb_regs[_RBX] = 0;
++	gdb_regs[_RCX] = 0;
++	gdb_regs[_RDX] = 0;
++	gdb_regs[_RSI] = 0;
++	gdb_regs[_RDI] = 0;
++	gdb_regs[_RBP] = *(unsigned long *)p->thread.rsp;
++	gdb_regs[_PS] = *(unsigned long *)(p->thread.rsp + 8);
++	gdb_regs[_PC] = (unsigned long)&thread_return;
++	gdb_regs[_R8] = 0;
++	gdb_regs[_R9] = 0;
++	gdb_regs[_R10] = 0;
++	gdb_regs[_R11] = 0;
++	gdb_regs[_R12] = 0;
++	gdb_regs[_R13] = 0;
++	gdb_regs[_R14] = 0;
++	gdb_regs[_R15] = 0;
++	gdb_regs[_RSP] = p->thread.rsp;
++}
++
++void gdb_regs_to_regs(unsigned long *gdb_regs, struct pt_regs *regs)
++{
++	regs->rax = gdb_regs[_RAX];
++	regs->rbx = gdb_regs[_RBX];
++	regs->rcx = gdb_regs[_RCX];
++	regs->rdx = gdb_regs[_RDX];
++	regs->rsi = gdb_regs[_RSI];
++	regs->rdi = gdb_regs[_RDI];
++	regs->rbp = gdb_regs[_RBP];
++	regs->eflags = gdb_regs[_PS];
++	regs->rip = gdb_regs[_PC];
++	regs->r8 = gdb_regs[_R8];
++	regs->r9 = gdb_regs[_R9];
++	regs->r10 = gdb_regs[_R10];
++	regs->r11 = gdb_regs[_R11];
++	regs->r12 = gdb_regs[_R12];
++	regs->r13 = gdb_regs[_R13];
++	regs->r14 = gdb_regs[_R14];
++	regs->r15 = gdb_regs[_R15];
++#if 0				/* can't change these */
++	regs->rsp = gdb_regs[_RSP];
++	regs->ss = gdb_regs[_SS];
++	regs->fs = gdb_regs[_FS];
++	regs->gs = gdb_regs[_GS];
++#endif
++
++}				/* gdb_regs_to_regs */
++
++struct hw_breakpoint {
++	unsigned enabled;
++	unsigned type;
++	unsigned len;
++	unsigned long addr;
++} breakinfo[4] = { {
++enabled:0}, {
++enabled:0}, {
++enabled:0}, {
++enabled:0}};
++
++void kgdb_correct_hw_break(void)
++{
++	int breakno;
++	int correctit;
++	int breakbit;
++	unsigned long dr7;
++
++	asm volatile ("movq %%db7, %0\n":"=r" (dr7):);
++	do {
++		unsigned long addr0, addr1, addr2, addr3;
++		asm volatile ("movq %%db0, %0\n"
++			      "movq %%db1, %1\n"
++			      "movq %%db2, %2\n"
++			      "movq %%db3, %3\n":"=r" (addr0), "=r"(addr1),
++			      "=r"(addr2), "=r"(addr3):);
++	} while (0);
++	correctit = 0;
++	for (breakno = 0; breakno < 3; breakno++) {
++		breakbit = 2 << (breakno << 1);
++		if (!(dr7 & breakbit) && breakinfo[breakno].enabled) {
++			correctit = 1;
++			dr7 |= breakbit;
++			dr7 &= ~(0xf0000 << (breakno << 2));
++			dr7 |= (((breakinfo[breakno].len << 2) |
++				 breakinfo[breakno].type) << 16) <<
++			    (breakno << 2);
++			switch (breakno) {
++			case 0:
++				asm volatile ("movq %0, %%dr0\n"::"r"
++					      (breakinfo[breakno].addr));
++				break;
++
++			case 1:
++				asm volatile ("movq %0, %%dr1\n"::"r"
++					      (breakinfo[breakno].addr));
++				break;
++
++			case 2:
++				asm volatile ("movq %0, %%dr2\n"::"r"
++					      (breakinfo[breakno].addr));
++				break;
++
++			case 3:
++				asm volatile ("movq %0, %%dr3\n"::"r"
++					      (breakinfo[breakno].addr));
++				break;
++			}
++		} else if ((dr7 & breakbit) && !breakinfo[breakno].enabled) {
++			correctit = 1;
++			dr7 &= ~breakbit;
++			dr7 &= ~(0xf0000 << (breakno << 2));
++		}
++	}
++	if (correctit) {
++		asm volatile ("movq %0, %%db7\n"::"r" (dr7));
++	}
++}
++
++int kgdb_remove_hw_break(unsigned long addr)
++{
++	int i, idx = -1;
++	for (i = 0; i < 4; i++) {
++		if (breakinfo[i].addr == addr && breakinfo[i].enabled) {
++			idx = i;
++			break;
++		}
++	}
++	if (idx == -1)
++		return -1;
++
++	breakinfo[idx].enabled = 0;
++	return 0;
++}
++
++int kgdb_set_hw_break(unsigned long addr)
++{
++	int i, idx = -1;
++	for (i = 0; i < 4; i++) {
++		if (!breakinfo[i].enabled) {
++			idx = i;
++			break;
++		}
++	}
++	if (idx == -1)
++		return -1;
++
++	breakinfo[idx].enabled = 1;
++	breakinfo[idx].type = 1;
++	breakinfo[idx].len = 1;
++	breakinfo[idx].addr = addr;
++	return 0;
++}
++
++int remove_hw_break(unsigned breakno)
++{
++	if (!breakinfo[breakno].enabled) {
++		return -1;
++	}
++	breakinfo[breakno].enabled = 0;
++	return 0;
++}
++
++int set_hw_break(unsigned breakno, unsigned type, unsigned len, unsigned addr)
++{
++	if (breakinfo[breakno].enabled) {
++		return -1;
++	}
++	breakinfo[breakno].enabled = 1;
++	breakinfo[breakno].type = type;
++	breakinfo[breakno].len = len;
++	breakinfo[breakno].addr = addr;
++	return 0;
++}
++
++void kgdb_disable_hw_debug(struct pt_regs *regs)
++{
++	/* Disable hardware debugging while we are in kgdb */
++	asm volatile ("movq %0,%%db7": /* no output */ :"r" (0UL));
++}
++
++void kgdb_post_master_code(struct pt_regs *regs, int e_vector, int err_code)
++{
++	/* Master processor is completely in the debugger */
++	gdb_x86_64vector = e_vector;
++	gdb_x86_64errcode = err_code;
++}
++
++void kgdb_roundup_cpus(unsigned long flags)
++{
++	send_IPI_allbutself(APIC_DM_NMI);
++}
++
++int kgdb_arch_handle_exception(int e_vector, int signo, int err_code,
++			       char *remcomInBuffer, char *remcomOutBuffer,
++			       struct pt_regs *linux_regs)
++{
++	unsigned long addr, length;
++	unsigned long breakno, breaktype;
++	char *ptr;
++	int newPC;
++	unsigned long dr6;
++
++	switch (remcomInBuffer[0]) {
++	case 'c':
++	case 's':
++		/* try to read optional parameter, pc unchanged if no parm */
++		ptr = &remcomInBuffer[1];
++		if (kgdb_hex2long(&ptr, &addr))
++			linux_regs->rip = addr;
++		newPC = linux_regs->rip;
++
++		/* clear the trace bit */
++		linux_regs->eflags &= ~TF_MASK;
++
++		atomic_set(&cpu_doing_single_step, -1);
++		/* set the trace bit if we're stepping */
++		if (remcomInBuffer[0] == 's') {
++			linux_regs->eflags |= TF_MASK;
++			debugger_step = 1;
++			if (kgdb_contthread)
++				atomic_set(&cpu_doing_single_step,
++					   smp_processor_id());
++
++		}
++
++		asm volatile ("movq %%db6, %0\n":"=r" (dr6));
++		if (!(dr6 & 0x4000)) {
++			for (breakno = 0; breakno < 4; ++breakno) {
++				if (dr6 & (1 << breakno)) {
++					if (breakinfo[breakno].type == 0) {
++						/* Set restore flag */
++						linux_regs->eflags |=
++						    X86_EFLAGS_RF;
++						break;
++					}
++				}
++			}
++		}
++		kgdb_correct_hw_break();
++		asm volatile ("movq %0, %%db6\n"::"r" (0UL));
++
++		return (0);
++
++	case 'Y':
++		ptr = &remcomInBuffer[1];
++		kgdb_hex2long(&ptr, &breakno);
++		ptr++;
++		kgdb_hex2long(&ptr, &breaktype);
++		ptr++;
++		kgdb_hex2long(&ptr, &length);
++		ptr++;
++		kgdb_hex2long(&ptr, &addr);
++		if (set_hw_break(breakno & 0x3, breaktype & 0x3,
++				 length & 0x3, addr) == 0)
++			strcpy(remcomOutBuffer, "OK");
++		else
++			strcpy(remcomOutBuffer, "ERROR");
++		break;
++
++		/* Remove hardware breakpoint */
++	case 'y':
++		ptr = &remcomInBuffer[1];
++		kgdb_hex2long(&ptr, &breakno);
++		if (remove_hw_break(breakno & 0x3) == 0)
++			strcpy(remcomOutBuffer, "OK");
++		else
++			strcpy(remcomOutBuffer, "ERROR");
++		break;
++
++	}			/* switch */
++	return -1;
++}
++
++static struct pt_regs *in_interrupt_stack(unsigned long rsp, int cpu)
++{
++	struct pt_regs *regs;
++	unsigned long end = (unsigned long)cpu_pda[cpu].irqstackptr;
++	if (rsp <= end && rsp >= end - IRQSTACKSIZE + 8) {
++		regs = *(((struct pt_regs **)end) - 1);
++		return regs;
++	}
++	return NULL;
++}
++
++static struct pt_regs *in_exception_stack(unsigned long rsp, int cpu)
++{
++	int i;
++	struct tss_struct *init_tss = &__get_cpu_var(init_tss);
++	for (i = 0; i < N_EXCEPTION_STACKS; i++)
++		if (rsp >= init_tss[cpu].ist[i] &&
++		    rsp <= init_tss[cpu].ist[i] + EXCEPTION_STKSZ) {
++			struct pt_regs *r =
++			    (void *)init_tss[cpu].ist[i] + EXCEPTION_STKSZ;
++			return r - 1;
++		}
++	return NULL;
++}
++
++void kgdb_shadowinfo(struct pt_regs *regs, char *buffer, unsigned threadid)
++{
++	static char intr_desc[] = "Stack at interrupt entrypoint";
++	static char exc_desc[] = "Stack at exception entrypoint";
++	struct pt_regs *stregs;
++	int cpu = hard_smp_processor_id();
++
++	if ((stregs = in_interrupt_stack(regs->rsp, cpu)))
++		kgdb_mem2hex(intr_desc, buffer, strlen(intr_desc));
++	else if ((stregs = in_exception_stack(regs->rsp, cpu)))
++		kgdb_mem2hex(exc_desc, buffer, strlen(exc_desc));
++}
++
++struct task_struct *kgdb_get_shadow_thread(struct pt_regs *regs, int threadid)
++{
++	struct pt_regs *stregs;
++	int cpu = hard_smp_processor_id();
++
++	if ((stregs = in_interrupt_stack(regs->rsp, cpu)))
++		return current;
++	else if ((stregs = in_exception_stack(regs->rsp, cpu)))
++		return current;
++
++	return NULL;
++}
++
++struct pt_regs *kgdb_shadow_regs(struct pt_regs *regs, int threadid)
++{
++	struct pt_regs *stregs;
++	int cpu = hard_smp_processor_id();
++
++	if ((stregs = in_interrupt_stack(regs->rsp, cpu)))
++		return stregs;
++	else if ((stregs = in_exception_stack(regs->rsp, cpu)))
++		return stregs;
++
++	return NULL;
++}
++
++/* Register KGDB with the die_chain so that we hook into all of the right
++ * spots. */
++static int kgdb_notify(struct notifier_block *self, unsigned long cmd,
++		       void *ptr)
++{
++	struct die_args *args = ptr;
++	struct pt_regs *regs = args->regs;
++
++	if (cmd == DIE_PAGE_FAULT_NO_CONTEXT && atomic_read(&debugger_active)
++			&& kgdb_may_fault) {
++		kgdb_fault_longjmp(kgdb_fault_jmp_regs);
++		return NOTIFY_STOP;
++	/* CPU roundup? */
++	} else if (atomic_read(&debugger_active) && cmd == DIE_NMI_IPI) {
++		kgdb_nmihook(smp_processor_id(), regs);
++		return NOTIFY_STOP;
++		/* See if KGDB is interested. */
++	} else if (cmd == DIE_PAGE_FAULT || user_mode(regs) ||
++		   cmd == DIE_NMI_IPI || (cmd == DIE_DEBUG &&
++					  atomic_read(&debugger_active)))
++		/* Userpace events, normal watchdog event, or spurious
++		 * debug exception.  Ignore. */
++		return NOTIFY_DONE;
++
++	kgdb_handle_exception(args->trapnr, args->signr, args->err, regs);
++
++	return NOTIFY_STOP;
++}
++
++static struct notifier_block kgdb_notifier = {
++	.notifier_call = kgdb_notify,
++	.priority = 0x7fffffff,	/* we need to notified first */
++};
++
++int kgdb_arch_init(void)
++{
++	notifier_chain_register(&die_chain, &kgdb_notifier);
++	return 0;
++}
++
++struct kgdb_arch arch_kgdb_ops = {
++	.gdb_bpt_instr = {0xcc},
++	.flags = KGDB_HW_BREAKPOINT,
++	.shadowth = 1,
++};
+Index: linux-2.6.14/arch/x86_64/kernel/kgdb-jmp.S
+===================================================================
+--- /dev/null
++++ linux-2.6.14/arch/x86_64/kernel/kgdb-jmp.S
+@@ -0,0 +1,65 @@
++/*
++ * arch/x86_64/kernel/kgdb-jmp.S
++ *
++ * Save and restore system registers so that within a limited frame we
++ * may have a fault and "jump back" to a known safe location.
 + *
 + * Author: Tom Rini <trini@kernel.crashing.org>
 + *
-+ * 2005 (c) MontaVista Software, Inc. This file is licensed under the terms
-+ * of the GNU General Public License version 2. This program is licensed
-+ * "as is" without any warranty of any kind, whether express or implied.
++ * Cribbed from glibc, which carries the following:
++ * Copyright (C) 2001, 2003, 2004 Free Software Foundation, Inc.
++ * Copyright (C) 2005 by MontaVista Software.
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2. This program as licensed "as is" without any warranty of
++ * any kind, whether express or implied.
 + */
 +
-+#ifndef __ASM_GENERIC_KGDB_H__
-+#define __ASM_GENERIC_KGDB_H__
++#include <linux/linkage.h>
 +
-+#include <linux/dwarf2-lang.h>
-+#ifdef __ASSEMBLY__
-+#ifdef CONFIG_KGDB
-+/* This MUST be put at the end of a given assembly function */
-+#define __CFI_END_FRAME(pc,sp,func)			\
-+CAT3(.Lend_,func,:)					\
-+	CFI_preamble(func,pc,0x1,-DATA_ALIGN_FACTOR)	\
-+	CFA_define_reference(sp, 0)			\
-+	CFA_undefine_reg(pc)				\
-+	CFI_postamble()					\
-+	FDE_preamble(func,func,CAT3(.Lend,_,func))	\
-+	FDE_postamble()
-+#else
-+#define __CFI_END_FRAME(pc,sp,fn)
-+#endif				/* CONFIG_KGDB */
-+#endif				/* __ASSEMBLY__ */
-+#endif				/* __ASM_GENERIC_KGDB_H__ */
-Index: linux-2.6.14/include/asm-i386/kgdb.h
++#define JB_RBX		0
++#define JB_RBP		1
++#define JB_R12		2
++#define JB_R13		3
++#define JB_R14		4
++#define JB_R15		5
++#define JB_RSP		6
++#define JB_PC		7
++
++	.code64
++
++/* This must be called prior to kgdb_fault_longjmp and
++ * kgdb_fault_longjmp must not be called outside of the context of the
++ * last call to kgdb_fault_setjmp.
++ */
++ENTRY(kgdb_fault_setjmp)
++	/* Save registers. */
++	movq %rbx, (JB_RBX*8)(%rdi)
++	movq %rbp, (JB_RBP*8)(%rdi)
++	movq %r12, (JB_R12*8)(%rdi)
++	movq %r13, (JB_R13*8)(%rdi)
++	movq %r14, (JB_R14*8)(%rdi)
++	movq %r15, (JB_R15*8)(%rdi)
++	leaq 8(%rsp), %rdx	/* Save SP as it will be after we return. */
++	movq %rdx, (JB_RSP*8)(%rdi)
++	movq (%rsp), %rax	/* Save PC we are returning to now. */
++	movq %rax, (JB_PC*8)(%rdi)
++	/* Set return value for setjmp. */
++	mov $0,%eax
++	movq (JB_PC*8)(%rdi),%rdx
++	movq (JB_RSP*8)(%rdi),%rsp
++	jmpq *%rdx
++
++ENTRY(kgdb_fault_longjmp)
++	/* Restore registers. */
++	movq (JB_RBX*8)(%rdi),%rbx
++	movq (JB_RBP*8)(%rdi),%rbp
++	movq (JB_R12*8)(%rdi),%r12
++	movq (JB_R13*8)(%rdi),%r13
++	movq (JB_R14*8)(%rdi),%r14
++	movq (JB_R15*8)(%rdi),%r15
++	/* Set return value for setjmp. */
++	movq (JB_PC*8)(%rdi),%rdx
++	movq (JB_RSP*8)(%rdi),%rsp
++	mov $1,%eax
++	jmpq *%rdx
+Index: linux-2.6.14/arch/x86_64/kernel/Makefile
 ===================================================================
---- linux-2.6.14.orig/include/asm-i386/kgdb.h
-+++ linux-2.6.14/include/asm-i386/kgdb.h
-@@ -6,6 +6,39 @@
-  * Copyright (C) 2001-2004 Amit S. Kale
-  */
+--- linux-2.6.14.orig/arch/x86_64/kernel/Makefile
++++ linux-2.6.14/arch/x86_64/kernel/Makefile
+@@ -29,6 +29,7 @@ obj-$(CONFIG_GART_IOMMU)	+= pci-gart.o a
+ obj-$(CONFIG_DUMMY_IOMMU)	+= pci-nommu.o pci-dma.o
+ obj-$(CONFIG_SWIOTLB)		+= swiotlb.o
+ obj-$(CONFIG_KPROBES)		+= kprobes.o
++obj-$(CONFIG_KGDB)		+= kgdb.o kgdb-jmp.o
+ obj-$(CONFIG_X86_PM_TIMER)	+= pmtimer.o
  
-+#include <asm-generic/kgdb.h>
+ obj-$(CONFIG_MODULES)		+= module.o
+Index: linux-2.6.14/include/asm-x86_64/kgdb.h
+===================================================================
+--- /dev/null
++++ linux-2.6.14/include/asm-x86_64/kgdb.h
+@@ -0,0 +1,50 @@
++#ifdef __KERNEL__
++#ifndef _ASM_KGDB_H_
++#define _ASM_KGDB_H_
++
++/*
++ * Copyright (C) 2001-2004 Amit S. Kale
++ */
 +
 +/*
 + *  Note that this register image is in a different order than
@@ -383,1258 +615,125 @@ Index: linux-2.6.14/include/asm-i386/kgdb.h
 + *  Linux's register image is defined by struct pt_regs in ptrace.h.
 + *  Just why GDB uses a different order is a historical mystery.
 + */
-+#define _EAX	0
-+#define _ECX	1
-+#define _EDX	2
-+#define _EBX	3
-+#define _ESP	4
-+#define _EBP	5
-+#define _ESI	6
-+#define _EDI	7
-+#define _PC	8
-+#define _EIP	8
-+#define _PS	9
-+#define _EFLAGS	9
-+#define _CS	10
-+#define _SS	11
-+#define _DS	12
-+#define _ES	13
-+#define _FS	14
-+#define _GS	15
++#define _RAX	0
++#define _RDX	1
++#define _RCX	2
++#define _RBX	3
++#define _RSI	4
++#define _RDI	5
++#define _RBP	6
++#define _RSP	7
++#define _R8	8
++#define _R9	9
++#define _R10	10
++#define _R11	11
++#define _R12	12
++#define _R13	13
++#define _R14	14
++#define _R15	15
++#define _PC	16
++#define _PS	17
 +
-+/* So that we can denote the end of a frame for tracing, in the simple
-+ * case. */
-+#define CFI_END_FRAME(func)	__CFI_END_FRAME(_EIP,_ESP,func)
-+
-+#ifndef __ASSEMBLY__
- /************************************************************************/
- /* BUFMAX defines the maximum number of characters in inbound/outbound buffers*/
- /* at least NUMREGBYTES*2 are needed for register packets */
-@@ -17,33 +50,9 @@
- /* Number of bytes of registers we need to save for a setjmp/longjmp. */
- #define NUMCRITREGBYTES		24
- 
--/*
-- *  Note that this register image is in a different order than
-- *  the register image that Linux produces at interrupt time.
-- *
-- *  Linux's register image is defined by struct pt_regs in ptrace.h.
-- *  Just why GDB uses a different order is a historical mystery.
-- */
--enum regnames { _EAX,		/* 0 */
--	_ECX,			/* 1 */
--	_EDX,			/* 2 */
--	_EBX,			/* 3 */
--	_ESP,			/* 4 */
--	_EBP,			/* 5 */
--	_ESI,			/* 6 */
--	_EDI,			/* 7 */
--	_PC,			/* 8 also known as eip */
--	_PS,			/* 9 also known as eflags */
--	_CS,			/* 10 */
--	_SS,			/* 11 */
--	_DS,			/* 12 */
--	_ES,			/* 13 */
--	_FS,			/* 14 */
--	_GS			/* 15 */
--};
--
- #define BREAKPOINT()		asm("   int $3");
- #define BREAK_INSTR_SIZE	1
- #define CACHE_FLUSH_IS_SAFE	1
-+#endif				/* !__ASSEMBLY__ */
- #endif				/* _ASM_KGDB_H_ */
- #endif				/* __KERNEL__ */
-Index: linux-2.6.14/include/asm-mips/kgdb.h
-===================================================================
---- linux-2.6.14.orig/include/asm-mips/kgdb.h
-+++ linux-2.6.14/include/asm-mips/kgdb.h
-@@ -2,6 +2,9 @@
- #ifndef _ASM_KGDB_H_
- #define _ASM_KGDB_H_
- 
-+#include <asm-generic/kgdb.h>
++/* Number of bytes of registers.  */
++#define NUMREGBYTES		((_PS+1)*8)
++#define NUMCRITREGBYTES		(8 * 8)		/* 8 registers. */
 +
 +#ifndef __ASSEMBLY__
- #define BUFMAX			2048
- #define NUMREGBYTES		(90*sizeof(long))
- #define NUMCRITREGBYTES		(12*sizeof(long))
-@@ -17,5 +20,6 @@
- 
- extern int kgdb_early_setup;
- 
++/* BUFMAX defines the maximum number of characters in inbound/outbound
++ * buffers at least NUMREGBYTES*2 are needed for register packets, and
++ * a longer buffer is needed to list all threads. */
++#define BUFMAX			1024
++#define BREAKPOINT()		asm("   int $3");
++#define CHECK_EXCEPTION_STACK() ((&__get_cpu_var(init_tss))[0].ist[0])
++#define BREAK_INSTR_SIZE	1
++#define CACHE_FLUSH_IS_SAFE	1
 +#endif				/* !__ASSEMBLY__ */
- #endif				/* _ASM_KGDB_H_ */
- #endif				/* __KERNEL__ */
-Index: linux-2.6.14/include/asm-ppc/kgdb.h
++#endif				/* _ASM_KGDB_H_ */
++#endif				/* __KERNEL__ */
+Index: linux-2.6.14/include/asm-x86_64/system.h
 ===================================================================
---- linux-2.6.14.orig/include/asm-ppc/kgdb.h
-+++ linux-2.6.14/include/asm-ppc/kgdb.h
-@@ -12,6 +12,7 @@
- #ifndef _PPC_KGDB_H
- #define _PPC_KGDB_H
+--- linux-2.6.14.orig/include/asm-x86_64/system.h
++++ linux-2.6.14/include/asm-x86_64/system.h
+@@ -27,7 +27,9 @@
+ 	,"rcx","rbx","rdx","r8","r9","r10","r11","r12","r13","r14","r15"
  
-+#include <asm-generic/kgdb.h>
- #ifndef __ASSEMBLY__
- 
- #define BREAK_INSTR_SIZE	4
-Index: linux-2.6.14/include/asm-sh/kgdb.h
+ #define switch_to(prev,next,last) \
+-	asm volatile(SAVE_CONTEXT						    \
++       asm volatile(".globl __switch_to_begin\n\t"				    \
++		     "__switch_to_begin:\n\t"					  \
++		     SAVE_CONTEXT						  \
+ 		     "movq %%rsp,%P[threadrsp](%[prev])\n\t" /* save RSP */	  \
+ 		     "movq %P[threadrsp](%[next]),%%rsp\n\t" /* restore RSP */	  \
+ 		     "call __switch_to\n\t"					  \
+@@ -39,6 +41,8 @@
+ 		     "movq %%rax,%%rdi\n\t" 					  \
+ 		     "jc   ret_from_fork\n\t"					  \
+ 		     RESTORE_CONTEXT						    \
++		     ".globl __switch_to_end\n\t"				  \
++		     "__switch_to_end:\n\t"					  \
+ 		     : "=a" (last)					  	  \
+ 		     : [next] "S" (next), [prev] "D" (prev),			  \
+ 		       [threadrsp] "i" (offsetof(struct task_struct, thread.rsp)), \
+Index: linux-2.6.14/lib/Kconfig.debug
 ===================================================================
---- linux-2.6.14.orig/include/asm-sh/kgdb.h
-+++ linux-2.6.14/include/asm-sh/kgdb.h
-@@ -14,6 +14,7 @@
- #ifndef __KGDB_H
- #define __KGDB_H
- 
-+#include <asm-generic/kgdb.h>
- /* Based on sh-gdb.c from gdb-6.1, Glenn
-      Engel at HP  Ben Lee and Steve Chamberlain */
- #define NUMREGBYTES	112	/* 92 */
-Index: linux-2.6.14/include/asm-x86_64/kgdb.h
+--- linux-2.6.14.orig/lib/Kconfig.debug
++++ linux-2.6.14/lib/Kconfig.debug
+@@ -187,7 +187,7 @@ config WANT_EXTRA_DEBUG_INFORMATION
+ config KGDB
+ 	bool "KGDB: kernel debugging with remote gdb"
+ 	select WANT_EXTRA_DEBUG_INFORMATION
+-	depends on DEBUG_KERNEL && (X86 || MIPS || IA64 || ((!SMP || BROKEN) && PPC32))
++	depends on DEBUG_KERNEL && (X86 || MIPS || IA64 || X86_64 || ((!SMP || BROKEN) && PPC32))
+ 	help
+ 	  If you say Y here, it will be possible to remotely debug the
+ 	  kernel using gdb. It is strongly suggested that you enable
+Index: linux-2.6.14/include/linux/kgdb.h
 ===================================================================
---- linux-2.6.14.orig/include/asm-x86_64/kgdb.h
-+++ linux-2.6.14/include/asm-x86_64/kgdb.h
-@@ -6,6 +6,8 @@
-  * Copyright (C) 2001-2004 Amit S. Kale
+--- linux-2.6.14.orig/include/linux/kgdb.h
++++ linux-2.6.14/include/linux/kgdb.h
+@@ -24,6 +24,10 @@
+ #include <linux/linkage.h>
+ #include <linux/init.h>
+ 
++#ifndef CHECK_EXCEPTION_STACK
++#define CHECK_EXCEPTION_STACK()	1
++#endif
++
+ struct tasklet_struct;
+ struct pt_regs;
+ struct task_struct;
+Index: linux-2.6.14/kernel/kgdb.c
+===================================================================
+--- linux-2.6.14.orig/kernel/kgdb.c
++++ linux-2.6.14/kernel/kgdb.c
+@@ -1629,7 +1629,8 @@ void kgdb_unregister_io_module(struct kg
   */
+ static void kgdb_tasklet_bpt(unsigned long ing)
+ {
+-	breakpoint();
++	if(CHECK_EXCEPTION_STACK())
++		breakpoint();
+ }
  
-+#include <asm-generic/kgdb.h>
-+
- /*
-  *  Note that this register image is in a different order than
-  *  the register image that Linux produces at interrupt time.
-@@ -36,6 +38,8 @@
- #define NUMREGBYTES		((_PS+1)*8)
- #define NUMCRITREGBYTES		(8 * 8)		/* 8 registers. */
- 
-+/* Help GDB to know when to stop backtracing. */
-+#define CFI_END_FRAME(func)	__CFI_END_FRAME(_PC,_RSP,func)
- #ifndef __ASSEMBLY__
- /* BUFMAX defines the maximum number of characters in inbound/outbound
-  * buffers at least NUMREGBYTES*2 are needed for register packets, and
-Index: linux-2.6.14/include/linux/dwarf2.h
-===================================================================
---- /dev/null
-+++ linux-2.6.14/include/linux/dwarf2.h
-@@ -0,0 +1,775 @@
-+/* Declarations and definitions of codes relating to the DWARF2 symbolic
-+   debugging information format.
-+   Copyright (C) 1992, 1993, 1995, 1996, 1997, 1999, 2000, 2001, 2002,
-+   2003 Free Software Foundation, Inc.
-+
-+   Written by Gary Funck (gary@intrepid.com) The Ada Joint Program
-+   Office (AJPO), Florida State Unviversity and Silicon Graphics Inc.
-+   provided support for this effort -- June 21, 1995.
-+
-+   Derived from the DWARF 1 implementation written by Ron Guilmette
-+   (rfg@netcom.com), November 1990.
-+
-+   This file is part of GCC.
-+
-+   GCC is free software; you can redistribute it and/or modify it under
-+   the terms of the GNU General Public License as published by the Free
-+   Software Foundation; either version 2, or (at your option) any later
-+   version.
-+
-+   GCC is distributed in the hope that it will be useful, but WITHOUT
-+   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-+   or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
-+   License for more details.
-+
-+   You should have received a copy of the GNU General Public License
-+   along with GCC; see the file COPYING.  If not, write to the Free
-+   Software Foundation, 59 Temple Place - Suite 330, Boston, MA
-+   02111-1307, USA.  */
-+
-+/* This file is derived from the DWARF specification (a public document)
-+   Revision 2.0.0 (July 27, 1993) developed by the UNIX International
-+   Programming Languages Special Interest Group (UI/PLSIG) and distributed
-+   by UNIX International.  Copies of this specification are available from
-+   UNIX International, 20 Waterview Boulevard, Parsippany, NJ, 07054.
-+
-+   This file also now contains definitions from the DWARF 3 specification.  */
-+
-+/* This file is shared between GCC and GDB, and should not contain
-+   prototypes.  */
-+
-+#ifndef _ELF_DWARF2_H
-+#define _ELF_DWARF2_H
-+
-+/* Structure found in the .debug_line section.  */
-+typedef struct
-+{
-+  unsigned char li_length          [4];
-+  unsigned char li_version         [2];
-+  unsigned char li_prologue_length [4];
-+  unsigned char li_min_insn_length [1];
-+  unsigned char li_default_is_stmt [1];
-+  unsigned char li_line_base       [1];
-+  unsigned char li_line_range      [1];
-+  unsigned char li_opcode_base     [1];
-+}
-+DWARF2_External_LineInfo;
-+
-+typedef struct
-+{
-+  unsigned long  li_length;
-+  unsigned short li_version;
-+  unsigned int   li_prologue_length;
-+  unsigned char  li_min_insn_length;
-+  unsigned char  li_default_is_stmt;
-+  int            li_line_base;
-+  unsigned char  li_line_range;
-+  unsigned char  li_opcode_base;
-+}
-+DWARF2_Internal_LineInfo;
-+
-+/* Structure found in .debug_pubnames section.  */
-+typedef struct
-+{
-+  unsigned char pn_length  [4];
-+  unsigned char pn_version [2];
-+  unsigned char pn_offset  [4];
-+  unsigned char pn_size    [4];
-+}
-+DWARF2_External_PubNames;
-+
-+typedef struct
-+{
-+  unsigned long  pn_length;
-+  unsigned short pn_version;
-+  unsigned long  pn_offset;
-+  unsigned long  pn_size;
-+}
-+DWARF2_Internal_PubNames;
-+
-+/* Structure found in .debug_info section.  */
-+typedef struct
-+{
-+  unsigned char  cu_length        [4];
-+  unsigned char  cu_version       [2];
-+  unsigned char  cu_abbrev_offset [4];
-+  unsigned char  cu_pointer_size  [1];
-+}
-+DWARF2_External_CompUnit;
-+
-+typedef struct
-+{
-+  unsigned long  cu_length;
-+  unsigned short cu_version;
-+  unsigned long  cu_abbrev_offset;
-+  unsigned char  cu_pointer_size;
-+}
-+DWARF2_Internal_CompUnit;
-+
-+typedef struct
-+{
-+  unsigned char  ar_length       [4];
-+  unsigned char  ar_version      [2];
-+  unsigned char  ar_info_offset  [4];
-+  unsigned char  ar_pointer_size [1];
-+  unsigned char  ar_segment_size [1];
-+}
-+DWARF2_External_ARange;
-+
-+typedef struct
-+{
-+  unsigned long  ar_length;
-+  unsigned short ar_version;
-+  unsigned long  ar_info_offset;
-+  unsigned char  ar_pointer_size;
-+  unsigned char  ar_segment_size;
-+}
-+DWARF2_Internal_ARange;
-+
-+
-+/* Tag names and codes.  */
-+enum dwarf_tag
-+  {
-+    DW_TAG_padding = 0x00,
-+    DW_TAG_array_type = 0x01,
-+    DW_TAG_class_type = 0x02,
-+    DW_TAG_entry_point = 0x03,
-+    DW_TAG_enumeration_type = 0x04,
-+    DW_TAG_formal_parameter = 0x05,
-+    DW_TAG_imported_declaration = 0x08,
-+    DW_TAG_label = 0x0a,
-+    DW_TAG_lexical_block = 0x0b,
-+    DW_TAG_member = 0x0d,
-+    DW_TAG_pointer_type = 0x0f,
-+    DW_TAG_reference_type = 0x10,
-+    DW_TAG_compile_unit = 0x11,
-+    DW_TAG_string_type = 0x12,
-+    DW_TAG_structure_type = 0x13,
-+    DW_TAG_subroutine_type = 0x15,
-+    DW_TAG_typedef = 0x16,
-+    DW_TAG_union_type = 0x17,
-+    DW_TAG_unspecified_parameters = 0x18,
-+    DW_TAG_variant = 0x19,
-+    DW_TAG_common_block = 0x1a,
-+    DW_TAG_common_inclusion = 0x1b,
-+    DW_TAG_inheritance = 0x1c,
-+    DW_TAG_inlined_subroutine = 0x1d,
-+    DW_TAG_module = 0x1e,
-+    DW_TAG_ptr_to_member_type = 0x1f,
-+    DW_TAG_set_type = 0x20,
-+    DW_TAG_subrange_type = 0x21,
-+    DW_TAG_with_stmt = 0x22,
-+    DW_TAG_access_declaration = 0x23,
-+    DW_TAG_base_type = 0x24,
-+    DW_TAG_catch_block = 0x25,
-+    DW_TAG_const_type = 0x26,
-+    DW_TAG_constant = 0x27,
-+    DW_TAG_enumerator = 0x28,
-+    DW_TAG_file_type = 0x29,
-+    DW_TAG_friend = 0x2a,
-+    DW_TAG_namelist = 0x2b,
-+    DW_TAG_namelist_item = 0x2c,
-+    DW_TAG_packed_type = 0x2d,
-+    DW_TAG_subprogram = 0x2e,
-+    DW_TAG_template_type_param = 0x2f,
-+    DW_TAG_template_value_param = 0x30,
-+    DW_TAG_thrown_type = 0x31,
-+    DW_TAG_try_block = 0x32,
-+    DW_TAG_variant_part = 0x33,
-+    DW_TAG_variable = 0x34,
-+    DW_TAG_volatile_type = 0x35,
-+    /* DWARF 3.  */
-+    DW_TAG_dwarf_procedure = 0x36,
-+    DW_TAG_restrict_type = 0x37,
-+    DW_TAG_interface_type = 0x38,
-+    DW_TAG_namespace = 0x39,
-+    DW_TAG_imported_module = 0x3a,
-+    DW_TAG_unspecified_type = 0x3b,
-+    DW_TAG_partial_unit = 0x3c,
-+    DW_TAG_imported_unit = 0x3d,
-+    /* SGI/MIPS Extensions.  */
-+    DW_TAG_MIPS_loop = 0x4081,
-+    /* HP extensions.  See: ftp://ftp.hp.com/pub/lang/tools/WDB/wdb-4.0.tar.gz .  */
-+    DW_TAG_HP_array_descriptor = 0x4090,
-+    /* GNU extensions.  */
-+    DW_TAG_format_label = 0x4101,	/* For FORTRAN 77 and Fortran 90.  */
-+    DW_TAG_function_template = 0x4102,	/* For C++.  */
-+    DW_TAG_class_template = 0x4103,	/* For C++.  */
-+    DW_TAG_GNU_BINCL = 0x4104,
-+    DW_TAG_GNU_EINCL = 0x4105,
-+    /* Extensions for UPC.  See: http://upc.gwu.edu/~upc.  */
-+    DW_TAG_upc_shared_type = 0x8765,
-+    DW_TAG_upc_strict_type = 0x8766,
-+    DW_TAG_upc_relaxed_type = 0x8767,
-+    /* PGI (STMicroelectronics) extensions.  No documentation available.  */
-+    DW_TAG_PGI_kanji_type      = 0xA000,
-+    DW_TAG_PGI_interface_block = 0xA020
-+  };
-+
-+#define DW_TAG_lo_user	0x4080
-+#define DW_TAG_hi_user	0xffff
-+
-+/* Flag that tells whether entry has a child or not.  */
-+#define DW_children_no   0
-+#define	DW_children_yes  1
-+
-+/* Form names and codes.  */
-+enum dwarf_form
-+  {
-+    DW_FORM_addr = 0x01,
-+    DW_FORM_block2 = 0x03,
-+    DW_FORM_block4 = 0x04,
-+    DW_FORM_data2 = 0x05,
-+    DW_FORM_data4 = 0x06,
-+    DW_FORM_data8 = 0x07,
-+    DW_FORM_string = 0x08,
-+    DW_FORM_block = 0x09,
-+    DW_FORM_block1 = 0x0a,
-+    DW_FORM_data1 = 0x0b,
-+    DW_FORM_flag = 0x0c,
-+    DW_FORM_sdata = 0x0d,
-+    DW_FORM_strp = 0x0e,
-+    DW_FORM_udata = 0x0f,
-+    DW_FORM_ref_addr = 0x10,
-+    DW_FORM_ref1 = 0x11,
-+    DW_FORM_ref2 = 0x12,
-+    DW_FORM_ref4 = 0x13,
-+    DW_FORM_ref8 = 0x14,
-+    DW_FORM_ref_udata = 0x15,
-+    DW_FORM_indirect = 0x16
-+  };
-+
-+/* Attribute names and codes.  */
-+enum dwarf_attribute
-+  {
-+    DW_AT_sibling = 0x01,
-+    DW_AT_location = 0x02,
-+    DW_AT_name = 0x03,
-+    DW_AT_ordering = 0x09,
-+    DW_AT_subscr_data = 0x0a,
-+    DW_AT_byte_size = 0x0b,
-+    DW_AT_bit_offset = 0x0c,
-+    DW_AT_bit_size = 0x0d,
-+    DW_AT_element_list = 0x0f,
-+    DW_AT_stmt_list = 0x10,
-+    DW_AT_low_pc = 0x11,
-+    DW_AT_high_pc = 0x12,
-+    DW_AT_language = 0x13,
-+    DW_AT_member = 0x14,
-+    DW_AT_discr = 0x15,
-+    DW_AT_discr_value = 0x16,
-+    DW_AT_visibility = 0x17,
-+    DW_AT_import = 0x18,
-+    DW_AT_string_length = 0x19,
-+    DW_AT_common_reference = 0x1a,
-+    DW_AT_comp_dir = 0x1b,
-+    DW_AT_const_value = 0x1c,
-+    DW_AT_containing_type = 0x1d,
-+    DW_AT_default_value = 0x1e,
-+    DW_AT_inline = 0x20,
-+    DW_AT_is_optional = 0x21,
-+    DW_AT_lower_bound = 0x22,
-+    DW_AT_producer = 0x25,
-+    DW_AT_prototyped = 0x27,
-+    DW_AT_return_addr = 0x2a,
-+    DW_AT_start_scope = 0x2c,
-+    DW_AT_stride_size = 0x2e,
-+    DW_AT_upper_bound = 0x2f,
-+    DW_AT_abstract_origin = 0x31,
-+    DW_AT_accessibility = 0x32,
-+    DW_AT_address_class = 0x33,
-+    DW_AT_artificial = 0x34,
-+    DW_AT_base_types = 0x35,
-+    DW_AT_calling_convention = 0x36,
-+    DW_AT_count = 0x37,
-+    DW_AT_data_member_location = 0x38,
-+    DW_AT_decl_column = 0x39,
-+    DW_AT_decl_file = 0x3a,
-+    DW_AT_decl_line = 0x3b,
-+    DW_AT_declaration = 0x3c,
-+    DW_AT_discr_list = 0x3d,
-+    DW_AT_encoding = 0x3e,
-+    DW_AT_external = 0x3f,
-+    DW_AT_frame_base = 0x40,
-+    DW_AT_friend = 0x41,
-+    DW_AT_identifier_case = 0x42,
-+    DW_AT_macro_info = 0x43,
-+    DW_AT_namelist_items = 0x44,
-+    DW_AT_priority = 0x45,
-+    DW_AT_segment = 0x46,
-+    DW_AT_specification = 0x47,
-+    DW_AT_static_link = 0x48,
-+    DW_AT_type = 0x49,
-+    DW_AT_use_location = 0x4a,
-+    DW_AT_variable_parameter = 0x4b,
-+    DW_AT_virtuality = 0x4c,
-+    DW_AT_vtable_elem_location = 0x4d,
-+    /* DWARF 3 values.  */
-+    DW_AT_allocated     = 0x4e,
-+    DW_AT_associated    = 0x4f,
-+    DW_AT_data_location = 0x50,
-+    DW_AT_stride        = 0x51,
-+    DW_AT_entry_pc      = 0x52,
-+    DW_AT_use_UTF8      = 0x53,
-+    DW_AT_extension     = 0x54,
-+    DW_AT_ranges        = 0x55,
-+    DW_AT_trampoline    = 0x56,
-+    DW_AT_call_column   = 0x57,
-+    DW_AT_call_file     = 0x58,
-+    DW_AT_call_line     = 0x59,
-+    /* SGI/MIPS extensions.  */
-+    DW_AT_MIPS_fde = 0x2001,
-+    DW_AT_MIPS_loop_begin = 0x2002,
-+    DW_AT_MIPS_tail_loop_begin = 0x2003,
-+    DW_AT_MIPS_epilog_begin = 0x2004,
-+    DW_AT_MIPS_loop_unroll_factor = 0x2005,
-+    DW_AT_MIPS_software_pipeline_depth = 0x2006,
-+    DW_AT_MIPS_linkage_name = 0x2007,
-+    DW_AT_MIPS_stride = 0x2008,
-+    DW_AT_MIPS_abstract_name = 0x2009,
-+    DW_AT_MIPS_clone_origin = 0x200a,
-+    DW_AT_MIPS_has_inlines = 0x200b,
-+    /* HP extensions.  */
-+    DW_AT_HP_block_index         = 0x2000,
-+    DW_AT_HP_unmodifiable        = 0x2001, /* Same as DW_AT_MIPS_fde.  */
-+    DW_AT_HP_actuals_stmt_list   = 0x2010,
-+    DW_AT_HP_proc_per_section    = 0x2011,
-+    DW_AT_HP_raw_data_ptr        = 0x2012,
-+    DW_AT_HP_pass_by_reference   = 0x2013,
-+    DW_AT_HP_opt_level           = 0x2014,
-+    DW_AT_HP_prof_version_id     = 0x2015,
-+    DW_AT_HP_opt_flags           = 0x2016,
-+    DW_AT_HP_cold_region_low_pc  = 0x2017,
-+    DW_AT_HP_cold_region_high_pc = 0x2018,
-+    DW_AT_HP_all_variables_modifiable = 0x2019,
-+    DW_AT_HP_linkage_name        = 0x201a,
-+    DW_AT_HP_prof_flags          = 0x201b,  /* In comp unit of procs_info for -g.  */
-+    /* GNU extensions.  */
-+    DW_AT_sf_names   = 0x2101,
-+    DW_AT_src_info   = 0x2102,
-+    DW_AT_mac_info   = 0x2103,
-+    DW_AT_src_coords = 0x2104,
-+    DW_AT_body_begin = 0x2105,
-+    DW_AT_body_end   = 0x2106,
-+    DW_AT_GNU_vector = 0x2107,
-+    /* VMS extensions.  */
-+    DW_AT_VMS_rtnbeg_pd_address = 0x2201,
-+    /* UPC extension.  */
-+    DW_AT_upc_threads_scaled = 0x3210,
-+    /* PGI (STMicroelectronics) extensions.  */
-+    DW_AT_PGI_lbase    = 0x3a00,
-+    DW_AT_PGI_soffset  = 0x3a01,
-+    DW_AT_PGI_lstride  = 0x3a02
-+  };
-+
-+#define DW_AT_lo_user	0x2000	/* Implementation-defined range start.  */
-+#define DW_AT_hi_user	0x3ff0	/* Implementation-defined range end.  */
-+
-+/* Location atom names and codes.  */
-+enum dwarf_location_atom
-+  {
-+    DW_OP_addr = 0x03,
-+    DW_OP_deref = 0x06,
-+    DW_OP_const1u = 0x08,
-+    DW_OP_const1s = 0x09,
-+    DW_OP_const2u = 0x0a,
-+    DW_OP_const2s = 0x0b,
-+    DW_OP_const4u = 0x0c,
-+    DW_OP_const4s = 0x0d,
-+    DW_OP_const8u = 0x0e,
-+    DW_OP_const8s = 0x0f,
-+    DW_OP_constu = 0x10,
-+    DW_OP_consts = 0x11,
-+    DW_OP_dup = 0x12,
-+    DW_OP_drop = 0x13,
-+    DW_OP_over = 0x14,
-+    DW_OP_pick = 0x15,
-+    DW_OP_swap = 0x16,
-+    DW_OP_rot = 0x17,
-+    DW_OP_xderef = 0x18,
-+    DW_OP_abs = 0x19,
-+    DW_OP_and = 0x1a,
-+    DW_OP_div = 0x1b,
-+    DW_OP_minus = 0x1c,
-+    DW_OP_mod = 0x1d,
-+    DW_OP_mul = 0x1e,
-+    DW_OP_neg = 0x1f,
-+    DW_OP_not = 0x20,
-+    DW_OP_or = 0x21,
-+    DW_OP_plus = 0x22,
-+    DW_OP_plus_uconst = 0x23,
-+    DW_OP_shl = 0x24,
-+    DW_OP_shr = 0x25,
-+    DW_OP_shra = 0x26,
-+    DW_OP_xor = 0x27,
-+    DW_OP_bra = 0x28,
-+    DW_OP_eq = 0x29,
-+    DW_OP_ge = 0x2a,
-+    DW_OP_gt = 0x2b,
-+    DW_OP_le = 0x2c,
-+    DW_OP_lt = 0x2d,
-+    DW_OP_ne = 0x2e,
-+    DW_OP_skip = 0x2f,
-+    DW_OP_lit0 = 0x30,
-+    DW_OP_lit1 = 0x31,
-+    DW_OP_lit2 = 0x32,
-+    DW_OP_lit3 = 0x33,
-+    DW_OP_lit4 = 0x34,
-+    DW_OP_lit5 = 0x35,
-+    DW_OP_lit6 = 0x36,
-+    DW_OP_lit7 = 0x37,
-+    DW_OP_lit8 = 0x38,
-+    DW_OP_lit9 = 0x39,
-+    DW_OP_lit10 = 0x3a,
-+    DW_OP_lit11 = 0x3b,
-+    DW_OP_lit12 = 0x3c,
-+    DW_OP_lit13 = 0x3d,
-+    DW_OP_lit14 = 0x3e,
-+    DW_OP_lit15 = 0x3f,
-+    DW_OP_lit16 = 0x40,
-+    DW_OP_lit17 = 0x41,
-+    DW_OP_lit18 = 0x42,
-+    DW_OP_lit19 = 0x43,
-+    DW_OP_lit20 = 0x44,
-+    DW_OP_lit21 = 0x45,
-+    DW_OP_lit22 = 0x46,
-+    DW_OP_lit23 = 0x47,
-+    DW_OP_lit24 = 0x48,
-+    DW_OP_lit25 = 0x49,
-+    DW_OP_lit26 = 0x4a,
-+    DW_OP_lit27 = 0x4b,
-+    DW_OP_lit28 = 0x4c,
-+    DW_OP_lit29 = 0x4d,
-+    DW_OP_lit30 = 0x4e,
-+    DW_OP_lit31 = 0x4f,
-+    DW_OP_reg0 = 0x50,
-+    DW_OP_reg1 = 0x51,
-+    DW_OP_reg2 = 0x52,
-+    DW_OP_reg3 = 0x53,
-+    DW_OP_reg4 = 0x54,
-+    DW_OP_reg5 = 0x55,
-+    DW_OP_reg6 = 0x56,
-+    DW_OP_reg7 = 0x57,
-+    DW_OP_reg8 = 0x58,
-+    DW_OP_reg9 = 0x59,
-+    DW_OP_reg10 = 0x5a,
-+    DW_OP_reg11 = 0x5b,
-+    DW_OP_reg12 = 0x5c,
-+    DW_OP_reg13 = 0x5d,
-+    DW_OP_reg14 = 0x5e,
-+    DW_OP_reg15 = 0x5f,
-+    DW_OP_reg16 = 0x60,
-+    DW_OP_reg17 = 0x61,
-+    DW_OP_reg18 = 0x62,
-+    DW_OP_reg19 = 0x63,
-+    DW_OP_reg20 = 0x64,
-+    DW_OP_reg21 = 0x65,
-+    DW_OP_reg22 = 0x66,
-+    DW_OP_reg23 = 0x67,
-+    DW_OP_reg24 = 0x68,
-+    DW_OP_reg25 = 0x69,
-+    DW_OP_reg26 = 0x6a,
-+    DW_OP_reg27 = 0x6b,
-+    DW_OP_reg28 = 0x6c,
-+    DW_OP_reg29 = 0x6d,
-+    DW_OP_reg30 = 0x6e,
-+    DW_OP_reg31 = 0x6f,
-+    DW_OP_breg0 = 0x70,
-+    DW_OP_breg1 = 0x71,
-+    DW_OP_breg2 = 0x72,
-+    DW_OP_breg3 = 0x73,
-+    DW_OP_breg4 = 0x74,
-+    DW_OP_breg5 = 0x75,
-+    DW_OP_breg6 = 0x76,
-+    DW_OP_breg7 = 0x77,
-+    DW_OP_breg8 = 0x78,
-+    DW_OP_breg9 = 0x79,
-+    DW_OP_breg10 = 0x7a,
-+    DW_OP_breg11 = 0x7b,
-+    DW_OP_breg12 = 0x7c,
-+    DW_OP_breg13 = 0x7d,
-+    DW_OP_breg14 = 0x7e,
-+    DW_OP_breg15 = 0x7f,
-+    DW_OP_breg16 = 0x80,
-+    DW_OP_breg17 = 0x81,
-+    DW_OP_breg18 = 0x82,
-+    DW_OP_breg19 = 0x83,
-+    DW_OP_breg20 = 0x84,
-+    DW_OP_breg21 = 0x85,
-+    DW_OP_breg22 = 0x86,
-+    DW_OP_breg23 = 0x87,
-+    DW_OP_breg24 = 0x88,
-+    DW_OP_breg25 = 0x89,
-+    DW_OP_breg26 = 0x8a,
-+    DW_OP_breg27 = 0x8b,
-+    DW_OP_breg28 = 0x8c,
-+    DW_OP_breg29 = 0x8d,
-+    DW_OP_breg30 = 0x8e,
-+    DW_OP_breg31 = 0x8f,
-+    DW_OP_regx = 0x90,
-+    DW_OP_fbreg = 0x91,
-+    DW_OP_bregx = 0x92,
-+    DW_OP_piece = 0x93,
-+    DW_OP_deref_size = 0x94,
-+    DW_OP_xderef_size = 0x95,
-+    DW_OP_nop = 0x96,
-+    /* DWARF 3 extensions.  */
-+    DW_OP_push_object_address = 0x97,
-+    DW_OP_call2 = 0x98,
-+    DW_OP_call4 = 0x99,
-+    DW_OP_call_ref = 0x9a,
-+    /* GNU extensions.  */
-+    DW_OP_GNU_push_tls_address = 0xe0,
-+    /* HP extensions.  */
-+    DW_OP_HP_unknown     = 0xe0, /* Ouch, the same as GNU_push_tls_address.  */
-+    DW_OP_HP_is_value    = 0xe1,
-+    DW_OP_HP_fltconst4   = 0xe2,
-+    DW_OP_HP_fltconst8   = 0xe3,
-+    DW_OP_HP_mod_range   = 0xe4,
-+    DW_OP_HP_unmod_range = 0xe5,
-+    DW_OP_HP_tls         = 0xe6
-+  };
-+
-+#define DW_OP_lo_user	0xe0	/* Implementation-defined range start.  */
-+#define DW_OP_hi_user	0xff	/* Implementation-defined range end.  */
-+
-+/* Type encodings.  */
-+enum dwarf_type
-+  {
-+    DW_ATE_void = 0x0,
-+    DW_ATE_address = 0x1,
-+    DW_ATE_boolean = 0x2,
-+    DW_ATE_complex_float = 0x3,
-+    DW_ATE_float = 0x4,
-+    DW_ATE_signed = 0x5,
-+    DW_ATE_signed_char = 0x6,
-+    DW_ATE_unsigned = 0x7,
-+    DW_ATE_unsigned_char = 0x8,
-+    /* DWARF 3.  */
-+    DW_ATE_imaginary_float = 0x9,
-+    /* HP extensions.  */
-+    DW_ATE_HP_float80            = 0x80, /* Floating-point (80 bit).  */
-+    DW_ATE_HP_complex_float80    = 0x81, /* Complex floating-point (80 bit).  */
-+    DW_ATE_HP_float128           = 0x82, /* Floating-point (128 bit).  */
-+    DW_ATE_HP_complex_float128   = 0x83, /* Complex floating-point (128 bit).  */
-+    DW_ATE_HP_floathpintel       = 0x84, /* Floating-point (82 bit IA64).  */
-+    DW_ATE_HP_imaginary_float80  = 0x85,
-+    DW_ATE_HP_imaginary_float128 = 0x86
-+  };
-+
-+#define	DW_ATE_lo_user 0x80
-+#define	DW_ATE_hi_user 0xff
-+
-+/* Array ordering names and codes.  */
-+enum dwarf_array_dim_ordering
-+  {
-+    DW_ORD_row_major = 0,
-+    DW_ORD_col_major = 1
-+  };
-+
-+/* Access attribute.  */
-+enum dwarf_access_attribute
-+  {
-+    DW_ACCESS_public = 1,
-+    DW_ACCESS_protected = 2,
-+    DW_ACCESS_private = 3
-+  };
-+
-+/* Visibility.  */
-+enum dwarf_visibility_attribute
-+  {
-+    DW_VIS_local = 1,
-+    DW_VIS_exported = 2,
-+    DW_VIS_qualified = 3
-+  };
-+
-+/* Virtuality.  */
-+enum dwarf_virtuality_attribute
-+  {
-+    DW_VIRTUALITY_none = 0,
-+    DW_VIRTUALITY_virtual = 1,
-+    DW_VIRTUALITY_pure_virtual = 2
-+  };
-+
-+/* Case sensitivity.  */
-+enum dwarf_id_case
-+  {
-+    DW_ID_case_sensitive = 0,
-+    DW_ID_up_case = 1,
-+    DW_ID_down_case = 2,
-+    DW_ID_case_insensitive = 3
-+  };
-+
-+/* Calling convention.  */
-+enum dwarf_calling_convention
-+  {
-+    DW_CC_normal = 0x1,
-+    DW_CC_program = 0x2,
-+    DW_CC_nocall = 0x3
-+  };
-+
-+#define DW_CC_lo_user 0x40
-+#define DW_CC_hi_user 0xff
-+
-+/* Inline attribute.  */
-+enum dwarf_inline_attribute
-+  {
-+    DW_INL_not_inlined = 0,
-+    DW_INL_inlined = 1,
-+    DW_INL_declared_not_inlined = 2,
-+    DW_INL_declared_inlined = 3
-+  };
-+
-+/* Discriminant lists.  */
-+enum dwarf_discrim_list
-+  {
-+    DW_DSC_label = 0,
-+    DW_DSC_range = 1
-+  };
-+
-+/* Line number opcodes.  */
-+enum dwarf_line_number_ops
-+  {
-+    DW_LNS_extended_op = 0,
-+    DW_LNS_copy = 1,
-+    DW_LNS_advance_pc = 2,
-+    DW_LNS_advance_line = 3,
-+    DW_LNS_set_file = 4,
-+    DW_LNS_set_column = 5,
-+    DW_LNS_negate_stmt = 6,
-+    DW_LNS_set_basic_block = 7,
-+    DW_LNS_const_add_pc = 8,
-+    DW_LNS_fixed_advance_pc = 9,
-+    /* DWARF 3.  */
-+    DW_LNS_set_prologue_end = 10,
-+    DW_LNS_set_epilogue_begin = 11,
-+    DW_LNS_set_isa = 12
-+  };
-+
-+/* Line number extended opcodes.  */
-+enum dwarf_line_number_x_ops
-+  {
-+    DW_LNE_end_sequence = 1,
-+    DW_LNE_set_address = 2,
-+    DW_LNE_define_file = 3,
-+    /* HP extensions.  */
-+    DW_LNE_HP_negate_is_UV_update      = 0x11,
-+    DW_LNE_HP_push_context             = 0x12,
-+    DW_LNE_HP_pop_context              = 0x13,
-+    DW_LNE_HP_set_file_line_column     = 0x14,
-+    DW_LNE_HP_set_routine_name         = 0x15,
-+    DW_LNE_HP_set_sequence             = 0x16,
-+    DW_LNE_HP_negate_post_semantics    = 0x17,
-+    DW_LNE_HP_negate_function_exit     = 0x18,
-+    DW_LNE_HP_negate_front_end_logical = 0x19,
-+    DW_LNE_HP_define_proc              = 0x20
-+  };
-+
-+/* Call frame information.  */
-+enum dwarf_call_frame_info
-+  {
-+    DW_CFA_advance_loc = 0x40,
-+    DW_CFA_offset = 0x80,
-+    DW_CFA_restore = 0xc0,
-+    DW_CFA_nop = 0x00,
-+    DW_CFA_set_loc = 0x01,
-+    DW_CFA_advance_loc1 = 0x02,
-+    DW_CFA_advance_loc2 = 0x03,
-+    DW_CFA_advance_loc4 = 0x04,
-+    DW_CFA_offset_extended = 0x05,
-+    DW_CFA_restore_extended = 0x06,
-+    DW_CFA_undefined = 0x07,
-+    DW_CFA_same_value = 0x08,
-+    DW_CFA_register = 0x09,
-+    DW_CFA_remember_state = 0x0a,
-+    DW_CFA_restore_state = 0x0b,
-+    DW_CFA_def_cfa = 0x0c,
-+    DW_CFA_def_cfa_register = 0x0d,
-+    DW_CFA_def_cfa_offset = 0x0e,
-+    /* DWARF 3.  */
-+    DW_CFA_def_cfa_expression = 0x0f,
-+    DW_CFA_expression = 0x10,
-+    DW_CFA_offset_extended_sf = 0x11,
-+    DW_CFA_def_cfa_sf = 0x12,
-+    DW_CFA_def_cfa_offset_sf = 0x13,
-+    /* SGI/MIPS specific.  */
-+    DW_CFA_MIPS_advance_loc8 = 0x1d,
-+    /* GNU extensions.  */
-+    DW_CFA_GNU_window_save = 0x2d,
-+    DW_CFA_GNU_args_size = 0x2e,
-+    DW_CFA_GNU_negative_offset_extended = 0x2f
-+  };
-+
-+#define DW_CIE_ID	  0xffffffff
-+#define DW_CIE_VERSION	  1
-+
-+#define DW_CFA_extended   0
-+#define DW_CFA_lo_user    0x1c
-+#define DW_CFA_hi_user    0x3f
-+
-+#define DW_CHILDREN_no		     0x00
-+#define DW_CHILDREN_yes		     0x01
-+
-+#define DW_ADDR_none		0
-+
-+/* Source language names and codes.  */
-+enum dwarf_source_language
-+  {
-+    DW_LANG_C89 = 0x0001,
-+    DW_LANG_C = 0x0002,
-+    DW_LANG_Ada83 = 0x0003,
-+    DW_LANG_C_plus_plus = 0x0004,
-+    DW_LANG_Cobol74 = 0x0005,
-+    DW_LANG_Cobol85 = 0x0006,
-+    DW_LANG_Fortran77 = 0x0007,
-+    DW_LANG_Fortran90 = 0x0008,
-+    DW_LANG_Pascal83 = 0x0009,
-+    DW_LANG_Modula2 = 0x000a,
-+    DW_LANG_Java = 0x000b,
-+    /* DWARF 3.  */
-+    DW_LANG_C99 = 0x000c,
-+    DW_LANG_Ada95 = 0x000d,
-+    DW_LANG_Fortran95 = 0x000e,
-+    /* MIPS.  */
-+    DW_LANG_Mips_Assembler = 0x8001,
-+    /* UPC.  */
-+    DW_LANG_Upc = 0x8765
-+  };
-+
-+#define DW_LANG_lo_user 0x8000	/* Implementation-defined range start.  */
-+#define DW_LANG_hi_user 0xffff	/* Implementation-defined range start.  */
-+
-+/* Names and codes for macro information.  */
-+enum dwarf_macinfo_record_type
-+  {
-+    DW_MACINFO_define = 1,
-+    DW_MACINFO_undef = 2,
-+    DW_MACINFO_start_file = 3,
-+    DW_MACINFO_end_file = 4,
-+    DW_MACINFO_vendor_ext = 255
-+  };
-+
-+/* @@@ For use with GNU frame unwind information.  */
-+
-+#define DW_EH_PE_absptr		0x00
-+#define DW_EH_PE_omit		0xff
-+
-+#define DW_EH_PE_uleb128	0x01
-+#define DW_EH_PE_udata2		0x02
-+#define DW_EH_PE_udata4		0x03
-+#define DW_EH_PE_udata8		0x04
-+#define DW_EH_PE_sleb128	0x09
-+#define DW_EH_PE_sdata2		0x0A
-+#define DW_EH_PE_sdata4		0x0B
-+#define DW_EH_PE_sdata8		0x0C
-+#define DW_EH_PE_signed		0x08
-+
-+#define DW_EH_PE_pcrel		0x10
-+#define DW_EH_PE_textrel	0x20
-+#define DW_EH_PE_datarel	0x30
-+#define DW_EH_PE_funcrel	0x40
-+#define DW_EH_PE_aligned	0x50
-+
-+#define DW_EH_PE_indirect	0x80
-+
-+#endif /* _ELF_DWARF2_H */
-Index: linux-2.6.14/include/linux/dwarf2-lang.h
-===================================================================
---- /dev/null
-+++ linux-2.6.14/include/linux/dwarf2-lang.h
-@@ -0,0 +1,300 @@
-+#ifndef DWARF2_LANG
-+#define DWARF2_LANG
-+
-+/*
-+ * This is free software; you can redistribute it and/or modify it under
-+ * the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2, or (at your option) any later
-+ * version.
-+ */
-+/*
-+ * This file defines macros that allow generation of DWARF debug records
-+ * for asm files.  This file is platform independent.  Register numbers
-+ * (which are about the only thing that is platform dependent) are to be
-+ * supplied by a platform defined file.
-+ */
-+/*
-+ * We need this to work for both asm and C.  In asm we are using the
-+ * old comment trick to concatenate while C uses the new ANSI thing.
-+ * Here we have concat macro...  The multi level thing is to allow and
-+ * macros used in the names to be resolved prior to the cat (at which
-+ * time they are no longer the same string).
-+ */
-+#define CAT3(a,b,c) _CAT3(a,b,c)
-+#define _CAT3(a,b,c) __CAT3(a,b,c)
-+#ifndef __STDC__
-+#define __CAT3(a,b,c) a/**/b/**/c
-+#else
-+#define __CAT3(a,b,c) a##b##c
-+#endif
-+#ifdef __ASSEMBLY__
-+#define IFC(a)
-+#define IFN_C(a) a
-+#define NL ;
-+#define QUOTE_THIS(a) a
-+#define DWARF_preamble .section .debug_frame,"",%progbits;
-+#else
-+#define IFC(a) a
-+#define IFN_C(a)
-+#define NL \n\t
-+#define QUOTE_THIS(a) _QUOTE_THIS(a)
-+#define _QUOTE_THIS(a) #a
-+/* Don't let CPP see the " and , \042=" \054=, */
-+#define DWARF_preamble .section .debug_frame \054\042\042\054%progbits
-+#endif
-+
-+#ifdef CONFIG_64BIT
-+#define DATA_ALIGN_FACTOR	8
-+#define ADDR_LOC		.quad
-+#else
-+#define DATA_ALIGN_FACTOR	4
-+#define ADDR_LOC		.long
-+#endif
-+
-+#include <linux/dwarf2-defs.h>
-+/*
-+ * This macro starts a debug frame section.  The debug_frame describes
-+ * where to find the registers that the enclosing function saved on
-+ * entry.
-+ *
-+ * ORD is use by the label generator and should be the same as what is
-+ * passed to CFI_postamble.
-+ *
-+ * pc,	pc register gdb ordinal.
-+ *
-+ * code_align this is the factor used to define locations or regions
-+ * where the given definitions apply.  If you use labels to define these
-+ * this should be 1.
-+ *
-+ * data_align this is the factor used to define register offsets.  If
-+ * you use struct offset, this should be the size of the register in
-+ * bytes or the negative of that.  This is how it is used: you will
-+ * define a register as the reference register, say the stack pointer,
-+ * then you will say where a register is located relative to this
-+ * reference registers value, say 40 for register 3 (the gdb register
-+ * number).  The <40> will be multiplied by <data_align> to define the
-+ * byte offset of the given register (3, in this example).  So if your
-+ * <40> is the byte offset and the reference register points at the
-+ * begining, you would want 1 for the data_offset.  If <40> was the 40th
-+ * 4-byte element in that structure you would want 4.  And if your
-+ * reference register points at the end of the structure you would want
-+ * a negative data_align value(and you would have to do other math as
-+ * well).
-+ */
-+
-+#define CFI_preamble(ORD, pc, code_align, data_align)	\
-+         DWARF_preamble	NL				\
-+	.align DATA_ALIGN_FACTOR NL			\
-+        .globl CAT3(frame,_,ORD) NL			\
-+CAT3(frame,_,ORD): NL					\
-+	.long 7f-6f NL					\
-+6:							\
-+	.long	DW_CIE_ID NL				\
-+	.byte	DW_CIE_VERSION NL			\
-+	.byte 0	 NL					\
-+	.uleb128 code_align NL				\
-+	.sleb128 data_align NL				\
-+	.byte pc NL
-+
-+/*
-+ * After the above macro and prior to the CFI_postamble, you need to
-+ * define the initial state.  This starts with defining the reference
-+ * register and, usually the pc.  Here are some helper macros:
-+ */
-+
-+#define CFA_define_reference(reg, offset)	\
-+	.byte DW_CFA_def_cfa NL			\
-+	.uleb128 reg NL				\
-+	.uleb128 (offset) NL
-+
-+#define CFA_define_offset(reg, offset)		\
-+	.byte (DW_CFA_offset + reg) NL		\
-+	.uleb128 (offset) NL
-+
-+#define CFA_restore(reg)			\
-+        .byte (DW_CFA_restore + reg) NL
-+
-+#define CFI_postamble()				\
-+	.align DATA_ALIGN_FACTOR NL				\
-+7: NL						\
-+.previous NL
-+
-+/*
-+ * So now your code pushs stuff on the stack, you need a new location
-+ * and the rules for what to do.  This starts a running description of
-+ * the call frame.  You need to describe what changes with respect to
-+ * the call registers as the location of the pc moves through the code.
-+ * The following builds an FDE (fram descriptor entry?).  Like the
-+ * above, it has a preamble and a postamble.  It also is tied to the CFI
-+ * above.
-+ * The preamble macro is tied to the CFI thru the first parameter.  The
-+ * second is the code start address and then the code end address+1.
-+ */
-+#define FDE_preamble(ORD, initial_address, end_address)	\
-+        DWARF_preamble NL				\
-+	.align DATA_ALIGN_FACTOR NL					\
-+	.long 9f-8f NL					\
-+8:							\
-+	.long CAT3(frame,_,ORD) NL			\
-+	ADDR_LOC initial_address NL			\
-+	ADDR_LOC (end_address - initial_address) NL
-+
-+#define FDE_postamble()				\
-+	.align DATA_ALIGN_FACTOR NL				\
-+9:	 NL					\
-+.previous NL
-+
-+/*
-+ * That done, you can now add registers, subtract registers, move the
-+ * reference and even change the reference.  You can also define a new
-+ * area of code the info applies to.  For discontinuous bits you should
-+ * start a new FDE.  You may have as many as you like.
-+ */
-+
-+/*
-+ * To advance the stack address by <bytes> (0x3f max)
-+ */
-+
-+#define CFA_advance_loc(bytes)			\
-+	.byte DW_CFA_advance_loc+bytes NL
-+
-+/*
-+ * This one is good for 0xff or 255
-+ */
-+#define CFA_advance_loc1(bytes)			\
-+	.byte DW_CFA_advance_loc1 NL		\
-+        .byte bytes NL
-+
-+#define CFA_undefine_reg(reg)			\
-+        .byte DW_CFA_undefined NL		\
-+	.uleb128 reg NL
-+/*
-+ * With the above you can define all the register locations.  But
-+ * suppose the reference register moves... Takes the new offset NOT an
-+ * increment.  This is how esp is tracked if it is not saved.
-+ */
-+
-+#define CFA_define_cfa_offset(offset)		\
-+	.byte DW_CFA_def_cfa_offset NL		\
-+	.uleb128 (offset) NL
-+/*
-+ * Or suppose you want to use a different reference register...
-+ */
-+#define CFA_define_cfa_register(reg)		\
-+	.byte DW_CFA_def_cfa_register NL	\
-+	.uleb128 reg NL
-+
-+/*
-+ * If you want to mess with the stack pointer, here is the expression.
-+ * The stack starts empty.
-+ */
-+#define CFA_def_cfa_expression 			\
-+        .byte DW_CFA_def_cfa_expression	NL	\
-+	.uleb128 20f-10f NL			\
-+10:     NL
-+/*
-+ * This expression is to be used for other regs.  The stack starts with the
-+ * stack address.
-+ */
-+
-+#define CFA_expression(reg)			\
-+        .byte DW_CFA_expression	 NL		\
-+        .uleb128 reg NL				\
-+	.uleb128 20f-10f NL			\
-+10:     NL
-+/*
-+ * Here we do the expression stuff.  You should code the above followed
-+ *  by expression OPs followed by CFA_expression_end.
-+ */
-+
-+
-+#define CFA_expression_end			\
-+20:	 NL
-+
-+#define CFA_exp_OP_const4s(a)			\
-+        .byte DW_OP_const4s NL			\
-+        .long a NL
-+
-+#define  CFA_exp_OP_swap  .byte DW_OP_swap NL
-+#define  CFA_exp_OP_dup  .byte DW_OP_dup NL
-+#define  CFA_exp_OP_drop  .byte DW_OP_drop NL
-+/*
-+ * All these work on the top two elements on the stack, replacing them
-+ * with the result.  Top comes first where it matters.  True is 1, false 0.
-+ */
-+#define  CFA_exp_OP_deref .byte DW_OP_deref NL
-+#define  CFA_exp_OP_and   .byte DW_OP_and NL
-+#define  CFA_exp_OP_div   .byte DW_OP_div NL
-+#define  CFA_exp_OP_minus .byte DW_OP_minus NL
-+#define  CFA_exp_OP_mod   .byte DW_OP_mod NL
-+#define  CFA_exp_OP_neg   .byte DW_OP_neg NL
-+#define  CFA_exp_OP_plus  .byte DW_OP_plus NL
-+#define  CFA_exp_OP_not   .byte DW_OP_not NL
-+#define  CFA_exp_OP_or    .byte DW_OP_or NL
-+#define  CFA_exp_OP_xor   .byte DW_OP_xor NL
-+#define  CFA_exp_OP_le    .byte DW_OP_le NL
-+#define  CFA_exp_OP_ge    .byte DW_OP_ge NL
-+#define  CFA_exp_OP_eq    .byte DW_OP_eq NL
-+#define  CFA_exp_OP_lt    .byte DW_OP_lt NL
-+#define  CFA_exp_OP_gt    .byte DW_OP_gt NL
-+#define  CFA_exp_OP_ne    .byte DW_OP_ne NL
-+/*
-+ * These take a parameter as noted
-+ */
-+/*
-+ * Unconditional skip to loc. loc is a label (loc:)
-+ */
-+#define CFA_exp_OP_skip(loc)			\
-+         .byte DW_OP_skip  NL 			\
-+	 .hword  loc-.-2 NL
-+/*
-+ * Conditional skip to loc (TOS != 0, TOS--) (loc is a label)
-+ */
-+#define CFA_exp_OP_bra(loc)			\
-+         .byte DW_OP_bra NL			\
-+	 .hword loc-.-2 NL
-+
-+/*
-+ * TOS += no (an unsigned number)
-+ */
-+#define CFA_exp_OP_plus_uconst(no)		\
-+         .byte DW_OP_plus_uconst NL		\
-+         .uleb128 no NL
-+
-+/*
-+ * ++TOS = no (a unsigned number)
-+ */
-+#define CFA_exp_OP_constu(no)			\
-+         .byte DW_OP_constu NL			\
-+	 .uleb128 no NL
-+/*
-+ * ++TOS = no (a signed number)
-+ */
-+#define CFA_exp_OP_consts(no)			\
-+         .byte DW_OP_consts NL			\
-+	 .sleb128 no NL
-+/*
-+ * ++TOS = no (an unsigned byte)
-+ */
-+#define CFA_exp_OP_const1u(no)			\
-+         .byte DW_OP_const1u NL			\
-+	 .byte no NL
-+
-+
-+/*
-+ * ++TOS = no (a address)
-+ */
-+#define CFA_exp_OP_addr(no)			\
-+         .byte DW_OP_addr NL			\
-+	 .long no NL
-+
-+/*
-+ * Push current frames value for "reg" + offset
-+ * We take advantage of the opcode assignments to make this a litteral reg
-+ * rather than use the DW_OP_bregx opcode.
-+ */
-+
-+#define CFA_exp_OP_breg(reg,offset)		\
-+         .byte DW_OP_breg0+reg NL		\
-+         .sleb128 offset NL
-+#endif
-Index: linux-2.6.14/Makefile
-===================================================================
---- linux-2.6.14.orig/Makefile
-+++ linux-2.6.14/Makefile
-@@ -1316,4 +1316,8 @@ clean := -f $(if $(KBUILD_SRC),$(srctree
- 
- endif	# skip-makefile
- 
--FORCE:
-+include/linux/dwarf2-defs.h: $(srctree)/include/linux/dwarf2.h $(srctree)/scripts/dwarfh.awk
-+	mkdir -p include/linux/
-+	awk -f $(srctree)/scripts/dwarfh.awk $(srctree)/include/linux/dwarf2.h > include/linux/dwarf2-defs.h
-+
-+FORCE: include/linux/dwarf2-defs.h
-Index: linux-2.6.14/scripts/dwarfh.awk
-===================================================================
---- /dev/null
-+++ linux-2.6.14/scripts/dwarfh.awk
-@@ -0,0 +1,19 @@
-+BEGIN {
-+	print "#ifndef  _ELF_DWARF_H"
-+		print "/* Machine generated from dwarf2.h by scripts/dwarfh.awk */"
-+}
-+$2 == "=" {
-+	gsub(/,/, "", $3)
-+	print "#define " $1 "\t " $3
-+}
-+$1 == "#define" {
-+	print $0
-+	while( index($0,"\\") == length($0)){
-+		getline
-+		print $0
+ DECLARE_TASKLET(kgdb_tasklet_breakpoint, kgdb_tasklet_bpt, 0);
+@@ -1640,6 +1641,17 @@ DECLARE_TASKLET(kgdb_tasklet_breakpoint,
+  */
+ static void __init kgdb_early_entry(void)
+ {
++	/*
++	 * Don't try and do anything until the architecture is able to
++	 * setup the exception stack.  In this case, it is up to the
++	 * architecture to hook in and look at us when they are ready.
++	 */
++	if(!CHECK_EXCEPTION_STACK()) {
++		kgdb_initialized = -1;
++		tasklet_schedule(&kgdb_tasklet_breakpoint);
++		return;
 +	}
-+}
-+/.*/ {}
-+END {
-+	print "#endif"
-+}
++
+ 	/* Let the architecture do any setup that it needs to. */
+ 	kgdb_arch_init();
+ 
 
 -- 
 Tom

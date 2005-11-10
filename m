@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbVKJXNh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbVKJXNI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932244AbVKJXNh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 18:13:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbVKJXNh
+	id S932245AbVKJXNI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 18:13:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbVKJXNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 18:13:37 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:6869 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S932244AbVKJXNg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 18:13:36 -0500
-Date: Thu, 10 Nov 2005 15:13:29 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Con Kolivas <kernel@kolivas.org>
-cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, alokk@calsoftinc.com
-Subject: Re: [RFC, PATCH] Slab counter troubles with swap prefetch?
-In-Reply-To: <200511111007.12872.kernel@kolivas.org>
-Message-ID: <Pine.LNX.4.62.0511101510240.16588@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.62.0511101351120.16380@schroedinger.engr.sgi.com>
- <200511111007.12872.kernel@kolivas.org>
+	Thu, 10 Nov 2005 18:13:08 -0500
+Received: from mail20.syd.optusnet.com.au ([211.29.132.201]:53467 "EHLO
+	mail20.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932245AbVKJXNH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 18:13:07 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Alexander Clouter <alex@digriz.org.uk>
+Subject: Re: [patch 1/1] cpufreq_conservative/ondemand: invert meaning of 'ignore nice'
+Date: Fri, 11 Nov 2005 10:12:19 +1100
+User-Agent: KMail/1.8.3
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, davej@redhat.com,
+       davej@codemonkey.org.uk, blaisorblade@yahoo.it
+References: <20051110170040.GE16994@inskipp.digriz.org.uk>
+In-Reply-To: <20051110170040.GE16994@inskipp.digriz.org.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed;
+  boundary="nextPart2446939.fCYSCLKqVx";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200511111012.22163.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Nov 2005, Con Kolivas wrote:
+--nextPart2446939.fCYSCLKqVx
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> > This patch splits the counter into the nr_local_slab which reflects
-> > slab pages allocated from the local zones (and this number is useful
-> > at least as a guidance for the VM) and the remotely allocated pages.
-> 
-> How large a contribution is the remote slab size likely to be? Would this 
-> information be useful to anyone potentially in future code besides swap 
-> prefetch? The nature of prefetch is that this is only a fairly coarse measure 
-> of how full the vm is with data we don't want to displace. Thus it is also 
-> not important that it is very accurate. 
+On Fri, 11 Nov 2005 04:00, Alexander Clouter wrote:
+> The use of the 'ignore_nice' sysfs file is confusing to anyone using it.
+> This removes the sysfs file 'ignore_nice' and in its place creates a
+> 'ignore_nice_load' entry which defaults to '0'; meaning nice'd processes
+> *are* counted towards the 'business' caclulation.
 
-The size of the remote cache depends on many factors. The application can 
-influence that by setting memory policies. 
+My 'nice'd compiles thank you from the bottom of their little cc1 hearts fo=
+r=20
+changing your mind.
 
-> Unless the remote slab size can be a very large contribution, or having local 
+Cheers,
+Con
 
-Yes it can be quite large. On some of my tests with applications these are 
-100%. This is typical if the application sets the policy in such a way 
-that all allocations are off node or if the kernel has to allocate memory 
-on a certain node for a device.
+--nextPart2446939.fCYSCLKqVx
+Content-Type: application/pgp-signature
 
-> and remote slab sizes is useful potentially to some other code I'm inclined 
-> to say this is unnecessary. A simple comment saying something like "the 
-> nr_slab estimation is artificially elevated by remote slab pages on numa, 
-> however this contribution is not important to the accuracy of this 
-> algorithm". Of course it is nice to be more accurate and if you think 
-> worthwhile then we can do this - I'll be happy to be guided by your 
-> judgement.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-> As a side note I doubt any serious size numa hardware will ever be idle enough 
-> by swap prefetch standards to even start prefetching swap pages. If you think 
-> hardware of this sort is likely to benefit from swap prefetch then perhaps we 
-> should look at relaxing the conditions under which prefetching occurs.
+iD8DBQBDc9PWZUg7+tp6mRURArmtAJ9LFT6bjL7974jGpAfhhnWPEcvCewCffSGy
+ZigEdwwQcpx1kKS8SbY9NXQ=
+=1woe
+-----END PGP SIGNATURE-----
 
-Small scale NUMA machines may benefit from swap prefetch but on larger 
-machines people usually try to avoid swap altogether.
-
+--nextPart2446939.fCYSCLKqVx--

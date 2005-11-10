@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbVKJIBc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751379AbVKJIED@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751363AbVKJIBc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 03:01:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbVKJIBc
+	id S1751379AbVKJIED (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 03:04:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751392AbVKJIED
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 03:01:32 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:4272
+	Thu, 10 Nov 2005 03:04:03 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:34992
 	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1751363AbVKJIBb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 03:01:31 -0500
-Message-Id: <43730CA7.76F0.0078.0@novell.com>
+	id S1751379AbVKJIEC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 03:04:02 -0500
+Message-Id: <43730D3A.76F0.0078.0@novell.com>
 X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Thu, 10 Nov 2005 09:02:31 +0100
+Date: Thu, 10 Nov 2005 09:04:58 +0100
 From: "Jan Beulich" <JBeulich@novell.com>
-To: "Keith Owens" <kaos@sgi.com>
+To: "Adrian Bunk" <bunk@stusta.de>
 Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 14/39] NLKD - kernel trace buffer access
-References: Your message of "Wed, 09 Nov 2005 15:09:13 BST."            <43721119.76F0.0078.0@novell.com>   <7640.1131601492@kao2.melbourne.sgi.com>
-In-Reply-To: <7640.1131601492@kao2.melbourne.sgi.com>
+Subject: Re: [PATCH 17/39] NLKD/i386 - core adjustments
+References: <43720F5E.76F0.0078.0@novell.com>  <43720F95.76F0.0078.0@novell.com>  <43720FBA.76F0.0078.0@novell.com>  <43720FF6.76F0.0078.0@novell.com>  <43721024.76F0.0078.0@novell.com>  <4372105B.76F0.0078.0@novell.com>  <43721119.76F0.0078.0@novell.com>  <43721142.76F0.0078.0@novell.com>  <43721184.76F0.0078.0@novell.com>  <437211B6.76F0.0078.0@novell.com> <20051109190017.GB4047@stusta.de>
+In-Reply-To: <20051109190017.GB4047@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -25,52 +25,20 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Keith Owens <kaos@sgi.com> 10.11.05 06:44:52 >>>
->On Wed, 09 Nov 2005 15:09:13 +0100, 
->"Jan Beulich" <JBeulich@novell.com> wrote:
->>Debug extension implementation for NLKD to access the kernel trace
->>buffer.
+>>> Adrian Bunk <bunk@stusta.de> 09.11.05 20:00:17 >>>
+>On Wed, Nov 09, 2005 at 03:11:51PM +0100, Jan Beulich wrote:
+>> The core i386 NLKD adjustments to pre-existing code.
+>> 
+>> Signed-Off-By: Jan Beulich <jbeulich@novell.com>
+>> 
+>> (actual patch attached)
 >
-> printk.c |  187
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-> 1 files changed, 187 insertions(+)
->
->This is complete overkill in printk.c.  The only change required to
->printk is to add a routine which gets the parameters that define the
->buffer, see below from KDB.  The rest of the code in your patch
-belongs
->in the debugger, not in printk.
+>If your code doesn't work with 4k stacks you have a problem because
+>8k stacks will soon be removed (my goal is 2.6.16, perhaps one or two
 
-This depends on the perspective...
+>releases later).
 
->#ifdef	CONFIG_KDB
->/* kdb dmesg command needs access to the syslog buffer.  do_syslog()
-uses locks
-> * so it cannot be used during debugging.  Just tell kdb where the
-start and
-> * end of the physical and logical logs are.  This is equivalent to
-do_syslog(3).
-> */
->void kdb_syslog_data(char *syslog_data[4])
->{
->	syslog_data[0] = log_buf;
->	syslog_data[1] = log_buf + log_buf_len;
->	syslog_data[2] = log_buf + log_end - (logged_chars < log_buf_len
-? logged_chars : log_buf_len);
->	syslog_data[3] = log_buf + log_end;
->}
->#endif	/* CONFIG_KDB */
-
-The publishing of this function allows uncontrolled access to the
-otherwise (and sure purposefully) static symbols; you could as well
-globalize the symbols directly. In order for KDB to be a module, this
-symbol would even need to be exported. By keeping the debugger access
-code in the same file, nothing gets changed visibility-wise for the
-outside world.
-
-Further, the design of the debugger extensions of NLKD calls for the
-extension code to live in the place their data gets controlled at.
-Consider an extension living in a module - how could the debugger access
-that information?
+It's not that it doesn't work with them, but chances of stack overflow
+are too high for my taste.
 
 Jan

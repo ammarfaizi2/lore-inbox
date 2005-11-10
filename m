@@ -1,64 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbVKJSci@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbVKJScD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751186AbVKJSci (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 13:32:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbVKJScK
+	id S1751168AbVKJScD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 13:32:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbVKJScB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 13:32:10 -0500
-Received: from ams-iport-1.cisco.com ([144.254.224.140]:48904 "EHLO
+	Thu, 10 Nov 2005 13:32:01 -0500
+Received: from ams-iport-1.cisco.com ([144.254.224.140]:22336 "EHLO
 	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S1751186AbVKJScE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 13:32:04 -0500
-Subject: [git patch review 4/7] [IB] mthca: fix posting of atomic operations
+	id S1751057AbVKJScA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 13:32:00 -0500
+Subject: [git patch review 1/7] [IB] Have cq_resize() method take an int,
+	not int*
 From: Roland Dreier <rolandd@cisco.com>
 Date: Thu, 10 Nov 2005 18:31:55 +0000
 To: linux-kernel@vger.kernel.org, openib-general@openib.org
 X-Mailer: IB-patch-reviewer
 Content-Transfer-Encoding: 8bit
-Message-ID: <1131647515831-8ba0b803b8214b97@cisco.com>
-In-Reply-To: <1131647515831-b1175b20ec8fd319@cisco.com>
-X-OriginalArrivalTime: 10 Nov 2005 18:31:56.0871 (UTC) FILETIME=[07C8DD70:01C5E625]
+Message-ID: <1131647515831-039f6ac6e65cc7ed@cisco.com>
+X-OriginalArrivalTime: 10 Nov 2005 18:31:56.0777 (UTC) FILETIME=[07BA8590:01C5E625]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The size of work requests for atomic operations was computed
-incorrectly in mthca: all sizeofs need to be divided by 16.
+Change the struct ib_device.resize_cq() method to take a plain integer
+that holds the new CQ size, rather than a pointer to an integer that
+it uses to return the new size.  This makes the interface match the
+exported ib_resize_cq() signature, and allows the low-level driver to
+update the CQ size with proper locking if necessary.
 
-Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
+No in-tree drivers are exporting this method yet.
+
 Signed-off-by: Roland Dreier <rolandd@cisco.com>
 
 ---
 
- drivers/infiniband/hw/mthca/mthca_qp.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/infiniband/core/verbs.c |   12 ++----------
+ include/rdma/ib_verbs.h         |    2 +-
+ 2 files changed, 3 insertions(+), 11 deletions(-)
 
-applies-to: 308dce81364b1cbb563942a1a57146c1808e8911
-62abb8416f1923f4cef50ce9ce841b919275e3fb
-diff --git a/drivers/infiniband/hw/mthca/mthca_qp.c b/drivers/infiniband/hw/mthca/mthca_qp.c
-index 7f39af4..190c1dc 100644
---- a/drivers/infiniband/hw/mthca/mthca_qp.c
-+++ b/drivers/infiniband/hw/mthca/mthca_qp.c
-@@ -1556,8 +1556,8 @@ int mthca_tavor_post_send(struct ib_qp *
- 				}
+applies-to: 08d94f59d6f80937db5d87f0bb60eafcedd811d1
+40de2e548c225e3ef859e3c60de9785e37e1b5b1
+diff --git a/drivers/infiniband/core/verbs.c b/drivers/infiniband/core/verbs.c
+index 72d3ef7..4f51d79 100644
+--- a/drivers/infiniband/core/verbs.c
++++ b/drivers/infiniband/core/verbs.c
+@@ -324,16 +324,8 @@ EXPORT_SYMBOL(ib_destroy_cq);
+ int ib_resize_cq(struct ib_cq *cq,
+                  int           cqe)
+ {
+-	int ret;
+-
+-	if (!cq->device->resize_cq)
+-		return -ENOSYS;
+-
+-	ret = cq->device->resize_cq(cq, &cqe);
+-	if (!ret)
+-		cq->cqe = cqe;
+-
+-	return ret;
++	return cq->device->resize_cq ?
++		cq->device->resize_cq(cq, cqe) : -ENOSYS;
+ }
+ EXPORT_SYMBOL(ib_resize_cq);
  
- 				wqe += sizeof (struct mthca_atomic_seg);
--				size += sizeof (struct mthca_raddr_seg) / 16 +
--					sizeof (struct mthca_atomic_seg);
-+				size += (sizeof (struct mthca_raddr_seg) +
-+					 sizeof (struct mthca_atomic_seg)) / 16;
- 				break;
- 
- 			case IB_WR_RDMA_WRITE:
-@@ -1876,8 +1876,8 @@ int mthca_arbel_post_send(struct ib_qp *
- 				}
- 
- 				wqe += sizeof (struct mthca_atomic_seg);
--				size += sizeof (struct mthca_raddr_seg) / 16 +
--					sizeof (struct mthca_atomic_seg);
-+				size += (sizeof (struct mthca_raddr_seg) +
-+					 sizeof (struct mthca_atomic_seg)) / 16;
- 				break;
- 
- 			case IB_WR_RDMA_READ:
+diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
+index f72d46d..a7f4c35 100644
+--- a/include/rdma/ib_verbs.h
++++ b/include/rdma/ib_verbs.h
+@@ -881,7 +881,7 @@ struct ib_device {
+ 						struct ib_ucontext *context,
+ 						struct ib_udata *udata);
+ 	int                        (*destroy_cq)(struct ib_cq *cq);
+-	int                        (*resize_cq)(struct ib_cq *cq, int *cqe);
++	int                        (*resize_cq)(struct ib_cq *cq, int cqe);
+ 	int                        (*poll_cq)(struct ib_cq *cq, int num_entries,
+ 					      struct ib_wc *wc);
+ 	int                        (*peek_cq)(struct ib_cq *cq, int wc_cnt);
 ---
 0.99.9e

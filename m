@@ -1,27 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbVKJUnB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbVKJUnE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932093AbVKJUnB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 15:43:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbVKJUnB
+	id S932094AbVKJUnE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 15:43:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbVKJUnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 15:43:01 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:45111 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S932093AbVKJUnA
+	Thu, 10 Nov 2005 15:43:04 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:25945 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S932094AbVKJUnA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 10 Nov 2005 15:43:00 -0500
 Subject: [PATCH] cleanup module metadata declerations
-From: Kasper Sandberg <lkml@metanurb.dk>
+From: Redeeman <redeeman@metanurb.dk>
+Reply-To: redeeman@metanurb.dk
 To: LKML Mailinglist <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-gN2+pAUq66dluRVOU0Ym"
-Date: Thu, 10 Nov 2005 21:42:46 +0100
-Message-Id: <1131655366.2185.5.camel@localhost>
+Content-Type: multipart/mixed; boundary="=-OgMKXyCTfWEKqGaPOjKG"
+Date: Thu, 10 Nov 2005 21:42:52 +0100
+Message-Id: <1131655372.2185.6.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.0 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-gN2+pAUq66dluRVOU0Ym
+--=-OgMKXyCTfWEKqGaPOjKG
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
@@ -107,7 +108,7 @@ diffstat:
  68 files changed, 173 insertions(+), 173 deletions(-)
 
 
---=-gN2+pAUq66dluRVOU0Ym
+--=-OgMKXyCTfWEKqGaPOjKG
 Content-Disposition: attachment; filename=Cleanup_module_metadata.patch
 Content-Type: text/x-patch; name=Cleanup_module_metadata.patch; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
@@ -1221,5 +1222,5 @@ diff -Naur linux-2.6.14-a/sound/oss/wavfront.c linux-2.6.14-b/sound/oss/wavfront
  module_param       (io, int, 0);
  module_param       (irq, int, 0);
 
---=-gN2+pAUq66dluRVOU0Ym--
+--=-OgMKXyCTfWEKqGaPOjKG--
 

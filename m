@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750921AbVKJOEW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750925AbVKJOGM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750921AbVKJOEW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 09:04:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbVKJOEV
+	id S1750925AbVKJOGM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 09:06:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750927AbVKJOGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 09:04:21 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:22713 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750921AbVKJOET
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 09:04:19 -0500
-Date: Thu, 10 Nov 2005 14:04:19 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Peter Staubach <staubach@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 1/2] handling 64bit values for st_ino]
-Message-ID: <20051110140419.GF7992@ftp.linux.org.uk>
-References: <20051110003024.GD7992@ftp.linux.org.uk> <437343B1.5000809@redhat.com> <20051110134336.GE7992@ftp.linux.org.uk> <4373508F.9060004@redhat.com>
+	Thu, 10 Nov 2005 09:06:12 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:12317
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1750911AbVKJOGK convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 09:06:10 -0500
+Message-Id: <43736220.76F0.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Thu, 10 Nov 2005 15:07:12 +0100
+From: "Jan Beulich" <JBeulich@novell.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
+Subject: Re: [PATCH 18/39] NLKD/x86-64 - INT1/INT3 handling changes
+References: <43720DAE.76F0.0078.0@novell.com>  <437210D1.76F0.0078.0@novell.com>  <4372120B.76F0.0078.0@novell.com> <200511101421.48950.ak@suse.de>
+In-Reply-To: <200511101421.48950.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <4373508F.9060004@redhat.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 10, 2005 at 08:52:15AM -0500, Peter Staubach wrote:
-> Two different sized types to describe inode numbers, different paths, etc.
-> Having two of something, when just one would suffice, is usually more
-> complicated.
+>>> Andi Kleen <ak@suse.de> 10.11.05 14:21:48 >>>
+>On Wednesday 09 November 2005 15:13, Jan Beulich wrote:
+>> This
+>> - switches the INT3 handler to run on an IST stack (to cope with
+>>   breakpoints set by a kernel debugger on places where the kernel's
+>>   %gs base hasn't been set up, yet); the IST stack used is shared with
+>>   the INT1 handler's
+>> - allows nesting of INT1/INT3 handlers so that one can, with a kernel
+>>   debugger, debug (at least) the user-mode portions of the INT1/INT3
+>>   handling; the nesting isn't actively enabled here since a kernel-
+>>   debugger-free kernel doesn't need it
+>
+>Looks reasonable except for the CONFIG_NLKD hunk, which doesn't
+>seem to be related. I think I'll apply it without that.
 
-_What_ different paths?  And what "two of something"?
+As the comment in that hunk says - this is not the correct test, but the correct test cannot be used. Omitting the hunk altogether will leave orphan references to the pda field (even though these won't cause build problems) in setup64.c and traps.c.
 
-The only requirement for fs that want to report wider st_ino is
-to put the right value into kstat->ino in their ->getattr().
+Jan
 
-And there's already a plenty of filesystems using iget5() et.al.
-for icache lookups - this isn't adding anything new.
-
-As far as 64bit ino_t is concerned - no, thanks.  We'd need to walk through
-all existing fs code and audit existing uses of ino_t.  Which is far more
-of support burden.
-
-And then there's an issue of overhead on normal icache lookups for nearly
-all existing filesystems; ones that do wider lookup keys are *already* using
-iget5(), BTW.   So you'll simply punish all users of iget().

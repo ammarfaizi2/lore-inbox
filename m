@@ -1,41 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbVKJVFI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbVKJVFE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932135AbVKJVFI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 16:05:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbVKJVFH
+	id S932121AbVKJVFE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 16:05:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbVKJVFD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 16:05:07 -0500
-Received: from xproxy.gmail.com ([66.249.82.207]:65436 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932122AbVKJVFG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 16:05:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CeTSynzBTYJ3zkI1L9syjXSxuBi27fF2TI0/OBUDlkZKX4xw9+O6MOC4vEro3pD4Tz9H67+Qmw1QCgSzdRqYzWU6kIfHInv/goHl8osqCiV9cKp4X6H8KSR2UDfD5nBQEJ1nhIhv+MpGa5xObUtZcPyMSZLWVCa241TR/xY2A9Y=
-Message-ID: <b1bc6a000511101305v7dd396e7g1b9eb7716d6c229a@mail.gmail.com>
-Date: Thu, 10 Nov 2005 13:05:05 -0800
-From: adam radford <aradford@gmail.com>
-To: subbie subbie <subbie_subbie@yahoo.com>
-Subject: Re: 3Ware and 2.6.14, problem resurrected
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051110204041.41115.qmail@web30605.mail.mud.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 10 Nov 2005 16:05:03 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:26814 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932121AbVKJVFB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 16:05:01 -0500
+Date: Thu, 10 Nov 2005 22:04:58 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: john stultz <johnstul@us.ibm.com>
+Cc: dino@in.ibm.com, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: IO-APIC problem with 2.6.14-rt9
+Message-ID: <20051110210458.GA6097@elte.hu>
+References: <20051110200226.GA18780@in.ibm.com> <20051110200205.GA4696@elte.hu> <20051110203000.GB16301@in.ibm.com> <1131654575.27168.685.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20051110204041.41115.qmail@web30605.mail.mud.yahoo.com>
+In-Reply-To: <1131654575.27168.685.camel@cog.beaverton.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/10/05, subbie subbie <subbie_subbie@yahoo.com> wrote:
-> The problem introduced in 2.6.12-mm2 as described
-> below appears to have resurfaced in the latest kernel,
-> 2.6.14.
 
-The driver you are running from the 3ware website does not have the fix
-for this in it.  Please reproduce with the in-kernel v2.26.02.004 driver or
-download the 9.3.0.1 driver for 9550SX from the 3ware website, it is backward
-compatible to all 9000 series cards.
+* john stultz <johnstul@us.ibm.com> wrote:
 
--Adam
+> > > //#define ARCH_HAS_READ_CURRENT_TIMER  1
+> > > 
+> > > to:
+> > > 
+> > > #define ARCH_HAS_READ_CURRENT_TIMER  1
+> > > 
+> > > ?
+> > 
+> > It works !!  Thanks Ingo for the immediate response
+> 
+> Hrm. Could you post the value for BogoMIPS that you're getting now?
+> 
+> My patches touch the __delay() code, since using the TSC based delay 
+> has just as many, if not more, problems as the loop based delay. So I 
+> want to be careful that my changes are not further causing problems.
+> 
+> Ingo, did you commented out ARCH_HAS_READ_CURRENT_TIMER because of 
+> problems with the new calibration code?
+
+yes. traces show that the new calibration code results in a bogomips 
+value on Athlon64 CPUs that halve the timeout. I.e. udelay(100) now 
+takes 50 usecs (!). The calibration code seems to assume the number of 
+cycles == number of loops in __delay() - that is not valid. The 
+calibration needs to happen based on some real clock, such as the PIT, 
+or PIT-driven jiffies.
+
+	Ingo

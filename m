@@ -1,71 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbVKJUn3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbVKJUqa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932096AbVKJUn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 15:43:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbVKJUn3
+	id S932102AbVKJUqa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 15:46:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbVKJUqP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 15:43:29 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:61956 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932096AbVKJUn1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 15:43:27 -0500
-Date: Thu, 10 Nov 2005 21:43:25 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Matthew Dobson <colpatch@us.ibm.com>,
-       Pekka J Enberg <penberg@cs.helsinki.fi>, kernel-janitors@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 8/8] Inline 3 functions
-Message-ID: <20051110204325.GG5376@stusta.de>
-References: <436FF51D.8080509@us.ibm.com> <200511101904.23114.oliver@neukum.org> <20051110182001.GF5376@stusta.de> <200511102022.52702.oliver@neukum.org>
+	Thu, 10 Nov 2005 15:46:15 -0500
+Received: from k1.dinoex.de ([80.237.153.113]:28355 "EHLO k1.dinoex.de")
+	by vger.kernel.org with ESMTP id S932100AbVKJUqN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 15:46:13 -0500
+X-MDaemon-Deliver-To: <linux-kernel@vger.kernel.org>
+From: Jochen Hein <jochen@jochen.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [2.6.14] ATAPI DVD no longer found
+X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
+X-Message-Flag: This space is intentionally left blank
+X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
+X-Note: sending SPAM is a violation of both german and US law and will
+	at least trigger a complaint at your provider's postmaster.
+X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany) 
+     Key fingerprint = F5C5 1C20 1DFC DEC3 3107  54A4 2332 ADFC 77D4 FC9B
+X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
+Date: Thu, 10 Nov 2005 21:39:44 +0100
+Message-ID: <87fyq46xv3.fsf@echidna.jochen.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200511102022.52702.oliver@neukum.org>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 10, 2005 at 08:22:52PM +0100, Oliver Neukum wrote:
-> Am Donnerstag, 10. November 2005 19:20 schrieb Adrian Bunk:
-> > On Thu, Nov 10, 2005 at 07:04:22PM +0100, Oliver Neukum wrote:
-> > > Am Donnerstag, 10. November 2005 18:38 schrieb Adrian Bunk:
-> > > > > So are you suggesting that we don't mark these functions 'inline', or are
-> > > > > you just pointing out that we'll need to drop the 'inline' if there is ever
-> > > > > another caller?
-> > > > 
-> > > > I'd suggest to not mark them 'inline'.
-> > > 
-> > > It seems you have found one more use for sparse. How about a tag
-> > > like __single_inline that will cause a warning if a function having it
-> > > is called from more than one place?
-> > 
-> > Why should such a function be manually marked "inline" at all?
-> > 
-> > If a static function is called exactly once it is the job of the 
-> > compiler to inline the function.
-> 
-> It should indeed. This documentation says it does:
-> http://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html
-> That makes me wonder what is the problem.
 
-On i386, we have the problem that we are using -fno-unit-at-a-time to 
-avoid stack usage problems.
+Hardware is a Thinkpad R40, Debian sarge with -linus kernel.
 
-But the proper solution will be to remove -fno-unit-at-a-time from the 
-CFLAGS for gcc >= 4.1 or >= 4.2 and check whether this will cause any 
-new stack usage problems.
+2.6.13: works, no parameters for IDE given.  dmesg concerning ide as follows:
 
-> 	Puzzeled
-> 		Oliver
+Nov 10 21:20:41 hermes kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+Nov 10 21:20:41 hermes kernel: ICH4: IDE controller at PCI slot 0000:00:1f.1
+Nov 10 21:20:41 hermes kernel: PCI: Enabling device 0000:00:1f.1 (0005 -> 0007)
+Nov 10 21:20:41 hermes kernel: ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 11
+Nov 10 21:20:41 hermes kernel: ACPI: PCI Interrupt 0000:00:1f.1[A] -> Link [LNKC] -> GSI 11 (level, low) -> IRQ 11
+Nov 10 21:20:41 hermes kernel: ICH4: chipset revision 1
+Nov 10 21:20:41 hermes kernel: ICH4: not 100%% native mode: will probe irqs later
+Nov 10 21:20:41 hermes kernel:     ide0: BM-DMA at 0x1860-0x1867, BIOS settings: hda:DMA, hdb:pio
+Nov 10 21:20:41 hermes kernel:     ide1: BM-DMA at 0x1868-0x186f, BIOS settings: hdc:DMA, hdd:pio
+Nov 10 21:20:41 hermes kernel: Probing IDE interface ide0...
+Nov 10 21:20:41 hermes kernel: hda: IC25N040ATMR04-0, ATA DISK drive
+Nov 10 21:20:41 hermes kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Nov 10 21:20:41 hermes kernel: Probing IDE interface ide1...
+Nov 10 21:20:41 hermes kernel: hdc: HL-DT-STCD-RW/DVD DRIVE GCC-4240N, ATAPI CD/DVD-ROM drive
+Nov 10 21:20:41 hermes kernel: ide1 at 0x170-0x177,0x376 on irq 15
+Nov 10 21:20:41 hermes kernel: hda: max request size: 128KiB
+Nov 10 21:20:41 hermes kernel: hda: Host Protected Area detected.
+Nov 10 21:20:41 hermes kernel: ^Icurrent capacity is 71711733 sectors (36716 MB)
+Nov 10 21:20:41 hermes kernel: ^Inative  capacity is 78140160 sectors (40007 MB)
+Nov 10 21:20:41 hermes kernel: hda: Host Protected Area disabled.
+Nov 10 21:20:41 hermes kernel: hda: 78140160 sectors (40007 MB) w/1740KiB Cache, CHS=65535/16/63, UDMA(100)
+Nov 10 21:20:41 hermes kernel: hda: cache flushes supported
+Nov 10 21:20:41 hermes kernel:  hda: hda1 hda2 hda3 hda4
+Nov 10 21:20:41 hermes kernel: hdc: ATAPI 24X DVD-ROM CD-R/RW drive, 2048kB Cache, UDMA(33)
+Nov 10 21:20:41 hermes kernel: Uniform CD-ROM driver Revision: 3.20
 
-cu
-Adrian
+2.6.14-rc3: works 
+2.6.14-rc5: works
+
+2.6.14.1: with hdc=cdrom, dmesg concerning ide:
+
+Nov 10 21:14:14 hermes kernel: Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+Nov 10 21:14:14 hermes kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+Nov 10 21:14:14 hermes kernel: ICH4: IDE controller at PCI slot 0000:00:1f.1
+Nov 10 21:14:14 hermes kernel: PCI: Enabling device 0000:00:1f.1 (0005 -> 0007)
+Nov 10 21:14:14 hermes kernel: ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 11
+Nov 10 21:14:14 hermes kernel: ACPI: PCI Interrupt 0000:00:1f.1[A] -> Link [LNKC] -> GSI 11 (level, low) -> IRQ 11
+Nov 10 21:14:14 hermes kernel: ICH4: chipset revision 1
+Nov 10 21:14:14 hermes kernel: ICH4: not 100%% native mode: will probe irqs later
+Nov 10 21:14:14 hermes kernel:     ide0: BM-DMA at 0x1860-0x1867, BIOS settings: hda:DMA, hdb:pio
+Nov 10 21:14:14 hermes kernel:     ide1: BM-DMA at 0x1868-0x186f, BIOS settings: hdc:DMA, hdd:pio
+Nov 10 21:14:14 hermes kernel: Probing IDE interface ide0...
+Nov 10 21:14:14 hermes kernel: hda: IC25N040ATMR04-0, ATA DISK drive
+Nov 10 21:14:14 hermes kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Nov 10 21:14:14 hermes kernel: Probing IDE interface ide1...
+Nov 10 21:14:14 hermes kernel: hdc: ATAPI cdrom (?)
+Nov 10 21:14:14 hermes kernel: ide1 at 0x170-0x177,0x376 on irq 15
+Nov 10 21:14:14 hermes kernel: Probing IDE interface ide2...
+Nov 10 21:14:14 hermes kernel: Probing IDE interface ide3...
+Nov 10 21:14:14 hermes kernel: Probing IDE interface ide4...
+Nov 10 21:14:14 hermes kernel: Probing IDE interface ide5...
+Nov 10 21:14:14 hermes kernel: hda: max request size: 128KiB
+Nov 10 21:14:14 hermes kernel: hda: Host Protected Area detected.
+Nov 10 21:14:14 hermes kernel: ^Icurrent capacity is 71711733 sectors (36716 MB)
+Nov 10 21:14:14 hermes kernel: ^Inative  capacity is 78140160 sectors (40007 MB)
+Nov 10 21:14:14 hermes kernel: hda: Host Protected Area disabled.
+Nov 10 21:14:14 hermes kernel: hda: 78140160 sectors (40007 MB) w/1740KiB Cache, CHS=65535/16/63, UDMA(100)
+Nov 10 21:14:14 hermes kernel: hda: cache flushes supported
+Nov 10 21:14:14 hermes kernel:  hda: hda1 hda2 hda3 hda4
+Nov 10 21:14:14 hermes kernel: ide-cd: cmd 0x5a timed out
+Nov 10 21:14:14 hermes kernel: hdc: lost interrupt
+Nov 10 21:14:14 hermes kernel: hdc: status error: status=0x00 { }
+Nov 10 21:14:14 hermes kernel: ide: failed opcode was: unknown
+Nov 10 21:14:14 hermes kernel: hdc: ATAPI 24X DVD-ROM CD-R/RW drive, 2048kB Cache
+Nov 10 21:14:14 hermes kernel: Uniform CD-ROM driver Revision: 3.20
+
+Some time later I get the following messages:
+
+Nov 10 21:14:22 hermes kernel: hdc: status error: status=0x00 { }
+Nov 10 21:14:22 hermes kernel: ide: failed opcode was: unknown
+Nov 10 21:14:22 hermes kernel: hdc: status error: status=0x20 { DeviceFault }
+Nov 10 21:14:22 hermes kernel: ide: failed opcode was: unknown
+Nov 10 21:14:23 hermes kernel: hdc: ATAPI reset complete
+Nov 10 21:14:23 hermes kernel: hdc: status error: status=0x00 { }
+Nov 10 21:14:23 hermes kernel: ide: failed opcode was: unknown
+Nov 10 21:14:23 hermes kernel: hdc: status error: status=0x00 { }
+Nov 10 21:14:23 hermes kernel: ide: failed opcode was: unknown
+Nov 10 21:14:23 hermes kernel: hdc: status error: status=0x00 { }
+Nov 10 21:14:23 hermes kernel: ide: failed opcode was: unknown
+Nov 10 21:14:23 hermes kernel: hdc: status error: status=0x00 { }
+Nov 10 21:14:23 hermes kernel: ide: failed opcode was: unknown
+Nov 10 21:14:23 hermes kernel: hdc: ATAPI reset complete
+
+2.6.14.1 without command line parameters:
+
+Nov 10 20:20:25 hermes kernel: Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+Nov 10 20:20:25 hermes kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+Nov 10 20:20:25 hermes kernel: ICH4: IDE controller at PCI slot 0000:00:1f.1
+Nov 10 20:20:25 hermes kernel: PCI: Enabling device 0000:00:1f.1 (0005 -> 0007)
+Nov 10 20:20:25 hermes kernel: ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 11
+Nov 10 20:20:25 hermes kernel: ACPI: PCI Interrupt 0000:00:1f.1[A] -> Link [LNKC] -> GSI 11 (level, low) -> IRQ 11
+Nov 10 20:20:25 hermes kernel: ICH4: chipset revision 1
+Nov 10 20:20:25 hermes kernel: ICH4: not 100%% native mode: will probe irqs later
+Nov 10 20:20:25 hermes kernel:     ide0: BM-DMA at 0x1860-0x1867, BIOS settings: hda:DMA, hdb:pio
+Nov 10 20:20:25 hermes kernel:     ide1: BM-DMA at 0x1868-0x186f, BIOS settings: hdc:DMA, hdd:pio
+Nov 10 20:20:25 hermes kernel: Probing IDE interface ide0...
+Nov 10 20:20:25 hermes kernel: hda: IC25N040ATMR04-0, ATA DISK drive
+Nov 10 20:20:25 hermes kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Nov 10 20:20:25 hermes kernel: Probing IDE interface ide1...
+Nov 10 20:20:25 hermes kernel: Probing IDE interface ide1...
+Nov 10 20:20:25 hermes kernel: Probing IDE interface ide2...
+Nov 10 20:20:25 hermes kernel: Probing IDE interface ide3...
+Nov 10 20:20:25 hermes kernel: Probing IDE interface ide4...
+Nov 10 20:20:25 hermes kernel: Probing IDE interface ide5...
+Nov 10 20:20:25 hermes kernel: hda: max request size: 128KiB
+Nov 10 20:20:25 hermes kernel: hda: Host Protected Area detected.
+Nov 10 20:20:25 hermes kernel: ^Icurrent capacity is 71711733 sectors (36716 MB)
+Nov 10 20:20:25 hermes kernel: ^Inative  capacity is 78140160 sectors (40007 MB)
+Nov 10 20:20:25 hermes kernel: hda: Host Protected Area disabled.
+Nov 10 20:20:25 hermes kernel: hda: 78140160 sectors (40007 MB) w/1740KiB Cache, CHS=65535/16/63, UDMA(100)
+Nov 10 20:20:25 hermes kernel: hda: cache flushes supported
+Nov 10 20:20:25 hermes kernel:  hda: hda1 hda2 hda3 hda4
+
+Somewhere between 2.6.14-rc5 and 2.6.14.1 the DVD gets lost...
+Any ideas?
+
+Jochen
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+#include <~/.signature>: permission denied

@@ -1,71 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbVKJLpr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbVKJMGM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750763AbVKJLpr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 06:45:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbVKJLpr
+	id S1750796AbVKJMGM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 07:06:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbVKJMGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 06:45:47 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:37338 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750763AbVKJLpq (ORCPT
+	Thu, 10 Nov 2005 07:06:12 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:9399 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750796AbVKJMGL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 06:45:46 -0500
-Date: Thu, 10 Nov 2005 12:44:53 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: linux-mtd@lists.infradead.org, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: latest mtd changes broke collie
-Message-ID: <20051110114452.GF2401@elf.ucw.cz>
-References: <20051109221712.GA28385@elf.ucw.cz> <4372B7A8.5060904@mvista.com> <20051110095050.GC2021@elf.ucw.cz> <1131616948.27347.174.camel@baythorne.infradead.org> <20051110103823.GB2401@elf.ucw.cz> <1131619903.27347.177.camel@baythorne.infradead.org> <20051110105954.GE2401@elf.ucw.cz> <1131621090.27347.184.camel@baythorne.infradead.org>
+	Thu, 10 Nov 2005 07:06:11 -0500
+Date: Thu, 10 Nov 2005 13:06:24 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: [PATCH 01/15] mm: poison struct page for ptlock
+Message-ID: <20051110120624.GB32672@elte.hu>
+References: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com> <Pine.LNX.4.61.0511100142160.5814@goblin.wat.veritas.com> <20051109181022.71c347d4.akpm@osdl.org> <Pine.LNX.4.61.0511100215150.6138@goblin.wat.veritas.com> <20051109185645.39329151.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1131621090.27347.184.camel@baythorne.infradead.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20051109185645.39329151.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > Well, how do I found out? I tried switching to CFI, and it will not
-> > boot (unable to mount root...). No mtd-related messages as far as I
-> > can see. There's quite a lot of mtd-related config options, I set them
-> > like this:
+* Andrew Morton <akpm@osdl.org> wrote:
+
+> > > But I think either a big patch or 2.95.x abandonment is preferable to this
+> > > approach.
+> > 
+> > Hmm, that's a pity.
 > 
-> If the old sharp driver had even a _chance_ of working, then you
-> presumably have four 8-bit flash chips laid out on a 32-bit bus, and
-> those chips are compatible with the Intel command set.
+> Well plan B is to kill spinlock_t.break_lock.  That fixes everything 
+> and has obvious beneficial side-effects.
+
+i'd really, really love to have this solved without restricting the type 
+flexibility of spinlocks.
+
+do we really need 2.95.x support? gcc now produces smaller code with -S.
+
+> a) x86 spinlock_t is but one byte.  Can we stuff break_lock into the
+>    same word?
 > 
-> You can CONFIG_MTD_JEDECPROBE, and you want CONFIG_MTD_MAP_BANK_WIDTH=4,
-> CONFIG_MTD_CFI_I4, CONFIG_MTD_CFI_INTELEXT.
+>    (Yes, there's also a >128 CPUs spinlock overflow problem to solve, 
+>    but perhaps we can use lock;addw?)
+
+the >128 CPUs spinlock overflow problem is solved by going to 32-bit ops 
+(patch has been posted to lkml recently). 16-bit ops are out of 
+question. While byte ops are frequently optimized for (avoiding partial 
+register access related stalls), the same is not true for 16-bit 
+prefixed instructions! Mixing 32-bit with 16-bit code is going to suck 
+on a good number of x86 CPUs. It also bloats the instruction size of 
+spinlocks, due to the 16-bit prefix. (while byte access has its own 
+opcode)
+
+also, there are arches where the only atomic op available is a 32-bit 
+one. So trying to squeeze the break_lock flag into the spinlock field is 
+i think unrobust.
+
+> b) Redesign the code somehow.  Currently break_lock means "there's
+>    someone waiting for this lock".
 > 
-> Check that your chips are listed in the table in jedec_probe.c and turn
-> on all the debugging in jedec_probe.c 
+>    But if we were to leave the lock in a decremented state while
+>    spinning (as we've always done), that info is still present via the
+>    value of spinlock_t.slock.   Hence: bye-bye break_lock.
 
-As far as I can see, they are not listed :-(.
+this wont work on arches that dont have atomic-decrement based 
+spinlocks. (some arches dont even have such an instruction) This means 
+those arches would have to implement a "I'm spinning" flag in the word, 
+which might or might not work (if the arch doesnt have an atomic 
+instruction that works on the owner bit only then it becomes impossible) 
+- but in any case it would need very fragile per-arch assembly work to 
+pull off.
 
-static int sharp_probe_map(struct map_info *map,struct mtd_info *mtd)
-{
-        map_word tmp, read0, read4;
-        int width = 4;
+> c) Make the break_lock stuff a new config option,
+>    CONFIG_SUPER_LOW_LATENCY_BLOATS_STRUCT_PAGE.
+> 
+> d) Revert it wholesale, have sucky SMP worst-case latency ;)
 
-        tmp = map_read(map, base+0);
-        sharp_send_cmd(map, CMD_READ_ID, base+0);
+yuck. What is the real problem btw? AFAICS there's enough space for a 
+2-word spinlock in struct page for pagetables. We really dont want to 
+rewrite spinlocks (or remove features) just to keep gcc 2.95 supported 
+for some more time. In fact, is there any 2.6 based distro that uses gcc 
+2.95?
 
-        read0 = map_read(map, base+0);
-        read4 = map_read(map, base+4);
-        if (read0.x[0] == 0x00b000b0) {
-                switch(read4.x[0]){
-                case 0x00b000b0:
-                        /* a6 - LH28F640BFHE 8 64k * 2 chip blocks*/
-                        mtd->erasesize = 0x10000 * width / 2;
-                        mtd->size = 0x800000 * width / 2;
-                        return width;
-
-...I've removed unneccessary code, this path is actually taken. Does
-it mean that mfr == id == 0x00b0? [Notice that comment is wrong there,
-probably belongs to another chip :-(]
-							Pavel
-
--- 
-Thanks, Sharp!
+	Ingo

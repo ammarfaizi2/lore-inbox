@@ -1,53 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbVKJNbF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbVKJNdv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750863AbVKJNbF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 08:31:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbVKJNbF
+	id S1750825AbVKJNdv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 08:33:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750865AbVKJNdv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 08:31:05 -0500
-Received: from gold.veritas.com ([143.127.12.110]:11428 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1750863AbVKJNbD (ORCPT
+	Thu, 10 Nov 2005 08:33:51 -0500
+Received: from [194.90.237.34] ([194.90.237.34]:9894 "EHLO mtlex01.yok.mtl.com")
+	by vger.kernel.org with ESMTP id S1750714AbVKJNdu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 08:31:03 -0500
-Date: Thu, 10 Nov 2005 13:29:49 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: mingo@elte.hu, linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH 01/15] mm: poison struct page for ptlock
-In-Reply-To: <20051110045144.40751a42.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0511101323540.7464@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com>
- <Pine.LNX.4.61.0511100142160.5814@goblin.wat.veritas.com>
- <20051109181022.71c347d4.akpm@osdl.org> <Pine.LNX.4.61.0511100215150.6138@goblin.wat.veritas.com>
- <20051109185645.39329151.akpm@osdl.org> <20051110120624.GB32672@elte.hu>
- <Pine.LNX.4.61.0511101233530.6896@goblin.wat.veritas.com>
- <20051110045144.40751a42.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 10 Nov 2005 13:31:02.0877 (UTC) FILETIME=[FEC400D0:01C5E5FA]
+	Thu, 10 Nov 2005 08:33:50 -0500
+Date: Thu, 10 Nov 2005 15:37:04 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Gleb Natapov <gleb@minantech.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Nick's core remove PageReserved broke vmware...
+Message-ID: <20051110133704.GG16589@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <Pine.LNX.4.61.0511101251060.7127@goblin.wat.veritas.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0511101251060.7127@goblin.wat.veritas.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Nov 2005, Andrew Morton wrote:
-> Hugh Dickins <hugh@veritas.com> wrote:
-> > On Thu, 10 Nov 2005, Ingo Molnar wrote:
-> > > 
-> > > yuck. What is the real problem btw? AFAICS there's enough space for a 
-> > > 2-word spinlock in struct page for pagetables.
-> > 
-> > Yes.  There is no real problem.  But my patch offends good taste.
+Quoting Hugh Dickins <hugh@veritas.com>:
+> Subject: Re: Nick's core remove PageReserved broke vmware...
 > 
-> Isn't it going to overrun page.lru with CONFIG_DEBUG_SPINLOCK?
+> On Tue, 8 Nov 2005, Michael S. Tsirkin wrote:
+> > 
+> > Hugh, did you have something like the following in mind
+> > (this is only boot-tested and only on x86-64)?
+> 
+> Yes, that looks pretty good to me, a few comments below.
+> Only another twenty or so architectures to go ;)
 
-No.  There is just one case where it would,
-so in that case split ptlock is disabled by mm/Kconfig's
-# PA-RISC 7xxx's debug spinlock_t is too large for 32-bit struct page.
+Yea, thats easy :).
 
-	default "4096" if PARISC && DEBUG_SPINLOCK && !PA20
+> (I had been imagining VM_DONTCOPY plus another flag to say set by the
+> user: better your way, we would like to merge these vmas, and
+> VM_DONTCOPY is in that peculiar list of special flags that prevent merging.)
+> 
+> > Hmm, maybe MADV_INHERIT and MADV_DONT_INHERIT would be better names,
+> 
+> You're right, and it would be a good choice, except that MAP_INHERIT on
+> some OSes has a particular meaning (about inheriting across an exec),
+> so I think avoid confusion with that.  MADV_DONTFORK and MADV_DOFORK?
+> Accompanied by VM_DONTFORK?
 
-Of course, someone may extend spinlock debugging info tomorrow; but
-when they do, presumably they'll try it out, and hit the BUILD_BUG_ON.
-They'll then probably want to extend the suppression in mm/Kconfig.
+Its actually similiar.
+Maybe MADV_FORK_INHERIT/MADV_FORK_DONT_INHERIT then?
+I find using "COPY" there confusing, since the copy is only done on write ...
 
-Hugh
+> > Index: linux-2.6.14-dontcopy/include/asm-x86_64/mman.h
+> > ===================================================================
+> > --- linux-2.6.14-dontcopy.orig/include/asm-x86_64/mman.h
+> 2005-11-08 23:19:35.000000000 +0200
+> > +++ linux-2.6.14-dontcopy/include/asm-x86_64/mman.h	2005-11-08
+> 23:19:46.000000000 +0200
+> > @@ -36,6 +36,8 @@
+> >  #define MADV_SEQUENTIAL	0x2		/* read-ahead aggressively */
+> >  #define MADV_WILLNEED	0x3		/* pre-fault pages */
+> >  #define MADV_DONTNEED	0x4		/* discard these pages
+> */
+> > +#define MADV_DONTCOPY	0x30		/* dont inherit across fork */
+> > +#define MADV_DOCOPY	0x31		/* do inherit across fork */
+> >  
+> >  /* compatibility flags */
+> >  #define MAP_ANON	MAP_ANONYMOUS
+> 
+> I think that's probably a good idea, to choose a range away from the rest.
+> But I'm not quite sure: anyone familiar with adding APIs listening?
+> 
+> Hugh
+> 
+
+My reason was to make it possible to have identical values for all
+architectures, making userspace portability easier.
+
+-- 
+MST

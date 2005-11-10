@@ -1,64 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751263AbVKJHkY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbVKJHkh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751263AbVKJHkY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 02:40:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbVKJHkY
+	id S1751265AbVKJHkh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 02:40:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751266AbVKJHkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 02:40:24 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:15595 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751263AbVKJHkX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 02:40:23 -0500
-Message-ID: <4372F95E.3070107@pobox.com>
-Date: Thu, 10 Nov 2005 02:40:14 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-CC: Ulrich Drepper <drepper@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: openat()
-References: <43724AB3.40309@redhat.com> <Pine.LNX.4.63.0511091338200.728@twinlark.arctic.org>
-In-Reply-To: <Pine.LNX.4.63.0511091338200.728@twinlark.arctic.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 10 Nov 2005 02:40:37 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:10925
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1751265AbVKJHkg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 02:40:36 -0500
+Message-Id: <437307BC.76F0.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Thu, 10 Nov 2005 08:41:32 +0100
+From: "Jan Beulich" <JBeulich@novell.com>
+To: "Greg KH" <greg@kroah.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 3/39] NLKD - early/late CPU up/down notification
+References: <43720DAE.76F0.0078.0@novell.com>  <43720E2E.76F0.0078.0@novell.com>  <43720E72.76F0.0078.0@novell.com>  <43720EAF.76F0.0078.0@novell.com>  <20051109164544.GB32068@kroah.com>  <43723B57.76F0.0078.0@novell.com> <20051109171919.GA32761@kroah.com>
+In-Reply-To: <20051109171919.GA32761@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dean gaudet wrote:
-> On Wed, 9 Nov 2005, Ulrich Drepper wrote:
-> 
-> 
->>Can we please get the openat() syscall implemented?  I know Linus already
->>declared this is a good idea and I can only stress that it is really essential
->>for some things.  It is today impossible to write correct code which uses long
->>pathnames since all these operations would require the use of chdir() which
->>affect the whole POSIX process and not just one thread.  In addition we have
->>the reduction of race conditions.
-> 
-> 
-> oh sweet i've always wanted this for perf improvements in multithreaded 
-> programs which have to deal with lots of lookups deep in a directory tree 
-> (especially over NFS).
-> 
-> would this include other related syscalls such as link, unlink, rename, 
-> chown, chmod... so that the the virtualization of the "current working 
-> directory" concept is more complete?
+>>> Greg KH <greg@kroah.com> 09.11.05 18:19:19 >>>
+>On Wed, Nov 09, 2005 at 06:09:27PM +0100, Jan Beulich wrote:
+>> >>> Greg KH <greg@kroah.com> 09.11.05 17:45:44 >>>
+>> >#ifdef in the .h file is not needed.  Please fix your email client
+to
+>> >send patches properly.
+>> 
+>> It's not needed, sure, but by having it there I just wanted to make
+>> clear that this is something that never can be called from a module
+>> (after all, why should one find out at modpost time (and maybe even
+miss
+>> the message since there are so many past eventual symbol resolution
+>> warnings) when one can already at compile time.
+>
+>If it isn't present, and you do a build, you will still get the error
+at
+>build time, just during a different part of it.  Adding #ifdef just
+to
+>move the error to a different part of the build isn't needed. 
+Remember,
+>we want to not use #ifdef at all if we can ever help it.
 
-You already have fchown(2) and fchmod(2), that's covered.
+I understand that. But you don't see my point, so I'll try to explain
+the background: When discovering the reason for the kallsyms change
+(also posted with the other NLKD patches) not functioning with
+CONFIG_MODVERSIONS and binutils between 2.16.90 and 2.16.91.0.3 I
+realized that the warning messages from the modpost build stage are very
+easy to overlook (in fact, all reporters of the problem overlooked them
+as well as I did on the first build attempting to reproduce the
+problem). This basically means these messages are almost useless, and
+detection of the problem will likely be deferred to the first attempt to
+load an offending module (which, as in the case named, may lead to an
+unusable kernel). Hence, at least until this build problem gets
+addressed I continue to believe that adding the preprocessor conditional
+is the better way of dealing with potential issues. Sure I know that
+hundreds of other symbols possibly causing the same problem aren't
+protected...
 
-I'm interested in openat(2) for the race-free implications.  I've been 
-working on a race-free coreutils replacement[1], targetted mainly at 
-Linux.  Being able to key an operation off of an open file descriptor 
-eliminates the few remaining races inherent in the Linux filesystem ABI.
-
-The remaining race cases are all cases where the the syscall takes a 
-pathname, when it really should take a pathname and an fd.
-
-	Jeff
-
-
-
+Jan

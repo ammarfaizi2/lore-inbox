@@ -1,51 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbVKJNWk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbVKJN1F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750851AbVKJNWk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 08:22:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750853AbVKJNWk
+	id S1750853AbVKJN1F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 08:27:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750852AbVKJN1E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 08:22:40 -0500
-Received: from gold.veritas.com ([143.127.12.110]:44450 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1750850AbVKJNWj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 08:22:39 -0500
-Date: Thu, 10 Nov 2005 13:21:25 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-cc: Gleb Natapov <gleb@minantech.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Nick's core remove PageReserved broke vmware...
-In-Reply-To: <20051110131630.GF16589@mellanox.co.il>
-Message-ID: <Pine.LNX.4.61.0511101316320.7422@goblin.wat.veritas.com>
-References: <20051110124949.GM8942@minantech.com> <20051110131630.GF16589@mellanox.co.il>
+	Thu, 10 Nov 2005 08:27:04 -0500
+Received: from moraine.clusterfs.com ([66.96.26.190]:36274 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S1750853AbVKJN1D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 08:27:03 -0500
+From: Nikita Danilov <nikita@clusterfs.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 10 Nov 2005 13:22:39.0197 (UTC) FILETIME=[D28C88D0:01C5E5F9]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17267.19126.260133.903822@gargle.gargle.HOWL>
+Date: Thu, 10 Nov 2005 16:27:18 +0300
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: typedefs and structs
+Newsgroups: gmane.linux.kernel
+In-Reply-To: <20051110091517.2e9db750@werewolf.auna.net>
+References: <20051107204136.GG19593@austin.ibm.com>
+	<1131412273.14381.142.camel@localhost.localdomain>
+	<20051108232327.GA19593@austin.ibm.com>
+	<B68D1F72-F433-4E94-B755-98808482809D@mac.com>
+	<20051109003048.GK19593@austin.ibm.com>
+	<m27jbihd1b.fsf@Douglas-McNaughts-Powerbook.local>
+	<20051109004808.GM19593@austin.ibm.com>
+	<19255C96-8B64-4615-A3A7-9E5A850DE398@mac.com>
+	<20051109111640.757f399a@werewolf.auna.net>
+	<Pine.LNX.4.58.0511090816300.4260@shell2.speakeasy.net>
+	<20051109192028.GP19593@austin.ibm.com>
+	<Pine.LNX.4.61.0511091459440.12760@chaos.analogic.com>
+	<Pine.LNX.4.58.0511091347570.31338@shell3.speakeasy.net>
+	<20051110091517.2e9db750@werewolf.auna.net>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Nov 2005, Michael S. Tsirkin wrote:
-> Quoting Gleb Natapov <gleb@minantech.com>:
-> > On Thu, Nov 10, 2005 at 02:48:53PM +0200, Michael S. Tsirkin wrote:
-> > > > Also perhapse we should skip VM_SHARED VMAs?
-> > > 
-> > > Why?
-> > > 
-> > They will work correctly across fork(). 
-> 
-> So why would I call madvise on such a VMA?
+J.A. Magallon writes:
 
-To avoid the overhead of forking it e.g. if it's a large nonlinear vma,
-a lot of time may be wasted on copying its ptes for fork.  That's one
-of the reasons I came to like your DONTCOPY.
+[...]
 
-So, it may not be useful for your particular RDMA issue, but I see no
-reason to exclude VM_SHARED vmas from the madvise, and good reason to
-include them.
+ > > 
+ > > However, if the code is as follows:
+ > > 	void foo (void) {
+ > > 		int myvar = 0;
+ > > 		printf("%d\n", myvar);
+ > > 		bar(&myvar);
+ > > 		printf("%d\n", myvar);
+ > > 	}
+ > > If bar is declared in _another_ file as
+ > > 	void bar (const int * var);
+ > > then I think the compiler can validly cache the value of 'myvar' for the
+ > > second printf without re-reading it. Correct/incorrect?
+ > > 
+ > 
+ > Nope. You can't trust bar() not doing something like
+ > 
+ > bar(const int* local_var)
+ > {
+ >    ... use local_var as ro...
+ >    extern int myvar;
+ >    myvar = 7;
+ > }
+ > 
+ > For the compiler to do that, you must tag bar() with attribute(pure).
 
-Hugh
+extern declaration in your version of bar() cannot refer to the
+automatic variable myvar in foo().
+
+ > 
+ > --
+ > J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+ > werewolf!able!es                         \         It's better when it's free
+ > Mandriva Linux release 2006.1 (Cooker) for i586
+ > Linux 2.6.14-jam1 (gcc 4.0.2 (4.0.2-1mdk for Mandriva Linux release 2006.1))
+
+Nikita.

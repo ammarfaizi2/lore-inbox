@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbVKJM5h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbVKJNCe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750829AbVKJM5h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 07:57:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbVKJM5h
+	id S1750776AbVKJNCe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 08:02:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbVKJNCe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 07:57:37 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:43411 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750833AbVKJM5g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 07:57:36 -0500
-Message-ID: <437343B1.5000809@redhat.com>
-Date: Thu, 10 Nov 2005 07:57:21 -0500
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.4.1 (X11/20050929)
+	Thu, 10 Nov 2005 08:02:34 -0500
+Received: from webapps.arcom.com ([194.200.159.168]:46601 "EHLO
+	webapps.arcom.com") by vger.kernel.org with ESMTP id S1750776AbVKJNCe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 08:02:34 -0500
+Message-ID: <437344E0.9040502@cantab.net>
+Date: Thu, 10 Nov 2005 13:02:24 +0000
+From: David Vrabel <dvrabel@cantab.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Al Viro <viro@ftp.linux.org.uk>
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 1/2] handling 64bit values for st_ino]
-References: <20051110003024.GD7992@ftp.linux.org.uk>
-In-Reply-To: <20051110003024.GD7992@ftp.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Pavel Machek <pavel@ucw.cz>
+CC: David Woodhouse <dwmw2@infradead.org>, linux-mtd@lists.infradead.org,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: latest mtd changes broke collie
+References: <20051109221712.GA28385@elf.ucw.cz> <4372B7A8.5060904@mvista.com> <20051110095050.GC2021@elf.ucw.cz> <1131616948.27347.174.camel@baythorne.infradead.org> <20051110103823.GB2401@elf.ucw.cz> <1131619903.27347.177.camel@baythorne.infradead.org> <20051110105954.GE2401@elf.ucw.cz> <1131621090.27347.184.camel@baythorne.infradead.org> <20051110120708.GG2401@elf.ucw.cz>
+In-Reply-To: <20051110120708.GG2401@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 10 Nov 2005 13:03:51.0796 (UTC) FILETIME=[3290CB40:01C5E5F7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
+Pavel Machek wrote:
+> 
+> Ok, I got a little bit more forward.
+> 
+> I created entry like this:
+>         {
+>                 .mfr_id         = 0x00b0,
+>                 .dev_id         = 0x00b0,
+>                 .name           = "Collie hack",
+>                 .uaddr          = {
+>                         [0] = MTD_UADDR_UNNECESSARY,    /* x8 */
+>                 },
+>                 .DevSize        = SIZE_4MiB,
+>                 .CmdSet         = P_ID_INTEL_EXT,
+>                 .NumEraseRegions= 1,
+>                 .regions        = {
+>                         ERASEINFO(0x10000,8),
+>                 }
+> }
+> 
+> (Which is probably wrong, I just made up the data)
 
->[My apologies, forgot to Cc the first half...]
->
->Date: Thu, 10 Nov 2005 00:27:29 +0000
->From: Al Viro <viro@ftp.linux.org.uk>
->To: Linus Torvalds <torvalds@osdl.org>
->Subject: [PATCH 1/2] handling 64bit values for st_ino
->User-Agent: Mutt/1.4.1i
->
->	We certainly do not want 64bit kernel ino_t, since that would
->screw icache lookups for no good reason; fs with 64bit keys used to
->identify inodes can just use iget5().
->  
->
+Shouldn't you get hold of the datasheet for the flash chips and fill in
+this information correctly?
 
-Has this potential degradation been measured?  This is a lot of extra
-complexity which needs to justified by the resulting performance.
-
->	Fix is pretty cheap and consists of two parts:
->1) widen struct kstat ->ino to u64, add a macro (check_inumber()) to
->be used in callers of ->getattr() that want to store ->ino in possibly
->narrower fields and care about overflows (stuff like sys_old_stat() with
->its 16bit st_ino clearly doesn't ;-)
->
-
-It seems to me that a type with a name which better matches the intended
-semantics would be a better choice than u64.  Even something like ino64_t
-would help file systems maintainers to correctly implement the appropriate
-support.
-
-    Thanx...
-
-       ps
+David Vrabel

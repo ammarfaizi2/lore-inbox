@@ -1,76 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbVKJWi1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbVKJWnA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932212AbVKJWi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 17:38:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbVKJWi0
+	id S932214AbVKJWnA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 17:43:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbVKJWnA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 17:38:26 -0500
-Received: from kirby.webscope.com ([204.141.84.57]:47589 "EHLO
-	kirby.webscope.com") by vger.kernel.org with ESMTP id S932212AbVKJWi0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 17:38:26 -0500
-Message-ID: <4373CBC6.4080305@linuxtv.org>
-Date: Thu, 10 Nov 2005 17:37:58 -0500
-From: Mike Krufky <mkrufky@linuxtv.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linux and Kernel Video <video4linux-list@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Mauro Carvalho Chehab <mauro_chehab@yahoo.com.br>
-Subject: [PATCH 21/20] v4l: prevent saa7134 alsa undefined warnings
-Content-Type: multipart/mixed;
- boundary="------------050803020006020907040301"
+	Thu, 10 Nov 2005 17:43:00 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:14512 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932214AbVKJWm7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 17:42:59 -0500
+Date: Thu, 10 Nov 2005 23:41:58 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-mtd@lists.infradead.org, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: latest mtd changes broke collie
+Message-ID: <20051110224158.GC9905@elf.ucw.cz>
+References: <20051109221712.GA28385@elf.ucw.cz> <4372B7A8.5060904@mvista.com> <20051110095050.GC2021@elf.ucw.cz> <1131616948.27347.174.camel@baythorne.infradead.org> <20051110103823.GB2401@elf.ucw.cz> <1131619903.27347.177.camel@baythorne.infradead.org> <20051110105954.GE2401@elf.ucw.cz> <1131621090.27347.184.camel@baythorne.infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1131621090.27347.184.camel@baythorne.infradead.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050803020006020907040301
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi!
+
+> > Well, how do I found out? I tried switching to CFI, and it will not
+> > boot (unable to mount root...). No mtd-related messages as far as I
+> > can see. There's quite a lot of mtd-related config options, I set them
+> > like this:
+> 
+> If the old sharp driver had even a _chance_ of working, then you
+> presumably have four 8-bit flash chips laid out on a 32-bit bus, and
+> those chips are compatible with the Intel command set.
+> 
+> You can CONFIG_MTD_JEDECPROBE, and you want CONFIG_MTD_MAP_BANK_WIDTH=4,
+> CONFIG_MTD_CFI_I4, CONFIG_MTD_CFI_INTELEXT.
+> 
+> Check that your chips are listed in the table in jedec_probe.c and turn
+> on all the debugging in jedec_probe.c 
+
+With these hacks, I'm able to mount flash at least read-only. On
+attempt to remount read-write, I get 
+
+"Write error in obliterating obsoleted node at 0x00bc0000: -30
+...
+Erase at 0x00c00000 failed immediately: -EROFS. Is the sector locked?"
+
+Is it good news?
+								Pavel
+
+diff --git a/arch/arm/mach-sa1100/collie.c b/arch/arm/mach-sa1100/collie.c
+--- a/arch/arm/mach-sa1100/collie.c
++++ b/arch/arm/mach-sa1100/collie.c
+@@ -208,7 +208,7 @@ static void collie_set_vpp(int vpp)
+ }
+ 
+ static struct flash_platform_data collie_flash_data = {
+-	.map_name	= "sharp",
++	.map_name	= "jedec_probe",
+ 	.set_vpp	= collie_set_vpp,
+ 	.parts		= collie_partitions,
+ 	.nr_parts	= ARRAY_SIZE(collie_partitions),
+diff --git a/drivers/mtd/chips/jedec_probe.c b/drivers/mtd/chips/jedec_probe.c
+--- a/drivers/mtd/chips/jedec_probe.c
++++ b/drivers/mtd/chips/jedec_probe.c
+@@ -25,6 +25,8 @@
+ #include <linux/mtd/cfi.h>
+ #include <linux/mtd/gen_probe.h>
+ 
++#define DEBUG(a, b...) printk(b)
++
+ /* Manufacturers */
+ #define MANUFACTURER_AMD	0x0001
+ #define MANUFACTURER_ATMEL	0x001f
+@@ -271,6 +273,19 @@ struct amd_flash_info {
+  */
+ static const struct amd_flash_info jedec_table[] = {
+ 	{
++		.mfr_id		= 0x00b0,
++		.dev_id		= 0x00b0,
++		.name		= "Collie hack",
++		.uaddr		= {
++                        [0] = MTD_UADDR_UNNECESSARY,    /* x8 */
++		},
++		.DevSize	= SIZE_4MiB,
++                .CmdSet         = P_ID_INTEL_EXT,
++                .NumEraseRegions= 1,
++                .regions        = {
++                        ERASEINFO(0x10000,64),
++                }
++	}, {
+ 		.mfr_id		= MANUFACTURER_AMD,
+ 		.dev_id		= AM29F032B,
+ 		.name		= "AMD AM29F032B",
 
 
-
---------------050803020006020907040301
-Content-Type: text/x-patch;
- name="prevent-saa7134-alsa-undefined-warnings.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="prevent-saa7134-alsa-undefined-warnings.patch"
-
-Prevent the following build warnings:
-
-*** Warning: "snd_card_free" 
-*** Warning: "snd_card_register" 
-*** Warning: "snd_device_new" 
-*** Warning: "snd_card_new" 
-*** Warning: "snd_ctl_add"
-*** Warning: "snd_ctl_new1" 
-*** Warning: "snd_pcm_set_ops" 
-*** Warning: "snd_pcm_new"
-*** Warning: "snd_pcm_lib_ioctl" 
-*** Warning: "snd_pcm_hw_constraint_integer" 
-*** Warning: "snd_pcm_stop" 
-*** Warning: "snd_pcm_period_elapsed" 
-[drivers/media/video/saa7134/saa7134-alsa.ko] undefined!
-
-Signed-off-by: Michael Krufky <mkrufky@m1k.net>
-Acked-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-
- drivers/media/video/saa7134/Kconfig |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
---- linux.orig/drivers/media/video/saa7134/Kconfig
-+++ linux/drivers/media/video/saa7134/Kconfig
-@@ -1,6 +1,6 @@
- config VIDEO_SAA7134
- 	tristate "Philips SAA7134 support"
--	depends on VIDEO_DEV && PCI && I2C && SOUND
-+	depends on VIDEO_DEV && PCI && I2C && SOUND && SND && SND_PCM_OSS
- 	select VIDEO_BUF
- 	select VIDEO_IR
- 	select VIDEO_TUNER
-
---------------050803020006020907040301--
-
+-- 
+Thanks, Sharp!

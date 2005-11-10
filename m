@@ -1,63 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751388AbVKJBsU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751391AbVKJBts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751388AbVKJBsU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 20:48:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbVKJBsU
+	id S1751391AbVKJBts (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 20:49:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbVKJBts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 20:48:20 -0500
-Received: from silver.veritas.com ([143.127.12.111]:6952 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1751388AbVKJBsT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 20:48:19 -0500
-Date: Thu, 10 Nov 2005 01:47:08 +0000 (GMT)
+	Wed, 9 Nov 2005 20:49:48 -0500
+Received: from gold.veritas.com ([143.127.12.110]:43827 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751394AbVKJBts (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 20:49:48 -0500
+Date: Thu, 10 Nov 2005 01:48:36 +0000 (GMT)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@goblin.wat.veritas.com
 To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 04/15] mm: update split ptlock Kconfig
+cc: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH 05/15] mm: unbloat get_futex_key
 In-Reply-To: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0511100146110.5814@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0511100147130.5814@goblin.wat.veritas.com>
 References: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 10 Nov 2005 01:48:19.0529 (UTC) FILETIME=[D373AB90:01C5E598]
+X-OriginalArrivalTime: 10 Nov 2005 01:49:47.0826 (UTC) FILETIME=[0814B920:01C5E599]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Closer attention to the arithmetic shows that neither ppc64 nor sparc
-really uses one page for multiple page tables: how on earth could they,
-while pte_alloc_one returns just a struct page pointer, with no offset?
-
-Gasp, splutter... arm26 manages it by returning a pte_t pointer cast to
-a struct page pointer, then compensating in its pmd_populate.  That's
-almost as evil as overlaying a struct page with a spinlock_t.  But arm26
-is never SMP, and we now only poison when SMP, so it's not a problem.
-
-And the PA-RISC situation has been recently improved: CONFIG_PA20
-works without the 16-byte alignment which inflated its spinlock_t.
+The follow_page changes in get_futex_key have left it with two almost
+identical blocks, when handling the rare case of a futex in a nonlinear
+vma.  get_user_pages will itself do that follow_page, and its additional
+find_extend_vma is hardly any overhead since the vma is already cached.
+Let's just delete the follow_page block and let get_user_pages do it.
 
 Signed-off-by: Hugh Dickins <hugh@veritas.com>
 ---
 
- mm/Kconfig |    6 ++----
- 1 files changed, 2 insertions(+), 4 deletions(-)
+ kernel/futex.c |   15 ---------------
+ 1 files changed, 15 deletions(-)
 
---- mm03/mm/Kconfig	2005-11-07 07:39:59.000000000 +0000
-+++ mm04/mm/Kconfig	2005-11-09 14:38:32.000000000 +0000
-@@ -125,14 +125,12 @@ comment "Memory hotplug is currently inc
- # space can be handled with less contention: split it at this NR_CPUS.
- # Default to 4 for wider testing, though 8 might be more appropriate.
- # ARM's adjust_pte (unused if VIPT) depends on mm-wide page_table_lock.
--# PA-RISC's debug spinlock_t is too large for the 32-bit struct page.
--# ARM26 and SPARC32 and PPC64 may use one page for multiple page tables.
-+# PA-RISC 7xxx's debug spinlock_t is too large for 32-bit struct page.
- #
- config SPLIT_PTLOCK_CPUS
- 	int
- 	default "4096" if ARM && !CPU_CACHE_VIPT
--	default "4096" if PARISC && DEBUG_SPINLOCK && !64BIT
--	default "4096" if ARM26 || SPARC32 || PPC64
-+	default "4096" if PARISC && DEBUG_SPINLOCK && !PA20
- 	default "4"
- 
- #
+--- mm04/kernel/futex.c	2005-11-07 07:39:59.000000000 +0000
++++ mm05/kernel/futex.c	2005-11-09 14:38:47.000000000 +0000
+@@ -201,21 +201,6 @@ static int get_futex_key(unsigned long u
+ 	 * from swap.  But that's a lot of code to duplicate here
+ 	 * for a rare case, so we simply fetch the page.
+ 	 */
+-
+-	/*
+-	 * Do a quick atomic lookup first - this is the fastpath.
+-	 */
+-	page = follow_page(mm, uaddr, FOLL_TOUCH|FOLL_GET);
+-	if (likely(page != NULL)) {
+-		key->shared.pgoff =
+-			page->index << (PAGE_CACHE_SHIFT - PAGE_SHIFT);
+-		put_page(page);
+-		return 0;
+-	}
+-
+-	/*
+-	 * Do it the general way.
+-	 */
+ 	err = get_user_pages(current, mm, uaddr, 1, 0, 0, &page, NULL);
+ 	if (err >= 0) {
+ 		key->shared.pgoff =

@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751439AbVKJCQ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751441AbVKJCX4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751439AbVKJCQ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 21:16:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbVKJCQ6
+	id S1751441AbVKJCX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 21:23:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751658AbVKJCX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 21:16:58 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:1451 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751439AbVKJCQz (ORCPT
+	Wed, 9 Nov 2005 21:23:56 -0500
+Received: from gold.veritas.com ([143.127.12.110]:26168 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751441AbVKJCXz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 21:16:55 -0500
-Date: Wed, 9 Nov 2005 18:16:41 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 10/15] mm: atomic64 page counts
-Message-Id: <20051109181641.4b627eee.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0511100156320.5814@goblin.wat.veritas.com>
+	Wed, 9 Nov 2005 21:23:55 -0500
+Date: Thu, 10 Nov 2005 02:22:44 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 01/15] mm: poison struct page for ptlock
+In-Reply-To: <20051109181022.71c347d4.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0511100215150.6138@goblin.wat.veritas.com>
 References: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com>
-	<Pine.LNX.4.61.0511100156320.5814@goblin.wat.veritas.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+ <Pine.LNX.4.61.0511100142160.5814@goblin.wat.veritas.com>
+ <20051109181022.71c347d4.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 10 Nov 2005 02:23:55.0303 (UTC) FILETIME=[CC78EB70:01C5E59D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> wrote:
->
-> Page count and page mapcount might overflow their 31 bits on 64-bit
->  architectures, especially now we're refcounting the ZERO_PAGE.  We could
->  quite easily avoid counting it, but shared file pages may also overflow.
+On Wed, 9 Nov 2005, Andrew Morton wrote:
 > 
->  Prefer not to enlarge struct page: don't assign separate atomic64_ts to
->  count and mapcount, instead keep them both in one atomic64_t - the count
->  in the low 23 bits and the mapcount in the high 41 bits.  But of course
->  that can only work if we don't duplicate mapcount in count in this case.
+> It does everything we want.
+
+I don't think so: the union leaves us just as vulnerable to some
+subsystem using fields of the other half of the union, doesn't it?
+
+Which is not really a problem, but is a part of what's worrying you.
+
+> Of course, it would be nice to retain 2.95.x support.  The reviled
+> page_private(() would help us do that.  But the now-to-be-reviled
+> page_mapping() does extraneous stuff, and we'd need a ton of page_lru()'s.
 > 
->  The low 23 bits can accomodate 0x7fffff, that's 2 * PID_MAX_LIMIT - 1,
->  which seems adequate for tasks with a transient hold on pages; and the
->  high 41 bits would use 16TB of page table space to back max mapcount.
+> So it'd be a big patch, converting page->lru to page->u.s.lru in lots of
+> places.
+> 
+> But I think either a big patch or 2.95.x abandonment is preferable to this
+> approach.
 
-hm.   I thought we were going to address this by
+Hmm, that's a pity.
 
-a) checking for an insane number of mappings of the same page in the
-   pagefault handler(s) and 
-
-b) special-casing ZERO_PAGEs on the page unallocator path.
-
-That'll generate faster and smaller code than adding an extra shift and
-possibly larger constants in lots of places.
-
-It's cleaner, too.
+Hugh

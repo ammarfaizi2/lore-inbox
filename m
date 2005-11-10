@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbVKJVxH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbVKJVyA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932177AbVKJVxH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 16:53:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbVKJVxH
+	id S932181AbVKJVyA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 16:54:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbVKJVyA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 16:53:07 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:23742 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932177AbVKJVxF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 16:53:05 -0500
-Date: Thu, 10 Nov 2005 21:52:56 +0000
-From: Christoph Hellwig <hch@infradead.org>
+	Thu, 10 Nov 2005 16:54:00 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:20622 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932181AbVKJVx7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 16:53:59 -0500
+Date: Thu, 10 Nov 2005 13:53:36 -0800
+From: Andrew Morton <akpm@osdl.org>
 To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       hugh@veritas.com, linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH 01/15] mm: poison struct page for ptlock
-Message-ID: <20051110215255.GA25712@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Christoph Lameter <clameter@engr.sgi.com>,
-	Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-	hugh@veritas.com, linux-kernel@vger.kernel.org, torvalds@osdl.org
-References: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com> <Pine.LNX.4.61.0511100142160.5814@goblin.wat.veritas.com> <20051109181022.71c347d4.akpm@osdl.org> <Pine.LNX.4.61.0511100215150.6138@goblin.wat.veritas.com> <20051109185645.39329151.akpm@osdl.org> <20051110120624.GB32672@elte.hu> <20051110042613.7a585dec.akpm@osdl.org> <Pine.LNX.4.62.0511101335140.16283@schroedinger.engr.sgi.com>
+Cc: hugh@veritas.com, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 10/15] mm: atomic64 page counts
+Message-Id: <20051110135336.24d04b86.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.62.0511101342340.16283@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com>
+	<Pine.LNX.4.61.0511100156320.5814@goblin.wat.veritas.com>
+	<20051109181641.4b627eee.akpm@osdl.org>
+	<Pine.LNX.4.61.0511100224030.6215@goblin.wat.veritas.com>
+	<20051109190135.45e59298.akpm@osdl.org>
+	<Pine.LNX.4.62.0511101342340.16283@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0511101335140.16283@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 10, 2005 at 01:37:19PM -0800, Christoph Lameter wrote:
-> On Thu, 10 Nov 2005, Andrew Morton wrote:
+Christoph Lameter <clameter@engr.sgi.com> wrote:
+>
+> On Wed, 9 Nov 2005, Andrew Morton wrote:
 > 
-> > spinlock in struct page, and the size of the spinlock varies a lot according
-> > to config.  The only >wordsize version we really care about is
-> > CONFIG_PREEMPT, NR_CPUS >= 4.  (which distros don't ship...)
+> > > I'm quite pleased with the way it's worked out, but you were intending
+> > > that the 64-bit arches should get along with 32-bit counts?  Maybe.
+> > 
+> > That seems reasonsable for file pages.  For the ZERO_PAGE the count can do
+> > whatever it wants, because we'd never free them up.
 > 
-> Suse, Debian and Redhat ship such kernels.
+> Frequent increments and decrements on the zero page count can cause a 
+> bouncing cacheline that may limit performance.
 
-No.  SuSE and Redhat have always been smart enough to avoid CONFIG_PREEMPT
-like the plague, and even Debian finally noticed this a few month ago.
-
+I think Hugh did some instrumentation on that and decided that problems
+were unlikely?

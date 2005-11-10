@@ -1,55 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750876AbVKJQOt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbVKJQSF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750876AbVKJQOt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 11:14:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750899AbVKJQOt
+	id S1750770AbVKJQSF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 11:18:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750899AbVKJQSE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 11:14:49 -0500
-Received: from darwin.snarc.org ([81.56.210.228]:15050 "EHLO darwin.snarc.org")
-	by vger.kernel.org with ESMTP id S1750873AbVKJQOs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 11:14:48 -0500
-Date: Thu, 10 Nov 2005 17:14:46 +0100
-To: Zachary Amsden <zach@vmware.com>
-Cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
+	Thu, 10 Nov 2005 11:18:04 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:1505 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750770AbVKJQSD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 11:18:03 -0500
+Message-ID: <43737274.1060105@zytor.com>
+Date: Thu, 10 Nov 2005 08:16:52 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: prasanna@in.ibm.com
+CC: Zachary Amsden <zach@vmware.com>, Ingo Molnar <mingo@elte.hu>,
+       Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org,
+       Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
        Linus Torvalds <torvalds@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        Martin Bligh <mbligh@mbligh.org>,
        Pratap Subrahmanyam <pratap@vmware.com>,
        Christopher Li <chrisl@vmware.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 12/21] i386 Deprecate descriptor asm
-Message-ID: <20051110161446.GA13204@snarc.org>
-References: <200511080431.jA84Vdg5009909@zach-dev.vmware.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200511080431.jA84Vdg5009909@zach-dev.vmware.com>
-X-Warning: Email may contain unsmilyfied humor and/or satire.
-User-Agent: Mutt/1.5.9i
-From: tab@snarc.org (Vincent Hanquez)
+       "Eric W. Biederman" <ebiederm@xmission.com>, ananth@in.ibm.com,
+       anil.s.keshavamurthy@intel.com, davem@davemloft.net
+Subject: Re: [PATCH 19/21] i386 Kprobes semaphore fix
+References: <200511080439.jA84diI6009951@zach-dev.vmware.com> <200511081412.05285.ak@suse.de> <4370A9F5.4060103@vmware.com> <200511091438.11848.ak@suse.de> <437227FD.6040905@vmware.com> <20051109165804.GA15481@elte.hu> <43723768.2060103@vmware.com> <20051110180954.GD8514@in.ibm.com>
+In-Reply-To: <20051110180954.GD8514@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 07, 2005 at 08:31:39PM -0800, Zachary Amsden wrote:
-> +struct desc_internal_struct {
-> +	unsigned short	limit0;
-> +	unsigned short	base0;
-> +	unsigned char	base1;
-> +	unsigned char	type;
-> +	unsigned int	limit1 : 4;
-> +	unsigned int	flags : 4;
-> +	unsigned char	base2;
-> +} __attribute__((packed));
+Prasanna S Panchamukhi wrote:
+> 
+> As Ingo mentioned above, Systemtap uses kprobes infrastructure to provide
+> dynamic kernel instrumentation. Using which user can add lots of probes 
+> easily, so we foreed to take care of this fast path.  
+> 
+> Instead of calling convert_eip_to_linear() for all cases, you can
+> just check if it is in kernel mode and calculate the address directly
+> 
+> 	if (kernel mode)
+>                 addr = regs->eip - sizeof(kprobe_opcode_t);
+>         else
+>                 addr = convert_eip_to_linear(..);
+> 
+> there by avoiding call to convert_eip_to_linear () for every kernel probes.
+> 
+> As Andi mentioned user space probes support is in progress and 
+> this address conversion will help in case of user space probes as well.
+> 
 
-just a minor nit,
+Would it make sense for this to be part of convert_eip_to_linear?
 
-wouldn't that be better to use u8 and u16 types here ? 
-
-Cheers,
--- 
-Vincent Hanquez
+	-hpa

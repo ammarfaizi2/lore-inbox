@@ -1,58 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750875AbVKJOXh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751003AbVKJOXy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750875AbVKJOXh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 09:23:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750874AbVKJOXh
+	id S1751003AbVKJOXy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 09:23:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbVKJOXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 09:23:37 -0500
-Received: from zproxy.gmail.com ([64.233.162.192]:35950 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750727AbVKJOXg (ORCPT
+	Thu, 10 Nov 2005 09:23:54 -0500
+Received: from wproxy.gmail.com ([64.233.184.195]:22050 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751000AbVKJOXx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 09:23:36 -0500
+	Thu, 10 Nov 2005 09:23:53 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=jaHMewrsCjz7P3uKacCQedSnDNvBZzvdNZoyln8IWzulxwXw4DRfTCCRFWkUzlwNAIEVnR9Jg5jkYk33l4c1jc8U9/WZyJUq7I3Qiig6Ca1CU0yEjImSH2psT81I/nZIJSv5F3ydVSuf/WtpDBtuy0XrmKhfgMrxJsGa823O7MA=
-Message-ID: <43735766.3070205@gmail.com>
-Date: Thu, 10 Nov 2005 22:21:26 +0800
-From: Tony <tony.uestc@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+        h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=KTwQO+DaC+/KGXtLe7/2IiVEnzz6qMmoqzvLTEEqHQrNDSu80KnHLiAFyxl2pkJ1zH1V0PGfMwVzxRmzfIZ0NxbKApF2ZHmG62pWTx0fXMoWhKBIJHMtYlIULpUxRIfgYJyolKDdgPaPem4kdcKpXDpwaigqZeNUFwXz11602SE=
+Date: Thu, 10 Nov 2005 23:23:47 +0900
+From: Tejun Heo <htejun@gmail.com>
+To: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: [PATCH] blk: elv_latter/former_request update
+Message-ID: <20051110142347.GC26030@htj.dyndns.org>
 MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: MOD_INC_USE_COUNT
-References: <437347B5.6080201@gmail.com> <Pine.LNX.4.61.0511100859400.18912@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0511100859400.18912@chaos.analogic.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
-> On Thu, 10 Nov 2005, Tony wrote:
-> 
-> 
->>Hello All,
->>Usually, when a net_device->open is called, it will MOD_INC_USE_COUNT on
->>success. It is removed since 2.5.x, then should I increase the use
->>count? how? thx.
-> 
-> 
-> Gone! Don't use INC or DEC_USE_COUNT anymore. The kernel takes
-> care of that for you. Also, the count shown in `lsmod` no longer
-> means anything you can use programmaticly.
-> 
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.6.13.4 on an i686 machine (5589.55 BogoMips).
-> Warning : 98.36% of all statistics are fiction.
-> .
-> 
-> ****************************************************************
-> The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-> 
-> Thank you.
-> 
-But when the module is used by a net_device(interface is up), rmmod also 
-works. Strange, isn't it?
+With generic dispatch queue update, implicit former/latter request
+handling using rq->queuelist.prev/next doesn't work as expected
+anymore.  Also, the only iosched dependent on this feature was
+noop-iosched and it has been reimplemented to have its own
+latter/former methods.  This patch removes implicit former/latter
+handling.
+
+Signed-off-by: Tejun Heo <htejun@gmail.com>
+
+diff --git a/block/elevator.c b/block/elevator.c
+--- a/block/elevator.c
++++ b/block/elevator.c
+@@ -540,33 +540,19 @@ int elv_queue_empty(request_queue_t *q)
+ 
+ struct request *elv_latter_request(request_queue_t *q, struct request *rq)
+ {
+-	struct list_head *next;
+-
+ 	elevator_t *e = q->elevator;
+ 
+ 	if (e->ops->elevator_latter_req_fn)
+ 		return e->ops->elevator_latter_req_fn(q, rq);
+-
+-	next = rq->queuelist.next;
+-	if (next != &q->queue_head && next != &rq->queuelist)
+-		return list_entry_rq(next);
+-
+ 	return NULL;
+ }
+ 
+ struct request *elv_former_request(request_queue_t *q, struct request *rq)
+ {
+-	struct list_head *prev;
+-
+ 	elevator_t *e = q->elevator;
+ 
+ 	if (e->ops->elevator_former_req_fn)
+ 		return e->ops->elevator_former_req_fn(q, rq);
+-
+-	prev = rq->queuelist.prev;
+-	if (prev != &q->queue_head && prev != &rq->queuelist)
+-		return list_entry_rq(prev);
+-
+ 	return NULL;
+ }
+ 

@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbVKJNNP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750833AbVKJNOx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbVKJNNP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 08:13:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbVKJNNP
+	id S1750833AbVKJNOx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 08:14:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbVKJNOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 08:13:15 -0500
-Received: from [194.90.237.34] ([194.90.237.34]:16029 "EHLO
-	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP
-	id S1750834AbVKJNNO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 08:13:14 -0500
-Date: Thu, 10 Nov 2005 15:16:30 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Gleb Natapov <gleb@minantech.com>
-Cc: Hugh Dickins <hugh@veritas.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Nick's core remove PageReserved broke vmware...
-Message-ID: <20051110131630.GF16589@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20051110124949.GM8942@minantech.com>
+	Thu, 10 Nov 2005 08:14:53 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:24235 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750833AbVKJNOx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 08:14:53 -0500
+Date: Thu, 10 Nov 2005 14:13:56 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+Subject: Re: userspace block driver?
+Message-ID: <20051110131356.GA9584@elf.ucw.cz>
+References: <4371A4ED.9020800@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051110124949.GM8942@minantech.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <4371A4ED.9020800@pobox.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Gleb Natapov <gleb@minantech.com>:
-> Subject: Re: Nick's core remove PageReserved broke vmware...
-> 
-> On Thu, Nov 10, 2005 at 02:48:53PM +0200, Michael S. Tsirkin wrote:
-> > > Also perhapse we should skip VM_SHARED VMAs?
-> > 
-> > Why?
-> > 
-> They will work correctly across fork(). 
+Hi!
 
-So why would I call madvise on such a VMA?
+> Has anybody put any thought towards how a userspace block driver would work?
+> 
+> Consider a block device implemented via an SSL network connection.  I 
+> don't want to put SSL in the kernel, which means the only other 
+> alternative is to pass data to/from a userspace daemon.
+> 
+> Anybody have any favorite methods?  [similar to] mmap'd packet socket? 
+> ramfs?
+
+drivers/block/nbd?
+								Pavel
 
 -- 
-MST
+Thanks, Sharp!

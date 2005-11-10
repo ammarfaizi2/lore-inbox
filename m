@@ -1,44 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbVKJU62@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbVKJVBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932110AbVKJU62 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 15:58:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbVKJU62
+	id S932111AbVKJVBr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 16:01:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbVKJVBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 15:58:28 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:26244 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S1750757AbVKJU61
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 15:58:27 -0500
-Date: Thu, 10 Nov 2005 21:59:31 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jan Beulich <JBeulich@novell.com>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/39] NLKD - early/late CPU up/down notification
-Message-ID: <20051110205931.GC7584@mars.ravnborg.org>
-References: <43720DAE.76F0.0078.0@novell.com> <43720E2E.76F0.0078.0@novell.com> <43720E72.76F0.0078.0@novell.com> <43720EAF.76F0.0078.0@novell.com> <20051109164544.GB32068@kroah.com> <43723B57.76F0.0078.0@novell.com> <20051109171919.GA32761@kroah.com> <437307BC.76F0.0078.0@novell.com>
+	Thu, 10 Nov 2005 16:01:47 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:1742 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932111AbVKJVBq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 16:01:46 -0500
+Subject: Re: [Patch 02/20] V4L (930) Alsa fixes and improvements
+From: Lee Revell <rlrevell@joe-job.com>
+To: mchehab@brturbo.com.br
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, video4linux-list@redhat.com,
+       Ricardo Cerqueira <v4l@cerqueira.org>, Takashi Iwai <tiwai@suse.de>,
+       alsa-devel@lists.sourceforge.net
+In-Reply-To: <1131656168.6478.39.camel@localhost>
+References: <1131656168.6478.39.camel@localhost>
+Content-Type: text/plain
+Date: Thu, 10 Nov 2005 15:59:47 -0500
+Message-Id: <1131656388.8383.182.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <437307BC.76F0.0078.0@novell.com>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I understand that. But you don't see my point, so I'll try to explain
-> the background: When discovering the reason for the kallsyms change
-> (also posted with the other NLKD patches) not functioning with
-> CONFIG_MODVERSIONS and binutils between 2.16.90 and 2.16.91.0.3 I
-> realized that the warning messages from the modpost build stage are very
-> easy to overlook (in fact, all reporters of the problem overlooked them
-> as well as I did on the first build attempting to reproduce the
-> problem). This basically means these messages are almost useless, and
-> detection of the problem will likely be deferred to the first attempt to
-> load an offending module (which, as in the case named, may lead to an
-> unusable kernel). Hence, at least until this build problem gets
-> addressed I continue to believe that adding the preprocessor conditional
-> is the better way of dealing with potential issues.
+On Thu, 2005-11-10 at 18:50 -0200, mchehab@brturbo.com.br wrote:
+> -       struct saa7134_dev *dev = (struct saa7134_dev*) dev_id;
+> +       snd_card_saa7134_t *saa7134 = dev_id;
+> +       struct saa7134_dev *dev = saa7134->saadev; 
 
-Can you elaborate a little what you like to have done to the build
-process.
+Don't use typedefs for stucts.  Yes, it's all over the place in ALSA,
+but this will be changed very soon.
 
-	Sam
+Lee
+

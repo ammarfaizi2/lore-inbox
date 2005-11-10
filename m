@@ -1,243 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbVKJW6k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbVKJXHc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932216AbVKJW6k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 17:58:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbVKJW6k
+	id S932219AbVKJXHc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 18:07:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbVKJXHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 17:58:40 -0500
-Received: from kirby.webscope.com ([204.141.84.57]:9959 "EHLO
-	kirby.webscope.com") by vger.kernel.org with ESMTP id S932216AbVKJW6j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 17:58:39 -0500
-Message-ID: <4373D087.5050908@linuxtv.org>
-Date: Thu, 10 Nov 2005 17:58:15 -0500
-From: Mike Krufky <mkrufky@linuxtv.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Thu, 10 Nov 2005 18:07:32 -0500
+Received: from mail04.syd.optusnet.com.au ([211.29.132.185]:21424 "EHLO
+	mail04.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932219AbVKJXHb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 18:07:31 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Subject: Re: [RFC, PATCH] Slab counter troubles with swap prefetch?
+Date: Fri, 11 Nov 2005 10:07:10 +1100
+User-Agent: KMail/1.8.3
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, alokk@calsoftinc.com
+References: <Pine.LNX.4.62.0511101351120.16380@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0511101351120.16380@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-To: Junichi Uekawa <dancer@netfort.gr.jp>
-CC: linux-kernel@vger.kernel.org, video4linux-list@redhat.com,
-       debian-amd64@lists.debian.org
-Subject: Re: [x86_64] 2.6.14-git13 mplayer fails with "v4l2: ioctl queue buffer
- failed: Bad address" (2 Nov 2005, 11 Nov 2005)
-References: <87fyqeicge.dancerj%dancer@netfort.gr.jp> <87wtjg5gh2.dancerj%dancer@netfort.gr.jp>
-In-Reply-To: <87wtjg5gh2.dancerj%dancer@netfort.gr.jp>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart8791064.sHTDJVpIcL";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200511111007.12872.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Junichi Uekawa wrote:
+--nextPart8791064.sHTDJVpIcL
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
->Hi,
->
->I've tried running mplayer v4l2 input on a bt878 card, and it fails.
->xawtv works fine, and 2.6.14-rc5 used to work fine.
->
->On git 3b44f137b9a846c5452d9e6e1271b79b1dbcc942 :
->
->$ mplayer  tv://1 -tv driver=v4l2
->MPlayer dev-CVS--4.0.2 (C) 2000-2005 MPlayer Team
->CPU: Advanced Micro Devices Athlon 64 Newcastle,Winchester,San Diego,Venice; Sempron Palermo (Family: 15, Stepping: 0)
->Detected cache-line size is 64 bytes
->CPUflags:  MMX: 1 MMX2: 1 3DNow: 1 3DNow2: 1 SSE: 1 SSE2: 1
->Compiled for x86 CPU with extensions: MMX MMX2 3DNow 3DNowEx SSE SSE2
->  
->
-BTTV currently only supports v4l1.  We are still in the process of 
-porting the bttv driver from v4l1 to v4l2. Nickolay is working on it.
+Hi Christoph
 
--Michael Krufky
+On Fri, 11 Nov 2005 08:55, Christoph Lameter wrote:
+> Currently the slab allocator uses a page_state counter called nr_slab.
+> The VM swap prefetch code assumes that this describes the number of pages
+> used on a node by the slab allocator. However, that is not really true.
+>
+> Currently nr_slab is the number of total pages allocated which may
+> be local or remote pages. Remote allocations may artificially inflate
+> nr_slab and therefore disable swap prefetching.
 
->Failed to open /dev/rtc: Permission denied (it should be readable by the user.)
->Opening joystick device /dev/input/js0
->Can't open joystick device /dev/input/js0 : Permission denied
->Can't init input joystick
->Setting up LIRC support...
->mplayer: could not connect to socket
->mplayer: No such file or directory
->Failed to open LIRC support.
->You will not be able to use your remote control.
->Playing tv://1.
->Cache fill:  0.00% (0 bytes)
->Selected driver: v4l2
-> name: Video 4 Linux 2 input
-> author: Martin Olschewski <olschewski@zpr.uni-koeln.de>
-> comment: first try, more to come ;-)
->Selected device: BT878 video (IODATA GV-BCTV5/PC
-> Tuner cap:
-> Tuner rxs: MONO
-> Capabilites:  video capture  video overlay  VBI capture device  tuner  read/write  streaming
-> supported norms: 0 = PAL; 1 = NTSC; 2 = SECAM; 3 = PAL-Nc; 4 = PAL-M; 5 = PAL-N; 6 = NTSC-JP; 7 = PAL-60;
-> inputs: 0 = Television; 1 = Composite1; 2 = S-Video;
-> Current input: 0
-> Current format: YUV420
->v4l2: current audio mode is : MONO
->v4l2: ioctl queue buffer failed: Bad address
->v4l2: 0 frames successfully processed, 0 frames dropped.
->
->
->
->At Thu, 03 Nov 2005 13:26:25 +0900,
->Junichi Uekawa wrote:
->  
->
->>Hi,
->>
->>I've noticed that mencoder no longer works with bttv 
->>capture on my system; with today's git tree 
->>(ec1890c5df451799dec969a3581ff72e1934b5ee),
->>while it used to work on 2.6.14-rc5.
->>xawtv functions.
->>I'm looking for people who experienced the same problem,
->>or possibly for a fix.
->>
->>
->>The devices are:
->>0000:03:0b.0 Multimedia video controller: Brooktree Corporation Bt878 Video Capture (rev 11)
->>0000:03:0b.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture (rev 11)
->>0000:03:0b.0 0400: 109e:036e (rev 11)
->>0000:03:0b.1 0480: 109e:0878 (rev 11)
->>
->>
->>I'm using mencoder Debian package '1:1.0-pre7cvs20051102-0.0' from marillat's
->>for x86_64 architecture.
->>
->>$ mencoder --version
->>MEncoder dev-CVS--4.0.2 (C) 2000-2005 MPlayer Team
->>CPU: Advanced Micro Devices Athlon 64 Newcastle,Winchester,San Diego,Venice; Sempron Palermo (Family: 15, Stepping: 0)
->>Detected cache-line size is 64 bytes
->>CPUflags: Type: 15 MMX: 1 MMX2: 1 3DNow: 1 3DNow2: 1 SSE: 1 SSE2: 1
->>Compiled for x86 CPU with extensions: MMX MMX2 3DNow 3DNowEx SSE SSE2
->>
->>--version is not an MEncoder option
->>
->>Exiting... (error parsing cmdline)
->>
->>
->>
->>
->>
->>Linux dancer64 2.6.14-rc5dancer-gb563c9b1 #1 Thu Oct 27 12:55:05 JST 2005 x86_64 GNU/Linux
->>mencoder output on 2.6.14 (today's git)
->>
->>channel: 12
->>minutes: 30
->>output filename: /home/dancer/XXX/XXX/
->>MEncoder dev-CVS--4.0.2 (C) 2000-2005 MPlayer Team
->>CPU: Advanced Micro Devices  (Family: 8, Stepping: 0)
->>Detected cache-line size is 64 bytes
->>CPUflags: Type: 8 MMX: 1 MMX2: 1 3DNow: 1 3DNow2: 1 SSE: 1 SSE2: 1
->>Compiled for x86 CPU with extensions: MMX MMX2 3DNow 3DNowEx SSE SSE2
->>
->>File not found: 'frameno.avi'
->>Failed to open frameno.avi
->>success: format: 9  data: 0x0 - 0x0
->>TV detected! ;-)
->>Selected driver: v4l2
->> name: Video 4 Linux 2 input
->> author: Martin Olschewski
->> comment: first try, more to come ;-)
->>Selected device: BT878 video (IODATA GV-BCTV5/PC
->> Tuner cap:
->> Tuner rxs: MONO
->> Capabilites:  video capture  video overlay  VBI capture device  tuner  read/write  streaming
->> supported norms: 0 = PAL; 1 = NTSC; 2 = SECAM; 3 = PAL-Nc; 4 = PAL-M; 5 = PAL-N; 6 = NTSC-JP; 7 = PAL-60;
->> inputs: 0 = Television; 1 = Composite1; 2 = S-Video;
->> Current input: 0
->> Current format: YUYV
->>v4l2: current audio mode is : STEREO
->>Selected channel: 12 (freq: 217.250)
->>v4l2: ioctl queue buffer failed: Bad address
->>
->>
->>
->>Linux dancer64 2.6.14-rc5dancer-gb563c9b1 #1 Thu Oct 27 12:55:05 JST 2005 x86_64 GNU/Linux
->>
->>mencoder output on 2.6.14-rc5:
->>channel: 12
->>minutes: 1
->>output filename: /tmp/aaaa.avi
->>MEncoder dev-CVS--4.0.2 (C) 2000-2005 MPlayer Team
->>CPU: Advanced Micro Devices Athlon 64 Newcastle,Winchester,San Diego,Venice; Sempron Palermo (Family: 15, Stepping: 0)
->>Detected cache-line size is 64 bytes
->>CPUflags: Type: 15 MMX: 1 MMX2: 1 3DNow: 1 3DNow2: 1 SSE: 1 SSE2: 1
->>Compiled for x86 CPU with extensions: MMX MMX2 3DNow 3DNowEx SSE SSE2
->>
->>success: format: 9  data: 0x0 - 0x0
->>Selected driver: v4l2
->> name: Video 4 Linux 2 input
->> author: Martin Olschewski <olschewski@zpr.uni-koeln.de>
->> comment: first try, more to come ;-)
->>Selected device: BT878 video (IODATA GV-BCTV5/PC
->> Tuner cap:
->> Tuner rxs: MONO
->> Capabilites:  video capture  video overlay  VBI capture device  tuner  read/write  streaming
->> supported norms: 0 = PAL; 1 = NTSC; 2 = SECAM; 3 = PAL-Nc; 4 = PAL-M; 5 = PAL-N; 6 = NTSC-JP; 7 = PAL-60;
->> inputs: 0 = Television; 1 = Composite1; 2 = S-Video;
->> Current input: 0
->> Current format: YUYV
->>v4l2: current audio mode is : STEREO
->>Selected channel: 12 (freq: 217.250)
->>[V] filefmt:9  fourcc:0x30323449  size:320x240  fps:29.97  ftime:=0.0334
->>==========================================================================
->>Opening audio decoder: [pcm] Uncompressed PCM audio decoder
->>AUDIO: 48000 Hz, 2 ch, s16le, 1536.0 kbit/100.00% (ratio: 192000->192000)
->>Selected audio codec: [pcm] afm: pcm (Uncompressed PCM)
->>==========================================================================
->>Opening video filter: [expand osd=1]
->>Expand: -1 x -1, -1 ; -1, osd: 1, aspect: 0.000000, round: 1
->>==========================================================================
->>Opening video decoder: [raw] RAW Uncompressed Video
->>VDec: vo config request - 320 x 240 (preferred colorspace: Planar I420)
->>VDec: using Planar I420 as output csp (no 0)
->>Movie-Aspect is undefined - no prescaling applied.
->>videocodec: libavcodec (320x240 fourcc=34504d46 [FMP4])
->>High quality encoding selected (non real time)!
->>Selected video codec: [rawi420] vfm: raw (RAW I420)
->>==========================================================================
->>Building audio filter chain for 48000Hz/2ch/s16le -> 0Hz/0ch/??...
->>MP3 audio selected
->>Building audio filter chain for 48000Hz/2ch/s16le -> 48000Hz/2ch/s16le...
->>Writing AVI header...
->>ODML: Aspect information not (yet?) available or unspecified, not writing vprp header.
->>Forcing audio preload to 0, max pts correction to 0
->>New_Face failed. Maybe the font path is wrong.
->>Please supply the text font file (~/.mplayer/subfont.ttf).
->>subtitle font: load_sub_face failed.
->>ODML: Aspect information not (yet?) available or unspecified, not writing vprp header.
->>Pos:   4.1s    124f ( 0%)  26fps Trem:   0min   0mb  A-V:0.000 [1082:128]
->>Flushing video frames
->>
->>
->>CBR audio: 16000 bytes/sec, 384 bytes/block
->>
->>Writing AVI index...
->>Fixing AVI header...
->>ODML: Aspect information not (yet?) available or unspecified, not writing vprp header.
->>
->>Video stream: 1082.222 kbit/s  (135277 B/s)  size: 559707 bytes  4.137 secs  124 frames
->>
->>Audio stream:  128.000 kbit/s  (16000 B/s)  size: 66048 bytes  4.128 secs
->>v4l2: 139 frames successfully processed, 0 frames dropped.
->>
->>
->>
->>regards,
->>	junichi
->>-- 
->>dancer@{debian.org,netfort.gr.jp}   Debian Project
->>    
->>
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->  
->
+Thanks for pointing this out.
 
--- 
-Michael Krufky
+> This patch splits the counter into the nr_local_slab which reflects
+> slab pages allocated from the local zones (and this number is useful
+> at least as a guidance for the VM) and the remotely allocated pages.
 
+How large a contribution is the remote slab size likely to be? Would this=20
+information be useful to anyone potentially in future code besides swap=20
+prefetch? The nature of prefetch is that this is only a fairly coarse measu=
+re=20
+of how full the vm is with data we don't want to displace. Thus it is also=
+=20
+not important that it is very accurate.=20
 
+Unless the remote slab size can be a very large contribution, or having loc=
+al=20
+and remote slab sizes is useful potentially to some other code I'm inclined=
+=20
+to say this is unnecessary. A simple comment saying something like "the=20
+nr_slab estimation is artificially elevated by remote slab pages on numa,=20
+however this contribution is not important to the accuracy of this=20
+algorithm". Of course it is nice to be more accurate and if you think=20
+worthwhile then we can do this - I'll be happy to be guided by your=20
+judgement.
+
+As a side note I doubt any serious size numa hardware will ever be idle eno=
+ugh=20
+by swap prefetch standards to even start prefetching swap pages. If you thi=
+nk=20
+hardware of this sort is likely to benefit from swap prefetch then perhaps =
+we=20
+should look at relaxing the conditions under which prefetching occurs.
+
+Cheers,
+Con
+
+--nextPart8791064.sHTDJVpIcL
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDc9KgZUg7+tp6mRURAjHTAJ9cGt52v2y+xo3GJ3D/k/cGa/yMEQCghWem
+fDtuFSUieo8ZJnAcNd4i53w=
+=BmLf
+-----END PGP SIGNATURE-----
+
+--nextPart8791064.sHTDJVpIcL--

@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbVKJES3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751030AbVKJEWD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751012AbVKJES3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 23:18:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbVKJES3
+	id S1751030AbVKJEWD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 23:22:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750705AbVKJEWD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 23:18:29 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:18097 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751012AbVKJES2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 23:18:28 -0500
-Subject: Re: PROBLEM: b44 network driver performance
-From: Lee Revell <rlrevell@joe-job.com>
-To: Greg Mitchell <greg.mitchell@emailman.cc>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200511080822.03363.greg.mitchell@emailman.cc>
-References: <200511080822.03363.greg.mitchell@emailman.cc>
-Content-Type: text/plain
-Date: Wed, 09 Nov 2005 22:05:36 -0500
-Message-Id: <1131591937.8383.137.camel@mindpipe>
+	Wed, 9 Nov 2005 23:22:03 -0500
+Received: from holomorphy.com ([66.93.40.71]:59872 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S1751030AbVKJEWB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 23:22:01 -0500
+Date: Wed, 9 Nov 2005 20:20:20 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: David Gibson <david@gibson.dropbear.id.au>
+Cc: Rohit Seth <rohit.seth@intel.com>, Adam Litke <agl@us.ibm.com>,
+       akpm@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       hugh@veritas.com, kenneth.w.chen@intel.com
+Subject: Re: [PATCH 4/4] Hugetlb: Copy on Write support
+Message-ID: <20051110042020.GP29402@holomorphy.com>
+References: <1131578925.28383.9.camel@localhost.localdomain> <1131579596.28383.25.camel@localhost.localdomain> <1131587564.16514.53.camel@akash.sc.intel.com> <20051110035403.GM17840@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051110035403.GM17840@localhost.localdomain>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-11-08 at 08:22 -0500, Greg Mitchell wrote:
-> Summary: Poor performance of b44 driver
-> 
-> Description: I'm getting a transfer rate of 3 MB/s between two machines on the 
-> same 100 Mbit lan. Using Broadcom's bcm4400 driver (which I believe is GPL), 
-> I get 10 MB/s.
-> 
-> Kernel Version: 2.6.13 (vanilla) on a P4
+On Wed, Nov 09, 2005 at 05:52:44PM -0800, Rohit Seth wrote:
+>> lazy_mmu_prot_update will need to called here to make caches coherent
+>> for some archs.
 
-Too old, try 2.6.14.
+On Thu, Nov 10, 2005 at 02:54:03PM +1100, David Gibson wrote:
+> Ah, yes indeed.  Revised version below.  While I was at it, I moved
+> set_huge_ptep_writable() into mm/hugetlb.c, since there's no actual
+> need for it to be in the .h, and abolished huge_ptep_set_wrprotect()
+> since there's no need for the macro at all.
+> Hugetlb: Copy on Write support
 
-Lee
+Re-acking. Good catch, thanks Rohit.
 
+Acked-by: William Irwin <wli@holomorphy.com>
+
+
+-- wli

@@ -1,90 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751741AbVKJDoc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbVKJDti@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751741AbVKJDoc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 22:44:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751742AbVKJDoc
+	id S1751048AbVKJDti (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 22:49:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751047AbVKJDth
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 22:44:32 -0500
-Received: from zproxy.gmail.com ([64.233.162.195]:17478 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751740AbVKJDob (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 22:44:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=MnTgZ4tt0ZWL9NAbSylkO3pFGjookWF//E9h2vf+XZ+PLiB5VE4DgHIjolLD80Lb5MCpe5KPjpEcMjCKUY1Q0qT39Pm7+9WOeYbuHkwKeqyUFjygdQ7yeydMrFS54OWUWsZrTGrMZ0p6YQ9P2NgYGK+dzavy+lnGt+ldOpWgPG8=
-Message-ID: <4372C198.6010306@gmail.com>
-Date: Thu, 10 Nov 2005 11:42:16 +0800
-From: Tony <tony.uestc@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Wed, 9 Nov 2005 22:49:37 -0500
+Received: from mail24.sea5.speakeasy.net ([69.17.117.26]:31877 "EHLO
+	mail24.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1750713AbVKJDth (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 22:49:37 -0500
+Date: Wed, 9 Nov 2005 19:49:32 -0800 (PST)
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: Steven Rostedt <rostedt@goodmis.org>
+cc: Andreas Schwab <schwab@suse.de>,
+       "linux-os \\\\\\\\(Dick Johnson\\\\\\\\)" <linux-os@analogic.com>,
+       linas <linas@austin.ibm.com>, "J.A. Magallon" <jamagallon@able.es>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       Douglas McNaught <doug@mcnaught.org>, linux-kernel@vger.kernel.org
+Subject: Re: typedefs and structs
+In-Reply-To: <1131593981.14381.204.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0511091948280.2594@shell3.speakeasy.net>
+References: <20051107204136.GG19593@austin.ibm.com> 
+ <1131412273.14381.142.camel@localhost.localdomain>  <20051108232327.GA19593@austin.ibm.com>
+  <B68D1F72-F433-4E94-B755-98808482809D@mac.com>  <20051109003048.GK19593@austin.ibm.com>
+  <m27jbihd1b.fsf@Douglas-McNaughts-Powerbook.local>  <20051109004808.GM19593@austin.ibm.com>
+  <19255C96-8B64-4615-A3A7-9E5A850DE398@mac.com>  <20051109111640.757f399a@werewolf.auna.net>
+  <Pine.LNX.4.58.0511090816300.4260@shell2.speakeasy.net> 
+ <20051109192028.GP19593@austin.ibm.com>  <Pine.LNX.4.61.0511091459440.12760@chaos.analogic.com>
+  <Pine.LNX.4.58.0511091347570.31338@shell3.speakeasy.net>  <je3bm5qu2b.fsf@sykes.suse.de>
+  <Pine.LNX.4.58.0511091537370.23877@shell4.speakeasy.net>
+ <1131593981.14381.204.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Parag Warudkar <kernel-stuff@comcast.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Debug: sleeping function called from invalid context at mm/slab.c:2126
-References: <111020050307.1697.4372B974000B129D000006A1220073544600009A9B9CD3040A029D0A05@comcast.net>
-In-Reply-To: <111020050307.1697.4372B974000B129D000006A1220073544600009A9B9CD3040A029D0A05@comcast.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Parag Warudkar wrote:
->>I'm writing a net_device driver. I want to send a packet when the timer 
->>is out. I get the following warning. It seems that I should not call 
->>alloc_skb. Can anyone tell me how to get rid of this? Thanks in advance.
->>
-> 
-> 
-> You are calling alloc_skb which in turn calls kmem_cache_alloc in interrupt context where things can't sleep and kmem_cache_alloc can sleep.  The reason for this is that you are passing GFP_KERNEL to alloc_skb. Try passing GFP_ATOMIC instead.
-> 
-> Other alternative is to may be use a precreated pool of skbs - may be this can be done in driver init function or any other safe context. But I don't know how much feasible that is in your situation.
-> 
-> HTH
-> Parag
-> 
-> 
-> 
-Thanks a lot. Another question.
+On Wed, 9 Nov 2005, Steven Rostedt wrote:
 
-My interface is a virtual interface which represent a radio connected to 
-the host using ethernet NIC. I designed my own L2 protocol on top of 
-802.3, which must be used, since the radio and the host are connected by 
-ethernet.
+> On Wed, 2005-11-09 at 15:40 -0800, Vadim Lobanov wrote:
+> > On Thu, 10 Nov 2005, Andreas Schwab wrote:
+> >
+> > > Vadim Lobanov <vlobanov@speakeasy.net> writes:
+> > >
+> > > > However, if the code is as follows:
+> > > > 	void foo (void) {
+> > > > 		int myvar = 0;
+> > > > 		printf("%d\n", myvar);
+> > > > 		bar(&myvar);
+> > > > 		printf("%d\n", myvar);
+> > > > 	}
+> > > > If bar is declared in _another_ file as
+> > > > 	void bar (const int * var);
+> > > > then I think the compiler can validly cache the value of 'myvar' for the
+> > > > second printf without re-reading it. Correct/incorrect?
+> > >
+> > > Incorrect. bar() may cast away const.  In C const does not mean readonly.
+> >
+> > In that case, I stand corrected.
+> >
+> > Is there any real reason to apply const to pointer targets, aside from
+> > giving yourself a warning in the case you try to write the pointer
+> > target directly? Seems to be a missed opportunity for optimizations
+> > where the coder designates that it's okay to do so.
+>
+> Actually, where are you going to cache it? In a register? but calling
+> bar() may use that register, so it would be stored on the stack anyway.
 
-Now, my radio_hard_header will only add my L2 header, and my 
-radio_hard_start_xmit will do (simplified):
-1) ajust the headroom space
-     hh_len = LL_RESERVED_SPACE(bdev);
-     if (unlikely(skb_headroom(skb) < hh_len && bdev->hard_header)) {
-		struct sk_buff *skb2;
+May, but not necessarily will.
 
-		skb2 = skb_realloc_headroom(skb, LL_RESERVED_SPACE(dev));
-		if (skb2 == NULL) {
-             stats->tx_dropped++;
-			dev_kfree_skb(skb);
-			return 0;
-		}
-		if (skb->sk)
-			skb_set_owner_w(skb2, skb->sk);
-		dev_kfree_skb(skb);
-		skb = skb2;
-	}
+> I doubt that this is a problem with the compiler, since if bar _is_
+> small, then myvar is most likely already in the processor's cache to
+> begin with, so it wouldn't need to go back out to memory, unless it was
+> modified.
 
-2) call eth0->hard_header
-3) skb->dev = eth0
-    return dev_queue_xmit()
+You're right, however. There's very few cases where such an optimization
+would be useful, due to register constraints.
 
-The problem is when system try to retransmit the packet, I add another 
-ethernet header mistakenly.
+> -- Steve
+>
+>
 
-I have two question:
-1) I do not modify the skb passed to hard_start_xmit if 
-skb_realloc_headroom is executed. only in this case the retransmission 
-runs well. Is my understanding right?
-2) Should I do this way or add the ethernet header in my 
-radio_hard_header? If I choose the later, the problem will be how should 
-I handle it when eth_hard_header return a negative number, when ARP is 
-needed.
-
-Thx
+-Vadim Lobanov

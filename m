@@ -1,54 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbVKJVSk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbVKJVUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932086AbVKJVSk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 16:18:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932090AbVKJVSk
+	id S932091AbVKJVUs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 16:20:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932090AbVKJVUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 16:18:40 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:47370 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S932086AbVKJVSj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 16:18:39 -0500
-Date: Thu, 10 Nov 2005 22:02:55 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Peter Staubach <staubach@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] poll(2) timeout values
-Message-ID: <20051110210255.GF11266@alpha.home.local>
-References: <437375DE.1070603@redhat.com> <1131642956.20099.39.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 10 Nov 2005 16:20:47 -0500
+Received: from [212.76.80.249] ([212.76.80.249]:45836 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S932088AbVKJVUr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 16:20:47 -0500
+From: Al Boldi <a1426z@gawab.com>
+To: linux-net@vger.kernel.org
+Subject: TCP connection striping
+Date: Fri, 11 Nov 2005 00:17:26 +0300
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <1131642956.20099.39.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.10i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200511110017.26815.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 10, 2005 at 05:15:56PM +0000, Alan Cox wrote:
-> On Iau, 2005-11-10 at 11:31 -0500, Peter Staubach wrote:
-> > Clearly, the timeout calculations problem can be fixed without changing
-> > the arguments to the sys_poll() routine.  However, it is cleaner to fix
-> > it this way by ensuring the sizes and types of arguments match.
-> 
-> There really is no need for the kernel API to match the userspace one,
-> many of our others differ between the syscall interface which is most
-> definitely 'exported' in one sense and the POSIX interface which is
-> defined by libc, posix and the LSB etc
-> 
-> No argument about the timeout fix.
 
-I posted a different fix here about a month ago (but I sent it 3 times,
-as it was twice wrong). Andrew was about to merge it in his tree but I
-have not checked yet. It was different in the sense that it used
-msecs_to_jiffies() to do the arithmetic in the best possible way depending
-on the HZ value and the ints size. Most of the time (when 1000 % HZ == 0),
-it will simplify the operations to a single divide by a constant and
-correctly check for integer overflows. Eg, with HZ=250, a simple 2 bits
-right shift will replace a multiply followed by an divide.
+TCP connections are inherently throttled. (see 'TCP throttling' thread)
 
-I'll check whether 2.6.14-mm1 has it, otherwise I can repost it.
+Although redesigning the TCP stack from scratch, to circumvent this and other 
+quirks, is probably to much to ask for, would striping the connection, over 
+i.e. a tunnel, be a reasonable workaround?
 
-Cheers,
-Willy
+Thanks!
 
+--
+Al

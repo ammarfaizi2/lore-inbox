@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbVKJKjV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750769AbVKJKmO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750735AbVKJKjV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 05:39:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbVKJKjV
+	id S1750769AbVKJKmO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 05:42:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbVKJKmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 05:39:21 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:62385 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750735AbVKJKjU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 05:39:20 -0500
-Date: Thu, 10 Nov 2005 11:38:23 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Todd Poynor <tpoynor@mvista.com>, rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>
-Subject: Re: latest mtd changes broke collie
-Message-ID: <20051110103823.GB2401@elf.ucw.cz>
-References: <20051109221712.GA28385@elf.ucw.cz> <4372B7A8.5060904@mvista.com> <20051110095050.GC2021@elf.ucw.cz> <1131616948.27347.174.camel@baythorne.infradead.org>
-Mime-Version: 1.0
+	Thu, 10 Nov 2005 05:42:14 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:25356 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750769AbVKJKmN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 05:42:13 -0500
+Date: Thu, 10 Nov 2005 11:42:11 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Matthew Dobson <colpatch@us.ibm.com>
+Cc: Pekka J Enberg <penberg@cs.Helsinki.FI>, kernel-janitors@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 8/8] Inline 3 functions
+Message-ID: <20051110104211.GB5376@stusta.de>
+References: <436FF51D.8080509@us.ibm.com> <436FF894.8090204@us.ibm.com> <Pine.LNX.4.58.0511080937060.9530@sbz-30.cs.Helsinki.FI> <4370F7AE.5090505@us.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1131616948.27347.174.camel@baythorne.infradead.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <4370F7AE.5090505@us.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Is there easy way to get at linux-mtd CVS? Attached is my current
-> > version of sharp.c; map_read32/map_write32 was deleted thanks to
-> > Richard Purdue.
+On Tue, Nov 08, 2005 at 11:08:30AM -0800, Matthew Dobson wrote:
+> Pekka J Enberg wrote:
+> > On Mon, 7 Nov 2005, Matthew Dobson wrote:
+> > 
+> >>I found three functions in slab.c that have only 1 caller (kmem_getpages,
+> >>alloc_slabmgmt, and set_slab_attr), so let's inline them.
+> > 
+> > 
+> > Why? They aren't on the hot path and I don't see how this is an 
+> > improvement...
+> > 
+> > 			Pekka
 > 
-> http://www.linux-mtd.infradead.org/source.html has a reference to
-> anoncvs.
-> 
-> I'd really prefer not to see sharp.c revived -- it's supposed to be
-> dying, in favour of the CFI chipset drivers and jedec_probe code.
-> Can we try to work out what's wrong with those, instead?
+> Well, no, they aren't on the hot path.  I just figured since they are only
+> ever called from one other function, why not inline them?  If the sentiment
+> is that it's a BAD idea, I'll drop it.
 
-This is quite hard to debug -- I do not even have serial console for
-collie, and I know nothing about mtd.
+And if there will one day be a second caller, noone will remember to 
+remove the inline...
 
-Another issue is that collie is in pretty poor state -- it never
-worked in mainline. Getting it working in mainline, even with
-deprecated sharp.c driver, would bea big plus as I should get
-users/testers at that point.
+At least with unit-at-a-time [1], gcc should be smart enough to inline 
+all static functions when it does make sense.
 
-That said... I can certainly do few experiments. Switching map_name
-from "sharp" to "cfi" should be theoretically enough to get new code
-up?
-								Pavel
+> -Matt
+
+cu
+Adrian
+
+[1] currently disabled in the kernel on i386, but this will change at 
+    least for the latest gcc in the mid-term future
+
 -- 
-Thanks, Sharp!
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

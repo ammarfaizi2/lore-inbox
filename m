@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbVKJNH2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbVKJNKX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750830AbVKJNH2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 08:07:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbVKJNH2
+	id S1750835AbVKJNKX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 08:10:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbVKJNKX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 08:07:28 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:27032 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750830AbVKJNH2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 08:07:28 -0500
-Date: Thu, 10 Nov 2005 07:07:15 -0600
-From: Serge Hallyn <serue@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, John Rose <johnrose@austin.ibm.com>,
-       Linda Xie <lxie@us.ibm.com>, gregkh@suse.de
-Subject: Re: 2.6.14-mm1
-Message-ID: <20051110130626.GA7966@sergelap.austin.ibm.com>
-References: <20051106182447.5f571a46.akpm@osdl.org>
+	Thu, 10 Nov 2005 08:10:23 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:22759 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750835AbVKJNKV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 08:10:21 -0500
+Date: Thu, 10 Nov 2005 14:09:30 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: David Vrabel <dvrabel@cantab.net>
+Cc: David Woodhouse <dwmw2@infradead.org>, linux-mtd@lists.infradead.org,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: latest mtd changes broke collie
+Message-ID: <20051110130930.GJ2401@elf.ucw.cz>
+References: <20051109221712.GA28385@elf.ucw.cz> <4372B7A8.5060904@mvista.com> <20051110095050.GC2021@elf.ucw.cz> <1131616948.27347.174.camel@baythorne.infradead.org> <20051110103823.GB2401@elf.ucw.cz> <1131619903.27347.177.camel@baythorne.infradead.org> <20051110105954.GE2401@elf.ucw.cz> <1131621090.27347.184.camel@baythorne.infradead.org> <20051110120708.GG2401@elf.ucw.cz> <437344E0.9040502@cantab.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051106182447.5f571a46.akpm@osdl.org>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <437344E0.9040502@cantab.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compiling on power5 I get
+Hi!
 
-drivers/built-in.o(.text+0xd448): In function `.rpaphp_config_pci_adapter':
-: undefined reference to `.of_scan_bus'
-drivers/built-in.o(.text+0xe704): In function `.dlpar_add_slot':
-: undefined reference to `.of_create_pci_dev'
-drivers/built-in.o(.text+0xe90c): In function `.dlpar_add_slot':
-: undefined reference to `.of_scan_pci_bridge'
-make: *** [.tmp_vmlinux1] Error 1
+> > Ok, I got a little bit more forward.
+> > 
+> > I created entry like this:
+> >         {
+> >                 .mfr_id         = 0x00b0,
+> >                 .dev_id         = 0x00b0,
+> >                 .name           = "Collie hack",
+> >                 .uaddr          = {
+> >                         [0] = MTD_UADDR_UNNECESSARY,    /* x8 */
+> >                 },
+> >                 .DevSize        = SIZE_4MiB,
+> >                 .CmdSet         = P_ID_INTEL_EXT,
+> >                 .NumEraseRegions= 1,
+> >                 .regions        = {
+> >                         ERASEINFO(0x10000,8),
+> >                 }
+> > }
+> > 
+> > (Which is probably wrong, I just made up the data)
+> 
+> Shouldn't you get hold of the datasheet for the flash chips and fill in
+> this information correctly?
 
-Looks like drivers/pci/hotplug/rpadlpar_core.c calls of_create_pci_dev and
-of_scan_pci_bridge, and drivers/pci/hotplug/rpaphp_pci.c calls of_scan_bus,
-each of which are statically defined in arch/ppc64/kernel/pci.c.
+I already have working sharp.c driver... And I do not even know
+manufacturer of the chip, just its ids.
+							Pavel
 
-Odd that these are introduced in this patch...  Do they rely on another
-patch which was not included in 2.6.14-mm1?
-
-thanks,
--serge
+-- 
+Thanks, Sharp!

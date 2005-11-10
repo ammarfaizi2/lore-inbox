@@ -1,32 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbVKJQtO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbVKJQxj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751149AbVKJQtO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 11:49:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbVKJQtO
+	id S1750764AbVKJQxj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 11:53:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750894AbVKJQxj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 11:49:14 -0500
-Received: from cpe-024-031-221-077.sc.res.rr.com ([24.31.221.77]:12292 "EHLO
-	mail.mentalcases.net") by vger.kernel.org with ESMTP
-	id S1751149AbVKJQtN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 11:49:13 -0500
-Date: Thu, 10 Nov 2005 02:27:26 -0500
-From: sinthetek <sinthetek@mentalcases.net>
-To: linux-kernel@vger.kernel.org
-Subject: SiS 5513 IDE support
-Message-ID: <20051110022726.65c47cad@localhost>
-X-Mailer: Sylpheed-Claws 1.0.4a (GTK+ 1.2.10; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Nov 2005 11:53:39 -0500
+Received: from ginger.cmf.nrl.navy.mil ([134.207.10.161]:61328 "EHLO
+	ginger.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
+	id S1750760AbVKJQxj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 11:53:39 -0500
+Message-Id: <200511101600.jAAG0dx6012233@cmf.nrl.navy.mil>
+To: Dave Jones <davej@redhat.com>, davem@davemloft.net
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Reply-To: chas3@users.sourceforge.net
+Subject: Re: fix sparse warning in horizon atm driver. 
+In-reply-to: <20051109055739.GA630@redhat.com> 
+Date: Thu, 10 Nov 2005 11:00:39 -0500
+From: "chas williams - CONTRACTOR" <chas@cmf.nrl.navy.mil>
+X-Spam-Score: () hits=-2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am not really all that great of a programmer and this is my first real experience with modifying the kernel in any respect (aside from a couple of failed attempts to get my digitos digital camera to work last year). However a few months ago I got this new Asus K8S-MX motherboard and, when I installed my ide harddrive on the system and editted my kernel to support my new hardware, I found that my SiS 5513 support wasn't working. I had no DMA and my system would end up slowing to a crawl and swap-thrashing within minutes after boot (mind you this is an AMD64 2800+ with 512MB PC3200 DDR i'm talking about here).
+In message <20051109055739.GA630@redhat.com>,Dave Jones writes:
+>these vars get fed u32's, and are OR'd with u32's.
+>Chances are they were meant to be u32's.
+>
+>I don't have hardware to test this, but I can't fathom
+>why a u16 would be used here.
 
-Anyway, after scouring the net for a solution and not finding one, I decided to delve into the code a bit and found the problem (I think). For some reason the SiS 5513 code contained in the kernel tree doesn't look for the 0x5513 device id at all. I'm not sure why that is... on my system the device id is 0x5513 which makes sense considering the name of the chipset :P.
+i guess someone got confused over BUFFER_PTR_MASK.  this patch 
+looks fine to me.
 
-At any rate, i'm hoping that perhaps someone on here might add these changes to the main kernel so i won't have to keep making them myself everytime i want to upgrade my kernel. First off, in /usr/src/linux/drivers/ide/pci/sis5513.c, when scanning for devices, the closest it gets to the 5513 chipset is the 5511 (PCI_DEVICE_ID_SI_5511) as far as I can tell. Which, according to /usr/src/linux/include/linux/pci_ids.h, has the value of 0x5511. I simply added an entry to /usr/src/linux/include/linux/pci_ids.h for the 0x5513 device id ("#define PCI_DEVICE_ID_SI_5513           0x5513") and appended this line to the SiSHostChipInfo structure array:         "{ "SiS5513",    PCI_DEVICE_ID_SI_5513,  ATA_133  },"
 
-I have even less experience with hardware than I do with coding so i'm not completely sure this is the right/best solution to the problem, but it seems to be working fine for the last few months. I'm not sure if 5513 chipsets on other motherboards don't have the 0x5513 device id or why. When I called Asus to ask about it they said they don't modify any of the chips they get from other manufacturers so... 
+[ATM]: [horizon] fix sparse warnings
 
-Anyway, I figure it is a small modification for you guys to make that would save a lot of people some trouble.
+Signed-off-by: Dave Jones <davej@redhat.com>
+Signed-off-by: Chas Williams <cmas@cmf.nrl.navy.mil>
+
+--- linus/drivers/atm/horizon.c~	2005-11-09 00:51:50.000000000 -0500
++++ linus/drivers/atm/horizon.c	2005-11-09 00:55:36.000000000 -0500
+@@ -1511,8 +1511,8 @@ static inline short setup_idle_tx_channe
+     // a.k.a. prepare the channel and remember that we have done so.
+     
+     tx_ch_desc * tx_desc = &memmap->tx_descs[tx_channel];
+-    u16 rd_ptr;
+-    u16 wr_ptr;
++    u32 rd_ptr;
++    u32 wr_ptr;
+     u16 channel = vcc->channel;
+     
+     unsigned long flags;

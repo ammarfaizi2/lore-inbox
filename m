@@ -1,55 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbVKJHQ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751238AbVKJHKr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751247AbVKJHQ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 02:16:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbVKJHQ7
+	id S1751238AbVKJHKr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 02:10:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbVKJHKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 02:16:59 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:60650 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751247AbVKJHQ7 (ORCPT
+	Thu, 10 Nov 2005 02:10:47 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:52404 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751238AbVKJHKq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 02:16:59 -0500
-Message-ID: <4372F3DE.2020909@pobox.com>
-Date: Thu, 10 Nov 2005 02:16:46 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: James Bottomley <James.Bottomley@SteelEye.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Brown, Len" <len.brown@intel.com>, "Luck, Tony" <tony.luck@intel.com>,
-       Ben Collins <bcollins@debian.org>,
-       Jody McIntyre <scjody@modernduck.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Roland Dreier <rolandd@cisco.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Jens Axboe <axboe@suse.de>, Dave Kleikamp <shaggy@austin.ibm.com>,
-       Steven French <sfrench@us.ibm.com>
-Subject: Re: merge status
-References: <20051109133558.513facef.akpm@osdl.org>  <1131573041.8541.4.camel@mulgrave>  <Pine.LNX.4.64.0511091358560.4627@g5.osdl.org> <1131575124.8541.9.camel@mulgrave> <Pine.LNX.4.64.0511091437100.4627@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0511091437100.4627@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Thu, 10 Nov 2005 02:10:46 -0500
+Date: Thu, 10 Nov 2005 23:39:54 +0530
+From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>,
+       virtualization@lists.osdl.org, Andrew Morton <akpm@osdl.org>,
+       Chris Wright <chrisw@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Martin Bligh <mbligh@mbligh.org>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, ananth@in.ibm.com,
+       anil.s.keshavamurthy@intel.com, davem@davemloft.net
+Subject: Re: [PATCH 19/21] i386 Kprobes semaphore fix
+Message-ID: <20051110180954.GD8514@in.ibm.com>
+Reply-To: prasanna@in.ibm.com
+References: <200511080439.jA84diI6009951@zach-dev.vmware.com> <200511081412.05285.ak@suse.de> <4370A9F5.4060103@vmware.com> <200511091438.11848.ak@suse.de> <437227FD.6040905@vmware.com> <20051109165804.GA15481@elte.hu> <43723768.2060103@vmware.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43723768.2060103@vmware.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> The development SHOULD NOT happen during the merge window. The development 
-> should have happened in the tree you wait to merge /while waiting/ for the 
-> window to open.
+On Wed, Nov 09, 2005 at 09:52:40AM -0800, Zachary Amsden wrote:
+> Ingo Molnar wrote:
+> 
+> >* Zachary Amsden <zach@vmware.com> wrote:
+> >
+> > 
+> >
+> >>>I believe user space kprobes are being worked on by some IBM India folks 
+> >>>yes.
+> >>>     
+> >>>
+> >>I'm convinced this is pointless.  What does it buy you over a ptrace 
+> >>based debugger?  Why would you want extra code running in the kernel 
+> >>that can be done perfectly well in userspace?
+> >>   
+> >>
+> >
+> >kprobes are not just for 'debuggers', they are also used for tracing and 
+> >other dynamic instrumentation in projects like systemtap. Ptrace is way 
+> >too slow and limited for things like that.
+> > 
+> >
+> 
+> Well, if there is a justification for it, that means we really should 
+> handle all the nasty EIP conversion cases due to segmentation and v8086 
+> mode in the kprobes code.  I was hoping that might not be the case.
+> 
 
-In theory.  In reality, when the drain unclogs, peoples' output increases.
+As Ingo mentioned above, Systemtap uses kprobes infrastructure to provide
+dynamic kernel instrumentation. Using which user can add lots of probes 
+easily, so we need to take care of this fast path.  
 
-I'm NOT arguing either side, mind you.  Just making a note.
+Instead of calling convert_eip_to_linear() for all cases, you can
+just check if it is in kernel mode and calculate the address directly
+
+	if (kernel mode)
+                addr = regs->eip - sizeof(kprobe_opcode_t);
+        else
+                addr = convert_eip_to_linear(..);
+
+there by avoiding call to convert_eip_to_linear () for every kernel probes.
+
+As Andi mentioned user space probes support is in progress and 
+this address conversion will help in case of user space probes as well.
 
 
-> If two weeks of merge window is too short, maybe the four weeks _between_ 
-> the windows is long enough to sort things out.
+Thanks
+Prasanna
+-- 
 
-Honestly, I wonder if two weeks is too long.  The shorter the window, 
-the more people will work the way you describe above.
-
-	Jeff
-
-
+Prasanna S Panchamukhi
+Linux Technology Center
+India Software Labs, IBM Bangalore
+Ph: 91-80-25044636
+<prasanna@in.ibm.com>

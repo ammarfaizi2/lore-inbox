@@ -1,206 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbVKJScf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbVKJScj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932141AbVKJScf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 13:32:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbVKJScM
+	id S932142AbVKJScj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 13:32:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbVKJScI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 13:32:12 -0500
-Received: from ams-iport-1.cisco.com ([144.254.224.140]:45853 "EHLO
+	Thu, 10 Nov 2005 13:32:08 -0500
+Received: from ams-iport-1.cisco.com ([144.254.224.140]:22336 "EHLO
 	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S1751203AbVKJScE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 13:32:04 -0500
-Subject: [git patch review 7/7] [IB] umad: further ib_unregister_mad_agent()
-	deadlock fixes
+	id S1751057AbVKJScD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 13:32:03 -0500
+Subject: [git patch review 6/7] [IB] mthca: fix posting long lists of receive
+	work requests
 From: Roland Dreier <rolandd@cisco.com>
 Date: Thu, 10 Nov 2005 18:31:55 +0000
 To: linux-kernel@vger.kernel.org, openib-general@openib.org
 X-Mailer: IB-patch-reviewer
 Content-Transfer-Encoding: 8bit
-Message-ID: <1131647515831-6e04eecf9c835e20@cisco.com>
-In-Reply-To: <1131647515831-7161f73f404fbe76@cisco.com>
-X-OriginalArrivalTime: 10 Nov 2005 18:31:57.0936 (UTC) FILETIME=[086B5F00:01C5E625]
+Message-ID: <1131647515831-7161f73f404fbe76@cisco.com>
+In-Reply-To: <1131647515831-fb6db61e0af75c4b@cisco.com>
+X-OriginalArrivalTime: 10 Nov 2005 18:31:57.0855 (UTC) FILETIME=[085F02F0:01C5E625]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The previous umad deadlock fix left ib_umad_kill_port() still
-vulnerable to deadlocking.  This patch fixes that by downgrading our
-lock to a read lock when we might end up trying to reacquire the lock
-for reading.
+In Tavor mode, when posting a long list of receive work requests, a
+doorbell must be rung every 256 requests.  Add code to do this when
+required.
 
+Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
 Signed-off-by: Roland Dreier <rolandd@cisco.com>
 
 ---
 
- drivers/infiniband/core/user_mad.c |   87 ++++++++++++++++++++++++++----------
- 1 files changed, 63 insertions(+), 24 deletions(-)
+ drivers/infiniband/hw/mthca/mthca_qp.c  |   19 +++++++++++++++++--
+ drivers/infiniband/hw/mthca/mthca_srq.c |   22 ++++++++++++++++++++--
+ drivers/infiniband/hw/mthca/mthca_wqe.h |    3 ++-
+ 3 files changed, 39 insertions(+), 5 deletions(-)
 
-applies-to: 17115437026be55dcd74641be21561fecf33dcdb
-94382f3562e350ed7c8f7dcd6fc968bdece31328
-diff --git a/drivers/infiniband/core/user_mad.c b/drivers/infiniband/core/user_mad.c
-index d61f544..5ea741f 100644
---- a/drivers/infiniband/core/user_mad.c
-+++ b/drivers/infiniband/core/user_mad.c
-@@ -31,7 +31,7 @@
-  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  * SOFTWARE.
-  *
-- * $Id: user_mad.c 2814 2005-07-06 19:14:09Z halr $
-+ * $Id: user_mad.c 4010 2005-11-09 23:11:56Z roland $
-  */
+applies-to: 984d2fc62c548af3d01450135f33b5b97aecf00b
+ae57e24a4006fd46b73d842ee99db9580ef74a02
+diff --git a/drivers/infiniband/hw/mthca/mthca_qp.c b/drivers/infiniband/hw/mthca/mthca_qp.c
+index 190c1dc..760c418 100644
+--- a/drivers/infiniband/hw/mthca/mthca_qp.c
++++ b/drivers/infiniband/hw/mthca/mthca_qp.c
+@@ -1707,6 +1707,7 @@ int mthca_tavor_post_receive(struct ib_q
+ {
+ 	struct mthca_dev *dev = to_mdev(ibqp->device);
+ 	struct mthca_qp *qp = to_mqp(ibqp);
++	__be32 doorbell[2];
+ 	unsigned long flags;
+ 	int err = 0;
+ 	int nreq;
+@@ -1724,6 +1725,22 @@ int mthca_tavor_post_receive(struct ib_q
+ 	ind = qp->rq.next_ind;
  
- #include <linux/module.h>
-@@ -110,12 +110,13 @@ struct ib_umad_device {
- };
- 
- struct ib_umad_file {
--	struct ib_umad_port *port;
--	struct list_head     recv_list;
--	struct list_head     port_list;
--	spinlock_t           recv_lock;
--	wait_queue_head_t    recv_wait;
--	struct ib_mad_agent *agent[IB_UMAD_MAX_AGENTS];
-+	struct ib_umad_port    *port;
-+	struct list_head	recv_list;
-+	struct list_head	port_list;
-+	spinlock_t		recv_lock;
-+	wait_queue_head_t	recv_wait;
-+	struct ib_mad_agent    *agent[IB_UMAD_MAX_AGENTS];
-+	int			agents_dead;
- };
- 
- struct ib_umad_packet {
-@@ -144,6 +145,12 @@ static void ib_umad_release_dev(struct k
- 	kfree(dev);
- }
- 
-+/* caller must hold port->mutex at least for reading */
-+static struct ib_mad_agent *__get_agent(struct ib_umad_file *file, int id)
-+{
-+	return file->agents_dead ? NULL : file->agent[id];
-+}
+ 	for (nreq = 0; wr; ++nreq, wr = wr->next) {
++		if (unlikely(nreq == MTHCA_TAVOR_MAX_WQES_PER_RECV_DB)) {
++			nreq = 0;
 +
- static int queue_packet(struct ib_umad_file *file,
- 			struct ib_mad_agent *agent,
- 			struct ib_umad_packet *packet)
-@@ -151,10 +158,11 @@ static int queue_packet(struct ib_umad_f
- 	int ret = 1;
- 
- 	down_read(&file->port->mutex);
++			doorbell[0] = cpu_to_be32((qp->rq.next_ind << qp->rq.wqe_shift) | size0);
++			doorbell[1] = cpu_to_be32(qp->qpn << 8);
 +
- 	for (packet->mad.hdr.id = 0;
- 	     packet->mad.hdr.id < IB_UMAD_MAX_AGENTS;
- 	     packet->mad.hdr.id++)
--		if (agent == file->agent[packet->mad.hdr.id]) {
-+		if (agent == __get_agent(file, packet->mad.hdr.id)) {
- 			spin_lock_irq(&file->recv_lock);
- 			list_add_tail(&packet->list, &file->recv_list);
- 			spin_unlock_irq(&file->recv_lock);
-@@ -326,7 +334,7 @@ static ssize_t ib_umad_write(struct file
++			wmb();
++
++			mthca_write64(doorbell,
++				      dev->kar + MTHCA_RECEIVE_DOORBELL,
++				      MTHCA_GET_DOORBELL_LOCK(&dev->doorbell_lock));
++
++			qp->rq.head += MTHCA_TAVOR_MAX_WQES_PER_RECV_DB;
++			size0 = 0;
++		}
++
+ 		if (mthca_wq_overflow(&qp->rq, nreq, qp->ibqp.recv_cq)) {
+ 			mthca_err(dev, "RQ %06x full (%u head, %u tail,"
+ 					" %d max, %d nreq)\n", qp->qpn,
+@@ -1781,8 +1798,6 @@ int mthca_tavor_post_receive(struct ib_q
  
- 	down_read(&file->port->mutex);
+ out:
+ 	if (likely(nreq)) {
+-		__be32 doorbell[2];
+-
+ 		doorbell[0] = cpu_to_be32((qp->rq.next_ind << qp->rq.wqe_shift) | size0);
+ 		doorbell[1] = cpu_to_be32((qp->qpn << 8) | nreq);
  
--	agent = file->agent[packet->mad.hdr.id];
-+	agent = __get_agent(file, packet->mad.hdr.id);
- 	if (!agent) {
- 		ret = -EINVAL;
- 		goto err_up;
-@@ -480,7 +488,7 @@ static int ib_umad_reg_agent(struct ib_u
+diff --git a/drivers/infiniband/hw/mthca/mthca_srq.c b/drivers/infiniband/hw/mthca/mthca_srq.c
+index 292f55b..c3c0331 100644
+--- a/drivers/infiniband/hw/mthca/mthca_srq.c
++++ b/drivers/infiniband/hw/mthca/mthca_srq.c
+@@ -414,6 +414,7 @@ int mthca_tavor_post_srq_recv(struct ib_
+ {
+ 	struct mthca_dev *dev = to_mdev(ibsrq->device);
+ 	struct mthca_srq *srq = to_msrq(ibsrq);
++	__be32 doorbell[2];
+ 	unsigned long flags;
+ 	int err = 0;
+ 	int first_ind;
+@@ -429,6 +430,25 @@ int mthca_tavor_post_srq_recv(struct ib_
+ 	first_ind = srq->first_free;
+ 
+ 	for (nreq = 0; wr; ++nreq, wr = wr->next) {
++		if (unlikely(nreq == MTHCA_TAVOR_MAX_WQES_PER_RECV_DB)) {
++			nreq = 0;
++
++			doorbell[0] = cpu_to_be32(first_ind << srq->wqe_shift);
++			doorbell[1] = cpu_to_be32(srq->srqn << 8);
++
++			/*
++			 * Make sure that descriptors are written
++			 * before doorbell is rung.
++			 */
++			wmb();
++
++			mthca_write64(doorbell,
++				      dev->kar + MTHCA_RECEIVE_DOORBELL,
++				      MTHCA_GET_DOORBELL_LOCK(&dev->doorbell_lock));
++
++			first_ind = srq->first_free;
++		}
++
+ 		ind = srq->first_free;
+ 
+ 		if (ind < 0) {
+@@ -491,8 +511,6 @@ int mthca_tavor_post_srq_recv(struct ib_
  	}
  
- 	for (agent_id = 0; agent_id < IB_UMAD_MAX_AGENTS; ++agent_id)
--		if (!file->agent[agent_id])
-+		if (!__get_agent(file, agent_id))
- 			goto found;
+ 	if (likely(nreq)) {
+-		__be32 doorbell[2];
+-
+ 		doorbell[0] = cpu_to_be32(first_ind << srq->wqe_shift);
+ 		doorbell[1] = cpu_to_be32((srq->srqn << 8) | nreq);
  
- 	ret = -ENOMEM;
-@@ -530,7 +538,7 @@ static int ib_umad_unreg_agent(struct ib
+diff --git a/drivers/infiniband/hw/mthca/mthca_wqe.h b/drivers/infiniband/hw/mthca/mthca_wqe.h
+index 1f4c0ff..73f1c0b 100644
+--- a/drivers/infiniband/hw/mthca/mthca_wqe.h
++++ b/drivers/infiniband/hw/mthca/mthca_wqe.h
+@@ -49,7 +49,8 @@ enum {
+ };
  
- 	down_write(&file->port->mutex);
+ enum {
+-	MTHCA_INVAL_LKEY = 0x100
++	MTHCA_INVAL_LKEY			= 0x100,
++	MTHCA_TAVOR_MAX_WQES_PER_RECV_DB	= 256
+ };
  
--	if (id < 0 || id >= IB_UMAD_MAX_AGENTS || !file->agent[id]) {
-+	if (id < 0 || id >= IB_UMAD_MAX_AGENTS || !__get_agent(file, id)) {
- 		ret = -EINVAL;
- 		goto out;
- 	}
-@@ -608,21 +616,29 @@ static int ib_umad_close(struct inode *i
- 	struct ib_umad_file *file = filp->private_data;
- 	struct ib_umad_device *dev = file->port->umad_dev;
- 	struct ib_umad_packet *packet, *tmp;
-+	int already_dead;
- 	int i;
- 
--	for (i = 0; i < IB_UMAD_MAX_AGENTS; ++i)
--		if (file->agent[i])
--			ib_unregister_mad_agent(file->agent[i]);
-+	down_write(&file->port->mutex);
-+
-+	already_dead = file->agents_dead;
-+	file->agents_dead = 1;
- 
- 	list_for_each_entry_safe(packet, tmp, &file->recv_list, list)
- 		kfree(packet);
- 
--	down_write(&file->port->mutex);
- 	list_del(&file->port_list);
--	up_write(&file->port->mutex);
- 
--	kfree(file);
-+	downgrade_write(&file->port->mutex);
-+
-+	if (!already_dead)
-+		for (i = 0; i < IB_UMAD_MAX_AGENTS; ++i)
-+			if (file->agent[i])
-+				ib_unregister_mad_agent(file->agent[i]);
- 
-+	up_read(&file->port->mutex);
-+
-+	kfree(file);
- 	kref_put(&dev->ref, ib_umad_release_dev);
- 
- 	return 0;
-@@ -848,13 +864,36 @@ static void ib_umad_kill_port(struct ib_
- 
- 	port->ib_dev = NULL;
- 
--	list_for_each_entry(file, &port->file_list, port_list)
--		for (id = 0; id < IB_UMAD_MAX_AGENTS; ++id) {
--			if (!file->agent[id])
--				continue;
--			ib_unregister_mad_agent(file->agent[id]);
--			file->agent[id] = NULL;
--		}
-+	/*
-+	 * Now go through the list of files attached to this port and
-+	 * unregister all of their MAD agents.  We need to hold
-+	 * port->mutex while doing this to avoid racing with
-+	 * ib_umad_close(), but we can't hold the mutex for writing
-+	 * while calling ib_unregister_mad_agent(), since that might
-+	 * deadlock by calling back into queue_packet().  So we
-+	 * downgrade our lock to a read lock, and then drop and
-+	 * reacquire the write lock for the next iteration.
-+	 *
-+	 * We do list_del_init() on the file's list_head so that the
-+	 * list_del in ib_umad_close() is still OK, even after the
-+	 * file is removed from the list.
-+	 */
-+	while (!list_empty(&port->file_list)) {
-+		file = list_entry(port->file_list.next, struct ib_umad_file,
-+				  port_list);
-+
-+		file->agents_dead = 1;
-+		list_del_init(&file->port_list);
-+
-+		downgrade_write(&port->mutex);
-+
-+		for (id = 0; id < IB_UMAD_MAX_AGENTS; ++id)
-+			if (file->agent[id])
-+				ib_unregister_mad_agent(file->agent[id]);
-+
-+		up_read(&port->mutex);
-+		down_write(&port->mutex);
-+	}
- 
- 	up_write(&port->mutex);
- 
+ struct mthca_next_seg {
 ---
 0.99.9e

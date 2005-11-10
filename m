@@ -1,72 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750915AbVKJOCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750921AbVKJOEW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750915AbVKJOCt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 09:02:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750903AbVKJOBv
+	id S1750921AbVKJOEW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 09:04:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbVKJOEV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 09:01:51 -0500
-Received: from ns2.suse.de ([195.135.220.15]:27842 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750900AbVKJOBX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 09:01:23 -0500
-From: Andi Kleen <ak@suse.de>
-To: "Jan Beulich" <JBeulich@novell.com>, vojtech@suse.cz
-Subject: Re: [PATCH 13/39] NLKD/x86-64 - time adjustment
-Date: Thu, 10 Nov 2005 14:19:03 +0100
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
-References: <43720DAE.76F0.0078.0@novell.com> <4372105B.76F0.0078.0@novell.com> <437210D1.76F0.0078.0@novell.com>
-In-Reply-To: <437210D1.76F0.0078.0@novell.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Nov 2005 09:04:21 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:22713 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750921AbVKJOET
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 09:04:19 -0500
+Date: Thu, 10 Nov 2005 14:04:19 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Peter Staubach <staubach@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 1/2] handling 64bit values for st_ino]
+Message-ID: <20051110140419.GF7992@ftp.linux.org.uk>
+References: <20051110003024.GD7992@ftp.linux.org.uk> <437343B1.5000809@redhat.com> <20051110134336.GE7992@ftp.linux.org.uk> <4373508F.9060004@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200511101419.03838.ak@suse.de>
+In-Reply-To: <4373508F.9060004@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 November 2005 15:08, Jan Beulich wrote:
-> Since x86-64 time handling is not overflow-safe, these are the
-> adjustments needed for allowing debuggers to update time after
-> having halted the system for perhaps extended periods of time.
->
-> Note that this depends on the HPET definitions adjustments, which
-> aren't in 2.6.14, but have supposedly been merged already into 2.6.15.
->
-> From: Jan Beulich <jbeulich@novell.com>
+On Thu, Nov 10, 2005 at 08:52:15AM -0500, Peter Staubach wrote:
+> Two different sized types to describe inode numbers, different paths, etc.
+> Having two of something, when just one would suffice, is usually more
+> complicated.
 
-<no code quoting because that is hard with your attachments>
+_What_ different paths?  And what "two of something"?
 
-In general thanks for the overflow fixes. I understand the code
-had generic problems in this area and it's good someone tackling them.
+The only requirement for fs that want to report wider st_ino is
+to put the right value into kstat->ino in their ->getattr().
 
-But many details should be changed.
+And there's already a plenty of filesystems using iget5() et.al.
+for icache lookups - this isn't adding anything new.
 
-The magic ICH6 HPET enable code has to go. It looks far too fragile and might 
-break something else. I also don't want direct PCI config space accesses like 
-this. We'll have to wait for ACPI HPET support I think. I think I'll remove 
-the original hack for AMD 8111 too - it was only for testing anyways. If you 
-still want to use it you have to keep it as a private patch.
+As far as 64bit ino_t is concerned - no, thanks.  We'd need to walk through
+all existing fs code and audit existing uses of ino_t.  Which is far more
+of support burden.
 
-Please remove the ifdefs too.  64bit HPET support would be fine, but 
-only as a runtime mechanism, not compile time.
-
-Can you remove debugger_jiffies please? 
-The code has to handle long delays anyways (e.g. if someone uses a target
-probe), so we cannot rely on such hacks anyways.
-
-I don't quite understand why the SMP case should be different from UP
-in that ifdef. Can you explain?  It shouldn't in theory.
-
-
-/* When the TSC gets reset during AP startup, the code below would
-+			   incorrectly think we lost a huge amount of ticks. */
-That is outdated - the TSCs are not reset anymore since 2.6.12.
-Please remove code for handling that.
-
-The union in vxtime_data is ugly - can it be avoided?
-
-Vojtech should probably review that one too when you repost.
-
--Andi
+And then there's an issue of overhead on normal icache lookups for nearly
+all existing filesystems; ones that do wider lookup keys are *already* using
+iget5(), BTW.   So you'll simply punish all users of iget().

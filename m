@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751135AbVKJGWm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbVKJGoA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751135AbVKJGWm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 01:22:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbVKJGWm
+	id S1751088AbVKJGoA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 01:44:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbVKJGoA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 01:22:42 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:984 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751135AbVKJGWm (ORCPT
+	Thu, 10 Nov 2005 01:44:00 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:58806 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751088AbVKJGn7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 01:22:42 -0500
-Date: Wed, 9 Nov 2005 22:22:23 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Arun Sharma <arun.sharma@google.com>
-Cc: rohit.seth@intel.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Expose SHM_HUGETLB in shmctl(id, IPC_STAT, ...)
-Message-Id: <20051109222223.538309e4.akpm@osdl.org>
-In-Reply-To: <20051109184623.GA21636@sharma-home.net>
-References: <20051109184623.GA21636@sharma-home.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 10 Nov 2005 01:43:59 -0500
+Date: Wed, 9 Nov 2005 22:41:17 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Greg KH <greg@kroah.com>
+Cc: bunk@stusta.de, stern@rowland.harvard.edu, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       mdharm-usb@one-eyed-alien.net, zaitcev@redhat.com,
+       Reuben Farrelly <reuben-lkml@reub.net>
+Subject: Re: [-mm patch] USB_LIBUSUAL shouldn't be user-visible
+Message-Id: <20051109224117.337690bf.zaitcev@redhat.com>
+In-Reply-To: <20051109222808.GG9182@kroah.com>
+References: <20051107215226.GA25104@kroah.com>
+	<Pine.LNX.4.44L0.0511071725220.5165-100000@iolanthe.rowland.org>
+	<20051107222840.GB26417@kroah.com>
+	<20051108004716.GJ3847@stusta.de>
+	<20051109222808.GG9182@kroah.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.0 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arun Sharma <arun.sharma@google.com> wrote:
->
-> Allow shmctl to find out if a shmid corresponds to a HUGETLB segment
+On Wed, 9 Nov 2005 14:28:08 -0800, Greg KH <greg@kroah.com> wrote:
+
+> > What about letting the two drivers always use libusual?
 > 
->  Signed-off-by: Arun Sharma <arun.sharma@google.com>
->  Acked-by: Rohit Seth <rohit.seth@intel.com>
-> 
->  --- a/ipc/shm.c	Tue Nov  8 20:58:38 2005
->  +++ b/ipc/shm.c	Wed Nov  9 10:26:37 2005
->  @@ -197,7 +197,7 @@
->   		return -ENOMEM;
->   
->   	shp->shm_perm.key = key;
->  -	shp->shm_flags = (shmflg & S_IRWXUGO);
->  +	shp->shm_flags = (shmflg & (S_IRWXUGO | SHM_HUGETLB));
->   	shp->mlock_user = NULL;
->   
->   	shp->shm_perm.security = NULL;
+> Pete?  What do you think about this patch?
 
-I dunno.  The manpage says:
+It does nothing to explain how exactly the current configuration managed
+not to work, which leaves me unsatisfied. I did test the kernel to build
+correctly with libusub on and off. All we have is this:
 
-       The highlighted fields in the member shm_perm can be set:
+> It seems that libusual.ko is not being actually built as a module, despite being 
+> set to 'm' in .config.
 
-           struct ipc_perm {
-       ...
-               ushort mode;  /* lower 9 bits of access modes */
-       ...
-           };
+Which is nonsensual, because CONFIG_USB_LIBUSUAL is a boolean.
+And reub.net is down, so I cannot fetch the erroneous .config.
 
-So if an application used to do:
+I suspect that Reuben did not rerun "make oldconfig" after editing
+.config or something of that nature.
 
-	if (perm.mode == 0666)
+What Adrian is proposing may be a good idea or may be not, but it has
+nothing to do with the problem.
 
-it will now break, because we've gone and set bit 9 on hugetlb segments.
+-- Pete

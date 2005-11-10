@@ -1,54 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbVKJOZa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750872AbVKJO1U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750840AbVKJOZa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 09:25:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750937AbVKJOZa
+	id S1750872AbVKJO1U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 09:27:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750951AbVKJO1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 09:25:30 -0500
-Received: from ns1.suse.de ([195.135.220.2]:24273 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750840AbVKJOZ3 (ORCPT
+	Thu, 10 Nov 2005 09:27:20 -0500
+Received: from xproxy.gmail.com ([66.249.82.199]:47926 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750841AbVKJO1T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 09:25:29 -0500
-From: Andi Kleen <ak@suse.de>
-To: "Jan Beulich" <JBeulich@novell.com>
-Subject: Re: [PATCH 18/39] NLKD/x86-64 - INT1/INT3 handling changes
-Date: Thu, 10 Nov 2005 15:25:05 +0100
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
-References: <43720DAE.76F0.0078.0@novell.com> <200511101421.48950.ak@suse.de> <43736220.76F0.0078.0@novell.com>
-In-Reply-To: <43736220.76F0.0078.0@novell.com>
+	Thu, 10 Nov 2005 09:27:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:openpgp:content-type:content-transfer-encoding;
+        b=WsJIbmeIvcusmGBlzZ2yrdyqyIfEzOleYnEkXzoefC4oSN2b8jq0vFgIn+EIzmUnISYHt9gDoA3P+SgJ77pXTQMosXXIPC0sAzYK23yhB+KeLx4GlDX9ytliuyiPpxvED5hOlS2cvmiLNp2C0wojeMSI4Raf7mGy7IVGk7Mu9Jk=
+Message-ID: <437358C3.6070301@gmail.com>
+Date: Thu, 10 Nov 2005 16:27:15 +0200
+From: Matan Peled <chaosite@gmail.com>
+Reply-To: chaosite@gmail.com
+Organization: Chaosite Destruction, inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20051014 Thunderbird/1.0.7 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Alejandro Bonilla Beeche <abonilla@linuxwireless.org>
+CC: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel Panic 2.6.14-git
+References: <43727E72.4040103@linuxwireless.org> <9a8748490511091500h4363308fm42312354e3fde8ab@mail.gmail.com> <43728A6D.5080908@linuxwireless.org>
+In-Reply-To: <43728A6D.5080908@linuxwireless.org>
+X-Enigmail-Version: 0.92.0.0
+OpenPGP: id=D6F42CA5
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511101525.06063.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 10 November 2005 15:07, Jan Beulich wrote:
-> >>> Andi Kleen <ak@suse.de> 10.11.05 14:21:48 >>>
-> >
-> >On Wednesday 09 November 2005 15:13, Jan Beulich wrote:
-> >> This
-> >> - switches the INT3 handler to run on an IST stack (to cope with
-> >>   breakpoints set by a kernel debugger on places where the kernel's
-> >>   %gs base hasn't been set up, yet); the IST stack used is shared with
-> >>   the INT1 handler's
-> >> - allows nesting of INT1/INT3 handlers so that one can, with a kernel
-> >>   debugger, debug (at least) the user-mode portions of the INT1/INT3
-> >>   handling; the nesting isn't actively enabled here since a kernel-
-> >>   debugger-free kernel doesn't need it
-> >
-> >Looks reasonable except for the CONFIG_NLKD hunk, which doesn't
-> >seem to be related. I think I'll apply it without that.
->
-> As the comment in that hunk says - this is not the correct test, but the
-> correct test cannot be used. Omitting the hunk altogether will leave orphan
-> references to the pda field (even though these won't cause build problems)
-> in setup64.c and traps.c.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-!NLKD code relying on CONFIG_NLKD code? That sounds wrong. I won't apply
-it then. Please clean up first.
+Alejandro Bonilla Beeche wrote:
+> Jesper,
+> 
+>    Can you elaborate on how can I do such thing if this is at boot? I
+> think you guys need to figure out a way to make these Panics to go into
+> some log file.
+> 
+> I will try to write down some of it as it is at boot.
+> 
+> .Alejandro
 
--Andi
+Writing them down is one way, finding a spare computer and using a serial cable
+to log is another, and logging them to a remote computer over ethernet using
+netconsole is yet another.
+
+
+- --
+[Name      ]   ::  [Matan I. Peled    ]
+[Location  ]   ::  [Israel            ]
+[Public Key]   ::  [0xD6F42CA5        ]
+[Keyserver ]   ::  [keyserver.kjsl.com]
+encrypted/signed  plain text  preferred
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDc1jDA7Qvptb0LKURAm9EAKCKVa3vaCoqhWgGQt3FA2lPl7wWXgCfSF8e
+PhEs5M7sNDDDBmTAWB0cOZk=
+=+XcG
+-----END PGP SIGNATURE-----

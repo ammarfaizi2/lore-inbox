@@ -1,55 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbVKJQsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbVKJQtO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751150AbVKJQsP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 11:48:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbVKJQsP
+	id S1751149AbVKJQtO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 11:49:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbVKJQtO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 11:48:15 -0500
-Received: from student.if.pw.edu.pl ([194.29.174.5]:9179 "EHLO
-	tleilax.if.pw.edu.pl") by vger.kernel.org with ESMTP
-	id S1751150AbVKJQsO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 11:48:14 -0500
-Date: Thu, 10 Nov 2005 17:48:04 +0100 (CET)
-From: Marek Szuba <cyberman@if.pw.edu.pl>
+	Thu, 10 Nov 2005 11:49:14 -0500
+Received: from cpe-024-031-221-077.sc.res.rr.com ([24.31.221.77]:12292 "EHLO
+	mail.mentalcases.net") by vger.kernel.org with ESMTP
+	id S1751149AbVKJQtN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 11:49:13 -0500
+Date: Thu, 10 Nov 2005 02:27:26 -0500
+From: sinthetek <sinthetek@mentalcases.net>
 To: linux-kernel@vger.kernel.org
-Subject: ALSA in 2.6.14: RTC timer breaks MIDI
-Message-ID: <Pine.LNX.4.62.0511101735350.30579@gyrvynk.vs.cj.rqh.cy>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Subject: SiS 5513 IDE support
+Message-ID: <20051110022726.65c47cad@localhost>
+X-Mailer: Sylpheed-Claws 1.0.4a (GTK+ 1.2.10; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(I'm having problems with access to the ALSA bug tracker, that's why I'm 
-reporting this issue here)
+I am not really all that great of a programmer and this is my first real experience with modifying the kernel in any respect (aside from a couple of failed attempts to get my digitos digital camera to work last year). However a few months ago I got this new Asus K8S-MX motherboard and, when I installed my ide harddrive on the system and editted my kernel to support my new hardware, I found that my SiS 5513 support wasn't working. I had no DMA and my system would end up slowing to a crawl and swap-thrashing within minutes after boot (mind you this is an AMD64 2800+ with 512MB PC3200 DDR i'm talking about here).
 
-Hello everyone,
+Anyway, after scouring the net for a solution and not finding one, I decided to delve into the code a bit and found the problem (I think). For some reason the SiS 5513 code contained in the kernel tree doesn't look for the 0x5513 device id at all. I'm not sure why that is... on my system the device id is 0x5513 which makes sense considering the name of the chipset :P.
 
-A couple of days ago I tried to play a MIDI file on a 2.6.14 box with 
-emu10k1 for sound (Audigy 2 ZS) and was surprised to hear that the 
-sequencer no longer works - or to be exact, when having it play any MIDI 
-song it only starts playing the first note in each channel and leaves them 
-like that, playing the same tones until the player's closed. Going back to 
-2.6.13 made the problem go away; on the other hand, even an upgrade of 
-ALSA userspace components to the latest version doesn't help with 2.6.14.
+At any rate, i'm hoping that perhaps someone on here might add these changes to the main kernel so i won't have to keep making them myself everytime i want to upgrade my kernel. First off, in /usr/src/linux/drivers/ide/pci/sis5513.c, when scanning for devices, the closest it gets to the 5513 chipset is the 5511 (PCI_DEVICE_ID_SI_5511) as far as I can tell. Which, according to /usr/src/linux/include/linux/pci_ids.h, has the value of 0x5511. I simply added an entry to /usr/src/linux/include/linux/pci_ids.h for the 0x5513 device id ("#define PCI_DEVICE_ID_SI_5513           0x5513") and appended this line to the SiSHostChipInfo structure array:         "{ "SiS5513",    PCI_DEVICE_ID_SI_5513,  ATA_133  },"
 
-Having investigated a bit, I found out the problem lies with the 
-newly-added "Use RTC as default sequence timer" option; turning it off and 
-recompiling the kernel lets MIDI be played as before.
+I have even less experience with hardware than I do with coding so i'm not completely sure this is the right/best solution to the problem, but it seems to be working fine for the last few months. I'm not sure if 5513 chipsets on other motherboards don't have the 0x5513 device id or why. When I called Asus to ask about it they said they don't modify any of the chips they get from other manufacturers so... 
 
-By the way, shouldn't snd-rtctimer be automatically pulled in if the 
-aforementioned option is set and MIDI drivers are loaded? I have noticed 
-the only way to make it actually be used by other ALSA modules is to have 
-it manually loaded before all the others, as it doesn't get loaded on its 
-own and loading it after the others doesn't cause it to be used, at least 
-not automatically. Of course regardless of whether and how this module is 
-loaded doesn't affect the fact that as long as the aforementioned option 
-is set, MIDI remains useless; recompilation is the only way.
-
-PS. In case it is not clear, in the setup in question all ALSA components 
-are built as modules.
-
-Let me know if you need more information.
-
-Regards,
--- 
-MS
+Anyway, I figure it is a small modification for you guys to make that would save a lot of people some trouble.

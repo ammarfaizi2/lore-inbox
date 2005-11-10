@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbVKJRJu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbVKJRJk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751169AbVKJRJu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 12:09:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbVKJRJu
+	id S1751159AbVKJRJk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 12:09:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbVKJRJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 12:09:50 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:61990 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751169AbVKJRJt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 12:09:49 -0500
-Date: Thu, 10 Nov 2005 18:10:52 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Tejun Heo <htejun@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cfq-iosched: fix slice_left calculation
-Message-ID: <20051110171051.GD3699@suse.de>
-References: <20051110140042.GA25774@htj.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051110140042.GA25774@htj.dyndns.org>
+	Thu, 10 Nov 2005 12:09:40 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:31879 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751057AbVKJRJj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 12:09:39 -0500
+Message-ID: <43737EC7.6090109@zytor.com>
+Date: Thu, 10 Nov 2005 09:09:27 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Junio C Hamano <junkio@cox.net>
+CC: git@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] GIT 0.99.9g
+References: <7vmzkc2a3e.fsf@assigned-by-dhcp.cox.net>
+In-Reply-To: <7vmzkc2a3e.fsf@assigned-by-dhcp.cox.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 10 2005, Tejun Heo wrote:
-> When cfq slice expires, remainder of slice is calculated and stored in
-> cfqq->slice_left.  Current code calculates the opposite of remainder -
-> how many jiffies the cfqq has used past slice end.  This patch fixes
-> the bug.
+Junio C Hamano wrote:
 > 
-> Signed-off-by: Tejun Heo <htejun@gmail.com>
+>    - Add git-lost+found.  Currently the implementation stores
+>      found refs under .git/lost+found/{commit,other}
+>      directories, but writing out their object names to the
+>      standard output and let the users decide what to do with
+>      them was suggested on the list by Daniel, which makes sense
+>      as well.  There are pros and cons so until we know if it is
+>      useful and if so in what form, it will not come out of "pu"
+>      branch.
 > 
-> diff --git a/block/cfq-iosched.c b/block/cfq-iosched.c
-> --- a/block/cfq-iosched.c
-> +++ b/block/cfq-iosched.c
-> @@ -861,8 +861,8 @@ __cfq_slice_expired(struct cfq_data *cfq
->  	 * store what was left of this slice, if the queue idled out
->  	 * or was preempted
->  	 */
-> -	if (time_after(now, cfqq->slice_end))
-> -		cfqq->slice_left = now - cfqq->slice_end;
-> +	if (time_after(cfqq->slice_end, now))
-> +		cfqq->slice_left = cfqq->slice_end - now;
->  	else
->  		cfqq->slice_left = 0;
 
-That looks more correct, good spotting. Applied.
+May I *STRONGLY* urge you to name that something different. 
+"lost+found" is a name with special properties in Unix; for example, 
+many backup solutions will ignore a directory with that name.
 
--- 
-Jens Axboe
-
+	-hpa

@@ -1,73 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751003AbVKJOXy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbVKJOYz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751003AbVKJOXy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 09:23:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbVKJOXy
+	id S1750874AbVKJOYz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 09:24:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbVKJOYz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 09:23:54 -0500
-Received: from wproxy.gmail.com ([64.233.184.195]:22050 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751000AbVKJOXx (ORCPT
+	Thu, 10 Nov 2005 09:24:55 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:40992
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1750744AbVKJOYy convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 09:23:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=KTwQO+DaC+/KGXtLe7/2IiVEnzz6qMmoqzvLTEEqHQrNDSu80KnHLiAFyxl2pkJ1zH1V0PGfMwVzxRmzfIZ0NxbKApF2ZHmG62pWTx0fXMoWhKBIJHMtYlIULpUxRIfgYJyolKDdgPaPem4kdcKpXDpwaigqZeNUFwXz11602SE=
-Date: Thu, 10 Nov 2005 23:23:47 +0900
-From: Tejun Heo <htejun@gmail.com>
-To: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: [PATCH] blk: elv_latter/former_request update
-Message-ID: <20051110142347.GC26030@htj.dyndns.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 10 Nov 2005 09:24:54 -0500
+Message-Id: <4373667E.76F0.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Thu, 10 Nov 2005 15:25:50 +0100
+From: "Jan Beulich" <JBeulich@novell.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
+Subject: Re: [PATCH 19/39] NLKD/x86-64 - stack-pointer-invalid markers
+References: <43720DAE.76F0.0078.0@novell.com>  <4372120B.76F0.0078.0@novell.com>  <43721239.76F0.0078.0@novell.com> <200511101423.55768.ak@suse.de>
+In-Reply-To: <200511101423.55768.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With generic dispatch queue update, implicit former/latter request
-handling using rq->queuelist.prev/next doesn't work as expected
-anymore.  Also, the only iosched dependent on this feature was
-noop-iosched and it has been reimplemented to have its own
-latter/former methods.  This patch removes implicit former/latter
-handling.
+>>> Andi Kleen <ak@suse.de> 10.11.05 14:23:55 >>>
+>On Wednesday 09 November 2005 15:14, Jan Beulich wrote:
+>> This adds static information about the code regions where the stack
+>> pointer cannot be relied upon. Kernel debuggers may then use this
+>> information to determine which stack to switch to when having a need
+>> to switch off of namely the NMI stack.
+>
+>Hmm - can't this be expressed in CFI somehow? 
 
-Signed-off-by: Tejun Heo <htejun@gmail.com>
+Probably one could use .cfi_undefined, but the code needing the information (switching away from the NMI stack) shouldn't have to go through parsing the .eh_frame section contents in order to obtain that information.
 
-diff --git a/block/elevator.c b/block/elevator.c
---- a/block/elevator.c
-+++ b/block/elevator.c
-@@ -540,33 +540,19 @@ int elv_queue_empty(request_queue_t *q)
- 
- struct request *elv_latter_request(request_queue_t *q, struct request *rq)
- {
--	struct list_head *next;
--
- 	elevator_t *e = q->elevator;
- 
- 	if (e->ops->elevator_latter_req_fn)
- 		return e->ops->elevator_latter_req_fn(q, rq);
--
--	next = rq->queuelist.next;
--	if (next != &q->queue_head && next != &rq->queuelist)
--		return list_entry_rq(next);
--
- 	return NULL;
- }
- 
- struct request *elv_former_request(request_queue_t *q, struct request *rq)
- {
--	struct list_head *prev;
--
- 	elevator_t *e = q->elevator;
- 
- 	if (e->ops->elevator_former_req_fn)
- 		return e->ops->elevator_former_req_fn(q, rq);
--
--	prev = rq->queuelist.prev;
--	if (prev != &q->queue_head && prev != &rq->queuelist)
--		return list_entry_rq(prev);
--
- 	return NULL;
- }
- 
+Jan
+

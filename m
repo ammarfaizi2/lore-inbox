@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbVKJHqd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbVKJHrn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751271AbVKJHqd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 02:46:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbVKJHqd
+	id S1751278AbVKJHrn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 02:47:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbVKJHrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 02:46:33 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:21294 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751271AbVKJHqd (ORCPT
+	Thu, 10 Nov 2005 02:47:43 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:23275 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751278AbVKJHrm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 02:46:33 -0500
-Date: Thu, 10 Nov 2005 08:47:39 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Tejun Heo <htejun@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] blk: cfq forced dispatching fix
-Message-ID: <20051110074738.GR3699@suse.de>
-References: <20051109171758.GC24115@htj.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051109171758.GC24115@htj.dyndns.org>
+	Thu, 10 Nov 2005 02:47:42 -0500
+Message-ID: <4372FB18.90905@pobox.com>
+Date: Thu, 10 Nov 2005 02:47:36 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Brown, Len" <len.brown@intel.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       "Luck, Tony" <tony.luck@intel.com>, Ben Collins <bcollins@debian.org>,
+       Jody McIntyre <scjody@modernduck.com>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Roland Dreier <rolandd@cisco.com>, Dave Jones <davej@codemonkey.org.uk>,
+       Jens Axboe <axboe@suse.de>, Dave Kleikamp <shaggy@austin.ibm.com>,
+       Steven French <sfrench@us.ibm.com>
+Subject: Re: merge status
+References: <F7DC2337C7631D4386A2DF6E8FB22B30051F0F73@hdsmsx401.amr.corp.intel.com>
+In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B30051F0F73@hdsmsx401.amr.corp.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 10 2005, Tejun Heo wrote:
-> cfq forced dispatching might not return all requests on the queue.
-> This bug can hang elevator switchinig and corrupt request ordering
-> during flush sequence.
-> 
-> Signed-off-by: Tejun Heo <htejun@gmail.com>
-> 
-> ---
-> 
-> Jens, I implemented a separate code path for forced dispatching as it
-> seemed too complex/error-prone to handle forced case in normal
-> dispatch path.  How do you like this approach?
+Brown, Len wrote:
+> I do have a bundle of Linux specific bug fixes to push,
+> but I didn't follow Tony's git branching strategy
+> correctly at first,
 
-I like this approach better then mixing the 'force' into various logic
-around the function. So applied.
+Is Tony's strategy described anywhere?
 
--- 
-Jens Axboe
+I'm curious how close it is to my own workflow.
+
+	Jeff
+
 

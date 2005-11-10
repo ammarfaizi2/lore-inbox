@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbVKJSDO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbVKJSEY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751192AbVKJSDO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 13:03:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbVKJSDO
+	id S1751193AbVKJSEY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 13:04:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbVKJSEY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 13:03:14 -0500
-Received: from w241.dkm.cz ([62.24.88.241]:12451 "EHLO machine.or.cz")
-	by vger.kernel.org with ESMTP id S1751192AbVKJSDN (ORCPT
+	Thu, 10 Nov 2005 13:04:24 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:10943 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S1751193AbVKJSEX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 13:03:13 -0500
-Date: Thu, 10 Nov 2005 19:03:11 +0100
-From: Petr Baudis <pasky@suse.cz>
-To: Junio C Hamano <junkio@cox.net>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, git@vger.kernel.org,
-       linux-kernel@vger.kernel.org, barkalow@iabervon.org
-Subject: Re: [ANNOUNCE] GIT 0.99.9g
-Message-ID: <20051110180311.GR30496@pasky.or.cz>
-References: <7vmzkc2a3e.fsf@assigned-by-dhcp.cox.net> <43737EC7.6090109@zytor.com> <7v4q6k1jp0.fsf@assigned-by-dhcp.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 10 Nov 2005 13:04:23 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [PATCH 8/8] Inline 3 functions
+Date: Thu, 10 Nov 2005 19:04:22 +0100
+User-Agent: KMail/1.8
+Cc: Matthew Dobson <colpatch@us.ibm.com>,
+       Pekka J Enberg <penberg@cs.helsinki.fi>, kernel-janitors@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+References: <436FF51D.8080509@us.ibm.com> <43737D94.2060408@us.ibm.com> <20051110173822.GD5376@stusta.de>
+In-Reply-To: <20051110173822.GD5376@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <7v4q6k1jp0.fsf@assigned-by-dhcp.cox.net>
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
-User-Agent: Mutt/1.5.11
+Message-Id: <200511101904.23114.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Thu, Nov 10, 2005 at 06:44:43PM CET, I got a letter
-where Junio C Hamano <junkio@cox.net> said that...
-> "H. Peter Anvin" <hpa@zytor.com> writes:
+Am Donnerstag, 10. November 2005 18:38 schrieb Adrian Bunk:
+> > So are you suggesting that we don't mark these functions 'inline', or are
+> > you just pointing out that we'll need to drop the 'inline' if there is ever
+> > another caller?
 > 
-> > May I *STRONGLY* urge you to name that something different. 
-> > "lost+found" is a name with special properties in Unix; for example, 
-> > many backup solutions will ignore a directory with that name.
-> 
-> Yeah, the original proposal (in TODO list) explicitly stated why
-> I chose lost-found instead of lost+found back then, and somebody
-> on the list (could have been Pasky but I may be mistaken) said
-> not to worry.
+> I'd suggest to not mark them 'inline'.
 
-It was the Large Angry SCM. I share your concern.
+It seems you have found one more use for sparse. How about a tag
+like __single_inline that will cause a warning if a function having it
+is called from more than one place?
 
-> In any case, if we go the route Daniel suggests, we would not be
-> storing anything on the filesystem ourselves so this would be a
-> non-issue.
-
-I like Daniel's route as well, for the separate command. But it would be
-nice to also have a way to tell git-fsck-cache to save the lost+found
-refs as it goes, much like the filesystem fsck. So if it reports some
-unreachable refs, you will not need to tell it to do the same job
-_another_ time to find out the refs and pass them to gitk. Then again,
-if we do this, the utility of a separate command will be questionable.
-
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-VI has two modes: the one in which it beeps and the one in which
-it doesn't.
+	Regards
+		Oliver

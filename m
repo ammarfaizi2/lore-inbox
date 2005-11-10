@@ -1,74 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbVKJWdk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbVKJWi1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932210AbVKJWdk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 17:33:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbVKJWdk
+	id S932212AbVKJWi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 17:38:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbVKJWi0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 17:33:40 -0500
-Received: from smtp012.mail.yahoo.com ([216.136.173.32]:62383 "HELO
-	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S932210AbVKJWdj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 17:33:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=xA1VcOnxifUMT9bPN/WZ4rZUu6mJCce+udbm+2eY8RRacoaq1q2CJ38UxxBV2XlpG4VoSo5/n/JbN1ZoLTqKOKyJjNa8ZT2v6pMnSxmbxWYHBS5CQScC9geS8YL/pP3wNLJkThwVzxhsGNOI19SUldZs1wHZ6FVtr7yhq3p7K/c=  ;
-Message-ID: <4373CB4C.6070602@yahoo.com.au>
-Date: Fri, 11 Nov 2005 09:35:56 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Thu, 10 Nov 2005 17:38:26 -0500
+Received: from kirby.webscope.com ([204.141.84.57]:47589 "EHLO
+	kirby.webscope.com") by vger.kernel.org with ESMTP id S932212AbVKJWi0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 17:38:26 -0500
+Message-ID: <4373CBC6.4080305@linuxtv.org>
+Date: Thu, 10 Nov 2005 17:37:58 -0500
+From: Mike Krufky <mkrufky@linuxtv.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Tejun Heo <htejun@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] as-iosched: update alias handling
-References: <20051110140859.GA26030@htj.dyndns.org> <20051110171743.GE3699@suse.de>
-In-Reply-To: <20051110171743.GE3699@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux and Kernel Video <video4linux-list@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Mauro Carvalho Chehab <mauro_chehab@yahoo.com.br>
+Subject: [PATCH 21/20] v4l: prevent saa7134 alsa undefined warnings
+Content-Type: multipart/mixed;
+ boundary="------------050803020006020907040301"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Thu, Nov 10 2005, Tejun Heo wrote:
-> 
->>Unlike other ioscheds, as-iosched handles alias by chaing them using
->>rq->queuelist.  As aliased requests are very rare in the first place,
->>this complicates merge/dispatch handling without meaningful
->>performance improvement.  This patch updates as-iosched to dump
->>aliased requests into dispatch queue as other ioscheds do.
->>
->>Signed-off-by: Tejun Heo <htejun@gmail.com>
-> 
-> 
-> In theory the way 'as' handles the aliases is faster since we postpone
-> pushing them to the dispatch list at the same point (and they have
-> strong (if not identical) locality). But it is much simpler to just
-> shove the offending requests onto the dispatch list.
-> 
-> It's really up to Nick - what do you think? Leaving patch below.
-> 
+This is a multi-part message in MIME format.
+--------------050803020006020907040301
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I thought this was pretty cool, but in reality it could be that the
-cost / benefit actually goes the wrong way due to added complexity
-and rarity of alised requests.
 
-Hmm... I can't bear to ack it ;) I'll close my eyes and let Jens
-make the call!
 
-> 
->>---
->>
->>Jens, I've tested this change for several hours, but it might be
->>better to postpone this change to next release.  It's your call.
->>
+--------------050803020006020907040301
+Content-Type: text/x-patch;
+ name="prevent-saa7134-alsa-undefined-warnings.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="prevent-saa7134-alsa-undefined-warnings.patch"
 
-It could go into mm now, but probably leave it for 2.6.16 unless
-you have some other reason to really need it.
+Prevent the following build warnings:
 
-Nick
+*** Warning: "snd_card_free" 
+*** Warning: "snd_card_register" 
+*** Warning: "snd_device_new" 
+*** Warning: "snd_card_new" 
+*** Warning: "snd_ctl_add"
+*** Warning: "snd_ctl_new1" 
+*** Warning: "snd_pcm_set_ops" 
+*** Warning: "snd_pcm_new"
+*** Warning: "snd_pcm_lib_ioctl" 
+*** Warning: "snd_pcm_hw_constraint_integer" 
+*** Warning: "snd_pcm_stop" 
+*** Warning: "snd_pcm_period_elapsed" 
+[drivers/media/video/saa7134/saa7134-alsa.ko] undefined!
 
--- 
-SUSE Labs, Novell Inc.
+Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+Acked-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+ drivers/media/video/saa7134/Kconfig |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+--- linux.orig/drivers/media/video/saa7134/Kconfig
++++ linux/drivers/media/video/saa7134/Kconfig
+@@ -1,6 +1,6 @@
+ config VIDEO_SAA7134
+ 	tristate "Philips SAA7134 support"
+-	depends on VIDEO_DEV && PCI && I2C && SOUND
++	depends on VIDEO_DEV && PCI && I2C && SOUND && SND && SND_PCM_OSS
+ 	select VIDEO_BUF
+ 	select VIDEO_IR
+ 	select VIDEO_TUNER
+
+--------------050803020006020907040301--
+

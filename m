@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbVKJR71@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbVKJSDO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750877AbVKJR71 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 12:59:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbVKJR71
+	id S1751192AbVKJSDO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 13:03:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbVKJSDO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 12:59:27 -0500
-Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:190 "EHLO
-	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id S1750877AbVKJR71 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 12:59:27 -0500
-Date: Thu, 10 Nov 2005 12:59:22 -0500
-To: Chip Salzenberg <chip@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: hostap interrupt problems, maintainers unresponsive - "wifi0: interrupt delivery does not seem to work"
-Message-ID: <20051110175922.GB9632@delft.aura.cs.cmu.edu>
-Mail-Followup-To: Chip Salzenberg <chip@pobox.com>,
-	linux-kernel@vger.kernel.org
-References: <20051102174639.GB6816@tytlal.topaz.cx>
+	Thu, 10 Nov 2005 13:03:14 -0500
+Received: from w241.dkm.cz ([62.24.88.241]:12451 "EHLO machine.or.cz")
+	by vger.kernel.org with ESMTP id S1751192AbVKJSDN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 13:03:13 -0500
+Date: Thu, 10 Nov 2005 19:03:11 +0100
+From: Petr Baudis <pasky@suse.cz>
+To: Junio C Hamano <junkio@cox.net>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, git@vger.kernel.org,
+       linux-kernel@vger.kernel.org, barkalow@iabervon.org
+Subject: Re: [ANNOUNCE] GIT 0.99.9g
+Message-ID: <20051110180311.GR30496@pasky.or.cz>
+References: <7vmzkc2a3e.fsf@assigned-by-dhcp.cox.net> <43737EC7.6090109@zytor.com> <7v4q6k1jp0.fsf@assigned-by-dhcp.cox.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051102174639.GB6816@tytlal.topaz.cx>
-User-Agent: Mutt/1.5.9i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+In-Reply-To: <7v4q6k1jp0.fsf@assigned-by-dhcp.cox.net>
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 02, 2005 at 09:46:39AM -0800, Chip Salzenberg wrote:
-> Hostap 0.4.4-kernel, included with kernel 2.6.14, does not work; nor
-> do versions 0.3.9 nor 0.4.1 compiled separately against 2.6.14.  There
-> seems to be a problem with interrupt delivery.  Soon after the module
-> is installed, keystrokes and all other interrupt-driven activity pause
-> periodically for a LONG time (on the order of five seconds).
+Dear diary, on Thu, Nov 10, 2005 at 06:44:43PM CET, I got a letter
+where Junio C Hamano <junkio@cox.net> said that...
+> "H. Peter Anvin" <hpa@zytor.com> writes:
+> 
+> > May I *STRONGLY* urge you to name that something different. 
+> > "lost+found" is a name with special properties in Unix; for example, 
+> > many backup solutions will ignore a directory with that name.
+> 
+> Yeah, the original proposal (in TODO list) explicitly stated why
+> I chose lost-found instead of lost+found back then, and somebody
+> on the list (could have been Pasky but I may be mistaken) said
+> not to worry.
 
-I am seeing similar interrupt problems, but I don't have hostap (or even
-a wireless network card) on my machine. For me a clear indication is the
-serial port overrun errors even though that port only gets a handful of
-interrupts per second from an attached GPS receiver. Under X, keyboard
-and mouse are occasionally very jerky and unreponsive.
+It was the Large Angry SCM. I share your concern.
 
-I just rebooted with 'acpi=noirq', and I'm not seeing the serial port
-overrun errors anymore, it seems to have fixed, or at least mitigated
-the problem a bit. But I'm logged into the machine remotely at the
-moment, so I can't be sure if it really fixed the unresponsive
-keyboard/mouse issues. There are a bunch of differences in the kernel
-log, but one that was quite noticable was the estimated CPU speed and
-that the IO-APIC seems to be intialized differently.
+> In any case, if we go the route Daniel suggests, we would not be
+> storing anything on the filesystem ourselves so this would be a
+> non-issue.
 
-booting 2.6.14
---------------
-Nov 10 09:49:23 thegate kernel: 247 MHz processor.
+I like Daniel's route as well, for the separate command. But it would be
+nice to also have a way to tell git-fsck-cache to save the lost+found
+refs as it goes, much like the filesystem fsck. So if it reports some
+unreachable refs, you will not need to tell it to do the same job
+_another_ time to find out the refs and pass them to gitk. Then again,
+if we do this, the utility of a separate command will be questionable.
 
-booting 2.6.14 with acpi=noirq
-------------------------------
-Nov 10 12:36:08 thegate kernel: Detected 2807.302 MHz processor.
-
-
-It actually looks like there is a whole bunch of interesting information
-from the early boot that got scrolled out of the printk buffer by the
-time klog dumps everything to kern.log. I guess I should rebuild my
-kernel with a larger ringbuffer.
-
-Jan
-
+-- 
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+VI has two modes: the one in which it beeps and the one in which
+it doesn't.

@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751370AbVKJBrB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751388AbVKJBsU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751370AbVKJBrB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 20:47:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751385AbVKJBrB
+	id S1751388AbVKJBsU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 20:48:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbVKJBsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 20:47:01 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:55692 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751370AbVKJBrA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 20:47:00 -0500
-Subject: Re: [PATCH 4/4] Hugetlb: Copy on Write support
-From: Rohit Seth <rohit.seth@intel.com>
-To: Adam Litke <agl@us.ibm.com>
-Cc: akpm@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       David Gibson <david@gibson.dropbear.id.au>, wli@holomorphy.com,
-       hugh@veritas.com, kenneth.w.chen@intel.com
-In-Reply-To: <1131579596.28383.25.camel@localhost.localdomain>
-References: <1131578925.28383.9.camel@localhost.localdomain>
-	 <1131579596.28383.25.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: Intel 
-Date: Wed, 09 Nov 2005 17:52:44 -0800
-Message-Id: <1131587564.16514.53.camel@akash.sc.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Nov 2005 01:45:40.0717 (UTC) FILETIME=[74CAE1D0:01C5E598]
+	Wed, 9 Nov 2005 20:48:20 -0500
+Received: from silver.veritas.com ([143.127.12.111]:6952 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1751388AbVKJBsT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 20:48:19 -0500
+Date: Thu, 10 Nov 2005 01:47:08 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 04/15] mm: update split ptlock Kconfig
+In-Reply-To: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0511100146110.5814@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 10 Nov 2005 01:48:19.0529 (UTC) FILETIME=[D373AB90:01C5E598]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-11-09 at 17:39 -0600, Adam Litke wrote:
+Closer attention to the arithmetic shows that neither ppc64 nor sparc
+really uses one page for multiple page tables: how on earth could they,
+while pte_alloc_one returns just a struct page pointer, with no offset?
 
->  
-> +#define huge_ptep_set_wrprotect(mm, addr, ptep) \
-> +	ptep_set_wrprotect(mm, addr, ptep)
-> +static inline void set_huge_ptep_writable(struct vm_area_struct *vma,
-> +		unsigned long address, pte_t *ptep)
-> +{
-> +	pte_t entry;
-> +
-> +	entry = pte_mkwrite(pte_mkdirty(*ptep));
-> +	ptep_set_access_flags(vma, address, ptep, entry, 1);
-> +	update_mmu_cache(vma, address, entry);
-> +}
+Gasp, splutter... arm26 manages it by returning a pte_t pointer cast to
+a struct page pointer, then compensating in its pmd_populate.  That's
+almost as evil as overlaying a struct page with a spinlock_t.  But arm26
+is never SMP, and we now only poison when SMP, so it's not a problem.
 
-lazy_mmu_prot_update will need to called here to make caches coherent
-for some archs.
+And the PA-RISC situation has been recently improved: CONFIG_PA20
+works without the 16-byte alignment which inflated its spinlock_t.
 
--rohit
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+---
 
+ mm/Kconfig |    6 ++----
+ 1 files changed, 2 insertions(+), 4 deletions(-)
+
+--- mm03/mm/Kconfig	2005-11-07 07:39:59.000000000 +0000
++++ mm04/mm/Kconfig	2005-11-09 14:38:32.000000000 +0000
+@@ -125,14 +125,12 @@ comment "Memory hotplug is currently inc
+ # space can be handled with less contention: split it at this NR_CPUS.
+ # Default to 4 for wider testing, though 8 might be more appropriate.
+ # ARM's adjust_pte (unused if VIPT) depends on mm-wide page_table_lock.
+-# PA-RISC's debug spinlock_t is too large for the 32-bit struct page.
+-# ARM26 and SPARC32 and PPC64 may use one page for multiple page tables.
++# PA-RISC 7xxx's debug spinlock_t is too large for 32-bit struct page.
+ #
+ config SPLIT_PTLOCK_CPUS
+ 	int
+ 	default "4096" if ARM && !CPU_CACHE_VIPT
+-	default "4096" if PARISC && DEBUG_SPINLOCK && !64BIT
+-	default "4096" if ARM26 || SPARC32 || PPC64
++	default "4096" if PARISC && DEBUG_SPINLOCK && !PA20
+ 	default "4"
+ 
+ #

@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbVKJT5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbVKJT7t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751219AbVKJT5E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 14:57:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbVKJT5E
+	id S1751103AbVKJT7t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 14:59:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbVKJT7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 14:57:04 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:7902 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751219AbVKJT5C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 14:57:02 -0500
-Date: Thu, 10 Nov 2005 11:56:52 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Hugh Dickins <hugh@veritas.com>, mingo@elte.hu,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 01/15] mm: poison struct page for ptlock
-In-Reply-To: <20051110114950.03a5946b.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0511101155160.4627@g5.osdl.org>
-References: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com>
- <Pine.LNX.4.61.0511100142160.5814@goblin.wat.veritas.com>
- <20051109181022.71c347d4.akpm@osdl.org> <Pine.LNX.4.61.0511100215150.6138@goblin.wat.veritas.com>
- <20051109185645.39329151.akpm@osdl.org> <20051110120624.GB32672@elte.hu>
- <Pine.LNX.4.61.0511101233530.6896@goblin.wat.veritas.com>
- <20051110045144.40751a42.akpm@osdl.org> <Pine.LNX.4.61.0511101323540.7464@goblin.wat.veritas.com>
- <20051110114950.03a5946b.akpm@osdl.org>
+	Thu, 10 Nov 2005 14:59:49 -0500
+Received: from mail.tmr.com ([64.65.253.246]:20956 "EHLO gaimboi.tmr.com")
+	by vger.kernel.org with ESMTP id S1751103AbVKJT7t (ORCPT
+	<rfc822;Linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 14:59:49 -0500
+Date: Thu, 10 Nov 2005 15:08:08 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+cc: marado@isp.novis.pt, <Linux-kernel@vger.kernel.org>,
+       <fawadlateef@gmail.com>, <hostmaster@ed-soft.at>,
+       <jerome.lacoste@gmail.com>, <carlsj@yahoo.com>,
+       Bill Davidsen <tmrbill@tmr.com>
+Subject: Re: New Linux Development Model
+In-Reply-To: <200511100057.09216.s0348365@sms.ed.ac.uk>
+Message-ID: <Pine.LNX.4.44.0511101500060.24169-100000@gaimboi.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 10 Nov 2005, Alistair John Strachan wrote:
 
-
-On Thu, 10 Nov 2005, Andrew Morton wrote:
+> On Wednesday 09 November 2005 20:10, Marcos Marado wrote:
+> > On Wed, 2005-11-09 at 14:05 -0500, Bill Davidsen wrote:
+> > > With the current firmware and driver a "scan" shows 14 connectible
+> > > points outside an apartment building (only one secured in any way ;-)
+> > > whic is just what Windows shows. With the stock kernel zero are found.
+> > > That's not stable that's moribund.
+> >
+> > Sorry to disagree, but I use the stock kernel version of ipw2100 almost
+> > daily, with no problems.
 > 
-> IOW we're assuming that no 32-bit architectures will obtain pagetables from
-> slab?
+> I concur, ipw2200 is also fully functional here. This sounds like a genuine 
+> bug, or a mis-configured system, not a criticism of the current Linux 
+> development model.
 
-I thought ARM does?
+Given that using recent firmware and drive software works and stock
+doesn't, I personally have a hard time saying that the configuration is
+wrong. Being old-fashioned I conclude that the thing you change to fix a
+problem is most likely the thing that caused the problem in the first
+place.
 
-The ARM page tables are something strange (I think they have 1024-byte 
-page tables and 4kB pages or something like that?). So they'll not only 
-obtain the page tables from slab, they have four of them per page.
+can't speak to the 2100, I have a 2200, and with the current firmware and 
+driver it works.
 
-		Linus
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO TMR Associates, Inc
+While an unsigned integer can never be negative, it can be less than zero 
+for sufficiently large values of zero.
+

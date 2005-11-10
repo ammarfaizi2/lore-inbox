@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751433AbVKJByn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751432AbVKJBzy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751433AbVKJByn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 20:54:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751432AbVKJByn
+	id S1751432AbVKJBzy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 20:55:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751495AbVKJBzx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 20:54:43 -0500
-Received: from gold.veritas.com ([143.127.12.110]:34612 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1751433AbVKJByl (ORCPT
+	Wed, 9 Nov 2005 20:55:53 -0500
+Received: from ozlabs.org ([203.10.76.45]:35819 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751432AbVKJBzx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 20:54:41 -0500
-Date: Thu, 10 Nov 2005 01:53:30 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Paul Mackerras <paulus@samba.org>,
+	Wed, 9 Nov 2005 20:55:53 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17266.43166.752587.255943@cargo.ozlabs.ibm.com>
+Date: Thu, 10 Nov 2005 12:55:42 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>,
        Ben Herrenschmidt <benh@kernel.crashing.org>,
        linux-kernel@vger.kernel.org
-Subject: [PATCH 08/15] mm: powerpc init_mm without ptlock
-In-Reply-To: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0511100151450.5814@goblin.wat.veritas.com>
+Subject: Re: [PATCH 06/15] mm: remove ppc highpte
+In-Reply-To: <Pine.LNX.4.61.0511100148410.5814@goblin.wat.veritas.com>
 References: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 10 Nov 2005 01:54:41.0448 (UTC) FILETIME=[B717E280:01C5E599]
+	<Pine.LNX.4.61.0511100148410.5814@goblin.wat.veritas.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Restore an earlier mod which went missing in the powerpc reshuffle:
-the 4xx mmu_mapin_ram does not need to take init_mm.page_table_lock.
+Hugh Dickins writes:
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
----
+> ppc's HIGHPTE config option was removed in 2.5.28, and nobody seems to
+> have wanted it enough to restore it: so remove its traces from pgtable.h
+> and pte_alloc_one.  Or supply an alternative patch to config it back?
 
- arch/powerpc/mm/4xx_mmu.c |    4 ----
- 1 files changed, 4 deletions(-)
+I'm staggered.  We do want to be able to have pte pages in highmem.
+I would rather just have it always enabled if CONFIG_HIGHMEM=y, rather
+than putting the config option back.  I think that should just involve
+adding __GFP_HIGHMEM to the flags for alloc_pages in pte_alloc_one
+unconditionally, no?
 
---- mm07/arch/powerpc/mm/4xx_mmu.c	2005-11-07 07:39:05.000000000 +0000
-+++ mm08/arch/powerpc/mm/4xx_mmu.c	2005-11-09 14:39:29.000000000 +0000
-@@ -110,13 +110,11 @@ unsigned long __init mmu_mapin_ram(void)
- 		pmd_t *pmdp;
- 		unsigned long val = p | _PMD_SIZE_16M | _PAGE_HWEXEC | _PAGE_HWWRITE;
- 
--		spin_lock(&init_mm.page_table_lock);
- 		pmdp = pmd_offset(pgd_offset_k(v), v);
- 		pmd_val(*pmdp++) = val;
- 		pmd_val(*pmdp++) = val;
- 		pmd_val(*pmdp++) = val;
- 		pmd_val(*pmdp++) = val;
--		spin_unlock(&init_mm.page_table_lock);
- 
- 		v += LARGE_PAGE_SIZE_16M;
- 		p += LARGE_PAGE_SIZE_16M;
-@@ -127,10 +125,8 @@ unsigned long __init mmu_mapin_ram(void)
- 		pmd_t *pmdp;
- 		unsigned long val = p | _PMD_SIZE_4M | _PAGE_HWEXEC | _PAGE_HWWRITE;
- 
--		spin_lock(&init_mm.page_table_lock);
- 		pmdp = pmd_offset(pgd_offset_k(v), v);
- 		pmd_val(*pmdp) = val;
--		spin_unlock(&init_mm.page_table_lock);
- 
- 		v += LARGE_PAGE_SIZE_4M;
- 		p += LARGE_PAGE_SIZE_4M;
+Paul.
+

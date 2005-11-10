@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbVKJKCn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbVKJKNa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbVKJKCn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 05:02:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbVKJKCn
+	id S1750750AbVKJKNa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 05:13:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbVKJKNa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 05:02:43 -0500
-Received: from baythorne.infradead.org ([81.187.2.161]:15782 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S1750746AbVKJKCn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 05:02:43 -0500
-Subject: Re: latest mtd changes broke collie
-From: David Woodhouse <dwmw2@infradead.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Todd Poynor <tpoynor@mvista.com>, rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20051110095050.GC2021@elf.ucw.cz>
-References: <20051109221712.GA28385@elf.ucw.cz>
-	 <4372B7A8.5060904@mvista.com>  <20051110095050.GC2021@elf.ucw.cz>
-Content-Type: text/plain
-Date: Thu, 10 Nov 2005 10:02:28 +0000
-Message-Id: <1131616948.27347.174.camel@baythorne.infradead.org>
+	Thu, 10 Nov 2005 05:13:30 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:56486 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750750AbVKJKN3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 05:13:29 -0500
+Date: Thu, 10 Nov 2005 02:12:55 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: zach@vmware.com
+Cc: sam@ravnborg.org, rmk@arm.linux.org.uk, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, davej@redhat.com, than@redhat.com
+Subject: Re: [PATCH 1/1] My tools break here
+Message-Id: <20051110021255.3cf79cee.akpm@osdl.org>
+In-Reply-To: <20051107150807.5f85ec13.akpm@osdl.org>
+References: <200511072156.jA7LuQKv009711@zach-dev.vmware.com>
+	<20051107225024.GB10492@mars.ravnborg.org>
+	<20051107150807.5f85ec13.akpm@osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-11-10 at 10:50 +0100, Pavel Machek wrote:
-> Is there easy way to get at linux-mtd CVS? Attached is my current
-> version of sharp.c; map_read32/map_write32 was deleted thanks to
-> Richard Purdue.
+Andrew Morton <akpm@osdl.org> wrote:
+>
+> > The change has been in -git for a full day and in latest -mm too.
+>  > And so far this is the only report that it breaks - I no one else
+>  > complains it will stay.
+> 
+>  Let's wait and see how many more people are affected.
 
-http://www.linux-mtd.infradead.org/source.html has a reference to
-anoncvs.
+duh.  The next bunny is me.
 
-I'd really prefer not to see sharp.c revived -- it's supposed to be
-dying, in favour of the CFI chipset drivers and jedec_probe code.
-Can we try to work out what's wrong with those, instead?
+/usr/local/gcc-3.2.1/lib/gcc-lib/i686-pc-linux-gnu/3.2.1/tradcpp0: output filename specified twice
 
--- 
-dwmw2
+That's a vanilla gcc-3.2.1
 
-
+Is there any downside to using -include?

@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbVKJKbp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbVKJKjV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbVKJKbp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 05:31:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbVKJKbp
+	id S1750735AbVKJKjV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 05:39:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbVKJKjV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 05:31:45 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:34177 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1750747AbVKJKbo (ORCPT
+	Thu, 10 Nov 2005 05:39:21 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:62385 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750735AbVKJKjU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 05:31:44 -0500
-Date: Thu, 10 Nov 2005 18:30:32 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Peter Zijlstra <peter@programming.kicks-ass.net>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, riel@redhat.com,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 01/16] mm: delayed page activation
-Message-ID: <20051110103032.GA10347@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Peter Zijlstra <peter@programming.kicks-ass.net>,
-	Nick Piggin <nickpiggin@yahoo.com.au>, riel@redhat.com,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <20051109134938.757187000@localhost.localdomain> <20051109141432.393114000@localhost.localdomain> <1131614264.14052.25.camel@localhost.localdomain>
+	Thu, 10 Nov 2005 05:39:20 -0500
+Date: Thu, 10 Nov 2005 11:38:23 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Todd Poynor <tpoynor@mvista.com>, rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>
+Subject: Re: latest mtd changes broke collie
+Message-ID: <20051110103823.GB2401@elf.ucw.cz>
+References: <20051109221712.GA28385@elf.ucw.cz> <4372B7A8.5060904@mvista.com> <20051110095050.GC2021@elf.ucw.cz> <1131616948.27347.174.camel@baythorne.infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1131614264.14052.25.camel@localhost.localdomain>
+In-Reply-To: <1131616948.27347.174.camel@baythorne.infradead.org>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 10, 2005 at 10:17:44AM +0100, Peter Zijlstra wrote:
-> I'm working on a clockpro implementation that essentialy keeps all
-> resident pages on 1 clock. In this case readahead pages will also not
-> fragment over the active/inactive lists but stay in order. Would that
-> also satisfy your requirements?
+Hi!
 
-Thanks, it provides the first guarantee,
-and the second one needs an extra bit anyway:
-> > - keeps the adjecency of pages in lru;
-> > - lifts the page reference counter max from 1 to 3.
+> > Is there easy way to get at linux-mtd CVS? Attached is my current
+> > version of sharp.c; map_read32/map_write32 was deleted thanks to
+> > Richard Purdue.
+> 
+> http://www.linux-mtd.infradead.org/source.html has a reference to
+> anoncvs.
+> 
+> I'd really prefer not to see sharp.c revived -- it's supposed to be
+> dying, in favour of the CFI chipset drivers and jedec_probe code.
+> Can we try to work out what's wrong with those, instead?
 
-> Code can be found at:
->   http://programming.kicks-ass.net/kernel-patches/clockpro-2/
+This is quite hard to debug -- I do not even have serial console for
+collie, and I know nothing about mtd.
 
-Sorry, I failed connect to it:
-ping: unknown host programming.kicks-ass.net
+Another issue is that collie is in pretty poor state -- it never
+worked in mainline. Getting it working in mainline, even with
+deprecated sharp.c driver, would bea big plus as I should get
+users/testers at that point.
 
-Regards,
-Wu
+That said... I can certainly do few experiments. Switching map_name
+from "sharp" to "cfi" should be theoretically enough to get new code
+up?
+								Pavel
+-- 
+Thanks, Sharp!

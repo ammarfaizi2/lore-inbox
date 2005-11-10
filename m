@@ -1,124 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbVKJIOc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbVKJIP6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751206AbVKJIOc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 03:14:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbVKJIOc
+	id S1751191AbVKJIP6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 03:15:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbVKJIP6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 03:14:32 -0500
-Received: from fed1rmmtao03.cox.net ([68.230.241.36]:35572 "EHLO
-	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
-	id S1751180AbVKJIOb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 03:14:31 -0500
-From: Junio C Hamano <junkio@cox.net>
-To: git@vger.kernel.org
-Subject: [ANNOUNCE] GIT 0.99.9g
-cc: linux-kernel@vger.kernel.org
-Date: Thu, 10 Nov 2005 00:14:29 -0800
-Message-ID: <7vmzkc2a3e.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 10 Nov 2005 03:15:58 -0500
+Received: from smtp06.auna.com ([62.81.186.16]:921 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id S1751191AbVKJIP5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 03:15:57 -0500
+Date: Thu, 10 Nov 2005 09:15:17 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Vadim Lobanov <vlobanov@speakeasy.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: typedefs and structs
+Message-ID: <20051110091517.2e9db750@werewolf.auna.net>
+In-Reply-To: <Pine.LNX.4.58.0511091347570.31338@shell3.speakeasy.net>
+References: <20051107204136.GG19593@austin.ibm.com>
+	<1131412273.14381.142.camel@localhost.localdomain>
+	<20051108232327.GA19593@austin.ibm.com>
+	<B68D1F72-F433-4E94-B755-98808482809D@mac.com>
+	<20051109003048.GK19593@austin.ibm.com>
+	<m27jbihd1b.fsf@Douglas-McNaughts-Powerbook.local>
+	<20051109004808.GM19593@austin.ibm.com>
+	<19255C96-8B64-4615-A3A7-9E5A850DE398@mac.com>
+	<20051109111640.757f399a@werewolf.auna.net>
+	<Pine.LNX.4.58.0511090816300.4260@shell2.speakeasy.net>
+	<20051109192028.GP19593@austin.ibm.com>
+	<Pine.LNX.4.61.0511091459440.12760@chaos.analogic.com>
+	<Pine.LNX.4.58.0511091347570.31338@shell3.speakeasy.net>
+X-Mailer: Sylpheed-Claws 1.9.100cvs4 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="Sig_2LwNOs9SKxHNzVm=EZskKjt";
+ protocol="application/pgp-signature"; micalg=PGP-SHA1
+X-Auth-Info: Auth:LOGIN IP:[83.138.218.199] Login:jamagallon@able.es Fecha:Thu, 10 Nov 2005 09:15:56 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-GIT 0.99.9g is found at usual places.  There are a couple of
-important changes, as the slow march towards 1.0 continues.
+--Sig_2LwNOs9SKxHNzVm=EZskKjt
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
- - The RPM package has been split into a few packages by Jim
-   Radford.  Unfortunately I am not equipped sufficiently to
-   test the resulting RPMs, so please feed me updates and
-   corrections as needed.  I think archimport part needs to be
-   split out just like its svn/cvs cousins, and perhaps
-   documentation into another separate package.
+On Wed, 9 Nov 2005 14:12:38 -0800 (PST), Vadim Lobanov <vlobanov@speakeasy.=
+net> wrote:
 
- - Fredrik Kuivinen's merge-recursive strategy is now the
-   default merge strategy for two-head merge that happens after
-   git-pull.  I do not expect this to cause major disruptions,
-   but if this breaks things there is a workaround to override
-   this [*1*].
+> On Wed, 9 Nov 2005, linux-os \(Dick Johnson\) wrote:
+>=20
+> >
+> > On Wed, 9 Nov 2005, linas wrote:
+> >
+> > > On Wed, Nov 09, 2005 at 08:22:15AM -0800, Vadim Lobanov was heard to =
+remark:
+> > >> On Wed, 9 Nov 2005, J.A. Magallon wrote:
+> > >>
+> > >>> void do_some_stuff(T& arg1,T&  arg2)
+> > >>
+> > >> A diligent C programmer would write this as follows:
+> > >> 	void do_some_stuff (struct T * a, struct T * b);
+> > >> So I don't see C++ winning at all here.
+> > >
+> > > I guess the real point that I'd wanted to make, and seems
+> > > to have gotten lost, was that by avoiding using pointers,
+> > > you end up designing code in a very different way, and you
+> > > can find out that often/usually, you don't need structs
+> > > filled with a zoo of pointers.
+> > >
+> >
+> > But you can't avoid pointers unless you make your entire
+> > program have global scope. That may be great for performance,
+> > but a killer if for have any bugs.
+>=20
+> Just to extract some useful technical knowledge from the current ongoing
+> "flamewar"...
+> I'm not entirely sure if the above statement regarding performance is
+> correct. Some enlightenment would be appreciated.
+>=20
+> Suppose you have the following code:
+> 	int myvar;
+> 	void foo (void) {
+> 		printf("%d\n", myvar);
+> 		bar();
+> 		printf("%d\n", myvar);
+> 	}
+> If bar is declared in _another_ file as
+> 	void bar (void);
+> then I believe the compiler has to reread the global 'myvar' from memory
+> for the second printf().
+>=20
+> However, if the code is as follows:
+> 	void foo (void) {
+> 		int myvar =3D 0;
+> 		printf("%d\n", myvar);
+> 		bar(&myvar);
+> 		printf("%d\n", myvar);
+> 	}
+> If bar is declared in _another_ file as
+> 	void bar (const int * var);
+> then I think the compiler can validly cache the value of 'myvar' for the
+> second printf without re-reading it. Correct/incorrect?
+>=20
 
-Although I did not hear anybody jumping up-and-down to merge
-svnimport updates from Yaacov Akiba Slama, I did not hear it
-broke things either, so it graduated to the master branch and
-included in this release.  It obviously improved things for
-Yaacov, and I am hoping this would not cause disruptions for
-people's existing setup.
+Nope. You can't trust bar() not doing something like
 
-Also included are unexciting bits of fixes here and there.
+bar(const int* local_var)
+{
+   ... use local_var as ro...
+   extern int myvar;
+   myvar =3D 7;
+}
 
-On the "proposed updates" front, things finally seem to be
-calming down.
+For the compiler to do that, you must tag bar() with attribute(pure).
 
- - One important newcomer is git-pack-redundant.  It is still in
-   "pu" not because I doubt what it does is useful, but simply
-   because I have not had a chance to study how it does its
-   thing.  I expect to fully merge it into "master" before 1.0
-   happens.
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like se=
+x:
+werewolf!able!es                         \         It's better when it's fr=
+ee
+Mandriva Linux release 2006.1 (Cooker) for i586
+Linux 2.6.14-jam1 (gcc 4.0.2 (4.0.2-1mdk for Mandriva Linux release 2006.1))
 
- - Among my own toys in the "pu" branch:
+--Sig_2LwNOs9SKxHNzVm=EZskKjt
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Disposition: attachment; filename=signature.asc
 
-   - Determination of merge base for Octopus merge was quite
-     pessimistic, and a proposed fix is in there; since I will
-     be regularly and frequently doing Octopus merges, I'll soon
-     know if this change breaks things; otherwise it will
-     graduate to "master" shortly.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-   - merge-base computation done by show-branch was a bit loose
-     compared to the real merge-base, as pointed out by Linus on
-     the list, although it does not seem to matter too much in
-     practice.  Also I plan to look into merge-base to see if I
-     can fix the horizon effect cheaply but that work has not
-     started yet (it is triggered by fairly pathological case).
+iD8DBQFDcwGVRlIHNEGnKMMRAvFXAJ40SxVt/WdK8uom3j5X6Hw+rXi6RwCdF9+w
+5Zlqc9Cg9m1xq39cGapw2V4=
+=zor0
+-----END PGP SIGNATURE-----
 
-   - I got tired of not being able to get the committer date
-     (except the raw format which is unreadable) out of git-log,
-     and added --pretty=fuller format.  This should not break
-     people's existing setup, so I expect it to move to "master"
-     soon, maybe with a name change if somebody can suggest a
-     better name for it.
-
-   - Change merge-one-file to handle the case where two sides
-     add the same path differently.  Instead of punting, try to
-     do two-file merge from both sides.  This _might_ turn out
-     to be useful, but I do not know yet, so it won't graduate
-     to "master" unless somebody convinces me (and the
-     community) that it is useful in some use-case scenario.
-
-   - Add git-lost+found.  Currently the implementation stores
-     found refs under .git/lost+found/{commit,other}
-     directories, but writing out their object names to the
-     standard output and let the users decide what to do with
-     them was suggested on the list by Daniel, which makes sense
-     as well.  There are pros and cons so until we know if it is
-     useful and if so in what form, it will not come out of "pu"
-     branch.
-
-   - I do not consider either git-shallow-pack and git-changes
-     "master" material.  The former is a hack to create
-     deliberately broken repository.  The latter is supporting a
-     wrong workflow, as Linus described the other day.  You can
-     temporarily fetch what you want to compare into local
-     repository and run git-log or git-whatchanged normally.
-
-Oh, and we will not be moving things out of /usr/bin/ during 1.0
-timeframe.
-
-
-[Footnote]
-
-*1* If for whatever reason you would prefer to keep using the
-'resolve' strategy as before when you run 'git-pull', you can
-either do 'git-pull -s resolve <remote> <refspec>...' on the
-command line, or add the following in your .git/config file:
-
-        [pull]
-                twohead = resolve
-
-On the other hand, if you like to try resolve and then
-recursive, you can have this instead (the order does matter, the
-first one is tried first):
-
-        [pull]
-                twohead = resolve
-                twohead = recursive
-
+--Sig_2LwNOs9SKxHNzVm=EZskKjt--

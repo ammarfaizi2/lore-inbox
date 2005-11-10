@@ -1,66 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbVKJUCK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbVKJUHz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751221AbVKJUCK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 15:02:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbVKJUCJ
+	id S1750787AbVKJUHz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 15:07:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbVKJUHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 15:02:09 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:6052 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751221AbVKJUCI (ORCPT
+	Thu, 10 Nov 2005 15:07:55 -0500
+Received: from main.gmane.org ([80.91.229.2]:37324 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750787AbVKJUHy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 15:02:08 -0500
-Date: Thu, 10 Nov 2005 21:02:05 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Dinakar Guniguntala <dino@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       john stultz <johnstul@us.ibm.com>
-Subject: Re: IO-APIC problem with 2.6.14-rt9
-Message-ID: <20051110200205.GA4696@elte.hu>
-References: <20051110200226.GA18780@in.ibm.com>
+	Thu, 10 Nov 2005 15:07:54 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Dick <dm@chello.nl>
+Subject: Re: SIGALRM ignored
+Date: Thu, 10 Nov 2005 20:04:56 +0000 (UTC)
+Message-ID: <loom.20051110T210222-252@post.gmane.org>
+References: <loom.20051107T183059-826@post.gmane.org> <20051107160332.0efdf310.pj@sgi.com> <loom.20051108T124813-159@post.gmane.org> <87hdamk56f.fsf@ceramic.fifi.org> <loom.20051109T101742-953@post.gmane.org> <87r79pboxx.fsf@ceramic.fifi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051110200226.GA18780@in.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 62.163.56.10 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051012 Firefox/1.0.7)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Philippe Troin <phil <at> fifi.org> writes:
+> Look at the display manager.  I know that wdm used to not clean up its
+> signals before starting a user session.
 
-* Dinakar Guniguntala <dino@in.ibm.com> wrote:
+I've found the error, the signal was blocked in sshd and I was restarting sshd
+from a ssh session, I also disabled some pam modules (which I suspect the block
+came from). Restarting sshd from a console did the trick.
 
-> Hi,
-> 
-> I get this on boot with 2.6.14-rt9
-> 
-> Intel machine check architecture supported.
-> Intel machine check reporting enabled on CPU#3.
-> CPU3: Intel P4/Xeon Extended MCE MSRs (12) available
-> CPU3: Intel(R) Xeon(TM) MP CPU 2.50GHz stepping 05
-> Total of 4 processors activated (11165.69 BogoMIPS).
-> ENABLING IO-APIC IRQs
-> ..TIMER: vector=0x31 pin1=2 pin2=-1
-> ..MP-BIOS bug: 8254 timer not connected to IO-APIC
-> ...trying to set up timer (IRQ0) through the 8259A ...  failed.
-> ...trying to set up timer as Virtual Wire IRQ... failed.
-> ...trying to set up timer as ExtINT IRQ... failed :(.
-> Kernel panic - not syncing: IO-APIC + timer doesn't work!  Boot with apic=debug and send a report.  Then try booting with the
-
-does it help if you edit include/asm-i386/timex.h and change this line:
-
-//#define ARCH_HAS_READ_CURRENT_TIMER  1
-
-to:
-
-#define ARCH_HAS_READ_CURRENT_TIMER  1
-
-?
-
-	Ingo
+I don't know how to thank you ;-)
 

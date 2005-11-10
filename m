@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbVKJSEY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbVKJSKT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751193AbVKJSEY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 13:04:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbVKJSEY
+	id S932080AbVKJSKT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 13:10:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbVKJSKS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 13:04:24 -0500
-Received: from mail1.kontent.de ([81.88.34.36]:10943 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S1751193AbVKJSEX (ORCPT
+	Thu, 10 Nov 2005 13:10:18 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:1415 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S932080AbVKJSKR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 13:04:23 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: [PATCH 8/8] Inline 3 functions
-Date: Thu, 10 Nov 2005 19:04:22 +0100
-User-Agent: KMail/1.8
-Cc: Matthew Dobson <colpatch@us.ibm.com>,
-       Pekka J Enberg <penberg@cs.helsinki.fi>, kernel-janitors@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-References: <436FF51D.8080509@us.ibm.com> <43737D94.2060408@us.ibm.com> <20051110173822.GD5376@stusta.de>
-In-Reply-To: <20051110173822.GD5376@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 10 Nov 2005 13:10:17 -0500
+Subject: Re: latest mtd changes broke collie
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: David Vrabel <dvrabel@cantab.net>, linux-mtd@lists.infradead.org,
+       David Woodhouse <dwmw2@infradead.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1131644476.24595.18.camel@localhost.localdomain>
+References: <20051109221712.GA28385@elf.ucw.cz>
+	 <4372B7A8.5060904@mvista.com> <20051110095050.GC2021@elf.ucw.cz>
+	 <1131616948.27347.174.camel@baythorne.infradead.org>
+	 <20051110103823.GB2401@elf.ucw.cz>
+	 <1131619903.27347.177.camel@baythorne.infradead.org>
+	 <20051110105954.GE2401@elf.ucw.cz>
+	 <1131621090.27347.184.camel@baythorne.infradead.org>
+	 <20051110120708.GG2401@elf.ucw.cz> <437344E0.9040502@cantab.net>
+	 <20051110130930.GJ2401@elf.ucw.cz>
+	 <1131644476.24595.18.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 10 Nov 2005 18:09:57 +0000
+Message-Id: <1131646197.23410.27.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200511101904.23114.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 10. November 2005 18:38 schrieb Adrian Bunk:
-> > So are you suggesting that we don't mark these functions 'inline', or are
-> > you just pointing out that we'll need to drop the 'inline' if there is ever
-> > another caller?
+On Thu, 2005-11-10 at 17:41 +0000, Richard Purdie wrote:
+> On Thu, 2005-11-10 at 14:09 +0100, Pavel Machek wrote:
+> > > Shouldn't you get hold of the datasheet for the flash chips and fill in
+> > > this information correctly?
+> > 
+> > I already have working sharp.c driver... And I do not even know
+> > manufacturer of the chip, just its ids.
 > 
-> I'd suggest to not mark them 'inline'.
+> The chip number is LF28F640BX which is a 64MBit device so perhaps Intel
+> StrataFlash 28F640? That seems to be a fairly common chip...
 
-It seems you have found one more use for sparse. How about a tag
-like __single_inline that will cause a warning if a function having it
-is called from more than one place?
+Some further research suggests it should perhaps be LH28F640BX which is
+a 48 pin Sharp flash chip (much more likely). The nearest datasheet I
+can find is:
 
-	Regards
-		Oliver
+http://www.datasheetarchive.com/semiconductors/download.php?Datasheet=1120647
+
+Richard
+

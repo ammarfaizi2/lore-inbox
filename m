@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750864AbVKJNar@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbVKJNbF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750864AbVKJNar (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 08:30:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750865AbVKJNaq
+	id S1750863AbVKJNbF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 08:31:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbVKJNbF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 08:30:46 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:55261 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750863AbVKJNaq (ORCPT
+	Thu, 10 Nov 2005 08:31:05 -0500
+Received: from gold.veritas.com ([143.127.12.110]:11428 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1750863AbVKJNbD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 08:30:46 -0500
-Date: Thu, 10 Nov 2005 14:28:57 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel@vger.kernel.org, len.brown@intel.com, jgarzik@pobox.com,
-       tony.luck@intel.com, bcollins@debian.org, scjody@modernduck.com,
-       dwmw2@infradead.org, rolandd@cisco.com, davej@codemonkey.org.uk,
-       axboe@suse.de, shaggy@austin.ibm.com, sfrench@us.ibm.com
-Subject: Re: merge status
-Message-ID: <20051110132857.GC9584@elf.ucw.cz>
-References: <20051109133558.513facef.akpm@osdl.org> <1131573041.8541.4.camel@mulgrave> <Pine.LNX.4.64.0511091358560.4627@g5.osdl.org> <1131575124.8541.9.camel@mulgrave> <20051109150141.0bcbf9e3.akpm@osdl.org> <Pine.LNX.4.64.0511091547160.4627@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0511091547160.4627@g5.osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Thu, 10 Nov 2005 08:31:03 -0500
+Date: Thu, 10 Nov 2005 13:29:49 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: mingo@elte.hu, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH 01/15] mm: poison struct page for ptlock
+In-Reply-To: <20051110045144.40751a42.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0511101323540.7464@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com>
+ <Pine.LNX.4.61.0511100142160.5814@goblin.wat.veritas.com>
+ <20051109181022.71c347d4.akpm@osdl.org> <Pine.LNX.4.61.0511100215150.6138@goblin.wat.veritas.com>
+ <20051109185645.39329151.akpm@osdl.org> <20051110120624.GB32672@elte.hu>
+ <Pine.LNX.4.61.0511101233530.6896@goblin.wat.veritas.com>
+ <20051110045144.40751a42.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 10 Nov 2005 13:31:02.0877 (UTC) FILETIME=[FEC400D0:01C5E5FA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 10 Nov 2005, Andrew Morton wrote:
+> Hugh Dickins <hugh@veritas.com> wrote:
+> > On Thu, 10 Nov 2005, Ingo Molnar wrote:
+> > > 
+> > > yuck. What is the real problem btw? AFAICS there's enough space for a 
+> > > 2-word spinlock in struct page for pagetables.
+> > 
+> > Yes.  There is no real problem.  But my patch offends good taste.
+> 
+> Isn't it going to overrun page.lru with CONFIG_DEBUG_SPINLOCK?
 
-> Ie it should be perfectly possible (and easy) to track both my tree and 
-> some other tree (sound, scsi, network device development) in two branches, 
-> and the person doing that tracking should have basically trivial merging.
+No.  There is just one case where it would,
+so in that case split ptlock is disabled by mm/Kconfig's
+# PA-RISC 7xxx's debug spinlock_t is too large for 32-bit struct page.
 
-Unfortunately, I do not know how to track -mm this way. I do not think
-tracking both linus and -mm tree using git is possible.
+	default "4096" if PARISC && DEBUG_SPINLOCK && !PA20
 
+Of course, someone may extend spinlock debugging info tomorrow; but
+when they do, presumably they'll try it out, and hit the BUILD_BUG_ON.
+They'll then probably want to extend the suppression in mm/Kconfig.
 
-								Pavel
--- 
-Thanks, Sharp!
+Hugh

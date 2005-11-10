@@ -1,79 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbVKJVm7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbVKJVpY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932151AbVKJVm7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 16:42:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbVKJVm7
+	id S932172AbVKJVpY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 16:45:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbVKJVpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 16:42:59 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:22437 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932151AbVKJVm6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 16:42:58 -0500
-Subject: Re: IO-APIC problem with 2.6.14-rt9
-From: john stultz <johnstul@us.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: dino@in.ibm.com, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>
-In-Reply-To: <20051110210458.GA6097@elte.hu>
-References: <20051110200226.GA18780@in.ibm.com>
-	 <20051110200205.GA4696@elte.hu> <20051110203000.GB16301@in.ibm.com>
-	 <1131654575.27168.685.camel@cog.beaverton.ibm.com>
-	 <20051110210458.GA6097@elte.hu>
-Content-Type: text/plain
-Date: Thu, 10 Nov 2005 13:42:54 -0800
-Message-Id: <1131658975.27168.703.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Nov 2005 16:45:24 -0500
+Received: from smtp5-g19.free.fr ([212.27.42.35]:16257 "EHLO smtp5-g19.free.fr")
+	by vger.kernel.org with ESMTP id S932172AbVKJVpX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 16:45:23 -0500
+Message-ID: <4373BF82.40003@free.fr>
+Date: Thu, 10 Nov 2005 22:45:38 +0100
+From: matthieu castet <castet.matthieu@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: fr-fr, en, en-us
+MIME-Version: 1.0
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix leakes in request_firmware_nowait
+Content-Type: multipart/mixed;
+ boundary="------------030204050608060507050104"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-11-10 at 22:04 +0100, Ingo Molnar wrote:
-> * john stultz <johnstul@us.ibm.com> wrote:
-> 
-> > > > //#define ARCH_HAS_READ_CURRENT_TIMER  1
-> > > > 
-> > > > to:
-> > > > 
-> > > > #define ARCH_HAS_READ_CURRENT_TIMER  1
-> > > > 
-> > > > ?
-> > > 
-> > > It works !!  Thanks Ingo for the immediate response
-> > 
-> > Hrm. Could you post the value for BogoMIPS that you're getting now?
-> > 
-> > My patches touch the __delay() code, since using the TSC based delay 
-> > has just as many, if not more, problems as the loop based delay. So I 
-> > want to be careful that my changes are not further causing problems.
-> > 
-> > Ingo, did you commented out ARCH_HAS_READ_CURRENT_TIMER because of 
-> > problems with the new calibration code?
-> 
-> yes. traces show that the new calibration code results in a bogomips 
-> value on Athlon64 CPUs that halve the timeout. I.e. udelay(100) now 
-> takes 50 usecs (!). The calibration code seems to assume the number of 
-> cycles == number of loops in __delay() - that is not valid.
+This is a multi-part message in MIME format.
+--------------030204050608060507050104
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Yea, that makes sense, because the READ_CURRENT_TIMER calibration is all
-TSC based and with my code we use the loop based delay (since the TSC
-based one can have a number of problems). So that doesn't mesh well when
-the loop/cycle values are not equivalent.
-
-That still leaves open the question why Dinakar is seeing issues w/ the
-loop based calibration, but I've got some similar hardware in my lab, so
-I can probably work that out.
-
-I'll see if I can't avoid touching the delay code. Its such a sketchy
-calibration sensitive code path that I'd really like to see it killed,
-but maybe there's something simple that can be done.
-
-Grumble. :( I was hoping to submit my tod code to Andrew tomorrow, but
-this might block that. 
-
-thanks
--john
+Hi,
 
 
+request_firmware_nowait wasn't checking return error and forgot to free 
+memory in some case.
 
+This patch should fix it.
 
+Signed-off-by: Matthieu CASTET <castet.matthieu@free.fr>
+
+--------------030204050608060507050104
+Content-Type: text/plain;
+ name="firmware_nowait_leak"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="firmware_nowait_leak"
+
+SW5kZXg6IGxpbnV4LTIuNi4xNC9kcml2ZXJzL2Jhc2UvZmlybXdhcmVfY2xhc3MuYwo9PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09Ci0tLSBsaW51eC0yLjYuMTQub3JpZy9kcml2ZXJzL2Jhc2UvZmlybXdhcmVf
+Y2xhc3MuYwkyMDA1LTEwLTI4IDAyOjAyOjA4LjAwMDAwMDAwMCArMDIwMAorKysgbGludXgt
+Mi42LjE0L2RyaXZlcnMvYmFzZS9maXJtd2FyZV9jbGFzcy5jCTIwMDUtMTEtMTAgMjI6NDI6
+NTYuMDAwMDAwMDAwICswMTAwCkBAIC01MTEsMTMgKzUxMSwxOCBAQAogewogCXN0cnVjdCBm
+aXJtd2FyZV93b3JrICpmd193b3JrID0gYXJnOwogCWNvbnN0IHN0cnVjdCBmaXJtd2FyZSAq
+Znc7CisJaW50IHJldDsKIAlpZiAoIWFyZykgewogCQlXQVJOX09OKDEpOwogCQlyZXR1cm4g
+MDsKIAl9CiAJZGFlbW9uaXplKCIlcy8lcyIsICJmaXJtd2FyZSIsIGZ3X3dvcmstPm5hbWUp
+OwotCV9yZXF1ZXN0X2Zpcm13YXJlKCZmdywgZndfd29yay0+bmFtZSwgZndfd29yay0+ZGV2
+aWNlLAorCXJldCA9IF9yZXF1ZXN0X2Zpcm13YXJlKCZmdywgZndfd29yay0+bmFtZSwgZndf
+d29yay0+ZGV2aWNlLAogCQlmd193b3JrLT5ob3RwbHVnKTsKKwlpZiAocmV0IDwgMCkgewor
+CQlmd193b3JrLT5jb250KE5VTEwsIGZ3X3dvcmstPmNvbnRleHQpOworCQlyZXR1cm4gcmV0
+OworCX0KIAlmd193b3JrLT5jb250KGZ3LCBmd193b3JrLT5jb250ZXh0KTsKIAlyZWxlYXNl
+X2Zpcm13YXJlKGZ3KTsKIAltb2R1bGVfcHV0KGZ3X3dvcmstPm1vZHVsZSk7CkBAIC01NzMs
+NiArNTc4LDggQEAKIAogCWlmIChyZXQgPCAwKSB7CiAJCWZ3X3dvcmstPmNvbnQoTlVMTCwg
+Zndfd29yay0+Y29udGV4dCk7CisJCW1vZHVsZV9wdXQoZndfd29yay0+bW9kdWxlKTsKKwkJ
+a2ZyZWUoZndfd29yayk7CiAJCXJldHVybiByZXQ7CiAJfQogCXJldHVybiAwOwo=
+--------------030204050608060507050104--

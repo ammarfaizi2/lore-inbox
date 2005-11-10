@@ -1,80 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751700AbVKJDWL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751697AbVKJDbo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751700AbVKJDWL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 22:22:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751732AbVKJDWL
+	id S1751697AbVKJDbo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 22:31:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751692AbVKJDbo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 22:22:11 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:18613 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751700AbVKJDWJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 22:22:09 -0500
-Date: Wed, 9 Nov 2005 19:18:02 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: saw@sawoct.com, xemul@sw.ru, linux-kernel@vger.kernel.org, den@sw.ru,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [PATCH]: buddy allocator: ext3 failed to alloc with
- __GFP_NOFAIL
-Message-Id: <20051109191802.02612594.akpm@osdl.org>
-In-Reply-To: <43725227.5040605@sw.ru>
-References: <4370ACB2.3000103@sw.ru>
-	<43725227.5040605@sw.ru>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Wed, 9 Nov 2005 22:31:44 -0500
+Received: from xproxy.gmail.com ([66.249.82.204]:47309 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751164AbVKJDbo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 22:31:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=VEdFt0kJEAO+D4y2eZQQoEAaFcLy5S5Mf0Uwfd8recoy2GKrYdjLISSSC4fBYcupxZTg35KEsgdTAtdQWs2Nypop8BWZMYzTMheBwKaWibX93kLnJcbLnZS8sRFKDJhOKrwsJQqhdPWI3PhuE7qlSM2KF4LegjJB8EMauW4YKfg=
+Message-ID: <1e62d1370511091931h7128a4bblf58773c456ee1517@mail.gmail.com>
+Date: Thu, 10 Nov 2005 08:31:41 +0500
+From: Fawad Lateef <fawadlateef@gmail.com>
+To: John Smith <multisyncfe991@hotmail.com>
+Subject: Re: Does Printk() block another CPU in dual cpu platforms?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <BAY108-DAV96479E4CE0434E15A5ABE93670@phx.gbl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <BAY108-DAV14071EF16A4482FB4B691593D10@phx.gbl>
+	 <20050714051653.GP8907@alpha.home.local>
+	 <BAY108-DAV7F3CC1BA8D84C5323469193D10@phx.gbl>
+	 <1121358399.4685.9.camel@localhost>
+	 <BAY108-DAV96479E4CE0434E15A5ABE93670@phx.gbl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev <dev@sw.ru> wrote:
+On 11/9/05, John Smith <multisyncfe991@hotmail.com> wrote:
 >
-> So kswapd (which has PF_MEMALLOC flag) can fail to allocate memory even 
->  when it allocates it with __GFP_NOFAIL flag.
-> 
->  --- ./mm/page_alloc.c.alpg	2005-11-09 21:42:50.000000000 +0300
->  +++ ./mm/page_alloc.c	2005-11-09 21:44:22.000000000 +0300
->  @@ -870,6 +870,7 @@ zone_reclaim_retry:
->   	if (((p->flags & PF_MEMALLOC) || unlikely(test_thread_flag(TIF_MEMDIE)))
->   			&& !in_interrupt()) {
->   		if (!(gfp_mask & __GFP_NOMEMALLOC)) {
->  +nofail_alloc:
->   			/* go through the zonelist yet again, ignoring mins */
->   			for (i = 0; (z = zones[i]) != NULL; i++) {
->   				if (!cpuset_zone_allowed(z, gfp_mask))
->  @@ -878,6 +879,10 @@ zone_reclaim_retry:
->   				if (page)
->   					goto got_pg;
->   			}
->  +			if (gfp_mask & __GFP_NOFAIL) {
->  +				blk_congestion_wait(WRITE, HZ/50);
->  +				goto nofail_alloc;
->  +			}
->   		}
->   		goto nopage;
->   	}
+> I just have a question about the usage of printk in multi-processor
+> platforms. If the program on two CPUs both try to call printk to output
+> something, will the program running on one CPUs get blocked (or just
+> spinning there) till the other is done with printk()?
+>
 
-The problem here is that we'll loop if TIF_MEMDIE is set.
+I think yes, but for a very less time as printk holds the spin_lock to
+logbuf_lock which will make to wait the printk on other CPU, and then
+printk just copies the content to log_buffer and then call
+release_console_sem which actually send the data to console later !
 
-But given that the caller has specified __GFP_NOFAIL, I think that's
-correct behaviour - __GFP_NOFAIL means "I am lame, and will oops if you
-cannot allocate memory".   So we just ignore TIF_MEMDIE..
-
-That being said, why do we need another loop here?  Would it not
-be sufficient to do:
-
---- devel/mm/page_alloc.c~a	2005-11-09 19:15:03.000000000 -0800
-+++ devel-akpm/mm/page_alloc.c	2005-11-09 19:15:32.000000000 -0800
-@@ -907,7 +907,8 @@ zone_reclaim_retry:
- 					goto got_pg;
- 			}
- 		}
--		goto nopage;
-+		if (!(gfp_mask & __GFP_NOFAIL))
-+			goto nopage;
- 	}
- 
- 	/* Atomic allocations - we can't balance anything */
-_
-
-Answer: because that way we'll go recursive if PF_MEMALLOC is set.  Ho-hum.
+--
+Fawad Lateef

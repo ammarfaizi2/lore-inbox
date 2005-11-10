@@ -1,65 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751035AbVKJO76@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbVKJPDc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751035AbVKJO76 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 09:59:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751040AbVKJO76
+	id S1750710AbVKJPDc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 10:03:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbVKJPDc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 09:59:58 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:2215 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751029AbVKJO75 (ORCPT
+	Thu, 10 Nov 2005 10:03:32 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:11191 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1750710AbVKJPDb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 09:59:57 -0500
-Date: Thu, 10 Nov 2005 16:00:10 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [PATCH 01/15] mm: poison struct page for ptlock
-Message-ID: <20051110150010.GA30859@elte.hu>
-References: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com> <Pine.LNX.4.61.0511100142160.5814@goblin.wat.veritas.com> <20051109181022.71c347d4.akpm@osdl.org> <Pine.LNX.4.61.0511100215150.6138@goblin.wat.veritas.com> <20051109185645.39329151.akpm@osdl.org> <20051110120624.GB32672@elte.hu> <Pine.LNX.4.61.0511101233530.6896@goblin.wat.veritas.com> <20051110045144.40751a42.akpm@osdl.org> <Pine.LNX.4.61.0511101323540.7464@goblin.wat.veritas.com>
+	Thu, 10 Nov 2005 10:03:31 -0500
+Subject: Re: [patch] Re: 2.6.14-rc5-mm1 - ide-cs broken!
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Mark Lord <lkml@rtr.ca>
+Cc: Greg KH <greg@kroah.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org, damir.perisa@solnet.ch, akpm@osdl.org,
+       Kay Sievers <kay.sievers@vrfy.org>
+In-Reply-To: <43735FC8.2090101@rtr.ca>
+References: <20051103220305.77620d8f.akpm@osdl.org>
+	 <20051104071932.GA6362@kroah.com>
+	 <1131117293.26925.46.camel@localhost.localdomain>
+	 <20051104163755.GB13420@kroah.com>
+	 <1131531428.8506.24.camel@localhost.localdomain>  <43735FC8.2090101@rtr.ca>
+Content-Type: text/plain
+Date: Thu, 10 Nov 2005 15:03:01 +0000
+Message-Id: <1131634982.8499.63.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0511101323540.7464@goblin.wat.veritas.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=disabled SpamAssassin version=3.0.4
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Hugh Dickins <hugh@veritas.com> wrote:
-
-> On Thu, 10 Nov 2005, Andrew Morton wrote:
-> > Hugh Dickins <hugh@veritas.com> wrote:
-> > > On Thu, 10 Nov 2005, Ingo Molnar wrote:
-> > > > 
-> > > > yuck. What is the real problem btw? AFAICS there's enough space for a 
-> > > > 2-word spinlock in struct page for pagetables.
-> > > 
-> > > Yes.  There is no real problem.  But my patch offends good taste.
-> > 
-> > Isn't it going to overrun page.lru with CONFIG_DEBUG_SPINLOCK?
+On Thu, 2005-11-10 at 09:57 -0500, Mark Lord wrote: 
+> Richard Purdie wrote:
+> >
+> > - *	FIXME: This treatment is probably applicable for *all* PCMCIA (PC CARD)
+> > - *	devices, so in linux 2.3.x we should change this to just treat all
+> > - *	PCMCIA  drives this way, and get rid of the model-name tests below
+> > - *	(too big of an interface change for 2.4.x).
+> > - *	At that time, we might also consider parameterizing the timeouts and
+> > - *	retries, since these are MUCH faster than mechanical drives. -M.Lord
+> > - */
 > 
-> No.  There is just one case where it would,
-> so in that case split ptlock is disabled by mm/Kconfig's
-> # PA-RISC 7xxx's debug spinlock_t is too large for 32-bit struct page.
+> I believe the latter half of those comments (timeouts) should
+> be left in the IDE layer (somewhere), as a note to current/future
+> maintainers about something that does need fixing eventually.
 > 
-> 	default "4096" if PARISC && DEBUG_SPINLOCK && !PA20
+> Something like this:
 > 
-> Of course, someone may extend spinlock debugging info tomorrow; but 
-> when they do, presumably they'll try it out, and hit the BUILD_BUG_ON. 
-> They'll then probably want to extend the suppression in mm/Kconfig.
+> /*
+>   * FIXME:  Someday we ought to parameterize IDE timeouts to use
+>   * much smaller values when dealing with flash memory cards.
+>   * For example, these devices never require more than a second
+>   * (much less, actually) for "spin-up", compared with a limit
+>   * of 31 seconds for mechanical ATA drives.  This would speed up
+>   * error recovery for these popular devices, especially in embedded work
+>   */
 
-why not do the union thing so that struct page grows automatically as 
-new fields are added? It is quite bad design to introduce a hard limit 
-like that. The only sizing concern is to make sure that the common 
-.configs dont increase the size of struct page, but otherwise why not 
-allow a larger struct page - it's for debugging only.
+Does this still apply given the existence of devices like microdrives?
+My microdrive certainly sounds like it could take a second or two to
+spin up...
 
-	Ingo
+Richard
+

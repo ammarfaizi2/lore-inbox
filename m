@@ -1,160 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbVKJTY5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751076AbVKJT23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751067AbVKJTY5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 14:24:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbVKJTY5
+	id S1751076AbVKJT23 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 14:28:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbVKJT23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 14:24:57 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:36510 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1751067AbVKJTY4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 14:24:56 -0500
-Subject: [PATCH] slab: convert cache to page mapping macros
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Date: Thu, 10 Nov 2005 21:19:34 +0200
-Message-Id: <1131650375.18971.2.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.4.1 
+	Thu, 10 Nov 2005 14:28:29 -0500
+Received: from mail26.sea5.speakeasy.net ([69.17.117.28]:25761 "EHLO
+	mail26.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1751076AbVKJT23 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 14:28:29 -0500
+Date: Thu, 10 Nov 2005 11:28:27 -0800 (PST)
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+cc: Nikita Danilov <nikita@clusterfs.com>,
+       "J.A. Magallon" <jamagallon@able.es>, linux-kernel@vger.kernel.org
+Subject: Re: typedefs and structs
+In-Reply-To: <253CB85C-E048-411E-B202-F7AB8DBFE2E7@mac.com>
+Message-ID: <Pine.LNX.4.58.0511101127240.8572@shell2.speakeasy.net>
+References: <20051107204136.GG19593@austin.ibm.com>
+ <1131412273.14381.142.camel@localhost.localdomain> <20051108232327.GA19593@austin.ibm.com>
+ <B68D1F72-F433-4E94-B755-98808482809D@mac.com> <20051109003048.GK19593@austin.ibm.com>
+ <m27jbihd1b.fsf@Douglas-McNaughts-Powerbook.local> <20051109004808.GM19593@austin.ibm.com>
+ <19255C96-8B64-4615-A3A7-9E5A850DE398@mac.com> <20051109111640.757f399a@werewolf.auna.net>
+ <Pine.LNX.4.58.0511090816300.4260@shell2.speakeasy.net>
+ <20051109192028.GP19593@austin.ibm.com> <Pine.LNX.4.61.0511091459440.12760@chaos.analogic.com>
+ <Pine.LNX.4.58.0511091347570.31338@shell3.speakeasy.net>
+ <20051110091517.2e9db750@werewolf.auna.net> <17267.19126.260133.903822@gargle.gargle.HOWL>
+ <253CB85C-E048-411E-B202-F7AB8DBFE2E7@mac.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 10 Nov 2005, Kyle Moffett wrote:
 
-This patch converts slab cache to page mapping macros to static inline
-functions and renames them to avoid confusion with page cache.
+> On Nov 10, 2005, at 08:27:18, Nikita Danilov wrote:
+> > extern declaration in your version of bar() cannot refer to the
+> > automatic variable myvar in foo().
+>
+> int foo;
 
-Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
----
+Except foo is not an automatic variable within show(). When the variable
+is global, then there's no argument. It was a question of when foo is
+local and bar() would get a const pointer to the local.
 
- slab.c |   49 ++++++++++++++++++++++++++++++++-----------------
- 1 file changed, 32 insertions(+), 17 deletions(-)
+> void bar(const int *local_var) {
+>      foo = *local_var + 1;
+> }
+>
+> void show(void) {
+>      printf("%d\n", foo);
+>      bar(&foo);
+>      printf("%d\n", foo);
+> }
+>
+> If GCC thought it could arbitrarily cache anything it wanted to, then
+> code like this would die.  There is a whole mess of code in GCC
+> designed specifically to watch for and avoid aliasing issues like these.
+>
+> Cheers,
+> Kyle Moffett
+>
+> --
+> Debugging is twice as hard as writing the code in the first place.
+> Therefore, if you write the code as cleverly as possible, you are, by
+> definition, not smart enough to debug it.
+>    -- Brian Kernighan
+>
+>
 
-Index: 2.6/mm/slab.c
-===================================================================
---- 2.6.orig/mm/slab.c
-+++ 2.6/mm/slab.c
-@@ -565,14 +565,29 @@ static void **dbg_userword(kmem_cache_t 
- #define	BREAK_GFP_ORDER_LO	0
- static int slab_break_gfp_order = BREAK_GFP_ORDER_LO;
- 
--/* Macros for storing/retrieving the cachep and or slab from the
-+/* Functions for storing/retrieving the cachep and or slab from the
-  * global 'mem_map'. These are used to find the slab an obj belongs to.
-  * With kfree(), these are used to find the cache which an obj belongs to.
-  */
--#define	SET_PAGE_CACHE(pg,x)  ((pg)->lru.next = (struct list_head *)(x))
--#define	GET_PAGE_CACHE(pg)    ((kmem_cache_t *)(pg)->lru.next)
--#define	SET_PAGE_SLAB(pg,x)   ((pg)->lru.prev = (struct list_head *)(x))
--#define	GET_PAGE_SLAB(pg)     ((struct slab *)(pg)->lru.prev)
-+static void page_set_cache(struct page *page, struct kmem_cache *cache)
-+{
-+	page->lru.next = (struct list_head *)cache;
-+}
-+
-+static struct kmem_cache *page_get_cache(struct page *page)
-+{
-+	return (struct kmem_cache *)page->lru.next;
-+}
-+
-+static void page_set_slab(struct page *page, struct kmem_slab *slab)
-+{
-+	page->lru.prev = (struct list_head *)slab;
-+}
-+
-+static struct kmem_slab *page_get_slab(struct page *page)
-+{
-+	return (struct kmem_slab *)page->lru.prev;
-+}
- 
- /* These are the default caches for kmalloc. Custom caches can have other sizes. */
- struct cache_sizes malloc_sizes[] = {
-@@ -1368,7 +1383,7 @@ static void check_poison_obj(kmem_cache_
- 		/* Print some data about the neighboring objects, if they
- 		 * exist:
- 		 */
--		struct slab *slabp = GET_PAGE_SLAB(virt_to_page(objp));
-+		struct slab *slabp = page_get_slab(virt_to_page(objp));
- 		int objnr;
- 
- 		objnr = (objp-slabp->s_mem)/cachep->objsize;
-@@ -2138,8 +2153,8 @@ static void set_slab_attr(kmem_cache_t *
- 	i = 1 << cachep->gfporder;
- 	page = virt_to_page(objp);
- 	do {
--		SET_PAGE_CACHE(page, cachep);
--		SET_PAGE_SLAB(page, slabp);
-+		page_set_cache(page, cachep);
-+		page_set_slab(page, slabp);
- 		page++;
- 	} while (--i);
- }
-@@ -2269,14 +2284,14 @@ static void *cache_free_debugcheck(kmem_
- 	kfree_debugcheck(objp);
- 	page = virt_to_page(objp);
- 
--	if (GET_PAGE_CACHE(page) != cachep) {
-+	if (page_get_cache(page) != cachep) {
- 		printk(KERN_ERR "mismatch in kmem_cache_free: expected cache %p, got %p\n",
--				GET_PAGE_CACHE(page),cachep);
-+				page_get_cache(page),cachep);
- 		printk(KERN_ERR "%p is %s.\n", cachep, cachep->name);
--		printk(KERN_ERR "%p is %s.\n", GET_PAGE_CACHE(page), GET_PAGE_CACHE(page)->name);
-+		printk(KERN_ERR "%p is %s.\n", page_get_cache(page), page_get_cache(page)->name);
- 		WARN_ON(1);
- 	}
--	slabp = GET_PAGE_SLAB(page);
-+	slabp = page_get_slab(page);
- 
- 	if (cachep->flags & SLAB_RED_ZONE) {
- 		if (*dbg_redzone1(cachep, objp) != RED_ACTIVE || *dbg_redzone2(cachep, objp) != RED_ACTIVE) {
-@@ -2628,7 +2643,7 @@ static void free_block(kmem_cache_t *cac
- 		struct slab *slabp;
- 		unsigned int objnr;
- 
--		slabp = GET_PAGE_SLAB(virt_to_page(objp));
-+		slabp = page_get_slab(virt_to_page(objp));
- 		l3 = cachep->nodelists[node];
- 		list_del(&slabp->list);
- 		objnr = (objp - slabp->s_mem) / cachep->objsize;
-@@ -2744,7 +2759,7 @@ static inline void __cache_free(kmem_cac
- #ifdef CONFIG_NUMA
- 	{
- 		struct slab *slabp;
--		slabp = GET_PAGE_SLAB(virt_to_page(objp));
-+		slabp = page_get_slab(virt_to_page(objp));
- 		if (unlikely(slabp->nodeid != numa_node_id())) {
- 			struct array_cache *alien = NULL;
- 			int nodeid = slabp->nodeid;
-@@ -2830,7 +2845,7 @@ int fastcall kmem_ptr_validate(kmem_cach
- 	page = virt_to_page(ptr);
- 	if (unlikely(!PageSlab(page)))
- 		goto out;
--	if (unlikely(GET_PAGE_CACHE(page) != cachep))
-+	if (unlikely(page_get_cache(page) != cachep))
- 		goto out;
- 	return 1;
- out:
-@@ -3026,7 +3041,7 @@ void kfree(const void *objp)
- 		return;
- 	local_irq_save(flags);
- 	kfree_debugcheck(objp);
--	c = GET_PAGE_CACHE(virt_to_page(objp));
-+	c = page_get_cache(virt_to_page(objp));
- 	__cache_free(c, (void*)objp);
- 	local_irq_restore(flags);
- }
-@@ -3596,7 +3611,7 @@ unsigned int ksize(const void *objp)
- 	if (unlikely(objp == NULL))
- 		return 0;
- 
--	return obj_reallen(GET_PAGE_CACHE(virt_to_page(objp)));
-+	return obj_reallen(page_get_cache(virt_to_page(objp)));
- }
- 
- 
-
-
+-Vadim Lobanov

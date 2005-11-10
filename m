@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbVKJKBr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbVKJKCn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750745AbVKJKBr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 05:01:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbVKJKBr
+	id S1750746AbVKJKCn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 05:02:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbVKJKCn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 05:01:47 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:25068 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750745AbVKJKBr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 05:01:47 -0500
-Message-ID: <43731A82.90209@pobox.com>
-Date: Thu, 10 Nov 2005 05:01:38 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: dean gaudet <dean-list-linux-kernel@arctic.org>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: openat()
-References: <43724AB3.40309@redhat.com> <Pine.LNX.4.63.0511091338200.728@twinlark.arctic.org> <4372F95E.3070107@pobox.com>
-In-Reply-To: <4372F95E.3070107@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 10 Nov 2005 05:02:43 -0500
+Received: from baythorne.infradead.org ([81.187.2.161]:15782 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S1750746AbVKJKCn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 05:02:43 -0500
+Subject: Re: latest mtd changes broke collie
+From: David Woodhouse <dwmw2@infradead.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Todd Poynor <tpoynor@mvista.com>, rpurdie@rpsys.net, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20051110095050.GC2021@elf.ucw.cz>
+References: <20051109221712.GA28385@elf.ucw.cz>
+	 <4372B7A8.5060904@mvista.com>  <20051110095050.GC2021@elf.ucw.cz>
+Content-Type: text/plain
+Date: Thu, 10 Nov 2005 10:02:28 +0000
+Message-Id: <1131616948.27347.174.camel@baythorne.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> I'm interested in openat(2) for the race-free implications.  I've been 
-> working on a race-free coreutils replacement[1], targetted mainly at 
+On Thu, 2005-11-10 at 10:50 +0100, Pavel Machek wrote:
+> Is there easy way to get at linux-mtd CVS? Attached is my current
+> version of sharp.c; map_read32/map_write32 was deleted thanks to
+> Richard Purdue.
 
-Whoops, the referenced [1] is:
-http://www.kernel.org/pub/scm/linux/kernel/git/jgarzik/posixutils.git/
+http://www.linux-mtd.infradead.org/source.html has a reference to
+anoncvs.
 
-Key utils cp/mv/chmod remain unwritten, and rm needs to be updated per 
-review from Al.  But it's a start...
+I'd really prefer not to see sharp.c revived -- it's supposed to be
+dying, in favour of the CFI chipset drivers and jedec_probe code.
+Can we try to work out what's wrong with those, instead?
 
-	Jeff
+-- 
+dwmw2
 
 

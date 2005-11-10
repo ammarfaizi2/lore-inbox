@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbVKJQUa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751115AbVKJQU6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751113AbVKJQUa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 11:20:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbVKJQUa
+	id S1751115AbVKJQU6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 11:20:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbVKJQU6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 11:20:30 -0500
-Received: from mail.suse.de ([195.135.220.2]:62691 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751113AbVKJQU3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 11:20:29 -0500
-From: Andreas Schwab <schwab@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Broken __get_unaligned from <asm-generic/unaligned.h>
-References: <jevez0h8ea.fsf@sykes.suse.de>
-	<20051110144847.GA28700@flint.arm.linux.org.uk>
-X-Yow: ..  this must be what it's like to be a COLLEGE GRADUATE!!
-Date: Thu, 10 Nov 2005 17:20:27 +0100
-In-Reply-To: <20051110144847.GA28700@flint.arm.linux.org.uk> (Russell King's
-	message of "Thu, 10 Nov 2005 14:48:47 +0000")
-Message-ID: <jer79oh3uc.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
+	Thu, 10 Nov 2005 11:20:58 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:48016 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751115AbVKJQU5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 11:20:57 -0500
+From: Tom Zanussi <zanussi@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17267.29508.365098.408615@tut.ibm.com>
+Date: Thu, 10 Nov 2005 10:20:20 -0600
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Tom Zanussi <zanussi@us.ibm.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, karim@opersys.com
+Subject: Re: [PATCH 1/4] relayfs: add support for non-relay files
+In-Reply-To: <20051110090227.GA6358@infradead.org>
+References: <17266.28430.472991.124439@tut.ibm.com>
+	<20051110090227.GA6358@infradead.org>
+X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> writes:
+Christoph Hellwig writes:
+ > On Wed, Nov 09, 2005 at 03:50:06PM -0600, Tom Zanussi wrote:
+ > > Hi,
+ > > 
+ > > Currently, the relayfs API only supports the creation of directories
+ > > (relayfs_create_dir()) and relay files (relay_open()).  This patch
+ > > adds support for non-relay files (relayfs_create_file()).
+ > >     
+ > > This is so relayfs applications can create 'control files' in relayfs
+ > > itself rather than in /proc or via a netlink channel, as is currently
+ > > done in the relay-app examples.  There were several comments that the
+ > > use of netlink in the example code was non-intuitive and in fact the
+ > > whole relay-app business was needlessly confusing.  Based on that
+ > > feedback, the example code has been completely converted over to
+ > > relayfs control files as supported by this patch, and have also been
+ > > made completely self-contained.  The converted examples can be found
+ > > here:
+ > 
+ > NACK.  please do one thing at a time in relayfs instead of adding everthing
+ > and a kitchen sink.
+ > 
 
-> On Thu, Nov 10, 2005 at 03:42:05PM +0100, Andreas Schwab wrote:
->> __get_unaligned can't cope with const-qualified types:
->> 
->> drivers/char/vc_screen.c: In function 'vcs_write':
->> drivers/char/vc_screen.c:422: error: assignment of read-only variable 'val'
->> drivers/char/vc_screen.c:422: error: assignment of read-only variable 'val'
->> drivers/char/vc_screen.c:422: error: assignment of read-only variable 'val'
->> drivers/char/vc_screen.c:422: error: assignment of read-only variable 'val'
->
-> What if get_unaligned is used with a u64 / long long type (which it is)?
+OK, sure.  This isn't a huge patch and everything in it is related to
+one logical change, the other one contains a couple of changes and
+some cleanup and could easily be broken out, anyway I'll break
+everything up into smaller pieces and resubmit.
 
-Oops, I missed that, it needs a different approach.
+Tom
 
-Andreas.
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."

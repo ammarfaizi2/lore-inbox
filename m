@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbVKJOmI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750966AbVKJOnU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbVKJOmI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 09:42:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750877AbVKJOmI
+	id S1750966AbVKJOnU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 09:43:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750967AbVKJOnU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 09:42:08 -0500
-Received: from ns.suse.de ([195.135.220.2]:33235 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750714AbVKJOmH (ORCPT
+	Thu, 10 Nov 2005 09:43:20 -0500
+Received: from styx.suse.cz ([82.119.242.94]:61116 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1750965AbVKJOnU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 09:42:07 -0500
-From: Andreas Schwab <schwab@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Broken __get_unaligned from <asm-generic/unaligned.h>
-X-Yow: Is this an out-take from the ``BRADY BUNCH''?
-Date: Thu, 10 Nov 2005 15:42:05 +0100
-Message-ID: <jevez0h8ea.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Thu, 10 Nov 2005 09:43:20 -0500
+Date: Thu, 10 Nov 2005 15:43:17 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Andi Kleen <ak@suse.de>
+Cc: Jan Beulich <JBeulich@novell.com>, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org
+Subject: Re: [PATCH 13/39] NLKD/x86-64 - time adjustment
+Message-ID: <20051110144317.GC7342@ucw.cz>
+References: <43720DAE.76F0.0078.0@novell.com> <4372105B.76F0.0078.0@novell.com> <437210D1.76F0.0078.0@novell.com> <200511101419.03838.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200511101419.03838.ak@suse.de>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-__get_unaligned can't cope with const-qualified types:
-
-drivers/char/vc_screen.c: In function 'vcs_write':
-drivers/char/vc_screen.c:422: error: assignment of read-only variable 'val'
-drivers/char/vc_screen.c:422: error: assignment of read-only variable 'val'
-drivers/char/vc_screen.c:422: error: assignment of read-only variable 'val'
-drivers/char/vc_screen.c:422: error: assignment of read-only variable 'val'
-
-Signed-off-by: Andreas Schwab <schwab@suse.de>
-
---- linux-2.6.14/include/asm-generic/unaligned.h.~1~	2005-10-28 02:02:08.000000000 +0200
-+++ linux-2.6.14/include/asm-generic/unaligned.h	2005-11-10 14:37:58.356107194 +0100
-@@ -78,7 +78,7 @@ static inline void __ustw(__u16 val, __u
+On Thu, Nov 10, 2005 at 02:19:03PM +0100, Andi Kleen wrote:
  
- #define __get_unaligned(ptr, size) ({		\
- 	const void *__gu_p = ptr;		\
--	__typeof__(*(ptr)) val;			\
-+	unsigned long val;			\
- 	switch (size) {				\
- 	case 1:					\
- 		val = *(const __u8 *)__gu_p;	\
-@@ -95,7 +95,7 @@ static inline void __ustw(__u16 val, __u
- 	default:				\
- 		bad_unaligned_access_length();	\
- 	};					\
--	val;					\
-+	(__typeof__(*(ptr)))val;		\
- })
+> Please remove the ifdefs too.  64bit HPET support would be fine, but 
+> only as a runtime mechanism, not compile time.
+> 
+> Can you remove debugger_jiffies please? 
+> The code has to handle long delays anyways (e.g. if someone uses a target
+> probe), so we cannot rely on such hacks anyways.
+> 
+> I don't quite understand why the SMP case should be different from UP
+> in that ifdef. Can you explain?  It shouldn't in theory.
+> 
+> 
+> /* When the TSC gets reset during AP startup, the code below would
+> +			   incorrectly think we lost a huge amount of ticks. */
+> That is outdated - the TSCs are not reset anymore since 2.6.12.
+> Please remove code for handling that.
+> 
+> The union in vxtime_data is ugly - can it be avoided?
+> 
+> Vojtech should probably review that one too when you repost.
  
- #define __put_unaligned(val, ptr, size)		\
+I'd like to take a look at the patch as it is, but it seems my spam
+filter ate it, and LKML.org doesn't archive binary attachments.
 
-Andreas.
+I've done some work on making x86-64 time handling overflow save in the
+last few days, so I'm quite interested in what you needed to change.
 
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Vojtech Pavlik
+SuSE Labs, SuSE CR

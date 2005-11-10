@@ -1,52 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbVKJCr3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751675AbVKJC5G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751239AbVKJCr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 21:47:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751673AbVKJCr3
+	id S1751675AbVKJC5G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 21:57:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751680AbVKJC5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 21:47:29 -0500
-Received: from silver.veritas.com ([143.127.12.111]:65071 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1751038AbVKJCr2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 21:47:28 -0500
-Date: Thu, 10 Nov 2005 02:46:16 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Paul Mackerras <paulus@samba.org>
-cc: Andrew Morton <akpm@osdl.org>,
-       Ben Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 06/15] mm: remove ppc highpte
-In-Reply-To: <17266.43166.752587.255943@cargo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.61.0511100235160.6308@goblin.wat.veritas.com>
+	Wed, 9 Nov 2005 21:57:06 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:42929 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751675AbVKJC5F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 21:57:05 -0500
+Date: Wed, 9 Nov 2005 18:56:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH 01/15] mm: poison struct page for ptlock
+Message-Id: <20051109185645.39329151.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0511100215150.6138@goblin.wat.veritas.com>
 References: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com>
- <Pine.LNX.4.61.0511100148410.5814@goblin.wat.veritas.com>
- <17266.43166.752587.255943@cargo.ozlabs.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 10 Nov 2005 02:47:28.0631 (UTC) FILETIME=[16E1A870:01C5E5A1]
+	<Pine.LNX.4.61.0511100142160.5814@goblin.wat.veritas.com>
+	<20051109181022.71c347d4.akpm@osdl.org>
+	<Pine.LNX.4.61.0511100215150.6138@goblin.wat.veritas.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Nov 2005, Paul Mackerras wrote:
-> Hugh Dickins writes:
+Hugh Dickins <hugh@veritas.com> wrote:
+>
+> On Wed, 9 Nov 2005, Andrew Morton wrote:
+> > 
+> > It does everything we want.
 > 
-> > ppc's HIGHPTE config option was removed in 2.5.28, and nobody seems to
-> > have wanted it enough to restore it: so remove its traces from pgtable.h
-> > and pte_alloc_one.  Or supply an alternative patch to config it back?
+> I don't think so: the union leaves us just as vulnerable to some
+> subsystem using fields of the other half of the union, doesn't it?
+
+Yes, spose so.
+
+> Which is not really a problem, but is a part of what's worrying you.
+
+yes, with either approach it remans the case that someone could write some
+code which works just fine on their setup but explodes gorridly fomr
+someone else who has a different config/arch which has a larger spinlock_t.
+
+> > Of course, it would be nice to retain 2.95.x support.  The reviled
+> > page_private(() would help us do that.  But the now-to-be-reviled
+> > page_mapping() does extraneous stuff, and we'd need a ton of page_lru()'s.
+> > 
+> > So it'd be a big patch, converting page->lru to page->u.s.lru in lots of
+> > places.
+> > 
+> > But I think either a big patch or 2.95.x abandonment is preferable to this
+> > approach.
 > 
-> I'm staggered.  We do want to be able to have pte pages in highmem.
-> I would rather just have it always enabled if CONFIG_HIGHMEM=y, rather
-> than putting the config option back.  I think that should just involve
-> adding __GFP_HIGHMEM to the flags for alloc_pages in pte_alloc_one
-> unconditionally, no?
+> Hmm, that's a pity.
 
-I'm glad the patch has struck a spark!  Yes, there doesn't appear to
-be anything else that you'd need to do.  Except, why was it disabled
-in the first place?  I think you'll need to reassure yourselves that
-whatever the reason was has gone away, before reenabling.
+Well plan B is to kill spinlock_t.break_lock.  That fixes everything and
+has obvious beneficial side-effects.
 
-Andrew, please drop 06/15, I don't think anything after depends on it
-(but it came about when I was looking at uninlining pte_offset_map_lock).
+a) x86 spinlock_t is but one byte.  Can we stuff break_lock into the
+   same word?
 
-Hugh
+   (Yes, there's also a >128 CPUs spinlock overflow problem to solve,
+   but perhaps we can use lock;addw?)
+
+b) Redesign the code somehow.  Currently break_lock means "there's
+   someone waiting for this lock".
+
+   But if we were to leave the lock in a decremented state while
+   spinning (as we've always done), that info is still present via the
+   value of spinlock_t.slock.   Hence: bye-bye break_lock.
+
+c) Make the break_lock stuff a new config option,
+   CONFIG_SUPER_LOW_LATENCY_BLOATS_STRUCT_PAGE.
+
+d) Revert it wholesale, have sucky SMP worst-case latency ;)

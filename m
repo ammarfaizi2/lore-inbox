@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbVKJNix@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbVKJNni@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750869AbVKJNix (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 08:38:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750872AbVKJNix
+	id S1750754AbVKJNni (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 08:43:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750872AbVKJNni
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 08:38:53 -0500
-Received: from smtp.cce.hp.com ([161.114.21.24]:49804 "EHLO
-	ccerelrim03.cce.hp.com") by vger.kernel.org with ESMTP
-	id S1750868AbVKJNiw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 08:38:52 -0500
-Subject: Re: [PATCH] backup timer for UARTs that lose interrupts
-From: Alex Williamson <alex.williamson@hp.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051110104419.GA20693@flint.arm.linux.org.uk>
-References: <1131481677.8541.24.camel@tdi>
-	 <20051108232316.GH13357@flint.arm.linux.org.uk>
-	 <1131495392.9657.9.camel@tdi>
-	 <20051110104419.GA20693@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Organization: OSLO R&D
-Date: Thu, 10 Nov 2005 06:38:36 -0700
-Message-Id: <1131629916.4471.11.camel@localhost.localdomain>
+	Thu, 10 Nov 2005 08:43:38 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:47840 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750754AbVKJNnh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 08:43:37 -0500
+Date: Thu, 10 Nov 2005 13:43:36 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Peter Staubach <staubach@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 1/2] handling 64bit values for st_ino]
+Message-ID: <20051110134336.GE7992@ftp.linux.org.uk>
+References: <20051110003024.GD7992@ftp.linux.org.uk> <437343B1.5000809@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-PMX-Version: 5.0.3.165339, Antispam-Engine: 2.1.0.0, Antispam-Data: 2005.11.10.9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <437343B1.5000809@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-11-10 at 10:44 +0000, Russell King wrote:
+On Thu, Nov 10, 2005 at 07:57:21AM -0500, Peter Staubach wrote:
+> 
+> Has this potential degradation been measured?  This is a lot of extra
+> complexity which needs to justified by the resulting performance.
 
-> Ok, would you mind fixing the patch so it isn't screwing up the
-> default use of up->timer please?  You may notice that this timer
-> is already used, and overwriting up->timer.function is a one-way
-> process in your patch (which kills off the point of serial8250_timeout).
+What extra complexity?
+ 
+> >	Fix is pretty cheap and consists of two parts:
+> >1) widen struct kstat ->ino to u64, add a macro (check_inumber()) to
+> >be used in callers of ->getattr() that want to store ->ino in possibly
+> >narrower fields and care about overflows (stuff like sys_old_stat() with
+> >its 16bit st_ino clearly doesn't ;-)
 
-   I return up->timer.function to serial8250_timeout in the polling mode
-path of serial8250_startup().  The patch only makes use of up->timer
-when it's not already being used for polling and will restore it on the
-next startup if the UART is switched to polling.  Would you prefer that
-I always set up->timer.function to serial8250_timeout on the shutdown
-path?  Thanks,
-	
-	Alex
+> It seems to me that a type with a name which better matches the intended
+> semantics would be a better choice than u64.  Even something like ino64_t
+> would help file systems maintainers to correctly implement the appropriate
+> support.
 
+Why the hell would fs maintainers needs to touch their code at all?
+Have you actually read that patches?

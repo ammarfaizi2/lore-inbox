@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbVKJMrQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbVKJMrD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbVKJMrQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 07:47:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbVKJMrP
+	id S1750732AbVKJMrD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 07:47:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbVKJMrB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 07:47:15 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:5851 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750738AbVKJMrM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 07:47:12 -0500
-Date: Thu, 10 Nov 2005 13:49:28 +0100
+	Thu, 10 Nov 2005 07:47:01 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:49036 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1750732AbVKJMq7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 07:46:59 -0500
+Date: Thu, 10 Nov 2005 13:49:15 +0100
 From: Frank Pavlic <fpavlic@de.ibm.com>
 To: jgarzik@pobox.com
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [patch 3/7] s390: qeth multicast address registration fixed
-Message-ID: <20051110124928.GC7936@pavlic>
+Subject: [patch 2/7] s390: minor modification in qeth layer2 code
+Message-ID: <20051110124915.GB7936@pavlic>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,28 +22,28 @@ User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[patch 3/7] s390: qeth multicast address registration fixed  
+[patch 2/7] s390: minor modification in qeth layer2 code
 
-From: Klaus Dieter Wacker <kdwacker@de.ibm.com>
-	- when running in Layer2 mode we don't have to register
-	  the multicast IP address but only group mac address.
-	  Therefore for Layer 2 devices it is enough to go
-	  through dev->mc_list list and register these entries.
-	
+From: Frank Pavlic <fpavlic@de.ibm.com>
+	- use qeth_layer2_send_setdelvlan_cb to check
+	  return code of a SET/DELVLAN IP Assist command.
+	  It fits better in qeth's design and mechanism of IP Assist
+	  command handling.
+	  
 Signed-off-by: Frank Pavlic <fpavlic@de.ibm.com>
 
 diffstat:
- qeth_main.c |  106 +++++++++++++++++++++++++++++++++++++++++++++---------------
- 1 files changed, 80 insertions(+), 26 deletions(-)
+ qeth_main.c |   40 ++++++++++++++++++++++++++--------------
+ 1 files changed, 26 insertions(+), 14 deletions(-)
 
 diff -Naupr orig/drivers/s390/net/qeth_main.c patched-linux/drivers/s390/net/qeth_main.c
---- orig/drivers/s390/net/qeth_main.c	2005-11-09 20:27:37.000000000 +0100
-+++ patched-linux/drivers/s390/net/qeth_main.c	2005-11-09 20:30:44.000000000 +0100
+--- orig/drivers/s390/net/qeth_main.c	2005-11-09 20:06:57.000000000 +0100
++++ patched-linux/drivers/s390/net/qeth_main.c	2005-11-09 20:20:06.000000000 +0100
 @@ -1,6 +1,6 @@
  /*
   *
-- * linux/drivers/s390/net/qeth_main.c ($Revision: 1.235 $)
-+ * linux/drivers/s390/net/qeth_main.c ($Revision: 1.236 $)
+- * linux/drivers/s390/net/qeth_main.c ($Revision: 1.224 $)
++ * linux/drivers/s390/net/qeth_main.c ($Revision: 1.235 $)
   *
   * Linux on zSeries OSA Express and HiperSockets support
   *
@@ -51,8 +51,8 @@ diff -Naupr orig/drivers/s390/net/qeth_main.c patched-linux/drivers/s390/net/qet
   *			  Frank Pavlic (pavlic@de.ibm.com) and
   *		 	  Thomas Spatzier <tspat@de.ibm.com>
   *
-- *    $Revision: 1.235 $	 $Date: 2005/05/04 20:19:18 $
-+ *    $Revision: 1.236 $	 $Date: 2005/05/04 20:19:18 $
+- *    $Revision: 1.224 $	 $Date: 2005/05/04 20:19:18 $
++ *    $Revision: 1.235 $	 $Date: 2005/05/04 20:19:18 $
   *
   * This program is free software; you can redistribute it and/or modify
   * it under the terms of the GNU General Public License as published by
@@ -60,232 +60,59 @@ diff -Naupr orig/drivers/s390/net/qeth_main.c patched-linux/drivers/s390/net/qet
  #include "qeth_eddp.h"
  #include "qeth_tso.h"
  
--#define VERSION_QETH_C "$Revision: 1.235 $"
-+#define VERSION_QETH_C "$Revision: 1.236 $"
+-#define VERSION_QETH_C "$Revision: 1.224 $"
++#define VERSION_QETH_C "$Revision: 1.235 $"
  static const char *version = "qeth S/390 OSA-Express driver";
  
  /**
-@@ -602,11 +602,20 @@ __qeth_ref_ip_on_card(struct qeth_card *
- 	int found = 0;
- 
- 	list_for_each_entry(addr, &card->ip_list, entry) {
-+		if (card->options.layer2) {
-+			if ((addr->type == todo->type) &&
-+			    (memcmp(&addr->mac, &todo->mac, 
-+				    OSA_ADDR_LEN) == 0)) {
-+				found = 1;
-+				break;
-+			}
-+			continue;
-+		} 
- 		if ((addr->proto     == QETH_PROT_IPV4)  &&
- 		    (todo->proto     == QETH_PROT_IPV4)  &&
- 		    (addr->type      == todo->type)      &&
- 		    (addr->u.a4.addr == todo->u.a4.addr) &&
--		    (addr->u.a4.mask == todo->u.a4.mask)   ){
-+		    (addr->u.a4.mask == todo->u.a4.mask)) {
- 			found = 1;
- 			break;
- 		}
-@@ -615,12 +624,12 @@ __qeth_ref_ip_on_card(struct qeth_card *
- 		    (addr->type        == todo->type)         &&
- 		    (addr->u.a6.pfxlen == todo->u.a6.pfxlen)  &&
- 		    (memcmp(&addr->u.a6.addr, &todo->u.a6.addr,
--			    sizeof(struct in6_addr)) == 0))     {
-+			    sizeof(struct in6_addr)) == 0)) {
- 			found = 1;
- 			break;
- 		}
- 	}
--	if (found){
-+	if (found) {
- 		addr->users += todo->users;
- 		if (addr->users <= 0){
- 			*__addr = addr;
-@@ -632,7 +641,7 @@ __qeth_ref_ip_on_card(struct qeth_card *
- 			return 0;
- 		}
- 	}
--	if (todo->users > 0){
-+	if (todo->users > 0) {
- 		/* for VIPA and RXIP limit refcount to 1 */
- 		if (todo->type != QETH_IP_TYPE_NORMAL)
- 			todo->users = 1;
-@@ -682,12 +691,22 @@ __qeth_insert_ip_todo(struct qeth_card *
- 		if ((addr->type == QETH_IP_TYPE_DEL_ALL_MC) &&
- 		    (tmp->type == QETH_IP_TYPE_DEL_ALL_MC))
- 			return 0;
-+		if (card->options.layer2) {
-+			if ((tmp->type	== addr->type)	&&
-+			    (tmp->is_multicast == addr->is_multicast) &&
-+			    (memcmp(&tmp->mac, &addr->mac, 
-+				    OSA_ADDR_LEN) == 0)) {
-+				found = 1;
-+				break;
-+			}
-+			continue;
-+		} 	 
- 		if ((tmp->proto        == QETH_PROT_IPV4)     &&
- 		    (addr->proto       == QETH_PROT_IPV4)     &&
- 		    (tmp->type         == addr->type)         &&
- 		    (tmp->is_multicast == addr->is_multicast) &&
- 		    (tmp->u.a4.addr    == addr->u.a4.addr)    &&
--		    (tmp->u.a4.mask    == addr->u.a4.mask)      ){
-+		    (tmp->u.a4.mask    == addr->u.a4.mask)) {
- 			found = 1;
- 			break;
- 		}
-@@ -697,7 +716,7 @@ __qeth_insert_ip_todo(struct qeth_card *
- 		    (tmp->is_multicast == addr->is_multicast)  &&
- 		    (tmp->u.a6.pfxlen  == addr->u.a6.pfxlen)   &&
- 		    (memcmp(&tmp->u.a6.addr, &addr->u.a6.addr,
--			    sizeof(struct in6_addr)) == 0)        ){
-+			    sizeof(struct in6_addr)) == 0)) {
- 			found = 1;
- 			break;
- 		}
-@@ -707,7 +726,7 @@ __qeth_insert_ip_todo(struct qeth_card *
- 			tmp->users += addr->users;
- 		else
- 			tmp->users += add? 1:-1;
--		if (tmp->users == 0){
-+		if (tmp->users == 0) {
- 			list_del(&tmp->entry);
- 			kfree(tmp);
- 		}
-@@ -738,12 +757,15 @@ qeth_delete_ip(struct qeth_card *card, s
- 	unsigned long flags;
- 	int rc = 0;
- 
--	QETH_DBF_TEXT(trace,4,"delip");
--	if (addr->proto == QETH_PROT_IPV4)
--		QETH_DBF_HEX(trace,4,&addr->u.a4.addr,4);
-+	QETH_DBF_TEXT(trace, 4, "delip");
-+
-+	if (card->options.layer2)
-+		QETH_DBF_HEX(trace, 4, &addr->mac, 6);
-+	else if (addr->proto == QETH_PROT_IPV4)
-+		QETH_DBF_HEX(trace, 4, &addr->u.a4.addr, 4);
- 	else {
--		QETH_DBF_HEX(trace,4,&addr->u.a6.addr,8);
--		QETH_DBF_HEX(trace,4,((char *)&addr->u.a6.addr)+8,8);
-+		QETH_DBF_HEX(trace, 4, &addr->u.a6.addr, 8);
-+		QETH_DBF_HEX(trace, 4, ((char *)&addr->u.a6.addr) + 8, 8);
- 	}
- 	spin_lock_irqsave(&card->ip_lock, flags);
- 	rc = __qeth_insert_ip_todo(card, addr, 0);
-@@ -757,12 +779,14 @@ qeth_add_ip(struct qeth_card *card, stru
- 	unsigned long flags;
- 	int rc = 0;
- 
--	QETH_DBF_TEXT(trace,4,"addip");
--	if (addr->proto == QETH_PROT_IPV4)
--		QETH_DBF_HEX(trace,4,&addr->u.a4.addr,4);
-+	QETH_DBF_TEXT(trace, 4, "addip");
-+	if (card->options.layer2)
-+		QETH_DBF_HEX(trace, 4, &addr->mac, 6);
-+	else if (addr->proto == QETH_PROT_IPV4)
-+		QETH_DBF_HEX(trace, 4, &addr->u.a4.addr, 4);
- 	else {
--		QETH_DBF_HEX(trace,4,&addr->u.a6.addr,8);
--		QETH_DBF_HEX(trace,4,((char *)&addr->u.a6.addr)+8,8);
-+		QETH_DBF_HEX(trace, 4, &addr->u.a6.addr, 8);
-+		QETH_DBF_HEX(trace, 4, ((char *)&addr->u.a6.addr) + 8, 8);
- 	}
- 	spin_lock_irqsave(&card->ip_lock, flags);
- 	rc = __qeth_insert_ip_todo(card, addr, 1);
-@@ -851,6 +875,7 @@ qeth_set_ip_addr_list(struct qeth_card *
- 
- static void qeth_delete_mc_addresses(struct qeth_card *);
- static void qeth_add_multicast_ipv4(struct qeth_card *);
-+static void qeth_layer2_add_multicast(struct qeth_card *);
- #ifdef CONFIG_QETH_IPV6
- static void qeth_add_multicast_ipv6(struct qeth_card *);
- #endif
-@@ -5301,8 +5326,7 @@ qeth_free_vlan_addresses4(struct qeth_ca
- 	struct qeth_ipaddr *addr;
- 
- 	QETH_DBF_TEXT(trace, 4, "frvaddr4");
--	if (!card->vlangrp)
--		return;
-+
- 	rcu_read_lock();
- 	in_dev = __in_dev_get_rcu(card->vlangrp->vlan_devices[vid]);
- 	if (!in_dev)
-@@ -5330,8 +5354,7 @@ qeth_free_vlan_addresses6(struct qeth_ca
- 	struct qeth_ipaddr *addr;
- 
- 	QETH_DBF_TEXT(trace, 4, "frvaddr6");
--	if (!card->vlangrp)
--		return;
-+
- 	in6_dev = in6_dev_get(card->vlangrp->vlan_devices[vid]);
- 	if (!in6_dev)
- 		return;
-@@ -5350,6 +5373,15 @@ qeth_free_vlan_addresses6(struct qeth_ca
+@@ -5350,11 +5350,30 @@ qeth_free_vlan_addresses6(struct qeth_ca
  #endif /* CONFIG_QETH_IPV6 */
  }
  
-+static void
-+qeth_free_vlan_addresses(struct qeth_card *card, unsigned short vid)
+-static void
++static int
++qeth_layer2_send_setdelvlan_cb(struct qeth_card *card,
++                               struct qeth_reply *reply,
++                               unsigned long data)
 +{
-+	if (card->options.layer2 || !card->vlangrp)
-+		return;
-+	qeth_free_vlan_addresses4(card, vid);
-+	qeth_free_vlan_addresses6(card, vid);
++        struct qeth_ipa_cmd *cmd;
++
++        QETH_DBF_TEXT(trace, 2, "L2sdvcb");
++        cmd = (struct qeth_ipa_cmd *) data;
++        if (cmd->hdr.return_code) {
++		PRINT_ERR("Error in processing VLAN %i on %s: 0x%x. "
++			  "Continuing\n",cmd->data.setdelvlan.vlan_id, 
++			  QETH_CARD_IFNAME(card), cmd->hdr.return_code);
++		QETH_DBF_TEXT_(trace, 2, "L2VL%4x", cmd->hdr.command);
++		QETH_DBF_TEXT_(trace, 2, "L2%s", CARD_BUS_ID(card));
++		QETH_DBF_TEXT_(trace, 2, "err%d", cmd->hdr.return_code);
++	}
++        return 0;
 +}
 +
- static int
- qeth_layer2_send_setdelvlan_cb(struct qeth_card *card,
-                                struct qeth_reply *reply,
-@@ -5432,8 +5464,7 @@ qeth_vlan_rx_kill_vid(struct net_device 
- 	qeth_free_vlan_skbs(card, vid);
- 	spin_lock_irqsave(&card->vlanlock, flags);
- 	/* unregister IP addresses of vlan device */
--	qeth_free_vlan_addresses4(card, vid);
--	qeth_free_vlan_addresses6(card, vid);
-+	qeth_free_vlan_addresses(card, vid);
- 	if (card->vlangrp)
- 		card->vlangrp->vlan_devices[vid] = NULL;
- 	spin_unlock_irqrestore(&card->vlanlock, flags);
-@@ -5456,10 +5487,15 @@ qeth_set_multicast_list(struct net_devic
- 	 
- 	QETH_DBF_TEXT(trace,3,"setmulti");
- 	qeth_delete_mc_addresses(card);
-+	if (card->options.layer2) {
-+		qeth_layer2_add_multicast(card);
-+		goto out;
-+	}
- 	qeth_add_multicast_ipv4(card);
- #ifdef CONFIG_QETH_IPV6
- 	qeth_add_multicast_ipv6(card);
- #endif
-+out:
-  	if (qeth_set_thread_start_bit(card, QETH_SET_IP_THREAD) == 0)
- 		schedule_work(&card->kernel_thread_starter);
- }
-@@ -5669,6 +5705,24 @@ qeth_add_multicast_ipv4(struct qeth_card
- 	in_dev_put(in4_dev);
++static int
+ qeth_layer2_send_setdelvlan(struct qeth_card *card, __u16 i,
+ 			    enum qeth_ipa_cmds ipacmd)
+ {
+- 	int rc;
+ 	struct qeth_ipa_cmd *cmd;
+ 	struct qeth_cmd_buffer *iob;
+ 
+@@ -5362,15 +5381,8 @@ qeth_layer2_send_setdelvlan(struct qeth_
+ 	iob = qeth_get_ipacmd_buffer(card, ipacmd, QETH_PROT_IPV4);
+ 	cmd = (struct qeth_ipa_cmd *)(iob->data+IPA_PDU_HEADER_SIZE);
+         cmd->data.setdelvlan.vlan_id = i;
+-
+-	rc = qeth_send_ipa_cmd(card, iob, NULL, NULL);
+-        if (rc) {
+-                PRINT_ERR("Error in processing VLAN %i on %s: 0x%x. "
+-			  "Continuing\n",i, QETH_CARD_IFNAME(card), rc);
+-		QETH_DBF_TEXT_(trace, 2, "L2VL%4x", ipacmd);
+-		QETH_DBF_TEXT_(trace, 2, "L2%s", CARD_BUS_ID(card));
+-		QETH_DBF_TEXT_(trace, 2, "err%d", rc);
+-        }
++	return qeth_send_ipa_cmd(card, iob, 
++				 qeth_layer2_send_setdelvlan_cb, NULL);
  }
  
-+static void
-+qeth_layer2_add_multicast(struct qeth_card *card)
-+{
-+	struct qeth_ipaddr *ipm;
-+	struct dev_mc_list *dm;
-+
-+	QETH_DBF_TEXT(trace,4,"L2addmc");
-+	for (dm = card->dev->mc_list; dm; dm = dm->next) {
-+		ipm = qeth_get_addr_buffer(QETH_PROT_IPV4);
-+		if (!ipm)
-+			continue;
-+		memcpy(ipm->mac,dm->dmi_addr,MAX_ADDR_LEN);
-+		ipm->is_multicast = 1;
-+		if (!qeth_add_ip(card, ipm))
-+			kfree(ipm);
-+	}
-+}
-+
- #ifdef CONFIG_QETH_IPV6
- static inline void
- qeth_add_mc6(struct qeth_card *card, struct inet6_dev *in6_dev)
+ static void

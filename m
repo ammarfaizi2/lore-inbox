@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbVKJNni@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750889AbVKJNwg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbVKJNni (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 08:43:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750872AbVKJNni
+	id S1750889AbVKJNwg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 08:52:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750887AbVKJNwg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 08:43:38 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:47840 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750754AbVKJNnh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 08:43:37 -0500
-Date: Thu, 10 Nov 2005 13:43:36 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Peter Staubach <staubach@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 1/2] handling 64bit values for st_ino]
-Message-ID: <20051110134336.GE7992@ftp.linux.org.uk>
-References: <20051110003024.GD7992@ftp.linux.org.uk> <437343B1.5000809@redhat.com>
+	Thu, 10 Nov 2005 08:52:36 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:45470 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750878AbVKJNwf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 08:52:35 -0500
+Subject: PATA libata patches (and HPT)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ville =?ISO-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+In-Reply-To: <pan.2005.11.08.19.02.09.190896@sci.fi>
+References: <1131471483.25192.76.camel@localhost.localdomain>
+	 <pan.2005.11.08.19.02.09.190896@sci.fi>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 10 Nov 2005 14:23:35 +0000
+Message-Id: <1131632615.20099.32.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <437343B1.5000809@redhat.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 10, 2005 at 07:57:21AM -0500, Peter Staubach wrote:
-> 
-> Has this potential degradation been measured?  This is a lot of extra
-> complexity which needs to justified by the resulting performance.
+I've put a new patch up which fixes the enablebits problems. It's not
+really there for people to run off and test but because it now has a
+full set of "first guess" hpt3xx driver code.
 
-What extra complexity?
- 
-> >	Fix is pretty cheap and consists of two parts:
-> >1) widen struct kstat ->ino to u64, add a macro (check_inumber()) to
-> >be used in callers of ->getattr() that want to store ->ino in possibly
-> >narrower fields and care about overflows (stuff like sys_old_stat() with
-> >its 16bit st_ino clearly doesn't ;-)
+I've been through various drivers and tried to work out what we actually
+should be doing with these chips. I'd appreciate review of that and
+opinions from other folks hacking on hpt pata stuff.
 
-> It seems to me that a type with a name which better matches the intended
-> semantics would be a better choice than u64.  Even something like ino64_t
-> would help file systems maintainers to correctly implement the appropriate
-> support.
+Alan
 
-Why the hell would fs maintainers needs to touch their code at all?
-Have you actually read that patches?
+http://zeniv.linux.org.uk/~alan/IDE
+
+

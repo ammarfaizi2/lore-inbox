@@ -1,69 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbVKJILH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbVKJIOc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750723AbVKJILH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 03:11:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbVKJILH
+	id S1751206AbVKJIOc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 03:14:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbVKJIOc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 03:11:07 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:33713
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1750723AbVKJILG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 03:11:06 -0500
-Message-Id: <43730EE8.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Thu, 10 Nov 2005 09:12:08 +0100
-From: "Jan Beulich" <JBeulich@novell.com>
-To: "George Anzinger" <george@mvista.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 12/39] NLKD/i386 - time adjustment
-References: <43720DAE.76F0.0078.0@novell.com>  <43720E2E.76F0.0078.0@novell.com>  <43720E72.76F0.0078.0@novell.com>  <43720EAF.76F0.0078.0@novell.com>  <43720F5E.76F0.0078.0@novell.com>  <43720F95.76F0.0078.0@novell.com>  <43720FBA.76F0.0078.0@novell.com>  <43720FF6.76F0.0078.0@novell.com>  <43721024.76F0.0078.0@novell.com>  <4372105B.76F0.0078.0@novell.com>  <43721081.76F0.0078.0@novell.com> <43724991.10607@mvista.com>
-In-Reply-To: <43724991.10607@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Thu, 10 Nov 2005 03:14:32 -0500
+Received: from fed1rmmtao03.cox.net ([68.230.241.36]:35572 "EHLO
+	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
+	id S1751180AbVKJIOb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 03:14:31 -0500
+From: Junio C Hamano <junkio@cox.net>
+To: git@vger.kernel.org
+Subject: [ANNOUNCE] GIT 0.99.9g
+cc: linux-kernel@vger.kernel.org
+Date: Thu, 10 Nov 2005 00:14:29 -0800
+Message-ID: <7vmzkc2a3e.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> George Anzinger <george@mvista.com> 09.11.05 20:10:09 >>>
->Jan Beulich wrote:
->> Since i386 time handling is not overflow-safe, these are the
->> adjustments needed for allowing debuggers to update time after
->> having halted the system for perhaps extended periods of time.
->> 
->> Signed-Off-By: Jan Beulich <jbeulich@novell.com>
->> 
->> (actual patch attached)
->
->The patch includes code that seems to imply that gcc can not do mpy of
-(long long) variables.  It 
->does just fine with these.  It also adds (long long) types just fine. 
-The only problem it has is 
->with div, for which we have do_div().
+GIT 0.99.9g is found at usual places.  There are a couple of
+important changes, as the slow march towards 1.0 continues.
 
-gcc can do long long multiplies fine, but only with a long long result.
-The code presented, however, needs (at least) 96 bits of the result,
-which expressing in C would be far more complicated than doing it with a
-couple of assembly statements.
+ - The RPM package has been split into a few packages by Jim
+   Radford.  Unfortunately I am not equipped sufficiently to
+   test the resulting RPMs, so please feed me updates and
+   corrections as needed.  I think archimport part needs to be
+   split out just like its svn/cvs cousins, and perhaps
+   documentation into another separate package.
 
->I really do not see the relavence of the run time library patches
-given the above.  The adjust code 
->does not seem to use them.  Also, gcc (with the lib code) does all of
-this stuff.  The only need for 
->it would, possibly, be to debug the library code and even then, I
-suspect you really want to do that 
->in user land and then bring the result into the kernel.
+ - Fredrik Kuivinen's merge-recursive strategy is now the
+   default merge strategy for two-head merge that happens after
+   git-pull.  I do not expect this to cause major disruptions,
+   but if this breaks things there is a workaround to override
+   this [*1*].
 
-Which run time library patches are you referring to? NLKD's? If so,
-these routines must not be used by code outside of the debugger (and the
-opposite is true, too: debugger code must not use common code routines
-where ever possible).
+Although I did not hear anybody jumping up-and-down to merge
+svnimport updates from Yaacov Akiba Slama, I did not hear it
+broke things either, so it graduated to the master branch and
+included in this release.  It obviously improved things for
+Yaacov, and I am hoping this would not cause disruptions for
+people's existing setup.
 
-Further, it is my understanding that it is for a (unknown to me) reason
-that the linux kernel doesn't have the full set of libgcc support
-routines. Since the debugger in various places relies on being able to
-do 64-bit math on 32-bit systems, I had to add these in a way so that
-they'd be hidden from the rest of the kernel (and also so that they'd
-satisfy the isolation rules outlined above).
+Also included are unexciting bits of fixes here and there.
 
-Jan
+On the "proposed updates" front, things finally seem to be
+calming down.
+
+ - One important newcomer is git-pack-redundant.  It is still in
+   "pu" not because I doubt what it does is useful, but simply
+   because I have not had a chance to study how it does its
+   thing.  I expect to fully merge it into "master" before 1.0
+   happens.
+
+ - Among my own toys in the "pu" branch:
+
+   - Determination of merge base for Octopus merge was quite
+     pessimistic, and a proposed fix is in there; since I will
+     be regularly and frequently doing Octopus merges, I'll soon
+     know if this change breaks things; otherwise it will
+     graduate to "master" shortly.
+
+   - merge-base computation done by show-branch was a bit loose
+     compared to the real merge-base, as pointed out by Linus on
+     the list, although it does not seem to matter too much in
+     practice.  Also I plan to look into merge-base to see if I
+     can fix the horizon effect cheaply but that work has not
+     started yet (it is triggered by fairly pathological case).
+
+   - I got tired of not being able to get the committer date
+     (except the raw format which is unreadable) out of git-log,
+     and added --pretty=fuller format.  This should not break
+     people's existing setup, so I expect it to move to "master"
+     soon, maybe with a name change if somebody can suggest a
+     better name for it.
+
+   - Change merge-one-file to handle the case where two sides
+     add the same path differently.  Instead of punting, try to
+     do two-file merge from both sides.  This _might_ turn out
+     to be useful, but I do not know yet, so it won't graduate
+     to "master" unless somebody convinces me (and the
+     community) that it is useful in some use-case scenario.
+
+   - Add git-lost+found.  Currently the implementation stores
+     found refs under .git/lost+found/{commit,other}
+     directories, but writing out their object names to the
+     standard output and let the users decide what to do with
+     them was suggested on the list by Daniel, which makes sense
+     as well.  There are pros and cons so until we know if it is
+     useful and if so in what form, it will not come out of "pu"
+     branch.
+
+   - I do not consider either git-shallow-pack and git-changes
+     "master" material.  The former is a hack to create
+     deliberately broken repository.  The latter is supporting a
+     wrong workflow, as Linus described the other day.  You can
+     temporarily fetch what you want to compare into local
+     repository and run git-log or git-whatchanged normally.
+
+Oh, and we will not be moving things out of /usr/bin/ during 1.0
+timeframe.
+
+
+[Footnote]
+
+*1* If for whatever reason you would prefer to keep using the
+'resolve' strategy as before when you run 'git-pull', you can
+either do 'git-pull -s resolve <remote> <refspec>...' on the
+command line, or add the following in your .git/config file:
+
+        [pull]
+                twohead = resolve
+
+On the other hand, if you like to try resolve and then
+recursive, you can have this instead (the order does matter, the
+first one is tried first):
+
+        [pull]
+                twohead = resolve
+                twohead = recursive
+

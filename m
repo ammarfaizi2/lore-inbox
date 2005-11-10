@@ -1,166 +1,235 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751429AbVKJCEW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751434AbVKJCJb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751429AbVKJCEW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 21:04:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751431AbVKJCEW
+	id S1751434AbVKJCJb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 21:09:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751436AbVKJCJb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 21:04:22 -0500
-Received: from silver.veritas.com ([143.127.12.111]:33834 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1751429AbVKJCEW
+	Wed, 9 Nov 2005 21:09:31 -0500
+Received: from silver.veritas.com ([143.127.12.111]:5419 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1751434AbVKJCJa
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 21:04:22 -0500
-Date: Thu, 10 Nov 2005 02:03:10 +0000 (GMT)
+	Wed, 9 Nov 2005 21:09:30 -0500
+Date: Thu, 10 Nov 2005 02:08:18 +0000 (GMT)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@goblin.wat.veritas.com
 To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 13/15] mm: get_user_pages check count
+cc: Paul Mackerras <paulus@samba.org>,
+       Ben Herrenschmidt <benh@kernel.crashing.org>,
+       Matthew Wilcox <matthew@wil.cx>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH 14/15] mm: inc_page_table_pages check max
 In-Reply-To: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0511100201430.5814@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0511100203160.5814@goblin.wat.veritas.com>
 References: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 10 Nov 2005 02:04:21.0693 (UTC) FILETIME=[10F23ED0:01C5E59B]
+X-OriginalArrivalTime: 10 Nov 2005 02:09:30.0088 (UTC) FILETIME=[C8C39680:01C5E59B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Most calls to get_user_pages soon release the pages and then return to
-user space, but some are long term - notably Infiniband's ib_umem_get.
-That's blessed with good locked_vm checking, but if the system were
-misconfigured, then it might be possible to build up a huge page_count.
+A 32-bit machine needs 16GB of page table space to back its max mapcount,
+a 64-bit machine needs 16TB of page table space to back its max mapcount.
 
-Guard against overflow by page_count_too_high checks in get_user_pages:
-refuse with -ENOMEM once page count reaches its final PID_MAX_LIMIT
-(which is why we allowed for 2*PID_MAX_LIMIT in the 23 bits of count).
+But, there are certainly 32-bit machines with 64GB physical - and more?
+and even if 16TB were a 64-bit limit today, it would not be tomorrow.
+Yet it'll be some time (I hope) before such machines need to use that
+amount of their memory just on the page tables.
 
-Sorry, can't touch get_user_pages without giving it more cleanup.
+Therefore, guard against mapcount overflow on such extreme machines, by
+limiting the number of page table pages with a check before incrementing
+nr_page_table_pages.  That's a per_cpu variable, so add a per_cpu max,
+and avoid extra locking (except at startup and rare occasions after).
+
+Of course, normally those page tables would be filled with entries for
+different pages, and no mapcount remotely approach the limit; but this
+check avoids checks on hotter paths, without being too restrictive.
 
 Signed-off-by: Hugh Dickins <hugh@veritas.com>
 ---
 
- include/linux/mm.h |   16 ++++++++++++++++
- mm/memory.c        |   40 +++++++++++++++++++++++-----------------
- 2 files changed, 39 insertions(+), 17 deletions(-)
+But 64-bit powerpc and parisc are limited to 16GB of page table space by
+this, because they don't yet provide the atomic64_t type and operations.
+Is there someone who could provide the necessary atomic64_t for them?
 
---- mm12/include/linux/mm.h	2005-11-09 14:40:00.000000000 +0000
-+++ mm13/include/linux/mm.h	2005-11-09 14:40:17.000000000 +0000
-@@ -312,6 +312,7 @@ struct page {
-  */
+ include/linux/mm.h         |    2 
+ include/linux/page-flags.h |    1 
+ mm/memory.c                |    7 +--
+ mm/page_alloc.c            |   95 +++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 102 insertions(+), 3 deletions(-)
+
+--- mm13/include/linux/mm.h	2005-11-09 14:40:17.000000000 +0000
++++ mm14/include/linux/mm.h	2005-11-09 14:40:32.000000000 +0000
+@@ -313,6 +313,7 @@ struct page {
  #define PCOUNT_SHIFT	23
  #define PCOUNT_MASK	((1UL << PCOUNT_SHIFT) - 1)
-+#define PCOUNT_HIGH	(PCOUNT_MASK - PID_MAX_LIMIT)
+ #define PCOUNT_HIGH	(PCOUNT_MASK - PID_MAX_LIMIT)
++#define MAPCOUNT_MAX	(-1UL >> PCOUNT_SHIFT)
  
  /*
   * Drop a ref, return true if the logical refcount fell to zero
-@@ -377,8 +378,17 @@ static inline int page_mapped(struct pag
- 	return (unsigned long)atomic64_read(&page->_pcount) > PCOUNT_MASK;
- }
- 
-+static inline int page_count_too_high(struct page *page)
-+{
-+	/* get_user_pages check when nearing overflow */
-+	return ((unsigned long)atomic64_read(&page->_pcount) & PCOUNT_MASK)
-+							>= PCOUNT_HIGH;
-+}
-+
+@@ -388,6 +389,7 @@ static inline int page_count_too_high(st
  #else /* !ATOMIC64_INIT */
  
-+#define PCOUNT_HIGH	(INT_MAX - PID_MAX_LIMIT)
-+
+ #define PCOUNT_HIGH	(INT_MAX - PID_MAX_LIMIT)
++#define MAPCOUNT_MAX	(INT_MAX - 2*PID_MAX_LIMIT)
+ 
  /*
   * Drop a ref, return true if the logical refcount fell to zero
-  * (the page has no users)
-@@ -437,6 +447,12 @@ static inline int page_mapped(struct pag
- 	return atomic_read(&page->_mapcount) >= 0;
+--- mm13/include/linux/page-flags.h	2005-11-07 07:39:57.000000000 +0000
++++ mm14/include/linux/page-flags.h	2005-11-09 14:40:32.000000000 +0000
+@@ -139,6 +139,7 @@ extern void get_page_state_node(struct p
+ extern void get_full_page_state(struct page_state *ret);
+ extern unsigned long __read_page_state(unsigned long offset);
+ extern void __mod_page_state(unsigned long offset, unsigned long delta);
++extern int inc_page_table_pages(void);
+ 
+ #define read_page_state(member) \
+ 	__read_page_state(offsetof(struct page_state, member))
+--- mm13/mm/memory.c	2005-11-09 14:40:17.000000000 +0000
++++ mm14/mm/memory.c	2005-11-09 14:40:32.000000000 +0000
+@@ -291,22 +291,23 @@ void free_pgtables(struct mmu_gather **t
+ 
+ int __pte_alloc(struct mm_struct *mm, pmd_t *pmd, unsigned long address)
+ {
++	int ret = 0;
+ 	struct page *new = pte_alloc_one(mm, address);
+ 	if (!new)
+ 		return -ENOMEM;
+ 
+ 	pte_lock_init(new);
+ 	spin_lock(&mm->page_table_lock);
+-	if (pmd_present(*pmd)) {	/* Another has populated it */
++	if (pmd_present(*pmd) ||	/* Another has populated it */
++	    (ret = inc_page_table_pages())) {
+ 		pte_lock_deinit(new);
+ 		pte_free(new);
+ 	} else {
+ 		mm->nr_ptes++;
+-		inc_page_state(nr_page_table_pages);
+ 		pmd_populate(mm, pmd, new);
+ 	}
+ 	spin_unlock(&mm->page_table_lock);
+-	return 0;
++	return ret;
  }
  
-+static inline int page_count_too_high(struct page *page)
+ int __pte_alloc_kernel(pmd_t *pmd, unsigned long address)
+--- mm13/mm/page_alloc.c	2005-11-09 14:40:00.000000000 +0000
++++ mm14/mm/page_alloc.c	2005-11-09 14:40:32.000000000 +0000
+@@ -1217,6 +1217,14 @@ static void show_node(struct zone *zone)
+ #endif
+ 
+ /*
++ * Declarations for inc_page_table_pages(): placed here in the hope
++ * that max_page_table_pages will share cacheline with page_states.
++ */
++#define MAX_PAGE_TABLE_PAGES	(MAPCOUNT_MAX / PTRS_PER_PTE)
++static DEFINE_SPINLOCK(max_page_tables_lock);
++static DEFINE_PER_CPU(unsigned long, max_page_table_pages) = {0};
++
++/*
+  * Accumulate the page_state information across all CPUs.
+  * The result is unavoidably approximate - it can change
+  * during and after execution of this function.
+@@ -1309,6 +1317,90 @@ void __mod_page_state(unsigned long offs
+ 
+ EXPORT_SYMBOL(__mod_page_state);
+ 
++/*
++ * inc_page_table_pages() increments cpu page_state.nr_page_table_pages
++ * after checking against the MAX_PAGE_TABLE_PAGES limit: which ensures
++ * mapcount cannot wrap even if _every_ page table entry points to the
++ * same page.  Absurdly draconian, yet no serious practical limitation -
++ * limits 32-bit to 16GB in page tables, 64-bit to 16TB in page tables.
++ */
++int inc_page_table_pages(void)
 +{
-+	/* get_user_pages check when nearing overflow */
-+	return atomic_read(&page->_count) >= PCOUNT_HIGH;
++	unsigned long offset;
++	unsigned long *max;
++	unsigned long *ptr;
++	unsigned long nr_ptps;
++	int nr_cpus;
++	long delta;
++	int cpu;
++
++	offset = offsetof(struct page_state, nr_page_table_pages);
++again:
++	ptr = (void *) &__get_cpu_var(page_states) + offset;
++	max = &__get_cpu_var(max_page_table_pages);
++	/*
++	 * Beware, *ptr and *max may go "negative" if more page
++	 * tables happen to be freed on this cpu than allocated.
++	 * We avoid the need for barriers by keeping max 1 low.
++	 */
++	if (likely((long)(*max - *ptr) > 0)) {
++		(*ptr)++;
++		return 0;
++	}
++
++	spin_lock(&max_page_tables_lock);
++	/*
++	 * Below, we drop *max on each cpu to stop racing allocations
++	 * while we're updating.  But perhaps another cpu just did the
++	 * update while we were waiting for the lock: don't do it again.
++	 */
++	if ((long)(*max - *ptr) > 0) {
++		(*ptr)++;
++		spin_unlock(&max_page_tables_lock);
++		return 0;
++	}
++
++	/*
++	 * Find how much is allocated and how many online cpus.
++	 * Stop racing allocations by dropping *max temporarily.
++	 */
++	nr_cpus = 0;
++	nr_ptps = 0;
++	for_each_online_cpu(cpu) {
++		ptr = (void *) &per_cpu(page_states, cpu) + offset;
++		max = &per_cpu(max_page_table_pages, cpu);
++		*max = *ptr;
++		nr_ptps += *max;
++		nr_cpus++;
++	}
++
++	/*
++	 * Allow each cpu the same quota.  Subtract 1 to avoid the need
++	 * for barriers above: each racing cpu might allocate one table
++	 * too many, but will meet a barrier before it can get another.
++	 */
++	delta = ((MAX_PAGE_TABLE_PAGES - nr_ptps) / nr_cpus) - 1;
++	if (delta <= 0) {
++		spin_unlock(&max_page_tables_lock);
++		return -ENOMEM;
++	}
++
++	/*
++	 * Redistribute new maxima amongst the online cpus.
++	 * Don't allow too much if a new cpu has come online; don't
++	 * worry if a cpu went offline, it'll get sorted eventually.
++	 */
++	for_each_online_cpu(cpu) {
++		max = &per_cpu(max_page_table_pages, cpu);
++		*max += delta;
++		--nr_cpus;
++		if (!nr_cpus)
++			break;
++	}
++	spin_unlock(&max_page_tables_lock);
++	goto again;
 +}
 +
- #endif /* !ATOMIC64_INIT */
+ void __get_zone_counts(unsigned long *active, unsigned long *inactive,
+ 			unsigned long *free, struct pglist_data *pgdat)
+ {
+@@ -2431,6 +2523,9 @@ static int page_alloc_cpu_notify(struct 
+ 			src[i] = 0;
+ 		}
  
- void FASTCALL(__page_cache_release(struct page *));
---- mm12/mm/memory.c	2005-11-09 14:40:00.000000000 +0000
-+++ mm13/mm/memory.c	2005-11-09 14:40:17.000000000 +0000
-@@ -928,39 +928,43 @@ int get_user_pages(struct task_struct *t
- 	do {
- 		struct vm_area_struct *vma;
- 		unsigned int foll_flags;
-+		struct page *page;
- 
- 		vma = find_extend_vma(mm, start);
- 		if (!vma && in_gate_area(tsk, start)) {
--			unsigned long pg = start & PAGE_MASK;
--			struct vm_area_struct *gate_vma = get_gate_vma(tsk);
- 			pgd_t *pgd;
- 			pud_t *pud;
- 			pmd_t *pmd;
- 			pte_t *pte;
-+			pte_t ptent;
++		src = (unsigned long *)&per_cpu(max_page_table_pages, cpu);
++		*src = 0;
 +
- 			if (write) /* user gate pages are read-only */
- 				return i ? : -EFAULT;
--			if (pg > TASK_SIZE)
--				pgd = pgd_offset_k(pg);
-+			start &= PAGE_MASK;	/* what needs that? */
-+			if (start >= TASK_SIZE)
-+				pgd = pgd_offset_k(start);
- 			else
--				pgd = pgd_offset_gate(mm, pg);
-+				pgd = pgd_offset_gate(mm, start);
- 			BUG_ON(pgd_none(*pgd));
--			pud = pud_offset(pgd, pg);
-+			pud = pud_offset(pgd, start);
- 			BUG_ON(pud_none(*pud));
--			pmd = pmd_offset(pud, pg);
-+			pmd = pmd_offset(pud, start);
- 			if (pmd_none(*pmd))
- 				return i ? : -EFAULT;
--			pte = pte_offset_map(pmd, pg);
--			if (pte_none(*pte)) {
--				pte_unmap(pte);
-+			pte = pte_offset_map(pmd, start);
-+			ptent = *pte;
-+			pte_unmap(pte);
-+			if (pte_none(ptent))
- 				return i ? : -EFAULT;
--			}
- 			if (pages) {
--				pages[i] = pte_page(*pte);
--				get_page(pages[i]);
-+				page = pte_page(ptent);
-+				if (page_count_too_high(page))
-+					return i ? : -ENOMEM;
-+				get_page(page);
-+				pages[i] = page;
- 			}
--			pte_unmap(pte);
- 			if (vmas)
--				vmas[i] = gate_vma;
-+				vmas[i] = get_gate_vma(tsk);
- 			i++;
- 			start += PAGE_SIZE;
- 			len--;
-@@ -985,8 +989,6 @@ int get_user_pages(struct task_struct *t
- 			foll_flags |= FOLL_ANON;
- 
- 		do {
--			struct page *page;
--
- 			if (write)
- 				foll_flags |= FOLL_WRITE;
- 
-@@ -1020,6 +1022,10 @@ int get_user_pages(struct task_struct *t
- 				}
- 			}
- 			if (pages) {
-+				if (page_count_too_high(page)) {
-+					put_page(page);
-+					return i ? : -ENOMEM;
-+				}
- 				pages[i] = page;
- 				flush_dcache_page(page);
- 			}
+ 		local_irq_enable();
+ 	}
+ 	return NOTIFY_OK;

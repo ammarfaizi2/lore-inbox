@@ -1,338 +1,206 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751497AbVKJB7B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbVKJCBe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751497AbVKJB7B (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 20:59:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751498AbVKJB7B
+	id S1751437AbVKJCBe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 21:01:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751658AbVKJCBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 20:59:01 -0500
-Received: from silver.veritas.com ([143.127.12.111]:42025 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1751497AbVKJB7A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 20:59:00 -0500
-Date: Thu, 10 Nov 2005 01:57:47 +0000 (GMT)
+	Wed, 9 Nov 2005 21:01:34 -0500
+Received: from gold.veritas.com ([143.127.12.110]:30005 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751437AbVKJCBd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 21:01:33 -0500
+Date: Thu, 10 Nov 2005 02:00:21 +0000 (GMT)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@goblin.wat.veritas.com
 To: Andrew Morton <akpm@osdl.org>
-cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
-Subject: [PATCH 10/15] mm: atomic64 page counts
+cc: Paul Mackerras <paulus@samba.org>,
+       Ben Herrenschmidt <benh@kernel.crashing.org>,
+       Paul Mundt <lethal@linux-sh.org>, Dave Airlie <airlied@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH 11/15] mm: long page counts
 In-Reply-To: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0511100156320.5814@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0511100157560.5814@goblin.wat.veritas.com>
 References: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 10 Nov 2005 01:59:00.0506 (UTC) FILETIME=[5180FFA0:01C5E59A]
+X-OriginalArrivalTime: 10 Nov 2005 02:01:33.0318 (UTC) FILETIME=[AC964260:01C5E59A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Page count and page mapcount might overflow their 31 bits on 64-bit
-architectures, especially now we're refcounting the ZERO_PAGE.  We could
-quite easily avoid counting it, but shared file pages may also overflow.
+The type of the page_count and page_mapcount functions has changed from
+int to long.  Update those places which give warnings (mostly debug
+printks), or where the count might significantly overflow.
 
-Prefer not to enlarge struct page: don't assign separate atomic64_ts to
-count and mapcount, instead keep them both in one atomic64_t - the count
-in the low 23 bits and the mapcount in the high 41 bits.  But of course
-that can only work if we don't duplicate mapcount in count in this case.
+Don't bother with the arch's show_mem functions for now (some say int
+shared, some long): they don't cause warnings, the truncation wouldn't
+matter much, and we'll want to visit them all (perhaps bring them into
+common code) in a later phase of PageReserved removal.
 
-The low 23 bits can accomodate 0x7fffff, that's 2 * PID_MAX_LIMIT - 1,
-which seems adequate for tasks with a transient hold on pages; and the
-high 41 bits would use 16TB of page table space to back max mapcount.
+The thought of page_referenced on a page whose mapcount exceeds an int
+is rather disturbing: it should probably skip high mapcounts unless the
+memory pressure is high; but that's a different problem, ignore for now.
 
 Signed-off-by: Hugh Dickins <hugh@veritas.com>
 ---
 
-I think Nick should have a veto on this patch if he wishes, it's not my
-intention to make his lockless pagecache impossible.  But I doubt he'll
-have to veto it, I expect it just needs more macros: whereas page_count
-carefully assembles grabcount and mapcount into the familiar page count,
-he'll probably want something giving the raw atomic32 or atomic64 value.
+ arch/ppc64/kernel/vdso.c  |    6 +++---
+ arch/sh64/lib/dbg.c       |    2 +-
+ drivers/char/drm/drm_vm.c |    2 +-
+ fs/proc/task_mmu.c        |    2 +-
+ mm/page_alloc.c           |    2 +-
+ mm/rmap.c                 |   18 +++++++++---------
+ mm/swapfile.c             |    2 +-
+ 7 files changed, 17 insertions(+), 17 deletions(-)
 
- include/linux/mm.h   |  163 +++++++++++++++++++++++++++++++++++++--------------
- include/linux/rmap.h |   12 ---
- mm/memory.c          |    3 
- mm/rmap.c            |    9 +-
- 4 files changed, 124 insertions(+), 63 deletions(-)
-
---- mm09/include/linux/mm.h	2005-11-09 14:38:03.000000000 +0000
-+++ mm10/include/linux/mm.h	2005-11-09 14:40:00.000000000 +0000
-@@ -219,11 +219,15 @@ struct inode;
- struct page {
- 	unsigned long flags;		/* Atomic flags, some possibly
- 					 * updated asynchronously */
-+#ifdef ATOMIC64_INIT
-+	atomic64_t _pcount;		/* Both _count and _mapcount. */
-+#else
- 	atomic_t _count;		/* Usage count, see below. */
- 	atomic_t _mapcount;		/* Count of ptes mapped in mms,
- 					 * to show when page is mapped
- 					 * & limit reverse map searches.
- 					 */
-+#endif
- 	unsigned long private;		/* Mapping-private opaque data:
- 					 * usually used for buffer_heads
- 					 * if PagePrivate set; used for
-@@ -297,30 +301,112 @@ struct page {
-  * macros which retain the old rules: page_count(page) == 0 is a free page.
-  */
- 
-+#ifdef ATOMIC64_INIT
-+/*
-+ * We squeeze _count and _mapcount into a single atomic64 _pcount:
-+ * keeping the mapcount in the upper 41 bits, and the grabcount in
-+ * the lower 23 bits: then page_count is the total of these two.
-+ * When adding a mapping, get_page_mapped_testone transfers one from
-+ * grabcount to mapcount; which put_page_mapped_testzero reverses.
-+ * Each stored count is based from 0 in this case, not from -1.
-+ */
-+#define PCOUNT_SHIFT	23
-+#define PCOUNT_MASK	((1UL << PCOUNT_SHIFT) - 1)
-+
- /*
-- * Drop a ref, return true if the logical refcount fell to zero (the page has
-- * no users)
-+ * Drop a ref, return true if the logical refcount fell to zero
-+ * (the page has no users)
-  */
--#define put_page_testzero(p)				\
--	({						\
--		BUG_ON(page_count(p) == 0);		\
--		atomic_add_negative(-1, &(p)->_count);	\
--	})
-+static inline int put_page_testzero(struct page *page)
-+{
-+	BUILD_BUG_ON(PCOUNT_MASK+1 < 2*PID_MAX_LIMIT);
-+	BUG_ON(!(atomic64_read(&page->_pcount) & PCOUNT_MASK));
-+	return atomic64_dec_and_test(&page->_pcount);
-+}
-+
-+static inline int put_page_mapped_testzero(struct page *page)
-+{
-+	return (unsigned long)atomic64_sub_return(PCOUNT_MASK, &page->_pcount)
-+							<= PCOUNT_MASK;
-+}
- 
- /*
-  * Grab a ref, return true if the page previously had a logical refcount of
-  * zero.  ie: returns true if we just grabbed an already-deemed-to-be-free page
-  */
--#define get_page_testone(p)	atomic_inc_and_test(&(p)->_count)
-+#define get_page_testone(page) \
-+	(atomic64_add_return(1, &(page)->_pcount) == 1)
-+#define get_page_mapped_testone(page) \
-+	((atomic64_add_return(PCOUNT_MASK,&(page)->_pcount)>>PCOUNT_SHIFT)==1)
-+
-+#define set_page_count(page, val)	atomic64_set(&(page)->_pcount, val)
-+#define reset_page_mapcount(page)	do { } while (0)
-+#define __put_page(page)		atomic64_dec(&(page)->_pcount)
- 
--#define set_page_count(p,v) 	atomic_set(&(p)->_count, v - 1)
--#define __put_page(p)		atomic_dec(&(p)->_count)
-+static inline long page_count(struct page *page)
-+{
-+	unsigned long pcount;
- 
--extern void FASTCALL(__page_cache_release(struct page *));
-+	if (PageCompound(page))
-+		page = (struct page *)page->private;
-+	pcount = (unsigned long)atomic64_read(&page->_pcount);
-+	/* Return total of grabcount and mapcount */
-+	return (pcount & PCOUNT_MASK) + (pcount >> PCOUNT_SHIFT);
-+}
- 
--#ifdef CONFIG_HUGETLB_PAGE
-+static inline void get_page(struct page *page)
-+{
-+	if (unlikely(PageCompound(page)))
-+		page = (struct page *)page->private;
-+	atomic64_inc(&page->_pcount);
-+}
-+
-+static inline void get_page_dup_rmap(struct page *page)
-+{
-+	/* copy_one_pte increment mapcount */
-+	atomic64_add(PCOUNT_MASK + 1, &page->_pcount);
-+}
-+
-+static inline long page_mapcount(struct page *page)
-+{
-+	return (unsigned long)atomic64_read(&page->_pcount) >> PCOUNT_SHIFT;
-+}
-+
-+static inline int page_mapped(struct page *page)
-+{
-+	return (unsigned long)atomic64_read(&page->_pcount) > PCOUNT_MASK;
-+}
-+
-+#else /* !ATOMIC64_INIT */
-+
-+/*
-+ * Drop a ref, return true if the logical refcount fell to zero
-+ * (the page has no users)
-+ */
-+static inline int put_page_testzero(struct page *page)
-+{
-+	BUG_ON(atomic_read(&page->_count) == -1);
-+	return atomic_add_negative(-1, &page->_count);
-+}
-+
-+static inline int put_page_mapped_testzero(struct page *page)
-+{
-+	return atomic_add_negative(-1, &page->_mapcount);
-+}
-+
-+/*
-+ * Grab a ref, return true if the page previously had a logical refcount of
-+ * zero.  ie: returns true if we just grabbed an already-deemed-to-be-free page
-+ */
-+#define get_page_testone(page)	atomic_inc_and_test(&(page)->_count)
-+#define get_page_mapped_testone(page) \
-+				atomic_inc_and_test(&(page)->_mapcount)
-+
-+#define set_page_count(page, val) 	atomic_set(&(page)->_count, val - 1)
-+#define reset_page_mapcount(page)	atomic_set(&(page)->_mapcount, -1)
-+#define __put_page(page)		atomic_dec(&(page)->_count)
- 
--static inline int page_count(struct page *page)
-+static inline long page_count(struct page *page)
+--- mm10/arch/ppc64/kernel/vdso.c	2005-11-07 07:39:07.000000000 +0000
++++ mm11/arch/ppc64/kernel/vdso.c	2005-11-09 14:40:00.000000000 +0000
+@@ -112,11 +112,11 @@ struct lib64_elfinfo
+ #ifdef __DEBUG
+ static void dump_one_vdso_page(struct page *pg, struct page *upg)
  {
- 	if (PageCompound(page))
- 		page = (struct page *)page->private;
-@@ -334,24 +420,36 @@ static inline void get_page(struct page 
- 	atomic_inc(&page->_count);
+-	printk("kpg: %p (c:%d,f:%08lx)", __va(page_to_pfn(pg) << PAGE_SHIFT),
++	printk("kpg: %p (c:%ld,f:%08lx)", __va(page_to_pfn(pg) << PAGE_SHIFT),
+ 	       page_count(pg),
+ 	       pg->flags);
+ 	if (upg/* && pg != upg*/) {
+-		printk(" upg: %p (c:%d,f:%08lx)", __va(page_to_pfn(upg) << PAGE_SHIFT),
++		printk(" upg: %p (c:%ld,f:%08lx)", __va(page_to_pfn(upg) << PAGE_SHIFT),
+ 		       page_count(upg),
+ 		       upg->flags);
+ 	}
+@@ -184,7 +184,7 @@ static struct page * vdso_vma_nopage(str
+ 		pg = virt_to_page(vbase + offset);
+ 
+ 	get_page(pg);
+-	DBG(" ->page count: %d\n", page_count(pg));
++	DBG(" ->page count: %ld\n", page_count(pg));
+ 
+ 	return pg;
  }
+--- mm10/arch/sh64/lib/dbg.c	2005-06-17 20:48:29.000000000 +0100
++++ mm11/arch/sh64/lib/dbg.c	2005-11-09 14:40:00.000000000 +0000
+@@ -422,7 +422,7 @@ unsigned long lookup_itlb(unsigned long 
  
--void put_page(struct page *page);
--
--#else		/* CONFIG_HUGETLB_PAGE */
-+static inline void get_page_dup_rmap(struct page *page)
-+{
-+	/* copy_one_pte increment total count and mapcount */
-+	atomic_inc(&page->_count);
-+	atomic_inc(&page->_mapcount);
-+}
- 
--#define page_count(p)		(atomic_read(&(p)->_count) + 1)
-+static inline long page_mapcount(struct page *page)
-+{
-+	return atomic_read(&page->_mapcount) + 1;
-+}
- 
--static inline void get_page(struct page *page)
-+static inline int page_mapped(struct page *page)
+ void print_page(struct page *page)
  {
--	atomic_inc(&page->_count);
-+	return atomic_read(&page->_mapcount) >= 0;
- }
+-	printk("  page[%p] -> index 0x%lx,  count 0x%x,  flags 0x%lx\n",
++	printk("  page[%p] -> index 0x%lx,  count 0x%lx,  flags 0x%lx\n",
+ 	       page, page->index, page_count(page), page->flags);
+ 	printk("       address_space = %p, pages =%ld\n", page->mapping,
+ 	       page->mapping->nrpages);
+--- mm10/drivers/char/drm/drm_vm.c	2005-11-07 07:39:15.000000000 +0000
++++ mm11/drivers/char/drm/drm_vm.c	2005-11-09 14:40:00.000000000 +0000
+@@ -112,7 +112,7 @@ static __inline__ struct page *drm_do_vm
+ 		get_page(page);
  
-+#endif /* !ATOMIC64_INIT */
-+
-+void FASTCALL(__page_cache_release(struct page *));
-+
-+#ifdef CONFIG_HUGETLB_PAGE
-+void put_page(struct page *page);
-+#else
- static inline void put_page(struct page *page)
+ 		DRM_DEBUG
+-		    ("baddr = 0x%lx page = 0x%p, offset = 0x%lx, count=%d\n",
++		    ("baddr = 0x%lx page = 0x%p, offset = 0x%lx, count=%ld\n",
+ 		     baddr, __va(agpmem->memory->memory[offset]), offset,
+ 		     page_count(page));
+ 
+--- mm10/fs/proc/task_mmu.c	2005-11-07 07:39:46.000000000 +0000
++++ mm11/fs/proc/task_mmu.c	2005-11-09 14:40:00.000000000 +0000
+@@ -422,7 +422,7 @@ static struct numa_maps *get_numa_maps(c
+  	for (vaddr = vma->vm_start; vaddr < vma->vm_end; vaddr += PAGE_SIZE) {
+ 		page = follow_page(mm, vaddr, 0);
+ 		if (page) {
+-			int count = page_mapcount(page);
++			long count = page_mapcount(page);
+ 
+ 			if (count)
+ 				md->mapped++;
+--- mm10/mm/page_alloc.c	2005-11-09 14:38:03.000000000 +0000
++++ mm11/mm/page_alloc.c	2005-11-09 14:40:00.000000000 +0000
+@@ -126,7 +126,7 @@ static void bad_page(const char *functio
  {
- 	if (put_page_testzero(page))
- 		__page_cache_release(page);
- }
--
--#endif		/* CONFIG_HUGETLB_PAGE */
-+#endif	/* !CONFIG_HUGETLB_PAGE */
+ 	printk(KERN_EMERG "Bad page state at %s (in process '%s', page %p)\n",
+ 		function, current->comm, page);
+-	printk(KERN_EMERG "flags:0x%0*lx mapping:%p mapcount:%d count:%d\n",
++	printk(KERN_EMERG "flags:0x%0*lx mapping:%p mapcount:%ld count:%ld\n",
+ 		(int)(2*sizeof(unsigned long)), (unsigned long)page->flags,
+ 		page->mapping, page_mapcount(page), page_count(page));
+ 	printk(KERN_EMERG "Backtrace:\n");
+--- mm10/mm/rmap.c	2005-11-09 14:40:00.000000000 +0000
++++ mm11/mm/rmap.c	2005-11-09 14:40:00.000000000 +0000
+@@ -64,12 +64,12 @@ static inline void validate_anon_vma(str
+ #ifdef RMAP_DEBUG
+ 	struct anon_vma *anon_vma = find_vma->anon_vma;
+ 	struct vm_area_struct *vma;
+-	unsigned int mapcount = 0;
++	unsigned int vmacount = 0;
+ 	int found = 0;
  
- /*
-  * Multiple processes may "see" the same page. E.g. for untouched
-@@ -601,29 +699,6 @@ static inline pgoff_t page_index(struct 
- }
- 
- /*
-- * The atomic page->_mapcount, like _count, starts from -1:
-- * so that transitions both from it and to it can be tracked,
-- * using atomic_inc_and_test and atomic_add_negative(-1).
-- */
--static inline void reset_page_mapcount(struct page *page)
--{
--	atomic_set(&(page)->_mapcount, -1);
--}
--
--static inline int page_mapcount(struct page *page)
--{
--	return atomic_read(&(page)->_mapcount) + 1;
--}
--
--/*
-- * Return true if this page is mapped into pagetables.
-- */
--static inline int page_mapped(struct page *page)
--{
--	return atomic_read(&(page)->_mapcount) >= 0;
--}
--
--/*
-  * Error return values for the *_nopage functions
+ 	list_for_each_entry(vma, &anon_vma->head, anon_vma_node) {
+-		mapcount++;
+-		BUG_ON(mapcount > 100000);
++		vmacount++;
++		BUG_ON(vmacount > 100000);
+ 		if (vma == find_vma)
+ 			found = 1;
+ 	}
+@@ -289,7 +289,7 @@ pte_t *page_check_address(struct page *p
+  * repeatedly from either page_referenced_anon or page_referenced_file.
   */
- #define NOPAGE_SIGBUS	(NULL)
---- mm09/include/linux/rmap.h	2005-11-07 07:39:58.000000000 +0000
-+++ mm10/include/linux/rmap.h	2005-11-09 14:40:00.000000000 +0000
-@@ -74,18 +74,6 @@ void page_add_anon_rmap(struct page *, s
- void page_add_file_rmap(struct page *);
- void page_remove_rmap(struct page *);
+ static int page_referenced_one(struct page *page,
+-	struct vm_area_struct *vma, unsigned int *mapcount, int ignore_token)
++	struct vm_area_struct *vma, long *mapcount, int ignore_token)
+ {
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	unsigned long address;
+@@ -322,7 +322,7 @@ out:
  
--/**
-- * page_dup_rmap - duplicate pte mapping to a page
-- * @page:	the page to add the mapping to
-- *
-- * For copy_page_range only: minimal extract from page_add_rmap,
-- * avoiding unnecessary tests (already checked) so it's quicker.
-- */
--static inline void page_dup_rmap(struct page *page)
--{
--	atomic_inc(&page->_mapcount);
--}
--
- /*
-  * Called from mm/vmscan.c to handle paging out
+ static int page_referenced_anon(struct page *page, int ignore_token)
+ {
+-	unsigned int mapcount;
++	long mapcount;
+ 	struct anon_vma *anon_vma;
+ 	struct vm_area_struct *vma;
+ 	int referenced = 0;
+@@ -355,7 +355,7 @@ static int page_referenced_anon(struct p
   */
---- mm09/mm/memory.c	2005-11-07 07:39:59.000000000 +0000
-+++ mm10/mm/memory.c	2005-11-09 14:40:00.000000000 +0000
-@@ -414,8 +414,7 @@ copy_one_pte(struct mm_struct *dst_mm, s
- 	if (vm_flags & VM_SHARED)
- 		pte = pte_mkclean(pte);
- 	pte = pte_mkold(pte);
--	get_page(page);
--	page_dup_rmap(page);
-+	get_page_dup_rmap(page);
- 	rss[!!PageAnon(page)]++;
- 
- out_set_pte:
---- mm09/mm/rmap.c	2005-11-09 14:38:03.000000000 +0000
-+++ mm10/mm/rmap.c	2005-11-09 14:40:00.000000000 +0000
-@@ -450,7 +450,7 @@ int page_referenced(struct page *page, i
- void page_add_anon_rmap(struct page *page,
- 	struct vm_area_struct *vma, unsigned long address)
+ static int page_referenced_file(struct page *page, int ignore_token)
  {
--	if (atomic_inc_and_test(&page->_mapcount)) {
-+	if (get_page_mapped_testone(page)) {
- 		struct anon_vma *anon_vma = vma->anon_vma;
+-	unsigned int mapcount;
++	long mapcount;
+ 	struct address_space *mapping = page->mapping;
+ 	pgoff_t pgoff = page->index << (PAGE_CACHE_SHIFT - PAGE_SHIFT);
+ 	struct vm_area_struct *vma;
+@@ -600,7 +600,7 @@ out:
+ #define CLUSTER_MASK	(~(CLUSTER_SIZE - 1))
  
- 		BUG_ON(!anon_vma);
-@@ -474,8 +474,7 @@ void page_add_file_rmap(struct page *pag
+ static void try_to_unmap_cluster(unsigned long cursor,
+-	unsigned int *mapcount, struct vm_area_struct *vma)
++	long *mapcount, struct vm_area_struct *vma)
  {
- 	BUG_ON(PageAnon(page));
- 	BUG_ON(!pfn_valid(page_to_pfn(page)));
--
--	if (atomic_inc_and_test(&page->_mapcount))
-+	if (get_page_mapped_testone(page))
- 		inc_page_state(nr_mapped);
- }
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	pgd_t *pgd;
+@@ -712,7 +712,7 @@ static int try_to_unmap_file(struct page
+ 	unsigned long cursor;
+ 	unsigned long max_nl_cursor = 0;
+ 	unsigned long max_nl_size = 0;
+-	unsigned int mapcount;
++	long mapcount;
  
-@@ -487,8 +486,8 @@ void page_add_file_rmap(struct page *pag
+ 	spin_lock(&mapping->i_mmap_lock);
+ 	vma_prio_tree_foreach(vma, &iter, &mapping->i_mmap, pgoff, pgoff) {
+@@ -768,7 +768,7 @@ static int try_to_unmap_file(struct page
+ 				try_to_unmap_cluster(cursor, &mapcount, vma);
+ 				cursor += CLUSTER_SIZE;
+ 				vma->vm_private_data = (void *) cursor;
+-				if ((int)mapcount <= 0)
++				if (mapcount <= 0)
+ 					goto out;
+ 			}
+ 			vma->vm_private_data = (void *) max_nl_cursor;
+--- mm10/mm/swapfile.c	2005-11-09 14:38:03.000000000 +0000
++++ mm11/mm/swapfile.c	2005-11-09 14:40:00.000000000 +0000
+@@ -308,7 +308,7 @@ static inline int page_swapcount(struct 
   */
- void page_remove_rmap(struct page *page)
+ int can_share_swap_page(struct page *page)
  {
--	if (atomic_add_negative(-1, &page->_mapcount)) {
--		BUG_ON(page_mapcount(page) < 0);
-+	BUG_ON(!page_mapcount(page));
-+	if (put_page_mapped_testzero(page)) {
- 		/*
- 		 * It would be tidy to reset the PageAnon mapping here,
- 		 * but that might overwrite a racing page_add_anon_rmap
+-	int count;
++	long count;
+ 
+ 	BUG_ON(!PageLocked(page));
+ 	count = page_mapcount(page);

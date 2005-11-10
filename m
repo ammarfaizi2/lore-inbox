@@ -1,80 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbVKJN1F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750862AbVKJN1l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750853AbVKJN1F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 08:27:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750852AbVKJN1E
+	id S1750862AbVKJN1l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 08:27:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbVKJN1l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 08:27:04 -0500
-Received: from moraine.clusterfs.com ([66.96.26.190]:36274 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S1750853AbVKJN1D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 08:27:03 -0500
-From: Nikita Danilov <nikita@clusterfs.com>
-MIME-Version: 1.0
+	Thu, 10 Nov 2005 08:27:41 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:50909 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750856AbVKJN1k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 08:27:40 -0500
+Date: Thu, 10 Nov 2005 14:26:36 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, len.brown@intel.com, jgarzik@pobox.com,
+       tony.luck@intel.com, bcollins@debian.org, scjody@modernduck.com,
+       dwmw2@infradead.org, rolandd@cisco.com, davej@codemonkey.org.uk,
+       axboe@suse.de, shaggy@austin.ibm.com, sfrench@us.ibm.com
+Subject: Re: merge status
+Message-ID: <20051110132636.GB9584@elf.ucw.cz>
+References: <20051109133558.513facef.akpm@osdl.org> <1131573041.8541.4.camel@mulgrave> <Pine.LNX.4.64.0511091358560.4627@g5.osdl.org> <1131575124.8541.9.camel@mulgrave> <20051109150141.0bcbf9e3.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17267.19126.260133.903822@gargle.gargle.HOWL>
-Date: Thu, 10 Nov 2005 16:27:18 +0300
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: typedefs and structs
-Newsgroups: gmane.linux.kernel
-In-Reply-To: <20051110091517.2e9db750@werewolf.auna.net>
-References: <20051107204136.GG19593@austin.ibm.com>
-	<1131412273.14381.142.camel@localhost.localdomain>
-	<20051108232327.GA19593@austin.ibm.com>
-	<B68D1F72-F433-4E94-B755-98808482809D@mac.com>
-	<20051109003048.GK19593@austin.ibm.com>
-	<m27jbihd1b.fsf@Douglas-McNaughts-Powerbook.local>
-	<20051109004808.GM19593@austin.ibm.com>
-	<19255C96-8B64-4615-A3A7-9E5A850DE398@mac.com>
-	<20051109111640.757f399a@werewolf.auna.net>
-	<Pine.LNX.4.58.0511090816300.4260@shell2.speakeasy.net>
-	<20051109192028.GP19593@austin.ibm.com>
-	<Pine.LNX.4.61.0511091459440.12760@chaos.analogic.com>
-	<Pine.LNX.4.58.0511091347570.31338@shell3.speakeasy.net>
-	<20051110091517.2e9db750@werewolf.auna.net>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+Content-Disposition: inline
+In-Reply-To: <20051109150141.0bcbf9e3.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J.A. Magallon writes:
+Hi!
 
-[...]
+> > it's my contributors who drop me in it
+> > by leaving their patch sets until you declare a kernel, dumping the
+> > integration testing on me in whatever time window is left.
+> 
+> Yes, I think I'm noticing an uptick in patches as soon as a kernel is
+> released.
+> 
+> It's a bit irritating, and is unexpected (here, at least).  I guess people
+> like to hold onto their work for as long as possible so when they release
+> it, it's in the best possible shape.
+> 
+> I guess all we can do is to encourage people to merge up when it's working,
+> not when it's time to merge it into mainline.
 
- > > 
- > > However, if the code is as follows:
- > > 	void foo (void) {
- > > 		int myvar = 0;
- > > 		printf("%d\n", myvar);
- > > 		bar(&myvar);
- > > 		printf("%d\n", myvar);
- > > 	}
- > > If bar is declared in _another_ file as
- > > 	void bar (const int * var);
- > > then I think the compiler can validly cache the value of 'myvar' for the
- > > second printf without re-reading it. Correct/incorrect?
- > > 
- > 
- > Nope. You can't trust bar() not doing something like
- > 
- > bar(const int* local_var)
- > {
- >    ... use local_var as ro...
- >    extern int myvar;
- >    myvar = 7;
- > }
- > 
- > For the compiler to do that, you must tag bar() with attribute(pure).
+Well, merge when previous stuff is way easier, because you can just do
+cg-diff. When my previous changes enter mainline, it is suddenly very
+easy to generate next patch. [And it makes sense, it is
 
-extern declaration in your version of bar() cannot refer to the
-automatic variable myvar in foo().
+cg-diff -r origin:
 
- > 
- > --
- > J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
- > werewolf!able!es                         \         It's better when it's free
- > Mandriva Linux release 2006.1 (Cooker) for i586
- > Linux 2.6.14-jam1 (gcc 4.0.2 (4.0.2-1mdk for Mandriva Linux release 2006.1))
+"let's see what I missed].
 
-Nikita.
+								Pavel
+-- 
+Thanks, Sharp!

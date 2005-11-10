@@ -1,80 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbVKJUUp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbVKJUVn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751225AbVKJUUp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 15:20:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbVKJUUp
+	id S1751226AbVKJUVn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 15:21:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbVKJUVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 15:20:45 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:33446 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751225AbVKJUUp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 15:20:45 -0500
-Date: Fri, 11 Nov 2005 02:00:00 +0530
-From: Dinakar Guniguntala <dino@in.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       john stultz <johnstul@us.ibm.com>
-Subject: Re: IO-APIC problem with 2.6.14-rt9
-Message-ID: <20051110203000.GB16301@in.ibm.com>
-Reply-To: dino@in.ibm.com
-References: <20051110200226.GA18780@in.ibm.com> <20051110200205.GA4696@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 10 Nov 2005 15:21:43 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:62941 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP
+	id S1751226AbVKJUVm (ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 15:21:42 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: New Linux Development Model
+Date: Thu, 10 Nov 2005 20:21:27 +0000
+User-Agent: KMail/1.8.92
+Cc: marado@isp.novis.pt, Linux-kernel@vger.kernel.org, fawadlateef@gmail.com,
+       hostmaster@ed-soft.at, jerome.lacoste@gmail.com, carlsj@yahoo.com,
+       Bill Davidsen <tmrbill@tmr.com>
+References: <Pine.LNX.4.44.0511101500060.24169-100000@gaimboi.tmr.com>
+In-Reply-To: <Pine.LNX.4.44.0511101500060.24169-100000@gaimboi.tmr.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051110200205.GA4696@elte.hu>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200511102021.27662.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 10, 2005 at 09:02:05PM +0100, Ingo Molnar wrote:
-> 
-> * Dinakar Guniguntala <dino@in.ibm.com> wrote:
-> 
-> > Hi,
-> > 
-> > I get this on boot with 2.6.14-rt9
-> > 
-> > Intel machine check architecture supported.
-> > Intel machine check reporting enabled on CPU#3.
-> > CPU3: Intel P4/Xeon Extended MCE MSRs (12) available
-> > CPU3: Intel(R) Xeon(TM) MP CPU 2.50GHz stepping 05
-> > Total of 4 processors activated (11165.69 BogoMIPS).
-> > ENABLING IO-APIC IRQs
-> > ..TIMER: vector=0x31 pin1=2 pin2=-1
-> > ..MP-BIOS bug: 8254 timer not connected to IO-APIC
-> > ...trying to set up timer (IRQ0) through the 8259A ...  failed.
-> > ...trying to set up timer as Virtual Wire IRQ... failed.
-> > ...trying to set up timer as ExtINT IRQ... failed :(.
-> > Kernel panic - not syncing: IO-APIC + timer doesn't work!  Boot with apic=debug and send a report.  Then try booting with the
-> 
-> does it help if you edit include/asm-i386/timex.h and change this line:
-> 
-> //#define ARCH_HAS_READ_CURRENT_TIMER  1
-> 
-> to:
-> 
-> #define ARCH_HAS_READ_CURRENT_TIMER  1
-> 
-> ?
+On Thursday 10 November 2005 20:08, Bill Davidsen wrote:
+> On Thu, 10 Nov 2005, Alistair John Strachan wrote:
+> > On Wednesday 09 November 2005 20:10, Marcos Marado wrote:
+> > > On Wed, 2005-11-09 at 14:05 -0500, Bill Davidsen wrote:
+> > > > With the current firmware and driver a "scan" shows 14 connectible
+> > > > points outside an apartment building (only one secured in any way ;-)
+> > > > whic is just what Windows shows. With the stock kernel zero are
+> > > > found. That's not stable that's moribund.
+> > >
+> > > Sorry to disagree, but I use the stock kernel version of ipw2100 almost
+> > > daily, with no problems.
+> >
+> > I concur, ipw2200 is also fully functional here. This sounds like a
+> > genuine bug, or a mis-configured system, not a criticism of the current
+> > Linux development model.
+>
+> Given that using recent firmware and drive software works and stock
+> doesn't, I personally have a hard time saying that the configuration is
+> wrong. Being old-fashioned I conclude that the thing you change to fix a
+> problem is most likely the thing that caused the problem in the first
+> place.
+>
+> can't speak to the 2100, I have a 2200, and with the current firmware and
+> driver it works.
 
-It works !!  Thanks Ingo for the immediate response
+You need to use *exactly the right version* of the firmware (2.2 I believe) 
+with the ipw2200 driver in 2.6.14. Non-2.2 firmwares just don't work with the 
+1.0.0 driver (though the latest firmware obviously works with 1.0.8).
 
-Just a clarification. The comment in the file include/asm-i386/timex.h
-says
+Are you using WPA{,2}? The driver in 2.6.14 doesn't do WPA, only WEP.
 
-	/*
-	 * On an Athlon64 the cycles-based estimator is off by a
-	 * factor of 2: udelay(100) takes 200 usecs. With the non-TSC
-	 * based estimator the timings are precise. So turn it off.
-	 */
-	#define ARCH_HAS_READ_CURRENT_TIMER     1
+-- 
+Cheers,
+Alistair.
 
-Does this mean that this is not Athlon specific and needs to be
-changed? I have a IBM x255 with Xeon processors
-
-	-Dinakar
-
-
-
-
-
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

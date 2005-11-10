@@ -1,79 +1,169 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbVKJXS7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbVKJXVA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932255AbVKJXS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 18:18:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932254AbVKJXS7
+	id S932263AbVKJXVA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 18:21:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbVKJXVA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 18:18:59 -0500
-Received: from mail.kroah.org ([69.55.234.183]:53671 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932253AbVKJXS6 (ORCPT
+	Thu, 10 Nov 2005 18:21:00 -0500
+Received: from hulk.vianw.pt ([195.22.31.43]:46514 "EHLO hulk.vianw.pt")
+	by vger.kernel.org with ESMTP id S932263AbVKJXU7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 18:18:58 -0500
-Date: Thu, 10 Nov 2005 15:01:26 -0800
-From: Greg KH <greg@kroah.com>
-To: Jan Beulich <JBeulich@novell.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/39] NLKD - early/late CPU up/down notification
-Message-ID: <20051110230126.GA5381@kroah.com>
-References: <43720DAE.76F0.0078.0@novell.com> <43720E2E.76F0.0078.0@novell.com> <43720E72.76F0.0078.0@novell.com> <43720EAF.76F0.0078.0@novell.com> <20051109164544.GB32068@kroah.com> <43723B57.76F0.0078.0@novell.com> <20051109171919.GA32761@kroah.com> <437307BC.76F0.0078.0@novell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <437307BC.76F0.0078.0@novell.com>
-User-Agent: Mutt/1.5.11
+	Thu, 10 Nov 2005 18:20:59 -0500
+Message-ID: <4373D5D1.9070908@esoterica.pt>
+Date: Thu, 10 Nov 2005 23:20:49 +0000
+From: Paulo da Silva <psdasilva@esoterica.pt>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Accessing file mapped data inside the kernel
+References: <437258CD.8060206@esoterica.pt> <Pine.LNX.4.64.0511092143400.19282@hermes-1.csi.cam.ac.uk> <4372A5F6.7030306@esoterica.pt> <Pine.LNX.4.64.0511100918490.25186@hermes-1.csi.cam.ac.uk>
+In-Reply-To: <Pine.LNX.4.64.0511100918490.25186@hermes-1.csi.cam.ac.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 10, 2005 at 08:41:32AM +0100, Jan Beulich wrote:
-> >>> Greg KH <greg@kroah.com> 09.11.05 18:19:19 >>>
-> >On Wed, Nov 09, 2005 at 06:09:27PM +0100, Jan Beulich wrote:
-> >> >>> Greg KH <greg@kroah.com> 09.11.05 17:45:44 >>>
-> >> >#ifdef in the .h file is not needed.  Please fix your email client
-> to
-> >> >send patches properly.
-> >> 
-> >> It's not needed, sure, but by having it there I just wanted to make
-> >> clear that this is something that never can be called from a module
-> >> (after all, why should one find out at modpost time (and maybe even
-> miss
-> >> the message since there are so many past eventual symbol resolution
-> >> warnings) when one can already at compile time.
-> >
-> >If it isn't present, and you do a build, you will still get the error
-> at
-> >build time, just during a different part of it.  Adding #ifdef just
-> to
-> >move the error to a different part of the build isn't needed. 
-> Remember,
-> >we want to not use #ifdef at all if we can ever help it.
-> 
-> I understand that. But you don't see my point, so I'll try to explain
-> the background: When discovering the reason for the kallsyms change
-> (also posted with the other NLKD patches) not functioning with
-> CONFIG_MODVERSIONS and binutils between 2.16.90 and 2.16.91.0.3 I
-> realized that the warning messages from the modpost build stage are very
-> easy to overlook (in fact, all reporters of the problem overlooked them
-> as well as I did on the first build attempting to reproduce the
-> problem).
+Anton Altaparmakov wrote:
 
-When you try to load the module, you will get the error again, right in
-your kernel/system log, which explicitly shows that you had a problem.
+>On Thu, 10 Nov 2005, Paulo da Silva wrote:
+>  
+>
+>>Anton Altaparmakov wrote:
+>>    
+>>
+>>>On Wed, 9 Nov 2005, Paulo da Silva wrote:
+>>>      
+>>>
+>>>>I posted about this a few days ago but got no responses
+>>>>so far! I think this should be a trivial question for those
+>>>>involved in the kernel internals. May be I didn't develop
+>>>>the problem enough to be understood.
+>>>>
+>>>>So, here is the question reformulated.
+>>>>
+>>>>A given file system must supply a procedure for mmap.
+>>>>
+>>>>int <fsname>_file_mmap(struct file * file, struct vm_area_struct * vma)
+>>>>{
+>>>> int addr;
+>>>> addr=generic_file_mmap(file,vma);
+>>>> <Code to access addr pointed bytes or vma->vm_start>
+>>>> return addr;
+>>>>}
+>>>>
+>>>>I could verify that "addr" is what is returned to the user as
+>>>>a pointer to a string of bytes that maps a file when a user
+>>>>program calls mmap or mmap2.
+>>>>
+>>>>In the user program, I can access those bytes (read/write)
+>>>>as, for ex., a char pointer.
+>>>>
+>>>>I don't know how to access those bytes inside the kernel
+>>>>at the point <Code to access addr pointed bytes or vma->vm_start>
+>>>>
+>>>>First trys led the program that invoked mmap to block.
+>>>>I thought that there's something to do with a previous
+>>>>  down_write(&current->mm->mmap_sem);
+>>>>If I execute
+>>>>  up_write(&current->mm->mmap_sem);
+>>>>before accessing the data the block situation does not
+>>>>occur anymore. I would like to hear something about
+>>>>this.
+>>>>
+>>>>Anyway, I tryed to use "copy_from_user" but I got
+>>>>garbage, not the file contents! Using "strncpy" crashes
+>>>>the kernel (UML)!
+>>>>
+>>>>Can someone please write a fragment of code to safely
+>>>>access those bytes, copying them to and from a
+>>>>kernel char pointed area so that they are read/written
+>>>>to the file?
+>>>>        
+>>>>
+>>>Why do you want to do that?  If you explain what you are trying to do it may
+>>>be possible to help you better.  It is almost 100% certain that your are
+>>>going about it in completely the wrong way, so please describe what you are
+>>>trying to do...
+>>> 
+>>>      
+>>>
+>>Just try to understand the kernel filesystem.
+>>So far I could understand the 1st layer of
+>>reading and writing. mmap seems to be a
+>>difficult task however. So, I made a 1st try
+>>looking at mmap supplied by the filesystem,
+>>but I couldn't even succeed with a printk
+>>of the mapped area! I would like to understand
+>>what is the meaning of the address (int) returned
+>>by generic_file_mmap that is also into vma->vm_start
+>>and is returned to the user as a char pointer.
+>>I thought that this address, being accessible
+>>by a user program as a char pointer, should also
+>>be accessible by a copy-from-user inside the
+>>kernel. Unfortunately, this didn't happen!
+>>Why? That's my question. Did I make any mistake?
+>>A basic fragment of code showing how to access
+>>that area could enlight me so that I could go
+>>deeply into the code.
+>>
+>>Ex.
+>>Suppose a file has a string of text ("foo")
+>>and the user calls mmap.
+>>
+>>Why does this code not work?
+>>
+>>The supplied filesystem mmap is "generic_file_mmap".
+>>So, I changed it to foo_file_mmap as follows:
+>>
+>>int foo_file_mmap(struct file * file, struct vm_area_struct * vma)
+>>{
+>>
+>> int addr;
+>> char tstr[100];
+>> addr=generic_file_mmap(file,vma);
+>> up_write(&current->mm->mmap_sem); /* Without this the user program is dead
+>>locked */
+>> copy_from_user(tstr,(char*)addr,4);
+>> printk("%s",tstr);
+>>
+>> return addr;
+>>}
+>>    
+>>
+>
+>That's what I thought.  You are doing completely the wrong thing.  mmap() 
+>does not read anything, it just creates the page tables.  Only after that, 
+>when the user tries to access the memory, does a page fault occur (because 
+>the page does not exist) and the page fault handler kicks in which leads 
+>to the file system's ->readpage() being called which fills the accessed 
+>page with data.  Subsequent accesses to the same address (or any other 
+>address belonging to the same page) are direct memory accesses.  When the 
+>user tries to access an address outside the page, another page fault 
+>occurs and the page corresponding to the new address is faulted in, etc...
+>
+>So what you are trying to do makes no sense from a kernel point of view at 
+>all.  If you want to read page cache data in the kernel (this is what you 
+>are actually trying to do but going about it in the wrong way), you want 
+>to use read_cache_page(), then kmap() or kmap_atomic() of the page, then 
+>access the data, then kunmap() or kunmap_atomic(), then finally 
+>page_cache_release().
+>
+>  
+>
+Thank you for your explanation! Things are becoming more
+clear now ...
+I thought of something like that before - not so elaborated ...
+but I became confused because the "page fault" could occur
+also at the point I referred. However, today I saw that there is
+more "processing" in do_mmap_pgoff after filesystem xxx_file_map
+gets called. I have to look at this ... My next step.
 
-> This basically means these messages are almost useless, and
-> detection of the problem will likely be deferred to the first attempt to
-> load an offending module (which, as in the case named, may lead to an
-> unusable kernel). Hence, at least until this build problem gets
-> addressed I continue to believe that adding the preprocessor conditional
-> is the better way of dealing with potential issues. Sure I know that
-> hundreds of other symbols possibly causing the same problem aren't
-> protected...
+BTW, why isn't there a full comented template about filesystems?
+Every examples and docs I found are from k 2.4.x! May be someone
+could rewrite them for 2.6 and in some cases add the lacking mmap.
 
-Don't try to do things to fix your prior problems in your patch, with
-changes today so that you don't do it again in the future :)
+Thank you.
+Paulo
 
-The build process properly notifies the builder of the problem, if they
-ignore it, there's really nothing more we can do about it, right?
-
-thanks,
-
-greg k-h

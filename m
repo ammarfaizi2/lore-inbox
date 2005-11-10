@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbVKJMwB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbVKJM5h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750828AbVKJMwB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 07:52:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbVKJMwA
+	id S1750829AbVKJM5h (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 07:57:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbVKJM5h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 07:52:00 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:12496 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750828AbVKJMv7 (ORCPT
+	Thu, 10 Nov 2005 07:57:37 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:43411 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750833AbVKJM5g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 07:51:59 -0500
-Date: Thu, 10 Nov 2005 04:51:44 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH 01/15] mm: poison struct page for ptlock
-Message-Id: <20051110045144.40751a42.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0511101233530.6896@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com>
-	<Pine.LNX.4.61.0511100142160.5814@goblin.wat.veritas.com>
-	<20051109181022.71c347d4.akpm@osdl.org>
-	<Pine.LNX.4.61.0511100215150.6138@goblin.wat.veritas.com>
-	<20051109185645.39329151.akpm@osdl.org>
-	<20051110120624.GB32672@elte.hu>
-	<Pine.LNX.4.61.0511101233530.6896@goblin.wat.veritas.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 10 Nov 2005 07:57:36 -0500
+Message-ID: <437343B1.5000809@redhat.com>
+Date: Thu, 10 Nov 2005 07:57:21 -0500
+From: Peter Staubach <staubach@redhat.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.4.1 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Al Viro <viro@ftp.linux.org.uk>
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 1/2] handling 64bit values for st_ino]
+References: <20051110003024.GD7992@ftp.linux.org.uk>
+In-Reply-To: <20051110003024.GD7992@ftp.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> wrote:
->
-> On Thu, 10 Nov 2005, Ingo Molnar wrote:
-> > 
-> > yuck. What is the real problem btw? AFAICS there's enough space for a 
-> > 2-word spinlock in struct page for pagetables.
-> 
-> Yes.  There is no real problem.  But my patch offends good taste.
-> 
+Al Viro wrote:
 
-Isn't it going to overrun page.lru with CONFIG_DEBUG_SPINLOCK?
+>[My apologies, forgot to Cc the first half...]
+>
+>Date: Thu, 10 Nov 2005 00:27:29 +0000
+>From: Al Viro <viro@ftp.linux.org.uk>
+>To: Linus Torvalds <torvalds@osdl.org>
+>Subject: [PATCH 1/2] handling 64bit values for st_ino
+>User-Agent: Mutt/1.4.1i
+>
+>	We certainly do not want 64bit kernel ino_t, since that would
+>screw icache lookups for no good reason; fs with 64bit keys used to
+>identify inodes can just use iget5().
+>  
+>
+
+Has this potential degradation been measured?  This is a lot of extra
+complexity which needs to justified by the resulting performance.
+
+>	Fix is pretty cheap and consists of two parts:
+>1) widen struct kstat ->ino to u64, add a macro (check_inumber()) to
+>be used in callers of ->getattr() that want to store ->ino in possibly
+>narrower fields and care about overflows (stuff like sys_old_stat() with
+>its 16bit st_ino clearly doesn't ;-)
+>
+
+It seems to me that a type with a name which better matches the intended
+semantics would be a better choice than u64.  Even something like ino64_t
+would help file systems maintainers to correctly implement the appropriate
+support.
+
+    Thanx...
+
+       ps

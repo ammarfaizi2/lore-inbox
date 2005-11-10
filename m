@@ -1,375 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbVKJA2E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751111AbVKJA14@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751114AbVKJA2E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 19:28:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbVKJA2D
+	id S1751111AbVKJA14 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 19:27:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751113AbVKJA14
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 19:28:03 -0500
-Received: from rwcrmhc13.comcast.net ([216.148.227.118]:44440 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1751114AbVKJA2B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 19:28:01 -0500
-Message-ID: <43729405.6080601@namesys.com>
-Date: Wed, 09 Nov 2005 16:27:49 -0800
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: [Fwd: [PATCH 2/2] reiser4-fix-kbuild.patch]
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------040601050607020605010706"
+	Wed, 9 Nov 2005 19:27:56 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:28824 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751111AbVKJA1z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Nov 2005 19:27:55 -0500
+Date: Wed, 9 Nov 2005 18:27:47 -0600
+To: Vadim Lobanov <vlobanov@speakeasy.net>
+Cc: "J.A. Magallon" <jamagallon@able.es>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Douglas McNaught <doug@mcnaught.org>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org
+Subject: Re: typedefs and structs
+Message-ID: <20051110002746.GW19593@austin.ibm.com>
+References: <20051108232327.GA19593@austin.ibm.com> <B68D1F72-F433-4E94-B755-98808482809D@mac.com> <20051109003048.GK19593@austin.ibm.com> <m27jbihd1b.fsf@Douglas-McNaughts-Powerbook.local> <20051109004808.GM19593@austin.ibm.com> <19255C96-8B64-4615-A3A7-9E5A850DE398@mac.com> <20051109111640.757f399a@werewolf.auna.net> <Pine.LNX.4.58.0511090816300.4260@shell2.speakeasy.net> <20051109192028.GP19593@austin.ibm.com> <Pine.LNX.4.58.0511091339090.31338@shell3.speakeasy.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0511091339090.31338@shell3.speakeasy.net>
+User-Agent: Mutt/1.5.6+20040907i
+From: linas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040601050607020605010706
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Wed, Nov 09, 2005 at 01:43:10PM -0800, Vadim Lobanov was heard to remark:
+> On Wed, 9 Nov 2005, linas wrote:
+> 
+> > I guess the real point that I'd wanted to make, and seems
+> > to have gotten lost, was that by avoiding using pointers,
+> > you end up designing code in a very different way, and you
+> > can find out that often/usually, you don't need structs
+> > filled with a zoo of pointers.
+> >
+> > Minimizing pointers is good: less ref counting is needed,
+> > fewer mallocs are needed, fewer locks are needed
+> > (because of local/private scope!!), and null pointer
+> > deref errors are less likely.
+> >
+> > There are even performance implications: on modern CPU's
+> > there's a very long pipeline to memory (hundreds of cycles
+> > for a cache miss! Really! Worse if you have run out of
+> > TLB entries!). So walking a long linked list chasing
+> > pointers can really really hurt performance.
+> >
+> > By using refs instead of pointers, it helps you focus
+> > on the issue of "do I really need to store this pointer
+> > somewhere? Will I really need it later, or can I be done
+> > with it now?".
+> >
+> > I don't know if the idea of "using fewer pointers" can
+> > actually be carried out in the kernel. For starters,
+> > the stack is way too short to be able to put much on it.
+> 
+> I really see the two issues at hand as being very much orthogonal to
+> each other.
 
-tomorrow we will send ~3 minor fixes that were complained about, and
-then we will be ready for the next round of complaints.
+Yes. I accidentally linked them, see below.
 
-To the users, the first of these two patches is very necessary, as it
-has several important bug fixes (things got unsettled after the last
-round of changes, apologies to users.....).
+> Namely, you put data on the stack when you need it in the local
+> 'context' only, whereas you put data globally when it needs to be
+> available globally. 
 
-zam is working on a livelock bug fix.
+Yes. But there's some flexibility.
 
-Hans
-
-
---------------040601050607020605010706
-Content-Type: message/rfc822;
- name="[PATCH 2/2] reiser4-fix-kbuild.patch.eml"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="[PATCH 2/2] reiser4-fix-kbuild.patch.eml"
-
-Return-Path: <vs@namesys.com>
-Delivered-To: reiser@namesys.com
-Received: (qmail 2955 invoked from network); 8 Nov 2005 16:43:56 -0000
-Received: from ppp83-237-26-120.pppoe.mtu-net.ru (HELO ?192.168.1.10?) (83.237.26.120)
-  by thebsh.namesys.com with SMTP; 8 Nov 2005 16:43:56 -0000
-Message-ID: <4370D5C5.2010008@namesys.com>
-Date: Tue, 08 Nov 2005 19:43:49 +0300
-From: "Vladimir V. Saveliev" <vs@namesys.com>
-Organization: Namesys
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-Subject: [PATCH 2/2] reiser4-fix-kbuild.patch
-X-Enigmail-Version: 0.91.0.0
-Content-Type: multipart/mixed;
- boundary="------------070406080508060804010302"
-
-This is a multi-part message in MIME format.
---------------070406080508060804010302
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-
---------------070406080508060804010302
-Content-Type: text/plain;
- name="reiser4-fix-kbuild.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="reiser4-fix-kbuild.patch"
-
-
-From: Hans Reiser <reiser@namesys.com>
-
-This patch adds Makefile to each of reiser/ subdirectories.
-This is to allow compiling of a single file.
-
-Signed-off-by: Vladimir V. Saveliev <vs@namesys.com>
-
-
- fs/reiser4/Makefile                    |  139 ++++++++++-----------------------
- fs/reiser4/plugin/Makefile             |   26 ++++++
- fs/reiser4/plugin/compress/Makefile    |    6 +
- fs/reiser4/plugin/dir/Makefile         |    5 +
- fs/reiser4/plugin/disk_format/Makefile |    5 +
- fs/reiser4/plugin/file/Makefile        |    7 +
- fs/reiser4/plugin/item/Makefile        |   18 ++++
- fs/reiser4/plugin/node/Makefile        |    5 +
- fs/reiser4/plugin/security/Makefile    |    4 
- fs/reiser4/plugin/space/Makefile       |    4 
- 10 files changed, 126 insertions(+), 93 deletions(-)
-
-diff -puN fs/reiser4/Makefile~reiser4-fix-kbuild fs/reiser4/Makefile
---- linux-2.6.14-rc5-mm1/fs/reiser4/Makefile~reiser4-fix-kbuild	2005-11-08 19:34:21.057312853 +0300
-+++ linux-2.6.14-rc5-mm1-vs/fs/reiser4/Makefile	2005-11-08 19:34:21.089322803 +0300
-@@ -4,97 +4,50 @@
+> The C++ references are nothing more than syntactic
+> sugar (and we all know what they say about that and semicolons) for
+> pointers,
  
- obj-$(CONFIG_REISER4_FS) += reiser4.o
- 
--reiser4-y := \
--		   debug.o \
--		   jnode.o \
--		   znode.o \
--		   key.o \
--		   pool.o \
--		   tree_mod.o \
--		   estimate.o \
--		   carry.o \
--		   carry_ops.o \
--		   lock.o \
--		   tree.o \
--		   context.o \
--		   tap.o \
--		   coord.o \
--		   block_alloc.o \
--		   txnmgr.o \
--		   kassign.o \
--		   flush.o \
--		   wander.o \
--		   eottl.o \
--		   search.o \
--		   page_cache.o \
--		   seal.o \
--		   dscale.o \
--		   flush_queue.o \
--		   ktxnmgrd.o \
--		   blocknrset.o \
--		   super.o \
--		   super_ops.o \
--		   fsdata.o \
--		   export_ops.o \
--		   oid.o \
--		   tree_walk.o \
--		   inode.o \
--		   vfs_ops.o \
--		   as_ops.o \
--		   emergency_flush.o \
--		   entd.o\
--		   readahead.o \
--		   cluster.o \
--		   crypt.o \
--		   status_flags.o \
--		   init_super.o \
--		   safe_link.o \
--           \
--		   plugin/plugin.o \
--		   plugin/plugin_set.o \
--		   plugin/node/node.o \
--		   plugin/object.o \
--		   plugin/inode_ops.o \
--		   plugin/inode_ops_rename.o \
--		   plugin/file_ops.o \
--		   plugin/file_ops_readdir.o \
--		   plugin/file_plugin_common.o \
--		   plugin/file/file.o \
--		   plugin/file/tail_conversion.o \
--		   plugin/file/symlink.o \
--		   plugin/file/cryptcompress.o \
--		   plugin/dir_plugin_common.o \
--		   plugin/dir/hashed_dir.o \
--		   plugin/dir/seekable_dir.o \
--		   plugin/digest.o \
--		   plugin/node/node40.o \
--           \
--		   plugin/compress/minilzo.o \
--		   plugin/compress/compress.o \
--		   plugin/compress/compress_mode.o \
--           \
--		   plugin/item/static_stat.o \
--		   plugin/item/sde.o \
--		   plugin/item/cde.o \
--		   plugin/item/blackbox.o \
--		   plugin/item/internal.o \
--		   plugin/item/tail.o \
--		   plugin/item/ctail.o \
--		   plugin/item/extent.o \
--		   plugin/item/extent_item_ops.o \
--		   plugin/item/extent_file_ops.o \
--		   plugin/item/extent_flush_ops.o \
--           \
--		   plugin/hash.o \
--		   plugin/fibration.o \
--		   plugin/tail_policy.o \
--		   plugin/item/item.o \
--           \
--		   plugin/security/perm.o \
--		   plugin/space/bitmap.o \
--           \
--		   plugin/disk_format/disk_format40.o \
--		   plugin/disk_format/disk_format.o \
--	   \
--		   plugin/regular.o
-+reiser4-objs := 		\
-+	debug.o			\
-+	jnode.o			\
-+	znode.o			\
-+	key.o			\
-+	pool.o			\
-+	tree_mod.o		\
-+	estimate.o		\
-+	carry.o			\
-+	carry_ops.o		\
-+	lock.o			\
-+	tree.o			\
-+	context.o		\
-+	tap.o			\
-+	coord.o			\
-+	block_alloc.o		\
-+	txnmgr.o		\
-+	kassign.o		\
-+	flush.o			\
-+	wander.o		\
-+	eottl.o			\
-+	search.o		\
-+	page_cache.o		\
-+	seal.o			\
-+	dscale.o		\
-+	flush_queue.o		\
-+	ktxnmgrd.o		\
-+	blocknrset.o		\
-+	super.o			\
-+	super_ops.o		\
-+	fsdata.o		\
-+	export_ops.o		\
-+	oid.o			\
-+	tree_walk.o		\
-+	inode.o			\
-+	vfs_ops.o		\
-+	as_ops.o		\
-+	emergency_flush.o	\
-+	entd.o			\
-+	readahead.o		\
-+	cluster.o		\
-+	crypt.o			\
-+	status_flags.o		\
-+	init_super.o		\
-+	safe_link.o
- 
-+obj-$(CONFIG_REISER4_FS) += plugin/
-diff -puN /dev/null fs/reiser4/plugin/Makefile
---- /dev/null	2003-09-23 21:59:22.000000000 +0400
-+++ linux-2.6.14-rc5-mm1-vs/fs/reiser4/plugin/Makefile	2005-11-08 19:34:21.089322803 +0300
-@@ -0,0 +1,26 @@
-+obj-$(CONFIG_REISER4_FS) += plugins.o
-+
-+plugins-objs :=			\
-+	plugin.o		\
-+	plugin_set.o		\
-+	object.o		\
-+	inode_ops.o		\
-+	inode_ops_rename.o	\
-+	file_ops.o		\
-+	file_ops_readdir.o	\
-+	file_plugin_common.o	\
-+	dir_plugin_common.o	\
-+	digest.o		\
-+	hash.o			\
-+	fibration.o		\
-+	tail_policy.o		\
-+	regular.o
-+
-+obj-$(CONFIG_REISER4_FS) += item/
-+obj-$(CONFIG_REISER4_FS) += file/
-+obj-$(CONFIG_REISER4_FS) += dir/
-+obj-$(CONFIG_REISER4_FS) += node/
-+obj-$(CONFIG_REISER4_FS) += compress/
-+obj-$(CONFIG_REISER4_FS) += space/
-+obj-$(CONFIG_REISER4_FS) += disk_format/
-+obj-$(CONFIG_REISER4_FS) += security/
-diff -puN /dev/null fs/reiser4/plugin/compress/Makefile
---- /dev/null	2003-09-23 21:59:22.000000000 +0400
-+++ linux-2.6.14-rc5-mm1-vs/fs/reiser4/plugin/compress/Makefile	2005-11-08 19:34:21.093324047 +0300
-@@ -0,0 +1,6 @@
-+obj-$(CONFIG_REISER4_FS) += compress_plugins.o
-+
-+compress_plugins-objs :=	\
-+	compress.o		\
-+	minilzo.o		\
-+	compress_mode.o
-diff -puN /dev/null fs/reiser4/plugin/dir/Makefile
---- /dev/null	2003-09-23 21:59:22.000000000 +0400
-+++ linux-2.6.14-rc5-mm1-vs/fs/reiser4/plugin/dir/Makefile	2005-11-08 19:34:21.089322803 +0300
-@@ -0,0 +1,5 @@
-+obj-$(CONFIG_REISER4_FS) += dir_plugins.o
-+
-+dir_plugins-objs :=	\
-+	hashed_dir.o	\
-+	seekable_dir.o
-diff -puN /dev/null fs/reiser4/plugin/disk_format/Makefile
---- /dev/null	2003-09-23 21:59:22.000000000 +0400
-+++ linux-2.6.14-rc5-mm1-vs/fs/reiser4/plugin/disk_format/Makefile	2005-11-08 19:34:21.097325291 +0300
-@@ -0,0 +1,5 @@
-+obj-$(CONFIG_REISER4_FS) += df_plugins.o
-+
-+df_plugins-objs :=	\
-+	disk_format40.o	\
-+	disk_format.o
-diff -puN /dev/null fs/reiser4/plugin/file/Makefile
---- /dev/null	2003-09-23 21:59:22.000000000 +0400
-+++ linux-2.6.14-rc5-mm1-vs/fs/reiser4/plugin/file/Makefile	2005-11-08 19:34:21.089322803 +0300
-@@ -0,0 +1,7 @@
-+obj-$(CONFIG_REISER4_FS) += file_plugins.o
-+
-+file_plugins-objs :=		\
-+	file.o			\
-+	tail_conversion.o	\
-+	symlink.o		\
-+	cryptcompress.o
-diff -puN /dev/null fs/reiser4/plugin/item/Makefile
---- /dev/null	2003-09-23 21:59:22.000000000 +0400
-+++ linux-2.6.14-rc5-mm1-vs/fs/reiser4/plugin/item/Makefile	2005-11-08 19:34:21.089322803 +0300
-@@ -0,0 +1,18 @@
-+obj-$(CONFIG_REISER4_FS) += item_plugins.o
-+
-+item_plugins-objs :=		\
-+	item.o			\
-+	static_stat.o		\
-+	sde.o			\
-+	cde.o			\
-+	blackbox.o		\
-+	internal.o		\
-+	tail.o			\
-+	ctail.o			\
-+	extent.o		\
-+	extent_item_ops.o	\
-+	extent_file_ops.o	\
-+	extent_flush_ops.o
-+
-+
-+
-diff -puN /dev/null fs/reiser4/plugin/node/Makefile
---- /dev/null	2003-09-23 21:59:22.000000000 +0400
-+++ linux-2.6.14-rc5-mm1-vs/fs/reiser4/plugin/node/Makefile	2005-11-08 19:34:21.093324047 +0300
-@@ -0,0 +1,5 @@
-+obj-$(CONFIG_REISER4_FS) += node_plugins.o
-+
-+node_plugins-objs :=	\
-+	node.o		\
-+	node40.o
-diff -puN /dev/null fs/reiser4/plugin/security/Makefile
---- /dev/null	2003-09-23 21:59:22.000000000 +0400
-+++ linux-2.6.14-rc5-mm1-vs/fs/reiser4/plugin/security/Makefile	2005-11-08 19:34:21.097325291 +0300
-@@ -0,0 +1,4 @@
-+obj-$(CONFIG_REISER4_FS) += security_plugins.o
-+
-+security_plugins-objs :=	\
-+	perm.o
-diff -puN /dev/null fs/reiser4/plugin/space/Makefile
---- /dev/null	2003-09-23 21:59:22.000000000 +0400
-+++ linux-2.6.14-rc5-mm1-vs/fs/reiser4/plugin/space/Makefile	2005-11-08 19:34:21.093324047 +0300
-@@ -0,0 +1,4 @@
-+obj-$(CONFIG_REISER4_FS) += space_plugins.o
-+
-+space_plugins-objs := \
-+	bitmap.o
+Yes.
 
-_
+> and so I don't see how they would affect the choices at all.
+> Choosing where the data goes should be done according to the data's
+> lifetime, not the specifics of how functions are declared.
 
---------------070406080508060804010302--
+My apologies for linking the idea of references to fewer pointers.
+They're not linked, except in how I discovered them.
 
+I once had a project (that used threads, so it was "kernel-like",
+in that race conditions had to be dealt with).  One day, for the 
+the hell of it, I decided to create a struct and keep it on the 
+stack, instead of mallocing it.  Since this struct was accessed 
+only by a few small, well-defined routines that did not keep any 
+pointers to it, this worked just fine. And skipping the malloc/free
+felt good, so I liked it.
 
+Then I thought that maybe I could push the idea, see how far I 
+could go. Well, of course, the code was filled with various 
+objects, all of which *seemed* to be (or seemed to need to be) 
+long-lifetime objects. And they all stored pointers to one-another,
+since they all needed to get access to one-another at various points,
+for various reasons. 
 
+Well, I really wanted to alloc objects on stack, and so that forced
+me to think about how to get rid of pointers (since a pointer to 
+an object on stack is deadly). And that forced me to think about
+lifetime. And some of this thinking was quite hard.  But encouraged
+by some modest success at first, I found that I was able to 
+eliminate almost all the pointers, and almost all the mallocs 
+(maybe several dozen of each, scattered accross maybe several dozen
+structs). And I was flabbergasted, since the resulting program
+actually got smaller in the process, and faster. And the 
+null-pointer derefs vanished. 
 
---------------040601050607020605010706--
+Now, maybe this was specific to the project, and can't be replicated
+elsewhere.  But this was a communcations daemon: it basically 
+was a pool of threads, each thread handling a long-lived,
+stateful "session" of requests and responses from some remote server,
+and so while its not the kernel, that's a reasonably complex thing. 
+
+I'm not crazy enough to suggest that one could do the same thing 
+in the Linux kernel, since one probably can't, but now that we're 
+here and all, it does make me wonder.  FWIW, the two designs of
+the commo daemon were radically different; things that were sliced 
+one way got reworked to flow and be handled in a completely 
+different order.  You can't just get rid of pointers with some 
+trivial restructuring; you have to figure out how not to need them.
+
+--linas

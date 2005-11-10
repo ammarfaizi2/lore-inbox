@@ -1,62 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751391AbVKJBts@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbVKJBvW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751391AbVKJBts (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Nov 2005 20:49:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbVKJBts
+	id S1751396AbVKJBvW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Nov 2005 20:51:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbVKJBvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Nov 2005 20:49:48 -0500
-Received: from gold.veritas.com ([143.127.12.110]:43827 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1751394AbVKJBts (ORCPT
+	Wed, 9 Nov 2005 20:51:22 -0500
+Received: from gold.veritas.com ([143.127.12.110]:62003 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1751396AbVKJBvV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Nov 2005 20:49:48 -0500
-Date: Thu, 10 Nov 2005 01:48:36 +0000 (GMT)
+	Wed, 9 Nov 2005 20:51:21 -0500
+Date: Thu, 10 Nov 2005 01:50:10 +0000 (GMT)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@goblin.wat.veritas.com
 To: Andrew Morton <akpm@osdl.org>
-cc: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH 05/15] mm: unbloat get_futex_key
+cc: Paul Mackerras <paulus@samba.org>,
+       Ben Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH 06/15] mm: remove ppc highpte
 In-Reply-To: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0511100147130.5814@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0511100148410.5814@goblin.wat.veritas.com>
 References: <Pine.LNX.4.61.0511100139550.5814@goblin.wat.veritas.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 10 Nov 2005 01:49:47.0826 (UTC) FILETIME=[0814B920:01C5E599]
+X-OriginalArrivalTime: 10 Nov 2005 01:51:21.0307 (UTC) FILETIME=[3FCCCAB0:01C5E599]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The follow_page changes in get_futex_key have left it with two almost
-identical blocks, when handling the rare case of a futex in a nonlinear
-vma.  get_user_pages will itself do that follow_page, and its additional
-find_extend_vma is hardly any overhead since the vma is already cached.
-Let's just delete the follow_page block and let get_user_pages do it.
+ppc's HIGHPTE config option was removed in 2.5.28, and nobody seems to
+have wanted it enough to restore it: so remove its traces from pgtable.h
+and pte_alloc_one.  Or supply an alternative patch to config it back?
 
 Signed-off-by: Hugh Dickins <hugh@veritas.com>
 ---
 
- kernel/futex.c |   15 ---------------
- 1 files changed, 15 deletions(-)
+ arch/ppc/mm/pgtable.c     |   13 +------------
+ include/asm-ppc/pgtable.h |   10 ++++------
+ 2 files changed, 5 insertions(+), 18 deletions(-)
 
---- mm04/kernel/futex.c	2005-11-07 07:39:59.000000000 +0000
-+++ mm05/kernel/futex.c	2005-11-09 14:38:47.000000000 +0000
-@@ -201,21 +201,6 @@ static int get_futex_key(unsigned long u
- 	 * from swap.  But that's a lot of code to duplicate here
- 	 * for a rare case, so we simply fetch the page.
- 	 */
+--- mm05/arch/ppc/mm/pgtable.c	2005-11-07 07:39:08.000000000 +0000
++++ mm06/arch/ppc/mm/pgtable.c	2005-11-09 14:39:02.000000000 +0000
+@@ -111,18 +111,7 @@ pte_t *pte_alloc_one_kernel(struct mm_st
+ 
+ struct page *pte_alloc_one(struct mm_struct *mm, unsigned long address)
+ {
+-	struct page *ptepage;
 -
--	/*
--	 * Do a quick atomic lookup first - this is the fastpath.
--	 */
--	page = follow_page(mm, uaddr, FOLL_TOUCH|FOLL_GET);
--	if (likely(page != NULL)) {
--		key->shared.pgoff =
--			page->index << (PAGE_CACHE_SHIFT - PAGE_SHIFT);
--		put_page(page);
--		return 0;
--	}
+-#ifdef CONFIG_HIGHPTE
+-	gfp_t flags = GFP_KERNEL | __GFP_HIGHMEM | __GFP_REPEAT;
+-#else
+-	gfp_t flags = GFP_KERNEL | __GFP_REPEAT;
+-#endif
 -
--	/*
--	 * Do it the general way.
--	 */
- 	err = get_user_pages(current, mm, uaddr, 1, 0, 0, &page, NULL);
- 	if (err >= 0) {
- 		key->shared.pgoff =
+-	ptepage = alloc_pages(flags, 0);
+-	if (ptepage)
+-		clear_highpage(ptepage);
+-	return ptepage;
++	return alloc_pages(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO, 0);
+ }
+ 
+ void pte_free_kernel(pte_t *pte)
+--- mm05/include/asm-ppc/pgtable.h	2005-11-07 07:39:55.000000000 +0000
++++ mm06/include/asm-ppc/pgtable.h	2005-11-09 14:39:02.000000000 +0000
+@@ -750,13 +750,11 @@ static inline pmd_t * pmd_offset(pgd_t *
+ 	(((address) >> PAGE_SHIFT) & (PTRS_PER_PTE - 1))
+ #define pte_offset_kernel(dir, addr)	\
+ 	((pte_t *) pmd_page_kernel(*(dir)) + pte_index(addr))
+-#define pte_offset_map(dir, addr)		\
+-	((pte_t *) kmap_atomic(pmd_page(*(dir)), KM_PTE0) + pte_index(addr))
+-#define pte_offset_map_nested(dir, addr)	\
+-	((pte_t *) kmap_atomic(pmd_page(*(dir)), KM_PTE1) + pte_index(addr))
+ 
+-#define pte_unmap(pte)		kunmap_atomic(pte, KM_PTE0)
+-#define pte_unmap_nested(pte)	kunmap_atomic(pte, KM_PTE1)
++#define pte_offset_map(dir,addr)	pte_offset_kernel(dir,addr)
++#define pte_offset_map_nested(dir,addr)	pte_offset_kernel(dir,addr)
++#define pte_unmap(pte)			do { } while(0)
++#define pte_unmap_nested(pte)		do { } while(0)
+ 
+ extern pgd_t swapper_pg_dir[PTRS_PER_PGD];
+ 

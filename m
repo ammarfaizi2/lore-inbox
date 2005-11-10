@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbVKJSbV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbVKJSci@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932134AbVKJSbV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 13:31:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbVKJSbV
+	id S1751186AbVKJSci (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 13:32:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbVKJScK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 13:31:21 -0500
-Received: from iabervon.org ([66.92.72.58]:36877 "EHLO iabervon.org")
-	by vger.kernel.org with ESMTP id S1751186AbVKJSbU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 13:31:20 -0500
-Date: Thu, 10 Nov 2005 13:31:16 -0500 (EST)
-From: Daniel Barkalow <barkalow@iabervon.org>
-To: Petr Baudis <pasky@suse.cz>
-cc: Junio C Hamano <junkio@cox.net>, "H. Peter Anvin" <hpa@zytor.com>,
-       git@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] GIT 0.99.9g
-In-Reply-To: <20051110180311.GR30496@pasky.or.cz>
-Message-ID: <Pine.LNX.4.64.0511101317500.25300@iabervon.org>
-References: <7vmzkc2a3e.fsf@assigned-by-dhcp.cox.net> <43737EC7.6090109@zytor.com>
- <7v4q6k1jp0.fsf@assigned-by-dhcp.cox.net> <20051110180311.GR30496@pasky.or.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 10 Nov 2005 13:32:10 -0500
+Received: from ams-iport-1.cisco.com ([144.254.224.140]:48904 "EHLO
+	ams-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1751186AbVKJScE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 13:32:04 -0500
+Subject: [git patch review 4/7] [IB] mthca: fix posting of atomic operations
+From: Roland Dreier <rolandd@cisco.com>
+Date: Thu, 10 Nov 2005 18:31:55 +0000
+To: linux-kernel@vger.kernel.org, openib-general@openib.org
+X-Mailer: IB-patch-reviewer
+Content-Transfer-Encoding: 8bit
+Message-ID: <1131647515831-8ba0b803b8214b97@cisco.com>
+In-Reply-To: <1131647515831-b1175b20ec8fd319@cisco.com>
+X-OriginalArrivalTime: 10 Nov 2005 18:31:56.0871 (UTC) FILETIME=[07C8DD70:01C5E625]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Nov 2005, Petr Baudis wrote:
+The size of work requests for atomic operations was computed
+incorrectly in mthca: all sizeofs need to be divided by 16.
 
-> Dear diary, on Thu, Nov 10, 2005 at 06:44:43PM CET, I got a letter
-> where Junio C Hamano <junkio@cox.net> said that...
-> > "H. Peter Anvin" <hpa@zytor.com> writes:
-> > 
-> > > May I *STRONGLY* urge you to name that something different. 
-> > > "lost+found" is a name with special properties in Unix; for example, 
-> > > many backup solutions will ignore a directory with that name.
-> > 
-> > Yeah, the original proposal (in TODO list) explicitly stated why
-> > I chose lost-found instead of lost+found back then, and somebody
-> > on the list (could have been Pasky but I may be mistaken) said
-> > not to worry.
-> 
-> It was the Large Angry SCM. I share your concern.
-> 
-> > In any case, if we go the route Daniel suggests, we would not be
-> > storing anything on the filesystem ourselves so this would be a
-> > non-issue.
-> 
-> I like Daniel's route as well, for the separate command. But it would be
-> nice to also have a way to tell git-fsck-cache to save the lost+found
-> refs as it goes, much like the filesystem fsck. So if it reports some
-> unreachable refs, you will not need to tell it to do the same job
-> _another_ time to find out the refs and pass them to gitk. Then again,
-> if we do this, the utility of a separate command will be questionable.
+Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
+Signed-off-by: Roland Dreier <rolandd@cisco.com>
 
-Maybe git-fsck-objects should have an option to make it note dangling 
-objects of certain types, and then count these as reachable? (That is, you 
-want the head of an unreachable chain listed for recovery, but not other 
-things reachable from it; you also may want the list of blobs and trees 
-not reachable either from a ref or from something listed for recovery, but 
-not omitting a blob reachable only from an unreachable tree)
+---
 
-	-Daniel
-*This .sig left intentionally blank*
+ drivers/infiniband/hw/mthca/mthca_qp.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
+
+applies-to: 308dce81364b1cbb563942a1a57146c1808e8911
+62abb8416f1923f4cef50ce9ce841b919275e3fb
+diff --git a/drivers/infiniband/hw/mthca/mthca_qp.c b/drivers/infiniband/hw/mthca/mthca_qp.c
+index 7f39af4..190c1dc 100644
+--- a/drivers/infiniband/hw/mthca/mthca_qp.c
++++ b/drivers/infiniband/hw/mthca/mthca_qp.c
+@@ -1556,8 +1556,8 @@ int mthca_tavor_post_send(struct ib_qp *
+ 				}
+ 
+ 				wqe += sizeof (struct mthca_atomic_seg);
+-				size += sizeof (struct mthca_raddr_seg) / 16 +
+-					sizeof (struct mthca_atomic_seg);
++				size += (sizeof (struct mthca_raddr_seg) +
++					 sizeof (struct mthca_atomic_seg)) / 16;
+ 				break;
+ 
+ 			case IB_WR_RDMA_WRITE:
+@@ -1876,8 +1876,8 @@ int mthca_arbel_post_send(struct ib_qp *
+ 				}
+ 
+ 				wqe += sizeof (struct mthca_atomic_seg);
+-				size += sizeof (struct mthca_raddr_seg) / 16 +
+-					sizeof (struct mthca_atomic_seg);
++				size += (sizeof (struct mthca_raddr_seg) +
++					 sizeof (struct mthca_atomic_seg)) / 16;
+ 				break;
+ 
+ 			case IB_WR_RDMA_READ:
+---
+0.99.9e

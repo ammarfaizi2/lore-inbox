@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbVKJRfb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbVKJRiY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751178AbVKJRfb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Nov 2005 12:35:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbVKJRfb
+	id S1751180AbVKJRiY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Nov 2005 12:38:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbVKJRiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Nov 2005 12:35:31 -0500
-Received: from aragorn.bbn.com ([128.33.0.62]:12785 "EHLO aragorn.bbn.com")
-	by vger.kernel.org with ESMTP id S1751178AbVKJRfb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Nov 2005 12:35:31 -0500
-Message-ID: <437384D4.9060304@bbn.com>
-Date: Thu, 10 Nov 2005 12:35:16 -0500
-From: "Armando L. Caro, Jr." <acaro@bbn.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050819)
-X-Accept-Language: en-us, en
+	Thu, 10 Nov 2005 12:38:24 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:59665 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751131AbVKJRiY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Nov 2005 12:38:24 -0500
+Date: Thu, 10 Nov 2005 18:38:22 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Matthew Dobson <colpatch@us.ibm.com>
+Cc: Pekka J Enberg <penberg@cs.Helsinki.FI>, kernel-janitors@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 8/8] Inline 3 functions
+Message-ID: <20051110173822.GD5376@stusta.de>
+References: <436FF51D.8080509@us.ibm.com> <436FF894.8090204@us.ibm.com> <Pine.LNX.4.58.0511080937060.9530@sbz-30.cs.Helsinki.FI> <4370F7AE.5090505@us.ibm.com> <20051110104211.GB5376@stusta.de> <43737D94.2060408@us.ibm.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: motivation for TCP's cwnd clamp?
-X-Enigmail-Version: 0.92.0.0
-OpenPGP: id=A9CE816E
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43737D94.2060408@us.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been reading through the TCP code for kernel versions 2.4 and
-2.6, and have noticed that both versions not only cache cwnd state, but
-also use the cached state to clamp the cwnd of subsquent TCP connections
-to the same destination. I can see the benefit (under some conditions)
-for caching cwnd state, and it's useful (for the conditions where
-caching hurts performance) that 2.6 offers the ability to turn this off.
-However, I do not understand the motivation for setting a hard clamp on
-the cwnd growth based on a cached cwnd. With this feature, a single
-unlucky TCP connection to a destination will hurt the performance of all
-subsequent TCP connections to that destination for as long as the state
-is cached. I imagine that there must be a benefit that outweighs this
-disadvantage, but I don't see it. Can anyone shed light on this for me?
+On Thu, Nov 10, 2005 at 09:04:20AM -0800, Matthew Dobson wrote:
+> Adrian Bunk wrote:
+> > 
+> >>Well, no, they aren't on the hot path.  I just figured since they are only
+> >>ever called from one other function, why not inline them?  If the sentiment
+> >>is that it's a BAD idea, I'll drop it.
+> > 
+> > 
+> > And if there will one day be a second caller, noone will remember to 
+> > remove the inline...
+> 
+> So are you suggesting that we don't mark these functions 'inline', or are
+> you just pointing out that we'll need to drop the 'inline' if there is ever
+> another caller?
 
-Thanks in advance... (please CC me on the replies, because I am not
-subscribed to the list)
+I'd suggest to not mark them 'inline'.
+
+> -Matt
+
+cu
+Adrian
 
 -- 
-Armando
-www.armandocaro.net
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
